@@ -539,7 +539,7 @@ function load(){
   try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};return d}}catch(e){}
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
-function save(){localStorage.setItem(LS_KEY,JSON.stringify(S))}
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 
@@ -551,11 +551,16 @@ const dbReady=new Promise(res=>{
   rq.onsuccess=e=>{DB=e.target.result;res()};
   rq.onerror=()=>res();
 });
-function addRec(ctx,label,blob){return dbReady.then(()=>new Promise(res=>{
+function addRec(ctx,label,blob,ts){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res(null);
   const tx=DB.transaction("recs","readwrite");
-  tx.objectStore("recs").add({ctx,label,ts:Date.now(),blob});
+  tx.objectStore("recs").add({ctx,label,ts:ts||Date.now(),blob});
   tx.oncomplete=()=>res(true);tx.onerror=()=>res(null);
+}))}
+function allRecs(){return dbReady.then(()=>new Promise(res=>{
+  if(!DB)return res([]);
+  const rq=DB.transaction("recs").objectStore("recs").getAll();
+  rq.onsuccess=()=>res(rq.result||[]);rq.onerror=()=>res([]);
 }))}
 function getRecs(ctx){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res([]);
@@ -572,6 +577,110 @@ function countRecs(){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res(0);
   const rq=DB.transaction("recs").objectStore("recs").count();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(0);
 }))}
+
+/* ================= GITHUB SYNC ================= */
+/* Progress + recordings are pushed to a (private) GitHub repo via the Contents API,
+   so any device with the token can load everything. Token lives ONLY in this browser
+   (separate localStorage key — never included in progress.json or JSON exports). */
+const GH_KEY="be12_gh";
+let GH=(function(){try{return JSON.parse(localStorage.getItem(GH_KEY))||{}}catch(e){return{}}})();
+function saveGH(){localStorage.setItem(GH_KEY,JSON.stringify(GH))}
+function ghCfg(){return !!(GH.token&&GH.owner&&GH.repo)}
+const ghBranch=()=>GH.branch||"main";
+async function gh(path,opt={}){
+  const url=`https://api.github.com/repos/${GH.owner}/${GH.repo}${path?"/"+path:""}`;
+  const r=await fetch(url,Object.assign({},opt,{headers:Object.assign({Authorization:"Bearer "+GH.token,Accept:"application/vnd.github+json"},opt.headers||{})}));
+  if(r.status===404)return null;
+  if(!r.ok){let m="";try{m=(await r.json()).message}catch(e){}throw new Error(m||("HTTP "+r.status))}
+  return r.json();
+}
+async function ghSha(path){try{const d=await gh(`contents/${path}?ref=${ghBranch()}`);return(d&&d.sha)||null}catch(e){return null}}
+async function ghPut(path,b64,msg){
+  const body={message:msg,content:b64,branch:ghBranch()};
+  const sha=await ghSha(path);if(sha)body.sha=sha;
+  try{return await gh(`contents/${path}`,{method:"PUT",body:JSON.stringify(body)})}
+  catch(e){const s2=await ghSha(path);if(s2)body.sha=s2;else delete body.sha;
+    return gh(`contents/${path}`,{method:"PUT",body:JSON.stringify(body)})}
+}
+const b64Enc=s=>btoa(unescape(encodeURIComponent(s)));
+const b64Dec=b=>decodeURIComponent(escape(atob(b.replace(/\n/g,""))));
+const blobToB64=blob=>new Promise(res=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.readAsDataURL(blob)});
+function b64ToBlob(b64,type){const bin=atob(b64.replace(/\n/g,""));const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type})}
+let ghTimer=null;
+function ghQueue(){clearTimeout(ghTimer);ghTimer=setTimeout(()=>ghPush(true),5000)}
+function ghStatus(t){const el=document.getElementById("ghStatus");if(el)el.textContent=t}
+function ghMetaText(){return ghCfg()?`Connected: ${GH.owner}/${GH.repo} (${ghBranch()})${GH.last?` · last sync ${new Date(GH.last).toLocaleString()}`:""}${GH.auto?" · ⚡ auto-sync ON":""}`:"Not connected yet"}
+function refreshGhMeta(){const el=document.getElementById("ghMeta");if(el)el.textContent=ghMetaText()}
+async function ghPush(silent){
+  if(!ghCfg()){if(!silent)toast("⚠️ Connect GitHub sync first (My Data tab)");return}
+  ghStatus("Saving progress to GitHub…");
+  try{await ghPut("progress.json",b64Enc(JSON.stringify(S,null,1)),"progress sync "+new Date().toISOString());
+    GH.last=Date.now();saveGH();ghStatus("");toast(silent?"☁️ Auto-synced to GitHub":"☁️ Progress saved to GitHub");refreshGhMeta()}
+  catch(e){ghStatus("");toast("⚠️ GitHub save failed: "+e.message)}
+}
+async function ghPull(){
+  if(!ghCfg())return toast("⚠️ Connect GitHub sync first");
+  ghStatus("Loading progress from GitHub…");
+  try{const d=await gh(`contents/progress.json?ref=${ghBranch()}`);
+    if(!d){ghStatus("");return toast("No progress.json in the repo yet — press “Save to GitHub” on your main device first")}
+    const data=JSON.parse(b64Dec(d.content));
+    if(!data.days)throw new Error("unexpected file format");
+    if(!confirm("Replace the progress on THIS device with the GitHub copy?")){ghStatus("");return}
+    data.tutor=data.tutor||{};S=data;localStorage.setItem(LS_KEY,JSON.stringify(S));
+    GH.last=Date.now();saveGH();ghStatus("");toast("📥 Progress loaded from GitHub");go("home")}
+  catch(e){ghStatus("");toast("⚠️ Load failed: "+e.message)}
+}
+const recName=r=>`${r.ctx}__${r.ts}.webm`;
+function labelFor(ctx){
+  if(ctx.startsWith("phrase")){const p=PHRASES[+ctx.slice(6)];return p?p.p.slice(0,40):"phrase"}
+  const m=ctx.match(/^w(\d+)([A-Za-z]{3})$/);return m?`W${m[1]} ${m[2]}`:ctx;
+}
+async function ghUpRecs(){
+  if(!ghCfg())return toast("⚠️ Connect GitHub sync first");
+  const recs=await allRecs();GH.up=GH.up||{};
+  const todo=recs.filter(r=>!GH.up[recName(r)]);
+  if(!todo.length)return toast("✓ All recordings already uploaded");
+  let n=0;
+  for(const r of todo){
+    ghStatus(`Uploading recording ${n+1}/${todo.length}…`);
+    try{await ghPut("recordings/"+recName(r),await blobToB64(r.blob),"recording upload");GH.up[recName(r)]=1;saveGH();n++}
+    catch(e){ghStatus("");toast(`⚠️ Upload failed after ${n}: ${e.message}`);refreshGhMeta();return}
+  }
+  GH.last=Date.now();saveGH();ghStatus("");toast(`☁️ ${n} recording${n>1?"s":""} uploaded`);go("data");
+}
+async function ghDownRecs(){
+  if(!ghCfg())return toast("⚠️ Connect GitHub sync first");
+  ghStatus("Checking cloud recordings…");
+  try{const list=await gh(`contents/recordings?ref=${ghBranch()}`);
+    if(!list||!Array.isArray(list)||!list.length){ghStatus("");return toast("No recordings in the repo yet")}
+    const local=new Set((await allRecs()).map(recName));GH.up=GH.up||{};
+    const todo=list.filter(f=>f.name.endsWith(".webm")&&!local.has(f.name));
+    if(!todo.length){ghStatus("");return toast("✓ All cloud recordings are already on this device")}
+    let n=0;
+    for(const f of todo){
+      ghStatus(`Downloading ${n+1}/${todo.length}…`);
+      const blob=await gh(`git/blobs/${f.sha}`);
+      const parts=f.name.replace(".webm","").split("__");
+      await addRec(parts[0],labelFor(parts[0]),b64ToBlob(blob.content,"audio/webm"),+parts[1]||Date.now());
+      GH.up[f.name]=1;saveGH();n++;
+    }
+    ghStatus("");toast(`📥 ${n} recording${n>1?"s":""} restored to this device`);go("data")}
+  catch(e){ghStatus("");toast("⚠️ Restore failed: "+e.message)}
+}
+window.ghSetup=async()=>{
+  GH.owner=document.getElementById("ghOwner").value.trim();
+  GH.repo=document.getElementById("ghRepo").value.trim();
+  GH.branch=document.getElementById("ghBranch").value.trim()||"main";
+  GH.token=document.getElementById("ghToken").value.trim();
+  saveGH();
+  if(!ghCfg())return toast("⚠️ Fill in username, repo name and token");
+  ghStatus("Testing connection…");
+  try{const repo=await gh("");if(!repo)throw new Error("repo not found — create it on GitHub first");
+    ghStatus("");toast(`✅ Connected to ${GH.owner}/${GH.repo}${repo.private?" (private ✓)":" — ⚠️ repo is PUBLIC, consider private"}`);refreshGhMeta()}
+  catch(e){ghStatus("");toast("⚠️ Connection failed: "+e.message)}
+};
+window.ghAutoToggle=()=>{GH.auto=!GH.auto;saveGH();toast(GH.auto?"⚡ Auto-sync ON — pushes ~5s after every change":"Auto-sync OFF");go("data")};
+window.ghPush=ghPush;window.ghPull=ghPull;window.ghUpRecs=ghUpRecs;window.ghDownRecs=ghDownRecs;
 
 /* ================= PROGRESS HELPERS ================= */
 const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -1084,6 +1193,36 @@ async function rData(el){
     <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">Sessions completed</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">Audio recordings stored</div></div>
     <div class="stat"><div class="n">${S.startDate}</div><div class="l">Program start date</div></div>
+  </div>
+  <div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
+    <b style="font-size:16px">☁️ GitHub Sync — access everything from any device</b>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">Progress and recordings are saved into a <b>private GitHub repo</b> of yours. Set it up once per device (phone + laptop), then: work → <b>Save to GitHub</b> (or auto-sync) → on the other device press <b>Load from GitHub</b>. Your token is stored only in this browser and is never included in exports or in progress.json.</p>
+    <div class="grid g2" style="gap:10px;margin-bottom:12px">
+      <input id="ghOwner" placeholder="GitHub username" value="${esc(GH.owner||"salomon1010")}">
+      <input id="ghRepo" placeholder="Data repo name (private)" value="${esc(GH.repo||"business-english-data")}">
+      <input id="ghBranch" placeholder="Branch" value="${esc(GH.branch||"main")}">
+      <input id="ghToken" type="password" placeholder="Fine-grained personal access token" value="${esc(GH.token||"")}">
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="ghSetup()">🔗 Connect & test</button>
+      <button class="btn btn-g" onclick="ghPush()">☁️ Save to GitHub</button>
+      <button class="btn btn-g" onclick="ghPull()">📥 Load from GitHub</button>
+      <button class="btn btn-g" onclick="ghUpRecs()">🎙️☁️ Upload recordings (${recN-Object.keys(GH.up||{}).length>0?(recN-Object.keys(GH.up||{}).length)+" new":"0 new"})</button>
+      <button class="btn btn-g" onclick="ghDownRecs()">🎙️📥 Restore recordings</button>
+      <button class="btn ${GH.auto?"btn-p":"btn-g"}" onclick="ghAutoToggle()">${GH.auto?"⚡ Auto-sync ON":"Auto-sync OFF"}</button>
+    </div>
+    <p id="ghMeta" style="font-size:12.5px;color:var(--acc2);margin-top:12px">${ghMetaText()}</p>
+    <p id="ghStatus" style="font-size:12.5px;color:var(--gold);margin-top:4px"></p>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;font-size:13.5px;font-weight:600">📖 One-time setup (2 minutes)</summary>
+      <p style="font-size:13px;color:var(--mut);line-height:1.8;margin-top:8px">
+      1. On GitHub, create a new <b>PRIVATE</b> repo named <b>business-english-data</b> (check “Add a README” so the main branch exists).<br>
+      2. GitHub → your avatar → <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token</b>.<br>
+      3. Name: <i>business-english-sync</i> · Expiration: 1 year · Repository access: <b>Only select repositories → business-english-data</b>.<br>
+      4. Permissions → Repository permissions → <b>Contents: Read and write</b>. Generate and copy the token (starts with <span style="font-family:'JetBrains Mono',monospace">github_pat_…</span>).<br>
+      5. Paste it above and press <b>Connect & test</b>. Repeat steps on your phone with the same token.<br>
+      <span style="color:var(--gold)">Keep the repo private — it will contain your notes and voice recordings.</span></p>
+    </details>
   </div>
   <div class="card" style="margin-top:18px">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
