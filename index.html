@@ -539,7 +539,7 @@ function load(){
   try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};return d}}catch(e){}
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
-function save(){localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
+function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 
@@ -667,6 +667,47 @@ async function ghDownRecs(){
     ghStatus("");toast(`📥 ${n} recording${n>1?"s":""} restored to this device`);go("data")}
   catch(e){ghStatus("");toast("⚠️ Restore failed: "+e.message)}
 }
+/* ---- fully automatic sync ---- */
+let ghRecBusy=false;
+async function ghAutoStart(){
+  if(!ghCfg()||!GH.auto)return;
+  try{
+    const d=await gh(`contents/progress.json?ref=${ghBranch()}`);
+    if(d){
+      const data=JSON.parse(b64Dec(d.content));
+      if(data.days&&(data.savedAt||0)>(S.savedAt||0)){
+        data.tutor=data.tutor||{};S=data;localStorage.setItem(LS_KEY,JSON.stringify(S));
+        GH.last=Date.now();saveGH();toast("☁️ Latest progress loaded from cloud");
+        go(cur.v==="session"?"session":cur.v,cur.arg1,cur.arg2);
+      }else if((S.savedAt||0)>(data.savedAt||0)){ghPush(true)}
+    }else if(S.savedAt){ghPush(true)}
+    ghSyncRecs(false);
+  }catch(e){}
+}
+async function ghSyncRecs(uploadOnly){
+  if(!ghCfg()||ghRecBusy)return;ghRecBusy=true;
+  try{
+    GH.up=GH.up||{};
+    const local=await allRecs();
+    for(const r of local){const nm=recName(r);
+      if(!GH.up[nm]){await ghPut("recordings/"+nm,await blobToB64(r.blob),"rec auto-sync");GH.up[nm]=1;GH.last=Date.now();saveGH()}}
+    if(!uploadOnly){
+      const list=await gh(`contents/recordings?ref=${ghBranch()}`);
+      if(Array.isArray(list)){
+        const have=new Set(local.map(recName));let n=0;
+        for(const f of list){
+          if(!f.name.endsWith(".webm")||have.has(f.name))continue;
+          const b=await gh(`git/blobs/${f.sha}`);
+          const parts=f.name.replace(".webm","").split("__");
+          await addRec(parts[0],labelFor(parts[0]),b64ToBlob(b.content,"audio/webm"),+parts[1]||Date.now());
+          GH.up[f.name]=1;saveGH();n++;
+        }
+        if(n)toast(`📥 ${n} recording${n>1?"s":""} synced from cloud`);
+      }
+    }
+  }catch(e){}
+  ghRecBusy=false;
+}
 window.ghSetup=async()=>{
   GH.owner=document.getElementById("ghOwner").value.trim();
   GH.repo=document.getElementById("ghRepo").value.trim();
@@ -679,7 +720,10 @@ window.ghSetup=async()=>{
     ghStatus("");toast(`✅ Connected to ${GH.owner}/${GH.repo}${repo.private?" (private ✓)":" — ⚠️ repo is PUBLIC, consider private"}`);refreshGhMeta()}
   catch(e){ghStatus("");toast("⚠️ Connection failed: "+e.message)}
 };
-window.ghAutoToggle=()=>{GH.auto=!GH.auto;saveGH();toast(GH.auto?"⚡ Auto-sync ON — pushes ~5s after every change":"Auto-sync OFF");go("data")};
+window.ghAutoToggle=()=>{GH.auto=!GH.auto;saveGH();
+  if(GH.auto){toast("⚡ Full auto-sync ON — everything syncs by itself");ghAutoStart()}
+  else toast("Auto-sync OFF — use the manual buttons");
+  go("data")};
 window.ghPush=ghPush;window.ghPull=ghPull;window.ghUpRecs=ghUpRecs;window.ghDownRecs=ghDownRecs;
 
 /* ================= PROGRESS HELPERS ================= */
@@ -992,6 +1036,7 @@ window.recToggle=async(ctx,label)=>{
       toast("Recording saved 🎙️");
       renderRecs(rec.ctx);
       document.getElementById("streakN").textContent=streak();
+      if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
     rec.mr.start();
     btn.classList.add("recording");st.textContent="Recording… tap to stop";
@@ -1064,6 +1109,7 @@ window.phRec=async ix=>{
       markPracticed();save();
       if(btn){btn.textContent="🎙️ Record";btn.style.borderColor="";btn.style.color=""}
       toast("Recording saved 🎙️");renderPhRecs(ix);
+      if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
     rec.mr.start();btn.textContent="⏹ Stop";btn.style.borderColor="var(--red)";btn.style.color="var(--red)";
   }catch(e){toast("⚠️ Microphone access denied — allow the mic in your browser.")}
@@ -1196,7 +1242,7 @@ async function rData(el){
   </div>
   <div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
     <b style="font-size:16px">☁️ GitHub Sync — access everything from any device</b>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">Progress and recordings are saved into a <b>private GitHub repo</b> of yours. Set it up once per device (phone + laptop), then: work → <b>Save to GitHub</b> (or auto-sync) → on the other device press <b>Load from GitHub</b>. Your token is stored only in this browser and is never included in exports or in progress.json.</p>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">Progress and recordings are saved into a <b>private GitHub repo</b> of yours — your cloud folder. With <b>⚡ auto-sync ON</b>, everything is hands-free: opening the app pulls the newest progress and missing recordings; every change pushes automatically; every recording uploads right after you stop it. The manual buttons are just a fallback. Your token is stored only in this browser and never included in exports or progress.json.</p>
     <div class="grid g2" style="gap:10px;margin-bottom:12px">
       <input id="ghOwner" placeholder="GitHub username" value="${esc(GH.owner||"salomon1010")}">
       <input id="ghRepo" placeholder="Data repo name (private)" value="${esc(GH.repo||"business-english-data")}">
@@ -1271,6 +1317,7 @@ function goSession(){}
   };
 })();
 go("home");
+ghAutoStart();
 </script>
 </body>
 </html>
