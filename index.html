@@ -1641,11 +1641,23 @@ function gramAnalyze(heardRaw){
   }
   return{good,fix};
 }
+/* Chrome quirks: speak() right after cancel() is silently dropped; getVoices()
+   is empty until voiceschanged fires; long utterances stall after ~15s unless
+   the engine is periodically nudged with resume(). */
+let fbSayKeep=null;
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
 window.fbSay=(w,rate)=>{
-  try{speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(w);u.lang="en-US";u.rate=rate||1;
-    const v=speechSynthesis.getVoices().find(v=>v.lang==="en-US")||null;if(v)u.voice=v;
-    speechSynthesis.speak(u);
+  try{
+    speechSynthesis.cancel();clearInterval(fbSayKeep);
+    const u=new SpeechSynthesisUtterance(String(w));u.lang="en-US";u.rate=rate||1;
+    const vs=speechSynthesis.getVoices();
+    const v=vs.find(v=>v.lang==="en-US")||vs.find(v=>/^en([-_]|$)/i.test(v.lang))||null;if(v)u.voice=v;
+    u.onend=u.onerror=()=>clearInterval(fbSayKeep);
+    setTimeout(()=>{
+      speechSynthesis.speak(u);
+      fbSayKeep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}else clearInterval(fbSayKeep)},10000);
+      setTimeout(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending)toast("⚠️ No speech voice available — check your device's text-to-speech settings")},600);
+    },80);
   }catch(e){toast("⚠️ Speech playback not available in this browser")}
 };
 window.fbToggle=()=>{
