@@ -32,6 +32,7 @@ h3{font-size:19px;margin:26px 0 10px}
 p{margin-bottom:12px}
 figure{margin:20px 0 26px}
 figure img{width:100%;border:1px solid var(--line);border-radius:12px;box-shadow:0 6px 24px rgba(28,35,51,.10)}
+figure.small img{max-width:420px;display:block;margin:0 auto}
 figcaption{font-size:13.5px;color:var(--mut);margin-top:8px;text-align:center;font-style:italic}
 ol.steps{counter-reset:st;list-style:none;margin:14px 0 20px}
 ol.steps>li{position:relative;padding:12px 16px 12px 58px;background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
@@ -39,7 +40,6 @@ ol.steps>li::before{counter-increment:st;content:counter(st);position:absolute;l
 ol.steps b{color:var(--ink)}
 .example{background:#fffbeb;border:1px solid #fcd34d;border-left:6px solid #f59e0b;border-radius:12px;padding:16px 20px;margin:16px 0 24px}
 .example .ttl{font-weight:800;color:var(--gold);font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
-.example p{margin-bottom:8px}
 .example ul{padding-left:20px;margin-bottom:8px}
 .say{background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:10px 16px;margin:8px 0;font-style:italic;color:#3730a3}
 .tip{background:#ecfdf5;border:1px solid #a7f3d0;border-left:6px solid #059669;border-radius:12px;padding:14px 18px;margin:16px 0}
@@ -51,35 +51,32 @@ th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);vert
 th{background:#eef2ff;color:#3730a3;font-size:12.5px;text-transform:uppercase;letter-spacing:1px}
 tr:last-child td{border-bottom:none}
 code,kbd{background:#eef2ff;color:#3730a3;border-radius:6px;padding:2px 7px;font-size:13.5px;font-family:'SF Mono',Menlo,Consolas,monospace}
-.pill{display:inline-block;font-size:12px;font-weight:800;padding:3px 12px;border-radius:99px;letter-spacing:.5px}
-.pill.p1{background:#eef2ff;color:#4338ca}.pill.p2{background:#ecfeff;color:#0e7490}.pill.p3{background:#fffbeb;color:#b45309}
-footer{ text-align:center;color:var(--mut);font-size:13.5px;padding:30px 20px;border-top:1px solid var(--line)}
+footer{text-align:center;color:var(--mut);font-size:13.5px;padding:30px 20px;border-top:1px solid var(--line)}
 @media print{header.top{padding:30px}nav.toc{box-shadow:none;margin-top:20px}figure img{box-shadow:none}}
 </style>
 </head>
 <body>
 
 <header class="top">
-  <div class="badge">USER MANUAL</div>
+  <div class="badge">USER MANUAL · v2</div>
   <h1>🗣️ Business English Mastery<br>12-Week System — Complete User Guide</h1>
-  <p>Everything you need to use the app, step by step, with screenshots and real examples — so you can start improving your spoken Business English today, 25 minutes a day.</p>
+  <p>Everything the app can do, step by step, with screenshots and real examples: guided daily sessions, the Shadowing Studio, AI-style speaking feedback, vocabulary building and progress tracking — all private, all on your device.</p>
 </header>
 
 <nav class="toc">
   <h2>Contents</h2>
   <ol>
-    <li><a href="#start">Getting started</a></li>
-    <li><a href="#nav">The navigation bar</a></li>
-    <li><a href="#dashboard">Dashboard — your home base</a></li>
+    <li><a href="#start">Getting started &amp; onboarding</a></li>
+    <li><a href="#nav">Navigation — desktop &amp; phone</a></li>
+    <li><a href="#dashboard">Dashboard</a></li>
     <li><a href="#journey">The 12-Week journey</a></li>
     <li><a href="#session">A daily 25-minute session</a></li>
-    <li><a href="#timer">Using the timer</a></li>
-    <li><a href="#recorder">Recording yourself</a></li>
-    <li><a href="#phrases">Phrases &amp; Idioms bank</a></li>
-    <li><a href="#tutor">Tutor sessions (Tue &amp; Fri)</a></li>
-    <li><a href="#resources">Resources library</a></li>
-    <li><a href="#review">Weekly Reviews &amp; dashboards</a></li>
-    <li><a href="#data">My Data — backup &amp; sync</a></li>
+    <li><a href="#shadow">🎯 Shadowing Studio</a></li>
+    <li><a href="#feedback">🗣️ Speaking feedback explained</a></li>
+    <li><a href="#vocab">📚 Vocabulary, trouble words &amp; quiz</a></li>
+    <li><a href="#phrases">Phrases &amp; Executive Polish</a></li>
+    <li><a href="#progress">Reviews &amp; Progress Studio</a></li>
+    <li><a href="#account">Account, backup &amp; privacy</a></li>
     <li><a href="#week-plan">Your weekly routine at a glance</a></li>
     <li><a href="#faq">FAQ &amp; troubleshooting</a></li>
   </ol>
@@ -87,333 +84,226 @@ footer{ text-align:center;color:var(--mut);font-size:13.5px;padding:30px 20px;bo
 
 <div class="wrap">
 
-<!-- ============ 1. GETTING STARTED ============ -->
+<!-- 1 -->
 <section id="start">
-  <h2 class="sec"><span class="no">1</span>Getting started</h2>
-  <p class="lead">The app is a complete 12-week training program for professional spoken English. You practice <b>6 days a week, 25 focused minutes a day</b>. Everything — your progress, notes, scores and voice recordings — is saved automatically in your browser.</p>
-
+  <h2 class="sec"><span class="no">1</span>Getting started &amp; onboarding</h2>
+  <p class="lead">The app is a complete 12-week training program for professional spoken English: <b>6 days a week, 25 focused minutes a day</b>, with instant feedback on every recording. Everything is saved automatically on your device.</p>
   <ol class="steps">
-    <li><b>Open the app</b> in Chrome, Edge or Safari:<br>
-      • Online: <code>https://salomon1010.github.io/Business-English/</code><br>
-      • Local: <code>http://localhost:8001</code></li>
-    <li><b>Allow microphone access</b> when the browser asks (needed for the voice recorder — the heart of the program).</li>
-    <li><b>Always use the same browser on the same device.</b> Your progress lives in that browser. (Section 12 shows how to back it up or sync between devices.)</li>
-    <li><b>Start with the Dashboard.</b> It always tells you exactly what today's session is — just click <b>“Start today's 25-minute session →”</b>.</li>
+    <li><b>Open the app</b> in Chrome or Edge (best) — <code>https://salomon1010.github.io/Business-English/</code>. On Android, use the browser menu → <b>Add to Home Screen</b> to install it like a real app (it works offline).</li>
+    <li><b>Complete the 60-second welcome:</b> your name → what you do → your #1 goal → your daily practice slot → say one sentence aloud for your baseline score. The whole app personalizes itself around your answers.</li>
+    <li><b>Allow microphone access</b> when asked — the recorder and speaking feedback need it.</li>
+    <li><b>You land in the 🎯 Shadow tab</b> — pick a starter video and do your first 30-second sprint. That's day 1 done.</li>
   </ol>
-
-  <div class="tip"><b>💡 The golden rule:</b> every session must produce <b>evidence</b> — a recording, a transcript, phrases, or correction notes. Watching videos passively does not count. If you didn't record or write anything, it wasn't a real session.</div>
+  <figure class="small"><img src="screenshots/m10-onboarding.png" alt="Onboarding welcome screen"><figcaption>The welcome flow: 5 quick steps, ending with your first speaking score.</figcaption></figure>
+  <div class="tip"><b>💡 The golden rule:</b> every session must produce <b>evidence</b> — a recording, a transcript, saved words, or correction notes. If you didn't record or write anything, it wasn't a real session.</div>
 </section>
 
-<!-- ============ 2. NAV ============ -->
+<!-- 2 -->
 <section id="nav">
-  <h2 class="sec"><span class="no">2</span>The navigation bar</h2>
-  <p class="lead">The bar at the top is how you move around. It is always visible.</p>
-  <figure><img src="screenshots/00-nav.png" alt="Navigation bar"><figcaption>The 7 tabs plus your daily streak counter (🔥) on the right.</figcaption></figure>
-
+  <h2 class="sec"><span class="no">2</span>Navigation — desktop &amp; phone</h2>
+  <figure><img src="screenshots/m00-nav.png" alt="Top navigation bar"><figcaption>Desktop: tabs across the top, with your 🔥 streak on the right.</figcaption></figure>
   <table>
-    <tr><th>Tab</th><th>What it's for</th><th>When you use it</th></tr>
-    <tr><td>🏠 <b>Dashboard</b></td><td>Overview + shortcut to today's session</td><td>Every day, first thing</td></tr>
-    <tr><td>🗺️ <b>12 Weeks</b></td><td>The full program: 12 weeks × 7 days</td><td>To open any practice day</td></tr>
-    <tr><td>💬 <b>Phrases &amp; Idioms</b></td><td>152 business phrases and idioms to master</td><td>Wednesdays + daily review</td></tr>
-    <tr><td>🎓 <b>Tutor</b></td><td>Prepare and log your 2 weekly tutor lessons</td><td>Tuesdays &amp; Fridays</td></tr>
-    <tr><td>📺 <b>Resources</b></td><td>Curated YouTube channels &amp; practice sites</td><td>When a session says “pick a clip”</td></tr>
-    <tr><td>📊 <b>Reviews</b></td><td>Score your week + monthly dashboards</td><td>Every Sunday</td></tr>
-    <tr><td>💾 <b>My Data</b></td><td>Backup, restore and sync your progress</td><td>Once a week (backup!)</td></tr>
+    <tr><th>Tab</th><th>What it's for</th></tr>
+    <tr><td>🏠 <b>Dashboard</b></td><td>Today's session, progress ring, stats — start here every day</td></tr>
+    <tr><td>🗺️ <b>12 Weeks</b></td><td>The full program map: 12 weeks × 7 days</td></tr>
+    <tr><td>💬 <b>Phrases &amp; Idioms</b></td><td>152 business phrases + the 💼 Executive Polish tool</td></tr>
+    <tr><td>🎯 <b>Shadow</b></td><td>The practice lab: clips, looping, recorder, feedback, vocabulary</td></tr>
+    <tr><td>📊 <b>Reviews</b></td><td>Progress Studio charts + Sunday self-reviews</td></tr>
+    <tr><td>👤 <b>Account</b></td><td>Profile, plan, backup &amp; privacy</td></tr>
+    <tr><td>📘 <b>Manual</b></td><td>This guide</td></tr>
   </table>
-
-  <p>The <b>🔥 number</b> on the right is your <b>streak</b> — how many days in a row you have completed a session. Protect it!</p>
+  <p><b>On your phone</b>, the app switches to a bottom icon bar — like any Android app: Home · Weeks · Shadow · Phrases · Progress · ⋯ More (Account, Manual, About).</p>
+  <figure class="small"><img src="screenshots/m09-mobile.png" alt="Mobile view with bottom navigation"><figcaption>Phone view: bottom navigation, everything one tap away.</figcaption></figure>
 </section>
 
-<!-- ============ 3. DASHBOARD ============ -->
+<!-- 3 -->
 <section id="dashboard">
-  <h2 class="sec"><span class="no">3</span>Dashboard — your home base</h2>
-  <p class="lead">The Dashboard removes all decisions: it tells you what to do <i>today</i> and shows your overall progress.</p>
-  <figure><img src="screenshots/01-dashboard.png" alt="Dashboard view"><figcaption>The Dashboard: today's session card (left), progress ring (right), and your key stats.</figcaption></figure>
-
-  <h3>How to use it — step by step</h3>
+  <h2 class="sec"><span class="no">3</span>Dashboard</h2>
+  <p class="lead">Zero decisions: the Dashboard greets you by name, shows your goal and daily slot, and tells you exactly what today's session is.</p>
+  <figure><img src="screenshots/m01-dashboard.png" alt="Dashboard"><figcaption>Today's session card, the progress ring across 3 phases, and your key stats.</figcaption></figure>
   <ol class="steps">
-    <li><b>Read the “Continue where you left off” card.</b> It shows the next unfinished day (e.g. <i>Week 1 · Mon — Pronunciation baseline</i>) with a short description of the task.</li>
-    <li><b>Click “Start today's 25-minute session →”.</b> This takes you straight into the practice screen for that day (see Section 5).</li>
-    <li><b>Check the progress ring.</b> It shows the % of the 84 total sessions completed, split into the three phases: <span class="pill p1">Foundation (W1–4)</span> <span class="pill p2">Workplace Fluency (W5–8)</span> <span class="pill p3">Executive Communication (W9–12)</span></li>
-    <li><b>Glance at your stats:</b> 🔥 streak, 🎙️ recordings saved, 💬 phrases mastered (out of 152), ✅ sessions completed (out of 84), and 🎓 tutor sessions (out of 24).</li>
-    <li><b>Re-read one “Execution rule”</b> at the bottom before you start — they keep your practice honest.</li>
+    <li><b>Read the "Continue where you left off" card</b> and click <b>Start today's 25-minute session →</b>.</li>
+    <li><b>Glance at your stats:</b> 🔥 streak · 🎙️ recordings · 💬 phrases mastered /152 · ✅ sessions /84 · 🎯 shadowing clips saved.</li>
+    <li><b>The ring</b> shows your % of 84 sessions across the three phases: Foundation (W1–4) → Workplace Fluency (W5–8) → Executive Communication (W9–12).</li>
   </ol>
-
-  <div class="example">
-    <div class="ttl">📌 Example — a normal morning</div>
-    <p>It's Tuesday of Week 2. You open the app and the card says: <i>“Week 2 · Tue — What are you working on this week?”</i>. You click <b>Start today's 25-minute session</b>, and 25 minutes later you have two recordings of your weekly status update and 3 corrections written down. Your streak goes from 8 to 9. Done for the day.</p>
-  </div>
 </section>
 
-<!-- ============ 4. JOURNEY ============ -->
+<!-- 4 -->
 <section id="journey">
   <h2 class="sec"><span class="no">4</span>The 12-Week journey</h2>
-  <p class="lead">The <b>🗺️ 12 Weeks</b> tab is the map of the whole program. Each card is one week with its own theme and goal.</p>
-  <figure><img src="screenshots/02-journey.png" alt="12 week journey grid"><figcaption>12 week cards grouped in 3 phases. The 7 small squares on each card are the days — they light up as you complete them.</figcaption></figure>
-
-  <h3>How to open a practice day</h3>
-  <ol class="steps">
-    <li><b>Click the 🗺️ 12 Weeks tab.</b></li>
-    <li><b>Click a week card</b> — for example <i>Week 1: Introductions, role clarity &amp; speech baseline</i>. You'll see the week's goal and its 7 days.</li>
-    <li><b>Click a day row</b> (Mon–Sun) to open that day's guided session.</li>
-    <li><b>The 7 dots</b> on each card show which days are done. When all 7 are filled, the week is complete.</li>
-  </ol>
-
-  <figure><img src="screenshots/03-week-detail.png" alt="Week detail with 7 day rows"><figcaption>Inside a week: the theme, the goal, and the 7 daily sessions. Completed days are marked ✓.</figcaption></figure>
-
-  <h3>The weekly rhythm — every week follows the same pattern</h3>
+  <figure><img src="screenshots/m02-journey.png" alt="12 week map"><figcaption>Each card is a week; the 7 dots are its days. Click a week, then a day, to open a session.</figcaption></figure>
   <table>
-    <tr><th>Day</th><th>Session type</th><th>What you produce</th></tr>
-    <tr><td><b>Mon</b> 🎧</td><td>Pronunciation + shadowing a native-speaker clip</td><td>Transcript + imitation recording</td></tr>
-    <tr><td><b>Tue</b> 🎯</td><td>Business speaking drill <i>(+ Tutor session 1)</i></td><td>Recording v1 → improved v2</td></tr>
-    <tr><td><b>Wed</b> 💬</td><td>Vocabulary + phrase bank building</td><td>10 personal sentences, best-run recording</td></tr>
+    <tr><th>Day</th><th>Session type</th><th>Evidence you produce</th></tr>
+    <tr><td><b>Mon</b> 🎧</td><td>Pronunciation + shadowing a native clip</td><td>Transcript + imitation recording</td></tr>
+    <tr><td><b>Tue</b> 🎯</td><td>Business speaking drill</td><td>Recording v1 → improved v2</td></tr>
+    <tr><td><b>Wed</b> 💬</td><td>Vocabulary + phrase bank</td><td>10 personal sentences + recording</td></tr>
     <tr><td><b>Thu</b> 🧑‍💼</td><td>Meeting simulation / Q&amp;A</td><td>Simulated meeting recording</td></tr>
-    <tr><td><b>Fri</b> 🔊</td><td>Pronunciation + delivery repair <i>(+ Tutor session 2)</i></td><td>Before/after recording</td></tr>
+    <tr><td><b>Fri</b> 🔊</td><td>Pronunciation + delivery repair</td><td>Before/after recording</td></tr>
     <tr><td><b>Sat</b> 🎤</td><td>Long-form speaking (3–5 min)</td><td>Long recording + review notes</td></tr>
-    <tr><td><b>Sun</b> 📊</td><td>Weekly review &amp; reset</td><td>Scores + 3 wins / 3 weaknesses / 3 corrections</td></tr>
+    <tr><td><b>Sun</b> 📊</td><td>Weekly review &amp; reset</td><td>Scores + 3 wins / weaknesses / corrections</td></tr>
   </table>
-
-  <div class="example">
-    <div class="ttl">📌 Example — Week 3 “Problems, blockers &amp; escalation”</div>
-    <p>On <b>Tuesday</b> the app asks you to explain: <i>“A dependency is delayed and will affect delivery.”</i> You structure it as <b>issue → cause → impact → mitigation → ask</b> and record yourself saying:</p>
-    <p class="say">“We've run into an issue with the vendor API. The root cause appears to be a breaking change on their side. This will impact the timeline by about one week. To mitigate that, we're building a temporary workaround. What we need is a decision on whether to delay the release or ship without that feature.”</p>
-    <p>That is one complete, realistic escalation — in under 40 seconds.</p>
-  </div>
 </section>
 
-<!-- ============ 5. SESSION ============ -->
+<!-- 5 -->
 <section id="session">
-  <h2 class="sec"><span class="no">5</span>A daily 25-minute session — the core of the app</h2>
-  <p class="lead">This is the screen where you actually practice. Everything you need is on one page: the task, a timer, a step-by-step template, a voice recorder, a notes box and a self-score.</p>
-  <figure><img src="screenshots/04-session.png" alt="Daily session screen"><figcaption>A Tuesday session (Week 1 — “Tell me about yourself”). Tutor-day sessions also show the pink tutor panel at the top.</figcaption></figure>
-
-  <h3>How to run a session — step by step</h3>
+  <h2 class="sec"><span class="no">5</span>A daily 25-minute session</h2>
+  <p class="lead">One page holds your whole workout: timer, minute-by-minute template, recorder with live transcription, your script, notes and self-score.</p>
+  <figure><img src="screenshots/m03-session.png" alt="Daily session page"><figcaption>A session page: template steps (left), recorder + "My example" + feedback tools (right).</figcaption></figure>
   <ol class="steps">
-    <li><b>Read the task at the top.</b> Example: <i>“Record a 90-second answer: current role → core responsibilities → previous experience → current focus.”</i> The 🏆 line tells you what evidence you must produce.</li>
-    <li><b>Press ▶ Start on the 25-minute timer</b> (see Section 6). One focused block — no phone, no tabs.</li>
-    <li><b>Follow the timed template steps</b> (e.g. <code>0:00–3:00 Write the prompt and your answer structure</code>). <b>Click each step to tick it off</b> as you finish it — it turns green.</li>
-    <li><b>Use the “Say these aloud” phrases</b> at the bottom of the template — they are this week's phrases; force yourself to use them in your answer.</li>
-    <li><b>Record yourself with the 🎙️ recorder</b> (see Section 7) — usually version 1, then an improved version 2.</li>
-    <li><b>Listen back and write your corrections</b> in <b>Session notes</b>, then click <b>Save notes</b>.</li>
-    <li><b>Self-score the session 1–10</b> by clicking a number.</li>
-    <li><b>Click ✅ “Mark session complete.”</b> Your streak, progress ring and week dots all update.</li>
+    <li><b>Press ▶ Start</b> on the 25-minute timer and follow the timed template steps, ticking each one off.</li>
+    <li><b>Write "🎬 My example — what I plan to say"</b> — your answer in your own words (e.g. your self-introduction). This is the target your recording is scored against.</li>
+    <li><b>Press 🎙️ and speak.</b> While you record, the app transcribes you. Aim for <b>20–60 seconds</b> of real speech — one-second clips can't be analyzed.</li>
+    <li><b>Stop → the full feedback report appears</b> (see Section 7): word-by-word score, grammar, vocabulary, pace. Your words also fill "🎙️ My transcript" automatically.</li>
+    <li><b>Record a second take</b> — the 📈 waveform shows your new voice layered over the previous one, with a pacing verdict like <i>"4.5s tighter — more confident pacing 📈".</i></li>
+    <li><b>Write your top corrections in notes, self-score 1–10, and ✅ Mark session complete.</b></li>
   </ol>
-
   <div class="example">
-    <div class="ttl">📌 Example — filled-in session notes (Week 1, Tuesday)</div>
-    <ul>
-      <li><b>Fillers:</b> said “uh” 9 times → replace with a silent pause.</li>
-      <li><b>Grammar:</b> ✗ “I am working on it since Monday” → ✓ “I <b>have been</b> working on it since Monday.”</li>
-      <li><b>Structure:</b> forgot to end with my current focus → next time close with “Right now, my main focus is…”.</li>
-      <li><b>Next target:</b> keep the whole answer under 90 seconds.</li>
-      <li><b>Self-score:</b> 7/10.</li>
-    </ul>
-  </div>
-
-  <div class="warn"><b>⛔ Don't skip the listen-back step.</b> Recording without listening is training blind — the improvement comes from hearing your own mistakes and re-recording a better version.</div>
-</section>
-
-<!-- ============ 6. TIMER ============ -->
-<section id="timer">
-  <h2 class="sec"><span class="no">6</span>Using the timer</h2>
-  <p class="lead">Every session is built around one <b>25-minute focused block</b> (attention research: quality collapses after ~25 minutes — one sharp block beats a sloppy hour).</p>
-  <figure><img src="screenshots/05-timer.png" alt="25 minute countdown timer"><figcaption>The countdown timer inside every session.</figcaption></figure>
-  <ol class="steps">
-    <li><b>Click ▶ Start</b> when you begin the first template step. The button becomes ⏸ Pause.</li>
-    <li><b>Pause only for real interruptions</b> — not to check your phone.</li>
-    <li><b>Click ↺ Reset</b> to put it back to 25:00 for a fresh block.</li>
-    <li><b>When it hits 0:00, stop.</b> If you didn't finish everything, note it and stop anyway — consistency beats marathon sessions.</li>
-  </ol>
-</section>
-
-<!-- ============ 7. RECORDER ============ -->
-<section id="recorder">
-  <h2 class="sec"><span class="no">7</span>Recording yourself</h2>
-  <p class="lead">The built-in recorder saves your voice <b>inside the browser</b> (no upload, fully private). Recordings are attached to the exact day you made them, so you can compare Week 1 vs Week 12.</p>
-  <figure><img src="screenshots/06-recorder.png" alt="Voice recorder panel"><figcaption>The recorder panel in every session. The round button turns red and pulses while recording.</figcaption></figure>
-  <ol class="steps">
-    <li><b>Click the round 🎙️ button</b> to start. The first time, your browser asks for microphone permission — click <b>Allow</b>.</li>
-    <li><b>Speak your answer.</b> The red counter shows the elapsed time.</li>
-    <li><b>Click the button again to stop.</b> The recording appears in a list below with a play bar.</li>
-    <li><b>Play it back</b> and listen for fillers, grammar slips, flat rhythm, vague wording.</li>
-    <li><b>Record version 2</b> applying the corrections. Keep both — comparing v1 to v2 is where you hear progress.</li>
-    <li><b>Delete</b> any false start with the 🗑️ button.</li>
-  </ol>
-  <div class="tip"><b>💡 Milestone recordings to keep forever:</b> your Week 1 self-introduction and your Week 12 final set (90-sec intro · 2-min update · 2-min escalation · 3-min explanation). The before/after difference is your proof of progress.</div>
-</section>
-
-<!-- ============ 8. PHRASES ============ -->
-<section id="phrases">
-  <h2 class="sec"><span class="no">8</span>Phrases &amp; Idioms bank — 152 building blocks</h2>
-  <p class="lead">Each week unlocks 10–13 phrases and idioms matched to the week's theme (updates, escalation, disagreement, persuasion…). Your goal: make them part of your <b>active</b> speech.</p>
-  <figure><img src="screenshots/07-phrases.png" alt="Phrases and idioms view"><figcaption>Phrases filtered by week. Idioms are tagged in pink with their meaning and a sample sentence. Mastered phrases get a green border.</figcaption></figure>
-
-  <h3>How to work the phrase bank — step by step</h3>
-  <ol class="steps">
-    <li><b>Open 💬 Phrases &amp; Idioms</b> and select the current week in the category pills (or <b>All</b>).</li>
-    <li><b>Read the phrase and its purpose.</b> E.g. <i>“The main blocker is…” — state the issue clearly.</i></li>
-    <li><b>Say it aloud 3 times</b>, then build <b>your own sentence</b> from your real work.</li>
-    <li><b>Click 🎙️ Record</b> on the phrase card and record your sentence — the recording stays attached to that phrase.</li>
-    <li><b>Click “Mark mastered”</b> only when you can use the phrase naturally without thinking. It turns green and counts toward your 152.</li>
-    <li><b>Every Sunday, pick 5 phrases</b> to actively use in real meetings and emails next week.</li>
-  </ol>
-
-  <div class="example">
-    <div class="ttl">📌 Example — turning a phrase into YOUR phrase</div>
-    <p><b>App phrase:</b> “By Friday, I expect to…” <i>(commit to a timeline)</i></p>
-    <p><b>Your sentence:</b></p>
-    <p class="say">“By Friday, I expect to finish the data-quality checks and hand the report to the finance team.”</p>
-    <p><b>Idiom example:</b> “Touch base” = make brief contact →</p>
-    <p class="say">“Let's touch base Thursday morning about the migration before the demo.”</p>
-    <p>Record both, then use them in your next real standup. That's when they become yours.</p>
+    <div class="ttl">📌 Example — Week 1 Tuesday, "Tell me about yourself"</div>
+    <p><b>My example:</b></p>
+    <p class="say">"I currently work as a data engineer. My focus is on the reporting pipeline. I'm responsible for data quality."</p>
+    <p>You record it, and the report shows: 95% — one yellow word (<i>responsible</i>), a grammar catch ("I am agree" → "I agree"), pace 132 wpm ✅. You drill the yellow word with 🔊/🎤, record take 2, and the attempt line reads <b>82% → 95% 📈</b>.</p>
   </div>
 </section>
 
-<!-- ============ 9. TUTOR ============ -->
-<section id="tutor">
-  <h2 class="sec"><span class="no">9</span>Tutor sessions — Tuesdays &amp; Fridays</h2>
-  <p class="lead">Twice a week you meet a live tutor (e.g. on Preply). The 🎓 Tutor tab makes sure every lesson is a <b>speaking lab linked to the week's theme</b> — not a generic English class.</p>
-  <figure><img src="screenshots/08-tutor.png" alt="Tutor tab"><figcaption>The Tutor tab: what tutors are for (and NOT for), the 50-minute agenda, and your 24-session tracker.</figcaption></figure>
-
-  <h3>Before the lesson — the pre-session briefing</h3>
+<!-- 6 -->
+<section id="shadow">
+  <h2 class="sec"><span class="no">6</span>🎯 Shadowing Studio — the practice lab</h2>
+  <p class="lead">Shadowing = speaking <i>along with</i> a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: cut a 20–30 second clip from any YouTube video and loop it while you shadow.</p>
+  <figure><img src="screenshots/m04-shadow.png" alt="Shadowing studio"><figcaption>The Studio: starter videos, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.</figcaption></figure>
+  <h3>Cut and loop a clip</h3>
   <ol class="steps">
-    <li><b>Open the day's session</b> (Tue or Fri) — the pink tutor panel is at the top.</li>
-    <li><b>Tick the 6 preparation boxes:</b> weekly theme confirmed · target scenario written · solo recording made BEFORE the lesson · your 3 main weaknesses listed · 5–10 phrases ready to use live · correction priorities to tell the tutor.</li>
-    <li><b>Follow the 50-minute agenda during the call:</b> setup (0–5) → first live answer (5–15) → correction round (15–25) → second attempt (25–35) → pressure Q&amp;A (35–45) → close with top-3 errors (45–50).</li>
+    <li><b>Pick a video:</b> use a ✨ starter card (Steve Jobs, Simon Sinek, Randy Pausch), one of the 📺 curated channels, or paste any YouTube link → <b>▶ Load video</b>.</li>
+    <li><b>Play, then ⬇ Mark start.</b> A live counter appears and counts the seconds — at 20s it turns green ("you can mark the end now ✅"), at 30s it pulses gold.</li>
+    <li><b>⬇ Mark end</b> → the clip now <b>loops automatically 🔁</b>. During playback the counter shows your position: <code>12s / 30s</code>, resetting to 0 every loop.</li>
+    <li><b>Navigate inside the clip</b> with ⟲ (restart), ↺5 / 5↻ (jump 5s back/forward — clicks stack), the <b>speed button</b> (1× → .75× → .5×) and 🔁 loop on/off.</li>
+    <li><b>⭐ Save clip</b> — saved clips reload with one tap, with your marks, transcript and recordings intact. A refresh also restores your last clip automatically.</li>
   </ol>
-
-  <h3>After the lesson — the session log</h3>
+  <h3>Shadow and record</h3>
   <ol class="steps">
-    <li><b>Fill the log immediately:</b> scenario practiced, top 3 corrections, top 5 better phrases, pronunciation fix, and what to practice before next session.</li>
-    <li><b>Click ✅ “Mark tutor session done”</b> — it counts toward your 24 tutor sessions.</li>
-    <li><b>Add the corrected phrases</b> to your Wednesday phrase work so the feedback is reused, not lost.</li>
+    <li><b>Shadow the loop 6–8×:</b> listen → repeat in the gaps → speak with the audio → speak alone.</li>
+    <li><b>Write the 🎬 clip transcript</b> (what the speaker says) — mark STRESSED words in CAPS, pauses with /.</li>
+    <li><b>Press 🎙️ and shadow one full take.</b> On stop: your words appear in <b>🎙️ My transcript</b>, and the full speaking-feedback report is generated from that exact recording.</li>
+    <li><b>Repeat the clip</b> — every take is an attempt: <i>"This clip · attempt 3 — 80% → 95% → 100% 📈 you're improving!"</i></li>
   </ol>
-
-  <div class="example">
-    <div class="ttl">📌 Example — a filled tutor log (Week 3, Tuesday)</div>
-    <ul>
-      <li><b>Scenario:</b> escalating a delayed vendor dependency to my manager with an ETA.</li>
-      <li><b>Top 3 corrections:</b> 1. “informations” → “information” (never plural). 2. Answer first, context second. 3. Stress “DE-pendency”, not “de-PEN-dency”.</li>
-      <li><b>Better phrases learned:</b> “Flag it early”, “the recovery plan is…”, “worst case, we can…”.</li>
-      <li><b>Pronunciation:</b> final -ed sounds (“delayed”, “blocked”) were disappearing.</li>
-      <li><b>Before next session:</b> re-record the escalation applying all three corrections.</li>
-    </ul>
-  </div>
-
-  <div class="tip"><b>💡 Use the tutor for what only a tutor can do:</b> real-time correction, pressure Q&amp;A, accent &amp; delivery. Don't spend paid minutes on things you can do solo (building phrase lists, first drafts, shadowing).</div>
 </section>
 
-<!-- ============ 10. RESOURCES ============ -->
-<section id="resources">
-  <h2 class="sec"><span class="no">10</span>Resources library</h2>
-  <p class="lead">When a session says <i>“shadow a clip of a U.S. professional”</i>, this is where you find one. Each card tells you <b>which day of the week it is for</b>.</p>
-  <figure><img src="screenshots/09-resources.png" alt="Resources view"><figcaption>Curated channels &amp; sites — each with a “USE FOR” label telling you when it fits your week.</figcaption></figure>
-  <ol class="steps">
-    <li><b>Check today's session type</b> (e.g. Monday = pronunciation + shadowing).</li>
-    <li><b>Pick the matching resource</b> — the gold “USE FOR” label tells you (e.g. <i>Rachel's English — MON &amp; FRI, pronunciation days</i>).</li>
-    <li><b>Click the card</b> to open the channel/site in a new tab, choose a 30–60&nbsp;second clip, and come back to your session.</li>
-  </ol>
-  <div class="example">
-    <div class="ttl">📌 Example — checking how a phrase really sounds</div>
-    <p>You're unsure how natives say <i>“I'd push back slightly on that.”</i> Open <b>YouGlish</b>, type the phrase, and hear it in dozens of real videos — copy the stress and rhythm you hear, then record yourself saying it the same way.</p>
-  </div>
-</section>
-
-<!-- ============ 11. REVIEWS ============ -->
-<section id="review">
-  <h2 class="sec"><span class="no">11</span>Weekly Reviews &amp; monthly dashboards</h2>
-  <p class="lead">Every Sunday you score your week honestly on 5 skills. Every 4 weeks you complete a bigger dashboard that decides your next month's focus.</p>
-  <figure><img src="screenshots/10-reviews.png" alt="Reviews view"><figcaption>The Sunday review: five 1–10 sliders, a trend chart across the 12 weeks, and the 3-wins / 3-weaknesses / 3-corrections box.</figcaption></figure>
-
-  <h3>The Sunday review — step by step</h3>
-  <ol class="steps">
-    <li><b>Open 📊 Reviews</b> and select the week that just ended.</li>
-    <li><b>Listen to at least 2 of your recordings</b> from the week first — score what you <i>hear</i>, not what you hope.</li>
-    <li><b>Move the 5 sliders (1–10):</b> Clarity · Fluency · Pronunciation · Business naturalness · Confidence.</li>
-    <li><b>Write 3 wins, 3 weaknesses, 3 corrections</b> for next week in the text box, then save.</li>
-    <li><b>Watch the trend chart</b> grow week after week — that line is your progress.</li>
-    <li><b>After weeks 4, 8 and 12,</b> also complete the <b>Month Dashboard</b>: tick each target (recordings made, phrases collected, tutor sessions done…) and answer the self-assessment questions.</li>
-  </ol>
-
-  <div class="example">
-    <div class="ttl">📌 Example — an honest Week 2 review</div>
-    <ul>
-      <li><b>Scores:</b> Clarity 6 · Fluency 5 · Pronunciation 6 · Business naturalness 4 · Confidence 5</li>
-      <li><b>3 wins:</b> gave a full standup update without notes · used “the main blocker is…” in a real meeting · streak intact all 6 days.</li>
-      <li><b>3 weaknesses:</b> still translating from French mid-sentence · monotone delivery · updates run too long.</li>
-      <li><b>3 corrections for next week:</b> 60-second cap on updates · stress the key word in every sentence · prepare openings in English, not translated.</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ============ 12. DATA ============ -->
-<section id="data">
-  <h2 class="sec"><span class="no">12</span>My Data — backup, restore &amp; sync</h2>
-  <p class="lead">Your progress lives in this browser. The 💾 My Data tab lets you back it up, move it to another device, or sync it automatically through a private GitHub repository.</p>
-  <figure><img src="screenshots/11-data.png" alt="My Data view"><figcaption>Export/import your progress, set up GitHub sync, or reset the program.</figcaption></figure>
-
-  <h3>Simple backup (recommended for everyone)</h3>
-  <ol class="steps">
-    <li><b>Click “Export JSON”</b> once a week — it downloads a small file with all your progress, notes and scores.</li>
-    <li><b>Keep it somewhere safe</b> (Drive, Dropbox, email to yourself).</li>
-    <li><b>To restore or move to a new computer:</b> open the app there → My Data → <b>Import</b> → choose the file.</li>
-  </ol>
-
-  <h3>Automatic GitHub sync (optional, advanced)</h3>
-  <ol class="steps">
-    <li><b>Create a private GitHub repository</b> (e.g. <code>business-english-data</code>).</li>
-    <li><b>Create a fine-grained personal access token</b> with <i>Contents: read &amp; write</i> permission on that repo only.</li>
-    <li><b>In My Data,</b> enter your GitHub username, the repo name, branch (<code>main</code>) and paste the token, then click <b>Save &amp; connect</b>.</li>
-    <li><b>Push / Pull</b> to upload or download progress, or enable <b>auto-sync</b>. Recordings can be uploaded separately with “Upload recordings”.</li>
-  </ol>
-
-  <div class="warn"><b>⛔ Careful:</b> “Reset everything” permanently erases all progress in this browser. Export a JSON backup first. Also note the token is stored only in your browser and never included in exports.</div>
-</section>
-
-<!-- ============ 13. WEEKLY ROUTINE ============ -->
-<section id="week-plan">
-  <h2 class="sec"><span class="no">13</span>Your weekly routine at a glance</h2>
-  <p class="lead">Print this. This is the whole system in one table — 25 minutes a day plus two tutor lessons.</p>
+<!-- 7 -->
+<section id="feedback">
+  <h2 class="sec"><span class="no">7</span>🗣️ Speaking feedback explained</h2>
+  <p class="lead">After every recording (or a live "read aloud" with 🎤 Start speaking feedback), the app builds a full report from what you actually said.</p>
+  <figure><img src="screenshots/m05-feedback.png" alt="Speaking feedback report"><figcaption>The report: score, word chips, practice cards, pace/fillers, attempt history, grammar columns and vocabulary.</figcaption></figure>
   <table>
-    <tr><th>Day</th><th>Open</th><th>Do (25 min)</th><th>Evidence produced</th></tr>
-    <tr><td><b>Mon</b></td><td>Dashboard → today's session + 📺 Resources</td><td>Pick a clip → transcribe → shadow 6–8× → record imitation</td><td>Transcript + recording + 3 weaknesses</td></tr>
-    <tr><td><b>Tue</b></td><td>Today's session + 🎓 tutor panel</td><td>Speaking drill v1 → listen → v2 · then 50-min tutor lesson</td><td>2 recordings + tutor log</td></tr>
-    <tr><td><b>Wed</b></td><td>Today's session + 💬 Phrases</td><td>Study the week's phrases → 10 personal sentences → record best run</td><td>Phrase entries + recording</td></tr>
-    <tr><td><b>Thu</b></td><td>Today's session</td><td>Meeting simulation → review → redo cleaner version</td><td>Meeting recording ×2</td></tr>
-    <tr><td><b>Fri</b></td><td>Today's session + 🎓 tutor panel</td><td>Repair weakest recording (pace/stress/tone) · tutor lesson 2</td><td>Before/after recording + tutor log</td></tr>
-    <tr><td><b>Sat</b></td><td>Today's session</td><td>3–5 min long-form talk → review → redo weakest section</td><td>Long recording</td></tr>
-    <tr><td><b>Sun</b></td><td>📊 Reviews</td><td>Listen to 2 recordings → score 5 sliders → 3 wins/weaknesses/corrections → pick 5 phrases for next week</td><td>Weekly review saved</td></tr>
+    <tr><th>Section</th><th>What it tells you</th></tr>
+    <tr><td><b>Score %</b></td><td>How many of your target words were recognized clearly by the American-English speech engine</td></tr>
+    <tr><td><b>Word chips</b></td><td>Green = landed clearly · yellow = practice needed (hover to see what was heard instead)</td></tr>
+    <tr><td><b>🎯 Practice cards</b></td><td>For each problem word: <b>🔈 You</b> (plays that moment from your own recording) · <b>🔊 Example</b> · <b>🐢 Slow</b> · <b>🎤 Say it — try again</b> (turns green at 100% when you nail it)</td></tr>
+    <tr><td><b>Pace &amp; fillers</b></td><td>Your words-per-minute vs the native 140–160 zone, and your "um/uh" count</td></tr>
+    <tr><td><b>Attempts</b></td><td>Score history for this clip/session with 📈/📉 verdicts</td></tr>
+    <tr><td><b>📖 Grammar feedback</b></td><td>Two columns — <b>what you did well</b> (modal verbs, present perfect, phrase-bank phrases used!) and <b>what you can improve</b> ("informations" → information, "I am agree" → I agree…), each with 🔊 hear-the-correct-version</td></tr>
+    <tr><td><b>📚 Key vocabulary</b></td><td>Words extracted from your speech with CEFR levels — see Section 8</td></tr>
+  </table>
+  <div class="tip"><b>💡 Speak 20+ seconds.</b> The more you say, the richer the report. And remember it's an approximation: a "missed" word usually means unclear pronunciation, but background noise counts too.</div>
+</section>
+
+<!-- 8 -->
+<section id="vocab">
+  <h2 class="sec"><span class="no">8</span>📚 Vocabulary, trouble words &amp; quiz</h2>
+  <ol class="steps">
+    <li><b>Key vocabulary</b> appears in every feedback report — words from <i>your own speech</i> with level badges (A2…C1). Tap a word for its <b>dictionary definition, IPA and real human audio</b>; use <b>🎤 Say it</b> to test yourself; <b>🔖 save</b> the good ones (or "Save all words").</li>
+    <li><b>⬆️ Level up your words:</b> the app spots casual words you used and suggests the executive upgrade — <i>you said "get" → try "obtain"</i> — with audio and save buttons.</li>
+    <li><b>💪 My trouble words</b> (bottom of Shadow): every word the feedback flags collects here automatically. Drill each with 🔊 / 🐢 / 🎤 — pronounce it correctly as many times as you missed it and it's cleared with a 🏆.</li>
+    <li><b>📚 My vocabulary + 🎴 Quiz me:</b> your saved words become a deck. The quiz reads you a word's <i>meaning</i> — you must <b>say the word out loud</b>; the app judges both recall and pronunciation.</li>
+  </ol>
+  <div class="example">
+    <div class="ttl">📌 Example — the quiz</div>
+    <p class="say">"What word is this? — <i>The people with an interest or concern in a business project.</i>"</p>
+    <p>You press 🎤 and say <b>"stakeholders"</b> → <i>"🏆 correct AND well pronounced!"</i></p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="phrases">
+  <h2 class="sec"><span class="no">9</span>Phrases &amp; 💼 Executive Polish</h2>
+  <figure><img src="screenshots/m06-phrases.png" alt="Phrases tab with Executive Polish"><figcaption>Executive Polish at the top; the 152-phrase bank below, filtered by week.</figcaption></figure>
+  <h3>💼 Executive Polish — say it like a leader</h3>
+  <ol class="steps">
+    <li><b>Type or 🎤 dictate</b> what you'd say casually, then press <b>✨ Polish it</b>.</li>
+    <li><b>Read the executive version</b> — fillers removed, hedging cut ("I think", "maybe", "sorry about that"), grammar fixed, weak words upgraded — with every change listed so you learn the pattern.</li>
+    <li><b>🔊 Hear it, 🐢 slow it, 📋 copy it</b> — or press <b>🤖 AI coach prompt</b> to copy a ready-made coaching prompt (with your sentence inside) for ChatGPT, Claude or Gemini.</li>
+  </ol>
+  <div class="example">
+    <div class="ttl">📌 Example</div>
+    <p class="say">"um I think maybe we need to fix the problem with the informations"</p>
+    <p>→ <b>"I recommend we resolve the challenge with the information."</b></p>
+  </div>
+  <h3>The phrase bank</h3>
+  <p>10–13 phrases and idioms per week, matched to the theme. For each: say it 5×, <b>🎙️ record</b> your own sentence, and <b>Mark mastered</b> when it's naturally yours. Sunday's job: pick 5 to use in real meetings next week.</p>
+</section>
+
+<!-- 10 -->
+<section id="progress">
+  <h2 class="sec"><span class="no">10</span>Reviews &amp; 📈 Progress Studio</h2>
+  <figure><img src="screenshots/m07-progress.png" alt="Progress studio and weekly review"><figcaption>Progress Studio on top; Week self-scores and written review below; month dashboards on weeks 4, 8, 12.</figcaption></figure>
+  <ol class="steps">
+    <li><b>📖 Your story this week</b> — an auto-written summary of your practice: days, words spoken, score trend, new vocabulary, trouble words to clear.</li>
+    <li><b>The four charts</b> — 🎯 pronunciation score journey · 📚 vocabulary growth · ⚡ speaking-speed gauge (Warming up / Just right / Fast) · 🗓️ words spoken per day. All measured automatically.</li>
+    <li><b>Every Sunday:</b> listen to 2 recordings, move the five 1–10 sliders (clarity, fluency, pronunciation, business naturalness, confidence), write 3 wins / 3 weaknesses / 3 corrections, and complete the review.</li>
+    <li><b>Weeks 4, 8, 12:</b> fill the Month Dashboard — the big checkpoint that sets the next phase.</li>
+  </ol>
+</section>
+
+<!-- 11 -->
+<section id="account">
+  <h2 class="sec"><span class="no">11</span>👤 Account, backup &amp; privacy</h2>
+  <figure><img src="screenshots/m08-account.png" alt="Account page"><figcaption>Profile, plan, and the Data &amp; privacy tools.</figcaption></figure>
+  <ol class="steps">
+    <li><b>Profile:</b> edit your name, role, goal and daily slot anytime — the whole app re-personalizes.</li>
+    <li><b>Plan:</b> the Free plan includes everything; Premium (AI coach, cloud accounts, team dashboards) is coming later.</li>
+    <li><b>Backup:</b> click <b>Export JSON</b> weekly and keep the file safe; <b>Import</b> restores it on any device. Optional: connect a private GitHub repo for automatic cloud sync of progress and recordings.</li>
+    <li><b>Privacy:</b> everything — progress, recordings, transcripts — lives on your device. Nothing is uploaded unless <i>you</i> set up GitHub sync.</li>
+  </ol>
+  <div class="warn"><b>⛔ "Reset everything"</b> permanently erases all progress and recordings on this device. Export a backup first.</div>
+</section>
+
+<!-- 12 -->
+<section id="week-plan">
+  <h2 class="sec"><span class="no">12</span>Your weekly routine at a glance</h2>
+  <table>
+    <tr><th>Day</th><th>Do (25 min)</th><th>Evidence</th></tr>
+    <tr><td><b>Mon</b></td><td>🎯 Shadow tab: pick a clip → transcribe → loop &amp; shadow 6–8× → record → feedback</td><td>Transcript + recording + trouble words</td></tr>
+    <tr><td><b>Tue</b></td><td>Speaking drill: write "My example" → record v1 → feedback → record v2</td><td>2 recordings + attempt scores</td></tr>
+    <tr><td><b>Wed</b></td><td>Phrase bank: study the week's phrases → 10 personal sentences → record best run</td><td>Phrases recorded + words saved</td></tr>
+    <tr><td><b>Thu</b></td><td>Meeting simulation → review → redo cleaner</td><td>Meeting recording ×2</td></tr>
+    <tr><td><b>Fri</b></td><td>Delivery repair: worst take → fix pace/stress → compare waveforms</td><td>Before/after waveform</td></tr>
+    <tr><td><b>Sat</b></td><td>Long-form talk 3–5 min → review → redo weakest section</td><td>Long recording</td></tr>
+    <tr><td><b>Sun</b></td><td>📊 Reviews: story + charts → sliders → 3×3 written review → pick 5 phrases</td><td>Weekly review saved</td></tr>
   </table>
 </section>
 
-<!-- ============ 14. FAQ ============ -->
+<!-- 13 -->
 <section id="faq">
-  <h2 class="sec"><span class="no">14</span>FAQ &amp; troubleshooting</h2>
-
-  <h3>The recorder doesn't work / no microphone</h3>
-  <p>Click the 🔒/camera icon in the browser address bar → set <b>Microphone → Allow</b> → reload the page. On macOS also check <i>System Settings → Privacy &amp; Security → Microphone</i> for your browser.</p>
-
+  <h2 class="sec"><span class="no">13</span>FAQ &amp; troubleshooting</h2>
+  <h3>The microphone / speaking feedback doesn't work</h3>
+  <p>Use <b>Chrome or Edge</b> — speech recognition needs their engine (Safari partially works; Firefox doesn't). Click the 🔒 icon in the address bar → Microphone → Allow → reload. On macOS also check System Settings → Privacy → Microphone.</p>
+  <h3>I refreshed and my clip/recordings seemed gone</h3>
+  <p>Fixed — the Shadow tab now restores your last clip, marks, transcript and recordings automatically after a refresh. Recordings always survive refreshes; they live in your browser's database.</p>
   <h3>My progress disappeared</h3>
-  <p>You probably opened the app in a different browser, a private/incognito window, or a different device. Go back to your usual browser — or restore from your JSON backup (Section 12). This is why the weekly <b>Export JSON</b> habit matters.</p>
-
-  <h3>I missed a day — is my streak ruined?</h3>
-  <p>The streak resets, but the program doesn't. Just open the Dashboard and do the next unfinished session. The system is built for 6 days/week — one rest day is expected.</p>
-
-  <h3>Can I do more than 25 minutes?</h3>
-  <p>Do a second <b>separate</b> block later (e.g. extra phrase recordings) rather than one long session. The rule: <b>stop when quality collapses</b> — tired repetition without correction trains mistakes.</p>
-
-  <h3>Do I need a tutor to use the app?</h3>
-  <p>No — all solo features (sessions, recorder, phrases, reviews) work without one. But the 2×/week tutor rhythm is built in because live correction and pressure Q&amp;A are the fastest way to fix what you can't hear yourself.</p>
-
+  <p>You probably opened a different browser or a private window. Return to your usual browser, or restore your JSON backup (👤 Account). This is why the weekly export habit matters.</p>
+  <h3>My recording says 0:00 / can't be analyzed</h3>
+  <p>It was too short. Speak for at least <b>20 seconds</b> — feedback quality grows with every sentence you say. (Fresh recordings can display "0:00" until you press play — that's a browser quirk, not data loss.)</p>
+  <h3>Can I install it as an app?</h3>
+  <p>Yes — on Android Chrome: menu ⋮ → <b>Add to Home Screen</b> / <b>Install app</b>. It opens full-screen with the bottom navigation and works offline.</p>
+  <h3>Does my voice go to a server?</h3>
+  <p>Recordings stay on your device. The speech engine used for transcription is your browser's own (Chrome may process audio on Google's servers as part of its speech service); dictionary definitions are fetched anonymously. Nothing else leaves your device unless you enable GitHub sync.</p>
   <h3>In what order should I do the weeks?</h3>
-  <p>In order, 1 → 12. Each week's phrases and skills build on the previous ones, and Weeks 4, 8 and 12 end with month dashboards that set up the next phase.</p>
+  <p>In order, 1 → 12. Phases build on each other, and weeks 4, 8, 12 end with month dashboards.</p>
 </section>
 
 </div>
 
 <footer>
-  Business English Mastery — 12-Week System · User Manual<br>
-  App: <a href="https://salomon1010.github.io/Business-English/">salomon1010.github.io/Business-English</a> · Local: <a href="http://localhost:8001">localhost:8001</a>
+  Business English Mastery — 12-Week System · User Manual v2<br>
+  App: <a href="https://salomon1010.github.io/Business-English/">salomon1010.github.io/Business-English</a>
 </footer>
 
 </body>
