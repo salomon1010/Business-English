@@ -1443,7 +1443,7 @@ function shFBDone(){
   const target=document.getElementById("shNote").value.trim();
   if(target){
     fbT0=shFB.t0;
-    fbShowResults(target,heard);
+    fbShowResults(target,heard,true);
     toast("🗣️ Feedback generated from your shadowing recording");
     const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
   }else{
@@ -1456,7 +1456,7 @@ window.fbFromRec=()=>{
   const target=document.getElementById("shNote").value.trim();
   if(!target)return toast("⚠️ Write the transcript first — that's what I'll check you against");
   fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
-  fbShowResults(target,heard);
+  fbShowResults(target,heard,true);
   toast("🗣️ Feedback from your last shadowing recording");
 };
 
@@ -1476,11 +1476,64 @@ function fbAlign(t,h){
   for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j-1]+(t[i-1]===h[j-1]?0:1),D[i-1][j]+1,D[i][j-1]+1);
   const ops=[];let i=m,j=n;
   while(i>0||j>0){
-    if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(t[i-1]===h[j-1]?0:1)){ops.unshift({op:t[i-1]===h[j-1]?"ok":"sub",t:t[i-1],h:h[j-1]});i--;j--}
-    else if(i>0&&D[i][j]===D[i-1][j]+1){ops.unshift({op:"miss",t:t[i-1]});i--}
+    if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(t[i-1]===h[j-1]?0:1)){ops.unshift({op:t[i-1]===h[j-1]?"ok":"sub",t:t[i-1],h:h[j-1],hIdx:j-1});i--;j--}
+    else if(i>0&&D[i][j]===D[i-1][j]+1){ops.unshift({op:"miss",t:t[i-1],hIdx:Math.max(0,j-1)});i--}
     else{j--}
   }
   return ops;
+}
+/* ===== GRAMMAR FEEDBACK (rule-based, common ESL patterns) ===== */
+const GRAM_FIX=[
+ [/\binformations\b/i,"informations","information","“Information” is uncountable — never plural.","Word form"],
+ [/\badvices\b/i,"advices","advice","“Advice” is uncountable — use “a piece of advice”.","Word form"],
+ [/\bfeedbacks\b/i,"feedbacks","feedback","“Feedback” is uncountable.","Word form"],
+ [/\bpeoples\b/i,"peoples","people","“People” is already plural.","Word form"],
+ [/\bi am agree\b/i,"I am agree","I agree","“Agree” is a verb — no “am” needed.","Verb form"],
+ [/\bexplain me\b/i,"explain me","explain to me","“Explain” needs “to” before the person.","Preposition"],
+ [/\bdiscuss about\b/i,"discuss about","discuss","“Discuss” never takes “about”.","Preposition"],
+ [/\bsince (\d+|two|three|four|five|six|seven|many|several) (years?|months?|weeks?|days?)\b/i,"since X years","for X years","Duration takes “for”; “since” takes a starting point.","Preposition"],
+ [/\bi have (\d+|twenty|thirty|forty|fifty) years\b/i,"I have X years","I am X years old","Age uses “to be” in English.","Verb form"],
+ [/\bmore (better|easier|faster|bigger|smaller|cheaper)\b/i,"more better","better","The word is already comparative — drop “more”.","Comparative"],
+ [/\bdidn't (went|saw|did|took|made|said|got|came|gave|knew)\b/i,"didn't went","didn't go","After “didn't”, use the base form of the verb.","Verb tense"],
+ [/\b(everybody|everyone|nobody) (are|were|have)\b/i,"everybody are","everybody is","These words are grammatically singular.","Subject-verb agreement"],
+ [/\b(he|she|it) don't\b/i,"he don't","he doesn't","Third person singular takes “doesn't”.","Subject-verb agreement"],
+ [/\ba (apple|email|update|issue|error|hour|example|answer|option|idea|application)\b/i,"a issue","an issue","Use “an” before a vowel sound.","Article"],
+ [/\bi am here since\b/i,"I am here since","I have been here since","Ongoing duration needs the present perfect.","Verb tense"],
+ [/\bwant that you\b/i,"want that you","want you to","English uses “want + person + to”.","Word order"],
+ [/\bhow it looks like\b/i,"how it looks like","what it looks like","Use “what … looks like” or “how … looks”.","Word order"],
+ [/\bin this moment\b/i,"in this moment","at the moment","Time expressions take “at the moment / right now”.","Preposition"]
+];
+const GRAM_GOOD=[
+ [/\b(can|could|would|should|may|might) (be|do|make|create|help|start|give|take|explain|deliver|improve)\b/i,"Verb form","Strong use of a modal verb — you're confidently expressing possibilities."],
+ [/\b(am|is|are) \w+ing\b/i,"Verb tense","Good use of the present continuous for an ongoing action."],
+ [/\bhave (been|already \w+|\w+ed)\b/i,"Verb tense","Nice present perfect — connecting the past to now like a native."],
+ [/\b(however|additionally|therefore|meanwhile|first of all|in terms of|on the other hand)\b/i,"Connector","Excellent linking word — it makes your speech sound structured."],
+ [/\b(really|definitely|absolutely|significantly|extremely) \w+/i,"Adverbial","Great use of an adverb to add emphasis."],
+ [/\bthanks for \w+ing\b/i,"Preposition","Perfect preposition + gerund — “thanks for + -ing”."]
+];
+function gramAnalyze(heardRaw){
+  const good=[],fix=[];
+  const seenG=new Set(),seenF=new Set();
+  for(const[re,bad,corr,note,cat]of GRAM_FIX){
+    const m=heardRaw.match(re);
+    if(m&&!seenF.has(cat+bad)){seenF.add(cat+bad);fix.push({cat,quote:m[0],corr:m[0].toLowerCase().includes("since")?m[0].replace(/since/i,"for"):corr,note})}
+    if(fix.length>=4)break;
+  }
+  for(const[re,cat,note]of GRAM_GOOD){
+    const m=heardRaw.match(re);
+    if(m&&!seenG.has(cat)){seenG.add(cat);good.push({cat,quote:m[0],note})}
+    if(good.length>=4)break;
+  }
+  /* praise business phrases from the app's phrase bank actually used */
+  const hl=" "+heardRaw.toLowerCase()+" ";
+  for(const p of PHRASES){
+    const stem=p.p.toLowerCase().replace(/[….]+$/,"").trim();
+    if(stem.length>=10&&hl.includes(stem.slice(0,Math.min(stem.length,22)))&&good.length<5){
+      good.push({cat:"Business phrasing",quote:stem,note:"You used a phrase from your phrase bank in real speech — that's exactly the goal! 💼"});
+      break;
+    }
+  }
+  return{good,fix};
 }
 window.fbSay=(w,rate)=>{
   try{speechSynthesis.cancel();
@@ -1520,7 +1573,7 @@ window.fbToggle=()=>{
   };
   try{fbRec.start()}catch(e){fbOn=false;toast("⚠️ Could not start the microphone")}
 };
-function fbShowResults(targetText,heardText){
+function fbShowResults(targetText,heardText,fromRec){
   const t=fbTokens(targetText),h=fbTokens(heardText);
   const out=document.getElementById("fbOut");
   if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">I didn't hear anything — check your microphone and try again, speaking a little louder.</p>`;return}
@@ -1564,6 +1617,7 @@ function fbShowResults(targetText,heardText){
       <span class="w">${esc(o.t)}</span>
       <div class="fb-heard">${o.op==="sub"?`I heard: “<b>${esc(o.h)}</b>” instead`:"I didn't catch this word at all"}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${((o.hIdx||0)+0.5)/Math.max(h.length,1)})">🔈 You</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">🔊 Example</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">🐢 Slow</button>
         <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">🎤 Say it — try again</button>
@@ -1571,10 +1625,52 @@ function fbShowResults(targetText,heardText){
       </div>
     </div>`).join("")
   :`<p style="font-size:13.5px;color:var(--green);font-weight:600">Every single word was recognized — outstanding! Try a harder clip 🚀</p>`}
-  <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it.</p>`;
+  ${(()=>{const g=gramAnalyze(heardText);if(!g.good.length&&!g.fix.length)return"";
+    return`<div class="hr"></div><b style="font-size:15px;display:block;margin-bottom:12px">📖 Grammar feedback <span style="font-size:11.5px;color:var(--mut2);font-weight:500">from what you said</span></b>
+    <div class="grid g2">
+      <div>
+        <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:8px">What you did well</div>
+        ${g.good.length?g.good.map(x=>`<div class="fb-item fixed" style="margin-bottom:8px">
+          <span style="font-size:11.5px;font-weight:700;color:var(--green)">● ${esc(x.cat)}</span>
+          <div style="font-size:14px;margin:5px 0"><b>…${esc(x.quote)}</b></div>
+          <p style="font-size:12.5px;color:var(--mut)">${esc(x.note)}</p></div>`).join("")
+        :`<p style="font-size:12.5px;color:var(--mut2)">Speak a little more and I'll spot your strong points here.</p>`}
+      </div>
+      <div>
+        <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">What you can improve</div>
+        ${g.fix.length?g.fix.map(x=>`<div class="fb-item" style="margin-bottom:8px">
+          <span style="font-size:11.5px;font-weight:700;color:var(--gold)">● ${esc(x.cat)}</span>
+          <div style="font-size:14px;margin:5px 0">…<b style="background:rgba(251,191,36,.15);padding:1px 5px;border-radius:5px">${esc(x.quote)}</b></div>
+          <div style="font-size:13px;color:var(--acc2);margin-bottom:5px">→ ${esc(x.corr)}</div>
+          <p style="font-size:12.5px;color:var(--mut)">${esc(x.note)}</p>
+          <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="fbSay('${esc(x.corr)}',0.9)">🔊 Hear the correct version</button></div>`).join("")
+        :`<p style="font-size:12.5px;color:var(--green);font-weight:600">No common grammar mistakes detected — clean speech! ✅</p>`}
+      </div>
+    </div>`})()}
+  <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it. Grammar checks cover common patterns, not everything.</p>`;
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();
 }
+/* play a short snippet of the user's own shadowing recording around a word */
+let fbAud=null;
+window.fbYou=async frac=>{
+  const recs=await getRecs("shadow-"+shClip.vid);
+  if(!recs.length)return toast("⚠️ No shadowing recording found for this clip");
+  if(fbAud){fbAud.pause();fbAud=null}
+  const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
+  const playAt=d=>{
+    const t=Math.max(0,Math.min(d-1,frac*d-1));
+    aud.currentTime=t;aud.play();
+    setTimeout(()=>{if(fbAud===aud)aud.pause()},2600);
+  };
+  aud.onloadedmetadata=()=>{
+    if(isFinite(aud.duration)&&aud.duration>0)playAt(aud.duration);
+    else{/* Chrome quirk: MediaRecorder webm reports Infinity until seeked */
+      aud.currentTime=1e10;
+      aud.onseeked=()=>{aud.onseeked=null;playAt(aud.duration)};
+    }
+  };
+};
 window.fbTry=(word,i)=>{
   if(!SR)return;
   const r=new SR();r.lang="en-US";r.maxAlternatives=5;
