@@ -902,16 +902,26 @@ function rSession(el,w,d){
     <div>
       <div class="rec-panel" style="margin-bottom:16px">
         <b style="display:block;margin-bottom:4px">🎙️ Record yourself</b>
-        <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">Recordings are saved in this browser (IndexedDB) so you can come back, listen, and compare weeks later.</p>
+        <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">While you record, the app transcribes what you say — stop, and you get the full speaking feedback below, just like in the Shadow tab.</p>
         <div style="display:flex;align-items:center;gap:18px">
-          <button class="rec-btn" id="recBtn" onclick="recToggle('${key}','W${w} ${d} — ${esc(dd.focus)}')">🎙️</button>
+          <button class="rec-btn" id="recBtn" onclick="sessRec('${key}','W${w} ${d} — ${esc(dd.focus)}')">🎙️</button>
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">Tap to start recording</div></div>
         </div>
         <div id="recList"></div>
       </div>
       <div class="card" style="margin-bottom:16px">
+        <b style="display:block;margin-bottom:4px">🎬 My example — what I plan to say</b>
+        <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">Write your answer (e.g. your self-introduction, your update). Your recording is scored word-by-word against this.</p>
+        <textarea rows="4" id="sessScript" placeholder="e.g. I currently work as a data engineer. My focus is on our reporting pipeline. I'm responsible for…" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||"")}</textarea>
+        <div class="hr"></div>
+        <b style="font-size:14px">🎙️ My transcript</b>
+        <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">Fills in automatically when you stop recording — exactly what you said, errors included.</p>
+        <div id="sessHeard" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":'<span style="color:var(--mut2);font-style:normal;font-size:12.5px">Nothing yet — write your example, then press 🎙️ above.</span>'}</div>
+        <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="sessAnalyze('${key}')">🗣️ Analyze my last recording</button>
+      </div>
+      <div class="card" style="margin-bottom:16px">
         <b style="display:block;margin-bottom:10px">📝 Session notes & corrections</b>
-        <textarea rows="5" id="noteBox" placeholder="Weak sounds, filler words, top 3 corrections, next session target…">${esc(S.notes[key]||"")}</textarea>
+        <textarea rows="4" id="noteBox" placeholder="Weak sounds, filler words, top 3 corrections, next session target…">${esc(S.notes[key]||"")}</textarea>
         <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="saveNote('${key}')">Save notes</button>
       </div>
       <div class="card">
@@ -922,7 +932,8 @@ function rSession(el,w,d){
           ${S.days[key]?'✓ Completed — tap to un-mark':'✅ Mark session complete'}</button>
       </div>
     </div>
-  </div>`;
+  </div>
+  <div id="fbOut" style="margin-top:4px"></div>`;
   renderRecs(key);
 }
 window.toggleStep=(key,i)=>{
@@ -1318,31 +1329,37 @@ function shRenderClips(){
    shadowing, speech recognition transcribes it, so the speaking feedback
    is generated from that exact recording. */
 let shFB={rec:null,on:false,txt:"",t0:0};
+let fbCtx={vid:null,recCtx:null}; /* which recording context the current feedback belongs to */
+function fbRecStart(cfg){
+  /* start parallel transcription while the MediaRecorder runs; cfg={vid,targetId,heardId,recCtx} */
+  if(!SR)return;
+  try{
+    shFB=Object.assign({rec:new SR(),on:true,txt:"",t0:Date.now()},cfg);
+    const r=shFB.rec;
+    r.lang="en-US";r.continuous=true;r.interimResults=true;
+    r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)shFB.txt+=" "+e.results[i][0].transcript};
+    r.onerror=()=>{};
+    r.onend=()=>{
+      /* the engine stops itself on silence — restart while still recording */
+      if(shFB.on&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
+      else if(!shFB.on)shFBDone();
+    };
+    r.start();
+  }catch(e){}
+}
+function fbRecStop(){shFB.on=false;if(shFB.rec){try{shFB.rec.stop()}catch(e){shFBDone()}}}
 window.shRec=()=>{
   if(!shClip.vid)return;
   const wasRecording=rec.mr&&rec.mr.state==="recording";
   recToggle("shadow-"+shClip.vid,"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
-  if(!wasRecording){
-    /* just started → transcribe in parallel */
-    if(!SR)return;
-    try{
-      shFB={rec:new SR(),on:true,txt:"",t0:Date.now()};
-      const r=shFB.rec;
-      r.lang="en-US";r.continuous=true;r.interimResults=true;
-      r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)shFB.txt+=" "+e.results[i][0].transcript};
-      r.onerror=()=>{};
-      r.onend=()=>{
-        /* the engine stops itself on silence — restart while still recording */
-        if(shFB.on&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
-        else if(!shFB.on)shFBDone();
-      };
-      r.start();
-    }catch(e){}
-  }else{
-    /* stopping */
-    shFB.on=false;
-    if(shFB.rec){try{shFB.rec.stop()}catch(e){shFBDone()}}
-  }
+  if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:"shadow-"+shClip.vid});
+  else fbRecStop();
+};
+window.sessRec=(key,label)=>{
+  const wasRecording=rec.mr&&rec.mr.state==="recording";
+  recToggle(key,label);
+  if(!wasRecording)fbRecStart({vid:"sess-"+key,targetId:"sessScript",heardId:"sessHeard",recCtx:key});
+  else fbRecStop();
 };
 function shHeardUI(heard){
   const box=document.getElementById("shHeardBox");
@@ -1351,21 +1368,33 @@ function shHeardUI(heard){
 function shFBDone(){
   const heard=shFB.txt.trim();
   if(!heard){toast("⚠️ I couldn't hear any words in that recording — try again a bit louder");return}
-  S.notes["shheard:"+shClip.vid]=heard;
-  S.notes["shheardDur:"+shClip.vid]=Date.now()-shFB.t0;
+  S.notes["shheard:"+shFB.vid]=heard;
+  S.notes["shheardDur:"+shFB.vid]=Date.now()-shFB.t0;
   save();
-  shHeardUI(heard);
+  fbCtx={vid:shFB.vid,recCtx:shFB.recCtx};
+  const hb=document.getElementById(shFB.heardId);
+  if(hb)hb.innerHTML="“"+esc(heard)+"”";
+  const tEl=document.getElementById(shFB.targetId);
   fbT0=shFB.t0;
-  fbShowResults(document.getElementById("shNote").value.trim(),heard,"new");
-  toast("🗣️ Feedback generated from your shadowing recording");
+  fbShowResults(tEl?tEl.value.trim():"",heard,"new");
+  toast("🗣️ Feedback generated from your recording");
   const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
 }
 window.fbFromRec=()=>{
   const heard=S.notes["shheard:"+shClip.vid];
   if(!heard)return toast("⚠️ No transcribed shadowing recording yet — record yourself first with 🎙️");
+  fbCtx={vid:shClip.vid,recCtx:"shadow-"+shClip.vid};
   fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
   fbShowResults(document.getElementById("shNote").value.trim(),heard,true);
   toast("🗣️ Feedback from your last shadowing recording");
+};
+window.sessAnalyze=key=>{
+  const heard=S.notes["shheard:sess-"+key];
+  if(!heard)return toast("⚠️ No transcribed recording yet — record yourself first with 🎙️");
+  fbCtx={vid:"sess-"+key,recCtx:key};
+  fbT0=Date.now()-(S.notes["shheardDur:sess-"+key]||30000);
+  fbShowResults(document.getElementById("sessScript").value.trim(),heard,true);
+  toast("🗣️ Feedback from your last session recording");
 };
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
@@ -1456,6 +1485,7 @@ window.fbToggle=()=>{
   const target=document.getElementById("shNote").value.trim();
   if(!target)return toast("⚠️ Write the transcript first — that's what I'll check you against");
   fbFinal="";fbOn=true;fbT0=Date.now();
+  fbCtx={vid:shClip.vid,recCtx:shClip.vid?("shadow-"+shClip.vid):null};
   document.getElementById("fbBtn").textContent="⏹ Stop & get my feedback";
   document.getElementById("fbStatus").textContent="Listening… read the transcript aloud, then press Stop.";
   document.getElementById("fbOut").innerHTML="";
@@ -1506,11 +1536,11 @@ function fbShowResults(targetText,heardText,fromRec){
   const trend=scored.length>=2?(scored[scored.length-1].score-scored[scored.length-2].score):0;
   /* per-clip attempt tracking: repeat the same clip and watch yourself improve */
   let attempts=[],delta=null;
-  if(hasTarget&&fromRec==="new"&&shClip.vid){
-    attempts=S.fbV[shClip.vid]=S.fbV[shClip.vid]||[];
+  if(hasTarget&&fromRec==="new"&&fbCtx.vid){
+    attempts=S.fbV[fbCtx.vid]=S.fbV[fbCtx.vid]||[];
     if(attempts.length)delta=score-attempts[attempts.length-1];
-    attempts.push(score);if(attempts.length>20)S.fbV[shClip.vid]=attempts=attempts.slice(-20);
-  }else if(hasTarget&&shClip.vid){attempts=S.fbV[shClip.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
+    attempts.push(score);if(attempts.length>20)S.fbV[fbCtx.vid]=attempts=attempts.slice(-20);
+  }else if(hasTarget&&fbCtx.vid){attempts=S.fbV[fbCtx.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
   out.innerHTML=`
   <div class="hr"></div>
   ${hasTarget?`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
@@ -1728,8 +1758,8 @@ window.vocQuizTry=w=>{
 /* play a short snippet of the user's own shadowing recording around a word */
 let fbAud=null;
 window.fbYou=async frac=>{
-  const recs=await getRecs("shadow-"+shClip.vid);
-  if(!recs.length)return toast("⚠️ No shadowing recording found for this clip");
+  const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
+  if(!recs.length)return toast("⚠️ No recording found for this feedback");
   if(fbAud){fbAud.pause();fbAud=null}
   const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
   const playAt=d=>{
