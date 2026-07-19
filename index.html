@@ -150,6 +150,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-seg .lbl{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:700}
 .sh-len{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
 .sh-len.ok{color:var(--green)}.sh-len.warn{color:var(--gold)}
+.sh-count{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;background:#000;border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:5px 14px;min-width:72px;text-align:center;font-variant-numeric:tabular-nums}
+.sh-count.go{border-color:var(--acc2);color:var(--acc2)}
+.sh-count.ready{border-color:var(--green);color:var(--green)}
+.sh-count.over{border-color:var(--gold);color:var(--gold);animation:pulse 1.2s infinite}
 .clip-row{display:flex;align-items:center;gap:12px;padding:11px 15px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:8px;font-size:14px;cursor:pointer;transition:.15s}
 .clip-row:hover{border-color:var(--acc)}
 .clip-row .rng{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc2);white-space:nowrap}
@@ -1157,6 +1161,7 @@ function rShadow(el){
       <span style="color:var(--mut2)">→</span>
       <button class="btn btn-g btn-sm" onclick="shMark('end')">⬇ Mark end</button>
       <span class="sh-time" id="shEnd">–</span>
+      <span class="sh-count" id="shCount" style="display:none">0s</span>
       <span style="flex:1"></span>
       <span class="sh-len" id="shLen"></span>
     </div>
@@ -1202,6 +1207,8 @@ window.shLoadFromInput=()=>{
 };
 async function shLoad(c){
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
+  shCounting=false;shPing={};
+  const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   document.getElementById("shPlayerWrap").style.display="block";
   document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
   shSegUI();
@@ -1215,13 +1222,23 @@ async function shLoad(c){
   renderRecs("shadow-"+shClip.vid);
   window.scrollTo({top:document.getElementById("shPlayerWrap").offsetTop-80,behavior:"smooth"});
 }
-let shLooping=true;
+let shLooping=true,shCounting=false,shPing={};
 function shStartTick(){
   clearInterval(shTick);
   shTick=setInterval(()=>{
     if(!ytPlayer||!ytPlayer.getCurrentTime)return;
     let t=0;try{t=ytPlayer.getCurrentTime()}catch(_){return}
     const now=document.getElementById("shNow");if(now)now.textContent=fmtT(t);
+    if(shCounting){
+      const c=document.getElementById("shCount");
+      const el=Math.max(0,t-shClip.start);
+      if(c){
+        c.textContent=Math.floor(el)+"s";
+        c.className="sh-count "+(el>=30?"over":el>=20?"ready":"go");
+      }
+      if(el>=20&&!shPing[20]){shPing[20]=1;toast("⏱ 20 seconds — you can mark the end now ✅")}
+      if(el>=30&&!shPing[30]){shPing[30]=1;toast("⏱ 30 seconds — perfect length, mark the end! 🎯")}
+    }
     if(shClip.end>shClip.start&&t>=shClip.end){
       if(shLooping)ytPlayer.seekTo(shClip.start,true);
       else ytPlayer.pauseVideo();
@@ -1244,10 +1261,19 @@ function shSegUI(){
 window.shMark=w=>{
   if(!ytPlayer||!ytPlayer.getCurrentTime)return;
   const t=ytPlayer.getCurrentTime();
-  if(w==="start"){shClip.start=t;if(shClip.end<=t)shClip.end=0}
-  else{if(t<=shClip.start)return toast("⚠️ End must be after start");shClip.end=t}
+  const c=document.getElementById("shCount");
+  if(w==="start"){
+    shClip.start=t;if(shClip.end<=t)shClip.end=0;
+    shCounting=true;shPing={};
+    if(c){c.style.display="";c.textContent="0s";c.className="sh-count go"}
+    toast("⏱ Counting… mark the end at 20–30 seconds");
+  }else{
+    if(t<=shClip.start)return toast("⚠️ End must be after start");
+    shClip.end=t;shCounting=false;
+    if(c)c.className="sh-count "+((t-shClip.start)>=15&&(t-shClip.start)<=60?"ready":"over");
+    toast("Clip set — it will loop now 🔁");
+  }
   shSegUI();
-  if(w==="end")toast("Clip set — it will loop now 🔁");
 };
 window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
 window.shBack5=()=>{if(ytPlayer)ytPlayer.seekTo(Math.max(shClip.start,ytPlayer.getCurrentTime()-5),true)};
