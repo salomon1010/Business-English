@@ -146,6 +146,8 @@ device. Works offline.
 
 ## 7. Screenshots for the listing
 
-Use fresh phone-size captures (1080×2400 works): Dashboard, Shadow Studio,
-Speaking feedback report, Progress Studio, Onboarding. The manual's screenshots
-folder has desktop versions; capture phone versions from Chrome device mode.
+Ready to upload: `screenshots/` contains eight 1080×2400 phone captures of the
+live app (dashboard, Shadow Studio, Progress Studio, score charts, a daily
+session, phrases, the 12-week journey, onboarding), numbered in upload order.
+They show a demo profile 3½ weeks into the program so charts and streaks look
+representative.
