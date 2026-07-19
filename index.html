@@ -1611,11 +1611,13 @@ function fbShowResults(targetText,heardText,fromRec){
   const fillerN=h.filter(w=>FILLERS.includes(w)).length;
   const paceMsg=wpm<95?"🐢 "+wpm+" wpm — a bit slow; natives average ~140–160":wpm>185?"🏃 "+wpm+" wpm — slow down, clarity beats speed":"✅ "+wpm+" wpm — natural professional pace";
   /* history + trouble words */
-  if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
+  if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
+  else{S.fbHist.push({ts:Date.now(),wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
   problems.forEach(o=>{if(o.t.length>=4&&!VOC_STOP.has(o.t))S.trouble[o.t]=(S.trouble[o.t]||0)+1});
-  const hist=S.fbHist.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
-  const trend=S.fbHist.length>=2?(S.fbHist[S.fbHist.length-1].score-S.fbHist[S.fbHist.length-2].score):0;
+  const scored=S.fbHist.filter(x=>x.score!=null);
+  const hist=scored.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
+  const trend=scored.length>=2?(scored[scored.length-1].score-scored[scored.length-2].score):0;
   /* per-clip attempt tracking: repeat the same clip and watch yourself improve */
   let attempts=[],delta=null;
   if(hasTarget&&fromRec==="new"&&shClip.vid){
@@ -1969,12 +1971,114 @@ function rResources(el){
 }
 
 /* ================= REVIEW ================= */
+/* ===== PROGRESS STUDIO (Preply-style stats, app theme) ===== */
+function pgArea(data,stroke,W,H,unit){
+  if(data.length<2)return`<div style="height:${H}px;display:grid;place-items:center;color:var(--mut2);font-size:12.5px">Record 2+ speaking-feedback sessions to see your curve 📈</div>`;
+  const P=14,n=data.length;
+  const lo=Math.min(...data)*0.9,hi=Math.max(...data)*1.05||1;
+  const X=i=>P+i/(n-1)*(W-2*P),Y=v=>H-P-(v-lo)/(hi-lo||1)*(H-2*P);
+  const pts=data.map((v,i)=>[X(i),Y(v)]);
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+  const gid="g"+Math.random().toString(36).slice(2,7);
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${stroke}" stop-opacity=".35"/><stop offset="100%" stop-color="${stroke}" stop-opacity="0"/></linearGradient></defs>
+    ${[0.25,0.5,0.75].map(f=>`<line x1="${P}" x2="${W-P}" y1="${(H-2*P)*f+P}" y2="${(H-2*P)*f+P}" stroke="rgba(255,255,255,.06)"/>`).join("")}
+    <path d="${line} L${pts[n-1][0]},${H-P} L${pts[0][0]},${H-P} Z" fill="url(#${gid})"/>
+    <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="4.5" fill="${stroke}" stroke="var(--card)" stroke-width="2"/>
+    <text x="${pts[n-1][0]-6}" y="${pts[n-1][1]-9}" text-anchor="end" font-size="12" font-weight="700" fill="var(--txt)" font-family="JetBrains Mono,monospace">${data[n-1]}${unit}</text>
+    ${pts.map((p,i)=>`<rect x="${p[0]-((W-2*P)/(n-1))/2}" y="0" width="${(W-2*P)/(n-1)}" height="${H}" fill="transparent"><title>${unit==="%"?"Attempt":"Entry"} ${i+1}: ${data[i]}${unit}</title></rect>`).join("")}
+  </svg>`;
+}
+function pgBars(days,W,H){
+  const P=8,max=Math.max(...days.map(d=>d.v),1),bw=(W-2*P)/days.length;
+  return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    ${days.map((d,i)=>{
+      const h=d.v?Math.max(6,d.v/max*(H-30)):3;
+      const x=P+i*bw+2,y=H-16-h;
+      return`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-4).toFixed(1)}" height="${h.toFixed(1)}" rx="3"
+        fill="${d.today?"var(--acc2)":d.v?"var(--acc)":"rgba(255,255,255,.07)"}"><title>${d.label}: ${d.v} word${d.v!==1?"s":""} spoken</title></rect>
+      ${i%2===0?`<text x="${(x+bw/2-2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="var(--mut2)">${d.label}</text>`:""}`;
+    }).join("")}
+  </svg>`;
+}
+function pgGauge(wpm){
+  const W=460,H=64,P=10,lo=60,hi=200;
+  const X=v=>P+(Math.min(Math.max(v,lo),hi)-lo)/(hi-lo)*(W-2*P);
+  const seg=(a,b,c)=>`<rect x="${X(a)}" y="26" width="${X(b)-X(a)-2}" height="8" rx="4" fill="${c}"/>`;
+  const msg=!wpm?"Record a speaking-feedback session to measure your pace":
+    wpm<100?"Warming up — natives average 140–160 wpm; push the pace a little":
+    wpm<=160?"You're in the natural professional zone — just right! ✅":
+    "You're speaking fast! Consider slowing down slightly to maintain clarity.";
+  return`<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+    <div><span class="fb-score-ring" style="color:var(--acc2)">${wpm||"—"}</span><span style="color:var(--mut);font-size:13px;font-weight:700"> WPM</span></div>
+    <p style="flex:1;min-width:200px;font-size:13px;color:var(--mut);margin:0">${msg}</p></div>
+  <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;margin-top:4px">
+    ${seg(60,100,"rgba(255,255,255,.10)")}${seg(100,160,"rgba(52,211,153,.45)")}${seg(160,200,"rgba(251,191,36,.4)")}
+    ${wpm?`<circle cx="${X(wpm)}" cy="30" r="8" fill="#fff" stroke="var(--card)" stroke-width="2.5"><title>Your latest pace: ${wpm} wpm</title></circle>`:""}
+    <text x="${X(60)}" y="14" font-size="10" fill="var(--mut2)">Warming up</text>
+    <text x="${X(130)}" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="var(--green)">Just right</text>
+    <text x="${X(200)}" y="14" text-anchor="end" font-size="10" fill="var(--gold)">Fast</text>
+    ${[60,100,160,200].map(v=>`<text x="${X(v)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--mut2)" font-family="JetBrains Mono,monospace">${v}</text>`).join("")}
+  </svg>`;
+}
+function progressHTML(){
+  const scored=S.fbHist.filter(x=>x.score!=null);
+  const totalWords=S.fbHist.reduce((a,x)=>a+(x.words||0),0);
+  const best=scored.length?Math.max(...scored.map(x=>x.score)):null;
+  const lastWpm=S.fbHist.length?S.fbHist[S.fbHist.length-1].wpm:0;
+  const vocN=Object.keys(S.vocab||{}).length;
+  /* vocabulary growth: cumulative count by save date */
+  const vts=Object.values(S.vocab||{}).map(v=>v.ts).sort((a,b)=>a-b);
+  const vocCurve=vts.map((_,i)=>i+1);
+  /* last 14 days of speaking activity */
+  const days=[...Array(14)].map((_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-(13-i));
+    const k=d.toISOString().slice(0,10);
+    return{label:(d.getMonth()+1)+"/"+d.getDate(),today:i===13,
+      v:S.fbHist.filter(x=>new Date(x.ts).toISOString().slice(0,10)===k).reduce((a,x)=>a+(x.words||0),0)};
+  });
+  return`
+  <div class="card" style="margin-bottom:22px;background:linear-gradient(150deg,rgba(99,102,241,.10),rgba(34,211,238,.04))">
+    <div class="eyebrow">📈 Progress Studio</div>
+    <p style="font-size:13px;color:var(--mut);margin:2px 0 16px">Everything below is measured automatically from your shadowing &amp; speaking-feedback sessions.</p>
+    <div class="grid g4" style="margin-bottom:16px">
+      <div class="stat"><div class="n">🗣️ ${totalWords.toLocaleString()}</div><div class="l">Words spoken in feedback sessions</div></div>
+      <div class="stat"><div class="n">🎯 ${best!=null?best+"%":"—"}</div><div class="l">Best pronunciation score</div></div>
+      <div class="stat"><div class="n">⚡ ${lastWpm||"—"}</div><div class="l">Latest pace (wpm)</div></div>
+      <div class="stat"><div class="n">📚 ${vocN}</div><div class="l">Words in My vocabulary</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))">
+      <div class="card" style="background:var(--bg2)">
+        <b style="font-size:14px">🎯 Pronunciation score journey</b>
+        <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">Every speaking-feedback attempt, oldest → newest</p>
+        ${pgArea(scored.map(x=>x.score),"#6366f1",460,150,"%")}
+      </div>
+      <div class="card" style="background:var(--bg2)">
+        <b style="font-size:14px">📚 Vocabulary growth</b>
+        <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">Words saved to My vocabulary over time</p>
+        ${vocCurve.length>=2?pgArea(vocCurve,"#22d3ee",460,150,""):`<div style="height:150px;display:grid;place-items:center;color:var(--mut2);font-size:12.5px;text-align:center">🔖 Save 2+ words from your speaking feedback<br>to grow this curve</div>`}
+      </div>
+      <div class="card" style="background:var(--bg2)">
+        <b style="font-size:14px">⚡ Speaking speed</b>
+        ${pgGauge(lastWpm)}
+      </div>
+      <div class="card" style="background:var(--bg2)">
+        <b style="font-size:14px">🗓️ Speaking activity — last 14 days</b>
+        <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">Words spoken per day · <span style="color:var(--acc2)">today in cyan</span></p>
+        ${pgBars(days,460,120)}
+      </div>
+    </div>
+  </div>`;
+}
 function rReview(el,wArg){
   const w=wArg||currentPos().w;
   const wr=S.weekly[w]||{scores:{},wins:"",weak:"",corr:"",top5:""};
   el.innerHTML=`
   <div class="eyebrow">Sunday Reviews & Monthly Dashboards</div>
   <h1 class="big">Measure or <em>drift</em></h1>
+  ${progressHTML()}
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">W${x.n}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="grid g2" style="align-items:start">
     <div class="card">
