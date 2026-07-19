@@ -834,7 +834,8 @@ function go(v,arg1,arg2){
   cur={v,arg1,arg2};
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   bnavSync(v);
-  document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+  /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
+  document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
   ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,data:rData})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
@@ -970,6 +971,7 @@ function rSession(el,w,d){
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">Tap to start recording</div></div>
         </div>
         <div id="recList"></div>
+        <div id="waveBox" style="margin-top:14px"></div>
       </div>
       <div class="card" style="margin-bottom:16px">
         <b style="display:block;margin-bottom:4px">🎬 My example — what I plan to say</b>
@@ -1056,8 +1058,72 @@ window.recToggle=async(ctx,label)=>{
     },500);
   }catch(e){toast("⚠️ Microphone access denied — allow the mic in your browser.")}
 };
+/* ===== WAVEFORM COMPARISON (latest take layered over the previous one) ===== */
+let waveAC=null;
+async function decodePeaks(blob,N){
+  waveAC=waveAC||new (window.AudioContext||window.webkitAudioContext)();
+  const buf=await waveAC.decodeAudioData(await blob.arrayBuffer());
+  const d=buf.getChannelData(0),step=Math.max(1,Math.floor(d.length/N)),peaks=[];
+  for(let i=0;i<N;i++){let m=0;const s=i*step,e=Math.min(s+step,d.length);
+    for(let j=s;j<e;j+=16){const a=Math.abs(d[j]);if(a>m)m=a}
+    peaks.push(m)}
+  const mx=Math.max(...peaks,0.01);
+  return{peaks:peaks.map(p=>p/mx),dur:buf.duration};
+}
+function countPauses(peaks,dur){
+  const bucket=dur/peaks.length,minRun=Math.max(1,Math.round(0.3/bucket));
+  let n=0,run=0;
+  for(const p of peaks){if(p<0.08){run++}else{if(run>=minRun)n++;run=0}}
+  return n;
+}
+async function waveRender(ctxName){
+  const box=document.getElementById("waveBox");if(!box)return;
+  try{
+    const recs=await getRecs(ctxName);
+    if(!recs.length){box.innerHTML="";return}
+    const N=560;
+    const latest=await decodePeaks(recs[0].blob,N);
+    const prev=recs[1]?await decodePeaks(recs[1].blob,N):null;
+    const W=640,H=150,mid=H/2;
+    const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+    cv.style.cssText="width:100%;height:auto;display:block;background:#0a0e1a;border-radius:12px";
+    const g=cv.getContext("2d");
+    /* time-aligned: both drawn on the scale of the longer take, so pacing differences are visible */
+    const maxDur=Math.max(latest.dur,prev?prev.dur:0)||1;
+    const draw=(pk,dur,color)=>{
+      const usable=W*(dur/maxDur),bw=usable/pk.length;
+      g.fillStyle=color;
+      for(let i=0;i<pk.length;i++){
+        const h=Math.max(1.5,pk[i]*(H/2-8));
+        g.fillRect(i*bw,mid-h,Math.max(1,bw*0.75),h*2);
+      }
+    };
+    if(prev)draw(prev.peaks,prev.dur,"rgba(99,102,241,.42)");
+    draw(latest.peaks,latest.dur,"rgba(34,211,238,.8)");
+    g.fillStyle="rgba(255,255,255,.25)";g.fillRect(0,mid,W,1);
+    const pl=countPauses(latest.peaks,latest.dur);
+    let insight;
+    if(prev){
+      const dd=latest.dur-prev.dur,pp=countPauses(prev.peaks,prev.dur);
+      insight=`Latest take <b style="color:var(--acc2)">${latest.dur.toFixed(1)}s</b> vs previous <b style="color:#a5b4fc">${prev.dur.toFixed(1)}s</b>`
+        +(Math.abs(dd)>=0.8?dd<0?` — <b style="color:var(--green)">${(-dd).toFixed(1)}s tighter — more confident pacing 📈</b>`:` — ${dd.toFixed(1)}s longer — aim for a tighter delivery`:" — consistent pacing ✅")
+        +` · pauses: ${pl}${pp!==pl?` (was ${pp})`:""}`;
+    }else{
+      insight=`First take: <b style="color:var(--acc2)">${latest.dur.toFixed(1)}s</b> · ${pl} pause${pl!==1?"s":""} — record a second take and watch the waveforms overlap`;
+    }
+    box.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+      <b style="font-size:13.5px">📈 Waveform — see your voice change</b>
+      <span style="flex:1"></span>
+      ${prev?`<span class="chip" style="border-color:rgba(99,102,241,.5);color:#a5b4fc">▮ previous</span>`:""}
+      <span class="chip" style="border-color:rgba(34,211,238,.5);color:#67e8f9">▮ latest</span>
+    </div>`;
+    box.appendChild(cv);
+    box.insertAdjacentHTML("beforeend",`<p style="font-size:12.5px;color:var(--mut);margin-top:8px">${insight}</p>`);
+  }catch(e){box.innerHTML=""}
+}
 async function renderRecs(ctx){
   const list=document.getElementById("recList");if(!list)return;
+  waveRender(ctx);
   const recs=await getRecs(ctx);
   list.innerHTML=recs.length?recs.map(r=>{
     const url=URL.createObjectURL(r.blob);
@@ -1163,6 +1229,7 @@ function rShadow(el){
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">Tap to start recording</div></div>
         </div>
         <div id="recList"></div>
+        <div id="waveBox" style="margin-top:14px"></div>
       </div>
       <div class="card">
         <b style="font-size:15px">🎬 Clip transcript & notes</b>
@@ -2295,7 +2362,7 @@ function goSession(){}
       cur={v,arg1:a1,arg2:a2};
       document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==="journey"));
       bnavSync("session");
-      document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
+      document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});
       const el=document.getElementById("v-journey");el.classList.add("on");
       rSession(el,a1,a2);document.getElementById("streakN").textContent=streak();window.scrollTo({top:0});
       return;
@@ -2311,6 +2378,12 @@ function goSession(){}
     const h="#"+[v,a1,a2].filter(x=>x!==undefined&&x!==null&&x!=="").join("/");
     if(location.hash!==h)history.replaceState(null,"",h);
   };
+})();
+/* one-time cleanup: purge alignment-noise trouble words saved before the stopword filter existed */
+(function(){
+  let dirty=false;
+  Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||VOC_STOP.has(w)){delete S.trouble[w];dirty=true}});
+  if(dirty)save();
 })();
 (function boot(){
   const valid=["home","journey","phrases","shadow","review","data","session"];
