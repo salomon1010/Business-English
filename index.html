@@ -210,6 +210,19 @@ th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
 th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px}
 .pass{color:var(--green);font-weight:700}.fail{color:var(--red);font-weight:700}
 
+/* ONBOARDING */
+.ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px;
+  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,rgba(99,102,241,.28),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,rgba(34,211,238,.12),transparent)}
+.ob-card{max-width:520px;width:100%;text-align:center;animation:fade .4s}
+.ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45)}
+.ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
+.ob-card .sub{margin:0 auto 26px}
+.ob-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.ob-chip{border:1px solid var(--line2);background:var(--card);color:var(--txt);padding:12px 20px;border-radius:14px;font-size:14.5px;font-weight:600;transition:.15s}
+.ob-chip:hover,.ob-chip.on{border-color:var(--acc);background:rgba(99,102,241,.14)}
+.ob-dots{display:flex;gap:7px;justify-content:center;margin-top:26px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
+.ob-dot.on{background:var(--acc2);width:22px;border-radius:99px}
 /* BOTTOM NAV (mobile app style) */
 .bottom-nav{display:none}
 .more-sheet{position:fixed;bottom:82px;right:10px;z-index:61;background:var(--card2);border:1px solid var(--line2);border-radius:16px;padding:8px;flex-direction:column;gap:2px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:170px}
@@ -256,7 +269,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <div id="v-shadow" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-data" class="view"></div>
-  <div class="footer-note">12-Week Business English Mastery System · Built for Salomon · Progress is saved automatically in this browser<br>
+  <div class="footer-note">12-Week Business English Mastery System · Progress is saved automatically on this device<br>
   Brainjo Laws #9 & #10: practice until attention fades (20–25 min) — quality beats quantity.</div>
 </main>
 <div class="toast" id="toast"></div>
@@ -591,8 +604,8 @@ const RULES=[
 const LS_KEY="be12_v1";
 let S=load();
 function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};d.profile=d.profile||null;return d}}catch(e){}
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -839,8 +852,8 @@ async function rHome(el){
   const circ=2*Math.PI*62;
   el.innerHTML=`
   <div class="eyebrow">12-Week Business English Mastery System</div>
-  <h1 class="big">Speak like you <em>belong in the room</em></h1>
-  <p class="sub">Six days a week, 25 focused minutes a day. Pronunciation, fluency under pressure, business phrases, and real work communication — built for a Data Engineer / Agile PM in a U.S. work environment.</p>
+  <h1 class="big">${S.profile&&S.profile.name?esc(S.profile.name)+", speak like you <em>belong in the room</em>":"Speak like you <em>belong in the room</em>"}</h1>
+  <p class="sub">Six days a week, 25 focused minutes a day. Pronunciation, fluency under pressure, business phrases, and real work communication${S.profile&&S.profile.role?" — built for <b style='color:var(--txt)'>"+esc(S.profile.role)+"</b> professionals":""}.${S.profile&&S.profile.goal?" Your goal: <b style='color:var(--acc2)'>"+esc(S.profile.goal)+"</b>":""}</p>
   <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
@@ -1854,6 +1867,57 @@ window.fbTry=(word,i)=>{
   r.start();
 };
 
+/* ===== EXECUTIVE POLISH: casual → executive speech (rule-based) ===== */
+const EXEC_FRAMES=[["Open like an executive","The headline is… / At a high level…"],["State the issue","The main blocker is… / The root cause appears to be…"],["Close with action","The next step is… / What I need from you is…"]];
+function execPolish(text){
+  let out=" "+String(text).trim()+" ";const changes=[];
+  for(const f of FILLERS){
+    const re=new RegExp("\\b"+f+"\\b[,]* ","gi");
+    if(re.test(out)){out=out.replace(re,"");changes.push(`removed filler “${f}”`)}
+  }
+  const SOFT=[[/\bi think maybe\b/gi,"I recommend"],[/\brecommend (we|you|they) need to\b/gi,"recommend $1"],[/\bkind of\b/gi,""],[/\bsort of\b/gi,""],[/\bjust\b/gi,""],[/\bstuff\b/gi,"work"],[/\bthings\b/gi,"items"],[/\ba lot of\b/gi,"significant"],[/\bvery very\b/gi,"extremely"]];
+  for(const[re,rep]of SOFT){if(re.test(out)){out=out.replace(re,rep);changes.push(`“${re.source.replace(/\\b|\(.*?\)/g,"").trim()}” → ${rep?rep.replace(/\$1\s*/,""):"(removed)"}`)}}
+  for(const[re,bad,corr]of GRAM_FIX){
+    if(re.test(out)){out=out.replace(re,m=>corr==="for X years"?m.replace(/since/i,"for"):corr);changes.push(`${bad} → ${corr}`)}
+  }
+  for(const[a,b]of Object.entries(SYN_UP)){
+    /* don't upgrade verbs into ungrammatical infinitives: "need to" stays "need to" */
+    const re=a==="need"?/\bneed\b(?!\s+to)/gi:a==="get"?/\bget\b(?!\s+(to|up|back|it|out))/gi:new RegExp("\\b"+a+"\\b","gi");
+    if(re.test(out)){out=out.replace(re,b);changes.push(`${a} → ${b}`)}
+  }
+  out=out.replace(/\s+/g," ").replace(/\s+([,.!?])/g,"$1").trim();
+  if(out)out=out[0].toUpperCase()+out.slice(1);
+  if(out&&!/[.!?]$/.test(out))out+=".";
+  return{out,changes};
+}
+window.exGo=()=>{
+  const t=document.getElementById("exIn").value.trim();
+  if(!t)return toast("Type or dictate a sentence first");
+  const{out,changes}=execPolish(t);
+  document.getElementById("exOut").innerHTML=`
+    <div class="hr"></div>
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">💼 Executive version</div>
+    <p style="font-size:17px;font-weight:600;line-height:1.55;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">${esc(out)}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
+      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},1)">🔊 Hear it</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},0.7)">🐢 Slow</button>
+      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(out)}).then(()=>toast('Copied 📋'))">📋 Copy</button>
+    </div>
+    ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">What changed:</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
+    :`<p style="font-size:13px;color:var(--green)">Already clean — try saying it with the frames below 👇</p>`}
+    <div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map(f=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${f[0]}:</b> <i>${f[1]}</i></div>`).join("")}</div>`;
+  markPracticed();save();
+};
+window.exDictate=()=>{
+  if(!SR)return toast("⚠️ Dictation needs Chrome, Edge or Safari");
+  const st=document.getElementById("exSt");st.textContent="🎧 Listening…";
+  const r=new SR();r.lang="en-US";r.continuous=false;r.interimResults=false;
+  r.onresult=e=>{document.getElementById("exIn").value=e.results[0][0].transcript;st.textContent="";exGo()};
+  r.onerror=()=>{st.textContent="Mic error — try again"};
+  r.onend=()=>{if(st.textContent.startsWith("🎧"))st.textContent=""};
+  r.start();
+};
+
 /* ================= PHRASES ================= */
 function rPhrases(el,wFilter){
   const w=wFilter||currentPos().w;
@@ -1861,6 +1925,17 @@ function rPhrases(el,wFilter){
   <div class="eyebrow">Phrase Bank & Business Idioms</div>
   <h1 class="big">Repeat. Record. <em>Own it.</em></h1>
   <p class="sub">For each phrase: say it aloud 5×, record yourself once, write your own example from your real work, then mark it mastered. Your weekly top 5 must show up in real meetings.</p>
+  <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
+    <b style="font-size:15px">💼 Executive Polish</b> <span class="chip p3">say it like a leader</span>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">Type or dictate what you'd say casually — get it back polished: fillers removed, grammar fixed, weak words upgraded to executive vocabulary.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <input id="exIn" placeholder="e.g. um I think maybe we need to fix the problem with the informations" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
+      <button class="btn btn-g" onclick="exDictate()">🎤</button>
+      <button class="btn btn-p" onclick="exGo()">✨ Polish it</button>
+    </div>
+    <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
+    <div id="exOut"></div>
+  </div>
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">W${x.n}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">All mastered ✓</button></div>
   <div id="phList"></div>`;
@@ -2202,6 +2277,74 @@ function goSession(){}
 })();
 ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+
+/* ===== ONBOARDING (first launch) ===== */
+let OB={step:0,name:"",role:"",goal:""};
+const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
+const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
+function obRender(){
+  let el=document.getElementById("obWrap");
+  if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";document.body.appendChild(el)}
+  const dots=`<div class="ob-dots">${[0,1,2,3].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
+  const steps=[
+    `<div class="ob-logo">🗣️</div>
+     <h2>Speak like you <em style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">belong in the room</em></h2>
+     <p class="sub">25 focused minutes a day. Real feedback on your pronunciation, grammar and vocabulary — all private, all on your device.</p>
+     <input id="obName" placeholder="What's your first name?" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
+     <br><button class="btn btn-p" style="font-size:16px;padding:14px 34px" onclick="obNext()">Let's go →</button>`,
+    `<div class="ob-logo">💼</div>
+     <h2>What do you do, ${esc(OB.name||"friend")}?</h2>
+     <p class="sub">Your daily drills use real situations from your world — standups, updates, interviews.</p>
+     <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${r}</button>`).join("")}</div>`,
+    `<div class="ob-logo">🎯</div>
+     <h2>What's your #1 goal?</h2>
+     <p class="sub">We'll keep this in front of you every day.</p>
+     <div class="ob-chips">${OB_GOALS.map(g=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()">${g}</button>`).join("")}</div>`,
+    `<div class="ob-logo">🚀</div>
+     <h2>Your first win takes 60 seconds</h2>
+     <p class="sub">Say this sentence out loud, like you're in a meeting:</p>
+     <p style="font-size:19px;font-weight:700;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px 20px;margin-bottom:8px">“The main blocker is the vendor API — we expect a fix by Friday.”</p>
+     <p id="obTryOut" style="font-size:14px;min-height:22px;margin-bottom:14px;color:var(--mut)"></p>
+     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+       <button class="btn btn-p" style="font-size:15.5px" onclick="obTry()">🎤 Say it now</button>
+       <button class="btn btn-g" onclick="obFinish()">Skip — take me in →</button>
+     </div>`
+  ];
+  el.innerHTML=`<div class="ob-card">${steps[OB.step]}${dots}</div>`;
+  const inp=document.getElementById("obName");if(inp){inp.value=OB.name;inp.focus()}
+}
+window.obNext=()=>{
+  if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast("Tell me your name 🙂")}
+  OB.step++;
+  if(OB.step>3)return obFinish();
+  obRender();
+};
+window.obTry=()=>{
+  if(!SR){toast("Speech recognition needs Chrome — skipping");return obFinish()}
+  const out=document.getElementById("obTryOut");out.textContent="🎧 Listening… speak now";
+  const r=new SR();r.lang="en-US";r.continuous=false;r.interimResults=false;r.maxAlternatives=1;
+  let got=false;
+  r.onresult=e=>{got=true;
+    const heard=e.results[0][0].transcript;
+    const t=fbTokens("the main blocker is the vendor api we expect a fix by friday");
+    const h=fbTokens(heard);
+    const ok=fbAlign(t,h).filter(o=>o.op==="ok").length;
+    const sc=Math.round(100*ok/t.length);
+    out.innerHTML=`<b style="color:${sc>=70?"var(--green)":"var(--gold)"}">${sc>=70?"🎉 "+sc+"% clear — you sound ready!":"💪 "+sc+"% — that's your baseline, it only goes up from here"}</b>`;
+    setTimeout(obFinish,2200);
+  };
+  r.onerror=()=>{out.textContent="Mic unavailable — no problem, skipping";setTimeout(obFinish,1200)};
+  r.onend=()=>{if(!got&&out.textContent.startsWith("🎧")){out.textContent="Didn't catch that — tap to try again, or skip"}};
+  r.start();
+};
+window.obFinish=()=>{
+  S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",ts:Date.now()};
+  save();
+  const el=document.getElementById("obWrap");if(el)el.remove();
+  toast(`Welcome, ${S.profile.name}! Day 1 starts now 🔥`);
+  go("home");
+};
+if(!S.profile)obRender();
 </script>
 </body>
 </html>
