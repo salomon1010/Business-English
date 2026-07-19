@@ -853,7 +853,7 @@ async function rHome(el){
   el.innerHTML=`
   <div class="eyebrow">12-Week Business English Mastery System</div>
   <h1 class="big">${S.profile&&S.profile.name?esc(S.profile.name)+", speak like you <em>belong in the room</em>":"Speak like you <em>belong in the room</em>"}</h1>
-  <p class="sub">Six days a week, 25 focused minutes a day. Pronunciation, fluency under pressure, business phrases, and real work communication${S.profile&&S.profile.role?" — built for <b style='color:var(--txt)'>"+esc(S.profile.role)+"</b> professionals":""}.${S.profile&&S.profile.goal?" Your goal: <b style='color:var(--acc2)'>"+esc(S.profile.goal)+"</b>":""}</p>
+  <p class="sub">Six days a week, 25 focused minutes a day. Pronunciation, fluency under pressure, business phrases, and real work communication${S.profile&&S.profile.role?" — built for <b style='color:var(--txt)'>"+esc(S.profile.role)+"</b> professionals":""}.${S.profile&&S.profile.goal?" Your goal: <b style='color:var(--acc2)'>"+esc(S.profile.goal)+"</b>":""}${S.profile&&S.profile.slot?" · Daily slot: <b style='color:var(--gold)'>"+esc(S.profile.slot)+"</b>":""}</p>
   <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
@@ -1875,7 +1875,7 @@ function execPolish(text){
     const re=new RegExp("\\b"+f+"\\b[,]* ","gi");
     if(re.test(out)){out=out.replace(re,"");changes.push(`removed filler “${f}”`)}
   }
-  const SOFT=[[/\bi think maybe\b/gi,"I recommend"],[/\brecommend (we|you|they) need to\b/gi,"recommend $1"],[/\bkind of\b/gi,""],[/\bsort of\b/gi,""],[/\bjust\b/gi,""],[/\bstuff\b/gi,"work"],[/\bthings\b/gi,"items"],[/\ba lot of\b/gi,"significant"],[/\bvery very\b/gi,"extremely"]];
+  const SOFT=[[/\bi think maybe (we|you|they) (should|need to|could)\b/gi,"I recommend $1"],[/\brecommend (we|you|they) need to\b/gi,"recommend $1"],[/\bi think maybe\b,?\s*/gi,""],[/\bi think\b,?\s*/gi,""],[/\bmaybe\b\s*/gi,""],[/\bsorry about that\b[.,]?\s*/gi,""],[/\bto be honest\b,?\s*/gi,""],[/\bkind of\b/gi,""],[/\bsort of\b/gi,""],[/\bjust\b/gi,""],[/\bstuff\b/gi,"work"],[/\bthings\b/gi,"items"],[/\ba lot of\b/gi,"significant"],[/\bvery very\b/gi,"extremely"]];
   for(const[re,rep]of SOFT){if(re.test(out)){out=out.replace(re,rep);changes.push(`“${re.source.replace(/\\b|\(.*?\)/g,"").trim()}” → ${rep?rep.replace(/\$1\s*/,""):"(removed)"}`)}}
   for(const[re,bad,corr]of GRAM_FIX){
     if(re.test(out)){out=out.replace(re,m=>corr==="for X years"?m.replace(/since/i,"for"):corr);changes.push(`${bad} → ${corr}`)}
@@ -1902,11 +1902,36 @@ window.exGo=()=>{
       <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},1)">🔊 Hear it</button>
       <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},0.7)">🐢 Slow</button>
       <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(out)}).then(()=>toast('Copied 📋'))">📋 Copy</button>
+      <button class="btn btn-g btn-sm" onclick="exAIPrompt()" title="Copy a ready-made coaching prompt for ChatGPT, Claude or Gemini">🤖 AI coach prompt</button>
     </div>
     ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">What changed:</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
     :`<p style="font-size:13px;color:var(--green)">Already clean — try saying it with the frames below 👇</p>`}
     <div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map(f=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${f[0]}:</b> <i>${f[1]}</i></div>`).join("")}</div>`;
   markPracticed();save();
+};
+window.exAIPrompt=()=>{
+  const t=document.getElementById("exIn").value.trim()||"[paste what you said here]";
+  const p=`### SYSTEM ROLE
+You are an elite Executive Communication Coach. Your task is to transform casual, unstructured, or blunt conversational English into polished, authoritative, and strategic executive communication.
+
+### RULES
+1. Maintain the user's core intent but upgrade the vocabulary to "enterprise-value" terms.
+2. Remove "hedging" (e.g., "I think," "maybe," "just").
+3. Ensure the output is optimized for spoken delivery (natural breathing pauses).
+4. Keep it concise enough to say in one breath sequence — this will be spoken, not written.
+
+### FEW-SHOT EXAMPLES
+Input: "The project is going to be late because the devs found some bugs. Sorry about that."
+Output: "We are currently navigating unforeseen technical complexities, which necessitates an adjustment to our delivery timeline. We are reallocating resources to ensure a stable release."
+
+Input: "I don't really like this idea, let's try to do something else instead."
+Output: "I have concerns regarding the current strategic alignment of this proposal. I recommend we explore alternative frameworks that more closely support our objectives."
+
+### TARGET INPUT
+Input: "${t}"
+Context: business meeting with stakeholders
+Output:`;
+  navigator.clipboard.writeText(p).then(()=>toast("🤖 Coach prompt copied — paste it into ChatGPT, Claude or Gemini"));
 };
 window.exDictate=()=>{
   if(!SR)return toast("⚠️ Dictation needs Chrome, Edge or Safari");
@@ -2044,6 +2069,26 @@ function pgGauge(wpm){
     ${[60,100,160,200].map(v=>`<text x="${X(v)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--mut2)" font-family="JetBrains Mono,monospace">${v}</text>`).join("")}
   </svg>`;
 }
+function pgStory(){
+  const now=Date.now(),wk=7*864e5;
+  const week=S.fbHist.filter(x=>now-x.ts<wk);
+  const days=new Set(S.dates.filter(d=>now-new Date(d).getTime()<wk)).size;
+  const words=week.reduce((a,x)=>a+(x.words||0),0);
+  const sc=S.fbHist.filter(x=>x.score!=null);
+  const recent=sc.slice(-3).map(x=>x.score),earlier=sc.slice(-6,-3).map(x=>x.score);
+  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+  const rNow=avg(recent),rPrev=avg(earlier);
+  const vocNew=Object.values(S.vocab||{}).filter(v=>now-v.ts<wk).length;
+  const tb=Object.keys(S.trouble||{}).length;
+  const name=S.profile&&S.profile.name?S.profile.name:"You";
+  if(!week.length&&!days)return`${name}, your story starts with one recording. Open the 🎯 Shadow tab, pick a starter clip, and press the mic — the numbers below will start moving today.`;
+  let s=`${name}, you practiced <b>${days} day${days!==1?"s":""}</b> this week and spoke <b>${words.toLocaleString()} words</b> out loud.`;
+  if(rNow!=null&&rPrev!=null)s+=rNow>rPrev?` Your pronunciation is climbing — <b style="color:var(--green)">${rPrev}% → ${rNow}% 📈</b>.`:rNow<rPrev?` Your recent scores dipped (<b>${rPrev}% → ${rNow}%</b>) — slow down and hit the stressed words.`:` Your score is holding steady at <b>${rNow}%</b> — push for a new best.`;
+  else if(rNow!=null)s+=` Your recent pronunciation average is <b>${rNow}%</b>.`;
+  if(vocNew)s+=` You banked <b>${vocNew} new word${vocNew>1?"s":""}</b> 📚.`;
+  s+=tb?` <b>${tb} trouble word${tb>1?"s":""}</b> ${tb>1?"are":"is"} waiting in your gym — clear ${tb>1?"one":"it"} today 💪.`:` Your trouble-word gym is empty — flawless 💪.`;
+  return s;
+}
 function progressHTML(){
   const scored=S.fbHist.filter(x=>x.score!=null);
   const totalWords=S.fbHist.reduce((a,x)=>a+(x.words||0),0);
@@ -2063,7 +2108,10 @@ function progressHTML(){
   return`
   <div class="card" style="margin-bottom:22px;background:linear-gradient(150deg,rgba(99,102,241,.10),rgba(34,211,238,.04))">
     <div class="eyebrow">📈 Progress Studio</div>
-    <p style="font-size:13px;color:var(--mut);margin:2px 0 16px">Everything below is measured automatically from your shadowing &amp; speaking-feedback sessions.</p>
+    <div style="background:var(--card);border:1px solid var(--line2);border-left:4px solid var(--acc2);border-radius:12px;padding:14px 18px;margin:10px 0 16px">
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);margin-bottom:5px">📖 Your story this week</div>
+      <p style="font-size:14.5px;line-height:1.65;margin:0">${pgStory()}</p>
+    </div>
     <div class="grid g4" style="margin-bottom:16px">
       <div class="stat"><div class="n">🗣️ ${totalWords.toLocaleString()}</div><div class="l">Words spoken in feedback sessions</div></div>
       <div class="stat"><div class="n">🎯 ${best!=null?best+"%":"—"}</div><div class="l">Best pronunciation score</div></div>
@@ -2279,13 +2327,14 @@ ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 
 /* ===== ONBOARDING (first launch) ===== */
-let OB={step:0,name:"",role:"",goal:""};
+let OB={step:0,name:"",role:"",goal:"",slot:""};
+const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
 function obRender(){
   let el=document.getElementById("obWrap");
   if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";document.body.appendChild(el)}
-  const dots=`<div class="ob-dots">${[0,1,2,3].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
+  const dots=`<div class="ob-dots">${[0,1,2,3,4].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo">🗣️</div>
      <h2>Speak like you <em style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">belong in the room</em></h2>
@@ -2300,6 +2349,10 @@ function obRender(){
      <h2>What's your #1 goal?</h2>
      <p class="sub">We'll keep this in front of you every day.</p>
      <div class="ob-chips">${OB_GOALS.map(g=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()">${g}</button>`).join("")}</div>`,
+    `<div class="ob-logo">⏰</div>
+     <h2>When is your daily 25 minutes?</h2>
+     <p class="sub">Attaching practice to an existing habit is how streaks survive. Pick your slot — we'll hold you to it.</p>
+     <div class="ob-chips">${OB_SLOTS.map(s=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()">${s}</button>`).join("")}</div>`,
     `<div class="ob-logo">🚀</div>
      <h2>Your first win takes 60 seconds</h2>
      <p class="sub">Say this sentence out loud, like you're in a meeting:</p>
@@ -2316,7 +2369,7 @@ function obRender(){
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast("Tell me your name 🙂")}
   OB.step++;
-  if(OB.step>3)return obFinish();
+  if(OB.step>4)return obFinish();
   obRender();
 };
 window.obTry=()=>{
@@ -2338,11 +2391,11 @@ window.obTry=()=>{
   r.start();
 };
 window.obFinish=()=>{
-  S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",ts:Date.now()};
+  S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",ts:Date.now()};
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
-  toast(`Welcome, ${S.profile.name}! Day 1 starts now 🔥`);
-  go("home");
+  toast(`Welcome, ${S.profile.name}! Pick a clip and do your first 30-second sprint 🎬`);
+  go("shadow");
 };
 if(!S.profile)obRender();
 </script>
