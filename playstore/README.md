@@ -127,7 +127,7 @@ device. Works offline.
 
 25 minutes a day. 12 weeks. Walk into your next meeting ready.
 
-© 2026 Lomonec — BE Mastery. All rights reserved.
+© 2026 Lomonec LLC — BE Mastery. All rights reserved.
 ```
 
 **Support email (required by Play):** nore.ngou@gmail.com — also shown in-app
