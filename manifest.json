@@ -1,0 +1,16 @@
+{
+  "name": "Business English Mastery — 12-Week System",
+  "short_name": "BE Mastery",
+  "description": "Speak like you belong in the room. 25 minutes a day of guided Business English practice: shadowing, speaking feedback, phrases and progress tracking.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e1a",
+  "theme_color": "#0a0e1a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

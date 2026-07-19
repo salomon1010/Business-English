@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business English Mastery — 12-Week System</title>
+<meta name="theme-color" content="#0a0e1a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -206,6 +210,25 @@ th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
 th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px}
 .pass{color:var(--green);font-weight:700}.fail{color:var(--red);font-weight:700}
 
+/* BOTTOM NAV (mobile app style) */
+.bottom-nav{display:none}
+.more-sheet{position:fixed;bottom:82px;right:10px;z-index:61;background:var(--card2);border:1px solid var(--line2);border-radius:16px;padding:8px;flex-direction:column;gap:2px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:170px}
+.more-sheet button,.more-sheet a{background:none;border:none;color:var(--txt);font-size:14.5px;font-weight:600;padding:11px 16px;border-radius:10px;text-align:left;text-decoration:none;display:block;width:100%}
+.more-sheet button:active,.more-sheet a:active{background:rgba(255,255,255,.08)}
+@media(max-width:820px){
+  .nav-in button.tab,.nav-in a.tab{display:none}
+  .bottom-nav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:60;display:flex;justify-content:space-around;align-items:stretch;
+    background:rgba(15,21,38,.97);backdrop-filter:blur(16px);border-top:1px solid var(--line2);
+    padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+  .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;
+    color:var(--mut);font-size:10.5px;font-weight:600;padding:4px 2px;border-radius:12px;transition:.15s;font-family:inherit}
+  .bnav-item .ic{font-size:21px;line-height:1;transition:.15s}
+  .bnav-item.on{color:#fff}
+  .bnav-item.on .ic{transform:translateY(-2px) scale(1.15)}
+  .bnav-item.on::before{content:"";position:absolute;width:0}
+  main{padding-bottom:110px}
+  .toast{bottom:96px}
+}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
 .footer-note{text-align:center;color:var(--mut2);font-size:12.5px;margin-top:50px;line-height:1.7}
@@ -237,6 +260,21 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   Brainjo Laws #9 & #10: practice until attention fades (20–25 min) — quality beats quantity.</div>
 </main>
 <div class="toast" id="toast"></div>
+
+<!-- Mobile bottom navigation (app style) -->
+<nav class="bottom-nav" aria-label="Main navigation">
+  <button class="bnav-item on" data-v="home" onclick="go('home')"><span class="ic">🏠</span>Home</button>
+  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic">🗺️</span>Weeks</button>
+  <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic">🎯</span>Shadow</button>
+  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic">💬</span>Phrases</button>
+  <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic">📊</span>Progress</button>
+  <button class="bnav-item" id="bnavMore" onclick="moreToggle(event)"><span class="ic">⋯</span>More</button>
+</nav>
+<div id="moreSheet" class="more-sheet" style="display:none">
+  <button onclick="go('data');moreToggle()">💾 My Data</button>
+  <a href="manual/" target="_blank">📘 User Manual</a>
+  <a href="flyer.html" target="_blank">✨ About the app</a>
+</div>
 
 <script>
 /* ================= DATA ================= */
@@ -769,9 +807,23 @@ function masteredCount(){return Object.keys(S.phMaster).filter(k=>S.phMaster[k])
 /* ================= ROUTER ================= */
 let cur={v:"home"};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
+window.moreToggle=e=>{
+  if(e)e.stopPropagation();
+  const s=document.getElementById("moreSheet");
+  s.style.display=s.style.display==="none"?"flex":"none";
+};
+document.addEventListener("click",e=>{
+  const s=document.getElementById("moreSheet");
+  if(s&&s.style.display!=="none"&&!s.contains(e.target)&&e.target.id!=="bnavMore")s.style.display="none";
+});
+function bnavSync(v){
+  const map=v==="session"?"journey":v;
+  document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
+}
 function go(v,arg1,arg2){
   cur={v,arg1,arg2};
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  bnavSync(v);
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
   const el=document.getElementById("v-"+v);el.classList.add("on");
   ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,data:rData})[v](el,arg1,arg2);
@@ -2122,6 +2174,7 @@ function goSession(){}
     if(v==="session"){
       cur={v,arg1:a1,arg2:a2};
       document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==="journey"));
+      bnavSync("session");
       document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
       const el=document.getElementById("v-journey");el.classList.add("on");
       rSession(el,a1,a2);document.getElementById("streakN").textContent=streak();window.scrollTo({top:0});
@@ -2148,6 +2201,7 @@ function goSession(){}
   try{go(v,a1,a2)}catch(e){go("home")}
 })();
 ghAutoStart();
+if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
 </html>
