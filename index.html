@@ -257,7 +257,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <button class="tab" data-v="phrases">💬 Phrases & Idioms</button>
   <button class="tab" data-v="shadow">🎯 Shadow</button>
   <button class="tab" data-v="review">📊 Reviews</button>
-  <button class="tab" data-v="data">💾 My Data</button>
+  <button class="tab" data-v="data">👤 Account</button>
   <a class="tab" href="manual/" target="_blank" style="text-decoration:none">📘 Manual</a>
   <div class="streak-pill">🔥 <span id="streakN">0</span></div>
 </div></nav>
@@ -284,7 +284,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <button class="bnav-item" id="bnavMore" onclick="moreToggle(event)"><span class="ic">⋯</span>More</button>
 </nav>
 <div id="moreSheet" class="more-sheet" style="display:none">
-  <button onclick="go('data');moreToggle()">💾 My Data</button>
+  <button onclick="go('data');moreToggle()">👤 Account</button>
   <a href="manual/" target="_blank">📘 User Manual</a>
   <a href="flyer.html" target="_blank">✨ About the app</a>
 </div>
@@ -2282,12 +2282,56 @@ function drawTrend(){
 }
 
 /* ================= DATA ================= */
+window.acctSave=()=>{
+  const p=S.profile||{};
+  p.name=(document.getElementById("acName").value||"").trim()||p.name||"there";
+  p.role=document.getElementById("acRole").value;
+  p.goal=document.getElementById("acGoal").value;
+  p.slot=document.getElementById("acSlot").value;
+  S.profile=p;save();toast("Profile saved ✓");go("data");
+};
 async function rData(el){
   const recN=await countRecs();
+  const p=S.profile||{name:"",role:"",goal:"",slot:""};
+  const sel=(id,opts,cur)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option ${o===cur?"selected":""}>${o}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
   el.innerHTML=`
-  <div class="eyebrow">Backup & Portability</div>
-  <h1 class="big">Your <em>data</em></h1>
-  <p class="sub" style="margin-bottom:22px">Progress (sessions, notes, scores, phrase mastery, reviews) lives in this browser's localStorage; audio recordings live in IndexedDB. Export a backup before switching browsers or clearing site data. Recordings can be downloaded individually from each session page.</p>
+  <div class="eyebrow">Account & Settings</div>
+  <h1 class="big">${p.name?esc(p.name)+"'s <em>account</em>":"Your <em>account</em>"}</h1>
+  <div class="grid g2" style="align-items:start;margin-top:18px">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+        <div style="width:64px;height:64px;border-radius:20px;background:var(--grad);display:grid;place-items:center;font-size:28px;font-weight:800;color:#fff;flex:none">${esc((p.name||"?")[0].toUpperCase())}</div>
+        <div><b style="font-size:16px">Profile</b><p style="font-size:12.5px;color:var(--mut)">Personalizes your dashboard, drills and weekly story. Nothing leaves this device.</p></div>
+      </div>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">First name</p>
+      <input id="acName" value="${esc(p.name||"")}" placeholder="Your first name">
+      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">What you do</p>
+      ${sel("acRole",OB_ROLES,p.role)}
+      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">Your #1 goal</p>
+      ${sel("acGoal",OB_GOALS,p.goal)}
+      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">Daily practice slot</p>
+      ${sel("acSlot",OB_SLOTS,p.slot)}
+      <button class="btn btn-p" style="margin-top:16px;width:100%;justify-content:center" onclick="acctSave()">Save changes</button>
+    </div>
+    <div>
+      <div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <b style="font-size:16px">🎁 Free plan</b><span class="chip done">Active — everything included</span>
+        </div>
+        <ul style="list-style:none;margin-top:12px">
+          ${["84 guided sessions across 12 weeks","🎯 Shadowing studio with clip looping","🗣️ Speaking feedback: pronunciation, grammar, pace","📈 Waveform comparison & progress charts","📚 Vocabulary bank with quiz & 152 phrases","Works offline · all data stays on your device"].map(x=>`<li style="font-size:13.5px;color:var(--mut);padding:4px 0">✅ ${x}</li>`).join("")}
+        </ul>
+      </div>
+      <div class="card" style="opacity:.75">
+        <b style="font-size:15px">⭐ Premium</b> <span class="chip p3">Coming soon</span>
+        <ul style="list-style:none;margin-top:10px">
+          ${["🤖 AI coach: deep rewrites & live conversation practice","☁️ Automatic cloud backup across devices","👥 Team & HR progress dashboards"].map(x=>`<li style="font-size:13px;color:var(--mut2);padding:3px 0">${x}</li>`).join("")}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <h3 style="margin:26px 0 10px">🔒 Data & privacy</h3>
+  <p class="sub" style="margin-bottom:16px">Progress lives in this browser's storage; recordings live on-device in IndexedDB. Export a backup before switching devices or clearing site data.</p>
   <div class="grid g3">
     <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">Sessions completed</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">Audio recordings stored</div></div>
