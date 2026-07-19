@@ -158,6 +158,20 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .clip-row:hover{border-color:var(--acc)}
 .clip-row .rng{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc2);white-space:nowrap}
 .clip-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+/* SPEAKING FEEDBACK */
+.fb-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.fb-chip{padding:4px 11px;border-radius:9px;font-size:13.5px;font-weight:600;border:1px solid var(--line2);color:var(--mut)}
+.fb-chip.ok{color:var(--green);border-color:rgba(52,211,153,.45);background:rgba(52,211,153,.08)}
+.fb-chip.bad{color:var(--gold);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.09)}
+.fb-chip.miss{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.07)}
+.fb-item{border:1px solid var(--line);border-radius:14px;padding:15px 17px;background:var(--card);margin-bottom:10px}
+.fb-item.fixed{border-color:rgba(52,211,153,.45)}
+.fb-item .w{font-size:16.5px;font-weight:700;text-decoration:underline wavy var(--gold) 2px;text-underline-offset:4px}
+.fb-item.fixed .w{text-decoration-color:var(--green)}
+.fb-pct{font-family:'JetBrains Mono',monospace;background:rgba(251,191,36,.15);color:var(--gold);border-radius:8px;padding:2px 9px;font-weight:600;font-size:13px;float:right}
+.fb-item.fixed .fb-pct{background:rgba(52,211,153,.15);color:var(--green)}
+.fb-heard{font-size:13px;color:var(--mut);margin:10px 0 10px}
+.fb-score-ring{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600}
 
 /* RESOURCES */
 .res-card{display:block;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:20px;transition:.2s;color:var(--txt)}
@@ -564,8 +578,8 @@ const RULES=[
 const LS_KEY="be12_v1";
 let S=load();
 function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],dates:[],startDate:new Date().toISOString().slice(0,10)};
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];return d}}catch(e){}
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -1184,12 +1198,60 @@ function rShadow(el){
         <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="shSaveNote()">Save notes</button>
       </div>
     </div>
+    <div class="card" style="margin-top:16px">
+      <b style="font-size:15px">🗣️ Speaking feedback</b> <span class="chip p3">BETA · American English</span>
+      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">Write the transcript above, then click Start and <b style="color:var(--txt)">read it aloud clearly</b>. The app checks every word: green = understood, yellow = practice needed — with example audio and a retry drill for each word.</p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-p" id="fbBtn" onclick="fbToggle()">🎤 Start speaking feedback</button>
+        <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
+      </div>
+      <div id="fbOut" style="margin-top:6px"></div>
+    </div>
   </div>
   <h3 style="margin:26px 0 6px">⭐ My saved clips</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Click a clip to reload it — perfect for Monday & Friday shadowing sessions.</p>
-  <div id="shClips"></div>`;
-  shRenderClips();
+  <div id="shClips"></div>
+  <h3 style="margin:26px 0 6px">💪 My trouble words</h3>
+  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Every word the speaking feedback flags lands here automatically — your personal pronunciation gym. Say a word correctly with 🎤 and it leaves the list.</p>
+  <div id="tbBox"></div>`;
+  shRenderClips();tbRender();
 }
+function tbRender(){
+  const box=document.getElementById("tbBox");if(!box)return;
+  const words=Object.keys(S.trouble||{}).sort((a,b)=>S.trouble[b]-S.trouble[a]);
+  box.innerHTML=words.length?words.map(w=>`
+    <div class="fb-item" id="tb_${esc(w).replace(/[^a-z0-9]/g,"_")}" style="display:inline-block;margin:0 8px 8px 0;min-width:230px">
+      <span class="fb-pct">missed ×${S.trouble[w]}</span>
+      <span class="w">${esc(w)}</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)">🔊</button>
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',0.5)">🐢</button>
+        <button class="btn btn-p btn-sm" onclick="tbTry('${esc(w)}')">🎤 Say it</button>
+      </div>
+      <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
+    </div>`).join("")
+  :`<p style="font-size:13px;color:var(--mut2)">No trouble words yet — run a speaking feedback session and any missed words will collect here.</p>`;
+}
+window.tbTry=word=>{
+  if(!SR)return toast("⚠️ Speech recognition needs Chrome, Edge or Safari");
+  const id="tbr_"+word.replace(/[^a-z0-9]/g,"_");
+  const res=document.getElementById(id);if(res)res.textContent="Listening… say the word";
+  const r=new SR();r.lang="en-US";r.maxAlternatives=5;
+  let got=false;
+  r.onresult=e=>{
+    got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
+    const hit=alts.some(a=>fbTokens(a).some(x=>x===word||wsim(x,word)>=85));
+    if(hit){
+      S.trouble[word]--;if(S.trouble[word]<=0)delete S.trouble[word];
+      save();tbRender();
+      toast(S.trouble[word]?`✅ “${word}” — good! ${S.trouble[word]} more to clear it`:`🏆 “${word}” cleared from your trouble list!`);
+    }else if(res)res.textContent=`Heard “${alts[0]||"…"}” — 🔊 listen, then try again`;
+  };
+  r.onerror=()=>{if(res)res.textContent="Mic error — try again"};
+  r.onend=()=>{if(!got&&res&&res.textContent.startsWith("Listening"))res.textContent="Didn't hear you — try again"};
+  r.start();
+};
 window.shUseStarter=i=>{
   const s=SHADOW_STARTERS[i];
   document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+s.vid;
@@ -1344,6 +1406,148 @@ function shRenderClips(){
 window.shRec=()=>{
   if(!shClip.vid)return;
   recToggle("shadow-"+shClip.vid,"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
+};
+
+/* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let fbRec=null,fbOn=false,fbFinal="",fbT0=0;
+const FILLERS=["um","uh","er","erm","ah","hmm","mmm"];
+function fbTokens(s){return String(s).toLowerCase().replace(/[‿/|·…]/g," ").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).filter(Boolean)}
+function lev(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},(_,i)=>{const r=Array(n+1).fill(0);r[0]=i;return r});
+  for(let j=1;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));
+  return d[m][n]}
+const wsim=(a,b)=>Math.round(100*(1-lev(a,b)/Math.max(a.length,b.length,1)));
+function fbAlign(t,h){
+  const m=t.length,n=h.length,D=Array.from({length:m+1},(_,i)=>{const r=Array(n+1).fill(0);r[0]=i;return r});
+  for(let j=1;j<=n;j++)D[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)D[i][j]=Math.min(D[i-1][j-1]+(t[i-1]===h[j-1]?0:1),D[i-1][j]+1,D[i][j-1]+1);
+  const ops=[];let i=m,j=n;
+  while(i>0||j>0){
+    if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(t[i-1]===h[j-1]?0:1)){ops.unshift({op:t[i-1]===h[j-1]?"ok":"sub",t:t[i-1],h:h[j-1]});i--;j--}
+    else if(i>0&&D[i][j]===D[i-1][j]+1){ops.unshift({op:"miss",t:t[i-1]});i--}
+    else{j--}
+  }
+  return ops;
+}
+window.fbSay=(w,rate)=>{
+  try{speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(w);u.lang="en-US";u.rate=rate||1;
+    const v=speechSynthesis.getVoices().find(v=>v.lang==="en-US")||null;if(v)u.voice=v;
+    speechSynthesis.speak(u);
+  }catch(e){toast("⚠️ Speech playback not available in this browser")}
+};
+window.fbToggle=()=>{
+  if(!SR)return toast("⚠️ Speech recognition needs Chrome, Edge or Safari");
+  if(fbOn){try{fbRec.stop()}catch(e){}return}
+  const target=document.getElementById("shNote").value.trim();
+  if(!target)return toast("⚠️ Write the transcript first — that's what I'll check you against");
+  fbFinal="";fbOn=true;fbT0=Date.now();
+  document.getElementById("fbBtn").textContent="⏹ Stop & get my feedback";
+  document.getElementById("fbStatus").textContent="Listening… read the transcript aloud, then press Stop.";
+  document.getElementById("fbOut").innerHTML="";
+  fbRec=new SR();fbRec.lang="en-US";fbRec.continuous=true;fbRec.interimResults=true;fbRec.maxAlternatives=1;
+  fbRec.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal)fbFinal+=" "+e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    document.getElementById("fbStatus").textContent="Heard: …"+(fbFinal+" "+interim).trim().slice(-70);
+  };
+  fbRec.onerror=e=>{
+    fbOn=false;document.getElementById("fbBtn").textContent="🎤 Start speaking feedback";
+    document.getElementById("fbStatus").textContent="";
+    toast(e.error==="not-allowed"?"⚠️ Microphone blocked — allow it in your browser":"⚠️ Speech recognition error: "+e.error);
+  };
+  fbRec.onend=()=>{
+    if(!fbOn)return;fbOn=false;
+    document.getElementById("fbBtn").textContent="🎤 Start speaking feedback";
+    document.getElementById("fbStatus").textContent="";
+    fbShowResults(document.getElementById("shNote").value,fbFinal);
+  };
+  try{fbRec.start()}catch(e){fbOn=false;toast("⚠️ Could not start the microphone")}
+};
+function fbShowResults(targetText,heardText){
+  const t=fbTokens(targetText),h=fbTokens(heardText);
+  const out=document.getElementById("fbOut");
+  if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">I didn't hear anything — check your microphone and try again, speaking a little louder.</p>`;return}
+  const ops=fbAlign(t.filter(w=>!FILLERS.includes(w)),h.filter(w=>!FILLERS.includes(w)));
+  const okN=ops.filter(o=>o.op==="ok").length;
+  const score=Math.round(100*okN/Math.max(ops.filter(o=>o.op!=="extra").length,1));
+  const col=score>=80?"var(--green)":score>=55?"var(--gold)":"var(--red)";
+  const problems=ops.map((o,i)=>({...o,i})).filter(o=>o.op!=="ok");
+  /* pace + fillers */
+  const mins=Math.max((Date.now()-fbT0)/60000,0.02);
+  const wpm=Math.round(h.length/mins);
+  const fillerN=h.filter(w=>FILLERS.includes(w)).length;
+  const paceMsg=wpm<95?"🐢 "+wpm+" wpm — a bit slow; natives average ~140–160":wpm>185?"🏃 "+wpm+" wpm — slow down, clarity beats speed":"✅ "+wpm+" wpm — natural professional pace";
+  /* history + trouble words */
+  S.fbHist.push({ts:Date.now(),score,wpm});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50);
+  problems.forEach(o=>{S.trouble[o.t]=(S.trouble[o.t]||0)+1});
+  const hist=S.fbHist.slice(-5).map(x=>x.score+"%").join(" → ");
+  const trend=S.fbHist.length>=2?(S.fbHist[S.fbHist.length-1].score-S.fbHist[S.fbHist.length-2].score):0;
+  out.innerHTML=`
+  <div class="hr"></div>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <span class="fb-score-ring" style="color:${col}">${score}%</span>
+    <div style="flex:1;min-width:200px">
+      <b style="font-size:14px">${score>=80?"Excellent — almost every word landed clearly! 🎉":score>=55?"Good base — a few words need work 💪":"Keep going — let's drill the tricky words 🎯"}</b>
+      <p style="font-size:12.5px;color:var(--mut)">${okN} of ${ops.filter(o=>o.op!=="extra").length} words recognized clearly · based on this browser's American-English speech engine</p>
+    </div>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(String(targetText).replace(/[‿/]/g," "))},1)">🔊 Hear the whole text</button>
+  </div>
+  <div class="grid g3" style="margin-top:12px">
+    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${paceMsg}</div><div class="l">Speaking pace</div></div>
+    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${fillerN===0?"✅ Zero fillers — clean delivery!":"⚠️ "+fillerN+" filler"+(fillerN>1?"s":"")+" (um / uh) — pause silently instead"}</div><div class="l">Filler words</div></div>
+    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${hist}${trend>0?" 📈":trend<0?" 📉":""}</div><div class="l">Your last scores</div></div>
+  </div>
+  <div class="fb-chips">${ops.map(o=>
+    o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
+    :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
+    :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div>
+  ${problems.length?`<b style="font-size:14px;display:block;margin:8px 0 10px">🎯 Practice pronunciation</b>`+problems.map(o=>`
+    <div class="fb-item" id="fbi${o.i}">
+      <span class="fb-pct" id="fbp${o.i}">${o.op==="sub"?wsim(o.t,o.h)+"%":"0%"}</span>
+      <span class="w">${esc(o.t)}</span>
+      <div class="fb-heard">${o.op==="sub"?`I heard: “<b>${esc(o.h)}</b>” instead`:"I didn't catch this word at all"}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">🔊 Example</button>
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">🐢 Slow</button>
+        <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">🎤 Say it — try again</button>
+        <span style="font-size:12px;color:var(--mut2);align-self:center" id="fbr${o.i}"></span>
+      </div>
+    </div>`).join("")
+  :`<p style="font-size:13.5px;color:var(--green);font-weight:600">Every single word was recognized — outstanding! Try a harder clip 🚀</p>`}
+  <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it.</p>`;
+  markPracticed();save();tbRender();
+  document.getElementById("streakN").textContent=streak();
+}
+window.fbTry=(word,i)=>{
+  if(!SR)return;
+  const r=new SR();r.lang="en-US";r.maxAlternatives=5;
+  const res=document.getElementById("fbr"+i);
+  res.textContent="Listening… say the word";
+  let got=false;
+  r.onresult=e=>{
+    got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
+    const heard=alts[0]||"";
+    const hit=alts.some(a=>fbTokens(a).some(w=>w===word||wsim(w,word)>=85));
+    if(hit){
+      res.textContent="";
+      const it=document.getElementById("fbi"+i);it.classList.add("fixed");
+      document.getElementById("fbp"+i).textContent="100%";
+      if(S.trouble[word]){S.trouble[word]--;if(S.trouble[word]<=0)delete S.trouble[word]}
+      save();tbRender();
+      toast("✅ “"+word+"” — perfect!");
+    }else{
+      res.textContent=`Heard “${heard}” — listen to the example and try again`;
+    }
+  };
+  r.onerror=()=>{res.textContent="Mic error — try again"};
+  r.onend=()=>{if(!got&&res.textContent.startsWith("Listening"))res.textContent="Didn't hear you — try again"};
+  r.start();
 };
 
 /* ================= PHRASES ================= */
