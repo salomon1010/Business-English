@@ -206,14 +206,6 @@ th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
 th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px}
 .pass{color:var(--green);font-weight:700}.fail{color:var(--red);font-weight:700}
 
-/* TUTOR */
-.tutor-card{background:linear-gradient(135deg,rgba(244,114,182,.10),rgba(251,191,36,.06));border:1px solid rgba(244,114,182,.35)}
-.chip.tut{color:var(--pink);border-color:rgba(244,114,182,.45);background:rgba(244,114,182,.09)}
-.tut-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-@media(max-width:860px){.tut-grid{grid-template-columns:1fr}}
-.tut-week{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:8px;font-size:14px}
-.tut-slot{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;border:1px solid var(--line2);color:var(--mut);cursor:pointer}
-.tut-slot.done{background:rgba(244,114,182,.15);border-color:var(--pink);color:var(--pink)}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
 .footer-note{text-align:center;color:var(--mut2);font-size:12.5px;margin-top:50px;line-height:1.7}
@@ -228,8 +220,6 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <button class="tab" data-v="journey">🗺️ 12 Weeks</button>
   <button class="tab" data-v="phrases">💬 Phrases & Idioms</button>
   <button class="tab" data-v="shadow">🎯 Shadow</button>
-  <button class="tab" data-v="tutor">🎓 Tutor</button>
-  <button class="tab" data-v="resources">📺 Resources</button>
   <button class="tab" data-v="review">📊 Reviews</button>
   <button class="tab" data-v="data">💾 My Data</button>
   <a class="tab" href="manual/" target="_blank" style="text-decoration:none">📘 Manual</a>
@@ -241,8 +231,6 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <div id="v-journey" class="view"></div>
   <div id="v-phrases" class="view"></div>
   <div id="v-shadow" class="view"></div>
-  <div id="v-tutor" class="view"></div>
-  <div id="v-resources" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-data" class="view"></div>
   <div class="footer-note">12-Week Business English Mastery System · Built for Salomon · Progress is saved automatically in this browser<br>
@@ -265,43 +253,16 @@ const RESOURCES=[
 
 const DAY_META={
  Mon:{type:"Pronunciation + Shadowing",ic:"🎧"},
- Tue:{type:"Business Speaking Drill",ic:"🎯",tut:1},
- Wed:{type:"Vocabulary + Phrase Bank + Tutor Correction Notes",ic:"💬"},
+ Tue:{type:"Business Speaking Drill",ic:"🎯"},
+ Wed:{type:"Vocabulary + Phrase Bank",ic:"💬"},
  Thu:{type:"Meeting Simulation / Q&A",ic:"🧑‍💼"},
- Fri:{type:"Pronunciation + Delivery",ic:"🔊",tut:2},
+ Fri:{type:"Pronunciation + Delivery",ic:"🔊"},
  Sat:{type:"Long-form Speaking",ic:"🎤"},
  Sun:{type:"Weekly Review + Reset",ic:"📊"}
 };
 
-/* ====== PREPLY TUTOR (2×/week: Tue = Session 1, Fri = Session 2) ====== */
-const TUTOR_PREP=[
- "Weekly theme confirmed — the session must be linked to this week's theme",
- "Target scenario written (e.g. “Explain that a dependency delay affects delivery by 1 week”)",
- "Solo recording made BEFORE the lesson (use the recorder on this page)",
- "My 3 main weaknesses listed (fillers, structure, pronunciation under speed…)",
- "5–10 phrases from this week's phrase bank ready to use live",
- "Correction priorities told to tutor: stop me when unnatural or too long; correct stress & phrasing, not just grammar"
-];
-const TUTOR_AGENDA=[
- ["0–5 min","Setup — tell the tutor the weekly theme, the scenario, and your correction priorities."],
- ["5–15 min","First live answer — update / blocker / recommendation / interview answer. Tutor listens and takes notes."],
- ["15–25 min","Correction round — structure, phrasing, pronunciation, business naturalness, grammar under pressure."],
- ["25–35 min","Second attempt — redo the same task with the corrections applied."],
- ["35–45 min","Pressure Q&A — “Why?” “What's the risk?” “What do you recommend?” “What if they disagree?”"],
- ["45–50 min","Close — tutor gives top 3 speaking errors, 5 corrected phrases, 1 pronunciation focus for next week."]
-];
-const TUTOR_LOG_FIELDS=[
- ["scenario","Scenario practiced","e.g. Standup update with blocker + ETA to my manager"],
- ["corr","Top 3 corrections received","1. …  2. …  3. …"],
- ["phr","Top 5 better phrases learned","Add the best ones to your phrase bank examples too"],
- ["pron","Pronunciation issue corrected","e.g. stress in multi-syllable business words, final consonants"],
- ["next","What to practice before next session","This feeds Wednesday's correction notes + Friday/Monday solo work"]
-];
-const TUTOR_USE=[["🎙️","Real-time correction","Unnatural phrasing, credibility-hurting grammar, stress & rhythm, vague answers — things you can't hear yourself."],["⚡","Pressure-tested live speaking","Interruption, follow-up questions, unpredictability, speed. Work conversations are not scripted monologues."],["🇺🇸","Accent & delivery","Mouth shape, intonation, word stress, linking, pacing — much harder to fix alone."],["✅","Accountability","Catches you talking around missing vocabulary, repeating weak patterns, staying in your comfort zone."]];
-const TUTOR_SKIP=["Building your phrase bank","Filling your weekly tracker","Basic shadowing","Recording your self-intro 10 times","First drafts of answers","Reviewing your own recordings for fillers","Collecting phrases from clips"];
-
 const TEMPLATES={
- Mon:[["0:00–2:00","Choose a 30–60 sec clip from a U.S. professional speaker (see Resources)."],["2:00–8:00","Transcribe it exactly."],["8:00–11:00","Mark stressed words, pauses, contractions, linked sounds, intonation."],["11:00–18:00","Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."],["18:00–22:00","Record yourself imitating the clip (use the recorder below)."],["22:00–25:00","Log what sounded weak + one sound/stress pattern to fix next time."]],
+ Mon:[["0:00–2:00","Choose a 30–60 sec clip from a U.S. professional speaker (🎯 Shadow tab → starter videos & channels)."],["2:00–8:00","Transcribe it exactly."],["8:00–11:00","Mark stressed words, pauses, contractions, linked sounds, intonation."],["11:00–18:00","Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."],["18:00–22:00","Record yourself imitating the clip (use the recorder below)."],["22:00–25:00","Log what sounded weak + one sound/stress pattern to fix next time."]],
  Tue:[["0:00–3:00","Write the prompt and your answer structure."],["3:00–8:00","Bullet points only: context → issue → action → result / next step."],["8:00–14:00","Record answer version 1."],["14:00–18:00","Listen back: mark filler words, grammar problems, vague wording, weak structure."],["18:00–23:00","Record improved version 2."],["23:00–25:00","Write your top 3 corrections in the notes."]],
  Wed:[["0:00–8:00","Study the 10–15 phrases + idioms for this week (Phrases tab)."],["8:00–16:00","Write 10 sentences of your own using your real work context."],["16:00–22:00","Say all 10 aloud — record the best run."],["22:00–25:00","Choose the best 5 phrases to actively reuse this week."]],
  Thu:[["0:00–4:00","Set the meeting scenario."],["4:00–8:00","List: your role, the problem, what you need to say."],["8:00–16:00","Record the simulated answer or discussion."],["16:00–21:00","Review: where you rambled, got unclear, or needed stronger phrases."],["21:00–25:00","Redo a cleaner version."]],
@@ -570,13 +531,13 @@ const PHRASES=[
 const REVIEW_AXES=["Clarity","Fluency","Pronunciation","Business naturalness","Confidence"];
 const MONTH_METRICS={
  4:{title:"Month 1 Dashboard — End of Week 4",obj:"Did I build a stable foundation in self-introduction, project updates, blocker explanation, clarification questions, and pronunciation awareness?",
-   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank phrases collected","40+"],["90-sec self-intro completed cleanly","Yes"],["2-min project update completed cleanly","Yes"],["2-min blocker explanation completed cleanly","Yes"],["🎓 Tutor sessions completed","8"],["🎓 Corrected phrases added to phrase bank","20+"],["🎓 Recurring pronunciation corrections logged","6+"],["🎓 Solo sessions where tutor feedback was applied","8+"]],
+   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank phrases collected","40+"],["90-sec self-intro completed cleanly","Yes"],["2-min project update completed cleanly","Yes"],["2-min blocker explanation completed cleanly","Yes"]],
    qs:["Can I explain who I am and what I do clearly?","Can I give a project update without getting lost?","Can I explain a blocker with structure?","Do I still sound translated or stiff?","Which 3 speaking weaknesses are most urgent next month?"]},
  8:{title:"Month 2 Dashboard — End of Week 8",obj:"Did I improve technical-to-business explanation, recommendations, professional disagreement, and sprint/stakeholder meeting performance?",
-   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank additions","40+"],["3-min technical explanation delivered clearly","Yes"],["2-min recommendation delivered clearly","Yes"],["Professional pushback simulation completed","Yes"],["🎓 Tutor sessions completed","8"],["🎓 Corrected phrases added to phrase bank","20+"],["🎓 Recurring pronunciation corrections logged","6+"],["🎓 Solo sessions where tutor feedback was applied","8+"]],
+   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank additions","40+"],["3-min technical explanation delivered clearly","Yes"],["2-min recommendation delivered clearly","Yes"],["Professional pushback simulation completed","Yes"]],
    qs:["Can I explain technical work in business language?","Can I recommend a solution instead of only describing a problem?","Can I disagree professionally without sounding weak or defensive?","Am I more useful in meetings than four weeks ago?","Where do I still ramble?"]},
  12:{title:"Month 3 + Final Dashboard — End of Week 12",obj:"Can I now perform credibly in real professional conversations?",
-   rows:[["Test 1 — 90-sec self-introduction","clear, confident, professional"],["Test 2 — 2-min project update","progress + blocker + next step"],["Test 3 — 2-min blocker escalation","issue + impact + mitigation + ask"],["Test 4 — 3-min tech-to-business explanation","simple, structured, no jargon"],["🎓 Tutor sessions completed (full program)","24"],["🎓 Corrected phrases added to phrase bank","60+"],["🎓 Recurring pronunciation corrections resolved","10+"],["🎓 Solo sessions where tutor feedback was applied","24+"]],
+   rows:[["Test 1 — 90-sec self-introduction","clear, confident, professional"],["Test 2 — 2-min project update","progress + blocker + next step"],["Test 3 — 2-min blocker escalation","issue + impact + mitigation + ask"],["Test 4 — 3-min tech-to-business explanation","simple, structured, no jargon"]],
    qs:["What is now clearly stronger than 12 weeks ago?","In what speaking situations do I still lose control?","What pronunciation issues still show up repeatedly?","Which 20 phrases are now part of my active speech?","What should the next 12-week cycle focus on?"]}
 };
 
@@ -813,7 +774,7 @@ function go(v,arg1,arg2){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,tutor:rTutor,resources:rResources,review:rReview,data:rData})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,data:rData})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
@@ -858,7 +819,7 @@ async function rHome(el){
     <div class="stat"><div class="n">🎙️ ${recN}</div><div class="l">Recordings saved in this browser</div></div>
     <div class="stat"><div class="n">💬 ${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">Phrases & idioms mastered</div></div>
     <div class="stat"><div class="n">✅ ${totalDone()}<span style="font-size:15px;color:var(--mut)">/84</span></div><div class="l">Sessions completed</div></div>
-    <div class="stat" style="cursor:pointer" onclick="go('tutor')"><div class="n">🎓 ${tutorCount()}<span style="font-size:15px;color:var(--mut)">/24</span></div><div class="l">Preply tutor sessions (Tue & Fri)</div></div>
+    <div class="stat" style="cursor:pointer" onclick="go('shadow')"><div class="n">🎯 ${(S.clips||[]).length}</div><div class="l">Shadowing clips saved</div></div>
   </div>
   <h3 style="margin:26px 0 4px">🧠 The science behind the 25-minute block</h3>
   <p class="sub" style="margin-bottom:14px">Brainjo Laws #9 & #10 — attention holds for about 20–25 minutes, and just 20 minutes of focused practice is enough to trigger the structural brain changes that support skill acquisition. Past that point the practice curve turns downward: <b>quality beats quantity</b>. One sharp block beats one sloppy hour.</p>
@@ -872,7 +833,7 @@ function rJourney(el,wArg){
   el.innerHTML=`
   <div class="eyebrow">Curriculum Map</div>
   <h1 class="big">The 12-Week <em>Journey</em></h1>
-  <p class="sub" style="margin-bottom:22px">Three phases: Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12). Each week: Mon pronunciation · Tue speaking drill + 🎓 Preply Tutor 1 · Wed phrase bank + tutor correction notes · Thu meeting sim · Fri delivery + 🎓 Preply Tutor 2 · Sat long-form · Sun review.</p>
+  <p class="sub" style="margin-bottom:22px">Three phases: Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12). Each week: Mon pronunciation & shadowing · Tue speaking drill · Wed phrase bank · Thu meeting sim · Fri delivery · Sat long-form · Sun review.</p>
   <div class="grid g3">${WEEKS.map(w=>{
     const done=weekDone(w.n);
     return `<div class="card wk-card" onclick="go('journey',${w.n})">
@@ -896,7 +857,7 @@ function rWeek(el,w){
   ${DAYS.map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
     return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
       <div class="ic">${done?'✅':DAY_META[d].ic}</div>
-      <div class="t"><b>${d} — ${esc(dd.focus)}${DAY_META[d].tut?` <span class="chip tut" style="font-size:10.5px;padding:2px 8px;vertical-align:2px">🎓 Tutor S${DAY_META[d].tut}</span>`:''}</b><span>${DAY_META[d].type} · ${esc(dd.task)}</span></div>
+      <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${DAY_META[d].type} · ${esc(dd.task)}</span></div>
       <span style="color:var(--mut2);font-size:18px">›</span>
     </div>`}).join("")}`;
 }
@@ -913,13 +874,11 @@ function rSession(el,w,d){
   <div class="sess-head">
     <span class="chip ${PHASES[wk.phase].cls}">Week ${w} · ${d}</span>
     <span class="chip">${DAY_META[d].ic} ${DAY_META[d].type}</span>
-    ${DAY_META[d].tut?`<span class="chip tut">🎓 Preply Tutor Session ${DAY_META[d].tut}</span>`:''}
     ${S.days[key]?'<span class="chip done">✓ Completed</span>':''}
   </div>
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:20px">📦 Evidence to produce: ${esc(dd.out)}</p>
-  ${DAY_META[d].tut?tutorPanel(w,DAY_META[d].tut):""}
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="card timer-box" style="margin-bottom:16px">
@@ -993,85 +952,6 @@ window.tToggle=()=>{
 window.tReset=()=>{clearInterval(timer.h);timer={left:25*60,run:false,h:null};
   const d=document.getElementById("tDig");if(d)d.textContent="25:00";
   const b=document.getElementById("tBtn");if(b)b.textContent="▶ Start"};
-
-/* ================= TUTOR ================= */
-const tutKey=(w,slot)=>`t${w}s${slot}`;
-function tutGet(k){return S.tutor[k]||(S.tutor[k]={prep:[],log:{},done:false})}
-function tutorCount(){return Object.values(S.tutor).filter(t=>t&&t.done).length}
-function tutorPanel(w,slot){
-  const k=tutKey(w,slot),t=S.tutor[k]||{prep:[],log:{},done:false};
-  const wk=WEEKS[w-1];
-  return `<div class="card tutor-card" style="margin-bottom:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-      <b style="font-size:16px">🎓 Preply Tutor Session ${slot} — speaking lab, not English class</b>
-      <span class="chip ${t.done?'done':'tut'}">${t.done?'✓ Session done':'Not logged yet'}</span>
-    </div>
-    <p style="font-size:13px;color:var(--mut);margin:6px 0 14px">This session must be linked to the weekly theme: <b style="color:var(--txt)">${esc(wk.theme)}</b>. Bring your solo recordings — the tutor stress-tests and corrects your live output.</p>
-    <div class="tut-grid">
-      <div>
-        <b style="font-size:14px">📋 Pre-session briefing (do this before the call)</b>
-        <div style="margin-top:8px">${TUTOR_PREP.map((p,i)=>`<div class="step ${t.prep.includes(i)?'done':''}" onclick="tutPrep('${k}',${i})"><div class="cb">${t.prep.includes(i)?'✓':''}</div><p style="margin-top:0">${p}</p></div>`).join("")}</div>
-        <b style="font-size:14px;display:block;margin-top:12px">⏱️ 50-minute session structure</b>
-        <div style="margin-top:8px">${TUTOR_AGENDA.map(a=>`<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><span class="tm" style="min-width:74px">${a[0]}</span><span style="color:var(--mut)">${a[1]}</span></div>`).join("")}</div>
-      </div>
-      <div>
-        <b style="font-size:14px">📓 Tutor session log (fill right after the call)</b>
-        ${TUTOR_LOG_FIELDS.map(f=>`<p style="font-size:12.5px;color:var(--mut);margin:10px 0 4px">${f[1]}</p>
-          <textarea rows="2" placeholder="${esc(f[2])}" onchange="tutLog('${k}','${f[0]}',this.value)">${esc(t.log[f[0]]||"")}</textarea>`).join("")}
-        <button class="btn ${t.done?'btn-g':'btn-p'}" style="margin-top:14px;width:100%;justify-content:center" onclick="tutDone('${k}')">${t.done?'✓ Tutor session logged — tap to un-mark':'✅ Mark tutor session done'}</button>
-        <p style="font-size:11.5px;color:var(--mut2);margin-top:8px">Rule: feedback you don't apply in solo practice is wasted. Wednesday = correction notes; the “applied?” toggle is in the Sunday review.</p>
-      </div>
-    </div>
-  </div>`;
-}
-window.tutPrep=(k,i)=>{const t=tutGet(k);const ix=t.prep.indexOf(i);ix>=0?t.prep.splice(ix,1):t.prep.push(i);save();go("session",cur.arg1,cur.arg2)};
-window.tutLog=(k,f,v)=>{tutGet(k).log[f]=v;save();toast("Tutor log saved ✓")};
-window.tutDone=k=>{const t=tutGet(k);t.done=!t.done;if(t.done){markPracticed();toast("Tutor session logged 🎓")}save();go("session",cur.arg1,cur.arg2)};
-
-function rTutor(el){
-  const n=tutorCount();
-  const phrLogged=Object.values(S.tutor).filter(t=>t&&t.log&&t.log.phr).length;
-  const pronLogged=Object.values(S.tutor).filter(t=>t&&t.log&&t.log.pron).length;
-  const applied=WEEKS.filter(x=>S.weekly[x.n]&&S.weekly[x.n].tutApplied).length;
-  el.innerHTML=`
-  <div class="eyebrow">Preply Integration · 2 sessions/week</div>
-  <h1 class="big">A speaking <em>lab</em>, not an English class</h1>
-  <p class="sub" style="margin-bottom:20px">You do the workbook solo during the week; the tutor stress-tests and corrects your live output. <b>Tuesday = Session 1</b> (business speaking drill: updates, role explanation) · <b>Friday = Session 2</b> (live meeting simulation, blocker escalation, Q&A, interview practice). If you just “chat in English for 50 minutes,” you get activity, not improvement.</p>
-  <div class="grid g4" style="margin-bottom:22px">
-    <div class="stat"><div class="n">🎓 ${n}<span style="font-size:15px;color:var(--mut)">/24</span></div><div class="l">Tutor sessions completed</div></div>
-    <div class="stat"><div class="n">💬 ${phrLogged}</div><div class="l">Sessions with corrected phrases logged</div></div>
-    <div class="stat"><div class="n">🗣️ ${pronLogged}</div><div class="l">Sessions with pronunciation fixes logged</div></div>
-    <div class="stat"><div class="n">🔁 ${applied}<span style="font-size:15px;color:var(--mut)">/12</span></div><div class="l">Weeks where feedback was applied solo</div></div>
-  </div>
-  <div class="grid g2" style="margin-bottom:22px">
-    <div class="card">
-      <b>✅ Use the tutor ONLY for these</b>
-      <div style="margin-top:10px">${TUTOR_USE.map(u=>`<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="font-size:20px">${u[0]}</span><div><b style="font-size:14px">${u[1]}</b><p style="font-size:12.5px;color:var(--mut);line-height:1.5">${u[2]}</p></div></div>`).join("")}</div>
-      <p style="font-size:12.5px;color:var(--mut);margin-top:10px">Plus: <b>answer rebuilding</b> (stronger opening, transitions, closing) and <b>pressure Q&A</b> with follow-up questions — because that's what work actually is.</p>
-    </div>
-    <div class="card">
-      <b>🚫 Don't pay a tutor for solo work</b>
-      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 10px">Outsource these and you become dependent and inefficient:</p>
-      <ul style="list-style:none">${TUTOR_SKIP.map(s=>`<li style="font-size:13.5px;color:var(--mut);padding:5px 0;border-bottom:1px solid var(--line)">✕ ${s}</li>`).join("")}</ul>
-      <div class="hr"></div>
-      <b style="font-size:14px">⚠️ The entertainment trap</b>
-      <p style="font-size:12.5px;color:var(--mut);line-height:1.6;margin-top:6px">“You spoke a lot, the tutor was nice, the conversation flowed” means nothing. A good session has: one specific weekly target → live performance → correction → second attempt → follow-up pressure → written takeaways → next-step assignment.</p>
-    </div>
-  </div>
-  <h3 style="margin-bottom:12px">📅 Session tracker — click a slot to open it</h3>
-  ${WEEKS.map(wk=>{
-    const t1=S.tutor[tutKey(wk.n,1)],t2=S.tutor[tutKey(wk.n,2)];
-    return `<div class="tut-week">
-      <span style="min-width:44px;font-weight:700;color:var(--mut2);font-size:12px">W${wk.n}</span>
-      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)">${esc(wk.theme)}</span>
-      <span class="tut-slot ${t1&&t1.done?'done':''}" onclick="go('session',${wk.n},'Tue')">${t1&&t1.done?'✓':''} S1 · Tue</span>
-      <span class="tut-slot ${t2&&t2.done?'done':''}" onclick="go('session',${wk.n},'Fri')">${t2&&t2.done?'✓':''} S2 · Fri</span>
-    </div>`}).join("")}
-  <div class="card" style="margin-top:20px">
-    <b>💡 Ramp-up advice</b>
-    <p style="font-size:13.5px;color:var(--mut);line-height:1.7;margin-top:6px">Start with <b>1 session/week (Thursday-style live simulation) for Weeks 1–4</b> — prove the tutor is good and that you do the solo work between sessions. If clearly valuable, move to the full 2×/week model for Weeks 5–12. Tell the tutor explicitly: “Stop me when I sound unnatural or too long. Correct stress and phrasing, not just grammar.”</p>
-  </div>`;
-}
 
 /* ================= RECORDER ================= */
 let rec={mr:null,chunks:[],t0:0,h:null,ctx:null,label:null};
@@ -1160,12 +1040,18 @@ function rShadow(el){
         </div>
       </div>`).join("")}
     </div>
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
+    <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
+      <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">📺 Best channels for shadowing clips — click to browse</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        ${RESOURCES.map(r=>`<a class="chip" href="${r.url}" target="_blank" rel="noopener" title="${esc(r.desc)} ${esc(r.use)}" style="text-decoration:none;padding:7px 13px;font-size:13px">${r.ic} ${esc(r.name)}</a>`).join("")}
+      </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <p style="font-size:14px;color:var(--mut);flex:1;min-width:220px;margin:0">…or go on YouTube and find the clip <b style="color:var(--txt)">you</b> want — professional speakers, interviews and presentations work best. Copy the link and bring it back here.</p>
       <a class="btn" href="https://www.youtube.com" target="_blank" rel="noopener" style="background:#ff0000;color:#fff;font-weight:700;text-decoration:none">
         <svg width="22" height="16" viewBox="0 0 28 20" aria-hidden="true"><path fill="#fff" d="M27.4 3.1c-.3-1.2-1.3-2.2-2.5-2.5C22.7 0 14 0 14 0S5.3 0 3.1.6C1.9.9.9 1.9.6 3.1 0 5.3 0 10 0 10s0 4.7.6 6.9c.3 1.2 1.3 2.2 2.5 2.5 2.2.6 10.9.6 10.9.6s8.7 0 10.9-.6c1.2-.3 2.2-1.3 2.5-2.5.6-2.2.6-6.9.6-6.9s0-4.7-.6-6.9z"/><path fill="#f00" d="M11.2 14.3V5.7L18.5 10l-7.3 4.3z"/></svg>
         Click here to go on YouTube
       </a>
+    </div>
     </div>
   </div>
   <div id="shPlayerWrap" style="display:none">
@@ -1949,28 +1835,6 @@ async function renderPhRecs(ix){
       <button class="btn btn-danger btn-sm" onclick="delRec(${r.id}).then(()=>renderPhRecs(${ix}))">✕</button></div>`}).join("");
 }
 
-/* ================= RESOURCES ================= */
-function rResources(el){
-  el.innerHTML=`
-  <div class="eyebrow">Shadowing & Practice Channels</div>
-  <h1 class="big">Your <em>input engine</em></h1>
-  <p class="sub" style="margin-bottom:22px">Use these for Monday/Friday shadowing clips, Thursday meeting-sim material, and extra speaking practice. Rule 2 still applies: watching only counts when it feeds a structured block.</p>
-  <div class="grid g2">${RESOURCES.map(r=>`
-    <a class="res-card" href="${r.url}" target="_blank" rel="noopener">
-      <div class="ic">${r.ic}</div><h3>${r.name} ↗</h3><p>${r.desc}</p>
-      <span class="use-for">▸ ${r.use}</span><div class="url">${r.url}</div>
-    </a>`).join("")}</div>
-  <div class="card" style="margin-top:22px">
-    <b>🎧 How to pick a shadowing clip (Mon & Fri)</b>
-    <p style="font-size:14px;color:var(--mut);line-height:1.7;margin-top:8px">
-    1. Pick 30–60 seconds of one U.S. professional speaker matching the week's theme (an intro for Week 1, a status update for Week 2, an executive summary for Week 9…).<br>
-    2. Transcribe it exactly, then mark stressed words, pauses, contractions and linking.<br>
-    3. Shadow 6–8×: listen → pause-repeat → speak with the audio → speak alone.<br>
-    4. Record yourself in the session page and compare against the original.</p>
-  </div>`;
-}
-
-/* ================= REVIEW ================= */
 /* ===== PROGRESS STUDIO (Preply-style stats, app theme) ===== */
 function pgArea(data,stroke,W,H,unit){
   if(data.length<2)return`<div style="height:${H}px;display:grid;place-items:center;color:var(--mut2);font-size:12.5px">Record 2+ speaking-feedback sessions to see your curve 📈</div>`;
@@ -2100,12 +1964,6 @@ function rReview(el,wArg){
       <textarea rows="2" onchange="wkField(${w},'corr',this.value)">${esc(wr.corr)}</textarea>
       <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">💬 5 phrases to reuse next week</p>
       <textarea rows="2" onchange="wkField(${w},'top5',this.value)">${esc(wr.top5)}</textarea>
-      <div class="hr"></div>
-      <b style="font-size:14px">🎓 Tutor tracker — Week ${w}</b>
-      <p style="font-size:12px;color:var(--mut);margin:4px 0 8px">Sessions this week: ${[1,2].map(s=>S.tutor[tutKey(w,s)]&&S.tutor[tutKey(w,s)].done?`<span class="chip done" style="margin-right:4px">S${s} ✓</span>`:`<span class="chip" style="margin-right:4px">S${s} —</span>`).join("")}</p>
-      <p style="font-size:13px;color:var(--mut);margin:8px 0 4px">Main tutor feedback this week</p>
-      <textarea rows="2" onchange="wkField(${w},'tutfb',this.value)">${esc(wr.tutfb||"")}</textarea>
-      <button class="btn btn-sm ${wr.tutApplied?'btn-p':'btn-g'}" style="margin-top:8px" onclick="wkTutApplied(${w})">${wr.tutApplied?'✓ Feedback applied in solo practice':'Mark: feedback applied in solo practice'}</button>
       <button class="btn ${wr.done?'btn-g':'btn-p'}" style="margin-top:14px;width:100%;justify-content:center" onclick="wkDone(${w})">${wr.done?'✓ Review completed':'Complete Week '+w+' review'}</button>
     </div>
   </div>
@@ -2135,7 +1993,6 @@ window.wkScore=(w,ax,v)=>{
 };
 window.wkField=(w,f,v)=>{const wr=S.weekly[w]||(S.weekly[w]={scores:{}});wr[f]=v;save();toast("Saved ✓")};
 window.wkDone=w=>{const wr=S.weekly[w]||(S.weekly[w]={scores:{}});wr.done=!wr.done;markPracticed();save();go("review",w)};
-window.wkTutApplied=w=>{const wr=S.weekly[w]||(S.weekly[w]={scores:{}});wr.tutApplied=!wr.tutApplied;save();go("review",w)};
 window.moField=(w,f,i,v)=>{const m=S.monthly[w]||(S.monthly[w]={actual:{},pass:{},ans:{}});m[f][i]=v;save();toast("Saved ✓")};
 window.moPass=(w,i)=>{const m=S.monthly[w]||(S.monthly[w]={actual:{},pass:{},ans:{}});m.pass[i]=!m.pass[i];save();go("review",w)};
 function drawTrend(){
@@ -2226,7 +2083,7 @@ window.resetAll=()=>{
 };
 
 /* session view registration + boot */
-const _views={home:rHome,journey:rJourney,phrases:rPhrases,resources:rResources,review:rReview,data:rData,session:rSession};
+const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:rData,session:rSession};
 function goSession(){}
 // extend router to handle session view (no nav tab)
 (function(){
@@ -2253,7 +2110,7 @@ function goSession(){}
   };
 })();
 (function boot(){
-  const valid=["home","journey","phrases","shadow","tutor","resources","review","data","session"];
+  const valid=["home","journey","phrases","shadow","review","data","session"];
   const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
