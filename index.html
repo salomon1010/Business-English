@@ -1144,9 +1144,10 @@ function rShadow(el){
     <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
     <div class="sh-ctl">
       <div class="sh-pill">
-        <button onclick="shBack5()" title="Back 5 seconds">↺5</button>
         <button onclick="shRestart()" title="Restart clip">⟲</button>
+        <button onclick="shBack5()" title="Back 5 seconds">↺5</button>
         <button id="shPlayBtn" onclick="shPlayPause()" title="Play / pause">⏸</button>
+        <button onclick="shFwd5()" title="Forward 5 seconds">5↻</button>
       </div>
       <span class="sh-time"><span id="shNow">0:00</span></span>
       <span style="flex:1"></span>
@@ -1285,7 +1286,17 @@ window.shMark=w=>{
   shSegUI();
 };
 window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
-window.shBack5=()=>{if(ytPlayer)ytPlayer.seekTo(Math.max(shClip.start,ytPlayer.getCurrentTime()-5),true)};
+/* rapid clicks: base the next skip on the pending seek target, since the
+   player keeps reporting the old time for a moment after seekTo() */
+let shSeek={t:0,at:0};
+function shCurT(){return(Date.now()-shSeek.at<1200)?shSeek.t:ytPlayer.getCurrentTime()}
+function shSeekTo(t){shSeek={t,at:Date.now()};ytPlayer.seekTo(t,true)}
+window.shBack5=()=>{if(ytPlayer)shSeekTo(Math.max(shClip.start,shCurT()-5))};
+window.shFwd5=()=>{
+  if(!ytPlayer)return;
+  const cap=shClip.end>shClip.start?shClip.end-0.5:(ytPlayer.getDuration?ytPlayer.getDuration():Infinity);
+  shSeekTo(Math.min(cap,shCurT()+5));
+};
 window.shPlayPause=()=>{
   if(!ytPlayer)return;
   const b=document.getElementById("shPlayBtn");
