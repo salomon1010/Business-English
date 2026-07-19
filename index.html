@@ -1238,6 +1238,15 @@ function shStartTick(){
       }
       if(el>=20&&!shPing[20]){shPing[20]=1;toast("⏱ 20 seconds — you can mark the end now ✅")}
       if(el>=30&&!shPing[30]){shPing[30]=1;toast("⏱ 30 seconds — perfect length, mark the end! 🎯")}
+    }else if(shClip.end>shClip.start){
+      /* playback mode: show position inside the clip, resetting to 0 on every loop */
+      const c=document.getElementById("shCount");
+      if(c){
+        c.style.display="";
+        const el=Math.min(Math.max(0,t-shClip.start),shClip.end-shClip.start);
+        c.textContent=Math.floor(el)+"s / "+Math.round(shClip.end-shClip.start)+"s";
+        c.className="sh-count go";
+      }
     }
     if(shClip.end>shClip.start&&t>=shClip.end){
       if(shLooping)ytPlayer.seekTo(shClip.start,true);
