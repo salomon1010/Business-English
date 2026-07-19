@@ -134,6 +134,27 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:13px;font-weight:600}
 .cat-tab.on{background:var(--grad);color:#fff;border-color:transparent}
 
+/* SHADOW (YouGlish-style clip looper) */
+.yt-shell{background:#000;border:2px solid #000;border-radius:18px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.45)}
+.yt-ratio{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+.yt-ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.sh-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sh-pill{display:flex;gap:2px;background:#000;border-radius:16px;padding:6px}
+.sh-pill button{min-width:52px;height:44px;border:none;background:transparent;color:#fff;font-size:19px;border-radius:12px;transition:.15s}
+.sh-pill button:hover{background:rgba(255,255,255,.14)}
+.sh-round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:17px;transition:.15s}
+.sh-round:hover{border-color:var(--acc2);color:var(--acc2)}
+.sh-round.on{background:var(--grad);border:none;color:#fff}
+.sh-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--acc2);font-weight:600;white-space:nowrap}
+.sh-seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:12px 16px}
+.sh-seg .lbl{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.sh-len{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.sh-len.ok{color:var(--green)}.sh-len.warn{color:var(--gold)}
+.clip-row{display:flex;align-items:center;gap:12px;padding:11px 15px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:8px;font-size:14px;cursor:pointer;transition:.15s}
+.clip-row:hover{border-color:var(--acc)}
+.clip-row .rng{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc2);white-space:nowrap}
+.clip-row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+
 /* RESOURCES */
 .res-card{display:block;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:20px;transition:.2s;color:var(--txt)}
 .res-card:hover{transform:translateY(-3px);border-color:var(--acc2)}
@@ -174,6 +195,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <button class="tab on" data-v="home">🏠 Dashboard</button>
   <button class="tab" data-v="journey">🗺️ 12 Weeks</button>
   <button class="tab" data-v="phrases">💬 Phrases & Idioms</button>
+  <button class="tab" data-v="shadow">🎯 Shadow</button>
   <button class="tab" data-v="tutor">🎓 Tutor</button>
   <button class="tab" data-v="resources">📺 Resources</button>
   <button class="tab" data-v="review">📊 Reviews</button>
@@ -186,6 +208,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   <div id="v-home" class="view on"></div>
   <div id="v-journey" class="view"></div>
   <div id="v-phrases" class="view"></div>
+  <div id="v-shadow" class="view"></div>
   <div id="v-tutor" class="view"></div>
   <div id="v-resources" class="view"></div>
   <div id="v-review" class="view"></div>
@@ -537,8 +560,8 @@ const RULES=[
 const LS_KEY="be12_v1";
 let S=load();
 function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];return d}}catch(e){}
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -758,7 +781,7 @@ function go(v,arg1,arg2){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   document.querySelectorAll(".view").forEach(x=>x.classList.remove("on"));
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,tutor:rTutor,resources:rResources,review:rReview,data:rData})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,tutor:rTutor,resources:rResources,review:rReview,data:rData})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
@@ -1061,6 +1084,185 @@ async function renderRecs(ctx){
   }).join(""):`<p style="font-size:12.5px;color:var(--mut2);margin-top:12px">No recordings yet for this item.</p>`;
 }
 window.removeRec=async(id,ctx)=>{await delRec(id);renderRecs(ctx);toast("Recording deleted")};
+
+/* ================= SHADOW (YouGlish-style clip looper) ================= */
+let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
+function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
+function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
+let ytApiP=null;
+function loadYT(){
+  if(window.YT&&YT.Player)return Promise.resolve();
+  if(ytApiP)return ytApiP;
+  ytApiP=new Promise(res=>{window.onYouTubeIframeAPIReady=()=>res();
+    const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)});
+  return ytApiP;
+}
+function rShadow(el){
+  clearInterval(shTick);ytPlayer=null;
+  el.innerHTML=`
+  <div class="eyebrow">Shadowing Studio</div>
+  <h1 class="big">Cut a clip. <em>Loop it. Shadow it.</em></h1>
+  <p class="sub">Paste any YouTube link (AskVinh, Rachel's English, a TED talk…), mark a 20–30 second segment, and the clip loops automatically while you shadow — then record yourself and compare. Your saved clips stay here for daily practice.</p>
+  <div class="hr"></div>
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <input id="shUrl" placeholder="Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
+      <button class="btn btn-p" onclick="shLoadFromInput()">▶ Load video</button>
+    </div>
+  </div>
+  <div id="shPlayerWrap" style="display:none">
+    <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
+    <div class="sh-ctl">
+      <div class="sh-pill">
+        <button onclick="shBack5()" title="Back 5 seconds">↺5</button>
+        <button onclick="shRestart()" title="Restart clip">⟲</button>
+        <button id="shPlayBtn" onclick="shPlayPause()" title="Play / pause">⏸</button>
+      </div>
+      <span class="sh-time"><span id="shNow">0:00</span></span>
+      <span style="flex:1"></span>
+      <button class="sh-round" id="shRateBtn" onclick="shRate()" title="Playback speed">1×</button>
+      <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="Loop the clip">🔁</button>
+      <button class="btn btn-g" onclick="shSaveClip()">⭐ Save clip</button>
+    </div>
+    <div class="sh-seg">
+      <span class="lbl">Clip</span>
+      <button class="btn btn-g btn-sm" onclick="shMark('start')">⬇ Mark start</button>
+      <span class="sh-time" id="shStart">0:00</span>
+      <span style="color:var(--mut2)">→</span>
+      <button class="btn btn-g btn-sm" onclick="shMark('end')">⬇ Mark end</button>
+      <span class="sh-time" id="shEnd">–</span>
+      <span style="flex:1"></span>
+      <span class="sh-len" id="shLen"></span>
+    </div>
+    <p style="font-size:12.5px;color:var(--mut2);margin-top:8px">Play the video, click <b>Mark start</b> where your segment begins and <b>Mark end</b> where it stops — aim for 20–30 seconds. The clip then loops automatically. Shadow it 6–8×, then record below.</p>
+    <div class="grid g2" style="margin-top:16px">
+      <div class="rec-panel">
+        <b style="font-size:15px">🎙️ Record your shadowing</b>
+        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 12px">Imitate the clip — rhythm, stress, linking. Then play the clip and your recording back to back.</p>
+        <div style="display:flex;align-items:center;gap:16px">
+          <button class="rec-btn" id="recBtn" onclick="shRec()">🎙️</button>
+          <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">Tap to start recording</div></div>
+        </div>
+        <div id="recList"></div>
+      </div>
+      <div class="card">
+        <b style="font-size:15px">📝 Transcript & notes</b>
+        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">Transcribe the clip exactly — mark stressed words in CAPS, pauses with /, linked sounds with ‿.</p>
+        <textarea rows="6" id="shNote" placeholder="e.g. and the POWER of the individual / to become something parTIcular…"></textarea>
+        <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="shSaveNote()">Save notes</button>
+      </div>
+    </div>
+  </div>
+  <h3 style="margin:26px 0 6px">⭐ My saved clips</h3>
+  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Click a clip to reload it — perfect for Monday & Friday shadowing sessions.</p>
+  <div id="shClips"></div>`;
+  shRenderClips();
+}
+window.shLoadFromInput=()=>{
+  const u=document.getElementById("shUrl").value;
+  const id=ytId(u);
+  if(!id)return toast("⚠️ That doesn't look like a YouTube link");
+  shLoad({vid:id,start:0,end:0,title:u});
+};
+async function shLoad(c){
+  shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
+  document.getElementById("shPlayerWrap").style.display="block";
+  document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
+  shSegUI();
+  await loadYT();
+  if(ytPlayer&&ytPlayer.destroy)ytPlayer.destroy();
+  document.getElementById("ytBox").innerHTML="";
+  ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
+    playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
+    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t)shClip.title=t}catch(_){}
+      e.target.playVideo();shStartTick()}}});
+  renderRecs("shadow-"+shClip.vid);
+  window.scrollTo({top:document.getElementById("shPlayerWrap").offsetTop-80,behavior:"smooth"});
+}
+let shLooping=true;
+function shStartTick(){
+  clearInterval(shTick);
+  shTick=setInterval(()=>{
+    if(!ytPlayer||!ytPlayer.getCurrentTime)return;
+    let t=0;try{t=ytPlayer.getCurrentTime()}catch(_){return}
+    const now=document.getElementById("shNow");if(now)now.textContent=fmtT(t);
+    if(shClip.end>shClip.start&&t>=shClip.end){
+      if(shLooping)ytPlayer.seekTo(shClip.start,true);
+      else ytPlayer.pauseVideo();
+    }
+  },250);
+}
+function shSegUI(){
+  const st=document.getElementById("shStart"),en=document.getElementById("shEnd"),ln=document.getElementById("shLen");
+  if(!st)return;
+  st.textContent=fmtT(shClip.start);
+  en.textContent=shClip.end>shClip.start?fmtT(shClip.end):"–";
+  if(shClip.end>shClip.start){
+    const L=Math.round(shClip.end-shClip.start);
+    ln.textContent=L+" sec";
+    ln.className="sh-len "+(L>=15&&L<=60?"ok":"warn");
+    if(L<15)ln.textContent+=" — a bit short";
+    if(L>60)ln.textContent+=" — try under 60s";
+  }else ln.textContent="";
+}
+window.shMark=w=>{
+  if(!ytPlayer||!ytPlayer.getCurrentTime)return;
+  const t=ytPlayer.getCurrentTime();
+  if(w==="start"){shClip.start=t;if(shClip.end<=t)shClip.end=0}
+  else{if(t<=shClip.start)return toast("⚠️ End must be after start");shClip.end=t}
+  shSegUI();
+  if(w==="end")toast("Clip set — it will loop now 🔁");
+};
+window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
+window.shBack5=()=>{if(ytPlayer)ytPlayer.seekTo(Math.max(shClip.start,ytPlayer.getCurrentTime()-5),true)};
+window.shPlayPause=()=>{
+  if(!ytPlayer)return;
+  const b=document.getElementById("shPlayBtn");
+  if(ytPlayer.getPlayerState()===1){ytPlayer.pauseVideo();b.textContent="▶"}
+  else{ytPlayer.playVideo();b.textContent="⏸"}
+};
+window.shRate=()=>{
+  const rates=[1,0.75,0.5];
+  shClip.rate=rates[(rates.indexOf(shClip.rate)+1)%rates.length];
+  if(ytPlayer)ytPlayer.setPlaybackRate(shClip.rate);
+  document.getElementById("shRateBtn").textContent=(shClip.rate+"×").replace("0.",".");
+};
+window.shLoopToggle=()=>{
+  shLooping=!shLooping;
+  document.getElementById("shLoopBtn").classList.toggle("on",shLooping);
+  toast(shLooping?"Loop on 🔁":"Loop off — clip will pause at the end");
+};
+window.shSaveClip=()=>{
+  if(!shClip.vid)return;
+  if(!(shClip.end>shClip.start))return toast("⚠️ Mark a start and an end first");
+  S.clips=S.clips||[];
+  S.clips.unshift({vid:shClip.vid,start:Math.floor(shClip.start*10)/10,end:Math.floor(shClip.end*10)/10,
+    title:shClip.title||shClip.vid,ts:Date.now(),txt:document.getElementById("shNote").value||""});
+  save();shRenderClips();toast("Clip saved ⭐");
+};
+window.shSaveNote=()=>{
+  if(!shClip.vid)return;
+  S.notes["sh:"+shClip.vid]=document.getElementById("shNote").value;
+  markPracticed();save();toast("Notes saved ✓");
+};
+window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
+window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast("Clip deleted")};
+function shRenderClips(){
+  const box=document.getElementById("shClips");if(!box)return;
+  const cs=S.clips||[];
+  box.innerHTML=cs.length?cs.map((c,i)=>`
+    <div class="clip-row" onclick="shOpen(${i})">
+      <img src="https://i.ytimg.com/vi/${c.vid}/default.jpg" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">
+      <span class="nm">${esc(c.title||c.vid)}</span>
+      <span class="rng">${fmtT(c.start)} → ${fmtT(c.end)} · ${Math.round(c.end-c.start)}s</span>
+      <button class="btn btn-danger btn-sm" onclick="shDel(${i},event)">✕</button>
+    </div>`).join("")
+  :`<p style="font-size:13px;color:var(--mut2)">No saved clips yet — load a video, mark a segment, then click ⭐ Save clip.</p>`;
+}
+window.shRec=()=>{
+  if(!shClip.vid)return;
+  recToggle("shadow-"+shClip.vid,"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
+};
 
 /* ================= PHRASES ================= */
 function rPhrases(el,wFilter){
