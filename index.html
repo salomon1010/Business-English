@@ -1087,6 +1087,11 @@ window.removeRec=async(id,ctx)=>{await delRec(id);renderRecs(ctx);toast("Recordi
 
 /* ================= SHADOW (YouGlish-style clip looper) ================= */
 let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
+const SHADOW_STARTERS=[
+ {vid:"UF8uR6Z6KLc",name:"Steve Jobs — Stanford Commencement Address",why:"Slow, clear, perfectly paced — the ideal first shadowing voice."},
+ {vid:"qp0HIF3SfI4",name:"Simon Sinek — How Great Leaders Inspire Action (TED)",why:"Presentation rhythm & persuasion language for meetings."},
+ {vid:"ji5_MqicxSo",name:"Randy Pausch — The Last Lecture",why:"Natural professional storytelling with great stress patterns."}
+];
 function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
 function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
 let ytApiP=null;
@@ -1108,6 +1113,27 @@ function rShadow(el){
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="shUrl" placeholder="Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-p" onclick="shLoadFromInput()">▶ Load video</button>
+    </div>
+    <div class="hr"></div>
+    <div class="eyebrow" style="margin-bottom:10px">✨ No video yet? Start with one of these</div>
+    <div class="grid g3">
+      ${SHADOW_STARTERS.map((s,i)=>`
+      <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
+        <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
+        <b style="font-size:14px;line-height:1.35">${s.name}</b>
+        <p style="font-size:12.5px;color:var(--mut);flex:1">${s.why}</p>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">▶ Shadow this</button>
+          <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="Copy the YouTube link">📋 Copy</button>
+        </div>
+      </div>`).join("")}
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
+      <p style="font-size:14px;color:var(--mut);flex:1;min-width:220px;margin:0">…or go on YouTube and find the clip <b style="color:var(--txt)">you</b> want — professional speakers, interviews and presentations work best. Copy the link and bring it back here.</p>
+      <a class="btn" href="https://www.youtube.com" target="_blank" rel="noopener" style="background:#ff0000;color:#fff;font-weight:700;text-decoration:none">
+        <svg width="22" height="16" viewBox="0 0 28 20" aria-hidden="true"><path fill="#fff" d="M27.4 3.1c-.3-1.2-1.3-2.2-2.5-2.5C22.7 0 14 0 14 0S5.3 0 3.1.6C1.9.9.9 1.9.6 3.1 0 5.3 0 10 0 10s0 4.7.6 6.9c.3 1.2 1.3 2.2 2.5 2.5 2.2.6 10.9.6 10.9.6s8.7 0 10.9-.6c1.2-.3 2.2-1.3 2.5-2.5.6-2.2.6-6.9.6-6.9s0-4.7-.6-6.9z"/><path fill="#f00" d="M11.2 14.3V5.7L18.5 10l-7.3 4.3z"/></svg>
+        Click here to go on YouTube
+      </a>
     </div>
   </div>
   <div id="shPlayerWrap" style="display:none">
@@ -1158,6 +1184,16 @@ function rShadow(el){
   <div id="shClips"></div>`;
   shRenderClips();
 }
+window.shUseStarter=i=>{
+  const s=SHADOW_STARTERS[i];
+  document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+s.vid;
+  shLoad({vid:s.vid,start:0,end:0,title:s.name});
+};
+window.shCopyLink=async i=>{
+  const url="https://www.youtube.com/watch?v="+SHADOW_STARTERS[i].vid;
+  try{await navigator.clipboard.writeText(url);toast("Link copied 📋 — paste it anywhere")}
+  catch(e){document.getElementById("shUrl").value=url;toast("Link placed in the box above")}
+};
 window.shLoadFromInput=()=>{
   const u=document.getElementById("shUrl").value;
   const id=ytId(u);
