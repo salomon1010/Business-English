@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business English Mastery — Speak like you belong in the room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --line:rgba(255,255,255,.09);
+  --txt:#e8ecf8; --mut:#8b94ad;
+  --ind:#6366f1; --cyn:#22d3ee; --gold:#fbbf24; --green:#34d399; --pink:#f472b6;
+  --grad:linear-gradient(135deg,#6366f1,#22d3ee);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;line-height:1.6;overflow-x:hidden;
+  background-image:radial-gradient(ellipse 90% 55% at 50% -12%,rgba(99,102,241,.22),transparent),
+                   radial-gradient(ellipse 60% 45% at 95% 100%,rgba(34,211,238,.10),transparent)}
+.mono{font-family:'JetBrains Mono',monospace}
+.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ---------- HERO ---------- */
+.hero{max-width:1160px;margin:0 auto;padding:64px 28px 40px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:44px}}
+.kicker{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyn);margin-bottom:20px}
+.kicker::before{content:"";width:34px;height:2px;background:var(--grad)}
+h1{font-size:clamp(40px,6.2vw,72px);font-weight:900;line-height:1.02;letter-spacing:-1.5px;text-wrap:balance;margin-bottom:22px}
+h1 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{font-size:18px;color:var(--mut);max-width:520px;margin-bottom:30px}
+.hero .sub b{color:var(--txt)}
+.cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#1a1206;font-weight:800;font-size:17px;
+  padding:16px 32px;border-radius:14px;text-decoration:none;box-shadow:0 10px 40px rgba(251,191,36,.35);transition:.2s}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 48px rgba(251,191,36,.5)}
+.cta-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--txt);font-weight:600;font-size:15px;text-decoration:none;
+  border:1px solid var(--line);padding:15px 26px;border-radius:14px;transition:.2s}
+.cta-ghost:hover{border-color:var(--cyn);color:var(--cyn)}
+.free-line{margin-top:16px;font-size:13.5px;color:var(--mut)}
+.free-line b{color:var(--green)}
+
+/* product shot */
+.shot{position:relative}
+.shot .frame{border:1px solid var(--line);border-radius:20px;overflow:hidden;transform:rotate(2.5deg);
+  box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);transition:.4s}
+.shot:hover .frame{transform:rotate(0deg)}
+.shot img{display:block;width:100%}
+.float{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px;
+  font-size:13.5px;font-weight:700;box-shadow:0 14px 40px rgba(0,0,0,.5);white-space:nowrap}
+.float small{display:block;font-weight:500;color:var(--mut);font-size:11.5px}
+.f1{top:-16px;right:8px;color:var(--gold)}
+.f2{bottom:26px;left:-14px;color:var(--green)}
+@media(max-width:900px){.f2{left:6px}}
+
+/* ---------- STAT BAND ---------- */
+.band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(20,27,48,.55);backdrop-filter:blur(8px)}
+.band-in{max-width:1160px;margin:0 auto;padding:26px 28px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center}
+@media(max-width:720px){.band-in{grid-template-columns:repeat(2,1fr)}}
+.stat .n{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,3.4vw,38px);font-weight:600;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
+.stat .l{font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:2px}
+
+/* ---------- SECTIONS ---------- */
+.sect{max-width:1160px;margin:0 auto;padding:72px 28px 8px}
+.sect h2{font-size:clamp(26px,3.6vw,38px);font-weight:800;letter-spacing:-.5px;text-wrap:balance;margin-bottom:10px}
+.sect .lead{color:var(--mut);font-size:16.5px;max-width:640px;margin-bottom:36px}
+
+/* benefits */
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.bgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.bgrid{grid-template-columns:1fr}}
+.b{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px;transition:.25s;position:relative;overflow:hidden}
+.b:hover{transform:translateY(-4px);border-color:rgba(99,102,241,.5)}
+.b .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:23px;margin-bottom:16px;background:var(--bg2);border:1px solid var(--line)}
+.b h3{font-size:17.5px;font-weight:700;margin-bottom:8px}
+.b p{font-size:14.5px;color:var(--mut)}
+.b p b{color:var(--txt);font-weight:600}
+.b.hi{background:linear-gradient(150deg,rgba(99,102,241,.18),rgba(34,211,238,.08));border-color:rgba(99,102,241,.45)}
+
+/* how it works */
+.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:hw}
+@media(max-width:800px){.steps3{grid-template-columns:1fr}}
+.hw{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 24px;position:relative}
+.hw::before{counter-increment:hw;content:counter(hw);position:absolute;top:22px;right:22px;
+  font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:600;line-height:1;
+  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.55}
+.hw h3{font-size:17.5px;font-weight:700;margin-bottom:8px;max-width:80%}
+.hw p{font-size:14.5px;color:var(--mut)}
+.hw .say{margin-top:14px;font-size:13.5px;font-style:italic;color:#a5b4fc;background:rgba(99,102,241,.1);
+  border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:9px 14px}
+
+/* phases strip */
+.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+@media(max-width:800px){.phases{grid-template-columns:1fr}}
+.ph{border-radius:16px;padding:20px 22px;border:1px solid var(--line);background:var(--bg2)}
+.ph .wk{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.ph h3{font-size:16px;font-weight:700;margin-bottom:4px}
+.ph p{font-size:13.5px;color:var(--mut)}
+.ph.p1 .wk{color:#a5b4fc}.ph.p2 .wk{color:#67e8f9}.ph.p3 .wk{color:#fcd34d}
+
+/* ---------- FINAL CTA ---------- */
+.final{max-width:1160px;margin:80px auto 0;padding:0 28px 90px}
+.final-card{position:relative;border-radius:26px;padding:60px 36px;text-align:center;overflow:hidden;
+  background:linear-gradient(140deg,rgba(99,102,241,.28),rgba(34,211,238,.14));border:1px solid rgba(99,102,241,.5)}
+.final-card h2{font-size:clamp(28px,4.4vw,48px);font-weight:900;letter-spacing:-1px;line-height:1.08;text-wrap:balance;margin-bottom:14px}
+.final-card .lead{color:var(--txt);opacity:.85;font-size:17px;max-width:560px;margin:0 auto 30px}
+.qr-row{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:34px}
+.qr{background:#fff;border-radius:16px;padding:10px;width:132px;height:132px;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+.qr img{width:100%;height:100%;display:block}
+.qr-txt{text-align:left;max-width:300px}
+.qr-txt b{font-size:15.5px}
+.qr-txt p{font-size:13.5px;color:var(--mut);margin-top:4px}
+.url{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--cyn);word-break:break-all}
+
+footer{text-align:center;color:#5c6580;font-size:12.5px;padding:26px 20px;border-top:1px solid var(--line)}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media print{body{background:#0a0e1a}.cta,.cta-ghost{box-shadow:none}}
+a:focus-visible,.cta:focus-visible{outline:3px solid var(--cyn);outline-offset:3px}
+</style>
+</head>
+<body>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div>
+    <div class="kicker">Free web app · 12-week program</div>
+    <h1>Stop translating.<br>Start <em>speaking like you belong</em> in the room.</h1>
+    <p class="sub">The <b>Business English Mastery</b> system turns just <b>25 minutes a day</b> into confident, professional spoken English — pronunciation, meetings, interviews and executive presence. Guided day by day, so you never wonder what to practice.</p>
+    <div class="cta-row">
+      <a class="cta" href="https://salomon1010.github.io/Business-English/">🚀 Start free today</a>
+      <a class="cta-ghost" href="https://salomon1010.github.io/Business-English/manual/">📘 Read the guide</a>
+    </div>
+    <p class="free-line"><b>100% free.</b> No account. No install. Works on iPhone, Android &amp; desktop — your progress saves automatically.</p>
+  </div>
+  <div class="shot">
+    <div class="float f1">🔥 Day streak<br><small>momentum you can see</small></div>
+    <div class="frame"><img src="manual/screenshots/01-dashboard.png" alt="The app dashboard showing today's session, progress ring and streak"></div>
+    <div class="float f2">🎙️ Record → listen → improve<br><small>hear your own progress</small></div>
+  </div>
+</section>
+
+<!-- ================= STAT BAND ================= -->
+<div class="band"><div class="band-in">
+  <div class="stat"><div class="n">25<span style="font-size:.5em"> min</span></div><div class="l">per day is enough</div></div>
+  <div class="stat"><div class="n">84</div><div class="l">guided sessions</div></div>
+  <div class="stat"><div class="n">152</div><div class="l">phrases &amp; idioms</div></div>
+  <div class="stat"><div class="n">12<span style="font-size:.5em"> wks</span></div><div class="l">to transformation</div></div>
+</div></div>
+
+<!-- ================= BENEFITS ================= -->
+<section class="sect">
+  <h2>Why professionals <span class="g">love</span> this system</h2>
+  <p class="lead">Not another vocabulary app. A complete speaking gym built for real work situations — standups, escalations, interviews, executive updates.</p>
+  <div class="bgrid">
+    <div class="b hi">
+      <div class="ic">🗓️</div>
+      <h3>Zero decisions — just open and speak</h3>
+      <p>Every day has one prepared session with a timed template. The app tells you <b>exactly what to practice today</b> — you press start.</p>
+    </div>
+    <div class="b">
+      <div class="ic">🎧</div>
+      <h3>Fix your pronunciation the easy way</h3>
+      <p>Shadow real American professionals, then <b>record yourself and compare</b>. Rhythm, stress and intonation improve week after week — you can literally hear it.</p>
+    </div>
+    <div class="b">
+      <div class="ic">🎙️</div>
+      <h3>A private voice recorder built in</h3>
+      <p>Record version 1, listen, record a better version 2. Your recordings stay <b>on your device</b> — nobody hears you but you.</p>
+    </div>
+    <div class="b">
+      <div class="ic">💬</div>
+      <h3>Say it like a native at work</h3>
+      <p>152 curated phrases &amp; idioms — <b>“the main blocker is…”, “let's touch base”, “low-hanging fruit”</b> — each with when and how to use it.</p>
+    </div>
+    <div class="b">
+      <div class="ic">🧑‍💼</div>
+      <h3>Train for real meetings, not textbooks</h3>
+      <p>Meeting simulations, blocker escalations, polite pushback, interview answers — <b>the exact conversations your career depends on</b>.</p>
+    </div>
+    <div class="b">
+      <div class="ic">📊</div>
+      <h3>Watch yourself improve</h3>
+      <p>Streaks, progress rings, weekly self-scores and a 12-week trend chart. <b>Motivation is designed in</b> — every session moves a number.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="sect">
+  <h2>How it works — <span class="g">3 simple steps</span></h2>
+  <p class="lead">If you can spare one coffee break a day, you can do this program.</p>
+  <div class="steps3">
+    <div class="hw">
+      <h3>Open today's session</h3>
+      <p>The dashboard shows your next 25-minute block — the task, the timer and the phrases to use are all on one screen.</p>
+      <div class="say">“Week 2 · Tue — What are you working on this week?”</div>
+    </div>
+    <div class="hw">
+      <h3>Speak &amp; record</h3>
+      <p>Follow the timed steps, say the phrases out loud, record your answer, listen back, and record a sharper version 2.</p>
+      <div class="say">“The main blocker is the vendor API — we expect a fix by Friday.”</div>
+    </div>
+    <div class="hw">
+      <h3>Score &amp; keep your streak</h3>
+      <p>Mark the session complete, watch your streak grow, and review your progress every Sunday. Repeat for 12 weeks.</p>
+      <div class="say">🔥 Streak: 27 days · Clarity 5 → 8</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= JOURNEY ================= -->
+<section class="sect">
+  <h2>A proven <span class="g">12-week journey</span></h2>
+  <p class="lead">Each phase builds on the last — from introducing yourself clearly to influencing the room.</p>
+  <div class="phases">
+    <div class="ph p1"><div class="wk">Weeks 1–4</div><h3>Foundation</h3><p>Introductions, project updates, explaining blockers, asking sharp questions.</p></div>
+    <div class="ph p2"><div class="wk">Weeks 5–8</div><h3>Workplace Fluency</h3><p>Tech-to-business explanations, recommendations, professional pushback, sprint meetings.</p></div>
+    <div class="ph p3"><div class="wk">Weeks 9–12</div><h3>Executive Communication</h3><p>Leadership summaries, interviews, persuasion — and a final before/after performance set.</p></div>
+  </div>
+</section>
+
+<!-- ================= FINAL CTA ================= -->
+<section class="final">
+  <div class="final-card">
+    <h2>Your next meeting is coming.<br>Walk in <em class="g">ready</em>.</h2>
+    <p class="lead">In 12 weeks you could still be translating in your head — or you could be the clearest voice in the room. 25 minutes a day. Starting today.</p>
+    <a class="cta" href="https://salomon1010.github.io/Business-English/">🚀 Open the app — it's free</a>
+    <div class="qr-row">
+      <div class="qr"><img src="manual/screenshots/qr.png" alt="QR code linking to the app"></div>
+      <div class="qr-txt">
+        <b>📱 Scan to open on your phone</b>
+        <p>Point your camera at the code, or type:</p>
+        <p class="url">salomon1010.github.io/Business-English</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>Business English Mastery — 12-Week System · Free web app · Your data stays in your browser</footer>
+
+</body>
+</html>
