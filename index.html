@@ -1581,7 +1581,23 @@ function goSession(){}
     _go(v,a1,a2);
   };
 })();
-go("home");
+/* Persist the current page in the URL hash so a refresh stays on the same page */
+(function(){
+  const _go2=window.go;
+  window.go=function(v,a1,a2){
+    _go2(v,a1,a2);
+    const h="#"+[v,a1,a2].filter(x=>x!==undefined&&x!==null&&x!=="").join("/");
+    if(location.hash!==h)history.replaceState(null,"",h);
+  };
+})();
+(function boot(){
+  const valid=["home","journey","phrases","shadow","tutor","resources","review","data","session"];
+  const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
+  let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
+  if(a1&&/^\d+$/.test(a1))a1=+a1;
+  if(!valid.includes(v))v="home";
+  try{go(v,a1,a2)}catch(e){go("home")}
+})();
 ghAutoStart();
 </script>
 </body>
