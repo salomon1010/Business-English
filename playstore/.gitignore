@@ -1,0 +1,11 @@
+# NEVER commit signing secrets or build artifacts to the public repo
+android.keystore
+*.apk
+*.aab
+*.idsig
+build*.log
+build.expect
+app/
+build/
+.gradle/
+*.jks
