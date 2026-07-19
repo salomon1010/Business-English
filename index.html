@@ -8,6 +8,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -258,7 +260,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 <body>
 
 <nav><div class="nav-in">
-  <div class="brand"><div class="logo">🗣️</div>BE <span class="g">Mastery</span></div>
+  <div class="brand"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
   <button class="tab on" data-v="home">🏠 Dashboard</button>
   <button class="tab" data-v="journey">🗺️ 12 Weeks</button>
   <button class="tab" data-v="phrases">💬 Phrases & Idioms</button>
@@ -2617,7 +2619,7 @@ function obRender(){
   if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";document.body.appendChild(el)}
   const dots=`<div class="ob-dots">${[0,1,2,3,4].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
-    `<div class="ob-logo">🗣️</div>
+    `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
      <h2>Speak like you <em style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">belong in the room</em></h2>
      <p class="sub">25 focused minutes a day. Real feedback on your pronunciation, grammar and vocabulary — all private, all on your device.</p>
      <input id="obName" placeholder="What's your first name?" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
