@@ -1265,6 +1265,8 @@ function rShadow(el){
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Words you 🔖 saved from your speaking feedback. Tap a word for its definition and real audio — or quiz yourself: hear the meaning, say the word.</p>
   <div id="vlBox"></div>`;
   shRenderClips();tbRender();vlRender();
+  /* restore the last clip after a refresh — player paused, recordings & transcript back */
+  if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
 }
 function tbRender(){
   const box=document.getElementById("tbBox");if(!box)return;
@@ -1318,11 +1320,14 @@ window.shLoadFromInput=()=>{
   if(!id)return toast("⚠️ That doesn't look like a YouTube link");
   shLoad({vid:id,start:0,end:0,title:u});
 };
-async function shLoad(c){
+async function shLoad(c,quiet){
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
+  /* remember the last clip so a page refresh restores the player, transcript and recordings */
+  S.lastClip={vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title};save();
   shCounting=false;shPing={};
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   document.getElementById("shPlayerWrap").style.display="block";
+  document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+shClip.vid;
   document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
@@ -1331,10 +1336,10 @@ async function shLoad(c){
   document.getElementById("ytBox").innerHTML="";
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
-    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t)shClip.title=t}catch(_){}
-      e.target.playVideo();shStartTick()}}});
+    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t}}catch(_){}
+      if(!quiet)e.target.playVideo();shStartTick()}}});
   renderRecs("shadow-"+shClip.vid);
-  window.scrollTo({top:document.getElementById("shPlayerWrap").offsetTop-80,behavior:"smooth"});
+  if(!quiet)window.scrollTo({top:document.getElementById("shPlayerWrap").offsetTop-80,behavior:"smooth"});
 }
 let shLooping=true,shCounting=false,shPing={};
 function shStartTick(){
@@ -1397,6 +1402,7 @@ window.shMark=w=>{
     toast("Clip set — it will loop now 🔁");
   }
   shSegUI();
+  if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=shClip.start;S.lastClip.end=shClip.end;save()}
 };
 window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
 /* rapid clicks: base the next skip on the pending seek target, since the
