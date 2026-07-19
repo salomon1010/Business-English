@@ -172,6 +172,20 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .fb-item.fixed .fb-pct{background:rgba(52,211,153,.15);color:var(--green)}
 .fb-heard{font-size:13px;color:var(--mut);margin:10px 0 10px}
 .fb-score-ring{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600}
+/* VOCABULARY */
+.voc-row{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:8px;overflow:hidden}
+.voc-head{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer}
+.voc-head:hover{background:rgba(255,255,255,.03)}
+.voc-head .wd{font-weight:700;font-size:15px}
+.voc-lvl{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.5px}
+.voc-lvl.a{background:rgba(52,211,153,.15);color:var(--green)}
+.voc-lvl.b{background:rgba(99,102,241,.18);color:#a5b4fc}
+.voc-lvl.c{background:rgba(251,191,36,.15);color:var(--gold)}
+.voc-body{padding:0 14px 13px 52px;font-size:13.5px;color:var(--mut);display:none}
+.voc-row.open .voc-body{display:block}
+.voc-syn{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px;margin-bottom:8px;font-size:14.5px;flex-wrap:wrap}
+.voc-syn .arr{color:var(--mut2)}
+.voc-syn b.up{color:var(--acc2);border-bottom:1px dashed var(--acc2)}
 
 /* RESOURCES */
 .res-card{display:block;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:20px;transition:.2s;color:var(--txt)}
@@ -578,8 +592,8 @@ const RULES=[
 const LS_KEY="be12_v1";
 let S=load();
 function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};return d}}catch(e){}
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -1220,8 +1234,11 @@ function rShadow(el){
   <div id="shClips"></div>
   <h3 style="margin:26px 0 6px">💪 My trouble words</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Every word the speaking feedback flags lands here automatically — your personal pronunciation gym. Say a word correctly with 🎤 and it leaves the list.</p>
-  <div id="tbBox"></div>`;
-  shRenderClips();tbRender();
+  <div id="tbBox"></div>
+  <h3 style="margin:26px 0 6px">📚 My vocabulary</h3>
+  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">Words you 🔖 saved from your speaking feedback. Tap a word for its definition and real audio — or quiz yourself: hear the meaning, say the word.</p>
+  <div id="vlBox"></div>`;
+  shRenderClips();tbRender();vlRender();
 }
 function tbRender(){
   const box=document.getElementById("tbBox");if(!box)return;
@@ -1595,7 +1612,8 @@ function fbShowResults(targetText,heardText,fromRec){
   const paceMsg=wpm<95?"🐢 "+wpm+" wpm — a bit slow; natives average ~140–160":wpm>185?"🏃 "+wpm+" wpm — slow down, clarity beats speed":"✅ "+wpm+" wpm — natural professional pace";
   /* history + trouble words */
   if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
-  problems.forEach(o=>{S.trouble[o.t]=(S.trouble[o.t]||0)+1});
+  /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
+  problems.forEach(o=>{if(o.t.length>=4&&!VOC_STOP.has(o.t))S.trouble[o.t]=(S.trouble[o.t]||0)+1});
   const hist=S.fbHist.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
   const trend=S.fbHist.length>=2?(S.fbHist[S.fbHist.length-1].score-S.fbHist[S.fbHist.length-2].score):0;
   /* per-clip attempt tracking: repeat the same clip and watch yourself improve */
@@ -1673,10 +1691,152 @@ function fbShowResults(targetText,heardText,fromRec){
         :`<p style="font-size:12.5px;color:var(--green);font-weight:600">No common grammar mistakes detected — clean speech! ✅</p>`}
       </div>
     </div>`})()}
+  ${(()=>{const vl=vocabExtract(heardText+" "+targetText);if(!vl.length)return"";
+    return`<div class="hr"></div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+      <b style="font-size:15px">📚 Key vocabulary <span style="font-size:11.5px;color:var(--mut2);font-weight:500">from your speech</span></b>
+      <span style="flex:1"></span>
+      <button class="btn btn-g btn-sm" onclick='vocSaveAll(${JSON.stringify(vl)})'>🔖 Save all words (${vl.length})</button>
+    </div>
+    ${vl.map(x=>vocRow(x.w,x.l)).join("")}
+    ${vocSynHTML(heardText)}`})()}
   <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it. Grammar checks cover common patterns, not everything.</p>`;
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();
 }
+/* ===== VOCABULARY (extracted from the user's own speech) ===== */
+const VOC_STOP=new Set(("i you he she it we they me him her us them am is are was were be been being the a an and or but if so of to in at on for with from by about as into over under your my our their his its this that these those there here not no yes do does did done have has had having will would can could should shall may might must just also very really quite than then when while where which who whom whose what why how all any some more most other another each every few many much one two three four five ten first second next new old same own too again once only even still yet already always never sometimes often usually now today please thank thanks okay ok well right left like get got want wanted going go went gone come came make made know knew think thought say said see saw look looked good great nice bad big small little i'm i've i'll i'd you're you've we're we'll they're it's that's don't doesn't didn't isn't aren't wasn't weren't can't couldn't won't wouldn't shouldn't haven't hasn't let's gonna wanna").split(/\s+/));
+const CEFR_MAP={meeting:"A2",project:"A2",problem:"A2",question:"A2",report:"B1",update:"B1",account:"B1",issue:"B1",delay:"B1",process:"B1",support:"B1",request:"B1",schedule:"B1",delivery:"B1",feedback:"B1",challenge:"B2",blocker:"B2",dependency:"C1",escalation:"C1",mitigation:"C1",stakeholder:"C1",commencement:"C1",prioritize:"C1",transaction:"B2",pronunciation:"B2",recommendation:"B2",implementation:"C1",requirement:"B2",responsibility:"B2",experience:"B1",opportunity:"B2",university:"A2",universities:"A2",honored:"B2",individual:"B1",particular:"B1",vendor:"B2",timeline:"B2",budget:"B1",revenue:"B2",workflow:"B2"};
+function cefr(w){
+  if(CEFR_MAP[w])return CEFR_MAP[w];
+  if(w.length<=4)return"A2";
+  if(/(tion|ment|ness|ance|ence|ity|ify|ize|ise|ously)$/.test(w))return"B2";
+  if(w.length>=10)return"C1";
+  if(w.length<=6)return"B1";
+  return"B2";
+}
+const SYN_UP={get:"obtain",big:"significant",help:"assist",show:"demonstrate",use:"leverage",start:"initiate",end:"conclude",buy:"purchase",need:"require",tell:"inform",ask:"request",fix:"resolve",check:"verify",choose:"select",handle:"manage",possible:"feasible",important:"critical",problem:"challenge",fast:"rapid",cheap:"cost-effective",idea:"proposal",talk:"discuss",give:"provide",find:"identify",stop:"discontinue"};
+function vocabExtract(text){
+  const seen=new Set(),out=[];
+  for(const w of fbTokens(text)){
+    if(w.length<4||VOC_STOP.has(w)||FILLERS.includes(w)||seen.has(w))continue;
+    seen.add(w);out.push(w);
+  }
+  return out.map(w=>({w,score:w.length+(CEFR_MAP[w]?4:0)+(/(tion|ment|ance|ence|ity)$/.test(w)?3:0)}))
+    .sort((a,b)=>b.score-a.score).slice(0,10).map(x=>({w:x.w,l:cefr(x.w)}));
+}
+function vocRow(w,l){
+  const saved=!!S.vocab[w],safe=w.replace(/[^a-z0-9]/g,"_");
+  return`<div class="voc-row" id="vr_${safe}">
+    <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="Hear it">🔊</button>
+      <span class="wd">${esc(w)}</span>
+      <span class="voc-lvl ${l[0].toLowerCase()}">${l}</span>
+      <span style="flex:1"></span>
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="Test your pronunciation">🎤 Say it</button>
+      <button class="btn btn-sm ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')">${saved?"✓":"🔖"}</button>
+      <span style="color:var(--mut2)">▾</span>
+    </div>
+    <div class="voc-body" id="vb_${safe}"><span style="font-size:12px;color:var(--mut2)" id="vres_${safe}"></span></div>
+  </div>`;
+}
+window.vocOpen=async(w,safe)=>{
+  const row=document.getElementById("vr_"+safe);row.classList.toggle("open");
+  const body=document.getElementById("vb_"+safe);
+  if(body.dataset.done)return;body.dataset.done=1;
+  body.insertAdjacentHTML("beforeend",`<span id="vd_${safe}" style="display:block;margin-top:4px">Loading definition…</span>`);
+  const slot=document.getElementById("vd_"+safe);
+  try{
+    const d=await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json();
+    const e=d[0];VOC_DEFS[w]=e;
+    const ph=e.phonetic||((e.phonetics||[]).find(p=>p.text)||{}).text||"";
+    const aud=((e.phonetics||[]).find(p=>p.audio)||{}).audio;
+    slot.innerHTML=`
+      ${ph?`<span style="font-family:'JetBrains Mono',monospace;color:var(--acc2);font-size:13px">${esc(ph)}</span>`:""}
+      ${aud?`<button class="btn btn-g btn-sm" style="margin-left:8px" onclick="new Audio('${aud}').play()">▶ Real voice</button>`:""}
+      ${(e.meanings||[]).slice(0,2).map(m=>`<div style="margin-top:8px"><i style="color:var(--pink)">${esc(m.partOfSpeech)}</i> — ${esc((m.definitions[0]||{}).definition||"")}${(m.definitions[0]||{}).example?`<div style="color:var(--mut2);margin-top:2px">“${esc(m.definitions[0].example)}”</div>`:""}</div>`).join("")}`;
+  }catch(e){slot.innerHTML=`No dictionary entry found — use 🔊 to hear it.`}
+};
+const VOC_DEFS={};
+window.vocSave=(w,l)=>{
+  const safe=w.replace(/[^a-z0-9]/g,"_"),b=document.getElementById("vs_"+safe);
+  if(S.vocab[w]){delete S.vocab[w];if(b){b.textContent="🔖";b.classList.remove("btn-p");b.classList.add("btn-g")}toast("Removed from My vocabulary")}
+  else{S.vocab[w]={l,ts:Date.now()};if(b){b.textContent="✓";b.classList.add("btn-p");b.classList.remove("btn-g")}toast("🔖 Saved to My vocabulary")}
+  save();vlRender();
+};
+window.vocSaveAll=list=>{list.forEach(x=>{if(!S.vocab[x.w])S.vocab[x.w]={l:x.l,ts:Date.now()}});save();vlRender();toast("🔖 All words saved to My vocabulary");};
+window.vocTry=(w,safe)=>{
+  if(!SR)return toast("⚠️ Speech recognition needs Chrome, Edge or Safari");
+  const res=document.getElementById("vres_"+safe);
+  const row=document.getElementById("vr_"+safe);if(row&&!row.classList.contains("open"))row.classList.add("open");
+  if(res)res.textContent="🎧 Listening… say the word";
+  const r=new SR();r.lang="en-US";r.maxAlternatives=5;let got=false;
+  r.onresult=e=>{got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
+    const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
+    if(res)res.innerHTML=hit?`<b style="color:var(--green)">✅ Perfect — clearly pronounced!</b>`:`<b style="color:var(--gold)">Heard “${esc(alts[0]||"…")}” — 🔊 listen and try again</b>`;
+  };
+  r.onerror=()=>{if(res)res.textContent="Mic error — try again"};
+  r.onend=()=>{if(!got&&res)res.textContent="Didn't hear you — try again"};
+  r.start();
+};
+function vocSynHTML(heardText){
+  const hl=fbTokens(heardText),found=[];
+  for(const w of hl){if(SYN_UP[w]&&!found.some(f=>f[0]===w))found.push([w,SYN_UP[w]])}
+  if(!found.length)return"";
+  return`<b style="font-size:14px;display:block;margin:14px 0 8px">⬆️ Level up your words <span style="font-size:11.5px;color:var(--mut2);font-weight:500">say it like an executive</span></b>
+  ${found.slice(0,4).map(([a,b])=>`<div class="voc-syn">
+    <span>You said <b>“${esc(a)}”</b></span><span class="arr">↔</span><span>try <b class="up">“${esc(b)}”</b></span>
+    <span style="flex:1"></span>
+    <button class="btn btn-g btn-sm" onclick="fbSay('${esc(b)}',1)">🔊</button>
+    <button class="btn btn-g btn-sm" onclick="vocSave('${esc(b)}','${cefr(b)}')">🔖</button>
+  </div>`).join("")}`;
+}
+/* My Vocabulary — persistent list + say-the-word quiz */
+function vlRender(){
+  const box=document.getElementById("vlBox");if(!box)return;
+  const words=Object.keys(S.vocab).sort((a,b)=>S.vocab[b].ts-S.vocab[a].ts);
+  box.innerHTML=(words.length?`<div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-p btn-sm" onclick="vocQuiz()">🎴 Quiz me — say the word from its meaning</button>
+      <span class="chip">${words.length} word${words.length>1?"s":""}</span></div>
+    <div id="vqBox"></div>`+words.map(w=>vocRow(w,S.vocab[w].l)).join("")
+  :`<p style="font-size:13px;color:var(--mut2)">No saved words yet — 🔖 words from your speaking feedback and build your personal vocabulary.</p>`);
+}
+window.vocQuiz=async()=>{
+  const words=Object.keys(S.vocab);if(!words.length)return;
+  const w=words[Math.floor(Math.random()*words.length)];
+  const box=document.getElementById("vqBox");
+  let def="";
+  try{
+    const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
+    def=((e.meanings[0]||{}).definitions[0]||{}).definition||"";
+  }catch(e){}
+  const hint=def?esc(def):`It starts with “${w[0].toUpperCase()}”, has ${w.length} letters, level ${S.vocab[w].l}`;
+  box.innerHTML=`<div class="card" style="background:var(--card2);margin-bottom:12px">
+    <div class="eyebrow">🎴 What word is this?</div>
+    <p style="font-size:15px;margin:6px 0 12px">“${hint}”</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-p btn-sm" onclick="vocQuizTry('${esc(w)}')">🎤 Say the answer</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(def||w)},1)">🔊 Hear the meaning</button>
+      <button class="btn btn-g btn-sm" onclick="document.getElementById('vqa').textContent='Answer: ${esc(w)}'">👁 Reveal</button>
+      <button class="btn btn-g btn-sm" onclick="vocQuiz()">Next ▶</button>
+      <b id="vqa" style="font-size:13.5px"></b>
+    </div></div>`;
+};
+window.vocQuizTry=w=>{
+  if(!SR)return;
+  const out=document.getElementById("vqa");out.textContent="🎧 Listening…";out.style.color="var(--mut)";
+  const r=new SR();r.lang="en-US";r.maxAlternatives=5;let got=false;
+  r.onresult=e=>{got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
+    const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
+    if(hit){out.textContent="🏆 “"+w+"” — correct AND well pronounced!";out.style.color="var(--green)";markPracticed();save()}
+    else{out.textContent=`Heard “${alts[0]||"…"}” — try again or 👁 Reveal`;out.style.color="var(--gold)"}
+  };
+  r.onend=()=>{if(!got){out.textContent="Didn't hear you — try again"}};
+  r.start();
+};
+
 /* play a short snippet of the user's own shadowing recording around a word */
 let fbAud=null;
 window.fbYou=async frac=>{
