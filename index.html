@@ -1200,9 +1200,10 @@ function rShadow(el){
     </div>
     <div class="card" style="margin-top:16px">
       <b style="font-size:15px">🗣️ Speaking feedback</b> <span class="chip p3">BETA · American English</span>
-      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">Write the transcript above, then click Start and <b style="color:var(--txt)">read it aloud clearly</b>. The app checks every word: green = understood, yellow = practice needed — with example audio and a retry drill for each word.</p>
+      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">Write the transcript above, then get feedback two ways: <b style="color:var(--txt)">record your shadowing with 🎙️ above</b> — the app transcribes it and the feedback comes from that exact recording automatically — or click Start and read the text aloud live. Every word is checked: green = understood, yellow = practice needed, with example audio and a retry drill.</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-p" id="fbBtn" onclick="fbToggle()">🎤 Start speaking feedback</button>
+        <button class="btn btn-g" onclick="fbFromRec()">🎙️ Analyze my last shadowing recording</button>
         <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
       </div>
       <div id="fbOut" style="margin-top:6px"></div>
@@ -1403,9 +1404,60 @@ function shRenderClips(){
     </div>`).join("")
   :`<p style="font-size:13px;color:var(--mut2)">No saved clips yet — load a video, mark a segment, then click ⭐ Save clip.</p>`;
 }
+/* Shadow recording + live transcription: while the recorder captures your
+   shadowing, speech recognition transcribes it, so the speaking feedback
+   is generated from that exact recording. */
+let shFB={rec:null,on:false,txt:"",t0:0};
 window.shRec=()=>{
   if(!shClip.vid)return;
+  const wasRecording=rec.mr&&rec.mr.state==="recording";
   recToggle("shadow-"+shClip.vid,"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
+  if(!wasRecording){
+    /* just started → transcribe in parallel */
+    if(!SR)return;
+    try{
+      shFB={rec:new SR(),on:true,txt:"",t0:Date.now()};
+      const r=shFB.rec;
+      r.lang="en-US";r.continuous=true;r.interimResults=true;
+      r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)shFB.txt+=" "+e.results[i][0].transcript};
+      r.onerror=()=>{};
+      r.onend=()=>{
+        /* the engine stops itself on silence — restart while still recording */
+        if(shFB.on&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
+        else if(!shFB.on)shFBDone();
+      };
+      r.start();
+    }catch(e){}
+  }else{
+    /* stopping */
+    shFB.on=false;
+    if(shFB.rec){try{shFB.rec.stop()}catch(e){shFBDone()}}
+  }
+};
+function shFBDone(){
+  const heard=shFB.txt.trim();
+  if(!heard)return;
+  S.notes["shheard:"+shClip.vid]=heard;
+  S.notes["shheardDur:"+shClip.vid]=Date.now()-shFB.t0;
+  save();
+  const target=document.getElementById("shNote").value.trim();
+  if(target){
+    fbT0=shFB.t0;
+    fbShowResults(target,heard);
+    toast("🗣️ Feedback generated from your shadowing recording");
+    const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
+  }else{
+    toast("Recording transcribed — write the transcript, then click “Analyze my last recording”");
+  }
+}
+window.fbFromRec=()=>{
+  const heard=S.notes["shheard:"+shClip.vid];
+  if(!heard)return toast("⚠️ No transcribed shadowing recording yet — record yourself first with 🎙️");
+  const target=document.getElementById("shNote").value.trim();
+  if(!target)return toast("⚠️ Write the transcript first — that's what I'll check you against");
+  fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
+  fbShowResults(target,heard);
+  toast("🗣️ Feedback from your last shadowing recording");
 };
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
