@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — BE Mastery</title>
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<style>
+:root{--ink:#1c2333;--mut:#5b6478;--line:#e4e8f0;--bg:#f7f9fc;--card:#fff;--acc:#4f46e5;--acc2:#0891b2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg);line-height:1.7;font-size:16px}
+header{background:linear-gradient(135deg,#4f46e5,#0891b2);color:#fff;padding:44px 24px;text-align:center}
+header img{width:64px;height:64px;border-radius:18px;margin-bottom:12px}
+header h1{font-size:clamp(24px,4vw,34px)}
+header p{opacity:.9;margin-top:6px;font-size:14.5px}
+main{max-width:820px;margin:0 auto;padding:40px 24px 80px}
+h2{font-size:20px;margin:30px 0 10px;color:var(--acc)}
+p,li{color:var(--ink);margin-bottom:10px}
+ul{padding-left:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 22px;margin:14px 0}
+.hl{background:#ecfdf5;border-left:5px solid #059669}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:26px;border-top:1px solid var(--line)}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.svg" alt="BE Mastery logo">
+  <h1>Privacy Policy</h1>
+  <p>BE Mastery — Business English Mastery (12-Week System) · Last updated: July 19, 2026</p>
+</header>
+<main>
+  <div class="card hl">
+    <p><b>The short version:</b> BE Mastery is a privacy-first app. There are no accounts, no ads, no analytics, and no tracking. Your progress, notes, voice recordings and transcripts are stored <b>only on your device</b>. The camera, when you enable the Posture Coach, is processed on-device with zero capture — no video is ever stored or transmitted.</p>
+  </div>
+
+  <h2>1. Data we store — on your device only</h2>
+  <p>The app stores the following locally in your browser/app storage (localStorage and IndexedDB) on your device:</p>
+  <ul>
+    <li>Your profile (first name, role, goal, practice slot) as entered by you</li>
+    <li>Practice progress: completed sessions, scores, notes, saved phrases, vocabulary, clips</li>
+    <li>Voice recordings you make, and the text transcripts generated from them</li>
+  </ul>
+  <p>This data never leaves your device unless you explicitly export it or enable the optional GitHub sync (below). Deleting the app or using <b>Account → Reset everything</b> permanently erases it.</p>
+
+  <h2>2. Microphone</h2>
+  <p>The microphone is used only when you tap record or start a speaking exercise. Recordings are saved on your device only. Speech-to-text transcription is performed by your browser's built-in speech engine; in Chrome, audio may be processed transiently by Google's speech service as part of that browser feature, subject to Google's terms. We do not receive, store, or have access to any of your audio.</p>
+
+  <h2>3. Camera — Posture Coach (zero-capture)</h2>
+  <p>The camera activates only when you enable the Posture Coach, and follows a strict zero-capture, local-loop design:</p>
+  <ul>
+    <li>Frames are analyzed on-device (Google MediaPipe running locally) and discarded immediately</li>
+    <li>No video, image, or facial data is ever recorded, cached, stored, or transmitted</li>
+    <li>Only ephemeral numeric posture coordinates exist while the coach runs; they are mathematically irreversible and cannot reconstruct your face</li>
+    <li>Turning the coach off releases the camera completely</li>
+  </ul>
+
+  <h2>4. Network requests</h2>
+  <ul>
+    <li><b>YouTube:</b> videos in the Shadowing Studio are played via YouTube's embedded player, subject to YouTube's privacy policy</li>
+    <li><b>Dictionary definitions:</b> individual words you tap are looked up anonymously via the free Dictionary API</li>
+    <li><b>Fonts and the on-device vision model</b> are fetched from public CDNs</li>
+  </ul>
+  <p>None of these requests include your identity, recordings, or progress data.</p>
+
+  <h2>5. Optional GitHub sync</h2>
+  <p>If you choose to connect your own private GitHub repository for backup, your progress and recordings are transmitted directly from your device to your repository using your own access token. We never see this data or your token; the token is stored only on your device and is never included in exports.</p>
+
+  <h2>6. Children</h2>
+  <p>The app is intended for professionals and learners aged 13 and over. It collects no personal information from anyone.</p>
+
+  <h2>7. Your rights &amp; data deletion</h2>
+  <p>Because all data is on your device, you are always in full control: export it (Account → Export JSON), or erase it entirely (Account → Reset everything, or uninstall the app). There is nothing to request from us, because we hold nothing.</p>
+
+  <h2>8. Changes &amp; contact</h2>
+  <p>If this policy changes, the "Last updated" date above will change. Questions: <a href="mailto:nore.ngou@gmail.com">nore.ngou@gmail.com</a></p>
+</main>
+<footer>BE Mastery · <a href="./">Open the app</a> · <a href="manual/">User manual</a></footer>
+</body>
+</html>
