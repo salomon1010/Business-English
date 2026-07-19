@@ -176,6 +176,13 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .fb-item.fixed .fb-pct{background:rgba(52,211,153,.15);color:var(--green)}
 .fb-heard{font-size:13px;color:var(--mut);margin:10px 0 10px}
 .fb-score-ring{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600}
+/* POSTURE COACH */
+.pc-wrap{display:none;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
+.pc-row{display:flex;gap:14px;align-items:center}
+.pc-cv{width:110px;height:146px;background:#0a0e1a;border-radius:10px;border:2.5px solid var(--line2);transition:border-color .3s,box-shadow .3s;flex:none}
+.pc-cv.good{border-color:var(--green)}
+.pc-cv.warn{border-color:var(--gold)}
+.pc-cv.bad{border-color:#f97316;box-shadow:0 0 20px rgba(249,115,22,.45)}
 /* VOCABULARY */
 .voc-row{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:8px;overflow:hidden}
 .voc-head{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer}
@@ -972,6 +979,18 @@ function rSession(el,w,d){
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
+        <div class="hr"></div>
+        <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">🧍 Posture coach — sit like an executive</button>
+        <div class="pc-wrap" id="pcWrap">
+          <div class="pc-row">
+            <canvas class="pc-cv" id="pcCv" width="110" height="146"></canvas>
+            <div style="flex:1;min-width:0">
+              <b style="font-size:13.5px" id="pcState">Starting camera…</b>
+              <p style="font-size:12px;color:var(--mut);margin:4px 0 0" id="pcMsg">Sit as you would in a meeting. The avatar glows green when your posture projects authority.</p>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--mut2);margin-top:10px">🔒 Zero-capture: frames are analyzed on your device and immediately discarded — no video is ever stored or uploaded.</p>
+        </div>
       </div>
       <div class="card" style="margin-bottom:16px">
         <b style="display:block;margin-bottom:4px">🎬 My example — what I plan to say</b>
@@ -1230,6 +1249,18 @@ function rShadow(el){
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
+        <div class="hr"></div>
+        <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">🧍 Posture coach — sit like an executive</button>
+        <div class="pc-wrap" id="pcWrap">
+          <div class="pc-row">
+            <canvas class="pc-cv" id="pcCv" width="110" height="146"></canvas>
+            <div style="flex:1;min-width:0">
+              <b style="font-size:13.5px" id="pcState">Starting camera…</b>
+              <p style="font-size:12px;color:var(--mut);margin:4px 0 0" id="pcMsg">Sit as you would in a meeting. The avatar glows green when your posture projects authority.</p>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--mut2);margin-top:10px">🔒 Zero-capture: frames are analyzed on your device and immediately discarded — no video is ever stored or uploaded. Only anonymous posture coordinates exist, and they never leave this device.</p>
+        </div>
       </div>
       <div class="card">
         <b style="font-size:15px">🎬 Clip transcript & notes</b>
@@ -1757,6 +1788,135 @@ function fbShowResults(targetText,heardText,fromRec){
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();
 }
+/* ===== POSTURE COACH — on-device MediaPipe pose tracking =====
+   Zero-capture: frames are analyzed in memory and discarded; only numeric
+   coordinates exist and nothing ever leaves the device. */
+let PC={on:false,lm:null,video:null,stream:null,h:null,base:[],baseVal:null,frames:0,slouchF:0,tiltF:0,noDet:0,ring:false,ringDismissed:false};
+async function pcLoad(){
+  if(PC.lm)return PC.lm;
+  const v=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");
+  const files=await v.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+  PC.lm=await v.PoseLandmarker.createFromOptions(files,{
+    baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
+    runningMode:"VIDEO",numPoses:1});
+  return PC.lm;
+}
+window.pcToggle=async()=>{
+  if(PC.on)return pcStop(true);
+  const wrap=document.getElementById("pcWrap");if(wrap)wrap.style.display="block";
+  const st=document.getElementById("pcState");if(st)st.textContent="Loading the on-device model…";
+  const btn=document.getElementById("pcBtn");if(btn)btn.textContent="⏹ Stop posture coach";
+  PC.on=true;PC.ringDismissed=false;
+  try{
+    await pcLoad();
+    if(st)st.textContent="Model ready — allow the camera when your browser asks…";
+    PC.stream=await Promise.race([
+      navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:480}},audio:false}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error("camera timeout")),20000))
+    ]);
+    PC.video=document.createElement("video");PC.video.srcObject=PC.stream;PC.video.muted=true;PC.video.playsInline=true;
+    await PC.video.play();
+    PC.frames=0;PC.slouchF=0;PC.tiltF=0;PC.base=[];PC.baseVal=null;PC.noDet=0;
+    if(st)st.textContent="📐 Calibrating — sit upright for 3 seconds…";
+    PC.h=setInterval(pcTick,66); /* ~15fps keeps the device cool */
+  }catch(e){
+    pcStop(false);
+    const msg=document.getElementById("pcMsg");
+    if(msg)msg.textContent="Camera blocked or unavailable — allow camera access in your browser, then try again.";
+    toast("⚠️ Posture coach needs camera permission");
+  }
+};
+function pcStop(showSummary){
+  PC.on=false;clearInterval(PC.h);
+  if(PC.stream){PC.stream.getTracks().forEach(t=>t.stop());PC.stream=null}
+  pcRing(false);
+  const btn=document.getElementById("pcBtn");if(btn)btn.textContent="🧍 Posture coach — sit like an executive";
+  if(showSummary&&PC.frames>30){
+    const up=Math.round(100*(1-PC.slouchF/PC.frames));
+    const st=document.getElementById("pcState"),msg=document.getElementById("pcMsg");
+    if(st)st.textContent=`🧍 Session result: ${up}% upright`;
+    if(msg)msg.textContent=up>=85?"Executive presence — tall, open, confident. Bring exactly this into real meetings 💪":
+      up>=60?"Good base — the screen pulls your head down. Raise the phone to eye level and re-run.":
+      "You spent a lot of time slouched — roll your shoulders back, lift the screen, try again.";
+    toast(`🧍 Posture session: ${up}% upright`);
+  }
+}
+function pcLum(){
+  try{
+    const c=pcLum.c||(pcLum.c=document.createElement("canvas"));c.width=32;c.height=24;
+    const g=c.getContext("2d",{willReadFrequently:true});
+    g.drawImage(PC.video,0,0,32,24);
+    const d=g.getImageData(0,0,32,24).data;let s=0;
+    for(let i=0;i<d.length;i+=4)s+=d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114;
+    return s/(d.length/4);
+  }catch(e){return 128}
+}
+function pcTick(){
+  if(!PC.on||!PC.video||PC.video.readyState<2)return;
+  let res;try{res=PC.lm.detectForVideo(PC.video,performance.now())}catch(e){return}
+  /* low-light check every ~2s: the screen itself becomes the ring light */
+  if(PC.frames%30===0&&!PC.ringDismissed){
+    const dark=pcLum()<45;
+    if(dark&&!PC.ring){pcRing(true);toast("💡 Low light — ring-light mode: your screen now lights your face")}
+    else if(!dark&&PC.ring)pcRing(false);
+  }
+  const lms=res&&res.landmarks&&res.landmarks[0];
+  const st=document.getElementById("pcState"),msg=document.getElementById("pcMsg"),cv=document.getElementById("pcCv");
+  if(!st||!cv)return pcStop(false);
+  if(!lms){
+    if(++PC.noDet>75){ /* ~5s with nobody detected → graceful fail-safe */
+      pcStop(false);
+      st.textContent="🌙 Tracking paused";
+      msg.textContent="Low lighting detected — pausing posture tracking and focusing 100% on your voice feedback for this session.";
+      const btn=document.getElementById("pcBtn");if(btn)btn.textContent="🧍 Restart posture coach";
+    }
+    return;
+  }
+  PC.noDet=0;PC.frames++;
+  const L=i=>lms[i];
+  const comp=((L(11).y+L(12).y)/2)-((L(7).y+L(8).y)/2); /* ear-to-shoulder compression: bigger = upright */
+  const tilt=Math.abs(L(7).y-L(8).y);
+  if(PC.baseVal===null){
+    PC.base.push(comp);
+    if(PC.base.length>=45){PC.base.sort((a,b)=>a-b);PC.baseVal=PC.base[Math.floor(PC.base.length/2)];st.textContent="✅ Calibrated — coaching live"}
+  }
+  let state="good";
+  if(PC.baseVal!==null){
+    if(comp<PC.baseVal*0.82){state="bad";PC.slouchF++;st.textContent="🟠 Slouching";msg.textContent="Shoulders back, chest open — deliver to the whole room."}
+    else if(tilt>0.045){state="warn";PC.tiltF++;st.textContent="🟡 Head tilted";msg.textContent="Level your head — raise the phone to eye level."}
+    else{st.textContent="🟢 Executive posture";msg.textContent="Tall, open, confident. This is how you enter a room."}
+  }
+  cv.className="pc-cv "+state;
+  pcDraw(cv,lms,state);
+}
+function pcDraw(cv,lms,state){
+  const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);
+  const col=state==="bad"?"#f97316":state==="warn"?"#fbbf24":"#34d399";
+  const P=i=>({x:(1-lms[i].x)*cv.width,y:lms[i].y*cv.height});
+  const line=(a,b)=>{g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()};
+  g.strokeStyle=col;g.lineWidth=3;g.lineCap="round";
+  const sh1=P(11),sh2=P(12),shMid={x:(sh1.x+sh2.x)/2,y:(sh1.y+sh2.y)/2},nose=P(0);
+  line(sh1,sh2);line(shMid,nose);line(sh1,P(13));line(P(13),P(15));line(sh2,P(14));line(P(14),P(16));
+  g.fillStyle=col;g.beginPath();g.arc(nose.x,nose.y,6.5,0,7);g.fill();
+}
+window.pcRing=on=>{
+  PC.ring=!!on;
+  let r=document.getElementById("ringLight");
+  if(on){
+    if(!r){
+      r=document.createElement("div");r.id="ringLight";
+      r.style.cssText="position:fixed;inset:0;background:#fff;z-index:97;display:flex;align-items:flex-end;justify-content:center;padding-bottom:44px";
+      r.innerHTML=`<button class="btn" style="background:#f3f4f6;color:#111;border:1px solid #ddd;font-weight:700" onclick="PC.ringDismissed=true;pcRing(false)">💡 Turn off ring light</button>`;
+      document.body.appendChild(r);
+    }
+    r.style.display="flex";
+    const w=document.getElementById("pcWrap");if(w){w.style.position="relative";w.style.zIndex=98;w.style.background="var(--card2)"}
+  }else if(r){
+    r.style.display="none";
+    const w=document.getElementById("pcWrap");if(w){w.style.zIndex="";}
+  }
+};
+
 /* ===== VOCABULARY (extracted from the user's own speech) ===== */
 const VOC_STOP=new Set(("i you he she it we they me him her us them am is are was were be been being the a an and or but if so of to in at on for with from by about as into over under your my our their his its this that these those there here not no yes do does did done have has had having will would can could should shall may might must just also very really quite than then when while where which who whom whose what why how all any some more most other another each every few many much one two three four five ten first second next new old same own too again once only even still yet already always never sometimes often usually now today please thank thanks okay ok well right left like get got want wanted going go went gone come came make made know knew think thought say said see saw look looked good great nice bad big small little i'm i've i'll i'd you're you've we're we'll they're it's that's don't doesn't didn't isn't aren't wasn't weren't can't couldn't won't wouldn't shouldn't haven't hasn't let's gonna wanna").split(/\s+/));
 const CEFR_MAP={meeting:"A2",project:"A2",problem:"A2",question:"A2",report:"B1",update:"B1",account:"B1",issue:"B1",delay:"B1",process:"B1",support:"B1",request:"B1",schedule:"B1",delivery:"B1",feedback:"B1",challenge:"B2",blocker:"B2",dependency:"C1",escalation:"C1",mitigation:"C1",stakeholder:"C1",commencement:"C1",prioritize:"C1",transaction:"B2",pronunciation:"B2",recommendation:"B2",implementation:"C1",requirement:"B2",responsibility:"B2",experience:"B1",opportunity:"B2",university:"A2",universities:"A2",honored:"B2",individual:"B1",particular:"B1",vendor:"B2",timeline:"B2",budget:"B1",revenue:"B2",workflow:"B2"};
@@ -2337,7 +2497,8 @@ async function rData(el){
     </div>
   </div>
   <h3 style="margin:26px 0 10px">🔒 Data & privacy</h3>
-  <p class="sub" style="margin-bottom:16px">Progress lives in this browser's storage; recordings live on-device in IndexedDB. Export a backup before switching devices or clearing site data.</p>
+  <p class="sub" style="margin-bottom:10px">Progress lives in this browser's storage; recordings live on-device in IndexedDB. Export a backup before switching devices or clearing site data.</p>
+  <p class="sub" style="margin-bottom:16px"><b style="color:var(--txt)">📷 Camera (Posture coach) — zero-capture policy:</b> the camera is used only to compute posture coordinates on your device. Raw frames are discarded immediately — no video or image is ever stored, cached, or transmitted anywhere. Only ephemeral, anonymous numeric coordinates exist, and they cannot reconstruct your face.</p>
   <div class="grid g3">
     <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">Sessions completed</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">Audio recordings stored</div></div>
