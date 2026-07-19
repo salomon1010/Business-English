@@ -126,7 +126,12 @@ No account. No ads. No tracking. Your recordings and progress stay on your
 device. Works offline.
 
 25 minutes a day. 12 weeks. Walk into your next meeting ready.
+
+© 2026 Salomon N. — BE Mastery. All rights reserved.
 ```
+
+**Support email (required by Play):** nore.ngou@gmail.com — also shown in-app
+(Account → About) and on every page footer.
 
 **Category:** Education
 **Tags:** English, Business English, pronunciation, speaking, shadowing
