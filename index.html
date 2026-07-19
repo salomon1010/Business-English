@@ -578,8 +578,8 @@ const RULES=[
 const LS_KEY="be12_v1";
 let S=load();
 function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],dates:[],startDate:new Date().toISOString().slice(0,10)};
+  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};return d}}catch(e){}
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -1192,10 +1192,16 @@ function rShadow(el){
         <div id="recList"></div>
       </div>
       <div class="card">
-        <b style="font-size:15px">📝 Transcript & notes</b>
-        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">Transcribe the clip exactly — mark stressed words in CAPS, pauses with /, linked sounds with ‿.</p>
-        <textarea rows="6" id="shNote" placeholder="e.g. and the POWER of the individual / to become something parTIcular…"></textarea>
+        <b style="font-size:15px">🎬 Clip transcript & notes</b>
+        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">What the speaker says in the clip — transcribe it exactly (mark stressed words in CAPS, pauses with /). Used to score your pronunciation against the original.</p>
+        <textarea rows="4" id="shNote" placeholder="e.g. and the POWER of the individual / to become something parTIcular…"></textarea>
         <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="shSaveNote()">Save notes</button>
+        <div class="hr"></div>
+        <b style="font-size:14px">🎙️ My transcript</b>
+        <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">Fills in automatically every time you record your shadowing — exactly what you said, errors included. The feedback below is built from this.</p>
+        <div id="shHeardBox" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:52px;color:var(--txt);font-style:italic">
+          <span style="color:var(--mut2);font-style:normal;font-size:12.5px">Nothing yet — press 🎙️ and shadow the clip.</span>
+        </div>
       </div>
     </div>
     <div class="card" style="margin-top:16px">
@@ -1275,6 +1281,7 @@ async function shLoad(c){
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   document.getElementById("shPlayerWrap").style.display="block";
   document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
+  shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
   await loadYT();
   if(ytPlayer&&ytPlayer.destroy)ytPlayer.destroy();
@@ -1434,29 +1441,27 @@ window.shRec=()=>{
     if(shFB.rec){try{shFB.rec.stop()}catch(e){shFBDone()}}
   }
 };
+function shHeardUI(heard){
+  const box=document.getElementById("shHeardBox");
+  if(box)box.innerHTML=heard?"“"+esc(heard)+"”":'<span style="color:var(--mut2);font-style:normal;font-size:12.5px">Nothing yet — press 🎙️ and shadow the clip.</span>';
+}
 function shFBDone(){
   const heard=shFB.txt.trim();
-  if(!heard)return;
+  if(!heard){toast("⚠️ I couldn't hear any words in that recording — try again a bit louder");return}
   S.notes["shheard:"+shClip.vid]=heard;
   S.notes["shheardDur:"+shClip.vid]=Date.now()-shFB.t0;
   save();
-  const target=document.getElementById("shNote").value.trim();
-  if(target){
-    fbT0=shFB.t0;
-    fbShowResults(target,heard,true);
-    toast("🗣️ Feedback generated from your shadowing recording");
-    const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
-  }else{
-    toast("Recording transcribed — write the transcript, then click “Analyze my last recording”");
-  }
+  shHeardUI(heard);
+  fbT0=shFB.t0;
+  fbShowResults(document.getElementById("shNote").value.trim(),heard,"new");
+  toast("🗣️ Feedback generated from your shadowing recording");
+  const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
 }
 window.fbFromRec=()=>{
   const heard=S.notes["shheard:"+shClip.vid];
   if(!heard)return toast("⚠️ No transcribed shadowing recording yet — record yourself first with 🎙️");
-  const target=document.getElementById("shNote").value.trim();
-  if(!target)return toast("⚠️ Write the transcript first — that's what I'll check you against");
   fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
-  fbShowResults(target,heard,true);
+  fbShowResults(document.getElementById("shNote").value.trim(),heard,true);
   toast("🗣️ Feedback from your last shadowing recording");
 };
 
@@ -1577,7 +1582,8 @@ function fbShowResults(targetText,heardText,fromRec){
   const t=fbTokens(targetText),h=fbTokens(heardText);
   const out=document.getElementById("fbOut");
   if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">I didn't hear anything — check your microphone and try again, speaking a little louder.</p>`;return}
-  const ops=fbAlign(t.filter(w=>!FILLERS.includes(w)),h.filter(w=>!FILLERS.includes(w)));
+  const hasTarget=t.length>0;
+  const ops=hasTarget?fbAlign(t.filter(w=>!FILLERS.includes(w)),h.filter(w=>!FILLERS.includes(w))):[];
   const okN=ops.filter(o=>o.op==="ok").length;
   const score=Math.round(100*okN/Math.max(ops.filter(o=>o.op!=="extra").length,1));
   const col=score>=80?"var(--green)":score>=55?"var(--gold)":"var(--red)";
@@ -1588,30 +1594,50 @@ function fbShowResults(targetText,heardText,fromRec){
   const fillerN=h.filter(w=>FILLERS.includes(w)).length;
   const paceMsg=wpm<95?"🐢 "+wpm+" wpm — a bit slow; natives average ~140–160":wpm>185?"🏃 "+wpm+" wpm — slow down, clarity beats speed":"✅ "+wpm+" wpm — natural professional pace";
   /* history + trouble words */
-  S.fbHist.push({ts:Date.now(),score,wpm});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50);
+  if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   problems.forEach(o=>{S.trouble[o.t]=(S.trouble[o.t]||0)+1});
-  const hist=S.fbHist.slice(-5).map(x=>x.score+"%").join(" → ");
+  const hist=S.fbHist.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
   const trend=S.fbHist.length>=2?(S.fbHist[S.fbHist.length-1].score-S.fbHist[S.fbHist.length-2].score):0;
+  /* per-clip attempt tracking: repeat the same clip and watch yourself improve */
+  let attempts=[],delta=null;
+  if(hasTarget&&fromRec==="new"&&shClip.vid){
+    attempts=S.fbV[shClip.vid]=S.fbV[shClip.vid]||[];
+    if(attempts.length)delta=score-attempts[attempts.length-1];
+    attempts.push(score);if(attempts.length>20)S.fbV[shClip.vid]=attempts=attempts.slice(-20);
+  }else if(hasTarget&&shClip.vid){attempts=S.fbV[shClip.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
   out.innerHTML=`
   <div class="hr"></div>
-  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+  ${hasTarget?`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <span class="fb-score-ring" style="color:${col}">${score}%</span>
     <div style="flex:1;min-width:200px">
       <b style="font-size:14px">${score>=80?"Excellent — almost every word landed clearly! 🎉":score>=55?"Good base — a few words need work 💪":"Keep going — let's drill the tricky words 🎯"}</b>
       <p style="font-size:12.5px;color:var(--mut)">${okN} of ${ops.filter(o=>o.op!=="extra").length} words recognized clearly · based on this browser's American-English speech engine</p>
     </div>
     <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(String(targetText).replace(/[‿/]/g," "))},1)">🔊 Hear the whole text</button>
-  </div>
+  </div>`
+  :`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="flex:1;min-width:220px">
+      <b style="font-size:14px">🗣️ Feedback from your recording</b>
+      <p style="font-size:12.5px;color:var(--mut)">Grammar, pace and fillers analyzed below. To also get a pronunciation score word by word, add the clip transcript above and record again.</p>
+    </div>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(String(heardText))},1)">🔊 Hear what you said, correctly</button>
+  </div>`}
+  ${attempts.length?`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:10px 16px">
+    <span style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">This clip · attempt ${attempts.length}</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--acc2)">${attempts.map((s,i)=>(i===attempts.length-1?"<b style='color:var(--txt)'>"+s+"%</b>":s+"%")).join(" → ")}</span>
+    ${delta!==null?`<span style="font-weight:800;font-size:13.5px;color:${delta>0?"var(--green)":delta<0?"var(--red)":"var(--mut)"}">${delta>0?"📈 +"+delta+"% — you're improving!":delta<0?"📉 "+delta+"% — slow down, hit the stressed words":"= same score — push for cleaner delivery"}</span>`
+    :`<span style="font-size:13px;color:var(--mut)">baseline set — repeat the clip and beat it 🎯</span>`}
+  </div>`:""}
   <div class="grid g3" style="margin-top:12px">
     <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${paceMsg}</div><div class="l">Speaking pace</div></div>
     <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${fillerN===0?"✅ Zero fillers — clean delivery!":"⚠️ "+fillerN+" filler"+(fillerN>1?"s":"")+" (um / uh) — pause silently instead"}</div><div class="l">Filler words</div></div>
     <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${hist}${trend>0?" 📈":trend<0?" 📉":""}</div><div class="l">Your last scores</div></div>
   </div>
-  <div class="fb-chips">${ops.map(o=>
+  ${hasTarget?`<div class="fb-chips">${ops.map(o=>
     o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
     :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
-    :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div>
-  ${problems.length?`<b style="font-size:14px;display:block;margin:8px 0 10px">🎯 Practice pronunciation</b>`+problems.map(o=>`
+    :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div>`:""}
+  ${!hasTarget?"":problems.length?`<b style="font-size:14px;display:block;margin:8px 0 10px">🎯 Practice pronunciation</b>`+problems.map(o=>`
     <div class="fb-item" id="fbi${o.i}">
       <span class="fb-pct" id="fbp${o.i}">${o.op==="sub"?wsim(o.t,o.h)+"%":"0%"}</span>
       <span class="w">${esc(o.t)}</span>
