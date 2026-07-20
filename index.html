@@ -1216,6 +1216,7 @@ async function renderRecs(ctx){
       <a class="btn btn-g btn-sm" href="${url}" download="${esc(r.label||'recording')}.webm" title="Download">⬇</a>
       <button class="btn btn-danger btn-sm" onclick="removeRec(${r.id},'${ctx}')">✕</button></div>`;
   }).join(""):`<p style="font-size:12.5px;color:var(--mut2);margin-top:12px">No recordings yet for this item.</p>`;
+  if(recs.length)list.insertAdjacentHTML("beforeend",`<p style="font-size:11.5px;color:var(--mut2);margin-top:10px">📱 Recordings are saved on this device only. Your scores and progress sync with your account — audio stays private and local. Use ⬇ to keep any you want.</p>`);
 }
 window.removeRec=async(id,ctx)=>{await delRec(id);renderRecs(ctx);toast("Recording deleted")};
 
@@ -2712,7 +2713,8 @@ function obRender(){
      <h2>Speak like you <em style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">belong in the room</em></h2>
      <p class="sub">25 focused minutes a day. Real feedback on your pronunciation, grammar and vocabulary — all private, all on your device.</p>
      <input id="obName" placeholder="What's your first name?" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
-     <br><button class="btn btn-p" style="font-size:16px;padding:14px 34px" onclick="obNext()">Let's go →</button>`,
+     <br><button class="btn btn-p" style="font-size:16px;padding:14px 34px" onclick="obNext()">Let's go →</button>
+     <p class="auth-alt" style="margin-top:20px">Already have an account? <a onclick="fbOpenModal('in')">Log in</a></p>`,
     `<div class="ob-logo">💼</div>
      <h2>What do you do, ${esc(OB.name||"friend")}?</h2>
      <p class="sub">Your daily drills use real situations from your world — standups, updates, interviews.</p>
@@ -2826,7 +2828,10 @@ async function fbFirstSync(u){
     const merged=fbMerge(S,cloud);
     S=merged;localStorage.setItem(LS_KEY,JSON.stringify(S));
     await ref.set({json:JSON.stringify(S),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    if(cloud)toast("☁️ Progress synced from your account");
+    /* a returning user who logged in from onboarding: their profile came from the
+       cloud, so dismiss the onboarding overlay and drop them into the app */
+    if(S.profile){const ob=document.getElementById("obWrap");if(ob)ob.remove()}
+    if(cloud)toast(`☁️ Welcome back${S.profile&&S.profile.name?", "+S.profile.name:""} — your progress is synced`);
     go(cur&&cur.v?cur.v:"home",cur&&cur.arg1,cur&&cur.arg2);
   }catch(e){toast("⚠️ Sync issue: "+((e&&e.code)||(e&&e.message)||""))}
   fbSyncing=false;
