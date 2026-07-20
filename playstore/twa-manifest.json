@@ -1,6 +1,6 @@
 {
   "packageId": "com.bemastery.app",
-  "host": "salomon1010.github.io",
+  "host": "app.lomonec.com",
   "name": "Business English Mastery — 12-Week System",
   "launcherName": "BE Mastery",
   "display": "standalone",
@@ -12,19 +12,19 @@
   "navigationDividerColorDark": "#0F1526",
   "backgroundColor": "#0A0E1A",
   "enableNotifications": false,
-  "startUrl": "/Business-English/",
-  "iconUrl": "https://salomon1010.github.io/Business-English/icon-512.png",
-  "maskableIconUrl": "https://salomon1010.github.io/Business-English/icon-512.png",
+  "startUrl": "/",
+  "iconUrl": "https://app.lomonec.com/icon-512.png",
+  "maskableIconUrl": "https://app.lomonec.com/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "./android.keystore",
     "alias": "bemastery"
   },
-  "appVersionName": "y",
-  "appVersionCode": 3,
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://salomon1010.github.io/Business-English/manifest.json",
+  "webManifestUrl": "https://app.lomonec.com/manifest.json",
   "fallbackType": "customtabs",
   "features": {},
   "alphaDependencies": {
@@ -33,12 +33,12 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://salomon1010.github.io/Business-English/",
+  "fullScopeUrl": "https://app.lomonec.com/",
   "minSdkVersion": 21,
   "orientation": "portrait",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "y"
+  "appVersion": "1.0.0"
 }

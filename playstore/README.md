@@ -17,7 +17,7 @@ npm install -g @bubblewrap/cli
 
 ```bash
 cd playstore
-bubblewrap init --manifest https://salomon1010.github.io/Business-English/manifest.json
+bubblewrap init --manifest https://app.lomonec.com/manifest.json
 # When prompted, accept the values from twa-manifest.json in this folder
 # (package id: com.bemastery.app, name: BE Mastery, colors #0a0e1a).
 # It will create a signing keystore — SAVE THE PASSWORDS somewhere safe.
@@ -31,37 +31,28 @@ Test on your phone: `adb install app-release-signed.apk` or just copy the APK ov
 ## 3. Digital Asset Links (removes the browser bar) — IMPORTANT
 
 TWA verifies you own the website via a file at the **domain root**:
-`https://salomon1010.github.io/.well-known/assetlinks.json`
+`https://app.lomonec.com/.well-known/assetlinks.json`
 
-Because the app lives in a *project* site (`/Business-English/`), you must create a
-**user site repo** named exactly `salomon1010.github.io` and add the file there:
+Because the app now runs on its own domain (`app.lomonec.com`) served from THIS
+repo's root, the file already lives here at [`.well-known/assetlinks.json`](../.well-known/assetlinks.json)
+— no separate repo needed (the old GitHub project-site workaround is gone). It
+already contains the upload-key fingerprint:
 
-```bash
-# after `bubblewrap build`, get your SHA256 fingerprint:
-bubblewrap fingerprint list
-# then create repo salomon1010.github.io with file .well-known/assetlinks.json:
 ```
-
-```json
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.bemastery.app",
-    "sha256_cert_fingerprints": ["REPLACE_WITH_YOUR_SHA256_FINGERPRINT"]
-  }
-}]
+3D:E6:6D:FE:51:6D:73:6A:59:16:A9:6A:DF:34:3A:DC:39:C8:36:1C:B2:EF:3F:5F:46:0D:8B:A3:D1:3A:07:52
 ```
 
 Note: after uploading to Play, ALSO add the **Play App Signing** SHA256
-(Play Console → Setup → App integrity) to that array, or the URL bar will show.
+(Play Console → Setup → App integrity) into the `sha256_cert_fingerprints` array
+in that file, or the URL bar will show. Verify it's live after DNS/Pages are set:
+`curl https://app.lomonec.com/.well-known/assetlinks.json`
 
 ## 4. Play Console (one-time $25 developer fee)
 
 1. https://play.google.com/console → Create app → **BE Mastery — Business English**
 2. Upload `app-release-bundle.aab` (internal testing first, then production)
 3. Fill the store listing with the texts below
-4. Privacy policy URL: `https://salomon1010.github.io/Business-English/privacy.html`
+4. Privacy policy URL: `https://app.lomonec.com/privacy.html`
 5. Data safety form: see section below
 6. Content rating questionnaire: Education / no user-generated public content → usually "Everyone"
 
