@@ -679,7 +679,15 @@ function getRecs(ctx){return dbReady.then(()=>new Promise(res=>{
 }))}
 function delRec(id){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res();
-  const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").delete(id);tx.oncomplete=res;tx.onerror=res;
+  const tx=DB.transaction("recs","readwrite");const store=tx.objectStore("recs");
+  /* Read the record first so we can tombstone it (by name) — this stops GitHub
+     auto-sync from re-downloading a recording you deleted. */
+  const gr=store.get(id);
+  gr.onsuccess=()=>{const rec=gr.result;
+    if(rec){try{const nm=recName(rec);GH.del=GH.del||{};GH.del[nm]=1;if(GH.up)delete GH.up[nm];saveGH();if(ghCfg())ghDeleteRepoRec(nm)}catch(e){}}
+    store.delete(id);
+  };
+  tx.oncomplete=res;tx.onerror=res;
 }))}
 function countRecs(){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res(0);
@@ -705,10 +713,20 @@ async function gh(path,opt={}){
 async function ghSha(path){try{const d=await gh(`contents/${path}?ref=${ghBranch()}`);return(d&&d.sha)||null}catch(e){return null}}
 async function ghPut(path,b64,msg){
   const body={message:msg,content:b64,branch:ghBranch()};
-  const sha=await ghSha(path);if(sha)body.sha=sha;
-  try{return await gh(`contents/${path}`,{method:"PUT",body:JSON.stringify(body)})}
-  catch(e){const s2=await ghSha(path);if(s2)body.sha=s2;else delete body.sha;
-    return gh(`contents/${path}`,{method:"PUT",body:JSON.stringify(body)})}
+  /* Re-fetch the file's sha and retry on conflict ("does not match"): the sha can
+     go stale between the GET and the PUT when saves overlap. */
+  let lastErr=null;
+  for(let attempt=0;attempt<4;attempt++){
+    const sha=await ghSha(path);if(sha)body.sha=sha;else delete body.sha;
+    try{return await gh(`contents/${path}`,{method:"PUT",body:JSON.stringify(body)})}
+    catch(e){lastErr=e;await new Promise(r=>setTimeout(r,250*(attempt+1)))}
+  }
+  throw lastErr;
+}
+async function ghDeleteRepoRec(name){
+  try{const sha=await ghSha("recordings/"+name);if(!sha)return;
+    await gh(`contents/recordings/${name}`,{method:"DELETE",body:JSON.stringify({message:"delete recording",sha,branch:ghBranch()})})}
+  catch(e){}
 }
 const b64Enc=s=>btoa(unescape(encodeURIComponent(s)));
 const b64Dec=b=>decodeURIComponent(escape(atob(b.replace(/\n/g,""))));
@@ -719,12 +737,17 @@ function ghQueue(){clearTimeout(ghTimer);ghTimer=setTimeout(()=>ghPush(true),500
 function ghStatus(t){const el=document.getElementById("ghStatus");if(el)el.textContent=t}
 function ghMetaText(){return ghCfg()?`Connected: ${GH.owner}/${GH.repo} (${ghBranch()})${GH.last?` · last sync ${new Date(GH.last).toLocaleString()}`:""}${GH.auto?" · ⚡ auto-sync ON":""}`:"Not connected yet"}
 function refreshGhMeta(){const el=document.getElementById("ghMeta");if(el)el.textContent=ghMetaText()}
+let ghPushing=false,ghPushAgain=false;
 async function ghPush(silent){
   if(!ghCfg()){if(!silent)toast("⚠️ Connect GitHub sync first (My Data tab)");return}
+  if(ghPushing){ghPushAgain=true;return}   /* coalesce overlapping saves */
+  ghPushing=true;
   ghStatus("Saving progress to GitHub…");
   try{await ghPut("progress.json",b64Enc(JSON.stringify(S,null,1)),"progress sync "+new Date().toISOString());
-    GH.last=Date.now();saveGH();ghStatus("");toast(silent?"☁️ Auto-synced to GitHub":"☁️ Progress saved to GitHub");refreshGhMeta()}
-  catch(e){ghStatus("");toast("⚠️ GitHub save failed: "+e.message)}
+    GH.last=Date.now();saveGH();ghStatus("");if(!silent)toast("☁️ Progress saved to GitHub");refreshGhMeta()}
+  catch(e){ghStatus("");if(!silent)toast("⚠️ GitHub save failed: "+e.message)}  /* background failures stay quiet — the retry loop handles transient conflicts */
+  ghPushing=false;
+  if(ghPushAgain){ghPushAgain=false;setTimeout(()=>ghPush(true),300)}
 }
 async function ghPull(){
   if(!ghCfg())return toast("⚠️ Connect GitHub sync first");
@@ -761,8 +784,8 @@ async function ghDownRecs(){
   ghStatus("Checking cloud recordings…");
   try{const list=await gh(`contents/recordings?ref=${ghBranch()}`);
     if(!list||!Array.isArray(list)||!list.length){ghStatus("");return toast("No recordings in the repo yet")}
-    const local=new Set((await allRecs()).map(recName));GH.up=GH.up||{};
-    const todo=list.filter(f=>f.name.endsWith(".webm")&&!local.has(f.name));
+    const local=new Set((await allRecs()).map(recName));GH.up=GH.up||{};GH.del=GH.del||{};
+    const todo=list.filter(f=>f.name.endsWith(".webm")&&!local.has(f.name)&&!GH.del[f.name]);
     if(!todo.length){ghStatus("");return toast("✓ All cloud recordings are already on this device")}
     let n=0;
     for(const f of todo){
@@ -802,9 +825,9 @@ async function ghSyncRecs(uploadOnly){
     if(!uploadOnly){
       const list=await gh(`contents/recordings?ref=${ghBranch()}`);
       if(Array.isArray(list)){
-        const have=new Set(local.map(recName));let n=0;
+        const have=new Set(local.map(recName));GH.del=GH.del||{};let n=0;
         for(const f of list){
-          if(!f.name.endsWith(".webm")||have.has(f.name))continue;
+          if(!f.name.endsWith(".webm")||have.has(f.name)||GH.del[f.name])continue;
           const b=await gh(`git/blobs/${f.sha}`);
           const parts=f.name.replace(".webm","").split("__");
           await addRec(parts[0],labelFor(parts[0]),b64ToBlob(b.content,"audio/webm"),+parts[1]||Date.now());
@@ -1095,6 +1118,11 @@ window.recToggle=async(ctx,label)=>{
     rec.mr.onstop=async()=>{
       clearInterval(rec.h);stream.getTracks().forEach(t=>t.stop());
       const blob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
+      if(blob.size<1200||(Date.now()-rec.t0)<400){  /* discard accidental/empty taps */
+        if(btn)btn.classList.remove("recording");
+        if(st)st.textContent="Too short — tap and speak a bit longer";
+        toast("⚠️ Too short to save — hold and speak");return;
+      }
       await addRec(rec.ctx,rec.label,blob);
       markPracticed();save();
       if(btn){btn.classList.remove("recording")}
@@ -2276,9 +2304,11 @@ window.phRec=async ix=>{
     rec.mr.ondataavailable=e=>rec.chunks.push(e.data);
     rec.mr.onstop=async()=>{
       stream.getTracks().forEach(t=>t.stop());
-      await addRec(rec.ctx,rec.label,new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"}));
-      markPracticed();save();
+      const phBlob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
       if(btn){btn.textContent="🎙️ Record";btn.style.borderColor="";btn.style.color=""}
+      if(phBlob.size<1200||(Date.now()-rec.t0)<400){toast("⚠️ Too short to save — hold and speak");return}
+      await addRec(rec.ctx,rec.label,phBlob);
+      markPracticed();save();
       toast("Recording saved 🎙️");renderPhRecs(ix);
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
