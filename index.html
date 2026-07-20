@@ -12,6 +12,20 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Firebase (Auth + Firestore) — optional cloud sync. App works fully without it. -->
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script>
+window.FB_CONFIG={
+  apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
+  authDomain:"be-mastery.firebaseapp.com",
+  projectId:"be-mastery",
+  storageBucket:"be-mastery.firebasestorage.app",
+  messagingSenderId:"847739483036",
+  appId:"1:847739483036:web:7382f5b7a82eca294ece59"
+};
+</script>
 <style>
 :root{
   --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --card2:#1a2340;
@@ -232,6 +246,25 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:26px}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
 .ob-dot.on{background:var(--acc2);width:22px;border-radius:99px}
+/* AUTH (optional cloud sign-in) */
+.auth-ov{position:fixed;inset:0;z-index:120;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:22px;animation:fade .2s}
+.auth-card{max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:28px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:fade .3s;max-height:92vh;overflow:auto}
+.auth-card h2{font-size:23px;font-weight:800;letter-spacing:-.4px;text-align:center;margin-bottom:6px}
+.auth-card .sub{text-align:center;margin:0 auto 22px;font-size:13.5px}
+.auth-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
+.auth-prov{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;border-radius:13px;font-size:14.5px;font-weight:700;cursor:pointer;border:1px solid var(--line2);background:#fff;color:#1a1a2e;margin-bottom:10px;transition:.15s}
+.auth-prov:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.auth-prov svg{width:19px;height:19px;flex:none}
+.auth-prov.dim{opacity:.45;cursor:not-allowed}
+.auth-div{display:flex;align-items:center;gap:12px;color:var(--mut2);font-size:12px;margin:16px 0}
+.auth-div::before,.auth-div::after{content:"";flex:1;height:1px;background:var(--line2)}
+.auth-card input{margin-bottom:10px}
+.auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}
+.auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
+.auth-alt a{color:var(--acc2);font-weight:700;cursor:pointer}
+.auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
+.sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
+@media(min-width:821px){.sync-nudge{bottom:16px}}
 /* BOTTOM NAV (mobile app style) */
 .bottom-nav{display:none}
 .more-sheet{position:fixed;bottom:82px;right:10px;z-index:61;background:var(--card2);border:1px solid var(--line2);border-radius:16px;padding:8px;flex-direction:column;gap:2px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:170px}
@@ -614,7 +647,7 @@ function load(){
   try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};d.profile=d.profile||null;return d}}catch(e){}
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
-function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}}
+function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 
@@ -2495,6 +2528,7 @@ async function rData(el){
       <button class="btn btn-p" style="margin-top:16px;width:100%;justify-content:center" onclick="acctSave()">Save changes</button>
     </div>
     <div>
+      ${fbAuthCard()}
       <div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <b style="font-size:16px">🎁 Free plan</b><span class="chip done">Active — everything included</span>
@@ -2532,8 +2566,8 @@ async function rData(el){
     <div class="stat"><div class="n">${S.startDate}</div><div class="l">Program start date</div></div>
   </div>
   <div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
-    <b style="font-size:16px">☁️ GitHub Sync — access everything from any device</b>
-    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">Progress and recordings are saved into a <b>private GitHub repo</b> of yours — your cloud folder. With <b>⚡ auto-sync ON</b>, everything is hands-free: opening the app pulls the newest progress and missing recordings; every change pushes automatically; every recording uploads right after you stop it. The manual buttons are just a fallback. Your token is stored only in this browser and never included in exports or progress.json.</p>
+    <b style="font-size:16px">🛠️ Advanced: GitHub sync (includes audio recordings)</b>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">For power users. Signing in above already syncs your progress; this extra option also backs up your <b>audio recordings</b> into a <b>private GitHub repo</b> of yours — your cloud folder. With <b>⚡ auto-sync ON</b>, everything is hands-free: opening the app pulls the newest progress and missing recordings; every change pushes automatically; every recording uploads right after you stop it. The manual buttons are just a fallback. Your token is stored only in this browser and never included in exports or progress.json.</p>
     <div class="grid g2" style="gap:10px;margin-bottom:12px">
       <input id="ghOwner" placeholder="GitHub username" value="${esc(GH.owner||"salomon1010")}">
       <input id="ghRepo" placeholder="Data repo name (private)" value="${esc(GH.repo||"business-english-data")}">
@@ -2706,6 +2740,186 @@ window.obFinish=()=>{
   go("shadow");
 };
 if(!S.profile)obRender();
+
+/* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
+   Lives inside the main script so it can reassign S like the GitHub sync does.
+   The whole app works with no Firebase config, no network, and no account. */
+let FBauth=null,FBdb=null,FBUser=null,fbPushTimer=null,fbSyncing=false;
+const FB_NUDGE_KEY="be12_syncNudge";
+try{
+  if(window.firebase&&window.FB_CONFIG&&FB_CONFIG.apiKey){
+    firebase.initializeApp(FB_CONFIG);
+    FBauth=firebase.auth();FBdb=firebase.firestore();
+    FBauth.onAuthStateChanged(fbOnAuth);
+  }
+}catch(e){console.warn("Firebase unavailable:",e&&e.message)}
+
+function fbOnAuth(u){
+  FBUser=u;
+  if(u){fbHideNudge();fbFirstSync(u)}
+  if(cur&&cur.v==="data")go("data");
+  fbUpdateNudge();
+}
+/* --- merge helpers: union completed work, keep the best scores --- */
+function fbUnionTrue(a,b){const o=Object.assign({},a||{},b||{});Object.keys(a||{}).forEach(k=>{if(a[k])o[k]=a[k]});Object.keys(b||{}).forEach(k=>{if(b[k])o[k]=b[k]});return o}
+function fbMax(a,b){const o={};[a||{},b||{}].forEach(x=>Object.keys(x).forEach(k=>o[k]=Math.max(o[k]||0,+x[k]||0)));return o}
+function fbMerge(local,cloud){
+  if(!cloud)return local;if(!local)return cloud;
+  const m=Object.assign({},cloud,local);
+  m.days=fbUnionTrue(local.days,cloud.days);
+  m.steps=fbUnionTrue(local.steps,cloud.steps);
+  m.notes=Object.assign({},cloud.notes,local.notes);
+  m.scores=fbMax(local.scores,cloud.scores);
+  m.phMaster=fbUnionTrue(local.phMaster,cloud.phMaster);
+  m.phExample=Object.assign({},cloud.phExample,local.phExample);
+  m.weekly=Object.assign({},cloud.weekly,local.weekly);
+  m.monthly=Object.assign({},cloud.monthly,local.monthly);
+  m.vocab=Object.assign({},cloud.vocab,local.vocab);
+  m.trouble=fbMax(local.trouble,cloud.trouble);
+  m.fbV=Object.assign({},cloud.fbV,local.fbV);
+  const seen={};m.fbHist=[].concat(cloud.fbHist||[],local.fbHist||[]).filter(x=>{const k=x&&x.ts;if(!k||seen[k])return false;seen[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-50);
+  m.dates=Array.from(new Set([].concat(cloud.dates||[],local.dates||[]))).sort();
+  const ck={};m.clips=[].concat(local.clips||[],cloud.clips||[]).filter(c=>{const k=(c&&c.vid)+"_"+(c&&c.start);if(ck[k])return false;ck[k]=1;return true});
+  const lt=(local.profile&&local.profile.ts)||0,ct=(cloud.profile&&cloud.profile.ts)||0;
+  m.profile=ct>lt?cloud.profile:local.profile;
+  m.startDate=[local.startDate,cloud.startDate].filter(Boolean).sort()[0]||local.startDate;
+  m.savedAt=Math.max(local.savedAt||0,cloud.savedAt||0,Date.now());
+  return m;
+}
+async function fbFirstSync(u){
+  if(fbSyncing||!FBdb)return;fbSyncing=true;
+  try{
+    const ref=FBdb.collection("users").doc(u.uid);
+    const snap=await ref.get();
+    let cloud=null;
+    if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
+    const merged=fbMerge(S,cloud);
+    S=merged;localStorage.setItem(LS_KEY,JSON.stringify(S));
+    await ref.set({json:JSON.stringify(S),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    if(cloud)toast("☁️ Progress synced from your account");
+    go(cur&&cur.v?cur.v:"home",cur&&cur.arg1,cur&&cur.arg2);
+  }catch(e){toast("⚠️ Sync issue: "+((e&&e.code)||(e&&e.message)||""))}
+  fbSyncing=false;
+}
+window.fbPush=function(){
+  if(!FBUser||!FBdb)return;
+  clearTimeout(fbPushTimer);
+  fbPushTimer=setTimeout(async()=>{
+    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}catch(e){}
+  },2500);
+};
+/* --- provider actions --- */
+function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":"That email doesn't look right.","auth/missing-password":"Enter your password.","auth/weak-password":"Password must be at least 6 characters.","auth/email-already-in-use":"That email already has an account — try Log in.","auth/invalid-credential":"Wrong email or password.","auth/wrong-password":"Wrong password.","auth/user-not-found":"No account with that email — try Sign up.","auth/popup-closed-by-user":"Sign-in window closed.","auth/cancelled-popup-request":"","auth/network-request-failed":"Network problem — check your connection.","auth/unauthorized-domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings)."};return c in map?map[c]:((e&&e.message)||"Something went wrong.")}
+function fbSetErr(m){const el=document.getElementById("authErr");if(el)el.textContent=m||""}
+window.fbGoogle=async function(){
+  if(!FBauth)return toast("⚠️ Sign-in unavailable");
+  try{await FBauth.signInWithPopup(new firebase.auth.GoogleAuthProvider());fbCloseModal();toast("✅ Signed in")}
+  catch(e){fbSetErr(fbErr(e))}
+};
+window.fbEmailAuth=async function(mode){
+  if(!FBauth)return;
+  const em=((document.getElementById("authEmail")||{}).value||"").trim();
+  const pw=(document.getElementById("authPw")||{}).value||"";
+  fbSetErr("");
+  try{
+    if(mode==="up")await FBauth.createUserWithEmailAndPassword(em,pw);
+    else await FBauth.signInWithEmailAndPassword(em,pw);
+    fbCloseModal();toast("✅ Signed in");
+  }catch(e){fbSetErr(fbErr(e))}
+};
+window.fbReset=async function(){
+  const em=((document.getElementById("authEmail")||{}).value||"").trim();
+  if(!em)return fbSetErr("Type your email above first, then tap this.");
+  try{await FBauth.sendPasswordResetEmail(em);fbSetErr("");toast("📧 Password reset email sent")}
+  catch(e){fbSetErr(fbErr(e))}
+};
+window.fbSignOut=async function(){
+  if(!FBauth)return;
+  if(!confirm("Sign out? Your progress stays on this device."))return;
+  await FBauth.signOut();toast("Signed out");go("data");
+};
+window.fbDeleteAccount=async function(){
+  if(!FBauth||!FBUser)return;
+  if(!confirm("Delete your cloud account and all synced data? Your on-device progress stays unless you also reset it. This cannot be undone."))return;
+  try{
+    await FBdb.collection("users").doc(FBUser.uid).delete();
+    await FBUser.delete();toast("Account deleted");go("data");
+  }catch(e){
+    if(e&&e.code==="auth/requires-recent-login"){toast("For security, sign in again then delete.");await FBauth.signOut()}
+    else toast("⚠️ "+fbErr(e));
+  }
+};
+/* --- sign-in modal --- */
+const FB_G_ICON='<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.3-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 6.6-16z"/><path fill="#FBBC05" d="M10.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.6 10.6l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.1-5.5c-2 1.3-4.6 2.1-7.9 2.1-6.3 0-11.6-4.1-13.5-9.7l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>';
+const FB_A_ICON='<svg viewBox="0 0 24 24" fill="#000"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.6.8-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.75 1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.03-.01-2.5-1-2.5-3.6zM14 5.2c.7-.8 1.1-2 1-3.2-1 .04-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.5 2.9-1.3z"/></svg>';
+window.fbOpenModal=function(mode){
+  if(!FBauth){toast("⚠️ Cloud sign-in isn't set up yet");return}
+  fbCloseModal();mode=mode||"up";const signup=mode==="up";
+  const ov=document.createElement("div");ov.className="auth-ov";ov.id="authOv";
+  ov.onclick=e=>{if(e.target===ov)fbCloseModal()};
+  ov.innerHTML=`<div class="auth-card" style="position:relative">
+    <button class="auth-x" onclick="fbCloseModal()">×</button>
+    <img src="logo.svg" alt="" style="width:52px;height:52px;border-radius:15px;display:block;margin:0 auto 14px">
+    <h2>${signup?"Create your account":"Welcome back"}</h2>
+    <p class="sub">${signup?"Sign in to sync your streak, scores and vocabulary across all your devices — free.":"Log in to load your progress on this device."}</p>
+    <button class="auth-prov" onclick="fbGoogle()">${FB_G_ICON} Continue with Google</button>
+    <button class="auth-prov dim" title="Coming with the iOS version">${FB_A_ICON} Continue with Apple</button>
+    <div class="auth-div">or with email</div>
+    <input id="authEmail" type="email" placeholder="Email address" autocomplete="email">
+    <input id="authPw" type="password" placeholder="Password (min. 6 characters)" autocomplete="${signup?"new-password":"current-password"}">
+    <div class="auth-err" id="authErr"></div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="fbEmailAuth('${signup?"up":"in"}')">${signup?"Sign up with email":"Log in"}</button>
+    ${signup?"":'<p style="text-align:center;margin-top:10px"><a onclick="fbReset()" style="color:var(--mut);font-size:12.5px;cursor:pointer">Forgotten your password?</a></p>'}
+    <p class="auth-alt">${signup?`Already have an account? <a onclick="fbOpenModal('in')">Log in</a>`:`Don't have an account? <a onclick="fbOpenModal('up')">Register</a>`}</p>
+    <p class="auth-terms">By continuing you agree to our <a href="privacy.html" target="_blank" style="color:var(--mut)">Privacy Policy</a>. Your data is stored securely and you can delete it anytime.</p>
+  </div>`;
+  document.body.appendChild(ov);
+};
+window.fbCloseModal=function(){const o=document.getElementById("authOv");if(o)o.remove()};
+/* --- account card (injected by rData) --- */
+window.fbAuthCard=function(){
+  if(FBUser){
+    const em=FBUser.email||"account",initial=(em[0]||"?").toUpperCase();
+    return `<div class="card" style="margin-bottom:16px;border-color:rgba(52,211,153,.4)">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font-size:20px;font-weight:800;color:#fff;flex:none">${esc(initial)}</div>
+        <div style="min-width:0"><b style="font-size:15px">☁️ Synced &amp; signed in</b><p style="font-size:12.5px;color:var(--mut);overflow:hidden;text-overflow:ellipsis">${esc(em)}</p></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--mut);margin:12px 0 0">Your progress saves to your account automatically and follows you to any device where you log in.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn btn-g btn-sm" onclick="fbSignOut()">Sign out</button>
+        <button class="btn btn-g btn-sm" style="color:#fca5a5" onclick="fbDeleteAccount()">Delete account</button>
+      </div>
+    </div>`;
+  }
+  if(!FBauth)return "";
+  return `<div class="card" style="margin-bottom:16px;border-color:rgba(34,211,238,.4)">
+    <b style="font-size:16px">☁️ Sync across your devices</b>
+    <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">Optional and free. Sign in and your streak, scores, vocabulary and reviews save to your account — start on your phone, continue on your laptop. Prefer not to? Everything keeps working on this device with no account.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="fbOpenModal('up')">Create account</button>
+      <button class="btn btn-g" onclick="fbOpenModal('in')">Log in</button>
+    </div>
+  </div>`;
+};
+/* --- gentle one-time nudge after the first completed session --- */
+function fbDismissed(){return localStorage.getItem(FB_NUDGE_KEY)==="1"}
+window.fbDismissNudge=function(){localStorage.setItem(FB_NUDGE_KEY,"1");fbHideNudge()};
+function fbHideNudge(){const n=document.getElementById("syncNudge");if(n)n.remove()}
+function fbUpdateNudge(){
+  fbHideNudge();
+  if(!FBauth||FBUser||fbDismissed())return;
+  if(totalDone()<1)return;
+  const n=document.createElement("div");n.className="sync-nudge";n.id="syncNudge";
+  n.innerHTML=`<div style="font-size:22px">☁️</div>
+    <div style="flex:1;font-size:13px;line-height:1.5"><b>Save your progress</b><br><span style="color:var(--mut)">Sign in so your streak is never lost.</span></div>
+    <button class="btn btn-p btn-sm" onclick="fbOpenModal('up')">Sign in</button>
+    <button class="auth-x" style="position:static;font-size:20px" onclick="fbDismissNudge()">×</button>`;
+  document.body.appendChild(n);
+}
+/* refresh the nudge on each navigation (cheap, once per view change) */
+(function(){const _g=window.go;window.go=function(){const r=_g.apply(this,arguments);try{fbUpdateNudge()}catch(e){}return r}})();
+setTimeout(fbUpdateNudge,800);
 </script>
 </body>
 </html>
