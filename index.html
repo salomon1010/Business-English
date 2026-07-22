@@ -710,6 +710,9 @@ const I18N_EN={
  "ob.slot_sub":"Attaching practice to an existing habit is how streaks survive. Pick your slot — we'll hold you to it.",
  "ob.win_title":"Your first win takes 60 seconds",
  "ob.win_sub":"Say this sentence out loud, like you're in a meeting:",
+ "role.0":"Engineering / Data","role.1":"Product / PM","role.2":"Finance / Business","role.3":"Sales / Marketing","role.4":"Student","role.5":"Other",
+ "goal.0":"🎤 Speak confidently in meetings","goal.1":"💼 Sound more executive","goal.2":"🏆 Ace interviews in English","goal.3":"🗣️ Improve my accent & clarity",
+ "slot.0":"☀️ Morning coffee","slot.1":"🍽️ Lunch break","slot.2":"🚇 Commute","slot.3":"🌙 Evening wind-down",
  "ob.say_it_now":"🎤 Say it now",
  "ob.skip_takeme":"Skip — take me in →",
  "ob.name_required_toast":"Tell me your name 🙂",
@@ -838,6 +841,7 @@ const I18N_EN={
  "week.title":"Week {{w}} — <em>{{theme}}</em>",
  "week.goal_label":"<b>Goal:</b> {{goal}}",
  "week.open_phrases":"💬 Open this week's phrases & idioms →",
+ "week.tab":"W{{n}}",
  "sess.back":"← Week {{w}}",
  "sess.week_day_chip":"Week {{w}} · {{d}}",
  "sess.completed_chip":"✓ Completed",
@@ -1750,7 +1754,7 @@ async function rHome(el){
   el.innerHTML=`
   <div class="eyebrow">${t("home.eyebrow")}</div>
   <h1 class="big">${S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic")}</h1>
-  <p class="sub">${t("home.sub_base")}${S.profile&&S.profile.role?t("home.sub_role",{role:esc(S.profile.role)}):""}.${S.profile&&S.profile.goal?t("home.sub_goal",{goal:esc(S.profile.goal)}):""}${S.profile&&S.profile.slot?t("home.sub_slot",{slot:esc(S.profile.slot)}):""}</p>
+  <p class="sub">${t("home.sub_base")}${S.profile&&S.profile.role?t("home.sub_role",{role:esc(optLabel(S.profile.role,OB_ROLES,"role."))}):""}.${S.profile&&S.profile.goal?t("home.sub_goal",{goal:esc(optLabel(S.profile.goal,OB_GOALS,"goal."))}):""}${S.profile&&S.profile.slot?t("home.sub_slot",{slot:esc(optLabel(S.profile.slot,OB_SLOTS,"slot."))}):""}</p>
   <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
@@ -3101,7 +3105,7 @@ function rPhrases(el,wFilter){
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
     <div id="exOut"></div>
   </div>
-  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">W${x.n}</button>`).join("")}
+  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>
   <div id="phList"></div>`;
   const list=el.querySelector("#phList");
@@ -3290,7 +3294,7 @@ function rReview(el,wArg){
   <div class="eyebrow">${t("rev.eyebrow")}</div>
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
-  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">W${x.n}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
+  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="grid g2" style="align-items:start">
     <div class="card">
       <b style="font-size:16px">${t("rev.selfscore_title",{w})}</b>
@@ -3371,7 +3375,7 @@ window.acctSave=()=>{
 async function rData(el){
   const recN=await countRecs();
   const p=S.profile||{name:"",role:"",goal:"",slot:""};
-  const sel=(id,opts,cur)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option ${o===cur?"selected":""}>${o}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
+  const sel=(id,opts,cur,prefix)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option value="${esc(o)}" ${o===cur?"selected":""}>${esc(optLabel(o,opts,prefix))}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
   const upN=recN-Object.keys(GH.up||{}).length;
   el.innerHTML=`
   <div class="eyebrow">${t("acc.eyebrow")}</div>
@@ -3385,11 +3389,11 @@ async function rData(el){
       <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("acc.first_name")}</p>
       <input id="acName" value="${esc(p.name||"")}" placeholder="${esc(t("acc.first_name_ph"))}">
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.what_you_do")}</p>
-      ${sel("acRole",OB_ROLES,p.role)}
+      ${sel("acRole",OB_ROLES,p.role,"role.")}
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.goal_label")}</p>
-      ${sel("acGoal",OB_GOALS,p.goal)}
+      ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.slot_label")}</p>
-      ${sel("acSlot",OB_SLOTS,p.slot)}
+      ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${esc(t("lang.app_language"))}</p>
       <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px">
         <span style="display:flex;align-items:center;gap:10px">
@@ -3544,6 +3548,9 @@ let OB={step:0,name:"",role:"",goal:"",slot:"",lang:""};
 const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
+/* Roles/goals/slots are STORED as canonical English (S.profile.role etc.) but DISPLAYED translated.
+   optLabel maps a stored canonical value to its translated label by index; unknown values pass through. */
+function optLabel(val,arr,prefix){const i=arr.indexOf(val);return i>=0?t(prefix+i):val}
 function obRender(){
   let el=document.getElementById("obWrap");
   if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";document.body.appendChild(el)}
@@ -3564,15 +3571,15 @@ function obRender(){
     `<div class="ob-logo">💼</div>
      <h2>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h2>
      <p class="sub">${t("ob.role_sub")}</p>
-     <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${r}</button>`).join("")}</div>`,
+     <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
     `<div class="ob-logo">🎯</div>
      <h2>${t("ob.goal_title")}</h2>
      <p class="sub">${t("ob.goal_sub")}</p>
-     <div class="ob-chips">${OB_GOALS.map(g=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()">${g}</button>`).join("")}</div>`,
+     <div class="ob-chips">${OB_GOALS.map(g=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()">${optLabel(g,OB_GOALS,"goal.")}</button>`).join("")}</div>`,
     `<div class="ob-logo">⏰</div>
      <h2>${t("ob.slot_title")}</h2>
      <p class="sub">${t("ob.slot_sub")}</p>
-     <div class="ob-chips">${OB_SLOTS.map(s=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()">${s}</button>`).join("")}</div>`,
+     <div class="ob-chips">${OB_SLOTS.map(s=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()">${optLabel(s,OB_SLOTS,"slot.")}</button>`).join("")}</div>`,
     `<div class="ob-logo">🚀</div>
      <h2>${t("ob.win_title")}</h2>
      <p class="sub">${t("ob.win_sub")}</p>
