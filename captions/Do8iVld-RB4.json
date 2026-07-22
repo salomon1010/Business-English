@@ -1,0 +1,439 @@
+{
+ "vid": "Do8iVld-RB4",
+ "source": "cook.txt",
+ "lang": "en",
+ "cues": [
+  {
+   "t": 0,
+   "txt": "hello bluedevils it is great to be back at dude and it's an honor to stand"
+  },
+  {
+   "t": 9,
+   "txt": "before you both as your commencement speaker and a graduate I learned my degree from the Fuqua School in 1988 in"
+  },
+  {
+   "t": 18,
+   "txt": "preparing for this speech I reached out to one of my favorite professors from back then Bob Ryan himer taught this great course"
+  },
+  {
+   "t": 28,
+   "txt": "in management communications which included sharpening your public speaking skills we hadn't spoken for decades so I"
+  },
+  {
+   "t": 38,
+   "txt": "was thrilled when he told me he remembered a particularly gifted public speaker who took his class in the 1980s"
+  },
+  {
+   "t": 47,
+   "txt": "with a bright mind and a charming personality he said he knew way back then"
+  },
+  {
+   "t": 54,
+   "txt": "this person was destined for greatness you could imagine how this made me feel"
+  },
+  {
+   "t": 61,
+   "txt": "professor Rhine higher ed an eye for talent and if I do say so myself"
+  },
+  {
+   "t": 67,
+   "txt": "I think his instincts were right Melinda Gates has really made her mark in the"
+  },
+  {
+   "t": 75,
+   "txt": "world I'm grateful to Bob and Dean bolding and"
+  },
+  {
+   "t": 85,
+   "txt": "all of my Duke professors their teachings have stayed with me throughout my career I want to thank President"
+  },
+  {
+   "t": 92,
+   "txt": "price and the Duke faculty and my fellow members of the Board of Trustees for the honor of speaking with you today and I'd"
+  },
+  {
+   "t": 100,
+   "txt": "also like to add my congratulations to this year's honorary degree recipients but most of all congratulations to the"
+  },
+  {
+   "t": 110,
+   "txt": "class of 2018"
+  },
+  {
+   "t": 120,
+   "txt": "no no graduate gets to this moment alone I want to acknowledge your parents and"
+  },
+  {
+   "t": 128,
+   "txt": "grandparents and friends that are here cheering you on just as they have every step of the way let's give them our"
+  },
+  {
+   "t": 135,
+   "txt": "thanks today especially I remember my"
+  },
+  {
+   "t": 147,
+   "txt": "mother who watched me graduate from Duke I wouldn't have been there that day or made it here today without her support"
+  },
+  {
+   "t": 155,
+   "txt": "let's give our special things to all of the mothers here today on Mother's Day"
+  },
+  {
+   "t": 165,
+   "txt": "I have wonderful memories here studying and not studying with people I still"
+  },
+  {
+   "t": 173,
+   "txt": "count as friends to this day cheering a Cameron for every victory cheering even louder when that victories"
+  },
+  {
+   "t": 182,
+   "txt": "over Carolina look back over your shoulder fondly and say goodbye to act"
+  },
+  {
+   "t": 190,
+   "txt": "one of your life and then quickly look forward Act two begins today it's your"
+  },
+  {
+   "t": 197,
+   "txt": "turn to reach out and take the baton you enter the world at a time of great"
+  },
+  {
+   "t": 204,
+   "txt": "challenge our country is deeply divided and too many Americans refuse to hear any opinion that differs from their own"
+  },
+  {
+   "t": 212,
+   "txt": "our planet is warming with devastating consequences and there's some that even deny it's even happening our schools and"
+  },
+  {
+   "t": 221,
+   "txt": "communities suffer from deep inequality we fail to guarantee every student the"
+  },
+  {
+   "t": 227,
+   "txt": "right to a good education and yet we are not powerless in the face of these"
+  },
+  {
+   "t": 235,
+   "txt": "problems you are not powerless to fix them no generation has ever had more"
+  },
+  {
+   "t": 244,
+   "txt": "power than yours and no generation has a chance to change things faster than"
+  },
+  {
+   "t": 251,
+   "txt": "yours can the pace at which progress is possible has accelerated dramatically"
+  },
+  {
+   "t": 257,
+   "txt": "aided by technology every individual has the tools potential and reach to build a"
+  },
+  {
+   "t": 263,
+   "txt": "better world that makes this the best time in history to be alive whatever you"
+  },
+  {
+   "t": 274,
+   "txt": "choose to do with your life wherever your passion takes you I urge you to take the power you have been given and"
+  },
+  {
+   "t": 283,
+   "txt": "use it for good aspire to leave this world better than you found it I didn't"
+  },
+  {
+   "t": 291,
+   "txt": "always see life as clearly as I do today but I've learned the greatest challenge of life"
+  },
+  {
+   "t": 298,
+   "txt": "is knowing when to break with conventional wisdom don't just accept the world you inherit today don't just"
+  },
+  {
+   "t": 308,
+   "txt": "accept the status quo no big challenge has ever been solved and no lasting improvement has ever been"
+  },
+  {
+   "t": 317,
+   "txt": "achieved unless people dares to try something different"
+  },
+  {
+   "t": 323,
+   "txt": "dare to think different I was lucky to learn from someone who believed this"
+  },
+  {
+   "t": 331,
+   "txt": "deeply someone who knew that changing the world starts with following a vision"
+  },
+  {
+   "t": 337,
+   "txt": "not a path he was my friend and mentor Steve Jobs"
+  },
+  {
+   "t": 351,
+   "txt": "Steve's vision was the great ideas comes from a restless refusal to accept things"
+  },
+  {
+   "t": 358,
+   "txt": "as they are and those principles still guide us at Apple today we reject the"
+  },
+  {
+   "t": 365,
+   "txt": "notion that global warming is inevitable that's why we run Apple on a hundred"
+  },
+  {
+   "t": 370,
+   "txt": "percent renewable energy we thank you we reject the excuse that getting the most"
+  },
+  {
+   "t": 379,
+   "txt": "out of technology means trading away your right to privacy so we choose a different path collecting as little of"
+  },
+  {
+   "t": 388,
+   "txt": "your data as possible being thoughtful and respectful when it's in our care because we know it belongs to you in"
+  },
+  {
+   "t": 397,
+   "txt": "every way at every turn the question we ask ourselves is not what can we do but"
+  },
+  {
+   "t": 406,
+   "txt": "what should we do because Steve taught us that's how change happens and from"
+  },
+  {
+   "t": 413,
+   "txt": "him I learned to never be content with the way that things are I believe this"
+  },
+  {
+   "t": 420,
+   "txt": "mindset comes naturally to young people and you should never let go of this restlessness so today's ceremony isn't"
+  },
+  {
+   "t": 430,
+   "txt": "just about presenting with a degree it's about presenting you with a question how will you challenge"
+  },
+  {
+   "t": 439,
+   "txt": "the status quo how will you push the world forward 50"
+  },
+  {
+   "t": 447,
+   "txt": "years ago today May 13th 1968 Robert Kennedy was campaigning in Nebraska and"
+  },
+  {
+   "t": 456,
+   "txt": "spoke to a group of students who were wrestling with that same question those were troubled times to the US was at war"
+  },
+  {
+   "t": 465,
+   "txt": "in Vietnam there was violent unrest in America's cities and the country was still reeling from the assassination of"
+  },
+  {
+   "t": 474,
+   "txt": "dr. Martin Luther King a month earlier Kennedy gave the students a call to"
+  },
+  {
+   "t": 480,
+   "txt": "action when you look across this country and when you see people's lives held"
+  },
+  {
+   "t": 486,
+   "txt": "back by discrimination and poverty when you see injustice in inequality he said"
+  },
+  {
+   "t": 494,
+   "txt": "you should be the last people to accept things as they are"
+  },
+  {
+   "t": 500,
+   "txt": "let Kennedy's words echo here today you should be the last people to accept it"
+  },
+  {
+   "t": 510,
+   "txt": "whatever path you've chosen be it medicine or business engineering of the humanities whatever drives your passion"
+  },
+  {
+   "t": 518,
+   "txt": "be the last to accept the notion that the world you inherent cannot be improved be the last to accept the"
+  },
+  {
+   "t": 528,
+   "txt": "excuse that says that's just how things are done here Duke graduates you should be the last"
+  },
+  {
+   "t": 537,
+   "txt": "people to accept it and you should be the first to change it"
+  },
+  {
+   "t": 552,
+   "txt": "the world-class education you've received that you worked so hard for gives you opportunities that few people"
+  },
+  {
+   "t": 559,
+   "txt": "have you are uniquely qualified and therefore uniquely responsible to build"
+  },
+  {
+   "t": 568,
+   "txt": "a better way forward that won't be easy it will require great courage but that"
+  },
+  {
+   "t": 576,
+   "txt": "courage will not only help you live your life to the fullest it will empower you"
+  },
+  {
+   "t": 582,
+   "txt": "to transform the lives of others last month I was in Birmingham to mark the"
+  },
+  {
+   "t": 590,
+   "txt": "50th anniversary of dr. King's assassination and I had the incredible privilege of spending time with women"
+  },
+  {
+   "t": 598,
+   "txt": "and men who marched and worked alongside him many of them were younger at the time than you are now they told me when"
+  },
+  {
+   "t": 608,
+   "txt": "they defied their parents and joined the sit-ins and the boycotts when they face the police dogs and the fire hoses they"
+  },
+  {
+   "t": 617,
+   "txt": "were risking everything they had becoming foot soldiers for justice without a second thought because they"
+  },
+  {
+   "t": 625,
+   "txt": "knew that change had to come because they believed so deeply in the cause of"
+  },
+  {
+   "t": 631,
+   "txt": "justice because they knew even all the adversity that they had faced they had"
+  },
+  {
+   "t": 639,
+   "txt": "the chance to build something better for the next generation we can all learn"
+  },
+  {
+   "t": 645,
+   "txt": "from their example if you hope to change the world you must find your"
+  },
+  {
+   "t": 652,
+   "txt": "fearlessness now if you're anything like I was on graduation day maybe you're not"
+  },
+  {
+   "t": 659,
+   "txt": "feeling so fearless maybe you're thinking about the job you hope to yet or wondering where you're going to live"
+  },
+  {
+   "t": 666,
+   "txt": "or how to repay that student loan these I know are real concerns I had them too"
+  },
+  {
+   "t": 673,
+   "txt": "but don't let those worries stop you from making a difference fearlessness"
+  },
+  {
+   "t": 680,
+   "txt": "means taking the first step even if you don't know where it will take you it means being driven by a higher"
+  },
+  {
+   "t": 689,
+   "txt": "purpose rather than by applause it means knowing that you reveal your character"
+  },
+  {
+   "t": 696,
+   "txt": "when you stand apart more than when you stand with the crowd if you step up without fear of failure"
+  },
+  {
+   "t": 705,
+   "txt": "if you talk and listen to each other without fear of rejection if you act"
+  },
+  {
+   "t": 711,
+   "txt": "with decency and kindness even when no one is looking even if it seems small or inconsequential"
+  },
+  {
+   "t": 719,
+   "txt": "trust me the rest will fall into place more importantly you'll be able to"
+  },
+  {
+   "t": 727,
+   "txt": "tackle the big things when they come your way it's in those truly trying"
+  },
+  {
+   "t": 733,
+   "txt": "moments that the fearless inspire us fearless like the students of parkland"
+  },
+  {
+   "t": 741,
+   "txt": "Florida who refuse to be silent about the epidemic of gun violence and have rallied millions to their cause"
+  },
+  {
+   "t": 755,
+   "txt": "fearless like the women who say me too and times up women who cast light into dark places"
+  },
+  {
+   "t": 763,
+   "txt": "and move us to a more just and equal future fearless like those who fight for"
+  },
+  {
+   "t": 771,
+   "txt": "the rights of immigrants who understand that our only hopeful future is one that"
+  },
+  {
+   "t": 776,
+   "txt": "embraces all who want to contribute Duke graduates be fearless be the last people"
+  },
+  {
+   "t": 786,
+   "txt": "to accept things as they are and the first people to stand up and change them"
+  },
+  {
+   "t": 792,
+   "txt": "for the better in 1964 Martin Luther"
+  },
+  {
+   "t": 799,
+   "txt": "King jr. gave a speech at Paige auditorium to an overflow crowd students who couldn't get a seat listened from"
+  },
+  {
+   "t": 808,
+   "txt": "outside on the lawn dr. keen warned them that someday we would all have to atone"
+  },
+  {
+   "t": 817,
+   "txt": "not only for the words and actions of the bad people but for the appalling"
+  },
+  {
+   "t": 823,
+   "txt": "silence and indifference of the good people who sit around and say wait on"
+  },
+  {
+   "t": 831,
+   "txt": "time Martin Luther King stood right here at"
+  },
+  {
+   "t": 842,
+   "txt": "Duke and said the time is always right"
+  },
+  {
+   "t": 847,
+   "txt": "to do right for you graduates that time"
+  },
+  {
+   "t": 854,
+   "txt": "is now it will always be now it's time to add your brick to the path of"
+  },
+  {
+   "t": 863,
+   "txt": "progress it's time for all of us to move forward and it's time for you to lead"
+  },
+  {
+   "t": 870,
+   "txt": "the way thank you and congratulations class of 2018"
+  }
+ ]
+}
