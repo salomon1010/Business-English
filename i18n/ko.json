@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "먼저 시작과 끝을 표시하세요.",
  "sh.no_captions_toast": "이 영상에는 자막이 포함되어 있지 않습니다 — 전사를 입력하거나 ✨ 강세 표시를 누르세요.",
  "sh.no_captions_range_toast": "해당 범위에서 자막을 찾지 못했습니다 — 표시를 조금 다르게 해보세요.",
- "sh.transcript_pulled_toast": "표시한 구간에서 전사를 가져와 강세를 표시했습니다 ✓"
+ "sh.transcript_pulled_toast": "표시한 구간에서 전사를 가져와 강세를 표시했습니다 ✓",
+ "sh.clear_clip_btn": "✕ 지우기",
+ "sh.clear_clip_title": "표시를 지우고 새 클립을 시작합니다",
+ "sh.clip_cleared_toast": "지웠습니다 — 새 시작과 끝을 표시하세요."
 }

@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Tandai awal dan akhir dulu.",
  "sh.no_captions_toast": "Tidak ada teks yang disertakan untuk video ini — ketik transkrip atau ketuk ✨ Tandai tekanan.",
  "sh.no_captions_range_toast": "Tidak ada teks di rentang itu — coba tanda yang sedikit berbeda.",
- "sh.transcript_pulled_toast": "Transkrip diambil dari tanda Anda & ditandai tekanannya ✓"
+ "sh.transcript_pulled_toast": "Transkrip diambil dari tanda Anda & ditandai tekanannya ✓",
+ "sh.clear_clip_btn": "✕ Hapus",
+ "sh.clear_clip_title": "Hapus tanda dan mulai klip baru",
+ "sh.clip_cleared_toast": "Terhapus — tandai awal dan akhir baru."
 }

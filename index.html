@@ -1044,6 +1044,9 @@ const I18N_EN={
  "sh.transcript_notes_desc":"What the speaker says in the clip — transcribe it exactly, then tap ✨ Mark stress to capitalize the stressed parts automatically. Used to score your pronunciation against the original.",
  "sh.captions_ready":"🎬 Captions ready — mark any part",
  "sh.get_transcript_btn":"📄 Get transcript",
+ "sh.clear_clip_btn":"✕ Clear",
+ "sh.clear_clip_title":"Clear the marks and start a new clip",
+ "sh.clip_cleared_toast":"Cleared — mark a new start and end.",
  "sh.get_transcript_title":"Pull the caption for your marked start–end into the transcript box",
  "sh.mark_both_toast":"Mark a start and an end first.",
  "sh.no_captions_toast":"No captions bundled for this video — type the transcript or tap ✨ Mark stress.",
@@ -2256,6 +2259,7 @@ function rShadow(el){
       <span class="sh-count" id="shCount" style="display:none">0s</span>
       <span style="flex:1"></span>
       <span class="sh-len" id="shLen"></span>
+      <button class="btn btn-g btn-sm" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}">${t("sh.clear_clip_btn")}</button>
     </div>
     <p style="font-size:12.5px;color:var(--mut2);margin-top:8px">${t("sh.mark_hint")}</p>
     <div class="grid g2" style="margin-top:16px">
@@ -2460,6 +2464,14 @@ window.shMark=w=>{
   }
   shSegUI();
   if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=shClip.start;S.lastClip.end=shClip.end;save()}
+};
+window.shClearMarks=()=>{
+  shClip.start=0;shClip.end=0;shCounting=false;shPing={};
+  const c=document.getElementById("shCount");if(c){c.style.display="none";c.textContent="0s";c.className="sh-count"}
+  const box=document.getElementById("shNote");if(box)box.value=""; /* fresh clip → next Mark end auto-pulls */
+  if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=0;S.lastClip.end=0;save()}
+  shSegUI();
+  toast(t("sh.clip_cleared_toast"));
 };
 window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
 /* rapid clicks: base the next skip on the pending seek target, since the

@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Marque primeiro um início e um fim.",
  "sh.no_captions_toast": "Sem legendas incluídas para este vídeo — digite a transcrição ou toque em ✨ Marcar ênfase.",
  "sh.no_captions_range_toast": "Nenhuma legenda encontrada nesse intervalo — tente marcas um pouco diferentes.",
- "sh.transcript_pulled_toast": "Transcrição extraída das suas marcas e com ênfase marcada ✓"
+ "sh.transcript_pulled_toast": "Transcrição extraída das suas marcas e com ênfase marcada ✓",
+ "sh.clear_clip_btn": "✕ Limpar",
+ "sh.clear_clip_title": "Limpe as marcas e comece um novo clipe",
+ "sh.clip_cleared_toast": "Limpo — marque um novo início e fim."
 }

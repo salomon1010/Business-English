@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Hãy đánh dấu điểm đầu và điểm cuối trước.",
  "sh.no_captions_toast": "Video này không kèm phụ đề — hãy gõ bản chép lời hoặc chạm ✨ Đánh dấu trọng âm.",
  "sh.no_captions_range_toast": "Không tìm thấy phụ đề trong khoảng đó — thử các dấu hơi khác.",
- "sh.transcript_pulled_toast": "Đã lấy bản chép lời từ dấu của bạn & đánh dấu trọng âm ✓"
+ "sh.transcript_pulled_toast": "Đã lấy bản chép lời từ dấu của bạn & đánh dấu trọng âm ✓",
+ "sh.clear_clip_btn": "✕ Xóa",
+ "sh.clear_clip_title": "Xóa các dấu và bắt đầu một đoạn mới",
+ "sh.clip_cleared_toast": "Đã xóa — hãy đánh dấu điểm đầu và điểm cuối mới."
 }

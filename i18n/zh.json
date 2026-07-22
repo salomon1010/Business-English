@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "请先标记起点和终点。",
  "sh.no_captions_toast": "该视频未内置字幕——请手动输入文字稿或点击 ✨ 标注重音。",
  "sh.no_captions_range_toast": "该范围内未找到字幕——试试稍微不同的标记。",
- "sh.transcript_pulled_toast": "已根据你的标记提取文字稿并标注重音 ✓"
+ "sh.transcript_pulled_toast": "已根据你的标记提取文字稿并标注重音 ✓",
+ "sh.clear_clip_btn": "✕ 清除",
+ "sh.clear_clip_title": "清除标记并开始一个新片段",
+ "sh.clip_cleared_toast": "已清除——请标记新的起点和终点。"
 }

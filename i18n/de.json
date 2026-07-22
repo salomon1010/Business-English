@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Markiere zuerst einen Anfang und ein Ende.",
  "sh.no_captions_toast": "Keine Untertitel für dieses Video enthalten — tippe das Transkript oder nutze ✨ Betonung markieren.",
  "sh.no_captions_range_toast": "In diesem Bereich kein Untertitel gefunden — versuche etwas andere Markierungen.",
- "sh.transcript_pulled_toast": "Transkript aus deinen Markierungen geholt & betont ✓"
+ "sh.transcript_pulled_toast": "Transkript aus deinen Markierungen geholt & betont ✓",
+ "sh.clear_clip_btn": "✕ Löschen",
+ "sh.clear_clip_title": "Markierungen löschen und einen neuen Clip beginnen",
+ "sh.clip_cleared_toast": "Gelöscht — markiere einen neuen Anfang und ein Ende."
 }

@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Segna prima un inizio e una fine.",
  "sh.no_captions_toast": "Nessun sottotitolo incluso per questo video — scrivi la trascrizione o tocca ✨ Segna l'accento.",
  "sh.no_captions_range_toast": "Nessun sottotitolo trovato in quell'intervallo — prova segni leggermente diversi.",
- "sh.transcript_pulled_toast": "Trascrizione estratta dai tuoi segni e con accenti ✓"
+ "sh.transcript_pulled_toast": "Trascrizione estratta dai tuoi segni e con accenti ✓",
+ "sh.clear_clip_btn": "✕ Cancella",
+ "sh.clear_clip_title": "Cancella i segni e inizia una nuova clip",
+ "sh.clip_cleared_toast": "Cancellato — segna un nuovo inizio e una fine."
 }

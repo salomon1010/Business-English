@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "علّم بداية ونهاية أولًا.",
  "sh.no_captions_toast": "لا توجد ترجمة مضمّنة لهذا المقطع — اكتب النص أو اضغط ✨ تمييز النبر.",
  "sh.no_captions_range_toast": "لم يُعثر على ترجمة في هذا النطاق — جرّب علامات مختلفة قليلًا.",
- "sh.transcript_pulled_toast": "تم جلب النص من علاماتك وتمييز النبر ✓"
+ "sh.transcript_pulled_toast": "تم جلب النص من علاماتك وتمييز النبر ✓",
+ "sh.clear_clip_btn": "✕ مسح",
+ "sh.clear_clip_title": "امسح العلامات وابدأ مقطعًا جديدًا",
+ "sh.clip_cleared_toast": "تم المسح — علّم بداية ونهاية جديدة."
 }

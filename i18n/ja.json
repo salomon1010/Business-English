@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "先に開始と終了をマークしてください。",
  "sh.no_captions_toast": "この動画には字幕が含まれていません——書き起こしを入力するか ✨ 強勢を付ける をタップしてください。",
  "sh.no_captions_range_toast": "その範囲に字幕が見つかりません——少し違うマークを試してください。",
- "sh.transcript_pulled_toast": "あなたのマークから書き起こしを取得し強勢を付けました ✓"
+ "sh.transcript_pulled_toast": "あなたのマークから書き起こしを取得し強勢を付けました ✓",
+ "sh.clear_clip_btn": "✕ クリア",
+ "sh.clear_clip_title": "マークをクリアして新しいクリップを始めます",
+ "sh.clip_cleared_toast": "クリアしました——新しい開始と終了をマークしてください。"
 }

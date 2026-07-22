@@ -685,5 +685,8 @@
  "sh.mark_both_toast": "Marca primero un inicio y un final.",
  "sh.no_captions_toast": "No hay subtítulos incluidos para este video — escribe la transcripción o toca ✨ Marcar acento.",
  "sh.no_captions_range_toast": "No se encontró subtítulo en ese rango — prueba marcas ligeramente distintas.",
- "sh.transcript_pulled_toast": "Transcripción extraída de tus marcas y con acentos marcados ✓"
+ "sh.transcript_pulled_toast": "Transcripción extraída de tus marcas y con acentos marcados ✓",
+ "sh.clear_clip_btn": "✕ Borrar",
+ "sh.clear_clip_title": "Borra las marcas y empieza un clip nuevo",
+ "sh.clip_cleared_toast": "Borrado — marca un nuevo inicio y final."
 }
