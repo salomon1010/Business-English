@@ -1041,7 +1041,10 @@ const I18N_EN={
  "sh.record_desc":"Imitate the clip — rhythm, stress, linking. Then play the clip and your recording back to back.",
  "sh.posture_privacy":"🔒 Zero-capture: frames are analyzed on your device and immediately discarded — no video is ever stored or uploaded. Only anonymous posture coordinates exist, and they never leave this device.",
  "sh.transcript_notes_title":"🎬 Clip transcript & notes",
- "sh.transcript_notes_desc":"What the speaker says in the clip — transcribe it exactly (mark stressed words in CAPS, pauses with /). Used to score your pronunciation against the original.",
+ "sh.transcript_notes_desc":"What the speaker says in the clip — transcribe it exactly, then tap ✨ Mark stress to capitalize the stressed parts automatically. Used to score your pronunciation against the original.",
+ "sh.mark_stress_btn":"✨ Mark stress",
+ "sh.stress_toast":"Stressed parts capitalized — a rhythm guide. Tweak it as you like.",
+ "sh.stress_empty_toast":"Type the clip transcript first, then tap ✨ Mark stress.",
  "sh.transcript_ph":"e.g. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc":"Fills in automatically every time you record your shadowing — exactly what you said, errors included. The feedback below is built from this.",
  "sh.transcript_empty":"Nothing yet — press 🎙️ and shadow the clip.",
@@ -2268,7 +2271,10 @@ function rShadow(el){
         <b style="font-size:15px">${t("sh.transcript_notes_title")}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
         <textarea rows="4" id="shNote" placeholder="${esc(t("sh.transcript_ph"))}"></textarea>
-        <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="shSaveNote()">${t("sess.save_notes_btn")}</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn btn-g btn-sm" onclick="shMarkStress()">${t("sh.mark_stress_btn")}</button>
+          <button class="btn btn-g btn-sm" onclick="shSaveNote()">${t("sess.save_notes_btn")}</button>
+        </div>
         <div class="hr"></div>
         <b style="font-size:14px">${t("sess.transcript_title")}</b>
         <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">${t("sh.my_transcript_desc")}</p>
@@ -2478,6 +2484,33 @@ window.shSaveNote=()=>{
   if(!shClip.vid)return;
   S.notes["sh:"+shClip.vid]=document.getElementById("shNote").value;
   markPracticed();save();toast(t("sess.notes_saved_toast"));
+};
+/* ===== AUTO STRESS MARKING (learning aid: capitalize the stressed part) =====
+   English is stress-timed: content words carry the beat, function words stay
+   weak. For common polysyllabic words we mark the actual stressed syllable
+   (a curated dictionary); everything else falls back to whole-word CAPS. It's
+   an approximation to teach rhythm, not a phonetic authority. */
+const STRESS_FUNC=new Set(("a an the and or but nor so yet for of to in on at by with from into onto up down off out over under above below between among through during before after since until about around near i you he she it we they me him her us them my your his its our their mine yours theirs this that these those is am are was were be been being do does did have has had will would shall should can could may might must not no as if than then there here what which who whom whose whether either neither each every some any all both few more most such per via").split(/\s+/));
+const STRESS_MAP={"about":"aBOUT","above":"aBOVE","achieve":"aCHIEVE","achievement":"aCHIEVEment","across":"aCROSS","agenda":"aGENda","agreement":"aGREEment","already":"alREAdy","although":"alTHOUGH","always":"ALways","another":"aNOTHer","answer":"ANswer","anything":"ANything","appointment":"apPOINTment","approach":"apPROACH","around":"aROUND","available":"aVAILable","because":"beCAUSE","become":"beCOME","before":"beFORE","begin":"beGIN","behind":"beHIND","believe":"beLIEVE","benefit":"BENefit","budget":"BUDget","business":"BUSiness","carefully":"CAREfully","certainly":"CERtainly","challenge":"CHALlenge","colleague":"COLleague","comfortable":"COMFortable","commitment":"comMITment","committee":"comMITtee","communicate":"comMUnicate","communication":"communiCAtion","company":"COMpany","complete":"comPLETE","concern":"conCERN","confident":"CONfident","connect":"conNECT","consider":"conSIDer","continue":"conTINue","control":"conTROL","conversation":"converSAtion","corporate":"CORporate","create":"creATE","creative":"creAtive","customer":"CUStomer","decide":"deCIDE","decision":"deCIsion","definitely":"DEFinitely","deliver":"deLIVer","department":"dePARTment","describe":"desCRIBE","design":"deSIGN","develop":"deVELop","development":"deVELopment","different":"DIFferent","difficult":"DIFficult","discuss":"disCUSS","discussion":"disCUSsion","economy":"eCONomy","effective":"efFECtive","efficient":"efFIcient","employee":"emPLOYee","energy":"ENergy","engineer":"engiNEER","enough":"eNOUGH","environment":"enVIRonment","especially":"esPECially","everything":"EVerything","example":"exAMple","excellent":"EXcellent","executive":"exECutive","expensive":"exPENsive","experience":"exPErience","explain":"exPLAIN","family":"FAMily","feature":"FEAture","finally":"FInally","financial":"fiNANcial","focus":"FOcus","follow":"FOLlow","future":"FUture","general":"GENeral","guarantee":"guaranTEE","happen":"HAPpen","however":"howEVer","idea":"iDEa","immediately":"imMEdiately","important":"imPORtant","improve":"imPROVE","include":"inCLUDE","individual":"indiVIDual","industry":"INdustry","information":"inforMAtion","innovation":"innoVAtion","interest":"INterest","interesting":"INteresting","introduce":"introDUCE","invest":"inVEST","involve":"inVOLVE","knowledge":"KNOWledge","language":"LANguage","little":"LITtle","machine":"maCHINE","manage":"MANage","management":"MANagement","manager":"MANager","market":"MARket","meeting":"MEEting","message":"MESsage","minute":"MINute","moment":"MOment","money":"MONey","national":"NAtional","natural":"NAtural","necessary":"NEcessary","negotiate":"neGOtiate","number":"NUMber","objective":"obJECtive","offer":"OFfer","office":"OFfice","often":"OFten","opportunity":"opporTUnity","organize":"ORganize","organization":"organiZAtion","otherwise":"OTHerwise","particular":"parTIcular","people":"PEOple","perfect":"PERfect","perform":"perFORM","performance":"perFORMance","perhaps":"perHAPS","period":"PERiod","personal":"PERsonal","picture":"PICture","position":"poSItion","positive":"POSitive","possible":"POSsible","potential":"poTENtial","power":"POWer","practical":"PRACtical","prepare":"prePARE","presentation":"presenTAtion","pressure":"PRESsure","previous":"PREvious","priority":"priORity","probably":"PROBably","problem":"PROBlem","procedure":"proCEdure","process":"PROcess","product":"PROduct","production":"proDUCtion","productive":"proDUCtive","professional":"proFESsional","program":"PROgram","promise":"PROMise","propose":"proPOSE","provide":"proVIDE","purpose":"PURpose","quality":"QUAlity","question":"QUEStion","quickly":"QUICKly","realize":"REalize","reason":"REAson","receive":"reCEIVE","recent":"REcent","recognize":"RECognize","recommend":"recomMEND","relationship":"reLAtionship","remember":"reMEMber","remove":"reMOVE","report":"rePORT","represent":"repreSENT","require":"reQUIRE","resource":"REsource","respect":"reSPECT","respond":"resPOND","response":"resPONSE","responsible":"resPONsible","result":"reSULT","return":"reTURN","schedule":"SCHEDule","service":"SERvice","similar":"SIMilar","simple":"SIMple","solution":"soLUtion","special":"SPEcial","specific":"speCIFic","standard":"STANdard","strategy":"STRAtegy","structure":"STRUCture","success":"sucCESS","successful":"sucCESSful","suggest":"sugGEST","summary":"SUMmary","support":"supPORT","suppose":"supPOSE","system":"SYStem","target":"TARget","technology":"techNOLogy","together":"toGETHer","tomorrow":"toMORrow","typical":"TYPical","understand":"underSTAND","usually":"USUally","value":"VALue","various":"VARious","version":"VERsion","welcome":"WELcome","wonderful":"WONderful","yesterday":"YESterday"};
+function markStress(text){
+  return String(text).split(/(\s+)/).map(tok=>{
+    if(/^\s*$/.test(tok))return tok;
+    const m=tok.match(/^([^A-Za-z']*)([A-Za-z][A-Za-z']*?)([^A-Za-z']*)$/);
+    if(!m||!m[2])return tok;
+    const pre=m[1],core=m[2],post=m[3],low=core.toLowerCase();
+    let out;
+    if(STRESS_FUNC.has(low))out=low;
+    else if(STRESS_MAP[low])out=STRESS_MAP[low];
+    else out=core.toUpperCase();
+    return pre+out+post;
+  }).join("");
+}
+window.shMarkStress=()=>{
+  const el=document.getElementById("shNote");if(!el)return;
+  if(!el.value.trim()){toast(t("sh.stress_empty_toast"));return;}
+  el.value=markStress(el.value);
+  if(shClip&&shClip.vid){S.notes["sh:"+shClip.vid]=el.value;save();}
+  toast(t("sh.stress_toast"));
 };
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};

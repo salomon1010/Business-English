@@ -297,7 +297,7 @@
  "sh.record_desc": "Imite o trecho — ritmo, tonicidade, ligações. Depois reproduza o trecho e sua gravação um após o outro.",
  "sh.posture_privacy": "🔒 Captura zero: os quadros são analisados no seu dispositivo e descartados imediatamente — nenhum vídeo é armazenado ou enviado. Só existem coordenadas de postura anônimas, e elas nunca saem deste dispositivo.",
  "sh.transcript_notes_title": "🎬 Transcrição e notas do trecho",
- "sh.transcript_notes_desc": "O que o orador diz no trecho — transcreva exatamente (marque as palavras tônicas em MAIÚSCULAS, as pausas com /). Usado para pontuar sua pronúncia em relação ao original.",
+ "sh.transcript_notes_desc": "O que o falante diz no clipe — transcreva exatamente e depois toque em ✨ Marcar ênfase para colocar em maiúsculas as partes tônicas automaticamente. Usado para pontuar sua pronúncia em relação ao original.",
  "sh.transcript_ph": "ex.: and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Preenche automaticamente toda vez que você grava seu shadowing — exatamente o que você disse, erros incluídos. O feedback abaixo é construído a partir disso.",
  "sh.transcript_empty": "Nada ainda — pressione 🎙️ e imite o trecho.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Preposição + gerúndio perfeitos — “thanks for + -ing”.",
  "gphrase.cat": "Expressão de negócios",
  "gphrase.note": "Você usou uma frase do seu banco de frases numa fala real — é exatamente o objetivo! 💼",
- "manual.loading": "Carregando o manual…"
+ "manual.loading": "Carregando o manual…",
+ "sh.mark_stress_btn": "✨ Marcar ênfase",
+ "sh.stress_toast": "Partes tônicas em maiúsculas — um guia do ritmo. Ajuste como quiser.",
+ "sh.stress_empty_toast": "Escreva primeiro a transcrição do clipe, depois toque em ✨ Marcar ênfase."
 }

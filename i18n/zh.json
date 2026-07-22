@@ -297,7 +297,7 @@
  "sh.record_desc": "模仿片段——节奏、重音、连读。然后把片段和你的录音一前一后播放。",
  "sh.posture_privacy": "🔒 零采集：画面在你的设备上分析后立即丢弃——绝不会存储或上传任何视频。仅存在匿名的姿态坐标，且绝不离开此设备。",
  "sh.transcript_notes_title": "🎬 片段转录与笔记",
- "sh.transcript_notes_desc": "说话者在片段中所说的内容——原样转录（重读词用大写标出，停顿用 / 标出）。用于将你的发音与原声比对打分。",
+ "sh.transcript_notes_desc": "片段中说话者所说的话——一字不差地转写出来，然后点击 ✨ 标注重音，自动将重读部分变为大写。用于将你的发音与原声对比评分。",
  "sh.transcript_ph": "例如：and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "每次你录下跟读时都会自动填入——原原本本你所说的内容，包括错误。下方的反馈基于此生成。",
  "sh.transcript_empty": "还没有内容——按下 🎙️ 并跟读片段。",
@@ -675,5 +675,8 @@
  "ggood.5.note": "完美的介词 + 动名词——“thanks for + -ing”。",
  "gphrase.cat": "商务措辞",
  "gphrase.note": "你在真实表达中用上了短语库里的句子——这正是目标！💼",
- "manual.loading": "正在加载手册…"
+ "manual.loading": "正在加载手册…",
+ "sh.mark_stress_btn": "✨ 标注重音",
+ "sh.stress_toast": "重读部分已变为大写——这是节奏参考，你可以随意调整。",
+ "sh.stress_empty_toast": "请先输入片段文字稿，然后点击 ✨ 标注重音。"
 }

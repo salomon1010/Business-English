@@ -297,7 +297,7 @@
  "sh.record_desc": "Bắt chước clip — nhịp điệu, trọng âm, nối âm. Rồi phát clip và bản ghi của bạn liền nhau.",
  "sh.posture_privacy": "🔒 Không ghi lại: các khung hình được phân tích trên thiết bị của bạn và loại bỏ ngay — không video nào từng được lưu hay tải lên. Chỉ tồn tại các tọa độ tư thế ẩn danh, và chúng không bao giờ rời khỏi thiết bị này.",
  "sh.transcript_notes_title": "🎬 Bản chép & ghi chú clip",
- "sh.transcript_notes_desc": "Điều diễn giả nói trong clip — chép lại chính xác (từ trọng âm viết HOA, chỗ ngừng bằng /). Dùng để chấm điểm phát âm của bạn so với bản gốc.",
+ "sh.transcript_notes_desc": "Điều người nói nói trong đoạn clip — chép lại chính xác, rồi chạm ✨ Đánh dấu trọng âm để tự động viết hoa các phần được nhấn. Dùng để chấm điểm phát âm của bạn so với bản gốc.",
  "sh.transcript_ph": "vd. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Tự động điền mỗi khi bạn ghi âm phần shadowing — đúng những gì bạn nói, cả lỗi. Phản hồi bên dưới được dựng từ đây.",
  "sh.transcript_empty": "Chưa có gì — nhấn 🎙️ và bắt chước clip.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Giới từ + danh động từ hoàn hảo — “thanks for + -ing”.",
  "gphrase.cat": "Diễn đạt công sở",
  "gphrase.note": "Bạn đã dùng một câu trong kho câu của mình khi nói thật — đó chính là mục tiêu! 💼",
- "manual.loading": "Đang tải hướng dẫn…"
+ "manual.loading": "Đang tải hướng dẫn…",
+ "sh.mark_stress_btn": "✨ Đánh dấu trọng âm",
+ "sh.stress_toast": "Các phần trọng âm đã được viết hoa — một hướng dẫn về nhịp điệu. Chỉnh tùy ý bạn.",
+ "sh.stress_empty_toast": "Hãy nhập bản chép lời của đoạn clip trước, rồi chạm ✨ Đánh dấu trọng âm."
 }

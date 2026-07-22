@@ -297,7 +297,7 @@
  "sh.record_desc": "Tiru klip — irama, tekanan, penghubung. Lalu putar klip dan rekaman Anda berurutan.",
  "sh.posture_privacy": "🔒 Tanpa perekaman: bingkai dianalisis di perangkat Anda dan langsung dibuang — tidak ada video yang pernah disimpan atau diunggah. Hanya ada koordinat postur anonim, dan tidak pernah meninggalkan perangkat ini.",
  "sh.transcript_notes_title": "🎬 Transkrip & catatan klip",
- "sh.transcript_notes_desc": "Apa yang diucapkan pembicara di klip — transkripsikan persis (kata bertekanan huruf KAPITAL, jeda dengan /). Dipakai untuk menilai pengucapan Anda terhadap aslinya.",
+ "sh.transcript_notes_desc": "Apa yang dikatakan pembicara dalam klip — transkripsikan persis, lalu ketuk ✨ Tandai tekanan untuk mengapitalkan bagian bertekanan secara otomatis. Dipakai untuk menilai pelafalan Anda terhadap aslinya.",
  "sh.transcript_ph": "mis. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Terisi otomatis setiap kali Anda merekam shadowing — persis yang Anda katakan, termasuk kesalahan. Umpan balik di bawah dibangun dari ini.",
  "sh.transcript_empty": "Belum ada — tekan 🎙️ dan tiru klip.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Preposisi + gerund yang sempurna — “thanks for + -ing”.",
  "gphrase.cat": "Ungkapan bisnis",
  "gphrase.note": "Anda memakai frasa dari bank frasa dalam ucapan nyata — itulah tujuannya! 💼",
- "manual.loading": "Memuat manual…"
+ "manual.loading": "Memuat manual…",
+ "sh.mark_stress_btn": "✨ Tandai tekanan",
+ "sh.stress_toast": "Bagian bertekanan dikapitalkan — panduan irama. Sesuaikan sesuka Anda.",
+ "sh.stress_empty_toast": "Ketik dulu transkrip klip, lalu ketuk ✨ Tandai tekanan."
 }

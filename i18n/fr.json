@@ -297,7 +297,7 @@
  "sh.record_desc": "Imitez l'extrait — rythme, accentuation, liaisons. Puis lisez l'extrait et votre enregistrement l'un après l'autre.",
  "sh.posture_privacy": "🔒 Capture zéro : les images sont analysées sur votre appareil et écartées immédiatement — aucune vidéo n'est jamais stockée ni envoyée. Seules des coordonnées de posture anonymes existent, et elles ne quittent jamais cet appareil.",
  "sh.transcript_notes_title": "🎬 Transcription et notes de l'extrait",
- "sh.transcript_notes_desc": "Ce que dit l'orateur dans l'extrait — transcrivez-le exactement (marquez les mots accentués en MAJUSCULES, les pauses avec /). Sert à noter votre prononciation par rapport à l'original.",
+ "sh.transcript_notes_desc": "Ce que dit le locuteur dans l'extrait — transcrivez-le exactement, puis touchez ✨ Marquer l'accent pour mettre automatiquement en majuscules les parties accentuées. Sert à évaluer votre prononciation par rapport à l'original.",
  "sh.transcript_ph": "p. ex. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Se remplit automatiquement chaque fois que vous enregistrez votre shadowing — exactement ce que vous avez dit, erreurs comprises. Le retour ci-dessous en est construit.",
  "sh.transcript_empty": "Rien pour l'instant — appuyez sur 🎙️ et imitez l'extrait.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Préposition + gérondif parfaits — « thanks for + -ing ».",
  "gphrase.cat": "Formulation professionnelle",
  "gphrase.note": "Vous avez utilisé une phrase de votre répertoire dans un vrai discours — c'est exactement le but ! 💼",
- "manual.loading": "Chargement du manuel…"
+ "manual.loading": "Chargement du manuel…",
+ "sh.mark_stress_btn": "✨ Marquer l'accent",
+ "sh.stress_toast": "Parties accentuées mises en majuscules — un guide du rythme. Ajustez à votre guise.",
+ "sh.stress_empty_toast": "Écrivez d'abord la transcription de l'extrait, puis touchez ✨ Marquer l'accent."
 }

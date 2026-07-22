@@ -297,7 +297,7 @@
  "sh.record_desc": "Ahme den Clip nach — Rhythmus, Betonung, Bindungen. Dann spiel den Clip und deine Aufnahme direkt hintereinander ab.",
  "sh.posture_privacy": "🔒 Zero-Capture: Bilder werden auf deinem Gerät analysiert und sofort verworfen — es wird niemals ein Video gespeichert oder hochgeladen. Es existieren nur anonyme Haltungskoordinaten, die dieses Gerät nie verlassen.",
  "sh.transcript_notes_title": "🎬 Clip-Transkript & Notizen",
- "sh.transcript_notes_desc": "Was der Sprecher im Clip sagt — transkribiere es genau (markiere betonte Wörter in GROSSBUCHSTABEN, Pausen mit /). Wird verwendet, um deine Aussprache mit dem Original zu bewerten.",
+ "sh.transcript_notes_desc": "Was der Sprecher im Clip sagt — transkribiere es genau, dann tippe auf ✨ Betonung markieren, um die betonten Teile automatisch groß zu schreiben. Dient zur Bewertung deiner Aussprache gegenüber dem Original.",
  "sh.transcript_ph": "z. B. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Wird automatisch ausgefüllt, jedes Mal, wenn du dein Shadowing aufnimmst — genau das, was du gesagt hast, samt Fehlern. Das Feedback unten wird daraus aufgebaut.",
  "sh.transcript_empty": "Noch nichts — drücke 🎙️ und ahme den Clip nach.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Perfekte Präposition + Gerundium — „thanks for + -ing“.",
  "gphrase.cat": "Business-Formulierung",
  "gphrase.note": "Du hast eine Wendung aus deinem Phrasenspeicher in echter Rede benutzt — genau das ist das Ziel! 💼",
- "manual.loading": "Handbuch wird geladen…"
+ "manual.loading": "Handbuch wird geladen…",
+ "sh.mark_stress_btn": "✨ Betonung markieren",
+ "sh.stress_toast": "Betonte Teile groß geschrieben — ein Rhythmus-Leitfaden. Passe ihn nach Belieben an.",
+ "sh.stress_empty_toast": "Schreibe zuerst das Clip-Transkript, dann tippe auf ✨ Betonung markieren."
 }

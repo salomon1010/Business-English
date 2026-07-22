@@ -297,7 +297,7 @@
  "sh.record_desc": "Imita el clip — ritmo, acentuación, enlaces. Luego reproduce el clip y tu grabación una tras otra.",
  "sh.posture_privacy": "🔒 Captura cero: los fotogramas se analizan en tu dispositivo y se descartan de inmediato — nunca se almacena ni se sube ningún vídeo. Solo existen coordenadas de postura anónimas, y nunca salen de este dispositivo.",
  "sh.transcript_notes_title": "🎬 Transcripción y notas del clip",
- "sh.transcript_notes_desc": "Lo que dice el orador en el clip — transcríbelo exactamente (marca las palabras acentuadas en MAYÚSCULAS, las pausas con /). Se usa para puntuar tu pronunciación contra el original.",
+ "sh.transcript_notes_desc": "Lo que dice el hablante en el clip — transcríbelo exactamente y luego toca ✨ Marcar acento para poner en mayúsculas las partes acentuadas automáticamente. Se usa para puntuar tu pronunciación frente al original.",
  "sh.transcript_ph": "p. ej. and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "Se completa automáticamente cada vez que grabas tu shadowing — exactamente lo que dijiste, con errores incluidos. La retroalimentación de abajo se construye a partir de esto.",
  "sh.transcript_empty": "Nada aún — pulsa 🎙️ e imita el clip.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "Preposición + gerundio perfectos — “thanks for + -ing”.",
  "gphrase.cat": "Expresión de negocios",
  "gphrase.note": "Usaste una frase de tu banco de frases en un discurso real — ¡ese es justo el objetivo! 💼",
- "manual.loading": "Cargando el manual…"
+ "manual.loading": "Cargando el manual…",
+ "sh.mark_stress_btn": "✨ Marcar acento",
+ "sh.stress_toast": "Partes acentuadas en mayúsculas — una guía del ritmo. Ajústalo a tu gusto.",
+ "sh.stress_empty_toast": "Escribe primero la transcripción del clip, luego toca ✨ Marcar acento."
 }

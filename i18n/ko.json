@@ -297,7 +297,7 @@
  "sh.record_desc": "클립을 흉내 내세요 — 리듬, 강세, 연음. 그런 다음 클립과 당신의 녹음을 잇달아 재생하세요.",
  "sh.posture_privacy": "🔒 무캡처: 프레임은 당신의 기기에서 분석된 뒤 즉시 폐기됩니다 — 어떤 영상도 저장되거나 업로드되지 않습니다. 오직 익명의 자세 좌표만 존재하며, 이 기기를 벗어나지 않습니다.",
  "sh.transcript_notes_title": "🎬 클립 전사와 메모",
- "sh.transcript_notes_desc": "클립에서 화자가 말하는 내용 — 그대로 전사하세요 (강세 있는 단어는 대문자로, 멈춤은 /로 표시). 당신의 발음을 원문과 대조해 채점하는 데 쓰입니다.",
+ "sh.transcript_notes_desc": "클립에서 화자가 하는 말 — 정확히 옮겨 적은 뒤 ✨ 강세 표시를 누르면 강세 부분이 자동으로 대문자가 됩니다. 원음 대비 발음을 채점하는 데 사용됩니다.",
  "sh.transcript_ph": "예: and the POWER of the individual / to become something parTIcular…",
  "sh.my_transcript_desc": "섀도잉을 녹음할 때마다 자동으로 채워집니다 — 말한 그대로, 오류까지 포함해서. 아래 피드백은 이를 바탕으로 만들어집니다.",
  "sh.transcript_empty": "아직 없어요 — 🎙️를 누르고 클립을 섀도잉하세요.",
@@ -675,5 +675,8 @@
  "ggood.5.note": "완벽한 전치사 + 동명사 — “thanks for + -ing”.",
  "gphrase.cat": "비즈니스 표현",
  "gphrase.note": "실제 말하기에서 표현집의 문장을 사용했어요 — 바로 그게 목표입니다! 💼",
- "manual.loading": "설명서를 불러오는 중…"
+ "manual.loading": "설명서를 불러오는 중…",
+ "sh.mark_stress_btn": "✨ 강세 표시",
+ "sh.stress_toast": "강세 부분을 대문자로 표시했습니다 — 리듬 안내입니다. 원하는 대로 조정하세요.",
+ "sh.stress_empty_toast": "먼저 클립 전사를 입력한 뒤 ✨ 강세 표시를 누르세요."
 }
