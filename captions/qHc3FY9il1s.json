@@ -1,0 +1,575 @@
+{
+ "vid": "qHc3FY9il1s",
+ "source": "mlk2.txt",
+ "lang": "en",
+ "cues": [
+  {
+   "t": 1,
+   "txt": "Martin Luther King Jr a leader who"
+  },
+  {
+   "t": 4,
+   "txt": "championed equality and justice"
+  },
+  {
+   "t": 6,
+   "txt": "delivered one of the most powerful"
+  },
+  {
+   "t": 7,
+   "txt": "speeches in history a beacon of the"
+  },
+  {
+   "t": 9,
+   "txt": "Civil Rights Movement he tirelessly"
+  },
+  {
+   "t": 12,
+   "txt": "fought against racial segregation and"
+  },
+  {
+   "t": 14,
+   "txt": "for the rights of"
+  },
+  {
+   "t": 16,
+   "txt": "African-Americans his words and actions"
+  },
+  {
+   "t": 18,
+   "txt": "stirred the conscience of a nation and"
+  },
+  {
+   "t": 19,
+   "txt": "sparked transformative changes today we"
+  },
+  {
+   "t": 22,
+   "txt": "focus on a pivotal moment from his I"
+  },
+  {
+   "t": 25,
+   "txt": "Have a Dream speech a message that"
+  },
+  {
+   "t": 27,
+   "txt": "resonates with hope and the enduring"
+  },
+  {
+   "t": 29,
+   "txt": "pursuit of Freedom tragically his life"
+  },
+  {
+   "t": 32,
+   "txt": "was cut short by an Assassin's bullet in"
+  },
+  {
+   "t": 35,
+   "txt": "1968 yet his legacy continues to inspire"
+  },
+  {
+   "t": 38,
+   "txt": "people around the world join us as we"
+  },
+  {
+   "t": 42,
+   "txt": "explore these words their impact and"
+  },
+  {
+   "t": 45,
+   "txt": "their relevance"
+  },
+  {
+   "t": 48,
+   "txt": "today I have the pleasure to present to"
+  },
+  {
+   "t": 51,
+   "txt": "you Dr Martin Luther King"
+  },
+  {
+   "t": 58,
+   "txt": "J"
+  },
+  {
+   "t": 73,
+   "txt": "I am happy to join with you"
+  },
+  {
+   "t": 77,
+   "txt": "today in what will go down in"
+  },
+  {
+   "t": 82,
+   "txt": "history as the greatest demonstration"
+  },
+  {
+   "t": 86,
+   "txt": "for freedom in the history of our nation"
+  },
+  {
+   "t": 98,
+   "txt": "five score years"
+  },
+  {
+   "t": 102,
+   "txt": "ago a great American in whose symbolic"
+  },
+  {
+   "t": 106,
+   "txt": "Shadow We Stand"
+  },
+  {
+   "t": 109,
+   "txt": "today signed the Emancipation"
+  },
+  {
+   "t": 115,
+   "txt": "Proclamation this momentous decree"
+  },
+  {
+   "t": 118,
+   "txt": "came as a great Beacon Light Of Hope to"
+  },
+  {
+   "t": 122,
+   "txt": "millions of negro"
+  },
+  {
+   "t": 124,
+   "txt": "slaves who had been seared in the Flames"
+  },
+  {
+   "t": 128,
+   "txt": "of withering"
+  },
+  {
+   "t": 131,
+   "txt": "Injustice it came as a joyous"
+  },
+  {
+   "t": 135,
+   "txt": "Daybreak to end the long night of their"
+  },
+  {
+   "t": 141,
+   "txt": "captivity but 100 years"
+  },
+  {
+   "t": 146,
+   "txt": "later the Negro still is not"
+  },
+  {
+   "t": 152,
+   "txt": "free 100 years"
+  },
+  {
+   "t": 155,
+   "txt": "later the life of the Negro is still"
+  },
+  {
+   "t": 158,
+   "txt": "sadly crippled by the manacles of"
+  },
+  {
+   "t": 162,
+   "txt": "segregation and the chains of"
+  },
+  {
+   "t": 166,
+   "txt": "discrimination 100 years later the Negro"
+  },
+  {
+   "t": 169,
+   "txt": "lives on a lonely island of poverty in"
+  },
+  {
+   "t": 173,
+   "txt": "the midst of a vast ocean of material"
+  },
+  {
+   "t": 177,
+   "txt": "pros this nation will will rise up and"
+  },
+  {
+   "t": 181,
+   "txt": "live out the true meaning of its"
+  },
+  {
+   "t": 184,
+   "txt": "Creed we hold these truths to be"
+  },
+  {
+   "t": 187,
+   "txt": "self-evident that all men are created"
+  },
+  {
+   "t": 199,
+   "txt": "equal I have a"
+  },
+  {
+   "t": 202,
+   "txt": "dream that one day on the Red Hills of"
+  },
+  {
+   "t": 205,
+   "txt": "Georgia the sons of former slaves and"
+  },
+  {
+   "t": 209,
+   "txt": "the sons of former slave owners will be"
+  },
+  {
+   "t": 212,
+   "txt": "be able to sit down GA at the table of"
+  },
+  {
+   "t": 215,
+   "txt": "Brotherhood I have a"
+  },
+  {
+   "t": 217,
+   "txt": "dream that one"
+  },
+  {
+   "t": 220,
+   "txt": "day even the state of Mississippi a"
+  },
+  {
+   "t": 223,
+   "txt": "state sweltering with the heat of"
+  },
+  {
+   "t": 229,
+   "txt": "Injustice sweltering with the heat of"
+  },
+  {
+   "t": 232,
+   "txt": "Oppression will be transformed into an"
+  },
+  {
+   "t": 235,
+   "txt": "oasis of freedom and Justice I have a"
+  },
+  {
+   "t": 238,
+   "txt": "dream"
+  },
+  {
+   "t": 241,
+   "txt": "and my four little"
+  },
+  {
+   "t": 244,
+   "txt": "children will one day live in a nation"
+  },
+  {
+   "t": 246,
+   "txt": "where they will not be judged by the"
+  },
+  {
+   "t": 248,
+   "txt": "color of their skin but by the content"
+  },
+  {
+   "t": 250,
+   "txt": "of their character I have a dream"
+  },
+  {
+   "t": 262,
+   "txt": "today I have a dream that one"
+  },
+  {
+   "t": 266,
+   "txt": "day"
+  },
+  {
+   "t": 268,
+   "txt": "down in Alabama with its vicious"
+  },
+  {
+   "t": 272,
+   "txt": "races with its Governor having his lips"
+  },
+  {
+   "t": 276,
+   "txt": "dripping with the words of interposition"
+  },
+  {
+   "t": 278,
+   "txt": "and"
+  },
+  {
+   "t": 279,
+   "txt": "nullification one day right there in"
+  },
+  {
+   "t": 281,
+   "txt": "Alabama little black boys and black"
+  },
+  {
+   "t": 284,
+   "txt": "girls will be able to draw hands with"
+  },
+  {
+   "t": 286,
+   "txt": "little white boys and white girls as"
+  },
+  {
+   "t": 288,
+   "txt": "sisters and brothers I have a dream"
+  },
+  {
+   "t": 297,
+   "txt": "today I have a dream that one day every"
+  },
+  {
+   "t": 300,
+   "txt": "Valley shall be"
+  },
+  {
+   "t": 302,
+   "txt": "exalted every Hill and Mountain shall be"
+  },
+  {
+   "t": 305,
+   "txt": "made low the rough places will be made"
+  },
+  {
+   "t": 307,
+   "txt": "plain and the Crooked places will be"
+  },
+  {
+   "t": 309,
+   "txt": "made string and the glory of the Lord"
+  },
+  {
+   "t": 311,
+   "txt": "shall be revealed and All Flesh shall"
+  },
+  {
+   "t": 314,
+   "txt": "see it together this is our hope this is"
+  },
+  {
+   "t": 318,
+   "txt": "the faith that I go back to the South"
+  },
+  {
+   "t": 321,
+   "txt": "with with this faith we will be able to"
+  },
+  {
+   "t": 325,
+   "txt": "heue out of the Mountain of Despair a"
+  },
+  {
+   "t": 327,
+   "txt": "stone of Hope with this"
+  },
+  {
+   "t": 330,
+   "txt": "we will be able to transform the"
+  },
+  {
+   "t": 332,
+   "txt": "jangling discords of our nation into a"
+  },
+  {
+   "t": 335,
+   "txt": "beautiful Symphony of Brotherhood with"
+  },
+  {
+   "t": 338,
+   "txt": "this faith we will be able to work"
+  },
+  {
+   "t": 341,
+   "txt": "together to pray together to struggle"
+  },
+  {
+   "t": 343,
+   "txt": "together to go to jail together to stand"
+  },
+  {
+   "t": 346,
+   "txt": "up for Freedom together knowing that we"
+  },
+  {
+   "t": 349,
+   "txt": "will be free one"
+  },
+  {
+   "t": 352,
+   "txt": "day this will be the"
+  },
+  {
+   "t": 355,
+   "txt": "day this will be the day when all of"
+  },
+  {
+   "t": 358,
+   "txt": "God's children yes will be able to sing"
+  },
+  {
+   "t": 361,
+   "txt": "with new meaning my country tears of"
+  },
+  {
+   "t": 365,
+   "txt": "the sweet land of liberty of the iing oh"
+  },
+  {
+   "t": 369,
+   "txt": "yes land where my fathers died land of"
+  },
+  {
+   "t": 371,
+   "txt": "the Pilgrim's Pride from Every Mountain"
+  },
+  {
+   "t": 376,
+   "txt": "Side Let Freedom Ring and if America is"
+  },
+  {
+   "t": 378,
+   "txt": "to be a great nation this must become"
+  },
+  {
+   "t": 381,
+   "txt": "true and so Let Freedom"
+  },
+  {
+   "t": 384,
+   "txt": "Reign from the prodigious hilltops of"
+  },
+  {
+   "t": 387,
+   "txt": "New Hampshire Let Freedom reain"
+  },
+  {
+   "t": 390,
+   "txt": "from the mighty mountains of New York"
+  },
+  {
+   "t": 393,
+   "txt": "Let Freedom Ring from the heightening"
+  },
+  {
+   "t": 395,
+   "txt": "alligators of"
+  },
+  {
+   "t": 397,
+   "txt": "Pennsylvania Let Freedom Ring from the"
+  },
+  {
+   "t": 399,
+   "txt": "snow capap Rockies of Colorado Let"
+  },
+  {
+   "t": 402,
+   "txt": "Freedom Ring from Stone Mountain of"
+  },
+  {
+   "t": 405,
+   "txt": "Georgia that freedom ring from Lookout"
+  },
+  {
+   "t": 408,
+   "txt": "Mountain of"
+  },
+  {
+   "t": 409,
+   "txt": "Tennessee Let Freedom Ring from every"
+  },
+  {
+   "t": 412,
+   "txt": "Hill and mle Hill of Mississippi from"
+  },
+  {
+   "t": 416,
+   "txt": "Every Mountain Side that freedom ring"
+  },
+  {
+   "t": 419,
+   "txt": "and when this"
+  },
+  {
+   "t": 422,
+   "txt": "happens when we allow Freedom Ring when"
+  },
+  {
+   "t": 426,
+   "txt": "we let it ring from every village and"
+  },
+  {
+   "t": 428,
+   "txt": "every Hamlet from every state and every"
+  },
+  {
+   "t": 431,
+   "txt": "city we will be able to speed up that"
+  },
+  {
+   "t": 435,
+   "txt": "day when all of God's black men and"
+  },
+  {
+   "t": 438,
+   "txt": "white men Jews and Gentiles Protestants"
+  },
+  {
+   "t": 441,
+   "txt": "and Catholics will be able to draw hand"
+  },
+  {
+   "t": 444,
+   "txt": "and sing in the words of the old negro"
+  },
+  {
+   "t": 446,
+   "txt": "Spirit free at last free at last"
+  },
+  {
+   "t": 450,
+   "txt": "thank God Almighty we free"
+  },
+  {
+   "t": 455,
+   "txt": "man visit our site englishspeech"
+  },
+  {
+   "t": 458,
+   "txt": "channel.com for exclusive access to"
+  },
+  {
+   "t": 461,
+   "txt": "video transcripts offline audio English"
+  },
+  {
+   "t": 464,
+   "txt": "lessons and private classes don't forget"
+  },
+  {
+   "t": 467,
+   "txt": "to explore our free and new ebooks also"
+  },
+  {
+   "t": 470,
+   "txt": "subscribe to our Weekly Newsletter for"
+  },
+  {
+   "t": 472,
+   "txt": "the latest updates links in the"
+  },
+  {
+   "t": 474,
+   "txt": "description below thanks for your"
+  },
+  {
+   "t": 478,
+   "txt": "support"
+  }
+ ]
+}
