@@ -312,6 +312,55 @@ html[dir="rtl"] .more-sheet button,html[dir="rtl"] .more-sheet a{text-align:righ
 html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}
 html[dir="rtl"] .auth-x{right:auto;left:16px}
 html[dir="rtl"] .lang-row{text-align:right}
+
+/* In-app User Manual (localized document) */
+.manual-doc{--macc:#818cf8;--macc2:#22d3ee;--mgold:#fbbf24;--mgreen:#34d399;--mred:#f87171;font-size:15.5px;line-height:1.65}
+.manual-doc .top{background:var(--grad);color:#fff;padding:34px 22px;text-align:center;border-radius:18px;margin-bottom:0}
+.manual-doc .top h1{font-size:clamp(21px,4vw,30px);line-height:1.25;margin:10px 0 12px}
+.manual-doc .top p{max-width:640px;margin:0 auto;font-size:15px;opacity:.95}
+.manual-doc .top img{width:64px;height:64px;border-radius:16px;margin-bottom:12px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.manual-doc .badge{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:99px;padding:4px 14px;font-size:12px;font-weight:700;letter-spacing:1px}
+.manual-doc .toc{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:20px 24px;margin:16px 0 30px}
+.manual-doc .toc h2{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut);margin-bottom:12px}
+.manual-doc .toc ol{columns:2;column-gap:34px;padding-left:20px;font-size:14.5px}
+.manual-doc .toc li{margin-bottom:6px;break-inside:avoid}
+.manual-doc .toc a{color:var(--macc);text-decoration:none;font-weight:600;cursor:pointer}
+.manual-doc .toc a:hover{text-decoration:underline}
+@media(max-width:640px){.manual-doc .toc ol{columns:1}}
+.manual-doc .wrap{padding:0}
+.manual-doc section{margin-bottom:44px;scroll-margin-top:80px}
+.manual-doc h2.sec{font-size:22px;margin-bottom:6px;padding-top:16px;border-top:2px solid var(--macc);display:flex;gap:10px;align-items:center}
+.manual-doc h2.sec .no{background:var(--macc);color:#fff;border-radius:9px;width:34px;height:34px;display:inline-grid;place-items:center;font-size:16px;flex:none}
+.manual-doc .lead{color:var(--mut);font-size:15.5px;margin-bottom:18px}
+.manual-doc h3{font-size:17px;margin:22px 0 10px;color:var(--txt)}
+.manual-doc p{margin-bottom:12px}
+.manual-doc figure{margin:18px 0 22px}
+.manual-doc figure img{width:100%;border:1px solid var(--line2);border-radius:12px}
+.manual-doc figure.small img{max-width:400px;display:block;margin:0 auto}
+.manual-doc figcaption{font-size:13px;color:var(--mut);margin-top:8px;text-align:center;font-style:italic}
+.manual-doc ol.steps{counter-reset:st;list-style:none;margin:14px 0 20px;padding:0}
+.manual-doc ol.steps>li{position:relative;padding:12px 16px 12px 56px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;margin-bottom:10px}
+.manual-doc ol.steps>li::before{counter-increment:st;content:counter(st);position:absolute;left:14px;top:12px;width:28px;height:28px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.manual-doc ol.steps b,.manual-doc p b{color:var(--txt)}
+.manual-doc .example{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-left:5px solid var(--mgold);border-radius:12px;padding:14px 18px;margin:16px 0 22px}
+.manual-doc .example .ttl{font-weight:800;color:var(--mgold);font-size:13px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+.manual-doc .example ul{padding-left:20px;margin-bottom:8px}
+.manual-doc .say{background:rgba(129,140,248,.12);border:1px solid rgba(129,140,248,.3);border-radius:10px;padding:10px 16px;margin:8px 0;font-style:italic;color:#c7cdff}
+.manual-doc .tip{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.28);border-left:5px solid var(--mgreen);border-radius:12px;padding:13px 18px;margin:16px 0}
+.manual-doc .tip b{color:var(--mgreen)}
+.manual-doc .warn{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.28);border-left:5px solid var(--mred);border-radius:12px;padding:13px 18px;margin:16px 0}
+.manual-doc .warn b{color:var(--mred)}
+.manual-doc table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0 22px;background:var(--card2);border-radius:12px;overflow:hidden}
+.manual-doc th,.manual-doc td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line2);vertical-align:top}
+.manual-doc th{background:rgba(129,140,248,.14);color:#c7cdff;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.manual-doc tr:last-child td{border-bottom:none}
+.manual-doc code,.manual-doc kbd{background:rgba(129,140,248,.16);color:#c7cdff;border-radius:6px;padding:2px 7px;font-size:13px;font-family:'SF Mono',Menlo,Consolas,monospace}
+.manual-doc footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 20px 0;border-top:1px solid var(--line2)}
+.manual-doc footer a{color:var(--macc)}
+html[dir="rtl"] .manual-doc th,html[dir="rtl"] .manual-doc td{text-align:right}
+html[dir="rtl"] .manual-doc ol.steps>li{padding:12px 56px 12px 16px}
+html[dir="rtl"] .manual-doc ol.steps>li::before{left:auto;right:14px}
+html[dir="rtl"] .manual-doc h2.sec .no{}
 </style>
 </head>
 <body>
@@ -324,7 +373,7 @@ html[dir="rtl"] .lang-row{text-align:right}
   <button class="tab" data-v="shadow" data-i18n="nav.shadow">🎯 Shadow</button>
   <button class="tab" data-v="review" data-i18n="nav.reviews">📊 Reviews</button>
   <button class="tab" data-v="data" data-i18n="nav.account">👤 Account</button>
-  <a class="tab" href="manual/" target="_blank" style="text-decoration:none" data-i18n="nav.manual">📘 Manual</a>
+  <button class="tab" data-v="manual" onclick="go('manual')" data-i18n="nav.manual">📘 Manual</button>
   <div class="streak-pill">🔥 <span id="streakN">0</span></div>
 </div></nav>
 
@@ -335,6 +384,7 @@ html[dir="rtl"] .lang-row{text-align:right}
   <div id="v-shadow" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-data" class="view"></div>
+  <div id="v-manual" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">12-Week Business English Mastery System · Progress is saved automatically on this device<br>
   Brainjo Laws #9 & #10: practice until attention fades (20–25 min) — quality beats quantity.<br>
   © 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:nore.ngou@gmail.com">Support</a></div>
@@ -352,7 +402,7 @@ html[dir="rtl"] .lang-row{text-align:right}
 </nav>
 <div id="moreSheet" class="more-sheet" style="display:none">
   <button onclick="go('data');moreToggle()" data-i18n="more.account">👤 Account</button>
-  <a href="manual/" target="_blank" data-i18n="more.manual">📘 User Manual</a>
+  <button onclick="go('manual');moreToggle()" data-i18n="more.manual">📘 User Manual</button>
   <a href="flyer.html" target="_blank" data-i18n="more.about">✨ About the app</a>
 </div>
 
@@ -1297,6 +1347,7 @@ const I18N_EN={
  "more.account":"👤 Account",
  "more.manual":"📘 User Manual",
  "more.about":"✨ About the app",
+ "manual.loading":"Loading the manual…",
  "gfix.0.cat":"Word form","gfix.0.note":"“Information” is uncountable — never plural.",
  "gfix.1.cat":"Word form","gfix.1.note":"“Advice” is uncountable — use “a piece of advice”.",
  "gfix.2.cat":"Word form","gfix.2.note":"“Feedback” is uncountable.",
@@ -1771,10 +1822,28 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,data:rData})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,data:rData,manual:rManual})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
+
+/* ================= USER MANUAL (in-app, localized fragment) ================= */
+let _manCache={};
+async function rManual(el){
+  const code=(S.profile&&S.profile.lang)||"en";
+  el.innerHTML=`<div style="padding:60px 20px;text-align:center;color:var(--mut)">${esc(t("manual.loading"))}</div>`;
+  let html=_manCache[code];
+  if(html===undefined){
+    html="";
+    try{let r=await fetch("manual/"+code+".html");if(r.ok)html=await r.text();}catch(e){}
+    if(!html&&code!=="en"){try{let r=await fetch("manual/en.html");if(r.ok)html=await r.text();}catch(e){}}
+    _manCache[code]=html;
+  }
+  if(cur.v!=="manual")return; /* user navigated away while fetching */
+  el.innerHTML=`<div class="manual-doc">${html}</div>`;
+  window.scrollTo({top:0});
+}
+window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
 
 /* ================= DASHBOARD ================= */
 async function rHome(el){
@@ -3462,7 +3531,7 @@ async function rData(el){
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <a class="btn btn-g btn-sm" href="mailto:nore.ngou@gmail.com" style="text-decoration:none">${t("acc.support_link")}</a>
           <a class="btn btn-g btn-sm" href="privacy.html" target="_blank" style="text-decoration:none">${t("acc.privacy_link")}</a>
-          <a class="btn btn-g btn-sm" href="manual/" target="_blank" style="text-decoration:none">${t("acc.manual_link")}</a>
+          <button class="btn btn-g btn-sm" onclick="go('manual')">${t("acc.manual_link")}</button>
         </div>
       </div>
     </div>
@@ -3564,7 +3633,7 @@ function goSession(){}
   if(dirty)save();
 })();
 (async function boot(){
-  const valid=["home","journey","phrases","shadow","review","data","session"];
+  const valid=["home","journey","phrases","shadow","review","data","session","manual"];
   const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
