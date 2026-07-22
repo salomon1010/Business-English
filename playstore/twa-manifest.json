@@ -21,7 +21,7 @@
     "alias": "bemastery"
   },
   "appVersionName": "1.0.0",
-  "appVersionCode": 3,
+  "appVersionCode": 5,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://app.lomonec.com/manifest.json",
