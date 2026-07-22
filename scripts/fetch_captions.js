@@ -34,20 +34,30 @@ function toSec(ts) {
 
 const cues = [];
 
-// Format B: a YouTube "Show transcript" paste — lines like
-// "6:20" or "6:206 minutes, 20 secondsBut then our visions…" (+ "Chapter N:" headers).
+// Format B: a YouTube "Show transcript" paste. Handles both layouts:
+//   (1) timestamp + text on ONE line: "6:206 minutes, 20 secondsBut then…"
+//   (2) timestamp on its OWN line, text on the following line(s): "0:16" \n "How do you…"
+// Skips "Search in video"/"Chapter N:" headers and standalone (Laughter)/(Applause).
 // Detected when there are no VTT/SRT "-->" cue-timing lines.
 if (!/-->/.test(raw)) {
+  let cur = null;
   for (const line of raw.replace(/\r/g, '').split('\n')) {
-    if (/^\s*Chapter\s/i.test(line)) continue;
-    const m = line.match(/^\s*(\d+):(\d{2})(.*)$/);
-    if (!m) continue;
-    const t = (+m[1]) * 60 + (+m[2]);
-    const txt = m[3]
-      .replace(/^\d+\s+(?:minute|second)s?(?:,\s*\d+\s+seconds?)?/, '') // drop redundant duration phrase
-      .replace(/\s+/g, ' ').trim();
-    if (txt) cues.push({ t, txt });
+    const s = line.trim();
+    if (!s || /^Search in video$/i.test(s) || /^Chapter\s/i.test(s)) continue;
+    const m = s.match(/^(\d+):(\d{2})(.*)$/);
+    if (m) {
+      if (cur && cur.txt.trim()) cues.push(cur);
+      const t = (+m[1]) * 60 + (+m[2]);
+      const inline = m[3]
+        .replace(/^\d+\s+(?:minute|second)s?(?:,\s*\d+\s+seconds?)?/, '') // drop redundant duration phrase (layout 1)
+        .replace(/\s+/g, ' ').trim();
+      cur = { t, txt: inline };
+    } else if (cur) {
+      if (/^\(.*\)$/.test(s)) continue; // drop standalone (Laughter)/(Applause)
+      cur.txt += (cur.txt ? ' ' : '') + s;
+    }
   }
+  if (cur && cur.txt.trim()) cues.push(cur);
   writeOut(cues);
   return;
 }
