@@ -1297,6 +1297,31 @@ const I18N_EN={
  "more.account":"👤 Account",
  "more.manual":"📘 User Manual",
  "more.about":"✨ About the app",
+ "gfix.0.cat":"Word form","gfix.0.note":"“Information” is uncountable — never plural.",
+ "gfix.1.cat":"Word form","gfix.1.note":"“Advice” is uncountable — use “a piece of advice”.",
+ "gfix.2.cat":"Word form","gfix.2.note":"“Feedback” is uncountable.",
+ "gfix.3.cat":"Word form","gfix.3.note":"“People” is already plural.",
+ "gfix.4.cat":"Verb form","gfix.4.note":"“Agree” is a verb — no “am” needed.",
+ "gfix.5.cat":"Preposition","gfix.5.note":"“Explain” needs “to” before the person.",
+ "gfix.6.cat":"Preposition","gfix.6.note":"“Discuss” never takes “about”.",
+ "gfix.7.cat":"Preposition","gfix.7.note":"Duration takes “for”; “since” takes a starting point.",
+ "gfix.8.cat":"Verb form","gfix.8.note":"Age uses “to be” in English.",
+ "gfix.9.cat":"Comparative","gfix.9.note":"The word is already comparative — drop “more”.",
+ "gfix.10.cat":"Verb tense","gfix.10.note":"After “didn't”, use the base form of the verb.",
+ "gfix.11.cat":"Subject-verb agreement","gfix.11.note":"These words are grammatically singular.",
+ "gfix.12.cat":"Subject-verb agreement","gfix.12.note":"Third person singular takes “doesn't”.",
+ "gfix.13.cat":"Article","gfix.13.note":"Use “an” before a vowel sound.",
+ "gfix.14.cat":"Verb tense","gfix.14.note":"Ongoing duration needs the present perfect.",
+ "gfix.15.cat":"Word order","gfix.15.note":"English uses “want + person + to”.",
+ "gfix.16.cat":"Word order","gfix.16.note":"Use “what … looks like” or “how … looks”.",
+ "gfix.17.cat":"Preposition","gfix.17.note":"Time expressions take “at the moment / right now”.",
+ "ggood.0.cat":"Verb form","ggood.0.note":"Strong use of a modal verb — you're confidently expressing possibilities.",
+ "ggood.1.cat":"Verb tense","ggood.1.note":"Good use of the present continuous for an ongoing action.",
+ "ggood.2.cat":"Verb tense","ggood.2.note":"Nice present perfect — connecting the past to now like a native.",
+ "ggood.3.cat":"Connector","ggood.3.note":"Excellent linking word — it makes your speech sound structured.",
+ "ggood.4.cat":"Adverbial","ggood.4.note":"Great use of an adverb to add emphasis.",
+ "ggood.5.cat":"Preposition","ggood.5.note":"Perfect preposition + gerund — “thanks for + -ing”.",
+ "gphrase.cat":"Business phrasing","gphrase.note":"You used a phrase from your phrase bank in real speech — that's exactly the goal! 💼",
  "footer.note":"12-Week Business English Mastery System · Progress is saved automatically on this device<br>Brainjo Laws #9 & #10: practice until attention fades (20–25 min) — quality beats quantity.<br>© 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href=\"privacy.html\" target=\"_blank\">Privacy</a> · <a href=\"mailto:nore.ngou@gmail.com\">Support</a>"
 };
 function localizeStatic(){
@@ -2525,22 +2550,24 @@ const GRAM_GOOD=[
 function gramAnalyze(heardRaw){
   const good=[],fix=[];
   const seenG=new Set(),seenF=new Set();
-  for(const[re,bad,corr,note,cat]of GRAM_FIX){
+  GRAM_FIX.forEach((row,idx)=>{
+    if(fix.length>=4)return;
+    const[re,bad,corr,note,cat]=row;
     const m=heardRaw.match(re);
-    if(m&&!seenF.has(cat+bad)){seenF.add(cat+bad);fix.push({cat,quote:m[0],corr:m[0].toLowerCase().includes("since")?m[0].replace(/since/i,"for"):corr,note})}
-    if(fix.length>=4)break;
-  }
-  for(const[re,cat,note]of GRAM_GOOD){
+    if(m&&!seenF.has(cat+bad)){seenF.add(cat+bad);fix.push({cat:t("gfix."+idx+".cat"),quote:m[0],corr:m[0].toLowerCase().includes("since")?m[0].replace(/since/i,"for"):corr,note:t("gfix."+idx+".note")})}
+  });
+  GRAM_GOOD.forEach((row,idx)=>{
+    if(good.length>=4)return;
+    const[re,cat,note]=row;
     const m=heardRaw.match(re);
-    if(m&&!seenG.has(cat)){seenG.add(cat);good.push({cat,quote:m[0],note})}
-    if(good.length>=4)break;
-  }
+    if(m&&!seenG.has(cat)){seenG.add(cat);good.push({cat:t("ggood."+idx+".cat"),quote:m[0],note:t("ggood."+idx+".note")})}
+  });
   /* praise business phrases from the app's phrase bank actually used */
   const hl=" "+heardRaw.toLowerCase()+" ";
   for(const p of PHRASES){
     const stem=p.p.toLowerCase().replace(/[….]+$/,"").trim();
     if(stem.length>=10&&hl.includes(stem.slice(0,Math.min(stem.length,22)))&&good.length<5){
-      good.push({cat:"Business phrasing",quote:stem,note:"You used a phrase from your phrase bank in real speech — that's exactly the goal! 💼"});
+      good.push({cat:t("gphrase.cat"),quote:stem,note:t("gphrase.note")});
       break;
     }
   }
