@@ -678,5 +678,6 @@
  "manual.loading": "マニュアルを読み込み中…",
  "sh.mark_stress_btn": "✨ 強勢を付ける",
  "sh.stress_toast": "強勢部分を大文字にしました——リズムの目安です。自由に調整してください。",
- "sh.stress_empty_toast": "先にクリップの書き起こしを入力し、それから ✨ 強勢を付ける をタップしてください。"
+ "sh.stress_empty_toast": "先にクリップの書き起こしを入力し、それから ✨ 強勢を付ける をタップしてください。",
+ "sh.transcript_included": "📝 書き起こし付き"
 }

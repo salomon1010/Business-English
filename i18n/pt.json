@@ -678,5 +678,6 @@
  "manual.loading": "Carregando o manual…",
  "sh.mark_stress_btn": "✨ Marcar ênfase",
  "sh.stress_toast": "Partes tônicas em maiúsculas — um guia do ritmo. Ajuste como quiser.",
- "sh.stress_empty_toast": "Escreva primeiro a transcrição do clipe, depois toque em ✨ Marcar ênfase."
+ "sh.stress_empty_toast": "Escreva primeiro a transcrição do clipe, depois toque em ✨ Marcar ênfase.",
+ "sh.transcript_included": "📝 Transcrição incluída"
 }

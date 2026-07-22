@@ -678,5 +678,6 @@
  "manual.loading": "설명서를 불러오는 중…",
  "sh.mark_stress_btn": "✨ 강세 표시",
  "sh.stress_toast": "강세 부분을 대문자로 표시했습니다 — 리듬 안내입니다. 원하는 대로 조정하세요.",
- "sh.stress_empty_toast": "먼저 클립 전사를 입력한 뒤 ✨ 강세 표시를 누르세요."
+ "sh.stress_empty_toast": "먼저 클립 전사를 입력한 뒤 ✨ 강세 표시를 누르세요.",
+ "sh.transcript_included": "📝 전사 포함"
 }

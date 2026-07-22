@@ -678,5 +678,6 @@
  "manual.loading": "Memuat manual…",
  "sh.mark_stress_btn": "✨ Tandai tekanan",
  "sh.stress_toast": "Bagian bertekanan dikapitalkan — panduan irama. Sesuaikan sesuka Anda.",
- "sh.stress_empty_toast": "Ketik dulu transkrip klip, lalu ketuk ✨ Tandai tekanan."
+ "sh.stress_empty_toast": "Ketik dulu transkrip klip, lalu ketuk ✨ Tandai tekanan.",
+ "sh.transcript_included": "📝 Termasuk transkrip"
 }

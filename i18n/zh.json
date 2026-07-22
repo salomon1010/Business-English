@@ -678,5 +678,6 @@
  "manual.loading": "正在加载手册…",
  "sh.mark_stress_btn": "✨ 标注重音",
  "sh.stress_toast": "重读部分已变为大写——这是节奏参考，你可以随意调整。",
- "sh.stress_empty_toast": "请先输入片段文字稿，然后点击 ✨ 标注重音。"
+ "sh.stress_empty_toast": "请先输入片段文字稿，然后点击 ✨ 标注重音。",
+ "sh.transcript_included": "📝 已含文字稿"
 }

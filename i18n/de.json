@@ -678,5 +678,6 @@
  "manual.loading": "Handbuch wird geladen…",
  "sh.mark_stress_btn": "✨ Betonung markieren",
  "sh.stress_toast": "Betonte Teile groß geschrieben — ein Rhythmus-Leitfaden. Passe ihn nach Belieben an.",
- "sh.stress_empty_toast": "Schreibe zuerst das Clip-Transkript, dann tippe auf ✨ Betonung markieren."
+ "sh.stress_empty_toast": "Schreibe zuerst das Clip-Transkript, dann tippe auf ✨ Betonung markieren.",
+ "sh.transcript_included": "📝 Transkript enthalten"
 }

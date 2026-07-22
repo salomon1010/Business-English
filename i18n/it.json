@@ -678,5 +678,6 @@
  "manual.loading": "Caricamento del manuale…",
  "sh.mark_stress_btn": "✨ Segna l'accento",
  "sh.stress_toast": "Parti accentate in maiuscolo — una guida al ritmo. Modificala a piacere.",
- "sh.stress_empty_toast": "Scrivi prima la trascrizione della clip, poi tocca ✨ Segna l'accento."
+ "sh.stress_empty_toast": "Scrivi prima la trascrizione della clip, poi tocca ✨ Segna l'accento.",
+ "sh.transcript_included": "📝 Trascrizione inclusa"
 }

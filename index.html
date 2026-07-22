@@ -1042,6 +1042,7 @@ const I18N_EN={
  "sh.posture_privacy":"🔒 Zero-capture: frames are analyzed on your device and immediately discarded — no video is ever stored or uploaded. Only anonymous posture coordinates exist, and they never leave this device.",
  "sh.transcript_notes_title":"🎬 Clip transcript & notes",
  "sh.transcript_notes_desc":"What the speaker says in the clip — transcribe it exactly, then tap ✨ Mark stress to capitalize the stressed parts automatically. Used to score your pronunciation against the original.",
+ "sh.transcript_included":"📝 Transcript included",
  "sh.mark_stress_btn":"✨ Mark stress",
  "sh.stress_toast":"Stressed parts capitalized — a rhythm guide. Tweak it as you like.",
  "sh.stress_empty_toast":"Type the clip transcript first, then tap ✨ Mark stress.",
@@ -2162,10 +2163,19 @@ window.removeRec=async(id,ctx)=>{await delRec(id);renderRecs(ctx);toast(t("recs.
 
 /* ================= SHADOW (YouGlish-style clip looper) ================= */
 let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
+/* Curated library: each clip ships a verified transcript (plain text — it is
+   auto stress-marked on load). start/end are best-effort segment estimates for
+   the opening passage and should be confirmed with a quick watch. */
 const SHADOW_STARTERS=[
- {vid:"UF8uR6Z6KLc",name:"Steve Jobs — Stanford Commencement Address",why:"Slow, clear, perfectly paced — the ideal first shadowing voice."},
- {vid:"qp0HIF3SfI4",name:"Simon Sinek — How Great Leaders Inspire Action (TED)",why:"Presentation rhythm & persuasion language for meetings."},
- {vid:"ji5_MqicxSo",name:"Randy Pausch — The Last Lecture",why:"Natural professional storytelling with great stress patterns."}
+ {vid:"UF8uR6Z6KLc",name:"Steve Jobs — Stanford Commencement Address",why:"Slow, clear, perfectly paced — the ideal first shadowing voice.",
+  start:22,end:58,
+  txt:"I am HONored to be with you toDAY at your comMENCEment from one of the FInest univERsities in the WORLD. / I NEVer GRADuated from COLlege. / TRUTH be TOLD, this is the CLOsest I've Ever GOTten to a COLlege graduAtion. / toDAY I WANT to TELL you three STOries from my LIFE. / THAT'S it. no big DEAL. just three STOries."},
+ {vid:"qp0HIF3SfI4",name:"Simon Sinek — How Great Leaders Inspire Action (TED)",why:"Presentation rhythm & persuasion language for meetings.",
+  start:16,end:52,
+  txt:"HOW do you exPLAIN when things don't GO as we asSUME? / or BETter, HOW do you exPLAIN when Others are Able to aCHIEVE things that SEEM to deFY ALL of the assUMPtions? / for exAMple: WHY is Apple so INnovative? / YEAR after YEAR, after YEAR, they're MORE INnovative than ALL their compeTItion."},
+ {vid:"ji5_MqicxSo",name:"Randy Pausch — The Last Lecture",why:"Natural professional storytelling with great stress patterns.",
+  start:20,end:55,
+  txt:"it's WONderful to be HERE. / WHAT Indira DIDn't TELL you is that this LECture Series Used to be CALLED the LAST LECture. / if you had one LAST LECture to GIVE beFORE you DIED, / WHAT would it BE?"}
 ];
 function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
 function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
@@ -2196,6 +2206,7 @@ function rShadow(el){
       <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
         <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
         <b style="font-size:14px;line-height:1.35">${s.name}</b>
+        ${s.txt?`<span class="chip p3" style="align-self:flex-start;font-size:11px">${t("sh.transcript_included")}</span>`:""}
         <p style="font-size:12.5px;color:var(--mut);flex:1">${t("starter."+i+".why")}</p>
         <div style="display:flex;gap:8px">
           <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
@@ -2346,7 +2357,7 @@ window.tbTry=word=>{
 window.shUseStarter=i=>{
   const s=SHADOW_STARTERS[i];
   document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+s.vid;
-  shLoad({vid:s.vid,start:0,end:0,title:s.name});
+  shLoad({vid:s.vid,start:s.start||0,end:s.end||0,title:s.name,txt:s.txt||""});
 };
 window.shCopyLink=async i=>{
   const url="https://www.youtube.com/watch?v="+SHADOW_STARTERS[i].vid;
@@ -2367,6 +2378,9 @@ async function shLoad(c,quiet){
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   document.getElementById("shPlayerWrap").style.display="block";
   document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+shClip.vid;
+  /* library clips ship a human-marked transcript (correct lexical stress);
+     load it as-is. A saved user edit always wins. Arbitrary pasted clips have
+     no txt — the ✨ Mark stress button gives them best-effort algorithmic marks. */
   document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();

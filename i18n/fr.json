@@ -678,5 +678,6 @@
  "manual.loading": "Chargement du manuel…",
  "sh.mark_stress_btn": "✨ Marquer l'accent",
  "sh.stress_toast": "Parties accentuées mises en majuscules — un guide du rythme. Ajustez à votre guise.",
- "sh.stress_empty_toast": "Écrivez d'abord la transcription de l'extrait, puis touchez ✨ Marquer l'accent."
+ "sh.stress_empty_toast": "Écrivez d'abord la transcription de l'extrait, puis touchez ✨ Marquer l'accent.",
+ "sh.transcript_included": "📝 Transcription incluse"
 }

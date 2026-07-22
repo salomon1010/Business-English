@@ -678,5 +678,6 @@
  "manual.loading": "Đang tải hướng dẫn…",
  "sh.mark_stress_btn": "✨ Đánh dấu trọng âm",
  "sh.stress_toast": "Các phần trọng âm đã được viết hoa — một hướng dẫn về nhịp điệu. Chỉnh tùy ý bạn.",
- "sh.stress_empty_toast": "Hãy nhập bản chép lời của đoạn clip trước, rồi chạm ✨ Đánh dấu trọng âm."
+ "sh.stress_empty_toast": "Hãy nhập bản chép lời của đoạn clip trước, rồi chạm ✨ Đánh dấu trọng âm.",
+ "sh.transcript_included": "📝 Có sẵn bản chép lời"
 }
