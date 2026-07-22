@@ -314,5 +314,12 @@
  "App:": "App:",
  "© 2026 Lomonec LLC — BE Mastery. All rights reserved. ·": "© 2026 Lomonec LLC — BE Mastery. Todos los derechos reservados. ·",
  "Privacy": "Privacidad",
- "Support": "Soporte"
+ "Support": "Soporte",
+ "a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: pick a clip from the built-in library (transcript included) or paste any YouTube link, mark a 20–30 second segment, and loop it while you shadow.": "un hablante nativo para copiar su ritmo, acentuación y melodía. El Estudio lo hace sencillo: elige un clip de la biblioteca integrada (con transcripción incluida) o pega cualquier enlace de YouTube, marca un segmento de 20–30 segundos y ponlo en bucle mientras haces shadowing.",
+ "The Studio: the caption-backed clip library, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.": "El Estudio: la biblioteca de clips con subtítulos, canales, el reproductor con controles de clip, grabadora + retroalimentación, clips guardados, palabras difíciles y vocabulario.",
+ "choose a clip from the 🎬 library below (Jobs, MLK, Michelle Obama, TED talks and many more — each shows a “Captions ready” badge), or paste any YouTube link →": "elige un clip de la 🎬 biblioteca de abajo (Jobs, MLK, Michelle Obama, charlas TED y muchos más — cada uno muestra un distintivo “Subtítulos listos”), o pega cualquier enlace de YouTube →",
+ "The transcript fills in for you.": "La transcripción se rellena por ti.",
+ "For library clips, the moment you Mark end, the app pulls the captions for exactly that segment into the “🎬 Clip transcript &amp; notes” box, already stress-marked (CAPS = stressed parts). Tap “📄 Get transcript” to re-pull after changing your marks, or “✕ Clear” to start a fresh clip.": "En los clips de la biblioteca, en cuanto marcas el final, la app extrae los subtítulos de exactamente ese segmento en el cuadro «🎬 Transcripción del clip y notas», ya con el acento marcado (MAYÚSCULAS = partes acentuadas). Toca «📄 Obtener transcripción» para volver a extraerla tras cambiar tus marcas, o «✕ Borrar» para empezar un clip nuevo.",
+ "Check the 🎬 clip transcript.": "Revisa la 🎬 transcripción del clip.",
+ "For library clips it's already filled from your marks and stress-marked; for a pasted video, type what the speaker says and tap “✨ Mark stress”. STRESSED parts appear in CAPS, pauses marked with /.": "En los clips de la biblioteca ya está rellenada a partir de tus marcas y con el acento marcado; en un video pegado, escribe lo que dice el hablante y toca «✨ Marcar acento». Las partes ACENTUADAS aparecen en MAYÚSCULAS, las pausas se marcan con /."
 }

@@ -314,5 +314,12 @@
  "App:": "应用：",
  "© 2026 Lomonec LLC — BE Mastery. All rights reserved. ·": "© 2026 Lomonec LLC — BE Mastery。保留所有权利。·",
  "Privacy": "隐私",
- "Support": "支持"
+ "Support": "支持",
+ "a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: pick a clip from the built-in library (transcript included) or paste any YouTube link, mark a 20–30 second segment, and loop it while you shadow.": "母语者一起说，以复制他们的节奏、重音和语调。工作室让这一切毫不费力：从内置库中选一个片段（已含文字稿），或粘贴任意 YouTube 链接，标记一个 20–30 秒的片段，边跟读边循环播放。",
+ "The Studio: the caption-backed clip library, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.": "工作室：带字幕的片段库、频道、带片段控制的播放器、录音器 + 反馈、已保存片段、难词和词汇。",
+ "choose a clip from the 🎬 library below (Jobs, MLK, Michelle Obama, TED talks and many more — each shows a “Captions ready” badge), or paste any YouTube link →": "从下方的 🎬 库中选择一个片段（Jobs、MLK、Michelle Obama、TED 演讲等等——每个都显示“字幕已就绪”徽章），或粘贴任意 YouTube 链接 →",
+ "The transcript fills in for you.": "文字稿会自动为你填入。",
+ "For library clips, the moment you Mark end, the app pulls the captions for exactly that segment into the “🎬 Clip transcript &amp; notes” box, already stress-marked (CAPS = stressed parts). Tap “📄 Get transcript” to re-pull after changing your marks, or “✕ Clear” to start a fresh clip.": "对于库中的片段，你一标记结束，应用就会把恰好那一段的字幕拉入“🎬 片段文字稿与笔记”框中，并已标注重音（大写＝重读部分）。更改标记后，点击“📄 获取文字稿”重新提取，或点击“✕ 清除”开始一个新片段。",
+ "Check the 🎬 clip transcript.": "检查 🎬 片段文字稿。",
+ "For library clips it's already filled from your marks and stress-marked; for a pasted video, type what the speaker says and tap “✨ Mark stress”. STRESSED parts appear in CAPS, pauses marked with /.": "对于库中的片段，它已根据你的标记填入并标注重音；对于粘贴的视频，输入说话者所说的话并点击“✨ 标注重音”。重读部分以大写显示，停顿用 / 标记。"
 }

@@ -314,5 +314,12 @@
  "App:": "アプリ：",
  "© 2026 Lomonec LLC — BE Mastery. All rights reserved. ·": "© 2026 Lomonec LLC — BE Mastery. 無断複製・転載を禁じます。·",
  "Privacy": "プライバシー",
- "Support": "サポート"
+ "Support": "サポート",
+ "a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: pick a clip from the built-in library (transcript included) or paste any YouTube link, mark a 20–30 second segment, and loop it while you shadow.": "ネイティブ話者と一緒に話し、そのリズム・強勢・抑揚を真似ることです。スタジオならそれが簡単に：内蔵ライブラリからクリップを選ぶ（書き起こし付き）か、任意の YouTube リンクを貼り付け、20〜30 秒の区間をマークして、シャドーイングしながらループ再生します。",
+ "The Studio: the caption-backed clip library, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.": "スタジオ：字幕付きのクリップライブラリ、チャンネル、クリップ操作付きプレーヤー、レコーダー + フィードバック、保存したクリップ、苦手な単語、語彙。",
+ "choose a clip from the 🎬 library below (Jobs, MLK, Michelle Obama, TED talks and many more — each shows a “Captions ready” badge), or paste any YouTube link →": "下の 🎬 ライブラリからクリップを選ぶ（Jobs、MLK、Michelle Obama、TED トークなど多数——それぞれ「字幕あり」バッジが表示されます）か、任意の YouTube リンクを貼り付け →",
+ "The transcript fills in for you.": "書き起こしは自動で入力されます。",
+ "For library clips, the moment you Mark end, the app pulls the captions for exactly that segment into the “🎬 Clip transcript &amp; notes” box, already stress-marked (CAPS = stressed parts). Tap “📄 Get transcript” to re-pull after changing your marks, or “✕ Clear” to start a fresh clip.": "ライブラリのクリップでは、終了をマークした瞬間に、ちょうどその区間の字幕が「🎬 クリップの書き起こしとメモ」欄に取り込まれ、すでに強勢が付いています（大文字＝強勢部分）。マークを変えたあとは「📄 書き起こしを取得」で再取得、「✕ クリア」で新しいクリップを開始できます。",
+ "Check the 🎬 clip transcript.": "🎬 クリップの書き起こしを確認します。",
+ "For library clips it's already filled from your marks and stress-marked; for a pasted video, type what the speaker says and tap “✨ Mark stress”. STRESSED parts appear in CAPS, pauses marked with /.": "ライブラリのクリップでは、あなたのマークからすでに入力され強勢が付いています。貼り付けた動画では、話者が言う内容を入力して「✨ 強勢を付ける」をタップします。強勢部分は大文字で表示され、ポーズは / で示されます。"
 }

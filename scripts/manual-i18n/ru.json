@@ -314,5 +314,12 @@
  "App:": "Приложение:",
  "© 2026 Lomonec LLC — BE Mastery. All rights reserved. ·": "© 2026 Lomonec LLC — BE Mastery. Все права защищены. ·",
  "Privacy": "Конфиденциальность",
- "Support": "Поддержка"
+ "Support": "Поддержка",
+ "a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: pick a clip from the built-in library (transcript included) or paste any YouTube link, mark a 20–30 second segment, and loop it while you shadow.": "носителем языка, чтобы копировать его ритм, ударение и мелодику. Студия делает это без усилий: выберите клип из встроенной библиотеки (с транскриптом) или вставьте любую ссылку YouTube, отметьте отрезок 20–30 секунд и зациклите его, пока делаете шэдоуинг.",
+ "The Studio: the caption-backed clip library, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.": "Студия: библиотека клипов с субтитрами, каналы, плеер с управлением клипом, диктофон + обратная связь, сохранённые клипы, сложные слова и словарь.",
+ "choose a clip from the 🎬 library below (Jobs, MLK, Michelle Obama, TED talks and many more — each shows a “Captions ready” badge), or paste any YouTube link →": "выберите клип из 🎬 библиотеки ниже (Jobs, MLK, Michelle Obama, выступления TED и многие другие — у каждого значок «Субтитры готовы»), или вставьте любую ссылку YouTube →",
+ "The transcript fills in for you.": "Транскрипт заполняется за вас.",
+ "For library clips, the moment you Mark end, the app pulls the captions for exactly that segment into the “🎬 Clip transcript &amp; notes” box, already stress-marked (CAPS = stressed parts). Tap “📄 Get transcript” to re-pull after changing your marks, or “✕ Clear” to start a fresh clip.": "Для клипов из библиотеки, как только вы отметите конец, приложение переносит субтитры именно этого отрезка в поле «🎬 Транскрипт клипа и заметки», уже с ударениями (ЗАГЛАВНЫЕ = ударные части). Нажмите «📄 Получить транскрипт», чтобы получить его заново после изменения меток, или «✕ Очистить», чтобы начать новый клип.",
+ "Check the 🎬 clip transcript.": "Проверьте 🎬 транскрипт клипа.",
+ "For library clips it's already filled from your marks and stress-marked; for a pasted video, type what the speaker says and tap “✨ Mark stress”. STRESSED parts appear in CAPS, pauses marked with /.": "Для клипов из библиотеки он уже заполнен из ваших меток и с ударениями; для вставленного видео введите, что говорит спикер, и нажмите «✨ Отметить ударение». Ударные части отображаются ЗАГЛАВНЫМИ, паузы отмечены /."
 }

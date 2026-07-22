@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v8";
+const CACHE = "be12-v9";
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

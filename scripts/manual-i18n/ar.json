@@ -314,5 +314,12 @@
  "App:": "التطبيق:",
  "© 2026 Lomonec LLC — BE Mastery. All rights reserved. ·": "© 2026 Lomonec LLC — BE Mastery. جميع الحقوق محفوظة. ·",
  "Privacy": "الخصوصية",
- "Support": "الدعم"
+ "Support": "الدعم",
+ "a native speaker to copy their rhythm, stress and melody. The Studio makes it effortless: pick a clip from the built-in library (transcript included) or paste any YouTube link, mark a 20–30 second segment, and loop it while you shadow.": "متحدث أصلي لنسخ إيقاعه ونبره ونغمته. يجعل الاستوديو ذلك سهلًا: اختر مقطعًا من المكتبة المدمجة (يتضمّن النص) أو الصق أي رابط YouTube، وعلّم جزءًا مدته 20–30 ثانية، وكرّره أثناء المحاكاة.",
+ "The Studio: the caption-backed clip library, channels, the player with clip controls, recorder + feedback, saved clips, trouble words and vocabulary.": "الاستوديو: مكتبة المقاطع المدعومة بالترجمة، والقنوات، والمشغّل مع أدوات تحكّم بالمقطع، والمسجّل + التغذية الراجعة، والمقاطع المحفوظة، والكلمات الصعبة، والمفردات.",
+ "choose a clip from the 🎬 library below (Jobs, MLK, Michelle Obama, TED talks and many more — each shows a “Captions ready” badge), or paste any YouTube link →": "اختر مقطعًا من 🎬 المكتبة أدناه (Jobs، MLK، Michelle Obama، محادثات TED وغيرها الكثير — يعرض كل منها شارة «الترجمة جاهزة»)، أو الصق أي رابط YouTube ←",
+ "The transcript fills in for you.": "يُملأ النص نيابةً عنك.",
+ "For library clips, the moment you Mark end, the app pulls the captions for exactly that segment into the “🎬 Clip transcript &amp; notes” box, already stress-marked (CAPS = stressed parts). Tap “📄 Get transcript” to re-pull after changing your marks, or “✕ Clear” to start a fresh clip.": "في مقاطع المكتبة، بمجرد أن تعلّم النهاية، يجلب التطبيق ترجمة ذلك الجزء بالضبط إلى مربّع «🎬 نص المقطع والملاحظات» مع تمييز النبر مسبقًا (الأحرف الكبيرة = الأجزاء المنبورة). اضغط «📄 جلب النص» لإعادة جلبه بعد تغيير علاماتك، أو «✕ مسح» لبدء مقطع جديد.",
+ "Check the 🎬 clip transcript.": "تحقّق من 🎬 نص المقطع.",
+ "For library clips it's already filled from your marks and stress-marked; for a pasted video, type what the speaker says and tap “✨ Mark stress”. STRESSED parts appear in CAPS, pauses marked with /.": "في مقاطع المكتبة يكون مملوءًا مسبقًا من علاماتك ومع تمييز النبر؛ في فيديو ملصوق، اكتب ما يقوله المتحدث واضغط «✨ تمييز النبر». تظهر الأجزاء المنبورة بأحرف كبيرة، والوقفات تُعلَّم بـ /."
 }
