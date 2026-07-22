@@ -684,7 +684,7 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 let DICT={};
 const I18N_EN={
  "lang.none_found":"No languages found",
- "lang.search_placeholder":"Search 200+ languages",
+ "lang.search_placeholder":"Search languages",
  "lang.step_title":"What's your native language?",
  "lang.step_sub":"BE Mastery will show its menus and instructions in your language. You'll still speak and practice English.",
  "lang.change":"Change",
@@ -1317,7 +1317,7 @@ async function setLang(code){
 }
 /* Languages with a complete i18n/<code>.json file. Add a code here the moment its
    translation file ships — everything else falls back to English with an honest notice. */
-const TRANSLATED=new Set(["es","fr","de","pt","it"]);
+const TRANSLATED=new Set(["es","fr","de","pt","it","zh","hi","ar","bn","ru","ur","id","ja","vi","ko"]);
 /* Broad, searchable language catalog. tier:1 = fully translated (i18n/<code>.json exists);
    tier:0 = selectable now, falls back to English until a translation file is added later —
    the user's choice is remembered either way, so it upgrades automatically with no re-pick. */
@@ -1436,7 +1436,9 @@ function langInitials(l){return (l.code.split("-")[0]).slice(0,2).toUpperCase()}
    onSelectFn is the name of a global function(code) to call when a row is tapped. */
 function langListHTML(query,onSelectFn){
   const q=(query||"").trim().toLowerCase();
-  const list=q?LANGS.filter(l=>l.en.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)):LANGS.slice(0,10);
+  /* only offer languages that are fully translated — untranslated ones are hidden */
+  const avail=LANGS.filter(l=>TRANSLATED.has(l.code));
+  const list=q?avail.filter(l=>l.en.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)):avail;
   if(!list.length)return `<p style="color:var(--mut);text-align:center;padding:16px 0">${esc(t("lang.none_found"))}</p>`;
   return list.map(l=>`<button class="lang-row" onclick="${onSelectFn}('${l.code}')">
     <span class="lang-ic" style="background:${langColor(l.code)}">${langInitials(l)}</span>
