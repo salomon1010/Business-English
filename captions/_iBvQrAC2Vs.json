@@ -1,0 +1,1655 @@
+{
+ "vid": "_iBvQrAC2Vs",
+ "source": "rowling.txt",
+ "lang": "en",
+ "cues": [
+  {
+   "t": 0,
+   "txt": "the first thing I would like to say is"
+  },
+  {
+   "t": 2,
+   "txt": "thank you not only his half had given me"
+  },
+  {
+   "t": 5,
+   "txt": "an extraordinary honor but the weeks of"
+  },
+  {
+   "t": 8,
+   "txt": "fear and nausea I have endured at the"
+  },
+  {
+   "t": 14,
+   "txt": "thought of giving this commencement"
+  },
+  {
+   "t": 15,
+   "txt": "address have made me lose weight a"
+  },
+  {
+   "t": 23,
+   "txt": "win-win situation now all I have to do"
+  },
+  {
+   "t": 28,
+   "txt": "is take deep breaths squint at the red"
+  },
+  {
+   "t": 30,
+   "txt": "banners and convince myself than act"
+  },
+  {
+   "t": 34,
+   "txt": "that I am at the world's largest"
+  },
+  {
+   "t": 35,
+   "txt": "Gryffindor reunion"
+  },
+  {
+   "t": 46,
+   "txt": "delivering a commencement address is a"
+  },
+  {
+   "t": 49,
+   "txt": "great responsibility or so I thought"
+  },
+  {
+   "t": 52,
+   "txt": "until I cast my mind back to my own"
+  },
+  {
+   "t": 55,
+   "txt": "graduation the commencement speaker that"
+  },
+  {
+   "t": 58,
+   "txt": "day was the distinguished British"
+  },
+  {
+   "t": 60,
+   "txt": "philosopher Baroness Mary Warnock"
+  },
+  {
+   "t": 64,
+   "txt": "reflecting on her speech has helped me"
+  },
+  {
+   "t": 66,
+   "txt": "enormous Lee in writing this one because"
+  },
+  {
+   "t": 69,
+   "txt": "it turns out that I can't remember a"
+  },
+  {
+   "t": 71,
+   "txt": "single word she said this liberating"
+  },
+  {
+   "t": 80,
+   "txt": "discovery enables me to proceed"
+  },
+  {
+   "t": 84,
+   "txt": "without any fear that I might"
+  },
+  {
+   "t": 87,
+   "txt": "inadvertently influence you to abandon"
+  },
+  {
+   "t": 91,
+   "txt": "promising careers in business the law or"
+  },
+  {
+   "t": 94,
+   "txt": "politics for the giddy delights of"
+  },
+  {
+   "t": 96,
+   "txt": "becoming a gay wizard"
+  },
+  {
+   "t": 108,
+   "txt": "you see if all you remember in years to"
+  },
+  {
+   "t": 112,
+   "txt": "come is the gay wizard joke I've come"
+  },
+  {
+   "t": 114,
+   "txt": "out ahead of Baroness Mary Warner"
+  },
+  {
+   "t": 121,
+   "txt": "achievable goals the first step to"
+  },
+  {
+   "t": 124,
+   "txt": "self-improvement"
+  },
+  {
+   "t": 127,
+   "txt": "actually I have wrapped my mind and"
+  },
+  {
+   "t": 131,
+   "txt": "heart for what I ought to say to you"
+  },
+  {
+   "t": 132,
+   "txt": "today I have asked myself what I wish I"
+  },
+  {
+   "t": 136,
+   "txt": "had known at my own graduation and what"
+  },
+  {
+   "t": 139,
+   "txt": "important lessons I have learnt in the"
+  },
+  {
+   "t": 141,
+   "txt": "21 years that have expired between that"
+  },
+  {
+   "t": 144,
+   "txt": "day and this I have come up with two"
+  },
+  {
+   "t": 147,
+   "txt": "answers on this wonderful day when we"
+  },
+  {
+   "t": 150,
+   "txt": "are gathered together to celebrate your"
+  },
+  {
+   "t": 152,
+   "txt": "academic success I have decided to talk"
+  },
+  {
+   "t": 155,
+   "txt": "to you about the benefits of failure and"
+  },
+  {
+   "t": 159,
+   "txt": "as you stand on the threshold of what is"
+  },
+  {
+   "t": 161,
+   "txt": "sometimes called real life I want to"
+  },
+  {
+   "t": 164,
+   "txt": "extol the crucial importance of"
+  },
+  {
+   "t": 166,
+   "txt": "imagination these may seem quixotic or"
+  },
+  {
+   "t": 170,
+   "txt": "paradoxical choices but bear with me"
+  },
+  {
+   "t": 174,
+   "txt": "looking back at the 21 year-old that I"
+  },
+  {
+   "t": 177,
+   "txt": "was at graduation is a slightly"
+  },
+  {
+   "t": 179,
+   "txt": "uncomfortable experience for the 42 year"
+  },
+  {
+   "t": 182,
+   "txt": "old that she has become half my lifetime"
+  },
+  {
+   "t": 185,
+   "txt": "ago I was striking an uneasy balance"
+  },
+  {
+   "t": 188,
+   "txt": "between the ambition I had for myself"
+  },
+  {
+   "t": 190,
+   "txt": "and what those closest off to me"
+  },
+  {
+   "t": 192,
+   "txt": "expected of me I was convinced that the"
+  },
+  {
+   "t": 196,
+   "txt": "only thing I wanted to do ever was write"
+  },
+  {
+   "t": 199,
+   "txt": "novels however my parents both of whom"
+  },
+  {
+   "t": 203,
+   "txt": "came from impoverished backgrounds and"
+  },
+  {
+   "t": 205,
+   "txt": "neither of whom had been to college took"
+  },
+  {
+   "t": 207,
+   "txt": "the view that my overactive imagination"
+  },
+  {
+   "t": 210,
+   "txt": "was an amusing personal quirk that would"
+  },
+  {
+   "t": 212,
+   "txt": "never pay a mortgage or secure a pension"
+  },
+  {
+   "t": 215,
+   "txt": "I know the irony strikes with the force"
+  },
+  {
+   "t": 218,
+   "txt": "of a cartoon anvil now so they hoped"
+  },
+  {
+   "t": 223,
+   "txt": "that I would take a vocational degree I"
+  },
+  {
+   "t": 225,
+   "txt": "wanted to study English literature a"
+  },
+  {
+   "t": 228,
+   "txt": "compromise was reached that in"
+  },
+  {
+   "t": 230,
+   "txt": "retrospect satisfied nobody and I went"
+  },
+  {
+   "t": 233,
+   "txt": "up to study Modern Languages hardly had"
+  },
+  {
+   "t": 236,
+   "txt": "my parents car round at the corner at"
+  },
+  {
+   "t": 238,
+   "txt": "the end of the road than I ditched"
+  },
+  {
+   "t": 241,
+   "txt": "and scuttled off down the classics"
+  },
+  {
+   "t": 243,
+   "txt": "corridor I cannot remember telling my"
+  },
+  {
+   "t": 247,
+   "txt": "parents that I was studying classics"
+  },
+  {
+   "t": 248,
+   "txt": "they might well have found out for the"
+  },
+  {
+   "t": 250,
+   "txt": "first time on graduation day of all the"
+  },
+  {
+   "t": 254,
+   "txt": "subjects on this planet I think they"
+  },
+  {
+   "t": 257,
+   "txt": "would have been hard put to name one"
+  },
+  {
+   "t": 259,
+   "txt": "less useful and Greek mythology when it"
+  },
+  {
+   "t": 262,
+   "txt": "came to securing the keys to an"
+  },
+  {
+   "t": 263,
+   "txt": "executive bathroom now I would like to"
+  },
+  {
+   "t": 268,
+   "txt": "make it clear in parentheses that I do"
+  },
+  {
+   "t": 270,
+   "txt": "not blame my parents for their point of"
+  },
+  {
+   "t": 272,
+   "txt": "view there is an expiry date on blaming"
+  },
+  {
+   "t": 275,
+   "txt": "your parents for steering you in the"
+  },
+  {
+   "t": 277,
+   "txt": "wrong direction"
+  },
+  {
+   "t": 288,
+   "txt": "the moment you are old enough to take"
+  },
+  {
+   "t": 290,
+   "txt": "the wheel responsibility lies with you"
+  },
+  {
+   "t": 293,
+   "txt": "what is more I cannot criticize my"
+  },
+  {
+   "t": 297,
+   "txt": "parents for hoping that I would never"
+  },
+  {
+   "t": 299,
+   "txt": "experience poverty they had been poor"
+  },
+  {
+   "t": 302,
+   "txt": "themselves and I have since been poor"
+  },
+  {
+   "t": 304,
+   "txt": "and I quite agree with them that it is"
+  },
+  {
+   "t": 307,
+   "txt": "not an ennobling experience poverty"
+  },
+  {
+   "t": 311,
+   "txt": "entails fear and stress and sometimes"
+  },
+  {
+   "t": 314,
+   "txt": "depression it means a thousand petty"
+  },
+  {
+   "t": 317,
+   "txt": "humiliations and hardships climbing out"
+  },
+  {
+   "t": 321,
+   "txt": "of poverty by your own efforts that is"
+  },
+  {
+   "t": 323,
+   "txt": "something on which to pride yourself but"
+  },
+  {
+   "t": 325,
+   "txt": "poverty itself is romanticized only by"
+  },
+  {
+   "t": 328,
+   "txt": "fools what I feared most for myself at"
+  },
+  {
+   "t": 333,
+   "txt": "your age was not poverty but failure at"
+  },
+  {
+   "t": 337,
+   "txt": "your age in spite of a distinct lack of"
+  },
+  {
+   "t": 340,
+   "txt": "motivation at University where I had"
+  },
+  {
+   "t": 342,
+   "txt": "spent far too long in the coffee bar"
+  },
+  {
+   "t": 344,
+   "txt": "writing stories and far too little time"
+  },
+  {
+   "t": 347,
+   "txt": "at lectures I had a knack for passing"
+  },
+  {
+   "t": 349,
+   "txt": "examinations and that for years had been"
+  },
+  {
+   "t": 353,
+   "txt": "the measure of success in my life and"
+  },
+  {
+   "t": 356,
+   "txt": "that of my peers now I am not done"
+  },
+  {
+   "t": 360,
+   "txt": "enough to suppose that because you are"
+  },
+  {
+   "t": 362,
+   "txt": "young gifted and well-educated you have"
+  },
+  {
+   "t": 365,
+   "txt": "never known heartbreak hardship or"
+  },
+  {
+   "t": 368,
+   "txt": "heartache talent and intelligence never"
+  },
+  {
+   "t": 372,
+   "txt": "yet inoculated anyone against the"
+  },
+  {
+   "t": 374,
+   "txt": "Caprice of the face and I do not for a"
+  },
+  {
+   "t": 377,
+   "txt": "moment suppose that everyone here has"
+  },
+  {
+   "t": 379,
+   "txt": "enjoyed an existence of unruffled"
+  },
+  {
+   "t": 381,
+   "txt": "privilege and contentment however the"
+  },
+  {
+   "t": 386,
+   "txt": "fact that you are graduating from"
+  },
+  {
+   "t": 387,
+   "txt": "Harvard suggests that you are not very"
+  },
+  {
+   "t": 390,
+   "txt": "well acquainted with failure"
+  },
+  {
+   "t": 393,
+   "txt": "you might be driven by a fear of failure"
+  },
+  {
+   "t": 396,
+   "txt": "quite as much as a desire for success"
+  },
+  {
+   "t": 399,
+   "txt": "indeed your conception of failure might"
+  },
+  {
+   "t": 403,
+   "txt": "not be too far removed from the average"
+  },
+  {
+   "t": 405,
+   "txt": "person's idea of success so high"
+  },
+  {
+   "t": 408,
+   "txt": "have you already flown ultimately we all"
+  },
+  {
+   "t": 414,
+   "txt": "have to decide for ourselves what"
+  },
+  {
+   "t": 415,
+   "txt": "constitutes failure but the world is"
+  },
+  {
+   "t": 418,
+   "txt": "quite eager to give you a set of"
+  },
+  {
+   "t": 420,
+   "txt": "criteria if you let it so I think it"
+  },
+  {
+   "t": 423,
+   "txt": "fair to say that by any conventional"
+  },
+  {
+   "t": 426,
+   "txt": "measure a mere seven years after my"
+  },
+  {
+   "t": 429,
+   "txt": "graduation day I had failed on an epic"
+  },
+  {
+   "t": 432,
+   "txt": "scale an exceptionally short lived"
+  },
+  {
+   "t": 436,
+   "txt": "marriage had imploded and I was jobless"
+  },
+  {
+   "t": 439,
+   "txt": "a lone parent and as poor as it is"
+  },
+  {
+   "t": 442,
+   "txt": "possible to be in modern Britain without"
+  },
+  {
+   "t": 444,
+   "txt": "being homeless the fears that my parents"
+  },
+  {
+   "t": 448,
+   "txt": "had had for me and that I had had for"
+  },
+  {
+   "t": 450,
+   "txt": "myself had both come to pass and by"
+  },
+  {
+   "t": 454,
+   "txt": "every usual standard I was the biggest"
+  },
+  {
+   "t": 457,
+   "txt": "failure I knew now I'm not going to"
+  },
+  {
+   "t": 460,
+   "txt": "stand here and tell you that failure is"
+  },
+  {
+   "t": 462,
+   "txt": "fun that period of my life was a dark"
+  },
+  {
+   "t": 465,
+   "txt": "one and I had no idea that there was"
+  },
+  {
+   "t": 468,
+   "txt": "going to be what the press has since"
+  },
+  {
+   "t": 470,
+   "txt": "represented as a kind of fairytale"
+  },
+  {
+   "t": 473,
+   "txt": "resolution I had no idea then how far"
+  },
+  {
+   "t": 477,
+   "txt": "the tunnel extended and for a long time"
+  },
+  {
+   "t": 479,
+   "txt": "any light at the end of it was a hope"
+  },
+  {
+   "t": 481,
+   "txt": "rather than a reality so why do I talk"
+  },
+  {
+   "t": 485,
+   "txt": "about the benefits of failure simply"
+  },
+  {
+   "t": 490,
+   "txt": "because failure meant a stripping away"
+  },
+  {
+   "t": 492,
+   "txt": "of the inessential I stopped pretending"
+  },
+  {
+   "t": 495,
+   "txt": "to myself that I was anything other than"
+  },
+  {
+   "t": 498,
+   "txt": "what I was and began to direct all my"
+  },
+  {
+   "t": 501,
+   "txt": "energy into finishing the only work that"
+  },
+  {
+   "t": 504,
+   "txt": "mattered to me had I really succeeded at"
+  },
+  {
+   "t": 507,
+   "txt": "anything else I might never have found"
+  },
+  {
+   "t": 509,
+   "txt": "the determination to succeed in the one"
+  },
+  {
+   "t": 511,
+   "txt": "arena where I believed I truly belonged"
+  },
+  {
+   "t": 513,
+   "txt": "I was set free because my greatest fear"
+  },
+  {
+   "t": 518,
+   "txt": "had been realized and I was still alive"
+  },
+  {
+   "t": 520,
+   "txt": "and I still had a daughter whom I adored"
+  },
+  {
+   "t": 523,
+   "txt": "and I had an old typewriter and a big"
+  },
+  {
+   "t": 526,
+   "txt": "idea"
+  },
+  {
+   "t": 527,
+   "txt": "and so rock-bottom became the solid"
+  },
+  {
+   "t": 530,
+   "txt": "foundation on which I rebuilt my life"
+  },
+  {
+   "t": 533,
+   "txt": "you might never fail on the scale I did"
+  },
+  {
+   "t": 536,
+   "txt": "but some failure in life is inevitable"
+  },
+  {
+   "t": 540,
+   "txt": "it is impossible to live without failing"
+  },
+  {
+   "t": 544,
+   "txt": "at something unless you live so"
+  },
+  {
+   "t": 546,
+   "txt": "cautiously that you might as well not"
+  },
+  {
+   "t": 548,
+   "txt": "have lived at all in which case you fail"
+  },
+  {
+   "t": 552,
+   "txt": "by default failure gave me an inner"
+  },
+  {
+   "t": 556,
+   "txt": "security that I had never attained by"
+  },
+  {
+   "t": 557,
+   "txt": "passing examinations failure taught me"
+  },
+  {
+   "t": 560,
+   "txt": "things about myself that I could have"
+  },
+  {
+   "t": 562,
+   "txt": "learned no other way I discovered that I"
+  },
+  {
+   "t": 565,
+   "txt": "had a strong will and more discipline"
+  },
+  {
+   "t": 567,
+   "txt": "than I had suspected I also found out"
+  },
+  {
+   "t": 570,
+   "txt": "that I had friends whose value was truly"
+  },
+  {
+   "t": 573,
+   "txt": "above the price of rubies the knowledge"
+  },
+  {
+   "t": 577,
+   "txt": "that you have emerged wiser and stronger"
+  },
+  {
+   "t": 579,
+   "txt": "from setbacks means that you are ever"
+  },
+  {
+   "t": 581,
+   "txt": "after secure in your ability to survive"
+  },
+  {
+   "t": 585,
+   "txt": "you will never truly know yourself or"
+  },
+  {
+   "t": 588,
+   "txt": "the strength of your relationships until"
+  },
+  {
+   "t": 590,
+   "txt": "both have been tested by adversity such"
+  },
+  {
+   "t": 593,
+   "txt": "knowledge is a true gift for all that it"
+  },
+  {
+   "t": 597,
+   "txt": "is painfully one and it has been worth"
+  },
+  {
+   "t": 600,
+   "txt": "more than any qualification I ever"
+  },
+  {
+   "t": 602,
+   "txt": "earned so given a time Turner I would"
+  },
+  {
+   "t": 606,
+   "txt": "tell my twenty-one year old self that"
+  },
+  {
+   "t": 608,
+   "txt": "personal happiness lies in knowing that"
+  },
+  {
+   "t": 610,
+   "txt": "life is not a checklist of acquisition"
+  },
+  {
+   "t": 613,
+   "txt": "or achievement your qualifications your"
+  },
+  {
+   "t": 616,
+   "txt": "CV are not your life though you will"
+  },
+  {
+   "t": 619,
+   "txt": "meet many people of my age and older who"
+  },
+  {
+   "t": 621,
+   "txt": "confuse the two life is difficult and"
+  },
+  {
+   "t": 625,
+   "txt": "complicated and beyond anyone's total"
+  },
+  {
+   "t": 628,
+   "txt": "control and the humility to know that"
+  },
+  {
+   "t": 630,
+   "txt": "will enable you to survive its"
+  },
+  {
+   "t": 633,
+   "txt": "vicissitudes now you might think that I"
+  },
+  {
+   "t": 637,
+   "txt": "chose my second theme the importance of"
+  },
+  {
+   "t": 639,
+   "txt": "imagination because of the part it"
+  },
+  {
+   "t": 641,
+   "txt": "played in rebuilding my life but that is"
+  },
+  {
+   "t": 643,
+   "txt": "not wholly so though I personally will"
+  },
+  {
+   "t": 646,
+   "txt": "defend the value of bedtime stories to"
+  },
+  {
+   "t": 649,
+   "txt": "my last gasp I have learned to value"
+  },
+  {
+   "t": 652,
+   "txt": "imagination in a much broader sense"
+  },
+  {
+   "t": 655,
+   "txt": "imagination is not only the uniquely"
+  },
+  {
+   "t": 658,
+   "txt": "human capacity to invade"
+  },
+  {
+   "t": 660,
+   "txt": "that which is not and therefore the"
+  },
+  {
+   "t": 663,
+   "txt": "fount of all invention and innovation in"
+  },
+  {
+   "t": 666,
+   "txt": "its arguably most transformative and"
+  },
+  {
+   "t": 669,
+   "txt": "revelatory capacity it is the power that"
+  },
+  {
+   "t": 672,
+   "txt": "enables us to empathize with humans"
+  },
+  {
+   "t": 674,
+   "txt": "whose experiences we have never shared"
+  },
+  {
+   "t": 678,
+   "txt": "one of the greatest formative"
+  },
+  {
+   "t": 680,
+   "txt": "experiences of my life preceded Harry"
+  },
+  {
+   "t": 682,
+   "txt": "Potter though it informed much of what I"
+  },
+  {
+   "t": 684,
+   "txt": "subsequently wrote in those books this"
+  },
+  {
+   "t": 687,
+   "txt": "revelation came in the form of one of my"
+  },
+  {
+   "t": 689,
+   "txt": "earliest day jobs though I was sloping"
+  },
+  {
+   "t": 693,
+   "txt": "off to write stories during my lunch"
+  },
+  {
+   "t": 694,
+   "txt": "hours I paid the rent in my early"
+  },
+  {
+   "t": 697,
+   "txt": "twenties by working at the African"
+  },
+  {
+   "t": 699,
+   "txt": "research department of Amnesty"
+  },
+  {
+   "t": 701,
+   "txt": "International's headquarters in London"
+  },
+  {
+   "t": 705,
+   "txt": "there in my little office"
+  },
+  {
+   "t": 707,
+   "txt": "I read hastily scribbled letters"
+  },
+  {
+   "t": 709,
+   "txt": "smuggled out of totalitarian regimes by"
+  },
+  {
+   "t": 713,
+   "txt": "men and women who were risking"
+  },
+  {
+   "t": 714,
+   "txt": "imprisonment to inform the outside world"
+  },
+  {
+   "t": 716,
+   "txt": "of what was happening to them I saw"
+  },
+  {
+   "t": 719,
+   "txt": "photographs of those who had disappeared"
+  },
+  {
+   "t": 721,
+   "txt": "without trace sent to amnesty by their"
+  },
+  {
+   "t": 724,
+   "txt": "desperate families and friends I read"
+  },
+  {
+   "t": 726,
+   "txt": "the testimony of torture victims and saw"
+  },
+  {
+   "t": 729,
+   "txt": "pictures of their injuries"
+  },
+  {
+   "t": 731,
+   "txt": "I opened handwritten eyewitness accounts"
+  },
+  {
+   "t": 735,
+   "txt": "of summary trials and executions of"
+  },
+  {
+   "t": 737,
+   "txt": "kidnappings and rapes many of my"
+  },
+  {
+   "t": 742,
+   "txt": "co-workers were ex political prisoners"
+  },
+  {
+   "t": 744,
+   "txt": "people who had been displaced from their"
+  },
+  {
+   "t": 746,
+   "txt": "homes or fled into exile because they"
+  },
+  {
+   "t": 749,
+   "txt": "had the temerity to speak against their"
+  },
+  {
+   "t": 751,
+   "txt": "governments visitors to our offices"
+  },
+  {
+   "t": 754,
+   "txt": "included those who who had come to give"
+  },
+  {
+   "t": 756,
+   "txt": "information or to try and find out what"
+  },
+  {
+   "t": 759,
+   "txt": "had happened to those who had they had"
+  },
+  {
+   "t": 760,
+   "txt": "left behind I shall never forget the"
+  },
+  {
+   "t": 764,
+   "txt": "African torture victim a young man no"
+  },
+  {
+   "t": 767,
+   "txt": "older than I was at the time who had"
+  },
+  {
+   "t": 770,
+   "txt": "become mentally ill after all he had"
+  },
+  {
+   "t": 772,
+   "txt": "endured in his homeland he trembled"
+  },
+  {
+   "t": 776,
+   "txt": "uncontrollably as he spoke into a video"
+  },
+  {
+   "t": 778,
+   "txt": "camera about the brutality inflicted"
+  },
+  {
+   "t": 780,
+   "txt": "upon him he was a foot taller than I was"
+  },
+  {
+   "t": 784,
+   "txt": "and seemed as fragile as a child I was"
+  },
+  {
+   "t": 788,
+   "txt": "given the job of in supporting him back"
+  },
+  {
+   "t": 790,
+   "txt": "to the underground station afterwards"
+  },
+  {
+   "t": 792,
+   "txt": "and this man whose life had been"
+  },
+  {
+   "t": 794,
+   "txt": "shattered by cruelty took my hand with"
+  },
+  {
+   "t": 797,
+   "txt": "exquisite courtesy and wished me future"
+  },
+  {
+   "t": 800,
+   "txt": "happiness and as long as I live I shall"
+  },
+  {
+   "t": 804,
+   "txt": "remember walking along an empty corridor"
+  },
+  {
+   "t": 807,
+   "txt": "and suddenly hearing from behind a"
+  },
+  {
+   "t": 809,
+   "txt": "closed door a scream of pain and horror"
+  },
+  {
+   "t": 812,
+   "txt": "such as I have never heard since the"
+  },
+  {
+   "t": 815,
+   "txt": "door opened and the researcher poked out"
+  },
+  {
+   "t": 818,
+   "txt": "her out her head and told me to run and"
+  },
+  {
+   "t": 821,
+   "txt": "make a hot drink for the young man"
+  },
+  {
+   "t": 823,
+   "txt": "sitting with her she had just had to"
+  },
+  {
+   "t": 827,
+   "txt": "give him the news that in retaliation"
+  },
+  {
+   "t": 829,
+   "txt": "for his outspokenness against his"
+  },
+  {
+   "t": 831,
+   "txt": "country's regime his mother had been"
+  },
+  {
+   "t": 835,
+   "txt": "seized and executed every day of my"
+  },
+  {
+   "t": 840,
+   "txt": "working week in my early twenties I was"
+  },
+  {
+   "t": 842,
+   "txt": "reminded how incredibly fortunate I was"
+  },
+  {
+   "t": 845,
+   "txt": "to live in a country with a"
+  },
+  {
+   "t": 847,
+   "txt": "democratically elected government where"
+  },
+  {
+   "t": 850,
+   "txt": "legal representation and a public trial"
+  },
+  {
+   "t": 852,
+   "txt": "were the rights of everyone everyday I"
+  },
+  {
+   "t": 856,
+   "txt": "saw more evidence about the evils"
+  },
+  {
+   "t": 859,
+   "txt": "humankind would inflict on their fellow"
+  },
+  {
+   "t": 861,
+   "txt": "humans to gain or maintain power I began"
+  },
+  {
+   "t": 866,
+   "txt": "to have nightmares literal nightmares"
+  },
+  {
+   "t": 868,
+   "txt": "about some of the things I saw heard and"
+  },
+  {
+   "t": 871,
+   "txt": "read and yet I also learned more about"
+  },
+  {
+   "t": 877,
+   "txt": "human goodness at Amnesty International"
+  },
+  {
+   "t": 880,
+   "txt": "than I had ever known before"
+  },
+  {
+   "t": 884,
+   "txt": "amnesty mobilizes thousands of people"
+  },
+  {
+   "t": 886,
+   "txt": "who have never been tortured or"
+  },
+  {
+   "t": 888,
+   "txt": "imprisoned for their beliefs to act on"
+  },
+  {
+   "t": 890,
+   "txt": "behalf of those who have the power of"
+  },
+  {
+   "t": 894,
+   "txt": "human empathy leading to collective"
+  },
+  {
+   "t": 896,
+   "txt": "action saves lives and frees prisoners"
+  },
+  {
+   "t": 900,
+   "txt": "ordinary people whose personal"
+  },
+  {
+   "t": 903,
+   "txt": "well-being and security are assured join"
+  },
+  {
+   "t": 906,
+   "txt": "together in huge numbers to save people"
+  },
+  {
+   "t": 909,
+   "txt": "they do not know and will never meet my"
+  },
+  {
+   "t": 912,
+   "txt": "small participation in that process was"
+  },
+  {
+   "t": 915,
+   "txt": "one of the most humbling and inspiring"
+  },
+  {
+   "t": 916,
+   "txt": "experiences of my life unlike any other"
+  },
+  {
+   "t": 921,
+   "txt": "creature on this planet human beings can"
+  },
+  {
+   "t": 925,
+   "txt": "and understand without having"
+  },
+  {
+   "t": 927,
+   "txt": "experienced they can think themselves"
+  },
+  {
+   "t": 929,
+   "txt": "into other people's places of course"
+  },
+  {
+   "t": 934,
+   "txt": "this is a power like my brand of"
+  },
+  {
+   "t": 935,
+   "txt": "fictional magic that is morally neutral"
+  },
+  {
+   "t": 938,
+   "txt": "one might use such an ability to"
+  },
+  {
+   "t": 940,
+   "txt": "manipulate or control just as much as to"
+  },
+  {
+   "t": 944,
+   "txt": "understand or sympathise and many prefer"
+  },
+  {
+   "t": 948,
+   "txt": "not to exercise their imaginations at"
+  },
+  {
+   "t": 950,
+   "txt": "all they choose to remain comfortably"
+  },
+  {
+   "t": 953,
+   "txt": "within the bounds of their own"
+  },
+  {
+   "t": 954,
+   "txt": "experience never troubling to wonder how"
+  },
+  {
+   "t": 957,
+   "txt": "it would feel to have been born other"
+  },
+  {
+   "t": 959,
+   "txt": "than they are they can refuse to hear"
+  },
+  {
+   "t": 962,
+   "txt": "screams or peer inside cages they can"
+  },
+  {
+   "t": 965,
+   "txt": "close their minds and hearts to any"
+  },
+  {
+   "t": 967,
+   "txt": "suffering that does not touch them"
+  },
+  {
+   "t": 969,
+   "txt": "personally they can refuse to know I"
+  },
+  {
+   "t": 973,
+   "txt": "might be tempted to envy people who can"
+  },
+  {
+   "t": 976,
+   "txt": "live that way except that I do not think"
+  },
+  {
+   "t": 979,
+   "txt": "they have any fewer nightmares than I do"
+  },
+  {
+   "t": 981,
+   "txt": "choosing to live in narrow spaces leads"
+  },
+  {
+   "t": 984,
+   "txt": "to a form of mental Agra phobia and that"
+  },
+  {
+   "t": 987,
+   "txt": "brings its own terrors"
+  },
+  {
+   "t": 989,
+   "txt": "I think the willfully unimaginative see"
+  },
+  {
+   "t": 992,
+   "txt": "more monsters they are often more afraid"
+  },
+  {
+   "t": 996,
+   "txt": "what is more those who choose not to"
+  },
+  {
+   "t": 1000,
+   "txt": "empathize enable real monsters for"
+  },
+  {
+   "t": 1003,
+   "txt": "without ever committing an act of"
+  },
+  {
+   "t": 1005,
+   "txt": "outright evil ourselves we collude with"
+  },
+  {
+   "t": 1007,
+   "txt": "it through our own apathy one of the"
+  },
+  {
+   "t": 1012,
+   "txt": "many things I learned at the end of that"
+  },
+  {
+   "t": 1013,
+   "txt": "classics corridor down which I ventured"
+  },
+  {
+   "t": 1015,
+   "txt": "at the age of 18 in search of something"
+  },
+  {
+   "t": 1018,
+   "txt": "I could not then define was this written"
+  },
+  {
+   "t": 1020,
+   "txt": "by the Greek author Plutarch what we"
+  },
+  {
+   "t": 1024,
+   "txt": "achieve inwardly will change outer"
+  },
+  {
+   "t": 1026,
+   "txt": "reality that is an astonishing statement"
+  },
+  {
+   "t": 1030,
+   "txt": "and get proven a thousand times every"
+  },
+  {
+   "t": 1033,
+   "txt": "day of our lives"
+  },
+  {
+   "t": 1034,
+   "txt": "it expresses in part our inescapable"
+  },
+  {
+   "t": 1037,
+   "txt": "connection with the outside world the"
+  },
+  {
+   "t": 1039,
+   "txt": "fact that we touch other people's lives"
+  },
+  {
+   "t": 1041,
+   "txt": "simply by existing but how much more are"
+  },
+  {
+   "t": 1045,
+   "txt": "you Harvard graduates of 2008 lightly to"
+  },
+  {
+   "t": 1049,
+   "txt": "touch other people's lives your"
+  },
+  {
+   "t": 1052,
+   "txt": "intelligence"
+  },
+  {
+   "t": 1054,
+   "txt": "your capacity for hard work the"
+  },
+  {
+   "t": 1056,
+   "txt": "education you have earned and received"
+  },
+  {
+   "t": 1058,
+   "txt": "give you unique unique status and unique"
+  },
+  {
+   "t": 1062,
+   "txt": "responsibilities even your nationality"
+  },
+  {
+   "t": 1065,
+   "txt": "sets you apart the great majority of you"
+  },
+  {
+   "t": 1069,
+   "txt": "belong to the world's only remaining"
+  },
+  {
+   "t": 1071,
+   "txt": "superpower the way you vote the way you"
+  },
+  {
+   "t": 1074,
+   "txt": "live the way you protest the pressure"
+  },
+  {
+   "t": 1078,
+   "txt": "you bring to bear on your government has"
+  },
+  {
+   "t": 1080,
+   "txt": "an impact way beyond your borders that"
+  },
+  {
+   "t": 1083,
+   "txt": "is your privilege and your burden if you"
+  },
+  {
+   "t": 1087,
+   "txt": "choose to use your status and influence"
+  },
+  {
+   "t": 1089,
+   "txt": "to raise your voice on behalf of those"
+  },
+  {
+   "t": 1091,
+   "txt": "who have no voice if you choose to"
+  },
+  {
+   "t": 1094,
+   "txt": "identify not only with the powerful but"
+  },
+  {
+   "t": 1096,
+   "txt": "with the powerless if you retain the"
+  },
+  {
+   "t": 1099,
+   "txt": "ability to imagine yourself into the"
+  },
+  {
+   "t": 1101,
+   "txt": "lives of those who do not have your"
+  },
+  {
+   "t": 1103,
+   "txt": "advantages then it will not only be your"
+  },
+  {
+   "t": 1105,
+   "txt": "proud families who celebrate your"
+  },
+  {
+   "t": 1107,
+   "txt": "existence but thousands and millions of"
+  },
+  {
+   "t": 1110,
+   "txt": "people whose reality you have helped"
+  },
+  {
+   "t": 1112,
+   "txt": "change we do not need magic to transform"
+  },
+  {
+   "t": 1116,
+   "txt": "our world we carry all the power we need"
+  },
+  {
+   "t": 1119,
+   "txt": "inside ourselves already we have the"
+  },
+  {
+   "t": 1121,
+   "txt": "power to imagine better I am nearly"
+  },
+  {
+   "t": 1125,
+   "txt": "finished I have one last hope for you"
+  },
+  {
+   "t": 1128,
+   "txt": "which is something that I already had at"
+  },
+  {
+   "t": 1131,
+   "txt": "21 the friends with whom i sat on"
+  },
+  {
+   "t": 1134,
+   "txt": "graduation day have been my friends for"
+  },
+  {
+   "t": 1136,
+   "txt": "life they are my children's godparents"
+  },
+  {
+   "t": 1139,
+   "txt": "the people to whom I've been able to"
+  },
+  {
+   "t": 1141,
+   "txt": "turn in times of real trouble people who"
+  },
+  {
+   "t": 1144,
+   "txt": "have been kind enough not to sue me when"
+  },
+  {
+   "t": 1146,
+   "txt": "I took their names for Death Eaters"
+  },
+  {
+   "t": 1156,
+   "txt": "at our graduation we were bound by"
+  },
+  {
+   "t": 1160,
+   "txt": "enormous affection by our shared"
+  },
+  {
+   "t": 1162,
+   "txt": "experience of a time that could never"
+  },
+  {
+   "t": 1164,
+   "txt": "come again"
+  },
+  {
+   "t": 1164,
+   "txt": "and of course by the knowledge that we"
+  },
+  {
+   "t": 1167,
+   "txt": "held certain photographic evidence that"
+  },
+  {
+   "t": 1170,
+   "txt": "would be exceptionally valuable if any"
+  },
+  {
+   "t": 1174,
+   "txt": "of us ran for prime minister"
+  },
+  {
+   "t": 1178,
+   "txt": "so today I wish you nothing better and"
+  },
+  {
+   "t": 1182,
+   "txt": "similar friendships and tomorrow I hope"
+  },
+  {
+   "t": 1186,
+   "txt": "that even if you remember not a single"
+  },
+  {
+   "t": 1188,
+   "txt": "word of mine"
+  },
+  {
+   "t": 1189,
+   "txt": "you remember those of Seneca another of"
+  },
+  {
+   "t": 1192,
+   "txt": "those old Romans I met when I fled down"
+  },
+  {
+   "t": 1195,
+   "txt": "the classics corridor in retreat from"
+  },
+  {
+   "t": 1197,
+   "txt": "from career ladders in search of ancient"
+  },
+  {
+   "t": 1201,
+   "txt": "wisdom as is a tale so is life not how"
+  },
+  {
+   "t": 1206,
+   "txt": "long it is but how good it is is what"
+  },
+  {
+   "t": 1210,
+   "txt": "matters I wish you all very good lives"
+  },
+  {
+   "t": 1213,
+   "txt": "thank you very much"
+  }
+ ]
+}
