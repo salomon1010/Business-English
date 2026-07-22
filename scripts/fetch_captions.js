@@ -33,6 +33,26 @@ function toSec(ts) {
 }
 
 const cues = [];
+
+// Format B: a YouTube "Show transcript" paste — lines like
+// "6:20" or "6:206 minutes, 20 secondsBut then our visions…" (+ "Chapter N:" headers).
+// Detected when there are no VTT/SRT "-->" cue-timing lines.
+if (!/-->/.test(raw)) {
+  for (const line of raw.replace(/\r/g, '').split('\n')) {
+    if (/^\s*Chapter\s/i.test(line)) continue;
+    const m = line.match(/^\s*(\d+):(\d{2})(.*)$/);
+    if (!m) continue;
+    const t = (+m[1]) * 60 + (+m[2]);
+    const txt = m[3]
+      .replace(/^\d+\s+(?:minute|second)s?(?:,\s*\d+\s+seconds?)?/, '') // drop redundant duration phrase
+      .replace(/\s+/g, ' ').trim();
+    if (txt) cues.push({ t, txt });
+  }
+  writeOut(cues);
+  return;
+}
+
+// Format A: WEBVTT / SRT
 const blocks = raw.replace(/\r/g, '').split(/\n\n+/);
 for (const b of blocks) {
   const line = b.split('\n').find(l => l.includes('-->'));
@@ -48,13 +68,16 @@ for (const b of blocks) {
     .replace(/\s+/g, ' ').trim();
   if (txt) cues.push({ t: Math.round(t * 10) / 10, txt });
 }
-// de-duplicate consecutive identical lines (auto-subs repeat a lot)
-const clean = [];
-for (const c of cues) if (!clean.length || clean[clean.length - 1].txt !== c.txt) clean.push(c);
+writeOut(cues);
 
-const outDir = path.join(__dirname, '..', 'captions');
-fs.mkdirSync(outDir, { recursive: true });
-const out = { vid, source: path.basename(subPath), lang: 'en', cues: clean };
-fs.writeFileSync(path.join(outDir, vid + '.json'), JSON.stringify(out, null, 1) + '\n');
-console.log(`Wrote captions/${vid}.json — ${clean.length} cues (${subPath}).`);
-console.log('Then set cap:true on this video in SHADOW_STARTERS.');
+function writeOut(list) {
+  // de-duplicate consecutive identical lines (auto-subs repeat a lot)
+  const clean = [];
+  for (const c of list) if (!clean.length || clean[clean.length - 1].txt !== c.txt) clean.push(c);
+  const outDir = path.join(__dirname, '..', 'captions');
+  fs.mkdirSync(outDir, { recursive: true });
+  const out = { vid, source: path.basename(subPath), lang: 'en', cues: clean };
+  fs.writeFileSync(path.join(outDir, vid + '.json'), JSON.stringify(out, null, 1) + '\n');
+  console.log(`Wrote captions/${vid}.json — ${clean.length} cues (${subPath}).`);
+  console.log('Then set cap:true on this video in SHADOW_STARTERS.');
+}
