@@ -2175,7 +2175,10 @@ const SHADOW_STARTERS=[
   txt:"HOW do you exPLAIN when things don't GO as we asSUME? / or BETter, HOW do you exPLAIN when Others are Able to aCHIEVE things that SEEM to deFY ALL of the assUMPtions? / for exAMple: WHY is Apple so INnovative? / YEAR after YEAR, after YEAR, they're MORE INnovative than ALL their compeTItion."},
  {vid:"ji5_MqicxSo",name:"Randy Pausch — The Last Lecture",why:"Natural professional storytelling with great stress patterns.",
   start:20,end:55,
-  txt:"it's WONderful to be HERE. / WHAT Indira DIDn't TELL you is that this LECture Series Used to be CALLED the LAST LECture. / if you had one LAST LECture to GIVE beFORE you DIED, / WHAT would it BE?"}
+  txt:"it's WONderful to be HERE. / WHAT Indira DIDn't TELL you is that this LECture Series Used to be CALLED the LAST LECture. / if you had one LAST LECture to GIVE beFORE you DIED, / WHAT would it BE?"},
+ {vid:"iRr9v_shgbY",name:"Emma Watson — HeForShe (UN Women)",why:"Slow, deliberate enunciation — clean professional English, great for beginners.",
+  start:18,end:48,
+  txt:"toDAY we are LAUNCHing a camPAIGN called HeForShe. / I am REACHing OUT to you beCAUSE we NEED your HELP. / we WANT to END GENder inequALity, / and to do THIS, we NEED EVeryone to be inVOLVED."}
 ];
 function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
 function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
@@ -2207,7 +2210,7 @@ function rShadow(el){
         <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
         <b style="font-size:14px;line-height:1.35">${s.name}</b>
         ${s.txt?`<span class="chip p3" style="align-self:flex-start;font-size:11px">${t("sh.transcript_included")}</span>`:""}
-        <p style="font-size:12.5px;color:var(--mut);flex:1">${t("starter."+i+".why")}</p>
+        <p style="font-size:12.5px;color:var(--mut);flex:1">${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
         <div style="display:flex;gap:8px">
           <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
           <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}">${t("sh.copy_btn")}</button>
