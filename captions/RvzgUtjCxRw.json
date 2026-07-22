@@ -1,0 +1,939 @@
+{
+ "vid": "RvzgUtjCxRw",
+ "source": "keke.txt",
+ "lang": "en",
+ "cues": [
+  {
+   "t": 5,
+   "txt": "What’s up, everybody?"
+  },
+  {
+   "t": 8,
+   "txt": "I'm Keke Palmer."
+  },
+  {
+   "t": 10,
+   "txt": "You might know me from the spelling bee movie"
+  },
+  {
+   "t": 12,
+   "txt": "\"Akeelah and the Bee,\""
+  },
+  {
+   "t": 14,
+   "txt": "my Nickelodeon TV show \"True Jackson VP.\""
+  },
+  {
+   "t": 19,
+   "txt": "Jordan Peele's \"Nope.\""
+  },
+  {
+   "t": 22,
+   "txt": "Maybe my viral meme where I was “Sorry to that man.”"
+  },
+  {
+   "t": 28,
+   "txt": "Or more recently, my new TV show, \"The Burbs,\""
+  },
+  {
+   "t": 32,
+   "txt": "streaming now on Peacock."
+  },
+  {
+   "t": 36,
+   "txt": "I've been working in front of the camera for over 20 years now."
+  },
+  {
+   "t": 40,
+   "txt": "But today, I'm going to share my story with you."
+  },
+  {
+   "t": 44,
+   "txt": "Not as a survivor soliloquy, but to expose a pattern,"
+  },
+  {
+   "t": 49,
+   "txt": "because survival can be so effective,"
+  },
+  {
+   "t": 51,
+   "txt": "you don't realize when it's no longer serving you."
+  },
+  {
+   "t": 55,
+   "txt": "I grew up in Robbins, Illinois."
+  },
+  {
+   "t": 58,
+   "txt": "And Robbins, by definition, is a food desert."
+  },
+  {
+   "t": 61,
+   "txt": "The liquor store is often where I picked up my lunches before school --"
+  },
+  {
+   "t": 65,
+   "txt": "Flamin’ Hot Cheetos and a pop --"
+  },
+  {
+   "t": 67,
+   "txt": "a meal the teachers over at my Catholic school often criticized."
+  },
+  {
+   "t": 71,
+   "txt": "Even still, my family had love."
+  },
+  {
+   "t": 75,
+   "txt": "We was cash-poor but rich in culture and pride."
+  },
+  {
+   "t": 79,
+   "txt": "My mother was a substitute teacher for disabled children."
+  },
+  {
+   "t": 82,
+   "txt": "She sang for churches and did backup singing for extra cash."
+  },
+  {
+   "t": 86,
+   "txt": "My father worked in the factory at a polyurethane company."
+  },
+  {
+   "t": 89,
+   "txt": "He had Carhartt before it was fashionable, OK?"
+  },
+  {
+   "t": 94,
+   "txt": "But they fell in love doing speech interp and theater --"
+  },
+  {
+   "t": 98,
+   "txt": "things circumstance slowly made no space for."
+  },
+  {
+   "t": 101,
+   "txt": "The love was there."
+  },
+  {
+   "t": 103,
+   "txt": "The joy was there."
+  },
+  {
+   "t": 105,
+   "txt": "But even with both of my parents working multiple jobs,"
+  },
+  {
+   "t": 107,
+   "txt": "it wasn't enough."
+  },
+  {
+   "t": 109,
+   "txt": "When I was eight, we moved somewhere a little nicer"
+  },
+  {
+   "t": 111,
+   "txt": "and qualified for Section 8 -- which is a subsidized housing program."
+  },
+  {
+   "t": 117,
+   "txt": "I remember being told not to mention my father when the assessor came by,"
+  },
+  {
+   "t": 121,
+   "txt": "because it would reduce the support we needed."
+  },
+  {
+   "t": 125,
+   "txt": "I didn't understand the system, but I understood the stakes."
+  },
+  {
+   "t": 129,
+   "txt": "Stability was fragile,"
+  },
+  {
+   "t": 131,
+   "txt": "survival was urgent --"
+  },
+  {
+   "t": 132,
+   "txt": "and in that urgency,"
+  },
+  {
+   "t": 133,
+   "txt": "I learned that protecting the whole"
+  },
+  {
+   "t": 135,
+   "txt": "sometimes meant shrinking parts of ourselves."
+  },
+  {
+   "t": 139,
+   "txt": "Growing up in a place where access is limited,"
+  },
+  {
+   "t": 142,
+   "txt": "hamming it up became my pastime."
+  },
+  {
+   "t": 144,
+   "txt": "A dream passed down."
+  },
+  {
+   "t": 148,
+   "txt": "Then suddenly,"
+  },
+  {
+   "t": 149,
+   "txt": "performing was a gift that granted my family more access."
+  },
+  {
+   "t": 154,
+   "txt": "See, only a child could fit through the gatekeeper’s gates --"
+  },
+  {
+   "t": 157,
+   "txt": "especially a child like me that was so eager to please."
+  },
+  {
+   "t": 160,
+   "txt": "So when I started auditioning and booking,"
+  },
+  {
+   "t": 163,
+   "txt": "it became clear I was the one who could do it."
+  },
+  {
+   "t": 166,
+   "txt": "I could do something I enjoyed and lift some weight off my parents."
+  },
+  {
+   "t": 172,
+   "txt": "So we did it."
+  },
+  {
+   "t": 173,
+   "txt": "We moved to LA for my career."
+  },
+  {
+   "t": 177,
+   "txt": "We drove four days and three nights from Illinois to California."
+  },
+  {
+   "t": 181,
+   "txt": "My dad withdrew his pension,"
+  },
+  {
+   "t": 183,
+   "txt": "the church and extended family gave us what they could, and we was off."
+  },
+  {
+   "t": 187,
+   "txt": "And right away, it seemed to be the right decision."
+  },
+  {
+   "t": 190,
+   "txt": "In the first year, I starred in a movie alongside William H. Macy"
+  },
+  {
+   "t": 194,
+   "txt": "and got a SAG nomination."
+  },
+  {
+   "t": 197,
+   "txt": "Then -- go ahead, clap."
+  },
+  {
+   "t": 204,
+   "txt": "Then I got a self-titled Disney Channel pilot,"
+  },
+  {
+   "t": 207,
+   "txt": "and I starred in my own movie."
+  },
+  {
+   "t": 211,
+   "txt": "Suddenly, we had access to a life that didn't require constant vigilance."
+  },
+  {
+   "t": 216,
+   "txt": "Each opportunity gave way to a world we never knew was possible."
+  },
+  {
+   "t": 220,
+   "txt": "We no longer shared rooms,"
+  },
+  {
+   "t": 222,
+   "txt": "we had a car that worked,"
+  },
+  {
+   "t": 224,
+   "txt": "my parents weren't stressed about bills"
+  },
+  {
+   "t": 226,
+   "txt": "or their ability to get the best education for me and my three siblings."
+  },
+  {
+   "t": 230,
+   "txt": "It got to the point where my career became the center of our orbit,"
+  },
+  {
+   "t": 234,
+   "txt": "and not because we chased success,"
+  },
+  {
+   "t": 236,
+   "txt": "but because it bought us freedom."
+  },
+  {
+   "t": 241,
+   "txt": "That's when performing stopped being something I did for fun"
+  },
+  {
+   "t": 245,
+   "txt": "and something we relied on."
+  },
+  {
+   "t": 248,
+   "txt": "Messing that up wouldn’t have just cost me --"
+  },
+  {
+   "t": 250,
+   "txt": "it would have put our freedom at risk."
+  },
+  {
+   "t": 252,
+   "txt": "And we already knew what it was like to live without it."
+  },
+  {
+   "t": 255,
+   "txt": "So I adapted."
+  },
+  {
+   "t": 259,
+   "txt": "Not all at once, but over the years."
+  },
+  {
+   "t": 261,
+   "txt": "By the time I landed my own TV show, I was undoubtedly the breadwinner,"
+  },
+  {
+   "t": 265,
+   "txt": "and my job was just that."
+  },
+  {
+   "t": 267,
+   "txt": "There was no time for outside activities,"
+  },
+  {
+   "t": 270,
+   "txt": "no time for vacation, no time for pause."
+  },
+  {
+   "t": 273,
+   "txt": "And as the pressure got greater,"
+  },
+  {
+   "t": 276,
+   "txt": "stage became my home."
+  },
+  {
+   "t": 278,
+   "txt": "Performing was the safest way for me to be free."
+  },
+  {
+   "t": 282,
+   "txt": "In my roles,"
+  },
+  {
+   "t": 283,
+   "txt": "I could embody joy -- even briefly."
+  },
+  {
+   "t": 286,
+   "txt": "I could be “True Jackson, VP,”"
+  },
+  {
+   "t": 288,
+   "txt": "“Working at a grown-up job never really knew I could work this hard.”"
+  },
+  {
+   "t": 294,
+   "txt": "At the time, it was just a theme song I wrote."
+  },
+  {
+   "t": 296,
+   "txt": "I didn't know how I was transmuting."
+  },
+  {
+   "t": 299,
+   "txt": "In my roles, I could be sad."
+  },
+  {
+   "t": 302,
+   "txt": "I was allowed to be frustrated --"
+  },
+  {
+   "t": 303,
+   "txt": "although often disguised as humor."
+  },
+  {
+   "t": 307,
+   "txt": "Performing was safe because it didn't make people feel guilty"
+  },
+  {
+   "t": 310,
+   "txt": "about watching me carry the weight of adulthood far too early."
+  },
+  {
+   "t": 315,
+   "txt": "As the years flew by, I didn’t just perform on stage --"
+  },
+  {
+   "t": 319,
+   "txt": "I started performing off it, too."
+  },
+  {
+   "t": 323,
+   "txt": "I began designing a character to survive my life."
+  },
+  {
+   "t": 327,
+   "txt": "That character is Keke Palmer --"
+  },
+  {
+   "t": 331,
+   "txt": "approachable, capable, funny --"
+  },
+  {
+   "t": 335,
+   "txt": "a small container my full range could exist inside of"
+  },
+  {
+   "t": 338,
+   "txt": "without overwhelming anyone."
+  },
+  {
+   "t": 343,
+   "txt": "And it worked."
+  },
+  {
+   "t": 344,
+   "txt": "That character has carried me through 23 years in this industry,"
+  },
+  {
+   "t": 349,
+   "txt": "through childhood fame, the transition into adulthood,"
+  },
+  {
+   "t": 352,
+   "txt": "through success I could have never imagined."
+  },
+  {
+   "t": 355,
+   "txt": "I even wrote a \"New York Times\" best selling book about how I did it,"
+  },
+  {
+   "t": 359,
+   "txt": "how I became a \"Master of Me.\""
+  },
+  {
+   "t": 363,
+   "txt": "By every external measure,"
+  },
+  {
+   "t": 365,
+   "txt": "I made the system work for me."
+  },
+  {
+   "t": 368,
+   "txt": "And then I had a son."
+  },
+  {
+   "t": 372,
+   "txt": "His name is Leodis,"
+  },
+  {
+   "t": 373,
+   "txt": "and every year, my son and I"
+  },
+  {
+   "t": 375,
+   "txt": "do these elaborate Halloween costumes."
+  },
+  {
+   "t": 377,
+   "txt": "And listen, he's really good."
+  },
+  {
+   "t": 380,
+   "txt": "Like, he commits."
+  },
+  {
+   "t": 383,
+   "txt": "He knows how to perform --"
+  },
+  {
+   "t": 384,
+   "txt": "they've become full-on productions,"
+  },
+  {
+   "t": 386,
+   "txt": "and it's a cool way to share what I do with him."
+  },
+  {
+   "t": 389,
+   "txt": "We have a lot of fun."
+  },
+  {
+   "t": 392,
+   "txt": "But this past year after it was over, I noticed something."
+  },
+  {
+   "t": 396,
+   "txt": "He was exhausted."
+  },
+  {
+   "t": 398,
+   "txt": "And not the kind where you just fall asleep --"
+  },
+  {
+   "t": 400,
+   "txt": "the kind where you keep running and running and yelling and screaming."
+  },
+  {
+   "t": 405,
+   "txt": "I thought once we got into the car he'd fall asleep, but he didn't."
+  },
+  {
+   "t": 408,
+   "txt": "He couldn’t, and that scared me."
+  },
+  {
+   "t": 411,
+   "txt": "So I pulled over,"
+  },
+  {
+   "t": 413,
+   "txt": "took him out of his seat and held him real tight."
+  },
+  {
+   "t": 415,
+   "txt": "And he was fighting me."
+  },
+  {
+   "t": 417,
+   "txt": "I kept saying, \"It's OK to rest,"
+  },
+  {
+   "t": 419,
+   "txt": "you can rest. I’ve got you.”"
+  },
+  {
+   "t": 421,
+   "txt": "After one last slap to my face, he fell asleep."
+  },
+  {
+   "t": 426,
+   "txt": "When we got home,"
+  },
+  {
+   "t": 427,
+   "txt": "I still had work to do, but I had one hour free."
+  },
+  {
+   "t": 431,
+   "txt": "So I laid down, closed my eyes,"
+  },
+  {
+   "t": 434,
+   "txt": "and before I knew it, the hour was gone."
+  },
+  {
+   "t": 437,
+   "txt": "I hadn't slept one bit."
+  },
+  {
+   "t": 439,
+   "txt": "My mind kept running."
+  },
+  {
+   "t": 440,
+   "txt": "Then my mom walks in saying it’s time to go,"
+  },
+  {
+   "t": 443,
+   "txt": "and I get angry with her."
+  },
+  {
+   "t": 444,
+   "txt": "She has no clue what’s going on --"
+  },
+  {
+   "t": 446,
+   "txt": "now I'm crying,"
+  },
+  {
+   "t": 447,
+   "txt": "feeling this delayed sense of grief,"
+  },
+  {
+   "t": 449,
+   "txt": "realizing I'm acting like my son"
+  },
+  {
+   "t": 451,
+   "txt": "and expecting my mother to do what she never could."
+  },
+  {
+   "t": 455,
+   "txt": "Not because she didn’t love me,"
+  },
+  {
+   "t": 458,
+   "txt": "but because survival taught her to value propulsion."
+  },
+  {
+   "t": 463,
+   "txt": "Moving forward mattered more than being healed."
+  },
+  {
+   "t": 467,
+   "txt": "My mother was terrified I wouldn't survive,"
+  },
+  {
+   "t": 470,
+   "txt": "so she gave me what she knew:"
+  },
+  {
+   "t": 472,
+   "txt": "survival skills."
+  },
+  {
+   "t": 475,
+   "txt": "And sure, when I was younger, she'd say,"
+  },
+  {
+   "t": 477,
+   "txt": "\"We can go back to Chicago,\""
+  },
+  {
+   "t": 479,
+   "txt": "but going back didn’t feel like rest --"
+  },
+  {
+   "t": 481,
+   "txt": "it felt like erasure."
+  },
+  {
+   "t": 484,
+   "txt": "Stopping was always on the table"
+  },
+  {
+   "t": 486,
+   "txt": "alongside going back to how we were living before."
+  },
+  {
+   "t": 492,
+   "txt": "So stopping never felt like a choice --"
+  },
+  {
+   "t": 495,
+   "txt": "just an ultimatum."
+  },
+  {
+   "t": 498,
+   "txt": "I wasn't trying to be exceptional."
+  },
+  {
+   "t": 501,
+   "txt": "I was trying to be reliable."
+  },
+  {
+   "t": 504,
+   "txt": "I carried the load, not because I had to,"
+  },
+  {
+   "t": 507,
+   "txt": "but because I couldn’t un-know what was at stake."
+  },
+  {
+   "t": 512,
+   "txt": "Once you've seen life on the other side of poverty,"
+  },
+  {
+   "t": 514,
+   "txt": "you can't unsee the contrast."
+  },
+  {
+   "t": 517,
+   "txt": "I couldn't live with the fact that we had a shot and I didn't take it,"
+  },
+  {
+   "t": 520,
+   "txt": "so I didn't fail."
+  },
+  {
+   "t": 526,
+   "txt": "I just didn't know when it was complete."
+  },
+  {
+   "t": 532,
+   "txt": "Somewhere along the way,"
+  },
+  {
+   "t": 533,
+   "txt": "I started believing I was a thing that saved us."
+  },
+  {
+   "t": 537,
+   "txt": "I was Keke Palmer."
+  },
+  {
+   "t": 541,
+   "txt": "I built an entire way of moving through the world around staying alert,"
+  },
+  {
+   "t": 545,
+   "txt": "staying useful, staying on."
+  },
+  {
+   "t": 548,
+   "txt": "I was reflexively disembodied,"
+  },
+  {
+   "t": 551,
+   "txt": "constantly juggling everything thrown at me."
+  },
+  {
+   "t": 554,
+   "txt": "I got so good at letting my body run on autopilot [that]"
+  },
+  {
+   "t": 557,
+   "txt": "I would have these huge gaps in my life"
+  },
+  {
+   "t": 560,
+   "txt": "where I lacked recall."
+  },
+  {
+   "t": 563,
+   "txt": "I remember one time I was doing \"Cinderella\" on Broadway,"
+  },
+  {
+   "t": 565,
+   "txt": "and I couldn’t remember how I got to the stage while on stage."
+  },
+  {
+   "t": 570,
+   "txt": "It's clear that system didn't know how to stop."
+  },
+  {
+   "t": 573,
+   "txt": "It’s like a computer --"
+  },
+  {
+   "t": 574,
+   "txt": "it works great so you never turn it off."
+  },
+  {
+   "t": 577,
+   "txt": "You don’t even let it restart for updates,"
+  },
+  {
+   "t": 579,
+   "txt": "so you never know just how much better it could be."
+  },
+  {
+   "t": 583,
+   "txt": "That was me:"
+  },
+  {
+   "t": 585,
+   "txt": "a billboard for hyper-functioning -- with style, of course."
+  },
+  {
+   "t": 591,
+   "txt": "But the pattern finally broke."
+  },
+  {
+   "t": 594,
+   "txt": "When I held my son and told him to rest,"
+  },
+  {
+   "t": 600,
+   "txt": "that was a small moment, but it ended something old,"
+  },
+  {
+   "t": 605,
+   "txt": "something that had been running for generations."
+  },
+  {
+   "t": 610,
+   "txt": "When adaptive intelligence outlives the conditions it was built for,"
+  },
+  {
+   "t": 615,
+   "txt": "it turns into compulsion --"
+  },
+  {
+   "t": 618,
+   "txt": "productivity without presence."
+  },
+  {
+   "t": 623,
+   "txt": "What I want to share with you"
+  },
+  {
+   "t": 625,
+   "txt": "is that survival can be so effective,"
+  },
+  {
+   "t": 627,
+   "txt": "you don't realize when it's no longer needed in your life."
+  },
+  {
+   "t": 632,
+   "txt": "You might think you need to earn more,"
+  },
+  {
+   "t": 635,
+   "txt": "prove more, secure one more opportunity,"
+  },
+  {
+   "t": 638,
+   "txt": "collect one more accolade,"
+  },
+  {
+   "t": 640,
+   "txt": "or just keep moving long enough until you finally feel safe."
+  },
+  {
+   "t": 646,
+   "txt": "When in reality,"
+  },
+  {
+   "t": 648,
+   "txt": "you don't need another achievement."
+  },
+  {
+   "t": 651,
+   "txt": "You need a break."
+  },
+  {
+   "t": 654,
+   "txt": "OK?"
+  },
+  {
+   "t": 661,
+   "txt": "You need a break long enough to look around, take stock"
+  },
+  {
+   "t": 666,
+   "txt": "and feel gratitude for what you've already built."
+  },
+  {
+   "t": 671,
+   "txt": "It's important we check the systems we're still running on."
+  },
+  {
+   "t": 674,
+   "txt": "Some of the functions that saved you"
+  },
+  {
+   "t": 677,
+   "txt": "may be keeping you from the very you you were always trying to save."
+  },
+  {
+   "t": 682,
+   "txt": "My parents survived inside of systems that never fully saw them."
+  },
+  {
+   "t": 687,
+   "txt": "Learning how to live instead of just surviving"
+  },
+  {
+   "t": 691,
+   "txt": "became my way of returning some of that visibility."
+  },
+  {
+   "t": 697,
+   "txt": "I went to Bali this past year"
+  },
+  {
+   "t": 700,
+   "txt": "and finally spent some one-on-one time with that little girl"
+  },
+  {
+   "t": 703,
+   "txt": "who left Robbins, Illinois all those years ago."
+  },
+  {
+   "t": 707,
+   "txt": "So please allow me to reintroduce myself."
+  },
+  {
+   "t": 713,
+   "txt": "My name is Lauren Keyana Palmer,"
+  },
+  {
+   "t": 718,
+   "txt": "and I’m the CEO of the Keke Palmer Company --"
+  },
+  {
+   "t": 722,
+   "txt": "a company I created out of nothing"
+  },
+  {
+   "t": 725,
+   "txt": "with my mother, my father"
+  },
+  {
+   "t": 728,
+   "txt": "and my three siblings."
+  },
+  {
+   "t": 737,
+   "txt": "I'm just a girl that wanted herself and her family out of poverty,"
+  },
+  {
+   "t": 742,
+   "txt": "and once we was out,"
+  },
+  {
+   "t": 744,
+   "txt": "I forgot to let myself free."
+  },
+  {
+   "t": 747,
+   "txt": "Yet I'm here today,"
+  },
+  {
+   "t": 749,
+   "txt": "grateful to say"
+  },
+  {
+   "t": 751,
+   "txt": "my parents showed me how to survive."
+  },
+  {
+   "t": 754,
+   "txt": "I showed them how to dream,"
+  },
+  {
+   "t": 757,
+   "txt": "and my son is showing me"
+  },
+  {
+   "t": 761,
+   "txt": "how to live."
+  },
+  {
+   "t": 765,
+   "txt": "Thank you."
+  }
+ ]
+}
