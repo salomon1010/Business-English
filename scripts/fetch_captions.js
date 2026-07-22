@@ -40,24 +40,26 @@ const cues = [];
 // Skips "Search in video"/"Chapter N:" headers and standalone (Laughter)/(Applause).
 // Detected when there are no VTT/SRT "-->" cue-timing lines.
 if (!/-->/.test(raw)) {
+  const anno = s => /^[\[(][^\])]*[\])]$/.test(s.trim()); // whole line is just (Laughter)/[Applause]
+  const push = c => { if (c && c.txt.trim() && !anno(c.txt)) cues.push(c); };
   let cur = null;
   for (const line of raw.replace(/\r/g, '').split('\n')) {
     const s = line.trim();
     if (!s || /^Search in video$/i.test(s) || /^Chapter\s/i.test(s)) continue;
     const m = s.match(/^(\d+):(\d{2})(.*)$/);
     if (m) {
-      if (cur && cur.txt.trim()) cues.push(cur);
+      push(cur);
       const t = (+m[1]) * 60 + (+m[2]);
       const inline = m[3]
         .replace(/^\d+\s+(?:minute|second)s?(?:,\s*\d+\s+seconds?)?/, '') // drop redundant duration phrase (layout 1)
         .replace(/\s+/g, ' ').trim();
       cur = { t, txt: inline };
     } else if (cur) {
-      if (/^\(.*\)$/.test(s)) continue; // drop standalone (Laughter)/(Applause)
+      if (anno(s)) continue; // drop standalone (Laughter)/[Applause] on its own line
       cur.txt += (cur.txt ? ' ' : '') + s;
     }
   }
-  if (cur && cur.txt.trim()) cues.push(cur);
+  push(cur);
   writeOut(cues);
   return;
 }
