@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Tandai tekanan",
  "sh.stress_toast": "Bagian bertekanan dikapitalkan — panduan irama. Sesuaikan sesuka Anda.",
  "sh.stress_empty_toast": "Ketik dulu transkrip klip, lalu ketuk ✨ Tandai tekanan.",
- "sh.transcript_included": "📝 Termasuk transkrip"
+ "sh.captions_ready": "🎬 Teks siap — tandai bagian mana pun",
+ "sh.get_transcript_btn": "📄 Ambil transkrip",
+ "sh.get_transcript_title": "Membawa teks dari awal–akhir yang Anda tandai ke kotak transkrip",
+ "sh.mark_both_toast": "Tandai awal dan akhir dulu.",
+ "sh.no_captions_toast": "Tidak ada teks yang disertakan untuk video ini — ketik transkrip atau ketuk ✨ Tandai tekanan.",
+ "sh.no_captions_range_toast": "Tidak ada teks di rentang itu — coba tanda yang sedikit berbeda.",
+ "sh.transcript_pulled_toast": "Transkrip diambil dari tanda Anda & ditandai tekanannya ✓"
 }

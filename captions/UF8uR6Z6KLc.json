@@ -1,0 +1,17 @@
+{
+ "vid": "UF8uR6Z6KLc",
+ "source": "SAMPLE — approximate timings for testing the mechanism. Regenerate with scripts/fetch_captions.js for exact caption timing.",
+ "lang": "en",
+ "cues": [
+  {"t": 21, "txt": "I am honored to be with you today"},
+  {"t": 24, "txt": "at your commencement from one of the finest universities in the world."},
+  {"t": 30, "txt": "I never graduated from college."},
+  {"t": 33, "txt": "Truth be told, this is the closest I've ever gotten to a college graduation."},
+  {"t": 40, "txt": "Today I want to tell you three stories from my life."},
+  {"t": 44, "txt": "That's it. No big deal. Just three stories."},
+  {"t": 49, "txt": "The first story is about connecting the dots."},
+  {"t": 53, "txt": "I dropped out of Reed College after the first six months,"},
+  {"t": 57, "txt": "but then stayed around as a drop-in for another eighteen months or so before I really quit."},
+  {"t": 63, "txt": "So why did I drop out?"}
+ ]
+}

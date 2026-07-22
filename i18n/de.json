@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Betonung markieren",
  "sh.stress_toast": "Betonte Teile groß geschrieben — ein Rhythmus-Leitfaden. Passe ihn nach Belieben an.",
  "sh.stress_empty_toast": "Schreibe zuerst das Clip-Transkript, dann tippe auf ✨ Betonung markieren.",
- "sh.transcript_included": "📝 Transkript enthalten"
+ "sh.captions_ready": "🎬 Untertitel bereit — markiere einen beliebigen Teil",
+ "sh.get_transcript_btn": "📄 Transkript holen",
+ "sh.get_transcript_title": "Fügt den Untertitel deines markierten Anfangs–Endes in das Transkriptfeld ein",
+ "sh.mark_both_toast": "Markiere zuerst einen Anfang und ein Ende.",
+ "sh.no_captions_toast": "Keine Untertitel für dieses Video enthalten — tippe das Transkript oder nutze ✨ Betonung markieren.",
+ "sh.no_captions_range_toast": "In diesem Bereich kein Untertitel gefunden — versuche etwas andere Markierungen.",
+ "sh.transcript_pulled_toast": "Transkript aus deinen Markierungen geholt & betont ✓"
 }

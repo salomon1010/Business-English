@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Marquer l'accent",
  "sh.stress_toast": "Parties accentuées mises en majuscules — un guide du rythme. Ajustez à votre guise.",
  "sh.stress_empty_toast": "Écrivez d'abord la transcription de l'extrait, puis touchez ✨ Marquer l'accent.",
- "sh.transcript_included": "📝 Transcription incluse"
+ "sh.captions_ready": "🎬 Sous-titres prêts — marquez n'importe quelle partie",
+ "sh.get_transcript_btn": "📄 Obtenir la transcription",
+ "sh.get_transcript_title": "Insère le sous-titre de votre début–fin marqué dans la zone de transcription",
+ "sh.mark_both_toast": "Marquez d'abord un début et une fin.",
+ "sh.no_captions_toast": "Aucun sous-titre inclus pour cette vidéo — saisissez la transcription ou touchez ✨ Marquer l'accent.",
+ "sh.no_captions_range_toast": "Aucun sous-titre trouvé dans cette plage — essayez des marques légèrement différentes.",
+ "sh.transcript_pulled_toast": "Transcription extraite de vos marques et accentuée ✓"
 }

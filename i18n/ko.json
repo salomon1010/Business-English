@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ 강세 표시",
  "sh.stress_toast": "강세 부분을 대문자로 표시했습니다 — 리듬 안내입니다. 원하는 대로 조정하세요.",
  "sh.stress_empty_toast": "먼저 클립 전사를 입력한 뒤 ✨ 강세 표시를 누르세요.",
- "sh.transcript_included": "📝 전사 포함"
+ "sh.captions_ready": "🎬 자막 준비됨 — 원하는 부분 표시",
+ "sh.get_transcript_btn": "📄 전사 가져오기",
+ "sh.get_transcript_title": "표시한 시작–끝의 자막을 전사 상자로 가져옵니다",
+ "sh.mark_both_toast": "먼저 시작과 끝을 표시하세요.",
+ "sh.no_captions_toast": "이 영상에는 자막이 포함되어 있지 않습니다 — 전사를 입력하거나 ✨ 강세 표시를 누르세요.",
+ "sh.no_captions_range_toast": "해당 범위에서 자막을 찾지 못했습니다 — 표시를 조금 다르게 해보세요.",
+ "sh.transcript_pulled_toast": "표시한 구간에서 전사를 가져와 강세를 표시했습니다 ✓"
 }

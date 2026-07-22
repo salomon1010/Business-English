@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ 強勢を付ける",
  "sh.stress_toast": "強勢部分を大文字にしました——リズムの目安です。自由に調整してください。",
  "sh.stress_empty_toast": "先にクリップの書き起こしを入力し、それから ✨ 強勢を付ける をタップしてください。",
- "sh.transcript_included": "📝 書き起こし付き"
+ "sh.captions_ready": "🎬 字幕あり——好きな部分をマーク",
+ "sh.get_transcript_btn": "📄 書き起こしを取得",
+ "sh.get_transcript_title": "マークした開始〜終了の字幕を書き起こし欄に取り込みます",
+ "sh.mark_both_toast": "先に開始と終了をマークしてください。",
+ "sh.no_captions_toast": "この動画には字幕が含まれていません——書き起こしを入力するか ✨ 強勢を付ける をタップしてください。",
+ "sh.no_captions_range_toast": "その範囲に字幕が見つかりません——少し違うマークを試してください。",
+ "sh.transcript_pulled_toast": "あなたのマークから書き起こしを取得し強勢を付けました ✓"
 }

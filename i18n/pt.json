@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Marcar ênfase",
  "sh.stress_toast": "Partes tônicas em maiúsculas — um guia do ritmo. Ajuste como quiser.",
  "sh.stress_empty_toast": "Escreva primeiro a transcrição do clipe, depois toque em ✨ Marcar ênfase.",
- "sh.transcript_included": "📝 Transcrição incluída"
+ "sh.captions_ready": "🎬 Legendas prontas — marque qualquer parte",
+ "sh.get_transcript_btn": "📄 Obter transcrição",
+ "sh.get_transcript_title": "Traz a legenda do seu início–fim marcado para a caixa de transcrição",
+ "sh.mark_both_toast": "Marque primeiro um início e um fim.",
+ "sh.no_captions_toast": "Sem legendas incluídas para este vídeo — digite a transcrição ou toque em ✨ Marcar ênfase.",
+ "sh.no_captions_range_toast": "Nenhuma legenda encontrada nesse intervalo — tente marcas um pouco diferentes.",
+ "sh.transcript_pulled_toast": "Transcrição extraída das suas marcas e com ênfase marcada ✓"
 }

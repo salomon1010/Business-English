@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Đánh dấu trọng âm",
  "sh.stress_toast": "Các phần trọng âm đã được viết hoa — một hướng dẫn về nhịp điệu. Chỉnh tùy ý bạn.",
  "sh.stress_empty_toast": "Hãy nhập bản chép lời của đoạn clip trước, rồi chạm ✨ Đánh dấu trọng âm.",
- "sh.transcript_included": "📝 Có sẵn bản chép lời"
+ "sh.captions_ready": "🎬 Đã có phụ đề — đánh dấu bất kỳ phần nào",
+ "sh.get_transcript_btn": "📄 Lấy bản chép lời",
+ "sh.get_transcript_title": "Đưa phụ đề của đoạn đầu–cuối bạn đã đánh dấu vào ô bản chép lời",
+ "sh.mark_both_toast": "Hãy đánh dấu điểm đầu và điểm cuối trước.",
+ "sh.no_captions_toast": "Video này không kèm phụ đề — hãy gõ bản chép lời hoặc chạm ✨ Đánh dấu trọng âm.",
+ "sh.no_captions_range_toast": "Không tìm thấy phụ đề trong khoảng đó — thử các dấu hơi khác.",
+ "sh.transcript_pulled_toast": "Đã lấy bản chép lời từ dấu của bạn & đánh dấu trọng âm ✓"
 }

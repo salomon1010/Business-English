@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ 标注重音",
  "sh.stress_toast": "重读部分已变为大写——这是节奏参考，你可以随意调整。",
  "sh.stress_empty_toast": "请先输入片段文字稿，然后点击 ✨ 标注重音。",
- "sh.transcript_included": "📝 已含文字稿"
+ "sh.captions_ready": "🎬 字幕已就绪——标记任意片段",
+ "sh.get_transcript_btn": "📄 获取文字稿",
+ "sh.get_transcript_title": "把你标记的起点–终点对应的字幕填入文字稿框",
+ "sh.mark_both_toast": "请先标记起点和终点。",
+ "sh.no_captions_toast": "该视频未内置字幕——请手动输入文字稿或点击 ✨ 标注重音。",
+ "sh.no_captions_range_toast": "该范围内未找到字幕——试试稍微不同的标记。",
+ "sh.transcript_pulled_toast": "已根据你的标记提取文字稿并标注重音 ✓"
 }

@@ -679,5 +679,11 @@
  "sh.mark_stress_btn": "✨ Marcar acento",
  "sh.stress_toast": "Partes acentuadas en mayúsculas — una guía del ritmo. Ajústalo a tu gusto.",
  "sh.stress_empty_toast": "Escribe primero la transcripción del clip, luego toca ✨ Marcar acento.",
- "sh.transcript_included": "📝 Transcripción incluida"
+ "sh.captions_ready": "🎬 Subtítulos listos — marca cualquier parte",
+ "sh.get_transcript_btn": "📄 Obtener transcripción",
+ "sh.get_transcript_title": "Lleva el subtítulo de tu inicio–fin marcado a la caja de transcripción",
+ "sh.mark_both_toast": "Marca primero un inicio y un final.",
+ "sh.no_captions_toast": "No hay subtítulos incluidos para este video — escribe la transcripción o toca ✨ Marcar acento.",
+ "sh.no_captions_range_toast": "No se encontró subtítulo en ese rango — prueba marcas ligeramente distintas.",
+ "sh.transcript_pulled_toast": "Transcripción extraída de tus marcas y con acentos marcados ✓"
 }
