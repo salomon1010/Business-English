@@ -2569,12 +2569,16 @@ async function loadCaptions(vid){
 }
 function captionsInRange(cues,start,end){
   if(!cues||!cues.length)return "";
-  const out=[];
-  for(let i=0;i<cues.length;i++){
-    const cs=cues[i].t,ce=(cues[i].d!=null?cs+cues[i].d:(cues[i+1]?cues[i+1].t:cs+5));
-    if(ce>start&&cs<end)out.push(String(cues[i].txt||"").trim()); /* cue overlaps the marked range */
-  }
-  return out.join(" ").replace(/\s+/g," ").trim();
+  /* caption lines are line-granular (one start time each); we can't cut mid-line.
+     Include a line only when the MAJORITY of it falls inside the marks (its
+     midpoint is within [start,end]) — so a line that mostly plays before your
+     start, or mostly after your end, is left out. Fallback: if the marks land
+     entirely inside one long line, return the line(s) that overlap them. */
+  const span=i=>{const cs=cues[i].t;const ce=(cues[i].d!=null?cs+cues[i].d:(cues[i+1]?cues[i+1].t:cs+5));return[cs,ce]};
+  const pick=[];
+  for(let i=0;i<cues.length;i++){const[cs,ce]=span(i);const mid=(cs+ce)/2;if(mid>=start&&mid<end)pick.push(i)}
+  if(!pick.length)for(let i=0;i<cues.length;i++){const[cs,ce]=span(i);if(ce>start&&cs<end)pick.push(i)}
+  return pick.map(i=>String(cues[i].txt||"").trim()).join(" ").replace(/\s+/g," ").trim();
 }
 async function shPull(auto){
   if(!shClip.vid)return;
