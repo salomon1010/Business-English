@@ -842,6 +842,12 @@ const I18N_EN={
  "week.goal_label":"<b>Goal:</b> {{goal}}",
  "week.open_phrases":"💬 Open this week's phrases & idioms →",
  "week.tab":"W{{n}}",
+ "starter.0.why":"Slow, clear, perfectly paced — the ideal first shadowing voice.",
+ "starter.1.why":"Presentation rhythm & persuasion language for meetings.",
+ "starter.2.why":"Natural professional storytelling with great stress patterns.",
+ "exframe.0":"Open like an executive",
+ "exframe.1":"State the issue",
+ "exframe.2":"Close with action",
  "sess.back":"← Week {{w}}",
  "sess.week_day_chip":"Week {{w}} · {{d}}",
  "sess.completed_chip":"✓ Completed",
@@ -2093,7 +2099,7 @@ function rShadow(el){
       <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
         <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
         <b style="font-size:14px;line-height:1.35">${s.name}</b>
-        <p style="font-size:12.5px;color:var(--mut);flex:1">${s.why}</p>
+        <p style="font-size:12.5px;color:var(--mut);flex:1">${t("starter."+i+".why")}</p>
         <div style="display:flex;gap:8px">
           <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
           <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}">${t("sh.copy_btn")}</button>
@@ -3050,7 +3056,7 @@ window.exGo=()=>{
     </div>
     ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">${t("ex.what_changed")}</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
     :`<p style="font-size:13px;color:var(--green)">${t("ex.already_clean")}</p>`}
-    <div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map(f=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${f[0]}:</b> <i>${f[1]}</i></div>`).join("")}</div>`;
+    <div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map((f,i)=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>`;
   markPracticed();save();
 };
 window.exAIPrompt=()=>{

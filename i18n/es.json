@@ -618,5 +618,11 @@
  "slot.0": "☀️ Café de la mañana",
  "slot.1": "🍽️ Pausa del almuerzo",
  "slot.2": "🚇 Trayecto",
- "slot.3": "🌙 Relax de la noche"
+ "slot.3": "🌙 Relax de la noche",
+ "starter.0.why": "Lenta, clara, con ritmo perfecto — la voz ideal para tu primer shadowing.",
+ "starter.1.why": "Ritmo de presentación y lenguaje persuasivo para reuniones.",
+ "starter.2.why": "Narración profesional natural con excelentes patrones de acentuación.",
+ "exframe.0": "Abre como un ejecutivo",
+ "exframe.1": "Plantea el problema",
+ "exframe.2": "Cierra con una acción"
 }
