@@ -3070,7 +3070,8 @@ function fbPickVoice(){
     if(/\b(samantha|ava|aria|jenny|allison|susan|zoe|nicky|serena|karen|moira|tessa|joanna|salli|kendra|matthew|guy|joey)\b/i.test(n))s+=45;
     if(v.localService===false)s+=25;         // network/cloud voices are usually higher quality
     if(v.lang==="en-US")s+=20;else if(/^en[-_]/i.test(v.lang))s+=10;else s-=50;
-    if(/\b(david|mark|zira|hazel|george|fred|albert)\b/i.test(n))s-=20; // older robotic voices
+    if(/\b(david|mark|zira|hazel|george|fred|albert|daniel|rishi)\b/i.test(n))s-=20; // older robotic voices
+    if(/compact|eloquence|novelty|whisper|organ|cellos|bells|zarvox|trinoids|bubbles/i.test(n))s-=45; // low-fi/novelty voices
     return s;
   };
   let best=null,bs=-1e9;vs.forEach(v=>{const s=score(v);if(s>bs){bs=s;best=v;}});
@@ -3085,7 +3086,7 @@ window.fbSay=(w,rate)=>{
     /* break long text into clause-sized chunks so intonation resets and it phrases naturally
        (no lookbehind — matches runs of text ending at a natural pause) */
     const chunks=text.length>80?(text.match(/[^.!?;:—]+[.!?;:—]*/g)||[text]).map(s=>s.trim()).filter(Boolean):[text];
-    const r=rate||(text.length>80?0.96:1);
+    const r=rate||(text.length>80?0.9:0.95);
     const speakAll=()=>{
       chunks.forEach((c,i)=>{
         const u=new SpeechSynthesisUtterance(c);
@@ -3170,14 +3171,16 @@ function fbShowResults(targetText,heardText,fromRec){
       <b style="font-size:14px">${score>=80?t("fb.verdict_excellent"):score>=55?t("fb.verdict_good"):t("fb.verdict_keepgoing")}</b>
       <p style="font-size:12.5px;color:var(--mut)">${t("fb.words_recognized",{ok:okN,total:ops.filter(o=>o.op!=="extra").length})}</p>
     </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},1)">${t("fb.hear_whole_text")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},0.9)">${t("fb.hear_whole_text")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},0.62)">${tIc("fb.slow_btn","gauge")}</button>
   </div>`
   :`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="flex:1;min-width:220px">
       <b style="font-size:14px">${t("fb.norec_title")}</b>
       <p style="font-size:12.5px;color:var(--mut)">${t("fb.norec_desc")}</p>
     </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},1)">${t("fb.hear_correctly")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},0.9)">${t("fb.hear_correctly")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},0.62)">${tIc("fb.slow_btn","gauge")}</button>
   </div>`}
   ${attempts.length?`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:10px 16px">
     <span style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">${t("fb.attempt_label",{n:attempts.length})}</span>
