@@ -2855,25 +2855,32 @@ async function loadCaptions(vid){
 }
 function captionsInRange(cues,start,end){
   if(!cues||!cues.length)return "";
-  /* Caption lines are line-granular (we can't cut mid-line). Auto-caption timing
-     often leads the on-screen display, so we include every line that OVERLAPS
-     the marked window by a meaningful amount — a line just clipping the very
-     edge (<0.25s and <20% of it) is skipped, everything shown during the marks
-     is kept. Small padding absorbs timing drift so nothing at the edges is lost. */
-  const pad=0.35;
-  const s=start-pad, e=end+pad;
+  /* Caption cues are long (often multi-sentence) with only a start time, so a
+     whole-line rule either misses the start or drags in text past the end.
+     Instead we cut the BOUNDARY cues at the word level: within each cue we
+     estimate where the marks fall (time → word position, proportional) and keep
+     only the words inside [start,end]. Cues fully inside contribute all words;
+     cues touched at an edge contribute just the words within the marks. */
   const span=i=>{const cs=cues[i].t;const ce=(cues[i].d!=null?cs+cues[i].d:(cues[i+1]?cues[i+1].t:cs+5));return[cs,ce]};
-  const pick=[];
+  const out=[];
   for(let i=0;i<cues.length;i++){
     const[cs,ce]=span(i);
-    const ov=Math.min(ce,e)-Math.max(cs,s);              // seconds of overlap with the (padded) window
-    if(ov<=0)continue;
+    if(ce<=start||cs>=end)continue;                    // no overlap with the marks
     const dur=Math.max(ce-cs,0.001);
-    if(ov>=0.25 || ov/dur>=0.2 || (cs>=s&&ce<=e)) pick.push(i);
+    const words=String(cues[i].txt||"").trim().split(/\s+/).filter(Boolean);
+    if(!words.length)continue;
+    const fa=Math.max(0,Math.min(1,(start-cs)/dur));   // fraction of the cue before the start mark
+    const fb=Math.max(0,Math.min(1,(end-cs)/dur));     // fraction up to the end mark
+    let wa=Math.max(0,Math.min(words.length,Math.round(fa*words.length)));
+    let wb=Math.max(0,Math.min(words.length,Math.round(fb*words.length)));
+    if(wb<=wa)continue;                                 // boundary sliver rounds to nothing
+    out.push(words.slice(wa,wb).join(" "));
   }
-  /* fallback: marks land entirely inside one long line → return overlapping line(s) */
-  if(!pick.length)for(let i=0;i<cues.length;i++){const[cs,ce]=span(i);if(ce>start&&cs<end)pick.push(i)}
-  return pick.map(i=>String(cues[i].txt||"").trim()).join(" ").replace(/\s+/g," ").trim();
+  const r=out.join(" ").replace(/\s+/g," ").trim();
+  if(r)return r;
+  /* safety net: marks fell oddly → return any single overlapping cue's text */
+  for(let i=0;i<cues.length;i++){const[cs,ce]=span(i);if(ce>start&&cs<end)return String(cues[i].txt||"").trim()}
+  return "";
 }
 async function shPull(auto){
   if(!shClip.vid)return;
