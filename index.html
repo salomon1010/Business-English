@@ -175,6 +175,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .inl-ic svg{width:15px;height:15px}
 .btn-ic{display:inline-flex;vertical-align:-3px;margin-right:5px;line-height:0}
 .btn-ic svg{width:15px;height:15px}
+.ex-field{position:relative;margin-bottom:10px}
+.ex-field-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
+.ex-field-ic svg{width:16px;height:16px}
+.ex-field input{padding-left:38px}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -198,7 +202,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 
 /* RECORDER */
 .rec-panel{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:18px}
-.rec-btn{width:74px;height:74px;border-radius:50%;border:none;background:var(--grad);color:#fff;font-size:28px;transition:.2s;box-shadow:0 6px 24px rgba(99,102,241,.4)}
+.rec-btn{width:74px;height:74px;border-radius:50%;border:none;background:var(--grad);color:#fff;font-size:28px;transition:.2s;box-shadow:0 6px 24px rgba(99,102,241,.4);display:grid;place-items:center}
+.rec-btn svg{width:32px;height:32px}
 .rec-btn.recording{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
@@ -2177,10 +2182,10 @@ function rSession(el,w,d){
     </div>
     <div>
       <div class="rec-panel" style="margin-bottom:16px">
-        <b style="display:block;margin-bottom:4px">${t("sess.record_title")}</b>
+        <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
         <div style="display:flex;align-items:center;gap:18px">
-          <button class="rec-btn" id="recBtn" onclick="sessRec('${key}','W${w} ${d} — ${esc(dd.focus)}')">🎙️</button>
+          <button class="rec-btn" id="recBtn" onclick="sessRec('${key}','W${w} ${d} — ${esc(dd.focus)}')" aria-label="Record">${ic("mic")}</button>
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">${t("sess.tap_to_record")}</div></div>
         </div>
         <div id="recList"></div>
@@ -2203,7 +2208,7 @@ function rSession(el,w,d){
         <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.example_desc")}</p>
         <textarea rows="4" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||"")}</textarea>
         <div class="hr"></div>
-        <b style="font-size:14px">${t("sess.transcript_title")}</b>
+        <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
         <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.transcript_desc")}</p>
         <div id="sessHeard" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sess.transcript_empty")}</span>`}</div>
         <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="sessAnalyze('${key}')">${t("sess.analyze_btn")}</button>
@@ -2475,10 +2480,10 @@ function rShadow(el){
     <p style="font-size:12.5px;color:var(--mut2);margin-top:8px">${t("sh.mark_hint")}</p>
     <div class="grid g2" style="margin-top:16px">
       <div class="rec-panel">
-        <b style="font-size:15px">${t("sh.record_title")}</b>
+        <b style="font-size:15px">${hIcon("mic",t("sh.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 12px">${t("sh.record_desc")}</p>
         <div style="display:flex;align-items:center;gap:16px">
-          <button class="rec-btn" id="recBtn" onclick="shRec()">🎙️</button>
+          <button class="rec-btn" id="recBtn" onclick="shRec()" aria-label="Record">${ic("mic")}</button>
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">${t("sess.tap_to_record")}</div></div>
         </div>
         <div id="recList"></div>
@@ -2505,7 +2510,7 @@ function rShadow(el){
           <button class="btn btn-g btn-sm" onclick="shSaveNote()">${t("sess.save_notes_btn")}</button>
         </div>
         <div class="hr"></div>
-        <b style="font-size:14px">${t("sess.transcript_title")}</b>
+        <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
         <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">${t("sh.my_transcript_desc")}</p>
         <div id="shHeardBox" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:52px;color:var(--txt);font-style:italic">
           <span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>
@@ -2516,8 +2521,8 @@ function rShadow(el){
       <b style="font-size:15px">${t("sh.feedback_title")}</b> <span class="chip p3">${t("sh.feedback_beta_tag")}</span>
       <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("sh.feedback_desc")}</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-p" id="fbBtn" onclick="fbToggle()">${t("sh.start_feedback_btn")}</button>
-        <button class="btn btn-g" onclick="fbFromRec()">${t("sh.analyze_last_btn")}</button>
+        <button class="btn btn-p" id="fbBtn" onclick="fbToggle()">${tIc("sh.start_feedback_btn","mic")}</button>
+        <button class="btn btn-g" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
         <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
       </div>
       <div id="fbOut" style="margin-top:6px"></div>
@@ -2546,7 +2551,7 @@ function tbRender(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)">🔊</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',0.5)">🐢</button>
-        <button class="btn btn-p btn-sm" onclick="tbTry('${esc(w)}')">${t("tb.say_it_btn")}</button>
+        <button class="btn btn-p btn-sm" onclick="tbTry('${esc(w)}')">${tIc("tb.say_it_btn","mic")}</button>
       </div>
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
@@ -3077,7 +3082,7 @@ function fbShowResults(targetText,heardText,fromRec){
         ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${((o.hIdx||0)+0.5)/Math.max(h.length,1)})">${t("fb.you_btn")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
-        <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${t("fb.say_it_btn")}</button>
+        <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
         <span style="font-size:12px;color:var(--mut2);align-self:center" id="fbr${o.i}"></span>
       </div>
     </div>`).join("")
@@ -3275,7 +3280,7 @@ function vocRow(w,l){
       <span class="wd">${esc(w)}</span>
       <span class="voc-lvl ${l[0].toLowerCase()}">${l}</span>
       <span style="flex:1"></span>
-      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}">${t("voc.say_it_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}">${tIc("voc.say_it_btn","mic")}</button>
       <button class="btn btn-sm ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')">${saved?"✓":"🔖"}</button>
       <span style="color:var(--mut2)">▾</span>
     </div>
@@ -3358,7 +3363,7 @@ window.vocQuiz=async()=>{
     <div class="eyebrow">${t("voc.quiz_q")}</div>
     <p style="font-size:15px;margin:6px 0 12px">“${hint}”</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-p btn-sm" onclick="vocQuizTry('${esc(w)}')">${t("voc.quiz_say")}</button>
+      <button class="btn btn-p btn-sm" onclick="vocQuizTry('${esc(w)}')">${tIc("voc.quiz_say","mic")}</button>
       <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(def||w)},1)">${t("voc.quiz_hear")}</button>
       <button class="btn btn-g btn-sm" onclick="document.getElementById('vqa').textContent=${jarg(t("voc.quiz_answer",{word:w}))}">${t("voc.quiz_reveal")}</button>
       <button class="btn btn-g btn-sm" onclick="vocQuiz()">${t("voc.quiz_next")}</button>
@@ -3514,7 +3519,7 @@ function rPhrases(el,wFilter){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="exIn" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
-      <button class="btn btn-g" onclick="exDictate()">🎤</button>
+      <button class="btn btn-g" onclick="exDictate()" aria-label="Dictate">${ic("mic")}</button>
       <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
@@ -3536,7 +3541,7 @@ function rPhrases(el,wFilter){
       ${p.i?`<div class="idiom-tag">${tIc("ph.idiom_tag","briefcase")}</div>`:''}
       <div class="phrase">“${esc(p.p)}”</div>
       <div class="use">${esc(p.u)}</div>
-      <input placeholder="${esc(t("ph.example_ph"))}" value="${esc(S.phExample[k]||"")}" onchange="phEx('${k}',this.value)" style="margin-bottom:10px">
+      <div class="ex-field"><span class="ex-field-ic">${ic("pencil")}</span><input placeholder="${esc(t("ph.example_ph").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}" value="${esc(S.phExample[k]||"")}" onchange="phEx('${k}',this.value)"></div>
       <div class="ph-actions">
         <button class="btn btn-g btn-sm" id="phrec${p.ix}" onclick="phRec(${p.ix})">${tIc("ph.record_btn","mic")}</button>
         <button class="btn ${m?'btn-p':'btn-g'} btn-sm" onclick="phMaster('${k}')">${m?t("ph.mastered_btn"):t("ph.mark_mastered_btn")}</button>
@@ -4043,7 +4048,7 @@ function obRender(){
      <p style="font-size:19px;font-weight:700;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px 20px;margin-bottom:8px">“The main blocker is the vendor API — we expect a fix by Friday.”</p>
      <p id="obTryOut" style="font-size:14px;min-height:22px;margin-bottom:14px;color:var(--mut)"></p>
      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-       <button class="btn btn-p" style="font-size:15.5px" onclick="obTry()">${t("ob.say_it_now")}</button>
+       <button class="btn btn-p" style="font-size:15.5px" onclick="obTry()">${tIc("ob.say_it_now","mic")}</button>
        <button class="btn btn-g" onclick="obFinish()">${t("ob.skip_takeme")}</button>
      </div>`
   ];
