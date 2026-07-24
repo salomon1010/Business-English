@@ -122,8 +122,14 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800}
 .ring .pct small{display:block;font-size:11px;color:var(--mut);font-weight:500;text-align:center}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
-.stat .n{font-size:28px;font-weight:800}
+.stat .n{font-size:28px;font-weight:800;display:flex;align-items:center;gap:7px}
 .stat .l{font-size:12.5px;color:var(--mut);margin-top:3px}
+.stat-ic{color:var(--acc);flex:none;line-height:0}
+.stat-ic svg{width:23px;height:23px}
+.head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
+.head-ic svg{width:20px;height:20px}
+.rule-ic{color:var(--acc);line-height:0}
+.rule-ic svg{width:24px;height:24px}
 .today-card{background:linear-gradient(135deg,rgba(99,102,241,.16),rgba(34,211,238,.08));border:1px solid rgba(99,102,241,.35)}
 
 /* JOURNEY */
@@ -755,6 +761,7 @@ const MONTH_METRICS={
    qs:["What is now clearly stronger than 12 weeks ago?","In what speaking situations do I still lose control?","What pronunciation issues still show up repeatedly?","Which 20 phrases are now part of my active speech?","What should the next 12-week cycle focus on?"]}
 };
 
+const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
 const RULES=[
  ["📼","Every session produces evidence","A recording, transcript, phrase entry, or correction notes. No evidence = no real session."],
  ["🚫","No passive English","Watching videos and podcasts only counts when it feeds a structured block."],
@@ -789,9 +796,20 @@ const ICON={
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/>',
   book:'<path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/>',
   calendar:'<rect x="3.6" y="5.2" width="16.8" height="15.2" rx="2"/><path d="M3.6 9.4h16.8"/><path d="M8 3.4v3.4M16 3.4v3.4"/>',
-  help:'<circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.6-1.9 1.9-2.2 3.2"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/>'
+  help:'<circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.6-1.9 1.9-2.2 3.2"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/>',
+  flame:'<path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/>',
+  check:'<path d="M20 6.6 9.4 17.2 4 11.8"/>',
+  bolt:'<path d="M13 2.6 4.6 13.4H11l-1 8 8.4-11H12l1-7.8Z"/>',
+  idea:'<path d="M9.2 17.5h5.6"/><path d="M10 20.5h4"/><path d="M12 3.2a6 6 0 0 1 3.8 10.6c-.6.5-.9 1.1-.9 1.9H9.1c0-.8-.3-1.4-.9-1.9A6 6 0 0 1 12 3.2Z"/>',
+  list:'<path d="M8.5 6h11.5M8.5 12h11.5M8.5 18h11.5"/><circle cx="4.3" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="18" r="1.1" fill="currentColor" stroke="none"/>',
+  film:'<rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M8 6v12M16 6v12M3.5 10h4.5M16 10h4.5M3.5 14h4.5M16 14h4.5"/>',
+  ban:'<circle cx="12" cy="12" r="8.4"/><path d="m6.6 6.6 10.8 10.8"/>',
+  stop:'<path d="M8.3 3.6h7.4l5.2 5.2v7.4l-5.2 5.2H8.3l-5.2-5.2V8.8Z"/>',
+  repeat:'<path d="M17 3.5 20.5 7 17 10.5"/><path d="M20.5 7H8.5a4.5 4.5 0 0 0-4.5 4.5"/><path d="M7 20.5 3.5 17 7 13.5"/><path d="M3.5 17h12a4.5 4.5 0 0 0 4.5-4.5"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
+/* Prepend a line icon to a heading string, dropping its leading emoji. */
+function hIcon(name,s){return `<span class="head-ic">${ic(name)}</span>${String(s).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}`}
 
 /* ================= i18n (UI chrome only — practice content stays English) =================
    I18N_EN is the master dictionary (every valid key). DICT holds the active non-English
@@ -2000,16 +2018,16 @@ async function rHome(el){
     </div>
   </div>
   <div class="grid g4" style="margin-bottom:22px">
-    <div class="stat"><div class="n">🔥 ${streak()}</div><div class="l">${t("home.stat_streak")}</div></div>
-    <div class="stat"><div class="n">🎙️ ${recN}</div><div class="l">${t("home.stat_recordings")}</div></div>
-    <div class="stat"><div class="n">💬 ${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">${t("home.stat_phrases")}</div></div>
-    <div class="stat"><div class="n">✅ ${totalDone()}<span style="font-size:15px;color:var(--mut)">/84</span></div><div class="l">${t("home.stat_sessions")}</div></div>
-    <div class="stat" style="cursor:pointer" onclick="go('shadow')"><div class="n">🎯 ${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
+    <div class="stat"><div class="n"><span class="stat-ic">${ic("flame")}</span>${streak()}</div><div class="l">${t("home.stat_streak")}</div></div>
+    <div class="stat"><div class="n"><span class="stat-ic">${ic("mic")}</span>${recN}</div><div class="l">${t("home.stat_recordings")}</div></div>
+    <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">${t("home.stat_phrases")}</div></div>
+    <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}<span style="font-size:15px;color:var(--mut)">/84</span></div><div class="l">${t("home.stat_sessions")}</div></div>
+    <div class="stat" style="cursor:pointer" onclick="go('shadow')"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
-  <h3 style="margin:26px 0 4px">${t("home.science_h")}</h3>
+  <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
-  <h3 style="margin:26px 0 12px">${t("home.rules_h")}</h3>
-  <div class="grid g3">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div style="font-size:22px">${r[0]}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
+  <h3 style="margin:26px 0 12px">${hIcon("list",t("home.rules_h"))}</h3>
+  <div class="grid g3">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div class="rule-ic">${ic(RULE_ICONS[i]||"check")}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
 }
 
 /* ================= JOURNEY ================= */
@@ -3584,9 +3602,9 @@ function progressHTML(){
     </div>
     <div class="grid g4" style="margin-bottom:16px">
       <div class="stat"><div class="n">🗣️ ${totalWords.toLocaleString()}</div><div class="l">${t("prog.stat_words")}</div></div>
-      <div class="stat"><div class="n">🎯 ${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
-      <div class="stat"><div class="n">⚡ ${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
-      <div class="stat"><div class="n">📚 ${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("book")}</span>${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))">
       <div class="card" style="background:var(--bg2)">
