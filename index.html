@@ -411,6 +411,13 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
 .manual-doc.help-mode .top,.manual-doc.help-mode .toc{display:none}
+.manual-doc .man-ic{display:inline-flex;vertical-align:-3px;margin-right:9px;color:var(--macc);line-height:0}
+.manual-doc h2.sec .man-ic svg{width:22px;height:22px}
+.manual-doc .man-ic svg{width:19px;height:19px}
+.manual-doc .tip .man-ic,.manual-doc .example .man-ic{margin-right:6px;vertical-align:-2px}
+.manual-doc .tip .man-ic svg,.manual-doc .example .man-ic svg{width:16px;height:16px}
+.manual-doc .man-inl{display:inline-flex;vertical-align:-2px;color:var(--macc);line-height:0}
+.manual-doc .man-inl svg{width:15px;height:15px}
 .manual-doc{--macc:#818cf8;--macc2:#22d3ee;--mgold:#fbbf24;--mgreen:#34d399;--mred:#f87171;font-size:15.5px;line-height:1.65}
 .manual-doc .top{background:var(--grad);color:#fff;padding:34px 22px;text-align:center;border-radius:18px;margin-bottom:0}
 .manual-doc .top h1{font-size:clamp(21px,4vw,30px);line-height:1.25;margin:10px 0 12px}
@@ -880,9 +887,55 @@ const ICON={
   trash:'<path d="M4.5 6.6h15M9 6.6V5.1a1.6 1.6 0 0 1 1.6-1.6h2.8A1.6 1.6 0 0 1 15 5.1v1.5M6.6 6.6 7.5 19a2 2 0 0 0 2 1.9h5a2 2 0 0 0 2-1.9l.9-12.4"/><path d="M10 10.5v6M14 10.5v6"/>',
   link:'<path d="m9.8 14.2 4.4-4.4"/><path d="M11.2 7.6 12.7 6a4 4 0 0 1 5.7 5.7l-1.6 1.5M12.8 16.4 11.3 18a4 4 0 0 1-5.7-5.7l1.6-1.5"/>',
   camera:'<path d="M4 8.5h3l1.5-2h7L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5Z"/><circle cx="12" cy="13.5" r="3.4"/>',
-  mail:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.6 7.2 8.4 5.8 8.4-5.8"/>'
+  mail:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.6 7.2 8.4 5.8 8.4-5.8"/>',
+  bookmark:'<path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.2L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>',
+  doc:'<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.8 3.5V8H18"/><path d="M9 12.5h6M9 15.5h4"/>',
+  phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
+/* Emoji → line-icon name, used to iconize the manual headings at runtime (all languages). */
+const EMOJI_ICON={"🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun"};
+/* Replace a leading emoji in manual headings/callouts with a matching line icon (works for every language). */
+function manIconize(root){
+  const re=/^\s*([\p{Extended_Pictographic}️‍]+)\s*/u;
+  root.querySelectorAll("h2.sec,h3,h4,.tip b,.example b,figcaption,.toc a").forEach(el=>{
+    for(const node of el.childNodes){
+      if(node.nodeType!==3)continue;
+      if(!node.nodeValue.trim())continue;
+      const m=node.nodeValue.match(re);
+      if(!m)break;
+      const raw=m[1], key=raw.replace(/️/g,"");
+      const name=EMOJI_ICON[raw]||EMOJI_ICON[key];
+      node.nodeValue=node.nodeValue.replace(re," ").replace(/^\s+/,"");
+      if(name){const span=document.createElement("span");span.className="man-ic";span.innerHTML=ic(name);el.insertBefore(span,node);}
+      break;
+    }
+  });
+  manIconizeInline(root);
+}
+/* Replace inline emoji anywhere in the manual body with matching line icons (unknown emoji kept). */
+function manIconizeInline(root){
+  const re=/[\p{Extended_Pictographic}️‍]+/gu;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  const targets=[];let n;
+  while(n=walker.nextNode()){re.lastIndex=0;if(re.test(n.nodeValue))targets.push(n);}
+  targets.forEach(node=>{
+    const parent=node.parentNode;if(!parent)return;
+    if(parent.classList&&(parent.classList.contains("man-ic")||parent.classList.contains("man-inl")))return;
+    const s=node.nodeValue;const frag=document.createDocumentFragment();let last=0,m,did=false;re.lastIndex=0;
+    while(m=re.exec(s)){
+      const raw=m[0],key=raw.replace(/[️‍]/g,"");
+      const name=EMOJI_ICON[raw]||EMOJI_ICON[key];
+      if(!name)continue;
+      if(m.index>last)frag.appendChild(document.createTextNode(s.slice(last,m.index)));
+      const span=document.createElement("span");span.className="man-inl";span.innerHTML=ic(name);
+      frag.appendChild(span);last=m.index+raw.length;did=true;
+    }
+    if(!did)return;
+    if(last<s.length)frag.appendChild(document.createTextNode(s.slice(last)));
+    parent.replaceChild(frag,node);
+  });
+}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
 function hIcon(name,s){return `<span class="head-ic">${ic(name)}</span>${String(s).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}`}
 /* Button/label version: small inline icon + the localized text with its leading emoji stripped. */
@@ -2048,6 +2101,7 @@ async function rManual(el){
     ${cards?`<div class="help-cards" id="helpCards">${cards}</div>`:""}
     <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
     <div class="manual-doc help-mode" id="manualDoc">${html}</div>`;
+  const md=document.getElementById("manualDoc");if(md)manIconize(md);
   window.scrollTo({top:0});
 }
 const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
@@ -2566,8 +2620,8 @@ function tbRender(){
       <span class="fb-pct">${t("tb.missed_count",{n:S.trouble[w]})}</span>
       <span class="w">${esc(w)}</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)">🔊</button>
-        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',0.5)">🐢</button>
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)" aria-label="Hear">${ic("sound")}</button>
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',0.5)" aria-label="Slow">${ic("gauge")}</button>
         <button class="btn btn-p btn-sm" onclick="tbTry('${esc(w)}')">${tIc("tb.say_it_btn","mic")}</button>
       </div>
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
@@ -3293,12 +3347,12 @@ function vocRow(w,l){
   const saved=!!S.vocab[w],safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
-      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}">🔊</button>
+      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
       <span class="wd">${esc(w)}</span>
       <span class="voc-lvl ${l[0].toLowerCase()}">${l}</span>
       <span style="flex:1"></span>
       <button class="btn btn-g btn-sm" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}">${tIc("voc.say_it_btn","mic")}</button>
-      <button class="btn btn-sm ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')">${saved?"✓":"🔖"}</button>
+      <button class="btn btn-sm ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')" aria-label="Save">${saved?ic("check"):ic("bookmark")}</button>
       <span style="color:var(--mut2)">▾</span>
     </div>
     <div class="voc-body" id="vb_${safe}"><span style="font-size:12px;color:var(--mut2)" id="vres_${safe}"></span></div>
@@ -3352,8 +3406,8 @@ function vocSynHTML(heardText){
   ${found.slice(0,4).map(([a,b])=>`<div class="voc-syn">
     <span>${t("voc.you_said",{word:esc(a)})}</span><span class="arr">↔</span><span>${t("voc.try_instead",{word:esc(b)})}</span>
     <span style="flex:1"></span>
-    <button class="btn btn-g btn-sm" onclick="fbSay('${esc(b)}',1)">🔊</button>
-    <button class="btn btn-g btn-sm" onclick="vocSave('${esc(b)}','${cefr(b)}')">🔖</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay('${esc(b)}',1)" aria-label="Hear">${ic("sound")}</button>
+    <button class="btn btn-g btn-sm" onclick="vocSave('${esc(b)}','${cefr(b)}')" aria-label="Save">${ic("bookmark")}</button>
   </div>`).join("")}`;
 }
 /* My Vocabulary — persistent list + say-the-word quiz */
