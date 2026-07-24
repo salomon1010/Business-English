@@ -74,7 +74,9 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:9px}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-size:17px}
 .brand span.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tab{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s}
+.tab{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.tab-ic{display:inline-flex;line-height:0}
+.tab-ic svg{width:17px;height:17px}
 .tab:hover{color:var(--txt);background:var(--hover)}
 .tab.on{color:#fff;background:var(--grad);font-weight:600}
 .streak-pill{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold);padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px;white-space:nowrap}
@@ -354,7 +356,8 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:14px}
 .help-card{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;cursor:pointer;transition:.15s;color:var(--txt);width:100%;font-family:inherit}
 .help-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 12px 30px rgba(99,102,241,.15)}
-.help-card .hc-ic{width:44px;height:44px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:22px;flex:none}
+.help-card .hc-ic{width:44px;height:44px;border-radius:12px;background:var(--card2);display:grid;place-items:center;color:var(--acc);flex:none}
+.help-card .hc-ic svg{width:24px;height:24px}
 .help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
 .manual-doc.help-mode .top,.manual-doc.help-mode .toc{display:none}
@@ -411,12 +414,12 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 
 <nav><div class="nav-in">
   <div class="brand"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
-  <button class="tab on" data-v="home" data-i18n="nav.dashboard">🏠 Dashboard</button>
-  <button class="tab" data-v="journey" data-i18n="nav.weeks">🗺️ 12 Weeks</button>
-  <button class="tab" data-v="phrases" data-i18n="nav.phrases">💬 Phrases & Idioms</button>
-  <button class="tab" data-v="shadow" data-i18n="nav.shadow">🎯 Shadow</button>
-  <button class="tab" data-v="review" data-i18n="nav.reviews">📊 Reviews</button>
-  <button class="tab" data-v="data" data-i18n="nav.account">👤 Account</button>
+  <button class="tab on" data-v="home" data-ic="home"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.dashboard">Dashboard</span></button>
+  <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
+  <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrases & Idioms</span></button>
+  <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
+  <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
+  <button class="tab" data-v="data" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.account">Account</span></button>
   <div class="streak-pill">🔥 <span id="streakN">0</span></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light or dark mode" title="Toggle light/dark">☀️</button>
 </div></nav>
@@ -772,6 +775,23 @@ function toast(m){const t=document.getElementById("toast");t.textContent=m;t.cla
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
 function jarg(s){return esc(JSON.stringify(s))}
+/* Shared line-icon set (modern, consistent across nav + help centre). 24x24, stroke=currentColor. */
+const ICON={
+  home:'<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/>',
+  map:'<path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/>',
+  target:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
+  chat:'<path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  chart:'<path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/>',
+  user:'<circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/>',
+  rocket:'<path d="M12 3.3c3 1.3 4.7 4 4.7 7.3 0 2-.7 3.8-1.9 5.2H9.2C8 14.4 7.3 12.6 7.3 10.6c0-3.3 1.7-6 4.7-7.3Z"/><circle cx="12" cy="9.8" r="1.5"/><path d="M9.2 15.8 7.6 19l2.7-1M14.8 15.8 16.4 19l-2.7-1"/>',
+  compass:'<circle cx="12" cy="12" r="8.4"/><path d="m14.6 9.4-1.5 3.7-3.7 1.5 1.5-3.7 3.7-1.5Z"/>',
+  clock:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.9"/>',
+  mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/>',
+  book:'<path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/>',
+  calendar:'<rect x="3.6" y="5.2" width="16.8" height="15.2" rx="2"/><path d="M3.6 9.4h16.8"/><path d="M8 3.4v3.4M16 3.4v3.4"/>',
+  help:'<circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.6-1.9 1.9-2.2 3.2"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/>'
+};
+function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 
 /* ================= i18n (UI chrome only — practice content stays English) =================
    I18N_EN is the master dictionary (every valid key). DICT holds the active non-English
@@ -1440,6 +1460,9 @@ const I18N_EN={
 function localizeStatic(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.getAttribute("data-i18n"))});
   document.querySelectorAll("[data-i18n-html]").forEach(el=>{el.innerHTML=t(el.getAttribute("data-i18n-html"))});
+  /* nav tabs: drop the leading emoji from the localized label (icon shown separately) and inject the line icon */
+  document.querySelectorAll(".tab-lbl").forEach(el=>{el.textContent=el.textContent.replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")});
+  document.querySelectorAll("[data-ic]").forEach(b=>{const s=b.querySelector(".tab-ic");if(s&&!s.firstChild)s.innerHTML=ic(b.dataset.ic)});
 }
 function t(key,vars){
   let s=(DICT&&DICT[key]!=null)?DICT[key]:(I18N_EN[key]!=null?I18N_EN[key]:key);
@@ -1910,7 +1933,7 @@ async function rManual(el){
       const m=(a.getAttribute("onclick")||"").match(/man-[\w-]+/);
       const id=m?m[0]:"";
       const title=a.textContent.trim().replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
-      if(id)cards+=`<button class="help-card" onclick="manScroll('${id}')"><span class="hc-ic">${HELP_ICONS[id]||"📄"}</span><span class="hc-t">${esc(title)}</span></button>`;
+      if(id)cards+=`<button class="help-card" onclick="manScroll('${id}')"><span class="hc-ic">${ic(HELP_ICONS[id]||"help")}</span><span class="hc-t">${esc(title)}</span></button>`;
     });
   }catch(e){}
   const name=(S.profile&&S.profile.name)?String(S.profile.name).trim():"";
@@ -1925,7 +1948,7 @@ async function rManual(el){
     <div class="manual-doc help-mode" id="manualDoc">${html}</div>`;
   window.scrollTo({top:0});
 }
-const HELP_ICONS={"man-start":"🚀","man-nav":"🧭","man-dashboard":"🏠","man-journey":"🗺️","man-session":"⏱️","man-shadow":"🎯","man-feedback":"🗣️","man-vocab":"📚","man-phrases":"💬","man-progress":"📈","man-account":"👤","man-week-plan":"📅","man-faq":"❓"};
+const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
 window.helpFilter=function(q){
   q=(q||"").trim().toLowerCase();
   const cards=document.getElementById("helpCards");
