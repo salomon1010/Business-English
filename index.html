@@ -416,7 +416,9 @@ html[dir="rtl"] .lang-row{text-align:right}
 .manual-doc .man-ic svg{width:19px;height:19px}
 .manual-doc .tip .man-ic,.manual-doc .example .man-ic{margin-right:6px;vertical-align:-2px}
 .manual-doc .tip .man-ic svg,.manual-doc .example .man-ic svg{width:16px;height:16px}
-.manual-doc .man-inl{display:inline-flex;vertical-align:-2px;color:var(--macc);line-height:0}
+.man-inl{display:inline-flex;vertical-align:-2px;line-height:0}
+.man-inl svg{width:1.05em;height:1.05em}
+.manual-doc .man-inl{color:var(--macc)}
 .manual-doc .man-inl svg{width:15px;height:15px}
 .manual-doc{--macc:#818cf8;--macc2:#22d3ee;--mgold:#fbbf24;--mgreen:#34d399;--mred:#f87171;font-size:15.5px;line-height:1.65}
 .manual-doc .top{background:var(--grad);color:#fff;padding:34px 22px;text-align:center;border-radius:18px;margin-bottom:0}
@@ -889,12 +891,15 @@ const ICON={
   camera:'<path d="M4 8.5h3l1.5-2h7L17 8.5h3a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 20 19.5H4A1.5 1.5 0 0 1 2.5 18v-8A1.5 1.5 0 0 1 4 8.5Z"/><circle cx="12" cy="13.5" r="3.4"/>',
   mail:'<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.6 7.2 8.4 5.8 8.4-5.8"/>',
   bookmark:'<path d="M6.5 3.5h11a1 1 0 0 1 1 1v16l-6.5-4.2L5.5 20.5v-16a1 1 0 0 1 1-1Z"/>',
+  eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/>',
+  party:'<path d="M4 20l5-14 9 9-14 5Z"/><path d="M9 6l9 9M14 3.5v2M18.5 8h2M16.5 5.5l1.4-1.4"/>',
   doc:'<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.8 3.5V8H18"/><path d="M9 12.5h6M9 15.5h4"/>',
-  phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>'
+  phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>',
+  box:'<path d="M3.5 7.6 12 3l8.5 4.6v8.8L12 21l-8.5-4.6Z"/><path d="M3.5 7.6 12 12.2l8.5-4.6M12 12.2V21"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Emoji → line-icon name, used to iconize the manual headings at runtime (all languages). */
-const EMOJI_ICON={"🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun"};
+const EMOJI_ICON={"🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun","🎉":"party","🎊":"party","👀":"eye","👁️":"eye","👁":"eye","😊":"star","🙂":"star","📦":"box","📮":"box","🗃️":"box","🗂️":"doc","📎":"link","🔑":"lock","🎥":"film","📆":"calendar","⏳":"clock","⌛":"clock"};
 /* Replace a leading emoji in manual headings/callouts with a matching line icon (works for every language). */
 function manIconize(root){
   const re=/^\s*([\p{Extended_Pictographic}️‍]+)\s*/u;
@@ -2177,6 +2182,7 @@ async function rHome(el){
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
   <h3 style="margin:26px 0 12px">${hIcon("list",t("home.rules_h"))}</h3>
   <div class="grid g3">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div class="rule-ic">${ic(RULE_ICONS[i]||"check")}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
+  manIconizeInline(el);
 }
 
 /* ================= JOURNEY ================= */
@@ -2194,6 +2200,7 @@ function rJourney(el,wArg){
       <div class="bar"><i style="width:${done/7*100}%"></i></div>
       <div class="dots">${DAYS.map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
     </div>`}).join("")}</div>`;
+  manIconizeInline(el);
 }
 function rWeek(el,w){
   const wk=WEEKS[w-1];
@@ -2212,6 +2219,7 @@ function rWeek(el,w){
       <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
       <span style="color:var(--mut2);font-size:18px">›</span>
     </div>`}).join("")}`;
+  manIconizeInline(el);
 }
 
 /* ================= SESSION ================= */
@@ -2299,6 +2307,7 @@ function rSession(el,w,d){
     </div>
   </div>
   <div id="fbOut" style="margin-top:4px"></div>`;
+  manIconizeInline(el);
   renderRecs(key);
 }
 window.toggleStep=(key,i)=>{
@@ -2611,6 +2620,7 @@ function rShadow(el){
   shRenderClips();tbRender();vlRender();
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
   if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
+  manIconizeInline(el);
 }
 function tbRender(){
   const box=document.getElementById("tbBox");if(!box)return;
@@ -3190,6 +3200,7 @@ function fbShowResults(targetText,heardText,fromRec){
     ${vl.map(x=>vocRow(x.w,x.l)).join("")}
     ${vocSynHTML(heardText)}`})()}
   <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("fb.disclaimer")}</p>`;
+  manIconizeInline(out);
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();
 }
@@ -3621,6 +3632,7 @@ function rPhrases(el,wFilter){
       <div id="phrecs${p.ix}"></div>
     </div>`}).join("");
   items.forEach(p=>renderPhRecs(p.ix));
+  manIconizeInline(el);
 }
 window.phEx=(k,v)=>{S.phExample[k]=v;save();toast(t("ph.example_saved_toast"))};
 window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];save();go("phrases",cur.arg1)};
@@ -3810,6 +3822,7 @@ function rReview(el,wArg){
     </div>
   </div>
   ${[4,8,12].includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut2);margin-top:18px">${t("rev.monthly_locked")}</p>`}`;
+  manIconizeInline(el);
   drawTrend();
 }
 function rMonthly(w){
@@ -3888,6 +3901,7 @@ function rProfile(el){
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
   </div>`;
+  manIconizeInline(el);
 }
 async function rData(el){
   const recN=await countRecs();
@@ -3993,6 +4007,7 @@ async function rData(el){
     </div>
     <p style="font-size:12.5px;color:var(--mut2);margin-top:12px">${t("acc.export_note")}</p>
   </div>`;
+  manIconizeInline(el);
 }
 window.expData=()=>{
   const a=document.createElement("a");
