@@ -4292,6 +4292,8 @@ try{
     firebase.initializeApp(FB_CONFIG);
     FBauth=firebase.auth();FBdb=firebase.firestore();
     FBauth.onAuthStateChanged(fbOnAuth);
+    /* complete a Google redirect sign-in when the app reloads after it */
+    FBauth.getRedirectResult().then(r=>{if(r&&r.user){try{fbCloseModal()}catch(e){}try{toast(t("auth.signed_in_toast"))}catch(e){}}}).catch(e=>{try{toast(fbErr(e))}catch(_){}});
   }
 }catch(e){console.warn("Firebase unavailable:",e&&e.message)}
 
@@ -4357,10 +4359,23 @@ window.fbPush=function(){
 /* --- provider actions --- */
 function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
 function fbSetErr(m){const el=document.getElementById("authErr");if(el)el.textContent=m||""}
+function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
   if(!FBauth)return toast(t("auth.unavailable_toast"));
-  try{await FBauth.signInWithPopup(new firebase.auth.GoogleAuthProvider());fbCloseModal();toast(t("auth.signed_in_toast"))}
-  catch(e){fbSetErr(fbErr(e))}
+  const provider=new firebase.auth.GoogleAuthProvider();
+  fbSetErr("");
+  /* popups don't work in installed/standalone apps → use a full-page redirect instead */
+  if(fbIsStandalone()){
+    try{await FBauth.signInWithRedirect(provider)}catch(e){fbSetErr(fbErr(e))}
+    return;
+  }
+  try{await FBauth.signInWithPopup(provider);fbCloseModal();toast(t("auth.signed_in_toast"))}
+  catch(e){
+    const c=(e&&e.code)||"";
+    if(/popup-blocked|operation-not-supported|web-storage-unsupported|internal-error/.test(c)){
+      try{await FBauth.signInWithRedirect(provider)}catch(e2){fbSetErr(fbErr(e2))}
+    }else fbSetErr(fbErr(e));
+  }
 };
 window.fbEmailAuth=async function(mode){
   if(!FBauth)return;
