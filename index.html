@@ -173,6 +173,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .day-row .ic svg{width:22px;height:22px}
 .inl-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--acc);line-height:0}
 .inl-ic svg{width:15px;height:15px}
+.btn-ic{display:inline-flex;vertical-align:-3px;margin-right:5px;line-height:0}
+.btn-ic svg{width:15px;height:15px}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -347,6 +349,11 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 }
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
+.about-ov{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.about-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px calc(13px + env(safe-area-inset-top));padding-top:max(13px,env(safe-area-inset-top));border-bottom:1px solid var(--line2);background:var(--card);font-size:16px;font-weight:800;flex:none}
+.about-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer}
+.about-x svg{width:20px;height:20px}
+.about-frame{flex:1;width:100%;border:none;background:var(--bg)}
 .help-fab{position:fixed;right:24px;bottom:24px;z-index:57;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
   background:var(--grad);color:#fff;font-size:26px;font-weight:800;line-height:1;display:grid;place-items:center;font-family:inherit;
   box-shadow:0 10px 30px rgba(99,102,241,.45);transition:transform .15s,box-shadow .15s}
@@ -836,11 +843,24 @@ const ICON={
   headphones:'<path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><rect x="3" y="13" width="4.2" height="7" rx="1.6"/><rect x="16.8" y="13" width="4.2" height="7" rx="1.6"/>',
   sound:'<path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/>',
   sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.5 4.5l1.7 1.7M17.8 17.8l1.7 1.7M2.6 12H5M19 12h2.4M4.5 19.5l1.7-1.7M17.8 6.2l1.7-1.7"/>',
-  moon:'<path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.5 6.5 0 0 0 10.7 10.7Z"/>'
+  moon:'<path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.5 6.5 0 0 0 10.7 10.7Z"/>',
+  briefcase:'<rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.6h18"/>',
+  clipboard:'<rect x="5" y="4.5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="3.4" rx="1.1"/><path d="M8.5 10.5h7M8.5 14h5"/>',
+  pencil:'<path d="M14.4 5.6 18.4 9.6"/><path d="M4 20l1-4L16.2 4.8a2 2 0 0 1 2.9 2.9L8 19l-4 1Z"/>',
+  gauge:'<path d="M4 15.5a8 8 0 0 1 16 0"/><path d="M4 15.5h16"/><path d="M12 15.5 8.6 12.1"/>',
+  star:'<path d="M12 3.5l2.6 5.3 5.8.9-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L2.6 9.7l5.8-.9Z"/>',
+  dumbbell:'<path d="M4 9v6M7 6.5v11M17 6.5v11M20 9v6M7 12h10"/>',
+  trophy:'<path d="M8 4h8v4.5a4 4 0 0 1-8 0Z"/><path d="M8 5.2H5.6a2 2 0 0 0 0 4H8.3M16 5.2h2.4a2 2 0 0 1 0 4H15.7"/><path d="M12 12.5v3.5M9.2 20h5.6M10.2 20l.5-4M13.8 20l-.5-4"/>',
+  alert:'<path d="M12 4 2.8 19.2h18.4L12 4Z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r="0.75" fill="currentColor" stroke="none"/>',
+  close:'<path d="M6 6l12 12M18 6 6 18"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
 function hIcon(name,s){return `<span class="head-ic">${ic(name)}</span>${String(s).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}`}
+/* Button/label version: small inline icon + the localized text with its leading emoji stripped. */
+function tIc(key,name){return `<span class="btn-ic">${ic(name)}</span>${t(key).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}`}
+/* Same, but the icon is tinted with the brand accent (for muted body labels). */
+function tInl(key,name){return `<span class="inl-ic">${ic(name)}</span>${t(key).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}`}
 
 /* ================= i18n (UI chrome only — practice content stays English) =================
    I18N_EN is the master dictionary (every valid key). DICT holds the active non-English
@@ -2017,6 +2037,17 @@ window.helpFilter=function(q){
   if(nr)nr.style.display=any?"none":"";
 };
 window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
+/* About the app — open the flyer inside the app (an overlay iframe), never an external browser tab */
+window.openAbout=function(){
+  let ov=document.getElementById("aboutOv");
+  if(!ov){
+    ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
+    ov.innerHTML=`<div class="about-bar"><b>${esc(t("profile.about"))}</b><button class="about-x" onclick="closeAbout()" aria-label="Close">${ic("close")}</button></div><iframe class="about-frame" src="flyer.html" title="${esc(t("profile.about"))}"></iframe>`;
+    document.body.appendChild(ov);
+  }
+  ov.style.display="flex";
+};
+window.closeAbout=function(){const ov=document.getElementById("aboutOv");if(ov)ov.style.display="none";};
 
 /* ================= DASHBOARD ================= */
 async function rHome(el){
@@ -2385,11 +2416,11 @@ function rShadow(el){
       <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
         <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
         <b style="font-size:14px;line-height:1.35">${s.name}</b>
-        ${s.cap?`<span class="chip p3" style="align-self:flex-start;font-size:11px">${t("sh.captions_ready")}</span>`:""}
+        ${s.cap?`<span class="chip p3" style="align-self:flex-start;font-size:11px">${tIc("sh.captions_ready","film")}</span>`:""}
         <p style="font-size:12.5px;color:var(--mut);flex:1">${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
         <div style="display:flex;gap:8px">
           <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
-          <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}">${t("sh.copy_btn")}</button>
+          <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}">${tIc("sh.copy_btn","clipboard")}</button>
         </div>
       </div>`).join("")}
     </div>
@@ -2420,7 +2451,7 @@ function rShadow(el){
       <span style="flex:1"></span>
       <button class="sh-round" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
       <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">🔁</button>
-      <button class="btn btn-g" onclick="shSaveClip()">${t("sh.save_clip_btn")}</button>
+      <button class="btn btn-g" onclick="shSaveClip()">${tIc("sh.save_clip_btn","star")}</button>
     </div>
     <div class="sh-seg">
       <span class="lbl">${t("sh.clip_label")}</span>
@@ -2460,7 +2491,7 @@ function rShadow(el){
         </div>
       </div>
       <div class="card">
-        <b style="font-size:15px">${t("sh.transcript_notes_title")}</b>
+        <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
         <textarea rows="4" id="shNote" placeholder="${esc(t("sh.transcript_ph"))}"></textarea>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
@@ -2486,13 +2517,13 @@ function rShadow(el){
       <div id="fbOut" style="margin-top:6px"></div>
     </div>
   </div>
-  <h3 style="margin:26px 0 6px">${t("sh.saved_clips_h")}</h3>
+  <h3 style="margin:26px 0 6px">${hIcon("star",t("sh.saved_clips_h"))}</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.saved_clips_sub")}</p>
   <div id="shClips"></div>
-  <h3 style="margin:26px 0 6px">${t("sh.trouble_h")}</h3>
+  <h3 style="margin:26px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
   <div id="tbBox"></div>
-  <h3 style="margin:26px 0 6px">${t("sh.vocab_h")}</h3>
+  <h3 style="margin:26px 0 6px">${hIcon("book",t("sh.vocab_h"))}</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.vocab_sub")}</p>
   <div id="vlBox"></div>`;
   shRenderClips();tbRender();vlRender();
@@ -3418,12 +3449,12 @@ window.exGo=()=>{
   const{out,changes}=execPolish(inp);
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
-    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">${t("ex.exec_version")}</div>
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">${tIc("ex.exec_version","briefcase")}</div>
     <p style="font-size:17px;font-weight:600;line-height:1.55;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">${esc(out)}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},1)">${t("ex.hear_btn")}</button>
-      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},0.7)">${t("ex.slow_btn")}</button>
-      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(out)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${t("ex.copy_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},1)">${tIc("ex.hear_btn","sound")}</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(out)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
       <button class="btn btn-g btn-sm" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
     </div>
     ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">${t("ex.what_changed")}</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
@@ -3473,12 +3504,12 @@ function rPhrases(el,wFilter){
   <h1 class="big">${t("ph.title")}</h1>
   <p class="sub">${t("ph.sub")}</p>
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
-    <b style="font-size:15px">${t("ph.exec_title")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
+    <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="exIn" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
       <button class="btn btn-g" onclick="exDictate()">🎤</button>
-      <button class="btn btn-p" onclick="exGo()">${t("ph.exec_polish_btn")}</button>
+      <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
     <div id="exOut"></div>
@@ -3496,12 +3527,12 @@ function rPhrases(el,wFilter){
   list.innerHTML+=items.map(p=>{
     const k="p"+p.ix,m=S.phMaster[k];
     return `<div class="ph-card ${m?'mastered':''}" id="ph${p.ix}">
-      ${p.i?`<div class="idiom-tag">${t("ph.idiom_tag")}</div>`:''}
+      ${p.i?`<div class="idiom-tag">${tIc("ph.idiom_tag","briefcase")}</div>`:''}
       <div class="phrase">“${esc(p.p)}”</div>
       <div class="use">${esc(p.u)}</div>
       <input placeholder="${esc(t("ph.example_ph"))}" value="${esc(S.phExample[k]||"")}" onchange="phEx('${k}',this.value)" style="margin-bottom:10px">
       <div class="ph-actions">
-        <button class="btn btn-g btn-sm" id="phrec${p.ix}" onclick="phRec(${p.ix})">${t("ph.record_btn")}</button>
+        <button class="btn btn-g btn-sm" id="phrec${p.ix}" onclick="phRec(${p.ix})">${tIc("ph.record_btn","mic")}</button>
         <button class="btn ${m?'btn-p':'btn-g'} btn-sm" onclick="phMaster('${k}')">${m?t("ph.mastered_btn"):t("ph.mark_mastered_btn")}</button>
         <span style="font-size:12px;color:var(--mut2)" id="phn${p.ix}"></span>
       </div>
@@ -3685,13 +3716,13 @@ function rReview(el,wArg){
     </div>
     <div class="card">
       <b style="font-size:16px">${t("rev.written_title",{w})}</b>
-      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("rev.wins_label")}</p>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${tInl("rev.wins_label","trophy")}</p>
       <textarea rows="2" onchange="wkField(${w},'wins',this.value)">${esc(wr.wins)}</textarea>
-      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("rev.weak_label")}</p>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${tInl("rev.weak_label","alert")}</p>
       <textarea rows="2" onchange="wkField(${w},'weak',this.value)">${esc(wr.weak)}</textarea>
-      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("rev.corr_label")}</p>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${tInl("rev.corr_label","target")}</p>
       <textarea rows="2" onchange="wkField(${w},'corr',this.value)">${esc(wr.corr)}</textarea>
-      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("rev.top5_label")}</p>
+      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${tInl("rev.top5_label","chat")}</p>
       <textarea rows="2" onchange="wkField(${w},'top5',this.value)">${esc(wr.top5)}</textarea>
       <button class="btn ${wr.done?'btn-g':'btn-p'}" style="margin-top:14px;width:100%;justify-content:center" onclick="wkDone(${w})">${wr.done?t("rev.review_done"):t("rev.review_complete_btn",{w})}</button>
     </div>
@@ -3773,7 +3804,7 @@ function rProfile(el){
   <div class="pf-menu">
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
-    <a class="pf-row" href="flyer.html" target="_blank"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></a>
+    <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
   </div>`;
 }
 async function rData(el){
