@@ -411,6 +411,55 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-card .hc-ic svg{width:24px;height:24px}
 .help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
+/* ROLE-PLAY (AI conversation) */
+.rp-av{display:grid;place-items:center;border-radius:20px;background:var(--grad);color:#fff;flex:none}
+.rp-av svg{width:44%;height:44%}
+.rp-keynote{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--mut);margin-bottom:18px}
+.rp-keynote a{cursor:pointer;font-weight:600}
+.rp-hero{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--grad);border:none;border-radius:20px;padding:20px 22px;color:#fff;cursor:pointer;margin-bottom:8px;transition:.15s}
+.rp-hero:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(99,102,241,.3)}
+.rp-hero .rp-av{background:rgba(255,255,255,.18)}
+.rp-hero-t{display:flex;flex-direction:column;gap:2px}
+.rp-hero-t small{font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.85}
+.rp-hero-t b{font-size:20px;font-weight:800}
+.rp-hero-go{font-size:13px;opacity:.9;font-weight:600}
+.rp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.rp-card{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:18px 14px;cursor:pointer;color:var(--txt);font-family:inherit;transition:.15s}
+.rp-card:hover{border-color:var(--acc);transform:translateY(-3px)}
+.rp-card b{font-size:14.5px;line-height:1.3}
+.rp-card small{color:var(--mut);font-size:12px}
+.rp-intro{max-width:600px;margin:10px auto 0;text-align:center}
+.rp-intro .rp-av{margin:0 auto 12px}
+.rp-persona{color:var(--mut);font-weight:600;letter-spacing:1px;text-transform:uppercase;font-size:12px}
+.rp-h4{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--acc2);margin-bottom:8px;text-align:left}
+.rp-points{display:flex;flex-direction:column;gap:10px}
+.rp-point{display:flex;align-items:flex-start;gap:12px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:13px 16px;text-align:left;font-size:14px;transition:.2s}
+.rp-point.done{border-color:var(--green);background:rgba(52,211,153,.08)}
+.rp-pn{width:24px;height:24px;border-radius:50%;background:var(--card);border:1px solid var(--line2);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none;color:var(--mut)}
+.rp-point.done .rp-pn{background:var(--green);color:#fff;border-color:var(--green)}
+.rp-live-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.rp-live-top b{font-size:17px}
+.rp-live-grid{display:grid;grid-template-columns:260px 1fr 300px;gap:18px;align-items:start}
+.rp-live-points,.rp-live-tx{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:16px}
+.rp-lp-h,.rp-tx-h{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.rp-live-points .rp-point{margin-bottom:10px}
+.rp-live-stage{display:flex;flex-direction:column;align-items:center;gap:18px;background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:28px 18px;min-height:340px;justify-content:center}
+.rp-live-stage .rp-av{width:130px;height:130px;border-radius:28px}
+.rp-mic{width:76px;height:76px;border-radius:50%;border:none;cursor:pointer;background:var(--grad);color:#fff;display:grid;place-items:center;box-shadow:0 8px 28px rgba(99,102,241,.45);transition:.15s}
+.rp-mic svg{width:32px;height:32px}
+.rp-mic:hover{transform:scale(1.05)}
+.rp-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.rp-status{font-size:13px;color:var(--mut);min-height:18px}
+.rp-tx{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.rp-bubble{max-width:88%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.45}
+.rp-bubble.ai{background:var(--card2);border:1px solid var(--line2);align-self:flex-start;border-bottom-left-radius:4px}
+.rp-bubble.me{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.rp-modal-ov{position:fixed;inset:0;z-index:140;background:rgba(6,9,18,.7);backdrop-filter:blur(5px);display:grid;place-items:center;padding:22px;animation:fade .2s}
+.rp-modal{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:24px;max-width:400px;width:100%}
+.rp-modal b{font-size:18px;display:block;margin-bottom:8px}
+.rp-modal p{font-size:14px;color:var(--mut);margin-bottom:18px;line-height:1.5}
+.rp-modal-btns{display:flex;gap:10px;justify-content:flex-end}
+@media(max-width:820px){.rp-live-grid{grid-template-columns:1fr}.rp-live-points{order:2}.rp-live-stage{order:1}.rp-live-tx{order:3}.rp-tx{max-height:260px}}
 .manual-doc.help-mode .top,.manual-doc.help-mode .toc{display:none}
 .manual-doc .man-ic{display:inline-flex;vertical-align:-3px;margin-right:9px;color:var(--macc);line-height:0}
 .manual-doc h2.sec .man-ic svg{width:22px;height:22px}
@@ -491,6 +540,7 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <div id="v-shadow" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
+  <div id="v-roleplay" class="view"></div>
   <div id="v-data" class="view"></div>
   <div id="v-manual" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">12-Week Business English Mastery System · Progress is saved automatically on this device<br>
@@ -1009,6 +1059,38 @@ const I18N_EN={
  "profile.help_sub":"How to use every feature",
  "profile.about":"About the app",
  "profile.about_sub":"What BE Mastery does",
+ "profile.roleplay":"Conversation practice",
+ "profile.roleplay_sub":"Role-play real situations with an AI partner",
+ "rp.eyebrow":"AI conversation practice",
+ "rp.title":"Talk it out — <em>role-play</em>",
+ "rp.sub":"Pick a situation and have a real spoken conversation with an AI partner. Cover your talking points to complete it.",
+ "rp.featured":"FEATURED SCENARIO",
+ "rp.start":"Start practice",
+ "rp.back_lib":"‹ Scenarios",
+ "rp.scenario_h":"Scenario",
+ "rp.points_h":"Your talking points",
+ "rp.end":"End practice",
+ "rp.transcript":"Real-time transcript",
+ "rp.tap_to_speak":"Tap the mic and speak",
+ "rp.listening":"Listening…",
+ "rp.thinking":"…",
+ "rp.all_done":"All talking points covered — nicely done!",
+ "rp.err":"Sorry, I didn't catch that — try again.",
+ "rp.idle_title":"Session paused",
+ "rp.idle_body":"We paused this practice because there was no activity for a while.",
+ "rp.back_lib_btn":"Back to scenarios",
+ "rp.to_summary":"See summary",
+ "rp.summary_h":"Practice summary",
+ "rp.summary_sub":"How you did in “{{title}}”.",
+ "rp.points_covered":"Talking points covered",
+ "rp.again":"Practise again",
+ "rp.more":"More scenarios",
+ "rp.key_needed":"Live conversation needs an AI connection. Paste your Anthropic API key to switch it on — it's stored only on this device and never uploaded.",
+ "rp.key_needed_short":"Add your AI key to start live conversation.",
+ "rp.key_add":"Add key",
+ "rp.key_save":"Save key",
+ "rp.key_saved":"AI key saved on this device",
+ "rp.key_note":"Get a key at console.anthropic.com. Kept only in this browser, like your GitHub token.",
  "acc.profile_title":"Profile",
  "acc.profile_sub":"Personalizes your dashboard, drills and weekly story. Nothing leaves this device.",
  "acc.first_name":"First name",
@@ -2061,6 +2143,7 @@ function bnavSync(v){
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 function go(v,arg1,arg2){
+  if(cur&&cur.v==="roleplay"&&v!=="roleplay"&&typeof rpEndConv==="function")rpEndConv();
   cur={v,arg1,arg2};
   const tv=v==="data"?"profile":v; /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
@@ -2068,7 +2151,7 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,data:rData,manual:rManual})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,roleplay:rRoleplay,data:rData,manual:rManual})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
@@ -3993,6 +4076,7 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
   <div class="pf-menu">
+    <button class="pf-row" onclick="go('roleplay')"><span class="pf-ic">${ic("chat")}</span><span class="pf-txt"><b>${t("profile.roleplay")}</b><small>${t("profile.roleplay_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
@@ -4174,8 +4258,169 @@ function toggleTheme(){
 }
 applyTheme(document.documentElement.getAttribute("data-theme")||"dark");
 
+/* ================= ROLE-PLAY — AI conversation practice ================= */
+const RP_AIKEY="be12_aikey";
+function rpKey(){try{return localStorage.getItem(RP_AIKEY)||""}catch(e){return""}}
+window.rpSaveKey=()=>{const el=document.getElementById("rpKeyIn");if(!el)return;try{localStorage.setItem(RP_AIKEY,(el.value||"").trim())}catch(e){}toast(t("rp.key_saved"));go("roleplay",cur.arg1)};
+const RP_CATS=[["daily","Daily life"],["work","At work"],["travel","Travelling"]];
+const SCENARIOS=[
+ {id:"coffee",cat:"daily",persona:"Mia",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
+ {id:"neighbour",cat:"daily",persona:"Tom",role:"new neighbour",ic:"user",title:"Meeting a neighbour",scenario:"You just moved in. Introduce yourself to a neighbour and make small talk.",points:["Introduce yourself and say where you moved from","Ask two questions about the area","Suggest meeting again some time"],greet:"Oh, hello! You must have just moved into number 12 — I'm Tom."},
+ {id:"vet",cat:"daily",persona:"Dr Rao",role:"vet",ic:"user",title:"Visiting the vet",scenario:"Explain your pet's symptoms and understand the vet's advice.",points:["Describe your pet and its symptoms","Ask what the treatment involves","Confirm the next steps and the cost"],greet:"Hello, come on in. So, what seems to be the trouble with your little one today?"},
+ {id:"standup",cat:"work",persona:"Priya",role:"team lead",ic:"chart",title:"Daily stand-up",scenario:"Give a clear project update in your team's morning stand-up.",points:["Say what you did yesterday","Say what you're doing today","Raise one blocker and ask for help"],greet:"Morning! Let's do a quick round — want to kick us off with your update?"},
+ {id:"interview",cat:"work",persona:"Mr Bello",role:"hiring manager",ic:"briefcase",title:"Job interview",scenario:"Answer common interview questions confidently and ask your own.",points:["Introduce yourself in about 30 seconds","Describe a strength with a real example","Ask the interviewer one good question"],greet:"Thanks for coming in. To start, could you tell me a little about yourself?"},
+ {id:"oneone",cat:"work",persona:"Sara",role:"your manager",ic:"user",title:"One-to-one with your manager",scenario:"Discuss your progress and ask for something you need.",points:["Share one recent win","Raise a challenge you're facing","Ask for support or a resource"],greet:"Good to catch up. How have things been going these past couple of weeks?"},
+ {id:"checkin",cat:"travel",persona:"Ada",role:"check-in agent",ic:"map",title:"Airport check-in",scenario:"Check in for a flight and sort out your bags and seat.",points:["Give your destination and booking details","Ask about the baggage allowance","Request a seat preference"],greet:"Good morning! May I have your passport, and where are you flying to today?"},
+ {id:"taxi",cat:"travel",persona:"Luis",role:"taxi driver",ic:"train",title:"Taking a taxi",scenario:"Give directions, make a little small talk, and pay.",points:["Tell the driver your destination","Ask roughly how long it will take","Ask to pay by card"],greet:"Evening! Hop in — where are we headed?"},
+ {id:"hotel",cat:"travel",persona:"Nina",role:"hotel receptionist",ic:"home",title:"Hotel check-in",scenario:"Check into a hotel and ask about the facilities.",points:["Give your reservation name","Ask about breakfast and wi-fi","Ask for a late checkout"],greet:"Welcome to The Meridian! Do you have a reservation with us?"},
+];
+function rpById(id){return SCENARIOS.find(s=>s.id===id)}
+function rpAvatar(sc,size){return `<span class="rp-av" style="width:${size}px;height:${size}px">${ic(sc.ic)}</span>`}
+let rpConv=null;
+function rRoleplay(el,id){
+  rpEndConv();
+  const sc=id?rpById(id):null;
+  if(!sc){rpLibrary(el);return}
+  rpIntro(el,sc);
+}
+function rpLibrary(el){
+  const feat=SCENARIOS[3];
+  const cats=RP_CATS.map(([c,label])=>{
+    const items=SCENARIOS.filter(s=>s.cat===c);
+    return `<h3 style="margin:26px 0 12px">${esc(label)}</h3><div class="rp-grid">${items.map(s=>`<button class="rp-card" onclick="go('roleplay','${s.id}')">${rpAvatar(s,92)}<b>${esc(s.title)}</b><small>${esc(s.persona)} · ${esc(s.role)}</small></button>`).join("")}</div>`;
+  }).join("");
+  el.innerHTML=`
+   <div class="eyebrow">${t("rp.eyebrow")}</div>
+   <h1 class="big">${t("rp.title")}</h1>
+   <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
+   ${rpKey()?"":`<div class="rp-keynote">${t("rp.key_needed")}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><input id="rpKeyIn" type="password" placeholder="sk-ant-…" style="flex:1;min-width:200px"><button class="btn btn-p btn-sm" onclick="rpSaveKey()">${t("rp.key_save")}</button></div><p style="font-size:11.5px;color:var(--mut2);margin-top:8px">${t("rp.key_note")}</p></div>`}
+   <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
+   ${cats}`;
+  manIconizeInline(el);
+}
+function rpIntro(el,sc){
+  el.innerHTML=`
+   <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   <div class="rp-intro">
+     ${rpAvatar(sc,120)}
+     <small class="rp-persona">${esc(sc.persona)}</small>
+     <h1 class="big" style="margin:2px 0 16px">${esc(sc.title)}</h1>
+     <h4 class="rp-h4">${t("rp.scenario_h")}</h4>
+     <p class="sub" style="margin-bottom:18px">${esc(sc.scenario)}</p>
+     <h4 class="rp-h4">${t("rp.points_h")}</h4>
+     <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+     ${rpKey()?`<button class="btn btn-p" style="margin-top:22px;font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${t("rp.start")}</button>`:`<p class="rp-keynote" style="margin-top:18px">${t("rp.key_needed_short")} <a onclick="go('roleplay')">${t("rp.key_add")}</a></p>`}
+   </div>`;
+  manIconizeInline(el);
+}
+window.rpStart=(id)=>{
+  const sc=rpById(id); if(!sc)return;
+  if(!rpKey())return toast(t("rp.key_needed_short"));
+  if(!SR)return toast(t("fb.sr_unavailable"));
+  rpConv={sc,history:[],covered:new Set(),busy:false,idle:null};
+  const el=document.getElementById("v-roleplay");
+  el.innerHTML=`
+   <div class="rp-live">
+     <div class="rp-live-top"><b>${esc(sc.title)}</b><button class="btn btn-g btn-sm" onclick="rpEnd()">${t("rp.end")}</button></div>
+     <div class="rp-live-grid">
+       <div class="rp-live-points">
+         <div class="rp-lp-h">${t("rp.points_h")} <span id="rpProg" class="chip">0/${sc.points.length}</span></div>
+         ${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}
+       </div>
+       <div class="rp-live-stage">
+         ${rpAvatar(sc,120)}
+         <button class="rp-mic" id="rpMic" onclick="rpListen()" aria-label="Speak">${ic("mic")}</button>
+         <div class="rp-status" id="rpStatus">${t("rp.tap_to_speak")}</div>
+       </div>
+       <div class="rp-live-tx">
+         <div class="rp-tx-h">${t("rp.transcript")}</div>
+         <div class="rp-tx" id="rpTx"></div>
+       </div>
+     </div>
+   </div>`;
+  manIconizeInline(el);
+  rpConv.history.push({role:"assistant",content:sc.greet});
+  rpAddBubble("ai",sc.greet); fbSay(sc.greet,0.95);
+  rpResetIdle();
+};
+function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)return;const d=document.createElement("div");d.className="rp-bubble "+(who==="ai"?"ai":"me");d.textContent=text;tx.appendChild(d);tx.scrollTop=tx.scrollHeight;}
+window.rpListen=()=>{
+  if(!rpConv||rpConv.busy)return;
+  if(!SR)return toast(t("fb.sr_unavailable"));
+  rpClearIdle();
+  try{speechSynthesis.cancel()}catch(e){}
+  const mic=document.getElementById("rpMic"),st=document.getElementById("rpStatus");
+  const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;let got=false;
+  if(mic)mic.classList.add("on"); if(st)st.textContent=t("rp.listening");
+  r.onresult=e=>{got=true;rpUserTurn((e.results[0][0].transcript||"").trim())};
+  r.onerror=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()};
+  r.onend=()=>{if(mic)mic.classList.remove("on");if(!got){if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()}};
+  try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
+};
+async function rpUserTurn(text){
+  if(!rpConv||!text)return;
+  rpConv.busy=true; rpAddBubble("me",text); rpConv.history.push({role:"user",content:text});
+  const st=document.getElementById("rpStatus"); if(st)st.textContent=t("rp.thinking");
+  try{
+    const res=await rpAI();
+    rpConv.history.push({role:"assistant",content:res.reply});
+    rpAddBubble("ai",res.reply); fbSay(res.reply,0.95);
+    (res.covered||[]).forEach(n=>{if(n>=1&&n<=rpConv.sc.points.length)rpConv.covered.add(n)});
+    rpUpdatePoints();
+    if(st)st.textContent=t("rp.tap_to_speak");
+    if(rpConv.covered.size>=rpConv.sc.points.length)setTimeout(()=>{if(rpConv)toast(t("rp.all_done"))},500);
+  }catch(e){rpAddBubble("ai",t("rp.err")+(e&&e.message?" ("+e.message+")":"")); if(st)st.textContent=t("rp.tap_to_speak");}
+  if(rpConv)rpConv.busy=false; rpResetIdle();
+}
+async function rpAI(){
+  const sc=rpConv.sc,key=rpKey();
+  const sys=`You are ${sc.persona}, a ${sc.role}. Setting: ${sc.scenario} Stay fully in character and speak naturally with a warm, friendly tone. The user is practising spoken English at roughly an intermediate level, so keep every reply short — one or two sentences — use everyday words, and keep the conversation moving with a question or prompt. Never break character or say you are an AI. During the chat the user is trying to complete these goals: ${sc.points.map((p,i)=>`${i+1}) ${p}`).join("; ")}. Naturally steer things so they get a chance to do each one. Respond with ONLY minified JSON, no code fences: {"reply":"<your spoken reply>","covered":[<the 1-based numbers of the goals the user has clearly completed so far across the whole conversation>]}`;
+  const body={model:"claude-haiku-4-5-20251001",max_tokens:400,system:sys,messages:rpConv.history};
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify(body)});
+  if(!r.ok){let m="HTTP "+r.status;try{const e=await r.json();m=(e.error&&e.error.message)||m}catch(_){}throw new Error(m)}
+  const j=await r.json();
+  let raw=((j.content&&j.content[0]&&j.content[0].text)||"").trim().replace(/^```json/i,"").replace(/^```/,"").replace(/```$/,"").trim();
+  let p;try{p=JSON.parse(raw)}catch(e){p={reply:raw||"Sorry, could you say that again?",covered:[]}}
+  if(!p.reply)p.reply="Sorry, could you say that again?";
+  if(!Array.isArray(p.covered))p.covered=[];
+  return p;
+}
+function rpUpdatePoints(){if(!rpConv)return;rpConv.sc.points.forEach((p,i)=>{const el=document.getElementById("rpp"+i);if(el)el.classList.toggle("done",rpConv.covered.has(i+1))});const pr=document.getElementById("rpProg");if(pr)pr.textContent=rpConv.covered.size+"/"+rpConv.sc.points.length;}
+function rpResetIdle(){rpClearIdle();if(rpConv)rpConv.idle=setTimeout(rpIdle,75000);}
+function rpClearIdle(){if(rpConv&&rpConv.idle){clearTimeout(rpConv.idle);rpConv.idle=null}}
+function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>go("roleplay"),t("rp.to_summary"),rpSummary)}
+window.rpEnd=()=>rpSummary();
+function rpSummary(){
+  if(!rpConv)return; rpClearIdle(); try{speechSynthesis.cancel()}catch(e){}
+  const sc=rpConv.sc,covered=rpConv.covered;
+  const el=document.getElementById("v-roleplay");
+  el.innerHTML=`
+   <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   <div class="rp-intro">
+     ${rpAvatar(sc,84)}
+     <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
+     <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
+     <div class="stat" style="max-width:320px;margin-bottom:16px"><div class="n"><span class="stat-ic">${ic("check")}</span>${covered.size}/${sc.points.length}</div><div class="l">${t("rp.points_covered")}</div></div>
+     <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point ${covered.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+     <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+       <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
+       <button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button>
+     </div>
+   </div>`;
+  manIconizeInline(el); rpConv=null;
+}
+function rpEndConv(){if(rpConv){rpClearIdle();rpConv=null;try{speechSynthesis.cancel()}catch(e){}}const m=document.getElementById("rpModal");if(m)m.remove();}
+function rpShowModal(title,body,b1,f1,b2,f2){
+  let m=document.getElementById("rpModal");if(m)m.remove();
+  m=document.createElement("div");m.id="rpModal";m.className="rp-modal-ov";
+  m.innerHTML=`<div class="rp-modal"><b>${esc(title)}</b><p>${esc(body)}</p><div class="rp-modal-btns"><button class="btn btn-g btn-sm" id="rpm1">${esc(b1)}</button><button class="btn btn-p btn-sm" id="rpm2">${esc(b2)}</button></div></div>`;
+  document.body.appendChild(m);
+  document.getElementById("rpm1").onclick=()=>{m.remove();f1&&f1()};
+  document.getElementById("rpm2").onclick=()=>{m.remove();f2&&f2()};
+}
+
 (async function boot(){
-  const valid=["home","journey","phrases","shadow","review","profile","data","session","manual"];
+  const valid=["home","journey","phrases","shadow","review","profile","roleplay","data","session","manual"];
   const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
