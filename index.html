@@ -103,6 +103,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
 .btn{border:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:14.5px;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.btn>svg{width:18px;height:18px;flex:none}
 .btn-p{background:var(--grad);color:#fff}.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px)}
 .btn-g{background:var(--card2);color:var(--txt);border:1px solid var(--line2)}.btn-g:hover{border-color:var(--acc)}
 .btn-danger{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
@@ -304,7 +305,8 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px;
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
 .ob-card{max-width:520px;width:100%;text-align:center;animation:fade .4s}
-.ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45)}
+.ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45);color:#fff}
+.ob-logo svg{width:40px;height:40px}
 .ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
 .ob-card .sub{margin:0 auto 26px}
 .ob-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
@@ -501,11 +503,11 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 <script>
 /* ================= DATA ================= */
 const RESOURCES=[
- {ic:"🎬",name:"Fluent American Shadowing",url:"https://www.youtube.com/@FluentAmericanShadowing",desc:"Clips built as shadowing exercises: visual text prompts, clear pauses, isolated stress patterns.",use:"Advanced American pronunciation, accent reduction & rhythm — perfect ready-made loops"},
- {ic:"🏋️",name:"English Coach Chad",url:"https://www.youtube.com/@EnglishCoachChad",desc:"High-repetition “language gym” routines — standalone, rhythmic repeat-after-me sentences with crisp audio.",use:"Muscle-memory drills — ideal for your first shadowing weeks"},
- {ic:"🇺🇸",name:"Rachel's English",url:"https://www.youtube.com/@rachelsenglish",desc:"The premier channel for American mouth mechanics, physical articulation and phonetic breakdowns.",use:"Micro-intonation drills — bite-sized sound analysis of real conversations"},
- {ic:"🗣️",name:"Accent's Way English with Hadar",url:"https://www.youtube.com/@hadar.shemesh",desc:"For non-native speakers seeking professional fluency and public-speaking confidence, with shadowing playlists at varying speeds.",use:"Connected speech — master it slowly with 🐢 speed, then speed up"},
- {ic:"🔴",name:"TED Talks",url:"https://www.youtube.com/@TED",desc:"Premium presentation-style content — exceptional pacing, deliberate pausing, crystal-clear enunciation, accurate captions.",use:"Executive presentation flow & high-level business vocabulary — Weeks 9–12"}
+ {ic:"🎬",k:"film",name:"Fluent American Shadowing",url:"https://www.youtube.com/@FluentAmericanShadowing",desc:"Clips built as shadowing exercises: visual text prompts, clear pauses, isolated stress patterns.",use:"Advanced American pronunciation, accent reduction & rhythm — perfect ready-made loops"},
+ {ic:"🏋️",k:"dumbbell",name:"English Coach Chad",url:"https://www.youtube.com/@EnglishCoachChad",desc:"High-repetition “language gym” routines — standalone, rhythmic repeat-after-me sentences with crisp audio.",use:"Muscle-memory drills — ideal for your first shadowing weeks"},
+ {ic:"🇺🇸",k:"mic",name:"Rachel's English",url:"https://www.youtube.com/@rachelsenglish",desc:"The premier channel for American mouth mechanics, physical articulation and phonetic breakdowns.",use:"Micro-intonation drills — bite-sized sound analysis of real conversations"},
+ {ic:"🗣️",k:"sound",name:"Accent's Way English with Hadar",url:"https://www.youtube.com/@hadar.shemesh",desc:"For non-native speakers seeking professional fluency and public-speaking confidence, with shadowing playlists at varying speeds.",use:"Connected speech — master it slowly with 🐢 speed, then speed up"},
+ {ic:"🔴",k:"play",name:"TED Talks",url:"https://www.youtube.com/@TED",desc:"Premium presentation-style content — exceptional pacing, deliberate pausing, crystal-clear enunciation, accurate captions.",use:"Executive presentation flow & high-level business vocabulary — Weeks 9–12"}
 ];
 
 const DAY_META={
@@ -863,7 +865,12 @@ const ICON={
   close:'<path d="M6 6l12 12M18 6 6 18"/>',
   waveform:'<path d="M4 10.5v3M8 6.5v11M12 9v6M16 4.5v15M20 10.5v3"/>',
   search:'<circle cx="11" cy="11" r="6.6"/><path d="m20 20-3.7-3.7"/>',
-  hand:'<path d="M9.2 11V4.9a1.25 1.25 0 0 1 2.5 0V10M11.7 10.2V3.9a1.25 1.25 0 0 1 2.5 0V10.4M14.2 10.6V6a1.25 1.25 0 0 1 2.5 0v7.2c0 3.5-2.3 6.3-5.9 6.3-1.9 0-3.3-.7-4.4-2.1l-2.2-3a1.3 1.3 0 0 1 2-1.6l1.5 1.6V6.4a1.25 1.25 0 0 1 2.5 0V11"/>'
+  hand:'<path d="M9.2 11V4.9a1.25 1.25 0 0 1 2.5 0V10M11.7 10.2V3.9a1.25 1.25 0 0 1 2.5 0V10.4M14.2 10.6V6a1.25 1.25 0 0 1 2.5 0v7.2c0 3.5-2.3 6.3-5.9 6.3-1.9 0-3.3-.7-4.4-2.1l-2.2-3a1.3 1.3 0 0 1 2-1.6l1.5 1.6V6.4a1.25 1.25 0 0 1 2.5 0V11"/>',
+  globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.3 2.4 14.7 0 17c-2.4-2.3-2.4-14.7 0-17Z"/>',
+  utensils:'<path d="M6 2.6v5.6a2.2 2.2 0 0 0 4.4 0V2.6"/><path d="M8.2 8.2v13.2"/><path d="M16.8 2.6c-1.6 1-2.4 3.2-2.4 5.6 0 1.6 1 2.4 2.4 2.5v10.7"/>',
+  train:'<rect x="6" y="3.5" width="12" height="12.5" rx="3"/><path d="M6 11h12"/><path d="M8.8 20l-2 2M15.2 20l2 2"/><circle cx="9.3" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="14.7" cy="13.5" r="1" fill="currentColor" stroke="none"/>',
+  play:'<path d="M7 4.7 19 12 7 19.3Z"/>',
+  video:'<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m10.5 9.6 4.2 2.4-4.2 2.4Z"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
@@ -2436,9 +2443,9 @@ function rShadow(el){
       </div>`).join("")}
     </div>
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
-      <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${t("sh.best_channels")}</p>
+      <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        ${RESOURCES.map(r=>`<a class="chip" href="${r.url}" target="_blank" rel="noopener" title="${esc(r.desc)} ${esc(r.use)}" style="text-decoration:none;padding:7px 13px;font-size:13px">${r.ic} ${esc(r.name)}</a>`).join("")}
+        ${RESOURCES.map(r=>`<a class="chip" href="${r.url}" target="_blank" rel="noopener" title="${esc(r.desc)} ${esc(r.use)}" style="text-decoration:none;padding:7px 13px;font-size:13px"><span class="btn-ic">${ic(r.k)}</span>${esc(r.name)}</a>`).join("")}
       </div>
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <p style="font-size:14px;color:var(--mut);flex:1;min-width:220px;margin:0">${t("sh.or_go_youtube")}</p>
@@ -4010,6 +4017,8 @@ let OB={step:0,name:"",role:"",goal:"",slot:"",lang:""};
 const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
+const GOAL_ICONS=["mic","briefcase","trophy","waveform"];
+const SLOT_ICONS=["sun","utensils","train","moon"];
 /* Roles/goals/slots are STORED as canonical English (S.profile.role etc.) but DISPLAYED translated.
    optLabel maps a stored canonical value to its translated label by index; unknown values pass through. */
 function optLabel(val,arr,prefix){const i=arr.indexOf(val);return i>=0?t(prefix+i):val}
@@ -4024,25 +4033,25 @@ function obRender(){
      <input id="obName" placeholder="${esc(t("ob.name_placeholder"))}" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
      <br><button class="btn btn-p" style="font-size:16px;padding:14px 34px" onclick="obNext()">${t("ob.lets_go")}</button>
      <p class="auth-alt" style="margin-top:20px">${t("ob.already_account")} <a onclick="fbOpenModal('in')">${t("ob.login")}</a></p>`,
-    `<div class="ob-logo">🌐</div>
+    `<div class="ob-logo">${ic("globe")}</div>
      <h2>${t("lang.step_title")}</h2>
      <p class="sub">${t("lang.step_sub")}</p>
      <input id="obLangSearch" class="lang-search" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
      <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>
      <p class="auth-alt" style="margin-top:16px"><a onclick="obLangPick('en')">${t("ob.skip_lang")}</a></p>`,
-    `<div class="ob-logo">💼</div>
+    `<div class="ob-logo">${ic("briefcase")}</div>
      <h2>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h2>
      <p class="sub">${t("ob.role_sub")}</p>
      <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
-    `<div class="ob-logo">🎯</div>
+    `<div class="ob-logo">${ic("target")}</div>
      <h2>${t("ob.goal_title")}</h2>
      <p class="sub">${t("ob.goal_sub")}</p>
-     <div class="ob-chips">${OB_GOALS.map(g=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()">${optLabel(g,OB_GOALS,"goal.")}</button>`).join("")}</div>`,
-    `<div class="ob-logo">⏰</div>
+     <div class="ob-chips">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
+    `<div class="ob-logo">${ic("clock")}</div>
      <h2>${t("ob.slot_title")}</h2>
      <p class="sub">${t("ob.slot_sub")}</p>
-     <div class="ob-chips">${OB_SLOTS.map(s=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()">${optLabel(s,OB_SLOTS,"slot.")}</button>`).join("")}</div>`,
-    `<div class="ob-logo">🚀</div>
+     <div class="ob-chips">${OB_SLOTS.map((s,i)=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(SLOT_ICONS[i])}</span>${optLabel(s,OB_SLOTS,"slot.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
+    `<div class="ob-logo">${ic("rocket")}</div>
      <h2>${t("ob.win_title")}</h2>
      <p class="sub">${t("ob.win_sub")}</p>
      <p style="font-size:19px;font-weight:700;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px 20px;margin-bottom:8px">“The main blocker is the vendor API — we expect a fix by Friday.”</p>
