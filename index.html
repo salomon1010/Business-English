@@ -455,6 +455,15 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-mic:hover{transform:scale(1.05)}
 .rp-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
 .rp-status{font-size:13px;color:var(--mut);min-height:18px}
+.rp-av-wrap{position:relative;display:grid;place-items:center}
+.rp-av-wrap .rp-av{transition:box-shadow .3s,transform .3s}
+.rp-live-stage.speaking .rp-av{animation:rpGlow 1.3s ease-in-out infinite}
+@keyframes rpGlow{0%,100%{box-shadow:0 0 0 3px rgba(99,102,241,.35),0 0 26px rgba(99,102,241,.45);transform:scale(1)}50%{box-shadow:0 0 0 7px rgba(34,211,238,.28),0 0 46px rgba(34,211,238,.55);transform:scale(1.04)}}
+.rp-eq{display:none;gap:4px;height:26px;align-items:flex-end;margin-top:14px}
+.rp-live-stage.speaking .rp-eq{display:flex}
+.rp-eq span{width:5px;height:8px;background:var(--grad);border-radius:3px;animation:rpBar .9s ease-in-out infinite}
+.rp-eq span:nth-child(2){animation-delay:.12s}.rp-eq span:nth-child(3){animation-delay:.24s}.rp-eq span:nth-child(4){animation-delay:.36s}.rp-eq span:nth-child(5){animation-delay:.48s}
+@keyframes rpBar{0%,100%{height:7px}50%{height:26px}}
 .rp-tx{max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
 .rp-bubble{max-width:88%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.45}
 .rp-bubble.ai{background:var(--card2);border:1px solid var(--line2);align-self:flex-start;border-bottom-left-radius:4px}
@@ -1100,6 +1109,7 @@ const I18N_EN={
  "rp.end":"End practice",
  "rp.transcript":"Real-time transcript",
  "rp.tap_to_speak":"Tap the mic and speak",
+ "rp.speaking":"Speaking…",
  "rp.listening":"Listening…",
  "rp.thinking":"…",
  "rp.all_done":"All talking points covered — nicely done!",
@@ -4322,17 +4332,63 @@ function rpKeyBox(){
 window.rpKeyEdit=()=>{const box=document.getElementById("rpKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("rp.key_needed")+rpKeyForm(rpKey())};
 window.rpKeyClear=()=>{try{localStorage.removeItem(RP_AIKEY)}catch(e){}toast(t("rp.key_cleared"));go("roleplay",cur.arg1)};
 window.rpSaveKey=()=>{const el=document.getElementById("rpKeyIn");if(!el)return;const v=(el.value||"").trim();try{localStorage.setItem(RP_AIKEY,v)}catch(e){}toast(v?t("rp.key_saved"):t("rp.key_cleared"));go("roleplay",cur.arg1)};
+/* Pick the most natural voice per gender (Siri/Enhanced/Natural preferred) so each persona sounds right. */
+let _rpVoices={f:null,m:null,any:null};
+function rpPickVoices(){
+  const vs=(()=>{try{return speechSynthesis.getVoices()||[]}catch(e){return[]}})();
+  if(!vs.length)return;
+  const FEM=/\b(samantha|ava|allison|susan|zoe|nicky|serena|karen|moira|tessa|fiona|victoria|kate|aria|jenny|michelle|joanna|salli|kendra|kimberly|ivy|amy|emma|catherine|linda|heather|hazel|zira|female|nora|sandy|martha|isha|nicky)\b/i;
+  const MAL=/\b(alex|daniel|fred|tom|aaron|arthur|oliver|gordon|lee|rishi|david|mark|guy|davis|matthew|joey|justin|george|james|william|ryan|brandon|reed|rocko|eddy|grandpa|male|male)\b/i;
+  const score=(v,want)=>{
+    const n=v.name||"";let s=0;
+    if(/siri/i.test(n))s+=95; if(/natural/i.test(n))s+=90; if(/neural/i.test(n))s+=85; if(/enhanced|premium/i.test(n))s+=80; if(/google/i.test(n))s+=50;
+    if(v.localService===false)s+=20;
+    if(v.lang==="en-US")s+=20;else if(/^en[-_]/i.test(v.lang))s+=10;else s-=70;
+    if(/compact|eloquence|novelty|whisper|organ|bells|zarvox|bubbles|trinoids/i.test(n))s-=60;
+    const isF=FEM.test(n),isM=MAL.test(n);
+    if(want==="f"){if(isF)s+=45;else if(isM)s-=70}
+    if(want==="m"){if(isM)s+=45;else if(isF)s-=70}
+    return s;
+  };
+  const best=(want)=>{
+    let pool=vs;
+    if(want==="f"||want==="m"){const yes=want==="f"?FEM:MAL,no=want==="f"?MAL:FEM;const matched=vs.filter(v=>yes.test(v.name||"")&&!no.test(v.name||""));if(matched.length)pool=matched;}
+    let b=null,bs=-1e9;pool.forEach(v=>{const sc=score(v,want);if(sc>bs){bs=sc;b=v}});
+    return bs>-50?b:null;
+  };
+  _rpVoices={f:best("f"),m:best("m"),any:best("any")};
+}
+try{speechSynthesis.getVoices();rpPickVoices();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",rpPickVoices)}catch(e){}
+let rpSayKeep=null;
+function rpSpeak(text,gender){
+  try{
+    speechSynthesis.cancel();clearInterval(rpSayKeep);
+    if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
+    const v=(gender==="m"?_rpVoices.m:gender==="f"?_rpVoices.f:null)||_rpVoices.any;
+    const s=String(text).replace(/\s+/g," ").trim();
+    const parts=s.length>80?(s.match(/[^.!?;:—]+[.!?;:—]*/g)||[s]).map(x=>x.trim()).filter(Boolean):[s];
+    rpSetSpeaking(true);
+    setTimeout(()=>{
+      parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang=(v&&v.lang)||"en-US";u.rate=0.97;u.pitch=1;if(v)u.voice=v;if(i===parts.length-1)u.onend=u.onerror=()=>{clearInterval(rpSayKeep);rpSetSpeaking(false)};speechSynthesis.speak(u)});
+      rpSayKeep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}else clearInterval(rpSayKeep)},10000);
+    },70);
+  }catch(e){rpSetSpeaking(false)}
+}
+function rpSetSpeaking(on){
+  const st=document.querySelector(".rp-live-stage");if(st)st.classList.toggle("speaking",!!on);
+  const s=document.getElementById("rpStatus");if(s){if(on)s.textContent=t("rp.speaking");else if(rpConv&&!rpConv.busy)s.textContent=t("rp.tap_to_speak")}
+}
 const RP_CATS=[["daily","Daily life"],["work","At work"],["travel","Travelling"]];
 const SCENARIOS=[
- {id:"coffee",cat:"daily",persona:"Mia",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
- {id:"neighbour",cat:"daily",persona:"Tom",role:"new neighbour",ic:"user",title:"Meeting a neighbour",scenario:"You just moved in. Introduce yourself to a neighbour and make small talk.",points:["Introduce yourself and say where you moved from","Ask two questions about the area","Suggest meeting again some time"],greet:"Oh, hello! You must have just moved into number 12 — I'm Tom."},
- {id:"vet",cat:"daily",persona:"Dr Rao",role:"vet",ic:"user",title:"Visiting the vet",scenario:"Explain your pet's symptoms and understand the vet's advice.",points:["Describe your pet and its symptoms","Ask what the treatment involves","Confirm the next steps and the cost"],greet:"Hello, come on in. So, what seems to be the trouble with your little one today?"},
- {id:"standup",cat:"work",persona:"Priya",role:"team lead",ic:"chart",title:"Daily stand-up",scenario:"Give a clear project update in your team's morning stand-up.",points:["Say what you did yesterday","Say what you're doing today","Raise one blocker and ask for help"],greet:"Morning! Let's do a quick round — want to kick us off with your update?"},
- {id:"interview",cat:"work",persona:"Mr Bello",role:"hiring manager",ic:"briefcase",title:"Job interview",scenario:"Answer common interview questions confidently and ask your own.",points:["Introduce yourself in about 30 seconds","Describe a strength with a real example","Ask the interviewer one good question"],greet:"Thanks for coming in. To start, could you tell me a little about yourself?"},
- {id:"oneone",cat:"work",persona:"Sara",role:"your manager",ic:"user",title:"One-to-one with your manager",scenario:"Discuss your progress and ask for something you need.",points:["Share one recent win","Raise a challenge you're facing","Ask for support or a resource"],greet:"Good to catch up. How have things been going these past couple of weeks?"},
- {id:"checkin",cat:"travel",persona:"Ada",role:"check-in agent",ic:"map",title:"Airport check-in",scenario:"Check in for a flight and sort out your bags and seat.",points:["Give your destination and booking details","Ask about the baggage allowance","Request a seat preference"],greet:"Good morning! May I have your passport, and where are you flying to today?"},
- {id:"taxi",cat:"travel",persona:"Luis",role:"taxi driver",ic:"train",title:"Taking a taxi",scenario:"Give directions, make a little small talk, and pay.",points:["Tell the driver your destination","Ask roughly how long it will take","Ask to pay by card"],greet:"Evening! Hop in — where are we headed?"},
- {id:"hotel",cat:"travel",persona:"Nina",role:"hotel receptionist",ic:"home",title:"Hotel check-in",scenario:"Check into a hotel and ask about the facilities.",points:["Give your reservation name","Ask about breakfast and wi-fi","Ask for a late checkout"],greet:"Welcome to The Meridian! Do you have a reservation with us?"},
+ {id:"coffee",cat:"daily",persona:"Mia",g:"f",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
+ {id:"neighbour",cat:"daily",persona:"Tom",g:"m",role:"new neighbour",ic:"user",title:"Meeting a neighbour",scenario:"You just moved in. Introduce yourself to a neighbour and make small talk.",points:["Introduce yourself and say where you moved from","Ask two questions about the area","Suggest meeting again some time"],greet:"Oh, hello! You must have just moved into number 12 — I'm Tom."},
+ {id:"vet",cat:"daily",persona:"Dr Rao",g:"m",role:"vet",ic:"user",title:"Visiting the vet",scenario:"Explain your pet's symptoms and understand the vet's advice.",points:["Describe your pet and its symptoms","Ask what the treatment involves","Confirm the next steps and the cost"],greet:"Hello, come on in. So, what seems to be the trouble with your little one today?"},
+ {id:"standup",cat:"work",persona:"Priya",g:"f",role:"team lead",ic:"chart",title:"Daily stand-up",scenario:"Give a clear project update in your team's morning stand-up.",points:["Say what you did yesterday","Say what you're doing today","Raise one blocker and ask for help"],greet:"Morning! Let's do a quick round — want to kick us off with your update?"},
+ {id:"interview",cat:"work",persona:"Mr Bello",g:"m",role:"hiring manager",ic:"briefcase",title:"Job interview",scenario:"Answer common interview questions confidently and ask your own.",points:["Introduce yourself in about 30 seconds","Describe a strength with a real example","Ask the interviewer one good question"],greet:"Thanks for coming in. To start, could you tell me a little about yourself?"},
+ {id:"oneone",cat:"work",persona:"Sara",g:"f",role:"your manager",ic:"user",title:"One-to-one with your manager",scenario:"Discuss your progress and ask for something you need.",points:["Share one recent win","Raise a challenge you're facing","Ask for support or a resource"],greet:"Good to catch up. How have things been going these past couple of weeks?"},
+ {id:"checkin",cat:"travel",persona:"Ada",g:"f",role:"check-in agent",ic:"map",title:"Airport check-in",scenario:"Check in for a flight and sort out your bags and seat.",points:["Give your destination and booking details","Ask about the baggage allowance","Request a seat preference"],greet:"Good morning! May I have your passport, and where are you flying to today?"},
+ {id:"taxi",cat:"travel",persona:"Luis",g:"m",role:"taxi driver",ic:"train",title:"Taking a taxi",scenario:"Give directions, make a little small talk, and pay.",points:["Tell the driver your destination","Ask roughly how long it will take","Ask to pay by card"],greet:"Evening! Hop in — where are we headed?"},
+ {id:"hotel",cat:"travel",persona:"Nina",g:"f",role:"hotel receptionist",ic:"home",title:"Hotel check-in",scenario:"Check into a hotel and ask about the facilities.",points:["Give your reservation name","Ask about breakfast and wi-fi","Ask for a late checkout"],greet:"Welcome to The Meridian! Do you have a reservation with us?"},
 ];
 function rpById(id){return SCENARIOS.find(s=>s.id===id)}
 function rpAvatar(sc,size){return `<span class="rp-av" style="width:${size}px;height:${size}px">${ic(sc.ic)}</span>`}
@@ -4388,7 +4444,7 @@ window.rpStart=(id)=>{
          ${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}
        </div>
        <div class="rp-live-stage">
-         ${rpAvatar(sc,120)}
+         <div class="rp-av-wrap">${rpAvatar(sc,120)}<div class="rp-eq"><span></span><span></span><span></span><span></span><span></span></div></div>
          <button class="rp-mic" id="rpMic" onclick="rpListen()" aria-label="Speak">${ic("mic")}</button>
          <div class="rp-status" id="rpStatus">${t("rp.tap_to_speak")}</div>
        </div>
@@ -4400,7 +4456,7 @@ window.rpStart=(id)=>{
    </div>`;
   manIconizeInline(el);
   rpConv.history.push({role:"assistant",content:sc.greet});
-  rpAddBubble("ai",sc.greet); fbSay(sc.greet,0.95);
+  rpAddBubble("ai",sc.greet); rpSpeak(sc.greet,sc.g);
   rpResetIdle();
 };
 function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)return;const d=document.createElement("div");d.className="rp-bubble "+(who==="ai"?"ai":"me");d.textContent=text;tx.appendChild(d);tx.scrollTop=tx.scrollHeight;}
@@ -4409,6 +4465,7 @@ window.rpListen=()=>{
   if(!SR)return toast(t("fb.sr_unavailable"));
   rpClearIdle();
   try{speechSynthesis.cancel()}catch(e){}
+  clearInterval(rpSayKeep); rpSetSpeaking(false);
   const mic=document.getElementById("rpMic"),st=document.getElementById("rpStatus");
   const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;let got=false;
   if(mic)mic.classList.add("on"); if(st)st.textContent=t("rp.listening");
@@ -4424,7 +4481,7 @@ async function rpUserTurn(text){
   try{
     const res=await rpAI();
     rpConv.history.push({role:"assistant",content:res.reply});
-    rpAddBubble("ai",res.reply); fbSay(res.reply,0.95);
+    rpAddBubble("ai",res.reply); rpSpeak(res.reply,rpConv.sc.g);
     (res.covered||[]).forEach(n=>{if(n>=1&&n<=rpConv.sc.points.length)rpConv.covered.add(n)});
     rpUpdatePoints();
     if(st)st.textContent=t("rp.tap_to_speak");
