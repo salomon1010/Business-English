@@ -27,6 +27,14 @@ window.FB_CONFIG={
   appId:"1:847739483036:web:7382f5b7a82eca294ece59"
 };
 </script>
+<script>
+/* Apply saved/system theme before first paint (no flash) */
+(function(){try{
+  var s=localStorage.getItem("be_theme");
+  var t=s||((window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark");
+  document.documentElement.setAttribute("data-theme",t);
+}catch(e){document.documentElement.setAttribute("data-theme","dark")}})();
+</script>
 <style>
 :root{
   --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --card2:#1a2340;
@@ -35,28 +43,44 @@ window.FB_CONFIG={
   --acc:#6366f1; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399; --red:#f87171; --pink:#f472b6;
   --grad:linear-gradient(135deg,#6366f1,#22d3ee);
   --r:16px;
+  --nav-bg:rgba(10,14,26,.82); --bnav-bg:rgba(15,21,38,.97); --scroll:#2a3352;
+  --hover:rgba(255,255,255,.05); --hover2:rgba(255,255,255,.08);
+  --wash1:rgba(99,102,241,.18); --wash2:rgba(34,211,238,.08);
+}
+:root[data-theme="light"]{
+  --bg:#f5f7fc; --bg2:#ffffff; --card:#ffffff; --card2:#eef2fb;
+  --line:rgba(15,23,42,.10); --line2:rgba(15,23,42,.16);
+  --txt:#0f172a; --mut:#586179; --mut2:#98a1b8;
+  --acc:#4f46e5; --acc2:#0e7490; --gold:#b45309; --green:#047857; --red:#dc2626; --pink:#be185d;
+  --grad:linear-gradient(135deg,#6366f1,#22d3ee);
+  --nav-bg:rgba(255,255,255,.85); --bnav-bg:rgba(255,255,255,.97); --scroll:#c3cce0;
+  --hover:rgba(15,23,42,.05); --hover2:rgba(15,23,42,.08);
+  --wash1:rgba(99,102,241,.10); --wash2:rgba(34,211,238,.06);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;
-  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(99,102,241,.18),transparent),
-  radial-gradient(ellipse 60% 40% at 90% 110%,rgba(34,211,238,.08),transparent)}
+  background-image:radial-gradient(ellipse 80% 50% at 50% -10%,var(--wash1),transparent),
+  radial-gradient(ellipse 60% 40% at 90% 110%,var(--wash2),transparent)}
 a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%}
 input:focus,textarea:focus{outline:none;border-color:var(--acc)}
-::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:#2a3352;border-radius:9px}::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
 
 /* NAV */
-nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:rgba(10,14,26,.82);border-bottom:1px solid var(--line);padding:0 20px}
+nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);border-bottom:1px solid var(--line);padding:0 20px}
 .nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:6px;height:62px;overflow-x:auto}
 .brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:9px}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-size:17px}
 .brand span.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .tab{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s}
-.tab:hover{color:var(--txt);background:rgba(255,255,255,.05)}
+.tab:hover{color:var(--txt);background:var(--hover)}
 .tab.on{color:#fff;background:var(--grad);font-weight:600}
 .streak-pill{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold);padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px;white-space:nowrap}
+.theme-toggle{flex:none;margin-left:8px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:16px;line-height:1;display:grid;place-items:center;transition:.15s}
+.theme-toggle:hover{border-color:var(--acc);transform:scale(1.08)}
+.theme-toggle:active{transform:scale(.92)}
 
 main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 .view{display:none;animation:fade .35s}
@@ -236,7 +260,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 
 /* ONBOARDING */
 .ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px;
-  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,rgba(99,102,241,.28),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,rgba(34,211,238,.12),transparent)}
+  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
 .ob-card{max-width:520px;width:100%;text-align:center;animation:fade .4s}
 .ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45)}
 .ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
@@ -270,23 +294,30 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .bottom-nav{display:none}
 .more-sheet{position:fixed;bottom:82px;right:10px;z-index:61;background:var(--card2);border:1px solid var(--line2);border-radius:16px;padding:8px;flex-direction:column;gap:2px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:170px}
 .more-sheet button,.more-sheet a{background:none;border:none;color:var(--txt);font-size:14.5px;font-weight:600;padding:11px 16px;border-radius:10px;text-align:left;text-decoration:none;display:block;width:100%}
-.more-sheet button:active,.more-sheet a:active{background:rgba(255,255,255,.08)}
+.more-sheet button:active,.more-sheet a:active{background:var(--hover2)}
 @media(max-width:820px){
   .nav-in button.tab,.nav-in a.tab{display:none}
   .bottom-nav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:60;display:flex;justify-content:space-around;align-items:stretch;
-    background:rgba(15,21,38,.97);backdrop-filter:blur(16px);border-top:1px solid var(--line2);
+    background:var(--bnav-bg);backdrop-filter:blur(16px);border-top:1px solid var(--line2);
     padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
   .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;
     color:var(--mut);font-size:10.5px;font-weight:600;padding:4px 2px;border-radius:12px;transition:.15s;font-family:inherit}
-  .bnav-item .ic{font-size:21px;line-height:1;transition:.15s}
-  .bnav-item.on{color:#fff}
-  .bnav-item.on .ic{transform:translateY(-2px) scale(1.15)}
+  .bnav-item .ic{font-size:21px;line-height:0;transition:.15s;display:block}
+  .bnav-item .ic svg{width:25px;height:25px;display:block}
+  .bnav-item.on{color:var(--acc)}
+  .bnav-item.on .ic{transform:translateY(-2px) scale(1.12)}
   .bnav-item.on::before{content:"";position:absolute;width:0}
   main{padding-bottom:110px}
   .toast{bottom:96px}
 }
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
+.help-fab{position:fixed;right:24px;bottom:24px;z-index:57;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--grad);color:#fff;font-size:26px;font-weight:800;line-height:1;display:grid;place-items:center;font-family:inherit;
+  box-shadow:0 10px 30px rgba(99,102,241,.45);transition:transform .15s,box-shadow .15s}
+.help-fab:hover{transform:translateY(-2px) scale(1.06);box-shadow:0 14px 40px rgba(99,102,241,.6)}
+.help-fab:active{transform:scale(.94)}
+@media(max-width:820px){.help-fab{bottom:calc(84px + env(safe-area-inset-bottom));right:16px;width:48px;height:48px;font-size:24px}}
 .footer-note{text-align:center;color:var(--mut2);font-size:12.5px;margin-top:50px;line-height:1.7}
 @media(max-width:640px){.ring-wrap{flex-direction:column;text-align:center}.slider-row label{width:110px}}
 
@@ -314,6 +345,19 @@ html[dir="rtl"] .auth-x{right:auto;left:16px}
 html[dir="rtl"] .lang-row{text-align:right}
 
 /* In-app User Manual (localized document) */
+/* HELP CENTRE (the "?" landing) */
+.help-hero{background:var(--grad);border-radius:20px;padding:38px 26px;text-align:center;color:#fff;margin-bottom:22px}
+.help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;margin-bottom:18px;line-height:1.25}
+.help-search{max-width:520px;margin:0 auto;position:relative}
+.help-search::before{content:"🔍";position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.7}
+.help-search input{width:100%;border:none;border-radius:14px;padding:15px 18px 15px 44px;font-size:16px;color:var(--txt);background:var(--bg2);box-shadow:0 12px 34px rgba(0,0,0,.18)}
+.help-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:14px}
+.help-card{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;cursor:pointer;transition:.15s;color:var(--txt);width:100%;font-family:inherit}
+.help-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 12px 30px rgba(99,102,241,.15)}
+.help-card .hc-ic{width:44px;height:44px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-size:22px;flex:none}
+.help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
+.help-no-results{text-align:center;color:var(--mut);padding:30px 0}
+.manual-doc.help-mode .top,.manual-doc.help-mode .toc{display:none}
 .manual-doc{--macc:#818cf8;--macc2:#22d3ee;--mgold:#fbbf24;--mgreen:#34d399;--mred:#f87171;font-size:15.5px;line-height:1.65}
 .manual-doc .top{background:var(--grad);color:#fff;padding:34px 22px;text-align:center;border-radius:18px;margin-bottom:0}
 .manual-doc .top h1{font-size:clamp(21px,4vw,30px);line-height:1.25;margin:10px 0 12px}
@@ -373,8 +417,8 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <button class="tab" data-v="shadow" data-i18n="nav.shadow">🎯 Shadow</button>
   <button class="tab" data-v="review" data-i18n="nav.reviews">📊 Reviews</button>
   <button class="tab" data-v="data" data-i18n="nav.account">👤 Account</button>
-  <button class="tab" data-v="manual" onclick="go('manual')" data-i18n="nav.manual">📘 Manual</button>
   <div class="streak-pill">🔥 <span id="streakN">0</span></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light or dark mode" title="Toggle light/dark">☀️</button>
 </div></nav>
 
 <main>
@@ -390,19 +434,19 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   © 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:nore.ngou@gmail.com">Support</a></div>
 </main>
 <div class="toast" id="toast"></div>
+<button class="help-fab" id="helpFab" onclick="go('manual')" aria-label="Help" title="Help">?</button>
 
 <!-- Mobile bottom navigation (app style) -->
 <nav class="bottom-nav" aria-label="Main navigation">
-  <button class="bnav-item on" data-v="home" onclick="go('home')"><span class="ic">🏠</span><span data-i18n="bnav.home">Home</span></button>
-  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic">🗺️</span><span data-i18n="bnav.weeks">Weeks</span></button>
-  <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic">🎯</span><span data-i18n="bnav.shadow">Shadow</span></button>
-  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic">💬</span><span data-i18n="bnav.phrases">Phrases</span></button>
-  <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic">📊</span><span data-i18n="bnav.progress">Progress</span></button>
-  <button class="bnav-item" id="bnavMore" onclick="moreToggle(event)"><span class="ic">⋯</span><span data-i18n="bnav.more">More</span></button>
+  <button class="bnav-item on" data-v="home" onclick="go('home')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/></svg></span><span data-i18n="bnav.home">Home</span></button>
+  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Weeks</span></button>
+  <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
+  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrases</span></button>
+  <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
+  <button class="bnav-item" id="bnavMore" onclick="moreToggle(event)"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="7" r="1.9"/><circle cx="17" cy="7" r="1.9"/><circle cx="7" cy="17" r="1.9"/><circle cx="17" cy="17" r="1.9"/></svg></span><span data-i18n="bnav.more">More</span></button>
 </nav>
 <div id="moreSheet" class="more-sheet" style="display:none">
   <button onclick="go('data');moreToggle()" data-i18n="more.account">👤 Account</button>
-  <button onclick="go('manual');moreToggle()" data-i18n="more.manual">📘 User Manual</button>
   <a href="flyer.html" target="_blank" data-i18n="more.about">✨ About the app</a>
 </div>
 
@@ -726,6 +770,8 @@ function load(){
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
+// Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
+function jarg(s){return esc(JSON.stringify(s))}
 
 /* ================= i18n (UI chrome only — practice content stays English) =================
    I18N_EN is the master dictionary (every valid key). DICT holds the active non-English
@@ -1360,6 +1406,10 @@ const I18N_EN={
  "more.manual":"📘 User Manual",
  "more.about":"✨ About the app",
  "manual.loading":"Loading the manual…",
+ "help.greeting":"👋 How can we help?",
+ "help.greeting_name":"👋 Hi {{name}}, how can we help?",
+ "help.search_ph":"Search the guide…",
+ "help.no_results":"No matches. Try another word, or pick a topic above.",
  "gfix.0.cat":"Word form","gfix.0.note":"“Information” is uncountable — never plural.",
  "gfix.1.cat":"Word form","gfix.1.note":"“Advice” is uncountable — use “a piece of advice”.",
  "gfix.2.cat":"Word form","gfix.2.note":"“Feedback” is uncountable.",
@@ -1852,9 +1902,43 @@ async function rManual(el){
     _manCache[code]=html;
   }
   if(cur.v!=="manual")return; /* user navigated away while fetching */
-  el.innerHTML=`<div class="manual-doc">${html}</div>`;
+  // Build help-centre cards from the manual's own (localized) table of contents
+  let cards="";
+  try{
+    const doc=new DOMParser().parseFromString(html,"text/html");
+    doc.querySelectorAll(".toc ol li a").forEach(a=>{
+      const m=(a.getAttribute("onclick")||"").match(/man-[\w-]+/);
+      const id=m?m[0]:"";
+      const title=a.textContent.trim().replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
+      if(id)cards+=`<button class="help-card" onclick="manScroll('${id}')"><span class="hc-ic">${HELP_ICONS[id]||"📄"}</span><span class="hc-t">${esc(title)}</span></button>`;
+    });
+  }catch(e){}
+  const name=(S.profile&&S.profile.name)?String(S.profile.name).trim():"";
+  const greet=name?t("help.greeting_name",{name:esc(name)}):t("help.greeting");
+  el.innerHTML=`
+    <div class="help-hero">
+      <h1>${greet}</h1>
+      <div class="help-search"><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)"></div>
+    </div>
+    ${cards?`<div class="help-cards" id="helpCards">${cards}</div>`:""}
+    <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
+    <div class="manual-doc help-mode" id="manualDoc">${html}</div>`;
   window.scrollTo({top:0});
 }
+const HELP_ICONS={"man-start":"🚀","man-nav":"🧭","man-dashboard":"🏠","man-journey":"🗺️","man-session":"⏱️","man-shadow":"🎯","man-feedback":"🗣️","man-vocab":"📚","man-phrases":"💬","man-progress":"📈","man-account":"👤","man-week-plan":"📅","man-faq":"❓"};
+window.helpFilter=function(q){
+  q=(q||"").trim().toLowerCase();
+  const cards=document.getElementById("helpCards");
+  const doc=document.getElementById("manualDoc");
+  const nr=document.getElementById("helpNoRes");
+  if(!doc)return;
+  const secs=doc.querySelectorAll("section");
+  if(!q){if(cards)cards.style.display="";secs.forEach(s=>s.style.display="");if(nr)nr.style.display="none";return;}
+  if(cards)cards.style.display="none";
+  let any=false;
+  secs.forEach(s=>{const hit=s.textContent.toLowerCase().includes(q);s.style.display=hit?"":"none";if(hit)any=true});
+  if(nr)nr.style.display=any?"none":"";
+};
 window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
 
 /* ================= DASHBOARD ================= */
@@ -2846,14 +2930,14 @@ function fbShowResults(targetText,heardText,fromRec){
       <b style="font-size:14px">${score>=80?t("fb.verdict_excellent"):score>=55?t("fb.verdict_good"):t("fb.verdict_keepgoing")}</b>
       <p style="font-size:12.5px;color:var(--mut)">${t("fb.words_recognized",{ok:okN,total:ops.filter(o=>o.op!=="extra").length})}</p>
     </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(String(targetText).replace(/[‿/]/g," "))},1)">${t("fb.hear_whole_text")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},1)">${t("fb.hear_whole_text")}</button>
   </div>`
   :`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="flex:1;min-width:220px">
       <b style="font-size:14px">${t("fb.norec_title")}</b>
       <p style="font-size:12.5px;color:var(--mut)">${t("fb.norec_desc")}</p>
     </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(String(heardText))},1)">${t("fb.hear_correctly")}</button>
+    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},1)">${t("fb.hear_correctly")}</button>
   </div>`}
   ${attempts.length?`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:10px 16px">
     <span style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">${t("fb.attempt_label",{n:attempts.length})}</span>
@@ -3161,8 +3245,8 @@ window.vocQuiz=async()=>{
     <p style="font-size:15px;margin:6px 0 12px">“${hint}”</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-p btn-sm" onclick="vocQuizTry('${esc(w)}')">${t("voc.quiz_say")}</button>
-      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(def||w)},1)">${t("voc.quiz_hear")}</button>
-      <button class="btn btn-g btn-sm" onclick="document.getElementById('vqa').textContent=${JSON.stringify(t("voc.quiz_answer",{word:w}))}">${t("voc.quiz_reveal")}</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(def||w)},1)">${t("voc.quiz_hear")}</button>
+      <button class="btn btn-g btn-sm" onclick="document.getElementById('vqa').textContent=${jarg(t("voc.quiz_answer",{word:w}))}">${t("voc.quiz_reveal")}</button>
       <button class="btn btn-g btn-sm" onclick="vocQuiz()">${t("voc.quiz_next")}</button>
       <b id="vqa" style="font-size:13.5px"></b>
     </div></div>`;
@@ -3260,9 +3344,9 @@ window.exGo=()=>{
     <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">${t("ex.exec_version")}</div>
     <p style="font-size:17px;font-weight:600;line-height:1.55;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">${esc(out)}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},1)">${t("ex.hear_btn")}</button>
-      <button class="btn btn-g btn-sm" onclick="fbSay(${JSON.stringify(out)},0.7)">${t("ex.slow_btn")}</button>
-      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(out)}).then(()=>toast(${JSON.stringify(t("ex.copied_toast"))}))">${t("ex.copy_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},1)">${t("ex.hear_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},0.7)">${t("ex.slow_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(out)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${t("ex.copy_btn")}</button>
       <button class="btn btn-g btn-sm" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
     </div>
     ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">${t("ex.what_changed")}</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
@@ -3747,6 +3831,22 @@ function goSession(){}
   Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||VOC_STOP.has(w)){delete S.trouble[w];dirty=true}});
   if(dirty)save();
 })();
+/* ===== THEME (light / dark) ===== */
+function applyTheme(mode){
+  const t=mode==="light"?"light":"dark";
+  document.documentElement.setAttribute("data-theme",t);
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute("content",t==="light"?"#f5f7fc":"#0a0e1a");
+  const btn=document.getElementById("themeToggle");
+  if(btn)btn.textContent=t==="light"?"🌙":"☀️";
+}
+function toggleTheme(){
+  const next=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
+  try{localStorage.setItem("be_theme",next)}catch(e){}
+  applyTheme(next);
+}
+applyTheme(document.documentElement.getAttribute("data-theme")||"dark");
+
 (async function boot(){
   const valid=["home","journey","phrases","shadow","review","data","session","manual"];
   const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
