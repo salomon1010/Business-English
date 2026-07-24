@@ -2638,6 +2638,7 @@ function tbRender(){
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
   :`<p style="font-size:13px;color:var(--mut2)">${t("tb.empty")}</p>`;
+  manIconizeInline(box);
 }
 window.tbTry=word=>{
   if(!SR)return toast(t("tb.sr_unavailable_toast"));
@@ -3404,7 +3405,7 @@ window.vocTry=(w,safe)=>{
   r.onresult=e=>{got=true;
     const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
     const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
-    if(res)res.innerHTML=hit?`<b style="color:var(--green)">${t("voc.perfect")}</b>`:`<b style="color:var(--gold)">${t("voc.heard_retry",{heard:esc(alts[0]||"…")})}</b>`;
+    if(res){res.innerHTML=hit?`<b style="color:var(--green)">${t("voc.perfect")}</b>`:`<b style="color:var(--gold)">${t("voc.heard_retry",{heard:esc(alts[0]||"…")})}</b>`;manIconizeInline(res);}
   };
   r.onerror=()=>{if(res)res.textContent=t("voc.mic_error")};
   r.onend=()=>{if(!got&&res)res.textContent=t("voc.didnt_hear")};
@@ -3431,6 +3432,7 @@ function vlRender(){
       <span class="chip">${t(words.length>1?"voc.word_count_many":"voc.word_count_one",{n:words.length})}</span></div>
     <div id="vqBox"></div>`+words.map(w=>vocRow(w,S.vocab[w].l)).join("")
   :`<p style="font-size:13px;color:var(--mut2)">${t("voc.no_words")}</p>`);
+  manIconizeInline(box);
 }
 window.vocQuiz=async()=>{
   const words=Object.keys(S.vocab);if(!words.length)return;
@@ -3452,6 +3454,7 @@ window.vocQuiz=async()=>{
       <button class="btn btn-g btn-sm" onclick="vocQuiz()">${t("voc.quiz_next")}</button>
       <b id="vqa" style="font-size:13.5px"></b>
     </div></div>`;
+  manIconizeInline(box);
 };
 window.vocQuizTry=w=>{
   if(!SR)return;
@@ -3460,8 +3463,8 @@ window.vocQuizTry=w=>{
   r.onresult=e=>{got=true;
     const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
     const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
-    if(hit){out.textContent=t("voc.quiz_correct",{word:w});out.style.color="var(--green)";markPracticed();save()}
-    else{out.textContent=t("voc.quiz_retry",{heard:alts[0]||"…"});out.style.color="var(--gold)"}
+    if(hit){out.innerHTML=t("voc.quiz_correct",{word:esc(w)});manIconizeInline(out);out.style.color="var(--green)";markPracticed();save()}
+    else{out.innerHTML=t("voc.quiz_retry",{heard:esc(alts[0]||"…")});manIconizeInline(out);out.style.color="var(--gold)"}
   };
   r.onend=()=>{if(!got){out.textContent=t("voc.quiz_didnt_hear")}};
   r.start();
