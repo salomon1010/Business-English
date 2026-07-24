@@ -3046,20 +3046,49 @@ function gramAnalyze(heardRaw){
 /* Chrome quirks: speak() right after cancel() is silently dropped; getVoices()
    is empty until voiceschanged fires; long utterances stall after ~15s unless
    the engine is periodically nudged with resume(). */
-let fbSayKeep=null;
-try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>speechSynthesis.getVoices()}catch(e){}
+let fbSayKeep=null,_fbVoice=null;
+/* Score voices so we pick the most natural one the device offers, not the first en-US. */
+function fbPickVoice(){
+  const vs=(()=>{try{return speechSynthesis.getVoices()||[]}catch(e){return[]}})();
+  if(!vs.length)return null;
+  const score=v=>{
+    const n=(v.name||"");let s=0;
+    if(/natural/i.test(n))s+=100;            // Edge/Windows neural voices
+    if(/neural/i.test(n))s+=90;
+    if(/enhanced|premium/i.test(n))s+=80;    // Apple enhanced voices
+    if(/siri/i.test(n))s+=70;
+    if(/google/i.test(n))s+=55;              // Chrome/Android
+    if(/\b(samantha|ava|aria|jenny|allison|susan|zoe|nicky|serena|karen|moira|tessa|joanna|salli|kendra|matthew|guy|joey)\b/i.test(n))s+=45;
+    if(v.localService===false)s+=25;         // network/cloud voices are usually higher quality
+    if(v.lang==="en-US")s+=20;else if(/^en[-_]/i.test(v.lang))s+=10;else s-=50;
+    if(/\b(david|mark|zira|hazel|george|fred|albert)\b/i.test(n))s-=20; // older robotic voices
+    return s;
+  };
+  let best=null,bs=-1e9;vs.forEach(v=>{const s=score(v);if(s>bs){bs=s;best=v;}});
+  return best;
+}
+try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{_fbVoice=fbPickVoice()}}catch(e){}
 window.fbSay=(w,rate)=>{
   try{
     speechSynthesis.cancel();clearInterval(fbSayKeep);
-    const u=new SpeechSynthesisUtterance(String(w));u.lang="en-US";u.rate=rate||1;
-    const vs=speechSynthesis.getVoices();
-    const v=vs.find(v=>v.lang==="en-US")||vs.find(v=>/^en([-_]|$)/i.test(v.lang))||null;if(v)u.voice=v;
-    u.onend=u.onerror=()=>clearInterval(fbSayKeep);
-    setTimeout(()=>{
-      speechSynthesis.speak(u);
+    if(!_fbVoice)_fbVoice=fbPickVoice();
+    const text=String(w).replace(/\s+/g," ").trim();
+    /* break long text into clause-sized chunks so intonation resets and it phrases naturally
+       (no lookbehind — matches runs of text ending at a natural pause) */
+    const chunks=text.length>80?(text.match(/[^.!?;:—]+[.!?;:—]*/g)||[text]).map(s=>s.trim()).filter(Boolean):[text];
+    const r=rate||(text.length>80?0.96:1);
+    const speakAll=()=>{
+      chunks.forEach((c,i)=>{
+        const u=new SpeechSynthesisUtterance(c);
+        u.lang="en-US";u.rate=r;u.pitch=1.0;
+        if(_fbVoice)u.voice=_fbVoice;
+        if(i===chunks.length-1)u.onend=u.onerror=()=>clearInterval(fbSayKeep);
+        speechSynthesis.speak(u);
+      });
       fbSayKeep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}else clearInterval(fbSayKeep)},10000);
       setTimeout(()=>{if(!speechSynthesis.speaking&&!speechSynthesis.pending)toast(t("fb.tts_no_voice"))},600);
-    },80);
+    };
+    setTimeout(speakAll,80); /* Chrome drops speak() fired immediately after cancel() */
   }catch(e){toast(t("fb.tts_unavailable"))}
 };
 window.fbToggle=()=>{
