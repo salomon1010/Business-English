@@ -83,6 +83,9 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .theme-toggle{flex:none;margin-left:8px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:16px;line-height:1;display:grid;place-items:center;transition:.15s}
 .theme-toggle:hover{border-color:var(--acc);transform:scale(1.08)}
 .theme-toggle:active{transform:scale(.92)}
+.theme-toggle svg{width:19px;height:19px;display:block}
+.streak-pill .pill-ic{display:inline-flex;line-height:0}
+.streak-pill .pill-ic svg{width:16px;height:16px}
 
 main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 .view{display:none;animation:fade .35s}
@@ -450,8 +453,8 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
   <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
-  <div class="streak-pill">🔥 <span id="streakN">0</span></div>
-  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light or dark mode" title="Toggle light/dark">☀️</button>
+  <div class="streak-pill"><span class="pill-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/></svg></span> <span id="streakN">0</span></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light or dark mode" title="Toggle light/dark"></button>
 </div></nav>
 
 <main>
@@ -831,7 +834,9 @@ const ICON={
   sparkle:'<path d="M12 3.2l1.9 5.1 5.1 1.9-5.1 1.9L12 17.2l-1.9-5.1L5 10.2l5.1-1.9Z"/>',
   info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="7.9" r="0.8" fill="currentColor" stroke="none"/>',
   headphones:'<path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><rect x="3" y="13" width="4.2" height="7" rx="1.6"/><rect x="16.8" y="13" width="4.2" height="7" rx="1.6"/>',
-  sound:'<path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/>'
+  sound:'<path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/>',
+  sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.5 4.5l1.7 1.7M17.8 17.8l1.7 1.7M2.6 12H5M19 12h2.4M4.5 19.5l1.7-1.7M17.8 6.2l1.7-1.7"/>',
+  moon:'<path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.5 6.5 0 0 0 10.7 10.7Z"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
@@ -3936,7 +3941,7 @@ function applyTheme(mode){
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta)meta.setAttribute("content",t==="light"?"#f5f7fc":"#0a0e1a");
   const btn=document.getElementById("themeToggle");
-  if(btn)btn.textContent=t==="light"?"🌙":"☀️";
+  if(btn){btn.innerHTML=t==="light"?ic("moon"):ic("sun");btn.style.color=t==="light"?"var(--acc)":"var(--gold)";}
 }
 function toggleTheme(){
   const next=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
