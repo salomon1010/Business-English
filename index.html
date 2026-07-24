@@ -3162,7 +3162,7 @@ function fbShowResults(targetText,heardText,fromRec){
       <span class="w">${esc(o.t)}</span>
       <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${((o.hIdx||0)+0.5)/Math.max(h.length,1)})">${t("fb.you_btn")}</button>`:""}
+        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(h,o.hIdx||0).join(",")})">${t("fb.you_btn")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
         <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
@@ -3472,21 +3472,33 @@ window.vocQuizTry=w=>{
 
 /* play a short snippet of the user's own shadowing recording around a word */
 let fbAud=null;
-window.fbYou=async frac=>{
+/* Estimate a heard word's [start,end] position as a fraction of the recording,
+   weighted by word length (+gap) so longer words take proportionally more time —
+   far closer than assuming every word takes an equal slice. */
+function fbWordFrac(h,idx){
+  const w=h.map(x=>String(x).length+1.5);
+  const tot=w.reduce((a,b)=>a+b,0)||1;
+  let bef=0;for(let k=0;k<idx;k++)bef+=w[k];
+  return[+(bef/tot).toFixed(4),+((bef+(w[idx]||1.5))/tot).toFixed(4)];
+}
+window.fbYou=async(sf,ef)=>{
+  if(ef==null)ef=sf; /* backward-compat if only one value */
   const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
   if(!recs.length)return toast(t("fb.you_no_rec_toast"));
   if(fbAud){fbAud.pause();fbAud=null}
   const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
-  const playAt=d=>{
-    const at=Math.max(0,Math.min(d-1,frac*d-1));
-    aud.currentTime=at;aud.play();
-    setTimeout(()=>{if(fbAud===aud)aud.pause()},2600);
+  const playSpan=d=>{
+    const pad=0.18;
+    const start=Math.max(0,sf*d-pad);
+    const end=Math.min(d,ef*d+pad);
+    aud.currentTime=start;aud.play();
+    setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(500,(end-start)*1000+120));
   };
   aud.onloadedmetadata=()=>{
-    if(isFinite(aud.duration)&&aud.duration>0)playAt(aud.duration);
+    if(isFinite(aud.duration)&&aud.duration>0)playSpan(aud.duration);
     else{/* Chrome quirk: MediaRecorder webm reports Infinity until seeked */
       aud.currentTime=1e10;
-      aud.onseeked=()=>{aud.onseeked=null;playAt(aud.duration)};
+      aud.onseeked=()=>{aud.onseeked=null;playSpan(aud.duration)};
     }
   };
 };
