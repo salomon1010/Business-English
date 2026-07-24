@@ -416,6 +416,11 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-av svg{width:44%;height:44%}
 .rp-keynote{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--mut);margin-bottom:18px}
 .rp-keynote a{cursor:pointer;font-weight:600}
+.rp-key-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.rp-key-row input{flex:1;min-width:200px}
+.rp-key-note{font-size:11.5px;color:var(--mut2);margin-top:8px}
+.rp-key-set{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--txt)}
+.rp-key-set span{color:var(--green);font-weight:600;font-size:13.5px}
 .rp-hero{display:flex;align-items:center;gap:16px;width:100%;text-align:left;background:var(--grad);border:none;border-radius:20px;padding:20px 22px;color:#fff;cursor:pointer;margin-bottom:8px;transition:.15s}
 .rp-hero:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(99,102,241,.3)}
 .rp-hero .rp-av{background:rgba(255,255,255,.18)}
@@ -1114,6 +1119,10 @@ const I18N_EN={
  "rp.key_save":"Save key",
  "rp.key_saved":"AI key saved on this device",
  "rp.key_note":"Get a key at console.anthropic.com. Kept only in this browser, like your GitHub token.",
+ "rp.key_connected":"AI connected · key ends in …{{tail}}",
+ "rp.key_change":"Change key",
+ "rp.key_clear":"Remove",
+ "rp.key_cleared":"AI key removed",
  "profile.pron":"Pronunciation practice",
  "profile.pron_sub":"Drill one word at a time with the coach",
  "pron.eyebrow":"Pronunciation practice",
@@ -4303,7 +4312,16 @@ applyTheme(document.documentElement.getAttribute("data-theme")||"dark");
 /* ================= ROLE-PLAY — AI conversation practice ================= */
 const RP_AIKEY="be12_aikey";
 function rpKey(){try{return localStorage.getItem(RP_AIKEY)||""}catch(e){return""}}
-window.rpSaveKey=()=>{const el=document.getElementById("rpKeyIn");if(!el)return;try{localStorage.setItem(RP_AIKEY,(el.value||"").trim())}catch(e){}toast(t("rp.key_saved"));go("roleplay",cur.arg1)};
+function rpKeyForm(prefill){return `<div class="rp-key-row"><input id="rpKeyIn" type="password" placeholder="sk-ant-…" value="${esc(prefill||"")}" autocomplete="off"><button class="btn btn-p btn-sm" onclick="rpSaveKey()">${t("rp.key_save")}</button>${prefill?`<button class="btn btn-g btn-sm" onclick="rpKeyClear()">${t("rp.key_clear")}</button>`:""}</div><p class="rp-key-note">${t("rp.key_note")}</p>`}
+/* Always let the user change or clear the key — even after one is saved (e.g. an invalid one). */
+function rpKeyBox(){
+  const k=rpKey();
+  if(!k)return `<div class="rp-keynote" id="rpKeyBox">${t("rp.key_needed")}${rpKeyForm("")}</div>`;
+  return `<div class="rp-keynote rp-key-set" id="rpKeyBox"><span>${t("rp.key_connected",{tail:esc(k.slice(-4))})}</span> <button class="btn btn-g btn-sm" onclick="rpKeyEdit()">${t("rp.key_change")}</button></div>`;
+}
+window.rpKeyEdit=()=>{const box=document.getElementById("rpKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("rp.key_needed")+rpKeyForm(rpKey())};
+window.rpKeyClear=()=>{try{localStorage.removeItem(RP_AIKEY)}catch(e){}toast(t("rp.key_cleared"));go("roleplay",cur.arg1)};
+window.rpSaveKey=()=>{const el=document.getElementById("rpKeyIn");if(!el)return;const v=(el.value||"").trim();try{localStorage.setItem(RP_AIKEY,v)}catch(e){}toast(v?t("rp.key_saved"):t("rp.key_cleared"));go("roleplay",cur.arg1)};
 const RP_CATS=[["daily","Daily life"],["work","At work"],["travel","Travelling"]];
 const SCENARIOS=[
  {id:"coffee",cat:"daily",persona:"Mia",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
@@ -4335,7 +4353,7 @@ function rpLibrary(el){
    <div class="eyebrow">${t("rp.eyebrow")}</div>
    <h1 class="big">${t("rp.title")}</h1>
    <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
-   ${rpKey()?"":`<div class="rp-keynote">${t("rp.key_needed")}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><input id="rpKeyIn" type="password" placeholder="sk-ant-…" style="flex:1;min-width:200px"><button class="btn btn-p btn-sm" onclick="rpSaveKey()">${t("rp.key_save")}</button></div><p style="font-size:11.5px;color:var(--mut2);margin-top:8px">${t("rp.key_note")}</p></div>`}
+   ${rpKeyBox()}
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
    ${cats}`;
   manIconizeInline(el);
