@@ -3162,7 +3162,7 @@ function fbShowResults(targetText,heardText,fromRec){
       <span class="w">${esc(o.t)}</span>
       <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(h,o.hIdx||0).join(",")})">${t("fb.you_btn")}</button>`:""}
+        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(h,o.hIdx||0).join(",")},${o.hIdx||0},${h.length})">${t("fb.you_btn")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
         <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
@@ -3481,25 +3481,57 @@ function fbWordFrac(h,idx){
   let bef=0;for(let k=0;k<idx;k++)bef+=w[k];
   return[+(bef/tot).toFixed(4),+((bef+(w[idx]||1.5))/tot).toFixed(4)];
 }
-window.fbYou=async(sf,ef)=>{
-  if(ef==null)ef=sf; /* backward-compat if only one value */
+/* Split a recording into real speech chunks using RMS energy: silences between
+   words become segment boundaries. Returns [{start,end}] seconds. Cached per blob. */
+const _fbSegCache=new WeakMap();
+async function fbSegments(blob){
+  if(_fbSegCache.has(blob))return _fbSegCache.get(blob);
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ac=new AC();
+  let buf;
+  try{buf=await ac.decodeAudioData(await blob.arrayBuffer());}
+  catch(e){try{ac.close()}catch(_){}return null;}
+  const data=buf.getChannelData(0),sr=buf.sampleRate,dur=buf.duration;
+  const fLen=Math.max(1,Math.round(sr*0.02));      // 20ms frames
+  const nF=Math.floor(data.length/fLen);
+  const rms=new Float32Array(nF);let peak=1e-6;
+  for(let i=0;i<nF;i++){let s=0;const off=i*fLen;for(let j=0;j<fLen;j++){const v=data[off+j];s+=v*v;}const r=Math.sqrt(s/fLen);rms[i]=r;if(r>peak)peak=r;}
+  const thr=Math.max(0.015,peak*0.14);             // speech vs silence
+  const gap=Math.round(0.11/0.02);                 // ≥110ms silence ends a word
+  const minLen=Math.round(0.06/0.02);              // ignore <60ms blips
+  const segs=[];let inSeg=false,segStart=0,sil=0;
+  for(let i=0;i<nF;i++){
+    if(rms[i]>thr){if(!inSeg){inSeg=true;segStart=i;}sil=0;}
+    else if(inSeg){sil++;if(sil>=gap){const end=i-sil+1;if(end-segStart>=minLen)segs.push({start:segStart*0.02,end:end*0.02});inSeg=false;}}
+  }
+  if(inSeg){const end=nF-sil;if(end-segStart>=minLen)segs.push({start:segStart*0.02,end:end*0.02});}
+  try{ac.close()}catch(_){}
+  const out={segs,dur};_fbSegCache.set(blob,out);return out;
+}
+window.fbYou=async(sf,ef,wordIdx,wordCount)=>{
+  if(ef==null)ef=sf;
   const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
   if(!recs.length)return toast(t("fb.you_no_rec_toast"));
   if(fbAud){fbAud.pause();fbAud=null}
+  let start=null,end=null;
+  const seg=await fbSegments(recs[0].blob);
+  if(seg&&seg.segs.length){
+    const S=seg.segs;let si;
+    if(wordCount&&S.length===wordCount)si=wordIdx;                       // 1 chunk per word → exact
+    else si=Math.round(((sf+ef)/2)*S.length-0.5);                       // else nearest real chunk
+    si=Math.max(0,Math.min(S.length-1,si));
+    start=S[si].start;end=S[si].end;
+  }
   const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
   const playSpan=d=>{
-    const pad=0.18;
-    const start=Math.max(0,sf*d-pad);
-    const end=Math.min(d,ef*d+pad);
-    aud.currentTime=start;aud.play();
-    setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(500,(end-start)*1000+120));
+    if(start==null){const pad=0.18;start=Math.max(0,sf*d-pad);end=Math.min(d,ef*d+pad);} // fallback to estimate
+    const s=Math.max(0,start-0.05),e=Math.min(d,end+0.09);
+    aud.currentTime=s;aud.play();
+    setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(350,(e-s)*1000+120));
   };
   aud.onloadedmetadata=()=>{
     if(isFinite(aud.duration)&&aud.duration>0)playSpan(aud.duration);
-    else{/* Chrome quirk: MediaRecorder webm reports Infinity until seeked */
-      aud.currentTime=1e10;
-      aud.onseeked=()=>{aud.onseeked=null;playSpan(aud.duration)};
-    }
+    else{aud.currentTime=1e10;aud.onseeked=()=>{aud.onseeked=null;playSpan(aud.duration)};}
   };
 };
 window.fbTry=(word,i)=>{
