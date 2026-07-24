@@ -4093,7 +4093,16 @@ applyTheme(document.documentElement.getAttribute("data-theme")||"dark");
   try{go(v,a1,a2)}catch(e){go("home")}
 })();
 ghAutoStart();
-if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker" in navigator&&location.protocol==="https:"){
+  let _swReloading=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(_swReloading)return;_swReloading=true;location.reload();});
+  navigator.serviceWorker.register("sw.js").then(reg=>{
+    reg.update();
+    /* check for a new version whenever the app regains focus (key for installed iOS PWAs) and hourly */
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")reg.update().catch(()=>{});});
+    setInterval(()=>reg.update().catch(()=>{}),3600000);
+  }).catch(()=>{});
+}
 
 /* ===== ONBOARDING (first launch) ===== */
 let OB={step:0,name:"",role:"",goal:"",slot:"",lang:""};
