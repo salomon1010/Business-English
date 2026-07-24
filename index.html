@@ -334,6 +334,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
+.sync-nudge .nudge-ic svg{width:24px;height:24px}
 /* BOTTOM NAV (mobile app style) */
 .bottom-nav{display:none}
 .more-sheet{position:fixed;bottom:82px;right:10px;z-index:61;background:var(--card2);border:1px solid var(--line2);border-radius:16px;padding:8px;flex-direction:column;gap:2px;box-shadow:0 20px 60px rgba(0,0,0,.55);min-width:170px}
@@ -4359,7 +4360,7 @@ function fbUpdateNudge(){
   if(!FBauth||FBUser||fbDismissed())return;
   if(totalDone()<1)return;
   const n=document.createElement("div");n.className="sync-nudge";n.id="syncNudge";
-  n.innerHTML=`<div style="font-size:22px">☁️</div>
+  n.innerHTML=`<span class="nudge-ic" style="color:var(--acc2);line-height:0;flex:none">${ic("cloud")}</span>
     <div style="flex:1;font-size:13px;line-height:1.5"><b>${t("auth.nudge_title")}</b><br><span style="color:var(--mut)">${t("auth.nudge_desc")}</span></div>
     <button class="btn btn-p btn-sm" onclick="fbOpenModal('up')">${t("auth.nudge_signin")}</button>
     <button class="auth-x" style="position:static;font-size:20px" onclick="fbDismissNudge()">×</button>`;
