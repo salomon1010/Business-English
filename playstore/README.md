@@ -121,7 +121,7 @@ device. Works offline.
 © 2026 Lomonec LLC — BE Mastery. All rights reserved.
 ```
 
-**Support email (required by Play):** nore.ngou@gmail.com — also shown in-app
+**Support email (required by Play):** contact@lomonec.com — also shown in-app
 (Account → About) and on every page footer.
 
 **Category:** Education
