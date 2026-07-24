@@ -391,7 +391,10 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-hero{background:var(--grad);border-radius:20px;padding:38px 26px;text-align:center;color:#fff;margin-bottom:22px}
 .help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;margin-bottom:18px;line-height:1.25}
 .help-search{max-width:520px;margin:0 auto;position:relative}
-.help-search::before{content:"🔍";position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.7}
+.help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
+.help-search-ic svg{width:18px;height:18px}
+.hero-ic{display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
+.hero-ic svg{width:24px;height:24px}
 .help-search input{width:100%;border:none;border-radius:14px;padding:15px 18px 15px 44px;font-size:16px;color:var(--txt);background:var(--bg2);box-shadow:0 12px 34px rgba(0,0,0,.18)}
 .help-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:14px}
 .help-card{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;cursor:pointer;transition:.15s;color:var(--txt);width:100%;font-family:inherit}
@@ -852,7 +855,10 @@ const ICON={
   dumbbell:'<path d="M4 9v6M7 6.5v11M17 6.5v11M20 9v6M7 12h10"/>',
   trophy:'<path d="M8 4h8v4.5a4 4 0 0 1-8 0Z"/><path d="M8 5.2H5.6a2 2 0 0 0 0 4H8.3M16 5.2h2.4a2 2 0 0 1 0 4H15.7"/><path d="M12 12.5v3.5M9.2 20h5.6M10.2 20l.5-4M13.8 20l-.5-4"/>',
   alert:'<path d="M12 4 2.8 19.2h18.4L12 4Z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r="0.75" fill="currentColor" stroke="none"/>',
-  close:'<path d="M6 6l12 12M18 6 6 18"/>'
+  close:'<path d="M6 6l12 12M18 6 6 18"/>',
+  waveform:'<path d="M4 10.5v3M8 6.5v11M12 9v6M16 4.5v15M20 10.5v3"/>',
+  search:'<circle cx="11" cy="11" r="6.6"/><path d="m20 20-3.7-3.7"/>',
+  hand:'<path d="M9.2 11V4.9a1.25 1.25 0 0 1 2.5 0V10M11.7 10.2V3.9a1.25 1.25 0 0 1 2.5 0V10.4M14.2 10.6V6a1.25 1.25 0 0 1 2.5 0v7.2c0 3.5-2.3 6.3-5.9 6.3-1.9 0-3.3-.7-4.4-2.1l-2.2-3a1.3 1.3 0 0 1 2-1.6l1.5 1.6V6.4a1.25 1.25 0 0 1 2.5 0V11"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
@@ -2011,11 +2017,11 @@ async function rManual(el){
     });
   }catch(e){}
   const name=(S.profile&&S.profile.name)?String(S.profile.name).trim():"";
-  const greet=name?t("help.greeting_name",{name:esc(name)}):t("help.greeting");
+  const greet=(name?t("help.greeting_name",{name:esc(name)}):t("help.greeting")).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
   el.innerHTML=`
     <div class="help-hero">
-      <h1>${greet}</h1>
-      <div class="help-search"><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)"></div>
+      <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
+      <div class="help-search"><span class="help-search-ic">${ic("search")}</span><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)"></div>
     </div>
     ${cards?`<div class="help-cards" id="helpCards">${cards}</div>`:""}
     <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
@@ -3636,7 +3642,7 @@ function pgStory(){
   const vocNew=Object.values(S.vocab||{}).filter(v=>now-v.ts<wk).length;
   const tb=Object.keys(S.trouble||{}).length;
   const name=S.profile&&S.profile.name?S.profile.name:"You";
-  if(!week.length&&!days)return t("story.empty",{name});
+  if(!week.length&&!days)return t("story.empty",{name}).replace(/🎯\s*/,`<span class="inl-ic">${ic("target")}</span>`);
   let s=t(days!==1?"story.base_many":"story.base_one",{name,days,words:words.toLocaleString()});
   if(rNow!=null&&rPrev!=null)s+=rNow>rPrev?t("story.climb",{prev:rPrev,now:rNow}):rNow<rPrev?t("story.dip",{prev:rPrev,now:rNow}):t("story.steady",{now:rNow});
   else if(rNow!=null)s+=t("story.recent_avg",{now:rNow});
@@ -3662,34 +3668,34 @@ function progressHTML(){
   });
   return`
   <div class="card" style="margin-bottom:22px;background:linear-gradient(150deg,rgba(99,102,241,.10),rgba(34,211,238,.04))">
-    <div class="eyebrow">${t("prog.eyebrow")}</div>
+    <div class="eyebrow">${tInl("prog.eyebrow","chart")}</div>
     <div style="background:var(--card);border:1px solid var(--line2);border-left:4px solid var(--acc2);border-radius:12px;padding:14px 18px;margin:10px 0 16px">
-      <div style="font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);margin-bottom:5px">${t("prog.story_h")}</div>
+      <div style="font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);margin-bottom:5px">${tInl("prog.story_h","book")}</div>
       <p style="font-size:14.5px;line-height:1.65;margin:0">${pgStory()}</p>
     </div>
     <div class="grid g4" style="margin-bottom:16px">
-      <div class="stat"><div class="n">🗣️ ${totalWords.toLocaleString()}</div><div class="l">${t("prog.stat_words")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("waveform")}</span>${totalWords.toLocaleString()}</div><div class="l">${t("prog.stat_words")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("book")}</span>${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
     </div>
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))">
       <div class="card" style="background:var(--bg2)">
-        <b style="font-size:14px">${t("prog.chart_pron_title")}</b>
+        <b style="font-size:14px">${tInl("prog.chart_pron_title","target")}</b>
         <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">${t("prog.chart_pron_sub")}</p>
         ${pgArea(scored.map(x=>x.score),"#6366f1",460,150,"%")}
       </div>
       <div class="card" style="background:var(--bg2)">
-        <b style="font-size:14px">${t("prog.chart_voc_title")}</b>
+        <b style="font-size:14px">${tInl("prog.chart_voc_title","book")}</b>
         <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">${t("prog.chart_voc_sub")}</p>
         ${vocCurve.length>=2?pgArea(vocCurve,"#22d3ee",460,150,""):`<div style="height:150px;display:grid;place-items:center;color:var(--mut2);font-size:12.5px;text-align:center">${t("prog.chart_voc_empty")}</div>`}
       </div>
       <div class="card" style="background:var(--bg2)">
-        <b style="font-size:14px">${t("prog.chart_speed_title")}</b>
+        <b style="font-size:14px">${tInl("prog.chart_speed_title","bolt")}</b>
         ${pgGauge(lastWpm)}
       </div>
       <div class="card" style="background:var(--bg2)">
-        <b style="font-size:14px">${t("prog.chart_activity_title")}</b>
+        <b style="font-size:14px">${tInl("prog.chart_activity_title","calendar")}</b>
         <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 8px">${t("prog.chart_activity_sub")}</p>
         ${pgBars(days,460,120)}
       </div>
