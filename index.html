@@ -460,6 +460,28 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-modal p{font-size:14px;color:var(--mut);margin-bottom:18px;line-height:1.5}
 .rp-modal-btns{display:flex;gap:10px;justify-content:flex-end}
 @media(max-width:820px){.rp-live-grid{grid-template-columns:1fr}.rp-live-points{order:2}.rp-live-stage{order:1}.rp-live-tx{order:3}.rp-tx{max-height:260px}}
+/* PRONUNCIATION PRACTICE */
+.pron-input{display:flex;gap:8px;max-width:520px;margin-bottom:12px}
+.pron-input input{flex:1}
+.pron-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.pron-chips-l{font-size:12px;color:var(--mut);margin-right:2px}
+.pron-chips .chip{cursor:pointer;transition:.15s}
+.pron-chips .chip:hover{border-color:var(--acc);color:var(--txt)}
+.pron-card{background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:30px 22px;text-align:center;max-width:560px;margin:0 auto}
+.pron-word{font-size:clamp(34px,7vw,52px);font-weight:800;letter-spacing:-1px}
+.pron-stress{font-family:'JetBrains Mono',monospace;font-size:17px;color:var(--acc2);margin:6px 0 18px;letter-spacing:1px}
+.pron-audio{display:flex;gap:10px;justify-content:center;margin-bottom:22px}
+.pron-mic{width:84px;height:84px;border-radius:50%;border:none;cursor:pointer;background:var(--grad);color:#fff;display:grid;place-items:center;box-shadow:0 8px 30px rgba(99,102,241,.45);transition:.15s;margin:0 auto}
+.pron-mic svg{width:36px;height:36px}
+.pron-mic:hover{transform:scale(1.05)}
+.pron-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.pron-status{font-size:13px;color:var(--mut);margin-top:12px;min-height:18px}
+.pron-result{margin-top:16px}
+.pron-chips-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+.pron-verdict{font-size:14.5px;font-weight:600}
+.pron-verdict.good{color:var(--green)}
+.pron-verdict.work{color:var(--gold)}
+.pron-note{max-width:560px;margin:16px auto 0;font-size:12px;color:var(--mut2);text-align:center;line-height:1.5}
 .manual-doc.help-mode .top,.manual-doc.help-mode .toc{display:none}
 .manual-doc .man-ic{display:inline-flex;vertical-align:-3px;margin-right:9px;color:var(--macc);line-height:0}
 .manual-doc h2.sec .man-ic svg{width:22px;height:22px}
@@ -541,6 +563,7 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
+  <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
   <div id="v-manual" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">12-Week Business English Mastery System · Progress is saved automatically on this device<br>
@@ -1091,6 +1114,24 @@ const I18N_EN={
  "rp.key_save":"Save key",
  "rp.key_saved":"AI key saved on this device",
  "rp.key_note":"Get a key at console.anthropic.com. Kept only in this browser, like your GitHub token.",
+ "profile.pron":"Pronunciation practice",
+ "profile.pron_sub":"Drill one word at a time with the coach",
+ "pron.eyebrow":"Pronunciation practice",
+ "pron.title":"One word <em>at a time</em>",
+ "pron.sub":"Pick a word, hear it from the coach, then record yourself and compare.",
+ "pron.type_ph":"Type any word or short phrase…",
+ "pron.practice":"Practise",
+ "pron.from_trouble":"From your trouble words:",
+ "pron.try_these":"Try these:",
+ "pron.coach":"Coach",
+ "pron.slow":"Slow",
+ "pron.caps_hint":"(CAPS = stress)",
+ "pron.tap":"Tap the mic and say the word",
+ "pron.listening":"Listening…",
+ "pron.clear":"Clear — nicely said!",
+ "pron.heard":"I heard “{{heard}}”. Listen again and retry the red parts.",
+ "pron.didnt_hear":"Didn't catch that — try again.",
+ "pron.note":"Uses your browser's speech recognition, so it scores whole words, not individual sounds. Per-sound scoring is coming later.",
  "acc.profile_title":"Profile",
  "acc.profile_sub":"Personalizes your dashboard, drills and weekly story. Nothing leaves this device.",
  "acc.first_name":"First name",
@@ -2151,7 +2192,7 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,roleplay:rRoleplay,data:rData,manual:rManual})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual})[v](el,arg1,arg2);
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
@@ -4077,6 +4118,7 @@ function rProfile(el){
   </div>
   <div class="pf-menu">
     <button class="pf-row" onclick="go('roleplay')"><span class="pf-ic">${ic("chat")}</span><span class="pf-txt"><b>${t("profile.roleplay")}</b><small>${t("profile.roleplay_sub")}</small></span><span class="pf-chev">›</span></button>
+    <button class="pf-row" onclick="go('pron')"><span class="pf-ic">${ic("mic")}</span><span class="pf-txt"><b>${t("profile.pron")}</b><small>${t("profile.pron_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
@@ -4419,8 +4461,73 @@ function rpShowModal(title,body,b1,f1,b2,f2){
   document.getElementById("rpm2").onclick=()=>{m.remove();f2&&f2()};
 }
 
+/* ================= PRONUNCIATION PRACTICE (single word / short phrase drill) ================= */
+const PRON_STARTERS=["particularly","comfortable","schedule","entrepreneur","colleague","development","opportunity","specific","strategy","thoroughly"];
+let pronWord="";
+function rPron(el,word){
+  if(word)pronWord=String(word);
+  if(!pronWord)pronWord=(Object.keys(S.trouble||{})[0])||PRON_STARTERS[0];
+  const w=pronWord.trim();
+  const trouble=Object.keys(S.trouble||{}).slice(0,8);
+  const chips=(trouble.length?trouble:PRON_STARTERS.slice(0,8));
+  const key=w.toLowerCase().replace(/[^a-z']/g,"");
+  const stressed=STRESS_MAP[key]||"";  /* only show a stress hint when the dictionary has it */
+  el.innerHTML=`
+   <div class="eyebrow">${t("pron.eyebrow")}</div>
+   <h1 class="big">${t("pron.title")}</h1>
+   <p class="sub" style="margin-bottom:16px">${t("pron.sub")}</p>
+   <div class="pron-input">
+     <input id="pronIn" value="${esc(w)}" placeholder="${esc(t("pron.type_ph"))}" onkeydown="if(event.key==='Enter')pronSet(this.value)">
+     <button class="btn btn-p btn-sm" onclick="pronSet(document.getElementById('pronIn').value)">${t("pron.practice")}</button>
+   </div>
+   <div class="pron-chips">${trouble.length?`<span class="pron-chips-l">${t("pron.from_trouble")}</span>`:`<span class="pron-chips-l">${t("pron.try_these")}</span>`}${chips.map(c=>`<button class="chip" onclick="pronSet('${esc(c).replace(/'/g,"\\'")}')">${esc(c)}</button>`).join("")}</div>
+   <div class="pron-card">
+     <div class="pron-word">${esc(w)}</div>
+     ${stressed?`<div class="pron-stress">${esc(stressed)} <small style="color:var(--mut2)">${t("pron.caps_hint")}</small></div>`:""}
+     <div class="pron-audio">
+       <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w)},0.95)">${tIc("pron.coach","sound")}</button>
+       <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(w)},0.6)">${tIc("pron.slow","gauge")}</button>
+     </div>
+     <button class="pron-mic" id="pronMic" onclick="pronTry()" aria-label="Record">${ic("mic")}</button>
+     <div class="pron-status" id="pronStatus">${t("pron.tap")}</div>
+     <div class="pron-result" id="pronResult"></div>
+   </div>
+   <p class="pron-note">${t("pron.note")}</p>`;
+  manIconizeInline(el);
+}
+window.pronSet=(v)=>{v=(v||"").trim();if(!v)return;pronWord=v;go("pron")};
+window.pronTry=()=>{
+  if(!SR)return toast(t("fb.sr_unavailable"));
+  const target=fbTokens(pronWord); if(!target.length)return;
+  const mic=document.getElementById("pronMic"),st=document.getElementById("pronStatus"),res=document.getElementById("pronResult");
+  try{speechSynthesis.cancel()}catch(e){}
+  const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=5;let got=false;
+  if(mic)mic.classList.add("on"); if(st)st.textContent=t("pron.listening"); if(res)res.innerHTML="";
+  r.onresult=e=>{got=true;
+    const alts=[...e.results[0]].map(a=>fbTokens(a.transcript));
+    const heard=(e.results[0][0].transcript||"").trim();
+    let allOk=true,clears=[];
+    const chips=target.map(tw=>{
+      let best=0,heardW=tw;
+      alts.forEach(a=>a.forEach(x=>{const s=(x===tw)?100:wsim(x,tw);if(s>best){best=s;heardW=x}}));
+      const cls=best>=80?"ok":best>=55?"warn":"bad";
+      if(best<80)allOk=false; if(best>=80)clears.push(tw);
+      return `<span class="fb-chip ${cls}">${esc(tw)}</span>`;
+    }).join("");
+    // clear solved words from the trouble gym
+    clears.forEach(cw=>{if(S.trouble&&S.trouble[cw]){delete S.trouble[cw];}});
+    if(clears.length){save();}
+    if(res)res.innerHTML=`<div class="pron-chips-row">${chips}</div>
+      <div class="pron-verdict ${allOk?'good':'work'}">${allOk?t("pron.clear"):t("pron.heard",{heard:esc(heard)})}</div>`;
+    if(res)manIconizeInline(res);
+  };
+  r.onerror=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("pron.tap")};
+  r.onend=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("pron.tap");if(!got&&res)res.innerHTML=`<div class="pron-verdict work">${t("pron.didnt_hear")}</div>`};
+  try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
+};
+
 (async function boot(){
-  const valid=["home","journey","phrases","shadow","review","profile","roleplay","data","session","manual"];
+  const valid=["home","journey","phrases","shadow","review","profile","roleplay","pron","data","session","manual"];
   const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
