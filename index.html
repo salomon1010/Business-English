@@ -109,6 +109,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .chip.p2{color:#67e8f9;border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.08)}
 .chip.p3{color:#fcd34d;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
 .chip.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08)}
+/* Light theme: the pastel chip text is unreadable on white — deepen it and firm up the tint */
+:root[data-theme="light"] .chip.p1{color:#4338ca;background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.35)}
+:root[data-theme="light"] .chip.p2{color:#0e7490;background:rgba(34,211,238,.15);border-color:rgba(14,116,144,.35)}
+:root[data-theme="light"] .chip.p3{color:#a15c07;background:rgba(251,191,36,.2);border-color:rgba(180,83,9,.4)}
 .bar{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
 .bar>i{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .5s}
 .hr{border:none;border-top:1px solid var(--line);margin:18px 0}
@@ -162,7 +166,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 /* WEEK DETAIL / DAYS */
 .day-row{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:10px;cursor:pointer;transition:.2s}
 .day-row:hover{border-color:var(--acc);transform:translateX(3px)}
-.day-row .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none;background:var(--bg2)}
+.day-row .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none;background:var(--bg2);color:var(--acc)}
+.day-row .ic svg{width:22px;height:22px}
+.inl-ic{display:inline-flex;vertical-align:-2px;margin-right:5px;color:var(--acc);line-height:0}
+.inl-ic svg{width:15px;height:15px}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -484,13 +491,13 @@ const RESOURCES=[
 ];
 
 const DAY_META={
- Mon:{type:"Pronunciation + Shadowing",ic:"🎧"},
- Tue:{type:"Business Speaking Drill",ic:"🎯"},
- Wed:{type:"Vocabulary + Phrase Bank",ic:"💬"},
- Thu:{type:"Meeting Simulation / Q&A",ic:"🧑‍💼"},
- Fri:{type:"Pronunciation + Delivery",ic:"🔊"},
- Sat:{type:"Long-form Speaking",ic:"🎤"},
- Sun:{type:"Weekly Review + Reset",ic:"📊"}
+ Mon:{type:"Pronunciation + Shadowing",ic:"🎧",k:"headphones"},
+ Tue:{type:"Business Speaking Drill",ic:"🎯",k:"target"},
+ Wed:{type:"Vocabulary + Phrase Bank",ic:"💬",k:"chat"},
+ Thu:{type:"Meeting Simulation / Q&A",ic:"🧑‍💼",k:"user"},
+ Fri:{type:"Pronunciation + Delivery",ic:"🔊",k:"sound"},
+ Sat:{type:"Long-form Speaking",ic:"🎤",k:"mic"},
+ Sun:{type:"Weekly Review + Reset",ic:"📊",k:"chart"}
 };
 function dayTypeLabel(d){return t("daymeta."+d)}
 
@@ -822,7 +829,9 @@ const ICON={
   repeat:'<path d="M17 3.5 20.5 7 17 10.5"/><path d="M20.5 7H8.5a4.5 4.5 0 0 0-4.5 4.5"/><path d="M7 20.5 3.5 17 7 13.5"/><path d="M3.5 17h12a4.5 4.5 0 0 0 4.5-4.5"/>',
   gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.3M12 19.2v2.3M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>',
   sparkle:'<path d="M12 3.2l1.9 5.1 5.1 1.9-5.1 1.9L12 17.2l-1.9-5.1L5 10.2l5.1-1.9Z"/>',
-  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="7.9" r="0.8" fill="currentColor" stroke="none"/>'
+  info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="7.9" r="0.8" fill="currentColor" stroke="none"/>',
+  headphones:'<path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><rect x="3" y="13" width="4.2" height="7" rx="1.6"/><rect x="16.8" y="13" width="4.2" height="7" rx="1.6"/>',
+  sound:'<path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Prepend a line icon to a heading string, dropping its leading emoji. */
@@ -2019,7 +2028,7 @@ async function rHome(el){
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
       <h3 style="font-size:20px;margin:6px 0 4px">${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h3>
-      <p style="color:var(--mut);font-size:14px;margin-bottom:8px">${DAY_META[pos.d].ic} ${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
+      <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(DAY_META[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
       <button class="btn btn-p" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
     </div>
@@ -2078,10 +2087,10 @@ function rWeek(el,w){
   </div>
   <h1 class="big" style="font-size:30px">${t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.goal)})}</p>
-  <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false">${t("week.open_phrases")}</a></p>
+  <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
   ${DAYS.map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
     return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
-      <div class="ic">${done?'✅':DAY_META[d].ic}</div>
+      <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:ic(DAY_META[d].k)}</div>
       <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
       <span style="color:var(--mut2);font-size:18px">›</span>
     </div>`}).join("")}`;
@@ -2098,7 +2107,7 @@ function rSession(el,w,d){
   <button class="back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
   <div class="sess-head">
     <span class="chip ${PHASES[wk.phase].cls}">${t("sess.week_day_chip",{w,d})}</span>
-    <span class="chip">${DAY_META[d].ic} ${dayTypeLabel(d)}</span>
+    <span class="chip"><span class="inl-ic">${ic(DAY_META[d].k)}</span>${dayTypeLabel(d)}</span>
     ${S.days[key]?`<span class="chip done">${t("sess.completed_chip")}</span>`:''}
   </div>
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
