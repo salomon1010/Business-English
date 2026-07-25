@@ -1,257 +1,452 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Business English Mastery — Speak like you belong in the room</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --line:rgba(255,255,255,.09);
-  --txt:#e8ecf8; --mut:#8b94ad;
-  --ind:#6366f1; --cyn:#22d3ee; --gold:#fbbf24; --green:#34d399; --pink:#f472b6;
-  --grad:linear-gradient(135deg,#6366f1,#22d3ee);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;line-height:1.6;overflow-x:hidden;
-  background-image:radial-gradient(ellipse 90% 55% at 50% -12%,rgba(99,102,241,.22),transparent),
-                   radial-gradient(ellipse 60% 45% at 95% 100%,rgba(34,211,238,.10),transparent)}
-.mono{font-family:'JetBrains Mono',monospace}
-.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  :root{
+    --bg:#0a0e1a; --bg2:#0d1424; --card:#111a2e; --card2:#0f1728;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --txt:#eef2fb; --mut:#9fb0cc; --mut2:#6c7c9a;
+    --acc:#6366f1; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399;
+    --grad:linear-gradient(120deg,#6366f1,#22d3ee);
+  }
+  @media (prefers-color-scheme: light){
+    :root{--bg:#f6f8fc;--bg2:#eef2fa;--card:#fff;--card2:#f3f6fc;
+      --line:rgba(15,23,42,.09);--line2:rgba(15,23,42,.16);
+      --txt:#0f172a;--mut:#475569;--mut2:#94a3b8;}
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--txt);line-height:1.55;overflow-x:hidden}
+  html[dir="rtl"] body{direction:rtl}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  a{text-decoration:none}
+  em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* ---------- HERO ---------- */
-.hero{max-width:1160px;margin:0 auto;padding:64px 28px 40px;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
-@media(max-width:900px){.hero{grid-template-columns:1fr;padding-top:44px}}
-.kicker{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyn);margin-bottom:20px}
-.kicker::before{content:"";width:34px;height:2px;background:var(--grad)}
-h1{font-size:clamp(40px,6.2vw,72px);font-weight:900;line-height:1.02;letter-spacing:-1.5px;text-wrap:balance;margin-bottom:22px}
-h1 em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.hero .sub{font-size:18px;color:var(--mut);max-width:520px;margin-bottom:30px}
-.hero .sub b{color:var(--txt)}
-.cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
-.cta{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#1a1206;font-weight:800;font-size:17px;
-  padding:16px 32px;border-radius:14px;text-decoration:none;box-shadow:0 10px 40px rgba(251,191,36,.35);transition:.2s}
-.cta:hover{transform:translateY(-2px);box-shadow:0 14px 48px rgba(251,191,36,.5)}
-.cta-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--txt);font-weight:600;font-size:15px;text-decoration:none;
-  border:1px solid var(--line);padding:15px 26px;border-radius:14px;transition:.2s}
-.cta-ghost:hover{border-color:var(--cyn);color:var(--cyn)}
-.free-line{margin-top:16px;font-size:13.5px;color:var(--mut)}
-.free-line b{color:var(--green)}
+  .hero{position:relative;padding:64px 0 48px;background:
+    radial-gradient(1200px 500px at 80% -10%,rgba(99,102,241,.22),transparent 60%),
+    radial-gradient(900px 400px at 0% 10%,rgba(34,211,238,.14),transparent 55%),var(--bg)}
+  .kicker{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    color:var(--acc2);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;margin-bottom:20px}
+  h1{font-size:clamp(30px,6vw,54px);line-height:1.08;letter-spacing:-1px;font-weight:800;max-width:17ch}
+  .sub{font-size:clamp(15px,2.3vw,18.5px);color:var(--mut);margin:20px 0 26px;max-width:60ch}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  .cta{display:inline-flex;align-items:center;gap:9px;background:var(--grad);color:#08111f;font-weight:800;
+    font-size:16px;padding:15px 26px;border-radius:14px;box-shadow:0 14px 40px rgba(34,211,238,.28);transition:.16s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 20px 50px rgba(34,211,238,.4)}
+  .cta-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--txt);font-weight:700;font-size:15px;
+    padding:15px 22px;border-radius:14px;border:1px solid var(--line2);transition:.16s}
+  .cta-ghost:hover{border-color:var(--acc);transform:translateY(-2px)}
+  .cta svg,.cta-ghost svg{width:19px;height:19px}
+  .free-line{font-size:13px;color:var(--mut2);margin-top:18px;max-width:58ch}
 
-/* product shot */
-.shot{position:relative}
-.shot .frame{border:1px solid var(--line);border-radius:20px;overflow:hidden;transform:rotate(2.5deg);
-  box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);transition:.4s}
-.shot:hover .frame{transform:rotate(0deg)}
-.shot img{display:block;width:100%}
-.float{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px;
-  font-size:13.5px;font-weight:700;box-shadow:0 14px 40px rgba(0,0,0,.5);white-space:nowrap}
-.float small{display:block;font-weight:500;color:var(--mut);font-size:11.5px}
-.f1{top:-16px;right:8px;color:var(--gold)}
-.f2{bottom:26px;left:-14px;color:var(--green)}
-@media(max-width:900px){.f2{left:6px}}
+  .band{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0}
+  .band-in{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
+  .stat .n{font-size:clamp(26px,5vw,40px);font-weight:800;letter-spacing:-1px}
+  .stat .n span{font-size:.45em;font-weight:700;color:var(--mut)}
+  .stat .l{font-size:12.5px;color:var(--mut);margin-top:3px}
+  @media(max-width:560px){.band-in{grid-template-columns:repeat(2,1fr);gap:22px 12px}}
 
-/* ---------- STAT BAND ---------- */
-.band{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(20,27,48,.55);backdrop-filter:blur(8px)}
-.band-in{max-width:1160px;margin:0 auto;padding:26px 28px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;text-align:center}
-@media(max-width:720px){.band-in{grid-template-columns:repeat(2,1fr)}}
-.stat .n{font-family:'JetBrains Mono',monospace;font-size:clamp(26px,3.4vw,38px);font-weight:600;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums}
-.stat .l{font-size:12.5px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);margin-top:2px}
+  .sect{padding:58px 0}
+  .sect h2{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.6px;text-align:center;max-width:22ch;margin:0 auto}
+  .lead{text-align:center;color:var(--mut);max-width:60ch;margin:14px auto 0;font-size:15.5px}
 
-/* ---------- SECTIONS ---------- */
-.sect{max-width:1160px;margin:0 auto;padding:72px 28px 8px}
-.sect h2{font-size:clamp(26px,3.6vw,38px);font-weight:800;letter-spacing:-.5px;text-wrap:balance;margin-bottom:10px}
-.sect .lead{color:var(--mut);font-size:16.5px;max-width:640px;margin-bottom:36px}
+  .bgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:38px}
+  .b{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:22px 20px;transition:.16s}
+  .b:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 18px 44px rgba(99,102,241,.16)}
+  .b.hi{background:linear-gradient(150deg,rgba(99,102,241,.14),rgba(34,211,238,.08));border-color:rgba(34,211,238,.4)}
+  .b .ic{width:46px;height:46px;border-radius:13px;background:var(--card2);display:grid;place-items:center;color:var(--acc2);margin-bottom:14px}
+  .b .ic svg{width:24px;height:24px}
+  .b .badge{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+    color:#08111f;background:var(--gold);border-radius:6px;padding:2px 7px;margin-inline-start:8px;vertical-align:middle}
+  .b h3{font-size:17px;font-weight:800;margin-bottom:6px}
+  .b p{font-size:13.5px;color:var(--mut);line-height:1.6}
 
-/* benefits */
-.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-@media(max-width:900px){.bgrid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){.bgrid{grid-template-columns:1fr}}
-.b{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px 24px;transition:.25s;position:relative;overflow:hidden}
-.b:hover{transform:translateY(-4px);border-color:rgba(99,102,241,.5)}
-.b .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:23px;margin-bottom:16px;background:var(--bg2);border:1px solid var(--line);color:var(--ind)}
-.b .ic svg{width:25px;height:25px}
-.cta svg,.cta-ghost svg,.float svg,.say svg{width:1.05em;height:1.05em;vertical-align:-2px;flex:none}
-.b h3{font-size:17.5px;font-weight:700;margin-bottom:8px}
-.b p{font-size:14.5px;color:var(--mut)}
-.b p b{color:var(--txt);font-weight:600}
-.b.hi{background:linear-gradient(150deg,rgba(99,102,241,.18),rgba(34,211,238,.08));border-color:rgba(99,102,241,.45)}
+  .how{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:36px}
+  .step{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:24px 20px;text-align:center}
+  .step .num{width:40px;height:40px;border-radius:50%;background:var(--grad);color:#08111f;font-weight:800;
+    display:grid;place-items:center;margin:0 auto 12px;font-size:18px}
+  .step p{font-size:14.5px;font-weight:600}
+  @media(max-width:640px){.steps{grid-template-columns:1fr}}
 
-/* how it works */
-.steps3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:hw}
-@media(max-width:800px){.steps3{grid-template-columns:1fr}}
-.hw{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:28px 24px;position:relative}
-.hw::before{counter-increment:hw;content:counter(hw);position:absolute;top:22px;right:22px;
-  font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:600;line-height:1;
-  background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;opacity:.55}
-.hw h3{font-size:17.5px;font-weight:700;margin-bottom:8px;max-width:80%}
-.hw p{font-size:14.5px;color:var(--mut)}
-.hw .say{margin-top:14px;font-size:13.5px;font-style:italic;color:#a5b4fc;background:rgba(99,102,241,.1);
-  border:1px solid rgba(99,102,241,.3);border-radius:10px;padding:9px 14px}
-
-/* phases strip */
-.phases{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
-@media(max-width:800px){.phases{grid-template-columns:1fr}}
-.ph{border-radius:16px;padding:20px 22px;border:1px solid var(--line);background:var(--bg2)}
-.ph .wk{font-family:'JetBrains Mono',monospace;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
-.ph h3{font-size:16px;font-weight:700;margin-bottom:4px}
-.ph p{font-size:13.5px;color:var(--mut)}
-.ph.p1 .wk{color:#a5b4fc}.ph.p2 .wk{color:#67e8f9}.ph.p3 .wk{color:#fcd34d}
-
-/* ---------- FINAL CTA ---------- */
-.final{max-width:1160px;margin:80px auto 0;padding:0 28px 90px}
-.final-card{position:relative;border-radius:26px;padding:60px 36px;text-align:center;overflow:hidden;
-  background:linear-gradient(140deg,rgba(99,102,241,.28),rgba(34,211,238,.14));border:1px solid rgba(99,102,241,.5)}
-.final-card h2{font-size:clamp(28px,4.4vw,48px);font-weight:900;letter-spacing:-1px;line-height:1.08;text-wrap:balance;margin-bottom:14px}
-.final-card .lead{color:var(--txt);opacity:.85;font-size:17px;max-width:560px;margin:0 auto 30px}
-.qr-row{display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;margin-top:34px}
-.qr{background:#fff;border-radius:16px;padding:10px;width:132px;height:132px;box-shadow:0 14px 40px rgba(0,0,0,.4)}
-.qr img{width:100%;height:100%;display:block}
-.qr-txt{text-align:left;max-width:300px}
-.qr-txt b{font-size:15.5px}
-.qr-txt p{font-size:13.5px;color:var(--mut);margin-top:4px}
-.url{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--cyn);word-break:break-all}
-
-footer{text-align:center;color:#5c6580;font-size:12.5px;padding:26px 20px;border-top:1px solid var(--line)}
-
-@media (prefers-reduced-motion: reduce){*{transition:none!important}}
-@media print{body{background:#0a0e1a}.cta,.cta-ghost{box-shadow:none}}
-a:focus-visible,.cta:focus-visible{outline:3px solid var(--cyn);outline-offset:3px}
+  .final{padding:70px 0;text-align:center;background:
+    radial-gradient(800px 400px at 50% 120%,rgba(99,102,241,.22),transparent 60%),var(--bg)}
+  .final h2{font-size:clamp(26px,5vw,42px);font-weight:800;letter-spacing:-.8px;max-width:20ch;margin:0 auto 26px}
+  .foot{text-align:center;color:var(--mut2);font-size:12.5px;padding:26px 0 40px}
+  .foot a{color:var(--acc2)}
 </style>
 </head>
 <body>
 
-<!-- ================= HERO ================= -->
-<section class="hero">
-  <div>
-    <img src="logo.svg" alt="BE Mastery logo" style="width:72px;height:72px;border-radius:20px;margin-bottom:20px;box-shadow:0 14px 44px rgba(99,102,241,.45)">
-    <div class="kicker">Free web app · 12-week program</div>
-    <h1>Stop translating.<br>Start <em>speaking like you belong</em> in the room.</h1>
-    <p class="sub">The <b>Business English Mastery</b> system turns just <b>25 minutes a day</b> into confident, professional spoken English — pronunciation, meetings, interviews and executive presence. Guided day by day, so you never wonder what to practice.</p>
-    <div class="cta-row">
-      <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.3c3 1.3 4.7 4 4.7 7.3 0 2-.7 3.8-1.9 5.2H9.2C8 14.4 7.3 12.6 7.3 10.6c0-3.3 1.7-6 4.7-7.3Z"/><circle cx="12" cy="9.8" r="1.5"/><path d="M9.2 15.8 7.6 19l2.7-1M14.8 15.8 16.4 19l-2.7-1"/></svg> Start free today</a>
-      <a class="cta-ghost" href="https://app.lomonec.com/manual/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/></svg> Read the guide</a>
-    </div>
-    <p class="free-line"><b>100% free.</b> No account needed. Works on Android, iPhone &amp; desktop — installable from your browser ("Add to Home Screen"), works offline, and your progress saves automatically on your device.</p>
+<section class="hero"><div class="wrap">
+  <span class="kicker" data-k="kicker"></span>
+  <h1 data-k="h1"></h1>
+  <p class="sub" data-k="sub"></p>
+  <div class="cta-row">
+    <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="cta1"></span></a>
+    <a class="cta-ghost" href="https://app.lomonec.com/manual/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/></svg><span data-k="cta2"></span></a>
   </div>
-  <div class="shot">
-    <div class="float f1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/></svg> Day streak<br><small>momentum you can see</small></div>
-    <div class="frame"><img src="manual/screenshots/m01-dashboard.png" alt="The app dashboard showing today's session, progress ring and streak"></div>
-    <div class="float f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/></svg> Record → listen → improve<br><small>hear your own progress</small></div>
-  </div>
-</section>
+  <p class="free-line" data-k="free"></p>
+</div></section>
 
-<!-- ================= STAT BAND ================= -->
-<div class="band"><div class="band-in">
-  <div class="stat"><div class="n">25<span style="font-size:.5em"> min</span></div><div class="l">per day is enough</div></div>
-  <div class="stat"><div class="n">84</div><div class="l">guided sessions</div></div>
-  <div class="stat"><div class="n">152</div><div class="l">phrases &amp; idioms</div></div>
-  <div class="stat"><div class="n">12<span style="font-size:.5em"> wks</span></div><div class="l">to transformation</div></div>
+<div class="band"><div class="wrap band-in">
+  <div class="stat"><div class="n">25<span> min</span></div><div class="l" data-k="s_min"></div></div>
+  <div class="stat"><div class="n">84</div><div class="l" data-k="s_sessions"></div></div>
+  <div class="stat"><div class="n">152</div><div class="l" data-k="s_phrases"></div></div>
+  <div class="stat"><div class="n">12<span> wks</span></div><div class="l" data-k="s_weeks"></div></div>
 </div></div>
 
-<!-- ================= BENEFITS ================= -->
-<section class="sect">
-  <h2>Why professionals <span class="g">love</span> this system</h2>
-  <p class="lead">Not another vocabulary app. A complete speaking gym built for real work situations — standups, escalations, interviews, executive updates.</p>
-  <div class="bgrid">
-    <div class="b hi">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.6" y="5.2" width="16.8" height="15.2" rx="2"/><path d="M3.6 9.4h16.8"/><path d="M8 3.4v3.4M16 3.4v3.4"/></svg></div>
-      <h3>Zero decisions — just open and speak</h3>
-      <p>Every day has one prepared session with a timed template. The app tells you <b>exactly what to practice today</b> — you press start.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/></svg></div>
-      <h3>Instant speaking feedback on every recording</h3>
-      <p>Record yourself and get a <b>word-by-word pronunciation score</b>, grammar corrections, pace and filler analysis — with example audio and a retry drill for every word you miss.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><rect x="3" y="13" width="4.2" height="7" rx="1.6"/><rect x="16.8" y="13" width="4.2" height="7" rx="1.6"/></svg></div>
-      <h3>Shadowing Studio with a caption-backed clip library</h3>
-      <p>Pick a clip from the built-in library of great speakers — or paste any YouTube link — mark a 20–30 second segment and it <b>loops while you shadow</b>. For library clips the <b>transcript fills in from your marks, already stress-marked</b>, so you can record and get scored right away.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></div>
-      <h3>See your voice change — literally</h3>
-      <p>Your new take's <b>waveform is layered over your previous one</b>: watch pauses shrink and pacing tighten day by day. Progress you can see and hear.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.6h18"/></svg></div>
-      <h3>Executive Polish + 152 phrases</h3>
-      <p>Say it casually, get it back <b>polished for the boardroom</b> — fillers cut, grammar fixed, vocabulary upgraded. Plus 152 curated business phrases &amp; idioms.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/></svg></div>
-      <h3>Vocabulary that comes from YOUR speech</h3>
-      <p>Key words are extracted from what you actually say — with levels, real dictionary audio, a personal <b>trouble-words gym</b> and a say-the-word quiz.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg></div>
-      <h3>Posture Coach — presence, not just words</h3>
-      <p>A glowing avatar mirrors your posture while you practice: <b>green when you sit like an executive</b>, orange when you slouch. Zero-capture: no video is ever stored — and in the dark, your screen becomes a ring light.</p>
-    </div>
-    <div class="b">
-      <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg></div>
-      <h3>Installs like an app, works offline</h3>
-      <p>Add it to your home screen from the browser — full-screen, bottom navigation, <b>everything saved on your device</b>. Practice on a flight, in the metro, anywhere.</p>
-    </div>
+<section class="sect"><div class="wrap">
+  <h2 data-k="ben_h"></h2>
+  <div class="bgrid" id="bgrid"></div>
+</div></section>
+
+<section class="sect how"><div class="wrap">
+  <h2 data-k="how_h"></h2>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><p data-k="how1"></p></div>
+    <div class="step"><div class="num">2</div><p data-k="how2"></p></div>
+    <div class="step"><div class="num">3</div><p data-k="how3"></p></div>
   </div>
-</section>
+</div></section>
 
-<!-- ================= HOW IT WORKS ================= -->
-<section class="sect">
-  <h2>How it works — <span class="g">3 simple steps</span></h2>
-  <p class="lead">If you can spare one coffee break a day, you can do this program.</p>
-  <div class="steps3">
-    <div class="hw">
-      <h3>Open today's session</h3>
-      <p>The dashboard shows your next 25-minute block — the task, the timer and the phrases to use are all on one screen.</p>
-      <div class="say">“Week 2 · Tue — What are you working on this week?”</div>
-    </div>
-    <div class="hw">
-      <h3>Speak &amp; record</h3>
-      <p>Follow the timed steps, say the phrases out loud, record your answer, listen back, and record a sharper version 2.</p>
-      <div class="say">“The main blocker is the vendor API — we expect a fix by Friday.”</div>
-    </div>
-    <div class="hw">
-      <h3>Score &amp; keep your streak</h3>
-      <p>Mark the session complete, watch your streak grow, and review your progress every Sunday. Repeat for 12 weeks.</p>
-      <div class="say"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/></svg> Streak: 27 days · Clarity 5 → 8</div>
-    </div>
-  </div>
-</section>
+<section class="final"><div class="wrap">
+  <h2 data-k="final_h"></h2>
+  <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="final_btn"></span></a>
+</div></section>
 
-<!-- ================= JOURNEY ================= -->
-<section class="sect">
-  <h2>A proven <span class="g">12-week journey</span></h2>
-  <p class="lead">Each phase builds on the last — from introducing yourself clearly to influencing the room.</p>
-  <div class="phases">
-    <div class="ph p1"><div class="wk">Weeks 1–4</div><h3>Foundation</h3><p>Introductions, project updates, explaining blockers, asking sharp questions.</p></div>
-    <div class="ph p2"><div class="wk">Weeks 5–8</div><h3>Workplace Fluency</h3><p>Tech-to-business explanations, recommendations, professional pushback, sprint meetings.</p></div>
-    <div class="ph p3"><div class="wk">Weeks 9–12</div><h3>Executive Communication</h3><p>Leadership summaries, interviews, persuasion — and a final before/after performance set.</p></div>
-  </div>
-</section>
+<div class="foot"><div class="wrap">© 2026 Lomonec LLC — BE Mastery · <a href="https://app.lomonec.com/">app.lomonec.com</a></div></div>
 
-<!-- ================= FINAL CTA ================= -->
-<section class="final">
-  <div class="final-card">
-    <img src="logo.svg" alt="" style="width:58px;height:58px;border-radius:16px;margin-bottom:16px">
-    <h2>Your next meeting is coming.<br>Walk in <em class="g">ready</em>.</h2>
-    <p class="lead">In 12 weeks you could still be translating in your head — or you could be the clearest voice in the room. 25 minutes a day. Starting today.</p>
-    <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.3c3 1.3 4.7 4 4.7 7.3 0 2-.7 3.8-1.9 5.2H9.2C8 14.4 7.3 12.6 7.3 10.6c0-3.3 1.7-6 4.7-7.3Z"/><circle cx="12" cy="9.8" r="1.5"/><path d="M9.2 15.8 7.6 19l2.7-1M14.8 15.8 16.4 19l-2.7-1"/></svg> Open the app — it's free</a>
-    <div class="qr-row">
-      <div class="qr"><img src="manual/screenshots/qr.png" alt="QR code linking to the app"></div>
-      <div class="qr-txt">
-        <b><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:1.05em;height:1.05em;vertical-align:-2px"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/></svg> Scan to open on your phone</b>
-        <p>Point your camera at the code, or type:</p>
-        <p class="url">app.lomonec.com</p>
-      </div>
-    </div>
-  </div>
-</section>
+<script>
+var ICONS=[
+  '<path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/>',
+  '<path d="M4 9.5h3.4L12 5.6v12.8L7.4 14.5H4z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.7a7 7 0 0 1 0 10.6"/>',
+  '<rect x="3.6" y="5.2" width="16.8" height="15.2" rx="2"/><path d="M3.6 9.4h16.8"/><path d="M8 3.4v3.4M16 3.4v3.4"/>',
+  '<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>',
+  '<path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/>',
+  '<path d="M4 13.5v-1.5a8 8 0 0 1 16 0v1.5"/><rect x="3" y="13" width="4.2" height="7" rx="1.6"/><rect x="16.8" y="13" width="4.2" height="7" rx="1.6"/>',
+  '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'
+];
 
-<footer>Business English Mastery — 12-Week System · Free web app · Your data stays in your browser<br>© 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="privacy.html">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></footer>
+var FL={
+ en:{kicker:"Free · 12-week system",
+  h1:"Speak English like you belong in the room.",
+  sub:"BE Mastery turns 25 focused minutes a day into confident, professional spoken English — pronunciation, meetings, interviews and executive presence. Guided day by day, so you never wonder what to practise.",
+  cta1:"Start free", cta2:"Read the guide",
+  free:"100% free. No account needed. Works on Android, iPhone and desktop — install from your browser, use it offline, and your progress saves on your device.",
+  s_min:"minutes a day is enough", s_sessions:"guided sessions", s_phrases:"phrases & idioms", s_weeks:"weeks to transformation",
+  ben_h:"Everything a professional needs to speak with confidence",
+  ben:[["Executive Polish","Say it casually — get two boardroom-ready versions back instantly, each showing the idiom it uses, so you learn new language every time.","NEW"],
+   ["Shadowing Studio","Mirror native speakers line by line, record yourself, and get word-by-word pronunciation feedback."],
+   ["A guided 12-week plan","84 sessions, mapped day by day. You always know exactly what to practise."],
+   ["152 professional phrases","The real phrases and idioms used in meetings, escalations and interviews — made yours."],
+   ["Progress you can see","Pronunciation scores, speaking pace and streaks — your growth, measured automatically."],
+   ["Executive presence","A posture coach helps you sit and speak with the authority of a leader."],
+   ["Private by design","Your recordings stay on your device. Nothing is uploaded."]],
+  how_h:"How it works",
+  how1:"Open today's guided session", how2:"Speak, record and get instant feedback", how3:"Watch your confidence grow week by week",
+  final_h:"Your first win takes 60 seconds.", final_btn:"Open BE Mastery free"},
 
+ es:{kicker:"Gratis · sistema de 12 semanas",
+  h1:"Habla inglés como si pertenecieras a la sala.",
+  sub:"BE Mastery convierte 25 minutos al día en inglés hablado profesional y seguro: pronunciación, reuniones, entrevistas y presencia ejecutiva. Guiado día a día, para que nunca dudes qué practicar.",
+  cta1:"Empieza gratis", cta2:"Leer la guía",
+  free:"100% gratis. Sin cuenta. Funciona en Android, iPhone y ordenador: instálalo desde el navegador, úsalo sin conexión y tu progreso se guarda en tu dispositivo.",
+  s_min:"minutos al día bastan", s_sessions:"sesiones guiadas", s_phrases:"frases y modismos", s_weeks:"semanas para transformarte",
+  ben_h:"Todo lo que un profesional necesita para hablar con seguridad",
+  ben:[["Pulido Ejecutivo","Dílo de forma casual y recibe al instante dos versiones listas para la sala de juntas, cada una con el modismo que usa, para aprender algo nuevo cada vez.","NUEVO"],
+   ["Estudio de Imitación","Imita a hablantes nativos frase por frase, grábate y recibe correcciones de pronunciación palabra por palabra."],
+   ["Un plan guiado de 12 semanas","84 sesiones, organizadas día a día. Siempre sabes exactamente qué practicar."],
+   ["152 frases profesionales","Las frases y modismos reales de reuniones, escalaciones y entrevistas, hechos tuyos."],
+   ["Progreso que se ve","Puntuación de pronunciación, ritmo al hablar y rachas: tu avance, medido automáticamente."],
+   ["Presencia ejecutiva","Un guía de postura te ayuda a sentarte y hablar con la autoridad de un líder."],
+   ["Privado por diseño","Tus grabaciones se quedan en tu dispositivo. No se sube nada."]],
+  how_h:"Cómo funciona",
+  how1:"Abre la sesión guiada de hoy", how2:"Habla, grábate y recibe feedback al instante", how3:"Ve crecer tu seguridad semana a semana",
+  final_h:"Tu primera victoria toma 60 segundos.", final_btn:"Abre BE Mastery gratis"},
+
+ fr:{kicker:"Gratuit · programme de 12 semaines",
+  h1:"Parlez anglais comme si vous étiez à votre place.",
+  sub:"BE Mastery transforme 25 minutes par jour en un anglais parlé professionnel et assuré : prononciation, réunions, entretiens et présence de dirigeant. Guidé jour après jour, pour ne jamais hésiter sur quoi travailler.",
+  cta1:"Commencer gratuitement", cta2:"Lire le guide",
+  free:"100% gratuit. Sans compte. Fonctionne sur Android, iPhone et ordinateur : installez-le depuis votre navigateur, utilisez-le hors ligne, et votre progression est enregistrée sur votre appareil.",
+  s_min:"minutes par jour suffisent", s_sessions:"sessions guidées", s_phrases:"expressions et idiomes", s_weeks:"semaines pour vous transformer",
+  ben_h:"Tout ce qu'un professionnel doit avoir pour parler avec assurance",
+  ben:[["Touche Exécutive","Dites-le simplement — recevez aussitôt deux versions dignes d'un conseil d'administration, chacune indiquant l'expression utilisée, pour apprendre à chaque fois.","NOUVEAU"],
+   ["Studio de Shadowing","Imitez les natifs phrase par phrase, enregistrez-vous et recevez un retour de prononciation mot par mot."],
+   ["Un plan guidé de 12 semaines","84 sessions, organisées jour après jour. Vous savez toujours quoi travailler."],
+   ["152 expressions professionnelles","Les vraies expressions et idiomes des réunions, des escalades et des entretiens, faits vôtres."],
+   ["Des progrès visibles","Scores de prononciation, débit de parole et séries : votre progression, mesurée automatiquement."],
+   ["Présence de dirigeant","Un coach de posture vous aide à vous tenir et à parler avec l'autorité d'un leader."],
+   ["Privé par conception","Vos enregistrements restent sur votre appareil. Rien n'est envoyé."]],
+  how_h:"Comment ça marche",
+  how1:"Ouvrez la session guidée du jour", how2:"Parlez, enregistrez et recevez un retour immédiat", how3:"Voyez votre assurance grandir semaine après semaine",
+  final_h:"Votre première victoire prend 60 secondes.", final_btn:"Ouvrir BE Mastery gratuitement"},
+
+ de:{kicker:"Kostenlos · 12-Wochen-System",
+  h1:"Sprich Englisch, als gehörtest du in den Raum.",
+  sub:"BE Mastery macht aus 25 fokussierten Minuten pro Tag selbstsicheres, professionelles gesprochenes Englisch — Aussprache, Meetings, Interviews und Führungspräsenz. Tag für Tag angeleitet, damit du nie überlegen musst, was du üben sollst.",
+  cta1:"Kostenlos starten", cta2:"Anleitung lesen",
+  free:"100% kostenlos. Kein Konto nötig. Läuft auf Android, iPhone und Desktop — aus dem Browser installieren, offline nutzen, und dein Fortschritt wird auf deinem Gerät gespeichert.",
+  s_min:"Minuten am Tag genügen", s_sessions:"geführte Einheiten", s_phrases:"Redewendungen & Idiome", s_weeks:"Wochen zur Veränderung",
+  ben_h:"Alles, was eine Fachkraft braucht, um sicher zu sprechen",
+  ben:[["Executive Polish","Sag es locker — und erhalte sofort zwei vorstandsreife Versionen zurück, jede mit der verwendeten Redewendung, damit du jedes Mal Neues lernst.","NEU"],
+   ["Shadowing-Studio","Ahme Muttersprachler Satz für Satz nach, nimm dich auf und erhalte Wort-für-Wort-Feedback zur Aussprache."],
+   ["Ein geführter 12-Wochen-Plan","84 Einheiten, Tag für Tag geplant. Du weißt immer genau, was zu üben ist."],
+   ["152 berufliche Wendungen","Die echten Redewendungen aus Meetings, Eskalationen und Interviews — zu deinen gemacht."],
+   ["Sichtbarer Fortschritt","Aussprache-Werte, Sprechtempo und Serien — dein Wachstum, automatisch gemessen."],
+   ["Führungspräsenz","Ein Haltungs-Coach hilft dir, mit der Autorität einer Führungskraft zu sitzen und zu sprechen."],
+   ["Privat by Design","Deine Aufnahmen bleiben auf deinem Gerät. Nichts wird hochgeladen."]],
+  how_h:"So funktioniert es",
+  how1:"Öffne die heutige geführte Einheit", how2:"Sprich, nimm auf und erhalte sofort Feedback", how3:"Sieh deine Sicherheit Woche für Woche wachsen",
+  final_h:"Dein erster Erfolg dauert 60 Sekunden.", final_btn:"BE Mastery kostenlos öffnen"},
+
+ pt:{kicker:"Grátis · sistema de 12 semanas",
+  h1:"Fale inglês como se aquele fosse o seu lugar.",
+  sub:"O BE Mastery transforma 25 minutos por dia em inglês falado profissional e confiante — pronúncia, reuniões, entrevistas e presença executiva. Guiado dia a dia, para você nunca ficar em dúvida sobre o que praticar.",
+  cta1:"Começar grátis", cta2:"Ler o guia",
+  free:"100% grátis. Sem conta. Funciona em Android, iPhone e computador — instale pelo navegador, use offline, e seu progresso fica salvo no seu aparelho.",
+  s_min:"minutos por dia bastam", s_sessions:"sessões guiadas", s_phrases:"frases e expressões", s_weeks:"semanas para se transformar",
+  ben_h:"Tudo o que um profissional precisa para falar com confiança",
+  ben:[["Polimento Executivo","Diga de forma casual — receba na hora duas versões dignas da diretoria, cada uma mostrando a expressão usada, para aprender algo novo sempre.","NOVO"],
+   ["Estúdio de Shadowing","Imite falantes nativos frase por frase, grave-se e receba correção de pronúncia palavra por palavra."],
+   ["Um plano guiado de 12 semanas","84 sessões, organizadas dia a dia. Você sempre sabe exatamente o que praticar."],
+   ["152 frases profissionais","As frases e expressões reais de reuniões, escalonamentos e entrevistas — agora suas."],
+   ["Progresso visível","Notas de pronúncia, ritmo da fala e sequências — seu avanço, medido automaticamente."],
+   ["Presença executiva","Um treinador de postura ajuda você a sentar e falar com a autoridade de um líder."],
+   ["Privado por natureza","Suas gravações ficam no seu aparelho. Nada é enviado."]],
+  how_h:"Como funciona",
+  how1:"Abra a sessão guiada de hoje", how2:"Fale, grave e receba feedback na hora", how3:"Veja sua confiança crescer semana a semana",
+  final_h:"Sua primeira vitória leva 60 segundos.", final_btn:"Abrir o BE Mastery grátis"},
+
+ it:{kicker:"Gratis · sistema di 12 settimane",
+  h1:"Parla inglese come se fosse casa tua.",
+  sub:"BE Mastery trasforma 25 minuti al giorno in inglese parlato professionale e sicuro: pronuncia, riunioni, colloqui e presenza da leader. Guidato giorno per giorno, così non ti chiedi mai cosa esercitare.",
+  cta1:"Inizia gratis", cta2:"Leggi la guida",
+  free:"100% gratis. Nessun account. Funziona su Android, iPhone e computer: installalo dal browser, usalo offline e i tuoi progressi restano sul tuo dispositivo.",
+  s_min:"minuti al giorno bastano", s_sessions:"sessioni guidate", s_phrases:"frasi e modi di dire", s_weeks:"settimane per cambiare",
+  ben_h:"Tutto ciò che serve a un professionista per parlare con sicurezza",
+  ben:[["Tocco Esecutivo","Dillo in modo informale e ricevi subito due versioni da consiglio d'amministrazione, ognuna con il modo di dire usato, per imparare qualcosa di nuovo ogni volta.","NUOVO"],
+   ["Studio di Shadowing","Imita i madrelingua frase per frase, registrati e ricevi un riscontro sulla pronuncia parola per parola."],
+   ["Un piano guidato di 12 settimane","84 sessioni, organizzate giorno per giorno. Sai sempre esattamente cosa esercitare."],
+   ["152 frasi professionali","Le vere frasi e i modi di dire di riunioni, escalation e colloqui, resi tuoi."],
+   ["Progressi visibili","Punteggi di pronuncia, ritmo del parlato e serie: la tua crescita, misurata in automatico."],
+   ["Presenza da leader","Un coach della postura ti aiuta a sederti e parlare con l'autorevolezza di un leader."],
+   ["Privato per scelta","Le tue registrazioni restano sul tuo dispositivo. Non viene caricato nulla."]],
+  how_h:"Come funziona",
+  how1:"Apri la sessione guidata di oggi", how2:"Parla, registra e ricevi un riscontro immediato", how3:"Guarda la tua sicurezza crescere settimana dopo settimana",
+  final_h:"La tua prima vittoria richiede 60 secondi.", final_btn:"Apri BE Mastery gratis"},
+
+ ru:{kicker:"Бесплатно · система на 12 недель",
+  h1:"Говорите по-английски так, будто вам здесь место.",
+  sub:"BE Mastery превращает 25 минут в день в уверенный профессиональный английский: произношение, совещания, собеседования и лидерская подача. Каждый день с планом, чтобы вы никогда не гадали, что практиковать.",
+  cta1:"Начать бесплатно", cta2:"Читать руководство",
+  free:"100% бесплатно. Без аккаунта. Работает на Android, iPhone и компьютере — установите из браузера, используйте офлайн, прогресс сохраняется на вашем устройстве.",
+  s_min:"минут в день достаточно", s_sessions:"занятий с планом", s_phrases:"фраз и идиом", s_weeks:"недель до перемен",
+  ben_h:"Всё, что нужно профессионалу, чтобы говорить уверенно",
+  ben:[["Executive Polish","Скажите как есть — и мгновенно получите две версии уровня совета директоров, каждая с использованной идиомой, чтобы каждый раз узнавать новое.","НОВОЕ"],
+   ["Студия шэдоуинга","Повторяйте за носителями фраза за фразой, записывайте себя и получайте разбор произношения по словам."],
+   ["Ведомый план на 12 недель","84 занятия, расписанные по дням. Вы всегда точно знаете, что практиковать."],
+   ["152 деловые фразы","Настоящие фразы и идиомы из совещаний, эскалаций и собеседований — теперь ваши."],
+   ["Виден прогресс","Оценки произношения, темп речи и серии — ваш рост измеряется автоматически."],
+   ["Лидерская подача","Тренер осанки помогает сидеть и говорить с авторитетом руководителя."],
+   ["Приватно по умолчанию","Ваши записи остаются на устройстве. Ничего не загружается."]],
+  how_h:"Как это работает",
+  how1:"Откройте сегодняшнее занятие", how2:"Говорите, записывайте и получайте мгновенный разбор", how3:"Наблюдайте, как растёт уверенность неделя за неделей",
+  final_h:"Первая победа займёт 60 секунд.", final_btn:"Открыть BE Mastery бесплатно"},
+
+ ar:{kicker:"مجاني · نظام من 12 أسبوعًا",
+  h1:"تحدّث الإنجليزية وكأن مكانك في تلك القاعة.",
+  sub:"يحوّل BE Mastery 25 دقيقة يوميًا إلى إنجليزية محكية احترافية وواثقة — النطق والاجتماعات والمقابلات وحضور القيادة. موجّه يومًا بيوم، فلا تحتار أبدًا فيما تتدرّب عليه.",
+  cta1:"ابدأ مجانًا", cta2:"اقرأ الدليل",
+  free:"مجاني 100%. بلا حساب. يعمل على أندرويد وآيفون والحاسوب — ثبّته من المتصفح، واستخدمه دون اتصال، ويُحفظ تقدّمك على جهازك.",
+  s_min:"دقيقة يوميًا تكفي", s_sessions:"جلسة موجّهة", s_phrases:"عبارة ومصطلحًا", s_weeks:"أسبوعًا للتحوّل",
+  ben_h:"كل ما يحتاجه المحترف ليتحدّث بثقة",
+  ben:[["اللمسة التنفيذية","قُلها ببساطة — واحصل فورًا على نسختين جاهزتين لقاعة الاجتماعات، كلّ منها تُظهر المصطلح المستخدم، لتتعلّم جديدًا في كل مرة.","جديد"],
+   ["استوديو المحاكاة","حاكِ الناطقين الأصليين جملةً جملة، سجّل نفسك، واحصل على ملاحظات نطق كلمةً كلمة."],
+   ["خطة موجّهة من 12 أسبوعًا","84 جلسة، مرتّبة يومًا بيوم. تعرف دائمًا ما الذي تتدرّب عليه بالضبط."],
+   ["152 عبارة احترافية","العبارات والمصطلحات الحقيقية من الاجتماعات والتصعيدات والمقابلات — تصبح لك."],
+   ["تقدّم تراه بعينك","درجات النطق وسرعة الكلام والمتتاليات — نموّك يُقاس تلقائيًا."],
+   ["حضور القيادة","مدرّب الجلسة يساعدك على الجلوس والتحدّث بسلطة القائد."],
+   ["خصوصية بالتصميم","تبقى تسجيلاتك على جهازك. لا يُرفع شيء."]],
+  how_h:"كيف يعمل",
+  how1:"افتح جلسة اليوم الموجّهة", how2:"تحدّث وسجّل واحصل على ملاحظات فورية", how3:"شاهد ثقتك تنمو أسبوعًا بعد أسبوع",
+  final_h:"أول إنجاز لك يستغرق 60 ثانية.", final_btn:"افتح BE Mastery مجانًا"},
+
+ ur:{kicker:"مفت · 12 ہفتوں کا نظام",
+  h1:"انگریزی یوں بولیں جیسے وہ کمرہ آپ ہی کا ہو۔",
+  sub:"BE Mastery روزانہ 25 منٹ کو پُراعتماد، پیشہ ورانہ بولی جانے والی انگریزی میں بدل دیتا ہے — تلفظ، میٹنگز، انٹرویو اور قائدانہ موجودگی۔ روز بروز رہنمائی کے ساتھ، تاکہ آپ کبھی نہ سوچیں کہ کیا مشق کرنی ہے۔",
+  cta1:"مفت شروع کریں", cta2:"رہنما پڑھیں",
+  free:"100% مفت۔ کسی اکاؤنٹ کی ضرورت نہیں۔ اینڈرائیڈ، آئی فون اور کمپیوٹر پر کام کرتا ہے — براؤزر سے انسٹال کریں، آف لائن استعمال کریں، اور آپ کی پیش رفت آپ کے آلے پر محفوظ رہتی ہے۔",
+  s_min:"منٹ روزانہ کافی ہیں", s_sessions:"رہنمائی والے سیشن", s_phrases:"فقرے اور محاورے", s_weeks:"ہفتوں میں تبدیلی",
+  ben_h:"ایک پیشہ ور کو پُراعتماد بولنے کے لیے جو کچھ درکار ہے",
+  ben:[["ایکزیکٹو پالش","اسے سادہ انداز میں کہیں — فوراً دو بورڈ روم کے قابل ورژن حاصل کریں، ہر ایک استعمال شدہ محاورہ دکھاتا ہے، تاکہ آپ ہر بار کچھ نیا سیکھیں۔","نیا"],
+   ["شیڈوئنگ اسٹوڈیو","مقامی بولنے والوں کی جملہ بہ جملہ نقل کریں، خود کو ریکارڈ کریں، اور لفظ بہ لفظ تلفظ کی رائے حاصل کریں۔"],
+   ["12 ہفتوں کا رہنما منصوبہ","84 سیشن، روز بروز ترتیب دیے گئے۔ آپ کو ہمیشہ معلوم ہوتا ہے کہ کیا مشق کرنی ہے۔"],
+   ["152 پیشہ ورانہ فقرے","میٹنگز، ایسکلیشن اور انٹرویو کے اصل فقرے اور محاورے — اب آپ کے اپنے۔"],
+   ["نظر آتی پیش رفت","تلفظ کے اسکور، بولنے کی رفتار اور سلسلے — آپ کی ترقی خودکار طور پر ماپی جاتی ہے۔"],
+   ["قائدانہ موجودگی","پوسچر کوچ آپ کی مدد کرتا ہے کہ آپ ایک رہنما کے اختیار کے ساتھ بیٹھیں اور بولیں۔"],
+   ["ڈیزائن ہی سے نجی","آپ کی ریکارڈنگز آپ کے آلے پر رہتی ہیں۔ کچھ اپ لوڈ نہیں ہوتا۔"]],
+  how_h:"یہ کیسے کام کرتا ہے",
+  how1:"آج کا رہنمائی والا سیشن کھولیں", how2:"بولیں، ریکارڈ کریں اور فوری رائے حاصل کریں", how3:"ہفتہ بہ ہفتہ اپنا اعتماد بڑھتا دیکھیں",
+  final_h:"آپ کی پہلی کامیابی صرف 60 سیکنڈ لیتی ہے۔", final_btn:"BE Mastery مفت کھولیں"},
+
+ hi:{kicker:"मुफ़्त · 12-सप्ताह प्रणाली",
+  h1:"अंग्रेज़ी ऐसे बोलें जैसे वह कमरा आपका अपना हो।",
+  sub:"BE Mastery रोज़ के 25 मिनट को आत्मविश्वासी, पेशेवर बोली जाने वाली अंग्रेज़ी में बदल देता है — उच्चारण, मीटिंग, इंटरव्यू और नेतृत्व की उपस्थिति। दिन-प्रतिदिन मार्गदर्शन, ताकि आप कभी न सोचें कि क्या अभ्यास करें।",
+  cta1:"मुफ़्त शुरू करें", cta2:"गाइड पढ़ें",
+  free:"100% मुफ़्त। किसी खाते की ज़रूरत नहीं। Android, iPhone और कंप्यूटर पर चलता है — ब्राउज़र से इंस्टॉल करें, ऑफ़लाइन उपयोग करें, और आपकी प्रगति आपके डिवाइस पर सहेजी जाती है।",
+  s_min:"मिनट रोज़ काफ़ी हैं", s_sessions:"मार्गदर्शित सत्र", s_phrases:"वाक्यांश और मुहावरे", s_weeks:"सप्ताह में बदलाव",
+  ben_h:"आत्मविश्वास से बोलने के लिए एक पेशेवर को जो चाहिए, सब कुछ",
+  ben:[["एग्ज़िक्यूटिव पॉलिश","इसे सहज ढंग से कहें — तुरंत बोर्डरूम-योग्य दो संस्करण पाएं, हर एक में इस्तेमाल मुहावरा दिखता है, ताकि हर बार कुछ नया सीखें।","नया"],
+   ["शैडोइंग स्टूडियो","मूल वक्ताओं की पंक्ति-दर-पंक्ति नकल करें, खुद को रिकॉर्ड करें, और शब्द-दर-शब्द उच्चारण फ़ीडबैक पाएं।"],
+   ["एक मार्गदर्शित 12-सप्ताह योजना","84 सत्र, दिन-प्रतिदिन नियोजित। आपको हमेशा ठीक-ठीक पता होता है कि क्या अभ्यास करना है।"],
+   ["152 पेशेवर वाक्यांश","मीटिंग, एस्केलेशन और इंटरव्यू में इस्तेमाल होने वाले असली वाक्यांश और मुहावरे — अब आपके अपने।"],
+   ["दिखती हुई प्रगति","उच्चारण स्कोर, बोलने की गति और स्ट्रीक — आपकी प्रगति अपने-आप मापी जाती है।"],
+   ["नेतृत्व की उपस्थिति","एक पॉस्चर कोच आपको एक नेता के अधिकार के साथ बैठने और बोलने में मदद करता है।"],
+   ["डिज़ाइन से निजी","आपकी रिकॉर्डिंग आपके डिवाइस पर रहती है। कुछ भी अपलोड नहीं होता।"]],
+  how_h:"यह कैसे काम करता है",
+  how1:"आज का मार्गदर्शित सत्र खोलें", how2:"बोलें, रिकॉर्ड करें और तुरंत फ़ीडबैक पाएं", how3:"सप्ताह-दर-सप्ताह अपना आत्मविश्वास बढ़ता देखें",
+  final_h:"आपकी पहली जीत में 60 सेकंड लगते हैं।", final_btn:"BE Mastery मुफ़्त खोलें"},
+
+ bn:{kicker:"ফ্রি · ১২-সপ্তাহের সিস্টেম",
+  h1:"ইংরেজি এমনভাবে বলুন যেন ঘরটা আপনারই।",
+  sub:"BE Mastery প্রতিদিনের ২৫ মিনিটকে আত্মবিশ্বাসী, পেশাদার কথ্য ইংরেজিতে রূপান্তর করে — উচ্চারণ, মিটিং, ইন্টারভিউ ও নেতৃত্বের উপস্থিতি। দিনে দিনে পথনির্দেশ, তাই কী অনুশীলন করবেন তা নিয়ে আর ভাবতে হয় না।",
+  cta1:"ফ্রি শুরু করুন", cta2:"গাইড পড়ুন",
+  free:"১০০% ফ্রি। কোনো অ্যাকাউন্ট লাগে না। Android, iPhone ও কম্পিউটারে চলে — ব্রাউজার থেকে ইনস্টল করুন, অফলাইনে ব্যবহার করুন, আর আপনার অগ্রগতি আপনার ডিভাইসেই সংরক্ষিত থাকে।",
+  s_min:"মিনিট প্রতিদিন যেথেষ্ট", s_sessions:"পথনির্দেশিত সেশন", s_phrases:"বাক্যাংশ ও বাগধারা", s_weeks:"সপ্তাহে রূপান্তর",
+  ben_h:"আত্মবিশ্বাসে কথা বলতে একজন পেশাদারের যা যা প্রয়োজন",
+  ben:[["এক্সিকিউটিভ পলিশ","সহজভাবে বলুন — সঙ্গে সঙ্গে দুটি বোর্ডরুম-উপযোগী সংস্করণ পান, প্রতিটিতে ব্যবহৃত বাগধারা দেখানো হয়, যাতে প্রতিবার নতুন কিছু শেখেন।","নতুন"],
+   ["শ্যাডোইং স্টুডিও","স্থানীয় বক্তাদের বাক্যে বাক্যে অনুকরণ করুন, নিজেকে রেকর্ড করুন, আর শব্দে শব্দে উচ্চারণের মতামত পান।"],
+   ["একটি পথনির্দেশিত ১২-সপ্তাহের পরিকল্পনা","৮৪টি সেশন, দিনে দিনে সাজানো। কী অনুশীলন করবেন তা সবসময় সঠিক জানেন।"],
+   ["১৫২টি পেশাদার বাক্যাংশ","মিটিং, এসকালেশন ও ইন্টারভিউয়ের আসল বাক্যাংশ ও বাগধারা — এখন আপনার।"],
+   ["দৃশ্যমান অগ্রগতি","উচ্চারণের স্কোর, কথার গতি ও ধারাবাহিকতা — আপনার অগ্রগতি স্বয়ংক্রিয়ভাবে মাপা হয়।"],
+   ["নেতৃত্বের উপস্থিতি","একটি পসচার কোচ আপনাকে একজন নেতার কর্তৃত্ব নিয়ে বসতে ও কথা বলতে সাহায্য করে।"],
+   ["ডিজাইনেই গোপন","আপনার রেকর্ডিং আপনার ডিভাইসেই থাকে। কিছুই আপলোড হয় না।"]],
+  how_h:"এটি কীভাবে কাজ করে",
+  how1:"আজকের পথনির্দেশিত সেশন খুলুন", how2:"বলুন, রেকর্ড করুন ও তাৎক্ষণিক মতামত পান", how3:"সপ্তাহে সপ্তাহে আপনার আত্মবিশ্বাস বাড়তে দেখুন",
+  final_h:"আপনার প্রথম জয় পেতে লাগে ৬০ সেকেন্ড।", final_btn:"BE Mastery ফ্রি খুলুন"},
+
+ id:{kicker:"Gratis · sistem 12 minggu",
+  h1:"Bicara bahasa Inggris seolah ruangan itu memang milikmu.",
+  sub:"BE Mastery mengubah 25 menit fokus setiap hari menjadi bahasa Inggris lisan yang profesional dan percaya diri — pelafalan, rapat, wawancara, dan kehadiran seorang pemimpin. Dipandu hari demi hari, jadi kamu tak pernah bingung harus melatih apa.",
+  cta1:"Mulai gratis", cta2:"Baca panduan",
+  free:"100% gratis. Tanpa akun. Berjalan di Android, iPhone, dan komputer — pasang dari browser, gunakan offline, dan kemajuanmu tersimpan di perangkatmu.",
+  s_min:"menit sehari sudah cukup", s_sessions:"sesi terpandu", s_phrases:"frasa & idiom", s_weeks:"minggu untuk berubah",
+  ben_h:"Semua yang dibutuhkan profesional untuk bicara dengan percaya diri",
+  ben:[["Executive Polish","Ucapkan santai — langsung dapatkan dua versi siap ruang rapat, masing-masing menunjukkan idiom yang dipakai, jadi kamu belajar hal baru tiap kali.","BARU"],
+   ["Studio Shadowing","Tirukan penutur asli kalimat demi kalimat, rekam dirimu, dan dapatkan masukan pelafalan kata demi kata."],
+   ["Rencana terpandu 12 minggu","84 sesi, tertata hari demi hari. Kamu selalu tahu persis apa yang harus dilatih."],
+   ["152 frasa profesional","Frasa dan idiom nyata dari rapat, eskalasi, dan wawancara — menjadi milikmu."],
+   ["Kemajuan yang terlihat","Skor pelafalan, kecepatan bicara, dan rentetan — pertumbuhanmu diukur otomatis."],
+   ["Kehadiran pemimpin","Pelatih postur membantumu duduk dan bicara dengan wibawa seorang pemimpin."],
+   ["Privat sejak awal","Rekamanmu tetap di perangkatmu. Tidak ada yang diunggah."]],
+  how_h:"Cara kerjanya",
+  how1:"Buka sesi terpandu hari ini", how2:"Bicara, rekam, dan dapatkan masukan seketika", how3:"Lihat rasa percaya dirimu tumbuh minggu demi minggu",
+  final_h:"Kemenangan pertamamu hanya butuh 60 detik.", final_btn:"Buka BE Mastery gratis"},
+
+ vi:{kicker:"Miễn phí · hệ thống 12 tuần",
+  h1:"Nói tiếng Anh như thể bạn thuộc về căn phòng đó.",
+  sub:"BE Mastery biến 25 phút mỗi ngày thành tiếng Anh nói chuyên nghiệp và tự tin — phát âm, họp hành, phỏng vấn và phong thái lãnh đạo. Được dẫn dắt từng ngày, để bạn không bao giờ băn khoăn nên luyện gì.",
+  cta1:"Bắt đầu miễn phí", cta2:"Đọc hướng dẫn",
+  free:"Miễn phí 100%. Không cần tài khoản. Chạy trên Android, iPhone và máy tính — cài từ trình duyệt, dùng ngoại tuyến, và tiến trình của bạn được lưu trên thiết bị.",
+  s_min:"phút mỗi ngày là đủ", s_sessions:"buổi có hướng dẫn", s_phrases:"cụm từ & thành ngữ", s_weeks:"tuần để thay đổi",
+  ben_h:"Mọi thứ một người đi làm cần để nói tự tin",
+  ben:[["Executive Polish","Cứ nói tự nhiên — nhận ngay hai phiên bản chuẩn phòng họp, mỗi bản chỉ ra thành ngữ đã dùng, để bạn học điều mới mỗi lần.","MỚI"],
+   ["Studio Shadowing","Nhại người bản xứ từng câu, tự ghi âm, và nhận nhận xét phát âm theo từng từ."],
+   ["Kế hoạch 12 tuần có hướng dẫn","84 buổi, sắp xếp theo từng ngày. Bạn luôn biết chính xác cần luyện gì."],
+   ["152 cụm từ chuyên nghiệp","Những cụm từ và thành ngữ thật trong họp hành, leo thang và phỏng vấn — thành của bạn."],
+   ["Tiến bộ thấy được","Điểm phát âm, tốc độ nói và chuỗi ngày — sự tiến bộ được đo tự động."],
+   ["Phong thái lãnh đạo","Huấn luyện viên tư thế giúp bạn ngồi và nói với uy thế của người dẫn dắt."],
+   ["Riêng tư từ thiết kế","Bản ghi âm ở lại trên thiết bị của bạn. Không có gì được tải lên."]],
+  how_h:"Cách hoạt động",
+  how1:"Mở buổi học có hướng dẫn hôm nay", how2:"Nói, ghi âm và nhận nhận xét tức thì", how3:"Thấy sự tự tin lớn lên từng tuần",
+  final_h:"Chiến thắng đầu tiên chỉ mất 60 giây.", final_btn:"Mở BE Mastery miễn phí"},
+
+ zh:{kicker:"免费 · 12 周系统",
+  h1:"说英语，就像你本就属于那个房间。",
+  sub:"BE Mastery 把每天 25 分钟变成自信、专业的英语口语——发音、会议、面试和领导者的气场。每天有引导，让你永远不必纠结该练什么。",
+  cta1:"免费开始", cta2:"阅读指南",
+  free:"100% 免费。无需账户。可在 Android、iPhone 和电脑上使用——从浏览器安装，离线可用，你的进度保存在自己的设备上。",
+  s_min:"分钟每天就够了", s_sessions:"节引导课程", s_phrases:"条短语与习语", s_weeks:"周实现蜕变",
+  ben_h:"专业人士自信开口所需的一切",
+  ben:[["高管润色","随口说出——立刻得到两个适合会议室的版本，每个都标出所用的习语，让你每次都学到新表达。","全新"],
+   ["跟读工作室","逐句模仿母语者，录下自己，并获得逐词的发音反馈。"],
+   ["12 周引导计划","84 节课，按天规划。你始终清楚该练什么。"],
+   ["152 条专业短语","会议、升级沟通和面试中真实使用的短语与习语——化为你自己的。"],
+   ["看得见的进步","发音得分、语速和连续天数——你的成长自动被记录。"],
+   ["领导者气场","体态教练帮助你以领导者的气度端坐与开口。"],
+   ["隐私为本","你的录音留在你的设备上。不上传任何内容。"]],
+  how_h:"如何使用",
+  how1:"打开今天的引导课程", how2:"开口、录音并即时获得反馈", how3:"看着自信一周周成长",
+  final_h:"你的第一次成功只需 60 秒。", final_btn:"免费打开 BE Mastery"},
+
+ ja:{kicker:"無料 · 12週間システム",
+  h1:"その部屋にふさわしい人のように英語を話そう。",
+  sub:"BE Mastery は毎日たった25分を、自信のあるプロフェッショナルな英語スピーキングに変えます——発音、会議、面接、そしてリーダーとしての存在感。日々ガイドされるので、何を練習すべきか迷いません。",
+  cta1:"無料で始める", cta2:"ガイドを読む",
+  free:"100%無料。アカウント不要。Android・iPhone・パソコンで動作します——ブラウザからインストールし、オフラインでも使え、進捗は端末に保存されます。",
+  s_min:"分の練習で十分", s_sessions:"のガイド付きセッション", s_phrases:"のフレーズと熟語", s_weeks:"週間で変化",
+  ben_h:"プロが自信を持って話すために必要なすべて",
+  ben:[["エグゼクティブ・ポリッシュ","気軽に言うだけで、すぐに役員室にふさわしい2つの言い回しが返ってきます。使われた熟語も表示されるので、毎回新しい表現を学べます。","新機能"],
+   ["シャドーイング・スタジオ","ネイティブを一文ずつまねて録音し、単語ごとの発音フィードバックを受け取ります。"],
+   ["ガイド付き12週間プラン","84セッションを日ごとに配置。何を練習すべきか、いつでも明確です。"],
+   ["152のプロ向けフレーズ","会議・エスカレーション・面接で実際に使われるフレーズと熟語を、自分のものに。"],
+   ["見える進歩","発音スコア、話す速さ、連続記録——あなたの成長が自動で測定されます。"],
+   ["リーダーの存在感","姿勢コーチが、リーダーの威厳を持って座り、話す手助けをします。"],
+   ["設計から守るプライバシー","録音は端末に残ります。何もアップロードされません。"]],
+  how_h:"使い方",
+  how1:"今日のガイド付きセッションを開く", how2:"話して録音し、その場でフィードバック", how3:"自信が週ごとに育つのを見守る",
+  final_h:"最初の成功まで約60秒。", final_btn:"BE Mastery を無料で開く"},
+
+ ko:{kicker:"무료 · 12주 시스템",
+  h1:"그 자리에 어울리는 사람처럼 영어로 말하세요.",
+  sub:"BE Mastery는 하루 25분을 자신감 있고 전문적인 영어 말하기로 바꿔 줍니다 — 발음, 회의, 면접, 그리고 리더의 존재감. 매일 안내받으니 무엇을 연습할지 고민할 필요가 없습니다.",
+  cta1:"무료로 시작", cta2:"가이드 읽기",
+  free:"100% 무료. 계정 불필요. Android, iPhone, 컴퓨터에서 작동 — 브라우저에서 설치하고, 오프라인으로 사용하며, 진행 상황은 기기에 저장됩니다.",
+  s_min:"분이면 충분합니다", s_sessions:"개의 안내 세션", s_phrases:"개의 표현과 관용구", s_weeks:"주 만에 변화",
+  ben_h:"전문가가 자신 있게 말하기 위해 필요한 모든 것",
+  ben:[["이그제큐티브 폴리시","편하게 말하면 — 곧바로 이사회용 두 가지 버전을 받고, 각각 사용된 관용구가 표시되어 매번 새로운 표현을 배웁니다.","신규"],
+   ["쉐도잉 스튜디오","원어민을 문장 단위로 따라 하고, 자신을 녹음하며, 단어별 발음 피드백을 받습니다."],
+   ["안내형 12주 플랜","84개 세션을 날마다 배치. 무엇을 연습할지 항상 정확히 압니다."],
+   ["152개의 전문 표현","회의, 에스컬레이션, 면접에서 실제로 쓰이는 표현과 관용구를 내 것으로."],
+   ["보이는 성장","발음 점수, 말하기 속도, 연속 기록 — 당신의 성장이 자동으로 측정됩니다."],
+   ["리더의 존재감","자세 코치가 리더의 권위로 앉고 말하도록 돕습니다."],
+   ["설계부터 비공개","녹음은 기기에 남습니다. 아무것도 업로드되지 않습니다."]],
+  how_h:"이용 방법",
+  how1:"오늘의 안내 세션 열기", how2:"말하고 녹음하고 즉시 피드백 받기", how3:"자신감이 주마다 자라는 것을 지켜보세요",
+  final_h:"첫 성과까지 60초.", final_btn:"BE Mastery 무료로 열기"}
+};
+
+var RTL={ar:1,ur:1,fa:1,he:1};
+function pickLang(){
+  var q=new URLSearchParams(location.search).get("lang");
+  var c=(q||navigator.language||"en").toLowerCase().split("-")[0];
+  return FL[c]?c:"en";
+}
+function render(){
+  var code=pickLang(), d=FL[code];
+  document.documentElement.lang=code;
+  document.documentElement.dir=RTL[code]?"rtl":"ltr";
+  document.querySelectorAll("[data-k]").forEach(function(el){
+    var v=d[el.getAttribute("data-k")];
+    if(v!=null)el.textContent=v;
+  });
+  var g=document.getElementById("bgrid");g.innerHTML="";
+  (d.ben||[]).forEach(function(b,i){
+    var card=document.createElement("div");
+    card.className="b"+(i===0?" hi":"");
+    card.innerHTML='<div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[i]+'</svg></div>'+
+      '<h3>'+b[0]+(b[2]?'<span class="badge">'+b[2]+'</span>':'')+'</h3><p>'+b[1]+'</p>';
+    g.appendChild(card);
+  });
+}
+render();
+</script>
 </body>
 </html>
