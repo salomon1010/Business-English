@@ -4448,6 +4448,7 @@ function goSession(){}
     _go2(v,a1,a2);
     const h="#"+[v,a1,a2].filter(x=>x!==undefined&&x!==null&&x!=="").join("/");
     if(location.hash!==h)history.replaceState(null,"",h);
+    try{sessionStorage.setItem("be_view",h)}catch(e){}   // survives a refresh even if the hash is dropped (installed PWA start_url)
   };
 })();
 /* one-time cleanup: purge alignment-noise trouble words saved before the stopword filter existed */
@@ -4907,7 +4908,9 @@ window.pronTry=()=>{
 
 (async function boot(){
   const valid=["home","journey","phrases","shadow","review","profile","roleplay","pron","data","session","manual"];
-  const p=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
+  let _hs=location.hash.replace(/^#\/?/,"");
+  if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
+  const p=_hs.split("/").filter(Boolean);
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
   if(!valid.includes(v))v="home";
