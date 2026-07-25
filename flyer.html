@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<base target="_top"><!-- when shown inside the in-app About panel, links must break out, never load the app inside the iframe -->
 <title>Business English Mastery — Speak like you belong in the room</title>
 <style>
   :root{
@@ -30,6 +31,11 @@
   .hero{position:relative;padding:64px 0 48px;background:
     radial-gradient(1200px 500px at 80% -10%,rgba(99,102,241,.22),transparent 60%),
     radial-gradient(900px 400px at 0% 10%,rgba(34,211,238,.14),transparent 55%),var(--bg)}
+  .brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:24px}
+  .brand-logo{width:48px;height:48px;border-radius:14px;background:#0b1220;
+    box-shadow:0 0 0 3px rgba(34,211,238,.3),0 12px 34px rgba(34,211,238,.4)}
+  .brand-name{font-size:23px;font-weight:800;letter-spacing:-.3px;line-height:1}
+  .brand-name b{color:var(--txt)}
   .kicker{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
     color:var(--acc2);border:1px solid var(--line2);border-radius:999px;padding:6px 14px;margin-bottom:20px}
   h1{font-size:clamp(30px,6vw,54px);line-height:1.08;letter-spacing:-1px;font-weight:800;max-width:17ch}
@@ -51,6 +57,10 @@
     box-shadow:0 34px 80px rgba(34,211,238,.28)}
   .phone::after{content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:80px;height:5px;border-radius:5px;background:rgba(0,0,0,.35);z-index:2}
   .phone img{width:100%;display:block;border-radius:28px;border:1px solid var(--line2)}
+  .shots{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
+  @media(max-width:760px){.shots{grid-template-columns:1fr;max-width:330px;margin-left:auto;margin-right:auto}}
+  .shotc{border-radius:16px;padding:8px;background:linear-gradient(150deg,rgba(99,102,241,.38),rgba(34,211,238,.3));box-shadow:0 18px 44px rgba(34,211,238,.18)}
+  .shotc img{width:100%;display:block;border-radius:11px;border:1px solid var(--line2)}
   .maker{text-align:center;padding:34px 0 6px}
   .maker .badge2{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:999px;padding:9px 18px;font-size:13.5px;color:var(--mut)}
   .maker .badge2 b{color:var(--txt)}
@@ -96,6 +106,7 @@
 
 <section class="hero"><div class="wrap hero-grid">
   <div class="hero-txt">
+    <div class="brand"><img class="brand-logo" src="icon-192.png" alt="BE Mastery"><span class="brand-name"><b>BE</b> <em>Mastery</em></span></div>
     <span class="kicker" data-k="kicker"></span>
     <h1 data-k="h1"></h1>
     <p class="sub" data-k="sub"></p>
@@ -117,6 +128,16 @@
 </div></div>
 
 <section class="sect"><div class="wrap">
+  <h2 data-k="why_h"></h2>
+  <p class="lead" data-k="why_lead"></p>
+  <div class="shots">
+    <div class="shotc"><img src="manual/screenshots/m01-dashboard.png?v=2" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m04-shadow.png?v=2" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m07-progress.png?v=2" alt=""></div>
+  </div>
+</div></section>
+
+<section class="sect how"><div class="wrap">
   <h2 data-k="ben_h"></h2>
   <div class="bgrid" id="bgrid"></div>
 </div></section>
@@ -441,6 +462,26 @@ var FL={
   final_h:"첫 성과까지 60초.", final_btn:"BE Mastery 무료로 열기"}
 };
 
+/* "Why professionals love this" copy (YouTube shadowing angle) per language */
+var EXTRA={
+ en:{why_h:"Why professionals love this system",why_lead:"It isn't another vocabulary app — it's a complete speaking gym for real work: standups, escalations, interviews and executive updates. Shadow real YouTube clips of native speakers, then hear yourself improve."},
+ es:{why_h:"Por qué los profesionales adoran este sistema",why_lead:"No es otra app de vocabulario: es un gimnasio del habla para el trabajo real —reuniones, escalaciones, entrevistas e informes ejecutivos—. Imita clips reales de YouTube de hablantes nativos y escúchate mejorar."},
+ fr:{why_h:"Pourquoi les professionnels adorent ce système",why_lead:"Ce n'est pas une énième appli de vocabulaire : c'est une vraie salle de sport de l'expression pour le travail réel — réunions, escalades, entretiens et points de direction. Imitez de vrais extraits YouTube de natifs, puis écoutez-vous progresser."},
+ de:{why_h:"Warum Fachkräfte dieses System lieben",why_lead:"Keine weitere Vokabel-App, sondern ein komplettes Sprech-Fitnessstudio für den echten Berufsalltag — Standups, Eskalationen, Interviews und Führungs-Updates. Ahme echte YouTube-Clips von Muttersprachlern nach und höre, wie du besser wirst."},
+ pt:{why_h:"Por que os profissionais adoram este sistema",why_lead:"Não é mais um app de vocabulário: é uma academia da fala para o trabalho real — reuniões, escalonamentos, entrevistas e updates executivos. Imite clipes reais do YouTube de falantes nativos e ouça a sua evolução."},
+ it:{why_h:"Perché i professionisti amano questo sistema",why_lead:"Non è l'ennesima app di vocaboli: è una palestra del parlato per il lavoro vero — riunioni, escalation, colloqui e update alla dirigenza. Imita veri clip di YouTube di madrelingua e ascoltati migliorare."},
+ ru:{why_h:"Почему профессионалы любят эту систему",why_lead:"Это не очередное приложение для слов, а полноценный «зал» для речи в реальной работе — совещания, эскалации, собеседования и отчёты руководству. Повторяйте за настоящими роликами носителей на YouTube и слышьте свой прогресс."},
+ ar:{why_h:"لماذا يحب المحترفون هذا النظام",why_lead:"ليس تطبيق مفردات آخر، بل صالة تدريب كاملة للكلام في العمل الحقيقي — الاجتماعات والتصعيدات والمقابلات وتحديثات القيادة. حاكِ مقاطع يوتيوب حقيقية لناطقين أصليين، ثم استمع إلى تحسّنك."},
+ ur:{why_h:"پیشہ ور اس نظام کو کیوں پسند کرتے ہیں",why_lead:"یہ کوئی اور ذخیرۂ الفاظ ایپ نہیں — یہ اصل کام کے لیے بولنے کا مکمل جم ہے: میٹنگز، ایسکلیشن، انٹرویو اور قائدانہ اپڈیٹس۔ مقامی بولنے والوں کی اصل یوٹیوب کلپس کی نقل کریں، پھر اپنی بہتری سنیں۔"},
+ hi:{why_h:"पेशेवर इस सिस्टम को क्यों पसंद करते हैं",why_lead:"यह कोई और शब्दावली ऐप नहीं — यह असली काम के लिए बोलने का पूरा जिम है: स्टैंडअप, एस्केलेशन, इंटरव्यू और कार्यकारी अपडेट। मूल वक्ताओं की असली YouTube क्लिप की नकल करें, फिर अपनी प्रगति सुनें।"},
+ bn:{why_h:"পেশাদাররা কেন এই সিস্টেম ভালোবাসেন",why_lead:"এটি আরেকটি শব্দভাণ্ডার অ্যাপ নয় — এটি বাস্তব কাজের জন্য কথা বলার পূর্ণ জিম: স্ট্যান্ডআপ, এসকালেশন, ইন্টারভিউ ও নেতৃত্বের আপডেট। স্থানীয় বক্তাদের আসল YouTube ক্লিপ অনুকরণ করুন, তারপর নিজের উন্নতি শুনুন।"},
+ id:{why_h:"Mengapa profesional menyukai sistem ini",why_lead:"Ini bukan aplikasi kosakata lain — ini gym berbicara lengkap untuk pekerjaan nyata: standup, eskalasi, wawancara, dan update ke pimpinan. Tirukan klip YouTube asli penutur asli, lalu dengar dirimu berkembang."},
+ vi:{why_h:"Vì sao người đi làm yêu hệ thống này",why_lead:"Không phải một ứng dụng từ vựng khác — đây là phòng tập nói hoàn chỉnh cho công việc thật: họp nhanh, leo thang, phỏng vấn và cập nhật cho lãnh đạo. Nhại các clip YouTube thật của người bản xứ, rồi nghe chính mình tiến bộ."},
+ zh:{why_h:"为什么专业人士喜欢这个系统",why_lead:"这不是又一个背单词应用，而是面向真实工作的完整口语健身房——站会、升级沟通、面试和向管理层汇报。跟读母语者真实的 YouTube 片段，听见自己的进步。"},
+ ja:{why_h:"プロがこのシステムを愛する理由",why_lead:"単なる単語アプリではありません。実際の仕事のためのスピーキング・ジムです——朝会、エスカレーション、面接、経営層への報告。ネイティブの本物のYouTube動画をまねて、上達を耳で確かめましょう。"},
+ ko:{why_h:"전문가들이 이 시스템을 좋아하는 이유",why_lead:"또 하나의 단어 앱이 아닙니다 — 실제 업무를 위한 완전한 말하기 짐입니다: 스탠드업, 에스컬레이션, 면접, 경영진 보고. 원어민의 진짜 YouTube 클립을 따라 하고, 나아지는 자신을 들어 보세요."}
+};
+Object.keys(EXTRA).forEach(function(k){if(FL[k])Object.assign(FL[k],EXTRA[k])});
 var RTL={ar:1,ur:1,fa:1,he:1};
 function pickLang(){
   var q=new URLSearchParams(location.search).get("lang");
@@ -452,7 +493,8 @@ function render(){
   document.documentElement.lang=code;
   document.documentElement.dir=RTL[code]?"rtl":"ltr";
   document.querySelectorAll("[data-k]").forEach(function(el){
-    var v=d[el.getAttribute("data-k")];
+    var k=el.getAttribute("data-k");
+    var v=d[k]!=null?d[k]:FL.en[k];   // fall back to English for any untranslated key
     if(v!=null)el.textContent=v;
   });
   var g=document.getElementById("bgrid");g.innerHTML="";

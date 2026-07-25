@@ -369,6 +369,8 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .about-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer}
 .about-x svg{width:20px;height:20px}
 .about-frame{flex:1 1 auto;width:100%;height:100%;min-height:0;border:none;background:var(--bg)}
+.about-close{position:absolute;top:max(14px,calc(env(safe-area-inset-top) + 8px));right:14px;z-index:3;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:rgba(8,12,22,.55);backdrop-filter:blur(8px);color:#fff;display:grid;place-items:center;cursor:pointer}
+.about-close svg{width:20px;height:20px}
 .fab-col{position:fixed;right:24px;bottom:24px;z-index:57;display:flex;flex-direction:column;gap:12px;align-items:center}
 .help-fab{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
   background:var(--grad);color:#fff;font-size:26px;font-weight:800;line-height:1;display:grid;place-items:center;font-family:inherit;
@@ -2328,7 +2330,7 @@ window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const src="flyer.html?lang="+encodeURIComponent(lang);          // pass the chosen language so the flyer localizes
   const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
-  ov.innerHTML=`<div class="about-bar"><b>${esc(t("profile.about"))}</b><button class="about-x" onclick="closeAbout()" aria-label="Close">${ic("close")}</button></div><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
+  ov.innerHTML=`<button class="about-close" onclick="closeAbout()" aria-label="${esc(t("profile.about"))}">${ic("close")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
   document.body.appendChild(ov);
   ov.style.display="flex";
 };
