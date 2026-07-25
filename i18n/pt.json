@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Transcrição extraída das suas marcas e com ênfase marcada ✓",
  "sh.clear_clip_btn": "✕ Limpar",
  "sh.clear_clip_title": "Limpe as marcas e comece um novo clipe",
- "sh.clip_cleared_toast": "Limpo — marque um novo início e fim."
+ "sh.clip_cleared_toast": "Limpo — marque um novo início e fim.",
+ "profile.settings": "Configurações",
+ "profile.settings_sub": "Perfil, idioma, sincronização e privacidade",
+ "profile.help": "Ajuda e guia",
+ "profile.help_sub": "Como usar cada recurso",
+ "profile.about": "Sobre o app",
+ "profile.about_sub": "O que o BE Mastery faz"
 }

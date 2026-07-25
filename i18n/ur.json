@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "آپ کے نشانات سے نقل حاصل کی گئی اور زور نشان زد ✓",
  "sh.clear_clip_btn": "✕ صاف کریں",
  "sh.clear_clip_title": "نشانات صاف کریں اور نیا کلپ شروع کریں",
- "sh.clip_cleared_toast": "صاف کر دیا — نیا آغاز اور اختتام نشان زد کریں۔"
+ "sh.clip_cleared_toast": "صاف کر دیا — نیا آغاز اور اختتام نشان زد کریں۔",
+ "profile.settings": "ترتیبات",
+ "profile.settings_sub": "پروفائل، زبان، سِنک اور رازداری",
+ "profile.help": "مدد اور رہنمائی",
+ "profile.help_sub": "ہر خصوصیت کیسے استعمال کریں",
+ "profile.about": "ایپ کے بارے میں",
+ "profile.about_sub": "BE Mastery کیا کرتا ہے"
 }

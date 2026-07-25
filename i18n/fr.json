@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Transcription extraite de vos marques et accentuée ✓",
  "sh.clear_clip_btn": "✕ Effacer",
  "sh.clear_clip_title": "Effacez les marques et commencez un nouvel extrait",
- "sh.clip_cleared_toast": "Effacé — marquez un nouveau début et une fin."
+ "sh.clip_cleared_toast": "Effacé — marquez un nouveau début et une fin.",
+ "profile.settings": "Paramètres",
+ "profile.settings_sub": "Profil, langue, synchronisation et confidentialité",
+ "profile.help": "Aide et guide",
+ "profile.help_sub": "Comment utiliser chaque fonctionnalité",
+ "profile.about": "À propos de l'application",
+ "profile.about_sub": "Ce que fait BE Mastery"
 }

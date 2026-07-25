@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Расшифровка получена из ваших меток, ударения отмечены ✓",
  "sh.clear_clip_btn": "✕ Очистить",
  "sh.clear_clip_title": "Очистить метки и начать новый клип",
- "sh.clip_cleared_toast": "Очищено — отметьте новое начало и конец."
+ "sh.clip_cleared_toast": "Очищено — отметьте новое начало и конец.",
+ "profile.settings": "Настройки",
+ "profile.settings_sub": "Профиль, язык, синхронизация и приватность",
+ "profile.help": "Помощь и руководство",
+ "profile.help_sub": "Как использовать каждую функцию",
+ "profile.about": "О приложении",
+ "profile.about_sub": "Что делает BE Mastery"
 }

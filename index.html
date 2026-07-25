@@ -4917,8 +4917,16 @@ window.pronTry=()=>{
 })();
 ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:"){
-  let _swReloading=false;
-  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(_swReloading)return;_swReloading=true;location.reload();});
+  let _swReloading=false;const _bootAt=Date.now();
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(_swReloading)return;
+    /* Don't auto-reload during the first seconds of load: a new SW claiming the
+       page mid-boot races the hash restore and can drop you onto Home. The app is
+       network-first, so the fresh version is already loaded — the reload is only
+       useful for an update that lands while you're actively using the app. */
+    if(Date.now()-_bootAt<5000)return;
+    _swReloading=true;location.reload();
+  });
   navigator.serviceWorker.register("sw.js").then(reg=>{
     reg.update();
     /* check for a new version whenever the app regains focus (key for installed iOS PWAs) and hourly */

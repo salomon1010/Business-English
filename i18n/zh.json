@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "已根据你的标记提取文字稿并标注重音 ✓",
  "sh.clear_clip_btn": "✕ 清除",
  "sh.clear_clip_title": "清除标记并开始一个新片段",
- "sh.clip_cleared_toast": "已清除——请标记新的起点和终点。"
+ "sh.clip_cleared_toast": "已清除——请标记新的起点和终点。",
+ "profile.settings": "设置",
+ "profile.settings_sub": "个人资料、语言、同步和隐私",
+ "profile.help": "帮助与指南",
+ "profile.help_sub": "如何使用每个功能",
+ "profile.about": "关于应用",
+ "profile.about_sub": "BE Mastery 的功能"
 }

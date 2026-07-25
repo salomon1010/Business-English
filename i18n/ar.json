@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "تم جلب النص من علاماتك وتمييز النبر ✓",
  "sh.clear_clip_btn": "✕ مسح",
  "sh.clear_clip_title": "امسح العلامات وابدأ مقطعًا جديدًا",
- "sh.clip_cleared_toast": "تم المسح — علّم بداية ونهاية جديدة."
+ "sh.clip_cleared_toast": "تم المسح — علّم بداية ونهاية جديدة.",
+ "profile.settings": "الإعدادات",
+ "profile.settings_sub": "الملف الشخصي واللغة والمزامنة والخصوصية",
+ "profile.help": "المساعدة والدليل",
+ "profile.help_sub": "كيفية استخدام كل ميزة",
+ "profile.about": "حول التطبيق",
+ "profile.about_sub": "ماذا يفعل BE Mastery"
 }

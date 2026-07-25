@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Transkrip diambil dari tanda Anda & ditandai tekanannya ✓",
  "sh.clear_clip_btn": "✕ Hapus",
  "sh.clear_clip_title": "Hapus tanda dan mulai klip baru",
- "sh.clip_cleared_toast": "Terhapus — tandai awal dan akhir baru."
+ "sh.clip_cleared_toast": "Terhapus — tandai awal dan akhir baru.",
+ "profile.settings": "Pengaturan",
+ "profile.settings_sub": "Profil, bahasa, sinkronisasi & privasi",
+ "profile.help": "Bantuan & panduan",
+ "profile.help_sub": "Cara memakai setiap fitur",
+ "profile.about": "Tentang aplikasi",
+ "profile.about_sub": "Apa yang dilakukan BE Mastery"
 }

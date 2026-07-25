@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "あなたのマークから書き起こしを取得し強勢を付けました ✓",
  "sh.clear_clip_btn": "✕ クリア",
  "sh.clear_clip_title": "マークをクリアして新しいクリップを始めます",
- "sh.clip_cleared_toast": "クリアしました——新しい開始と終了をマークしてください。"
+ "sh.clip_cleared_toast": "クリアしました——新しい開始と終了をマークしてください。",
+ "profile.settings": "設定",
+ "profile.settings_sub": "プロフィール・言語・同期・プライバシー",
+ "profile.help": "ヘルプとガイド",
+ "profile.help_sub": "各機能の使い方",
+ "profile.about": "アプリについて",
+ "profile.about_sub": "BE Mastery でできること"
 }

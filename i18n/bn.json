@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "আপনার চিহ্ন থেকে প্রতিলিপি আনা হয়েছে ও জোর চিহ্নিত ✓",
  "sh.clear_clip_btn": "✕ মুছুন",
  "sh.clear_clip_title": "চিহ্ন মুছে নতুন ক্লিপ শুরু করুন",
- "sh.clip_cleared_toast": "মোছা হয়েছে — নতুন শুরু ও শেষ চিহ্নিত করুন।"
+ "sh.clip_cleared_toast": "মোছা হয়েছে — নতুন শুরু ও শেষ চিহ্নিত করুন।",
+ "profile.settings": "সেটিংস",
+ "profile.settings_sub": "প্রোফাইল, ভাষা, সিঙ্ক ও গোপনীয়তা",
+ "profile.help": "সহায়তা ও গাইড",
+ "profile.help_sub": "প্রতিটি ফিচার কীভাবে ব্যবহার করবেন",
+ "profile.about": "অ্যাপ সম্পর্কে",
+ "profile.about_sub": "BE Mastery যা করে"
 }

@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Transkript aus deinen Markierungen geholt & betont ✓",
  "sh.clear_clip_btn": "✕ Löschen",
  "sh.clear_clip_title": "Markierungen löschen und einen neuen Clip beginnen",
- "sh.clip_cleared_toast": "Gelöscht — markiere einen neuen Anfang und ein Ende."
+ "sh.clip_cleared_toast": "Gelöscht — markiere einen neuen Anfang und ein Ende.",
+ "profile.settings": "Einstellungen",
+ "profile.settings_sub": "Profil, Sprache, Sync & Datenschutz",
+ "profile.help": "Hilfe & Anleitung",
+ "profile.help_sub": "So nutzt du jede Funktion",
+ "profile.about": "Über die App",
+ "profile.about_sub": "Was BE Mastery macht"
 }

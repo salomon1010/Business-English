@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Trascrizione estratta dai tuoi segni e con accenti ✓",
  "sh.clear_clip_btn": "✕ Cancella",
  "sh.clear_clip_title": "Cancella i segni e inizia una nuova clip",
- "sh.clip_cleared_toast": "Cancellato — segna un nuovo inizio e una fine."
+ "sh.clip_cleared_toast": "Cancellato — segna un nuovo inizio e una fine.",
+ "profile.settings": "Impostazioni",
+ "profile.settings_sub": "Profilo, lingua, sincronizzazione e privacy",
+ "profile.help": "Aiuto e guida",
+ "profile.help_sub": "Come usare ogni funzione",
+ "profile.about": "Informazioni sull'app",
+ "profile.about_sub": "Cosa fa BE Mastery"
 }

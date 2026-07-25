@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "표시한 구간에서 전사를 가져와 강세를 표시했습니다 ✓",
  "sh.clear_clip_btn": "✕ 지우기",
  "sh.clear_clip_title": "표시를 지우고 새 클립을 시작합니다",
- "sh.clip_cleared_toast": "지웠습니다 — 새 시작과 끝을 표시하세요."
+ "sh.clip_cleared_toast": "지웠습니다 — 새 시작과 끝을 표시하세요.",
+ "profile.settings": "설정",
+ "profile.settings_sub": "프로필, 언어, 동기화 및 개인정보",
+ "profile.help": "도움말 및 안내",
+ "profile.help_sub": "각 기능 사용법",
+ "profile.about": "앱 소개",
+ "profile.about_sub": "BE Mastery가 하는 일"
 }

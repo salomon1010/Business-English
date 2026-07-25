@@ -687,5 +687,11 @@
  "sh.transcript_pulled_toast": "Đã lấy bản chép lời từ dấu của bạn & đánh dấu trọng âm ✓",
  "sh.clear_clip_btn": "✕ Xóa",
  "sh.clear_clip_title": "Xóa các dấu và bắt đầu một đoạn mới",
- "sh.clip_cleared_toast": "Đã xóa — hãy đánh dấu điểm đầu và điểm cuối mới."
+ "sh.clip_cleared_toast": "Đã xóa — hãy đánh dấu điểm đầu và điểm cuối mới.",
+ "profile.settings": "Cài đặt",
+ "profile.settings_sub": "Hồ sơ, ngôn ngữ, đồng bộ & quyền riêng tư",
+ "profile.help": "Trợ giúp & hướng dẫn",
+ "profile.help_sub": "Cách dùng từng tính năng",
+ "profile.about": "Giới thiệu ứng dụng",
+ "profile.about_sub": "BE Mastery làm gì"
 }
