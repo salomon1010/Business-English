@@ -2374,7 +2374,7 @@ async function rHome(el){
       </div>
     </div>
   </div>
-  <div class="grid g4" style="margin-bottom:22px">
+  <div class="grid g4 stats-center" style="margin-bottom:22px">
     <div class="stat"><div class="n"><span class="stat-ic">${ic("flame")}</span>${streak()}</div><div class="l">${t("home.stat_streak")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("mic")}</span>${recN}</div><div class="l">${t("home.stat_recordings")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">${t("home.stat_phrases")}</div></div>
@@ -4274,7 +4274,7 @@ function rProfile(el){
     <p class="pf-sub">${sub}</p>
     <div class="pf-streak">${ic("flame")}<b>${streak()}</b> ${t("profile.day_streak")}</div>
   </div>
-  <div class="pf-stats">
+  <div class="pf-stats stats-center">
     <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}</div><div class="l">${t("home.stat_sessions")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
