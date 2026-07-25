@@ -2434,7 +2434,7 @@ function rSession(el,w,d){
         <p style="font-size:12px;color:var(--mut2);margin-top:10px">${t("sess.timer_hint")}</p>
       </div>
       <h3 style="margin-bottom:10px">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</h3>
-      ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" onclick="toggleStep('${key}',${i})">
+      ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
         <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
         <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
       ${weekPhrases.length?`<div class="card" style="margin-top:14px;padding:16px">
@@ -2495,8 +2495,10 @@ function rSession(el,w,d){
 }
 window.toggleStep=(key,i)=>{
   const a=S.steps[key]||[];const ix=a.indexOf(i);
+  const on=ix<0;                              // becoming done if it wasn't already
   ix>=0?a.splice(ix,1):a.push(i);S.steps[key]=a;save();
-  go("session",cur.arg1,cur.arg2);
+  const step=document.getElementById("stp"+i);   // toggle in place — never re-render (keeps the timer running)
+  if(step){step.classList.toggle("done",on);const cb=step.querySelector(".cb");if(cb)cb.textContent=on?"✓":"";}
 };
 window.saveNote=key=>{S.notes[key]=document.getElementById("noteBox").value;save();toast(t("sess.notes_saved_toast"))};
 window.setScore=(key,n)=>{S.scores[key]=n;save();go("session",cur.arg1,cur.arg2)};
