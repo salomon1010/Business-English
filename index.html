@@ -459,6 +459,11 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-mic svg{width:32px;height:32px}
 .rp-mic:hover{transform:scale(1.05)}
 .rp-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.rp-mic.muted{background:var(--card2);border:1px solid var(--line2);color:var(--mut);box-shadow:none}
+.rp-start{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:22px}
+.rv-opts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.rv-opts label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mut);text-align:left}
+.rv-opts select{min-width:150px}
 .rp-status{font-size:13px;color:var(--mut);min-height:18px}
 .rp-av-wrap{position:relative;display:grid;place-items:center}
 .rp-av-wrap .rp-av{transition:box-shadow .3s,transform .3s}
@@ -1138,6 +1143,27 @@ const I18N_EN={
  "rp.key_save":"Save key",
  "rp.key_saved":"AI key saved on this device",
  "rp.key_note":"Get a key at console.anthropic.com. Kept only in this browser, like your GitHub token.",
+ "rp.start_text":"Text chat instead",
+ "rv.key_box":"<b>Live voice call (OpenAI Realtime)</b> — natural voice, speak freely, real-time. Paste an OpenAI API key (Realtime access).",
+ "rv.key_needed":"Live voice needs an OpenAI key.",
+ "rv.key_needed_short":"Add your OpenAI key to start a live voice call.",
+ "rv.key_add":"Add key",
+ "rv.key_save":"Save key",
+ "rv.key_saved":"OpenAI key saved on this device",
+ "rv.key_cleared":"OpenAI key removed",
+ "rv.key_connected":"Live voice ready · key ends in …{{tail}}",
+ "rv.key_note":"Stored only in this browser (exposed client-side — fine for personal use; a token proxy is safer for public launch). Per-minute cost, needs internet.",
+ "rv.voice":"Voice",
+ "rv.accent":"Accent",
+ "rv.start":"Start live voice call",
+ "rv.end":"End call",
+ "rv.connecting":"Connecting…",
+ "rv.listening":"Listening — just speak",
+ "rv.speaking":"Speaking…",
+ "rv.muted":"Muted — tap to unmute",
+ "rv.mic_denied":"Microphone permission needed for a voice call.",
+ "rv.conn_err":"Connection error — check your OpenAI key & Realtime access.",
+ "rv.conn_closed":"Call ended.",
  "rp.key_connected":"AI connected · key ends in …{{tail}}",
  "rp.key_change":"Change key",
  "rp.key_clear":"Remove",
@@ -2212,7 +2238,7 @@ function bnavSync(v){
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 function go(v,arg1,arg2){
-  if(cur&&cur.v==="roleplay"&&v!=="roleplay"&&typeof rpEndConv==="function")rpEndConv();
+  if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}
   cur={v,arg1,arg2};
   const tv=v==="data"?"profile":v; /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
@@ -4418,6 +4444,7 @@ function rpLibrary(el){
    <div class="eyebrow">${t("rp.eyebrow")}</div>
    <h1 class="big">${t("rp.title")}</h1>
    <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
+   ${oaKeyBox()}
    ${rpKeyBox()}
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
    ${cats}`;
@@ -4434,7 +4461,16 @@ function rpIntro(el,sc){
      <p class="sub" style="margin-bottom:18px">${esc(sc.scenario)}</p>
      <h4 class="rp-h4">${t("rp.points_h")}</h4>
      <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
-     ${rpKey()?`<button class="btn btn-p" style="margin-top:22px;font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${t("rp.start")}</button>`:`<p class="rp-keynote" style="margin-top:18px">${t("rp.key_needed_short")} <a onclick="go('roleplay')">${t("rp.key_add")}</a></p>`}
+     <div class="rp-start">
+       ${oaKey()?`
+         <div class="rv-opts">
+           <label>${t("rv.voice")}<select id="rvVoice">${RV_VOICES.map(v=>`<option value="${v[0]}">${esc(v[1])}</option>`).join("")}</select></label>
+           <label>${t("rv.accent")}<select id="rvAccent">${RV_ACCENTS.map(a=>`<option value="${a[0]}">${esc(a[1])}</option>`).join("")}</select></label>
+         </div>
+         <button class="btn btn-p" style="font-size:16px;padding:14px 30px" onclick="rvStart('${sc.id}',document.getElementById('rvVoice').value,document.getElementById('rvAccent').value)">${tIc("rv.start","mic")}</button>`
+       :`<p class="rp-keynote">${t("rv.key_needed")} <a onclick="go('roleplay')">${t("rv.key_add")}</a></p>`}
+       ${rpKey()?`<button class="btn btn-g" onclick="rpStart('${sc.id}')">${tIc("rp.start_text","chat")}</button>`:""}
+     </div>
    </div>`;
   manIconizeInline(el);
 }
@@ -4544,6 +4580,125 @@ function rpShowModal(title,body,b1,f1,b2,f2){
   document.getElementById("rpm1").onclick=()=>{m.remove();f1&&f1()};
   document.getElementById("rpm2").onclick=()=>{m.remove();f2&&f2()};
 }
+
+/* ================= LIVE VOICE CALL — OpenAI Realtime API ================= */
+const OA_KEY="be12_oaikey";
+const RV_MODEL="gpt-4o-realtime-preview-2024-12-17";
+function oaKey(){try{return localStorage.getItem(OA_KEY)||""}catch(e){return""}}
+window.oaSaveKey=()=>{const el=document.getElementById("oaKeyIn");if(!el)return;const v=(el.value||"").trim();try{localStorage.setItem(OA_KEY,v)}catch(e){}toast(v?t("rv.key_saved"):t("rv.key_cleared"));go("roleplay",cur.arg1)};
+window.oaClearKey=()=>{try{localStorage.removeItem(OA_KEY)}catch(e){}toast(t("rv.key_cleared"));go("roleplay",cur.arg1)};
+function oaKeyForm(prefill){return `<div class="rp-key-row"><input id="oaKeyIn" type="password" placeholder="sk-… (OpenAI)" value="${esc(prefill||"")}" autocomplete="off"><button class="btn btn-p btn-sm" onclick="oaSaveKey()">${t("rv.key_save")}</button>${prefill?`<button class="btn btn-g btn-sm" onclick="oaClearKey()">${t("rp.key_clear")}</button>`:""}</div><p class="rp-key-note">${t("rv.key_note")}</p>`}
+function oaKeyBox(){const k=oaKey();if(!k)return `<div class="rp-keynote" id="oaKeyBox">${t("rv.key_box")}${oaKeyForm("")}</div>`;return `<div class="rp-keynote rp-key-set" id="oaKeyBox"><span>${t("rv.key_connected",{tail:esc(k.slice(-4))})}</span> <button class="btn btn-g btn-sm" onclick="oaKeyEdit()">${t("rp.key_change")}</button></div>`}
+window.oaKeyEdit=()=>{const box=document.getElementById("oaKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("rv.key_box")+oaKeyForm(oaKey())};
+const RV_VOICES=[["alloy","Alloy"],["ash","Ash"],["ballad","Ballad"],["coral","Coral"],["echo","Echo"],["sage","Sage"],["shimmer","Shimmer"],["verse","Verse"]];
+const RV_ACCENTS=[["en-US","US English"],["en-GB","UK English"],["en-AU","Australian English"],["es-ES","Spanish (Spain)"],["es-MX","Spanish (Mexico)"],["fr-FR","French"],["de-DE","German"],["it-IT","Italian"],["pt-BR","Portuguese (Brazil)"]];
+let RV=null;
+/* ---- small audio helpers (mic → PCM16 @24k, and playback of PCM16 @24k) ---- */
+function rvFloatToPCM16(float32){const out=new Int16Array(float32.length);for(let i=0;i<float32.length;i++){let s=Math.max(-1,Math.min(1,float32[i]));out[i]=s<0?s*0x8000:s*0x7FFF}return out}
+function rvDownsample(buf,inRate,outRate){if(outRate===inRate)return buf;const ratio=inRate/outRate,n=Math.round(buf.length/ratio),out=new Float32Array(n);let i=0,j=0;while(i<n){const next=Math.round((i+1)*ratio);let sum=0,c=0;for(;j<next&&j<buf.length;j++){sum+=buf[j];c++}out[i]=c?sum/c:0;i++}return out}
+function rvB64FromBytes(bytes){let bin="";const u8=new Uint8Array(bytes.buffer||bytes);for(let i=0;i<u8.length;i++)bin+=String.fromCharCode(u8[i]);return btoa(bin)}
+function rvBytesFromB64(b64){const bin=atob(b64),u8=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);return u8}
+function rvSend(o){try{if(RV&&RV.ws&&RV.ws.readyState===1)RV.ws.send(JSON.stringify(o))}catch(e){}}
+
+window.rvStart=async(scenarioId,voice,accent)=>{
+  const sc=rpById(scenarioId); if(!sc)return;
+  const key=oaKey(); if(!key)return toast(t("rv.key_needed_short"));
+  voice=voice||RV_VOICES[0][0]; accent=accent||"en-US";
+  const el=document.getElementById("v-roleplay");
+  RV={sc,voice,accent,ws:null,ac:null,proc:null,stream:null,covered:new Set(),playAt:0,sources:[],aiBubble:null,userBubble:null,ended:false};
+  el.innerHTML=`
+   <div class="rp-live">
+     <div class="rp-live-top"><b>${esc(sc.title)} · ${esc((RV_ACCENTS.find(a=>a[0]===accent)||[,accent])[1])}</b><button class="btn btn-danger btn-sm" onclick="rvEnd()">${t("rv.end")}</button></div>
+     <div class="rp-live-grid">
+       <div class="rp-live-points"><div class="rp-lp-h">${t("rp.points_h")} <span id="rpProg" class="chip">0/${sc.points.length}</span></div>${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+       <div class="rp-live-stage">
+         <div class="rp-av-wrap">${rpAvatar(sc,120)}<div class="rp-eq"><span></span><span></span><span></span><span></span><span></span></div></div>
+         <button class="rp-mic" id="rvMute" onclick="rvToggleMute()" aria-label="Mute">${ic("mic")}</button>
+         <div class="rp-status" id="rpStatus">${t("rv.connecting")}</div>
+       </div>
+       <div class="rp-live-tx"><div class="rp-tx-h">${t("rp.transcript")}</div><div class="rp-tx" id="rpTx"></div></div>
+     </div>
+   </div>`;
+  manIconizeInline(el);
+  try{
+    RV.ac=new (window.AudioContext||window.webkitAudioContext)();
+    RV.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+  }catch(e){rvStatus(t("rv.mic_denied"));return}
+  const ws=new WebSocket("wss://api.openai.com/v1/realtime?model="+RV_MODEL,["realtime","openai-insecure-api-key."+key,"openai-beta.realtime-v1"]);
+  RV.ws=ws;
+  ws.onopen=()=>{
+    rvStatus(t("rv.listening"));
+    const persona=`You are ${sc.persona}, a ${sc.role}. Setting: ${sc.scenario} Stay fully in character, warm and natural. Speak ${(RV_ACCENTS.find(a=>a[0]===accent)||[,"English"])[1]} with that accent. Keep replies short and conversational and keep things moving with a question. The learner is practising spoken ${accent.split("-")[0]==="en"?"English":"this language"} at an intermediate level. Their goals: ${sc.points.map((p,i)=>`${i+1}) ${p}`).join("; ")}. When the learner clearly completes a goal, call mark_point with its number. Greet them first.`;
+    rvSend({type:"session.update",session:{
+      modalities:["audio","text"],instructions:persona,voice,
+      input_audio_format:"pcm16",output_audio_format:"pcm16",
+      input_audio_transcription:{model:"whisper-1"},
+      turn_detection:{type:"server_vad",threshold:0.5,prefix_padding_ms:300,silence_duration_ms:600},
+      tools:[{type:"function",name:"mark_point",description:"Mark a talking-point goal as completed by the learner.",parameters:{type:"object",properties:{n:{type:"integer",description:"1-based goal number"}},required:["n"]}}],
+      tool_choice:"auto"
+    }});
+    rvSend({type:"response.create"}); /* have the persona greet */
+    rvStartMic();
+  };
+  ws.onmessage=(ev)=>{try{rvEvent(JSON.parse(ev.data))}catch(e){}};
+  ws.onerror=()=>rvStatus(t("rv.conn_err"));
+  ws.onclose=()=>{if(RV&&!RV.ended)rvStatus(t("rv.conn_closed"))};
+};
+function rvStartMic(){
+  if(!RV||!RV.ac||!RV.stream)return;
+  const src=RV.ac.createMediaStreamSource(RV.stream);
+  const proc=RV.ac.createScriptProcessor(4096,1,1);RV.proc=proc;
+  proc.onaudioprocess=(e)=>{
+    if(!RV||RV.muted)return;
+    const inBuf=e.inputBuffer.getChannelData(0);
+    const ds=rvDownsample(inBuf,RV.ac.sampleRate,24000);
+    rvSend({type:"input_audio_buffer.append",audio:rvB64FromBytes(rvFloatToPCM16(ds))});
+  };
+  src.connect(proc);proc.connect(RV.ac.destination);
+}
+function rvEvent(m){
+  switch(m.type){
+    case "input_audio_buffer.speech_started": rvBargeIn(); rvStatus(t("rv.listening")); break;
+    case "response.audio.delta": if(m.delta)rvPlay(m.delta); rvSpeaking(true); break;
+    case "response.audio.done": case "response.done": rvSpeaking(false); if(!RV.muted)rvStatus(t("rv.listening")); break;
+    case "response.audio_transcript.delta": rvAppendAI(m.delta||""); break;
+    case "conversation.item.input_audio_transcription.completed": if(m.transcript)rvUser(m.transcript.trim()); break;
+    case "response.function_call_arguments.done":
+      try{const a=JSON.parse(m.arguments||"{}");if(a.n>=1&&a.n<=RV.sc.points.length){RV.covered.add(a.n);rvUpdatePoints()}}catch(e){}
+      rvSend({type:"conversation.item.create",item:{type:"function_call_output",call_id:m.call_id,output:"ok"}});
+      rvSend({type:"response.create"});
+      break;
+    case "error": rvStatus((m.error&&m.error.message)||t("rv.conn_err")); break;
+  }
+}
+/* playback: schedule PCM16@24k chunks back to back */
+function rvPlay(b64){
+  if(!RV||!RV.ac)return;
+  const bytes=rvBytesFromB64(b64),i16=new Int16Array(bytes.buffer);
+  const f32=new Float32Array(i16.length);for(let i=0;i<i16.length;i++)f32[i]=i16[i]/0x8000;
+  const buf=RV.ac.createBuffer(1,f32.length,24000);buf.copyToChannel(f32,0);
+  const s=RV.ac.createBufferSource();s.buffer=buf;s.connect(RV.ac.destination);
+  const now=RV.ac.currentTime;const at=Math.max(now,RV.playAt);s.start(at);RV.playAt=at+buf.duration;
+  RV.sources.push(s);s.onended=()=>{RV.sources=RV.sources.filter(x=>x!==s)};
+}
+function rvBargeIn(){ if(!RV)return; RV.sources.forEach(s=>{try{s.stop()}catch(e){}});RV.sources=[];RV.playAt=0; rvSend({type:"response.cancel"}); rvSpeaking(false); }
+function rvSpeaking(on){const st=document.querySelector(".rp-live-stage");if(st)st.classList.toggle("speaking",!!on);if(on)rvStatus(t("rv.speaking"))}
+function rvStatus(txt){const s=document.getElementById("rpStatus");if(s)s.textContent=txt}
+function rvAppendAI(d){if(!RV)return;if(!RV.aiBubble){RV.aiBubble=document.createElement("div");RV.aiBubble.className="rp-bubble ai";const tx=document.getElementById("rpTx");if(tx){tx.appendChild(RV.aiBubble)}}RV.aiBubble.textContent+=d;const tx=document.getElementById("rpTx");if(tx)tx.scrollTop=tx.scrollHeight}
+function rvUser(txt){RV&&(RV.aiBubble=null);const tx=document.getElementById("rpTx");if(!tx)return;const d=document.createElement("div");d.className="rp-bubble me";d.textContent=txt;tx.appendChild(d);tx.scrollTop=tx.scrollHeight;if(RV)RV.aiBubble=null}
+function rvUpdatePoints(){if(!RV)return;RV.sc.points.forEach((p,i)=>{const el=document.getElementById("rpp"+i);if(el)el.classList.toggle("done",RV.covered.has(i+1))});const pr=document.getElementById("rpProg");if(pr)pr.textContent=RV.covered.size+"/"+RV.sc.points.length}
+window.rvToggleMute=()=>{if(!RV)return;RV.muted=!RV.muted;const b=document.getElementById("rvMute");if(b)b.classList.toggle("muted",RV.muted);rvStatus(RV.muted?t("rv.muted"):t("rv.listening"))};
+function rvTeardown(){if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}RV=null}
+window.rvEnd=()=>{if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}const sc=RV.sc,covered=RV.covered;RV=null;
+  const el=document.getElementById("v-roleplay");
+  el.innerHTML=`<button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   <div class="rp-intro">${rpAvatar(sc,84)}<h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
+   <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
+   <div class="stat" style="max-width:320px;margin-bottom:16px"><div class="n"><span class="stat-ic">${ic("check")}</span>${covered.size}/${sc.points.length}</div><div class="l">${t("rp.points_covered")}</div></div>
+   <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point ${covered.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+   <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap"><button class="btn btn-p" onclick="go('roleplay','${sc.id}')">${t("rp.again")}</button><button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button></div></div>`;
+  manIconizeInline(el);
+};
 
 /* ================= PRONUNCIATION PRACTICE (single word / short phrase drill) ================= */
 const PRON_STARTERS=["particularly","comfortable","schedule","entrepreneur","colleague","development","opportunity","specific","strategy","thoroughly"];
