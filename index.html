@@ -1655,7 +1655,7 @@ const I18N_EN={
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.exec_versions":"💼 Executive versions — pick one",
- "ex.more_hint":"↻ Press <b>Polish it</b> again for another version — new words &amp; idioms each time.",
+ "ex.more_hint":"↻ Pick one, or press <b>Polish it</b> again for two new versions.",
  "ex.ai_err":"Online rewrite unavailable right now — showing a basic clean-up instead",
  "ex.offline_note":"📶 You're offline — showing a basic clean-up. Connect to the internet for several professional versions with different idioms.",
  "rec.too_short_state":"Too short — tap and speak a bit longer",
@@ -3853,17 +3853,17 @@ function exRenderOffline(inp,note){
     <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
     ${exFramesHTML()}`;
 }
-/* render ONE professional version */
-function exRenderVersion(v){
+/* render two professional versions to pick from */
+function exRenderVersions(list){
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
-    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${tIc("ex.exec_version","briefcase")}</div>
-    <div style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">
-      <p style="font-size:17px;font-weight:600;line-height:1.55">${esc(v.text)}</p>
-      ${v.learn?`<p style="font-size:12.5px;color:var(--acc2);margin-top:6px;display:flex;align-items:center;gap:6px"><span class="inl-ic" style="color:var(--acc2)">${ic("sparkle")}</span>${esc(v.learn)}</p>`:""}
-      ${exActs(v.text).replace("margin-top:8px","margin-top:12px")}
-    </div>
-    <p style="font-size:12.5px;color:var(--mut);margin-top:10px">${t("ex.more_hint")}</p>
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${tIc("ex.exec_versions","briefcase")}</div>
+    ${list.map(v=>`<div style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:12px 16px;margin-bottom:10px">
+      <p style="font-size:16px;font-weight:600;line-height:1.5">${esc(v.text)}</p>
+      ${v.learn?`<p style="font-size:12px;color:var(--acc2);margin-top:5px">${esc(v.learn)}</p>`:""}
+      ${exActs(v.text)}
+    </div>`).join("")}
+    <p style="font-size:12.5px;color:var(--mut);margin-top:6px">${t("ex.more_hint")}</p>
     ${exFramesHTML()}`;
 }
 let exBusy=false,exLastInput="",exPrev=[],exQueue=[];
@@ -3874,23 +3874,22 @@ window.exGo=async()=>{
   if(inp!==exLastInput){exLastInput=inp;exPrev=[];exQueue=[]}   // new sentence → start fresh
   const st=document.getElementById("exSt");
   if(!POLISH_API||!navigator.onLine){exRenderOffline(inp,POLISH_API?t("ex.offline_note"):"");markPracticed();save();return}
-  if(exQueue.length){                                          // reuse a version already fetched — instant, no extra cost
-    const v=exQueue.shift();exPrev.push(v.text);exRenderVersion(v);markPracticed();save();return;
+  if(exQueue.length<2){                                         // need 2 to show — fetch more (returns ~3, leftover is reused next click)
+    exBusy=true;if(st)st.textContent=t("ex.polishing");
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:inp,avoid:exPrev})});
+      if(!r.ok)throw new Error("HTTP "+r.status);
+      const j=await r.json();
+      (j.versions||[]).filter(v=>v&&v.text).forEach(v=>exQueue.push(v));
+    }catch(e){
+      if(!exQueue.length){exRenderOffline(inp,t("ex.ai_err"));if(st)st.textContent="";exBusy=false;markPracticed();save();return}
+    }
+    if(st)st.textContent="";exBusy=false;
   }
-  exBusy=true;if(st)st.textContent=t("ex.polishing");
-  try{
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:inp,avoid:exPrev})});
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    const j=await r.json();
-    const versions=(j.versions||[]).filter(v=>v&&v.text);
-    if(!versions.length)throw new Error("no versions");
-    const v=versions.shift();exQueue=versions;                 // show one now, keep the rest for the next clicks
-    exPrev.push(v.text);if(exPrev.length>24)exPrev=exPrev.slice(-24);
-    exRenderVersion(v);
-  }catch(e){
-    exRenderOffline(inp,t("ex.ai_err"));
-  }
-  if(st)st.textContent="";exBusy=false;
+  const show=exQueue.splice(0,2);
+  if(!show.length){exRenderOffline(inp,t("ex.ai_err"));markPracticed();save();return}
+  show.forEach(v=>exPrev.push(v.text));if(exPrev.length>24)exPrev=exPrev.slice(-24);
+  exRenderVersions(show);
   markPracticed();save();
 };
 window.exAIPrompt=()=>{
