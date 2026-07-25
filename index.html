@@ -3967,8 +3967,8 @@ function rPhrases(el,wFilter){
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
     <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input id="exIn" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
+      <textarea id="exIn" rows="3" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px;resize:vertical;min-height:56px;font-family:inherit;line-height:1.5"></textarea>
       <button class="btn btn-g" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
       <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
       <button class="btn btn-g" onclick="exClear()" title="${esc(t("ex.clear_btn"))}">${tIc("ex.clear_btn","trash")}</button>
