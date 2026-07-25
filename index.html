@@ -2333,7 +2333,7 @@ window.openAbout=function(){
   document.querySelectorAll(".about-ov").forEach(e=>e.remove());   // never stack — always exactly one panel
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  const src="flyer.html?v=71&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // v= bumps each flyer change so caches never serve a stale About page
+  const src="flyer.html?v=75&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // v= bumps each flyer change so caches never serve a stale About page
   const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
   ov.innerHTML=`<button class="about-back" onclick="closeAbout()" aria-label="Close">${ic("close")}</button><button class="about-theme" onclick="aboutToggleTheme()" aria-label="Theme">${ic(theme==="light"?"moon":"sun")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
   document.body.appendChild(ov);
