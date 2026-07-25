@@ -2328,7 +2328,8 @@ window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollI
 window.openAbout=function(){
   document.querySelectorAll(".about-ov").forEach(e=>e.remove());   // never stack — always exactly one panel
   const lang=(S.profile&&S.profile.lang)||"en";
-  const src="flyer.html?lang="+encodeURIComponent(lang);          // pass the chosen language so the flyer localizes
+  const theme=document.documentElement.getAttribute("data-theme")||"dark";
+  const src="flyer.html?lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // match the app's language + light/dark theme
   const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
   ov.innerHTML=`<button class="about-close" onclick="closeAbout()" aria-label="${esc(t("profile.about"))}">${ic("close")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
   document.body.appendChild(ov);

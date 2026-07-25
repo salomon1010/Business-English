@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <base target="_top"><!-- when shown inside the in-app About panel, links must break out, never load the app inside the iframe -->
 <title>Business English Mastery — Speak like you belong in the room</title>
+<script>/* apply theme early (from ?theme= passed by the app, else the OS preference) to avoid a flash */
+(function(){try{var p=new URLSearchParams(location.search).get("theme");
+var t=p||((window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark");
+document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark")}})();</script>
 <style>
   :root{
     --bg:#0a0e1a; --bg2:#0d1424; --card:#111a2e; --card2:#0f1728;
@@ -13,11 +17,9 @@
     --acc:#6366f1; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399;
     --grad:linear-gradient(120deg,#6366f1,#22d3ee);
   }
-  @media (prefers-color-scheme: light){
-    :root{--bg:#f6f8fc;--bg2:#eef2fa;--card:#fff;--card2:#f3f6fc;
-      --line:rgba(15,23,42,.09);--line2:rgba(15,23,42,.16);
-      --txt:#0f172a;--mut:#475569;--mut2:#94a3b8;}
-  }
+  :root[data-theme="light"]{--bg:#f6f8fc;--bg2:#eef2fa;--card:#fff;--card2:#f3f6fc;
+    --line:rgba(15,23,42,.09);--line2:rgba(15,23,42,.16);
+    --txt:#0f172a;--mut:#475569;--mut2:#94a3b8;}
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -57,10 +59,9 @@
     box-shadow:0 34px 80px rgba(34,211,238,.28)}
   .phone::after{content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:80px;height:5px;border-radius:5px;background:rgba(0,0,0,.35);z-index:2}
   .phone img{width:100%;display:block;border-radius:28px;border:1px solid var(--line2)}
-  .shots{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px}
-  @media(max-width:760px){.shots{grid-template-columns:1fr;max-width:330px;margin-left:auto;margin-right:auto}}
-  .shotc{border-radius:16px;padding:8px;background:linear-gradient(150deg,rgba(99,102,241,.38),rgba(34,211,238,.3));box-shadow:0 18px 44px rgba(34,211,238,.18)}
-  .shotc img{width:100%;display:block;border-radius:11px;border:1px solid var(--line2)}
+  .shots{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-top:34px}
+  .shotc{flex:0 1 320px;border-radius:16px;padding:8px;background:linear-gradient(150deg,rgba(99,102,241,.38),rgba(34,211,238,.3));box-shadow:0 18px 44px rgba(34,211,238,.18)}
+  .shotc img{width:100%;height:210px;object-fit:cover;object-position:top;display:block;border-radius:11px;border:1px solid var(--line2)}
   .maker{text-align:center;padding:34px 0 6px}
   .maker .badge2{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:999px;padding:9px 18px;font-size:13.5px;color:var(--mut)}
   .maker .badge2 b{color:var(--txt)}
@@ -132,7 +133,6 @@
   <p class="lead" data-k="why_lead"></p>
   <div class="shots">
     <div class="shotc"><img src="manual/screenshots/m01-dashboard.png?v=2" alt=""></div>
-    <div class="shotc"><img src="manual/screenshots/m04-shadow.png?v=2" alt=""></div>
     <div class="shotc"><img src="manual/screenshots/m07-progress.png?v=2" alt=""></div>
   </div>
 </div></section>
