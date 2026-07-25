@@ -4253,9 +4253,9 @@ async function rData(el){
   <div class="grid g3">
     <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">${t("acc.stat_sessions")}</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">${t("acc.stat_recordings")}</div></div>
-    <div class="stat"><div class="n">${S.startDate}</div><div class="l">${t("acc.stat_startdate")}</div></div>
+    <div class="stat" onclick="devTap()" style="cursor:default"><div class="n">${S.startDate}</div><div class="l">${t("acc.stat_startdate")}</div></div>
   </div>
-  <div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
+  ${localStorage.be12_dev==="1"?`<div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
     <b style="font-size:16px">${hIcon("gear",t("acc.gh_title"))}</b>
     <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">${t("acc.gh_desc")}</p>
     <div class="grid g2" style="gap:10px;margin-bottom:12px">
@@ -4280,7 +4280,7 @@ async function rData(el){
       ${t("acc.gh_setup_steps")}
       <span style="color:var(--gold)">${t("acc.gh_keep_private")}</span></p>
     </details>
-  </div>
+  </div>`:""}
   <div class="card" style="margin-top:18px">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="btn btn-p" onclick="expData()">${tIc("acc.export_btn","download")}</button>
@@ -4291,6 +4291,17 @@ async function rData(el){
   </div>`;
   manIconizeInline(el);
 }
+/* hidden developer unlock: tap "Program start date" 5× to show/hide GitHub sync (a maker's backup tool, not for end users) */
+let _devTaps=0,_devT=0;
+window.devTap=()=>{
+  const now=Date.now();if(now-_devT>1500)_devTaps=0;_devT=now;_devTaps++;
+  if(_devTaps>=5){_devTaps=0;
+    const on=localStorage.be12_dev==="1";
+    if(on)localStorage.removeItem("be12_dev");else localStorage.be12_dev="1";
+    toast(on?"Developer tools hidden":"Developer tools shown (GitHub sync)");
+    go("data");
+  }
+};
 window.expData=()=>{
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:"application/json"}));
