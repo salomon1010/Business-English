@@ -1649,6 +1649,11 @@ const I18N_EN={
  "ex.dictate_sr_unavailable":"⚠️ Dictation needs Chrome, Edge or Safari",
  "ex.dictate_listening":"🎧 Listening…",
  "ex.dictate_mic_error":"Mic error — try again",
+ "ex.polishing":"✨ Polishing — writing professional versions…",
+ "ex.exec_versions":"💼 Executive versions — pick one",
+ "ex.more_hint":"↻ Press <b>Polish it</b> again for fresh versions with new words &amp; idioms.",
+ "ex.ai_err":"Online rewrite unavailable right now — showing a basic clean-up instead",
+ "ex.offline_note":"📶 You're offline — showing a basic clean-up. Connect to the internet for several professional versions with different idioms.",
  "rec.too_short_state":"Too short — tap and speak a bit longer",
  "rec.too_short_toast":"⚠️ Too short to save — hold and speak",
  "rec.saved_state":"Saved ✓ — tap to record again",
@@ -3818,23 +3823,63 @@ function execPolish(text){
   if(out&&!/[.!?]$/.test(out))out+=".";
   return{out,changes};
 }
-window.exGo=()=>{
-  const inp=document.getElementById("exIn").value.trim();
-  if(!inp)return toast(t("ex.type_first_toast"));
+/* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
+   (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
+   stay fully offline (rule-based clean-up only). */
+const POLISH_API="";  // e.g. "https://be-polish.<subdomain>.workers.dev"
+
+/* frames block shown under every result */
+function exFramesHTML(){return `<div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map((f,i)=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>`}
+/* three action buttons for one sentence */
+function exActs(s){return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+  <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
+  <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+  <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(s)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button></div>`}
+/* offline / fallback: the local rule-based single clean-up */
+function exRenderOffline(inp,note){
   const{out,changes}=execPolish(inp);
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
+    ${note?`<p style="font-size:12.5px;color:var(--gold);margin-bottom:10px">${note}</p>`:""}
     <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">${tIc("ex.exec_version","briefcase")}</div>
     <p style="font-size:17px;font-weight:600;line-height:1.55;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">${esc(out)}</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0">
-      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},1)">${tIc("ex.hear_btn","sound")}</button>
-      <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(out)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
-      <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(out)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
-      <button class="btn btn-g btn-sm" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
-    </div>
+    ${exActs(out).replace("margin-top:8px","margin:12px 0")}
     ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">${t("ex.what_changed")}</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
     :`<p style="font-size:13px;color:var(--green)">${t("ex.already_clean")}</p>`}
-    <div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map((f,i)=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>`;
+    <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
+    ${exFramesHTML()}`;
+}
+let exBusy=false,exLastInput="",exPrev=[];
+window.exGo=async()=>{
+  const inp=document.getElementById("exIn").value.trim();
+  if(!inp)return toast(t("ex.type_first_toast"));
+  if(exBusy)return;
+  if(inp!==exLastInput){exLastInput=inp;exPrev=[]}          // new sentence → forget past versions
+  const st=document.getElementById("exSt");
+  if(!POLISH_API||!navigator.onLine){exRenderOffline(inp,POLISH_API?t("ex.offline_note"):"");markPracticed();save();return}
+  exBusy=true;if(st)st.textContent=t("ex.polishing");
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:inp,avoid:exPrev})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    const versions=(j.versions||[]).filter(v=>v&&v.text);
+    if(!versions.length)throw new Error("no versions");
+    versions.forEach(v=>exPrev.push(v.text));if(exPrev.length>24)exPrev=exPrev.slice(-24);
+    document.getElementById("exOut").innerHTML=`
+      <div class="hr"></div>
+      <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${tIc("ex.exec_versions","briefcase")}</div>
+      ${versions.map(v=>`<div style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:12px 16px;margin-bottom:10px">
+        <p style="font-size:16px;font-weight:600;line-height:1.5">${esc(v.text)}</p>
+        ${v.learn?`<p style="font-size:12px;color:var(--acc2);margin-top:5px">${ic("sparkle")} ${esc(v.learn)}</p>`:""}
+        ${exActs(v.text)}
+      </div>`).join("")}
+      <p style="font-size:12.5px;color:var(--mut);margin-top:4px">${t("ex.more_hint")}</p>
+      ${exFramesHTML()}`;
+    manIconizeInline(document.getElementById("exOut"));
+  }catch(e){
+    exRenderOffline(inp,t("ex.ai_err"));
+  }
+  if(st)st.textContent="";exBusy=false;
   markPracticed();save();
 };
 window.exAIPrompt=()=>{

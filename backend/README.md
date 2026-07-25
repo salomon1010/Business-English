@@ -1,0 +1,59 @@
+# Executive Polish backend (Cloudflare Worker)
+
+A tiny serverless endpoint that holds ONE AI key so app users need only an
+internet connection — no key of their own. It returns several professional
+rewrites of a sentence for the "Polish it" feature.
+
+It is built with hard caps so the bill cannot run away (CORS locked to the app
+origin, input/output token limits, per-IP rate limits). The **real** guarantee
+is the provider budget cap in step 5 — set it and you can never be surprised.
+
+---
+
+## One-time setup (~15 minutes)
+
+### 1. Get an AI key
+- Create an account at **platform.openai.com** → API keys → create a key
+  (starts with `sk-...`). Keep it secret.
+
+### 2. Create the Worker
+- Go to **dash.cloudflare.com** → **Workers & Pages** → **Create** → **Worker**.
+- Give it a name, e.g. `be-polish`. Deploy the default, then **Edit code**.
+- Paste the entire contents of `polish-worker.js` over the default code. **Save
+  and deploy.**
+
+### 3. Add the secret key
+- Worker → **Settings** → **Variables and Secrets** → **Add** → type **Secret**.
+- Name: `OPENAI_KEY` — Value: your `sk-...` key. Save and deploy again.
+
+### 4. Note your Worker URL
+- It looks like `https://be-polish.<your-subdomain>.workers.dev`.
+- Put this URL into the app: in `index.html`, set
+  `const POLISH_API = "https://be-polish.<your-subdomain>.workers.dev";`
+  (a placeholder is already there near the Executive Polish code). Commit + push.
+
+### 5. Set the hard budget cap (do NOT skip — this is the real safety net)
+- **platform.openai.com → Settings → Limits (Billing) → set a monthly budget
+  cap**, e.g. £5 or £10. If usage ever hits it, the provider simply stops
+  serving requests — the app falls back to its offline clean-up. You can never
+  be charged above the cap.
+
+---
+
+## Costs (approximate — check current provider pricing)
+- Model `gpt-4o-mini`: roughly **£0.0001–0.0002 per Polish click**
+  (~5,000–10,000 clicks per £1).
+- Cloudflare Workers free tier covers ~100,000 requests/day — **£0** at your scale.
+- So: near-zero at launch; a few pounds a month only once you have real traffic.
+
+## Adjusting the caps
+Edit the constants at the top of `polish-worker.js`:
+`MAX_INPUT_CHARS`, `MAX_OUTPUT_TOKENS`, `RATE_PER_MIN`, `RATE_PER_DAY`,
+and `ALLOWED_ORIGINS` (add any new domains the app is served from).
+
+## Using Anthropic (Claude Haiku) instead of OpenAI
+In `callAI()`, swap the fetch to `https://api.anthropic.com/v1/messages` with
+headers `x-api-key: env.ANTHROPIC_KEY` and `anthropic-version: 2023-06-01`,
+body `{model:"claude-haiku-4-5-20251001", max_tokens:320, system, messages:[{role:"user",content:user}]}`,
+and read the reply from `j.content[0].text`. Then store the secret as
+`ANTHROPIC_KEY` instead of `OPENAI_KEY`. (Haiku is a bit pricier than 4o-mini.)
