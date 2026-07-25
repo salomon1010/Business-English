@@ -133,6 +133,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .stat .n{font-size:28px;font-weight:800;display:flex;align-items:center;gap:7px}
 .stat .l{font-size:12.5px;color:var(--mut);margin-top:3px}
 .stat-ic{color:var(--acc);flex:none;line-height:0}
+.stats-center .stat{text-align:center}
+.stats-center .stat .n{justify-content:center}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -2329,7 +2331,7 @@ window.openAbout=function(){
   document.querySelectorAll(".about-ov").forEach(e=>e.remove());   // never stack — always exactly one panel
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  const src="flyer.html?lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // match the app's language + light/dark theme
+  const src="flyer.html?v=71&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // v= bumps each flyer change so caches never serve a stale About page
   const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
   ov.innerHTML=`<button class="about-close" onclick="closeAbout()" aria-label="${esc(t("profile.about"))}">${ic("close")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
   document.body.appendChild(ov);
@@ -4142,7 +4144,7 @@ function progressHTML(){
       <div style="font-size:11.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);margin-bottom:5px">${tInl("prog.story_h","book")}</div>
       <p style="font-size:14.5px;line-height:1.65;margin:0">${pgStory()}</p>
     </div>
-    <div class="grid g4" style="margin-bottom:16px">
+    <div class="grid g4 stats-center" style="margin-bottom:16px">
       <div class="stat"><div class="n"><span class="stat-ic">${ic("waveform")}</span>${totalWords.toLocaleString()}</div><div class="l">${t("prog.stat_words")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
