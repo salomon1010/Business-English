@@ -180,6 +180,11 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ex-field-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .ex-field-ic svg{width:16px;height:16px}
 .ex-field input{padding-left:38px}
+.ex-btns{display:flex;flex-direction:column;gap:6px;justify-content:flex-start;min-width:132px}
+.ex-btns .btn-p{justify-content:center}
+.ex-icobtn{flex:1;padding:8px 10px;display:grid;place-items:center}
+.ex-icobtn svg{width:17px;height:17px}
+@media(max-width:520px){.ex-btns{min-width:100%;flex-direction:row}.ex-btns .btn-p{flex:1}}
 .ex-mic-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:exPulse 1.1s infinite}
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
@@ -3967,11 +3972,15 @@ function rPhrases(el,wFilter){
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
     <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
-      <textarea id="exIn" rows="3" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px;resize:vertical;min-height:56px;font-family:inherit;line-height:1.5"></textarea>
-      <button class="btn btn-g" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
-      <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
-      <button class="btn btn-g" onclick="exClear()" title="${esc(t("ex.clear_btn"))}">${tIc("ex.clear_btn","trash")}</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
+      <textarea id="exIn" rows="3" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
+      <div class="ex-btns">
+        <button class="btn btn-p btn-sm" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-g btn-sm ex-icobtn" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
+          <button class="btn btn-g btn-sm ex-icobtn" onclick="exClear()" aria-label="Clear" title="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
+        </div>
+      </div>
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
     <div id="exOut"></div>
