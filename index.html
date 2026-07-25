@@ -4294,12 +4294,14 @@ async function rData(el){
 /* hidden developer unlock: tap "Program start date" 5× to show/hide GitHub sync (a maker's backup tool, not for end users) */
 let _devTaps=0,_devT=0;
 window.devTap=()=>{
-  const now=Date.now();if(now-_devT>1500)_devTaps=0;_devT=now;_devTaps++;
+  const now=Date.now();if(now-_devT>3000)_devTaps=0;_devT=now;_devTaps++;   // generous 3s window between taps
   if(_devTaps>=5){_devTaps=0;
     const on=localStorage.be12_dev==="1";
     if(on)localStorage.removeItem("be12_dev");else localStorage.be12_dev="1";
-    toast(on?"Developer tools hidden":"Developer tools shown (GitHub sync)");
+    toast(on?"Developer tools hidden":"Developer tools shown — scroll down to GitHub sync");
     go("data");
+  }else if(_devTaps>=2){
+    toast((5-_devTaps)+" more tap"+(5-_devTaps===1?"":"s")+" to toggle developer tools");   // visible progress
   }
 };
 window.expData=()=>{
