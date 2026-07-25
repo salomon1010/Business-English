@@ -364,11 +364,11 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 }
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
-.about-ov{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.about-ov{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:140;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
 .about-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px calc(13px + env(safe-area-inset-top));padding-top:max(13px,env(safe-area-inset-top));border-bottom:1px solid var(--line2);background:var(--card);font-size:16px;font-weight:800;flex:none}
 .about-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer}
 .about-x svg{width:20px;height:20px}
-.about-frame{flex:1;width:100%;border:none;background:var(--bg)}
+.about-frame{flex:1 1 auto;width:100%;height:100%;min-height:0;border:none;background:var(--bg)}
 .fab-col{position:fixed;right:24px;bottom:24px;z-index:57;display:flex;flex-direction:column;gap:12px;align-items:center}
 .help-fab{width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;
   background:var(--grad);color:#fff;font-size:26px;font-weight:800;line-height:1;display:grid;place-items:center;font-family:inherit;
@@ -2324,19 +2324,15 @@ window.helpFilter=function(q){
 window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
 /* About the app — open the flyer inside the app (an overlay iframe), never an external browser tab */
 window.openAbout=function(){
+  document.querySelectorAll(".about-ov").forEach(e=>e.remove());   // never stack — always exactly one panel
   const lang=(S.profile&&S.profile.lang)||"en";
-  const src="flyer.html?lang="+encodeURIComponent(lang);   // pass the chosen language so the flyer localizes
-  let ov=document.getElementById("aboutOv");
-  if(!ov){
-    ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
-    ov.innerHTML=`<div class="about-bar"><b>${esc(t("profile.about"))}</b><button class="about-x" onclick="closeAbout()" aria-label="Close">${ic("close")}</button></div><iframe class="about-frame" title="${esc(t("profile.about"))}"></iframe>`;
-    document.body.appendChild(ov);
-  }
-  const fr=ov.querySelector(".about-frame");
-  if(fr&&fr.getAttribute("src")!==src)fr.setAttribute("src",src);   // reload if language changed
+  const src="flyer.html?lang="+encodeURIComponent(lang);          // pass the chosen language so the flyer localizes
+  const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
+  ov.innerHTML=`<div class="about-bar"><b>${esc(t("profile.about"))}</b><button class="about-x" onclick="closeAbout()" aria-label="Close">${ic("close")}</button></div><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
+  document.body.appendChild(ov);
   ov.style.display="flex";
 };
-window.closeAbout=function(){const ov=document.getElementById("aboutOv");if(ov)ov.style.display="none";};
+window.closeAbout=function(){document.querySelectorAll(".about-ov").forEach(e=>e.remove());};
 
 /* ================= DASHBOARD ================= */
 async function rHome(el){

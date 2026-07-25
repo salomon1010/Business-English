@@ -43,6 +43,17 @@
   .cta-ghost:hover{border-color:var(--acc);transform:translateY(-2px)}
   .cta svg,.cta-ghost svg{width:19px;height:19px}
   .free-line{font-size:13px;color:var(--mut2);margin-top:18px;max-width:58ch}
+  .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:34px;align-items:center}
+  @media(max-width:820px){.hero-grid{grid-template-columns:1fr;gap:30px}}
+  .hero-shot{display:flex;justify-content:center}
+  .phone{position:relative;width:min(272px,72vw);border-radius:36px;padding:9px;
+    background:linear-gradient(150deg,rgba(99,102,241,.55),rgba(34,211,238,.42));
+    box-shadow:0 34px 80px rgba(34,211,238,.28)}
+  .phone::after{content:"";position:absolute;top:16px;left:50%;transform:translateX(-50%);width:80px;height:5px;border-radius:5px;background:rgba(0,0,0,.35);z-index:2}
+  .phone img{width:100%;display:block;border-radius:28px;border:1px solid var(--line2)}
+  .maker{text-align:center;padding:34px 0 6px}
+  .maker .badge2{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:999px;padding:9px 18px;font-size:13.5px;color:var(--mut)}
+  .maker .badge2 b{color:var(--txt)}
 
   .band{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:26px 0}
   .band-in{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:center}
@@ -83,15 +94,19 @@
 </head>
 <body>
 
-<section class="hero"><div class="wrap">
-  <span class="kicker" data-k="kicker"></span>
-  <h1 data-k="h1"></h1>
-  <p class="sub" data-k="sub"></p>
-  <div class="cta-row">
-    <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="cta1"></span></a>
-    <a class="cta-ghost" href="https://app.lomonec.com/manual/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/></svg><span data-k="cta2"></span></a>
+<section class="hero"><div class="wrap hero-grid">
+  <div class="hero-txt">
+    <span class="kicker" data-k="kicker"></span>
+    <h1 data-k="h1"></h1>
+    <p class="sub" data-k="sub"></p>
+    <div class="cta-row">
+      <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="cta1"></span></a>
+    </div>
+    <p class="free-line" data-k="free"></p>
   </div>
-  <p class="free-line" data-k="free"></p>
+  <div class="hero-shot">
+    <div class="phone"><img src="manual/screenshots/m01-dashboard.png?v=2" alt="BE Mastery"></div>
+  </div>
 </div></section>
 
 <div class="band"><div class="wrap band-in">
@@ -120,7 +135,10 @@
   <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="final_btn"></span></a>
 </div></section>
 
-<div class="foot"><div class="wrap">© 2026 Lomonec LLC — BE Mastery · <a href="https://app.lomonec.com/">app.lomonec.com</a></div></div>
+<div class="maker"><div class="wrap">
+  <span class="badge2"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg> <span>Built by <b>Lomonec&nbsp;LLC</b></span></span>
+</div></div>
+<div class="foot"><div class="wrap">© 2026 Lomonec LLC — BE Mastery · all rights reserved · <a href="https://app.lomonec.com/">app.lomonec.com</a></div></div>
 
 <script>
 var ICONS=[
