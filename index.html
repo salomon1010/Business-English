@@ -180,6 +180,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ex-field-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .ex-field-ic svg{width:16px;height:16px}
 .ex-field input{padding-left:38px}
+.ex-mic-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:exPulse 1.1s infinite}
+@keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -1648,6 +1650,8 @@ const I18N_EN={
  "ex.ai_copied_toast":"🤖 Coach prompt copied — paste it into ChatGPT, Claude or Gemini",
  "ex.dictate_sr_unavailable":"⚠️ Dictation needs Chrome, Edge or Safari",
  "ex.dictate_listening":"🎧 Listening…",
+ "ex.dictate_listening_hold":"🎙️ Recording — speak freely, tap the mic again to stop.",
+ "ex.dictate_title":"Tap to start dictating; tap again to stop",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.exec_versions":"💼 Executive versions — pick one",
@@ -3906,14 +3910,36 @@ Context: business meeting with stakeholders
 Output:`;
   navigator.clipboard.writeText(p).then(()=>toast(t("ex.ai_copied_toast")));
 };
+/* User-controlled dictation: tap the mic to start, speak as long as you like
+   (whole sentences or a paragraph, through pauses), tap again to stop. */
+let exRec=null,exListening=false,exBase="",exFinal="";
+function exSetMic(on){
+  exListening=on;
+  const b=document.getElementById("exMic"),st=document.getElementById("exSt");
+  if(b)b.classList.toggle("ex-mic-live",on);
+  if(st)st.textContent=on?t("ex.dictate_listening_hold"):"";
+}
 window.exDictate=()=>{
   if(!SR)return toast(t("ex.dictate_sr_unavailable"));
-  const st=document.getElementById("exSt");st.textContent=t("ex.dictate_listening");
-  const r=new SR();r.lang="en-US";r.continuous=false;r.interimResults=false;
-  r.onresult=e=>{document.getElementById("exIn").value=e.results[0][0].transcript;st.textContent="";exGo()};
-  r.onerror=()=>{st.textContent=t("ex.dictate_mic_error")};
-  r.onend=()=>{if(st.textContent===t("ex.dictate_listening"))st.textContent=""};
-  r.start();
+  if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}return}   // second tap → stop
+  const inp=document.getElementById("exIn");
+  exBase=inp.value.trim();exFinal="";                        // keep any text already typed
+  exRec=new SR();exRec.lang="en-US";exRec.continuous=true;exRec.interimResults=true;
+  exRec.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const tr=e.results[i];
+      if(tr.isFinal)exFinal+=tr[0].transcript.replace(/\s+$/,"")+" ";
+      else interim+=tr[0].transcript;
+    }
+    inp.value=((exBase?exBase+" ":"")+exFinal+interim).replace(/\s+/g," ");
+  };
+  exRec.onerror=ev=>{if(ev.error!=="no-speech"&&ev.error!=="aborted"){const st=document.getElementById("exSt");if(st)st.textContent=t("ex.dictate_mic_error")}};
+  exRec.onend=()=>{
+    if(exListening){try{exRec.start();return}catch(_){}}      // browser stopped on silence but user hasn't tapped stop → keep going
+    exSetMic(false);inp.value=inp.value.trim();
+  };
+  try{exRec.start();exSetMic(true);}catch(e){exSetMic(false);toast(t("ex.dictate_mic_error"))}
 };
 
 /* ================= PHRASES ================= */
@@ -3928,7 +3954,7 @@ function rPhrases(el,wFilter){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="exIn" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
-      <button class="btn btn-g" onclick="exDictate()" aria-label="Dictate">${ic("mic")}</button>
+      <button class="btn btn-g" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
       <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
