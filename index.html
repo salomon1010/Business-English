@@ -596,8 +596,6 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 </main>
 <div class="toast" id="toast"></div>
 <div class="fab-col" id="fabCol">
-  <button class="mini-fab" onclick="go('roleplay')" aria-label="Conversation practice" title="Conversation practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></button>
-  <button class="mini-fab" onclick="go('pron')" aria-label="Pronunciation practice" title="Pronunciation practice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/></svg></button>
   <button class="help-fab" id="helpFab" onclick="go('manual')" aria-label="Help" title="Help">?</button>
 </div>
 
@@ -1213,6 +1211,8 @@ const I18N_EN={
  "acc.prem_1":"🤖 AI coach: deep rewrites & live conversation practice",
  "acc.prem_2":"☁️ Automatic cloud backup across devices",
  "acc.prem_3":"👥 Team & HR progress dashboards",
+ "acc.prem_4":"💬 AI conversation practice: real-time role-play",
+ "acc.prem_5":"🎙️ Pronunciation coach with per-sound scoring",
  "acc.about_title":"About BE Mastery",
  "acc.copyright":"© 2026 Lomonec LLC. All rights reserved. The app, its design, logo, curriculum and content are the intellectual property of Lomonec LLC.",
  "acc.support_link":"✉️ Support",
@@ -4177,8 +4177,6 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
   <div class="pf-menu">
-    <button class="pf-row" onclick="go('roleplay')"><span class="pf-ic">${ic("chat")}</span><span class="pf-txt"><b>${t("profile.roleplay")}</b><small>${t("profile.roleplay_sub")}</small></span><span class="pf-chev">›</span></button>
-    <button class="pf-row" onclick="go('pron')"><span class="pf-ic">${ic("mic")}</span><span class="pf-txt"><b>${t("profile.pron")}</b><small>${t("profile.pron_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
@@ -4230,7 +4228,7 @@ async function rData(el){
       <div class="card" style="opacity:.75;margin-bottom:16px">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip p3">${t("acc.coming_soon")}</span>
         <ul style="list-style:none;margin-top:10px">
-          ${["acc.prem_1","acc.prem_2","acc.prem_3"].map((k,i)=>`<li style="font-size:13px;color:var(--mut2);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut2);margin-top:2px">${ic(["sparkle","cloud","user"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
+          ${["acc.prem_1","acc.prem_2","acc.prem_3","acc.prem_4","acc.prem_5"].map((k,i)=>`<li style="font-size:13px;color:var(--mut2);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut2);margin-top:2px">${ic(["sparkle","cloud","user","chat","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
       </div>
       <div class="card">
