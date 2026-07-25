@@ -1144,6 +1144,12 @@ const I18N_EN={
  "rp.key_saved":"AI key saved on this device",
  "rp.key_note":"Get a key at console.anthropic.com. Kept only in this browser, like your GitHub token.",
  "rp.start_text":"Text chat instead",
+ "el.key_box":"<b>Natural voice (optional)</b> — for a genuinely human female voice, paste an ElevenLabs API key. Without it, the built-in browser voice is used.",
+ "el.key_note":"Get a key at elevenlabs.io. Stored only in this browser. Small per-character cost, needs internet.",
+ "el.key_save":"Save",
+ "el.key_saved":"Voice key saved on this device",
+ "el.key_cleared":"Voice key removed",
+ "el.key_connected":"Natural voice on · key ends in …{{tail}}",
  "rv.key_box":"<b>Live voice call (OpenAI Realtime)</b> — natural voice, speak freely, real-time. Paste an OpenAI API key (Realtime access).",
  "rv.key_needed":"Live voice needs an OpenAI key.",
  "rv.key_needed_short":"Add your OpenAI key to start a live voice call.",
@@ -4413,6 +4419,35 @@ function rpSetSpeaking(on){
   const st=document.querySelector(".rp-live-stage");if(st)st.classList.toggle("speaking",!!on);
   const s=document.getElementById("rpStatus");if(s){if(on)s.textContent=t("rp.speaking");else if(rpConv&&!rpConv.busy)s.textContent=t("rp.tap_to_speak")}
 }
+/* ---- natural female voice via ElevenLabs, with a browser-female fallback ---- */
+const EL_KEY="be12_elkey";
+const EL_VOICE="21m00Tcm4TlvDq8ikWAM"; /* Rachel — natural female */
+function elKey(){try{return localStorage.getItem(EL_KEY)||""}catch(e){return""}}
+window.elSaveKey=()=>{const el=document.getElementById("elKeyIn");if(!el)return;const v=(el.value||"").trim();try{localStorage.setItem(EL_KEY,v)}catch(e){}toast(v?t("el.key_saved"):t("el.key_cleared"));go("roleplay",cur.arg1)};
+window.elClearKey=()=>{try{localStorage.removeItem(EL_KEY)}catch(e){}toast(t("el.key_cleared"));go("roleplay",cur.arg1)};
+function elKeyForm(prefill){return `<div class="rp-key-row"><input id="elKeyIn" type="password" placeholder="ElevenLabs API key" value="${esc(prefill||"")}" autocomplete="off"><button class="btn btn-p btn-sm" onclick="elSaveKey()">${t("rv.key_save")}</button>${prefill?`<button class="btn btn-g btn-sm" onclick="elClearKey()">${t("rp.key_clear")}</button>`:""}</div><p class="rp-key-note">${t("el.key_note")}</p>`}
+function elKeyBox(){const k=elKey();if(!k)return `<div class="rp-keynote" id="elKeyBox">${t("el.key_box")}${elKeyForm("")}</div>`;return `<div class="rp-keynote rp-key-set" id="elKeyBox"><span>${t("el.key_connected",{tail:esc(k.slice(-4))})}</span> <button class="btn btn-g btn-sm" onclick="elKeyEdit()">${t("rp.key_change")}</button></div>`}
+window.elKeyEdit=()=>{const box=document.getElementById("elKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("el.key_box")+elKeyForm(elKey())};
+let _elAudio=null;
+function rpStopVoice(){try{speechSynthesis.cancel()}catch(e){}if(_elAudio){try{_elAudio.pause()}catch(e){}_elAudio=null}}
+async function rpVoice(text){
+  rpStopVoice();
+  const key=elKey();
+  if(!key){rpSpeak(text,"f");return}   /* no ElevenLabs key → best browser female voice */
+  try{
+    rpSetSpeaking(true);
+    const r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+EL_VOICE+"?output_format=mp3_44100_128",{
+      method:"POST",
+      headers:{"xi-api-key":key,"accept":"audio/mpeg","content-type":"application/json"},
+      body:JSON.stringify({text:String(text),model_id:"eleven_turbo_v2_5",voice_settings:{stability:0.45,similarity_boost:0.8}})
+    });
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const blob=await r.blob();
+    const a=new Audio(URL.createObjectURL(blob));_elAudio=a;
+    a.onended=a.onerror=()=>{if(_elAudio===a)_elAudio=null;rpSetSpeaking(false)};
+    await a.play();
+  }catch(e){rpSetSpeaking(false);rpSpeak(text,"f")}  /* CORS/key/error → browser fallback */
+}
 const RP_CATS=[["daily","Daily life"],["work","At work"],["travel","Travelling"]];
 const SCENARIOS=[
  {id:"coffee",cat:"daily",persona:"Mia",g:"f",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
@@ -4445,6 +4480,7 @@ function rpLibrary(el){
    <h1 class="big">${t("rp.title")}</h1>
    <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
    ${rpKeyBox()}
+   ${elKeyBox()}
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
    ${cats}`;
   manIconizeInline(el);
@@ -4493,7 +4529,7 @@ window.rpStart=(id)=>{
    </div>`;
   manIconizeInline(el);
   rpConv.history.push({role:"assistant",content:sc.greet});
-  rpAddBubble("ai",sc.greet); rpSpeak(sc.greet,sc.g);
+  rpAddBubble("ai",sc.greet); rpVoice(sc.greet);
   rpResetIdle();
 };
 function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)return;const d=document.createElement("div");d.className="rp-bubble "+(who==="ai"?"ai":"me");d.textContent=text;tx.appendChild(d);tx.scrollTop=tx.scrollHeight;}
@@ -4501,7 +4537,7 @@ window.rpListen=()=>{
   if(!rpConv||rpConv.busy)return;
   if(!SR)return toast(t("fb.sr_unavailable"));
   rpClearIdle();
-  try{speechSynthesis.cancel()}catch(e){}
+  rpStopVoice();
   clearInterval(rpSayKeep); rpSetSpeaking(false);
   const mic=document.getElementById("rpMic"),st=document.getElementById("rpStatus");
   const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;let got=false;
@@ -4518,7 +4554,7 @@ async function rpUserTurn(text){
   try{
     const res=await rpAI();
     rpConv.history.push({role:"assistant",content:res.reply});
-    rpAddBubble("ai",res.reply); rpSpeak(res.reply,rpConv.sc.g);
+    rpAddBubble("ai",res.reply); rpVoice(res.reply);
     (res.covered||[]).forEach(n=>{if(n>=1&&n<=rpConv.sc.points.length)rpConv.covered.add(n)});
     rpUpdatePoints();
     if(st)st.textContent=t("rp.tap_to_speak");
