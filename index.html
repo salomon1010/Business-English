@@ -3889,7 +3889,7 @@ window.exGo=async()=>{
   }
   const show=exQueue.splice(0,2);
   if(!show.length){exRenderOffline(inp,t("ex.ai_err"));markPracticed();save();return}
-  show.forEach(v=>exPrev.push(v.text));if(exPrev.length>24)exPrev=exPrev.slice(-24);
+  show.forEach(v=>exPrev.push(v.text));if(exPrev.length>6)exPrev=exPrev.slice(-6);   // only avoid the last few → keeps request tokens small
   exRenderVersions(show);
   markPracticed();save();
 };
