@@ -4445,7 +4445,6 @@ function rpLibrary(el){
    <h1 class="big">${t("rp.title")}</h1>
    <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
    ${oaKeyBox()}
-   ${rpKeyBox()}
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
    ${cats}`;
   manIconizeInline(el);
@@ -4464,12 +4463,10 @@ function rpIntro(el,sc){
      <div class="rp-start">
        ${oaKey()?`
          <div class="rv-opts">
-           <label>${t("rv.voice")}<select id="rvVoice">${RV_VOICES.map(v=>`<option value="${v[0]}">${esc(v[1])}</option>`).join("")}</select></label>
            <label>${t("rv.accent")}<select id="rvAccent">${RV_ACCENTS.map(a=>`<option value="${a[0]}">${esc(a[1])}</option>`).join("")}</select></label>
          </div>
-         <button class="btn btn-p" style="font-size:16px;padding:14px 30px" onclick="rvStart('${sc.id}',document.getElementById('rvVoice').value,document.getElementById('rvAccent').value)">${tIc("rv.start","mic")}</button>`
+         <button class="btn btn-p" style="font-size:16px;padding:14px 30px" onclick="rvStart('${sc.id}',RV_VOICE,document.getElementById('rvAccent').value)">${tIc("rv.start","mic")}</button>`
        :`<p class="rp-keynote">${t("rv.key_needed")} <a onclick="go('roleplay')">${t("rv.key_add")}</a></p>`}
-       ${rpKey()?`<button class="btn btn-g" onclick="rpStart('${sc.id}')">${tIc("rp.start_text","chat")}</button>`:""}
      </div>
    </div>`;
   manIconizeInline(el);
@@ -4590,7 +4587,7 @@ window.oaClearKey=()=>{try{localStorage.removeItem(OA_KEY)}catch(e){}toast(t("rv
 function oaKeyForm(prefill){return `<div class="rp-key-row"><input id="oaKeyIn" type="password" placeholder="sk-… (OpenAI)" value="${esc(prefill||"")}" autocomplete="off"><button class="btn btn-p btn-sm" onclick="oaSaveKey()">${t("rv.key_save")}</button>${prefill?`<button class="btn btn-g btn-sm" onclick="oaClearKey()">${t("rp.key_clear")}</button>`:""}</div><p class="rp-key-note">${t("rv.key_note")}</p>`}
 function oaKeyBox(){const k=oaKey();if(!k)return `<div class="rp-keynote" id="oaKeyBox">${t("rv.key_box")}${oaKeyForm("")}</div>`;return `<div class="rp-keynote rp-key-set" id="oaKeyBox"><span>${t("rv.key_connected",{tail:esc(k.slice(-4))})}</span> <button class="btn btn-g btn-sm" onclick="oaKeyEdit()">${t("rp.key_change")}</button></div>`}
 window.oaKeyEdit=()=>{const box=document.getElementById("oaKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("rv.key_box")+oaKeyForm(oaKey())};
-const RV_VOICES=[["alloy","Alloy"],["ash","Ash"],["ballad","Ballad"],["coral","Coral"],["echo","Echo"],["sage","Sage"],["shimmer","Shimmer"],["verse","Verse"]];
+const RV_VOICE="coral"; /* one warm, natural female voice */
 const RV_ACCENTS=[["en-US","US English"],["en-GB","UK English"],["en-AU","Australian English"],["es-ES","Spanish (Spain)"],["es-MX","Spanish (Mexico)"],["fr-FR","French"],["de-DE","German"],["it-IT","Italian"],["pt-BR","Portuguese (Brazil)"]];
 let RV=null;
 /* ---- small audio helpers (mic → PCM16 @24k, and playback of PCM16 @24k) ---- */
@@ -4603,7 +4600,7 @@ function rvSend(o){try{if(RV&&RV.ws&&RV.ws.readyState===1)RV.ws.send(JSON.string
 window.rvStart=async(scenarioId,voice,accent)=>{
   const sc=rpById(scenarioId); if(!sc)return;
   const key=oaKey(); if(!key)return toast(t("rv.key_needed_short"));
-  voice=voice||RV_VOICES[0][0]; accent=accent||"en-US";
+  voice=voice||RV_VOICE; accent=accent||"en-US";
   const el=document.getElementById("v-roleplay");
   RV={sc,voice,accent,ws:null,ac:null,proc:null,stream:null,covered:new Set(),playAt:0,sources:[],aiBubble:null,userBubble:null,ended:false};
   el.innerHTML=`
