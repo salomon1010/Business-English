@@ -4444,7 +4444,7 @@ function rpLibrary(el){
    <div class="eyebrow">${t("rp.eyebrow")}</div>
    <h1 class="big">${t("rp.title")}</h1>
    <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
-   ${oaKeyBox()}
+   ${rpKeyBox()}
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
    ${cats}`;
   manIconizeInline(el);
@@ -4461,12 +4461,7 @@ function rpIntro(el,sc){
      <h4 class="rp-h4">${t("rp.points_h")}</h4>
      <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
      <div class="rp-start">
-       ${oaKey()?`
-         <div class="rv-opts">
-           <label>${t("rv.accent")}<select id="rvAccent">${RV_ACCENTS.map(a=>`<option value="${a[0]}">${esc(a[1])}</option>`).join("")}</select></label>
-         </div>
-         <button class="btn btn-p" style="font-size:16px;padding:14px 30px" onclick="rvStart('${sc.id}',RV_VOICE,document.getElementById('rvAccent').value)">${tIc("rv.start","mic")}</button>`
-       :`<p class="rp-keynote">${t("rv.key_needed")} <a onclick="go('roleplay')">${t("rv.key_add")}</a></p>`}
+       ${rpKey()?`<button class="btn btn-p" style="font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${tIc("rp.start","chat")}</button>`:`<p class="rp-keynote">${t("rp.key_needed_short")} <a onclick="go('roleplay')">${t("rp.key_add")}</a></p>`}
      </div>
    </div>`;
   manIconizeInline(el);
