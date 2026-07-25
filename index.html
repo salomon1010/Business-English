@@ -3944,6 +3944,7 @@ window.exDictate=()=>{
   exRec.onend=()=>{
     if(exListening){try{exRec.start();return}catch(_){}}      // browser stopped on silence but user hasn't tapped stop → keep going
     exSetMic(false);inp.value=inp.value.trim();
+    if(inp.value)window.exGo();                               // finished dictating → produce the professional version straight away
   };
   try{exRec.start();exSetMic(true);}catch(e){exSetMic(false);toast(t("ex.dictate_mic_error"))}
 };
