@@ -3329,7 +3329,8 @@ function fbShowResults(targetText,heardText,fromRec){
   const out=document.getElementById("fbOut");
   if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">${t("fb.nothing_heard")}</p>`;return}
   const hasTarget=tgt.length>0;
-  const ops=hasTarget?fbAlign(tgt.filter(w=>!FILLERS.includes(w)),h.filter(w=>!FILLERS.includes(w))):[];
+  const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
+  const ops=hasTarget?fbAlign(tgt.filter(w=>!FILLERS.includes(w)),hF):[];
   const okN=ops.filter(o=>o.op==="ok").length;
   const score=Math.round(100*okN/Math.max(ops.filter(o=>o.op!=="extra").length,1));
   const col=score>=80?"var(--green)":score>=55?"var(--gold)":"var(--red)";
@@ -3394,7 +3395,7 @@ function fbShowResults(targetText,heardText,fromRec){
       <span class="w">${esc(o.t)}</span>
       <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${fromRec?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(h,o.hIdx||0).join(",")},${o.hIdx||0},${h.length})">${t("fb.you_btn")}</button>`:""}
+        ${fromRec&&o.op==="sub"?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(hF,o.hIdx||0).join(",")},${o.hIdx||0},${hF.length})">${t("fb.you_btn")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
         <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
@@ -3745,18 +3746,19 @@ window.fbYou=async(sf,ef,wordIdx,wordCount)=>{
   const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
   if(!recs.length)return toast(t("fb.you_no_rec_toast"));
   if(fbAud){fbAud.pause();fbAud=null}
-  let start=null,end=null;
   const seg=await fbSegments(recs[0].blob);
-  if(seg&&seg.segs.length){
-    const S=seg.segs;let si;
-    if(wordCount&&S.length===wordCount)si=wordIdx;                       // 1 chunk per word → exact
-    else si=Math.round(((sf+ef)/2)*S.length-0.5);                       // else nearest real chunk
-    si=Math.max(0,Math.min(S.length-1,si));
-    start=S[si].start;end=S[si].end;
-  }
   const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
   const playSpan=d=>{
-    if(start==null){const pad=0.18;start=Math.max(0,sf*d-pad);end=Math.min(d,ef*d+pad);} // fallback to estimate
+    let start=null,end=null;
+    const S=seg&&seg.segs.length?seg.segs:null;
+    if(S&&wordCount>0){
+      // map word index → real speech burst by proportional position (same coordinate system on both sides)
+      let si=S.length===wordCount?wordIdx:Math.round((wordIdx+0.5)/wordCount*S.length-0.5);
+      si=Math.max(0,Math.min(S.length-1,si));
+      start=S[si].start;end=S[si].end;
+    }else{                                                                 // no segments → time-fraction estimate
+      const pad=0.18;start=Math.max(0,sf*d-pad);end=Math.min(d,ef*d+pad);
+    }
     const s=Math.max(0,start-0.05),e=Math.min(d,end+0.09);
     aud.currentTime=s;aud.play();
     setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(350,(e-s)*1000+120));
