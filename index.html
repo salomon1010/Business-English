@@ -1652,6 +1652,7 @@ const I18N_EN={
  "ex.dictate_listening":"🎧 Listening…",
  "ex.dictate_listening_hold":"🎙️ Recording — speak freely, tap the mic again to stop.",
  "ex.dictate_title":"Tap to start dictating; tap again to stop",
+ "ex.clear_btn":"🗑 Clear",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.exec_versions":"💼 Executive versions — pick one",
@@ -3892,6 +3893,13 @@ window.exGo=async()=>{
   exRenderVersions(show);
   markPracticed();save();
 };
+window.exClear=()=>{
+  if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}}   // stop the mic if it's recording
+  exLastInput="";exPrev=[];exQueue=[];exBusy=false;
+  const i=document.getElementById("exIn");if(i){i.value="";i.focus()}
+  const o=document.getElementById("exOut");if(o)o.innerHTML="";
+  const st=document.getElementById("exSt");if(st)st.textContent="";
+};
 window.exAIPrompt=()=>{
   const inp=document.getElementById("exIn").value.trim()||"[paste what you said here]";
   const p=`### SYSTEM ROLE
@@ -3963,6 +3971,7 @@ function rPhrases(el,wFilter){
       <input id="exIn" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:220px" onkeydown="if(event.key==='Enter')exGo()">
       <button class="btn btn-g" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
       <button class="btn btn-p" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
+      <button class="btn btn-g" onclick="exClear()" title="${esc(t("ex.clear_btn"))}">${tIc("ex.clear_btn","trash")}</button>
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
     <div id="exOut"></div>
