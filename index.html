@@ -206,6 +206,14 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
 .sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
 .sh-clear svg{width:16px;height:16px;display:block}
+/* "Continue your last clip" — slow light travelling around the border to pull attention */
+.sh-resume{position:relative;z-index:0;border:none;overflow:hidden;background:var(--card2);color:var(--txt);font-weight:700;border-radius:12px;padding:13px 18px;cursor:pointer;animation:sh-resume-glow 2.8s ease-in-out infinite}
+.sh-resume .sh-resume-txt{position:relative;z-index:2}
+.sh-resume::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:300%;height:760%;background:conic-gradient(from 0deg,transparent 0 56%,#22d3ee 70%,#eaffff 80%,#6366f1 90%,transparent 100%);animation:sh-resume-spin 4s linear infinite}
+.sh-resume::after{content:"";position:absolute;z-index:1;inset:2px;border-radius:10px;background:var(--card2)}
+@keyframes sh-resume-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes sh-resume-glow{0%,100%{box-shadow:0 0 14px 0 rgba(34,211,238,.14)}50%{box-shadow:0 0 26px 3px rgba(34,211,238,.4)}}
+@media (prefers-reduced-motion:reduce){.sh-resume,.sh-resume::before{animation:none}}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -2809,7 +2817,7 @@ function rShadow(el){
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-p" onclick="shLoadFromInput()">${t("sh.load_btn")}</button>
     </div>
-    ${S.lastClip&&S.lastClip.vid?`<button class="btn btn-g" style="margin-top:12px;width:100%" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
+    ${S.lastClip&&S.lastClip.vid?`<button class="btn sh-resume" style="margin-top:12px;width:100%" onclick="shOpenWork()"><span class="sh-resume-txt">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</span></button>`:""}
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:10px">${t("sh.no_video_yet")}</div>
     <div class="grid g3">
