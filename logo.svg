@@ -1,22 +1,14 @@
-<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BE Mastery logo">
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#22d3ee"/>
-    </linearGradient>
-    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0">
-      <stop offset="0" stop-color="#6366f1"/>
-      <stop offset="1" stop-color="#22d3ee"/>
-    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0c1226"/><stop offset="1" stop-color="#0a0e1a"/></linearGradient>
+    <linearGradient id="tile" x1="0.1" y1="0" x2="0.95" y2="1"><stop offset="0" stop-color="#6f7cf6"/><stop offset="0.55" stop-color="#4aa8f0"/><stop offset="1" stop-color="#22c9ee"/></linearGradient>
+    <linearGradient id="bar" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
   </defs>
-  <!-- brand tile -->
-  <rect width="512" height="512" rx="115" fill="url(#bg)"/>
-  <!-- speech bubble -->
-  <path d="M140 148 H372 A44 44 0 0 1 416 192 V312 A44 44 0 0 1 372 356 H250 L182 412 L192 356 H140 A44 44 0 0 1 96 312 V192 A44 44 0 0 1 140 148 Z" fill="#ffffff"/>
-  <!-- rising voice bars: speaking + growth -->
-  <rect x="158" y="252" width="40" height="60" rx="20" fill="url(#bar)"/>
-  <rect x="222" y="214" width="40" height="98" rx="20" fill="url(#bar)"/>
-  <rect x="286" y="176" width="40" height="136" rx="20" fill="url(#bar)"/>
-  <!-- mastery spark -->
-  <path d="M420 48 l13 35 35 13 -35 13 -13 35 -13 -35 -35 -13 35 -13 z" fill="#fbbf24"/>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect x="46" y="46" width="420" height="420" rx="104" fill="url(#tile)"/>
+  <path d="M170 150 h174 a46 46 0 0 1 46 46 v92 a46 46 0 0 1-46 46 H236 l-40 44 v-44 h-26 a46 46 0 0 1-46-46 V196 a46 46 0 0 1 46-46 Z" fill="#ffffff"/>
+  <rect x="201" y="243" width="32" height="55" rx="16" fill="url(#bar)"/>
+  <rect x="242" y="213" width="32" height="85" rx="16" fill="url(#bar)"/>
+  <rect x="283" y="188" width="32" height="110" rx="16" fill="url(#bar)"/>
+  <path d="M404 92 l13.5 33 33 13.5 -33 13.5 -13.5 33 -13.5-33 -33-13.5 33-13.5 Z" fill="#fbbf24"/>
 </svg>
