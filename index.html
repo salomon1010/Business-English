@@ -194,6 +194,15 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal-legend i[data-lvl="2"]{background:rgba(52,211,153,.42)}
 .pcal-legend i[data-lvl="3"]{background:rgba(52,211,153,.64)}
 .pcal-legend i[data-lvl="4"]{background:rgba(52,211,153,.88)}
+/* Shadowing workspace — focused full-screen practice window */
+.sh-work{position:fixed;top:0;left:0;right:0;bottom:0;z-index:130;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(12px,env(safe-area-inset-top)) 18px 12px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
+.sh-work-title{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px;min-width:0}
+.sh-work-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--acc2);flex:none}
+.sh-work-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
+.sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
+.sh-work-x svg{width:20px;height:20px}
+.sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;max-width:1000px;width:100%;margin:0 auto}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -1395,6 +1404,7 @@ const I18N_EN={
  "sess.timer_up_toast":"⏰ 25 minutes — attention fades here. Wrap up & log.",
  "sess.review_steps_h":"📋 Review steps",
  "sess.template_h":"📋 25-minute template",
+ "sess.template_sub":"Your plan for the 25 minutes — tick each step as you go.",
  "sess.say_aloud":"💬 Say these aloud during this session",
  "sess.record_title":"🎙️ Record yourself",
  "sess.record_desc":"Record and get full word-by-word feedback below.",
@@ -1505,6 +1515,8 @@ const I18N_EN={
  "sh.sub":"Choose the voice you wish you had — paste any YouTube clip, mark 20–30 seconds, and shadow it until their fluency quietly becomes yours.",
  "sh.url_ph":"Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…",
  "sh.load_btn":"▶ Load video",
+ "sh.resume_btn":"▶ Continue your last clip",
+ "sh.close_workspace":"Close shadowing workspace",
  "sh.no_video_yet":"✨ No video yet? Start with one of these",
  "sh.shadow_this_btn":"▶ Shadow this",
  "sh.copy_btn":"📋 Copy",
@@ -2524,11 +2536,7 @@ function rSession(el,w,d){
         </div>
         <p style="font-size:12px;color:var(--mut2);margin-top:10px">${t("sess.timer_hint")}</p>
       </div>
-      <h3 style="margin-bottom:10px">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</h3>
-      ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
-        <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
-        <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
-      ${weekPhrases.length?`<div class="card" style="margin-top:14px;padding:16px">
+      ${weekPhrases.length?`<div class="card" style="margin-top:0;padding:16px">
         <b style="font-size:14px">${t("sess.say_aloud")}</b>
         <ul style="list-style:none;margin-top:8px">${weekPhrases.map(p=>`<li style="font-size:13.5px;color:var(--mut);padding:3px 0">• “${esc(p.p)}”</li>`).join("")}</ul>
       </div>`:""}
@@ -2579,6 +2587,13 @@ function rSession(el,w,d){
           ${S.days[key]?t("sess.mark_done"):t("sess.mark_incomplete")}</button>
       </div>
     </div>
+  </div>
+  <div style="margin-top:24px">
+    <h3 style="margin-bottom:4px">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</h3>
+    <p style="font-size:12.5px;color:var(--mut2);margin-bottom:10px">${t("sess.template_sub")}</p>
+    ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
+      <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
+      <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
   </div>
   <div id="fbOut" style="margin-top:4px"></div>`;
   manIconizeInline(el);
@@ -2776,6 +2791,7 @@ function rShadow(el){
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-p" onclick="shLoadFromInput()">${t("sh.load_btn")}</button>
     </div>
+    ${S.lastClip&&S.lastClip.vid?`<button class="btn btn-g" style="margin-top:12px;width:100%" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:10px">${t("sh.no_video_yet")}</div>
     <div class="grid g3">
@@ -2805,7 +2821,13 @@ function rShadow(el){
     </div>
     </div>
   </div>
-  <div id="shPlayerWrap" style="display:none">
+  <div class="sh-work" id="shWork" style="display:none">
+    <div class="sh-work-bar">
+      <b class="sh-work-title" id="shWorkTitle">${t("sh.eyebrow")}</b>
+      <button class="sh-work-x" onclick="shCloseWork()" aria-label="${esc(t("sh.close_workspace"))}">${ic("close")}</button>
+    </div>
+    <div class="sh-work-body">
+  <div id="shPlayerWrap">
     <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
     <div class="sh-ctl">
       <div class="sh-pill">
@@ -2882,6 +2904,8 @@ function rShadow(el){
         <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
       </div>
       <div id="fbOut" style="margin-top:6px"></div>
+    </div>
+  </div>
     </div>
   </div>
   <h3 style="margin:26px 0 6px">${hIcon("star",t("sh.saved_clips_h"))}</h3>
@@ -2970,11 +2994,25 @@ async function shLoad(c,quiet){
   document.getElementById("ytBox").innerHTML="";
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
-    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t}}catch(_){}
+    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
       if(!quiet)e.target.playVideo();shStartTick()}}});
   renderRecs("shadow-"+shClip.vid);
-  if(!quiet)window.scrollTo({top:document.getElementById("shPlayerWrap").offsetTop-80,behavior:"smooth"});
+  if(!quiet)shOpenWork();
 }
+/* open the focused shadowing workspace over the picker */
+window.shOpenWork=()=>{
+  const w=document.getElementById("shWork");if(!w)return;
+  const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=(shClip&&shClip.title)||t("sh.eyebrow");
+  w.style.display="flex";
+  const body=w.querySelector(".sh-work-body");if(body)body.scrollTop=0;
+};
+/* close the workspace and return to the picker (pause the video, keep state) */
+window.shCloseWork=()=>{
+  try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
+  const pb=document.getElementById("shPlayBtn");if(pb)pb.textContent="▶";
+  const w=document.getElementById("shWork");if(w)w.style.display="none";
+  window.scrollTo({top:0});
+};
 let shLooping=true,shCounting=false,shPing={};
 function shStartTick(){
   clearInterval(shTick);
