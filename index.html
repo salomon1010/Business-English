@@ -203,6 +203,9 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
 .sh-work-x svg{width:20px;height:20px}
 .sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;max-width:1000px;width:100%;margin:0 auto}
+.sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
+.sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
+.sh-clear svg{width:16px;height:16px;display:block}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -310,6 +313,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:17px;transition:.15s}
 .sh-round:hover{border-color:var(--acc2);color:var(--acc2)}
 .sh-round.on{background:var(--grad);border:none;color:#fff}
+.sh-round svg{width:20px;height:20px}
+.sh-pill button{display:inline-flex;align-items:center;justify-content:center;gap:2px}
+.sh-pill button svg{width:22px;height:22px}
+.sh-pill button i{font-size:10px;font-weight:800;font-style:normal;line-height:1}
 .sh-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--acc2);font-weight:600;white-space:nowrap}
 .sh-seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:12px 16px}
 .sh-seg .lbl{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:700}
@@ -1058,6 +1065,10 @@ const ICON={
   utensils:'<path d="M6 2.6v5.6a2.2 2.2 0 0 0 4.4 0V2.6"/><path d="M8.2 8.2v13.2"/><path d="M16.8 2.6c-1.6 1-2.4 3.2-2.4 5.6 0 1.6 1 2.4 2.4 2.5v10.7"/>',
   train:'<rect x="6" y="3.5" width="12" height="12.5" rx="3"/><path d="M6 11h12"/><path d="M8.8 20l-2 2M15.2 20l2 2"/><circle cx="9.3" cy="13.5" r="1" fill="currentColor" stroke="none"/><circle cx="14.7" cy="13.5" r="1" fill="currentColor" stroke="none"/>',
   play:'<path d="M7 4.7 19 12 7 19.3Z"/>',
+  pause:'<rect x="7.4" y="5" width="3.1" height="14" rx="1.1"/><rect x="13.5" y="5" width="3.1" height="14" rx="1.1"/>',
+  skipstart:'<path d="M7 5.5v13"/><path d="M19 5.5 8.5 12 19 18.5Z"/>',
+  rewind:'<path d="M11.5 6.5 6 12l5.5 5.5"/><path d="M18 6.5 12.5 12l5.5 5.5"/>',
+  forward:'<path d="M12.5 6.5 18 12l-5.5 5.5"/><path d="M6 6.5 11.5 12 6 17.5"/>',
   video:'<rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="m10.5 9.6 4.2 2.4-4.2 2.4Z"/>',
   gift:'<rect x="4" y="9.5" width="16" height="11" rx="1.6"/><path d="M4 13h16M12 9.5V20.5"/><path d="M12 9.5C11 6.5 7.5 6.8 7.8 8.7 8 10 10 9.6 12 9.5Zm0 0c1-3 4.5-2.7 4.2-.8C16 10 14 9.6 12 9.5Z"/>',
   lock:'<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
@@ -1532,8 +1543,8 @@ const I18N_EN={
  "sh.loop_title":"Loop the clip",
  "sh.save_clip_btn":"⭐ Save clip",
  "sh.clip_label":"Clip",
- "sh.mark_start_btn":"⬇ Mark start",
- "sh.mark_end_btn":"⬇ Mark end",
+ "sh.mark_start_btn":"Start",
+ "sh.mark_end_btn":"End",
  "sh.mark_hint":"Set <b>Mark start</b> and <b>Mark end</b> (aim 20–30s). It loops and library clips fill in the transcript. Shadow 6–8×, then record.",
  "sh.record_title":"🎙️ Record your shadowing",
  "sh.record_desc":"Imitate the rhythm and stress, then compare back to back.",
@@ -1541,8 +1552,8 @@ const I18N_EN={
  "sh.transcript_notes_title":"🎬 Clip transcript & notes",
  "sh.transcript_notes_desc":"The clip's words — auto-filled for library clips (CAPS = stress). Edit or type your own.",
  "sh.captions_ready":"🎬 Captions ready — mark any part",
- "sh.get_transcript_btn":"📄 Get transcript",
- "sh.clear_clip_btn":"✕ Clear",
+ "sh.get_transcript_btn":"Transcript",
+ "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
  "sh.clip_cleared_toast":"Cleared — mark a new start and end.",
  "sh.get_transcript_title":"Pull the caption for your marked start–end into the transcript box",
@@ -2831,29 +2842,29 @@ function rShadow(el){
     <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
     <div class="sh-ctl">
       <div class="sh-pill">
-        <button onclick="shRestart()" title="${esc(t("sh.restart_title"))}">⟲</button>
-        <button onclick="shBack5()" title="${esc(t("sh.back5_title"))}">↺5</button>
-        <button id="shPlayBtn" onclick="shPlayPause()" title="${esc(t("sh.playpause_title"))}">⏸</button>
-        <button onclick="shFwd5()" title="${esc(t("sh.fwd5_title"))}">5↻</button>
+        <button onclick="shRestart()" title="${esc(t("sh.restart_title"))}">${ic("skipstart")}</button>
+        <button onclick="shBack5()" title="${esc(t("sh.back5_title"))}">${ic("rewind")}<i>5</i></button>
+        <button id="shPlayBtn" onclick="shPlayPause()" title="${esc(t("sh.playpause_title"))}">${ic("pause")}</button>
+        <button onclick="shFwd5()" title="${esc(t("sh.fwd5_title"))}"><i>5</i>${ic("forward")}</button>
       </div>
       <span class="sh-time"><span id="shNow">0:00</span></span>
       <span style="flex:1"></span>
       <button class="sh-round" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
-      <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">🔁</button>
+      <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">${ic("repeat")}</button>
       <button class="btn btn-g" onclick="shSaveClip()">${tIc("sh.save_clip_btn","star")}</button>
     </div>
     <div class="sh-seg">
       <span class="lbl">${t("sh.clip_label")}</span>
-      <button class="btn btn-g btn-sm" onclick="shMark('start')">${t("sh.mark_start_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="shMark('start')" title="${esc(t("sh.mark_start_btn"))}">${tIc("sh.mark_start_btn","download")}</button>
       <span class="sh-time" id="shStart">0:00</span>
       <span style="color:var(--mut2)">→</span>
-      <button class="btn btn-g btn-sm" onclick="shMark('end')">${t("sh.mark_end_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="shMark('end')" title="${esc(t("sh.mark_end_btn"))}">${tIc("sh.mark_end_btn","download")}</button>
       <span class="sh-time" id="shEnd">–</span>
-      <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}">${t("sh.get_transcript_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}">${tIc("sh.get_transcript_btn","doc")}</button>
       <span class="sh-count" id="shCount" style="display:none">0s</span>
       <span style="flex:1"></span>
       <span class="sh-len" id="shLen"></span>
-      <button class="btn btn-g btn-sm" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}">${t("sh.clear_clip_btn")}</button>
+      <button class="btn btn-g btn-sm sh-clear" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}" aria-label="${esc(t("sh.clear_clip_btn"))}">${ic("trash")}</button>
     </div>
     <p style="font-size:12.5px;color:var(--mut2);margin-top:8px">${t("sh.mark_hint")}</p>
     <div class="grid g2" style="margin-top:16px">
@@ -2995,7 +3006,7 @@ async function shLoad(c,quiet){
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
     events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
-      if(!quiet)e.target.playVideo();shStartTick()}}});
+      if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick()}}});
   renderRecs("shadow-"+shClip.vid);
   if(!quiet)shOpenWork();
 }
@@ -3009,7 +3020,7 @@ window.shOpenWork=()=>{
 /* close the workspace and return to the picker (pause the video, keep state) */
 window.shCloseWork=()=>{
   try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
-  const pb=document.getElementById("shPlayBtn");if(pb)pb.textContent="▶";
+  const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic("play");
   const w=document.getElementById("shWork");if(w)w.style.display="none";
   window.scrollTo({top:0});
 };
@@ -3100,8 +3111,8 @@ window.shFwd5=()=>{
 window.shPlayPause=()=>{
   if(!ytPlayer)return;
   const b=document.getElementById("shPlayBtn");
-  if(ytPlayer.getPlayerState()===1){ytPlayer.pauseVideo();b.textContent="▶"}
-  else{ytPlayer.playVideo();b.textContent="⏸"}
+  if(ytPlayer.getPlayerState()===1){ytPlayer.pauseVideo();if(b)b.innerHTML=ic("play")}
+  else{ytPlayer.playVideo();if(b)b.innerHTML=ic("pause")}
 };
 window.shRate=()=>{
   const rates=[1,0.75,0.5];
