@@ -135,6 +135,65 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .stat-ic{color:var(--acc);flex:none;line-height:0}
 .stats-center .stat{text-align:center}
 .stats-center .stat .n{justify-content:center}
+/* Progress calendar */
+.pcal{margin:18px auto;padding:18px 16px;max-width:560px}
+.pcal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.pcal-title{font-size:16px;font-weight:800}
+.pcal-nav{width:34px;height:34px;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--txt);cursor:pointer;font-size:19px;line-height:1;display:grid;place-items:center;transition:.12s}
+.pcal-nav:hover{border-color:var(--acc);color:var(--acc)}
+.pcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.pcal-dow{text-align:center;font-size:11px;color:var(--mut2);font-weight:700;padding-bottom:4px}
+.pcal-day{position:relative;aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s;padding:0}
+.pcal-day.blank{background:transparent;border:none;cursor:default}
+.pcal-day[data-lvl="1"]{background:rgba(52,211,153,.22)}
+.pcal-day[data-lvl="2"]{background:rgba(52,211,153,.42)}
+.pcal-day[data-lvl="3"]{background:rgba(52,211,153,.64)}
+.pcal-day[data-lvl="4"]{background:rgba(52,211,153,.88);color:#04231a}
+.pcal-day.today{outline:2px solid var(--acc2);outline-offset:1px}
+.pcal-day .chk{position:absolute;top:1px;right:4px;font-size:9px;color:#0b3b2c;font-weight:900}
+.pcal-day[data-lvl="1"] .chk,.pcal-day[data-lvl="2"] .chk{color:var(--green)}
+.pcal-day:not(.blank):hover{transform:translateY(-2px);border-color:var(--acc)}
+.pcal-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;font-size:11px;color:var(--mut2);margin-top:12px}
+.pcal-legend i{width:13px;height:13px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
+.pcal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
+.pcal-stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 4px;text-align:center}
+.pcal-stat b{display:block;font-size:21px;font-weight:800;line-height:1}
+.pcal-stat span{font-size:10.5px;color:var(--mut);display:block;margin-top:4px}
+.pcal-msg{text-align:center;font-size:13px;color:var(--acc2);margin-top:14px;font-weight:600}
+.pcal-eyebrow{font-size:11.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc2);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.pcal-eyebrow svg{width:16px;height:16px}
+.pcal-day.fut{opacity:.38}
+.pcal-week{display:flex;align-items:center;gap:16px;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:16px;flex-wrap:wrap}
+.pcal-week-days{display:flex;gap:6px}
+.pcal-wd{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:var(--card);border:1px solid var(--line2);color:var(--mut)}
+.pcal-wd.on{background:var(--green);color:#04231a;border-color:transparent}
+.pcal-wd.today{outline:2px solid var(--acc2);outline-offset:1px}
+.pcal-wd.fut{opacity:.4}
+.pcal-week-lbl{font-size:12.5px;color:var(--mut);line-height:1.4}
+.pcal-week-lbl b{color:var(--txt);font-size:17px}
+.pcal-week-lbl small{color:var(--mut2)}
+.pcal-detail{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:14px;font-size:13px;transition:background .3s}
+.pcal-detail>b{display:block;font-size:13.5px;margin-bottom:7px}
+.pcal-detail.flash{background:rgba(34,211,238,.13)}
+.cal-d-rows{display:flex;flex-direction:column;gap:6px;color:var(--mut)}
+.cal-d-rows span{display:flex;align-items:center;gap:8px}
+.cal-d-rows span svg{width:15px;height:15px;flex:none;color:var(--acc2)}
+.cal-d-empty{color:var(--mut2)}
+.pcal-year-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:800;margin:20px 0 8px}
+.pcal-year-h span{font-size:11.5px;color:var(--mut2);font-weight:600}
+.pcal-year{display:flex;gap:3px;overflow-x:auto;padding-bottom:6px}
+.cal-ycol{display:flex;flex-direction:column;gap:3px;flex:none}
+.cal-ysq{width:11px;height:11px;border-radius:3px;background:var(--card2);border:1px solid var(--line)}
+.cal-ysq[data-lvl="-1"]{background:transparent;border-color:transparent}
+.cal-ysq[data-lvl="1"]{background:rgba(52,211,153,.22);border-color:transparent}
+.cal-ysq[data-lvl="2"]{background:rgba(52,211,153,.42);border-color:transparent}
+.cal-ysq[data-lvl="3"]{background:rgba(52,211,153,.64);border-color:transparent}
+.cal-ysq[data-lvl="4"]{background:rgba(52,211,153,.88);border-color:transparent}
+.pcal-legend i[data-lvl="0"]{background:var(--card2)}
+.pcal-legend i[data-lvl="1"]{background:rgba(52,211,153,.22)}
+.pcal-legend i[data-lvl="2"]{background:rgba(52,211,153,.42)}
+.pcal-legend i[data-lvl="3"]{background:rgba(52,211,153,.64)}
+.pcal-legend i[data-lvl="4"]{background:rgba(52,211,153,.88)}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -1078,20 +1137,20 @@ const I18N_EN={
  "lang.not_ready":"{{native}} isn't fully translated yet — we'll use English for now and switch automatically once it's ready.",
  "ob.hero_pre":"Speak like you",
  "ob.hero_em":"belong in the room",
- "ob.hero_sub":"25 focused minutes a day. Real feedback on your pronunciation, grammar and vocabulary — all private, all on your device.",
+ "ob.hero_sub":"25 minutes a day, and real feedback on every sound you make — until the version of you who hesitates begins to disappear. All private, all on your device.",
  "ob.name_placeholder":"What's your first name?",
  "ob.lets_go":"Let's go →",
  "ob.already_account":"Already have an account?",
  "ob.login":"Log in",
  "ob.skip_lang":"Skip — continue in English",
  "ob.role_title":"What do you do, {{name}}?",
- "ob.role_sub":"Your daily drills use real situations from your world — standups, updates, interviews.",
+ "ob.role_sub":"Every drill is a rehearsal for your real world — the standup, the update, the interview where you finally sound like yourself.",
  "ob.goal_title":"What's your #1 goal?",
- "ob.goal_sub":"We'll keep this in front of you every day.",
+ "ob.goal_sub":"We'll keep it in front of you every day, so you never lose sight of who you're becoming.",
  "ob.slot_title":"When is your daily 25 minutes?",
- "ob.slot_sub":"Attaching practice to an existing habit is how streaks survive. Pick your slot — we'll hold you to it.",
+ "ob.slot_sub":"Tie practice to a habit you already have — that's how quiet mornings turn into a new voice. Pick your slot; we'll hold you to it.",
  "ob.win_title":"Your first win takes 60 seconds",
- "ob.win_sub":"Say this sentence out loud, like you're in a meeting:",
+ "ob.win_sub":"Say this out loud, as if the room is already listening:",
  "role.0":"Engineering / Data","role.1":"Product / PM","role.2":"Finance / Business","role.3":"Sales / Marketing","role.4":"Student","role.5":"Other",
  "goal.0":"🎤 Speak confidently in meetings","goal.1":"💼 Sound more executive","goal.2":"🏆 Ace interviews in English","goal.3":"🗣️ Improve my accent & clarity",
  "slot.0":"☀️ Morning coffee","slot.1":"🍽️ Lunch break","slot.2":"🚇 Commute","slot.3":"🌙 Evening wind-down",
@@ -1100,11 +1159,11 @@ const I18N_EN={
  "ob.name_required_toast":"Tell me your name 🙂",
  "ob.sr_unavailable_toast":"Speech recognition needs Chrome — skipping",
  "ob.listening":"🎧 Listening… speak now",
- "ob.result_good":"🎉 {{sc}}% clear — you sound ready!",
- "ob.result_baseline":"💪 {{sc}}% — that's your baseline, it only goes up from here",
+ "ob.result_good":"🎉 {{sc}}% clear — listen to that. That's the voice that's coming.",
+ "ob.result_baseline":"💪 {{sc}}% — remember this number. It's the last time you'll sound unsure; from here it only rises.",
  "ob.mic_unavailable":"Mic unavailable — no problem, skipping",
  "ob.didnt_catch":"Didn't catch that — tap to try again, or skip",
- "ob.welcome_toast":"Welcome, {{name}}! Pick a clip and do your first 30-second sprint 🎬",
+ "ob.welcome_toast":"Welcome, {{name}} — this is day one of the speaker you're becoming. Pick a clip and take your first 30-second sprint 🎬",
  "acc.eyebrow":"Account & Settings",
  "acc.settings_title":"Settings",
  "acc.title_named":"{{name}}'s <em>account</em>",
@@ -1307,11 +1366,11 @@ const I18N_EN={
  "home.stat_sessions":"Sessions completed",
  "home.stat_clips":"Shadowing clips saved",
  "home.science_h":"🧠 The science behind the 25-minute block",
- "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour.",
+ "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour, and small sharp blocks are exactly how a new voice is built.",
  "home.rules_h":"📜 Execution rules — non-negotiable",
  "journey.eyebrow":"Curriculum Map",
  "journey.title":"The 12-Week <em>Journey</em>",
- "journey.sub":"Three phases: Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12). Each week: Mon pronunciation & shadowing · Tue speaking drill · Wed phrase bank · Thu meeting sim · Fri delivery · Sat long-form · Sun review.",
+ "journey.sub":"Twelve weeks from now, someone will ask how your English got this good — and you'll simply smile. Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12), rising one phase at a time. Each week: Mon pronunciation & shadowing · Tue speaking drill · Wed phrase bank · Thu meeting sim · Fri delivery · Sat long-form · Sun review.",
  "journey.week_label":"WEEK {{n}}",
  "week.back":"← All weeks",
  "week.sessions_done":"{{done}}/7 sessions done",
@@ -1332,7 +1391,7 @@ const I18N_EN={
  "sess.timer_start":"▶ Start",
  "sess.timer_pause":"⏸ Pause",
  "sess.timer_reset":"↺ Reset",
- "sess.timer_hint":"Stop when your attention fades — quality beats quantity.",
+ "sess.timer_hint":"Stop when your attention fades — one sharp block beats a sloppy hour. This is where the new voice is built, 25 minutes at a time.",
  "sess.timer_up_toast":"⏰ 25 minutes — attention fades here. Wrap up & log.",
  "sess.review_steps_h":"📋 Review steps",
  "sess.template_h":"📋 25-minute template",
@@ -1358,17 +1417,17 @@ const I18N_EN={
  "sess.selfscore_title":"⭐ Self-score this session",
  "sess.mark_done":"✓ Completed — tap to un-mark",
  "sess.mark_incomplete":"✅ Mark session complete",
- "sess.day_complete_toast":"Week {{w}} {{d}} complete! 🔥",
+ "sess.day_complete_toast":"Week {{w}} {{d}} done 🔥 — one more day of becoming the speaker you're chasing.",
  "ph.eyebrow":"Phrase Bank & Business Idioms",
  "ph.title":"Repeat. Record. <em>Own it.</em>",
- "ph.sub":"Say each phrase aloud, record once, write your own example, then mark it mastered.",
+ "ph.sub":"These are the exact words the confident ones use — say each one aloud, make it your own, and record it until the perfect phrase is already on your tongue when the room turns to you.",
  "ph.exec_title":"💼 Executive Polish",
  "ph.exec_tag":"say it like a leader",
- "ph.exec_desc":"Say it casually — get it back polished for the boardroom.",
+ "ph.exec_desc":"Say it the way you always have — and hear it come back the way a leader would. Speak it a few times, and that voice becomes yours.",
  "ph.exec_ph":"e.g. um I think maybe we need to fix the problem with the informations",
  "ph.exec_polish_btn":"✨ Polish it",
  "ph.all_mastered_tab":"All mastered ✓",
- "ph.nothing_mastered":"Nothing mastered yet — work through the weekly tabs.",
+ "ph.nothing_mastered":"Nothing mastered yet — open a weekly tab and claim your first phrase.",
  "ph.week_label":"Week {{w}} — <b style=\"color:var(--txt)\">{{theme}}</b>",
  "ph.idiom_tag":"💼 BUSINESS IDIOM",
  "ph.example_ph":"✍️ My example sentence from my real work…",
@@ -1382,7 +1441,7 @@ const I18N_EN={
  "ph.mic_denied_toast":"⚠️ Microphone access denied — allow the mic in your browser.",
  "ph.rec_count_one":"{{n}} recording",
  "ph.rec_count_many":"{{n}} recordings",
- "story.empty":"{{name}}, your story starts with one recording. Open the 🎯 Shadow tab, pick a starter clip, and press the mic — the numbers below will start moving today.",
+ "story.empty":"{{name}}, every great speaker started with one nervous recording. Open the 🎯 Shadow tab, pick a starter clip, and press the mic — today the numbers below start to move, and so do you.",
  "story.base_one":"{{name}}, you practiced <b>{{days}} day</b> this week and spoke <b>{{words}} words</b> out loud.",
  "story.base_many":"{{name}}, you practiced <b>{{days}} days</b> this week and spoke <b>{{words}} words</b> out loud.",
  "story.climb":" Your pronunciation is climbing — <b style=\"color:var(--green)\">{{prev}}% → {{now}}% 📈</b>.",
@@ -1405,6 +1464,7 @@ const I18N_EN={
  "bars.tooltip_one":"{{label}}: {{n}} word spoken",
  "bars.tooltip_many":"{{label}}: {{n}} words spoken",
  "prog.eyebrow":"📈 Progress Studio",
+ "prog.cal_eyebrow":"📅 Progress calendar",
  "prog.story_h":"📖 Your story this week",
  "prog.stat_words":"Words spoken in feedback sessions",
  "prog.stat_best":"Best pronunciation score",
@@ -1414,7 +1474,7 @@ const I18N_EN={
  "prog.chart_pron_sub":"Every speaking-feedback attempt, oldest → newest",
  "prog.chart_voc_title":"📚 Vocabulary growth",
  "prog.chart_voc_sub":"Words saved to My vocabulary over time",
- "prog.chart_voc_empty":"🔖 Save 2+ words from your speaking feedback<br>to grow this curve",
+ "prog.chart_voc_empty":"🔖 Save 2+ words from your feedback and watch this curve climb —<br>proof of the fluency taking shape",
  "prog.chart_speed_title":"⚡ Speaking speed",
  "prog.chart_activity_title":"🗓️ Speaking activity — last 14 days",
  "prog.chart_activity_sub":"Words spoken per day · <span style=\"color:var(--acc2)\">today in cyan</span>",
@@ -1422,16 +1482,16 @@ const I18N_EN={
  "rev.eyebrow":"Sunday Reviews & Monthly Dashboards",
  "rev.title":"Measure or <em>drift</em>",
  "rev.selfscore_title":"Week {{w}} self-scores",
- "rev.selfscore_sub":"Rate 1–10 after listening to at least 2 recordings from the week.",
- "rev.trend_sub":"Average weekly score across all 12 weeks",
+ "rev.selfscore_sub":"Listen to at least 2 recordings from the week, then rate yourself 1–10 — and hear how far you've already come.",
+ "rev.trend_sub":"Your weekly score across all 12 weeks — the shape of you getting better",
  "rev.written_title":"Week {{w}} written review",
- "rev.wins_label":"🏆 3 wins this week",
+ "rev.wins_label":"🏆 3 wins this week — proof you're moving",
  "rev.weak_label":"⚠️ 3 weaknesses (where did I sound unnatural?)",
  "rev.corr_label":"🎯 3 corrections for next week",
  "rev.top5_label":"💬 5 phrases to reuse next week",
  "rev.review_done":"✓ Review completed",
  "rev.review_complete_btn":"Complete Week {{w}} review",
- "rev.monthly_locked":"Monthly dashboards unlock on weeks 4, 8 and 12.",
+ "rev.monthly_locked":"Your monthly checkpoints wait at weeks 4, 8 and 12 — milestones on the road to the new you.",
  "rev.saved_toast":"Saved ✓",
  "mon.checkpoint":"Monthly checkpoint",
  "mon.th_metric":"Metric",
@@ -1442,7 +1502,7 @@ const I18N_EN={
  "mon.pass_dash":"—",
  "sh.eyebrow":"Shadowing Studio",
  "sh.title":"Cut a clip. <em>Loop it. Shadow it.</em>",
- "sh.sub":"Pick a clip or paste a YouTube link, mark 20–30 seconds, then shadow it and record.",
+ "sh.sub":"Choose the voice you wish you had — paste any YouTube clip, mark 20–30 seconds, and shadow it until their fluency quietly becomes yours.",
  "sh.url_ph":"Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…",
  "sh.load_btn":"▶ Load video",
  "sh.no_video_yet":"✨ No video yet? Start with one of these",
@@ -1520,7 +1580,7 @@ const I18N_EN={
  "sh.mark_start_end_first_toast":"⚠️ Mark a start and an end first",
  "sh.clip_saved_toast":"Clip saved ⭐",
  "sh.clip_deleted_toast":"Clip deleted",
- "sh.no_clips_saved":"No saved clips yet — load a video, mark a segment, then click ⭐ Save clip.",
+ "sh.no_clips_saved":"No saved clips yet — load a video, mark the voice you want to own, and click ⭐ Save clip to start becoming it.",
  "sh.no_words_toast":"⚠️ I couldn't hear any words in that recording — try again a bit louder",
  "sh.fb_generated_toast":"🗣️ Feedback generated from your recording",
  "sh.no_shadow_rec_toast":"⚠️ No transcribed shadowing recording yet — record yourself first with 🎙️",
@@ -1541,9 +1601,9 @@ const I18N_EN={
  "fb.pace_slow":"🐢 {{wpm}} wpm — a bit slow; natives average ~140–160",
  "fb.pace_fast":"🏃 {{wpm}} wpm — slow down, clarity beats speed",
  "fb.pace_natural":"✅ {{wpm}} wpm — natural professional pace",
- "fb.verdict_excellent":"Excellent — almost every word landed clearly! 🎉",
- "fb.verdict_good":"Good base — a few words need work 💪",
- "fb.verdict_keepgoing":"Keep going — let's drill the tricky words 🎯",
+ "fb.verdict_excellent":"Almost every word landed clearly — that's the sound of the speaker you're becoming. 🎉",
+ "fb.verdict_good":"Strong base — a few words left to conquer, and you're closer than you think. 💪",
+ "fb.verdict_keepgoing":"Every rep rewrites the habit — let's drill the tricky words and watch them fall. 🎯",
  "fb.words_recognized":"{{ok}} of {{total}} words recognized clearly · based on this browser's American-English speech engine",
  "fb.hear_whole_text":"🔊 Hear the whole text",
  "fb.norec_title":"🗣️ Feedback from your recording",
@@ -1567,7 +1627,7 @@ const I18N_EN={
  "fb.example_btn":"🔊 Example",
  "fb.slow_btn":"🐢 Slow",
  "fb.say_it_btn":"🎤 Say it — try again",
- "fb.all_recognized":"Every single word was recognized — outstanding! Try a harder clip 🚀",
+ "fb.all_recognized":"Every single word understood — that's fluency in motion. Now reach for a harder clip. 🚀",
  "fb.grammar_h":"📖 Grammar feedback",
  "fb.grammar_sub":"from what you said",
  "fb.grammar_good_h":"What you did well",
@@ -1619,7 +1679,7 @@ const I18N_EN={
  "voc.saved_all_toast":"🔖 All words saved to My vocabulary",
  "voc.sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
  "voc.listening":"🎧 Listening… say the word",
- "voc.perfect":"✅ Perfect — clearly pronounced!",
+ "voc.perfect":"✅ Perfect — that word is yours now.",
  "voc.heard_retry":"Heard “{{heard}}” — 🔊 listen and try again",
  "voc.mic_error":"Mic error — try again",
  "voc.didnt_hear":"Didn't hear you — try again",
@@ -1639,7 +1699,7 @@ const I18N_EN={
  "voc.quiz_answer":"Answer: {{word}}",
  "voc.quiz_next":"Next ▶",
  "voc.quiz_listening":"🎧 Listening…",
- "voc.quiz_correct":"🏆 “{{word}}” — correct AND well pronounced!",
+ "voc.quiz_correct":"🏆 “{{word}}” — nailed it. Another word that will never trip you again.",
  "voc.quiz_retry":"Heard “{{heard}}” — try again or 👁 Reveal",
  "voc.quiz_didnt_hear":"Didn't hear you — try again",
  "fb.you_no_rec_toast":"⚠️ No recording found for this feedback",
@@ -2245,6 +2305,7 @@ function currentPos(){
 function markPracticed(){
   const today=new Date().toISOString().slice(0,10);
   if(!S.dates.includes(today)){S.dates.push(today);S.dates.sort()}
+  S.dayLog=S.dayLog||{};S.dayLog[today]=(S.dayLog[today]||0)+1;   // activity intensity for the progress calendar heatmap
 }
 function streak(){
   if(!S.dates.length)return 0;
@@ -4269,6 +4330,144 @@ window.acctSave=()=>{
   p.slot=document.getElementById("acSlot").value;
   S.profile=p;save();toast(t("acc.profile_saved_toast"));go("data");
 };
+/* LOCAL-DEV ONLY: seed a realistic month of activity so the calendar looks alive
+   while testing offline. Runs only on localhost and only when there's no real
+   history yet — it never executes on the live site. Remove before shipping. */
+(function(){
+  try{
+    if(location.hostname!=="localhost"&&location.hostname!=="127.0.0.1")return;
+    if((S.dates||[]).length>=3)return;
+    S.dates=S.dates||[];S.dayLog=S.dayLog||{};
+    const today=new Date();
+    for(let i=0;i<50;i++){
+      const d=new Date(today);d.setDate(today.getDate()-i);
+      if(i===0||Math.random()<0.55){const ds=d.toISOString().slice(0,10);if(!S.dates.includes(ds))S.dates.push(ds);S.dayLog[ds]=1+Math.floor(Math.random()*6);}
+    }
+    S.dates.sort();save();
+  }catch(e){}
+})();
+/* ===== Progress calendar: a live heatmap of the days you actually practised ===== */
+let calCur=null;
+function calLevel(c){return c<=0?0:c>=6?4:c>=4?3:c>=2?2:1}
+function bestStreak(){
+  const arr=[...new Set(S.dates||[])].sort();if(!arr.length)return 0;
+  let best=1,cur=1;
+  for(let i=1;i<arr.length;i++){
+    const diff=Math.round((new Date(arr[i])-new Date(arr[i-1]))/86400000);
+    if(diff===1){cur++;if(cur>best)best=cur}else if(diff>1){cur=1}
+  }
+  return best;
+}
+function calActiveSet(){return new Set(S.dates||[])}
+/* days practised in the current (Monday-based) week, out of the 6/week goal */
+function calWeekProgress(){
+  const now=new Date(),today=now.toISOString().slice(0,10);
+  const dow=(now.getDay()+6)%7;                       // Mon=0
+  const mon=new Date(now);mon.setDate(now.getDate()-dow);
+  const set=calActiveSet();let n=0;const labels=[];
+  for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);const k=d.toISOString().slice(0,10);const on=set.has(k);if(on)n++;labels.push({on,fut:d>now&&k!==today,isToday:k===today})}
+  return{n,goal:6,labels};
+}
+/* active days ÷ days since program start, as a % */
+function calConsistency(){
+  const set=calActiveSet();if(!set.size)return 0;
+  const start=new Date((S.startDate||[...set].sort()[0])+"T00:00:00");
+  const today=new Date();today.setHours(0,0,0,0);
+  const totalDays=Math.max(1,Math.round((today-start)/864e5)+1);
+  return Math.min(100,Math.round(set.size/totalDays*100));
+}
+/* weekday the user practises most often */
+function calBestDow(){
+  const set=calActiveSet();if(!set.size)return null;
+  const c=[0,0,0,0,0,0,0];set.forEach(k=>{c[(new Date(k+"T00:00:00").getDay()+6)%7]++});
+  let bi=0;for(let i=1;i<7;i++)if(c[i]>c[bi])bi=i;
+  return c[bi]?["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][bi]:null;
+}
+/* GitHub-style contribution grid for the last 52 weeks */
+function calYearHeat(){
+  const set=calActiveSet(),log=S.dayLog||{};
+  const today=new Date();today.setHours(0,0,0,0);
+  const start=new Date(today);start.setDate(start.getDate()-363);
+  start.setDate(start.getDate()-((start.getDay()+6)%7));   // align to Monday
+  let cols="",cur=new Date(start);
+  while(cur<=today){
+    let col="";
+    for(let r=0;r<7;r++){
+      const k=cur.toISOString().slice(0,10),fut=cur>today;
+      const lvl=fut?-1:(set.has(k)?calLevel(log[k]||1):0);
+      col+=`<span class="cal-ysq" data-lvl="${lvl}" title="${k}"></span>`;
+      cur.setDate(cur.getDate()+1);
+    }
+    cols+=`<div class="cal-ycol">${col}</div>`;
+  }
+  return cols;
+}
+/* rich breakdown for one day, shown in the inline detail panel */
+function calDayDetailHTML(ds){
+  const done=calActiveSet().has(ds),n=(S.dayLog||{})[ds]||0;
+  const fb=(S.fbHist||[]).filter(x=>x.ts&&new Date(x.ts).toISOString().slice(0,10)===ds);
+  const words=fb.reduce((a,x)=>a+(x.words||0),0);
+  const sc=fb.filter(x=>x.score!=null).map(x=>x.score);
+  const best=sc.length?Math.max(...sc):null;
+  const label=new Date(ds+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
+  if(!done)return `<b>${esc(label)}</b><span class="cal-d-empty">No spark here yet — practise today and light up this day.</span>`;
+  const rows=[`<span>${ic("check")}${n} activit${n>1?"ies":"y"} logged</span>`];
+  if(fb.length)rows.push(`<span>${ic("waveform")}${fb.length} speaking session${fb.length>1?"s":""} · ${words.toLocaleString()} words spoken</span>`);
+  if(best!=null)rows.push(`<span>${ic("target")}best ${best}% pronunciation</span>`);
+  return `<b>${esc(label)}</b><div class="cal-d-rows">${rows.join("")}</div>`;
+}
+function calHTML(){
+  if(!calCur){calCur=new Date();calCur.setDate(1)}
+  const year=calCur.getFullYear(),month=calCur.getMonth();
+  const monthName=calCur.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  const startDow=(new Date(year,month,1).getDay()+6)%7;   // Monday-first
+  const dim=new Date(year,month+1,0).getDate();
+  const now=new Date(),todayStr=now.toISOString().slice(0,10);
+  const set=new Set(S.dates||[]),log=S.dayLog||{};
+  const dow=["M","T","W","T","F","S","S"];
+  let cells="",monthCount=0;
+  for(let i=0;i<startDow;i++)cells+=`<div class="pcal-day blank"></div>`;
+  for(let d=1;d<=dim;d++){
+    const ds=`${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const done=set.has(ds);if(done)monthCount++;
+    const lvl=done?calLevel(log[ds]||1):0;
+    const fut=new Date(year,month,d)>now&&ds!==todayStr;
+    cells+=`<button class="pcal-day${done?" on":""}${ds===todayStr?" today":""}${fut?" fut":""}" data-lvl="${lvl}" onclick="calDay('${ds}')"><span>${d}</span>${done?'<span class="chk">✓</span>':""}</button>`;
+  }
+  const cs=streak(),bs=bestStreak(),total=set.size,cons=calConsistency(),wk=calWeekProgress(),bestDow=calBestDow();
+  const wdl=["M","T","W","T","F","S","S"];
+  const weekDots=wk.labels.map((l,i)=>`<span class="pcal-wd${l.on?" on":""}${l.isToday?" today":""}${l.fut?" fut":""}">${wdl[i]}</span>`).join("");
+  const insight=cs>=2?`🔥 ${cs}-day streak — don't let the fire go out. This is who you're becoming.`:total>0?(bestDow?`You show up most on ${bestDow}s — that rhythm is turning into fluency.`:`The momentum is real — one more day carries you toward the voice you're chasing.`):`Practise today and light up day one of your transformation.`;
+  return `<div class="pcal-eyebrow">${tInl("prog.cal_eyebrow","calendar")}</div>
+    <div class="pcal-head">
+      <button class="pcal-nav" onclick="calNav(-1)" aria-label="Previous month">‹</button>
+      <div class="pcal-title">${esc(monthName)}</div>
+      <button class="pcal-nav" onclick="calNav(1)" aria-label="Next month">›</button>
+    </div>
+    <div class="pcal-week">
+      <div class="pcal-week-days">${weekDots}</div>
+      <div class="pcal-week-lbl"><b>${wk.n}/6</b> days this week<br><small>weekly goal</small></div>
+    </div>
+    <div class="pcal-grid">${dow.map(x=>`<span class="pcal-dow">${x}</span>`).join("")}${cells}</div>
+    <div class="pcal-legend">Less <i data-lvl="0"></i><i data-lvl="1"></i><i data-lvl="2"></i><i data-lvl="3"></i><i data-lvl="4"></i> More</div>
+    <div class="pcal-detail" id="calDetail">${calDayDetailHTML(todayStr)}</div>
+    <div class="pcal-stats">
+      <div class="pcal-stat"><b>${cs}</b><span>day streak</span></div>
+      <div class="pcal-stat"><b>${bs}</b><span>best streak</span></div>
+      <div class="pcal-stat"><b>${monthCount}</b><span>this month</span></div>
+      <div class="pcal-stat"><b>${cons}%</b><span>consistency</span></div>
+    </div>
+    <div class="pcal-year-h">Your year <span>${total} active day${total===1?"":"s"}</span></div>
+    <div class="pcal-year">${calYearHeat()}</div>
+    <p class="pcal-msg">${insight}</p>`;
+}
+window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el)el.innerHTML=calHTML()};
+window.calDay=(ds)=>{
+  const el=document.getElementById("calDetail");if(!el)return;
+  el.innerHTML=calDayDetailHTML(ds);
+  el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),320);
+  manIconizeInline(el);
+};
 function rProfile(el){
   const p=S.profile||{name:"",role:"",goal:"",slot:""};
   const initial=esc((p.name||"?")[0].toUpperCase());
@@ -4289,6 +4488,7 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  <div class="card pcal" id="pfCal">${calHTML()}</div>
   <div class="pf-menu">
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
