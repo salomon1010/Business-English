@@ -31,7 +31,7 @@ window.FB_CONFIG={
 /* Apply saved/system theme before first paint (no flash) */
 (function(){try{
   var s=localStorage.getItem("be_theme");
-  var t=s||((window.matchMedia&&matchMedia("(prefers-color-scheme: light)").matches)?"light":"dark");
+  var t=s||"dark";   // new users always start in dark mode; only an explicit toggle (be_theme) switches it
   document.documentElement.setAttribute("data-theme",t);
 }catch(e){document.documentElement.setAttribute("data-theme","dark")}})();
 </script>
