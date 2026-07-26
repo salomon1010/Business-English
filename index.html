@@ -2815,7 +2815,7 @@ function rShadow(el){
   <div class="card" style="margin-bottom:16px">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
-      <button class="btn btn-p" onclick="shLoadFromInput()">${t("sh.load_btn")}</button>
+      <button class="btn btn-g btn-sm" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
     </div>
     ${S.lastClip&&S.lastClip.vid?`<button class="btn sh-resume" style="margin-top:12px;width:100%" onclick="shOpenWork()"><span class="sh-resume-txt">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</span></button>`:""}
     <div class="hr"></div>
