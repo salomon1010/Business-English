@@ -80,6 +80,20 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .tab:hover{color:var(--txt);background:var(--hover)}
 .tab.on{color:#fff;background:var(--grad);font-weight:600}
 .streak-pill{margin-left:auto;display:flex;align-items:center;gap:6px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:var(--gold);padding:6px 13px;border-radius:99px;font-weight:700;font-size:14px;white-space:nowrap}
+/* Global practice countdown — lives in the header, visible on every page while running */
+.hdr-timer{margin-left:auto;display:none;align-items:center;gap:7px;background:linear-gradient(150deg,rgba(99,102,241,.18),rgba(34,211,238,.14));border:1px solid rgba(99,102,241,.5);color:var(--txt);padding:5px 6px 5px 11px;border-radius:99px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:0 0 0 0 rgba(99,102,241,.35);transition:box-shadow .2s,transform .15s}
+.hdr-timer.show{display:flex}
+.hdr-timer:hover{transform:translateY(-1px)}
+.hdr-timer .ht-ic{display:inline-flex;line-height:0;color:var(--acc)}
+.hdr-timer .ht-ic svg{width:15px;height:15px}
+.hdr-timer .ht-dig{font-family:'JetBrains Mono',monospace;font-size:14px;letter-spacing:1px;min-width:46px;text-align:center;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hdr-timer .ht-x{width:20px;height:20px;border-radius:50%;background:rgba(148,163,184,.2);color:var(--txt);font-size:15px;line-height:1;display:grid;place-items:center;transition:.15s}
+.hdr-timer .ht-x:hover{background:var(--red);color:#fff;transform:scale(1.1)}
+.hdr-timer.running{animation:htGlow 2.4s ease-in-out infinite}
+.hdr-timer.running .ht-ic{animation:htPulse 1.6s ease-in-out infinite}
+@keyframes htGlow{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.28)}50%{box-shadow:0 0 16px 2px rgba(34,211,238,.4)}}
+@keyframes htPulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media (prefers-reduced-motion:reduce){.hdr-timer.running,.hdr-timer.running .ht-ic{animation:none}}
 .theme-toggle{flex:none;margin-left:8px;width:36px;height:36px;padding:0;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:16px;line-height:1;display:grid;place-items:center;transition:.15s}
 .theme-toggle:hover{border-color:var(--acc);transform:scale(1.08)}
 .theme-toggle:active{transform:scale(.92)}
@@ -696,6 +710,11 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
   <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
+  <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
+    <span class="ht-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>
+    <span class="ht-dig" id="hdrTimerDig">25:00</span>
+    <span class="ht-x" onclick="event.stopPropagation();tReset()" role="button" aria-label="Cancel timer" title="Cancel timer">×</span>
+  </button>
   <div class="streak-pill"><span class="pill-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/></svg></span> <span id="streakN">0</span></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle light or dark mode" title="Toggle light/dark"></button>
 </div></nav>
@@ -2603,7 +2622,7 @@ let timer={left:25*60,run:false,h:null};
 function rSession(el,w,d){
   const wk=WEEKS[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=TEMPLATES[d];
   const stepsDone=S.steps[key]||[];
-  clearInterval(timer.h);timer={left:25*60,run:false,h:null};
+  if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=PHRASES.filter(p=>p.w===w&&!p.i).slice(0,5);
   el.innerHTML=`
   <button class="back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
@@ -2691,6 +2710,7 @@ function rSession(el,w,d){
   <div id="fbOut" style="margin-top:4px"></div>`;
   manIconizeInline(el);
   renderRecs(key);
+  tRender();   // reflect current timer state into the session digits + button + header pill
 }
 window.toggleStep=(key,i)=>{
   const a=S.steps[key]||[];const ix=a.indexOf(i);
@@ -2706,21 +2726,32 @@ window.toggleDay=(key,w,d)=>{
   if(S.days[key]){markPracticed();toast(t("sess.day_complete_toast",{w,d}))}
   save();go("session",w,d);
 };
-/* timer */
+/* timer — runs globally; the header pill mirrors it on every page */
+function tRender(){
+  const m=String(Math.floor(timer.left/60)).padStart(2,"0"),s=String(timer.left%60).padStart(2,"0"),txt=`${m}:${s}`;
+  const d=document.getElementById("tDig");if(d)d.textContent=txt;
+  const b=document.getElementById("tBtn");if(b)b.textContent=timer.run?t("sess.timer_pause"):t("sess.timer_start");
+  const hd=document.getElementById("hdrTimerDig");if(hd)hd.textContent=txt;
+  const pill=document.getElementById("hdrTimer");
+  if(pill){
+    const on=timer.run||(timer.left>0&&timer.left<25*60);   // show while running or paused part-way; hide at full (cancelled) or 0 (done)
+    pill.classList.toggle("show",on);
+    pill.classList.toggle("running",timer.run);
+  }
+}
 window.tToggle=()=>{
   timer.run=!timer.run;
-  document.getElementById("tBtn").textContent=timer.run?t("sess.timer_pause"):t("sess.timer_start");
+  if(timer.run&&cur.v==="session"){timer.w=cur.arg1;timer.d=cur.arg2;}   // remember which session this block belongs to
   clearInterval(timer.h);
   if(timer.run)timer.h=setInterval(()=>{
     timer.left--;
-    if(timer.left<=0){clearInterval(timer.h);timer.run=false;timer.left=0;toast(t("sess.timer_up_toast"))}
-    const m=String(Math.floor(timer.left/60)).padStart(2,"0"),s=String(timer.left%60).padStart(2,"0");
-    const el=document.getElementById("tDig");if(el)el.textContent=`${m}:${s}`;else clearInterval(timer.h);
+    if(timer.left<=0){clearInterval(timer.h);timer.run=false;timer.left=0;tRender();toast(t("sess.timer_up_toast"));return}
+    tRender();
   },1000);
+  tRender();
 };
-window.tReset=()=>{clearInterval(timer.h);timer={left:25*60,run:false,h:null};
-  const d=document.getElementById("tDig");if(d)d.textContent="25:00";
-  const b=document.getElementById("tBtn");if(b)b.textContent=t("sess.timer_start")};
+window.tReset=()=>{clearInterval(timer.h);timer={left:25*60,run:false,h:null};tRender()};
+window.tOpen=()=>{const p=currentPos();go("session",timer.w||p.w,timer.d||p.d)};
 
 /* ================= RECORDER ================= */
 let rec={mr:null,chunks:[],t0:0,h:null,ctx:null,label:null};
