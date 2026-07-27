@@ -697,5 +697,13 @@
  "help.greeting": "👋 Chúng tôi có thể giúp gì?",
  "help.greeting_name": "👋 Chào {{name}}, chúng tôi có thể giúp gì?",
  "help.search_ph": "Tìm trong hướng dẫn…",
- "help.no_results": "Không có kết quả. Thử từ khác, hoặc chọn một chủ đề ở trên."
+ "help.no_results": "Không có kết quả. Thử từ khác, hoặc chọn một chủ đề ở trên.",
+ "sess.return": "← Quay lại buổi học · Tuần {{w}} · {{d}}",
+ "sess.link_shadow": "Mở Xưởng Shadowing",
+ "sess.link_shadow_why_mon": "Thực hiện shadowing của buổi này tại đây: chọn một đoạn clip, đánh dấu 20–30 giây và ghi âm.",
+ "sess.link_shadow_why_fri": "Luyện đoạn clip yếu nhất của bạn tại đây, rồi ghi âm bản cải thiện.",
+ "sess.link_phrases": "Mở cụm từ & thành ngữ tuần này",
+ "sess.link_phrases_why": "Học và ghi âm các cụm từ và thành ngữ của tuần này tại đây.",
+ "sess.link_review": "Mở tab Đánh giá",
+ "sess.link_review_why": "Chấm điểm tuần của bạn và viết đánh giá tại đây."
 }

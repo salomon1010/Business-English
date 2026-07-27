@@ -697,5 +697,13 @@
  "help.greeting": "👋 Como podemos ajudar?",
  "help.greeting_name": "👋 Olá {{name}}, como podemos ajudar?",
  "help.search_ph": "Pesquisar no guia…",
- "help.no_results": "Nenhum resultado. Tente outra palavra ou escolha um tópico acima."
+ "help.no_results": "Nenhum resultado. Tente outra palavra ou escolha um tópico acima.",
+ "sess.return": "← Voltar à sua sessão · Semana {{w}} · {{d}}",
+ "sess.link_shadow": "Abrir o Estúdio de Shadowing",
+ "sess.link_shadow_why_mon": "Faça aqui o shadowing desta sessão: escolha um trecho, marque 20–30 segundos e grave.",
+ "sess.link_shadow_why_fri": "Treine aqui o seu trecho mais fraco e grave a versão melhorada.",
+ "sess.link_phrases": "Abrir as frases e expressões da semana",
+ "sess.link_phrases_why": "Estude e grave aqui as frases e expressões desta semana.",
+ "sess.link_review": "Abrir a aba de Revisões",
+ "sess.link_review_why": "Avalie a sua semana e escreva a sua revisão aqui."
 }

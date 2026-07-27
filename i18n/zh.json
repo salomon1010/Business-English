@@ -697,5 +697,13 @@
  "help.greeting": "👋 需要什么帮助？",
  "help.greeting_name": "👋 你好 {{name}}，需要什么帮助？",
  "help.search_ph": "搜索指南…",
- "help.no_results": "没有匹配结果。换个词试试，或从上方选择一个主题。"
+ "help.no_results": "没有匹配结果。换个词试试，或从上方选择一个主题。",
+ "sess.return": "← 返回你的练习 · 第 {{w}} 周 · {{d}}",
+ "sess.link_shadow": "打开跟读工作室",
+ "sess.link_shadow_why_mon": "在这里完成本次跟读：选择片段，标记 20–30 秒并录音。",
+ "sess.link_shadow_why_fri": "在这里针对你最薄弱的片段练习，然后录制改进版。",
+ "sess.link_phrases": "打开本周短语和习语",
+ "sess.link_phrases_why": "在这里学习并录制本周的短语和习语。",
+ "sess.link_review": "打开复盘标签页",
+ "sess.link_review_why": "为你的一周打分并在此写下复盘。"
 }

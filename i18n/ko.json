@@ -697,5 +697,13 @@
  "help.greeting": "👋 무엇을 도와드릴까요?",
  "help.greeting_name": "👋 안녕하세요 {{name}}님, 무엇을 도와드릴까요?",
  "help.search_ph": "가이드 검색…",
- "help.no_results": "검색 결과가 없습니다. 다른 단어를 시도하거나 위에서 주제를 선택하세요."
+ "help.no_results": "검색 결과가 없습니다. 다른 단어를 시도하거나 위에서 주제를 선택하세요.",
+ "sess.return": "← 세션으로 돌아가기 · {{w}}주차 · {{d}}",
+ "sess.link_shadow": "섀도잉 스튜디오 열기",
+ "sess.link_shadow_why_mon": "이 세션의 섀도잉을 여기서 하세요: 클립을 고르고 20~30초를 표시한 뒤 녹음하세요.",
+ "sess.link_shadow_why_fri": "가장 약한 클립을 여기서 연습한 뒤 개선된 버전을 녹음하세요.",
+ "sess.link_phrases": "이번 주 표현과 관용구 열기",
+ "sess.link_phrases_why": "이번 주의 표현과 관용구를 여기서 학습하고 녹음하세요.",
+ "sess.link_review": "리뷰 탭 열기",
+ "sess.link_review_why": "한 주를 점수 매기고 여기에 리뷰를 작성하세요."
 }

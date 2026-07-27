@@ -697,5 +697,13 @@
  "help.greeting": "👋 Ada yang bisa kami bantu?",
  "help.greeting_name": "👋 Hai {{name}}, ada yang bisa kami bantu?",
  "help.search_ph": "Cari di panduan…",
- "help.no_results": "Tidak ada hasil. Coba kata lain, atau pilih topik di atas."
+ "help.no_results": "Tidak ada hasil. Coba kata lain, atau pilih topik di atas.",
+ "sess.return": "← Kembali ke sesimu · Minggu {{w}} · {{d}}",
+ "sess.link_shadow": "Buka Studio Shadowing",
+ "sess.link_shadow_why_mon": "Lakukan shadowing sesi ini di sini: pilih klip, tandai 20–30 detik, lalu rekam.",
+ "sess.link_shadow_why_fri": "Latih klip terlemahmu di sini, lalu rekam versi yang lebih baik.",
+ "sess.link_phrases": "Buka frasa & idiom minggu ini",
+ "sess.link_phrases_why": "Pelajari dan rekam frasa serta idiom minggu ini di sini.",
+ "sess.link_review": "Buka tab Ulasan",
+ "sess.link_review_why": "Nilai minggumu dan tulis ulasanmu di sini."
 }

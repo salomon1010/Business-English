@@ -697,5 +697,13 @@
  "help.greeting": "👋 どんなことでお困りですか？",
  "help.greeting_name": "👋 こんにちは {{name}}さん、どうしましたか？",
  "help.search_ph": "ガイドを検索…",
- "help.no_results": "一致する項目がありません。別の言葉を試すか、上のトピックを選んでください。"
+ "help.no_results": "一致する項目がありません。別の言葉を試すか、上のトピックを選んでください。",
+ "sess.return": "← セッションに戻る · 第{{w}}週 · {{d}}",
+ "sess.link_shadow": "シャドーイング・スタジオを開く",
+ "sess.link_shadow_why_mon": "このセッションのシャドーイングはここで：クリップを選び、20〜30秒を指定して録音します。",
+ "sess.link_shadow_why_fri": "一番苦手なクリップをここで練習し、改善版を録音しましょう。",
+ "sess.link_phrases": "今週のフレーズ・イディオムを開く",
+ "sess.link_phrases_why": "今週のフレーズとイディオムをここで学び、録音しましょう。",
+ "sess.link_review": "レビュータブを開く",
+ "sess.link_review_why": "今週を採点し、ここにレビューを書きましょう。"
 }

@@ -211,6 +211,11 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .glow-cta .glow-cta-txt{position:relative;z-index:2}
 .glow-cta::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:300%;height:760%;background:conic-gradient(from 0deg,transparent 0 56%,#22d3ee 70%,#eaffff 80%,#6366f1 90%,transparent 100%);animation:glow-cta-spin 4s linear infinite}
 .glow-cta::after{content:"";position:absolute;z-index:1;inset:2px;border-radius:10px;background:var(--card2)}
+.sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.sess-ex summary::-webkit-details-marker{display:none}
+.sess-ex .sess-ex-title{font-weight:700;font-size:15px}
+.sess-ex summary::after{content:"▾";margin-left:auto;color:var(--mut2);font-size:13px;transition:transform .2s}
+.sess-ex[open] summary::after{transform:rotate(180deg)}
 @keyframes glow-cta-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes glow-cta-glow{0%,100%{box-shadow:0 0 14px 0 rgba(34,211,238,.14)}50%{box-shadow:0 0 26px 3px rgba(34,211,238,.4)}}
 @media (prefers-reduced-motion:reduce){.glow-cta,.glow-cta::before{animation:none}}
@@ -273,6 +278,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .day-row .t b{display:block;font-size:15px}
 .day-row .t span{font-size:13px;color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .back{background:none;border:none;color:var(--acc2);font-size:14px;font-weight:600;margin-bottom:16px;display:inline-flex;gap:6px;align-items:center}
+.sess-return{display:flex;width:fit-content;margin:0 0 18px;padding:7px 13px;border:1px solid var(--line2);border-radius:11px;background:var(--card);cursor:pointer}
 
 /* SESSION */
 .sess-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
@@ -730,6 +736,29 @@ const DAY_META={
  Sun:{type:"Weekly Review + Reset",ic:"📊",k:"chart"}
 };
 function dayTypeLabel(d){return t("daymeta."+d)}
+/* Days whose real work happens in another tab → show a jump button. Tue/Thu/Sat are
+   on-page speaking drills (no link, and the "My example" box is shown open). */
+const SESS_LINK={
+ Mon:{v:"shadow",  ic:"target", lk:"sess.link_shadow",  wk:"sess.link_shadow_why_mon"},
+ Fri:{v:"shadow",  ic:"target", lk:"sess.link_shadow",  wk:"sess.link_shadow_why_fri"},
+ Wed:{v:"phrases", ic:"chat",   lk:"sess.link_phrases", wk:"sess.link_phrases_why"},
+ Sun:{v:"review",  ic:"chart",  lk:"sess.link_review",  wk:"sess.link_review_why"}
+};
+function sessIsSpeaking(d){return ["Tue","Thu","Sat"].includes(d)}
+/* Day-specific starter text for the "My example" box, so each day of each week
+   opens with a relevant scaffold to complete rather than a blank box. If the
+   day's task spells out a structure with arrows (e.g. "context → issue →
+   action → result"), turn each step into a labelled blank; otherwise seed with
+   this week's phrases to build sentences from. */
+function sessScaffold(dd,weekPhrases){
+ if(dd&&dd.task&&dd.task.includes("→")){
+  let seg=dd.task;
+  if(seg.includes(":"))seg=seg.slice(seg.lastIndexOf(":")+1);
+  const parts=seg.split("→").map(s=>s.replace(/["“”.]/g,"").trim()).filter(Boolean);
+  if(parts.length>=2)return parts.map(p=>p.charAt(0).toUpperCase()+p.slice(1)+": ").join("\n");
+ }
+ return weekPhrases.map(p=>p.p).join("\n");
+}
 
 const TEMPLATES={
  Mon:[["0:00–2:00","Choose a 30–60 sec clip from a U.S. professional speaker (🎯 Shadow tab → starter videos & channels)."],["2:00–8:00","Transcribe it exactly."],["8:00–11:00","Mark stressed words, pauses, contractions, linked sounds, intonation."],["11:00–18:00","Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."],["18:00–22:00","Record yourself imitating the clip (use the recorder below)."],["22:00–25:00","Log what sounded weak + one sound/stress pattern to fix next time."]],
@@ -1419,6 +1448,14 @@ const I18N_EN={
  "exframe.1":"State the issue",
  "exframe.2":"Close with action",
  "sess.back":"← Week {{w}}",
+ "sess.return":"← Back to your session · Week {{w}} · {{d}}",
+ "sess.link_shadow":"Open the Shadow Studio",
+ "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
+ "sess.link_shadow_why_fri":"Drill your weakest clip here, then record the improved version.",
+ "sess.link_phrases":"Open this week's phrases & idioms",
+ "sess.link_phrases_why":"Study and record this week's phrases and idioms here.",
+ "sess.link_review":"Open the Reviews tab",
+ "sess.link_review_why":"Score your week and write your review here.",
  "sess.week_day_chip":"Week {{w}} · {{d}}",
  "sess.completed_chip":"✓ Completed",
  "sess.evidence":"📦 Evidence to produce: {{out}}",
@@ -2361,6 +2398,10 @@ function bnavSync(v){
   const map=v==="session"?"journey":(v==="data"?"profile":v);
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
+/* Remembers the session a jump-button came from, so the destination tab can
+   offer a "back to your session" breadcrumb. */
+let SESS_RETURN=null;
+window.sessGo=function(v,w,d){SESS_RETURN={v,w,d};go(v)};
 function go(v,arg1,arg2){
   if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}
   cur={v,arg1,arg2};
@@ -2371,6 +2412,17 @@ function go(v,arg1,arg2){
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
   ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual})[v](el,arg1,arg2);
+  /* "Back to your session" breadcrumb when a day session sent you to this tab */
+  if(SESS_RETURN){
+    if(v===SESS_RETURN.v){
+      const r=SESS_RETURN;
+      const b=document.createElement("button");
+      b.type="button";b.className="back sess-return";
+      b.textContent=t("sess.return",{w:r.w,d:r.d});
+      b.onclick=()=>{SESS_RETURN=null;go("session",r.w,r.d)};
+      el.insertBefore(b,el.firstChild);
+    }else if(v!=="session"){SESS_RETURN=null;}
+  }
   document.getElementById("streakN").textContent=streak();
   window.scrollTo({top:0});
 }
@@ -2550,7 +2602,9 @@ function rSession(el,w,d){
   </div>
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
-  <p style="font-size:13px;color:var(--gold);margin-bottom:20px">${t("sess.evidence",{out:esc(dd.out)})}</p>
+  <p style="font-size:13px;color:var(--gold);margin-bottom:${SESS_LINK[d]?"10px":"20px"}">${t("sess.evidence",{out:esc(dd.out)})}</p>
+  ${SESS_LINK[d]?`<button class="btn glow-cta" onclick="sessGo('${SESS_LINK[d].v}',${w},'${d}')"><span class="glow-cta-txt"><span class="btn-ic">${ic(SESS_LINK[d].ic)}</span>${esc(t(SESS_LINK[d].lk))} →</span></button>
+  <p style="font-size:12.5px;color:var(--mut);margin:8px 0 20px">${esc(t(SESS_LINK[d].wk))}</p>`:""}
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="card timer-box" style="margin-bottom:16px">
@@ -2568,6 +2622,11 @@ function rSession(el,w,d){
       </div>`:""}
     </div>
     <div>
+      <details class="card sess-ex" style="margin-bottom:16px" ${sessIsSpeaking(d)?"open":""}>
+        <summary><span class="sess-ex-title">${t("sess.example_title")}</span></summary>
+        <p style="font-size:12px;color:var(--mut);margin:8px 0">${t("sess.example_desc")}</p>
+        <textarea rows="5" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||sessScaffold(dd,weekPhrases))}</textarea>
+      </details>
       <div class="rec-panel" style="margin-bottom:16px">
         <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
@@ -2591,10 +2650,6 @@ function rSession(el,w,d){
         </div>
       </div>
       <div class="card" style="margin-bottom:16px">
-        <b style="display:block;margin-bottom:4px">${t("sess.example_title")}</b>
-        <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.example_desc")}</p>
-        <textarea rows="4" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||"")}</textarea>
-        <div class="hr"></div>
         <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
         <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.transcript_desc")}</p>
         <div id="sessHeard" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sess.transcript_empty")}</span>`}</div>
@@ -4396,22 +4451,6 @@ window.acctSave=()=>{
   p.slot=document.getElementById("acSlot").value;
   S.profile=p;save();toast(t("acc.profile_saved_toast"));go("data");
 };
-/* LOCAL-DEV ONLY: seed a realistic month of activity so the calendar looks alive
-   while testing offline. Runs only on localhost and only when there's no real
-   history yet — it never executes on the live site. Remove before shipping. */
-(function(){
-  try{
-    if(location.hostname!=="localhost"&&location.hostname!=="127.0.0.1")return;
-    if((S.dates||[]).length>=3)return;
-    S.dates=S.dates||[];S.dayLog=S.dayLog||{};
-    const today=new Date();
-    for(let i=0;i<50;i++){
-      const d=new Date(today);d.setDate(today.getDate()-i);
-      if(i===0||Math.random()<0.55){const ds=d.toISOString().slice(0,10);if(!S.dates.includes(ds))S.dates.push(ds);S.dayLog[ds]=1+Math.floor(Math.random()*6);}
-    }
-    S.dates.sort();save();
-  }catch(e){}
-})();
 /* ===== Progress calendar: a live heatmap of the days you actually practised ===== */
 let calCur=null;
 function calLevel(c){return c<=0?0:c>=6?4:c>=4?3:c>=2?2:1}
