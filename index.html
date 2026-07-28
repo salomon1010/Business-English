@@ -210,6 +210,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal-legend i[data-lvl="4"]{background:rgba(52,211,153,.88)}
 /* Shadowing workspace — focused full-screen practice window */
 .sh-work{position:fixed;top:0;left:0;right:0;bottom:0;z-index:130;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.sh-hint{display:flex;gap:9px;align-items:flex-start;margin-top:10px;padding:10px 14px;background:linear-gradient(150deg,rgba(99,102,241,.11),rgba(34,211,238,.07));border:1px solid rgba(99,102,241,.3);border-radius:11px;font-size:13px;line-height:1.5;color:var(--mut)}
+.sh-hint b{color:var(--txt)}
+.sh-hint .sh-hint-ic{flex:none;color:var(--acc);display:inline-flex;line-height:0;margin-top:1px}
+.sh-hint .sh-hint-ic svg{width:17px;height:17px}
 .sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(12px,env(safe-area-inset-top)) 18px 12px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
 .sh-work-title{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px;min-width:0}
 .sh-work-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--acc2);flex:none}
@@ -430,6 +434,42 @@ th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
 th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:1px}
 .pass{color:var(--green);font-weight:700}.fail{color:var(--red);font-weight:700}
 
+/* ONBOARDING — first-win moment */
+.ob-win{margin-top:6px}
+.ob-line{position:relative;font-size:19px;font-weight:700;line-height:1.45;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:18px 20px 14px;margin-bottom:6px}
+.ob-hear{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:7px 14px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s}
+.ob-hear:hover{border-color:var(--acc);transform:translateY(-1px)}
+.ob-hear svg{width:15px;height:15px;color:var(--acc)}
+.ob-stage{position:relative;margin:14px 0 10px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden}
+.ob-mic{width:88px;height:88px;border-radius:50%;border:none;background:var(--grad);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 32px rgba(99,102,241,.42);transition:transform .15s;position:relative}
+.ob-mic:hover{transform:scale(1.06)}
+.ob-mic svg{width:34px;height:34px}
+.ob-mic.listening{animation:obMicPulse 1.2s ease-in-out infinite}
+.ob-mic-rings{position:absolute;inset:0;border-radius:50%;animation:obRings 1.4s ease-out infinite}
+@keyframes obRings{0%{box-shadow:0 0 0 0 rgba(99,102,241,.45)}100%{box-shadow:0 0 0 26px rgba(99,102,241,0)}}
+@keyframes obMicPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.09)}}
+.ob-mic-lbl{font-size:13px;color:var(--mut);font-weight:600}
+.ob-mic-lbl.live{color:var(--acc)}
+.ob-reveal{animation:fade .35s;width:100%}
+.ob-ring{--p:0;--col:var(--acc);width:130px;height:130px;border-radius:50%;margin:2px auto 12px;display:grid;place-items:center;background:conic-gradient(var(--col) calc(var(--p)*1%),var(--line2) 0)}
+.ob-ring-in{width:104px;height:104px;border-radius:50%;background:var(--card);display:flex;align-items:baseline;justify-content:center}
+.ob-score{font-size:42px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--txt);line-height:1}
+.ob-score-pct{font-size:18px;font-weight:700;color:var(--mut);margin-left:1px}
+.ob-baseline{font-size:12.5px;color:var(--mut);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:9px}
+.ob-baseline svg{width:15px;height:15px;color:var(--gold);flex:none}
+.ob-baseline b{color:var(--txt)}
+.ob-reveal-line{font-size:15px;font-weight:700;margin:2px 0 12px;line-height:1.4}
+.ob-reveal-sub{font-size:12px;color:var(--mut2);margin-bottom:9px}
+.ob-words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.ob-w{font-size:13px;padding:4px 9px;border-radius:8px;font-weight:600}
+.ob-w.ok{background:rgba(52,211,153,.16);color:var(--green);border:1px solid rgba(52,211,153,.4)}
+.ob-w.warn{background:rgba(251,191,36,.14);color:var(--gold);border:1px solid rgba(251,191,36,.4)}
+.ob-out{font-size:13.5px;min-height:18px;margin:6px 0 12px;color:var(--mut)}
+.ob-win-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ob-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.ob-confetti i{position:absolute;top:-12px;width:8px;height:13px;border-radius:2px;animation:obConf 1.9s ease-in forwards}
+@keyframes obConf{to{transform:translateY(380px) rotate(600deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.ob-mic.listening,.ob-mic-rings,.ob-confetti i{animation:none}.ob-confetti{display:none}}
 /* ONBOARDING */
 .ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px;
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
@@ -1247,6 +1287,16 @@ const I18N_EN={
  "ob.slot_sub":"Tie practice to a habit you already have — that's how quiet mornings turn into a new voice. Pick your slot; we'll hold you to it.",
  "ob.win_title":"Your first win takes 60 seconds",
  "ob.win_sub":"Say this out loud, as if the room is already listening:",
+ "ob.hear_first":"Hear it first",
+ "ob.tap_say":"Tap & say it",
+ "ob.win_start":"I'm ready — start →",
+ "ob.try_again":"Try again",
+ "ob.best_score":"Best {{sc}}%",
+ "ob.baseline_tag":"Your day-one baseline",
+ "ob.reveal_words":"Here's exactly what the app heard — green is landed, amber is polish:",
+ "ob.beat_it":"Beat it — say it once more.",
+ "ob.no_mic_line":"No mic here — no problem. Read it aloud with conviction, then step inside.",
+ "ob.welcome_baseline_toast":"Baseline locked at {{sc}}%, {{name}}. Every session from here pushes it up 📈",
  "role.0":"Engineering / Data","role.1":"Product / PM","role.2":"Finance / Business","role.3":"Sales / Marketing","role.4":"Student","role.5":"Other",
  "goal.0":"🎤 Speak confidently in meetings","goal.1":"💼 Sound more executive","goal.2":"🏆 Ace interviews in English","goal.3":"🗣️ Improve my accent & clarity",
  "slot.0":"☀️ Morning coffee","slot.1":"🍽️ Lunch break","slot.2":"🚇 Commute","slot.3":"🌙 Evening wind-down",
@@ -1629,7 +1679,7 @@ const I18N_EN={
  "sh.clip_label":"Clip",
  "sh.mark_start_btn":"Start",
  "sh.mark_end_btn":"End",
- "sh.mark_hint":"Set <b>Mark start</b> and <b>Mark end</b> (aim 20–30s). It loops and library clips fill in the transcript. Shadow 6–8×, then record.",
+ "sh.mark_hint":"Set the <b>start</b> and <b>end</b> (aim 20–30s). It loops and library clips fill in the transcript. Shadow 6–8×, then record.",
  "sh.record_title":"🎙️ Record your shadowing",
  "sh.record_desc":"Imitate the rhythm and stress, then compare back to back.",
  "sh.posture_privacy":"🔒 Zero-capture: frames are analysed on-device and discarded instantly — nothing is stored or uploaded.",
@@ -2980,7 +3030,7 @@ function rShadow(el){
       <span class="sh-len" id="shLen"></span>
       <button class="btn btn-g btn-sm sh-clear" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}" aria-label="${esc(t("sh.clear_clip_btn"))}">${ic("trash")}</button>
     </div>
-    <p style="font-size:12.5px;color:var(--mut2);margin-top:8px">${t("sh.mark_hint")}</p>
+    <div class="sh-hint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
     <div class="grid g2" style="margin-top:16px">
       <div class="rec-panel">
         <b style="font-size:15px">${hIcon("mic",t("sh.record_title"))}</b>
@@ -5300,7 +5350,9 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 }
 
 /* ===== ONBOARDING (first launch) ===== */
-let OB={step:0,name:"",role:"",goal:"",slot:"",lang:""};
+let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",best:0};
+const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
+const OB_TARGET="the main blocker is the vendor api we expect a fix by friday";
 const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
@@ -5341,11 +5393,18 @@ function obRender(){
     `<div class="ob-logo">${ic("rocket")}</div>
      <h2>${t("ob.win_title")}</h2>
      <p class="sub">${t("ob.win_sub")}</p>
-     <p style="font-size:19px;font-weight:700;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:16px 20px;margin-bottom:8px">“The main blocker is the vendor API — we expect a fix by Friday.”</p>
-     <p id="obTryOut" style="font-size:14px;min-height:22px;margin-bottom:14px;color:var(--mut)"></p>
-     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-       <button class="btn btn-p" style="font-size:15.5px" onclick="obTry()">${tIc("ob.say_it_now","mic")}</button>
-       <button class="btn btn-g" onclick="obFinish()">${t("ob.skip_takeme")}</button>
+     <div class="ob-win">
+       <div class="ob-line">“${OB_LINE}”
+         <button class="ob-hear" onclick="fbSay(${jarg(OB_LINE)},.92)">${ic("sound")}<span>${t("ob.hear_first")}</span></button>
+       </div>
+       <div id="obStage" class="ob-stage">
+         <button class="ob-mic" id="obMicBtn" onclick="obTry()" aria-label="${esc(t("ob.tap_say"))}">${ic("mic")}</button>
+         <div class="ob-mic-lbl">${t("ob.tap_say")}</div>
+       </div>
+       <p id="obTryOut" class="ob-out"></p>
+       <div id="obActions" class="ob-win-actions">
+         <button class="btn btn-g btn-sm" onclick="obFinish()">${t("ob.skip_takeme")}</button>
+       </div>
      </div>`
   ];
   el.innerHTML=`<div class="ob-card">${steps[OB.step]}${dots}</div>`;
@@ -5365,29 +5424,73 @@ window.obLangPick=async(code)=>{
   localizeStatic();
   obNext();
 };
+function obMicIdle(msg){
+  const st=document.getElementById("obStage");
+  if(st)st.innerHTML=`<button class="ob-mic" id="obMicBtn" onclick="obTry()" aria-label="${esc(t("ob.tap_say"))}">${ic("mic")}</button><div class="ob-mic-lbl">${t("ob.tap_say")}</div>`;
+  const out=document.getElementById("obTryOut");if(out)out.textContent=msg||"";
+}
 window.obTry=()=>{
-  if(!SR){toast(t("ob.sr_unavailable_toast"));return obFinish()}
-  const out=document.getElementById("obTryOut");out.textContent=t("ob.listening");
+  if(!SR){
+    const out=document.getElementById("obTryOut");if(out)out.textContent=t("ob.no_mic_line");
+    const act=document.getElementById("obActions");if(act)act.innerHTML=`<button class="btn btn-p" onclick="obFinish()">${t("ob.win_start")}</button>`;
+    return;
+  }
+  const st=document.getElementById("obStage");
+  if(st)st.innerHTML=`<div class="ob-mic listening"><span class="ob-mic-rings"></span>${ic("mic")}</div><div class="ob-mic-lbl live">${t("ob.listening")}</div>`;
+  const out=document.getElementById("obTryOut");if(out)out.textContent="";
   const r=new SR();r.lang="en-US";r.continuous=false;r.interimResults=false;r.maxAlternatives=1;
   let got=false;
   r.onresult=e=>{got=true;
     const heard=e.results[0][0].transcript;
-    const tk=fbTokens("the main blocker is the vendor api we expect a fix by friday");
-    const h=fbTokens(heard);
-    const ok=fbAlign(tk,h).filter(o=>o.op==="ok").length;
-    const sc=Math.round(100*ok/tk.length);
-    out.innerHTML=`<b style="color:${sc>=70?"var(--green)":"var(--gold)"}">${sc>=70?t("ob.result_good",{sc}):t("ob.result_baseline",{sc})}</b>`;
-    setTimeout(obFinish,2200);
+    const tk=fbTokens(OB_TARGET),h=fbTokens(heard),ops=fbAlign(tk,h);
+    const ok=ops.filter(o=>o.op==="ok").length;
+    obReveal(Math.round(100*ok/Math.max(tk.length,1)),ops);
   };
-  r.onerror=()=>{out.textContent=t("ob.mic_unavailable");setTimeout(obFinish,1200)};
-  r.onend=()=>{if(!got&&out.textContent===t("ob.listening")){out.textContent=t("ob.didnt_catch")}};
-  r.start();
+  r.onerror=()=>obMicIdle(t("ob.mic_unavailable"));
+  r.onend=()=>{if(!got)obMicIdle(t("ob.didnt_catch"))};
+  try{r.start()}catch(_){obMicIdle(t("ob.didnt_catch"))}
 };
+function obReveal(sc,ops){
+  OB.best=Math.max(OB.best||0,sc);
+  const chips=ops.filter(o=>o.t).map(o=>`<span class="ob-w ${o.op==="ok"?"ok":"warn"}">${esc(o.t)}</span>`).join("");
+  const line=sc>=70?t("ob.result_good",{sc}):t("ob.result_baseline",{sc});
+  const st=document.getElementById("obStage");
+  if(st)st.innerHTML=`<div class="ob-reveal">
+      <div class="ob-ring" id="obRing" style="--p:0"><div class="ob-ring-in"><span class="ob-score" id="obScore">0</span><span class="ob-score-pct">%</span></div></div>
+      <div class="ob-baseline">${ic("trophy")}<span>${t("ob.baseline_tag")} · <b>${t("ob.best_score",{sc:OB.best})}</b></span></div>
+      <p class="ob-reveal-line">${line}</p>
+      <p class="ob-reveal-sub">${t("ob.reveal_words")}</p>
+      <div class="ob-words">${chips}</div>
+    </div>`;
+  obConfetti();obAnimateScore(sc);
+  const act=document.getElementById("obActions");
+  if(act)act.innerHTML=`<button class="btn btn-g" onclick="obTry()">${tIc("ob.try_again","repeat")}</button>
+    <button class="btn btn-p" onclick="obFinish()">${t("ob.win_start")}</button>`;
+}
+function obAnimateScore(sc){
+  const ring=document.getElementById("obRing"),num=document.getElementById("obScore");
+  if(ring)ring.style.setProperty("--col",sc>=70?"var(--green)":"var(--gold)");
+  const t0=performance.now(),dur=1100;
+  (function step(now){
+    const k=Math.min(1,(now-t0)/dur),e=1-Math.pow(1-k,3),v=sc*e;
+    if(num)num.textContent=Math.round(v);
+    if(ring)ring.style.setProperty("--p",v.toFixed(1));
+    if(k<1)requestAnimationFrame(step);
+  })(t0);
+}
+function obConfetti(){
+  const host=document.getElementById("obStage");if(!host)return;
+  const c=document.createElement("div");c.className="ob-confetti";
+  const cols=["#22d3ee","#6366f1","#fbbf24","#34d399","#f472b6"];
+  for(let i=0;i<30;i++){const s=document.createElement("i");s.style.left=(Math.random()*100)+"%";s.style.background=cols[i%cols.length];s.style.animationDelay=(Math.random()*.3).toFixed(2)+"s";c.appendChild(s)}
+  host.appendChild(c);setTimeout(()=>c.remove(),2400);
+}
 window.obFinish=()=>{
   S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",lang:OB.lang||"en",ts:Date.now()};
+  if(OB.best>0)S.profile.baseline=OB.best;
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
-  toast(t("ob.welcome_toast",{name:S.profile.name}));
+  toast(OB.best>0?t("ob.welcome_baseline_toast",{sc:OB.best,name:S.profile.name}):t("ob.welcome_toast",{name:S.profile.name}));
   go("shadow");
 };
 if(!S.profile)obRender();
