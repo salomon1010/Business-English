@@ -27,9 +27,19 @@ const MAX_OUTPUT_TOKENS = 320; // bounds reply size
 const RATE_PER_MIN = 15;       // max Polish clicks per IP per minute
 const RATE_PER_DAY = 300;      // max Polish clicks per IP per day
 
+// ---- Natural voice (text-to-speech) ----
+// Same OpenAI key drives OpenAI's TTS. The app plays this MP3 when online and
+// falls back to the browser's built-in voice when offline / on any failure.
+const TTS_MODEL = "gpt-4o-mini-tts";
+const TTS_VOICES = ["alloy","ash","ballad","coral","echo","fable","nova","onyx","sage","shimmer","verse"];
+const MAX_TTS_CHARS = 600;     // bounds each clip (words/sentences are short)
+const TTS_PER_MIN = 60;        // Hear/Slow taps are frequent but tiny
+const TTS_PER_DAY = 2000;
+
 // best-effort in-memory counters (reset when the worker instance recycles;
 // the provider budget cap is the real guarantee)
-const hits = new Map();        // ip -> {min:[ts...], day:[ts...]}
+const hits = new Map();        // ip -> {min:[ts...], day:[ts...]}  (Polish)
+const ttsHits = new Map();     // ip -> {min:[ts...], day:[ts...]}  (TTS)
 
 function corsHeaders(origin) {
   const allow = ALLOWED_ORIGINS.includes(origin) ? origin : "";
@@ -41,19 +51,27 @@ function corsHeaders(origin) {
   };
 }
 
-function rateLimited(ip) {
+function rateLimited(ip, map, perMin, perDay) {
   const now = Date.now();
-  const rec = hits.get(ip) || { min: [], day: [] };
+  const rec = map.get(ip) || { min: [], day: [] };
   rec.min = rec.min.filter(t => now - t < 60_000);
   rec.day = rec.day.filter(t => now - t < 86_400_000);
-  if (rec.min.length >= RATE_PER_MIN || rec.day.length >= RATE_PER_DAY) {
-    hits.set(ip, rec);
+  if (rec.min.length >= perMin || rec.day.length >= perDay) {
+    map.set(ip, rec);
     return true;
   }
   rec.min.push(now); rec.day.push(now);
-  hits.set(ip, rec);
-  if (hits.size > 5000) hits.clear(); // crude memory guard
+  map.set(ip, rec);
+  if (map.size > 5000) map.clear(); // crude memory guard
   return false;
+}
+
+async function callTTS(env, text, voice) {
+  return fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
+    body: JSON.stringify({ model: TTS_MODEL, voice, input: text, response_format: "mp3" }),
+  });
 }
 
 async function callAI(env, sentence, avoid) {
@@ -101,9 +119,29 @@ export default {
     if (!cors["Access-Control-Allow-Origin"]) return new Response("Forbidden", { status: 403 });
 
     const ip = request.headers.get("CF-Connecting-IP") || "0";
-    if (rateLimited(ip)) return json({ error: "rate_limited" }, 429, cors);
 
     let body; try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400, cors); }
+
+    // ---- TTS path: natural voice for the app's Hear/Slow buttons ----
+    if (typeof body.tts === "string" && body.tts.trim()) {
+      if (rateLimited(ip, ttsHits, TTS_PER_MIN, TTS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const text = body.tts.trim().slice(0, MAX_TTS_CHARS);
+      let voice = String(body.voice || "alloy").toLowerCase();
+      if (!TTS_VOICES.includes(voice)) voice = "alloy";
+      try {
+        const r = await callTTS(env, text, voice);
+        if (!r.ok) return json({ error: "tts_unavailable", detail: "provider " + r.status }, 502, cors);
+        return new Response(r.body, {
+          status: 200,
+          headers: { "content-type": "audio/mpeg", "cache-control": "public, max-age=86400", ...cors },
+        });
+      } catch (e) {
+        return json({ error: "tts_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
+
+    // ---- Polish path ----
+    if (rateLimited(ip, hits, RATE_PER_MIN, RATE_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
     const sentence = String(body.text || "").trim().slice(0, MAX_INPUT_CHARS);
     const avoid = Array.isArray(body.avoid) ? body.avoid.slice(0, 12).map(s => String(s).slice(0, 200)) : [];
     if (!sentence) return json({ error: "empty" }, 400, cors);

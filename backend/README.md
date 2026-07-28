@@ -1,8 +1,15 @@
-# Executive Polish backend (Cloudflare Worker)
+# Executive Polish + Natural Voice backend (Cloudflare Worker)
 
 A tiny serverless endpoint that holds ONE AI key so app users need only an
-internet connection — no key of their own. It returns several professional
-rewrites of a sentence for the "Polish it" feature.
+internet connection — no key of their own. It does two jobs on the same URL:
+- **Polish** — several professional rewrites of a sentence (`{text, avoid}` → JSON).
+- **Voice (TTS)** — a natural spoken reading of any label (`{tts, voice}` → MP3),
+  used by every "Hear / Slow" button. The app plays this when online and falls
+  back to the device's built-in browser voice when offline or on any error.
+
+> **Redeploy note:** if you already have this Worker running for Polish, just
+> re-paste the updated `polish-worker.js` (Worker → Edit code → Save and deploy).
+> The same `OPENAI_KEY` secret powers the voice — nothing else to add.
 
 It is built with hard caps so the bill cannot run away (CORS locked to the app
 origin, input/output token limits, per-IP rate limits). The **real** guarantee
@@ -43,12 +50,18 @@ is the provider budget cap in step 5 — set it and you can never be surprised.
 ## Costs (approximate — check current provider pricing)
 - Model `gpt-4o-mini`: roughly **£0.0001–0.0002 per Polish click**
   (~5,000–10,000 clicks per £1).
+- Voice `gpt-4o-mini-tts`: billed per character of text spoken — a few pennies
+  per thousand short "Hear" taps. The app **caches** each clip, so replaying the
+  same word/sentence costs nothing, and clips are capped at 600 characters.
 - Cloudflare Workers free tier covers ~100,000 requests/day — **£0** at your scale.
 - So: near-zero at launch; a few pounds a month only once you have real traffic.
+- The **monthly budget cap** (step 5) covers Polish *and* voice together — one cap,
+  never exceeded.
 
 ## Adjusting the caps
 Edit the constants at the top of `polish-worker.js`:
 `MAX_INPUT_CHARS`, `MAX_OUTPUT_TOKENS`, `RATE_PER_MIN`, `RATE_PER_DAY`,
+`MAX_TTS_CHARS`, `TTS_PER_MIN`, `TTS_PER_DAY`, `TTS_VOICES` (allowed voices),
 and `ALLOWED_ORIGINS` (add any new domains the app is served from).
 
 ## Using Anthropic (Claude Haiku) instead of OpenAI
