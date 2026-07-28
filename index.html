@@ -3826,6 +3826,16 @@ async function fbSayApi(text,rate){
   a.playbackRate=(rate&&rate<0.9)?Math.max(0.6,rate):1;   // "Slow" buttons reuse the same clip
   await a.play();
 }
+/* Pre-fetch a clip so the first tap can play it synchronously (iOS blocks audio that
+   starts after an async fetch, which is why "Hear it first" fell back to the robot voice). */
+function fbWarm(w){
+  const text=String(w).replace(/\s+/g," ").trim();
+  if(!text||!POLISH_API||!navigator.onLine||fbVoicePref()==="browser"||text.length>600)return;
+  const voice=fbVoicePref(),key=voice+"|"+text;
+  if(_ttsCache.has(key))return;
+  fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({tts:text,voice})})
+    .then(r=>r.ok?r.blob():null).then(b=>{if(b)_ttsCache.set(key,URL.createObjectURL(b))}).catch(()=>{});
+}
 window.fbSay=(w,rate)=>{
   const text=String(w).replace(/\s+/g," ").trim();
   if(!text)return;
@@ -5957,6 +5967,7 @@ function obRender(){
   el.innerHTML=`<div class="ob-card">${steps[OB.step]}${dots}</div>`;
   const inp=document.getElementById("obName");if(inp){inp.value=OB.name;inp.focus()}
   const ls=document.getElementById("obLangSearch");if(ls)ls.focus();
+  if(OB.step===5)fbWarm(OB_LINE);   // pre-load the natural Alloy clip so "Hear it first" plays instantly on iOS
 }
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
