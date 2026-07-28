@@ -3810,7 +3810,8 @@ try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{_fbVoice=fb
 const _ttsCache=new Map();   // "voice|text" -> object URL (mp3)
 let _ttsAudio=null;
 function fbStopAudio(){if(_ttsAudio){try{_ttsAudio.pause()}catch(_){}_ttsAudio=null}}
-function fbVoicePref(){return (S.profile&&S.profile.voice)||"alloy"}
+let _voiceOverride=null;   // onboarding uses a random natural voice; app default stays Alloy
+function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"alloy"}
 async function fbSayApi(text,rate){
   const voice=fbVoicePref(),key=voice+"|"+text;
   let url=_ttsCache.get(key);
@@ -5910,6 +5911,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
 const OB_TARGET="the main blocker is the vendor api we expect a fix by friday";
+const OB_VOICES=TTS_VOICE_OPTS.filter(v=>v[0]!=="browser").map(v=>v[0]);   // natural voices (no device voice)
 const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
@@ -5967,7 +5969,10 @@ function obRender(){
   el.innerHTML=`<div class="ob-card">${steps[OB.step]}${dots}</div>`;
   const inp=document.getElementById("obName");if(inp){inp.value=OB.name;inp.focus()}
   const ls=document.getElementById("obLangSearch");if(ls)ls.focus();
-  if(OB.step===5)fbWarm(OB_LINE);   // pre-load the natural Alloy clip so "Hear it first" plays instantly on iOS
+  if(OB.step===5){
+    if(!_voiceOverride)_voiceOverride=OB_VOICES[Math.floor(Math.random()*OB_VOICES.length)];   // surprise a new user with a random natural voice
+    fbWarm(OB_LINE);   // pre-load the clip so "Hear it first" plays instantly on iOS
+  }
 }
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
@@ -6044,6 +6049,7 @@ function obConfetti(){
   host.appendChild(c);setTimeout(()=>c.remove(),2400);
 }
 window.obFinish=()=>{
+  _voiceOverride=null;   // onboarding done → the app now defaults to Alloy (unless the user changes it in Settings)
   S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",lang:OB.lang||"en",ts:Date.now()};
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
