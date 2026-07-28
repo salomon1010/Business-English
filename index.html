@@ -423,8 +423,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .prac-subtab b{margin-left:5px;color:var(--mut2)}
 .prac-subtab.on{background:var(--grad);border-color:transparent;color:#fff}
 .prac-subtab.on b{color:#fff}
-.prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:14px;cursor:pointer;color:var(--txt);transition:.15s}
+.prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:13px 8px;cursor:pointer;color:var(--txt);transition:.15s}
 .prac-ex-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 10px 26px rgba(99,102,241,.16)}
 .prac-ex-card .pex-ic{width:36px;height:36px;border-radius:10px;background:var(--card2);display:grid;place-items:center;color:var(--acc);margin-bottom:4px}
 .prac-ex-card .pex-ic svg{width:20px;height:20px}
@@ -440,7 +440,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pdot.ready{background:var(--acc)}.pdot.upnext{background:var(--mut2)}.pdot.learned{background:var(--green)}
 .prac-add{display:flex;gap:8px;margin-top:16px}
 .prac-add input{flex:1;min-width:0}
-@media(max-width:520px){.prac-ex{grid-template-columns:1fr}}
+@media(max-width:520px){.prac-ex{gap:7px}.prac-ex-card{padding:11px 5px;border-radius:12px}.prac-ex-card .pex-ic{width:30px;height:30px;margin-bottom:2px}.prac-ex-card .pex-ic svg{width:17px;height:17px}.prac-ex-card b{font-size:12px}.prac-ex-card small{font-size:9.5px;line-height:1.2}}
 /* ===== PRACTICE GAMES OVERLAY ===== */
 .pv-game{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 18px 28px;
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent)}
