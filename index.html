@@ -119,6 +119,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+@media(max-width:560px){.g4{grid-template-columns:1fr 1fr}}
 .btn{border:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:14.5px;transition:.2s;display:inline-flex;align-items:center;gap:8px}
 .btn>svg{width:18px;height:18px;flex:none}
 .btn-p{background:var(--grad);color:#fff}.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px)}
@@ -1647,6 +1648,7 @@ const I18N_EN={
  "home.stat_phrases":"Phrases & idioms mastered",
  "home.stat_sessions":"Sessions completed",
  "home.stat_clips":"Shadowing clips saved",
+ "home.stat_vocab":"Vocabulary mastered",
  "home.science_h":"🧠 The science behind the 25-minute block",
  "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour, and small sharp blocks are exactly how a new voice is built.",
  "home.rules_h":"📜 Execution rules — non-negotiable",
@@ -2855,6 +2857,7 @@ async function rHome(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}<span style="font-size:15px;color:var(--mut)">/84</span></div><div class="l">${t("home.stat_sessions")}</div></div>
     <div class="stat" style="cursor:pointer" onclick="go('shadow')"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
+    <div class="stat" style="cursor:pointer" onclick="go('practice')"><div class="n"><span class="stat-ic">${ic("book")}</span>${Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length}<span style="font-size:15px;color:var(--mut)">/${Object.keys(S.vocab||{}).length}</span></div><div class="l">${t("home.stat_vocab")}</div></div>
   </div>
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
