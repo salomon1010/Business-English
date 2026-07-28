@@ -3573,6 +3573,11 @@ async function loadCaptions(vid){
   try{const r=await fetch("captions/"+vid+".json");if(r.ok)data=await r.json();}catch(e){}
   _capCache[vid]=data;return data;
 }
+/* Exact clip transcript: caption files with a per-word `words:[{t,w}]` track let us
+   take precisely the words spoken between the marks — no time-proportional estimate. */
+function wordsInRange(words,start,end){
+  return words.filter(w=>w.t>=start-0.25&&w.t<end).map(w=>w.w).join(" ").replace(/\s+/g," ").trim();
+}
 function captionsInRange(cues,start,end){
   if(!cues||!cues.length)return "";
   /* Caption cues are long (often multi-sentence) with only a start time, so a
@@ -3609,7 +3614,7 @@ async function shPull(auto){
   if(auto&&box.value.trim())return; /* never overwrite existing text automatically */
   const data=await loadCaptions(shClip.vid);
   if(!data||!data.cues||!data.cues.length){if(!auto)toast(t("sh.no_captions_toast"));return;}
-  const seg=captionsInRange(data.cues,shClip.start,shClip.end);
+  const seg=(data.words&&data.words.length)?wordsInRange(data.words,shClip.start,shClip.end):captionsInRange(data.cues,shClip.start,shClip.end);
   if(!seg){if(!auto)toast(t("sh.no_captions_range_toast"));return;}
   box.value=markStress(seg);
   S.notes["sh:"+shClip.vid]=box.value;save();

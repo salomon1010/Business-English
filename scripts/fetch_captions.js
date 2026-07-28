@@ -32,6 +32,28 @@ function toSec(ts) {
   return (+(m[1] || 0)) * 3600 + (+m[2]) * 60 + parseFloat(m[3]);
 }
 
+// Format C: YouTube json3 (fetched via `yt-dlp --sub-format json3`). Each seg carries a
+// per-word offset, so we emit a flat `words:[{t,w}]` track → the app slices EXACTLY to
+// the user's marks (no time-proportional estimate). We also keep `cues` for the fallback.
+if (subPath.endsWith('.json3') || /^\s*\{[\s\S]*"events"\s*:/.test(raw)) {
+  const j = JSON.parse(raw);
+  const words = [], jcues = [];
+  for (const e of (j.events || [])) {
+    if (!e.segs) continue;
+    const base = e.tStartMs || 0;
+    for (const s of e.segs) {
+      const raw2 = s.utf8 || '';
+      if (!raw2.trim()) continue;
+      const t = +((base + (s.tOffsetMs || 0)) / 1000).toFixed(3);
+      for (const w of raw2.trim().split(/\s+/).filter(Boolean)) words.push({ t, w });
+    }
+    const txt = e.segs.map(s => s.utf8 || '').join('').replace(/\s+/g, ' ').trim();
+    if (txt) jcues.push({ t: +((base) / 1000).toFixed(1), txt });
+  }
+  writeOut(jcues, words);
+  process.exit(0);
+}
+
 const cues = [];
 
 // Format B: a YouTube "Show transcript" paste. Handles both layouts:
@@ -82,14 +104,14 @@ for (const b of blocks) {
 }
 writeOut(cues);
 
-function writeOut(list) {
+function writeOut(list, words) {
   // de-duplicate consecutive identical lines (auto-subs repeat a lot)
   const clean = [];
   for (const c of list) if (!clean.length || clean[clean.length - 1].txt !== c.txt) clean.push(c);
   const outDir = path.join(__dirname, '..', 'captions');
   fs.mkdirSync(outDir, { recursive: true });
   const out = { vid, source: path.basename(subPath), lang: 'en', cues: clean };
-  fs.writeFileSync(path.join(outDir, vid + '.json'), JSON.stringify(out, null, 1) + '\n');
-  console.log(`Wrote captions/${vid}.json — ${clean.length} cues (${subPath}).`);
-  console.log('Then set cap:true on this video in SHADOW_STARTERS.');
+  if (words && words.length) out.words = words;   // per-word timing → exact slicing
+  fs.writeFileSync(path.join(outDir, vid + '.json'), JSON.stringify(out) + '\n');
+  console.log(`Wrote captions/${vid}.json — ${clean.length} cues${words && words.length ? ', ' + words.length + ' word-timed' : ''} (${subPath}).`);
 }
