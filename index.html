@@ -371,8 +371,12 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-pill button svg{width:22px;height:22px}
 .sh-pill button i{font-size:10px;font-weight:800;font-style:normal;line-height:1}
 .sh-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--acc2);font-weight:600;white-space:nowrap}
-.sh-seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:12px 16px}
-.sh-seg .lbl{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);font-weight:700}
+.sh-seg{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:9px 12px}
+.sh-seg::-webkit-scrollbar{height:0}
+.sh-seg .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);font-weight:700;flex:none}
+.sh-seg .btn{padding:6px 10px;gap:4px;flex:none}
+.sh-seg .btn .btn-ic{margin-right:0}
+.sh-seg .sh-time,.sh-seg .sh-len{flex:none}
 .sh-len{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
 .sh-len.ok{color:var(--green)}.sh-len.warn{color:var(--gold)}
 .sh-count{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;background:#000;border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:5px 14px;min-width:72px;text-align:center;font-variant-numeric:tabular-nums}
@@ -689,6 +693,7 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-arrow{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;transition:.12s}
 .help-arrow:hover{border-color:var(--acc);color:var(--acc)}
 .help-arrow:active{transform:scale(.9)}
+.help-arrow:disabled{opacity:.35;cursor:default;pointer-events:none}
 .help-hl.cur{background:#fb923c;color:#1a0f02;box-shadow:0 0 0 2px rgba(251,146,60,.55)}
 .help-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:14px}
 .help-card{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;cursor:pointer;transition:.15s;color:var(--txt);width:100%;font-family:inherit}
@@ -2748,7 +2753,7 @@ function helpHighlight(root,q){
   });
 }
 const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
-let _helpHits=[],_helpIdx=-1;
+let _helpHits=[],_helpIdx=-1,_helpQ="";
 window.helpFilter=function(q){
   q=(q||"").trim().toLowerCase();
   const cards=document.getElementById("helpCards");
@@ -2757,6 +2762,7 @@ window.helpFilter=function(q){
   if(!doc)return;
   if(_helpOrig)doc.innerHTML=_helpOrig;   // reset previous highlights + visibility
   const secs=doc.querySelectorAll("section");
+  _helpQ=q;
   if(!q){if(cards)cards.style.display="";secs.forEach(s=>s.style.display="");if(nr)nr.style.display="none";_helpHits=[];_helpIdx=-1;helpSyncNav();return;}
   if(cards)cards.style.display="none";
   let any=false;
@@ -2770,9 +2776,10 @@ window.helpFilter=function(q){
 function helpSyncNav(){
   const nav=document.getElementById("helpNav"),cnt=document.getElementById("helpCount");
   if(!nav)return;
-  if(!_helpHits.length){nav.hidden=true;return;}
+  if(!_helpQ){nav.hidden=true;return;}          // no search → hide; a search with no matches → show "0"
   nav.hidden=false;
-  if(cnt)cnt.textContent=(_helpIdx+1)+"/"+_helpHits.length;
+  if(cnt)cnt.textContent=_helpHits.length?((_helpIdx+1)+"/"+_helpHits.length):"0";
+  nav.querySelectorAll(".help-arrow").forEach(a=>a.disabled=!_helpHits.length);
 }
 function helpFocus(){
   _helpHits.forEach((m,i)=>m.classList.toggle("cur",i===_helpIdx));
@@ -3249,10 +3256,10 @@ function rShadow(el){
       <span style="color:var(--mut2)">→</span>
       <button class="btn btn-g btn-sm" onclick="shMark('end')" title="${esc(t("sh.mark_end_btn"))}">${tIc("sh.mark_end_btn","download")}</button>
       <span class="sh-time" id="shEnd">–</span>
-      <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}">${tIc("sh.get_transcript_btn","doc")}</button>
+      <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}" aria-label="${esc(t("sh.get_transcript_btn"))}">${ic("doc")}</button>
       <span class="sh-count" id="shCount" style="display:none">0s</span>
-      <span style="flex:1"></span>
       <span class="sh-len" id="shLen"></span>
+      <span style="flex:1;min-width:4px"></span>
       <button class="btn btn-g btn-sm sh-clear" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}" aria-label="${esc(t("sh.clear_clip_btn"))}">${ic("trash")}</button>
     </div>
     <div class="sh-hint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
