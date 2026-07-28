@@ -663,8 +663,14 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-search-ic svg{width:18px;height:18px}
 .hero-ic{display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .hero-ic svg{width:24px;height:24px}
-.help-search input{width:100%;border:1px solid var(--line2);border-radius:14px;padding:14px 18px 14px 44px;font-size:16px;color:var(--txt);background:var(--card2);box-shadow:0 4px 18px rgba(0,0,0,.12);transition:border-color .15s,box-shadow .15s}
+.help-search input{width:100%;border:1px solid var(--line2);border-radius:14px;padding:14px 108px 14px 44px;font-size:16px;color:var(--txt);background:var(--card2);box-shadow:0 4px 18px rgba(0,0,0,.12);transition:border-color .15s,box-shadow .15s}
 .help-search input:focus{outline:none;border-color:var(--acc);box-shadow:0 4px 22px rgba(99,102,241,.25)}
+.help-nav{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:4px}
+.help-count{font-size:12px;font-weight:700;color:var(--mut);font-family:'JetBrains Mono',monospace;margin-right:4px;min-width:34px;text-align:right}
+.help-arrow{width:26px;height:26px;border-radius:8px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font-size:17px;line-height:1;display:grid;place-items:center;cursor:pointer;transition:.12s}
+.help-arrow:hover{border-color:var(--acc);color:var(--acc)}
+.help-arrow:active{transform:scale(.9)}
+.help-hl.cur{background:#fb923c;color:#1a0f02;box-shadow:0 0 0 2px rgba(251,146,60,.55)}
 .help-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:14px}
 .help-card{display:flex;align-items:center;gap:14px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;cursor:pointer;transition:.15s;color:var(--txt);width:100%;font-family:inherit}
 .help-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 12px 30px rgba(99,102,241,.15)}
@@ -2691,7 +2697,7 @@ async function rManual(el){
       <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
     </div>
     <div class="help-searchbar">
-      <div class="help-search"><span class="help-search-ic">${ic("search")}</span><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)"></div>
+      <div class="help-search"><span class="help-search-ic">${ic("search")}</span><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();helpJump(event.shiftKey?-1:1)}"><div class="help-nav" id="helpNav" hidden><span class="help-count" id="helpCount">0/0</span><button type="button" class="help-arrow" onclick="helpJump(-1)" aria-label="Previous match">‹</button><button type="button" class="help-arrow" onclick="helpJump(1)" aria-label="Next match">›</button></div></div>
     </div>
     ${cards?`<div class="help-cards" id="helpCards">${cards}</div>`:""}
     <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
@@ -2720,6 +2726,7 @@ function helpHighlight(root,q){
   });
 }
 const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
+let _helpHits=[],_helpIdx=-1;
 window.helpFilter=function(q){
   q=(q||"").trim().toLowerCase();
   const cards=document.getElementById("helpCards");
@@ -2728,11 +2735,33 @@ window.helpFilter=function(q){
   if(!doc)return;
   if(_helpOrig)doc.innerHTML=_helpOrig;   // reset previous highlights + visibility
   const secs=doc.querySelectorAll("section");
-  if(!q){if(cards)cards.style.display="";secs.forEach(s=>s.style.display="");if(nr)nr.style.display="none";return;}
+  if(!q){if(cards)cards.style.display="";secs.forEach(s=>s.style.display="");if(nr)nr.style.display="none";_helpHits=[];_helpIdx=-1;helpSyncNav();return;}
   if(cards)cards.style.display="none";
   let any=false;
   secs.forEach(s=>{const hit=s.textContent.toLowerCase().includes(q);s.style.display=hit?"":"none";if(hit){any=true;helpHighlight(s,q);}});
   if(nr)nr.style.display=any?"none":"";
+  _helpHits=[...doc.querySelectorAll(".help-hl")];   // every match, in document order
+  _helpIdx=_helpHits.length?0:-1;
+  helpSyncNav();
+  if(_helpIdx>=0)helpFocus();
+};
+function helpSyncNav(){
+  const nav=document.getElementById("helpNav"),cnt=document.getElementById("helpCount");
+  if(!nav)return;
+  if(!_helpHits.length){nav.hidden=true;return;}
+  nav.hidden=false;
+  if(cnt)cnt.textContent=(_helpIdx+1)+"/"+_helpHits.length;
+}
+function helpFocus(){
+  _helpHits.forEach((m,i)=>m.classList.toggle("cur",i===_helpIdx));
+  const cur=_helpHits[_helpIdx];
+  if(cur)cur.scrollIntoView({behavior:"smooth",block:"center"});
+  helpSyncNav();
+}
+window.helpJump=function(dir){
+  if(!_helpHits.length)return;
+  _helpIdx=(_helpIdx+dir+_helpHits.length)%_helpHits.length;
+  helpFocus();
 };
 window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
 /* About the app — open the flyer inside the app (an overlay iframe), never an external browser tab */
