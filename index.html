@@ -5206,7 +5206,9 @@ function calHTML(){
     <div class="pcal-year">${calYearHeat()}</div>
     <p class="pcal-msg">${insight}</p>`;
 }
-window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el)el.innerHTML=calHTML()};
+/* the year heatmap opens scrolled to the right so the recent (green) days are visible, not off-screen */
+function calScrollYearRight(){requestAnimationFrame(()=>{const yr=document.querySelector("#pfCal .pcal-year");if(yr)yr.scrollLeft=yr.scrollWidth;});}
+window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el){el.innerHTML=calHTML();calScrollYearRight();}};
 window.calDay=(ds)=>{
   const el=document.getElementById("calDetail");if(!el)return;
   el.innerHTML=calDayDetailHTML(ds);
@@ -5240,6 +5242,7 @@ function rProfile(el){
     <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
   </div>`;
   manIconizeInline(el);
+  calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
 }
 async function rData(el){
   const recN=await countRecs();
