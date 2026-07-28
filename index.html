@@ -510,6 +510,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 @media(max-width:640px){.ring-wrap{flex-direction:column;text-align:center}.slider-row label{width:110px}}
 
 /* LANGUAGE PICKER */
+.ob-skip-lang{margin:0 auto 16px;font-size:15px;padding:12px 26px}
 .lang-search{margin-bottom:14px}
 .lang-list{max-height:360px;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:8px;padding-right:2px}
 /* inside the modal, the list is the ONLY scroll region (header stays put) — avoids the iOS nested-scroll freeze */
@@ -5322,9 +5323,9 @@ function obRender(){
     `<div class="ob-logo">${ic("globe")}</div>
      <h2>${t("lang.step_title")}</h2>
      <p class="sub">${t("lang.step_sub")}</p>
+     <button class="btn btn-p ob-skip-lang" onclick="obLangPick('en')">${t("ob.skip_lang")} →</button>
      <input id="obLangSearch" class="lang-search" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
-     <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>
-     <p class="auth-alt" style="margin-top:16px"><a onclick="obLangPick('en')">${t("ob.skip_lang")}</a></p>`,
+     <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>`,
     `<div class="ob-logo">${ic("briefcase")}</div>
      <h2>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h2>
      <p class="sub">${t("ob.role_sub")}</p>
