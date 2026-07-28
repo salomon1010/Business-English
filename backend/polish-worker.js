@@ -66,11 +66,25 @@ function rateLimited(ip, map, perMin, perDay) {
   return false;
 }
 
+// Delivery instructions make gpt-4o-mini-tts noticeably warmer and more human
+// than its default read — this is the difference between "robotic" and "natural".
+const TTS_INSTRUCTIONS =
+  "Speak in warm, natural, confident spoken American English — the voice of a " +
+  "supportive executive-communication coach. Use relaxed, human intonation and " +
+  "rhythm, clear articulation, and a friendly, encouraging tone. Never flat, " +
+  "monotone, or robotic; sound like a real person speaking to a colleague.";
+
 async function callTTS(env, text, voice) {
   return fetch("https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
-    body: JSON.stringify({ model: TTS_MODEL, voice, input: text, response_format: "mp3" }),
+    body: JSON.stringify({
+      model: TTS_MODEL,
+      voice,
+      input: text,
+      instructions: TTS_INSTRUCTIONS,
+      response_format: "mp3",
+    }),
   });
 }
 
