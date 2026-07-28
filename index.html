@@ -199,7 +199,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .cal-d-empty{color:var(--mut2)}
 .pcal-year-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:800;margin:20px 0 8px}
 .pcal-year-h span{font-size:11.5px;color:var(--mut2);font-weight:600}
-.pcal-year{display:flex;gap:3px;overflow-x:auto;padding-bottom:6px}
+.pcal-year{display:flex;flex-direction:column;gap:4px;overflow-x:auto;padding-bottom:6px}
+.cal-ymonths{display:flex;gap:3px;height:12px}
+.cal-ymo{width:11px;flex:none;font-size:9px;font-weight:600;color:var(--mut2);white-space:nowrap;line-height:1;overflow:visible}
+.cal-ygrid{display:flex;gap:3px}
 .cal-ycol{display:flex;flex-direction:column;gap:3px;flex:none}
 .cal-ysq{width:11px;height:11px;border-radius:3px;background:var(--card2);border:1px solid var(--line)}
 .cal-ysq[data-lvl="-1"]{background:transparent;border-color:transparent}
@@ -5128,14 +5131,17 @@ function calBestDow(){
   let bi=0;for(let i=1;i<7;i++)if(c[i]>c[bi])bi=i;
   return c[bi]?["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][bi]:null;
 }
-/* GitHub-style contribution grid for the last 52 weeks */
+/* GitHub-style contribution grid for the last 52 weeks, with month labels on top */
+const MONTHS_ABBR=Array.from({length:12},(_,i)=>new Date(2020,i,1).toLocaleDateString(undefined,{month:"short"}));
 function calYearHeat(){
   const set=calActiveSet(),log=S.dayLog||{};
   const today=new Date();today.setHours(0,0,0,0);
   const start=new Date(today);start.setDate(start.getDate()-363);
   start.setDate(start.getDate()-((start.getDay()+6)%7));   // align to Monday
-  let cols="",cur=new Date(start);
+  let cols="",months="",cur=new Date(start),prevMo=-1;
   while(cur<=today){
+    const mo=cur.getMonth();                                // month of this week's Monday
+    months+=`<span class="cal-ymo">${mo!==prevMo?MONTHS_ABBR[mo]:""}</span>`;prevMo=mo;
     let col="";
     for(let r=0;r<7;r++){
       const k=cur.toISOString().slice(0,10),fut=cur>today;
@@ -5145,7 +5151,7 @@ function calYearHeat(){
     }
     cols+=`<div class="cal-ycol">${col}</div>`;
   }
-  return cols;
+  return `<div class="cal-ymonths">${months}</div><div class="cal-ygrid">${cols}</div>`;
 }
 /* rich breakdown for one day, shown in the inline detail panel */
 function calDayDetailHTML(ds){
