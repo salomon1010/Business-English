@@ -405,9 +405,12 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pc-cv.bad{border-color:#f97316;box-shadow:0 0 20px rgba(249,115,22,.45)}
 /* VOCABULARY */
 .voc-row{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:8px;overflow:hidden}
-.voc-head{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer}
+.voc-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer}
 .voc-head:hover{background:rgba(255,255,255,.03)}
-.voc-head .wd{font-weight:700;font-size:15px}
+.voc-head .wd{font-weight:700;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voc-mini{padding:0;width:34px;height:34px;flex:none;justify-content:center}
+.voc-mini svg{width:16px;height:16px}
+.voc-chev{color:var(--mut2);flex:none;font-size:12px}
 .voc-lvl{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.5px}
 .voc-lvl.a{background:rgba(52,211,153,.15);color:var(--green)}
 .voc-lvl.b{background:rgba(99,102,241,.18);color:#a5b4fc}
@@ -491,6 +494,21 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .cw-clues li{margin-bottom:4px}
 .cw-msg{text-align:center;margin-top:12px;font-size:13.5px;color:var(--mut)}
 @media(max-width:520px){.cw-cell{width:28px;height:28px}.cw-cell input{font-size:14px}}
+/* light-green theme inside the three games (matches the green exercise cards) */
+.pv-game{background-image:radial-gradient(ellipse 80% 55% at 50% -10%,rgba(52,211,153,.18),transparent)}
+.pv-title .btn-ic{color:var(--green)}
+.pv-prog{color:var(--green)}
+.pv-x:hover{border-color:var(--green);color:var(--green)}
+.pv-face{border-color:rgba(52,211,153,.42);background:linear-gradient(155deg,rgba(52,211,153,.16),rgba(52,211,153,.04))}
+.pv-clue{border-color:rgba(52,211,153,.35);background:linear-gradient(155deg,rgba(52,211,153,.12),rgba(52,211,153,.03))}
+.pv-opt{border-color:rgba(52,211,153,.28)}
+.pv-opt:hover{border-color:var(--green);color:var(--green)}
+.pv-game .btn-p{background:linear-gradient(135deg,#34d399,#10b981);color:#04231a}
+.pv-game .btn-p:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.pv-end-ic{color:var(--green)}
+.cw-cell{background:rgba(52,211,153,.06)}
+.cw-cell input:focus{outline-color:var(--green);background:rgba(52,211,153,.14)}
+.cw-clues b{color:var(--green)}
 
 /* RESOURCES */
 .res-card{display:block;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:20px;transition:.2s;color:var(--txt)}
@@ -4130,13 +4148,13 @@ function vocRow(w,l){
   const saved=!!S.vocab[w],safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
-      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
+      <button class="btn btn-g btn-sm voc-mini" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
       <span class="wd">${esc(w)}</span>
       <span class="voc-lvl ${l[0].toLowerCase()}">${l}</span>
       <span style="flex:1"></span>
-      <button class="btn btn-g btn-sm" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}">${tIc("voc.say_it_btn","mic")}</button>
-      <button class="btn btn-sm ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')" aria-label="Save">${saved?ic("check"):ic("bookmark")}</button>
-      <span style="color:var(--mut2)">▾</span>
+      <button class="btn btn-g btn-sm voc-mini" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}" aria-label="${esc(t("voc.say_it_title"))}">${ic("mic")}</button>
+      <button class="btn btn-sm voc-mini ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')" aria-label="Save">${saved?ic("check"):ic("bookmark")}</button>
+      <span class="voc-chev">▾</span>
     </div>
     <div class="voc-body" id="vb_${safe}"><span style="font-size:12px;color:var(--mut2)" id="vres_${safe}"></span></div>
   </div>`;
