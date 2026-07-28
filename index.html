@@ -71,7 +71,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--acc)}
 /* NAV */
 nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);border-bottom:1px solid var(--line);padding:0 20px}
 .nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:6px;height:62px;overflow-x:auto}
-.brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:9px}
+.brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:12px;padding:2px 6px 2px 2px;transition:.15s}
+.brand:hover{background:var(--hover)}
+.brand.on .logo{box-shadow:0 0 0 2px var(--acc),0 0 14px rgba(99,102,241,.5)}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-size:17px}
 .brand span.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .tab{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s;display:inline-flex;align-items:center;gap:6px}
@@ -111,8 +113,8 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 h1.big{font-size:clamp(28px,4.5vw,44px);font-weight:800;line-height:1.12;margin-bottom:10px}
 h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{color:var(--mut);font-size:15.5px;max-width:720px;line-height:1.65}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px}
-.grid{display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
+.grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
 .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
@@ -143,7 +145,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ring svg{transform:rotate(-90deg)}
 .ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800}
 .ring .pct small{display:block;font-size:11px;color:var(--mut);font-weight:500;text-align:center}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px}
 .stat .n{font-size:28px;font-weight:800;display:flex;align-items:center;gap:7px}
 .stat .l{font-size:12.5px;color:var(--mut);margin-top:3px}
 .stat-ic{color:var(--acc);flex:none;line-height:0}
@@ -232,7 +234,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
 .sess-ex summary::-webkit-details-marker{display:none}
 .sess-ex .sess-ex-title{font-weight:700;font-size:15px}
-.sess-ex summary::after{content:"▾";margin-left:auto;color:var(--mut2);font-size:13px;transition:transform .2s}
+.sess-ex summary::after{content:"▾";margin-left:auto;color:var(--acc);font-size:22px;line-height:1;transition:transform .2s}
 .sess-ex[open] summary::after{transform:rotate(180deg)}
 @keyframes glow-cta-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
 @keyframes glow-cta-glow{0%,100%{box-shadow:0 0 14px 0 rgba(34,211,238,.14)}50%{box-shadow:0 0 26px 3px rgba(34,211,238,.4)}}
@@ -320,16 +322,16 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .step.done .cb{background:var(--green);border-color:var(--green)}
 .step .tm{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--acc2);font-weight:600}
 .step p{font-size:14px;line-height:1.5;margin-top:2px}
-.timer-box{text-align:center;padding:26px 20px}
+.timer-box{text-align:center;padding:15px 18px}
 .timer-digits{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:600;letter-spacing:2px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 .score-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .score-b{width:36px;height:36px;border-radius:10px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font-weight:700;font-size:14px}
 .score-b.on{background:var(--grad);color:#fff;border:none}
 
 /* RECORDER */
-.rec-panel{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:18px}
-.rec-btn{width:74px;height:74px;border-radius:50%;border:none;background:var(--grad);color:#fff;font-size:28px;transition:.2s;box-shadow:0 6px 24px rgba(99,102,241,.4);display:grid;place-items:center}
-.rec-btn svg{width:32px;height:32px}
+.rec-panel{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px}
+.rec-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--grad);color:#fff;font-size:22px;transition:.2s;box-shadow:0 4px 16px rgba(99,102,241,.38);display:grid;place-items:center}
+.rec-btn svg{width:26px;height:26px}
 .rec-btn.recording{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
@@ -415,6 +417,80 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .voc-syn{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:12px 16px;margin-bottom:8px;font-size:14.5px;flex-wrap:wrap}
 .voc-syn .arr{color:var(--mut2)}
 .voc-syn b.up{color:var(--acc2);border-bottom:1px dashed var(--acc2)}
+/* ===== PRACTICE TAB ===== */
+.prac-subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.prac-subtab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.prac-subtab b{margin-left:5px;color:var(--mut2)}
+.prac-subtab.on{background:var(--grad);border-color:transparent;color:#fff}
+.prac-subtab.on b{color:#fff}
+.prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.prac-ex-card{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:14px;cursor:pointer;color:var(--txt);transition:.15s}
+.prac-ex-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 10px 26px rgba(99,102,241,.16)}
+.prac-ex-card .pex-ic{width:36px;height:36px;border-radius:10px;background:var(--card2);display:grid;place-items:center;color:var(--acc);margin-bottom:4px}
+.prac-ex-card .pex-ic svg{width:20px;height:20px}
+.prac-ex-card b{font-size:14px}
+.prac-ex-card small{font-size:11.5px;color:var(--mut2)}
+.prac-stats{text-align:center}
+.prac-total{font-size:40px;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.prac-total-l{font-size:12.5px;color:var(--mut);margin-top:2px}
+.prac-bar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden;margin:14px 0 12px}
+.prac-bar span{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .4s}
+.prac-legend{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--mut);text-align:left;max-width:240px;margin:0 auto}
+.prac-legend .pdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.pdot.ready{background:var(--acc)}.pdot.upnext{background:var(--mut2)}.pdot.learned{background:var(--green)}
+.prac-add{display:flex;gap:8px;margin-top:16px}
+.prac-add input{flex:1;min-width:0}
+@media(max-width:520px){.prac-ex{grid-template-columns:1fr}}
+/* ===== PRACTICE GAMES OVERLAY ===== */
+.pv-game{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 18px 28px;
+  background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent)}
+.pv-game.show{display:block;animation:fade .2s}
+.pv-inner{max-width:640px;margin:0 auto}
+.pv-top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.pv-x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.pv-x:hover{border-color:var(--acc)}
+.pv-title{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+.pv-title .btn-ic{margin:0;color:var(--acc)}
+.pv-prog{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--mut)}
+.pv-card{position:relative;min-height:280px;perspective:1200px;cursor:pointer;margin-bottom:18px}
+.pv-face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:26px;border-radius:20px;border:1px solid var(--line2);background:var(--card);backface-visibility:hidden;transition:transform .5s}
+.pv-front{transform:rotateY(0)}.pv-back{transform:rotateY(180deg)}
+.pv-card.flipped .pv-front{transform:rotateY(-180deg)}
+.pv-card.flipped .pv-back{transform:rotateY(0)}
+.pv-word{font-size:38px;font-weight:800;letter-spacing:.5px}
+.pv-flip-hint{font-size:12px;color:var(--mut2)}
+.pv-pos{color:var(--pink);font-style:italic}
+.pv-def{font-size:17px;font-weight:600;line-height:1.5;margin-top:6px}
+.pv-ex{font-size:14px;color:var(--mut2);margin-top:10px}
+.pv-loading{color:var(--mut2)}
+.pv-actions{display:flex;gap:10px;justify-content:center}
+.pv-actions .btn{flex:1;max-width:220px;justify-content:center}
+.pv-quiz{margin-bottom:18px}
+.pv-clue{background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px}
+.pv-clue p{font-size:18px;font-weight:600;margin-top:6px;line-height:1.45}
+.pv-opts{display:grid;gap:10px}
+.pv-opt{padding:14px 18px;border-radius:12px;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:16px;font-weight:600;cursor:pointer;transition:.15s}
+.pv-opt:hover{border-color:var(--acc)}
+.pv-opt.correct{background:rgba(52,211,153,.16);border-color:var(--green);color:var(--green)}
+.pv-opt.wrong{background:rgba(239,68,68,.14);border-color:var(--red);color:var(--red)}
+.pv-end{text-align:center;padding:40px 10px}
+.pv-end-ic{color:var(--gold);margin-bottom:6px}.pv-end-ic svg{width:44px;height:44px}
+.pv-end h2{font-size:24px;margin-bottom:6px}
+.pv-end p{color:var(--mut);margin-bottom:22px}
+.cw-wrap{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:18px}
+.cw-grid{display:grid;gap:2px;background:var(--line2);border:2px solid var(--line2);border-radius:6px;flex:0 0 auto}
+.cw-cell{position:relative;width:34px;height:34px;background:var(--card)}
+.cw-cell.empty{background:transparent}
+.cw-cell input{width:100%;height:100%;border:none;background:transparent;text-align:center;font-size:16px;font-weight:700;color:var(--txt);text-transform:uppercase;padding:0}
+.cw-cell input:focus{outline:2px solid var(--acc);outline-offset:-2px;background:var(--card2)}
+.cw-cell input.bad{background:rgba(239,68,68,.18)}
+.cw-num{position:absolute;top:1px;left:2px;font-size:8px;color:var(--mut2);font-weight:700}
+.cw-clues{flex:1;min-width:200px;display:flex;flex-direction:column;gap:14px}
+.cw-clues b{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--mut)}
+.cw-clues ol{margin:6px 0 0 20px;font-size:13px;color:var(--mut);line-height:1.5}
+.cw-clues li{margin-bottom:4px}
+.cw-msg{text-align:center;margin-top:12px;font-size:13.5px;color:var(--mut)}
+@media(max-width:520px){.cw-cell{width:28px;height:28px}.cw-cell input{font-size:14px}}
 
 /* RESOURCES */
 .res-card{display:block;border:1px solid var(--line);border-radius:var(--r);background:var(--card);padding:20px;transition:.2s;color:var(--txt)}
@@ -578,8 +654,10 @@ html[dir="rtl"] .lang-row{text-align:right}
 
 /* In-app User Manual (localized document) */
 /* HELP CENTRE (the "?" landing) */
-.help-hero{background:var(--grad);border-radius:20px;padding:38px 26px;text-align:center;color:#fff;margin-bottom:22px}
-.help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;margin-bottom:18px;line-height:1.25}
+.help-hero{background:var(--grad);border-radius:20px;padding:34px 26px;text-align:center;color:#fff;margin-bottom:14px}
+.help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.25}
+/* Search bar stays pinned below the top nav so the term can be changed while scrolling */
+.help-searchbar{position:sticky;top:60px;z-index:40;background:var(--bg);padding:10px 0 12px;margin-bottom:14px}
 .help-search{max-width:520px;margin:0 auto;position:relative}
 .help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .help-search-ic svg{width:18px;height:18px}
@@ -593,6 +671,22 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-card .hc-ic svg{width:24px;height:24px}
 .help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
+.help-hl{background:#fde047;color:#1a1205;border-radius:3px;padding:0 2px;font-weight:700;box-shadow:0 0 0 1px rgba(253,224,71,.5)}
+.voc-goto{display:inline-flex;align-items:center;gap:5px;color:var(--acc);font-size:13px;font-weight:600;cursor:pointer}
+.voc-goto:hover{text-decoration:underline}
+.voc-goto .btn-ic{margin:0}
+.voc-goto svg{width:15px;height:15px}
+/* AI pronunciation coach section */
+.fb-pron{margin-top:14px;background:linear-gradient(150deg,rgba(99,102,241,.09),rgba(34,211,238,.06));border:1px solid rgba(99,102,241,.28);border-radius:14px;padding:14px 16px;font-size:13px;color:var(--mut)}
+.fb-pron-score{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800}
+.fb-pw-wrap{display:flex;flex-wrap:wrap;gap:6px}
+.fb-pw{--c:var(--mut);display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--txt);background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--c);border-radius:8px;padding:4px 9px}
+.fb-pw b{color:var(--c);font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.fb-pron-tips{margin-top:11px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--mut)}
+.fb-pron-tips b{color:var(--txt)}
+.fb-pron-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.fb-pron-good{margin-top:10px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
+.fb-pron-spin svg{width:16px;height:16px;vertical-align:-3px;color:var(--acc);animation:htPulse 1.2s ease-in-out infinite}
 /* ROLE-PLAY (AI conversation) */
 .rp-av{display:grid;place-items:center;border-radius:20px;background:var(--grad);color:#fff;flex:none}
 .rp-av svg{width:44%;height:44%}
@@ -745,11 +839,11 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 <body>
 
 <nav><div class="nav-in">
-  <div class="brand"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
-  <button class="tab on" data-v="home" data-ic="home"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.dashboard">Dashboard</span></button>
+  <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrases & Idioms</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
+  <button class="tab" data-v="practice" data-ic="cards"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
   <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
   <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
@@ -766,6 +860,7 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
   <div id="v-journey" class="view"></div>
   <div id="v-phrases" class="view"></div>
   <div id="v-shadow" class="view"></div>
+  <div id="v-practice" class="view"></div>
   <div id="v-review" class="view"></div>
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
@@ -781,9 +876,9 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 
 <!-- Mobile bottom navigation (app style) -->
 <nav class="bottom-nav" aria-label="Main navigation">
-  <button class="bnav-item on" data-v="home" onclick="go('home')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/></svg></span><span data-i18n="bnav.home">Home</span></button>
   <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Weeks</span></button>
   <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
+  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="13" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v9"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
   <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrases</span></button>
   <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
   <button class="bnav-item" data-v="profile" onclick="go('profile')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg></span><span data-i18n="bnav.profile">Profile</span></button>
@@ -1138,6 +1233,8 @@ function jarg(s){return esc(JSON.stringify(s))}
 /* Shared line-icon set (modern, consistent across nav + help centre). 24x24, stroke=currentColor. */
 const ICON={
   home:'<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/>',
+  cards:'<rect x="3" y="7" width="13" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v9"/>',
+  grid:'<rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/>',
   map:'<path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/>',
   target:'<circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
   chat:'<path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/>',
@@ -1783,6 +1880,10 @@ const I18N_EN={
  "fb.fillers_label":"Filler words",
  "fb.last_scores_label":"Your last scores",
  "fb.practice_pron":"🎯 Practice pronunciation",
+ "fb.pron_h":"🎙 Pronunciation coach",
+ "fb.pron_sub":"an AI actually listened to how you said each word",
+ "fb.pron_analyzing":"Listening to your pronunciation…",
+ "fb.pron_all_good":"Clear pronunciation — every word landed.",
  "fb.heard_instead":"I heard: “<b>{{heard}}</b>” instead",
  "fb.didnt_catch":"I didn't catch this word at all",
  "fb.you_btn":"🔈 You",
@@ -1839,6 +1940,8 @@ const I18N_EN={
  "voc.removed_toast":"Removed from My vocabulary",
  "voc.saved_toast":"🔖 Saved to My vocabulary",
  "voc.saved_all_toast":"🔖 All words saved to My vocabulary",
+ "voc.goto_link":"Go to My vocabulary",
+ "voc.back":"‹ Back to where I was",
  "voc.sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
  "voc.listening":"🎧 Listening… say the word",
  "voc.perfect":"✅ Perfect — that word is yours now.",
@@ -2004,6 +2107,7 @@ const I18N_EN={
  "nav.weeks":"🗺️ 12 Weeks",
  "nav.phrases":"💬 Phrases & Idioms",
  "nav.shadow":"🎯 Shadow",
+ "nav.practice":"🎴 Practice",
  "nav.reviews":"📊 Reviews",
  "nav.account":"👤 Account",
  "nav.profile":"Profile",
@@ -2011,7 +2115,45 @@ const I18N_EN={
  "bnav.home":"Home",
  "bnav.weeks":"Weeks",
  "bnav.shadow":"Shadow",
+ "bnav.practice":"Practice",
  "bnav.phrases":"Phrases",
+ "prac.eyebrow":"Your word bank",
+ "prac.title":"My vocabulary",
+ "prac.sub":"Every word you've collected while practising — keep working them until they're yours.",
+ "prac.tab_ready":"Ready to practise",
+ "prac.tab_upnext":"Up next",
+ "prac.tab_learned":"Learned",
+ "prac.flashcards":"Flashcards",
+ "prac.flashcards_sub":"Flip & recall",
+ "prac.quizzes":"Quizzes",
+ "prac.quizzes_sub":"Pick the word",
+ "prac.crosswords":"Crosswords",
+ "prac.crosswords_sub":"Fill the grid",
+ "prac.words_collected":"Words collected",
+ "prac.add_ph":"Add a word…",
+ "prac.add_btn":"Add",
+ "prac.empty_ready":"Nothing due right now — nicely done. Save more words from your speaking feedback.",
+ "prac.empty_upnext":"No words scheduled for later yet.",
+ "prac.empty_learned":"No mastered words yet — practise a few to move them here.",
+ "prac.no_words_toast":"Collect some words first — save them from your speaking feedback.",
+ "prac.tap_flip":"Tap to flip",
+ "prac.still_learning":"Still learning",
+ "prac.knew_it":"I knew it",
+ "prac.done_title":"Nice work!",
+ "prac.fc_summary":"You knew {{know}} of {{total}}.",
+ "prac.again":"Practise again",
+ "prac.done":"Done",
+ "prac.quiz_which":"Which word means…",
+ "prac.quiz_need4":"Add at least 4 words to play the quiz.",
+ "prac.qz_summary":"You scored {{score}} / {{total}}.",
+ "prac.cw_need":"Add a few short words to build a crossword.",
+ "prac.cw_fail":"Couldn't fit these into a grid — try again with different words.",
+ "prac.cw_across":"Across",
+ "prac.cw_down":"Down",
+ "prac.cw_check":"Check",
+ "prac.cw_reveal":"Reveal",
+ "prac.cw_solved":"Solved — every word correct! 🎉",
+ "prac.cw_progress":"{{solved}} of {{total}} words solved — keep going.",
  "bnav.progress":"Progress",
  "bnav.more":"More",
  "bnav.profile":"Profile",
@@ -2494,11 +2636,12 @@ function go(v,arg1,arg2){
   cur={v,arg1,arg2};
   const tv=v==="data"?"profile":v; /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
+  const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual})[v](el,arg1,arg2);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -2516,6 +2659,8 @@ function go(v,arg1,arg2){
 
 /* ================= USER MANUAL (in-app, localized fragment) ================= */
 let _manCache={};
+let _helpOrig="";   // snapshot of the rendered manual, so search can reset highlights cleanly
+let _vocReturn=null;   // remembers where the user was before jumping to My vocabulary
 async function rManual(el){
   const code=(S.profile&&S.profile.lang)||"en";
   el.innerHTML=`<div style="padding:60px 20px;text-align:center;color:var(--mut)">${esc(t("manual.loading"))}</div>`;
@@ -2543,13 +2688,35 @@ async function rManual(el){
   el.innerHTML=`
     <div class="help-hero">
       <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
+    </div>
+    <div class="help-searchbar">
       <div class="help-search"><span class="help-search-ic">${ic("search")}</span><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)"></div>
     </div>
     ${cards?`<div class="help-cards" id="helpCards">${cards}</div>`:""}
     <div class="help-no-results" id="helpNoRes" style="display:none">${esc(t("help.no_results"))}</div>
     <div class="manual-doc help-mode" id="manualDoc">${html}</div>`;
   const md=document.getElementById("manualDoc");if(md)manIconize(md);
+  _helpOrig=md?md.innerHTML:"";   // clean copy for search highlighting/reset
   window.scrollTo({top:0});
+}
+/* wrap every occurrence of the search term in <mark class="help-hl"> within a section */
+function helpHighlight(root,q){
+  const rx=new RegExp("("+q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+")","gi");
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  const targets=[];let n;
+  while(n=walker.nextNode()){if(n.nodeValue&&n.nodeValue.toLowerCase().includes(q))targets.push(n);}
+  targets.forEach(node=>{
+    const s=node.nodeValue,frag=document.createDocumentFragment();
+    let last=0,m;rx.lastIndex=0;
+    while(m=rx.exec(s)){
+      if(m.index>last)frag.appendChild(document.createTextNode(s.slice(last,m.index)));
+      const mk=document.createElement("mark");mk.className="help-hl";mk.textContent=m[0];frag.appendChild(mk);
+      last=m.index+m[0].length;
+      if(m.index===rx.lastIndex)rx.lastIndex++;   // guard against zero-length matches
+    }
+    if(last<s.length)frag.appendChild(document.createTextNode(s.slice(last)));
+    node.parentNode.replaceChild(frag,node);
+  });
 }
 const HELP_ICONS={"man-start":"rocket","man-nav":"compass","man-dashboard":"home","man-journey":"map","man-session":"clock","man-shadow":"target","man-feedback":"mic","man-vocab":"book","man-phrases":"chat","man-progress":"chart","man-account":"user","man-week-plan":"calendar","man-faq":"help"};
 window.helpFilter=function(q){
@@ -2558,11 +2725,12 @@ window.helpFilter=function(q){
   const doc=document.getElementById("manualDoc");
   const nr=document.getElementById("helpNoRes");
   if(!doc)return;
+  if(_helpOrig)doc.innerHTML=_helpOrig;   // reset previous highlights + visibility
   const secs=doc.querySelectorAll("section");
   if(!q){if(cards)cards.style.display="";secs.forEach(s=>s.style.display="");if(nr)nr.style.display="none";return;}
   if(cards)cards.style.display="none";
   let any=false;
-  secs.forEach(s=>{const hit=s.textContent.toLowerCase().includes(q);s.style.display=hit?"":"none";if(hit)any=true});
+  secs.forEach(s=>{const hit=s.textContent.toLowerCase().includes(q);s.style.display=hit?"":"none";if(hit){any=true;helpHighlight(s,q);}});
   if(nr)nr.style.display=any?"none":"";
 };
 window.manScroll=function(id){const e=document.getElementById(id);if(e)e.scrollIntoView({behavior:"smooth",block:"start"})};
@@ -3093,11 +3261,8 @@ function rShadow(el){
   <div id="shClips"></div>
   <h3 style="margin:26px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
   <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
-  <div id="tbBox"></div>
-  <h3 style="margin:26px 0 6px">${hIcon("book",t("sh.vocab_h"))}</h3>
-  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.vocab_sub")}</p>
-  <div id="vlBox"></div>`;
-  shRenderClips();tbRender();vlRender();
+  <div id="tbBox"></div>`;
+  shRenderClips();tbRender();
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
   if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
   manIconizeInline(el);
@@ -3666,6 +3831,7 @@ function fbShowResults(targetText,heardText,fromRec){
   const tgt=fbTokens(targetText),h=fbTokens(heardText);
   const out=document.getElementById("fbOut");
   if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">${t("fb.nothing_heard")}</p>`;return}
+  if(fromRec)getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings in the background
   const hasTarget=tgt.length>0;
   const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
   const ops=hasTarget?fbAlign(tgt.filter(w=>!FILLERS.includes(w)),hF):[];
@@ -3718,6 +3884,7 @@ function fbShowResults(targetText,heardText,fromRec){
     ${delta!==null?`<span style="font-weight:800;font-size:13.5px;color:${delta>0?"var(--green)":delta<0?"var(--red)":"var(--mut)"}">${delta>0?t("fb.attempt_up",{delta}):delta<0?t("fb.attempt_down",{delta}):t("fb.attempt_same")}</span>`
     :`<span style="font-size:13px;color:var(--mut)">${t("fb.attempt_baseline")}</span>`}
   </div>`:""}
+  ${hasTarget&&fromRec?`<div id="fbPron"></div>`:""}
   <div class="grid g3" style="margin-top:12px">
     <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${paceMsg}</div><div class="l">${t("fb.pace_label")}</div></div>
     <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${fillerN===0?t("fb.fillers_zero"):t(fillerN>1?"fb.fillers_many":"fb.fillers_one",{n:fillerN})}</div><div class="l">${t("fb.fillers_label")}</div></div>
@@ -3733,7 +3900,7 @@ function fbShowResults(targetText,heardText,fromRec){
       <span class="w">${esc(o.t)}</span>
       <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${fromRec&&o.op==="sub"?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(hF,o.hIdx||0).join(",")},${o.hIdx||0},${hF.length})">${t("fb.you_btn")}</button>`:""}
+        ${fromRec&&o.op==="sub"?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(hF,o.hIdx||0).join(",")},${o.hIdx||0},${hF.length},${jarg(o.h||"")})">${t("fb.you_btn")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
         <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
@@ -3771,11 +3938,13 @@ function fbShowResults(targetText,heardText,fromRec){
       <button class="btn btn-g btn-sm" onclick='vocSaveAll(${JSON.stringify(vl)})'>${t("fb.vocab_save_all",{n:vl.length})}</button>
     </div>
     ${vl.map(x=>vocRow(x.w,x.l)).join("")}
+    <p style="margin-top:12px"><a class="voc-goto" onclick="gotoVocab()">${tIc("voc.goto_link","book")} →</a></p>
     ${vocSynHTML(heardText)}`})()}
   <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("fb.disclaimer")}</p>`;
   manIconizeInline(out);
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();
+  if(hasTarget&&fromRec)fbRenderPron(targetText);   // honest AI pronunciation pass (async)
 }
 /* ===== POSTURE COACH — on-device MediaPipe pose tracking =====
    Zero-capture: frames are analyzed in memory and discarded; only numeric
@@ -3967,6 +4136,13 @@ window.vocSave=(w,l)=>{
   save();vlRender();
 };
 window.vocSaveAll=list=>{list.forEach(x=>{if(!S.vocab[x.w])S.vocab[x.w]={l:x.l,ts:Date.now()}});save();vlRender();toast(t("voc.saved_all_toast"));};
+/* jump to the My-vocabulary section, remembering where the user was so they can come back */
+window.gotoVocab=()=>{
+  _vocReturn={v:cur.v,a1:cur.arg1,a2:cur.arg2};
+  try{if(typeof shCloseWork==="function")shCloseWork();}catch(_){}
+  go("practice");
+};
+window.vocBack=()=>{const r=_vocReturn;_vocReturn=null;if(r&&r.v)go(r.v,r.a1,r.a2);else go("home");};
 window.vocTry=(w,safe)=>{
   if(!SR)return toast(t("voc.sr_unavailable"));
   const res=document.getElementById("vres_"+safe);
@@ -3994,17 +4170,8 @@ function vocSynHTML(heardText){
     <button class="btn btn-g btn-sm" onclick="vocSave('${esc(b)}','${cefr(b)}')" aria-label="Save">${ic("bookmark")}</button>
   </div>`).join("")}`;
 }
-/* My Vocabulary — persistent list + say-the-word quiz */
-function vlRender(){
-  const box=document.getElementById("vlBox");if(!box)return;
-  const words=Object.keys(S.vocab).sort((a,b)=>S.vocab[b].ts-S.vocab[a].ts);
-  box.innerHTML=(words.length?`<div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap">
-      <button class="btn btn-p btn-sm" onclick="vocQuiz()">${t("voc.quiz_btn")}</button>
-      <span class="chip">${t(words.length>1?"voc.word_count_many":"voc.word_count_one",{n:words.length})}</span></div>
-    <div id="vqBox"></div>`+words.map(w=>vocRow(w,S.vocab[w].l)).join("")
-  :`<p style="font-size:13px;color:var(--mut2)">${t("voc.no_words")}</p>`);
-  manIconizeInline(box);
-}
+/* My Vocabulary refresh — re-renders the Practice tab if it's open (called by vocSave/vocSaveAll) */
+function vlRender(){const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);}
 window.vocQuiz=async()=>{
   const words=Object.keys(S.vocab);if(!words.length)return;
   const w=words[Math.floor(Math.random()*words.length)];
@@ -4040,6 +4207,174 @@ window.vocQuizTry=w=>{
   r.onend=()=>{if(!got){out.textContent=t("voc.quiz_didnt_hear")}};
   r.start();
 };
+
+/* ===================== PRACTICE TAB — My vocabulary ===================== */
+/* spaced-repetition-lite: reps + due drive Ready / Up next / Learned buckets */
+const VOC_INTERVALS=[1,3,7,21,60];
+function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
+function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+VOC_INTERVALS[Math.min(v.reps-1,VOC_INTERVALS.length-1)]*86400000;}else{v.reps=0;v.due=Date.now();}save();}
+function vocBuckets(){const b={ready:[],upnext:[],learned:[]};Object.keys(S.vocab).sort((a,c)=>S.vocab[c].ts-S.vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
+async function vocDef(w){
+  try{const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
+    const m=(e.meanings||[])[0]||{},d0=(m.definitions||[])[0]||{};
+    return {def:d0.definition||"",example:d0.example||"",pos:m.partOfSpeech||""};
+  }catch(e){return {def:"",example:"",pos:""}}
+}
+let _pracTab="ready";
+function rPractice(el){
+  const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
+  el.innerHTML=`
+  ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
+  <div class="eyebrow">${t("prac.eyebrow")}</div>
+  <h1 class="big">${t("prac.title")}</h1>
+  <p class="sub">${t("prac.sub")}</p>
+  <div class="grid g2" style="align-items:start">
+    <div>
+      <div class="prac-subtabs">
+        <button class="prac-subtab ${_pracTab==='ready'?'on':''}" onclick="pracTab('ready')">${t("prac.tab_ready")} <b>${b.ready.length}</b></button>
+        <button class="prac-subtab ${_pracTab==='upnext'?'on':''}" onclick="pracTab('upnext')">${t("prac.tab_upnext")} <b>${b.upnext.length}</b></button>
+        <button class="prac-subtab ${_pracTab==='learned'?'on':''}" onclick="pracTab('learned')">${t("prac.tab_learned")} <b>${b.learned.length}</b></button>
+      </div>
+      ${total?`<div class="prac-ex">
+        <button class="prac-ex-card" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
+        <button class="prac-ex-card" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
+        <button class="prac-ex-card" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
+      </div>`:""}
+      <div id="vlBox"></div>
+    </div>
+    <div>
+      <div class="card prac-stats">
+        <div class="prac-total">${total}</div>
+        <div class="prac-total-l">${t("prac.words_collected")}</div>
+        <div class="prac-bar"><span style="width:${pct}%"></span></div>
+        <div class="prac-legend">
+          <span><i class="pdot ready"></i>${t("prac.tab_ready")} (${b.ready.length})</span>
+          <span><i class="pdot upnext"></i>${t("prac.tab_upnext")} (${b.upnext.length})</span>
+          <span><i class="pdot learned"></i>${t("prac.tab_learned")} (${b.learned.length})</span>
+        </div>
+        <div class="prac-add">
+          <input id="pracAddIn" placeholder="${esc(t("prac.add_ph"))}" onkeydown="if(event.key==='Enter')pracAdd()">
+          <button class="btn btn-p btn-sm" onclick="pracAdd()">${t("prac.add_btn")}</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  vlRenderInto(b[_pracTab]);
+  manIconizeInline(el);
+}
+window.pracTab=tab=>{_pracTab=tab;const el=document.getElementById("v-practice");if(el)rPractice(el);};
+window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;if(!S.vocab[w])S.vocab[w]={l:cefr(w),ts:Date.now()};save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
+function vlRenderInto(words){
+  const box=document.getElementById("vlBox");if(!box)return;
+  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join(""):`<p style="font-size:13px;color:var(--mut2);padding:10px 2px">${t("prac.empty_"+_pracTab)}</p>`;
+  manIconizeInline(box);
+}
+/* fullscreen focus overlay shared by the three games */
+function pvOpen(html){
+  let ov=document.getElementById("pvGame");
+  if(!ov){ov=document.createElement("div");ov.id="pvGame";ov.className="pv-game";document.body.appendChild(ov);}
+  ov.innerHTML=`<div class="pv-inner">${html}</div>`;ov.classList.add("show");document.body.style.overflow="hidden";manIconizeInline(ov);
+}
+window.pvClose=()=>{const ov=document.getElementById("pvGame");if(ov){ov.classList.remove("show");ov.innerHTML="";}document.body.style.overflow="";const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);};
+function pvHint(w){return t("voc.quiz_hint_fallback",{letter:w[0].toUpperCase(),len:w.length,level:(S.vocab[w]||{l:"?"}).l})}
+function pvBucket(){const b=vocBuckets();return b[_pracTab].length?b[_pracTab].slice():Object.keys(S.vocab);}
+/* ---- Flashcards ---- */
+let _fc=null;
+window.fcStart=()=>{const words=pvBucket().sort(()=>Math.random()-.5);if(!words.length)return toast(t("prac.no_words_toast"));_fc={words,i:0,know:0};fcRender();};
+async function fcRender(){
+  if(!_fc)return;if(_fc.i>=_fc.words.length)return fcEnd();
+  const w=_fc.words[_fc.i];
+  pvOpen(`<div class="pv-top"><button class="pv-x" onclick="pvClose()">×</button><span class="pv-title">${tIc("prac.flashcards","cards")}</span><span class="pv-prog">${_fc.i+1}/${_fc.words.length}</span></div>
+    <div class="pv-card" id="fcCard" onclick="fcFlip()">
+      <div class="pv-face pv-front"><span class="voc-lvl ${(S.vocab[w].l||'').toLowerCase()}">${S.vocab[w].l}</span><div class="pv-word">${esc(w)}</div><button class="btn btn-g btn-sm" onclick="event.stopPropagation();fbSay('${esc(w)}',1)">${tIc("voc.hear_title","sound")}</button><div class="pv-flip-hint">${t("prac.tap_flip")}</div></div>
+      <div class="pv-face pv-back" id="fcBack"><div class="pv-loading">${t("voc.loading_def")}</div></div>
+    </div>
+    <div class="pv-actions"><button class="btn btn-g" onclick="fcGrade(false)">${t("prac.still_learning")}</button><button class="btn btn-p" onclick="fcGrade(true)">${t("prac.knew_it")}</button></div>`);
+  const d=await vocDef(w),back=document.getElementById("fcBack");
+  if(back)back.innerHTML=`${d.pos?`<i class="pv-pos">${esc(d.pos)}</i>`:""}<div class="pv-def">${esc(d.def||pvHint(w))}</div>${d.example?`<div class="pv-ex">“${esc(d.example)}”</div>`:""}`;
+}
+window.fcFlip=()=>{const c=document.getElementById("fcCard");if(c)c.classList.toggle("flipped");};
+window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(correct)_fc.know++;_fc.i++;fcRender();};
+function fcEnd(){pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
+/* ---- Quizzes (multiple choice) ---- */
+let _qz=null;
+window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("prac.quiz_need4"));_qz={words:words.sort(()=>Math.random()-.5),all:Object.keys(S.vocab),i:0,score:0,correct:""};qzRender();};
+async function qzRender(){
+  if(!_qz)return;if(_qz.i>=_qz.words.length)return qzEnd();
+  const w=_qz.words[_qz.i];_qz.correct=w;
+  const d=await vocDef(w),clue=d.def||pvHint(w);
+  const others=_qz.all.filter(x=>x!==w).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[w,...others].sort(()=>Math.random()-.5);
+  pvOpen(`<div class="pv-top"><button class="pv-x" onclick="pvClose()">×</button><span class="pv-title">${tIc("prac.quizzes","idea")}</span><span class="pv-prog">${_qz.i+1}/${_qz.words.length}</span></div>
+    <div class="pv-quiz"><div class="pv-clue"><span class="eyebrow">${t("prac.quiz_which")}</span><p>“${esc(clue)}”</p></div>
+    <div class="pv-opts" id="qzOpts">${opts.map(o=>`<button class="pv-opt" data-w="${esc(o)}" onclick="qzPick(${jarg(o)})">${esc(o)}</button>`).join("")}</div></div>`);
+}
+window.qzPick=choice=>{
+  const opts=document.getElementById("qzOpts");if(!opts||opts.dataset.done)return;opts.dataset.done=1;
+  const correct=_qz.correct,ok=choice===correct;
+  [...opts.children].forEach(b=>{const bw=b.dataset.w;if(bw===correct)b.classList.add("correct");else if(bw===choice)b.classList.add("wrong");b.disabled=true;});
+  vocMark(correct,ok);if(ok)_qz.score++;
+  setTimeout(()=>{_qz.i++;qzRender();},950);
+};
+function qzEnd(){pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.qz_summary",{score:_qz.score,total:_qz.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="qzStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
+/* ---- Crosswords (greedy generator) ---- */
+let _cw=null;
+window.cwStart=()=>{
+  let pool=[...new Set(pvBucket().map(w=>w.toLowerCase()))].filter(w=>/^[a-z]+$/.test(w)&&w.length>=3&&w.length<=9);
+  pool=pool.sort(()=>Math.random()-.5).slice(0,10);
+  if(pool.length<2)return toast(t("prac.cw_need"));
+  const layout=cwGen(pool);
+  if(!layout||layout.placed.length<2)return toast(t("prac.cw_fail"));
+  _cw=layout;cwRender();
+};
+function cwGen(words){
+  words=words.slice().sort((a,b)=>b.length-a.length);
+  const grid={},placed=[],K=(r,c)=>r+","+c;
+  function canPlace(word,r,c,dir){
+    for(let i=0;i<word.length;i++){const rr=dir==="a"?r:r+i,cc=dir==="a"?c+i:c,cur=grid[K(rr,cc)];
+      if(cur&&cur!==word[i])return false;
+      if(!cur){if(dir==="a"){if(grid[K(rr-1,cc)]||grid[K(rr+1,cc)])return false;}else{if(grid[K(rr,cc-1)]||grid[K(rr,cc+1)])return false;}}}
+    if(dir==="a"){if(grid[K(r,c-1)]||grid[K(r,c+word.length)])return false;}else{if(grid[K(r-1,c)]||grid[K(r+word.length,c)])return false;}
+    return true;
+  }
+  function place(word,r,c,dir){for(let i=0;i<word.length;i++){const rr=dir==="a"?r:r+i,cc=dir==="a"?c+i:c;grid[K(rr,cc)]=word[i];}placed.push({word,r,c,dir});}
+  place(words[0],0,0,"a");
+  for(let wi=1;wi<words.length;wi++){const word=words[wi];let done=false;
+    for(const p of placed){for(let i=0;i<p.word.length&&!done;i++)for(let j=0;j<word.length&&!done;j++){
+      if(p.word[i]!==word[j])continue;
+      let r,c,dir;if(p.dir==="a"){dir="d";r=p.r-j;c=p.c+i;}else{dir="a";r=p.r+i;c=p.c-j;}
+      if(canPlace(word,r,c,dir)){place(word,r,c,dir);done=true;}}
+      if(done)break;}
+  }
+  let minR=1e9,minC=1e9,maxR=-1e9,maxC=-1e9;
+  placed.forEach(p=>{for(let i=0;i<p.word.length;i++){const rr=p.dir==="a"?p.r:p.r+i,cc=p.dir==="a"?p.c+i:p.c;minR=Math.min(minR,rr);minC=Math.min(minC,cc);maxR=Math.max(maxR,rr);maxC=Math.max(maxC,cc);}});
+  placed.forEach(p=>{p.r-=minR;p.c-=minC;});
+  const rows=maxR-minR+1,cols=maxC-minC+1,sol={};
+  placed.forEach(p=>{for(let i=0;i<p.word.length;i++){const rr=p.dir==="a"?p.r:p.r+i,cc=p.dir==="a"?p.c+i:p.c;sol[rr+","+cc]=p.word[i];}});
+  const starts=[...new Set(placed.map(p=>p.r+","+p.c))].sort((a,b)=>{const A=a.split(",").map(Number),B=b.split(",").map(Number);return A[0]-B[0]||A[1]-B[1];});
+  const numOf={};starts.forEach((k,idx)=>numOf[k]=idx+1);placed.forEach(p=>p.num=numOf[p.r+","+p.c]);
+  return {placed,sol,rows,cols};
+}
+async function cwRender(){
+  if(!_cw)return;const {placed,rows,cols}=_cw,cell={},numAt={};
+  placed.forEach(p=>{numAt[p.r+","+p.c]=p.num;for(let i=0;i<p.word.length;i++){const rr=p.dir==="a"?p.r:p.r+i,cc=p.dir==="a"?p.c+i:p.c;cell[rr+","+cc]=true;}});
+  let g="";for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const k=r+","+c;
+    g+=cell[k]?`<div class="cw-cell">${numAt[k]?`<span class="cw-num">${numAt[k]}</span>`:""}<input maxlength="1" data-k="${k}" oninput="this.value=this.value.toUpperCase().slice(0,1)"></div>`:`<div class="cw-cell empty"></div>`;}
+  const clue=dir=>placed.filter(p=>p.dir===dir).sort((a,b)=>a.num-b.num).map(p=>`<li value="${p.num}" id="cwc_${p.num}_${dir}">…</li>`).join("");
+  pvOpen(`<div class="pv-top"><button class="pv-x" onclick="pvClose()">×</button><span class="pv-title">${tIc("prac.crosswords","grid")}</span><span></span></div>
+    <div class="cw-wrap"><div class="cw-grid" style="grid-template-columns:repeat(${cols},minmax(0,1fr))">${g}</div>
+      <div class="cw-clues"><div><b>${t("prac.cw_across")}</b><ol>${clue("a")}</ol></div><div><b>${t("prac.cw_down")}</b><ol>${clue("d")}</ol></div></div></div>
+    <div class="pv-actions"><button class="btn btn-g" onclick="cwReveal()">${t("prac.cw_reveal")}</button><button class="btn btn-p" onclick="cwCheck()">${t("prac.cw_check")}</button></div>
+    <div id="cwMsg" class="cw-msg"></div>`);
+  for(const p of placed){const d=await vocDef(p.word),li=document.getElementById(`cwc_${p.num}_${p.dir}`);if(li)li.textContent=d.def||pvHint(p.word);}
+}
+window.cwCheck=()=>{
+  if(!_cw)return;const {placed,sol}=_cw;let allOk=true,solved=0;
+  document.querySelectorAll("#pvGame .cw-cell input").forEach(inp=>{const v=(inp.value||"").toLowerCase();if(v===sol[inp.dataset.k])inp.classList.remove("bad");else{inp.classList.add("bad");allOk=false;}});
+  placed.forEach(p=>{let ok=true;for(let i=0;i<p.word.length;i++){const rr=p.dir==="a"?p.r:p.r+i,cc=p.dir==="a"?p.c+i:p.c,inp=document.querySelector(`#pvGame .cw-cell input[data-k="${rr+","+cc}"]`);if(!inp||(inp.value||"").toLowerCase()!==p.word[i]){ok=false;break;}}if(ok){solved++;if(S.vocab[p.word])vocMark(p.word,true);}});
+  const msg=document.getElementById("cwMsg");if(msg)msg.innerHTML=allOk?`<b style="color:var(--green)">${t("prac.cw_solved")}</b>`:t("prac.cw_progress",{solved,total:placed.length});
+};
+window.cwReveal=()=>{if(!_cw)return;const {sol}=_cw;document.querySelectorAll("#pvGame .cw-cell input").forEach(inp=>{inp.value=(sol[inp.dataset.k]||"").toUpperCase();inp.classList.remove("bad");});};
 
 /* play a short snippet of the user's own shadowing recording around a word */
 let fbAud=null;
@@ -4079,33 +4414,124 @@ async function fbSegments(blob){
   try{ac.close()}catch(_){}
   const out={segs,dur};_fbSegCache.set(blob,out);return out;
 }
-window.fbYou=async(sf,ef,wordIdx,wordCount)=>{
+/* Precise per-word timings from the recording via the Worker (OpenAI Whisper).
+   Cached per blob; returns [{w,start,end}] or null (offline / failed / no key). */
+const _fbWordsCache=new WeakMap();
+function fbWords(blob){
+  if(_fbWordsCache.has(blob))return _fbWordsCache.get(blob);
+  const p=(async()=>{
+    if(!POLISH_API||!navigator.onLine)return null;
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
+      if(!r.ok)return null;
+      const j=await r.json();
+      const w=Array.isArray(j.words)?j.words.map(x=>({w:String(x.w||"").toLowerCase(),start:+x.start,end:+x.end})).filter(x=>x.w&&isFinite(x.start)&&isFinite(x.end)):null;
+      return (w&&w.length)?w:null;
+    }catch(e){return null}
+  })();
+  _fbWordsCache.set(blob,p);   // cache the promise so parallel callers share one request
+  return p;
+}
+/* pick the Whisper word for a heard-word position, snapping to a text match nearby */
+function fbPickWord(words,wordIdx,wordCount,heardWord){
+  let wi=words.length===wordCount?wordIdx:Math.round((wordIdx+0.5)/Math.max(1,wordCount)*words.length-0.5);
+  wi=Math.max(0,Math.min(words.length-1,wi));
+  const hw=(heardWord||"").toLowerCase().replace(/[^a-z']/g,"");
+  if(hw)for(let d=0;d<=2;d++){for(const j of [wi-d,wi+d]){if(j>=0&&j<words.length&&(words[j].w||"").replace(/[^a-z']/g,"")===hw){return words[j]}}}
+  return words[wi];
+}
+window.fbYou=async(sf,ef,wordIdx,wordCount,heardWord)=>{
   if(ef==null)ef=sf;
   const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
   if(!recs.length)return toast(t("fb.you_no_rec_toast"));
   if(fbAud){fbAud.pause();fbAud=null}
-  const seg=await fbSegments(recs[0].blob);
-  const aud=new Audio(URL.createObjectURL(recs[0].blob));fbAud=aud;
+  const blob=recs[0].blob;
+  const words=await fbWords(blob);                       // precise word timings (or null offline)
+  const seg=words?null:await fbSegments(blob);           // fall back to energy segments only when needed
+  const aud=new Audio(URL.createObjectURL(blob));fbAud=aud;
   const playSpan=d=>{
     let start=null,end=null;
-    const S=seg&&seg.segs.length?seg.segs:null;
-    if(S&&wordCount>0){
-      // map word index → real speech burst by proportional position (same coordinate system on both sides)
-      let si=S.length===wordCount?wordIdx:Math.round((wordIdx+0.5)/wordCount*S.length-0.5);
-      si=Math.max(0,Math.min(S.length-1,si));
-      start=S[si].start;end=S[si].end;
-    }else{                                                                 // no segments → time-fraction estimate
+    if(words&&words.length){                              // ── precise: exact Whisper word span
+      const wobj=fbPickWord(words,wordIdx,wordCount,heardWord);
+      start=wobj.start;end=wobj.end;
+    }else if(seg&&seg.segs.length&&wordCount>0){          // ── energy-burst estimate
+      let si=seg.segs.length===wordCount?wordIdx:Math.round((wordIdx+0.5)/wordCount*seg.segs.length-0.5);
+      si=Math.max(0,Math.min(seg.segs.length-1,si));
+      start=seg.segs[si].start;end=seg.segs[si].end;
+    }else{                                                // ── time-fraction estimate
       const pad=0.18;start=Math.max(0,sf*d-pad);end=Math.min(d,ef*d+pad);
     }
-    const s=Math.max(0,start-0.05),e=Math.min(d,end+0.09);
+    const s=Math.max(0,start-0.04),e=Math.min(d,end+0.08);
     aud.currentTime=s;aud.play();
-    setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(350,(e-s)*1000+120));
+    setTimeout(()=>{if(fbAud===aud)aud.pause()},Math.max(320,(e-s)*1000+120));
   };
   aud.onloadedmetadata=()=>{
     if(isFinite(aud.duration)&&aud.duration>0)playSpan(aud.duration);
     else{aud.currentTime=1e10;aud.onseeked=()=>{aud.onseeked=null;playSpan(aud.duration)};}
   };
 };
+/* ===== AI PRONUNCIATION COACH (an audio model listens & grades each word) ===== */
+/* decode the recording → 16 kHz mono → 16-bit WAV → base64 (a format the audio model accepts) */
+async function blobToWavB64(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  const ac=new AC();let buf;
+  try{buf=await ac.decodeAudioData(await blob.arrayBuffer());}catch(e){try{ac.close()}catch(_){}return null;}
+  try{ac.close()}catch(_){}
+  const sr=16000,dur=Math.min(buf.duration,25);                 // cap at 25s to bound cost
+  const frames=Math.max(1,Math.round(dur*sr));
+  const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+  const off=new OAC(1,frames,sr),src=off.createBufferSource();
+  src.buffer=buf;src.connect(off.destination);src.start();
+  const pcm=(await off.startRendering()).getChannelData(0);
+  const nb=pcm.length*2,ab=new ArrayBuffer(44+nb),dv=new DataView(ab);
+  const wr=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i))};
+  wr(0,"RIFF");dv.setUint32(4,36+nb,true);wr(8,"WAVE");wr(12,"fmt ");
+  dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);
+  dv.setUint32(24,sr,true);dv.setUint32(28,sr*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);
+  wr(36,"data");dv.setUint32(40,nb,true);
+  let o=44;for(let i=0;i<pcm.length;i++){let s=Math.max(-1,Math.min(1,pcm[i]));dv.setInt16(o,s<0?s*0x8000:s*0x7fff,true);o+=2;}
+  const bytes=new Uint8Array(ab);let bin="";const CH=0x8000;
+  for(let i=0;i<bytes.length;i+=CH)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+CH));
+  return btoa(bin);
+}
+const _fbAssessCache=new WeakMap();
+function fbAssess(blob,target){
+  const key=blob;
+  if(_fbAssessCache.has(key))return _fbAssessCache.get(key);
+  const p=(async()=>{
+    if(!POLISH_API||!navigator.onLine)return null;
+    const b64=await blobToWavB64(blob);if(!b64)return null;
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({assess:target,audio:b64,format:"wav"})});
+      if(!r.ok)return null;
+      const j=await r.json();
+      return (j&&Array.isArray(j.words)&&j.words.length)?j:null;
+    }catch(e){return null}
+  })();
+  _fbAssessCache.set(key,p);
+  return p;
+}
+async function fbRenderPron(target){
+  const box=document.getElementById("fbPron");if(!box)return;
+  const recs=await getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid)));
+  if(!recs||!recs[0]){box.innerHTML="";return;}
+  box.innerHTML=`<div class="fb-pron"><span class="fb-pron-spin">${ic("mic")}</span> ${t("fb.pron_analyzing")}</div>`;
+  const res=await fbAssess(recs[0].blob,target);
+  if(!res||!res.words||!res.words.length){box.innerHTML="";return;}
+  const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
+  const bad=res.words.filter(w=>w.score<80&&w.note);
+  box.innerHTML=`<div class="fb-pron">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px">
+      <b style="font-size:15px">${tIc("fb.pron_h","mic")}</b>
+      <span style="font-size:11.5px;color:var(--mut2)">${t("fb.pron_sub")}</span>
+      <span style="flex:1"></span>
+      <span class="fb-pron-score" style="color:${col(res.overall)}">${res.overall}%</span>
+    </div>
+    <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
+    ${bad.length?`<div class="fb-pron-tips">${bad.map(w=>`<div><span class="fb-pron-dot" style="background:${col(w.score)}"></span><b>${esc(w.word)}</b> — ${esc(w.note)}</div>`).join("")}</div>`:`<p class="fb-pron-good">${tIc("fb.pron_all_good","check")}</p>`}
+  </div>`;
+  manIconizeInline(box);
+}
 window.fbTry=(word,i)=>{
   if(!SR)return;
   const r=new SR();r.lang="en-US";r.maxAlternatives=5;
@@ -5366,7 +5792,7 @@ window.pronTry=()=>{
 };
 
 (async function boot(){
-  const valid=["home","journey","phrases","shadow","review","profile","roleplay","pron","data","session","manual"];
+  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","pron","data","session","manual"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);

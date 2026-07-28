@@ -1,11 +1,21 @@
 # Executive Polish + Natural Voice backend (Cloudflare Worker)
 
 A tiny serverless endpoint that holds ONE AI key so app users need only an
-internet connection — no key of their own. It does two jobs on the same URL:
+internet connection — no key of their own. It does three jobs on the same URL:
 - **Polish** — several professional rewrites of a sentence (`{text, avoid}` → JSON).
 - **Voice (TTS)** — a natural spoken reading of any label (`{tts, voice}` → MP3),
   used by every "Hear / Slow" button. The app plays this when online and falls
   back to the device's built-in browser voice when offline or on any error.
+- **Word timings (Whisper)** — POST a recording as raw audio (`content-type:
+  audio/webm`) and get back `{words:[{w,start,end}], text}`. This powers the
+  precise **"You"** playback: it plays back exactly the one word you mispronounced
+  from your own recording, instead of a guessed chunk. Offline, the app falls back
+  to its on-device energy-based estimate.
+- **Pronunciation coach (gpt-4o-audio)** — POST `{assess:"<target phrase>",
+  audio:"<base64 wav>", format:"wav"}` and get `{overall, words:[{word,score,note}]}`.
+  An audio model actually *listens* and grades how each word was pronounced — unlike
+  ASR, which only guesses the intended word and so forgives bad pronunciation.
+  Needs the **gpt-4o-audio-preview** model enabled on the OpenAI account.
 
 > **Redeploy note:** if you already have this Worker running for Polish, just
 > re-paste the updated `polish-worker.js` (Worker → Edit code → Save and deploy).
@@ -53,6 +63,8 @@ is the provider budget cap in step 5 — set it and you can never be surprised.
 - Voice `gpt-4o-mini-tts`: billed per character of text spoken — a few pennies
   per thousand short "Hear" taps. The app **caches** each clip, so replaying the
   same word/sentence costs nothing, and clips are capped at 600 characters.
+- Word timings `whisper-1`: ~£0.005 per minute of audio. The app transcribes each
+  recording **once** and caches the result, and clips are capped at 12 MB.
 - Cloudflare Workers free tier covers ~100,000 requests/day — **£0** at your scale.
 - So: near-zero at launch; a few pounds a month only once you have real traffic.
 - The **monthly budget cap** (step 5) covers Polish *and* voice together — one cap,
