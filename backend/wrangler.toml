@@ -1,0 +1,16 @@
+# Cloudflare Worker config for BE Mastery (Lomonec LLC).
+#
+# `name` must stay "be-polish" — it is what maps this code to the existing
+# Worker at be-polish.nore-ngou.workers.dev, which index.html calls via
+# POLISH_API. Renaming it would create a second Worker and leave the app
+# pointing at the old one.
+#
+# Deploy:  npx wrangler login   (once)
+#          npx wrangler deploy
+#
+# The OPENAI_KEY secret lives in Cloudflare, not here, and survives deploys.
+# Never put the key in this file — it is committed to a public repo.
+
+name = "be-polish"
+main = "polish-worker.js"
+compatibility_date = "2026-07-31"

@@ -2191,7 +2191,7 @@ const I18N_EN={
  "sh.start_feedback_btn":"🎤 Start speaking feedback",
  "sh.analyze_last_btn":"🎙️ Analyze my last shadowing recording",
  "sh.captions_fetching":"Fetching this video's captions…",
- "sh.captions_manual":"No captions we can read for this video. Open it on YouTube, use \u201cShow transcript\u201d, copy the part you marked and paste it above \u2014 timestamps are removed automatically.",
+ "sh.captions_manual":"One step to unlock scoring: open this video on YouTube, tap \u201c\u2026more\u201d \u2192 \u201cShow transcript\u201d, copy the lines you marked, and paste them above. Timestamps are stripped automatically.",
  "sh.captions_open_yt":"Open on YouTube",
  "sh.tabs_label":"Shadow Studio sections",
  "sh.delete_clip_title":"Delete this clip",
@@ -4045,10 +4045,12 @@ async function loadCaptions(vid){
   let data=null;
   /* 1. a bundled file — the curated library clips, works offline */
   try{const r=await fetch("captions/"+vid+".json");if(r.ok)data=await r.json();}catch(e){}
-  /* 2. otherwise ask the worker to fetch YouTube's own captions. Unofficial and
-        best-effort: plenty of videos have captions disabled, and YouTube can
-        refuse a datacentre request. On failure we leave data null and the UI
-        offers to let the user paste the transcript instead. */
+  /* 2. otherwise ask the worker for YouTube's own captions.
+        MEASURED 2026-07-31: YouTube answers Cloudflare's datacentre IPs with
+        HTTP 429 for every video, so this currently never succeeds. Kept because
+        it fails in ~0.5s and costs nothing, and would start working if YouTube
+        relaxes; pasting is the real path. Do not "fix" it with residential
+        proxies — that is paid, fragile and a clearer ToS breach. */
   if(!data&&POLISH_API){
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
