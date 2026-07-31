@@ -456,6 +456,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}
 .rem-box input[type=time]:disabled{opacity:.45}
 .rem-note{font-size:11.5px;color:var(--mut2);line-height:1.5;margin-top:6px}
+.fb-sync{font-size:12px;line-height:1.5;margin:10px 0 0}
+.fb-sync:empty{display:none}
+.fb-sync.ok{color:var(--green)}
+.fb-sync.bad{color:var(--gold)}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -2492,6 +2496,10 @@ const I18N_EN={
  "auth.terms_link":"Privacy Policy",
  "auth.terms_post":". Your data is stored securely and you can delete it anytime.",
  "auth.card_synced":"☁️ Synced &amp; signed in",
+ "auth.sync_ok":"\u2713 Last save reached your account.",
+ "auth.sync_failed":"\u26a0\ufe0f Saving to your account is failing ({{err}}). Your progress is safe on this device, but it is not syncing. Check the Firestore rules in your Firebase console.",
+ "auth.test_sync":"Test sync now",
+ "auth.sync_testing":"Testing\u2026",
  "auth.card_synced_desc":"Your progress saves to your account automatically and follows you to any device where you log in.",
  "auth.signout_btn":"Sign out",
  "auth.delete_btn":"Delete account",
@@ -7257,12 +7265,53 @@ async function fbFirstSync(u){
   }catch(e){toast(t("auth.sync_issue_toast",{err:(e&&e.code)||(e&&e.message)||""}))}
   fbSyncing=false;
 }
+/* Whether the last cloud write actually landed. The card used to claim
+   "Synced" purely because a user was signed in — if Firestore rules rejected
+   the write (the default until rules are published) it failed silently and the
+   user believed their progress was backed up when it was not. */
+let fbLastPushOk=null,fbLastPushErr="";
 window.fbPush=function(){
   if(!FBUser||!FBdb)return;
   clearTimeout(fbPushTimer);
   fbPushTimer=setTimeout(async()=>{
-    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true})}catch(e){}
+    try{
+      await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      fbLastPushOk=true;fbLastPushErr="";
+    }catch(e){
+      fbLastPushOk=false;
+      fbLastPushErr=(e&&(e.code||e.message))||"unknown";
+      console.warn("[sync] cloud write failed:",fbLastPushErr);
+    }
+    fbSyncStatus();
   },2500);
+};
+/* Show the truth on the account card once a write has been attempted. */
+function fbSyncStatus(){
+  const el=document.getElementById("fbSyncMsg");if(!el)return;
+  if(fbLastPushOk===null){el.textContent="";el.className="fb-sync";return}
+  if(fbLastPushOk){el.textContent=t("auth.sync_ok");el.className="fb-sync ok";return}
+  el.textContent=t("auth.sync_failed",{err:fbLastPushErr});el.className="fb-sync bad";
+}
+window.fbSyncStatus=fbSyncStatus;
+/* Write, then read back. Proves end to end whether the account is really
+   storing progress, instead of leaving the user to guess from a label. */
+window.fbTestSync=async()=>{
+  const el=document.getElementById("fbSyncMsg");
+  if(!FBUser||!FBdb){if(el){el.textContent=t("auth.sync_failed",{err:"not signed in"});el.className="fb-sync bad"}return}
+  if(el){el.textContent=t("auth.sync_testing");el.className="fb-sync"}
+  try{
+    const ref=FBdb.collection("users").doc(FBUser.uid);
+    await ref.set({json:JSON.stringify(S),savedAt:Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    const snap=await ref.get();                    // read it back — a write alone can be queued offline
+    if(!snap.exists)throw new Error("written but not readable");
+    fbLastPushOk=true;fbLastPushErr="";
+    toast(t("auth.sync_ok"));
+  }catch(e){
+    fbLastPushOk=false;
+    fbLastPushErr=(e&&(e.code||e.message))||"unknown";
+    console.warn("[sync] test failed:",fbLastPushErr);
+  }
+  fbSyncStatus();
 };
 /* --- provider actions --- */
 function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
@@ -7355,6 +7404,8 @@ window.fbAuthCard=function(){
         <div style="min-width:0"><b style="font-size:15px">${t("auth.card_synced")}</b><p style="font-size:12.5px;color:var(--mut);overflow:hidden;text-overflow:ellipsis">${esc(em)}</p></div>
       </div>
       <p style="font-size:12.5px;color:var(--mut);margin:12px 0 0">${t("auth.card_synced_desc")}</p>
+      <p class="fb-sync" id="fbSyncMsg"></p>
+      <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="fbTestSync()">${t("auth.test_sync")}</button>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="btn btn-g btn-sm" onclick="fbSignOut()">${t("auth.signout_btn")}</button>
         <button class="btn btn-g btn-sm" style="color:#fca5a5" onclick="fbDeleteAccount()">${t("auth.delete_btn")}</button>
