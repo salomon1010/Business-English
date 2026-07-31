@@ -7380,9 +7380,15 @@ window.fbOpenModal=function(mode){
     <img src="logo.svg" alt="" style="width:52px;height:52px;border-radius:15px;display:block;margin:0 auto 14px">
     <h2>${signup?t("auth.create_title"):t("auth.welcome_back")}</h2>
     <p class="sub">${signup?t("auth.create_sub"):t("auth.login_sub")}</p>
-    <button class="auth-prov" onclick="fbGoogle()">${FB_G_ICON} ${t("auth.continue_google")}</button>
-    <button class="auth-prov dim" title="${esc(t("auth.apple_title"))}">${FB_A_ICON} ${t("auth.continue_apple")}</button>
-    <div class="auth-div">${t("auth.or_email")}</div>
+    <!-- Google/Apple sign-in removed from the UI, not from the code.
+         signInWithRedirect cannot complete while the app is served from
+         app.lomonec.com but Firebase's auth handler lives on
+         be-mastery.firebaseapp.com: browsers partition third-party storage, so
+         the session never comes back and the user lands on a page that looks
+         signed out. Verified on a real device. The fix is serving Firebase's
+         /__/auth/ handler from our own domain, which GitHub Pages cannot do —
+         so until hosting moves, offering the button would mean shipping one
+         that silently fails. fbGoogle() is kept for that day. -->
     <input id="authEmail" type="email" placeholder="${esc(t("auth.email_ph"))}" autocomplete="email">
     <input id="authPw" type="password" placeholder="${esc(t("auth.password_ph"))}" autocomplete="${signup?"new-password":"current-password"}">
     <div class="auth-err" id="authErr"></div>
