@@ -4337,7 +4337,7 @@ function shHeardUI(heard){
   const box=document.getElementById("shHeardBox");
   if(box)box.innerHTML=heard?"“"+esc(heard)+"”":`<span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>`;
 }
-function shFBDone(){
+async function shFBDone(){
   const heard=shFB.txt.trim();
   if(!heard){toast(t("sh.no_words_toast"));return}
   S.notes["shheard:"+shFB.vid]=heard;
@@ -4348,7 +4348,17 @@ function shFBDone(){
   if(hb)hb.innerHTML="“"+esc(heard)+"”";
   const tEl=document.getElementById(shFB.targetId);
   fbT0=shFB.t0;
-  fbShowResults(tEl?tEl.value.trim():"",heard,"new");
+  /* Word-by-word scoring needs something to score against. If the clip
+     transcript is still empty the take would come back with no percentage and
+     no word chips — so pull the captions for the marked segment first, then
+     analyse. Without this, recording before fetching a transcript silently
+     produced a feedback panel with nothing useful in it. */
+  let target=tEl?tEl.value.trim():"";
+  if(!target&&shFB.targetId==="shNote"){
+    try{await shPull(true)}catch(e){}
+    target=tEl?tEl.value.trim():"";
+  }
+  fbShowResults(target,heard,"new");
   toast(t("sh.fb_generated_toast"));
   const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
 }
