@@ -3178,7 +3178,7 @@ function rJourney(el,wArg){
       <div class="bar"><i style="width:${done/7*100}%"></i></div>
       <div class="dots">${DAYS.map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
     </div>`}).join("")}</div>`;
-  manIconizeInline(el);
+  manIconizeInline(el);segSync(el);
 }
 window.jPhase=p=>{_jPhase=p;const el=document.getElementById("v-journey");if(el)rJourney(el);};
 function rWeek(el,w){
@@ -3640,7 +3640,7 @@ function rShadow(el){
     <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
     <div id="tbBox"></div>
   </div>`;
-  shRenderClips();tbRender();
+  shRenderClips();tbRender();segSync(el);
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
   if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
   manIconizeInline(el);
@@ -3945,6 +3945,17 @@ async function shPull(auto){
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+/* Keep the selected pill visible. Switching tabs re-renders the row, which
+   resets its horizontal scroll to 0 — so an active tab further right would
+   scroll out of sight. Re-centre it after every render. */
+function segSync(root){
+  (root||document).querySelectorAll(".seg-tabs").forEach(row=>{
+    const on=row.querySelector(".seg-tab.on");
+    if(!on)return;
+    if(row.scrollWidth<=row.clientWidth+1)return;      // nothing to scroll
+    row.scrollLeft=Math.max(0,on.offsetLeft-(row.clientWidth-on.offsetWidth)/2);
+  });
+}
 /* One empty-state component for the whole app: icon, what's missing, and the
    single action that fills it. Never a bare "nothing here" line. */
 function emptyState(icon,title,body,ctaLabel,ctaOnclick){
@@ -4786,7 +4797,7 @@ function rPractice(el){
   else if(_libTab==="exercises")rLibExercises(body);
   else if(_libTab==="saved")rLibSaved(body);
   else rLibIdioms(body);
-  manIconizeInline(el);
+  manIconizeInline(el);segSync(el);
 }
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
@@ -5414,7 +5425,7 @@ function rPhrases(el,wFilter){
       t(_phKind==="idioms"?"ph.empty_idioms_body":"ph.empty_phrases_body"),
       t(_phKind==="idioms"?"ph.tab_phrases":"ph.tab_idioms"),
       `phKind('${_phKind==="idioms"?"phrases":"idioms"}')`);
-    manIconizeInline(el);return;
+    manIconizeInline(el);segSync(el);return;
   }
   list.innerHTML+=items.map(p=>{
     const k="p"+p.ix,m=S.phMaster[k];
@@ -5433,7 +5444,7 @@ function rPhrases(el,wFilter){
       <div id="phrecs${p.ix}"></div>
     </div>`}).join("");
   items.forEach(p=>renderPhRecs(p.ix));
-  manIconizeInline(el);
+  manIconizeInline(el);segSync(el);
 }
 window.phEx=(k,v)=>{S.phExample[k]=v;save();toast(t("ph.example_saved_toast"))};
 window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];save();go("phrases",cur.arg1)};
