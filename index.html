@@ -79,7 +79,17 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .brand.on .logo{box-shadow:0 0 0 2px var(--acc),0 0 14px rgba(99,102,241,.5)}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-size:17px}
 .brand span.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tab{border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.tab{position:relative;border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+/* NAV BADGE — green count of work waiting in that tab. Sits on the icon,
+   the convention people already know from Messages/Mail. */
+.nav-badge{position:absolute;min-width:18px;height:18px;padding:0 5px;border-radius:99px;
+  background:var(--green);color:#04231a;font-size:10.5px;font-weight:800;line-height:1;
+  display:grid;place-items:center;font-variant-numeric:tabular-nums;pointer-events:none;
+  animation:badge-pop .28s cubic-bezier(.2,.9,.3,1.4)}
+.tab .nav-badge{top:2px;right:6px}
+.bnav-item .nav-badge{top:3px;left:50%;margin-left:4px;box-shadow:0 0 0 2px var(--bnav-bg)}
+@keyframes badge-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.nav-badge{animation:none}}
 .tab-ic{display:inline-flex;line-height:0}
 .tab-ic svg{width:17px;height:17px}
 .tab:hover{color:var(--txt);background:var(--hover)}
@@ -755,7 +765,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   .bottom-nav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:60;display:flex;justify-content:space-around;align-items:stretch;
     background:var(--bnav-bg);backdrop-filter:blur(16px);border-top:1px solid var(--line2);
     padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
-  .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;
+  .bnav-item{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;
     color:var(--mut);font-size:10.5px;font-weight:600;padding:4px 2px;border-radius:12px;transition:.15s;font-family:inherit}
   .bnav-item .ic{font-size:21px;line-height:0;transition:.15s;display:block}
   .bnav-item .ic svg{width:25px;height:25px;display:block}
@@ -1501,7 +1511,7 @@ function load(){
   try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};d.profile=d.profile||null;return d}}catch(e){}
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
-function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
+function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{navBadges()}catch(e){}try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
@@ -2455,6 +2465,7 @@ const I18N_EN={
  "auth.welcome_back_toast":"☁️ Welcome back — your progress is synced",
  "auth.welcome_back_named_toast":"☁️ Welcome back, {{name}} — your progress is synced",
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
+ "nav.badge_aria":"{{n}} items waiting",
  "nav.dashboard":"🏠 Dashboard",
  "nav.weeks":"🗺️ 12 Weeks",
  "nav.phrases":"💬 Phrase Lab",
@@ -3009,6 +3020,7 @@ function go(v,arg1,arg2){
     }else if(v!=="session"){SESS_RETURN=null;}
   }
   document.getElementById("streakN").textContent=streak();
+  try{navBadges()}catch(e){}
   window.scrollTo({top:0});
 }
 
@@ -4062,6 +4074,33 @@ function srText(results){
   for(const p of finals)out=join(out,p);
   return lastInterim?join(out,lastInterim):out;
 }
+/* ===== NAV BADGES — "there's something waiting for you here" =====
+   Deliberately narrow: a badge only counts work that is finite and clearable,
+   so it always reaches zero. Words due for study drop off as you get them
+   right; a grammar drill stops counting once you've run it. Anything that
+   could never reach zero (e.g. all 152 phrases) is left out — a badge that
+   never clears is just noise people learn to ignore. */
+function navBadgeCount(view){
+  if(view!=="practice")return 0;
+  let n=0;
+  try{n+=Object.keys(S.vocab||{}).filter(w=>vocState(w)==="ready").length}catch(e){}
+  try{n+=GRAM_CATS.filter(c=>c.k!=="weekly"&&!(((S.gram||{})[c.k]||{}).runs)).length}catch(e){}
+  return n;
+}
+function navBadges(){
+  ["practice"].forEach(v=>{
+    const n=navBadgeCount(v);
+    document.querySelectorAll('[data-v="'+v+'"]').forEach(el=>{
+      let b=el.querySelector(".nav-badge");
+      if(n>0){
+        if(!b){b=document.createElement("span");b.className="nav-badge";el.appendChild(b)}
+        b.textContent=n>9?"9+":String(n);
+        b.setAttribute("aria-label",t("nav.badge_aria",{n}));
+      }else if(b)b.remove();
+    });
+  });
+}
+window.navBadges=navBadges;
 /* Keep the selected pill visible. Switching tabs re-renders the row, which
    resets its horizontal scroll to 0 — so an active tab further right would
    scroll out of sight. Re-centre it after every render. */
