@@ -2033,6 +2033,8 @@ const I18N_EN={
  "sess.transcript_desc":"Fills in when you stop recording — exactly what you said.",
  "sess.transcript_empty":"Nothing yet — write your example, then press 🎙️ above.",
  "sess.analyze_btn":"🗣️ Analyze my last recording",
+ "sess.tabs_label":"Session sections",
+ "sess.tab_practise":"Practise & record",
  "sess.notes_title":"📝 Session notes & corrections",
  "sess.notes_ph":"Weak sounds, filler words, top 3 corrections, next session target…",
  "sess.save_notes_btn":"Save notes",
@@ -3302,7 +3304,23 @@ function rWeek(el,w){
 
 /* ================= SESSION ================= */
 let timer={left:25*60,run:false,h:null};
+/* Session tabs: the plan (25-minute template) and the doing (example, recorder,
+   transcript, notes, score). Switching must NOT re-render — rSession resets the
+   timer on every call, so a re-render mid-session would wipe a running clock and
+   any in-progress recording. Toggle visibility in place instead. */
+let _sessTab="plan";
+window.sessTab=k=>{
+  _sessTab=k;
+  const plan=document.getElementById("sessPlan"),doIt=document.getElementById("sessDo");
+  if(plan)plan.style.display=k==="plan"?"":"none";
+  if(doIt)doIt.style.display=k==="do"?"":"none";
+  document.querySelectorAll(".seg-tab[data-st]").forEach(b=>{   /* the session has no view container of its own */
+    const on=b.dataset.st===k;
+    b.classList.toggle("on",on);b.setAttribute("aria-selected",on);
+  });
+};
 function rSession(el,w,d){
+  _sessTab="plan";                    // every session opens on its plan
   const wk=WEEKS[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=TEMPLATES[d];
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
@@ -3334,15 +3352,21 @@ function rSession(el,w,d){
         <b style="font-size:14px">${t("sess.say_aloud")}</b>
         <ul style="list-style:none;margin-top:8px">${weekPhrases.map(p=>`<li style="font-size:13.5px;color:var(--mut);padding:3px 0">• “${esc(p.p)}”</li>`).join("")}</ul>
       </div>`:""}
-      <div class="card" style="margin-top:16px">
-        <h3 style="margin:0 0 4px;font-size:16px">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</h3>
-        <p style="font-size:12.5px;color:var(--mut2);margin-bottom:10px">${t("sess.template_sub")}</p>
-        ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
-          <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
-          <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
-      </div>
     </div>
     <div>
+      <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sess.tabs_label"))}">
+        <button class="seg-tab ${_sessTab==='plan'?'on':''}" data-st="plan" role="tab" aria-selected="${_sessTab==='plan'}" onclick="sessTab('plan')"><span class="seg-lbl">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</span></button>
+        <button class="seg-tab ${_sessTab==='do'?'on':''}" data-st="do" role="tab" aria-selected="${_sessTab==='do'}" onclick="sessTab('do')"><span class="seg-lbl">${t("sess.tab_practise")}</span></button>
+      </div>
+      <div id="sessPlan" ${_sessTab==='plan'?'':'style="display:none"'}>
+        <div class="card">
+          <p style="font-size:12.5px;color:var(--mut2);margin-bottom:10px">${t("sess.template_sub")}</p>
+          ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
+            <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
+            <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
+        </div>
+      </div>
+      <div id="sessDo" ${_sessTab==='do'?'':'style="display:none"'}>
       <details class="card sess-ex" style="margin-bottom:16px" ${sessIsSpeaking(d)?"open":""}>
         <summary><span class="sess-ex-title">${t("sess.example_title")}</span></summary>
         <p style="font-size:12px;color:var(--mut);margin:8px 0">${t("sess.example_desc")}</p>
@@ -3387,6 +3411,7 @@ function rSession(el,w,d){
         <div class="hr"></div>
         <button class="btn ${S.days[key]?'btn-g':'btn-p'}" style="width:100%;justify-content:center" onclick="toggleDay('${key}',${w},'${d}')">
           ${S.days[key]?t("sess.mark_done"):t("sess.mark_incomplete")}</button>
+      </div>
       </div>
     </div>
   </div>
