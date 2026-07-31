@@ -2160,6 +2160,8 @@ const I18N_EN={
  "sh.transcript_notes_desc":"The clip's words — auto-filled for library clips (CAPS = stress). Edit or type your own.",
  "sh.transcript_editable":"✏️ Auto-filled from the clip you marked — read it over and fix any wrong words before you shadow.",
  "sh.captions_ready":"🎬 Captions ready — mark any part",
+ "sh.starters_captions_note":"🎬 Every clip here writes its own transcript — mark any 20–30 seconds and the words appear, already stress-marked.",
+ "sh.captions_none":"✏️ Type your own transcript",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -3641,13 +3643,14 @@ function rShadow(el){
     </div>
     ${S.lastClip&&S.lastClip.vid?`<button class="btn glow-cta" style="margin-top:12px;width:100%" onclick="shOpenWork()"><span class="glow-cta-txt">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</span></button>`:""}
     <div class="hr"></div>
-    <div class="eyebrow" style="margin-bottom:10px">${t("sh.no_video_yet")}</div>
+    <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
     <div class="grid g3">
       ${SHADOW_STARTERS.map((s,i)=>`
       <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
         <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
         <b style="font-size:14px;line-height:1.35">${s.name}</b>
-        ${s.cap?`<span class="chip p3" style="align-self:flex-start;font-size:11px">${tIc("sh.captions_ready","film")}</span>`:""}
+        ${s.cap===false?`<span class="chip" style="align-self:flex-start;font-size:11px">${tIc("sh.captions_none","pencil")}</span>`:""}
         <p style="font-size:12.5px;color:var(--mut);flex:1">${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
         <div style="display:flex;gap:8px">
           <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
