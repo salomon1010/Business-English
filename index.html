@@ -449,6 +449,13 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-cap-hint{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:8px;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
 .sh-cap-hint:empty{display:none}
 .sh-cap-hint a{color:var(--acc2);font-weight:600;text-decoration:underline}
+/* DAILY REMINDER row in Settings */
+.rem-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
+.rem-row{display:flex;align-items:center;gap:9px;flex:1;min-width:170px;cursor:pointer;font-size:14px}
+.rem-row input{width:18px;height:18px;min-height:0;accent-color:var(--acc);flex:none;margin:0}
+.rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}
+.rem-box input[type=time]:disabled{opacity:.45}
+.rem-note{font-size:11.5px;color:var(--mut2);line-height:1.5;margin-top:6px}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -2501,6 +2508,15 @@ const I18N_EN={
  "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
  "cf.backup_ok":"Back it up",
  "cf.backup_later":"Not now",
+ "rem.label":"Daily reminder",
+ "rem.switch":"Remind me to practise",
+ "rem.note":"A nudge at your chosen time. While the app is closed your phone may hold it back \u2014 you\u2019ll still be reminded next time you open it.",
+ "rem.blocked":"Notifications are blocked for this app, so reminders will appear inside the app instead. You can allow them in your browser settings.",
+ "rem.title":"Time to practise",
+ "rem.body":"Twenty-five minutes on Week {{n}} \u2014 your streak is waiting.",
+ "rem.missed":"Today\u2019s Week {{n}} session is still open \u2014 twenty-five minutes is all it takes.",
+ "rem.on_toast":"Reminder set for {{time}}",
+ "rem.off_toast":"Daily reminder off",
  "pc.dismiss":"Close the posture coach",
  "cf.title":"Are you sure?",
  "cf.cancel":"Cancel",
@@ -4261,6 +4277,76 @@ function askConfirm(o){
   });
 }
 window.askConfirm=askConfirm;
+/* ===== DAILY REMINDER =====
+   Honest about what a web app can do. A real notification is only guaranteed
+   while the app is running — scheduling one for a closed app needs a push
+   server (FCM), which this app does not have. So this does two things:
+     1. fires a system notification at the chosen time if the app is open, and
+     2. shows an in-app nudge on launch when the day's session is still undone,
+        which works whatever the browser allows.
+   Together that covers the realistic cases without pretending to be more. */
+let _remTimer=null;
+function remCfg(){return S.reminder||(S.reminder={on:false,time:"19:00"})}
+function remTodayDone(){const k=new Date().toISOString().slice(0,10);return (S.dates||[]).includes(k)}
+function remMsAway(hhmm){
+  const [h,m]=String(hhmm||"19:00").split(":").map(Number);
+  const now=new Date(),next=new Date();
+  next.setHours(h||19,m||0,0,0);
+  if(next<=now)next.setDate(next.getDate()+1);   // already passed today → tomorrow
+  return next-now;
+}
+function remSchedule(){
+  clearTimeout(_remTimer);_remTimer=null;
+  const c=remCfg();
+  if(!c.on)return;
+  _remTimer=setTimeout(()=>{remFire();remSchedule();},remMsAway(c.time));
+}
+function remFire(){
+  if(remTodayDone())return;                       // already practised — say nothing
+  const body=t("rem.body",{n:(currentPos().w||1)});
+  try{
+    if(window.Notification&&Notification.permission==="granted"){
+      const n=new Notification(t("rem.title"),{body,icon:"icon-192.png",badge:"icon-192.png",tag:"be-daily"});
+      n.onclick=()=>{window.focus();go("home");n.close()};
+      return;
+    }
+  }catch(e){}
+  toast(t("rem.title")+" — "+body);               // notifications blocked → still nudge in-app
+}
+window.remToggle=on=>{
+  /* Save the preference FIRST and never await the permission prompt: on some
+     platforms it resolves only after the user answers, and on others not at
+     all, which would leave the switch flipped but the setting unsaved. The
+     in-app nudge works with or without permission, so the prompt is a bonus. */
+  const c=remCfg();
+  c.on=!!on;save();
+  const ti=document.getElementById("remTime");if(ti)ti.disabled=!on;
+  remSchedule();
+  toast(on?t("rem.on_toast",{time:c.time}):t("rem.off_toast"));
+  if(!on||!window.Notification)return;
+  const note=document.getElementById("remNote");
+  if(Notification.permission==="denied"){if(note)note.textContent=t("rem.blocked");return}
+  if(Notification.permission==="granted")return;
+  try{
+    Promise.resolve(Notification.requestPermission()).then(p=>{
+      if(p!=="granted"&&note)note.textContent=t("rem.blocked");
+    }).catch(()=>{});
+  }catch(e){}
+};
+window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();toast(t("rem.on_toast",{time:c.time}));};
+/* On launch: if the reminder time has already passed today and the session is
+   still undone, say so once — this is the part that works everywhere. */
+function remLaunchNudge(){
+  const c=remCfg();
+  if(!c.on||remTodayDone())return;
+  const [h,m]=String(c.time).split(":").map(Number);
+  const now=new Date();
+  if(now.getHours()*60+now.getMinutes()<(h||19)*60+(m||0))return;   // not due yet
+  const today=new Date().toISOString().slice(0,10);
+  if(S.remNudged===today)return;                                     // once a day
+  S.remNudged=today;save();
+  setTimeout(()=>toast(t("rem.missed",{n:currentPos().w||1})),1600);
+}
 /* ===== NAV BADGES — "there's something waiting for you here" =====
    Deliberately narrow: a badge only counts work that is finite and clearable,
    so it always reaches zero. Words due for study drop off as you get them
@@ -6258,6 +6344,15 @@ async function rData(el){
       ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.slot_label")}</p>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
+      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("rem.label")}</p>
+      <div class="rem-box">
+        <label class="rem-row">
+          <input type="checkbox" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
+          <span>${t("rem.switch")}</span>
+        </label>
+        <input type="time" id="remTime" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
+      </div>
+      <p class="rem-note" id="remNote">${t("rem.note")}</p>
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${esc(t("lang.app_language"))}</p>
       <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px">
         <span style="display:flex;align-items:center;gap:10px">
@@ -7093,6 +7188,7 @@ window.wcClose=()=>{
   setTimeout(()=>ov.remove(),220);
 };
 if(!S.profile)obRender();
+else{try{remSchedule();remLaunchNudge()}catch(e){}}
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
    Lives inside the main script so it can reassign S like the GitHub sync does.

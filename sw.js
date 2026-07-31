@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v134";
+const CACHE = "be12-v135";
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {
@@ -22,5 +22,17 @@ self.addEventListener("fetch", e => {
         return r;
       })
       .catch(() => caches.match(e.request).then(m => m || caches.match("index.html")))
+  );
+});
+
+/* Tapping a daily-reminder notification should focus the app if it's already
+   open, rather than spawning a second window. */
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
+      for (const c of list) if ("focus" in c) return c.focus();
+      if (clients.openWindow) return clients.openWindow("./");
+    })
   );
 });
