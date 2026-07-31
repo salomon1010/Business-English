@@ -3945,6 +3945,35 @@ async function shPull(auto){
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+/* Turn a SpeechRecognition result list into clean text.
+
+   Engines disagree badly here. Desktop Chrome and iOS replace the interim
+   result in place and emit each finished phrase once. Android Chrome instead
+   appends every partial as its OWN entry ("I", "I am", "I am eating", …) and
+   re-sends earlier finals, so naively concatenating the list produces the
+   ladder "I I am I am I am eating…".
+
+   So: keep only the most recent interim, and when one piece merely extends the
+   previous one, replace rather than append. Rebuilt from scratch each call, so
+   running it repeatedly on a growing list is safe. */
+function srText(results){
+  const finals=[];let lastInterim="";
+  for(let i=0;i<results.length;i++){
+    const r=results[i];if(!r||!r[0])continue;
+    const txt=String(r[0].transcript||"").trim();
+    if(!txt)continue;
+    if(r.isFinal)finals.push(txt);else lastInterim=txt;   // only the latest interim survives
+  }
+  const join=(acc,piece)=>{
+    if(!acc)return piece;
+    if(piece.startsWith(acc))return piece;                // cumulative growth → replace
+    if(acc.endsWith(piece))return acc;                    // already have it → skip
+    return acc+" "+piece;
+  };
+  let out="";
+  for(const p of finals)out=join(out,p);
+  return lastInterim?join(out,lastInterim):out;
+}
 /* Keep the selected pill visible. Switching tabs re-renders the row, which
    resets its horizontal scroll to 0 — so an active tab further right would
    scroll out of sight. Re-centre it after every render. */
@@ -4356,12 +4385,10 @@ window.fbToggle=()=>{
   document.getElementById("fbOut").innerHTML="";
   fbRec=new SR();fbRec.lang="en-US";fbRec.continuous=true;fbRec.interimResults=true;fbRec.maxAlternatives=1;
   fbRec.onresult=e=>{
-    let interim="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      if(e.results[i].isFinal)fbFinal+=" "+e.results[i][0].transcript;
-      else interim+=e.results[i][0].transcript;
-    }
-    document.getElementById("fbStatus").textContent=t("fb.heard_status",{tail:(fbFinal+" "+interim).trim().slice(-70)});
+    /* rebuilt from the whole list (see srText) — appending would repeat every
+       word on Android, which then wrecks the pronunciation scoring */
+    fbFinal=srText(e.results);
+    document.getElementById("fbStatus").textContent=t("fb.heard_status",{tail:fbFinal.trim().slice(-70)});
   };
   fbRec.onerror=e=>{
     fbOn=false;document.getElementById("fbBtn").textContent=t("sh.start_feedback_btn");
@@ -5354,24 +5381,17 @@ window.exDictate=()=>{
   exBase=inp.value.trim();exFinal="";exDone="";               // keep any text already typed
   exRec=new SR();exRec.lang="en-US";exRec.continuous=true;exRec.interimResults=true;
   exRec.onresult=e=>{
-    /* Rebuild this session's transcript from the full result list every time.
-       Never append — some engines (Android Chrome) resend earlier results with
-       resultIndex 0, which would repeat every word. Rebuilding is idempotent. */
-    let fin="",interim="";
-    for(let i=0;i<e.results.length;i++){
-      const tr=e.results[i];
-      if(tr.isFinal)fin+=tr[0].transcript.replace(/\s+$/,"")+" ";
-      else interim+=tr[0].transcript;
-    }
-    exFinal=fin;
-    inp.value=((exBase?exBase+" ":"")+exDone+exFinal+interim).replace(/\s+/g," ").trimStart();
+    /* Rebuild this session's transcript from the whole list every time — never
+       append. srText() also collapses Android's cumulative partials. */
+    exFinal=srText(e.results);
+    inp.value=((exBase?exBase+" ":"")+(exDone?exDone+" ":"")+exFinal).replace(/\s+/g," ").trimStart();
   };
   exRec.onerror=ev=>{if(ev.error!=="no-speech"&&ev.error!=="aborted"){const st=document.getElementById("exSt");if(st)st.textContent=t("ex.dictate_mic_error")}};
   exRec.onend=()=>{
     /* Browser stopped on a silence but the user hasn't tapped stop → keep going.
        Bank this session's text first: the restarted recogniser begins a fresh
        result list, so exFinal is about to be rebuilt from empty. */
-    if(exListening){exDone+=exFinal;exFinal="";try{exRec.start();return}catch(_){}}
+    if(exListening){exDone=(exDone?exDone+" ":"")+exFinal;exFinal="";try{exRec.start();return}catch(_){}}
     exSetMic(false);inp.value=inp.value.trim();
     if(inp.value)window.exGo();                               // finished dictating → produce the professional version straight away
   };
