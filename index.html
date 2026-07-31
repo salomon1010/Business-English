@@ -65,6 +65,9 @@ body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-h
 a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%}
+/* Auto-sizing textarea (clip transcript). Grows with its content up to 60vh,
+   then scrolls; still draggable on platforms that support the resize handle. */
+textarea.grow-ta{resize:vertical;min-height:96px;max-height:60vh;line-height:1.55;overflow-y:hidden}
 input:focus,textarea:focus{outline:none;border-color:var(--acc)}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
 
@@ -3581,7 +3584,7 @@ function rShadow(el){
       <div class="card">
         <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
-        <textarea rows="4" id="shNote" placeholder="${esc(t("sh.transcript_ph"))}"></textarea>
+        <textarea rows="4" id="shNote" class="grow-ta" placeholder="${esc(t("sh.transcript_ph"))}" oninput="taGrow(this)"></textarea>
         <p class="sh-edit-note">${tIc("sh.transcript_editable","pencil")}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn btn-g btn-sm" onclick="shMarkStress()">${t("sh.mark_stress_btn")}</button>
@@ -3710,7 +3713,7 @@ async function shLoad(c,quiet){
   /* library clips ship a human-marked transcript (correct lexical stress);
      load it as-is. A saved user edit always wins. Arbitrary pasted clips have
      no txt — the ✨ Mark stress button gives them best-effort algorithmic marks. */
-  document.getElementById("shNote").value=S.notes["sh:"+shClip.vid]||c.txt||"";
+  const _nb=document.getElementById("shNote");_nb.value=S.notes["sh:"+shClip.vid]||c.txt||"";taGrow(_nb);
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
   await loadYT();
@@ -3809,7 +3812,7 @@ window.shMark=w=>{
 window.shClearMarks=()=>{
   shClip.start=0;shClip.end=0;shCounting=false;shPing={};
   const c=document.getElementById("shCount");if(c){c.style.display="none";c.textContent="0s";c.className="sh-count"}
-  const box=document.getElementById("shNote");if(box)box.value=""; /* fresh clip → next Mark end auto-pulls */
+  const box=document.getElementById("shNote");if(box){box.value="";delete box.dataset.userSized;taGrow(box)} /* fresh clip → next Mark end auto-pulls */
   if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=0;S.lastClip.end=0;save()}
   shSegUI();
   toast(t("sh.clip_cleared_toast"));
@@ -3879,7 +3882,7 @@ function markStress(text){
 window.shMarkStress=()=>{
   const el=document.getElementById("shNote");if(!el)return;
   if(!el.value.trim()){toast(t("sh.stress_empty_toast"));return;}
-  el.value=markStress(el.value);
+  el.value=markStress(el.value);taGrow(el);
   if(shClip&&shClip.vid){S.notes["sh:"+shClip.vid]=el.value;save();}
   toast(t("sh.stress_toast"));
 };
@@ -3938,13 +3941,34 @@ async function shPull(auto){
   if(!data||!data.cues||!data.cues.length){if(!auto)toast(t("sh.no_captions_toast"));return;}
   const seg=(data.words&&data.words.length)?wordsInRange(data.words,shClip.start,shClip.end):captionsInRange(data.cues,shClip.start,shClip.end);
   if(!seg){if(!auto)toast(t("sh.no_captions_range_toast"));return;}
-  box.value=markStress(seg);
+  box.value=markStress(seg);taGrow(box);
   S.notes["sh:"+shClip.vid]=box.value;save();
   if(!auto||box.value)toast(t("sh.transcript_pulled_toast"));
 }
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+/* Grow a textarea to fit its content so a long clip transcript is readable
+   without scrolling inside a 4-row box. iOS Safari ignores the CSS resize
+   handle entirely, so auto-sizing — not dragging — is what actually works on a
+   phone. Capped so the box can never swallow the whole screen; past the cap it
+   scrolls. If the user has dragged it taller themselves (desktop), respect that. */
+function taGrow(el){
+  if(!el)return;
+  if(el.dataset.userSized)return;                 // manual drag wins
+  const max=Math.round(Math.max(220,window.innerHeight*0.6));
+  el.style.height="auto";
+  el.style.height=Math.min(el.scrollHeight+2,max)+"px";
+  el.style.overflowY=el.scrollHeight>max?"auto":"hidden";
+}
+window.taGrow=taGrow;
+/* remember a manual drag-resize so auto-sizing stops fighting the user */
+document.addEventListener("mousedown",e=>{
+  const ta=e.target.closest&&e.target.closest("textarea.grow-ta");
+  if(!ta)return;
+  const r=ta.getBoundingClientRect();
+  if(e.clientX>r.right-18&&e.clientY>r.bottom-18)ta.dataset.userSized="1";   // grabbed the corner handle
+},true);
 /* Turn a SpeechRecognition result list into clean text.
 
    Engines disagree badly here. Desktop Chrome and iOS replace the interim
