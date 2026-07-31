@@ -475,6 +475,23 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .gx-why.ok .gx-why-ic{color:var(--green)}
 .gx-why.no .gx-why-ic{color:var(--gold)}
 .gx-why-ic svg{width:18px;height:18px}
+/* CONFIRM DIALOG — shown before anything destructive */
+.cf-ov{position:fixed;inset:0;z-index:150;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
+  display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .18s ease}
+.cf-ov.show{opacity:1}
+.cf-card{max-width:380px;width:100%;background:var(--card);border:1px solid var(--line2);
+  border-radius:20px;padding:26px 24px 22px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);
+  transform:translateY(8px) scale(.98);transition:transform .18s cubic-bezier(.2,.8,.3,1)}
+.cf-ov.show .cf-card{transform:none}
+.cf-ic{width:52px;height:52px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;
+  background:rgba(99,102,241,.14);color:var(--acc)}
+.cf-ic.danger{background:rgba(239,68,68,.14);color:var(--red)}
+.cf-ic svg{width:24px;height:24px}
+.cf-card h3{font-size:17.5px;font-weight:800;line-height:1.3;margin-bottom:8px}
+.cf-card p{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+.cf-actions{display:flex;gap:10px}
+.cf-actions .btn{flex:1;justify-content:center;min-height:44px}
+@media(prefers-reduced-motion:reduce){.cf-ov,.cf-card{transition:none}}
 /* WELCOME MODAL — first run. Persistent: only a user action closes it. */
 .wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
@@ -2465,6 +2482,29 @@ const I18N_EN={
  "auth.welcome_back_toast":"☁️ Welcome back — your progress is synced",
  "auth.welcome_back_named_toast":"☁️ Welcome back, {{name}} — your progress is synced",
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
+ "cf.backup_title":"Protect your progress",
+ "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
+ "cf.backup_ok":"Back it up",
+ "cf.backup_later":"Not now",
+ "cf.title":"Are you sure?",
+ "cf.cancel":"Cancel",
+ "cf.confirm":"Confirm",
+ "cf.delete":"Delete",
+ "cf.clear":"Clear it",
+ "cf.rec_title":"Delete this recording?",
+ "cf.rec_body":"This recording will be permanently removed from this device. It can't be recovered.",
+ "cf.clip_title":"Delete this clip?",
+ "cf.clip_body":"“{{name}}” will be removed from your saved clips, along with its marks and transcript.",
+ "cf.clip_clear_title":"Clear this clip?",
+ "cf.clip_clear_body":"Your start and end marks and the transcript you've written will be cleared.",
+ "cf.import_title":"Replace your progress?",
+ "cf.import_body":"Importing overwrites everything on this device, including your {{n}} completed sessions. This can't be undone.",
+ "cf.import_ok":"Replace it",
+ "cf.reset_title":"Erase everything?",
+ "cf.reset_ok":"Erase everything",
+ "cf.signout_title":"Sign out?",
+ "cf.signout_ok":"Sign out",
+ "cf.delacct_title":"Delete your account?",
  "nav.badge_aria":"{{n}} items waiting",
  "nav.dashboard":"🏠 Dashboard",
  "nav.weeks":"🗺️ 12 Weeks",
@@ -2861,7 +2901,7 @@ async function ghPull(){
     if(!d){ghStatus("");return toast(t("gh.no_progress"))}
     const data=JSON.parse(b64Dec(d.content));
     if(!data.days)throw new Error("unexpected file format");
-    if(!confirm(t("gh.replace_confirm"))){ghStatus("");return}
+    if(!await askConfirm({title:t("cf.import_title"),body:t("gh.replace_confirm"),confirmLabel:t("cf.import_ok")})){ghStatus("");return}
     data.tutor=data.tutor||{};S=data;localStorage.setItem(LS_KEY,JSON.stringify(S));
     GH.last=Date.now();saveGH();ghStatus("");toast(t("gh.loaded_toast"));go("home")}
   catch(e){ghStatus("");toast(t("gh.load_failed",{err:e.message}))}
@@ -3022,6 +3062,7 @@ function go(v,arg1,arg2){
   document.getElementById("streakN").textContent=streak();
   try{navBadges()}catch(e){}
   window.scrollTo({top:0});
+  if(v==="home")setTimeout(backupNudge,1200);   // only on the dashboard, never mid-task
 }
 
 /* ================= USER MANUAL (in-app, localized fragment) ================= */
@@ -3507,7 +3548,14 @@ async function renderRecs(ctx){
   }).join(""):`<p style="font-size:12.5px;color:var(--mut2);margin-top:12px">${t("recs.none")}</p>`;
   if(recs.length)list.insertAdjacentHTML("beforeend",`<p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("recs.privacy_note")}</p>`);
 }
-window.removeRec=async(id,ctx)=>{await delRec(id);renderRecs(ctx);toast(t("recs.deleted_toast"))};
+window.phDelRec=async(id,ix)=>{
+  if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
+  await delRec(id);renderPhRecs(ix);toast(t("recs.deleted_toast"));
+};
+window.removeRec=async(id,ctx)=>{
+  if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
+  await delRec(id);renderRecs(ctx);toast(t("recs.deleted_toast"));
+};
 
 /* ================= SHADOW (YouGlish-style clip looper) ================= */
 let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
@@ -3864,7 +3912,9 @@ window.shMark=w=>{
   shSegUI();
   if(S.lastClip&&S.lastClip.vid===shClip.vid){S.lastClip.start=shClip.start;S.lastClip.end=shClip.end;save()}
 };
-window.shClearMarks=()=>{
+window.shClearMarks=async()=>{
+  const box0=document.getElementById("shNote");
+  if(box0&&box0.value.trim()&&!await askConfirm({title:t("cf.clip_clear_title"),body:t("cf.clip_clear_body"),confirmLabel:t("cf.clear")}))return;
   shClip.start=0;shClip.end=0;shCounting=false;shPing={};
   const c=document.getElementById("shCount");if(c){c.style.display="none";c.textContent="0s";c.className="sh-count"}
   const box=document.getElementById("shNote");if(box){box.value="";delete box.dataset.userSized;taGrow(box)} /* fresh clip → next Mark end auto-pulls */
@@ -4002,7 +4052,12 @@ async function shPull(auto){
 }
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
-window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+window.shDel=async(i,ev)=>{
+  ev.stopPropagation();
+  const c=(S.clips||[])[i];
+  if(!await askConfirm({title:t("cf.clip_title"),body:t("cf.clip_body",{name:(c&&(c.title||c.vid))||""}),confirmLabel:t("cf.delete")}))return;
+  S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"));
+};
 /* Make the onboarding step fit the screen, whatever the phone.
    The CSS clamps get most of the way, but the result step's height also depends
    on how much the user said (more words → more chips), so no fixed rule can
@@ -4074,6 +4129,58 @@ function srText(results){
   for(const p of finals)out=join(out,p);
   return lastInterim?join(out,lastInterim):out;
 }
+/* Back-up nudge. A manual Export button only protects people who remember to
+   press it — and browser storage really does vanish (iOS evicts unused web-app
+   data, "clear browsing data" wipes it, uninstalling takes it along). So once
+   someone has built up real progress with no account and no export, ask once.
+   Shown a single time; declining is remembered. */
+function backupNudge(){
+  try{
+    if(!S.profile||S.backupAsked)return;
+    if(window.FBUser)return;                       // already syncing to an account
+    if(S.lastExport)return;                        // already has a backup
+    if(Object.keys(S.days||{}).length<10)return;   // not enough to be worth protecting yet
+    S.backupAsked=Date.now();save();
+    askConfirm({
+      icon:"download",danger:false,
+      title:t("cf.backup_title"),
+      body:t("cf.backup_body",{n:Object.keys(S.days||{}).length}),
+      confirmLabel:t("cf.backup_ok"),
+      cancelLabel:t("cf.backup_later")
+    }).then(yes=>{if(yes)go("data")});
+  }catch(e){}
+}
+/* Ask before anything destructive. One in-app dialog for every delete/overwrite,
+   instead of the browser's confirm() (which looks foreign and is blocked in some
+   installed-app webviews). Returns a promise: `if(!await askConfirm({…}))return`. */
+function askConfirm(o){
+  return new Promise(res=>{
+    document.querySelectorAll(".cf-ov").forEach(e=>e.remove());
+    const ov=document.createElement("div");
+    ov.className="cf-ov";
+    ov.innerHTML=`<div class="cf-card" role="alertdialog" aria-modal="true" aria-labelledby="cfT">
+      <div class="cf-ic ${o.danger===false?"":"danger"}">${ic(o.icon||"trash")}</div>
+      <h3 id="cfT">${esc(o.title||t("cf.title"))}</h3>
+      ${o.body?`<p>${esc(o.body)}</p>`:""}
+      <div class="cf-actions">
+        <button class="btn btn-g" data-cf="0">${esc(o.cancelLabel||t("cf.cancel"))}</button>
+        <button class="btn ${o.danger===false?"btn-p":"btn-danger"}" data-cf="1">${esc(o.confirmLabel||t("cf.confirm"))}</button>
+      </div></div>`;
+    document.body.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add("show"));
+    const done=v=>{document.removeEventListener("keydown",key);ov.classList.remove("show");
+      setTimeout(()=>ov.remove(),180);res(v)};
+    function key(e){if(e.key==="Escape")done(false)}
+    ov.addEventListener("click",e=>{
+      const b=e.target.closest("[data-cf]");
+      if(b)return done(b.dataset.cf==="1");
+      if(e.target===ov)done(false);            // tap outside cancels
+    });
+    document.addEventListener("keydown",key);
+    const cancel=ov.querySelector('[data-cf="0"]');if(cancel)cancel.focus();   // safe default
+  });
+}
+window.askConfirm=askConfirm;
 /* ===== NAV BADGES — "there's something waiting for you here" =====
    Deliberately narrow: a badge only counts work that is finite and clearable,
    so it always reaches zero. Words due for study drop off as you get them
@@ -5622,7 +5729,7 @@ async function renderPhRecs(ix){
   box.innerHTML=recs.slice(0,3).map(r=>{
     const url=URL.createObjectURL(r.blob);
     return `<div class="rec-item"><audio controls src="${url}"></audio>
-      <button class="btn btn-danger btn-sm" onclick="delRec(${r.id}).then(()=>renderPhRecs(${ix}))">✕</button></div>`}).join("");
+      <button class="btn btn-g btn-sm sh-clear" onclick="phDelRec(${r.id},${ix})" title="${esc(t("cf.delete"))}" aria-label="${esc(t("cf.delete"))}">${ic("trash")}</button></div>`}).join("");
 }
 
 /* ===== PROGRESS STUDIO (Preply-style stats, app theme) ===== */
@@ -6145,16 +6252,22 @@ window.expData=()=>{
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:"application/json"}));
   a.download=`business-english-progress-${new Date().toISOString().slice(0,10)}.json`;a.click();
+  S.lastExport=Date.now();save();
   toast(t("acc.export_toast"));
 };
 window.impData=inp=>{
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.days)throw 0;S=d;save();toast(t("acc.import_toast"));go("home")}catch(e){toast(t("acc.import_invalid_toast"))}};
+  r.onload=async()=>{try{
+    const d=JSON.parse(r.result);if(!d.days)throw 0;
+    const done=Object.keys(S.days||{}).length;
+    if(!await askConfirm({title:t("cf.import_title"),body:t("cf.import_body",{n:done}),confirmLabel:t("cf.import_ok")})){inp.value="";return}
+    S=d;save();toast(t("acc.import_toast"));go("home");
+  }catch(e){toast(t("acc.import_invalid_toast"))}};
   r.readAsText(f);
 };
-window.resetAll=()=>{
-  if(!confirm(t("acc.reset_confirm")))return;
+window.resetAll=async()=>{
+  if(!await askConfirm({title:t("cf.reset_title"),body:t("acc.reset_confirm"),confirmLabel:t("cf.reset_ok")}))return;
   localStorage.removeItem(LS_KEY);
   dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}});
   S=load();save();toast(t("acc.reset_toast"));go("home");
@@ -6977,12 +7090,12 @@ window.fbReset=async function(){
 };
 window.fbSignOut=async function(){
   if(!FBauth)return;
-  if(!confirm(t("auth.signout_confirm")))return;
+  if(!await askConfirm({title:t("cf.signout_title"),body:t("auth.signout_confirm"),confirmLabel:t("cf.signout_ok"),icon:"user",danger:false}))return;
   await FBauth.signOut();toast(t("auth.signed_out_toast"));go("data");
 };
 window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
-  if(!confirm(t("auth.delete_confirm")))return;
+  if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm"),confirmLabel:t("cf.delete")}))return;
   try{
     await FBdb.collection("users").doc(FBUser.uid).delete();
     await FBUser.delete();toast(t("auth.deleted_toast"));go("data");
