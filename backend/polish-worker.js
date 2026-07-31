@@ -45,6 +45,11 @@ const STT_PER_MIN = 20;
 const STT_PER_DAY = 600;
 const sttHits = new Map();
 
+// ---- YouTube captions (no provider cost; limits just curb abuse of the proxy) ----
+const CAP_PER_MIN = 12;
+const CAP_PER_DAY = 400;
+const capHits = new Map();
+
 // ---- Pronunciation coach (audio-in language model) ----
 // gpt-4o-audio-preview actually LISTENS to the learner's recording and grades
 // how each word was pronounced — unlike ASR, which only guesses the intended
@@ -257,6 +262,74 @@ async function callAI(env, sentence, avoid) {
   return versions;
 }
 
+/* ---------------------------------------------------------------
+   YouTube captions for a pasted video.
+
+   There is no official way to read captions for a video you don't own
+   (the Data API's captions.download is owner-only), so this reads the
+   watch page and follows the caption track it advertises. That means it
+   is inherently fragile: YouTube changes the page from time to time,
+   may serve a consent/bot wall to datacentre IPs, and many videos have
+   captions disabled. Every failure returns a plain reason so the app can
+   fall back to asking the user to paste the transcript.
+
+   Returns the same shape as the bundled captions/<id>.json files:
+   { vid, source, lang, cues:[{t,txt}], words:[{t,w}] }
+--------------------------------------------------------------- */
+const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
+
+async function fetchYouTubeCaptions(vid) {
+  if (!/^[A-Za-z0-9_-]{11}$/.test(vid)) return { error: "bad_id" };
+
+  const page = await fetch("https://www.youtube.com/watch?v=" + vid + "&hl=en", {
+    headers: { "user-agent": UA, "accept-language": "en-US,en;q=0.9" },
+  });
+  if (!page.ok) return { error: "page_" + page.status };
+  const html = await page.text();
+
+  // the player response carries the caption track list
+  const m = html.match(/"captionTracks":(\[.*?\])/);
+  if (!m) return { error: "no_captions" };
+  let tracks; try { tracks = JSON.parse(m[1]); } catch { return { error: "parse_failed" }; }
+  if (!tracks.length) return { error: "no_captions" };
+
+  // prefer a real English track, then any English, then whatever exists
+  const pick =
+    tracks.find(t => (t.languageCode || "").startsWith("en") && t.kind !== "asr") ||
+    tracks.find(t => (t.languageCode || "").startsWith("en")) ||
+    tracks[0];
+  if (!pick || !pick.baseUrl) return { error: "no_track" };
+
+  const tt = await fetch(pick.baseUrl + "&fmt=json3", { headers: { "user-agent": UA } });
+  if (!tt.ok) return { error: "track_" + tt.status };
+  let data; try { data = await tt.json(); } catch { return { error: "track_parse" }; }
+
+  const cues = [], words = [];
+  for (const ev of data.events || []) {
+    if (!ev.segs) continue;
+    const start = (ev.tStartMs || 0) / 1000;
+    let txt = "";
+    for (const s of ev.segs) {
+      const piece = (s.utf8 || "").replace(/\n/g, " ");
+      if (!piece.trim()) { txt += piece; continue; }
+      words.push({ t: +(start + (s.tOffsetMs || 0) / 1000).toFixed(3), w: piece.trim() });
+      txt += piece;
+    }
+    txt = txt.replace(/\s+/g, " ").trim();
+    if (txt) cues.push({ t: +start.toFixed(2), txt });
+  }
+  if (!cues.length) return { error: "empty_track" };
+
+  return {
+    vid,
+    source: "youtube",
+    lang: pick.languageCode || "en",
+    asr: pick.kind === "asr",
+    cues,
+    words,
+  };
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -284,6 +357,19 @@ export default {
     }
 
     let body; try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400, cors); }
+
+    // ---- Captions path: video id in → cues + word timings out ----
+    if (typeof body.captions === "string" && body.captions.trim()) {
+      if (rateLimited(ip, capHits, CAP_PER_MIN, CAP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      try {
+        const out = await fetchYouTubeCaptions(body.captions.trim());
+        // cache successes hard — a video's captions do not change
+        const headers = out.error ? cors : { "cache-control": "public, max-age=604800", ...cors };
+        return json(out, out.error ? 404 : 200, headers);
+      } catch (e) {
+        return json({ error: "captions_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
 
     // ---- TTS path: natural voice for the app's Hear/Slow buttons ----
     if (typeof body.tts === "string" && body.tts.trim()) {

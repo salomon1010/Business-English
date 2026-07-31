@@ -446,6 +446,9 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-count.go{border-color:var(--acc2);color:var(--acc2)}
 .sh-count.ready{border-color:var(--green);color:var(--green)}
 .sh-count.over{border-color:var(--gold);color:var(--gold);animation:pulse 1.2s infinite}
+.sh-cap-hint{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:8px;display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.sh-cap-hint:empty{display:none}
+.sh-cap-hint a{color:var(--acc2);font-weight:600;text-decoration:underline}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -2187,6 +2190,9 @@ const I18N_EN={
  "sh.feedback_desc":"Record your shadowing above, or read the text aloud live. Every word is scored — green = clear, yellow = practise.",
  "sh.start_feedback_btn":"🎤 Start speaking feedback",
  "sh.analyze_last_btn":"🎙️ Analyze my last shadowing recording",
+ "sh.captions_fetching":"Fetching this video's captions…",
+ "sh.captions_manual":"No captions we can read for this video. Open it on YouTube, use \u201cShow transcript\u201d, copy the part you marked and paste it above \u2014 timestamps are removed automatically.",
+ "sh.captions_open_yt":"Open on YouTube",
  "sh.tabs_label":"Shadow Studio sections",
  "sh.delete_clip_title":"Delete this clip",
  "sh.empty_clips_title":"No saved clips yet",
@@ -3722,7 +3728,8 @@ function rShadow(el){
       <div class="card">
         <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
-        <textarea rows="4" id="shNote" class="grow-ta" placeholder="${esc(t("sh.transcript_ph"))}" oninput="taGrow(this)"></textarea>
+        <textarea rows="4" id="shNote" class="grow-ta" placeholder="${esc(t("sh.transcript_ph"))}" oninput="taGrow(this)" onpaste="setTimeout(()=>shCleanPaste(this),0)"></textarea>
+        <p class="sh-cap-hint" id="shCapHint"></p>
         <p class="sh-edit-note">${tIc("sh.transcript_editable","pencil")}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn btn-g btn-sm" onclick="shMarkStress()">${t("sh.mark_stress_btn")}</button>
@@ -4036,7 +4043,20 @@ const _capCache={};
 async function loadCaptions(vid){
   if(vid in _capCache)return _capCache[vid];
   let data=null;
+  /* 1. a bundled file — the curated library clips, works offline */
   try{const r=await fetch("captions/"+vid+".json");if(r.ok)data=await r.json();}catch(e){}
+  /* 2. otherwise ask the worker to fetch YouTube's own captions. Unofficial and
+        best-effort: plenty of videos have captions disabled, and YouTube can
+        refuse a datacentre request. On failure we leave data null and the UI
+        offers to let the user paste the transcript instead. */
+  if(!data&&POLISH_API){
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({captions:vid})});
+      const j=await r.json();
+      if(r.ok&&j&&j.cues&&j.cues.length)data=j;
+    }catch(e){}
+  }
   _capCache[vid]=data;return data;
 }
 /* Exact clip transcript: caption files with a per-word `words:[{t,w}]` track let us
@@ -4073,13 +4093,33 @@ function captionsInRange(cues,start,end){
   for(let i=0;i<cues.length;i++){const[cs,ce]=span(i);if(ce>start&&cs<end)return String(cues[i].txt||"").trim()}
   return "";
 }
+/* Fetching another site's captions is best-effort, so tell the user it's working
+   and give a real way forward when it isn't. */
+function shCapBusy(on){
+  const b=document.getElementById("shCapHint");
+  if(b)b.innerHTML=on?`<span class="inl-ic">${ic("doc")}</span>${esc(t("sh.captions_fetching"))}`:"";
+}
+function shCapHelp(){
+  const b=document.getElementById("shCapHint");if(!b)return;
+  b.innerHTML=`<span class="inl-ic">${ic("idea")}</span>${esc(t("sh.captions_manual"))}
+    <a href="https://www.youtube.com/watch?v=${encodeURIComponent(shClip.vid||"")}" target="_blank" rel="noopener">${esc(t("sh.captions_open_yt"))}</a>`;
+}
+/* Strip the timestamps YouTube's transcript panel includes when copied. */
+window.shCleanPaste=el=>{
+  const raw=el.value;
+  const cleaned=raw.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s*/gm,"").replace(/\n{2,}/g,"\n").replace(/[ \t]+/g," ").trim();
+  if(cleaned!==raw.trim()){el.value=cleaned;taGrow(el);}
+};
 async function shPull(auto){
   if(!shClip.vid)return;
   if(!(shClip.end>shClip.start)){if(!auto)toast(t("sh.mark_both_toast"));return;}
   const box=document.getElementById("shNote");if(!box)return;
   if(auto&&box.value.trim())return; /* never overwrite existing text automatically */
+  if(!auto)shCapBusy(true);
   const data=await loadCaptions(shClip.vid);
-  if(!data||!data.cues||!data.cues.length){if(!auto)toast(t("sh.no_captions_toast"));return;}
+  if(!auto)shCapBusy(false);
+  /* no captions anywhere → offer the manual route rather than a dead end */
+  if(!data||!data.cues||!data.cues.length){shCapHelp();if(!auto)toast(t("sh.no_captions_toast"));return;}
   const seg=(data.words&&data.words.length)?wordsInRange(data.words,shClip.start,shClip.end):captionsInRange(data.cues,shClip.start,shClip.end);
   if(!seg){if(!auto)toast(t("sh.no_captions_range_toast"));return;}
   box.value=markStress(seg);taGrow(box);
