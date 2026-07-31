@@ -773,7 +773,10 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .about-x svg{width:20px;height:20px}
 .about-frame{flex:1 1 auto;width:100%;height:100%;min-height:0;border:none;background:var(--bg)}
 .about-back,.about-theme{position:absolute;top:max(14px,calc(env(safe-area-inset-top) + 8px));z-index:3;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:rgba(8,12,22,.55);backdrop-filter:blur(8px);color:#fff;display:grid;place-items:center;cursor:pointer}
-.about-back{left:14px}
+/* labelled back pill, not a bare ✕ — it must be obvious where you'll land */
+.about-back{left:14px;width:auto;min-width:40px;padding:0 15px;border-radius:99px;
+  font-family:inherit;font-size:13.5px;font-weight:700;letter-spacing:.2px;white-space:nowrap}
+.about-back-l{line-height:1}
 .about-theme{right:14px}
 .about-back svg,.about-theme svg{width:20px;height:20px}
 .fab-col{position:fixed;right:24px;bottom:24px;z-index:57;display:flex;flex-direction:column;gap:12px;align-items:center}
@@ -821,7 +824,8 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-hero{background:var(--grad);border-radius:20px;padding:34px 26px;text-align:center;color:#fff;margin-bottom:14px}
 .help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.25}
 /* Search bar stays pinned below the top nav so the term can be changed while scrolling */
-.help-searchbar{position:sticky;top:56px;z-index:40;background:transparent;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
+/* sits BELOW the sticky "‹ Profile · Help & guide" bar, not on top of it */
+.help-searchbar{position:sticky;top:calc(62px + var(--pg-eyebrow-h,38px));z-index:39;background:var(--bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
 .help-search{max-width:520px;margin:0 auto;position:relative}
 .help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .help-search-ic svg{width:18px;height:18px}
@@ -3035,6 +3039,10 @@ async function rManual(el){
   const name=(S.profile&&S.profile.name)?String(S.profile.name).trim():"";
   const greet=(name?t("help.greeting_name",{name:esc(name)}):t("help.greeting")).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
   el.innerHTML=`
+    <div class="eyebrow pg-eyebrow pg-sub">
+      <button class="back" onclick="go('profile')">${t("profile.back")}</button>
+      <span>${t("profile.help")}</span>
+    </div>
     <div class="help-hero">
       <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
     </div>
@@ -3115,7 +3123,7 @@ window.openAbout=function(){
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
   const src="flyer.html?v=75&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme);   // v= bumps each flyer change so caches never serve a stale About page
   const ov=document.createElement("div");ov.id="aboutOv";ov.className="about-ov";
-  ov.innerHTML=`<button class="about-back" onclick="closeAbout()" aria-label="Close">${ic("close")}</button><button class="about-theme" onclick="aboutToggleTheme()" aria-label="Theme">${ic(theme==="light"?"moon":"sun")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
+  ov.innerHTML=`<button class="about-back" onclick="closeAbout()" aria-label="${esc(t("profile.back"))}"><span class="about-back-l">${esc(t("profile.back"))}</span></button><button class="about-theme" onclick="aboutToggleTheme()" aria-label="Theme">${ic(theme==="light"?"moon":"sun")}</button><iframe class="about-frame" src="${src}" title="${esc(t("profile.about"))}"></iframe>`;
   document.body.appendChild(ov);
   ov.style.display="flex";
 };
