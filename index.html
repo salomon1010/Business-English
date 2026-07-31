@@ -824,8 +824,10 @@ html[dir="rtl"] .lang-row{text-align:right}
 .help-hero{background:var(--grad);border-radius:20px;padding:34px 26px;text-align:center;color:#fff;margin-bottom:14px}
 .help-hero h1{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.25}
 /* Search bar stays pinned below the top nav so the term can be changed while scrolling */
-/* sits BELOW the sticky "‹ Profile · Help & guide" bar, not on top of it */
-.help-searchbar{position:sticky;top:calc(62px + var(--pg-eyebrow-h,38px));z-index:39;background:var(--bg);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
+/* sits BELOW the sticky "‹ Profile · Help & guide" bar, not on top of it.
+   Background stays transparent — the blur alone keeps content readable, and a
+   solid fill reads as a black band across the page. */
+.help-searchbar{position:sticky;top:calc(62px + var(--pg-eyebrow-h,38px));z-index:39;background:transparent;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);padding:8px 0 10px;margin-bottom:10px}
 .help-search{max-width:520px;margin:0 auto;position:relative}
 .help-search-ic{position:absolute;left:15px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .help-search-ic svg{width:18px;height:18px}
