@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google-site-verification" content="jhJ7WJuNrifvgVF1mXZj9pXhKRobrOybJXLcn2FSsOE" />
 <title>Business English Mastery — 12-Week System</title>
 <meta name="theme-color" content="#0a0e1a">
@@ -110,10 +110,36 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* GENERIC */
-.eyebrow{font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--acc2);font-weight:700;margin-bottom:8px}
-h1.big{font-size:clamp(28px,4.5vw,44px);font-weight:800;line-height:1.12;margin-bottom:10px}
+.eyebrow{font-size:clamp(10.5px,2.9vw,12px);letter-spacing:clamp(1.4px,.5vw,2.5px);text-transform:uppercase;color:var(--acc2);font-weight:700;margin-bottom:8px}
+/* PAGE EYEBROW — the "where am I" label. Sticks under the top bar while the
+   page scrolls, so the section name is always on screen. Spans the full width
+   (negative margins undo main's padding) and blurs the content behind it. */
+.pg-eyebrow{position:sticky;top:62px;z-index:40;
+  margin:-30px -20px 8px;padding:11px 20px 10px;
+  background:var(--nav-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);line-height:1.35}
+@media(max-width:820px){
+  .pg-eyebrow{font-size:11px;letter-spacing:1.8px;padding:10px 20px 9px}
+}
+/* .seg-fit — a short tab row that must ALWAYS stay on a single line at every
+   width. The tabs split the width evenly; inside a tab the label itself never
+   breaks — only the trailing number/count is allowed to drop to a second line
+   when the tab gets too narrow. */
+.seg-fit{flex-wrap:nowrap;overflow-x:visible}
+.seg-fit .seg-tab{flex:1 1 0;min-width:0;flex-wrap:wrap;justify-content:center;
+  text-align:center;row-gap:1px;line-height:1.25}
+.seg-fit .seg-tab .seg-lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.seg-fit .seg-tab b{white-space:nowrap}
+/* sub-page variant: the back link travels with the title, so you can leave
+   the page from anywhere down its length */
+.pg-sub{display:flex;align-items:center;gap:12px}
+.pg-sub .back{margin:0;flex:none;font-size:13px;letter-spacing:0;text-transform:none}
+.pg-sub>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Fluid display type: scales smoothly with the screen instead of jumping at
+   breakpoints. Lower floor than before so it doesn't dominate a small phone. */
+h1.big{font-size:clamp(23px,5.4vw,40px);font-weight:800;line-height:1.15;margin-bottom:10px;letter-spacing:-.4px}
 h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{color:var(--mut);font-size:15.5px;max-width:720px;line-height:1.65}
+.sub{color:var(--mut);font-size:clamp(13.5px,3.6vw,15.5px);max-width:720px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
 .grid{display:grid;gap:12px}
 .g2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
@@ -147,9 +173,16 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ring svg{transform:rotate(-90deg)}
 .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:30px;font-weight:800;line-height:1.1}
 .ring .pct small{display:block;font-size:11px;color:var(--mut);font-weight:500;text-align:center}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px}
-.stat .n{font-size:28px;font-weight:800;display:flex;align-items:center;gap:7px}
-.stat .l{font-size:12.5px;color:var(--mut);margin-top:3px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;transition:.16s}
+.stat[role=button]:hover{border-color:var(--acc);transform:translateY(-2px)}
+.stat[role=button]:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+/* a stat still at zero shows the single next action that changes it */
+.stat-todo{border-style:dashed;border-color:var(--line2)}
+.stat-next{display:flex;align-items:flex-start;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
+  font-size:12px;line-height:1.5;color:var(--acc2);text-align:left}
+.stat-next svg{width:14px;height:14px;flex:none;margin-top:2px}
+.stat .n{font-size:clamp(21px,5.4vw,28px);font-weight:800;display:flex;align-items:center;gap:7px}
+.stat .l{font-size:clamp(11.5px,3vw,12.5px);color:var(--mut);margin-top:3px}
 .stat-ic{color:var(--acc);flex:none;line-height:0}
 .stats-center .stat{text-align:center}
 .stats-center .stat .n{justify-content:center}
@@ -356,7 +389,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .idiom-tag{font-size:11px;font-weight:700;color:var(--pink);letter-spacing:1px}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:13px;font-weight:600}
+.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:clamp(12px,3.2vw,13px);font-weight:600}
 .cat-tab.on{background:var(--grad);color:#fff;border-color:transparent}
 
 /* SHADOW (YouGlish-style clip looper) */
@@ -375,18 +408,89 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-pill button svg{width:22px;height:22px}
 .sh-pill button i{font-size:10px;font-weight:800;font-style:normal;line-height:1}
 .sh-time{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--acc2);font-weight:600;white-space:nowrap}
-.sh-seg{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:9px 12px}
-.sh-seg::-webkit-scrollbar{height:0}
+/* CLIP PANEL — two states.
+   Default (no clip): a single compact row  → CLIP [Start] 0:00 → [End]      [Delete]
+   Clip created:      a second row appears  → [Transcript] [0s/3s] 3 sec — a bit short
+   The clip info never shares the row with the Start/End controls. */
+.sh-seg{margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:9px 12px}
+.sh-seg-row{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.sh-seg-row::-webkit-scrollbar{height:0}
+.sh-seg-sp{flex:1 1 auto;min-width:4px}
 .sh-seg .lbl{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);font-weight:700;flex:none}
-.sh-seg .btn{padding:6px 10px;gap:4px;flex:none}
+.sh-seg .btn{padding:6px 10px;gap:4px;flex:none;min-height:34px}
 .sh-seg .btn .btn-ic{margin-right:0}
 .sh-seg .sh-time,.sh-seg .sh-len{flex:none}
+/* second row: collapsed by default, expands when the panel gets .has-clip */
+.sh-seg-row2{display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+  max-height:0;opacity:0;overflow:hidden;margin-top:0;padding-top:0;border-top:1px solid transparent;
+  transition:max-height .26s ease,opacity .2s ease .04s,margin-top .26s ease,padding-top .26s ease}
+.sh-seg.has-clip .sh-seg-row2{max-height:140px;opacity:1;margin-top:9px;padding-top:9px;border-top-color:var(--line2)}
+.sh-seg-row2 .sh-len{flex:1 1 auto;min-width:0;white-space:normal;line-height:1.45} /* long validation text wraps */
+@media(prefers-reduced-motion:reduce){.sh-seg-row2{transition:none}}
 .sh-len{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
 .sh-len.ok{color:var(--green)}.sh-len.warn{color:var(--gold)}
 .sh-count{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;background:#000;border:1px solid var(--line2);color:var(--txt);border-radius:7px;padding:3px 7px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
 .sh-count.go{border-color:var(--acc2);color:var(--acc2)}
 .sh-count.ready{border-color:var(--green);color:var(--green)}
 .sh-count.over{border-color:var(--gold);color:var(--gold);animation:pulse 1.2s infinite}
+/* GRAMMAR — reference rules + exercise launcher cards */
+.gr-rule{border-left:2px solid var(--line2);padding-left:12px}
+.gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
+.gr-bad{color:var(--red);text-decoration:line-through;text-decoration-color:rgba(248,113,113,.5)}
+.gr-arr{color:var(--mut2)}
+.gr-good{color:var(--green);font-weight:600}
+.gr-why{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:4px}
+.gx-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;
+  border:1px solid var(--line2);background:var(--card);border-radius:var(--r);padding:18px;cursor:pointer;
+  transition:.18s;font-family:inherit;color:var(--txt);min-height:132px}
+.gx-card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.gx-card:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.gx-ic{color:var(--acc);line-height:0;margin-bottom:4px}
+.gx-ic svg{width:24px;height:24px}
+.gx-card b{font-size:14.5px;line-height:1.35}
+.gx-card small{font-size:12px;color:var(--mut)}
+.gx-best,.gx-new{margin-top:auto;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;
+  border-radius:7px;padding:3px 8px}
+.gx-best{color:var(--green);background:rgba(52,211,153,.14)}
+.gx-new{color:var(--mut2);background:var(--bg2)}
+.gx-why{display:none;margin-top:14px;padding:12px 15px;border-radius:12px;font-size:13.5px;line-height:1.55;
+  align-items:flex-start;gap:9px}
+.gx-why.show{display:flex;animation:fade .22s}
+.gx-why.ok{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.35);color:var(--txt)}
+.gx-why.no{background:rgba(251,191,36,.10);border:1px solid rgba(251,191,36,.35);color:var(--txt)}
+.gx-why-ic{flex:none;line-height:0;margin-top:1px}
+.gx-why.ok .gx-why-ic{color:var(--green)}
+.gx-why.no .gx-why-ic{color:var(--gold)}
+.gx-why-ic svg{width:18px;height:18px}
+/* WELCOME MODAL — first run. Persistent: only a user action closes it. */
+.wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
+  display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
+.wc-ov.show{opacity:1}
+.wc-card{position:relative;max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);
+  border-radius:22px;padding:30px 26px 26px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);
+  transform:translateY(10px) scale(.98);transition:transform .28s cubic-bezier(.2,.8,.3,1);max-height:92vh;overflow:auto}
+.wc-ov.show .wc-card{transform:none}
+.wc-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);
+  background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer}
+.wc-x svg{width:17px;height:17px}
+.wc-emoji{color:var(--gold);line-height:0;margin-bottom:12px}
+.wc-emoji svg{width:40px;height:40px;display:inline-block}
+.wc-card h2{font-size:23px;font-weight:800;letter-spacing:-.4px;margin-bottom:8px}
+.wc-lead{font-size:14.5px;color:var(--mut);line-height:1.6;margin-bottom:16px}
+.wc-score{background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:14px;margin-bottom:16px}
+.wc-score-l{display:block;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.wc-score b{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--acc2)}
+.wc-body{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+.wc-go{width:100%;justify-content:center}
+@media(prefers-reduced-motion:reduce){.wc-ov,.wc-card{transition:none}}
+/* EMPTY STATES — one shared component (icon + what's missing + the action that fills it) */
+.empty-st{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
+  padding:30px 22px;border:1px dashed var(--line2);border-radius:var(--r);background:var(--bg2)}
+.empty-st .empty-ic{color:var(--mut2);line-height:0}
+.empty-st .empty-ic svg{width:30px;height:30px}
+.empty-st b{font-size:14.5px;color:var(--txt)}
+.empty-st p{font-size:13px;color:var(--mut);line-height:1.55;max-width:44ch;margin:0}
+.empty-st .btn{margin-top:6px}
 .clip-row{display:flex;align-items:center;gap:12px;padding:11px 15px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-top:8px;font-size:14px;cursor:pointer;transition:.15s}
 .clip-row:hover{border-color:var(--acc)}
 .clip-row .rng{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc2);white-space:nowrap}
@@ -430,11 +534,32 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .voc-syn .arr{color:var(--mut2)}
 .voc-syn b.up{color:var(--acc2);border-bottom:1px dashed var(--acc2)}
 /* ===== PRACTICE TAB ===== */
-.prac-subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.prac-subtab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
-.prac-subtab b{margin-left:5px;color:var(--mut2)}
-.prac-subtab.on{background:var(--grad);border-color:transparent;color:#fff}
-.prac-subtab.on b{color:#fff}
+/* Segmented pill tabs — the one tab component used across the app
+   (Library buckets, Journey phases, Shadow Studio, Phrase Lab). */
+.prac-subtabs,.seg-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut2)}
+.prac-subtab.on,.seg-tab.on{background:var(--grad);border-color:transparent;color:#fff}
+.prac-subtab.on b,.seg-tab.on b{color:#fff}
+.prac-subtab:hover,.seg-tab:hover{border-color:var(--acc)}
+.prac-subtab:focus-visible,.seg-tab:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.seg-tab .btn-ic svg,.seg-tab .inl-ic svg{width:16px;height:16px;display:block}
+/* horizontal scroll instead of wrapping when a tab row is too wide for the phone */
+@media(max-width:520px){
+  .seg-tabs{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin-left:-2px;padding:2px;
+    /* soft fade on the right edge so it's obvious more tabs are hiding there */
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent);
+    mask-image:linear-gradient(to right,#000 calc(100% - 26px),transparent)}
+  .seg-tabs::-webkit-scrollbar{display:none}
+  .seg-tab{flex:0 0 auto}
+  /* a row that already fits needs no fade */
+  .seg-fit{-webkit-mask-image:none;mask-image:none}
+  /* .seg-fit on a phone: tabs share the width evenly and drop their icons. */
+  .seg-fit{overflow-x:visible;gap:6px}
+  .seg-fit .seg-tab{padding:7px 4px;font-size:clamp(10.5px,3vw,12px);gap:3px}
+  .seg-fit .seg-tab .btn-ic{display:none}
+  .seg-fit .seg-tab b{margin-left:0}
+}
 .prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:linear-gradient(155deg,rgba(52,211,153,.20),rgba(52,211,153,.08));border:1px solid rgba(52,211,153,.42);border-radius:14px;padding:13px 8px;cursor:pointer;color:var(--txt);transition:.15s}
 .prac-ex-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 10px 26px rgba(52,211,153,.22)}
@@ -575,9 +700,18 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 @keyframes obConf{to{transform:translateY(380px) rotate(600deg);opacity:0}}
 @media (prefers-reduced-motion:reduce){.ob-mic.listening,.ob-mic-rings,.ob-confetti i{animation:none}.ob-confetti{display:none}}
 /* ONBOARDING */
-.ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px;
+/* Onboarding overlay. Must scroll: on a short screen (or an installed Android
+   app, where the system bars eat height) the assessment step is taller than the
+   viewport, and a centred grid would clip the buttons off the bottom with no way
+   to reach them. `display:flex` + `margin:auto` on the card centres it when it
+   fits and scrolls cleanly — without the top-clipping that centred overflow
+   causes. Safe-area padding keeps it clear of the notch and nav bar. */
+.ob-wrap{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+  padding:max(24px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right))
+          max(24px,calc(env(safe-area-inset-bottom) + 16px)) max(20px,env(safe-area-inset-left));
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
-.ob-card{max-width:520px;width:100%;text-align:center;animation:fade .4s}
+.ob-card{max-width:520px;width:100%;margin:auto;text-align:center;animation:fade .4s}
 .ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45);color:#fff}
 .ob-logo svg{width:40px;height:40px}
 .ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
@@ -869,6 +1003,72 @@ html[dir="rtl"] .manual-doc th,html[dir="rtl"] .manual-doc td{text-align:right}
 html[dir="rtl"] .manual-doc ol.steps>li{padding:12px 56px 12px 16px}
 html[dir="rtl"] .manual-doc ol.steps>li::before{left:auto;right:14px}
 html[dir="rtl"] .manual-doc h2.sec .no{}
+
+/* ============================================================
+   DESIGN-SYSTEM NORMALISATION
+   Cross-cutting rules applied last so every screen behaves the
+   same. Deliberately does not change colours, type or resting
+   spacing — it standardises focus, touch targets and overflow.
+   ============================================================ */
+
+/* 1 — Focus. One visible ring for every interactive element (keyboard only). */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
+select:focus-visible,[role=button]:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--acc2);outline-offset:2px;border-radius:8px}
+.btn:focus-visible,.pv-opt:focus-visible{outline-offset:3px}
+
+/* 2 — Nothing may push the page sideways. Wide content scrolls inside itself. */
+/* `clip` (not `hidden`) — hidden turns these into scroll containers, which
+   silently breaks every position:sticky descendant (e.g. .pg-eyebrow). */
+html,body{max-width:100%;overflow-x:clip}
+
+/* 2b — ZOOM STABILITY. Three separate things make a phone appear to "zoom in";
+   all of them are disabled here, without taking away deliberate pinch-zoom. */
+html{
+  -webkit-text-size-adjust:100%;   /* iOS/Android silently inflating text after rotation */
+  text-size-adjust:100%;
+  -webkit-tap-highlight-color:transparent;
+}
+/* kill the 300ms double-tap-to-zoom gesture on things meant to be tapped once */
+button,a,.btn,.seg-tab,.cat-tab,.tab,.bnav-item,.stat[role=button],.clip-row,
+.ph-card,.gx-card,.voc-head,.pf-row,.help-card,.wk-card,.day-row,input,select,textarea,label{
+  touch-action:manipulation}
+/* iOS zooms the whole page when focusing a field whose text is under 16px —
+   enforced app-wide, not just inside the mobile block */
+@supports(-webkit-touch-callout:none){
+  input,select,textarea{font-size:max(16px,1em)}
+}
+main{min-width:0}
+.card,.stat,.grid>*{min-width:0}                 /* let grid/flex children shrink */
+img,video,canvas,svg{max-width:100%}
+pre,code{overflow-wrap:anywhere}
+/* tables scroll in their own container rather than widening the page */
+.tbl-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* 3 — Comfortable touch targets on phones (44px is the accessible minimum). */
+@media(max-width:820px){
+  .btn{min-height:44px}
+  .btn-sm{min-height:38px}
+  input,select,textarea{min-height:44px;font-size:16px}  /* 16px stops iOS zoom-on-focus */
+  textarea{min-height:88px}
+  .seg-tab,.prac-subtab{min-height:40px}
+  .voc-mini,.ph-icobtn,.ex-icobtn{min-width:38px;min-height:38px}
+  .bnav-item{min-height:52px}
+}
+
+/* 4 — Long words / labels wrap instead of overflowing their card. */
+h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
+/* bottom-nav labels stay on ONE line so every item is the same height —
+   the type shrinks slightly on narrow phones instead of wrapping */
+.bnav-item span:not(.ic){text-align:center;line-height:1.2;white-space:nowrap}
+@media(max-width:400px){.bnav-item span:not(.ic){font-size:9.5px;letter-spacing:-.1px}}
+@media(max-width:340px){.bnav-item span:not(.ic){font-size:9px}}
+
+/* 5 — Motion. One hover timing, and honour reduced-motion everywhere. */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
 </style>
 </head>
 <body>
@@ -876,9 +1076,9 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
-  <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrases & Idioms</span></button>
+  <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
-  <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
+  <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Library</span></button>
   <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
   <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
@@ -912,8 +1112,8 @@ html[dir="rtl"] .manual-doc h2.sec .no{}
 <nav class="bottom-nav" aria-label="Main navigation">
   <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Weeks</span></button>
   <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
-  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrases</span></button>
-  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
+  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
+  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Library</span></button>
   <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
   <button class="bnav-item" data-v="profile" onclick="go('profile')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg></span><span data-i18n="bnav.profile">Profile</span></button>
 </nav>
@@ -1448,6 +1648,7 @@ const I18N_EN={
  "acc.title_named":"{{name}}'s <em>account</em>",
  "acc.title_generic":"Your <em>account</em>",
  "profile.back":"‹ Profile",
+ "profile.eyebrow":"Profile",
  "profile.guest":"Guest",
  "profile.sub_default":"Practising English with BE Mastery",
  "profile.day_streak":"day streak",
@@ -1623,6 +1824,9 @@ const I18N_EN={
  "phase.1":"Foundation",
  "phase.2":"Workplace Fluency",
  "phase.3":"Executive Communication",
+ "phase.s1":"Foundation",
+ "phase.s2":"Workplace",
+ "phase.s3":"Executive",
  "rules.0.title":"Every session produces evidence",
  "rules.0.desc":"A recording, transcript, phrase entry, or correction notes. No evidence = no real session.",
  "rules.1.title":"No passive English",
@@ -1651,14 +1855,68 @@ const I18N_EN={
  "home.stat_phrases":"Phrases & idioms mastered",
  "home.stat_sessions":"Sessions completed",
  "home.stat_clips":"Shadowing clips saved",
- "home.stat_vocab":"Vocabulary mastered",
+ "home.stat_vocab":"Words mastered",
+ "home.next_streak":"Complete today's 25-minute session to start your streak.",
+ "home.next_recordings":"Record yourself once today — 20 seconds is enough to get feedback.",
+ "home.next_phrases":"Master five phrases from this week's Phrase Lab.",
+ "home.next_sessions":"Complete today's 25-minute session.",
+ "home.next_clips":"Create your first clip in the Shadow Studio.",
+ "home.next_vocab":"Save five words from today's speaking feedback.",
  "home.science_h":"🧠 The science behind the 25-minute block",
  "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour, and small sharp blocks are exactly how a new voice is built.",
  "home.rules_h":"📜 Execution rules — non-negotiable",
  "journey.eyebrow":"Curriculum Map",
  "journey.title":"The 12-Week <em>Journey</em>",
- "journey.sub":"Twelve weeks from now, someone will ask how your English got this good — and you'll simply smile. Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12), rising one phase at a time. Each week: Mon pronunciation & shadowing · Tue speaking drill · Wed phrase bank · Thu meeting sim · Fri delivery · Sat long-form · Sun review.",
+ "journey.sub":"Twelve weeks from now, someone will ask how your English got this good — and you'll simply smile. Foundation (1–4) → Workplace Fluency (5–8) → Executive Communication (9–12), rising one phase at a time. Each week: Mon pronunciation & shadowing · Tue speaking drill · Wed Phrase Lab · Thu meeting sim · Fri delivery · Sat long-form · Sun review.",
  "journey.week_label":"WEEK {{n}}",
+ "ph.kind_tabs_label":"Phrase type",
+ "ph.tab_phrases":"Professional phrases",
+ "ph.tab_idioms":"Business idioms",
+ "ph.empty_phrases_title":"No phrases this week",
+ "ph.empty_phrases_body":"This week's material is all business idioms — switch across to work on them.",
+ "ph.empty_idioms_title":"No idioms this week",
+ "ph.empty_idioms_body":"This week focuses on professional phrases. Idioms appear in other weeks of the programme.",
+ "lib.tabs_label":"Library sections",
+ "lib.tab_vocab":"Vocabulary",
+ "lib.tab_grammar":"Grammar",
+ "lib.tab_exercises":"Grammar exercises",
+ "lib.tab_saved":"Saved expressions",
+ "lib.tab_idioms":"Business idioms",
+ "lib.grammar_sub":"The rules your speaking coach checks for — the mistakes it flags, and the correct version to use instead.",
+ "lib.grammar_practice_h":"Practise these rules",
+ "lib.grammar_practice_sub":"Reading a rule isn't learning it. Drill them until the right form comes out under pressure.",
+ "lib.ex_sub":"Short, focused drills. Eight questions at a time, each with the reason behind the answer.",
+ "lib.saved_sub":"Phrases you've made your own — the ones you've written an example for or marked as mastered.",
+ "lib.mastered_chip":"Mastered",
+ "lib.idioms_sub":"Every business idiom in the 12-week programme, with the situation it fits.",
+ "lib.go_phrases":"Open the Phrase Lab",
+ "lib.empty_saved_title":"No saved expressions yet",
+ "lib.empty_saved_body":"Write your own example for a phrase in the Phrase Lab, or mark one as mastered, and it will appear here.",
+ "lib.empty_idioms_title":"No idioms available",
+ "lib.empty_idioms_body":"Business idioms are unlocked as you move through the 12-week programme.",
+ "gx.cat_blanks":"Fill in the blanks",
+ "gx.cat_correction":"Sentence correction",
+ "gx.cat_tenses":"Verb tenses",
+ "gx.cat_articles":"Articles",
+ "gx.cat_preps":"Prepositions",
+ "gx.cat_business":"Business grammar",
+ "gx.cat_weekly":"Weekly grammar review",
+ "gx.n_questions":"{{n}} questions",
+ "gx.best":"Best {{pct}}%",
+ "gx.not_started":"Not started",
+ "gx.choose":"Choose the correct option",
+ "gx.none":"No questions available yet.",
+ "gx.end_great":"Strong work!",
+ "gx.end_ok":"Good practice",
+ "gx.end_summary":"You got {{score}} of {{total}} right ({{pct}}%).",
+ "wc.title":"Welcome to BE Mastery",
+ "wc.lead":"Excellent start, {{name}}. This is day one of the speaker you're becoming.",
+ "wc.score_label":"Assessment score",
+ "wc.body":"We've built your 12-week plan around your answers. Twenty-five focused minutes a day, six days a week — that's all it takes.",
+ "wc.cta":"Start Week 1",
+ "wc.close":"Close",
+ "journey.phase_tabs_label":"Learning track",
+ "journey.phase_progress":"{{phase}} · {{done}} of {{total}} sessions done",
  "week.back":"← All weeks",
  "week.sessions_done":"{{done}}/7 sessions done",
  "week.title":"Week {{w}} — <em>{{theme}}</em>",
@@ -1675,8 +1933,8 @@ const I18N_EN={
  "sess.link_shadow":"Open the Shadow Studio",
  "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
  "sess.link_shadow_why_fri":"Drill your weakest clip here, then record the improved version.",
- "sess.link_phrases":"Open this week's phrases & idioms",
- "sess.link_phrases_why":"Study and record this week's phrases and idioms here.",
+ "sess.link_phrases":"Open the Phrase Lab",
+ "sess.link_phrases_why":"Study and record this week's phrases and idioms in the Phrase Lab.",
  "sess.link_review":"Open the Reviews tab",
  "sess.link_review_why":"Score your week and write your review here.",
  "sess.week_day_chip":"Week {{w}} · {{d}}",
@@ -1714,7 +1972,7 @@ const I18N_EN={
  "sess.mark_done":"✓ Completed — tap to un-mark",
  "sess.mark_incomplete":"✅ Mark session complete",
  "sess.day_complete_toast":"Week {{w}} {{d}} done 🔥 — one more day of becoming the speaker you're chasing.",
- "ph.eyebrow":"Phrase Bank & Business Idioms",
+ "ph.eyebrow":"Phrase Lab — professional phrases & business idioms",
  "ph.title":"Repeat. Record. <em>Own it.</em>",
  "ph.sub":"These are the exact words the confident ones use — say each one aloud, make it your own, and record it until the perfect phrase is already on your tongue when the room turns to you.",
  "ph.exec_title":"💼 Executive Polish",
@@ -1765,11 +2023,11 @@ const I18N_EN={
  "prog.stat_words":"Words spoken in feedback sessions",
  "prog.stat_best":"Best pronunciation score",
  "prog.stat_pace":"Latest pace (wpm)",
- "prog.stat_vocab":"Words in My vocabulary",
+ "prog.stat_vocab":"Words in your library",
  "prog.chart_pron_title":"🎯 Pronunciation score journey",
  "prog.chart_pron_sub":"Every speaking-feedback attempt, oldest → newest",
  "prog.chart_voc_title":"📚 Vocabulary growth",
- "prog.chart_voc_sub":"Words saved to My vocabulary over time",
+ "prog.chart_voc_sub":"Words saved to Vocabulary & Grammar over time",
  "prog.chart_voc_empty":"🔖 Save 2+ words from your feedback and watch this curve climb —<br>proof of the fluency taking shape",
  "prog.chart_speed_title":"⚡ Speaking speed",
  "prog.chart_activity_title":"🗓️ Speaking activity — last 14 days",
@@ -1826,6 +2084,7 @@ const I18N_EN={
  "sh.posture_privacy":"🔒 Zero-capture: frames are analysed on-device and discarded instantly — nothing is stored or uploaded.",
  "sh.transcript_notes_title":"🎬 Clip transcript & notes",
  "sh.transcript_notes_desc":"The clip's words — auto-filled for library clips (CAPS = stress). Edit or type your own.",
+ "sh.transcript_editable":"✏️ Auto-filled from the clip you marked — read it over and fix any wrong words before you shadow.",
  "sh.captions_ready":"🎬 Captions ready — mark any part",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
@@ -1847,11 +2106,20 @@ const I18N_EN={
  "sh.feedback_desc":"Record your shadowing above, or read the text aloud live. Every word is scored — green = clear, yellow = practise.",
  "sh.start_feedback_btn":"🎤 Start speaking feedback",
  "sh.analyze_last_btn":"🎙️ Analyze my last shadowing recording",
+ "sh.tabs_label":"Shadow Studio sections",
+ "sh.delete_clip_title":"Delete this clip",
+ "sh.empty_clips_title":"No saved clips yet",
+ "sh.empty_clips_body":"Create your first clip to begin building your speaking library — pick a video, mark 20–30 seconds, and save it.",
+ "sh.empty_trouble_title":"No trouble words yet",
+ "sh.empty_trouble_body":"Words you mispronounce are collected here automatically. Record a shadow session and your speaking feedback will fill this list.",
+ "sh.tab_create":"Create clip",
+ "sh.tab_clips":"My clips",
+ "sh.tab_trouble":"Trouble words",
  "sh.saved_clips_h":"⭐ My saved clips",
  "sh.saved_clips_sub":"Tap a clip to reload it.",
  "sh.trouble_h":"💪 My trouble words",
  "sh.trouble_sub":"Words the feedback flags collect here. Say one correctly and it clears.",
- "sh.vocab_h":"📚 My vocabulary",
+ "sh.vocab_h":"📚 Vocabulary & Grammar",
  "sh.vocab_sub":"Words you saved. Tap for the definition and audio, or quiz yourself.",
  "tb.missed_count":"missed ×{{n}}",
  "tb.say_it_btn":"🎤 Say it",
@@ -1976,10 +2244,10 @@ const I18N_EN={
  "voc.loading_def":"Loading definition…",
  "voc.real_voice":"▶ Real voice",
  "voc.no_entry":"No dictionary entry found — use 🔊 to hear it.",
- "voc.removed_toast":"Removed from My vocabulary",
- "voc.saved_toast":"🔖 Saved to My vocabulary",
- "voc.saved_all_toast":"🔖 All words saved to My vocabulary",
- "voc.goto_link":"Go to My vocabulary",
+ "voc.removed_toast":"Removed from Vocabulary & Grammar",
+ "voc.saved_toast":"🔖 Saved to Vocabulary & Grammar",
+ "voc.saved_all_toast":"🔖 All words saved to Vocabulary & Grammar",
+ "voc.goto_link":"Go to Vocabulary & Grammar",
  "voc.back":"‹ Back to where I was",
  "voc.sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
  "voc.listening":"🎧 Listening… say the word",
@@ -2144,9 +2412,9 @@ const I18N_EN={
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
  "nav.dashboard":"🏠 Dashboard",
  "nav.weeks":"🗺️ 12 Weeks",
- "nav.phrases":"💬 Phrases & Idioms",
- "nav.shadow":"🎯 Shadow",
- "nav.practice":"🎴 Practice",
+ "nav.phrases":"💬 Phrase Lab",
+ "nav.shadow":"🎯 Shadow Studio",
+ "nav.practice":"📚 Library",
  "nav.reviews":"📊 Reviews",
  "nav.account":"👤 Account",
  "nav.profile":"Profile",
@@ -2154,14 +2422,14 @@ const I18N_EN={
  "bnav.home":"Home",
  "bnav.weeks":"Weeks",
  "bnav.shadow":"Shadow",
- "bnav.practice":"Practice",
- "bnav.phrases":"Phrases",
- "prac.eyebrow":"Your word bank",
- "prac.title":"My vocabulary",
- "prac.sub":"Every word you've collected while practising — keep working them until they're yours.",
- "prac.tab_ready":"Ready to practise",
- "prac.tab_upnext":"Up next",
- "prac.tab_learned":"Learned",
+ "bnav.practice":"Library",
+ "bnav.phrases":"Phrase Lab",
+ "prac.eyebrow":"Your language library",
+ "prac.title":"Vocabulary & Grammar",
+ "prac.sub":"Every word, phrase and rule you've collected while practising — keep working them until they're yours.",
+ "prac.tab_ready":"Study",
+ "prac.tab_upnext":"Review",
+ "prac.tab_learned":"Mastered",
  "prac.flashcards":"Flashcards",
  "prac.flashcards_sub":"Flip & recall",
  "prac.quizzes":"Quizzes",
@@ -2171,9 +2439,12 @@ const I18N_EN={
  "prac.words_collected":"Words collected",
  "prac.add_ph":"Add a word…",
  "prac.add_btn":"Add",
- "prac.empty_ready":"Nothing due right now — nicely done. Save more words from your speaking feedback.",
- "prac.empty_upnext":"No words scheduled for later yet.",
- "prac.empty_learned":"No mastered words yet — practise a few to move them here.",
+ "prac.empty_title_ready":"Nothing to study",
+ "prac.empty_title_upnext":"Nothing to review yet",
+ "prac.empty_title_learned":"No mastered words yet",
+ "prac.empty_ready":"Nothing to study right now — nicely done. Complete a Shadow session to collect difficult words automatically.",
+ "prac.empty_upnext":"Nothing to review yet. Words you get right move here and come back when it's time.",
+ "prac.empty_learned":"No mastered words yet — study a few and they'll graduate here.",
  "prac.no_words_toast":"Collect some words first — save them from your speaking feedback.",
  "prac.tap_flip":"Tap to flip",
  "prac.still_learning":"Still learning",
@@ -2228,7 +2499,7 @@ const I18N_EN={
  "ggood.3.cat":"Connector","ggood.3.note":"Excellent linking word — it makes your speech sound structured.",
  "ggood.4.cat":"Adverbial","ggood.4.note":"Great use of an adverb to add emphasis.",
  "ggood.5.cat":"Preposition","ggood.5.note":"Perfect preposition + gerund — “thanks for + -ing”.",
- "gphrase.cat":"Business phrasing","gphrase.note":"You used a phrase from your phrase bank in real speech — that's exactly the goal! 💼",
+ "gphrase.cat":"Business phrasing","gphrase.note":"You used a phrase from your Phrase Lab in real speech — that's exactly the goal! 💼",
  "footer.note":"© 2026 Lomonec LLC — BE Mastery · <a href=\"privacy.html\" target=\"_blank\">Privacy</a> · <a href=\"mailto:contact@lomonec.com\">Support</a>"
 };
 function localizeStatic(){
@@ -2699,7 +2970,7 @@ function go(v,arg1,arg2){
 /* ================= USER MANUAL (in-app, localized fragment) ================= */
 let _manCache={};
 let _helpOrig="";   // snapshot of the rendered manual, so search can reset highlights cleanly
-let _vocReturn=null;   // remembers where the user was before jumping to My vocabulary
+let _vocReturn=null;   // remembers where the user was before jumping to Vocabulary & Grammar
 async function rManual(el){
   const code=(S.profile&&S.profile.lang)||"en";
   el.innerHTML=`<div style="padding:60px 20px;text-align:center;color:var(--mut)">${esc(t("manual.loading"))}</div>`;
@@ -2826,7 +3097,7 @@ async function rHome(el){
   WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
   const circ=2*Math.PI*62;
   el.innerHTML=`
-  <div class="eyebrow">${t("home.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("home.eyebrow")}</div>
   <h1 class="big">${S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic")}</h1>
   <p class="sub">${t("home.sub_base")}${S.profile&&S.profile.role?t("home.sub_role",{role:esc(optLabel(S.profile.role,OB_ROLES,"role."))}):""}.${S.profile&&S.profile.goal?t("home.sub_goal",{goal:esc(optLabel(S.profile.goal,OB_GOALS,"goal.").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,""))}):""}${S.profile&&S.profile.slot?t("home.sub_slot",{slot:esc(optLabel(S.profile.slot,OB_SLOTS,"slot.").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,""))}):""}</p>
   <div class="hr"></div>
@@ -2855,12 +3126,12 @@ async function rHome(el){
     </div>
   </div>
   <div class="grid g4 stats-center" style="margin-bottom:22px">
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("flame")}</span>${streak()}</div><div class="l">${t("home.stat_streak")}</div></div>
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("mic")}</span>${recN}</div><div class="l">${t("home.stat_recordings")}</div></div>
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}<span style="font-size:15px;color:var(--mut)">/${PHRASES.length}</span></div><div class="l">${t("home.stat_phrases")}</div></div>
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}<span style="font-size:15px;color:var(--mut)">/84</span></div><div class="l">${t("home.stat_sessions")}</div></div>
-    <div class="stat" style="cursor:pointer" onclick="go('shadow')"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
-    <div class="stat" style="cursor:pointer" onclick="go('practice')"><div class="n"><span class="stat-ic">${ic("book")}</span>${Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length}<span style="font-size:15px;color:var(--mut)">/${Object.keys(S.vocab||{}).length}</span></div><div class="l">${t("home.stat_vocab")}</div></div>
+    ${statCard("flame",streak(),"",t("home.stat_streak"),streak()===0?t("home.next_streak"):"","go('session',"+pos.w+",'"+pos.d+"')")}
+    ${statCard("mic",recN,"",t("home.stat_recordings"),recN===0?t("home.next_recordings"):"","go('session',"+pos.w+",'"+pos.d+"')")}
+    ${statCard("chat",masteredCount(),"/"+PHRASES.length,t("home.stat_phrases"),masteredCount()===0?t("home.next_phrases"):"","go('phrases')")}
+    ${statCard("check",totalDone(),"/84",t("home.stat_sessions"),totalDone()===0?t("home.next_sessions"):"","go('session',"+pos.w+",'"+pos.d+"')")}
+    ${statCard("target",(S.clips||[]).length,"",t("home.stat_clips"),(S.clips||[]).length===0?t("home.next_clips"):"","go('shadow')")}
+    ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
   </div>
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
@@ -2869,14 +3140,34 @@ async function rHome(el){
   manIconizeInline(el);
 }
 
+/* A dashboard stat that guides instead of just counting: when the number is
+   still 0 it shows the one action that changes it. Always tappable. */
+function statCard(icon,n,suffix,label,hint,onclick){
+  return `<div class="stat${hint?" stat-todo":""}" style="cursor:pointer" onclick="${onclick}" role="button" tabindex="0"
+      onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
+    <div class="n"><span class="stat-ic">${ic(icon)}</span>${n}${suffix?`<span style="font-size:15px;color:var(--mut)">${suffix}</span>`:""}</div>
+    <div class="l">${label}</div>
+    ${hint?`<div class="stat-next">${ic("arrow")}<span>${hint}</span></div>`:""}
+  </div>`;
+}
 /* ================= JOURNEY ================= */
+/* One learning track at a time — the 12 weeks are split by phase so the page
+   never shows all 12 at once. Defaults to the phase the user is actually in. */
+let _jPhase=null;
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
+  if(_jPhase===null){const cw=currentPos().w;_jPhase=(WEEKS[cw-1]||WEEKS[0]).phase}
+  const weeks=WEEKS.filter(w=>w.phase===_jPhase);
+  const pDone=weeks.reduce((s,w)=>s+weekDone(w.n),0),pTotal=weeks.length*7;
   el.innerHTML=`
-  <div class="eyebrow">${t("journey.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
   <h1 class="big">${t("journey.title")}</h1>
-  <p class="sub" style="margin-bottom:22px">${t("journey.sub")}</p>
-  <div class="grid g3">${WEEKS.map(w=>{
+  <p class="sub" style="margin-bottom:18px">${t("journey.sub")}</p>
+  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
+    ${[1,2,3].map(p=>`<button class="seg-tab ${_jPhase===p?"on":""}" role="tab" aria-selected="${_jPhase===p}" onclick="jPhase(${p})"><span class="seg-lbl">${esc(t("phase.s"+p))}</span> <b>${PHASES[p].wk.replace(/^Weeks\s*/,"")}</b></button>`).join("")}
+  </div>
+  <p class="sub" style="margin:-4px 0 18px;font-size:13px">${t("journey.phase_progress",{done:pDone,total:pTotal,phase:esc(phaseLabel(_jPhase))})}</p>
+  <div class="grid g3">${weeks.map(w=>{
     const done=weekDone(w.n);
     return `<div class="card wk-card" onclick="go('journey',${w.n})">
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${t("journey.week_label",{n:w.n})}</span><span class="chip ${PHASES[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
@@ -2886,6 +3177,7 @@ function rJourney(el,wArg){
     </div>`}).join("")}</div>`;
   manIconizeInline(el);
 }
+window.jPhase=p=>{_jPhase=p;const el=document.getElementById("v-journey");if(el)rJourney(el);};
 function rWeek(el,w){
   const wk=WEEKS[w-1];
   el.innerHTML=`
@@ -3192,14 +3484,23 @@ function loadYT(){
     const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)});
   return ytApiP;
 }
+/* Shadow Studio tabs: Create Clip · My Clips · Trouble Words.
+   The fullscreen workspace (.sh-work) sits outside the tabs — it can open from any of them. */
+let _shTab="create";
+window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);};
 function rShadow(el){
   clearInterval(shTick);ytPlayer=null;
   el.innerHTML=`
-  <div class="eyebrow">${t("sh.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
   <h1 class="big">${t("sh.title")}</h1>
   <p class="sub">${t("sh.sub")}</p>
   <div class="hr"></div>
-  <div class="card" style="margin-bottom:16px">
+  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
+    <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
+    <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
+    <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
+  </div>
+  <div class="card" style="margin-bottom:16px;${_shTab==='create'?'':'display:none'}">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-g btn-sm" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
@@ -3255,21 +3556,41 @@ function rShadow(el){
       <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">${ic("repeat")}</button>
       <button class="btn btn-g" onclick="shSaveClip()">${tIc("sh.save_clip_btn","star")}</button>
     </div>
-    <div class="sh-seg">
-      <span class="lbl">${t("sh.clip_label")}</span>
-      <button class="btn btn-g btn-sm" onclick="shMark('start')" title="${esc(t("sh.mark_start_btn"))}">${tIc("sh.mark_start_btn","download")}</button>
-      <span class="sh-time" id="shStart">0:00</span>
-      <span style="color:var(--mut2)">→</span>
-      <button class="btn btn-g btn-sm" onclick="shMark('end')" title="${esc(t("sh.mark_end_btn"))}">${tIc("sh.mark_end_btn","download")}</button>
-      <span class="sh-time" id="shEnd">–</span>
-      <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}" aria-label="${esc(t("sh.get_transcript_btn"))}">${ic("doc")}</button>
-      <span class="sh-count" id="shCount" style="display:none">0s</span>
-      <span class="sh-len" id="shLen"></span>
-      <span style="flex:1;min-width:4px"></span>
-      <button class="btn btn-g btn-sm sh-clear" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}" aria-label="${esc(t("sh.clear_clip_btn"))}">${ic("trash")}</button>
+    <div class="sh-seg" id="shSeg">
+      <div class="sh-seg-row">
+        <span class="lbl">${t("sh.clip_label")}</span>
+        <button class="btn btn-g btn-sm" onclick="shMark('start')" title="${esc(t("sh.mark_start_btn"))}">${tIc("sh.mark_start_btn","download")}</button>
+        <span class="sh-time" id="shStart">0:00</span>
+        <span style="color:var(--mut2)">→</span>
+        <button class="btn btn-g btn-sm" onclick="shMark('end')" title="${esc(t("sh.mark_end_btn"))}">${tIc("sh.mark_end_btn","download")}</button>
+        <span class="sh-time" id="shEnd">–</span>
+        <span class="sh-seg-sp"></span>
+        <button class="btn btn-g btn-sm sh-clear" onclick="shClearMarks()" title="${esc(t("sh.clear_clip_title"))}" aria-label="${esc(t("sh.clear_clip_btn"))}">${ic("trash")}</button>
+      </div>
+      <div class="sh-seg-row2" id="shSegRow2">
+        <button class="btn btn-g btn-sm" onclick="shPullTranscript()" title="${esc(t("sh.get_transcript_title"))}">${tIc("sh.get_transcript_btn","doc")}</button>
+        <span class="sh-count" id="shCount" style="display:none">0s</span>
+        <span class="sh-len" id="shLen"></span>
+      </div>
     </div>
     <div class="sh-hint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
     <div class="grid g2" style="margin-top:16px">
+      <div class="card">
+        <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
+        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
+        <textarea rows="4" id="shNote" placeholder="${esc(t("sh.transcript_ph"))}"></textarea>
+        <p class="sh-edit-note">${tIc("sh.transcript_editable","pencil")}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn btn-g btn-sm" onclick="shMarkStress()">${t("sh.mark_stress_btn")}</button>
+          <button class="btn btn-g btn-sm" onclick="shSaveNote()">${t("sess.save_notes_btn")}</button>
+        </div>
+        <div class="hr"></div>
+        <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
+        <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">${t("sh.my_transcript_desc")}</p>
+        <div id="shHeardBox" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:52px;color:var(--txt);font-style:italic">
+          <span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>
+        </div>
+      </div>
       <div class="rec-panel">
         <b style="font-size:15px">${hIcon("mic",t("sh.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 12px">${t("sh.record_desc")}</p>
@@ -3292,21 +3613,6 @@ function rShadow(el){
           <p style="font-size:11px;color:var(--mut2);margin-top:10px">${t("sh.posture_privacy")}</p>
         </div>
       </div>
-      <div class="card">
-        <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
-        <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
-        <textarea rows="4" id="shNote" placeholder="${esc(t("sh.transcript_ph"))}"></textarea>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-          <button class="btn btn-g btn-sm" onclick="shMarkStress()">${t("sh.mark_stress_btn")}</button>
-          <button class="btn btn-g btn-sm" onclick="shSaveNote()">${t("sess.save_notes_btn")}</button>
-        </div>
-        <div class="hr"></div>
-        <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
-        <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">${t("sh.my_transcript_desc")}</p>
-        <div id="shHeardBox" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:52px;color:var(--txt);font-style:italic">
-          <span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>
-        </div>
-      </div>
     </div>
     <div class="card" style="margin-top:16px">
       <b style="font-size:15px">${t("sh.feedback_title")}</b> <span class="chip p3">${t("sh.feedback_beta_tag")}</span>
@@ -3321,12 +3627,16 @@ function rShadow(el){
   </div>
     </div>
   </div>
-  <h3 style="margin:26px 0 6px">${hIcon("star",t("sh.saved_clips_h"))}</h3>
-  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.saved_clips_sub")}</p>
-  <div id="shClips"></div>
-  <h3 style="margin:26px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
-  <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
-  <div id="tbBox"></div>`;
+  <div ${_shTab==='clips'?'':'style="display:none"'}>
+    <h3 style="margin:6px 0 6px">${hIcon("star",t("sh.saved_clips_h"))}</h3>
+    <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.saved_clips_sub")}</p>
+    <div id="shClips"></div>
+  </div>
+  <div ${_shTab==='trouble'?'':'style="display:none"'}>
+    <h3 style="margin:6px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
+    <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
+    <div id="tbBox"></div>
+  </div>`;
   shRenderClips();tbRender();
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
   if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
@@ -3346,7 +3656,7 @@ function tbRender(){
       </div>
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
-  :`<p style="font-size:13px;color:var(--mut2)">${t("tb.empty")}</p>`;
+  :emptyState("dumbbell",t("sh.empty_trouble_title"),t("sh.empty_trouble_body"),t("sh.tab_create"),"shTab('create')");
   manIconizeInline(box);
 }
 window.tbTry=word=>{
@@ -3391,6 +3701,7 @@ async function shLoad(c,quiet){
   S.lastClip={vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title};save();
   shCounting=false;shPing={};
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
+  const seg0=document.getElementById("shSeg");if(seg0)seg0.classList.remove("has-clip");
   document.getElementById("shPlayerWrap").style.display="block";
   document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+shClip.vid;
   /* library clips ship a human-marked transcript (correct lexical stress);
@@ -3460,13 +3771,18 @@ function shSegUI(){
   if(!st)return;
   st.textContent=fmtT(shClip.start);
   en.textContent=shClip.end>shClip.start?fmtT(shClip.end):"–";
-  if(shClip.end>shClip.start){
+  const made=shClip.end>shClip.start;
+  if(made){
     const L=Math.round(shClip.end-shClip.start);
     ln.textContent=L+" sec";
     ln.className="sh-len "+(L>=15&&L<=60?"ok":"warn");
     if(L<15)ln.textContent+=t("sh.len_short");
     if(L>60)ln.textContent+=t("sh.len_long");
   }else ln.textContent="";
+  /* expand the panel to its two-row layout only once a real clip exists
+     (or while a start mark is counting, so the live counter has somewhere to live) */
+  const seg=document.getElementById("shSeg");
+  if(seg)seg.classList.toggle("has-clip",made||shCounting);
 }
 window.shMark=w=>{
   if(!ytPlayer||!ytPlayer.getCurrentTime)return;
@@ -3626,17 +3942,29 @@ async function shPull(auto){
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+/* One empty-state component for the whole app: icon, what's missing, and the
+   single action that fills it. Never a bare "nothing here" line. */
+function emptyState(icon,title,body,ctaLabel,ctaOnclick){
+  return `<div class="empty-st">
+    <span class="empty-ic">${ic(icon)}</span>
+    <b>${title}</b>
+    <p>${body}</p>
+    ${ctaLabel?`<button class="btn btn-p btn-sm" onclick="${ctaOnclick}">${esc(ctaLabel)}</button>`:""}
+  </div>`;
+}
 function shRenderClips(){
   const box=document.getElementById("shClips");if(!box)return;
   const cs=S.clips||[];
-  box.innerHTML=cs.length?cs.map((c,i)=>`
+  /* newest first — each clip owns a full row of its own, never packed side by side.
+     Map to the real index first so reversing doesn't break open/delete. */
+  box.innerHTML=cs.length?cs.map((c,i)=>({c,i})).reverse().map(({c,i})=>`
     <div class="clip-row" onclick="shOpen(${i})">
-      <img src="https://i.ytimg.com/vi/${c.vid}/default.jpg" alt="" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">
+      <img src="https://i.ytimg.com/vi/${c.vid}/default.jpg" alt="" loading="lazy" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">
       <span class="nm">${esc(c.title||c.vid)}</span>
       <span class="rng">${fmtT(c.start)} → ${fmtT(c.end)} · ${Math.round(c.end-c.start)}s</span>
-      <button class="btn btn-danger btn-sm" onclick="shDel(${i},event)">✕</button>
+      <button class="btn btn-g btn-sm sh-clear" onclick="shDel(${i},event)" title="${esc(t("sh.delete_clip_title"))}" aria-label="${esc(t("sh.delete_clip_title"))}">${ic("trash")}</button>
     </div>`).join("")
-  :`<p style="font-size:13px;color:var(--mut2)">${t("sh.no_clips_saved")}</p>`;
+  :emptyState("star",t("sh.empty_clips_title"),t("sh.empty_clips_body"),t("sh.tab_create"),"shTab('create')");
 }
 /* Shadow recording + live transcription: while the recorder captures your
    shadowing, speech recognition transcribes it, so the speaking feedback
@@ -3761,6 +4089,132 @@ const GRAM_GOOD=[
  [/\b(really|definitely|absolutely|significantly|extremely) \w+/i,"Adverbial","Great use of an adverb to add emphasis."],
  [/\bthanks for \w+ing\b/i,"Preposition","Perfect preposition + gerund — “thanks for + -ing”."]
 ];
+/* ================= GRAMMAR EXERCISES =================
+   Business-English grammar drills. Every item is multiple choice (reliable on a
+   phone, no keyboard fight) with a short "why" so the rule sticks, not just the
+   answer. Categories mirror the Grammar tab; "weekly" is a mixed review drawn
+   from all of them. */
+const GRAM_EX={
+ blanks:[
+  {q:"We ___ the quarterly report last Friday.",o:["finish","finished","have finished"],a:1,why:"A finished time (“last Friday”) takes the past simple."},
+  {q:"I'm responsible ___ the reporting pipeline.",o:["of","for","to"],a:1,why:"The fixed pair is “responsible for”."},
+  {q:"Could you ___ me the updated figures by Thursday?",o:["send","to send","sending"],a:0,why:"After “could you”, use the base form of the verb."},
+  {q:"The main blocker ___ the delayed vendor contract.",o:["are","is","be"],a:1,why:"“Blocker” is singular, so the verb is “is”."},
+  {q:"We need to ___ a decision before the sprint starts.",o:["do","make","take"],a:1,why:"English collocation: you *make* a decision."},
+  {q:"This proposal ___ significantly from the last one.",o:["differs","different","differ"],a:0,why:"A third-person singular subject takes “differs”."},
+  {q:"Let's ___ the timeline once we hear from the client.",o:["revisit","revisited","revisiting"],a:0,why:"After “let's”, use the base form."},
+  {q:"I'd like to ___ your attention to slide four.",o:["bring","carry","put"],a:0,why:"The set phrase is “bring your attention to”."}
+ ],
+ correction:[
+  {q:"“I am agree with your proposal.”",o:["I am agree with your proposal.","I agree with your proposal.","I am agreeing with your proposal."],a:1,why:"“Agree” is a verb on its own — it needs no “am”."},
+  {q:"“Can you explain me the process?”",o:["Can you explain me the process?","Can you explain to me the process?","Can you explain the process to me?"],a:2,why:"“Explain” takes “to + person”, and the natural order puts the object first."},
+  {q:"“We discussed about the budget.”",o:["We discussed about the budget.","We discussed the budget.","We discussed on the budget."],a:1,why:"“Discuss” never takes “about”."},
+  {q:"“I work here since three years.”",o:["I work here since three years.","I have worked here for three years.","I am working here since three years."],a:1,why:"Duration takes “for”, and an ongoing period takes the present perfect."},
+  {q:"“He don't have the access yet.”",o:["He don't have the access yet.","He doesn't have access yet.","He not have access yet."],a:1,why:"Third person singular takes “doesn't” — and “access” is uncountable here."},
+  {q:"“I need more informations before deciding.”",o:["I need more informations before deciding.","I need more information before deciding.","I need more of information before deciding."],a:1,why:"“Information” is uncountable — it has no plural."},
+  {q:"“The deadline is more closer than we thought.”",o:["The deadline is more closer than we thought.","The deadline is closer than we thought.","The deadline is more close than we thought."],a:1,why:"“Closer” is already comparative — don't add “more”."},
+  {q:"“Everybody are ready for the demo.”",o:["Everybody are ready for the demo.","Everybody is ready for the demo.","Everybody were ready for the demo."],a:1,why:"“Everybody” is grammatically singular."}
+ ],
+ tenses:[
+  {q:"I ___ on the migration all week — it's still going.",o:["worked","have been working","was working"],a:1,why:"Present perfect continuous: started in the past, still happening."},
+  {q:"By the time we launch, we ___ every edge case.",o:["will test","will have tested","tested"],a:1,why:"Future perfect: complete *before* another future point."},
+  {q:"When the client called, I ___ the deck.",o:["was preparing","prepare","have prepared"],a:0,why:"Past continuous for the longer background action interrupted by another."},
+  {q:"We ___ that supplier since 2021.",o:["use","are using","have used"],a:2,why:"“Since + a starting point” takes the present perfect."},
+  {q:"The build ___ twice yesterday.",o:["has failed","failed","was failing"],a:1,why:"“Yesterday” is finished time — past simple."},
+  {q:"I ___ you the summary as soon as the meeting ends.",o:["send","will send","am sending"],a:1,why:"A decision about the future made now takes “will”."},
+  {q:"She ___ this team for six months before the reorg.",o:["led","had led","has led"],a:1,why:"Past perfect: the earlier of two past events."},
+  {q:"We ___ the results with the board next Tuesday.",o:["are reviewing","review","reviewed"],a:0,why:"Present continuous is standard for fixed future arrangements."}
+ ],
+ articles:[
+  {q:"I've scheduled ___ hour-long review for Monday.",o:["a","an","the"],a:1,why:"“Hour” starts with a vowel *sound*, so it takes “an”."},
+  {q:"Can you send me ___ update you mentioned?",o:["a","an","the"],a:2,why:"A specific, already-mentioned thing takes “the”."},
+  {q:"She's ___ engineer on the platform team.",o:["a","an","the"],a:1,why:"“Engineer” starts with a vowel sound → “an”."},
+  {q:"We need to hire ___ project manager.",o:["a","an","the"],a:0,why:"One unspecified person → “a”."},
+  {q:"___ data shows a clear upward trend.",o:["A","An","The"],a:2,why:"Specific data you're both looking at → “the”."},
+  {q:"He gave ___ excellent presentation yesterday.",o:["a","an","the"],a:1,why:"“Excellent” starts with a vowel sound → “an”."},
+  {q:"This is ___ university-wide policy.",o:["a","an","the"],a:0,why:"“University” starts with a /juː/ consonant sound → “a”."},
+  {q:"We're aiming for ___ 20% reduction in costs.",o:["a","an","the"],a:0,why:"“Twenty” starts with a consonant sound → “a”."}
+ ],
+ preps:[
+  {q:"I'm responsible ___ delivering the reporting layer.",o:["of","for","to"],a:1,why:"“Responsible for” — always."},
+  {q:"We're waiting ___ the vendor's confirmation.",o:["for","on","at"],a:0,why:"“Wait for” something in standard business English."},
+  {q:"This depends ___ how quickly legal responds.",o:["of","on","from"],a:1,why:"“Depend on” — never “depend of”."},
+  {q:"Let's focus ___ the top three priorities.",o:["at","in","on"],a:2,why:"“Focus on” is the fixed pair."},
+  {q:"I'll get back ___ you by end of day.",o:["to","at","with"],a:0,why:"“Get back to someone”."},
+  {q:"We've been on this ___ three weeks.",o:["since","for","during"],a:1,why:"A length of time takes “for”; “since” takes a start point."},
+  {q:"She's in charge ___ the migration workstream.",o:["for","of","on"],a:1,why:"“In charge of”."},
+  {q:"Thanks ___ flagging that so early.",o:["to","for","of"],a:1,why:"“Thanks for + -ing”."}
+ ],
+ business:[
+  {q:"Which is the most professional way to disagree?",o:["You're wrong about that.","I see the reasoning, but I have one concern.","I don't like that idea."],a:1,why:"Acknowledge, then raise the concern — firm without being blunt."},
+  {q:"Which opens a status update most clearly?",o:["So, yeah, things are happening.","At a high level, we're on track — with one blocker.","Everything is fine I think."],a:1,why:"Signal the headline first; executives listen for structure."},
+  {q:"Choose the most natural escalation:",o:["We have a big problem, it's very bad.","We've run into an issue with the vendor feed — here's the mitigation.","There is a problem and I don't know."],a:1,why:"Name the issue, then immediately offer the mitigation."},
+  {q:"Which asks for clarification most professionally?",o:["I didn't understand nothing.","Just to make sure I understand — are you asking about X or Y?","What? Say again."],a:1,why:"Restating the options shows you were listening."},
+  {q:"Which is best for a recommendation?",o:["Maybe we could possibly perhaps try it.","What I'd recommend is X, because it reduces delivery risk.","I think X, I don't know really."],a:1,why:"State the recommendation, then the reason — no hedging."},
+  {q:"Which is the cleanest way to buy time?",o:["I have no idea about that.","Let me check the numbers and come back to you this afternoon.","Erm, I can't answer."],a:1,why:"Commit to a specific follow-up — it reads as control, not avoidance."},
+  {q:"Which closes a meeting most effectively?",o:["OK bye.","To summarise: I'll send the figures, you'll confirm scope by Friday.","I think we're done, maybe."],a:1,why:"A summary of owners and deadlines prevents rework."},
+  {q:"Which softens a deadline pushback best?",o:["That's impossible.","That timeline is tight — to hit it, we'd need to drop the reporting scope.","No, we can't do it."],a:1,why:"Offer the trade-off rather than a flat refusal."}
+ ]
+};
+const GRAM_CATS=[
+ {k:"blanks",     ic:"pencil", n:"gx.cat_blanks"},
+ {k:"correction", ic:"check",  n:"gx.cat_correction"},
+ {k:"tenses",     ic:"clock",  n:"gx.cat_tenses"},
+ {k:"articles",   ic:"doc",    n:"gx.cat_articles"},
+ {k:"preps",      ic:"link",   n:"gx.cat_preps"},
+ {k:"business",   ic:"briefcase", n:"gx.cat_business"},
+ {k:"weekly",     ic:"calendar", n:"gx.cat_weekly"}
+];
+/* a weekly review pulls a mixed set from every category */
+function gxItems(cat){
+  if(cat!=="weekly")return (GRAM_EX[cat]||[]).slice();
+  const all=[];Object.keys(GRAM_EX).forEach(k=>GRAM_EX[k].forEach(it=>all.push(it)));
+  return all.sort(()=>Math.random()-.5).slice(0,10);
+}
+function gxStats(cat){const g=(S.gram&&S.gram[cat])||null;return g?{best:g.best||0,runs:g.runs||0}:{best:0,runs:0}}
+let _gx=null;
+window.gxStart=cat=>{
+  const items=gxItems(cat).sort(()=>Math.random()-.5).slice(0,8);
+  if(!items.length)return toast(t("gx.none"));
+  _gx={cat,items,i:0,score:0};gxRender();
+};
+function gxRender(){
+  if(!_gx)return;
+  if(_gx.i>=_gx.items.length)return gxEnd();
+  const it=_gx.items[_gx.i];
+  const name=t((GRAM_CATS.find(c=>c.k===_gx.cat)||{n:"gx.title"}).n);
+  pvOpen(`<div class="pv-top"><button class="pv-x" onclick="pvClose()" aria-label="${esc(t("wc.close"))}">×</button>
+      <span class="pv-title"><span class="btn-ic">${ic("book")}</span>${esc(name)}</span>
+      <span class="pv-prog">${_gx.i+1}/${_gx.items.length}</span></div>
+    <div class="pv-quiz">
+      <div class="pv-clue"><span class="eyebrow">${t("gx.choose")}</span><p>${esc(it.q)}</p></div>
+      <div class="pv-opts" id="gxOpts">${it.o.map((o,i)=>`<button class="pv-opt" data-i="${i}" onclick="gxPick(${i})">${esc(o)}</button>`).join("")}</div>
+      <div id="gxWhy" class="gx-why"></div>
+    </div>`);
+}
+window.gxPick=choice=>{
+  const opts=document.getElementById("gxOpts");if(!opts||opts.dataset.done)return;opts.dataset.done=1;
+  const it=_gx.items[_gx.i],ok=choice===it.a;
+  [...opts.children].forEach(b=>{const bi=+b.dataset.i;
+    if(bi===it.a)b.classList.add("correct");else if(bi===choice)b.classList.add("wrong");b.disabled=true;});
+  if(ok)_gx.score++;
+  const why=document.getElementById("gxWhy");
+  if(why){why.innerHTML=`<span class="gx-why-ic">${ic(ok?"check":"idea")}</span><span>${esc(it.why)}</span>`;why.className="gx-why show "+(ok?"ok":"no");}
+  markPracticed();
+  setTimeout(()=>{_gx.i++;gxRender();},ok?1250:2300);
+};
+function gxEnd(){
+  const total=_gx.items.length,score=_gx.score,pct=Math.round(100*score/total);
+  S.gram=S.gram||{};const g=S.gram[_gx.cat]=S.gram[_gx.cat]||{best:0,runs:0};
+  g.runs=(g.runs||0)+1;if(pct>(g.best||0))g.best=pct;
+  g.last=Date.now();save();
+  const cat=_gx.cat;
+  pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic(pct>=80?"trophy":"target")}</div>
+    <h2>${t(pct>=80?"gx.end_great":"gx.end_ok")}</h2>
+    <p>${t("gx.end_summary",{score,total,pct})}</p>
+    <div class="pv-actions"><button class="btn btn-g" onclick="gxStart('${cat}')">${t("prac.again")}</button>
+    <button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);
+}
 function gramAnalyze(heardRaw){
   const good=[],fix=[];
   const seenG=new Set(),seenF=new Set();
@@ -4251,7 +4705,7 @@ function vocSynHTML(heardText){
     <button class="btn btn-g btn-sm" onclick="vocSave('${esc(b)}','${cefr(b)}')" aria-label="Save">${ic("bookmark")}</button>
   </div>`).join("")}`;
 }
-/* My Vocabulary refresh — re-renders the Practice tab if it's open (called by vocSave/vocSaveAll) */
+/* Vocabulary & Grammar refresh — re-renders the Practice tab if it's open (called by vocSave/vocSaveAll) */
 function vlRender(){const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);}
 window.vocQuiz=async()=>{
   const words=Object.keys(S.vocab);if(!words.length)return;
@@ -4289,7 +4743,7 @@ window.vocQuizTry=w=>{
   r.start();
 };
 
-/* ===================== PRACTICE TAB — My vocabulary ===================== */
+/* ============ LIBRARY TAB — Vocabulary & Grammar ============ */
 /* spaced-repetition-lite: reps + due drive Ready / Up next / Learned buckets */
 const VOC_INTERVALS=[1,3,7,21,60];
 function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
@@ -4302,13 +4756,39 @@ async function vocDef(w){
   }catch(e){return {def:"",example:"",pos:""}}
 }
 let _pracTab="ready";
+/* Library hub — one home for every kind of language the user collects.
+   libTab switches the section; _pracTab switches the Study/Review/Mastered bucket. */
+let _libTab="vocab";
+window.libTab=tab=>{_libTab=tab;const el=document.getElementById("v-practice");if(el)rPractice(el);};
+const LIB_TABS=[
+ {k:"vocab",   ic:"book",      n:"lib.tab_vocab"},
+ {k:"grammar", ic:"list",      n:"lib.tab_grammar"},
+ {k:"exercises",ic:"pencil",   n:"lib.tab_exercises"},
+ {k:"saved",   ic:"bookmark",  n:"lib.tab_saved"},
+ {k:"idioms",  ic:"briefcase", n:"lib.tab_idioms"}
+];
 function rPractice(el){
-  const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
   el.innerHTML=`
   ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
-  <div class="eyebrow">${t("prac.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
+  <div class="seg-tabs" role="tablist" aria-label="${esc(t("lib.tabs_label"))}" style="margin-top:18px">
+    ${LIB_TABS.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span>${t(c.n)}</button>`).join("")}
+  </div>
+  <div id="libBody"></div>`;
+  const body=el.querySelector("#libBody");
+  if(_libTab==="vocab")rLibVocab(body);
+  else if(_libTab==="grammar")rLibGrammar(body);
+  else if(_libTab==="exercises")rLibExercises(body);
+  else if(_libTab==="saved")rLibSaved(body);
+  else rLibIdioms(body);
+  manIconizeInline(el);
+}
+/* ---- Library › Vocabulary (the original word bank) ---- */
+function rLibVocab(el){
+  const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
+  el.innerHTML=`
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="prac-subtabs">
@@ -4343,11 +4823,87 @@ function rPractice(el){
   vlRenderInto(b[_pracTab]);
   manIconizeInline(el);
 }
+/* ---- Library › Grammar (the rules, grouped by the category the coach uses) ---- */
+function rLibGrammar(el){
+  const cats={};
+  GRAM_FIX.forEach(g=>{const c=g[4];(cats[c]=cats[c]||[]).push({bad:g[1],good:g[2],why:g[3]})});
+  const hits=(S.fbV&&S.fbV.gram)||{};
+  el.innerHTML=`
+  <p class="sub" style="margin:16px 0 14px">${t("lib.grammar_sub")}</p>
+  ${Object.keys(cats).map(c=>`
+    <div class="card" style="margin-bottom:12px;padding:16px 18px">
+      <b style="font-size:14.5px">${esc(c)}</b>
+      <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+        ${cats[c].map(r=>`<div class="gr-rule">
+          <div class="gr-line"><span class="gr-bad">${esc(r.bad)}</span><span class="gr-arr">→</span><span class="gr-good">${esc(r.good)}</span></div>
+          <p class="gr-why">${esc(r.why)}</p>
+        </div>`).join("")}
+      </div>
+    </div>`).join("")}
+  <div class="card" style="padding:16px 18px">
+    <b style="font-size:14.5px">${t("lib.grammar_practice_h")}</b>
+    <p style="font-size:13px;color:var(--mut);margin:6px 0 12px">${t("lib.grammar_practice_sub")}</p>
+    <button class="btn btn-p btn-sm" onclick="libTab('exercises')">${t("lib.tab_exercises")} →</button>
+  </div>`;
+  manIconizeInline(el);
+}
+/* ---- Library › Grammar exercises ---- */
+function rLibExercises(el){
+  el.innerHTML=`
+  <p class="sub" style="margin:16px 0 14px">${t("lib.ex_sub")}</p>
+  <div class="grid g3">
+    ${GRAM_CATS.map(c=>{const st=gxStats(c.k),n=c.k==="weekly"?10:(GRAM_EX[c.k]||[]).length;
+      return `<button class="gx-card" onclick="gxStart('${c.k}')">
+        <span class="gx-ic">${ic(c.ic)}</span>
+        <b>${t(c.n)}</b>
+        <small>${t("gx.n_questions",{n})}</small>
+        ${st.runs?`<span class="gx-best">${t("gx.best",{pct:st.best})}</span>`:`<span class="gx-new">${t("gx.not_started")}</span>`}
+      </button>`}).join("")}
+  </div>`;
+  manIconizeInline(el);
+}
+/* ---- Library › Saved expressions (phrases the user recorded or mastered) ---- */
+function rLibSaved(el){
+  const items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]||S.phExample["p"+p.ix]);
+  el.innerHTML=`
+  <p class="sub" style="margin:16px 0 14px">${t("lib.saved_sub")}</p>
+  ${items.length?items.map(p=>`
+    <div class="card" style="margin-bottom:10px;padding:15px 17px">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <span style="flex:1;min-width:0">
+          <b style="font-size:14.5px;display:block">“${esc(p.p)}”</b>
+          <small style="font-size:12.5px;color:var(--mut)">${esc(p.u)}</small>
+          ${S.phExample["p"+p.ix]?`<p class="gr-why" style="margin-top:8px">${esc(S.phExample["p"+p.ix])}</p>`:""}
+        </span>
+        ${S.phMaster["p"+p.ix]?`<span class="chip done" style="flex:none">${t("lib.mastered_chip")}</span>`:""}
+      </div>
+    </div>`).join("")
+  :emptyState("bookmark",t("lib.empty_saved_title"),t("lib.empty_saved_body"),t("lib.go_phrases"),"go('phrases')")}`;
+  manIconizeInline(el);
+}
+/* ---- Library › Business idioms ---- */
+function rLibIdioms(el){
+  const items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>p.i);
+  el.innerHTML=`
+  <p class="sub" style="margin:16px 0 14px">${t("lib.idioms_sub")}</p>
+  ${items.length?items.map(p=>`
+    <div class="card" style="margin-bottom:10px;padding:15px 17px">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <b style="font-size:14.5px;flex:1;min-width:180px">“${esc(p.p)}”</b>
+        <span class="chip" style="flex:none">${t("journey.week_label",{n:p.w})}</span>
+        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(p.p).replace(/'/g,"\\'")}',1)" aria-label="${esc(t("voc.hear_title"))}">${ic("sound")}</button>
+      </div>
+      <small style="font-size:12.5px;color:var(--mut);display:block;margin-top:6px">${esc(p.u)}</small>
+    </div>`).join("")
+  :emptyState("briefcase",t("lib.empty_idioms_title"),t("lib.empty_idioms_body"),"","")}`;
+  manIconizeInline(el);
+}
 window.pracTab=tab=>{_pracTab=tab;const el=document.getElementById("v-practice");if(el)rPractice(el);};
 window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;if(!S.vocab[w])S.vocab[w]={l:cefr(w),ts:Date.now()};save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
 function vlRenderInto(words){
   const box=document.getElementById("vlBox");if(!box)return;
-  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join(""):`<p style="font-size:13px;color:var(--mut2);padding:10px 2px">${t("prac.empty_"+_pracTab)}</p>`;
+  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join("")
+    :emptyState("book",t("prac.empty_title_"+_pracTab),t("prac.empty_"+_pracTab),t("sh.tab_create"),"go('shadow')");
   manIconizeInline(box);
 }
 /* fullscreen focus overlay shared by the three games */
@@ -4763,7 +5319,14 @@ Output:`;
 };
 /* User-controlled dictation: tap the mic to start, speak as long as you like
    (whole sentences or a paragraph, through pauses), tap again to stop. */
-let exRec=null,exListening=false,exBase="",exFinal="";
+/* exBase  – text already in the box before dictation started
+   exDone   – finalised text from earlier recognition sessions (the recogniser is
+              restarted whenever the browser stops it on a silence)
+   exFinal  – finalised text of the CURRENT session, rebuilt from scratch on every
+              result event rather than appended to. Android Chrome reports
+              resultIndex 0 with the whole accumulated result list each time, so
+              appending duplicates every word ("thank thank thank you you you"). */
+let exRec=null,exListening=false,exBase="",exFinal="",exDone="";
 function exSetMic(on){
   exListening=on;
   const b=document.getElementById("exMic"),st=document.getElementById("exSt");
@@ -4774,20 +5337,27 @@ window.exDictate=()=>{
   if(!SR)return toast(t("ex.dictate_sr_unavailable"));
   if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}return}   // second tap → stop
   const inp=document.getElementById("exIn");
-  exBase=inp.value.trim();exFinal="";                        // keep any text already typed
+  exBase=inp.value.trim();exFinal="";exDone="";               // keep any text already typed
   exRec=new SR();exRec.lang="en-US";exRec.continuous=true;exRec.interimResults=true;
   exRec.onresult=e=>{
-    let interim="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
+    /* Rebuild this session's transcript from the full result list every time.
+       Never append — some engines (Android Chrome) resend earlier results with
+       resultIndex 0, which would repeat every word. Rebuilding is idempotent. */
+    let fin="",interim="";
+    for(let i=0;i<e.results.length;i++){
       const tr=e.results[i];
-      if(tr.isFinal)exFinal+=tr[0].transcript.replace(/\s+$/,"")+" ";
+      if(tr.isFinal)fin+=tr[0].transcript.replace(/\s+$/,"")+" ";
       else interim+=tr[0].transcript;
     }
-    inp.value=((exBase?exBase+" ":"")+exFinal+interim).replace(/\s+/g," ");
+    exFinal=fin;
+    inp.value=((exBase?exBase+" ":"")+exDone+exFinal+interim).replace(/\s+/g," ").trimStart();
   };
   exRec.onerror=ev=>{if(ev.error!=="no-speech"&&ev.error!=="aborted"){const st=document.getElementById("exSt");if(st)st.textContent=t("ex.dictate_mic_error")}};
   exRec.onend=()=>{
-    if(exListening){try{exRec.start();return}catch(_){}}      // browser stopped on silence but user hasn't tapped stop → keep going
+    /* Browser stopped on a silence but the user hasn't tapped stop → keep going.
+       Bank this session's text first: the restarted recogniser begins a fresh
+       result list, so exFinal is about to be rebuilt from empty. */
+    if(exListening){exDone+=exFinal;exFinal="";try{exRec.start();return}catch(_){}}
     exSetMic(false);inp.value=inp.value.trim();
     if(inp.value)window.exGo();                               // finished dictating → produce the professional version straight away
   };
@@ -4795,10 +5365,14 @@ window.exDictate=()=>{
 };
 
 /* ================= PHRASES ================= */
+/* Phrase Lab is split in two: professional phrases and business idioms.
+   The week chips above still filter which week you're looking at. */
+let _phKind="phrases";
+window.phKind=k=>{_phKind=k;const el=document.getElementById("v-phrases");if(el)rPhrases(el,cur.arg1);};
 function rPhrases(el,wFilter){
   const w=wFilter||currentPos().w;
   el.innerHTML=`
-  <div class="eyebrow">${t("ph.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
   <h1 class="big">${t("ph.title")}</h1>
   <p class="sub">${t("ph.sub")}</p>
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
@@ -4817,6 +5391,10 @@ function rPhrases(el,wFilter){
   </div>
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>
+  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
+    <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
+    <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
+  </div>
   <div id="phList"></div>`;
   const list=el.querySelector("#phList");
   let items;
@@ -4825,6 +5403,16 @@ function rPhrases(el,wFilter){
   else{const wk=WEEKS[w-1];
     list.innerHTML=`<p style="font-size:14px;color:var(--mut);margin-bottom:14px">${t("ph.week_label",{w,theme:esc(wk.theme)})}</p>`;
     items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
+  /* split the list by kind: professional phrases vs business idioms */
+  items=items.filter(p=>_phKind==="idioms"?p.i:!p.i);
+  if(!items.length){
+    list.innerHTML+=emptyState(_phKind==="idioms"?"briefcase":"chat",
+      t(_phKind==="idioms"?"ph.empty_idioms_title":"ph.empty_phrases_title"),
+      t(_phKind==="idioms"?"ph.empty_idioms_body":"ph.empty_phrases_body"),
+      t(_phKind==="idioms"?"ph.tab_phrases":"ph.tab_idioms"),
+      `phKind('${_phKind==="idioms"?"phrases":"idioms"}')`);
+    manIconizeInline(el);return;
+  }
   list.innerHTML+=items.map(p=>{
     const k="p"+p.ix,m=S.phMaster[k];
     return `<div class="ph-card ${m?'mastered':''}" id="ph${p.ix}">
@@ -5004,7 +5592,7 @@ function rReview(el,wArg){
   const w=wArg||currentPos().w;
   const wr=S.weekly[w]||{scores:{},wins:"",weak:"",corr:"",top5:""};
   el.innerHTML=`
-  <div class="eyebrow">${t("rev.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${t("rev.eyebrow")}</div>
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
@@ -5041,10 +5629,10 @@ function rMonthly(w){
     <div class="eyebrow">${t("mon.checkpoint")}</div>
     <b style="font-size:17px">${M.title}</b>
     <p style="font-size:13.5px;color:var(--mut);margin:6px 0 14px">${M.obj}</p>
-    <table><tr><th>${t("mon.th_metric")}</th><th>${t("mon.th_target")}</th><th>${t("mon.th_actual")}</th><th>${t("mon.th_pass")}</th></tr>
+    <div class="tbl-scroll"><table style="min-width:420px"><tr><th>${t("mon.th_metric")}</th><th>${t("mon.th_target")}</th><th>${t("mon.th_actual")}</th><th>${t("mon.th_pass")}</th></tr>
     ${M.rows.map((r,i)=>`<tr><td>${r[0]}</td><td style="color:var(--acc2)">${r[1]}</td>
       <td><input style="max-width:110px;padding:5px 8px" value="${esc(mr.actual[i]||"")}" onchange="moField(${w},'actual',${i},this.value)"></td>
-      <td><button class="btn btn-sm ${mr.pass[i]?'btn-p':'btn-g'}" onclick="moPass(${w},${i})">${mr.pass[i]?t("mon.pass_btn"):t("mon.pass_dash")}</button></td></tr>`).join("")}</table>
+      <td><button class="btn btn-sm ${mr.pass[i]?'btn-p':'btn-g'}" onclick="moPass(${w},${i})">${mr.pass[i]?t("mon.pass_btn"):t("mon.pass_dash")}</button></td></tr>`).join("")}</table></div>
     <div class="hr"></div>
     ${M.qs.map((q,i)=>`<p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${i+1}. ${q}</p>
       <textarea rows="1" onchange="moField(${w},'ans',${i},this.value)">${esc(mr.ans[i]||"")}</textarea>`).join("")}
@@ -5230,6 +5818,7 @@ function rProfile(el){
   if(p.goal)bits.push(esc(optLabel(p.goal,OB_GOALS,"goal.")));
   const sub=bits.length?bits.join(" · "):t("profile.sub_default");
   el.innerHTML=`
+  <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
   <div class="pf-hero">
     <div class="pf-av">${initial}</div>
     <h1 class="pf-name">${nm}</h1>
@@ -5256,7 +5845,10 @@ async function rData(el){
   const sel=(id,opts,cur,prefix)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option value="${esc(o)}" ${o===cur?"selected":""}>${esc(optLabel(o,opts,prefix).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
   const upN=recN-Object.keys(GH.up||{}).length;
   el.innerHTML=`
-  <button class="back" onclick="go('profile')">${t("profile.back")}</button>
+  <div class="eyebrow pg-eyebrow pg-sub">
+    <button class="back" onclick="go('profile')">${t("profile.back")}</button>
+    <span>${t("acc.settings_title")}</span>
+  </div>
   <h1 class="big">${t("acc.settings_title")}</h1>
   <div class="grid g2" style="align-items:start;margin-top:18px">
     <div class="card">
@@ -6068,8 +6660,35 @@ window.obFinish=()=>{
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
-  toast(OB.best>0?t("ob.welcome_baseline_toast",{sc:OB.best,name:S.profile.name}):t("ob.welcome_toast",{name:S.profile.name}));
   go("shadow");
+  obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
+};
+/* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
+function obWelcome(){
+  const name=esc(S.profile.name||"there"),sc=OB.best>0?OB.best:null;
+  const ov=document.createElement("div");
+  ov.className="wc-ov";ov.id="wcOv";
+  ov.innerHTML=`<div class="wc-card" role="dialog" aria-modal="true" aria-labelledby="wcTtl">
+      <button class="wc-x" onclick="wcClose()" aria-label="${esc(t("wc.close"))}">${ic("close")}</button>
+      <div class="wc-emoji">${ic("party")}</div>
+      <h2 id="wcTtl">${t("wc.title")}</h2>
+      <p class="wc-lead">${t("wc.lead",{name})}</p>
+      ${sc!==null?`<div class="wc-score"><span class="wc-score-l">${t("wc.score_label")}</span><b>${sc}%</b></div>`:""}
+      <p class="wc-body">${t("wc.body")}</p>
+      <button class="btn btn-p wc-go" onclick="wcClose()">${t("wc.cta")}</button>
+    </div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  ov.addEventListener("click",e=>{if(e.target===ov)wcClose()});   /* tap outside */
+  document.addEventListener("keydown",wcKey);
+  const btn=ov.querySelector(".wc-go");if(btn)btn.focus();
+}
+function wcKey(e){if(e.key==="Escape")wcClose()}
+window.wcClose=()=>{
+  const ov=document.getElementById("wcOv");if(!ov)return;
+  document.removeEventListener("keydown",wcKey);
+  ov.classList.remove("show");
+  setTimeout(()=>ov.remove(),220);
 };
 if(!S.profile)obRender();
 
