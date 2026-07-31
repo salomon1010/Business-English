@@ -1025,6 +1025,39 @@ select:focus-visible,[role=button]:focus-visible,[tabindex]:focus-visible{
    silently breaks every position:sticky descendant (e.g. .pg-eyebrow). */
 html,body{max-width:100%;overflow-x:clip}
 
+/* 2a — ONBOARDING FITS THE SCREEN.
+   The welcome/assessment steps were sized in fixed pixels, so on a short phone
+   the result step (logo + heading + phrase + score ring + chips + buttons) ran
+   past the bottom and had to be scrolled. Every vertical dimension below scales
+   with viewport HEIGHT and keeps its original value as the upper bound, so a
+   tall screen looks exactly as before while a short one compresses to fit. */
+.ob-logo{width:clamp(50px,8.6vh,76px);height:clamp(50px,8.6vh,76px);
+  border-radius:clamp(15px,2.5vh,22px);margin-bottom:clamp(8px,2.2vh,20px)}
+.ob-logo svg{width:52%;height:52%}
+.ob-card h2{font-size:clamp(19px,3.1vh,34px);margin-bottom:clamp(5px,1.1vh,10px)}
+.ob-card .sub{margin-bottom:clamp(9px,2.6vh,26px);font-size:clamp(12.5px,1.85vh,15.5px)}
+.ob-dots{margin-top:clamp(9px,2.6vh,26px)}
+.ob-chips{margin-bottom:clamp(10px,2.6vh,24px)}
+.ob-chip{padding:clamp(7px,1.4vh,12px) clamp(13px,2.4vw,20px);font-size:clamp(13px,1.9vh,14.5px)}
+/* result step */
+.ob-ring{width:clamp(86px,15.5vh,130px);height:clamp(86px,15.5vh,130px);margin:2px auto clamp(6px,1.4vh,12px)}
+.ob-ring-in{width:80%;height:80%}
+.ob-score{font-size:clamp(24px,4.4vh,38px)}
+.ob-baseline{font-size:clamp(11px,1.6vh,12.5px);margin-bottom:clamp(5px,1.1vh,9px)}
+.ob-reveal-line{font-size:clamp(12.5px,1.95vh,15px);margin:2px 0 clamp(6px,1.4vh,12px)}
+.ob-reveal-sub{font-size:clamp(11px,1.55vh,12px);margin-bottom:clamp(5px,1.1vh,9px)}
+.ob-words{gap:clamp(4px,.8vh,6px)}
+.ob-word{font-size:clamp(11px,1.6vh,13px);padding:clamp(3px,.7vh,5px) clamp(7px,1.4vw,10px)}
+/* the sentence the user reads aloud — the tallest single block on the step */
+.ob-line{font-size:clamp(13.5px,2.15vh,19px);
+  padding:clamp(10px,1.9vh,18px) clamp(13px,4vw,20px) clamp(8px,1.5vh,14px)}
+.ob-stage{margin-bottom:clamp(5px,1.1vh,10px)}
+.ob-out{margin-bottom:clamp(6px,1.3vh,12px);font-size:clamp(12px,1.75vh,13.5px)}
+.ob-win-actions{gap:clamp(7px,1.4vh,10px)}
+.ob-win-actions .btn{padding:clamp(9px,1.7vh,11px) clamp(14px,4vw,20px)}
+/* On a short screen the decorative logo is the first thing to go — it buys
+   ~70px, which is the difference between the result fitting and not. */
+@media(max-height:760px){.ob-logo{display:none}}
 /* 2b — ZOOM STABILITY. Three separate things make a phone appear to "zoom in";
    all of them are disabled here, without taking away deliberate pinch-zoom. */
 html{
@@ -3948,6 +3981,27 @@ async function shPull(auto){
 window.shPullTranscript=()=>shPull(false);
 window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
 window.shDel=(i,ev)=>{ev.stopPropagation();S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"))};
+/* Make the onboarding step fit the screen, whatever the phone.
+   The CSS clamps get most of the way, but the result step's height also depends
+   on how much the user said (more words → more chips), so no fixed rule can
+   guarantee a fit. Measure what's actually rendered and scale it down to the
+   space available. Floor at 0.72 — below that it would be unreadable, so we let
+   it scroll instead (the overlay is scrollable). */
+function obFit(){
+  const wrap=document.getElementById("obWrap");if(!wrap)return;
+  const card=wrap.querySelector(".ob-card");if(!card)return;
+  card.style.transform="";card.style.height="";              // measure unscaled
+  const cs=getComputedStyle(wrap);
+  const avail=wrap.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);
+  const need=card.scrollHeight;
+  if(need<=avail||need===0)return;                            // already fits
+  const s=Math.max(0.72,avail/need);
+  card.style.transformOrigin="top center";
+  card.style.transform="scale("+s+")";
+  card.style.height=(need*s)+"px";                            // stop the scaled box reserving old height
+}
+window.obFit=obFit;
+addEventListener("resize",()=>{if(document.getElementById("obWrap"))obFit()});
 /* Grow a textarea to fit its content so a long clip transcript is readable
    without scrolling inside a 4-row box. iOS Safari ignores the CSS resize
    handle entirely, so auto-sizing — not dragging — is what actually works on a
@@ -6645,6 +6699,7 @@ function obRender(){
     if(!_voiceOverride)_voiceOverride=OB_VOICES[Math.floor(Math.random()*OB_VOICES.length)];   // surprise a new user with a random natural voice
     fbWarm(OB_LINE);   // pre-load the clip so "Hear it first" plays instantly on iOS
   }
+  requestAnimationFrame(obFit);   // every step must fit the screen it's on
 }
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
@@ -6701,6 +6756,7 @@ function obReveal(sc,ops){
   const act=document.getElementById("obActions");
   if(act)act.innerHTML=`<button class="btn btn-g" onclick="obTry()">${tIc("ob.try_again","repeat")}</button>
     <button class="btn btn-p" onclick="obFinish()">${t("ob.win_start")}</button>`;
+  requestAnimationFrame(obFit);
 }
 function obAnimateScore(sc){
   const ring=document.getElementById("obRing"),num=document.getElementById("obScore");
