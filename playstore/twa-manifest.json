@@ -20,8 +20,8 @@
     "path": "./android.keystore",
     "alias": "bemastery"
   },
-  "appVersionName": "1.0.0",
-  "appVersionCode": 6,
+  "appVersionName": "1.0.1",
+  "appVersionCode": 8,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://app.lomonec.com/manifest.json",
@@ -41,5 +41,5 @@
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "1.0.0"
+  "appVersion": "1.0.1"
 }
