@@ -4189,10 +4189,16 @@ window.askConfirm=askConfirm;
    never clears is just noise people learn to ignore. */
 function navBadgeCount(view){
   if(view!=="practice")return 0;
-  let n=0;
-  try{n+=Object.keys(S.vocab||{}).filter(w=>vocState(w)==="ready").length}catch(e){}
-  try{n+=GRAM_CATS.filter(c=>c.k!=="weekly"&&!(((S.gram||{})[c.k]||{}).runs)).length}catch(e){}
-  return n;
+  /* Counts only practice the user's own activity created: words they saved from
+     speaking feedback that are due to be worked on now. A fresh install shows
+     nothing — the badge appears once you start collecting words, and falls as
+     you practise them.
+
+     Grammar drills are deliberately NOT counted: they are a fixed catalogue
+     that exists from day one, so they would badge an empty account and could
+     never be "new". vocState() handles the rest — a word you get right is
+     scheduled ahead and stops counting until it comes due again. */
+  try{return Object.keys(S.vocab||{}).filter(w=>vocState(w)==="ready").length}catch(e){return 0}
 }
 function navBadges(){
   ["practice"].forEach(v=>{
