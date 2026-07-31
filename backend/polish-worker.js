@@ -330,6 +330,46 @@ async function fetchYouTubeCaptions(vid) {
   };
 }
 
+/* ---------------------------------------------------------------
+   Role-play conversation.
+
+   The app used to call Anthropic straight from the browser with a key
+   the user pasted in themselves, which is why the feature stayed
+   hidden — you cannot ship that. The call lives here now so the key
+   never leaves the Worker and users need nothing.
+
+   In: { chat: { system, messages:[{role,content}] } }
+   Out: { reply, covered:[n] }   (the model is asked for exactly this)
+--------------------------------------------------------------- */
+const CHAT_PER_MIN = 20;
+const CHAT_PER_DAY = 500;
+const chatHits = new Map();
+const CHAT_MODEL = "gpt-4o-mini";
+const MAX_CHAT_TURNS = 40;
+
+async function callChat(env, system, messages) {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({
+      model: CHAT_MODEL,
+      max_tokens: 400,
+      temperature: 0.8,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, ...messages],
+    }),
+  });
+  if (!r.ok) throw new Error("provider " + r.status);
+  const j = await r.json();
+  const raw = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").trim();
+  let p;
+  try { p = JSON.parse(raw); } catch { p = { reply: raw, covered: [] }; }
+  if (!p.reply || typeof p.reply !== "string") p.reply = "Sorry, could you say that again?";
+  if (!Array.isArray(p.covered)) p.covered = [];
+  p.covered = p.covered.map(Number).filter(n => Number.isFinite(n));
+  return { reply: p.reply.slice(0, 800), covered: p.covered };
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get("Origin") || "";
@@ -357,6 +397,23 @@ export default {
     }
 
     let body; try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400, cors); }
+
+    // ---- Role-play chat: scenario + history in → in-character reply out ----
+    if (body.chat && typeof body.chat === "object") {
+      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const system = String(body.chat.system || "").slice(0, 4000);
+      let messages = Array.isArray(body.chat.messages) ? body.chat.messages : [];
+      messages = messages
+        .filter(m => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
+        .slice(-MAX_CHAT_TURNS)                       // cap history so a long chat cannot balloon the bill
+        .map(m => ({ role: m.role, content: m.content.slice(0, 2000) }));
+      if (!system || !messages.length) return json({ error: "bad_request" }, 400, cors);
+      try {
+        return json(await callChat(env, system, messages), 200, cors);
+      } catch (e) {
+        return json({ error: "chat_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
 
     // ---- Captions path: video id in → cues + word timings out ----
     if (typeof body.captions === "string" && body.captions.trim()) {
