@@ -540,7 +540,12 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .fb-heard{font-size:13px;color:var(--mut);margin:10px 0 10px}
 .fb-score-ring{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600}
 /* POSTURE COACH */
-.pc-wrap{display:none;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
+.pc-wrap{display:none;position:relative;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
+/* dismiss the whole panel — stopping the coach is not the same as closing it */
+.pc-x{position:absolute;top:6px;right:6px;z-index:2;width:30px;height:30px;border-radius:50%;
+  border:1px solid var(--line2);background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer}
+.pc-x:hover{color:var(--txt);border-color:var(--acc)}
+.pc-x svg{width:15px;height:15px}
 .pc-row{display:flex;gap:14px;align-items:center}
 .pc-cv{width:110px;height:146px;background:#0a0e1a;border-radius:10px;border:2.5px solid var(--line2);transition:border-color .3s,box-shadow .3s;flex:none}
 .pc-cv.good{border-color:var(--green)}
@@ -2490,6 +2495,7 @@ const I18N_EN={
  "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
  "cf.backup_ok":"Back it up",
  "cf.backup_later":"Not now",
+ "pc.dismiss":"Close the posture coach",
  "cf.title":"Are you sure?",
  "cf.cancel":"Cancel",
  "cf.confirm":"Confirm",
@@ -3386,6 +3392,7 @@ function rSession(el,w,d){
         <div class="hr"></div>
         <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
+          <button class="pc-x" onclick="pcDismiss()" title="${esc(t("pc.dismiss"))}" aria-label="${esc(t("pc.dismiss"))}">${ic("close")}</button>
           <div class="pc-row">
             <canvas class="pc-cv" id="pcCv" width="110" height="146"></canvas>
             <div style="flex:1;min-width:0">
@@ -3740,6 +3747,7 @@ function rShadow(el){
         <div class="hr"></div>
         <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
+          <button class="pc-x" onclick="pcDismiss()" title="${esc(t("pc.dismiss"))}" aria-label="${esc(t("pc.dismiss"))}">${ic("close")}</button>
           <div class="pc-row">
             <canvas class="pc-cv" id="pcCv" width="110" height="146"></canvas>
             <div style="flex:1;min-width:0">
@@ -4140,17 +4148,19 @@ document.addEventListener("mousedown",e=>{
    previous one, replace rather than append. Rebuilt from scratch each call, so
    running it repeatedly on a growing list is safe. */
 function srText(results){
-  const finals=[];let lastInterim="";
+  const finals=[];let lastInterim="",lastFinalAt=-1;
   for(let i=0;i<results.length;i++){
     const r=results[i];if(!r||!r[0])continue;
     const txt=String(r[0].transcript||"").trim();
     if(!txt)continue;
-    if(r.isFinal)finals.push(txt);else lastInterim=txt;   // only the latest interim survives
+    if(r.isFinal){finals.push(txt);lastFinalAt=i;lastInterim="";}   // a final supersedes the partials before it
+    else lastInterim=txt;                                          // only the latest trailing interim survives
   }
+  if(lastFinalAt>-1&&!lastInterim)lastInterim="";
   const join=(acc,piece)=>{
     if(!acc)return piece;
     if(piece.startsWith(acc))return piece;                // cumulative growth → replace
-    if(acc.endsWith(piece))return acc;                    // already have it → skip
+    if(acc.endsWith(piece)||acc.includes(piece))return acc; // already said → skip
     return acc+" "+piece;
   };
   let out="";
@@ -4289,17 +4299,27 @@ function fbRecStart(cfg){
     shFB=Object.assign({rec:new SR(),on:true,txt:"",t0:Date.now()},cfg);
     const r=shFB.rec;
     r.lang="en-US";r.continuous=true;r.interimResults=true;
-    r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)shFB.txt+=" "+e.results[i][0].transcript};
+    /* Rebuild the current stretch from the whole result list (see srText) rather
+       than appending — Android Chrome resends earlier results and emits each
+       partial separately, which was duplicating every word in the transcript
+       the analysis is built from. */
+    r.onresult=e=>{shFB.cur=srText(e.results)};
     r.onerror=()=>{};
+    const bank=()=>{shFB.txt=((shFB.txt||"")+" "+(shFB.cur||"")).trim();shFB.cur="";};
     r.onend=()=>{
       /* the engine stops itself on silence — restart while still recording */
+      bank();
       if(shFB.on&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
       else if(!shFB.on)shFBDone();
     };
     r.start();
   }catch(e){}
 }
-function fbRecStop(){shFB.on=false;if(shFB.rec){try{shFB.rec.stop()}catch(e){shFBDone()}}}
+function fbRecStop(){
+  shFB.on=false;
+  if(shFB.rec){try{shFB.rec.stop()}catch(e){shFB.txt=((shFB.txt||"")+" "+(shFB.cur||"")).trim();shFB.cur="";shFBDone()}}
+  else shFBDone();
+}
 window.shRec=()=>{
   if(!shClip.vid)return;
   const wasRecording=rec.mr&&rec.mr.state==="recording";
@@ -4827,6 +4847,18 @@ window.pcToggle=async()=>{
     if(msg)msg.textContent=t("pc.camera_blocked_msg");
     toast(t("pc.camera_perm_toast"));
   }
+};
+/* Close the posture panel completely and return the card to how it looked
+   before. Stopping the coach alone left the panel (and its summary) sitting
+   there with no way to get rid of it — fine if you want to read the result,
+   annoying if you tried the feature and decided against it. */
+window.pcDismiss=()=>{
+  if(PC.on)pcStop(false);
+  const w=document.getElementById("pcWrap");
+  if(w){w.style.display="none";w.classList.remove("show")}
+  const st=document.getElementById("pcState");if(st)st.textContent=t("sess.posture_starting");
+  const msg=document.getElementById("pcMsg");if(msg)msg.textContent=t("sess.posture_msg");
+  const btn=document.getElementById("pcBtn");if(btn)btn.textContent=t("sess.posture_btn");
 };
 function pcStop(showSummary){
   PC.on=false;clearInterval(PC.h);
