@@ -487,6 +487,54 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .prac-sec{font-size:clamp(19px,4.6vw,26px);font-weight:800;letter-spacing:-.3px;margin:26px 0 4px}
 .prac-sec-sub{font-size:13px;color:var(--mut);margin-bottom:12px}
 .prac-subgroup{margin-top:-4px}
+
+/* ---- Practice: three tab levels, each visibly smaller than the one above,
+       and every row fills its line edge to edge (no dead space). ---- */
+#v-practice .seg-fit .seg-tab{min-height:46px;font-size:14.5px;font-weight:700;padding:11px 14px;border-radius:14px}
+#v-practice .seg-fit .seg-tab .btn-ic svg{width:18px;height:18px}
+
+/* Level 2 is an underline tab bar, not a pill row: structurally different from
+   the pills above and below it, so the three levels never read as one strip.
+   The rule spans the full line; the active tab carries its group's colour. */
+#v-practice .prac-subgroup{
+  flex-wrap:nowrap;gap:0;margin:2px 0 14px;position:relative;
+  border-bottom:1px solid var(--line2)}
+#v-practice .prac-subgroup .seg-tab{
+  flex:1 1 auto;min-width:0;justify-content:center;
+  background:none;border:0;border-radius:0;box-shadow:none;
+  min-height:38px;padding:9px 4px 10px;font-size:13px;font-weight:600;
+  color:var(--mut);position:relative}
+#v-practice .prac-subgroup .seg-tab .btn-ic{display:none}
+#v-practice .prac-subgroup .seg-tab .seg-lbl{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#v-practice .prac-subgroup .seg-tab::after{
+  content:"";position:absolute;left:12%;right:12%;bottom:-1px;height:3px;
+  border-radius:3px 3px 0 0;background:transparent;transition:background .15s}
+#v-practice .prac-subgroup .seg-tab:hover{color:var(--fg);border-color:transparent}
+#v-practice .prac-subgroup .seg-tab.on{background:none;font-weight:800}
+
+/* The callout colour tells you which half of the library you are in. */
+#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on{color:var(--acc2)}
+#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on::after{background:var(--acc2)}
+#v-practice .prac-subgroup[data-group="grammar"] .seg-tab.on{color:var(--pink)}
+#v-practice .prac-subgroup[data-group="grammar"] .seg-tab.on::after{background:var(--pink)}
+
+/* Level 3: the smallest step — compact uppercase chips. */
+#v-practice .prac-subtabs{gap:6px}
+#v-practice .prac-subtabs .prac-subtab{
+  min-height:30px;font-size:11.5px;font-weight:600;padding:5px 6px;border-radius:9px;
+  letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
+#v-practice .prac-subtabs .prac-subtab b{margin-left:4px;font-size:12px}
+
+@media(max-width:520px){
+  #v-practice .prac-subgroup .seg-tab{font-size:12px;padding:8px 3px 9px}
+  #v-practice .prac-subtabs .prac-subtab{font-size:10.5px;padding:5px 4px;letter-spacing:0}
+}
+@media(max-width:360px){
+  #v-practice .prac-subgroup .seg-tab{font-size:11px;padding:8px 2px 9px}
+  #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:5px 3px}
+  #v-practice .prac-subtabs .prac-subtab b{margin-left:3px;font-size:10.5px}
+}
 /* App Setup shortcut on the profile header */
 .pf-gear{position:absolute;top:12px;right:0;z-index:2;width:44px;height:44px;border-radius:50%;
   border:1px solid var(--line2);background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer;transition:.15s}
@@ -504,7 +552,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   transition:.18s;font-family:inherit;color:var(--txt);min-height:132px}
 .gx-card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .gx-card:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
-.gx-ic{color:var(--acc);line-height:0;margin-bottom:4px}
+/* Pink to match the Grammar callout these cards live under. */
+.gx-ic{color:var(--pink);line-height:0;margin-bottom:4px}
 .gx-ic svg{width:24px;height:24px}
 .gx-card b{font-size:14.5px;line-height:1.35}
 .gx-card small{font-size:12px;color:var(--mut)}
@@ -5577,8 +5626,8 @@ function rPractice(el){
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("lib.tabs_label"))}">
     ${LIB_GROUPS.map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
   </div>
-  <div class="seg-tabs prac-subgroup" role="tablist">
-    ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span>${t(c.n)}</button>`).join("")}
+  <div class="seg-tabs prac-subgroup" data-group="${group.k}" role="tablist">
+    ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
   </div>
   <div id="libBody"></div>`;
   const body=el.querySelector("#libBody");
