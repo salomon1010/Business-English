@@ -837,5 +837,11 @@
  "prac.cw_progress": "Đã giải {{solved}}/{{total}} từ — tiếp tục nhé.",
  "home.due_title": "{{n}} từ đã sẵn sàng để ôn lại",
  "home.due_title_one": "1 từ đã sẵn sàng để ôn lại",
- "home.due_sub": "Những từ bạn đã lưu khi luyện nói. Hai phút bây giờ và chúng là của bạn."
+ "home.due_sub": "Những từ bạn đã lưu khi luyện nói. Hai phút bây giờ và chúng là của bạn.",
+ "acc.reset_confirm_account": "Xoá TOÀN BỘ tiến trình và bản ghi, trên thiết bị này VÀ trong tài khoản của bạn? Mọi thiết bị bạn đăng nhập sẽ trống. Không thể hoàn tác.",
+ "auth.conflict_title": "Thiết bị này có phần luyện tập mà tài khoản chưa biết",
+ "auth.conflict_body": "Bạn đã luyện trên thiết bị này khi chưa đăng nhập. Tải tài khoản sẽ thay thế phần đó; giữ lại sẽ thêm nó vào tài khoản của bạn.",
+ "auth.conflict_use_account": "Dùng tài khoản của tôi",
+ "auth.conflict_keep_device": "Giữ phần trên thiết bị này",
+ "auth.signout_confirm_clean": "Đăng xuất và xoá sạch thiết bị này? Tiến trình vẫn an toàn trong tài khoản và trở lại khi bạn đăng nhập. Các bản ghi lưu ở đây sẽ bị xoá — chúng chưa bao giờ ở trong tài khoản."
 }

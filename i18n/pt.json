@@ -837,5 +837,11 @@
  "prac.cw_progress": "{{solved}} de {{total}} palavras resolvidas — continue.",
  "home.due_title": "{{n}} palavras estão prontas para revisão",
  "home.due_title_one": "1 palavra está pronta para revisão",
- "home.due_sub": "Palavras que você guardou da sua própria fala. Dois minutos agora e elas ficam suas."
+ "home.due_sub": "Palavras que você guardou da sua própria fala. Dois minutos agora e elas ficam suas.",
+ "acc.reset_confirm_account": "Apagar TODO o progresso e as gravações, neste dispositivo E na sua conta? Todos os dispositivos onde entrar ficarão vazios. Isto não pode ser desfeito.",
+ "auth.conflict_title": "Este dispositivo tem trabalho que a sua conta não conhece",
+ "auth.conflict_body": "Você praticou neste dispositivo sem estar conectado. Carregar a sua conta substitui esse trabalho. Mantê-lo o adiciona à sua conta.",
+ "auth.conflict_use_account": "Usar a minha conta",
+ "auth.conflict_keep_device": "Manter o deste dispositivo",
+ "auth.signout_confirm_clean": "Sair e limpar este dispositivo? O seu progresso continua na sua conta e volta quando entrar. As gravações guardadas aqui são apagadas — nunca estiveram na sua conta."
 }

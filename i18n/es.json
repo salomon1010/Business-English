@@ -837,5 +837,11 @@
  "prac.cw_progress": "{{solved}} de {{total}} palabras resueltas: sigue así.",
  "home.due_title": "{{n}} palabras están listas para repasar",
  "home.due_title_one": "1 palabra está lista para repasar",
- "home.due_sub": "Palabras que guardaste de tu propia práctica oral. Dos minutos ahora y son tuyas para siempre."
+ "home.due_sub": "Palabras que guardaste de tu propia práctica oral. Dos minutos ahora y son tuyas para siempre.",
+ "acc.reset_confirm_account": "¿Borrar TODO el progreso y las grabaciones, en este dispositivo Y en tu cuenta? Todos los dispositivos donde inicies sesión quedarán vacíos. Esto no se puede deshacer.",
+ "auth.conflict_title": "Este dispositivo tiene trabajo que tu cuenta no conoce",
+ "auth.conflict_body": "Practicaste en este dispositivo sin haber iniciado sesión. Si cargas tu cuenta, ese trabajo se reemplaza. Si lo conservas, se añadirá a tu cuenta.",
+ "auth.conflict_use_account": "Usar mi cuenta",
+ "auth.conflict_keep_device": "Conservar lo de este dispositivo",
+ "auth.signout_confirm_clean": "¿Cerrar sesión y limpiar este dispositivo? Tu progreso sigue a salvo en tu cuenta y vuelve al iniciar sesión. Las grabaciones guardadas aquí se eliminan: nunca estuvieron en tu cuenta."
 }

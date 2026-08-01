@@ -837,5 +837,11 @@
  "prac.cw_progress": "{{total}}개 중 {{solved}}개 완성 — 계속해 보세요.",
  "home.due_title": "복습할 단어 {{n}}개가 준비됐습니다",
  "home.due_title_one": "복습할 단어 1개가 준비됐습니다",
- "home.due_sub": "직접 말하면서 저장한 단어입니다. 지금 2분이면 완전히 내 것이 됩니다."
+ "home.due_sub": "직접 말하면서 저장한 단어입니다. 지금 2분이면 완전히 내 것이 됩니다.",
+ "acc.reset_confirm_account": "이 기기와 계정 양쪽에서 모든 진행 상황과 녹음을 삭제할까요? 로그인하는 모든 기기가 비게 됩니다. 되돌릴 수 없습니다.",
+ "auth.conflict_title": "이 기기에 계정이 모르는 학습 기록이 있습니다",
+ "auth.conflict_body": "로그인하지 않은 채로 이 기기에서 연습했습니다. 계정을 불러오면 그 기록은 대체되고, 유지하면 계정에 추가됩니다.",
+ "auth.conflict_use_account": "내 계정 사용",
+ "auth.conflict_keep_device": "이 기기의 기록 유지",
+ "auth.signout_confirm_clean": "로그아웃하고 이 기기를 비울까요? 진행 상황은 계정에 안전하게 남아 로그인하면 돌아옵니다. 여기 저장된 녹음은 삭제됩니다 — 계정에 있던 적이 없습니다."
 }

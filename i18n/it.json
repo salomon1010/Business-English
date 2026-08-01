@@ -837,5 +837,11 @@
  "prac.cw_progress": "{{solved}} parole su {{total}} risolte: continua così.",
  "home.due_title": "{{n}} parole sono pronte da ripassare",
  "home.due_title_one": "1 parola è pronta da ripassare",
- "home.due_sub": "Parole che hai salvato mentre parlavi. Due minuti adesso e restano tue."
+ "home.due_sub": "Parole che hai salvato mentre parlavi. Due minuti adesso e restano tue.",
+ "acc.reset_confirm_account": "Eliminare TUTTI i progressi e le registrazioni, su questo dispositivo E nel tuo account? Ogni dispositivo su cui accedi sarà vuoto. Non è reversibile.",
+ "auth.conflict_title": "Questo dispositivo ha lavoro che il tuo account non conosce",
+ "auth.conflict_body": "Ti sei esercitato su questo dispositivo senza aver effettuato l'accesso. Caricare l'account sostituisce quel lavoro. Tenerlo lo aggiunge al tuo account.",
+ "auth.conflict_use_account": "Usa il mio account",
+ "auth.conflict_keep_device": "Tieni ciò che è su questo dispositivo",
+ "auth.signout_confirm_clean": "Uscire e ripulire questo dispositivo? I progressi restano al sicuro nell'account e tornano al prossimo accesso. Le registrazioni salvate qui vengono eliminate: non sono mai state nell'account."
 }

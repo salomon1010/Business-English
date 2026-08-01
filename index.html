@@ -2085,6 +2085,7 @@ const I18N_EN={
  "acc.import_toast":"Progress imported ✓",
  "acc.import_invalid_toast":"⚠️ Invalid backup file",
  "acc.reset_confirm":"Delete ALL progress and recordings? This cannot be undone.",
+ "acc.reset_confirm_account":"Delete ALL progress and recordings, on this device AND in your account? Every device you log in on will be empty. This cannot be undone.",
  "acc.reset_toast":"Everything reset",
  "acc.gh_connected":"Connected: {{repo}} ({{branch}})",
  "acc.gh_last_sync":" · last sync {{when}}",
@@ -2715,6 +2716,11 @@ const I18N_EN={
  "auth.nudge_desc":"Sign in so your streak is never lost.",
  "auth.nudge_signin":"Sign in",
  "auth.welcome_back_toast":"☁️ Welcome back — your progress is synced",
+ "auth.conflict_title":"This device has work your account hasn't seen",
+ "auth.conflict_body":"You practised on this device without being signed in. Load your account and this device's unsaved work is replaced. Keep it and it will be added to your account instead.",
+ "auth.conflict_use_account":"Use my account",
+ "auth.conflict_keep_device":"Keep this device's work",
+ "auth.signout_confirm_clean":"Sign out and clear this device? Your progress stays safe in your account and comes back when you log in. Recordings saved here are deleted — they were never in your account.",
  "auth.welcome_back_named_toast":"☁️ Welcome back, {{name}} — your progress is synced",
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
  "cf.backup_title":"Protect your progress",
@@ -7079,10 +7085,24 @@ window.impData=inp=>{
   r.readAsText(f);
 };
 window.resetAll=async()=>{
-  if(!await askConfirm({title:t("cf.reset_title"),body:t("acc.reset_confirm"),confirmLabel:t("cf.reset_ok")}))return;
+  /* Signed in, the account is what a device loads on sign-in — so wiping only
+     this device would be undone the moment it logs in again. Reset therefore
+     clears the account copy too, and says so before it does. */
+  const signedIn=!!(FBUser&&FBdb);
+  if(!await askConfirm({title:t("cf.reset_title"),
+    body:signedIn?t("acc.reset_confirm_account"):t("acc.reset_confirm"),
+    confirmLabel:t("cf.reset_ok")}))return;
   localStorage.removeItem(LS_KEY);
   dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}});
-  S=load();save();toast(t("acc.reset_toast"));go("home");
+  S=load();
+  if(signedIn){
+    /* Write the empty state immediately rather than leaving it to the debounced
+       push, which could otherwise race a pull and restore what was just wiped. */
+    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:Date.now(),
+      email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    }catch(e){console.warn("[sync] reset of cloud copy failed:",(e&&(e.code||e.message))||e)}
+  }
+  save();toast(t("acc.reset_toast"));go("home");
 };
 
 /* session view registration + boot */
@@ -7882,6 +7902,11 @@ try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
    Lives inside the main script so it can reassign S like the GitHub sync does.
    The whole app works with no Firebase config, no network, and no account. */
 let FBauth=null,FBdb=null,FBUser=null,fbPushTimer=null,fbSyncing=false;
+/* Which account the state in localStorage belongs to. Kept OUTSIDE S so it is
+   never written into the cloud document. Without it there is no way to tell
+   "this device is just behind its own account" from "this is somebody else's
+   data left on the device", and those two cases need opposite handling. */
+const FB_OWNER_KEY="be12_owner";
 const FB_NUDGE_KEY="be12_syncNudge";
 try{
   if(window.firebase&&window.FB_CONFIG&&FB_CONFIG.apiKey){
@@ -7948,8 +7973,42 @@ async function fbFirstSync(u){
     const snap=await ref.get();
     let cloud=null;
     if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
-    const merged=fbMerge(S,cloud);
-    S=merged;localStorage.setItem(LS_KEY,JSON.stringify(S));
+    /* THE ACCOUNT IS THE SOURCE OF TRUTH ON SIGN-IN.
+       Signing in used to union local and cloud, which is why two devices on the
+       same account could sit side by side showing different clip counts: each
+       kept whatever it had locally and added the cloud's on top. Now signing in
+       adopts the account copy wholesale, so every device that logs in ends up
+       identical — the same result you got by hand with reset-then-login.
+
+       The one case where that would destroy work: someone practises for weeks
+       WITHOUT an account, then signs into an account that already has progress.
+       Taking the cloud copy would silently bin everything they did. So if this
+       device holds work the account has never seen, we ask instead of guessing.
+       When local adds nothing (the normal case — this device is just behind),
+       the account copy is taken silently and nobody is interrupted. */
+    const owner=localStorage.getItem(FB_OWNER_KEY);
+    if(owner&&owner!==u.uid){
+      /* Somebody else's data is on this device — a sign-out that never ran, or
+         an app updated from before sign-out cleaned up. It is not this user's
+         to keep and must never be offered to them or merged into their account.
+         Drop it and start from the account (or from empty, for a new account). */
+      localStorage.removeItem(LS_KEY);
+      try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
+      S=cloud||load();
+    }else if(cloud){
+      const merged=fbMerge(S,cloud);
+      let take=cloud;
+      if(fbSnapshotSig(merged)!==fbSnapshotSig(cloud)){
+        const useAccount=await askConfirm({
+          icon:"cloud",danger:false,
+          title:t("auth.conflict_title"),body:t("auth.conflict_body"),
+          confirmLabel:t("auth.conflict_use_account"),cancelLabel:t("auth.conflict_keep_device")});
+        take=useAccount?cloud:merged;      // keep-this-device still uploads, never discards
+      }
+      S=take;
+    }
+    localStorage.setItem(LS_KEY,JSON.stringify(S));
+    localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
     await ref.set({json:JSON.stringify(S),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     /* a returning user who logged in from onboarding: their profile came from the
        cloud, so dismiss the onboarding overlay and drop them into the app */
@@ -8114,19 +8173,34 @@ window.fbReset=async function(){
   try{await FBauth.sendPasswordResetEmail(em);fbSetErr("");toast(t("auth.reset_sent_toast"))}
   catch(e){fbSetErr(fbErr(e))}
 };
+/* Signing out leaves NOTHING of that account behind. Progress belongs to the
+   account and is safe in the cloud, so clearing it costs nothing and stops the
+   next person who logs in on this device from inheriting it. Recordings go too:
+   they were never in the account, so leaving them would strand one person's
+   audio inside another person's session pages. */
+function fbWipeDevice(){
+  localStorage.removeItem(LS_KEY);
+  localStorage.removeItem(FB_OWNER_KEY);
+  try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
+  S=load();save();
+}
 window.fbSignOut=async function(){
   if(!FBauth)return;
-  if(!await askConfirm({title:t("cf.signout_title"),body:t("auth.signout_confirm"),confirmLabel:t("cf.signout_ok"),icon:"user",danger:false}))return;
-  await FBauth.signOut();toast(t("auth.signed_out_toast"));go("data");
+  if(!await askConfirm({title:t("cf.signout_title"),body:t("auth.signout_confirm_clean"),confirmLabel:t("cf.signout_ok"),icon:"user",danger:false}))return;
+  await FBauth.signOut();          // sign out first so nothing can push after the wipe
+  fbWipeDevice();
+  toast(t("auth.signed_out_toast"));go("home");
 };
 window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
   if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm"),confirmLabel:t("cf.delete")}))return;
   try{
     await FBdb.collection("users").doc(FBUser.uid).delete();
-    await FBUser.delete();toast(t("auth.deleted_toast"));go("data");
+    await FBUser.delete();
+    fbWipeDevice();                 // deleting the account must not leave its data on the device
+    toast(t("auth.deleted_toast"));go("home");
   }catch(e){
-    if(e&&e.code==="auth/requires-recent-login"){toast(t("auth.reauth_toast"));await FBauth.signOut()}
+    if(e&&e.code==="auth/requires-recent-login"){toast(t("auth.reauth_toast"));await FBauth.signOut();fbWipeDevice()}
     else toast("⚠️ "+fbErr(e));
   }
 };

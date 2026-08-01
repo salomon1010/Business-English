@@ -837,5 +837,11 @@
  "prac.cw_progress": "{{solved}} mots sur {{total}} résolus — continue.",
  "home.due_title": "{{n}} mots sont prêts à être révisés",
  "home.due_title_one": "1 mot est prêt à être révisé",
- "home.due_sub": "Des mots que vous avez enregistrés en parlant. Deux minutes maintenant et ils sont à vous."
+ "home.due_sub": "Des mots que vous avez enregistrés en parlant. Deux minutes maintenant et ils sont à vous.",
+ "acc.reset_confirm_account": "Supprimer TOUTE la progression et les enregistrements, sur cet appareil ET dans votre compte ? Chaque appareil où vous vous connecterez sera vide. Action irréversible.",
+ "auth.conflict_title": "Cet appareil contient un travail que votre compte ne connaît pas",
+ "auth.conflict_body": "Vous avez pratiqué sur cet appareil sans être connecté. Charger votre compte remplacera ce travail. Le conserver l'ajoutera à votre compte.",
+ "auth.conflict_use_account": "Utiliser mon compte",
+ "auth.conflict_keep_device": "Garder ce qui est sur cet appareil",
+ "auth.signout_confirm_clean": "Se déconnecter et effacer cet appareil ? Votre progression reste dans votre compte et revient à la connexion. Les enregistrements gardés ici sont supprimés : ils n'ont jamais été dans votre compte."
 }

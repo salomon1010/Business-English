@@ -837,5 +837,11 @@
  "prac.cw_progress": "已解出 {{total}} 个词中的 {{solved}} 个——继续加油。",
  "home.due_title": "{{n}} 个单词可以复习了",
  "home.due_title_one": "1 个单词可以复习了",
- "home.due_sub": "你在练口语时保存的单词。现在花两分钟，它们就真正属于你。"
+ "home.due_sub": "你在练口语时保存的单词。现在花两分钟，它们就真正属于你。",
+ "acc.reset_confirm_account": "删除本设备和你账户中的全部进度与录音？你登录的每台设备都会是空的。此操作无法撤销。",
+ "auth.conflict_title": "本设备上有你的账户还不知道的练习记录",
+ "auth.conflict_body": "你在未登录的情况下用本设备练习过。载入账户会替换这些记录；选择保留则会把它们加入你的账户。",
+ "auth.conflict_use_account": "使用我的账户",
+ "auth.conflict_keep_device": "保留本设备的记录",
+ "auth.signout_confirm_clean": "退出登录并清空本设备？你的进度安全保存在账户中，登录后会回来。保存在这里的录音会被删除——它们从未上传到账户。"
 }
