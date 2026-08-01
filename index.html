@@ -991,7 +991,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   main{padding-bottom:110px}
   .toast{bottom:96px}
 }
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:99;transition:.3s;opacity:0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:150;transition:.3s;opacity:0}
 .toast.show{transform:translateX(-50%);opacity:1}
 .about-ov{position:fixed;top:0;left:0;right:0;bottom:0;width:100%;height:100%;z-index:140;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
 .about-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 18px calc(13px + env(safe-area-inset-top));padding-top:max(13px,env(safe-area-inset-top));border-bottom:1px solid var(--line2);background:var(--card);font-size:16px;font-weight:800;flex:none}
@@ -1156,6 +1156,41 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-bubble{max-width:88%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.45}
 .rp-bubble.ai{background:var(--card2);border:1px solid var(--line2);align-self:flex-start;border-bottom-left-radius:4px}
 .rp-bubble.me{background:var(--grad);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+/* ---- focused conversation workspace ----
+   The conversation used to be a three-column grid inside the page, so on a
+   phone the mic scrolled off as soon as the transcript grew and you could not
+   speak and read at the same time. This is a full-screen surface instead: the
+   character pinned to the top, the transcript scrolling in the middle so the
+   whole exchange stays reviewable, and the mic fixed to the bottom. */
+.rp-work{position:fixed;top:0;left:0;right:0;bottom:0;z-index:130;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.rp-work.show{display:flex}
+.rp-work-bar{display:flex;align-items:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
+.rp-work-bar .rp-av{width:44px;height:44px;border-radius:14px}
+.rp-work-who{min-width:0;flex:1}
+.rp-work-who b{display:block;font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-work-who small{display:block;font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rp-work-bar.speaking .rp-av{animation:rpGlow 1.3s ease-in-out infinite}
+.rp-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px;display:flex;flex-direction:column;gap:10px;max-width:760px;width:100%;margin:0 auto}
+.rp-bubble.draft{opacity:.6;font-style:italic}
+.rp-work-foot{flex:none;border-top:1px solid var(--line2);background:var(--card);padding:12px 16px calc(12px + env(safe-area-inset-bottom))}
+.rp-work-foot .rp-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:10px}
+/* Talking points collapse to a single tappable line so they never crowd the mic */
+.rp-pts{width:100%;border:1px solid var(--line2);background:var(--card2);border-radius:12px;overflow:hidden}
+.rp-pts summary{list-style:none;cursor:pointer;padding:9px 13px;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);display:flex;align-items:center;gap:8px}
+.rp-pts summary::-webkit-details-marker{display:none}
+.rp-pts summary .chip{margin-left:auto}
+.rp-pts .rp-pts-in{padding:0 11px 11px;display:flex;flex-direction:column;gap:7px}
+.rp-pts .rp-point{padding:9px 12px;font-size:13px}
+/* Mic with a countdown ring: the ring drains through the speaking window and
+   resets every time you actually say something, so a pause mid-sentence can no
+   longer end your turn. */
+.rp-mic-wrap{position:relative;width:88px;height:88px;display:grid;place-items:center}
+.rp-mic-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--acc2) calc(var(--p,0) * 1%),rgba(148,163,184,.18) 0);opacity:0;transition:opacity .2s}
+.rp-mic-wrap.counting .rp-mic-ring{opacity:1}
+.rp-mic-wrap .rp-mic{position:relative;width:74px;height:74px}
+.rp-mic-secs{position:absolute;bottom:-2px;right:-2px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--card);border:1px solid var(--line2);color:var(--txt);font-size:12px;font-weight:800;display:none;place-items:center;font-variant-numeric:tabular-nums}
+.rp-mic-wrap.counting .rp-mic-secs{display:grid}
+@media(max-width:560px){.rp-work-body{padding:14px 12px}.rp-work-foot{padding:10px 12px calc(10px + env(safe-area-inset-bottom))}}
 .rp-modal-ov{position:fixed;inset:0;z-index:140;background:rgba(6,9,18,.7);backdrop-filter:blur(5px);display:grid;place-items:center;padding:22px;animation:fade .2s}
 .rp-modal{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:24px;max-width:400px;width:100%}
 .rp-modal b{font-size:18px;display:block;margin-bottom:8px}
@@ -1947,6 +1982,7 @@ const I18N_EN={
  "rp.points_h":"Your talking points",
  "rp.end":"End practice",
  "rp.transcript":"Real-time transcript",
+  "rp.tap_done":"Listening — tap the mic when you've finished.",
  "rp.tap_to_speak":"Tap the mic and speak",
  "rp.speaking":"Speaking…",
  "rp.listening":"Listening…",
@@ -5237,6 +5273,33 @@ try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{_fbVoice=fb
 const _ttsCache=new Map();   // "voice|text" -> object URL (mp3)
 let _ttsAudio=null;
 function fbStopAudio(){if(_ttsAudio){try{_ttsAudio.pause()}catch(_){}_ttsAudio=null}}
+/* ---- one persistent <audio>, unlocked by a real tap ----
+   iOS (and the TWA's webview) only let a media element play if THAT element has
+   already been started from inside a user gesture. A fresh `new Audio()` per
+   clip therefore works for anything played straight off a tap, but is rejected
+   for anything that arrives later — and in a conversation every reply is two
+   async hops past the last tap (Worker reply, then the TTS fetch). The rejection
+   fell through to speechSynthesis, which is gesture-gated too, so the character
+   animated and said nothing at all. Reusing one element that was unlocked on the
+   first tap fixes it. */
+const _SILENT_WAV="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+let _ttsPlayer=null,_ttsUnlocked=false;
+function ttsPlayer(){
+  if(!_ttsPlayer){_ttsPlayer=new Audio();_ttsPlayer.preload="auto";_ttsPlayer.playsInline=true;
+    try{_ttsPlayer.setAttribute("playsinline","")}catch(_){}}
+  return _ttsPlayer;
+}
+/* Call from any genuine tap. Cheap and idempotent. */
+function audioUnlock(){
+  if(_ttsUnlocked)return;
+  const a=ttsPlayer();
+  try{
+    a.muted=true;a.src=_SILENT_WAV;
+    const p=a.play();
+    const done=()=>{try{a.pause()}catch(_){}a.muted=false;a.removeAttribute("src");_ttsUnlocked=true};
+    if(p&&p.then)p.then(done).catch(()=>{a.muted=false});else done();
+  }catch(e){a.muted=false}
+}
 let _voiceOverride=null;   // onboarding uses a random natural voice; app default stays Alloy
 function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"alloy"}
 async function fbSayApi(text,rate,voiceOverride){
@@ -5250,7 +5313,8 @@ async function fbSayApi(text,rate,voiceOverride){
     if(_ttsCache.size>40){const k=_ttsCache.keys().next().value;URL.revokeObjectURL(_ttsCache.get(k));_ttsCache.delete(k)}
   }
   fbStopAudio();
-  const a=new Audio(url);_ttsAudio=a;
+  const a=ttsPlayer();_ttsAudio=a;
+  a.onended=null;a.src=url;
   a.playbackRate=(rate&&rate<0.9)?Math.max(0.6,rate):1;   // "Slow" buttons reuse the same clip
   await a.play();
 }
@@ -7249,7 +7313,11 @@ function rpSpeak(text,gender){
 }
 function rpSetSpeaking(on){
   const st=document.querySelector(".rp-live-stage");if(st)st.classList.toggle("speaking",!!on);
-  const s=document.getElementById("rpStatus");if(s){if(on)s.textContent=t("rp.speaking");else if(rpConv&&!rpConv.busy)s.textContent=t("rp.tap_to_speak")}
+  const bar=document.getElementById("rpBar");if(bar)bar.classList.toggle("speaking",!!on);
+  /* Never overwrite the status while the mic is open — that line is the
+     countdown hint and the user is mid-turn. */
+  const s=document.getElementById("rpStatus");
+  if(s&&!rpRec){if(on)s.textContent=t("rp.speaking");else if(rpConv&&!rpConv.busy)s.textContent=t("rp.tap_to_speak")}
 }
 /* ---- natural female voice via ElevenLabs, with a browser-female fallback ---- */
 const EL_KEY="be12_elkey";
@@ -7370,46 +7438,125 @@ function rpIntro(el,sc){
 window.rpStart=(id)=>{
   const sc=rpById(id); if(!sc)return;
   if(!SR)return toast(t("fb.sr_unavailable"));
+  audioUnlock();                 /* this tap is the only chance to unlock playback */
   rpConv={sc,history:[],covered:new Set(),busy:false,idle:null};
-  const el=document.getElementById("v-roleplay");
-  el.innerHTML=`
-   <div class="rp-live">
-     <div class="rp-live-top"><b>${esc(sc.title)}</b><button class="btn btn-g btn-sm" onclick="rpEnd()">${t("rp.end")}</button></div>
-     <div class="rp-live-grid">
-       <div class="rp-live-points">
-         <div class="rp-lp-h">${t("rp.points_h")} <span id="rpProg" class="chip">0/${sc.points.length}</span></div>
-         ${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}
-       </div>
-       <div class="rp-live-stage">
-         <div class="rp-av-wrap">${rpAvatar(sc,120)}<div class="rp-eq"><span></span><span></span><span></span><span></span><span></span></div></div>
-         <button class="rp-mic" id="rpMic" onclick="rpListen()" aria-label="Speak">${ic("mic")}</button>
-         <div class="rp-status" id="rpStatus">${t("rp.tap_to_speak")}</div>
-       </div>
-       <div class="rp-live-tx">
-         <div class="rp-tx-h">${t("rp.transcript")}</div>
-         <div class="rp-tx" id="rpTx"></div>
-       </div>
+  rpCloseWork();
+  const w=document.createElement("div");
+  w.className="rp-work show"; w.id="rpWork";
+  w.innerHTML=`
+     <div class="rp-work-bar" id="rpBar">
+       ${rpAvatar(sc,44)}
+       <div class="rp-work-who"><b>${esc(sc.persona)}</b><small>${esc(sc.role)} · ${esc(sc.title)}</small></div>
+       <button class="btn btn-g btn-sm" onclick="rpEnd()">${t("rp.end")}</button>
      </div>
-   </div>`;
-  manIconizeInline(el);
+     <div class="rp-work-body" id="rpTx"></div>
+     <div class="rp-work-foot"><div class="rp-inner">
+       <details class="rp-pts">
+         <summary>${t("rp.points_h")} <span id="rpProg" class="chip">0/${sc.points.length}</span></summary>
+         <div class="rp-pts-in">${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+       </details>
+       <div class="rp-mic-wrap" id="rpMicWrap">
+         <div class="rp-mic-ring" id="rpRing"></div>
+         <button class="rp-mic" id="rpMic" onclick="rpListen()" aria-label="Speak">${ic("mic")}</button>
+         <span class="rp-mic-secs" id="rpSecs"></span>
+       </div>
+       <div class="rp-status" id="rpStatus">${t("rp.tap_to_speak")}</div>
+     </div></div>`;
+  document.body.appendChild(w);
+  manIconizeInline(w);
+  document.body.style.overflow="hidden";
   rpConv.history.push({role:"assistant",content:sc.greet});
   rpAddBubble("ai",sc.greet); rpVoice(sc.greet);
   rpResetIdle();
 };
+function rpCloseWork(){
+  rpStopListen();
+  const w=document.getElementById("rpWork"); if(w)w.remove();
+  document.body.style.overflow="";
+}
 function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)return;const d=document.createElement("div");d.className="rp-bubble "+(who==="ai"?"ai":"me");d.textContent=text;tx.appendChild(d);tx.scrollTop=tx.scrollHeight;}
+/* How long you may stay quiet before the turn is sent. Every word you speak
+   resets it, so the only thing that can end your turn early is you. */
+const RP_WINDOW=30;
+let rpRec=null;
+function rpStopListen(){
+  const rec=rpRec; if(!rec)return;
+  rec.stopped=true; rpRec=null;
+  clearInterval(rec.tick);
+  try{rec.r&&(rec.r.abort?rec.r.abort():rec.r.stop())}catch(e){}
+  const wrap=document.getElementById("rpMicWrap"),mic=document.getElementById("rpMic");
+  if(wrap)wrap.classList.remove("counting");
+  if(mic)mic.classList.remove("on");
+  rpDraft("");
+}
+function rpDraft(txt){
+  const tx=document.getElementById("rpTx");if(!tx)return;
+  let d=document.getElementById("rpDraft");
+  if(!txt){if(d)d.remove();return}
+  if(!d){d=document.createElement("div");d.id="rpDraft";d.className="rp-bubble me draft";tx.appendChild(d)}
+  d.textContent=txt; tx.scrollTop=tx.scrollHeight;
+}
+function rpFinish(){
+  const rec=rpRec; if(!rec)return;
+  const said=(rec.said||"").trim();
+  rpStopListen();
+  const st=document.getElementById("rpStatus");
+  if(!said){if(st)st.textContent=t("rp.tap_to_speak"); rpResetIdle(); return}
+  rpUserTurn(said);
+}
+/* Tap to start, tap again when you have finished. Previously this ran a
+   one-shot recogniser with interimResults off, so the browser decided your turn
+   was over at the first natural pause — mid-sentence, every time. */
 window.rpListen=()=>{
   if(!rpConv||rpConv.busy)return;
   if(!SR)return toast(t("fb.sr_unavailable"));
-  rpClearIdle();
-  rpStopVoice();
+  audioUnlock();
+  if(rpRec){rpFinish();return}
+  rpClearIdle(); rpStopVoice();
   clearInterval(rpSayKeep); rpSetSpeaking(false);
-  const mic=document.getElementById("rpMic"),st=document.getElementById("rpStatus");
-  const r=new SR();r.lang="en-US";r.interimResults=false;r.maxAlternatives=1;let got=false;
-  if(mic)mic.classList.add("on"); if(st)st.textContent=t("rp.listening");
-  r.onresult=e=>{got=true;rpUserTurn((e.results[0][0].transcript||"").trim())};
-  r.onerror=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()};
-  r.onend=()=>{if(mic)mic.classList.remove("on");if(!got){if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()}};
-  try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
+  const wrap=document.getElementById("rpMicWrap"),mic=document.getElementById("rpMic"),
+        st=document.getElementById("rpStatus");
+  const rec={r:null,said:"",left:RP_WINDOW*1000,stopped:false,tick:null};
+  rpRec=rec;
+  if(mic)mic.classList.add("on");
+  if(wrap)wrap.classList.add("counting");
+  if(st)st.textContent=t("rp.tap_done");
+  const paint=()=>{
+    const ring=document.getElementById("rpRing"),sx=document.getElementById("rpSecs");
+    if(ring)ring.style.setProperty("--p",String(Math.max(0,Math.min(100,rec.left/(RP_WINDOW*10)))));
+    if(sx)sx.textContent=String(Math.max(0,Math.ceil(rec.left/1000)));
+  };
+  paint();
+  rec.tick=setInterval(()=>{rec.left-=200;paint();if(rec.left<=0)rpFinish()},200);
+  const r=new SR();
+  r.lang="en-US"; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
+  rec.r=r;
+  r.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const seg=e.results[i][0].transcript||"";
+      if(e.results[i].isFinal){const s=seg.trim();if(s)rec.said+=(rec.said?" ":"")+s}
+      else interim+=seg;
+    }
+    rec.left=RP_WINDOW*1000; paint();        /* still talking — hold the window open */
+    rpDraft((rec.said+" "+interim).trim());
+  };
+  r.onerror=ev=>{
+    /* "no-speech" and "aborted" are routine across a 30-second window; only a
+       real permission failure should end the turn. */
+    if(ev&&(ev.error==="not-allowed"||ev.error==="service-not-allowed")){
+      rpStopListen();
+      if(st)st.textContent=t("rp.tap_to_speak");
+      toast(t("rec.mic_denied_toast")); rpResetIdle();
+    }
+  };
+  r.onend=()=>{
+    /* Chrome closes a continuous session on its own after a stretch of silence.
+       Reopen it until our window actually runs out. */
+    if(rec.stopped||rpRec!==rec)return;
+    try{r.start()}catch(e){}
+  };
+  try{r.start()}catch(e){rpStopListen()}
 };
 async function rpUserTurn(text){
   if(!rpConv||!text)return;
@@ -7456,7 +7603,7 @@ function rpClearIdle(){if(rpConv&&rpConv.idle){clearTimeout(rpConv.idle);rpConv.
 function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>go("roleplay"),t("rp.to_summary"),rpSummary)}
 window.rpEnd=()=>rpSummary();
 function rpSummary(){
-  if(!rpConv)return; rpClearIdle(); try{speechSynthesis.cancel()}catch(e){}
+  if(!rpConv)return; rpClearIdle(); rpCloseWork(); try{speechSynthesis.cancel()}catch(e){}
   const sc=rpConv.sc,covered=rpConv.covered;
   /* Log it. Without this the whole feature was invisible to the rest of the
      app — no streak credit, nothing on the calendar, nothing in progress. Only
@@ -7489,7 +7636,7 @@ function rpSummary(){
    </div>`;
   manIconizeInline(el); rpConv=null;
 }
-function rpEndConv(){if(rpConv){rpClearIdle();rpConv=null;try{speechSynthesis.cancel()}catch(e){}}const m=document.getElementById("rpModal");if(m)m.remove();}
+function rpEndConv(){rpCloseWork();if(rpConv){rpClearIdle();rpConv=null;try{speechSynthesis.cancel()}catch(e){}}const m=document.getElementById("rpModal");if(m)m.remove();}
 function rpShowModal(title,body,b1,f1,b2,f2){
   let m=document.getElementById("rpModal");if(m)m.remove();
   m=document.createElement("div");m.id="rpModal";m.className="rp-modal-ov";
