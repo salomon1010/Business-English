@@ -157,10 +157,10 @@ Fixes / infra
 - 15 `i18n/*.json` files exist (es fr pt it de ru ar ur hi bn id vi zh ja ko).
 
 ## Not yet built / open threads
-- **Firebase cloud sign-in**: email/password sign-in, Firestore sync and merge are
-  **built and shipping** (`fbEmailAuth`, `fbMerge`, `fbPush`). What remains is
-  **console setup only**: enable the Email/Password provider, add `app.lomonec.com`
-  as an authorised domain, and set Firestore rules. **Google sign-in is
+- **Firebase cloud sign-in**: **DONE and verified live 2026-08-01** — email/password
+  sign-in, Firestore sync and merge (`fbEmailAuth`, `fbMerge`, `fbPush`), console
+  setup complete, `app.lomonec.com` authorised, rules published. Confirmed working
+  on a real Android device against the live app. **Google sign-in is
   deliberately hidden** — `signInWithRedirect` cannot complete while the app is on
   `app.lomonec.com` and the auth handler is on `be-mastery.firebaseapp.com`
   (partitioned third-party storage). `fbGoogle()` stays for when hosting can serve
