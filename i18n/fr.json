@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Vocabulaire",
   "prac.tab_grammar": "Grammaire",
   "rp.tap_done": "J'écoute — touchez le micro quand vous avez fini.",
-  "rp.nudge": "Prenez votre temps — voici de nouveau la question."
+  "rp.nudge": "Prenez votre temps — voici de nouveau la question.",
+  "rp.eval_btn": "Évaluez votre conversation",
+  "rp.eval_back": "‹ Résumé",
+  "rp.eval_h": "Bilan de la conversation",
+  "rp.eval_sub": "Chaque phrase que vous avez dite dans « {{title}} », mot à mot.",
+  "rp.eval_none": "Rien à revoir pour l'instant — parlez au moins une fois dans une conversation.",
+  "rp.eval_noaudio": "Aucun audio conservé pour celle-ci, impossible de la noter.",
+  "rp.eval_words_h": "Mots à travailler",
+  "rp.eval_words_sub": "Gardez ceux que vous voulez. Ils rejoignent votre vocabulaire et reviennent dans le quiz et les jeux de mots.",
+  "rp.eval_open_vocab": "Ouvrir mon vocabulaire"
 }

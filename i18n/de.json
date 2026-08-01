@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Wortschatz",
   "prac.tab_grammar": "Grammatik",
   "rp.tap_done": "Ich höre zu — tippe aufs Mikrofon, wenn du fertig bist.",
-  "rp.nudge": "Lass dir Zeit — hier ist die Frage noch einmal."
+  "rp.nudge": "Lass dir Zeit — hier ist die Frage noch einmal.",
+  "rp.eval_btn": "Gespräch auswerten",
+  "rp.eval_back": "‹ Zusammenfassung",
+  "rp.eval_h": "Gesprächsauswertung",
+  "rp.eval_sub": "Jeder Satz, den du in „{{title}}“ gesagt hast — Wort für Wort.",
+  "rp.eval_none": "Noch nichts auszuwerten — sprich zuerst mindestens einmal in einem Gespräch.",
+  "rp.eval_noaudio": "Für diesen Satz wurde kein Audio behalten, er lässt sich nicht bewerten.",
+  "rp.eval_words_h": "Wörter zum Üben",
+  "rp.eval_words_sub": "Behalte, was du willst. Gespeicherte Wörter landen in deinem Wortschatz und kommen im Quiz und in den Wortspielen zurück.",
+  "rp.eval_open_vocab": "Meinen Wortschatz öffnen"
 }

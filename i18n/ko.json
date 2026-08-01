@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "어휘",
   "prac.tab_grammar": "문법",
   "rp.tap_done": "듣고 있어요 — 다 말했으면 마이크를 누르세요.",
-  "rp.nudge": "천천히 하세요 — 질문을 다시 드릴게요."
+  "rp.nudge": "천천히 하세요 — 질문을 다시 드릴게요.",
+  "rp.eval_btn": "대화 평가하기",
+  "rp.eval_back": "‹ 요약",
+  "rp.eval_h": "대화 리뷰",
+  "rp.eval_sub": "“{{title}}”에서 말한 모든 문장을 단어별로.",
+  "rp.eval_none": "아직 볼 것이 없어요 — 먼저 대화에서 한 번이라도 말해 보세요.",
+  "rp.eval_noaudio": "이 문장은 음성이 저장되지 않아 채점할 수 없어요.",
+  "rp.eval_words_h": "연습할 단어",
+  "rp.eval_words_sub": "원하는 것만 저장하세요. 저장한 단어는 단어장에 들어가 퀴즈와 단어 게임에 다시 나옵니다.",
+  "rp.eval_open_vocab": "내 단어장 열기"
 }

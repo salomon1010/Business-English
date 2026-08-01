@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Từ vựng",
   "prac.tab_grammar": "Ngữ pháp",
   "rp.tap_done": "Đang nghe — chạm micro khi bạn nói xong.",
-  "rp.nudge": "Không vội — câu hỏi đây, nghe lại nhé."
+  "rp.nudge": "Không vội — câu hỏi đây, nghe lại nhé.",
+  "rp.eval_btn": "Đánh giá cuộc trò chuyện",
+  "rp.eval_back": "‹ Tóm tắt",
+  "rp.eval_h": "Xem lại cuộc trò chuyện",
+  "rp.eval_sub": "Từng câu bạn đã nói trong “{{title}}”, theo từng chữ.",
+  "rp.eval_none": "Chưa có gì để xem lại — hãy nói ít nhất một lần trong cuộc trò chuyện.",
+  "rp.eval_noaudio": "Câu này không lưu âm thanh nên không chấm được.",
+  "rp.eval_words_h": "Những từ cần luyện",
+  "rp.eval_words_sub": "Giữ lại từ nào bạn muốn. Từ đã lưu sẽ vào kho từ vựng và quay lại trong bài kiểm tra và trò chơi chữ.",
+  "rp.eval_open_vocab": "Mở kho từ vựng"
 }

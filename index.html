@@ -1088,6 +1088,23 @@ html[dir="rtl"] .lang-row{text-align:right}
 .fb-pron{margin-top:14px;background:linear-gradient(150deg,rgba(99,102,241,.09),rgba(34,211,238,.06));border:1px solid rgba(99,102,241,.28);border-radius:14px;padding:14px 16px;font-size:13px;color:var(--mut)}
 .fb-pron-score{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800}
 .fb-pw-wrap{display:flex;flex-wrap:wrap;gap:6px}
+/* Conversation review */
+.rp-ev-card{margin-top:12px;padding:14px 16px}
+.rp-ev-said{font-size:14px;line-height:1.5;color:var(--txt)}
+.rp-ev-state{margin-top:8px;font-size:12.5px;color:var(--mut);display:flex;align-items:center;gap:7px}
+.rp-ev-state svg{width:15px;height:15px}
+.rp-ev-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rp-ev-n{width:22px;height:22px;border-radius:50%;background:var(--card2);border:1px solid var(--line2);color:var(--mut);font-size:11.5px;font-weight:800;display:grid;place-items:center;flex:none}
+.rp-ev-pct{margin-left:auto;font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.rp-ev-good{font-size:13.5px;color:var(--green);margin:0;display:flex;align-items:center;gap:8px}
+.rp-ev-word{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line2)}
+.rp-ev-word:first-of-type{border-top:none}
+.rp-ev-wdot{width:8px;height:8px;border-radius:50%;flex:none}
+.rp-ev-wtxt{min-width:0;flex:1}
+.rp-ev-wtxt b{font-size:14px}
+.rp-ev-wtxt small{display:block;font-size:11.5px;color:var(--mut2);line-height:1.4}
+.rp-ev-wpct{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.rp-ev-wres{flex-basis:100%;font-size:12px;color:var(--mut2);min-height:0}
 .fb-pw{--c:var(--mut);display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:var(--txt);background:var(--bg2);border:1px solid var(--line2);border-left:3px solid var(--c);border-radius:8px;padding:4px 9px}
 .fb-pw b{color:var(--c);font-family:'JetBrains Mono',monospace;font-size:11.5px}
 .fb-pron-tips{margin-top:11px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--mut)}
@@ -1986,6 +2003,15 @@ const I18N_EN={
  "rp.end":"End practice",
  "rp.transcript":"Real-time transcript",
   "rp.nudge":"No rush — here's the question again.",
+  "rp.eval_btn":"Evaluate your conversation",
+  "rp.eval_back":"‹ Summary",
+  "rp.eval_h":"Conversation review",
+  "rp.eval_sub":"Every sentence you said in “{{title}}”, word by word.",
+  "rp.eval_none":"Nothing to review yet — speak at least once in a conversation first.",
+  "rp.eval_noaudio":"No audio kept for this one, so it can't be scored.",
+  "rp.eval_words_h":"Words to work on",
+  "rp.eval_words_sub":"Keep the ones you want. Saved words go to your vocabulary and come back in the quiz and word games.",
+  "rp.eval_open_vocab":"Open my vocabulary",
   "rp.tap_done":"Listening — tap the mic when you've finished.",
  "rp.tap_to_speak":"Tap the mic and speak",
  "rp.speaking":"Speaking…",
@@ -7501,6 +7527,10 @@ function rpStopListen(){
   rec.stopped=true; rpRec=null;
   clearInterval(rec.tick);
   try{rec.r&&rec.r.stop()}catch(e){try{rec.r&&rec.r.abort&&rec.r.abort()}catch(_){}}
+  try{
+    if(rec.mr&&rec.mr.state==="recording")rec.mr.stop();
+    else if(rec.stream)rec.stream.getTracks().forEach(x=>x.stop());
+  }catch(e){}
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
   if(foot)foot.classList.remove("listening");
   if(mic)mic.classList.remove("on");
@@ -7540,6 +7570,11 @@ function rpFinish(auto){
     else{if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()}
     return;
   }
+  /* Keep the turn and its audio for the post-practice review. The blob may
+     land a moment after the recorder stops, so fill it in when it arrives. */
+  const turn={text:said,blob:rec.blob||null};
+  if(!turn.blob)rec.onblob=bl=>{turn.blob=bl};
+  (rpConv.turns=rpConv.turns||[]).push(turn);
   rpUserTurn(said);
 }
 /* Tap to start, tap again when you have finished. Previously this ran a
@@ -7554,7 +7589,8 @@ window.rpListen=()=>{
   clearInterval(rpSayKeep); rpSetSpeaking(false);
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic"),
         st=document.getElementById("rpStatus");
-  const rec={r:null,said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null};
+  const rec={r:null,said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null,
+              mr:null,chunks:[],stream:null,blob:null,onblob:null};
   rpRec=rec;
   if(mic)mic.classList.add("on");
   if(foot)foot.classList.add("listening");
@@ -7595,6 +7631,21 @@ window.rpListen=()=>{
     try{r.start()}catch(e){}
   };
   try{r.start()}catch(e){rpStopListen()}
+  /* Record the audio as well. The recogniser returns text; grading pronunciation
+     needs the sound itself. Best effort — if a second consumer of the mic is
+     refused, the turn simply carries no audio and the review skips it. */
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    if(rec.stopped){try{stream.getTracks().forEach(x=>x.stop())}catch(_){}return}
+    rec.stream=stream;
+    const mr=new MediaRecorder(stream); rec.mr=mr;
+    mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};
+    mr.onstop=()=>{
+      try{stream.getTracks().forEach(x=>x.stop())}catch(_){}
+      rec.blob=new Blob(rec.chunks,{type:mr.mimeType||"audio/webm"});
+      if(rec.onblob)rec.onblob(rec.blob);
+    };
+    try{mr.start()}catch(_){}
+  }).catch(()=>{});
 };
 async function rpUserTurn(text){
   if(!rpConv||!text)return;
@@ -7640,6 +7691,125 @@ function rpResetIdle(){rpClearIdle();if(rpConv)rpConv.idle=setTimeout(rpIdle,750
 function rpClearIdle(){if(rpConv&&rpConv.idle){clearTimeout(rpConv.idle);rpConv.idle=null}}
 function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>go("roleplay"),t("rp.to_summary"),rpSummary)}
 window.rpEnd=()=>rpSummary();
+let _rpLast=null;   /* the last finished conversation, kept for the review screen */
+
+/* ============ CONVERSATION REVIEW ============
+   Plays each of your own sentences back to the grader and shows it word by
+   word, so you can see exactly which sounds let you down. Weak words collect
+   into a list you choose from — anything you keep lands in your vocabulary and
+   from there feeds the quiz and the word games. */
+const RP_WEAK=80;                      /* below this a word is worth practising */
+function rpEvCol(sc){return sc>=80?"var(--green)":sc>=55?"var(--gold)":"var(--red)"}
+window.rpBackSummary=()=>{ if(_rpLast)rpReplaySummary(); else go("roleplay"); };
+window.rpEvaluate=async()=>{
+  if(!_rpLast||!_rpLast.turns.length)return toast(t("rp.eval_none"));
+  const sc=_rpLast.sc,turns=_rpLast.turns;
+  const el=document.getElementById("v-roleplay");
+  el.innerHTML=`
+   <button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>
+   <div class="eyebrow">${t("rp.eval_h")}</div>
+   <h1 class="big" style="margin:2px 0 4px">${t("fb.pron_h")}</h1>
+   <p class="sub" style="margin-bottom:16px">${t("rp.eval_sub",{title:esc(sc.title)})}</p>
+   <div id="rpEvList"></div>
+   <div id="rpEvWords"></div>`;
+  manIconizeInline(el);
+  const list=document.getElementById("rpEvList");
+  const weak=new Map();
+  for(let i=0;i<turns.length;i++){
+    const turn=turns[i];
+    const card=document.createElement("div");
+    card.className="card rp-ev-card";
+    card.innerHTML=`<div class="rp-ev-said">${esc(turn.text)}</div>
+      <div class="rp-ev-state">${ic("mic")} ${t("fb.pron_analyzing")}</div>`;
+    list.appendChild(card); manIconizeInline(card);
+    let res=null;
+    try{ if(turn.blob)res=await fbAssess(turn.blob,turn.text); }catch(e){}
+    if(!res||!res.words||!res.words.length){
+      card.querySelector(".rp-ev-state").innerHTML=`<span style="color:var(--mut2)">${t("rp.eval_noaudio")}</span>`;
+      continue;
+    }
+    res.words.forEach(w=>{
+      const key=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
+      if(!key||w.score>=RP_WEAK)return;
+      const prev=weak.get(key);
+      if(!prev||w.score<prev.score)weak.set(key,{word:key,score:w.score,note:w.note||""});
+    });
+    card.innerHTML=`
+      <div class="rp-ev-top">
+        <span class="rp-ev-n">${i+1}</span>
+        <span class="rp-ev-pct" style="color:${rpEvCol(res.overall)}">${res.overall}%</span>
+      </div>
+      <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${rpEvCol(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`;
+  }
+  rpEvWords([...weak.values()].sort((a,b)=>a.score-b.score));
+};
+function rpEvWords(words){
+  const box=document.getElementById("rpEvWords"); if(!box)return;
+  S.vocab=S.vocab||{};
+  if(!words.length){
+    box.innerHTML=`<div class="card" style="margin-top:14px"><p class="rp-ev-good">${tIc("fb.pron_all_good","check")}</p></div>`;
+    manIconizeInline(box); return;
+  }
+  box.innerHTML=`
+   <div class="card" style="margin-top:16px">
+     <b style="font-size:15px">${hIcon("target",t("rp.eval_words_h"))}</b>
+     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 14px">${t("rp.eval_words_sub")}</p>
+     ${words.map(w=>{const safe=w.word.replace(/[^a-z0-9]/g,"_"),on=!!S.vocab[w.word];return `
+       <div class="rp-ev-word">
+         <span class="rp-ev-wdot" style="background:${rpEvCol(w.score)}"></span>
+         <span class="rp-ev-wtxt"><b>${esc(w.word)}</b>${w.note?`<small>${esc(w.note)}</small>`:""}</span>
+         <span class="rp-ev-wpct" style="color:${rpEvCol(w.score)}">${w.score}%</span>
+         <button class="btn btn-g btn-sm voc-mini" onclick="rpEvTry('${esc(w.word)}')" aria-label="${esc(t("voc.say_it_title"))}" title="${esc(t("voc.say_it_title"))}">${ic("mic")}</button>
+         <button class="btn btn-sm voc-mini ${on?"btn-p":"btn-g"}" id="rpvs_${safe}" onclick="rpEvSave('${esc(w.word)}')" aria-label="Save">${on?ic("check"):ic("bookmark")}</button>
+         <span class="rp-ev-wres" id="rpvr_${safe}"></span>
+       </div>`}).join("")}
+     <button class="btn btn-p btn-sm" style="margin-top:12px" onclick="gotoVocab()">${tIc("rp.eval_open_vocab","book")}</button>
+   </div>`;
+  manIconizeInline(box);
+}
+window.rpEvSave=w=>{
+  S.vocab=S.vocab||{};
+  const safe=w.replace(/[^a-z0-9]/g,"_"),b=document.getElementById("rpvs_"+safe);
+  if(S.vocab[w]){delete S.vocab[w];if(b){b.classList.remove("btn-p");b.classList.add("btn-g");b.innerHTML=ic("bookmark")}toast(t("voc.removed_toast"))}
+  else{S.vocab[w]={l:"",ts:Date.now()};if(b){b.classList.add("btn-p");b.classList.remove("btn-g");b.innerHTML=ic("check")}toast(t("voc.saved_toast"))}
+  if(b)manIconizeInline(b);
+  save(); try{navBadges()}catch(e){}
+};
+window.rpEvTry=w=>{
+  if(!SR)return toast(t("voc.sr_unavailable"));
+  const safe=w.replace(/[^a-z0-9]/g,"_"),res=document.getElementById("rpvr_"+safe);
+  if(res)res.textContent=t("voc.listening");
+  const r=new SR();r.lang="en-US";r.maxAlternatives=5;let got=false;
+  r.onresult=e=>{got=true;
+    const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
+    const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
+    if(res)res.innerHTML=hit?`<b style="color:var(--green)">${t("voc.perfect")}</b>`
+                            :`<b style="color:var(--gold)">${t("voc.heard_retry",{heard:esc(alts[0]||"…")})}</b>`;
+  };
+  r.onerror=()=>{if(res)res.textContent=t("voc.mic_error")};
+  r.onend=()=>{if(!got&&res)res.textContent=t("voc.didnt_hear")};
+  try{r.start()}catch(e){}
+};
+
+function rpReplaySummary(){
+  /* Re-draw the summary from the kept conversation, for the Back button on the
+     review screen — rpSummary itself needs a live rpConv. */
+  if(!_rpLast)return go("roleplay");
+  const sc=_rpLast.sc,el=document.getElementById("v-roleplay");
+  el.innerHTML=`
+   <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   <div class="rp-intro">
+     ${rpAvatar(sc,84)}
+     <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
+     <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
+     <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center">
+       <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
+       <button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button>
+       ${_rpLast.turns.length?`<button class="btn btn-g" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
+     </div>
+   </div>`;
+  manIconizeInline(el);
+}
 function rpSummary(){
   if(!rpConv)return; rpClearIdle(); rpCloseWork(); try{speechSynthesis.cancel()}catch(e){}
   const sc=rpConv.sc,covered=rpConv.covered;
@@ -7658,6 +7828,9 @@ function rpSummary(){
     markPracticed();            // streak, calendar heat-map and weekly goal
     save();
   }
+  /* Hold on to the turns (text + audio) so the review can run after the
+     conversation object is torn down. */
+  _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text)};
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
    <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
@@ -7670,6 +7843,7 @@ function rpSummary(){
      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
        <button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button>
+       ${_rpLast.turns.length?`<button class="btn btn-g" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
      </div>
    </div>`;
   manIconizeInline(el); rpConv=null;

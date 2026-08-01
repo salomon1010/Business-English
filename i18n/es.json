@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Vocabulario",
   "prac.tab_grammar": "Gramática",
   "rp.tap_done": "Escuchando — toca el micrófono cuando termines.",
-  "rp.nudge": "Sin prisa — aquí va la pregunta otra vez."
+  "rp.nudge": "Sin prisa — aquí va la pregunta otra vez.",
+  "rp.eval_btn": "Evalúa tu conversación",
+  "rp.eval_back": "‹ Resumen",
+  "rp.eval_h": "Repaso de la conversación",
+  "rp.eval_sub": "Cada frase que dijiste en «{{title}}», palabra por palabra.",
+  "rp.eval_none": "Aún no hay nada que repasar — habla al menos una vez en una conversación.",
+  "rp.eval_noaudio": "No se guardó audio de esta, así que no se puede puntuar.",
+  "rp.eval_words_h": "Palabras que trabajar",
+  "rp.eval_words_sub": "Guarda las que quieras. Van a tu vocabulario y vuelven en el test y en los juegos de palabras.",
+  "rp.eval_open_vocab": "Abrir mi vocabulario"
 }

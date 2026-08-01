@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Vocabolario",
   "prac.tab_grammar": "Grammatica",
   "rp.tap_done": "In ascolto — tocca il microfono quando hai finito.",
-  "rp.nudge": "Con calma — ecco di nuovo la domanda."
+  "rp.nudge": "Con calma — ecco di nuovo la domanda.",
+  "rp.eval_btn": "Valuta la tua conversazione",
+  "rp.eval_back": "‹ Riepilogo",
+  "rp.eval_h": "Revisione della conversazione",
+  "rp.eval_sub": "Ogni frase che hai detto in «{{title}}», parola per parola.",
+  "rp.eval_none": "Ancora niente da rivedere — parla almeno una volta in una conversazione.",
+  "rp.eval_noaudio": "Nessun audio conservato per questa, quindi non si può valutare.",
+  "rp.eval_words_h": "Parole su cui lavorare",
+  "rp.eval_words_sub": "Tieni quelle che vuoi. Finiscono nel tuo vocabolario e tornano nel quiz e nei giochi di parole.",
+  "rp.eval_open_vocab": "Apri il mio vocabolario"
 }

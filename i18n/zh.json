@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "词汇",
   "prac.tab_grammar": "语法",
   "rp.tap_done": "正在聆听 — 说完后点一下麦克风。",
-  "rp.nudge": "不用急 — 这个问题再说一遍。"
+  "rp.nudge": "不用急 — 这个问题再说一遍。",
+  "rp.eval_btn": "评估你的对话",
+  "rp.eval_back": "‹ 小结",
+  "rp.eval_h": "对话回顾",
+  "rp.eval_sub": "你在“{{title}}”中说的每一句，逐词分析。",
+  "rp.eval_none": "暂时没有可回顾的内容 — 先在对话中至少说一次。",
+  "rp.eval_noaudio": "这句没有保留录音，无法评分。",
+  "rp.eval_words_h": "需要练习的词",
+  "rp.eval_words_sub": "想留的就留下。保存的词会进入你的词汇表，并在测验和单词游戏中再次出现。",
+  "rp.eval_open_vocab": "打开我的词汇表"
 }

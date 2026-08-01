@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "語彙",
   "prac.tab_grammar": "文法",
   "rp.tap_done": "聞いています — 話し終えたらマイクをタップ。",
-  "rp.nudge": "ゆっくりで大丈夫 — もう一度質問します。"
+  "rp.nudge": "ゆっくりで大丈夫 — もう一度質問します。",
+  "rp.eval_btn": "会話を評価する",
+  "rp.eval_back": "‹ サマリー",
+  "rp.eval_h": "会話のふり返り",
+  "rp.eval_sub": "「{{title}}」であなたが言った文を、一語ずつ。",
+  "rp.eval_none": "まだ振り返るものがありません — まず会話で一度話してみてください。",
+  "rp.eval_noaudio": "この文は音声が残っていないため採点できません。",
+  "rp.eval_words_h": "練習したい単語",
+  "rp.eval_words_sub": "残したいものだけ保存を。保存した単語は単語帳に入り、クイズや単語ゲームに出てきます。",
+  "rp.eval_open_vocab": "単語帳を開く"
 }

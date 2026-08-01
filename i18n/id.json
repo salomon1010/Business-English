@@ -1047,5 +1047,14 @@
   "prac.tab_vocabulary": "Kosakata",
   "prac.tab_grammar": "Tata bahasa",
   "rp.tap_done": "Mendengarkan — ketuk mikrofon jika sudah selesai.",
-  "rp.nudge": "Santai saja — ini pertanyaannya lagi."
+  "rp.nudge": "Santai saja — ini pertanyaannya lagi.",
+  "rp.eval_btn": "Evaluasi percakapan Anda",
+  "rp.eval_back": "‹ Ringkasan",
+  "rp.eval_h": "Tinjauan percakapan",
+  "rp.eval_sub": "Setiap kalimat yang Anda ucapkan di “{{title}}”, kata demi kata.",
+  "rp.eval_none": "Belum ada yang bisa ditinjau — bicaralah setidaknya sekali dalam percakapan.",
+  "rp.eval_noaudio": "Tidak ada audio yang tersimpan untuk yang ini, jadi tidak bisa dinilai.",
+  "rp.eval_words_h": "Kata yang perlu dilatih",
+  "rp.eval_words_sub": "Simpan yang Anda mau. Kata tersimpan masuk ke kosakata Anda dan muncul lagi di kuis dan permainan kata.",
+  "rp.eval_open_vocab": "Buka kosakata saya"
 }
