@@ -143,6 +143,15 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 @media(max-width:820px){
   .pg-eyebrow{font-size:11px;letter-spacing:1.8px;padding:10px 20px 9px}
 }
+/* App Setup, parked on the sticky Profile eyebrow so it never scrolls away.
+   Absolute rather than flex so the row keeps its exact height. */
+.pg-gear{position:absolute;top:50%;right:20px;transform:translateY(-50%);
+  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+  border:1px solid var(--line2);background:var(--card2);color:var(--mut);
+  cursor:pointer;transition:.15s;padding:0}
+.pg-gear:hover{color:var(--txt);border-color:var(--acc);transform:translateY(-50%) rotate(25deg)}
+.pg-gear svg{width:16px;height:16px}
+@media(max-width:820px){.pg-gear{right:20px;width:28px;height:28px}.pg-gear svg{width:15px;height:15px}}
 /* .seg-fit — a short tab row that must ALWAYS stay on a single line at every
    width. The tabs split the width evenly; inside a tab the label itself never
    breaks — only the trailing number/count is allowed to drop to a second line
@@ -551,11 +560,6 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:5px 3px}
   #v-practice .prac-subtabs .prac-subtab b{margin-left:3px;font-size:10.5px}
 }
-/* App Setup shortcut on the profile header */
-.pf-gear{position:absolute;top:12px;right:0;z-index:2;width:44px;height:44px;border-radius:50%;
-  border:1px solid var(--line2);background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer;transition:.15s}
-.pf-gear:hover{color:var(--txt);border-color:var(--acc);transform:rotate(25deg)}
-.pf-gear svg{width:21px;height:21px}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -3374,10 +3378,25 @@ function go(v,arg1,arg2){
       el.insertBefore(b,el.firstChild);
     }else if(v!=="session"){SESS_RETURN=null;}
   }
+  if(v==="profile")mountEyebrowGear(el);
   document.getElementById("streakN").textContent=streak();
   try{navBadges()}catch(e){}
   window.scrollTo({top:0});
   if(v==="home")setTimeout(backupNudge,1200);   // only on the dashboard, never mid-task
+}
+
+/* Put App Setup on the Profile page eyebrow. That row is sticky, so unlike the
+   old gear in the hero it stays on screen however far you scroll. Mounted from
+   the router rather than the template so it survives every re-render. */
+function mountEyebrowGear(el){
+  const eb=el&&el.querySelector(".pg-eyebrow");
+  if(!eb||eb.querySelector(".pg-gear"))return;
+  const b=document.createElement("button");
+  b.type="button"; b.className="pg-gear";
+  b.title=t("setup.title"); b.setAttribute("aria-label",t("setup.title"));
+  b.onclick=()=>go("setup");
+  b.innerHTML=ic("gear");
+  eb.appendChild(b);
 }
 
 /* ================= USER MANUAL (in-app, localized fragment) ================= */
@@ -6915,7 +6934,6 @@ function rProfile(el){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
   <div class="pf-hero">
-    <button class="pf-gear" onclick="go('setup')" title="${esc(t("setup.title"))}" aria-label="${esc(t("setup.title"))}">${ic("gear")}</button>
     <div class="pf-av">${initial}</div>
     <h1 class="pf-name">${nm}</h1>
     <p class="pf-sub">${sub}</p>
