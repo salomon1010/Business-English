@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "Em todas as conversas que você avaliou.",
   "rev.pron_none": "Avalie uma conversa e a sua evolução de pronúncia aparece aqui.",
   "rp.eval_yours": "Ouça como você disse",
-  "rp.eval_unavailable": "Pontuar a pronúncia exige o microfone só para si, o que impediria a conversa de funcionar no celular. Suas frases ficam guardadas acima."
+  "rp.eval_unavailable": "A pontuação desta conversa não chegou. Verifique a ligação e tente de novo — as suas frases ficam guardadas acima.",
+  "rp.transcribing": "A anotar o que disse…",
+  "rp.no_hear": "Não consegui perceber — toque no microfone e diga outra vez.",
+  "rp.need_online": "Uma conversa precisa de ligação à internet."
 }

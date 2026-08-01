@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "Di semua percakapan yang sudah Anda evaluasi.",
   "rev.pron_none": "Evaluasi sebuah percakapan dan tren pelafalan Anda muncul di sini.",
   "rp.eval_yours": "Dengar cara Anda mengucapkannya",
-  "rp.eval_unavailable": "Penilaian pelafalan butuh mikrofon sepenuhnya, dan itu membuat percakapan tidak jalan di ponsel. Kalimat Anda tetap tersimpan di atas."
+  "rp.eval_unavailable": "Penilaian untuk percakapan ini tidak kembali. Periksa koneksi Anda dan coba lagi — kalimat Anda tetap tersimpan di atas.",
+  "rp.transcribing": "Sedang menuliskan ucapan Anda…",
+  "rp.no_hear": "Saya tidak menangkapnya — ketuk mikrofon dan ucapkan lagi.",
+  "rp.need_online": "Percakapan memerlukan koneksi internet."
 }

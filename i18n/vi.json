@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "Trên tất cả cuộc trò chuyện bạn đã đánh giá.",
   "rev.pron_none": "Đánh giá một cuộc trò chuyện, xu hướng phát âm của bạn sẽ hiện ở đây.",
   "rp.eval_yours": "Nghe lại cách bạn đã nói",
-  "rp.eval_unavailable": "Chấm phát âm cần dùng riêng micro, và như vậy cuộc trò chuyện sẽ không chạy được trên điện thoại. Các câu của bạn vẫn được giữ ở trên."
+  "rp.eval_unavailable": "Không nhận được điểm cho cuộc trò chuyện này. Hãy kiểm tra kết nối và thử lại — các câu của bạn vẫn được giữ ở trên.",
+  "rp.transcribing": "Đang ghi lại lời bạn nói…",
+  "rp.no_hear": "Tôi nghe không rõ — chạm vào micrô và nói lại.",
+  "rp.need_online": "Cuộc trò chuyện cần kết nối internet."
 }

@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "涵盖你评估过的所有对话。",
   "rev.pron_none": "评估一次对话，你的发音变化会显示在这里。",
   "rp.eval_yours": "听听你是怎么说的",
-  "rp.eval_unavailable": "发音评分需要独占麦克风，那样手机上的对话就无法进行。你说的句子仍保留在上方。"
+  "rp.eval_unavailable": "这次对话没有返回评分。请检查网络后重试 — 你的句子仍保留在上方。",
+  "rp.transcribing": "正在记录你说的话…",
+  "rp.no_hear": "没听清 — 点一下麦克风再说一次。",
+  "rp.need_online": "对话需要联网。"
 }

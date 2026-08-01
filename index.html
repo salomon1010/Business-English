@@ -2048,7 +2048,7 @@ const I18N_EN={
   "rp.hist_confirm_clear":"Delete every saved session for this scenario? This cannot be undone.",
   "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
   "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
-  "rp.eval_unavailable":"Pronunciation scoring needs the microphone to itself, which would stop the conversation working on a phone. Your sentences are kept above.",
+  "rp.eval_unavailable":"Scoring didn't come back for this conversation. Check your connection and try again — your sentences are kept above.",
   "rp.eval_yours":"Hear how you said it",
   "rp.eval_btn":"Evaluate your conversation",
   "rp.eval_back":"‹ Summary",
@@ -2060,6 +2060,9 @@ const I18N_EN={
   "rp.eval_words_sub":"Keep the ones you want. Saved words go to your vocabulary and come back in the quiz and word games.",
   "rp.eval_open_vocab":"Open my vocabulary",
   "rp.tap_done":"Listening — tap the mic when you've finished.",
+ "rp.transcribing":"Getting that down…",
+ "rp.no_hear":"I couldn't make that out — tap the mic and say it again.",
+ "rp.need_online":"A conversation needs an internet connection.",
  "rp.tap_to_speak":"Tap the mic and speak",
  "rp.speaking":"Speaking…",
  "rp.listening":"Listening…",
@@ -6254,6 +6257,24 @@ function fbWords(blob){
   _fbWordsCache.set(blob,p);   // cache the promise so parallel callers share one request
   return p;
 }
+/* Plain transcript of a recording, from the same Worker call as the timings.
+   The role-play uses this instead of the browser's recogniser, which garbled
+   Android turns and went deaf on iOS. */
+const _fbTxCache=new WeakMap();
+function fbTranscribe(blob){
+  if(_fbTxCache.has(blob))return _fbTxCache.get(blob);
+  const p=(async()=>{
+    if(!POLISH_API||!navigator.onLine)return "";
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
+      if(!r.ok)return "";
+      const j=await r.json();
+      return String((j&&j.text)||"").replace(/\s+/g," ").trim();
+    }catch(e){return ""}
+  })();
+  _fbTxCache.set(blob,p);
+  return p;
+}
 /* pick the Whisper word for a heard-word position, snapping to a text match nearby */
 function fbPickWord(words,wordIdx,wordCount,heardWord){
   let wi=words.length===wordCount?wordIdx:Math.round((wordIdx+0.5)/Math.max(1,wordCount)*words.length-0.5);
@@ -7604,29 +7625,32 @@ function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)r
 /* How long you may stay quiet before the turn is sent. Every word you speak
    resets it, so the only thing that can end your turn early is you. */
 const RP_WINDOW=30;
-/* Stitch two pieces of a turn together without repeating anything. A recogniser
-   session that restarts mid-turn often replays its last phrase, so a plain
-   concatenation doubles it. */
-function rpJoin(a,b){
-  a=String(a||"").trim(); b=String(b||"").trim();
-  if(!a)return b; if(!b)return a;
-  const la=a.toLowerCase(),lb=b.toLowerCase();
-  if(lb.startsWith(la))return b;
-  if(la.endsWith(lb)||la.includes(lb))return a;
-  /* drop the longest tail of a that b repeats */
-  for(let n=Math.min(la.length,lb.length);n>3;n--)
-    if(la.slice(-n)===lb.slice(0,n))return a+b.slice(n);
-  return a+" "+b;
-}
+/* Absolute ceiling on one turn, so a mic left open cannot upload minutes of audio. */
+const RP_MAX=100000;
 let rpRec=null;
+/* Hand the microphone back. Every track must be stopped: while a live track
+   exists iOS keeps the audio session in "record" and the character's reply
+   plays silently — and the next turn inherits a half-open mic. */
+function rpReleaseMic(rec){
+  if(!rec)return;
+  try{rec.mr&&rec.mr.state!=="inactive"&&rec.mr.stop()}catch(e){}
+  try{rec.an&&rec.an.disconnect()}catch(e){}
+  try{rec.src&&rec.src.disconnect()}catch(e){}
+  try{rec.ctx&&rec.ctx.close()}catch(e){}
+  try{rec.stream&&rec.stream.getTracks().forEach(tr=>{try{tr.stop()}catch(_){}})}catch(e){}
+  rec.stream=null;
+}
+function rpMicUI(on){
+  const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
+  if(foot)foot.classList.toggle("listening",!!on);
+  if(mic)mic.classList.toggle("on",!!on);
+}
 function rpStopListen(){
   const rec=rpRec; if(!rec)return;
   rec.stopped=true; rpRec=null;
   clearInterval(rec.tick);
-  try{rec.r&&rec.r.stop()}catch(e){try{rec.r&&rec.r.abort&&rec.r.abort()}catch(_){}}
-  const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
-  if(foot)foot.classList.remove("listening");
-  if(mic)mic.classList.remove("on");
+  rpReleaseMic(rec);
+  rpMicUI(false);
   rpDraft("");
 }
 /* The window ran out with nothing said. Rather than going quiet, the character
@@ -7647,99 +7671,128 @@ function rpDraft(txt){
   if(!d){d=document.createElement("div");d.id="rpDraft";d.className="rp-bubble me draft";tx.appendChild(d)}
   d.textContent=txt; tx.scrollTop=tx.scrollHeight;
 }
-function rpFinish(auto){
+/* Close the recorder and hand back what it captured. */
+function rpTakeBlob(rec){
+  return new Promise(res=>{
+    const mr=rec.mr;
+    if(!mr||mr.state==="inactive"){rpReleaseMic(rec);res(rec.blob||null);return}
+    let done=false;
+    const finish=()=>{
+      if(done)return; done=true;
+      rec.blob=rec.chunks.length?new Blob(rec.chunks,{type:mr.mimeType||"audio/webm"}):null;
+      rpReleaseMic(rec); res(rec.blob);
+    };
+    mr.onstop=finish;
+    setTimeout(finish,1500);        /* a recorder that never fires onstop must not hang the turn */
+    try{mr.stop()}catch(e){finish()}
+  });
+}
+async function rpFinish(auto){
   const rec=rpRec; if(!rec)return;
-  /* Include the interim text. The recogniser only marks a phrase "final" after
-     its own pause heuristic, so on a deliberate stop the last thing you said is
-     usually still provisional — discarding it sent an empty turn, which then
-     tripped the re-ask and looked like the conversation restarting. */
-  const said=rpJoin(rec.done,rpJoin(rec.said,rec.interim));
-  rpStopListen();
+  rec.stopped=true; rpRec=null; clearInterval(rec.tick);
+  rpMicUI(false);
   const st=document.getElementById("rpStatus");
-  /* Re-ask only when the window genuinely ran out. If you tapped stop yourself
-     and said nothing, you meant to stop — just hand the mic back. */
+  /* Transcribe whenever you ended the turn yourself — the level check is only
+     there to run the countdown, and it should never be what decides that you
+     said nothing. A window that expired on its own really was silence. */
+  const heard=rec.heard||!auto;
+  /* Block a second tap while the clip is on its way to be transcribed. */
+  if(rpConv)rpConv.busy=true;
+  if(st&&heard)st.textContent=t("rp.transcribing");
+  rpDraft(heard?"…":"");
+  const blob=await rpTakeBlob(rec);
+  let said="";
+  if(heard&&blob&&blob.size>1200){
+    try{said=(await fbTranscribe(blob))||""}catch(e){}
+  }
+  rpDraft("");
+  if(rpConv)rpConv.busy=false;
+  if(!rpConv)return;
   if(!said){
-    if(auto)rpNudge();
-    else{if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()}
+    /* Re-ask only when the window genuinely ran out. If you tapped stop yourself
+       and said nothing, you meant to stop — just hand the mic back. */
+    if(heard&&blob){if(st)st.textContent=t("rp.no_hear");}
+    else if(auto){rpNudge();return}
+    else if(st)st.textContent=t("rp.tap_to_speak");
+    rpResetIdle();
     return;
   }
-  /* Keep the turn and its audio for the post-practice review. The blob may
-     land a moment after the recorder stops, so fill it in when it arrives. */
-  const turn={text:said,blob:rec.blob||null};
-  if(!turn.blob)rec.onblob=bl=>{turn.blob=bl};
-  (rpConv.turns=rpConv.turns||[]).push(turn);
+  /* Keep the turn and its audio: the post-practice review scores this recording
+     word by word. */
+  (rpConv.turns=rpConv.turns||[]).push({text:said,blob:blob});
   rpUserTurn(said);
 }
-/* Tap to start, tap again when you have finished. Previously this ran a
-   one-shot recogniser with interimResults off, so the browser decided your turn
-   was over at the first natural pause — mid-sentence, every time. */
-window.rpListen=()=>{
+/* Tap to start, tap again when you have finished.
+   This records you and sends the clip to the Worker to be transcribed, rather
+   than using the browser's own recogniser. The recogniser was the source of
+   both device faults: Android re-sent phrases it had already finalised, so
+   replies came back stacked on themselves, and iOS quietly stopped delivering
+   results after a few turns. It also left nothing to grade — the pronunciation
+   review needs the audio, and the recogniser will not share the microphone. */
+window.rpListen=async()=>{
   if(!rpConv||rpConv.busy)return;
-  if(!SR)return toast(t("fb.sr_unavailable"));
   audioUnlock();
   if(rpRec){rpFinish();return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return toast(t("fb.sr_unavailable"));
+  if(!POLISH_API||!navigator.onLine)return toast(t("rp.need_online"));
   rpClearIdle(); rpStopVoice();
   clearInterval(rpSayKeep); rpSetSpeaking(false);
-  const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic"),
-        st=document.getElementById("rpStatus");
-  const rec={r:null,done:"",said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null,
-              mr:null,chunks:[],stream:null,blob:null,onblob:null};
+  const st=document.getElementById("rpStatus");
+  const rec={mr:null,chunks:[],stream:null,ctx:null,an:null,src:null,blob:null,
+             heard:false,left:RP_WINDOW*1000,cap:RP_MAX,stopped:false,tick:null};
   rpRec=rec;
-  if(mic)mic.classList.add("on");
-  if(foot)foot.classList.add("listening");
+  rpMicUI(true);
   if(st)st.textContent=t("rp.tap_done");
   const paint=()=>{
     const bar=document.querySelector("#rpTimer i");
     if(bar)bar.style.setProperty("--p",(Math.max(0,Math.min(1,rec.left/(RP_WINDOW*1000)))).toFixed(3));
   };
   paint();
-  rec.tick=setInterval(()=>{rec.left-=200;paint();if(rec.left<=0)rpFinish(true)},200);
-  const r=new SR();
-  r.lang="en-US"; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
-  rec.r=r;
-  /* Rebuild the whole turn from the result list every time, rather than
-     appending whatever arrived since resultIndex. Android's recogniser sends
-     each partial as its own entry AND re-sends phrases it has already marked
-     final, so appending stacked the same words over and over — "my weakness is
-     to focus more on my weakness is to focus more on detail…". srText already
-     collapses that ladder for the rest of the app; the role-play was the one
-     place still concatenating by hand. */
-  r.onresult=e=>{
-    const full=srText(e.results);
-    rec.said=full; rec.interim="";
-    rec.left=RP_WINDOW*1000; paint();        /* still talking — hold the window open */
-    rpDraft(rpJoin(rec.done,full));
-  };
-  r.onerror=ev=>{
-    /* "no-speech" and "aborted" are routine across a 30-second window; only a
-       real permission failure should end the turn. */
-    if(ev&&(ev.error==="not-allowed"||ev.error==="service-not-allowed")){
-      rpStopListen();
-      if(st)st.textContent=t("rp.tap_to_speak");
-      toast(t("rec.mic_denied_toast")); rpResetIdle();
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
+  catch(e){
+    rpStopListen();
+    if(st)st.textContent=t("rp.tap_to_speak");
+    toast(t("rec.mic_denied_toast")); rpResetIdle(); return;
+  }
+  if(rec.stopped){try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}return}
+  rec.stream=stream;
+  try{
+    const mr=new MediaRecorder(stream);
+    rec.mr=mr;
+    mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};
+    mr.start();
+  }catch(e){rpStopListen();toast(t("rec.mic_denied_toast"));rpResetIdle();return}
+  /* Listen to the level ourselves: the countdown only runs while you are quiet,
+     so the turn ends when you stop talking, not mid-sentence. */
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC){
+      const ctx=new AC(); rec.ctx=ctx;
+      const src=ctx.createMediaStreamSource(stream); rec.src=src;
+      const an=ctx.createAnalyser(); an.fftSize=1024; rec.an=an; src.connect(an);
+      rec.buf=new Uint8Array(an.fftSize);
     }
+  }catch(e){}
+  const level=()=>{
+    if(!rec.an||!rec.buf)return 0;
+    try{
+      rec.an.getByteTimeDomainData(rec.buf);
+      let s=0;for(let i=0;i<rec.buf.length;i++){const v=(rec.buf[i]-128)/128;s+=v*v}
+      return Math.sqrt(s/rec.buf.length);
+    }catch(e){return 0}
   };
-  r.onend=()=>{
-    /* Chrome closes a continuous session on its own after a stretch of silence,
-       and iOS closes one after a few seconds no matter what. Reopen it until
-       our window actually runs out — but bank what was said first, because the
-       new session starts with an empty result list. */
-    if(rec.stopped||rpRec!==rec)return;
-    rec.done=rpJoin(rec.done,rpJoin(rec.said,rec.interim));
-    rec.said=""; rec.interim="";
-    /* Restarting synchronously inside onend throws on iOS; a tick of breathing
-       space lets the audio session turn over. */
-    setTimeout(()=>{if(!rec.stopped&&rpRec===rec){try{r.start()}catch(e){}}},180);
-  };
-  /* Give iOS a moment to hand the audio session back after the character's
-     reply before asking for the microphone. */
-  setTimeout(()=>{if(!rec.stopped&&rpRec===rec){try{r.start()}catch(e){rpStopListen()}}},120);
-  /* NO second microphone consumer here. Opening getUserMedia while the
-     recogniser is running starves it on iOS Safari and in the Android WebView:
-     the mic shows "Listening", no results ever arrive, and the conversation
-     dies. Desktop Chrome tolerates it, which is why this only showed up on a
-     phone. Capturing audio for the pronunciation review has to come from a
-     design that uses the mic once — see rpEvaluate's no-audio path. */
+  rec.tick=setInterval(()=>{
+    if(rec.stopped)return;
+    rec.cap-=200;
+    if(level()>0.02){rec.heard=true;rec.left=RP_WINDOW*1000}   /* still talking */
+    else rec.left-=200;
+    paint();
+    if(rec.left<=0||rec.cap<=0)rpFinish(true);
+  },200);
+  /* No AudioContext (older WebView) means no level to watch — treat the whole
+     turn as speech and let the countdown or your tap end it. */
+  if(!rec.an)rec.heard=true;
 };
 async function rpUserTurn(text){
   if(!rpConv||!text)return;

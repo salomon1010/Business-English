@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "Über alle Gespräche, die du ausgewertet hast.",
   "rev.pron_none": "Werte ein Gespräch aus, dann erscheint hier dein Ausspracheverlauf.",
   "rp.eval_yours": "Hör, wie du es gesagt hast",
-  "rp.eval_unavailable": "Die Aussprachebewertung braucht das Mikrofon exklusiv — damit würde das Gespräch auf dem Handy nicht mehr funktionieren. Deine Sätze bleiben oben erhalten."
+  "rp.eval_unavailable": "Für dieses Gespräch kam keine Bewertung zurück. Prüfe deine Verbindung und versuche es erneut — deine Sätze bleiben oben erhalten.",
+  "rp.transcribing": "Wird aufgeschrieben…",
+  "rp.no_hear": "Das habe ich nicht verstanden — tippe aufs Mikrofon und sag es noch einmal.",
+  "rp.need_online": "Ein Gespräch braucht eine Internetverbindung."
 }

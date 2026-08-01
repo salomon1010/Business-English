@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "Sur toutes les conversations que vous avez évaluées.",
   "rev.pron_none": "Évaluez une conversation et votre progression de prononciation apparaîtra ici.",
   "rp.eval_yours": "Écoutez comment vous l'avez dit",
-  "rp.eval_unavailable": "Noter la prononciation exige le micro en exclusivité, ce qui empêcherait la conversation de fonctionner sur téléphone. Vos phrases sont conservées ci-dessus."
+  "rp.eval_unavailable": "L'évaluation de cette conversation n'est pas revenue. Vérifiez votre connexion et réessayez — vos phrases sont conservées ci-dessus.",
+  "rp.transcribing": "Je note ce que vous avez dit…",
+  "rp.no_hear": "Je n'ai pas réussi à comprendre — touchez le micro et redites-le.",
+  "rp.need_online": "Une conversation nécessite une connexion internet."
 }

@@ -1081,5 +1081,8 @@
   "rev.pron_sub": "En todas las conversaciones que has evaluado.",
   "rev.pron_none": "Evalúa una conversación y tu evolución de pronunciación aparecerá aquí.",
   "rp.eval_yours": "Escucha cómo lo dijiste",
-  "rp.eval_unavailable": "Puntuar la pronunciación exige el micrófono en exclusiva, y eso impediría que la conversación funcione en el móvil. Tus frases se conservan arriba."
+  "rp.eval_unavailable": "No se ha podido puntuar esta conversación. Comprueba tu conexión e inténtalo de nuevo — tus frases se conservan arriba.",
+  "rp.transcribing": "Anotando lo que has dicho…",
+  "rp.no_hear": "No he podido entenderlo — toca el micrófono y dilo otra vez.",
+  "rp.need_online": "Una conversación necesita conexión a internet."
 }
