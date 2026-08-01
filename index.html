@@ -5366,6 +5366,17 @@ try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{_fbVoice=fb
 const _ttsCache=new Map();   // "voice|text" -> object URL (mp3)
 let _ttsAudio=null;
 function fbStopAudio(){if(_ttsAudio){try{_ttsAudio.pause()}catch(_){}_ttsAudio=null}}
+/* Harder stop, for when the microphone is about to be opened.
+   Pausing is enough to silence a clip, but iOS keeps the audio session in
+   "playback" while an element still holds a source — and a playback session
+   will not hand the mic to SpeechRecognition. The recogniser then starts,
+   reports nothing, and the turn dies silently. Dropping the source releases
+   the session. */
+function fbReleaseAudio(){
+  fbStopAudio();
+  const a=_ttsPlayer; if(!a)return;
+  try{a.pause();a.removeAttribute("src");a.load()}catch(_){}
+}
 /* ---- one persistent <audio>, unlocked by a real tap ----
    iOS (and the TWA's webview) only let a media element play if THAT element has
    already been started from inside a user gesture. A fresh `new Audio()` per
@@ -7359,7 +7370,7 @@ function rpPickVoices(){
   _rpVoices={f:best("f"),m:best("m"),any:best("any")};
 }
 try{speechSynthesis.getVoices();rpPickVoices();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",rpPickVoices)}catch(e){}
-let rpSayKeep=null;
+let rpSayKeep=null,rpVoiceGen=0;
 /* Voices for the role-play cast.
    The scenarios were speaking through the browser's SpeechSynthesis, which is
    the robotic voice — while the rest of the app already had natural TTS through
@@ -7386,8 +7397,13 @@ function rpSayNatural(text,sc){
   const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"&&t2.length<=600;
   if(!canApi){rpSpeak(t2,sc&&sc.g);return}
   rpSetSpeaking(true);
+  /* The clip is two async hops away, so the mic may already be open by the time
+     it is ready. Anything stopped in the meantime must not start playing. */
+  const gen=++rpVoiceGen;
   fbSayApi(t2,1,rpVoiceFor(sc))
-    .then(()=>{if(_ttsAudio)_ttsAudio.onended=()=>rpSetSpeaking(false);else rpSetSpeaking(false)})
+    .then(()=>{
+      if(gen!==rpVoiceGen||rpRec){fbReleaseAudio();rpSetSpeaking(false);return}
+      if(_ttsAudio)_ttsAudio.onended=()=>rpSetSpeaking(false);else rpSetSpeaking(false)})
     .catch(()=>{rpSetSpeaking(false);rpSpeak(t2,sc&&sc.g)});   /* offline or TTS down → device voice */
 }
 function rpSpeak(text,gender){
@@ -7398,7 +7414,9 @@ function rpSpeak(text,gender){
     const s=String(text).replace(/\s+/g," ").trim();
     const parts=s.length>80?(s.match(/[^.!?;:—]+[.!?;:—]*/g)||[s]).map(x=>x.trim()).filter(Boolean):[s];
     rpSetSpeaking(true);
+    const gen=++rpVoiceGen;
     setTimeout(()=>{
+      if(gen!==rpVoiceGen||rpRec){rpSetSpeaking(false);return}   /* mic opened meanwhile */
       parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang=(v&&v.lang)||"en-US";u.rate=0.97;u.pitch=1;if(v)u.voice=v;if(i===parts.length-1)u.onend=u.onerror=()=>{clearInterval(rpSayKeep);rpSetSpeaking(false)};speechSynthesis.speak(u)});
       rpSayKeep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}else clearInterval(rpSayKeep)},10000);
     },70);
@@ -7422,7 +7440,17 @@ function elKeyForm(prefill){return `<div class="rp-key-row"><input id="elKeyIn" 
 function elKeyBox(){const k=elKey();if(!k)return `<div class="rp-keynote" id="elKeyBox">${t("el.key_box")}${elKeyForm("")}</div>`;return `<div class="rp-keynote rp-key-set" id="elKeyBox"><span>${t("el.key_connected",{tail:esc(k.slice(-4))})}</span> <button class="btn btn-g btn-sm" onclick="elKeyEdit()">${t("rp.key_change")}</button></div>`}
 window.elKeyEdit=()=>{const box=document.getElementById("elKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("el.key_box")+elKeyForm(elKey())};
 let _elAudio=null;
-function rpStopVoice(){try{speechSynthesis.cancel()}catch(e){}if(_elAudio){try{_elAudio.pause()}catch(e){}_elAudio=null}}
+/* Silence the character. This has to cover the shared natural-voice player as
+   well: it was only cancelling speechSynthesis and the (long dead) ElevenLabs
+   element, so the character's reply carried on playing straight into an open
+   microphone — and on iOS that playing element kept the mic away from the
+   recogniser entirely, which is why the second turn never registered. */
+function rpStopVoice(){
+  rpVoiceGen++;
+  try{speechSynthesis.cancel();clearInterval(rpSayKeep)}catch(e){}
+  fbReleaseAudio();
+  if(_elAudio){try{_elAudio.pause()}catch(e){}_elAudio=null}
+}
 /* Everything the character says goes through here.
    Was ElevenLabs-with-your-own-key, falling back to the browser's robotic
    voice — and since the key box was removed, it was always the robotic one.
@@ -7576,6 +7604,20 @@ function rpAddBubble(who,text){const tx=document.getElementById("rpTx");if(!tx)r
 /* How long you may stay quiet before the turn is sent. Every word you speak
    resets it, so the only thing that can end your turn early is you. */
 const RP_WINDOW=30;
+/* Stitch two pieces of a turn together without repeating anything. A recogniser
+   session that restarts mid-turn often replays its last phrase, so a plain
+   concatenation doubles it. */
+function rpJoin(a,b){
+  a=String(a||"").trim(); b=String(b||"").trim();
+  if(!a)return b; if(!b)return a;
+  const la=a.toLowerCase(),lb=b.toLowerCase();
+  if(lb.startsWith(la))return b;
+  if(la.endsWith(lb)||la.includes(lb))return a;
+  /* drop the longest tail of a that b repeats */
+  for(let n=Math.min(la.length,lb.length);n>3;n--)
+    if(la.slice(-n)===lb.slice(0,n))return a+b.slice(n);
+  return a+" "+b;
+}
 let rpRec=null;
 function rpStopListen(){
   const rec=rpRec; if(!rec)return;
@@ -7611,7 +7653,7 @@ function rpFinish(auto){
      its own pause heuristic, so on a deliberate stop the last thing you said is
      usually still provisional — discarding it sent an empty turn, which then
      tripped the re-ask and looked like the conversation restarting. */
-  const said=((rec.said||"")+" "+(rec.interim||"")).trim();
+  const said=rpJoin(rec.done,rpJoin(rec.said,rec.interim));
   rpStopListen();
   const st=document.getElementById("rpStatus");
   /* Re-ask only when the window genuinely ran out. If you tapped stop yourself
@@ -7640,7 +7682,7 @@ window.rpListen=()=>{
   clearInterval(rpSayKeep); rpSetSpeaking(false);
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic"),
         st=document.getElementById("rpStatus");
-  const rec={r:null,said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null,
+  const rec={r:null,done:"",said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null,
               mr:null,chunks:[],stream:null,blob:null,onblob:null};
   rpRec=rec;
   if(mic)mic.classList.add("on");
@@ -7655,16 +7697,18 @@ window.rpListen=()=>{
   const r=new SR();
   r.lang="en-US"; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
   rec.r=r;
+  /* Rebuild the whole turn from the result list every time, rather than
+     appending whatever arrived since resultIndex. Android's recogniser sends
+     each partial as its own entry AND re-sends phrases it has already marked
+     final, so appending stacked the same words over and over — "my weakness is
+     to focus more on my weakness is to focus more on detail…". srText already
+     collapses that ladder for the rest of the app; the role-play was the one
+     place still concatenating by hand. */
   r.onresult=e=>{
-    let interim="";
-    for(let i=e.resultIndex;i<e.results.length;i++){
-      const seg=e.results[i][0].transcript||"";
-      if(e.results[i].isFinal){const s=seg.trim();if(s)rec.said+=(rec.said?" ":"")+s}
-      else interim+=seg;
-    }
-    rec.interim=interim;
+    const full=srText(e.results);
+    rec.said=full; rec.interim="";
     rec.left=RP_WINDOW*1000; paint();        /* still talking — hold the window open */
-    rpDraft((rec.said+" "+interim).trim());
+    rpDraft(rpJoin(rec.done,full));
   };
   r.onerror=ev=>{
     /* "no-speech" and "aborted" are routine across a 30-second window; only a
@@ -7676,12 +7720,20 @@ window.rpListen=()=>{
     }
   };
   r.onend=()=>{
-    /* Chrome closes a continuous session on its own after a stretch of silence.
-       Reopen it until our window actually runs out. */
+    /* Chrome closes a continuous session on its own after a stretch of silence,
+       and iOS closes one after a few seconds no matter what. Reopen it until
+       our window actually runs out — but bank what was said first, because the
+       new session starts with an empty result list. */
     if(rec.stopped||rpRec!==rec)return;
-    try{r.start()}catch(e){}
+    rec.done=rpJoin(rec.done,rpJoin(rec.said,rec.interim));
+    rec.said=""; rec.interim="";
+    /* Restarting synchronously inside onend throws on iOS; a tick of breathing
+       space lets the audio session turn over. */
+    setTimeout(()=>{if(!rec.stopped&&rpRec===rec){try{r.start()}catch(e){}}},180);
   };
-  try{r.start()}catch(e){rpStopListen()}
+  /* Give iOS a moment to hand the audio session back after the character's
+     reply before asking for the microphone. */
+  setTimeout(()=>{if(!rec.stopped&&rpRec===rec){try{r.start()}catch(e){rpStopListen()}}},120);
   /* NO second microphone consumer here. Opening getUserMedia while the
      recogniser is running starves it on iOS Safari and in the Android WebView:
      the mic shows "Listening", no results ever arrive, and the conversation
