@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Prática oral",
   "rev.pron_sub": "Em todas as conversas que você avaliou.",
   "rev.pron_none": "Avalie uma conversa e a sua evolução de pronúncia aparece aqui.",
-  "rp.eval_yours": "Ouça como você disse"
+  "rp.eval_yours": "Ouça como você disse",
+  "rp.eval_unavailable": "Pontuar a pronúncia exige o microfone só para si, o que impediria a conversa de funcionar no celular. Suas frases ficam guardadas acima."
 }

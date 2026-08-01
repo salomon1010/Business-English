@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Sprechpraxis",
   "rev.pron_sub": "Über alle Gespräche, die du ausgewertet hast.",
   "rev.pron_none": "Werte ein Gespräch aus, dann erscheint hier dein Ausspracheverlauf.",
-  "rp.eval_yours": "Hör, wie du es gesagt hast"
+  "rp.eval_yours": "Hör, wie du es gesagt hast",
+  "rp.eval_unavailable": "Die Aussprachebewertung braucht das Mikrofon exklusiv — damit würde das Gespräch auf dem Handy nicht mehr funktionieren. Deine Sätze bleiben oben erhalten."
 }

@@ -2048,6 +2048,7 @@ const I18N_EN={
   "rp.hist_confirm_clear":"Delete every saved session for this scenario? This cannot be undone.",
   "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
   "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
+  "rp.eval_unavailable":"Pronunciation scoring needs the microphone to itself, which would stop the conversation working on a phone. Your sentences are kept above.",
   "rp.eval_yours":"Hear how you said it",
   "rp.eval_btn":"Evaluate your conversation",
   "rp.eval_back":"‹ Summary",
@@ -7581,10 +7582,6 @@ function rpStopListen(){
   rec.stopped=true; rpRec=null;
   clearInterval(rec.tick);
   try{rec.r&&rec.r.stop()}catch(e){try{rec.r&&rec.r.abort&&rec.r.abort()}catch(_){}}
-  try{
-    if(rec.mr&&rec.mr.state==="recording")rec.mr.stop();
-    else if(rec.stream)rec.stream.getTracks().forEach(x=>x.stop());
-  }catch(e){}
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
   if(foot)foot.classList.remove("listening");
   if(mic)mic.classList.remove("on");
@@ -7685,21 +7682,12 @@ window.rpListen=()=>{
     try{r.start()}catch(e){}
   };
   try{r.start()}catch(e){rpStopListen()}
-  /* Record the audio as well. The recogniser returns text; grading pronunciation
-     needs the sound itself. Best effort — if a second consumer of the mic is
-     refused, the turn simply carries no audio and the review skips it. */
-  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
-    if(rec.stopped){try{stream.getTracks().forEach(x=>x.stop())}catch(_){}return}
-    rec.stream=stream;
-    const mr=new MediaRecorder(stream); rec.mr=mr;
-    mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};
-    mr.onstop=()=>{
-      try{stream.getTracks().forEach(x=>x.stop())}catch(_){}
-      rec.blob=new Blob(rec.chunks,{type:mr.mimeType||"audio/webm"});
-      if(rec.onblob)rec.onblob(rec.blob);
-    };
-    try{mr.start()}catch(_){}
-  }).catch(()=>{});
+  /* NO second microphone consumer here. Opening getUserMedia while the
+     recogniser is running starves it on iOS Safari and in the Android WebView:
+     the mic shows "Listening", no results ever arrive, and the conversation
+     dies. Desktop Chrome tolerates it, which is why this only showed up on a
+     phone. Capturing audio for the pronunciation review has to come from a
+     design that uses the mic once — see rpEvaluate's no-audio path. */
 };
 async function rpUserTurn(text){
   if(!rpConv||!text)return;
@@ -7802,7 +7790,8 @@ window.rpEvaluate=async()=>{
       <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${rpEvCol(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`;
   }
   const weakList=[...weak.values()].sort((a,b)=>a.score-b.score);
-  rpEvWords(weakList);
+  /* "Every word came through clearly" would be a lie when nothing was graded. */
+  if(!scored.length)rpEvUnavailable(); else rpEvWords(weakList);
   rpEvPersist(scored,weakList);
   const hist=document.getElementById("rpEvHist");
   if(hist)hist.innerHTML=rpHistSectionHTML(sc.id,_rpLastTs);
@@ -7822,6 +7811,13 @@ function rpEvPersist(scored,weakList){
   }
   c.weak=weakList.slice(0,20).map(w=>({w:w.word,s:w.score}));
   save();
+}
+function rpEvUnavailable(){
+  const box=document.getElementById("rpEvWords"); if(!box)return;
+  box.innerHTML=`<div class="card" style="margin-top:14px">
+    <b style="font-size:15px">${hIcon("mic",t("rp.eval_words_h"))}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("rp.eval_unavailable")}</p></div>`;
+  manIconizeInline(box);
 }
 function rpEvWords(words){
   const box=document.getElementById("rpEvWords"); if(!box)return;

@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Pratica orale",
   "rev.pron_sub": "Su tutte le conversazioni che hai valutato.",
   "rev.pron_none": "Valuta una conversazione e il tuo andamento di pronuncia comparirà qui.",
-  "rp.eval_yours": "Ascolta come l'hai detto"
+  "rp.eval_yours": "Ascolta come l'hai detto",
+  "rp.eval_unavailable": "Valutare la pronuncia richiede il microfono in esclusiva, e questo impedirebbe alla conversazione di funzionare sul telefono. Le tue frasi restano qui sopra."
 }

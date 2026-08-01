@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Pratique orale",
   "rev.pron_sub": "Sur toutes les conversations que vous avez évaluées.",
   "rev.pron_none": "Évaluez une conversation et votre progression de prononciation apparaîtra ici.",
-  "rp.eval_yours": "Écoutez comment vous l'avez dit"
+  "rp.eval_yours": "Écoutez comment vous l'avez dit",
+  "rp.eval_unavailable": "Noter la prononciation exige le micro en exclusivité, ce qui empêcherait la conversation de fonctionner sur téléphone. Vos phrases sont conservées ci-dessus."
 }

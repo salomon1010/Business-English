@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Práctica oral",
   "rev.pron_sub": "En todas las conversaciones que has evaluado.",
   "rev.pron_none": "Evalúa una conversación y tu evolución de pronunciación aparecerá aquí.",
-  "rp.eval_yours": "Escucha cómo lo dijiste"
+  "rp.eval_yours": "Escucha cómo lo dijiste",
+  "rp.eval_unavailable": "Puntuar la pronunciación exige el micrófono en exclusiva, y eso impediría que la conversación funcione en el móvil. Tus frases se conservan arriba."
 }

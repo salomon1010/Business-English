@@ -1080,5 +1080,6 @@
   "rev.pron_h": "Luyện nói",
   "rev.pron_sub": "Trên tất cả cuộc trò chuyện bạn đã đánh giá.",
   "rev.pron_none": "Đánh giá một cuộc trò chuyện, xu hướng phát âm của bạn sẽ hiện ở đây.",
-  "rp.eval_yours": "Nghe lại cách bạn đã nói"
+  "rp.eval_yours": "Nghe lại cách bạn đã nói",
+  "rp.eval_unavailable": "Chấm phát âm cần dùng riêng micro, và như vậy cuộc trò chuyện sẽ không chạy được trên điện thoại. Các câu của bạn vẫn được giữ ở trên."
 }
