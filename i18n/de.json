@@ -1090,5 +1090,10 @@
   "ph.speech_sub": "Alle Sätze, die du diese Woche geschrieben hast, zu einer Antwort zusammengefügt. Hör sie dir an und sprich sie dann selbst am Stück — das ist die Version von dir, die den Raum betritt und schon sicher spricht.",
   "ph.speech_ph": "Fülle die Sätze oben aus — sie sammeln sich hier, Zeile für Zeile.",
   "ph.speech_count": "{{n}}/{{total}} geschrieben",
-  "ph.speech_empty": "Schreib erst ein, zwei Sätze oben — dieses Feld baut sich daraus auf."
+  "ph.speech_empty": "Schreib erst ein, zwei Sätze oben — dieses Feld baut sich daraus auf.",
+  "ph.exec_flow_h": "So baust du deine ganze Rede",
+  "ph.exec_flow_1": "Wähle unten eine Wendung — etwa „I currently work as…“ — und schreibe hier deinen eigenen Satz damit.",
+  "ph.exec_flow_2": "Tippe auf „Aufpolieren“ und nimm die Version, die am ehesten nach dem Profi klingt, der du sein willst.",
+  "ph.exec_flow_3": "Tippe bei dieser Version auf „Kopieren“ und füge sie unten in das Feld dieser Wendung ein.",
+  "ph.exec_flow_4": "Jeder gespeicherte Satz wandert in Deine ganze Rede am Ende dieser Seite — hör sie an und sprich sie dann selbst am Stück."
 }

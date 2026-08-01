@@ -427,6 +427,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ph-sp-top b{font-size:15.5px}
 .ph-sp-count{font-size:11.5px;color:var(--mut);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
 .ph-sp-sub{font-size:12.5px;color:var(--mut);margin:0 0 10px}
+/* The loop that turns a polished sentence into part of your speech. */
+.ex-flow{margin-top:14px;border-top:1px solid var(--line);padding-top:11px}
+.ex-flow b{font-size:12.5px;display:flex;align-items:center;gap:6px}
+.ex-flow ol{margin:7px 0 0;padding-left:20px;font-size:12.5px;color:var(--mut);line-height:1.65}
+.ex-flow li{margin-bottom:2px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
@@ -2412,6 +2417,11 @@ const I18N_EN={
  "ph.example_ph":"✍️ My example sentence from my real work…",
  "ph.record_btn":"🎙️ Record",
  "ph.hear_btn":"Hear my sentence",
+ "ph.exec_flow_h":"How to build your full speech",
+ "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — and write your own sentence with it, here in the box.",
+ "ph.exec_flow_2":"Tap Polish it, and take whichever version sounds most like the professional you want to be.",
+ "ph.exec_flow_3":"Tap Copy on that version, then paste it into that phrase's own box below.",
+ "ph.exec_flow_4":"Every sentence you save joins Your full speech at the bottom of this page — hear it, then say the whole thing yourself.",
  "ph.speech_h":"🎤 Your full speech",
  "ph.speech_sub":"Every sentence you've written this week, joined into one answer. Hear it, then say the whole thing yourself — that is the version of you who walks into the room already fluent.",
  "ph.speech_ph":"Fill in the sentences above and they gather here, one line at a time.",
@@ -6610,6 +6620,10 @@ function rPhrases(el,wFilter){
     </div>
     <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
     <div id="exOut"></div>
+    <div class="ex-flow">
+      <b>${hIcon("idea",t("ph.exec_flow_h"))}</b>
+      <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
+    </div>
   </div>
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>

@@ -1090,5 +1090,10 @@
   "ph.speech_sub": "Mọi câu bạn viết trong tuần này, ghép lại thành một câu trả lời. Hãy nghe, rồi tự nói trọn vẹn — đó là phiên bản của bạn bước vào phòng và đã nói trôi chảy.",
   "ph.speech_ph": "Điền các câu ở trên, chúng sẽ dồn về đây, từng dòng một.",
   "ph.speech_count": "{{n}}/{{total}} đã viết",
-  "ph.speech_empty": "Hãy viết một hai câu ở trên trước — ô này được dựng từ chúng."
+  "ph.speech_empty": "Hãy viết một hai câu ở trên trước — ô này được dựng từ chúng.",
+  "ph.exec_flow_h": "Cách dựng bài nói hoàn chỉnh của bạn",
+  "ph.exec_flow_1": "Chọn một mẫu câu bên dưới — ví dụ “I currently work as…” — rồi viết câu của riêng bạn với nó ở đây.",
+  "ph.exec_flow_2": "Chạm «Trau chuốt» và lấy bản nghe giống nhất với người chuyên nghiệp mà bạn muốn trở thành.",
+  "ph.exec_flow_3": "Chạm «Sao chép» ở bản đó, rồi dán vào ô của chính mẫu câu ấy bên dưới.",
+  "ph.exec_flow_4": "Mỗi câu bạn lưu sẽ nhập vào Bài nói hoàn chỉnh ở cuối trang — nghe lại, rồi tự nói trọn vẹn."
 }

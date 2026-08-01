@@ -1090,5 +1090,10 @@
   "ph.speech_sub": "Todas as frases que escreveu esta semana, reunidas numa só resposta. Ouça-a e depois diga-a inteira — é a versão de si que entra na sala já a falar com à-vontade.",
   "ph.speech_ph": "Preencha as frases acima e elas juntam-se aqui, uma linha de cada vez.",
   "ph.speech_count": "{{n}}/{{total}} escritas",
-  "ph.speech_empty": "Escreva primeiro uma ou duas frases acima — esta caixa constrói-se a partir delas."
+  "ph.speech_empty": "Escreva primeiro uma ou duas frases acima — esta caixa constrói-se a partir delas.",
+  "ph.exec_flow_h": "Como construir o seu discurso completo",
+  "ph.exec_flow_1": "Escolha uma frase abaixo — por exemplo “I currently work as…” — e escreva aqui a sua própria frase com ela.",
+  "ph.exec_flow_2": "Toque em «Polir» e fique com a versão que mais se parece com o profissional que quer ser.",
+  "ph.exec_flow_3": "Toque em «Copiar» nessa versão e cole-a na caixa dessa mesma frase, mais abaixo.",
+  "ph.exec_flow_4": "Cada frase que guarda junta-se ao Seu discurso completo, no fim desta página — ouça-o e depois diga-o inteiro."
 }

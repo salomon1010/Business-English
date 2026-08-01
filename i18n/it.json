@@ -1090,5 +1090,10 @@
   "ph.speech_sub": "Tutte le frasi che hai scritto questa settimana, unite in un'unica risposta. Ascoltala, poi dilla tutta tu — è la versione di te che entra nella stanza già sciolta.",
   "ph.speech_ph": "Compila le frasi qui sopra e si raccoglieranno qui, una riga alla volta.",
   "ph.speech_count": "{{n}}/{{total}} scritte",
-  "ph.speech_empty": "Scrivi prima una o due frasi qui sopra — questo riquadro si costruisce da lì."
+  "ph.speech_empty": "Scrivi prima una o due frasi qui sopra — questo riquadro si costruisce da lì.",
+  "ph.exec_flow_h": "Come costruire il tuo discorso completo",
+  "ph.exec_flow_1": "Scegli una frase qui sotto — per esempio “I currently work as…” — e scrivi qui la tua frase con quella.",
+  "ph.exec_flow_2": "Tocca «Rifinisci» e tieni la versione che somiglia di più al professionista che vuoi essere.",
+  "ph.exec_flow_3": "Tocca «Copia» su quella versione e incollala nel riquadro di quella stessa frase, più sotto.",
+  "ph.exec_flow_4": "Ogni frase che salvi entra nel Tuo discorso completo, in fondo a questa pagina: ascoltalo, poi dillo tutto tu."
 }
