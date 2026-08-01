@@ -75,6 +75,10 @@ input:focus,textarea:focus{outline:none;border-color:var(--acc)}
 nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);border-bottom:1px solid var(--line);padding:0 20px}
 .nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:6px;height:62px;overflow-x:auto}
 .brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:9px;cursor:pointer;border-radius:12px;padding:2px 6px 2px 2px;transition:.15s}
+.brand-txt{display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}
+.brand-name{white-space:nowrap}
+.brand-home{font-size:11.5px;font-weight:700;color:var(--acc2);letter-spacing:.3px}
+.brand:hover .brand-home{color:var(--acc)}
 .brand:hover{background:var(--hover)}
 .brand.on .logo{box-shadow:0 0 0 2px var(--acc),0 0 14px rgba(99,102,241,.5)}
 .brand .logo{width:34px;height:34px;border-radius:10px;background:var(--grad);display:grid;place-items:center;font-size:17px}
@@ -479,6 +483,16 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .cv-p{flex:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--gold);background:rgba(251,191,36,.13);border-radius:7px;padding:2px 8px}
 .cv-p.full{color:var(--green);background:rgba(52,211,153,.14)}
 .cv-d{flex:none;font-size:12px;color:var(--mut2);min-width:52px;text-align:right}
+/* Practice page section headings */
+.prac-sec{font-size:clamp(19px,4.6vw,26px);font-weight:800;letter-spacing:-.3px;margin:26px 0 4px}
+.prac-sec-sub{font-size:13px;color:var(--mut);margin-bottom:12px}
+.prac-subgroup{margin-top:-4px}
+/* App Setup shortcut on the profile header */
+.pf-gear{position:absolute;top:0;right:0;z-index:2;width:44px;height:44px;border-radius:50%;
+  border:1px solid var(--line2);background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer;transition:.15s}
+.pf-gear:hover{color:var(--txt);border-color:var(--acc);transform:rotate(25deg)}
+.pf-gear svg{width:21px;height:21px}
+#v-profile{position:relative}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -1189,11 +1203,11 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 <body>
 
 <nav><div class="nav-in">
-  <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none">BE <span class="g">Mastery</span></div>
+  <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
-  <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Library</span></button>
+  <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
   <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
   <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
@@ -1216,6 +1230,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
   <div id="v-manual" class="view"></div>
+  <div id="v-setup" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
 </main>
 <div class="toast" id="toast"></div>
@@ -1228,7 +1243,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Weeks</span></button>
   <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
   <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
-  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Library</span></button>
+  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
   <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
   <button class="bnav-item" data-v="profile" onclick="go('profile')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg></span><span data-i18n="bnav.profile">Profile</span></button>
 </nav>
@@ -1767,6 +1782,10 @@ const I18N_EN={
  "profile.guest":"Guest",
  "profile.sub_default":"Practising English with BE Mastery",
  "profile.day_streak":"day streak",
+ "setup.title":"App Setup",
+ "setup.sub":"Your settings, the guide, and what BE Mastery does \u2014 all in one place.",
+ "setup.row_sub":"Settings, help & guide, about the app",
+ "setup.about_sub":"A quick tour of what the app does and who it is for.",
  "profile.settings":"Settings",
  "profile.settings_sub":"Profile, language, sync & privacy",
  "profile.help":"Help & guide",
@@ -1998,7 +2017,7 @@ const I18N_EN={
  "ph.empty_idioms_title":"No idioms this week",
  "ph.empty_idioms_body":"This week focuses on professional phrases. Idioms appear in other weeks of the programme.",
  "lib.tabs_label":"Library sections",
- "lib.tab_vocab":"Vocabulary",
+ "lib.tab_vocab":"My words",
  "lib.tab_grammar":"Grammar",
  "lib.tab_exercises":"Grammar exercises",
  "lib.tab_saved":"Saved expressions",
@@ -2604,11 +2623,18 @@ const I18N_EN={
  "cf.signout_ok":"Sign out",
  "cf.delacct_title":"Delete your account?",
  "nav.badge_aria":"{{n}} items waiting",
+ "nav.home_label":"Home",
+ "prac.kb_h":"Knowledge Boosters",
+ "prac.kb_sub":"Three ways to drill what you\u2019ve collected.",
+ "prac.sim_h":"Life Simulations",
+ "prac.vg_h":"Vocabulary & Grammar",
+ "prac.tab_vocabulary":"Vocabulary",
+ "prac.tab_grammar":"Grammar",
  "nav.dashboard":"🏠 Dashboard",
  "nav.weeks":"🗺️ 12 Weeks",
  "nav.phrases":"💬 Phrase Lab",
  "nav.shadow":"🎯 Shadow Studio",
- "nav.practice":"📚 Library",
+ "nav.practice":"🎯 Practice",
  "nav.reviews":"📊 Reviews",
  "nav.account":"👤 Account",
  "nav.profile":"Profile",
@@ -2616,19 +2642,19 @@ const I18N_EN={
  "bnav.home":"Home",
  "bnav.weeks":"Weeks",
  "bnav.shadow":"Shadow",
- "bnav.practice":"Library",
+ "bnav.practice":"Practice",
  "bnav.phrases":"Phrase Lab",
- "prac.eyebrow":"Your language library",
- "prac.title":"Vocabulary & Grammar",
+ "prac.eyebrow":"Your challenge area",
+ "prac.title":"Practice",
  "prac.sub":"Every word, phrase and rule you've collected while practising — keep working them until they're yours.",
  "prac.tab_ready":"Study",
  "prac.tab_upnext":"Review",
  "prac.tab_learned":"Mastered",
- "prac.flashcards":"Flashcards",
+ "prac.flashcards":"Study cards",
  "prac.flashcards_sub":"Flip & recall",
- "prac.quizzes":"Quizzes",
+ "prac.quizzes":"Pop quizzes",
  "prac.quizzes_sub":"Pick the word",
- "prac.crosswords":"Crosswords",
+ "prac.crosswords":"Word puzzles",
  "prac.crosswords_sub":"Fill the grid",
  "prac.words_collected":"Words collected",
  "prac.add_ph":"Add a word…",
@@ -3145,7 +3171,7 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual,setup:rSetup})[v](el,arg1,arg2);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -3167,7 +3193,7 @@ function go(v,arg1,arg2){
 let _manCache={};
 let _helpOrig="";   // snapshot of the rendered manual, so search can reset highlights cleanly
 let _vocReturn=null;   // remembers where the user was before jumping to Vocabulary & Grammar
-async function rManual(el){
+async function rManual(el,embedded){
   const code=(S.profile&&S.profile.lang)||"en";
   el.innerHTML=`<div style="padding:60px 20px;text-align:center;color:var(--mut)">${esc(t("manual.loading"))}</div>`;
   let html=_manCache[code];
@@ -3192,10 +3218,10 @@ async function rManual(el){
   const name=(S.profile&&S.profile.name)?String(S.profile.name).trim():"";
   const greet=(name?t("help.greeting_name",{name:esc(name)}):t("help.greeting")).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
   el.innerHTML=`
-    <div class="eyebrow pg-eyebrow pg-sub">
+    ${embedded?"":`<div class="eyebrow pg-eyebrow pg-sub">
       <button class="back" onclick="go('profile')">${t("profile.back")}</button>
       <span>${t("profile.help")}</span>
-    </div>
+    </div>`}
     <div class="help-hero">
       <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
     </div>
@@ -4597,6 +4623,26 @@ function remLaunchNudge(){
    right; a grammar drill stops counting once you've run it. Anything that
    could never reach zero (e.g. all 152 phrases) is left out — a badge that
    never clears is just noise people learn to ignore. */
+/* A short tap on navigation, the way native apps confirm a press.
+   Vibration is ignored on desktop and on iOS (Safari has never supported it),
+   so this is a bonus on Android rather than something the UI depends on.
+   Suppressed for anyone who has asked for reduced motion. */
+let _hapticOK=null;
+function haptic(ms){
+  try{
+    if(_hapticOK===null){
+      _hapticOK=typeof navigator!=="undefined"&&typeof navigator.vibrate==="function"
+        &&!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+    }
+    if(_hapticOK)navigator.vibrate(ms||12);
+  }catch(e){}
+}
+window.haptic=haptic;
+/* one listener rather than an inline handler on every control */
+document.addEventListener("pointerdown",e=>{
+  const t2=e.target.closest&&e.target.closest(".bnav-item,.tab,.brand,.seg-tab,.prac-subtab,.cat-tab");
+  if(t2)haptic(12);
+},{passive:true});
 function navBadgeCount(view){
   if(view!=="practice")return 0;
   /* Counts only practice the user's own activity created: words they saved from
@@ -5483,21 +5529,56 @@ let _pracTab="ready";
    libTab switches the section; _pracTab switches the Study/Review/Mastered bucket. */
 let _libTab="vocab";
 window.libTab=tab=>{_libTab=tab;const el=document.getElementById("v-practice");if(el)rPractice(el);};
-const LIB_TABS=[
- {k:"vocab",   ic:"book",      n:"lib.tab_vocab"},
- {k:"grammar", ic:"list",      n:"lib.tab_grammar"},
- {k:"exercises",ic:"pencil",   n:"lib.tab_exercises"},
- {k:"saved",   ic:"bookmark",  n:"lib.tab_saved"},
- {k:"idioms",  ic:"briefcase", n:"lib.tab_idioms"}
+/* The Practice page is now three sections stacked, not one flat tab strip:
+   the drills at the top, then live simulations, then the word/grammar library
+   split into two groups so five unrelated pills no longer sit side by side. */
+const LIB_GROUPS=[
+ {k:"vocabulary", ic:"book", n:"prac.tab_vocabulary", subs:[
+   {k:"vocab",  ic:"book",      n:"lib.tab_vocab"},
+   {k:"saved",  ic:"bookmark",  n:"lib.tab_saved"},
+   {k:"idioms", ic:"briefcase", n:"lib.tab_idioms"}]},
+ {k:"grammar", ic:"list", n:"prac.tab_grammar", subs:[
+   {k:"grammar",   ic:"list",   n:"lib.tab_grammar"},
+   {k:"exercises", ic:"pencil", n:"lib.tab_exercises"}]}
 ];
+let _libGroup="vocabulary";
+function libGroupOf(k){const g=LIB_GROUPS.find(g=>g.subs.some(x=>x.k===k));return g?g.k:"vocabulary"}
+window.libGroup=k=>{
+  _libGroup=k;
+  const g=LIB_GROUPS.find(x=>x.k===k);
+  if(g&&!g.subs.some(x=>x.k===_libTab))_libTab=g.subs[0].k;   // land on the group's first section
+  const el=document.getElementById("v-practice");if(el)rPractice(el);
+};
 function rPractice(el){
+  _libGroup=libGroupOf(_libTab);
+  const group=LIB_GROUPS.find(g=>g.k===_libGroup)||LIB_GROUPS[0];
   el.innerHTML=`
   ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
   <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
-  <div class="seg-tabs" role="tablist" aria-label="${esc(t("lib.tabs_label"))}" style="margin-top:18px">
-    ${LIB_TABS.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span>${t(c.n)}</button>`).join("")}
+
+  <h2 class="prac-sec">${t("prac.kb_h")}</h2>
+  <p class="prac-sec-sub">${t("prac.kb_sub")}</p>
+  <div class="prac-ex">
+    <button class="prac-ex-card" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
+    <button class="prac-ex-card" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
+    <button class="prac-ex-card" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
+  </div>
+
+  <h2 class="prac-sec">${t("prac.sim_h")}</h2>
+  <button class="card rp-entry" onclick="go('roleplay')">
+    <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+    <span class="rp-entry-t"><b>${t("home.rp_title")}</b><small>${t("home.rp_sub")}</small></span>
+    <span class="rp-entry-go">→</span>
+  </button>
+
+  <h2 class="prac-sec">${t("prac.vg_h")}</h2>
+  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("lib.tabs_label"))}">
+    ${LIB_GROUPS.map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
+  </div>
+  <div class="seg-tabs prac-subgroup" role="tablist">
+    ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span>${t(c.n)}</button>`).join("")}
   </div>
   <div id="libBody"></div>`;
   const body=el.querySelector("#libBody");
@@ -5519,11 +5600,7 @@ function rLibVocab(el){
         <button class="prac-subtab ${_pracTab==='upnext'?'on':''}" onclick="pracTab('upnext')">${t("prac.tab_upnext")} <b>${b.upnext.length}</b></button>
         <button class="prac-subtab ${_pracTab==='learned'?'on':''}" onclick="pracTab('learned')">${t("prac.tab_learned")} <b>${b.learned.length}</b></button>
       </div>
-      ${total?`<div class="prac-ex">
-        <button class="prac-ex-card" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
-        <button class="prac-ex-card" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
-        <button class="prac-ex-card" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
-      </div>`:""}
+      <!-- drills now live in Knowledge Boosters at the top of the page -->
       <div id="vlBox"></div>
     </div>
     <div>
@@ -6556,6 +6633,7 @@ function rProfile(el){
   const sub=bits.length?bits.join(" · "):t("profile.sub_default");
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
+  <button class="pf-gear" onclick="go('setup')" title="${esc(t("setup.title"))}" aria-label="${esc(t("setup.title"))}">${ic("gear")}</button>
   <div class="pf-hero">
     <div class="pf-av">${initial}</div>
     <h1 class="pf-name">${nm}</h1>
@@ -6586,24 +6664,55 @@ function rProfile(el){
          <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/84*100)}%"></i></div>`}
   </div>
   <div class="pf-menu">
-    <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
-    <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
-    <button class="pf-row" onclick="openAbout()"><span class="pf-ic">${ic("sparkle")}</span><span class="pf-txt"><b>${t("profile.about")}</b><small>${t("profile.about_sub")}</small></span><span class="pf-chev">›</span></button>
+    <button class="pf-row" onclick="go('setup')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span><span class="pf-chev">›</span></button>
   </div>`;
   manIconizeInline(el);
   calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
 }
-async function rData(el){
+/* App Setup — Settings, the guide and About in one place.
+   They used to be three rows at the bottom of Profile, which made them feel
+   like afterthoughts and buried the guide entirely. */
+let _setupTab="settings";
+const SETUP_TABS=[
+ {k:"settings",ic:"gear",  n:"profile.settings"},
+ {k:"help",    ic:"help",  n:"profile.help"},
+ {k:"about",   ic:"sparkle",n:"profile.about"}
+];
+window.setupTab=k=>{_setupTab=k;const el=document.getElementById("v-setup");if(el)rSetup(el);};
+async function rSetup(el){
+  el.innerHTML=`
+  <div class="eyebrow pg-eyebrow pg-sub">
+    <button class="back" onclick="go('profile')">${t("profile.back")}</button>
+    <span>${t("setup.title")}</span>
+  </div>
+  <h1 class="big">${t("setup.title")}</h1>
+  <p class="sub">${t("setup.sub")}</p>
+  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("setup.title"))}" style="margin-top:16px">
+    ${SETUP_TABS.map(c=>`<button class="seg-tab ${_setupTab===c.k?"on":""}" role="tab" aria-selected="${_setupTab===c.k}" onclick="setupTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
+  </div>
+  <div id="setupBody"></div>`;
+  const body=el.querySelector("#setupBody");
+  if(_setupTab==="settings")await rData(body,true);
+  else if(_setupTab==="help")await rManual(body,true);
+  else{
+    body.innerHTML=`<div class="card" style="margin-top:14px;text-align:center;padding:26px 20px">
+      <p class="sub" style="margin:0 auto 16px">${t("setup.about_sub")}</p>
+      <button class="btn btn-p" onclick="openAbout()">${tIc("profile.about","sparkle")}</button></div>`;
+    manIconizeInline(body);
+  }
+  segSync(el);
+}
+async function rData(el,embedded){
   const recN=await countRecs();
   const p=S.profile||{name:"",role:"",goal:"",slot:""};
   const sel=(id,opts,cur,prefix)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option value="${esc(o)}" ${o===cur?"selected":""}>${esc(optLabel(o,opts,prefix).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
   const upN=recN-Object.keys(GH.up||{}).length;
   el.innerHTML=`
-  <div class="eyebrow pg-eyebrow pg-sub">
+  ${embedded?"":`<div class="eyebrow pg-eyebrow pg-sub">
     <button class="back" onclick="go('profile')">${t("profile.back")}</button>
     <span>${t("acc.settings_title")}</span>
   </div>
-  <h1 class="big">${t("acc.settings_title")}</h1>
+  <h1 class="big">${t("acc.settings_title")}</h1>`}
   <div class="grid g2" style="align-items:start;margin-top:18px">
     <div class="card">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
