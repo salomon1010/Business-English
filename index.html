@@ -923,7 +923,10 @@ html[dir="rtl"] .lang-row{text-align:right}
 .fb-pron-good{margin-top:10px;color:var(--green);font-weight:600;display:flex;align-items:center;gap:6px}
 .fb-pron-spin svg{width:16px;height:16px;vertical-align:-3px;color:var(--acc);animation:htPulse 1.2s ease-in-out infinite}
 /* ROLE-PLAY (AI conversation) */
-.rp-av{display:grid;place-items:center;border-radius:20px;background:var(--grad);color:#fff;flex:none}
+.rp-av{position:relative;overflow:hidden;display:grid;place-items:center;border-radius:20px;background:var(--grad);color:#fff;flex:none}
+.rp-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.rp-av .rp-av-ic{display:grid;place-items:center;width:100%;height:100%}
+.rp-av.has-photo .rp-av-ic{display:none}
 .rp-av svg{width:44%;height:44%}
 .rp-keynote{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px 16px;font-size:13.5px;color:var(--mut);margin-bottom:18px}
 .rp-keynote a{cursor:pointer;font-weight:600}
@@ -6890,7 +6893,32 @@ const SCENARIOS=[
  {id:"hotel",cat:"travel",persona:"Nina",g:"f",role:"hotel receptionist",ic:"home",title:"Hotel check-in",scenario:"Check into a hotel and ask about the facilities.",points:["Give your reservation name","Ask about breakfast and wi-fi","Ask for a late checkout"],greet:"Welcome to The Meridian! Do you have a reservation with us?"},
 ];
 function rpById(id){return SCENARIOS.find(s=>s.id===id)}
-function rpAvatar(sc,size){return `<span class="rp-av" style="width:${size}px;height:${size}px">${ic(sc.ic)}</span>`}
+/* Scenario artwork. Drop a square image at rp-photos/<scenario id>.jpg and it
+   is used automatically — no code change. If the file is missing the browser
+   fires onerror and we fall back to the icon tile, so a half-finished photo set
+   never leaves broken images on the page. Each scenario also gets its own hue
+   so the fallback tiles are not all identical. */
+function rpHue(id){let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))%360;return h}
+/* Which scenarios actually have a photo. Read once from
+   rp-photos/manifest.json (a plain array of scenario ids) so the page never
+   fires a request for a file that is not there — otherwise every visit cost
+   fourteen 404s while the set was incomplete. */
+let RP_PHOTOS=null;
+async function rpLoadPhotos(){
+  if(RP_PHOTOS)return RP_PHOTOS;
+  try{const r=await fetch("rp-photos/manifest.json");RP_PHOTOS=r.ok?await r.json():[];}
+  catch(e){RP_PHOTOS=[];}
+  if(!Array.isArray(RP_PHOTOS))RP_PHOTOS=[];
+  return RP_PHOTOS;
+}
+function rpAvatar(sc,size){
+  const h=rpHue(sc.id);
+  const has=RP_PHOTOS&&RP_PHOTOS.indexOf(sc.id)>=0;
+  return `<span class="rp-av${has?" has-photo":""}" style="width:${size}px;height:${size}px;background:linear-gradient(150deg,hsl(${h} 62% 52%),hsl(${(h+38)%360} 68% 44%))">
+    ${has?`<img src="rp-photos/${sc.id}.jpg" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-photo');this.remove()">`:""}
+    <span class="rp-av-ic">${ic(sc.ic)}</span>
+  </span>`;
+}
 let rpConv=null;
 function rRoleplay(el,id){
   rpEndConv();
@@ -6899,6 +6927,7 @@ function rRoleplay(el,id){
   rpIntro(el,sc);
 }
 function rpLibrary(el){
+  if(RP_PHOTOS===null){rpLoadPhotos().then(()=>{if(cur&&cur.v==="roleplay"&&!cur.arg1)rpLibrary(el)});}
   const feat=SCENARIOS[3];
   const cats=RP_CATS.map(([c,label])=>{
     const items=SCENARIOS.filter(s=>s.cat===c);
