@@ -300,7 +300,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .rule-ic{color:var(--acc);line-height:0}
 .rule-ic svg{width:24px;height:24px}
 /* PROFILE tab */
-.pf-hero{text-align:center;padding:16px 0 4px}
+.pf-hero{position:relative;text-align:center;padding:16px 0 4px}
 .pf-av{width:88px;height:88px;border-radius:28px;background:var(--grad);display:grid;place-items:center;font-size:38px;font-weight:800;color:#fff;margin:0 auto 14px;box-shadow:0 14px 40px rgba(99,102,241,.35)}
 .pf-name{font-size:26px;font-weight:800;margin-bottom:4px}
 .pf-sub{color:var(--mut);font-size:14px;margin-bottom:16px}
@@ -488,11 +488,10 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .prac-sec-sub{font-size:13px;color:var(--mut);margin-bottom:12px}
 .prac-subgroup{margin-top:-4px}
 /* App Setup shortcut on the profile header */
-.pf-gear{position:absolute;top:0;right:0;z-index:2;width:44px;height:44px;border-radius:50%;
+.pf-gear{position:absolute;top:12px;right:0;z-index:2;width:44px;height:44px;border-radius:50%;
   border:1px solid var(--line2);background:var(--card2);color:var(--mut);display:grid;place-items:center;cursor:pointer;transition:.15s}
 .pf-gear:hover{color:var(--txt);border-color:var(--acc);transform:rotate(25deg)}
 .pf-gear svg{width:21px;height:21px}
-#v-profile{position:relative}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -6633,8 +6632,8 @@ function rProfile(el){
   const sub=bits.length?bits.join(" · "):t("profile.sub_default");
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
-  <button class="pf-gear" onclick="go('setup')" title="${esc(t("setup.title"))}" aria-label="${esc(t("setup.title"))}">${ic("gear")}</button>
   <div class="pf-hero">
+    <button class="pf-gear" onclick="go('setup')" title="${esc(t("setup.title"))}" aria-label="${esc(t("setup.title"))}">${ic("gear")}</button>
     <div class="pf-av">${initial}</div>
     <h1 class="pf-name">${nm}</h1>
     <p class="pf-sub">${sub}</p>
@@ -6663,9 +6662,7 @@ function rProfile(el){
       : `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("share.cert_locked",{n:totalDone()})}</p>
          <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/84*100)}%"></i></div>`}
   </div>
-  <div class="pf-menu">
-    <button class="pf-row" onclick="go('setup')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span><span class="pf-chev">›</span></button>
-  </div>`;
+  <!-- App Setup is reached from the gear in the header; a row here as well was the same door twice -->`;
   manIconizeInline(el);
   calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
 }
