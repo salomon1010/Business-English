@@ -4768,9 +4768,12 @@ function haptic(ms){
   }catch(e){}
 }
 window.haptic=haptic;
-/* one listener rather than an inline handler on every control */
+/* one listener rather than an inline handler on every control.
+   Only the main destinations buzz - the bottom nav (Weeks, Shadow, Phrase Lab,
+   Practice, Progress, Profile), their desktop equivalents, and the brand for
+   Home. In-page tab rows deliberately stay silent. */
 document.addEventListener("pointerdown",e=>{
-  const t2=e.target.closest&&e.target.closest(".bnav-item,.tab,.brand,.seg-tab,.prac-subtab,.cat-tab");
+  const t2=e.target.closest&&e.target.closest(".bnav-item,.tab,.brand");
   if(t2)haptic(12);
 },{passive:true});
 function navBadgeCount(view){
