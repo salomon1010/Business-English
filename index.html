@@ -8002,6 +8002,9 @@ window.fbTestSync=async()=>{
     if(!snap.exists)throw new Error("written but not readable");
     fbLastPushOk=true;fbLastPushErr="";
     toast(t("auth.sync_ok"));
+    /* This is the button people press when two devices disagree, so pull the
+       other device's work in as well rather than only proving the write. */
+    fbLastPull=0;await fbSyncPull();
   }catch(e){
     fbLastPushOk=false;
     fbLastPushErr=(e&&(e.code||e.message))||"unknown";
@@ -8009,6 +8012,70 @@ window.fbTestSync=async()=>{
   }
   fbSyncStatus();
 };
+/* ===== PULL ON RETURN =====
+   The cloud copy used to be read exactly once per session, in fbFirstSync. Two
+   signed-in devices therefore never converged while both stayed open: whatever
+   you did on the phone was invisible on the tablet until the tablet was fully
+   relaunched — and in the installed app, backgrounding is not a relaunch. So
+   the same account legitimately showed different clip counts and trouble-word
+   counts side by side.
+
+   Now every return to the app re-reads the cloud and merges it in. Merge, not
+   overwrite: fbMerge unions the work from both sides, so coming back never
+   costs you what you did on this device while it was in the background.
+
+   NOTE the deliberate limit: this pulls on RETURN, not continuously. There is
+   no onSnapshot listener, because a live listener plus a union merge would
+   resurrect anything you deleted on the other device within seconds. Deletions
+   need tombstones (the GitHub sync has GH.del for exactly this) before live
+   sync would be safe. */
+let fbLastPull=0;
+/* Key order alone must not count as a change, and savedAt always moves. */
+function fbStable(o){
+  if(o===null||typeof o!=="object")return JSON.stringify(o);
+  if(Array.isArray(o))return "["+o.map(fbStable).join(",")+"]";
+  return "{"+Object.keys(o).sort().map(k=>JSON.stringify(k)+":"+fbStable(o[k])).join(",")+"}";
+}
+function fbSnapshotSig(s){const c=Object.assign({},s);delete c.savedAt;return fbStable(c)}
+/* Re-rendering under the user's hands would be worse than a stale number, so a
+   pull never redraws mid-activity: not in a session, a game, the Shadow
+   workspace or onboarding. The merged state is still saved; the screen catches
+   up on the next navigation. */
+function fbSafeToRerender(){
+  if(!cur||!cur.v)return false;
+  if(["session","shadow","roleplay","pron"].indexOf(cur.v)>=0)return false;
+  const g=document.getElementById("pvGame");if(g&&g.classList.contains("show"))return false;
+  const w=document.getElementById("shWork");if(w&&w.style.display!=="none")return false;
+  if(document.getElementById("obWrap"))return false;
+  return true;
+}
+async function fbSyncPull(){
+  if(!FBUser||!FBdb||fbSyncing)return;
+  if(Date.now()-fbLastPull<15000)return;          // don't hammer on rapid app switching
+  fbSyncing=true;fbLastPull=Date.now();
+  try{
+    const ref=FBdb.collection("users").doc(FBUser.uid);
+    const snap=await ref.get();
+    let cloud=null;
+    if(snap.exists){try{cloud=JSON.parse(snap.data().json||"null")}catch(e){}}
+    if(cloud){
+      const before=fbSnapshotSig(S);
+      const merged=fbMerge(S,cloud);
+      if(fbSnapshotSig(merged)!==before){
+        S=merged;
+        localStorage.setItem(LS_KEY,JSON.stringify(S));
+        await ref.set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
+          updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+        try{navBadges()}catch(e){}
+        if(fbSafeToRerender())go(cur.v,cur.arg1,cur.arg2);
+      }
+    }
+  }catch(e){console.warn("[sync] pull failed:",(e&&(e.code||e.message))||e)}
+  fbSyncing=false;
+}
+window.fbSyncPull=fbSyncPull;
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")fbSyncPull()});
+window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
 function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
 function fbSetErr(m){const el=document.getElementById("authErr");if(el)el.textContent=m||""}
