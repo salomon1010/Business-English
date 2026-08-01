@@ -7917,6 +7917,22 @@ function fbMerge(local,cloud){
   m.trouble=fbMax(local.trouble,cloud.trouble);
   m.fbV=Object.assign({},cloud.fbV,local.fbV);
   const seen={};m.fbHist=[].concat(cloud.fbHist||[],local.fbHist||[]).filter(x=>{const k=x&&x.ts;if(!k||seen[k])return false;seen[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-50);
+  /* Everything not named here falls through Object.assign, where LOCAL wins the
+     whole object — so anything the other device recorded is dropped, not merged.
+     These three were being lost that way:
+       dayLog — per-day activity counts behind the calendar heat-map and the
+                dashboard numbers. Max per day, not sum: merging runs repeatedly
+                and a sum would inflate every day it touched.
+       gram   — grammar drill stats; keep the best score and the higher run count.
+       convos — AI conversations; union on timestamp, same 200 cap as roleplay. */
+  m.dayLog=fbMax(local.dayLog,cloud.dayLog);
+  m.gram=(()=>{
+    const o={};[cloud.gram||{},local.gram||{}].forEach(src=>Object.keys(src).forEach(k=>{
+      const a=o[k]||{best:0,runs:0},b=src[k]||{};
+      o[k]={best:Math.max(a.best||0,+b.best||0),runs:Math.max(a.runs||0,+b.runs||0)};
+    }));return o;
+  })();
+  const cs={};m.convos=[].concat(cloud.convos||[],local.convos||[]).filter(c=>{const k=c&&c.ts;if(!k||cs[k])return false;cs[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-200);
   m.dates=Array.from(new Set([].concat(cloud.dates||[],local.dates||[]))).sort();
   const ck={};m.clips=[].concat(local.clips||[],cloud.clips||[]).filter(c=>{const k=(c&&c.vid)+"_"+(c&&c.start);if(ck[k])return false;ck[k]=1;return true});
   const lt=(local.profile&&local.profile.ts)||0,ct=(cloud.profile&&cloud.profile.ts)||0;
