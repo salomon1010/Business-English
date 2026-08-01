@@ -472,6 +472,13 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .rp-entry-t b{display:block;font-size:15px;margin-bottom:3px}
 .rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:block}
 .rp-entry-go{flex:none;color:var(--acc2);font-size:19px}
+/* conversation history rows on the progress page */
+.cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
+.cv-row:first-of-type{border-top:none}
+.cv-t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cv-p{flex:none;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--gold);background:rgba(251,191,36,.13);border-radius:7px;padding:2px 8px}
+.cv-p.full{color:var(--green);background:rgba(52,211,153,.14)}
+.cv-d{flex:none;font-size:12px;color:var(--mut2);min-width:52px;text-align:right}
 /* GRAMMAR — reference rules + exercise launcher cards */
 .gr-rule{border-left:2px solid var(--line2);padding-left:12px}
 .gr-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px}
@@ -1560,7 +1567,7 @@ const LS_KEY="be12_v1";
 let S=load();
 function load(){
   try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};d.profile=d.profile||null;return d}}catch(e){}
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{navBadges()}catch(e){}try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
@@ -1966,6 +1973,8 @@ const I18N_EN={
  "home.next_phrases":"Master five phrases from this week's Phrase Lab.",
  "home.next_sessions":"Complete today's 25-minute session.",
  "home.next_clips":"Create your first clip in the Shadow Studio.",
+ "home.stat_convos":"Conversations practised",
+ "home.next_convos":"Have your first AI conversation \u2014 five minutes is enough.",
  "home.next_vocab":"Save five words from today's speaking feedback.",
  "home.science_h":"🧠 The science behind the 25-minute block",
  "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour, and small sharp blocks are exactly how a new voice is built.",
@@ -2130,6 +2139,9 @@ const I18N_EN={
  "prog.stat_words":"Words spoken in feedback sessions",
  "prog.stat_best":"Best pronunciation score",
  "prog.stat_pace":"Latest pace (wpm)",
+ "prog.stat_convos":"Conversations",
+ "prog.convos_h":"\ud83d\udcac Conversations you\u2019ve had",
+ "prog.convos_sub":"Talking points you covered in each role-play.",
  "prog.stat_vocab":"Words in your library",
  "prog.chart_pron_title":"🎯 Pronunciation score journey",
  "prog.chart_pron_sub":"Every speaking-feedback attempt, oldest → newest",
@@ -3320,6 +3332,7 @@ async function rHome(el){
     ${statCard("check",totalDone(),"/84",t("home.stat_sessions"),totalDone()===0?t("home.next_sessions"):"","go('session',"+pos.w+",'"+pos.d+"')")}
     ${statCard("target",(S.clips||[]).length,"",t("home.stat_clips"),(S.clips||[]).length===0?t("home.next_clips"):"","go('shadow')")}
     ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
+    ${statCard("chat",(S.convos||[]).length,"",t("home.stat_convos"),(S.convos||[]).length===0?t("home.next_convos"):"","go('roleplay')")}
   </div>
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
@@ -6258,7 +6271,19 @@ function progressHTML(){
       <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("book")}</span>${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${(S.convos||[]).length}</div><div class="l">${t("prog.stat_convos")}</div></div>
     </div>
+    ${(S.convos||[]).length?`<div class="card" style="background:var(--bg2);margin-bottom:16px">
+      <b style="font-size:14px">${tInl("prog.convos_h","chat")}</b>
+      <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 10px">${t("prog.convos_sub")}</p>
+      ${(S.convos||[]).slice(-6).reverse().map(c=>{
+        const full=c.covered>=c.total;
+        return `<div class="cv-row">
+          <span class="cv-t">${esc(c.title||"")}</span>
+          <span class="cv-p ${full?"full":""}">${c.covered}/${c.total}</span>
+          <span class="cv-d">${new Date(c.ts).toLocaleDateString(undefined,{day:"numeric",month:"short"})}</span>
+        </div>`}).join("")}
+    </div>`:""}
     <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr))">
       <div class="card" style="background:var(--bg2)">
         <b style="font-size:14px">${tInl("prog.chart_pron_title","target")}</b>
@@ -7073,6 +7098,21 @@ window.rpEnd=()=>rpSummary();
 function rpSummary(){
   if(!rpConv)return; rpClearIdle(); try{speechSynthesis.cancel()}catch(e){}
   const sc=rpConv.sc,covered=rpConv.covered;
+  /* Log it. Without this the whole feature was invisible to the rest of the
+     app — no streak credit, nothing on the calendar, nothing in progress. Only
+     counts if the user actually spoke, so opening and backing out is not a
+     "practice". */
+  const spoke=(rpConv.history||[]).some(m=>m.role==="user");
+  if(spoke&&!rpConv.logged){
+    rpConv.logged=true;
+    S.convos=S.convos||[];
+    S.convos.push({ts:Date.now(),id:sc.id,title:sc.title,cat:sc.cat,
+      covered:covered.size,total:sc.points.length,
+      turns:(rpConv.history||[]).filter(m=>m.role==="user").length});
+    if(S.convos.length>200)S.convos=S.convos.slice(-200);
+    markPracticed();            // streak, calendar heat-map and weekly goal
+    save();
+  }
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
    <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
