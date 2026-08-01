@@ -1092,8 +1092,9 @@
   "ph.speech_count": "{{n}}/{{total}} scritte o incollate",
   "ph.speech_empty": "Scrivi o incolla prima una o due frasi qui sopra — questo riquadro si costruisce da lì.",
   "ph.exec_flow_h": "Come costruire il tuo discorso completo",
-  "ph.exec_flow_1": "Scegli una frase qui sotto — per esempio “I currently work as…” — e scrivi qui la tua frase con quella.",
-  "ph.exec_flow_2": "Tocca «Rifinisci» e tieni la versione che somiglia di più al professionista che vuoi essere.",
-  "ph.exec_flow_3": "Tocca «Copia» su quella versione e incollala nel riquadro di quella stessa frase, più sotto.",
-  "ph.exec_flow_4": "Ogni frase che salvi entra nel Tuo discorso completo, in fondo a questa pagina: ascoltalo, poi dillo tutto tu."
+  "ph.exec_flow_1": "Scegli una frase qui sotto — per esempio “I currently work as…” — poi tocca il microfono qui e di' la tua frase intera ad alta voce, così finisce nel riquadro. Scriverla va bene allo stesso modo.",
+  "ph.exec_flow_2": "Rileggi ciò che il microfono ha capito e correggi quello che ha sbagliato — modificala finché non dice davvero quello che intendi.",
+  "ph.exec_flow_3": "Tocca «Rifinisci» e tieni la versione che somiglia di più al professionista che vuoi essere.",
+  "ph.exec_flow_4": "Tocca «Copia» su quella versione e incollala nel riquadro di quella stessa frase, più sotto.",
+  "ph.exec_flow_5": "Ogni frase che salvi entra nel Tuo discorso completo, in fondo a questa pagina: ascoltalo, poi dillo tutto tu."
 }

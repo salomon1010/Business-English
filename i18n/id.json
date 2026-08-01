@@ -1092,8 +1092,9 @@
   "ph.speech_count": "{{n}}/{{total}} ditulis atau ditempel",
   "ph.speech_empty": "Tulis atau tempel dulu satu atau dua kalimat di atas — kotak ini dibangun dari sana.",
   "ph.exec_flow_h": "Cara menyusun pidato lengkap Anda",
-  "ph.exec_flow_1": "Pilih satu frasa di bawah — misalnya “I currently work as…” — lalu tulis kalimat Anda sendiri dengan frasa itu di sini.",
-  "ph.exec_flow_2": "Ketuk «Poles», lalu ambil versi yang paling terdengar seperti profesional yang ingin Anda jadi.",
-  "ph.exec_flow_3": "Ketuk «Salin» pada versi itu, lalu tempelkan ke kotak frasa tersebut di bawah.",
-  "ph.exec_flow_4": "Setiap kalimat yang Anda simpan bergabung ke Pidato lengkap Anda di bagian bawah halaman ini — dengarkan, lalu ucapkan seluruhnya sendiri."
+  "ph.exec_flow_1": "Pilih satu frasa di bawah — misalnya “I currently work as…” — lalu ketuk mikrofon di sini dan ucapkan kalimat Anda dengan lantang agar masuk ke kotak. Mengetiknya sama baiknya.",
+  "ph.exec_flow_2": "Baca hasil tangkapan mikrofon dan perbaiki yang keliru — sunting sampai kalimatnya benar-benar mengatakan maksud Anda.",
+  "ph.exec_flow_3": "Ketuk «Poles», lalu ambil versi yang paling terdengar seperti profesional yang ingin Anda jadi.",
+  "ph.exec_flow_4": "Ketuk «Salin» pada versi itu, lalu tempelkan ke kotak frasa tersebut di bawah.",
+  "ph.exec_flow_5": "Setiap kalimat yang Anda simpan bergabung ke Pidato lengkap Anda di bagian bawah halaman ini — dengarkan, lalu ucapkan seluruhnya sendiri."
 }

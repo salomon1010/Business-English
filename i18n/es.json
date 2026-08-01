@@ -1092,8 +1092,9 @@
   "ph.speech_count": "{{n}}/{{total}} escritas o pegadas",
   "ph.speech_empty": "Escribe o pega antes una o dos frases arriba — esta caja se construye con ellas.",
   "ph.exec_flow_h": "Cómo construir tu discurso completo",
-  "ph.exec_flow_1": "Elige una frase de abajo — por ejemplo “I currently work as…” — y escribe aquí tu propia oración con ella.",
-  "ph.exec_flow_2": "Toca «Pulir» y quédate con la versión que más se parezca al profesional que quieres ser.",
-  "ph.exec_flow_3": "Toca «Copiar» en esa versión y pégala en la caja de esa misma frase, más abajo.",
-  "ph.exec_flow_4": "Cada oración que guardas se suma a Tu discurso completo, al final de esta página: escúchalo y después dilo entero tú."
+  "ph.exec_flow_1": "Elige una frase de abajo — por ejemplo “I currently work as…” — y luego toca el micrófono de aquí y di tu frase entera en voz alta, para que caiga en la caja. Escribirla funciona igual de bien.",
+  "ph.exec_flow_2": "Lee lo que ha captado el micrófono y corrige lo que haya entendido mal — edítala hasta que diga lo que de verdad quieres decir.",
+  "ph.exec_flow_3": "Toca «Pulir» y quédate con la versión que más se parezca al profesional que quieres ser.",
+  "ph.exec_flow_4": "Toca «Copiar» en esa versión y pégala en la caja de esa misma frase, más abajo.",
+  "ph.exec_flow_5": "Cada oración que guardas se suma a Tu discurso completo, al final de esta página: escúchalo y después dilo entero tú."
 }
