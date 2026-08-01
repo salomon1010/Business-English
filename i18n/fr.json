@@ -1093,8 +1093,7 @@
   "ph.speech_empty": "Écrivez ou collez d'abord une ou deux phrases ci-dessus — cette zone se construit à partir d'elles.",
   "ph.exec_flow_h": "Comment construire votre discours complet",
   "ph.exec_flow_1": "Choisissez une expression ci-dessous — par exemple « I currently work as… » — puis touchez le micro ici et dites votre phrase entière à voix haute, pour qu'elle arrive dans la case. L'écrire marche tout aussi bien.",
-  "ph.exec_flow_2": "Relisez ce que le micro a compris et corrigez ce qui est faux — modifiez la phrase jusqu'à ce qu'elle dise vraiment ce que vous voulez.",
-  "ph.exec_flow_3": "Touchez « Peaufiner » et gardez la version qui ressemble le plus au professionnel que vous voulez être.",
-  "ph.exec_flow_4": "Touchez « Copier » sur cette version, puis collez-la dans la case de cette expression, plus bas.",
-  "ph.exec_flow_5": "Chaque phrase enregistrée rejoint Votre discours complet, en bas de cette page — écoutez-le, puis dites-le en entier."
+  "ph.exec_flow_2": "Touchez « Peaufiner » et gardez la version qui ressemble le plus au professionnel que vous voulez être.",
+  "ph.exec_flow_3": "Touchez « Copier » sur cette version, puis collez-la dans la case de cette expression, plus bas.",
+  "ph.exec_flow_4": "Chaque phrase enregistrée rejoint Votre discours complet, en bas de cette page — écoutez-le, puis dites-le en entier."
 }

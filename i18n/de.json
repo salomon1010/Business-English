@@ -1093,8 +1093,7 @@
   "ph.speech_empty": "Schreib oder füge erst ein, zwei Sätze oben ein — dieses Feld baut sich daraus auf.",
   "ph.exec_flow_h": "So baust du deine ganze Rede",
   "ph.exec_flow_1": "Wähle unten eine Wendung — etwa „I currently work as…“ — tippe dann hier aufs Mikrofon und sprich deinen ganzen Satz laut, damit er im Feld landet. Tippen geht genauso gut.",
-  "ph.exec_flow_2": "Lies, was das Mikrofon verstanden hat, und korrigiere die Fehler — bearbeite den Satz, bis er wirklich das sagt, was du meinst.",
-  "ph.exec_flow_3": "Tippe auf „Aufpolieren“ und nimm die Version, die am ehesten nach dem Profi klingt, der du sein willst.",
-  "ph.exec_flow_4": "Tippe bei dieser Version auf „Kopieren“ und füge sie unten in das Feld dieser Wendung ein.",
-  "ph.exec_flow_5": "Jeder gespeicherte Satz wandert in Deine ganze Rede am Ende dieser Seite — hör sie an und sprich sie dann selbst am Stück."
+  "ph.exec_flow_2": "Tippe auf „Aufpolieren“ und nimm die Version, die am ehesten nach dem Profi klingt, der du sein willst.",
+  "ph.exec_flow_3": "Tippe bei dieser Version auf „Kopieren“ und füge sie unten in das Feld dieser Wendung ein.",
+  "ph.exec_flow_4": "Jeder gespeicherte Satz wandert in Deine ganze Rede am Ende dieser Seite — hör sie an und sprich sie dann selbst am Stück."
 }

@@ -2419,10 +2419,9 @@ const I18N_EN={
  "ph.hear_btn":"Hear my sentence",
  "ph.exec_flow_h":"How to build your full speech",
  "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — then tap the mic here and say your whole sentence out loud, so it lands in the box. Typing it works just as well.",
- "ph.exec_flow_2":"Read back what the mic caught and fix anything it got wrong — edit it until it says what you actually mean.",
- "ph.exec_flow_3":"Tap Polish it, and take whichever version sounds most like the professional you want to be.",
- "ph.exec_flow_4":"Tap Copy on that version, then paste it into that phrase's own box below.",
- "ph.exec_flow_5":"Every sentence you save joins Your full speech at the bottom of this page — hear it, then say the whole thing yourself.",
+ "ph.exec_flow_2":"Tap Polish it, and take whichever version sounds most like the professional you want to be.",
+ "ph.exec_flow_3":"Tap Copy on that version, then paste it into that phrase's own box below.",
+ "ph.exec_flow_4":"Every sentence you save joins Your full speech at the bottom of this page — hear it, then say the whole thing yourself.",
  "ph.speech_h":"🎤 Your full speech",
  "ph.speech_sub":"Every sentence you've written this week, joined into one answer. Hear it, then say the whole thing yourself — that is the version of you who walks into the room already fluent.",
  "ph.speech_ph":"Write or paste your sentences above and they gather here, one line at a time.",
@@ -6623,7 +6622,7 @@ function rPhrases(el,wFilter){
     <div id="exOut"></div>
     <div class="ex-flow">
       <b>${hIcon("idea",t("ph.exec_flow_h"))}</b>
-      <ol>${[1,2,3,4,5].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
+      <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
     </div>
   </div>
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
