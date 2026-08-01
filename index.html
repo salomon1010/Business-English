@@ -1782,8 +1782,8 @@ const I18N_EN={
  "profile.sub_default":"Practising English with BE Mastery",
  "profile.day_streak":"day streak",
  "setup.title":"App Setup",
- "setup.sub":"Your settings, the guide, and what BE Mastery does \u2014 all in one place.",
- "setup.row_sub":"Settings, help & guide, about the app",
+ "setup.sub":"Your settings and what BE Mastery does.",
+ "setup.row_sub":"Settings and about the app",
  "setup.about_sub":"A quick tour of what the app does and who it is for.",
  "profile.settings":"Settings",
  "profile.settings_sub":"Profile, language, sync & privacy",
@@ -6669,10 +6669,9 @@ function rProfile(el){
 /* App Setup — Settings, the guide and About in one place.
    They used to be three rows at the bottom of Profile, which made them feel
    like afterthoughts and buried the guide entirely. */
-let _setupTab="settings";
+let _setupTab="settings";   /* only "settings" or "about" — the guide has its own ? button */
 const SETUP_TABS=[
- {k:"settings",ic:"gear",  n:"profile.settings"},
- {k:"help",    ic:"help",  n:"profile.help"},
+ {k:"settings",ic:"gear",   n:"profile.settings"},
  {k:"about",   ic:"sparkle",n:"profile.about"}
 ];
 window.setupTab=k=>{_setupTab=k;const el=document.getElementById("v-setup");if(el)rSetup(el);};
@@ -6690,11 +6689,24 @@ async function rSetup(el){
   <div id="setupBody"></div>`;
   const body=el.querySelector("#setupBody");
   if(_setupTab==="settings")await rData(body,true);
-  else if(_setupTab==="help")await rManual(body,true);
   else{
-    body.innerHTML=`<div class="card" style="margin-top:14px;text-align:center;padding:26px 20px">
-      <p class="sub" style="margin:0 auto 16px">${t("setup.about_sub")}</p>
-      <button class="btn btn-p" onclick="openAbout()">${tIc("profile.about","sparkle")}</button></div>`;
+    body.innerHTML=`
+      <div class="card" style="margin-top:14px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <img src="logo.svg" alt="" style="width:42px;height:42px;border-radius:12px">
+          <div><b style="font-size:15px">${t("acc.about_title")}</b><p style="font-size:12px;color:var(--mut)">Business English Mastery — 12-Week System · v1.0.0 · by Lomonec LLC</p></div>
+        </div>
+        <p style="font-size:12.5px;color:var(--mut);margin-top:10px">${t("acc.copyright")}</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <a class="btn btn-g btn-sm" href="mailto:contact@lomonec.com" style="text-decoration:none">${tIc("acc.support_link","mail")}</a>
+          <a class="btn btn-g btn-sm" href="privacy.html" target="_blank" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
+          <button class="btn btn-g btn-sm" onclick="go('manual')">${tIc("acc.manual_link","book")}</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px;text-align:center;padding:24px 20px">
+        <p class="sub" style="margin:0 auto 16px">${t("setup.about_sub")}</p>
+        <button class="btn btn-p" onclick="openAbout()">${tIc("profile.about","sparkle")}</button>
+      </div>`;
     manIconizeInline(body);
   }
   segSync(el);
@@ -6776,18 +6788,7 @@ async function rData(el,embedded){
           ${["acc.prem_1","acc.prem_2","acc.prem_3","acc.prem_4","acc.prem_5"].map((k,i)=>`<li style="font-size:13px;color:var(--mut2);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut2);margin-top:2px">${ic(["sparkle","cloud","user","chat","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
       </div>
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:12px">
-          <img src="logo.svg" alt="" style="width:42px;height:42px;border-radius:12px">
-          <div><b style="font-size:15px">${t("acc.about_title")}</b><p style="font-size:12px;color:var(--mut)">Business English Mastery — 12-Week System · v1.0.0 · by Lomonec LLC</p></div>
-        </div>
-        <p style="font-size:12.5px;color:var(--mut);margin-top:10px">${t("acc.copyright")}</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-          <a class="btn btn-g btn-sm" href="mailto:contact@lomonec.com" style="text-decoration:none">${tIc("acc.support_link","mail")}</a>
-          <a class="btn btn-g btn-sm" href="privacy.html" target="_blank" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
-          <button class="btn btn-g btn-sm" onclick="go('manual')">${tIc("acc.manual_link","book")}</button>
-        </div>
-      </div>
+      <!-- the About card now lives in App Setup → About the app -->
     </div>
   </div>
   <h3 style="margin:26px 0 10px">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
