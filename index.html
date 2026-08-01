@@ -7482,7 +7482,7 @@ function rpStopListen(){
   const rec=rpRec; if(!rec)return;
   rec.stopped=true; rpRec=null;
   clearInterval(rec.tick);
-  try{rec.r&&(rec.r.abort?rec.r.abort():rec.r.stop())}catch(e){}
+  try{rec.r&&rec.r.stop()}catch(e){try{rec.r&&rec.r.abort&&rec.r.abort()}catch(_){}}
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
   if(foot)foot.classList.remove("listening");
   if(mic)mic.classList.remove("on");
@@ -7506,12 +7506,22 @@ function rpDraft(txt){
   if(!d){d=document.createElement("div");d.id="rpDraft";d.className="rp-bubble me draft";tx.appendChild(d)}
   d.textContent=txt; tx.scrollTop=tx.scrollHeight;
 }
-function rpFinish(){
+function rpFinish(auto){
   const rec=rpRec; if(!rec)return;
-  const said=(rec.said||"").trim();
+  /* Include the interim text. The recogniser only marks a phrase "final" after
+     its own pause heuristic, so on a deliberate stop the last thing you said is
+     usually still provisional — discarding it sent an empty turn, which then
+     tripped the re-ask and looked like the conversation restarting. */
+  const said=((rec.said||"")+" "+(rec.interim||"")).trim();
   rpStopListen();
   const st=document.getElementById("rpStatus");
-  if(!said){rpNudge(); return}
+  /* Re-ask only when the window genuinely ran out. If you tapped stop yourself
+     and said nothing, you meant to stop — just hand the mic back. */
+  if(!said){
+    if(auto)rpNudge();
+    else{if(st)st.textContent=t("rp.tap_to_speak");rpResetIdle()}
+    return;
+  }
   rpUserTurn(said);
 }
 /* Tap to start, tap again when you have finished. Previously this ran a
@@ -7526,7 +7536,7 @@ window.rpListen=()=>{
   clearInterval(rpSayKeep); rpSetSpeaking(false);
   const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic"),
         st=document.getElementById("rpStatus");
-  const rec={r:null,said:"",left:RP_WINDOW*1000,stopped:false,tick:null};
+  const rec={r:null,said:"",interim:"",left:RP_WINDOW*1000,stopped:false,tick:null};
   rpRec=rec;
   if(mic)mic.classList.add("on");
   if(foot)foot.classList.add("listening");
@@ -7536,7 +7546,7 @@ window.rpListen=()=>{
     if(bar)bar.style.setProperty("--p",(Math.max(0,Math.min(1,rec.left/(RP_WINDOW*1000)))).toFixed(3));
   };
   paint();
-  rec.tick=setInterval(()=>{rec.left-=200;paint();if(rec.left<=0)rpFinish()},200);
+  rec.tick=setInterval(()=>{rec.left-=200;paint();if(rec.left<=0)rpFinish(true)},200);
   const r=new SR();
   r.lang="en-US"; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
   rec.r=r;
@@ -7547,6 +7557,7 @@ window.rpListen=()=>{
       if(e.results[i].isFinal){const s=seg.trim();if(s)rec.said+=(rec.said?" ":"")+s}
       else interim+=seg;
     }
+    rec.interim=interim;
     rec.left=RP_WINDOW*1000; paint();        /* still talking — hold the window open */
     rpDraft((rec.said+" "+interim).trim());
   };
