@@ -552,6 +552,33 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   transition:.18s;font-family:inherit;color:var(--txt);min-height:132px}
 .gx-card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .gx-card:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+/* The progress ring used to sit inside .hero, which supplied the gap to the
+   stat cards below. On its own it needs that spacing back, and the last phase
+   bar must not leave a strip of dead space inside the card. */
+.home-ring{margin-bottom:22px}
+
+/* Dashboard is the "what you have earned" half, so its cards carry green the
+   same way the rules carry the warning colour. The progress ring and the phase
+   chips keep their own colours - those encode meaning, not theme. */
+.home-dash .stat-ic{color:var(--green)}
+.home-dash .stat{border-color:color-mix(in srgb,var(--green) 30%,transparent)}
+.home-dash .stat-todo{border-color:color-mix(in srgb,var(--green) 22%,transparent)}
+.home-dash .stat-next{color:var(--green)}
+.home-dash .stat-next svg{color:var(--green)}
+
+/* The execution rules are the non-negotiable part of the method, so they carry
+   the warning colour rather than the app's usual indigo. */
+.home-tabs .seg-tab[data-k="dashboard"].on{background:linear-gradient(135deg,#10b981,#34d399);color:#04160f}
+.home-tabs .seg-tab[data-k="dashboard"].on .btn-ic svg{color:#04160f}
+.home-tabs .seg-tab[data-k="dashboard"]:hover{border-color:var(--green)}
+.home-tabs .seg-tab[data-k="rules"].on{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a1206}
+.home-tabs .seg-tab[data-k="rules"].on .btn-ic svg{color:#1a1206}
+.home-tabs .seg-tab[data-k="rules"]:hover{border-color:var(--gold)}
+.rules-h{margin:26px 0 12px;color:var(--gold)}
+.rules-h svg{color:var(--gold)}
+.home-rules .card{border-color:color-mix(in srgb,var(--gold) 34%,transparent)}
+.home-rules .rule-ic{color:var(--gold)}
+
 /* About actions: Support / Privacy policy / Manual stay on one line at any
    width. They share the row and shed their icons before they would ever wrap. */
 .about-links{display:flex;flex-wrap:nowrap;gap:8px;margin-top:12px}
@@ -2067,6 +2094,9 @@ const I18N_EN={
  "home.stat_convos":"Conversations practised",
  "home.next_convos":"Have your first AI conversation \u2014 five minutes is enough.",
  "home.next_vocab":"Save five words from today's speaking feedback.",
+ "home.tabs_label":"Home sections",
+ "home.tab_dashboard":"Dashboard",
+ "home.tab_rules":"Execution rules",
  "home.science_h":"🧠 The science behind the 25-minute block",
  "home.science_body":"Attention peaks for 20–25 minutes. <b>Quality beats quantity</b> — one sharp block beats a sloppy hour, and small sharp blocks are exactly how a new voice is built.",
  "home.rules_h":"📜 Execution rules — non-negotiable",
@@ -3382,8 +3412,10 @@ window.aboutToggleTheme=function(){
 };
 
 /* ================= DASHBOARD ================= */
+let _homeRecN=0;
 async function rHome(el){
   const p=pct(),pos=currentPos(),wk=WEEKS[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
+  _homeRecN=recN;_homeTab="dashboard";
   const phaseCounts=[0,0,0,0];
   WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
   const circ=2*Math.PI*62;
@@ -3408,7 +3440,26 @@ async function rHome(el){
       </span>
       <span class="rp-entry-go">→</span>
     </button>
-    <div class="card">
+  </div>
+  <div class="seg-tabs seg-fit home-tabs" role="tablist" aria-label="${esc(t("home.tabs_label"))}">
+    <button class="seg-tab" data-k="dashboard" role="tab" onclick="homeTab('dashboard')"><span class="btn-ic">${ic("gauge")}</span><span class="seg-lbl">${t("home.tab_dashboard")}</span></button>
+    <button class="seg-tab" data-k="rules" role="tab" onclick="homeTab('rules')"><span class="btn-ic">${ic("list")}</span><span class="seg-lbl">${t("home.tab_rules")}</span></button>
+  </div>
+  <div id="homeTabBody"></div>`;
+  homeTab(_homeTab,el);
+  manIconizeInline(el);
+}
+
+/* Home splits into two panels: the numbers you have earned, and the method
+   behind them. Opening Home always lands on the numbers. */
+let _homeTab="dashboard";
+function homePanelDashboard(){
+  const p=pct(),pos=currentPos(),recN=_homeRecN;
+  const phaseCounts=[0,0,0,0];
+  WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
+  const circ=2*Math.PI*62;
+  return `
+    <div class="card home-ring">
       <div class="ring-wrap">
         <div class="ring">
           <svg width="150" height="150"><circle cx="75" cy="75" r="62" fill="none" stroke="var(--bg2)" stroke-width="12"/>
@@ -3417,14 +3468,13 @@ async function rHome(el){
           <div class="pct">${p}%<small>${t("home.pct_of")}</small></div>
         </div>
         <div style="flex:1">
-          ${[1,2,3].map(ph=>`<div style="margin-bottom:12px">
+          ${[1,2,3].map(ph=>`<div style="margin-bottom:${ph===3?0:12}px">
             <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><span class="chip ${PHASES[ph].cls}" style="border:none;padding:0">${phaseLabel(ph)}</span><span style="color:var(--mut)">${phaseCounts[ph]}/28</span></div>
             <div class="bar"><i style="width:${phaseCounts[ph]/28*100}%"></i></div></div>`).join("")}
         </div>
       </div>
     </div>
-  </div>
-  <div class="grid g4 stats-center" style="margin-bottom:22px">
+  <div class="grid g4 stats-center home-dash" style="margin-bottom:22px">
     ${statCard("flame",streak(),"",t("home.stat_streak"),streak()===0?t("home.next_streak"):"","go('session',"+pos.w+",'"+pos.d+"')")}
     ${statCard("mic",recN,"",t("home.stat_recordings"),recN===0?t("home.next_recordings"):"","go('session',"+pos.w+",'"+pos.d+"')")}
     ${statCard("chat",masteredCount(),"/"+PHRASES.length,t("home.stat_phrases"),masteredCount()===0?t("home.next_phrases"):"","go('phrases')")}
@@ -3433,12 +3483,27 @@ async function rHome(el){
     ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
     ${statCard("chat",(S.convos||[]).length,"",t("home.stat_convos"),(S.convos||[]).length===0?t("home.next_convos"):"","go('roleplay')")}
     ${statCard("pencil",Object.values(S.gram||{}).reduce((n,g)=>n+((g&&g.runs)||0),0),"",t("home.stat_drills"),Object.keys(S.gram||{}).length===0?t("home.next_drills"):"","go('practice')")}
-  </div>
+  </div>`;
+}
+function homePanelRules(){
+  return `
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
-  <h3 style="margin:26px 0 12px">${hIcon("list",t("home.rules_h"))}</h3>
-  <div class="grid g3">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div class="rule-ic">${ic(RULE_ICONS[i]||"check")}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
-  manIconizeInline(el);
+  <h3 class="rules-h">${hIcon("list",t("home.rules_h"))}</h3>
+  <div class="grid g3 home-rules">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div class="rule-ic">${ic(RULE_ICONS[i]||"check")}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
+}
+function homeTab(k,root){
+  _homeTab=(k==="rules")?"rules":"dashboard";
+  const el=root||document.getElementById("v-home");
+  if(!el)return;
+  const body=el.querySelector("#homeTabBody");
+  if(!body)return;
+  body.innerHTML=(_homeTab==="rules")?homePanelRules():homePanelDashboard();
+  el.querySelectorAll(".home-tabs .seg-tab").forEach(b=>{
+    const on=b.dataset.k===_homeTab;
+    b.classList.toggle("on",on);b.setAttribute("aria-selected",on);
+  });
+  manIconizeInline(body);
 }
 
 /* A dashboard stat that guides instead of just counting: when the number is
