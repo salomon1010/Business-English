@@ -95,11 +95,11 @@ For flyer use `/<script>([\s\S]*?)<\/script>/g`. For JSON: `python3 -c "import j
   get "in use" locked between sessions — fall back to Node/structural checks.
 
 ## Current status
-- **Live version:** service worker was at **`be12-v78`** at last deploy. Always
-  check `sw.js` for the current number before bumping.
-- **Staged locally, not yet pushed:** the Phrases "Mark mastered" button
-  (trophy icon → turns **green** when mastered, `.ph-mastered` class; the old "✓"
-  was stripped from `ph.mastered_btn` in all 15 langs), and this `CLAUDE.md`.
+- **Live version:** always read the current `be12-vNN` out of `sw.js` before
+  bumping. Do NOT trust a number written here — it goes stale every deploy.
+- **Check before claiming anything is unbuilt.** This file has repeatedly been
+  behind the code (the daily reminder, Firebase sign-in and the Play release were
+  all listed as pending long after they shipped). Grep the source first.
 
 ## What's been built (feature history)
 UI / design
@@ -170,8 +170,17 @@ Fixes / infra
   `setTimeout` while the app is open + a launch nudge + `Notification` when
   permitted — there is **no push server**, so it cannot fire with the app closed.
   That's the remaining gap if reminders ever need to be reliable.
-- **Google Play**: app is in review/internal testing (`com.bemastery.app`,
-  org account "Lomonec"); assetlinks + Console rollout pending.
+- **Google Play**: **LIVE** — `com.bemastery.app`, publisher "Lomonec", listing at
+  play.google.com/store/apps/details?id=com.bemastery.app (verified 2026-08-01,
+  store page shows "Updated on Jul 31, 2026"). `.well-known/assetlinks.json` carries
+  BOTH fingerprints (Play App Signing `92:73:D3…` + local keystore `3D:E6:6D…`) and
+  is served live from app.lomonec.com, so the TWA verifies with no browser bar.
+  Because a TWA just loads the live site, **web changes ship via `git push` alone —
+  no Play upload needed**. A new AAB is only for native-shell changes, and then the
+  `twa-manifest.json` `appVersionCode` must increase (`bubblewrap update` +
+  `expect build.expect`; answer the versionName prompt "1.0.0", never pipe "y").
+  REMAINING: **Enforce HTTPS is still OFF** in GitHub Pages — `http://app.lomonec.com`
+  returns 200 instead of redirecting. Minor, not blocking.
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a
   backend + budget cap) and B2B licensing; nothing built yet.
 - Native-speaker **review of the emotional translations** still recommended.
