@@ -552,6 +552,22 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   transition:.18s;font-family:inherit;color:var(--txt);min-height:132px}
 .gx-card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .gx-card:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+/* About actions: Support / Privacy policy / Manual stay on one line at any
+   width. They share the row and shed their icons before they would ever wrap. */
+.about-links{display:flex;flex-wrap:nowrap;gap:8px;margin-top:12px}
+.about-links>*{flex:1 1 auto;min-width:0;justify-content:center;white-space:nowrap}
+@media(max-width:520px){
+  .about-links{gap:6px}
+  /* icons are gone here, so the button can be a plain block and ellipsise a
+     very long label (Russian "Политика конфиденциальности") rather than wrap */
+  .about-links>*{display:block;font-size:11px;padding:7px 6px;
+    overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .about-links .btn-ic{display:none}
+}
+@media(max-width:380px){
+  .about-links{gap:5px}
+  .about-links>*{font-size:10px;padding:6px 4px}
+}
 /* Pink to match the Grammar callout these cards live under. */
 .gx-ic{color:var(--pink);line-height:0;margin-bottom:4px}
 .gx-ic svg{width:24px;height:24px}
@@ -6747,7 +6763,7 @@ async function rSetup(el){
           <div><b style="font-size:15px">${t("acc.about_title")}</b><p style="font-size:12px;color:var(--mut)">Business English Mastery — 12-Week System · v1.0.0 · by Lomonec LLC</p></div>
         </div>
         <p style="font-size:12.5px;color:var(--mut);margin-top:10px">${t("acc.copyright")}</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        <div class="about-links">
           <a class="btn btn-g btn-sm" href="mailto:contact@lomonec.com" style="text-decoration:none">${tIc("acc.support_link","mail")}</a>
           <a class="btn btn-g btn-sm" href="privacy.html" target="_blank" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
           <button class="btn btn-g btn-sm" onclick="go('manual')">${tIc("acc.manual_link","book")}</button>
