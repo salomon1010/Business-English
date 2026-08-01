@@ -1088,6 +1088,28 @@ html[dir="rtl"] .lang-row{text-align:right}
 .fb-pron{margin-top:14px;background:linear-gradient(150deg,rgba(99,102,241,.09),rgba(34,211,238,.06));border:1px solid rgba(99,102,241,.28);border-radius:14px;padding:14px 16px;font-size:13px;color:var(--mut)}
 .fb-pron-score{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:800}
 .fb-pw-wrap{display:flex;flex-wrap:wrap;gap:6px}
+/* Conversation history */
+.rp-hist-stats{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 4px}
+.rp-hist-stats>div{flex:1 1 78px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:9px 11px;text-align:center}
+.rp-hist-stats b{display:block;font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.rp-hist-stats small{display:block;font-size:10.5px;color:var(--mut2);margin-top:2px}
+.rp-hist-rec{margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)}
+.rp-hist-list{margin-top:12px}
+.rp-hist-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line2);padding:4px 0}
+.rp-hist-open{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:none;color:var(--txt);cursor:pointer;padding:8px 0;text-align:left;font:inherit}
+.rp-hist-date{font-size:13px;font-weight:700;min-width:56px}
+.rp-hist-pts{font-size:12px;color:var(--mut2)}
+.rp-hist-sc{margin-left:auto;font-size:13.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.rp-hist-body{flex-basis:100%;display:none;padding:2px 0 10px}
+.rp-hist-body.open{display:block}
+.rp-hist-line{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;padding:4px 0;color:var(--mut)}
+.rp-hist-lsc{font-weight:800;font-variant-numeric:tabular-nums;flex:none;min-width:38px}
+.rp-hist-teaser{display:flex;align-items:center;gap:12px;width:100%;margin-top:16px;text-align:left;cursor:pointer}
+.rp-ht-l{flex:1;min-width:0}
+.rp-ht-l b{display:block;font-size:14px}
+.rp-ht-l small{display:block;font-size:12px;color:var(--mut2);margin-top:2px}
+.rp-ht-sc{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums}
+.rp-ht-go{color:var(--acc);font-size:17px;flex:none}
 /* Conversation review */
 .rp-ev-card{margin-top:12px;padding:14px 16px}
 .rp-ev-said{font-size:14px;line-height:1.5;color:var(--txt)}
@@ -2003,6 +2025,29 @@ const I18N_EN={
  "rp.end":"End practice",
  "rp.transcript":"Real-time transcript",
   "rp.nudge":"No rush — here's the question again.",
+  "home.stat_pron":"Pronunciation",
+  "home.next_pron":"Evaluate a conversation to get a score",
+  "rev.pron_h":"Speaking practice",
+  "rev.pron_sub":"Across every conversation you have evaluated.",
+  "rev.pron_none":"Evaluate a conversation and your pronunciation trend shows up here.",
+  "rp.err_busy":"The coach is busy right now — try again in a moment.",
+  "rp.hist_back":"‹ Scenario",
+  "rp.hist_h":"Your history",
+  "rp.hist_sub":"Every session with this character, and how your score has moved.",
+  "rp.hist_sessions":"Sessions",
+  "rp.hist_best":"Best",
+  "rp.hist_latest":"Latest",
+  "rp.hist_change":"Change",
+  "rp.hist_recurring_h":"Words that keep coming back",
+  "rp.hist_recurring_sub":"Flagged in more than one session — these are the ones actually holding you back.",
+  "rp.hist_unscored":"Not evaluated",
+  "rp.hist_nolines":"No sentences kept for this session.",
+  "rp.hist_deleted":"Session deleted",
+  "rp.hist_clear":"Clear this history",
+  "rp.hist_cleared":"History cleared",
+  "rp.hist_confirm_clear":"Delete every saved session for this scenario? This cannot be undone.",
+  "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
+  "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
   "rp.eval_btn":"Evaluate your conversation",
   "rp.eval_back":"‹ Summary",
   "rp.eval_h":"Conversation review",
@@ -3637,6 +3682,7 @@ function homePanelDashboard(){
     ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
     ${statCard("chat",(S.convos||[]).length,"",t("home.stat_convos"),(S.convos||[]).length===0?t("home.next_convos"):"","go('roleplay')")}
     ${statCard("pencil",Object.values(S.gram||{}).reduce((n,g)=>n+((g&&g.runs)||0),0),"",t("home.stat_drills"),Object.keys(S.gram||{}).length===0?t("home.next_drills"):"","go('practice')")}
+    ${(()=>{const st=rpScoreStats();return statCard("mic",st.latest!=null?st.latest+"%":"—","",t("home.stat_pron"),st.scored?"":t("home.next_pron"),"go('roleplay')")})()}
   </div>`;
 }
 function homePanelRules(){
@@ -6753,6 +6799,7 @@ function rReview(el,wArg){
   <div class="eyebrow pg-eyebrow">${t("rev.eyebrow")}</div>
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
+  ${rpMetricsHTML()}
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("rev.tabs_label"))}">
     <button class="seg-tab ${_revTab==='scores'?'on':''}" role="tab" aria-selected="${_revTab==='scores'}" onclick="revTab('scores',${w})"><span class="btn-ic">${ic("target")}</span><span class="seg-lbl">${t("rev.tab_scores")}</span></button>
@@ -7476,6 +7523,12 @@ function rpIntro(el,sc){
      <div class="rp-start">
        <button class="btn btn-p" style="font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${tIc("rp.start","chat")}</button>
      </div>
+     ${(()=>{const h=rpHistFor(sc.id);if(!h.length)return"";
+       const sc2=h.filter(c=>typeof c.overall==="number");
+       return `<button class="card rp-hist-teaser" onclick="rpHistory('${sc.id}')">
+         <span class="rp-ht-l"><b>${t("rp.hist_h")}</b><small>${t("rp.hist_teaser",{n:h.length,date:rpHistDate(h[0].ts)})}</small></span>
+         ${sc2.length?`<span class="rp-ht-sc" style="color:${rpEvCol(sc2[0].overall)}">${sc2[0].overall}%</span>`:""}
+         <span class="rp-ht-go">→</span></button>`})()}
    </div>`;
   manIconizeInline(el);
 }
@@ -7691,7 +7744,7 @@ function rpResetIdle(){rpClearIdle();if(rpConv)rpConv.idle=setTimeout(rpIdle,750
 function rpClearIdle(){if(rpConv&&rpConv.idle){clearTimeout(rpConv.idle);rpConv.idle=null}}
 function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>go("roleplay"),t("rp.to_summary"),rpSummary)}
 window.rpEnd=()=>rpSummary();
-let _rpLast=null;   /* the last finished conversation, kept for the review screen */
+let _rpLast=null,_rpLastTs=0;   /* the last finished conversation, kept for the review screen */
 
 /* ============ CONVERSATION REVIEW ============
    Plays each of your own sentences back to the grader and shows it word by
@@ -7711,10 +7764,11 @@ window.rpEvaluate=async()=>{
    <h1 class="big" style="margin:2px 0 4px">${t("fb.pron_h")}</h1>
    <p class="sub" style="margin-bottom:16px">${t("rp.eval_sub",{title:esc(sc.title)})}</p>
    <div id="rpEvList"></div>
-   <div id="rpEvWords"></div>`;
+   <div id="rpEvWords"></div>
+   <div id="rpEvHist"></div>`;
   manIconizeInline(el);
   const list=document.getElementById("rpEvList");
-  const weak=new Map();
+  const weak=new Map(),scored=[];
   for(let i=0;i<turns.length;i++){
     const turn=turns[i];
     const card=document.createElement("div");
@@ -7734,6 +7788,7 @@ window.rpEvaluate=async()=>{
       const prev=weak.get(key);
       if(!prev||w.score<prev.score)weak.set(key,{word:key,score:w.score,note:w.note||""});
     });
+    scored.push({i,overall:res.overall});
     card.innerHTML=`
       <div class="rp-ev-top">
         <span class="rp-ev-n">${i+1}</span>
@@ -7741,8 +7796,28 @@ window.rpEvaluate=async()=>{
       </div>
       <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${rpEvCol(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`;
   }
-  rpEvWords([...weak.values()].sort((a,b)=>a.score-b.score));
+  const weakList=[...weak.values()].sort((a,b)=>a.score-b.score);
+  rpEvWords(weakList);
+  rpEvPersist(scored,weakList);
+  const hist=document.getElementById("rpEvHist");
+  if(hist)hist.innerHTML=rpHistSectionHTML(sc.id,_rpLastTs);
+  manIconizeInline(el);
 };
+/* Fold this run's scores into the stored session so the history can show a
+   trend without keeping any audio. */
+function rpEvPersist(scored,weakList){
+  if(!_rpLastTs)return;
+  const c=(S.convos||[]).find(x=>x.ts===_rpLastTs); if(!c)return;
+  if(scored.length){
+    c.overall=Math.round(scored.reduce((a,b)=>a+b.overall,0)/scored.length);
+    c.lines=(c.lines||[]).map((ln,i)=>{
+      const m=scored.find(x=>x.i===i);
+      return m?{text:ln.text,score:m.overall}:ln;
+    });
+  }
+  c.weak=weakList.slice(0,20).map(w=>({w:w.word,s:w.score}));
+  save();
+}
 function rpEvWords(words){
   const box=document.getElementById("rpEvWords"); if(!box)return;
   S.vocab=S.vocab||{};
@@ -7767,6 +7842,135 @@ function rpEvWords(words){
    </div>`;
   manIconizeInline(box);
 }
+
+/* ---------- HISTORY FOR ONE SCENARIO ----------
+   Coming back to the same character is the point of the feature, so the value
+   is in the comparison: how the score has moved, and which words keep being
+   flagged. Only text and scores are kept — never audio. */
+function rpHistFor(id){return (S.convos||[]).filter(c=>c&&c.id===id).sort((a,b)=>b.ts-a.ts)}
+function rpHistDate(ts){
+  try{return new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"})}catch(e){return""}
+}
+/* Words flagged in more than one session — the ones actually holding you back,
+   as opposed to a single bad take. */
+function rpHistRecurring(rows){
+  const n=new Map();
+  rows.forEach(c=>{
+    const seen=new Set();
+    (c.weak||[]).forEach(x=>{
+      if(!x||!x.w||seen.has(x.w))return; seen.add(x.w);
+      const e=n.get(x.w)||{w:x.w,n:0,best:100};
+      e.n++; e.best=Math.min(e.best,x.s||0); n.set(x.w,e);
+    });
+  });
+  return [...n.values()].filter(x=>x.n>1).sort((a,b)=>b.n-a.n||a.best-b.best).slice(0,12);
+}
+
+/* Aggregate of every conversation you have evaluated, for the dashboard tile
+   and the Progress page. Only sessions with a score count towards the trend. */
+function rpScoreStats(){
+  const all=(S.convos||[]).slice();
+  const sc=all.filter(c=>typeof c.overall==="number").sort((a,b)=>a.ts-b.ts);
+  return {sessions:all.length,scored:sc.length,
+    latest:sc.length?sc[sc.length-1].overall:null,
+    best:sc.length?Math.max(...sc.map(x=>x.overall)):null,
+    delta:sc.length>1?sc[sc.length-1].overall-sc[0].overall:null,
+    recurring:rpHistRecurring(all)};
+}
+function rpMetricsHTML(){
+  const st=rpScoreStats();
+  if(!st.scored)return `<div class="card" style="margin-top:16px">
+    <b style="font-size:15px">${hIcon("mic",t("rev.pron_h"))}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("rev.pron_none")}</p></div>`;
+  return `<div class="card" style="margin-top:16px">
+    <b style="font-size:15px">${hIcon("mic",t("rev.pron_h"))}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("rev.pron_sub")}</p>
+    <div class="rp-hist-stats">
+      <div><b>${st.scored}</b><small>${t("rp.hist_sessions")}</small></div>
+      <div><b style="color:${rpEvCol(st.best)}">${st.best}%</b><small>${t("rp.hist_best")}</small></div>
+      <div><b style="color:${rpEvCol(st.latest)}">${st.latest}%</b><small>${t("rp.hist_latest")}</small></div>
+      ${st.delta!=null?`<div><b style="color:${st.delta>=0?"var(--green)":"var(--gold)"}">${st.delta>=0?"+":""}${st.delta}</b><small>${t("rp.hist_change")}</small></div>`:""}
+    </div>
+    ${st.recurring.length?`<div class="rp-hist-rec">
+      <b style="font-size:13.5px">${t("rp.hist_recurring_h")}</b>
+      <p style="font-size:12px;color:var(--mut2);margin:4px 0 9px">${t("rp.hist_recurring_sub")}</p>
+      <div class="fb-pw-wrap">${st.recurring.map(x=>`<span class="fb-pw" style="--c:${rpEvCol(x.best)}">${esc(x.w)}<b>×${x.n}</b></span>`).join("")}</div>
+    </div>`:""}
+  </div>`;
+}
+function rpHistSectionHTML(id,excludeTs,noHeading){
+  const all=rpHistFor(id),rows=all.filter(c=>c.ts!==excludeTs);
+  if(!rows.length)return "";
+  const withScore=all.filter(c=>typeof c.overall==="number");
+  const best=withScore.length?Math.max(...withScore.map(c=>c.overall)):null;
+  const latest=withScore.length?withScore.sort((a,b)=>b.ts-a.ts)[0].overall:null;
+  const first=withScore.length?withScore[withScore.length-1].overall:null;
+  const delta=(first!=null&&latest!=null&&withScore.length>1)?latest-first:null;
+  const rec=rpHistRecurring(all);
+  return `
+  <div class="card" style="margin-top:16px">
+    ${noHeading?"":`<b style="font-size:15px">${hIcon("chart",t("rp.hist_h"))}</b>`}
+    <div class="rp-hist-stats">
+      <div><b>${all.length}</b><small>${t("rp.hist_sessions")}</small></div>
+      ${best!=null?`<div><b style="color:${rpEvCol(best)}">${best}%</b><small>${t("rp.hist_best")}</small></div>`:""}
+      ${latest!=null?`<div><b style="color:${rpEvCol(latest)}">${latest}%</b><small>${t("rp.hist_latest")}</small></div>`:""}
+      ${delta!=null?`<div><b style="color:${delta>=0?"var(--green)":"var(--gold)"}">${delta>=0?"+":""}${delta}</b><small>${t("rp.hist_change")}</small></div>`:""}
+    </div>
+    ${rec.length?`
+      <div class="rp-hist-rec">
+        <b style="font-size:13.5px">${t("rp.hist_recurring_h")}</b>
+        <p style="font-size:12px;color:var(--mut2);margin:4px 0 9px">${t("rp.hist_recurring_sub")}</p>
+        <div class="fb-pw-wrap">${rec.map(x=>`<span class="fb-pw" style="--c:${rpEvCol(x.best)}">${esc(x.w)}<b>×${x.n}</b></span>`).join("")}</div>
+      </div>`:""}
+    <div class="rp-hist-list">
+      ${rows.map(c=>`
+        <div class="rp-hist-row">
+          <button class="rp-hist-open" onclick="rpHistToggle(${c.ts})">
+            <span class="rp-hist-date">${rpHistDate(c.ts)}</span>
+            <span class="rp-hist-pts">${c.covered}/${c.total}</span>
+            <span class="rp-hist-sc" style="color:${typeof c.overall==="number"?rpEvCol(c.overall):"var(--mut2)"}">${typeof c.overall==="number"?c.overall+"%":t("rp.hist_unscored")}</span>
+            <span class="voc-chev">▾</span>
+          </button>
+          <button class="btn btn-g btn-sm voc-mini" onclick="rpHistDelete(${c.ts},'${esc(id)}')" aria-label="${esc(t("cf.delete"))}" title="${esc(t("cf.delete"))}">${ic("trash")}</button>
+          <div class="rp-hist-body" id="rph_${c.ts}">
+            ${(c.lines||[]).length?(c.lines||[]).map(l=>`<div class="rp-hist-line">${typeof l.score==="number"?`<span class="rp-hist-lsc" style="color:${rpEvCol(l.score)}">${l.score}%</span>`:""}<span>${esc(l.text)}</span></div>`).join(""):`<div class="rp-hist-line"><span style="color:var(--mut2)">${t("rp.hist_nolines")}</span></div>`}
+          </div>
+        </div>`).join("")}
+    </div>
+    <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="rpHistClear('${esc(id)}')">${tIc("rp.hist_clear","trash")}</button>
+  </div>`;
+}
+window.rpHistToggle=ts=>{const b=document.getElementById("rph_"+ts);if(b)b.classList.toggle("open")};
+window.rpHistDelete=async(ts,id)=>{
+  S.convos=(S.convos||[]).filter(c=>c.ts!==ts); save();
+  toast(t("rp.hist_deleted")); rpHistRefresh(id);
+};
+window.rpHistClear=async(id)=>{
+  if(!await askConfirm({icon:"trash",danger:true,title:t("rp.hist_clear"),body:t("rp.hist_confirm_clear"),
+    confirmLabel:t("cf.clear"),cancelLabel:t("cf.cancel")}))return;
+  S.convos=(S.convos||[]).filter(c=>c.id!==id); save();
+  toast(t("rp.hist_cleared")); rpHistRefresh(id);
+};
+function rpHistRefresh(id){
+  const box=document.getElementById("rpEvHist");
+  if(box){box.innerHTML=rpHistSectionHTML(id,_rpLastTs);manIconizeInline(box);return}
+  const solo=document.getElementById("rpHistSolo");
+  if(solo){rpHistory(id);return}
+}
+/* Standalone history, reached from the scenario page. */
+window.rpHistory=id=>{
+  const sc=rpById(id); if(!sc)return;
+  const el=document.getElementById("v-roleplay");
+  const body=rpHistSectionHTML(id,null,true);
+  el.innerHTML=`
+   <button class="back" onclick="go('roleplay','${esc(id)}')">${t("rp.hist_back")}</button>
+   <div class="eyebrow">${esc(sc.title)}</div>
+   <h1 class="big" style="margin:2px 0 4px">${t("rp.hist_h")}</h1>
+   <p class="sub" style="margin-bottom:4px">${t("rp.hist_sub")}</p>
+   <div id="rpHistSolo">${body||`<div class="card" style="margin-top:14px"><p style="margin:0;color:var(--mut)">${t("rp.hist_none")}</p></div>`}</div>`;
+  manIconizeInline(el);
+};
+
 window.rpEvSave=w=>{
   S.vocab=S.vocab||{};
   const safe=w.replace(/[^a-z0-9]/g,"_"),b=document.getElementById("rpvs_"+safe);
@@ -7821,9 +8025,15 @@ function rpSummary(){
   if(spoke&&!rpConv.logged){
     rpConv.logged=true;
     S.convos=S.convos||[];
-    S.convos.push({ts:Date.now(),id:sc.id,title:sc.title,cat:sc.cat,
+    /* Keep the sentences, not just the counts — the history screen replays what
+       you actually said, and the evaluation writes scores back onto them later.
+       Audio is deliberately not stored: it is large and, by design, never
+       leaves the device or syncs. */
+    _rpLastTs=Date.now();
+    S.convos.push({ts:_rpLastTs,id:sc.id,title:sc.title,cat:sc.cat,
       covered:covered.size,total:sc.points.length,
-      turns:(rpConv.history||[]).filter(m=>m.role==="user").length});
+      turns:(rpConv.history||[]).filter(m=>m.role==="user").length,
+      lines:(rpConv.turns||[]).filter(x=>x&&x.text).map(x=>({text:x.text}))});
     if(S.convos.length>200)S.convos=S.convos.slice(-200);
     markPracticed();            // streak, calendar heat-map and weekly goal
     save();
