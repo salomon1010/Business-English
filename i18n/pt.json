@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "A pontuação desta conversa não chegou. Verifique a ligação e tente de novo — as suas frases ficam guardadas acima.",
   "rp.transcribing": "A anotar o que disse…",
   "rp.no_hear": "Não consegui perceber — toque no microfone e diga outra vez.",
-  "rp.need_online": "Uma conversa precisa de ligação à internet."
+  "rp.need_online": "Uma conversa precisa de ligação à internet.",
+  "ph.hear_btn": "Ouvir a minha frase",
+  "ph.speech_h": "🎤 O seu discurso completo",
+  "ph.speech_sub": "Todas as frases que escreveu esta semana, reunidas numa só resposta. Ouça-a e depois diga-a inteira — é a versão de si que entra na sala já a falar com à-vontade.",
+  "ph.speech_ph": "Preencha as frases acima e elas juntam-se aqui, uma linha de cada vez.",
+  "ph.speech_count": "{{n}}/{{total}} escritas",
+  "ph.speech_empty": "Escreva primeiro uma ou duas frases acima — esta caixa constrói-se a partir delas."
 }

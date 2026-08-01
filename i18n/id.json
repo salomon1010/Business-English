@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "Penilaian untuk percakapan ini tidak kembali. Periksa koneksi Anda dan coba lagi — kalimat Anda tetap tersimpan di atas.",
   "rp.transcribing": "Sedang menuliskan ucapan Anda…",
   "rp.no_hear": "Saya tidak menangkapnya — ketuk mikrofon dan ucapkan lagi.",
-  "rp.need_online": "Percakapan memerlukan koneksi internet."
+  "rp.need_online": "Percakapan memerlukan koneksi internet.",
+  "ph.hear_btn": "Dengar kalimat saya",
+  "ph.speech_h": "🎤 Pidato lengkap Anda",
+  "ph.speech_sub": "Semua kalimat yang Anda tulis minggu ini, disatukan menjadi satu jawaban. Dengarkan, lalu ucapkan seluruhnya sendiri — itulah versi diri Anda yang masuk ruangan sudah lancar berbicara.",
+  "ph.speech_ph": "Isi kalimat di atas dan semuanya berkumpul di sini, satu per satu.",
+  "ph.speech_count": "{{n}}/{{total}} ditulis",
+  "ph.speech_empty": "Tulis dulu satu atau dua kalimat di atas — kotak ini dibangun dari sana."
 }

@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "这次对话没有返回评分。请检查网络后重试 — 你的句子仍保留在上方。",
   "rp.transcribing": "正在记录你说的话…",
   "rp.no_hear": "没听清 — 点一下麦克风再说一次。",
-  "rp.need_online": "对话需要联网。"
+  "rp.need_online": "对话需要联网。",
+  "ph.hear_btn": "听我的句子",
+  "ph.speech_h": "🎤 你的完整发言",
+  "ph.speech_sub": "你这周写下的每一句，合成一段完整的回答。先听一遍，再自己整段说出来 — 那就是走进房间时已经开口自如的你。",
+  "ph.speech_ph": "填好上面的句子，它们会一句句汇集到这里。",
+  "ph.speech_count": "已写 {{n}}/{{total}}",
+  "ph.speech_empty": "先在上面写一两句 — 这个框由它们组成。"
 }

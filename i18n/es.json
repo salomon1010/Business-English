@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "No se ha podido puntuar esta conversación. Comprueba tu conexión e inténtalo de nuevo — tus frases se conservan arriba.",
   "rp.transcribing": "Anotando lo que has dicho…",
   "rp.no_hear": "No he podido entenderlo — toca el micrófono y dilo otra vez.",
-  "rp.need_online": "Una conversación necesita conexión a internet."
+  "rp.need_online": "Una conversación necesita conexión a internet.",
+  "ph.hear_btn": "Escuchar mi frase",
+  "ph.speech_h": "🎤 Tu discurso completo",
+  "ph.speech_sub": "Todas las frases que has escrito esta semana, unidas en una sola respuesta. Escúchala y después dila entera tú — esa es la versión de ti que entra en la sala hablando ya con soltura.",
+  "ph.speech_ph": "Completa las frases de arriba y se irán reuniendo aquí, una a una.",
+  "ph.speech_count": "{{n}}/{{total}} escritas",
+  "ph.speech_empty": "Escribe antes una o dos frases arriba — esta caja se construye con ellas."
 }

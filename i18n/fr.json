@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "L'évaluation de cette conversation n'est pas revenue. Vérifiez votre connexion et réessayez — vos phrases sont conservées ci-dessus.",
   "rp.transcribing": "Je note ce que vous avez dit…",
   "rp.no_hear": "Je n'ai pas réussi à comprendre — touchez le micro et redites-le.",
-  "rp.need_online": "Une conversation nécessite une connexion internet."
+  "rp.need_online": "Une conversation nécessite une connexion internet.",
+  "ph.hear_btn": "Écouter ma phrase",
+  "ph.speech_h": "🎤 Votre discours complet",
+  "ph.speech_sub": "Toutes les phrases que vous avez écrites cette semaine, réunies en une seule réponse. Écoutez-la, puis dites-la en entier — c'est la version de vous qui entre dans la pièce en parlant déjà avec aisance.",
+  "ph.speech_ph": "Remplissez les phrases ci-dessus : elles se rassemblent ici, une ligne à la fois.",
+  "ph.speech_count": "{{n}}/{{total}} écrites",
+  "ph.speech_empty": "Écrivez d'abord une ou deux phrases ci-dessus — cette zone se construit à partir d'elles."
 }

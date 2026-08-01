@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "Für dieses Gespräch kam keine Bewertung zurück. Prüfe deine Verbindung und versuche es erneut — deine Sätze bleiben oben erhalten.",
   "rp.transcribing": "Wird aufgeschrieben…",
   "rp.no_hear": "Das habe ich nicht verstanden — tippe aufs Mikrofon und sag es noch einmal.",
-  "rp.need_online": "Ein Gespräch braucht eine Internetverbindung."
+  "rp.need_online": "Ein Gespräch braucht eine Internetverbindung.",
+  "ph.hear_btn": "Meinen Satz hören",
+  "ph.speech_h": "🎤 Deine ganze Rede",
+  "ph.speech_sub": "Alle Sätze, die du diese Woche geschrieben hast, zu einer Antwort zusammengefügt. Hör sie dir an und sprich sie dann selbst am Stück — das ist die Version von dir, die den Raum betritt und schon sicher spricht.",
+  "ph.speech_ph": "Fülle die Sätze oben aus — sie sammeln sich hier, Zeile für Zeile.",
+  "ph.speech_count": "{{n}}/{{total}} geschrieben",
+  "ph.speech_empty": "Schreib erst ein, zwei Sätze oben — dieses Feld baut sich daraus auf."
 }

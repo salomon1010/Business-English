@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "Không nhận được điểm cho cuộc trò chuyện này. Hãy kiểm tra kết nối và thử lại — các câu của bạn vẫn được giữ ở trên.",
   "rp.transcribing": "Đang ghi lại lời bạn nói…",
   "rp.no_hear": "Tôi nghe không rõ — chạm vào micrô và nói lại.",
-  "rp.need_online": "Cuộc trò chuyện cần kết nối internet."
+  "rp.need_online": "Cuộc trò chuyện cần kết nối internet.",
+  "ph.hear_btn": "Nghe câu của tôi",
+  "ph.speech_h": "🎤 Bài nói hoàn chỉnh của bạn",
+  "ph.speech_sub": "Mọi câu bạn viết trong tuần này, ghép lại thành một câu trả lời. Hãy nghe, rồi tự nói trọn vẹn — đó là phiên bản của bạn bước vào phòng và đã nói trôi chảy.",
+  "ph.speech_ph": "Điền các câu ở trên, chúng sẽ dồn về đây, từng dòng một.",
+  "ph.speech_count": "{{n}}/{{total}} đã viết",
+  "ph.speech_empty": "Hãy viết một hai câu ở trên trước — ô này được dựng từ chúng."
 }

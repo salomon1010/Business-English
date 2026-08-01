@@ -355,6 +355,12 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ex-field-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .ex-field-ic svg{width:16px;height:16px}
 .ex-field input{padding-left:38px}
+/* Your own example sentence. A one-line input hid everything past the first
+   few words, so this is a textarea that grows with what you type (and can be
+   dragged taller on desktop). The pencil sits on the first line, not centred. */
+.ex-field textarea{padding-left:38px;width:100%;display:block}
+.ex-field-ta .ex-field-ic{top:15px;transform:none}
+textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* Desktop: two tidy lines — [ mic · bin ] on top, a full-width Polish button beneath */
 .ex-btns{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;min-width:210px}
 .ex-btns>.btn{min-height:0;padding:7px 8px;border-radius:9px}
@@ -410,6 +416,17 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 /* PHRASES */
 .ph-card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 18px;margin-bottom:10px}
 .ph-card.mastered{border-color:rgba(52,211,153,.4)}
+/* Every sentence of the week, joined into one speech. Deliberately a different
+   colour from the phrase cards — it is the destination, not another exercise. */
+.ph-speech{border:1px solid rgba(99,102,241,.42);border-radius:14px;padding:16px 18px;margin:18px 0 10px;
+  background:linear-gradient(150deg,var(--wash1),var(--wash2))}
+.ph-speech.mastered{border-color:rgba(52,211,153,.55)}
+.ph-speech textarea{background:rgba(10,14,26,.35)}
+:root[data-theme="light"] .ph-speech textarea{background:rgba(255,255,255,.72)}
+.ph-sp-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px}
+.ph-sp-top b{font-size:15.5px}
+.ph-sp-count{font-size:11.5px;color:var(--mut);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
+.ph-sp-sub{font-size:12.5px;color:var(--mut);margin:0 0 10px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
@@ -2394,6 +2411,12 @@ const I18N_EN={
  "ph.idiom_tag":"💼 BUSINESS IDIOM",
  "ph.example_ph":"✍️ My example sentence from my real work…",
  "ph.record_btn":"🎙️ Record",
+ "ph.hear_btn":"Hear my sentence",
+ "ph.speech_h":"🎤 Your full speech",
+ "ph.speech_sub":"Every sentence you've written this week, joined into one answer. Hear it, then say the whole thing yourself — that is the version of you who walks into the room already fluent.",
+ "ph.speech_ph":"Fill in the sentences above and they gather here, one line at a time.",
+ "ph.speech_count":"{{n}}/{{total}} written",
+ "ph.speech_empty":"Write a sentence or two above first — this box builds itself from them.",
  "ph.mastered_btn":"Mastered",
  "ph.mark_mastered_btn":"Mark mastered",
  "ph.example_saved_toast":"Example saved ✓",
@@ -6618,8 +6641,9 @@ function rPhrases(el,wFilter){
       ${p.i?`<div class="idiom-tag">${tIc("ph.idiom_tag","briefcase")}</div>`:''}
       <div class="phrase">“${esc(p.p)}”</div>
       <div class="use">${esc(p.u)}</div>
-      <div class="ex-field"><span class="ex-field-ic">${ic("pencil")}</span><input placeholder="${esc(t("ph.example_ph").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}" value="${esc(S.phExample[k]||"")}" onchange="phEx('${k}',this.value)"></div>
+      <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("pencil")}</span><textarea rows="1" id="phex${p.ix}" class="grow-ta ex-ta" placeholder="${esc(t("ph.example_ph").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}" oninput="taGrow(this)" onchange="phEx('${k}',this.value)">${esc(S.phExample[k]||"")}</textarea></div>
       <div class="ph-actions">
+        <button class="btn btn-g btn-sm ph-icobtn" onclick="phHear(${p.ix})" title="${esc(t("ph.hear_btn"))}" aria-label="${esc(t("ph.hear_btn"))}">${ic("sound")}</button>
         <button class="btn btn-g btn-sm ph-icobtn" id="phrec${p.ix}" onclick="phRec(${p.ix})" title="${esc(t("ph.record_btn"))}" aria-label="${esc(t("ph.record_btn"))}">${ic("mic")}</button>
         ${m
           ? `<button class="btn btn-sm ph-mastered" onclick="phMaster('${k}')">${tIc("ph.mastered_btn","trophy")}</button>`
@@ -6628,17 +6652,86 @@ function rPhrases(el,wFilter){
       </div>
       <div id="phrecs${p.ix}"></div>
     </div>`}).join("");
-  items.forEach(p=>renderPhRecs(p.ix));
+  /* The whole week, said in one go. */
+  _phItems=items; _phWeek=w;
+  list.innerHTML+=phSpeechCard();
+  items.forEach(p=>{renderPhRecs(p.ix);taGrow(document.getElementById("phex"+p.ix))});
+  taGrow(document.getElementById("phSpTa"));
+  renderSpeechRecs();
   manIconizeInline(el);segSync(el);
 }
-window.phEx=(k,v)=>{S.phExample[k]=v;save();toast(t("ph.example_saved_toast"))};
+/* ---- Your full speech: every example sentence of this week, in order ---- */
+let _phItems=[],_phWeek=1;
+function phSpKey(){return "sp"+_phWeek+"-"+_phKind}
+function phSpCtx(){return "speech-"+phSpKey()}
+function phSpeechText(){
+  return _phItems.map(p=>String(S.phExample["p"+p.ix]||"").replace(/\s+/g," ").trim())
+                 .filter(Boolean).join(" ");
+}
+function phSpeechCard(){
+  const k=phSpKey(),m=S.phMaster[k],txt=phSpeechText();
+  const done=_phItems.filter(p=>String(S.phExample["p"+p.ix]||"").trim()).length;
+  return `<div class="ph-speech ${m?'mastered':''}" id="phSpeech">
+    <div class="ph-sp-top"><b>${hIcon("waveform",t("ph.speech_h"))}</b>
+      <span class="ph-sp-count" id="phSpCount">${t("ph.speech_count",{n:done,total:_phItems.length})}</span></div>
+    <p class="ph-sp-sub">${t("ph.speech_sub")}</p>
+    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span>
+      <textarea rows="2" id="phSpTa" class="grow-ta ex-ta" readonly placeholder="${esc(t("ph.speech_ph"))}">${esc(txt)}</textarea></div>
+    <div class="ph-actions">
+      <button class="btn btn-g btn-sm ph-icobtn" onclick="phSpHear()" title="${esc(t("ph.hear_btn"))}" aria-label="${esc(t("ph.hear_btn"))}">${ic("sound")}</button>
+      <button class="btn btn-g btn-sm ph-icobtn" id="phSpRec" onclick="phSpeechRec()" title="${esc(t("ph.record_btn"))}" aria-label="${esc(t("ph.record_btn"))}">${ic("mic")}</button>
+      ${m
+        ? `<button class="btn btn-sm ph-mastered" onclick="phMaster('${k}')">${tIc("ph.mastered_btn","trophy")}</button>`
+        : `<button class="btn btn-g btn-sm ph-icobtn" onclick="phMaster('${k}')" title="${esc(t("ph.mark_mastered_btn"))}" aria-label="${esc(t("ph.mark_mastered_btn"))}">${ic("trophy")}</button>`}
+      <span style="font-size:12px;color:var(--mut2)" id="phSpN"></span>
+    </div>
+    <div id="phSpRecs"></div>
+  </div>`;
+}
+/* Keep the speech in step as each sentence is written, without rebuilding the page. */
+function phSpeechSync(){
+  const ta=document.getElementById("phSpTa"); if(!ta)return;
+  ta.value=phSpeechText(); taGrow(ta);
+  const c=document.getElementById("phSpCount");
+  if(c)c.textContent=t("ph.speech_count",{n:_phItems.filter(p=>String(S.phExample["p"+p.ix]||"").trim()).length,total:_phItems.length});
+}
+window.phSpHear=()=>{
+  const txt=phSpeechText();
+  if(!txt)return toast(t("ph.speech_empty"));
+  audioUnlock(); fbSay(txt);
+};
+window.phSpeechRec=()=>phRecInto(phSpCtx(),t("ph.speech_h"),document.getElementById("phSpRec"),renderSpeechRecs);
+async function renderSpeechRecs(){
+  const box=document.getElementById("phSpRecs"); if(!box)return;
+  const recs=await getRecs(phSpCtx());
+  const n=document.getElementById("phSpN");
+  if(n)n.textContent=recs.length?t(recs.length>1?"ph.rec_count_many":"ph.rec_count_one",{n:recs.length}):"";
+  box.innerHTML=recs.slice(0,3).map(r=>{
+    const url=URL.createObjectURL(r.blob);
+    return `<div class="rec-item"><audio controls src="${url}"></audio>
+      <button class="btn btn-g btn-sm sh-clear" onclick="phDelSpRec(${r.id})" title="${esc(t("cf.delete"))}" aria-label="${esc(t("cf.delete"))}">${ic("trash")}</button></div>`}).join("");
+  manIconizeInline(box);
+}
+window.phDelSpRec=async id=>{
+  if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
+  await delRec(id);renderSpeechRecs();toast(t("recs.deleted_toast"));
+};
+window.phEx=(k,v)=>{S.phExample[k]=v;save();phSpeechSync();toast(t("ph.example_saved_toast"))};
+/* Hear your own sentence read back in a natural voice, so you know what you
+   are aiming at before you record it. Nothing typed yet → hear the phrase. */
+window.phHear=ix=>{
+  const ta=document.getElementById("phex"+ix);
+  const txt=((ta&&ta.value)||"").trim()||PHRASES[ix].p;
+  audioUnlock(); fbSay(txt);
+};
 window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];save();go("phrases",cur.arg1)};
-window.phRec=async ix=>{
-  const btn=document.getElementById("phrec"+ix);
+/* Tap to record, tap again to stop. Shared by the phrase cards and the
+   full-speech box, which only differ by where the clip is filed. */
+async function phRecInto(ctx,label,btn,after){
   if(rec.mr&&rec.mr.state==="recording"){rec.mr.stop();return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    rec={mr:new MediaRecorder(stream),chunks:[],t0:Date.now(),h:null,ctx:"phrase"+ix,label:PHRASES[ix].p.slice(0,40)};
+    rec={mr:new MediaRecorder(stream),chunks:[],t0:Date.now(),h:null,ctx,label};
     rec.mr.ondataavailable=e=>rec.chunks.push(e.data);
     rec.mr.onstop=async()=>{
       stream.getTracks().forEach(t=>t.stop());
@@ -6647,12 +6740,14 @@ window.phRec=async ix=>{
       if(phBlob.size<1200||(Date.now()-rec.t0)<400){toast(t("ph.too_short_toast"));return}
       await addRec(rec.ctx,rec.label,phBlob);
       markPracticed();save();
-      toast(t("ph.rec_saved_toast"));renderPhRecs(ix);
+      toast(t("ph.rec_saved_toast"));if(after)after();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
-    rec.mr.start();btn.style.borderColor="var(--red)";btn.style.color="var(--red)";
+    rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
-};
+}
+window.phRec=ix=>phRecInto("phrase"+ix,PHRASES[ix].p.slice(0,40),
+  document.getElementById("phrec"+ix),()=>renderPhRecs(ix));
 async function renderPhRecs(ix){
   const box=document.getElementById("phrecs"+ix);if(!box)return;
   const recs=await getRecs("phrase"+ix);

@@ -1084,5 +1084,11 @@
   "rp.eval_unavailable": "La valutazione di questa conversazione non è arrivata. Controlla la connessione e riprova — le tue frasi restano qui sopra.",
   "rp.transcribing": "Sto trascrivendo…",
   "rp.no_hear": "Non sono riuscito a capire — tocca il microfono e ripeti.",
-  "rp.need_online": "Per una conversazione serve una connessione a internet."
+  "rp.need_online": "Per una conversazione serve una connessione a internet.",
+  "ph.hear_btn": "Ascolta la mia frase",
+  "ph.speech_h": "🎤 Il tuo discorso completo",
+  "ph.speech_sub": "Tutte le frasi che hai scritto questa settimana, unite in un'unica risposta. Ascoltala, poi dilla tutta tu — è la versione di te che entra nella stanza già sciolta.",
+  "ph.speech_ph": "Compila le frasi qui sopra e si raccoglieranno qui, una riga alla volta.",
+  "ph.speech_count": "{{n}}/{{total}} scritte",
+  "ph.speech_empty": "Scrivi prima una o due frasi qui sopra — questo riquadro si costruisce da lì."
 }
