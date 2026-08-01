@@ -2529,6 +2529,27 @@ const I18N_EN={
  "cf.backup_body":"You've completed {{n}} sessions — all stored on this device only. Clearing your browser data or losing this phone would take it with it. Export a backup, or turn on sync, and it's safe.",
  "cf.backup_ok":"Back it up",
  "cf.backup_later":"Not now",
+ "cal.label":"Block the time",
+ "cal.note":"A calendar entry survives a silent phone and shows colleagues you\u2019re busy. Six days a week, 25 minutes.",
+ "cal.add_google":"Google Calendar",
+ "cal.add_ics":"Apple / Outlook",
+ "cal.event_title":"Business English \u2014 25 minutes",
+ "cal.event_desc":"Your daily BE Mastery session: shadow a clip, record yourself, and get feedback.",
+ "cal.added_toast":"Calendar file downloaded \u2014 open it to add the series",
+ "share.card_title":"Share your progress",
+ "share.card_sub":"A designed card of where you\u2019ve got to \u2014 post it, or keep it for yourself.",
+ "share.card_btn":"Create progress card",
+ "share.card_text":"Week {{w}} of the Business English Mastery 12-week system \u2014 25 minutes a day.",
+ "share.cert_title":"Your certificate",
+ "share.cert_sub":"Finish all 84 sessions and your certificate unlocks here, ready to post.",
+ "share.cert_locked":"{{n}} of 84 sessions done \u2014 the certificate unlocks at 84.",
+ "share.cert_btn":"Get my certificate",
+ "share.cert_li":"Share on LinkedIn",
+ "share.cert_li_note":"LinkedIn can\u2019t receive an image from a link, so the file saves first \u2014 attach it to the post that opens.",
+ "share.cert_text":"I\u2019ve completed the Business English Mastery 12-week system \u2014 84 guided sessions of professional spoken English.",
+ "share.card_too_early":"Complete a few sessions first \u2014 the card should show something worth sharing.",
+ "share.downloaded":"Image saved",
+ "share.failed":"Couldn\u2019t create the image",
  "rem.label":"Daily reminder",
  "rem.switch":"Remind me to practise",
  "rem.note":"A nudge at your chosen time. While the app is closed your phone may hold it back \u2014 you\u2019ll still be reminded next time you open it.",
@@ -4306,6 +4327,174 @@ function askConfirm(o){
   });
 }
 window.askConfirm=askConfirm;
+/* ===== CALENDAR =====
+   A blocked-out 25 minutes beats a notification for this audience: a calendar
+   entry is a commitment their colleagues can see, and it survives the phone
+   being on silent. Six days a week, Monday to Saturday, matching the plan. */
+function calTime(){const c=(S.reminder&&S.reminder.time)||"19:00";const[h,m]=c.split(":").map(Number);return{h:h||19,m:m||0}}
+function calPad(n){return String(n).padStart(2,"0")}
+function calICS(){
+  const {h,m}=calTime();
+  const now=new Date();
+  const start=new Date(now);start.setHours(h,m,0,0);
+  if(start<=now)start.setDate(start.getDate()+1);
+  const end=new Date(start.getTime()+25*60000);
+  const fmt=d=>d.getUTCFullYear()+calPad(d.getUTCMonth()+1)+calPad(d.getUTCDate())+"T"+
+    calPad(d.getUTCHours())+calPad(d.getUTCMinutes())+"00Z";
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Lomonec LLC//BE Mastery//EN","CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT","UID:be-mastery-daily-"+Date.now()+"@lomonec.com","DTSTAMP:"+fmt(new Date()),
+    "DTSTART:"+fmt(start),"DTEND:"+fmt(end),
+    "RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA",
+    "SUMMARY:"+t("cal.event_title"),
+    "DESCRIPTION:"+t("cal.event_desc")+"\\n\\napp.lomonec.com",
+    "URL:https://app.lomonec.com/","BEGIN:VALARM","TRIGGER:-PT5M","ACTION:DISPLAY",
+    "DESCRIPTION:"+t("cal.event_title"),"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+}
+window.calDownload=()=>{
+  const blob=new Blob([calICS()],{type:"text/calendar;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download="be-mastery-daily-practice.ics";a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  toast(t("cal.added_toast"));
+};
+window.calGoogle=()=>{
+  const {h,m}=calTime();
+  const s=new Date();s.setHours(h,m,0,0);if(s<=new Date())s.setDate(s.getDate()+1);
+  const e=new Date(s.getTime()+25*60000);
+  const f=d=>d.getUTCFullYear()+calPad(d.getUTCMonth()+1)+calPad(d.getUTCDate())+"T"+
+    calPad(d.getUTCHours())+calPad(d.getUTCMinutes())+"00Z";
+  const u="https://calendar.google.com/calendar/render?action=TEMPLATE"+
+    "&text="+encodeURIComponent(t("cal.event_title"))+
+    "&details="+encodeURIComponent(t("cal.event_desc")+"\n\nhttps://app.lomonec.com/")+
+    "&dates="+f(s)+"/"+f(e)+
+    "&recur="+encodeURIComponent("RRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA");
+  window.open(u,"_blank","noopener");
+};
+/* ===== SHAREABLE IMAGES — progress card & certificate =====
+   Drawn on a canvas rather than screenshotted so they look designed and carry
+   the app's name wherever they're posted. Both go through the same renderer;
+   only the content differs. Everything is computed from local state, so this
+   works offline and nothing is uploaded. */
+function shImgStats(){
+  const scored=(S.fbHist||[]).filter(x=>x.score!=null);
+  const first=scored.length?scored[0].score:null;
+  const last=scored.length?scored[scored.length-1].score:null;
+  const pos=currentPos();
+  return {
+    name:(S.profile&&S.profile.name)?String(S.profile.name).trim():"",
+    week:Math.max(1,(pos.w||1)-(pos.d==="Mon"?0:0)),
+    done:totalDone(),streak:streak(),weekDone:weekDone(pos.w)>=7,
+    phrases:masteredCount(),
+    words:Object.keys(S.vocab||{}).length,
+    first,last,
+    pctDone:pct()
+  };
+}
+function shRoundRect(c,x,y,w,h,r){
+  c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();
+}
+async function shRenderImage(kind){
+  try{await document.fonts.ready}catch(e){}          // otherwise the first draw uses a fallback face
+  const W=1080,H=1080,c=document.createElement("canvas");
+  c.width=W;c.height=H;
+  const x=c.getContext("2d");
+  const s=shImgStats();
+  const cert=kind==="cert";
+
+  const g=x.createLinearGradient(0,0,W,H);
+  g.addColorStop(0,"#0b1020");g.addColorStop(1,"#111a33");
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  const glow=x.createRadialGradient(W*0.5,120,0,W*0.5,120,760);
+  glow.addColorStop(0,"rgba(99,102,241,.30)");glow.addColorStop(1,"rgba(99,102,241,0)");
+  x.fillStyle=glow;x.fillRect(0,0,W,H);
+
+  x.strokeStyle="rgba(255,255,255,.14)";x.lineWidth=3;
+  shRoundRect(x,54,54,W-108,H-108,38);x.stroke();
+
+  x.textAlign="center";
+  x.fillStyle="#22d3ee";x.font="700 26px Outfit, system-ui, sans-serif";
+  x.letterSpacing="6px";
+  x.fillText(cert?"CERTIFICATE OF COMPLETION":"PROGRESS REPORT",W/2,168);
+  x.letterSpacing="0px";
+
+  x.fillStyle="#ffffff";
+  if(cert){
+    x.font="800 62px Outfit, system-ui, sans-serif";
+    x.fillText("Business English Mastery",W/2,272);
+    x.font="400 30px Outfit, system-ui, sans-serif";x.fillStyle="#93a3c4";
+    x.fillText("12-Week System · 84 guided sessions",W/2,326);
+    if(s.name){
+      x.fillStyle="#ffffff";x.font="800 76px Outfit, system-ui, sans-serif";
+      x.fillText(s.name,W/2,470);
+    }
+    x.fillStyle="#93a3c4";x.font="400 30px Outfit, system-ui, sans-serif";
+    x.fillText("has completed the full twelve-week programme",W/2,susTextY(s.name,530));
+  }else{
+    x.font="800 74px Outfit, system-ui, sans-serif";
+    x.fillText(s.weekDone?("Week "+s.week+" complete"):("Week "+s.week+" in progress"),W/2,282);
+    x.font="400 32px Outfit, system-ui, sans-serif";x.fillStyle="#93a3c4";
+    x.fillText(s.name?s.name+" · Business English Mastery":"Business English Mastery",W/2,338);
+  }
+
+  /* stat tiles */
+  const tiles=cert
+    ? [["84","sessions"],["12","weeks"],[s.phrases+"","phrases mastered"],[s.words+"","words collected"]]
+    : [[s.done+"/84","sessions"],[s.streak+"","day streak"],
+       [(s.first!=null&&s.last!=null)?(s.first+"% → "+s.last+"%"):"—","clarity"],
+       [s.words+"","words collected"]];
+  const tw=436,th=176,gap=32,x0=(W-(tw*2+gap))/2,y0=cert?530:430;
+  tiles.forEach((t,i)=>{
+    const tx=x0+(i%2)*(tw+gap),ty=y0+Math.floor(i/2)*(th+gap);
+    x.fillStyle="rgba(255,255,255,.055)";shRoundRect(x,tx,ty,tw,th,26);x.fill();
+    x.strokeStyle="rgba(255,255,255,.10)";x.lineWidth=2;shRoundRect(x,tx,ty,tw,th,26);x.stroke();
+    x.fillStyle="#ffffff";x.font="800 58px Outfit, system-ui, sans-serif";
+    x.fillText(t[0],tx+tw/2,ty+86);
+    x.fillStyle="#93a3c4";x.font="500 25px Outfit, system-ui, sans-serif";
+    x.fillText(t[1],tx+tw/2,ty+132);
+  });
+
+  if(cert){   /* date sits between the tiles and the footer, not on top of them */
+    x.fillStyle="#93a3c4";x.font="400 24px Outfit, system-ui, sans-serif";
+    x.fillText(new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}),W/2,H-130);
+  }
+  x.fillStyle="#6b7ba3";x.font="500 26px Outfit, system-ui, sans-serif";
+  x.fillText("app.lomonec.com · Lomonec LLC",W/2,cert?H-72:H-104);
+  return new Promise(res=>c.toBlob(res,"image/png"));
+}
+function susTextY(name,y){return name?y:y-90}
+/* Share if the device supports it, otherwise download. */
+async function shShare(kind){
+  const blob=await shRenderImage(kind);
+  if(!blob)return toast(t("share.failed"));
+  const file=new File([blob],(kind==="cert"?"be-mastery-certificate":"be-mastery-progress")+".png",{type:"image/png"});
+  const text=kind==="cert"
+    ? t("share.cert_text")
+    : t("share.card_text",{w:shImgStats().week});
+  try{
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({files:[file],text});
+      return;
+    }
+  }catch(e){if(e&&e.name==="AbortError")return}
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=file.name;a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);
+  toast(t("share.downloaded"));
+}
+window.shShare=async kind=>{
+  if(kind==="card"&&totalDone()<3)return toast(t("share.card_too_early"));
+  if(kind==="cert"&&totalDone()<84)return toast(t("share.cert_locked",{n:totalDone()}));
+  return shShare(kind);
+};
+/* LinkedIn has no image-post URL, so we open a share composer for the app and
+   let the user attach the image they just saved — stated plainly in the copy. */
+window.shLinkedIn=async()=>{
+  await shShare("cert");
+  setTimeout(()=>{
+    window.open("https://www.linkedin.com/feed/?shareActive=true&text="+encodeURIComponent(t("share.cert_text")),"_blank","noopener");
+  },900);
+};
 /* ===== DAILY REMINDER =====
    Honest about what a web app can do. A real notification is only guaranteed
    while the app is running — scheduling one for a closed app needs a push
@@ -6340,6 +6529,23 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
   <div class="card pcal" id="pfCal">${calHTML()}</div>
+  <div class="card" style="margin-top:16px">
+    <b style="font-size:15px">${hIcon("chart",t("share.card_title"))}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
+    <button class="btn btn-g btn-sm" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
+  </div>
+  <div class="card" style="margin-top:12px;${totalDone()>=84?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
+    <b style="font-size:15px">${hIcon("trophy",t("share.cert_title"))}</b>
+    ${totalDone()>=84
+      ? `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.cert_sub")}</p>
+         <div style="display:flex;gap:8px;flex-wrap:wrap">
+           <button class="btn btn-p btn-sm" onclick="shShare('cert')">${tIc("share.cert_btn","download")}</button>
+           <button class="btn btn-g btn-sm" onclick="shLinkedIn()">${t("share.cert_li")}</button>
+         </div>
+         <p style="font-size:11.5px;color:var(--mut2);margin-top:10px;line-height:1.5">${t("share.cert_li_note")}</p>`
+      : `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("share.cert_locked",{n:totalDone()})}</p>
+         <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/84*100)}%"></i></div>`}
+  </div>
   <div class="pf-menu">
     <button class="pf-row" onclick="go('data')"><span class="pf-ic">${ic("gear")}</span><span class="pf-txt"><b>${t("profile.settings")}</b><small>${t("profile.settings_sub")}</small></span><span class="pf-chev">›</span></button>
     <button class="pf-row" onclick="go('manual')"><span class="pf-ic">${ic("help")}</span><span class="pf-txt"><b>${t("profile.help")}</b><small>${t("profile.help_sub")}</small></span><span class="pf-chev">›</span></button>
@@ -6382,6 +6588,12 @@ async function rData(el){
         <input type="time" id="remTime" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
       </div>
       <p class="rem-note" id="remNote">${t("rem.note")}</p>
+      <p style="font-size:13px;color:var(--mut);margin:14px 0 4px">${t("cal.label")}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-g btn-sm" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
+        <button class="btn btn-g btn-sm" onclick="calDownload()">${tIc("cal.add_ics","download")}</button>
+      </div>
+      <p class="rem-note">${t("cal.note")}</p>
       <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${esc(t("lang.app_language"))}</p>
       <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px">
         <span style="display:flex;align-items:center;gap:10px">
@@ -6660,8 +6872,13 @@ async function rpVoice(text){
     await a.play();
   }catch(e){rpSetSpeaking(false);rpSpeak(text,"f")}  /* CORS/key/error → browser fallback */
 }
-const RP_CATS=[["daily","Daily life"],["work","At work"],["travel","Travelling"]];
+const RP_CATS=[["interview","Interview practice"],["daily","Daily life"],["work","At work"],["travel","Travelling"]];
 const SCENARIOS=[
+ {id:"iv-tellme",cat:"interview",persona:"Rachel",g:"f",role:"hiring manager",ic:"user",title:"Tell me about yourself",scenario:"The opening question of a real interview. Rachel is friendly but time-pressed and will probe anything vague.",points:["Give a 60-second summary: role, responsibilities, focus","Name one concrete achievement with a result","Say why this role interests you"],greet:"Thanks for making the time. So — tell me about yourself."},
+ {id:"iv-weakness",cat:"interview",persona:"Daniel",g:"m",role:"engineering director",ic:"user",title:"Your biggest weakness",scenario:"Daniel asks the hard behavioural questions and follows up when an answer sounds rehearsed.",points:["Name a real weakness, not a disguised strength","Explain what you have done about it","Give evidence that it has improved"],greet:"Let's get into it. What would you say is your biggest weakness?"},
+ {id:"iv-conflict",cat:"interview",persona:"Aisha",g:"f",role:"head of people",ic:"user",title:"Tell me about a conflict",scenario:"A behavioural interview. Aisha wants specifics — situation, what you did, and the outcome.",points:["Describe the situation and who disagreed","Explain what you actually said or did","State the outcome and what you learned"],greet:"I'd like a real example — tell me about a time you disagreed with a colleague."},
+ {id:"iv-salary",cat:"interview",persona:"Marcus",g:"m",role:"recruiter",ic:"user",title:"Salary negotiation",scenario:"Marcus opens below your expectation and will test whether you hold your position politely.",points:["State a number or range without apologising","Justify it with evidence","Hold your position or propose an alternative"],greet:"Good news — we'd like to make you an offer. We're thinking eighty-two thousand. How does that sit with you?"},
+ {id:"iv-whyleave",cat:"interview",persona:"Elena",g:"f",role:"panel interviewer",ic:"user",title:"Why are you leaving?",scenario:"A delicate question. Elena listens for bitterness and for what you actually want next.",points:["Explain your reason without criticising anyone","Say what you are looking for instead","Connect it to this specific role"],greet:"So, what's making you look to leave your current role?"},
  {id:"coffee",cat:"daily",persona:"Mia",g:"f",role:"barista",ic:"chat",title:"In the coffee shop",scenario:"Order a drink, ask about the options, and sort out a small mix-up with your order.",points:["Order a specific drink and size","Ask a question about the menu or milk options","Politely correct something about your order"],greet:"Hi, welcome in! What can I get started for you today?"},
  {id:"neighbour",cat:"daily",persona:"Tom",g:"m",role:"new neighbour",ic:"user",title:"Meeting a neighbour",scenario:"You just moved in. Introduce yourself to a neighbour and make small talk.",points:["Introduce yourself and say where you moved from","Ask two questions about the area","Suggest meeting again some time"],greet:"Oh, hello! You must have just moved into number 12 — I'm Tom."},
  {id:"vet",cat:"daily",persona:"Dr Rao",g:"m",role:"vet",ic:"user",title:"Visiting the vet",scenario:"Explain your pet's symptoms and understand the vet's advice.",points:["Describe your pet and its symptoms","Ask what the treatment involves","Confirm the next steps and the cost"],greet:"Hello, come on in. So, what seems to be the trouble with your little one today?"},
