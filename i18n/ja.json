@@ -1046,5 +1046,6 @@
   "prac.vg_h": "語彙と文法",
   "prac.tab_vocabulary": "語彙",
   "prac.tab_grammar": "文法",
-  "rp.tap_done": "聞いています — 話し終えたらマイクをタップ。"
+  "rp.tap_done": "聞いています — 話し終えたらマイクをタップ。",
+  "rp.nudge": "ゆっくりで大丈夫 — もう一度質問します。"
 }

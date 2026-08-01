@@ -1181,15 +1181,14 @@ html[dir="rtl"] .lang-row{text-align:right}
 .rp-pts summary .chip{margin-left:auto}
 .rp-pts .rp-pts-in{padding:0 11px 11px;display:flex;flex-direction:column;gap:7px}
 .rp-pts .rp-point{padding:9px 12px;font-size:13px}
-/* Mic with a countdown ring: the ring drains through the speaking window and
-   resets every time you actually say something, so a pause mid-sentence can no
-   longer end your turn. */
-.rp-mic-wrap{position:relative;width:88px;height:88px;display:grid;place-items:center}
-.rp-mic-ring{position:absolute;inset:0;border-radius:50%;background:conic-gradient(var(--acc2) calc(var(--p,0) * 1%),rgba(148,163,184,.18) 0);opacity:0;transition:opacity .2s}
-.rp-mic-wrap.counting .rp-mic-ring{opacity:1}
+/* Speaking window, shown as a line that drains from the right. It refills every
+   time you actually say a word, so it only runs out when you have genuinely
+   stopped — a pause mid-sentence can no longer end your turn. */
+.rp-timer{width:100%;height:5px;border-radius:3px;background:rgba(148,163,184,.16);overflow:hidden;flex:none;opacity:0;transition:opacity .2s}
+.rp-timer i{display:block;height:100%;border-radius:3px;background:var(--grad);transform-origin:left center;transform:scaleX(var(--p,1));transition:transform .2s linear}
+.rp-inner.listening .rp-timer{opacity:1}
+.rp-mic-wrap{position:relative;width:78px;height:78px;display:grid;place-items:center}
 .rp-mic-wrap .rp-mic{position:relative;width:74px;height:74px}
-.rp-mic-secs{position:absolute;bottom:-2px;right:-2px;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--card);border:1px solid var(--line2);color:var(--txt);font-size:12px;font-weight:800;display:none;place-items:center;font-variant-numeric:tabular-nums}
-.rp-mic-wrap.counting .rp-mic-secs{display:grid}
 @media(max-width:560px){.rp-work-body{padding:14px 12px}.rp-work-foot{padding:10px 12px calc(10px + env(safe-area-inset-bottom))}}
 .rp-modal-ov{position:fixed;inset:0;z-index:140;background:rgba(6,9,18,.7);backdrop-filter:blur(5px);display:grid;place-items:center;padding:22px;animation:fade .2s}
 .rp-modal{background:var(--card);border:1px solid var(--line2);border-radius:18px;padding:24px;max-width:400px;width:100%}
@@ -1982,6 +1981,7 @@ const I18N_EN={
  "rp.points_h":"Your talking points",
  "rp.end":"End practice",
  "rp.transcript":"Real-time transcript",
+  "rp.nudge":"No rush — here's the question again.",
   "rp.tap_done":"Listening — tap the mic when you've finished.",
  "rp.tap_to_speak":"Tap the mic and speak",
  "rp.speaking":"Speaking…",
@@ -7450,15 +7450,14 @@ window.rpStart=(id)=>{
        <button class="btn btn-g btn-sm" onclick="rpEnd()">${t("rp.end")}</button>
      </div>
      <div class="rp-work-body" id="rpTx"></div>
-     <div class="rp-work-foot"><div class="rp-inner">
+     <div class="rp-work-foot"><div class="rp-inner" id="rpFootIn">
+       <div class="rp-timer" id="rpTimer"><i></i></div>
        <details class="rp-pts">
          <summary>${t("rp.points_h")} <span id="rpProg" class="chip">0/${sc.points.length}</span></summary>
          <div class="rp-pts-in">${sc.points.map((p,i)=>`<div class="rp-point" id="rpp${i}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
        </details>
        <div class="rp-mic-wrap" id="rpMicWrap">
-         <div class="rp-mic-ring" id="rpRing"></div>
          <button class="rp-mic" id="rpMic" onclick="rpListen()" aria-label="Speak">${ic("mic")}</button>
-         <span class="rp-mic-secs" id="rpSecs"></span>
        </div>
        <div class="rp-status" id="rpStatus">${t("rp.tap_to_speak")}</div>
      </div></div>`;
@@ -7484,10 +7483,21 @@ function rpStopListen(){
   rec.stopped=true; rpRec=null;
   clearInterval(rec.tick);
   try{rec.r&&(rec.r.abort?rec.r.abort():rec.r.stop())}catch(e){}
-  const wrap=document.getElementById("rpMicWrap"),mic=document.getElementById("rpMic");
-  if(wrap)wrap.classList.remove("counting");
+  const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic");
+  if(foot)foot.classList.remove("listening");
   if(mic)mic.classList.remove("on");
   rpDraft("");
+}
+/* The window ran out with nothing said. Rather than going quiet, the character
+   puts the question again — that is what a real person would do. */
+function rpNudge(){
+  if(!rpConv)return;
+  rpConv.nudges=(rpConv.nudges||0)+1;
+  if(rpConv.nudges>2){rpIdle();return}          /* twice is a prompt, three times is nagging */
+  const last=[...(rpConv.history||[])].reverse().find(m=>m.role==="assistant");
+  const st=document.getElementById("rpStatus"); if(st)st.textContent=t("rp.nudge");
+  if(last)rpVoice(last.content);
+  rpResetIdle();
 }
 function rpDraft(txt){
   const tx=document.getElementById("rpTx");if(!tx)return;
@@ -7501,7 +7511,7 @@ function rpFinish(){
   const said=(rec.said||"").trim();
   rpStopListen();
   const st=document.getElementById("rpStatus");
-  if(!said){if(st)st.textContent=t("rp.tap_to_speak"); rpResetIdle(); return}
+  if(!said){rpNudge(); return}
   rpUserTurn(said);
 }
 /* Tap to start, tap again when you have finished. Previously this ran a
@@ -7514,17 +7524,16 @@ window.rpListen=()=>{
   if(rpRec){rpFinish();return}
   rpClearIdle(); rpStopVoice();
   clearInterval(rpSayKeep); rpSetSpeaking(false);
-  const wrap=document.getElementById("rpMicWrap"),mic=document.getElementById("rpMic"),
+  const foot=document.getElementById("rpFootIn"),mic=document.getElementById("rpMic"),
         st=document.getElementById("rpStatus");
   const rec={r:null,said:"",left:RP_WINDOW*1000,stopped:false,tick:null};
   rpRec=rec;
   if(mic)mic.classList.add("on");
-  if(wrap)wrap.classList.add("counting");
+  if(foot)foot.classList.add("listening");
   if(st)st.textContent=t("rp.tap_done");
   const paint=()=>{
-    const ring=document.getElementById("rpRing"),sx=document.getElementById("rpSecs");
-    if(ring)ring.style.setProperty("--p",String(Math.max(0,Math.min(100,rec.left/(RP_WINDOW*10)))));
-    if(sx)sx.textContent=String(Math.max(0,Math.ceil(rec.left/1000)));
+    const bar=document.querySelector("#rpTimer i");
+    if(bar)bar.style.setProperty("--p",(Math.max(0,Math.min(1,rec.left/(RP_WINDOW*1000)))).toFixed(3));
   };
   paint();
   rec.tick=setInterval(()=>{rec.left-=200;paint();if(rec.left<=0)rpFinish()},200);
@@ -7560,7 +7569,7 @@ window.rpListen=()=>{
 };
 async function rpUserTurn(text){
   if(!rpConv||!text)return;
-  rpConv.busy=true; rpAddBubble("me",text); rpConv.history.push({role:"user",content:text});
+  rpConv.busy=true; rpConv.nudges=0; rpAddBubble("me",text); rpConv.history.push({role:"user",content:text});
   const st=document.getElementById("rpStatus"); if(st)st.textContent=t("rp.thinking");
   try{
     const res=await rpAI();
