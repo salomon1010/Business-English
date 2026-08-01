@@ -4964,8 +4964,8 @@ let _ttsAudio=null;
 function fbStopAudio(){if(_ttsAudio){try{_ttsAudio.pause()}catch(_){}_ttsAudio=null}}
 let _voiceOverride=null;   // onboarding uses a random natural voice; app default stays Alloy
 function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"alloy"}
-async function fbSayApi(text,rate){
-  const voice=fbVoicePref(),key=voice+"|"+text;
+async function fbSayApi(text,rate,voiceOverride){
+  const voice=voiceOverride||fbVoicePref(),key=voice+"|"+text;
   let url=_ttsCache.get(key);
   if(!url){
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({tts:text,voice})});
@@ -6828,6 +6828,36 @@ function rpPickVoices(){
 }
 try{speechSynthesis.getVoices();rpPickVoices();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",rpPickVoices)}catch(e){}
 let rpSayKeep=null;
+/* Voices for the role-play cast.
+   The scenarios were speaking through the browser's SpeechSynthesis, which is
+   the robotic voice — while the rest of the app already had natural TTS through
+   the Worker. They now use the same natural voices, picked to match each
+   character's gender, and varied so two people in the same category do not
+   sound identical. Falls back to the browser voice offline. */
+const RP_VOICES_F=["nova","shimmer","coral","sage"];
+const RP_VOICES_M=["onyx","echo","ash","ballad"];
+function rpVoiceFor(sc){
+  if(!sc)return fbVoicePref();
+  const list=(sc.g==="m")?RP_VOICES_M:RP_VOICES_F;
+  /* Round-robin through the pool in scenario order rather than hashing the id:
+     a hash clustered three of the men onto one voice and left another unused.
+     This guarantees an even spread and no repeat until the pool is exhausted. */
+  const same=SCENARIOS.filter(x=>x.g===sc.g);
+  const i=same.findIndex(x=>x.id===sc.id);
+  return list[(i<0?0:i)%list.length];
+}
+/* Speak as the current character, using the natural voice where possible. */
+function rpSayNatural(text,sc){
+  const t2=String(text).replace(/\s+/g," ").trim();
+  if(!t2)return;
+  try{speechSynthesis.cancel();clearInterval(rpSayKeep)}catch(_){}
+  const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"&&t2.length<=600;
+  if(!canApi){rpSpeak(t2,sc&&sc.g);return}
+  rpSetSpeaking(true);
+  fbSayApi(t2,1,rpVoiceFor(sc))
+    .then(()=>{if(_ttsAudio)_ttsAudio.onended=()=>rpSetSpeaking(false);else rpSetSpeaking(false)})
+    .catch(()=>{rpSetSpeaking(false);rpSpeak(t2,sc&&sc.g)});   /* offline or TTS down → device voice */
+}
 function rpSpeak(text,gender){
   try{
     speechSynthesis.cancel();clearInterval(rpSayKeep);
@@ -6857,24 +6887,15 @@ function elKeyBox(){const k=elKey();if(!k)return `<div class="rp-keynote" id="el
 window.elKeyEdit=()=>{const box=document.getElementById("elKeyBox");if(!box)return;box.classList.remove("rp-key-set");box.innerHTML=t("el.key_box")+elKeyForm(elKey())};
 let _elAudio=null;
 function rpStopVoice(){try{speechSynthesis.cancel()}catch(e){}if(_elAudio){try{_elAudio.pause()}catch(e){}_elAudio=null}}
+/* Everything the character says goes through here.
+   Was ElevenLabs-with-your-own-key, falling back to the browser's robotic
+   voice — and since the key box was removed, it was always the robotic one.
+   Now uses the app's natural voices, matched to the character. */
 async function rpVoice(text){
   rpStopVoice();
-  const key=elKey();
-  if(!key){rpSpeak(text,"f");return}   /* no ElevenLabs key → best browser female voice */
-  try{
-    rpSetSpeaking(true);
-    const r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+EL_VOICE+"?output_format=mp3_44100_128",{
-      method:"POST",
-      headers:{"xi-api-key":key,"accept":"audio/mpeg","content-type":"application/json"},
-      body:JSON.stringify({text:String(text),model_id:"eleven_turbo_v2_5",voice_settings:{stability:0.45,similarity_boost:0.8}})
-    });
-    if(!r.ok)throw new Error("HTTP "+r.status);
-    const blob=await r.blob();
-    const a=new Audio(URL.createObjectURL(blob));_elAudio=a;
-    a.onended=a.onerror=()=>{if(_elAudio===a)_elAudio=null;rpSetSpeaking(false)};
-    await a.play();
-  }catch(e){rpSetSpeaking(false);rpSpeak(text,"f")}  /* CORS/key/error → browser fallback */
+  rpSayNatural(text,(rpConv&&rpConv.sc)||null);
 }
+
 const RP_CATS=[["interview","Interview practice"],["daily","Daily life"],["work","At work"],["travel","Travelling"]];
 const SCENARIOS=[
  {id:"iv-tellme",cat:"interview",persona:"Rachel",g:"f",role:"hiring manager",ic:"user",title:"Tell me about yourself",scenario:"The opening question of a real interview. Rachel is friendly but time-pressed and will probe anything vague.",points:["Give a 60-second summary: role, responsibilities, focus","Name one concrete achievement with a result","Say why this role interests you"],greet:"Thanks for making the time. So — tell me about yourself."},
