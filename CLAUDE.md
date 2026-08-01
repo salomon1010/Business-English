@@ -179,8 +179,8 @@ Fixes / infra
   no Play upload needed**. A new AAB is only for native-shell changes, and then the
   `twa-manifest.json` `appVersionCode` must increase (`bubblewrap update` +
   `expect build.expect`; answer the versionName prompt "1.0.0", never pipe "y").
-  REMAINING: **Enforce HTTPS is still OFF** in GitHub Pages — `http://app.lomonec.com`
-  returns 200 instead of redirecting. Minor, not blocking.
+  **Enforce HTTPS is ON** (enabled 2026-08-01) — `http://app.lomonec.com` 301s to
+  https, assetlinks included. Nothing outstanding on the Play/hosting side.
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a
   backend + budget cap) and B2B licensing; nothing built yet.
 - Native-speaker **review of the emotional translations** still recommended.
