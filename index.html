@@ -462,10 +462,11 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .fb-sync.bad{color:var(--gold)}
 /* Conversation practice entry on the dashboard */
 .rp-entry{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
-  margin:22px 0 0;border:1px solid rgba(99,102,241,.35);
+  margin:14px 0 0;border:1px solid rgba(99,102,241,.35);
   background:linear-gradient(150deg,rgba(99,102,241,.12),rgba(34,211,238,.07));font-family:inherit;color:var(--txt)}
 .rp-entry:hover{transform:translateY(-2px);border-color:var(--acc)}
-.rp-entry-ic{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--grad);color:#fff}
+.rp-entry-ic{position:relative;overflow:hidden;flex:none;width:52px;height:52px;border-radius:13px;display:grid;place-items:center;background:var(--grad);color:#fff}
+.rp-entry-ic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .rp-entry-ic svg{width:21px;height:21px}
 .rp-entry-t{flex:1;min-width:0}
 .rp-entry-t b{display:block;font-size:15px;margin-bottom:3px}
@@ -3288,6 +3289,14 @@ async function rHome(el){
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
       <button class="btn glow-cta" onclick="go('session',${pos.w},'${pos.d}')"><span class="glow-cta-txt">${t("home.start_btn")}</span></button>
     </div>
+    <button class="card rp-entry" onclick="go('roleplay')">
+      <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+      <span class="rp-entry-t">
+        <b>${t("home.rp_title")}</b>
+        <small>${t("home.rp_sub")}</small>
+      </span>
+      <span class="rp-entry-go">→</span>
+    </button>
     <div class="card">
       <div class="ring-wrap">
         <div class="ring">
@@ -3312,14 +3321,6 @@ async function rHome(el){
     ${statCard("target",(S.clips||[]).length,"",t("home.stat_clips"),(S.clips||[]).length===0?t("home.next_clips"):"","go('shadow')")}
     ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
   </div>
-  <button class="card rp-entry" onclick="go('roleplay')">
-    <span class="rp-entry-ic">${ic("chat")}</span>
-    <span class="rp-entry-t">
-      <b>${t("home.rp_title")}</b>
-      <small>${t("home.rp_sub")}</small>
-    </span>
-    <span class="rp-entry-go">→</span>
-  </button>
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
   <h3 style="margin:26px 0 12px">${hIcon("list",t("home.rules_h"))}</h3>
