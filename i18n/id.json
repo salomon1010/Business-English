@@ -834,5 +834,8 @@
  "prac.cw_check": "Periksa",
  "prac.cw_reveal": "Ungkap",
  "prac.cw_solved": "Selesai — semua kata benar! 🎉",
- "prac.cw_progress": "{{solved}} dari {{total}} kata terpecahkan — lanjutkan."
+ "prac.cw_progress": "{{solved}} dari {{total}} kata terpecahkan — lanjutkan.",
+ "home.due_title": "{{n}} kata siap ditinjau",
+ "home.due_title_one": "1 kata siap ditinjau",
+ "home.due_sub": "Kata yang Anda simpan dari ucapan Anda sendiri. Dua menit sekarang dan kata-kata itu jadi milik Anda."
 }

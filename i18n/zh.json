@@ -834,5 +834,8 @@
  "prac.cw_check": "检查",
  "prac.cw_reveal": "揭晓",
  "prac.cw_solved": "全部正确，完成！🎉",
- "prac.cw_progress": "已解出 {{total}} 个词中的 {{solved}} 个——继续加油。"
+ "prac.cw_progress": "已解出 {{total}} 个词中的 {{solved}} 个——继续加油。",
+ "home.due_title": "{{n}} 个单词可以复习了",
+ "home.due_title_one": "1 个单词可以复习了",
+ "home.due_sub": "你在练口语时保存的单词。现在花两分钟，它们就真正属于你。"
 }

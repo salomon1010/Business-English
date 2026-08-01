@@ -834,5 +834,8 @@
  "prac.cw_check": "チェック",
  "prac.cw_reveal": "答えを表示",
  "prac.cw_solved": "完成——全問正解です！🎉",
- "prac.cw_progress": "{{total}}語中{{solved}}語が解けました——その調子。"
+ "prac.cw_progress": "{{total}}語中{{solved}}語が解けました——その調子。",
+ "home.due_title": "{{n}} 語が復習の時期です",
+ "home.due_title_one": "1 語が復習の時期です",
+ "home.due_sub": "自分の発話から保存した単語です。いま2分取り組めば、確実に身につきます。"
 }

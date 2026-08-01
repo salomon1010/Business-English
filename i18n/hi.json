@@ -834,5 +834,8 @@
  "prac.cw_check": "जाँचें",
  "prac.cw_reveal": "दिखाएँ",
  "prac.cw_solved": "हल हो गया — सभी शब्द सही! 🎉",
- "prac.cw_progress": "{{total}} में से {{solved}} शब्द हल — जारी रखें।"
+ "prac.cw_progress": "{{total}} में से {{solved}} शब्द हल — जारी रखें।",
+ "home.due_title": "{{n}} शब्द दोहराने के लिए तैयार हैं",
+ "home.due_title_one": "1 शब्द दोहराने के लिए तैयार है",
+ "home.due_sub": "वे शब्द जो आपने अपनी बोली से सहेजे। अभी दो मिनट और ये हमेशा आपके।"
 }

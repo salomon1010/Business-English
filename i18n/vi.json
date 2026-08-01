@@ -834,5 +834,8 @@
  "prac.cw_check": "Kiểm tra",
  "prac.cw_reveal": "Hiện đáp án",
  "prac.cw_solved": "Đã giải — tất cả đều đúng! 🎉",
- "prac.cw_progress": "Đã giải {{solved}}/{{total}} từ — tiếp tục nhé."
+ "prac.cw_progress": "Đã giải {{solved}}/{{total}} từ — tiếp tục nhé.",
+ "home.due_title": "{{n}} từ đã sẵn sàng để ôn lại",
+ "home.due_title_one": "1 từ đã sẵn sàng để ôn lại",
+ "home.due_sub": "Những từ bạn đã lưu khi luyện nói. Hai phút bây giờ và chúng là của bạn."
 }

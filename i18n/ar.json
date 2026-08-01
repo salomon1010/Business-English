@@ -834,5 +834,8 @@
  "prac.cw_check": "تحقّق",
  "prac.cw_reveal": "اكشف",
  "prac.cw_solved": "تم الحل — كل الكلمات صحيحة! 🎉",
- "prac.cw_progress": "تم حل {{solved}} من {{total}} كلمة — واصل."
+ "prac.cw_progress": "تم حل {{solved}} من {{total}} كلمة — واصل.",
+ "home.due_title": "{{n}} كلمات جاهزة للمراجعة",
+ "home.due_title_one": "كلمة واحدة جاهزة للمراجعة",
+ "home.due_sub": "كلمات حفظتها من كلامك أنت. دقيقتان الآن وتصبح لك."
 }

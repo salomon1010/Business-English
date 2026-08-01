@@ -834,5 +834,8 @@
  "prac.cw_check": "확인",
  "prac.cw_reveal": "정답 보기",
  "prac.cw_solved": "완성 — 모든 단어 정답입니다! 🎉",
- "prac.cw_progress": "{{total}}개 중 {{solved}}개 완성 — 계속해 보세요."
+ "prac.cw_progress": "{{total}}개 중 {{solved}}개 완성 — 계속해 보세요.",
+ "home.due_title": "복습할 단어 {{n}}개가 준비됐습니다",
+ "home.due_title_one": "복습할 단어 1개가 준비됐습니다",
+ "home.due_sub": "직접 말하면서 저장한 단어입니다. 지금 2분이면 완전히 내 것이 됩니다."
 }

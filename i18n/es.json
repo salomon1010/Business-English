@@ -834,5 +834,8 @@
  "prac.cw_check": "Comprobar",
  "prac.cw_reveal": "Revelar",
  "prac.cw_solved": "¡Resuelto, todas correctas! 🎉",
- "prac.cw_progress": "{{solved}} de {{total}} palabras resueltas: sigue así."
+ "prac.cw_progress": "{{solved}} de {{total}} palabras resueltas: sigue así.",
+ "home.due_title": "{{n}} palabras están listas para repasar",
+ "home.due_title_one": "1 palabra está lista para repasar",
+ "home.due_sub": "Palabras que guardaste de tu propia práctica oral. Dos minutos ahora y son tuyas para siempre."
 }

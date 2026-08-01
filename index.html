@@ -59,7 +59,12 @@ window.FB_CONFIG={
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh;
+body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
+/* The background wash is sized to the VIEWPORT, not the document. Painted on
+   <body> it stretched with the page, so a long list (Business idioms) blew the
+   ellipses up and washed the whole screen lighter. A fixed layer behind the
+   content keeps every page the same shade. */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background-image:radial-gradient(ellipse 80% 50% at 50% -10%,var(--wash1),transparent),
   radial-gradient(ellipse 60% 40% at 90% 110%,var(--wash2),transparent)}
 a{color:var(--acc2);text-decoration:none}
@@ -513,9 +518,20 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 #v-practice .prac-subgroup .seg-tab:hover{color:var(--fg);border-color:transparent}
 #v-practice .prac-subgroup .seg-tab.on{background:none;font-weight:800}
 
+/* Vocabulary is the green half — same green as the Knowledge Booster cards
+   that now live inside it, so tab and cards read as one section. */
+#v-practice .seg-fit .seg-tab[data-k="vocabulary"].on{background:linear-gradient(135deg,#10b981,#34d399);color:#04160f}
+#v-practice .seg-fit .seg-tab[data-k="vocabulary"].on .btn-ic svg{color:#04160f}
+#v-practice .seg-fit .seg-tab[data-k="vocabulary"]:hover{border-color:var(--green)}
+
+/* The Knowledge Boosters sit under the Vocabulary tabs — they drill the words
+   collected there rather than being a page-level section. */
+.prac-kb{margin:0 0 18px}
+.prac-kb-h{font-size:15px;font-weight:800;letter-spacing:-.2px;margin:0 0 3px;color:var(--txt)}
+
 /* The callout colour tells you which half of the library you are in. */
-#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on{color:var(--acc2)}
-#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on::after{background:var(--acc2)}
+#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on{color:var(--green)}
+#v-practice .prac-subgroup[data-group="vocabulary"] .seg-tab.on::after{background:var(--green)}
 #v-practice .prac-subgroup[data-group="grammar"] .seg-tab.on{color:var(--pink)}
 #v-practice .prac-subgroup[data-group="grammar"] .seg-tab.on::after{background:var(--pink)}
 
@@ -547,11 +563,37 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .gr-arr{color:var(--mut2)}
 .gr-good{color:var(--green);font-weight:600}
 .gr-why{font-size:12.5px;color:var(--mut);line-height:1.55;margin-top:4px}
+/* Exercise launchers stay a grid of boxes at every width — never a stack of
+   full-width rows. Two per line on a phone, three once there is room. */
+.gx-grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+@media(max-width:560px){
+  .gx-grid{grid-template-columns:1fr 1fr;gap:10px}
+  .gx-card{min-height:112px;padding:14px 13px}
+  .gx-card b{font-size:13.5px}
+  .gx-card small{font-size:11.5px}
+  .gx-best,.gx-new{font-size:10px;padding:3px 6px;letter-spacing:.4px}
+}
 .gx-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;
   border:1px solid var(--line2);background:var(--card);border-radius:var(--r);padding:18px;cursor:pointer;
   transition:.18s;font-family:inherit;color:var(--txt);min-height:132px}
 .gx-card:hover{transform:translateY(-3px);border-color:var(--acc);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .gx-card:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+/* "Words are due" entry on the Dashboard. Green because it is the same signal
+   the Knowledge Booster cards carry: material you earned is waiting. Shown
+   only when the count is above zero, so it never becomes furniture. */
+.home-due{display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;
+  margin-bottom:14px;padding:14px 16px;
+  background:linear-gradient(155deg,rgba(52,211,153,.18),rgba(52,211,153,.06));
+  border-color:rgba(52,211,153,.42);transition:.15s}
+.home-due:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 26px rgba(52,211,153,.20)}
+.home-due-ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(52,211,153,.20);color:var(--green)}
+.home-due-ic svg{width:20px;height:20px}
+.home-due-t{flex:1;min-width:0}
+.home-due-t b{display:block;font-size:15px;margin-bottom:2px}
+.home-due-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:block}
+.home-due-go{flex:none;color:var(--green);font-size:19px}
+
 /* The progress ring used to sit inside .hero, which supplied the gap to the
    stat cards below. On its own it needs that spacing back, and the last phase
    bar must not leave a strip of dead space inside the card. */
@@ -595,8 +637,9 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   .about-links{gap:5px}
   .about-links>*{font-size:10px;padding:6px 4px}
 }
-/* Pink to match the Grammar callout these cards live under. */
-.gx-ic{color:var(--pink);line-height:0;margin-bottom:4px}
+/* Neutral: the pink lives on the Grammar tab, which is the one place that
+   colour needs to appear. Repeating it on seven card icons was noise. */
+.gx-ic{color:var(--mut);line-height:0;margin-bottom:4px}
 .gx-ic svg{width:24px;height:24px}
 .gx-card b{font-size:14.5px;line-height:1.35}
 .gx-card small{font-size:12px;color:var(--mut)}
@@ -739,9 +782,17 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
   .seg-fit .seg-tab b{margin-left:0}
 }
 .prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:linear-gradient(155deg,rgba(52,211,153,.20),rgba(52,211,153,.08));border:1px solid rgba(52,211,153,.42);border-radius:14px;padding:13px 8px;cursor:pointer;color:var(--txt);transition:.15s}
-.prac-ex-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 10px 26px rgba(52,211,153,.22)}
-.prac-ex-card .pex-ic{width:36px;height:36px;border-radius:10px;background:rgba(52,211,153,.20);display:grid;place-items:center;color:var(--green);margin-bottom:4px}
+/* Neutral launchers. The green on the Vocabulary tab above already says which
+   section these belong to; repeating it on the cards, their icons and the
+   heading turned one signal into four. Green is reserved for earned state. */
+.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:13px 8px;cursor:pointer;color:var(--txt);transition:.15s}
+.prac-ex-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.25)}
+.prac-ex-card .pex-ic{width:36px;height:36px;border-radius:10px;background:var(--bg2);display:grid;place-items:center;color:var(--mut);margin-bottom:4px}
+/* .ready = there are enough words in the bucket for this drill to run, so the
+   green here is earned state, not decoration: it says "something is waiting". */
+.prac-ex-card.ready{background:linear-gradient(155deg,rgba(52,211,153,.20),rgba(52,211,153,.08));border-color:rgba(52,211,153,.42)}
+.prac-ex-card.ready:hover{border-color:var(--green);box-shadow:0 10px 26px rgba(52,211,153,.22)}
+.prac-ex-card.ready .pex-ic{background:rgba(52,211,153,.20);color:var(--green)}
 .prac-ex-card .pex-ic svg{width:20px;height:20px}
 .prac-ex-card b{font-size:14px}
 .prac-ex-card small{font-size:11.5px;color:var(--mut2)}
@@ -2094,6 +2145,9 @@ const I18N_EN={
  "home.stat_convos":"Conversations practised",
  "home.next_convos":"Have your first AI conversation \u2014 five minutes is enough.",
  "home.next_vocab":"Save five words from today's speaking feedback.",
+ "home.due_title":"{{n}} words are ready to review",
+ "home.due_title_one":"1 word is ready to review",
+ "home.due_sub":"Words you saved from your own speaking. Two minutes now and they stay yours.",
  "home.tabs_label":"Home sections",
  "home.tab_dashboard":"Dashboard",
  "home.tab_rules":"Execution rules",
@@ -3458,7 +3512,20 @@ function homePanelDashboard(){
   const phaseCounts=[0,0,0,0];
   WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
   const circ=2*Math.PI*62;
+  /* Words the spaced-repetition schedule says are due right now. The nav badge
+     already counts them, but only Practice ever explained them — so a user who
+     opened Home saw a number with no context. Hidden entirely at zero: an
+     always-present "0 words due" would be noise. */
+  const dueN=navBadgeCount("practice");
   return `
+    ${dueN?`<button class="card home-due" onclick="go('practice')">
+      <span class="home-due-ic">${ic("book")}</span>
+      <span class="home-due-t">
+        <b>${dueN===1?t("home.due_title_one"):t("home.due_title",{n:dueN})}</b>
+        <small>${t("home.due_sub")}</small>
+      </span>
+      <span class="home-due-go">→</span>
+    </button>`:""}
     <div class="card home-ring">
       <div class="ring-wrap">
         <div class="ring">
@@ -5685,19 +5752,12 @@ window.libGroup=k=>{
 function rPractice(el){
   _libGroup=libGroupOf(_libTab);
   const group=LIB_GROUPS.find(g=>g.k===_libGroup)||LIB_GROUPS[0];
+  const _kbReady=pvReady();
   el.innerHTML=`
   ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
   <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
-
-  <h2 class="prac-sec">${t("prac.kb_h")}</h2>
-  <p class="prac-sec-sub">${t("prac.kb_sub")}</p>
-  <div class="prac-ex">
-    <button class="prac-ex-card" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
-    <button class="prac-ex-card" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
-    <button class="prac-ex-card" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
-  </div>
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   <button class="card rp-entry" onclick="go('roleplay')">
@@ -5708,11 +5768,21 @@ function rPractice(el){
 
   <h2 class="prac-sec">${t("prac.vg_h")}</h2>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("lib.tabs_label"))}">
-    ${LIB_GROUPS.map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
+    ${LIB_GROUPS.map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" data-k="${g.k}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
   </div>
   <div class="seg-tabs prac-subgroup" data-group="${group.k}" role="tablist">
     ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
   </div>
+  ${_libGroup==="vocabulary"?`
+  <div class="prac-kb">
+    <h3 class="prac-kb-h">${t("prac.kb_h")}</h3>
+    <p class="prac-sec-sub">${t("prac.kb_sub")}</p>
+    <div class="prac-ex">
+      <button class="prac-ex-card ${_kbReady.fc?"ready":""}" onclick="fcStart()"><span class="pex-ic">${ic("cards")}</span><b>${t("prac.flashcards")}</b><small>${t("prac.flashcards_sub")}</small></button>
+      <button class="prac-ex-card ${_kbReady.qz?"ready":""}" onclick="qzStart()"><span class="pex-ic">${ic("idea")}</span><b>${t("prac.quizzes")}</b><small>${t("prac.quizzes_sub")}</small></button>
+      <button class="prac-ex-card ${_kbReady.cw?"ready":""}" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
+    </div>
+  </div>`:""}
   <div id="libBody"></div>`;
   const body=el.querySelector("#libBody");
   if(_libTab==="vocab")rLibVocab(body);
@@ -5784,7 +5854,7 @@ function rLibGrammar(el){
 function rLibExercises(el){
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.ex_sub")}</p>
-  <div class="grid g3">
+  <div class="grid gx-grid">
     ${GRAM_CATS.map(c=>{const st=gxStats(c.k),n=c.k==="weekly"?10:(GRAM_EX[c.k]||[]).length;
       return `<button class="gx-card" onclick="gxStart('${c.k}')">
         <span class="gx-ic">${ic(c.ic)}</span>
@@ -5848,6 +5918,14 @@ function pvOpen(html){
 window.pvClose=()=>{const ov=document.getElementById("pvGame");if(ov){ov.classList.remove("show");ov.innerHTML="";}document.body.style.overflow="";const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);};
 function pvHint(w){return t("voc.quiz_hint_fallback",{letter:w[0].toUpperCase(),len:w.length,level:(S.vocab[w]||{l:"?"}).l})}
 function pvBucket(){const b=vocBuckets();return b[_pracTab].length?b[_pracTab].slice():Object.keys(S.vocab);}
+/* Each booster needs a different amount of material before it can run, so the
+   green "ready" state is worked out per card with the same thresholds the
+   start functions enforce. No words → grey card, and tapping still explains. */
+function pvReady(){
+  const w=pvBucket();
+  const cw=[...new Set(w.map(x=>x.toLowerCase()))].filter(x=>/^[a-z]+$/.test(x)&&x.length>=3&&x.length<=9);
+  return {fc:w.length>=1, qz:w.length>=4, cw:cw.length>=2};
+}
 /* ---- Flashcards ---- */
 let _fc=null;
 window.fcStart=()=>{const words=pvBucket().sort(()=>Math.random()-.5);if(!words.length)return toast(t("prac.no_words_toast"));_fc={words,i:0,know:0};fcRender();};

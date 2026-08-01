@@ -834,5 +834,8 @@
  "prac.cw_check": "Controlla",
  "prac.cw_reveal": "Rivela",
  "prac.cw_solved": "Risolto — tutte corrette! 🎉",
- "prac.cw_progress": "{{solved}} parole su {{total}} risolte: continua così."
+ "prac.cw_progress": "{{solved}} parole su {{total}} risolte: continua così.",
+ "home.due_title": "{{n}} parole sono pronte da ripassare",
+ "home.due_title_one": "1 parola è pronta da ripassare",
+ "home.due_sub": "Parole che hai salvato mentre parlavi. Due minuti adesso e restano tue."
 }

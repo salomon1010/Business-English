@@ -129,6 +129,9 @@ Features
 - **Progress Calendar** (Profile): weekly goal tracker (x/6), month heat-map with
   tap-for-detail, **year contribution graph**, streak / best-streak / consistency %
   stats, insight line. Driven by `S.dates` + `S.dayLog`.
+- **Words due**: `vocState`/`VOC_INTERVALS` spaced repetition drives a Practice nav
+  badge (`navBadgeCount`) and a green **"N words are ready to review"** card at the
+  top of the Home dashboard (`.home-due`, hidden at zero).
 - **Daily session**: 25-min timer, recorder + example/transcript + notes + self-
   score + mark-complete; the **25-minute template checklist was moved to the
   bottom** so practice comes first.
@@ -154,11 +157,19 @@ Fixes / infra
 - 15 `i18n/*.json` files exist (es fr pt it de ru ar ur hi bn id vi zh ja ko).
 
 ## Not yet built / open threads
-- **Firebase cloud sign-in** code is present but **console setup is unfinished**
-  (Google provider + authorised domain `app.lomonec.com`); it syncs progress JSON,
-  **not audio recordings**.
-- **No push/local notifications** yet (daily-reminder was discussed — the practical
-  first step is a local reminder at the user's chosen slot; iOS web-notif is weak).
+- **Firebase cloud sign-in**: email/password sign-in, Firestore sync and merge are
+  **built and shipping** (`fbEmailAuth`, `fbMerge`, `fbPush`). What remains is
+  **console setup only**: enable the Email/Password provider, add `app.lomonec.com`
+  as an authorised domain, and set Firestore rules. **Google sign-in is
+  deliberately hidden** — `signInWithRedirect` cannot complete while the app is on
+  `app.lomonec.com` and the auth handler is on `be-mastery.firebaseapp.com`
+  (partitioned third-party storage). `fbGoogle()` stays for when hosting can serve
+  `/__/auth/`. Syncs progress JSON, **not audio recordings**.
+- **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
+  reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). It is a
+  `setTimeout` while the app is open + a launch nudge + `Notification` when
+  permitted — there is **no push server**, so it cannot fire with the app closed.
+  That's the remaining gap if reminders ever need to be reliable.
 - **Google Play**: app is in review/internal testing (`com.bemastery.app`,
   org account "Lomonec"); assetlinks + Console rollout pending.
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a

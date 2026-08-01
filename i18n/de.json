@@ -834,5 +834,8 @@
  "prac.cw_check": "Prüfen",
  "prac.cw_reveal": "Auflösen",
  "prac.cw_solved": "Gelöst — alle Wörter richtig! 🎉",
- "prac.cw_progress": "{{solved}} von {{total}} Wörtern gelöst — weiter so."
+ "prac.cw_progress": "{{solved}} von {{total}} Wörtern gelöst — weiter so.",
+ "home.due_title": "{{n}} Wörter warten auf die Wiederholung",
+ "home.due_title_one": "1 Wort wartet auf die Wiederholung",
+ "home.due_sub": "Wörter, die du beim Sprechen gespeichert hast. Zwei Minuten jetzt, und sie bleiben dir."
 }

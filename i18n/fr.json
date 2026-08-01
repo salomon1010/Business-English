@@ -834,5 +834,8 @@
  "prac.cw_check": "Vérifier",
  "prac.cw_reveal": "Révéler",
  "prac.cw_solved": "Résolu — tous les mots corrects ! 🎉",
- "prac.cw_progress": "{{solved}} mots sur {{total}} résolus — continue."
+ "prac.cw_progress": "{{solved}} mots sur {{total}} résolus — continue.",
+ "home.due_title": "{{n}} mots sont prêts à être révisés",
+ "home.due_title_one": "1 mot est prêt à être révisé",
+ "home.due_sub": "Des mots que vous avez enregistrés en parlant. Deux minutes maintenant et ils sont à vous."
 }
