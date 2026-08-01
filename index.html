@@ -605,6 +605,11 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 /* Segmented pill tabs — the one tab component used across the app
    (Library buckets, Journey phases, Shadow Studio, Phrase Lab). */
 .prac-subtabs,.seg-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+/* the three vocabulary buckets are one control — equal widths read as a
+   segmented switch rather than three loose pills of random length */
+.prac-subtabs{flex-wrap:nowrap}
+.prac-subtabs .prac-subtab{flex:1 1 0;min-width:0;justify-content:center;text-align:center;padding:8px 6px}
+.prac-subtabs .prac-subtab b{margin-left:4px}
 .prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut2)}
 .prac-subtab.on,.seg-tab.on{background:var(--grad);border-color:transparent;color:#fff}
@@ -1973,6 +1978,8 @@ const I18N_EN={
  "home.next_phrases":"Master five phrases from this week's Phrase Lab.",
  "home.next_sessions":"Complete today's 25-minute session.",
  "home.next_clips":"Create your first clip in the Shadow Studio.",
+ "home.stat_drills":"Grammar drills done",
+ "home.next_drills":"Try one grammar drill \u2014 eight questions, two minutes.",
  "home.stat_convos":"Conversations practised",
  "home.next_convos":"Have your first AI conversation \u2014 five minutes is enough.",
  "home.next_vocab":"Save five words from today's speaking feedback.",
@@ -2139,6 +2146,7 @@ const I18N_EN={
  "prog.stat_words":"Words spoken in feedback sessions",
  "prog.stat_best":"Best pronunciation score",
  "prog.stat_pace":"Latest pace (wpm)",
+ "prog.stat_days":"Days practised",
  "prog.stat_convos":"Conversations",
  "prog.convos_h":"\ud83d\udcac Conversations you\u2019ve had",
  "prog.convos_sub":"Talking points you covered in each role-play.",
@@ -3333,6 +3341,7 @@ async function rHome(el){
     ${statCard("target",(S.clips||[]).length,"",t("home.stat_clips"),(S.clips||[]).length===0?t("home.next_clips"):"","go('shadow')")}
     ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
     ${statCard("chat",(S.convos||[]).length,"",t("home.stat_convos"),(S.convos||[]).length===0?t("home.next_convos"):"","go('roleplay')")}
+    ${statCard("pencil",Object.values(S.gram||{}).reduce((n,g)=>n+((g&&g.runs)||0),0),"",t("home.stat_drills"),Object.keys(S.gram||{}).length===0?t("home.next_drills"):"","go('practice')")}
   </div>
   <h3 style="margin:26px 0 4px">${hIcon("idea",t("home.science_h"))}</h3>
   <p class="sub" style="margin-bottom:14px">${t("home.science_body")}</p>
@@ -6272,6 +6281,7 @@ function progressHTML(){
       <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("book")}</span>${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${(S.convos||[]).length}</div><div class="l">${t("prog.stat_convos")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("calendar")}</span>${(S.dates||[]).length}</div><div class="l">${t("prog.stat_days")}</div></div>
     </div>
     ${(S.convos||[]).length?`<div class="card" style="background:var(--bg2);margin-bottom:16px">
       <b style="font-size:14px">${tInl("prog.convos_h","chat")}</b>
