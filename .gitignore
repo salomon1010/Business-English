@@ -1,2 +1,6 @@
 .DS_Store
 .playwright-mcp/
+# Translation-review packets (regenerate with the review script). Kept out of
+# the repo because everything committed here is served publicly from
+# app.lomonec.com — these are working files for reviewers, not site content.
+review/
