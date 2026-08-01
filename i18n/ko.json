@@ -1079,5 +1079,6 @@
   "home.next_pron": "대화를 평가하면 점수가 나와요",
   "rev.pron_h": "말하기 연습",
   "rev.pron_sub": "평가한 모든 대화 기준.",
-  "rev.pron_none": "대화를 평가하면 발음 추이가 여기에 표시돼요."
+  "rev.pron_none": "대화를 평가하면 발음 추이가 여기에 표시돼요.",
+  "rp.eval_yours": "내가 말한 발음 듣기"
 }

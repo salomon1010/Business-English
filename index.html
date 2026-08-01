@@ -2048,6 +2048,7 @@ const I18N_EN={
   "rp.hist_confirm_clear":"Delete every saved session for this scenario? This cannot be undone.",
   "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
   "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
+  "rp.eval_yours":"Hear how you said it",
   "rp.eval_btn":"Evaluate your conversation",
   "rp.eval_back":"‹ Summary",
   "rp.eval_h":"Conversation review",
@@ -7782,11 +7783,15 @@ window.rpEvaluate=async()=>{
       card.querySelector(".rp-ev-state").innerHTML=`<span style="color:var(--mut2)">${t("rp.eval_noaudio")}</span>`;
       continue;
     }
-    res.words.forEach(w=>{
+    turn.gw=res.words.map(w=>String(w.word||""));      /* for the fallback estimate */
+    res.words.forEach((w,wi)=>{
       const key=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
       if(!key||w.score>=RP_WEAK)return;
       const prev=weak.get(key);
-      if(!prev||w.score<prev.score)weak.set(key,{word:key,score:w.score,note:w.note||""});
+      /* remember the turn and position so the word can be cut out of your own
+         recording later */
+      if(!prev||w.score<prev.score)
+        weak.set(key,{word:key,score:w.score,note:w.note||"",ti:i,widx:wi,wcount:res.words.length});
     });
     scored.push({i,overall:res.overall});
     card.innerHTML=`
@@ -7834,6 +7839,8 @@ function rpEvWords(words){
          <span class="rp-ev-wdot" style="background:${rpEvCol(w.score)}"></span>
          <span class="rp-ev-wtxt"><b>${esc(w.word)}</b>${w.note?`<small>${esc(w.note)}</small>`:""}</span>
          <span class="rp-ev-wpct" style="color:${rpEvCol(w.score)}">${w.score}%</span>
+         <button class="btn btn-g btn-sm voc-mini" onclick="fbSay('${esc(w.word)}',1)" aria-label="${esc(t("voc.hear_title"))}" title="${esc(t("voc.hear_title"))}">${ic("sound")}</button>
+         ${w.ti!=null&&_rpLast&&_rpLast.turns[w.ti]&&_rpLast.turns[w.ti].blob?`<button class="btn btn-g btn-sm voc-mini" onclick="rpEvMine(${w.ti},${w.widx},${w.wcount},'${esc(w.word)}')" aria-label="${esc(t("rp.eval_yours"))}" title="${esc(t("rp.eval_yours"))}">${ic("play")}</button>`:""}
          <button class="btn btn-g btn-sm voc-mini" onclick="rpEvTry('${esc(w.word)}')" aria-label="${esc(t("voc.say_it_title"))}" title="${esc(t("voc.say_it_title"))}">${ic("mic")}</button>
          <button class="btn btn-sm voc-mini ${on?"btn-p":"btn-g"}" id="rpvs_${safe}" onclick="rpEvSave('${esc(w.word)}')" aria-label="Save">${on?ic("check"):ic("bookmark")}</button>
          <span class="rp-ev-wres" id="rpvr_${safe}"></span>
@@ -7969,6 +7976,62 @@ window.rpHistory=id=>{
    <p class="sub" style="margin-bottom:4px">${t("rp.hist_sub")}</p>
    <div id="rpHistSolo">${body||`<div class="card" style="margin-top:14px"><p style="margin:0;color:var(--mut)">${t("rp.hist_none")}</p></div>`}</div>`;
   manIconizeInline(el);
+};
+
+
+/* ---- hear the word as YOU said it ----
+   Cut straight out of your own recording. Precision matters here: a snippet
+   that lands on the wrong word teaches the wrong thing. So the exact word text
+   is matched against Whisper's timings across the whole utterance, and only if
+   that fails does it fall back to energy bursts and then to a length-weighted
+   time estimate. Playback reuses the unlocked audio element, since the timings
+   arrive over the network and would otherwise be blocked on iOS. */
+const _rpMineUrl=new Map();
+function rpPickWord(words,target,idx,count){
+  const tw=String(target).toLowerCase().replace(/[^a-z']/g,"");
+  const hits=words.map((w,i)=>({w,i})).filter(x=>x.w.w.replace(/[^a-z']/g,"")===tw);
+  if(hits.length){
+    const want=words.length===count?idx:Math.round((idx+0.5)/Math.max(1,count)*words.length-0.5);
+    hits.sort((a,b)=>Math.abs(a.i-want)-Math.abs(b.i-want));
+    return hits[0].w;                       /* exact text match, nearest the expected spot */
+  }
+  return fbPickWord(words,idx,count,target);
+}
+window.rpEvMine=async(ti,widx,wcount,word)=>{
+  const turn=_rpLast&&_rpLast.turns&&_rpLast.turns[ti];
+  if(!turn||!turn.blob)return toast(t("rp.eval_noaudio"));
+  const blob=turn.blob;
+  let url=_rpMineUrl.get(ti);
+  if(!url){url=URL.createObjectURL(blob);_rpMineUrl.set(ti,url)}
+  const words=await fbWords(blob);
+  const seg=words?null:await fbSegments(blob);
+  try{speechSynthesis.cancel()}catch(_){}
+  fbStopAudio();
+  const a=ttsPlayer(); _ttsAudio=a; a.onended=null; a.playbackRate=1;
+  const playSpan=d=>{
+    let start=null,end=null;
+    if(words&&words.length){const o=rpPickWord(words,word,widx,wcount);start=o.start;end=o.end;}
+    else if(seg&&seg.segs&&seg.segs.length&&wcount>0){
+      let si=seg.segs.length===wcount?widx:Math.round((widx+0.5)/wcount*seg.segs.length-0.5);
+      si=Math.max(0,Math.min(seg.segs.length-1,si));
+      start=seg.segs[si].start;end=seg.segs[si].end;
+    }else{
+      const f=fbWordFrac(turn.gw&&turn.gw.length?turn.gw:new Array(Math.max(1,wcount)).fill("word"),widx);
+      const pad=0.18;start=Math.max(0,f[0]*d-pad);end=Math.min(d,f[1]*d+pad);
+    }
+    const st=Math.max(0,start-0.04),en=Math.min(d,end+0.08);
+    try{a.currentTime=st}catch(_){}
+    a.play().catch(()=>{});
+    setTimeout(()=>{if(_ttsAudio===a){try{a.pause()}catch(_){}}},Math.max(320,(en-st)*1000+120));
+  };
+  const begin=()=>{
+    if(isFinite(a.duration)&&a.duration>0)return playSpan(a.duration);
+    /* webm from MediaRecorder often reports Infinity until it is seeked */
+    a.currentTime=1e10;
+    a.onseeked=()=>{a.onseeked=null;playSpan(a.duration)};
+  };
+  if(a.src===url&&a.readyState>=1)begin();
+  else{a.src=url;a.onloadedmetadata=()=>{a.onloadedmetadata=null;begin()}}
 };
 
 window.rpEvSave=w=>{

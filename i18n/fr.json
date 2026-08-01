@@ -1079,5 +1079,6 @@
   "home.next_pron": "Évaluez une conversation pour obtenir un score",
   "rev.pron_h": "Pratique orale",
   "rev.pron_sub": "Sur toutes les conversations que vous avez évaluées.",
-  "rev.pron_none": "Évaluez une conversation et votre progression de prononciation apparaîtra ici."
+  "rev.pron_none": "Évaluez une conversation et votre progression de prononciation apparaîtra ici.",
+  "rp.eval_yours": "Écoutez comment vous l'avez dit"
 }

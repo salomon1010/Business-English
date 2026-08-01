@@ -1079,5 +1079,6 @@
   "home.next_pron": "Đánh giá một cuộc trò chuyện để có điểm",
   "rev.pron_h": "Luyện nói",
   "rev.pron_sub": "Trên tất cả cuộc trò chuyện bạn đã đánh giá.",
-  "rev.pron_none": "Đánh giá một cuộc trò chuyện, xu hướng phát âm của bạn sẽ hiện ở đây."
+  "rev.pron_none": "Đánh giá một cuộc trò chuyện, xu hướng phát âm của bạn sẽ hiện ở đây.",
+  "rp.eval_yours": "Nghe lại cách bạn đã nói"
 }

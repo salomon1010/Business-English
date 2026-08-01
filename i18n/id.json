@@ -1079,5 +1079,6 @@
   "home.next_pron": "Evaluasi satu percakapan untuk mendapat skor",
   "rev.pron_h": "Latihan berbicara",
   "rev.pron_sub": "Di semua percakapan yang sudah Anda evaluasi.",
-  "rev.pron_none": "Evaluasi sebuah percakapan dan tren pelafalan Anda muncul di sini."
+  "rev.pron_none": "Evaluasi sebuah percakapan dan tren pelafalan Anda muncul di sini.",
+  "rp.eval_yours": "Dengar cara Anda mengucapkannya"
 }
