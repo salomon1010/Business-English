@@ -5206,8 +5206,7 @@ window.shTrendRender=()=>{
   const box=document.getElementById("shTrend");if(!box)return;
   const vid=shClip&&shClip.vid;
   const arr=(vid&&S.fbV&&S.fbV[vid])||[];
-  const svg=fbTrendSVG(arr.map(v=>({score:v})),{axis:true,first:Math.max(1,arr.length-4)});
-  box.innerHTML=svg?`<div class="sh-trend"><b class="sh-trend-h">${hIcon("chart",t("sh.trend_title"))}</b>${svg}</div>`:"";
+  box.innerHTML=perfPanel(perfSeries("clip",vid),{first:Math.max(1,arr.length-4)});
 };
 window.shOpenWork=()=>{
   const w=document.getElementById("shWork");if(!w)return;
@@ -6363,11 +6362,16 @@ function gxEnd(){
   const total=_gx.items.length,score=_gx.score,pct=Math.round(100*score/total);
   S.gram=S.gram||{};const g=S.gram[_gx.cat]=S.gram[_gx.cat]||{best:0,runs:0};
   g.runs=(g.runs||0)+1;if(pct>(g.best||0))g.best=pct;
+  /* Keep the run history, not just the best: without a series there is nothing
+     to trend, and history cannot be reconstructed after the fact. Additive —
+     older saves simply start with an empty list. */
+  g.hist=perfPush(g.hist||[],{t:Date.now(),p:pct},30);
   g.last=Date.now();save();
   const cat=_gx.cat;
   pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic(pct>=80?"trophy":"target")}</div>
     <h2>${t(pct>=80?"gx.end_great":"gx.end_ok")}</h2>
     <p>${t("gx.end_summary",{score,total,pct})}</p>
+    ${perfPanel(perfSeries("grammar",cat))}
     <div class="pv-actions"><button class="btn btn-g" onclick="gxStart('${cat}')">${t("prac.again")}</button>
     <button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);
 }
@@ -6566,7 +6570,35 @@ const FB_TOP_FIXES=3;
    renders nothing rather than a single floating dot. Every colour is a token,
    and the aria-label reuses the existing "your last scores" key plus the same
    figures the text row already shows — no new i18n keys. */
-function fbTrendSVG(scored,opts){
+/* Normalised access to every feature's attempt history. Each feature keeps its
+   own storage shape for backwards compatibility; this is the single place that
+   knows how to read them, so a new chart never has to care.
+   Returns [{score, ts}] oldest-first. */
+function perfSeries(kind,key){
+  try{
+    if(kind==="speaking")  return (S.fbHist||[]).filter(x=>typeof x.score==="number").map(x=>({score:x.score,ts:x.ts}));
+    if(kind==="clip")      return ((S.fbV||{})[key]||[]).map(v=>({score:v}));
+    if(kind==="grammar")   return (((S.gram||{})[key]||{}).hist||[]).map(x=>({score:x.p,ts:x.t}));
+    if(kind==="vocabquiz") return ((S.quizHist||[])).map(x=>({score:x.p,ts:x.t}));
+  }catch(e){}
+  return [];
+}
+/* Appends one attempt to a capped series. Capped because these live in
+   localStorage and sync to Firestore as one JSON blob. */
+function perfPush(arr,rec,cap){arr.push(rec);if(arr.length>(cap||30))arr.splice(0,arr.length-(cap||30));return arr}
+
+/* The panel every screen uses: heading + chart, or nothing at all when there
+   is not yet a trend to show. Keeps the chrome identical everywhere. */
+function perfPanel(series,opts){
+  const svg=renderPerformanceTrend(series,Object.assign({axis:true},opts||{}));
+  return svg?`<div class="sh-trend"><b class="sh-trend-h">${hIcon("chart",t("sh.trend_title"))}</b>${svg}</div>`:"";
+}
+
+/* ---- Shared performance-trend component -------------------------------
+   ONE renderer for every screen that records repeated scored attempts.
+   Callers pass a normalised series (see perfSeries) plus options; nobody draws
+   their own chart. fbTrendSVG is retained as an alias for existing callers. */
+function renderPerformanceTrend(scored,opts){
   opts=opts||{};
   const pts=scored.slice(-5).filter(x=>typeof x.score==="number");
   if(pts.length<2)return "";
@@ -6602,6 +6634,7 @@ function fbTrendSVG(scored,opts){
       <path class="fb-trend-line" d="${d}"/>${dots}${labels}${axis}
     </svg></div>`;
 }
+window.fbTrendSVG=renderPerformanceTrend;   // alias: existing call sites
 function fbRanked(problems){
   return problems.slice().sort((a,b)=>{
     const sev=x=>x.op==="sub"?wsim(x.t,x.h):-1;    // -1 = not caught at all
@@ -7308,7 +7341,12 @@ window.qzPick=choice=>{
   vocMark(correct,ok);if(ok)_qz.score++;
   setTimeout(()=>{_qz.i++;qzRender();},950);
 };
-function qzEnd(){pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.qz_summary",{score:_qz.score,total:_qz.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="qzStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
+function qzEnd(){
+  /* the run score used to be shown once and discarded — store it so the trend
+     has something to plot next time */
+  const pct=Math.round(100*_qz.score/Math.max(1,_qz.words.length));
+  S.quizHist=perfPush(S.quizHist||[],{t:Date.now(),p:pct},30);save();
+  pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.qz_summary",{score:_qz.score,total:_qz.words.length})}</p>${perfPanel(perfSeries("vocabquiz"))}<div class="pv-actions"><button class="btn btn-g" onclick="qzStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Crosswords (greedy generator) ---- */
 let _cw=null;
 window.cwStart=()=>{
