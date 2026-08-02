@@ -27,24 +27,31 @@ a{color:var(--acc)}
 <header>
   <img src="logo.svg" alt="BE Mastery logo">
   <h1>Privacy Policy</h1>
-  <p>BE Mastery — Business English Mastery (12-Week System) · Last updated: July 19, 2026</p>
+  <p>BE Mastery — Business English Mastery (12-Week System) · Last updated: August 2, 2026</p>
 </header>
 <main>
   <div class="card hl">
-    <p><b>The short version:</b> BE Mastery is a privacy-first app. There are no accounts, no ads, no analytics, and no tracking. Your progress, notes, voice recordings and transcripts are stored <b>only on your device</b>. The camera, when you enable the Posture Coach, is processed on-device with zero capture — no video is ever stored or transmitted.</p>
+    <p><b>The short version:</b> your practice data — progress, notes, saved phrases and voice recordings — is stored <b>on your device</b>. There are no ads, and nothing you do is sold, profiled or used to build an advertising identity. Some features do need the internet to work, and those send specific things off your device: your recordings go to a speech service to be transcribed and scored, and text you enter into Executive Polish goes to an AI service to be rewritten. Every one of them is listed in section 4. The camera, when you enable the Posture Coach, never leaves your device at all.</p>
   </div>
 
-  <h2>1. Data we store — on your device only</h2>
+  <h2>1. Data we store — on your device</h2>
   <p>The app stores the following locally in your browser/app storage (localStorage and IndexedDB) on your device:</p>
   <ul>
     <li>Your profile (first name, role, goal, practice slot) as entered by you</li>
     <li>Practice progress: completed sessions, scores, notes, saved phrases, vocabulary, clips</li>
     <li>Voice recordings you make, and the text transcripts generated from them</li>
   </ul>
-  <p>This data never leaves your device unless you explicitly export it or enable the optional GitHub sync (below). Deleting the app or using <b>Account → Reset everything</b> permanently erases it.</p>
+  <p>This is the only copy unless you turn on cloud sign-in (section 5) or the optional GitHub backup (section 6), or a feature in section 4 sends something out to do its job. Deleting the app or using <b>Account → Reset everything</b> permanently erases the local copy.</p>
 
-  <h2>2. Microphone</h2>
-  <p>The microphone is used only when you tap record or start a speaking exercise. Recordings are saved on your device only. Speech-to-text transcription is performed by your browser's built-in speech engine; in Chrome, audio may be processed transiently by Google's speech service as part of that browser feature, subject to Google's terms. We do not receive, store, or have access to any of your audio.</p>
+  <h2>2. Microphone and your recordings</h2>
+  <p>The microphone is used only when you tap record or start a speaking exercise. The recording itself is <b>saved on your device</b> — we never keep a copy.</p>
+  <p>However, to give you word-by-word feedback the app has to send the clip somewhere that can listen to it. When you are online, a recording is sent to our Cloudflare Worker, which passes it to <b>OpenAI</b> and returns the result:</p>
+  <ul>
+    <li><b>Transcription and word timings</b> (OpenAI Whisper) — so the app knows which words you said and exactly when</li>
+    <li><b>Pronunciation grading</b> (an OpenAI audio model) — which listens to the clip to score how you said it</li>
+  </ul>
+  <p>This happens automatically as part of speaking feedback and role-play; it is not a separate opt-in. Our Worker stores nothing: it holds no database and writes no logs of your audio or text — it forwards the request and returns the answer. If you are offline, none of this runs and the app falls back to your browser's own speech recognition.</p>
+  <p>OpenAI does not use data sent through its API to train its models, and we have not opted in to any data-sharing programme. We also do not enable OpenAI's optional call logging, so your recordings and text are not kept in our OpenAI account. OpenAI retains API requests for up to 30 days for abuse monitoring and then deletes them.</p>
 
   <h2>3. Camera — Posture Coach (zero-capture)</h2>
   <p>The camera activates only when you enable the Posture Coach, and follows a strict zero-capture, local-loop design:</p>
@@ -54,25 +61,37 @@ a{color:var(--acc)}
     <li>Only ephemeral numeric posture coordinates exist while the coach runs; they are mathematically irreversible and cannot reconstruct your face</li>
     <li>Turning the coach off releases the camera completely</li>
   </ul>
+  <p>Unlike the microphone, the camera feed never leaves your device under any circumstances.</p>
 
-  <h2>4. Network requests</h2>
+  <h2>4. When data leaves your device</h2>
+  <p>These are every case, and what is sent:</p>
   <ul>
-    <li><b>YouTube:</b> videos in the Shadowing Studio are played via YouTube's embedded player, subject to YouTube's privacy policy</li>
-    <li><b>Dictionary definitions:</b> individual words you tap are looked up anonymously via the free Dictionary API</li>
-    <li><b>Fonts and the on-device vision model</b> are fetched from public CDNs</li>
+    <li><b>Speaking feedback and role-play:</b> your voice recording, to our Worker and on to OpenAI (see section 2)</li>
+    <li><b>Executive Polish:</b> the sentence you type or dictate, to our Worker and on to OpenAI, which returns the rewritten versions</li>
+    <li><b>Natural voices:</b> the text to be spoken, to our Worker and on to OpenAI. Choosing the device voice in Settings keeps this on your device instead</li>
+    <li><b>YouTube:</b> videos in the Shadowing Studio play via YouTube's embedded player, subject to YouTube's privacy policy</li>
+    <li><b>Dictionary definitions:</b> individual words you tap, looked up anonymously via the free Dictionary API</li>
+    <li><b>Fonts and the on-device vision model:</b> fetched from public CDNs</li>
+    <li><b>Analytics:</b> anonymous page counts only — see section 7</li>
   </ul>
-  <p>None of these requests include your identity, recordings, or progress data.</p>
+  <p>None of these requests carry your name, your account, or your practice history. We do not sell data, and there are no advertising or social-media trackers in the app.</p>
 
-  <h2>5. Optional GitHub sync</h2>
+  <h2>5. Optional cloud sign-in</h2>
+  <p>Sign-in is optional and off unless you choose it. If you create an account with an email address and password, we use <b>Google Firebase</b> to authenticate you and to store a copy of your progress so it follows you between devices. What syncs is the progress data in section 1 — sessions, scores, notes, phrases, vocabulary. <b>Your voice recordings are never uploaded to it.</b> You can delete your account and its stored copy at any time; see <a href="delete-account.html">Delete your account</a>.</p>
+
+  <h2>6. Optional GitHub backup</h2>
   <p>If you choose to connect your own private GitHub repository for backup, your progress and recordings are transmitted directly from your device to your repository using your own access token. We never see this data or your token; the token is stored only on your device and is never included in exports.</p>
 
-  <h2>6. Children</h2>
-  <p>The app is intended for professionals and learners aged 13 and over. It collects no personal information from anyone.</p>
+  <h2>7. Analytics</h2>
+  <p>We use <b>Cloudflare Web Analytics</b> to count page views and see which sites link to us. It is privacy-first by design: it sets <b>no cookies</b>, does not fingerprint your device, and cannot follow you to other websites. We receive aggregate counts only — never an individual profile, and never anything you type, say, record or save. There is nothing here to opt out of because nothing identifies you.</p>
 
-  <h2>7. Your rights &amp; data deletion</h2>
-  <p>Because all data is on your device, you are always in full control: export it (Account → Export JSON), or erase it entirely (Account → Reset everything, or uninstall the app). There is nothing to request from us, because we hold nothing.</p>
+  <h2>8. Children</h2>
+  <p>The app is intended for professionals and learners aged 13 and over.</p>
 
-  <h2>8. Changes &amp; contact</h2>
+  <h2>9. Your rights &amp; data deletion</h2>
+  <p>Your local data is always yours to take or destroy: export it (Account → Export JSON), or erase it entirely (Account → Reset everything, or uninstall the app). If you signed in, deleting your account also removes the synced copy — see <a href="delete-account.html">Delete your account</a>. If you never signed in, we hold nothing about you to begin with. For anything else, write to us at the address below.</p>
+
+  <h2>10. Changes &amp; contact</h2>
   <p>If this policy changes, the "Last updated" date above will change. Questions: <a href="mailto:contact@lomonec.com">contact@lomonec.com</a></p>
 </main>
 <footer>© 2026 Lomonec LLC — BE Mastery. All rights reserved. · <a href="./">Open the app</a> · <a href="manual/">User manual</a> · <a href="mailto:contact@lomonec.com">Support</a></footer>

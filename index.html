@@ -87,14 +87,14 @@ window.FB_CONFIG={
    Only counts of anonymous events are ever sent. No recordings, no transcripts,
    no phrase text, no profile fields — keep it that way when adding events. */
 (function(){
-  var PROVIDER="cfweb", ID="";                     // ← paste the Cloudflare token here
+  var PROVIDER="cfweb", ID="b0f913bb28934a39a031535e62b883f9";   // Cloudflare Web Analytics beacon token (public by design)
   window.track=function(){};                       // no-op until a provider is configured
   if(!PROVIDER||!ID)return;
   var s=document.createElement("script");
   if(PROVIDER==="cfweb"){
     /* Cloudflare's beacon reports page views by itself; there is nothing to wire
        into track(), which stays a no-op on purpose. */
-    s.defer=true;
+    s.type="module";   // Cloudflare now ships beacon.min.js as a module; modules defer by default
     s.src="https://static.cloudflareinsights.com/beacon.min.js";
     s.setAttribute("data-cf-beacon",JSON.stringify({token:ID}));
   }else if(PROVIDER==="plausible"){
