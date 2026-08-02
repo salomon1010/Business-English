@@ -82,6 +82,13 @@ Review and Journey, which were never individually audited.
 
 **None open.** Fixed during these passes:
 
+- State: `load()` returned a stored state as-is, backfilling only 7 of the 18
+  fields the default carries. `masteredCount()` calls `Object.keys(S.phMaster)`
+  and `streak()` reads `S.dates.length`, neither guarded — so a state written by
+  an older build, or merged from another device's cloud copy, threw before the
+  view rendered. A blank screen, not a degraded one. Fixed in `50b9339`; the
+  backfill is now driven off `defState()` so the two lists cannot drift again.
+
 - Vocabulary: the brightest control on every row **deleted the word** while
   announcing itself as "Save".
 - Calendar: the streak screen was untranslated for 14 of 15 languages.
@@ -126,19 +133,97 @@ does not gzip, so the first figures taken there overstated every number:
 
 GitHub Pages serves gzip: 681 KB of HTML becomes **208 KB** on the wire.
 
-### Open recommendation — needs a decision
+### Firebase deferral — done (`0eef9a5`)
 
-**Firebase costs ~145 KB gzipped on every boot** — `app`, `auth` and
-`firestore` compat builds, via three blocking `<script src>` tags in `<head>` —
-for a feature that is optional and that most users never touch. That is ~41% of
-total transfer, and the main reason `load` sits at 938 ms against a 160 ms
-DOMContentLoaded.
+Firebase used to cost ~145 KB gzipped on **every** boot — `app`, `auth` and
+`firestore` compat builds via three blocking `<script src>` tags in `<head>` —
+about 41% of total transfer, for a feature most users never touch. The three
+tags are gone; `fbLoad()` fetches them when they are needed.
 
-`firestore-compat` alone is 98 KB and is only needed **after** a user signs in
-and syncs; `auth-compat` is only needed when the auth UI opens. Deferring both
-until sign-in is the largest win available, but it changes when auth state is
-restored on boot, so it is an architectural change and is **not** being made
-unilaterally during stabilisation.
+| Boot path | Firebase requests | Behaviour |
+|---|---|---|
+| Never signed in | **0** at boot and after navigating all views | sign-in card and sync nudge both still render |
+| Previously signed in (`be12_owner` present) | 3, as before | session restore and first sync unchanged |
+| Opens the sign-in sheet | 3, on demand, cached after | modal renders with both inputs |
+
+The trap this created, and why the gate is now `fbConfigured()`: two surfaces
+tested `!FBauth` to mean "Firebase is unavailable". Under lazy loading that is
+also the normal state for everyone who has **not** signed in — precisely the
+audience the sign-in card and the sync nudge exist for — so both would have
+silently disappeared. Never test `FBauth` to decide whether to *offer* sync;
+test the inline config, which is present synchronously either way.
+
+⚠️ The remaining boot cost is **not** re-measured as a load-time figure. Two
+runs of the same path differed by 600 ms on cache warmth alone, so the honest
+claim is the request count above, not a millisecond saving.
+
+## Offline / PWA audit
+
+Static review of `sw.js` and `manifest.json`, plus an attempted runtime probe.
+
+**Verified by reading the code:**
+- Network-first with a cache fallback, terminating in `index.html` for any
+  uncached navigation. Correct shape for an offline-first app.
+- `activate` deletes every cache except `CACHE` and `REM_CACHE`. The `REM_CACHE`
+  exemption is deliberate — a pending push reads its wording from there and must
+  survive a version bump. Do not "tidy" that filter.
+- The `fetch` handler ignores non-GET and cross-origin requests, so the Polish
+  Worker and Firebase calls are never intercepted or cached.
+- `manifest.json` — all four `screenshots` paths resolve to files that exist.
+  (Worth noting: they point at `playstore/screenshots-2026-08/`, the interim
+  set, not the current `store-art-2026-08/phone/`. Both exist; only the Play
+  listing was migrated. Not a defect — a consistency question for a design call.)
+
+**Could not be verified locally, and why:** the SW registration at
+index.html:9485 is gated on `location.protocol==="https:"`, so it never
+registers on the `python3 -m http.server` dev server. Offline behaviour is
+therefore **untestable on the local rig** — the probe confirmed 0 cached
+entries and a failed offline reload, which is the guard working, not a bug.
+
+`http://localhost` is a secure context and *would* permit a SW, so the guard is
+stricter than the spec requires. Loosening it would let a stale SW from this app
+intercept any other project later served on the same port — a real footgun. Left
+alone deliberately; this is a behaviour change, not cleanup.
+
+⬜ **Consequence:** offline and install behaviour must be validated on the live
+https site or a local https server. It is on the manual list below.
+
+## Manual validation required before production release
+
+None of the following can be claimed from the repo — they need real hardware,
+real users, or an external service. Each is unverified, not assumed working.
+
+**Device — Android (the TWA is the primary distribution)**
+- ⬜ Cold start from the Play install; confirm no browser address bar (assetlinks)
+- ⬜ Microphone permission: first grant, deny, and deny-then-re-enable in settings
+- ⬜ Speech recognition and TTS on a real device, not desktop Chrome
+- ⬜ Audio recording, playback and the waveform in Shadowing Studio
+- ⬜ Aeroplane mode: cold start, navigate all views, confirm Executive Polish
+  falls back to the local rule-based clean-up rather than erroring
+- ⬜ Install prompt and the `screenshots` rich prompt
+- ⬜ Daily reminder fires at the set time with the app closed
+
+**Device — iOS (PWA install only, no App Store presence)**
+- ⬜ Add to Home Screen, then relaunch: confirm the view is restored from
+  `sessionStorage` when `start_url` drops the hash
+- ⬜ Confirm the old cache clears after a deploy (fully close and reopen)
+
+**Accessibility**
+- ⬜ VoiceOver (iOS) and TalkBack (Android) pass over all 12 screens
+- ⬜ Confirm the Shadow workspace focus trap behaves with a screen reader active
+
+**Cloud sync — now that Firebase loads lazily, re-test on a device**
+- ⬜ Sign up, sign out, sign in again on a device that had never signed in
+- ⬜ Confirm a signed-in device still restores its session on cold start
+- ⬜ Two-device merge, including a device running an older build
+
+**External**
+- ⬜ Native-speaker review of the transcreated emotional copy (bn, ur, hi, ja,
+  ko, ar especially)
+- ⬜ `rp-photos/` image provenance — 14 files with no recorded sources; needed
+  for the Play AI-asset declaration and cannot be reconstructed from the repo
+- ⬜ Real install and retention figures from Play Console (the analytics have no
+  device ID by design, so they give trends, never people)
 
 ## Deploy-side (outside the screen work)
 
