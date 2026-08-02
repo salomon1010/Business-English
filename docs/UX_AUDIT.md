@@ -604,7 +604,51 @@ Commit: `126c495`.
 
 ---
 
-## Screen 12 — not yet audited
+## Screen 12 — Onboarding ✅ complete
+
+`obRender()` — six steps in a full-screen `#obWrap` overlay, shown on a fresh
+install.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| OB1 | **Zero `<h1>` across all six steps** — every step heading was an `<h2>`. | The first screen a user ever sees had no page heading. |
+| OB2 | The headline's `<em>` was gradient-clipped text at **1.69:1 in light**. The rule `h1.big em` is **shared with the frozen Dashboard's day-0 hero**, so that failed too and no earlier probe had caught it. | Contrast, on the largest type of the first screen. |
+| OB3 | `.btn-p` on steps 0 and 1 — white on `--grad`, **1.07:1 in light**. Step 0's is the "Let's go" button. | The single most important button in the product failed contrast. |
+| OB4 | `obName` and `obLangSearch` had no accessible name. | — |
+| OB5 | 14 targets under 44px at 320px: `.ob-chip` collapsed to 34px under the short-viewport rule, and `obFit` scaled the language step to 0.814 on a 568px-tall screen, dragging a 48px button to 42px. | iPhone SE is the smallest device in the fleet. |
+
+### Measured before → after
+
+| | before | after |
+|---|---|---|
+| `<h1>` per step | 0 | **1** |
+| Contrast failures | 3 | **0** |
+| `.btn-p` | 2 | **0** |
+| Inputs without an accessible name | 2 | **0** |
+| Targets <44px @320×568 | 14 | **0** |
+| Steps fitting the viewport | 6/6 | **6/6** |
+| Steps needing `obFit` scaling @320×568 | 1 | **0** |
+
+Verified at 320×568, 320×700, 390×844, 430×932, 768×1024 and 1280×900, in
+de/ar/ja, both themes, under reduced motion, and end-to-end through all six
+steps into a saved profile.
+
+### Decisions worth preserving
+
+- `.lang-list` is capped at `min(38vh,360px)`. `obFit` scales the **whole card**
+  when a step overflows, which drags every control below 44px with it; capping
+  the one part that should give means no step needs scaling at all, even on a
+  568px-tall screen. The Settings language modal has its own override and is
+  unaffected — verified, 15 rows, all ≥44px.
+- **`go("shadow")` after onboarding is deliberate** and was left alone. Commit
+  `b1ba6ae` introduced it as the "shadow-sprint landing"; it is a product
+  decision, not an oversight.
+- Fixing `h1.big em` also fixed the frozen Dashboard's day-0 hero: 4.31:1 dark
+  and 5.87:1 light, both passing, where the gradient would have been 1.69:1.
+
+Commit: pending.
 
 Listed in working order. No findings recorded because none have been measured.
 

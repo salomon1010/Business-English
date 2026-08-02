@@ -64,7 +64,7 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 9 | **Profile** | `rProfile` shell | ✅ |
 | 10 | **Settings** | `rSetup` + `rData` | ✅ |
 | 11 | **Help** | `rManual` | ✅ |
-| 12 | Onboarding | `rSetup` (onboarding flow) | next |
+| 12 | **Onboarding** | `obRender` | ✅ |
 
 ---
 

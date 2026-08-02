@@ -296,7 +296,8 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 /* Fluid display type: scales smoothly with the screen instead of jumping at
    breakpoints. Lower floor than before so it doesn't dominate a small phone. */
 h1.big{font-size:clamp(23px,5.4vw,40px);font-weight:800;line-height:1.15;margin-bottom:10px;letter-spacing:-.4px}
-h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* was gradient-clipped text — 1.69:1 in light. One accent, and it passes. */
+h1.big em{font-style:italic;color:var(--accent)}
 .sub{color:var(--mut);font-size:clamp(13.5px,3.6vw,15.5px);max-width:720px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
 .grid{display:grid;gap:12px}
@@ -1383,12 +1384,19 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
           max(24px,calc(env(safe-area-inset-bottom) + 16px)) max(20px,env(safe-area-inset-left));
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
 .ob-card{max-width:520px;width:100%;margin:auto;text-align:center;animation:fade .4s}
+@media (prefers-reduced-motion:reduce){.ob-card{animation:none}}
 .ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45);color:#fff}
 .ob-logo svg{width:40px;height:40px}
 .ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
 .ob-card .sub{margin:0 auto 26px}
+.ob-em{font-style:italic;color:var(--accent)}
+.ob-go{width:auto;min-width:180px;margin:0 auto;font-size:16px;padding:14px 34px}
+.ob-skip{min-height:44px}
+.ob-hear{min-height:44px}
+#obWrap h1{font-size:clamp(22px,5.6vw,27px);font-weight:800;line-height:1.25;letter-spacing:-.4px}
+#obWrap .auth-alt a{min-height:44px;display:inline-flex;align-items:center}
 .ob-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
-.ob-chip{border:1px solid var(--line2);background:var(--card);color:var(--txt);padding:12px 20px;border-radius:14px;font-size:14.5px;font-weight:600;transition:.15s}
+.ob-chip{border:1px solid var(--line2);background:var(--card);color:var(--txt);padding:12px 20px;border-radius:14px;font-size:14.5px;font-weight:600;transition:.15s;min-height:44px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
 .ob-chip:hover,.ob-chip.on{border-color:var(--acc);background:rgba(99,102,241,.14)}
 .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:26px}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
@@ -1470,7 +1478,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 /* LANGUAGE PICKER */
 .ob-skip-lang{margin:0 auto 16px;font-size:15px;padding:12px 26px}
 .lang-search{margin-bottom:14px}
-.lang-list{max-height:360px;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:8px;padding-right:2px}
+.lang-list{max-height:min(38vh,360px);overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:8px;padding-right:2px}
 /* inside the modal, the list is the ONLY scroll region (header stays put) — avoids the iOS nested-scroll freeze */
 .lang-modal .lang-list{flex:1 1 auto;min-height:0;max-height:none}
 .lang-row{display:flex;align-items:center;gap:14px;padding:12px 16px;border-radius:14px;border:1px solid var(--line2);background:var(--card2);cursor:pointer;transition:.15s;text-align:left;width:100%;color:var(--txt);font-size:15px;font-weight:600}
@@ -1824,7 +1832,7 @@ html,body{max-width:100%;overflow-x:clip}
 .ob-card .sub{margin-bottom:clamp(9px,2.6vh,26px);font-size:clamp(12.5px,1.85vh,15.5px)}
 .ob-dots{margin-top:clamp(9px,2.6vh,26px)}
 .ob-chips{margin-bottom:clamp(10px,2.6vh,24px)}
-.ob-chip{padding:clamp(7px,1.4vh,12px) clamp(13px,2.4vw,20px);font-size:clamp(13px,1.9vh,14.5px)}
+.ob-chip{padding:clamp(7px,1.4vh,12px) clamp(13px,2.4vw,20px);font-size:clamp(13px,1.9vh,14.5px);min-height:44px}
 /* result step */
 .ob-ring{width:clamp(86px,15.5vh,130px);height:clamp(86px,15.5vh,130px);margin:2px auto clamp(6px,1.4vh,12px)}
 .ob-ring-in{width:80%;height:80%}
@@ -9528,31 +9536,31 @@ function obRender(){
   const dots=`<div class="ob-dots">${[0,1,2,3,4,5].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
-     <h2>${t("ob.hero_pre")} <em style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">${t("ob.hero_em")}</em></h2>
+     <h1>${t("ob.hero_pre")} <em class="ob-em">${t("ob.hero_em")}</em></h1>
      <p class="sub">${t("ob.hero_sub")}</p>
-     <input id="obName" placeholder="${esc(t("ob.name_placeholder"))}" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
-     <br><button class="btn btn-p" style="font-size:16px;padding:14px 34px" onclick="obNext()">${t("ob.lets_go")}</button>
+     <input id="obName" aria-label="${esc(t("ob.name_placeholder"))}" placeholder="${esc(t("ob.name_placeholder"))}" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
+     <br><button class="btn-primary ob-go" onclick="obNext()">${t("ob.lets_go")}</button>
      <p class="auth-alt" style="margin-top:20px">${t("ob.already_account")} <a onclick="fbOpenModal('in')">${t("ob.login")}</a></p>`,
     `<div class="ob-logo">${ic("globe")}</div>
-     <h2>${t("lang.step_title")}</h2>
+     <h1>${t("lang.step_title")}</h1>
      <p class="sub">${t("lang.step_sub")}</p>
-     <button class="btn btn-p ob-skip-lang" onclick="obLangPick('en')">${t("ob.skip_lang")} →</button>
-     <input id="obLangSearch" class="lang-search" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
+     <button class="btn-primary ob-go ob-skip-lang" onclick="obLangPick('en')">${t("ob.skip_lang")} →</button>
+     <input id="obLangSearch" class="lang-search" aria-label="${esc(t("lang.search_placeholder"))}" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
      <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>`,
     `<div class="ob-logo">${ic("briefcase")}</div>
-     <h2>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h2>
+     <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
      <p class="sub">${t("ob.role_sub")}</p>
      <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
     `<div class="ob-logo">${ic("target")}</div>
-     <h2>${t("ob.goal_title")}</h2>
+     <h1>${t("ob.goal_title")}</h1>
      <p class="sub">${t("ob.goal_sub")}</p>
      <div class="ob-chips">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
     `<div class="ob-logo">${ic("clock")}</div>
-     <h2>${t("ob.slot_title")}</h2>
+     <h1>${t("ob.slot_title")}</h1>
      <p class="sub">${t("ob.slot_sub")}</p>
      <div class="ob-chips">${OB_SLOTS.map((s,i)=>`<button class="ob-chip ${OB.slot===s?'on':''}" onclick="OB.slot='${s.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(SLOT_ICONS[i])}</span>${optLabel(s,OB_SLOTS,"slot.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
     `<div class="ob-logo">${ic("rocket")}</div>
-     <h2>${t("ob.win_title")}</h2>
+     <h1>${t("ob.win_title")}</h1>
      <p class="sub">${t("ob.win_sub")}</p>
      <div class="ob-win">
        <div class="ob-line">“${OB_LINE}”
@@ -9564,11 +9572,11 @@ function obRender(){
        </div>
        <p id="obTryOut" class="ob-out"></p>
        <div id="obActions" class="ob-win-actions">
-         <button class="btn btn-g btn-sm" onclick="obFinish()">${t("ob.skip_takeme")}</button>
+         <button class="btn btn-g ob-skip" onclick="obFinish()">${t("ob.skip_takeme")}</button>
        </div>
      </div>`
   ];
-  el.innerHTML=`<div class="ob-card">${steps[OB.step]}${dots}</div>`;
+  el.innerHTML=`<div class="ob-card" role="group" aria-label="${esc(t("ob.hero_pre"))}">${steps[OB.step]}${dots}</div>`;
   const inp=document.getElementById("obName");if(inp){inp.value=OB.name;inp.focus()}
   const ls=document.getElementById("obLangSearch");if(ls)ls.focus();
   if(OB.step===5){
