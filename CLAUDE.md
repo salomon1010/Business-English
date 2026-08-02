@@ -215,10 +215,24 @@ Fixes / infra
   (partitioned third-party storage). `fbGoogle()` stays for when hosting can serve
   `/__/auth/`. Syncs progress JSON, **not audio recordings**.
 - **Daily reminder is BUILT** (`remSchedule`/`remFire`/`remToggle`, Settings →
-  reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). It is a
-  `setTimeout` while the app is open + a launch nudge + `Notification` when
-  permitted — there is **no push server**, so it cannot fire with the app closed.
-  That's the remaining gap if reminders ever need to be reliable.
+  reminder toggle + time, `rem.*` keys, plus Google-Calendar/.ics export). The
+  in-app half is a `setTimeout` + a launch nudge + `Notification` when permitted.
+  - **Web Push added 2026-08-02** so it also fires with the app closed:
+    `backend/push/` is a **second Worker** (`be-push`, KV `SUBS`, cron every
+    minute) — read `backend/push/README.md` before touching it. Client side is
+    `PUSH_API`/`pushSync`/`pushOff`/`pushDone`/`pushSlot` next to the reminder
+    code; `sw.js` has the `push` handler.
+  - **Push carries NO payload** — a bare wake-up needs only a VAPID JWT, an
+    encrypted payload needs RFC 8291 by hand. `sw.js` reads the wording from the
+    **`be-rem` cache**, which the app writes via `t()`. That cache is
+    deliberately **excluded from the activate sweep** in sw.js — don't "tidy"
+    that filter, a version bump would wipe the text a pending push needs.
+  - `pushDone()` (from `markPracticed`) is not an optimisation: `userVisibleOnly`
+    forces every delivered push to raise a notification, so the only way to stay
+    quiet for someone who already practised is for the cron not to send.
+  - **Code is committed but the Worker is NOT deployed** — no KV id, no VAPID
+    pair yet, so `/key` fails and `pushSync()` silently no-ops. Harmless: the
+    old setTimeout path is untouched. See the README for the setup commands.
 - **Google Play**: **LIVE** — `com.bemastery.app`, publisher "Lomonec", listing at
   play.google.com/store/apps/details?id=com.bemastery.app (verified 2026-08-01,
   store page shows "Updated on Jul 31, 2026"). `.well-known/assetlinks.json` carries

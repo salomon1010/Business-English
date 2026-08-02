@@ -1,0 +1,31 @@
+# Cloudflare Worker config for BE Mastery daily reminders (Lomonec LLC).
+#
+# This is a SECOND Worker, separate from be-polish. Keep it that way: the
+# reminder cron runs every minute and must never be able to take the Executive
+# Polish endpoint down with it.
+#
+# Deploy from this folder:
+#     npx wrangler kv namespace create SUBS      # once — copy the id below
+#     npx wrangler secret put VAPID_PRIVATE_JWK  # once — paste genkeys.js output
+#     npx wrangler deploy
+#
+# VAPID_PRIVATE_JWK is a secret and lives only in Cloudflare. The public key is
+# a plain var: it is meant to be public, the browser needs it to subscribe.
+
+name = "be-push"
+main = "push-worker.js"
+compatibility_date = "2026-07-31"
+
+# Every minute. The Worker reads only the current minute's bucket, so this is
+# ~1,440 invocations a day regardless of how many people have reminders on —
+# comfortably inside the free tier's 100k/day.
+[triggers]
+crons = ["* * * * *"]
+
+[[kv_namespaces]]
+binding = "SUBS"
+id = "PASTE_KV_NAMESPACE_ID_HERE"
+
+[vars]
+# Filled in from genkeys.js output — the base64url raw P-256 public key.
+VAPID_PUBLIC_KEY = "PASTE_VAPID_PUBLIC_KEY_HERE"

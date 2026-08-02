@@ -3571,7 +3571,10 @@ function markPracticed(){
   const today=new Date().toISOString().slice(0,10);
   if(!S.dates.includes(today)){S.dates.push(today);S.dates.sort()}
   S.dayLog=S.dayLog||{};S.dayLog[today]=(S.dayLog[today]||0)+1;   // activity intensity for the progress calendar heatmap
-  if(S.dayLog[today]===1)track("practice_day",{streak:String(Math.min(streak()+1,30))});   // once per day, not per action
+  if(S.dayLog[today]===1){
+    track("practice_day",{streak:String(Math.min(streak()+1,30))});   // once per day, not per action
+    try{pushDone()}catch(e){}   // done for today — call off tonight's push
+  }
 }
 function streak(){
   if(!S.dates.length)return 0;
@@ -5144,17 +5147,123 @@ window.remToggle=on=>{
   const ti=document.getElementById("remTime");if(ti)ti.disabled=!on;
   remSchedule();
   toast(on?t("rem.on_toast",{time:c.time}):t("rem.off_toast"));
-  if(!on||!window.Notification)return;
+  if(!on){pushOff();return}
+  if(!window.Notification)return;
   const note=document.getElementById("remNote");
   if(Notification.permission==="denied"){if(note)note.textContent=t("rem.blocked");return}
-  if(Notification.permission==="granted")return;
+  if(Notification.permission==="granted"){pushSync();return}
   try{
     Promise.resolve(Notification.requestPermission()).then(p=>{
       if(p!=="granted"&&note)note.textContent=t("rem.blocked");
+      else pushSync();          // only now can a subscription be created
     }).catch(()=>{});
   }catch(e){}
 };
-window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();toast(t("rem.on_toast",{time:c.time}));};
+window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pushSync();toast(t("rem.on_toast",{time:c.time}));};
+
+/* ===== WEB PUSH — the half of the reminder that works with the app closed =====
+   remSchedule() above is a setTimeout: it cannot fire unless the app is already
+   running, which is the one case where a reminder is not needed. This registers
+   a real push subscription against backend/push (see that folder's README).
+
+   Everything here fails soft. Push is unavailable on desktop Safari, on iOS
+   before 16.4, on any non-installed iOS home screen, and whenever the user
+   declines permission. In all of those the old setTimeout plus the launch nudge
+   still run, exactly as before — push is added on top, never depended on. */
+const PUSH_API="https://be-push.nore-ngou.workers.dev";
+const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
+
+function pushId(){
+  // Random per device. Not the Firebase uid: signing out must not orphan a
+  // subscription, and two devices should be able to hold different times.
+  if(!S.pushId){
+    const a=new Uint8Array(16);crypto.getRandomValues(a);
+    S.pushId=[...a].map(x=>x.toString(16).padStart(2,"0")).join("");
+    save();
+  }
+  return S.pushId;
+}
+
+/* Local "19:00" → the UTC minute bucket the backend fans out from. Recomputed
+   on every launch and every time change, which is what keeps DST and travel
+   correct without a timezone database on the server. */
+function pushSlot(hhmm){
+  const [h,m]=String(hhmm||"19:00").split(":").map(Number);
+  const d=new Date();d.setHours(h||19,m||0,0,0);
+  return String(d.getUTCHours()).padStart(2,"0")+String(d.getUTCMinutes()).padStart(2,"0");
+}
+
+function b64ToU8(s){
+  const pad="=".repeat((4-s.length%4)%4);
+  const raw=atob((s+pad).replace(/-/g,"+").replace(/_/g,"/"));
+  return Uint8Array.from([...raw].map(c=>c.charCodeAt(0)));
+}
+
+/* The push carries no payload, so sw.js reads the wording from here. Written
+   through t(), so it is already in the user's language — and rewritten on every
+   sync, which is how a language change reaches a notification that may fire
+   days later without the app being opened again. */
+async function remCacheText(){
+  try{
+    const html=document.documentElement;
+    const body={
+      title:t("rem.title"),
+      body:t("rem.body",{n:(currentPos().w||1)}),
+      lang:html.getAttribute("lang")||"en",
+      dir:html.getAttribute("dir")||"auto",
+    };
+    const c=await caches.open(REM_CACHE);
+    await c.put(REM_KEY,new Response(JSON.stringify(body),{headers:{"Content-Type":"application/json"}}));
+  }catch(e){}
+}
+
+async function pushSync(){
+  const c=remCfg();
+  if(!c.on)return pushOff();
+  if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
+  if(!window.Notification||Notification.permission!=="granted")return;
+  try{
+    await remCacheText();
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      const r=await fetch(PUSH_API+"/key");
+      const {key}=await r.json();
+      if(!key)return;                      // backend not configured yet
+      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(key)});
+    }
+    const j=sub.toJSON();
+    await fetch(PUSH_API+"/subscribe",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:pushId(),slot:pushSlot(c.time),endpoint:j.endpoint}),
+    });
+  }catch(e){}                              // offline, blocked, unsupported — silent
+}
+
+async function pushOff(){
+  try{
+    await fetch(PUSH_API+"/unsubscribe",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:pushId()}),
+    });
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    if(sub)await sub.unsubscribe();
+  }catch(e){}
+}
+
+/* Tell the backend today is finished so it sends nothing at all. It cannot ask
+   the device — and it must not send a push it does not intend to show, because
+   userVisibleOnly forces every delivery to raise a notification. */
+function pushDone(){
+  if(!S.pushId||!(S.reminder&&S.reminder.on))return;
+  try{
+    fetch(PUSH_API+"/done",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({id:S.pushId}),keepalive:true,
+    }).catch(()=>{});
+  }catch(e){}
+}
 /* On launch: if the reminder time has already passed today and the session is
    still undone, say so once — this is the part that works everywhere. */
 function remLaunchNudge(){
@@ -8938,7 +9047,9 @@ window.wcClose=()=>{
   setTimeout(()=>ov.remove(),220);
 };
 if(!S.profile)obRender();
-else{try{remSchedule();remLaunchNudge()}catch(e){}}
+/* Re-syncing on every launch is what keeps the slot right after a DST change or
+   a flight, and re-caches the notification wording after a language change. */
+else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}}
 try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================
