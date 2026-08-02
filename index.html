@@ -1859,8 +1859,11 @@ html{
   text-size-adjust:100%;
   -webkit-tap-highlight-color:transparent;
 }
-/* kill the 300ms double-tap-to-zoom gesture on things meant to be tapped once */
-button,a,.btn,.seg-tab,.cat-tab,.tab,.bnav-item,.stat[role=button],.clip-row,
+/* kill the 300ms double-tap-to-zoom gesture on things meant to be tapped once.
+   This selector list previously ended in a comma with no declaration block —
+   the @supports rule below sat where the "{…}" should have been, so the CSS
+   parser discarded BOTH rules. Keep the block terminated. */
+button,a,.btn,.seg-tab,.cat-tab,.tab,.bnav-item,.stat[role=button],.clip-row{touch-action:manipulation}
 /* iOS zooms the whole page when focusing a field whose text is under 16px —
    enforced app-wide, not just inside the mobile block */
 @supports(-webkit-touch-callout:none){
