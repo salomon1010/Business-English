@@ -318,11 +318,13 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ring svg{transform:rotate(-90deg)}
 .ring .pct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:30px;font-weight:800;line-height:1.1}
 .ring .pct small{display:block;font-size:11px;color:var(--mut);font-weight:500;text-align:center}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;transition:.16s}
-.stat[role=button]:hover{border-color:var(--acc);transform:translateY(-2px)}
-.stat[role=button]:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+/* Metric tiles are borderless and share one grouped panel (.home-dash), so the
+   dashboard reads as a single calm surface of numbers rather than nine boxes. */
+.stat{background:transparent;border:none;border-radius:var(--r-md);padding:13px 14px;transition:.16s}
+.stat[role=button]:hover{background:var(--hover)}
+.stat[role=button]:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 /* a stat still at zero shows the single next action that changes it */
-.stat-todo{border-style:dashed;border-color:var(--line2)}
+.stat-todo{opacity:.9}
 .stat-next{display:flex;align-items:flex-start;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
   font-size:12px;line-height:1.5;color:var(--acc2);text-align:left}
 .stat-next svg{width:14px;height:14px;flex:none;margin-top:2px}
@@ -444,7 +446,9 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pf-txt b{font-size:15px}
 .pf-txt small{color:var(--mut);font-weight:500;font-size:12.5px}
 .pf-chev{margin-left:auto;color:var(--mut);font-size:22px;flex:none}
-.today-card{background:linear-gradient(135deg,rgba(99,102,241,.16),rgba(34,211,238,.08));border:1px solid rgba(99,102,241,.35)}
+/* Primary action card: a single restrained indigo wash + hairline + soft lift,
+   not the old indigo→cyan gradient. The glow CTA inside carries the emphasis. */
+.today-card{background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(99,102,241,.03));border:1px solid var(--line2);box-shadow:var(--sh-1)}
 
 /* JOURNEY */
 .wk-card{cursor:pointer;transition:.2s;position:relative;overflow:hidden}
@@ -723,17 +727,17 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    only when the count is above zero, so it never becomes furniture. */
 .home-due{display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;
   margin-bottom:14px;padding:14px 16px;
-  background:linear-gradient(155deg,rgba(52,211,153,.18),rgba(52,211,153,.06));
-  border-color:rgba(52,211,153,.42);transition:.15s}
-.home-due:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 26px rgba(52,211,153,.20)}
+  background:linear-gradient(155deg,rgba(52,211,153,.12),rgba(52,211,153,.04));
+  border-color:var(--line);box-shadow:var(--sh-1);transition:.15s}
+.home-due:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--green) 40%,transparent);box-shadow:var(--sh-2)}
 .home-due-ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
   background:rgba(52,211,153,.20);color:var(--green)}
 .home-due-ic svg{width:20px;height:20px}
 /* Rating ask — same shape as the due card, gold instead of green, and not a
    button itself since it carries two of its own. */
 .home-rate{display:flex;align-items:flex-start;gap:13px;margin-bottom:14px;padding:14px 16px;
-  background:linear-gradient(155deg,rgba(251,191,36,.15),rgba(251,191,36,.05));
-  border-color:rgba(251,191,36,.40)}
+  background:linear-gradient(155deg,rgba(251,191,36,.10),rgba(251,191,36,.03));
+  border-color:var(--line);box-shadow:var(--sh-1)}
 .rate-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
 .home-due-t{flex:1;min-width:0}
 .home-due-t b{display:block;font-size:15px;margin-bottom:2px}
@@ -743,14 +747,13 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* The progress ring used to sit inside .hero, which supplied the gap to the
    stat cards below. On its own it needs that spacing back, and the last phase
    bar must not leave a strip of dead space inside the card. */
-.home-ring{margin-bottom:22px}
+.home-ring{margin-bottom:22px;box-shadow:var(--sh-1)}
 
 /* Dashboard is the "what you have earned" half, so its cards carry green the
    same way the rules carry the warning colour. The progress ring and the phase
    chips keep their own colours - those encode meaning, not theme. */
+.home-dash{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:6px}
 .home-dash .stat-ic{color:var(--green)}
-.home-dash .stat{border-color:color-mix(in srgb,var(--green) 30%,transparent)}
-.home-dash .stat-todo{border-color:color-mix(in srgb,var(--green) 22%,transparent)}
 .home-dash .stat-next{color:var(--green)}
 .home-dash .stat-next svg{color:var(--green)}
 
