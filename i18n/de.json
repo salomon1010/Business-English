@@ -1114,5 +1114,9 @@
   "sh.more_starters": "{{n}} weitere Clips anzeigen",
   "sh.video_error_title": "Dieser Clip lässt sich nicht abspielen",
   "sh.video_error_body": "Der Eigentümer hat ihn entfernt oder das Einbetten gesperrt. Wähle einen anderen Clip — deine Aufnahmen und Notizen bleiben erhalten.",
-  "sh.video_error_btn": "Anderen Clip wählen"
+  "sh.video_error_btn": "Anderen Clip wählen",
+  "fb.again_btn": "Neue Aufnahme machen",
+  "fb.more_fixes": "{{n}} weitere Wörter zum Üben anzeigen",
+  "fb.section_words": "Wort für Wort",
+  "fb.section_stats": "Tempo, Füllwörter und Verlauf"
 }

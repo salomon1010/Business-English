@@ -181,13 +181,62 @@ Commit: `0863af7`.
 
 ---
 
-## Screens 4–12 — not yet audited
+## Screen 4 — Speaking Feedback ✅ complete
+
+`fbShowResults()` — one panel rendered into `#fbOut`, shared by Session and the
+Shadow workspace.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| K1 | Everything at once: score, attempts, 3 stat tiles, 25 word chips, every problem word, grammar, vocabulary. **2,206px, 52 visible controls.** | A speech-analysis dashboard, not a coach. The brief asks for the 2–3 highest-impact fixes first. |
+| K2 | **42 of 52 controls under 44px** — 19% touch coverage. | Unusable on a phone. |
+| K3 | **Zero headings.** Every section title was a `<b>`. | A screen reader got a wall of text with no structure and no way to skip. |
+| K4 | The problem words — the actionable part — sat *below* the stat tiles and the 25-chip diff, at y=2,843. | The least useful content outranked the most useful. |
+| K5 | No whole-take retry anywhere. Only per-word "Say it". | "Encourage another attempt" had no affordance. |
+| K6 | 2 `.btn-p` (white on `--grad`, ~1.9:1) and 1 emoji (📈/📉). | Contrast and iconography defects. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Panel height | 2,206px (2.61 screens) | **1,072px (1.27)** — −51% |
+| Visible controls | 52 | **15** — −71% |
+| Targets <44px | 42 | **0** |
+| Touch coverage | 19% | **100%** |
+| Headings | 0 | **1 `<h3>` + 4 `<summary>`** |
+| Fixes shown | all | **top 3, worst-first** |
+| `.btn-p` | 2 | **0** |
+| Emoji | 1 | **0** |
+| Inline-styled elements | 57 | **38** |
+| Contrast failures | 1 (`.voc-goto` 3.82:1) | **0** |
+
+Verified across four outcomes — perfect (100%, 697px), two problems, seven
+problems (3 shown + "Show 4 more"), and nothing heard — at 320/390/430/768/
+1280px, in de/ru/ar/ja, both themes, and under reduced motion.
+
+### Decisions worth preserving
+
+- Fixes are ranked worst-first: a word not caught at all outranks one merely
+  misheard, and among misheard words the least similar comes first.
+- The retry is an **outlined** accent, not a fill: on Session it lands 277px
+  below "Mark session complete" and would otherwise put two accent fills in one
+  viewport.
+- `fbToggle()` cannot serve as the retry — it reads `#shNote` and writes
+  `#fbBtn`, which exist only in the Shadow workspace. `fbAgain()` targets
+  `#recBtn`, which both surfaces share.
+
+Commit: pending.
+
+---
+
+## Screens 5–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
 | # | Screen | Renderer | Notes carried forward |
 |---|---|---|---|
-| 4 | Speaking Feedback | within session / shadow | No per-word timing available — be honest about it |
 | 5 | Executive Polish | within `rPhrases` | `.ex-micbtn` carries the same infinite conic animation |
 | 6 | Vocabulary | `rPractice` | — |
 | 7 | Practice Hub | `rPractice` | — |
@@ -220,7 +269,9 @@ patch.
    badge for an achievement not yet earned. One-line fix, but it is shared
    chrome across all 12 screens.
 5. **Progress Calendar has no i18n keys.** Fifteen languages see English.
-6. **"Go" arrows are not mirrored in RTL.** `→` (U+2192) is not bidi-mirrored,
+6. **Disclosure chevrons (`▶` in `.hm-chev`) are not mirrored in RTL** either,
+   on all four screens that now use `.home-more`.
+7. **"Go" arrows are not mirrored in RTL.** `→` (U+2192) is not bidi-mirrored,
    so it points away from the direction of travel in Arabic and Urdu. Fixed for
    `.sess-jump-go`; still wrong on `.home-due-go`, `.home-step-go`,
    `.rp-entry-go`, `.rp-hero-go`, `.rp-ht-go`. One shared rule would fix all

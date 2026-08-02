@@ -1114,5 +1114,9 @@
   "sh.more_starters": "Hiện thêm {{n}} đoạn",
   "sh.video_error_title": "Không phát được đoạn này",
   "sh.video_error_body": "Chủ sở hữu đã xoá hoặc chặn nhúng. Hãy chọn đoạn khác — bản ghi và ghi chú của bạn vẫn an toàn.",
-  "sh.video_error_btn": "Chọn đoạn khác"
+  "sh.video_error_btn": "Chọn đoạn khác",
+  "fb.again_btn": "Ghi âm lần nữa",
+  "fb.more_fixes": "Xem thêm {{n}} từ cần luyện",
+  "fb.section_words": "Từng từ một",
+  "fb.section_stats": "Tốc độ, từ đệm và lịch sử"
 }

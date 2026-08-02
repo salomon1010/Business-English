@@ -1114,5 +1114,9 @@
   "sh.more_starters": "클립 {{n}}개 더 보기",
   "sh.video_error_title": "이 클립은 재생할 수 없습니다",
   "sh.video_error_body": "소유자가 삭제했거나 임베드를 차단했습니다. 다른 클립을 선택하세요 — 녹음과 메모는 그대로입니다.",
-  "sh.video_error_btn": "다른 클립 선택"
+  "sh.video_error_btn": "다른 클립 선택",
+  "fb.again_btn": "다시 녹음하기",
+  "fb.more_fixes": "연습할 단어 {{n}}개 더 보기",
+  "fb.section_words": "단어별 비교",
+  "fb.section_stats": "속도, 군말, 기록"
 }

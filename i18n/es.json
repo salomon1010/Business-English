@@ -1114,5 +1114,9 @@
   "sh.more_starters": "Mostrar {{n}} clips más",
   "sh.video_error_title": "Este clip no se reproducirá",
   "sh.video_error_body": "El propietario lo eliminó o bloqueó la inserción. Elige otro clip: tus grabaciones y notas están a salvo.",
-  "sh.video_error_btn": "Elegir otro clip"
+  "sh.video_error_btn": "Elegir otro clip",
+  "fb.again_btn": "Grabar otra toma",
+  "fb.more_fixes": "Ver {{n}} palabras más para practicar",
+  "fb.section_words": "Palabra por palabra",
+  "fb.section_stats": "Ritmo, muletillas e historial"
 }

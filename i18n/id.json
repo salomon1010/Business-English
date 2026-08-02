@@ -1114,5 +1114,9 @@
   "sh.more_starters": "Tampilkan {{n}} klip lagi",
   "sh.video_error_title": "Klip ini tidak dapat diputar",
   "sh.video_error_body": "Pemiliknya menghapus atau memblokir penyematan. Pilih klip lain — rekaman dan catatan Anda aman.",
-  "sh.video_error_btn": "Pilih klip lain"
+  "sh.video_error_btn": "Pilih klip lain",
+  "fb.again_btn": "Rekam take lagi",
+  "fb.more_fixes": "Tampilkan {{n}} kata lagi untuk dilatih",
+  "fb.section_words": "Kata demi kata",
+  "fb.section_stats": "Tempo, kata pengisi, dan riwayat"
 }

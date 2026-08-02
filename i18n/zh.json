@@ -1114,5 +1114,9 @@
   "sh.more_starters": "再显示 {{n}} 个片段",
   "sh.video_error_title": "此片段无法播放",
   "sh.video_error_body": "所有者已删除或禁止嵌入。请另选一个片段——你的录音和笔记都还在。",
-  "sh.video_error_btn": "另选一个片段"
+  "sh.video_error_btn": "另选一个片段",
+  "fb.again_btn": "再录一次",
+  "fb.more_fixes": "再显示 {{n}} 个要练的词",
+  "fb.section_words": "逐词对照",
+  "fb.section_stats": "语速、填充词与历史"
 }

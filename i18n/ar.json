@@ -1114,5 +1114,9 @@
   "sh.more_starters": "عرض {{n}} مقاطع أخرى",
   "sh.video_error_title": "هذا المقطع لن يعمل",
   "sh.video_error_body": "أزاله المالك أو منع تضمينه. اختر مقطعًا آخر — تسجيلاتك وملاحظاتك محفوظة.",
-  "sh.video_error_btn": "اختر مقطعًا آخر"
+  "sh.video_error_btn": "اختر مقطعًا آخر",
+  "fb.again_btn": "سجّل محاولة أخرى",
+  "fb.more_fixes": "عرض {{n}} كلمات أخرى للتدريب",
+  "fb.section_words": "كلمة بكلمة",
+  "fb.section_stats": "الإيقاع وكلمات الحشو والسجل"
 }

@@ -1059,6 +1059,43 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .fb-item.fixed .fb-pct{background:rgba(52,211,153,.15);color:var(--green)}
 .fb-heard{font-size:13px;color:var(--mut);margin:10px 0 10px}
 .fb-score-ring{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600}
+/* SPEAKING FEEDBACK — a coach's debrief, not a dashboard. The verdict, the
+   attempt trend and the two or three highest-impact fixes stay in the open;
+   word-by-word, pace, grammar and vocabulary are one tap away. */
+.fb-h{font-size:15px;font-weight:800;margin:16px 0 10px}
+/* Emphasised secondary, not a second accent fill: on Session this sits 277px
+   below "Mark session complete" and on Shadow just under "Start feedback", so
+   an accent-filled retry would put two primaries in one viewport. Outlined
+   accent still reads as the next step. */
+.fb-again{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  min-height:48px;margin:14px 0 4px;padding:12px 18px;border-radius:var(--r-md);
+  background:transparent;border:1.5px solid var(--accent);
+  /* raw --accent as text is 4.31:1 on --card in dark; lifted toward white it
+     clears AA. Light theme's --acc is already 5.87:1 and stays as-is. */
+  color:color-mix(in srgb,var(--accent) 58%,#fff);
+  font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  transition:background .12s,transform .12s cubic-bezier(.2,.8,.3,1)}
+:root[data-theme="light"] .fb-again{color:var(--accent)}
+.fb-again:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.fb-again:active{transform:scale(.985)}
+.fb-again:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.fb-again{transition:none}.fb-again:active{transform:none}}
+.fb-more,.fb-sec{margin:12px 0 0}
+.fb-sec-sub{font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:10px}
+.fb-sec-act{margin-top:8px}
+.fb-stat-v{font-size:14px;font-weight:700;line-height:1.4}
+.fb-vocab-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.fb-vocab-head .fb-sec-sub{flex:1;min-width:120px;margin:0}
+.fb-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fb-res{font-size:12px;color:var(--mut);align-self:center}
+.fb-disclaimer{font-size:11.5px;color:var(--mut);margin-top:14px;line-height:1.5}
+.fb-nothing{font-size:13.5px;color:var(--mut);margin-top:8px;line-height:1.55}
+/* 42 of the panel's 52 controls were 38px or less. .btn-sm and .voc-mini are
+   shared with screens not yet passed, so the floor is scoped to #fbOut. */
+#fbOut .btn,#fbOut .btn-sm,#fbOut .voc-mini{min-height:44px}
+#fbOut .voc-mini{min-width:44px;justify-content:center}
+#fbOut .voc-goto{display:inline-flex;align-items:center;min-height:44px;cursor:pointer}
+#fbOut .voc-goto:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* POSTURE COACH */
 .pc-wrap{display:none;position:relative;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
 /* dismiss the whole panel — stopping the coach is not the same as closing it */
@@ -1422,7 +1459,9 @@ html[dir="rtl"] .sess-jump-go{margin-left:0;margin-right:auto}
 .help-card .hc-t{font-weight:700;font-size:15px;line-height:1.3}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
 .help-hl{background:#fde047;color:#1a1205;border-radius:3px;padding:0 2px;font-weight:700;box-shadow:0 0 0 1px rgba(253,224,71,.5)}
-.voc-goto{display:inline-flex;align-items:center;gap:5px;color:var(--acc);font-size:13px;font-weight:600;cursor:pointer}
+/* --acc measures 3.82:1 on --card in dark; --acc2 is the app's link colour
+   everywhere else (.back, .sh-cap-hint a) and clears AA in both themes. */
+.voc-goto{display:inline-flex;align-items:center;gap:5px;color:var(--acc2);font-size:13px;font-weight:600;cursor:pointer}
 .voc-goto:hover{text-decoration:underline}
 .voc-goto .btn-ic{margin:0}
 .voc-goto svg{width:15px;height:15px}
@@ -3008,6 +3047,10 @@ const I18N_EN={
  "fb.vocab_key_h":"📚 Key vocabulary",
  "fb.vocab_from_speech":"from your speech",
  "fb.vocab_save_all":"🔖 Save all words ({{n}})",
+ "fb.again_btn":"Record another take",
+ "fb.more_fixes":"Show {{n}} more words to practise",
+ "fb.section_words":"Word by word",
+ "fb.section_stats":"Pace, fillers and history",
  "fb.disclaimer":"Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it. Grammar checks cover common patterns, not everything.",
  "fb.try_listening":"Listening… say “{{word}}”",
  "fb.try_sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
@@ -6174,10 +6217,47 @@ window.fbToggle=()=>{
   };
   try{fbRec.start()}catch(e){fbOn=false;toast(t("fb.could_not_start"))}
 };
+/* A coach names the two or three things worth fixing, not all of them. The rest
+   stay one tap away. Ranked worst-first: a word that was not caught at all
+   outranks one that was merely misheard, and among misheard words the least
+   similar comes first — so the top of the list is the highest-impact work. */
+const FB_TOP_FIXES=3;
+function fbRanked(problems){
+  return problems.slice().sort((a,b)=>{
+    const sev=x=>x.op==="sub"?wsim(x.t,x.h):-1;    // -1 = not caught at all
+    return sev(a)-sev(b);
+  });
+}
+function fbFixCard(o,fromRec,hF){
+  return `<div class="fb-item" id="fbi${o.i}">
+      <span class="fb-pct" id="fbp${o.i}">${o.op==="sub"?wsim(o.t,o.h)+"%":"0%"}</span>
+      <span class="w">${esc(o.t)}</span>
+      <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
+      <div class="fb-acts">
+        ${fromRec&&o.op==="sub"?`<button class="btn btn-g" onclick="fbYou(${fbWordFrac(hF,o.hIdx||0).join(",")},${o.hIdx||0},${hF.length},${jarg(o.h||"")})">${t("fb.you_btn")}</button>`:""}
+        <button class="btn btn-g" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
+        <button class="btn btn-g" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
+        <button class="btn btn-g fb-try" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
+        <span class="fb-res" id="fbr${o.i}"></span>
+      </div>
+    </div>`;
+}
+/* "Encourage another attempt" — the recorder that produced this feedback is the
+   only honest retry affordance, and both surfaces share #recBtn. fbToggle()
+   cannot be used: it reads #shNote and writes #fbBtn, which exist only in the
+   Shadow workspace, so calling it from a session would throw. */
+window.fbAgain=()=>{
+  const b=document.getElementById("recBtn");if(!b)return;
+  const still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  b.scrollIntoView({behavior:still?"auto":"smooth",block:"center"});
+  setTimeout(()=>{try{b.focus()}catch(e){}},still?0:340);
+};
 function fbShowResults(targetText,heardText,fromRec){
   const tgt=fbTokens(targetText),h=fbTokens(heardText);
   const out=document.getElementById("fbOut");
-  if(!h.length){out.innerHTML=`<p style="font-size:13.5px;color:var(--mut);margin-top:8px">${t("fb.nothing_heard")}</p>`;return}
+  /* the emptiest state is the one where another attempt matters most */
+  if(!h.length){out.innerHTML=`<p class="fb-nothing">${t("fb.nothing_heard")}</p>`
+    +(document.getElementById("recBtn")?`<button class="fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
   if(fromRec)getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings in the background
   const hasTarget=tgt.length>0;
   const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
@@ -6232,31 +6312,34 @@ function fbShowResults(targetText,heardText,fromRec){
     :`<span style="font-size:13px;color:var(--mut)">${t("fb.attempt_baseline")}</span>`}
   </div>`:""}
   ${hasTarget&&fromRec?`<div id="fbPron"></div>`:""}
-  <div class="grid g3" style="margin-top:12px">
-    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${paceMsg}</div><div class="l">${t("fb.pace_label")}</div></div>
-    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${fillerN===0?t("fb.fillers_zero"):t(fillerN>1?"fb.fillers_many":"fb.fillers_one",{n:fillerN})}</div><div class="l">${t("fb.fillers_label")}</div></div>
-    <div class="stat" style="padding:12px 16px"><div style="font-size:14px;font-weight:700">${hist}${trend>0?" 📈":trend<0?" 📉":""}</div><div class="l">${t("fb.last_scores_label")}</div></div>
-  </div>
-  ${hasTarget?`<div class="fb-chips">${ops.map(o=>
-    o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
-    :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
-    :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div>`:""}
-  ${!hasTarget?"":problems.length?`<b style="font-size:14px;display:block;margin:8px 0 10px">${t("fb.practice_pron")}</b>`+problems.map(o=>`
-    <div class="fb-item" id="fbi${o.i}">
-      <span class="fb-pct" id="fbp${o.i}">${o.op==="sub"?wsim(o.t,o.h)+"%":"0%"}</span>
-      <span class="w">${esc(o.t)}</span>
-      <div class="fb-heard">${o.op==="sub"?t("fb.heard_instead",{heard:esc(o.h)}):t("fb.didnt_catch")}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${fromRec&&o.op==="sub"?`<button class="btn btn-g btn-sm" onclick="fbYou(${fbWordFrac(hF,o.hIdx||0).join(",")},${o.hIdx||0},${hF.length},${jarg(o.h||"")})">${t("fb.you_btn")}</button>`:""}
-        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',1)">${t("fb.example_btn")}</button>
-        <button class="btn btn-g btn-sm" onclick="fbSay('${esc(o.t)}',0.5)">${t("fb.slow_btn")}</button>
-        <button class="btn btn-p btn-sm" onclick="fbTry('${esc(o.t)}',${o.i})">${tIc("fb.say_it_btn","mic")}</button>
-        <span style="font-size:12px;color:var(--mut2);align-self:center" id="fbr${o.i}"></span>
-      </div>
-    </div>`).join("")
+  ${document.getElementById("recBtn")?`<button class="fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:""}
+  ${!hasTarget?"":problems.length?`<h3 class="fb-h">${t("fb.practice_pron")}</h3>`
+    +fbRanked(problems).slice(0,FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")
+    +(fbRanked(problems).length>FB_TOP_FIXES?`<details class="home-more fb-more">
+        <summary><span class="btn-ic">${ic("mic")}</span>${t("fb.more_fixes",{n:fbRanked(problems).length-FB_TOP_FIXES})}<span class="hm-chev">▶</span></summary>
+        <div class="home-more-body">${fbRanked(problems).slice(FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")}</div>
+      </details>`:"")
   :`<p style="font-size:13.5px;color:var(--green);font-weight:600">${t("fb.all_recognized")}</p>`}
+  ${hasTarget?`<details class="home-more fb-sec">
+    <summary><span class="btn-ic">${ic("doc")}</span>${t("fb.section_words")}<span class="hm-chev">▶</span></summary>
+    <div class="home-more-body"><div class="fb-chips">${ops.map(o=>
+      o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
+      :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
+      :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div></div>
+  </details>`:""}
+  <details class="home-more fb-sec">
+    <summary><span class="btn-ic">${ic("gauge")}</span>${t("fb.section_stats")}<span class="hm-chev">▶</span></summary>
+    <div class="home-more-body"><div class="grid g3">
+      <div class="stat"><div class="fb-stat-v">${paceMsg}</div><div class="l">${t("fb.pace_label")}</div></div>
+      <div class="stat"><div class="fb-stat-v">${fillerN===0?t("fb.fillers_zero"):t(fillerN>1?"fb.fillers_many":"fb.fillers_one",{n:fillerN})}</div><div class="l">${t("fb.fillers_label")}</div></div>
+      <div class="stat"><div class="fb-stat-v">${hist}${trend>0?" ↑":trend<0?" ↓":""}</div><div class="l">${t("fb.last_scores_label")}</div></div>
+    </div></div>
+  </details>
   ${(()=>{const g=gramAnalyze(heardText);if(!g.good.length&&!g.fix.length)return"";
-    return`<div class="hr"></div><b style="font-size:15px;display:block;margin-bottom:12px">${t("fb.grammar_h")} <span style="font-size:11.5px;color:var(--mut2);font-weight:500">${t("fb.grammar_sub")}</span></b>
+    return`<details class="home-more fb-sec">
+    <summary>${tIc("fb.grammar_h","pencil")}<span class="hm-chev">▶</span></summary>
+    <div class="home-more-body">
+    <p class="fb-sec-sub">${t("fb.grammar_sub")}</p>
     <div class="grid g2">
       <div>
         <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${t("fb.grammar_good_h")}</div>
@@ -6273,21 +6356,22 @@ function fbShowResults(targetText,heardText,fromRec){
           <div style="font-size:14px;margin:5px 0">…<b style="background:rgba(251,191,36,.15);padding:1px 5px;border-radius:5px">${esc(x.quote)}</b></div>
           <div style="font-size:13px;color:var(--acc2);margin-bottom:5px">→ ${esc(x.corr)}</div>
           <p style="font-size:12.5px;color:var(--mut)">${esc(x.note)}</p>
-          <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="fbSay('${esc(x.corr)}',0.9)">${t("fb.hear_correct_version")}</button></div>`).join("")
+          <button class="btn btn-g fb-sec-act" onclick="fbSay('${esc(x.corr)}',0.9)">${t("fb.hear_correct_version")}</button></div>`).join("")
         :`<p style="font-size:12.5px;color:var(--green);font-weight:600">${t("fb.grammar_clean")}</p>`}
       </div>
-    </div>`})()}
+    </div></div></details>`})()}
   ${(()=>{const vl=vocabExtract(heardText+" "+targetText);if(!vl.length)return"";
-    return`<div class="hr"></div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px">
-      <b style="font-size:15px">${t("fb.vocab_key_h")} <span style="font-size:11.5px;color:var(--mut2);font-weight:500">${t("fb.vocab_from_speech")}</span></b>
-      <span style="flex:1"></span>
-      <button class="btn btn-g btn-sm" onclick='vocSaveAll(${JSON.stringify(vl)})'>${t("fb.vocab_save_all",{n:vl.length})}</button>
+    return`<details class="home-more fb-sec">
+    <summary>${tIc("fb.vocab_key_h","book")}<span class="hm-chev">▶</span></summary>
+    <div class="home-more-body">
+    <div class="fb-vocab-head">
+      <p class="fb-sec-sub">${t("fb.vocab_from_speech")}</p>
+      <button class="btn btn-g" onclick='vocSaveAll(${JSON.stringify(vl)})'>${t("fb.vocab_save_all",{n:vl.length})}</button>
     </div>
     ${vl.map(x=>vocRow(x.w,x.l)).join("")}
     <p style="margin-top:12px"><a class="voc-goto" onclick="gotoVocab()">${tIc("voc.goto_link","book")} →</a></p>
-    ${vocSynHTML(heardText)}`})()}
-  <p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("fb.disclaimer")}</p>`;
+    ${vocSynHTML(heardText)}</div></details>`})()}
+  <p class="fb-disclaimer">${t("fb.disclaimer")}</p>`;
   manIconizeInline(out);
   markPracticed();save();tbRender();
   document.getElementById("streakN").textContent=streak();

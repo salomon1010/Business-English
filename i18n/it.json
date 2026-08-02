@@ -1114,5 +1114,9 @@
   "sh.more_starters": "Mostra altri {{n}} clip",
   "sh.video_error_title": "Questo clip non si riproduce",
   "sh.video_error_body": "Il proprietario lo ha rimosso o ha bloccato l’incorporamento. Scegli un altro clip: registrazioni e note sono al sicuro.",
-  "sh.video_error_btn": "Scegli un altro clip"
+  "sh.video_error_btn": "Scegli un altro clip",
+  "fb.again_btn": "Registra un altro tentativo",
+  "fb.more_fixes": "Mostra altre {{n}} parole da allenare",
+  "fb.section_words": "Parola per parola",
+  "fb.section_stats": "Ritmo, intercalari e storico"
 }

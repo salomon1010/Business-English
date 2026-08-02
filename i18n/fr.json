@@ -1114,5 +1114,9 @@
   "sh.more_starters": "Afficher {{n}} clips de plus",
   "sh.video_error_title": "Cette vidéo ne peut pas être lue",
   "sh.video_error_body": "Le propriétaire l’a supprimée ou a bloqué l’intégration. Choisissez un autre extrait — vos enregistrements et notes sont intacts.",
-  "sh.video_error_btn": "Choisir un autre extrait"
+  "sh.video_error_btn": "Choisir un autre extrait",
+  "fb.again_btn": "Enregistrer une autre prise",
+  "fb.more_fixes": "Voir {{n}} mots de plus à travailler",
+  "fb.section_words": "Mot par mot",
+  "fb.section_stats": "Débit, tics de langage et historique"
 }
