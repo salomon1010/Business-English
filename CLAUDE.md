@@ -92,6 +92,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   root. `index.html` also has a JSON-LD `SoftwareApplication` block.
 - **`robots.txt` + `sitemap.xml`** at the root. The sitemap lists `/`,
   `flyer.html`, `manual/en.html` and the legal pages.
+- **IndexNow** key file `0703eea26ef786413e910ec4d620b6a0.txt` at the root — do
+  not delete or rename it, the ping fails without it. Notifies Bing / Yandex /
+  Seznam / Naver of changed URLs, no account needed:
+  `curl "https://api.indexnow.org/indexnow?url=<page>&key=<key>"`. **Google
+  ignores IndexNow and retired its sitemap ping** — Google only picks the
+  sitemap up from `robots.txt`, or from a manual Search Console submission.
 - **`flyer.html` is the public landing page**, not only the in-app About panel. Its
   English copy is written **inline** in the HTML (`render()` overwrites it with the
   same text, or a translation) so crawlers and no-JS visitors see real content —

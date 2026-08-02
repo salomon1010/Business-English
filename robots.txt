@@ -3,6 +3,9 @@ User-agent: *
 Allow: /
 
 # Build artefacts and raw assets — no value in the index.
+# The 2026-08 captures are an exception: manifest.json points at them for the
+# browser install prompt, so they are product art, not build output.
+Allow: /playstore/screenshots-2026-08/
 Disallow: /playstore/
 Disallow: /captions/
 Disallow: /scripts/
