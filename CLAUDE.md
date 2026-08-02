@@ -227,13 +227,23 @@ Fixes / infra
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a
   backend + budget cap) and B2B licensing; nothing built yet.
 - Native-speaker **review of the emotional translations** still recommended.
-- **Play listing art is stale and carries the owner's real first name.** The live
-  `playstore/screenshots/*.png` show "Salomon" and the old emoji nav. Fresh neutral
-  1080×2400 captures ("Alex", current line-icon nav) are in
-  **`playstore/screenshots-2026-08/`** — they still need a **manual upload in Play
-  Console**; nothing in the repo pushes them. Recapture recipe is in the
-  screenshot-rig memory. Avoid the Shadow picker in store art: it shows
-  third-party YouTube thumbnails.
+- **Play listing art is stale and carries the owner's real first name.** The old
+  phone set (`playstore/screenshots/`, "Salomon" + emoji nav) was **deleted
+  2026-08-01** — recover from git history if ever needed. Replacements live in
+  **`playstore/screenshots-2026-08/`**: 1080×2400, "Alex", current line-icon nav.
+  **Upload five of the six by hand in Play Console** (nothing in the repo pushes
+  them) — `01-dashboard`, `03-journey`, `04-phrases`, `05-progress`, `06-session`.
+  - **Skip `02-shadow.png`.** It captures the clip picker, which renders a real
+    YouTube thumbnail (Steve Jobs, Stanford Commencement) — a third party's
+    likeness and copyrighted still in store marketing. Any Shadow recapture must
+    avoid the picker *and* the player. `05-progress.png` is also cropped mid-card
+    at the top edge; cosmetic, but re-shoot it if the listing needs polish.
+  - **`playstore/tablet-screenshots/` (1440×2560) is stale in the same two ways**
+    — "Salomon", emoji nav, the same Steve Jobs thumbnail, and body copy naming
+    third-party channels the app no longer names. No replacement set exists. If
+    the listing has a tablet section populated, the real name is still public
+    there. Not yet dealt with.
+  - Recapture recipe is in the screenshot-rig memory.
 - **Analytics is wired but switched off** — no product metrics exist yet, so
   campaign performance can't be measured until a provider ID is set (see above).
 - **No email capture and no testimonials** anywhere. Both need things the repo
