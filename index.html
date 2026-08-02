@@ -823,7 +823,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   flex-wrap:nowrap;gap:0;margin:2px 0 14px;position:relative;
   border-bottom:1px solid var(--line2)}
 #v-practice .prac-subgroup .seg-tab{
-  flex:1 1 auto;min-width:0;justify-content:center;
+  /* min-width:0 let these shrink below their own label, so German and Russian
+     section names lost their last characters to an ellipsis. max-content keeps
+     the label whole and lets the row scroll instead — .seg-tabs is already
+     overflow-x:auto at <=820px. */
+  flex:1 1 auto;min-width:max-content;justify-content:center;
   background:none;border:0;border-radius:0;box-shadow:none;
   min-height:44px;padding:11px 4px;font-size:13px;font-weight:600;
   color:var(--mut);position:relative}
@@ -844,6 +848,9 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 
 /* The Knowledge Boosters sit under the Vocabulary tabs — they drill the words
    collected there rather than being a page-level section. */
+/* The due-now lead: same .home-due component the Dashboard uses, so the two
+   surfaces read as one system. Here it starts the drill instead of navigating. */
+.prac-due{margin:16px 0 4px}
 .prac-kb{margin:0 0 18px}
 .prac-kb-h{font-size:15px;font-weight:800;letter-spacing:-.2px;margin:0 0 3px;color:var(--txt)}
 
@@ -6742,8 +6749,15 @@ window.libGroup=k=>{
   if(g&&!g.subs.some(x=>x.k===_libTab))_libTab=g.subs[0].k;   // land on the group's first section
   const el=document.getElementById("v-practice");if(el)rPractice(el);
 };
+/* Starts the drill on the words that are actually due, rather than whichever
+   bucket the user last looked at. fcStart() reads _pracTab through pvBucket(),
+   so the bucket is set first. */
+window.pracStudyDue=()=>{_pracTab="ready";fcStart();};
 function rPractice(el){
   _libGroup=libGroupOf(_libTab);
+  /* Same source as the nav badge, so the number that brought the user here is
+     the number the page shows. */
+  const _due=navBadgeCount("practice");
   const group=LIB_GROUPS.find(g=>g.k===_libGroup)||LIB_GROUPS[0];
   const _kbReady=pvReady();
   el.innerHTML=`
@@ -6752,12 +6766,14 @@ function rPractice(el){
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
 
-  <h2 class="prac-sec">${t("prac.sim_h")}</h2>
-  <button class="card rp-entry" onclick="go('roleplay')">
-    <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
-    <span class="rp-entry-t"><b>${t("home.rp_title")}</b><small>${t("home.rp_sub")}</small></span>
-    <span class="rp-entry-go">→</span>
-  </button>
+  ${_due?`<button class="card home-due prac-due" onclick="pracStudyDue()">
+    <span class="home-due-ic">${ic("book")}</span>
+    <span class="home-due-t">
+      <b>${_due===1?t("home.due_title_one"):t("home.due_title",{n:_due})}</b>
+      <small>${t("home.due_sub")}</small>
+    </span>
+    <span class="home-due-go">→</span>
+  </button>`:""}
 
   <h2 class="prac-sec">${t("prac.vg_h")}</h2>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("lib.tabs_label"))}">
@@ -6776,7 +6792,14 @@ function rPractice(el){
       <button class="prac-ex-card ${_kbReady.cw?"ready":""}" onclick="cwStart()"><span class="pex-ic">${ic("grid")}</span><b>${t("prac.crosswords")}</b><small>${t("prac.crosswords_sub")}</small></button>
     </div>
   </div>`:""}
-  <div id="libBody"></div>`;
+  <div id="libBody"></div>
+
+  <h2 class="prac-sec">${t("prac.sim_h")}</h2>
+  <button class="card rp-entry" onclick="go('roleplay')">
+    <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+    <span class="rp-entry-t"><b>${t("home.rp_title")}</b><small>${t("home.rp_sub")}</small></span>
+    <span class="rp-entry-go">→</span>
+  </button>`;
   const body=el.querySelector("#libBody");
   if(_libTab==="vocab")rLibVocab(body);
   else if(_libTab==="grammar")rLibGrammar(body);

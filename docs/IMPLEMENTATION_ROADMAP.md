@@ -56,8 +56,8 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 4 | **Speaking Feedback** | `fbShowResults` → `#fbOut` | ✅ |
 | 5 | **Executive Polish** | `ex*` in `rPhrases` | ✅ `a1cd17f`, truthful-labels follow-up |
 | 6 | **Vocabulary** | `vocRow` in `rPractice` | ✅ |
-| 7 | Practice Hub | `rPractice` shell | in progress |
-| 8 | Calendar | `rProfile` → `.pcal-*` | pending |
+| 7 | **Practice Hub** | `rPractice` shell | ✅ |
+| 8 | Calendar | `rProfile` → `.pcal-*` | next |
 | 9 | Profile | `rProfile` | pending |
 | 10 | Settings | `rData` | pending |
 | 11 | Help | `rManual` | pending |

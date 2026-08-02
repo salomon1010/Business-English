@@ -335,13 +335,62 @@ Commit: `3fa343e`.
 
 ---
 
-## Screens 7–12 — not yet audited
+## Screen 7 — Practice Hub ✅ complete
+
+The `rPractice` shell above `#libBody`. Vocabulary (screen 6) is frozen and
+shares this renderer — see the overlap note in `IMPLEMENTATION_ROADMAP.md`.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| PH1 | **The page never said what was due.** `navBadgeCount("practice")` returned 5 and the nav badge showed it, but the page opened on "Life Simulations" — a promo — and the count only appeared as a bucket tab at y=680, behind two other tab rows. | The badge sent the user here for a number the destination did not repeat. |
+| PH2 | **Three tab rows, 8 tab buttons** between the heading and the work: group → section → bucket. | Navigation depth, and a decision at each level. |
+| PH3 | The role-play promo held the first content slot with its own `<h2>`, above everything the user came to do. | An evergreen destination outranked the day's work. |
+| PH4 | German and Russian **section tab labels truncated** — `min-width:0` let the tabs shrink below their own text. | "Gespeicherte Wendunge…" in two of fifteen languages. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Distance to the first drill action | 524px (boosters) | **203px** (due lead) — −61% |
+| Due count stated on the page | no | **yes**, from the same source as the badge |
+| Role-play promo position | y=213, above the work | **y=1,386**, below it |
+| Group tabs | y=397 | **y=364** |
+| First word row | y=738 | **y=706** |
+| Truncated tab labels (de/ru @320px) | 3 | **0** |
+| Targets <44px | 0 | **0** |
+| Page height | 1,551px | 1,674px |
+
+The page grew 123px — the due card is 107px of it. That is the cost of stating
+what is due, above the fold, and it is the point of the screen.
+
+### Decisions worth preserving
+
+- The due lead **reuses `.home-due`**, the Dashboard's component, so the two
+  surfaces read as one system. On Home it navigates here; here it starts the
+  drill — a sensible escalation, not an inconsistency.
+- `pracStudyDue()` sets `_pracTab="ready"` before `fcStart()`, so the drill runs
+  over the words that are actually due rather than whichever bucket was last
+  viewed. Verified: the drill set equals the due set exactly.
+- The lead is **hidden at zero** and on an empty account — no "0 words due".
+- **The three tab rows were left in place.** The group/section split was a
+  deliberate earlier decision ("five unrelated pills no longer sit side by
+  side"); reversing it needs evidence, not a preference. The due lead gives a
+  zero-depth path to the day's work and leaves browsing structure intact.
+- Section tabs use `min-width:max-content` and let the row scroll rather than
+  ellipsise a translated label.
+
+Commit: pending.
+
+---
+
+## Screens 8–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
 | # | Screen | Renderer | Notes carried forward |
 |---|---|---|---|
-| 7 | Practice Hub | `rPractice` | — |
 | 8 | Calendar | `rProfile` → `.pcal-*` | **Labels hardcoded English, no i18n keys** |
 | 9 | Profile | `rProfile` | Dev toggle: tap "Program start date" 5× |
 | 10 | Settings | `rData` | — |
