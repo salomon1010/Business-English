@@ -75,7 +75,7 @@ Review and Journey, which were never individually audited.
 |---|---|---|
 | `.lang-ic` relies on an inset scrim, not a checked palette | 1 rule | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
-| Radius sprawl (raw 12/10/9/8/7/22px) | app-wide | low |
+| Radius sprawl — 20 raw values, 136 declarations | app-wide | low — **design decision, not cleanup**; needs a design pass |
 | ~120 i18n keys look orphaned, but many are built dynamically (`t("phase."+n)`) | 15 files | low — **do not bulk-delete**; needs per-key proof |
 
 ## Critical defects
@@ -124,8 +124,8 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 | 3 | RTL directional glyphs | ✅ `fb74279` |
 | 4 | Duplicated CSS/JS | ✅ `ed64583` |
 | 5 | Dead CSS | ✅ `2e7c671` |
-| 5b | Obsolete tokens / radius sprawl | ⬜ next |
-| 6 | Performance profiling | ⬜ |
+| 5b | Obsolete tokens | ✅ `6acd7c5` |
+| 6 | Performance audit | ⬜ next (high-risk) |
 | 7 | Memory review | ⬜ |
 | 8 | Mobile behaviour, microphone permission flows | ⬜ device |
 | 9 | Offline behaviour and PWA install | ⬜ device |

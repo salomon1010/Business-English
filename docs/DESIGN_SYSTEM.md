@@ -163,9 +163,14 @@ bordered card inside a bordered card.**
 99px           pills and chips only
 ```
 
-*(target)* The codebase currently also contains raw `12px` (34×), `10px` (15×),
-`9px`, `8px`, `7px`, `22px`. These are pre-existing debt. Each screen pass
-migrates the radii it touches onto the three tokens. Do not add new raw radii.
+*(target)* The codebase still contains **20 distinct raw radius values across
+136 declarations** — `12px` ×29, `14px` ×23, `10px` ×10, then a long tail down
+to `2px`. Only 23 declarations use the tokens.
+
+**This was deliberately left alone in RC1.** Collapsing 20 values onto 3 changes
+the silhouette of most components in the app — that is a design decision, not a
+cleanup, and it needs a design pass and sign-off rather than a find-and-replace
+during stabilisation. Do not add new raw radii; use the tokens for anything new.
 
 ## 4. Type
 
