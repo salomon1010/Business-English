@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Effacer",
   "ex.polishing": "✨ Peaufinage — rédaction des versions professionnelles…",
   "ex.exec_versions": "💼 Versions exécutives — choisissez-en une",
-  "ex.more_hint": "↻ Choisissez-en une, ou appuyez à nouveau sur <b>Peaufiner</b> pour deux nouvelles versions.",
+  "ex.more_hint": "Appuyez à nouveau sur <b>Peaufiner</b> pour de nouvelles versions.",
   "ex.ai_err": "Réécriture en ligne indisponible pour le moment — nettoyage de base affiché",
   "ex.offline_note": "📶 Vous êtes hors ligne — nettoyage de base affiché. Connectez-vous à internet pour plusieurs versions professionnelles avec des idiomes différents.",
   "auth.sync_ok": "✓ La dernière sauvegarde a atteint votre compte.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Enregistrer une autre prise",
   "fb.more_fixes": "Voir {{n}} mots de plus à travailler",
   "fb.section_words": "Mot par mot",
-  "fb.section_stats": "Débit, tics de langage et historique"
+  "fb.section_stats": "Débit, tics de langage et historique",
+  "ex.recommended": "Formulation recommandée",
+  "ex.why_stronger": "Pourquoi c’est plus fort",
+  "ex.another_way": "Une autre façon de le dire",
+  "ex.frames_h": "Structures de direction"
 }

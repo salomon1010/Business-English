@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 지우기",
   "ex.polishing": "✨ 다듬는 중 — 전문적인 문장을 작성하고 있습니다…",
   "ex.exec_versions": "💼 임원용 문장 — 하나를 고르세요",
-  "ex.more_hint": "↻ 하나를 고르거나, <b>다듬기</b>를 다시 눌러 새 문장 두 개를 받아보세요.",
+  "ex.more_hint": "<b>다듬기</b>를 다시 눌러 새 버전을 받아보세요.",
   "ex.ai_err": "온라인 재작성을 지금은 쓸 수 없습니다 — 기본 정리본을 보여드립니다",
   "ex.offline_note": "📶 오프라인 상태입니다 — 기본 정리본을 보여드립니다. 인터넷에 연결하면 서로 다른 관용구를 쓴 전문적인 문장을 여러 개 받을 수 있습니다.",
   "auth.sync_ok": "✓ 마지막 저장이 계정에 반영됐습니다.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "다시 녹음하기",
   "fb.more_fixes": "연습할 단어 {{n}}개 더 보기",
   "fb.section_words": "단어별 비교",
-  "fb.section_stats": "속도, 군말, 기록"
+  "fb.section_stats": "속도, 군말, 기록",
+  "ex.recommended": "추천 표현",
+  "ex.why_stronger": "왜 더 강한가",
+  "ex.another_way": "다른 표현 방법",
+  "ex.frames_h": "임원용 표현 틀"
 }

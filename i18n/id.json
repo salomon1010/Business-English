@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Bersihkan",
   "ex.polishing": "✨ Memoles — menulis versi profesional…",
   "ex.exec_versions": "💼 Versi eksekutif — pilih satu",
-  "ex.more_hint": "↻ Pilih satu, atau tekan <b>Poles</b> lagi untuk dua versi baru.",
+  "ex.more_hint": "Tekan <b>Poles</b> lagi untuk versi baru.",
   "ex.ai_err": "Penulisan ulang daring sedang tidak tersedia — menampilkan perapian dasar",
   "ex.offline_note": "📶 Anda sedang luring — menampilkan perapian dasar. Sambungkan ke internet untuk beberapa versi profesional dengan idiom berbeda.",
   "auth.sync_ok": "✓ Penyimpanan terakhir sampai ke akun Anda.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Rekam take lagi",
   "fb.more_fixes": "Tampilkan {{n}} kata lagi untuk dilatih",
   "fb.section_words": "Kata demi kata",
-  "fb.section_stats": "Tempo, kata pengisi, dan riwayat"
+  "fb.section_stats": "Tempo, kata pengisi, dan riwayat",
+  "ex.recommended": "Frasa yang disarankan",
+  "ex.why_stronger": "Mengapa ini lebih kuat",
+  "ex.another_way": "Cara lain mengatakannya",
+  "ex.frames_h": "Kerangka eksekutif"
 }

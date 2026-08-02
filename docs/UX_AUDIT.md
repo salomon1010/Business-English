@@ -231,13 +231,62 @@ Commit: `20e2477`.
 
 ---
 
-## Screens 5–12 — not yet audited
+## Screen 5 — Executive Polish ✅ complete
+
+The card inside `rPhrases`: `exGo` / `exRenderVersions` / `exRenderOffline`,
+backed by the Cloudflare Worker that holds the AI key.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| E1 | Two versions shown as equals under "EXECUTIVE VERSIONS — **PICK ONE**". | A coach recommends a line; it does not hand over a menu. The brief asks for the recommended phrasing, not a comparison. |
+| E2 | The reason a rewrite is stronger (`v.learn`) was a small unlabelled cyan line. | "Clearly explain why" had no weight. |
+| E3 | The three EXEC_FRAMES printed under **every** result, and the 4-step "How to build your full speech" list rendered always. | The same reference text repeated on every polish. |
+| E4 | **9 of 10 controls under 44px** — including "Polish it" at **31px**, the feature's primary action. 10% touch coverage. | The main action was the smallest target on the card. |
+| E5 | `.ex-micbtn` carried two infinite animations (a spinning conic gradient plus a glow) — the last in the app. | Perpetual decoration on an idle button. |
+| E6 | "Polish it" was `.btn-p` — white on `--grad`, ~1.9:1 at the cyan end. | Contrast. |
+| E7 | Zero headings; 22 inline-styled elements. | No structure for a screen reader. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Card height | 1,255px | **940px** — −25% |
+| Result block | 693px | **551px** — −20% |
+| Targets <44px | 9 of 10 | **0** |
+| Touch coverage | 10% | **100%** |
+| Primary action height | 31px | **48px** |
+| Infinite animations | 1 (2 rules) | **0** |
+| `.btn-p` | 1 | **0** |
+| Headings | 0 | **1 + 3 summaries** |
+| Inline-styled elements | 22 | **4** |
+| Contrast failures | 0 | **0** (16 checks) |
+
+Verified at 320/390/430/768/1280px, in de/ru/ar/ja, both themes, on the offline
+fallback path, and under reduced motion with the mic live.
+
+### Decisions worth preserving
+
+- One **recommended** phrasing, with "Why this is stronger" as a labelled block.
+  Further versions sit behind "Another way to say it".
+- **Copy leads** the action row — the point of a polished line is to use it in
+  the real conversation, so reuse is the action, not an afterthought.
+- `ex.more_hint` said "Pick one, or press Polish it again"; the English and all
+  15 translations were rewritten, since the old copy contradicted the new design.
+- **`.glow-cta` is now deleted.** This screen held its last consumer, so the
+  rules and both keyframes went with it, as the roadmap scheduled.
+
+Commit: pending.
+
+---
+
+## Screens 6–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
 | # | Screen | Renderer | Notes carried forward |
 |---|---|---|---|
-| 5 | Executive Polish | within `rPhrases` | `.ex-micbtn` carries the same infinite conic animation |
 | 6 | Vocabulary | `rPractice` | — |
 | 7 | Practice Hub | `rPractice` | — |
 | 8 | Calendar | `rProfile` → `.pcal-*` | **Labels hardcoded English, no i18n keys** |
@@ -256,9 +305,10 @@ patch.
 1. **`.help-fab` overlaps content at rest.** `position:fixed`,
    `bottom:84px; right:16px`, on every screen. Recommendation: **delete it** —
    Profile → Help already exists and the bottom nav reaches Profile in one tap.
-2. **`.glow-cta` is gone from the app.** Only `.ex-micbtn` in Executive Polish
-   still carries the infinite conic gradient; delete the `glow-cta` keyframes
-   and rules once that pass lands.
+2. **`.glow-cta` is fully deleted** — rules and keyframes. Infinite animations
+   remaining, all on unpassed screens and none with a reduced-motion guard:
+   `obMicPulse` and `obRings` (Onboarding), `rpGlow` ×2 and `rpBar` (role-play),
+   and `pulse` ×4. `htGlow`/`htPulse` (header timer) already have one.
 2b. **`.btn-p` and `.seg-tab.on` are white on `--grad`** — ~1.9:1 at the cyan
    end. Fixed on Dashboard, Session and Shadow by scoping; **43 `.btn-p` uses
    and the shared `.seg-tab.on` rule remain** on Practice, Phrases, Profile and

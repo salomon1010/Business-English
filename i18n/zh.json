@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 清空",
   "ex.polishing": "✨ 正在润色 — 撰写专业版本…",
   "ex.exec_versions": "💼 高管版本 — 选一个",
-  "ex.more_hint": "↻ 选一个，或再按一次<b>润色</b>获取两个新版本。",
+  "ex.more_hint": "再次点击<b>润色</b>获取新的版本。",
   "ex.ai_err": "在线改写暂时不可用 — 先显示基础清理版",
   "ex.offline_note": "📶 你处于离线状态 — 先显示基础清理版。联网后可获得多个使用不同习语的专业版本。",
   "auth.sync_ok": "✓ 上一次保存已同步到你的账户。",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "再录一次",
   "fb.more_fixes": "再显示 {{n}} 个要练的词",
   "fb.section_words": "逐词对照",
-  "fb.section_stats": "语速、填充词与历史"
+  "fb.section_stats": "语速、填充词与历史",
+  "ex.recommended": "推荐说法",
+  "ex.why_stronger": "为什么这样更有力",
+  "ex.another_way": "另一种说法",
+  "ex.frames_h": "高管表达框架"
 }

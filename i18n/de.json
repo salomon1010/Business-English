@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Löschen",
   "ex.polishing": "✨ Wird geschliffen — schreibe professionelle Fassungen…",
   "ex.exec_versions": "💼 Fassungen fürs Führungsniveau — wähle eine",
-  "ex.more_hint": "↻ Wähle eine, oder drücke nochmal <b>Schleifen</b> für zwei neue Fassungen.",
+  "ex.more_hint": "Drücke nochmal <b>Schleifen</b> für neue Fassungen.",
   "ex.ai_err": "Online-Umschreiben gerade nicht verfügbar — es wird eine einfache Bereinigung gezeigt",
   "ex.offline_note": "📶 Du bist offline — es wird eine einfache Bereinigung gezeigt. Geh online für mehrere professionelle Fassungen mit unterschiedlichen Redewendungen.",
   "auth.sync_ok": "✓ Die letzte Speicherung hat dein Konto erreicht.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Neue Aufnahme machen",
   "fb.more_fixes": "{{n}} weitere Wörter zum Üben anzeigen",
   "fb.section_words": "Wort für Wort",
-  "fb.section_stats": "Tempo, Füllwörter und Verlauf"
+  "fb.section_stats": "Tempo, Füllwörter und Verlauf",
+  "ex.recommended": "Empfohlene Formulierung",
+  "ex.why_stronger": "Warum das stärker ist",
+  "ex.another_way": "Eine andere Formulierung",
+  "ex.frames_h": "Executive-Strukturen"
 }

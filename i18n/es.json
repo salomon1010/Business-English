@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Borrar",
   "ex.polishing": "✨ Puliendo — escribiendo versiones profesionales…",
   "ex.exec_versions": "💼 Versiones ejecutivas — elige una",
-  "ex.more_hint": "↻ Elige una, o pulsa <b>Púlelo</b> otra vez para dos versiones nuevas.",
+  "ex.more_hint": "Pulsa <b>Púlelo</b> otra vez para un nuevo juego de versiones.",
   "ex.ai_err": "La reescritura en línea no está disponible ahora — se muestra una limpieza básica",
   "ex.offline_note": "📶 Estás sin conexión — se muestra una limpieza básica. Conéctate a internet para varias versiones profesionales con distintos modismos.",
   "auth.sync_ok": "✓ El último guardado llegó a tu cuenta.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Grabar otra toma",
   "fb.more_fixes": "Ver {{n}} palabras más para practicar",
   "fb.section_words": "Palabra por palabra",
-  "fb.section_stats": "Ritmo, muletillas e historial"
+  "fb.section_stats": "Ritmo, muletillas e historial",
+  "ex.recommended": "Frase recomendada",
+  "ex.why_stronger": "Por qué es más fuerte",
+  "ex.another_way": "Otra forma de decirlo",
+  "ex.frames_h": "Estructuras ejecutivas"
 }

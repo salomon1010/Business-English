@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Cancella",
   "ex.polishing": "✨ Sto rifinendo — scrivo le versioni professionali…",
   "ex.exec_versions": "💼 Versioni da manager — scegline una",
-  "ex.more_hint": "↻ Scegline una, o premi di nuovo <b>Rifinisci</b> per due versioni nuove.",
+  "ex.more_hint": "Premi di nuovo <b>Rifinisci</b> per nuove versioni.",
   "ex.ai_err": "Riscrittura online non disponibile ora — mostro una ripulitura di base",
   "ex.offline_note": "📶 Sei offline — mostro una ripulitura di base. Collegati a internet per più versioni professionali con modi di dire diversi.",
   "auth.sync_ok": "✓ L'ultimo salvataggio è arrivato al tuo account.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Registra un altro tentativo",
   "fb.more_fixes": "Mostra altre {{n}} parole da allenare",
   "fb.section_words": "Parola per parola",
-  "fb.section_stats": "Ritmo, intercalari e storico"
+  "fb.section_stats": "Ritmo, intercalari e storico",
+  "ex.recommended": "Formulazione consigliata",
+  "ex.why_stronger": "Perché è più efficace",
+  "ex.another_way": "Un altro modo di dirlo",
+  "ex.frames_h": "Strutture da manager"
 }

@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Xóa",
   "ex.polishing": "✨ Đang trau chuốt — viết các phiên bản chuyên nghiệp…",
   "ex.exec_versions": "💼 Phiên bản cấp quản lý — chọn một",
-  "ex.more_hint": "↻ Chọn một, hoặc nhấn <b>Trau chuốt</b> lần nữa để có hai phiên bản mới.",
+  "ex.more_hint": "Nhấn <b>Trau chuốt</b> lần nữa để có bản mới.",
   "ex.ai_err": "Viết lại trực tuyến hiện không dùng được — đang hiển thị bản chỉnh sửa cơ bản",
   "ex.offline_note": "📶 Bạn đang ngoại tuyến — đang hiển thị bản chỉnh sửa cơ bản. Hãy kết nối internet để có nhiều phiên bản chuyên nghiệp với các thành ngữ khác nhau.",
   "auth.sync_ok": "✓ Lần lưu gần nhất đã tới tài khoản của bạn.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Ghi âm lần nữa",
   "fb.more_fixes": "Xem thêm {{n}} từ cần luyện",
   "fb.section_words": "Từng từ một",
-  "fb.section_stats": "Tốc độ, từ đệm và lịch sử"
+  "fb.section_stats": "Tốc độ, từ đệm và lịch sử",
+  "ex.recommended": "Cách diễn đạt được đề xuất",
+  "ex.why_stronger": "Vì sao mạnh hơn",
+  "ex.another_way": "Một cách nói khác",
+  "ex.frames_h": "Khung diễn đạt điều hành"
 }

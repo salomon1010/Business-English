@@ -1010,7 +1010,7 @@
   "ex.clear_btn": "🗑 Limpar",
   "ex.polishing": "✨ Polindo — escrevendo versões profissionais…",
   "ex.exec_versions": "💼 Versões executivas — escolha uma",
-  "ex.more_hint": "↻ Escolha uma, ou toque em <b>Polir</b> de novo para duas versões novas.",
+  "ex.more_hint": "Toque em <b>Polir</b> novamente para novas versões.",
   "ex.ai_err": "Reescrita online indisponível agora — mostrando uma limpeza básica",
   "ex.offline_note": "📶 Você está offline — mostrando uma limpeza básica. Conecte-se à internet para várias versões profissionais com expressões diferentes.",
   "auth.sync_ok": "✓ O último salvamento chegou à sua conta.",
@@ -1118,5 +1118,9 @@
   "fb.again_btn": "Gravar outra tomada",
   "fb.more_fixes": "Ver mais {{n}} palavras para praticar",
   "fb.section_words": "Palavra por palavra",
-  "fb.section_stats": "Ritmo, vícios e histórico"
+  "fb.section_stats": "Ritmo, vícios e histórico",
+  "ex.recommended": "Formulação recomendada",
+  "ex.why_stronger": "Por que é mais forte",
+  "ex.another_way": "Outra forma de dizer",
+  "ex.frames_h": "Estruturas executivas"
 }

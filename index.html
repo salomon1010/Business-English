@@ -458,20 +458,12 @@ body.sh-work-open{overflow:hidden}
 .sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
 .sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
 .sh-clear svg{width:16px;height:16px;display:block}
-/* "Continue your last clip" — slow light travelling around the border to pull attention */
-.glow-cta{position:relative;z-index:0;border:none;overflow:hidden;background:var(--card2);color:var(--txt);font-weight:700;border-radius:12px;padding:13px 18px;cursor:pointer;animation:glow-cta-glow 2.8s ease-in-out infinite}
-.glow-cta .glow-cta-txt{position:relative;z-index:2}
-.glow-cta::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:300%;height:760%;background:conic-gradient(from 0deg,transparent 0 56%,#22d3ee 70%,#eaffff 80%,#6366f1 90%,transparent 100%);animation:glow-cta-spin 4s linear infinite}
-.glow-cta::after{content:"";position:absolute;z-index:1;inset:2px;border-radius:10px;background:var(--card2)}
 .sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px}
 .sess-ex summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-md)}
 .sess-ex summary::-webkit-details-marker{display:none}
 .sess-ex .sess-ex-title{font-weight:700;font-size:15px}
 .sess-ex summary::after{content:"▾";margin-left:auto;color:var(--acc);font-size:22px;line-height:1;transition:transform .2s}
 .sess-ex[open] summary::after{transform:rotate(180deg)}
-@keyframes glow-cta-spin{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes glow-cta-glow{0%,100%{box-shadow:0 0 14px 0 rgba(34,211,238,.14)}50%{box-shadow:0 0 26px 3px rgba(34,211,238,.4)}}
-@media (prefers-reduced-motion:reduce){.glow-cta,.glow-cta::before,.ex-micbtn,.ex-micbtn::before{animation:none}}
 .stat-ic svg{width:23px;height:23px}
 .head-ic{color:var(--acc);display:inline-flex;vertical-align:-3px;margin-right:8px;line-height:0}
 .head-ic svg{width:20px;height:20px}
@@ -547,25 +539,32 @@ body.sh-work-open{overflow:hidden}
 .ex-field-ta .ex-field-ic{top:15px;transform:none}
 textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* Desktop: two tidy lines — [ mic · bin ] on top, a full-width Polish button beneath */
-.ex-btns{display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;min-width:210px}
-.ex-btns>.btn{min-height:0;padding:7px 8px;border-radius:9px}
-.ex-micbtn{flex:1 1 0}
+/* Every control here was 31px — including "Polish it", the feature's primary
+   action. The row now uses full-size controls; the button that starts the work
+   spans the row, the mic and clear are 48px squares beside it. */
+.ex-btns{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;min-width:210px}
+.ex-btns>.btn,.ex-btns>.btn-primary{min-height:48px;border-radius:var(--r-md)}
+.ex-micbtn{flex:0 0 48px;display:grid;place-items:center}
+.ex-micbtn svg{width:19px;height:19px}
 .ex-icobtn{flex:0 0 48px;display:grid;place-items:center}
-.ex-icobtn svg{width:15px;height:15px}
-.ex-polishbtn{flex:1 1 100%;justify-content:center;gap:5px;font-size:12.5px;line-height:1.1;text-align:center;padding:9px 8px}
+.ex-icobtn svg{width:18px;height:18px}
+.ex-polishbtn{flex:1 1 140px;min-height:48px;font-size:15px}
 .ex-polishbtn .btn-ic{margin:0}
-.ex-polishbtn svg{width:14px;height:14px}
+.ex-polishbtn svg{width:17px;height:17px}
 /* Dictation mic — cycling light ring so it reads as "start here" */
-.ex-micbtn{position:relative;z-index:0;border:none;overflow:hidden;display:grid;place-items:center;border-radius:9px;color:var(--txt);animation:glow-cta-glow 2.8s ease-in-out infinite}
-.ex-micbtn svg{position:relative;z-index:2;width:16px;height:16px}
-.ex-micbtn::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:340%;height:340%;background:conic-gradient(from 0deg,transparent 0 55%,#22d3ee 70%,#eaffff 80%,#6366f1 90%,transparent 100%);animation:glow-cta-spin 4s linear infinite}
-.ex-micbtn::after{content:"";position:absolute;z-index:1;inset:2px;border-radius:7px;background:var(--card2)}
-.ex-micbtn.ex-mic-live::before{opacity:0}
-.ex-micbtn.ex-mic-live::after{background:var(--red)}
+/* The last spinning conic gradient in the app. A dictation button does not need
+   perpetual motion to be found; the live state is what actually carries meaning,
+   so that keeps its red fill and the idle state is an ordinary control. */
+.ex-micbtn{color:var(--txt)}
+.ex-micbtn.ex-mic-live{background:var(--red);border-color:transparent;color:#fff}
+.ex-micbtn.ex-mic-live svg{color:#fff}
 /* Phone: keep all three on ONE line — Polish · mic · bin (40/40/20) */
 @media(max-width:520px){.ex-btns{flex-wrap:nowrap;min-width:100%}.ex-polishbtn{flex:2 1 0;order:-1;padding:7px 8px}.ex-micbtn{flex:2 1 0}.ex-icobtn{flex:1 1 0}}
 .ex-mic-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:exPulse 1.1s infinite}
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
+/* "listening" is live state, so the pulse is motivated — but the red fill
+   already carries the meaning without it. */
+@media (prefers-reduced-motion:reduce){.ex-mic-live{animation:none}}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -680,10 +679,38 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ph-sp-count{font-size:11.5px;color:var(--mut);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
 .ph-sp-sub{font-size:12.5px;color:var(--mut);margin:0 0 10px}
 /* The loop that turns a polished sentence into part of your speech. */
-.ex-flow{margin-top:14px;border-top:1px solid var(--line);padding-top:11px}
-.ex-flow b{font-size:12.5px;display:flex;align-items:center;gap:6px}
-.ex-flow ol{margin:7px 0 0;padding-left:20px;font-size:12.5px;color:var(--mut);line-height:1.65}
-.ex-flow li{margin-bottom:2px}
+.ex-flow ol{margin:0;padding-left:20px;font-size:12.5px;color:var(--mut);line-height:1.65}
+.ex-flow li{margin-bottom:4px}
+
+/* EXECUTIVE POLISH results — one recommended line, then disclosure. */
+.ex-h{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.ex-best{background:color-mix(in srgb,var(--green) 8%,transparent);
+  border:1px solid color-mix(in srgb,var(--green) 34%,transparent);
+  border-radius:var(--r-lg);padding:16px 18px}
+.ex-best-t{font-size:17px;font-weight:600;line-height:1.5;letter-spacing:-.1px}
+.ex-why{margin-top:12px;padding-top:11px;border-top:1px solid color-mix(in srgb,var(--green) 26%,transparent)}
+.ex-why b{display:block;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);margin-bottom:5px}
+.ex-why p{font-size:13px;color:var(--mut);line-height:1.55}
+.ex-changes{display:flex;flex-wrap:wrap;gap:6px}
+.ex-clean{font-size:13px;color:var(--green);font-weight:600;margin-top:10px}
+.ex-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ex-acts>.btn{flex:1 1 auto;min-height:44px;justify-content:center;white-space:nowrap}
+/* reuse is the point of a polished line, so Copy is the emphasised action */
+.ex-copy{background:color-mix(in srgb,var(--green) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--green) 45%,transparent);color:var(--txt);font-weight:700}
+.ex-copy:hover{background:color-mix(in srgb,var(--green) 26%,transparent)}
+.ex-alt{padding:2px 0 10px}
+.ex-alt+.ex-alt{border-top:1px solid var(--line);padding-top:14px}
+.ex-alt-t{font-size:15.5px;font-weight:600;line-height:1.5}
+.ex-alt-why{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+.ex-sec{margin:12px 0 0}
+.ex-frames div{padding:6px 0;font-size:12.5px;color:var(--mut);line-height:1.55}
+.ex-frames div+div{border-top:1px solid var(--line)}
+.ex-frames b{color:var(--acc2)}
+.ex-more-hint{font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.5}
+.ex-note{font-size:12.5px;color:var(--gold);margin-bottom:10px;line-height:1.5}
+.ex-status{font-size:12.5px;color:var(--mut)}
+.ex-aiprompt{min-height:44px;margin-top:12px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
@@ -3141,8 +3168,12 @@ const I18N_EN={
  "ex.clear_btn":"🗑 Clear",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
+ "ex.recommended":"Recommended phrasing",
+ "ex.why_stronger":"Why this is stronger",
+ "ex.another_way":"Another way to say it",
+ "ex.frames_h":"Executive frames",
  "ex.exec_versions":"💼 Executive versions — pick one",
- "ex.more_hint":"↻ Pick one, or press <b>Polish it</b> again for two new versions.",
+ "ex.more_hint":"Press <b>Polish it</b> again for a fresh set of versions.",
  "ex.ai_err":"Online rewrite unavailable right now — showing a basic clean-up instead",
  "ex.offline_note":"📶 You're offline — showing a basic clean-up. Connect to the internet for several professional versions with different idioms.",
  "rec.too_short_state":"Too short — tap and speak a bit longer",
@@ -7194,38 +7225,58 @@ const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worke
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional"],["onyx","Onyx — deep, authoritative"],["nova","Nova — warm, friendly"],["shimmer","Shimmer — soft, calm"],["echo","Echo — smooth"],["sage","Sage — measured"],["coral","Coral — warm"],["ash","Ash — confident"],["fable","Fable — expressive"],["ballad","Ballad — gentle"],["verse","Verse — versatile"],["browser","Device voice (offline)"]];
 
-/* frames block shown under every result */
-function exFramesHTML(){return `<div style="margin-top:12px;font-size:12.5px;color:var(--mut)">${EXEC_FRAMES.map((f,i)=>`<div style="padding:5px 0;border-top:1px solid var(--line)"><b style="color:var(--acc2)">${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>`}
-/* three action buttons for one sentence */
-function exActs(s){return `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-  <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
-  <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
-  <button class="btn btn-g btn-sm" onclick="navigator.clipboard.writeText(${jarg(s)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button></div>`}
+/* Reference material, not a result. It used to print under every polish; it is
+   the same three frames every time, so it is disclosed rather than repeated. */
+function exFramesHTML(){return `<details class="home-more ex-sec">
+  <summary><span class="btn-ic">${ic("list")}</span>${t("ex.frames_h")}<span class="hm-chev">▶</span></summary>
+  <div class="home-more-body ex-frames">${EXEC_FRAMES.map((f,i)=>`<div><b>${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>
+</details>`}
+/* Actions for one sentence. Copy leads: the point of a polished line is to use
+   it in the real conversation, so reuse is the action, not an afterthought. */
+function exActs(s,lead){return `<div class="ex-acts">
+  <button class="btn ${lead?"ex-copy":"btn-g"}" onclick="navigator.clipboard.writeText(${jarg(s)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
+  <button class="btn btn-g" onclick="fbSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
+  <button class="btn btn-g" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button></div>`}
 /* offline / fallback: the local rule-based single clean-up */
 function exRenderOffline(inp,note){
   const{out,changes}=execPolish(inp);
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
-    ${note?`<p style="font-size:12.5px;color:var(--gold);margin-bottom:10px">${note}</p>`:""}
-    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:6px">${tIc("ex.exec_version","briefcase")}</div>
-    <p style="font-size:17px;font-weight:600;line-height:1.55;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:14px 18px">${esc(out)}</p>
-    ${exActs(out).replace("margin-top:8px","margin:12px 0")}
-    ${changes.length?`<div style="font-size:12.5px;color:var(--mut)"><b style="color:var(--txt)">${t("ex.what_changed")}</b> ${changes.map(c=>`<span class="chip" style="margin:2px 4px 2px 0">${esc(c)}</span>`).join("")}</div>`
-    :`<p style="font-size:13px;color:var(--green)">${t("ex.already_clean")}</p>`}
-    <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
+    ${note?`<p class="ex-note">${note}</p>`:""}
+    <h3 class="ex-h">${tIc("ex.recommended","briefcase")}</h3>
+    <div class="ex-best">
+      <p class="ex-best-t">${esc(out)}</p>
+      ${changes.length?`<div class="ex-why"><b>${t("ex.what_changed")}</b>
+        <div class="ex-changes">${changes.map(c=>`<span class="chip">${esc(c)}</span>`).join("")}</div></div>`
+      :`<p class="ex-clean">${t("ex.already_clean")}</p>`}
+      ${exActs(out,true)}
+    </div>
+    <button class="btn btn-g ex-aiprompt" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
     ${exFramesHTML()}`;
 }
-/* render two professional versions to pick from */
+/* A coach recommends a line; it does not hand over a menu. The first version is
+   presented as the phrasing to use, with the reason it is stronger given its own
+   label. Any further versions sit behind a disclosure, so the screen answers
+   "what should I say?" rather than "which of these do you prefer?". */
 function exRenderVersions(list){
+  const best=list[0],rest=list.slice(1);
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
-    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${tIc("ex.exec_versions","briefcase")}</div>
-    ${list.map(v=>`<div style="background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.35);border-radius:12px;padding:12px 16px;margin-bottom:10px">
-      <p style="font-size:16px;font-weight:600;line-height:1.5">${esc(v.text)}</p>
-      ${v.learn?`<p style="font-size:12px;color:var(--acc2);margin-top:5px">${esc(v.learn)}</p>`:""}
-      ${exActs(v.text)}
-    </div>`).join("")}
-    <p style="font-size:12.5px;color:var(--mut);margin-top:6px">${t("ex.more_hint")}</p>
+    <h3 class="ex-h">${tIc("ex.recommended","briefcase")}</h3>
+    <div class="ex-best">
+      <p class="ex-best-t">${esc(best.text)}</p>
+      ${best.learn?`<div class="ex-why"><b>${t("ex.why_stronger")}</b><p>${esc(best.learn)}</p></div>`:""}
+      ${exActs(best.text,true)}
+    </div>
+    ${rest.length?`<details class="home-more ex-sec">
+      <summary><span class="btn-ic">${ic("chat")}</span>${t("ex.another_way")}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body">${rest.map(v=>`<div class="ex-alt">
+        <p class="ex-alt-t">${esc(v.text)}</p>
+        ${v.learn?`<p class="ex-alt-why">${esc(v.learn)}</p>`:""}
+        ${exActs(v.text)}
+      </div>`).join("")}</div>
+    </details>`:""}
+    <p class="ex-more-hint">${t("ex.more_hint")}</p>
     ${exFramesHTML()}`;
 }
 let exBusy=false,exLastInput="",exPrev=[],exQueue=[];
@@ -7344,15 +7395,17 @@ function rPhrases(el,wFilter){
       <div class="ex-btns">
         <button class="btn btn-g ex-micbtn" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
         <button class="btn btn-g ex-icobtn" onclick="exClear()" aria-label="Clear" title="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
-        <button class="btn btn-p ex-polishbtn" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
+        <button class="btn-primary ex-polishbtn" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
       </div>
     </div>
-    <span id="exSt" style="font-size:12.5px;color:var(--mut)"></span>
+    <span id="exSt" class="ex-status"></span>
     <div id="exOut"></div>
-    <div class="ex-flow">
-      <b>${hIcon("idea",t("ph.exec_flow_h"))}</b>
-      <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
-    </div>
+    <details class="home-more ex-sec ex-flow">
+      <summary><span class="btn-ic">${ic("idea")}</span>${t("ph.exec_flow_h")}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body">
+        <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
+      </div>
+    </details>
   </div>
   <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>
