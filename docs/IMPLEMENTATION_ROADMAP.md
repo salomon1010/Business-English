@@ -24,10 +24,13 @@ Vocabulary are **frozen**. Do not revisit them unless one of these is true:
 
 State which of the four applies before touching a frozen screen.
 
-**Overlap warning:** Vocabulary (frozen) and Practice Hub share `rPractice`.
+**Overlap warnings.** Vocabulary (frozen) and Practice Hub share `rPractice`.
 Frozen there: `vocRow`, `vocSave`, `.voc-*`, the `#v-practice` touch-target
 floors and the `.prac-subtab.on` contrast fix. The Practice Hub pass owns the
 surrounding structure — Knowledge Boosters, the group tabs, the layout.
+Calendar (frozen) lives inside `rProfile`: `calHTML`, `calDayDetailHTML`,
+`calLocale`, `calDowInitials` and every `.pcal-*`/`.cal-*` rule are frozen; the
+Profile pass owns the header, the menu rows and the account block.
 
 ## Ship discipline
 
@@ -58,7 +61,7 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 6 | **Vocabulary** | `vocRow` in `rPractice` | ✅ |
 | 7 | **Practice Hub** | `rPractice` shell | ✅ |
 | 8 | **Calendar** | `calHTML` in `rProfile` | ✅ |
-| 9 | Profile | `rProfile` | next |
+| 9 | Profile | `rProfile` shell | in progress |
 | 10 | Settings | `rData` | pending |
 | 11 | Help | `rManual` | pending |
 | 12 | Onboarding | `rSetup` | pending |
