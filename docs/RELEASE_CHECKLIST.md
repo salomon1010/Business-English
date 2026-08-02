@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: Onboarding (screen 12) — **all screens complete**.
+> Last updated: RC1 stabilisation task 1 — touch-target floors.
 
 ## Screens
 
@@ -39,11 +39,15 @@ except `<h1>`, which must be exactly 1.
 | Settings | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Help | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Onboarding | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
-| *Phrase Lab (not passed)* | 1 | **48** | 0 | 0 | 0 | 0 | 0 |
+| Phrase Lab | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+**The gate passes on every surface.** Also verified 0 sub-44px controls on
+Review and Journey, which were never individually audited.
 
 ## Accessibility
 
-- **Touch targets:** 100% ≥44px on all 12 screens, down to 320×568.
+- **Touch targets:** 100% ≥44px on **all ten rendered surfaces** (the 12
+  screens plus Review and Journey), at 320×568 through 1280×900.
 - **Contrast:** 0 AA failures across ~165 measured text roles, both themes.
 - **Forms:** every control on Settings has a real `<label for>` or `aria-label`.
 - **Keyboard:** tab order verified on Dashboard, Session, Shadow, Feedback,
@@ -67,7 +71,6 @@ except `<h1>`, which must be exactly 1.
 
 | Item | Scope | Severity |
 |---|---|---|
-| Phrase Lab: 48 controls <44px | the one unpassed screen | medium |
 | `--mut2` used as text on unpassed screens | ~68 uses | medium |
 | `.btn-p` gradient on unpassed screens | ~40 uses | medium |
 | `→` arrows unmirrored in RTL | 5 arrows | low |
@@ -114,15 +117,17 @@ stabilisation, listed below.
 
 The screen programme is finished. Stabilisation, in the order I would run it:
 
-| | Item | Why first |
+| | Item | Status |
 |---|---|---|
-| 1 | **Phrase Lab's 48 sub-44px controls** | The one surface still failing the cross-screen gate. It is not a numbered screen, but it sits in `#v-phrases` alongside Executive Polish and is the last gate failure. |
-| 2 | End-to-end journey testing on a real device | Onboarding → first session → feedback → streak |
-| 3 | VoiceOver / TalkBack verification | Never done on hardware; all a11y work so far is measured, not heard |
-| 4 | Microphone permission flows | Cannot be simulated in the rig |
-| 5 | Offline behaviour and PWA install | Service-worker cache, `start_url`, install prompt |
-| 6 | Shared component cleanup | `--mut2` (~68), `.btn-p` (~40), `.fb-again`→`.btn-outline`, radius sprawl |
-| 7 | Performance profiling and memory review | Long sessions, the Shadow player, repeated renders |
-| 8 | Native-language review | Machine-transcreated emotional copy |
-| 9 | Deploy the events Worker | Or accept `track()` is silently lost |
-| 10 | Bump `sw.js` `be12-vNN`, then Play release prep | Last, on the user's go-ahead |
+| 1 | Touch-target floors — every surface ≥44px | ✅ `8bcec70` |
+| 2 | Remaining shared contrast (`--mut2` ~68, `.btn-p` ~40) | ⬜ next |
+| 3 | RTL: 5 unmirrored `→` arrows | ⬜ |
+| 4 | Duplicated CSS/JS (`.fb-again`→`.btn-outline`) | ⬜ |
+| 5 | Dead code and obsolete tokens (radius sprawl) | ⬜ |
+| 6 | Performance profiling | ⬜ |
+| 7 | Memory review | ⬜ |
+| 8 | Mobile behaviour, microphone permission flows | ⬜ device |
+| 9 | Offline behaviour and PWA install | ⬜ device |
+| 10 | VoiceOver / TalkBack | ⬜ device |
+| 11 | Native-language review | ⬜ |
+| 12 | Deploy the events Worker; bump `sw.js`; Play prep | ⬜ on approval |

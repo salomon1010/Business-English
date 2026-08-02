@@ -249,7 +249,6 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 /* the reminder switch was an 18px checkbox in an 18px row */
 .rem-row{min-height:44px}
 .rem-box input[type=time]{min-height:44px}
-#v-setup .seg-tab{min-height:44px}
 #v-setup .theme-opt{min-height:44px}
 #v-setup a{min-height:44px;display:inline-flex;align-items:center}
 #v-setup .about-links a,#v-setup .about-links button{min-height:44px}
@@ -435,7 +434,6 @@ body.sh-work-open{overflow:hidden}
    under that (34-38px) and the picker forty-five of forty-seven. Scoped to this
    screen: .btn-sm has 98 uses across screens not yet passed. */
 #v-shadow .btn-sm,.sh-work .btn-sm,#v-shadow .btn,.sh-work .btn{min-height:44px}
-#v-shadow .seg-tab{min-height:44px}
 /* the "best channels" row is links, not decoration — .chip is 32px app-wide */
 #v-shadow a.chip{min-height:44px}
 #v-shadow a.chip:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -734,14 +732,14 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
-.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center}
+.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center;min-width:44px;min-height:44px}
 .ph-icobtn svg{width:18px;height:18px;display:block}
 .ph-card .phrase{font-size:16.5px;font-weight:600;margin-bottom:4px}
 .ph-card .use{font-size:13px;color:var(--mut);margin-bottom:10px}
 .ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .idiom-tag{font-size:11px;font-weight:700;color:var(--pink);letter-spacing:1px}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:clamp(12px,3.2vw,13px);font-weight:600}
+.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:clamp(12px,3.2vw,13px);font-weight:600;min-height:44px;display:inline-flex;align-items:center;cursor:pointer}
 .cat-tab.on{background:var(--grad);color:#fff;border-color:transparent}
 
 /* SHADOW (YouGlish-style clip looper) */
@@ -1198,7 +1196,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-subtabs{flex-wrap:nowrap}
 .prac-subtabs .prac-subtab{flex:1 1 0;min-width:0;justify-content:center;text-align:center;padding:8px 6px}
 .prac-subtabs .prac-subtab b{margin-left:4px}
-.prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:44px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut)}
 /* was background:var(--grad) with white text — ~1.9:1 at the gradient's cyan
    end. Shared by every tab row, so it is fixed here rather than per screen. */
@@ -1878,11 +1876,11 @@ pre,code{overflow-wrap:anywhere}
 /* 3 — Comfortable touch targets on phones (44px is the accessible minimum). */
 @media(max-width:820px){
   .btn{min-height:44px}
-  .btn-sm{min-height:38px}
+  .btn-sm{min-height:44px}
   input,select,textarea{min-height:44px;font-size:16px}  /* 16px stops iOS zoom-on-focus */
   textarea{min-height:88px}
-  .seg-tab,.prac-subtab{min-height:40px}
-  .voc-mini,.ph-icobtn,.ex-icobtn{min-width:38px;min-height:38px}
+  .seg-tab,.prac-subtab{min-height:44px}
+  .voc-mini,.ph-icobtn,.ex-icobtn{min-width:44px;min-height:44px}
   .bnav-item{min-height:52px}
 }
 
