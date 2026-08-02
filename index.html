@@ -63,25 +63,41 @@ window.FB_CONFIG={
 </script>
 <script>
 /* ===== ANALYTICS =====
-   Product analytics, off by default and provider-agnostic. Nothing is loaded and
-   no request is made while PROVIDER is "" — track() is a silent no-op, so every
-   call site below is safe to leave in place.
+   Product analytics, provider-agnostic. Nothing is loaded and no request is made
+   while ID is "" — track() is a silent no-op, so every call site is safe to leave
+   in place.
 
-   To switch it on, set ONE of:
-     PROVIDER="plausible"; ID="app.lomonec.com"      // cookie-less, no consent banner needed
-     PROVIDER="ga4";       ID="G-XXXXXXXXXX"         // Google Analytics 4
-   Plausible is the better fit here: no cookies, no personal data, so the privacy
-   policy stands as written. Turning on GA4 means updating privacy.html and
-   adding a consent notice for the EU — do not enable it without that.
+   >>> TO SWITCH ON: paste the Cloudflare Web Analytics token into ID below. <<<
+   Get it at Cloudflare dashboard → Analytics & Logs → Web Analytics → add
+   app.lomonec.com → copy the token out of the snippet it shows you. Nothing else
+   to change. It is cookie-less and collects no personal data, so no consent
+   banner is needed; adding a line to privacy.html naming Cloudflare is good
+   practice but not legally required.
+
+   KNOWN LIMIT: Cloudflare Web Analytics counts page views, referrers and Core
+   Web Vitals only — it has NO custom-event API. So it answers "how many people
+   land, from where, and do they come back", but the track() calls below
+   (share / invite / rate / practice_day …) stay no-ops. Capturing those needs
+   Plausible, GA4, or Cloudflare Zaraz instead — the branches are here ready:
+     PROVIDER="plausible"; ID="app.lomonec.com"      // cookie-less, events, paid
+     PROVIDER="ga4";       ID="G-XXXXXXXXXX"         // free, events, BUT sets
+     cookies — turning it on means updating privacy.html and adding an EU consent
+     notice first. Do not enable GA4 without that.
 
    Only counts of anonymous events are ever sent. No recordings, no transcripts,
    no phrase text, no profile fields — keep it that way when adding events. */
 (function(){
-  var PROVIDER="", ID="";
+  var PROVIDER="cfweb", ID="";                     // ← paste the Cloudflare token here
   window.track=function(){};                       // no-op until a provider is configured
   if(!PROVIDER||!ID)return;
   var s=document.createElement("script");
-  if(PROVIDER==="plausible"){
+  if(PROVIDER==="cfweb"){
+    /* Cloudflare's beacon reports page views by itself; there is nothing to wire
+       into track(), which stays a no-op on purpose. */
+    s.defer=true;
+    s.src="https://static.cloudflareinsights.com/beacon.min.js";
+    s.setAttribute("data-cf-beacon",JSON.stringify({token:ID}));
+  }else if(PROVIDER==="plausible"){
     s.defer=true; s.setAttribute("data-domain",ID);
     s.src="https://plausible.io/js/script.js";
     window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)};

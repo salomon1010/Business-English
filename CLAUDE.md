@@ -104,13 +104,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   **keep the inline copy and `FL.en` in step**. Same for the static cards inside
   `#bgrid`, which `render()` clears and rebuilds. `index.html` has a `<noscript>`
   summary for the same reason.
-- **Analytics** is a provider-agnostic `track(name, props)` defined in a `<script>`
-  in the head, **off by default** (`PROVIDER=""` → silent no-op, zero requests).
-  Set `PROVIDER`/`ID` to `"plausible"` or `"ga4"` to switch it on. **GA4 needs a
-  privacy.html update and an EU consent notice; Plausible does not.** Only
-  anonymous counts — never recordings, transcripts, phrase text or profile fields.
-  Instrumented: `app_open`, `onboarding_complete`, `practice_day`, `share`,
-  `invite`, `rate_click`, `rate_later`, `play_click`, `install`.
+- **Analytics** is a provider-agnostic `track(name, props)` in a head `<script>`.
+  `PROVIDER` is set to **`"cfweb"` (Cloudflare Web Analytics)** — the user's
+  choice — but `ID` is empty, so **nothing loads and no request is made** until
+  the Cloudflare token is pasted in. Verified inert: empty ID injects 0 scripts.
+  - **Cloudflare Web Analytics has no custom-event API** — page views, referrers
+    and Core Web Vitals only. The `track()` calls stay no-ops under it. Capturing
+    events needs Plausible / GA4 / Zaraz; those branches are written and ready.
+  - **GA4 needs a privacy.html update and an EU consent notice** (it sets
+    cookies). Cloudflare and Plausible are cookie-less and need neither.
+  - Only anonymous counts — never recordings, transcripts, phrase text or profile
+    fields. Instrumented: `app_open`, `onboarding_complete`, `practice_day`,
+    `share`, `invite`, `rate_click`, `rate_later`, `play_click`, `install`.
 - **Share/invite/rate:** `APP_URL` and `PLAY_URL` consts near `shShare`. Share text
   gets the URL appended **in code**, so the 15 translation files never need
   re-cutting when the address changes. `shApp()` is the plain "share the app"
