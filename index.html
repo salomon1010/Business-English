@@ -4149,12 +4149,6 @@ window.helpJump=function(dir){
   helpFocus();
 };
 /* A topic card must open the section it points at, not scroll to a closed one. */
-window.manScroll=function(id){
-  const e=document.getElementById(id);if(!e)return;
-  const d=e.querySelector("details.help-sec");if(d)d.open=true;
-  const still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  e.scrollIntoView({behavior:still?"auto":"smooth",block:"start"});
-};
 /* About the app — open the flyer inside the app (an overlay iframe), never an external browser tab */
 window.openAbout=function(){
   document.querySelectorAll(".about-ov").forEach(e=>e.remove());   // never stack — always exactly one panel
@@ -8356,7 +8350,6 @@ window.resetAll=async()=>{
 
 /* session view registration + boot */
 const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:rData,session:rSession};
-function goSession(){}
 // extend router to handle session view (no nav tab)
 (function(){
   const _go=go;
@@ -8395,14 +8388,11 @@ function applyTheme(mode){
   document.documentElement.setAttribute("data-theme",t);
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta)meta.setAttribute("content",t==="light"?"#f5f7fc":"#0a0e1a");
-  const btn=document.getElementById("themeToggle");
-  if(btn){btn.innerHTML=t==="light"?ic("moon"):ic("sun");btn.style.color=t==="light"?"var(--acc)":"var(--gold)";}
 }
-function toggleTheme(){
-  const next=document.documentElement.getAttribute("data-theme")==="light"?"dark":"light";
-  try{localStorage.setItem("be_theme",next)}catch(e){}
-  applyTheme(next);
-}
+/* Theme is set from exactly two places: the Settings light/dark pair (setTheme)
+   and the About panel's toggle (aboutToggleTheme, which also repaints the
+   flyer iframe). There is no header toggle — #themeToggle has not existed since
+   Settings gained the theme-opt buttons. */
 window.setTheme=mode=>{
   const t=mode==="light"?"light":"dark";
   try{localStorage.setItem("be_theme",t)}catch(e){}
