@@ -106,8 +106,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   summary for the same reason.
 - **Analytics** is a provider-agnostic `track(name, props)` in a head `<script>`.
   `PROVIDER` is set to **`"cfweb"` (Cloudflare Web Analytics)** — the user's
-  choice — but `ID` is empty, so **nothing loads and no request is made** until
-  the Cloudflare token is pasted in. Verified inert: empty ID injects 0 scripts.
+  choice — and the beacon token **is set and live** (`ID` at index.html:90,
+  public by design), so the beacon loads on every page view.
   - **Cloudflare Web Analytics has no custom-event API** — page views, referrers
     and Core Web Vitals only. The `track()` calls stay no-ops under it. Capturing
     events needs Plausible / GA4 / Zaraz; those branches are written and ready.
@@ -198,6 +198,12 @@ Fixes / infra
 - Support email is **contact@lomonec.com**.
 - Screenshots regenerated with a neutral "Alex" profile, cache-busted `?v=`.
 - 15 `i18n/*.json` files exist (es fr pt it de ru ar ur hi bn id vi zh ja ko).
+  **Key parity verified 2026-08-02**: `I18N_EN` holds 1,111 keys and every one of
+  the 15 files carries exactly those — no missing keys, no orphans. What may still
+  lag is the *text* behind a key when English narrative copy changes (see i18n
+  above); the key set itself is complete. When auditing, match keys with
+  `/"([A-Za-z0-9_.\-]+)"\s*:/g` — a line-anchored `^\s*"…"` regex undercounts by
+  36, because entries like `"gfix.0.cat":…,"gfix.0.note":…` share a line.
 
 ## Not yet built / open threads
 - **Firebase cloud sign-in**: **DONE and verified live 2026-08-01** — email/password
@@ -251,8 +257,11 @@ Fixes / infra
   image licensing are common. Nothing can reconstruct this from the repo; it needs
   the owner's browser history. Also the reason the Play **AI asset declaration**
   can't be answered from the code alone.
-- **Analytics is wired but switched off** — no product metrics exist yet, so
-  campaign performance can't be measured until a provider ID is set (see above).
+- **Analytics runs, but only page views.** The Cloudflare token is live, so
+  traffic, referrers and Core Web Vitals are being collected. Every `track()`
+  call is still a **no-op** — Cloudflare has no custom-event API — so there are
+  no product metrics: activation, retention and where people leave the 12-week
+  plan are all invisible. Needs a Plausible/GA4/Zaraz switch (see above).
 - **No email capture and no testimonials** anywhere. Both need things the repo
   can't supply on its own (a list backend / real users willing to be quoted).
 - **No iOS App Store presence** — iPhone users get the PWA install flow only.
