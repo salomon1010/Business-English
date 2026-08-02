@@ -500,7 +500,7 @@ and they were fixed here:
 Two of the four are shared components, which the freeze explicitly permits; the
 other two are contrast defects, which it also permits.
 
-Commit: pending.
+Commit: `fb9bb36`.
 
 ---
 
