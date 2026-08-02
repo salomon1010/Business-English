@@ -227,23 +227,28 @@ Fixes / infra
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a
   backend + budget cap) and B2B licensing; nothing built yet.
 - Native-speaker **review of the emotional translations** still recommended.
-- **Play listing art is stale and carries the owner's real first name.** The old
-  phone set (`playstore/screenshots/`, "Salomon" + emoji nav) was **deleted
-  2026-08-01** — recover from git history if ever needed. Replacements live in
-  **`playstore/screenshots-2026-08/`**: 1080×2400, "Alex", current line-icon nav.
-  **Upload five of the six by hand in Play Console** (nothing in the repo pushes
-  them) — `01-dashboard`, `03-journey`, `04-phrases`, `05-progress`, `06-session`.
-  - **Skip `02-shadow.png`.** It captures the clip picker, which renders a real
-    YouTube thumbnail (Steve Jobs, Stanford Commencement) — a third party's
-    likeness and copyrighted still in store marketing. Any Shadow recapture must
-    avoid the picker *and* the player. `05-progress.png` is also cropped mid-card
-    at the top edge; cosmetic, but re-shoot it if the listing needs polish.
-  - **`playstore/tablet-screenshots/` (1440×2560) is stale in the same two ways**
-    — "Salomon", emoji nav, the same Steve Jobs thumbnail, and body copy naming
-    third-party channels the app no longer names. No replacement set exists. If
-    the listing has a tablet section populated, the real name is still public
-    there. Not yet dealt with.
-  - Recapture recipe is in the screenshot-rig memory.
+- **Play listing art — current set is `playstore/store-art-2026-08/`** (`phone/`
+  1080×2400 and `tablet/` 1440×2560, six each, neutral "Alex", current line-icon
+  nav). Regenerate with **`scripts/store-art/shoot.js`** — see its header. Both
+  older folders carried the owner's real first name and were **deleted
+  2026-08-01** (`playstore/screenshots/`, `playstore/tablet-screenshots/`);
+  recover from git history if ever needed. `playstore/screenshots-2026-08/` is
+  the interim phone-only set, superseded by `store-art-2026-08/phone/`.
+  - **Upload is manual in Play Console — nothing in the repo pushes it.**
+  - **There is deliberately no Shadow screenshot.** Every dense screen in the
+    studio renders third-party YouTube artwork (the clip picker pulls a real
+    thumbnail — Steve Jobs at Stanford — and the workspace embeds the player),
+    which is someone else's likeness and copyright sitting in store marketing.
+    The one clean screen, Trouble words, is two-thirds empty. Practice takes the
+    slot instead. Don't "fix" this by shooting the picker.
+  - `feature-graphic.png` (1024×500) was checked 2026-08-01 and is **clean** —
+    correct branding, no personal name, tagline already matches the new copy.
+- **`rp-photos/` has no recorded image sources.** 14 files, all 512×512 with every
+  scrap of metadata stripped — no EXIF, no software tag, no C2PA. The folder's own
+  README says to keep a source note per file and warns that Play removals for
+  image licensing are common. Nothing can reconstruct this from the repo; it needs
+  the owner's browser history. Also the reason the Play **AI asset declaration**
+  can't be answered from the code alone.
 - **Analytics is wired but switched off** — no product metrics exist yet, so
   campaign performance can't be measured until a provider ID is set (see above).
 - **No email capture and no testimonials** anywhere. Both need things the repo

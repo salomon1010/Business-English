@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- Capture stage for the Play Store art — see shoot.js in this folder.
+     Renders index.html in an iframe at a handset CSS width, then scales the whole
+     stage up, so the screenshot lands on Play's pixel size while the app still
+     lays out the way a phone shows it (its widest breakpoint is 820px, so a real
+     tablet-sized viewport would render a stretched desktop page instead).
+     ?w=CSS width  ?h=CSS height  ?s=scale  ?u=url to load -->
+<html><head><meta charset="utf-8"><title>shot</title><style>
+  html,body{margin:0;padding:0;background:#0a0e1a;overflow:hidden}
+  #stage{position:fixed;left:0;top:0;transform-origin:0 0}
+  iframe{border:0;display:block;background:#0a0e1a}
+</style></head><body>
+<div id="stage"><iframe id="fr" allow="camera;microphone"></iframe></div>
+<script>
+  var p=new URLSearchParams(location.search);
+  var w=+p.get("w")||540, h=+p.get("h")||1200, s=+p.get("s")||2;
+  var fr=document.getElementById("fr");
+  fr.style.width=w+"px"; fr.style.height=h+"px";
+  document.getElementById("stage").style.transform="scale("+s+")";
+  fr.src=p.get("u")||"../../index.html";   // same origin, so the seed in localStorage carries into the frame
+  window.shotFrame=fr;
+</script>
+</body></html>
