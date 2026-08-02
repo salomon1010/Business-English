@@ -430,7 +430,7 @@ detail and the insight all render in the chosen language — at 320/390/430/768/
 - The four insight lines are "dream voice" copy. Their translations are
   machine transcreation and **want native review** before heavy promotion.
 
-Commit: pending.
+Commit: `cd87dfb`.
 
 ---
 
