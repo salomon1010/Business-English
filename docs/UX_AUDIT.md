@@ -385,7 +385,56 @@ Commit: `a64a3d4`.
 
 ---
 
-## Screens 8–12 — not yet audited
+## Screen 8 — Calendar ✅ complete
+
+The `.pcal-*` block rendered by `calHTML()` inside Profile.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| C1 | **Almost nothing was translated.** One key (`prog.cal_eyebrow`) was localised; ~20 strings were hardcoded English — "days this week", "weekly goal", "Less/More", the four stat labels, "Your year", the day detail, and all four insight lines. `calBestDow()` returned English weekday names from a literal array, and every date used `toLocaleDateString(undefined, …)` — the *browser's* locale, not the app's. | A German user saw "August 2026 · M T W T F S S · 6/6 days this week · weekly goal · Less More · day streak · Your year". The screen whose job is to reinforce streaks spoke English to 14 of 15 audiences. |
+| C2 | **0 of 33 controls reached 44px.** `.pcal-nav` was 34px; `.pcal-day` used `aspect-ratio:1`, which yields 40px cells at 390px — on the most-tapped grid in the app. | 0% touch coverage. |
+| C3 | The insight line opened with a raw 🔥. | The app uses line icons everywhere else. |
+| C4 | Four `--mut2` text colours at **2.31–2.95:1**: weekday initials, "weekly goal", the legend, and the active-days count. | Contrast. |
+| C5 | No heading structure — "Your year" was a `<div>`. | — |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Localised strings | 1 | **all** |
+| Dates follow the app language | no (browser locale) | **yes** |
+| Targets <44px | 33 of 33 | **0** |
+| Touch coverage | 0% | **100%** |
+| Contrast failures | 4 | **0** (18 checks) |
+| Raw emoji in the insight | 1 | **0** |
+| Headings | 0 | **1** |
+| Block height | 975px | 1,009px |
+
+Verified in en/de/ja/ar — month names, Monday-first weekday initials, the day
+detail and the insight all render in the chosen language — at 320/390/430/768/
+1280px, both themes, and under reduced motion.
+
+### Decisions worth preserving
+
+- `calLocale()` returns `S.profile.lang`, so every `toLocaleDateString` follows
+  the app's language rather than the browser's. Weekday initials come from
+  `Intl` with `weekday:"narrow"` instead of a hardcoded `["M","T","W"…]` row —
+  which was also wrong for any language that does not start the week on Monday
+  in English.
+- `.pcal-day` keeps `aspect-ratio:1` but gains `min-height:44px`, so the grid
+  stays square where there is room and reachable where there is not.
+- The year heat-map squares are deliberately left small: they are a read-only
+  visualisation, not controls.
+- The four insight lines are "dream voice" copy. Their translations are
+  machine transcreation and **want native review** before heavy promotion.
+
+Commit: pending.
+
+---
+
+## Screens 9–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
@@ -420,7 +469,7 @@ patch.
 4. **Header streak pill shows a gold flame "0"** on day one — a celebratory
    badge for an achievement not yet earned. One-line fix, but it is shared
    chrome across all 12 screens.
-5. **Progress Calendar has no i18n keys.** Fifteen languages see English.
+5. ~~Progress Calendar has no i18n keys.~~ **Fixed** in the Calendar pass.
 6. **Disclosure chevrons (`▶` in `.hm-chev`) are not mirrored in RTL** either,
    on all four screens that now use `.home-more`.
 7. **"Go" arrows are not mirrored in RTL.** `→` (U+2192) is not bidi-mirrored,

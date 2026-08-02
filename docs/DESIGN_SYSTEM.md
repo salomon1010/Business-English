@@ -59,6 +59,13 @@ The Dashboard pass removed a case where green meant active-tab *and* achievement
 
 WCAG AA is the floor: **4.5:1** body, **3:1** for ≥18.66px bold or ≥24px.
 
+**`--mut2` is not a text colour.** It measures roughly **2.3–3.1:1** on
+`--card`/`--bg2` in both themes — it fails AA everywhere it has been used for
+copy. It has now been replaced on five screens (Session, Shadow, Speaking
+Feedback, Vocabulary, Calendar). Use `--mut` for secondary text; keep `--mut2`
+for hairlines, disabled states and other non-text purposes. 68 uses remain in
+unpassed screens.
+
 Two traps already found and fixed — do not reintroduce:
 
 - White on raw `--acc` in dark measures **4.47:1**, just under AA. Primary

@@ -337,11 +337,14 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal{margin:18px auto;padding:18px 16px;max-width:560px}
 .pcal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .pcal-title{font-size:16px;font-weight:800}
-.pcal-nav{width:34px;height:34px;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--txt);cursor:pointer;font-size:19px;line-height:1;display:grid;place-items:center;transition:.12s}
+.pcal-nav{width:44px;height:44px;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--txt);cursor:pointer;font-size:19px;line-height:1;display:grid;place-items:center;transition:.12s}
 .pcal-nav:hover{border-color:var(--acc);color:var(--acc)}
 .pcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.pcal-dow{text-align:center;font-size:11px;color:var(--mut2);font-weight:700;padding-bottom:4px}
-.pcal-day{position:relative;aspect-ratio:1;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s;padding:0}
+.pcal-dow{text-align:center;font-size:11px;color:var(--mut);font-weight:700;padding-bottom:4px}
+/* aspect-ratio:1 gave 40px cells at 390px — below the 44px floor, on the
+   most-tapped grid in the app. A min-height keeps them square where there is
+   room and square-ish, but reachable, where there is not. */
+.pcal-day{position:relative;aspect-ratio:1;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s;padding:0}
 .pcal-day.blank{background:transparent;border:none;cursor:default}
 .pcal-day[data-lvl="1"]{background:rgba(52,211,153,.22)}
 .pcal-day[data-lvl="2"]{background:rgba(52,211,153,.42)}
@@ -351,7 +354,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal-day .chk{position:absolute;top:1px;right:4px;font-size:9px;color:#0b3b2c;font-weight:900}
 .pcal-day[data-lvl="1"] .chk,.pcal-day[data-lvl="2"] .chk{color:var(--green)}
 .pcal-day:not(.blank):hover{transform:translateY(-2px);border-color:var(--acc)}
-.pcal-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;font-size:11px;color:var(--mut2);margin-top:12px}
+.pcal-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;font-size:11px;color:var(--mut);margin-top:12px}
 .pcal-legend i{width:13px;height:13px;border-radius:4px;display:inline-block;border:1px solid var(--line)}
 .pcal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}
 .pcal-stat{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:11px 4px;text-align:center}
@@ -369,7 +372,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal-wd.fut{opacity:.4}
 .pcal-week-lbl{font-size:12.5px;color:var(--mut);line-height:1.4}
 .pcal-week-lbl b{color:var(--txt);font-size:17px}
-.pcal-week-lbl small{color:var(--mut2)}
+.pcal-week-lbl small{color:var(--mut)}
 .pcal-detail{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin-top:14px;font-size:13px;transition:background .3s}
 .pcal-detail>b{display:block;font-size:13.5px;margin-bottom:7px}
 .pcal-detail.flash{background:rgba(34,211,238,.13)}
@@ -378,7 +381,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .cal-d-rows span svg{width:15px;height:15px;flex:none;color:var(--acc2)}
 .cal-d-empty{color:var(--mut2)}
 .pcal-year-h{display:flex;justify-content:space-between;align-items:baseline;font-size:13.5px;font-weight:800;margin:20px 0 8px}
-.pcal-year-h span{font-size:11.5px;color:var(--mut2);font-weight:600}
+.pcal-year-h span{font-size:11.5px;color:var(--mut);font-weight:600}
 .pcal-year{display:flex;flex-direction:column;gap:4px;overflow-x:auto;padding-bottom:6px}
 .cal-ymonths{display:flex;gap:3px;height:12px}
 .cal-ymo{width:11px;flex:none;font-size:9px;font-weight:600;color:var(--mut2);white-space:nowrap;line-height:1;overflow:visible}
@@ -2889,6 +2892,27 @@ const I18N_EN={
  "bars.tooltip_one":"{{label}}: {{n}} word spoken",
  "bars.tooltip_many":"{{label}}: {{n}} words spoken",
  "prog.eyebrow":"📈 Progress Studio",
+ "cal.weekly_goal":"weekly goal",
+ "cal.less":"Less",
+ "cal.more":"More",
+ "cal.best_streak":"best streak",
+ "cal.this_month":"this month",
+ "cal.consistency":"consistency",
+ "cal.year_h":"Your year",
+ "cal.active_days":"{{n}} active days",
+ "cal.active_day_one":"1 active day",
+ "cal.prev_month":"Previous month",
+ "cal.next_month":"Next month",
+ "cal.empty_day":"No spark here yet — practise today and light up this day.",
+ "cal.logged_one":"1 activity logged",
+ "cal.logged_many":"{{n}} activities logged",
+ "cal.speaking_one":"1 speaking session · {{w}} words spoken",
+ "cal.speaking_many":"{{n}} speaking sessions · {{w}} words spoken",
+ "cal.best_pron":"best {{n}}% pronunciation",
+ "cal.insight_streak":"{{n}}-day streak — don't let the fire go out. This is who you're becoming.",
+ "cal.insight_dow":"You show up most on {{day}}s — that rhythm is turning into fluency.",
+ "cal.insight_going":"The momentum is real — one more day carries you toward the voice you're chasing.",
+ "cal.insight_start":"Practise today and light up day one of your transformation.",
  "prog.cal_eyebrow":"📅 Progress calendar",
  "prog.story_h":"📖 Your story this week",
  "prog.stat_words":"Words spoken in feedback sessions",
@@ -7875,19 +7899,24 @@ function calBestDow(){
   const set=calActiveSet();if(!set.size)return null;
   const c=[0,0,0,0,0,0,0];set.forEach(k=>{c[(new Date(k+"T00:00:00").getDay()+6)%7]++});
   let bi=0;for(let i=1;i<7;i++)if(c[i]>c[bi])bi=i;
-  return c[bi]?["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"][bi]:null;
+  if(!c[bi])return null;
+  /* 2024-01-01 was a Monday, so +bi lands on the weekday we want */
+  return new Date(2024,0,1+bi).toLocaleDateString(calLocale(),{weekday:"long"});
 }
 /* GitHub-style contribution grid for the last 52 weeks, with month labels on top */
-const MONTHS_ABBR=Array.from({length:12},(_,i)=>new Date(2020,i,1).toLocaleDateString(undefined,{month:"short"}));
+/* Dates follow the language the user chose in the app, not the browser's — a
+   German UI was printing "August 2026" and "Sunday, August 2". */
+function calLocale(){return (S.profile&&S.profile.lang)||undefined}
+function calMonthsAbbr(){return Array.from({length:12},(_,i)=>new Date(2020,i,1).toLocaleDateString(calLocale(),{month:"short"}))}
 function calYearHeat(){
-  const set=calActiveSet(),log=S.dayLog||{};
+  const set=calActiveSet(),log=S.dayLog||{},MO=calMonthsAbbr();
   const today=new Date();today.setHours(0,0,0,0);
   const start=new Date(today);start.setDate(start.getDate()-363);
   start.setDate(start.getDate()-((start.getDay()+6)%7));   // align to Monday
   let cols="",months="",cur=new Date(start),prevMo=-1;
   while(cur<=today){
     const mo=cur.getMonth();                                // month of this week's Monday
-    months+=`<span class="cal-ymo">${mo!==prevMo?MONTHS_ABBR[mo]:""}</span>`;prevMo=mo;
+    months+=`<span class="cal-ymo">${mo!==prevMo?MO[mo]:""}</span>`;prevMo=mo;
     let col="";
     for(let r=0;r<7;r++){
       const k=cur.toISOString().slice(0,10),fut=cur>today;
@@ -7906,22 +7935,27 @@ function calDayDetailHTML(ds){
   const words=fb.reduce((a,x)=>a+(x.words||0),0);
   const sc=fb.filter(x=>x.score!=null).map(x=>x.score);
   const best=sc.length?Math.max(...sc):null;
-  const label=new Date(ds+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",day:"numeric",month:"long"});
-  if(!done)return `<b>${esc(label)}</b><span class="cal-d-empty">No spark here yet — practise today and light up this day.</span>`;
-  const rows=[`<span>${ic("check")}${n} activit${n>1?"ies":"y"} logged</span>`];
-  if(fb.length)rows.push(`<span>${ic("waveform")}${fb.length} speaking session${fb.length>1?"s":""} · ${words.toLocaleString()} words spoken</span>`);
-  if(best!=null)rows.push(`<span>${ic("target")}best ${best}% pronunciation</span>`);
+  const label=new Date(ds+"T00:00:00").toLocaleDateString(calLocale(),{weekday:"long",day:"numeric",month:"long"});
+  if(!done)return `<b>${esc(label)}</b><span class="cal-d-empty">${t("cal.empty_day")}</span>`;
+  const rows=[`<span>${ic("check")}${n===1?t("cal.logged_one"):t("cal.logged_many",{n})}</span>`];
+  if(fb.length)rows.push(`<span>${ic("waveform")}${fb.length===1?t("cal.speaking_one",{w:words.toLocaleString(calLocale())}):t("cal.speaking_many",{n:fb.length,w:words.toLocaleString(calLocale())})}</span>`);
+  if(best!=null)rows.push(`<span>${ic("target")}${t("cal.best_pron",{n:best})}</span>`);
   return `<b>${esc(label)}</b><div class="cal-d-rows">${rows.join("")}</div>`;
+}
+/* Monday-first weekday initials in the user's language. 2024-01-01 was a Monday. */
+function calDowInitials(){
+  return Array.from({length:7},(_,i)=>new Date(2024,0,1+i)
+    .toLocaleDateString(calLocale(),{weekday:"narrow"}));
 }
 function calHTML(){
   if(!calCur){calCur=new Date();calCur.setDate(1)}
   const year=calCur.getFullYear(),month=calCur.getMonth();
-  const monthName=calCur.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+  const monthName=calCur.toLocaleDateString(calLocale(),{month:"long",year:"numeric"});
   const startDow=(new Date(year,month,1).getDay()+6)%7;   // Monday-first
   const dim=new Date(year,month+1,0).getDate();
   const now=new Date(),todayStr=now.toISOString().slice(0,10);
   const set=new Set(S.dates||[]),log=S.dayLog||{};
-  const dow=["M","T","W","T","F","S","S"];
+  const dow=calDowInitials();
   let cells="",monthCount=0;
   for(let i=0;i<startDow;i++)cells+=`<div class="pcal-day blank"></div>`;
   for(let d=1;d<=dim;d++){
@@ -7932,29 +7966,32 @@ function calHTML(){
     cells+=`<button class="pcal-day${done?" on":""}${ds===todayStr?" today":""}${fut?" fut":""}" data-lvl="${lvl}" onclick="calDay('${ds}')"><span>${d}</span>${done?'<span class="chk">✓</span>':""}</button>`;
   }
   const cs=streak(),bs=bestStreak(),total=set.size,cons=calConsistency(),wk=calWeekProgress(),bestDow=calBestDow();
-  const wdl=["M","T","W","T","F","S","S"];
+  const wdl=dow;
   const weekDots=wk.labels.map((l,i)=>`<span class="pcal-wd${l.on?" on":""}${l.isToday?" today":""}${l.fut?" fut":""}">${wdl[i]}</span>`).join("");
-  const insight=cs>=2?`🔥 ${cs}-day streak — don't let the fire go out. This is who you're becoming.`:total>0?(bestDow?`You show up most on ${bestDow}s — that rhythm is turning into fluency.`:`The momentum is real — one more day carries you toward the voice you're chasing.`):`Practise today and light up day one of your transformation.`;
+  /* the flame was a raw emoji — the app uses line icons everywhere else */
+  const insight=cs>=2?tInl("cal.insight_streak","flame").replace("{{n}}",cs)
+    :total>0?(bestDow?t("cal.insight_dow",{day:esc(bestDow)}):t("cal.insight_going"))
+    :t("cal.insight_start");
   return `<div class="pcal-eyebrow">${tInl("prog.cal_eyebrow","calendar")}</div>
     <div class="pcal-head">
-      <button class="pcal-nav" onclick="calNav(-1)" aria-label="Previous month">‹</button>
+      <button class="pcal-nav" onclick="calNav(-1)" aria-label="${esc(t("cal.prev_month"))}">‹</button>
       <div class="pcal-title">${esc(monthName)}</div>
-      <button class="pcal-nav" onclick="calNav(1)" aria-label="Next month">›</button>
+      <button class="pcal-nav" onclick="calNav(1)" aria-label="${esc(t("cal.next_month"))}">›</button>
     </div>
     <div class="pcal-week">
       <div class="pcal-week-days">${weekDots}</div>
-      <div class="pcal-week-lbl"><b>${wk.n}/6</b> days this week<br><small>weekly goal</small></div>
+      <div class="pcal-week-lbl"><b>${wk.n}/${wk.goal}</b> ${t("home.week_days")}<br><small>${t("cal.weekly_goal")}</small></div>
     </div>
     <div class="pcal-grid">${dow.map(x=>`<span class="pcal-dow">${x}</span>`).join("")}${cells}</div>
-    <div class="pcal-legend">Less <i data-lvl="0"></i><i data-lvl="1"></i><i data-lvl="2"></i><i data-lvl="3"></i><i data-lvl="4"></i> More</div>
+    <div class="pcal-legend">${t("cal.less")} <i data-lvl="0"></i><i data-lvl="1"></i><i data-lvl="2"></i><i data-lvl="3"></i><i data-lvl="4"></i> ${t("cal.more")}</div>
     <div class="pcal-detail" id="calDetail">${calDayDetailHTML(todayStr)}</div>
     <div class="pcal-stats">
-      <div class="pcal-stat"><b>${cs}</b><span>day streak</span></div>
-      <div class="pcal-stat"><b>${bs}</b><span>best streak</span></div>
-      <div class="pcal-stat"><b>${monthCount}</b><span>this month</span></div>
-      <div class="pcal-stat"><b>${cons}%</b><span>consistency</span></div>
+      <div class="pcal-stat"><b>${cs}</b><span>${t("profile.day_streak")}</span></div>
+      <div class="pcal-stat"><b>${bs}</b><span>${t("cal.best_streak")}</span></div>
+      <div class="pcal-stat"><b>${monthCount}</b><span>${t("cal.this_month")}</span></div>
+      <div class="pcal-stat"><b>${cons}%</b><span>${t("cal.consistency")}</span></div>
     </div>
-    <div class="pcal-year-h">Your year <span>${total} active day${total===1?"":"s"}</span></div>
+    <h3 class="pcal-year-h">${t("cal.year_h")} <span>${total===1?t("cal.active_day_one"):t("cal.active_days",{n:total})}</span></h3>
     <div class="pcal-year">${calYearHeat()}</div>
     <p class="pcal-msg">${insight}</p>`;
 }

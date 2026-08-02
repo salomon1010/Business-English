@@ -93,8 +93,8 @@ on the count, or the chip collides with `N/28`.
 
 ### `.pcal-*` — Progress Calendar
 Week strip, month heat-map (`data-lvl` 0–4), year graph, stats, insight line.
-*(known gap)* Its labels are hardcoded English — no i18n keys. Fix in the
-Calendar pass.
+All strings are keyed and all dates follow `calLocale()` (the app language,
+not the browser). Weekday initials come from `Intl`, not a literal array.
 
 ---
 
