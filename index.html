@@ -1174,6 +1174,10 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .fb-trend-line{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .fb-trend-dot{fill:var(--accent);stroke:var(--card);stroke-width:2}
 .fb-trend-lbl{fill:var(--mut);font-family:inherit;font-size:12px;font-weight:700}
+.fb-trend-ax{fill:var(--mut);font-family:inherit;font-size:10px;font-weight:600}
+.sh-trend{margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:var(--r-md);padding:12px 14px 6px}
+.sh-trend-h{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--txt)}
+.sh-trend .fb-trend{margin-top:4px}
 .fb-vocab-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
 .fb-vocab-head .fb-sec-sub{flex:1;min-width:120px;margin:0}
 .fb-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -3530,6 +3534,7 @@ const I18N_EN={
  "rate.yes":"Rate on Google Play",
  "rate.later":"Not now",
  "footer.about_link":"About BE Mastery",
+ "sh.trend_title":"Your performance over time",
  "doc.close":"Close and return to BE Mastery",
  "footer.guide_link":"User guide",
  "footer.play_link":"Google Play",
@@ -5031,6 +5036,7 @@ function rShadow(el){
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
+        <div id="shTrend"></div>
         <div class="hr"></div>
         <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
@@ -5190,8 +5196,22 @@ function shWorkKeys(e){
   else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
 }
 /* open the focused shadowing workspace over the picker */
+/* Per-clip score trend, shown under the waveform in the Shadowing workspace.
+   Same fbTrendSVG component as Speaking Feedback — axis labels on, because the
+   x axis here means "attempt at THIS clip", which is the whole point of the
+   panel. Data is S.fbV[vid], the per-clip attempt history the feedback pass
+   already writes; nothing new is stored. Hidden below two attempts, when there
+   is no trend to show yet. */
+window.shTrendRender=()=>{
+  const box=document.getElementById("shTrend");if(!box)return;
+  const vid=shClip&&shClip.vid;
+  const arr=(vid&&S.fbV&&S.fbV[vid])||[];
+  const svg=fbTrendSVG(arr.map(v=>({score:v})),{axis:true,first:Math.max(1,arr.length-4)});
+  box.innerHTML=svg?`<div class="sh-trend"><b class="sh-trend-h">${hIcon("chart",t("sh.trend_title"))}</b>${svg}</div>`:"";
+};
 window.shOpenWork=()=>{
   const w=document.getElementById("shWork");if(!w)return;
+  try{shTrendRender()}catch(e){}
   const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=(shClip&&shClip.title)||t("sh.eyebrow");
   _shPrevFocus=document.activeElement;
   w.style.display="flex";
@@ -6546,10 +6566,15 @@ const FB_TOP_FIXES=3;
    renders nothing rather than a single floating dot. Every colour is a token,
    and the aria-label reuses the existing "your last scores" key plus the same
    figures the text row already shows — no new i18n keys. */
-function fbTrendSVG(scored){
+function fbTrendSVG(scored,opts){
+  opts=opts||{};
   const pts=scored.slice(-5).filter(x=>typeof x.score==="number");
   if(pts.length<2)return "";
-  const W=300,H=92,PL=16,PR=16,PT=24,PB=18;
+  /* Axis labels are opt-in: Speaking Feedback renders without them, Shadowing
+     Studio turns them on. Same component either way — the extra room for the
+     label row is the only geometry that changes. */
+  const AX=opts.axis?12:0;
+  const W=300,H=92+AX,PL=16,PR=16,PT=24,PB=18+AX;
   const vals=pts.map(p=>p.score);
   const lo=Math.min(...vals),hi=Math.max(...vals);
   const span=hi-lo;
@@ -6565,10 +6590,16 @@ function fbTrendSVG(scored){
     `<circle class="fb-trend-dot" cx="${x(i).toFixed(1)}" cy="${y(p.score).toFixed(1)}" r="3.5"/>`).join("");
   const labels=pts.map((p,i)=>
     `<text class="fb-trend-lbl" x="${x(i).toFixed(1)}" y="${(y(p.score)-11).toFixed(1)}" text-anchor="middle">${p.score}%</text>`).join("");
+  /* The x axis is the attempt number, which needs no translation; only the
+     final tick is a word, and it reuses an existing key. Numbers keep the row
+     legible at 320px and in every language. */
+  const axis=opts.axis?pts.map((p,i)=>
+    `<text class="fb-trend-ax" x="${x(i).toFixed(1)}" y="${(H-4).toFixed(1)}" text-anchor="middle">${
+      i===pts.length-1?esc(t("rp.hist_latest")):(opts.first||1)+i}</text>`).join(""):"";
   return `<div class="fb-trend">
     <svg viewBox="0 0 ${W} ${H}" role="img"
          aria-label="${esc(t("fb.last_scores_label"))}: ${vals.join("%, ")}%">
-      <path class="fb-trend-line" d="${d}"/>${dots}${labels}
+      <path class="fb-trend-line" d="${d}"/>${dots}${labels}${axis}
     </svg></div>`;
 }
 function fbRanked(problems){
@@ -6634,6 +6665,7 @@ function fbShowResults(targetText,heardText,fromRec){
     attempts=S.fbV[fbCtx.vid]=S.fbV[fbCtx.vid]||[];
     if(attempts.length)delta=score-attempts[attempts.length-1];
     attempts.push(score);if(attempts.length>20)S.fbV[fbCtx.vid]=attempts=attempts.slice(-20);
+    try{shTrendRender()}catch(e){}   // keep the Shadowing panel's trend in step
   }else if(hasTarget&&fbCtx.vid){attempts=S.fbV[fbCtx.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
   out.innerHTML=`
   <div class="hr"></div>
