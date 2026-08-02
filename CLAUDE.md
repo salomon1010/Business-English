@@ -235,6 +235,8 @@ Fixes / infra
   recover from git history if ever needed. `playstore/screenshots-2026-08/` is
   the interim phone-only set, superseded by `store-art-2026-08/phone/`.
   - **Upload is manual in Play Console — nothing in the repo pushes it.**
+    **Uploaded and live 2026-08-02** — the store page now shows the six phone
+    shots and the tablet set, version 1.0.1, "Updated on Jul 31, 2026".
   - **There is deliberately no Shadow screenshot.** Every dense screen in the
     studio renders third-party YouTube artwork (the clip picker pulls a real
     thumbnail — Steve Jobs at Stanford — and the workspace embeds the player),
