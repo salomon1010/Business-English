@@ -1110,5 +1110,9 @@
   "footer.about_link": "Giới thiệu BE Mastery",
   "footer.guide_link": "Hướng dẫn sử dụng",
   "footer.play_link": "Google Play",
-  "home.week_days": "ngày tuần này"
+  "home.week_days": "ngày tuần này",
+  "sh.more_starters": "Hiện thêm {{n}} đoạn",
+  "sh.video_error_title": "Không phát được đoạn này",
+  "sh.video_error_body": "Chủ sở hữu đã xoá hoặc chặn nhúng. Hãy chọn đoạn khác — bản ghi và ghi chú của bạn vẫn an toàn.",
+  "sh.video_error_btn": "Chọn đoạn khác"
 }

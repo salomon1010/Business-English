@@ -1110,5 +1110,9 @@
   "footer.about_link": "BE Mastery সম্পর্কে",
   "footer.guide_link": "ব্যবহারকারীর গাইড",
   "footer.play_link": "Google Play",
-  "home.week_days": "দিন এই সপ্তাহে"
+  "home.week_days": "দিন এই সপ্তাহে",
+  "sh.more_starters": "আরও {{n}}টি ক্লিপ দেখুন",
+  "sh.video_error_title": "এই ক্লিপটি চলবে না",
+  "sh.video_error_body": "মালিক এটি সরিয়েছেন বা এমবেড করা বন্ধ করেছেন। অন্য ক্লিপ বেছে নিন — আপনার রেকর্ডিং ও নোট নিরাপদ।",
+  "sh.video_error_btn": "অন্য ক্লিপ বাছুন"
 }

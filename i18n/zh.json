@@ -1110,5 +1110,9 @@
   "footer.about_link": "关于 BE Mastery",
   "footer.guide_link": "使用指南",
   "footer.play_link": "Google Play",
-  "home.week_days": "天 本周"
+  "home.week_days": "天 本周",
+  "sh.more_starters": "再显示 {{n}} 个片段",
+  "sh.video_error_title": "此片段无法播放",
+  "sh.video_error_body": "所有者已删除或禁止嵌入。请另选一个片段——你的录音和笔记都还在。",
+  "sh.video_error_btn": "另选一个片段"
 }

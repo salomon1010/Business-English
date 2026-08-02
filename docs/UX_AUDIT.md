@@ -127,13 +127,66 @@ Commit: `479b094` + final-gate follow-up.
 
 ---
 
-## Screens 3–12 — not yet audited
+## Screen 3 — Shadowing Studio ✅ complete
+
+Two surfaces: the picker (`#v-shadow`) and the fullscreen workspace
+(`.sh-work`), which opens over it.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| H1 | The picker rendered all **18** starter clips at once: **7,130px — 8.4 handset screens** of catalogue before anyone recorded anything. | The flagship screen's fastest path to a first recording was buried under a scroll. |
+| H2 | All 18 thumbnails loaded immediately with **no `loading="lazy"` and no intrinsic dimensions**. | 18 blocking `i.ytimg.com` requests on entry, and every arrival shifted the layout. |
+| H3 | **45 of 47** visible picker controls were under 44px — 4% touch-target coverage. Workspace: 8 of 19. | Unusable on a phone, which is the primary device. |
+| H4 | **22 `.btn-p`** gradient buttons on the picker. White on `--grad`'s cyan end (#22d3ee) is ~1.9:1. `.seg-tab.on` has the same defect. | Unreadable labels on the most-tapped controls. |
+| H5 | The fullscreen workspace had **no `role="dialog"`, no `aria-modal`, no accessible name and no heading**; Escape did nothing; focus tabbed out into the picker behind it; the picker kept scrolling underneath. | A modal that is not a modal — the core interaction of the flagship feature was unusable by keyboard and screen reader. |
+| H6 | **No error state** for a removed / private / embedding-blocked clip. The user got YouTube's own grey box while every control stayed live against a dead player. | `INTERACTION_SPECIFICATION` §6 requires one. |
+| H7 | The loop toggle was a filled `--grad` circle — the loudest element in the workspace, outranking every real step. | Hierarchy inverted: a toggle beat the actions. |
+| H8 | `.rec-btn.recording` and `.sh-count.over` were the only infinite animations in the app with **no reduced-motion escape**. | Vestibular-safety gap. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Picker scroll | 7,130px (8.4 screens) | **2,379px (2.8)** — −67% |
+| Thumbnails without `loading="lazy"` | 18 | **0** |
+| Thumbnails without dimensions (CLS) | 18 | **0** |
+| Picker targets <44px | 45 of 47 | **0** |
+| Workspace targets <44px | 8 of 19 | **0** |
+| Touch-target coverage (picker) | 4% | **100%** |
+| `.btn-p` gradient buttons | 22 | **0** |
+| `.glow-cta` (last in the app) | 1 | **0** |
+| Contrast failures | 3 | **0** |
+| Picker inline-styled elements | 167 | **59** |
+| Dialog semantics | none | role, aria-modal, labelled, `<h2>` |
+| Focus escapes in 26 tabs | 1 | **0** |
+| Escape closes workspace | no | **yes** |
+| Error state | none | `role="alert"`, controls hidden |
+
+Verified: no horizontal overflow and 0 sub-44px targets at 320/390/430/768/
+820/1280px; no clipped text in de, ru, ar or ja; `dir=rtl` applies; 0 animating
+elements under reduced motion with `.recording` and `.sh-count.over` forced on.
+
+### Decisions worth preserving
+
+- Three starters plus a `.home-more` disclosure. The catalogue is a browse
+  surface; the fast path is Resume (now the one `.btn-primary`) or a pasted link.
+- Repeated list actions ("Shadow this", "Say it") are secondary by design — an
+  accent button per row would be several primaries per viewport.
+- The workspace's Listen → Shadow → Record → Compare order was already correct
+  in the DOM; what was missing was dialog behaviour and hierarchy, not sequence.
+
+Commit: pending.
+
+---
+
+## Screens 4–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
 | # | Screen | Renderer | Notes carried forward |
 |---|---|---|---|
-| 3 | Shadowing Studio | `rShadow` / `shOpenWork` | Uses `.glow-cta` ×1; embeds third-party YouTube artwork |
 | 4 | Speaking Feedback | within session / shadow | No per-word timing available — be honest about it |
 | 5 | Executive Polish | within `rPhrases` | `.ex-micbtn` carries the same infinite conic animation |
 | 6 | Vocabulary | `rPractice` | — |
@@ -154,12 +207,13 @@ patch.
 1. **`.help-fab` overlaps content at rest.** `position:fixed`,
    `bottom:84px; right:16px`, on every screen. Recommendation: **delete it** —
    Profile → Help already exists and the bottom nav reaches Profile in one tap.
-2. **`.glow-cta` is deprecated but still live** on Shadow (×1), plus
-   `.ex-micbtn` in Executive Polish (also an infinite conic gradient). Removed
-   from Dashboard and Session.
-2b. **Shadow's posture button is the same 38px `.btn-sm`** that Session had
-   (`index.html` ~line 4581) — an identical copy of the block, so fix it in the
-   Shadow pass rather than reaching across screens.
+2. **`.glow-cta` is gone from the app.** Only `.ex-micbtn` in Executive Polish
+   still carries the infinite conic gradient; delete the `glow-cta` keyframes
+   and rules once that pass lands.
+2b. **`.btn-p` and `.seg-tab.on` are white on `--grad`** — ~1.9:1 at the cyan
+   end. Fixed on Dashboard, Session and Shadow by scoping; **43 `.btn-p` uses
+   and the shared `.seg-tab.on` rule remain** on Practice, Phrases, Profile and
+   others. This is the single largest contrast debt in the app.
 3. **Radius sprawl.** Raw `12px` (34×), `10px` (15×), `9px`, `8px`, `7px`,
    `22px` alongside the `--r-md`/`--r-lg` tokens. Migrate per pass.
 4. **Header streak pill shows a gold flame "0"** on day one — a celebratory

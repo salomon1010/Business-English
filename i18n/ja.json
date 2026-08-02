@@ -1110,5 +1110,9 @@
   "footer.about_link": "BE Mastery について",
   "footer.guide_link": "ユーザーガイド",
   "footer.play_link": "Google Play",
-  "home.week_days": "日 今週"
+  "home.week_days": "日 今週",
+  "sh.more_starters": "さらに{{n}}件のクリップを表示",
+  "sh.video_error_title": "このクリップは再生できません",
+  "sh.video_error_body": "所有者が削除したか埋め込みを禁止しています。別のクリップを選んでください。録音とメモは残ります。",
+  "sh.video_error_btn": "別のクリップを選ぶ"
 }

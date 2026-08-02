@@ -408,6 +408,53 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
 .sh-work-x svg{width:20px;height:20px}
 .sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;max-width:1000px;width:100%;margin:0 auto}
+.sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* the overlay's entrance fade is ours to suppress, not the browser's */
+@media (prefers-reduced-motion:reduce){.sh-work{animation:none}}
+/* the picker must not scroll underneath the overlay */
+body.sh-work-open{overflow:hidden}
+
+/* Every control in the studio is a 44px target. The workspace shipped eight
+   under that (34-38px) and the picker forty-five of forty-seven. Scoped to this
+   screen: .btn-sm has 98 uses across screens not yet passed. */
+#v-shadow .btn-sm,.sh-work .btn-sm,#v-shadow .btn,.sh-work .btn{min-height:44px}
+#v-shadow .seg-tab{min-height:44px}
+/* .seg-tab.on is white on --grad app-wide; the gradient's cyan end (#22d3ee)
+   gives ~1.9:1 against white. Solid accent here — the shared rule still needs
+   fixing on Practice and Phrases, logged in UX_AUDIT. */
+#v-shadow .seg-tab.on{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:transparent;color:var(--on-accent)}
+#v-shadow .seg-tab.on b{color:var(--on-accent);opacity:.8}
+/* the "best channels" row is links, not decoration — .chip is 32px app-wide */
+#v-shadow a.chip{min-height:44px}
+#v-shadow a.chip:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sh-seg .btn{min-height:44px;padding:8px 11px}
+.sh-work-x{width:44px;height:44px}
+
+/* Starter clips: one card shape instead of six inline styles apiece. */
+.sh-starter{background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px}
+.sh-starter img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r-md);background:var(--card2)}
+.sh-starter b{font-size:14px;line-height:1.35}
+.sh-starter p{font-size:12.5px;color:var(--mut);flex:1;line-height:1.5}
+.sh-starter-cap{align-self:flex-start;font-size:11px}
+.sh-starter-acts{display:flex;gap:8px}
+/* :not() so the icon-only copy button is not stretched by the same rule that
+   makes "Shadow this" fill the row */
+.sh-starter-acts>.btn:not(.sh-starter-copy){flex:1;justify-content:center}
+.sh-starter-copy{flex:0 0 44px;width:44px;padding:0;justify-content:center}
+.sh-starter-copy svg{width:19px;height:19px}
+/* Error state for a clip that cannot play (removed, private, embedding off). */
+.sh-viderr{display:flex;align-items:flex-start;gap:13px;flex-wrap:wrap;margin-top:14px;padding:14px 16px;
+  background:color-mix(in srgb,var(--red) 10%,transparent);border:1px solid color-mix(in srgb,var(--red) 34%,transparent);
+  border-radius:var(--r-lg)}
+.sh-viderr-ic{flex:none;color:var(--red);line-height:0}
+.sh-viderr-ic svg{width:22px;height:22px}
+.sh-viderr-t{flex:1 1 220px;min-width:0}
+.sh-viderr-t b{display:block;font-size:15px;margin-bottom:3px}
+.sh-viderr-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:block}
+.sh-viderr .btn{flex:none}
+.sh-more{margin:16px 0 0}
+.sh-resume{margin-top:12px}
+.sh-resume-t{font-weight:600;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
 .sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
 .sh-clear svg{width:16px;height:16px;display:block}
@@ -609,6 +656,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .rec-btn svg{width:26px;height:26px}
 .rec-btn.recording{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
+/* The recording pulse and the over-length clip warning are live-state signals,
+   so they are legitimately perpetual — but they were the only infinite
+   animations in the app with no reduced-motion escape. The state stays legible
+   without the motion: .recording keeps its red fill, .over keeps its gold ring. */
+@media (prefers-reduced-motion:reduce){.rec-btn.recording,.sh-count.over{animation:none}}
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
 .rec-item audio{height:32px;flex:1;min-width:120px}
 .rec-time{font-family:'JetBrains Mono',monospace;color:var(--red);font-weight:600;font-size:18px}
@@ -653,9 +705,13 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .sh-pill{display:flex;gap:2px;background:#000;border-radius:16px;padding:6px}
 .sh-pill button{min-width:52px;height:44px;border:none;background:transparent;color:#fff;font-size:19px;border-radius:12px;transition:.15s}
 .sh-pill button:hover{background:rgba(255,255,255,.14)}
-.sh-round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:17px;transition:.15s}
+.sh-round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:17px;transition:.15s;cursor:pointer}
 .sh-round:hover{border-color:var(--acc2);color:var(--acc2)}
-.sh-round.on{background:var(--grad);border:none;color:#fff}
+.sh-round:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Loop is a toggle, not an action. It was a filled --grad circle, which made it
+   the loudest thing in the workspace and outranked every real step of the
+   Listen-Shadow-Record loop. On-state is now a tint plus a ring. */
+.sh-round.on{background:color-mix(in srgb,var(--accent) 16%,transparent);border-color:var(--accent);color:var(--accent)}
 .sh-round svg{width:20px;height:20px}
 .sh-pill button{display:inline-flex;align-items:center;justify-content:center;gap:2px}
 .sh-pill button svg{width:22px;height:22px}
@@ -2793,6 +2849,10 @@ const I18N_EN={
  "sh.title":"Cut a clip. <em>Loop it. Shadow it.</em>",
  "sh.sub":"Choose the voice you wish you had — paste any YouTube clip, mark 20–30 seconds, and shadow it until their fluency quietly becomes yours.",
  "sh.url_ph":"Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…",
+ "sh.more_starters":"Show {{n}} more clips",
+ "sh.video_error_title":"This clip will not play",
+ "sh.video_error_body":"The owner removed it or blocked embedding. Pick another clip — your recordings and notes are safe.",
+ "sh.video_error_btn":"Choose another clip",
  "sh.load_btn":"▶ Load video",
  "sh.resume_btn":"▶ Continue your last clip",
  "sh.close_workspace":"Close shadowing workspace",
@@ -4483,6 +4543,25 @@ function loadYT(){
    The fullscreen workspace (.sh-work) sits outside the tabs — it can open from any of them. */
 let _shTab="create";
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);};
+
+/* Eighteen starter clips used to render at once: 7,130px of catalogue — 8.4
+   handset screens — before anyone recorded anything, and eighteen immediate
+   i.ytimg.com requests with no intrinsic size, so every one shifted the layout
+   as it arrived. Three are shown; the rest sit behind a disclosure. Thumbnails
+   are mqdefault, which is always 320x180, so the ratio can be declared. */
+const SH_STARTERS_SHOWN=3;
+function shStarterCard(s,i){
+  return `<div class="card sh-starter">
+    <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180">
+    <b>${s.name}</b>
+    ${s.cap===false?`<span class="chip sh-starter-cap">${tIc("sh.captions_none","pencil")}</span>`:""}
+    <p>${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
+    <div class="sh-starter-acts">
+      <button class="btn btn-g" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
+      <button class="btn btn-g sh-starter-copy" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}" aria-label="${esc(t("sh.copy_title"))}">${ic("clipboard")}</button>
+    </div>
+  </div>`;
+}
 function rShadow(el){
   clearInterval(shTick);ytPlayer=null;
   el.innerHTML=`
@@ -4500,23 +4579,15 @@ function rShadow(el){
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-g btn-sm" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
     </div>
-    ${S.lastClip&&S.lastClip.vid?`<button class="btn glow-cta" style="margin-top:12px;width:100%" onclick="shOpenWork()"><span class="glow-cta-txt">${t("sh.resume_btn")}${S.lastClip.title?` <span style="color:var(--mut)">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</span></button>`:""}
+    ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
-    <div class="grid g3">
-      ${SHADOW_STARTERS.map((s,i)=>`
-      <div class="card" style="background:var(--bg2);padding:16px;display:flex;flex-direction:column;gap:8px">
-        <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" style="width:100%;border-radius:10px">
-        <b style="font-size:14px;line-height:1.35">${s.name}</b>
-        ${s.cap===false?`<span class="chip" style="align-self:flex-start;font-size:11px">${tIc("sh.captions_none","pencil")}</span>`:""}
-        <p style="font-size:12.5px;color:var(--mut);flex:1">${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-p btn-sm" style="flex:1" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
-          <button class="btn btn-g btn-sm" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}">${tIc("sh.copy_btn","clipboard")}</button>
-        </div>
-      </div>`).join("")}
-    </div>
+    <div class="grid g3">${SHADOW_STARTERS.slice(0,SH_STARTERS_SHOWN).map(shStarterCard).join("")}</div>
+    ${SHADOW_STARTERS.length>SH_STARTERS_SHOWN?`<details class="home-more sh-more">
+      <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:SHADOW_STARTERS.length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body"><div class="grid g3">${SHADOW_STARTERS.slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
+    </details>`:""}
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
@@ -4531,14 +4602,22 @@ function rShadow(el){
     </div>
     </div>
   </div>
-  <div class="sh-work" id="shWork" style="display:none">
+  <div class="sh-work" id="shWork" style="display:none" role="dialog" aria-modal="true" aria-labelledby="shWorkTitle">
     <div class="sh-work-bar">
-      <b class="sh-work-title" id="shWorkTitle">${t("sh.eyebrow")}</b>
+      <h2 class="sh-work-title" id="shWorkTitle">${t("sh.eyebrow")}</h2>
       <button class="sh-work-x" onclick="shCloseWork()" aria-label="${esc(t("sh.close_workspace"))}">${ic("close")}</button>
     </div>
     <div class="sh-work-body">
   <div id="shPlayerWrap">
     <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
+    <div class="sh-viderr" id="shVidErr" style="display:none" role="alert">
+      <span class="sh-viderr-ic">${ic("alert")}</span>
+      <span class="sh-viderr-t">
+        <b>${t("sh.video_error_title")}</b>
+        <small>${t("sh.video_error_body")}</small>
+      </span>
+      <button class="btn btn-g" onclick="shCloseWork()">${t("sh.video_error_btn")}</button>
+    </div>
     <div class="sh-ctl">
       <div class="sh-pill">
         <button onclick="shRestart()" title="${esc(t("sh.restart_title"))}">${ic("skipstart")}</button>
@@ -4585,7 +4664,7 @@ function rShadow(el){
         <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
         <p style="font-size:12px;color:var(--mut);margin:3px 0 8px">${t("sh.my_transcript_desc")}</p>
         <div id="shHeardBox" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:52px;color:var(--txt);font-style:italic">
-          <span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>
+          <span class="sess-heard-empty">${t("sh.transcript_empty")}</span>
         </div>
       </div>
       <div class="rec-panel">
@@ -4616,7 +4695,7 @@ function rShadow(el){
       <b style="font-size:15px">${t("sh.feedback_title")}</b> <span class="chip p3">${t("sh.feedback_beta_tag")}</span>
       <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("sh.feedback_desc")}</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-p" id="fbBtn" onclick="fbToggle()">${tIc("sh.start_feedback_btn","mic")}</button>
+        <button class="btn btn-primary sh-fb-go" id="fbBtn" onclick="fbToggle()">${tIc("sh.start_feedback_btn","mic")}</button>
         <button class="btn btn-g" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
         <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
       </div>
@@ -4650,7 +4729,7 @@ function tbRender(){
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)" aria-label="Hear">${ic("sound")}</button>
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',0.5)" aria-label="Slow">${ic("gauge")}</button>
-        <button class="btn btn-p btn-sm" onclick="tbTry('${esc(w)}')">${tIc("tb.say_it_btn","mic")}</button>
+        <button class="btn btn-g" onclick="tbTry('${esc(w)}')">${tIc("tb.say_it_btn","mic")}</button>
       </div>
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
@@ -4711,25 +4790,70 @@ async function shLoad(c,quiet){
   await loadYT();
   if(ytPlayer&&ytPlayer.destroy)ytPlayer.destroy();
   document.getElementById("ytBox").innerHTML="";
+  shVideoError(false);
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
-    events:{onReady:e=>{try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
-      if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick()}}});
+    events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
+      if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick()},
+      /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or
+         player failure. Without this the user got YouTube's own grey box inside
+         the frame while every control stayed live against a dead player. */
+      onError:()=>{clearInterval(shTick);shVideoError(true)}}});
   renderRecs("shadow-"+shClip.vid);
   if(!quiet)shOpenWork();
+}
+/* Shows an app-level message when the clip cannot play, and hides the controls
+   that would otherwise act on a dead player. Closing the workspace returns to
+   the picker, where another clip can be chosen. */
+function shVideoError(on){
+  const box=document.getElementById("shVidErr");
+  if(box)box.style.display=on?"":"none";
+  const ctl=document.querySelector(".sh-ctl"),seg=document.getElementById("shSeg");
+  if(ctl)ctl.style.display=on?"none":"";
+  if(seg)seg.style.display=on?"none":"";
+}
+
+/* The workspace covers the whole viewport, so it has to behave like a dialog and
+   not merely look like one: it was reachable-past by Tab, ignored Escape, and
+   left the picker scrolling underneath. */
+let _shPrevFocus=null;
+function shFocusables(w){
+  return [...w.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),textarea:not([disabled]),select,summary,[tabindex]:not([tabindex="-1"])')]
+    .filter(e=>e.offsetParent!==null);
+}
+function shWorkKeys(e){
+  const w=document.getElementById("shWork");
+  if(!w||w.style.display==="none")return;
+  if(e.key==="Escape"){e.preventDefault();shCloseWork();return}
+  if(e.key!=="Tab")return;
+  const f=shFocusables(w);if(!f.length)return;
+  const first=f[0],last=f[f.length-1];
+  /* focus starts on <body> the first time, which Tab would carry into the page
+     behind, so an out-of-dialog target is pulled back to the near edge */
+  if(!w.contains(document.activeElement)){e.preventDefault();(e.shiftKey?last:first).focus();return}
+  if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+  else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
 }
 /* open the focused shadowing workspace over the picker */
 window.shOpenWork=()=>{
   const w=document.getElementById("shWork");if(!w)return;
   const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=(shClip&&shClip.title)||t("sh.eyebrow");
+  _shPrevFocus=document.activeElement;
   w.style.display="flex";
+  document.body.classList.add("sh-work-open");   // stops the picker scrolling behind the overlay
   const body=w.querySelector(".sh-work-body");if(body)body.scrollTop=0;
+  document.addEventListener("keydown",shWorkKeys);
+  const x=w.querySelector(".sh-work-x");if(x)x.focus();
 };
 /* close the workspace and return to the picker (pause the video, keep state) */
 window.shCloseWork=()=>{
   try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
   const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic("play");
   const w=document.getElementById("shWork");if(w)w.style.display="none";
+  document.body.classList.remove("sh-work-open");
+  document.removeEventListener("keydown",shWorkKeys);
+  if(_shPrevFocus&&document.contains(_shPrevFocus)){try{_shPrevFocus.focus()}catch(e){}}
+  _shPrevFocus=null;
   window.scrollTo({top:0});
 };
 let shLooping=true,shCounting=false,shPing={};
@@ -5645,7 +5769,7 @@ window.sessRec=(key,label)=>{
 };
 function shHeardUI(heard){
   const box=document.getElementById("shHeardBox");
-  if(box)box.innerHTML=heard?"“"+esc(heard)+"”":`<span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sh.transcript_empty")}</span>`;
+  if(box)box.innerHTML=heard?"“"+esc(heard)+"”":`<span class="sess-heard-empty">${t("sh.transcript_empty")}</span>`;
 }
 async function shFBDone(){
   const heard=shFB.txt.trim();

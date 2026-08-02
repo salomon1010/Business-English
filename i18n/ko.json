@@ -1110,5 +1110,9 @@
   "footer.about_link": "BE Mastery 소개",
   "footer.guide_link": "사용자 가이드",
   "footer.play_link": "Google Play",
-  "home.week_days": "일 이번 주"
+  "home.week_days": "일 이번 주",
+  "sh.more_starters": "클립 {{n}}개 더 보기",
+  "sh.video_error_title": "이 클립은 재생할 수 없습니다",
+  "sh.video_error_body": "소유자가 삭제했거나 임베드를 차단했습니다. 다른 클립을 선택하세요 — 녹음과 메모는 그대로입니다.",
+  "sh.video_error_btn": "다른 클립 선택"
 }

@@ -35,8 +35,8 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 |---|---|---|---|
 | 1 | **Dashboard** | `rHome` | ✅ `9450bed` |
 | 2 | **Session** | `rSession` → `#v-journey` | ✅ `479b094`, `77685e9` |
-| 3 | Shadowing Studio | `rShadow` / `shOpenWork` | in progress |
-| 4 | Speaking Feedback | in session / shadow | pending |
+| 3 | **Shadowing Studio** | `rShadow` / `shOpenWork` | ✅ |
+| 4 | Speaking Feedback | in session / shadow | next |
 | 5 | Executive Polish | in `rPhrases` | pending |
 | 6 | Vocabulary | `rPractice` | pending |
 | 7 | Practice Hub | `rPractice` | pending |

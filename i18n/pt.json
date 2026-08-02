@@ -1110,5 +1110,9 @@
   "footer.about_link": "Sobre o BE Mastery",
   "footer.guide_link": "Guia do usuário",
   "footer.play_link": "Google Play",
-  "home.week_days": "dias esta semana"
+  "home.week_days": "dias esta semana",
+  "sh.more_starters": "Mostrar mais {{n}} clipes",
+  "sh.video_error_title": "Este clipe não será reproduzido",
+  "sh.video_error_body": "O dono removeu ou bloqueou a incorporação. Escolha outro clipe — suas gravações e notas estão seguras.",
+  "sh.video_error_btn": "Escolher outro clipe"
 }

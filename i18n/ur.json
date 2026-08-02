@@ -1110,5 +1110,9 @@
   "footer.about_link": "BE Mastery کے بارے میں",
   "footer.guide_link": "صارف گائیڈ",
   "footer.play_link": "Google Play",
-  "home.week_days": "دن اس ہفتے"
+  "home.week_days": "دن اس ہفتے",
+  "sh.more_starters": "{{n}} مزید کلپس دکھائیں",
+  "sh.video_error_title": "یہ کلپ نہیں چلے گا",
+  "sh.video_error_body": "مالک نے اسے ہٹا دیا یا ایمبیڈنگ بلاک کر دی۔ دوسرا کلپ چنیں — آپ کی ریکارڈنگز اور نوٹس محفوظ ہیں۔",
+  "sh.video_error_btn": "دوسرا کلپ چنیں"
 }

@@ -1110,5 +1110,9 @@
   "footer.about_link": "Tentang BE Mastery",
   "footer.guide_link": "Panduan pengguna",
   "footer.play_link": "Google Play",
-  "home.week_days": "hari minggu ini"
+  "home.week_days": "hari minggu ini",
+  "sh.more_starters": "Tampilkan {{n}} klip lagi",
+  "sh.video_error_title": "Klip ini tidak dapat diputar",
+  "sh.video_error_body": "Pemiliknya menghapus atau memblokir penyematan. Pilih klip lain — rekaman dan catatan Anda aman.",
+  "sh.video_error_btn": "Pilih klip lain"
 }
