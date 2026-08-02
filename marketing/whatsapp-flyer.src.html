@@ -1,0 +1,216 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080c18; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
+  --txt:#eef2fb; --mut:#93a6c6; --ind:#6f7cf6; --cyn:#22d3ee; --grn:#34d399; --amb:#fbbf24;
+}
+html,body{width:1080px;height:1920px}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Outfit','Avenir Next','Helvetica Neue',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden; position:relative;
+}
+/* ambient washes */
+.wash{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.w1{width:960px;height:960px;left:-300px;top:-360px;background:rgba(111,124,246,.34)}
+.w2{width:800px;height:800px;right:-280px;top:340px;background:rgba(34,211,238,.22)}
+.w3{width:860px;height:860px;left:100px;bottom:-460px;background:rgba(52,211,153,.16)}
+/* a horizon line behind the hero — the "rising" motif the whole page is about */
+.beam{position:absolute;left:-10%;right:-10%;top:1010px;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(111,124,246,.55),rgba(34,211,238,.65),rgba(52,211,153,.45),transparent);
+  filter:blur(1px);opacity:.75}
+.beam::after{content:"";position:absolute;inset:-70px 0;
+  background:radial-gradient(60% 100% at 50% 50%,rgba(34,211,238,.14),transparent 70%)}
+.grid{position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%,#000 30%,transparent 78%)}
+
+.page{position:relative;z-index:2;padding:52px 60px 0;height:1920px;display:flex;flex-direction:column}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:20px}
+.mark{width:80px;height:80px;border-radius:22px;overflow:hidden;flex:none;
+  box-shadow:0 10px 30px rgba(79,110,246,.42)}
+.brand .n{font-size:38px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.brand .n b{color:var(--cyn);font-weight:800}
+.brand .s{font-size:19px;color:var(--mut);font-weight:400;margin-top:5px;letter-spacing:.2px}
+.hchip{margin-left:auto;display:flex;align-items:center;gap:10px;
+  padding:13px 22px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.05);font-size:20px;font-weight:600;color:#dbe6fb}
+.hchip .dot{width:9px;height:9px;border-radius:50%;background:var(--grn);
+  box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+
+/* ---------- transformation arc ---------- */
+.arc{margin-top:24px;display:grid;grid-template-columns:1fr 62px 1fr;align-items:stretch;gap:0}
+.arc .side{border:1px solid var(--line);border-radius:18px;padding:16px 22px;background:rgba(255,255,255,.035)}
+.arc .side.now{background:linear-gradient(140deg,rgba(111,124,246,.16),rgba(34,211,238,.09));
+  border-color:rgba(111,124,246,.42);box-shadow:0 0 40px rgba(111,124,246,.20) inset}
+.arc .w{font-size:15px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--mut)}
+.arc .now .w{color:var(--cyn)}
+.arc .l{font-size:23px;line-height:1.34;margin-top:8px;color:#c7d5ec;font-weight:300}
+.arc .now .l{color:#eef2fb;font-weight:500}
+.arc .mid{display:flex;align-items:center;justify-content:center}
+.arc .mid svg{width:40px;height:40px;stroke:var(--cyn);fill:none;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(34,211,238,.5))}
+
+/* ---------- proof strip ---------- */
+.proof{margin-top:18px;display:flex;gap:12px}
+.proof .p{flex:1;border:1px solid var(--line);border-radius:16px;padding:13px 18px;
+  background:rgba(255,255,255,.04);display:flex;align-items:baseline;gap:10px}
+.proof .v{font-size:34px;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(96deg,#8b93ff,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+.proof .k{font-size:17px;color:var(--mut);font-weight:400;line-height:1.25}
+
+/* ---------- hero ---------- */
+.kick{margin-top:36px;font-size:19px;font-weight:700;letter-spacing:3.4px;color:var(--cyn);text-transform:uppercase}
+h1{margin-top:16px;font-size:74px;line-height:1.02;font-weight:800;letter-spacing:-2.2px}
+h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 60%,#34d399);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:18px;font-size:24px;line-height:1.42;color:#b9c8e2;font-weight:300;max-width:940px}
+.sub b{color:#eef2fb;font-weight:600}
+
+/* ---------- phones ---------- */
+.phones{margin-top:22px;display:flex;justify-content:center;align-items:flex-end;gap:20px}
+.ph img.up{margin-top:-5%}
+.ph{position:relative;border-radius:30px;overflow:hidden;background:#0a0e1a;
+  border:2px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 60px -12px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.05) inset}
+.ph img{width:100%;display:block}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 14px;
+  font-size:17px;font-weight:700;text-align:center;letter-spacing:.3px;color:#e7eefb;
+  background:linear-gradient(to top,rgba(6,10,20,.99) 30%,rgba(6,10,20,.92) 62%,transparent)}
+.ph.side{width:258px;height:368px;margin-bottom:22px;opacity:.95}
+.ph.main{width:296px;height:426px;border-color:rgba(111,124,246,.55);
+  box-shadow:0 36px 70px -14px rgba(0,0,0,.8), 0 0 60px rgba(111,124,246,.28)}
+
+/* ---------- features ---------- */
+.feats{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
+.f{display:flex;gap:13px;padding:12px 19px;border-radius:20px;
+  background:var(--card);border:1px solid var(--line)}
+.f .ic{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;
+  background:rgba(111,124,246,.16);color:#9aa6ff;border:1px solid rgba(111,124,246,.26)}
+.f:nth-child(2) .ic,.f:nth-child(5) .ic{background:rgba(34,211,238,.14);color:#4fd8ee;border-color:rgba(34,211,238,.24)}
+.f:nth-child(3) .ic,.f:nth-child(6) .ic{background:rgba(52,211,153,.14);color:#4fdcaa;border-color:rgba(52,211,153,.24)}
+.f svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.9;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.f h3{font-size:23px;font-weight:700;letter-spacing:-.3px;line-height:1.15}
+.f p{margin-top:6px;font-size:18px;line-height:1.35;color:var(--mut);font-weight:300}
+
+/* ---------- trust ---------- */
+.trust{margin-top:14px;display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+.t{padding:11px 20px;border-radius:999px;font-size:19px;font-weight:600;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);color:#cddaf0}
+.t.on{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);color:#8df0c6}
+
+/* ---------- cta ---------- */
+.cta{margin-top:auto;margin-bottom:74px;display:flex;align-items:center;gap:26px;
+  padding:26px 30px;border-radius:26px;
+  background:linear-gradient(100deg,rgba(111,124,246,.20),rgba(34,211,238,.13));
+  border:1px solid rgba(126,150,255,.32)}
+.qr{width:190px;height:190px;flex:none;border-radius:18px;padding:12px;background:#fff}
+.qr img{width:100%;height:100%;display:block}
+.cta .big{font-size:40px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
+.cta .big span{background:linear-gradient(93deg,#a9b1ff,#38dcf0);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.cta .sm{margin-top:9px;font-size:21px;color:#c3d2ea;font-weight:300;line-height:1.35}
+.cta .sm b{color:#eef2fb;font-weight:600}
+.play{margin-left:auto;flex:none;text-align:center}
+.play .box{width:190px;padding:15px 10px 13px;border-radius:16px;
+  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
+.play .g{font-size:15px;color:var(--mut);letter-spacing:1.4px;font-weight:600;text-transform:uppercase}
+.play .p{font-size:25px;font-weight:700;margin-top:3px;letter-spacing:-.3px}
+.foot{position:absolute;left:60px;right:60px;bottom:22px;display:flex;
+  font-size:17px;color:#6c7f9d;font-weight:400}
+.foot .r{margin-left:auto}
+</style></head>
+<body>
+<div class="wash w1"></div><div class="wash w2"></div><div class="wash w3"></div>
+<div class="grid"></div>
+<div class="beam"></div>
+
+<div class="page">
+
+  <header>
+    <div class="mark"><img src="__LOGO__" style="width:121.9%;height:121.9%;margin:-10.95%;display:block"></div>
+    <div class="brand">
+      <div class="n">BE <b>Mastery</b></div>
+      <div class="s">Business English, spoken with confidence</div>
+    </div>
+    <div class="hchip"><span class="dot"></span>app.lomonec.com</div>
+  </header>
+
+  <div class="kick">12-week business english mastery system</div>
+  <h1>In 12 weeks, <em>stop rehearsing.</em> Start saying it.</h1>
+  <div class="sub"><b>25 focused minutes a day, six days a week.</b> Real meeting language, your own voice recorded and scored — until the version of you who hesitates begins to disappear.</div>
+
+  <div class="arc">
+    <div class="side">
+      <div class="w">Week 1</div>
+      <div class="l">You write the sentence in your head, check it twice, and the moment has already passed.</div>
+    </div>
+    <div class="mid"><svg viewBox="0 0 24 24"><path d="M3 17.5 9 11l4 3.6L21 6"/><path d="M21 11V6h-5"/></svg></div>
+    <div class="side now">
+      <div class="w">Week 12</div>
+      <div class="l">You say it while you're still thinking it — and the room turns to you.</div>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="p"><div class="v">+32</div><div class="k">points on your<br>speaking score</div></div>
+    <div class="p"><div class="v">84</div><div class="k">sessions, already<br>planned for you</div></div>
+    <div class="p"><div class="v">15</div><div class="k">languages for the<br>instructions</div></div>
+  </div>
+
+  <div class="phones">
+    <div class="ph side"><img src="__SHOT1__"><div class="cap">Your 25 minutes, already planned</div></div>
+    <div class="ph main"><img src="__SHOT4__"><div class="cap">Proof you are getting better</div></div>
+    <div class="ph side"><img class="up" src="__SHOT3__"><div class="cap">Streaks &amp; progress calendar</div></div>
+  </div>
+
+  <div class="feats">
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4Z"/><path d="M9 4v13M15 6.5v13"/></svg></div>
+      <div><h3>A 12-week guided plan</h3><p>Open the app and today's session is already chosen for you.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+      <div><h3>Shadowing Studio</h3><p>Paste any YouTube clip, loop 20–30 seconds, shadow it until the rhythm is yours.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3.5 13.9 9l5.6 2-5.6 2-1.9 5.5L10.1 13 4.5 11l5.6-2L12 3.5Z"/></svg></div>
+      <div><h3>Executive Polish — AI</h3><p>Say it casually. Get two boardroom-ready rewrites in seconds.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V21.5"/></svg></div>
+      <div><h3>Feedback on every word</h3><p>Record yourself and hear exactly which words are costing you.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 17.5 9 11l4 3.6L21 6"/><path d="M21 11V6h-5"/></svg></div>
+      <div><h3>Proof you're improving</h3><p>Every attempt plotted — speaking, grammar and vocabulary — so you never have to wonder.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1 .4-9 6.5 6.5 0 0 1 12.4 2.2 3.9 3.9 0 0 1-.8 6.8"/><path d="M12 21V12M9 14.5 12 11.5l3 3"/></svg></div>
+      <div><h3>Never lose a day</h3><p>Works offline, then syncs your progress to every device you sign in on.</p></div></div>
+  </div>
+
+  <div class="trust">
+    <div class="t on">Free to start</div>
+    <div class="t">Works offline</div>
+    <div class="t">No ads</div>
+    <div class="t">Android &amp; iPhone</div>
+    <div class="t">Installs like an app</div>
+  </div>
+
+  <div class="cta">
+    <div class="qr"><img src="__QR__"></div>
+    <div>
+      <div class="big">Start today — <span>app.lomonec.com</span></div>
+      <div class="sm">Scan the code or tap the link. <b>Nothing to install</b> — it opens straight in your browser.</div>
+    </div>
+    <div class="play"><div class="box"><div class="g">Get it on</div><div class="p">Google Play</div></div></div>
+  </div>
+
+  <div class="foot"><div>Built by Lomonec LLC</div><div class="r">contact@lomonec.com</div></div>
+</div>
+</body></html>

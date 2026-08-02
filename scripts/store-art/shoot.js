@@ -38,7 +38,7 @@ const SHOTS = [
   { file: "02-journey",   go: ["journey"] },
   { file: "03-phrases",   go: ["phrases"] },
   // the calendar sits below the profile header, so scroll past the avatar block
-  { file: "04-progress",  go: ["profile"], settle: 900, scrollTo: 380 },
+  { file: "04-progress",  go: ["profile"], settle: 900, scrollTo: 620 },
   // a day session deliberately renders into the journey view's container
   { file: "05-session",   go: ["session", 1, "Mon"], expect: "v-journey" },
   // Shadow is deliberately absent: every dense screen in the studio renders
@@ -46,6 +46,9 @@ const SHOTS = [
   // two-thirds empty. Practice fills the slot instead — it is the spaced-
   // repetition gym, which nothing else in the set shows.
   { file: "06-practice",  go: ["practice"], settle: 600 },
+  // the trend section sits below the calendar, so scroll past both the avatar
+  // block and the month grid
+  { file: "07-trend",     go: ["profile"], settle: 1100, scrollTo: 1500 },
 ];
 
 const seed = () => {
@@ -83,6 +86,11 @@ const seed = () => {
     days, steps: {}, notes: {}, scores: {}, phMaster: {}, phExample: {}, weekly: {}, monthly: {},
     tutor: {}, clips: [], trouble: { rhythm: 3, particularly: 2, thorough: 2 }, fbHist, fbV: {},
     convos: [], vocab,
+    /* the per-feature histories the Progress trend section reads — a rising
+       story, because that section exists to show improvement */
+    gram: { blanks: { best: 92, runs: 5,
+      hist: [50, 63, 75, 88, 92].map((p, i) => ({ t: now - (5 - i) * 3 * DAY, p })) } },
+    quizHist: [40, 55, 70, 80, 90].map((p, i) => ({ t: now - (5 - i) * 2 * DAY, p })),
     profile: { name: "Alex", role: "Product / PM", goal: "\u{1F3A4} Speak confidently in meetings",
                slot: "☀️ Morning coffee", lang: "en", ts: now - 40 * DAY },
     dates, dayLog, startDate: iso(now - 40 * DAY),
