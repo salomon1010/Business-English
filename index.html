@@ -183,7 +183,10 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   radial-gradient(ellipse 60% 40% at 90% 110%,var(--wash2),transparent)}
 a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
-input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%}
+/* min-height keeps every text control at the 44px floor. Without it they were
+   38-40px wherever the mobile font-size bump did not apply. */
+input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%;min-height:44px}
+input[type=checkbox],input[type=radio]{min-height:0;width:auto}
 /* Auto-sizing textarea (clip transcript). Grows with its content up to 60vh,
    then scrolls; still draggable on platforms that support the resize handle. */
 textarea.grow-ta{resize:vertical;min-height:96px;max-height:60vh;line-height:1.55;overflow-y:hidden}
@@ -233,6 +236,23 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 @keyframes htPulse{0%,100%{opacity:1}50%{opacity:.4}}
 @media (prefers-reduced-motion:reduce){.hdr-timer.running,.hdr-timer.running .ht-ic{animation:none}}
 .theme-seg{display:flex;gap:8px}
+/* SETTINGS — every field label is a real <label for>, so a screen reader
+   announces the control it belongs to. They used to be plain <p> text. */
+.set-lbl{display:block;font-size:13px;color:var(--mut);margin:12px 0 5px;cursor:pointer}
+.set-h{font-size:13.5px;font-weight:800;margin:18px 0 6px}
+.set-card-h{font-size:16px;font-weight:800}
+.set-card-sub{font-size:12.5px;color:var(--mut);line-height:1.5}
+.set-hint{font-size:11.5px;color:var(--mut);margin:6px 0 0;line-height:1.5}
+.set-act{min-height:44px}
+.set-save{margin-top:18px}
+.set-plan{margin:0 0 16px}
+/* the reminder switch was an 18px checkbox in an 18px row */
+.rem-row{min-height:44px}
+.rem-box input[type=time]{min-height:44px}
+#v-setup .seg-tab{min-height:44px}
+#v-setup .theme-opt{min-height:44px}
+#v-setup a{min-height:44px;display:inline-flex;align-items:center}
+#v-setup .about-links a,#v-setup .about-links button{min-height:44px}
 .theme-opt{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:11px;border:1px solid var(--line2);background:var(--card2);color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .theme-opt:hover{border-color:var(--acc)}
 .theme-opt svg{width:17px;height:17px}
@@ -415,11 +435,6 @@ body.sh-work-open{overflow:hidden}
    screen: .btn-sm has 98 uses across screens not yet passed. */
 #v-shadow .btn-sm,.sh-work .btn-sm,#v-shadow .btn,.sh-work .btn{min-height:44px}
 #v-shadow .seg-tab{min-height:44px}
-/* .seg-tab.on is white on --grad app-wide; the gradient's cyan end (#22d3ee)
-   gives ~1.9:1 against white. Solid accent here — the shared rule still needs
-   fixing on Practice and Phrases, logged in UX_AUDIT. */
-#v-shadow .seg-tab.on{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:transparent;color:var(--on-accent)}
-#v-shadow .seg-tab.on b{color:var(--on-accent);opacity:.8}
 /* the "best channels" row is links, not decoration — .chip is 32px app-wide */
 #v-shadow a.chip{min-height:44px}
 #v-shadow a.chip:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -779,10 +794,10 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* DAILY REMINDER row in Settings */
 .rem-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
 .rem-row{display:flex;align-items:center;gap:9px;flex:1;min-width:170px;cursor:pointer;font-size:14px}
-.rem-row input{width:18px;height:18px;min-height:0;accent-color:var(--acc);flex:none;margin:0}
+.rem-row input{width:22px;height:22px;min-height:0;accent-color:var(--acc);flex:none;margin:0}
 .rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}
 .rem-box input[type=time]:disabled{opacity:.45}
-.rem-note{font-size:11.5px;color:var(--mut2);line-height:1.5;margin-top:6px}
+.rem-note{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:6px}
 .fb-sync{font-size:12px;line-height:1.5;margin:10px 0 0}
 .fb-sync:empty{display:none}
 .fb-sync.ok{color:var(--green)}
@@ -866,9 +881,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 
 /* Level 3: the smallest step — compact uppercase chips. */
 #v-practice .prac-subtabs{gap:6px}
-/* white on --grad is ~1.9:1 at the gradient's cyan end */
-#v-practice .prac-subtabs .prac-subtab.on{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:transparent;color:var(--on-accent)}
-#v-practice .prac-subtabs .prac-subtab.on b{color:var(--on-accent);opacity:.85}
 #v-practice .prac-subtabs .prac-subtab{
   min-height:44px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:var(--r-md);
   letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
@@ -1187,8 +1199,10 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-subtabs .prac-subtab b{margin-left:4px}
 .prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut)}
-.prac-subtab.on,.seg-tab.on{background:var(--grad);border-color:transparent;color:#fff}
-.prac-subtab.on b,.seg-tab.on b{color:#fff}
+/* was background:var(--grad) with white text — ~1.9:1 at the gradient's cyan
+   end. Shared by every tab row, so it is fixed here rather than per screen. */
+.prac-subtab.on,.seg-tab.on{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:transparent;color:var(--on-accent)}
+.prac-subtab.on b,.seg-tab.on b{color:var(--on-accent);opacity:.85}
 .prac-subtab:hover,.seg-tab:hover{border-color:var(--acc)}
 .prac-subtab:focus-visible,.seg-tab:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
 .seg-tab .btn-ic svg,.seg-tab .inl-ic svg{width:16px;height:16px;display:block}
@@ -1394,6 +1408,23 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-card input{margin-bottom:10px}
 .auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}
 .auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
+/* the sign-in buttons were .btn-p — white on --grad, ~1.9:1 at the cyan end —
+   and 38px in the Dashboard nudge. Shared by Settings and that nudge. */
+/* Emphasised secondary: reads as actionable without a second accent FILL where
+   one would collide with a nearby primary. Same recipe as .fb-again, which
+   should fold into this class in a later cleanup (COMPONENT_LIBRARY). */
+.btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:11px 18px;border-radius:var(--r-md);
+  background:transparent;border:1.5px solid var(--accent);
+  color:color-mix(in srgb,var(--accent) 58%,#fff);
+  font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  transition:background .12s,transform .12s cubic-bezier(.2,.8,.3,1)}
+:root[data-theme="light"] .btn-outline{color:var(--accent)}
+.btn-outline:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.btn-outline:active{transform:scale(.985)}
+.btn-outline:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.btn-outline{transition:none}.btn-outline:active{transform:none}}
+.auth-go{width:auto;min-width:140px}
 .auth-alt a{color:var(--acc2);font-weight:700;cursor:pointer}
 .auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
@@ -8114,55 +8145,58 @@ async function rData(el,embedded){
     <div class="card">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
         <div style="width:64px;height:64px;border-radius:20px;background:var(--grad);display:grid;place-items:center;font-size:28px;font-weight:800;color:#fff;flex:none">${esc((p.name||"?")[0].toUpperCase())}</div>
-        <div><b style="font-size:16px">${t("acc.profile_title")}</b><p style="font-size:12.5px;color:var(--mut)">${t("acc.profile_sub")}</p></div>
+        <div><h2 class="set-card-h">${t("acc.profile_title")}</h2><p class="set-card-sub">${t("acc.profile_sub")}</p></div>
       </div>
-      <p style="font-size:13px;color:var(--mut);margin:10px 0 4px">${t("acc.first_name")}</p>
+      <label class="set-lbl" for="acName">${t("acc.first_name")}</label>
       <input id="acName" value="${esc(p.name||"")}" placeholder="${esc(t("acc.first_name_ph"))}">
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.what_you_do")}</p>
+      <label class="set-lbl" for="acRole">${t("acc.what_you_do")}</label>
       ${sel("acRole",OB_ROLES,p.role,"role.")}
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.goal_label")}</p>
+      <label class="set-lbl" for="acGoal">${t("acc.goal_label")}</label>
       ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.slot_label")}</p>
+      <label class="set-lbl" for="acSlot">${t("acc.slot_label")}</label>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("rem.label")}</p>
+      <h3 class="set-h">${t("rem.label")}</h3>
       <div class="rem-box">
         <label class="rem-row">
           <input type="checkbox" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
           <span>${t("rem.switch")}</span>
         </label>
-        <input type="time" id="remTime" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
+        <input type="time" id="remTime" aria-label="${esc(t("rem.label"))}" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
       </div>
       <p class="rem-note" id="remNote">${t("rem.note")}</p>
-      <p style="font-size:13px;color:var(--mut);margin:14px 0 4px">${t("cal.label")}</p>
+      <h3 class="set-h">${t("cal.label")}</h3>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-g btn-sm" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
-        <button class="btn btn-g btn-sm" onclick="calDownload()">${tIc("cal.add_ics","download")}</button>
+        <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
+        <button class="btn btn-g set-act" onclick="calDownload()">${tIc("cal.add_ics","download")}</button>
       </div>
       <p class="rem-note">${t("cal.note")}</p>
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${esc(t("lang.app_language"))}</p>
+      <h3 class="set-h">${esc(t("lang.app_language"))}</h3>
       <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px">
         <span style="display:flex;align-items:center;gap:10px">
           <span class="lang-ic" style="width:26px;height:26px;font-size:10px;background:${langColor(p.lang||"en")}">${p.lang&&p.lang!=="en"?langInitials(langByCode(p.lang)||{code:p.lang}):"EN"}</span>
           <b>${p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English"}</b>
         </span>
-        <button class="btn btn-g btn-sm" onclick="openLangPicker()">${esc(t("lang.change"))}</button>
+        <button class="btn btn-g set-act" onclick="openLangPicker()">${esc(t("lang.change"))}</button>
       </div>
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.voice_label")}</p>
+      <label class="set-lbl" for="acVoice">${t("acc.voice_label")}</label>
       <div style="display:flex;align-items:center;gap:8px">
         <select id="acVoice" style="flex:1" onchange="acVoicePreview()">${TTS_VOICE_OPTS.map(v=>`<option value="${v[0]}" ${(p.voice||"alloy")===v[0]?"selected":""}>${esc(v[1])}</option>`).join("")}</select>
-        <button class="btn btn-g btn-sm" onclick="acVoicePreview()" aria-label="${esc(t("acc.voice_sample"))}" title="${esc(t("acc.voice_sample"))}">${ic("sound")}</button>
+        <button class="btn btn-g set-act" onclick="acVoicePreview()" aria-label="${esc(t("acc.voice_sample"))}" title="${esc(t("acc.voice_sample"))}">${ic("sound")}</button>
       </div>
-      <p style="font-size:11.5px;color:var(--mut2);margin:6px 0 0">${t("acc.voice_hint")}</p>
-      <p style="font-size:13px;color:var(--mut);margin:12px 0 4px">${t("acc.theme_label")}</p>
+      <p class="set-hint">${t("acc.voice_hint")}</p>
+      <h3 class="set-h">${t("acc.theme_label")}</h3>
       ${(()=>{const cur=document.documentElement.getAttribute("data-theme")||"dark";return`<div class="theme-seg">
         <button type="button" class="theme-opt ${cur==='light'?'on':''}" data-theme="light" onclick="setTheme('light')">${ic("sun")}<span>${t("acc.theme_light")}</span></button>
         <button type="button" class="theme-opt ${cur==='dark'?'on':''}" data-theme="dark" onclick="setTheme('dark')">${ic("moon")}<span>${t("acc.theme_dark")}</span></button>
       </div>`;})()}
-      <button class="btn btn-p" style="margin-top:16px;width:100%;justify-content:center" onclick="acctSave()">${t("acc.save")}</button>
+      <button class="btn-primary set-save" onclick="acctSave()">${t("acc.save")}</button>
     </div>
     <div>
       ${fbAuthCard()}
-      <div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
+      <details class="home-more set-plan">
+        <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">▶</span></summary>
+        <div class="home-more-body">
+<div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <b style="font-size:16px">${hIcon("gift",t("acc.free_plan"))}</b><span class="chip done">${t("acc.free_active")}</span>
         </div>
@@ -8179,7 +8213,9 @@ async function rData(el,embedded){
       <!-- the About card now lives in App Setup → About the app -->
     </div>
   </div>
-  <h3 style="margin:26px 0 10px">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
+          </div>
+      </details>
+      <h3 style="margin:26px 0 10px">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
   <p class="sub" style="margin-bottom:10px">${t("acc.data_sub")}</p>
   <p class="sub" style="margin-bottom:16px">${t("acc.camera_privacy")} <a href="privacy.html" target="_blank">${t("acc.camera_privacy_link")}</a></p>
   <div class="grid g3">
@@ -8215,11 +8251,11 @@ async function rData(el,embedded){
   </div>`:""}
   <div class="card" style="margin-top:18px">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-p" onclick="expData()">${tIc("acc.export_btn","download")}</button>
+      <button class="btn btn-g set-act" onclick="expData()">${tIc("acc.export_btn","download")}</button>
       <label class="btn btn-g" style="cursor:pointer">${tIc("acc.import_btn","upload")}<input type="file" accept=".json" style="display:none" onchange="impData(this)"></label>
       <button class="btn btn-danger" onclick="resetAll()">${tIc("acc.reset_btn","trash")}</button>
     </div>
-    <p style="font-size:12.5px;color:var(--mut2);margin-top:12px">${t("acc.export_note")}</p>
+    <p class="set-hint">${t("acc.export_note")}</p>
   </div>`;
   manIconizeInline(el);
 }
@@ -9986,7 +10022,7 @@ window.fbAuthCard=function(){
     <b style="font-size:16px">${hIcon("cloud",t("auth.card_sync_title"))}</b>
     <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">${t("auth.card_sync_desc")}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-p" onclick="fbOpenModal('up')">${t("auth.create_account_btn")}</button>
+      <button class="btn-outline auth-go" onclick="fbOpenModal('up')">${t("auth.create_account_btn")}</button>
       <button class="btn btn-g" onclick="fbOpenModal('in')">${t("auth.login_btn")}</button>
     </div>
   </div>`;
@@ -10002,7 +10038,7 @@ function fbUpdateNudge(){
   const n=document.createElement("div");n.className="sync-nudge";n.id="syncNudge";
   n.innerHTML=`<span class="nudge-ic" style="color:var(--acc2);line-height:0;flex:none">${ic("cloud")}</span>
     <div style="flex:1;font-size:13px;line-height:1.5"><b>${t("auth.nudge_title")}</b><br><span style="color:var(--mut)">${t("auth.nudge_desc")}</span></div>
-    <button class="btn btn-p btn-sm" onclick="fbOpenModal('up')">${t("auth.nudge_signin")}</button>
+    <button class="btn-outline auth-go" onclick="fbOpenModal('up')">${t("auth.nudge_signin")}</button>
     <button class="auth-x" style="position:static;font-size:20px" onclick="fbDismissNudge()">×</button>`;
   document.body.appendChild(n);
 }

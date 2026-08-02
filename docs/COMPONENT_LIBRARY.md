@@ -21,10 +21,21 @@ One per **viewport** (see `DESIGN_SYSTEM` §8). Passes AA in both themes at
 No animation.
 **Used by:** Dashboard, Session ×2, Shadow ×2, Executive Polish.
 
-### `.fb-again` — emphasised secondary
+### `.btn-outline` — emphasised secondary
+Outlined accent, 44px. For a next step that must read as actionable where an
+accent *fill* would collide with a nearby primary. In dark the label is lifted
+toward white (raw `--accent` as text is 4.31:1 on `--card`).
+**Used by:** the sign-in buttons on Settings and the Dashboard nudge.
+
+### `.fb-again` — *(duplicate)*
 Outlined accent, full width, 48px. For a next step that must read as actionable
 where an accent *fill* would collide with a nearby primary. In dark the label is
 lifted toward white (raw `--accent` as text is 4.31:1 on `--card`).
+
+### `.set-lbl` — form field label
+A real `<label for>`. Every input and select must have one, or an `aria-label`
+where no visible text exists (the reminder time). Settings shipped with 6 of 7
+controls unlabelled.
 
 ### `.btn` + `.btn-p` / `.btn-g` — legacy buttons
 `.btn-p` is a gradient fill, `.btn-g` a bordered ghost. Still used widely.

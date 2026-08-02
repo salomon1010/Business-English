@@ -504,7 +504,59 @@ Commit: `fb9bb36`.
 
 ---
 
-## Screens 10–12 — not yet audited
+## Screen 10 — Settings ✅ complete
+
+`rSetup` (the Settings/About shell) plus `rData` (the settings body).
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| S1 | **6 of 7 form controls had no label association.** "First name", "What you do", "Your #1 goal", "Daily practice slot", "App voice" were `<p>` text, not `<label for>`; the reminder time input had nothing at all. | A screen reader announced five unlabelled comboboxes and a nameless textbox. The most serious defect on the screen. |
+| S2 | **11 controls under 44px**, including an 18px reminder row, its 18px checkbox, and a 18px privacy link. | — |
+| S3 | 3 `.btn-p` gradient buttons (~1.9:1 at the cyan end). | Contrast. |
+| S4 | **2 headings for 2,966px and 5 cards.** "Profile", "Free plan", "Premium", "Sync across your devices" were all `<b>`. | No structure to navigate by. |
+| S5 | ~500px of Free-plan and Premium **marketing** sat between the settings a user came to change. | The brief asks to reduce scrolling and group logically. |
+| S6 | 9 `--mut2` text elements. | Contrast. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Form controls without a label | 6 of 7 | **0 of 7** |
+| Targets <44px | 11 | **0** |
+| Headings | 2 | **7** |
+| `.btn-p` | 3 | **0** |
+| `.btn-primary` (accent fills) | 0 | **1** |
+| `--mut2` text | 9 | **0** |
+| Emoji | 1 | **0** |
+| Page height | 2,966px | **2,743px** |
+| Inline-styled elements | 70 | **56** |
+| Contrast failures | 2 | **0** (19 checks) |
+
+Verified at 320/390/430/768/1280px, in de/ar/ja, both themes, and under reduced
+motion. Labels confirmed present in every language.
+
+### Decisions worth preserving
+
+- The Free-plan and Premium cards move into one closed disclosure. They are
+  marketing, not configuration.
+- Field labels are real `<label for>`; the reminder checkbox keeps its 22px box
+  but sits in a **44px `<label>` row** that toggles it, so the target is the row.
+- `input,textarea,select` gained `min-height:44px` **globally**. Without it they
+  measured 38–40px wherever the mobile font bump did not apply — which is why
+  1280px still showed five failures after the per-screen fixes.
+- `.seg-tab.on` was fixed **at the shared rule** rather than scoped a third
+  time; the `#v-shadow` and `#v-practice` overrides were deleted as redundant.
+- New `.btn-outline` — the emphasised secondary — so "Create account" stops
+  competing with "Save changes" (they sit 189px apart, well inside one
+  viewport). `.fb-again` is the same recipe and should fold into it.
+
+Commit: pending.
+
+---
+
+## Screens 11–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
