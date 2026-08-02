@@ -37,7 +37,7 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
      30–60s, occasionally 10 min): loop `curl -s "https://app.lomonec.com/sw.js?x=$RANDOM"`
      and grep for the new `be12-vNN`. A stuck build is nudged with an empty commit.
 - End commit messages with:
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
+  `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 
 ### Validate before committing
 ```
