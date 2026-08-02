@@ -381,7 +381,7 @@ what is due, above the fold, and it is the point of the screen.
 - Section tabs use `min-width:max-content` and let the row scroll rather than
   ellipsise a translated label.
 
-Commit: pending.
+Commit: `a64a3d4`.
 
 ---
 
