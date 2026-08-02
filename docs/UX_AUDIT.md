@@ -331,7 +331,7 @@ is used (My words, and the not-yet-saved rows in Speaking Feedback).
   (`#v-practice .prac-subtabs .prac-subtab`, `.prac-subgroup .seg-tab`) — a
   generic scoped rule lost to them on specificity and silently did nothing.
 
-Commit: pending.
+Commit: `3fa343e`.
 
 ---
 
