@@ -86,13 +86,13 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 60%,#34
 .ph .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 14px;
   font-size:17px;font-weight:700;text-align:center;letter-spacing:.3px;color:#e7eefb;
   background:linear-gradient(to top,rgba(6,10,20,.99) 30%,rgba(6,10,20,.92) 62%,transparent)}
-.ph.side{width:258px;height:368px;margin-bottom:22px;opacity:.95}
-.ph.main{width:296px;height:426px;border-color:rgba(111,124,246,.55);
+.ph.side{width:254px;height:352px;margin-bottom:20px;opacity:.95}
+.ph.main{width:290px;height:406px;border-color:rgba(111,124,246,.55);
   box-shadow:0 36px 70px -14px rgba(0,0,0,.8), 0 0 60px rgba(111,124,246,.28)}
 
 /* ---------- features ---------- */
 .feats{margin-top:22px;display:grid;grid-template-columns:1fr 1fr;gap:14px 16px}
-.f{display:flex;gap:13px;padding:12px 19px;border-radius:20px;
+.f{display:flex;gap:13px;padding:11px 19px;border-radius:20px;
   background:var(--card);border:1px solid var(--line)}
 .f .ic{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;
   background:rgba(111,124,246,.16);color:#9aa6ff;border:1px solid rgba(111,124,246,.26)}
@@ -104,29 +104,52 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 60%,#34
 .f p{margin-top:6px;font-size:18px;line-height:1.35;color:var(--mut);font-weight:300}
 
 /* ---------- trust ---------- */
-.trust{margin-top:14px;display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
-.t{padding:11px 20px;border-radius:999px;font-size:19px;font-weight:600;
+.trust{margin:21px 0 20px;display:flex;justify-content:center;flex-wrap:wrap;gap:14px}
+.t{padding:13px 24px;border-radius:999px;font-size:19px;font-weight:600;
   border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);color:#cddaf0}
 .t.on{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);color:#8df0c6}
 
 /* ---------- cta ---------- */
-.cta{margin-top:auto;margin-bottom:74px;display:flex;align-items:center;gap:26px;
-  padding:26px 30px;border-radius:26px;
+/* The close. A lit edge rather than a flat panel: the gradient border is a
+   masked ring so it glows without washing the content inside it. */
+.cta{margin-top:auto;margin-bottom:0;position:relative;display:flex;align-items:center;gap:28px;
+  padding:24px 32px;border-radius:28px;
+  /* original tint kept deliberately. A two-layer padding-box/border-box ring
+     was tried here and reverted: the padding-box layer has alpha, so the bright
+     border layer showed through the whole panel instead of just the edge. */
   background:linear-gradient(100deg,rgba(111,124,246,.20),rgba(34,211,238,.13));
-  border:1px solid rgba(126,150,255,.32)}
-.qr{width:190px;height:190px;flex:none;border-radius:18px;padding:12px;background:#fff}
+  border:1px solid rgba(126,150,255,.32);
+  box-shadow:0 24px 70px rgba(10,16,40,.45)}
+
+/* QR: framed and captioned. A bare white square reads as a glitch on a dark
+   poster; the frame makes it deliberate and the label tells you to use it. */
+.qrwrap{flex:none;display:flex;flex-direction:column;align-items:center;gap:11px}
+.qr{width:168px;height:168px;border-radius:20px;padding:13px;background:#fff;
+  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 14px 34px rgba(0,0,0,.42), 0 0 34px rgba(56,220,240,.22)}
 .qr img{width:100%;height:100%;display:block}
-.cta .big{font-size:40px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
+.qrcap{font-size:15px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;
+  color:#9fe9f5;text-shadow:0 0 16px rgba(56,220,240,.45)}
+
+.ctatext{flex:1;min-width:0}
+.cta .big{font-size:41px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
 .cta .big span{background:linear-gradient(93deg,#a9b1ff,#38dcf0);
   -webkit-background-clip:text;background-clip:text;color:transparent}
-.cta .sm{margin-top:9px;font-size:21px;color:#c3d2ea;font-weight:300;line-height:1.35}
+.cta .sm{margin-top:9px;font-size:20.5px;color:#c3d2ea;font-weight:300;line-height:1.36;max-width:560px}
 .cta .sm b{color:#eef2fb;font-weight:600}
-.play{margin-left:auto;flex:none;text-align:center}
-.play .box{width:190px;padding:15px 10px 13px;border-radius:16px;
-  border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06)}
-.play .g{font-size:15px;color:var(--mut);letter-spacing:1.4px;font-weight:600;text-transform:uppercase}
-.play .p{font-size:25px;font-weight:700;margin-top:3px;letter-spacing:-.3px}
-.foot{position:absolute;left:60px;right:60px;bottom:22px;display:flex;
+
+/* hairline that separates the offer from the second route to it */
+.ctarule{flex:none;width:1px;align-self:stretch;margin:6px 0;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.20),transparent)}
+
+.play{flex:none}
+.play .box{width:212px;padding:16px 18px;border-radius:18px;display:flex;align-items:center;gap:13px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.045));
+  box-shadow:0 10px 26px rgba(0,0,0,.30)}
+.play .tri{width:30px;height:30px;flex:none;display:block}
+.play .g{font-size:14px;color:#a9bdd8;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;line-height:1}
+.play .p{font-size:25px;font-weight:700;margin-top:4px;letter-spacing:-.3px;line-height:1}
+.foot{margin-top:12px;margin-bottom:14px;display:flex;
   font-size:17px;color:#6c7f9d;font-weight:400}
 .foot .r{margin-left:auto}
 </style></head>
@@ -203,12 +226,22 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 60%,#34
   </div>
 
   <div class="cta">
-    <div class="qr"><img src="__QR__"></div>
-    <div>
-      <div class="big">Start today — <span>app.lomonec.com</span></div>
-      <div class="sm">Scan the code or tap the link. <b>Nothing to install</b> — it opens straight in your browser.</div>
+    <div class="qrwrap">
+      <div class="qr"><img src="__QR__"></div>
+      <div class="qrcap">Scan to start</div>
     </div>
-    <div class="play"><div class="box"><div class="g">Get it on</div><div class="p">Google Play</div></div></div>
+    <div class="ctatext">
+      <div class="big">Start today — <span>app.lomonec.com</span></div>
+      <div class="sm">Scan the code or tap the link. <b>Nothing to install</b> — it opens straight in your browser, then works offline.</div>
+    </div>
+    <div class="ctarule"></div>
+    <div class="play"><div class="box">
+      <!-- a plain monochrome play mark, deliberately NOT Google's four-colour
+           logo: reproducing their trademark from scratch is a brand-guidelines
+           breach. Swap in the official badge artwork before any paid placement. -->
+      <svg class="tri" viewBox="0 0 24 24" fill="none"><path d="M5 3.2v17.6a1 1 0 0 0 1.5.87l14.2-8.8a1 1 0 0 0 0-1.74L6.5 2.33A1 1 0 0 0 5 3.2Z" stroke="#cfe0f5" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <div><div class="g">Get it on</div><div class="p">Google Play</div></div>
+    </div></div>
   </div>
 
   <div class="foot"><div>Built by Lomonec LLC</div><div class="r">contact@lomonec.com</div></div>
