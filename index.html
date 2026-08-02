@@ -2283,9 +2283,25 @@ const RULES=[
 /* ================= STATE & STORAGE ================= */
 const LS_KEY="be12_v1";
 let S=load();
-function load(){
-  try{const d=JSON.parse(localStorage.getItem(LS_KEY));if(d&&d.days){d.tutor=d.tutor||{};d.clips=d.clips||[];d.trouble=d.trouble||{};d.fbHist=d.fbHist||[];d.fbV=d.fbV||{};d.vocab=d.vocab||{};d.profile=d.profile||null;return d}}catch(e){}
+function defState(){
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
+}
+function load(){
+  const def=defState();
+  try{
+    const d=JSON.parse(localStorage.getItem(LS_KEY));
+    if(d&&d.days){
+      /* Backfill every field this build expects. A state written by an older
+         version — or merged in from another device's cloud copy — can be missing
+         one added since, and the readers do not guard: masteredCount() does
+         Object.keys(S.phMaster) and streak() reads S.dates.length, so an absent
+         field throws before the view renders. Driving this off defState() rather
+         than a hand-written list means the two can never drift apart again. */
+      for(const k in def) if(d[k]==null) d[k]=def[k];
+      return d;
+    }
+  }catch(e){}
+  return def;
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{navBadges()}catch(e){}try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
