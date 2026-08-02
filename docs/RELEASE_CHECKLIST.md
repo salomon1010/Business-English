@@ -111,25 +111,34 @@ Local, 390×844, seeded with 200 days of history and 40 vocabulary words.
 | Document DOM at rest | 248 nodes |
 | localStorage after 200 days | 12 KB |
 
-Runtime is healthy. The cost is all in **what loads before anything renders**:
+Runtime is healthy. The cost is all in **what loads before anything renders**.
 
-| Origin | Uncompressed |
-|---|---|
-| App (`index.html` + assets) | 699 KB |
-| **Firebase compat SDKs** | **501 KB** |
-| Google Fonts | 41 KB |
-| Cloudflare beacon | 31 KB |
+Measured against the **live** site, over the wire, compressed — the local server
+does not gzip, so the first figures taken there overstated every number:
+
+| Origin | Transfer (gzip) | Uncompressed |
+|---|---|---|
+| App (`index.html`) | **208 KB** | 665 KB |
+| Firebase `firestore-compat` | **98 KB** | ~330 KB |
+| Firebase `auth-compat` | **38 KB** | ~130 KB |
+| Firebase `app-compat` | **9 KB** | ~40 KB |
+| Google Fonts + beacon | ~20 KB | 72 KB |
+
+GitHub Pages serves gzip: 681 KB of HTML becomes **208 KB** on the wire.
 
 ### Open recommendation — needs a decision
 
-**Firebase loads 501 KB on every boot** — `app`, `auth` and `firestore` compat
-builds, via three blocking `<script src>` tags in `<head>` — for a feature that
-is optional and that most users never touch. It is ~39% of total payload and
-the main reason `load` is 938 ms against a 160 ms DOMContentLoaded.
+**Firebase costs ~145 KB gzipped on every boot** — `app`, `auth` and
+`firestore` compat builds, via three blocking `<script src>` tags in `<head>` —
+for a feature that is optional and that most users never touch. That is ~41% of
+total transfer, and the main reason `load` sits at 938 ms against a 160 ms
+DOMContentLoaded.
 
-Deferring it until sign-in is the single largest performance win available, but
-it changes when auth state is restored on boot, so it is an architectural change
-and is **not** being made unilaterally during stabilisation.
+`firestore-compat` alone is 98 KB and is only needed **after** a user signs in
+and syncs; `auth-compat` is only needed when the auth UI opens. Deferring both
+until sign-in is the largest win available, but it changes when auth state is
+restored on boot, so it is an architectural change and is **not** being made
+unilaterally during stabilisation.
 
 ## Deploy-side (outside the screen work)
 
