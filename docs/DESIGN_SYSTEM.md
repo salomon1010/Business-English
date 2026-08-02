@@ -36,10 +36,60 @@ CSS** except where a value must be legible against a fixed accent.
 ### Role aliases
 
 ```
---accent      = --acc     the one accent; primary actions only
---focus       = --acc2    focus rings only
---on-accent   = #fff      text on --accent
+--accent      = --acc                              the one accent
+--accent-fill = color-mix(--acc 90%, #000)         a brand fill that carries text
+--focus       = --acc2                             focus rings only
+--on-accent   = #fff                               text on --accent / --accent-fill
 ```
+
+### Token contracts — binding
+
+These three are the ones that have caused real defects. Each rule below exists
+because breaking it shipped a measured failure.
+
+#### `--accent`
+
+**Use for:** the one primary action per viewport; accent *text* on a plain
+surface (`--card`, `--bg`); borders and 1.5px outlines; small tinted washes
+via `color-mix`.
+
+**Never use for:** a background that has text on it — use `--accent-fill`.
+Raw `--acc` behind white measures **4.47:1** in dark, just under AA. And never
+as accent text on an already-accent-tinted surface without measuring: as *text*
+on `--card` in dark it is only **4.31:1**, which is why `.btn-outline` lifts its
+label toward white.
+
+#### `--accent-fill`
+
+**Use for:** any filled brand surface with a label or glyph on it — primary
+buttons, the profile avatar, active tabs and pills, day dots, the desktop nav
+tab, chat bubbles.
+
+**Never use for:** text, borders, or a fill with nothing on it (a progress bar,
+a decorative rule) — those may keep `--grad`.
+
+**Why it exists:** `--grad` runs indigo → cyan, and `#22d3ee` is a *light*
+colour. White on the gradient's cyan end is **~1.8:1**. Every gradient fill
+carrying text failed AA, on every screen, in both themes. `--accent-fill` is a
+single deepened accent that clears AA at **5.32:1 dark / 7.31:1 light**, and it
+replaced six hand-copied `color-mix()` declarations.
+
+**`--grad` is now decoration only.** If you are about to put text on it, you
+want `--accent-fill`.
+
+#### `--mut2`
+
+**Use for:** hairlines, dividers, disabled states, decorative glyphs — anything
+that is not read.
+
+**Never use for:** text of any size. It measures **2.3–3.1:1** on `--card` and
+`--bg2` in *both* themes. It fails AA everywhere it has ever been used for copy.
+Use `--mut` for secondary text; `--mut` is maintained at ≥4.5:1 on every
+surface the app paints, including tinted cards.
+
+This was the most repeated defect in the project — found and fixed on Session,
+Shadow, Speaking Feedback, Vocabulary, Calendar, Practice, Profile, Settings,
+Review and Journey before the sweep cleared the last of it.
 
 ### What each colour means — one meaning each
 
@@ -59,23 +109,36 @@ The Dashboard pass removed a case where green meant active-tab *and* achievement
 
 WCAG AA is the floor: **4.5:1** body, **3:1** for ≥18.66px bold or ≥24px.
 
-**`--mut2` is not a text colour.** It measures roughly **2.3–3.1:1** on
-`--card`/`--bg2` in both themes — it fails AA everywhere it has been used for
-copy. It has now been replaced on five screens (Session, Shadow, Speaking
-Feedback, Vocabulary, Calendar). Use `--mut` for secondary text; keep `--mut2`
-for hairlines, disabled states and other non-text purposes. 68 uses remain in
-unpassed screens.
+See the token contracts above for `--accent`, `--accent-fill` and `--mut2`.
+
+**Semantic colours are tuned for their own tinted backgrounds.** A gold chip on
+a gold wash, a red button on a red wash: the tint lightens the backdrop and
+costs 0.1–0.4 of ratio. The light-theme values of `--acc2`, `--gold`,
+`--green`, `--red` and `--pink` were deepened for exactly this, and dark
+`--mut` was lifted because it measured 4.36:1 on the green booster card. Do not
+lighten them back without re-running the sweep.
+
+**A colour that flips meaning between themes needs a per-theme label.**
+`--green` is a light mint in dark and a deep green in light, so `.pcal-wd.on`
+carries a near-black label in dark and white in light. Setting one value broke
+the other.
 
 Two traps already found and fixed — do not reintroduce:
 
-- White on raw `--acc` in dark measures **4.47:1**, just under AA. Primary
-  buttons use `color-mix(in srgb, var(--accent) 90%, #000)`.
+- White on raw `--acc` in dark measures **4.47:1**, just under AA. Use
+  `--accent-fill`.
 - A `<button>` inherits the UA's **black** text unless told otherwise. Any
   card-shaped button must set `color:var(--txt)`. `.home-due` shipped at
   1.09:1 in dark for this reason.
 
-Verify with `docs/../scripts`-adjacent probe described in
-`INTERACTION_SPECIFICATION.md` §Verification. Never eyeball contrast.
+**Verify by walking the DOM, not by sampling.** The per-screen probes used
+during the redesign checked chosen elements and missed 29 real failures,
+including six on frozen screens. The RC1 sweep visits *every* rendered text
+node, composites the actual painted backdrop (translucent layers and gradient
+stops, stopping at the first opaque one) and reports what fails. Two known
+blind spots: gradient-clipped text reports a transparent fill, and an inset
+`box-shadow` scrim is invisible to a computed-style walk — check those from
+rendered pixels. Never eyeball contrast.
 
 ## 2. Elevation
 
