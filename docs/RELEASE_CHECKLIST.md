@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: RC1 stabilisation task 3 — RTL.
+> Last updated: RC1 stabilisation task 5 — dead code.
 
 ## Screens
 
@@ -75,8 +75,8 @@ Review and Journey, which were never individually audited.
 |---|---|---|
 | `.lang-ic` relies on an inset scrim, not a checked palette | 1 rule | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
-| `.fb-again` duplicates `.btn-outline` | fold in later | low |
 | Radius sprawl (raw 12/10/9/8/7/22px) | app-wide | low |
+| ~120 i18n keys look orphaned, but many are built dynamically (`t("phase."+n)`) | 15 files | low — **do not bulk-delete**; needs per-key proof |
 
 ## Critical defects
 
@@ -122,8 +122,9 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 | 1 | Touch-target floors — every surface ≥44px | ✅ `8bcec70` |
 | 2 | Remaining shared contrast | ✅ `9b7fa11` |
 | 3 | RTL directional glyphs | ✅ `fb74279` |
-| 4 | Duplicated CSS/JS (`.fb-again`→`.btn-outline`) | ⬜ next |
-| 5 | Dead code and obsolete tokens (radius sprawl) | ⬜ |
+| 4 | Duplicated CSS/JS | ✅ `ed64583` |
+| 5 | Dead CSS | ✅ `2e7c671` |
+| 5b | Obsolete tokens / radius sprawl | ⬜ next |
 | 6 | Performance profiling | ⬜ |
 | 7 | Memory review | ⬜ |
 | 8 | Mobile behaviour, microphone permission flows | ⬜ device |
