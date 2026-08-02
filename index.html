@@ -218,7 +218,6 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .tab .nav-badge{top:2px;right:6px}
 .bnav-item .nav-badge{top:3px;left:50%;margin-left:4px;box-shadow:0 0 0 2px var(--bnav-bg)}
 @keyframes badge-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-@media(prefers-reduced-motion:reduce){.nav-badge{animation:none}}
 .tab-ic{display:inline-flex;line-height:0}
 .tab-ic svg{width:17px;height:17px}
 .tab:hover{color:var(--txt);background:var(--hover)}
@@ -237,7 +236,6 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .hdr-timer.running .ht-ic{animation:htPulse 1.6s ease-in-out infinite}
 @keyframes htGlow{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.28)}50%{box-shadow:0 0 16px 2px rgba(34,211,238,.4)}}
 @keyframes htPulse{0%,100%{opacity:1}50%{opacity:.4}}
-@media (prefers-reduced-motion:reduce){.hdr-timer.running,.hdr-timer.running .ht-ic{animation:none}}
 .theme-seg{display:flex;gap:8px}
 /* SETTINGS — every field label is a real <label for>, so a screen reader
    announces the control it belongs to. They used to be plain <p> text. */
@@ -431,7 +429,6 @@ h1.big em{font-style:italic;color:var(--accent)}
 .sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;max-width:1000px;width:100%;margin:0 auto}
 .sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* the overlay's entrance fade is ours to suppress, not the browser's */
-@media (prefers-reduced-motion:reduce){.sh-work{animation:none}}
 /* the picker must not scroll underneath the overlay */
 body.sh-work-open{overflow:hidden}
 
@@ -590,7 +587,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 /* "listening" is live state, so the pulse is motivated — but the red fill
    already carries the meaning without it. */
-@media (prefers-reduced-motion:reduce){.ex-mic-live{animation:none}}
 .day-row.done .ic{background:rgba(52,211,153,.14)}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
@@ -685,7 +681,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    so they are legitimately perpetual — but they were the only infinite
    animations in the app with no reduced-motion escape. The state stays legible
    without the motion: .recording keeps its red fill, .over keeps its gold ring. */
-@media (prefers-reduced-motion:reduce){.rec-btn.recording,.sh-count.over{animation:none}}
 .rec-none{font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.5}
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
 .rec-item audio{height:32px;flex:1;min-width:120px}
@@ -789,7 +784,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   transition:max-height .26s ease,opacity .2s ease .04s,margin-top .26s ease,padding-top .26s ease}
 .sh-seg.has-clip .sh-seg-row2{max-height:140px;opacity:1;margin-top:9px;padding-top:9px;border-top-color:var(--line2)}
 .sh-seg-row2 .sh-len{flex:1 1 auto;min-width:0;white-space:normal;line-height:1.45} /* long validation text wraps */
-@media(prefers-reduced-motion:reduce){.sh-seg-row2{transition:none}}
 .sh-len{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
 .sh-len.ok{color:var(--green)}.sh-len.warn{color:var(--gold)}
 .sh-count{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;background:#000;border:1px solid var(--line2);color:var(--txt);border-radius:7px;padding:3px 7px;text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
@@ -991,7 +985,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .home-more[open]>summary .hm-chev{transform:rotate(90deg)}
 .home-more[open]>summary{border-bottom:1px solid var(--line)}
 .home-more-body{padding:4px 16px 18px}
-@media (prefers-reduced-motion:reduce){.home-more>summary .hm-chev{transition:none}}
 
 /* Dashboard is the "what you have earned" half, so its cards carry green the
    same way the rules carry the warning colour. The progress ring and the phase
@@ -1072,7 +1065,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .cf-card p{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
 .cf-actions{display:flex;gap:10px}
 .cf-actions .btn{flex:1;justify-content:center;min-height:44px}
-@media(prefers-reduced-motion:reduce){.cf-ov,.cf-card{transition:none}}
 /* WELCOME MODAL — first run. Persistent: only a user action closes it. */
 .wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
@@ -1093,7 +1085,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .wc-score b{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--acc2)}
 .wc-body{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
 .wc-go{width:100%;justify-content:center}
-@media(prefers-reduced-motion:reduce){.wc-ov,.wc-card{transition:none}}
 /* EMPTY STATES — one shared component (icon + what's missing + the action that fills it) */
 .empty-st{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;
   padding:30px 22px;border:1px dashed var(--line2);border-radius:var(--r);background:var(--bg2)}
@@ -1128,19 +1119,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    below "Mark session complete" and on Shadow just under "Start feedback", so
    an accent-filled retry would put two primaries in one viewport. Outlined
    accent still reads as the next step. */
-.fb-again{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  min-height:48px;margin:14px 0 4px;padding:12px 18px;border-radius:var(--r-md);
-  background:transparent;border:1.5px solid var(--accent);
-  /* raw --accent as text is 4.31:1 on --card in dark; lifted toward white it
-     clears AA. Light theme's --acc is already 5.87:1 and stays as-is. */
-  color:color-mix(in srgb,var(--accent) 58%,#fff);
-  font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
-  transition:background .12s,transform .12s cubic-bezier(.2,.8,.3,1)}
-:root[data-theme="light"] .fb-again{color:var(--accent)}
-.fb-again:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
-.fb-again:active{transform:scale(.985)}
-.fb-again:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
-@media (prefers-reduced-motion:reduce){.fb-again{transition:none}.fb-again:active{transform:none}}
 .fb-more,.fb-sec{margin:12px 0 0}
 .fb-sec-sub{font-size:12px;color:var(--mut);line-height:1.5;margin-bottom:10px}
 .fb-sec-act{margin-top:8px}
@@ -1391,7 +1369,6 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
           max(24px,calc(env(safe-area-inset-bottom) + 16px)) max(20px,env(safe-area-inset-left));
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent),radial-gradient(ellipse 60% 45% at 90% 110%,var(--wash2),transparent)}
 .ob-card{max-width:520px;width:100%;margin:auto;text-align:center;animation:fade .4s}
-@media (prefers-reduced-motion:reduce){.ob-card{animation:none}}
 .ob-logo{width:76px;height:76px;border-radius:22px;background:var(--grad);display:grid;place-items:center;font-size:38px;margin:0 auto 20px;box-shadow:0 16px 50px rgba(99,102,241,.45);color:#fff}
 .ob-logo svg{width:40px;height:40px}
 .ob-card h2{font-size:clamp(24px,5vw,34px);font-weight:800;letter-spacing:-.5px;line-height:1.15;margin-bottom:10px}
@@ -1439,6 +1416,9 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .btn-outline:active{transform:scale(.985)}
 .btn-outline:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 @media (prefers-reduced-motion:reduce){.btn-outline{transition:none}.btn-outline:active{transform:none}}
+/* .btn-outline at full width — the only difference is size, so it is a
+   modifier rather than a second copy of the recipe. */
+.fb-again{width:100%;min-height:48px;margin:14px 0 4px;padding:12px 18px;font-size:15px}
 .auth-go{width:auto;min-width:140px}
 .auth-alt a{color:var(--acc2);font-weight:700;cursor:pointer}
 .auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
@@ -1576,7 +1556,6 @@ html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-
 .manual-title{font-size:19px;font-weight:800;line-height:1.3;margin-bottom:8px}
 html[dir="rtl"] .help-sec>summary::after{transform:scaleX(-1)}
 html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90deg)}
-@media (prefers-reduced-motion:reduce){.help-sec>summary::after{transition:none}}
 /* the search prev/next arrows were 26px */
 .help-arrow{min-width:44px;min-height:44px}
 #v-manual .manual-doc a{min-height:44px;display:inline-flex;align-items:center;color:var(--acc2)}
@@ -1917,6 +1896,11 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 @media(max-width:340px){.bnav-item span:not(.ic){font-size:9px}}
 
 /* 5 — Motion. One hover timing, and honour reduced-motion everywhere. */
+/* Single source of truth for reduced motion. Because this is universal and
+   !important, a per-component "animation:none" or "transition:none" block adds
+   nothing — eleven of them were removed. Only rules that do MORE than stop
+   motion are kept next to their component: .btn-primary/.btn-outline suppress
+   the :active transform, and onboarding hides the confetti outright. */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
     transition-duration:.01ms!important;scroll-behavior:auto!important}
@@ -6416,7 +6400,7 @@ function fbShowResults(targetText,heardText,fromRec){
   const out=document.getElementById("fbOut");
   /* the emptiest state is the one where another attempt matters most */
   if(!h.length){out.innerHTML=`<p class="fb-nothing">${t("fb.nothing_heard")}</p>`
-    +(document.getElementById("recBtn")?`<button class="fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
+    +(document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
   if(fromRec)getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings in the background
   const hasTarget=tgt.length>0;
   const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
@@ -6471,7 +6455,7 @@ function fbShowResults(targetText,heardText,fromRec){
     :`<span style="font-size:13px;color:var(--mut)">${t("fb.attempt_baseline")}</span>`}
   </div>`:""}
   ${hasTarget&&fromRec?`<div id="fbPron"></div>`:""}
-  ${document.getElementById("recBtn")?`<button class="fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:""}
+  ${document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:""}
   ${!hasTarget?"":problems.length?`<h3 class="fb-h">${t("fb.practice_pron")}</h3>`
     +fbRanked(problems).slice(0,FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")
     +(fbRanked(problems).length>FB_TOP_FIXES?`<details class="home-more fb-more">

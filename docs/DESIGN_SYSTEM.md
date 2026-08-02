@@ -208,8 +208,15 @@ rules and keyframes. *(target)* `obMicPulse`, `obRings`, `rpGlow`, `rpBar` and
 A live-state indicator (recording, listening) is the one motivated exception,
 and it still needs its guard: the state must stay legible without the motion.
 
-Every animated rule must have a `@media (prefers-reduced-motion:reduce)`
-counterpart. The Dashboard measures **0** animating elements under reduce.
+**Reduced motion is handled once, globally.** The sheet ends with a universal
+`@media (prefers-reduced-motion:reduce)` rule that forces every animation and
+transition to `.01ms !important`. A per-component `animation:none` block adds
+nothing and is duplication — eleven were removed in RC1. Write a component-level
+rule **only** when it does more than stop motion: suppressing an `:active`
+transform, or hiding a decorative element outright.
+
+Verified: with every live-state class forced on across all ten surfaces,
+**0** elements have a non-trivial animation or transition under reduce.
 
 ### Direction in RTL
 

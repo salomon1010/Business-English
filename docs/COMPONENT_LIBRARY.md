@@ -27,10 +27,10 @@ accent *fill* would collide with a nearby primary. In dark the label is lifted
 toward white (raw `--accent` as text is 4.31:1 on `--card`).
 **Used by:** the sign-in buttons on Settings and the Dashboard nudge.
 
-### `.fb-again` — *(duplicate)*
-Outlined accent, full width, 48px. For a next step that must read as actionable
-where an accent *fill* would collide with a nearby primary. In dark the label is
-lifted toward white (raw `--accent` as text is 4.31:1 on `--card`).
+### `.fb-again` — full-width modifier of `.btn-outline`
+Adds width, 48px height and a 15px label to `.btn-outline`. Use as
+`class="btn-outline fb-again"`. It must be declared **after** `.btn-outline`
+or the base min-height wins on source order.
 
 ### `.set-lbl` — form field label
 A real `<label for>`. Every input and select must have one, or an `aria-label`
