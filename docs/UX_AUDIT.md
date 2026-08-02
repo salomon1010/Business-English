@@ -177,7 +177,7 @@ elements under reduced motion with `.recording` and `.sh-count.over` forced on.
 - The workspace's Listen → Shadow → Record → Compare order was already correct
   in the DOM; what was missing was dialog behaviour and hierarchy, not sequence.
 
-Commit: pending.
+Commit: `0863af7`.
 
 ---
 
