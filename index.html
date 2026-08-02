@@ -416,7 +416,8 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .glow-cta .glow-cta-txt{position:relative;z-index:2}
 .glow-cta::before{content:"";position:absolute;z-index:0;left:50%;top:50%;width:300%;height:760%;background:conic-gradient(from 0deg,transparent 0 56%,#22d3ee 70%,#eaffff 80%,#6366f1 90%,transparent 100%);animation:glow-cta-spin 4s linear infinite}
 .glow-cta::after{content:"";position:absolute;z-index:1;inset:2px;border-radius:10px;background:var(--card2)}
-.sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+.sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px}
+.sess-ex summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-md)}
 .sess-ex summary::-webkit-details-marker{display:none}
 .sess-ex .sess-ex-title{font-weight:700;font-size:15px}
 .sess-ex summary::after{content:"▾";margin-left:auto;color:var(--acc);font-size:22px;line-height:1;transition:transform .2s}
@@ -522,23 +523,85 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .day-row .t{flex:1;min-width:0}
 .day-row .t b{display:block;font-size:15px}
 .day-row .t span{font-size:13px;color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.back{background:none;border:none;color:var(--acc2);font-size:14px;font-weight:600;margin-bottom:16px;display:inline-flex;gap:6px;align-items:center}
+/* Was an 18px-tall text link — the smallest target in the app. Same look, a
+   real 44px hit area, pulled left so the label still aligns with the content. */
+.back{background:none;border:none;color:var(--acc2);font-size:14px;font-weight:600;
+  margin:0 0 6px -10px;padding:0 10px;min-height:44px;cursor:pointer;
+  display:inline-flex;gap:6px;align-items:center;border-radius:var(--r-md)}
+.back:hover{background:var(--hover)}
+.back:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 .sess-return{display:flex;width:fit-content;margin:0 0 18px;padding:7px 13px;border:1px solid var(--line2);border-radius:11px;background:var(--card);cursor:pointer}
 
 /* SESSION */
 .sess-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:14px}
-.step{display:flex;gap:12px;padding:12px 14px;border-radius:12px;border:1px solid var(--line);margin-bottom:8px;align-items:flex-start;cursor:pointer;transition:.15s;background:var(--card)}
-.step:hover{border-color:var(--line2)}
-.step.done{border-color:rgba(52,211,153,.35);background:rgba(52,211,153,.05)}
-.step .cb{width:22px;height:22px;border-radius:7px;border:2px solid var(--mut2);flex:none;display:grid;place-items:center;font-size:12px;color:#fff;margin-top:1px}
-.step.done .cb{background:var(--green);border-color:var(--green)}
+/* Template steps are rows inside one card, not cards inside a card — a bordered
+   box nested in a bordered box is banned by the design system, and six of them
+   read as six separate objects rather than one plan. */
+.step{display:flex;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);
+  align-items:flex-start;cursor:pointer;transition:background .15s;min-height:44px}
+.step:last-child{border-bottom:none}
+.step:hover{background:var(--hover)}
+.step:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:var(--r-md)}
+.step.done .tm,.step.done p{opacity:.6;text-decoration:line-through}
+.step .cb{width:24px;height:24px;border-radius:8px;border:2px solid var(--mut2);flex:none;display:grid;place-items:center;font-size:13px;color:#fff;margin-top:1px;transition:.15s}
+.step.done .cb{background:var(--green);border-color:var(--green);opacity:1}
 .step .tm{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--acc2);font-weight:600}
 .step p{font-size:14px;line-height:1.5;margin-top:2px}
-.timer-box{text-align:center;padding:15px 18px}
-.timer-digits{font-family:'JetBrains Mono',monospace;font-size:52px;font-weight:600;letter-spacing:2px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-.score-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.score-b{width:36px;height:36px;border-radius:10px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font-weight:700;font-size:14px}
-.score-b.on{background:var(--grad);color:#fff;border:none}
+
+/* The clock is the hero surface of the session: it is what the whole screen is
+   for. Digits were gradient-clipped text, which measured 1.81:1 against the
+   light theme — the largest type on the screen failing contrast. Solid --txt,
+   and --accent while the block is actually running, which also makes "running"
+   a visible state rather than just a changed button label. */
+.timer-box{text-align:center;padding:18px;box-shadow:var(--sh-2)}
+.timer-digits{font-family:'JetBrains Mono',monospace;font-size:clamp(46px,13vw,56px);
+  font-weight:600;letter-spacing:2px;color:var(--txt);line-height:1.1;
+  font-variant-numeric:tabular-nums;transition:color .2s}
+.timer-box.running .timer-digits{color:var(--accent)}
+.timer-acts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+
+.score-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+/* 36px was under the 44px minimum, ten times over. */
+.score-b{width:44px;height:44px;border-radius:var(--r-md);border:1px solid var(--line2);
+  background:var(--bg2);color:var(--mut);font-family:inherit;font-weight:700;font-size:15px;
+  cursor:pointer;transition:.14s}
+.score-b:hover{border-color:var(--accent);color:var(--txt)}
+.score-b:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Solid accent, not --grad: white on the gradient's cyan end is ~1.9:1. */
+.score-b.on{background:color-mix(in srgb,var(--accent) 90%,#000);color:var(--on-accent);border-color:transparent}
+
+/* One column, one rhythm. The session used to be a 2-column grid whose right
+   column held a tab row; with the tabs gone there is a single ordered flow. */
+.sess-body{display:flex;flex-direction:column;gap:16px}
+.sess-body>.card,.sess-body>.rec-panel{margin:0}
+/* The day's tool (Shadow Studio, Phrase Lab…) — prominent, but secondary to
+   starting the block. Was a .glow-cta, which carried an infinite animation and
+   competed with the clock for primacy. */
+.sess-jump{width:100%;justify-content:flex-start;min-height:48px;border-radius:var(--r-md)}
+.sess-jump-go{margin-left:auto;color:var(--acc2);font-size:18px}
+.sess-jump-why{font-size:12.5px;color:var(--mut);line-height:1.5;margin:8px 0 18px}
+/* Supporting text and the rare Reset sit outside the hero card, so the card
+   itself carries only the clock and the one action that starts it. */
+.sess-timer-foot{display:flex;align-items:center;gap:12px;margin:-6px 2px 0}
+.sess-timer-hint{flex:1;min-width:0;font-size:12px;color:var(--mut);line-height:1.5}
+/* Reset is a rare, mildly destructive action, so it is a quiet text control
+   rather than a second stacked button competing with Start. */
+.sess-reset{background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
+  color:var(--mut);cursor:pointer;min-height:44px;padding:0 12px;border-radius:var(--r-md);transition:.14s}
+.sess-reset:hover{color:var(--txt);background:var(--hover)}
+.sess-reset:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.sess-act,.sess-done{min-height:44px;justify-content:center}
+.sess-act{margin-top:10px}
+.sess-done{width:100%}
+.sess-plan{margin:0}
+.sess-plan-sub{font-size:12.5px;color:var(--mut);margin-bottom:4px}
+.sess-aloud b{font-size:14px}
+.sess-aloud ul{list-style:none;margin-top:8px}
+.sess-aloud li{font-size:13.5px;color:var(--mut);padding:3px 0;line-height:1.5}
+/* --mut2 on --bg2 measured 3.14:1 dark / 2.58:1 light. */
+.sess-heard{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-md);
+  padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic}
+.sess-heard-empty{color:var(--mut);font-style:normal;font-size:12.5px}
 
 /* RECORDER */
 .rec-panel{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px}
@@ -4097,23 +4160,18 @@ function rWeek(el,w){
 
 /* ================= SESSION ================= */
 let timer={left:25*60,run:false,h:null};
-/* Session tabs: the plan (25-minute template) and the doing (example, recorder,
-   transcript, notes, score). Switching must NOT re-render — rSession resets the
-   timer on every call, so a re-render mid-session would wipe a running clock and
-   any in-progress recording. Toggle visibility in place instead. */
-let _sessTab="plan";
-window.sessTab=k=>{
-  _sessTab=k;
-  const plan=document.getElementById("sessPlan"),doIt=document.getElementById("sessDo");
-  if(plan)plan.style.display=k==="plan"?"":"none";
-  if(doIt)doIt.style.display=k==="do"?"":"none";
-  document.querySelectorAll(".seg-tab[data-st]").forEach(b=>{   /* the session has no view container of its own */
-    const on=b.dataset.st===k;
-    b.classList.toggle("on",on);b.setAttribute("aria-selected",on);
-  });
-};
+/* The session used to be two tabs — the plan and the doing — defaulting to the
+   plan. The tab row landed at y=883 on a handset, below the fold, so the whole
+   practice half (recorder, transcript, notes, score, mark-done) was hidden
+   behind a control the user had to scroll past the fold to discover. It is now
+   one linear flow: prepare, run the clock, produce evidence, close out. The
+   plan survives as a closed disclosure under the timer, which is what
+   "the checklist goes last so practice comes first" was always meant to mean.
+
+   Nothing here may re-render mid-session — rSession resets the timer on every
+   call, so a re-render would wipe a running clock and any in-progress
+   recording. Step ticks and disclosures all mutate in place. */
 function rSession(el,w,d){
-  _sessTab="plan";                    // every session opens on its plan
   const wk=WEEKS[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=TEMPLATES[d];
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
@@ -4128,44 +4186,41 @@ function rSession(el,w,d){
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:${SESS_LINK[d]?"10px":"20px"}">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  ${SESS_LINK[d]?`<button class="btn glow-cta" onclick="sessGo('${SESS_LINK[d].v}',${w},'${d}')"><span class="glow-cta-txt"><span class="btn-ic">${ic(SESS_LINK[d].ic)}</span>${esc(t(SESS_LINK[d].lk))} →</span></button>
-  <p style="font-size:12.5px;color:var(--mut);margin:8px 0 20px">${esc(t(SESS_LINK[d].wk))}</p>`:""}
-  <div class="grid g2" style="align-items:start">
-    <div>
-      <div class="card timer-box" style="margin-bottom:16px">
+  ${SESS_LINK[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${SESS_LINK[d].v}',${w},'${d}')"><span class="btn-ic">${ic(SESS_LINK[d].ic)}</span><span>${esc(t(SESS_LINK[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
+  <p class="sess-jump-why">${esc(t(SESS_LINK[d].wk))}</p>`:""}
+  <div class="sess-body">
+      <div class="card timer-box" id="tBox">
         <div class="eyebrow">${t("sess.timer_eyebrow")}</div>
-        <div class="timer-digits" id="tDig">25:00</div>
-        <div style="margin-top:12px;display:flex;gap:8px;justify-content:center">
-          <button class="btn btn-p btn-sm" id="tBtn" onclick="tToggle()">${t("sess.timer_start")}</button>
-          <button class="btn btn-g btn-sm" onclick="tReset()">${t("sess.timer_reset")}</button>
+        <div class="timer-digits" id="tDig" role="timer" aria-live="off">25:00</div>
+        <div class="timer-acts">
+          <button class="btn-primary" id="tBtn" onclick="tToggle()">${t("sess.timer_start")}</button>
         </div>
-        <p style="font-size:12px;color:var(--mut2);margin-top:10px">${t("sess.timer_hint")}</p>
       </div>
-      ${weekPhrases.length?`<div class="card" style="margin-top:0;padding:16px">
-        <b style="font-size:14px">${t("sess.say_aloud")}</b>
-        <ul style="list-style:none;margin-top:8px">${weekPhrases.map(p=>`<li style="font-size:13.5px;color:var(--mut);padding:3px 0">• “${esc(p.p)}”</li>`).join("")}</ul>
-      </div>`:""}
-    </div>
-    <div>
-      <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sess.tabs_label"))}">
-        <button class="seg-tab ${_sessTab==='plan'?'on':''}" data-st="plan" role="tab" aria-selected="${_sessTab==='plan'}" onclick="sessTab('plan')"><span class="seg-lbl">${d==="Sun"?t("sess.review_steps_h"):t("sess.template_h")}</span></button>
-        <button class="seg-tab ${_sessTab==='do'?'on':''}" data-st="do" role="tab" aria-selected="${_sessTab==='do'}" onclick="sessTab('do')"><span class="seg-lbl">${t("sess.tab_practise")}</span></button>
+      <div class="sess-timer-foot">
+        <p class="sess-timer-hint">${t("sess.timer_hint")}</p>
+        <button class="sess-reset" onclick="tReset()">${t("sess.timer_reset")}</button>
       </div>
-      <div id="sessPlan" ${_sessTab==='plan'?'':'style="display:none"'}>
-        <div class="card">
-          <p style="font-size:12.5px;color:var(--mut2);margin-bottom:10px">${t("sess.template_sub")}</p>
-          ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})">
+      <details class="home-more sess-plan">
+        <summary>${tIc(d==="Sun"?"sess.review_steps_h":"sess.template_h","list")}<span class="hm-chev">▶</span></summary>
+        <div class="home-more-body">
+          <p class="sess-plan-sub">${t("sess.template_sub")}</p>
+          ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})"
+              role="checkbox" tabindex="0" aria-checked="${stepsDone.includes(i)}"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
             <div class="cb">${stepsDone.includes(i)?'✓':''}</div>
             <div><span class="tm">${s[0]}</span><p>${s[1]}</p></div></div>`).join("")}
         </div>
-      </div>
-      <div id="sessDo" ${_sessTab==='do'?'':'style="display:none"'}>
-      <details class="card sess-ex" style="margin-bottom:16px" ${sessIsSpeaking(d)?"open":""}>
+      </details>
+      ${weekPhrases.length?`<div class="card sess-aloud">
+        <b>${t("sess.say_aloud")}</b>
+        <ul>${weekPhrases.map(p=>`<li>“${esc(p.p)}”</li>`).join("")}</ul>
+      </div>`:""}
+      <details class="card sess-ex" ${sessIsSpeaking(d)?"open":""}>
         <summary><span class="sess-ex-title">${t("sess.example_title")}</span></summary>
         <p style="font-size:12px;color:var(--mut);margin:8px 0">${t("sess.example_desc")}</p>
         <textarea rows="5" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||sessScaffold(dd,weekPhrases))}</textarea>
       </details>
-      <div class="rec-panel" style="margin-bottom:16px">
+      <div class="rec-panel">
         <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
         <div style="display:flex;align-items:center;gap:18px">
@@ -4175,7 +4230,7 @@ function rSession(el,w,d){
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
         <div class="hr"></div>
-        <button class="btn btn-g btn-sm" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
+        <button class="btn btn-g sess-act" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
           <button class="pc-x" onclick="pcDismiss()" title="${esc(t("pc.dismiss"))}" aria-label="${esc(t("pc.dismiss"))}">${ic("close")}</button>
           <div class="pc-row">
@@ -4188,26 +4243,25 @@ function rSession(el,w,d){
           <p style="font-size:11px;color:var(--mut2);margin-top:10px">${t("sess.posture_privacy")}</p>
         </div>
       </div>
-      <div class="card" style="margin-bottom:16px">
+      <div class="card">
         <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
         <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.transcript_desc")}</p>
-        <div id="sessHeard" style="background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span style="color:var(--mut2);font-style:normal;font-size:12.5px">${t("sess.transcript_empty")}</span>`}</div>
-        <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="sessAnalyze('${key}')">${t("sess.analyze_btn")}</button>
+        <div id="sessHeard" class="sess-heard">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span class="sess-heard-empty">${t("sess.transcript_empty")}</span>`}</div>
+        <button class="btn btn-g sess-act" onclick="sessAnalyze('${key}')">${t("sess.analyze_btn")}</button>
       </div>
-      <div class="card" style="margin-bottom:16px">
+      <div class="card">
         <b style="display:block;margin-bottom:10px">${t("sess.notes_title")}</b>
         <textarea rows="4" id="noteBox" placeholder="${esc(t("sess.notes_ph"))}">${esc(S.notes[key]||"")}</textarea>
-        <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="saveNote('${key}')">${t("sess.save_notes_btn")}</button>
+        <button class="btn btn-g sess-act" onclick="saveNote('${key}')">${t("sess.save_notes_btn")}</button>
       </div>
       <div class="card">
         <b>${t("sess.selfscore_title")}</b>
-        <div class="score-row">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="score-b ${S.scores[key]===n?'on':''}" onclick="setScore('${key}',${n})">${n}</button>`).join("")}</div>
+        <div class="score-row" role="radiogroup" aria-label="${esc(t("sess.selfscore_title"))}">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="score-b ${S.scores[key]===n?'on':''}" role="radio" aria-checked="${S.scores[key]===n}" onclick="setScore('${key}',${n})">${n}</button>`).join("")}</div>
         <div class="hr"></div>
-        <button class="btn ${S.days[key]?'btn-g':'btn-p'}" style="width:100%;justify-content:center" onclick="toggleDay('${key}',${w},'${d}')">
-          ${S.days[key]?t("sess.mark_done"):t("sess.mark_incomplete")}</button>
+        ${S.days[key]
+          ?`<button class="btn btn-g sess-done" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_done")}</button>`
+          :`<button class="btn-primary" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_incomplete")}</button>`}
       </div>
-      </div>
-    </div>
   </div>
   <div id="fbOut" style="margin-top:4px"></div>`;
   manIconizeInline(el);
@@ -4219,7 +4273,11 @@ window.toggleStep=(key,i)=>{
   const on=ix<0;                              // becoming done if it wasn't already
   ix>=0?a.splice(ix,1):a.push(i);S.steps[key]=a;save();
   const step=document.getElementById("stp"+i);   // toggle in place — never re-render (keeps the timer running)
-  if(step){step.classList.toggle("done",on);const cb=step.querySelector(".cb");if(cb)cb.textContent=on?"✓":"";}
+  if(step){
+    step.classList.toggle("done",on);
+    step.setAttribute("aria-checked",on);        // the row is role=checkbox; the class alone tells a screen reader nothing
+    const cb=step.querySelector(".cb");if(cb)cb.textContent=on?"✓":"";
+  }
 };
 window.saveNote=key=>{S.notes[key]=document.getElementById("noteBox").value;save();toast(t("sess.notes_saved_toast"))};
 window.setScore=(key,n)=>{S.scores[key]=n;save();go("session",cur.arg1,cur.arg2)};
@@ -4236,6 +4294,7 @@ function tRender(){
   const m=String(Math.floor(timer.left/60)).padStart(2,"0"),s=String(timer.left%60).padStart(2,"0"),txt=`${m}:${s}`;
   const d=document.getElementById("tDig");if(d)d.textContent=txt;
   const b=document.getElementById("tBtn");if(b)b.textContent=timer.run?t("sess.timer_pause"):t("sess.timer_start");
+  const box=document.getElementById("tBox");if(box)box.classList.toggle("running",timer.run);   // colours the digits while the block is live
   const hd=document.getElementById("hdrTimerDig");if(hd)hd.textContent=txt;
   const pill=document.getElementById("hdrTimer");
   if(pill){

@@ -151,9 +151,21 @@ established affordance for "this row navigates" (`.home-due-go`,
 
 ## 8. Surfaces and hierarchy
 
-Per screen: **exactly one `--sh-2` hero surface, exactly one `--accent`
-button.** Everything else is `--sh-1` or flat. If a screen appears to need two
-primary buttons, it is two screens or one of them is secondary.
+Per screen: **exactly one `--sh-2` hero surface.** Everything else is `--sh-1`
+or flat.
+
+**One `--accent` button per viewport, not per document.** The rule exists to
+stop two calls-to-action competing for the same glance; it is about what the
+user can see at once, not about a count over the whole scroll.
+
+A long working screen may legitimately carry a second accent button for a
+*later phase of the same task*, provided the two can never be on screen
+together. Session is the case that forced this wording: "Start the block" and
+"Mark session complete" are separated by **1,395–1,550px** across all seven day
+types, against an 844px viewport, so they are never co-visible — and demoting
+either would leave a phase of the session with no call to action. Verify the
+gap by measurement before relying on this; if two accent buttons can appear
+together, one of them is wrong.
 
 ## 9. Density
 

@@ -34,8 +34,8 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | # | Screen | Renderer | Status |
 |---|---|---|---|
 | 1 | **Dashboard** | `rHome` | ✅ `9450bed` |
-| 2 | Session | `go('session')` → `#v-journey` | next |
-| 3 | Shadowing Studio | `rShadow` / `shOpenWork` | pending |
+| 2 | **Session** | `rSession` → `#v-journey` | ✅ |
+| 3 | Shadowing Studio | `rShadow` / `shOpenWork` | next |
 | 4 | Speaking Feedback | in session / shadow | pending |
 | 5 | Executive Polish | in `rPhrases` | pending |
 | 6 | Vocabulary | `rPractice` | pending |
@@ -60,20 +60,30 @@ One new i18n key (`home.week_days`), translated ×15, parity 1112.
 
 ---
 
-## Screen 2 — Session (next)
+## Screen 2 — Session ✅
 
-Where the 25 minutes actually happen — the screen the Dashboard's primary
-action leads to, so it carries the activation cliff.
+Taps to the recorder 1→**0** · controls hidden behind a tab 19→**0** · visible
+targets <44px 5→**0** · infinite animations 1→**0** · contrast failures 3→**0**
+· inline styles 42→**18** · DOM 195→**192** · timer card 306→**196**px.
+Document height grew 1804→2286px, the intended cost of un-hiding the practice
+half. Full findings in `UX_AUDIT.md`.
 
-Carried forward from the Dashboard pass:
-- **`.glow-cta` ×1** — deprecated. Replace with `.btn-primary`.
-- Renders into `#v-journey`, not its own container. Assert this when measuring.
-- The 25-minute template checklist was deliberately moved to the bottom so
-  practice comes first. Do not move it back.
+Removed the plan/do tab entirely (`sessTab`, `_sessTab`, `#sessPlan`,
+`#sessDo`). Added `.sess-body`, `.sess-jump`, `.sess-plan`, `.sess-aloud`,
+`.sess-heard`, `.sess-reset`, `.sess-act`, `.sess-timer-foot`. No new i18n keys.
 
-Open questions for the audit: does the timer earn its screen space? Is the
-recorder the primary action once the session has started, or is the timer?
-What is the completion moment, and does it currently celebrate anything?
+`sess.tabs_label` and `sess.tab_practise` are retained but unused.
+
+---
+
+## Screen 3 — Shadowing Studio (next)
+
+Carried forward:
+- **`.glow-cta` ×1** — the last one outside Executive Polish.
+- The posture button is a byte-identical copy of the 38px `.btn-sm` block fixed
+  in Session (~line 4581); fix it here rather than reaching across screens.
+- Every dense screen renders third-party YouTube artwork — relevant to store
+  art, not to this pass.
 
 ---
 
@@ -85,7 +95,7 @@ before the passes that would otherwise re-patch them.
 | | Item | Recommendation |
 |---|---|---|
 | 1 | `.help-fab` overlaps interactive content at rest on multiple screens | **Delete it** — Profile → Help already exists, one tap from the bottom nav |
-| 2 | `.glow-cta` deprecated but live on Session ×1, Shadow ×1; `.ex-micbtn` shares the infinite conic animation | Remove with each screen's pass; delete the keyframes when the last use goes |
+| 2 | `.glow-cta` now live only on Shadow ×1; `.ex-micbtn` shares the infinite conic animation | Remove in the Shadow and Executive Polish passes; delete the keyframes when the last use goes |
 | 3 | Radius sprawl — raw 12/10/9/8/7/22px beside `--r-md`/`--r-lg` | Migrate opportunistically, per pass |
 | 4 | Header streak pill shows a gold flame **0** on day one | Hide below 1 — one line, but shared chrome, so needs its own commit |
 | 5 | Progress Calendar labels hardcoded English, no i18n keys | Fix in the Calendar pass (screen 8) |
