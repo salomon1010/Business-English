@@ -211,6 +211,20 @@ and it still needs its guard: the state must stay legible without the motion.
 Every animated rule must have a `@media (prefers-reduced-motion:reduce)`
 counterpart. The Dashboard measures **0** animating elements under reduce.
 
+### Direction in RTL
+
+Unicode does **not** bidi-mirror `→ ▸ › ⟶ ⇒`. In Arabic and Urdu they point
+away from the direction of travel unless mirrored.
+
+- **Glyphs drawn in markup** are mirrored by one shared rule in the
+  `html[dir="rtl"]` block. Add new affordances to that selector list; do not
+  write a per-component rule.
+- **Glyphs inside translated strings** are the translator's job, and the `ar`
+  and `ur` files already ship `←` where English ships `→`. Do not also
+  CSS-mirror those — it double-flips them.
+- **Media-playback glyphs (`▶`) never mirror.** Playback direction is not
+  reading direction.
+
 ## 7. Iconography
 
 Line icons only, 24×24, `stroke=currentColor`, via `ICON` / `ic(name)`.

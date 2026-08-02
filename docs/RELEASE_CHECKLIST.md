@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: RC1 stabilisation task 2 — shared contrast.
+> Last updated: RC1 stabilisation task 3 — RTL.
 
 ## Screens
 
@@ -73,7 +73,6 @@ Review and Journey, which were never individually audited.
 
 | Item | Scope | Severity |
 |---|---|---|
-| `→` arrows unmirrored in RTL | 5 arrows | low |
 | `.lang-ic` relies on an inset scrim, not a checked palette | 1 rule | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
 | `.fb-again` duplicates `.btn-outline` | fold in later | low |
@@ -122,8 +121,8 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 |---|---|---|
 | 1 | Touch-target floors — every surface ≥44px | ✅ `8bcec70` |
 | 2 | Remaining shared contrast | ✅ `9b7fa11` |
-| 3 | RTL: 5 unmirrored `→` arrows | ⬜ next |
-| 4 | Duplicated CSS/JS (`.fb-again`→`.btn-outline`) | ⬜ |
+| 3 | RTL directional glyphs | ✅ `fb74279` |
+| 4 | Duplicated CSS/JS (`.fb-again`→`.btn-outline`) | ⬜ next |
 | 5 | Dead code and obsolete tokens (radius sprawl) | ⬜ |
 | 6 | Performance profiling | ⬜ |
 | 7 | Memory review | ⬜ |

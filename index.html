@@ -544,6 +544,8 @@ body.sh-work-open{overflow:hidden}
 .dot.done{background:var(--accent-fill);border:none;color:var(--on-accent)}
 
 /* WEEK DETAIL / DAYS */
+.day-row-go{color:var(--mut);font-size:18px;flex:none}
+.sh-range-go{color:var(--mut);flex:none}
 .day-row{display:flex;align-items:center;gap:14px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:10px;cursor:pointer;transition:.2s}
 .day-row:hover{border-color:var(--acc);transform:translateX(3px)}
 .day-row .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:19px;flex:none;background:var(--bg2);color:var(--acc)}
@@ -1508,14 +1510,26 @@ html[dir="rtl"] .more-sheet button,html[dir="rtl"] .more-sheet a{text-align:righ
 html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}
 html[dir="rtl"] .auth-x{right:auto;left:16px}
 html[dir="rtl"] .lang-row{text-align:right}
-/* U+2192 is not bidi-mirrored, so a "go" arrow keeps pointing right in Arabic
-   and Urdu — away from the direction of travel. Session's is flipped here; the
-   other five (.home-due-go, .home-step-go, .rp-entry-go, .rp-hero-go,
-   .rp-ht-go) belong to screens not yet passed, and are logged in UX_AUDIT. */
-html[dir="rtl"] .sess-jump-go{transform:scaleX(-1)}
-html[dir="rtl"] .pf-chev{transform:scaleX(-1)}
+/* Directional glyphs drawn in markup. Unicode does not bidi-mirror U+2192 and
+   friends, so in Arabic and Urdu they point away from the direction of travel.
+   Arrows that live INSIDE translated strings are already correct — the ar/ur
+   files ship "←" where English ships "→" — so only the markup ones are listed.
+   Media-playback glyphs (▶) are deliberately absent: playback controls do not
+   mirror. */
+html[dir="rtl"] .home-due-go,
+html[dir="rtl"] .home-step-go,
+html[dir="rtl"] .rp-entry-go,
+html[dir="rtl"] .rp-hero-go,
+html[dir="rtl"] .rp-ht-go,
+html[dir="rtl"] .sess-jump-go,
+html[dir="rtl"] .pf-chev,
+html[dir="rtl"] .day-row-go,
+html[dir="rtl"] .sh-range-go,
+html[dir="rtl"] .pcal-nav,
+html[dir="rtl"] .help-arrow{transform:scaleX(-1)}
 html[dir="rtl"] .sess-jump{justify-content:flex-start}
 html[dir="rtl"] .sess-jump-go{margin-left:0;margin-right:auto}
+html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-right:auto}
 
 /* In-app User Manual (localized document) */
 /* HELP CENTRE (the "?" landing) */
@@ -4408,7 +4422,7 @@ function rWeek(el,w){
     return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
       <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:ic(DAY_META[d].k)}</div>
       <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
-      <span style="color:var(--mut2);font-size:18px">›</span>
+      <span class="day-row-go" aria-hidden="true">›</span>
     </div>`}).join("")}`;
   manIconizeInline(el);
 }
@@ -4824,7 +4838,7 @@ function rShadow(el){
         <span class="lbl">${t("sh.clip_label")}</span>
         <button class="btn btn-g btn-sm" onclick="shMark('start')" title="${esc(t("sh.mark_start_btn"))}">${tIc("sh.mark_start_btn","download")}</button>
         <span class="sh-time" id="shStart">0:00</span>
-        <span style="color:var(--mut2)">→</span>
+        <span class="sh-range-go" aria-hidden="true">→</span>
         <button class="btn btn-g btn-sm" onclick="shMark('end')" title="${esc(t("sh.mark_end_btn"))}">${tIc("sh.mark_end_btn","download")}</button>
         <span class="sh-time" id="shEnd">–</span>
         <span class="sh-seg-sp"></span>
