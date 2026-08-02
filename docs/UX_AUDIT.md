@@ -600,7 +600,7 @@ and through search → expand → clear → topic-jump.
   reference destination, not a per-screen action, and one floating control that
   blocks two screens' buttons is worse than a two-tap path.
 
-Commit: pending.
+Commit: `126c495`.
 
 ---
 

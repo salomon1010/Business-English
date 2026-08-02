@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: Settings (screen 10).
+> Last updated: Help (screen 11).
 
 ## Screens
 
@@ -18,10 +18,10 @@
 | 8 | Calendar | ✅ frozen | `cd87dfb` |
 | 9 | Profile | ✅ frozen | `fb9bb36` |
 | 10 | **Settings** | ✅ frozen | `ab98253` |
-| 11 | Help | ⬜ not started | — |
+| 11 | **Help** | ✅ frozen | `126c495` |
 | 12 | Onboarding | ⬜ not started | — |
 
-**10 of 12 complete. 9 frozen.**
+**11 of 12 complete. 11 frozen.**
 
 ## Cross-screen gate
 
@@ -37,12 +37,13 @@ except `<h1>`, which must be exactly 1.
 | Vocabulary / Practice | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Calendar / Profile | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Settings | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Help | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | *Phrase Lab (not passed)* | 1 | **48** | 0 | 0 | 0 | 0 | 0 |
 
 ## Accessibility
 
-- **Touch targets:** 100% ≥44px on all 10 completed screens.
-- **Contrast:** 0 AA failures across ~140 measured text roles, both themes.
+- **Touch targets:** 100% ≥44px on all 11 completed screens.
+- **Contrast:** 0 AA failures across ~150 measured text roles, both themes.
 - **Forms:** every control on Settings has a real `<label for>` or `aria-label`.
 - **Keyboard:** tab order verified on Dashboard, Session, Shadow, Feedback,
   Settings. Shadow's workspace has a focus trap, Escape and focus restore.
@@ -52,7 +53,7 @@ except `<h1>`, which must be exactly 1.
 
 ## Localisation
 
-- **1,146 keys**, parity verified across `I18N_EN` and all 15 files.
+- **1,147 keys**, parity verified across `I18N_EN` and all 15 files.
 - Calendar dates, month names and weekday initials follow the app language.
 - RTL verified on Dashboard, Session, Shadow, Feedback, Polish, Vocabulary,
   Practice, Calendar, Profile, Settings.
@@ -64,11 +65,10 @@ except `<h1>`, which must be exactly 1.
 
 | Item | Scope | Severity |
 |---|---|---|
-| Phrase Lab: 48 controls <44px | screen 11's neighbour, unpassed | medium |
+| Phrase Lab: 48 controls <44px | the one unpassed screen | medium |
 | `--mut2` used as text on unpassed screens | ~68 uses | medium |
 | `.btn-p` gradient on unpassed screens | ~40 uses | medium |
-| `.help-fab` overlaps content at rest | every screen | medium |
-| `→` arrows and `▶` chevrons unmirrored in RTL | 5 arrows, 4 disclosures | low |
+| `→` arrows unmirrored in RTL | 5 arrows | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
 | `.fb-again` duplicates `.btn-outline` | fold in later | low |
 | Radius sprawl (raw 12/10/9/8/7/22px) | app-wide | low |
@@ -82,13 +82,15 @@ except `<h1>`, which must be exactly 1.
 - Calendar: the streak screen was untranslated for 14 of 15 languages.
 - Shadow: the fullscreen workspace was not a dialog — no focus trap, no Escape.
 - Settings: 6 of 7 form controls had no label association.
+- Help: the floating `?` button **covered Session's Reset and a Practice
+  vocabulary row at rest** — it blocked input on two frozen screens.
 - Session: the entire practice half was hidden behind an off-screen tab.
 
 ## Release readiness
 
-**≈70%.** Ten of twelve screens are production quality and measured. The
-remaining 30% is: two screens unpassed (Help, Onboarding), the shared debt
-above, one native-language review, and the deploy-side items below.
+**≈78%.** Eleven of twelve screens are production quality and measured. The
+remaining 22% is: Onboarding, the shared debt above, one native-language
+review, and the deploy-side items below.
 
 ## Deploy-side (outside the screen work)
 
@@ -103,6 +105,17 @@ above, one native-language review, and the deploy-side items below.
 
 ## Remaining estimated work
 
-**≈25%** of the screen programme: Help and Onboarding (2 of 12 screens), plus
-the shared-debt sweep, which is now mostly a mechanical find-and-replace since
-each item is enumerated above.
+**≈15%** of the screen programme: Onboarding (1 of 12 screens), plus the
+shared-debt sweep, which is now mostly a mechanical find-and-replace since each
+item is enumerated above.
+
+## Next milestone — Release Candidate 1
+
+Blocking RC1:
+1. Onboarding pass (screen 12).
+2. Phrase Lab's 48 sub-44px controls — the last screen failing the gate.
+3. Deploy the events Worker, or accept that `track()` is silently lost.
+4. Bump `sw.js` `be12-vNN` on the deploy carrying this work.
+
+Not blocking, but recommended before promotion: the native-language review of
+machine-transcreated emotional copy.
