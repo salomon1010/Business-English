@@ -434,7 +434,77 @@ Commit: `cd87dfb`.
 
 ---
 
-## Screens 9–12 — not yet audited
+## Screen 9 — Profile ✅ complete
+
+The `rProfile` shell. Calendar (`#pfCal`) is frozen and excluded from every
+count below.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| PR1 | **Settings' only door was a 28×28px unlabelled gear** in the sticky eyebrow — the sole route to settings, language, account, sign-in and reminders. 36% under the touch floor, with no visible word. | The brief's first objective is "make settings easy to discover". An icon-only control at 28px is neither. |
+| PR2 | **4 of 4 own controls under 44px** — the gear plus three `.btn-sm`. | 0% touch coverage. |
+| PR3 | One `.btn-p` (white on `--grad`, ~1.9:1). | Contrast. |
+| PR4 | **One heading.** The share, invite and certificate cards used `<b>`. | No structure for a screen reader. |
+| PR5 | The certificate note used `--mut2` (~2.9:1). | Contrast. |
+
+### Measured before → after (390×844, calendar excluded)
+
+| | before | after |
+|---|---|---|
+| Targets <44px | 4 of 4 | **0** |
+| Touch coverage | 0% | **100%** |
+| Settings entry | 28px icon, no label | **72px labelled row** |
+| Headings | 1 | **4** |
+| `.btn-p` | 1 | **0** |
+| Contrast failures | 1 | **0** (12 checks) |
+| Inline-styled elements | 13 | **10** |
+
+### Decisions worth preserving
+
+- The gear is **retired, not duplicated.** The earlier code comment rejected a
+  second door — that reasoning holds, so there is still exactly one route to
+  App Setup; it is simply now a labelled 72px `.pf-row` instead of a 28px icon.
+  `mountEyebrowGear()` and the `.pg-gear` rules are deleted.
+- Zero new keys: `setup.title` and `setup.row_sub` ("Settings and about the
+  app") already existed and were translated in all 15 files — `row_sub` was
+  left behind, unused, when the original row was removed.
+- `.pf-row`, `.pf-ic`, `.pf-txt` and `.pf-chev` also survived that removal, so
+  the row needed no new component.
+
+---
+
+## Cross-screen consistency gate
+
+Run across all completed screens at 390×844, dark:
+
+| Screen | `<h1>` | <44px | `.btn-p` | `.glow-cta` | infinite | `--mut2` text | emoji |
+|---|---|---|---|---|---|---|---|
+| Dashboard | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Session | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Shadow | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Executive Polish | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Vocabulary / Practice | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Calendar / Profile | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+
+The gate **found four `--mut2` regressions** my per-screen passes had missed,
+and they were fixed here:
+
+- `.rec-none` — the recorder's empty state, **shared by Session and Shadow**.
+- `.prac-subtab b, .seg-tab b` — the tab count badge, a **shared component**
+  across Shadow, Practice and Phrase Lab.
+- `.prac-ex-card small` — the Knowledge Booster sub-labels.
+- `.cal-ymo` — the year heat-map month labels (frozen Calendar).
+
+Two of the four are shared components, which the freeze explicitly permits; the
+other two are contrast defects, which it also permits.
+
+Commit: pending.
+
+---
+
+## Screens 10–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 

@@ -259,13 +259,6 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
 }
 /* App Setup, parked on the sticky Profile eyebrow so it never scrolls away.
    Absolute rather than flex so the row keeps its exact height. */
-.pg-gear{position:absolute;top:50%;right:20px;transform:translateY(-50%);
-  width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
-  border:1px solid var(--line2);background:var(--card2);color:var(--mut);
-  cursor:pointer;transition:.15s;padding:0}
-.pg-gear:hover{color:var(--txt);border-color:var(--acc);transform:translateY(-50%) rotate(25deg)}
-.pg-gear svg{width:16px;height:16px}
-@media(max-width:820px){.pg-gear{right:20px;width:28px;height:28px}.pg-gear svg{width:15px;height:15px}}
 /* .seg-fit — a short tab row that must ALWAYS stay on a single line at every
    width. The tabs split the width evenly; inside a tab the label itself never
    breaks — only the trailing number/count is allowed to drop to a second line
@@ -384,7 +377,7 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pcal-year-h span{font-size:11.5px;color:var(--mut);font-weight:600}
 .pcal-year{display:flex;flex-direction:column;gap:4px;overflow-x:auto;padding-bottom:6px}
 .cal-ymonths{display:flex;gap:3px;height:12px}
-.cal-ymo{width:11px;flex:none;font-size:9px;font-weight:600;color:var(--mut2);white-space:nowrap;line-height:1;overflow:visible}
+.cal-ymo{width:11px;flex:none;font-size:9px;font-weight:600;color:var(--mut);white-space:nowrap;line-height:1;overflow:visible}
 .cal-ygrid{display:flex;gap:3px}
 .cal-ycol{display:flex;flex-direction:column;gap:3px;flex:none}
 .cal-ysq{width:11px;height:11px;border-radius:3px;background:var(--card2);border:1px solid var(--line)}
@@ -489,6 +482,13 @@ body.sh-work-open{overflow:hidden}
 .pf-txt b{font-size:15px}
 .pf-txt small{color:var(--mut);font-weight:500;font-size:12.5px}
 .pf-chev{margin-left:auto;color:var(--mut);font-size:22px;flex:none}
+.pf-row{min-height:64px}
+.pf-row:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.pf-setup{margin:0 auto 16px;max-width:560px}
+.pf-card-h{font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
+.pf-act{min-height:44px}
+/* --mut2 measures ~2.9:1 on --card — see DESIGN_SYSTEM 1 */
+.pf-note{font-size:11.5px;color:var(--mut);margin-top:10px;line-height:1.5}
 /* The day's session is the one thing Home exists to start, so it is the most
    elevated surface on the screen and the only one carrying a solid accent
    button. The card itself is now plain --card: the wash competed with the
@@ -663,6 +663,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    animations in the app with no reduced-motion escape. The state stays legible
    without the motion: .recording keeps its red fill, .over keeps its gold ring. */
 @media (prefers-reduced-motion:reduce){.rec-btn.recording,.sh-count.over{animation:none}}
+.rec-none{font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.5}
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
 .rec-item audio{height:32px;flex:1;min-width:120px}
 .rec-time{font-family:'JetBrains Mono',monospace;color:var(--red);font-weight:600;font-size:18px}
@@ -1185,7 +1186,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-subtabs .prac-subtab{flex:1 1 0;min-width:0;justify-content:center;text-align:center;padding:8px 6px}
 .prac-subtabs .prac-subtab b{margin-left:4px}
 .prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
-.prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut2)}
+.prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut)}
 .prac-subtab.on,.seg-tab.on{background:var(--grad);border-color:transparent;color:#fff}
 .prac-subtab.on b,.seg-tab.on b{color:#fff}
 .prac-subtab:hover,.seg-tab:hover{border-color:var(--acc)}
@@ -1221,7 +1222,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-ex-card.ready .pex-ic{background:rgba(52,211,153,.20);color:var(--green)}
 .prac-ex-card .pex-ic svg{width:20px;height:20px}
 .prac-ex-card b{font-size:14px}
-.prac-ex-card small{font-size:11.5px;color:var(--mut2)}
+.prac-ex-card small{font-size:11.5px;color:var(--mut)}
 .prac-stats{text-align:center}
 /* was gradient-clipped text at 1.23:1 in dark — see the session timer digits */
 .prac-total{font-size:40px;font-weight:800;line-height:1;color:var(--txt);font-variant-numeric:tabular-nums}
@@ -1476,6 +1477,7 @@ html[dir="rtl"] .lang-row{text-align:right}
    other five (.home-due-go, .home-step-go, .rp-entry-go, .rp-hero-go,
    .rp-ht-go) belong to screens not yet passed, and are logged in UX_AUDIT. */
 html[dir="rtl"] .sess-jump-go{transform:scaleX(-1)}
+html[dir="rtl"] .pf-chev{transform:scaleX(-1)}
 html[dir="rtl"] .sess-jump{justify-content:flex-start}
 html[dir="rtl"] .sess-jump-go{margin-left:0;margin-right:auto}
 
@@ -3974,7 +3976,6 @@ function go(v,arg1,arg2){
       el.insertBefore(b,el.firstChild);
     }else if(v!=="session"){SESS_RETURN=null;}
   }
-  if(v==="profile")mountEyebrowGear(el);
   document.getElementById("streakN").textContent=streak();
   try{navBadges()}catch(e){}
   window.scrollTo({top:0});
@@ -3984,16 +3985,6 @@ function go(v,arg1,arg2){
 /* Put App Setup on the Profile page eyebrow. That row is sticky, so unlike the
    old gear in the hero it stays on screen however far you scroll. Mounted from
    the router rather than the template so it survives every re-render. */
-function mountEyebrowGear(el){
-  const eb=el&&el.querySelector(".pg-eyebrow");
-  if(!eb||eb.querySelector(".pg-gear"))return;
-  const b=document.createElement("button");
-  b.type="button"; b.className="pg-gear";
-  b.title=t("setup.title"); b.setAttribute("aria-label",t("setup.title"));
-  b.onclick=()=>go("setup");
-  b.innerHTML=ic("gear");
-  eb.appendChild(b);
-}
 
 /* ================= USER MANUAL (in-app, localized fragment) ================= */
 let _manCache={};
@@ -4611,7 +4602,7 @@ async function renderRecs(ctx){
       <audio controls src="${url}"></audio>
       <a class="btn btn-g btn-sm" href="${url}" download="${esc(r.label||'recording')}.webm" title="${esc(t("recs.download_title"))}">⬇</a>
       <button class="btn btn-danger btn-sm" onclick="removeRec(${r.id},'${ctx}')">✕</button></div>`;
-  }).join(""):`<p style="font-size:12.5px;color:var(--mut2);margin-top:12px">${t("recs.none")}</p>`;
+  }).join(""):`<p class="rec-none">${t("recs.none")}</p>`;
   if(recs.length)list.insertAdjacentHTML("beforeend",`<p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("recs.privacy_note")}</p>`);
 }
 window.phDelRec=async(id,ix)=>{
@@ -8025,33 +8016,41 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  <button class="pf-row pf-setup" onclick="go('setup')">
+    <span class="pf-ic">${ic("gear")}</span>
+    <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>
   <div class="card pcal" id="pfCal">${calHTML()}</div>
   <div class="card" style="margin-top:16px">
-    <b style="font-size:15px">${hIcon("chart",t("share.card_title"))}</b>
+    <h2 class="pf-card-h">${hIcon("chart",t("share.card_title"))}</h2>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
-    <button class="btn btn-g btn-sm" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
+    <button class="btn btn-g pf-act" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
   </div>
   <div class="card" style="margin-top:12px">
-    <b style="font-size:15px">${hIcon("link",t("invite.title"))}</b>
+    <h2 class="pf-card-h">${hIcon("link",t("invite.title"))}</h2>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-p btn-sm" onclick="shApp()">${tIc("invite.btn","link")}</button>
-      <a class="btn btn-g btn-sm" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
+      <button class="btn btn-g pf-act" onclick="shApp()">${tIc("invite.btn","link")}</button>
+      <a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
     </div>
   </div>
   <div class="card" style="margin-top:12px;${totalDone()>=84?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
-    <b style="font-size:15px">${hIcon("trophy",t("share.cert_title"))}</b>
+    <h2 class="pf-card-h">${hIcon("trophy",t("share.cert_title"))}</h2>
     ${totalDone()>=84
       ? `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.cert_sub")}</p>
          <div style="display:flex;gap:8px;flex-wrap:wrap">
-           <button class="btn btn-p btn-sm" onclick="shShare('cert')">${tIc("share.cert_btn","download")}</button>
-           <button class="btn btn-g btn-sm" onclick="shLinkedIn()">${t("share.cert_li")}</button>
+           <button class="btn btn-g pf-act" onclick="shShare('cert')">${tIc("share.cert_btn","download")}</button>
+           <button class="btn btn-g pf-act" onclick="shLinkedIn()">${t("share.cert_li")}</button>
          </div>
-         <p style="font-size:11.5px;color:var(--mut2);margin-top:10px;line-height:1.5">${t("share.cert_li_note")}</p>`
+         <p class="pf-note">${t("share.cert_li_note")}</p>`
       : `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("share.cert_locked",{n:totalDone()})}</p>
          <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/84*100)}%"></i></div>`}
   </div>
-  <!-- App Setup is reached from the gear in the header; a row here as well was the same door twice -->`;
+  <!-- One door to App Setup: the .pf-row above. The 28px unlabelled gear that
+       used to live in the sticky eyebrow was the only route to settings,
+       language, account and reminders — 40% under the touch-target floor and
+       carrying no visible word. -->`;
   manIconizeInline(el);
   calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
 }

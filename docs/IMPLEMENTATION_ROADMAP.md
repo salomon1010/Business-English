@@ -61,8 +61,8 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 6 | **Vocabulary** | `vocRow` in `rPractice` | ✅ |
 | 7 | **Practice Hub** | `rPractice` shell | ✅ |
 | 8 | **Calendar** | `calHTML` in `rProfile` | ✅ |
-| 9 | Profile | `rProfile` shell | in progress |
-| 10 | Settings | `rData` | pending |
+| 9 | **Profile** | `rProfile` shell | ✅ |
+| 10 | Settings | `rData` / `rSetup` | next |
 | 11 | Help | `rManual` | pending |
 | 12 | Onboarding | `rSetup` | pending |
 
