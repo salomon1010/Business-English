@@ -253,10 +253,11 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 /* the reminder switch was an 18px checkbox in an 18px row */
 .rem-row{min-height:44px}
 .rem-box input[type=time]{min-height:44px}
-#v-setup .theme-opt{min-height:44px}
 #v-setup a{min-height:44px;display:inline-flex;align-items:center}
-#v-setup .about-links a,#v-setup .about-links button{min-height:44px}
-.theme-opt{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;border-radius:11px;border:1px solid var(--line2);background:var(--card2);color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+/* min-height belongs on the component, not on "#v-setup .theme-opt": rSetup
+   renders this same markup into #v-data when Settings is reached from Profile,
+   where a #v-setup-scoped rule does not match and the control stayed at 42px. */
+.theme-opt{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;min-height:44px;border-radius:11px;border:1px solid var(--line2);background:var(--card2);color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .theme-opt:hover{border-color:var(--acc)}
 .theme-opt svg{width:17px;height:17px}
 .theme-opt.on{background:var(--accent-fill);border-color:transparent;color:var(--on-accent)}
@@ -308,9 +309,17 @@ h1.big em{font-style:italic;color:var(--accent)}
 .g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
 .g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
 @media(max-width:560px){.g4{grid-template-columns:1fr 1fr}}
-.btn{border:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:14.5px;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+/* The 44px floor and the focus ring live on the BASE, not on per-screen
+   descendant rules. They used to be scoped (#v-shadow .btn, #fbOut .btn,
+   #v-setup a …), which meant every surface the audit never rendered — modals,
+   the practice viewers, the language sheet, and the same Settings markup when
+   it renders into #v-data instead of #v-setup — kept a ~42px control with no
+   visible focus. One rule here covers all of them. */
+.btn{border:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:14.5px;transition:.2s;display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.btn:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .btn>svg{width:18px;height:18px;flex:none}
 .btn-p{background:var(--accent-fill);color:var(--on-accent)}.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px)}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}.btn-p:hover{transform:none}}
 .btn-g{background:var(--card2);color:var(--txt);border:1px solid var(--line2)}.btn-g:hover{border-color:var(--acc)}
 .btn-danger{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
 .btn-sm{padding:7px 13px;font-size:13px;border-radius:9px}
@@ -1239,7 +1248,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .pv-game.show{display:block;animation:fade .2s}
 .pv-inner{max-width:640px;margin:0 auto}
 .pv-top{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.pv-x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.pv-x{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-size:20px;line-height:1;display:grid;place-items:center;cursor:pointer}
 .pv-x:hover{border-color:var(--acc)}
 .pv-title{font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
 .pv-title .btn-ic{margin:0;color:var(--acc)}
@@ -1381,7 +1390,10 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-card{max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:28px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:fade .3s;max-height:92vh;overflow:auto}
 .auth-card h2{font-size:23px;font-weight:800;letter-spacing:-.4px;text-align:center;margin-bottom:6px}
 .auth-card .sub{text-align:center;margin:0 auto 22px;font-size:13.5px}
-.auth-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
+/* 44x44 hit area, not a bare 24px glyph — this is the only way to dismiss the
+   sign-in sheet, and it measured 20x11 before. The box grows around the glyph;
+   top/right are pulled in so the × stays visually where it was. */
+.auth-x{position:absolute;top:6px;right:8px;width:44px;height:44px;display:grid;place-items:center;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
 .auth-card input{margin-bottom:10px}
 .auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}
 .auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
@@ -1405,7 +1417,12 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    modifier rather than a second copy of the recipe. */
 .fb-again{width:100%;min-height:48px;margin:14px 0 4px;padding:12px 18px;font-size:15px}
 .auth-go{width:auto;min-width:140px}
-.auth-alt a{color:var(--acc2);font-weight:700;cursor:pointer}
+/* "Register" / "Log in" and "Forgotten your password?" are actions, not prose,
+   so they get a real hit area. The Privacy Policy link inside .auth-terms is
+   deliberately left inline — it sits mid-sentence, where WCAG 2.5.8 exempts it
+   and padding would break the line. */
+.auth-alt a,.auth-forgot{color:var(--acc2);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;padding:0 6px;margin:-13px 0}
+.auth-forgot{color:var(--mut);font-weight:400;font-size:12.5px}
 .auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
@@ -1439,7 +1456,11 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .about-theme{right:14px}
 .about-back svg,.about-theme svg{width:20px;height:20px}
 .footer-note{text-align:center;color:var(--mut);font-size:12.5px;margin-top:50px;line-height:1.7}
-.footer-note a{color:var(--acc2)}
+/* These sit outside every #v-* container, which is why the per-screen audit
+   never saw them: they were 16px-tall links present on every screen. WCAG 2.5.8
+   exempts links inline in a text run, but this project sets its own 44px floor,
+   so the hit area is padded out without changing where the text sits. */
+.footer-note a{color:var(--acc2);display:inline-block;min-width:44px;text-align:center;padding:13px 6px;margin:-13px 0}
 @media(max-width:640px){.ring-wrap{flex-direction:column;text-align:center}.slider-row label{width:110px}}
 
 /* LANGUAGE PICKER */
@@ -1770,7 +1791,11 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .manual-doc tr:last-child td{border-bottom:none}
 .manual-doc code,.manual-doc kbd{background:rgba(129,140,248,.16);color:#c7cdff;border-radius:6px;padding:2px 7px;font-size:13px;font-family:'SF Mono',Menlo,Consolas,monospace}
 .manual-doc footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 20px 0;border-top:1px solid var(--line2)}
-.manual-doc footer a{color:var(--macc)}
+/* The manual's own footer is a link bar, not prose, so it takes the width floor
+   too. #v-manual .manual-doc a (above) only sets min-height, which left these
+   at 44x43. The links inside the manual body stay inline — they sit in
+   sentences, where a width floor would break the text. */
+.manual-doc footer a{color:var(--macc);min-width:44px;justify-content:center}
 html[dir="rtl"] .manual-doc th,html[dir="rtl"] .manual-doc td{text-align:right}
 html[dir="rtl"] .manual-doc ol.steps>li{padding:12px 56px 12px 16px}
 html[dir="rtl"] .manual-doc ol.steps>li::before{left:auto;right:14px}
@@ -10053,7 +10078,7 @@ window.fbOpenModal=async function(mode){
     <input id="authPw" type="password" placeholder="${esc(t("auth.password_ph"))}" autocomplete="${signup?"new-password":"current-password"}">
     <div class="auth-err" id="authErr"></div>
     <button class="btn btn-p" style="width:100%;justify-content:center" onclick="fbEmailAuth('${signup?"up":"in"}')">${signup?t("auth.signup_btn"):t("auth.login_btn")}</button>
-    ${signup?"":`<p style="text-align:center;margin-top:10px"><a onclick="fbReset()" style="color:var(--mut);font-size:12.5px;cursor:pointer">${t("auth.forgot")}</a></p>`}
+    ${signup?"":`<p style="text-align:center;margin-top:10px"><a class="auth-forgot" onclick="fbReset()">${t("auth.forgot")}</a></p>`}
     <p class="auth-alt">${signup?`${t("auth.have_account")} <a onclick="fbOpenModal('in')">${t("auth.login_btn")}</a>`:`${t("auth.no_account")} <a onclick="fbOpenModal('up')">${t("auth.register_link")}</a>`}</p>
     <p class="auth-terms">${t("auth.terms_pre")} <a href="privacy.html" target="_blank" style="color:var(--mut)">${t("auth.terms_link")}</a>${t("auth.terms_post")}</p>
   </div>`;
