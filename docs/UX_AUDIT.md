@@ -277,7 +277,7 @@ fallback path, and under reduced motion with the mic live.
 - **`.glow-cta` is now deleted.** This screen held its last consumer, so the
   rules and both keyframes went with it, as the roadmap scheduled.
 
-Commit: pending.
+Commit: `a1cd17f`.
 
 ---
 
