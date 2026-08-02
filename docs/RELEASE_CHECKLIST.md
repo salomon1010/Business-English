@@ -17,7 +17,7 @@
 | 7 | Practice Hub | ✅ frozen | `a64a3d4` |
 | 8 | Calendar | ✅ frozen | `cd87dfb` |
 | 9 | Profile | ✅ frozen | `fb9bb36` |
-| 10 | **Settings** | ✅ **this pass** | pending |
+| 10 | **Settings** | ✅ frozen | `ab98253` |
 | 11 | Help | ⬜ not started | — |
 | 12 | Onboarding | ⬜ not started | — |
 

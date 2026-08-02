@@ -552,7 +552,7 @@ motion. Labels confirmed present in every language.
   competing with "Save changes" (they sit 189px apart, well inside one
   viewport). `.fb-again` is the same recipe and should fold into it.
 
-Commit: pending.
+Commit: `ab98253`.
 
 ---
 
