@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: RC1 stabilisation task 5 — dead code.
+> Last updated: RC1 performance audit.
 
 ## Screens
 
@@ -97,6 +97,40 @@ Review and Journey, which were never individually audited.
 15% is RC1 stabilisation: real-device testing, the shared debt below, one
 native-language review, and the deploy-side items.
 
+## Performance — measured
+
+Local, 390×844, seeded with 200 days of history and 40 vocabulary words.
+
+| | |
+|---|---|
+| First contentful paint | **212 ms** |
+| DOMContentLoaded | **160 ms** |
+| Long tasks (>50 ms) over a full 9-view sweep | **0** |
+| Slowest view render (median) | **6.8 ms** (Practice, 948 nodes) |
+| Slowest single render observed | 30.8 ms |
+| Document DOM at rest | 248 nodes |
+| localStorage after 200 days | 12 KB |
+
+Runtime is healthy. The cost is all in **what loads before anything renders**:
+
+| Origin | Uncompressed |
+|---|---|
+| App (`index.html` + assets) | 699 KB |
+| **Firebase compat SDKs** | **501 KB** |
+| Google Fonts | 41 KB |
+| Cloudflare beacon | 31 KB |
+
+### Open recommendation — needs a decision
+
+**Firebase loads 501 KB on every boot** — `app`, `auth` and `firestore` compat
+builds, via three blocking `<script src>` tags in `<head>` — for a feature that
+is optional and that most users never touch. It is ~39% of total payload and
+the main reason `load` is 938 ms against a 160 ms DOMContentLoaded.
+
+Deferring it until sign-in is the single largest performance win available, but
+it changes when auth state is restored on boot, so it is an architectural change
+and is **not** being made unilaterally during stabilisation.
+
 ## Deploy-side (outside the screen work)
 
 - ⬜ **Events Worker not deployed** — `npx wrangler deploy` in `backend/events/`,
@@ -125,8 +159,8 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 | 4 | Duplicated CSS/JS | ✅ `ed64583` |
 | 5 | Dead CSS | ✅ `2e7c671` |
 | 5b | Obsolete tokens | ✅ `6acd7c5` |
-| 6 | Performance audit | ⬜ next (high-risk) |
-| 7 | Memory review | ⬜ |
+| 6 | Performance audit | ✅ `77e5dce` |
+| 7 | Offline / PWA audit | ⬜ next |
 | 8 | Mobile behaviour, microphone permission flows | ⬜ device |
 | 9 | Offline behaviour and PWA install | ⬜ device |
 | 10 | VoiceOver / TalkBack | ⬜ device |

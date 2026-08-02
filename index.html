@@ -46,6 +46,7 @@
 <link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <!-- Firebase (Auth + Firestore) — optional cloud sync. App works fully without it. -->
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
@@ -5751,13 +5752,19 @@ async function pushSync(){
 
 async function pushOff(){
   try{
+    /* Check for a local subscription BEFORE telling the server to drop one.
+       pushSync() runs on every boot and lands here whenever the reminder is
+       off, so the old order fired a network request at launch for every user
+       who had never enabled push — and it fails outright while the Worker is
+       undeployed. Nothing to unsubscribe means nothing to send. */
+    const reg=await navigator.serviceWorker.ready;
+    const sub=await reg.pushManager.getSubscription();
+    if(!sub)return;
     await fetch(PUSH_API+"/unsubscribe",{
       method:"POST",headers:{"Content-Type":"application/json"},
       body:JSON.stringify({id:pushId()}),
     });
-    const reg=await navigator.serviceWorker.ready;
-    const sub=await reg.pushManager.getSubscription();
-    if(sub)await sub.unsubscribe();
+    await sub.unsubscribe();
   }catch(e){}
 }
 
