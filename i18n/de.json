@@ -1145,5 +1145,6 @@
   "cal.insight_dow": "Am häufigsten erscheinst du {{day}}s — dieser Rhythmus wird zu Sicherheit.",
   "cal.insight_going": "Der Schwung ist echt — ein Tag mehr bringt dich der Stimme näher, die du suchst.",
   "cal.insight_start": "Übe heute und bring den ersten Tag deiner Veränderung zum Leuchten.",
-  "help.row_sub": "Anleitungen, Antworten und Fehlerbehebung"
+  "help.row_sub": "Anleitungen, Antworten und Fehlerbehebung",
+  "doc.close": "Schließen und zu BE Mastery zurückkehren"
 }

@@ -1145,5 +1145,6 @@
   "cal.insight_dow": "Apareces sobre todo los {{day}} — ese ritmo se está volviendo fluidez.",
   "cal.insight_going": "El impulso es real — un día más te acerca a la voz que persigues.",
   "cal.insight_start": "Practica hoy y enciende el día uno de tu transformación.",
-  "help.row_sub": "Guías, respuestas y solución de problemas"
+  "help.row_sub": "Guías, respuestas y solución de problemas",
+  "doc.close": "Cerrar y volver a BE Mastery"
 }
