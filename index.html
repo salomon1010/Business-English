@@ -74,11 +74,14 @@ window.FB_CONFIG={
    banner is needed; adding a line to privacy.html naming Cloudflare is good
    practice but not legally required.
 
-   KNOWN LIMIT: Cloudflare Web Analytics counts page views, referrers and Core
-   Web Vitals only — it has NO custom-event API. So it answers "how many people
-   land, from where, and do they come back", but the track() calls below
-   (share / invite / rate / practice_day …) stay no-ops. Capturing those needs
-   Plausible, GA4, or Cloudflare Zaraz instead — the branches are here ready:
+   SPLIT IN TWO, 2026-08-02. Cloudflare Web Analytics counts page views,
+   referrers and Core Web Vitals, and has NO custom-event API — so it keeps the
+   page-view job and the track() calls (share / invite / rate / practice_day …)
+   go to our OWN Worker instead: backend/events, writing to Cloudflare Analytics
+   Engine. No third-party vendor, no cookies, no fee. See EVENTS_API below.
+
+   The hosted alternatives remain wired if that is ever preferred, but note they
+   REPLACE track(), so events would then go to them and not to our Worker:
      PROVIDER="plausible"; ID="app.lomonec.com"      // cookie-less, events, paid
      PROVIDER="ga4";       ID="G-XXXXXXXXXX"         // free, events, BUT sets
      cookies — turning it on means updating privacy.html and adding an EU consent
@@ -89,11 +92,31 @@ window.FB_CONFIG={
 (function(){
   var PROVIDER="cfweb", ID="b0f913bb28934a39a031535e62b883f9";   // Cloudflare Web Analytics beacon token (public by design)
   window.track=function(){};                       // no-op until a provider is configured
+
+  /* ---- Custom events: our own Worker, independent of PROVIDER above ----
+     Cloudflare's beacon covers page views and referrers but has no event API,
+     so events go to backend/events (Analytics Engine) instead. The two are
+     deliberately separate: page views keep working whatever happens here, and
+     nothing about events depends on a third-party analytics vendor.
+
+     sendBeacon, not fetch: it survives the page being closed, which is exactly
+     when "install" and "share" fire. It also cannot set a JSON content type
+     without a CORS preflight it is not permitted to make — hence text/plain,
+     parsed server-side. Don't change that without reading the Worker comment. */
+  var EVENTS_API="https://be-events.nore-ngou.workers.dev/e";
+  if(EVENTS_API)window.track=function(name,props){
+    try{
+      var body=JSON.stringify({name:name,props:props||null});
+      if(navigator.sendBeacon)navigator.sendBeacon(EVENTS_API,new Blob([body],{type:"text/plain"}));
+      else fetch(EVENTS_API,{method:"POST",body:body,keepalive:true}).catch(function(){});
+    }catch(e){}                                    // analytics must never break the app
+  };
+
   if(!PROVIDER||!ID)return;
   var s=document.createElement("script");
   if(PROVIDER==="cfweb"){
-    /* Cloudflare's beacon reports page views by itself; there is nothing to wire
-       into track(), which stays a no-op on purpose. */
+    /* Cloudflare's beacon reports page views by itself. track() is NOT wired to
+       it — see the events block above. */
     s.type="module";   // Cloudflare now ships beacon.min.js as a module; modules defer by default
     s.src="https://static.cloudflareinsights.com/beacon.min.js";
     s.setAttribute("data-cf-beacon",JSON.stringify({token:ID}));
@@ -3572,7 +3595,9 @@ function markPracticed(){
   if(!S.dates.includes(today)){S.dates.push(today);S.dates.sort()}
   S.dayLog=S.dayLog||{};S.dayLog[today]=(S.dayLog[today]||0)+1;   // activity intensity for the progress calendar heatmap
   if(S.dayLog[today]===1){
-    track("practice_day",{streak:String(Math.min(streak()+1,30))});   // once per day, not per action
+    // once per day, not per action. Week alongside streak so retention can be
+    // read against how far into the programme someone actually is.
+    track("practice_day",{streak:String(Math.min(streak()+1,30)),week:String((currentPos().w||1))});
     try{pushDone()}catch(e){}   // done for today — call off tonight's push
   }
 }
@@ -4064,7 +4089,10 @@ window.saveNote=key=>{S.notes[key]=document.getElementById("noteBox").value;save
 window.setScore=(key,n)=>{S.scores[key]=n;save();go("session",cur.arg1,cur.arg2)};
 window.toggleDay=(key,w,d)=>{
   S.days[key]=!S.days[key];
-  if(S.days[key]){markPracticed();toast(t("sess.day_complete_toast",{w,d}))}
+  /* Ticking a day off is the clearest "I did the work" signal in the app, and
+     carrying the week is what makes drop-out visible: without it you can see
+     that people stop, but not where in the 12 weeks they stop. */
+  if(S.days[key]){markPracticed();track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}))}
   save();go("session",w,d);
 };
 /* timer — runs globally; the header pill mirrors it on every page */
@@ -5146,6 +5174,7 @@ window.remToggle=on=>{
   c.on=!!on;save();
   const ti=document.getElementById("remTime");if(ti)ti.disabled=!on;
   remSchedule();
+  track("reminder_on",{result:on?"on":"off"});   // does the push work move retention at all?
   toast(on?t("rem.on_toast",{time:c.time}):t("rem.off_toast"));
   if(!on){pushOff();return}
   if(!window.Notification)return;

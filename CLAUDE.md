@@ -109,13 +109,32 @@ not JS, and `new Function` chokes on it. Check it separately with
   choice — and the beacon token **is set and live** (`ID` at index.html:90,
   public by design), so the beacon loads on every page view.
   - **Cloudflare Web Analytics has no custom-event API** — page views, referrers
-    and Core Web Vitals only. The `track()` calls stay no-ops under it. Capturing
-    events needs Plausible / GA4 / Zaraz; those branches are written and ready.
+    and Core Web Vitals only. So the job is **split in two (2026-08-02)**: the
+    beacon keeps page views, and `track()` posts to **our own Worker**,
+    `backend/events/` (`be-events` → Cloudflare **Analytics Engine**). No
+    third-party vendor, no cookies, no fee. Read `backend/events/README.md`
+    before adding an event — the SQL queries for the funnel and the
+    where-people-stop question live there.
+  - The Worker enforces an **allow-list** of event names and prop keys; anything
+    else is dropped with 204. Adding a `track()` call in index.html without
+    adding the name to `EVENTS` first means it silently does nothing. The list
+    is also the guard against a future event shipping something personal.
+  - The client uses `sendBeacon` with a **`text/plain`** Blob. That is not
+    sloppiness: sendBeacon cannot set a JSON content type without a CORS
+    preflight it may not make, and it reports no errors, so "fixing" the content
+    type would stop events silently.
+  - The Plausible/GA4 branches still exist but **replace** `track()` — enabling
+    one sends events there instead of to our Worker.
   - **GA4 needs a privacy.html update and an EU consent notice** (it sets
     cookies). Cloudflare and Plausible are cookie-less and need neither.
   - Only anonymous counts — never recordings, transcripts, phrase text or profile
-    fields. Instrumented: `app_open`, `onboarding_complete`, `practice_day`,
-    `share`, `invite`, `rate_click`, `rate_later`, `play_click`, `install`.
+    fields. Instrumented (11, exactly matching the Worker's allow-list):
+    `app_open`, `onboarding_complete`, `practice_day` (+streak, week),
+    `session_complete` (+week, day), `reminder_on`, `share`, `invite`,
+    `rate_click`, `rate_later`, `play_click`, `install`.
+  - **No device ID, by design** — so these are event counts, not people. Trends
+    and ratios are sound; absolute user numbers are not. Use Play Console when a
+    real install/retention figure is needed.
 - **Share/invite/rate:** `APP_URL` and `PLAY_URL` consts near `shShare`. Share text
   gets the URL appended **in code**, so the 15 translation files never need
   re-cutting when the address changes. `shApp()` is the plain "share the app"
@@ -271,11 +290,11 @@ Fixes / infra
   image licensing are common. Nothing can reconstruct this from the repo; it needs
   the owner's browser history. Also the reason the Play **AI asset declaration**
   can't be answered from the code alone.
-- **Analytics runs, but only page views.** The Cloudflare token is live, so
-  traffic, referrers and Core Web Vitals are being collected. Every `track()`
-  call is still a **no-op** — Cloudflare has no custom-event API — so there are
-  no product metrics: activation, retention and where people leave the 12-week
-  plan are all invisible. Needs a Plausible/GA4/Zaraz switch (see above).
+- **Analytics: page views live, events written but Worker not deployed yet.**
+  The Cloudflare beacon is collecting traffic and referrers. The 11 `track()`
+  calls now post to `backend/events/` — **deploy it (`npx wrangler deploy`) or
+  every event is quietly lost**, since sendBeacon reports no errors. Once up,
+  the funnel and the where-people-stop query are in that folder's README.
 - **No email capture and no testimonials** anywhere. Both need things the repo
   can't supply on its own (a list backend / real users willing to be quoted).
 - **No iOS App Store presence** — iPhone users get the PWA install flow only.

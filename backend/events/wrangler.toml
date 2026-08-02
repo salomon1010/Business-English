@@ -1,0 +1,19 @@
+# Cloudflare Worker config for BE Mastery product events (Lomonec LLC).
+#
+# Third Worker, kept separate from be-polish and be-push on purpose: analytics
+# is the least important thing here and must never be able to break the two that
+# users actually feel.
+#
+# Deploy from this folder:
+#     npx wrangler deploy
+#
+# No secret and no KV. Analytics Engine needs only the binding below; the
+# dataset is created on first write.
+
+name = "be-events"
+main = "events-worker.js"
+compatibility_date = "2026-07-31"
+
+[[analytics_engine_datasets]]
+binding = "AE"
+dataset = "be_events"
