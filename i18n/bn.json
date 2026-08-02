@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "অনুশীলনের জন্য আরও {{n}}টি শব্দ দেখুন",
   "fb.section_words": "শব্দে শব্দে",
   "fb.section_stats": "গতি, ফিলার ও ইতিহাস",
-  "ex.recommended": "প্রস্তাবিত বাক্য",
-  "ex.why_stronger": "কেন এটি শক্তিশালী",
   "ex.another_way": "বলার আরেকটি উপায়",
-  "ex.frames_h": "এক্সিকিউটিভ কাঠামো"
+  "ex.frames_h": "এক্সিকিউটিভ কাঠামো",
+  "ex.key_phrase": "ব্যবহৃত মূল বাক্যাংশ"
 }

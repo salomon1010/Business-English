@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "練習する単語をあと{{n}}件表示",
   "fb.section_words": "単語ごと",
   "fb.section_stats": "速さ・つなぎ言葉・履歴",
-  "ex.recommended": "推奨する言い方",
-  "ex.why_stronger": "なぜこちらが強いか",
   "ex.another_way": "別の言い方",
-  "ex.frames_h": "エグゼクティブの型"
+  "ex.frames_h": "エグゼクティブの型",
+  "ex.key_phrase": "使われたキーフレーズ"
 }

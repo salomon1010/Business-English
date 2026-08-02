@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "Voir {{n}} mots de plus à travailler",
   "fb.section_words": "Mot par mot",
   "fb.section_stats": "Débit, tics de langage et historique",
-  "ex.recommended": "Formulation recommandée",
-  "ex.why_stronger": "Pourquoi c’est plus fort",
   "ex.another_way": "Une autre façon de le dire",
-  "ex.frames_h": "Structures de direction"
+  "ex.frames_h": "Structures de direction",
+  "ex.key_phrase": "Expression clé utilisée"
 }

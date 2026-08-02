@@ -3168,8 +3168,7 @@ const I18N_EN={
  "ex.clear_btn":"🗑 Clear",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
- "ex.recommended":"Recommended phrasing",
- "ex.why_stronger":"Why this is stronger",
+ "ex.key_phrase":"Key phrase used",
  "ex.another_way":"Another way to say it",
  "ex.frames_h":"Executive frames",
  "ex.exec_versions":"💼 Executive versions — pick one",
@@ -7243,7 +7242,7 @@ function exRenderOffline(inp,note){
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
     ${note?`<p class="ex-note">${note}</p>`:""}
-    <h3 class="ex-h">${tIc("ex.recommended","briefcase")}</h3>
+    <h3 class="ex-h">${tIc("ex.exec_version","briefcase")}</h3>
     <div class="ex-best">
       <p class="ex-best-t">${esc(out)}</p>
       ${changes.length?`<div class="ex-why"><b>${t("ex.what_changed")}</b>
@@ -7262,10 +7261,10 @@ function exRenderVersions(list){
   const best=list[0],rest=list.slice(1);
   document.getElementById("exOut").innerHTML=`
     <div class="hr"></div>
-    <h3 class="ex-h">${tIc("ex.recommended","briefcase")}</h3>
+    <h3 class="ex-h">${tIc("ex.exec_version","briefcase")}</h3>
     <div class="ex-best">
       <p class="ex-best-t">${esc(best.text)}</p>
-      ${best.learn?`<div class="ex-why"><b>${t("ex.why_stronger")}</b><p>${esc(best.learn)}</p></div>`:""}
+      ${best.learn?`<div class="ex-why"><b>${t("ex.key_phrase")}</b><p>${esc(best.learn)}</p></div>`:""}
       ${exActs(best.text,true)}
     </div>
     ${rest.length?`<details class="home-more ex-sec">

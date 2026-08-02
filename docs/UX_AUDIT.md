@@ -241,7 +241,7 @@ backed by the Cloudflare Worker that holds the AI key.
 | # | Problem | Why it mattered |
 |---|---|---|
 | E1 | Two versions shown as equals under "EXECUTIVE VERSIONS — **PICK ONE**". | A coach recommends a line; it does not hand over a menu. The brief asks for the recommended phrasing, not a comparison. |
-| E2 | The reason a rewrite is stronger (`v.learn`) was a small unlabelled cyan line. | "Clearly explain why" had no weight. |
+| E2 | `v.learn` was a small unlabelled cyan line. | The one piece of teaching in the result had no weight and no label. |
 | E3 | The three EXEC_FRAMES printed under **every** result, and the 4-step "How to build your full speech" list rendered always. | The same reference text repeated on every polish. |
 | E4 | **9 of 10 controls under 44px** — including "Polish it" at **31px**, the feature's primary action. 10% touch coverage. | The main action was the smallest target on the card. |
 | E5 | `.ex-micbtn` carried two infinite animations (a spinning conic gradient plus a glow) — the last in the app. | Perpetual decoration on an idle button. |
@@ -268,8 +268,15 @@ fallback path, and under reduced motion with the mic live.
 
 ### Decisions worth preserving
 
-- One **recommended** phrasing, with "Why this is stronger" as a labelled block.
-  Further versions sit behind "Another way to say it".
+- One phrasing is led with, headed **"Executive version"** — reusing the
+  existing translated key. It is deliberately *not* called "Recommended":
+  `backend/polish-worker.js` asks for "3 DIFFERENT" versions and returns
+  `{text, learn}` with **no ranking signal**, so the first item is simply the
+  first returned. The interface must not imply certainty the data lacks.
+- The `learn` field is labelled **"Key phrase used"**, because that is what the
+  Worker prompt asks for — *"the idiom or key phrase used, a few words"* — not
+  an explanation of why the rewrite is stronger.
+- Further versions sit behind "Another way to say it".
 - **Copy leads** the action row — the point of a polished line is to use it in
   the real conversation, so reuse is the action, not an afterthought.
 - `ex.more_hint` said "Pick one, or press Polish it again"; the English and all

@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "{{n}} weitere Wörter zum Üben anzeigen",
   "fb.section_words": "Wort für Wort",
   "fb.section_stats": "Tempo, Füllwörter und Verlauf",
-  "ex.recommended": "Empfohlene Formulierung",
-  "ex.why_stronger": "Warum das stärker ist",
   "ex.another_way": "Eine andere Formulierung",
-  "ex.frames_h": "Executive-Strukturen"
+  "ex.frames_h": "Executive-Strukturen",
+  "ex.key_phrase": "Verwendete Schlüsselwendung"
 }

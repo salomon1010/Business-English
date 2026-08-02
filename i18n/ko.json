@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "연습할 단어 {{n}}개 더 보기",
   "fb.section_words": "단어별 비교",
   "fb.section_stats": "속도, 군말, 기록",
-  "ex.recommended": "추천 표현",
-  "ex.why_stronger": "왜 더 강한가",
   "ex.another_way": "다른 표현 방법",
-  "ex.frames_h": "임원용 표현 틀"
+  "ex.frames_h": "임원용 표현 틀",
+  "ex.key_phrase": "사용된 핵심 표현"
 }

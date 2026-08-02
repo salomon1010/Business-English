@@ -176,6 +176,15 @@ some values *are* earned, since a wholly dimmed panel reads as broken.
 
 ## 10. Voice
 
+**Never claim more than the data supports.** A label is a claim: "Recommended"
+asserts a ranking, "Why this is stronger" asserts an explanation. If the source
+does not produce a ranking or an explanation, the label is false however good
+it reads. Executive Polish is the worked example — `backend/polish-worker.js`
+returns three *different* versions with no score, so the UI says "Executive
+version", and its `learn` field says "Key phrase used" because that is exactly
+what the prompt asks the model for. Check the producer before naming the thing.
+
+
 British English, concrete, short sentences, active voice, no hype. Functional
 labels, buttons and errors stay plain.
 

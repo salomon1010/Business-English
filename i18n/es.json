@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "Ver {{n}} palabras más para practicar",
   "fb.section_words": "Palabra por palabra",
   "fb.section_stats": "Ritmo, muletillas e historial",
-  "ex.recommended": "Frase recomendada",
-  "ex.why_stronger": "Por qué es más fuerte",
   "ex.another_way": "Otra forma de decirlo",
-  "ex.frames_h": "Estructuras ejecutivas"
+  "ex.frames_h": "Estructuras ejecutivas",
+  "ex.key_phrase": "Frase clave utilizada"
 }

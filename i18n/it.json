@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "Mostra altre {{n}} parole da allenare",
   "fb.section_words": "Parola per parola",
   "fb.section_stats": "Ritmo, intercalari e storico",
-  "ex.recommended": "Formulazione consigliata",
-  "ex.why_stronger": "Perché è più efficace",
   "ex.another_way": "Un altro modo di dirlo",
-  "ex.frames_h": "Strutture da manager"
+  "ex.frames_h": "Strutture da manager",
+  "ex.key_phrase": "Espressione chiave usata"
 }

@@ -1119,8 +1119,7 @@
   "fb.more_fixes": "عرض {{n}} كلمات أخرى للتدريب",
   "fb.section_words": "كلمة بكلمة",
   "fb.section_stats": "الإيقاع وكلمات الحشو والسجل",
-  "ex.recommended": "الصياغة الموصى بها",
-  "ex.why_stronger": "لماذا هي أقوى",
   "ex.another_way": "طريقة أخرى لقولها",
-  "ex.frames_h": "صيغ تنفيذية"
+  "ex.frames_h": "صيغ تنفيذية",
+  "ex.key_phrase": "العبارة المفتاحية المستخدمة"
 }
