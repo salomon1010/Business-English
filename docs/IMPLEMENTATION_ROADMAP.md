@@ -12,6 +12,23 @@ Audit (measured) → name problems and why they matter → propose → check aga
 Report format: Summary · Files changed · Components changed · Accessibility ·
 Performance · Regression risks · Next recommended screen. Nothing else.
 
+## Frozen screens
+
+Dashboard, Session, Shadowing Studio, Speaking Feedback, Executive Polish and
+Vocabulary are **frozen**. Do not revisit them unless one of these is true:
+
+1. a **shared component** changes (then update every consumer and re-measure),
+2. a **regression** is introduced,
+3. a **critical defect** is discovered,
+4. the owner **explicitly requests** another pass.
+
+State which of the four applies before touching a frozen screen.
+
+**Overlap warning:** Vocabulary (frozen) and Practice Hub share `rPractice`.
+Frozen there: `vocRow`, `vocSave`, `.voc-*`, the `#v-practice` touch-target
+floors and the `.prac-subtab.on` contrast fix. The Practice Hub pass owns the
+surrounding structure — Knowledge Boosters, the group tabs, the layout.
+
 ## Ship discipline
 
 **Local-first. Do not `git push` until the user says "deploy".** They test
@@ -39,7 +56,7 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 4 | **Speaking Feedback** | `fbShowResults` → `#fbOut` | ✅ |
 | 5 | **Executive Polish** | `ex*` in `rPhrases` | ✅ `a1cd17f`, truthful-labels follow-up |
 | 6 | **Vocabulary** | `vocRow` in `rPractice` | ✅ |
-| 7 | Practice Hub | `rPractice` | next |
+| 7 | Practice Hub | `rPractice` shell | in progress |
 | 8 | Calendar | `rProfile` → `.pcal-*` | pending |
 | 9 | Profile | `rProfile` | pending |
 | 10 | Settings | `rData` | pending |
