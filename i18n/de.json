@@ -1121,5 +1121,7 @@
   "fb.section_stats": "Tempo, Füllwörter und Verlauf",
   "ex.another_way": "Eine andere Formulierung",
   "ex.frames_h": "Executive-Strukturen",
-  "ex.key_phrase": "Verwendete Schlüsselwendung"
+  "ex.key_phrase": "Verwendete Schlüsselwendung",
+  "voc.save_title": "In meine Wörter speichern",
+  "voc.saved_title": "Gespeichert — zum Entfernen tippen"
 }

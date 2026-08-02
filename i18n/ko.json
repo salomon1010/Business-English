@@ -1121,5 +1121,7 @@
   "fb.section_stats": "속도, 군말, 기록",
   "ex.another_way": "다른 표현 방법",
   "ex.frames_h": "임원용 표현 틀",
-  "ex.key_phrase": "사용된 핵심 표현"
+  "ex.key_phrase": "사용된 핵심 표현",
+  "voc.save_title": "내 단어에 저장",
+  "voc.saved_title": "저장됨 — 눌러서 삭제"
 }

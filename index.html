@@ -825,7 +825,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 #v-practice .prac-subgroup .seg-tab{
   flex:1 1 auto;min-width:0;justify-content:center;
   background:none;border:0;border-radius:0;box-shadow:none;
-  min-height:38px;padding:9px 4px 10px;font-size:13px;font-weight:600;
+  min-height:44px;padding:11px 4px;font-size:13px;font-weight:600;
   color:var(--mut);position:relative}
 #v-practice .prac-subgroup .seg-tab .btn-ic{display:none}
 #v-practice .prac-subgroup .seg-tab .seg-lbl{
@@ -855,18 +855,21 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 
 /* Level 3: the smallest step — compact uppercase chips. */
 #v-practice .prac-subtabs{gap:6px}
+/* white on --grad is ~1.9:1 at the gradient's cyan end */
+#v-practice .prac-subtabs .prac-subtab.on{background:color-mix(in srgb,var(--accent) 90%,#000);border-color:transparent;color:var(--on-accent)}
+#v-practice .prac-subtabs .prac-subtab.on b{color:var(--on-accent);opacity:.85}
 #v-practice .prac-subtabs .prac-subtab{
-  min-height:30px;font-size:11.5px;font-weight:600;padding:5px 6px;border-radius:9px;
+  min-height:44px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:var(--r-md);
   letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
 #v-practice .prac-subtabs .prac-subtab b{margin-left:4px;font-size:12px}
 
 @media(max-width:520px){
-  #v-practice .prac-subgroup .seg-tab{font-size:12px;padding:8px 3px 9px}
-  #v-practice .prac-subtabs .prac-subtab{font-size:10.5px;padding:5px 4px;letter-spacing:0}
+  #v-practice .prac-subgroup .seg-tab{font-size:12px;padding:11px 3px}
+  #v-practice .prac-subtabs .prac-subtab{font-size:10.5px;padding:8px 5px;letter-spacing:0}
 }
 @media(max-width:360px){
-  #v-practice .prac-subgroup .seg-tab{font-size:11px;padding:8px 2px 9px}
-  #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:5px 3px}
+  #v-practice .prac-subgroup .seg-tab{font-size:11px;padding:11px 2px}
+  #v-practice .prac-subtabs .prac-subtab{font-size:9.5px;padding:8px 4px}
   #v-practice .prac-subtabs .prac-subtab b{margin-left:3px;font-size:10.5px}
 }
 /* GRAMMAR — reference rules + exercise launcher cards */
@@ -1140,9 +1143,17 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .voc-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer}
 .voc-head:hover{background:rgba(255,255,255,.03)}
 .voc-head .wd{font-weight:700;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.voc-mini{padding:0;width:34px;height:34px;flex:none;justify-content:center}
-.voc-mini svg{width:16px;height:16px}
-.voc-chev{color:var(--mut2);flex:none;font-size:12px}
+.voc-mini{padding:0;width:44px;height:44px;min-height:44px;flex:none;justify-content:center}
+.voc-mini svg{width:18px;height:18px}
+.voc-mini:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Saved is a STATE, not the row's primary action. It used to be a filled --grad
+   button — the brightest thing on every row — even though on "My words" every
+   row is already saved, so the loudest control on the list deleted the word.
+   Quiet green tint now, and the label says what a tap will do. */
+.voc-save.on{background:color-mix(in srgb,var(--green) 16%,transparent);
+  border-color:color-mix(in srgb,var(--green) 45%,transparent);color:var(--green)}
+.voc-save.on:hover{background:color-mix(in srgb,var(--green) 26%,transparent)}
+.voc-chev{color:var(--mut);flex:none;font-size:12px}
 .voc-lvl{font-size:11px;font-weight:800;padding:2px 8px;border-radius:6px;letter-spacing:.5px}
 .voc-lvl.a{background:rgba(52,211,153,.15);color:var(--green)}
 .voc-lvl.b{background:rgba(99,102,241,.18);color:#a5b4fc}
@@ -1156,6 +1167,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* Segmented pill tabs — the one tab component used across the app
    (Library buckets, Journey phases, Shadow Studio, Phrase Lab). */
 .prac-subtabs,.seg-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+#v-practice .prac-add-btn{min-height:44px}
+#v-practice .prac-add input{min-height:44px}
 /* the three vocabulary buckets are one control — equal widths read as a
    segmented switch rather than three loose pills of random length */
 .prac-subtabs{flex-wrap:nowrap}
@@ -1200,7 +1213,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-ex-card b{font-size:14px}
 .prac-ex-card small{font-size:11.5px;color:var(--mut2)}
 .prac-stats{text-align:center}
-.prac-total{font-size:40px;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* was gradient-clipped text at 1.23:1 in dark — see the session timer digits */
+.prac-total{font-size:40px;font-weight:800;line-height:1;color:var(--txt);font-variant-numeric:tabular-nums}
 .prac-total-l{font-size:12.5px;color:var(--mut);margin-top:2px}
 .prac-bar{height:8px;border-radius:99px;background:var(--bg2);overflow:hidden;margin:14px 0 12px}
 .prac-bar span{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .4s}
@@ -3114,6 +3128,8 @@ const I18N_EN={
  "voc.loading_def":"Loading definition…",
  "voc.real_voice":"▶ Real voice",
  "voc.no_entry":"No dictionary entry found — use 🔊 to hear it.",
+ "voc.save_title":"Save to my words",
+ "voc.saved_title":"Saved — tap to remove",
  "voc.removed_toast":"Removed from Vocabulary & Grammar",
  "voc.saved_toast":"🔖 Saved to Vocabulary & Grammar",
  "voc.saved_all_toast":"🔖 All words saved to Vocabulary & Grammar",
@@ -6573,12 +6589,12 @@ function vocRow(w,l){
   const saved=!!S.vocab[w],safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
-      <button class="btn btn-g btn-sm voc-mini" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
+      <button class="btn btn-g voc-mini" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
       <span class="wd">${esc(w)}</span>
       <span class="voc-lvl ${l[0].toLowerCase()}">${l}</span>
       <span style="flex:1"></span>
-      <button class="btn btn-g btn-sm voc-mini" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}" aria-label="${esc(t("voc.say_it_title"))}">${ic("mic")}</button>
-      <button class="btn btn-sm voc-mini ${saved?'btn-p':'btn-g'}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')" aria-label="Save">${saved?ic("check"):ic("bookmark")}</button>
+      <button class="btn btn-g voc-mini" onclick="event.stopPropagation();vocTry('${esc(w)}','${safe}')" title="${esc(t("voc.say_it_title"))}" aria-label="${esc(t("voc.say_it_title"))}">${ic("mic")}</button>
+      <button class="btn voc-mini voc-save${saved?" on":""}" id="vs_${safe}" onclick="event.stopPropagation();vocSave('${esc(w)}','${l}')" aria-pressed="${saved}" title="${esc(t(saved?"voc.saved_title":"voc.save_title"))}" aria-label="${esc(t(saved?"voc.saved_title":"voc.save_title"))}">${saved?ic("check"):ic("bookmark")}</button>
       <span class="voc-chev">▾</span>
     </div>
     <div class="voc-body" id="vb_${safe}"><span style="font-size:12px;color:var(--mut2)" id="vres_${safe}"></span></div>
@@ -6604,8 +6620,16 @@ window.vocOpen=async(w,safe)=>{
 const VOC_DEFS={};
 window.vocSave=(w,l)=>{
   const safe=w.replace(/[^a-z0-9]/g,"_"),b=document.getElementById("vs_"+safe);
-  if(S.vocab[w]){delete S.vocab[w];if(b){b.textContent="🔖";b.classList.remove("btn-p");b.classList.add("btn-g")}toast(t("voc.removed_toast"))}
-  else{S.vocab[w]={l,ts:Date.now()};if(b){b.textContent="✓";b.classList.add("btn-p");b.classList.remove("btn-g")}toast(t("voc.saved_toast"))}
+  /* was assigning textContent="🔖"/"✓", which replaced the SVG with a raw emoji
+     at runtime — the one place emoji re-entered the UI after the icon sweep */
+  const paint=on=>{if(!b)return;
+    b.classList.toggle("on",on);
+    b.innerHTML=ic(on?"check":"bookmark");
+    b.setAttribute("aria-pressed",String(on));
+    const lbl=t(on?"voc.saved_title":"voc.save_title");
+    b.setAttribute("aria-label",lbl);b.setAttribute("title",lbl);};
+  if(S.vocab[w]){delete S.vocab[w];paint(false);toast(t("voc.removed_toast"))}
+  else{S.vocab[w]={l,ts:Date.now()};paint(true);toast(t("voc.saved_toast"))}
   save();vlRender();
 };
 window.vocSaveAll=list=>{list.forEach(x=>{if(!S.vocab[x.w])S.vocab[x.w]={l:x.l,ts:Date.now()}});save();vlRender();toast(t("voc.saved_all_toast"));};
@@ -6787,7 +6811,7 @@ function rLibVocab(el){
         </div>
         <div class="prac-add">
           <input id="pracAddIn" placeholder="${esc(t("prac.add_ph"))}" onkeydown="if(event.key==='Enter')pracAdd()">
-          <button class="btn btn-p btn-sm" onclick="pracAdd()">${t("prac.add_btn")}</button>
+          <button class="btn btn-g prac-add-btn" onclick="pracAdd()">${t("prac.add_btn")}</button>
         </div>
       </div>
     </div>

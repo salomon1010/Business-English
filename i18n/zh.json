@@ -1121,5 +1121,7 @@
   "fb.section_stats": "语速、填充词与历史",
   "ex.another_way": "另一种说法",
   "ex.frames_h": "高管表达框架",
-  "ex.key_phrase": "使用的关键表达"
+  "ex.key_phrase": "使用的关键表达",
+  "voc.save_title": "保存到我的词汇",
+  "voc.saved_title": "已保存 — 点按移除"
 }

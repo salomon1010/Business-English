@@ -1121,5 +1121,7 @@
   "fb.section_stats": "Ritmo, intercalari e storico",
   "ex.another_way": "Un altro modo di dirlo",
   "ex.frames_h": "Strutture da manager",
-  "ex.key_phrase": "Espressione chiave usata"
+  "ex.key_phrase": "Espressione chiave usata",
+  "voc.save_title": "Salva nelle mie parole",
+  "voc.saved_title": "Salvata — tocca per rimuovere"
 }

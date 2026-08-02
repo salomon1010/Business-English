@@ -1121,5 +1121,7 @@
   "fb.section_stats": "Débit, tics de langage et historique",
   "ex.another_way": "Une autre façon de le dire",
   "ex.frames_h": "Structures de direction",
-  "ex.key_phrase": "Expression clé utilisée"
+  "ex.key_phrase": "Expression clé utilisée",
+  "voc.save_title": "Enregistrer dans mes mots",
+  "voc.saved_title": "Enregistré — touchez pour retirer"
 }

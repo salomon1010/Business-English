@@ -288,13 +288,59 @@ Commit: `a1cd17f`.
 
 ---
 
-## Screens 6–12 — not yet audited
+## Screen 6 — Vocabulary ✅ complete
+
+The My-words half of `#v-practice`: `vocRow` / `vocSave` / `vocBuckets`, plus
+the same `vocRow` reused inside the Speaking Feedback panel.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| V1 | **The brightest control on every row deleted the word.** A filled `--grad` "✓" that reads as confirmation calls `delete S.vocab[w]`. On "My words" *every* row is saved, so the loudest thing on the list was destructive, with `aria-label="Save"` — the opposite of what it does. | The single worst defect found in the project so far: a destructive action disguised as a confirmation, mislabelled for screen readers. |
+| V2 | **27 of 42 controls under 44px** — 21 row buttons at 38px, subtabs at 30px, group tabs at 38px. 36% touch coverage. | Unusable on a phone. |
+| V3 | **8 `.btn-p`** gradient buttons — white on `--grad`'s cyan end, ~1.9:1. | Contrast. |
+| V4 | `vocSave` assigned `textContent = "🔖"` / `"✓"` on toggle, replacing the icon SVG with a raw emoji at runtime. | The one place emoji re-entered the UI after the icon sweep. |
+| V5 | `.prac-total` (the collected-words number, 40px — the largest type on the card) was gradient-clipped text at **1.23:1** in dark. `.voc-chev` at 2.95/2.58. `.prac-subtab.on` white on `--grad`. | Three contrast failures. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Targets <44px | 27 of 42 | **0** |
+| Touch coverage | 36% | **100%** |
+| `.btn-p` gradient buttons | 8 | **0** |
+| Contrast failures | 3 | **0** |
+| Runtime emoji injection | yes | **none** |
+| Row height | 58px | 64px |
+| Page height | 1,633px | 1,695px |
+
+Verified at 320/390/430/768/1280px, in de/ru/ar/ja, both themes, under reduced
+motion, and through a save→remove→save round trip in **both** contexts the row
+is used (My words, and the not-yet-saved rows in Speaking Feedback).
+
+### Decisions worth preserving
+
+- The toggle is a **state, not an action**: quiet green tint when saved, and its
+  label says what a tap will do — "Saved — tap to remove" vs "Save to my words",
+  with `aria-pressed`. The row is dual-purpose (saved in the list, unsaved in
+  feedback), so the fix is to make the *current* meaning legible, not to pick one.
+- Row height grew 6px and the page 62px. That is the cost of 44px targets and
+  is the right trade on a phone-first product.
+- Touch-target floors were raised on the **specific** rules
+  (`#v-practice .prac-subtabs .prac-subtab`, `.prac-subgroup .seg-tab`) — a
+  generic scoped rule lost to them on specificity and silently did nothing.
+
+Commit: pending.
+
+---
+
+## Screens 7–12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 
 | # | Screen | Renderer | Notes carried forward |
 |---|---|---|---|
-| 6 | Vocabulary | `rPractice` | — |
 | 7 | Practice Hub | `rPractice` | — |
 | 8 | Calendar | `rProfile` → `.pcal-*` | **Labels hardcoded English, no i18n keys** |
 | 9 | Profile | `rProfile` | Dev toggle: tap "Program start date" 5× |

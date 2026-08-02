@@ -1121,5 +1121,7 @@
   "fb.section_stats": "Ritmo, muletillas e historial",
   "ex.another_way": "Otra forma de decirlo",
   "ex.frames_h": "Estructuras ejecutivas",
-  "ex.key_phrase": "Frase clave utilizada"
+  "ex.key_phrase": "Frase clave utilizada",
+  "voc.save_title": "Guardar en mis palabras",
+  "voc.saved_title": "Guardada — toca para quitar"
 }

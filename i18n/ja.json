@@ -1121,5 +1121,7 @@
   "fb.section_stats": "速さ・つなぎ言葉・履歴",
   "ex.another_way": "別の言い方",
   "ex.frames_h": "エグゼクティブの型",
-  "ex.key_phrase": "使われたキーフレーズ"
+  "ex.key_phrase": "使われたキーフレーズ",
+  "voc.save_title": "自分の単語に保存",
+  "voc.saved_title": "保存済み — タップで削除"
 }
