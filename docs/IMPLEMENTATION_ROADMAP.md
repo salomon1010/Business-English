@@ -64,8 +64,8 @@ One new i18n key (`home.week_days`), translated ×15, parity 1112.
 
 Taps to the recorder 1→**0** · controls hidden behind a tab 19→**0** · visible
 targets <44px 5→**0** · infinite animations 1→**0** · contrast failures 3→**0**
-· inline styles 42→**18** · DOM 195→**192** · timer card 306→**196**px.
-Document height grew 1804→2286px, the intended cost of un-hiding the practice
+· inline styles 42→**18** · DOM 195→**191** · timer card 306→**196**px.
+Document height grew 1804→2291px, the intended cost of un-hiding the practice
 half. Full findings in `UX_AUDIT.md`.
 
 Removed the plan/do tab entirely (`sessTab`, `_sessTab`, `#sessPlan`,
@@ -99,6 +99,7 @@ before the passes that would otherwise re-patch them.
 | 3 | Radius sprawl — raw 12/10/9/8/7/22px beside `--r-md`/`--r-lg` | Migrate opportunistically, per pass |
 | 4 | Header streak pill shows a gold flame **0** on day one | Hide below 1 — one line, but shared chrome, so needs its own commit |
 | 5 | Progress Calendar labels hardcoded English, no i18n keys | Fix in the Calendar pass (screen 8) |
+| 7 | Five `→` "go" arrows still unmirrored in RTL (Session's is fixed) | One shared `html[dir="rtl"]` rule, once the owning screens are passed |
 | 6 | `.btn-p` gradient buttons app-wide | Fold into `.btn-primary` as screens are touched |
 
 ## Infrastructure not blocking design

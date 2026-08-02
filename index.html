@@ -558,7 +558,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   font-weight:600;letter-spacing:2px;color:var(--txt);line-height:1.1;
   font-variant-numeric:tabular-nums;transition:color .2s}
 .timer-box.running .timer-digits{color:var(--accent)}
-.timer-acts{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.timer-box .btn-primary{margin-top:14px}
 
 .score-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 /* 36px was under the 44px minimum, ten times over. */
@@ -577,13 +577,13 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* The day's tool (Shadow Studio, Phrase Lab…) — prominent, but secondary to
    starting the block. Was a .glow-cta, which carried an infinite animation and
    competed with the clock for primacy. */
-.sess-jump{width:100%;justify-content:flex-start;min-height:48px;border-radius:var(--r-md)}
+.sess-jump{width:100%;justify-content:flex-start;min-height:48px;padding:12px 16px;border-radius:var(--r-md)}
 .sess-jump-go{margin-left:auto;color:var(--acc2);font-size:18px}
 .sess-jump-why{font-size:12.5px;color:var(--mut);line-height:1.5;margin:8px 0 18px}
 /* Supporting text and the rare Reset sit outside the hero card, so the card
    itself carries only the clock and the one action that starts it. */
-.sess-timer-foot{display:flex;align-items:center;gap:12px;margin:-6px 2px 0}
-.sess-timer-hint{flex:1;min-width:0;font-size:12px;color:var(--mut);line-height:1.5}
+.sess-timer-foot{display:flex;align-items:center;gap:12px;margin-top:-6px}   /* pulls back to a 10px gap under its own card */
+.sess-timer-hint{flex:1;min-width:0;font-size:12.5px;color:var(--mut);line-height:1.5}
 /* Reset is a rare, mildly destructive action, so it is a quiet text control
    rather than a second stacked button competing with Start. */
 .sess-reset{background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
@@ -1327,6 +1327,13 @@ html[dir="rtl"] .more-sheet button,html[dir="rtl"] .more-sheet a{text-align:righ
 html[dir="rtl"] th,html[dir="rtl"] td{text-align:right}
 html[dir="rtl"] .auth-x{right:auto;left:16px}
 html[dir="rtl"] .lang-row{text-align:right}
+/* U+2192 is not bidi-mirrored, so a "go" arrow keeps pointing right in Arabic
+   and Urdu — away from the direction of travel. Session's is flipped here; the
+   other five (.home-due-go, .home-step-go, .rp-entry-go, .rp-hero-go,
+   .rp-ht-go) belong to screens not yet passed, and are logged in UX_AUDIT. */
+html[dir="rtl"] .sess-jump-go{transform:scaleX(-1)}
+html[dir="rtl"] .sess-jump{justify-content:flex-start}
+html[dir="rtl"] .sess-jump-go{margin-left:0;margin-right:auto}
 
 /* In-app User Manual (localized document) */
 /* HELP CENTRE (the "?" landing) */
@@ -4192,9 +4199,7 @@ function rSession(el,w,d){
       <div class="card timer-box" id="tBox">
         <div class="eyebrow">${t("sess.timer_eyebrow")}</div>
         <div class="timer-digits" id="tDig" role="timer" aria-live="off">25:00</div>
-        <div class="timer-acts">
-          <button class="btn-primary" id="tBtn" onclick="tToggle()">${t("sess.timer_start")}</button>
-        </div>
+        <button class="btn-primary" id="tBtn" onclick="tToggle()">${t("sess.timer_start")}</button>
       </div>
       <div class="sess-timer-foot">
         <p class="sess-timer-hint">${t("sess.timer_hint")}</p>

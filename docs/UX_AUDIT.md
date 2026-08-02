@@ -98,9 +98,12 @@ Commit: `9450bed`.
 | Contrast failures | 3 | **0** |
 | `.btn-p` gradient buttons | 2 | **0** |
 | Inline-styled elements | 42 | **18** |
-| DOM nodes | 195 | **192** |
+| DOM nodes | 195 | **191** |
 | Timer card height | 306px | **196px** |
-| Document height | 1804px | 2286px |
+| Document height | 1804px | 2291px |
+
+Also verified: no horizontal overflow and 0 sub-44px targets at 320/390/430/
+768/820/1280px; no clipped text in de, ru, ar or ja; `dir=rtl` applies.
 
 Document height **grew 27%** and that is the intended trade: 19 controls that
 were previously rendered `display:none` behind an undiscovered tab are now in
@@ -120,7 +123,7 @@ the flow. Total interactive elements fell 31 → 30.
   never co-visible — this forced the `DESIGN_SYSTEM` §8 wording change from
   "per screen" to "per viewport".
 
-Commit: pending.
+Commit: `479b094` + final-gate follow-up.
 
 ---
 
@@ -163,3 +166,8 @@ patch.
    badge for an achievement not yet earned. One-line fix, but it is shared
    chrome across all 12 screens.
 5. **Progress Calendar has no i18n keys.** Fifteen languages see English.
+6. **"Go" arrows are not mirrored in RTL.** `→` (U+2192) is not bidi-mirrored,
+   so it points away from the direction of travel in Arabic and Urdu. Fixed for
+   `.sess-jump-go`; still wrong on `.home-due-go`, `.home-step-go`,
+   `.rp-entry-go`, `.rp-hero-go`, `.rp-ht-go`. One shared rule would fix all
+   six, but it would change screens not yet passed.
