@@ -1109,5 +1109,6 @@
   "rate.later": "Не сейчас",
   "footer.about_link": "О BE Mastery",
   "footer.guide_link": "Руководство пользователя",
-  "footer.play_link": "Google Play"
+  "footer.play_link": "Google Play",
+  "home.week_days": "дней на этой неделе"
 }

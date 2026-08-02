@@ -1109,5 +1109,6 @@
   "rate.later": "Pas maintenant",
   "footer.about_link": "À propos de BE Mastery",
   "footer.guide_link": "Guide d'utilisation",
-  "footer.play_link": "Google Play"
+  "footer.play_link": "Google Play",
+  "home.week_days": "jours cette semaine"
 }

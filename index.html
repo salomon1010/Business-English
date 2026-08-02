@@ -320,14 +320,14 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .ring .pct small{display:block;font-size:11px;color:var(--mut);font-weight:500;text-align:center}
 /* Metric tiles are borderless and share one grouped panel (.home-dash), so the
    dashboard reads as a single calm surface of numbers rather than nine boxes. */
-.stat{background:transparent;border:none;border-radius:var(--r-md);padding:13px 14px;transition:.16s}
+.stat{background:transparent;border:none;border-radius:var(--r-md);padding:13px 14px;transition:.16s;
+  display:flex;flex-direction:column;justify-content:center;min-height:78px}
 .stat[role=button]:hover{background:var(--hover)}
 .stat[role=button]:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-/* a stat still at zero shows the single next action that changes it */
-.stat-todo{opacity:.9}
-.stat-next{display:flex;align-items:flex-start;gap:6px;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);
-  font-size:12px;line-height:1.5;color:var(--acc2);text-align:left}
-.stat-next svg{width:14px;height:14px;flex:none;margin-top:2px}
+/* A metric still at zero recedes instead of arguing: the panel is for what has
+   been earned, and the one next step is stated once below it (.home-step). */
+.stat-empty{opacity:.55}
+.stat-empty:hover{opacity:1}
 .stat .n{font-size:clamp(21px,5.4vw,28px);font-weight:800;display:flex;align-items:center;gap:7px}
 .stat .l{font-size:clamp(11.5px,3vw,12.5px);color:var(--mut);margin-top:3px}
 .stat-ic{color:var(--acc);flex:none;line-height:0}
@@ -446,9 +446,28 @@ h1.big em{font-style:italic;background:var(--grad);-webkit-background-clip:text;
 .pf-txt b{font-size:15px}
 .pf-txt small{color:var(--mut);font-weight:500;font-size:12.5px}
 .pf-chev{margin-left:auto;color:var(--mut);font-size:22px;flex:none}
-/* Primary action card: a single restrained indigo wash + hairline + soft lift,
-   not the old indigo→cyan gradient. The glow CTA inside carries the emphasis. */
-.today-card{background:linear-gradient(135deg,rgba(99,102,241,.10),rgba(99,102,241,.03));border:1px solid var(--line2);box-shadow:var(--sh-1)}
+/* The day's session is the one thing Home exists to start, so it is the most
+   elevated surface on the screen and the only one carrying a solid accent
+   button. The card itself is now plain --card: the wash competed with the
+   button for the eye, and only one of the two is actually actionable. */
+.today-card{background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-2)}
+.today-card h1,.today-card h2{font-size:clamp(20px,5.2vw,25px);font-weight:800;line-height:1.22;letter-spacing:-.3px;margin:6px 0 5px}
+
+/* PRIMARY ACTION — the one solid-accent button per screen. Everything else is
+   secondary by construction. No infinite animation: motion here confirms a
+   press, it does not decorate. */
+.btn-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  min-height:52px;padding:14px 18px;border:none;border-radius:var(--r-md);
+  /* Deepened a notch from --accent so white text clears 4.5:1 in BOTH themes.
+     Raw --acc in dark (#6366f1) measures 4.47:1 — a hair under AA. */
+  background:color-mix(in srgb,var(--accent) 90%,#000);color:var(--on-accent);font-family:inherit;
+  font-size:clamp(15px,4vw,16.5px);font-weight:700;letter-spacing:-.2px;line-height:1.25;
+  cursor:pointer;box-shadow:var(--sh-2);
+  transition:transform .12s cubic-bezier(.2,.8,.3,1),box-shadow .12s,filter .12s}
+.btn-primary:hover{filter:brightness(1.08);box-shadow:var(--sh-3)}
+.btn-primary:active{transform:scale(.985);box-shadow:var(--sh-1)}
+.btn-primary:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.btn-primary{transition:none}.btn-primary:active{transform:none}}
 
 /* JOURNEY */
 .wk-card{cursor:pointer;transition:.2s;position:relative;overflow:hidden}
@@ -628,7 +647,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .rp-entry-ic svg{width:21px;height:21px}
 .rp-entry-t{flex:1;min-width:0}
 .rp-entry-t b{display:block;font-size:15px;margin-bottom:3px}
-.rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:block}
+/* Secondary entry point, so it gets a glance not a paragraph: the full sentence
+   stays in the markup (and in all 15 translations) but the card shows two lines
+   and the destination explains the rest. */
+.rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rp-entry-go{flex:none;color:var(--acc2);font-size:19px}
 /* conversation history rows on the progress page */
 .cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
@@ -726,6 +749,9 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    the Knowledge Booster cards carry: material you earned is waiting. Shown
    only when the count is above zero, so it never becomes furniture. */
 .home-due{display:flex;align-items:center;gap:13px;width:100%;text-align:left;cursor:pointer;
+  /* It is a <button>, so it inherits the UA's black button text unless told
+     otherwise — which made the title 1.09:1 against the dark theme. */
+  color:var(--txt);
   margin-bottom:14px;padding:14px 16px;
   background:linear-gradient(155deg,rgba(52,211,153,.12),rgba(52,211,153,.04));
   border-color:var(--line);box-shadow:var(--sh-1);transition:.15s}
@@ -752,22 +778,64 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    run-on sentence. Values are the same translated labels used elsewhere. */
 .home-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 
+/* Momentum strip — the evidence a returning user came back for. It replaces the
+   marketing hero once there is any history to show (the hero is the empty
+   state), so the day's task moves ~130px up the screen. Dot styles are the
+   Progress Calendar's .pcal-wd, reused rather than re-cut, and the counts are
+   read from calWeekProgress() so Home and the calendar can never disagree. */
+.home-week{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);padding:12px 14px;margin-bottom:16px}
+.home-week-days{display:flex;gap:5px}
+.home-week .pcal-wd{width:28px;height:28px;font-size:11.5px}
+.home-week-lbl{font-size:12.5px;color:var(--mut);line-height:1.35;min-width:0}
+.home-week-lbl b{display:block;color:var(--txt);font-size:15px;font-weight:800;letter-spacing:-.2px}
+.home-week-streak{margin-left:auto;display:flex;align-items:center;gap:6px;flex:none;
+  font-size:14px;font-weight:800;color:var(--gold)}
+.home-week-streak svg{width:17px;height:17px}
+@media(max-width:400px){.home-week{gap:10px;padding:11px 12px}.home-week .pcal-wd{width:26px;height:26px}}
+
+/* Execution rules used to be a 50%-width tab competing with the dashboard for
+   a decision the user does not need to make daily. It is reference material, so
+   it becomes a closed disclosure at the foot of the page: still one tap away,
+   still keyboard-operable, no longer a fork in the road. */
+.home-more{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--card);
+  box-shadow:var(--sh-1);margin-bottom:22px;overflow:hidden}
+.home-more>summary{display:flex;align-items:center;gap:10px;min-height:52px;padding:14px 16px;
+  cursor:pointer;font-weight:700;font-size:14.5px;list-style:none;transition:background .12s}
+.home-more>summary::-webkit-details-marker{display:none}
+.home-more>summary:hover{background:var(--hover)}
+.home-more>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.home-more>summary .btn-ic{color:var(--gold);line-height:0;flex:none}
+.home-more>summary .hm-chev{margin-left:auto;color:var(--mut);font-size:13px;transition:transform .15s}
+.home-more[open]>summary .hm-chev{transform:rotate(90deg)}
+.home-more[open]>summary{border-bottom:1px solid var(--line)}
+.home-more-body{padding:4px 16px 18px}
+@media (prefers-reduced-motion:reduce){.home-more>summary .hm-chev{transition:none}}
+
 /* Dashboard is the "what you have earned" half, so its cards carry green the
    same way the rules carry the warning colour. The progress ring and the phase
    chips keep their own colours - those encode meaning, not theme. */
-.home-dash{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-1);padding:6px}
+.home-dash{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);
+  box-shadow:var(--sh-1);padding:6px;grid-auto-rows:1fr}
 .home-dash .stat-ic{color:var(--green)}
-.home-dash .stat-next{color:var(--green)}
-.home-dash .stat-next svg{color:var(--green)}
+
+/* The one next step, stated once under the panel instead of nine times inside
+   it. It is a real button and goes to the screen that changes the number. */
+.home-step{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  min-height:48px;margin:10px 0 22px;padding:12px 16px;cursor:pointer;
+  font-family:inherit;font-size:13.5px;line-height:1.5;font-weight:600;
+  color:var(--txt);background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-md);box-shadow:var(--sh-1);transition:.15s}
+.home-step:hover{background:var(--hover);box-shadow:var(--sh-2)}
+.home-step:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.home-step-go{margin-left:auto;flex:none;color:var(--green);font-size:19px}
 
 /* The execution rules are the non-negotiable part of the method, so they carry
-   the warning colour rather than the app's usual indigo. */
-.home-tabs .seg-tab[data-k="dashboard"].on{background:linear-gradient(135deg,#10b981,#34d399);color:#04160f}
-.home-tabs .seg-tab[data-k="dashboard"].on .btn-ic svg{color:#04160f}
-.home-tabs .seg-tab[data-k="dashboard"]:hover{border-color:var(--green)}
-.home-tabs .seg-tab[data-k="rules"].on{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a1206}
-.home-tabs .seg-tab[data-k="rules"].on .btn-ic svg{color:#1a1206}
-.home-tabs .seg-tab[data-k="rules"]:hover{border-color:var(--gold)}
+   the warning colour rather than the app's usual indigo. (The .home-tabs rules
+   that used to sit here went with the Dashboard/Execution-rules tab row — the
+   rules now live in a .home-more disclosure, so green means "earned" on Home
+   and nothing else.) */
 .rules-h{margin:26px 0 12px;color:var(--gold)}
 .rules-h svg{color:var(--gold)}
 .home-rules .card{border-color:color-mix(in srgb,var(--gold) 34%,transparent)}
@@ -2435,6 +2503,7 @@ const I18N_EN={
  "home.due_title":"{{n}} words are ready to review",
  "home.due_title_one":"1 word is ready to review",
  "home.due_sub":"Words you saved from your own speaking. Two minutes now and they stay yours.",
+ "home.week_days":"days this week",
  "home.tabs_label":"Home sections",
  "home.tab_dashboard":"Dashboard",
  "home.tab_rules":"Execution rules",
@@ -3806,13 +3875,17 @@ window.aboutToggleTheme=function(){
 /* ================= DASHBOARD ================= */
 let _homeRecN=0;
 async function rHome(el){
-  const p=pct(),pos=currentPos(),wk=WEEKS[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
-  _homeRecN=recN;_homeTab="dashboard";
-  const phaseCounts=[0,0,0,0];
-  WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
-  const circ=2*Math.PI*62;
+  const pos=currentPos(),wk=WEEKS[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
+  _homeRecN=recN;
+  /* Day 0 gets the promise, every day after gets the evidence. Someone who has
+     never practised has nothing to show in a week strip — seven empty dots is a
+     poor welcome — and someone on day 40 does not need the pitch again. */
+  const started=totalDone()>0;
+  /* No .pg-eyebrow here on purpose. Every other view needs one because the
+     header's sub-label is a static "Home"; on Home itself that label is already
+     correct, so a sticky bar repeating it would cost 43px to say nothing. */
   el.innerHTML=`
-  <div class="eyebrow pg-eyebrow">${t("home.eyebrow")}</div>
+  ${started?homeWeekStrip():`
   <h1 class="big">${S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic")}</h1>
   <p class="sub">${t("home.sub_base")}.</p>
   ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
@@ -3820,15 +3893,19 @@ async function rHome(el){
     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
     if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
     return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
-  <div class="hr"></div>
+  <div class="hr"></div>`}
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
-      <h3 style="font-size:20px;margin:6px 0 4px">${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h3>
+      ${started?`<h1>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h1>`
+               :`<h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h2>`}
       <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(DAY_META[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
-      <button class="btn glow-cta" onclick="go('session',${pos.w},'${pos.d}')"><span class="glow-cta-txt">${t("home.start_btn")}</span></button>
+      <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
     </div>
+  </div>
+  ${homeDueCard()}
+  <div class="hero">
     <button class="card rp-entry" onclick="go('roleplay')">
       <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
       <span class="rp-entry-t">
@@ -3838,37 +3915,58 @@ async function rHome(el){
       <span class="rp-entry-go">→</span>
     </button>
   </div>
-  <div class="seg-tabs seg-fit home-tabs" role="tablist" aria-label="${esc(t("home.tabs_label"))}">
-    <button class="seg-tab" data-k="dashboard" role="tab" onclick="homeTab('dashboard')"><span class="btn-ic">${ic("gauge")}</span><span class="seg-lbl">${t("home.tab_dashboard")}</span></button>
-    <button class="seg-tab" data-k="rules" role="tab" onclick="homeTab('rules')"><span class="btn-ic">${ic("list")}</span><span class="seg-lbl">${t("home.tab_rules")}</span></button>
-  </div>
-  <div id="homeTabBody"></div>`;
-  homeTab(_homeTab,el);
+  <div id="homeTabBody">${homePanelDashboard()}</div>
+  <details class="home-more">
+    <summary><span class="btn-ic">${ic("list")}</span>${t("home.tab_rules")}<span class="hm-chev">▶</span></summary>
+    <div class="home-more-body">${homePanelRules()}</div>
+  </details>`;
   manIconizeInline(el);
 }
 
-/* Home splits into two panels: the numbers you have earned, and the method
-   behind them. Opening Home always lands on the numbers. */
-let _homeTab="dashboard";
-function homePanelDashboard(){
-  const p=pct(),pos=currentPos(),recN=_homeRecN;
-  const phaseCounts=[0,0,0,0];
-  WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
-  const circ=2*Math.PI*62;
-  /* Words the spaced-repetition schedule says are due right now. The nav badge
-     already counts them, but only Practice ever explained them — so a user who
-     opened Home saw a number with no context. Hidden entirely at zero: an
-     always-present "0 words due" would be noise. */
+/* This week at a glance: the reason a returning user opened the app. Counts and
+   day states come from calWeekProgress(), the same source the Progress Calendar
+   uses, so the two can never disagree. The dots are decoration for screen
+   readers — the label carries the same numbers as text. */
+function homeWeekStrip(){
+  const wk=calWeekProgress(),d=["M","T","W","T","F","S","S"];
+  const cs=streak();
+  /* The streak is deliberately absent: the header already carries a flame pill
+     with the same number, and printing it twice on one screen made the strip
+     wrap onto a second line for no new information. */
+  const lbl=wk.n+"/"+wk.goal+" "+t("home.week_days")+(cs?" · "+cs+" "+t("profile.day_streak"):"");
+  return `<div class="home-week" role="group" aria-label="${esc(lbl)}">
+    <span class="home-week-days" aria-hidden="true">${wk.labels.map((l,i)=>
+      `<span class="pcal-wd${l.on?" on":""}${l.isToday?" today":""}${l.fut?" fut":""}">${d[i]}</span>`).join("")}</span>
+    <span class="home-week-lbl" aria-hidden="true"><b>${wk.n}/${wk.goal}</b>${t("home.week_days")}</span>
+  </div>`;
+}
+
+/* Words the spaced-repetition schedule says are due right now. The nav badge
+   already counts them, but only Practice ever explained them — so a user who
+   opened Home saw a number with no context. Hidden entirely at zero: an
+   always-present "0 words due" would be noise.
+   It sits directly under the day's session because it is the only other thing
+   on Home that expires: review is time-sensitive, the role-play promo below it
+   is evergreen and can wait. */
+function homeDueCard(){
   const dueN=navBadgeCount("practice");
-  return `
-    ${dueN?`<button class="card home-due" onclick="go('practice')">
+  if(!dueN)return "";
+  return `<button class="card home-due" onclick="go('practice')">
       <span class="home-due-ic">${ic("book")}</span>
       <span class="home-due-t">
         <b>${dueN===1?t("home.due_title_one"):t("home.due_title",{n:dueN})}</b>
         <small>${t("home.due_sub")}</small>
       </span>
       <span class="home-due-go">→</span>
-    </button>`:""}
+    </button>`;
+}
+
+function homePanelDashboard(){
+  const p=pct(),pos=currentPos(),recN=_homeRecN;
+  const phaseCounts=[0,0,0,0];
+  WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
+  const circ=2*Math.PI*62;
+  return `
     ${rateHTML()}
     <div class="card home-ring">
       <div class="ring-wrap">
@@ -3880,22 +3978,56 @@ function homePanelDashboard(){
         </div>
         <div style="flex:1">
           ${[1,2,3].map(ph=>`<div style="margin-bottom:${ph===3?0:12}px">
-            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px"><span class="chip ${PHASES[ph].cls}" style="border:none;padding:0">${phaseLabel(ph)}</span><span style="color:var(--mut)">${phaseCounts[ph]}/28</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:5px"><span class="chip ${PHASES[ph].cls}" style="border:none;padding:0;min-width:0">${phaseLabel(ph)}</span><span style="color:var(--mut);flex:none">${phaseCounts[ph]}/28</span></div>
             <div class="bar"><i style="width:${phaseCounts[ph]/28*100}%"></i></div></div>`).join("")}
         </div>
       </div>
     </div>
-  <div class="grid g4 stats-center home-dash" style="margin-bottom:22px">
-    ${statCard("flame",streak(),"",t("home.stat_streak"),streak()===0?t("home.next_streak"):"","go('session',"+pos.w+",'"+pos.d+"')")}
-    ${statCard("mic",recN,"",t("home.stat_recordings"),recN===0?t("home.next_recordings"):"","go('session',"+pos.w+",'"+pos.d+"')")}
-    ${statCard("chat",masteredCount(),"/"+PHRASES.length,t("home.stat_phrases"),masteredCount()===0?t("home.next_phrases"):"","go('phrases')")}
-    ${statCard("check",totalDone(),"/84",t("home.stat_sessions"),totalDone()===0?t("home.next_sessions"):"","go('session',"+pos.w+",'"+pos.d+"')")}
-    ${statCard("target",(S.clips||[]).length,"",t("home.stat_clips"),(S.clips||[]).length===0?t("home.next_clips"):"","go('shadow')")}
-    ${statCard("book",Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length,"/"+Object.keys(S.vocab||{}).length,t("home.stat_vocab"),Object.keys(S.vocab||{}).length===0?t("home.next_vocab"):"","go('practice')")}
-    ${statCard("chat",(S.convos||[]).length,"",t("home.stat_convos"),(S.convos||[]).length===0?t("home.next_convos"):"","go('roleplay')")}
-    ${statCard("pencil",Object.values(S.gram||{}).reduce((n,g)=>n+((g&&g.runs)||0),0),"",t("home.stat_drills"),Object.keys(S.gram||{}).length===0?t("home.next_drills"):"","go('practice')")}
-    ${(()=>{const st=rpScoreStats();return statCard("mic",st.latest!=null?st.latest+"%":"—","",t("home.stat_pron"),st.scored?"":t("home.next_pron"),"go('roleplay')")})()}
-  </div>`;
+  ${homeMetrics(pos,recN)}`;
+}
+
+/* The nine metrics. Each used to carry its own "here is how to fix this zero"
+   paragraph, which meant a committed user (six-day streak, six sessions) met an
+   825px wall in which seven tiles read 0 and six of them nagged. The tiles now
+   just count, earned ones first, and the single most useful next step is stated
+   once beneath the panel. Nothing was dropped: all nine stay rendered, tappable
+   and keyboard-operable, and every next-step string is still a live i18n key. */
+function homeMetrics(pos,recN){
+  const sess="go('session',"+pos.w+",'"+pos.d+"')";
+  const vocN=Object.keys(S.vocab||{}).length;
+  const pron=rpScoreStats();
+  const M=[
+    {ic:"flame", n:streak(),                                                  suf:"",             lbl:"stat_streak",     next:"next_streak",     go:sess,             zero:streak()===0},
+    {ic:"check", n:totalDone(),                                               suf:"/84",          lbl:"stat_sessions",   next:"next_sessions",   go:sess,             zero:totalDone()===0},
+    {ic:"mic",   n:recN,                                                      suf:"",             lbl:"stat_recordings", next:"next_recordings", go:sess,             zero:recN===0},
+    {ic:"chat",  n:masteredCount(),                                           suf:"/"+PHRASES.length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
+    {ic:"book",  n:Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
+    {ic:"target",n:(S.clips||[]).length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:(S.clips||[]).length===0},
+    {ic:"chat",  n:(S.convos||[]).length,                                     suf:"",             lbl:"stat_convos",     next:"next_convos",     go:"go('roleplay')", zero:(S.convos||[]).length===0},
+    {ic:"pencil",n:Object.values(S.gram||{}).reduce((a,g)=>a+((g&&g.runs)||0),0), suf:"",         lbl:"stat_drills",     next:"next_drills",     go:"go('practice')", zero:!Object.keys(S.gram||{}).length},
+    {ic:"mic",   n:pron.latest!=null?pron.latest+"%":"—",                     suf:"",             lbl:"stat_pron",       next:"next_pron",       go:"go('roleplay')", zero:!pron.scored},
+  ];
+  /* Two different questions, so two different flags. `dim` is about the tile —
+     is the number it shows still nothing? `zero` is about the advice — is the
+     underlying activity untouched, which is what makes a next-step line
+     truthful. They diverge: 0 of 5 saved words mastered is a dim tile, but the
+     right advice there is not "save some words", because five are already
+     saved. */
+  M.forEach(m=>{ m.dim = !m.n || m.n==="—"; });
+  /* Dimming is a contrast device: it works because earned tiles sit beside
+     unearned ones. On day one everything is empty, and a wholly greyed panel
+     reads as broken rather than as "not yet", so nothing is dimmed. */
+  if(M.every(m=>m.dim))M.forEach(m=>{m.dim=false});
+  const sorted=M.filter(m=>!m.dim).concat(M.filter(m=>m.dim));
+  const step=M.find(m=>m.zero);          // the first untouched activity, in priority order
+  return `
+  <div class="grid g4 stats-center home-dash">
+    ${sorted.map(m=>statCard(m.ic,m.n,m.suf,t("home."+m.lbl),m.dim,m.go)).join("")}
+  </div>
+  ${step?`<button class="home-step" onclick="${step.go}">
+    <span>${t("home."+step.next)}</span>
+    <span class="home-step-go" aria-hidden="true">→</span>
+  </button>`:""}`;
 }
 function homePanelRules(){
   return `
@@ -3904,28 +4036,15 @@ function homePanelRules(){
   <h3 class="rules-h">${hIcon("list",t("home.rules_h"))}</h3>
   <div class="grid g3 home-rules">${RULES.map((r,i)=>`<div class="card" style="padding:16px"><div class="rule-ic">${ic(RULE_ICONS[i]||"check")}</div><b style="display:block;margin:7px 0 5px;font-size:14.5px">${t("rules."+i+".title")}</b><p style="font-size:13px;color:var(--mut);line-height:1.55">${t("rules."+i+".desc")}</p></div>`).join("")}</div>`;
 }
-function homeTab(k,root){
-  _homeTab=(k==="rules")?"rules":"dashboard";
-  const el=root||document.getElementById("v-home");
-  if(!el)return;
-  const body=el.querySelector("#homeTabBody");
-  if(!body)return;
-  body.innerHTML=(_homeTab==="rules")?homePanelRules():homePanelDashboard();
-  el.querySelectorAll(".home-tabs .seg-tab").forEach(b=>{
-    const on=b.dataset.k===_homeTab;
-    b.classList.toggle("on",on);b.setAttribute("aria-selected",on);
-  });
-  manIconizeInline(body);
-}
-
-/* A dashboard stat that guides instead of just counting: when the number is
-   still 0 it shows the one action that changes it. Always tappable. */
-function statCard(icon,n,suffix,label,hint,onclick){
-  return `<div class="stat${hint?" stat-todo":""}" style="cursor:pointer" onclick="${onclick}" role="button" tabindex="0"
+/* A dashboard stat. `empty` marks a metric still at zero — it dims the tile
+   rather than appending advice, so the panel keeps one uniform row height and
+   the guidance is stated once, below the grid, by homeMetrics(). Always
+   tappable, and the tap still lands on the screen that changes the number. */
+function statCard(icon,n,suffix,label,empty,onclick){
+  return `<div class="stat${empty?" stat-empty":""}" style="cursor:pointer" onclick="${onclick}" role="button" tabindex="0"
       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
     <div class="n"><span class="stat-ic">${ic(icon)}</span>${n}${suffix?`<span style="font-size:15px;color:var(--mut)">${suffix}</span>`:""}</div>
     <div class="l">${label}</div>
-    ${hint?`<div class="stat-next">${ic("arrow")}<span>${hint}</span></div>`:""}
   </div>`;
 }
 /* ================= JOURNEY ================= */
