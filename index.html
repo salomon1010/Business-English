@@ -164,6 +164,10 @@ window.FB_CONFIG={
   /* A brand fill that carries text. --grad's cyan end is too light for white
      (~1.8:1), so anything with a label on it uses this instead. */
   --accent-fill:color-mix(in srgb,var(--acc) 90%,#000);
+  /* The mirror of --accent-fill: accent used AS text on a dark surface. Raw
+     --acc (#6366f1) on the bottom-nav bar measures 4.08:1, under AA. This is
+     lightened instead of darkened, because here the accent is the foreground. */
+  --accent-text:#818cf8;
 }
 :root[data-theme="light"]{
   --bg:#f5f7fc; --bg2:#ffffff; --card:#ffffff; --card2:#eef2fb;
@@ -175,6 +179,9 @@ window.FB_CONFIG={
   --hover:rgba(15,23,42,.05);
   --wash1:rgba(99,102,241,.10); --wash2:rgba(34,211,238,.06);
   --sh-1:0 1px 2px rgba(15,23,42,.06); --sh-2:0 6px 20px rgba(15,23,42,.08); --sh-3:0 16px 40px rgba(15,23,42,.12);
+  /* On a light surface the accent is already the darker of the two, so accent
+     text needs no lightening — it is --acc itself. */
+  --accent-text:var(--acc);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -217,6 +224,10 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
   background:var(--green);color:#04231a;font-size:10.5px;font-weight:800;line-height:1;
   display:grid;place-items:center;font-variant-numeric:tabular-nums;pointer-events:none;
   animation:badge-pop .28s cubic-bezier(.2,.9,.3,1.4)}
+/* --green flips lightness between themes (light mint in dark, deep green in
+   light), so a fixed near-black label reads 2.52:1 on the light build. Same
+   trap as .pcal-wd.on — the label colour has to follow the theme. */
+:root[data-theme="light"] .nav-badge{color:#fff}
 .tab .nav-badge{top:2px;right:6px}
 .bnav-item .nav-badge{top:3px;left:50%;margin-left:4px;box-shadow:0 0 0 2px var(--bnav-bg)}
 @keyframes badge-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
@@ -1259,10 +1270,13 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .pv-card.flipped .pv-front{transform:rotateY(-180deg)}
 .pv-card.flipped .pv-back{transform:rotateY(0)}
 .pv-word{font-size:38px;font-weight:800;letter-spacing:.5px}
-.pv-flip-hint{font-size:12px;color:var(--mut2)}
-.pv-pos{color:var(--pink);font-style:italic}
+/* The flashcard face stacks two green washes (card .16 over game .18), so the
+   effective surface is much lighter than --card and --mut lands at 3.8:1.
+   --txt at 80% keeps the hint visually secondary while clearing AA. */
+.pv-flip-hint{font-size:12px;color:var(--txt);opacity:.8}
+.pv-pos{color:var(--txt);font-style:italic}
 .pv-def{font-size:17px;font-weight:600;line-height:1.5;margin-top:6px}
-.pv-ex{font-size:14px;color:var(--mut2);margin-top:10px}
+.pv-ex{font-size:14px;color:var(--txt);opacity:.8;margin-top:10px}
 .pv-loading{color:var(--mut2)}
 .pv-actions{display:flex;gap:10px;justify-content:center}
 .pv-actions .btn{flex:1;max-width:220px;justify-content:center}
@@ -1423,7 +1437,9 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    and padding would break the line. */
 .auth-alt a,.auth-forgot{color:var(--acc2);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;padding:0 6px;margin:-13px 0}
 .auth-forgot{color:var(--mut);font-weight:400;font-size:12.5px}
-.auth-terms{text-align:center;font-size:11px;color:var(--mut2);margin-top:16px;line-height:1.6}
+/* --mut2 is a border/divider token and must never carry text (DESIGN_SYSTEM).
+   At 11px on the auth sheet it measured 2.95:1, well under AA. */
+.auth-terms{text-align:center;font-size:11px;color:var(--mut);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
 .sync-nudge .nudge-ic svg{width:24px;height:24px}
@@ -1438,7 +1454,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
     color:var(--mut);font-size:10.5px;font-weight:600;padding:4px 2px;border-radius:12px;transition:.15s;font-family:inherit}
   .bnav-item .ic{font-size:21px;line-height:0;transition:.15s;display:block}
   .bnav-item .ic svg{width:25px;height:25px;display:block}
-  .bnav-item.on{color:var(--acc)}
+  .bnav-item.on{color:var(--accent-text)}
   .bnav-item.on .ic{transform:translateY(-2px) scale(1.12)}
   .bnav-item.on::before{content:"";position:absolute;width:0}
   main{padding-bottom:110px}
@@ -1750,6 +1766,11 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .manual-doc .man-inl{color:var(--macc)}
 .manual-doc .man-inl svg{width:15px;height:15px}
 .manual-doc{--macc:#818cf8;--mgold:#fbbf24;--mgreen:#34d399;--mred:#f87171;font-size:15.5px;line-height:1.65}
+/* These four were hardcoded dark-theme colours with no light counterpart, so
+   the whole Help centre rendered amber-on-white and indigo-on-white in light
+   mode — 36 text nodes between 1.2:1 and 2.6:1. Reuse the light palette's
+   already-vetted values rather than inventing new ones. */
+:root[data-theme="light"] .manual-doc{--macc:#4f46e5;--mgold:#8f4308;--mgreen:#046a4e;--mred:#c01c1c}
 .manual-doc .top{background:var(--accent-fill);color:var(--on-accent);padding:34px 22px;text-align:center;border-radius:18px;margin-bottom:0}
 .manual-doc .top h1{font-size:clamp(21px,4vw,30px);line-height:1.25;margin:10px 0 12px}
 .manual-doc .top p{max-width:640px;margin:0 auto;font-size:15px;opacity:.95}
@@ -1788,6 +1809,13 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .manual-doc table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0 22px;background:var(--card2);border-radius:12px;overflow:hidden}
 .manual-doc th,.manual-doc td{padding:10px 13px;text-align:left;border-bottom:1px solid var(--line2);vertical-align:top}
 .manual-doc th{background:rgba(129,140,248,.14);color:#c7cdff;font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+/* #c7cdff is a dark-theme value used in three places here (th, .say, code).
+   On the light build each sat between 1.2:1 and 1.9:1 over its own pale indigo
+   wash. One override covers all three. */
+:root[data-theme="light"] .manual-doc th,
+:root[data-theme="light"] .manual-doc .say,
+:root[data-theme="light"] .manual-doc code,
+:root[data-theme="light"] .manual-doc kbd{color:#3730a3}
 .manual-doc tr:last-child td{border-bottom:none}
 .manual-doc code,.manual-doc kbd{background:rgba(129,140,248,.16);color:#c7cdff;border-radius:6px;padding:2px 7px;font-size:13px;font-family:'SF Mono',Menlo,Consolas,monospace}
 .manual-doc footer{text-align:center;color:var(--mut);font-size:13px;padding:26px 20px 0;border-top:1px solid var(--line2)}
@@ -8272,7 +8300,7 @@ async function rData(el,embedded){
       <div class="card" style="opacity:.75;margin-bottom:16px">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip p3">${t("acc.coming_soon")}</span>
         <ul style="list-style:none;margin-top:10px">
-          ${["acc.prem_1","acc.prem_2","acc.prem_3","acc.prem_4","acc.prem_5"].map((k,i)=>`<li style="font-size:13px;color:var(--mut2);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut2);margin-top:2px">${ic(["sparkle","cloud","user","chat","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
+          ${["acc.prem_1","acc.prem_2","acc.prem_3","acc.prem_4","acc.prem_5"].map((k,i)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut);margin-top:2px">${ic(["sparkle","cloud","user","chat","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
       </div>
       <!-- the About card now lives in App Setup → About the app -->
