@@ -9578,7 +9578,15 @@ const SLOT_ICONS=["sun","utensils","train","moon"];
 function optLabel(val,arr,prefix){const i=arr.indexOf(val);return i>=0?t(prefix+i):val}
 function obRender(){
   let el=document.getElementById("obWrap");
-  if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";document.body.appendChild(el)}
+  /* A real modal dialog. Onboarding is painted over #v-home, which has already
+     rendered its own <h1> — so without aria-modal a screen reader meets two
+     level-1 headings with identical text, and can tab into the dashboard behind
+     the overlay. aria-modal takes everything outside this node out of the
+     accessibility tree, which is what makes the duplicate heading harmless. */
+  if(!el){el=document.createElement("div");el.id="obWrap";el.className="ob-wrap";
+    el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");
+    el.setAttribute("aria-label",t("ob.hero_pre")+" "+t("ob.hero_em"));
+    document.body.appendChild(el)}
   const dots=`<div class="ob-dots">${[0,1,2,3,4,5].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
