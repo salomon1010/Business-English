@@ -6,6 +6,40 @@
 <meta name="google-site-verification" content="jhJ7WJuNrifvgVF1mXZj9pXhKRobrOybJXLcn2FSsOE" />
 <title>Business English Mastery — 12-Week System</title>
 <meta name="theme-color" content="#0a0e1a">
+
+<!-- Search + social preview. Without these a shared link shows a bare title and
+     no image, which wastes every share the app earns. og.png is 1200×630 and is
+     rebuilt by scripts/make_og.py. Absolute URLs are required: crawlers do not
+     resolve relative paths from the og: tags. -->
+<meta name="description" content="Speak like you belong in the room. 25 minutes a day of guided Business English practice — shadowing, speaking feedback, a phrase bank and progress tracking. Free, works offline.">
+<link rel="canonical" href="https://app.lomonec.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BE Mastery">
+<meta property="og:url" content="https://app.lomonec.com/">
+<meta property="og:title" content="Business English Mastery — speak like you belong in the room">
+<meta property="og:description" content="25 minutes a day of guided Business English practice — shadowing, speaking feedback, a phrase bank and progress tracking. Free, works offline.">
+<meta property="og:image" content="https://app.lomonec.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BE Mastery — a 12-week Business English speaking system, shown on a phone">
+<meta property="og:locale" content="en_GB">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Business English Mastery — speak like you belong in the room">
+<meta name="twitter:description" content="25 minutes a day of guided Business English practice — shadowing, speaking feedback, a phrase bank and progress tracking. Free, works offline.">
+<meta name="twitter:image" content="https://app.lomonec.com/og.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication",
+ "name":"Business English Mastery","alternateName":"BE Mastery",
+ "url":"https://app.lomonec.com/",
+ "description":"A 12-week system for confident professional spoken English: 25 minutes a day of shadowing, speaking feedback, a phrase bank and progress tracking. Works offline.",
+ "applicationCategory":"EducationalApplication",
+ "operatingSystem":"Android, iOS, Windows, macOS — any modern browser",
+ "inLanguage":["en","es","fr","pt","it","de","ru","ar","ur","hi","bn","id","vi","zh","ja","ko"],
+ "image":"https://app.lomonec.com/og.png",
+ "installUrl":"https://play.google.com/store/apps/details?id=com.bemastery.app",
+ "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+ "publisher":{"@type":"Organization","name":"Lomonec LLC","url":"https://app.lomonec.com/","email":"contact@lomonec.com"}}
+</script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -26,6 +60,41 @@ window.FB_CONFIG={
   messagingSenderId:"847739483036",
   appId:"1:847739483036:web:7382f5b7a82eca294ece59"
 };
+</script>
+<script>
+/* ===== ANALYTICS =====
+   Product analytics, off by default and provider-agnostic. Nothing is loaded and
+   no request is made while PROVIDER is "" — track() is a silent no-op, so every
+   call site below is safe to leave in place.
+
+   To switch it on, set ONE of:
+     PROVIDER="plausible"; ID="app.lomonec.com"      // cookie-less, no consent banner needed
+     PROVIDER="ga4";       ID="G-XXXXXXXXXX"         // Google Analytics 4
+   Plausible is the better fit here: no cookies, no personal data, so the privacy
+   policy stands as written. Turning on GA4 means updating privacy.html and
+   adding a consent notice for the EU — do not enable it without that.
+
+   Only counts of anonymous events are ever sent. No recordings, no transcripts,
+   no phrase text, no profile fields — keep it that way when adding events. */
+(function(){
+  var PROVIDER="", ID="";
+  window.track=function(){};                       // no-op until a provider is configured
+  if(!PROVIDER||!ID)return;
+  var s=document.createElement("script");
+  if(PROVIDER==="plausible"){
+    s.defer=true; s.setAttribute("data-domain",ID);
+    s.src="https://plausible.io/js/script.js";
+    window.plausible=window.plausible||function(){(window.plausible.q=window.plausible.q||[]).push(arguments)};
+    window.track=function(name,props){try{window.plausible(name,props?{props:props}:undefined)}catch(e){}};
+  }else if(PROVIDER==="ga4"){
+    s.async=true; s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(ID);
+    window.dataLayer=window.dataLayer||[];
+    window.gtag=function(){window.dataLayer.push(arguments)};
+    window.gtag("js",new Date()); window.gtag("config",ID);
+    window.track=function(name,props){try{window.gtag("event",name,props||{})}catch(e){}};
+  }else return;
+  document.head.appendChild(s);
+})();
 </script>
 <script>
 /* Apply saved/system theme before first paint (no flash) */
@@ -615,6 +684,12 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .home-due-ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
   background:rgba(52,211,153,.20);color:var(--green)}
 .home-due-ic svg{width:20px;height:20px}
+/* Rating ask — same shape as the due card, gold instead of green, and not a
+   button itself since it carries two of its own. */
+.home-rate{display:flex;align-items:flex-start;gap:13px;margin-bottom:14px;padding:14px 16px;
+  background:linear-gradient(155deg,rgba(251,191,36,.15),rgba(251,191,36,.05));
+  border-color:rgba(251,191,36,.40)}
+.rate-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:11px}
 .home-due-t{flex:1;min-width:0}
 .home-due-t b{display:block;font-size:15px;margin-bottom:2px}
 .home-due-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:block}
@@ -1443,6 +1518,20 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 </head>
 <body>
 
+<!-- The app renders entirely from JS, so with scripting off a visitor (or a
+     crawler that does not execute JS) sees an empty page. This gives both
+     something real to read, and a route to the landing page and the guide. -->
+<noscript>
+  <div style="max-width:640px;margin:0 auto;padding:48px 22px;font-family:system-ui,sans-serif;color:#eef2fb">
+    <h1 style="font-size:28px;line-height:1.2">Business English Mastery — speak like you belong in the room</h1>
+    <p style="color:#9fb0cc;line-height:1.6;margin-top:14px">A 12-week system for confident professional spoken English. 25 minutes a day: shadowing real speakers, instant speaking feedback, 152 business phrases and visible progress. Free, no account, works offline.</p>
+    <p style="color:#9fb0cc;line-height:1.6;margin-top:14px"><b>BE Mastery needs JavaScript.</b> Turn it on and reload, or read more below.</p>
+    <p style="margin-top:18px"><a href="flyer.html" style="color:#22d3ee">About BE Mastery</a> ·
+       <a href="manual/en.html" style="color:#22d3ee">User guide</a> ·
+       <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" style="color:#22d3ee">Google Play</a></p>
+  </div>
+</noscript>
+
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
@@ -1473,6 +1562,14 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-manual" class="view"></div>
   <div id="v-setup" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
+  <!-- Sibling, not part of footer.note: setLang replaces that node's innerHTML
+       wholesale, so a link added inside it would vanish on every language change.
+       These are also the only crawlable links out of the app shell. -->
+  <div class="footer-note" style="margin-top:-6px">
+    <a href="flyer.html" target="_blank" rel="noopener" data-i18n="footer.about_link">About BE Mastery</a> ·
+    <a href="manual/en.html" target="_blank" rel="noopener" data-i18n="footer.guide_link">User guide</a> ·
+    <a href="https://play.google.com/store/apps/details?id=com.bemastery.app" target="_blank" rel="noopener" data-i18n="footer.play_link">Google Play</a>
+  </div>
 </main>
 <div class="toast" id="toast"></div>
 <div class="fab-col" id="fabCol">
@@ -2897,6 +2994,20 @@ const I18N_EN={
  "share.card_too_early":"Complete a few sessions first \u2014 the card should show something worth sharing.",
  "share.downloaded":"Image saved",
  "share.failed":"Couldn\u2019t create the image",
+ "invite.title":"Bring someone with you",
+ "invite.sub":"Someone you work with is holding the same words back. Send them the door you walked through.",
+ "invite.btn":"Share the app",
+ "invite.play":"View on Google Play",
+ "invite.share_title":"Business English Mastery",
+ "invite.text":"I\u2019m using this to practise Business English \u2014 25 minutes a day, free, works offline.",
+ "invite.copied":"Link copied",
+ "rate.title":"Worth a minute of your time?",
+ "rate.sub":"A rating on Google Play is how the next person finds this. It takes a minute, and it helps more than you\u2019d think.",
+ "rate.yes":"Rate on Google Play",
+ "rate.later":"Not now",
+ "footer.about_link":"About BE Mastery",
+ "footer.guide_link":"User guide",
+ "footer.play_link":"Google Play",
  "rem.label":"Daily reminder",
  "rem.switch":"Remind me to practise",
  "rem.note":"A nudge at your chosen time. While the app is closed your phone may hold it back \u2014 you\u2019ll still be reminded next time you open it.",
@@ -3444,6 +3555,7 @@ function markPracticed(){
   const today=new Date().toISOString().slice(0,10);
   if(!S.dates.includes(today)){S.dates.push(today);S.dates.sort()}
   S.dayLog=S.dayLog||{};S.dayLog[today]=(S.dayLog[today]||0)+1;   // activity intensity for the progress calendar heatmap
+  if(S.dayLog[today]===1)track("practice_day",{streak:String(Math.min(streak()+1,30))});   // once per day, not per action
 }
 function streak(){
   if(!S.dates.length)return 0;
@@ -3696,6 +3808,7 @@ function homePanelDashboard(){
       </span>
       <span class="home-due-go">→</span>
     </button>`:""}
+    ${rateHTML()}
     <div class="card home-ring">
       <div class="ring-wrap">
         <div class="ring">
@@ -4883,17 +4996,30 @@ async function shRenderImage(kind){
   return new Promise(res=>c.toBlob(res,"image/png"));
 }
 function susTextY(name,y){return name?y:y-90}
+/* Where a shared post should send people. The link is appended in code rather
+   than baked into the share.* strings, so the 15 translation files don't have to
+   be re-cut every time the address changes. */
+const APP_URL="https://app.lomonec.com/";
+const PLAY_URL="https://play.google.com/store/apps/details?id=com.bemastery.app";
+
 /* Share if the device supports it, otherwise download. */
 async function shShare(kind){
   const blob=await shRenderImage(kind);
   if(!blob)return toast(t("share.failed"));
   const file=new File([blob],(kind==="cert"?"be-mastery-certificate":"be-mastery-progress")+".png",{type:"image/png"});
-  const text=kind==="cert"
+  /* Without the address, someone who sees the card has no way to find the app —
+     the whole point of letting them share it. */
+  const text=(kind==="cert"
     ? t("share.cert_text")
-    : t("share.card_text",{w:shImgStats().week});
+    : t("share.card_text",{w:shImgStats().week}))+"\n\n"+APP_URL;
+  track("share",{kind:kind});
   try{
     if(navigator.canShare&&navigator.canShare({files:[file]})){
-      await navigator.share({files:[file],text});
+      /* Some targets refuse files+url together, so only add url where it's accepted;
+         the address is in `text` either way. */
+      const payload={files:[file],text};
+      if(navigator.canShare({files:[file],text,url:APP_URL}))payload.url=APP_URL;
+      await navigator.share(payload);
       return;
     }
   }catch(e){if(e&&e.name==="AbortError")return}
@@ -4909,10 +5035,51 @@ window.shShare=async kind=>{
 };
 /* LinkedIn has no image-post URL, so we open a share composer for the app and
    let the user attach the image they just saved — stated plainly in the copy. */
+/* ===== TELL SOMEONE / RATE =====
+   Two separate jobs. Sharing a progress card shows off the user's own work;
+   this is the plain "here is the app" link, which is what actually brings a
+   colleague in. The rating card asks for a Play review — the store's main
+   ranking signal, and nothing in the app asked for one before.
+   Both stay quiet: the rating card only appears after 7 completed sessions,
+   and "not now" hides it for 30 days. */
+window.shApp=async()=>{
+  const text=t("invite.text");
+  track("invite");
+  try{
+    if(navigator.share){await navigator.share({title:t("invite.share_title"),text,url:APP_URL});return}
+  }catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(text+"\n"+APP_URL);toast(t("invite.copied"))}
+  catch(e){toast(APP_URL)}                       // clipboard blocked (insecure context / permissions)
+};
+
+const RATE_MIN=7, RATE_SNOOZE=30*864e5;          // sessions before asking · 30 days after "not now"
+function rateDue(){
+  if(S.rated)return false;
+  if(totalDone()<RATE_MIN)return false;
+  return !S.rateSnoozed||Date.now()-S.rateSnoozed>RATE_SNOOZE;
+}
+function rateHTML(){
+  if(!rateDue())return "";
+  return `<div class="card home-rate" id="homeRate">
+    <span class="home-due-ic" style="background:rgba(251,191,36,.18);color:var(--gold)">${ic("star")}</span>
+    <span class="home-due-t">
+      <b>${t("rate.title")}</b>
+      <small>${t("rate.sub")}</small>
+      <span class="rate-btns">
+        <button class="btn btn-p btn-sm" onclick="rateGo()">${t("rate.yes")}</button>
+        <button class="btn btn-g btn-sm" onclick="rateLater()">${t("rate.later")}</button>
+      </span>
+    </span>
+  </div>`;
+}
+function rateHide(){const el=document.getElementById("homeRate");if(el)el.remove()}
+window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(PLAY_URL,"_blank","noopener")};
+window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};
+
 window.shLinkedIn=async()=>{
   await shShare("cert");
   setTimeout(()=>{
-    window.open("https://www.linkedin.com/feed/?shareActive=true&text="+encodeURIComponent(t("share.cert_text")),"_blank","noopener");
+    window.open("https://www.linkedin.com/feed/?shareActive=true&text="+encodeURIComponent(t("share.cert_text")+"\n\n"+APP_URL),"_blank","noopener");
   },900);
 };
 /* ===== DAILY REMINDER =====
@@ -7166,6 +7333,14 @@ function rProfile(el){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
     <button class="btn btn-g btn-sm" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
   </div>
+  <div class="card" style="margin-top:12px">
+    <b style="font-size:15px">${hIcon("link",t("invite.title"))}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-p btn-sm" onclick="shApp()">${tIc("invite.btn","link")}</button>
+      <a class="btn btn-g btn-sm" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
+    </div>
+  </div>
   <div class="card" style="margin-top:12px;${totalDone()>=84?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
     <b style="font-size:15px">${hIcon("trophy",t("share.cert_title"))}</b>
     ${totalDone()>=84
@@ -8536,7 +8711,16 @@ window.pronTry=()=>{
   if(S.profile&&S.profile.lang&&S.profile.lang!=="en"){await loadLangDict(S.profile.lang);applyDirLang(S.profile.lang)}
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
+  /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
+  const done=totalDone();
+  track("app_open",{
+    installed:window.matchMedia("(display-mode: standalone)").matches||navigator.standalone?"yes":"no",
+    onboarded:S.profile&&S.profile.name?"yes":"no",
+    /* bucketed, not the raw count — retention shape without a high-cardinality field */
+    stage:done===0?"0":done<7?"1-6":done<28?"7-27":done<84?"28-83":"84+"
+  });
 })();
+window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:"){
   let _swReloading=false;const _bootAt=Date.now();
@@ -8706,6 +8890,7 @@ window.obFinish=()=>{
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
+  track("onboarding_complete",{role:OB.role||"none",goal:OB.goal||"none",lang:OB.lang||"en"});
   go("shadow");
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };

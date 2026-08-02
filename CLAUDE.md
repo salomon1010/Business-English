@@ -41,9 +41,12 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
 
 ### Validate before committing
 ```
-node -e 'const fs=require("fs");const h=fs.readFileSync("index.html","utf8");const re=/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;let n=0,bad=0,m;while((m=re.exec(h))){n++;try{new Function(m[1])}catch(e){bad++;console.log(e.message)}}console.log("scripts:",n,"errors:",bad)'
+node -e 'const fs=require("fs");const h=fs.readFileSync("index.html","utf8");const re=/<script(?![^>]*\bsrc=)(?![^>]*ld\+json)[^>]*>([\s\S]*?)<\/script>/g;let n=0,bad=0,m;while((m=re.exec(h))){n++;try{new Function(m[1])}catch(e){bad++;console.log(e.message)}}console.log("scripts:",n,"errors:",bad)'
 ```
-For flyer use `/<script>([\s\S]*?)<\/script>/g`. For JSON: `python3 -c "import json;json.load(open('i18n/fr.json'))"`.
+The `ld+json` exclusion matters: the head carries a JSON-LD block that is data,
+not JS, and `new Function` chokes on it. Check it separately with
+`JSON.parse`. For flyer use `/<script>([\s\S]*?)<\/script>/g`. For JSON:
+`python3 -c "import json;json.load(open('i18n/fr.json'))"`.
 
 ## Key systems
 - **i18n:** `t(key, vars)` → `DICT[key] ?? I18N_EN[key] ?? key`, then `{{var}}`
@@ -81,6 +84,35 @@ For flyer use `/<script>([\s\S]*?)<\/script>/g`. For JSON: `python3 -c "import j
 - **Translations** of that emotional copy are best-effort machine transcreation and
   **should be reviewed by a native speaker** before heavy promotion (esp. bn, ur,
   hi, ja, ko, ar).
+
+## Growth / discoverability layer
+- **Social + search preview:** `index.html` and `flyer.html` each carry a
+  `description`, `canonical`, full `og:*` and `twitter:*` tags. The share image is
+  **`og.png`** (1200×630), rebuilt by `python3 scripts/make_og.py` from the repo
+  root. `index.html` also has a JSON-LD `SoftwareApplication` block.
+- **`robots.txt` + `sitemap.xml`** at the root. The sitemap lists `/`,
+  `flyer.html`, `manual/en.html` and the legal pages.
+- **`flyer.html` is the public landing page**, not only the in-app About panel. Its
+  English copy is written **inline** in the HTML (`render()` overwrites it with the
+  same text, or a translation) so crawlers and no-JS visitors see real content —
+  **keep the inline copy and `FL.en` in step**. Same for the static cards inside
+  `#bgrid`, which `render()` clears and rebuilds. `index.html` has a `<noscript>`
+  summary for the same reason.
+- **Analytics** is a provider-agnostic `track(name, props)` defined in a `<script>`
+  in the head, **off by default** (`PROVIDER=""` → silent no-op, zero requests).
+  Set `PROVIDER`/`ID` to `"plausible"` or `"ga4"` to switch it on. **GA4 needs a
+  privacy.html update and an EU consent notice; Plausible does not.** Only
+  anonymous counts — never recordings, transcripts, phrase text or profile fields.
+  Instrumented: `app_open`, `onboarding_complete`, `practice_day`, `share`,
+  `invite`, `rate_click`, `rate_later`, `play_click`, `install`.
+- **Share/invite/rate:** `APP_URL` and `PLAY_URL` consts near `shShare`. Share text
+  gets the URL appended **in code**, so the 15 translation files never need
+  re-cutting when the address changes. `shApp()` is the plain "share the app"
+  action (Profile). `rateHTML()`/`rateGo()`/`rateLater()` put a Play-rating card on
+  Home after **7** sessions; "not now" snoozes it 30 days (`S.rateSnoozed`),
+  rating sets `S.rated`.
+- **`manifest.json`** carries `screenshots` (narrow form factor) so Chrome shows
+  the richer install prompt.
 
 ## Secrets & gotchas
 - **OpenAI key** lives *only* in the Cloudflare Worker (Executive Polish). Never in
@@ -184,3 +216,15 @@ Fixes / infra
 - **Monetisation** direction discussed: freemium subscription (Play Billing needs a
   backend + budget cap) and B2B licensing; nothing built yet.
 - Native-speaker **review of the emotional translations** still recommended.
+- **Play listing art is stale and carries the owner's real first name.** The live
+  `playstore/screenshots/*.png` show "Salomon" and the old emoji nav. Fresh neutral
+  1080×2400 captures ("Alex", current line-icon nav) are in
+  **`playstore/screenshots-2026-08/`** — they still need a **manual upload in Play
+  Console**; nothing in the repo pushes them. Recapture recipe is in the
+  screenshot-rig memory. Avoid the Shadow picker in store art: it shows
+  third-party YouTube thumbnails.
+- **Analytics is wired but switched off** — no product metrics exist yet, so
+  campaign performance can't be measured until a provider ID is set (see above).
+- **No email capture and no testimonials** anywhere. Both need things the repo
+  can't supply on its own (a list backend / real users willing to be quoted).
+- **No iOS App Store presence** — iPhone users get the PWA install flow only.

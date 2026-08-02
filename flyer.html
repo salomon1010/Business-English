@@ -5,6 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <base target="_top"><!-- when shown inside the in-app About panel, links must break out, never load the app inside the iframe -->
 <title>Business English Mastery — Speak like you belong in the room</title>
+
+<!-- This page doubles as the public landing page (linked from the app footer and
+     listed in sitemap.xml), so it carries its own search + social preview tags.
+     Canonical drops the ?lang/?theme/?v params the app appends when it opens
+     this file in the About iframe — those are the same page, not new ones. -->
+<meta name="description" content="A 12-week system for confident professional spoken English. 25 minutes a day: shadowing real speakers, instant speaking feedback, 152 business phrases and visible progress. Free, no account, works offline.">
+<link rel="canonical" href="https://app.lomonec.com/flyer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BE Mastery">
+<meta property="og:url" content="https://app.lomonec.com/flyer.html">
+<meta property="og:title" content="Business English Mastery — speak like you belong in the room">
+<meta property="og:description" content="25 minutes a day of guided Business English practice — shadowing, speaking feedback, a phrase bank and progress tracking. Free, works offline.">
+<meta property="og:image" content="https://app.lomonec.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="BE Mastery — a 12-week Business English speaking system, shown on a phone">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Business English Mastery — speak like you belong in the room">
+<meta name="twitter:description" content="25 minutes a day of guided Business English practice — shadowing, speaking feedback, a phrase bank and progress tracking. Free, works offline.">
+<meta name="twitter:image" content="https://app.lomonec.com/og.png">
+<link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script>/* apply theme early (from ?theme= passed by the app, else the OS preference) to avoid a flash */
 (function(){try{var p=new URLSearchParams(location.search).get("theme");
 var t=p||"dark";   // default to dark unless the app passed an explicit theme
@@ -111,13 +133,17 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
 <section class="hero"><div class="wrap hero-grid">
   <div class="hero-txt">
     <div class="brand"><span class="brand-logo"><svg viewBox="0 0 52 52" aria-hidden="true"><defs><linearGradient id="blg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect class="tile" x="1" y="1" width="50" height="50" rx="15"/><path d="M15 13h22a5 5 0 0 1 5 5v11a5 5 0 0 1-5 5H26l-7 6v-6h-4a5 5 0 0 1-5-5V18a5 5 0 0 1 5-5Z" fill="url(#blg)"/><rect x="18.6" y="24" width="3.6" height="7" rx="1.8" fill="#fff"/><rect x="24.2" y="21" width="3.6" height="10" rx="1.8" fill="#fff"/><rect x="29.8" y="18" width="3.6" height="13" rx="1.8" fill="#fff"/></svg></span><span class="brand-name"><b>BE</b> <em>Mastery</em></span></div>
-    <span class="kicker" data-k="kicker"></span>
-    <h1 data-k="h1"></h1>
-    <p class="sub" data-k="sub"></p>
+    <!-- The English copy is written inline as the default. render() overwrites it
+         with the same text (or a translation), but a crawler or a no-JS visitor
+         still gets real content instead of empty tags. -->
+    <span class="kicker" data-k="kicker">Free · 12-week system</span>
+    <h1 data-k="h1">Speak English like you belong in the room.</h1>
+    <p class="sub" data-k="sub">You're not here to learn English — you're here to become the person who speaks it without fear. In 25 minutes a day, the version of you who hesitates begins to disappear, and the words start to arrive before the doubt does.</p>
     <div class="cta-row">
-      <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="cta1"></span></a>
+      <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="cta1">Start free</span></a>
+      <a class="cta-ghost" href="https://play.google.com/store/apps/details?id=com.bemastery.app" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.2 15.6 12 4 20.8z"/><path d="M4 3.2 20 12 4 20.8"/><path d="M12.6 9.4 4 3.2M12.6 14.6 4 20.8"/></svg><span data-k="cta_play">Get it on Google Play</span></a>
     </div>
-    <p class="free-line" data-k="free"></p>
+    <p class="free-line" data-k="free">100% free. No account needed. Works on Android, iPhone and desktop — install from your browser, use it offline, and your progress saves on your device.</p>
   </div>
   <div class="hero-shot">
     <div class="phone"><img src="manual/screenshots/m01-dashboard.png?v=2" alt="BE Mastery"></div>
@@ -132,8 +158,8 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
 </div></div>
 
 <section class="sect"><div class="wrap">
-  <h2 data-k="why_h"></h2>
-  <p class="lead" data-k="why_lead"></p>
+  <h2 data-k="why_h">Why professionals love this system</h2>
+  <p class="lead" data-k="why_lead">People won't remember your grammar — they'll remember how you made them feel when you spoke. This is where you rehearse that voice: the confident, native-sounding you who makes a room lean in — for standups, escalations, interviews and executive updates.</p>
   <div class="shots">
     <div class="shotc"><img src="manual/screenshots/m02-journey.png?v=2" alt=""></div>
     <div class="shotc"><img src="manual/screenshots/m11-phrases.png" alt=""></div>
@@ -143,28 +169,41 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
 </div></section>
 
 <section class="sect how"><div class="wrap">
-  <h2 data-k="ben_h"></h2>
-  <div class="bgrid" id="bgrid"></div>
+  <h2 data-k="ben_h">Every feature is a mirror of the professional you're becoming</h2>
+  <!-- render() clears and rebuilds this grid; the static cards are what a
+       crawler or a no-JS visitor reads. Keep the two in step. -->
+  <div class="bgrid" id="bgrid">
+    <div class="b hi"><h3>Executive Polish</h3><p>Say it the way you always have — then hear it come back the way a leader would. Speak it a few times, and that voice stops being a trick and starts being yours.</p></div>
+    <div class="b"><h3>Shadowing Studio</h3><p>Choose the speaker you wish you sounded like, and become them line by line — until the accent that used to hide you begins to fade.</p></div>
+    <div class="b"><h3>A guided 12-week plan</h3><p>Twelve weeks from now, someone will ask how your English got this good — and you'll simply smile. 84 guided days, and the path already knows the way.</p></div>
+    <div class="b"><h3>152 professional phrases</h3><p>The exact words the confident ones use — practised until the perfect phrase is already on your tongue the moment the room turns to you.</p></div>
+    <div class="b"><h3>Progress you can see</h3><p>Watch the hesitant version of you disappear, one lit-up day at a time — proof it's happening, even on the days you can't feel it.</p></div>
+    <div class="b"><h3>Executive presence</h3><p>Sit, breathe and speak with the authority of someone who belongs in the room — because, day by day, you will.</p></div>
+    <div class="b"><h3>Private by design</h3><p>Your voice, your journey, yours alone — every recording stays on your device.</p></div>
+  </div>
 </div></section>
 
 <section class="sect how"><div class="wrap">
-  <h2 data-k="how_h"></h2>
+  <h2 data-k="how_h">How it works</h2>
   <div class="steps">
-    <div class="step"><div class="num">1</div><p data-k="how1"></p></div>
-    <div class="step"><div class="num">2</div><p data-k="how2"></p></div>
-    <div class="step"><div class="num">3</div><p data-k="how3"></p></div>
+    <div class="step"><div class="num">1</div><p data-k="how1">Open today's guided session</p></div>
+    <div class="step"><div class="num">2</div><p data-k="how2">Speak, record and get instant feedback</p></div>
+    <div class="step"><div class="num">3</div><p data-k="how3">Watch your confidence grow week by week</p></div>
   </div>
 </div></section>
 
 <section class="final"><div class="wrap">
-  <h2 data-k="final_h"></h2>
-  <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="final_btn"></span></a>
+  <h2 data-k="final_h">Your first win takes 60 seconds.</h2>
+  <div class="cta-row" style="justify-content:center">
+    <a class="cta" href="https://app.lomonec.com/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5v15l14-7.5z"/></svg><span data-k="final_btn">Open BE Mastery free</span></a>
+    <a class="cta-ghost" href="https://play.google.com/store/apps/details?id=com.bemastery.app" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.2 15.6 12 4 20.8z"/><path d="M4 3.2 20 12 4 20.8"/><path d="M12.6 9.4 4 3.2M12.6 14.6 4 20.8"/></svg><span data-k="cta_play">Get it on Google Play</span></a>
+  </div>
 </div></section>
 
 <div class="maker"><div class="wrap">
   <span class="badge2"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v6c0 4-3 6.5-7 8-4-1.5-7-4-7-8V7z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg> <span>Built by <b>Lomonec&nbsp;LLC</b></span></span>
 </div></div>
-<div class="foot"><div class="wrap">© 2026 Lomonec LLC — BE Mastery · all rights reserved · <a href="https://app.lomonec.com/">app.lomonec.com</a></div></div>
+<div class="foot"><div class="wrap">© 2026 Lomonec LLC — BE Mastery · all rights reserved · <a href="https://app.lomonec.com/">app.lomonec.com</a> · <a href="privacy.html">Privacy</a> · <a href="mailto:contact@lomonec.com">contact@lomonec.com</a></div></div>
 
 <script>
 var ICONS=[
@@ -487,6 +526,16 @@ var EXTRA={
  ko:{why_h:"전문가들이 이 시스템을 좋아하는 이유",why_lead:"또 하나의 단어 앱이 아닙니다 — 실제 업무를 위한 완전한 말하기 짐입니다: 스탠드업, 에스컬레이션, 면접, 경영진 보고. 원어민의 진짜 YouTube 클립을 따라 하고, 나아지는 자신을 들어 보세요."}
 };
 Object.keys(EXTRA).forEach(function(k){if(FL[k])Object.assign(FL[k],EXTRA[k])});
+
+/* Google Play button label — kept in its own table because it is the one string
+   that is a fixed store phrase rather than part of the narrative copy. */
+var PLAY={en:"Get it on Google Play",es:"Consíguelo en Google Play",fr:"Disponible sur Google Play",
+ de:"Jetzt bei Google Play",pt:"Disponível no Google Play",it:"Disponibile su Google Play",
+ ru:"Доступно в Google Play",ar:"احصل عليه من Google Play",ur:"Google Play سے حاصل کریں",
+ hi:"Google Play पर पाएं",bn:"Google Play-তে পান",id:"Dapatkan di Google Play",
+ vi:"Tải trên Google Play",zh:"在 Google Play 获取",ja:"Google Play で手に入れよう",ko:"Google Play에서 받기"};
+Object.keys(PLAY).forEach(function(k){if(FL[k])FL[k].cta_play=PLAY[k]});
+
 var RTL={ar:1,ur:1,fa:1,he:1};
 function pickLang(){
   var q=new URLSearchParams(location.search).get("lang");

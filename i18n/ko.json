@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "아래에서 표현을 하나 고르고 — 예를 들어 “I currently work as…” — 여기 마이크를 눌러 문장 전체를 소리 내어 말하세요. 그러면 칸에 들어갑니다. 직접 입력해도 좋습니다.",
   "ph.exec_flow_2": "‘다듬기’를 누르고, 되고 싶은 전문가에 가장 가깝게 들리는 버전을 고르세요.",
   "ph.exec_flow_3": "그 버전의 ‘복사’를 누른 뒤, 아래 해당 표현의 칸에 붙여 넣으세요.",
-  "ph.exec_flow_4": "저장한 문장은 이 페이지 맨 아래 ‘당신의 전체 스피치’에 더해집니다 — 들어 본 뒤, 처음부터 끝까지 직접 말해 보세요."
+  "ph.exec_flow_4": "저장한 문장은 이 페이지 맨 아래 ‘당신의 전체 스피치’에 더해집니다 — 들어 본 뒤, 처음부터 끝까지 직접 말해 보세요.",
+  "invite.title": "한 사람과 함께 시작하세요",
+  "invite.sub": "함께 일하는 누군가도 똑같은 말을 삼키고 있습니다. 당신이 지나온 문을 그 사람에게 보내 주세요.",
+  "invite.btn": "앱 공유하기",
+  "invite.play": "Google Play에서 보기",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "비즈니스 영어 연습에 쓰고 있어요. 하루 25분, 무료, 오프라인에서도 됩니다.",
+  "invite.copied": "링크를 복사했습니다",
+  "rate.title": "1분만 내주시겠어요?",
+  "rate.sub": "다음 사람은 Google Play의 별점을 보고 이곳을 찾습니다. 1분이면 되고, 생각보다 큰 힘이 됩니다.",
+  "rate.yes": "Google Play에서 평가하기",
+  "rate.later": "나중에",
+  "footer.about_link": "BE Mastery 소개",
+  "footer.guide_link": "사용자 가이드",
+  "footer.play_link": "Google Play"
 }

@@ -1,0 +1,12 @@
+# BE Mastery — https://app.lomonec.com/
+User-agent: *
+Allow: /
+
+# Build artefacts and raw assets — no value in the index.
+Disallow: /playstore/
+Disallow: /captions/
+Disallow: /scripts/
+Disallow: /rp-photos/
+Disallow: /review/
+
+Sitemap: https://app.lomonec.com/sitemap.xml

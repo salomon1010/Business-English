@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "下からフレーズを一つ選び — 例えば「I currently work as…」— ここのマイクを押して、文を丸ごと声に出して言ってください。欄に入ります。入力しても同じです。",
   "ph.exec_flow_2": "「磨く」を押し、なりたい professional に一番近い響きの案を選びます。",
   "ph.exec_flow_3": "その案の「コピー」を押し、下にあるそのフレーズの欄に貼り付けます。",
-  "ph.exec_flow_4": "保存した文はこのページ下部の「あなたのスピーチ全文」に加わります — 聞いてから、通して自分で言ってみましょう。"
+  "ph.exec_flow_4": "保存した文はこのページ下部の「あなたのスピーチ全文」に加わります — 聞いてから、通して自分で言ってみましょう。",
+  "invite.title": "誰かを誘って、一緒に",
+  "invite.sub": "あなたの同僚も、同じ言葉を飲み込んでいます。あなたがくぐった扉を、その人にも渡してください。",
+  "invite.btn": "アプリを共有",
+  "invite.play": "Google Play で見る",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "ビジネス英語の練習に使っています。1日25分、無料、オフラインでも使えます。",
+  "invite.copied": "リンクをコピーしました",
+  "rate.title": "1分だけいただけますか",
+  "rate.sub": "次の人があなたと同じ場所にたどり着くのは、Google Play の評価があるからです。1分で終わり、思う以上に力になります。",
+  "rate.yes": "Google Play で評価する",
+  "rate.later": "今はしない",
+  "footer.about_link": "BE Mastery について",
+  "footer.guide_link": "ユーザーガイド",
+  "footer.play_link": "Google Play"
 }

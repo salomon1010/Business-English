@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "从下面挑一个句型 — 比如 “I currently work as…” — 然后点这里的麦克风，把整句话说出来，它就会落进框里。直接打字也一样。",
   "ph.exec_flow_2": "点“润色”，选那句最像你想成为的那个专业人士的版本。",
   "ph.exec_flow_3": "点该版本的“复制”，再粘贴到下面那个句型自己的框里。",
-  "ph.exec_flow_4": "每保存一句，它就并入本页底部的“你的完整发言” — 听一遍，再自己整段说出来。"
+  "ph.exec_flow_4": "每保存一句，它就并入本页底部的“你的完整发言” — 听一遍，再自己整段说出来。",
+  "invite.title": "带一个人一起来",
+  "invite.sub": "你身边的同事，也把同样的话咽了回去。把你走进来的那扇门发给他。",
+  "invite.btn": "分享应用",
+  "invite.play": "在 Google Play 查看",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "我用它练习商务英语：每天 25 分钟，免费，离线也能用。",
+  "invite.copied": "链接已复制",
+  "rate.title": "能占用你一分钟吗？",
+  "rate.sub": "下一个人正是通过 Google Play 上的评分找到我们的。只需一分钟，帮助却比你想的更大。",
+  "rate.yes": "在 Google Play 评分",
+  "rate.later": "以后再说",
+  "footer.about_link": "关于 BE Mastery",
+  "footer.guide_link": "使用指南",
+  "footer.play_link": "Google Play"
 }

@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "Elige una frase de abajo — por ejemplo “I currently work as…” — y luego toca el micrófono de aquí y di tu frase entera en voz alta, para que caiga en la caja. Escribirla funciona igual de bien.",
   "ph.exec_flow_2": "Toca «Pulir» y quédate con la versión que más se parezca al profesional que quieres ser.",
   "ph.exec_flow_3": "Toca «Copiar» en esa versión y pégala en la caja de esa misma frase, más abajo.",
-  "ph.exec_flow_4": "Cada oración que guardas se suma a Tu discurso completo, al final de esta página: escúchalo y después dilo entero tú."
+  "ph.exec_flow_4": "Cada oración que guardas se suma a Tu discurso completo, al final de esta página: escúchalo y después dilo entero tú.",
+  "invite.title": "Trae a alguien contigo",
+  "invite.sub": "Alguien con quien trabajas está callando las mismas palabras. Envíale la puerta que tú cruzaste.",
+  "invite.btn": "Compartir la app",
+  "invite.play": "Ver en Google Play",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "Estoy usando esto para practicar inglés de negocios: 25 minutos al día, gratis y sin conexión.",
+  "invite.copied": "Enlace copiado",
+  "rate.title": "¿Nos regalas un minuto?",
+  "rate.sub": "Una valoración en Google Play es como te encuentra la siguiente persona. Cuesta un minuto y ayuda más de lo que crees.",
+  "rate.yes": "Valorar en Google Play",
+  "rate.later": "Ahora no",
+  "footer.about_link": "Sobre BE Mastery",
+  "footer.guide_link": "Guía de uso",
+  "footer.play_link": "Google Play"
 }

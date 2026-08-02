@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "Chọn một mẫu câu bên dưới — ví dụ “I currently work as…” — rồi chạm micrô ở đây và nói to trọn câu của bạn để nó rơi vào ô. Gõ tay cũng tốt như vậy.",
   "ph.exec_flow_2": "Chạm «Trau chuốt» và lấy bản nghe giống nhất với người chuyên nghiệp mà bạn muốn trở thành.",
   "ph.exec_flow_3": "Chạm «Sao chép» ở bản đó, rồi dán vào ô của chính mẫu câu ấy bên dưới.",
-  "ph.exec_flow_4": "Mỗi câu bạn lưu sẽ nhập vào Bài nói hoàn chỉnh ở cuối trang — nghe lại, rồi tự nói trọn vẹn."
+  "ph.exec_flow_4": "Mỗi câu bạn lưu sẽ nhập vào Bài nói hoàn chỉnh ở cuối trang — nghe lại, rồi tự nói trọn vẹn.",
+  "invite.title": "Rủ một người cùng đi",
+  "invite.sub": "Có người bạn làm cùng đang giữ lại đúng những lời ấy. Hãy gửi họ cánh cửa bạn đã bước qua.",
+  "invite.btn": "Chia sẻ ứng dụng",
+  "invite.play": "Xem trên Google Play",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "Tôi dùng ứng dụng này để luyện tiếng Anh công sở: 25 phút mỗi ngày, miễn phí, dùng được ngoại tuyến.",
+  "invite.copied": "Đã sao chép liên kết",
+  "rate.title": "Bạn có một phút không?",
+  "rate.sub": "Đánh giá trên Google Play là cách người tiếp theo tìm thấy chúng tôi. Chỉ mất một phút, và giúp nhiều hơn bạn nghĩ.",
+  "rate.yes": "Đánh giá trên Google Play",
+  "rate.later": "Để sau",
+  "footer.about_link": "Giới thiệu BE Mastery",
+  "footer.guide_link": "Hướng dẫn sử dụng",
+  "footer.play_link": "Google Play"
 }

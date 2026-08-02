@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "Pilih satu frasa di bawah — misalnya “I currently work as…” — lalu ketuk mikrofon di sini dan ucapkan kalimat Anda dengan lantang agar masuk ke kotak. Mengetiknya sama baiknya.",
   "ph.exec_flow_2": "Ketuk «Poles», lalu ambil versi yang paling terdengar seperti profesional yang ingin Anda jadi.",
   "ph.exec_flow_3": "Ketuk «Salin» pada versi itu, lalu tempelkan ke kotak frasa tersebut di bawah.",
-  "ph.exec_flow_4": "Setiap kalimat yang Anda simpan bergabung ke Pidato lengkap Anda di bagian bawah halaman ini — dengarkan, lalu ucapkan seluruhnya sendiri."
+  "ph.exec_flow_4": "Setiap kalimat yang Anda simpan bergabung ke Pidato lengkap Anda di bagian bawah halaman ini — dengarkan, lalu ucapkan seluruhnya sendiri.",
+  "invite.title": "Ajak seseorang bersamamu",
+  "invite.sub": "Ada rekan kerjamu yang menahan kata-kata yang sama. Kirimkan pintu yang sudah kamu lewati.",
+  "invite.btn": "Bagikan aplikasi",
+  "invite.play": "Lihat di Google Play",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "Saya memakai ini untuk melatih bahasa Inggris bisnis: 25 menit sehari, gratis, bisa offline.",
+  "invite.copied": "Tautan disalin",
+  "rate.title": "Ada waktu semenit?",
+  "rate.sub": "Lewat penilaian di Google Play-lah orang berikutnya menemukan kami. Hanya semenit, dan membantu lebih dari yang kamu kira.",
+  "rate.yes": "Beri nilai di Google Play",
+  "rate.later": "Nanti saja",
+  "footer.about_link": "Tentang BE Mastery",
+  "footer.guide_link": "Panduan pengguna",
+  "footer.play_link": "Google Play"
 }

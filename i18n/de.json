@@ -1095,5 +1095,19 @@
   "ph.exec_flow_1": "Wähle unten eine Wendung — etwa „I currently work as…“ — tippe dann hier aufs Mikrofon und sprich deinen ganzen Satz laut, damit er im Feld landet. Tippen geht genauso gut.",
   "ph.exec_flow_2": "Tippe auf „Aufpolieren“ und nimm die Version, die am ehesten nach dem Profi klingt, der du sein willst.",
   "ph.exec_flow_3": "Tippe bei dieser Version auf „Kopieren“ und füge sie unten in das Feld dieser Wendung ein.",
-  "ph.exec_flow_4": "Jeder gespeicherte Satz wandert in Deine ganze Rede am Ende dieser Seite — hör sie an und sprich sie dann selbst am Stück."
+  "ph.exec_flow_4": "Jeder gespeicherte Satz wandert in Deine ganze Rede am Ende dieser Seite — hör sie an und sprich sie dann selbst am Stück.",
+  "invite.title": "Nimm jemanden mit",
+  "invite.sub": "Jemand, mit dem du arbeitest, hält dieselben Worte zurück. Schick ihm die Tür, durch die du gegangen bist.",
+  "invite.btn": "App teilen",
+  "invite.play": "Bei Google Play ansehen",
+  "invite.share_title": "Business English Mastery",
+  "invite.text": "Damit übe ich Business-Englisch: 25 Minuten am Tag, kostenlos, funktioniert offline.",
+  "invite.copied": "Link kopiert",
+  "rate.title": "Hast du eine Minute?",
+  "rate.sub": "Über eine Bewertung bei Google Play findet dich die nächste Person. Eine Minute Aufwand — und sie hilft mehr, als du denkst.",
+  "rate.yes": "Bei Google Play bewerten",
+  "rate.later": "Jetzt nicht",
+  "footer.about_link": "Über BE Mastery",
+  "footer.guide_link": "Benutzerhandbuch",
+  "footer.play_link": "Google Play"
 }
