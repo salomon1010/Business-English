@@ -1147,5 +1147,12 @@
   "cal.insight_start": "Hãy luyện tập hôm nay và thắp sáng ngày đầu tiên của hành trình thay đổi.",
   "help.row_sub": "Hướng dẫn, giải đáp và khắc phục sự cố",
   "doc.close": "Đóng và quay lại BE Mastery",
-  "sh.trend_title": "Tiến bộ của bạn theo thời gian"
+  "sh.trend_title": "Tiến bộ của bạn theo thời gian",
+  "perf.overview_title": "Tiến bộ của bạn",
+  "perf.overview_sub": "Bạn bắt đầu từ đâu, giờ bạn ở đâu.",
+  "perf.speaking": "Điểm nói",
+  "perf.grammar": "Bài tập ngữ pháp",
+  "perf.vocabquiz": "Bài kiểm tra từ vựng",
+  "perf.attempts": "{{n}} lượt",
+  "perf.best": "tốt nhất {{n}}%"
 }

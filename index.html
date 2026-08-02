@@ -1175,6 +1175,16 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .fb-trend-dot{fill:var(--accent);stroke:var(--card);stroke-width:2}
 .fb-trend-lbl{fill:var(--mut);font-family:inherit;font-size:12px;font-weight:700}
 .fb-trend-ax{fill:var(--mut);font-family:inherit;font-size:10px;font-weight:600}
+.perf-block{margin-bottom:18px}
+.perf-block:last-child{margin-bottom:0}
+.perf-block-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.perf-block-h b{font-size:14px;color:var(--txt)}
+.perf-delta{font-size:13px;font-weight:800;color:var(--mut);font-variant-numeric:tabular-nums}
+.perf-delta.up{color:var(--green)}
+.perf-delta.down{color:var(--gold)}
+.perf-unit{font-size:10.5px;font-weight:700;margin-left:2px;opacity:.75}
+.perf-facts{display:flex;gap:7px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:2px}
+.perf-block .sh-trend{margin-top:8px}
 .sh-trend{margin-top:14px;background:var(--card2);border:1px solid var(--line2);border-radius:var(--r-md);padding:12px 14px 6px}
 .sh-trend-h{display:flex;align-items:center;gap:8px;font-size:13.5px;color:var(--txt)}
 .sh-trend .fb-trend{margin-top:4px}
@@ -3534,6 +3544,13 @@ const I18N_EN={
  "rate.yes":"Rate on Google Play",
  "rate.later":"Not now",
  "footer.about_link":"About BE Mastery",
+ "perf.overview_title":"Your progress",
+ "perf.overview_sub":"Where you started, where you are now.",
+ "perf.speaking":"Speaking score",
+ "perf.grammar":"Grammar drills",
+ "perf.vocabquiz":"Vocabulary quiz",
+ "perf.attempts":"{{n}} attempts",
+ "perf.best":"best {{n}}%",
  "sh.trend_title":"Your performance over time",
  "doc.close":"Close and return to BE Mastery",
  "footer.guide_link":"User guide",
@@ -4149,6 +4166,10 @@ function go(v,arg1,arg2){
 let _manCache={};
 let _helpOrig="";   // snapshot of the rendered manual, so search can reset highlights cleanly
 let _vocReturn=null;   // remembers where the user was before jumping to Vocabulary & Grammar
+/* Where the Help screen was opened from. Profile is the default because that is
+   the menu route; the footer link sets it to whatever view the reader was on. */
+let _manReturn=null;
+window.manBack=()=>{const v=_manReturn||"profile";_manReturn=null;go(v)};
 async function rManual(el,embedded){
   const code=(S.profile&&S.profile.lang)||"en";
   el.innerHTML=`<div style="padding:60px 20px;text-align:center;color:var(--mut)">${esc(t("manual.loading"))}</div>`;
@@ -4164,7 +4185,7 @@ async function rManual(el,embedded){
   const greet=(name?t("help.greeting_name",{name:esc(name)}):t("help.greeting")).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
   el.innerHTML=`
     ${embedded?"":`<div class="eyebrow pg-eyebrow pg-sub">
-      <button class="back" onclick="go('profile')">${t("profile.back")}</button>
+      <button class="back" onclick="manBack()">${t("profile.back")}</button>
       <span>${t("profile.help")}</span>
     </div>`}
     <div class="help-hero">
@@ -4355,11 +4376,12 @@ addEventListener("click",e=>{
   e.preventDefault();
   /* the flyer is theme-aware and localised, so it keeps its own entry point */
   if(/flyer\.html$/.test(u.pathname))return openAbout();
-  let path=u.pathname+u.search;
-  /* the footer hardcodes the English guide; serve the reader's language */
-  const m=path.match(/manual\/[a-z-]+\.html$/);
-  if(m){const lang=(S.profile&&S.profile.lang)||"en";path=path.replace(/manual\/[a-z-]+\.html$/,"manual/"+lang+".html")}
-  openDoc(path,(a.textContent||"").trim());
+  /* The guide is a first-class app screen, not a document: it has search,
+     collapsible sections and line-icons that the raw file does not. Route to it
+     rather than framing the static page, and remember where we came from so
+     its Back button returns there instead of always landing on Profile. */
+  if(/manual\/[a-z-]+\.html$/.test(u.pathname)){_manReturn=cur&&cur.v;return go("manual")}
+  openDoc(u.pathname+u.search,(a.textContent||"").trim());
 });
 
 /* ================= DASHBOARD ================= */
@@ -6587,6 +6609,52 @@ function perfSeries(kind,key){
    localStorage and sync to Firestore as one JSON blob. */
 function perfPush(arr,rec,cap){arr.push(rec);if(arr.length>(cap||30))arr.splice(0,arr.length-(cap||30));return arr}
 
+/* ---- Progress overview -------------------------------------------------
+   A trend section for the Progress screen, built entirely from series that
+   already exist. Every block hides itself until it has two attempts to plot,
+   so the section grows as the user practises rather than showing empty frames.
+   The whole section is absent on a first run. */
+function perfHeadline(series){
+  if(series.length<2)return null;
+  const first=series[0].score,last=series[series.length-1].score;
+  const best=Math.max(...series.map(x=>x.score));
+  return {n:series.length,best,delta:last-first,last};
+}
+function perfBlock(titleKey,series,opts){
+  const chart=perfPanel(series,opts);
+  if(!chart)return "";
+  const h=perfHeadline(series);
+  const sign=h.delta>0?"+":"";
+  return `<div class="perf-block">
+    <div class="perf-block-h">
+      <b>${esc(t(titleKey))}</b>
+      <span class="perf-delta ${h.delta>0?"up":h.delta<0?"down":""}">${sign}${h.delta}<span class="perf-unit">pts</span></span>
+    </div>
+    <div class="perf-facts">
+      <span>${t("perf.attempts",{n:h.n})}</span><span aria-hidden="true">·</span>
+      <span>${t("perf.best",{n:h.best})}</span>
+    </div>
+    ${chart}</div>`;
+}
+function perfOverviewHTML(){
+  const blocks=[
+    perfBlock("perf.speaking",perfSeries("speaking")),
+    perfBlock("perf.grammar",perfSeries("grammar",perfBestGramCat())),
+    perfBlock("perf.vocabquiz",perfSeries("vocabquiz")),
+  ].filter(Boolean);
+  if(!blocks.length)return "";
+  return `<div class="card" style="margin-top:16px">
+    <h2 class="pf-card-h">${hIcon("chart",t("perf.overview_title"))}</h2>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 14px">${t("perf.overview_sub")}</p>
+    ${blocks.join("")}</div>`;
+}
+/* the grammar category with the most runs — the one the user actually drills */
+function perfBestGramCat(){
+  const g=S.gram||{};let best=null,n=-1;
+  for(const k of Object.keys(g)){const l=((g[k]||{}).hist||[]).length;if(l>n){n=l;best=k}}
+  return best;
+}
+
 /* The panel every screen uses: heading + chart, or nothing at all when there
    is not yet a trend to show. Keeps the chrome identical everywhere. */
 function perfPanel(series,opts){
@@ -8378,6 +8446,7 @@ function rProfile(el){
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>
   <div class="card pcal" id="pfCal">${calHTML()}</div>
+  ${perfOverviewHTML()}
   <div class="card" style="margin-top:16px">
     <h2 class="pf-card-h">${hIcon("chart",t("share.card_title"))}</h2>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>

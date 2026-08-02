@@ -1147,5 +1147,12 @@
   "cal.insight_start": "今天就练习，点亮你转变的第一天。",
   "help.row_sub": "指南、解答与故障排查",
   "doc.close": "关闭并返回 BE Mastery",
-  "sh.trend_title": "你的表现变化"
+  "sh.trend_title": "你的表现变化",
+  "perf.overview_title": "你的进步",
+  "perf.overview_sub": "你的起点，和现在的位置。",
+  "perf.speaking": "口语得分",
+  "perf.grammar": "语法练习",
+  "perf.vocabquiz": "词汇测验",
+  "perf.attempts": "{{n}} 次尝试",
+  "perf.best": "最佳 {{n}}%"
 }

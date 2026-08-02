@@ -1147,5 +1147,12 @@
   "cal.insight_start": "تدرّب اليوم وأضئ اليوم الأول من تحوّلك.",
   "help.row_sub": "أدلة وإجابات وحل المشكلات",
   "doc.close": "إغلاق والعودة إلى BE Mastery",
-  "sh.trend_title": "أداؤك بمرور الوقت"
+  "sh.trend_title": "أداؤك بمرور الوقت",
+  "perf.overview_title": "تقدّمك",
+  "perf.overview_sub": "من أين بدأت، وأين أنت الآن.",
+  "perf.speaking": "درجة التحدث",
+  "perf.grammar": "تدريبات القواعد",
+  "perf.vocabquiz": "اختبار المفردات",
+  "perf.attempts": "{{n}} محاولات",
+  "perf.best": "الأفضل {{n}}%"
 }

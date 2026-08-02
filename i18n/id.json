@@ -1147,5 +1147,12 @@
   "cal.insight_start": "Berlatihlah hari ini dan nyalakan hari pertama transformasi Anda.",
   "help.row_sub": "Panduan, jawaban, dan pemecahan masalah",
   "doc.close": "Tutup dan kembali ke BE Mastery",
-  "sh.trend_title": "Perkembangan Anda dari waktu ke waktu"
+  "sh.trend_title": "Perkembangan Anda dari waktu ke waktu",
+  "perf.overview_title": "Perkembangan Anda",
+  "perf.overview_sub": "Dari mana Anda mulai, di mana Anda sekarang.",
+  "perf.speaking": "Skor berbicara",
+  "perf.grammar": "Latihan tata bahasa",
+  "perf.vocabquiz": "Kuis kosakata",
+  "perf.attempts": "{{n}} percobaan",
+  "perf.best": "terbaik {{n}}%"
 }

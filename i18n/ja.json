@@ -1147,5 +1147,12 @@
   "cal.insight_start": "今日練習して、変化の初日を灯しましょう。",
   "help.row_sub": "ガイド・回答・トラブルシューティング",
   "doc.close": "閉じて BE Mastery に戻る",
-  "sh.trend_title": "時間とともに変わるあなたの成果"
+  "sh.trend_title": "時間とともに変わるあなたの成果",
+  "perf.overview_title": "あなたの成長",
+  "perf.overview_sub": "始めた地点と、今いる地点。",
+  "perf.speaking": "スピーキングスコア",
+  "perf.grammar": "文法ドリル",
+  "perf.vocabquiz": "語彙クイズ",
+  "perf.attempts": "{{n}} 回",
+  "perf.best": "最高 {{n}}%"
 }

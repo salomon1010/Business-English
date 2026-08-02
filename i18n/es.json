@@ -1147,5 +1147,12 @@
   "cal.insight_start": "Practica hoy y enciende el día uno de tu transformación.",
   "help.row_sub": "Guías, respuestas y solución de problemas",
   "doc.close": "Cerrar y volver a BE Mastery",
-  "sh.trend_title": "Tu rendimiento a lo largo del tiempo"
+  "sh.trend_title": "Tu rendimiento a lo largo del tiempo",
+  "perf.overview_title": "Tu progreso",
+  "perf.overview_sub": "Dónde empezaste y dónde estás ahora.",
+  "perf.speaking": "Puntuación al hablar",
+  "perf.grammar": "Ejercicios de gramática",
+  "perf.vocabquiz": "Cuestionario de vocabulario",
+  "perf.attempts": "{{n}} intentos",
+  "perf.best": "mejor {{n}}%"
 }

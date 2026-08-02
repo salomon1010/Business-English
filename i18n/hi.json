@@ -1147,5 +1147,12 @@
   "cal.insight_start": "आज अभ्यास करें और अपने रूपांतरण का पहला दिन रोशन करें।",
   "help.row_sub": "गाइड, उत्तर और समस्या-समाधान",
   "doc.close": "बंद करें और BE Mastery पर लौटें",
-  "sh.trend_title": "समय के साथ आपका प्रदर्शन"
+  "sh.trend_title": "समय के साथ आपका प्रदर्शन",
+  "perf.overview_title": "आपकी प्रगति",
+  "perf.overview_sub": "आपने कहाँ से शुरू किया, अब कहाँ हैं।",
+  "perf.speaking": "बोलने का स्कोर",
+  "perf.grammar": "व्याकरण अभ्यास",
+  "perf.vocabquiz": "शब्दावली प्रश्नोत्तरी",
+  "perf.attempts": "{{n}} प्रयास",
+  "perf.best": "सर्वश्रेष्ठ {{n}}%"
 }

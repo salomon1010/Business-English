@@ -1147,5 +1147,12 @@
   "cal.insight_start": "Übe heute und bring den ersten Tag deiner Veränderung zum Leuchten.",
   "help.row_sub": "Anleitungen, Antworten und Fehlerbehebung",
   "doc.close": "Schließen und zu BE Mastery zurückkehren",
-  "sh.trend_title": "Deine Entwicklung im Zeitverlauf"
+  "sh.trend_title": "Deine Entwicklung im Zeitverlauf",
+  "perf.overview_title": "Dein Fortschritt",
+  "perf.overview_sub": "Wo du angefangen hast, wo du jetzt stehst.",
+  "perf.speaking": "Sprech-Score",
+  "perf.grammar": "Grammatik-Übungen",
+  "perf.vocabquiz": "Vokabel-Quiz",
+  "perf.attempts": "{{n}} Versuche",
+  "perf.best": "bestes {{n}}%"
 }

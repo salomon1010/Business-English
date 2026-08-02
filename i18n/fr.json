@@ -1147,5 +1147,12 @@
   "cal.insight_start": "Pratiquez aujourd’hui et allumez le premier jour de votre transformation.",
   "help.row_sub": "Guides, réponses et dépannage",
   "doc.close": "Fermer et revenir à BE Mastery",
-  "sh.trend_title": "Vos progrès au fil du temps"
+  "sh.trend_title": "Vos progrès au fil du temps",
+  "perf.overview_title": "Vos progrès",
+  "perf.overview_sub": "D'où vous partez, où vous en êtes.",
+  "perf.speaking": "Score à l'oral",
+  "perf.grammar": "Exercices de grammaire",
+  "perf.vocabquiz": "Quiz de vocabulaire",
+  "perf.attempts": "{{n}} tentatives",
+  "perf.best": "meilleur {{n}}%"
 }

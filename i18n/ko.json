@@ -1147,5 +1147,12 @@
   "cal.insight_start": "오늘 연습해 변화의 첫날을 밝히세요.",
   "help.row_sub": "가이드, 답변, 문제 해결",
   "doc.close": "닫고 BE Mastery로 돌아가기",
-  "sh.trend_title": "시간에 따른 나의 성과"
+  "sh.trend_title": "시간에 따른 나의 성과",
+  "perf.overview_title": "나의 진척",
+  "perf.overview_sub": "어디서 시작했고, 지금 어디에 있는지.",
+  "perf.speaking": "말하기 점수",
+  "perf.grammar": "문법 훈련",
+  "perf.vocabquiz": "어휘 퀴즈",
+  "perf.attempts": "{{n}}회 시도",
+  "perf.best": "최고 {{n}}%"
 }

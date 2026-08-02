@@ -1147,5 +1147,12 @@
   "cal.insight_start": "آج مشق کریں اور اپنی تبدیلی کا پہلا دن روشن کریں۔",
   "help.row_sub": "گائیڈز، جوابات اور مسائل کا حل",
   "doc.close": "بند کریں اور BE Mastery پر واپس جائیں",
-  "sh.trend_title": "وقت کے ساتھ آپ کی کارکردگی"
+  "sh.trend_title": "وقت کے ساتھ آپ کی کارکردگی",
+  "perf.overview_title": "آپ کی پیش رفت",
+  "perf.overview_sub": "آپ نے کہاں سے شروع کیا، اب کہاں ہیں۔",
+  "perf.speaking": "بولنے کا اسکور",
+  "perf.grammar": "گرامر مشقیں",
+  "perf.vocabquiz": "ذخیرۂ الفاظ کوئز",
+  "perf.attempts": "{{n}} کوششیں",
+  "perf.best": "بہترین {{n}}%"
 }
