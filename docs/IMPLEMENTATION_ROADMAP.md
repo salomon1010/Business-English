@@ -122,6 +122,29 @@ before the passes that would otherwise re-patch them.
 | 7 | Five `→` "go" arrows still unmirrored in RTL (Session's is fixed) | One shared `html[dir="rtl"]` rule, once the owning screens are passed |
 | 6 | `.btn-p` gradient buttons app-wide | Fold into `.btn-primary` as screens are touched |
 
+## RC1 stabilisation — complete
+
+| | Task | Commit |
+|---|---|---|
+| 1 | Duplicated CSS | verified clean (only keyframe stops) |
+| 2 | Duplicated JS | the three theme setters collapsed to two real ones |
+| 3 | Dead CSS | verified clean; `.ttl` is **live** in `manual/*.html` — an index-only scan calls it dead, do not delete |
+| 4 | Dead JavaScript | `a23dab2` |
+| 5 | Shared components — 44px floor + focus ring on `.btn` | `b916209` |
+| 6 | Obsolete tokens | added `--accent-text`; `--mut2` contract enforced where measurable |
+| 7 | Malformed CSS block killing two rules | `f748936` |
+| 8 | Performance / bundle loading | Firebase deferred, `0eef9a5` |
+| 9 | Memory | no leak: 96 renders, 0 node/listener growth |
+| 10 | Offline / PWA | verified on the live https site |
+| 11 | Accessibility — contrast document-wide | `4432c6f` |
+| 12 | Localisation | parity 1147×15 holds; 14 hardcoded aria-labels remain |
+| 13 | Regression | corrected gate clean, both themes + reduced motion |
+
+**The measurement rig itself was the biggest defect.** Scoping every query to
+`#v-<name>` and testing only `height` made 11 of 11 screens report clean while
+each carried 6–8 sub-44px controls. Any future audit must follow
+`INTERACTION_SPECIFICATION.md` §10.
+
 ## Infrastructure not blocking design
 
 - **Events Worker not deployed** — `npx wrangler deploy` in `backend/events/`,

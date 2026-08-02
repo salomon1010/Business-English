@@ -46,11 +46,26 @@ Review and Journey, which were never individually audited.
 
 ## Accessibility
 
-- **Touch targets:** 100% ≥44px on **all ten rendered surfaces** (the 12
-  screens plus Review and Journey), at 320×568 through 1280×900.
-- **Contrast:** **0 AA failures on every rendered text node** across all ten
-  surfaces in both themes — measured by walking the DOM and compositing the
-  real painted backdrop, not by sampling chosen elements.
+> ⚠️ The figures in this section before RC1 were **measured with a scoped
+> probe** (`#v-<name>` only, height only) and were wrong. See
+> `INTERACTION_SPECIFICATION.md` §10. The numbers below are from the corrected
+> document-wide gate.
+
+- **Touch targets:** measured document-wide, both dimensions, 15 surfaces
+  including modals and overlays. **11 of 11 screens had violations → 0.**
+  Three documented WCAG 2.5.8 exemptions (crossword grid, inline sentence
+  links, the label-wrapped reminder checkbox).
+- **Contrast:** document-wide over ~1,655 text nodes per pass, both themes,
+  compositing one gradient stop at a time.
+  **dark 64 → 6 · light 54 → 4.**
+  The residue is `.lang-ic` ("EN", computes 3.76:1). It paints a scrim with an
+  inset `box-shadow`, which a computed-style probe cannot see, so the number is
+  untrustworthy in **both** directions — not claimed fixed, not claimed broken.
+  Needs a screenshot pixel check.
+- **Motion:** 0 animating elements under `prefers-reduced-motion` on every
+  screen; `.btn` hover transform now has a reduced-motion guard.
+- **Memory:** 96 view renders across 8 views — nodes 967 → 967, listeners
+  59 → 59, heap +0.2 MB. No leak.
 - **Forms:** every control on Settings has a real `<label for>` or `aria-label`.
 - **Keyboard:** tab order verified on Dashboard, Session, Shadow, Feedback,
   Settings. Shadow's workspace has a focus trap, Escape and focus restore.
@@ -73,6 +88,8 @@ Review and Journey, which were never individually audited.
 
 | Item | Scope | Severity |
 |---|---|---|
+| **14 hardcoded English `aria-label`s** (19 instances): Record · Hear · Slow · Save · Dictate · Clear · Speak · Mute · Theme · Cancel timer · Main navigation · Previous match · Next match · Practice timer | index.html | **medium** — violates INTERACTION_SPECIFICATION §3; screen-reader users on 14 non-English locales hear English. Needs new keys ×15 files, so **not** done unilaterally |
+| **30 `--mut2`-on-text declarations remain** in unrendered surfaces (role-play history, empty states, crossword numbers, `.cv-d`, `.gx-new`…). 4 rendered ones were fixed and measured | index.html | medium — a known token-contract violation; each needs its surface rendered before changing |
 | `.lang-ic` relies on an inset scrim, not a checked palette | 1 rule | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
 | Radius sprawl — 20 raw values, 136 declarations | app-wide | low — **design decision, not cleanup**; needs a design pass |
@@ -254,9 +271,16 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 | 5 | Dead CSS | ✅ `2e7c671` |
 | 5b | Obsolete tokens | ✅ `6acd7c5` |
 | 6 | Performance audit | ✅ `77e5dce` |
-| 7 | Offline / PWA audit | ⬜ next |
-| 8 | Mobile behaviour, microphone permission flows | ⬜ device |
-| 9 | Offline behaviour and PWA install | ⬜ device |
-| 10 | VoiceOver / TalkBack | ⬜ device |
-| 11 | Native-language review | ⬜ |
-| 12 | Deploy the events Worker; bump `sw.js`; Play prep | ⬜ on approval |
+| 7 | Offline / PWA audit | ✅ verified on the live https site |
+| 8 | Dead JavaScript | ✅ `a23dab2` |
+| 9 | Shared-component 44px floor + focus ring | ✅ `b916209` |
+| 10 | Malformed CSS block (two rules silently dropped) | ✅ `f748936` |
+| 11 | Contrast, document-wide, both themes | ✅ `4432c6f` |
+| 12 | Onboarding short-viewport chip sizing | ✅ `303e873` |
+| 13 | Memory / listener leak check | ✅ no leak |
+| 14 | Mobile behaviour, microphone permission flows | ⬜ device |
+| 15 | VoiceOver / TalkBack | ⬜ device |
+| 16 | Hardcoded `aria-label`s → i18n keys | ⬜ needs 14 keys ×15 files |
+| 17 | Remaining 30 `--mut2` text declarations | ⬜ needs per-surface measurement |
+| 18 | Native-language review | ⬜ external |
+| 19 | Deploy the events Worker | ⬜ **blocked — needs the owner to run it** |

@@ -6,7 +6,15 @@
 
 ## 1. Touch and pointer
 
-- **Minimum target 44×44px.** Not the icon — the hit area.
+- **Minimum target 44×44px.** Not the icon — the hit area. **Both dimensions.**
+  The floor lives on the shared component (`.btn`, `.theme-opt`, `.pv-x`), never
+  on a per-screen descendant rule — scoped floors are why modals, overlays and
+  `#v-data` shipped with 42px controls while the audit reported zero.
+- **Documented exemptions**, and the only ones: a target whose presentation is
+  essential (the `.cw-cell` crossword grid — ten 44px columns overflow a 390px
+  screen), a link inline in a sentence (`.auth-terms`, the manual body), and a
+  small control wrapped in a ≥44px `<label>` (the reminder checkbox). All three
+  are WCAG 2.5.8 exceptions. Anything else meets the floor.
 - Press feedback within 100ms: `scale(.985)` or `translateY(-1px)`.
 - Never rely on hover to reveal an affordance. This is a phone-first product.
 - `cursor:pointer` on anything that navigates.
@@ -117,6 +125,26 @@ node -e 'const fs=require("fs");const h=fs.readFileSync("index.html","utf8");con
 **i18n parity** — 1112 keys in `I18N_EN` and every `i18n/*.json`, no missing,
 no orphans. Match keys with `/"([A-Za-z0-9_.\-]+)"\s*:/g`; a line-anchored
 regex undercounts by 36 because some entries share a line.
+
+**Measure document-wide, never inside `#v-<name>`.** Every audit up to RC1
+scoped its queries to the active view container and tested `height` only. That
+single mistake hid, for the entire screen programme:
+
+- the app footer links (16px, present on *every* screen)
+- the bottom nav, including the active label's 4.08:1 contrast
+- every modal and overlay — sign-in, language, the practice viewers
+- the same Settings markup when it renders into `#v-data` instead of `#v-setup`
+- any control narrow but tall enough (`.auth-x` was 20×**11**)
+
+Query `document`, filter by real visibility, and test **both** dimensions. When
+the fixed gate was first run it found violations on **11 of 11** screens that
+the scoped gate had passed as clean.
+
+**Compositing:** a gradient contributes one candidate backdrop *per stop*.
+Blending all stops together invents failures — it reported `.prac-ex-card small`
+at 4.33:1 when the true worst stop gives 5.10:1. Take the worst single stop.
+Skip elements with `background-clip:text`; their computed `color` is
+`transparent` and the ratio is meaningless.
 
 **Rendered checks**, both themes, both user states (committed and first-run):
 element positions vs the fold · document height · `<h1>` count · interactive

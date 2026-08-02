@@ -38,6 +38,7 @@ CSS** except where a value must be legible against a fixed accent.
 ```
 --accent      = --acc                              the one accent
 --accent-fill = color-mix(--acc 90%, #000)         a brand fill that carries text
+--accent-text = #818cf8 dark / --acc light         the accent used AS text
 --focus       = --acc2                             focus rings only
 --on-accent   = #fff                               text on --accent / --accent-fill
 ```
@@ -76,6 +77,35 @@ replaced six hand-copied `color-mix()` declarations.
 
 **`--grad` is now decoration only.** If you are about to put text on it, you
 want `--accent-fill`.
+
+#### `--accent-text`
+
+**Use for:** the accent colour when it is the *foreground* — an accent-coloured
+label, the active bottom-nav item, accent text on a tinted bar.
+
+**Never use for:** a fill. That is `--accent-fill`.
+
+**Why it exists:** `--accent-fill` and `--accent-text` are mirrors. When the
+accent is the *background* it must be **darkened** so white text clears AA; when
+it is the *foreground* on a dark surface it must be **lightened** for the same
+reason. Using `--accent-fill` as text, or raw `--acc` as text on a dark bar,
+both fail. `.bnav-item.on` shipped with raw `--acc` on the bottom-nav bar and
+measured **4.08:1**; with `--accent-text` it is **6.11:1**.
+
+#### Theme-flipping tokens — the recurring trap
+
+`--green`, `--gold`, `--red` and `--pink` **invert lightness between themes**
+(`--green` is light mint `#34d399` in dark, deep green `#046a4e` in light). Any
+element that pairs one of them with a *fixed* label colour therefore passes in
+one theme and fails in the other.
+
+This has now shipped three times: `.pcal-wd.on`, `.nav-badge` (a near-black
+label on `--green`, **2.52:1** in light) and the whole `.manual-doc` block,
+which hardcoded four dark-theme colours with no light counterpart and left
+**36 text nodes between 1.2:1 and 2.6:1** in the Help centre.
+
+**Rule:** if a rule sets a literal colour next to a theme-flipping token, it
+needs a `:root[data-theme="light"]` counterpart. Measure both themes, always.
 
 #### `--mut2`
 
