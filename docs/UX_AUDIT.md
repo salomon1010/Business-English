@@ -556,7 +556,55 @@ Commit: `ab98253`.
 
 ---
 
-## Screens 11–12 — not yet audited
+## Screen 11 — Help ✅ complete
+
+`rManual`, plus the `.help-fab` that was its entry point.
+
+### Findings (before)
+
+| # | Problem | Why it mattered |
+|---|---|---|
+| HP1 | The manual rendered as **one 28,484px document — 33.75 handset screens** of prose, all in the DOM. | "Make answers discoverable" is impossible in a 34-screen wall. |
+| HP2 | **Two `<h1>`** — the help hero's and the manual's own. | — |
+| HP3 | 5 targets under 44px (2 search arrows at 26px, 3 links at 16px). | — |
+| HP4 | **The `.help-fab` covered interactive controls at rest** — Session's Reset button and a Practice vocabulary row. | A floating control that blocks other controls. **Critical**, and unfixable per screen: no fixed element can avoid a scrolling page. |
+| HP5 | `.help-hero` and `.manual-doc .top` were white on `--grad` (~1.9:1 at the cyan end), on the largest type of the screen. | Contrast. |
+
+### Measured before → after (390×844)
+
+| | before | after |
+|---|---|---|
+| Page height | 28,484px (33.75 screens) | **2,180px (2.58)** — −92% |
+| Manual block | 26,679px | **1,663px** |
+| `<h1>` | 2 | **1** |
+| Targets <44px | 5 | **0** |
+| Contrast failures | 3 | **0** (9 checks) |
+| FAB occlusion of controls | 2 screens | **0** |
+
+Verified at 320/390/768/1280px, in de/ar/ja, both themes, under reduced motion,
+and through search → expand → clear → topic-jump.
+
+### Decisions worth preserving
+
+- Each manual section becomes a **closed `<details>`**, applied as a
+  post-process in `helpCollapse()`. The 15 `manual/*.html` files are untouched,
+  so every translation gets it for free.
+- Search **opens** the sections it matched and re-closes them when cleared —
+  otherwise highlights sit inside a closed disclosure and the counter points at
+  nothing visible.
+- The 14 topic cards were **removed**: once the sections collapse, their
+  summaries are the same list, and they open in place instead of scroll-jumping.
+  The cards' icons moved onto the summaries, so nothing visual was lost.
+- **The `.help-fab` is deleted**, not repositioned. Help is now a `.pf-row` on
+  Profile beside App Setup, using the existing `profile.help` key. Help is a
+  reference destination, not a per-screen action, and one floating control that
+  blocks two screens' buttons is worse than a two-tap path.
+
+Commit: pending.
+
+---
+
+## Screen 12 — not yet audited
 
 Listed in working order. No findings recorded because none have been measured.
 

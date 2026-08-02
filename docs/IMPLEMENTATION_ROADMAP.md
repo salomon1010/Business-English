@@ -63,8 +63,8 @@ Commit trailer: `Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>`
 | 8 | **Calendar** | `calHTML` in `rProfile` | ✅ |
 | 9 | **Profile** | `rProfile` shell | ✅ |
 | 10 | **Settings** | `rSetup` + `rData` | ✅ |
-| 11 | Help | `rManual` | next |
-| 12 | Onboarding | `rSetup` | pending |
+| 11 | **Help** | `rManual` | ✅ |
+| 12 | Onboarding | `rSetup` (onboarding flow) | next |
 
 ---
 

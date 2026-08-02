@@ -1144,5 +1144,6 @@
   "cal.insight_streak": "chuỗi {{n}} ngày — đừng để ngọn lửa tắt. Đây là con người bạn đang trở thành.",
   "cal.insight_dow": "Bạn xuất hiện nhiều nhất vào {{day}} — nhịp điệu đó đang thành sự trôi chảy.",
   "cal.insight_going": "Đà tiến là thật — thêm một ngày nữa đưa bạn đến giọng nói bạn theo đuổi.",
-  "cal.insight_start": "Hãy luyện tập hôm nay và thắp sáng ngày đầu tiên của hành trình thay đổi."
+  "cal.insight_start": "Hãy luyện tập hôm nay và thắp sáng ngày đầu tiên của hành trình thay đổi.",
+  "help.row_sub": "Hướng dẫn, giải đáp và khắc phục sự cố"
 }

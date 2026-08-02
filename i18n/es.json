@@ -1144,5 +1144,6 @@
   "cal.insight_streak": "racha de {{n}} días — no dejes que se apague el fuego. En esto te estás convirtiendo.",
   "cal.insight_dow": "Apareces sobre todo los {{day}} — ese ritmo se está volviendo fluidez.",
   "cal.insight_going": "El impulso es real — un día más te acerca a la voz que persigues.",
-  "cal.insight_start": "Practica hoy y enciende el día uno de tu transformación."
+  "cal.insight_start": "Practica hoy y enciende el día uno de tu transformación.",
+  "help.row_sub": "Guías, respuestas y solución de problemas"
 }

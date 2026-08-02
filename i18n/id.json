@@ -1144,5 +1144,6 @@
   "cal.insight_streak": "rentetan {{n}} hari — jangan biarkan apinya padam. Inilah diri Anda yang sedang tumbuh.",
   "cal.insight_dow": "Anda paling sering hadir hari {{day}} — ritme itu berubah menjadi kefasihan.",
   "cal.insight_going": "Momentumnya nyata — satu hari lagi mendekatkan Anda pada suara yang Anda kejar.",
-  "cal.insight_start": "Berlatihlah hari ini dan nyalakan hari pertama transformasi Anda."
+  "cal.insight_start": "Berlatihlah hari ini dan nyalakan hari pertama transformasi Anda.",
+  "help.row_sub": "Panduan, jawaban, dan pemecahan masalah"
 }

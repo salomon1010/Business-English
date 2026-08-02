@@ -70,6 +70,11 @@ Green-tinted surface holding the rewrite the panel leads with, a labelled
 "Key phrase used" block, and an action row where **Copy leads**. Never label
 such a block with a claim the producer does not support — see `DESIGN_SYSTEM` §10.
 
+### `.help-sec` — a manual section
+A closed `<details>` per manual section, built by `helpCollapse()` as a
+post-process so `manual/*.html` stays untouched across all 15 languages. Search
+opens matches and re-closes on clear.
+
 ### `.home-more` — progressive disclosure
 `<details>` with a 52px `summary`, chevron rotating on `[open]`. For reference
 material that must stay reachable but is not a daily decision.
@@ -134,9 +139,10 @@ underneath the help FAB; it was removed rather than resized.
 `.hdr` brand + streak pill · `.bnav` six-item bottom nav with `navBadgeCount`
 badges · `.fab-col` / `.help-fab` floating help.
 
-**Known defect:** `.help-fab` is `position:fixed` at `bottom:84px; right:16px`
-and overlaps interactive content at rest on more than one screen. Cross-screen;
-recommendation is to delete it, since Profile → Help already exists.
+`.help-fab` and the whole `.fab-col` were **deleted** in the Help pass. Measured
+with `elementsFromPoint`, the FAB covered Session's Reset button and a Practice
+vocabulary row at rest. Help is now a `.pf-row` on Profile. Do not reintroduce a
+floating action button over a scrolling page.
 
 ---
 
