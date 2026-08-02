@@ -648,7 +648,7 @@ steps into a saved profile.
 - Fixing `h1.big em` also fixed the frozen Dashboard's day-0 hero: 4.31:1 dark
   and 5.87:1 light, both passing, where the gradient would have been 1.69:1.
 
-Commit: pending.
+Commit: `8984845`.
 
 Listed in working order. No findings recorded because none have been measured.
 

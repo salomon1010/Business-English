@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: Help (screen 11).
+> Last updated: Onboarding (screen 12) — **all screens complete**.
 
 ## Screens
 
@@ -19,9 +19,9 @@
 | 9 | Profile | ✅ frozen | `fb9bb36` |
 | 10 | **Settings** | ✅ frozen | `ab98253` |
 | 11 | **Help** | ✅ frozen | `126c495` |
-| 12 | Onboarding | ⬜ not started | — |
+| 12 | **Onboarding** | ✅ frozen | `8984845` |
 
-**11 of 12 complete. 11 frozen.**
+**12 of 12 complete. 12 frozen. The screen programme is done.**
 
 ## Cross-screen gate
 
@@ -38,12 +38,13 @@ except `<h1>`, which must be exactly 1.
 | Calendar / Profile | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Settings | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | Help | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Onboarding | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | *Phrase Lab (not passed)* | 1 | **48** | 0 | 0 | 0 | 0 | 0 |
 
 ## Accessibility
 
-- **Touch targets:** 100% ≥44px on all 11 completed screens.
-- **Contrast:** 0 AA failures across ~150 measured text roles, both themes.
+- **Touch targets:** 100% ≥44px on all 12 screens, down to 320×568.
+- **Contrast:** 0 AA failures across ~165 measured text roles, both themes.
 - **Forms:** every control on Settings has a real `<label for>` or `aria-label`.
 - **Keyboard:** tab order verified on Dashboard, Session, Shadow, Feedback,
   Settings. Shadow's workspace has a focus trap, Escape and focus restore.
@@ -54,6 +55,7 @@ except `<h1>`, which must be exactly 1.
 ## Localisation
 
 - **1,147 keys**, parity verified across `I18N_EN` and all 15 files.
+- Onboarding verified in de/ar/ja with no clipping or overflow.
 - Calendar dates, month names and weekday initials follow the app language.
 - RTL verified on Dashboard, Session, Shadow, Feedback, Polish, Vocabulary,
   Practice, Calendar, Profile, Settings.
@@ -88,9 +90,9 @@ except `<h1>`, which must be exactly 1.
 
 ## Release readiness
 
-**≈78%.** Eleven of twelve screens are production quality and measured. The
-remaining 22% is: Onboarding, the shared debt above, one native-language
-review, and the deploy-side items below.
+**≈85%.** All twelve screens are production quality and measured. The remaining
+15% is RC1 stabilisation: real-device testing, the shared debt below, one
+native-language review, and the deploy-side items.
 
 ## Deploy-side (outside the screen work)
 
@@ -105,17 +107,22 @@ review, and the deploy-side items below.
 
 ## Remaining estimated work
 
-**≈15%** of the screen programme: Onboarding (1 of 12 screens), plus the
-shared-debt sweep, which is now mostly a mechanical find-and-replace since each
-item is enumerated above.
+**0%** of the screen programme — all twelve are complete. What remains is RC1
+stabilisation, listed below.
 
-## Next milestone — Release Candidate 1
+## Next milestone — RC1 Stabilisation
 
-Blocking RC1:
-1. Onboarding pass (screen 12).
-2. Phrase Lab's 48 sub-44px controls — the last screen failing the gate.
-3. Deploy the events Worker, or accept that `track()` is silently lost.
-4. Bump `sw.js` `be12-vNN` on the deploy carrying this work.
+The screen programme is finished. Stabilisation, in the order I would run it:
 
-Not blocking, but recommended before promotion: the native-language review of
-machine-transcreated emotional copy.
+| | Item | Why first |
+|---|---|---|
+| 1 | **Phrase Lab's 48 sub-44px controls** | The one surface still failing the cross-screen gate. It is not a numbered screen, but it sits in `#v-phrases` alongside Executive Polish and is the last gate failure. |
+| 2 | End-to-end journey testing on a real device | Onboarding → first session → feedback → streak |
+| 3 | VoiceOver / TalkBack verification | Never done on hardware; all a11y work so far is measured, not heard |
+| 4 | Microphone permission flows | Cannot be simulated in the rig |
+| 5 | Offline behaviour and PWA install | Service-worker cache, `start_url`, install prompt |
+| 6 | Shared component cleanup | `--mut2` (~68), `.btn-p` (~40), `.fb-again`→`.btn-outline`, radius sprawl |
+| 7 | Performance profiling and memory review | Long sessions, the Shadow player, repeated renders |
+| 8 | Native-language review | Machine-transcreated emotional copy |
+| 9 | Deploy the events Worker | Or accept `track()` is silently lost |
+| 10 | Bump `sw.js` `be12-vNN`, then Play release prep | Last, on the user's go-ahead |
