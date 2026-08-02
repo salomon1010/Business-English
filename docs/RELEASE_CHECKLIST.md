@@ -2,7 +2,7 @@
 
 > Updated after every completed screen. Every number here is measured, not
 > estimated — see `UX_AUDIT.md` for the per-screen evidence.
-> Last updated: RC1 stabilisation task 1 — touch-target floors.
+> Last updated: RC1 stabilisation task 2 — shared contrast.
 
 ## Screens
 
@@ -48,7 +48,9 @@ Review and Journey, which were never individually audited.
 
 - **Touch targets:** 100% ≥44px on **all ten rendered surfaces** (the 12
   screens plus Review and Journey), at 320×568 through 1280×900.
-- **Contrast:** 0 AA failures across ~165 measured text roles, both themes.
+- **Contrast:** **0 AA failures on every rendered text node** across all ten
+  surfaces in both themes — measured by walking the DOM and compositing the
+  real painted backdrop, not by sampling chosen elements.
 - **Forms:** every control on Settings has a real `<label for>` or `aria-label`.
 - **Keyboard:** tab order verified on Dashboard, Session, Shadow, Feedback,
   Settings. Shadow's workspace has a focus trap, Escape and focus restore.
@@ -71,9 +73,8 @@ Review and Journey, which were never individually audited.
 
 | Item | Scope | Severity |
 |---|---|---|
-| `--mut2` used as text on unpassed screens | ~68 uses | medium |
-| `.btn-p` gradient on unpassed screens | ~40 uses | medium |
 | `→` arrows unmirrored in RTL | 5 arrows | low |
+| `.lang-ic` relies on an inset scrim, not a checked palette | 1 rule | low |
 | Infinite animations without a reduced-motion guard | Onboarding, role-play | low |
 | `.fb-again` duplicates `.btn-outline` | fold in later | low |
 | Radius sprawl (raw 12/10/9/8/7/22px) | app-wide | low |
@@ -120,8 +121,8 @@ The screen programme is finished. Stabilisation, in the order I would run it:
 | | Item | Status |
 |---|---|---|
 | 1 | Touch-target floors — every surface ≥44px | ✅ `8bcec70` |
-| 2 | Remaining shared contrast (`--mut2` ~68, `.btn-p` ~40) | ⬜ next |
-| 3 | RTL: 5 unmirrored `→` arrows | ⬜ |
+| 2 | Remaining shared contrast | ✅ `9b7fa11` |
+| 3 | RTL: 5 unmirrored `→` arrows | ⬜ next |
 | 4 | Duplicated CSS/JS (`.fb-again`→`.btn-outline`) | ⬜ |
 | 5 | Dead code and obsolete tokens (radius sprawl) | ⬜ |
 | 6 | Performance profiling | ⬜ |
