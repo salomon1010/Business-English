@@ -748,6 +748,9 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    stat cards below. On its own it needs that spacing back, and the last phase
    bar must not leave a strip of dead space inside the card. */
 .home-ring{margin-bottom:22px;box-shadow:var(--sh-1)}
+/* Hero context: role / goal / daily-slot as quiet pills, replacing the old
+   run-on sentence. Values are the same translated labels used elsewhere. */
+.home-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 
 /* Dashboard is the "what you have earned" half, so its cards carry green the
    same way the rules carry the warning colour. The progress ring and the phase
@@ -3811,7 +3814,12 @@ async function rHome(el){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("home.eyebrow")}</div>
   <h1 class="big">${S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic")}</h1>
-  <p class="sub">${t("home.sub_base")}${S.profile&&S.profile.role?t("home.sub_role",{role:esc(optLabel(S.profile.role,OB_ROLES,"role."))}):""}.${S.profile&&S.profile.goal?t("home.sub_goal",{goal:esc(optLabel(S.profile.goal,OB_GOALS,"goal.").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,""))}):""}${S.profile&&S.profile.slot?t("home.sub_slot",{slot:esc(optLabel(S.profile.slot,OB_SLOTS,"slot.").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,""))}):""}</p>
+  <p class="sub">${t("home.sub_base")}.</p>
+  ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
+    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
+    if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
+    if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
+    return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
   <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
