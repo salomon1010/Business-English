@@ -54,10 +54,10 @@ the `.btn-primary`. Its `h1`/`h2` is `clamp(20px,5.2vw,25px)`/800.
 One panel holding N borderless `.stat` tiles. `grid-auto-rows:1fr` keeps rows
 uniform. Replaces per-metric bordered boxes.
 
-### `.ex-best` / `.ex-copy` — a recommended line and its reuse action
-Green-tinted surface holding one rewrite, a labelled "Key phrase used" block,
-and an action row where **Copy leads**. Never label such a block with a claim
-the producer does not support — see `DESIGN_SYSTEM` §10.
+### `.ex-best` / `.ex-copy` — the led rewrite and its reuse action
+Green-tinted surface holding the rewrite the panel leads with, a labelled
+"Key phrase used" block, and an action row where **Copy leads**. Never label
+such a block with a claim the producer does not support — see `DESIGN_SYSTEM` §10.
 
 ### `.home-more` — progressive disclosure
 `<details>` with a 52px `summary`, chevron rotating on `[open]`. For reference
