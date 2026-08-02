@@ -154,6 +154,11 @@ window.FB_CONFIG={
   --nav-bg:rgba(10,14,26,.82); --bnav-bg:rgba(15,21,38,.97); --scroll:#2a3352;
   --hover:rgba(255,255,255,.05); --hover2:rgba(255,255,255,.08);
   --wash1:rgba(99,102,241,.18); --wash2:rgba(34,211,238,.08);
+  /* Design-system tokens (rolled out screen-by-screen). Elevation is tinted to
+     the surface, never a coloured glow; role aliases let markup name intent. */
+  --sh-1:0 1px 2px rgba(0,0,0,.4); --sh-2:0 6px 20px rgba(0,0,0,.35); --sh-3:0 16px 44px rgba(0,0,0,.45);
+  --r-md:14px; --r-lg:16px;
+  --accent:var(--acc); --focus:var(--acc2); --on-accent:#fff;
 }
 :root[data-theme="light"]{
   --bg:#f5f7fc; --bg2:#ffffff; --card:#ffffff; --card2:#eef2fb;
@@ -164,6 +169,7 @@ window.FB_CONFIG={
   --nav-bg:rgba(255,255,255,.85); --bnav-bg:rgba(255,255,255,.97); --scroll:#c3cce0;
   --hover:rgba(15,23,42,.05); --hover2:rgba(15,23,42,.08);
   --wash1:rgba(99,102,241,.10); --wash2:rgba(34,211,238,.06);
+  --sh-1:0 1px 2px rgba(15,23,42,.06); --sh-2:0 6px 20px rgba(15,23,42,.08); --sh-3:0 16px 40px rgba(15,23,42,.12);
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
