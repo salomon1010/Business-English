@@ -130,10 +130,13 @@ One rule: **motion confirms, guides, or celebrates. It never decorates.**
 - Transitions: `.12–.2s`, easing `cubic-bezier(.2,.8,.3,1)`
 - View change: existing `fade .35s`
 
-**Infinite animation is banned in product UI.** The Dashboard removed two
-(`glow-cta-glow 2.8s infinite` plus a `4s linear infinite` conic gradient).
-`.glow-cta` still exists on Session and Shadow and is scheduled for removal in
-those passes.
+**Infinite animation is banned in product UI.** `.glow-cta` — a spinning conic
+gradient plus a pulsing glow — is fully deleted as of the Executive Polish pass,
+rules and keyframes. *(target)* `obMicPulse`, `obRings`, `rpGlow`, `rpBar` and
+`pulse` survive on screens not yet passed, none with a reduced-motion guard.
+
+A live-state indicator (recording, listening) is the one motivated exception,
+and it still needs its guard: the state must stay legible without the motion.
 
 Every animated rule must have a `@media (prefers-reduced-motion:reduce)`
 counterpart. The Dashboard measures **0** animating elements under reduce.

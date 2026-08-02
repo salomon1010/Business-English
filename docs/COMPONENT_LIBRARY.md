@@ -16,19 +16,24 @@ modifier rather than forking it.
 solid color-mix(--accent 90% / #000) · --on-accent text · min-height 52px
 --r-md · --sh-2 · full width · :active scale(.985) · --focus ring offset 3px
 ```
-Exactly one per screen. Passes AA in both themes (the 90% mix is required —
-raw `--acc` is 4.47:1 in dark). No animation.
-**Used by:** Dashboard. **Should replace `.glow-cta`** on Session and Shadow.
+One per **viewport** (see `DESIGN_SYSTEM` §8). Passes AA in both themes at
+**5.32:1 dark / 7.31:1 light** — the 90% mix is required, raw `--acc` is 4.47:1.
+No animation.
+**Used by:** Dashboard, Session ×2, Shadow ×2, Executive Polish.
+
+### `.fb-again` — emphasised secondary
+Outlined accent, full width, 48px. For a next step that must read as actionable
+where an accent *fill* would collide with a nearby primary. In dark the label is
+lifted toward white (raw `--accent` as text is 4.31:1 on `--card`).
 
 ### `.btn` + `.btn-p` / `.btn-g` — legacy buttons
 `.btn-p` is a gradient fill, `.btn-g` a bordered ghost. Still used widely.
 *(target)* `.btn-p` folds into `.btn-primary`; `.btn-g` becomes the secondary.
 
-### `.glow-cta` — **deprecated**
-Two infinite animations (`glow-cta-glow 2.8s`, conic gradient `4s linear`) and
-in light mode it renders near-white on near-white, reading as disabled.
-Removed from Dashboard. **Do not use on new work.** Still on Session (×1) and
-Shadow (×1) until those passes.
+### `.glow-cta` — **deleted**
+Removed entirely in the Executive Polish pass, rules and both keyframes. It
+carried two infinite animations and rendered near-white on near-white in light
+mode, reading as disabled. Recorded here so it is not reintroduced.
 
 ### `.home-step` — the single next step
 A full-width row: text + `→`, `--sh-1`, min-height 48px. States one next action
@@ -48,6 +53,11 @@ the `.btn-primary`. Its `h1`/`h2` is `clamp(20px,5.2vw,25px)`/800.
 ### `.home-dash` — grouped metric panel
 One panel holding N borderless `.stat` tiles. `grid-auto-rows:1fr` keeps rows
 uniform. Replaces per-metric bordered boxes.
+
+### `.ex-best` / `.ex-copy` — a recommended line and its reuse action
+Green-tinted surface holding one rewrite, a labelled "Key phrase used" block,
+and an action row where **Copy leads**. Never label such a block with a claim
+the producer does not support — see `DESIGN_SYSTEM` §10.
 
 ### `.home-more` — progressive disclosure
 `<details>` with a 52px `summary`, chevron rotating on `[open]`. For reference
