@@ -307,6 +307,14 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
    the page from anywhere down its length */
 .pg-sub{display:flex;align-items:center;gap:12px}
 .pg-sub .back{margin:0;flex:none;font-size:13px;letter-spacing:0;text-transform:none}
+/* Help & Guide closes with the same control as every other in-app document, so
+   "close" looks identical wherever the user meets it. Sits in the sticky
+   eyebrow, so it cannot scroll away. */
+.man-x{flex:none;width:44px;height:44px;min-height:44px;margin-left:-10px;padding:0;
+  display:grid;place-items:center;border:none;background:none;color:var(--acc2);cursor:pointer;border-radius:50%}
+.man-x:hover{background:var(--hover)}
+.man-x:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.man-x svg{width:22px;height:22px}
 .pg-sub>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* Fluid display type: scales smoothly with the screen instead of jumping at
    breakpoints. Lower floor than before so it doesn't dominate a small phone. */
@@ -4193,7 +4201,7 @@ async function rManual(el,embedded){
   const greet=(name?t("help.greeting_name",{name:esc(name)}):t("help.greeting")).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
   el.innerHTML=`
     ${embedded?"":`<div class="eyebrow pg-eyebrow pg-sub">
-      <button class="back" onclick="manBack()">${t("profile.back")}</button>
+      <button type="button" class="man-x" onclick="manBack()" aria-label="${esc(t("doc.close"))}">${ic("close")}</button>
       <span>${t("profile.help")}</span>
     </div>`}
     <div class="help-hero">
@@ -4362,14 +4370,10 @@ window.openAbout=function(){
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
-/* The guide as a dismissable document rather than a route: opened from Settings
-   the user is mid-task, so an X that returns them exactly where they were beats
-   navigating the whole app away. The footer link still routes to the full Help
-   screen, which has search. */
-window.openManualDoc=function(){
-  const lang=(S.profile&&S.profile.lang)||"en";
-  openDoc("manual/"+lang+".html",t("acc.manual_link"));
-};
+/* Opens the real Help & Guide SCREEN (search, collapsible sections, line-icons)
+   rather than framing the static file, and records where to return to so its
+   X closes back to wherever the user was rather than always Profile. */
+window.openManual=function(){ _manReturn=(cur&&cur.v)||null; go("manual"); };
 window.closeAbout=function(){closeDoc()};   // retained: older call sites
 
 /* Every footer document routes through the viewer via ONE delegated handler.
@@ -8529,7 +8533,7 @@ async function rSetup(el){
         <div class="about-links">
           <a class="btn btn-g btn-sm" href="mailto:contact@lomonec.com" style="text-decoration:none">${tIc("acc.support_link","mail")}</a>
           <a class="btn btn-g btn-sm" href="privacy.html" onclick="event.preventDefault();openPrivacy()" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
-          <button class="btn btn-g btn-sm" onclick="openManualDoc()">${tIc("acc.manual_link","book")}</button>
+          <button class="btn btn-g btn-sm" onclick="openManual()">${tIc("acc.manual_link","book")}</button>
         </div>
       </div>
       <div class="card" style="margin-top:12px;text-align:center;padding:24px 20px">
