@@ -332,6 +332,14 @@ h1.big em{font-style:italic;color:var(--accent)}
 .btn-p{background:var(--accent-fill);color:var(--on-accent)}.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px)}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}.btn-p:hover{transform:none}}
 .btn-g{background:var(--card2);color:var(--txt);border:1px solid var(--line2)}.btn-g:hover{border-color:var(--acc)}
+/* Actions that belong together share one line instead of wrapping into a
+   ragged stack. The children shrink rather than overflow, and long labels wrap
+   inside their own button, so the ROW never breaks. Replaces three separate
+   inline "display:flex;flex-wrap:wrap" rows that all wrapped at 390px. */
+.btn-row{display:flex;gap:8px;flex-wrap:nowrap;align-items:stretch}
+.btn-row>*{flex:1 1 0;min-width:0;justify-content:center;text-align:center;
+  white-space:normal;line-height:1.25;font-size:clamp(12.5px,3.4vw,14.5px)}
+.btn-row>*>svg,.btn-row>*>.btn-ic{flex:none}
 /* Recommended-next-step CTA. Not destructive — --gold is the app's highlight,
    the same token the streak flame uses. --gold inverts lightness between
    themes (#fbbf24 dark, #8f4308 light), so the label colour must follow the
@@ -4354,6 +4362,14 @@ window.openAbout=function(){
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
+/* The guide as a dismissable document rather than a route: opened from Settings
+   the user is mid-task, so an X that returns them exactly where they were beats
+   navigating the whole app away. The footer link still routes to the full Help
+   screen, which has search. */
+window.openManualDoc=function(){
+  const lang=(S.profile&&S.profile.lang)||"en";
+  openDoc("manual/"+lang+".html",t("acc.manual_link"));
+};
 window.closeAbout=function(){closeDoc()};   // retained: older call sites
 
 /* Every footer document routes through the viewer via ONE delegated handler.
@@ -8455,7 +8471,7 @@ function rProfile(el){
   <div class="card" style="margin-top:12px">
     <h2 class="pf-card-h">${hIcon("link",t("invite.title"))}</h2>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="btn-row">
       <button class="btn btn-g pf-act" onclick="shApp()">${tIc("invite.btn","link")}</button>
       <a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
     </div>
@@ -8512,8 +8528,8 @@ async function rSetup(el){
         <p style="font-size:12.5px;color:var(--mut);margin-top:10px">${t("acc.copyright")}</p>
         <div class="about-links">
           <a class="btn btn-g btn-sm" href="mailto:contact@lomonec.com" style="text-decoration:none">${tIc("acc.support_link","mail")}</a>
-          <a class="btn btn-g btn-sm" href="privacy.html" target="_blank" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
-          <button class="btn btn-g btn-sm" onclick="go('manual')">${tIc("acc.manual_link","book")}</button>
+          <a class="btn btn-g btn-sm" href="privacy.html" onclick="event.preventDefault();openPrivacy()" style="text-decoration:none">${tIc("acc.privacy_link","lock")}</a>
+          <button class="btn btn-g btn-sm" onclick="openManualDoc()">${tIc("acc.manual_link","book")}</button>
         </div>
       </div>
       <div class="card" style="margin-top:12px;text-align:center;padding:24px 20px">
@@ -8559,7 +8575,7 @@ async function rData(el,embedded){
       </div>
       <p class="rem-note" id="remNote">${t("rem.note")}</p>
       <h3 class="set-h">${t("cal.label")}</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="btn-row">
         <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
         <button class="btn btn-g set-act" onclick="calDownload()">${tIc("cal.add_ics","download")}</button>
       </div>
@@ -8611,7 +8627,7 @@ async function rData(el,embedded){
       </details>
       <h3 style="margin:26px 0 10px">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
   <p class="sub" style="margin-bottom:10px">${t("acc.data_sub")}</p>
-  <p class="sub" style="margin-bottom:16px">${t("acc.camera_privacy")} <a href="privacy.html" target="_blank">${t("acc.camera_privacy_link")}</a></p>
+  <p class="sub" style="margin-bottom:16px">${t("acc.camera_privacy")} <a href="privacy.html" onclick="event.preventDefault();openPrivacy()">${t("acc.camera_privacy_link")}</a></p>
   <div class="grid g3">
     <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">${t("acc.stat_sessions")}</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">${t("acc.stat_recordings")}</div></div>
@@ -8644,8 +8660,10 @@ async function rData(el,embedded){
     </details>
   </div>`:""}
   <div class="card" style="margin-top:18px">
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <div class="btn-row" style="margin-bottom:8px">
       <button class="btn btn-g set-act" onclick="expData()">${tIc("acc.export_btn","download")}</button>
+    </div>
+    <div class="btn-row">
       <label class="btn btn-g" style="cursor:pointer">${tIc("acc.import_btn","upload")}<input type="file" accept=".json" style="display:none" onchange="impData(this)"></label>
       <button class="btn btn-danger" onclick="resetAll()">${tIc("acc.reset_btn","trash")}</button>
     </div>
