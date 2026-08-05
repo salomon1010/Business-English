@@ -23,6 +23,7 @@
       "vocabulary_practice": {"vocabulary": 2},
       "ai_conversation": {"communication": 5, "interview": 3, "confidence": 4},
       "professional_coach": {"professionalism": 2, "technicalKnowledge": 1},
+      "professional_simulation": {"communication": 5, "confidence": 3, "professionalism": 3, "technicalKnowledge": 2, "safety": 2},
       "pronunciation_feedback": {"pronunciation": 2, "communication": 1}
     },
     "careerReadiness": {"weights": {"communication": 25, "vocabulary": 20, "confidence": 15, "technicalKnowledge": 15, "safety": 10, "interview": 10, "consistency": 5}},

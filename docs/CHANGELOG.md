@@ -1,5 +1,20 @@
 # Changelog
 
+## Sprint 6 — Professional Simulation Engine
+
+### Added
+
+- Added the reusable Professional Simulation Engine and track-pack simulation schema.
+- Added Professional Simulation as a second Practice option; existing AI Practice remains unchanged.
+- Added the Welding simulation: First Day at a Welding Workshop.
+- Added adaptive multi-character responses, an unexpected workplace event, persistent simulation history, competency awards, and a six-area debrief.
+
+### Compatibility
+
+- General English continues to show its existing Practice and AI conversation experiences.
+- No Week 2 or other curriculum content was added.
+- No deployment was performed.
+
 ## Sprint 5 — AI Learning Coach
 
 ### Added

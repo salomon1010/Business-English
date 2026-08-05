@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 6 — Professional Simulation Engine — Complete (2026-08-05)
+
+Delivered a reusable, track-configured Professional Simulation Engine alongside the existing Practice and AI conversation experiences. Simulation packs define the workplace scenario, characters, objectives, unexpected events, evaluation criteria, and debrief recommendation. The engine maintains the learner’s conversation state locally, carries forward stated facts into later character responses, records completed simulations, and awards existing configurable competency points.
+
+The initial Welding implementation is **First Day at a Welding Workshop**. It includes HR Recruiter, Supervisor, Coworker, Safety Officer, and QA Inspector interactions, an early-job safety event, and a six-area readiness debrief. No Week 2 curriculum was added.
+
 ### Sprint 5 — AI Learning Coach — Complete (2026-08-05)
 
 Delivered a local-first learning coach that turns completed competency-mapped activities into immediate, personalized feedback. The coach persists activity summaries and a small track-scoped memory, then uses existing competency history, learning evidence, and curriculum position to generate the daily mission, smart Home recommendation, weekly review, and professional growth narrative.

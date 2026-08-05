@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 6 — Professional Simulation Engine
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-010 | 2026-08-05 | Building AI Apps | Add immersive professional simulations without replacing the established Practice or AI conversation modes. | Build a separate simulation application; alter existing role-play scenarios; add a shared, track-configured simulation engine. | Add a Professional Simulation Engine as a separate Practice option, driven by simulation definitions in curriculum packs. | Preserves existing learner workflows while allowing future professions to add their own workplace environments, casts, events, and evaluations. | The first engine uses deterministic local response behavior; richer generative dialogue can be introduced behind the same interface later. | Accepted |
+| ED-011 | 2026-08-05 | Evaluation | Evaluate simulation readiness without adding a new analytics backend. | Store only completion; add a new server-side evaluator; derive a structured local debrief from objective and response evidence. | Persist simulation completion history and generate a six-area debrief from completed objectives and response signals. | Gives learners immediate, explainable feedback and allows the existing Competency Engine and Learning Coach to use the result. | Scores are formative signals rather than validated employment assessments. | Accepted |
+
 ## Sprint 5 — AI Learning Coach
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

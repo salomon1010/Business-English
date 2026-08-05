@@ -7,5 +7,27 @@
     {"k": "grammar", "ic": "list", "n": "prac.tab_grammar", "subs": [{"k": "grammar", "ic": "list", "n": "lib.tab_grammar"}, {"k": "exercises", "ic": "pencil", "n": "lib.tab_exercises"}]}
   ],
   "roleplayCategories": [["mentor", "Professional mentor"]],
-  "aiMentors": [{"id": "welding-hr-recruiter", "cat": "mentor", "persona": "Maya", "g": "f", "role": "HR recruiter", "ic": "user", "title": "Professional introduction", "scenario": "Maya is an HR recruiter meeting you for the first time. This is a friendly professional introduction conversation, not a technical welding interview. She wants to understand your background, strengths, and career direction.", "points": ["Introduce yourself as a welder and describe your experience", "Share one strength such as safety, quality, reliability, or teamwork", "Say what kind of opportunity you are looking for"], "greet": "Hello, it's great to meet you. Could you introduce yourself and tell me a little about your welding background?"}]
+  "aiMentors": [{"id": "welding-hr-recruiter", "cat": "mentor", "persona": "Maya", "g": "f", "role": "HR recruiter", "ic": "user", "title": "Professional introduction", "scenario": "Maya is an HR recruiter meeting you for the first time. This is a friendly professional introduction conversation, not a technical welding interview. She wants to understand your background, strengths, and career direction.", "points": ["Introduce yourself as a welder and describe your experience", "Share one strength such as safety, quality, reliability, or teamwork", "Say what kind of opportunity you are looking for"], "greet": "Hello, it's great to meet you. Could you introduce yourself and tell me a little about your welding background?"}],
+  "simulations": [{
+    "id": "welding-first-day-workshop",
+    "title": "First Day at a Welding Workshop",
+    "scenario": "It is your first morning at a welding workshop. Meet the team, explain your experience, respond to your supervisor, and show that you take safety seriously before joining onboarding.",
+    "objectives": [
+      {"id": "introduction", "label": "Introduce yourself", "keywords": ["i am", "my name", "welder"]},
+      {"id": "experience", "label": "Describe your experience", "keywords": ["experience", "worked", "year", "welding"]},
+      {"id": "supervisor", "label": "Answer the supervisor", "keywords": ["understand", "ready", "can", "will"]},
+      {"id": "safety", "label": "Discuss safety", "keywords": ["safety", "ppe", "helmet", "gloves", "procedure"]},
+      {"id": "onboarding", "label": "Complete the onboarding conversation", "keywords": ["thank", "look forward", "onboarding", "join the team"]}
+    ],
+    "characters": [
+      {"id": "hr", "name": "Maya", "role": "HR Recruiter", "personality": "welcoming and observant", "communicationStyle": "warm, concise, and encouraging", "responseBehavior": "opens the conversation and listens for the learner's background"},
+      {"id": "supervisor", "name": "Daniel", "role": "Supervisor", "personality": "direct and practical", "communicationStyle": "clear, calm, and task-focused", "responseBehavior": "asks a follow-up based on the learner's stated experience"},
+      {"id": "coworker", "name": "Luis", "role": "Coworker", "personality": "friendly and helpful", "communicationStyle": "informal but professional", "responseBehavior": "welcomes the learner and introduces a realistic workplace change"},
+      {"id": "safety", "name": "Priya", "role": "Safety Officer", "personality": "careful and supportive", "communicationStyle": "precise and non-judgmental", "responseBehavior": "checks that the learner can explain a safe response"},
+      {"id": "qa", "name": "Amelia", "role": "QA Inspector", "personality": "methodical and fair", "communicationStyle": "professional and detail-oriented", "responseBehavior": "closes onboarding by reinforcing quality and clear communication"}
+    ],
+    "unexpectedEvents": [{"id": "early-job", "afterTurn": 2, "characterId": "coworker", "message": "A priority job has arrived early, so the team will review the work area before starting. What would you check first to work safely?"}],
+    "evaluation": {"communication": "objective completion and response clarity", "professionalism": "professional acknowledgements and teamwork language", "confidence": "clear commitments and readiness language", "vocabulary": "use of welding and workplace terms", "grammar": "complete-sentence signal", "industryReadiness": "safety and onboarding objectives"},
+    "debrief": {"recommendedNextSimulation": "Repeat First Day at a Welding Workshop and improve one missed objective."}
+  }]
 }
