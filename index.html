@@ -3416,6 +3416,8 @@ const I18N_EN={
  "rec.too_short_toast":"⚠️ Too short to save — hold and speak",
  "rec.saved_state":"Saved ✓ — tap to record again",
  "rec.saved_toast":"Recording saved 🎙️",
+ "rec.save_failed_state":"Couldn't save on this device",
+ "rec.save_failed_toast":"⚠️ This browser blocked the save. Open the app from your home-screen icon, or turn off Private Browsing.",
  "rec.recording_state":"Recording… tap to stop",
  "rec.mic_denied_toast":"⚠️ Microphone access denied — allow the mic in your browser.",
  "rec.delete_confirm":"Delete this recording?",
@@ -4807,9 +4809,19 @@ window.recToggle=async(ctx,label)=>{
         if(st)st.textContent=t("rec.too_short_state");
         toast(t("rec.too_short_toast"));return;
       }
-      await addRec(rec.ctx,rec.label,blob);
-      markPracticed();save();
+      /* Check the write actually landed. IndexedDB is refused outright in iOS
+         Private Browsing, in in-app webviews (a link tapped inside WhatsApp) and
+         with "Block All Cookies" on — addRec then resolves null. Reporting
+         "Saved ✓" over a failed write and rendering an empty list underneath it
+         sent a real user hunting a network fault for days. */
+      const ok=await addRec(rec.ctx,rec.label,blob);
       if(btn){btn.classList.remove("recording")}
+      if(!ok){
+        if(st)st.textContent=t("rec.save_failed_state");
+        toast(t("rec.save_failed_toast"));
+        return;   /* nothing was stored — don't credit the day or redraw the list */
+      }
+      markPracticed();save();
       if(st)st.textContent=t("rec.saved_state");
       toast(t("rec.saved_toast"));
       renderRecs(rec.ctx);
@@ -8040,7 +8052,8 @@ async function phRecInto(ctx,label,btn,after){
       const phBlob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
       if(btn){btn.style.borderColor="";btn.style.color=""}
       if(phBlob.size<1200||(Date.now()-rec.t0)<400){toast(t("ph.too_short_toast"));return}
-      await addRec(rec.ctx,rec.label,phBlob);
+      const phOk=await addRec(rec.ctx,rec.label,phBlob);   // see the note at the shadow recorder
+      if(!phOk){toast(t("rec.save_failed_toast"));return}
       markPracticed();save();
       toast(t("ph.rec_saved_toast"));if(after)after();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
