@@ -65,6 +65,7 @@
 <script src="learning-coach.js"></script>
 <script src="professional-simulation-engine.js"></script>
 <script src="adaptive-learning-engine.js"></script>
+<script src="career-center.js"></script>
 <script src="professional-skills-passport.js"></script>
 <script>
 window.FB_CONFIG={
@@ -579,8 +580,9 @@ body.sh-work-open{overflow:hidden}
 .coach-card,.coach-week,.coach-narrative{max-width:560px;margin:18px auto;padding:18px}.coach-card h2,.coach-week h2{font-size:20px;margin:4px 0 8px}.coach-card p,.coach-week p,.coach-narrative p{font-size:13px;line-height:1.55;color:var(--mut);margin:7px 0 14px}.coach-focus{font-size:12px!important;color:var(--acc2)!important}.coach-cta{margin-top:2px}.coach-review-grid,.coach-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}.coach-review-grid>div,.coach-summary-grid>div{padding:10px;border-radius:11px;background:var(--bg2);border:1px solid var(--line)}.coach-review-grid span,.coach-summary-grid span{display:block;font-size:11.5px;color:var(--mut);line-height:1.35}.coach-review-grid b,.coach-summary-grid b{display:block;font-size:12.5px;margin-bottom:4px}.coach-next{border-top:1px solid var(--line);padding-top:13px;margin-top:12px}.coach-next p{font-size:13px}.coach-modal-ov{position:fixed;inset:0;z-index:160;background:rgba(6,9,18,.74);backdrop-filter:blur(5px);display:grid;place-items:center;padding:18px;animation:fade .2s}.coach-modal{position:relative;max-width:560px;max-height:calc(100vh - 36px);overflow:auto;width:100%;padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--line2);box-shadow:0 20px 70px rgba(0,0,0,.4)}.coach-modal h2{font-size:21px;margin:5px 0}.coach-modal>p{font-size:14px;color:var(--mut);line-height:1.5}.coach-close{position:absolute;right:13px;top:11px;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--mut);font-size:24px;cursor:pointer}.coach-close:hover{background:var(--bg2);color:var(--txt)}
 .sim-entry{margin-top:10px}.sim-entry .rp-entry-ic{background:linear-gradient(145deg,rgba(251,191,36,.2),rgba(99,102,241,.2))}.sim-stage{max-width:700px;margin:0 auto}.sim-cast{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.sim-cast span{padding:7px 10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font-size:12px}.sim-cast b{display:block;font-size:12px}.sim-cast small{color:var(--mut)}.sim-objectives{display:grid;gap:8px;margin:14px 0}.sim-objective{padding:10px 12px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);font-size:13px}.sim-objective.done{border-color:rgba(52,211,153,.5);color:var(--green)}.sim-feed{display:flex;flex-direction:column;gap:10px;margin:14px 0}.sim-msg{padding:11px 13px;border-radius:13px;max-width:88%;font-size:14px;line-height:1.45}.sim-msg.character{background:var(--card2);border:1px solid var(--line2);align-self:flex-start}.sim-msg.learner{background:var(--accent-fill);color:var(--on-accent);align-self:flex-end}.sim-speaker{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;opacity:.75}.sim-event{border-color:rgba(251,191,36,.5)!important}.sim-compose{display:flex;gap:8px;margin-top:12px}.sim-compose textarea{flex:1;min-height:80px}.sim-debrief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.sim-debrief-grid div{padding:10px;border:1px solid var(--line);background:var(--bg2);border-radius:10px}.sim-debrief-grid span{display:block;color:var(--mut);font-size:11px}.sim-debrief-grid b{font-size:18px;color:var(--acc2)}
 .adaptive-roadmap,.adaptive-growth,.adaptive-heat{max-width:700px;margin:18px auto;padding:18px}.adaptive-roadmap h2,.adaptive-growth h2,.adaptive-heat h2{font-size:20px;margin:4px 0 7px}.adaptive-roadmap p,.adaptive-heat p{font-size:13px;color:var(--mut);line-height:1.5}.adaptive-roadmap h3{font-size:13px;margin:18px 0 8px}.adaptive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0}.adaptive-grid>div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px}.adaptive-grid span{display:block;color:var(--mut);font-size:11px}.adaptive-grid b{display:block;font-size:13px;margin-top:4px}.adaptive-chips{display:flex;gap:7px;flex-wrap:wrap}.adaptive-chips span{padding:7px 9px;border:1px solid var(--line);background:var(--bg2);border-radius:9px;font-size:12px}.adaptive-chips b{color:var(--gold)}.adaptive-bars{display:grid;gap:9px;margin-top:15px}.adaptive-bars>div>span{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);margin-bottom:4px}.adaptive-bars>div>span b{color:var(--acc2)}.adaptive-bars i{display:block;height:7px;background:var(--bg2);border-radius:8px;overflow:hidden}.adaptive-bars em{display:block;height:100%;border-radius:inherit;background:var(--grad)}.adaptive-heat-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-top:13px;max-width:480px}.adaptive-heat-grid span{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line)}.adaptive-heat-grid span[data-level="1"]{background:rgba(99,102,241,.3)}.adaptive-heat-grid span[data-level="2"]{background:rgba(99,102,241,.5)}.adaptive-heat-grid span[data-level="3"]{background:rgba(34,211,238,.62)}.adaptive-heat-grid span[data-level="4"]{background:var(--acc2)}
+.career-center{max-width:700px;margin:0 auto}.career-center h2{font-size:20px;margin:4px 0 8px}.career-center h3{font-size:14px;margin:18px 0 5px}.career-center .card{margin:16px 0;padding:18px}.career-center p{font-size:13px;color:var(--mut);line-height:1.55}.career-select{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.career-select .chip{cursor:pointer}.career-score{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.career-score>div{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:11px}.career-score b{display:block;font-size:18px;color:var(--acc2)}.career-score span{display:block;font-size:11px;color:var(--mut);margin-top:3px}.career-gap-list{display:grid;gap:10px;margin:13px 0}.career-gap-list>div{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:12px}.career-gap-list b{color:var(--gold)}.career-gap-list i{grid-column:1/-1;height:7px;border-radius:9px;background:var(--bg2);overflow:hidden}.career-gap-list em{display:block;height:100%;border-radius:inherit;background:var(--grad)}.career-pack-actions{display:flex;gap:8px;flex-wrap:wrap}.career-polish{margin-top:13px;display:grid;gap:8px}.career-polish p{margin:0;padding:11px;border-radius:10px;background:var(--bg2);border:1px solid var(--line)}.career-polish b,.career-polish span{display:block}.career-polish span{font-size:11px;color:var(--mut);margin-top:4px}
 .pg-recent{display:flex;flex-direction:column;gap:6px;margin-top:10px}.pg-recent span{font-size:12px;color:var(--mut);display:flex;justify-content:space-between;gap:12px}.pg-recent b{color:var(--green)}
-@media(max-width:420px){.psp-grid,.coach-review-grid,.coach-summary-grid,.sim-debrief-grid,.adaptive-grid{grid-template-columns:1fr}.psp-score{min-width:62px;height:62px;font-size:23px}.sim-compose{flex-direction:column}}
+@media(max-width:420px){.psp-grid,.coach-review-grid,.coach-summary-grid,.sim-debrief-grid,.adaptive-grid,.career-score{grid-template-columns:1fr}.psp-score{min-width:62px;height:62px;font-size:23px}.sim-compose{flex-direction:column}}
 /* The day's session is the one thing Home exists to start, so it is the most
    elevated surface on the screen and the only one carrying a solid accent
    button. The card itself is now plain --card: the wash competed with the
@@ -2093,6 +2095,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
   <div id="v-simulation" class="view"></div>
+  <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
   <div id="v-manual" class="view"></div>
@@ -2197,7 +2200,7 @@ function awardCompetency(input){
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
 function defState(){
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]}};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
 function load(){
   const def=defState();
@@ -3942,7 +3945,7 @@ function masteredCount(){return Object.keys(S.phMaster).filter(k=>S.phMaster[k])
 let cur={v:"home"};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function bnavSync(v){
-  const map=v==="session"?"journey":(v==="data"?"profile":(v==="simulation"?"practice":v));
+  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"?"practice":v));
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 /* Remembers the session a jump-button came from, so the destination tab can
@@ -3952,14 +3955,14 @@ window.sessGo=function(v,w,d){SESS_RETURN={v,w,d};go(v)};
 function go(v,arg1,arg2){
   if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}
   cur={v,arg1,arg2};
-  const tv=v==="data"?"profile":(v==="simulation"?"practice":v); /* settings lives under the Profile tab */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"?"practice":v); /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks})[v](el,arg1,arg2);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -8227,6 +8230,11 @@ function rProfile(el){
   ${window.LearningCoach?LearningCoach.narrativeCard(S):""}
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.roadmapCard(S):""}
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.heatmapCard(S):""}
+  <button class="pf-row pf-setup" onclick="go('career')">
+    <span class="pf-ic">${ic("briefcase")}</span>
+    <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>
   <button class="pf-row pf-setup" onclick="go('setup')">
     <span class="pf-ic">${ic("gear")}</span>
     <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
@@ -8270,6 +8278,10 @@ function rProfile(el){
        carrying no visible word. -->`;
   manIconizeInline(el);
   calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
+}
+function rCareer(el){
+  el.innerHTML=CareerCenter.render(S);
+  manIconizeInline(el);
 }
 /* App Setup — Settings, the guide and About in one place.
    They used to be three rows at the bottom of Profile, which made them feel
@@ -9640,7 +9652,7 @@ window.pronTry=()=>{
 (async function boot(){
   try{await Promise.all([CurriculumProvider.load("general"),CurriculumProvider.load("welding")])}
   catch(e){console.error("[curriculum]",e);document.getElementById("v-home").innerHTML="<p class=\"sub\">Could not load the learning curriculum. Please reconnect and try again.</p>";return}
-  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","pron","data","session","manual","tracks"];
+  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);

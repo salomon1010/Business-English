@@ -1,5 +1,23 @@
 # Changelog
 
+## Sprint 9 — Global Career Readiness Center
+
+### Added
+
+- Added a track-aware Career Center dashboard accessible from Profile.
+- Added persistent destination selection for Cameroon, Nigeria, South Africa, Canada, the United States, and International Contractor contexts.
+- Added destination-specific interview, workplace communication, culture, and certification-preparation guidance.
+- Added a Career Gap Analysis backed by the existing Adaptive Learning Engine.
+- Added a Resume & LinkedIn Coach that uses the existing polishing service when available and provides local guidance otherwise.
+- Added Mock Interview Pack links to the active track's existing AI mentor and Professional Simulation.
+
+### Compatibility
+
+- The Career Center reuses existing Professional Track, Competency, AI Coach, Career Readiness, and Simulation systems; no duplicate learning engine was added.
+- Certification guidance is educational only and directs learners to verify current official and employer requirements.
+- General English and Welding remain available and unchanged outside the new Profile entry point.
+- No deployment was performed.
+
 ## Sprint 8 — Complete Welding Professional Track Curriculum
 
 ### Added

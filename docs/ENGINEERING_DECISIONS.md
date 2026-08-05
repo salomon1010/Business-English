@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 9 — Global Career Readiness Center
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-016 | 2026-08-05 | Building AI Apps | Add career preparation without introducing a parallel learner profile, readiness score, or practice runtime. | Create a separate Career Center backend; build independent scoring and practice features; compose the Center from existing track and learning engines. | Build a track-aware Career Center view that reads the active track, Adaptive Learning Engine, Skills Passport, AI mentors, and Simulation Engine. | Maintains one learning engine, one learner state, and one source of career-readiness evidence for all current and future tracks. | The Center is intentionally composed from current capabilities; richer labour-market integrations are deferred. | Accepted |
+| ED-017 | 2026-08-05 | Security | Give destination and certification guidance without presenting legal, immigration, licensing, or employment advice as authoritative. | Provide prescriptive eligibility guidance; omit certification guidance; provide educational preparation guidance with explicit verification boundaries. | Keep destination guidance educational, persist only the learner's selected destination and professional-summary draft locally, and direct learners to official and employer sources for current requirements. | Avoids unsupported claims and preserves the product's existing local-first privacy approach. | Guidance is intentionally general and does not replace destination-specific professional advice. | Accepted |
+
 ## Sprint 8 — Complete Welding Professional Track Curriculum
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 9 — Global Career Readiness Center — Complete (2026-08-05)
+
+Delivered a local, track-aware Career Center that turns existing professional learning evidence into career-preparation guidance. Learners can choose Cameroon, Nigeria, South Africa, Canada, the United States, or an International Contractor context and receive destination-specific interview, workplace communication, culture, and certification-preparation guidance.
+
+The Center reuses the active track, Adaptive Learning Engine, Skills Passport, AI mentors, and Professional Simulation Engine. It surfaces career and interview readiness, existing gap analysis, an AI-assisted professional-summary coach, and direct entry points to the relevant mentor and simulation. Certification information remains educational; learners are directed to verify current employer, licensing, legal, and authority requirements themselves. No new learning engine, backend, or deployment was introduced.
+
 ### Sprint 8 — Complete Welding Professional Track Curriculum — Complete (2026-08-05)
 
 Expanded the Welding track from a single foundation week into a 12-stage Professional Journey. The stages progress from workshop entry and team communication through equipment, materials, safety, procedures, drawings, construction, QA, industrial work, interviews, and career readiness.
