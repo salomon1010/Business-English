@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v189";
+const CACHE = "be12-v190";
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png"];
 
 /* Reminder text lives in its own cache, NOT in CACHE, because CACHE is wiped on
@@ -19,17 +19,55 @@ self.addEventListener("activate", e => {
       .then(() => self.clients.claim())
   );
 });
+/* Network-first, but only for as long as the network is actually answering.
+
+   The old handler awaited fetch() with no timeout and fell back to cache only in
+   .catch(). A stalled mobile connection does not reject — it hangs — so a phone
+   with the whole app already cached still sat on a blank screen. On Orange/MTN
+   Cameroon (3G, no CDN closer than Europe, TCP over a congested CAMTEL link)
+   that is the difference between "opens instantly" and "app is broken".
+
+   So: if we hold a cached copy, the network gets NET_TIMEOUT ms to beat it and
+   is otherwise overtaken — while still revalidating in the background, which
+   keeps the push-to-deploy behaviour on any half-decent connection. With no
+   cached copy there is nothing to fall back to, so we wait. */
+const NET_TIMEOUT = 3000;
+
 self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET" || !e.request.url.startsWith(self.location.origin)) return;
-  e.respondWith(
-    fetch(e.request)
-      .then(r => {
+  const req = e.request;
+  if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
+
+  e.respondWith((async () => {
+    const cached = await caches.match(req);
+
+    const net = fetch(req).then(r => {
+      /* Don't poison the cache with 404s / 5xx — a bad response now would be
+         served forever offline. */
+      if (r && r.ok) {
         const clone = r.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
-        return r;
-      })
-      .catch(() => caches.match(e.request).then(m => m || caches.match("index.html")))
-  );
+        caches.open(CACHE).then(c => c.put(req, clone)).catch(() => {});
+      }
+      return r;
+    });
+
+    if (!cached) {
+      try { return await net } catch (err) { return (await caches.match("index.html")) || Response.error() }
+    }
+
+    /* Keep the worker alive long enough to finish revalidating even if we
+       already answered from cache. Guarded: waitUntil throws if the event is no
+       longer active, and that must not take the response down with it. */
+    try { e.waitUntil(net.catch(() => {})) } catch (err) { net.catch(() => {}) }
+
+    try {
+      return await Promise.race([
+        net,
+        new Promise((_, rej) => setTimeout(() => rej(new Error("slow")), NET_TIMEOUT)),
+      ]) || cached;
+    } catch (err) {
+      return cached;   // offline, or slower than NET_TIMEOUT
+    }
+  })());
 });
 
 /* The daily reminder push carries no payload — see backend/push/push-worker.js

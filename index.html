@@ -47,7 +47,13 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!-- Loaded non-blocking: media="print" means the browser fetches it without
+     holding up first paint, and onload flips it to "all". Text appears
+     immediately in the system sans fallback and swaps when Outfit lands. On a
+     300 ms-RTT link this saves two TLS handshakes plus the font download ahead
+     of anything being drawn. -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all';this.onload=null">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"></noscript>
 <!-- Firebase (Auth + Firestore) — optional cloud sync, loaded on demand by
      fbLoad(). It is ~145 KB gzipped and most people never sign in, so it is not
      in the boot path. A device that HAS signed in still loads it at boot (see
@@ -9870,7 +9876,17 @@ window.pronTry=()=>{
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
   if(!valid.includes(v))v="home";
-  if(S.profile&&S.profile.lang&&S.profile.lang!=="en"){await loadLangDict(S.profile.lang);applyDirLang(S.profile.lang)}
+  /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
+     and most of our Central African users are Francophone, so awaiting it
+     outright meant a second blocking round trip before anything was drawn.
+     Give it a moment — on a decent link it wins and nobody sees English — and
+     if it is late, paint in English now and re-paint when it arrives. */
+  if(S.profile&&S.profile.lang&&S.profile.lang!=="en"){
+    applyDirLang(S.profile.lang);
+    const dict=loadLangDict(S.profile.lang);   // never rejects; falls back to {}
+    const inTime=await Promise.race([dict.then(()=>true),new Promise(r=>setTimeout(()=>r(false),1200))]);
+    if(!inTime)dict.then(()=>{localizeStatic();try{go(cur.v,cur.arg1,cur.arg2)}catch(e){}});
+  }
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
   /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
