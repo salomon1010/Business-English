@@ -1,6 +1,6 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
 const CACHE = "be12-v192";
-const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png"];
+const SHELL = ["./", "index.html", "professional-tracks.js", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png"];
 
 /* Reminder text lives in its own cache, NOT in CACHE, because CACHE is wiped on
    every version bump and the text has to survive one: a push can arrive before

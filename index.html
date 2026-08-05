@@ -59,6 +59,7 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<script src="professional-tracks.js"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -885,6 +886,9 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:-webkit-box;
   -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rp-entry-go{flex:none;color:var(--acc2);font-size:19px}
+.track-entry{align-items:flex-start}
+.track-entry .rp-entry-t{display:flex;flex-direction:column;align-items:flex-start}
+.track-entry-cta{display:block;color:var(--accent-text);font-size:13px;font-weight:700;margin-top:9px}
 /* conversation history rows on the progress page */
 .cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
 .cv-row:first-of-type{border-top:none}
@@ -2070,6 +2074,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-data" class="view"></div>
   <div id="v-manual" class="view"></div>
   <div id="v-setup" class="view"></div>
+  <div id="v-tracks" class="view"></div>
   <div class="footer-note" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
   <!-- Sibling, not part of footer.note: setLang replaces that node's innerHTML
        wholesale, so a link added inside it would vanish on every language change.
@@ -2249,7 +2254,7 @@ const WEEKS=[
 ];
 
 const PHASES={1:{name:"Foundation",wk:"Weeks 1–4",cls:"p1"},2:{name:"Workplace Fluency",wk:"Weeks 5–8",cls:"p2"},3:{name:"Executive Communication",wk:"Weeks 9–12",cls:"p3"}};
-function phaseLabel(ph){return t("phase."+ph)}
+function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
 
 const PHRASES=[
  // week, category, phrase, use  (type: p=phrase, i=idiom, meaning for idioms)
@@ -2420,6 +2425,48 @@ const MONTH_METRICS={
    qs:["What is now clearly stronger than 12 weeks ago?","In what speaking situations do I still lose control?","What pronunciation issues still show up repeatedly?","Which 20 phrases are now part of my active speech?","What should the next 12-week cycle focus on?"]}
 };
 
+/* ================= PROFESSIONAL TRACKS =================
+   The General English curriculum remains the source of truth in Sprint 1.
+   Welding is selectable as a foundation, but deliberately inherits this pack
+   until its own reviewed curriculum is introduced in a later sprint. */
+const GENERAL_ENGLISH_CURRICULUM=Object.freeze({
+  id:"general-english-v1",
+  days:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+  resources:RESOURCES,
+  dayMeta:DAY_META,
+  sessionLinks:SESS_LINK,
+  templates:TEMPLATES,
+  weeks:WEEKS,
+  phases:PHASES,
+  phrases:PHRASES,
+  reviewAxes:REVIEW_AXES,
+  monthMetrics:MONTH_METRICS,
+  reviewCheckpoints:[4,8,12]
+});
+
+ProfessionalTrackContext.register(new ProfessionalTrack({
+  id:"general-english",nameKey:"tracks.general",descriptionKey:"tracks.general_desc",
+  status:"available",curriculum:GENERAL_ENGLISH_CURRICULUM,version:"1"
+}));
+ProfessionalTrackContext.register(new ProfessionalTrack({
+  id:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
+  status:"foundation",inheritsFrom:"general-english",version:"1"
+}));
+
+function activeProfessionalTrack(){return ProfessionalTrackContext.active()}
+function activeCurriculum(){return ProfessionalTrackContext.resolveCurriculum()||GENERAL_ENGLISH_CURRICULUM}
+function trackDays(){return activeCurriculum().days}
+function trackResources(){return activeCurriculum().resources}
+function trackDayMeta(){return activeCurriculum().dayMeta}
+function trackSessionLinks(){return activeCurriculum().sessionLinks}
+function trackTemplates(){return activeCurriculum().templates}
+function trackWeeks(){return activeCurriculum().weeks}
+function trackPhases(){return activeCurriculum().phases}
+function trackPhrases(){return activeCurriculum().phrases}
+function trackReviewAxes(){return activeCurriculum().reviewAxes}
+function trackMonthMetrics(){return activeCurriculum().monthMetrics}
+function trackSessionCount(){return trackWeeks().reduce((n,w)=>n+Object.keys(w.days||{}).length,0)}
+
 const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
 const RULES=[
  ["📼","Every session produces evidence","A recording, transcript, phrase entry, or correction notes. No evidence = no real session."],
@@ -2432,8 +2479,9 @@ const RULES=[
 /* ================= STATE & STORAGE ================= */
 const LS_KEY="be12_v1";
 let S=load();
+ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
 function defState(){
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10)};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"}};
 }
 function load(){
   const def=defState();
@@ -3708,6 +3756,31 @@ const I18N_EN={
  "ggood.4.cat":"Adverbial","ggood.4.note":"Great use of an adverb to add emphasis.",
  "ggood.5.cat":"Preposition","ggood.5.note":"Perfect preposition + gerund — “thanks for + -ing”.",
  "gphrase.cat":"Business phrasing","gphrase.note":"You used a phrase from your Phrase Lab in real speech — that's exactly the goal! 💼",
+ "tracks.card_title":"Professional Tracks",
+ "tracks.card_body":"Learn English through your profession using AI mentors, simulations and industry-specific communication.",
+ "tracks.card_cta":"Enter Professional Tracks →",
+ "tracks.eyebrow":"Professional Tracks",
+ "tracks.title":"Choose your professional track",
+ "tracks.sub":"Your learning engine stays the same. Each track adds profession-specific curriculum when it is ready.",
+ "tracks.back":"Home",
+ "tracks.available":"Select →",
+ "tracks.current":"Current track",
+ "tracks.selected":"{{track}} is now your active professional track.",
+ "tracks.foundation":"Foundation selected",
+ "tracks.foundation_body":"Welding is selected. Its dedicated curriculum is coming next; General English remains the active learning content.",
+ "tracks.coming_soon":"Coming soon",
+ "tracks.general":"General English",
+ "tracks.general_desc":"The complete 12-week professional English programme you use today.",
+ "tracks.welding":"Welding",
+ "tracks.welding_desc":"Professional communication for welding. Curriculum foundation only in this release.",
+ "tracks.electrician":"Electrician",
+ "tracks.construction":"Construction",
+ "tracks.healthcare":"Healthcare",
+ "tracks.manufacturing":"Manufacturing",
+ "tracks.customer_service":"Customer Service",
+ "tracks.hvac":"HVAC",
+ "tracks.plumbing":"Plumbing",
+ "tracks.mechanical":"Mechanical",
  "footer.note":"© 2026 Lomonec LLC — BE Mastery · <a href=\"privacy.html\" target=\"_blank\">Privacy</a> · <a href=\"mailto:contact@lomonec.com\">Support</a>"
 };
 function localizeStatic(){
@@ -4020,7 +4093,7 @@ async function ghPull(){
 }
 const recName=r=>`${r.ctx}__${r.ts}.webm`;
 function labelFor(ctx){
-  if(ctx.startsWith("phrase")){const p=PHRASES[+ctx.slice(6)];return p?p.p.slice(0,40):"phrase"}
+  if(ctx.startsWith("phrase")){const p=trackPhrases()[+ctx.slice(6)];return p?p.p.slice(0,40):"phrase"}
   const m=ctx.match(/^w(\d+)([A-Za-z]{3})$/);return m?`W${m[1]} ${m[2]}`:ctx;
 }
 async function ghUpRecs(){
@@ -4115,14 +4188,15 @@ window.ghAutoToggle=()=>{GH.auto=!GH.auto;saveGH();
 window.ghPush=ghPush;window.ghPull=ghPull;window.ghUpRecs=ghUpRecs;window.ghDownRecs=ghDownRecs;
 
 /* ================= PROGRESS HELPERS ================= */
-const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 const dayKey=(w,d)=>`w${w}${d}`;
-function weekDone(w){return DAYS.filter(d=>S.days[dayKey(w,d)]).length}
+function weekDone(w){return trackDays().filter(d=>S.days[dayKey(w,d)]).length}
 function totalDone(){return Object.keys(S.days).filter(k=>S.days[k]).length}
-function pct(){return Math.round(totalDone()/84*100)}
+function pct(){return Math.round(totalDone()/Math.max(1,trackSessionCount())*100)}
 function currentPos(){
-  for(const w of WEEKS){for(const d of DAYS){if(!S.days[dayKey(w.n,d)])return{w:w.n,d}}}
-  return {w:12,d:"Sun"};
+  const weeks=trackWeeks(),days=trackDays();
+  for(const w of weeks){for(const d of days){if(!S.days[dayKey(w.n,d)])return{w:w.n,d}}}
+  const last=weeks[weeks.length-1]||{n:1};
+  return {w:last.n,d:days[days.length-1]||"Sun"};
 }
 function markPracticed(){
   const today=new Date().toISOString().slice(0,10);
@@ -4165,7 +4239,7 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual,setup:rSetup})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks})[v](el,arg1,arg2);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -4416,7 +4490,7 @@ addEventListener("click",e=>{
 /* ================= DASHBOARD ================= */
 let _homeRecN=0;
 async function rHome(el){
-  const pos=currentPos(),wk=WEEKS[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
+  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
   _homeRecN=recN;
   /* Day 0 gets the promise, every day after gets the evidence. Someone who has
      never practised has nothing to show in a week strip — seven empty dots is a
@@ -4440,12 +4514,22 @@ async function rHome(el){
       <div class="eyebrow">${t("home.continue")}</div>
       ${started?`<h1>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h1>`
                :`<h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h2>`}
-      <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(DAY_META[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
+      <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(trackDayMeta()[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
       <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
     </div>
   </div>
   ${homeDueCard()}
+  <div class="hero">
+    <button class="card rp-entry track-entry" onclick="go('tracks')">
+      <span class="rp-entry-ic">${ic("briefcase")}</span>
+      <span class="rp-entry-t">
+        <b>${t("tracks.card_title")}</b>
+        <small>${t("tracks.card_body")}</small>
+        <span class="track-entry-cta">${t("tracks.card_cta")}</span>
+      </span>
+    </button>
+  </div>
   <div class="hero">
     <button class="card rp-entry" onclick="go('roleplay')">
       <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
@@ -4505,7 +4589,8 @@ function homeDueCard(){
 function homePanelDashboard(){
   const p=pct(),pos=currentPos(),recN=_homeRecN;
   const phaseCounts=[0,0,0,0];
-  WEEKS.forEach(w=>phaseCounts[w.phase]+=weekDone(w.n));
+  const weeks=trackWeeks(),phases=trackPhases();
+  weeks.forEach(w=>phaseCounts[w.phase]=(phaseCounts[w.phase]||0)+weekDone(w.n));
   const circ=2*Math.PI*62;
   return `
     ${rateHTML()}
@@ -4518,9 +4603,9 @@ function homePanelDashboard(){
           <div class="pct">${p}%<small>${t("home.pct_of")}</small></div>
         </div>
         <div style="flex:1">
-          ${[1,2,3].map(ph=>`<div style="margin-bottom:${ph===3?0:12}px">
-            <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:5px"><span class="chip ${PHASES[ph].cls}" style="border:none;padding:0;min-width:0">${phaseLabel(ph)}</span><span style="color:var(--mut);flex:none">${phaseCounts[ph]}/28</span></div>
-            <div class="bar"><i style="width:${phaseCounts[ph]/28*100}%"></i></div></div>`).join("")}
+          ${Object.keys(phases).map((ph,i,all)=>{const phaseWeeks=weeks.filter(w=>String(w.phase)===String(ph)),total=phaseWeeks.length*trackDays().length;return `<div style="margin-bottom:${i===all.length-1?0:12}px">
+            <div style="display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:5px"><span class="chip ${phases[ph].cls}" style="border:none;padding:0;min-width:0">${phaseLabel(ph)}</span><span style="color:var(--mut);flex:none">${phaseCounts[ph]||0}/${total}</span></div>
+            <div class="bar"><i style="width:${total?(phaseCounts[ph]||0)/total*100:0}%"></i></div></div>`}).join("")}
         </div>
       </div>
     </div>
@@ -4539,9 +4624,9 @@ function homeMetrics(pos,recN){
   const pron=rpScoreStats();
   const M=[
     {ic:"flame", n:streak(),                                                  suf:"",             lbl:"stat_streak",     next:"next_streak",     go:sess,             zero:streak()===0},
-    {ic:"check", n:totalDone(),                                               suf:"/84",          lbl:"stat_sessions",   next:"next_sessions",   go:sess,             zero:totalDone()===0},
+    {ic:"check", n:totalDone(),                                               suf:"/"+trackSessionCount(),lbl:"stat_sessions",   next:"next_sessions",   go:sess,             zero:totalDone()===0},
     {ic:"mic",   n:recN,                                                      suf:"",             lbl:"stat_recordings", next:"next_recordings", go:sess,             zero:recN===0},
-    {ic:"chat",  n:masteredCount(),                                           suf:"/"+PHRASES.length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
+    {ic:"chat",  n:masteredCount(),                                           suf:"/"+trackPhrases().length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
     {ic:"book",  n:Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
     {ic:"target",n:(S.clips||[]).length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:(S.clips||[]).length===0},
     {ic:"chat",  n:(S.convos||[]).length,                                     suf:"",             lbl:"stat_convos",     next:"next_convos",     go:"go('roleplay')", zero:(S.convos||[]).length===0},
@@ -4588,48 +4673,92 @@ function statCard(icon,n,suffix,label,empty,onclick){
     <div class="l">${label}</div>
   </div>`;
 }
+
+/* ================= PROFESSIONAL TRACK SELECTION ================= */
+function trackSelectionCard(track){
+  const current=activeProfessionalTrack()&&activeProfessionalTrack().id===track.id;
+  const foundation=track.status==="foundation";
+  const status=current?t("tracks.current"):(foundation?t("tracks.foundation"):t("tracks.available"));
+  return `<button class="card rp-entry track-entry" onclick="selectProfessionalTrack('${esc(track.id)}')">
+    <span class="rp-entry-ic">${ic("check")}</span>
+    <span class="rp-entry-t">
+      <b>${t(track.nameKey)}</b>
+      <small>${t(track.descriptionKey)}</small>
+      <span class="track-entry-cta">${status}</span>
+    </span>
+  </button>`;
+}
+function trackPlaceholderCard(key){
+  return `<div class="card rp-entry track-entry" aria-disabled="true" style="opacity:.58;cursor:not-allowed">
+    <span class="rp-entry-ic">${ic("lock")}</span>
+    <span class="rp-entry-t"><b>${t(key)}</b><small>${t("tracks.coming_soon")}</small></span>
+  </div>`;
+}
+function rTracks(el){
+  const tracks=ProfessionalTrackContext.all();
+  el.innerHTML=`
+    <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('home')">${t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
+    <h1 class="big">${t("tracks.title")}</h1>
+    <p class="sub" style="margin-bottom:18px">${t("tracks.sub")}</p>
+    ${tracks.map(track=>trackSelectionCard(track)).join("")}
+    <div class="hr" style="margin:22px 0 8px"></div>
+    ${["tracks.electrician","tracks.construction","tracks.healthcare","tracks.manufacturing","tracks.customer_service","tracks.hvac","tracks.plumbing","tracks.mechanical"].map(trackPlaceholderCard).join("")}`;
+  manIconizeInline(el);
+}
+window.selectProfessionalTrack=id=>{
+  const track=ProfessionalTrackContext.get(id);
+  if(!track)return;
+  S.professionalTracks=S.professionalTracks||{};
+  S.professionalTracks.activeId=id;
+  ProfessionalTrackContext.setActive(id);
+  _jPhase=null;
+  save();
+  toast(track.status==="foundation"?t("tracks.foundation_body"):t("tracks.selected",{track:t(track.nameKey)}));
+  go("home");
+};
 /* ================= JOURNEY ================= */
 /* One learning track at a time — the 12 weeks are split by phase so the page
    never shows all 12 at once. Defaults to the phase the user is actually in. */
 let _jPhase=null;
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
-  if(_jPhase===null){const cw=currentPos().w;_jPhase=(WEEKS[cw-1]||WEEKS[0]).phase}
-  const weeks=WEEKS.filter(w=>w.phase===_jPhase);
-  const pDone=weeks.reduce((s,w)=>s+weekDone(w.n),0),pTotal=weeks.length*7;
+  const allWeeks=trackWeeks(),phases=trackPhases();
+  if(_jPhase===null){const cw=currentPos().w;_jPhase=(allWeeks[cw-1]||allWeeks[0]).phase}
+  const weeks=allWeeks.filter(w=>String(w.phase)===String(_jPhase));
+  const pDone=weeks.reduce((s,w)=>s+weekDone(w.n),0),pTotal=weeks.length*trackDays().length;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
   <h1 class="big">${t("journey.title")}</h1>
   <p class="sub" style="margin-bottom:18px">${t("journey.sub")}</p>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
-    ${[1,2,3].map(p=>`<button class="seg-tab ${_jPhase===p?"on":""}" role="tab" aria-selected="${_jPhase===p}" onclick="jPhase(${p})"><span class="seg-lbl">${esc(t("phase.s"+p))}</span> <b>${PHASES[p].wk.replace(/^Weeks\s*/,"")}</b></button>`).join("")}
+    ${Object.keys(phases).map(p=>`<button class="seg-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-lbl">${esc(phaseLabel(p))}</span> <b>${esc(phases[p].wk||"")}</b></button>`).join("")}
   </div>
   <p class="sub" style="margin:-4px 0 18px;font-size:13px">${t("journey.phase_progress",{done:pDone,total:pTotal,phase:esc(phaseLabel(_jPhase))})}</p>
   <div class="grid g3">${weeks.map(w=>{
     const done=weekDone(w.n);
     return `<div class="card wk-card" onclick="go('journey',${w.n})">
-      <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${t("journey.week_label",{n:w.n})}</span><span class="chip ${PHASES[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${t("journey.week_label",{n:w.n})}</span><span class="chip ${phases[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
       <h3>${esc(w.theme)}</h3>
-      <div class="bar"><i style="width:${done/7*100}%"></i></div>
-      <div class="dots">${DAYS.map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
+      <div class="bar"><i style="width:${done/trackDays().length*100}%"></i></div>
+      <div class="dots">${trackDays().map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
     </div>`}).join("")}</div>`;
   manIconizeInline(el);segSync(el);
 }
 window.jPhase=p=>{_jPhase=p;const el=document.getElementById("v-journey");if(el)rJourney(el);};
 function rWeek(el,w){
-  const wk=WEEKS[w-1];
+  const wk=trackWeeks()[w-1],phases=trackPhases(),dayMeta=trackDayMeta();
   el.innerHTML=`
   <button class="back" onclick="go('journey')">${t("week.back")}</button>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
-    <span class="chip ${PHASES[wk.phase].cls}">${phaseLabel(wk.phase)} · ${wk.phase in PHASES?PHASES[wk.phase].wk:""}</span>
+    <span class="chip ${phases[wk.phase].cls}">${phaseLabel(wk.phase)} · ${wk.phase in phases?phases[wk.phase].wk:""}</span>
     <span class="chip ${weekDone(w)===7?'done':''}">${t("week.sessions_done",{done:weekDone(w)})}</span>
   </div>
   <h1 class="big" style="font-size:30px">${t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.goal)})}</p>
   <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
-  ${DAYS.map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
+  ${trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
     return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
-      <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:ic(DAY_META[d].k)}</div>
+      <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:ic(dayMeta[d].k)}</div>
       <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
       <span class="day-row-go" aria-hidden="true">›</span>
     </div>`}).join("")}`;
@@ -4650,22 +4779,23 @@ let timer={left:25*60,run:false,h:null};
    call, so a re-render would wipe a running clock and any in-progress
    recording. Step ticks and disclosures all mutate in place. */
 function rSession(el,w,d){
-  const wk=WEEKS[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=TEMPLATES[d];
+  const weeks=trackWeeks(),phrases=trackPhrases(),phases=trackPhases(),dayMeta=trackDayMeta(),sessionLinks=trackSessionLinks(),templates=trackTemplates();
+  const wk=weeks[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=templates[d];
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
-  const weekPhrases=PHRASES.filter(p=>p.w===w&&!p.i).slice(0,5);
+  const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
   el.innerHTML=`
   <button class="back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
   <div class="sess-head">
-    <span class="chip ${PHASES[wk.phase].cls}">${t("sess.week_day_chip",{w,d})}</span>
-    <span class="chip"><span class="inl-ic">${ic(DAY_META[d].k)}</span>${dayTypeLabel(d)}</span>
+    <span class="chip ${phases[wk.phase].cls}">${t("sess.week_day_chip",{w,d})}</span>
+    <span class="chip"><span class="inl-ic">${ic(dayMeta[d].k)}</span>${dayTypeLabel(d)}</span>
     ${S.days[key]?`<span class="chip done">${t("sess.completed_chip")}</span>`:''}
   </div>
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
-  <p style="font-size:13px;color:var(--gold);margin-bottom:${SESS_LINK[d]?"10px":"20px"}">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  ${SESS_LINK[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${SESS_LINK[d].v}',${w},'${d}')"><span class="btn-ic">${ic(SESS_LINK[d].ic)}</span><span>${esc(t(SESS_LINK[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
-  <p class="sess-jump-why">${esc(t(SESS_LINK[d].wk))}</p>`:""}
+  <p style="font-size:13px;color:var(--gold);margin-bottom:${sessionLinks[d]?"10px":"20px"}">${t("sess.evidence",{out:esc(dd.out)})}</p>
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
+  <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
         <div class="eyebrow">${t("sess.timer_eyebrow")}</div>
@@ -5015,7 +5145,7 @@ function rShadow(el){
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-        ${RESOURCES.map(r=>`<a class="chip" href="${r.url}" target="_blank" rel="noopener" title="${esc(r.desc)} ${esc(r.use)}" style="text-decoration:none;padding:7px 13px;font-size:13px"><span class="btn-ic">${ic(r.k)}</span>${esc(r.name)}</a>`).join("")}
+        ${trackResources().map(r=>`<a class="chip" href="${r.url}" target="_blank" rel="noopener" title="${esc(r.desc)} ${esc(r.use)}" style="text-decoration:none;padding:7px 13px;font-size:13px"><span class="btn-ic">${ic(r.k)}</span>${esc(r.name)}</a>`).join("")}
       </div>
     <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <p style="font-size:14px;color:var(--mut);flex:1;min-width:220px;margin:0">${t("sh.or_go_youtube")}</p>
@@ -5839,7 +5969,7 @@ async function shShare(kind){
 }
 window.shShare=async kind=>{
   if(kind==="card"&&totalDone()<3)return toast(t("share.card_too_early"));
-  if(kind==="cert"&&totalDone()<84)return toast(t("share.cert_locked",{n:totalDone()}));
+  if(kind==="cert"&&totalDone()<trackSessionCount())return toast(t("share.cert_locked",{n:totalDone()}));
   return shShare(kind);
 };
 /* LinkedIn has no image-post URL, so we open a share composer for the app and
@@ -6456,7 +6586,7 @@ function gramAnalyze(heardRaw){
   });
   /* praise business phrases from the app's phrase bank actually used */
   const hl=" "+heardRaw.toLowerCase()+" ";
-  for(const p of PHRASES){
+  for(const p of trackPhrases()){
     const stem=p.p.toLowerCase().replace(/[….]+$/,"").trim();
     if(stem.length>=10&&hl.includes(stem.slice(0,Math.min(stem.length,22)))&&good.length<5){
       good.push({cat:t("gphrase.cat"),quote:stem,note:t("gphrase.note")});
@@ -7354,7 +7484,7 @@ function rLibExercises(el){
 }
 /* ---- Library › Saved expressions (phrases the user recorded or mastered) ---- */
 function rLibSaved(el){
-  const items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]||S.phExample["p"+p.ix]);
+  const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]||S.phExample["p"+p.ix]);
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.saved_sub")}</p>
   ${items.length?items.map(p=>`
@@ -7373,7 +7503,7 @@ function rLibSaved(el){
 }
 /* ---- Library › Business idioms ---- */
 function rLibIdioms(el){
-  const items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>p.i);
+  const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.i);
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.idioms_sub")}</p>
   ${items.length?items.map(p=>`
@@ -7929,7 +8059,7 @@ function rPhrases(el,wFilter){
       </div>
     </details>
   </div>
-  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
+  <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
    <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
@@ -7938,11 +8068,11 @@ function rPhrases(el,wFilter){
   <div id="phList"></div>`;
   const list=el.querySelector("#phList");
   let items;
-  if(w==="all"){items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]);
+  if(w==="all"){items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]);
     if(!items.length){list.innerHTML=`<p class="sub">${t("ph.nothing_mastered")}</p>`;return}}
-  else{const wk=WEEKS[w-1];
+  else{const wk=trackWeeks()[w-1];
     list.innerHTML=`<p style="font-size:14px;color:var(--mut);margin-bottom:14px">${t("ph.week_label",{w,theme:esc(wk.theme)})}</p>`;
-    items=PHRASES.map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
+    items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
   /* split the list by kind: professional phrases vs business idioms */
   items=items.filter(p=>_phKind==="idioms"?p.i:!p.i);
   if(!items.length){
@@ -8039,7 +8169,7 @@ window.phEx=(k,v)=>{S.phExample[k]=v;save();phSpeechSync();toast(t("ph.example_s
    are aiming at before you record it. Nothing typed yet → hear the phrase. */
 window.phHear=ix=>{
   const ta=document.getElementById("phex"+ix);
-  const txt=((ta&&ta.value)||"").trim()||PHRASES[ix].p;
+  const txt=((ta&&ta.value)||"").trim()||trackPhrases()[ix].p;
   audioUnlock(); fbSay(txt);
 };
 window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];save();go("phrases",cur.arg1)};
@@ -8065,7 +8195,7 @@ async function phRecInto(ctx,label,btn,after){
     rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
-window.phRec=ix=>phRecInto("phrase"+ix,PHRASES[ix].p.slice(0,40),
+window.phRec=ix=>phRecInto("phrase"+ix,trackPhrases()[ix].p.slice(0,40),
   document.getElementById("phrec"+ix),()=>renderPhRecs(ix));
 async function renderPhRecs(ix){
   const box=document.getElementById("phrecs"+ix);if(!box)return;
@@ -8225,7 +8355,7 @@ function rReview(el,wArg){
   const scores=`
     <div class="card">
       <p style="font-size:12.5px;color:var(--mut);margin:0 0 16px">${t("rev.selfscore_sub")}</p>
-      ${REVIEW_AXES.map(ax=>`<div class="slider-row"><label>${ax}</label>
+      ${trackReviewAxes().map(ax=>`<div class="slider-row"><label>${ax}</label>
         <input type="range" min="1" max="10" value="${wr.scores[ax]||5}" oninput="wkScore(${w},'${ax}',this.value)">
         <span class="val" id="v${ax.replace(/\s/g,'')}">${wr.scores[ax]||5}</span></div>`).join("")}
       <canvas id="trend" width="480" height="150" style="width:100%;margin-top:10px"></canvas>
@@ -8248,18 +8378,18 @@ function rReview(el,wArg){
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
   ${rpMetricsHTML()}
-  <div class="cat-tabs">${WEEKS.map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
+  <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("rev.tabs_label"))}">
     <button class="seg-tab ${_revTab==='scores'?'on':''}" role="tab" aria-selected="${_revTab==='scores'}" onclick="revTab('scores',${w})"><span class="btn-ic">${ic("target")}</span><span class="seg-lbl">${t("rev.tab_scores")}</span></button>
     <button class="seg-tab ${_revTab==='written'?'on':''}" role="tab" aria-selected="${_revTab==='written'}" onclick="revTab('written',${w})"><span class="btn-ic">${ic("book")}</span><span class="seg-lbl">${t("rev.tab_written")}</span></button>
   </div>
   ${_revTab==='scores'?scores:written}
-  ${[4,8,12].includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}`;
+  ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}`;
   manIconizeInline(el);
   drawTrend();
 }
 function rMonthly(w){
-  const M=MONTH_METRICS[w],mr=S.monthly[w]||{actual:{},pass:{},ans:{}};
+  const M=trackMonthMetrics()[w],mr=S.monthly[w]||{actual:{},pass:{},ans:{}};
   return `<div class="card" style="margin-top:22px">
     <div class="eyebrow">${t("mon.checkpoint")}</div>
     <b style="font-size:17px">${M.title}</b>
@@ -8286,8 +8416,8 @@ window.moPass=(w,i)=>{const m=S.monthly[w]||(S.monthly[w]={actual:{},pass:{},ans
 function drawTrend(){
   const cv=document.getElementById("trend");if(!cv)return;
   const ctx=cv.getContext("2d");ctx.clearRect(0,0,480,150);
-  const avgs=WEEKS.map(x=>{
-    const s=(S.weekly[x.n]||{}).scores||{};const vals=REVIEW_AXES.map(a=>s[a]).filter(v=>v);
+  const avgs=trackWeeks().map(x=>{
+    const s=(S.weekly[x.n]||{}).scores||{};const vals=trackReviewAxes().map(a=>s[a]).filter(v=>v);
     return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null});
   ctx.strokeStyle="rgba(255,255,255,.08)";
   for(let y=0;y<=10;y+=5){ctx.beginPath();ctx.moveTo(20,140-y*13);ctx.lineTo(475,140-y*13);ctx.stroke()}
@@ -8503,9 +8633,9 @@ function rProfile(el){
       <a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
     </div>
   </div>
-  <div class="card" style="margin-top:12px;${totalDone()>=84?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
+  <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
     <h2 class="pf-card-h">${hIcon("trophy",t("share.cert_title"))}</h2>
-    ${totalDone()>=84
+    ${totalDone()>=trackSessionCount()
       ? `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.cert_sub")}</p>
          <div style="display:flex;gap:8px;flex-wrap:wrap">
            <button class="btn btn-g pf-act" onclick="shShare('cert')">${tIc("share.cert_btn","download")}</button>
@@ -8513,7 +8643,7 @@ function rProfile(el){
          </div>
          <p class="pf-note">${t("share.cert_li_note")}</p>`
       : `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("share.cert_locked",{n:totalDone()})}</p>
-         <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/84*100)}%"></i></div>`}
+         <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/trackSessionCount()*100)}%"></i></div>`}
   </div>
   <!-- One door to App Setup: the .pf-row above. The 28px unlabelled gear that
        used to live in the sticky eyebrow was the only route to settings,
@@ -8656,7 +8786,7 @@ async function rData(el,embedded){
   <p class="sub" style="margin-bottom:10px">${t("acc.data_sub")}</p>
   <p class="sub" style="margin-bottom:16px">${t("acc.camera_privacy")} <a href="privacy.html" onclick="event.preventDefault();openPrivacy()">${t("acc.camera_privacy_link")}</a></p>
   <div class="grid g3">
-    <div class="stat"><div class="n">${totalDone()}/84</div><div class="l">${t("acc.stat_sessions")}</div></div>
+    <div class="stat"><div class="n">${totalDone()}/${trackSessionCount()}</div><div class="l">${t("acc.stat_sessions")}</div></div>
     <div class="stat"><div class="n">${recN}</div><div class="l">${t("acc.stat_recordings")}</div></div>
     <div class="stat" onclick="devTap()" style="cursor:default"><div class="n">${S.startDate}</div><div class="l">${t("acc.stat_startdate")}</div></div>
   </div>
