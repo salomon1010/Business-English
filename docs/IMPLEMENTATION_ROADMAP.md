@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 4 — Professional Skills Passport & Competency Engine — Complete (2026-08-05)
+
+Delivered a reusable, track-scoped competency system backed by the existing local-first storage strategy. Curriculum packs now define their passport competencies, activity mappings, career-readiness weights, and achievement rules. The Profile and Progress pages render the shared Passport and Professional Growth views without changing the existing English progress experience.
+
+Mapped activities currently include session completion, shadow-session completion, Phrase Lab mastery, vocabulary practice, speaking feedback, and completed AI conversations. General English displays only communication competencies; Welding additionally displays professional technical, safety, QA/QC, blueprint-reading, and interview-readiness dimensions.
+
 ### Sprint 3 — Welding Week 1 — Complete (2026-08-05)
 
 Delivered the first learner-facing Professional Track curriculum: **Professional Introduction to Welding**. The pack provides one week of seven guided sessions, shadowing starters, professional phrases, starter vocabulary, a weekly mission, and one HR Recruiter AI mentor conversation. The existing General English experience remains the default and uses its existing curriculum and role-play scenarios.

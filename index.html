@@ -61,6 +61,8 @@
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <script src="curriculum-provider.js"></script>
 <script src="professional-tracks.js"></script>
+<script src="competency-engine.js"></script>
+<script src="professional-skills-passport.js"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -560,6 +562,19 @@ body.sh-work-open{overflow:hidden}
 .pf-act{min-height:44px}
 /* --mut2 measures ~2.9:1 on --card — see DESIGN_SYSTEM 1 */
 .pf-note{font-size:11.5px;color:var(--mut);margin-top:10px;line-height:1.5}
+/* Professional Skills Passport — shared Profile / Progress competency view. */
+.psp,.pg-growth{margin:18px auto;max-width:560px;padding:18px}
+.psp-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:14px}
+.psp-head h2,.pg-growth h2{font-size:20px;margin-top:4px}
+.psp-score{min-width:70px;height:70px;border-radius:20px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(99,102,241,.22),rgba(34,211,238,.16));border:1px solid rgba(34,211,238,.3);font-size:27px;font-weight:800;color:var(--acc2)}
+.psp-score small{font-size:13px;margin-left:-12px;align-self:end;margin-bottom:15px}
+.psp-track,.psp-stage{display:flex;justify-content:space-between;gap:10px;align-items:baseline;font-size:13px;padding:9px 0;border-top:1px solid var(--line)}
+.psp-track span,.psp-stage span{color:var(--mut)}
+.psp-row{margin-top:12px}.psp-row>div:first-child{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;margin-bottom:6px}.psp-row span{color:var(--mut);font-family:'JetBrains Mono',monospace}
+.psp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;margin-top:8px}.psp-grid .psp-row{min-width:0}
+.pg-growth h3{font-size:14px;margin:20px 0 0}.pg-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.pg-week{font-size:13px;color:var(--mut);margin:8px 0}.pg-week b{font-size:20px;color:var(--acc2)}
+.pg-recent{display:flex;flex-direction:column;gap:6px;margin-top:10px}.pg-recent span{font-size:12px;color:var(--mut);display:flex;justify-content:space-between;gap:12px}.pg-recent b{color:var(--green)}
+@media(max-width:420px){.psp-grid{grid-template-columns:1fr}.psp-score{min-width:62px;height:62px;font-size:23px}}
 /* The day's session is the one thing Home exists to start, so it is the most
    elevated surface on the screen and the only one carrying a solid accent
    button. The card itself is now plain --card: the wash competed with the
@@ -2164,9 +2179,15 @@ const RULES=[
 /* ================= STATE & STORAGE ================= */
 const LS_KEY="be12_v1";
 let S=load();
+function appState(){return S}
+function awardCompetency(input){
+  if(!window.CompetencyEngine)return;
+  const result=CompetencyEngine.logActivity(S,input);
+  if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
+}
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
 function defState(){
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"}};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},convos:[],vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}}};
 }
 function load(){
   const def=defState();
@@ -3873,9 +3894,13 @@ window.ghAutoToggle=()=>{GH.auto=!GH.auto;saveGH();
 window.ghPush=ghPush;window.ghPull=ghPull;window.ghUpRecs=ghUpRecs;window.ghDownRecs=ghDownRecs;
 
 /* ================= PROGRESS HELPERS ================= */
-const dayKey=(w,d)=>`w${w}${d}`;
+/* Preserve the original General English keys for existing learners, while all
+   professional tracks receive isolated progress keys. Track switching can then
+   change curriculum without making one track's completed sessions appear in
+   another track's passport or journey. */
+const dayKey=(w,d)=>activeProfessionalTrack().id==="general-english"?`w${w}${d}`:`${activeProfessionalTrack().id}:w${w}${d}`;
 function weekDone(w){return trackDays().filter(d=>S.days[dayKey(w,d)]).length}
-function totalDone(){return Object.keys(S.days).filter(k=>S.days[k]).length}
+function totalDone(){return trackWeeks().reduce((n,w)=>n+trackDays().filter(d=>S.days[dayKey(w.n,d)]).length,0)}
 function pct(){return Math.round(totalDone()/Math.max(1,trackSessionCount())*100)}
 function currentPos(){
   const weeks=trackWeeks(),days=trackDays();
@@ -4577,7 +4602,7 @@ window.toggleDay=(key,w,d)=>{
   /* Ticking a day off is the clearest "I did the work" signal in the app, and
      carrying the week is what makes drop-out visible: without it you can see
      that people stop, but not where in the 12 weeks they stop. */
-  if(S.days[key]){markPracticed();track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}))}
+  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}))}
   save();go("session",w,d);
 };
 /* timer — runs globally; the header pill mirrors it on every page */
@@ -5190,7 +5215,7 @@ window.shSaveClip=()=>{
 window.shSaveNote=()=>{
   if(!shClip.vid)return;
   S.notes["sh:"+shClip.vid]=document.getElementById("shNote").value;
-  markPracticed();save();toast(t("sess.notes_saved_toast"));
+  markPracticed();awardCompetency({activityType:"shadow_session",lesson:shClip.title||"Shadow session",duration:Math.round(Math.max(0,shClip.end-shClip.start)),dedupeKey:"shadow:"+shClip.vid+":"+shClip.start+":"+shClip.end});save();toast(t("sess.notes_saved_toast"));
 };
 /* ===== AUTO STRESS MARKING (learning aid: capitalize the stressed part) =====
    English is stress-timed: content words carry the beat, function words stay
@@ -6570,7 +6595,7 @@ function fbShowResults(targetText,heardText,fromRec){
     ${vocSynHTML(heardText)}</div></details>`})()}
   <p class="fb-disclaimer">${t("fb.disclaimer")}</p>`;
   manIconizeInline(out);
-  markPracticed();save();tbRender();
+  markPracticed();awardCompetency({activityType:"pronunciation_feedback",lesson:"Speaking feedback",score:hasTarget?score:null,duration:Math.round(mins*60)});save();tbRender();
   document.getElementById("streakN").textContent=streak();
   if(hasTarget&&fromRec)fbRenderPron(targetText);   // honest AI pronunciation pass (async)
 }
@@ -6856,7 +6881,7 @@ window.vocQuizTry=w=>{
 /* ============ LIBRARY TAB — Vocabulary & Grammar ============ */
 /* spaced-repetition-lite: reps + due drive Ready / Up next / Learned buckets */
 function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
-function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+trackVocabularyIntervals()[Math.min(v.reps-1,trackVocabularyIntervals().length-1)]*86400000;}else{v.reps=0;v.due=Date.now();}save();}
+function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+trackVocabularyIntervals()[Math.min(v.reps-1,trackVocabularyIntervals().length-1)]*86400000;awardCompetency({activityType:"vocabulary_practice",lesson:"Vocabulary · "+w,score:100,duration:1,dedupeKey:"vocab:"+w+":"+v.reps});}else{v.reps=0;v.due=Date.now();}save();}
 function vocBuckets(){const b={ready:[],upnext:[],learned:[]};Object.keys(S.vocab).sort((a,c)=>S.vocab[c].ts-S.vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
 async function vocDef(w){
   try{const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
@@ -7708,7 +7733,7 @@ window.phHear=ix=>{
   const txt=((ta&&ta.value)||"").trim()||trackPhrases()[ix].p;
   audioUnlock(); fbSay(txt);
 };
-window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];save();go("phrases",cur.arg1)};
+window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];if(S.phMaster[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});save();go("phrases",cur.arg1)};
 /* Tap to record, tap again to stop. Shared by the phrase cards and the
    full-speech box, which only differ by where the clip is filed. */
 async function phRecInto(ctx,label,btn,after){
@@ -7913,6 +7938,7 @@ function rReview(el,wArg){
   <div class="eyebrow pg-eyebrow">${t("rev.eyebrow")}</div>
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
+  ${ProfessionalSkillsPassport.growth()}
   ${rpMetricsHTML()}
   <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("rev.tabs_label"))}">
@@ -8144,6 +8170,7 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  ${ProfessionalSkillsPassport.render()}
   <button class="pf-row pf-setup" onclick="go('setup')">
     <span class="pf-ic">${ic("gear")}</span>
     <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
@@ -9337,6 +9364,7 @@ function rpSummary(){
       lines:(rpConv.turns||[]).filter(x=>x&&x.text).map(x=>({text:x.text}))});
     if(S.convos.length>200)S.convos=S.convos.slice(-200);
     markPracticed();            // streak, calendar heat-map and weekly goal
+    awardCompetency({activityType:"ai_conversation",lesson:sc.title,score:Math.round(100*covered.size/Math.max(1,sc.points.length)),duration:(rpConv.turns||[]).length,dedupeKey:"conversation:"+_rpLastTs});
     save();
   }
   /* Hold on to the turns (text + audio) so the review can run after the
@@ -9868,6 +9896,7 @@ function fbMerge(local,cloud){
   m.weekly=Object.assign({},cloud.weekly,local.weekly);
   m.monthly=Object.assign({},cloud.monthly,local.monthly);
   m.vocab=Object.assign({},cloud.vocab,local.vocab);
+  m.competency=window.CompetencyEngine?CompetencyEngine.merge(local.competency,cloud.competency):Object.assign({},cloud.competency,local.competency);
   m.trouble=fbMax(local.trouble,cloud.trouble);
   m.fbV=Object.assign({},cloud.fbV,local.fbV);
   const seen={};m.fbHist=[].concat(cloud.fbHist||[],local.fbHist||[]).filter(x=>{const k=x&&x.ts;if(!k||seen[k])return false;seen[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-50);

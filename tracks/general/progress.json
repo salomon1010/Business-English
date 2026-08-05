@@ -113,6 +113,31 @@
       ]
     }
   },
+  "competencyConfig": {
+    "trackLabel": "General English",
+    "competencies": [
+      {"id": "communication", "label": "Communication", "max": 100},
+      {"id": "vocabulary", "label": "Professional Vocabulary", "max": 100},
+      {"id": "pronunciation", "label": "Pronunciation", "max": 100},
+      {"id": "confidence", "label": "Confidence", "max": 100},
+      {"id": "professionalism", "label": "Professionalism", "max": 100}
+    ],
+    "activityMappings": {
+      "shadow_session": {"communication": 2, "pronunciation": 3, "vocabulary": 2},
+      "phrase_lab": {"vocabulary": 3, "confidence": 2, "professionalism": 1},
+      "vocabulary_practice": {"vocabulary": 2},
+      "ai_conversation": {"communication": 5, "confidence": 4, "professionalism": 2},
+      "professional_coach": {"professionalism": 2, "confidence": 1},
+      "pronunciation_feedback": {"pronunciation": 2, "communication": 1}
+    },
+    "careerReadiness": {"weights": {"communication": 35, "vocabulary": 25, "confidence": 20, "professionalism": 15, "consistency": 5}},
+    "achievements": [
+      {"id": "first-conversation", "title": "First Conversation", "when": {"activity": "ai_conversation", "count": 1}},
+      {"id": "vocabulary-starter", "title": "Vocabulary Starter", "when": {"activity": "vocabulary_practice", "count": 3}},
+      {"id": "professional-speaker", "title": "Professional Speaker", "when": {"competency": "communication", "score": 10}},
+      {"id": "interview-beginner", "title": "Interview Beginner", "when": {"activity": "ai_conversation", "count": 2}}
+    ]
+  },
   "reviewCheckpoints": [
     4,
     8,

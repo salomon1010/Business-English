@@ -35,6 +35,7 @@
       practice:sections.practice,
       aiMentors:sections.practice.aiMentors||[],
       roleplayCategories:sections.practice.roleplayCategories||[],
+      competencyConfig:sections.progress.competencyConfig||{},
       reviewAxes:sections.progress.reviewAxes||[],
       monthMetrics:sections.progress.monthMetrics||{},
       reviewCheckpoints:sections.progress.reviewCheckpoints||[]

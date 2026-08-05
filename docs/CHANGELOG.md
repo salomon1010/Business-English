@@ -1,5 +1,25 @@
 # Changelog
 
+## Sprint 4 — Professional Skills Passport & Competency Engine
+
+### Added
+
+- Added the reusable Professional Skills Passport to Profile.
+- Added Professional Growth to Progress, including Career Readiness, competency progress, recent achievements, and weekly growth.
+- Added a persistent activity log with date, activity type, track, lesson, competency awards, score, and duration.
+- Added a configuration-driven Competency Engine and achievement framework.
+
+### Changed
+
+- Curriculum progress packs now own competency definitions, activity mappings, readiness weights, and achievement rules.
+- Professional-track session completion is now stored independently from General English session completion.
+
+### Compatibility
+
+- General English displays Communication, Professional Vocabulary, Pronunciation, Confidence, and Professionalism only.
+- Welding displays its additional career readiness competencies without changing the General English curriculum.
+- No deployment was performed.
+
 ## Sprint 3 — Welding Week 1
 
 ### Added
