@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 7 — Adaptive Learning Intelligence
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-012 | 2026-08-05 | AI Prediction | Recommend meaningful next work from varied learning signals without creating an opaque or server-dependent model. | Continue with curriculum order; add an external prediction service; derive explainable local priorities from existing evidence. | Add an Adaptive Learning Engine that ranks activities from competency gaps, retention, pronunciation, simulation history, and coaching evidence. | Recommendations are immediate, inspectable, privacy-preserving, and reusable across future professional tracks. | Predictions are formative heuristics, not validated career or hiring outcomes. | Accepted |
+| ED-013 | 2026-08-05 | Monitoring | Make learning progress useful for career readiness rather than reporting completion counts alone. | Add more completion counters; create a standalone analytics backend; surface roadmap milestones and growth views from current activity data. | Add professional milestones, roadmap, heatmap, and weekly growth views derived from local activity logs. | Learners can see their current position, gaps, and rate of professional growth without new data collection. | Estimates depend on available local evidence and become more useful as the learner completes activities. | Accepted |
+
 ## Sprint 6 — Professional Simulation Engine
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

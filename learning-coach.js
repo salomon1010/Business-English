@@ -37,6 +37,10 @@
     return runs?"Grammar practice is in motion—keep applying the correction notes you receive.":"No grammar signal yet—notice one sentence pattern in your next practice.";
   }
   function mission(s,t){
+    if(global.AdaptiveLearningEngine){
+      const adaptive=global.AdaptiveLearningEngine.recommendation(s,t);
+      return {title:adaptive.title,body:adaptive.reason||adaptive.body,go:adaptive.go,focus:adaptive.skill||"Professional growth"};
+    }
     const logs=global.CompetencyEngine.recent(s,t,1),focus=weakest(s,t),a=ACTIONS[focus]||ACTIONS.communication;
     if(!logs.length){
       const pos=global.currentPos(),wk=global.trackWeeks()[pos.w-1],day=wk&&wk.days[pos.d];

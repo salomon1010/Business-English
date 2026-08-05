@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 7 — Adaptive Learning Intelligence — Complete (2026-08-05)
+
+Delivered an explainable, local Adaptive Learning Engine that continuously prioritizes the learner’s next activity using active-track competency results, coaching evidence, simulation history, vocabulary retention, confidence, and pronunciation signals. The existing Home coach card now expresses the engine’s single best recommendation instead of a static curriculum next step.
+
+Profile now includes a Career Readiness Roadmap and Professional Activity Calendar; Progress includes a Weekly Growth Dashboard. Milestone labels replace generic completion language in the adaptive experience. Readiness, interview readiness, and estimated time to the next milestone are transparent formative predictions, not employment guarantees.
+
 ### Sprint 6 — Professional Simulation Engine — Complete (2026-08-05)
 
 Delivered a reusable, track-configured Professional Simulation Engine alongside the existing Practice and AI conversation experiences. Simulation packs define the workplace scenario, characters, objectives, unexpected events, evaluation criteria, and debrief recommendation. The engine maintains the learner’s conversation state locally, carries forward stated facts into later character responses, records completed simulations, and awards existing configurable competency points.

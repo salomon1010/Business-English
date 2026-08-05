@@ -1,5 +1,19 @@
 # Changelog
 
+## Sprint 7 — Adaptive Learning Intelligence
+
+### Added
+
+- Added a local Adaptive Learning Engine that ranks the single best next activity.
+- Added the Career Readiness Roadmap, professional milestones, missing-skill analysis, and estimated next-milestone time.
+- Added a Professional Activity Calendar and Weekly Growth Dashboard.
+- Added explainable Career Readiness and Interview Readiness predictions based on existing learner evidence.
+
+### Compatibility
+
+- The existing curriculum, Practice, AI Coach, simulation, and General English experiences remain intact.
+- Adaptive recommendations use existing local learner data only; no new external service or deployment was added.
+
 ## Sprint 6 — Professional Simulation Engine
 
 ### Added
