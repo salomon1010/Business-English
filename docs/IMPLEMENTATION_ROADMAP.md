@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 5 — AI Learning Coach — Complete (2026-08-05)
+
+Delivered a local-first learning coach that turns completed competency-mapped activities into immediate, personalized feedback. The coach persists activity summaries and a small track-scoped memory, then uses existing competency history, learning evidence, and curriculum position to generate the daily mission, smart Home recommendation, weekly review, and professional growth narrative.
+
+The coaching layer does not send learner content to a new service. It complements the existing AI conversation and speech capabilities while remaining available offline and preserving the established storage and synchronization model.
+
 ### Sprint 4 — Professional Skills Passport & Competency Engine — Complete (2026-08-05)
 
 Delivered a reusable, track-scoped competency system backed by the existing local-first storage strategy. Curriculum packs now define their passport competencies, activity mappings, career-readiness weights, and achievement rules. The Profile and Progress pages render the shared Passport and Professional Growth views without changing the existing English progress experience.

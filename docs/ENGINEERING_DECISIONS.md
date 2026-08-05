@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 5 — AI Learning Coach
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-008 | 2026-08-05 | Generative AI | Give learners personalized coaching after each activity without requiring a new deployed service or transmitting more learner data. | Add a new LLM coaching endpoint; show raw competency scores only; derive coaching from local learning evidence. | Add a local-first Learning Coach that translates configurable competency awards, activity history, and existing practice data into structured coaching. | Coaching works offline, respects the product’s privacy model, and makes the existing Competency Engine immediately useful. | Guidance is evidence-driven and personalized but does not provide open-ended LLM prose; an optional server-backed coach can be evaluated later. | Accepted |
+| ED-009 | 2026-08-05 | Memory | Remember recent coaching priorities across sessions while preserving the existing state model. | Store only the latest message; add a new backend; retain bounded local summaries and track-scoped memory. | Persist up to 100 coach summaries plus compact per-track coaching memory in the existing learner state. | Supports continuity, weekly review, and growth narratives without a new data store. | Memory is device-local unless existing account sync succeeds; long-term semantic memory is deferred. | Accepted |
+
 ## Sprint 3 — Welding Week 1
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

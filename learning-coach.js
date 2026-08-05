@@ -1,0 +1,101 @@
+/* ============================================================================
+   BE Mastery — Learning Coach
+   --------------------------------------------------------------------------
+   A local-first coaching layer. It turns the evidence already retained by the
+   Competency Engine into clear, specific next steps. No learner speech, notes,
+   or profile data is sent anywhere to create these coaching messages.
+   ============================================================================ */
+(function(global){
+  const MAX_SUMMARIES=100;
+  const LABELS={communication:"Communication",vocabulary:"Vocabulary",pronunciation:"Pronunciation",confidence:"Confidence",professionalism:"Professional communication",interview:"Interview readiness",technicalKnowledge:"Technical knowledge",safety:"Safety",qaqc:"QA/QC",blueprintReading:"Blueprint reading"};
+  const ACTIONS={
+    communication:{title:"Practise a live introduction",body:"Use one clear opening, one example, and one confident closing.",go:"roleplay"},
+    vocabulary:{title:"Strengthen your professional vocabulary",body:"Review a few saved words, then use one in a complete sentence.",go:"practice"},
+    pronunciation:{title:"Sharpen one spoken phrase",body:"Shadow a short clip and record one focused repetition.",go:"shadow"},
+    confidence:{title:"Build confidence through repetition",body:"Say one Phrase Lab sentence aloud three times before moving on.",go:"phrases"},
+    professionalism:{title:"Complete your guided session",body:"Use today’s plan to practise a clear, professional message.",go:"session"},
+    interview:{title:"Rehearse an interview response",body:"Use the AI conversation space to introduce your experience clearly.",go:"roleplay"},
+    technicalKnowledge:{title:"Complete today’s professional session",body:"Connect your English practice to the work you do.",go:"session"},
+    safety:{title:"Reinforce safety language",body:"Choose a Phrase Lab sentence and say it with a calm, clear delivery.",go:"phrases"}
+  };
+  function state(s){
+    s.coach=s.coach||{summaries:[],memory:{}};
+    s.coach.summaries=Array.isArray(s.coach.summaries)?s.coach.summaries:[];
+    s.coach.memory=s.coach.memory||{};
+    return s.coach;
+  }
+  function track(){return global.ProfessionalTrackContext.active()}
+  function config(t){return global.CompetencyEngine.config(t)}
+  function label(id,cfg){const found=(cfg.competencies||[]).find(x=>x.id===id);return (found&&found.label)||LABELS[id]||id}
+  function weakest(s,t){
+    const cfg=config(t),fields=(cfg.competencies||[]).filter(x=>x.id!=="professionalism"||true);
+    if(!fields.length)return "communication";
+    return fields.slice().sort((a,b)=>global.CompetencyEngine.score(s,t,a.id)-global.CompetencyEngine.score(s,t,b.id))[0].id;
+  }
+  function grammarSignal(s){
+    const runs=Object.values(s.gram||{}).reduce((n,x)=>n+Number((x&&x.runs)||0),0);
+    return runs?"Grammar practice is in motion—keep applying the correction notes you receive.":"No grammar signal yet—notice one sentence pattern in your next practice.";
+  }
+  function mission(s,t){
+    const logs=global.CompetencyEngine.recent(s,t,1),focus=weakest(s,t),a=ACTIONS[focus]||ACTIONS.communication;
+    if(!logs.length){
+      const pos=global.currentPos(),wk=global.trackWeeks()[pos.w-1],day=wk&&wk.days[pos.d];
+      return {title:"Start today’s guided session",body:day?day.task:"Complete one focused speaking activity.",go:"session",focus:"Communication"};
+    }
+    return {title:a.title,body:a.body,go:a.go,focus:label(focus,config(t))};
+  }
+  function narrative(s,t){
+    const logs=global.CompetencyEngine.recent(s,t,8),cfg=config(t);
+    if(!logs.length)return "Your professional story starts with one completed activity. The coach will turn each piece of evidence into a focused next step.";
+    const totals=global.CompetencyEngine.totals(s,t);
+    const strongest=Object.keys(totals).sort((a,b)=>totals[b]-totals[a])[0];
+    const focus=weakest(s,t);
+    const name=(s.profile&&s.profile.name)?s.profile.name+", ":"";
+    return `${name}you have completed ${logs.length} recent professional learning activities. ${label(strongest,cfg)} is your strongest evidence so far; your next growth opportunity is ${label(focus,cfg).toLowerCase()}. Keep building on what is already working.`;
+  }
+  function summary(s,input,result){
+    const t=input.track||track(),cfg=config(t),awarded=result.awarded||{};
+    if(!Object.keys(awarded).length)return null;
+    const focus=weakest(s,t),gained=Object.keys(awarded).map(id=>label(id,cfg));
+    const message={
+      id:Date.now()+"-"+Math.random().toString(36).slice(2,7),date:new Date().toISOString(),track:t.id,
+      activityType:input.activityType,lesson:input.lesson||"Practice activity",awarded,
+      didWell:`You added evidence in ${gained.join(" and ")}.`,
+      communication:awarded.communication?"You practised communicating a clear professional message.":"Keep building clear messages through short, focused speaking turns.",
+      vocabulary:awarded.vocabulary?"You used a vocabulary-building activity.":"Choose one professional phrase to use aloud next.",
+      grammar:grammarSignal(s),
+      confidence:awarded.confidence?"You took an active confidence-building step.":"Confidence grows when you repeat one message until it feels natural.",
+      professional:awarded.professionalism||awarded.interview||awarded.technicalKnowledge?"This activity added evidence toward your professional readiness.":"Connect your next English activity to a real professional situation.",
+      improvement:`Focus next on ${label(focus,cfg).toLowerCase()}.`,
+      recommendation:mission(s,t)
+    };
+    const st=state(s);st.summaries.push(message);if(st.summaries.length>MAX_SUMMARIES)st.summaries=st.summaries.slice(-MAX_SUMMARIES);
+    st.memory[t.id]={lastFocus:focus,lastActivity:input.activityType,lastSummaryId:message.id,updatedAt:Date.now()};
+    return message;
+  }
+  function recentSummary(s,t){return state(s).summaries.filter(x=>x.track===t.id).slice(-1)[0]||null}
+  function weeklyReview(s,t){
+    const since=Date.now()-6*864e5,cfg=config(t),logs=global.CompetencyEngine.state(s).logs.filter(x=>x.track===t.id&&new Date(x.date).getTime()>=since);
+    const achieved=global.CompetencyEngine.earned(s,t).map(x=>x.title);
+    const totals=global.CompetencyEngine.totals(s,t),strong=Object.keys(totals).sort((a,b)=>totals[b]-totals[a])[0]||"communication",focus=weakest(s,t);
+    const points=logs.reduce((n,x)=>n+Object.values(x.competenciesAwarded||{}).reduce((a,b)=>a+Number(b||0),0),0);
+    const readiness=global.CompetencyEngine.readiness(s,t),previous=state(s).memory[t.id]&&state(s).memory[t.id].lastReadiness;
+    state(s).memory[t.id]=Object.assign({},state(s).memory[t.id],{lastReadiness:readiness});
+    const change=previous==null?"Your first readiness baseline is now established.":readiness>previous?`Career readiness increased by ${readiness-previous} point${readiness-previous===1?"":"s"}.`:"Career readiness is steady; the next focused activity can move it forward.";
+    return {achievements:achieved.length?achieved:["No achievement unlocked yet"],strength:label(strong,cfg),weakness:label(focus,cfg),focus:(ACTIONS[focus]||ACTIONS.communication).title,readiness,change,points};
+  }
+  function coachCard(s){
+    const t=track(),m=mission(s,t);
+    return `<section class="card coach-card" aria-label="AI Learning Coach"><div class="eyebrow">AI Learning Coach</div><h2>Your daily mission</h2><p class="coach-focus">Focus: <b>${global.esc(m.focus)}</b></p><b>${global.esc(m.title)}</b><p>${global.esc(m.body)}</p><button class="btn btn-p coach-cta" onclick="LearningCoach.openMission()">Start recommended activity →</button></section>`;
+  }
+  function weeklyCard(s){const r=weeklyReview(s,track());return `<section class="card coach-week"><div class="eyebrow">Weekly AI Review</div><h2>Your professional week</h2><div class="coach-review-grid"><div><span>Achievements</span><b>${global.esc(r.achievements.join(" · "))}</b></div><div><span>Strength</span><b>${global.esc(r.strength)}</b></div><div><span>Growth area</span><b>${global.esc(r.weakness)}</b></div><div><span>Career readiness</span><b>${r.readiness}%</b></div></div><p><b>Recommended focus:</b> ${global.esc(r.focus)}<br><span>${global.esc(r.change)} ${r.points?`${r.points} competency points this week.`:""}</span></p></section>`}
+  function narrativeCard(s){return `<section class="card coach-narrative"><div class="eyebrow">Professional Growth Story</div><p>${global.esc(narrative(s,track()))}</p></section>`}
+  function present(item){
+    if(!item||!global.document)return;const old=document.getElementById("coachSummary");if(old)old.remove();
+    const el=document.createElement("div");el.id="coachSummary";el.className="coach-modal-ov";
+    el.innerHTML=`<section class="coach-modal" role="dialog" aria-modal="true" aria-label="AI Learning Coach summary"><button class="coach-close" aria-label="Close coaching summary">×</button><div class="eyebrow">AI Learning Coach</div><h2>What you did well</h2><p>${global.esc(item.didWell)}</p><div class="coach-summary-grid"><div><b>Communication</b><span>${global.esc(item.communication)}</span></div><div><b>Vocabulary</b><span>${global.esc(item.vocabulary)}</span></div><div><b>Grammar</b><span>${global.esc(item.grammar)}</span></div><div><b>Confidence</b><span>${global.esc(item.confidence)}</span></div><div><b>Professional communication</b><span>${global.esc(item.professional)}</span></div></div><div class="coach-next"><b>Recommended improvement</b><p>${global.esc(item.improvement)}</p><button class="btn btn-p" id="coachNext">${global.esc(item.recommendation.title)} →</button></div></section>`;
+    document.body.appendChild(el);const close=()=>el.remove();el.querySelector(".coach-close").onclick=close;el.addEventListener("click",e=>{if(e.target===el)close()});el.querySelector("#coachNext").onclick=()=>{close();openMission(item.recommendation)};
+  }
+  function openMission(m){const next=m||mission(global.appState(),track()),pos=global.currentPos();global.go(next.go,pos.w,pos.d)}
+  global.LearningCoach=Object.freeze({state,summary,recentSummary,mission,narrative,weeklyReview,coachCard,weeklyCard,narrativeCard,present,openMission});
+})(window);

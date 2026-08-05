@@ -1,5 +1,19 @@
 # Changelog
 
+## Sprint 5 — AI Learning Coach
+
+### Added
+
+- Added personalized coaching summaries after every competency-awarding activity.
+- Added daily missions and smart Home recommendations based on the active track and competency history.
+- Added an automatic Weekly AI Review and a Professional Growth Story.
+- Added persistent coach summaries and track-scoped coaching memory using the existing storage strategy.
+
+### Compatibility
+
+- General English and Welding both use the same coaching engine and retain their existing curriculum and UI flows.
+- Coaching is generated locally from existing learner evidence; no new external service or deployment was added.
+
 ## Sprint 4 — Professional Skills Passport & Competency Engine
 
 ### Added
