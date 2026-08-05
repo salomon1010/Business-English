@@ -1,5 +1,18 @@
 {
   "schemaVersion": "1",
   "trackId": "welding",
-  "phrases": []
+  "phrases": [
+    {"w": 1, "p": "I'm a welder with experience in fabrication and metalwork.", "u": "Introduce your professional background."},
+    {"w": 1, "p": "I specialise in producing safe, high-quality work.", "u": "Describe your professional focus."},
+    {"w": 1, "p": "My experience includes working as part of a production team.", "u": "Explain how you work with others."},
+    {"w": 1, "p": "I'm comfortable following drawings and workplace procedures.", "u": "Describe a professional strength clearly."},
+    {"w": 1, "p": "I take safety and quality seriously in every job.", "u": "State the standards that guide your work."},
+    {"w": 1, "p": "I'm proud of producing clean, reliable work.", "u": "Speak confidently about your work."},
+    {"w": 1, "p": "I'm currently looking to develop my skills in a professional team.", "u": "Explain your next career step."},
+    {"w": 1, "p": "I'm keen to learn and contribute from day one.", "u": "Show motivation without sounding overconfident."},
+    {"w": 1, "p": "I work well with colleagues, supervisors, and other trades.", "u": "Describe teamwork."},
+    {"w": 1, "p": "I value clear communication and a reliable work ethic.", "u": "Name two professional strengths."},
+    {"w": 1, "p": "I'd be happy to tell you more about my experience.", "u": "Close an introduction and invite the next question."},
+    {"w": 1, "p": "Thank you for the opportunity to introduce myself.", "u": "Start or close a professional conversation politely."}
+  ]
 }

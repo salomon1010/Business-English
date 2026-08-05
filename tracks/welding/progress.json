@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1",
   "trackId": "welding",
-  "reviewAxes": [],
+  "reviewAxes": ["clarity", "fluency", "pronunciation", "business naturalness", "confidence"],
   "monthMetrics": {},
   "reviewCheckpoints": []
 }

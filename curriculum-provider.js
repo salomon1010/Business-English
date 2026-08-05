@@ -33,6 +33,8 @@
       phrases:sections.phrases.phrases||[],
       vocabulary:sections.vocabulary,
       practice:sections.practice,
+      aiMentors:sections.practice.aiMentors||[],
+      roleplayCategories:sections.practice.roleplayCategories||[],
       reviewAxes:sections.progress.reviewAxes||[],
       monthMetrics:sections.progress.monthMetrics||{},
       reviewCheckpoints:sections.progress.reviewCheckpoints||[]

@@ -1,10 +1,46 @@
 {
   "schemaVersion": "1",
   "trackId": "welding",
-  "days": [],
-  "dayMeta": {},
-  "sessionLinks": {},
-  "templates": {},
-  "weeks": [],
-  "phases": {}
+  "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "dayMeta": {
+    "Mon": {"type": "Professional delivery + shadowing", "ic": "🎧", "k": "headphones"},
+    "Tue": {"type": "Professional introduction", "ic": "🎯", "k": "target"},
+    "Wed": {"type": "Vocabulary + Phrase Lab", "ic": "💬", "k": "chat"},
+    "Thu": {"type": "AI mentor conversation", "ic": "🧑‍💼", "k": "user"},
+    "Fri": {"type": "Confidence + delivery", "ic": "🔊", "k": "sound"},
+    "Sat": {"type": "Professional speaking practice", "ic": "🎤", "k": "mic"},
+    "Sun": {"type": "Weekly mission review", "ic": "📊", "k": "chart"}
+  },
+  "sessionLinks": {
+    "Mon": {"v": "shadow", "ic": "target", "lk": "sess.link_shadow", "wk": "sess.link_shadow_why_mon"},
+    "Wed": {"v": "phrases", "ic": "chat", "lk": "sess.link_phrases", "wk": "sess.link_phrases_why"},
+    "Fri": {"v": "shadow", "ic": "target", "lk": "sess.link_shadow", "wk": "sess.link_shadow_why_fri"},
+    "Sun": {"v": "review", "ic": "chart", "lk": "sess.link_review", "wk": "sess.link_review_why"}
+  },
+  "templates": {
+    "Mon": [["0:00–4:00", "Choose a short professional opening clip and listen for pace, pauses, and clear word stress."], ["4:00–10:00", "Shadow the opening line six times. Keep your pace calm and your words clear."], ["10:00–18:00", "Record your own greeting and one-sentence introduction as a welder."], ["18:00–25:00", "Listen back and note one strength and one delivery target for tomorrow."]],
+    "Tue": [["0:00–5:00", "Write four points: your name, welding experience, the work you do, and what you want next."], ["5:00–12:00", "Speak from bullet points, not a full script."], ["12:00–18:00", "Record a 60-second introduction."], ["18:00–25:00", "Record it again with a slower pace and stronger closing sentence."]],
+    "Wed": [["0:00–8:00", "Choose five Week 1 phrases and say each one aloud."], ["8:00–15:00", "Save six vocabulary words that describe your work and strengths."], ["15:00–25:00", "Write and record three personal sentences using your real experience."]],
+    "Thu": [["0:00–5:00", "Open the HR Recruiter mentor and review the three speaking goals."], ["5:00–18:00", "Have a short professional introduction conversation. This is not a technical interview."], ["18:00–25:00", "Repeat your strongest answer once, with clearer pace and confidence."]],
+    "Fri": [["0:00–7:00", "Shadow a short professional opening and copy its pauses."], ["7:00–15:00", "Practise stressing your role, experience, and strengths."], ["15:00–25:00", "Record your introduction twice and compare the pace, volume, and confidence."]],
+    "Sat": [["0:00–5:00", "Outline a 90-second introduction: who you are, your experience, what you value, and your next goal."], ["5:00–17:00", "Speak without reading full sentences."], ["17:00–25:00", "Review the recording and make one final confident version."]],
+    "Sun": [["Step 1", "Listen to your first and final Week 1 recordings."], ["Step 2", "Write three phrases and five vocabulary words you can now use confidently."], ["Step 3", "Complete the weekly mission: introduce yourself as a welder in 60–90 seconds."], ["Step 4", "Set one communication goal for your next professional conversation."]]
+  },
+  "weeks": [{
+    "n": 1,
+    "phase": 1,
+    "theme": "Professional Introduction to Welding",
+    "goal": "Speak with confidence about who you are as a welder and the kind of work you do.",
+    "mission": "Weekly mission: deliver a confident 60–90 second professional introduction as a welder in English.",
+    "days": {
+      "Mon": {"focus": "A confident professional opening", "task": "Shadow a short professional opening, then record a clear greeting and one-sentence introduction as a welder.", "out": "1 shadowing recording · 1 introduction recording · 1 delivery target"},
+      "Tue": {"focus": "Introduce yourself as a welder", "task": "Record a 60-second introduction: your name → your welding experience → the work you do → what you want next.", "out": "Bullet outline · recording v1 · improved recording"},
+      "Wed": {"focus": "Your welding vocabulary and phrases", "task": "Use the Week 1 Phrase Lab and vocabulary list to build personal sentences about your work, safety, quality, and experience.", "out": "5 active phrases · 6 saved vocabulary words · 3 personal sentences"},
+      "Thu": {"focus": "Meet the HR Recruiter", "task": "Practise a friendly professional introduction with the AI mentor. Focus on confidence and clarity, not technical interview questions.", "out": "Short AI conversation · one refined introduction"},
+      "Fri": {"focus": "Sound confident and clear", "task": "Repeat your introduction with a calm pace, clear stressed words, and a strong final sentence.", "out": "Before/after recording · self-review of pace and confidence"},
+      "Sat": {"focus": "Your professional story", "task": "Speak for 90 seconds about your background, your welding work, and the direction you want your career to take.", "out": "90-second recording · notes on strengths and fillers"},
+      "Sun": {"focus": "Week 1 mission", "task": "Deliver your final 60–90 second professional introduction as a welder, then review what has improved this week.", "out": "Weekly mission recording · Week 1 reflection"}
+    }
+  }],
+  "phases": {"1": {"name": "Professional Foundations", "wk": "Week 1", "cls": "p1"}}
 }

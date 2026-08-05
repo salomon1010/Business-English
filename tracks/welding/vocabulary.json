@@ -1,8 +1,20 @@
 {
   "schemaVersion": "1",
   "trackId": "welding",
+  "title": "Week 1 welding vocabulary",
+  "intro": "Save the words that describe your professional background and use them in your introduction.",
+  "words": [
+    {"word": "welder", "level": "B1", "definition": "a skilled worker who joins metal using heat or other tools"},
+    {"word": "welding", "level": "B1", "definition": "the job or process of joining metal"},
+    {"word": "fabrication", "level": "B2", "definition": "the process of making metal structures or products"},
+    {"word": "workshop", "level": "B1", "definition": "a place where practical work is done"},
+    {"word": "blueprint", "level": "B2", "definition": "a detailed technical drawing or plan"},
+    {"word": "inspection", "level": "B2", "definition": "a careful check that work meets the required standard"},
+    {"word": "reliable", "level": "B1", "definition": "able to be trusted to do work well and consistently"},
+    {"word": "certification", "level": "B2", "definition": "official proof that a person has met a required standard"}
+  ],
   "stopWords": [],
-  "cefrMap": {},
+  "cefrMap": {"welder": "B1", "welding": "B1", "fabrication": "B2", "workshop": "B1", "blueprint": "B2", "inspection": "B2", "reliable": "B1", "certification": "B2"},
   "synonyms": {},
   "grammarFix": [],
   "grammarGood": [],

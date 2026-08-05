@@ -1,5 +1,13 @@
 # IMPLEMENTATION_ROADMAP
 
+## Professional Tracks
+
+### Sprint 3 — Welding Week 1 — Complete (2026-08-05)
+
+Delivered the first learner-facing Professional Track curriculum: **Professional Introduction to Welding**. The pack provides one week of seven guided sessions, shadowing starters, professional phrases, starter vocabulary, a weekly mission, and one HR Recruiter AI mentor conversation. The existing General English experience remains the default and uses its existing curriculum and role-play scenarios.
+
+Next: define and implement Welding Week 2 only after Sprint 3 approval.
+
 > Status: authored 2026-08-02. One screen at a time. **Never start the next
 > screen without approval.**
 

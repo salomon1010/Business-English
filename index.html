@@ -2116,7 +2116,10 @@ function trackPhases(){return activeCurriculum().phases}
 function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
 function trackPhrases(){return activeCurriculum().phrases}
 function trackVocabulary(){return activeCurriculum().vocabulary}
+function trackVocabularyWords(){return trackVocabulary().words||[]}
 function trackPractice(){return activeCurriculum().practice}
+function trackAiMentors(){return activeCurriculum().aiMentors||[]}
+function trackRoleplayCategories(){return activeCurriculum().roleplayCategories||[]}
 function trackGrammarFix(){return trackVocabulary().grammarFix||[]}
 function trackGrammarGood(){return trackVocabulary().grammarGood||[]}
 function trackGrammarExercises(){return trackVocabulary().grammarExercises||{}}
@@ -2129,7 +2132,7 @@ function trackLibraryGroups(){return trackPractice().libraryGroups||[]}
 function trackReviewAxes(){return activeCurriculum().reviewAxes}
 function trackMonthMetrics(){return activeCurriculum().monthMetrics}
 function trackSessionCount(){return trackWeeks().reduce((n,w)=>n+Object.keys(w.days||{}).length,0)}
-function dayTypeLabel(d){return t("daymeta."+d)}
+function dayTypeLabel(d){const meta=trackDayMeta()[d];return activeProfessionalTrack().id==="general-english"?t("daymeta."+d):((meta&&meta.type)||t("daymeta."+d))}
 function sessIsSpeaking(d){return ["Tue","Thu","Sat"].includes(d)}
 function sessScaffold(dd,weekPhrases){
  if(dd&&dd.task&&dd.task.includes("→")){
@@ -2146,7 +2149,7 @@ ProfessionalTrackContext.register(new ProfessionalTrack({
 }));
 ProfessionalTrackContext.register(new ProfessionalTrack({
   id:"welding",sourceId:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
-  status:"foundation",inheritsFrom:"general-english",version:"1"
+  status:"available",inheritsFrom:"general-english",version:"1"
 }));
 
 const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
@@ -3454,7 +3457,7 @@ const I18N_EN={
  "tracks.general":"General English",
  "tracks.general_desc":"The complete 12-week professional English programme you use today.",
  "tracks.welding":"Welding",
- "tracks.welding_desc":"Professional communication for welding. Curriculum foundation only in this release.",
+ "tracks.welding_desc":"Professional communication for welding, starting with Week 1: Professional Introduction to Welding.",
  "tracks.electrician":"Electrician",
  "tracks.construction":"Construction",
  "tracks.healthcare":"Healthcare",
@@ -4282,7 +4285,7 @@ function homePanelDashboard(){
           <svg width="150" height="150"><circle cx="75" cy="75" r="62" fill="none" stroke="var(--bg2)" stroke-width="12"/>
           <circle cx="75" cy="75" r="62" fill="none" stroke="url(#gr)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-p/100)}"/>
           <defs><linearGradient id="gr"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs></svg>
-          <div class="pct">${p}%<small>${t("home.pct_of")}</small></div>
+          <div class="pct">${p}%<small>${t("home.pct_of").replace("84",trackSessionCount())}</small></div>
         </div>
         <div style="flex:1">
           ${Object.keys(phases).map((ph,i,all)=>{const phaseWeeks=weeks.filter(w=>String(w.phase)===String(ph)),total=phaseWeeks.length*trackDays().length;return `<div style="margin-bottom:${i===all.length-1?0:12}px">
@@ -4436,7 +4439,7 @@ function rWeek(el,w){
     <span class="chip ${weekDone(w)===7?'done':''}">${t("week.sessions_done",{done:weekDone(w)})}</span>
   </div>
   <h1 class="big" style="font-size:30px">${t("week.title",{w,theme:esc(wk.theme)})}</h1>
-  <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.goal)})}</p>
+  <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.mission||wk.goal)})}</p>
   <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
   ${trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
     return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
@@ -4753,7 +4756,7 @@ function shStarterCard(s,i){
     <img src="https://i.ytimg.com/vi/${s.vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180">
     <b>${s.name}</b>
     ${s.cap===false?`<span class="chip sh-starter-cap">${tIc("sh.captions_none","pencil")}</span>`:""}
-    <p>${I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
+    <p>${activeProfessionalTrack().id==="general-english"&&I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
     <div class="sh-starter-acts">
       <button class="btn btn-g" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
       <button class="btn btn-g sh-starter-copy" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}" aria-label="${esc(t("sh.copy_title"))}">${ic("clipboard")}</button>
@@ -6939,7 +6942,13 @@ function rPractice(el){
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
+  const curriculumWords=trackVocabularyWords(),vocabulary=trackVocabulary();
   el.innerHTML=`
+  ${curriculumWords.length?`<div class="card" style="margin-bottom:14px;padding:16px 18px">
+    <b style="font-size:14.5px">${esc(vocabulary.title||"Vocabulary")}</b>
+    ${vocabulary.intro?`<p style="font-size:13px;color:var(--mut);margin:6px 0 12px">${esc(vocabulary.intro)}</p>`:""}
+    <div style="display:flex;flex-direction:column;gap:9px">${curriculumWords.map(item=>`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b>${esc(item.word)}</b><small style="display:block;color:var(--mut);margin-top:2px">${esc(item.definition)}</small></span><span class="chip">${esc(item.level)}</span><button class="btn btn-g btn-sm" onclick="vocSave('${esc(item.word)}','${esc(item.level)}')">${t("voc.save_title")}</button></div>`).join("")}</div>
+  </div>`:""}
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="prac-subtabs">
@@ -8624,7 +8633,9 @@ const SCENARIOS=[
  {id:"taxi",cat:"travel",persona:"Luis",g:"m",role:"taxi driver",ic:"train",title:"Taking a taxi",scenario:"Give directions, make a little small talk, and pay.",points:["Tell the driver your destination","Ask roughly how long it will take","Ask to pay by card"],greet:"Evening! Hop in — where are we headed?"},
  {id:"hotel",cat:"travel",persona:"Nina",g:"f",role:"hotel receptionist",ic:"home",title:"Hotel check-in",scenario:"Check into a hotel and ask about the facilities.",points:["Give your reservation name","Ask about breakfast and wi-fi","Ask for a late checkout"],greet:"Welcome to The Meridian! Do you have a reservation with us?"},
 ];
-function rpById(id){return SCENARIOS.find(s=>s.id===id)}
+function trackScenarios(){return trackAiMentors().length?trackAiMentors():SCENARIOS}
+function trackScenarioCategories(){return trackRoleplayCategories().length?trackRoleplayCategories():RP_CATS}
+function rpById(id){return trackScenarios().find(s=>s.id===id)}
 /* Scenario artwork. Drop a square image at rp-photos/<scenario id>.jpg and it
    is used automatically — no code change. If the file is missing the browser
    fires onerror and we fall back to the icon tile, so a half-finished photo set
@@ -8668,9 +8679,9 @@ function rRoleplay(el,id){
   rpIntro(el,sc);
 }
 function rpLibrary(el){
-  const feat=SCENARIOS[3];
-  const cats=RP_CATS.map(([c,label])=>{
-    const items=SCENARIOS.filter(s=>s.cat===c);
+  const scenarios=trackScenarios(),categories=trackScenarioCategories(),feat=activeProfessionalTrack().id==="general-english"?scenarios[3]:scenarios[0];
+  const cats=categories.map(([c,label])=>{
+    const items=scenarios.filter(s=>s.cat===c);
     return `<h3 style="margin:26px 0 12px">${esc(label)}</h3><div class="rp-grid">${items.map(s=>`<button class="rp-card" onclick="go('roleplay','${s.id}')">${rpAvatar(s,92)}<b>${esc(s.title)}</b><small>${esc(s.persona)} · ${esc(s.role)}</small></button>`).join("")}</div>`;
   }).join("");
   el.innerHTML=`
