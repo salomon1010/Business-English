@@ -59,6 +59,7 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<script src="curriculum-provider.js"></script>
 <script src="professional-tracks.js"></script>
 <script>
 window.FB_CONFIG={
@@ -2101,371 +2102,52 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 </nav>
 
 <script>
-/* ================= DATA ================= */
-const RESOURCES=[
- {ic:"🎬",k:"film",name:"Fluent American Shadowing",url:"https://www.youtube.com/@FluentAmericanShadowing",desc:"Clips built as shadowing exercises: visual text prompts, clear pauses, isolated stress patterns.",use:"Advanced American pronunciation, accent reduction & rhythm — perfect ready-made loops"},
- {ic:"🏋️",k:"dumbbell",name:"English Coach Chad",url:"https://www.youtube.com/@EnglishCoachChad",desc:"High-repetition “language gym” routines — standalone, rhythmic repeat-after-me sentences with crisp audio.",use:"Muscle-memory drills — ideal for your first shadowing weeks"},
- {ic:"🇺🇸",k:"mic",name:"Rachel's English",url:"https://www.youtube.com/@rachelsenglish",desc:"The premier channel for American mouth mechanics, physical articulation and phonetic breakdowns.",use:"Micro-intonation drills — bite-sized sound analysis of real conversations"},
- {ic:"🗣️",k:"sound",name:"Accent's Way English with Hadar",url:"https://www.youtube.com/@hadar.shemesh",desc:"For non-native speakers seeking professional fluency and public-speaking confidence, with shadowing playlists at varying speeds.",use:"Connected speech — master it slowly with 🐢 speed, then speed up"},
- {ic:"🔴",k:"play",name:"TED Talks",url:"https://www.youtube.com/@TED",desc:"Premium presentation-style content — exceptional pacing, deliberate pausing, crystal-clear enunciation, accurate captions.",use:"Executive presentation flow & high-level business vocabulary — Weeks 9–12"}
-];
-
-const DAY_META={
- Mon:{type:"Pronunciation + Shadowing",ic:"🎧",k:"headphones"},
- Tue:{type:"Business Speaking Drill",ic:"🎯",k:"target"},
- Wed:{type:"Vocabulary + Phrase Bank",ic:"💬",k:"chat"},
- Thu:{type:"Meeting Simulation / Q&A",ic:"🧑‍💼",k:"user"},
- Fri:{type:"Pronunciation + Delivery",ic:"🔊",k:"sound"},
- Sat:{type:"Long-form Speaking",ic:"🎤",k:"mic"},
- Sun:{type:"Weekly Review + Reset",ic:"📊",k:"chart"}
-};
+/* ================= DYNAMIC CURRICULUM ================= */
+function activeProfessionalTrack(){return ProfessionalTrackContext.active()}
+function activeCurriculum(){return ProfessionalTrackContext.resolveCurriculum()}
+function trackDays(){return activeCurriculum().days}
+function trackResources(){return activeCurriculum().resources}
+function trackShadowStarters(){return activeCurriculum().starters}
+function trackDayMeta(){return activeCurriculum().dayMeta}
+function trackSessionLinks(){return activeCurriculum().sessionLinks}
+function trackTemplates(){return activeCurriculum().templates}
+function trackWeeks(){return activeCurriculum().weeks}
+function trackPhases(){return activeCurriculum().phases}
+function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
+function trackPhrases(){return activeCurriculum().phrases}
+function trackVocabulary(){return activeCurriculum().vocabulary}
+function trackPractice(){return activeCurriculum().practice}
+function trackGrammarFix(){return trackVocabulary().grammarFix||[]}
+function trackGrammarGood(){return trackVocabulary().grammarGood||[]}
+function trackGrammarExercises(){return trackVocabulary().grammarExercises||{}}
+function trackGrammarCategories(){return trackVocabulary().grammarCategories||[]}
+function trackCefrMap(){return trackVocabulary().cefrMap||{}}
+function trackSynonyms(){return trackVocabulary().synonyms||{}}
+function isTrackStopWord(word){return (trackVocabulary().stopWords||[]).includes(word)}
+function trackVocabularyIntervals(){return trackPractice().vocabularyIntervals||[]}
+function trackLibraryGroups(){return trackPractice().libraryGroups||[]}
+function trackReviewAxes(){return activeCurriculum().reviewAxes}
+function trackMonthMetrics(){return activeCurriculum().monthMetrics}
+function trackSessionCount(){return trackWeeks().reduce((n,w)=>n+Object.keys(w.days||{}).length,0)}
 function dayTypeLabel(d){return t("daymeta."+d)}
-/* Days whose real work happens in another tab → show a jump button. Tue/Thu/Sat are
-   on-page speaking drills (no link, and the "My example" box is shown open). */
-const SESS_LINK={
- Mon:{v:"shadow",  ic:"target", lk:"sess.link_shadow",  wk:"sess.link_shadow_why_mon"},
- Fri:{v:"shadow",  ic:"target", lk:"sess.link_shadow",  wk:"sess.link_shadow_why_fri"},
- Wed:{v:"phrases", ic:"chat",   lk:"sess.link_phrases", wk:"sess.link_phrases_why"},
- Sun:{v:"review",  ic:"chart",  lk:"sess.link_review",  wk:"sess.link_review_why"}
-};
 function sessIsSpeaking(d){return ["Tue","Thu","Sat"].includes(d)}
-/* Day-specific starter text for the "My example" box, so each day of each week
-   opens with a relevant scaffold to complete rather than a blank box. If the
-   day's task spells out a structure with arrows (e.g. "context → issue →
-   action → result"), turn each step into a labelled blank; otherwise seed with
-   this week's phrases to build sentences from. */
 function sessScaffold(dd,weekPhrases){
  if(dd&&dd.task&&dd.task.includes("→")){
-  let seg=dd.task;
-  if(seg.includes(":"))seg=seg.slice(seg.lastIndexOf(":")+1);
+  let seg=dd.task;if(seg.includes(":"))seg=seg.slice(seg.lastIndexOf(":")+1);
   const parts=seg.split("→").map(s=>s.replace(/["“”.]/g,"").trim()).filter(Boolean);
   if(parts.length>=2)return parts.map(p=>p.charAt(0).toUpperCase()+p.slice(1)+": ").join("\n");
  }
  return weekPhrases.map(p=>p.p).join("\n");
 }
 
-const TEMPLATES={
- Mon:[["0:00–2:00","Choose a 30–60 sec clip from a U.S. professional speaker (🎯 Shadow tab → starter videos & channels)."],["2:00–8:00","Transcribe it exactly."],["8:00–11:00","Mark stressed words, pauses, contractions, linked sounds, intonation."],["11:00–18:00","Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."],["18:00–22:00","Record yourself imitating the clip (use the recorder below)."],["22:00–25:00","Log what sounded weak + one sound/stress pattern to fix next time."]],
- Tue:[["0:00–3:00","Write the prompt and your answer structure."],["3:00–8:00","Bullet points only: context → issue → action → result / next step."],["8:00–14:00","Record answer version 1."],["14:00–18:00","Listen back: mark filler words, grammar problems, vague wording, weak structure."],["18:00–23:00","Record improved version 2."],["23:00–25:00","Write your top 3 corrections in the notes."]],
- Wed:[["0:00–8:00","Study the 10–15 phrases + idioms for this week (Phrases tab)."],["8:00–16:00","Write 10 sentences of your own using your real work context."],["16:00–22:00","Say all 10 aloud — record the best run."],["22:00–25:00","Choose the best 5 phrases to actively reuse this week."]],
- Thu:[["0:00–4:00","Set the meeting scenario."],["4:00–8:00","List: your role, the problem, what you need to say."],["8:00–16:00","Record the simulated answer or discussion."],["16:00–21:00","Review: where you rambled, got unclear, or needed stronger phrases."],["21:00–25:00","Redo a cleaner version."]],
- Fri:[["0:00–2:00","Pick your weakest recording from this week."],["2:00–8:00","Mark where the pace, stress or tone was flat or rushed."],["8:00–11:00","Practice: slow down, stress key words, kill the monotone."],["11:00–18:00","Shadow / drill the problem sections 6–8 times."],["18:00–22:00","Record the improved 'after' version."],["22:00–25:00","Self-score clarity / pace / naturalness in the notes."]],
- Sat:[["0:00–5:00","Outline the talk (bullets, not a script)."],["5:00–12:00","Record the 3–5 minute answer / presentation."],["12:00–18:00","Review: clarity, confidence, structure, pronunciation, filler words."],["18:00–25:00","Redo the weakest section only."]],
- Sun:[["Step 1","Listen to at least 2 recordings from the week."],["Step 2","Score the week below in the Reviews tab: clarity, fluency, pronunciation, business naturalness, confidence."],["Step 3","Write 3 wins, 3 weaknesses, 3 corrections for next week."],["Step 4","Review the phrase bank and keep 5 active phrases for next week."]]
-};
-
-const WEEKS=[
- {n:1,phase:1,theme:"Introductions, role clarity & speech baseline",goal:"Build your baseline and start speaking clearly about yourself and your role.",days:{
-  Mon:{focus:"Pronunciation baseline",task:"Shadow a 45–60 sec clip of a U.S. professional introducing themselves. Transcribe, mark stress & pauses, shadow 6–8×, record.",out:"Transcript · 1 recording · 3 pronunciation weaknesses noted"},
-  Tue:{focus:"“Tell me about yourself”",task:"Record a 90-second answer: current role → core responsibilities → previous experience → current focus.",out:"Bullet outline · recording v1 · corrected v2"},
-  Wed:{focus:"Core work vocabulary bank",task:"Build 15 phrases for introducing your role, then write 10 personal sentences using your real work.",out:"Phrase bank page: Role & Responsibilities"},
-  Thu:{focus:"Explain your role to a non-technical person",task:"Answer “What do you actually do at work?” as if speaking to a smart non-technical manager.",out:"2-min recording · list of overused technical words"},
-  Fri:{focus:"Rhythm and stress",task:"Take Thursday's explanation: slow down, stress key words, reduce monotone. Record version 2.",out:"Before/after comparison · self-score clarity/pace/naturalness"},
-  Sat:{focus:"Long-form speaking",task:"Speak 3 minutes: “My background, my current role, and the type of work I want to grow into.”",out:"3-min recording · review of fillers, grammar, transitions"},
-  Sun:{focus:"Weekly review",task:"Listen to all recordings; list top 5 recurring problems; set next week's correction targets.",out:"Weekly review completed in Reviews tab"}}},
- {n:2,phase:1,theme:"Project updates & status communication",goal:"Speak clearly about ongoing work, progress, blockers, and next steps.",days:{
-  Mon:{focus:"Shadow a project-update clip",task:"Shadow a 30–60 sec standup/update style clip.",out:"Transcript · recording"},
-  Tue:{focus:"“What are you working on this week?”",task:"Answer using: priority 1 → priority 2 → current progress → blocker → next step.",out:"Recording v1 + v2"},
-  Wed:{focus:"Project update phrases",task:"Build 15 update phrases (“This week I'm focused on…”, “The main blocker is…”) + 10 personal sentences.",out:"Phrase bank: Project Updates"},
-  Thu:{focus:"Meeting simulation",task:"“Can you give us a quick update on the data pipeline work?”",out:"Simulated answer recording"},
-  Fri:{focus:"Delivery correction",task:"Redo your update with better pace and fewer fillers.",out:"Improved recording"},
-  Sat:{focus:"Mock sprint update",task:"3-minute mock sprint/project update.",out:"3-min recording + review notes"},
-  Sun:{focus:"Review + score",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:3,phase:1,theme:"Problems, blockers & escalation",goal:"Explain issues clearly without rambling.",days:{
-  Mon:{focus:"Shadow a problem-explanation clip",task:"Shadow a clip where a speaker explains a problem or challenge.",out:"Transcript · recording"},
-  Tue:{focus:"Explain a delayed dependency",task:"“A dependency is delayed and will affect delivery.” Structure: issue → cause → impact → mitigation → ask.",out:"Recording v1 + v2"},
-  Wed:{focus:"Escalation phrases",task:"Build phrases: “We've run into an issue with…”, “The root cause appears to be…”, “To mitigate that…”.",out:"Phrase bank: Blockers / Escalation"},
-  Thu:{focus:"Meeting simulation",task:"“Why is this task behind schedule and what's the recovery plan?”",out:"Simulated answer recording"},
-  Fri:{focus:"Calm delivery",task:"Say the same explanation in a calmer, more concise way.",out:"Improved recording"},
-  Sat:{focus:"Escalation update",task:"3-minute escalation update to a manager.",out:"3-min recording + error list"},
-  Sun:{focus:"Review + error list",task:"Weekly review and error list.",out:"Weekly review completed"}}},
- {n:4,phase:1,theme:"Clarifying, asking questions & confirming",goal:"Stop staying silent when things are unclear.",days:{
-  Mon:{focus:"Q&A rhythm",task:"Shadow a clip focused on Q&A rhythm and polite clarification.",out:"Transcript · recording"},
-  Tue:{focus:"10 clarification questions",task:"Practice aloud: “Can you clarify what you mean by…?”, “Just to make sure I understand…”, “Are you asking about X or Y?”.",out:"Recording of all 10"},
-  Wed:{focus:"Clarify / confirm / summarize",task:"Build phrases for clarifying, confirming, summarizing, follow-up questions.",out:"Phrase bank: Clarifying"},
-  Thu:{focus:"Vague requirements",task:"You're in a planning meeting and requirements are vague. Ask 6 good questions out loud.",out:"Recording of 6 questions"},
-  Fri:{focus:"Natural clarification exchange",task:"Record a calm, natural clarification exchange.",out:"Recording"},
-  Sat:{focus:"4-minute meeting simulation",task:"Simulate a meeting discussion: ask questions, summarize, confirm next steps.",out:"4-min recording"},
-  Sun:{focus:"Month 1 dashboard",task:"Weekly review + complete the Month 1 dashboard in the Reviews tab.",out:"Month 1 dashboard completed"}}},
- {n:5,phase:2,theme:"Explaining technical work to non-technical stakeholders",goal:"Translate technical work into business language.",days:{
-  Mon:{focus:"Explainer clip",task:"Shadow a product/business/tech explainer clip.",out:"Transcript · recording"},
-  Tue:{focus:"Explain a data pipeline",task:"Explain a data pipeline or engineering task to a business stakeholder. No jargon unless you define it.",out:"Recording v1 + v2"},
-  Wed:{focus:"Tech-to-business phrases",task:"Build phrases: “In simple terms…”, “What this means for the business is…”, “The benefit is…”.",out:"Phrase bank: Tech to Business"},
-  Thu:{focus:"Data quality simulation",task:"“Explain why data quality checks matter before reporting.”",out:"Simulated answer recording"},
-  Fri:{focus:"Simplify and tighten",task:"Simplify and tighten the explanation.",out:"Improved recording"},
-  Sat:{focus:"Real project explanation",task:"3-minute explanation of one real project to a non-technical leader.",out:"3-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:6,phase:2,theme:"Recommendations & decision language",goal:"Stop only reporting; start recommending.",days:{
-  Mon:{focus:"Recommendation clip",task:"Shadow a clip of a manager or consultant giving recommendations.",out:"Transcript · recording"},
-  Tue:{focus:"“What do you recommend?”",task:"Answer using: context → options → tradeoff → recommendation → reason.",out:"Recording v1 + v2"},
-  Wed:{focus:"Tradeoff phrases",task:"Build phrases: “What I'd recommend is…”, “The tradeoff is…”, “If speed is the priority, then…”.",out:"Phrase bank: Recommendations"},
-  Thu:{focus:"Delayed dependency",task:"Recommend how to handle a delayed dependency or data issue.",out:"Simulated answer recording"},
-  Fri:{focus:"Executive version",task:"Same recommendation, but shorter and more executive.",out:"Compressed recording"},
-  Sat:{focus:"Recommendation talk",task:"4-minute recommendation talk.",out:"4-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:7,phase:2,theme:"Disagreeing professionally & pushing back",goal:"Speak with confidence without sounding aggressive or weak.",days:{
-  Mon:{focus:"Polite disagreement clip",task:"Shadow a clip of polite disagreement / discussion.",out:"Transcript · recording"},
-  Tue:{focus:"“We should launch immediately.”",task:"You disagree due to data or delivery risk. Respond professionally.",out:"Recording v1 + v2"},
-  Wed:{focus:"Pushback phrases",task:"Build phrases: “I see the reasoning, but I have one concern.”, “My hesitation is…”, “I'd suggest we validate X before…”.",out:"Phrase bank: Disagreement"},
-  Thu:{focus:"Unrealistic timeline",task:"Push back on an unrealistic timeline.",out:"Simulated answer recording"},
-  Fri:{focus:"Calm, not defensive",task:"Practice calm tone, not defensive tone.",out:"Tone-corrected recording"},
-  Sat:{focus:"Alignment discussion",task:"Simulate a 5-minute disagreement / alignment discussion.",out:"5-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:8,phase:2,theme:"Sprint meetings, blockers & stakeholder coordination",goal:"Perform in the actual meeting patterns you face.",days:{
-  Mon:{focus:"Standup / retro clip",task:"Shadow a standup / planning / retrospective / project meeting clip.",out:"Transcript · recording"},
-  Tue:{focus:"Standup with blocker + ETA",task:"Standup update with blocker + dependency + ETA.",out:"Recording v1 + v2"},
-  Wed:{focus:"Agile / delivery phrases",task:"Build phrases: “We're waiting on…”, “We may need to re-sequence…”, “To keep the sprint on track…”.",out:"Phrase bank: Agile & Delivery"},
-  Thu:{focus:"Mock sprint update",task:"Run a 5-minute mock sprint update or retro discussion.",out:"5-min recording"},
-  Fri:{focus:"60-second compression",task:"Compress your update to 60 seconds and keep it sharp.",out:"60-sec recording"},
-  Sat:{focus:"Multi-part meeting",task:"Simulate: update → blocker → ask → next step → summary.",out:"Full meeting recording"},
-  Sun:{focus:"Month 2 dashboard",task:"Weekly review + complete the Month 2 dashboard in the Reviews tab.",out:"Month 2 dashboard completed"}}},
- {n:9,phase:3,theme:"Leadership-style summaries",goal:"Speak briefly, clearly, and with structure.",days:{
-  Mon:{focus:"Executive update clip",task:"Shadow an executive update / business presentation clip.",out:"Transcript · recording"},
-  Tue:{focus:"“Give me the 60-second version.”",task:"Take a complex project and summarize it in 60 seconds.",out:"60-sec recording v1 + v2"},
-  Wed:{focus:"Leadership phrases",task:"Build phrases: “At a high level…”, “The headline is…”, “The next decision we need is…”.",out:"Phrase bank: Leadership Summary"},
-  Thu:{focus:"Concise leadership update",task:"Give a concise leadership update.",out:"Simulated answer recording"},
-  Fri:{focus:"Brevity and emphasis",task:"Improve brevity and emphasis.",out:"Improved recording"},
-  Sat:{focus:"Executive summary",task:"3-minute executive-style summary.",out:"3-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:10,phase:3,theme:"Interview & networking communication",goal:"Sell your experience clearly.",days:{
-  Mon:{focus:"Interview clip",task:"Shadow an interview or professional networking conversation clip.",out:"Transcript · recording"},
-  Tue:{focus:"“Tell me about a project you led.”",task:"Answer with situation → task → action → result.",out:"Recording v1 + v2"},
-  Wed:{focus:"Achievement phrases",task:"Build phrases for achievement, ownership, problem-solving, leadership, collaboration.",out:"Phrase bank: Interview"},
-  Thu:{focus:"Interview simulation",task:"“Tell me about a challenge” · “Tell me about a conflict” · “Why are you moving into AI / engineering leadership?”",out:"3 answer recordings"},
-  Fri:{focus:"Pacing and confidence",task:"Clean up pacing and confidence.",out:"Improved recording"},
-  Sat:{focus:"Mock interview set",task:"5-minute mock interview answer set.",out:"5-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:11,phase:3,theme:"Persuasion & stakeholder influence",goal:"Move from reporting to influencing.",days:{
-  Mon:{focus:"Persuasive speaker clip",task:"Shadow a persuasive workplace speaker.",out:"Transcript · recording"},
-  Tue:{focus:"Convince stakeholders",task:"“Convince stakeholders to prioritize data quality / platform work / technical debt.”",out:"Recording v1 + v2"},
-  Wed:{focus:"Cost-of-delay phrases",task:"Build phrases: “The reason I'm recommending this now is…”, “The cost of delay is…”.",out:"Phrase bank: Persuasion"},
-  Thu:{focus:"Persuade a leader",task:"Persuade a leader to approve a change or resource need.",out:"Simulated answer recording"},
-  Fri:{focus:"Tighter and more confident",task:"Make it tighter and more confident.",out:"Improved recording"},
-  Sat:{focus:"Persuasive recommendation",task:"4-minute persuasive recommendation.",out:"4-min recording"},
-  Sun:{focus:"Review",task:"Weekly review and scoring.",out:"Weekly review completed"}}},
- {n:12,phase:3,theme:"Final integration week",goal:"Combine everything under realistic pressure.",days:{
-  Mon:{focus:"Compare with Week 1",task:"Repeat a clip from Week 1. Shadow and compare with your Week 1 recording.",out:"Before/after comparison"},
-  Tue:{focus:"Update + blocker + recommendation",task:"2-minute update + blocker + recommendation.",out:"2-min recording"},
-  Wed:{focus:"Top 50 phrases",task:"Review the full 12-week phrase bank and choose your top 50 phrases.",out:"Top-50 list marked as mastered"},
-  Thu:{focus:"Full mock meeting",task:"Full contribution: update → clarification → disagreement → recommendation → summary.",out:"Full meeting recording"},
-  Fri:{focus:"Weakest task repeat",task:"Repeat your weakest speaking task from the whole program.",out:"Improved recording"},
-  Sat:{focus:"Final performance set",task:"Record all 4: 90-sec self-intro · 2-min project update · 2-min blocker escalation · 3-min tech-to-business explanation.",out:"4 final recordings"},
-  Sun:{focus:"Final dashboard",task:"Complete the Month 3 + Final Review dashboard in the Reviews tab.",out:"Final dashboard completed"}}}
-];
-
-const PHASES={1:{name:"Foundation",wk:"Weeks 1–4",cls:"p1"},2:{name:"Workplace Fluency",wk:"Weeks 5–8",cls:"p2"},3:{name:"Executive Communication",wk:"Weeks 9–12",cls:"p3"}};
-function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
-
-const PHRASES=[
- // week, category, phrase, use  (type: p=phrase, i=idiom, meaning for idioms)
- {w:1,c:"Role & Responsibilities",p:"I currently work as…",u:"Introduce your role"},
- {w:1,c:"Role & Responsibilities",p:"My focus is on…",u:"State your priority area"},
- {w:1,c:"Role & Responsibilities",p:"I work closely with…",u:"Show collaboration"},
- {w:1,c:"Role & Responsibilities",p:"I'm responsible for…",u:"Describe ownership"},
- {w:1,c:"Role & Responsibilities",p:"A big part of my role is…",u:"Highlight a key responsibility"},
- {w:1,c:"Role & Responsibilities",p:"My role sits at the intersection of…",u:"Position yourself across teams"},
- {w:1,c:"Role & Responsibilities",p:"I have a background in…",u:"Introduce your experience"},
- {w:1,c:"Role & Responsibilities",p:"I'm currently focused on improving…",u:"Show growth direction"},
- {w:1,c:"Role & Responsibilities",p:"I work with engineering, product, and business stakeholders to…",u:"Describe cross-functional work"},
- {w:1,c:"Role & Responsibilities",p:"What I enjoy most about my work is…",u:"Add personality in interviews"},
- {w:1,c:"Idioms",p:"Touch base",u:"To make brief contact — “Let's touch base on Friday about the migration.”",i:1},
- {w:1,c:"Idioms",p:"Get up to speed",u:"To learn what you need to know — “Give me a day to get up to speed on the codebase.”",i:1},
- {w:1,c:"Idioms",p:"On the same page",u:"In agreement — “Before we start, let's make sure we're on the same page.”",i:1},
- {w:2,c:"Project Updates",p:"This week I'm focused on…",u:"Open a status update"},
- {w:2,c:"Project Updates",p:"The current status is…",u:"Report progress"},
- {w:2,c:"Project Updates",p:"We've completed…",u:"Report finished work"},
- {w:2,c:"Project Updates",p:"The main blocker is…",u:"State the issue clearly"},
- {w:2,c:"Project Updates",p:"By Friday, I expect to…",u:"Commit to a timeline"},
- {w:2,c:"Project Updates",p:"We're on track to deliver by…",u:"Confirm the schedule"},
- {w:2,c:"Project Updates",p:"The next step is…",u:"Close with an action"},
- {w:2,c:"Project Updates",p:"In terms of progress, we're about halfway through…",u:"Quantify progress"},
- {w:2,c:"Project Updates",p:"I'll follow up with an update by…",u:"Promise follow-up"},
- {w:2,c:"Project Updates",p:"Nothing is blocking me at the moment.",u:"Clean standup close"},
- {w:2,c:"Idioms",p:"Keep someone in the loop",u:"Keep informed — “I'll keep you in the loop on the pipeline fix.”",i:1},
- {w:2,c:"Idioms",p:"Moving parts",u:"Many interconnected pieces — “This migration has a lot of moving parts.”",i:1},
- {w:2,c:"Idioms",p:"Back on track",u:"Progressing correctly again — “After the fix, we're back on track for Friday.”",i:1},
- {w:3,c:"Blockers & Escalation",p:"We've run into an issue with…",u:"Open an escalation"},
- {w:3,c:"Blockers & Escalation",p:"The root cause appears to be…",u:"Explain the cause"},
- {w:3,c:"Blockers & Escalation",p:"The risk is that…",u:"Frame the impact"},
- {w:3,c:"Blockers & Escalation",p:"To mitigate that, we're…",u:"Show your plan"},
- {w:3,c:"Blockers & Escalation",p:"What we need is…",u:"Make the ask"},
- {w:3,c:"Blockers & Escalation",p:"This will impact the timeline by…",u:"Quantify the delay"},
- {w:3,c:"Blockers & Escalation",p:"We flagged this early because…",u:"Show proactivity"},
- {w:3,c:"Blockers & Escalation",p:"The recovery plan is…",u:"Present the path forward"},
- {w:3,c:"Blockers & Escalation",p:"We need a decision on…",u:"Force clarity"},
- {w:3,c:"Blockers & Escalation",p:"Worst case, we can…",u:"Show the fallback"},
- {w:3,c:"Idioms",p:"Hit a roadblock",u:"Encounter an obstacle — “We hit a roadblock with the vendor API.”",i:1},
- {w:3,c:"Idioms",p:"Red flag",u:"A warning sign — “The failing tests were a red flag we couldn't ignore.”",i:1},
- {w:3,c:"Idioms",p:"Put out fires",u:"Handle urgent problems — “I spent the morning putting out fires in production.”",i:1},
- {w:4,c:"Clarifying & Confirming",p:"Can you clarify what you mean by…?",u:"Ask for precision"},
- {w:4,c:"Clarifying & Confirming",p:"Just to make sure I understand…",u:"Confirm meaning"},
- {w:4,c:"Clarifying & Confirming",p:"Are you asking about X or Y?",u:"Clarify scope"},
- {w:4,c:"Clarifying & Confirming",p:"What timeline are we working against?",u:"Pin down deadlines"},
- {w:4,c:"Clarifying & Confirming",p:"So, to summarize what we agreed…",u:"Close with a summary"},
- {w:4,c:"Clarifying & Confirming",p:"Did I get that right?",u:"Verify understanding"},
- {w:4,c:"Clarifying & Confirming",p:"Could you walk me through…?",u:"Request an explanation"},
- {w:4,c:"Clarifying & Confirming",p:"What does success look like here?",u:"Clarify the goal"},
- {w:4,c:"Clarifying & Confirming",p:"Who owns this piece?",u:"Clarify responsibility"},
- {w:4,c:"Clarifying & Confirming",p:"Before we move on, can we confirm…?",u:"Lock decisions in"},
- {w:4,c:"Idioms",p:"Drill down",u:"Examine in detail — “Let's drill down into the numbers before deciding.”",i:1},
- {w:4,c:"Idioms",p:"Get the ball rolling",u:"Start something — “I'll get the ball rolling with a draft proposal.”",i:1},
- {w:4,c:"Idioms",p:"Unpack",u:"Analyze piece by piece — “There's a lot to unpack in that requirement.”",i:1},
- {w:5,c:"Tech to Business",p:"In simple terms…",u:"Open a simplified explanation"},
- {w:5,c:"Tech to Business",p:"What this means for the business is…",u:"Connect to business impact"},
- {w:5,c:"Tech to Business",p:"The purpose of this process is…",u:"Explain the 'why'"},
- {w:5,c:"Tech to Business",p:"The benefit is…",u:"State the value"},
- {w:5,c:"Tech to Business",p:"The limitation is…",u:"Be honest about constraints"},
- {w:5,c:"Tech to Business",p:"Think of it like…",u:"Use an analogy"},
- {w:5,c:"Tech to Business",p:"Behind the scenes, what happens is…",u:"Explain the mechanism simply"},
- {w:5,c:"Tech to Business",p:"The bottom line is…",u:"Land the key point"},
- {w:5,c:"Tech to Business",p:"Without getting too technical…",u:"Signal simplification"},
- {w:5,c:"Tech to Business",p:"The impact on reporting is…",u:"Tie to stakeholder outcomes"},
- {w:5,c:"Idioms",p:"Big picture",u:"The overall view — “Let's step back and look at the big picture.”",i:1},
- {w:5,c:"Idioms",p:"Break it down",u:"Explain simply — “Let me break it down into three steps.”",i:1},
- {w:5,c:"Idioms",p:"Under the hood",u:"The hidden technical detail — “Under the hood, it's just a scheduled SQL job.”",i:1},
- {w:6,c:"Recommendations",p:"What I'd recommend is…",u:"Propose action"},
- {w:6,c:"Recommendations",p:"The tradeoff is…",u:"Explain options honestly"},
- {w:6,c:"Recommendations",p:"From a delivery perspective…",u:"Frame the angle"},
- {w:6,c:"Recommendations",p:"The lowest-risk option would be…",u:"Present the safe path"},
- {w:6,c:"Recommendations",p:"If speed is the priority, then…",u:"Condition the choice"},
- {w:6,c:"Recommendations",p:"If risk reduction is the priority, then…",u:"Present the alternative"},
- {w:6,c:"Recommendations",p:"We have two options here…",u:"Structure the decision"},
- {w:6,c:"Recommendations",p:"My recommendation is based on…",u:"Justify with evidence"},
- {w:6,c:"Recommendations",p:"The safest path forward is…",u:"Guide the decision"},
- {w:6,c:"Recommendations",p:"Here's what I suggest we do next…",u:"Close with next steps"},
- {w:6,c:"Idioms",p:"Weigh the pros and cons",u:"Compare advantages/disadvantages — “Let's weigh the pros and cons of each vendor.”",i:1},
- {w:6,c:"Idioms",p:"Low-hanging fruit",u:"Easy wins — “Fixing the duplicate rows is low-hanging fruit.”",i:1},
- {w:6,c:"Idioms",p:"Game changer",u:"Something transformative — “Automating that report was a game changer for the team.”",i:1},
- {w:7,c:"Disagreement & Pushback",p:"I see the reasoning, but I have one concern.",u:"Polite pushback opener"},
- {w:7,c:"Disagreement & Pushback",p:"I'm not sure that approach addresses…",u:"Question the fit"},
- {w:7,c:"Disagreement & Pushback",p:"My hesitation is…",u:"Voice a concern softly"},
- {w:7,c:"Disagreement & Pushback",p:"I'd suggest we validate X before…",u:"Propose verification"},
- {w:7,c:"Disagreement & Pushback",p:"I think the risk of moving too quickly is…",u:"Frame the risk"},
- {w:7,c:"Disagreement & Pushback",p:"That's a fair point, and at the same time…",u:"Acknowledge, then counter"},
- {w:7,c:"Disagreement & Pushback",p:"Can I offer a different perspective?",u:"Ask permission to disagree"},
- {w:7,c:"Disagreement & Pushback",p:"I'd push back slightly on…",u:"Signal soft disagreement"},
- {w:7,c:"Disagreement & Pushback",p:"I hear you — my concern is timing.",u:"Validate and redirect"},
- {w:7,c:"Disagreement & Pushback",p:"Let's pressure-test that assumption.",u:"Challenge constructively"},
- {w:7,c:"Idioms",p:"Play devil's advocate",u:"Argue the opposite to test an idea — “Let me play devil's advocate for a second.”",i:1},
- {w:7,c:"Idioms",p:"Push back",u:"To disagree/resist — “I had to push back on the launch date.”",i:1},
- {w:7,c:"Idioms",p:"Meet halfway",u:"Compromise — “Can we meet halfway: launch the beta, delay GA?”",i:1},
- {w:8,c:"Agile & Delivery",p:"We're waiting on…",u:"Name the dependency"},
- {w:8,c:"Agile & Delivery",p:"The dependency is…",u:"Be explicit about blockers"},
- {w:8,c:"Agile & Delivery",p:"We may need to re-sequence…",u:"Propose re-planning"},
- {w:8,c:"Agile & Delivery",p:"The acceptance criteria aren't fully clear yet.",u:"Flag ambiguity"},
- {w:8,c:"Agile & Delivery",p:"To keep the sprint on track…",u:"Propose corrective action"},
- {w:8,c:"Agile & Delivery",p:"That's outside the current scope.",u:"Protect the sprint"},
- {w:8,c:"Agile & Delivery",p:"We're carrying that story over.",u:"Report rollover honestly"},
- {w:8,c:"Agile & Delivery",p:"The ETA is end of sprint.",u:"Commit clearly"},
- {w:8,c:"Agile & Delivery",p:"I'll raise that in the retro.",u:"Route feedback properly"},
- {w:8,c:"Agile & Delivery",p:"Let's park that and come back to it.",u:"Defer without dismissing"},
- {w:8,c:"Idioms",p:"Bandwidth",u:"Capacity to take on work — “I don't have the bandwidth this sprint.”",i:1},
- {w:8,c:"Idioms",p:"Circle back",u:"Return to a topic later — “Let's circle back on this after the demo.”",i:1},
- {w:8,c:"Idioms",p:"Take it offline",u:"Discuss outside the meeting — “Good question — let's take it offline.”",i:1},
- {w:9,c:"Leadership Summary",p:"At a high level…",u:"Open an executive summary"},
- {w:9,c:"Leadership Summary",p:"The headline is…",u:"Lead with the key message"},
- {w:9,c:"Leadership Summary",p:"The main risk is…",u:"Surface the top risk"},
- {w:9,c:"Leadership Summary",p:"The recommendation is…",u:"State the ask concisely"},
- {w:9,c:"Leadership Summary",p:"The next decision we need is…",u:"Drive the decision"},
- {w:9,c:"Leadership Summary",p:"Three things to know…",u:"Structure for executives"},
- {w:9,c:"Leadership Summary",p:"The key takeaway is…",u:"Land the message"},
- {w:9,c:"Leadership Summary",p:"To put this in context…",u:"Frame before detail"},
- {w:9,c:"Leadership Summary",p:"Bottom line: we're on track.",u:"Close with confidence"},
- {w:9,c:"Leadership Summary",p:"I'll keep it brief.",u:"Signal respect for time"},
- {w:9,c:"Idioms",p:"Bottom line",u:"The most important conclusion — “Bottom line: we need two more weeks.”",i:1},
- {w:9,c:"Idioms",p:"Move the needle",u:"Make measurable impact — “This optimization really moved the needle on costs.”",i:1},
- {w:9,c:"Idioms",p:"Cut to the chase",u:"Get to the point — “I'll cut to the chase: the migration is done.”",i:1},
- {w:10,c:"Interview & Networking",p:"I led the effort to…",u:"Show ownership"},
- {w:10,c:"Interview & Networking",p:"The challenge was…",u:"Set up the story"},
- {w:10,c:"Interview & Networking",p:"The result was a measurable improvement in…",u:"Quantify impact"},
- {w:10,c:"Interview & Networking",p:"I took ownership of…",u:"Demonstrate accountability"},
- {w:10,c:"Interview & Networking",p:"I collaborated with cross-functional teams to…",u:"Show teamwork"},
- {w:10,c:"Interview & Networking",p:"What I learned from that was…",u:"Show growth"},
- {w:10,c:"Interview & Networking",p:"The situation required me to…",u:"STAR structure"},
- {w:10,c:"Interview & Networking",p:"I influenced the decision by…",u:"Show leadership without authority"},
- {w:10,c:"Interview & Networking",p:"I'm looking to grow into…",u:"Frame the transition"},
- {w:10,c:"Interview & Networking",p:"That experience taught me…",u:"Reflect credibly"},
- {w:10,c:"Idioms",p:"Hit the ground running",u:"Start effectively immediately — “I can hit the ground running from day one.”",i:1},
- {w:10,c:"Idioms",p:"Wear many hats",u:"Have multiple roles — “In that startup I wore many hats.”",i:1},
- {w:10,c:"Idioms",p:"Step up to the plate",u:"Take responsibility — “When the lead left, I stepped up to the plate.”",i:1},
- {w:11,c:"Persuasion & Influence",p:"The reason I'm recommending this now is…",u:"Justify the timing"},
- {w:11,c:"Persuasion & Influence",p:"If we ignore this, the likely outcome is…",u:"Show consequences"},
- {w:11,c:"Persuasion & Influence",p:"The return on doing this now is…",u:"Frame the ROI"},
- {w:11,c:"Persuasion & Influence",p:"The cost of delay is…",u:"Quantify inaction"},
- {w:11,c:"Persuasion & Influence",p:"This pays for itself within…",u:"Make the business case"},
- {w:11,c:"Persuasion & Influence",p:"The data supports…",u:"Argue with evidence"},
- {w:11,c:"Persuasion & Influence",p:"What's at stake here is…",u:"Raise the stakes"},
- {w:11,c:"Persuasion & Influence",p:"The window to act is…",u:"Create urgency"},
- {w:11,c:"Persuasion & Influence",p:"I'm confident because…",u:"Back your position"},
- {w:11,c:"Persuasion & Influence",p:"Here's what I need from you…",u:"Make a clear ask"},
- {w:11,c:"Idioms",p:"Get buy-in",u:"Win agreement/support — “We need buy-in from leadership before Q3.”",i:1},
- {w:11,c:"Idioms",p:"Make the case",u:"Argue persuasively — “Let me make the case for prioritizing data quality.”",i:1},
- {w:11,c:"Idioms",p:"Win-win",u:"Good for everyone — “Automating this is a win-win for both teams.”",i:1},
- {w:12,c:"Integration",p:"At a high level… the main blocker is… what I'd recommend is…",u:"Chain: summary → issue → recommendation"},
- {w:12,c:"Integration",p:"Just to make sure I understand… in simple terms…",u:"Chain: clarify → simplify"},
- {w:12,c:"Integration",p:"I see the reasoning, but I have one concern — the cost of delay.",u:"Chain: pushback → persuasion"},
- {w:12,c:"Integration",p:"The headline is… the next step is…",u:"Chain: executive open → action close"},
- {w:12,c:"Integration",p:"I led the effort to… the result was…",u:"Chain: interview story"},
- {w:12,c:"Integration",p:"We've run into an issue… the recovery plan is… what we need is…",u:"Chain: full escalation"},
- {w:12,c:"Idioms",p:"Come full circle",u:"Return to the start with new understanding — “Twelve weeks later, we've come full circle.”",i:1},
- {w:12,c:"Idioms",p:"Raise the bar",u:"Set a higher standard — “This program raised the bar for my communication.”",i:1},
- {w:12,c:"Idioms",p:"Bring it home",u:"Finish strongly — “One final recording set — time to bring it home.”",i:1}
-];
-
-const REVIEW_AXES=["Clarity","Fluency","Pronunciation","Business naturalness","Confidence"];
-const MONTH_METRICS={
- 4:{title:"Month 1 Dashboard — End of Week 4",obj:"Did I build a stable foundation in self-introduction, project updates, blocker explanation, clarification questions, and pronunciation awareness?",
-   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank phrases collected","40+"],["90-sec self-intro completed cleanly","Yes"],["2-min project update completed cleanly","Yes"],["2-min blocker explanation completed cleanly","Yes"]],
-   qs:["Can I explain who I am and what I do clearly?","Can I give a project update without getting lost?","Can I explain a blocker with structure?","Do I still sound translated or stiff?","Which 3 speaking weaknesses are most urgent next month?"]},
- 8:{title:"Month 2 Dashboard — End of Week 8",obj:"Did I improve technical-to-business explanation, recommendations, professional disagreement, and sprint/stakeholder meeting performance?",
-   rows:[["Total practice blocks completed","24+"],["Recordings completed","16+"],["Phrase bank additions","40+"],["3-min technical explanation delivered clearly","Yes"],["2-min recommendation delivered clearly","Yes"],["Professional pushback simulation completed","Yes"]],
-   qs:["Can I explain technical work in business language?","Can I recommend a solution instead of only describing a problem?","Can I disagree professionally without sounding weak or defensive?","Am I more useful in meetings than four weeks ago?","Where do I still ramble?"]},
- 12:{title:"Month 3 + Final Dashboard — End of Week 12",obj:"Can I now perform credibly in real professional conversations?",
-   rows:[["Test 1 — 90-sec self-introduction","clear, confident, professional"],["Test 2 — 2-min project update","progress + blocker + next step"],["Test 3 — 2-min blocker escalation","issue + impact + mitigation + ask"],["Test 4 — 3-min tech-to-business explanation","simple, structured, no jargon"]],
-   qs:["What is now clearly stronger than 12 weeks ago?","In what speaking situations do I still lose control?","What pronunciation issues still show up repeatedly?","Which 20 phrases are now part of my active speech?","What should the next 12-week cycle focus on?"]}
-};
-
-/* ================= PROFESSIONAL TRACKS =================
-   The General English curriculum remains the source of truth in Sprint 1.
-   Welding is selectable as a foundation, but deliberately inherits this pack
-   until its own reviewed curriculum is introduced in a later sprint. */
-const GENERAL_ENGLISH_CURRICULUM=Object.freeze({
-  id:"general-english-v1",
-  days:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-  resources:RESOURCES,
-  dayMeta:DAY_META,
-  sessionLinks:SESS_LINK,
-  templates:TEMPLATES,
-  weeks:WEEKS,
-  phases:PHASES,
-  phrases:PHRASES,
-  reviewAxes:REVIEW_AXES,
-  monthMetrics:MONTH_METRICS,
-  reviewCheckpoints:[4,8,12]
-});
-
 ProfessionalTrackContext.register(new ProfessionalTrack({
-  id:"general-english",nameKey:"tracks.general",descriptionKey:"tracks.general_desc",
-  status:"available",curriculum:GENERAL_ENGLISH_CURRICULUM,version:"1"
+  id:"general-english",sourceId:"general",nameKey:"tracks.general",descriptionKey:"tracks.general_desc",
+  status:"available",version:"1"
 }));
 ProfessionalTrackContext.register(new ProfessionalTrack({
-  id:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
+  id:"welding",sourceId:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
   status:"foundation",inheritsFrom:"general-english",version:"1"
 }));
-
-function activeProfessionalTrack(){return ProfessionalTrackContext.active()}
-function activeCurriculum(){return ProfessionalTrackContext.resolveCurriculum()||GENERAL_ENGLISH_CURRICULUM}
-function trackDays(){return activeCurriculum().days}
-function trackResources(){return activeCurriculum().resources}
-function trackDayMeta(){return activeCurriculum().dayMeta}
-function trackSessionLinks(){return activeCurriculum().sessionLinks}
-function trackTemplates(){return activeCurriculum().templates}
-function trackWeeks(){return activeCurriculum().weeks}
-function trackPhases(){return activeCurriculum().phases}
-function trackPhrases(){return activeCurriculum().phrases}
-function trackReviewAxes(){return activeCurriculum().reviewAxes}
-function trackMonthMetrics(){return activeCurriculum().monthMetrics}
-function trackSessionCount(){return trackWeeks().reduce((n,w)=>n+Object.keys(w.days||{}).length,0)}
 
 const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
 const RULES=[
@@ -5063,46 +4745,8 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    Videos flagged cap:true ship a bundled caption track at captions/<vid>.json
    (built ahead of time by scripts/fetch_captions.js). At runtime the app slices
    those cues to the user's marks and fills the transcript box — fully offline. */
-const SHADOW_STARTERS=[
- {vid:"UF8uR6Z6KLc",name:"Steve Jobs — Stanford Commencement Address",why:"Slow, clear, perfectly paced — the ideal first shadowing voice.",cap:true},
- {vid:"qp0HIF3SfI4",name:"Simon Sinek — How Great Leaders Inspire Action (TED)",why:"Presentation rhythm & persuasion language for meetings.",cap:true},
- {vid:"iRr9v_shgbY",name:"Emma Watson — HeForShe (UN Women)",why:"Slow, deliberate enunciation — clean professional English, great for beginners.",cap:true},
- {vid:"_iBvQrAC2Vs",name:"J.K. Rowling — Harvard Commencement Address",why:"Witty, articulate storytelling — rich vocabulary and clear British delivery.",cap:true},
- {vid:"elbqER_ZrLQ",name:"Emma Watson — One Young World Summit",why:"Personal, reflective delivery — activism and equality vocabulary.",cap:true},
- {vid:"ACzEHOe-Dcg",name:"Admiral McRaven — Make Your Bed (UT Commencement)",why:"Clear, measured American delivery — plain, motivational vocabulary.",cap:true},
- {vid:"x_MS-RFun8Q",name:"Elon Musk — Caltech Commencement Address",why:"Conversational, technical delivery — startup, tech and business vocabulary.",cap:true},
- {vid:"MZAjfsyJa1U",name:"Leonardo DiCaprio — UN Climate Summit Speech",why:"Impassioned, formal delivery — advocacy and climate vocabulary.",cap:true},
- {vid:"UKo3M6GmKLg",name:"Michelle Obama — “When They Go Low, We Go High” Speech",why:"Powerful, deliberate American delivery — persuasion and civic vocabulary.",cap:true},
- {vid:"8X_y7D8JcMA",name:"George W. Bush — SMU Commencement Address",why:"Relaxed, conversational American delivery — civic and everyday vocabulary.",cap:true},
- {vid:"Do8iVld-RB4",name:"Tim Cook — Duke Commencement Address",why:"Warm, measured corporate delivery — leadership and values vocabulary.",cap:true},
- {vid:"M7GhVsD2-ro",name:"Stephen Colbert — Wake Forest Commencement Address",why:"Fast, witty American delivery — humor, idioms and everyday speech.",cap:true},
- {vid:"qHc3FY9il1s",name:"Martin Luther King Jr. — I Have a Dream",why:"Historic oratory — powerful rhythm, cadence and repetition.",cap:true},
- {vid:"ydj-gpaRgh8",name:"Denzel Washington — AFI Award Speech",why:"Heartfelt, measured delivery — reflective, everyday vocabulary.",cap:true},
- {vid:"aSDrNOoMJS4",name:"Katy Perry — HRC National Dinner Speech",why:"Casual, expressive American delivery — conversational and idiomatic.",cap:true},
- {vid:"tbnzAVRZ9Xc",name:"Denzel Washington — “Fall Forward” (UPenn Commencement)",why:"Motivational American delivery — inspirational, everyday vocabulary.",cap:true},
- {vid:"RvzgUtjCxRw",name:"Keke Palmer — TED Talk",why:"Contemporary conversational delivery — personal storytelling and everyday speech.",cap:true},
- {vid:"QijH4UAqGD8",name:"Luvvie Ajayi Jones — Get Comfortable with Being Uncomfortable (TED)",why:"Bold, expressive delivery — persuasion and everyday speech.",cap:true}
-];
-function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
-function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
-let ytApiP=null;
-function loadYT(){
-  if(window.YT&&YT.Player)return Promise.resolve();
-  if(ytApiP)return ytApiP;
-  ytApiP=new Promise(res=>{window.onYouTubeIframeAPIReady=()=>res();
-    const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)});
-  return ytApiP;
-}
-/* Shadow Studio tabs: Create Clip · My Clips · Trouble Words.
-   The fullscreen workspace (.sh-work) sits outside the tabs — it can open from any of them. */
 let _shTab="create";
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);};
-
-/* Eighteen starter clips used to render at once: 7,130px of catalogue — 8.4
-   handset screens — before anyone recorded anything, and eighteen immediate
-   i.ytimg.com requests with no intrinsic size, so every one shifted the layout
-   as it arrived. Three are shown; the rest sit behind a disclosure. Thumbnails
-   are mqdefault, which is always 320x180, so the ratio can be declared. */
 const SH_STARTERS_SHOWN=3;
 function shStarterCard(s,i){
   return `<div class="card sh-starter">
@@ -5137,10 +4781,10 @@ function rShadow(el){
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
-    <div class="grid g3">${SHADOW_STARTERS.slice(0,SH_STARTERS_SHOWN).map(shStarterCard).join("")}</div>
-    ${SHADOW_STARTERS.length>SH_STARTERS_SHOWN?`<details class="home-more sh-more">
-      <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:SHADOW_STARTERS.length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
-      <div class="home-more-body"><div class="grid g3">${SHADOW_STARTERS.slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
+    <div class="grid g3">${trackShadowStarters().slice(0,SH_STARTERS_SHOWN).map(shStarterCard).join("")}</div>
+    ${trackShadowStarters().length>SH_STARTERS_SHOWN?`<details class="home-more sh-more">
+      <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body"><div class="grid g3">${trackShadowStarters().slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
     </details>`:""}
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
@@ -5312,12 +4956,12 @@ window.tbTry=word=>{
   r.start();
 };
 window.shUseStarter=i=>{
-  const s=SHADOW_STARTERS[i];
+  const s=trackShadowStarters()[i];
   document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+s.vid;
   shLoad({vid:s.vid,start:s.start||0,end:s.end||0,title:s.name,txt:s.txt||""});
 };
 window.shCopyLink=async i=>{
-  const url="https://www.youtube.com/watch?v="+SHADOW_STARTERS[i].vid;
+  const url="https://www.youtube.com/watch?v="+trackShadowStarters()[i].vid;
   try{await navigator.clipboard.writeText(url);toast(t("sh.link_copied_toast"))}
   catch(e){document.getElementById("shUrl").value=url;toast(t("sh.link_placed_toast"))}
 };
@@ -6410,114 +6054,10 @@ function fbAlign(t,h){
   return ops;
 }
 /* ===== GRAMMAR FEEDBACK (rule-based, common ESL patterns) ===== */
-const GRAM_FIX=[
- [/\binformations\b/i,"informations","information","“Information” is uncountable — never plural.","Word form"],
- [/\badvices\b/i,"advices","advice","“Advice” is uncountable — use “a piece of advice”.","Word form"],
- [/\bfeedbacks\b/i,"feedbacks","feedback","“Feedback” is uncountable.","Word form"],
- [/\bpeoples\b/i,"peoples","people","“People” is already plural.","Word form"],
- [/\bi am agree\b/i,"I am agree","I agree","“Agree” is a verb — no “am” needed.","Verb form"],
- [/\bexplain me\b/i,"explain me","explain to me","“Explain” needs “to” before the person.","Preposition"],
- [/\bdiscuss about\b/i,"discuss about","discuss","“Discuss” never takes “about”.","Preposition"],
- [/\bsince (\d+|two|three|four|five|six|seven|many|several) (years?|months?|weeks?|days?)\b/i,"since X years","for X years","Duration takes “for”; “since” takes a starting point.","Preposition"],
- [/\bi have (\d+|twenty|thirty|forty|fifty) years\b/i,"I have X years","I am X years old","Age uses “to be” in English.","Verb form"],
- [/\bmore (better|easier|faster|bigger|smaller|cheaper)\b/i,"more better","better","The word is already comparative — drop “more”.","Comparative"],
- [/\bdidn't (went|saw|did|took|made|said|got|came|gave|knew)\b/i,"didn't went","didn't go","After “didn't”, use the base form of the verb.","Verb tense"],
- [/\b(everybody|everyone|nobody) (are|were|have)\b/i,"everybody are","everybody is","These words are grammatically singular.","Subject-verb agreement"],
- [/\b(he|she|it) don't\b/i,"he don't","he doesn't","Third person singular takes “doesn't”.","Subject-verb agreement"],
- [/\ba (apple|email|update|issue|error|hour|example|answer|option|idea|application)\b/i,"a issue","an issue","Use “an” before a vowel sound.","Article"],
- [/\bi am here since\b/i,"I am here since","I have been here since","Ongoing duration needs the present perfect.","Verb tense"],
- [/\bwant that you\b/i,"want that you","want you to","English uses “want + person + to”.","Word order"],
- [/\bhow it looks like\b/i,"how it looks like","what it looks like","Use “what … looks like” or “how … looks”.","Word order"],
- [/\bin this moment\b/i,"in this moment","at the moment","Time expressions take “at the moment / right now”.","Preposition"]
-];
-const GRAM_GOOD=[
- [/\b(can|could|would|should|may|might) (be|do|make|create|help|start|give|take|explain|deliver|improve)\b/i,"Verb form","Strong use of a modal verb — you're confidently expressing possibilities."],
- [/\b(am|is|are) \w+ing\b/i,"Verb tense","Good use of the present continuous for an ongoing action."],
- [/\bhave (been|already \w+|\w+ed)\b/i,"Verb tense","Nice present perfect — connecting the past to now like a native."],
- [/\b(however|additionally|therefore|meanwhile|first of all|in terms of|on the other hand)\b/i,"Connector","Excellent linking word — it makes your speech sound structured."],
- [/\b(really|definitely|absolutely|significantly|extremely) \w+/i,"Adverbial","Great use of an adverb to add emphasis."],
- [/\bthanks for \w+ing\b/i,"Preposition","Perfect preposition + gerund — “thanks for + -ing”."]
-];
-/* ================= GRAMMAR EXERCISES =================
-   Business-English grammar drills. Every item is multiple choice (reliable on a
-   phone, no keyboard fight) with a short "why" so the rule sticks, not just the
-   answer. Categories mirror the Grammar tab; "weekly" is a mixed review drawn
-   from all of them. */
-const GRAM_EX={
- blanks:[
-  {q:"We ___ the quarterly report last Friday.",o:["finish","finished","have finished"],a:1,why:"A finished time (“last Friday”) takes the past simple."},
-  {q:"I'm responsible ___ the reporting pipeline.",o:["of","for","to"],a:1,why:"The fixed pair is “responsible for”."},
-  {q:"Could you ___ me the updated figures by Thursday?",o:["send","to send","sending"],a:0,why:"After “could you”, use the base form of the verb."},
-  {q:"The main blocker ___ the delayed vendor contract.",o:["are","is","be"],a:1,why:"“Blocker” is singular, so the verb is “is”."},
-  {q:"We need to ___ a decision before the sprint starts.",o:["do","make","take"],a:1,why:"English collocation: you *make* a decision."},
-  {q:"This proposal ___ significantly from the last one.",o:["differs","different","differ"],a:0,why:"A third-person singular subject takes “differs”."},
-  {q:"Let's ___ the timeline once we hear from the client.",o:["revisit","revisited","revisiting"],a:0,why:"After “let's”, use the base form."},
-  {q:"I'd like to ___ your attention to slide four.",o:["bring","carry","put"],a:0,why:"The set phrase is “bring your attention to”."}
- ],
- correction:[
-  {q:"“I am agree with your proposal.”",o:["I am agree with your proposal.","I agree with your proposal.","I am agreeing with your proposal."],a:1,why:"“Agree” is a verb on its own — it needs no “am”."},
-  {q:"“Can you explain me the process?”",o:["Can you explain me the process?","Can you explain to me the process?","Can you explain the process to me?"],a:2,why:"“Explain” takes “to + person”, and the natural order puts the object first."},
-  {q:"“We discussed about the budget.”",o:["We discussed about the budget.","We discussed the budget.","We discussed on the budget."],a:1,why:"“Discuss” never takes “about”."},
-  {q:"“I work here since three years.”",o:["I work here since three years.","I have worked here for three years.","I am working here since three years."],a:1,why:"Duration takes “for”, and an ongoing period takes the present perfect."},
-  {q:"“He don't have the access yet.”",o:["He don't have the access yet.","He doesn't have access yet.","He not have access yet."],a:1,why:"Third person singular takes “doesn't” — and “access” is uncountable here."},
-  {q:"“I need more informations before deciding.”",o:["I need more informations before deciding.","I need more information before deciding.","I need more of information before deciding."],a:1,why:"“Information” is uncountable — it has no plural."},
-  {q:"“The deadline is more closer than we thought.”",o:["The deadline is more closer than we thought.","The deadline is closer than we thought.","The deadline is more close than we thought."],a:1,why:"“Closer” is already comparative — don't add “more”."},
-  {q:"“Everybody are ready for the demo.”",o:["Everybody are ready for the demo.","Everybody is ready for the demo.","Everybody were ready for the demo."],a:1,why:"“Everybody” is grammatically singular."}
- ],
- tenses:[
-  {q:"I ___ on the migration all week — it's still going.",o:["worked","have been working","was working"],a:1,why:"Present perfect continuous: started in the past, still happening."},
-  {q:"By the time we launch, we ___ every edge case.",o:["will test","will have tested","tested"],a:1,why:"Future perfect: complete *before* another future point."},
-  {q:"When the client called, I ___ the deck.",o:["was preparing","prepare","have prepared"],a:0,why:"Past continuous for the longer background action interrupted by another."},
-  {q:"We ___ that supplier since 2021.",o:["use","are using","have used"],a:2,why:"“Since + a starting point” takes the present perfect."},
-  {q:"The build ___ twice yesterday.",o:["has failed","failed","was failing"],a:1,why:"“Yesterday” is finished time — past simple."},
-  {q:"I ___ you the summary as soon as the meeting ends.",o:["send","will send","am sending"],a:1,why:"A decision about the future made now takes “will”."},
-  {q:"She ___ this team for six months before the reorg.",o:["led","had led","has led"],a:1,why:"Past perfect: the earlier of two past events."},
-  {q:"We ___ the results with the board next Tuesday.",o:["are reviewing","review","reviewed"],a:0,why:"Present continuous is standard for fixed future arrangements."}
- ],
- articles:[
-  {q:"I've scheduled ___ hour-long review for Monday.",o:["a","an","the"],a:1,why:"“Hour” starts with a vowel *sound*, so it takes “an”."},
-  {q:"Can you send me ___ update you mentioned?",o:["a","an","the"],a:2,why:"A specific, already-mentioned thing takes “the”."},
-  {q:"She's ___ engineer on the platform team.",o:["a","an","the"],a:1,why:"“Engineer” starts with a vowel sound → “an”."},
-  {q:"We need to hire ___ project manager.",o:["a","an","the"],a:0,why:"One unspecified person → “a”."},
-  {q:"___ data shows a clear upward trend.",o:["A","An","The"],a:2,why:"Specific data you're both looking at → “the”."},
-  {q:"He gave ___ excellent presentation yesterday.",o:["a","an","the"],a:1,why:"“Excellent” starts with a vowel sound → “an”."},
-  {q:"This is ___ university-wide policy.",o:["a","an","the"],a:0,why:"“University” starts with a /juː/ consonant sound → “a”."},
-  {q:"We're aiming for ___ 20% reduction in costs.",o:["a","an","the"],a:0,why:"“Twenty” starts with a consonant sound → “a”."}
- ],
- preps:[
-  {q:"I'm responsible ___ delivering the reporting layer.",o:["of","for","to"],a:1,why:"“Responsible for” — always."},
-  {q:"We're waiting ___ the vendor's confirmation.",o:["for","on","at"],a:0,why:"“Wait for” something in standard business English."},
-  {q:"This depends ___ how quickly legal responds.",o:["of","on","from"],a:1,why:"“Depend on” — never “depend of”."},
-  {q:"Let's focus ___ the top three priorities.",o:["at","in","on"],a:2,why:"“Focus on” is the fixed pair."},
-  {q:"I'll get back ___ you by end of day.",o:["to","at","with"],a:0,why:"“Get back to someone”."},
-  {q:"We've been on this ___ three weeks.",o:["since","for","during"],a:1,why:"A length of time takes “for”; “since” takes a start point."},
-  {q:"She's in charge ___ the migration workstream.",o:["for","of","on"],a:1,why:"“In charge of”."},
-  {q:"Thanks ___ flagging that so early.",o:["to","for","of"],a:1,why:"“Thanks for + -ing”."}
- ],
- business:[
-  {q:"Which is the most professional way to disagree?",o:["You're wrong about that.","I see the reasoning, but I have one concern.","I don't like that idea."],a:1,why:"Acknowledge, then raise the concern — firm without being blunt."},
-  {q:"Which opens a status update most clearly?",o:["So, yeah, things are happening.","At a high level, we're on track — with one blocker.","Everything is fine I think."],a:1,why:"Signal the headline first; executives listen for structure."},
-  {q:"Choose the most natural escalation:",o:["We have a big problem, it's very bad.","We've run into an issue with the vendor feed — here's the mitigation.","There is a problem and I don't know."],a:1,why:"Name the issue, then immediately offer the mitigation."},
-  {q:"Which asks for clarification most professionally?",o:["I didn't understand nothing.","Just to make sure I understand — are you asking about X or Y?","What? Say again."],a:1,why:"Restating the options shows you were listening."},
-  {q:"Which is best for a recommendation?",o:["Maybe we could possibly perhaps try it.","What I'd recommend is X, because it reduces delivery risk.","I think X, I don't know really."],a:1,why:"State the recommendation, then the reason — no hedging."},
-  {q:"Which is the cleanest way to buy time?",o:["I have no idea about that.","Let me check the numbers and come back to you this afternoon.","Erm, I can't answer."],a:1,why:"Commit to a specific follow-up — it reads as control, not avoidance."},
-  {q:"Which closes a meeting most effectively?",o:["OK bye.","To summarise: I'll send the figures, you'll confirm scope by Friday.","I think we're done, maybe."],a:1,why:"A summary of owners and deadlines prevents rework."},
-  {q:"Which softens a deadline pushback best?",o:["That's impossible.","That timeline is tight — to hit it, we'd need to drop the reporting scope.","No, we can't do it."],a:1,why:"Offer the trade-off rather than a flat refusal."}
- ]
-};
-const GRAM_CATS=[
- {k:"blanks",     ic:"pencil", n:"gx.cat_blanks"},
- {k:"correction", ic:"check",  n:"gx.cat_correction"},
- {k:"tenses",     ic:"clock",  n:"gx.cat_tenses"},
- {k:"articles",   ic:"doc",    n:"gx.cat_articles"},
- {k:"preps",      ic:"link",   n:"gx.cat_preps"},
- {k:"business",   ic:"briefcase", n:"gx.cat_business"},
- {k:"weekly",     ic:"calendar", n:"gx.cat_weekly"}
-];
 /* a weekly review pulls a mixed set from every category */
 function gxItems(cat){
-  if(cat!=="weekly")return (GRAM_EX[cat]||[]).slice();
-  const all=[];Object.keys(GRAM_EX).forEach(k=>GRAM_EX[k].forEach(it=>all.push(it)));
+  if(cat!=="weekly")return (trackGrammarExercises()[cat]||[]).slice();
+  const all=[];Object.keys(trackGrammarExercises()).forEach(k=>trackGrammarExercises()[k].forEach(it=>all.push(it)));
   return all.sort(()=>Math.random()-.5).slice(0,10);
 }
 function gxStats(cat){const g=(S.gram&&S.gram[cat])||null;return g?{best:g.best||0,runs:g.runs||0}:{best:0,runs:0}}
@@ -6531,7 +6071,7 @@ function gxRender(){
   if(!_gx)return;
   if(_gx.i>=_gx.items.length)return gxEnd();
   const it=_gx.items[_gx.i];
-  const name=t((GRAM_CATS.find(c=>c.k===_gx.cat)||{n:"gx.title"}).n);
+  const name=t((trackGrammarCategories().find(c=>c.k===_gx.cat)||{n:"gx.title"}).n);
   pvOpen(`<div class="pv-top"><button class="pv-x" onclick="pvClose()" aria-label="${esc(t("wc.close"))}">×</button>
       <span class="pv-title"><span class="btn-ic">${ic("book")}</span>${esc(name)}</span>
       <span class="pv-prog">${_gx.i+1}/${_gx.items.length}</span></div>
@@ -6572,13 +6112,13 @@ function gxEnd(){
 function gramAnalyze(heardRaw){
   const good=[],fix=[];
   const seenG=new Set(),seenF=new Set();
-  GRAM_FIX.forEach((row,idx)=>{
+  trackGrammarFix().forEach((row,idx)=>{
     if(fix.length>=4)return;
     const[re,bad,corr,note,cat]=row;
     const m=heardRaw.match(re);
     if(m&&!seenF.has(cat+bad)){seenF.add(cat+bad);fix.push({cat:t("gfix."+idx+".cat"),quote:m[0],corr:m[0].toLowerCase().includes("since")?m[0].replace(/since/i,"for"):corr,note:t("gfix."+idx+".note")})}
   });
-  GRAM_GOOD.forEach((row,idx)=>{
+  trackGrammarGood().forEach((row,idx)=>{
     if(good.length>=4)return;
     const[re,cat,note]=row;
     const m=heardRaw.match(re);
@@ -6928,7 +6468,7 @@ function fbShowResults(targetText,heardText,fromRec){
   if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   else{S.fbHist.push({ts:Date.now(),wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
-  problems.forEach(o=>{if(o.t.length>=4&&!VOC_STOP.has(o.t))S.trouble[o.t]=(S.trouble[o.t]||0)+1});
+  problems.forEach(o=>{if(o.t.length>=4&&!isTrackStopWord(o.t))S.trouble[o.t]=(S.trouble[o.t]||0)+1});
   const scored=S.fbHist.filter(x=>x.score!=null);
   const hist=scored.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
   const trend=scored.length>=2?(scored[scored.length-1].score-scored[scored.length-2].score):0;
@@ -7173,24 +6713,21 @@ window.pcRing=on=>{
 };
 
 /* ===== VOCABULARY (extracted from the user's own speech) ===== */
-const VOC_STOP=new Set(("i you he she it we they me him her us them am is are was were be been being the a an and or but if so of to in at on for with from by about as into over under your my our their his its this that these those there here not no yes do does did done have has had having will would can could should shall may might must just also very really quite than then when while where which who whom whose what why how all any some more most other another each every few many much one two three four five ten first second next new old same own too again once only even still yet already always never sometimes often usually now today please thank thanks okay ok well right left like get got want wanted going go went gone come came make made know knew think thought say said see saw look looked good great nice bad big small little i'm i've i'll i'd you're you've we're we'll they're it's that's don't doesn't didn't isn't aren't wasn't weren't can't couldn't won't wouldn't shouldn't haven't hasn't let's gonna wanna").split(/\s+/));
-const CEFR_MAP={meeting:"A2",project:"A2",problem:"A2",question:"A2",report:"B1",update:"B1",account:"B1",issue:"B1",delay:"B1",process:"B1",support:"B1",request:"B1",schedule:"B1",delivery:"B1",feedback:"B1",challenge:"B2",blocker:"B2",dependency:"C1",escalation:"C1",mitigation:"C1",stakeholder:"C1",commencement:"C1",prioritize:"C1",transaction:"B2",pronunciation:"B2",recommendation:"B2",implementation:"C1",requirement:"B2",responsibility:"B2",experience:"B1",opportunity:"B2",university:"A2",universities:"A2",honored:"B2",individual:"B1",particular:"B1",vendor:"B2",timeline:"B2",budget:"B1",revenue:"B2",workflow:"B2"};
 function cefr(w){
-  if(CEFR_MAP[w])return CEFR_MAP[w];
+  if(trackCefrMap()[w])return trackCefrMap()[w];
   if(w.length<=4)return"A2";
   if(/(tion|ment|ness|ance|ence|ity|ify|ize|ise|ously)$/.test(w))return"B2";
   if(w.length>=10)return"C1";
   if(w.length<=6)return"B1";
   return"B2";
 }
-const SYN_UP={get:"obtain",big:"significant",help:"assist",show:"demonstrate",use:"leverage",start:"initiate",end:"conclude",buy:"purchase",need:"require",tell:"inform",ask:"request",fix:"resolve",check:"verify",choose:"select",handle:"manage",possible:"feasible",important:"critical",problem:"challenge",fast:"rapid",cheap:"cost-effective",idea:"proposal",talk:"discuss",give:"provide",find:"identify",stop:"discontinue"};
 function vocabExtract(text){
   const seen=new Set(),out=[];
   for(const w of fbTokens(text)){
-    if(w.length<4||VOC_STOP.has(w)||FILLERS.includes(w)||seen.has(w))continue;
+    if(w.length<4||isTrackStopWord(w)||FILLERS.includes(w)||seen.has(w))continue;
     seen.add(w);out.push(w);
   }
-  return out.map(w=>({w,score:w.length+(CEFR_MAP[w]?4:0)+(/(tion|ment|ance|ence|ity)$/.test(w)?3:0)}))
+  return out.map(w=>({w,score:w.length+(trackCefrMap()[w]?4:0)+(/(tion|ment|ance|ence|ity)$/.test(w)?3:0)}))
     .sort((a,b)=>b.score-a.score).slice(0,10).map(x=>({w:x.w,l:cefr(x.w)}));
 }
 function vocRow(w,l){
@@ -7265,7 +6802,7 @@ window.vocTry=(w,safe)=>{
 };
 function vocSynHTML(heardText){
   const hl=fbTokens(heardText),found=[];
-  for(const w of hl){if(SYN_UP[w]&&!found.some(f=>f[0]===w))found.push([w,SYN_UP[w]])}
+  for(const w of hl){if(trackSynonyms()[w]&&!found.some(f=>f[0]===w))found.push([w,trackSynonyms()[w]])}
   if(!found.length)return"";
   return`<b style="font-size:14px;display:block;margin:14px 0 8px">${t("voc.levelup_h")} <span style="font-size:11.5px;color:var(--mut2);font-weight:500">${t("voc.levelup_sub")}</span></b>
   ${found.slice(0,4).map(([a,b])=>`<div class="voc-syn">
@@ -7315,9 +6852,8 @@ window.vocQuizTry=w=>{
 
 /* ============ LIBRARY TAB — Vocabulary & Grammar ============ */
 /* spaced-repetition-lite: reps + due drive Ready / Up next / Learned buckets */
-const VOC_INTERVALS=[1,3,7,21,60];
 function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
-function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+VOC_INTERVALS[Math.min(v.reps-1,VOC_INTERVALS.length-1)]*86400000;}else{v.reps=0;v.due=Date.now();}save();}
+function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+trackVocabularyIntervals()[Math.min(v.reps-1,trackVocabularyIntervals().length-1)]*86400000;}else{v.reps=0;v.due=Date.now();}save();}
 function vocBuckets(){const b={ready:[],upnext:[],learned:[]};Object.keys(S.vocab).sort((a,c)=>S.vocab[c].ts-S.vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
 async function vocDef(w){
   try{const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
@@ -7333,20 +6869,11 @@ window.libTab=tab=>{_libTab=tab;const el=document.getElementById("v-practice");i
 /* The Practice page is now three sections stacked, not one flat tab strip:
    the drills at the top, then live simulations, then the word/grammar library
    split into two groups so five unrelated pills no longer sit side by side. */
-const LIB_GROUPS=[
- {k:"vocabulary", ic:"book", n:"prac.tab_vocabulary", subs:[
-   {k:"vocab",  ic:"book",      n:"lib.tab_vocab"},
-   {k:"saved",  ic:"bookmark",  n:"lib.tab_saved"},
-   {k:"idioms", ic:"briefcase", n:"lib.tab_idioms"}]},
- {k:"grammar", ic:"list", n:"prac.tab_grammar", subs:[
-   {k:"grammar",   ic:"list",   n:"lib.tab_grammar"},
-   {k:"exercises", ic:"pencil", n:"lib.tab_exercises"}]}
-];
 let _libGroup="vocabulary";
-function libGroupOf(k){const g=LIB_GROUPS.find(g=>g.subs.some(x=>x.k===k));return g?g.k:"vocabulary"}
+function libGroupOf(k){const g=trackLibraryGroups().find(g=>g.subs.some(x=>x.k===k));return g?g.k:"vocabulary"}
 window.libGroup=k=>{
   _libGroup=k;
-  const g=LIB_GROUPS.find(x=>x.k===k);
+  const g=trackLibraryGroups().find(x=>x.k===k);
   if(g&&!g.subs.some(x=>x.k===_libTab))_libTab=g.subs[0].k;   // land on the group's first section
   const el=document.getElementById("v-practice");if(el)rPractice(el);
 };
@@ -7359,7 +6886,7 @@ function rPractice(el){
   /* Same source as the nav badge, so the number that brought the user here is
      the number the page shows. */
   const _due=navBadgeCount("practice");
-  const group=LIB_GROUPS.find(g=>g.k===_libGroup)||LIB_GROUPS[0];
+  const group=trackLibraryGroups().find(g=>g.k===_libGroup)||trackLibraryGroups()[0];
   const _kbReady=pvReady();
   el.innerHTML=`
   ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
@@ -7378,7 +6905,7 @@ function rPractice(el){
 
   <h2 class="prac-sec">${t("prac.vg_h")}</h2>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("lib.tabs_label"))}">
-    ${LIB_GROUPS.map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" data-k="${g.k}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
+    ${trackLibraryGroups().map(g=>`<button class="seg-tab ${_libGroup===g.k?"on":""}" data-k="${g.k}" role="tab" aria-selected="${_libGroup===g.k}" onclick="libGroup('${g.k}')"><span class="btn-ic">${ic(g.ic)}</span><span class="seg-lbl">${t(g.n)}</span></button>`).join("")}
   </div>
   <div class="seg-tabs prac-subgroup" data-group="${group.k}" role="tablist">
     ${group.subs.map(c=>`<button class="seg-tab ${_libTab===c.k?"on":""}" role="tab" aria-selected="${_libTab===c.k}" onclick="libTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
@@ -7446,7 +6973,7 @@ function rLibVocab(el){
 /* ---- Library › Grammar (the rules, grouped by the category the coach uses) ---- */
 function rLibGrammar(el){
   const cats={};
-  GRAM_FIX.forEach(g=>{const c=g[4];(cats[c]=cats[c]||[]).push({bad:g[1],good:g[2],why:g[3]})});
+  trackGrammarFix().forEach(g=>{const c=g[4];(cats[c]=cats[c]||[]).push({bad:g[1],good:g[2],why:g[3]})});
   const hits=(S.fbV&&S.fbV.gram)||{};
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.grammar_sub")}</p>
@@ -7472,7 +6999,7 @@ function rLibExercises(el){
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.ex_sub")}</p>
   <div class="grid gx-grid">
-    ${GRAM_CATS.map(c=>{const st=gxStats(c.k),n=c.k==="weekly"?10:(GRAM_EX[c.k]||[]).length;
+    ${trackGrammarCategories().map(c=>{const st=gxStats(c.k),n=c.k==="weekly"?10:(trackGrammarExercises()[c.k]||[]).length;
       return `<button class="gx-card" onclick="gxStart('${c.k}')">
         <span class="gx-ic">${ic(c.ic)}</span>
         <b>${t(c.n)}</b>
@@ -7857,10 +7384,10 @@ function execPolish(text){
   }
   const SOFT=[[/\bi think maybe (we|you|they) (should|need to|could)\b/gi,"I recommend $1"],[/\brecommend (we|you|they) need to\b/gi,"recommend $1"],[/\bi think maybe\b,?\s*/gi,""],[/\bi think\b,?\s*/gi,""],[/\bmaybe\b\s*/gi,""],[/\bsorry about that\b[.,]?\s*/gi,""],[/\bto be honest\b,?\s*/gi,""],[/\bkind of\b/gi,""],[/\bsort of\b/gi,""],[/\bjust\b/gi,""],[/\bstuff\b/gi,"work"],[/\bthings\b/gi,"items"],[/\ba lot of\b/gi,"significant"],[/\bvery very\b/gi,"extremely"]];
   for(const[re,rep]of SOFT){if(re.test(out)){out=out.replace(re,rep);changes.push(`“${re.source.replace(/\\b|\(.*?\)/g,"").trim()}” → ${rep?rep.replace(/\$1\s*/,""):"(removed)"}`)}}
-  for(const[re,bad,corr]of GRAM_FIX){
+  for(const[re,bad,corr]of trackGrammarFix()){
     if(re.test(out)){out=out.replace(re,m=>corr==="for X years"?m.replace(/since/i,"for"):corr);changes.push(`${bad} → ${corr}`)}
   }
-  for(const[a,b]of Object.entries(SYN_UP)){
+  for(const[a,b]of Object.entries(trackSynonyms())){
     /* don't upgrade verbs into ungrammatical infinitives: "need to" stays "need to" */
     const re=a==="need"?/\bneed\b(?!\s+to)/gi:a==="get"?/\bget\b(?!\s+(to|up|back|it|out))/gi:new RegExp("\\b"+a+"\\b","gi");
     if(re.test(out)){out=out.replace(re,b);changes.push(`${a} → ${b}`)}
@@ -8928,7 +8455,7 @@ addEventListener("resize",syncEyebrowH);
 /* one-time cleanup: purge alignment-noise trouble words saved before the stopword filter existed */
 (function(){
   let dirty=false;
-  Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||VOC_STOP.has(w)){delete S.trouble[w];dirty=true}});
+  Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||isTrackStopWord(w)){delete S.trouble[w];dirty=true}});
   if(dirty)save();
 })();
 /* ===== THEME (light / dark) ===== */
@@ -10016,7 +9543,9 @@ window.pronTry=()=>{
 };
 
 (async function boot(){
-  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","pron","data","session","manual"];
+  try{await Promise.all([CurriculumProvider.load("general"),CurriculumProvider.load("welding")])}
+  catch(e){console.error("[curriculum]",e);document.getElementById("v-home").innerHTML="<p class=\"sub\">Could not load the learning curriculum. Please reconnect and try again.</p>";return}
+  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","pron","data","session","manual","tracks"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);

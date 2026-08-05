@@ -14,6 +14,7 @@
       this.nameKey=config.nameKey;
       this.descriptionKey=config.descriptionKey||"";
       this.status=config.status||"available";
+      this.sourceId=config.sourceId||config.id;
       this.curriculum=config.curriculum||null;
       this.inheritsFrom=config.inheritsFrom||null;
       this.version=config.version||"1";
@@ -42,6 +43,10 @@
       let track=tracks.get(id||activeId);
       const seen=new Set();
       while(track&&!seen.has(track.id)){
+        if(global.CurriculumProvider){
+          const curriculum=global.CurriculumProvider.forTrack(track);
+          if(curriculum)return curriculum;
+        }
         if(track.curriculum)return track.curriculum;
         seen.add(track.id);
         track=track.inheritsFrom?tracks.get(track.inheritsFrom):null;
