@@ -1,5 +1,23 @@
 # Changelog
 
+## Sprint 8 — Complete Welding Professional Track Curriculum
+
+### Added
+
+- Expanded Welding into 12 progressive professional stages, from Entering the Workshop to Career Ready.
+- Added stage-specific objectives, daily missions, Phrase Lab content, vocabulary, AI mentors, simulations, and competency focus.
+- Added four welding progression phases: Workshop Foundations, Technical Communication, Workplace Standards, and Career Readiness.
+- Added 12 Welding AI mentors and 12 Professional Simulations.
+
+### Changed
+
+- Welding now presents a Professional Journey with stage labels; General English retains its existing Week-based journey.
+
+### Compatibility
+
+- Existing professional engines continue to use the active Welding track pack without architectural changes.
+- No deployment was performed.
+
 ## Sprint 7 — Adaptive Learning Intelligence
 
 ### Added

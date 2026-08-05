@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 8 — Complete Welding Professional Track Curriculum — Complete (2026-08-05)
+
+Expanded the Welding track from a single foundation week into a 12-stage Professional Journey. The stages progress from workshop entry and team communication through equipment, materials, safety, procedures, drawings, construction, QA, industrial work, interviews, and career readiness.
+
+Every stage now has a learning objective, shadow focus, phrase focus, vocabulary focus, AI mentor, professional simulation, daily task sequence, stage mission, and competency-focus mapping. The existing Curriculum Provider, Competency Engine, AI Coach, Simulation Engine, Career Readiness, Adaptive Learning, and Skills Passport continue to consume the same track data model. No new platform architecture was added.
+
 ### Sprint 7 — Adaptive Learning Intelligence — Complete (2026-08-05)
 
 Delivered an explainable, local Adaptive Learning Engine that continuously prioritizes the learner’s next activity using active-track competency results, coaching evidence, simulation history, vocabulary retention, confidence, and pronunciation signals. The existing Home coach card now expresses the engine’s single best recommendation instead of a static curriculum next step.

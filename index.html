@@ -4441,6 +4441,8 @@ window.selectProfessionalTrack=id=>{
 /* One learning track at a time — the 12 weeks are split by phase so the page
    never shows all 12 at once. Defaults to the phase the user is actually in. */
 let _jPhase=null;
+function isProfessionalJourney(){return activeProfessionalTrack().id!=="general-english"}
+function journeyUnit(w){const wk=trackWeeks()[w-1];return (isProfessionalJourney()&&wk&&wk.stage)||t("journey.week_label",{n:w})}
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
   const allWeeks=trackWeeks(),phases=trackPhases();
@@ -4449,8 +4451,8 @@ function rJourney(el,wArg){
   const pDone=weeks.reduce((s,w)=>s+weekDone(w.n),0),pTotal=weeks.length*trackDays().length;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
-  <h1 class="big">${t("journey.title")}</h1>
-  <p class="sub" style="margin-bottom:18px">${t("journey.sub")}</p>
+  <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
+  <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?"Build the communication, technical language, and professional readiness to progress through your welding career.":t("journey.sub")}</p>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
     ${Object.keys(phases).map(p=>`<button class="seg-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-lbl">${esc(phaseLabel(p))}</span> <b>${esc(phases[p].wk||"")}</b></button>`).join("")}
   </div>
@@ -4458,7 +4460,7 @@ function rJourney(el,wArg){
   <div class="grid g3">${weeks.map(w=>{
     const done=weekDone(w.n);
     return `<div class="card wk-card" onclick="go('journey',${w.n})">
-      <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${t("journey.week_label",{n:w.n})}</span><span class="chip ${phases[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${esc(journeyUnit(w.n))}</span><span class="chip ${phases[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
       <h3>${esc(w.theme)}</h3>
       <div class="bar"><i style="width:${done/trackDays().length*100}%"></i></div>
       <div class="dots">${trackDays().map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
@@ -4474,7 +4476,7 @@ function rWeek(el,w){
     <span class="chip ${phases[wk.phase].cls}">${phaseLabel(wk.phase)} · ${wk.phase in phases?phases[wk.phase].wk:""}</span>
     <span class="chip ${weekDone(w)===7?'done':''}">${t("week.sessions_done",{done:weekDone(w)})}</span>
   </div>
-  <h1 class="big" style="font-size:30px">${t("week.title",{w,theme:esc(wk.theme)})}</h1>
+  <h1 class="big" style="font-size:30px">${isProfessionalJourney()?`${esc(wk.stage||("Stage "+w))} — <em>${esc(wk.theme)}</em>`:t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.mission||wk.goal)})}</p>
   <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
   ${trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
@@ -6983,13 +6985,14 @@ function rPractice(el){
 
 /* ================= PROFESSIONAL SIMULATIONS ================= */
 let simRun=null;
-function simCharacter(sc,id){return (sc.characters||[]).find(x=>x.id===id)||sc.characters[0]}
+function simCast(sc){return sc.characters||activeCurriculum().simulationCharacters||[]}
+function simCharacter(sc,id){const cast=simCast(sc);return cast.find(x=>x.id===id)||cast[0]}
 function rSimulation(el,id){
   const engine=window.ProfessionalSimulationEngine,items=trackSimulations();
   if(!engine||!items.length){el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><h1 class="big">Professional Simulation</h1><p class="sub">Professional simulations will appear when they are available for this track.</p>`;return}
   const selected=id?engine.find(id):null;
   if(!selected){
-    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Professional Simulation</div><h1 class="big">Workplace simulations</h1><p class="sub">Practise complete professional situations with changing conditions, realistic characters, and a clear debrief.</p>${items.map(s=>`<section class="card sim-stage" style="margin-top:16px"><h2 style="font-size:20px">${esc(s.title)}</h2><p class="sub">${esc(s.scenario)}</p><div class="sim-cast">${s.characters.map(c=>`<span><b>${esc(c.name)}</b><small>${esc(c.role)}</small></span>`).join("")}</div><button class="btn btn-p" onclick="simStart('${esc(s.id)}')">Enter simulation →</button></section>`).join("")}`;return;
+    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Professional Simulation</div><h1 class="big">Workplace simulations</h1><p class="sub">Practise complete professional situations with changing conditions, realistic characters, and a clear debrief.</p>${items.map(s=>`<section class="card sim-stage" style="margin-top:16px"><h2 style="font-size:20px">${esc(s.title)}</h2><p class="sub">${esc(s.scenario)}</p><div class="sim-cast">${simCast(s).map(c=>`<span><b>${esc(c.name)}</b><small>${esc(c.role)}</small></span>`).join("")}</div><button class="btn btn-p" onclick="simStart('${esc(s.id)}')">Enter simulation →</button></section>`).join("")}`;return;
   }
   if(!simRun||simRun.id!==selected.id)simRun=engine.start(selected.id);
   const run=simRun,debrief=run.debrief;

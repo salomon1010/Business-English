@@ -9,7 +9,7 @@
   function simulations(){return (global.activeCurriculum&&global.activeCurriculum().simulations)||[]}
   function find(id){return simulations().find(x=>x.id===id)}
   function state(s){s.simulations=s.simulations||{history:[]};s.simulations.history=Array.isArray(s.simulations.history)?s.simulations.history:[];return s.simulations}
-  function character(sc,id){return sc.characters.find(x=>x.id===id)||sc.characters[0]}
+  function character(sc,id){const cast=sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[];return cast.find(x=>x.id===id)||cast[0]}
   function start(id){
     const sc=find(id);if(!sc)return null;
     const first=character(sc,"hr");

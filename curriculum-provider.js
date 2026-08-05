@@ -36,6 +36,7 @@
       aiMentors:sections.practice.aiMentors||[],
       roleplayCategories:sections.practice.roleplayCategories||[],
       simulations:sections.practice.simulations||[],
+      simulationCharacters:sections.practice.simulationCharacters||[],
       competencyConfig:sections.progress.competencyConfig||{},
       reviewAxes:sections.progress.reviewAxes||[],
       monthMetrics:sections.progress.monthMetrics||{},

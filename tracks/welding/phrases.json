@@ -1,18 +1,14 @@
-{
-  "schemaVersion": "1",
-  "trackId": "welding",
-  "phrases": [
-    {"w": 1, "p": "I'm a welder with experience in fabrication and metalwork.", "u": "Introduce your professional background."},
-    {"w": 1, "p": "I specialise in producing safe, high-quality work.", "u": "Describe your professional focus."},
-    {"w": 1, "p": "My experience includes working as part of a production team.", "u": "Explain how you work with others."},
-    {"w": 1, "p": "I'm comfortable following drawings and workplace procedures.", "u": "Describe a professional strength clearly."},
-    {"w": 1, "p": "I take safety and quality seriously in every job.", "u": "State the standards that guide your work."},
-    {"w": 1, "p": "I'm proud of producing clean, reliable work.", "u": "Speak confidently about your work."},
-    {"w": 1, "p": "I'm currently looking to develop my skills in a professional team.", "u": "Explain your next career step."},
-    {"w": 1, "p": "I'm keen to learn and contribute from day one.", "u": "Show motivation without sounding overconfident."},
-    {"w": 1, "p": "I work well with colleagues, supervisors, and other trades.", "u": "Describe teamwork."},
-    {"w": 1, "p": "I value clear communication and a reliable work ethic.", "u": "Name two professional strengths."},
-    {"w": 1, "p": "I'd be happy to tell you more about my experience.", "u": "Close an introduction and invite the next question."},
-    {"w": 1, "p": "Thank you for the opportunity to introduce myself.", "u": "Start or close a professional conversation politely."}
-  ]
-}
+{"schemaVersion":"1","trackId":"welding","phrases":[
+{"w":1,"p":"I'm a welder with experience in fabrication and metalwork.","u":"Introduce your professional background."},{"w":1,"p":"I take safety and quality seriously in every job.","u":"State the standards that guide your work."},
+{"w":2,"p":"I'll keep the team updated as the task progresses.","u":"Give a reliable team update."},{"w":2,"p":"Could you clarify the priority for this shift?","u":"Ask a supervisor a clear question."},
+{"w":3,"p":"I checked the equipment before starting the task.","u":"Report readiness responsibly."},{"w":3,"p":"The grinder needs attention before we use it.","u":"Raise an equipment issue."},
+{"w":4,"p":"The material specification calls for this thickness.","u":"Discuss a material requirement."},{"w":4,"p":"Let's confirm the joint preparation before we begin.","u":"Prevent a preparation error."},
+{"w":5,"p":"I will stop work until the area is safe.","u":"Use direct stop-work language."},{"w":5,"p":"My PPE and ventilation checks are complete.","u":"Confirm safety preparation."},
+{"w":6,"p":"I will follow the approved welding procedure.","u":"Explain procedural discipline."},{"w":6,"p":"Let's check the parameters before the next pass.","u":"Coordinate a quality check."},
+{"w":7,"p":"Could we confirm this dimension on the latest drawing?","u":"Clarify a blueprint detail."},{"w":7,"p":"I want to make sure I am using the correct revision.","u":"Check drawing control."},
+{"w":8,"p":"I need access to this area after the other trade finishes.","u":"Coordinate site access."},{"w":8,"p":"I'll let the supervisor know about the schedule change.","u":"Communicate a delay."},
+{"w":9,"p":"The inspection found an issue that needs correction.","u":"Report quality facts clearly."},{"w":9,"p":"Let's agree on the corrective action and recheck it.","u":"Propose a professional next step."},
+{"w":10,"p":"The permit and isolation checks are in place.","u":"Confirm controlled-work readiness."},{"w":10,"p":"I will follow the site procedure and report any concern.","u":"Show compliance."},
+{"w":11,"p":"My experience has taught me to work safely and reliably.","u":"Answer an interview question."},{"w":11,"p":"I am looking for a team where I can contribute and grow.","u":"Explain your career direction."},
+{"w":12,"p":"I am ready to contribute high-quality work from day one.","u":"Present career readiness."},{"w":12,"p":"My goal is to keep developing while meeting professional standards.","u":"Close your professional story."}
+]}

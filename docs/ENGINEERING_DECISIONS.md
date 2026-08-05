@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 8 — Complete Welding Professional Track Curriculum
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-014 | 2026-08-05 | Curriculum Design | Expand Welding into a complete career journey without adding a separate learning application or bypassing established engines. | Build separate stage-specific screens; add disconnected lesson content; express the professional journey through the existing track-pack schema. | Add 12 Welding stages with structured references to existing shadow, phrase, vocabulary, mentor, simulation, mission, and competency systems. | Preserves one learning engine and allows the same professional-journey pattern to be reused by future tracks. | The shared UI continues to use the established curriculum layouts; stage-specific visual experiences are deferred. | Accepted |
+| ED-015 | 2026-08-05 | Generative AI | Ensure each Welding stage has a relevant AI mentor and simulation without introducing a new runtime architecture. | Reuse one mentor and simulation; build a new orchestration service; add stage-configured mentors and simulations to the existing practice pack. | Provide 12 stage-specific AI mentor scenarios and 12 simulation definitions, all consumed by the current Role-play and Simulation engines. | Delivers progressive professional practice while keeping the platform local-first and data-driven. | Mentor and simulation dialogue remains within the capabilities of the existing shared engines. | Accepted |
+
 ## Sprint 7 — Adaptive Learning Intelligence
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
