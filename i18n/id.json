@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} percobaan",
  "perf.best": "terbaik {{n}}%",
  "rec.save_failed_state": "Tidak bisa disimpan di perangkat ini",
- "rec.save_failed_toast": "⚠️ Peramban ini memblokir penyimpanan. Buka aplikasi dari ikon di layar utama, atau matikan mode penjelajahan pribadi."
+ "rec.save_failed_toast": "⚠️ Peramban ini memblokir penyimpanan. Buka aplikasi dari ikon di layar utama, atau matikan mode penjelajahan pribadi.",
+ "recs.blocked": "Peramban ini tidak bisa menyimpan rekaman. Buka aplikasi dari ikon di layar utama, atau matikan mode penjelajahan pribadi."
 }

@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} tentatives",
  "perf.best": "meilleur {{n}}%",
  "rec.save_failed_state": "Impossible d’enregistrer sur cet appareil",
- "rec.save_failed_toast": "⚠️ Ce navigateur a bloqué l’enregistrement. Ouvrez l’app depuis l’icône de votre écran d’accueil, ou désactivez la navigation privée."
+ "rec.save_failed_toast": "⚠️ Ce navigateur a bloqué l’enregistrement. Ouvrez l’app depuis l’icône de votre écran d’accueil, ou désactivez la navigation privée.",
+ "recs.blocked": "Ce navigateur ne peut pas stocker les enregistrements. Ouvrez l’app depuis l’icône de votre écran d’accueil, ou désactivez la navigation privée."
 }

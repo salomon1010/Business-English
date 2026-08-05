@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} Versuche",
  "perf.best": "bestes {{n}}%",
  "rec.save_failed_state": "Konnte auf diesem Gerät nicht gespeichert werden",
- "rec.save_failed_toast": "⚠️ Dieser Browser hat das Speichern blockiert. Öffne die App über das Symbol auf dem Startbildschirm, oder deaktiviere den privaten Modus."
+ "rec.save_failed_toast": "⚠️ Dieser Browser hat das Speichern blockiert. Öffne die App über das Symbol auf dem Startbildschirm, oder deaktiviere den privaten Modus.",
+ "recs.blocked": "Dieser Browser kann keine Aufnahmen speichern. Öffne die App über das Symbol auf dem Startbildschirm, oder deaktiviere den privaten Modus."
 }

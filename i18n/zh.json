@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} 次尝试",
  "perf.best": "最佳 {{n}}%",
  "rec.save_failed_state": "无法保存到此设备",
- "rec.save_failed_toast": "⚠️ 此浏览器阻止了保存。请从主屏幕图标打开应用，或关闭无痕浏览。"
+ "rec.save_failed_toast": "⚠️ 此浏览器阻止了保存。请从主屏幕图标打开应用，或关闭无痕浏览。",
+ "recs.blocked": "此浏览器无法保存录音。请从主屏幕图标打开应用，或关闭无痕浏览。"
 }

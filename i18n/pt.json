@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} tentativas",
  "perf.best": "melhor {{n}}%",
  "rec.save_failed_state": "Não foi possível guardar neste dispositivo",
- "rec.save_failed_toast": "⚠️ Este navegador bloqueou a gravação. Abra a app pelo ícone do ecrã principal, ou desative a navegação privada."
+ "rec.save_failed_toast": "⚠️ Este navegador bloqueou a gravação. Abra a app pelo ícone do ecrã principal, ou desative a navegação privada.",
+ "recs.blocked": "Este navegador não consegue guardar gravações. Abra a app pelo ícone do ecrã principal, ou desative a navegação privada."
 }

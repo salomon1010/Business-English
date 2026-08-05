@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} lượt",
  "perf.best": "tốt nhất {{n}}%",
  "rec.save_failed_state": "Không thể lưu trên thiết bị này",
- "rec.save_failed_toast": "⚠️ Trình duyệt đã chặn việc lưu. Hãy mở ứng dụng từ biểu tượng trên màn hình chính, hoặc tắt chế độ duyệt web riêng tư."
+ "rec.save_failed_toast": "⚠️ Trình duyệt đã chặn việc lưu. Hãy mở ứng dụng từ biểu tượng trên màn hình chính, hoặc tắt chế độ duyệt web riêng tư.",
+ "recs.blocked": "Trình duyệt này không thể lưu bản ghi. Hãy mở ứng dụng từ biểu tượng trên màn hình chính, hoặc tắt chế độ duyệt web riêng tư."
 }

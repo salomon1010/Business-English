@@ -1156,5 +1156,6 @@
  "perf.attempts": "{{n}} tentativi",
  "perf.best": "migliore {{n}}%",
  "rec.save_failed_state": "Impossibile salvare su questo dispositivo",
- "rec.save_failed_toast": "⚠️ Questo browser ha bloccato il salvataggio. Apri l’app dall’icona nella schermata Home, o disattiva la navigazione in incognito."
+ "rec.save_failed_toast": "⚠️ Questo browser ha bloccato il salvataggio. Apri l’app dall’icona nella schermata Home, o disattiva la navigazione in incognito.",
+ "recs.blocked": "Questo browser non può salvare le registrazioni. Apri l’app dall’icona nella schermata Home, o disattiva la navigazione in incognito."
 }
