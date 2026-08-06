@@ -8897,6 +8897,18 @@ function rProfile(el){
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  ${/* General English and a Professional Track are different products on this
+        screen. A General English learner is building confidence in meetings and
+        presentations; the Skills Passport, the career-readiness roadmap, the
+        professional activity heat-map and the Career Center all belong to a
+        trade journey and mean nothing to them. Worse, the Passport put a
+        "Career readiness %" on a screen where it is a participation counter
+        wearing a job word. They render for Professional Tracks only.
+
+        Everything the English profile does show — the hero, the three stats, the
+        Progress Calendar and the speaking/grammar/vocabulary progress card —
+        stays exactly as it is for both tracks. */
+    isProfessionalJourney()?`
   ${ProfessionalSkillsPassport.render()}
   ${window.LearningCoach?LearningCoach.narrativeCard(S):""}
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.roadmapCard(S):""}
@@ -8905,7 +8917,7 @@ function rProfile(el){
     <span class="pf-ic">${ic("briefcase")}</span>
     <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
-  </button>
+  </button>`:""}
   <button class="pf-row pf-setup" onclick="go('setup')">
     <span class="pf-ic">${ic("gear")}</span>
     <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
