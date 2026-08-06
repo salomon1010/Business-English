@@ -4272,12 +4272,18 @@ async function rHome(el){
      never practised has nothing to show in a week strip — seven empty dots is a
      poor welcome — and someone on day 40 does not need the pitch again. */
   const started=totalDone()>0;
+  const weldingHero=S.profile&&S.profile.name
+    ?`${esc(S.profile.name)}, communicate with confidence on the <em>welding floor</em>`
+    :`Communicate with confidence on the <em>welding floor</em>`;
+  const homeHero=activeProfessionalTrack().id==="welding"
+    ?weldingHero
+    :(S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic"));
   /* No .pg-eyebrow here on purpose. Every other view needs one because the
      header's sub-label is a static "Home"; on Home itself that label is already
      correct, so a sticky bar repeating it would cost 43px to say nothing. */
   el.innerHTML=`
   ${started?homeWeekStrip():`
-  <h1 class="big">${S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic")}</h1>
+  <h1 class="big">${homeHero}</h1>
   <p class="sub">${t("home.sub_base")}.</p>
   ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
     if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
