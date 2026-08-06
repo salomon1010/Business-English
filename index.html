@@ -2216,7 +2216,9 @@ ProfessionalTrackContext.register(new ProfessionalTrack({
 }));
 ProfessionalTrackContext.register(new ProfessionalTrack({
   id:"welding",sourceId:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
-  status:"available",inheritsFrom:"general-english",themeId:"welding",themeLabel:"Welding",version:"1"
+  status:"available",inheritsFrom:"general-english",themeId:"welding",themeLabel:"Welding",
+  homeWelcome:"Communicate with confidence on the <em>welding floor</em>",
+  homeWelcomeNamed:"{{name}}, communicate with confidence on the <em>welding floor</em>",version:"1"
 }));
 
 const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
@@ -4265,11 +4267,16 @@ addEventListener("click",e=>{
 
 /* ================= DASHBOARD ================= */
 function rHome(el){
-  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d];
+  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d],track=activeProfessionalTrack();
+  const name=S.profile&&S.profile.name?esc(S.profile.name):"";
+  const homeWelcome=track.id==="general-english"
+    ?(name?t("home.hero_named",{name}):t("home.hero_generic"))
+    :(name&&track.homeWelcomeNamed?track.homeWelcomeNamed.replace("{{name}}",name):(track.homeWelcome||`Communicate with confidence in the <em>${esc(track.themeLabel)} workplace</em>`));
   /* Home is intentionally a short return point: resume the active track, use
      its coach, or choose a different track. Detailed progress stays in the
      active track's learning and Progress screens. */
   el.innerHTML=`
+  <h1 class="big">${homeWelcome}</h1>
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>

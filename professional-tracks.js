@@ -21,6 +21,8 @@
          without duplicating screens or the learning engine. */
       this.themeId=config.themeId||"general";
       this.themeLabel=config.themeLabel||config.id;
+      this.homeWelcome=config.homeWelcome||"";
+      this.homeWelcomeNamed=config.homeWelcomeNamed||"";
       this.version=config.version||"1";
       Object.freeze(this);
     }
