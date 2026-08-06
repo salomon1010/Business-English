@@ -10,42 +10,54 @@
   function find(id){return simulations().find(x=>x.id===id)}
   function state(s){s.simulations=s.simulations||{history:[]};s.simulations.history=Array.isArray(s.simulations.history)?s.simulations.history:[];return s.simulations}
   function character(sc,id){const cast=sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[];return cast.find(x=>x.id===id)||cast[0]}
+  /* The first thing the learner hears. It is written per scenario and per
+     character in the track pack, because a safety officer opening a stop-work
+     conversation and a recruiter opening an interview are not the same moment.
+     Deliberately NOT "we're working through <scenario title>": nobody at work
+     announces the title of the conversation they are having, and hearing one is
+     what made this feel like a questionnaire. */
+  function opening(sc,c){
+    const set=(sc&&sc.openings)||{};
+    if(set[c.id])return set[c.id];
+    return `${c.name} here, ${String(c.role||"").toLowerCase()}. Tell me about yourself and the work you've done.`;
+  }
   function start(id,characterId){
     const sc=find(id);if(!sc)return null;
-    const first=character(sc,characterId||"hr");
-    return {id:sc.id,starterCharacterId:first.id,startedAt:Date.now(),turn:0,facts:{},completed:[],eventIds:[],messages:[{role:"character",characterId:first.id,text:`I’m ${first.name}, the ${first.role}. We’re working through ${sc.title}. Could you begin by telling me how you would approach this situation?`}],finished:false};
+    const first=character(sc,characterId||sc.lead||"hr");
+    return {id:sc.id,starterCharacterId:first.id,startedAt:Date.now(),turn:0,beat:0,completed:[],eventIds:[],answers:[],messages:[{role:"character",characterId:first.id,text:opening(sc,first),q:"open"}],finished:false};
   }
   function words(text){return String(text||"").toLowerCase()}
   function phrase(text){return String(text||"").replace(/\s+/g," ").trim().slice(0,160)}
-  function capture(sim,text){
-    const low=words(text);
-    if(!sim.facts.name){const m=low.match(/(?:i am|my name is|i'm)\s+([a-z'-]+)/i);if(m)sim.facts.name=m[1]}
-    if(/experience|worked|year|mig|tig|stick|fabricat/.test(low))sim.facts.experience=phrase(text);
-    if(/safety|ppe|helmet|gloves|procedure|inspect/.test(low))sim.facts.safety=phrase(text);
-    return low;
-  }
   function objectives(sc,sim,text){
     const low=words(text);(sc.objectives||[]).forEach(o=>{
       if(sim.completed.includes(o.id))return;
       if((o.keywords||[]).some(k=>low.includes(k)))sim.completed.push(o.id);
     });
   }
+  /* The offline / service-unavailable path.
+
+     This used to be a single hardcoded first-day-at-a-welding-workshop script —
+     PPE checks, "are you ready to complete onboarding", "welcome aboard" — and it
+     ran for ALL twelve scenarios. A learner practising a stop-work conversation or
+     a job interview was welcomed aboard and onboarded, because the live service had
+     not answered. The beats now come from the scenario itself, so the fallback is
+     always the right workshop with the right people in it. */
   function reply(sc,sim,text){
-    const t=sim.turn,exp=sim.facts.experience?` You mentioned ${sim.facts.experience}; that gives the team useful context.`:"";
-    if(t===1){const c=character(sc,"supervisor");return {characterId:c.id,text:`Thanks${sim.facts.name?", "+sim.facts.name:""}.${exp} I’m ${c.name}, your supervisor. What type of welding work are you comfortable supporting today?`};}
-    const event=(sc.unexpectedEvents||[]).find(e=>!sim.eventIds.includes(e.id)&&t>=e.afterTurn);
+    const event=(sc.unexpectedEvents||[]).find(e=>!sim.eventIds.includes(e.id)&&sim.turn>=e.afterTurn);
     if(event){sim.eventIds.push(event.id);return {characterId:event.characterId,text:event.message,event:true};}
-    if(!sim.completed.includes("safety")){const c=character(sc,"safety");return {characterId:c.id,text:`I’m ${c.name}, the ${c.role}. Before you begin, tell me how you would prepare the area and your PPE for safe work.`};}
-    if(!sim.completed.includes("onboarding")){
-      if(sim.completed.includes("safety")&&!sim.safetyAcknowledged){sim.safetyAcknowledged=true;const c=character(sc,"safety");return {characterId:c.id,text:`Good safety thinking. I’ve noted that you understand the PPE and work-area checks. Please confirm that you are ready to complete onboarding with the team.`};}
-      const c=character(sc,"qa");return {characterId:c.id,text:`I’m ${c.name}, the ${c.role}. Clear communication and checking quality matter here. Are you ready to complete onboarding and join the team?`};
+    const turns=sc.turns||[],i=Number(sim.beat)||0;
+    if(i<turns.length){
+      sim.beat=i+1;
+      const beat=turns[i],c=character(sc,beat.characterId);
+      return {characterId:c.id,text:beat.text,q:beat.q||null};
     }
-    const c=character(sc,"qa");return {characterId:c.id,text:`Welcome aboard. You have completed the first-day conversation; let’s review how that went.` ,complete:true};
+    const close=sc.closing||{},c=character(sc,close.characterId);
+    return {characterId:c.id,text:close.text||"That's everything for today. Let's look at how it went.",complete:true};
   }
   function send(sim,text){
     const sc=find(sim&&sim.id);if(!sc||!sim||sim.finished||!phrase(text))return {simulation:sim};
-    const clean=phrase(text);capture(sim,clean);objectives(sc,sim,clean);sim.turn++;sim.messages.push({role:"learner",text:clean});
-    const next=reply(sc,sim,clean);sim.messages.push({role:"character",characterId:next.characterId,text:next.text,event:!!next.event});
+    const clean=phrase(text);objectives(sc,sim,clean);sim.turn++;sim.messages.push({role:"learner",text:clean});
+    const next=reply(sc,sim,clean);sim.messages.push({role:"character",characterId:next.characterId,text:next.text,event:!!next.event,q:next.q||null});
     if(next.complete)sim.finished=true;
     return {simulation:sim,complete:!!next.complete};
   }

@@ -1,29 +1,6289 @@
-{"schemaVersion":"1","trackId":"welding","vocabularyIntervals":[1,3,7,21,60],"libraryGroups":[{"k":"vocabulary","ic":"book","n":"prac.tab_vocabulary","subs":[{"k":"vocab","ic":"book","n":"lib.tab_vocab"},{"k":"saved","ic":"bookmark","n":"lib.tab_saved"},{"k":"idioms","ic":"briefcase","n":"lib.tab_idioms"}]},{"k":"grammar","ic":"list","n":"prac.tab_grammar","subs":[{"k":"grammar","ic":"list","n":"lib.tab_grammar"},{"k":"exercises","ic":"pencil","n":"lib.tab_exercises"}]}],"roleplayCategories":[["mentor","Professional interviews"]],
-"aiMentors":[
-{"id":"welding-mentor-1","cat":"mentor","persona":"Maya","g":"f","role":"HR Recruiter","ic":"user","title":"Professional Introduction Interview","scenario":"Welcome a new welder and understand their professional background.","points":["Introduce yourself","Describe experience","State your career goal"],"greet":"Welcome. Please introduce yourself and tell me about your welding background."},
-{"id":"welding-mentor-2","cat":"mentor","persona":"Daniel","g":"m","role":"Supervisor","ic":"user","title":"Teamwork Interview","scenario":"Discuss a shift handover and working with a team.","points":["Give an update","Ask a clear question","Offer support"],"greet":"How is your shift going, and what does the team need to know?"},
-{"id":"welding-mentor-3","cat":"mentor","persona":"Luis","g":"m","role":"Tool Room Coordinator","ic":"user","title":"Equipment Readiness Interview","scenario":"Discuss equipment readiness and report a problem clearly.","points":["Name an equipment check","Report an issue","Confirm next action"],"greet":"Before you start, what equipment checks have you completed?"},
-{"id":"welding-mentor-4","cat":"mentor","persona":"Amelia","g":"f","role":"Materials Coordinator","ic":"user","title":"Materials Preparation Interview","scenario":"Clarify material requirements and preparation.","points":["Describe material","Confirm specification","Ask for clarification"],"greet":"Can you explain what material and preparation this task requires?"},
-{"id":"welding-mentor-5","cat":"mentor","persona":"Priya","g":"f","role":"Safety Officer","ic":"user","title":"Safety Communication Interview","scenario":"Discuss safe preparation and speaking up about hazards.","points":["Identify a hazard","Confirm PPE","Use stop-work language"],"greet":"What would you check before starting this welding task?"},
-{"id":"welding-mentor-6","cat":"mentor","persona":"Daniel","g":"m","role":"Welding Supervisor","ic":"user","title":"Welding Procedure Interview","scenario":"Explain an approved welding procedure.","points":["Explain sequence","Mention parameters","Describe checks"],"greet":"Talk me through how you would follow the procedure."},
-{"id":"welding-mentor-7","cat":"mentor","persona":"Amelia","g":"f","role":"Drawing Coordinator","ic":"user","title":"Blueprint Reading Interview","scenario":"Clarify drawing details before starting work.","points":["Check drawing revision","Ask about dimension","Confirm symbols"],"greet":"What would you check on this drawing before you begin?"},
-{"id":"welding-mentor-8","cat":"mentor","persona":"Luis","g":"m","role":"Site Foreman","ic":"user","title":"Construction Communication Interview","scenario":"Coordinate a task with another trade.","points":["Give a site update","Request access","Handle a schedule change"],"greet":"What do you need from the other trade to complete your task?"},
-{"id":"welding-mentor-9","cat":"mentor","persona":"Amelia","g":"f","role":"QA Inspector","ic":"user","title":"Quality Assurance Interview","scenario":"Report an inspection issue and corrective action.","points":["Describe a defect","Stay factual","Propose next step"],"greet":"What did the inspection find, and what should happen next?"},
-{"id":"welding-mentor-10","cat":"mentor","persona":"Priya","g":"f","role":"Compliance Officer","ic":"user","title":"Controlled Work Interview","scenario":"Confirm controlled-work readiness in a high-standard environment.","points":["Confirm permit","Mention isolation","Report concern"],"greet":"Before controlled work begins, what must you confirm?"},
-{"id":"welding-mentor-11","cat":"mentor","persona":"Maya","g":"f","role":"Recruiter","ic":"user","title":"Professional Welding Interview","scenario":"Practise a professional welding interview.","points":["Summarise experience","Give strength example","State career direction"],"greet":"Tell me about yourself and your welding experience."},
-{"id":"welding-mentor-12","cat":"mentor","persona":"Daniel","g":"m","role":"Hiring Manager","ic":"user","title":"Career Readiness Interview","scenario":"Review your readiness to contribute as a professional welder.","points":["Present standards","Show confidence","Explain contribution"],"greet":"Why are you ready to contribute to this team?"}],
-"simulationCharacters":[{"id":"hr","name":"Maya","g":"f","voice":"nova","role":"HR Recruiter","personality":"friendly, welcoming, and professional","communicationStyle":"warm and encouraging","responseBehavior":"opens the conversation and captures background"},{"id":"supervisor","name":"Daniel","g":"m","voice":"onyx","role":"Supervisor","personality":"experienced, calm, and supportive","communicationStyle":"clear and task-focused","responseBehavior":"asks about work experience"},{"id":"coworker","name":"Luis","g":"m","voice":"echo","role":"Coworker","personality":"funny, relaxed, and helpful","communicationStyle":"informal but professional","responseBehavior":"introduces a workplace change"},{"id":"safety","name":"Priya","g":"f","voice":"shimmer","role":"Safety Officer","personality":"serious, safety-focused, and protective","communicationStyle":"precise and non-judgmental","responseBehavior":"checks safe action"},{"id":"qa","name":"Amelia","g":"f","voice":"coral","role":"QA Inspector","personality":"detail-oriented, professional, and observant","communicationStyle":"professional and detail-oriented","responseBehavior":"closes with quality standards"}],
-"simulations":[
-{"id":"welding-sim-1","title":"First Day at a Welding Workshop","scenario":"Meet the workshop team and complete onboarding safely.","mission":{"company":"ABC Fabrication","title":"First Day at the Workshop","welcome":"Welcome to the team. Today is your first day. You will meet your supervisor, learn workshop safety, introduce yourself, and complete your onboarding.","locations":["Reception","Workshop","Safety Area","Production Floor","Inspection Area"],"rewards":["Confidence","Workshop Vocabulary","Communication","Career Readiness"],"vocabulary":["fabrication","workshop","supervisor","inspection","blueprint","root pass"],"phrases":["I've worked mainly on...","My responsibility was...","I usually perform..."],"shadowRecommendation":"How supervisors explain welding tasks","nextMission":{"title":"Shift Handover","preview":"Tomorrow you'll explain completed work, report issues, and communicate with the next welding team."}},"objectives":[{"id":"introduction","label":"Introduce yourself","keywords":["i am","my name","welder"]},{"id":"experience","label":"Describe your experience","keywords":["experience","worked","year","welding"]},{"id":"supervisor","label":"Answer the supervisor","keywords":["understand","can","will"]},{"id":"safety","label":"Discuss safety","keywords":["safety","ppe","helmet","gloves","procedure"]},{"id":"onboarding","label":"Complete onboarding","keywords":["thank","onboarding","join the team"]}],"unexpectedEvents":[{"id":"early-job-1","afterTurn":2,"characterId":"coworker","message":"A priority job arrived early. What would you check first to work safely?"}],"debrief":{"recommendedNextSimulation":"Repeat this onboarding simulation and strengthen one missed objective."}},
-{"id":"welding-sim-2","title":"Shift Handover","scenario":"Give your team a useful handover before the next shift.","objectives":[{"id":"introduction","label":"Open the handover","keywords":["i am","shift","update"]},{"id":"experience","label":"Describe completed work","keywords":["completed","worked","finished"]},{"id":"supervisor","label":"Confirm priorities","keywords":["priority","can","will"]},{"id":"safety","label":"Mention safe status","keywords":["safety","safe","procedure"]},{"id":"onboarding","label":"Close the handover","keywords":["thank","handover","team"]}],"unexpectedEvents":[{"id":"change-2","afterTurn":2,"characterId":"coworker","message":"The next shift has a schedule change. How will you update the team safely?"}],"debrief":{"recommendedNextSimulation":"Repeat Shift Handover and make your update more concise."}},
-{"id":"welding-sim-3","title":"Equipment Readiness Check","scenario":"Prepare equipment and report an issue before work starts.","objectives":[{"id":"introduction","label":"Open the check","keywords":["i am","check","equipment"]},{"id":"experience","label":"Describe equipment preparation","keywords":["checked","grinder","torch","cable"]},{"id":"supervisor","label":"Confirm action","keywords":["can","will","report"]},{"id":"safety","label":"Confirm safe equipment","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the check","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"issue-3","afterTurn":2,"characterId":"coworker","message":"The grinder is damaged. What action will you take before work continues?"}],"debrief":{"recommendedNextSimulation":"Repeat Equipment Readiness Check and sharpen your issue report."}},
-{"id":"welding-sim-4","title":"Material Preparation Briefing","scenario":"Clarify materials and preparation before a job.","objectives":[{"id":"introduction","label":"Open the briefing","keywords":["i am","material","briefing"]},{"id":"experience","label":"Describe preparation","keywords":["thickness","joint","surface","prepare"]},{"id":"supervisor","label":"Confirm requirement","keywords":["can","will","confirm"]},{"id":"safety","label":"Include safe preparation","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the briefing","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"spec-4","afterTurn":2,"characterId":"coworker","message":"The material label does not match the drawing. What would you clarify?"}],"debrief":{"recommendedNextSimulation":"Repeat Material Preparation Briefing and improve specification language."}},
-{"id":"welding-sim-5","title":"Safety Stop-Work Conversation","scenario":"Identify a hazard and use calm stop-work communication.","objectives":[{"id":"introduction","label":"Raise the concern","keywords":["i am","hazard","concern"]},{"id":"experience","label":"Describe the risk","keywords":["risk","ventilation","fumes","area"]},{"id":"supervisor","label":"Confirm next action","keywords":["can","will","stop"]},{"id":"safety","label":"Explain safety action","keywords":["safety","ppe","safe","procedure"]},{"id":"onboarding","label":"Close safely","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"hazard-5","afterTurn":2,"characterId":"coworker","message":"Ventilation has stopped. What will you say and do?"}],"debrief":{"recommendedNextSimulation":"Repeat Safety Stop-Work Conversation and make the action more direct."}},
-{"id":"welding-sim-6","title":"Procedure Briefing","scenario":"Explain a welding procedure and quality checks.","objectives":[{"id":"introduction","label":"Open the briefing","keywords":["i am","procedure","briefing"]},{"id":"experience","label":"Describe the sequence","keywords":["first","then","pass","parameter"]},{"id":"supervisor","label":"Confirm procedure","keywords":["can","will","follow"]},{"id":"safety","label":"Include safe controls","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the briefing","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"parameter-6","afterTurn":2,"characterId":"coworker","message":"A parameter needs checking before the next pass. How will you respond?"}],"debrief":{"recommendedNextSimulation":"Repeat Procedure Briefing and make the sequence clearer."}},
-{"id":"welding-sim-7","title":"Drawing Clarification","scenario":"Check a drawing and request clarification before work.","objectives":[{"id":"introduction","label":"Open the discussion","keywords":["i am","drawing","blueprint"]},{"id":"experience","label":"Describe the detail","keywords":["dimension","symbol","revision","tolerance"]},{"id":"supervisor","label":"Confirm the requirement","keywords":["can","will","confirm"]},{"id":"safety","label":"Check safe setup","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the discussion","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"revision-7","afterTurn":2,"characterId":"coworker","message":"A newer drawing revision may be available. What would you check?"}],"debrief":{"recommendedNextSimulation":"Repeat Drawing Clarification and make your question more precise."}},
-{"id":"welding-sim-8","title":"Construction Site Coordination","scenario":"Coordinate welding work with another trade.","objectives":[{"id":"introduction","label":"Open the update","keywords":["i am","site","update"]},{"id":"experience","label":"Describe the task","keywords":["task","access","installation","schedule"]},{"id":"supervisor","label":"Confirm coordination","keywords":["can","will","coordinate"]},{"id":"safety","label":"Include site safety","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close with agreement","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"access-8","afterTurn":2,"characterId":"coworker","message":"Another trade still needs the area. How will you coordinate the change?"}],"debrief":{"recommendedNextSimulation":"Repeat Construction Site Coordination and make the handover clearer."}},
-{"id":"welding-sim-9","title":"Quality Issue Report","scenario":"Report an inspection concern and agree corrective action.","objectives":[{"id":"introduction","label":"Open the report","keywords":["i am","inspection","report"]},{"id":"experience","label":"Describe the issue","keywords":["defect","tolerance","quality","repair"]},{"id":"supervisor","label":"Confirm action","keywords":["can","will","correct"]},{"id":"safety","label":"Maintain safe control","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close professionally","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"defect-9","afterTurn":2,"characterId":"coworker","message":"Inspection found a defect. How will you report it without blame?"}],"debrief":{"recommendedNextSimulation":"Repeat Quality Issue Report and keep your language factual."}},
-{"id":"welding-sim-10","title":"Controlled Work Readiness","scenario":"Confirm permit, isolation, and communication for industrial work.","objectives":[{"id":"introduction","label":"Open readiness check","keywords":["i am","permit","readiness"]},{"id":"experience","label":"Describe controls","keywords":["isolation","pipeline","pressure","check"]},{"id":"supervisor","label":"Confirm authorization","keywords":["can","will","confirm"]},{"id":"safety","label":"Confirm safety controls","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the check","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"permit-10","afterTurn":2,"characterId":"coworker","message":"The permit detail is unclear. What will you do before starting?"}],"debrief":{"recommendedNextSimulation":"Repeat Controlled Work Readiness and strengthen compliance language."}},
-{"id":"welding-sim-11","title":"Welding Interview","scenario":"Present your experience and motivation to a hiring team.","objectives":[{"id":"introduction","label":"Introduce yourself","keywords":["i am","welder","name"]},{"id":"experience","label":"Describe experience","keywords":["experience","worked","year","welding"]},{"id":"supervisor","label":"Answer a follow-up","keywords":["can","will","strength"]},{"id":"safety","label":"Explain safety mindset","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close the interview","keywords":["thank","opportunity","team"]}],"unexpectedEvents":[{"id":"interview-11","afterTurn":2,"characterId":"coworker","message":"The panel asks for a teamwork example. How will you answer?"}],"debrief":{"recommendedNextSimulation":"Repeat Welding Interview and make your achievement example stronger."}},
-{"id":"welding-sim-12","title":"Career Ready Final Briefing","scenario":"Present your standards, contribution, and career readiness.","objectives":[{"id":"introduction","label":"Open your story","keywords":["i am","welder","professional"]},{"id":"experience","label":"Summarise experience","keywords":["experience","worked","quality","standard"]},{"id":"supervisor","label":"Show contribution","keywords":["can","will","contribute"]},{"id":"safety","label":"Confirm professional standards","keywords":["safety","safe","ppe","procedure"]},{"id":"onboarding","label":"Close career-ready","keywords":["thank","ready","team"]}],"unexpectedEvents":[{"id":"career-12","afterTurn":2,"characterId":"coworker","message":"The team asks what you will contribute from day one. How will you respond?"}],"debrief":{"recommendedNextSimulation":"Repeat Career Ready Final Briefing and strengthen your professional story."}}
-]}
+{
+ "schemaVersion": "1",
+ "trackId": "welding",
+ "vocabularyIntervals": [
+  1,
+  3,
+  7,
+  21,
+  60
+ ],
+ "libraryGroups": [
+  {
+   "k": "vocabulary",
+   "ic": "book",
+   "n": "prac.tab_vocabulary",
+   "subs": [
+    {
+     "k": "vocab",
+     "ic": "book",
+     "n": "lib.tab_vocab"
+    },
+    {
+     "k": "saved",
+     "ic": "bookmark",
+     "n": "lib.tab_saved"
+    },
+    {
+     "k": "idioms",
+     "ic": "briefcase",
+     "n": "lib.tab_idioms"
+    }
+   ]
+  },
+  {
+   "k": "grammar",
+   "ic": "list",
+   "n": "prac.tab_grammar",
+   "subs": [
+    {
+     "k": "grammar",
+     "ic": "list",
+     "n": "lib.tab_grammar"
+    },
+    {
+     "k": "exercises",
+     "ic": "pencil",
+     "n": "lib.tab_exercises"
+    }
+   ]
+  }
+ ],
+ "roleplayCategories": [
+  [
+   "mentor",
+   "Professional interviews"
+  ]
+ ],
+ "aiMentors": [
+  {
+   "id": "welding-mentor-1",
+   "cat": "mentor",
+   "persona": "Maya",
+   "g": "f",
+   "role": "HR Recruiter",
+   "ic": "user",
+   "title": "Professional Introduction Interview",
+   "scenario": "Welcome a new welder and understand their professional background.",
+   "points": [
+    "Introduce yourself",
+    "Describe experience",
+    "State your career goal"
+   ],
+   "greet": "Welcome. Please introduce yourself and tell me about your welding background."
+  },
+  {
+   "id": "welding-mentor-2",
+   "cat": "mentor",
+   "persona": "Daniel",
+   "g": "m",
+   "role": "Supervisor",
+   "ic": "user",
+   "title": "Teamwork Interview",
+   "scenario": "Discuss a shift handover and working with a team.",
+   "points": [
+    "Give an update",
+    "Ask a clear question",
+    "Offer support"
+   ],
+   "greet": "How is your shift going, and what does the team need to know?"
+  },
+  {
+   "id": "welding-mentor-3",
+   "cat": "mentor",
+   "persona": "Luis",
+   "g": "m",
+   "role": "Tool Room Coordinator",
+   "ic": "user",
+   "title": "Equipment Readiness Interview",
+   "scenario": "Discuss equipment readiness and report a problem clearly.",
+   "points": [
+    "Name an equipment check",
+    "Report an issue",
+    "Confirm next action"
+   ],
+   "greet": "Before you start, what equipment checks have you completed?"
+  },
+  {
+   "id": "welding-mentor-4",
+   "cat": "mentor",
+   "persona": "Amelia",
+   "g": "f",
+   "role": "Materials Coordinator",
+   "ic": "user",
+   "title": "Materials Preparation Interview",
+   "scenario": "Clarify material requirements and preparation.",
+   "points": [
+    "Describe material",
+    "Confirm specification",
+    "Ask for clarification"
+   ],
+   "greet": "Can you explain what material and preparation this task requires?"
+  },
+  {
+   "id": "welding-mentor-5",
+   "cat": "mentor",
+   "persona": "Priya",
+   "g": "f",
+   "role": "Safety Officer",
+   "ic": "user",
+   "title": "Safety Communication Interview",
+   "scenario": "Discuss safe preparation and speaking up about hazards.",
+   "points": [
+    "Identify a hazard",
+    "Confirm PPE",
+    "Use stop-work language"
+   ],
+   "greet": "What would you check before starting this welding task?"
+  },
+  {
+   "id": "welding-mentor-6",
+   "cat": "mentor",
+   "persona": "Daniel",
+   "g": "m",
+   "role": "Welding Supervisor",
+   "ic": "user",
+   "title": "Welding Procedure Interview",
+   "scenario": "Explain an approved welding procedure.",
+   "points": [
+    "Explain sequence",
+    "Mention parameters",
+    "Describe checks"
+   ],
+   "greet": "Talk me through how you would follow the procedure."
+  },
+  {
+   "id": "welding-mentor-7",
+   "cat": "mentor",
+   "persona": "Amelia",
+   "g": "f",
+   "role": "Drawing Coordinator",
+   "ic": "user",
+   "title": "Blueprint Reading Interview",
+   "scenario": "Clarify drawing details before starting work.",
+   "points": [
+    "Check drawing revision",
+    "Ask about dimension",
+    "Confirm symbols"
+   ],
+   "greet": "What would you check on this drawing before you begin?"
+  },
+  {
+   "id": "welding-mentor-8",
+   "cat": "mentor",
+   "persona": "Luis",
+   "g": "m",
+   "role": "Site Foreman",
+   "ic": "user",
+   "title": "Construction Communication Interview",
+   "scenario": "Coordinate a task with another trade.",
+   "points": [
+    "Give a site update",
+    "Request access",
+    "Handle a schedule change"
+   ],
+   "greet": "What do you need from the other trade to complete your task?"
+  },
+  {
+   "id": "welding-mentor-9",
+   "cat": "mentor",
+   "persona": "Amelia",
+   "g": "f",
+   "role": "QA Inspector",
+   "ic": "user",
+   "title": "Quality Assurance Interview",
+   "scenario": "Report an inspection issue and corrective action.",
+   "points": [
+    "Describe a defect",
+    "Stay factual",
+    "Propose next step"
+   ],
+   "greet": "What did the inspection find, and what should happen next?"
+  },
+  {
+   "id": "welding-mentor-10",
+   "cat": "mentor",
+   "persona": "Priya",
+   "g": "f",
+   "role": "Compliance Officer",
+   "ic": "user",
+   "title": "Controlled Work Interview",
+   "scenario": "Confirm controlled-work readiness in a high-standard environment.",
+   "points": [
+    "Confirm permit",
+    "Mention isolation",
+    "Report concern"
+   ],
+   "greet": "Before controlled work begins, what must you confirm?"
+  },
+  {
+   "id": "welding-mentor-11",
+   "cat": "mentor",
+   "persona": "Maya",
+   "g": "f",
+   "role": "Recruiter",
+   "ic": "user",
+   "title": "Professional Welding Interview",
+   "scenario": "Practise a professional welding interview.",
+   "points": [
+    "Summarise experience",
+    "Give strength example",
+    "State career direction"
+   ],
+   "greet": "Tell me about yourself and your welding experience."
+  },
+  {
+   "id": "welding-mentor-12",
+   "cat": "mentor",
+   "persona": "Daniel",
+   "g": "m",
+   "role": "Hiring Manager",
+   "ic": "user",
+   "title": "Career Readiness Interview",
+   "scenario": "Review your readiness to contribute as a professional welder.",
+   "points": [
+    "Present standards",
+    "Show confidence",
+    "Explain contribution"
+   ],
+   "greet": "Why are you ready to contribute to this team?"
+  }
+ ],
+ "simulationCharacters": [
+  {
+   "id": "hr",
+   "name": "Maya",
+   "g": "f",
+   "voice": "coral",
+   "role": "HR Recruiter",
+   "personality": "friendly, welcoming, and professional",
+   "communicationStyle": "warm and encouraging",
+   "responseBehavior": "opens the conversation and captures background",
+   "voiceStyle": "Warm, welcoming HR professional. Unhurried and friendly."
+  },
+  {
+   "id": "supervisor",
+   "name": "Daniel",
+   "g": "m",
+   "voice": "ash",
+   "role": "Supervisor",
+   "personality": "experienced, calm, and supportive",
+   "communicationStyle": "clear and task-focused",
+   "responseBehavior": "asks about work experience",
+   "voiceStyle": "Experienced shop supervisor. Calm, direct, matter-of-fact. Short sentences."
+  },
+  {
+   "id": "coworker",
+   "name": "Luis",
+   "g": "m",
+   "voice": "verse",
+   "role": "Coworker",
+   "personality": "funny, relaxed, and helpful",
+   "communicationStyle": "informal but professional",
+   "responseBehavior": "introduces a workplace change",
+   "voiceStyle": "Relaxed workmate on the shop floor. Easy, informal, a little humour."
+  },
+  {
+   "id": "safety",
+   "name": "Priya",
+   "g": "f",
+   "voice": "sage",
+   "role": "Safety Officer",
+   "personality": "serious, safety-focused, and protective",
+   "communicationStyle": "precise and non-judgmental",
+   "responseBehavior": "checks safe action",
+   "voiceStyle": "Safety officer. Measured, clear and serious, never harsh."
+  },
+  {
+   "id": "qa",
+   "name": "Amelia",
+   "g": "f",
+   "voice": "nova",
+   "role": "QA Inspector",
+   "personality": "detail-oriented, professional, and observant",
+   "communicationStyle": "professional and detail-oriented",
+   "responseBehavior": "closes with quality standards",
+   "voiceStyle": "Quality inspector. Precise, attentive, quietly exacting."
+  }
+ ],
+ "simulations": [
+  {
+   "id": "welding-sim-1",
+   "title": "First Day at a Welding Workshop",
+   "scenario": "Meet the workshop team and complete onboarding safely.",
+   "mission": {
+    "company": "ABC Fabrication",
+    "title": "First Day at the Workshop",
+    "welcome": "Welcome to the team. Today is your first day. You will meet your supervisor, learn workshop safety, introduce yourself, and complete your onboarding.",
+    "locations": [
+     "Reception",
+     "Workshop",
+     "Safety Area",
+     "Production Floor",
+     "Inspection Area"
+    ],
+    "rewards": [
+     "Confidence",
+     "Workshop Vocabulary",
+     "Communication",
+     "Career Readiness"
+    ],
+    "vocabulary": [
+     "fabrication",
+     "workshop",
+     "supervisor",
+     "inspection",
+     "blueprint",
+     "root pass"
+    ],
+    "phrases": [
+     "I've worked mainly on...",
+     "My responsibility was...",
+     "I usually perform..."
+    ],
+    "shadowRecommendation": "How supervisors explain welding tasks",
+    "nextMission": {
+     "title": "Shift Handover",
+     "preview": "Tomorrow you'll explain completed work, report issues, and communicate with the next welding team."
+    }
+   },
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Introduce yourself",
+     "keywords": [
+      "i am",
+      "my name",
+      "welder"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe your experience",
+     "keywords": [
+      "experience",
+      "worked",
+      "year",
+      "welding"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Answer the supervisor",
+     "keywords": [
+      "understand",
+      "can",
+      "will"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Discuss safety",
+     "keywords": [
+      "safety",
+      "ppe",
+      "helmet",
+      "gloves",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Complete onboarding",
+     "keywords": [
+      "thank",
+      "onboarding",
+      "join the team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "early-job-1",
+     "afterTurn": 2,
+     "characterId": "coworker",
+     "message": "Sorry to jump in — Daniel, we've got a rush job landed. You're the new one, yeah? Can you give me a hand once you're set up?"
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat this onboarding simulation and strengthen one missed objective."
+   },
+   "lead": "hr",
+   "openings": {
+    "hr": "Good morning — you must be the new welder. I'm Maya from HR. Tell me a little about yourself and the work you've done.",
+    "supervisor": "Morning. Daniel, I run this shop. Before I put you on anything, tell me what you've been welding.",
+    "coworker": "Hey — you're the new one, right? I'm Luis. What kind of work were you doing before this?",
+    "safety": "Morning. Priya, safety officer. Everyone gets five minutes with me on day one. Tell me about your experience first.",
+    "qa": "You're new — I'm Amelia, I inspect what leaves this shop. Tell me where you've worked and what you welded."
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "Good. We run a lot of structural work here. What positions are you comfortable in?",
+     "q": "t0"
+    },
+    {
+     "characterId": "safety",
+     "text": "Before you touch a machine — walk me through what you check to work safely.",
+     "q": "t1"
+    },
+    {
+     "characterId": "coworker",
+     "text": "One more thing. If you're not sure about a job, who do you go to? We'd rather you ask.",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "I check every weld that leaves here. If I send something back, how would you want me to tell you?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "qa",
+    "text": "That's everything from us. Welcome to the team — go and find Daniel, he'll get you started."
+   },
+   "questions": {
+    "open": {
+     "ask": "Tell me about yourself and the work you've done.",
+     "points": [
+      {
+       "id": "who",
+       "label": "Say who you are and that you are a welder",
+       "cues": [
+        "welder",
+        "fabricator",
+        "i am",
+        "my name",
+        "i'm",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "how_long",
+       "label": "Say how long you have been doing it",
+       "cues": [
+        "year",
+        "years",
+        "month",
+        "since",
+        "experience"
+       ]
+      },
+      {
+       "id": "process",
+       "label": "Name the processes you actually run",
+       "cues": [
+        "mig",
+        "tig",
+        "stick",
+        "mma",
+        "mag",
+        "smaw",
+        "gmaw",
+        "gtaw",
+        "flux",
+        "arc"
+       ]
+      },
+      {
+       "id": "what_on",
+       "label": "Say what you welded — product or sector",
+       "cues": [
+        "pipe",
+        "structural",
+        "plate",
+        "tank",
+        "vessel",
+        "fabricat",
+        "construction",
+        "workshop"
+       ]
+      },
+      {
+       "id": "close",
+       "label": "End with what you are looking for or ready to do",
+       "cues": [
+        "looking",
+        "ready",
+        "hoping",
+        "want to",
+        "keen"
+       ]
+      }
+     ],
+     "vocab": [
+      "fabrication",
+      "structural",
+      "carbon steel",
+      "stainless",
+      "fillet weld",
+      "butt weld"
+     ],
+     "model": "I'm a welder with six years' experience. I mostly run MIG and stick on structural steel — beams, columns and brackets for building frames. The last two years I was on a fabrication shop floor doing fit-up and welding, and I'm looking for work where I can move onto pipe.",
+     "why": "This is the answer every employer hears first, and most welders lose the job here by being too short. Four facts in twenty seconds: who you are, how long, which processes, what you welded.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t0": {
+     "ask": "We run a lot of structural work here. What positions are you comfortable in?",
+     "points": [
+      {
+       "id": "named",
+       "label": "Name the positions you can weld",
+       "cues": [
+        "1g",
+        "2g",
+        "3g",
+        "4g",
+        "5g",
+        "6g",
+        "flat",
+        "horizontal",
+        "vertical",
+        "overhead",
+        "position"
+       ]
+      },
+      {
+       "id": "honest",
+       "label": "Be honest about what you are still weak in",
+       "cues": [
+        "not",
+        "less",
+        "still",
+        "learning",
+        "weak",
+        "comfortable with",
+        "not yet",
+        "slower",
+        "practice",
+        "practise",
+        "but",
+        "would want",
+        "less confident"
+       ]
+      },
+      {
+       "id": "willing",
+       "label": "Say you are willing to be tested or to learn",
+       "cues": [
+        "test",
+        "try",
+        "show",
+        "learn",
+        "train",
+        "practise",
+        "practice"
+       ]
+      }
+     ],
+     "vocab": [
+      "flat position",
+      "vertical up",
+      "overhead",
+      "root pass",
+      "capping run"
+     ],
+     "model": "I'm comfortable flat and horizontal, and vertical up on fillet welds. Overhead I can do but I'm slower, so I'd want some practice before you put me on it. I'm happy to do a test piece so you can see for yourself.",
+     "why": "Never claim a position you cannot hold — you will be found out on the test piece. Saying what you cannot do yet, and offering to be tested, reads as professional, not weak.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t1": {
+     "ask": "Before you touch a machine — walk me through what you check to work safely.",
+     "points": [
+      {
+       "id": "ppe",
+       "label": "Name your personal protection",
+       "cues": [
+        "helmet",
+        "mask",
+        "gloves",
+        "boots",
+        "screen",
+        "goggles",
+        "apron",
+        "ppe",
+        "respirator"
+       ]
+      },
+      {
+       "id": "area",
+       "label": "Say what you check around you",
+       "cues": [
+        "area",
+        "clear",
+        "flammable",
+        "screen",
+        "barrier",
+        "ventilat",
+        "extraction",
+        "fume"
+       ]
+      },
+      {
+       "id": "equipment",
+       "label": "Say you check the equipment and leads",
+       "cues": [
+        "lead",
+        "cable",
+        "earth",
+        "clamp",
+        "hose",
+        "regulator",
+        "machine",
+        "check",
+        "inspect"
+       ]
+      },
+      {
+       "id": "ask",
+       "label": "Say you ask if something is unclear",
+       "cues": [
+        "ask",
+        "tell",
+        "report",
+        "supervisor",
+        "check with",
+        "confirm"
+       ]
+      }
+     ],
+     "vocab": [
+      "PPE",
+      "fume extraction",
+      "earth clamp",
+      "hot work",
+      "flashback arrestor"
+     ],
+     "model": "First my PPE — helmet, gloves, sleeves and boots. Then the area: nothing flammable near, screens up so I don't flash anyone, and extraction on for fume. Then the set itself — leads and earth clamp in good order, no damaged insulation. If anything doesn't look right I stop and ask the supervisor.",
+     "why": "Safety answers are judged on order and specifics: yourself, the area, the equipment, then who you tell. Vague answers like 'I always work safely' score nothing anywhere in the world.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t2": {
+     "ask": "If you're not sure about a job, who do you go to? We'd rather you ask.",
+     "points": [
+      {
+       "id": "who",
+       "label": "Name a role you would go to",
+       "cues": [
+        "supervisor",
+        "foreman",
+        "charge",
+        "inspector",
+        "qa",
+        "engineer",
+        "lead",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "stop",
+       "label": "Say you stop rather than guess",
+       "cues": [
+        "stop",
+        "not guess",
+        "wait",
+        "hold",
+        "before",
+        "rather than",
+        "down tools",
+        "knock off",
+        "pull up"
+       ]
+      },
+      {
+       "id": "why",
+       "label": "Say why asking is better than guessing",
+       "cues": [
+        "rework",
+        "mistake",
+        "scrap",
+        "safe",
+        "cost",
+        "wrong"
+       ]
+      }
+     ],
+     "vocab": [
+      "supervisor",
+      "hold point",
+      "rework",
+      "scrap"
+     ],
+     "model": "I go to the supervisor, or the inspector if it's a quality question. I'd rather stop and ask for two minutes than guess and have the whole piece cut out later. Asking is cheaper than rework.",
+     "why": "Employers abroad are testing one thing here: will this person guess silently? Say the role, say you stop first, and give the reason.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t3": {
+     "ask": "I check every weld that leaves here. If I send something back, how would you want me to tell you?",
+     "points": [
+      {
+       "id": "open",
+       "label": "Show you accept correction",
+       "cues": [
+        "fine",
+        "happy",
+        "no problem",
+        "tell me",
+        "straight",
+        "direct",
+        "ok with"
+       ]
+      },
+      {
+       "id": "detail",
+       "label": "Ask for the specific defect and location",
+       "cues": [
+        "what",
+        "where",
+        "which",
+        "show me",
+        "point",
+        "exactly",
+        "defect"
+       ]
+      },
+      {
+       "id": "fix",
+       "label": "Say what you would do next",
+       "cues": [
+        "fix",
+        "redo",
+        "grind",
+        "repair",
+        "correct",
+        "again",
+        "put right"
+       ]
+      },
+      {
+       "id": "learn",
+       "label": "Say you want to avoid repeating it",
+       "cues": [
+        "avoid",
+        "again",
+        "learn",
+        "next time",
+        "why",
+        "prevent"
+       ]
+      }
+     ],
+     "vocab": [
+      "defect",
+      "undercut",
+      "porosity",
+      "rework",
+      "acceptance criteria"
+     ],
+     "model": "Tell me straight, I'd rather know. Show me where it is and what's wrong with it — undercut, porosity, whatever it is — and I'll grind it out and re-run it. And tell me why it happened so I don't put the same fault in the next one.",
+     "why": "How a welder takes rejection is watched closely on every site. Accept it, ask for specifics, state the fix, ask what caused it.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    }
+   },
+   "moduleId": 1,
+   "regulatory": {
+    "moduleId": 1,
+    "codes": [
+     {
+      "code": "OSHA 29 CFR 1910 Subpart Q",
+      "title": "Welding, Cutting and Brazing",
+      "note": ""
+     },
+     {
+      "code": "HazCom",
+      "title": "Hazard Communication, 29 CFR 1910.1200",
+      "note": ""
+     }
+    ],
+    "requirement": "Mandatory workshop safety orientation, hazard communication, emergency exit verification, and allocation of flame-resistant PPE.",
+    "benchmarks": [
+     {
+      "id": "emergency",
+      "must": "Identify the emergency assembly point, eye-wash station and fire extinguishers",
+      "cues": [
+       "assembly point",
+       "muster",
+       "eye wash",
+       "eyewash",
+       "eye-wash",
+       "fire extinguisher",
+       "extinguisher",
+       "emergency exit",
+       "fire point",
+       "first aid",
+       "emergency"
+      ],
+      "critical": true
+     },
+     {
+      "id": "ppe",
+      "must": "Name the minimum PPE: auto-darkening helmet with correct shade rating, leather gloves, flame-resistant jacket, steel-toe boots",
+      "cues": [
+       "helmet",
+       "auto-darkening",
+       "auto darkening",
+       "shade",
+       "leather glove",
+       "gloves",
+       "flame-resistant",
+       "flame resistant",
+       "fire retardant",
+       "jacket",
+       "steel toe",
+       "steel-toe",
+       "safety boots",
+       "ppe",
+       "apron",
+       "sleeves"
+      ],
+      "critical": true
+     },
+     {
+      "id": "rules",
+      "must": "Review the workshop-specific safety rules before turning on any machinery",
+      "cues": [
+       "safety rules",
+       "induction",
+       "orientation",
+       "briefing",
+       "site rules",
+       "before starting",
+       "before using",
+       "before i touch",
+       "read the",
+       "toolbox"
+      ],
+      "critical": false
+     }
+    ],
+    "vocab": [
+     "HazCom",
+     "PPE",
+     "shade rating",
+     "flame-resistant",
+     "assembly point",
+     "hot work"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-2",
+   "title": "Shift Handover",
+   "scenario": "Give your team a useful handover before the next shift.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the handover",
+     "keywords": [
+      "i am",
+      "shift",
+      "update"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe completed work",
+     "keywords": [
+      "completed",
+      "worked",
+      "finished"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm priorities",
+     "keywords": [
+      "priority",
+      "can",
+      "will"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Mention safe status",
+     "keywords": [
+      "safety",
+      "safe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the handover",
+     "keywords": [
+      "thank",
+      "handover",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "change-2",
+     "afterTurn": 2,
+     "characterId": "supervisor",
+     "message": "Hang on. Night shift just rang, they're two hands down. Does that change what you'd hand over?"
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Shift Handover and make your update more concise."
+   },
+   "lead": "supervisor",
+   "openings": {
+    "supervisor": "Before you go — give me the handover. What did you finish today?",
+    "coworker": "I'm taking over from you. What's left on the job?",
+    "qa": "I'm logging tonight's handover. Tell me what's complete and what's still open.",
+    "safety": "Handover time. Anything on your shift I need to know about?",
+    "hr": "I'm sitting in on handovers this week. Talk me through your day as if I were the next shift."
+   },
+   "turns": [
+    {
+     "characterId": "coworker",
+     "text": "Got it. Anything that gave you trouble? I'd rather hear it now than find it at ten o'clock.",
+     "q": "t0"
+    },
+    {
+     "characterId": "qa",
+     "text": "Which joints have I still got to inspect?",
+     "q": "t1"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "And what do you want the night shift to start with?",
+     "q": "t2"
+    },
+    {
+     "characterId": "safety",
+     "text": "Anything left in the area that could catch someone out?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "supervisor",
+    "text": "Clear handover. That's what I want every night. Go home."
+   },
+   "questions": {
+    "open": {
+     "ask": "Before you go — give me the handover. What did you finish today?",
+     "points": [
+      {
+       "id": "done",
+       "label": "Say clearly what is finished",
+       "cues": [
+        "finished",
+        "completed",
+        "done",
+        "welded",
+        "closed out"
+       ]
+      },
+      {
+       "id": "where",
+       "label": "Say which job, joint or drawing number",
+       "cues": [
+        "joint",
+        "line",
+        "drawing",
+        "number",
+        "spool",
+        "section",
+        "mark"
+       ]
+      },
+      {
+       "id": "open",
+       "label": "Say what is not finished",
+       "cues": [
+        "not",
+        "left",
+        "still",
+        "remaining",
+        "outstanding",
+        "half"
+       ]
+      },
+      {
+       "id": "issue",
+       "label": "Flag anything that went wrong",
+       "cues": [
+        "issue",
+        "problem",
+        "trouble",
+        "short",
+        "waiting",
+        "delay",
+        "fault"
+       ]
+      }
+     ],
+     "vocab": [
+      "handover",
+      "joint number",
+      "spool",
+      "outstanding work",
+      "hold point"
+     ],
+     "model": "I finished the six fillet joints on spool twelve and they're ready for inspection. Spool thirteen is fitted and tacked but not welded. One thing to know — we ran short of three-point-two rods this afternoon, so that's why thirteen stopped.",
+     "why": "A handover is judged on whether the next person can start work without ringing you. Finished, where, what's left, what went wrong.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t0": {
+     "ask": "Anything that gave you trouble? I'd rather hear it now than find it at ten o'clock.",
+     "points": [
+      {
+       "id": "name",
+       "label": "Name the actual problem",
+       "cues": [
+        "problem",
+        "issue",
+        "trouble",
+        "fault",
+        "short",
+        "broke",
+        "leak",
+        "slip"
+       ]
+      },
+      {
+       "id": "effect",
+       "label": "Say what it affected",
+       "cues": [
+        "delay",
+        "stopped",
+        "slower",
+        "could not",
+        "held up",
+        "behind",
+        "lost",
+        "hour",
+        "time",
+        "cost me",
+        "set back"
+       ]
+      },
+      {
+       "id": "state",
+       "label": "Say what state you left it in",
+       "cues": [
+        "left",
+        "tagged",
+        "isolated",
+        "marked",
+        "logged",
+        "reported"
+       ]
+      }
+     ],
+     "vocab": [
+      "downtime",
+      "tagged out",
+      "consumables",
+      "log"
+     ],
+     "model": "The wire feed on set four kept slipping, so I lost about an hour. I've tagged it and written it in the log so nobody picks it up cold in the morning.",
+     "why": "Reporting trouble late is how small faults become expensive ones. Name it, say the effect, say what state you left it in.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t1": {
+     "ask": "Which joints have I still got to inspect?",
+     "points": [
+      {
+       "id": "identify",
+       "label": "Identify the joints precisely",
+       "cues": [
+        "joint",
+        "number",
+        "spool",
+        "line",
+        "weld",
+        "mark",
+        "section"
+       ]
+      },
+      {
+       "id": "ready",
+       "label": "Say which are ready now",
+       "cues": [
+        "ready",
+        "complete",
+        "finished",
+        "cleaned",
+        "done"
+       ]
+      },
+      {
+       "id": "notready",
+       "label": "Say which are not ready yet",
+       "cues": [
+        "not",
+        "still",
+        "after",
+        "once",
+        "waiting",
+        "tomorrow",
+        "haven't",
+        "hasn't",
+        "yet",
+        "leave",
+        "morning",
+        "until"
+       ]
+      }
+     ],
+     "vocab": [
+      "visual inspection",
+      "NDT",
+      "weld map",
+      "traceability"
+     ],
+     "model": "Joints one to six on spool twelve are ready — cleaned and marked up. Seven and eight are welded but I haven't cleaned them yet, so leave those until the morning.",
+     "why": "Inspectors work from a weld map. Speaking in joint numbers rather than 'that one over there' is what makes you easy to work with.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t2": {
+     "ask": "And what do you want the night shift to start with?",
+     "points": [
+      {
+       "id": "priority",
+       "label": "Give one clear first task",
+       "cues": [
+        "start",
+        "first",
+        "begin",
+        "priority",
+        "then"
+       ]
+      },
+      {
+       "id": "reason",
+       "label": "Say why that comes first",
+       "cues": [
+        "because",
+        "so",
+        "ready",
+        "waiting",
+        "inspect",
+        "deadline"
+       ]
+      },
+      {
+       "id": "caution",
+       "label": "Warn them about anything",
+       "cues": [
+        "careful",
+        "watch",
+        "don't",
+        "note",
+        "remember",
+        "check"
+       ]
+      }
+     ],
+     "vocab": [
+      "priority",
+      "shift plan",
+      "pre-heat",
+      "fit-up"
+     ],
+     "model": "Start them on spool thirteen — it's already fitted and tacked, so they can go straight to welding. Tell them to check the fit-up on the last joint first, I wasn't happy with the gap.",
+     "why": "One priority, one reason, one warning. Giving three equal tasks means the night shift picks the easiest.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t3": {
+     "ask": "Anything left in the area that could catch someone out?",
+     "points": [
+      {
+       "id": "hazard",
+       "label": "Name a specific hazard",
+       "cues": [
+        "hot",
+        "cable",
+        "lead",
+        "trip",
+        "gas",
+        "bottle",
+        "sharp",
+        "edge",
+        "open"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Say what you did about it",
+       "cues": [
+        "moved",
+        "coiled",
+        "isolated",
+        "closed",
+        "barrier",
+        "taped",
+        "cleared"
+       ]
+      },
+      {
+       "id": "remaining",
+       "label": "Say what is still there",
+       "cues": [
+        "still",
+        "left",
+        "remains",
+        "until",
+        "cooling"
+       ]
+      }
+     ],
+     "vocab": [
+      "hot work",
+      "gas bottle",
+      "housekeeping",
+      "barrier"
+     ],
+     "model": "The plate on the bench is still hot — I've put a hot-work sign on it. Otherwise leads are coiled and the bottles are closed off and chained.",
+     "why": "A safety handover is not a formality: name the hazard, what you did, and what is still live.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    }
+   },
+   "moduleId": 2,
+   "regulatory": {
+    "moduleId": 2,
+    "codes": [
+     {
+      "code": "ISO 3834",
+      "title": "Quality requirements for fusion welding of metallic materials",
+      "note": ""
+     }
+    ],
+    "requirement": "Continuous workflow traceability. Incoming shifts must be briefed on active weld setups, machine state, material trace numbers and production anomalies.",
+    "benchmarks": [
+     {
+      "id": "equipment",
+      "must": "State the equipment status: duty cycle limits, machine settings or gas cylinder pressures",
+      "cues": [
+       "duty cycle",
+       "setting",
+       "amp",
+       "volt",
+       "parameter",
+       "cylinder",
+       "pressure",
+       "bar",
+       "gas",
+       "machine",
+       "set at",
+       "wire speed"
+      ],
+      "critical": true
+     },
+     {
+      "id": "jobid",
+      "must": "Identify the joint or job ID on the bench and its phase of completion",
+      "cues": [
+       "joint",
+       "job",
+       "spool",
+       "drawing",
+       "weld number",
+       "line",
+       "mark",
+       "section",
+       "id",
+       "phase",
+       "complete",
+       "finished",
+       "tacked",
+       "fitted"
+      ],
+      "critical": true
+     },
+     {
+      "id": "anomaly",
+      "must": "Report anomalies, defect trends, or instructions left by the outgoing supervisor",
+      "cues": [
+       "anomaly",
+       "defect",
+       "issue",
+       "problem",
+       "trouble",
+       "trend",
+       "instruction",
+       "note",
+       "fault",
+       "short",
+       "delay",
+       "supervisor said"
+      ],
+      "critical": false
+     }
+    ],
+    "vocab": [
+     "duty cycle",
+     "traceability",
+     "joint number",
+     "handover",
+     "nonconformity"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-3",
+   "title": "Equipment Readiness Check",
+   "scenario": "Prepare equipment and report an issue before work starts.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the check",
+     "keywords": [
+      "i am",
+      "check",
+      "equipment"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe equipment preparation",
+     "keywords": [
+      "checked",
+      "grinder",
+      "torch",
+      "cable"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm action",
+     "keywords": [
+      "can",
+      "will",
+      "report"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Confirm safe equipment",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the check",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "issue-3",
+     "afterTurn": 2,
+     "characterId": "coworker",
+     "message": "Don't touch that grinder — I've just seen the guard's cracked."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Equipment Readiness Check and sharpen your issue report."
+   },
+   "lead": "supervisor",
+   "openings": {
+    "supervisor": "That machine's yours for the day. Tell me how you'd check it over before you start.",
+    "coworker": "That set's been playing up. What do you look at first?",
+    "safety": "Before you power anything up — talk me through your checks.",
+    "qa": "Your settings matter for what I inspect later. What are you setting up, and why?",
+    "hr": "You mentioned equipment in your interview. Talk me through how you get set up for a shift."
+   },
+   "turns": [
+    {
+     "characterId": "coworker",
+     "text": "Say the wire feed keeps slipping. How would you report that?",
+     "q": "t0"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "If a machine isn't right, what do you do — carry on, or stop?",
+     "q": "t1"
+    },
+    {
+     "characterId": "safety",
+     "text": "And how would you make sure nobody else uses it in the meantime?",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "Tell me what you'd write in the log.",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "supervisor",
+    "text": "Good. You check it, you flag it, you don't guess. That's how we run."
+   },
+   "questions": {
+    "open": {
+     "ask": "That machine's yours for the day. Tell me how you'd check it over before you start.",
+     "points": [
+      {
+       "id": "power",
+       "label": "Check leads, plugs and insulation",
+       "cues": [
+        "lead",
+        "cable",
+        "plug",
+        "insulation",
+        "damage",
+        "cut",
+        "fray"
+       ]
+      },
+      {
+       "id": "earth",
+       "label": "Check the earth or return",
+       "cues": [
+        "earth",
+        "ground",
+        "clamp",
+        "return",
+        "connection"
+       ]
+      },
+      {
+       "id": "gas",
+       "label": "Check gas, consumables or wire",
+       "cues": [
+        "gas",
+        "bottle",
+        "regulator",
+        "flow",
+        "wire",
+        "rod",
+        "nozzle",
+        "tip",
+        "consumable"
+       ]
+      },
+      {
+       "id": "set",
+       "label": "Check the settings against the job",
+       "cues": [
+        "setting",
+        "amp",
+        "volt",
+        "parameter",
+        "current",
+        "procedure",
+        "wps"
+       ]
+      }
+     ],
+     "vocab": [
+      "earth clamp",
+      "return lead",
+      "regulator",
+      "contact tip",
+      "amperage"
+     ],
+     "model": "I look at the leads first — any cuts in the insulation and it doesn't get used. Then the earth clamp, that it's on clean metal and tight. Then gas flow and the contact tip. Last I set the amps and volts for the job and run a test piece if I can.",
+     "why": "Equipment checks are a sequence, and saying them in order shows you actually do them. Power, earth, consumables, settings.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t0": {
+     "ask": "Say the wire feed keeps slipping. How would you report that?",
+     "points": [
+      {
+       "id": "what",
+       "label": "Say exactly what the machine is doing",
+       "cues": [
+        "slip",
+        "feed",
+        "stutter",
+        "stop",
+        "jam",
+        "inconsistent",
+        "birdnest"
+       ]
+      },
+      {
+       "id": "when",
+       "label": "Say when it happens",
+       "cues": [
+        "when",
+        "after",
+        "during",
+        "every",
+        "start",
+        "intermittent",
+        "sometimes"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Say who you tell",
+       "cues": [
+        "supervisor",
+        "maintenance",
+        "foreman",
+        "report",
+        "tell",
+        "log",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "meantime",
+       "label": "Say what you do in the meantime",
+       "cues": [
+        "stop",
+        "tag",
+        "label",
+        "switch",
+        "another",
+        "until"
+       ]
+      }
+     ],
+     "vocab": [
+      "wire feed",
+      "liner",
+      "drive roll",
+      "tagged out",
+      "downtime"
+     ],
+     "model": "I'd say the wire is slipping at the drive rolls, mostly after a long run, and it's putting birdnests in the liner. I'd report it to the supervisor and maintenance, tag the set so nobody else picks it up, and move to another machine until it's looked at.",
+     "why": "A fault report that says only 'it's not working' gets ignored. What, when, who you told, what you did meanwhile.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t1": {
+     "ask": "If a machine isn't right, what do you do — carry on, or stop?",
+     "points": [
+      {
+       "id": "stop",
+       "label": "Say clearly that you stop",
+       "cues": [
+        "stop",
+        "not use",
+        "won't",
+        "don't",
+        "cease",
+        "halt",
+        "down tools",
+        "knock off",
+        "pull up"
+       ]
+      },
+      {
+       "id": "why",
+       "label": "Give the reason",
+       "cues": [
+        "safe",
+        "quality",
+        "damage",
+        "risk",
+        "injur",
+        "defect",
+        "weld"
+       ]
+      },
+      {
+       "id": "tell",
+       "label": "Say who you inform",
+       "cues": [
+        "supervisor",
+        "report",
+        "tell",
+        "maintenance",
+        "log"
+       ]
+      }
+     ],
+     "vocab": [
+      "stop work",
+      "defective equipment",
+      "tag out"
+     ],
+     "model": "I stop. A set that isn't running right either hurts somebody or puts a defect in the weld, and both cost more than an hour's downtime. I tag it and tell the supervisor.",
+     "why": "There is only one right answer here and every employer is listening for it. Say 'I stop' first, then justify it.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t2": {
+     "ask": "And how would you make sure nobody else uses it in the meantime?",
+     "points": [
+      {
+       "id": "tag",
+       "label": "Say you tag, label or lock it",
+       "cues": [
+        "tag",
+        "label",
+        "sign",
+        "lock",
+        "isolate",
+        "mark",
+        "sticker"
+       ]
+      },
+      {
+       "id": "power",
+       "label": "Say you isolate the power or gas",
+       "cues": [
+        "power",
+        "off",
+        "isolat",
+        "unplug",
+        "switch",
+        "close",
+        "valve"
+       ]
+      },
+      {
+       "id": "tell",
+       "label": "Say you tell people",
+       "cues": [
+        "tell",
+        "inform",
+        "team",
+        "shift",
+        "handover",
+        "log",
+        "board"
+       ]
+      }
+     ],
+     "vocab": [
+      "lock out",
+      "tag out",
+      "isolation",
+      "permit"
+     ],
+     "model": "Tag on the machine, power isolated, and I tell the shift and write it on the board. A tag on its own isn't enough if the next man doesn't read it.",
+     "why": "Isolation is physical plus communication. Saying both is what separates a trained welder from someone repeating a phrase.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t3": {
+     "ask": "Tell me what you'd write in the log.",
+     "points": [
+      {
+       "id": "fact",
+       "label": "State the fault factually",
+       "cues": [
+        "fault",
+        "slip",
+        "fail",
+        "not",
+        "error",
+        "problem"
+       ]
+      },
+      {
+       "id": "id",
+       "label": "Identify the machine",
+       "cues": [
+        "machine",
+        "set",
+        "number",
+        "bay",
+        "serial",
+        "unit"
+       ]
+      },
+      {
+       "id": "time",
+       "label": "Give date, time or shift",
+       "cues": [
+        "time",
+        "date",
+        "shift",
+        "morning",
+        "today",
+        "when"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Record what you did",
+       "cues": [
+        "tagged",
+        "isolated",
+        "reported",
+        "informed",
+        "stopped"
+       ]
+      }
+     ],
+     "vocab": [
+      "log entry",
+      "traceability",
+      "maintenance request"
+     ],
+     "model": "Set four, bay two. Wire feed slipping intermittently from about two o'clock. Machine tagged and isolated, supervisor and maintenance informed. Signed and dated.",
+     "why": "A log entry is a record someone may read months later. Machine, fault, time, action, name.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    }
+   },
+   "moduleId": 3,
+   "regulatory": {
+    "moduleId": 3,
+    "codes": [
+     {
+      "code": "AWS D1.1 Clause 5",
+      "title": "Fabrication requirements",
+      "note": "Clause numbering follows AWS D1.1 editions before 2020; the 2020 edition renumbered Fabrication to Clause 7 and Inspection to Clause 8. Confirm against the edition in force on your project."
+     },
+     {
+      "code": "OSHA 29 CFR 1910.332",
+      "title": "Electrical safety-related work practices — training",
+      "note": ""
+     }
+    ],
+    "requirement": "Inspection of insulation, cable damage, gas delivery systems and ground clamp connections before striking an arc, to prevent shock hazards and porous welds.",
+    "benchmarks": [
+     {
+      "id": "cables",
+      "must": "Confirm welding cables are free of exposed copper, deep cuts or faulty splices",
+      "cues": [
+       "exposed copper",
+       "copper",
+       "cut",
+       "splice",
+       "insulation",
+       "damaged",
+       "fray",
+       "lead",
+       "cable",
+       "nick",
+       "tape"
+      ],
+      "critical": true
+     },
+     {
+      "id": "gas",
+      "must": "Check the gas delivery system for leaks and that cylinders are chained securely upright",
+      "cues": [
+       "leak",
+       "cylinder",
+       "bottle",
+       "chain",
+       "upright",
+       "secure",
+       "strap",
+       "regulator",
+       "hose",
+       "gas delivery",
+       "flow"
+      ],
+      "critical": false
+     },
+     {
+      "id": "ground",
+      "must": "Validate ground clamp placement for a stable electrical loop and clean current transmission",
+      "cues": [
+       "ground clamp",
+       "earth clamp",
+       "earth",
+       "ground",
+       "return",
+       "clamp",
+       "electrical loop",
+       "clean metal",
+       "bare metal",
+       "connection"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "duty cycle",
+     "ground clamp",
+     "return lead",
+     "regulator",
+     "open circuit voltage"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-4",
+   "title": "Material Preparation Briefing",
+   "scenario": "Clarify materials and preparation before a job.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the briefing",
+     "keywords": [
+      "i am",
+      "material",
+      "briefing"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe preparation",
+     "keywords": [
+      "thickness",
+      "joint",
+      "surface",
+      "prepare"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm requirement",
+     "keywords": [
+      "can",
+      "will",
+      "confirm"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Include safe preparation",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the briefing",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "spec-4",
+     "afterTurn": 2,
+     "characterId": "qa",
+     "message": "Stop there a second. The label on that plate doesn't match the drawing."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Material Preparation Briefing and improve specification language."
+   },
+   "lead": "supervisor",
+   "openings": {
+    "supervisor": "Materials are on the bench. Tell me how you'd get them ready.",
+    "coworker": "We're prepping together today. What do you want to start on?",
+    "qa": "Preparation is where most of my rejects come from. Talk me through yours.",
+    "safety": "Before you cut or grind anything, tell me what you'd sort out first.",
+    "hr": "Describe a job where preparation made the difference. I want to hear how you explain it."
+   },
+   "turns": [
+    {
+     "characterId": "qa",
+     "text": "How would you tell me the fit-up isn't right?",
+     "q": "t0"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "If the material isn't what the job called for, who do you tell?",
+     "q": "t1"
+    },
+    {
+     "characterId": "coworker",
+     "text": "And if I've prepped it differently to you — how do we sort that out?",
+     "q": "t2"
+    },
+    {
+     "characterId": "safety",
+     "text": "Anything about this prep that could put someone at risk?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "supervisor",
+    "text": "That's the standard. Get the prep right and the rest follows."
+   },
+   "questions": {
+    "open": {
+     "ask": "Materials are on the bench. Tell me how you'd get them ready.",
+     "points": [
+      {
+       "id": "identify",
+       "label": "Check the material is the right one",
+       "cues": [
+        "check",
+        "identif",
+        "material",
+        "grade",
+        "label",
+        "cert",
+        "mark",
+        "match"
+       ]
+      },
+      {
+       "id": "clean",
+       "label": "Say you clean the surface",
+       "cues": [
+        "clean",
+        "grind",
+        "wire brush",
+        "remove",
+        "rust",
+        "paint",
+        "oil",
+        "scale",
+        "degrease"
+       ]
+      },
+      {
+       "id": "prep",
+       "label": "Say how you prepare the edge or fit",
+       "cues": [
+        "bevel",
+        "edge",
+        "prep",
+        "fit",
+        "gap",
+        "align",
+        "root",
+        "tack"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Say you check it against the drawing",
+       "cues": [
+        "drawing",
+        "spec",
+        "procedure",
+        "wps",
+        "measure",
+        "check",
+        "dimension"
+       ]
+      }
+     ],
+     "vocab": [
+      "bevel",
+      "root gap",
+      "fit-up",
+      "mill scale",
+      "material certificate"
+     ],
+     "model": "First I check the plate is the grade the job calls for — the marking against the drawing. Then clean the prep back to bright metal, no scale, rust or paint. Then set the bevel and the root gap to the procedure and tack it up, checking alignment before I run anything.",
+     "why": "Most rejected welds are made before the arc is struck. Identify, clean, prepare, check against the drawing.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t0": {
+     "ask": "How would you tell me the fit-up isn't right?",
+     "points": [
+      {
+       "id": "what",
+       "label": "Say what is wrong with it",
+       "cues": [
+        "gap",
+        "wide",
+        "narrow",
+        "misalign",
+        "hi-lo",
+        "angle",
+        "out",
+        "uneven"
+       ]
+      },
+      {
+       "id": "measure",
+       "label": "Give a measurement or comparison",
+       "cues": [
+        "mm",
+        "millimet",
+        "inch",
+        "too",
+        "more than",
+        "less than",
+        "spec",
+        "tolerance"
+       ]
+      },
+      {
+       "id": "where",
+       "label": "Say where on the joint",
+       "cues": [
+        "root",
+        "end",
+        "side",
+        "top",
+        "joint",
+        "section",
+        "along"
+       ]
+      },
+      {
+       "id": "ask",
+       "label": "Ask for a decision",
+       "cues": [
+        "should",
+        "can",
+        "want",
+        "shall",
+        "do you",
+        "how do you want"
+       ]
+      }
+     ],
+     "vocab": [
+      "root gap",
+      "hi-lo",
+      "misalignment",
+      "tolerance",
+      "fit-up"
+     ],
+     "model": "The root gap's opened up to about five mil at the top end — the drawing says three. There's a bit of hi-lo with it too. Do you want it re-tacked, or shall I build the root up?",
+     "why": "Reporting a problem without a measurement forces the supervisor to come and look. Say what, how much, where, then ask for the decision.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t1": {
+     "ask": "If the material isn't what the job called for, who do you tell?",
+     "points": [
+      {
+       "id": "stop",
+       "label": "Say you do not weld it",
+       "cues": [
+        "stop",
+        "not weld",
+        "don't",
+        "won't",
+        "hold",
+        "before",
+        "down tools",
+        "knock off",
+        "pull up"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Name who you tell",
+       "cues": [
+        "supervisor",
+        "inspector",
+        "qa",
+        "engineer",
+        "store",
+        "foreman",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "why",
+       "label": "Say why it matters",
+       "cues": [
+        "wrong",
+        "grade",
+        "proper",
+        "strength",
+        "fail",
+        "spec",
+        "cert",
+        "procedure"
+       ]
+      }
+     ],
+     "vocab": [
+      "material certificate",
+      "grade",
+      "traceability",
+      "substitution"
+     ],
+     "model": "I stop and don't weld it. I'd take it to the supervisor and the inspector, because if the grade is wrong the procedure doesn't apply and the joint could fail. Substituting material isn't my call.",
+     "why": "Material substitution is one of the fastest ways to lose a job internationally. Stop, escalate, and say plainly that it is not your decision.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t2": {
+     "ask": "And if I've prepped it differently to you — how do we sort that out?",
+     "points": [
+      {
+       "id": "ref",
+       "label": "Go back to the drawing or procedure",
+       "cues": [
+        "drawing",
+        "procedure",
+        "wps",
+        "spec",
+        "standard",
+        "check",
+        "what it says"
+       ]
+      },
+      {
+       "id": "talk",
+       "label": "Say you talk it through rather than argue",
+       "cues": [
+        "talk",
+        "ask",
+        "discuss",
+        "agree",
+        "together",
+        "show me",
+        "explain",
+        "both",
+        "we go",
+        "rather than",
+        "sit down",
+        "between us"
+       ]
+      },
+      {
+       "id": "resolve",
+       "label": "Say who decides if you disagree",
+       "cues": [
+        "supervisor",
+        "inspector",
+        "engineer",
+        "decide",
+        "escalate",
+        "confirm"
+       ]
+      }
+     ],
+     "vocab": [
+      "WPS",
+      "specification",
+      "tolerance",
+      "agreement"
+     ],
+     "model": "We both go back to the drawing and the procedure — whatever it says wins, not whichever of us is louder. If it's genuinely unclear we take it to the supervisor rather than each doing our own thing.",
+     "why": "Disagreement between welders is normal. The answer employers want is that the document decides, not seniority.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t3": {
+     "ask": "Anything about this prep that could put someone at risk?",
+     "points": [
+      {
+       "id": "hazard",
+       "label": "Name a real hazard from prep work",
+       "cues": [
+        "dust",
+        "fume",
+        "spark",
+        "sharp",
+        "edge",
+        "grind",
+        "noise",
+        "burr",
+        "hot"
+       ]
+      },
+      {
+       "id": "protect",
+       "label": "Say how you protect yourself and others",
+       "cues": [
+        "mask",
+        "goggles",
+        "screen",
+        "glove",
+        "extraction",
+        "respirator",
+        "barrier",
+        "ppe"
+       ]
+      },
+      {
+       "id": "others",
+       "label": "Consider people nearby",
+       "cues": [
+        "others",
+        "nearby",
+        "around",
+        "behind",
+        "below",
+        "team",
+        "warn"
+       ]
+      }
+     ],
+     "vocab": [
+      "grinding dust",
+      "fume extraction",
+      "hot work",
+      "screen"
+     ],
+     "model": "Grinding throws sparks and dust, so goggles and a mask for me, and screens up so I'm not throwing sparks at whoever's behind me. If there's galvanising on it that's a fume problem and it needs extraction.",
+     "why": "Naming the hazard from the specific task, and then the people around you, is what a safety officer is listening for.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    }
+   },
+   "moduleId": 4,
+   "regulatory": {
+    "moduleId": 4,
+    "codes": [
+     {
+      "code": "ISO 3834-2",
+      "title": "Comprehensive quality requirements",
+      "note": ""
+     },
+     {
+      "code": "EN 10204",
+      "title": "Inspection documents for metallic products (mill certificates)",
+      "note": ""
+     }
+    ],
+    "requirement": "Alignment of joint geometry, base metal cleanliness and mill test report traceability before assembly.",
+    "benchmarks": [
+     {
+      "id": "mtr",
+      "must": "Verify the base metal type against the Material Test Report or mill certificate",
+      "cues": [
+       "material test report",
+       "mtr",
+       "mill cert",
+       "mill certificate",
+       "certificate",
+       "cert",
+       "grade",
+       "base metal",
+       "material",
+       "traceab",
+       "heat number",
+       "marking",
+       "en 10204"
+      ],
+      "critical": true
+     },
+     {
+      "id": "clean",
+      "must": "Remove surface contaminants — rust, oil, scale, moisture — with a dedicated wire brush or grinder to prevent porosity",
+      "cues": [
+       "rust",
+       "oil",
+       "scale",
+       "moisture",
+       "damp",
+       "paint",
+       "contaminant",
+       "wire brush",
+       "brush",
+       "grind",
+       "clean",
+       "degrease",
+       "porosity",
+       "bright metal"
+      ],
+      "critical": true
+     },
+     {
+      "id": "geometry",
+      "must": "Cross-check the bevel angle, root opening and root face against the job specification",
+      "cues": [
+       "bevel",
+       "root opening",
+       "root gap",
+       "root face",
+       "land",
+       "angle",
+       "geometry",
+       "fit-up",
+       "fit up",
+       "gap",
+       "specification",
+       "spec",
+       "drawing",
+       "dimension"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "MTR",
+     "mill certificate",
+     "bevel angle",
+     "root face",
+     "root opening",
+     "porosity"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-5",
+   "title": "Safety Stop-Work Conversation",
+   "scenario": "Identify a hazard and use calm stop-work communication.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Raise the concern",
+     "keywords": [
+      "i am",
+      "hazard",
+      "concern"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe the risk",
+     "keywords": [
+      "risk",
+      "ventilation",
+      "fumes",
+      "area"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm next action",
+     "keywords": [
+      "can",
+      "will",
+      "stop"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Explain safety action",
+     "keywords": [
+      "safety",
+      "ppe",
+      "safe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close safely",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "hazard-5",
+     "afterTurn": 2,
+     "characterId": "coworker",
+     "message": "Extraction's just cut out. Whole line, not only your bay."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Safety Stop-Work Conversation and make the action more direct."
+   },
+   "lead": "safety",
+   "openings": {
+    "safety": "You flagged something on line two. Tell me what you saw.",
+    "supervisor": "You've stopped the job. Talk me through why.",
+    "coworker": "You waved me off — what's wrong?",
+    "qa": "You've held the work. What's the concern?",
+    "hr": "Tell me about a time you stopped a job. I want to hear how you'd say it."
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "Understood. What do you need from me to make it safe?",
+     "q": "t0"
+    },
+    {
+     "characterId": "coworker",
+     "text": "The lads want to keep going. How do you tell them no?",
+     "q": "t1"
+    },
+    {
+     "characterId": "safety",
+     "text": "Who else needs to know, right now?",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "Does any of the work already done need looking at again?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "safety",
+    "text": "You stopped it and you said why. That's exactly right — never apologise for that."
+   },
+   "questions": {
+    "open": {
+     "ask": "You flagged something on line two. Tell me what you saw.",
+     "points": [
+      {
+       "id": "what",
+       "label": "Say what you actually saw",
+       "cues": [
+        "saw",
+        "noticed",
+        "sparks",
+        "smoke",
+        "leak",
+        "crack",
+        "damage",
+        "spill",
+        "flame"
+       ]
+      },
+      {
+       "id": "where",
+       "label": "Say exactly where it was",
+       "cues": [
+        "near",
+        "beside",
+        "line",
+        "bay",
+        "area",
+        "above",
+        "below",
+        "next to",
+        "by the"
+       ]
+      },
+      {
+       "id": "risk",
+       "label": "Name the risk to people",
+       "cues": [
+        "fire",
+        "burn",
+        "fume",
+        "explos",
+        "injur",
+        "hurt",
+        "gas",
+        "fall",
+        "danger",
+        "risk"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Say what you did about it",
+       "cues": [
+        "stopped",
+        "held",
+        "isolated",
+        "told",
+        "moved",
+        "cleared",
+        "reported"
+       ]
+      }
+     ],
+     "vocab": [
+      "hazard",
+      "hot work",
+      "stop work",
+      "ventilation",
+      "gas bottle"
+     ],
+     "model": "I stopped the job. There were sparks landing near the gas bottles in bay two with no screen up — that's a fire risk with oxy-fuel sitting right there. I've moved the lads back and held the work until we can screen it off.",
+     "why": "Stop-work communication is judged on whether the person hearing it can act immediately. Fact, place, risk, what you already did — in that order.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t0": {
+     "ask": "Understood. What do you need from me to make it safe?",
+     "points": [
+      {
+       "id": "ask",
+       "label": "Make a clear, specific request",
+       "cues": [
+        "need",
+        "can you",
+        "could you",
+        "please",
+        "want",
+        "require"
+       ]
+      },
+      {
+       "id": "thing",
+       "label": "Name the actual resource or action",
+       "cues": [
+        "screen",
+        "barrier",
+        "extraction",
+        "move",
+        "permit",
+        "isolat",
+        "cover",
+        "fan"
+       ]
+      },
+      {
+       "id": "when",
+       "label": "Say what happens until then",
+       "cues": [
+        "until",
+        "before",
+        "then",
+        "once",
+        "meanwhile",
+        "stay",
+        "hold"
+       ]
+      }
+     ],
+     "vocab": [
+      "screen",
+      "barrier",
+      "isolation",
+      "permit to work"
+     ],
+     "model": "I need the bottles moved out of the bay and a screen between us and the walkway. Until that's done I'd rather we don't restart — I'll keep the area taped off.",
+     "why": "Stopping a job is only half the skill. Asking clearly for what would make it safe is what gets you taken seriously the second time.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t1": {
+     "ask": "The lads want to keep going. How do you tell them no?",
+     "points": [
+      {
+       "id": "firm",
+       "label": "Be clear and unambiguous",
+       "cues": [
+        "no",
+        "not",
+        "can't",
+        "won't",
+        "stop",
+        "hold",
+        "wait"
+       ]
+      },
+      {
+       "id": "reason",
+       "label": "Give the reason, not just the order",
+       "cues": [
+        "because",
+        "risk",
+        "fire",
+        "hurt",
+        "unsafe",
+        "gas",
+        "danger"
+       ]
+      },
+      {
+       "id": "respect",
+       "label": "Keep it respectful, not confrontational",
+       "cues": [
+        "sorry",
+        "i know",
+        "understand",
+        "just",
+        "let's",
+        "we'll",
+        "soon"
+       ]
+      },
+      {
+       "id": "auth",
+       "label": "Point to the process or a person",
+       "cues": [
+        "supervisor",
+        "safety",
+        "permit",
+        "procedure",
+        "rule",
+        "policy",
+        "authorised"
+       ]
+      }
+     ],
+     "vocab": [
+      "stop work authority",
+      "hold",
+      "escalation"
+     ],
+     "model": "Look, I know we're behind, but we're not restarting until those bottles are moved — if a spark finds them nobody's going home. Safety's on their way now, five minutes.",
+     "why": "Saying no to your own workmates is the hardest English on a site. Firm, reason, respect, and point at the process rather than yourself.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t2": {
+     "ask": "Who else needs to know, right now?",
+     "points": [
+      {
+       "id": "roles",
+       "label": "Name the roles",
+       "cues": [
+        "supervisor",
+        "safety",
+        "foreman",
+        "permit",
+        "control",
+        "inspector",
+        "manager",
+        "boss",
+        "chief",
+        "officer",
+        "in charge"
+       ]
+      },
+      {
+       "id": "nearby",
+       "label": "Mention people in the area",
+       "cues": [
+        "nearby",
+        "around",
+        "other",
+        "trades",
+        "below",
+        "above",
+        "area",
+        "team",
+        "lads",
+        "guys",
+        "men",
+        "crew",
+        "people",
+        "bay",
+        "next",
+        "beside",
+        "working near",
+        "everyone"
+       ]
+      },
+      {
+       "id": "record",
+       "label": "Mention recording or reporting it",
+       "cues": [
+        "log",
+        "report",
+        "record",
+        "write",
+        "form",
+        "incident",
+        "near miss",
+        "paperwork",
+        "book",
+        "sheet",
+        "write up",
+        "written"
+       ]
+      }
+     ],
+     "vocab": [
+      "permit issuer",
+      "adjacent trades",
+      "near miss",
+      "incident report"
+     ],
+     "model": "Supervisor and the safety officer straight away. Then whoever's working in the next bay, because the risk isn't only ours. And it wants writing up as a near miss.",
+     "why": "Escalation is a list, not one person: the boss, the people exposed, and the record.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t3": {
+     "ask": "Does any of the work already done need looking at again?",
+     "points": [
+      {
+       "id": "consider",
+       "label": "Show you thought about earlier work",
+       "cues": [
+        "earlier",
+        "before",
+        "already",
+        "done",
+        "previous",
+        "today",
+        "this morning"
+       ]
+      },
+      {
+       "id": "judge",
+       "label": "Give a view with a reason",
+       "cues": [
+        "think",
+        "believe",
+        "probably",
+        "should",
+        "because",
+        "since",
+        "if"
+       ]
+      },
+      {
+       "id": "defer",
+       "label": "Defer to the inspector where appropriate",
+       "cues": [
+        "inspector",
+        "qa",
+        "check",
+        "confirm",
+        "decide",
+        "look at",
+        "your call"
+       ]
+      }
+     ],
+     "vocab": [
+      "re-inspection",
+      "quarantine",
+      "traceability",
+      "hold"
+     ],
+     "model": "The joints I ran this morning were before the extraction went down, so I think they're fine. Anything after about one o'clock I'd want the inspector to look at again before it goes out.",
+     "why": "Being able to reason about what your problem affects, and then hand the decision to the right person, is senior-level communication.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    }
+   },
+   "moduleId": 5,
+   "regulatory": {
+    "moduleId": 5,
+    "codes": [
+     {
+      "code": "OSHA General Duty Clause, OSH Act Section 5(a)(1)",
+      "title": "Duty to provide a workplace free of recognised hazards",
+      "note": ""
+     },
+     {
+      "code": "Stop Work Authority",
+      "title": "Site stop-work procedures",
+      "note": ""
+     }
+    ],
+    "requirement": "Immediate halting of work when an imminent hazard is identified. Communication must be calm, direct and solutions-oriented.",
+    "benchmarks": [
+     {
+      "id": "assertive",
+      "must": "Use assertive, professional, clear language to pause work without hostility or blame",
+      "cues": [
+       "stop",
+       "hold",
+       "pause",
+       "down tools",
+       "not restarting",
+       "wait",
+       "calm",
+       "respect",
+       "sorry",
+       "i know",
+       "understand",
+       "let's",
+       "we need"
+      ],
+      "critical": true
+     },
+     {
+      "id": "threat",
+      "must": "Pinpoint the concrete threat explicitly — unshielded flammable vapours, inadequate local exhaust ventilation, and similar",
+      "cues": [
+       "flammable",
+       "vapour",
+       "vapor",
+       "ventilation",
+       "exhaust",
+       "extraction",
+       "fume",
+       "unshielded",
+       "no screen",
+       "spark",
+       "gas",
+       "bottle",
+       "fire",
+       "explos",
+       "hazard",
+       "risk"
+      ],
+      "critical": true
+     },
+     {
+      "id": "restart",
+      "must": "State that work resumes only after an authorised inspector or safety officer clears the zone",
+      "cues": [
+       "authorised",
+       "authorized",
+       "inspector",
+       "safety officer",
+       "safety",
+       "cleared",
+       "clearance",
+       "permit",
+       "sign off",
+       "until",
+       "before we restart",
+       "resume"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "stop work authority",
+     "imminent hazard",
+     "local exhaust ventilation",
+     "permit to work"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-6",
+   "title": "Procedure Briefing",
+   "scenario": "Explain a welding procedure and quality checks.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the briefing",
+     "keywords": [
+      "i am",
+      "procedure",
+      "briefing"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe the sequence",
+     "keywords": [
+      "first",
+      "then",
+      "pass",
+      "parameter"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm procedure",
+     "keywords": [
+      "can",
+      "will",
+      "follow"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Include safe controls",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the briefing",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "parameter-6",
+     "afterTurn": 2,
+     "characterId": "qa",
+     "message": "One correction — the procedure was revised this morning. Have you got the new one?"
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Procedure Briefing and make the sequence clearer."
+   },
+   "lead": "supervisor",
+   "openings": {
+    "supervisor": "New procedure on this job. Tell me back what you understand by it.",
+    "qa": "I'll be checking against the procedure. Tell me what it asks of you.",
+    "coworker": "We're both on this one. What did you take from the briefing?",
+    "safety": "The procedure's changed. What does that change for you on the floor?",
+    "hr": "Talk me through how you'd handle a procedure you've not used before."
+   },
+   "turns": [
+    {
+     "characterId": "qa",
+     "text": "What would you do if the procedure and the drawing disagree?",
+     "q": "t0"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "If you're not certain about a step, what happens next?",
+     "q": "t1"
+    },
+    {
+     "characterId": "coworker",
+     "text": "How would you explain it to someone who missed the briefing?",
+     "q": "t2"
+    },
+    {
+     "characterId": "safety",
+     "text": "Anything in it that changes how you protect yourself?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "supervisor",
+    "text": "Good. You repeated it back and you asked. That's how we avoid rework."
+   },
+   "questions": {
+    "open": {
+     "ask": "New procedure on this job. Tell me back what you understand by it.",
+     "points": [
+      {
+       "id": "back",
+       "label": "Repeat the instruction in your own words",
+       "cues": [
+        "so",
+        "you want",
+        "i understand",
+        "meaning",
+        "that is",
+        "if i",
+        "in other words"
+       ]
+      },
+      {
+       "id": "params",
+       "label": "Name concrete parameters",
+       "cues": [
+        "amp",
+        "volt",
+        "travel",
+        "pre-heat",
+        "interpass",
+        "rod",
+        "wire",
+        "gas",
+        "position",
+        "pass"
+       ]
+      },
+      {
+       "id": "limits",
+       "label": "Mention a limit or requirement",
+       "cues": [
+        "must",
+        "should",
+        "not more",
+        "maximum",
+        "minimum",
+        "between",
+        "within",
+        "no more"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Confirm or ask about anything unclear",
+       "cues": [
+        "correct",
+        "right",
+        "is that",
+        "confirm",
+        "check",
+        "unclear",
+        "question"
+       ]
+      }
+     ],
+     "vocab": [
+      "WPS",
+      "pre-heat",
+      "interpass temperature",
+      "root pass",
+      "travel speed"
+     ],
+     "model": "So — pre-heat to a hundred, keep interpass under two-fifty, root with three-point-two and fill with four. Cap it in two runs, not one. Have I got that right?",
+     "why": "Repeating an instruction back is the single most valuable habit in workplace English. It catches errors before they cost money and it proves you understood.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t0": {
+     "ask": "What would you do if the procedure and the drawing disagree?",
+     "points": [
+      {
+       "id": "stop",
+       "label": "Say you do not choose between them",
+       "cues": [
+        "stop",
+        "not",
+        "don't",
+        "won't",
+        "wouldn't",
+        "before",
+        "hold",
+        "down tools",
+        "knock off",
+        "pull up"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Say who resolves it",
+       "cues": [
+        "engineer",
+        "supervisor",
+        "inspector",
+        "qa",
+        "author",
+        "ask",
+        "escalate",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "record",
+       "label": "Say it should be recorded or clarified in writing",
+       "cues": [
+        "writing",
+        "record",
+        "confirm",
+        "document",
+        "clarif",
+        "formal",
+        "log",
+        "near miss",
+        "paperwork",
+        "book",
+        "sheet",
+        "write up",
+        "written"
+       ]
+      }
+     ],
+     "vocab": [
+      "WPS",
+      "drawing revision",
+      "clarification",
+      "concession"
+     ],
+     "model": "I don't pick one — that's not my decision. I stop and take it to the supervisor and the welding engineer, and I'd want the answer in writing so the next man isn't guessing either.",
+     "why": "Conflicting documents are common on real projects. The correct answer is always: stop, escalate, get it in writing.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t1": {
+     "ask": "If you're not certain about a step, what happens next?",
+     "points": [
+      {
+       "id": "ask",
+       "label": "Say you ask",
+       "cues": [
+        "ask",
+        "check",
+        "confirm",
+        "question",
+        "clarif",
+        "speak to"
+       ]
+      },
+      {
+       "id": "nostart",
+       "label": "Say you do not start on a guess",
+       "cues": [
+        "not start",
+        "don't",
+        "won't",
+        "guess",
+        "before",
+        "until",
+        "stop"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Name who you would ask",
+       "cues": [
+        "supervisor",
+        "engineer",
+        "inspector",
+        "foreman",
+        "colleague",
+        "lead",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      }
+     ],
+     "vocab": [
+      "hold point",
+      "clarification",
+      "assumption"
+     ],
+     "model": "I ask before I start. Guessing on a procedure means the joint gets cut out, so two minutes with the supervisor is the cheap option.",
+     "why": "Every employer abroad worries that a welder with weaker English will nod rather than ask. Say explicitly that you ask.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t2": {
+     "ask": "How would you explain it to someone who missed the briefing?",
+     "points": [
+      {
+       "id": "simple",
+       "label": "Put it in plain, ordered steps",
+       "cues": [
+        "first",
+        "then",
+        "after",
+        "next",
+        "start",
+        "finish",
+        "step",
+        "before",
+        "root",
+        "fill",
+        "cap",
+        "strike",
+        "don't let"
+       ]
+      },
+      {
+       "id": "key",
+       "label": "Include the critical parameter",
+       "cues": [
+        "pre-heat",
+        "interpass",
+        "amp",
+        "volt",
+        "pass",
+        "temperature",
+        "rod",
+        "gap"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Check they understood",
+       "cues": [
+        "understand",
+        "clear",
+        "questions",
+        "repeat",
+        "ok",
+        "alright",
+        "got that"
+       ]
+      }
+     ],
+     "vocab": [
+      "briefing",
+      "pre-heat",
+      "interpass",
+      "toolbox talk"
+     ],
+     "model": "Right — pre-heat to a hundred before you strike. Root with three-two, fill with four, and don't let it go over two-fifty between runs. Cap in two passes. Anything not clear?",
+     "why": "Teaching it back to someone else is the strongest proof that you understood, and supervisors abroad use it deliberately.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t3": {
+     "ask": "Anything in it that changes how you protect yourself?",
+     "points": [
+      {
+       "id": "link",
+       "label": "Link the procedure to a hazard",
+       "cues": [
+        "pre-heat",
+        "hot",
+        "temperature",
+        "fume",
+        "gas",
+        "confined",
+        "position",
+        "current"
+       ]
+      },
+      {
+       "id": "ppe",
+       "label": "Say what protection that needs",
+       "cues": [
+        "glove",
+        "mask",
+        "respirator",
+        "screen",
+        "extraction",
+        "sleeve",
+        "ppe",
+        "monitor"
+       ]
+      },
+      {
+       "id": "aware",
+       "label": "Mention people around you",
+       "cues": [
+        "others",
+        "team",
+        "nearby",
+        "warn",
+        "tell",
+        "area"
+       ]
+      }
+     ],
+     "vocab": [
+      "pre-heat",
+      "heat stress",
+      "fume extraction",
+      "confined space"
+     ],
+     "model": "Pre-heated plate stays hot a long time, so heavier gloves and a warning to anyone else working near that bench. If we're going up in current there'll be more fume too, so extraction closer in.",
+     "why": "Connecting a procedure change to a safety consequence is exactly what a safety officer wants to hear from a welder.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    }
+   },
+   "moduleId": 6,
+   "regulatory": {
+    "moduleId": 6,
+    "codes": [
+     {
+      "code": "ISO 15609-1",
+      "title": "Specification of welding procedures — arc welding",
+      "note": ""
+     },
+     {
+      "code": "ISO 15614-1",
+      "title": "Qualification of welding procedures — arc welding of steels",
+      "note": ""
+     }
+    ],
+    "requirement": "Reviewing and implementing the essential process variables dictated by an approved Welding Procedure Specification.",
+    "benchmarks": [
+     {
+      "id": "wpsid",
+      "must": "Identify the specific WPS document number assigned to the project",
+      "cues": [
+       "wps",
+       "procedure number",
+       "procedure no",
+       "document number",
+       "spec number",
+       "specification number",
+       "wps number",
+       "procedure sheet"
+      ],
+      "critical": true
+     },
+     {
+      "id": "variables",
+      "must": "Reference the essential variables: current type and polarity, amperage/voltage thresholds, travel speed range and shielding gas flow rate",
+      "cues": [
+       "polarity",
+       "dcen",
+       "dcep",
+       "dc",
+       "ac",
+       "amperage",
+       "amp",
+       "voltage",
+       "volt",
+       "travel speed",
+       "speed",
+       "gas flow",
+       "flow rate",
+       "shielding gas",
+       "litre",
+       "lpm",
+       "current",
+       "range"
+      ],
+      "critical": true
+     },
+     {
+      "id": "preheat",
+      "must": "Acknowledge the preheat and interpass temperature parameters for the material thickness",
+      "cues": [
+       "preheat",
+       "pre-heat",
+       "pre heat",
+       "interpass",
+       "inter-pass",
+       "temperature",
+       "degrees",
+       "thickness",
+       "celsius"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "WPS",
+     "essential variables",
+     "polarity",
+     "interpass temperature",
+     "shielding gas flow"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-7",
+   "title": "Drawing Clarification",
+   "scenario": "Check a drawing and request clarification before work.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the discussion",
+     "keywords": [
+      "i am",
+      "drawing",
+      "blueprint"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe the detail",
+     "keywords": [
+      "dimension",
+      "symbol",
+      "revision",
+      "tolerance"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm the requirement",
+     "keywords": [
+      "can",
+      "will",
+      "confirm"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Check safe setup",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the discussion",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "revision-7",
+     "afterTurn": 2,
+     "characterId": "supervisor",
+     "message": "There's a revision B out on that drawing. You might be reading rev A."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Drawing Clarification and make your question more precise."
+   },
+   "lead": "qa",
+   "openings": {
+    "qa": "You had a question on the drawing. Which detail?",
+    "supervisor": "You're holding on the drawing. What's not clear?",
+    "coworker": "I read it one way, you read it another. Tell me what you're seeing.",
+    "safety": "You've paused on the drawing. What's the issue?",
+    "hr": "Tell me how you handle a drawing you can't fully read."
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "So what do you think it's asking for?",
+     "q": "t0"
+    },
+    {
+     "characterId": "qa",
+     "text": "If I'm not available, who else would you ask?",
+     "q": "t1"
+    },
+    {
+     "characterId": "coworker",
+     "text": "Would you carry on and check later, or wait?",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "How would you record the answer so the next person has it?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "qa",
+    "text": "Asking cost you five minutes. Guessing would have cost us the panel."
+   },
+   "questions": {
+    "open": {
+     "ask": "You had a question on the drawing. Which detail?",
+     "points": [
+      {
+       "id": "locate",
+       "label": "Point to the exact detail",
+       "cues": [
+        "detail",
+        "view",
+        "section",
+        "note",
+        "symbol",
+        "dimension",
+        "joint",
+        "mark",
+        "number"
+       ]
+      },
+      {
+       "id": "unclear",
+       "label": "Say precisely what is unclear",
+       "cues": [
+        "not clear",
+        "can't",
+        "unclear",
+        "which",
+        "whether",
+        "confus",
+        "two ways",
+        "ambiguous"
+       ]
+      },
+      {
+       "id": "reading",
+       "label": "Say how you are reading it",
+       "cues": [
+        "looks like",
+        "i read",
+        "seems",
+        "think",
+        "understand",
+        "my reading"
+       ]
+      },
+      {
+       "id": "ask",
+       "label": "Ask a specific closed question",
+       "cues": [
+        "is it",
+        "should it",
+        "do you want",
+        "which one",
+        "can you confirm"
+       ]
+      }
+     ],
+     "vocab": [
+      "weld symbol",
+      "fillet",
+      "section view",
+      "revision",
+      "dimension"
+     ],
+     "model": "Detail B, the joint at the base plate. The symbol reads as a six-mil fillet both sides to me, but the note underneath says full penetration. Which one governs?",
+     "why": "A good drawing question is closed and answerable in one word. Point to the detail, say your reading, ask for a decision.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t0": {
+     "ask": "So what do you think it's asking for?",
+     "points": [
+      {
+       "id": "view",
+       "label": "Commit to an interpretation",
+       "cues": [
+        "i think",
+        "looks",
+        "reads",
+        "my reading",
+        "probably",
+        "seems",
+        "would say"
+       ]
+      },
+      {
+       "id": "reason",
+       "label": "Give your reason",
+       "cues": [
+        "because",
+        "since",
+        "the symbol",
+        "the note",
+        "the section",
+        "given",
+        "as"
+       ]
+      },
+      {
+       "id": "open",
+       "label": "Stay open to being wrong",
+       "cues": [
+        "but",
+        "unless",
+        "if",
+        "might",
+        "could",
+        "not sure",
+        "happy to"
+       ]
+      }
+     ],
+     "vocab": [
+      "weld symbol",
+      "full penetration",
+      "fillet weld",
+      "arrow side"
+     ],
+     "model": "My reading is full penetration, because the note is specific and the symbol looks like it was carried over from the earlier revision. But I'd rather you confirm than I commit the joint.",
+     "why": "Employers want a welder who forms a view and still defers. Say what you think, why, and that you will accept correction.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t1": {
+     "ask": "If I'm not available, who else would you ask?",
+     "points": [
+      {
+       "id": "alt",
+       "label": "Name an alternative person or role",
+       "cues": [
+        "supervisor",
+        "engineer",
+        "foreman",
+        "qa",
+        "lead",
+        "planner",
+        "another"
+       ]
+      },
+      {
+       "id": "wait",
+       "label": "Say what you do while waiting",
+       "cues": [
+        "wait",
+        "hold",
+        "move",
+        "other",
+        "meanwhile",
+        "until",
+        "something else"
+       ]
+      },
+      {
+       "id": "noguess",
+       "label": "Say you do not guess",
+       "cues": [
+        "not guess",
+        "don't",
+        "won't",
+        "rather",
+        "instead of",
+        "wouldn't",
+        "would not",
+        "rather than",
+        "instead"
+       ]
+      }
+     ],
+     "vocab": [
+      "escalation",
+      "hold point",
+      "clarification"
+     ],
+     "model": "The welding engineer, or the site supervisor if he's not about. I wouldn't guess — I'd move onto another joint that's clear and come back to this one.",
+     "why": "Knowing the second and third person to ask is what keeps work moving when the first one is busy.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t2": {
+     "ask": "Would you carry on and check later, or wait?",
+     "points": [
+      {
+       "id": "choice",
+       "label": "Give a clear answer",
+       "cues": [
+        "wait",
+        "carry on",
+        "stop",
+        "hold",
+        "continue",
+        "depends"
+       ]
+      },
+      {
+       "id": "reason",
+       "label": "Justify by consequence",
+       "cues": [
+        "rework",
+        "cut out",
+        "cost",
+        "wrong",
+        "scrap",
+        "time",
+        "risk"
+       ]
+      },
+      {
+       "id": "balance",
+       "label": "Show you understand production pressure too",
+       "cues": [
+        "other",
+        "meanwhile",
+        "another",
+        "still",
+        "keep",
+        "progress"
+       ]
+      }
+     ],
+     "vocab": [
+      "rework",
+      "hold point",
+      "productivity"
+     ],
+     "model": "On something structural I wait — if it's wrong it gets cut out and that's a day gone. But I don't stand still, I move to a joint that is clear.",
+     "why": "The best answer shows you take quality seriously without pretending production does not matter.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t3": {
+     "ask": "How would you record the answer so the next person has it?",
+     "points": [
+      {
+       "id": "write",
+       "label": "Say you write it down",
+       "cues": [
+        "write",
+        "record",
+        "note",
+        "mark",
+        "log",
+        "document",
+        "email"
+       ]
+      },
+      {
+       "id": "where",
+       "label": "Say where it goes",
+       "cues": [
+        "drawing",
+        "log",
+        "sheet",
+        "file",
+        "board",
+        "system",
+        "copy",
+        "rfi"
+       ]
+      },
+      {
+       "id": "share",
+       "label": "Say you tell others",
+       "cues": [
+        "tell",
+        "team",
+        "shift",
+        "handover",
+        "brief",
+        "share",
+        "everyone"
+       ]
+      }
+     ],
+     "vocab": [
+      "RFI",
+      "markup",
+      "revision",
+      "handover"
+     ],
+     "model": "I'd mark it on the drawing copy and note it in the log, and raise it as a query so it's on record. Then mention it at handover so the night shift isn't asking the same question.",
+     "why": "Recording a clarification once saves the same question being asked five times. It is a small habit that gets noticed.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    }
+   },
+   "moduleId": 7,
+   "regulatory": {
+    "moduleId": 7,
+    "codes": [
+     {
+      "code": "AWS A2.4",
+      "title": "Standard symbols for welding, brazing and nondestructive examination",
+      "note": ""
+     }
+    ],
+    "requirement": "Reading engineering drawings and raising a formal review when weld symbols or dimensional paths are ambiguous.",
+    "benchmarks": [
+     {
+      "id": "symbol",
+      "must": "Interpret the components of the standard weld symbol — arrow, reference line, tail and tail notation",
+      "cues": [
+       "arrow",
+       "reference line",
+       "tail",
+       "symbol",
+       "arrow side",
+       "other side",
+       "both sides",
+       "weld symbol",
+       "notation",
+       "flag"
+      ],
+      "critical": true
+     },
+     {
+      "id": "omission",
+      "must": "Flag omissions in the print: missing weld size, contour symbols or ambiguous field-weld flags",
+      "cues": [
+       "missing",
+       "size",
+       "contour",
+       "field weld",
+       "flag",
+       "ambiguous",
+       "not clear",
+       "unclear",
+       "not shown",
+       "omitted",
+       "blank",
+       "two ways"
+      ],
+      "critical": true
+     },
+     {
+      "id": "loop",
+      "must": "Use the proper communication loop — engineering or the supervisor — rather than guessing on the shop floor",
+      "cues": [
+       "engineer",
+       "engineering",
+       "supervisor",
+       "rfi",
+       "request for information",
+       "query",
+       "not guess",
+       "wouldn't guess",
+       "formal",
+       "clarif",
+       "in writing"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "weld symbol",
+     "reference line",
+     "contour",
+     "field weld",
+     "RFI"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-8",
+   "title": "Construction Site Coordination",
+   "scenario": "Coordinate welding work with another trade.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the update",
+     "keywords": [
+      "i am",
+      "site",
+      "update"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe the task",
+     "keywords": [
+      "task",
+      "access",
+      "installation",
+      "schedule"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm coordination",
+     "keywords": [
+      "can",
+      "will",
+      "coordinate"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Include site safety",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close with agreement",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "access-8",
+     "afterTurn": 2,
+     "characterId": "safety",
+     "message": "Your hot work permit runs out in twenty minutes and there are scaffolders above you."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Construction Site Coordination and make the handover clearer."
+   },
+   "lead": "supervisor",
+   "openings": {
+    "supervisor": "Site's busy today. Tell me what you need from the other trades to get your work done.",
+    "coworker": "Scaffolders are in your area. How do you want to work this?",
+    "safety": "There's hot work and other trades in the same zone. Talk me through it.",
+    "qa": "Your section's due for inspection. When will it be ready?",
+    "hr": "Describe how you work alongside other trades on a busy site."
+   },
+   "turns": [
+    {
+     "characterId": "safety",
+     "text": "If someone's working below you, what do you say to them?",
+     "q": "t0"
+    },
+    {
+     "characterId": "coworker",
+     "text": "The electricians want the area for an hour. What do you tell them?",
+     "q": "t1"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "And if that pushes your work back — how do you let me know?",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "Give me a realistic time for inspection.",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "supervisor",
+    "text": "That's the job on site. Half welding, half talking to people — you did both."
+   },
+   "questions": {
+    "open": {
+     "ask": "Site's busy today. Tell me what you need from the other trades to get your work done.",
+     "points": [
+      {
+       "id": "need",
+       "label": "State a specific need",
+       "cues": [
+        "need",
+        "access",
+        "clear",
+        "space",
+        "scaffold",
+        "power",
+        "light",
+        "permit"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Name the trade or role",
+       "cues": [
+        "scaffold",
+        "electric",
+        "pipefit",
+        "rigger",
+        "crane",
+        "labour",
+        "trade",
+        "team",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "when",
+       "label": "Give a time or sequence",
+       "cues": [
+        "before",
+        "after",
+        "by",
+        "morning",
+        "hour",
+        "first",
+        "then",
+        "until"
+       ]
+      },
+      {
+       "id": "offer",
+       "label": "Offer something in return",
+       "cues": [
+        "i can",
+        "we can",
+        "happy",
+        "work around",
+        "flexible",
+        "meanwhile"
+       ]
+      }
+     ],
+     "vocab": [
+      "access",
+      "scaffold",
+      "permit to work",
+      "sequencing"
+     ],
+     "model": "I need the scaffold at the north face signed off before I can start, and the sparks out of that bay while I'm doing hot work. If they need an hour I can do the bench work first and go up after.",
+     "why": "Site English is negotiation. What you need, from whom, by when, and what you can give — that last part is what gets you cooperation.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t0": {
+     "ask": "If someone's working below you, what do you say to them?",
+     "points": [
+      {
+       "id": "warn",
+       "label": "Warn them explicitly",
+       "cues": [
+        "warn",
+        "tell",
+        "shout",
+        "let them know",
+        "aware",
+        "careful",
+        "heads"
+       ]
+      },
+      {
+       "id": "what",
+       "label": "Say what the risk is",
+       "cues": [
+        "spark",
+        "hot",
+        "fall",
+        "drop",
+        "slag",
+        "burn",
+        "debris",
+        "above"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Say what should happen",
+       "cues": [
+        "move",
+        "stop",
+        "screen",
+        "cover",
+        "wait",
+        "below",
+        "clear",
+        "barrier"
+       ]
+      }
+     ],
+     "vocab": [
+      "hot work",
+      "falling object",
+      "exclusion zone",
+      "fire watch"
+     ],
+     "model": "I'd go down and tell them face to face — I'm doing hot work above you, sparks and slag will come down. Either they move out for an hour or we get a blanket and a barrier under me.",
+     "why": "Shouting a warning is not communication if the person cannot act on it. Go to them, say the risk, offer the two options.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t1": {
+     "ask": "The electricians want the area for an hour. What do you tell them?",
+     "points": [
+      {
+       "id": "respond",
+       "label": "Give a clear answer",
+       "cues": [
+        "yes",
+        "no",
+        "can",
+        "fine",
+        "ok",
+        "need",
+        "after",
+        "once"
+       ]
+      },
+      {
+       "id": "condition",
+       "label": "Attach a condition or a time",
+       "cues": [
+        "if",
+        "once",
+        "after",
+        "by",
+        "when",
+        "provided",
+        "as long as"
+       ]
+      },
+      {
+       "id": "impact",
+       "label": "Say what it costs you",
+       "cues": [
+        "behind",
+        "delay",
+        "push",
+        "lose",
+        "time",
+        "inspection",
+        "deadline"
+       ]
+      },
+      {
+       "id": "tell",
+       "label": "Say you inform your supervisor",
+       "cues": [
+        "supervisor",
+        "tell",
+        "let",
+        "report",
+        "inform",
+        "update"
+       ]
+      }
+     ],
+     "vocab": [
+      "sequencing",
+      "hot work",
+      "access",
+      "schedule"
+     ],
+     "model": "They can have it, but I need it back by eleven or my inspection slips to tomorrow. I'll shut down and make it safe, and I'll let the supervisor know we've swapped.",
+     "why": "Agreeing with a condition and a time, then telling your own supervisor, is how site conflicts get avoided.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t2": {
+     "ask": "And if that pushes your work back — how do you let me know?",
+     "points": [
+      {
+       "id": "early",
+       "label": "Say you tell them early",
+       "cues": [
+        "now",
+        "early",
+        "straight",
+        "immediately",
+        "as soon",
+        "before",
+        "not wait"
+       ]
+      },
+      {
+       "id": "impact",
+       "label": "Quantify the delay",
+       "cues": [
+        "hour",
+        "day",
+        "by",
+        "until",
+        "late",
+        "behind",
+        "two",
+        "half"
+       ]
+      },
+      {
+       "id": "option",
+       "label": "Offer an option",
+       "cues": [
+        "could",
+        "can",
+        "if",
+        "alternative",
+        "instead",
+        "overtime",
+        "swap",
+        "another"
+       ]
+      }
+     ],
+     "vocab": [
+      "schedule impact",
+      "escalation",
+      "recovery plan"
+     ],
+     "model": "I'd tell you now, not at the end of the shift. It's about two hours, which puts inspection into tomorrow morning. If that's a problem I could do the small joints tonight instead.",
+     "why": "Bad news early with an option attached is a senior habit. Bad news late with no option is what gets people replaced.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t3": {
+     "ask": "Give me a realistic time for inspection.",
+     "points": [
+      {
+       "id": "time",
+       "label": "Commit to a time",
+       "cues": [
+        "hour",
+        "morning",
+        "afternoon",
+        "by",
+        "tomorrow",
+        "o'clock",
+        "end of"
+       ]
+      },
+      {
+       "id": "basis",
+       "label": "Say what it depends on",
+       "cues": [
+        "if",
+        "once",
+        "provided",
+        "depends",
+        "assuming",
+        "as long as",
+        "after"
+       ]
+      },
+      {
+       "id": "honest",
+       "label": "Avoid over-promising",
+       "cues": [
+        "realistic",
+        "safe",
+        "rather",
+        "won't",
+        "not going to",
+        "honest",
+        "comfortable"
+       ]
+      }
+     ],
+     "vocab": [
+      "inspection",
+      "readiness",
+      "cleaning",
+      "weld map"
+     ],
+     "model": "Realistically tomorrow, first thing — I'd rather say that than promise tonight and have you turn up to joints that aren't cleaned. If the electricians are out by eleven I might get two ready today.",
+     "why": "Over-promising on time destroys trust faster than being slow. Commit, state the dependency, and be honest.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    }
+   },
+   "moduleId": 8,
+   "regulatory": {
+    "moduleId": 8,
+    "codes": [
+     {
+      "code": "OSHA 29 CFR 1926 Subpart J",
+      "title": "Welding and cutting in construction",
+      "note": ""
+     }
+    ],
+    "requirement": "Multi-trade deconfliction to prevent fire, structural collapse, or exposure of nearby trades to arc radiation and toxic fumes.",
+    "benchmarks": [
+     {
+      "id": "screens",
+      "must": "Coordinate with nearby trades and set flash screens protecting them from UV arc rays",
+      "cues": [
+       "flash screen",
+       "screen",
+       "uv",
+       "arc ray",
+       "arc flash",
+       "curtain",
+       "shield",
+       "radiation",
+       "flash",
+       "blind",
+       "pipefit",
+       "electric",
+       "painter",
+       "trade"
+      ],
+      "critical": true
+     },
+     {
+      "id": "permit",
+      "must": "Verify a valid Hot Work Permit and establish a dedicated Fire Watch",
+      "cues": [
+       "hot work permit",
+       "hot work",
+       "permit",
+       "fire watch",
+       "watch",
+       "standby",
+       "extinguisher",
+       "blanket"
+      ],
+      "critical": true
+     },
+     {
+      "id": "vertical",
+      "must": "Coordinate timing to avoid welding directly above or below another trade without overhead barrier protection",
+      "cues": [
+       "above",
+       "below",
+       "overhead",
+       "barrier",
+       "blanket",
+       "cover",
+       "timing",
+       "sequence",
+       "stagger",
+       "move them",
+       "exclusion"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "hot work permit",
+     "fire watch",
+     "flash screen",
+     "arc eye",
+     "exclusion zone"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-9",
+   "title": "Quality Issue Report",
+   "scenario": "Report an inspection concern and agree corrective action.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open the report",
+     "keywords": [
+      "i am",
+      "inspection",
+      "report"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe the issue",
+     "keywords": [
+      "defect",
+      "tolerance",
+      "quality",
+      "repair"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm action",
+     "keywords": [
+      "can",
+      "will",
+      "correct"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Maintain safe control",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close professionally",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "defect-9",
+     "afterTurn": 2,
+     "characterId": "supervisor",
+     "message": "Hold on. If that's on this batch, we shipped forty of them yesterday."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Quality Issue Report and keep your language factual."
+   },
+   "lead": "qa",
+   "openings": {
+    "qa": "You've found something on the weld. Describe it to me.",
+    "supervisor": "You've come to me about a weld. What have you got?",
+    "coworker": "It's my weld you're looking at. Tell me straight — what's wrong?",
+    "safety": "A quality issue on a job. Does it affect anyone's safety?",
+    "hr": "Tell me about a time you had to report poor work. How did you put it?"
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "How did it get past? I'm not blaming anyone, I want to know.",
+     "q": "t0"
+    },
+    {
+     "characterId": "coworker",
+     "text": "Alright. What would you want me to do differently?",
+     "q": "t1"
+    },
+    {
+     "characterId": "qa",
+     "text": "What do we do with the parts already finished?",
+     "q": "t2"
+    },
+    {
+     "characterId": "supervisor",
+     "text": "And how do we stop it happening on the next batch?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "qa",
+    "text": "You described it clearly and you didn't hide it. That's the whole job."
+   },
+   "questions": {
+    "open": {
+     "ask": "You've found something on the weld. Describe it to me.",
+     "points": [
+      {
+       "id": "defect",
+       "label": "Name the defect type",
+       "cues": [
+        "undercut",
+        "porosity",
+        "crack",
+        "slag",
+        "inclusion",
+        "lack of fusion",
+        "spatter",
+        "overlap",
+        "burn"
+       ]
+      },
+      {
+       "id": "where",
+       "label": "Say exactly where it is",
+       "cues": [
+        "toe",
+        "root",
+        "cap",
+        "start",
+        "stop",
+        "joint",
+        "along",
+        "end",
+        "side",
+        "pass"
+       ]
+      },
+      {
+       "id": "extent",
+       "label": "Give size or extent",
+       "cues": [
+        "mm",
+        "long",
+        "deep",
+        "about",
+        "approx",
+        "two",
+        "few",
+        "whole",
+        "half"
+       ]
+      },
+      {
+       "id": "judge",
+       "label": "Say why it concerns you",
+       "cues": [
+        "spec",
+        "criteria",
+        "reject",
+        "fail",
+        "limit",
+        "above",
+        "outside",
+        "concern"
+       ]
+      }
+     ],
+     "vocab": [
+      "undercut",
+      "porosity",
+      "lack of fusion",
+      "acceptance criteria",
+      "toe of the weld"
+     ],
+     "model": "There's undercut along the toe on the cap run, about forty mil long and it looks deeper than half a mil. That's outside what the spec allows, so I've held it rather than sending it through.",
+     "why": "Defect reporting is precise language: name it, locate it, size it, then say why it matters. Vague reporting is why defects reach the customer.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t0": {
+     "ask": "How did it get past? I'm not blaming anyone, I want to know.",
+     "points": [
+      {
+       "id": "factual",
+       "label": "Answer factually, without blame",
+       "cues": [
+        "because",
+        "travel",
+        "current",
+        "setting",
+        "angle",
+        "access",
+        "rushed",
+        "position"
+       ]
+      },
+      {
+       "id": "system",
+       "label": "Point at a cause, not a person",
+       "cues": [
+        "setting",
+        "procedure",
+        "access",
+        "light",
+        "fit",
+        "training",
+        "time",
+        "machine"
+       ]
+      },
+      {
+       "id": "own",
+       "label": "Take your share if it is yours",
+       "cues": [
+        "i",
+        "my",
+        "mine",
+        "i was",
+        "i didn't",
+        "i should"
+       ]
+      }
+     ],
+     "vocab": [
+      "root cause",
+      "travel speed",
+      "access",
+      "weave"
+     ],
+     "model": "Looking at it, the travel speed was too quick on that run and the access was awkward from that side. If it was mine I'll say so — I'd rather find the cause than argue about who.",
+     "why": "Answering a 'how did this happen' question without defending yourself is what makes an inspector trust you.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t1": {
+     "ask": "Alright. What would you want me to do differently?",
+     "points": [
+      {
+       "id": "specific",
+       "label": "Give a concrete change",
+       "cues": [
+        "slower",
+        "angle",
+        "setting",
+        "clean",
+        "light",
+        "access",
+        "position",
+        "more",
+        "less"
+       ]
+      },
+      {
+       "id": "reason",
+       "label": "Explain why it would help",
+       "cues": [
+        "because",
+        "so",
+        "that way",
+        "stops",
+        "prevents",
+        "avoid",
+        "helps",
+        "usually",
+        "that's",
+        "where",
+        "creeps",
+        "tends"
+       ]
+      },
+      {
+       "id": "respect",
+       "label": "Keep it collegial",
+       "cues": [
+        "we",
+        "together",
+        "maybe",
+        "could",
+        "suggest",
+        "think",
+        "what if"
+       ]
+      }
+     ],
+     "vocab": [
+      "travel speed",
+      "weaving",
+      "interpass cleaning",
+      "access"
+     ],
+     "model": "Maybe slow the cap run down and clean between passes — that's usually where the undercut creeps in. And if the access is that bad from the right, it might be worth turning the piece.",
+     "why": "Giving feedback to a colleague is the hardest professional English there is. Specific, reasoned, and collegial.",
+     "source": "General international workplace practice in fabrication, construction and oil and gas. Educational guidance only — requirements vary by employer, country and contract. Verify before you rely on it."
+    },
+    "t2": {
+     "ask": "What do we do with the parts already finished?",
+     "points": [
+      {
+       "id": "hold",
+       "label": "Say they should be held or quarantined",
+       "cues": [
+        "hold",
+        "quarantine",
+        "stop",
+        "segregate",
+        "separate",
+        "aside",
+        "not ship",
+        "held",
+        "holds",
+        "holding",
+        "until"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Say they should be checked",
+       "cues": [
+        "check",
+        "inspect",
+        "test",
+        "look",
+        "ndt",
+        "review",
+        "examine"
+       ]
+      },
+      {
+       "id": "trace",
+       "label": "Mention traceability or scope",
+       "cues": [
+        "batch",
+        "same",
+        "which",
+        "all",
+        "since",
+        "from",
+        "trace",
+        "record"
+       ]
+      }
+     ],
+     "vocab": [
+      "quarantine",
+      "batch",
+      "traceability",
+      "re-inspection",
+      "NDT"
+     ],
+     "model": "Anything from the same batch gets held until it's checked — we'd need to know which joints came off that setup. Nothing ships until the inspector's been over them.",
+     "why": "Containment thinking — 'what else might be affected' — is what quality systems are built on.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    },
+    "t3": {
+     "ask": "And how do we stop it happening on the next batch?",
+     "points": [
+      {
+       "id": "change",
+       "label": "Propose a preventive change",
+       "cues": [
+        "change",
+        "set",
+        "slower",
+        "procedure",
+        "check",
+        "fixture",
+        "train",
+        "brief",
+        "clean"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Add a check or hold point",
+       "cues": [
+        "check",
+        "inspect",
+        "first",
+        "sample",
+        "hold",
+        "before",
+        "monitor",
+        "test piece"
+       ]
+      },
+      {
+       "id": "share",
+       "label": "Say the team should be told",
+       "cues": [
+        "tell",
+        "brief",
+        "team",
+        "toolbox",
+        "share",
+        "everyone",
+        "handover"
+       ]
+      }
+     ],
+     "vocab": [
+      "preventive action",
+      "hold point",
+      "toolbox talk",
+      "first-off inspection"
+     ],
+     "model": "Set a test piece at the start of each batch and have it looked at before we run the rest. And a two-minute toolbox talk so everyone knows what we found and why.",
+     "why": "Prevention answers separate a welder from a lead hand. Change, check, and tell the team.",
+     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+    }
+   },
+   "moduleId": 9,
+   "regulatory": {
+    "moduleId": 9,
+    "codes": [
+     {
+      "code": "ISO 9001 Clause 8.7",
+      "title": "Control of nonconforming outputs",
+      "note": ""
+     },
+     {
+      "code": "AWS D1.1 Clause 6",
+      "title": "Inspection",
+      "note": "Clause numbering follows AWS D1.1 editions before 2020; the 2020 edition renumbered Fabrication to Clause 7 and Inspection to Clause 8. Confirm against the edition in force on your project."
+     }
+    ],
+    "requirement": "Formal recording of discontinuities exceeding allowable code limits, followed by a root-cause remediation sequence.",
+    "benchmarks": [
+     {
+      "id": "terminology",
+      "must": "Identify the defect using standardised technical labels — undercut, slag inclusion, lack of fusion, crater cracks, porosity",
+      "cues": [
+       "undercut",
+       "porosity",
+       "slag inclusion",
+       "slag",
+       "lack of fusion",
+       "incomplete penetration",
+       "crater",
+       "crack",
+       "overlap",
+       "spatter",
+       "discontinuity",
+       "defect"
+      ],
+      "critical": true
+     },
+     {
+      "id": "isolate",
+      "must": "Isolate, mark and tag the piece to stop it moving down the line",
+      "cues": [
+       "isolate",
+       "tag",
+       "mark",
+       "quarantine",
+       "segregate",
+       "hold",
+       "set aside",
+       "stop it",
+       "non-conform",
+       "nonconform",
+       "not ship",
+       "separate"
+      ],
+      "critical": true
+     },
+     {
+      "id": "correct",
+      "must": "Propose a code-compliant correction — grinding the defect fully out before re-welding",
+      "cues": [
+       "grind",
+       "excavate",
+       "remove",
+       "gouge",
+       "re-weld",
+       "reweld",
+       "repair",
+       "rework",
+       "acceptance criteria",
+       "code",
+       "procedure",
+       "limit"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "undercut",
+     "slag inclusion",
+     "lack of fusion",
+     "nonconformity",
+     "acceptance criteria"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-10",
+   "title": "Controlled Work Readiness",
+   "scenario": "Confirm permit, isolation, and communication for industrial work.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open readiness check",
+     "keywords": [
+      "i am",
+      "permit",
+      "readiness"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe controls",
+     "keywords": [
+      "isolation",
+      "pipeline",
+      "pressure",
+      "check"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Confirm authorization",
+     "keywords": [
+      "can",
+      "will",
+      "confirm"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Confirm safety controls",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the check",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "permit-10",
+     "afterTurn": 2,
+     "characterId": "safety",
+     "message": "Permit's just been suspended — gas readings changed in the next bay."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Controlled Work Readiness and strengthen compliance language."
+   },
+   "lead": "safety",
+   "openings": {
+    "safety": "This is a controlled area. Tell me what you need in place before you start.",
+    "supervisor": "Permit work today. Talk me through what you're waiting on.",
+    "qa": "Controlled work means everything is recorded. What are you signing for?",
+    "coworker": "I'm your fire watch. What do you need from me?",
+    "hr": "Describe how you prepare for work in a controlled or permit area."
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "If the permit runs out mid-job, what do you do?",
+     "q": "t0"
+    },
+    {
+     "characterId": "coworker",
+     "text": "And what should I be watching for while you're working?",
+     "q": "t1"
+    },
+    {
+     "characterId": "safety",
+     "text": "Who do you call if something changes in the area?",
+     "q": "t2"
+    },
+    {
+     "characterId": "qa",
+     "text": "What has to be signed off before you leave?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "safety",
+    "text": "You waited, you checked, you asked. That's controlled work done properly."
+   },
+   "questions": {
+    "open": {
+     "ask": "This is a controlled area. Tell me what you need in place before you start.",
+     "points": [
+      {
+       "id": "permit",
+       "label": "Mention the permit or authorisation",
+       "cues": [
+        "permit",
+        "authoris",
+        "approv",
+        "sign",
+        "clearance",
+        "paperwork",
+        "hot work"
+       ]
+      },
+      {
+       "id": "checks",
+       "label": "Mention atmosphere, isolation or gas checks",
+       "cues": [
+        "gas",
+        "test",
+        "monitor",
+        "atmosphere",
+        "isolat",
+        "purge",
+        "reading",
+        "lock"
+       ]
+      },
+      {
+       "id": "watch",
+       "label": "Mention a fire watch or standby",
+       "cues": [
+        "fire watch",
+        "watch",
+        "standby",
+        "attendant",
+        "buddy",
+        "spotter"
+       ]
+      },
+      {
+       "id": "equip",
+       "label": "Mention rescue or emergency provision",
+       "cues": [
+        "extinguisher",
+        "blanket",
+        "rescue",
+        "escape",
+        "alarm",
+        "first aid",
+        "harness"
+       ]
+      }
+     ],
+     "vocab": [
+      "permit to work",
+      "hot work permit",
+      "gas test",
+      "fire watch",
+      "isolation"
+     ],
+     "model": "A hot work permit signed and in date, gas readings taken and still valid, the line isolated and locked, a fire watch with me, and an extinguisher and fire blanket at the bay. If any one of those is missing I don't start.",
+     "why": "Controlled work has a checklist and employers expect you to recite it. Permit, tests, watch, emergency provision.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t0": {
+     "ask": "If the permit runs out mid-job, what do you do?",
+     "points": [
+      {
+       "id": "stop",
+       "label": "Say you stop working",
+       "cues": [
+        "stop",
+        "down",
+        "cease",
+        "halt",
+        "put down",
+        "finish",
+        "not continue",
+        "down tools",
+        "knock off",
+        "pull up"
+       ]
+      },
+      {
+       "id": "safe",
+       "label": "Say you make the area safe first",
+       "cues": [
+        "safe",
+        "isolat",
+        "cool",
+        "close",
+        "off",
+        "secure",
+        "clear"
+       ]
+      },
+      {
+       "id": "renew",
+       "label": "Say the permit must be renewed or extended",
+       "cues": [
+        "renew",
+        "extend",
+        "re-issue",
+        "new",
+        "sign",
+        "reissue",
+        "again"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Say who you go to",
+       "cues": [
+        "issuer",
+        "supervisor",
+        "permit",
+        "safety",
+        "authorit",
+        "controller",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      }
+     ],
+     "vocab": [
+      "permit to work",
+      "expiry",
+      "re-issue",
+      "make safe"
+     ],
+     "model": "I stop. Make the area safe — gas off, everything cooled and clear — then go back to the permit issuer for an extension. You don't carry on under an expired permit, ever.",
+     "why": "This is a yes-or-no integrity question. Any hesitation reads badly. Stop, make safe, get it re-issued.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t1": {
+     "ask": "And what should I be watching for while you're working?",
+     "points": [
+      {
+       "id": "brief",
+       "label": "Give the watcher a specific job",
+       "cues": [
+        "watch",
+        "look",
+        "keep",
+        "eye",
+        "if you see",
+        "stay",
+        "alert"
+       ]
+      },
+      {
+       "id": "signs",
+       "label": "Name what they should look for",
+       "cues": [
+        "smoke",
+        "flame",
+        "spark",
+        "smell",
+        "gas",
+        "heat",
+        "fire",
+        "fall",
+        "alarm"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Tell them what to do if it happens",
+       "cues": [
+        "shout",
+        "stop",
+        "tell",
+        "alarm",
+        "extinguish",
+        "pull",
+        "call",
+        "tap"
+       ]
+      },
+      {
+       "id": "stay",
+       "label": "Say they should not leave",
+       "cues": [
+        "stay",
+        "don't leave",
+        "remain",
+        "until",
+        "whole",
+        "throughout",
+        "here"
+       ]
+      }
+     ],
+     "vocab": [
+      "fire watch",
+      "standby",
+      "alarm",
+      "exclusion zone"
+     ],
+     "model": "Watch behind and below me — that's where I can't see. Anything smoking or smouldering, or if you smell gas, tap me and I'll stop straight away. And please don't leave the bay until I'm cooled down and packed up.",
+     "why": "Briefing your own fire watch is a real workplace skill and most welders have never had to say it in English.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t2": {
+     "ask": "Who do you call if something changes in the area?",
+     "points": [
+      {
+       "id": "roles",
+       "label": "Name specific roles",
+       "cues": [
+        "supervisor",
+        "safety",
+        "permit",
+        "controller",
+        "issuer",
+        "control room",
+        "foreman",
+        "boss",
+        "chief",
+        "officer",
+        "in charge"
+       ]
+      },
+      {
+       "id": "first",
+       "label": "Say what you do first",
+       "cues": [
+        "stop",
+        "first",
+        "before",
+        "straight",
+        "immediately",
+        "then"
+       ]
+      },
+      {
+       "id": "others",
+       "label": "Warn the people around",
+       "cues": [
+        "warn",
+        "tell",
+        "others",
+        "nearby",
+        "area",
+        "evacuat",
+        "clear",
+        "everyone",
+        "everybody",
+        "people",
+        "bay",
+        "get out"
+       ]
+      }
+     ],
+     "vocab": [
+      "permit issuer",
+      "control room",
+      "escalation",
+      "evacuation"
+     ],
+     "model": "Stop first, then the permit issuer and the safety officer. If it's gas or fire, the control room and get everyone out of the bay before anything else.",
+     "why": "Emergency escalation is about order: make it safe, warn people, then report.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    },
+    "t3": {
+     "ask": "What has to be signed off before you leave?",
+     "points": [
+      {
+       "id": "close",
+       "label": "Mention closing the permit",
+       "cues": [
+        "permit",
+        "close",
+        "sign",
+        "hand back",
+        "return",
+        "clear"
+       ]
+      },
+      {
+       "id": "area",
+       "label": "Mention leaving the area safe",
+       "cues": [
+        "clean",
+        "clear",
+        "cool",
+        "tidy",
+        "isolat",
+        "tools",
+        "secure",
+        "housekeep"
+       ]
+      },
+      {
+       "id": "check",
+       "label": "Mention a final check",
+       "cues": [
+        "check",
+        "inspect",
+        "walk",
+        "confirm",
+        "final",
+        "last",
+        "look"
+       ]
+      }
+     ],
+     "vocab": [
+      "permit close-out",
+      "fire watch period",
+      "housekeeping",
+      "handback"
+     ],
+     "model": "Permit closed out and handed back, fire watch held for the period after I finish, area cooled, leads and bottles cleared away, and a last walk round with you before I sign.",
+     "why": "Close-out is as regulated as start-up. Saying it shows you have actually worked in controlled areas.",
+     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+    }
+   },
+   "moduleId": 10,
+   "regulatory": {
+    "moduleId": 10,
+    "codes": [
+     {
+      "code": "OSHA 29 CFR 1910.146",
+      "title": "Permit-required confined spaces",
+      "note": ""
+     },
+     {
+      "code": "ISO 3834",
+      "title": "Quality planning requirements",
+      "note": ""
+     }
+    ],
+    "requirement": "Lockout/Tagout verification, atmospheric testing and safety barrier checks before entering a high-risk environment.",
+    "benchmarks": [
+     {
+      "id": "permit",
+      "must": "Verify completion and posting of a formal Confined Space or Hot Work entry permit",
+      "cues": [
+       "confined space",
+       "entry permit",
+       "hot work permit",
+       "permit",
+       "posted",
+       "signed",
+       "in date",
+       "authoris",
+       "authoriz"
+      ],
+      "critical": true
+     },
+     {
+      "id": "loto",
+      "must": "Confirm energy isolation points via Lockout/Tagout protocols",
+      "cues": [
+       "lockout",
+       "lock out",
+       "tagout",
+       "tag out",
+       "loto",
+       "isolation",
+       "isolat",
+       "energy",
+       "lock",
+       "valve",
+       "breaker",
+       "tag"
+      ],
+      "critical": true
+     },
+     {
+      "id": "gastest",
+      "must": "Require atmospheric gas testing — oxygen, combustible gases and toxic fume levels — before crossing the threshold",
+      "cues": [
+       "gas test",
+       "atmospher",
+       "oxygen",
+       "combustible",
+       "lel",
+       "toxic",
+       "monitor",
+       "reading",
+       "sniffer",
+       "air test",
+       "ppm"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "permit-required confined space",
+     "LOTO",
+     "atmospheric testing",
+     "LEL",
+     "fire watch"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-11",
+   "title": "Welding Interview",
+   "scenario": "Present your experience and motivation to a hiring team.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Introduce yourself",
+     "keywords": [
+      "i am",
+      "welder",
+      "name"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Describe experience",
+     "keywords": [
+      "experience",
+      "worked",
+      "year",
+      "welding"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Answer a follow-up",
+     "keywords": [
+      "can",
+      "will",
+      "strength"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Explain safety mindset",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close the interview",
+     "keywords": [
+      "thank",
+      "opportunity",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "interview-11",
+     "afterTurn": 2,
+     "characterId": "supervisor",
+     "message": "Sorry to cut in. Quick one from me — could you start Monday?"
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Welding Interview and make your achievement example stronger."
+   },
+   "lead": "hr",
+   "openings": {
+    "hr": "Thanks for coming in. Start wherever you like — tell me about yourself.",
+    "supervisor": "I'll be your foreman if this goes well. Tell me what you can do.",
+    "qa": "I sit in on interviews for quality. Tell me about the standard of work you're used to.",
+    "safety": "I ask the safety questions. First though — tell me about your background.",
+    "coworker": "Informal one, this. I'm on the floor. What kind of welder are you?"
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "Give me an example of a difficult job you finished.",
+     "q": "t0"
+    },
+    {
+     "characterId": "safety",
+     "text": "Tell me about a time you raised a safety concern.",
+     "q": "t1"
+    },
+    {
+     "characterId": "qa",
+     "text": "How do you handle it when your work is rejected?",
+     "q": "t2"
+    },
+    {
+     "characterId": "hr",
+     "text": "And why this company? What are you looking for next?",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "hr",
+    "text": "That's everything from us. You explained your experience clearly — we'll be in touch."
+   },
+   "questions": {
+    "open": {
+     "ask": "Thanks for coming in. Start wherever you like — tell me about yourself.",
+     "points": [
+      {
+       "id": "who",
+       "label": "Say who you are and that you are a welder",
+       "cues": [
+        "welder",
+        "fabricator",
+        "i am",
+        "my name",
+        "i'm",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "how_long",
+       "label": "Say how long you have been doing it",
+       "cues": [
+        "year",
+        "years",
+        "month",
+        "since",
+        "experience"
+       ]
+      },
+      {
+       "id": "process",
+       "label": "Name the processes you actually run",
+       "cues": [
+        "mig",
+        "tig",
+        "stick",
+        "mma",
+        "mag",
+        "smaw",
+        "gmaw",
+        "gtaw",
+        "flux",
+        "arc"
+       ]
+      },
+      {
+       "id": "what_on",
+       "label": "Say what you welded — product or sector",
+       "cues": [
+        "pipe",
+        "structural",
+        "plate",
+        "tank",
+        "vessel",
+        "fabricat",
+        "construction",
+        "workshop"
+       ]
+      },
+      {
+       "id": "close",
+       "label": "End with what you are looking for or ready to do",
+       "cues": [
+        "looking",
+        "ready",
+        "hoping",
+        "want to",
+        "keen"
+       ]
+      }
+     ],
+     "vocab": [
+      "fabrication",
+      "structural",
+      "carbon steel",
+      "stainless",
+      "fillet weld",
+      "butt weld"
+     ],
+     "model": "I'm a welder with six years' experience. I mostly run MIG and stick on structural steel — beams, columns and brackets for building frames. The last two years I was on a fabrication shop floor doing fit-up and welding, and I'm looking for work where I can move onto pipe.",
+     "why": "The opening answer sets the whole interview. Four facts in twenty seconds, then stop and let them ask.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t0": {
+     "ask": "Give me an example of a difficult job you finished.",
+     "points": [
+      {
+       "id": "situation",
+       "label": "Set the situation briefly",
+       "cues": [
+        "was",
+        "were",
+        "job",
+        "project",
+        "site",
+        "time",
+        "when",
+        "working on"
+       ]
+      },
+      {
+       "id": "problem",
+       "label": "Say what made it difficult",
+       "cues": [
+        "difficult",
+        "hard",
+        "tight",
+        "access",
+        "deadline",
+        "short",
+        "problem",
+        "awkward",
+        "pressure"
+       ]
+      },
+      {
+       "id": "action",
+       "label": "Say what YOU did",
+       "cues": [
+        "i",
+        "my",
+        "did",
+        "made",
+        "decided",
+        "changed",
+        "worked",
+        "asked",
+        "organised"
+       ]
+      },
+      {
+       "id": "result",
+       "label": "Say how it ended",
+       "cues": [
+        "finished",
+        "passed",
+        "completed",
+        "on time",
+        "accepted",
+        "result",
+        "delivered",
+        "no"
+       ]
+      }
+     ],
+     "vocab": [
+      "deadline",
+      "access",
+      "rework",
+      "passed inspection"
+     ],
+     "model": "We had a tank repair with very tight access — you couldn't get square to the joint at all. I asked for a mirror and dropped the current so I could control the puddle from that angle, and I did a test piece first. It passed inspection first time and we finished the day early.",
+     "why": "This is the behavioural question every international employer asks. Situation, problem, what YOU did, result. Say 'I', not 'we', for the action part.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t1": {
+     "ask": "Tell me about a time you raised a safety concern.",
+     "points": [
+      {
+       "id": "what",
+       "label": "Say what the concern was",
+       "cues": [
+        "saw",
+        "noticed",
+        "gas",
+        "fire",
+        "fume",
+        "fall",
+        "lead",
+        "damaged",
+        "unsafe",
+        "risk"
+       ]
+      },
+      {
+       "id": "did",
+       "label": "Say you actually acted",
+       "cues": [
+        "stopped",
+        "told",
+        "reported",
+        "raised",
+        "said",
+        "refused",
+        "held",
+        "went to"
+       ]
+      },
+      {
+       "id": "who",
+       "label": "Say who you told",
+       "cues": [
+        "supervisor",
+        "safety",
+        "foreman",
+        "manager",
+        "team",
+        "officer",
+        "boss",
+        "chief",
+        "charge hand",
+        "chargehand",
+        "in charge"
+       ]
+      },
+      {
+       "id": "outcome",
+       "label": "Say what happened after",
+       "cues": [
+        "fixed",
+        "changed",
+        "moved",
+        "replaced",
+        "result",
+        "after",
+        "since",
+        "they"
+       ]
+      }
+     ],
+     "vocab": [
+      "stop work",
+      "near miss",
+      "escalation",
+      "PPE"
+     ],
+     "model": "On a site in Douala I found a damaged welding lead with the copper showing. I stopped, tagged the set and took it to the supervisor rather than taping it up. They replaced the lead that morning and we started checking leads at the start of every shift.",
+     "why": "Employers abroad are legally exposed if you stay quiet. A concrete example with a real outcome is worth more than saying 'safety is my priority'.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t2": {
+     "ask": "How do you handle it when your work is rejected?",
+     "points": [
+      {
+       "id": "accept",
+       "label": "Show you accept it professionally",
+       "cues": [
+        "fine",
+        "fair",
+        "accept",
+        "no problem",
+        "happens",
+        "understand",
+        "ok"
+       ]
+      },
+      {
+       "id": "learn",
+       "label": "Say you find out why",
+       "cues": [
+        "why",
+        "ask",
+        "understand",
+        "cause",
+        "learn",
+        "what",
+        "reason"
+       ]
+      },
+      {
+       "id": "fix",
+       "label": "Say you put it right",
+       "cues": [
+        "fix",
+        "redo",
+        "repair",
+        "grind",
+        "again",
+        "correct",
+        "rework"
+       ]
+      },
+      {
+       "id": "nodefend",
+       "label": "Avoid blaming others",
+       "cues": [
+        "my",
+        "i",
+        "own",
+        "not",
+        "rather than",
+        "instead of"
+       ]
+      }
+     ],
+     "vocab": [
+      "rejection",
+      "rework",
+      "acceptance criteria",
+      "root cause"
+     ],
+     "model": "It happens to everyone. I ask the inspector to show me exactly what failed and why, I put it right, and then I change whatever caused it. I'd rather it's caught in the shop than by the client.",
+     "why": "Interviewers use this to find out if you are defensive. Accept, ask why, fix, prevent — and never blame the inspector.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t3": {
+     "ask": "And why this company? What are you looking for next?",
+     "points": [
+      {
+       "id": "them",
+       "label": "Say something specific about them",
+       "cues": [
+        "you",
+        "your",
+        "company",
+        "here",
+        "this",
+        "work",
+        "project",
+        "sector"
+       ]
+      },
+      {
+       "id": "fit",
+       "label": "Connect it to your experience",
+       "cues": [
+        "experience",
+        "done",
+        "worked",
+        "my",
+        "skill",
+        "similar",
+        "match"
+       ]
+      },
+      {
+       "id": "grow",
+       "label": "Say what you want to develop",
+       "cues": [
+        "learn",
+        "develop",
+        "grow",
+        "qualif",
+        "certif",
+        "pipe",
+        "ticket",
+        "progress",
+        "next"
+       ]
+      },
+      {
+       "id": "commit",
+       "label": "Show commitment",
+       "cues": [
+        "long",
+        "stay",
+        "build",
+        "committed",
+        "serious",
+        "settle"
+       ]
+      }
+     ],
+     "vocab": [
+      "certification",
+      "coded welder",
+      "progression",
+      "sector"
+     ],
+     "model": "You do a lot of pipework and that's where I want to go — I've got the structural side solid and I want to get coded on pipe. I'm looking for somewhere I can stay and build up, not move every year.",
+     "why": "Vague answers here lose offers. Say something true about them, connect it to your experience, and name what you want to develop.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    }
+   },
+   "moduleId": 11,
+   "regulatory": {
+    "moduleId": 11,
+    "codes": [
+     {
+      "code": "ISO 9606-1",
+      "title": "Qualification testing of welders — fusion welding — steels",
+      "note": ""
+     },
+     {
+      "code": "AWS D1.1 Clause 4",
+      "title": "Qualification",
+      "note": "Clause numbering follows AWS D1.1 editions before 2020; the 2020 edition renumbered Fabrication to Clause 7 and Inspection to Clause 8. Confirm against the edition in force on your project."
+     }
+    ],
+    "requirement": "The candidate must demonstrate mastery of technical processes, essential code variations and behavioural competencies.",
+    "benchmarks": [
+     {
+      "id": "boundaries",
+      "must": "State qualified boundaries precisely: processes (SMAW, GMAW, GTAW), materials, positions (3G, 4G, 6G) and thickness range",
+      "cues": [
+       "smaw",
+       "gmaw",
+       "gtaw",
+       "fcaw",
+       "mig",
+       "mag",
+       "tig",
+       "stick",
+       "mma",
+       "1g",
+       "2g",
+       "3g",
+       "4g",
+       "5g",
+       "6g",
+       "position",
+       "thickness",
+       "mm",
+       "carbon steel",
+       "stainless",
+       "material",
+       "pipe",
+       "plate"
+      ],
+      "critical": true
+     },
+     {
+      "id": "pqrwpq",
+      "must": "Explain the difference between a procedure qualification record and an individual welder performance qualification",
+      "cues": [
+       "pqr",
+       "wpq",
+       "wpqr",
+       "procedure qualification",
+       "performance qualification",
+       "welder qualification",
+       "qualifies the procedure",
+       "qualifies the welder",
+       "the procedure",
+       "the person",
+       "difference"
+      ],
+      "critical": true
+     },
+     {
+      "id": "ownership",
+      "must": "Show professional ownership of safety and quality over speed",
+      "cues": [
+       "quality",
+       "safety",
+       "not rush",
+       "over speed",
+       "slow",
+       "right first time",
+       "standard",
+       "procedure",
+       "properly",
+       "careful",
+       "won't"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "SMAW",
+     "GMAW",
+     "GTAW",
+     "PQR",
+     "WPQ",
+     "range of qualification"
+    ]
+   }
+  },
+  {
+   "id": "welding-sim-12",
+   "title": "Career Ready Final Briefing",
+   "scenario": "Present your standards, contribution, and career readiness.",
+   "objectives": [
+    {
+     "id": "introduction",
+     "label": "Open your story",
+     "keywords": [
+      "i am",
+      "welder",
+      "professional"
+     ]
+    },
+    {
+     "id": "experience",
+     "label": "Summarise experience",
+     "keywords": [
+      "experience",
+      "worked",
+      "quality",
+      "standard"
+     ]
+    },
+    {
+     "id": "supervisor",
+     "label": "Show contribution",
+     "keywords": [
+      "can",
+      "will",
+      "contribute"
+     ]
+    },
+    {
+     "id": "safety",
+     "label": "Confirm professional standards",
+     "keywords": [
+      "safety",
+      "safe",
+      "ppe",
+      "procedure"
+     ]
+    },
+    {
+     "id": "onboarding",
+     "label": "Close career-ready",
+     "keywords": [
+      "thank",
+      "ready",
+      "team"
+     ]
+    }
+   ],
+   "unexpectedEvents": [
+    {
+     "id": "career-12",
+     "afterTurn": 2,
+     "characterId": "hr",
+     "message": "Let me push you. An employer asks why they should pick you over someone with more years. Go."
+    }
+   ],
+   "debrief": {
+    "recommendedNextSimulation": "Repeat Career Ready Final Briefing and strengthen your professional story."
+   },
+   "lead": "hr",
+   "openings": {
+    "hr": "Last conversation before you go out for roles. Tell me who you are professionally now.",
+    "supervisor": "You've come a long way. How would you describe yourself to a new employer?",
+    "qa": "If an inspector asked what standard you work to, what would you say?",
+    "safety": "How would you describe your approach to safety to someone who's never met you?",
+    "coworker": "Say you're the new one again somewhere else. How do you introduce yourself?"
+   },
+   "turns": [
+    {
+     "characterId": "supervisor",
+     "text": "What work are you aiming for next?",
+     "q": "t0"
+    },
+    {
+     "characterId": "qa",
+     "text": "What part of your work do you still want to sharpen?",
+     "q": "t1"
+    },
+    {
+     "characterId": "safety",
+     "text": "And what would you not compromise on?",
+     "q": "t2"
+    },
+    {
+     "characterId": "hr",
+     "text": "Give me your closing line — the one you'd end an interview with.",
+     "q": "t3"
+    }
+   ],
+   "closing": {
+    "characterId": "hr",
+    "text": "That's a professional answer. You're ready to go and have these conversations for real."
+   },
+   "questions": {
+    "open": {
+     "ask": "Last conversation before you go out for roles. Tell me who you are professionally now.",
+     "points": [
+      {
+       "id": "identity",
+       "label": "Claim a professional identity",
+       "cues": [
+        "i am",
+        "i'm",
+        "welder",
+        "fabricator",
+        "tradesman",
+        "professional"
+       ]
+      },
+      {
+       "id": "evidence",
+       "label": "Back it with concrete experience",
+       "cues": [
+        "year",
+        "experience",
+        "worked",
+        "process",
+        "mig",
+        "tig",
+        "pipe",
+        "structural",
+        "site"
+       ]
+      },
+      {
+       "id": "standard",
+       "label": "Say what standard you work to",
+       "cues": [
+        "quality",
+        "standard",
+        "procedure",
+        "spec",
+        "safety",
+        "inspect",
+        "criteria",
+        "proper"
+       ]
+      },
+      {
+       "id": "direction",
+       "label": "Say where you are going",
+       "cues": [
+        "want",
+        "aim",
+        "next",
+        "looking",
+        "develop",
+        "goal",
+        "towards"
+       ]
+      }
+     ],
+     "vocab": [
+      "professional standard",
+      "procedure",
+      "certification",
+      "progression"
+     ],
+     "model": "I'm a welder with six years behind me, mostly structural, MIG and stick, and I've spent the last year getting comfortable explaining my work in English. I work to the procedure and I stop when something isn't right. Next I want to get onto pipe and get coded.",
+     "why": "This is your professional identity in four sentences — who, evidence, standard, direction. You will use it in every interview and every first day.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t0": {
+     "ask": "What work are you aiming for next?",
+     "points": [
+      {
+       "id": "specific",
+       "label": "Name a specific type of work",
+       "cues": [
+        "pipe",
+        "structural",
+        "offshore",
+        "fabricat",
+        "site",
+        "shop",
+        "vessel",
+        "oil",
+        "gas",
+        "tank"
+       ]
+      },
+      {
+       "id": "why",
+       "label": "Say why",
+       "cues": [
+        "because",
+        "want",
+        "interest",
+        "pay",
+        "skill",
+        "learn",
+        "develop",
+        "suits",
+        "so",
+        "that's why",
+        "where i can",
+        "hours",
+        "step"
+       ]
+      },
+      {
+       "id": "real",
+       "label": "Be realistic about the step",
+       "cues": [
+        "first",
+        "start",
+        "towards",
+        "build",
+        "after",
+        "once",
+        "step"
+       ]
+      }
+     ],
+     "vocab": [
+      "pipe welding",
+      "coded welder",
+      "offshore",
+      "progression"
+     ],
+     "model": "Pipe work, and eventually oil and gas. I know I won't walk straight into offshore, so the step I'm looking for is shop pipework where I can get the hours and get coded.",
+     "why": "Ambition with a realistic first step is credible. Ambition without one is not.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t1": {
+     "ask": "What part of your work do you still want to sharpen?",
+     "points": [
+      {
+       "id": "honest",
+       "label": "Name a real gap",
+       "cues": [
+        "overhead",
+        "pipe",
+        "tig",
+        "position",
+        "speed",
+        "reading",
+        "drawing",
+        "english",
+        "6g",
+        "stainless"
+       ]
+      },
+      {
+       "id": "plan",
+       "label": "Say what you are doing about it",
+       "cues": [
+        "practis",
+        "practice",
+        "learn",
+        "course",
+        "training",
+        "test",
+        "study",
+        "work on"
+       ]
+      },
+      {
+       "id": "nofake",
+       "label": "Avoid a fake weakness",
+       "cues": [
+        "actually",
+        "really",
+        "honest",
+        "struggle",
+        "not",
+        "weak",
+        "slow"
+       ]
+      }
+     ],
+     "vocab": [
+      "6G position",
+      "TIG",
+      "blueprint reading",
+      "certification"
+     ],
+     "model": "Overhead and 6G — I can do them but I'm slow, and speed matters when you're being timed on a test. I'm practising on off-cuts and I want to sit a test on it this year.",
+     "why": "A real weakness with a plan attached builds trust. A fake weakness like 'I work too hard' destroys it instantly.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t2": {
+     "ask": "And what would you not compromise on?",
+     "points": [
+      {
+       "id": "value",
+       "label": "Name a clear principle",
+       "cues": [
+        "safety",
+        "quality",
+        "honest",
+        "procedure",
+        "standard",
+        "never",
+        "always",
+        "won't"
+       ]
+      },
+      {
+       "id": "concrete",
+       "label": "Make it concrete, not a slogan",
+       "cues": [
+        "stop",
+        "refuse",
+        "permit",
+        "test",
+        "check",
+        "report",
+        "say",
+        "tell"
+       ]
+      },
+      {
+       "id": "cost",
+       "label": "Acknowledge it can be inconvenient",
+       "cues": [
+        "even",
+        "pressure",
+        "behind",
+        "time",
+        "cost",
+        "hard",
+        "unpopular"
+       ]
+      }
+     ],
+     "vocab": [
+      "stop work authority",
+      "quality standard",
+      "integrity"
+     ],
+     "model": "Safety and not hiding a bad weld. If I'm behind and someone wants me to send a joint through that I know isn't right, I won't do it — I'll say so and take the argument.",
+     "why": "This is the answer that gets remembered. Make it concrete and admit it costs something.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    },
+    "t3": {
+     "ask": "Give me your closing line — the one you'd end an interview with.",
+     "points": [
+      {
+       "id": "thanks",
+       "label": "Thank them",
+       "cues": [
+        "thank",
+        "thanks",
+        "appreciate",
+        "grateful"
+       ]
+      },
+      {
+       "id": "summary",
+       "label": "Restate your value in one line",
+       "cues": [
+        "experience",
+        "can",
+        "bring",
+        "offer",
+        "years",
+        "reliable",
+        "work"
+       ]
+      },
+      {
+       "id": "interest",
+       "label": "Say you want the job",
+       "cues": [
+        "want",
+        "interested",
+        "keen",
+        "like to",
+        "hope",
+        "looking forward"
+       ]
+      },
+      {
+       "id": "next",
+       "label": "Ask about the next step",
+       "cues": [
+        "next",
+        "step",
+        "hear",
+        "when",
+        "let me know",
+        "follow",
+        "process"
+       ]
+      }
+     ],
+     "vocab": [
+      "closing statement",
+      "follow-up",
+      "availability"
+     ],
+     "model": "Thank you for your time. I've got six years on structural, I turn up and I work to the procedure, and I'd like this job. Can I ask what the next step is?",
+     "why": "Most candidates end an interview by trailing off. Thanks, one line of value, say you want it, ask what happens next.",
+     "source": "Common structure for technical interviews with international contractors. Educational guidance only."
+    }
+   },
+   "moduleId": 12,
+   "regulatory": {
+    "moduleId": 12,
+    "codes": [
+     {
+      "code": "TWF Africa",
+      "title": "The Welding Federation — African federation of welding institutes",
+      "note": ""
+     },
+     {
+      "code": "ISO 9606-1",
+      "title": "Welder qualification validity and continuity",
+      "note": ""
+     },
+     {
+      "code": "AWS / ISO systems",
+      "title": "International qualification frameworks",
+      "note": ""
+     }
+    ],
+    "requirement": "Articulating structural accountability, professional ethical boundaries and long-term management of individual certifications.",
+    "benchmarks": [
+     {
+      "id": "validity",
+      "must": "Show you know a coded welder qualification lapses if the process is not performed within the set interval — typically confirmed every six months",
+      "cues": [
+       "six month",
+       "6 month",
+       "six-month",
+       "every six",
+       "expire",
+       "expiry",
+       "validity",
+       "valid",
+       "revalidat",
+       "continuity",
+       "lapse",
+       "renew",
+       "keep it current",
+       "sign off every"
+      ],
+      "critical": true
+     },
+     {
+      "id": "trace",
+      "must": "Explain trace tracking: your stamped welder ID linked to the joint records you sign off",
+      "cues": [
+       "stamp",
+       "welder id",
+       "welder number",
+       "identification",
+       "trace",
+       "traceab",
+       "sign off",
+       "signed",
+       "joint record",
+       "log",
+       "register",
+       "my number"
+      ],
+      "critical": true
+     },
+     {
+      "id": "updates",
+      "must": "Express continuous alignment with international standard updates and site-specific quality guidelines",
+      "cues": [
+       "standard",
+       "update",
+       "revision",
+       "current",
+       "latest",
+       "cpd",
+       "training",
+       "course",
+       "keep up",
+       "development",
+       "learn",
+       "new edition"
+      ],
+      "critical": true
+     }
+    ],
+    "vocab": [
+     "coded welder",
+     "range of qualification",
+     "welder ID stamp",
+     "revalidation",
+     "TWF"
+    ]
+   }
+  }
+ ]
+}

@@ -6330,11 +6330,17 @@ function audioUnlock(){
 }
 let _voiceOverride=null;   // onboarding uses a random natural voice; app default stays Alloy
 function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"alloy"}
-async function fbSayApi(text,rate,voiceOverride){
-  const voice=voiceOverride||fbVoicePref(),key=voice+"|"+text;
+/* `style` is a short delivery note for one character — "calm, direct shop
+   supervisor". Without it every voice is read with the Worker's single house
+   instruction, which is written for a communication coach, so a safety officer,
+   a workmate and a recruiter all came out sounding like the same person.
+   It is part of the cache key: the same sentence spoken by two characters is two
+   different clips, and reusing one for the other is exactly the bug it looks like. */
+async function fbSayApi(text,rate,voiceOverride,style){
+  const voice=voiceOverride||fbVoicePref(),key=voice+"|"+(style||"")+"|"+text;
   let url=_ttsCache.get(key);
   if(!url){
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({tts:text,voice})});
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(style?{tts:text,voice,style}:{tts:text,voice})});
     if(!r.ok)throw new Error("tts "+r.status);
     url=URL.createObjectURL(await r.blob());
     _ttsCache.set(key,url);
@@ -7107,11 +7113,11 @@ function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrches
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));}
 function simVoiceSpeak(message,sc){
   if(!message){simSetStatus('Ready to listen');return simVoiceListen()}
-  simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=character.voice||(gender==="m"?"onyx":"nova");
+  simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=character.voice||(gender==="m"?"ash":"coral"),style=character.voiceStyle||"";
   simSetStatus(`${character.name||'Your colleague'} is speaking`);rpStopVoice();
   const done=()=>{if(simUtterance!==message){return}simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};simUtterance=message;
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
-  if(canNatural){fbSayApi(message.text,1,voice).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}if(_ttsAudio)_ttsAudio.onended=done;else done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
+  if(canNatural){fbSayApi(message.text,1,voice,style).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}if(_ttsAudio)_ttsAudio.onended=done;else done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
   simSpeakBrowser(message.text,gender,done);
 }
 function simSpeakBrowser(text,gender,done){

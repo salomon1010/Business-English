@@ -105,7 +105,18 @@ const TTS_INSTRUCTIONS =
   "rhythm, clear articulation, and a friendly, encouraging tone. Never flat, " +
   "monotone, or robotic; sound like a real person speaking to a colleague.";
 
-async function callTTS(env, text, voice) {
+// A workplace character is not a communication coach. When the app names one —
+// "calm, direct shop supervisor" — the delivery note is appended to the house
+// instruction rather than replacing it, so the warmth and clarity survive and only
+// the persona changes. Capped and stripped of newlines: this text reaches the
+// provider, so it is treated as untrusted input, not as configuration.
+const MAX_TTS_STYLE = 180;
+function ttsInstructions(style) {
+  const s = String(style || "").replace(/[\r\n]+/g, " ").trim().slice(0, MAX_TTS_STYLE);
+  return s ? `${TTS_INSTRUCTIONS} For this line, speak in character: ${s}` : TTS_INSTRUCTIONS;
+}
+
+async function callTTS(env, text, voice, style) {
   return fetch("https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
@@ -113,7 +124,7 @@ async function callTTS(env, text, voice) {
       model: TTS_MODEL,
       voice,
       input: text,
-      instructions: TTS_INSTRUCTIONS,
+      instructions: ttsInstructions(style),
       response_format: "mp3",
     }),
   });
@@ -435,7 +446,7 @@ export default {
       let voice = String(body.voice || "alloy").toLowerCase();
       if (!TTS_VOICES.includes(voice)) voice = "alloy";
       try {
-        const r = await callTTS(env, text, voice);
+        const r = await callTTS(env, text, voice, body.style);
         if (!r.ok) return json({ error: "tts_unavailable", detail: "provider " + r.status }, 502, cors);
         return new Response(r.body, {
           status: 200,

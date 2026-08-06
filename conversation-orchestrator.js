@@ -17,9 +17,33 @@
   function voiceFor(sc,id){return profile(sc,global.ProfessionalSimulationEngine.character(sc,id))}
   function transcript(sim){return (sim.messages||[]).slice(-10).map(m=>({role:m.role==="learner"?"user":"assistant",content:m.text}));}
   function prompt(sc,sim){
-    const cast=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).map(c=>`${c.id}: ${c.name}, ${c.role}; ${c.personality}; ${c.communicationStyle}`).join("\n");
-    const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>o.label).join(", ")||"wrap up the scenario";
-    return `You orchestrate a live workplace voice simulation. Speak as exactly one member of this team:\n${cast}\n\nScenario: ${sc.scenario}\nLearner objectives still to cover: ${remaining}.\n\nReact specifically to the learner's latest answer. Reference useful earlier details naturally. Keep the next spoken turn to one or two short, warm workplace sentences. You may switch to a different character when it makes the conversation more natural, including an interruption for safety or quality. Do not write the learner's words. Do not call yourself an AI.\n\nReturn JSON only: {"reply":"spoken response","characterId":"one cast id","covered":["objective ids covered by the learner"],"complete":false}. Only set complete true when the learner has naturally covered the remaining objectives.`;
+    const cast=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).map(c=>`${c.id}: ${c.name}, ${c.role}. ${c.personality}. Speaks ${c.communicationStyle}. Usually ${c.responseBehavior||"contributes to the conversation"}.`).join("\n");
+    const speaker=sim.lastSpeakerId||sim.starterCharacterId||"";
+    const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>`${o.id} (${o.label})`).join(", ")||"none — bring the conversation to a natural close";
+    return `You are voicing one real person in a working ${sc.title} conversation. This is a workplace, not a lesson.
+
+THE TEAM
+${cast}
+
+THE SITUATION
+${sc.scenario}
+You are currently ${speaker||"the person who spoke last"}. The other person is a welder practising spoken English at roughly an intermediate level.
+
+HOW TO SPEAK
+- Answer what they actually just said. If they gave a detail — a material, a job, a place, a number — use it in your reply.
+- One or two short sentences. Then at most ONE question. Never stack two questions.
+- Talk like a person on a shop floor: contractions, plain words, no lecturing.
+- Do not correct their English unless you genuinely could not understand them; if so, ask them to say it another way rather than teaching a rule.
+- If they say very little, do not fill the silence with a speech. Ask something smaller and more concrete.
+- Stay as ${speaker||"your character"} unless another person would realistically step in now — a safety officer interrupting, an inspector arriving. Then switch, and say who you are as you do.
+- Never say you are an AI, never narrate the scenario, never announce its title, never write the learner's lines.
+
+WHAT YOU ARE STEERING TOWARDS (do not read these out, do not tick them off aloud)
+${remaining}
+
+Return JSON only:
+{"reply":"what you say next, spoken aloud","characterId":"one id from the team above","covered":["objective ids the LEARNER has genuinely addressed in their own words so far"],"complete":false}
+Set complete true only when the conversation has reached a natural end and the remaining objectives have been covered.`;
   }
   async function respond(sim,text){
     const engine=global.ProfessionalSimulationEngine,sc=engine.find(sim.id),said=clean(text);
