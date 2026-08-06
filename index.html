@@ -7115,12 +7115,18 @@ function simSpeakBrowser(text,gender,done){
   const voice=(gender==="m"?_rpVoices.m:_rpVoices.f)||_rpVoices.any,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
 }
 function simUsesManualVoiceTurn(){return activeProfessionalTrack().id==='welding'}
+function simReturnToReady(status='Your turn — tap the microphone to speak'){
+  if(simRun)simRun.listening=false;
+  simSetStatus(status);
+  const label=document.getElementById('simMicLabel');
+  if(label)label.textContent='Tap once to speak. Tap again when you finish.';
+}
 function simSubmitSpeechTurn(turn=simSpeechTurn){
   if(!turn||turn.submitted||!simRun)return;
   turn.submitted=true;simRun.listening=false;
   if(simSpeechTurn===turn)simSpeechTurn=null;
   const said=(turn.final||turn.interim).trim();
-  if(said)simProcessSpeech(said);else {simSetStatus('Tap to speak');simRefresh()}
+  if(said)simProcessSpeech(said);else simReturnToReady();
 }
 function simVoiceListen(){
   if(!simRun||simRun.debrief)return;
@@ -7141,7 +7147,7 @@ function simVoiceListen(){
       simRestartTimer=setTimeout(()=>{if(simRun&&simRun.listening&&!simRecognition&&!turn.finishRequested)simVoiceListen()},150);
       return;
     }
-    simRecognition=null;simRun.listening=false;simSpeechTurn=null;simSetStatus('Tap to try speaking again');simRefresh();
+    simRecognition=null;simSpeechTurn=null;simReturnToReady('Tap to try speaking again');
   };
   r.onend=()=>{
     if(simRecognition===r)simRecognition=null;
@@ -7158,9 +7164,9 @@ function simVoiceListen(){
     }
     simRun.listening=false;simSpeechTurn=null;
     const said=(turn.final||turn.interim).trim();
-    if(said)simProcessSpeech(said);else {simSetStatus('Tap to speak');simRefresh()}
+    if(said)simProcessSpeech(said);else simReturnToReady();
   };
-  try{r.start()}catch(e){simRecognition=null;simRun.listening=false;simSpeechTurn=null;simSetStatus('Tap to speak')}
+  try{r.start()}catch(e){simRecognition=null;simSpeechTurn=null;simReturnToReady('Tap to speak')}
 }
 function simStopListening(completeTurn=false){
   clearTimeout(simRestartTimer);
