@@ -4278,6 +4278,7 @@ async function rHome(el){
   const homeHero=activeProfessionalTrack().id==="welding"
     ?weldingHero
     :(S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic"));
+  const activeTrackName=t(activeProfessionalTrack().nameKey);
   /* No .pg-eyebrow here on purpose. Every other view needs one because the
      header's sub-label is a static "Home"; on Home itself that label is already
      correct, so a sticky bar repeating it would cost 43px to say nothing. */
@@ -4302,7 +4303,6 @@ async function rHome(el){
     </div>
   </div>
   ${window.LearningCoach?LearningCoach.coachCard(S):""}
-  ${homeDueCard()}
   <div class="hero">
     <button class="card rp-entry track-entry professional-track-entry" onclick="go('tracks')">
       <span class="rp-entry-ic">${ic("briefcase")}</span>
@@ -4313,17 +4313,8 @@ async function rHome(el){
       </span>
     </button>
   </div>
-  <div class="hero">
-    <button class="card rp-entry" onclick="go('roleplay')">
-      <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
-      <span class="rp-entry-t">
-        <b>${t("home.rp_title")}</b>
-        <small>${t("home.rp_sub")}</small>
-      </span>
-      <span class="rp-entry-go">→</span>
-    </button>
-  </div>
-  ${homePanelDashboard()}
+  ${homePanelDashboard(activeTrackName)}
+  ${homeDueCard()}
   <details class="home-more">
     <summary><span class="btn-ic">${ic("list")}</span>${t("home.tab_rules")}<span class="hm-chev">▶</span></summary>
     <div class="home-more-body">${homePanelRules()}</div>
@@ -4369,7 +4360,7 @@ function homeDueCard(){
     </button>`;
 }
 
-function homePanelDashboard(){
+function homePanelDashboard(activeTrackName){
   const p=pct(),pos=currentPos(),recN=_homeRecN;
   const phaseCounts=[0,0,0,0];
   const weeks=trackWeeks(),phases=trackPhases();
@@ -4392,7 +4383,7 @@ function homePanelDashboard(){
         </div>
       </div>
     </div>
-  ${homeMetrics(pos,recN)}`;
+  ${homeMetrics(pos,recN,activeTrackName)}`;
 }
 
 /* The nine metrics. Each used to carry its own "here is how to fix this zero"
@@ -4401,7 +4392,7 @@ function homePanelDashboard(){
    just count, earned ones first, and the single most useful next step is stated
    once beneath the panel. Nothing was dropped: all nine stay rendered, tappable
    and keyboard-operable, and every next-step string is still a live i18n key. */
-function homeMetrics(pos,recN){
+function homeMetrics(pos,recN,activeTrackName){
   const sess="go('session',"+pos.w+",'"+pos.d+"')";
   const vocN=Object.keys(S.vocab||{}).length;
   const pron=rpScoreStats();
@@ -4434,7 +4425,7 @@ function homeMetrics(pos,recN){
     ${sorted.map(m=>statCard(m.ic,m.n,m.suf,t("home."+m.lbl),m.dim,m.go)).join("")}
   </div>
   ${step?`<button class="home-step" onclick="${step.go}">
-    <span>${t("home."+step.next)}</span>
+    <span>${step.go===sess?`Continue your ${esc(activeTrackName)} session.`:t("home."+step.next)}</span>
     <span class="home-step-go" aria-hidden="true">→</span>
   </button>`:""}`;
 }

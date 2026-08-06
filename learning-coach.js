@@ -90,7 +90,8 @@
   }
   function coachCard(s){
     const t=track(),m=mission(s,t);
-    return `<section class="card coach-card" aria-label="AI Learning Coach"><div class="eyebrow">AI Learning Coach</div><h2>Your daily mission</h2><p class="coach-focus">Focus: <b>${global.esc(m.focus)}</b></p><b>${global.esc(m.title)}</b><p>${global.esc(m.body)}</p><button class="btn btn-p coach-cta" onclick="LearningCoach.openMission()">Start recommended activity →</button></section>`;
+    const trackName=global.esc(t.themeLabel||t.id);
+    return `<section class="card coach-card" aria-label="${trackName} AI Coach"><div class="eyebrow">${trackName} AI Coach</div><h2>Your daily mission</h2><p class="coach-focus">Focus: <b>${global.esc(m.focus)}</b></p><b>${global.esc(m.title)}</b><p>${global.esc(m.body)}</p><button class="btn btn-p coach-cta" onclick="LearningCoach.openMission()">Start recommended activity →</button></section>`;
   }
   function weeklyCard(s){const r=weeklyReview(s,track());return `<section class="card coach-week"><div class="eyebrow">Weekly AI Review</div><h2>Your professional week</h2><div class="coach-review-grid"><div><span>Achievements</span><b>${global.esc(r.achievements.join(" · "))}</b></div><div><span>Strength</span><b>${global.esc(r.strength)}</b></div><div><span>Growth area</span><b>${global.esc(r.weakness)}</b></div><div><span>Career readiness</span><b>${r.readiness}%</b></div></div><p><b>Recommended focus:</b> ${global.esc(r.focus)}<br><span>${global.esc(r.change)} ${r.points?`${r.points} competency points this week.`:""}</span></p></section>`}
   function narrativeCard(s){return `<section class="card coach-narrative"><div class="eyebrow">Professional Growth Story</div><p>${global.esc(narrative(s,track()))}</p></section>`}
