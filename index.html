@@ -951,6 +951,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .track-entry .rp-entry-ic{background:linear-gradient(145deg,color-mix(in srgb,var(--track-preview) 82%,#fff),var(--track-preview))}.track-entry:hover{border-color:var(--track-preview)}
 .track-entry-cta{display:block;color:var(--track-preview);font-size:13px;font-weight:700;margin-top:9px}
 .track-entry.theme-general{--track-preview:#6366f1}.track-entry.theme-welding{--track-preview:#d49717}.track-entry.theme-electrician{--track-preview:#38bdf8}.track-entry.theme-construction{--track-preview:#d46a3a}.track-entry.theme-healthcare{--track-preview:#43b884}.track-entry.theme-manufacturing{--track-preview:#9b7ce8}.track-entry.theme-customer-service{--track-preview:#df6a9d}.track-entry.theme-hvac{--track-preview:#35ae9e}.track-entry.theme-plumbing{--track-preview:#4d9de0}.track-entry.theme-mechanical{--track-preview:#94a3b8}
+.tracks-coming-soon{margin-top:24px}.tracks-coming-soon>summary{color:var(--txt)}.tracks-coming-soon .track-coming-copy{display:flex;flex-direction:column;gap:2px}.tracks-coming-soon .track-coming-copy small{color:var(--mut);font-size:12px;font-weight:400}.tracks-coming-soon .track-entry{margin-top:10px}
 .professional-track-entry{border-color:rgba(202,138,4,.62);background:linear-gradient(150deg,rgba(146,64,14,.22),rgba(202,138,4,.08))}.professional-track-entry:hover{border-color:#fbbf24}.professional-track-entry .rp-entry-ic{background:linear-gradient(145deg,#a16207,#d97706)}.professional-track-entry .track-entry-cta{color:#fcd34d}
 /* conversation history rows on the progress page */
 .cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
@@ -4473,13 +4474,16 @@ function trackPlaceholderCard(key){
 }
 function rTracks(el){
   const tracks=ProfessionalTrackContext.all();
+  const comingSoon=["tracks.electrician","tracks.construction","tracks.healthcare","tracks.manufacturing","tracks.customer_service","tracks.hvac","tracks.plumbing","tracks.mechanical"];
   el.innerHTML=`
     <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('home')">${t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
     <h1 class="big">${t("tracks.title")}</h1>
     <p class="sub" style="margin-bottom:18px">${t("tracks.sub")}</p>
     ${tracks.map(track=>trackSelectionCard(track)).join("")}
-    <div class="hr" style="margin:22px 0 8px"></div>
-    ${["tracks.electrician","tracks.construction","tracks.healthcare","tracks.manufacturing","tracks.customer_service","tracks.hvac","tracks.plumbing","tracks.mechanical"].map(trackPlaceholderCard).join("")}`;
+    <details class="home-more tracks-coming-soon">
+      <summary><span class="btn-ic">${ic("lock")}</span><span class="track-coming-copy"><b>Coming soon</b><small>${comingSoon.length} professional tracks in development</small></span><span class="hm-chev">›</span></summary>
+      <div class="home-more-body">${comingSoon.map(trackPlaceholderCard).join("")}</div>
+    </details>`;
   manIconizeInline(el);
 }
 window.selectProfessionalTrack=id=>{
