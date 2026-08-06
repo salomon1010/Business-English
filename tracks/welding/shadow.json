@@ -1,13 +1,40 @@
 {
-  "schemaVersion": "1",
-  "trackId": "welding",
-  "resources": [
-    {"name": "TED", "url": "https://www.youtube.com/@TED", "desc": "Professional speakers with clear delivery.", "use": "Choose a short opening and practise pace and pauses.", "k": "video"},
-    {"name": "Stanford", "url": "https://www.youtube.com/@stanford", "desc": "Public talks and professional presentations.", "use": "Listen for calm, confident introductions.", "k": "video"}
-  ],
-  "starters": [
-    {"vid": "UF8uR6Z6KLc", "name": "Steve Jobs — Stanford Commencement Address", "why": "Use the opening to practise a calm pace, clear pauses, and a confident greeting.", "cap": false},
-    {"vid": "ACzEHOe-Dcg", "name": "Admiral McRaven — Make Your Bed", "why": "Listen to the opening for steady delivery and clear stress on key words.", "cap": false},
-    {"vid": "Do8iVld-RB4", "name": "Tim Cook — Duke Commencement Address", "why": "Practise sounding composed when you introduce your background and goals.", "cap": false}
-  ]
+ "schemaVersion": "1",
+ "trackId": "welding",
+ "resources": [
+  {
+   "name": "TED",
+   "url": "https://www.youtube.com/@TED",
+   "desc": "Professional speakers with clear delivery.",
+   "use": "Choose a short opening and practise pace and pauses.",
+   "k": "video"
+  },
+  {
+   "name": "Stanford",
+   "url": "https://www.youtube.com/@stanford",
+   "desc": "Public talks and professional presentations.",
+   "use": "Listen for calm, confident introductions.",
+   "k": "video"
+  }
+ ],
+ "starters": [
+  {
+   "vid": "UF8uR6Z6KLc",
+   "name": "Steve Jobs — Stanford Commencement Address",
+   "why": "Use the opening to practise a calm pace, clear pauses, and a confident greeting.",
+   "cap": true
+  },
+  {
+   "vid": "ACzEHOe-Dcg",
+   "name": "Admiral McRaven — Make Your Bed",
+   "why": "Listen to the opening for steady delivery and clear stress on key words.",
+   "cap": true
+  },
+  {
+   "vid": "Do8iVld-RB4",
+   "name": "Tim Cook — Duke Commencement Address",
+   "why": "Practise sounding composed when you introduce your background and goals.",
+   "cap": true
+  }
+ ]
 }
