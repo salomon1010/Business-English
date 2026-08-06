@@ -68,6 +68,7 @@
 <script src="adaptive-learning-engine.js"></script>
 <script src="career-center.js"></script>
 <script src="professional-skills-passport.js"></script>
+<script src="answer-evaluator.js"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -632,6 +633,34 @@ body.sh-work-open{overflow:hidden}
 .coach-card,.coach-week,.coach-narrative{max-width:560px;margin:18px auto;padding:18px}.coach-card h2,.coach-week h2{font-size:20px;margin:4px 0 8px}.coach-card p,.coach-week p,.coach-narrative p{font-size:13px;line-height:1.55;color:var(--mut);margin:7px 0 14px}.coach-focus{font-size:12px!important;color:var(--acc2)!important}.coach-cta{margin-top:2px}.coach-review-grid,.coach-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}.coach-review-grid>div,.coach-summary-grid>div{padding:10px;border-radius:11px;background:var(--bg2);border:1px solid var(--line)}.coach-review-grid span,.coach-summary-grid span{display:block;font-size:11.5px;color:var(--mut);line-height:1.35}.coach-review-grid b,.coach-summary-grid b{display:block;font-size:12.5px;margin-bottom:4px}.coach-next{border-top:1px solid var(--line);padding-top:13px;margin-top:12px}.coach-next p{font-size:13px}.coach-modal-ov{position:fixed;inset:0;z-index:160;background:rgba(6,9,18,.74);backdrop-filter:blur(5px);display:grid;place-items:center;padding:18px;animation:fade .2s}.coach-modal{position:relative;max-width:560px;max-height:calc(100vh - 36px);overflow:auto;width:100%;padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--line2);box-shadow:0 20px 70px rgba(0,0,0,.4)}.coach-modal h2{font-size:21px;margin:5px 0}.coach-modal>p{font-size:14px;color:var(--mut);line-height:1.5}.coach-close{position:absolute;right:13px;top:11px;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--mut);font-size:24px;cursor:pointer}.coach-close:hover{background:var(--bg2);color:var(--txt)}
 .sim-entry{margin-top:10px}.sim-entry .rp-entry-ic{background:linear-gradient(145deg,rgba(251,191,36,.2),rgba(99,102,241,.2))}.sim-stage{max-width:700px;margin:0 auto}.sim-scenario-card{padding:18px}.sim-scenario-card h2{font-size:20px;margin:0}.sim-scenario-card .sub{margin:3px 0 14px}.sim-card-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.sim-card-meta span{padding:8px 9px;border:1px solid var(--line);background:var(--bg2);border-radius:9px;font-size:11px;color:var(--mut)}.sim-card-meta b{display:block;color:var(--txt);font-size:12px;margin-bottom:2px}.sim-card-label{display:block;font-size:11px;font-weight:800;letter-spacing:1.15px;text-transform:uppercase;color:var(--accent-text);margin:14px 0 7px}.sim-skill-chips,.sim-story{display:flex;gap:7px;flex-wrap:wrap}.sim-skill-chips span,.sim-story span{font-size:11.5px;padding:5px 8px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mut)}.sim-objectives-preview{display:grid;gap:6px}.sim-objectives-preview div{font-size:12px;color:var(--mut);display:flex;gap:7px;align-items:flex-start}.sim-objectives-preview i{font-style:normal;color:var(--accent-text);font-weight:800}.sim-story span{line-height:1.45;border-radius:10px}.sim-cast{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.sim-cast span,.sim-cast button{padding:8px 10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font:inherit;text-align:left;color:var(--txt);font-size:12px}.sim-cast button{min-width:132px;flex:1 1 132px;transition:.15s}.sim-cast button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg2))}.sim-cast button:active{transform:translateY(1px)}.sim-cast b{display:block;font-size:12px}.sim-cast small{display:block;color:var(--mut);font-size:10.5px;line-height:1.3}.sim-cast button small:last-child{color:var(--accent-text);font-weight:700;margin-top:4px;font-size:11.5px}.sim-objectives{display:grid;gap:8px;margin:14px 0}.sim-objective{padding:10px 12px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);font-size:13px}.sim-objective.done{border-color:rgba(52,211,153,.5);color:var(--green)}.sim-feed{display:flex;flex-direction:column;gap:10px;margin:14px 0}.sim-msg{padding:11px 13px;border-radius:13px;max-width:88%;font-size:14px;line-height:1.45}.sim-msg.character{background:var(--card2);border:1px solid var(--line2);align-self:flex-start}.sim-msg.learner{background:var(--accent-fill);color:var(--on-accent);align-self:flex-end}.sim-speaker{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;opacity:.75}.sim-event{border-color:rgba(251,191,36,.5)!important}.sim-compose{display:flex;gap:8px;margin-top:12px}.sim-compose textarea{flex:1;min-height:80px}.sim-debrief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.sim-debrief-grid div{padding:10px;border:1px solid var(--line);background:var(--bg2);border-radius:10px}.sim-debrief-grid span{display:block;color:var(--mut);font-size:11px}.sim-debrief-grid b{font-size:18px;color:var(--acc2)}
 .sim-scenario-card>summary{display:block;list-style:none;cursor:pointer}.sim-scenario-card>summary::-webkit-details-marker{display:none}.sim-scenario-card>summary::after{content:"Open scenario details  →";display:block;color:var(--accent-text);font-size:12px;font-weight:800;margin-top:5px}.sim-scenario-card[open]>summary::after{content:"Hide scenario details  ↑"}.sim-scenario-body{padding-top:1px}
+/* Answer analysis. Green marks what the learner covered, amber what a competent
+   answer still needs — never red: a gap here is a next step, not a failure. */
+.sim-analysis{margin-top:16px}
+.sim-analysis>.sub{margin-bottom:14px}
+.sim-ans-h{margin:20px 0 10px}
+.sim-ans{padding:0;margin-top:10px;overflow:hidden}
+.sim-ans>summary{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;list-style:none}
+.sim-ans>summary::-webkit-details-marker{display:none}
+.sim-ans-n{flex:none;width:24px;height:24px;border-radius:50%;background:var(--bg2);color:var(--mut);
+  display:grid;place-items:center;font-size:12px;font-weight:800}
+.sim-ans-q{flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.4}
+.sim-ans-body{padding:0 16px 16px}
+.sim-ans-said{margin-bottom:12px}
+.sim-ans-said span,.sim-ans-good b,.sim-ans-gap b,.sim-ans-model b,.sim-ans-voc b{display:block;font-size:11px;font-weight:800;
+  letter-spacing:.9px;text-transform:uppercase;color:var(--mut2);margin-bottom:5px}
+.sim-ans-said p{margin:0;font-style:italic;color:var(--txt);line-height:1.55}
+.sim-ans-good,.sim-ans-gap,.sim-ans-model,.sim-ans-voc{margin-bottom:12px;padding-left:11px;border-left:2px solid var(--line)}
+.sim-ans-good{border-left-color:var(--green)}
+.sim-ans-gap{border-left-color:var(--gold)}
+.sim-ans-model{border-left-color:var(--acc)}
+.sim-ans-good ul,.sim-ans-gap ul{margin:0;padding-left:16px}
+.sim-ans-good li,.sim-ans-gap li{font-size:13px;line-height:1.6}
+.sim-ans-model p{margin:0;line-height:1.6}
+.sim-ans-why{font-size:12.5px;color:var(--mut);line-height:1.6;margin:0 0 10px}
+.sim-ans-src{font-size:11.5px;color:var(--mut2);line-height:1.55;margin:10px 0 0;padding-top:9px;border-top:1px solid var(--line)}
+.sim-ans-next{margin-top:16px;padding:14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.sim-ans-next b{display:block;margin-bottom:4px}
+.sim-ans-next p{margin:0 0 12px;font-size:13px;color:var(--mut);line-height:1.55}
 .mission-brief,.mission-complete{padding:24px}.mission-company{font-size:12px;font-weight:900;letter-spacing:1.6px;color:var(--accent-text);margin-bottom:12px}.mission-contact{margin:20px 0 14px;color:var(--mut)}.mission-start{width:100%;justify-content:center}.mission-learning{margin-top:18px;padding-top:2px;border-top:1px solid var(--line)}.mission-learning h3{margin:18px 0 3px}.mission-learning p{margin:0;color:var(--mut);line-height:1.55}
 .sim-live{max-width:700px;margin:0 auto}.sim-live-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}.sim-live-person{display:flex;align-items:center;gap:12px;padding:15px;background:linear-gradient(145deg,rgba(99,102,241,.16),rgba(34,211,238,.08));border:1px solid var(--line2);border-radius:16px}.sim-live-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:#fff;font-weight:900;font-size:18px}.sim-live-person b,.sim-live-person span{display:block}.sim-live-person span{font-size:12px;color:var(--mut);margin-top:3px}.sim-live-status{margin-left:auto;font-size:12px;color:var(--acc2);font-weight:800}.sim-wave{height:76px;display:flex;align-items:center;justify-content:center;gap:5px;margin:18px 0}.sim-wave i{display:block;width:5px;height:14px;border-radius:6px;background:var(--acc2);opacity:.55}.sim-wave.live i{animation:simWave .9s ease-in-out infinite alternate}.sim-wave.live i:nth-child(2n){animation-delay:.16s}.sim-wave.live i:nth-child(3n){animation-delay:.31s}@keyframes simWave{to{height:58px;opacity:1}}.sim-mic-wrap{text-align:center}.sim-mic{width:104px;height:104px;border:0;border-radius:50%;background:var(--grad);color:#fff;box-shadow:0 10px 36px rgba(99,102,241,.36);cursor:pointer;font-size:30px}.sim-mic.listening{animation:simPulse 1.4s infinite}@keyframes simPulse{50%{box-shadow:0 0 0 15px rgba(34,211,238,.12),0 10px 36px rgba(99,102,241,.36)}}.sim-mic-label{display:block;margin-top:10px;font-size:13px;color:var(--mut)}.sim-progress{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--mut);margin:14px 0 6px}.sim-objectives.live{margin:0}.sim-turn-note{margin:18px auto 0;max-width:520px;text-align:center;font-size:13px;color:var(--mut);line-height:1.5}.sim-voice-feedback{font-size:12px;color:var(--mut);text-align:center;margin-top:12px}.sim-end{margin:14px auto 0;display:block}
 .sim-work-avatar{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--grad);color:#fff;font-size:17px;font-weight:900;flex:none}.sim-work .rp-work-body{justify-content:flex-start}.sim-work .rp-bubble{margin-top:0}.sim-work .rp-status{margin:0}.sim-work .rp-pts{margin-bottom:2px}
@@ -7081,6 +7110,94 @@ function simCardProfile(sc,index){
   return {stage,duration:sc.duration||"12 minutes",difficulty:sc.difficulty||(index<4?"Beginner":index<8?"Intermediate":"Advanced"),skills:sc.skills||(sc.objectives||[]).slice(0,3).map(x=>x.label)};
 }
 function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join("  →  ")}
+/* ---- Post-workshop answer analysis ----
+   For each question the learner answered, show what they said, which parts of a
+   competent answer they covered, which they missed, and the model answer.
+
+   The honesty rule this screen exists to hold: it compares the learner's words
+   with a model answer written for that question. It is evidence about English and
+   about how completely they explained themselves. It is NOT evidence that they can
+   do the work, hold a certificate, or meet any legal or employer requirement, and
+   every rubric carries its own source line saying where the expectation came from. */
+function simAnswerCard(a,i){
+  const band={strong:"done",partial:"",thin:"",'no-answer':""}[a.verdict]||"";
+  const pct=Math.round((a.coverage||0)*100);
+  return `<details class="card sim-ans" ${i===0?"open":""}>
+    <summary>
+      <span class="sim-ans-n">${i+1}</span>
+      <span class="sim-ans-q">${esc(a.ask)}</span>
+      <span class="chip ${band}">${a.answered?pct+"%":"no answer"}</span>
+    </summary>
+    <div class="sim-ans-body">
+      ${a.answered?`<div class="sim-ans-said"><span>You said</span><p>“${esc(a.said)}”</p></div>`:
+        `<p class="sub">You did not give a spoken answer to this one, so there is nothing to compare yet.</p>`}
+      ${a.covered.length?`<div class="sim-ans-good"><b>What you did well</b><ul>${a.covered.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
+      ${a.missed.length?`<div class="sim-ans-gap"><b>What was missing</b><ul>${a.missed.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
+      <div class="sim-ans-model"><b>How you could have said it</b><p>“${esc(a.model)}”</p></div>
+      ${a.why?`<p class="sim-ans-why">${esc(a.why)}</p>`:""}
+      ${a.vocabMissed.length?`<div class="sim-ans-voc"><b>Words to use next time</b><div class="sim-skill-chips">${a.vocabMissed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+      ${a.vocabUsed.length?`<p class="sim-ans-why">You already used: ${esc(a.vocabUsed.join(", "))}.</p>`:""}
+      ${a.source?`<p class="sim-ans-src">${esc(a.source)}</p>`:""}
+    </div>
+  </details>`;
+}
+/* Keyword cues cannot catch every way a person says the right thing — "I shut it
+   down" covers "say what you did" without using any cue word. One request at the
+   end of the workshop asks the model which rubric points each answer really
+   covered. It runs once, not per turn, and it is strictly additive: applyAssist
+   only honours point ids that already exist in the rubric, and can never remove
+   something the learner earned or invent a score. Offline this simply does not
+   run and the deterministic result stands. */
+let _simAssistDone=null;
+async function simEnrichAnalysis(run,sc){
+  if(!run||!window.AnswerEvaluator||_simAssistDone===run.startedAt)return false;
+  const answers=(run.answers||[]).filter(a=>a.answered&&a.missed.length);
+  if(!answers.length||!POLISH_API||!navigator.onLine)return false;
+  _simAssistDone=run.startedAt;
+  const items=answers.map((a,i)=>({i,said:a.said,missing:a.missed.map(m=>({id:m.id,means:m.label}))}));
+  const sys=`You check whether a spoken answer covered specific points. For each item you are given what the learner said and the points a marker recorded as MISSING.
+Some were marked missing only because the learner used different words. Decide, for each item, which of those missing point ids the learner genuinely did address in meaning.
+Be strict: only include an id if the meaning is really there. Do not reward intention, politeness or length. Do not judge their English.
+Return JSON only: {"reply":"ok","items":[{"i":0,"covered":["id"]}]}`;
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:JSON.stringify(items).slice(0,4000)}]}})});
+    if(!r.ok)return false;
+    const j=await r.json().catch(()=>({}));
+    const rows=Array.isArray(j.items)?j.items:[];
+    let changed=false;
+    rows.forEach(row=>{
+      const a=answers[Number(row&&row.i)];
+      if(!a)return;
+      const rubric=(sc.questions||{})[a.q];
+      if(!rubric)return;
+      const before=a.covered.length;
+      AnswerEvaluator.applyAssist(a,rubric,row.covered);
+      if(a.covered.length!==before)changed=true;
+    });
+    return changed;
+  }catch(e){return false}
+}
+function simAnalysisHTML(run,sc){
+  if(!window.AnswerEvaluator)return "";
+  const answers=(run.answers||[]);
+  if(!answers.length)return "";
+  const rev=AnswerEvaluator.review(answers);
+  const next=AnswerEvaluator.nextFocus(rev,sc,trackSimulations());
+  const pct=Math.round(rev.coverage*100);
+  return `<section class="card sim-analysis">
+    <div class="eyebrow">Answer analysis</div>
+    <h2>What you said, and what a competent answer needs</h2>
+    ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. This measures how completely you explained yourself in English — not your welding ability, your certification, or whether you meet an employer's requirements.</p>`
+      :`<p class="sub">No spoken answer was captured, so there is nothing to analyse yet.</p>`}
+    ${rev.gaps.length?`<div class="sim-ans-gap"><b>Your repeating habit</b><ul>${rev.gaps.slice(0,3).map(g=>`<li>${esc(g.label)} — missed in ${g.times} answer${g.times===1?"":"s"}</li>`).join("")}</ul></div>`:""}
+    ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b><div class="sim-skill-chips">${rev.vocabToLearn.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+    <div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
+      <button class="btn btn-p" onclick="${next.repeat?`simRestart('${esc(sc.id)}')`:`simInterviewStart('${esc(next.id)}','${esc(sc.lead||"hr")}')`}">${next.repeat?"Try this again":"Start it"} →</button></div>
+    <h3 class="sim-ans-h">Question by question</h3>
+    ${answers.map(simAnswerCard).join("")}
+  </section>`;
+}
 function isFirstDayMission(sc){return activeProfessionalTrack().id==='welding'&&sc&&sc.id==='welding-sim-1'}
 function missionData(sc){return sc.mission||{company:'ABC Fabrication',title:'First Day at the Workshop',welcome:'Welcome to the team. Today is your first day.',locations:[],rewards:[],vocabulary:[],phrases:[],nextMission:{title:'Shift Handover',preview:''}}}
 function simMissionBriefing(el,sc,characterId){const mission=missionData(sc),first=simCharacter(sc,characterId);el.innerHTML=`<button class="back" onclick="go('simulation')">‹ Workplace scenarios</button><section class="card sim-stage mission-brief"><div class="mission-company">${esc(mission.company)}</div><div class="eyebrow">Mission</div><h1 class="big">${esc(mission.title)}</h1><p class="sub">${esc(mission.welcome)}</p><div class="sim-card-meta"><span><b>12 minutes</b>Estimated duration</span><span><b>Beginner</b>Difficulty</span><span><b>First day</b>Workplace stage</span></div><span class="sim-card-label">Today's mission</span><div class="sim-objectives-preview">${(sc.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join('')}</div><span class="sim-card-label">Your workplace journey</span><div class="sim-story"><span>${esc((mission.locations||[]).join('  →  '))}</span></div><span class="sim-card-label">Rewards</span><div class="sim-skill-chips">${(mission.rewards||[]).map(reward=>`<span>✓ ${esc(reward)}</span>`).join('')}</div><p class="mission-contact">You will begin with <b>${esc(first.name)}</b>, ${esc(first.role)}.</p><button class="btn btn-p mission-start" onclick="simBeginMission('${esc(sc.id)}','${esc(first.id)}')">Start my first day →</button></section>`}
@@ -7099,7 +7216,10 @@ function rSimulation(el,id,characterId){
   if(debrief){
     const cards=Object.entries(debrief.scores||{}).filter(([,v])=>typeof v==='number').map(([k,v])=>`<div><span>${esc(k.replace(/([A-Z])/g," $1"))}</span><b>${v}%</b></div>`).join(""),mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p>${cards?`<div class="sim-debrief-grid">${cards}</div>`:''}<h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<h3>Recommended next scenario</h3><p>${esc(debrief.recommendedNextSimulation)}</p><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>`;return;
+    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p>${cards?`<div class="sim-debrief-grid">${cards}</div>`:''}<h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simAnalysisHTML(run,selected)}`;
+    /* Refine coverage once, then redraw only this view — never mid-conversation. */
+    simEnrichAnalysis(run,selected).then(changed=>{if(changed&&cur&&cur.v==="simulation"){simSave();go("simulation",selected.id)}});
+    return;
   }
   const speaker=simCharacter(selected,run.lastSpeakerId||((run.messages||[]).slice(-1)[0]||{}).characterId)||simCast(selected)[0];
   const status=run.voiceStatus||"Maya is preparing to speak";
@@ -7189,7 +7309,24 @@ function simStopListening(completeTurn=false){
 }
 function simRefresh(){if(simRun)go('simulation',simRun.id)}
 function simMissionLearning(sc,text){if(!isFirstDayMission(sc)||!simRun)return '';const mission=missionData(sc),learning=simRun.learning||(simRun.learning={words:[],phrases:[],grammar:[]}),lower=String(text||'').toLowerCase();(mission.vocabulary||[]).forEach(word=>{if(lower.includes(word.toLowerCase())&&!learning.words.includes(word))learning.words.push(word)});(mission.phrases||[]).forEach(phrase=>{const stem=phrase.replace('...','').trim().toLowerCase();if(stem&&lower.includes(stem)&&!learning.phrases.includes(phrase))learning.phrases.push(phrase)});if(/\bworked welding\b/i.test(text)){const correction='A natural way to say that is: “I worked on welding projects.”';if(!learning.grammar.includes(correction))learning.grammar.push(correction);return correction}return ''}
-async function simProcessSpeech(text){if(!simRun)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text),feedback=ConversationOrchestrator.feedback(simRun,text);simRun.voiceFeedback=(simRun.voiceFeedback||[]).concat([feedback]).slice(-20);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
+/* Each spoken answer is scored against the rubric for the question that was
+   actually asked — not against the workshop as a whole. The question id is taken
+   from the message the learner was answering, so a learner who takes a different
+   route through the workshop is still measured against the right expectations. */
+function simRecordAnswer(sc,text){
+  if(!simRun||!window.AnswerEvaluator)return;
+  const asked=[...(simRun.messages||[])].reverse().find(m=>m.role==="character");
+  /* No key means this was not a rubric question — an unexpected interruption, or
+     a follow-up the live service invented. Those are worth having in the
+     conversation but there is no model answer to compare against, so they are
+     left unscored rather than measured against the wrong question. */
+  const key=asked&&asked.q;
+  const rubric=key&&(sc.questions||{})[key];
+  if(!rubric)return;
+  const result=AnswerEvaluator.evaluate(text,rubric);
+  simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
+}
+async function simProcessSpeech(text){if(!simRun)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
 window.simStart=(id,characterId)=>{simRun=ProfessionalSimulationEngine.start(id,characterId);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
 window.simBeginMission=(scenarioId,characterId)=>simStart(scenarioId,characterId);
 window.simInterviewStart=(scenarioId,characterId)=>{const scenario=ProfessionalSimulationEngine.find(scenarioId);if(isFirstDayMission(scenario))return go('simulation',scenarioId,characterId);simStart(scenarioId,characterId)};
