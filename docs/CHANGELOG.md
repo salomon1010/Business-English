@@ -15,6 +15,7 @@
 
 - Professional Simulation now requires spoken input; text areas, send controls, and scrolling conversation history have been removed.
 - Simulation debrief language now presents coaching-oriented workplace feedback.
+- Welding Practice now uses the established card-based role-play library as **Professional Interview Coaches**. Each existing technical topic is presented as a named professional interview with its assigned coach; the Workshop Simulation entry is no longer shown in the Welding learner path.
 
 ### Compatibility
 

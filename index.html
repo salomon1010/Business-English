@@ -6974,12 +6974,12 @@ function rPractice(el){
   <div id="libBody"></div>
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
-  <button class="card rp-entry" onclick="go('roleplay')">
+  <button class="card rp-entry ${isProfessionalJourney()?"professional-track-entry":""}" onclick="go('roleplay')">
     <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
-    <span class="rp-entry-t"><b>${t("home.rp_title")}</b><small>${t("home.rp_sub")}</small></span>
+    <span class="rp-entry-t"><b>${isProfessionalJourney()?"Professional Interview Coaches":t("home.rp_title")}</b><small>${isProfessionalJourney()?"Choose a coach and practise the professional interview type for your current stage.":t("home.rp_sub")}</small></span>
     <span class="rp-entry-go">→</span>
   </button>
-  ${trackSimulations().length?`<button class="card rp-entry sim-entry" onclick="go('simulation')">
+  ${trackSimulations().length&&!isProfessionalJourney()?`<button class="card rp-entry sim-entry" onclick="go('simulation')">
     <span class="rp-entry-ic">${ic("briefcase")}</span>
     <span class="rp-entry-t"><b>Professional Simulation</b><small>Step into a workplace scenario with a full professional team.</small></span>
     <span class="rp-entry-go">→</span>
@@ -8797,7 +8797,7 @@ function rRoleplay(el,id){
   rpIntro(el,sc);
 }
 function rpLibrary(el){
-  const scenarios=trackScenarios(),categories=trackScenarioCategories(),feat=activeProfessionalTrack().id==="general-english"?scenarios[3]:scenarios[0];
+  const professional=isProfessionalJourney(),scenarios=trackScenarios(),categories=trackScenarioCategories(),feat=activeProfessionalTrack().id==="general-english"?scenarios[3]:scenarios[0];
   const cats=categories.map(([c,label])=>{
     const items=scenarios.filter(s=>s.cat===c);
     return `<h3 style="margin:26px 0 12px">${esc(label)}</h3><div class="rp-grid">${items.map(s=>`<button class="rp-card" onclick="go('roleplay','${s.id}')">${rpAvatar(s,92)}<b>${esc(s.title)}</b><small>${esc(s.persona)} · ${esc(s.role)}</small></button>`).join("")}</div>`;
@@ -8805,10 +8805,10 @@ function rpLibrary(el){
   el.innerHTML=`
    <div class="eyebrow pg-eyebrow pg-sub">
      <button class="back" onclick="go('practice')">${t("rp.back_practice")}</button>
-     <span>${t("rp.eyebrow")}</span>
+     <span>${professional?"Professional coaches":t("rp.eyebrow")}</span>
    </div>
-   <h1 class="big">${t("rp.title")}</h1>
-   <p class="sub" style="margin-bottom:18px">${t("rp.sub")}</p>
+   <h1 class="big">${professional?"Talk it out — professional interviews":t("rp.title")}</h1>
+   <p class="sub" style="margin-bottom:18px">${professional?"Choose a coach and practise the interview conversation for each professional skill.":t("rp.sub")}</p>
    <!-- key box removed: the Worker holds the key now -->
    <!-- ElevenLabs key box removed: the Worker already serves natural TTS -->
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
