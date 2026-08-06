@@ -4264,39 +4264,16 @@ addEventListener("click",e=>{
 });
 
 /* ================= DASHBOARD ================= */
-let _homeRecN=0;
-async function rHome(el){
-  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d],recN=await countRecs();
-  _homeRecN=recN;
-  /* Day 0 gets the promise, every day after gets the evidence. Someone who has
-     never practised has nothing to show in a week strip — seven empty dots is a
-     poor welcome — and someone on day 40 does not need the pitch again. */
-  const started=totalDone()>0;
-  const weldingHero=S.profile&&S.profile.name
-    ?`${esc(S.profile.name)}, communicate with confidence on the <em>welding floor</em>`
-    :`Communicate with confidence on the <em>welding floor</em>`;
-  const homeHero=activeProfessionalTrack().id==="welding"
-    ?weldingHero
-    :(S.profile&&S.profile.name?t("home.hero_named",{name:esc(S.profile.name)}):t("home.hero_generic"));
-  const activeTrackName=t(activeProfessionalTrack().nameKey);
-  /* No .pg-eyebrow here on purpose. Every other view needs one because the
-     header's sub-label is a static "Home"; on Home itself that label is already
-     correct, so a sticky bar repeating it would cost 43px to say nothing. */
+function rHome(el){
+  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d];
+  /* Home is intentionally a short return point: resume the active track, use
+     its coach, or choose a different track. Detailed progress stays in the
+     active track's learning and Progress screens. */
   el.innerHTML=`
-  ${started?homeWeekStrip():`
-  <h1 class="big">${homeHero}</h1>
-  <p class="sub">${t("home.sub_base")}.</p>
-  ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
-    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
-    if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
-    if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
-    return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
-  <div class="hr"></div>`}
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
-      ${started?`<h1>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h1>`
-               :`<h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h2>`}
+      <h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h2>
       <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(trackDayMeta()[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
       <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
@@ -4312,13 +4289,7 @@ async function rHome(el){
         <span class="track-entry-cta">${t("tracks.card_cta")}</span>
       </span>
     </button>
-  </div>
-  ${homePanelDashboard(activeTrackName)}
-  ${homeDueCard()}
-  <details class="home-more">
-    <summary><span class="btn-ic">${ic("list")}</span>${t("home.tab_rules")}<span class="hm-chev">▶</span></summary>
-    <div class="home-more-body">${homePanelRules()}</div>
-  </details>`;
+  </div>`;
   manIconizeInline(el);
 }
 
