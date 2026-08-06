@@ -239,6 +239,13 @@ window.FB_CONFIG={
   --accent:var(--acc); --focus:var(--acc2); --on-accent:#fff;
   --accent-fill:color-mix(in srgb,var(--acc) 90%,#000); --accent-text:#818cf8;
 }
+/* Blue is the conversation surface; these amber details keep it recognisably
+   inside the Welding track instead of looking like General English. */
+:root.simulation-blue-mode #trackIndicator{border-color:rgba(246,196,83,.52);background:rgba(67,47,10,.46)}
+:root.simulation-blue-mode #trackIndicator small{color:#f6c453}:root.simulation-blue-mode #trackIndicator b{color:#fff3cf}
+:root.simulation-blue-mode #v-simulation .eyebrow{color:#f6c453}
+:root.simulation-blue-mode #v-simulation .sim-stage{border-color:rgba(246,196,83,.4);background:linear-gradient(145deg,rgba(246,196,83,.07),var(--card))}
+:root.simulation-blue-mode #v-simulation .sim-cast button small:last-child{color:#f6c453}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
