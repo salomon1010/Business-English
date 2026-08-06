@@ -59,16 +59,16 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js"></script>
-<script src="professional-tracks.js"></script>
-<script src="competency-engine.js"></script>
-<script src="learning-coach.js?v=2"></script>
-<script src="professional-simulation-engine.js?v=2"></script>
-<script src="conversation-orchestrator.js"></script>
-<script src="adaptive-learning-engine.js"></script>
-<script src="career-center.js"></script>
-<script src="professional-skills-passport.js"></script>
-<script src="answer-evaluator.js"></script>
+<script src="curriculum-provider.js?v=3"></script>
+<script src="professional-tracks.js?v=3"></script>
+<script src="competency-engine.js?v=3"></script>
+<script src="learning-coach.js?v=3"></script>
+<script src="professional-simulation-engine.js?v=3"></script>
+<script src="conversation-orchestrator.js?v=3"></script>
+<script src="adaptive-learning-engine.js?v=3"></script>
+<script src="career-center.js?v=3"></script>
+<script src="professional-skills-passport.js?v=3"></script>
+<script src="answer-evaluator.js?v=3"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -633,8 +633,22 @@ body.sh-work-open{overflow:hidden}
 .coach-card,.coach-week,.coach-narrative{max-width:560px;margin:18px auto;padding:18px}.coach-card h2,.coach-week h2{font-size:20px;margin:4px 0 8px}.coach-card p,.coach-week p,.coach-narrative p{font-size:13px;line-height:1.55;color:var(--mut);margin:7px 0 14px}.coach-focus{font-size:12px!important;color:var(--acc2)!important}.coach-cta{margin-top:2px}.coach-review-grid,.coach-summary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:13px 0}.coach-review-grid>div,.coach-summary-grid>div{padding:10px;border-radius:11px;background:var(--bg2);border:1px solid var(--line)}.coach-review-grid span,.coach-summary-grid span{display:block;font-size:11.5px;color:var(--mut);line-height:1.35}.coach-review-grid b,.coach-summary-grid b{display:block;font-size:12.5px;margin-bottom:4px}.coach-next{border-top:1px solid var(--line);padding-top:13px;margin-top:12px}.coach-next p{font-size:13px}.coach-modal-ov{position:fixed;inset:0;z-index:160;background:rgba(6,9,18,.74);backdrop-filter:blur(5px);display:grid;place-items:center;padding:18px;animation:fade .2s}.coach-modal{position:relative;max-width:560px;max-height:calc(100vh - 36px);overflow:auto;width:100%;padding:22px;border-radius:20px;background:var(--card);border:1px solid var(--line2);box-shadow:0 20px 70px rgba(0,0,0,.4)}.coach-modal h2{font-size:21px;margin:5px 0}.coach-modal>p{font-size:14px;color:var(--mut);line-height:1.5}.coach-close{position:absolute;right:13px;top:11px;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:var(--mut);font-size:24px;cursor:pointer}.coach-close:hover{background:var(--bg2);color:var(--txt)}
 .sim-entry{margin-top:10px}.sim-entry .rp-entry-ic{background:linear-gradient(145deg,rgba(251,191,36,.2),rgba(99,102,241,.2))}.sim-stage{max-width:700px;margin:0 auto}.sim-scenario-card{padding:18px}.sim-scenario-card h2{font-size:20px;margin:0}.sim-scenario-card .sub{margin:3px 0 14px}.sim-card-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:12px 0}.sim-card-meta span{padding:8px 9px;border:1px solid var(--line);background:var(--bg2);border-radius:9px;font-size:11px;color:var(--mut)}.sim-card-meta b{display:block;color:var(--txt);font-size:12px;margin-bottom:2px}.sim-card-label{display:block;font-size:11px;font-weight:800;letter-spacing:1.15px;text-transform:uppercase;color:var(--accent-text);margin:14px 0 7px}.sim-skill-chips,.sim-story{display:flex;gap:7px;flex-wrap:wrap}.sim-skill-chips span,.sim-story span{font-size:11.5px;padding:5px 8px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mut)}.sim-objectives-preview{display:grid;gap:6px}.sim-objectives-preview div{font-size:12px;color:var(--mut);display:flex;gap:7px;align-items:flex-start}.sim-objectives-preview i{font-style:normal;color:var(--accent-text);font-weight:800}.sim-story span{line-height:1.45;border-radius:10px}.sim-cast{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.sim-cast span,.sim-cast button{padding:8px 10px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;font:inherit;text-align:left;color:var(--txt);font-size:12px}.sim-cast button{min-width:132px;flex:1 1 132px;transition:.15s}.sim-cast button:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg2))}.sim-cast button:active{transform:translateY(1px)}.sim-cast b{display:block;font-size:12px}.sim-cast small{display:block;color:var(--mut);font-size:10.5px;line-height:1.3}.sim-cast button small:last-child{color:var(--accent-text);font-weight:700;margin-top:4px;font-size:11.5px}.sim-objectives{display:grid;gap:8px;margin:14px 0}.sim-objective{padding:10px 12px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);font-size:13px}.sim-objective.done{border-color:rgba(52,211,153,.5);color:var(--green)}.sim-feed{display:flex;flex-direction:column;gap:10px;margin:14px 0}.sim-msg{padding:11px 13px;border-radius:13px;max-width:88%;font-size:14px;line-height:1.45}.sim-msg.character{background:var(--card2);border:1px solid var(--line2);align-self:flex-start}.sim-msg.learner{background:var(--accent-fill);color:var(--on-accent);align-self:flex-end}.sim-speaker{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px;opacity:.75}.sim-event{border-color:rgba(251,191,36,.5)!important}.sim-compose{display:flex;gap:8px;margin-top:12px}.sim-compose textarea{flex:1;min-height:80px}.sim-debrief-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.sim-debrief-grid div{padding:10px;border:1px solid var(--line);background:var(--bg2);border-radius:10px}.sim-debrief-grid span{display:block;color:var(--mut);font-size:11px}.sim-debrief-grid b{font-size:18px;color:var(--acc2)}
 .sim-scenario-card>summary{display:block;list-style:none;cursor:pointer}.sim-scenario-card>summary::-webkit-details-marker{display:none}.sim-scenario-card>summary::after{content:"Open scenario details  →";display:block;color:var(--accent-text);font-size:12px;font-weight:800;margin-top:5px}.sim-scenario-card[open]>summary::after{content:"Hide scenario details  ↑"}.sim-scenario-body{padding-top:1px}
+/* Conversation thread. The learner's own turns are visible now, so a bubble needs
+   to say whose it is without relying on side alone. */
+.sim-work .rp-work-body{display:flex;flex-direction:column;gap:10px;padding:14px;overflow-y:auto}
+.sim-bub-who{display:block;font-size:10.5px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;
+  opacity:.62;margin-bottom:4px}
+.sim-work .rp-bubble.me{align-self:flex-end;max-width:86%}
+.sim-work .rp-bubble.ai{align-self:flex-start;max-width:92%}
+
 /* Answer analysis. Green marks what the learner covered, amber what a competent
    answer still needs — never red: a gap here is a next step, not a failure. */
+.sim-fb-play{width:100%;justify-content:center;margin-bottom:12px}
+.sim-fb-play.on{background:var(--acc);color:#fff;border-color:transparent}
+.sim-ans-regs{margin:12px 0;padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.sim-ans-regs>b{display:block;font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;
+  color:var(--mut2);margin-bottom:7px}
+.sim-ans-regs p{margin:8px 0 0;font-size:12.5px;color:var(--mut);line-height:1.55}
 .sim-analysis{margin-top:16px}
 .sim-analysis>.sub{margin-bottom:14px}
 .sim-ans-h{margin:20px 0 10px}
@@ -2298,7 +2312,11 @@ function awardCompetency(input){
   if(!window.CompetencyEngine)return;
   const result=CompetencyEngine.logActivity(S,input);
   const coaching=window.LearningCoach&&LearningCoach.summary(S,input,result);
-  if(coaching)LearningCoach.present(coaching);
+  /* The generic five-panel coach modal opened on top of the workshop debrief and
+     said nothing the debrief did not say better — the screenshots showed it
+     covering the report the learner had just earned. The debrief is now the
+     report for a simulation, so the modal stays out of its way. */
+  if(coaching&&input.activityType!=="professional_simulation")LearningCoach.present(coaching);
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
@@ -7110,6 +7128,24 @@ function simCardProfile(sc,index){
   return {stage,duration:sc.duration||"12 minutes",difficulty:sc.difficulty||(index<4?"Beginner":index<8?"Intermediate":"Advanced"),skills:sc.skills||(sc.objectives||[]).slice(0,3).map(x=>x.label)};
 }
 function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join("  →  ")}
+/* The learner could not see what they had said. Only the character's current line
+   was on screen, so there was no way to check a word, notice a slip, or build on
+   the answer before. The exchange is now visible — still one live prompt at the
+   bottom, still voice-first, but with the conversation behind it readable.
+   The last character line keeps id="simPrompt" so simSetStatus and the existing
+   in-place updates continue to find it. */
+function simThreadHTML(run,sc){
+  const msgs=(run.messages||[]).slice(-12);
+  if(!msgs.length)return `<div class="rp-bubble ai" id="simPrompt">Welcome. Please introduce yourself.</div>`;
+  let lastCharIdx=-1;
+  msgs.forEach((m,i)=>{if(m.role==="character")lastCharIdx=i});
+  return msgs.map((m,i)=>{
+    if(m.role==="learner")return `<div class="rp-bubble me"><span class="sim-bub-who">You</span>${esc(m.text)}</div>`;
+    const c=simCharacter(sc,m.characterId)||{};
+    return `<div class="rp-bubble ai"${i===lastCharIdx?' id="simPrompt"':""}><span class="sim-bub-who">${esc(c.name||"")}</span>${esc(m.text)}</div>`;
+  }).join("");
+}
+
 /* ---- Post-workshop answer analysis ----
    For each question the learner answered, show what they said, which parts of a
    competent answer they covered, which they missed, and the model answer.
@@ -7119,16 +7155,72 @@ function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join
    about how completely they explained themselves. It is NOT evidence that they can
    do the work, hold a certificate, or meet any legal or employer requirement, and
    every rubric carries its own source line saying where the expectation came from. */
+/* The spoken debrief the learner asked for: the person who put the question tells
+   them how it went, in their own voice. Composed from the same rubric the card
+   shows, so what they hear and what they read can never disagree. */
+function simFeedbackScript(a){
+  const pct=Math.round((a.coverage||0)*100);
+  const out=[];
+  if(!a.answered){
+    out.push("You did not answer this one, so there is nothing for me to judge yet.");
+    out.push(`This is what we were expecting. ${a.model}`);
+    out.push("Try it again and say it out loud, even if it is not perfect.");
+    return out.join(" ");
+  }
+  out.push(a.covered.length
+    ? `You did quite well here. You managed to ${a.covered.map(c=>c.label.toLowerCase()).join(", and to ")}.`
+    : "This one did not go well, and I would rather tell you now than let an employer tell you.");
+  if(a.missed.length)out.push(`But this is what we were expecting from you. You were supposed to ${a.missed.map(c=>c.label.toLowerCase()).join(", to ")}.`);
+  else out.push("You covered everything we listen for on this question.");
+  out.push(`This is how a professional would answer it. ${a.model}`);
+  out.push(`Your score on this question is ${pct} percent.`);
+  out.push(pct>=75
+    ? "That is a strong answer. Keep saying it that way."
+    : "You should work more on knowing this type of requirement, so you can handle this kind of situation properly on site.");
+  if(a.vocabMissed&&a.vocabMissed.length)out.push(`Learn these words for next time. ${a.vocabMissed.join(", ")}.`);
+  return out.join(" ");
+}
+let _simFbSpeaking=null;
+window.simPlayFeedback=async(i)=>{
+  const a=(simRun&&simRun.answers||[])[i];if(!a)return;
+  const sc=ProfessionalSimulationEngine.find(simRun.id);
+  const btn=document.getElementById("simFb"+i);
+  if(_simFbSpeaking===i){simStopFeedback();return}
+  simStopFeedback();
+  _simFbSpeaking=i;
+  if(btn){btn.classList.add("on");btn.textContent="■ Stop"}
+  const c=simCharacter(sc,a.characterId)||{},gender=c.g||"f",
+        voice=c.voice||(gender==="m"?"ash":"coral"),style=c.voiceStyle||"",
+        text=simFeedbackScript(a);
+  const done=()=>{if(_simFbSpeaking===i)simStopFeedback()};
+  const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  if(canNatural){
+    try{await fbSayApi(text,1,voice,style);if(_ttsAudio)_ttsAudio.onended=done;else done();return}
+    catch(e){/* fall through to the browser voice */}
+  }
+  simSpeakBrowser(text,gender,done);
+};
+function simStopFeedback(){
+  if(window.speechSynthesis)speechSynthesis.cancel();
+  try{fbStopAudio()}catch(e){}
+  if(_simFbSpeaking!=null){
+    const b=document.getElementById("simFb"+_simFbSpeaking);
+    if(b){b.classList.remove("on");b.textContent="▶ Hear the feedback"}
+  }
+  _simFbSpeaking=null;
+}
 function simAnswerCard(a,i){
   const band={strong:"done",partial:"",thin:"",'no-answer':""}[a.verdict]||"";
   const pct=Math.round((a.coverage||0)*100);
+  const asker=(()=>{const sc=simRun&&ProfessionalSimulationEngine.find(simRun.id);const c=sc&&simCharacter(sc,a.characterId);return c&&c.name?c.name:""})();
   return `<details class="card sim-ans" ${i===0?"open":""}>
     <summary>
       <span class="sim-ans-n">${i+1}</span>
-      <span class="sim-ans-q">${esc(a.ask)}</span>
+      <span class="sim-ans-q">${asker?`<b>${esc(asker)}:</b> `:""}${esc(a.ask)}</span>
       <span class="chip ${band}">${a.answered?pct+"%":"no answer"}</span>
     </summary>
     <div class="sim-ans-body">
+      <button class="btn btn-g btn-sm sim-fb-play" id="simFb${i}" onclick="simPlayFeedback(${i})">▶ Hear the feedback</button>
       ${a.answered?`<div class="sim-ans-said"><span>You said</span><p>“${esc(a.said)}”</p></div>`:
         `<p class="sub">You did not give a spoken answer to this one, so there is nothing to compare yet.</p>`}
       ${a.covered.length?`<div class="sim-ans-good"><b>What you did well</b><ul>${a.covered.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
@@ -7188,8 +7280,14 @@ function simAnalysisHTML(run,sc){
   return `<section class="card sim-analysis">
     <div class="eyebrow">Answer analysis</div>
     <h2>What you said, and what a competent answer needs</h2>
-    ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. This measures how completely you explained yourself in English — not your welding ability, your certification, or whether you meet an employer's requirements.</p>`
+    ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. Open any question below and tap <b>Hear the feedback</b> — the person who asked it will tell you how it went.</p>`
       :`<p class="sub">No spoken answer was captured, so there is nothing to analyse yet.</p>`}
+    ${(sc.regulatory&&sc.regulatory.codes||[]).length?`<div class="sim-ans-regs">
+      <b>Assessed against</b>
+      <div class="sim-skill-chips">${sc.regulatory.codes.map(c=>`<span title="${esc(c.title)}">${esc(c.code)}</span>`).join("")}</div>
+      <p>${esc(sc.regulatory.requirement)}</p>
+    </div>`:""}
+    <p class="sim-ans-src">This measures how completely you explained yourself in English against a model answer. It is not evidence of your welding ability, your certification, or whether you meet an employer's requirements — those are proved by test certificates and the awarding body.</p>
     ${rev.gaps.length?`<div class="sim-ans-gap"><b>Your repeating habit</b><ul>${rev.gaps.slice(0,3).map(g=>`<li>${esc(g.label)} — missed in ${g.times} answer${g.times===1?"":"s"}</li>`).join("")}</ul></div>`:""}
     ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b><div class="sim-skill-chips">${rev.vocabToLearn.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
     <div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
@@ -7225,7 +7323,9 @@ function rSimulation(el,id,characterId){
   const status=run.voiceStatus||"Maya is preparing to speak";
   const prompt=((run.messages||[]).slice(-1)[0]||{}).text||"Welcome. Please introduce yourself and tell me about your background.";
   const micState=run.listening?"sim-listening":/your turn|tap to/i.test(status)?"sim-ready":"sim-active";
-  el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"><span class="sim-work-avatar">${esc((speaker.name||"?")[0])}</span><div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(selected.title)}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body"><div class="rp-bubble ai" id="simPrompt">${esc(prompt)}</div></div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
+  el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"><span class="sim-work-avatar">${esc((speaker.name||"?")[0])}</span><div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(selected.title)}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body" id="simBody">${simThreadHTML(run,selected)}</div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
+  /* Keep the newest turn in view — the thread grows downward. */
+  const body=document.getElementById("simBody");if(body)body.scrollTop=body.scrollHeight;
   if(needsOpening)setTimeout(()=>simVoiceSpeak(run.messages[0],selected),100);
 }
 let simRecognition=null,simUtterance=null,simSpeechTurn=null,simRestartTimer=null;
