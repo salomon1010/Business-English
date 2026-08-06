@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 10 — Live AI Workplace Engine — Complete (2026-08-05)
+
+Replaced the Professional Simulation interaction with a voice-first workplace experience. The new Conversation Orchestrator is profession-independent: track packs continue to provide characters, scenarios, objectives, and unexpected events, while the orchestrator manages active speaker, objective completion, conversation memory, service-backed follow-up turns, character changes, and persistence.
+
+The simulation UI now uses a live speaker card, voice activity waveform, microphone control, speaking/listening state, current objective, and completed objectives instead of typing or chat bubbles. It uses browser speech recognition and speech synthesis, with character voice profiles and an existing secured AI conversation endpoint for contextual follow-ups. Active sessions, voice metadata, response-derived feedback signals, conversation history, objectives, competency awards, and debriefs are retained in the existing local learner state. Browser voice capability remains a client dependency; when recognition is unavailable the UI states that limitation without reintroducing text chat.
+
 ### Sprint 9 — Global Career Readiness Center — Complete (2026-08-05)
 
 Delivered a local, track-aware Career Center that turns existing professional learning evidence into career-preparation guidance. Learners can choose Cameroon, Nigeria, South Africa, Canada, the United States, or an International Contractor context and receive destination-specific interview, workplace communication, culture, and certification-preparation guidance.

@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 10 — Live AI Workplace Engine
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-018 | 2026-08-05 | Building AI Apps | Transform simulations into natural workplace conversations without creating a profession-specific runtime or replacing existing simulation data. | Build a separate voice application; extend each track with custom flows; add a shared Conversation Orchestrator above the existing simulation schema. | Add a profession-independent Conversation Orchestrator that uses current characters, objectives, events, session state, and the existing secured conversation service. | Future tracks supply data only while one orchestrator manages turns, memory, character transitions, completion, and persistence. | Live generative follow-ups depend on the existing online conversation service; the local scenario response remains as a continuity fallback. | Accepted |
+| ED-019 | 2026-08-05 | Generative AI | Deliver a voice-first experience without collecting a new audio dataset or adding another speech backend. | Add a new real-time media service; keep typing as a fallback; use browser speech recognition and synthesis with existing conversational AI. | Use browser speech APIs for microphone interaction and character delivery, and remove typing and message bubbles from Professional Simulation. | Keeps the product local-first, avoids new infrastructure, and delivers a familiar live-call interaction model. | Speech recognition and available synthesized voices vary by browser and device; unsupported browsers receive a clear capability state instead of a text-chat fallback. | Accepted |
+
 ## Sprint 9 — Global Career Readiness Center
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

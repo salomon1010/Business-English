@@ -1,5 +1,25 @@
 # Changelog
 
+## Sprint 10 — Live AI Workplace Engine
+
+### Added
+
+- Added the reusable, profession-independent Conversation Orchestrator.
+- Replaced the Professional Simulation chat-style flow with a voice-first live workplace interface.
+- Added character voice profiles, active-speaker state, speaking/listening status, waveform feedback, current objective, and objective progress.
+- Added persisted in-progress simulation sessions, voice session metadata, conversation history, and response-derived live-feedback signals.
+- Added contextual AI follow-up turns through the existing secured conversation service, with the established local scenario behavior as a safe fallback.
+
+### Changed
+
+- Professional Simulation now requires spoken input; text areas, send controls, and conversation bubbles have been removed.
+- Simulation debrief language now presents coaching-oriented workplace feedback.
+
+### Compatibility
+
+- Existing Professional Track curriculum, competency awards, Skills Passport, AI Coach, Adaptive Learning, Career Center, and Professional Journey integrations are retained.
+- Browser speech recognition and synthesis are required for the live voice experience; no new backend or deployment was added.
+
 ## Sprint 9 — Global Career Readiness Center
 
 ### Added
