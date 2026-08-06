@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "be-assessor",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-06",
+  "observability": { "enabled": true },
+
+  // Set these as SECRETS, never here:
+  //   npx wrangler secret put OPENAI_KEY
+  //   npx wrangler secret put ASSESSOR_API_KEY
+  "vars": {
+    "ALLOWED_ORIGINS": "https://app.lomonec.com,http://localhost:8000"
+  }
+
+  // Optional but recommended in production — makes rate limiting global rather
+  // than per-isolate. Create with: npx wrangler kv namespace create RATE_LIMIT
+  // "kv_namespaces": [{ "binding": "RATE_LIMIT", "id": "<id>" }]
+}

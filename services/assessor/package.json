@@ -1,0 +1,22 @@
+{
+  "name": "be-mastery-assessor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Welding simulation assessment API — deterministic benchmark grading with LLM enrichment.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build:modules": "node scripts/build-modules.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240909.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^3.78.0"
+  }
+}

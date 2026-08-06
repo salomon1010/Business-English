@@ -4,3 +4,6 @@
 # the repo because everything committed here is served publicly from
 # app.lomonec.com — these are working files for reviewers, not site content.
 review/
+
+# Node dependencies for services/ (assessor API and UI). Never served publicly.
+node_modules/
