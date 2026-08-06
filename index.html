@@ -650,6 +650,43 @@ body.sh-work-open{overflow:hidden}
   color:var(--mut2);margin-bottom:7px}
 .sim-ans-regs p{margin:8px 0 0;font-size:12.5px;color:var(--mut);line-height:1.55}
 
+/* Interview score. The ring is hard-capped in both dimensions and the circles
+   are explicitly fill:none — without those rules an SVG circle defaults to a
+   solid black fill at whatever size the container allows, which is exactly how
+   this rendered as a full-width black disc. */
+.sim-score{display:flex;align-items:center;gap:18px;margin-top:16px;padding:20px;border-width:1.5px}
+.sim-score-ring{position:relative;flex:0 0 104px;width:104px;height:104px;max-width:104px;max-height:104px;
+  display:grid;place-items:center}
+.sim-score-ring svg{width:104px;height:104px;max-width:104px;max-height:104px;display:block}
+.sim-score-ring circle{fill:none}
+.sim-score-track{fill:none;stroke:var(--bg2);stroke-width:9}
+.sim-score-arc{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .9s ease-out}
+.sim-score-n{position:absolute;font-size:26px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums;
+  line-height:1}
+.sim-score-n small{font-size:13px;font-weight:700;opacity:.65}
+.sim-score-txt{min-width:0;flex:1}
+.sim-score-txt .eyebrow{margin-bottom:2px}
+.sim-score-txt h2{margin:2px 0 6px;font-size:21px;line-height:1.2}
+.sim-score-txt p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.6}
+.sim-score-att{margin-top:8px!important;font-size:12px!important;color:var(--mut2)!important}
+/* Colour is never the only signal — the heading word carries the same meaning. */
+.sim-score-good{border-color:rgba(52,211,153,.5)}
+.sim-score-good .sim-score-arc{stroke:var(--green)}
+.sim-score-good .sim-score-n,.sim-score-good .sim-score-txt h2{color:var(--green)}
+.sim-score-fair{border-color:rgba(251,191,36,.5)}
+.sim-score-fair .sim-score-arc{stroke:var(--gold)}
+.sim-score-fair .sim-score-n,.sim-score-fair .sim-score-txt h2{color:var(--gold)}
+.sim-score-poor{border-color:rgba(248,113,113,.45)}
+.sim-score-poor .sim-score-arc{stroke:var(--red)}
+.sim-score-poor .sim-score-n,.sim-score-poor .sim-score-txt h2{color:var(--red)}
+@media(max-width:440px){.sim-score{flex-direction:column;text-align:center;gap:14px}}
+/* Per-question score chip, on the same thresholds as the ring. */
+.sim-q-score{flex:none;min-width:52px;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:800;
+  text-align:center;font-variant-numeric:tabular-nums;border:1px solid var(--line);color:var(--mut)}
+.sim-q-score.q-good{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+.sim-q-score.q-fair{color:var(--gold);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.sim-q-score.q-poor{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
+
 /* Attempt history. Every rule sets its own layout — an earlier version was laid
    out as five columns because an ancestor was arranging its children in a row. */
 .sim-progress{display:block!important;margin-top:16px}
@@ -7193,13 +7230,19 @@ function simScoreBand(pct,best){
   return {tone:"poor",title:"Keep going",
     msg:(improved?"Better than last time, and that is what counts. ":"")+"This one did not go well yet, and that is normal at the start — nobody speaks a second language well under pressure without practice. Read the model answers below, say them out loud once, then try again."};
 }
+/* Presentation attributes on the SVG itself, not only classes. If the stylesheet
+   is ever missing or a rule is lost, an unstyled <circle> defaults to a solid
+   black fill at whatever size the box allows — which is precisely how the score
+   ring once rendered as a full-width black disc. Belt and braces. */
+const TONE={good:"#34d399",fair:"#fbbf24",poor:"#f87171"},TONE_TRACK="rgba(148,163,184,.22)";
 function simScoreHeroHTML(pct,band,attempts){
   const r=52,c=2*Math.PI*r;
   return `<section class="card sim-score sim-score-${band.tone}">
     <div class="sim-score-ring">
-      <svg viewBox="0 0 120 120" aria-hidden="true">
-        <circle cx="60" cy="60" r="${r}" class="sim-score-track"/>
-        <circle cx="60" cy="60" r="${r}" class="sim-score-arc"
+      <svg viewBox="0 0 120 120" width="104" height="104" aria-hidden="true">
+        <circle cx="60" cy="60" r="${r}" class="sim-score-track" fill="none" stroke="${TONE_TRACK}" stroke-width="9"/>
+        <circle cx="60" cy="60" r="${r}" class="sim-score-arc" fill="none" stroke="${TONE[band.tone]}" stroke-width="9"
+          stroke-linecap="round" transform="rotate(-90 60 60)"
           stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-pct/100)).toFixed(1)}"/>
       </svg>
       <span class="sim-score-n">${pct}<small>%</small></span>
