@@ -17,6 +17,10 @@
       this.sourceId=config.sourceId||config.id;
       this.curriculum=config.curriculum||null;
       this.inheritsFrom=config.inheritsFrom||null;
+      /* A semantic theme id lets each profession have a clear visual identity
+         without duplicating screens or the learning engine. */
+      this.themeId=config.themeId||"general";
+      this.themeLabel=config.themeLabel||config.id;
       this.version=config.version||"1";
       Object.freeze(this);
     }

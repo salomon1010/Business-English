@@ -198,6 +198,33 @@ window.FB_CONFIG={
      text needs no lightening — it is --acc itself. */
   --accent-text:var(--acc);
 }
+/* Track identities use the same semantic tokens as General English. Welding is
+   deliberately industrial amber on charcoal, so a learner can recognise the
+   professional area on every screen without a separate application. */
+:root[data-track="welding"]{
+  --bg:#100e09; --bg2:#19150c; --card:#211b0e; --card2:#2a220f;
+  --line:rgba(246,196,83,.13); --line2:rgba(246,196,83,.24);
+  --txt:#f8f1df; --mut:#c4b89d; --mut2:#85785d;
+  --acc:#d49717; --acc2:#f6c453; --gold:#f6c453; --green:#58c991; --red:#ef8a78; --pink:#efad79;
+  --grad:linear-gradient(135deg,#a66b08,#e2af2f);
+  --nav-bg:rgba(16,14,9,.9); --bnav-bg:rgba(25,21,12,.98); --scroll:#55431d;
+  --hover:rgba(246,196,83,.08);
+  --wash1:rgba(212,151,23,.18); --wash2:rgba(246,196,83,.075);
+  --sh-1:0 1px 2px rgba(0,0,0,.48); --sh-2:0 6px 20px rgba(0,0,0,.42); --sh-3:0 16px 44px rgba(0,0,0,.54);
+  --accent:var(--acc); --focus:var(--acc2); --on-accent:#1b1202;
+  --accent-fill:#c98a0d; --accent-text:#f6ce70;
+}
+:root[data-theme="light"][data-track="welding"]{
+  --bg:#fbf8ef; --bg2:#fffdf7; --card:#fffdf7; --card2:#f6efd9;
+  --line:rgba(104,70,8,.14); --line2:rgba(104,70,8,.25);
+  --txt:#2d210b; --mut:#665a43; --mut2:#9e9279;
+  --acc:#9b6200; --acc2:#774900; --gold:#8a5500; --green:#086a48; --red:#b43e2e; --pink:#9a4b22;
+  --grad:linear-gradient(135deg,#9b6200,#d59a1a);
+  --nav-bg:rgba(255,253,247,.9); --bnav-bg:rgba(255,253,247,.98); --scroll:#d9c99e;
+  --hover:rgba(104,70,8,.06);
+  --wash1:rgba(212,151,23,.12); --wash2:rgba(246,196,83,.08);
+  --accent-fill:#8b5900; --accent-text:#784b00;
+}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--txt);font-family:'Outfit',sans-serif;min-height:100vh}
@@ -232,6 +259,9 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .brand.on .logo{box-shadow:0 0 0 2px var(--acc),0 0 14px rgba(99,102,241,.5)}
 .brand .logo{width:46px;height:46px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font-size:23px}
 .brand span.g{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.track-indicator{display:none;align-items:center;gap:7px;margin-left:4px;padding:6px 11px;border:1px solid var(--line2);border-radius:10px;background:color-mix(in srgb,var(--acc) 13%,transparent);color:var(--txt);font:inherit;text-align:left;white-space:nowrap;transition:.15s}
+.track-indicator.show{display:flex}.track-indicator:hover{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 20%,transparent)}.track-indicator:active{transform:translateY(1px)}
+.track-indicator small{display:block;color:var(--accent-text);font-size:9px;font-weight:800;letter-spacing:1px;text-transform:uppercase;line-height:1.1}.track-indicator b{display:block;font-size:12px;line-height:1.2}
 .tab{position:relative;border:none;background:transparent;color:var(--mut);padding:8px 14px;border-radius:99px;font-size:14px;font-weight:500;white-space:nowrap;transition:.2s;display:inline-flex;align-items:center;gap:6px}
 /* NAV BADGE — green count of work waiting in that tab. Sits on the icon,
    the convention people already know from Messages/Mail. */
@@ -916,9 +946,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:-webkit-box;
   -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .rp-entry-go{flex:none;color:var(--acc2);font-size:19px}
-.track-entry{align-items:flex-start}
+.track-entry{--track-preview:var(--acc);align-items:flex-start;border-color:color-mix(in srgb,var(--track-preview) 42%,var(--line2));background:linear-gradient(140deg,color-mix(in srgb,var(--track-preview) 13%,var(--card)),var(--card))}
 .track-entry .rp-entry-t{display:flex;flex-direction:column;align-items:flex-start}
-.track-entry-cta{display:block;color:var(--accent-text);font-size:13px;font-weight:700;margin-top:9px}
+.track-entry .rp-entry-ic{background:linear-gradient(145deg,color-mix(in srgb,var(--track-preview) 82%,#fff),var(--track-preview))}.track-entry:hover{border-color:var(--track-preview)}
+.track-entry-cta{display:block;color:var(--track-preview);font-size:13px;font-weight:700;margin-top:9px}
+.track-entry.theme-general{--track-preview:#6366f1}.track-entry.theme-welding{--track-preview:#d49717}.track-entry.theme-electrician{--track-preview:#38bdf8}.track-entry.theme-construction{--track-preview:#d46a3a}.track-entry.theme-healthcare{--track-preview:#43b884}.track-entry.theme-manufacturing{--track-preview:#9b7ce8}.track-entry.theme-customer-service{--track-preview:#df6a9d}.track-entry.theme-hvac{--track-preview:#35ae9e}.track-entry.theme-plumbing{--track-preview:#4d9de0}.track-entry.theme-mechanical{--track-preview:#94a3b8}
 .professional-track-entry{border-color:rgba(202,138,4,.62);background:linear-gradient(150deg,rgba(146,64,14,.22),rgba(202,138,4,.08))}.professional-track-entry:hover{border-color:#fbbf24}.professional-track-entry .rp-entry-ic{background:linear-gradient(145deg,#a16207,#d97706)}.professional-track-entry .track-entry-cta{color:#fcd34d}
 /* conversation history rows on the progress page */
 .cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
@@ -2078,6 +2110,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
+  <button class="track-indicator" id="trackIndicator" onclick="go('tracks')" aria-label="Open professional tracks"><span><small>Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
@@ -2178,11 +2211,11 @@ function sessScaffold(dd,weekPhrases){
 
 ProfessionalTrackContext.register(new ProfessionalTrack({
   id:"general-english",sourceId:"general",nameKey:"tracks.general",descriptionKey:"tracks.general_desc",
-  status:"available",version:"1"
+  status:"available",themeId:"general",themeLabel:"General English",version:"1"
 }));
 ProfessionalTrackContext.register(new ProfessionalTrack({
   id:"welding",sourceId:"welding",nameKey:"tracks.welding",descriptionKey:"tracks.welding_desc",
-  status:"available",inheritsFrom:"general-english",version:"1"
+  status:"available",inheritsFrom:"general-english",themeId:"welding",themeLabel:"Welding",version:"1"
 }));
 
 const RULE_ICONS=["film","ban","mic","target","stop","repeat"];
@@ -2206,6 +2239,18 @@ function awardCompetency(input){
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
+function applyTrackIdentity(){
+  const track=activeProfessionalTrack();
+  const professional=!!track&&track.id!=="general-english";
+  document.documentElement.setAttribute("data-track",professional?(track.themeId||track.id):"general");
+  const indicator=document.getElementById("trackIndicator");
+  const name=document.getElementById("trackIndicatorName");
+  if(indicator)indicator.classList.toggle("show",professional);
+  /* This runs before the translation dictionary is initialized, so the track
+     label is deliberately supplied by the track configuration. */
+  if(name&&track)name.textContent=track.themeLabel;
+}
+applyTrackIdentity();
 function defState(){
   return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
@@ -4410,7 +4455,7 @@ function trackSelectionCard(track){
   const current=activeProfessionalTrack()&&activeProfessionalTrack().id===track.id;
   const foundation=track.status==="foundation";
   const status=current?t("tracks.current"):(foundation?t("tracks.foundation"):t("tracks.available"));
-  return `<button class="card rp-entry track-entry" onclick="selectProfessionalTrack('${esc(track.id)}')">
+  return `<button class="card rp-entry track-entry theme-${esc(track.themeId||"general")}" onclick="selectProfessionalTrack('${esc(track.id)}')">
     <span class="rp-entry-ic">${ic("check")}</span>
     <span class="rp-entry-t">
       <b>${t(track.nameKey)}</b>
@@ -4420,7 +4465,8 @@ function trackSelectionCard(track){
   </button>`;
 }
 function trackPlaceholderCard(key){
-  return `<div class="card rp-entry track-entry" aria-disabled="true" style="opacity:.58;cursor:not-allowed">
+  const theme={"tracks.electrician":"electrician","tracks.construction":"construction","tracks.healthcare":"healthcare","tracks.manufacturing":"manufacturing","tracks.customer_service":"customer-service","tracks.hvac":"hvac","tracks.plumbing":"plumbing","tracks.mechanical":"mechanical"}[key]||"general";
+  return `<div class="card rp-entry track-entry theme-${theme}" aria-disabled="true" style="opacity:.58;cursor:not-allowed">
     <span class="rp-entry-ic">${ic("lock")}</span>
     <span class="rp-entry-t"><b>${t(key)}</b><small>${t("tracks.coming_soon")}</small></span>
   </div>`;
@@ -4442,6 +4488,7 @@ window.selectProfessionalTrack=id=>{
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
   ProfessionalTrackContext.setActive(id);
+  applyTrackIdentity();
   _jPhase=null;
   save();
   toast(track.status==="foundation"?t("tracks.foundation_body"):t("tracks.selected",{track:t(track.nameKey)}));

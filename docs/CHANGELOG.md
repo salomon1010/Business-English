@@ -16,6 +16,7 @@
 - Professional Simulation now requires spoken input; text areas, send controls, and scrolling conversation history have been removed.
 - Simulation debrief language now presents coaching-oriented workplace feedback.
 - Welding Practice now uses the established card-based role-play library as **Professional Interview Coaches**. Each existing technical topic is presented as a named professional interview with its assigned coach; the Workshop Simulation entry is no longer shown in the Welding learner path.
+- Welding now has an industrial amber-on-charcoal track theme applied through shared UI tokens, plus a persistent header indicator. General English retains its existing blue-violet theme, and the track selector previews reserved accent colors for future professions.
 
 ### Compatibility
 
