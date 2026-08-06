@@ -650,51 +650,43 @@ body.sh-work-open{overflow:hidden}
   color:var(--mut2);margin-bottom:7px}
 .sim-ans-regs p{margin:8px 0 0;font-size:12.5px;color:var(--mut);line-height:1.55}
 
-/* Attempt history. The line is the point: one weak run matters less than the
-   direction, so the shape is emphasised over the individual numbers. */
-.sim-score{display:flex;align-items:center;gap:18px;margin-top:16px;padding:20px;border-width:1.5px}
-.sim-score-ring{position:relative;flex:none;width:104px;height:104px;display:grid;place-items:center}
-.sim-score-ring svg{width:104px;height:104px;transform:rotate(-90deg)}
-.sim-score-track{fill:none;stroke:var(--bg2);stroke-width:9}
-.sim-score-arc{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .9s ease-out}
-.sim-score-n{position:absolute;font-size:27px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
-.sim-score-n small{font-size:14px;font-weight:700;opacity:.65}
-.sim-score-txt{min-width:0;flex:1}
-.sim-score-txt h2{margin:2px 0 6px;font-size:21px;line-height:1.2}
-.sim-score-txt p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.6}
-.sim-score-att{margin-top:8px!important;font-size:12px!important;color:var(--mut2)!important}
-/* Colour is never the only signal: the heading word carries the same meaning. */
-.sim-score-good{border-color:rgba(52,211,153,.5)}
-.sim-score-good .sim-score-arc{stroke:var(--green)} .sim-score-good .sim-score-n,.sim-score-good h2{color:var(--green)}
-.sim-score-fair{border-color:rgba(251,191,36,.5)}
-.sim-score-fair .sim-score-arc{stroke:var(--gold)} .sim-score-fair .sim-score-n,.sim-score-fair h2{color:var(--gold)}
-.sim-score-poor{border-color:rgba(248,113,113,.45)}
-.sim-score-poor .sim-score-arc{stroke:var(--red)} .sim-score-poor .sim-score-n,.sim-score-poor h2{color:var(--red)}
-@media(max-width:440px){.sim-score{flex-direction:column;text-align:center;gap:14px}}
-.sim-q-score{flex:none;min-width:52px;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:800;
-  text-align:center;font-variant-numeric:tabular-nums;border:1px solid var(--line);color:var(--mut)}
-.sim-q-score.q-good{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
-.sim-q-score.q-fair{color:var(--gold);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
-.sim-q-score.q-poor{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
-.sim-progress{margin-top:16px}
-.sim-prog-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
-.sim-prog-head span{font-size:12.5px;color:var(--mut)}
-.sim-prog-svg{width:100%;height:auto;display:block;margin-bottom:8px}
-.sim-prog-mid{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
-.sim-prog-line{fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.sim-prog-dot{fill:var(--acc)}
+/* Attempt history. Every rule sets its own layout — an earlier version was laid
+   out as five columns because an ancestor was arranging its children in a row. */
+.sim-progress{display:block!important;margin-top:16px}
+.sim-progress>*{display:block}
+.sim-prog-title{display:flex;align-items:center;gap:8px;color:var(--txt)}
+.sim-prog-title b{font-size:16px;font-weight:800}
+.sim-prog-title svg{width:18px;height:18px;color:var(--accent-text)}
+.sim-prog-title.sm b{font-size:13px}
+.sim-prog-title.sm svg{width:15px;height:15px}
+.sim-prog-sub{margin:4px 0 16px;font-size:13px;color:var(--mut)}
+.sim-prog-score{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sim-prog-score b{display:block;font-size:15px}
+.sim-prog-score span{font-size:12.5px;color:var(--mut)}
+.sim-prog-delta{flex:none;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
+.sim-prog-delta.up{color:var(--green)} .sim-prog-delta.down{color:var(--red)} .sim-prog-delta.flat{color:var(--mut)}
+.sim-prog-chart{padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--bg2)}
+.sim-prog-svg{display:block;width:100%;height:auto;margin-top:10px;overflow:visible}
+.sim-prog-area{fill:color-mix(in srgb,var(--acc) 14%,transparent);stroke:none}
+.sim-prog-line{fill:none;stroke:var(--acc);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.sim-prog-dot{fill:var(--acc);stroke:var(--bg2);stroke-width:2}
 .sim-prog-dot.now{fill:var(--gold)}
-.sim-prog-trend{margin:0 0 12px;font-size:13px;color:var(--mut);line-height:1.55}
+.sim-prog-val{fill:var(--txt);font-size:12px;font-weight:800;text-anchor:middle;font-variant-numeric:tabular-nums}
+.sim-prog-val.now{fill:var(--gold)}
+.sim-prog-axis{fill:var(--mut2);font-size:10.5px;text-anchor:middle}
+.sim-prog-trend{margin:14px 0 12px;font-size:13px;color:var(--mut);line-height:1.6}
 .sim-prog-list,.sim-past{display:flex;flex-direction:column;gap:6px}
 .sim-prog-row,.sim-past button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:9px 12px;
   border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--txt);
   font-family:inherit;font-size:13px;cursor:pointer;text-align:left}
 .sim-prog-row:hover,.sim-past button:hover{border-color:var(--acc)}
 .sim-prog-row.now{border-color:var(--gold)}
-.sim-prog-row span:first-child,.sim-past button span:first-child{flex:1;font-weight:600}
-.sim-prog-row span,.sim-past button span{color:var(--mut)}
-.sim-prog-row b,.sim-past button b{color:var(--txt);font-variant-numeric:tabular-nums}
+.sim-prog-rn,.sim-past button span:first-child{flex:1;font-weight:600;color:var(--txt)}
+.sim-prog-rd,.sim-past button span:nth-child(2){color:var(--mut);font-size:12px}
+.sim-prog-row b,.sim-past button b{color:var(--txt);font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+.sim-prog-rc{color:var(--mut2)}
 .sim-past{margin-bottom:12px}
+@media(max-width:420px){.sim-prog-rd{display:none}}
 .sim-analysis{margin-top:16px}
 .sim-analysis>.sub{margin-bottom:14px}
 .sim-ans-h{margin:20px 0 10px}
@@ -7247,32 +7239,72 @@ function simRecordAttempt(run,sc){
   if(list.length>SIM_ATTEMPT_MAX)store[sc.id]=list.slice(-SIM_ATTEMPT_MAX);
   save();
 }
-/* A plain line, not a chart library: attempts on the x axis, coverage on the y. */
+/* Progress over attempts.
+
+   Laid out with explicit block/grid rules and never relying on what it is nested
+   in: the first version came out as five columns on a wide screen because
+   something in the ancestor chain was laying its children out in a row.
+
+   The curve is drawn as a Catmull-Rom spline converted to cubic beziers, so the
+   line reads as a trend rather than a zigzag. Every point is labelled, because
+   the shape is the story but the numbers are the evidence. */
+function simSmoothPath(pts){
+  if(pts.length<2)return "";
+  if(pts.length===2)return `M${pts[0].x},${pts[0].y} L${pts[1].x},${pts[1].y}`;
+  let d=`M${pts[0].x},${pts[0].y}`;
+  for(let i=0;i<pts.length-1;i++){
+    const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||pts[i+1];
+    const c1x=p1.x+(p2.x-p0.x)/6, c1y=p1.y+(p2.y-p0.y)/6;
+    const c2x=p2.x-(p3.x-p1.x)/6, c2y=p2.y-(p3.y-p1.y)/6;
+    d+=` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
 function simProgressHTML(id,currentStartedAt){
   const list=simAttempts(id);
-  if(list.length<1)return "";
-  const pts=list.map(a=>Math.round(a.coverage*100));
-  const w=280,h=64,pad=6;
-  const x=i=>list.length===1?w/2:pad+i*((w-pad*2)/(list.length-1));
-  const y=v=>h-pad-(v/100)*(h-pad*2);
-  const line=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-  const best=Math.max(...pts),first=pts[0],last=pts[pts.length-1];
-  const delta=last-first;
-  const trend=list.length<2?"This is your first recorded attempt — the line will show your progress from here."
-    :delta>0?`Up ${delta} points since your first attempt.`
-    :delta<0?`Down ${Math.abs(delta)} points on your first attempt. One weaker run is normal; the trend is what matters.`
-    :"Level with your first attempt.";
+  if(!list.length)return "";
+  const vals=list.map(a=>Math.round(a.coverage*100));
+  const best=Math.max(...vals),first=vals[0],last=vals[vals.length-1],delta=last-first;
+
+  const W=320,H=150,padX=26,padTop=30,padBot=28;
+  const x=i=>vals.length===1?W/2:padX+i*((W-padX*2)/(vals.length-1));
+  const y=v=>padTop+(1-v/100)*(H-padTop-padBot);
+  const pts=vals.map((v,i)=>({x:x(i),y:y(v)}));
+  const path=simSmoothPath(pts);
+  const area=path?`${path} L${pts[pts.length-1].x.toFixed(1)},${H-padBot} L${pts[0].x.toFixed(1)},${H-padBot} Z`:"";
+
+  const deltaTxt=vals.length<2?"first run":(delta>0?`+${delta} pts`:delta<0?`${delta} pts`:"level");
+  const deltaCls=vals.length<2?"flat":delta>0?"up":delta<0?"down":"flat";
+  const trend=vals.length<2
+    ?"This is your first recorded attempt. The line will show your progress from here."
+    :delta>0?`You are ${delta} point${delta===1?"":"s"} up on your first attempt. Keep going.`
+    :delta<0?`You are ${Math.abs(delta)} point${Math.abs(delta)===1?"":"s"} below your first attempt. One weaker run is normal — the direction over several attempts is what matters.`
+    :"Level with your first attempt. Add one missing point next time and the line moves.";
+
   return `<section class="card sim-progress">
-    <div class="eyebrow">Your attempts at this workshop</div>
-    <div class="sim-prog-head"><b>${list.length} attempt${list.length===1?"":"s"}</b><span>best ${best}% · latest ${last}%</span></div>
-    <svg class="sim-prog-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Coverage across ${list.length} attempts: ${pts.join(", ")} percent">
-      <line x1="${pad}" y1="${y(50)}" x2="${w-pad}" y2="${y(50)}" class="sim-prog-mid"/>
-      ${list.length>1?`<path d="${line}" class="sim-prog-line"/>`:""}
-      ${pts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${list[i].startedAt===currentStartedAt?4.5:3}" class="sim-prog-dot${list[i].startedAt===currentStartedAt?" now":""}"/>`).join("")}
-    </svg>
+    <div class="sim-prog-title">${ic("chart")}<b>Your progress</b></div>
+    <p class="sim-prog-sub">Where you started, where you are now.</p>
+    <div class="sim-prog-score">
+      <div><b>Speaking score</b><span>${list.length} attempt${list.length===1?"":"s"} · best ${best}%</span></div>
+      <span class="sim-prog-delta ${deltaCls}">${esc(deltaTxt)}</span>
+    </div>
+    <div class="sim-prog-chart">
+      <div class="sim-prog-title sm">${ic("chart")}<b>Your performance over time</b></div>
+      <svg viewBox="0 0 ${W} ${H}" class="sim-prog-svg" role="img"
+           aria-label="Coverage across ${vals.length} attempt${vals.length===1?"":"s"}: ${vals.join(", ")} percent">
+        ${area?`<path d="${area}" class="sim-prog-area"/>`:""}
+        ${path?`<path d="${path}" class="sim-prog-line"/>`:""}
+        ${pts.map((p,i)=>{
+          const cur=list[i].startedAt===currentStartedAt;
+          return `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${cur?5:3.8}" class="sim-prog-dot${cur?" now":""}"/>
+            <text x="${p.x.toFixed(1)}" y="${(p.y-13).toFixed(1)}" class="sim-prog-val${cur?" now":""}">${vals[i]}%</text>
+            <text x="${p.x.toFixed(1)}" y="${H-8}" class="sim-prog-axis">${i===vals.length-1?"Latest":i+1}</text>`;
+        }).join("")}
+      </svg>
+    </div>
     <p class="sim-prog-trend">${esc(trend)}</p>
     <div class="sim-prog-list">${list.map((a,i)=>`<button class="sim-prog-row${a.startedAt===currentStartedAt?" now":""}" onclick="simOpenAttempt('${esc(id)}',${a.startedAt})">
-      <span>Attempt ${i+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b><span aria-hidden="true">›</span></button>`).join("")}</div>
+      <span class="sim-prog-rn">Attempt ${i+1}</span><span class="sim-prog-rd">${new Date(a.at).toLocaleDateString()}</span><b>${vals[i]}%</b><span class="sim-prog-rc" aria-hidden="true">›</span></button>`).join("")}</div>
   </section>`;
 }
 let _simViewAttempt=null;
