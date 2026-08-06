@@ -1,40 +1,166 @@
 {
-  "schemaVersion": "1",
-  "trackId": "welding",
-  "reviewAxes": ["clarity", "fluency", "pronunciation", "business naturalness", "confidence"],
-  "monthMetrics": {},
-  "competencyConfig": {
-    "trackLabel": "Welding",
-    "competencies": [
-      {"id": "communication", "label": "Communication", "max": 100},
-      {"id": "vocabulary", "label": "Professional Vocabulary", "max": 100},
-      {"id": "pronunciation", "label": "Pronunciation", "max": 100},
-      {"id": "confidence", "label": "Confidence", "max": 100},
-      {"id": "technicalKnowledge", "label": "Technical Knowledge", "max": 100},
-      {"id": "safety", "label": "Safety", "max": 100},
-      {"id": "qaqc", "label": "QA/QC", "max": 100},
-      {"id": "blueprintReading", "label": "Blueprint Reading", "max": 100},
-      {"id": "interview", "label": "Interview Readiness", "max": 100},
-      {"id": "professionalism", "label": "Professionalism", "max": 100}
-    ],
-    "activityMappings": {
-      "shadow_session": {"communication": 2, "pronunciation": 3, "vocabulary": 2},
-      "phrase_lab": {"vocabulary": 3, "confidence": 2, "safety": 1},
-      "vocabulary_practice": {"vocabulary": 2},
-      "ai_conversation": {"communication": 5, "interview": 3, "confidence": 4},
-      "professional_coach": {"professionalism": 2, "technicalKnowledge": 1},
-      "professional_simulation": {"communication": 5, "confidence": 3, "professionalism": 3, "technicalKnowledge": 2, "safety": 2},
-      "pronunciation_feedback": {"pronunciation": 2, "communication": 1}
-    },
-    "careerReadiness": {"weights": {"communication": 25, "vocabulary": 20, "confidence": 15, "technicalKnowledge": 15, "safety": 10, "interview": 10, "consistency": 5}},
-    "achievements": [
-      {"id": "first-conversation", "title": "First Conversation", "when": {"activity": "ai_conversation", "count": 1}},
-      {"id": "workshop-ready", "title": "Workshop Ready", "when": {"activity": "professional_coach", "count": 1}},
-      {"id": "vocabulary-starter", "title": "Vocabulary Starter", "when": {"activity": "vocabulary_practice", "count": 3}},
-      {"id": "safety-beginner", "title": "Safety Beginner", "when": {"competency": "safety", "score": 3}},
-      {"id": "professional-speaker", "title": "Professional Speaker", "when": {"competency": "communication", "score": 10}},
-      {"id": "interview-beginner", "title": "Interview Beginner", "when": {"competency": "interview", "score": 3}}
-    ]
+ "schemaVersion": "1",
+ "trackId": "welding",
+ "reviewAxes": [
+  "clarity",
+  "fluency",
+  "pronunciation",
+  "business naturalness",
+  "confidence"
+ ],
+ "monthMetrics": {},
+ "competencyConfig": {
+  "trackLabel": "Welding",
+  "competencies": [
+   {
+    "id": "communication",
+    "label": "Communication",
+    "max": 100
+   },
+   {
+    "id": "vocabulary",
+    "label": "Professional Vocabulary",
+    "max": 100
+   },
+   {
+    "id": "pronunciation",
+    "label": "Pronunciation",
+    "max": 100
+   },
+   {
+    "id": "confidence",
+    "label": "Confidence",
+    "max": 100
+   },
+   {
+    "id": "technicalKnowledge",
+    "label": "Technical Knowledge",
+    "max": 100
+   },
+   {
+    "id": "safety",
+    "label": "Safety",
+    "max": 100
+   },
+   {
+    "id": "qaqc",
+    "label": "QA/QC",
+    "max": 100,
+    "passport": false
+   },
+   {
+    "id": "blueprintReading",
+    "label": "Blueprint Reading",
+    "max": 100,
+    "passport": false
+   },
+   {
+    "id": "interview",
+    "label": "Interview Readiness",
+    "max": 100
+   },
+   {
+    "id": "professionalism",
+    "label": "Professionalism",
+    "max": 100
+   }
+  ],
+  "activityMappings": {
+   "shadow_session": {
+    "communication": 2,
+    "pronunciation": 3,
+    "vocabulary": 2
+   },
+   "phrase_lab": {
+    "vocabulary": 3,
+    "confidence": 2,
+    "safety": 1
+   },
+   "vocabulary_practice": {
+    "vocabulary": 2
+   },
+   "ai_conversation": {
+    "communication": 5,
+    "interview": 3,
+    "confidence": 4
+   },
+   "professional_coach": {
+    "professionalism": 2,
+    "technicalKnowledge": 1
+   },
+   "professional_simulation": {
+    "communication": 5,
+    "confidence": 3,
+    "professionalism": 3,
+    "technicalKnowledge": 2,
+    "safety": 2
+   },
+   "pronunciation_feedback": {
+    "pronunciation": 2,
+    "communication": 1
+   }
   },
-  "reviewCheckpoints": []
+  "careerReadiness": {
+   "weights": {
+    "communication": 25,
+    "vocabulary": 20,
+    "confidence": 15,
+    "technicalKnowledge": 15,
+    "safety": 10,
+    "interview": 10,
+    "consistency": 5
+   }
+  },
+  "achievements": [
+   {
+    "id": "first-conversation",
+    "title": "First Conversation",
+    "when": {
+     "activity": "ai_conversation",
+     "count": 1
+    }
+   },
+   {
+    "id": "workshop-ready",
+    "title": "Workshop Ready",
+    "when": {
+     "activity": "professional_coach",
+     "count": 1
+    }
+   },
+   {
+    "id": "vocabulary-starter",
+    "title": "Vocabulary Starter",
+    "when": {
+     "activity": "vocabulary_practice",
+     "count": 3
+    }
+   },
+   {
+    "id": "safety-beginner",
+    "title": "Safety Beginner",
+    "when": {
+     "competency": "safety",
+     "score": 3
+    }
+   },
+   {
+    "id": "professional-speaker",
+    "title": "Professional Speaker",
+    "when": {
+     "competency": "communication",
+     "score": 10
+    }
+   },
+   {
+    "id": "interview-beginner",
+    "title": "Interview Beginner",
+    "when": {
+     "competency": "interview",
+     "score": 3
+    }
+   }
+  ]
+ },
+ "reviewCheckpoints": []
 }

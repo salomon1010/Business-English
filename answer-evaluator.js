@@ -148,6 +148,35 @@
     };
   }
 
+  /* ---- Portfolio: what the learner has actually demonstrated ----
+     Read from the stored workshop attempts, which hold real spoken answers scored
+     against model answers. This is the only place in the product where a number
+     comes from what someone said rather than from how many buttons they pressed,
+     so it is what the Passport should be built on. */
+  function portfolio(s){
+    const store=(s&&s.simulations&&s.simulations.attempts)||{};
+    let workshops=0,attempts=0,answers=0,demonstrated=0,weighted=0,best=0;
+    const perWorkshop=[];
+    Object.keys(store).forEach(id=>{
+      const runs=(store[id]||[]).filter(a=>a&&a.answered>0);
+      if(!runs.length)return;
+      workshops++;attempts+=runs.length;
+      let bestHere=0;
+      runs.forEach(a=>{
+        const cov=Number(a.coverage)||0;
+        bestHere=Math.max(bestHere,cov);
+        answers+=a.answered||0;
+        weighted+=cov*(a.answered||0);
+        (a.answers||[]).forEach(q=>{if(q&&q.answered&&(Number(q.coverage)||0)>=0.7)demonstrated++});
+      });
+      best=Math.max(best,bestHere);
+      perWorkshop.push({id,attempts:runs.length,best:bestHere});
+    });
+    return {workshops,attempts,answers,demonstrated,
+            average:answers?weighted/answers:0,best,perWorkshop,
+            hasEvidence:answers>0};
+  }
+
   /* ==========================================================================
      MODULE GRADING ENGINE
 
@@ -252,5 +281,5 @@
     }};
   }
 
-  global.AnswerEvaluator=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript});
+  global.AnswerEvaluator=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript,portfolio});
 })(window);
