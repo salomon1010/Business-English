@@ -4273,10 +4273,17 @@ function rHome(el){
     ?(name?t("home.hero_named",{name}):t("home.hero_generic"))
     :(name&&track.homeWelcomeNamed?track.homeWelcomeNamed.replace("{{name}}",name):(track.homeWelcome||`Communicate with confidence in the <em>${esc(track.themeLabel)} workplace</em>`));
   /* Home is intentionally a short return point: resume the active track, use
-     its coach, or choose a different track. Detailed progress stays in the
+  its coach, or choose a different track. Detailed progress stays in the
      active track's learning and Progress screens. */
   el.innerHTML=`
   <h1 class="big">${homeWelcome}</h1>
+  <p class="sub">${t("home.sub_base")}.</p>
+  ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
+    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
+    if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
+    if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
+    return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
+  <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
