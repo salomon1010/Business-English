@@ -134,7 +134,7 @@ of truth means the assessment cannot drift from what the app teaches.
 - **The welding content has not been reviewed by a qualified welding
   professional.** It was written from published standards and industry practice.
   Before this is used in a hiring decision it needs sign-off from a competent
-  authority — the Cameroon Welding Association is the natural reviewer.
+  welding authority or a qualified welding engineer.
 - **This grades communication, not competence.** `regulatory_compliance_met`
   means *the answer covered the benchmarks*. It is never a finding that a person
   is certified, qualified or eligible to work. `assessment_basis` carries that

@@ -123,7 +123,7 @@ const J: Jurisdiction[] = [
       11: "Many African projects are run by international contractors to ISO, AWS or client specifications rather than to national codes. Ask which standard the project works to before you are tested.",
       12: "An IIW/TWF-routed qualification through an authorised national body travels internationally far better than an uncertified in-house test. It is worth the cost.",
     },
-    verify: "National OH&S legislation varies widely across the region and enforcement differs from the written rule. On contractor-run projects the client specification usually governs. Verify with the employer and the national body — in Cameroon, the Cameroon Welding Association.",
+    verify: "National OH&S legislation varies widely across the region and enforcement differs from the written rule. On contractor-run projects the client specification usually governs. Verify with the employer and the relevant national welding body.",
   },
   {
     id: "oil_gas",

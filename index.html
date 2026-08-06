@@ -649,6 +649,28 @@ body.sh-work-open{overflow:hidden}
 .sim-ans-regs>b{display:block;font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;
   color:var(--mut2);margin-bottom:7px}
 .sim-ans-regs p{margin:8px 0 0;font-size:12.5px;color:var(--mut);line-height:1.55}
+
+/* Attempt history. The line is the point: one weak run matters less than the
+   direction, so the shape is emphasised over the individual numbers. */
+.sim-progress{margin-top:16px}
+.sim-prog-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+.sim-prog-head span{font-size:12.5px;color:var(--mut)}
+.sim-prog-svg{width:100%;height:auto;display:block;margin-bottom:8px}
+.sim-prog-mid{stroke:var(--line);stroke-width:1;stroke-dasharray:3 4}
+.sim-prog-line{fill:none;stroke:var(--acc);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sim-prog-dot{fill:var(--acc)}
+.sim-prog-dot.now{fill:var(--gold)}
+.sim-prog-trend{margin:0 0 12px;font-size:13px;color:var(--mut);line-height:1.55}
+.sim-prog-list,.sim-past{display:flex;flex-direction:column;gap:6px}
+.sim-prog-row,.sim-past button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:9px 12px;
+  border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--txt);
+  font-family:inherit;font-size:13px;cursor:pointer;text-align:left}
+.sim-prog-row:hover,.sim-past button:hover{border-color:var(--acc)}
+.sim-prog-row.now{border-color:var(--gold)}
+.sim-prog-row span:first-child,.sim-past button span:first-child{flex:1;font-weight:600}
+.sim-prog-row span,.sim-past button span{color:var(--mut)}
+.sim-prog-row b,.sim-past button b{color:var(--txt);font-variant-numeric:tabular-nums}
+.sim-past{margin-bottom:12px}
 .sim-analysis{margin-top:16px}
 .sim-analysis>.sub{margin-bottom:14px}
 .sim-ans-h{margin:20px 0 10px}
@@ -7128,6 +7150,69 @@ function simCardProfile(sc,index){
   return {stage,duration:sc.duration||"12 minutes",difficulty:sc.difficulty||(index<4?"Beginner":index<8?"Intermediate":"Advanced"),skills:sc.skills||(sc.objectives||[]).slice(0,3).map(x=>x.label)};
 }
 function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join("  →  ")}
+/* ---- Attempt history ----
+   A workshop report used to exist only until the learner walked away from the
+   screen. Repeating a scenario is the point of it, so every finished attempt is
+   kept: the whole per-question report, re-openable, plus a line showing whether
+   the second and third runs were better than the first.
+
+   Held on the device. The transcripts inside an attempt are the learner's own
+   speech about their real work, so fbSyncPayload strips the spoken text before
+   the cloud copy — the scores travel, the words do not. */
+const SIM_ATTEMPT_MAX=10;
+function simAttemptStore(s){s.simulations=s.simulations||{history:[]};s.simulations.attempts=s.simulations.attempts||{};return s.simulations.attempts}
+function simAttempts(id){return (simAttemptStore(S)[id]||[])}
+function simRecordAttempt(run,sc){
+  if(!window.AnswerEvaluator)return;
+  const answers=(run.answers||[]);
+  if(!answers.length)return;
+  const rev=AnswerEvaluator.review(answers);
+  if(!rev.evidence)return;                       /* nothing said, nothing to record */
+  const store=simAttemptStore(S);
+  const list=store[sc.id]=store[sc.id]||[];
+  if(list.some(a=>a.startedAt===run.startedAt))return;   /* re-rendering must not duplicate */
+  list.push({startedAt:run.startedAt,at:Date.now(),coverage:rev.coverage,
+    answered:rev.answered,asked:rev.asked,answers:answers});
+  if(list.length>SIM_ATTEMPT_MAX)store[sc.id]=list.slice(-SIM_ATTEMPT_MAX);
+  save();
+}
+/* A plain line, not a chart library: attempts on the x axis, coverage on the y. */
+function simProgressHTML(id,currentStartedAt){
+  const list=simAttempts(id);
+  if(list.length<1)return "";
+  const pts=list.map(a=>Math.round(a.coverage*100));
+  const w=280,h=64,pad=6;
+  const x=i=>list.length===1?w/2:pad+i*((w-pad*2)/(list.length-1));
+  const y=v=>h-pad-(v/100)*(h-pad*2);
+  const line=pts.map((v,i)=>`${i?"L":"M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const best=Math.max(...pts),first=pts[0],last=pts[pts.length-1];
+  const delta=last-first;
+  const trend=list.length<2?"This is your first recorded attempt — the line will show your progress from here."
+    :delta>0?`Up ${delta} points since your first attempt.`
+    :delta<0?`Down ${Math.abs(delta)} points on your first attempt. One weaker run is normal; the trend is what matters.`
+    :"Level with your first attempt.";
+  return `<section class="card sim-progress">
+    <div class="eyebrow">Your attempts at this workshop</div>
+    <div class="sim-prog-head"><b>${list.length} attempt${list.length===1?"":"s"}</b><span>best ${best}% · latest ${last}%</span></div>
+    <svg class="sim-prog-svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="Coverage across ${list.length} attempts: ${pts.join(", ")} percent">
+      <line x1="${pad}" y1="${y(50)}" x2="${w-pad}" y2="${y(50)}" class="sim-prog-mid"/>
+      ${list.length>1?`<path d="${line}" class="sim-prog-line"/>`:""}
+      ${pts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${list[i].startedAt===currentStartedAt?4.5:3}" class="sim-prog-dot${list[i].startedAt===currentStartedAt?" now":""}"/>`).join("")}
+    </svg>
+    <p class="sim-prog-trend">${esc(trend)}</p>
+    <div class="sim-prog-list">${list.map((a,i)=>`<button class="sim-prog-row${a.startedAt===currentStartedAt?" now":""}" onclick="simOpenAttempt('${esc(id)}',${a.startedAt})">
+      <span>Attempt ${i+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b><span aria-hidden="true">›</span></button>`).join("")}</div>
+  </section>`;
+}
+let _simViewAttempt=null;
+window.simOpenAttempt=(id,startedAt)=>{
+  const a=simAttempts(id).find(x=>x.startedAt===startedAt);
+  if(!a)return;
+  _simViewAttempt=a;
+  go("simulation",id);
+};
+window.simCloseAttempt=()=>{_simViewAttempt=null;go("simulation",cur&&cur.arg1)};
+
 /* The learner could not see what they had said. Only the character's current line
    was on screen, so there was no way to check a word, notice a slip, or build on
    the answer before. The exchange is now visible — still one live prompt at the
@@ -7180,10 +7265,10 @@ function simFeedbackScript(a){
   if(a.vocabMissed&&a.vocabMissed.length)out.push(`Learn these words for next time. ${a.vocabMissed.join(", ")}.`);
   return out.join(" ");
 }
-let _simFbSpeaking=null;
+let _simFbSpeaking=null,_simReport={answers:[],scenarioId:null};
 window.simPlayFeedback=async(i)=>{
-  const a=(simRun&&simRun.answers||[])[i];if(!a)return;
-  const sc=ProfessionalSimulationEngine.find(simRun.id);
+  const a=_simReport.answers[i];if(!a)return;
+  const sc=ProfessionalSimulationEngine.find(_simReport.scenarioId);if(!sc)return;
   const btn=document.getElementById("simFb"+i);
   if(_simFbSpeaking===i){simStopFeedback();return}
   simStopFeedback();
@@ -7212,7 +7297,7 @@ function simStopFeedback(){
 function simAnswerCard(a,i){
   const band={strong:"done",partial:"",thin:"",'no-answer':""}[a.verdict]||"";
   const pct=Math.round((a.coverage||0)*100);
-  const asker=(()=>{const sc=simRun&&ProfessionalSimulationEngine.find(simRun.id);const c=sc&&simCharacter(sc,a.characterId);return c&&c.name?c.name:""})();
+  const asker=(()=>{const sc=ProfessionalSimulationEngine.find(_simReport.scenarioId);const c=sc&&simCharacter(sc,a.characterId);return c&&c.name?c.name:""})();
   return `<details class="card sim-ans" ${i===0?"open":""}>
     <summary>
       <span class="sim-ans-n">${i+1}</span>
@@ -7276,6 +7361,7 @@ function simAnalysisHTML(run,sc){
   if(!answers.length)return "";
   const rev=AnswerEvaluator.review(answers);
   const next=AnswerEvaluator.nextFocus(rev,sc,trackSimulations());
+  _simReport={answers,scenarioId:sc.id};   /* cards and voice read from here */
   const pct=Math.round(rev.coverage*100);
   return `<section class="card sim-analysis">
     <div class="eyebrow">Answer analysis</div>
@@ -7303,8 +7389,20 @@ function rSimulation(el,id,characterId){
   const engine=window.ProfessionalSimulationEngine,orchestrator=window.ConversationOrchestrator,items=trackSimulations();
   if(!engine||!items.length){el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><h1 class="big">Professional Simulation</h1><p class="sub">Professional simulations will appear when they are available for this track.</p>`;return}
   const selected=id?engine.find(id):null;
+  /* A past attempt was opened from the history: render that report on its own,
+     without disturbing any conversation in progress. */
+  if(selected&&_simViewAttempt&&_simViewAttempt.answers){
+    const past=_simViewAttempt,n=simAttempts(selected.id).findIndex(x=>x.startedAt===past.startedAt)+1;
+    el.innerHTML=`<button class="back" onclick="simCloseAttempt()">‹ Back</button>
+      <div class="eyebrow">Attempt ${n} · ${new Date(past.at).toLocaleDateString()}</div>
+      <h1 class="big">${esc(selected.title)}</h1>
+      ${simProgressHTML(selected.id,past.startedAt)}
+      ${simAnalysisHTML({answers:past.answers,startedAt:past.startedAt},selected)}`;
+    manIconizeInline(el);return;
+  }
   if(!selected){
-    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Workplace communication</div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px"><summary><h2>${esc(s.title)}</h2><p class="sub">${esc(s.scenario)}</p></summary><div class="sim-scenario-body"><div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div><span class="sim-card-label">Choose who to speak with first</span><div class="sim-cast">${simCast(s).map(c=>`<button onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')"><b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`).join("")}</div></div></details>`}).join("")}`;return;
+    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Workplace communication</div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px"><summary><h2>${esc(s.title)}</h2><p class="sub">${esc(s.scenario)}</p></summary><div class="sim-scenario-body"><div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
+      return `<span class="sim-card-label">Your previous reports</span><div class="sim-past">${at.map((a,n)=>`<button onclick="event.stopPropagation();simOpenAttempt('${esc(s.id)}',${a.startedAt})"><span>Attempt ${n+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b></button>`).join("")}</div>`})()}<span class="sim-card-label">Choose who to speak with first</span><div class="sim-cast">${simCast(s).map(c=>`<button onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')"><b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`).join("")}</div></div></details>`}).join("")}`;return;
   }
   if(isFirstDayMission(selected)&&characterId&&(!simRun||simRun.id!==selected.id)){simMissionBriefing(el,selected,characterId);return}
   let needsOpening=false;
@@ -7312,9 +7410,10 @@ function rSimulation(el,id,characterId){
   const run=simRun,debrief=run.debrief;
   if(run.missionComplete&&!debrief&&isFirstDayMission(selected)){const daniel=simCharacter(selected,'supervisor');el.innerHTML=`<button class="back" onclick="simChooseAnother()">‹ Workplace scenarios</button><section class="card sim-stage mission-complete"><div class="eyebrow">Mission complete</div><h1 class="big">Your first day is complete</h1><p class="sub"><b>${esc(daniel.name)}:</b> Excellent work. You completed your first day successfully. We’re glad to have you on the team.</p><p class="sub">Open your learning debrief to see the words, phrases, and corrections that were actually captured during this conversation.</p><button class="btn btn-p" onclick="simOpenMissionDebrief()">Open learning debrief →</button></section>`;return}
   if(debrief){
+    simRecordAttempt(run,selected);
     const cards=Object.entries(debrief.scores||{}).filter(([,v])=>typeof v==='number').map(([k,v])=>`<div><span>${esc(k.replace(/([A-Z])/g," $1"))}</span><b>${v}%</b></div>`).join(""),mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p>${cards?`<div class="sim-debrief-grid">${cards}</div>`:''}<h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simAnalysisHTML(run,selected)}`;
+    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p>${cards?`<div class="sim-debrief-grid">${cards}</div>`:''}<h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
     simEnrichAnalysis(run,selected).then(changed=>{if(changed&&cur&&cur.v==="simulation"){simSave();go("simulation",selected.id)}});
     return;
@@ -10596,6 +10695,17 @@ function fbSyncPayload(s){
   if(out.simulations){
     out.simulations=Object.assign({},out.simulations);
     delete out.simulations.live;          /* live transcripts + extracted facts */
+    /* Attempt history is worth having on a second device — the scores draw the
+       progress line. The learner's spoken words are not: they stay here. */
+    if(out.simulations.attempts){
+      const trimmed={};
+      Object.entries(out.simulations.attempts).forEach(([id,list])=>{
+        trimmed[id]=(list||[]).map(a=>Object.assign({},a,{
+          answers:(a.answers||[]).map(x=>{const y=Object.assign({},x);delete y.said;return y})
+        }));
+      });
+      out.simulations.attempts=trimmed;
+    }
   }
   if(out.careerCenter){
     out.careerCenter=Object.assign({},out.careerCenter);

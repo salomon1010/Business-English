@@ -589,7 +589,7 @@
      ],
      "model": "I'm comfortable flat and horizontal, and vertical up on fillet welds. Overhead I can do but I'm slower, so I'd want some practice before you put me on it. I'm happy to do a test piece so you can see for yourself.",
      "why": "Never claim a position you cannot hold — you will be found out on the test piece. Saying what you cannot do yet, and offering to be tested, reads as professional, not weak.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t1": {
      "ask": "Before you touch a machine — walk me through what you check to work safely.",
@@ -660,7 +660,7 @@
      ],
      "model": "First my PPE — helmet, gloves, sleeves and boots. Then the area: nothing flammable near, screens up so I don't flash anyone, and extraction on for fume. Then the set itself — leads and earth clamp in good order, no damaged insulation. If anything doesn't look right I stop and ask the supervisor.",
      "why": "Safety answers are judged on order and specifics: yourself, the area, the equipment, then who you tell. Vague answers like 'I always work safely' score nothing anywhere in the world.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t2": {
      "ask": "If you're not sure about a job, who do you go to? We'd rather you ask.",
@@ -785,7 +785,7 @@
      ],
      "model": "Tell me straight, I'd rather know. Show me where it is and what's wrong with it — undercut, porosity, whatever it is — and I'll grind it out and re-run it. And tell me why it happened so I don't put the same fault in the next one.",
      "why": "How a welder takes rejection is watched closely on every site. Accept it, ask for specifics, state the fix, ask what caused it.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     }
    },
    "moduleId": 1,
@@ -1033,7 +1033,7 @@
      ],
      "model": "I finished the six fillet joints on spool twelve and they're ready for inspection. Spool thirteen is fitted and tacked but not welded. One thing to know — we ran short of three-point-two rods this afternoon, so that's why thirteen stopped.",
      "why": "A handover is judged on whether the next person can start work without ringing you. Finished, where, what's left, what went wrong.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t0": {
      "ask": "Anything that gave you trouble? I'd rather hear it now than find it at ten o'clock.",
@@ -1146,7 +1146,7 @@
      ],
      "model": "Joints one to six on spool twelve are ready — cleaned and marked up. Seven and eight are welded but I haven't cleaned them yet, so leave those until the morning.",
      "why": "Inspectors work from a weld map. Speaking in joint numbers rather than 'that one over there' is what makes you easy to work with.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t2": {
      "ask": "And what do you want the night shift to start with?",
@@ -1248,7 +1248,7 @@
      ],
      "model": "The plate on the bench is still hot — I've put a hot-work sign on it. Otherwise leads are coiled and the bottles are closed off and chained.",
      "why": "A safety handover is not a formality: name the hazard, what you did, and what is still live.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     }
    },
    "moduleId": 2,
@@ -1496,7 +1496,7 @@
      ],
      "model": "I look at the leads first — any cuts in the insulation and it doesn't get used. Then the earth clamp, that it's on clean metal and tight. Then gas flow and the contact tip. Last I set the amps and volts for the job and run a test piece if I can.",
      "why": "Equipment checks are a sequence, and saying them in order shows you actually do them. Power, earth, consumables, settings.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t0": {
      "ask": "Say the wire feed keeps slipping. How would you report that?",
@@ -1618,7 +1618,7 @@
      ],
      "model": "I stop. A set that isn't running right either hurts somebody or puts a defect in the weld, and both cost more than an hour's downtime. I tag it and tell the supervisor.",
      "why": "There is only one right answer here and every employer is listening for it. Say 'I stop' first, then justify it.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t2": {
      "ask": "And how would you make sure nobody else uses it in the meantime?",
@@ -1671,7 +1671,7 @@
      ],
      "model": "Tag on the machine, power isolated, and I tell the shift and write it on the board. A tag on its own isn't enough if the next man doesn't read it.",
      "why": "Isolation is physical plus communication. Saying both is what separates a trained welder from someone repeating a phrase.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t3": {
      "ask": "Tell me what you'd write in the log.",
@@ -1731,7 +1731,7 @@
      ],
      "model": "Set four, bay two. Wire feed slipping intermittently from about two o'clock. Machine tagged and isolated, supervisor and maintenance informed. Signed and dated.",
      "why": "A log entry is a record someone may read months later. Machine, fault, time, action, name.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     }
    },
    "moduleId": 3,
@@ -1982,7 +1982,7 @@
      ],
      "model": "First I check the plate is the grade the job calls for — the marking against the drawing. Then clean the prep back to bright metal, no scale, rust or paint. Then set the bevel and the root gap to the procedure and tack it up, checking alignment before I run anything.",
      "why": "Most rejected welds are made before the arc is struck. Identify, clean, prepare, check against the drawing.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t0": {
      "ask": "How would you tell me the fit-up isn't right?",
@@ -2050,7 +2050,7 @@
      ],
      "model": "The root gap's opened up to about five mil at the top end — the drawing says three. There's a bit of hi-lo with it too. Do you want it re-tacked, or shall I build the root up?",
      "why": "Reporting a problem without a measurement forces the supervisor to come and look. Say what, how much, where, then ask for the decision.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t1": {
      "ask": "If the material isn't what the job called for, who do you tell?",
@@ -2110,7 +2110,7 @@
      ],
      "model": "I stop and don't weld it. I'd take it to the supervisor and the inspector, because if the grade is wrong the procedure doesn't apply and the joint could fail. Substituting material isn't my call.",
      "why": "Material substitution is one of the fastest ways to lose a job internationally. Stop, escalate, and say plainly that it is not your decision.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t2": {
      "ask": "And if I've prepped it differently to you — how do we sort that out?",
@@ -2223,7 +2223,7 @@
      ],
      "model": "Grinding throws sparks and dust, so goggles and a mask for me, and screens up so I'm not throwing sparks at whoever's behind me. If there's galvanising on it that's a fume problem and it needs extraction.",
      "why": "Naming the hazard from the specific task, and then the people around you, is what a safety officer is listening for.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     }
    },
    "moduleId": 4,
@@ -2487,7 +2487,7 @@
      ],
      "model": "I stopped the job. There were sparks landing near the gas bottles in bay two with no screen up — that's a fire risk with oxy-fuel sitting right there. I've moved the lads back and held the work until we can screen it off.",
      "why": "Stop-work communication is judged on whether the person hearing it can act immediately. Fact, place, risk, what you already did — in that order.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t0": {
      "ask": "Understood. What do you need from me to make it safe?",
@@ -2540,7 +2540,7 @@
      ],
      "model": "I need the bottles moved out of the bay and a screen between us and the walkway. Until that's done I'd rather we don't restart — I'll keep the area taped off.",
      "why": "Stopping a job is only half the skill. Asking clearly for what would make it safe is what gets you taken seriously the second time.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t1": {
      "ask": "The lads want to keep going. How do you tell them no?",
@@ -2605,7 +2605,7 @@
      ],
      "model": "Look, I know we're behind, but we're not restarting until those bottles are moved — if a spark finds them nobody's going home. Safety's on their way now, five minutes.",
      "why": "Saying no to your own workmates is the hardest English on a site. Firm, reason, respect, and point at the process rather than yourself.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t2": {
      "ask": "Who else needs to know, right now?",
@@ -2678,7 +2678,7 @@
      ],
      "model": "Supervisor and the safety officer straight away. Then whoever's working in the next bay, because the risk isn't only ours. And it wants writing up as a near miss.",
      "why": "Escalation is a list, not one person: the boss, the people exposed, and the record.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t3": {
      "ask": "Does any of the work already done need looking at again?",
@@ -2731,7 +2731,7 @@
      ],
      "model": "The joints I ran this morning were before the extraction went down, so I think they're fine. Anything after about one o'clock I'd want the inspector to look at again before it goes out.",
      "why": "Being able to reason about what your problem affects, and then hand the decision to the right person, is senior-level communication.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     }
    },
    "moduleId": 5,
@@ -2990,7 +2990,7 @@
      ],
      "model": "So — pre-heat to a hundred, keep interpass under two-fifty, root with three-point-two and fill with four. Cap it in two runs, not one. Have I got that right?",
      "why": "Repeating an instruction back is the single most valuable habit in workplace English. It catches errors before they cost money and it proves you understood.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t0": {
      "ask": "What would you do if the procedure and the drawing disagree?",
@@ -3057,7 +3057,7 @@
      ],
      "model": "I don't pick one — that's not my decision. I stop and take it to the supervisor and the welding engineer, and I'd want the answer in writing so the next man isn't guessing either.",
      "why": "Conflicting documents are common on real projects. The correct answer is always: stop, escalate, get it in writing.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t1": {
      "ask": "If you're not certain about a step, what happens next?",
@@ -3172,7 +3172,7 @@
      ],
      "model": "Right — pre-heat to a hundred before you strike. Root with three-two, fill with four, and don't let it go over two-fifty between runs. Cap in two passes. Anything not clear?",
      "why": "Teaching it back to someone else is the strongest proof that you understood, and supervisors abroad use it deliberately.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t3": {
      "ask": "Anything in it that changes how you protect yourself?",
@@ -3226,7 +3226,7 @@
      ],
      "model": "Pre-heated plate stays hot a long time, so heavier gloves and a warning to anyone else working near that bench. If we're going up in current there'll be more fume too, so extraction closer in.",
      "why": "Connecting a procedure change to a safety consequence is exactly what a safety officer wants to hear from a welder.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     }
    },
    "moduleId": 6,
@@ -3476,7 +3476,7 @@
      ],
      "model": "Detail B, the joint at the base plate. The symbol reads as a six-mil fillet both sides to me, but the note underneath says full penetration. Which one governs?",
      "why": "A good drawing question is closed and answerable in one word. Point to the detail, say your reading, ask for a decision.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t0": {
      "ask": "So what do you think it's asking for?",
@@ -3529,7 +3529,7 @@
      ],
      "model": "My reading is full penetration, because the note is specific and the symbol looks like it was carried over from the earlier revision. But I'd rather you confirm than I commit the joint.",
      "why": "Employers want a welder who forms a view and still defers. Say what you think, why, and that you will accept correction.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t1": {
      "ask": "If I'm not available, who else would you ask?",
@@ -3633,7 +3633,7 @@
      ],
      "model": "On something structural I wait — if it's wrong it gets cut out and that's a day gone. But I don't stand still, I move to a joint that is clear.",
      "why": "The best answer shows you take quality seriously without pretending production does not matter.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t3": {
      "ask": "How would you record the answer so the next person has it?",
@@ -3687,7 +3687,7 @@
      ],
      "model": "I'd mark it on the drawing copy and note it in the log, and raise it as a query so it's on record. Then mention it at handover so the night shift isn't asking the same question.",
      "why": "Recording a clarification once saves the same question being asked five times. It is a small habit that gets noticed.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     }
    },
    "moduleId": 7,
@@ -3991,7 +3991,7 @@
      ],
      "model": "I'd go down and tell them face to face — I'm doing hot work above you, sparks and slag will come down. Either they move out for an hour or we get a blanket and a barrier under me.",
      "why": "Shouting a warning is not communication if the person cannot act on it. Go to them, say the risk, offer the two options.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t1": {
      "ask": "The electricians want the area for an hour. What do you tell them?",
@@ -4415,7 +4415,7 @@
      ],
      "model": "There's undercut along the toe on the cap run, about forty mil long and it looks deeper than half a mil. That's outside what the spec allows, so I've held it rather than sending it through.",
      "why": "Defect reporting is precise language: name it, locate it, size it, then say why it matters. Vague reporting is why defects reach the customer.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t0": {
      "ask": "How did it get past? I'm not blaming anyone, I want to know.",
@@ -4469,7 +4469,7 @@
      ],
      "model": "Looking at it, the travel speed was too quick on that run and the access was awkward from that side. If it was mine I'll say so — I'd rather find the cause than argue about who.",
      "why": "Answering a 'how did this happen' question without defending yourself is what makes an inspector trust you.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t1": {
      "ask": "Alright. What would you want me to do differently?",
@@ -4588,7 +4588,7 @@
      ],
      "model": "Anything from the same batch gets held until it's checked — we'd need to know which joints came off that setup. Nothing ships until the inspector's been over them.",
      "why": "Containment thinking — 'what else might be affected' — is what quality systems are built on.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     },
     "t3": {
      "ask": "And how do we stop it happening on the next batch?",
@@ -4644,7 +4644,7 @@
      ],
      "model": "Set a test piece at the start of each batch and have it looked at before we run the rest. And a two-minute toolbox talk so everyone knows what we found and why.",
      "why": "Prevention answers separate a welder from a lead hand. Change, check, and tell the team.",
-     "source": "Framed on ISO 3834 quality-requirement thinking, which the CWA uses for industrial certification (cmrweldas.com). Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
+     "source": "Framed on ISO 3834 quality-requirement thinking, widely used for industrial welding certification. Educational only — ISO 3834 certifies a company's quality system, not an individual welder."
     }
    },
    "moduleId": 9,
@@ -4895,7 +4895,7 @@
      ],
      "model": "A hot work permit signed and in date, gas readings taken and still valid, the line isolated and locked, a fire watch with me, and an extinguisher and fire blanket at the bay. If any one of those is missing I don't start.",
      "why": "Controlled work has a checklist and employers expect you to recite it. Permit, tests, watch, emergency provision.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t0": {
      "ask": "If the permit runs out mid-job, what do you do?",
@@ -4968,7 +4968,7 @@
      ],
      "model": "I stop. Make the area safe — gas off, everything cooled and clear — then go back to the permit issuer for an extension. You don't carry on under an expired permit, ever.",
      "why": "This is a yes-or-no integrity question. Any hesitation reads badly. Stop, make safe, get it re-issued.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t1": {
      "ask": "And what should I be watching for while you're working?",
@@ -5037,7 +5037,7 @@
      ],
      "model": "Watch behind and below me — that's where I can't see. Anything smoking or smouldering, or if you smell gas, tap me and I'll stop straight away. And please don't leave the bay until I'm cooled down and packed up.",
      "why": "Briefing your own fire watch is a real workplace skill and most welders have never had to say it in English.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t2": {
      "ask": "Who do you call if something changes in the area?",
@@ -5098,7 +5098,7 @@
      ],
      "model": "Stop first, then the permit issuer and the safety officer. If it's gas or fire, the control room and get everyone out of the bay before anything else.",
      "why": "Emergency escalation is about order: make it safe, warn people, then report.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     },
     "t3": {
      "ask": "What has to be signed off before you leave?",
@@ -5151,7 +5151,7 @@
      ],
      "model": "Permit closed out and handed back, fire watch held for the period after I finish, area cooled, leads and bottles cleared away, and a last walk round with you before I sign.",
      "why": "Close-out is as regulated as start-up. Saying it shows you have actually worked in controlled areas.",
-     "source": "Cameroon Welding Association training areas (Welding Technology; Welding Standards and Specifications; Quality Assurance and Control; DT/NDT and work safety) — cmrweldas.com. Educational guidance only: confirm your employer's own procedure."
+     "source": "Established welding training practice — welding technology, standards and specifications, quality assurance and control, and destructive/non-destructive testing with work safety. Educational guidance only: confirm your employer's own procedure."
     }
    },
    "moduleId": 10,
