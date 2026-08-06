@@ -4295,15 +4295,16 @@ function rHome(el){
   </div>
   ${window.LearningCoach?LearningCoach.coachCard(S):""}
   <div class="hero">
-    <button class="card rp-entry track-entry professional-track-entry" onclick="go('tracks')">
-      <span class="rp-entry-ic">${ic("briefcase")}</span>
-      <span class="rp-entry-t">
-        <b>${t("tracks.card_title")}</b>
-        <small>${t("tracks.card_body")}</small>
-        <span class="track-entry-cta">${t("tracks.card_cta")}</span>
-      </span>
-    </button>
-  </div>`;
+    ${ProfessionalTrackContext.all().filter(item=>item.id==="general-english"||item.id==="welding").map(trackSelectionCard).join("")}
+  </div>
+  <button class="card rp-entry other-tracks-entry" onclick="go('tracks')">
+    <span class="rp-entry-ic">${ic("briefcase")}</span>
+    <span class="rp-entry-t">
+      <b>Other professional tracks</b>
+      <small>Explore future professions and choose another track when it becomes available.</small>
+    </span>
+    <span class="rp-entry-go" aria-hidden="true">→</span>
+  </button>`;
   manIconizeInline(el);
 }
 
