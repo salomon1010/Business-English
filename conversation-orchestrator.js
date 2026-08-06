@@ -37,16 +37,26 @@
           const valid=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).some(c=>c.id===data.characterId);
           next.text=clean(data.reply);next.characterId=valid?data.characterId:next.characterId;
           (data.covered||[]).forEach(id=>{if((sc.objectives||[]).some(o=>o.id===id)&&!sim.completed.includes(id))sim.completed.push(id)});
-          if(data.complete||sim.completed.length>=(sc.objectives||[]).length)sim.finished=true;
+          /* The model does not get to end the conversation on its own say-so: a
+             learner can talk it into "we're done", and finishing awards evidence.
+             Objective coverage is the authority; complete only confirms it. */
+          if(sim.completed.length>=(sc.objectives||[]).length)sim.finished=true;
+          sim.voiceMeta=Object.assign(sim.voiceMeta||{},{live:true});
+        }else{
+          /* A 429 or a 502 is not an exception, so this branch used to pass in
+             silence and the learner simply got the scripted beat with no idea the
+             live partner had dropped out. */
+          sim.voiceMeta=Object.assign(sim.voiceMeta||{},{live:false,lastServiceError:Date.now()});
         }
-      }catch(e){sim.voiceMeta=sim.voiceMeta||{};sim.voiceMeta.lastServiceError=Date.now();}
+      }catch(e){sim.voiceMeta=Object.assign(sim.voiceMeta||{},{live:false,lastServiceError:Date.now()});}
     }
     sim.lastSpeakerId=next.characterId;sim.voiceMeta=Object.assign(sim.voiceMeta||{},{lastTurnAt:Date.now(),turns:(sim.voiceMeta&&sim.voiceMeta.turns||0)+1});
     return {simulation:sim,reply:next,complete:!!sim.finished};
   }
-  function feedback(sim,text){
-    const s=clean(text),words=s.split(/\s+/).filter(Boolean),technical=(s.match(/weld|mig|tig|arc|ppe|helmet|glove|safety|quality|procedure|inspection|fabrication/gi)||[]).length;
-    return {grammar:Math.min(100,48+words.length*3),vocabulary:Math.min(100,42+technical*12),pronunciation:words.length?70:0,confidence:Math.min(100,35+words.length*4),professionalCommunication:Math.min(100,40+(/please|thank|confirm|team|ready/i.test(s)?28:10)),technicalVocabulary:Math.min(100,30+technical*14)};
-  }
-  global.ConversationOrchestrator=Object.freeze({active,remember,abandon,opening,voiceFor,respond,feedback});
+  /* A per-turn feedback() used to derive six metrics from word counts — including
+     a constant "pronunciation: 70" from a transcript with no audio. It was stored
+     on every turn and synced, and nothing ever displayed it. Removed rather than
+     hidden: fabricated evidence must not exist in learner state, and the app
+     already has a real, audio-grounded grader in fbAssess. */
+  global.ConversationOrchestrator=Object.freeze({active,remember,abandon,opening,voiceFor,respond});
 })(window);

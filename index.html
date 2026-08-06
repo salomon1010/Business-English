@@ -2700,6 +2700,10 @@ const I18N_EN={
  "acc.reset_confirm":"Delete ALL progress and recordings? This cannot be undone.",
  "acc.reset_confirm_account":"Delete ALL progress and recordings, on this device AND in your account? Every device you log in on will be empty. This cannot be undone.",
  "acc.reset_toast":"Everything reset",
+ "acc.convo_del_btn":"🗑 Delete saved conversations",
+ "acc.convo_del_confirm":"Delete the saved text of your practice conversations, on this device and in your account? Your progress, scores and streak are kept. This cannot be undone.",
+ "acc.convo_del_toast":"Saved conversation text deleted",
+ "acc.convo_del_note":"Practice conversations are stored on this device so you can pick one up again. The words you speak are never included in the cloud copy — only your progress and scores.",
  "acc.gh_connected":"Connected: {{repo}} ({{branch}})",
  "acc.gh_last_sync":" · last sync {{when}}",
  "acc.gh_auto_suffix":" · ⚡ auto-sync ON",
@@ -8624,6 +8628,11 @@ async function rData(el,embedded){
       <button class="btn btn-danger" onclick="resetAll()">${tIc("acc.reset_btn","trash")}</button>
     </div>
     <p class="set-hint">${t("acc.export_note")}</p>
+    <div class="hr"></div>
+    <div class="btn-row">
+      <button class="btn btn-g set-act" onclick="delConvos()">${tIc("acc.convo_del_btn","trash")}</button>
+    </div>
+    <p class="set-hint">${t("acc.convo_del_note")}</p>
   </div>`;
   manIconizeInline(el);
 }
@@ -8658,6 +8667,23 @@ window.impData=inp=>{
   }catch(e){toast(t("acc.import_invalid_toast"))}};
   r.readAsText(f);
 };
+/* Delete the learner's spoken words without deleting their progress.
+   Reset-everything already existed, but it is all-or-nothing: someone who simply
+   does not want a transcript of what they said about a former employer sitting in
+   storage had no option short of wiping months of work. This clears the text and
+   keeps the counts, the scores and the streak. */
+window.delConvos=async()=>{
+  if(!await askConfirm({icon:"trash",danger:true,title:t("acc.convo_del_btn").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),
+    body:t("acc.convo_del_confirm"),confirmLabel:t("cf.reset_ok")}))return;
+  if(S.simulations)S.simulations.live={};
+  if(Array.isArray(S.convos))S.convos=S.convos.map(c=>{
+    if(!c||!Array.isArray(c.lines))return c;
+    return Object.assign({},c,{lines:c.lines.map(ln=>ln&&typeof ln==="object"&&ln.score!=null?{score:ln.score}:{})});
+  });
+  /* A run held in memory would be written straight back by the next simSave(). */
+  if(typeof simRun!=="undefined")simRun=null;
+  save();toast(t("acc.convo_del_toast"));
+};
 window.resetAll=async()=>{
   /* Signed in, the account is what a device loads on sign-in — so wiping only
      this device would be undone the moment it logs in again. Reset therefore
@@ -8672,7 +8698,7 @@ window.resetAll=async()=>{
   if(signedIn){
     /* Write the empty state immediately rather than leaving it to the debounced
        push, which could otherwise race a pull and restore what was just wiped. */
-    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:Date.now(),
+    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(fbSyncPayload(S)),savedAt:Date.now(),
       email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }catch(e){console.warn("[sync] reset of cloud copy failed:",(e&&(e.code||e.message))||e)}
   }
@@ -8730,6 +8756,12 @@ addEventListener("resize",syncEyebrowH);
   Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||isTrackStopWord(w)){delete S.trouble[w];dirty=true}});
   if(dirty)save();
 })();
+/* Retention sweep: drop live simulation transcripts the learner will never
+   resume, and strip the fabricated per-turn metrics written by the removed
+   ConversationOrchestrator.feedback(). Runs on every boot, not once — the age
+   bound has to keep applying. save() also re-pushes the trimmed copy, which is
+   how an account that already holds those fields gets them cleared. */
+(function(){ try{ if(simPruneLive(S))save(); }catch(e){} })();
 /* ===== THEME (light / dark) ===== */
 function applyTheme(mode){
   const t=mode==="light"?"light":"dark";
@@ -10202,7 +10234,12 @@ async function fbFirstSync(u){
     }else if(cloud){
       const merged=fbMerge(S,cloud);
       let take=cloud;
-      if(fbSnapshotSig(merged)!==fbSnapshotSig(cloud)){
+      /* Compare only what is eligible to sync. The device holds conversation
+         transcripts and the résumé that the cloud copy deliberately never
+         receives, so an unfiltered comparison would differ every time and raise
+         the conflict dialog on every single sign-in. Both sides are filtered so
+         a cloud document written before the filter existed still compares. */
+      if(fbSnapshotSig(fbSyncPayload(merged))!==fbSnapshotSig(fbSyncPayload(cloud))){
         const useAccount=await askConfirm({
           icon:"cloud",danger:false,
           title:t("auth.conflict_title"),body:t("auth.conflict_body"),
@@ -10213,7 +10250,7 @@ async function fbFirstSync(u){
     }
     localStorage.setItem(LS_KEY,JSON.stringify(S));
     localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
-    await ref.set({json:JSON.stringify(S),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     /* a returning user who logged in from onboarding: their profile came from the
        cloud, so dismiss the onboarding overlay and drop them into the app */
     if(S.profile){const ob=document.getElementById("obWrap");if(ob)ob.remove()}
@@ -10234,7 +10271,7 @@ window.fbPush=function(){
   clearTimeout(fbPushTimer);
   fbPushTimer=setTimeout(async()=>{
     try{
-      await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
       fbLastPushOk=true;fbLastPushErr="";
     }catch(e){
       fbLastPushOk=false;
@@ -10260,7 +10297,7 @@ window.fbTestSync=async()=>{
   if(el){el.textContent=t("auth.sync_testing");el.className="fb-sync"}
   try{
     const ref=FBdb.collection("users").doc(FBUser.uid);
-    await ref.set({json:JSON.stringify(S),savedAt:Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     const snap=await ref.get();                    // read it back — a write alone can be queued offline
     if(!snap.exists)throw new Error("written but not readable");
     fbLastPushOk=true;fbLastPushErr="";
@@ -10293,6 +10330,64 @@ window.fbTestSync=async()=>{
    need tombstones (the GitHub sync has GH.del for exactly this) before live
    sync would be safe. */
 let fbLastPull=0;
+/* ===== WHAT MAY LEAVE THE DEVICE FOR THE CLOUD COPY =====
+   The cloud copy used to be JSON.stringify(S) — the whole state object. Version 2
+   added things to S that must not travel: verbatim transcripts of spoken workplace
+   conversations, the name and experience extracted from them, and the career
+   summary typed into the Résumé coach. Those are the learner's words about their
+   real employers and history, and the privacy policy tells them what syncs is
+   progress.
+
+   So the cloud write is now a filtered copy. Filtered, not merged away: the local
+   state keeps everything, and only this outbound snapshot is trimmed.
+
+   Kept deliberately: simulations.history (debrief counts and objective labels from
+   the curriculum pack, no learner text) and the per-line SCORES of a role-play, so
+   a second device still shows the same progress and the same trend.
+
+   Idempotent, so it can be applied to a cloud document written before this existed
+   as well as to a local one. */
+function fbSyncPayload(s){
+  if(!s||typeof s!=="object")return s;
+  const out=Object.assign({},s);
+  if(out.simulations){
+    out.simulations=Object.assign({},out.simulations);
+    delete out.simulations.live;          /* live transcripts + extracted facts */
+  }
+  if(out.careerCenter){
+    out.careerCenter=Object.assign({},out.careerCenter);
+    delete out.careerCenter.resume;       /* employers, roles, years */
+  }
+  if(Array.isArray(out.convos)){
+    /* Keep the conversation record and its scores; drop the sentences themselves.
+       rpEvPersist writes {text,score} per line — the score is progress, the text
+       is speech. */
+    out.convos=out.convos.map(c=>{
+      if(!c||!Array.isArray(c.lines))return c;
+      return Object.assign({},c,{lines:c.lines.map(ln=>ln&&typeof ln==="object"&&ln.score!=null?{score:ln.score}:{})});
+    });
+  }
+  return out;
+}
+/* Bound what the device itself keeps. A live simulation exists so an interrupted
+   conversation can be resumed; after a week it will not be, and abandon() only
+   runs when the learner leaves the screen deliberately. */
+const SIM_LIVE_MAX_AGE=7*864e5, SIM_LIVE_MAX=3;
+function simPruneLive(s){
+  const live=s&&s.simulations&&s.simulations.live;
+  if(!live||typeof live!=="object")return false;
+  const now=Date.now();let dirty=false;
+  Object.keys(live).forEach(k=>{
+    const run=live[k];
+    if(!run||now-(run.startedAt||0)>SIM_LIVE_MAX_AGE){delete live[k];dirty=true}
+    else if(run.voiceFeedback){delete run.voiceFeedback;dirty=true}   /* fabricated metrics, now removed */
+  });
+  const keys=Object.keys(live);
+  if(keys.length>SIM_LIVE_MAX){
+    keys.sort((a,b)=>(live[b].startedAt||0)-(live[a].startedAt||0)).slice(SIM_LIVE_MAX).forEach(k=>{delete live[k];dirty=true});
+  }
+  return dirty;
+}
 /* Key order alone must not count as a change, and savedAt always moves. */
 function fbStable(o){
   if(o===null||typeof o!=="object")return JSON.stringify(o);
@@ -10327,7 +10422,7 @@ async function fbSyncPull(){
       if(fbSnapshotSig(merged)!==before){
         S=merged;
         localStorage.setItem(LS_KEY,JSON.stringify(S));
-        await ref.set({json:JSON.stringify(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
+        await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
           updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         try{navBadges()}catch(e){}
         if(fbSafeToRerender())go(cur.v,cur.arg1,cur.arg2);
