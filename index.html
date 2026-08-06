@@ -631,7 +631,23 @@ body.sh-work-open{overflow:hidden}
 /* Answer analysis. Green marks what the learner covered, amber what a competent
    answer still needs — never red: a gap here is a next step, not a failure. */
 .sim-fb-play{width:100%;justify-content:center;margin-bottom:12px}
-.sim-fb-play.on{background:var(--acc);color:#fff;border-color:transparent}
+/* The button takes the colour of the score it explains, on the same thresholds
+   as the chip beside it and the ring at the top — one number, one colour,
+   wherever it appears. The word on the chip still carries the meaning, so the
+   colour is reinforcement rather than the only signal. */
+.sim-fb-play.q-good{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+.sim-fb-play.q-fair{color:var(--gold);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.sim-fb-play.q-poor{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
+.sim-fb-play.q-none{color:var(--mut);border-color:var(--line)}
+.sim-fb-play.q-good:hover{background:rgba(52,211,153,.18)}
+.sim-fb-play.q-fair:hover{background:rgba(251,191,36,.18)}
+.sim-fb-play.q-poor:hover{background:rgba(248,113,113,.18)}
+/* Playing: the same colour goes solid, so the active card is obvious in a list. */
+.sim-fb-play.on{border-color:transparent}
+.sim-fb-play.on.q-good{background:var(--green);color:#04150e}
+.sim-fb-play.on.q-fair{background:var(--gold);color:#1b1202}
+.sim-fb-play.on.q-poor{background:var(--red);color:#1f0705}
+.sim-fb-play.on.q-none{background:var(--acc);color:var(--on-accent)}
 .sim-ans-regs{margin:12px 0;padding:12px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
 .sim-ans-regs>b{display:block;font-size:11px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;
   color:var(--mut2);margin-bottom:7px}
@@ -7439,7 +7455,7 @@ function simAnswerCard(a,i){
       <span class="sim-q-score ${band}">${a.answered?pct+"%":"—"}</span>
     </summary>
     <div class="sim-ans-body">
-      <button class="btn btn-g btn-sm sim-fb-play" id="simFb${i}" onclick="simPlayFeedback(${i})">▶ Hear the feedback</button>
+      <button class="btn btn-g btn-sm sim-fb-play ${band}" id="simFb${i}" onclick="simPlayFeedback(${i})">▶ Hear the feedback</button>
       ${a.answered?`<div class="sim-ans-said"><span>You said</span><p>“${esc(a.said)}”</p></div>`:
         `<p class="sub">You did not give a spoken answer to this one, so there is nothing to compare yet.</p>`}
       ${a.covered.length?`<div class="sim-ans-good"><b>What you did well</b><ul>${a.covered.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
