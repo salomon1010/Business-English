@@ -7,6 +7,7 @@
 - Added the reusable, profession-independent Conversation Orchestrator.
 - Replaced the Professional Simulation flow with the existing full-screen voice conversation layout, using one active workplace prompt at a time.
 - Added character voice profiles, active-speaker state, speaking/listening status, waveform feedback, current objective, and objective progress.
+- Added explicit natural-voice assignments for each Welding simulation character, with gender-matched browser voices as the offline fallback.
 - Added persisted in-progress simulation sessions, voice session metadata, conversation history, and response-derived live-feedback signals.
 - Added contextual AI follow-up turns through the existing secured conversation service, with the established local scenario behavior as a safe fallback.
 

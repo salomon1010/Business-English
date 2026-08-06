@@ -7016,7 +7016,19 @@ function rSimulation(el,id){
 let simRecognition=null,simUtterance=null;
 function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.remember(S,simRun)}
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));}
-function simVoiceSpeak(message,sc){if(!message||!('speechSynthesis'in window)){simSetStatus('Ready to listen');return simVoiceListen()}simStopListening();simSetStatus(`${simCharacter(sc,message.characterId).name} is speaking`);speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(message.text);simUtterance=u;const vp=ConversationOrchestrator.voiceFor(sc,message.characterId);u.rate=vp.rate;u.pitch=vp.pitch;u.onend=()=>{if(simUtterance!==u)return;simSetStatus('Ready to listen');simVoiceListen()};u.onerror=()=>{simSetStatus('Ready to listen')};speechSynthesis.speak(u)}
+function simVoiceSpeak(message,sc){
+  if(!message){simSetStatus('Ready to listen');return simVoiceListen()}
+  simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=character.voice||(gender==="m"?"onyx":"nova");
+  simSetStatus(`${character.name||'Your colleague'} is speaking`);rpStopVoice();
+  const done=()=>{if(simUtterance!==message){return}simSetStatus('Ready to listen');simVoiceListen()};simUtterance=message;
+  const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  if(canNatural){fbSayApi(message.text,1,voice).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}if(_ttsAudio)_ttsAudio.onended=done;else done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
+  simSpeakBrowser(message.text,gender,done);
+}
+function simSpeakBrowser(text,gender,done){
+  if(!('speechSynthesis'in window)){done();return}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
+  const voice=(gender==="m"?_rpVoices.m:_rpVoices.f)||_rpVoices.any,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
+}
 function simVoiceListen(){if(!simRun||simRun.debrief)return;const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){simSetStatus('Voice recognition is unavailable in this browser');return}if(simRecognition)return;const r=new SR();simRecognition=r;r.lang='en-US';r.interimResults=true;r.continuous=false;let final='';simRun.listening=true;simSetStatus('Listening');const mic=document.getElementById('simMic');if(mic)mic.classList.add('listening');const label=document.getElementById('simMicLabel');if(label)label.textContent='Listening — speak naturally, then tap to finish.';r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++)if(e.results[i].isFinal)final+=e.results[i][0].transcript+' '};r.onerror=()=>{simRecognition=null;simRun.listening=false;simSetStatus('Tap to try speaking again');simRefresh()};r.onend=()=>{simRecognition=null;simRun.listening=false;if(final.trim())simProcessSpeech(final.trim());else {simSetStatus('Tap to speak');simRefresh()}};try{r.start()}catch(e){simRecognition=null;simRun.listening=false;simSetStatus('Tap to speak')}}
 function simStopListening(){if(simRecognition){try{simRecognition.stop()}catch(e){}simRecognition=null}if(simRun)simRun.listening=false}
 function simRefresh(){if(simRun)go('simulation',simRun.id)}
