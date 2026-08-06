@@ -652,6 +652,30 @@ body.sh-work-open{overflow:hidden}
 
 /* Attempt history. The line is the point: one weak run matters less than the
    direction, so the shape is emphasised over the individual numbers. */
+.sim-score{display:flex;align-items:center;gap:18px;margin-top:16px;padding:20px;border-width:1.5px}
+.sim-score-ring{position:relative;flex:none;width:104px;height:104px;display:grid;place-items:center}
+.sim-score-ring svg{width:104px;height:104px;transform:rotate(-90deg)}
+.sim-score-track{fill:none;stroke:var(--bg2);stroke-width:9}
+.sim-score-arc{fill:none;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .9s ease-out}
+.sim-score-n{position:absolute;font-size:27px;font-weight:800;letter-spacing:-.6px;font-variant-numeric:tabular-nums}
+.sim-score-n small{font-size:14px;font-weight:700;opacity:.65}
+.sim-score-txt{min-width:0;flex:1}
+.sim-score-txt h2{margin:2px 0 6px;font-size:21px;line-height:1.2}
+.sim-score-txt p{margin:0;font-size:13.5px;color:var(--mut);line-height:1.6}
+.sim-score-att{margin-top:8px!important;font-size:12px!important;color:var(--mut2)!important}
+/* Colour is never the only signal: the heading word carries the same meaning. */
+.sim-score-good{border-color:rgba(52,211,153,.5)}
+.sim-score-good .sim-score-arc{stroke:var(--green)} .sim-score-good .sim-score-n,.sim-score-good h2{color:var(--green)}
+.sim-score-fair{border-color:rgba(251,191,36,.5)}
+.sim-score-fair .sim-score-arc{stroke:var(--gold)} .sim-score-fair .sim-score-n,.sim-score-fair h2{color:var(--gold)}
+.sim-score-poor{border-color:rgba(248,113,113,.45)}
+.sim-score-poor .sim-score-arc{stroke:var(--red)} .sim-score-poor .sim-score-n,.sim-score-poor h2{color:var(--red)}
+@media(max-width:440px){.sim-score{flex-direction:column;text-align:center;gap:14px}}
+.sim-q-score{flex:none;min-width:52px;padding:4px 9px;border-radius:99px;font-size:12px;font-weight:800;
+  text-align:center;font-variant-numeric:tabular-nums;border:1px solid var(--line);color:var(--mut)}
+.sim-q-score.q-good{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+.sim-q-score.q-fair{color:var(--gold);border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.1)}
+.sim-q-score.q-poor{color:var(--red);border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1)}
 .sim-progress{margin-top:16px}
 .sim-prog-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
 .sim-prog-head span{font-size:12.5px;color:var(--mut)}
@@ -7150,6 +7174,53 @@ function simCardProfile(sc,index){
   return {stage,duration:sc.duration||"12 minutes",difficulty:sc.difficulty||(index<4?"Beginner":index<8?"Intermediate":"Advanced"),skills:sc.skills||(sc.objectives||[]).slice(0,3).map(x=>x.label)};
 }
 function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join("  →  ")}
+/* ---- The score the learner actually sees ----
+   Green, amber, red on one number, with a line that means it. The tone is
+   deliberately adult: a welder who has just scored 20% is not helped by
+   cheerfulness, and one who scored 90% is not helped by faint praise. Nobody is
+   told they failed — the low bands say what to do next, because a learner who
+   stops practising has learned nothing. */
+/* The score written into the activity log is the one the learner was shown:
+   coverage of what the answers actually needed. It used to be
+   debrief.scores.industryReadiness, which was keyword arithmetic. */
+function simAnswerCoverage(run){
+  if(!window.AnswerEvaluator||!run)return null;
+  const rev=AnswerEvaluator.review(run.answers||[]);
+  return rev.evidence?Math.round(rev.coverage*100):null;
+}
+function simScoreBand(pct,best){
+  const improved=best!=null&&pct>best;
+  if(pct>=85)return {tone:"good",title:"Outstanding",
+    msg:"Congratulations. That is the standard an employer is listening for — you covered nearly everything a competent answer needs. Keep saying it this way and take it into your next interview."};
+  if(pct>=70)return {tone:"good",title:"Well done",
+    msg:"Congratulations, that is a strong interview. You covered most of what these answers need. Close the last gaps below and you are at interview standard."};
+  if(pct>=50)return {tone:"fair",title:"A fair attempt",
+    msg:"You understood the situation and you spoke up, which is the hard part. You are missing detail an assessor listens for — add one missing point each time you repeat this and you will get there."};
+  if(pct>=25)return {tone:"fair",title:"You have started",
+    msg:(improved?"Better than last time — that is real progress. ":"")+"You are on the right track but the answers are still short. Look at the model answers below, then run it again and say more."};
+  return {tone:"poor",title:"Keep going",
+    msg:(improved?"Better than last time, and that is what counts. ":"")+"This one did not go well yet, and that is normal at the start — nobody speaks a second language well under pressure without practice. Read the model answers below, say them out loud once, then try again."};
+}
+function simScoreHeroHTML(pct,band,attempts){
+  const r=52,c=2*Math.PI*r;
+  return `<section class="card sim-score sim-score-${band.tone}">
+    <div class="sim-score-ring">
+      <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="${r}" class="sim-score-track"/>
+        <circle cx="60" cy="60" r="${r}" class="sim-score-arc"
+          stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-pct/100)).toFixed(1)}"/>
+      </svg>
+      <span class="sim-score-n">${pct}<small>%</small></span>
+    </div>
+    <div class="sim-score-txt">
+      <div class="eyebrow">Your interview score</div>
+      <h2>${esc(band.title)}</h2>
+      <p>${esc(band.msg)}</p>
+      ${attempts>1?`<p class="sim-score-att">Attempt ${attempts} at this workshop.</p>`:""}
+    </div>
+  </section>`;
+}
+
 /* ---- Attempt history ----
    A workshop report used to exist only until the learner walked away from the
    screen. Repeating a scenario is the point of it, so every finished attempt is
@@ -7295,14 +7366,16 @@ function simStopFeedback(){
   _simFbSpeaking=null;
 }
 function simAnswerCard(a,i){
-  const band={strong:"done",partial:"",thin:"",'no-answer':""}[a.verdict]||"";
   const pct=Math.round((a.coverage||0)*100);
+  /* Same thresholds as the overall score, so one question reading amber and the
+     total reading green can never mean two different things. */
+  const band=!a.answered?"q-none":pct>=70?"q-good":pct>=50?"q-fair":"q-poor";
   const asker=(()=>{const sc=ProfessionalSimulationEngine.find(_simReport.scenarioId);const c=sc&&simCharacter(sc,a.characterId);return c&&c.name?c.name:""})();
   return `<details class="card sim-ans" ${i===0?"open":""}>
     <summary>
       <span class="sim-ans-n">${i+1}</span>
       <span class="sim-ans-q">${asker?`<b>${esc(asker)}:</b> `:""}${esc(a.ask)}</span>
-      <span class="chip ${band}">${a.answered?pct+"%":"no answer"}</span>
+      <span class="sim-q-score ${band}">${a.answered?pct+"%":"—"}</span>
     </summary>
     <div class="sim-ans-body">
       <button class="btn btn-g btn-sm sim-fb-play" id="simFb${i}" onclick="simPlayFeedback(${i})">▶ Hear the feedback</button>
@@ -7363,7 +7436,10 @@ function simAnalysisHTML(run,sc){
   const next=AnswerEvaluator.nextFocus(rev,sc,trackSimulations());
   _simReport={answers,scenarioId:sc.id};   /* cards and voice read from here */
   const pct=Math.round(rev.coverage*100);
-  return `<section class="card sim-analysis">
+  const prev=simAttempts(sc.id).filter(a=>a.startedAt!==run.startedAt).map(a=>Math.round(a.coverage*100));
+  const band=simScoreBand(pct,prev.length?Math.max(...prev):null);
+  return `${rev.evidence?simScoreHeroHTML(pct,band,simAttempts(sc.id).length):""}
+  <section class="card sim-analysis">
     <div class="eyebrow">Answer analysis</div>
     <h2>What you said, and what a competent answer needs</h2>
     ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. Open any question below and tap <b>Hear the feedback</b> — the person who asked it will tell you how it went.</p>`
@@ -7411,9 +7487,13 @@ function rSimulation(el,id,characterId){
   if(run.missionComplete&&!debrief&&isFirstDayMission(selected)){const daniel=simCharacter(selected,'supervisor');el.innerHTML=`<button class="back" onclick="simChooseAnother()">‹ Workplace scenarios</button><section class="card sim-stage mission-complete"><div class="eyebrow">Mission complete</div><h1 class="big">Your first day is complete</h1><p class="sub"><b>${esc(daniel.name)}:</b> Excellent work. You completed your first day successfully. We’re glad to have you on the team.</p><p class="sub">Open your learning debrief to see the words, phrases, and corrections that were actually captured during this conversation.</p><button class="btn btn-p" onclick="simOpenMissionDebrief()">Open learning debrief →</button></section>`;return}
   if(debrief){
     simRecordAttempt(run,selected);
-    const cards=Object.entries(debrief.scores||{}).filter(([,v])=>typeof v==='number').map(([k,v])=>`<div><span>${esc(k.replace(/([A-Z])/g," $1"))}</span><b>${v}%</b></div>`).join(""),mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
+    /* debrief.scores are keyword arithmetic — grammar was 45 + 12 per sentence
+       that happened to end in punctuation. They sat directly above the real
+       coverage score and disagreed with it. The score the learner sees is now
+       the one derived from what they actually said. */
+    const mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p>${cards?`<div class="sim-debrief-grid">${cards}</div>`:''}<h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
+    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
     simEnrichAnalysis(run,selected).then(changed=>{if(changed&&cur&&cur.v==="simulation"){simSave();go("simulation",selected.id)}});
     return;
@@ -7535,7 +7615,7 @@ window.simChooseAnother=()=>{simStopListening();if(window.speechSynthesis)speech
 window.simVoiceToggle=()=>{if(simRecognition||(simRun&&simRun.listening)){simSetStatus('Processing your answer');const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';simStopListening(true);return}simVoiceListen()};
 window.simFinishEarly=()=>simComplete(false);
 window.simOpenMissionDebrief=()=>{if(!simRun)return;simRun.missionComplete=false;simComplete(false)};
-function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simRun.debrief.scores.industryReadiness,duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
+function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
