@@ -692,6 +692,24 @@ body.sh-work-open{overflow:hidden}
 
 /* Attempt history. Every rule sets its own layout — an earlier version was laid
    out as five columns because an ancestor was arranging its children in a row. */
+/* Workplace lines — the Welding shadow source. Sized as a reading list, not a
+   media gallery: the sentence is the content, the play button is the control. */
+.sh-lines{margin-bottom:16px}
+.sh-lines-h{font-size:19px;margin:2px 0 5px}
+.sh-lines-sub{font-size:13px;color:var(--mut);line-height:1.55;margin:0 0 14px}
+.sh-line{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.sh-line:first-of-type{border-top:none;padding-top:4px}
+.sh-line-play{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);
+  background:var(--bg2);color:var(--accent-text);font-size:15px;cursor:pointer;display:grid;place-items:center;
+  transition:.15s;font-family:inherit}
+.sh-line-play:hover{border-color:var(--acc)}
+.sh-line-play.on{background:var(--accent-fill);color:var(--on-accent);border-color:transparent}
+.sh-line-t{min-width:0;flex:1}
+.sh-line-who{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--mut2);margin-bottom:5px}
+.sh-line-who em{font-style:normal;opacity:.75}
+.sh-line-t p{margin:0;font-size:14.5px;line-height:1.55;color:var(--txt)}
+.sh-line-t small{display:block;margin-top:6px;font-size:12px;color:var(--mut)}
 .sim-progress{display:block!important;margin-top:16px}
 .sim-progress>*{display:block}
 .sim-prog-title{display:flex;align-items:center;gap:8px;color:var(--txt)}
@@ -3166,6 +3184,10 @@ const I18N_EN={
  "sh.captions_ready":"🎬 Captions ready — mark any part",
  "sh.starters_captions_note":"🎬 Every clip here writes its own transcript — mark any 20–30 seconds and the words appear, already stress-marked.",
  "sh.captions_none":"✏️ Type your own transcript",
+ "sh.lines_eyebrow":"From your welding journey",
+ "sh.lines_title":"Workplace lines to shadow",
+ "sh.lines_sub":"Real sentences from your own workshops, spoken by the person who asks for them. Listen, then say it back until it sounds like you.",
+ "sh.lines_more":"{{n}} more lines",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -4993,6 +5015,92 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    Videos flagged cap:true ship a bundled caption track at captions/<vid>.json
    (built ahead of time by scripts/fetch_captions.js). At runtime the app slices
    those cues to the user's marks and fills the transcript box — fully offline. */
+/* ---- Workplace lines: the Welding track's own shadow source ----
+   The Welding shadow library was TED and Stanford, with three commencement
+   addresses. A welder rehearsing a shift handover was being asked to shadow a
+   graduation speech, and the mission debrief promised "How supervisors explain
+   welding tasks" — which no clip delivered.
+
+   The fix is not more YouTube. Third-party video cannot be relied on here: a
+   clip can be pulled, made unembeddable or lose its captions, the bundled
+   caption track cannot be regenerated (YouTube answers the Worker with 429), and
+   every dense screen ends up rendering someone else's artwork.
+
+   The app already owns better material: the model answers behind every workshop
+   question, spoken by the character who asks it. That is exactly what a shadow
+   model should be — a sentence you will actually need, said the way a competent
+   person says it. It needs no video, no captions, works offline for the text,
+   and is tied to the stage the learner is on. */
+function shWorkplaceLines(){
+  const sims=(typeof trackSimulations==="function"&&trackSimulations())||[];
+  if(!sims.length)return [];
+  const pos=currentPos(),out=[];
+  /* Lead with the learner's current stage, then let earlier stages follow, so
+     the top of the list is always the work they are on now. */
+  const order=sims.map((sc,i)=>({sc,i})).sort((a,b)=>
+    Math.abs(a.i-(pos.w-1))-Math.abs(b.i-(pos.w-1)));
+  order.forEach(({sc})=>{
+    const qs=sc.questions||{};
+    Object.keys(qs).forEach(k=>{
+      const q=qs[k];
+      if(!q||!q.model)return;
+      const askerId=k==="open"?(sc.lead||"hr"):((sc.turns||[]).find(t=>t.q===k)||{}).characterId;
+      const c=(typeof simCharacter==="function"&&simCharacter(sc,askerId))||{};
+      out.push({id:sc.id+":"+k,scenario:sc.title,ask:q.ask||"",text:q.model,
+                who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f"});
+    });
+  });
+  return out;
+}
+let _shLineSpeaking=null;
+window.shSayLine=async(id)=>{
+  const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
+  const btn=document.getElementById("shl-"+CSS.escape(id));
+  if(_shLineSpeaking===id){shStopLine();return}
+  shStopLine();
+  _shLineSpeaking=id;
+  if(btn){btn.classList.add("on");btn.textContent="■"}
+  const done=()=>{if(_shLineSpeaking===id)shStopLine()};
+  const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  if(canNatural){
+    try{await fbSayApi(line.text,1,line.voice,line.style);if(_ttsAudio)_ttsAudio.onended=done;else done();return}
+    catch(e){/* fall through to the device voice */}
+  }
+  if(typeof simSpeakBrowser==="function")simSpeakBrowser(line.text,line.g,done);else done();
+};
+function shStopLine(){
+  if(window.speechSynthesis)speechSynthesis.cancel();
+  try{fbStopAudio()}catch(e){}
+  if(_shLineSpeaking!=null){
+    const b=document.getElementById("shl-"+CSS.escape(_shLineSpeaking));
+    if(b){b.classList.remove("on");b.textContent="▶"}
+  }
+  _shLineSpeaking=null;
+}
+const SH_LINES_SHOWN=6;
+function shWorkplaceLinesHTML(){
+  const lines=shWorkplaceLines();
+  if(!lines.length)return "";
+  const card=l=>`<div class="sh-line">
+    <button class="sh-line-play" id="shl-${esc(l.id)}" onclick="shSayLine('${esc(l.id)}')"
+      aria-label="Hear this line">▶</button>
+    <div class="sh-line-t">
+      <span class="sh-line-who">${esc(l.who)}${l.role?" · "+esc(l.role):""} <em>${esc(l.scenario)}</em></span>
+      <p>“${esc(l.text)}”</p>
+      ${l.ask?`<small>Answering: ${esc(l.ask)}</small>`:""}
+    </div>
+  </div>`;
+  return `<div class="card sh-lines">
+    <div class="eyebrow">${esc(t("sh.lines_eyebrow"))}</div>
+    <h2 class="sh-lines-h">${esc(t("sh.lines_title"))}</h2>
+    <p class="sh-lines-sub">${esc(t("sh.lines_sub"))}</p>
+    ${lines.slice(0,SH_LINES_SHOWN).map(card).join("")}
+    ${lines.length>SH_LINES_SHOWN?`<details class="home-more sh-more">
+      <summary><span class="btn-ic">${ic("chat")}</span>${esc(t("sh.lines_more",{n:lines.length-SH_LINES_SHOWN}))}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body">${lines.slice(SH_LINES_SHOWN).map(card).join("")}</div>
+    </details>`:""}
+  </div>`;
+}
 let _shTab="create";
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);};
 const SH_STARTERS_SHOWN=3;
@@ -5020,6 +5128,7 @@ function rShadow(el){
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
   </div>
+  ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
   <div class="card" style="margin-bottom:16px;${_shTab==='create'?'':'display:none'}">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
