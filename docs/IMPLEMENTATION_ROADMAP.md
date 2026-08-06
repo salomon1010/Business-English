@@ -2,6 +2,10 @@
 
 ## Professional Tracks
 
+### Sprint 12 — Mission-Based Learning Experience — Complete (2026-08-05)
+
+Built the first Welding scenario, **First Day at a Welding Workshop**, as a mission within the existing Professional Simulation Engine. The journey now begins with an ABC Fabrication mission briefing, supports selected interviewer entry, retains the existing adaptive voice conversation, captures mission vocabulary, phrase use, and a targeted grammar correction only when it occurs, and concludes with a mission-complete moment followed by an evidence-based learning debrief. The debrief and competency award now require actual learner speech; ending before speaking records no scores or awards. This is a reusable data-driven pattern for future mission scenarios, without a new application page, engine, backend, or deployment.
+
 ### Sprint 11 — Professional Workplace Simulations Redesign — Complete (2026-08-05)
 
 Reframed the Welding simulation catalog as a progressive set of professional workplace scenarios rather than interview questions. Each of the existing 12 scenarios now communicates its real work context, skills developed, estimated duration, difficulty, recommended stage, visible objectives, workplace story, and available professional contacts.

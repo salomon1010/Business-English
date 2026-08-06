@@ -1,5 +1,12 @@
 # Engineering Decisions
 
+## Sprint 12 — Mission-Based Learning Experience
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-021 | 2026-08-05 | Evaluation | The simulation debrief displayed baseline-looking scores even when the learner had not spoken, which made feedback misleading. | Keep formative defaults; hide only selected metrics; require learner speech before creating performance evidence. | Require recorded learner turns before calculating debrief metrics, awarding competencies, or presenting a performance score. | Learners see only evidence from their own communication, preserving trust in the Skills Passport and coaching system. | An early exit has less feedback, but accurately explains that no spoken evidence was captured. | Accepted |
+| ED-022 | 2026-08-05 | Building AI Apps | Make the first Welding scenario feel like a professional first day without creating a separate mission application or interrupting a natural conversation. | Add a standalone mission product; embed a fixed lesson flow; configure a mission briefing and evidence capture around the existing Simulation Engine. | Express the first-day mission as data on the existing Welding simulation and render it through the existing route and voice runtime. | Keeps one learning engine while making objective, workplace context, learning evidence, and the next mission clear. | The first reusable mission pattern is intentionally lightweight; richer visual scene changes remain future work. | Accepted |
+
 ## Sprint 11 — Professional Workplace Simulations Redesign
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

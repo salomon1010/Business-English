@@ -1,5 +1,23 @@
 # Changelog
 
+## Sprint 12 — Mission-Based Learning Experience
+
+### Added
+
+- Added the ABC Fabrication mission briefing for **First Day at a Welding Workshop**, including objectives, workplace journey, rewards, and chosen first contact.
+- Added mission-specific live evidence capture for configured Welding vocabulary, useful phrase use, and the `worked welding` grammar coaching moment.
+- Added a mission-complete handoff before the learning debrief, plus a Shift Handover preview and shadow recommendation.
+
+### Changed
+
+- Simulation debriefs now suppress performance percentages and competency awards when no learner speech was captured; they no longer invent baseline grammar, confidence, professionalism, or readiness values.
+- Updated the Welding workplace cast descriptions to their intended communication personalities.
+
+### Compatibility
+
+- Reuses the current Professional Simulation Engine, Conversation Orchestrator, natural-voice behavior, local storage, Skills Passport, Competency Engine, and AI Coach.
+- General English remains unchanged. No deployment was performed.
+
 ## Sprint 11 — Professional Workplace Simulations Redesign
 
 ### Added

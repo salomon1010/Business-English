@@ -50,11 +50,11 @@
     return {simulation:sim,complete:!!next.complete};
   }
   function debrief(sim){
-    const sc=find(sim.id),done=sim.completed.length,total=(sc.objectives||[]).length,score=Math.round(done/Math.max(1,total)*100),learner=sim.messages.filter(x=>x.role==="learner"),all=learner.map(x=>words(x.text)).join(" ");
+    const sc=find(sim.id),done=sim.completed.length,total=(sc.objectives||[]).length,score=Math.round(done/Math.max(1,total)*100),learner=sim.messages.filter(x=>x.role==="learner"),all=learner.map(x=>words(x.text)).join(" "),hasEvidence=learner.length>0;
     const metric=(base,bonus)=>Math.min(100,Math.round(base+bonus));
-    const scores={communication:metric(score*.75,learner.length*5),professionalism:metric(score*.7,/thank|please|team|ready/.test(all)?20:8),confidence:metric(score*.65,/i can|i will|comfortable|ready/.test(all)?24:10),vocabulary:metric(score*.55,(all.match(/weld|safety|ppe|helmet|gloves|quality|procedure/g)||[]).length*8),grammar:metric(45,learner.filter(x=>/[.!?]$/.test(x.text)).length*12),industryReadiness:metric(score*.8,sim.completed.includes("safety")?18:0)};
+    const scores=hasEvidence?{communication:metric(score*.75,learner.length*5),professionalism:metric(score*.7,/thank|please|team|ready/.test(all)?20:8),confidence:metric(score*.65,/i can|i will|comfortable|ready/.test(all)?24:10),vocabulary:metric(score*.55,(all.match(/weld|safety|ppe|helmet|gloves|quality|procedure/g)||[]).length*8),grammar:metric(45,learner.filter(x=>/[.!?]$/.test(x.text)).length*12),industryReadiness:metric(score*.8,sim.completed.includes("safety")?18:0)}:{communication:null,professionalism:null,confidence:null,vocabulary:null,grammar:null,industryReadiness:null};
     const missing=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>o.label),strengths=(sc.objectives||[]).filter(o=>sim.completed.includes(o.id)).map(o=>o.label);
-    return {id:sim.id,completedAt:Date.now(),objectivesCompleted:done,totalObjectives:total,scores,strengths,weaknesses:missing.length?missing:["All stated onboarding objectives were covered"],recommendedNextSimulation:(sc.debrief&&sc.debrief.recommendedNextSimulation)||"Repeat this simulation to strengthen your next objective."};
+    return {id:sim.id,completedAt:Date.now(),objectivesCompleted:done,totalObjectives:total,learnerTurns:learner.length,scores,strengths,weaknesses:missing.length?missing:["All stated onboarding objectives were covered"],recommendedNextSimulation:(sc.debrief&&sc.debrief.recommendedNextSimulation)||"Repeat this simulation to strengthen your next objective."};
   }
   function save(s,debrief){const st=state(s);st.history.push(debrief);if(st.history.length>50)st.history=st.history.slice(-50)}
   global.ProfessionalSimulationEngine=Object.freeze({simulations,find,state,start,send,debrief,save,character});
