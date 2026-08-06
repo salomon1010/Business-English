@@ -10,10 +10,10 @@
   function find(id){return simulations().find(x=>x.id===id)}
   function state(s){s.simulations=s.simulations||{history:[]};s.simulations.history=Array.isArray(s.simulations.history)?s.simulations.history:[];return s.simulations}
   function character(sc,id){const cast=sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[];return cast.find(x=>x.id===id)||cast[0]}
-  function start(id){
+  function start(id,characterId){
     const sc=find(id);if(!sc)return null;
-    const first=character(sc,"hr");
-    return {id:sc.id,startedAt:Date.now(),turn:0,facts:{},completed:[],eventIds:[],messages:[{role:"character",characterId:first.id,text:`Welcome to the workshop. I’m ${first.name}, the ${first.role}. Could you introduce yourself and tell me about your welding background?`}],finished:false};
+    const first=character(sc,characterId||"hr");
+    return {id:sc.id,starterCharacterId:first.id,startedAt:Date.now(),turn:0,facts:{},completed:[],eventIds:[],messages:[{role:"character",characterId:first.id,text:`I’m ${first.name}, the ${first.role}. We’re working through ${sc.title}. Could you begin by telling me how you would approach this situation?`}],finished:false};
   }
   function words(text){return String(text||"").toLowerCase()}
   function phrase(text){return String(text||"").replace(/\s+/g," ").trim().slice(0,160)}

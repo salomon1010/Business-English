@@ -1,5 +1,11 @@
 # Engineering Decisions
 
+## Sprint 11 — Professional Workplace Simulations Redesign
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-020 | 2026-08-05 | Building AI Apps | The Welding simulation catalog felt like a set of interview prompts instead of a professional work journey. | Build a separate scenario application; retain the coach gallery; redesign the catalog over the existing Simulation Engine. | Present the existing 12 simulation definitions as workplace scenarios and start the selected character in the current voice simulation screen. | Keeps one learning and conversation engine while making scenario context, progression, objectives, and character choice explicit to the learner. | The first selected character starts the conversation, while the existing orchestrator may introduce other workplace characters as the scenario progresses. | Accepted |
+
 ## Sprint 10 — Live AI Workplace Engine
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

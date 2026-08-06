@@ -2,6 +2,12 @@
 
 ## Professional Tracks
 
+### Sprint 11 — Professional Workplace Simulations Redesign — Complete (2026-08-05)
+
+Reframed the Welding simulation catalog as a progressive set of professional workplace scenarios rather than interview questions. Each of the existing 12 scenarios now communicates its real work context, skills developed, estimated duration, difficulty, recommended stage, visible objectives, workplace story, and available professional contacts.
+
+The learner chooses who to speak with using a direct **Talk to [name]** action. That selected professional now opens the existing voice-first simulation screen, preserving the current conversation orchestration, natural voices, objective tracking, local session memory, competency award, and workplace debrief. Returning to the catalog keeps the learner in the scenario journey; no new learning engine, screen runtime, backend, or deployment was added.
+
 ### Sprint 10 — Live AI Workplace Engine — Complete (2026-08-05)
 
 Replaced the Professional Simulation interaction with a voice-first workplace experience. The new Conversation Orchestrator is profession-independent: track packs continue to provide characters, scenarios, objectives, and unexpected events, while the orchestrator manages active speaker, objective completion, conversation memory, service-backed follow-up turns, character changes, and persistence.

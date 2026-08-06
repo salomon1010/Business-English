@@ -1,5 +1,23 @@
 # Changelog
 
+## Sprint 11 — Professional Workplace Simulations Redesign
+
+### Added
+
+- Added scenario-card context for all 12 Welding workplace situations: skills developed, estimated duration, difficulty, recommended stage, objectives, workplace story, and character choice.
+- Added direct **Talk to Maya/Daniel/Luis/Priya/Amelia** actions that start the selected character in the existing voice-first simulation experience.
+- Added a learner-facing Workplace Debrief with a clear summary, strengths, next opportunity, and recommended next scenario.
+
+### Changed
+
+- Renamed the catalog to **Professional Workplace Scenarios** and replaced interview-oriented copy with real workplace communication guidance.
+- Removed the remaining Welding route to the green professional-coach gallery; scenario selections now remain in the workplace-simulation journey.
+
+### Compatibility
+
+- Reuses the existing Professional Simulation Engine, Conversation Orchestrator, natural voice behavior, local session memory, Competency Engine, and Career Readiness evidence.
+- General English remains unchanged. No deployment was performed.
+
 ## Sprint 10 — Live AI Workplace Engine
 
 ### Added
