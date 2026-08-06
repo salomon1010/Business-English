@@ -710,6 +710,12 @@ body.sh-work-open{overflow:hidden}
 .sh-line-who em{font-style:normal;opacity:.75}
 .sh-line-t p{margin:0;font-size:14.5px;line-height:1.55;color:var(--txt)}
 .sh-line-t small{display:block;margin-top:6px;font-size:12px;color:var(--mut)}
+.sh-line-rec{margin-top:9px}
+.sh-line-rec.rec{background:var(--red);color:#fff;border-color:transparent}
+.sh-line-fb:not(:empty){margin-top:10px}
+.sh-line-wait{font-size:12.5px;color:var(--mut)}
+.sh-line-score{display:flex;align-items:baseline;gap:7px;margin-bottom:7px;font-size:12px;color:var(--mut)}
+.sh-line-score b{font-size:17px;color:var(--c);font-variant-numeric:tabular-nums}
 .sim-progress{display:block!important;margin-top:16px}
 .sim-progress>*{display:block}
 .sim-prog-title{display:flex;align-items:center;gap:8px;color:var(--txt)}
@@ -3188,6 +3194,14 @@ const I18N_EN={
  "sh.lines_title":"Workplace lines to shadow",
  "sh.lines_sub":"Real sentences from your own workshops, spoken by the person who asks for them. Listen, then say it back until it sounds like you.",
  "sh.lines_more":"{{n}} more lines",
+ "sh.line_rec":"Say it yourself",
+ "sh.line_stop":"Stop and check",
+ "sh.line_listening":"Listening… tap again when you finish.",
+ "sh.line_checking":"Checking how you said it…",
+ "sh.line_nothing":"Nothing was recorded. Try once more, a little closer to the microphone.",
+ "sh.line_nograde":"That could not be graded this time. It needs an internet connection.",
+ "sh.line_yours":"your delivery",
+ "sh.line_answering":"Answering: {{q}}",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -5077,6 +5091,56 @@ function shStopLine(){
   }
   _shLineSpeaking=null;
 }
+/* Listening to a model is half of shadowing. The other half is saying it back and
+   being told how it landed, which the app already does well: fbAssess sends the
+   recording to an audio model that grades each word. Reused here rather than
+   rebuilt, so a workplace line is practised exactly like a video clip was. */
+let _shRec=null,_shRecFor=null;
+function shLineFeedback(id,html){
+  const box=document.getElementById("shfb-"+CSS.escape(id));
+  if(box)box.innerHTML=html;
+}
+window.shLineRecord=async(id)=>{
+  const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
+  const btn=document.getElementById("shr-"+CSS.escape(id));
+  /* second tap on the same line stops and grades */
+  if(_shRec&&_shRecFor===id){
+    const rec=_shRec;_shRec=null;
+    if(btn){btn.classList.remove("rec");btn.textContent=t("sh.line_rec")}
+    shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_checking"))}</span>`);
+    let blob=null;
+    await new Promise(res=>{rec.mr.onstop=()=>{blob=rec.chunks.length?new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"}):null;res()};
+      try{rec.mr.stop()}catch(e){res()}; setTimeout(res,1500)});
+    try{rec.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+    _shRecFor=null;
+    if(!blob||blob.size<1200){shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nothing"))}</span>`);return}
+    let res=null;
+    try{res=await fbAssess(blob,line.text)}catch(e){}
+    if(!res||!res.words||!res.words.length){shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>`);return}
+    const col=v=>v>=80?"var(--green)":v>=55?"var(--gold)":"var(--red)";
+    /* Weak words go to the same trouble list the video shadowing fed, so the
+       Trouble words tab keeps working on a track that has no video. */
+    res.words.forEach(w=>{const k=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
+      if(k.length>3&&w.score<80&&!isTrackStopWord(k)){S.trouble=S.trouble||{};S.trouble[k]=Math.max(S.trouble[k]||0,100-w.score)}});
+    save();
+    shLineFeedback(id,`<div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
+      <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`);
+    return;
+  }
+  shStopLine();
+  if(_shRec){try{_shRec.stream.getTracks().forEach(t=>t.stop())}catch(e){} _shRec=null;_shRecFor=null}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return toast(t("fb.sr_unavailable"));
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
+  catch(e){return toast(t("rec.mic_denied_toast"))}
+  const chunks=[];let mr;
+  try{mr=new MediaRecorder(stream)}catch(e){try{stream.getTracks().forEach(t=>t.stop())}catch(_){}; return toast(t("rec.mic_denied_toast"))}
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  mr.start();
+  _shRec={mr,chunks,stream};_shRecFor=id;
+  if(btn){btn.classList.add("rec");btn.textContent=t("sh.line_stop")}
+  shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_listening"))}</span>`);
+};
 const SH_LINES_SHOWN=6;
 function shWorkplaceLinesHTML(){
   const lines=shWorkplaceLines();
@@ -5087,7 +5151,9 @@ function shWorkplaceLinesHTML(){
     <div class="sh-line-t">
       <span class="sh-line-who">${esc(l.who)}${l.role?" · "+esc(l.role):""} <em>${esc(l.scenario)}</em></span>
       <p>“${esc(l.text)}”</p>
-      ${l.ask?`<small>Answering: ${esc(l.ask)}</small>`:""}
+      ${l.ask?`<small>${esc(t("sh.line_answering",{q:l.ask}))}</small>`:""}
+      <button class="btn btn-g btn-sm sh-line-rec" id="shr-${esc(l.id)}" onclick="shLineRecord('${esc(l.id)}')">${esc(t("sh.line_rec"))}</button>
+      <div class="sh-line-fb" id="shfb-${esc(l.id)}"></div>
     </div>
   </div>`;
   return `<div class="card sh-lines">
@@ -5129,7 +5195,7 @@ function rShadow(el){
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
   </div>
   ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
-  <div class="card" style="margin-bottom:16px;${_shTab==='create'?'':'display:none'}">
+  <div class="card" style="margin-bottom:16px;${_shTab==='create'&&!isProfessionalJourney()?'':'display:none'}">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
       <button class="btn btn-g btn-sm" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
