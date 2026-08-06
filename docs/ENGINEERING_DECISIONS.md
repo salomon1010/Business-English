@@ -1,5 +1,11 @@
 # Engineering Decisions
 
+## Version 2 — Welding Manual Voice Turns
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-024 | 2026-08-06 | Conversation Design | Browser recognition pauses and the existing role-play silence timer could end a Welding learner turn before the learner deliberately finished speaking. | Retain automatic silence completion; introduce typed confirmation; make professional turns learner-controlled while leaving General English unchanged. | Require a second microphone tap to submit every Welding simulation and professional-coach turn. Keep the ready, recording, and processing microphone states green, orange, and blue. | Professional workplace speech often includes pauses for thought; an explicit finish action makes control clear and prevents accidental AI replies. Existing configured natural female and male character voices remain in use, with the app's gender-matched browser fallback. | Learners must take one deliberate action to submit each answer, and browser speech support still varies by device. | Accepted |
+
 ## Version 2 — Experience Layer 1: Career Dashboard
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

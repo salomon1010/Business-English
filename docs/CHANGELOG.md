@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2 — Welding Manual Voice Turns
+
+### Changed
+
+- Welding workplace simulations and professional coach conversations now keep the learner microphone open until the learner taps it again to finish their turn.
+- A recognition pause no longer submits Welding speech or starts the next workplace response. The microphone remains orange while recording and turns blue only while the submitted answer is being processed.
+- Retained the existing natural voice catalogue for Welding characters, using the configured female and male assignments with the app's gender-matched browser voice fallback.
+
+### Compatibility
+
+- General English retains its existing voice-turn timing. No deployment was performed.
+
 ## Version 2 — Experience Layer 1: Career Dashboard
 
 ### Changed

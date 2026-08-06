@@ -7098,7 +7098,7 @@ function rSimulation(el,id,characterId){
   el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"><span class="sim-work-avatar">${esc((speaker.name||"?")[0])}</span><div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(selected.title)}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body"><div class="rp-bubble ai" id="simPrompt">${esc(prompt)}</div></div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
   if(needsOpening)setTimeout(()=>simVoiceSpeak(run.messages[0],selected),100);
 }
-let simRecognition=null,simUtterance=null;
+let simRecognition=null,simUtterance=null,simSpeechTurn=null,simRestartTimer=null;
 function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.remember(S,simRun)}
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));}
 function simVoiceSpeak(message,sc){
@@ -7114,8 +7114,63 @@ function simSpeakBrowser(text,gender,done){
   if(!('speechSynthesis'in window)){done();return}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
   const voice=(gender==="m"?_rpVoices.m:_rpVoices.f)||_rpVoices.any,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
 }
-function simVoiceListen(){if(!simRun||simRun.debrief)return;const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){simSetStatus('Voice recognition is unavailable in this browser');return}if(simRecognition)return;const r=new SR();simRecognition=r;r.lang='en-US';r.interimResults=true;r.continuous=false;let final='',interim='';simRun.listening=true;simSetStatus('Listening');const mic=document.getElementById('simMic');if(mic)mic.classList.add('listening');const label=document.getElementById('simMicLabel');if(label)label.textContent='Speaking… tap the microphone when you finish.';r.onresult=e=>{interim='';for(let i=e.resultIndex;i<e.results.length;i++){const said=e.results[i][0].transcript;if(e.results[i].isFinal)final+=said+' ';else interim+=said}};r.onerror=()=>{simRecognition=null;simRun.listening=false;simSetStatus('Tap to try speaking again');simRefresh()};r.onend=()=>{simRecognition=null;simRun.listening=false;const said=(final||interim).trim();if(said)simProcessSpeech(said);else {simSetStatus('Tap to speak');simRefresh()}};try{r.start()}catch(e){simRecognition=null;simRun.listening=false;simSetStatus('Tap to speak')}}
-function simStopListening(){if(simRecognition){try{simRecognition.stop()}catch(e){}simRecognition=null}if(simRun)simRun.listening=false}
+function simUsesManualVoiceTurn(){return activeProfessionalTrack().id==='welding'}
+function simSubmitSpeechTurn(turn=simSpeechTurn){
+  if(!turn||turn.submitted||!simRun)return;
+  turn.submitted=true;simRun.listening=false;
+  if(simSpeechTurn===turn)simSpeechTurn=null;
+  const said=(turn.final||turn.interim).trim();
+  if(said)simProcessSpeech(said);else {simSetStatus('Tap to speak');simRefresh()}
+}
+function simVoiceListen(){
+  if(!simRun||simRun.debrief)return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){simSetStatus('Voice recognition is unavailable in this browser');return}
+  if(simRecognition)return;
+  const manual=simUsesManualVoiceTurn(),turn=simSpeechTurn||(simSpeechTurn={final:'',interim:'',finishRequested:false});
+  const r=new SR();simRecognition=r;r.lang='en-US';r.interimResults=true;r.continuous=manual;
+  simRun.listening=true;simSetStatus('Listening');
+  const mic=document.getElementById('simMic');if(mic)mic.classList.add('listening');
+  const label=document.getElementById('simMicLabel');if(label)label.textContent='Speaking… tap the microphone when you finish.';
+  r.onresult=e=>{turn.interim='';for(let i=e.resultIndex;i<e.results.length;i++){const said=e.results[i][0].transcript;if(e.results[i].isFinal)turn.final+=said+' ';else turn.interim+=said}};
+  r.onerror=e=>{
+    if(turn.finishRequested){simSubmitSpeechTurn(turn);return}
+    if(manual&&simRun.listening&&(e.error==='no-speech'||e.error==='aborted')){
+      simRecognition=null;
+      clearTimeout(simRestartTimer);
+      simRestartTimer=setTimeout(()=>{if(simRun&&simRun.listening&&!simRecognition&&!turn.finishRequested)simVoiceListen()},150);
+      return;
+    }
+    simRecognition=null;simRun.listening=false;simSpeechTurn=null;simSetStatus('Tap to try speaking again');simRefresh();
+  };
+  r.onend=()=>{
+    if(simRecognition===r)simRecognition=null;
+    if(!simRun)return;
+    if(turn.finishRequested){
+      simSubmitSpeechTurn(turn);
+      return;
+    }
+    /* A recognition pause is never permission to submit Welding speech. */
+    if(manual&&simRun.listening){
+      clearTimeout(simRestartTimer);
+      simRestartTimer=setTimeout(()=>{if(simRun&&simRun.listening&&!simRecognition&&!turn.finishRequested)simVoiceListen()},150);
+      return;
+    }
+    simRun.listening=false;simSpeechTurn=null;
+    const said=(turn.final||turn.interim).trim();
+    if(said)simProcessSpeech(said);else {simSetStatus('Tap to speak');simRefresh()}
+  };
+  try{r.start()}catch(e){simRecognition=null;simRun.listening=false;simSpeechTurn=null;simSetStatus('Tap to speak')}
+}
+function simStopListening(completeTurn=false){
+  clearTimeout(simRestartTimer);
+  if(simSpeechTurn)simSpeechTurn.finishRequested=!!completeTurn;
+  const recognition=simRecognition;
+  if(recognition){try{recognition.stop()}catch(e){}simRecognition=null}
+  if(simRun)simRun.listening=false;
+  if(!completeTurn)simSpeechTurn=null;
+  else if(!recognition)simSubmitSpeechTurn();
+}
 function simRefresh(){if(simRun)go('simulation',simRun.id)}
 function simMissionLearning(sc,text){if(!isFirstDayMission(sc)||!simRun)return '';const mission=missionData(sc),learning=simRun.learning||(simRun.learning={words:[],phrases:[],grammar:[]}),lower=String(text||'').toLowerCase();(mission.vocabulary||[]).forEach(word=>{if(lower.includes(word.toLowerCase())&&!learning.words.includes(word))learning.words.push(word)});(mission.phrases||[]).forEach(phrase=>{const stem=phrase.replace('...','').trim().toLowerCase();if(stem&&lower.includes(stem)&&!learning.phrases.includes(phrase))learning.phrases.push(phrase)});if(/\bworked welding\b/i.test(text)){const correction='A natural way to say that is: “I worked on welding projects.”';if(!learning.grammar.includes(correction))learning.grammar.push(correction);return correction}return ''}
 async function simProcessSpeech(text){if(!simRun)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text),feedback=ConversationOrchestrator.feedback(simRun,text);simRun.voiceFeedback=(simRun.voiceFeedback||[]).concat([feedback]).slice(-20);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
@@ -7125,7 +7180,7 @@ window.simInterviewStart=(scenarioId,characterId)=>{const scenario=ProfessionalS
 window.simRestart=id=>{const starter=simRun&&simRun.starterCharacterId;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun=ProfessionalSimulationEngine.start(id,starter);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
 window.simExit=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);simRun=null;go('practice')};
 window.simChooseAnother=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);simRun=null;go('simulation')};
-window.simVoiceToggle=()=>{if(simRecognition){simSetStatus('Processing your answer');const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';simStopListening();return}simVoiceListen()};
+window.simVoiceToggle=()=>{if(simRecognition||(simRun&&simRun.listening)){simSetStatus('Processing your answer');const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';simStopListening(true);return}simVoiceListen()};
 window.simFinishEarly=()=>simComplete(false);
 window.simOpenMissionDebrief=()=>{if(!simRun)return;simRun.missionComplete=false;simComplete(false)};
 function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simRun.debrief.scores.industryReadiness,duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
@@ -9128,7 +9183,10 @@ window.rpListen=async()=>{
       return Math.sqrt(s/rec.buf.length);
     }catch(e){return 0}
   };
-  rec.tick=setInterval(()=>{
+  /* Welding is a deliberate tap-to-start/tap-to-finish conversation. Never
+     close a professional learner turn because of a quiet pause; the existing
+     General English quiet-window behaviour is left unchanged. */
+  if(!isProfessionalJourney())rec.tick=setInterval(()=>{
     if(rec.stopped)return;
     rec.cap-=200;
     if(level()>0.02){rec.heard=true;rec.left=RP_WINDOW*1000}   /* still talking */

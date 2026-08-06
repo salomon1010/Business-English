@@ -1,5 +1,9 @@
 # IMPLEMENTATION_ROADMAP
 
+## Version 2 — Welding Manual Voice Turns — Complete (2026-08-06)
+
+Welding voice interactions now use deliberate learner-controlled turns across both workplace simulations and professional coach conversations: tap the ready microphone to begin, speak for as long as needed, then tap the orange microphone to submit. A browser recognition pause cannot end or submit a Welding turn. The ready, recording, and processing states continue to use the existing green, orange, and blue microphone states. Character delivery retains the track-configured natural female and male voices, with the existing gender-matched browser fallback. General English timing is unchanged; no deployment was performed.
+
 ## Version 2 — Experience Layer 1: Career Dashboard — Complete (2026-08-05)
 
 The Home screen is now the first Career Dashboard. It answers one learner question—**What should I do today?**—through one primary action: **Continue Today’s Mission**. It presents the active profession, selected destination, current workplace context, current career milestone, today’s mission, estimated 25-minute duration, and one coach recommendation in a single hierarchy. Track selection remains available only as a secondary disclosure.
