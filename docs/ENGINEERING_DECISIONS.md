@@ -1,5 +1,11 @@
 # Engineering Decisions
 
+## Version 2 — Experience Layer 1: Career Dashboard
+
+| Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |
+|---|---|---|---|---|---|---|---|---|
+| ED-023 | 2026-08-05 | Product Experience | Home exposed a session, AI coach recommendation, track cards, and other entry points as competing primary actions. Learners had to decide how to progress instead of seeing their next professional step. | Retain the multi-card dashboard; create a separate mission application; refocus the existing Home route around active-track state and the existing session flow. | Replace the Home composition with a Career Dashboard that shows active profession, destination, workplace, mission, estimated duration, milestone, and coach recommendation, with one primary action: Continue Today’s Mission. Keep track switching in a closed secondary disclosure. | Reuses the existing active-track, Career Center, Adaptive Learning, and Learning Coach state while making the daily decision clear and preserving General English and Welding workflows. | The CTA still opens the current session until the next Experience Layer turns all supporting activities into an explicit mission sequence. Persistent navigation remains available outside the Home content. | Accepted |
+
 ## Sprint 12 — Mission-Based Learning Experience
 
 | Decision ID | Date | Related Lecture | Problem | Options Considered | Decision | Rationale | Trade-offs | Status |

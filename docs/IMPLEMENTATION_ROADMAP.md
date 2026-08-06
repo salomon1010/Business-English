@@ -1,5 +1,11 @@
 # IMPLEMENTATION_ROADMAP
 
+## Version 2 — Experience Layer 1: Career Dashboard — Complete (2026-08-05)
+
+The Home screen is now the first Career Dashboard. It answers one learner question—**What should I do today?**—through one primary action: **Continue Today’s Mission**. It presents the active profession, selected destination, current workplace context, current career milestone, today’s mission, estimated 25-minute duration, and one coach recommendation in a single hierarchy. Track selection remains available only as a secondary disclosure.
+
+The existing General English and Welding session flows remain intact. This explicitly updates the frozen Dashboard under the owner-approved Version 2 Experience Layer request; Shadow, Phrase Lab, Vocabulary, Grammar, and Practice were not promoted from Home. The next Experience Layer should make those activities contextual steps inside the mission flow rather than independently featured destinations.
+
 ## Professional Tracks
 
 ### Sprint 12 — Mission-Based Learning Experience — Complete (2026-08-05)

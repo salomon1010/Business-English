@@ -648,6 +648,13 @@ body.sh-work-open{overflow:hidden}
    button for the eye, and only one of the two is actually actionable. */
 .today-card{background:var(--card);border:1px solid var(--line);box-shadow:var(--sh-2)}
 .today-card h1,.today-card h2{font-size:clamp(20px,5.2vw,25px);font-weight:800;line-height:1.22;letter-spacing:-.3px;margin:6px 0 5px}
+.career-dashboard{position:relative;overflow:hidden;padding:clamp(18px,4vw,28px);background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 14%,var(--card)),var(--card) 56%);border-color:color-mix(in srgb,var(--accent) 38%,var(--line2));box-shadow:var(--sh-2)}
+.career-dashboard::after{content:"";position:absolute;width:210px;height:210px;right:-120px;top:-128px;border-radius:50%;background:color-mix(in srgb,var(--accent) 20%,transparent);pointer-events:none}.career-dashboard>*{position:relative}
+.career-dashboard-kicker{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:15px}.career-dashboard-kicker .eyebrow{margin:0}.career-dashboard-track{font-size:12px;font-weight:800;color:var(--accent-text);border:1px solid color-mix(in srgb,var(--accent) 42%,transparent);background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:999px;padding:5px 9px}
+.career-dashboard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 20px}.career-dashboard-fact{min-height:62px;padding:10px 11px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--bg2) 76%,transparent)}.career-dashboard-fact span{display:block;margin-bottom:4px;font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}.career-dashboard-fact b{display:block;font-size:13px;line-height:1.3;color:var(--txt)}
+.career-dashboard-mission{padding:16px;margin:0 0 13px;border-radius:14px;background:color-mix(in srgb,var(--bg2) 72%,transparent);border:1px solid var(--line)}.career-dashboard-mission h2{font-size:clamp(21px,5vw,27px);line-height:1.15;letter-spacing:-.5px;margin:4px 0 7px}.career-dashboard-mission p{margin:0;color:var(--mut);font-size:14px;line-height:1.5}.career-dashboard-why{margin-top:10px!important;color:var(--txt)!important;font-size:12.5px!important;font-weight:600}
+.career-dashboard-coach{display:flex;align-items:flex-start;gap:10px;padding:12px 0 17px}.career-dashboard-coach .coach-ic{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-text)}.career-dashboard-coach .coach-ic svg{width:18px;height:18px}.career-dashboard-coach b{display:block;font-size:13px;margin-bottom:3px}.career-dashboard-coach p{margin:0;color:var(--mut);font-size:12.5px;line-height:1.45}.career-dashboard .btn-primary{margin-top:0}.career-dashboard-secondary{margin-top:16px;margin-bottom:0}.career-dashboard-secondary .track-entry{margin-top:10px}
+@media(max-width:390px){.career-dashboard{padding:17px}.career-dashboard-grid{grid-template-columns:1fr}.career-dashboard-fact{min-height:0}.career-dashboard-mission h2{font-size:22px}}
 
 /* PRIMARY ACTION — the one solid-accent button per screen. Everything else is
    secondary by construction. No infinite animation: motion here confirms a
@@ -4291,45 +4298,48 @@ addEventListener("click",e=>{
 });
 
 /* ================= DASHBOARD ================= */
+function careerDashboardContext(){
+  const pos=currentPos(),track=activeProfessionalTrack(),wk=trackWeeks()[pos.w-1]||{},day=(wk.days||{})[pos.d]||{};
+  const destination=(window.CareerCenter&&CareerCenter.destination?CareerCenter.destination(S):null)||{name:"International Contractor"};
+  const professional=track.id!=="general-english";
+  const workplace=professional?(wk.theme||track.themeLabel||"Workplace communication"):(wk.theme||"Professional English");
+  const stage=professional?(wk.stage||`Stage ${pos.w}`):`Week ${pos.w}`;
+  const milestone=window.AdaptiveLearningEngine
+    ?AdaptiveLearningEngine.milestone(AdaptiveLearningEngine.prediction(S,track).career).current.title
+    :"Professional Foundation";
+  const coach=window.LearningCoach?LearningCoach.mission(S,track):{title:"Continue your focused practice",body:"Build one clear professional communication habit today."};
+  return {pos,track,wk,day,destination,workplace,stage,milestone,coach};
+}
+
 function rHome(el){
-  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=wk.days[pos.d],track=activeProfessionalTrack();
-  const name=S.profile&&S.profile.name?esc(S.profile.name):"";
-  const homeWelcome=track.id==="general-english"
-    ?(name?t("home.hero_named",{name}):t("home.hero_generic"))
-    :(name&&track.homeWelcomeNamed?track.homeWelcomeNamed.replace("{{name}}",name):(track.homeWelcome||`Communicate with confidence in the <em>${esc(track.themeLabel)} workplace</em>`));
-  /* Home is intentionally a short return point: resume the active track, use
-  its coach, or choose a different track. Detailed progress stays in the
-     active track's learning and Progress screens. */
+  const c=careerDashboardContext(),trackName=t(c.track.nameKey),missionTitle=`${c.stage} · ${c.day.focus||c.wk.theme||"Today's mission"}`;
+  /* Home is the Career Dashboard: it makes one decision visible. The existing
+     session stays intact while later Experience Layers connect its activities
+     into a fully contextual mission flow. */
   el.innerHTML=`
-  <h1 class="big">${homeWelcome}</h1>
-  <p class="sub">${t("home.sub_base")}.</p>
-  ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
-    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
-    if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
-    if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
-    return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
-  <div class="hr"></div>
-  <div class="hero">
-    <div class="card today-card">
-      <div class="eyebrow">${t("home.continue")}</div>
-      <h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus)})}</h2>
-      <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(trackDayMeta()[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
-      <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task)}</p>
-      <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
+  <h1 class="big">What should I do today?</h1>
+  <p class="sub">One focused mission for your professional journey.</p>
+  <section class="card career-dashboard" aria-label="Today's Career Dashboard">
+    <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc(trackName)}</span></div>
+    <div class="career-dashboard-grid">
+      <div class="career-dashboard-fact"><span>Current profession</span><b>${esc(trackName)}</b></div>
+      <div class="career-dashboard-fact"><span>Current destination</span><b>${esc(c.destination.name)}</b></div>
+      <div class="career-dashboard-fact"><span>Current workplace</span><b>${esc(c.workplace)}</b></div>
+      <div class="career-dashboard-fact"><span>Career milestone</span><b>${esc(c.milestone)}</b></div>
     </div>
-  </div>
-  ${window.LearningCoach?LearningCoach.coachCard(S):""}
-  <div class="hero">
-    ${ProfessionalTrackContext.all().filter(item=>item.id==="general-english"||item.id==="welding").map(trackSelectionCard).join("")}
-  </div>
-  <button class="card rp-entry other-tracks-entry" onclick="go('tracks')">
-    <span class="rp-entry-ic">${ic("briefcase")}</span>
-    <span class="rp-entry-t">
-      <b>Other professional tracks</b>
-      <small>Explore future professions and choose another track when it becomes available.</small>
-    </span>
-    <span class="rp-entry-go" aria-hidden="true">→</span>
-  </button>`;
+    <div class="career-dashboard-mission">
+      <div class="eyebrow">Today's mission · 25 minutes</div>
+      <h2>${esc(missionTitle)}</h2>
+      <p>${esc(c.day.task||c.wk.mission||"Complete one focused professional communication activity.")}</p>
+      <p class="career-dashboard-why">Why it matters: ${esc(c.wk.goal||"Build clearer professional communication for the workplace.")}</p>
+    </div>
+    <div class="career-dashboard-coach"><span class="coach-ic">${ic("idea")}</span><div><b>Coach recommendation · ${esc(c.coach.title)}</b><p>${esc(c.coach.body)}</p></div></div>
+    <button class="btn-primary" onclick="go('session',${c.pos.w},'${c.pos.d}')">Continue Today’s Mission →</button>
+  </section>
+  <details class="home-more career-dashboard-secondary">
+    <summary><span class="btn-ic">${ic("briefcase")}</span><span>Professional tracks</span><span class="hm-chev">›</span></summary>
+    <div class="home-more-body">${ProfessionalTrackContext.all().filter(item=>item.id==="general-english"||item.id==="welding").map(trackSelectionCard).join("")}<button class="btn btn-g" style="width:100%;margin-top:10px" onclick="go('tracks')">View other professional tracks →</button></div>
+  </details>`;
   manIconizeInline(el);
 }
 

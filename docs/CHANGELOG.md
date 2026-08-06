@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2 — Experience Layer 1: Career Dashboard
+
+### Changed
+
+- Replaced the Home page’s competing session, coach, and track entry cards with a single Career Dashboard.
+- Added a concise active-context view: Current Profession, Current Destination, Current Workplace, Career Milestone, Today’s Mission, estimated duration, and Coach Recommendation.
+- Added one primary Home action: **Continue Today’s Mission**.
+- Moved General English/Welding track selection and other professional tracks behind a secondary disclosure.
+
+### Compatibility
+
+- The primary action opens the existing track-aware session flow; General English and Welding continue to use their existing content and progress behavior.
+- Shadow, Phrase Lab, Vocabulary, Grammar, and Practice remain available through existing navigation but are no longer promoted as Home content.
+- No deployment was performed.
+
 ## Sprint 12 — Mission-Based Learning Experience
 
 ### Added
