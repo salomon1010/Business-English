@@ -68,6 +68,7 @@
 <script src="adaptive-learning-engine.js?v=3"></script>
 <script src="career-center.js?v=3"></script>
 <script src="professional-skills-passport.js?v=3"></script>
+<script src="jurisdictions.js?v=3"></script>
 <script src="answer-evaluator.js?v=3"></script>
 <script>
 window.FB_CONFIG={
@@ -7696,11 +7697,22 @@ function simAnalysisHTML(run,sc){
     <h2>What you said, and what a competent answer needs</h2>
     ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. Open any question below and tap <b>Hear the feedback</b> — the person who asked it will tell you how it went.</p>`
       :`<p class="sub">No spoken answer was captured, so there is nothing to analyse yet.</p>`}
-    ${(sc.regulatory&&sc.regulatory.codes||[]).length?`<div class="sim-ans-regs">
-      <b>Assessed against</b>
-      <div class="sim-skill-chips">${sc.regulatory.codes.map(c=>`<span title="${esc(c.title)}">${esc(c.code)}</span>`).join("")}</div>
-      <p>${esc(sc.regulatory.requirement)}</p>
-    </div>`:""}
+    ${(()=>{
+      const reg=sc.regulatory;if(!reg)return "";
+      /* Which standards apply depends on where the learner is applying. The
+         benchmarks are the same everywhere; only the citation changes. */
+      const j=window.Jurisdictions?Jurisdictions.active(S):null;
+      const codes=j?Jurisdictions.codesFor(j,reg.moduleId,reg.codes):(reg.codes||[]).map(c=>c.code+" — "+c.title);
+      const note=j?Jurisdictions.emphasisFor(j,reg.moduleId):"";
+      if(!codes.length)return "";
+      return `<div class="sim-ans-regs">
+        <b>Assessed against${j?" · "+esc(j.label):""}</b>
+        <div class="sim-skill-chips">${codes.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
+        <p>${esc(reg.requirement)}</p>
+        ${note?`<p class="sim-ans-emph">${esc(note)}</p>`:""}
+        ${j?`<p class="sim-ans-src">${esc(j.verify)}</p>`:""}
+      </div>`;
+    })()}
     <p class="sim-ans-src">This measures how completely you explained yourself in English against a model answer. It is not evidence of your welding ability, your certification, or whether you meet an employer's requirements — those are proved by test certificates and the awarding body.</p>
     ${rev.gaps.length?`<div class="sim-ans-gap"><b>Your repeating habit</b><ul>${rev.gaps.slice(0,3).map(g=>`<li>${esc(g.label)} — missed in ${g.times} answer${g.times===1?"":"s"}</li>`).join("")}</ul></div>`:""}
     ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b><div class="sim-skill-chips">${rev.vocabToLearn.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}

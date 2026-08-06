@@ -8,6 +8,7 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "build:modules": "node scripts/build-modules.mjs",
+    "build:jurisdictions": "node scripts/build-jurisdictions.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.mjs"
   },
