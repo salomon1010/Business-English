@@ -1000,6 +1000,7 @@
  "sh.line_checking": "Đang kiểm tra cách bạn nói…",
  "sh.line_nothing": "Không ghi được gì. Hãy thử lại, gần micro hơn.",
  "sh.line_nograde": "Lần này chưa chấm được. Cần kết nối internet.",
+ "sh.line_blocked": "Dịch vụ giọng nói từ chối địa chỉ này. Hãy mở ứng dụng tại http://127.0.0.1:8000 — các cổng khác không được phép.",
  "sh.line_yours": "cách bạn nói",
  "sh.line_answering": "Trả lời cho: {{q}}",
  "sh.line_vocab": "Những từ câu trả lời này cần có",

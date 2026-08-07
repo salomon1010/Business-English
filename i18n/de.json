@@ -1000,6 +1000,7 @@
  "sh.line_checking": "Prüfe, wie du es gesagt hast…",
  "sh.line_nothing": "Es wurde nichts aufgenommen. Versuch es noch einmal, näher am Mikrofon.",
  "sh.line_nograde": "Diesmal nicht bewertbar. Dafür ist eine Internetverbindung nötig.",
+ "sh.line_blocked": "Der Sprachdienst hat diese Adresse abgelehnt. Öffne die App unter http://127.0.0.1:8000 — andere Ports dürfen ihn nicht aufrufen.",
  "sh.line_yours": "deine Aussprache",
  "sh.line_answering": "Antwort auf: {{q}}",
  "sh.line_vocab": "Wörter, die in dieser Antwort vorkommen sollten",

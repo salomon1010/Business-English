@@ -16,10 +16,17 @@
    Secret required (Worker → Settings → Variables → add secret):  OPENAI_KEY
    ============================================================================ */
 
+// Local testing happens on whatever port is free, and an origin that is not on
+// this list has every AI call blocked by CORS — grading, transcription, natural
+// voice and the workshop conversations all fail while the app looks fine. That
+// cost real debugging time, so the common dev ports are listed rather than the
+// one that happened to be used first.
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
-  "http://localhost:8000",     // local testing (python3 -m http.server 8000)
-  "http://127.0.0.1:8000",
+  "http://localhost:8000",  "http://127.0.0.1:8000",   // python3 -m http.server 8000
+  "http://localhost:4173",  "http://127.0.0.1:4173",   // vite preview
+  "http://localhost:5173",  "http://127.0.0.1:5173",   // vite dev
+  "http://localhost:3000",  "http://127.0.0.1:3000",
 ];
 
 const MAX_INPUT_CHARS = 400;   // bounds prompt size

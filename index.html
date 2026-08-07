@@ -3235,6 +3235,7 @@ const I18N_EN={
  "sh.line_checking":"Checking how you said it…",
  "sh.line_nothing":"Nothing was recorded. Try once more, a little closer to the microphone.",
  "sh.line_nograde":"That could not be graded this time. It needs an internet connection.",
+ "sh.line_blocked":"The speech service refused this address. Open the app on http://127.0.0.1:8000 — other ports are not allowed to call it.",
  "sh.line_yours":"your delivery",
  "sh.line_answering":"Answering: {{q}}",
  "sh.line_vocab":"Words this answer should carry",
@@ -5177,7 +5178,11 @@ window.shLineRecord=async(id)=>{
     let res=null;
     try{res=await fbAssess(blob,line.text)}catch(e){}
     if(!res||!res.words||!res.words.length){
-      shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>`);
+      /* Online but refused is a different problem from offline, and telling the
+         learner to check their connection when the connection is fine wastes
+         their time. */
+      const why=navigator.onLine?"sh.line_blocked":"sh.line_nograde";
+      shLineFeedback(id,`<span class="sh-line-wait">${esc(t(why))}</span>`);
       try{await renderRecs(ctx,slot)}catch(e){}
       return;
     }

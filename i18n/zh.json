@@ -1000,6 +1000,7 @@
  "sh.line_checking": "正在检查你的发音……",
  "sh.line_nothing": "没有录到内容。请靠近麦克风再试一次。",
  "sh.line_nograde": "这次无法评分，需要联网。",
+ "sh.line_blocked": "语音服务拒绝了这个地址。请在 http://127.0.0.1:8000 打开应用——其他端口不被允许。",
  "sh.line_yours": "你的表达",
  "sh.line_answering": "回答：{{q}}",
  "sh.line_vocab": "这个回答应该用到的词",

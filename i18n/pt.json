@@ -1000,6 +1000,7 @@
  "sh.line_checking": "A verificar como disse…",
  "sh.line_nothing": "Não foi gravado nada. Tente outra vez, mais perto do microfone.",
  "sh.line_nograde": "Não foi possível avaliar desta vez. É necessária ligação à internet.",
+ "sh.line_blocked": "O serviço de voz recusou este endereço. Abra a app em http://127.0.0.1:8000 — outras portas não podem chamá-lo.",
  "sh.line_yours": "a sua dicção",
  "sh.line_answering": "A responder a: {{q}}",
  "sh.line_vocab": "Palavras que esta resposta deve conter",

@@ -1000,6 +1000,7 @@
  "sh.line_checking": "Memeriksa cara Anda mengucapkannya…",
  "sh.line_nothing": "Tidak ada yang terekam. Coba lagi, lebih dekat ke mikrofon.",
  "sh.line_nograde": "Belum bisa dinilai kali ini. Perlu koneksi internet.",
+ "sh.line_blocked": "Layanan suara menolak alamat ini. Buka aplikasi di http://127.0.0.1:8000 — port lain tidak diizinkan.",
  "sh.line_yours": "pelafalan Anda",
  "sh.line_answering": "Menjawab: {{q}}",
  "sh.line_vocab": "Kata yang seharusnya ada di jawaban ini",

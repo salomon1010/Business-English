@@ -1000,6 +1000,7 @@
  "sh.line_checking": "Comprobando cómo lo dijiste…",
  "sh.line_nothing": "No se grabó nada. Inténtalo otra vez, más cerca del micrófono.",
  "sh.line_nograde": "No se pudo evaluar esta vez. Necesita conexión a internet.",
+ "sh.line_blocked": "El servicio de voz rechazó esta dirección. Abre la app en http://127.0.0.1:8000 — otros puertos no pueden usarlo.",
  "sh.line_yours": "tu pronunciación",
  "sh.line_answering": "Respondiendo a: {{q}}",
  "sh.line_vocab": "Palabras que debe contener esta respuesta",
