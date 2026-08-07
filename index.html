@@ -745,6 +745,16 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.sh-line-report{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);overflow:hidden}
+.sh-line-report>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
+  list-style:none;min-height:44px;font-size:13.5px;font-weight:700}
+.sh-line-report>summary::-webkit-details-marker{display:none}
+.sh-line-report-h{flex:1;min-width:0}
+.sh-line-chev{flex:none;color:var(--mut);transition:transform .18s;font-size:17px}
+.sh-line-report[open]>summary .sh-line-chev{transform:rotate(90deg)}
+.sh-line-report[open]>summary{border-bottom:1px solid var(--line)}
+.sh-line-report-body{padding:14px}
+.sh-line-report-body>*:first-child{margin-top:0}
 .sh-line-takes{margin-bottom:14px}
 .sh-line-takes>b{display:block;font-size:12.5px;margin-bottom:8px}
 .sh-line-extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
@@ -3247,6 +3257,7 @@ const I18N_EN={
  "sh.line_vocab":"Words this answer should carry",
  "sh.line_takes":"{{n}} take(s) kept on this device",
  "sh.line_takes_h":"Your takes",
+ "sh.line_report":"Your analysis · {{pct}}%",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -5163,6 +5174,23 @@ function shLineFeedback(id,html){
    decodePeaks, countPauses, fbAssess and perfPanel rather than reimplementing
    any of them, so both sides of Shadow stay in step. */
 function shLineCtx(id){return "line-"+id}
+/* The report is long — takes, waveform, every word scored, vocabulary, trend —
+   and it pushes the line you are trying to shadow off the screen. Rather than
+   shortening it, it folds: the pieces are rendered exactly as they are and then
+   wrapped, so nothing that writes into this slot has to know about the wrapper.
+   Open after a recording, because you just asked for it; collapsible from then
+   on, and it stays collapsed until you look again. */
+function shLineFold(slot,headline){
+  const box=document.getElementById(slot);
+  if(!box||!box.children.length||box.querySelector(".sh-line-report"))return;
+  const d=document.createElement("details");
+  d.className="sh-line-report";d.open=true;
+  const sum=document.createElement("summary");
+  sum.innerHTML=`<span class="sh-line-report-h">${esc(headline)}</span><span class="sh-line-chev" aria-hidden="true">›</span>`;
+  const body=document.createElement("div");body.className="sh-line-report-body";
+  while(box.firstChild)body.appendChild(box.firstChild);
+  d.appendChild(sum);d.appendChild(body);box.appendChild(d);
+}
 window.shLineRecord=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
   const btn=document.getElementById("shr-"+id),ctx=shLineCtx(id);
@@ -5243,6 +5271,7 @@ window.shLineRecord=async(id)=>{
           <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
         ${perfPanel(perfSeries("clip",ctx))}
       </div>`);
+    shLineFold(slot,t("sh.line_report",{pct:res.overall}));
     return;
   }
   shStopLine();

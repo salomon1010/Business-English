@@ -1006,6 +1006,7 @@
  "sh.line_vocab": "Wörter, die in dieser Antwort vorkommen sollten",
  "sh.line_takes": "{{n}} Aufnahme(n) auf diesem Gerät gespeichert",
  "sh.line_takes_h": "Deine Aufnahmen",
+ "sh.line_report": "Deine Auswertung · {{pct}} %",
  "sh.captions_fetching": "Untertitel dieses Videos werden geholt…",
  "sh.captions_manual": "Ein Schritt, um die Bewertung freizuschalten: Öffne dieses Video auf YouTube, tippe „…mehr“ → „Transkript anzeigen“, kopiere die markierten Zeilen und füge sie oben ein. Zeitmarken werden automatisch entfernt.",
  "sh.captions_open_yt": "Auf YouTube öffnen",

@@ -1006,6 +1006,7 @@
  "sh.line_vocab": "この回答に入れたい語",
  "sh.line_takes": "この端末に保存されたテイク {{n}} 件",
  "sh.line_takes_h": "あなたのテイク",
+ "sh.line_report": "あなたの分析 · {{pct}}%",
  "sh.captions_fetching": "この動画の字幕を取得しています…",
  "sh.captions_manual": "採点を有効にする手順はひとつ：この動画を YouTube で開き、「…もっと見る」→「文字起こしを表示」をタップし、印を付けた行をコピーして上に貼り付けてください。タイムスタンプは自動で削除されます。",
  "sh.captions_open_yt": "YouTube で開く",

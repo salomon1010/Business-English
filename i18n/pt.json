@@ -1006,6 +1006,7 @@
  "sh.line_vocab": "Palavras que esta resposta deve conter",
  "sh.line_takes": "{{n}} gravação(ões) guardadas neste dispositivo",
  "sh.line_takes_h": "As suas gravações",
+ "sh.line_report": "A sua análise · {{pct}}%",
  "sh.captions_fetching": "Buscando as legendas deste vídeo…",
  "sh.captions_manual": "Um passo para liberar a pontuação: abra este vídeo no YouTube, toque em “…mais” → “Mostrar transcrição”, copie as linhas que você marcou e cole acima. Os horários são removidos automaticamente.",
  "sh.captions_open_yt": "Abrir no YouTube",

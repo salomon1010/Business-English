@@ -1006,6 +1006,7 @@
  "sh.line_vocab": "Parole che questa risposta deve contenere",
  "sh.line_takes": "{{n}} registrazione/i salvate su questo dispositivo",
  "sh.line_takes_h": "Le tue registrazioni",
+ "sh.line_report": "La tua analisi · {{pct}}%",
  "sh.captions_fetching": "Recupero dei sottotitoli di questo video…",
  "sh.captions_manual": "Un passo per sbloccare il punteggio: apri questo video su YouTube, tocca “…altro” → “Mostra trascrizione”, copia le righe che hai segnato e incollale qui sopra. I minutaggi vengono rimossi automaticamente.",
  "sh.captions_open_yt": "Apri su YouTube",
