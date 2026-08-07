@@ -51,10 +51,22 @@ const EVENTS = new Set([
   "play_click",
   "install",
   "reminder_on",
+  // The workshops are where the app now measures anything, so they are the two
+  // events that answer "does this work?". Neither carries what was said.
+  "workshop_start",
+  "workshop_score_band",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
-const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result"]);
+const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
+  // module: 1-12, the workshop. trade: welder | pipefitter | boilermaker.
+  // band: good | fair | poor. All small enums, none of them personal.
+  "module", "trade", "band",
+  // These were being sent by the client and silently dropped: app_open's three
+  // bucketed retention fields and the share kind. Appended rather than inserted
+  // — PROP_KEYS iteration order is the blob column order, so inserting in the
+  // middle would shift every existing column.
+  "installed", "onboarded", "stage", "kind"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

@@ -1,14 +1,14 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v239";
+const CACHE = "be12-v240";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
    analysis were all simply absent, and the guards made that fail silently rather
    than visibly. */
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png",
-  "jurisdictions.js?v=26", "trades.js?v=26", "curriculum-provider.js?v=26", "professional-tracks.js?v=26", "competency-engine.js?v=26", "learning-coach.js?v=26",
-  "professional-simulation-engine.js?v=26", "conversation-orchestrator.js?v=26", "adaptive-learning-engine.js?v=26",
-  "career-center.js?v=26", "professional-skills-passport.js?v=26", "answer-evaluator.js?v=26",
+  "jurisdictions.js?v=27", "trades.js?v=27", "curriculum-provider.js?v=27", "professional-tracks.js?v=27", "competency-engine.js?v=27", "learning-coach.js?v=27",
+  "professional-simulation-engine.js?v=27", "conversation-orchestrator.js?v=27", "adaptive-learning-engine.js?v=27",
+  "career-center.js?v=27", "professional-skills-passport.js?v=27", "answer-evaluator.js?v=27",
   "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json",
   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json"];
 

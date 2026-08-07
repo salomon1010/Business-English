@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=26"></script>
-<script src="professional-tracks.js?v=26"></script>
-<script src="competency-engine.js?v=26"></script>
-<script src="learning-coach.js?v=26"></script>
-<script src="professional-simulation-engine.js?v=26"></script>
-<script src="conversation-orchestrator.js?v=26"></script>
-<script src="adaptive-learning-engine.js?v=26"></script>
-<script src="career-center.js?v=26"></script>
-<script src="professional-skills-passport.js?v=26"></script>
-<script src="jurisdictions.js?v=26"></script>
-<script src="trades.js?v=26"></script>
-<script src="answer-evaluator.js?v=26"></script>
+<script src="curriculum-provider.js?v=27"></script>
+<script src="professional-tracks.js?v=27"></script>
+<script src="competency-engine.js?v=27"></script>
+<script src="learning-coach.js?v=27"></script>
+<script src="professional-simulation-engine.js?v=27"></script>
+<script src="conversation-orchestrator.js?v=27"></script>
+<script src="adaptive-learning-engine.js?v=27"></script>
+<script src="career-center.js?v=27"></script>
+<script src="professional-skills-passport.js?v=27"></script>
+<script src="jurisdictions.js?v=27"></script>
+<script src="trades.js?v=27"></script>
+<script src="answer-evaluator.js?v=27"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -7892,6 +7892,10 @@ function simRecordAttempt(run,sc){
   if(list.some(a=>a.startedAt===run.startedAt))return;   /* re-rendering must not duplicate */
   list.push({startedAt:run.startedAt,at:Date.now(),coverage:rev.coverage,
     answered:rev.answered,asked:rev.asked,answers:answers});
+  try{const _p=Math.round((rev.coverage||0)*100);
+    track("workshop_score_band",{band:simScoreBand(_p,null).tone,
+      module:String((sc.regulatory&&sc.regulatory.moduleId)||""),
+      trade:(window.Trades&&isProfessionalJourney()?Trades.active(S).id:"")});}catch(e){}
   if(list.length>SIM_ATTEMPT_MAX)store[sc.id]=list.slice(-SIM_ATTEMPT_MAX);
   save();
 }
@@ -8325,7 +8329,14 @@ function simRecordAnswer(sc,text){
   simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
 }
 async function simProcessSpeech(text){if(!simRun)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
-window.simStart=(id,characterId)=>{simRun=ProfessionalSimulationEngine.start(id,characterId);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
+window.simStart=(id,characterId)=>{
+  /* Counts only. Which workshop, which trade — never a word of what was said.
+     Both names are on the Worker's allow-list; adding a track() call without
+     adding the name there does nothing at all, silently. */
+  try{const _sc=ProfessionalSimulationEngine.find(id);
+    track("workshop_start",{module:String((_sc&&_sc.regulatory&&_sc.regulatory.moduleId)||""),
+      trade:(window.Trades&&isProfessionalJourney()?Trades.active(S).id:"")});}catch(e){}
+  simRun=ProfessionalSimulationEngine.start(id,characterId);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
 window.simBeginMission=(scenarioId,characterId)=>simStart(scenarioId,characterId);
 window.simInterviewStart=(scenarioId,characterId)=>{const scenario=ProfessionalSimulationEngine.find(scenarioId);if(isFirstDayMission(scenario))return go('simulation',scenarioId,characterId);simStart(scenarioId,characterId)};
 window.simRestart=id=>{const starter=simRun&&simRun.starterCharacterId;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun=ProfessionalSimulationEngine.start(id,starter);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
@@ -11323,7 +11334,11 @@ window.obFinish=()=>{
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
-  track("onboarding_complete",{role:OB.role||"none",goal:OB.goal||"none",lang:OB.lang||"en"});
+  /* Role and goal are profile fields, and the rule for this endpoint is counts
+   only — never a profile field. They were being dropped by the Worker anyway;
+   not sending them makes the client match the policy instead of relying on the
+   server to enforce it. */
+track("onboarding_complete",{lang:OB.lang||"en"});
   /* A welder starts on their own journey; General English keeps its familiar
      first stop in the Shadowing Studio. */
   go("shadow");   /* both tracks start where the practice is */
