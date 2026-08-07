@@ -1000,6 +1000,7 @@
  "sh.starters_captions_note": "🎬 여기 있는 클립은 모두 스스로 대본을 만듭니다 — 아무 20~30초나 표시하면 강세까지 표시된 단어가 나타납니다.",
  "sh.captions_none": "✏️ 직접 대본 입력하기",
  "sh.lines_eyebrow": "당신의 용접 여정에서",
+ "sh.lines_eyebrow_trade": "{{trade}}(으)로서의 여정에서",
  "sh.title_pro": "현장에서 말하는 그대로 말해 보세요.",
  "sh.sub_pro": "실제 현장에서 필요한 문장을, 그것을 묻는 사람의 목소리로. 듣고 따라 말하고 결과를 확인하세요 — 단어마다 채점됩니다.",
  "sh.lines_title": "따라 말할 현장 문장",

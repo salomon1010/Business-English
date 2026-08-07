@@ -1000,6 +1000,7 @@
  "sh.starters_captions_note": "🎬 Chaque extrait ici écrit sa propre transcription — marquez 20 à 30 secondes et les mots apparaissent, déjà accentués.",
  "sh.captions_none": "✏️ Tapez votre propre transcription",
  "sh.lines_eyebrow": "De votre parcours en soudage",
+ "sh.lines_eyebrow_trade": "De votre parcours de {{trade}}",
  "sh.title_pro": "Dites-le comme on le dit à l’atelier.",
  "sh.sub_pro": "Les phrases dont vous aurez vraiment besoin au travail, dites par la personne qui les demande. Écoutez, répétez, et voyez le résultat — chaque mot est noté.",
  "sh.lines_title": "Phrases de terrain à imiter",

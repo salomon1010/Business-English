@@ -1000,6 +1000,7 @@
  "sh.starters_captions_note": "🎬 这里每个片段都会自动生成文字稿 — 标出任意 20–30 秒，词句就会出现，并已标好重音。",
  "sh.captions_none": "✏️ 自己输入文字稿",
  "sh.lines_eyebrow": "来自你的焊接历程",
+ "sh.lines_eyebrow_trade": "来自你作为 {{trade}} 的历程",
  "sh.title_pro": "像车间里那样说出来。",
  "sh.sub_pro": "工作中真正用得上的句子，由提问的那个人说出。听、跟着说、看结果——每个词都有评分。",
  "sh.lines_title": "可跟读的职场语句",

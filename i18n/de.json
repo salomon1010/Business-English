@@ -1000,6 +1000,7 @@
  "sh.starters_captions_note": "🎬 Jeder Clip hier schreibt sein eigenes Transkript — markiere beliebige 20–30 Sekunden und die Wörter erscheinen, schon mit Betonung.",
  "sh.captions_none": "✏️ Eigenes Transkript tippen",
  "sh.lines_eyebrow": "Aus deinem Schweißer-Weg",
+ "sh.lines_eyebrow_trade": "Aus deinem Weg als {{trade}}",
  "sh.title_pro": "Sag es so, wie es im Betrieb gesagt wird.",
  "sh.sub_pro": "Die Sätze, die du bei der Arbeit wirklich brauchst, gesprochen von der Person, die danach fragt. Hören, nachsprechen, Ergebnis sehen — jedes Wort wird bewertet.",
  "sh.lines_title": "Sätze aus dem Betrieb zum Nachsprechen",

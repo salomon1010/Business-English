@@ -42,14 +42,62 @@
       <p class="psp-basis">This page records what you have practised and said in English. It is not evidence of welding ability, certification, or eligibility to work — those are proved by test certificates and the awarding body.</p>
     </section>`;
   }
+  /* Progress carried three panels that each printed a career-readiness figure
+     from the same activity counters — the number appeared three times on one
+     screen and none of the three came from anything the learner said.
+
+     One panel now, scoped to the trade: which of THEIR workshops they have
+     practised, how completely they covered what those answers need, their
+     trade's vocabulary, and the standards they are being held to. Everything on
+     it is derived from recorded speech, so an empty state is honest rather than
+     a manufactured percentage. */
   function growth(){
-    const s=global.appState(),t=track(),c=cfg(),ready=global.CompetencyEngine.readiness(s,t),recent=global.CompetencyEngine.recent(s,t,4),earned=global.CompetencyEngine.earned(s,t);
-    const week=new Date(Date.now()-6*864e5),weekly=global.CompetencyEngine.state(s).logs.filter(x=>x.track===t.id&&new Date(x.date)>=week).reduce((n,x)=>n+Object.values(x.competenciesAwarded||{}).reduce((a,b)=>a+b,0),0);
-    return `<section class="card pg-growth"><div class="eyebrow">Professional Growth</div><h2>Career readiness</h2>${bar("Career Readiness",ready)}
-      <h3>Competency Progress</h3><div class="psp-grid">${(c.competencies||[]).filter(x=>x.passport!==false).slice(0,6).map(x=>bar(x.label,global.CompetencyEngine.score(s,t,x.id))).join("")}</div>
-      <h3>Recent Achievements</h3>${earned.length?`<div class="pg-chips">${earned.map(a=>`<span class="chip done">${global.esc(a.title)}</span>`).join("")}</div>`:`<p class="sub">Complete a mapped activity to earn your first achievement.</p>`}
-      <h3>Weekly Growth</h3><p class="pg-week"><b>${weekly}</b> competency points earned in the last 7 days.</p>
-      ${recent.length?`<div class="pg-recent">${recent.map(x=>`<span>${global.esc(x.lesson||x.activityType)} <b>+${Object.values(x.competenciesAwarded).reduce((a,b)=>a+b,0)}</b></span>`).join("")}</div>`:""}
+    const s=global.appState(),t=track();
+    const tr=global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(s):null;
+    const P=global.AnswerEvaluator?global.AnswerEvaluator.portfolio(s):null;
+    const sims=(global.trackSimulations&&global.trackSimulations())||[];
+    const attempts=(s.simulations&&s.simulations.attempts)||{};
+    const pct=v=>Math.round(v*100);
+
+    const rows=sims.map(sc=>{
+      const runs=(attempts[sc.id]||[]).filter(a=>a&&a.answered>0);
+      const best=runs.length?Math.max(...runs.map(a=>Number(a.coverage)||0)):0;
+      return {title:(global.simTitle?global.simTitle(sc):sc.title),runs:runs.length,best};
+    });
+    const done=rows.filter(r=>r.runs).length;
+    const band=v=>v>=0.7?"good":v>=0.5?"fair":"poor";
+
+    const vocab=tr?global.Trades.vocabFor(tr):[];
+    const used=new Set((P&&P.answers?[]:[]));
+    /* Which of the trade's terms have actually been spoken, taken from the
+       stored per-question evidence rather than from a counter. */
+    Object.keys(attempts).forEach(id=>(attempts[id]||[]).forEach(a=>
+      (a.answers||[]).forEach(q=>(q.vocabUsed||[]).forEach(v=>used.add(v)))));
+    const vocabUsed=vocab.filter(v=>used.has(v));
+
+    return `<section class="card pg-growth">
+      <div class="eyebrow">${global.esc(tr?tr.name:(cfg().trackLabel||t.id))}</div>
+      <h2>Your professional evidence</h2>
+      ${tr?`<div class="sim-skill-chips pg-codes">${tr.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>`:""}
+      ${P&&P.hasEvidence?`
+        <div class="pg-ev">
+          <div><b>${P.answers}</b><span>answers spoken</span></div>
+          <div><b>${done}/${rows.length}</b><span>workshops practised</span></div>
+          <div><b>${pct(P.average)}%</b><span>average coverage</span></div>
+          <div><b>${P.demonstrated}</b><span>answers that met the mark</span></div>
+        </div>`:`
+        <p class="pg-empty">Nothing recorded yet. Speak your way through one workshop and this fills with what you actually said — no scores are invented from activity.</p>`}
+      <h3 class="pg-h">Your workshops</h3>
+      <div class="pg-work">${rows.map(r=>`
+        <div class="pg-work-row ${r.runs?"":"todo"}">
+          <span class="pg-work-t">${global.esc(r.title)}</span>
+          ${r.runs?`<span class="pg-work-n">${r.runs}×</span><b class="pg-work-b ${band(r.best)}">${pct(r.best)}%</b>`
+                  :`<span class="pg-work-todo">not yet</span>`}
+        </div>`).join("")}</div>
+      ${vocab.length?`<h3 class="pg-h">Trade vocabulary</h3>
+        <p class="pg-note">${vocabUsed.length} of ${vocab.length} used in something you said.</p>
+        <div class="sim-skill-chips">${vocab.map(v=>`<span class="${vocabUsed.includes(v)?"ok":""}">${vocabUsed.includes(v)?"✓ ":""}${global.esc(v)}</span>`).join("")}</div>`:""}
+      <p class="psp-basis">This is a record of what you have practised and said in English for this trade. It is not evidence of your ability to do the work, a certification, or eligibility to be employed.</p>
     </section>`;
   }
   global.ProfessionalSkillsPassport=Object.freeze({render,growth});

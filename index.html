@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=12"></script>
-<script src="professional-tracks.js?v=12"></script>
-<script src="competency-engine.js?v=12"></script>
-<script src="learning-coach.js?v=12"></script>
-<script src="professional-simulation-engine.js?v=12"></script>
-<script src="conversation-orchestrator.js?v=12"></script>
-<script src="adaptive-learning-engine.js?v=12"></script>
-<script src="career-center.js?v=12"></script>
-<script src="professional-skills-passport.js?v=12"></script>
-<script src="jurisdictions.js?v=12"></script>
-<script src="trades.js?v=12"></script>
-<script src="answer-evaluator.js?v=12"></script>
+<script src="curriculum-provider.js?v=14"></script>
+<script src="professional-tracks.js?v=14"></script>
+<script src="competency-engine.js?v=14"></script>
+<script src="learning-coach.js?v=14"></script>
+<script src="professional-simulation-engine.js?v=14"></script>
+<script src="conversation-orchestrator.js?v=14"></script>
+<script src="adaptive-learning-engine.js?v=14"></script>
+<script src="career-center.js?v=14"></script>
+<script src="professional-skills-passport.js?v=14"></script>
+<script src="jurisdictions.js?v=14"></script>
+<script src="trades.js?v=14"></script>
+<script src="answer-evaluator.js?v=14"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -746,6 +746,25 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.pg-codes{margin:8px 0 14px}
+.pg-ev{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 4px;
+  padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
+.pg-ev b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent-text)}
+.pg-ev span{font-size:11.5px;color:var(--mut);line-height:1.35;display:block}
+.pg-empty{margin:12px 0;font-size:13px;color:var(--mut);line-height:1.6}
+.pg-h{margin:20px 0 8px;font-size:15px}
+.pg-note{margin:0 0 8px;font-size:12.5px;color:var(--mut)}
+.pg-work{display:flex;flex-direction:column;gap:6px}
+.pg-work-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  background:var(--bg2);border:1px solid var(--line);font-size:13px}
+.pg-work-row.todo{opacity:.62}
+.pg-work-t{flex:1;min-width:0}
+.pg-work-n{color:var(--mut);font-size:12px}
+.pg-work-b{font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+.pg-work-b.good{color:var(--green)} .pg-work-b.fair{color:var(--gold)} .pg-work-b.poor{color:var(--red)}
+.pg-work-todo{color:var(--mut2);font-size:12px}
+.pg-growth .sim-skill-chips span.ok{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+@media(max-width:420px){.pg-ev{grid-template-columns:1fr}}
 .seg-phase{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
 /* Square cards rather than a single nowrap row. The shared .seg-fit rule
    ellipsises its label, which turned four phase names into "Workshop Foun…",
@@ -2458,7 +2477,19 @@ function trackPhases(){return activeCurriculum().phases}
 function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
 function trackPhrases(){return activeCurriculum().phrases}
 function trackVocabulary(){return activeCurriculum().vocabulary}
-function trackVocabularyWords(){return trackVocabulary().words||[]}
+/* The trade's own terms lead, because they are the words this learner will be
+   assessed on. The shared welding list follows — still useful, no longer the
+   whole offer. Anything the trade already names is not repeated. */
+function trackVocabularyWords(){
+  const base=trackVocabulary().words||[];
+  if(!window.Trades||!isProfessionalJourney())return base;
+  const tr=Trades.active(S);
+  const have=new Set(base.map(w=>String(w.word||"").toLowerCase()));
+  const mine=Trades.vocabFor(tr)
+    .filter(w=>!have.has(String(w).toLowerCase()))
+    .map(w=>({word:w,definition:tr.name+" term — practise it in a workshop answer.",level:"Trade"}));
+  return mine.concat(base);
+}
 function trackPractice(){return activeCurriculum().practice}
 function trackAiMentors(){return activeCurriculum().aiMentors||[]}
 function trackRoleplayCategories(){return activeCurriculum().roleplayCategories||[]}
@@ -3338,6 +3369,7 @@ const I18N_EN={
  "sh.starters_captions_note":"🎬 Every clip here writes its own transcript — mark any 20–30 seconds and the words appear, already stress-marked.",
  "sh.captions_none":"✏️ Type your own transcript",
  "sh.lines_eyebrow":"From your welding journey",
+ "sh.lines_eyebrow_trade":"From your {{trade}} journey",
  "sh.title_pro":"Say it like the shop says it.",
  "sh.sub_pro":"The lines you will actually need at work, spoken by the person who asks for them. Listen, say it back, and see how you did — every word scored.",
  "sh.lines_title":"Workplace lines to shadow",
@@ -5264,7 +5296,7 @@ function shWorkplaceLines(){
       const _model=(_tr&&_mid&&Trades.answerFor(_tr,_mid))||q.model;
       const askerId=k==="open"?(sc.lead||"hr"):((sc.turns||[]).find(t=>t.q===k)||{}).characterId;
       const c=(typeof simCharacter==="function"&&simCharacter(sc,askerId))||{};
-      out.push({id:sc.id+":"+k,scenario:sc.title,ask:q.ask||"",text:_model,
+      out.push({id:sc.id+":"+k,scenario:simTitle(sc),ask:q.ask||"",text:_model,
                 who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f",
                 vocab:(q.vocab||[]).slice(0,6)});
     });
@@ -5456,7 +5488,7 @@ function shWorkplaceLinesHTML(){
     </div>
   </div>`;
   return `<div class="card sh-lines">
-    <div class="eyebrow">${esc(t("sh.lines_eyebrow"))}</div>
+    <div class="eyebrow">${esc((window.Trades&&isProfessionalJourney()?t("sh.lines_eyebrow_trade",{trade:Trades.active(S).name}):null)||t("sh.lines_eyebrow"))}</div>
     <h2 class="sh-lines-h">${esc(t("sh.lines_title"))}</h2>
     <p class="sh-lines-sub">${esc(t("sh.lines_sub"))}</p>
     <p class="sh-lines-fb"><b>${esc(t("sh.feedback_title"))}</b> <span class="chip p3">${esc(t("sh.feedback_beta_tag"))}</span><br><span>${esc(t("sh.feedback_desc"))}</span></p>
@@ -8213,7 +8245,7 @@ function rLibVocab(el){
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
   const curriculumWords=trackVocabularyWords(),vocabulary=trackVocabulary();
   el.innerHTML=`
-  ${curriculumWords.length?`<details class="professional-vocab-group"><summary><span><b>${esc(vocabulary.title||"Professional Journey Vocabulary")}</b><small>${curriculumWords.length} professional terms to support your journey.</small></span><span>Open vocabulary ›</span></summary><div class="professional-vocab-list">${vocabulary.intro?`<p style="font-size:13px;color:var(--mut);margin:0 0 3px">${esc(vocabulary.intro)}</p>`:""}${curriculumWords.map(item=>`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b>${esc(item.word)}</b><small style="display:block;color:var(--mut);margin-top:2px">${esc(item.definition)}</small></span><span class="chip">${esc(item.level)}</span><button class="btn btn-g btn-sm" onclick="vocSave('${esc(item.word)}','${esc(item.level)}')">${t("voc.save_title")}</button></div>`).join("")}</div></details>`:""}
+  ${curriculumWords.length?`<details class="professional-vocab-group"><summary><span><b>${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name+" vocabulary":null)||vocabulary.title||"Professional Journey Vocabulary")}</b><small>${curriculumWords.length} professional terms to support your journey.</small></span><span>Open vocabulary ›</span></summary><div class="professional-vocab-list">${vocabulary.intro?`<p style="font-size:13px;color:var(--mut);margin:0 0 3px">${esc(vocabulary.intro)}</p>`:""}${curriculumWords.map(item=>`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b>${esc(item.word)}</b><small style="display:block;color:var(--mut);margin-top:2px">${esc(item.definition)}</small></span><span class="chip">${esc(item.level)}</span><button class="btn btn-g btn-sm" onclick="vocSave('${esc(item.word)}','${esc(item.level)}')">${t("voc.save_title")}</button></div>`).join("")}</div></details>`:""}
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="prac-subtabs">
@@ -9199,9 +9231,10 @@ function rReview(el,wArg){
   <div class="eyebrow pg-eyebrow">${t("rev.eyebrow")}</div>
   <h1 class="big">${t("rev.title")}</h1>
   ${progressHTML()}
+  ${/* The weekly AI review and the growth dashboard both reprinted the same
+        readiness counter this panel used to show — three copies of one invented
+        number on a single screen. One evidence panel now. */""}
   ${ProfessionalSkillsPassport.growth()}
-  ${window.LearningCoach?LearningCoach.weeklyCard(S):""}
-  ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.growthCard(S):""}
   ${rpMetricsHTML()}
   <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("rev.tabs_label"))}">

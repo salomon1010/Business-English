@@ -1000,6 +1000,7 @@
  "sh.starters_captions_note": "🎬 Cada clip de aquí escribe su propia transcripción — marca 20–30 segundos cualesquiera y aparecen las palabras, ya con el acento marcado.",
  "sh.captions_none": "✏️ Escribe tu propia transcripción",
  "sh.lines_eyebrow": "De tu trayectoria en soldadura",
+ "sh.lines_eyebrow_trade": "De tu trayectoria como {{trade}}",
  "sh.title_pro": "Dilo como se dice en el taller.",
  "sh.sub_pro": "Las frases que necesitarás de verdad en el trabajo, dichas por quien las pide. Escucha, repite y mira cómo te salió: cada palabra puntuada.",
  "sh.lines_title": "Frases de trabajo para imitar",
