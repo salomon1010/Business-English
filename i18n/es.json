@@ -1002,6 +1002,8 @@
  "sh.line_nograde": "No se pudo evaluar esta vez. Necesita conexión a internet.",
  "sh.line_yours": "tu pronunciación",
  "sh.line_answering": "Respondiendo a: {{q}}",
+ "sh.line_vocab": "Palabras que debe contener esta respuesta",
+ "sh.line_takes": "{{n}} toma(s) guardadas en este dispositivo",
  "sh.captions_fetching": "Obteniendo los subtítulos de este vídeo…",
  "sh.captions_manual": "Un paso para desbloquear la puntuación: abre este vídeo en YouTube, toca «…más» → «Mostrar transcripción», copia las líneas que marcaste y pégalas arriba. Las marcas de tiempo se eliminan automáticamente.",
  "sh.captions_open_yt": "Abrir en YouTube",

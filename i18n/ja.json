@@ -1002,6 +1002,8 @@
  "sh.line_nograde": "今回は採点できませんでした。インターネット接続が必要です。",
  "sh.line_yours": "あなたの話し方",
  "sh.line_answering": "答える質問：{{q}}",
+ "sh.line_vocab": "この回答に入れたい語",
+ "sh.line_takes": "この端末に保存されたテイク {{n}} 件",
  "sh.captions_fetching": "この動画の字幕を取得しています…",
  "sh.captions_manual": "採点を有効にする手順はひとつ：この動画を YouTube で開き、「…もっと見る」→「文字起こしを表示」をタップし、印を付けた行をコピーして上に貼り付けてください。タイムスタンプは自動で削除されます。",
  "sh.captions_open_yt": "YouTube で開く",

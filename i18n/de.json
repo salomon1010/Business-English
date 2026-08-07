@@ -1002,6 +1002,8 @@
  "sh.line_nograde": "Diesmal nicht bewertbar. Dafür ist eine Internetverbindung nötig.",
  "sh.line_yours": "deine Aussprache",
  "sh.line_answering": "Antwort auf: {{q}}",
+ "sh.line_vocab": "Wörter, die in dieser Antwort vorkommen sollten",
+ "sh.line_takes": "{{n}} Aufnahme(n) auf diesem Gerät gespeichert",
  "sh.captions_fetching": "Untertitel dieses Videos werden geholt…",
  "sh.captions_manual": "Ein Schritt, um die Bewertung freizuschalten: Öffne dieses Video auf YouTube, tippe „…mehr“ → „Transkript anzeigen“, kopiere die markierten Zeilen und füge sie oben ein. Zeitmarken werden automatisch entfernt.",
  "sh.captions_open_yt": "Auf YouTube öffnen",

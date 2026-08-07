@@ -1002,6 +1002,8 @@
  "sh.line_nograde": "Não foi possível avaliar desta vez. É necessária ligação à internet.",
  "sh.line_yours": "a sua dicção",
  "sh.line_answering": "A responder a: {{q}}",
+ "sh.line_vocab": "Palavras que esta resposta deve conter",
+ "sh.line_takes": "{{n}} gravação(ões) guardadas neste dispositivo",
  "sh.captions_fetching": "Buscando as legendas deste vídeo…",
  "sh.captions_manual": "Um passo para liberar a pontuação: abra este vídeo no YouTube, toque em “…mais” → “Mostrar transcrição”, copie as linhas que você marcou e cole acima. Os horários são removidos automaticamente.",
  "sh.captions_open_yt": "Abrir no YouTube",

@@ -733,6 +733,15 @@ body.sh-work-open{overflow:hidden}
 .sh-line-wait{font-size:12.5px;color:var(--mut)}
 .sh-line-score{display:flex;align-items:baseline;gap:7px;margin-bottom:7px;font-size:12px;color:var(--mut)}
 .sh-line-score b{font-size:17px;color:var(--c);font-variant-numeric:tabular-nums}
+.sh-line-voc{margin-top:10px}
+.sh-line-voc>b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);margin-bottom:6px}
+.sh-line-voc .sim-skill-chips span.ok{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
+.sh-line-wave{margin-top:12px}
+.sh-line-wave>b{display:block;font-size:12.5px;margin-bottom:6px}
+.sh-line-wave img{width:100%;height:auto;display:block;border-radius:10px;background:#0a0e1a}
+.sh-line-wave p{margin:7px 0 0;font-size:12px;color:var(--mut);line-height:1.5}
+.sh-line-wave small{display:block;margin-top:4px;font-size:11px;color:var(--mut2)}
+.sh-line-fb .sh-trend{margin-top:12px}
 .sim-progress{display:block!important;margin-top:16px}
 .sim-progress>*{display:block}
 .sim-prog-title{display:flex;align-items:center;gap:8px;color:var(--txt)}
@@ -3219,6 +3228,8 @@ const I18N_EN={
  "sh.line_nograde":"That could not be graded this time. It needs an internet connection.",
  "sh.line_yours":"your delivery",
  "sh.line_answering":"Answering: {{q}}",
+ "sh.line_vocab":"Words this answer should carry",
+ "sh.line_takes":"{{n}} take(s) kept on this device",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -5078,7 +5089,8 @@ function shWorkplaceLines(){
       const askerId=k==="open"?(sc.lead||"hr"):((sc.turns||[]).find(t=>t.q===k)||{}).characterId;
       const c=(typeof simCharacter==="function"&&simCharacter(sc,askerId))||{};
       out.push({id:sc.id+":"+k,scenario:sc.title,ask:q.ask||"",text:q.model,
-                who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f"});
+                who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f",
+                vocab:(q.vocab||[]).slice(0,6)});
     });
   });
   return out;
@@ -5094,7 +5106,7 @@ window.shSayLine=async(id)=>{
   const done=()=>{if(_shLineSpeaking===id)shStopLine()};
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
   if(canNatural){
-    try{await fbSayApi(line.text,1,line.voice,line.style);if(_ttsAudio)_ttsAudio.onended=done;else done();return}
+    try{await fbSayApi(line.text,1,ttsVoice(line.voice,line.g),line.style);if(_ttsAudio)_ttsAudio.onended=done;else done();return}
     catch(e){/* fall through to the device voice */}
   }
   if(typeof simSpeakBrowser==="function")simSpeakBrowser(line.text,line.g,done);else done();
@@ -5117,10 +5129,39 @@ function shLineFeedback(id,html){
   const box=document.getElementById("shfb-"+CSS.escape(id));
   if(box)box.innerHTML=html;
 }
+/* The report a workplace line produces is the same one a video clip produced:
+   takes kept, per-word pronunciation, the waveform of this take against the last
+   one with its duration and pause deltas, the vocabulary the answer was supposed
+   to carry, and the score trend across attempts. It reuses addRec, getRecs,
+   decodePeaks, countPauses, fbAssess and perfPanel rather than reimplementing
+   any of them, so both sides of Shadow stay in step. */
+function shLineCtx(id){return "line-"+id}
+async function shLineWaveHTML(ctx){
+  const recs=await getRecs(ctx);
+  if(!recs.length)return "";
+  const N=420,latest=await decodePeaks(recs[0].blob,N),prev=recs[1]?await decodePeaks(recs[1].blob,N):null;
+  const W=640,H=110,mid=H/2,cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const g=cv.getContext("2d"),maxDur=Math.max(latest.dur,prev?prev.dur:0)||1;
+  const draw=(pk,dur,color)=>{const usable=W*(dur/maxDur),bw=usable/pk.length;g.fillStyle=color;
+    for(let i=0;i<pk.length;i++){const h=Math.max(1.5,pk[i]*(H/2-6));g.fillRect(i*bw,mid-h,Math.max(1,bw*.75),h*2)}};
+  if(prev)draw(prev.peaks,prev.dur,"rgba(148,163,184,.38)");
+  draw(latest.peaks,latest.dur,"color-mix(in srgb,var(--acc) 80%,transparent)".replace(/.*/,"rgba(212,151,23,.85)"));
+  g.fillStyle="rgba(255,255,255,.22)";g.fillRect(0,mid,W,1);
+  const pl=countPauses(latest.peaks,latest.dur);
+  let insight;
+  if(prev){
+    const dd=latest.dur-prev.dur,pp=countPauses(prev.peaks,prev.dur);
+    insight=t("wave.insight_prev",{cur:latest.dur.toFixed(1),prev:prev.dur.toFixed(1)})
+      +(Math.abs(dd)>=0.8?(dd<0?t("wave.tighter",{d:(-dd).toFixed(1)}):t("wave.longer",{d:dd.toFixed(1)})):t("wave.consistent"))
+      +(pp!==pl?t("wave.pauses_was",{n:pl,prev:pp}):t("wave.pauses_suffix",{n:pl}));
+  }else insight=t(pl!==1?"wave.first_many":"wave.first_one",{dur:latest.dur.toFixed(1),n:pl});
+  return `<div class="sh-line-wave"><b>${esc(t("wave.title"))}</b>
+    <img src="${cv.toDataURL("image/png")}" alt="" width="${W}" height="${H}">
+    <p>${insight}</p><small>${esc(t("sh.line_takes",{n:recs.length}))}</small></div>`;
+}
 window.shLineRecord=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
-  const btn=document.getElementById("shr-"+CSS.escape(id));
-  /* second tap on the same line stops and grades */
+  const btn=document.getElementById("shr-"+CSS.escape(id)),ctx=shLineCtx(id);
   if(_shRec&&_shRecFor===id){
     const rec=_shRec;_shRec=null;
     if(btn){btn.classList.remove("rec");btn.textContent=t("sh.line_rec")}
@@ -5128,30 +5169,49 @@ window.shLineRecord=async(id)=>{
     let blob=null;
     await new Promise(res=>{rec.mr.onstop=()=>{blob=rec.chunks.length?new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"}):null;res()};
       try{rec.mr.stop()}catch(e){res()}; setTimeout(res,1500)});
-    try{rec.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+    try{rec.stream.getTracks().forEach(x=>x.stop())}catch(e){}
     _shRecFor=null;
     if(!blob||blob.size<1200){shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nothing"))}</span>`);return}
+    /* Keep the take, exactly as a video clip does, so takes can be compared. */
+    try{await addRec(ctx,line.who+" — "+line.scenario,blob,Date.now())}catch(e){}
     let res=null;
     try{res=await fbAssess(blob,line.text)}catch(e){}
-    if(!res||!res.words||!res.words.length){shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>`);return}
+    const wave=await shLineWaveHTML(ctx).catch(()=>"");
+    if(!res||!res.words||!res.words.length){
+      shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>${wave}`);return;
+    }
     const col=v=>v>=80?"var(--green)":v>=55?"var(--gold)":"var(--red)";
-    /* Weak words go to the same trouble list the video shadowing fed, so the
-       Trouble words tab keeps working on a track that has no video. */
     res.words.forEach(w=>{const k=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
       if(k.length>3&&w.score<80&&!isTrackStopWord(k)){S.trouble=S.trouble||{};S.trouble[k]=Math.max(S.trouble[k]||0,100-w.score)}});
+    /* Score history per line, so the trend chart is the same component the video
+       side uses. */
+    S.fbV=S.fbV||{};(S.fbV[ctx]=S.fbV[ctx]||[]).push(res.overall);
+    if(S.fbV[ctx].length>20)S.fbV[ctx]=S.fbV[ctx].slice(-20);
+    markPracticed();
+    awardCompetency({activityType:"shadow_session",lesson:"Workplace line · "+line.scenario,duration:1,dedupeKey:"line:"+id+":"+S.fbV[ctx].length});
     save();
-    shLineFeedback(id,`<div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
-      <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`);
+    /* Did the answer carry the words it is supposed to carry? */
+    const said=String(res.text||line.text).toLowerCase();
+    const spoken=res.words.map(w=>String(w.word||"").toLowerCase()).join(" ");
+    const used=(line.vocab||[]).filter(v=>window.AnswerEvaluator&&AnswerEvaluator.hits(spoken,v));
+    const missed=(line.vocab||[]).filter(v=>used.indexOf(v)<0);
+    shLineFeedback(id,`
+      <div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
+      <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
+      ${(line.vocab||[]).length?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
+        <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+      ${wave}
+      ${perfPanel(perfSeries("clip",ctx))}`);
     return;
   }
   shStopLine();
-  if(_shRec){try{_shRec.stream.getTracks().forEach(t=>t.stop())}catch(e){} _shRec=null;_shRecFor=null}
+  if(_shRec){try{_shRec.stream.getTracks().forEach(x=>x.stop())}catch(e){} _shRec=null;_shRecFor=null}
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return toast(t("fb.sr_unavailable"));
   let stream;
   try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
   catch(e){return toast(t("rec.mic_denied_toast"))}
   const chunks=[];let mr;
-  try{mr=new MediaRecorder(stream)}catch(e){try{stream.getTracks().forEach(t=>t.stop())}catch(_){}; return toast(t("rec.mic_denied_toast"))}
+  try{mr=new MediaRecorder(stream)}catch(e){try{stream.getTracks().forEach(x=>x.stop())}catch(_){}; return toast(t("rec.mic_denied_toast"))}
   mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
   mr.start();
   _shRec={mr,chunks,stream};_shRecFor=id;
@@ -6653,7 +6713,12 @@ function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"all
    It is part of the cache key: the same sentence spoken by two characters is two
    different clips, and reusing one for the other is exactly the bug it looks like. */
 async function fbSayApi(text,rate,voiceOverride,style){
-  const voice=voiceOverride||fbVoicePref(),key=voice+"|"+(style||"")+"|"+text;
+  /* Last line of defence. Callers are expected to pass a validated id, but this
+     is the single door to the provider, so it validates again rather than
+     trusting them — an unknown id here would be silently swapped for the
+     provider's default and the learner would hear a voice nobody chose. */
+  const voice=ttsVoice(voiceOverride),key=voice+"|"+(style||"")+"|"+text;
+  if(voice==="browser")throw new Error("device voice selected");
   let url=_ttsCache.get(key);
   if(!url){
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(style?{tts:text,voice,style}:{tts:text,voice})});
@@ -7615,7 +7680,7 @@ window.simPlayFeedback=async(i)=>{
   _simFbSpeaking=i;
   if(btn){btn.classList.add("on");btn.textContent="■ Stop"}
   const c=simCharacter(sc,a.characterId)||{},gender=c.g||"f",
-        voice=c.voice||(gender==="m"?"ash":"coral"),style=c.voiceStyle||"",
+        voice=ttsVoice(c.voice,gender),style=c.voiceStyle||"",
         text=simFeedbackScript(a);
   const done=()=>{if(_simFbSpeaking===i)simStopFeedback()};
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
@@ -7792,7 +7857,7 @@ function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrches
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));}
 function simVoiceSpeak(message,sc){
   if(!message){simSetStatus('Ready to listen');return simVoiceListen()}
-  simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=character.voice||(gender==="m"?"ash":"coral"),style=character.voiceStyle||"";
+  simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=ttsVoice(character.voice,gender),style=character.voiceStyle||"";
   simSetStatus(`${character.name||'Your colleague'} is speaking`);rpStopVoice();
   const done=()=>{if(simUtterance!==message){return}simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};simUtterance=message;
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
@@ -8364,7 +8429,28 @@ function execPolish(text){
    stay fully offline (rule-based clean-up only). */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
-const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional"],["onyx","Onyx — deep, authoritative"],["nova","Nova — warm, friendly"],["shimmer","Shimmer — soft, calm"],["echo","Echo — smooth"],["sage","Sage — measured"],["coral","Coral — warm"],["ash","Ash — confident"],["fable","Fable — expressive"],["ballad","Ballad — gentle"],["verse","Verse — versatile"],["browser","Device voice (offline)"]];
+const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
+/* Every voice the app speaks with comes from the list above — the same list the
+   App voice setting offers. Characters need distinct voices, but a track pack,
+   a role-play scenario or a future profession must not be able to invent a voice
+   id: an unknown string was passed straight to the provider, which silently
+   substituted its default, so the "voice" a learner heard was neither the one
+   configured nor the one they chose.
+
+   ttsVoice() is the only way a voice reaches fbSayApi. It validates against the
+   catalogue, and it returns the learner's own choice when the requested voice is
+   unknown — or "browser" whenever they have asked for their device voice, which
+   must win everywhere. */
+const TTS_VOICE_IDS=new Set(TTS_VOICE_OPTS.map(v=>v[0]));
+function ttsVoicesFor(gender){const g=gender==="m"?"m":"f";return TTS_VOICE_OPTS.filter(v=>v[2]===g).map(v=>v[0])}
+function ttsVoice(requested,gender){
+  const pref=fbVoicePref();
+  if(pref==="browser")return "browser";            /* the learner's choice wins */
+  if(requested&&TTS_VOICE_IDS.has(requested)&&requested!=="browser")return requested;
+  const byGender=ttsVoicesFor(gender);
+  if(gender&&byGender.length)return byGender[0];
+  return TTS_VOICE_IDS.has(pref)?pref:"alloy";
+}
 
 /* Reference material, not a result. It used to print under every polish; it is
    the same three frames every time, so it is disclosed rather than repeated. */
@@ -9542,8 +9628,9 @@ let rpSayKeep=null,rpVoiceGen=0;
    the Worker. They now use the same natural voices, picked to match each
    character's gender, and varied so two people in the same category do not
    sound identical. Falls back to the browser voice offline. */
-const RP_VOICES_F=["nova","shimmer","coral","sage"];
-const RP_VOICES_M=["onyx","echo","ash","ballad"];
+/* Derived from the one catalogue rather than duplicated. */
+const RP_VOICES_F=ttsVoicesFor("f");
+const RP_VOICES_M=ttsVoicesFor("m");
 function rpVoiceFor(sc){
   if(!sc)return fbVoicePref();
   const list=(sc.g==="m")?RP_VOICES_M:RP_VOICES_F;
@@ -9565,7 +9652,7 @@ function rpSayNatural(text,sc){
   /* The clip is two async hops away, so the mic may already be open by the time
      it is ready. Anything stopped in the meantime must not start playing. */
   const gen=++rpVoiceGen;
-  fbSayApi(t2,1,rpVoiceFor(sc))
+  fbSayApi(t2,1,ttsVoice(rpVoiceFor(sc),sc&&sc.g))
     .then(()=>{
       if(gen!==rpVoiceGen||rpRec){fbReleaseAudio();rpSetSpeaking(false);return}
       if(_ttsAudio)_ttsAudio.onended=()=>rpSetSpeaking(false);else rpSetSpeaking(false)})

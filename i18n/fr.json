@@ -1002,6 +1002,8 @@
  "sh.line_nograde": "Impossible d’évaluer cette fois. Une connexion internet est nécessaire.",
  "sh.line_yours": "votre diction",
  "sh.line_answering": "Réponse à : {{q}}",
+ "sh.line_vocab": "Mots que cette réponse doit contenir",
+ "sh.line_takes": "{{n}} prise(s) conservées sur cet appareil",
  "sh.captions_fetching": "Récupération des sous-titres de cette vidéo…",
  "sh.captions_manual": "Une étape pour débloquer la notation : ouvrez cette vidéo sur YouTube, touchez « …plus » → « Afficher la transcription », copiez les lignes que vous avez marquées et collez-les ci-dessus. Les horodatages sont supprimés automatiquement.",
  "sh.captions_open_yt": "Ouvrir sur YouTube",
