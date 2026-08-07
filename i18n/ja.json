@@ -216,6 +216,7 @@
  "ph.example_ph": "✍️ 私の実際の仕事からの例文…",
  "ph.record_btn": "🎙️ 録音",
  "ph.mastered_btn": "習得済み",
+ "ph.master_needs_rec": "まず自分が言っているところを録音してください。そのあとで習得済みにできます。",
  "ph.mark_mastered_btn": "習得済みとしてマーク",
  "ph.example_saved_toast": "例文を保存しました ✓",
  "ph.stop_btn": "⏹ 停止",

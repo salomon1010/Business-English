@@ -216,6 +216,7 @@
  "ph.example_ph": "✍️ La mia frase di esempio dal mio lavoro reale…",
  "ph.record_btn": "🎙️ Registra",
  "ph.mastered_btn": "Padroneggiata",
+ "ph.master_needs_rec": "Registrati mentre la dici, poi potrai segnarla come acquisita.",
  "ph.mark_mastered_btn": "Segna come padroneggiata",
  "ph.example_saved_toast": "Esempio salvato ✓",
  "ph.stop_btn": "⏹ Ferma",

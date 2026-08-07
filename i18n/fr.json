@@ -216,6 +216,7 @@
  "ph.example_ph": "✍️ Ma phrase d'exemple tirée de mon travail réel…",
  "ph.record_btn": "🎙️ Enregistrer",
  "ph.mastered_btn": "Maîtrisée",
+ "ph.master_needs_rec": "Enregistrez-vous en train de la dire, puis vous pourrez la marquer comme maîtrisée.",
  "ph.mark_mastered_btn": "Marquer comme maîtrisée",
  "ph.example_saved_toast": "Exemple enregistré ✓",
  "ph.stop_btn": "⏹ Arrêter",

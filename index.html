@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=27"></script>
-<script src="professional-tracks.js?v=27"></script>
-<script src="competency-engine.js?v=27"></script>
-<script src="learning-coach.js?v=27"></script>
-<script src="professional-simulation-engine.js?v=27"></script>
-<script src="conversation-orchestrator.js?v=27"></script>
-<script src="adaptive-learning-engine.js?v=27"></script>
-<script src="career-center.js?v=27"></script>
-<script src="professional-skills-passport.js?v=27"></script>
-<script src="jurisdictions.js?v=27"></script>
-<script src="trades.js?v=27"></script>
-<script src="answer-evaluator.js?v=27"></script>
+<script src="curriculum-provider.js?v=28"></script>
+<script src="professional-tracks.js?v=28"></script>
+<script src="competency-engine.js?v=28"></script>
+<script src="learning-coach.js?v=28"></script>
+<script src="professional-simulation-engine.js?v=28"></script>
+<script src="conversation-orchestrator.js?v=28"></script>
+<script src="adaptive-learning-engine.js?v=28"></script>
+<script src="career-center.js?v=28"></script>
+<script src="professional-skills-passport.js?v=28"></script>
+<script src="jurisdictions.js?v=28"></script>
+<script src="trades.js?v=28"></script>
+<script src="answer-evaluator.js?v=28"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -1154,6 +1154,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-note{font-size:12.5px;color:var(--gold);margin-bottom:10px;line-height:1.5}
 .ex-status{font-size:12.5px;color:var(--mut)}
 .ex-aiprompt{min-height:44px;margin-top:12px}
+.ph-score{font-weight:800;opacity:.8;margin-left:2px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
@@ -3265,6 +3266,7 @@ const I18N_EN={
  "ph.speech_count":"{{n}}/{{total}} written or pasted",
  "ph.speech_empty":"Write or paste a sentence or two above first — this box builds itself from them.",
  "ph.mastered_btn":"Mastered",
+ "ph.master_needs_rec":"Record yourself saying it first — then you can mark it mastered.",
  "ph.mark_mastered_btn":"Mark mastered",
  "ph.example_saved_toast":"Example saved ✓",
  "ph.stop_btn":"⏹ Stop",
@@ -9054,7 +9056,7 @@ function rPhrases(el,wFilter){
         <button class="btn btn-g btn-sm ph-icobtn" onclick="phHear(${p.ix})" title="${esc(t("ph.hear_btn"))}" aria-label="${esc(t("ph.hear_btn"))}">${ic("sound")}</button>
         <button class="btn btn-g btn-sm ph-icobtn" id="phrec${p.ix}" onclick="phRec(${p.ix})" title="${esc(t("ph.record_btn"))}" aria-label="${esc(t("ph.record_btn"))}">${ic("mic")}</button>
         ${m
-          ? `<button class="btn btn-sm ph-mastered" onclick="phMaster('${k}')">${tIc("ph.mastered_btn","trophy")}</button>`
+          ? `<button class="btn btn-sm ph-mastered" onclick="phMaster('${k}')">${tIc("ph.mastered_btn","trophy")}${(S.phScore||{})["p"+p.ix]!=null?` <b class="ph-score">${(S.phScore||{})["p"+p.ix]}%</b>`:""}</button>`
           : `<button class="btn btn-g btn-sm ph-icobtn" onclick="phMaster('${k}')" title="${esc(t("ph.mark_mastered_btn"))}" aria-label="${esc(t("ph.mark_mastered_btn"))}">${ic("trophy")}</button>`}
         <span style="font-size:12px;color:var(--mut2)" id="phn${p.ix}"></span>
       </div>
@@ -9132,7 +9134,20 @@ window.phHear=ix=>{
   const txt=((ta&&ta.value)||"").trim()||trackPhrases()[ix].p;
   audioUnlock(); fbSay(txt);
 };
-window.phMaster=k=>{S.phMaster[k]=!S.phMaster[k];if(S.phMaster[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});save();go("phrases",cur.arg1)};
+/* "Phrases mastered 24/24" used to be twenty-four taps. Marking one now requires
+   a recording of that phrase — the cheapest possible evidence, and one that works
+   offline. Unmarking is always allowed: a learner who no longer feels sure about
+   a phrase should not have to argue with the app. */
+window.phMaster=async k=>{
+  if(!S.phMaster[k]){
+    const ix=String(k).replace(/^p/,"");
+    let takes=[];try{takes=await getRecs("phrase"+ix)}catch(e){}
+    if(!takes.length){toast(t("ph.master_needs_rec"));return}
+  }
+  S.phMaster[k]=!S.phMaster[k];
+  if(S.phMaster[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});
+  save();go("phrases",cur.arg1);
+};
 /* Tap to record, tap again to stop. Shared by the phrase cards and the
    full-speech box, which only differ by where the clip is filed. */
 async function phRecInto(ctx,label,btn,after){
@@ -9149,6 +9164,20 @@ async function phRecInto(ctx,label,btn,after){
       const phOk=await addRec(rec.ctx,rec.label,phBlob);   // see the note at the shadow recorder
       if(!phOk){toast(t("rec.save_failed_toast"));return}
       markPracticed();save();
+      /* A phrase take is graded the same way a workplace line is, when the
+         grader is reachable. Offline it simply stays ungraded — mastery must not
+         require a network call in an offline-first app, so the recording alone
+         is what unlocks the claim and the score is what qualifies it. */
+      if(String(rec.ctx||"").startsWith("phrase")){
+        const _ix=Number(String(rec.ctx).slice(6)),_ph=trackPhrases()[_ix];
+        if(_ph)fbAssess(phBlob,_ph.p).then(r=>{
+          if(!r||!r.words||!r.words.length)return;
+          const ok=r.words.filter(w=>w&&w.ok).length;
+          S.phScore=S.phScore||{};
+          S.phScore["p"+_ix]=Math.round(ok/r.words.length*100);
+          save();if(after)after();
+        }).catch(()=>{});
+      }
       toast(t("ph.rec_saved_toast"));if(after)after();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };

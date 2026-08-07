@@ -216,6 +216,7 @@
  "ph.example_ph": "✍️ 我来自真实工作的示例句……",
  "ph.record_btn": "🎙️ 录音",
  "ph.mastered_btn": "已掌握",
+ "ph.master_needs_rec": "先录下你说这句话的声音，然后就可以标记为已掌握。",
  "ph.mark_mastered_btn": "标记为已掌握",
  "ph.example_saved_toast": "示例已保存 ✓",
  "ph.stop_btn": "⏹ 停止",

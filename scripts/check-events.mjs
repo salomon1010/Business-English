@@ -20,8 +20,8 @@ const allowedProps = new Set(
 /* Walk from each track( and balance braces, so a prop object containing a nested
    object or a ternary is read whole rather than cut at the first brace. */
 const calls = [];
-for (const m of html.matchAll(/\btrack\(\s*"([a-z_]+)"\s*(,)?/g)) {
-  const name = m[1];
+for (const m of html.matchAll(/\btrack\(\s*["']([a-z_]+)["']\s*(,)?/g)) {
+  const name = m[1];   // quote style varies: inline onclick handlers use single quotes
   const props = [];
   if (m[2]) {
     let i = html.indexOf("{", m.index + m[0].length);
