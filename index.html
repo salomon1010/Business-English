@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=22"></script>
-<script src="professional-tracks.js?v=22"></script>
-<script src="competency-engine.js?v=22"></script>
-<script src="learning-coach.js?v=22"></script>
-<script src="professional-simulation-engine.js?v=22"></script>
-<script src="conversation-orchestrator.js?v=22"></script>
-<script src="adaptive-learning-engine.js?v=22"></script>
-<script src="career-center.js?v=22"></script>
-<script src="professional-skills-passport.js?v=22"></script>
-<script src="jurisdictions.js?v=22"></script>
-<script src="trades.js?v=22"></script>
-<script src="answer-evaluator.js?v=22"></script>
+<script src="curriculum-provider.js?v=23"></script>
+<script src="professional-tracks.js?v=23"></script>
+<script src="competency-engine.js?v=23"></script>
+<script src="learning-coach.js?v=23"></script>
+<script src="professional-simulation-engine.js?v=23"></script>
+<script src="conversation-orchestrator.js?v=23"></script>
+<script src="adaptive-learning-engine.js?v=23"></script>
+<script src="career-center.js?v=23"></script>
+<script src="professional-skills-passport.js?v=23"></script>
+<script src="jurisdictions.js?v=23"></script>
+<script src="trades.js?v=23"></script>
+<script src="answer-evaluator.js?v=23"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -4733,12 +4733,12 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
-  ${/* The two live tracks, pickable from Home as they were before. A row that
-        only says "Professional Tracks" hides the one thing worth seeing: that
-        Welding exists and what it is. The row stays underneath for the tracks
-        still in development. */""}
+  ${/* The track you are NOT on. Its own card told the learner what they already
+        knew — "General English · Current track" on the General English Home —
+        and the only actionable half was the other one. The row stays underneath
+        for the tracks still in development. */""}
   <div class="hero">
-    ${ProfessionalTrackContext.all().filter(x=>x.id==="general-english"||x.id==="welding").map(trackSelectionCard).join("")}
+    ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
   </div>
   <button class="pf-row pf-setup home-career" onclick="go('tracks')">
     <span class="pf-ic">${ic("briefcase")}</span>
@@ -4796,11 +4796,10 @@ function rHome(el){
     <div class="career-dashboard-coach"><span class="coach-ic">${ic("idea")}</span><div><b>Coach recommendation · ${esc(c.coach.title)}</b><p>${esc(c.coach.body)}</p></div></div>
     <button class="btn-primary" onclick="go('session',${c.pos.w},'${c.pos.d}')">Continue Today’s Mission →</button>
   </section>
-  ${/* The same two track cards the General English Home carries. A learner on a
-        Professional Track needs the way back out as plainly as the way in, and a
-        row reading "Switch profession" does not say what the alternative is. */""}
+  ${/* The way back out, named. A row reading "Switch profession" does not say
+        what the alternative is; this card does. */""}
   <div class="hero">
-    ${ProfessionalTrackContext.all().filter(x=>x.id==="general-english"||x.id==="welding").map(trackSelectionCard).join("")}
+    ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
   </div>
   ${/* The Career Center is the second reason a learner on a Professional Track
         opens this app — where the practice is pointing. It sits below the one
