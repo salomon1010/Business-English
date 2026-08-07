@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=33"></script>
-<script src="professional-tracks.js?v=33"></script>
-<script src="competency-engine.js?v=33"></script>
-<script src="learning-coach.js?v=33"></script>
-<script src="professional-simulation-engine.js?v=33"></script>
-<script src="conversation-orchestrator.js?v=33"></script>
-<script src="adaptive-learning-engine.js?v=33"></script>
-<script src="career-center.js?v=33"></script>
-<script src="professional-skills-passport.js?v=33"></script>
-<script src="jurisdictions.js?v=33"></script>
-<script src="trades.js?v=33"></script>
-<script src="answer-evaluator.js?v=33"></script>
-<script src="shadow-lines.js?v=33"></script>
+<script src="curriculum-provider.js?v=35"></script>
+<script src="professional-tracks.js?v=35"></script>
+<script src="competency-engine.js?v=35"></script>
+<script src="learning-coach.js?v=35"></script>
+<script src="professional-simulation-engine.js?v=35"></script>
+<script src="conversation-orchestrator.js?v=35"></script>
+<script src="adaptive-learning-engine.js?v=35"></script>
+<script src="career-center.js?v=35"></script>
+<script src="professional-skills-passport.js?v=35"></script>
+<script src="jurisdictions.js?v=35"></script>
+<script src="trades.js?v=35"></script>
+<script src="answer-evaluator.js?v=35"></script>
+<script src="shadow-lines.js?v=35"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -7885,17 +7885,51 @@ window.simPlayFeedback=async(i)=>{
         voice=ttsVoice(c.voice,gender),style=c.voiceStyle||"";
   const clips=simFeedbackClips(a);
   let natural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+
+  /* One clip must never be able to swallow the rest of the report.
+
+     The first version awaited `onended` and nothing else. That event does not
+     always arrive — it never did in a headless browser, and mobile browsers drop
+     it often enough to matter — so playback stopped after the opening clip and
+     the learner never heard the model answer, the coaching note or the words to
+     use next time. The button sat on Stop indefinitely.
+
+     Every clip now settles exactly once, on whichever comes first: ended, an
+     error, or a timeout sized from the clip's own duration. */
+  const playClip=clip=>new Promise(res=>{
+    let settled=false,timer=null;
+    const finish=()=>{if(settled)return;settled=true;clearTimeout(timer);res()};
+    const arm=ms=>{clearTimeout(timer);timer=setTimeout(finish,ms)};
+    (async()=>{
+      if(natural){
+        /* Armed BEFORE the await, not after. audio.play() can hang indefinitely
+           when there is no output device, and the first version waited on it
+           forever — one clip played and the rest of the report never did.
+
+           Generous while the clip is being fetched and synthesised, because
+           cutting a slow-but-working request would drop audio the learner should
+           have heard. It tightens to the clip's own duration once playback has
+           actually started. */
+        arm(45000);
+        try{
+          await fbSayApi(clip,1,voice,style);
+          const el=_ttsAudio;
+          if(el){
+            el.onended=finish;el.onerror=finish;
+            const secs=(isFinite(el.duration)&&el.duration>0)?el.duration:clip.length/12;
+            arm((secs+3)*1000);
+            return;
+          }
+        }catch(e){natural=false;}     /* one failure drops the rest to the device voice */
+      }
+      arm(Math.max(6000,clip.length*95));
+      simSpeakBrowser(clip,gender,finish);
+    })();
+  });
+
   for(const clip of clips){
     if(_simFbSpeaking!==i)return;                     /* stopped mid-way */
-    if(natural){
-      try{
-        await fbSayApi(clip,1,voice,style);
-        await new Promise(res=>{if(_ttsAudio)_ttsAudio.onended=res;else res()});
-        continue;
-      }catch(e){natural=false;}   /* one failure drops the rest to the device voice */
-    }
-    if(_simFbSpeaking!==i)return;
-    await new Promise(res=>simSpeakBrowser(clip,gender,res));
+    await playClip(clip);
   }
   if(_simFbSpeaking===i)simStopFeedback();
 };
