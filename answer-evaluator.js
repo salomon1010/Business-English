@@ -193,6 +193,60 @@
   }
 
   /* ==========================================================================
+     READINESS FROM EVIDENCE
+
+     What "Career readiness 34%" used to mean: activity points divided by a
+     ceiling, where the points come from a fixed table keyed on activity TYPE.
+     Completing a session awarded the same points whether the learner spoke
+     beautifully or tapped through it in silence, and the self-rating they gave
+     themselves was stored on the log and then ignored. It was a participation
+     counter wearing the word readiness.
+
+     What it means now: of the answers your trade's workshops ask for, how many
+     have you actually given at the standard? Nothing else counts. Demonstrated
+     means a coverage of 0.7 or better on that question — the same bar the
+     workshop report uses, so the two can never disagree.
+
+     Returns pct:null when there is no evidence at all. Null is not zero: zero
+     says the learner tried and failed, null says nobody has looked yet, and
+     every surface that shows this has to be able to tell them apart.
+     ========================================================================== */
+  const DEMONSTRATED_AT=0.7;
+
+  function readiness(s,sims){
+    const list=sims||[];
+    const P=portfolio(s);
+    const total=list.reduce((n,sc)=>n+Object.keys((sc&&sc.questions)||{}).length,0);
+    const store=(s&&s.simulations&&s.simulations.attempts)||{};
+    /* Count each question once, at its best attempt — otherwise repeating one
+       workshop would raise readiness without widening what has been shown. */
+    const bestByQuestion={};
+    Object.keys(store).forEach(id=>(store[id]||[]).forEach(a=>
+      (a&&a.answers||[]).forEach(q=>{
+        if(!q||!q.answered)return;
+        const k=id+":"+(q.q||"");
+        bestByQuestion[k]=Math.max(bestByQuestion[k]||0,Number(q.coverage)||0);
+      })));
+    const demonstrated=Object.values(bestByQuestion).filter(v=>v>=DEMONSTRATED_AT).length;
+    const attempted=Object.keys(bestByQuestion).length;
+
+    /* The interview workshop answers a different question from the rest, so it
+       is reported on its own rather than folded into the average. */
+    const iv=list.find(sc=>sc&&sc.regulatory&&Number(sc.regulatory.moduleId)===11);
+    let interview=null;
+    if(iv){
+      const runs=(store[iv.id]||[]).filter(a=>a&&a.answered>0);
+      if(runs.length)interview=Math.round(Math.max(...runs.map(a=>Number(a.coverage)||0))*100);
+    }
+    return {
+      pct: attempted?Math.round(demonstrated/Math.max(1,total)*100):null,
+      demonstrated, attempted, total, interview,
+      spoken: P.spoken,
+      hasEvidence: attempted>0
+    };
+  }
+
+  /* ==========================================================================
      MODULE GRADING ENGINE
 
      Grades a whole module transcript against the regulatory benchmarks in the
@@ -296,5 +350,5 @@
     }};
   }
 
-  global.AnswerEvaluator=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript,portfolio});
+  global.AnswerEvaluator=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript,portfolio, readiness});
 })(window);

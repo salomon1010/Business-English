@@ -83,9 +83,13 @@
     const achieved=global.CompetencyEngine.earned(s,t).map(x=>x.title);
     const totals=global.CompetencyEngine.totals(s,t),strong=Object.keys(totals).sort((a,b)=>totals[b]-totals[a])[0]||"communication",focus=weakest(s,t);
     const points=logs.reduce((n,x)=>n+Object.values(x.competenciesAwarded||{}).reduce((a,b)=>a+Number(b||0),0),0);
-    const readiness=global.CompetencyEngine.readiness(s,t),previous=state(s).memory[t.id]&&state(s).memory[t.id].lastReadiness;
+    /* Not rendered anywhere today, but it would report the old participation
+       counter the moment it was, so it reads the same evidence as every other
+       surface. */
+    const ev=global.AnswerEvaluator?global.AnswerEvaluator.readiness(s,(global.trackSimulations&&global.trackSimulations())||[]):{pct:null};
+    const readiness=ev.pct,previous=state(s).memory[t.id]&&state(s).memory[t.id].lastReadiness;
     state(s).memory[t.id]=Object.assign({},state(s).memory[t.id],{lastReadiness:readiness});
-    const change=previous==null?"Your first readiness baseline is now established.":readiness>previous?`Career readiness increased by ${readiness-previous} point${readiness-previous===1?"":"s"}.`:"Career readiness is steady; the next focused activity can move it forward.";
+    const change=readiness==null?"No demonstrated answers yet, so there is no readiness figure to report.":previous==null?"Your first readiness baseline is now established.":readiness>previous?`Career readiness increased by ${readiness-previous} point${readiness-previous===1?"":"s"}.`:"Career readiness is steady; the next focused activity can move it forward.";
     return {achievements:achieved.length?achieved:["No achievement unlocked yet"],strength:label(strong,cfg),weakness:label(focus,cfg),focus:(ACTIONS[focus]||ACTIONS.communication).title,readiness,change,points};
   }
   function coachCard(s){

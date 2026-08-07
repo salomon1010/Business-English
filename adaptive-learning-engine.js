@@ -31,7 +31,13 @@
   function retention(s){const all=Object.values(s.vocab||{}),due=all.filter(x=>!x.due||x.due<=Date.now()).length,learned=all.filter(x=>(x.reps||0)>=5).length;return {total:all.length,due,learned,percent:all.length?Math.round(learned/all.length*100):0}}
   function pronunciation(s){const hist=(s.fbHist||[]).filter(x=>x.score!=null);return hist.length?Math.round(hist.slice(-5).reduce((n,x)=>n+x.score,0)/Math.min(5,hist.length)):null}
   function skills(s,t){return (cfg(t).competencies||[]).map(c=>({id:c.id,label:c.label,score:global.CompetencyEngine.score(s,t,c.id)})).sort((a,b)=>a.score-b.score)}
-  function milestone(readiness){let current=MILESTONES[0],next=MILESTONES[MILESTONES.length-1];for(const m of MILESTONES){if(readiness>=m.at)current=m;else{next=m;break}}return {current,next:current===MILESTONES[MILESTONES.length-1]?null:next}}
+  /* Null readiness means nobody has looked yet, which is not the same as being
+     at the bottom of the ladder. It gets its own state rather than defaulting to
+     the first milestone, which would congratulate a learner on a foundation they
+     have not laid. */
+  function milestone(readiness){
+    if(readiness==null)return {current:{title:"Not measured yet",description:"Answer one workshop question and this starts reporting what you have shown."},next:MILESTONES[1],unmeasured:true};
+    let current=MILESTONES[0],next=MILESTONES[MILESTONES.length-1];for(const m of MILESTONES){if(readiness>=m.at)current=m;else{next=m;break}}return {current,next:current===MILESTONES[MILESTONES.length-1]?null:next}}
   /* AI Conversation is not in the navigation. Browser speech was not good enough
      and the product withdrew it, so recommending it made the most prominent nudge
      in the app a one-way door into a screen nobody can get back from.
@@ -58,17 +64,38 @@
     const sum=arr=>arr.reduce((o,x)=>{Object.entries(x.competenciesAwarded||{}).forEach(([k,v])=>o[k]=(o[k]||0)+Number(v||0));return o},{});
     const a=sum(recent),b=sum(previous);return (cfg(t).competencies||[]).slice(0,6).map(c=>({label:c.label,value:Math.round((a[c.id]||0)/Math.max(1,c.max||100)*100),change:Math.round(((a[c.id]||0)-(b[c.id]||0))/Math.max(1,c.max||100)*100)}));
   }
+  /* Readiness comes from what the learner has demonstrated, not from how many
+     activities they have opened. See AnswerEvaluator.readiness for why. */
   function prediction(s,t){
-    const ready=global.CompetencyEngine.readiness(s,t),ss=skills(s,t),interview=global.CompetencyEngine.score(s,t,"interview")||Math.round((global.CompetencyEngine.score(s,t,"communication")+global.CompetencyEngine.score(s,t,"confidence"))/2),m=milestone(ready),week=weekly(s,t),rate=Math.max(1,week.reduce((n,x)=>n+Math.max(0,x.change),0));
-    const remaining=m.next?m.next.at-ready:0;/* The old estimate divided points remaining by the sum of positive weekly
-     changes. With little history the denominator is 1, so it printed "points
-     remaining, in weeks" and called it a forecast. Removed rather than tuned:
-     there is no honest way to predict this from the data available. */
-    const estimate="";
-    return {career:ready,interview,estimate};
+    const ev=global.AnswerEvaluator
+      ?global.AnswerEvaluator.readiness(s,(global.trackSimulations&&global.trackSimulations())||[])
+      :{pct:null,interview:null,hasEvidence:false};
+    return {career:ev.pct,interview:ev.interview,evidence:ev,estimate:""};
   }
   function heatmap(s,t){const out={},since=Date.now()-83*864e5;logs(s,t).forEach(x=>{const d=new Date(x.date).getTime();if(d>=since){const k=dateKey(x.date);out[k]=(out[k]||0)+1}});return out}
-  function roadmapCard(s){const t=track(),ready=global.CompetencyEngine.readiness(s,t),m=milestone(ready),missing=skills(s,t).slice(0,3),rec=recommendation(s,t),pred=prediction(s,t);return `<section class="card adaptive-roadmap"><div class="eyebrow">Career Readiness Roadmap</div><h2>${global.esc(m.current.title)}</h2><p>${global.esc(m.current.description)}</p><div class="adaptive-grid"><div><span>Current Position</span><b>${global.esc(m.current.title)}</b></div><div><span>Next Milestone</span><b>${global.esc(m.next?m.next.title:"Interview Ready")}</b></div><div><span>Spoken evidence</span><b>${(()=>{const P=global.AnswerEvaluator&&global.AnswerEvaluator.portfolio(s);return P&&P.hasEvidence?P.answers+" answers":"none yet"})()}</b></div></div><h3>Skills Missing</h3><div class="adaptive-chips">${missing.map(x=>`<span>${global.esc(x.label)} <b>${x.score}%</b></span>`).join("")}</div><h3>Recommended Activity</h3><p><b>${global.esc(rec.title)}</b> — ${global.esc(rec.reason)}</p><button class="btn btn-p" onclick="AdaptiveLearningEngine.openRecommended()">${global.esc(rec.title)} →</button></section>`}
+  function roadmapCard(s){
+    const p=prediction(s),ev=p.evidence,m=milestone(p.career);
+    const pctOr=v=>v==null?"—":v+"%";
+    /* "Skills Missing — Communication 40%" was three competency counters wearing
+       percentage signs. What is genuinely missing is the workshops where nothing
+       has been shown, which the learner can act on. */
+    const sims=(global.trackSimulations&&global.trackSimulations())||[];
+    const store=(s&&s.simulations&&s.simulations.attempts)||{};
+    const notShown=sims.filter(sc=>!((store[sc.id]||[]).some(a=>a&&a.answered>0)))
+      .map(sc=>(global.simTitle?global.simTitle(sc):sc.title)).slice(0,3);
+    return `<section class="card adaptive-roadmap"><div class="eyebrow">Career Readiness Roadmap</div>
+      <h2>${global.esc(m.current.title)}</h2><p>${global.esc(m.current.description)}</p>
+      <div class="adaptive-grid">
+        <div><span>Answers demonstrated</span><b>${ev.demonstrated}/${ev.total}</b></div>
+        <div><span>Readiness</span><b>${pctOr(p.career)}</b></div>
+        <div><span>Interview workshop</span><b>${pctOr(p.interview)}</b></div>
+      </div>
+      ${notShown.length?`<h3>Not shown yet</h3><div class="adaptive-chips">${notShown.map(x=>`<span>${global.esc(x)}</span>`).join("")}</div>`:""}
+      <p class="adaptive-basis">Counted from answers you spoke and the app scored — never from activities opened.</p>
+      <h3>Recommended Activity</h3>
+      <p><b>${global.esc(recommendation(s,track()).title)}</b> — ${global.esc(recommendation(s,track()).reason)}</p>
+      <button class="btn btn-p" onclick="AdaptiveLearningEngine.openRecommended()">${global.esc(recommendation(s,track()).title)} →</button></section>`;
+  }
   function growthCard(s){const t=track(),rows=weekly(s,t),p=prediction(s,t);return `<section class="card adaptive-growth"><div class="eyebrow">Weekly Growth Dashboard</div><h2>Professional growth this week</h2><div class="adaptive-grid"><div><span>Career readiness</span><b>${p.career}%</b></div><div><span>Interview readiness</span><b>${p.interview}%</b></div><div><span>Vocabulary retention</span><b>${retention(s).percent}%</b></div></div><div class="adaptive-bars">${rows.map(x=>`<div><span>${global.esc(x.label)} <b>${x.change>0?"+":""}${x.change}%</b></span><i><em style="width:${Math.min(100,Math.max(2,x.value))}%"></em></i></div>`).join("")}</div></section>`}
   function heatmapCard(s){const t=track(),map=heatmap(s,t),today=new Date(),cells=[];for(let i=83;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const k=dateKey(d),n=map[k]||0;cells.push(`<span data-level="${Math.min(4,n)}" title="${k}: ${n} professional activit${n===1?"y":"ies"}"></span>`)}return `<section class="card adaptive-heat"><div class="eyebrow">Professional Activity Calendar</div><h2>Learning heatmap</h2><p>Each square shows professional activity recorded through the active track.</p><div class="adaptive-heat-grid">${cells.join("")}</div></section>`}
   /* Only the session takes a week and a day. Passing them to every destination

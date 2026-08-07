@@ -84,7 +84,12 @@ Evidence in the code:
 - `CompetencyEngine.score()` is `totals / max` — a count of completed activities.
   `consistency` is literally `dates.length * 5`.
 - `readiness()` is a weighted average of those counts.
-- The session awards competency using `S.scores[key]` — the learner's own slider.
+- The session awards competency using `S.scores[key]` — the learner's own
+  slider. **Correction, found while fixing this:** the slider value is stored on
+  the log and then ignored. `logActivity` awards from `activityMappings` keyed on
+  activity *type*, so completing a session scores the same whether the learner
+  spoke well or tapped through in silence. The counter is even blunter than this
+  finding first claimed.
 
 That number then appears as:
 
@@ -103,8 +108,17 @@ approaching "Interview Ready" without ever having spoken a scored sentence. That
 is exactly the `gamification` guardrail against rewards implying career readiness
 without evidence, and the `ai-coach` evidence rule.
 
-**Change:** `AnswerEvaluator` becomes the source of every readiness claim.
-Activity counts remain, labelled as consistency, and never as readiness.
+**Changed.** `AnswerEvaluator.readiness(s, sims)` is now the single source.
+Readiness is *demonstrated answers ÷ answers your trade's workshops ask for*,
+where demonstrated means coverage of 0.7 or better on that question — the same
+bar the workshop report uses, so the two cannot disagree. Each question counts
+once at its best attempt, so repeating one workshop cannot inflate the figure
+without widening what has been shown. Interview readiness is the interview
+workshop's own best coverage, reported separately rather than averaged in.
+
+With no evidence it returns **null, not zero** — zero says the learner tried and
+failed, null says nobody has looked yet, and every surface can now tell them
+apart. No consumer of `CompetencyEngine.readiness` remains.
 
 ---
 
@@ -286,8 +300,8 @@ Rules that make it cohere:
 |---|---|---|---|---|
 | 1 | Repoint coach recommendations off `roleplay` | Change | minutes | done — see changelog |
 | 2 | Session's scored speech counts as evidence on Progress | Change | hours | done — see changelog |
-| 3 | Readiness derives from `AnswerEvaluator`, not counters | Change | ~1 day | open |
-| 4 | Profile roadmap drops counter percentages | Improve | hours | open |
+| 3 | Readiness derives from `AnswerEvaluator`, not counters | Change | ~1 day | done — see changelog |
+| 4 | Profile roadmap drops counter percentages | Improve | hours | done with item 3 |
 | 5 | Deploy events Worker + 2 workshop events | Change | ~1 hour | open |
 | 6 | Phrase mastery requires one scored attempt | Improve | hours | open |
 | 7 | Prompt delimiters + adversarial fixtures | Improve | hours | open |
@@ -317,3 +331,21 @@ Items are struck off here as they land, with the commit that did it.
 
   The audit's original wording for this item was wrong — see the correction in
   Finding 3.
+
+- **Item 3 — readiness now comes from evidence.** `AnswerEvaluator.readiness`
+  replaced `CompetencyEngine.readiness` at every consumer: the Home career
+  milestone, the Career Center's two figures, the Profile roadmap, and
+  `weeklyReview` (unrendered today, but it would have reported the old counter
+  the moment it was shown).
+
+  The decisive test: a learner with **20 activity logs, several practice days and
+  zero spoken answers** now reads "Not measured yet" on Home, "—" for both
+  Career Center figures, and 0/45 on the roadmap. Previously that learner was
+  awarded a milestone. With one workshop and two answers at the bar: 2/45, 4%.
+  Adding the interview workshop: 7/45, 16%, interview 88%.
+
+- **Item 4 — the roadmap's counter percentages are gone.** "Skills Missing —
+  Communication 40%" was three competency counters wearing percentage signs. The
+  card now shows answers demonstrated, readiness, the interview workshop, and a
+  "Not shown yet" list of workshops with no attempt — which is something the
+  learner can act on — plus a line stating the basis.
