@@ -5118,7 +5118,7 @@ function shWorkplaceLines(){
 let _shLineSpeaking=null;
 window.shSayLine=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
-  const btn=document.getElementById("shl-"+CSS.escape(id));
+  const btn=document.getElementById("shl-"+id);
   if(_shLineSpeaking===id){shStopLine();return}
   shStopLine();
   _shLineSpeaking=id;
@@ -5135,7 +5135,7 @@ function shStopLine(){
   if(window.speechSynthesis)speechSynthesis.cancel();
   try{fbStopAudio()}catch(e){}
   if(_shLineSpeaking!=null){
-    const b=document.getElementById("shl-"+CSS.escape(_shLineSpeaking));
+    const b=document.getElementById("shl-"+_shLineSpeaking);
     if(b){b.classList.remove("on");b.textContent="▶"}
   }
   _shLineSpeaking=null;
@@ -5146,7 +5146,7 @@ function shStopLine(){
    rebuilt, so a workplace line is practised exactly like a video clip was. */
 let _shRec=null,_shRecFor=null;
 function shLineFeedback(id,html){
-  const box=document.getElementById("shfb-"+CSS.escape(id));
+  const box=document.getElementById("shfb-"+id);
   if(box)box.innerHTML=html;
 }
 /* The report a workplace line produces is the same one a video clip produced:
@@ -5158,7 +5158,7 @@ function shLineFeedback(id,html){
 function shLineCtx(id){return "line-"+id}
 window.shLineRecord=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
-  const btn=document.getElementById("shr-"+CSS.escape(id)),ctx=shLineCtx(id);
+  const btn=document.getElementById("shr-"+id),ctx=shLineCtx(id);
   if(_shRec&&_shRecFor===id){
     const rec=_shRec;_shRec=null;
     if(btn){btn.classList.remove("rec");btn.textContent=t("sh.line_rec")}
