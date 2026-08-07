@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=20"></script>
-<script src="professional-tracks.js?v=20"></script>
-<script src="competency-engine.js?v=20"></script>
-<script src="learning-coach.js?v=20"></script>
-<script src="professional-simulation-engine.js?v=20"></script>
-<script src="conversation-orchestrator.js?v=20"></script>
-<script src="adaptive-learning-engine.js?v=20"></script>
-<script src="career-center.js?v=20"></script>
-<script src="professional-skills-passport.js?v=20"></script>
-<script src="jurisdictions.js?v=20"></script>
-<script src="trades.js?v=20"></script>
-<script src="answer-evaluator.js?v=20"></script>
+<script src="curriculum-provider.js?v=21"></script>
+<script src="professional-tracks.js?v=21"></script>
+<script src="competency-engine.js?v=21"></script>
+<script src="learning-coach.js?v=21"></script>
+<script src="professional-simulation-engine.js?v=21"></script>
+<script src="conversation-orchestrator.js?v=21"></script>
+<script src="adaptive-learning-engine.js?v=21"></script>
+<script src="career-center.js?v=21"></script>
+<script src="professional-skills-passport.js?v=21"></script>
+<script src="jurisdictions.js?v=21"></script>
+<script src="trades.js?v=21"></script>
+<script src="answer-evaluator.js?v=21"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -1239,6 +1239,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    and the destination explains the rest. */
 .rp-entry-t small{font-size:12.5px;color:var(--mut);line-height:1.5;display:-webkit-box;
   -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.track-entry .rp-entry-t small{-webkit-line-clamp:4}
 .rp-entry-go{flex:none;color:var(--acc2);font-size:19px}
 .track-entry{--track-preview:var(--acc);align-items:flex-start;border-color:color-mix(in srgb,var(--track-preview) 42%,var(--line2));background:linear-gradient(140deg,color-mix(in srgb,var(--track-preview) 13%,var(--card)),var(--card))}
 .track-entry .rp-entry-t{display:flex;flex-direction:column;align-items:flex-start}
@@ -4732,6 +4733,13 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
+  ${/* The two live tracks, pickable from Home as they were before. A row that
+        only says "Professional Tracks" hides the one thing worth seeing: that
+        Welding exists and what it is. The row stays underneath for the tracks
+        still in development. */""}
+  <div class="hero">
+    ${ProfessionalTrackContext.all().filter(x=>x.id==="general-english"||x.id==="welding").map(trackSelectionCard).join("")}
+  </div>
   <button class="pf-row pf-setup home-career" onclick="go('tracks')">
     <span class="pf-ic">${ic("briefcase")}</span>
     <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
