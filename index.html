@@ -735,6 +735,10 @@ body.sh-work-open{overflow:hidden}
 .sh-line-wait{font-size:12.5px;color:var(--mut)}
 .sh-line-score{display:flex;align-items:baseline;gap:7px;margin-bottom:7px;font-size:12px;color:var(--mut)}
 .sh-line-score b{font-size:17px;color:var(--c);font-variant-numeric:tabular-nums}
+.sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
+.sh-lines-fb b{font-size:13.5px}
+.sh-lines-fb span:last-child{color:var(--mut)}
+.sh-line-extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .sh-line-voc{margin-top:10px}
 .sh-line-voc>b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);margin-bottom:6px}
 .sh-line-voc .sim-skill-chips span.ok{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
@@ -5168,6 +5172,9 @@ window.shLineRecord=async(id)=>{
     const rec=_shRec;_shRec=null;
     if(btn){btn.classList.remove("rec");btn.textContent=t("sh.line_rec")}
     shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_checking"))}</span>`);
+    /* stop live transcription and bank whatever it heard */
+    if(rec.sr){try{rec.sr.onend=null;rec.sr.stop()}catch(e){}
+      rec.heard.txt=((rec.heard.txt||"")+" "+(rec.heard.cur||"")).trim();}
     let blob=null;
     await new Promise(res=>{rec.mr.onstop=()=>{blob=rec.chunks.length?new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"}):null;res()};
       try{rec.mr.stop()}catch(e){res()}; setTimeout(res,1500)});
@@ -5197,13 +5204,32 @@ window.shLineRecord=async(id)=>{
     const spoken=res.words.map(w=>String(w.word||"").toLowerCase()).join(" ");
     const used=(line.vocab||[]).filter(v=>window.AnswerEvaluator&&AnswerEvaluator.hits(spoken,v));
     const missed=(line.vocab||[]).filter(v=>used.indexOf(v)<0);
-    shLineFeedback(id,`
-      <div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
-      <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
-      ${(line.vocab||[]).length?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
-        <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
-      ${wave}
-      ${perfPanel(perfSeries("clip",ctx))}`);
+    /* The Speaking feedback engine owns the headline analysis — word-by-word
+       green/yellow against the target, pace, fillers, the lot. It is given this
+       line as the target and its own slot to render into, so a workplace line
+       and a video clip are analysed by exactly the same code. */
+    const slot="shfb-"+id;
+    shLineFeedback(id,"");
+    fbCtx={vid:ctx,recCtx:ctx};
+    fbT0=rec.t0||Date.now()-8000;
+    const heardTxt=(rec.heard&&rec.heard.txt||"").trim();
+    if(heardTxt){
+      S.notes["shheard:"+ctx]=heardTxt;S.notes["shheardDur:"+ctx]=Date.now()-(rec.t0||Date.now());
+      try{fbShowResults(line.text,heardTxt,"new",slot)}catch(e){}
+    }
+    /* Then the extras a line has and a clip does not: the pronunciation grade on
+       the audio itself, the words this answer must carry, the waveform against
+       the previous take, and the trend. */
+    const box=document.getElementById(slot);
+    if(box)box.insertAdjacentHTML("beforeend",`
+      <div class="sh-line-extra">
+        <div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
+        <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
+        ${(line.vocab||[]).length?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
+          <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+        ${wave}
+        ${perfPanel(perfSeries("clip",ctx))}
+      </div>`);
     return;
   }
   shStopLine();
@@ -5216,7 +5242,21 @@ window.shLineRecord=async(id)=>{
   try{mr=new MediaRecorder(stream)}catch(e){try{stream.getTracks().forEach(x=>x.stop())}catch(_){}; return toast(t("rec.mic_denied_toast"))}
   mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
   mr.start();
-  _shRec={mr,chunks,stream};_shRecFor=id;
+  /* Live transcription runs beside the recorder, exactly as it does for a video
+     clip, so the take can be scored by the real Speaking feedback engine rather
+     than by a private approximation of it. */
+  let sr=null,heard={txt:"",cur:""};
+  if(SR){
+    try{
+      sr=new SR();sr.lang="en-US";sr.continuous=true;sr.interimResults=true;
+      sr.onresult=e=>{heard.cur=srText(e.results)};
+      sr.onerror=()=>{};
+      sr.onend=()=>{heard.txt=((heard.txt||"")+" "+(heard.cur||"")).trim();heard.cur="";
+        if(_shRec&&_shRec.sr===sr){try{sr.start()}catch(e){}}};
+      sr.start();
+    }catch(e){sr=null}
+  }
+  _shRec={mr,chunks,stream,sr,heard,t0:Date.now()};_shRecFor=id;
   if(btn){btn.classList.add("rec");btn.textContent=t("sh.line_stop")}
   shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_listening"))}</span>`);
 };
@@ -5239,6 +5279,7 @@ function shWorkplaceLinesHTML(){
     <div class="eyebrow">${esc(t("sh.lines_eyebrow"))}</div>
     <h2 class="sh-lines-h">${esc(t("sh.lines_title"))}</h2>
     <p class="sh-lines-sub">${esc(t("sh.lines_sub"))}</p>
+    <p class="sh-lines-fb"><b>${esc(t("sh.feedback_title"))}</b> <span class="chip p3">${esc(t("sh.feedback_beta_tag"))}</span><br><span>${esc(t("sh.feedback_desc"))}</span></p>
     ${lines.slice(0,SH_LINES_SHOWN).map(card).join("")}
     ${lines.length>SH_LINES_SHOWN?`<details class="home-more sh-more">
       <summary><span class="btn-ic">${ic("chat")}</span>${esc(t("sh.lines_more",{n:lines.length-SH_LINES_SHOWN}))}<span class="hm-chev">▶</span></summary>
@@ -6958,9 +6999,14 @@ window.fbAgain=()=>{
   b.scrollIntoView({behavior:still?"auto":"smooth",block:"center"});
   setTimeout(()=>{try{b.focus()}catch(e){}},still?0:340);
 };
-function fbShowResults(targetText,heardText,fromRec){
+/* outId lets a caller render this panel somewhere other than the one shared
+   #fbOut — the workplace lines each have their own slot and there can be several
+   on screen at once. Defaults to the original element, so every existing caller
+   is unaffected. */
+function fbShowResults(targetText,heardText,fromRec,outId){
   const tgt=fbTokens(targetText),h=fbTokens(heardText);
-  const out=document.getElementById("fbOut");
+  const out=document.getElementById(outId||"fbOut");
+  if(!out)return;
   /* the emptiest state is the one where another attempt matters most */
   if(!h.length){out.innerHTML=`<p class="fb-nothing">${t("fb.nothing_heard")}</p>`
     +(document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
