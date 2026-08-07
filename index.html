@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=30"></script>
-<script src="professional-tracks.js?v=30"></script>
-<script src="competency-engine.js?v=30"></script>
-<script src="learning-coach.js?v=30"></script>
-<script src="professional-simulation-engine.js?v=30"></script>
-<script src="conversation-orchestrator.js?v=30"></script>
-<script src="adaptive-learning-engine.js?v=30"></script>
-<script src="career-center.js?v=30"></script>
-<script src="professional-skills-passport.js?v=30"></script>
-<script src="jurisdictions.js?v=30"></script>
-<script src="trades.js?v=30"></script>
-<script src="answer-evaluator.js?v=30"></script>
-<script src="shadow-lines.js?v=30"></script>
+<script src="curriculum-provider.js?v=32"></script>
+<script src="professional-tracks.js?v=32"></script>
+<script src="competency-engine.js?v=32"></script>
+<script src="learning-coach.js?v=32"></script>
+<script src="professional-simulation-engine.js?v=32"></script>
+<script src="conversation-orchestrator.js?v=32"></script>
+<script src="adaptive-learning-engine.js?v=32"></script>
+<script src="career-center.js?v=32"></script>
+<script src="professional-skills-passport.js?v=32"></script>
+<script src="jurisdictions.js?v=32"></script>
+<script src="trades.js?v=32"></script>
+<script src="answer-evaluator.js?v=32"></script>
+<script src="shadow-lines.js?v=32"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -364,6 +364,16 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
    the page from anywhere down its length */
 .pg-sub{display:flex;align-items:center;gap:12px}
 .pg-sub .back{margin:0;flex:none;font-size:13px;letter-spacing:0;text-transform:none}
+/* The session is the longest screen in the app — timer, recorder, template,
+   phrases, notes, self-score. The way out was a link at the very top, so anyone
+   who had scrolled had to scroll all the way back to leave. It now rides along
+   under the header as a pill. Sticky rather than fixed, so it stays inside the
+   view and cannot overlap another screen's content. */
+.sess-back{position:sticky;top:66px;z-index:38;
+  padding:7px 12px;border-radius:999px;border:1px solid var(--line2);
+  background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 2px 10px rgba(0,0,0,.18)}
 /* Help & Guide closes with the same control as every other in-app document, so
    "close" looks identical wherever the user meets it. Sits in the sticky
    eyebrow, so it cannot scroll away. */
@@ -1878,6 +1888,24 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-terms{text-align:center;font-size:11px;color:var(--mut);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
+/* One reading column on a wide screen.
+
+   Blocks had each picked their own width and alignment — the career dashboard
+   ran the full 1140, the passport was 560 centred, the profile rows 560 hard
+   left, the roadmap 700 centred — so a single page presented four different left
+   edges. The fix is one column for everything rather than a fifth width: main
+   narrows, and the blocks that were centring themselves inside it stop, because
+   the column is now doing that job. */
+@media(min-width:900px){
+  main{max-width:880px}
+  .psp,.coach-card,.coach-week,.coach-narrative,.pcal,.pf-stats,.pf-setup,
+  .sim-stage,.sim-live,.adaptive-roadmap,.adaptive-growth,.adaptive-heat,
+  .pg-growth,.career-center{max-width:none;margin-left:0;margin-right:0}
+  /* .hero is a two-column grid, and Home now puts a single track card in it —
+     the other track, the one you are not on. Alone it stopped two-thirds short
+     of everything below it. */
+  .hero > .track-entry:only-child{grid-column:1/-1}
+}
 .sync-nudge .nudge-ic svg{width:24px;height:24px}
 /* BOTTOM NAV (mobile app style) */
 .bottom-nav{display:none}
@@ -5080,7 +5108,7 @@ function rSession(el,w,d){
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
   el.innerHTML=`
-  <button class="back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
+  <button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
   <div class="sess-head">
     <span class="chip ${phases[wk.phase].cls}">${t("sess.week_day_chip",{w,d})}</span>
     <span class="chip"><span class="inl-ic">${ic(dayMeta[d].k)}</span>${dayTypeLabel(d)}</span>
@@ -7540,6 +7568,18 @@ function rPractice(el){
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
 
+  <h2 class="prac-sec">${t("prac.sim_h")}</h2>
+  <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
+    <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
+    <span class="rp-entry-t"><b>${isProfessionalJourney()?"Professional Interview Coaches":t("home.rp_title")}</b><small>${isProfessionalJourney()?"Choose a coach and practise the professional interview type for your current stage.":t("home.rp_sub")}</small></span>
+    <span class="rp-entry-go">→</span>
+  </button>
+  ${trackSimulations().length&&!isProfessionalJourney()?`<button class="card rp-entry sim-entry" onclick="go('simulation')">
+    <span class="rp-entry-ic">${ic("briefcase")}</span>
+    <span class="rp-entry-t"><b>Professional Simulation</b><small>Step into a workplace scenario with a full professional team.</small></span>
+    <span class="rp-entry-go">→</span>
+  </button>`:""}
+
   ${_due?`<button class="card home-due prac-due" onclick="pracStudyDue()">
     <span class="home-due-ic">${ic("book")}</span>
     <span class="home-due-t">
@@ -7567,18 +7607,7 @@ function rPractice(el){
     </div>
   </div>`:""}
   <div id="libBody"></div>
-
-  <h2 class="prac-sec">${t("prac.sim_h")}</h2>
-  <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
-    <span class="rp-entry-ic"><img src="rp-photos/oneone.jpg" alt="" loading="lazy" onerror="this.remove()"></span>
-    <span class="rp-entry-t"><b>${isProfessionalJourney()?"Professional Interview Coaches":t("home.rp_title")}</b><small>${isProfessionalJourney()?"Choose a coach and practise the professional interview type for your current stage.":t("home.rp_sub")}</small></span>
-    <span class="rp-entry-go">→</span>
-  </button>
-  ${trackSimulations().length&&!isProfessionalJourney()?`<button class="card rp-entry sim-entry" onclick="go('simulation')">
-    <span class="rp-entry-ic">${ic("briefcase")}</span>
-    <span class="rp-entry-t"><b>Professional Simulation</b><small>Step into a workplace scenario with a full professional team.</small></span>
-    <span class="rp-entry-go">→</span>
-  </button>`:""}`;
+`;
   const body=el.querySelector("#libBody");
   if(_libTab==="vocab")rLibVocab(body);
   else if(_libTab==="grammar")rLibGrammar(body);

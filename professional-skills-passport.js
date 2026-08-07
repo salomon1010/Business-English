@@ -33,7 +33,7 @@
       </div>`;
     return `<section class="card psp" aria-label="Professional Skills Passport">
       <div class="psp-head"><div><div class="eyebrow">Professional Skills Passport</div><h2>Your communication evidence</h2></div></div>
-      <div class="psp-track"><span>Professional Track</span><b>${global.esc((global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(global.S).name:null)||c.trackLabel||t.id)}</b></div>
+      <div class="psp-track"><span>Professional Track</span><b>${global.esc((global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(global.appState()).name:null)||c.trackLabel||t.id)}</b></div>
       <div class="psp-stage"><span>Current Stage</span><b>${global.esc(stage().label)}</b></div>
       ${evidence}
       <h3 class="psp-sub">Practice activity</h3>

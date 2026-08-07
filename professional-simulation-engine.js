@@ -20,15 +20,20 @@
      pipefitter is asked about sizes and schedules where a welder is asked about
      positions. The pack stays the fallback, so a trade with no overlay for a
      module keeps the shared workshop exactly as written. */
+/* Read through appState(), never global.S. `let S = load()` at the top level of
+   a script does NOT create a window property, so global.S is undefined in every
+   module file — and Trades.active(undefined) quietly returns the DEFAULT trade.
+   A boilermaker was shown "Professional Welder" and heard the welder's questions.
+   appState is a function declaration, so it really is on window. */
   function tradeQ(sc,key){
     if(!global.Trades||typeof global.isProfessionalJourney!=="function"||!global.isProfessionalJourney())return null;
     const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
-    return mid?global.Trades.questionFor(global.Trades.active(global.S||{}),mid,key):null;
+    return mid?global.Trades.questionFor(global.Trades.active(global.appState?global.appState():{}),mid,key):null;
   }
   function tradeOpening(sc,c){
     if(!global.Trades||typeof global.isProfessionalJourney!=="function"||!global.isProfessionalJourney())return null;
     const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
-    return mid?global.Trades.openingFor(global.Trades.active(global.S||{}),mid,c.id):null;
+    return mid?global.Trades.openingFor(global.Trades.active(global.appState?global.appState():{}),mid,c.id):null;
   }
   function opening(sc,c){
     const tr=tradeOpening(sc,c);
@@ -71,7 +76,7 @@
     let line=close.text||"That's everything for today. Let's look at how it went.";
     if(global.Trades&&typeof global.isProfessionalJourney==="function"&&global.isProfessionalJourney()){
       const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
-      const tc=mid&&global.Trades.closingFor(global.Trades.active(global.S||{}),mid);
+      const tc=mid&&global.Trades.closingFor(global.Trades.active(global.appState?global.appState():{}),mid);
       if(tc)line=tc;
     }
     return {characterId:c.id,text:line,complete:true};
