@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=9"></script>
-<script src="professional-tracks.js?v=9"></script>
-<script src="competency-engine.js?v=9"></script>
-<script src="learning-coach.js?v=9"></script>
-<script src="professional-simulation-engine.js?v=9"></script>
-<script src="conversation-orchestrator.js?v=9"></script>
-<script src="adaptive-learning-engine.js?v=9"></script>
-<script src="career-center.js?v=9"></script>
-<script src="professional-skills-passport.js?v=9"></script>
-<script src="jurisdictions.js?v=9"></script>
-<script src="trades.js?v=9"></script>
-<script src="answer-evaluator.js?v=9"></script>
+<script src="curriculum-provider.js?v=10"></script>
+<script src="professional-tracks.js?v=10"></script>
+<script src="competency-engine.js?v=10"></script>
+<script src="learning-coach.js?v=10"></script>
+<script src="professional-simulation-engine.js?v=10"></script>
+<script src="conversation-orchestrator.js?v=10"></script>
+<script src="adaptive-learning-engine.js?v=10"></script>
+<script src="career-center.js?v=10"></script>
+<script src="professional-skills-passport.js?v=10"></script>
+<script src="jurisdictions.js?v=10"></script>
+<script src="trades.js?v=10"></script>
+<script src="answer-evaluator.js?v=10"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -746,6 +746,23 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.seg-phase{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}
+/* Square cards rather than a single nowrap row. The shared .seg-fit rule
+   ellipsises its label, which turned four phase names into "Workshop Foun…",
+   "Technical Com…" and "Workplace Stan…" — three of the four unreadable. Other
+   screens still rely on that rule, so the Journey gets its own. */
+.seg-phase-tab{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;
+  gap:8px;aspect-ratio:1/1;min-height:104px;padding:14px;border-radius:16px;
+  border:1px solid var(--line2);background:var(--card2);color:var(--txt);
+  font-family:inherit;text-align:left;cursor:pointer;transition:.15s}
+.seg-phase-tab:hover{border-color:var(--acc)}
+.seg-phase-lbl{font-size:14.5px;font-weight:700;line-height:1.3;overflow-wrap:break-word;hyphens:auto}
+.seg-phase-tab b{font-size:12.5px;font-weight:700;color:var(--mut)}
+.seg-phase-tab.on{border-color:transparent;background:var(--accent-fill);color:var(--on-accent)}
+.seg-phase-tab.on b{color:var(--on-accent);opacity:.78}
+.seg-phase-tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+@media(min-width:720px){.seg-phase{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:360px){.seg-phase-tab{aspect-ratio:auto;min-height:88px}}
 .career-dash-pick{display:flex;flex-direction:column;gap:5px;cursor:pointer}
 .career-dash-pick select{width:100%;min-height:40px;padding:6px 30px 6px 9px;border-radius:9px;
   border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
@@ -4852,8 +4869,8 @@ function rJourney(el,wArg){
   <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
   <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?"Build the communication, technical language, and professional readiness to progress through your welding career.":t("journey.sub")}</p>
-  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
-    ${Object.keys(phases).map(p=>`<button class="seg-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-lbl">${esc(phaseLabel(p))}</span> <b>${esc(phases[p].wk||"")}</b></button>`).join("")}
+  <div class="seg-phase" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
+    ${Object.keys(phases).map(p=>`<button class="seg-phase-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-phase-lbl">${esc(phaseLabel(p))}</span><b>${esc(phases[p].wk||"")}</b></button>`).join("")}
   </div>
   <p class="sub" style="margin:-4px 0 18px;font-size:13px">${t("journey.phase_progress",{done:pDone,total:pTotal,phase:esc(phaseLabel(_jPhase))})}</p>
   <div class="grid g3">${weeks.map(w=>{
