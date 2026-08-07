@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=11"></script>
-<script src="professional-tracks.js?v=11"></script>
-<script src="competency-engine.js?v=11"></script>
-<script src="learning-coach.js?v=11"></script>
-<script src="professional-simulation-engine.js?v=11"></script>
-<script src="conversation-orchestrator.js?v=11"></script>
-<script src="adaptive-learning-engine.js?v=11"></script>
-<script src="career-center.js?v=11"></script>
-<script src="professional-skills-passport.js?v=11"></script>
-<script src="jurisdictions.js?v=11"></script>
-<script src="trades.js?v=11"></script>
-<script src="answer-evaluator.js?v=11"></script>
+<script src="curriculum-provider.js?v=12"></script>
+<script src="professional-tracks.js?v=12"></script>
+<script src="competency-engine.js?v=12"></script>
+<script src="learning-coach.js?v=12"></script>
+<script src="professional-simulation-engine.js?v=12"></script>
+<script src="conversation-orchestrator.js?v=12"></script>
+<script src="adaptive-learning-engine.js?v=12"></script>
+<script src="career-center.js?v=12"></script>
+<script src="professional-skills-passport.js?v=12"></script>
+<script src="jurisdictions.js?v=12"></script>
+<script src="trades.js?v=12"></script>
+<script src="answer-evaluator.js?v=12"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2462,7 +2462,29 @@ function trackVocabularyWords(){return trackVocabulary().words||[]}
 function trackPractice(){return activeCurriculum().practice}
 function trackAiMentors(){return activeCurriculum().aiMentors||[]}
 function trackRoleplayCategories(){return activeCurriculum().roleplayCategories||[]}
-function trackSimulations(){return activeCurriculum().simulations||[]}
+/* Everything downstream — the catalogue, the adaptive recommendation, the next
+   workshop after a debrief, the Career Center — reads this one list, so filtering
+   here is what makes the trade choice hold across the whole app rather than in
+   one view. The engine still resolves a hidden id by lookup, so a saved attempt
+   from before a trade change is never orphaned. */
+function trackSimulations(){
+  const all=activeCurriculum().simulations||[];
+  if(!window.Trades||!isProfessionalJourney())return all;
+  const tr=Trades.active(S);
+  const mine=all.filter(x=>Trades.coversModule(tr,(x.regulatory&&x.regulatory.moduleId)||0));
+  return mine.length?mine:all;
+}
+/* The trade's own wording for a workshop, falling back to the shared one. */
+function simTitle(sc){
+  const tr=window.Trades&&isProfessionalJourney()?Trades.active(S):null;
+  const o=tr&&Trades.scenarioFor(tr,(sc.regulatory&&sc.regulatory.moduleId)||0);
+  return (o&&o.title)||sc.title;
+}
+function simScenario(sc){
+  const tr=window.Trades&&isProfessionalJourney()?Trades.active(S):null;
+  const o=tr&&Trades.scenarioFor(tr,(sc.regulatory&&sc.regulatory.moduleId)||0);
+  return (o&&o.scenario)||sc.scenario;
+}
 function trackGrammarFix(){return trackVocabulary().grammarFix||[]}
 function trackGrammarGood(){return trackVocabulary().grammarGood||[]}
 function trackGrammarExercises(){return trackVocabulary().grammarExercises||{}}
@@ -8032,7 +8054,7 @@ function rSimulation(el,id,characterId){
     manIconizeInline(el);return;
   }
   if(!selected){
-    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Workplace communication</div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px"><summary><h2>${esc(s.title)}</h2><p class="sub">${esc(s.scenario)}</p></summary><div class="sim-scenario-body"><div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
+    el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><div class="eyebrow">Workplace communication</div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px"><summary><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></summary><div class="sim-scenario-body"><div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
       return `<span class="sim-card-label">Your previous reports</span><div class="sim-past">${at.map((a,n)=>`<button onclick="event.stopPropagation();simOpenAttempt('${esc(s.id)}',${a.startedAt})"><span>Attempt ${n+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b></button>`).join("")}</div>`})()}<span class="sim-card-label">Choose who to speak with first</span><div class="sim-cast">${simCast(s).map(c=>`<button onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')"><b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`).join("")}</div></div></details>`}).join("")}`;return;
   }
   if(isFirstDayMission(selected)&&characterId&&(!simRun||simRun.id!==selected.id)){simMissionBriefing(el,selected,characterId);return}
@@ -8057,7 +8079,7 @@ function rSimulation(el,id,characterId){
   const status=run.voiceStatus||"Maya is preparing to speak";
   const prompt=((run.messages||[]).slice(-1)[0]||{}).text||"Welcome. Please introduce yourself and tell me about your background.";
   const micState=run.listening?"sim-listening":/your turn|tap to/i.test(status)?"sim-ready":"sim-active";
-  el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"><span class="sim-work-avatar">${esc((speaker.name||"?")[0])}</span><div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(selected.title)}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body" id="simBody">${simThreadHTML(run,selected)}</div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
+  el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"><span class="sim-work-avatar">${esc((speaker.name||"?")[0])}</span><div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(simTitle(selected))}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body" id="simBody">${simThreadHTML(run,selected)}</div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
   /* Keep the newest turn in view — the thread grows downward. */
   const body=document.getElementById("simBody");if(body)body.scrollTop=body.scrollHeight;
   if(needsOpening)setTimeout(()=>simVoiceSpeak(run.messages[0],selected),100);

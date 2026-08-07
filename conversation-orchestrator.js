@@ -20,7 +20,12 @@
     const cast=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).map(c=>`${c.id}: ${c.name}, ${c.role}. ${c.personality}. Speaks ${c.communicationStyle}. Usually ${c.responseBehavior||"contributes to the conversation"}.`).join("\n");
     const speaker=sim.lastSpeakerId||sim.starterCharacterId||"";
     const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>`${o.id} (${o.label})`).join(", ")||"none — bring the conversation to a natural close";
-    return `You are voicing one real person in a working ${sc.title} conversation. This is a workplace, not a lesson.
+    /* The character must talk to the trade in front of them. Without this a
+       pipefitter gets asked about weld defects and a boilermaker about rod
+       angle — the learner's own expertise never comes up. */
+    const tr=global.Trades&&global.appState?global.Trades.active(global.appState()):null;
+    const trade=tr?`\n\nWHO YOU ARE TALKING TO\nA ${tr.name} — ${tr.focus}\nThey work to: ${tr.codes.join("; ")}.\nTheir day involves: ${(tr.does||[]).slice(0,3).join(" ")}\nAsk about THEIR trade. Do not question them on another trade's work.`:"";
+    return `You are voicing one real person in a working ${sc.title} conversation. This is a workplace, not a lesson.${trade}
 
 THE TEAM
 ${cast}
@@ -30,6 +35,7 @@ ${sc.scenario}
 You are currently ${speaker||"the person who spoke last"}. The other person is a welder practising spoken English at roughly an intermediate level.
 
 HOW TO SPEAK
+- Use their trade's language, not generic welding language.
 - Answer what they actually just said. If they gave a detail — a material, a job, a place, a number — use it in your reply.
 - One or two short sentences. Then at most ONE question. Never stack two questions.
 - Talk like a person on a shop floor: contractions, plain words, no lecturing.

@@ -45,6 +45,13 @@
         "Dress beads and clear slag so a joint is ready for visual or volumetric inspection."
       ],
       /* What the evaluation listens for that the base welding pack does not. */
+      /* The workshops where this trade's own expertise is exercised. A welder is
+         not assessed on isometric take-outs or steam-drum entry; those belong to
+         the other two. Fewer, sharper reps beat a menu of twelve. */
+      modules: [1,2,3,4,5,6,9,11,12],
+      scenarios: {
+        11: {title:"Welding Interview", scenario:"Answer a hiring panel on processes, positions and qualification."}
+      },
       vocab: ["undercut","porosity","lack of fusion","slag inclusion","toe of the weld","root pass",
               "cap pass","travel speed","heat input","interpass temperature","WPS","6G","amperage","rod angle"],
       /* Per-module code overrides — keyed the same way jurisdictions are. */
@@ -85,6 +92,15 @@
         "Cut, bevel and align carbon steel, stainless and alloy pipe with torches, bevellers and clamps.",
         "Rig and position heavy spools, verifying pitch, alignment and root opening for the welder."
       ],
+      modules: [1,2,4,5,7,8,9,11,12],
+      scenarios: {
+        1:  {title:"First Day on a Pipe Crew", scenario:"Meet the crew and complete onboarding safely."},
+        4:  {title:"Spool Preparation and Fit-Up", scenario:"Check material against the isometric and set the fit-up."},
+        7:  {title:"Isometric Clarification", scenario:"Resolve a missing dimension before anything is cut."},
+        8:  {title:"Site Coordination and Access", scenario:"Sequence your work around the other trades on site."},
+        9:  {title:"Fit-Up Quality Issue", scenario:"Report alignment or tolerance that is outside the drawing."},
+        11: {title:"Pipefitting Interview", scenario:"Answer a hiring panel on layout, drawings and fabrication."}
+      },
       vocab: ["isometric","rolling offset","take-out","centre-to-centre","spool","bevel","root opening",
               "pitch","alignment","travel angle","bill of material","fit-up","45-degree fitting","hi-lo"],
       moduleCodes: {
@@ -126,6 +142,15 @@
         "Roll, expand and seal tubes into tube sheets to pressure tolerance.",
         "Work inside high-risk confined spaces under strict permit control."
       ],
+      modules: [1,2,3,5,8,9,10,11,12],
+      scenarios: {
+        1:  {title:"First Day on a Vessel Job", scenario:"Meet the crew and complete onboarding on an outage."},
+        3:  {title:"Rigging and Gear Check", scenario:"Confirm lifting gear and the plan before anything moves."},
+        8:  {title:"Lift and Trade Coordination", scenario:"Direct a lift safely around other trades."},
+        9:  {title:"Vessel Quality Issue", scenario:"Report a tube or seam defect against the inspection code."},
+        10: {title:"Steam Drum Entry Readiness", scenario:"Prove the space is safe to enter before you cross it."},
+        11: {title:"Boilermaker Interview", scenario:"Answer a hiring panel on vessels, rigging and permits."}
+      },
       vocab: ["steam drum","tube sheet","rolling","expanding","blinded","blind flange","LOTO",
               "confined space permit","multi-gas","hydrotest","shackle","chain fall","turnaround","NBIC"],
       moduleCodes: {
@@ -187,11 +212,20 @@
     return (trade && trade.answers && trade.answers[moduleId]) || "";
   }
   function vocabFor(trade){ return (trade && trade.vocab) ? trade.vocab.slice() : []; }
+  /** Is this workshop part of the trade's set? Unlisted trades keep everything. */
+  function coversModule(trade, moduleId){
+    if (!trade || !trade.modules || !trade.modules.length) return true;
+    return trade.modules.indexOf(Number(moduleId)) >= 0;
+  }
+  /** The trade's own wording for a workshop, where the generic one is wrong for it. */
+  function scenarioFor(trade, moduleId){
+    return (trade && trade.scenarios && trade.scenarios[moduleId]) || null;
+  }
 
   global.Trades = Object.freeze({
     all: () => TRADES.slice(),
     get: id => BY_ID.get(id) || null,
-    active, setActive, codesFor, benchmarksFor, answerFor, vocabFor,
+    active, setActive, codesFor, benchmarksFor, answerFor, vocabFor, coversModule, scenarioFor,
     DEFAULT_ID
   });
 })(window);
