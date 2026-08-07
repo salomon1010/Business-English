@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=17"></script>
-<script src="professional-tracks.js?v=17"></script>
-<script src="competency-engine.js?v=17"></script>
-<script src="learning-coach.js?v=17"></script>
-<script src="professional-simulation-engine.js?v=17"></script>
-<script src="conversation-orchestrator.js?v=17"></script>
-<script src="adaptive-learning-engine.js?v=17"></script>
-<script src="career-center.js?v=17"></script>
-<script src="professional-skills-passport.js?v=17"></script>
-<script src="jurisdictions.js?v=17"></script>
-<script src="trades.js?v=17"></script>
-<script src="answer-evaluator.js?v=17"></script>
+<script src="curriculum-provider.js?v=18"></script>
+<script src="professional-tracks.js?v=18"></script>
+<script src="competency-engine.js?v=18"></script>
+<script src="learning-coach.js?v=18"></script>
+<script src="professional-simulation-engine.js?v=18"></script>
+<script src="conversation-orchestrator.js?v=18"></script>
+<script src="adaptive-learning-engine.js?v=18"></script>
+<script src="career-center.js?v=18"></script>
+<script src="professional-skills-passport.js?v=18"></script>
+<script src="jurisdictions.js?v=18"></script>
+<script src="trades.js?v=18"></script>
+<script src="answer-evaluator.js?v=18"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2406,7 +2406,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
-  <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small>Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
+  <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small id="trackIndicatorDest">Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
@@ -2609,6 +2609,22 @@ function applyTrackIdentity(){
       }
     }catch(e){}
     name.textContent=label;
+  }
+  /* The destination decides which standards every report cites, so it belongs on
+     the same always-visible chip rather than only inside the Career Center. */
+  const dest=document.getElementById("trackIndicatorDest");
+  if(dest){
+    /* The row cannot wrap, so this carries the destination alone rather than
+       "Professional track · International Contractor", which overflows a phone
+       header. The bold line underneath already names the trade. */
+    let line="Professional track";
+    try{
+      if(professional&&window.CareerCenter&&typeof S!=="undefined"){
+        const d=CareerCenter.destination(S);
+        if(d)line=d.short||d.name||line;
+      }
+    }catch(e){}
+    dest.textContent=line;
   }
 }
 applyTrackIdentity();
