@@ -172,9 +172,24 @@
       best=Math.max(best,bestHere);
       perWorkshop.push({id,attempts:runs.length,best:bestHere});
     });
+    /* The daily session and the shadowing screens score speech too, and every
+       scored take lands in s.fbHist. Progress read only workshop attempts, so a
+       learner could record a scored session every day for a fortnight and still
+       be told nothing had been recorded.
+
+       It is reported as its own stream rather than averaged into workshop
+       coverage: coverage asks whether the required points were made, clarity
+       asks whether the words were recognised. Averaging them would produce a
+       number that answers neither question. */
+    const takes=((s&&s.fbHist)||[]).filter(x=>x&&typeof x.score==="number");
+    const spoken={takes:takes.length,
+                  average:takes.length?Math.round(takes.reduce((n,x)=>n+x.score,0)/takes.length):0,
+                  best:takes.length?Math.max(...takes.map(x=>x.score)):0,
+                  last:takes.length?takes[takes.length-1].score:null};
     return {workshops,attempts,answers,demonstrated,
-            average:answers?weighted/answers:0,best,perWorkshop,
-            hasEvidence:answers>0};
+            average:answers?weighted/answers:0,best,perWorkshop,spoken,
+            hasEvidence:answers>0||takes.length>0,
+            hasWorkshopEvidence:answers>0};
   }
 
   /* ==========================================================================

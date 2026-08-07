@@ -9,12 +9,12 @@
   const MAX_SUMMARIES=100;
   const LABELS={communication:"Communication",vocabulary:"Vocabulary",pronunciation:"Pronunciation",confidence:"Confidence",professionalism:"Professional communication",interview:"Interview readiness",technicalKnowledge:"Technical knowledge",safety:"Safety",qaqc:"QA/QC",blueprintReading:"Blueprint reading"};
   const ACTIONS={
-    communication:{title:"Practise a live introduction",body:"Use one clear opening, one example, and one confident closing.",go:"roleplay"},
+    communication:{title:"Practise a live introduction",body:"Use one clear opening, one example, and one confident closing.",go:"shadow"},
     vocabulary:{title:"Strengthen your professional vocabulary",body:"Review a few saved words, then use one in a complete sentence.",go:"practice"},
     pronunciation:{title:"Sharpen one spoken phrase",body:"Shadow a short clip and record one focused repetition.",go:"shadow"},
     confidence:{title:"Build confidence through repetition",body:"Say one Phrase Lab sentence aloud three times before moving on.",go:"phrases"},
     professionalism:{title:"Complete your guided session",body:"Use today’s plan to practise a clear, professional message.",go:"session"},
-    interview:{title:"Rehearse an interview response",body:"Use the AI conversation space to introduce your experience clearly.",go:"roleplay"},
+    interview:{title:"Rehearse an interview response",body:"Say your experience aloud and have every word scored for clarity.",go:"shadow"},
     technicalKnowledge:{title:"Complete today’s professional session",body:"Connect your English practice to the work you do.",go:"session"},
     safety:{title:"Reinforce safety language",body:"Choose a Phrase Lab sentence and say it with a calm, clear delivery.",go:"phrases"}
   };

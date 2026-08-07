@@ -14,12 +14,12 @@
     {at:90,title:"Interview Ready",description:"Sustain confident, professional communication in career situations."}
   ];
   const ACTIONS={
-    communication:{title:"AI Conversation",body:"Practise a clear professional response with an AI partner.",go:"roleplay"},
+    communication:{assessed:true},
     vocabulary:{title:"Vocabulary Practice",body:"Review professional words that are due, then use one aloud.",go:"practice"},
     pronunciation:{title:"Shadow Session",body:"Record a short phrase and focus on clarity and rhythm.",go:"shadow"},
     confidence:{title:"Phrase Lab",body:"Repeat one professional phrase until it feels natural.",go:"phrases"},
     professionalism:{title:"Guided Session",body:"Complete today’s professional practice plan.",go:"session"},
-    interview:{title:"AI Conversation",body:"Rehearse a concise career response with an AI partner.",go:"roleplay"},
+    interview:{assessed:true},
     technicalKnowledge:{title:"Guided Session",body:"Connect your English practice to your professional work.",go:"session"},
     safety:{title:"Professional Simulation",body:"Practise safety communication in a workplace situation.",go:"simulation"}
   };
@@ -32,12 +32,26 @@
   function pronunciation(s){const hist=(s.fbHist||[]).filter(x=>x.score!=null);return hist.length?Math.round(hist.slice(-5).reduce((n,x)=>n+x.score,0)/Math.min(5,hist.length)):null}
   function skills(s,t){return (cfg(t).competencies||[]).map(c=>({id:c.id,label:c.label,score:global.CompetencyEngine.score(s,t,c.id)})).sort((a,b)=>a.score-b.score)}
   function milestone(readiness){let current=MILESTONES[0],next=MILESTONES[MILESTONES.length-1];for(const m of MILESTONES){if(readiness>=m.at)current=m;else{next=m;break}}return {current,next:current===MILESTONES[MILESTONES.length-1]?null:next}}
+  /* AI Conversation is not in the navigation. Browser speech was not good enough
+     and the product withdrew it, so recommending it made the most prominent nudge
+     in the app a one-way door into a screen nobody can get back from.
+
+     Both recommendations now point at practice that is actually scored. Which one
+     depends on the track: the workshops where a track has them, scored shadowing
+     where it does not. General English has no workshops at all, so sending it to
+     the simulation catalogue would only have swapped one dead end for another. */
+  function resolve(a){
+    if(!a||!a.assessed)return a;
+    return (global.trackSimulations&&global.trackSimulations().length)
+      ?{title:"Workplace Workshop",body:"Answer a workplace question and have every point you make scored.",go:"simulation"}
+      :{title:"Shadow Session",body:"Record a line and see every word scored for clarity.",go:"shadow"};
+  }
   function recommendation(s,t){
     const r=retention(s),p=pronunciation(s),ss=skills(s,t),history=(s.simulations&&s.simulations.history||[]).filter(x=>x.id&&global.trackSimulations&&global.trackSimulations().some(q=>q.id===x.id));
-    if(r.due)return Object.assign({reason:`${r.due} saved word${r.due===1?" is":"s are"} ready for review.`},ACTIONS.vocabulary);
-    if(global.trackSimulations&&global.trackSimulations().length&&!history.length)return Object.assign({reason:"A first workplace simulation will add evidence across several professional skills."},ACTIONS.safety);
-    if(p!=null&&p<75)return Object.assign({reason:`Recent pronunciation evidence is ${p}%, so clarity is the highest-value next step.`},ACTIONS.pronunciation);
-    const weak=ss[0]||{id:"communication",label:"Communication"};return Object.assign({reason:`${weak.label} is the clearest current growth opportunity.`},ACTIONS[weak.id]||ACTIONS.communication,{skill:weak.label});
+    if(r.due)return Object.assign({reason:`${r.due} saved word${r.due===1?" is":"s are"} ready for review.`},resolve(ACTIONS.vocabulary));
+    if(global.trackSimulations&&global.trackSimulations().length&&!history.length)return Object.assign({reason:"A first workplace simulation will add evidence across several professional skills."},resolve(ACTIONS.safety));
+    if(p!=null&&p<75)return Object.assign({reason:`Recent pronunciation evidence is ${p}%, so clarity is the highest-value next step.`},resolve(ACTIONS.pronunciation));
+    const weak=ss[0]||{id:"communication",label:"Communication"};return Object.assign({reason:`${weak.label} is the clearest current growth opportunity.`},resolve(ACTIONS[weak.id]||ACTIONS.communication),{skill:weak.label});
   }
   function weekly(s,t){
     const now=Date.now(),recent=logs(s,t).filter(x=>now-new Date(x.date).getTime()<7*864e5),previous=logs(s,t).filter(x=>{const age=now-new Date(x.date).getTime();return age>=7*864e5&&age<14*864e5});
@@ -57,6 +71,11 @@
   function roadmapCard(s){const t=track(),ready=global.CompetencyEngine.readiness(s,t),m=milestone(ready),missing=skills(s,t).slice(0,3),rec=recommendation(s,t),pred=prediction(s,t);return `<section class="card adaptive-roadmap"><div class="eyebrow">Career Readiness Roadmap</div><h2>${global.esc(m.current.title)}</h2><p>${global.esc(m.current.description)}</p><div class="adaptive-grid"><div><span>Current Position</span><b>${global.esc(m.current.title)}</b></div><div><span>Next Milestone</span><b>${global.esc(m.next?m.next.title:"Interview Ready")}</b></div><div><span>Spoken evidence</span><b>${(()=>{const P=global.AnswerEvaluator&&global.AnswerEvaluator.portfolio(s);return P&&P.hasEvidence?P.answers+" answers":"none yet"})()}</b></div></div><h3>Skills Missing</h3><div class="adaptive-chips">${missing.map(x=>`<span>${global.esc(x.label)} <b>${x.score}%</b></span>`).join("")}</div><h3>Recommended Activity</h3><p><b>${global.esc(rec.title)}</b> — ${global.esc(rec.reason)}</p><button class="btn btn-p" onclick="AdaptiveLearningEngine.openRecommended()">${global.esc(rec.title)} →</button></section>`}
   function growthCard(s){const t=track(),rows=weekly(s,t),p=prediction(s,t);return `<section class="card adaptive-growth"><div class="eyebrow">Weekly Growth Dashboard</div><h2>Professional growth this week</h2><div class="adaptive-grid"><div><span>Career readiness</span><b>${p.career}%</b></div><div><span>Interview readiness</span><b>${p.interview}%</b></div><div><span>Vocabulary retention</span><b>${retention(s).percent}%</b></div></div><div class="adaptive-bars">${rows.map(x=>`<div><span>${global.esc(x.label)} <b>${x.change>0?"+":""}${x.change}%</b></span><i><em style="width:${Math.min(100,Math.max(2,x.value))}%"></em></i></div>`).join("")}</div></section>`}
   function heatmapCard(s){const t=track(),map=heatmap(s,t),today=new Date(),cells=[];for(let i=83;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const k=dateKey(d),n=map[k]||0;cells.push(`<span data-level="${Math.min(4,n)}" title="${k}: ${n} professional activit${n===1?"y":"ies"}"></span>`)}return `<section class="card adaptive-heat"><div class="eyebrow">Professional Activity Calendar</div><h2>Learning heatmap</h2><p>Each square shows professional activity recorded through the active track.</p><div class="adaptive-heat-grid">${cells.join("")}</div></section>`}
-  function openRecommended(){const r=recommendation(global.appState(),track()),pos=global.currentPos();global.go(r.go,pos.w,pos.d)}
+  /* Only the session takes a week and a day. Passing them to every destination
+     handed the workshop route a week number where it expects a workshop id. */
+  function openRecommended(){
+    const r=recommendation(global.appState(),track()),pos=global.currentPos();
+    return r.go==="session"?global.go(r.go,pos.w,pos.d):global.go(r.go);
+  }
   global.AdaptiveLearningEngine=Object.freeze({retention,skills,milestone,recommendation,weekly,prediction,heatmap,roadmapCard,growthCard,heatmapCard,openRecommended});
 })(window);

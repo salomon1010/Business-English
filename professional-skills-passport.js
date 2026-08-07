@@ -79,14 +79,22 @@
       <div class="eyebrow">${global.esc(tr?tr.name:(cfg().trackLabel||t.id))}</div>
       <h2>Your professional evidence</h2>
       ${tr?`<div class="sim-skill-chips pg-codes">${tr.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>`:""}
-      ${P&&P.hasEvidence?`
+      ${P&&P.hasWorkshopEvidence?`
         <div class="pg-ev">
           <div><b>${P.answers}</b><span>answers spoken</span></div>
           <div><b>${done}/${rows.length}</b><span>workshops practised</span></div>
           <div><b>${pct(P.average)}%</b><span>average coverage</span></div>
           <div><b>${P.demonstrated}</b><span>answers that met the mark</span></div>
         </div>`:`
-        <p class="pg-empty">Nothing recorded yet. Speak your way through one workshop and this fills with what you actually said — no scores are invented from activity.</p>`}
+        <p class="pg-empty">No workshop answers yet. Speak your way through one and this fills with what you actually said — no scores are invented from activity.</p>`}
+      ${P&&P.spoken&&P.spoken.takes?`
+        <h3 class="pg-h">Speaking clarity</h3>
+        <p class="pg-note">From your daily sessions and shadowing — how much of what you said was recognised.</p>
+        <div class="pg-ev">
+          <div><b>${P.spoken.takes}</b><span>takes scored</span></div>
+          <div><b>${P.spoken.average}%</b><span>average clarity</span></div>
+          <div><b>${P.spoken.best}%</b><span>best take</span></div>
+        </div>`:""}
       <h3 class="pg-h">Your workshops</h3>
       <div class="pg-work">${rows.map(r=>`
         <div class="pg-work-row ${r.runs?"":"todo"}">
