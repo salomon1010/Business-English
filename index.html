@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=19"></script>
-<script src="professional-tracks.js?v=19"></script>
-<script src="competency-engine.js?v=19"></script>
-<script src="learning-coach.js?v=19"></script>
-<script src="professional-simulation-engine.js?v=19"></script>
-<script src="conversation-orchestrator.js?v=19"></script>
-<script src="adaptive-learning-engine.js?v=19"></script>
-<script src="career-center.js?v=19"></script>
-<script src="professional-skills-passport.js?v=19"></script>
-<script src="jurisdictions.js?v=19"></script>
-<script src="trades.js?v=19"></script>
-<script src="answer-evaluator.js?v=19"></script>
+<script src="curriculum-provider.js?v=20"></script>
+<script src="professional-tracks.js?v=20"></script>
+<script src="competency-engine.js?v=20"></script>
+<script src="learning-coach.js?v=20"></script>
+<script src="professional-simulation-engine.js?v=20"></script>
+<script src="conversation-orchestrator.js?v=20"></script>
+<script src="adaptive-learning-engine.js?v=20"></script>
+<script src="career-center.js?v=20"></script>
+<script src="professional-skills-passport.js?v=20"></script>
+<script src="jurisdictions.js?v=20"></script>
+<script src="trades.js?v=20"></script>
+<script src="answer-evaluator.js?v=20"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -4707,7 +4707,46 @@ function careerDashboardContext(){
   return {pos,track,wk,day,destination,workplace,stage,milestone,coach};
 }
 
+/* General English Home, as it was before the Career Dashboard was built: where
+   you are in the twelve weeks, today's task, the coach, and the way across to a
+   Professional Track. No profession, no destination, no career milestone. */
+function rHomeGeneral(el){
+  const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=(wk.days||{})[pos.d]||{};
+  const name=S.profile&&S.profile.name?esc(S.profile.name):"";
+  el.innerHTML=`
+  <h1 class="big">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
+  <p class="sub">${t("home.sub_base")}.</p>
+  ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
+    if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
+    if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
+    if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
+    return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
+  <div class="hr"></div>
+  <div class="hero">
+    <div class="card today-card">
+      <div class="eyebrow">${t("home.continue")}</div>
+      <h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus||wk.theme||"")})}</h2>
+      <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(trackDayMeta()[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
+      <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task||"")}</p>
+      <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
+    </div>
+  </div>
+  ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
+  <button class="pf-row pf-setup home-career" onclick="go('tracks')">
+    <span class="pf-ic">${ic("briefcase")}</span>
+    <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>`;
+  manIconizeInline(el);
+}
+
 function rHome(el){
+  /* Two different products share this screen. A learner on a Professional Track
+     opens it to be told what today's mission is and what it is preparing them
+     for. A General English learner has no profession, no destination and no
+     career milestone — showing them a Career Dashboard with "Current
+     destination: United Kingdom" invented a career path they never chose. */
+  if(!isProfessionalJourney())return rHomeGeneral(el);
   const c=careerDashboardContext(),trackName=t(c.track.nameKey),missionTitle=`${c.stage} · ${c.day.focus||c.wk.theme||"Today's mission"}`;
   /* Home is the Career Dashboard: it makes one decision visible. The existing
      session stays intact while later Experience Layers connect its activities
@@ -4723,7 +4762,7 @@ function rHome(el){
            assesses against, and they were read-only labels here — the learner had
            to go and find the Career Center to alter either. They are the same
            state, so changing one in either place shows up in the other. */
-        const pro=isProfessionalJourney(),tr=(pro&&window.Trades)?Trades.active(S):null;
+        const tr=window.Trades?Trades.active(S):null;
         const dests=(window.CareerCenter&&CareerCenter.destinations)||[];
         return `
       ${tr?`<label class="career-dashboard-fact career-dash-pick"><span>Current profession</span>
@@ -4752,13 +4791,12 @@ function rHome(el){
   ${/* The Career Center is the second reason a learner on a Professional Track
         opens this app — where the practice is pointing. It sits below the one
         primary action rather than beside it, so the day's mission stays the
-        decision Home asks for. General English does not have one. */
-    isProfessionalJourney()?`
+        decision Home asks for. */""}
   <button class="pf-row pf-setup home-career" onclick="goCareer('home')">
     <span class="pf-ic">${ic("briefcase")}</span>
     <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
-  </button>`:""}
+  </button>
   ${/* This was a disclosure that unfolded the same two cards the Professional
         Tracks page already shows, with a button underneath to go to that page
         anyway — two ways to the same place, one of them a dead end. It is now a
