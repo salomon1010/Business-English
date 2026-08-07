@@ -1141,6 +1141,8 @@
  "footer.guide_link": "دليل الاستخدام",
  "footer.play_link": "Google Play",
  "home.week_days": "أيام هذا الأسبوع",
+ "home.profession_set": "المهنة: {{name}}. معاييرك ومفرداتك وإجاباتك النموذجية تتبعها.",
+ "home.destination_set": "الوجهة: {{name}}. ستستشهد تقاريرك بمعاييرها.",
  "sh.more_starters": "عرض {{n}} مقاطع أخرى",
  "sh.video_error_title": "هذا المقطع لن يعمل",
  "sh.video_error_body": "أزاله المالك أو منع تضمينه. اختر مقطعًا آخر — تسجيلاتك وملاحظاتك محفوظة.",

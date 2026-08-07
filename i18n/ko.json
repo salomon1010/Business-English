@@ -1141,6 +1141,8 @@
  "footer.guide_link": "사용자 가이드",
  "footer.play_link": "Google Play",
  "home.week_days": "일 이번 주",
+ "home.profession_set": "직종을 {{name}}(으)로 설정했습니다. 규격·용어·모범 답안이 함께 바뀝니다.",
+ "home.destination_set": "목적지를 {{name}}(으)로 설정했습니다. 리포트가 해당 규격을 인용합니다.",
  "sh.more_starters": "클립 {{n}}개 더 보기",
  "sh.video_error_title": "이 클립은 재생할 수 없습니다",
  "sh.video_error_body": "소유자가 삭제했거나 임베드를 차단했습니다. 다른 클립을 선택하세요 — 녹음과 메모는 그대로입니다.",

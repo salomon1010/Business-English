@@ -1141,6 +1141,8 @@
  "footer.guide_link": "ユーザーガイド",
  "footer.play_link": "Google Play",
  "home.week_days": "日 今週",
+ "home.profession_set": "職種を {{name}} に設定しました。規格・用語・模範解答が切り替わります。",
+ "home.destination_set": "目的地を {{name}} に設定しました。レポートはその規格を参照します。",
  "sh.more_starters": "さらに{{n}}件のクリップを表示",
  "sh.video_error_title": "このクリップは再生できません",
  "sh.video_error_body": "所有者が削除したか埋め込みを禁止しています。別のクリップを選んでください。録音とメモは残ります。",

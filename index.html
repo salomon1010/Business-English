@@ -746,6 +746,13 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.career-dash-pick{display:flex;flex-direction:column;gap:5px;cursor:pointer}
+.career-dash-pick select{width:100%;min-height:40px;padding:6px 30px 6px 9px;border-radius:9px;
+  border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
+  font-size:13.5px;font-weight:700;cursor:pointer;appearance:none;
+  background-image:linear-gradient(45deg,transparent 50%,var(--mut) 50%),linear-gradient(135deg,var(--mut) 50%,transparent 50%);
+  background-position:calc(100% - 15px) 55%,calc(100% - 10px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+.career-dash-pick select:focus-visible{border-color:var(--acc);outline:none}
 .career-trade .sim-skill-chips{margin:8px 0}
 .career-pay{font-size:12px;color:var(--mut2);line-height:1.55;margin:6px 0 0}
 .ob-goals{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto}
@@ -3001,6 +3008,8 @@ const I18N_EN={
  "home.due_title_one":"1 word is ready to review",
  "home.due_sub":"Words you saved from your own speaking. Two minutes now and they stay yours.",
  "home.week_days":"days this week",
+ "home.profession_set":"Profession set to {{name}}. Your codes, vocabulary and model answers now follow it.",
+ "home.destination_set":"Destination set to {{name}}. Your reports now cite its standards.",
  "home.tabs_label":"Home sections",
  "home.tab_dashboard":"Dashboard",
  "home.tab_rules":"Execution rules",
@@ -4552,6 +4561,14 @@ addEventListener("click",e=>{
 });
 
 /* ================= DASHBOARD ================= */
+window.homeTradePick=(id)=>{
+  if(window.Trades&&Trades.setActive(S,id)){save();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
+};
+window.homeDestPick=(id)=>{
+  S.careerCenter=S.careerCenter||{};S.careerCenter.destination=id;save();
+  const d=(window.CareerCenter&&CareerCenter.destination(S))||{name:id};
+  toast(t("home.destination_set",{name:d.name}));go("home");
+};
 function careerDashboardContext(){
   const pos=currentPos(),track=activeProfessionalTrack(),wk=trackWeeks()[pos.w-1]||{},day=(wk.days||{})[pos.d]||{};
   const destination=(window.CareerCenter&&CareerCenter.destination?CareerCenter.destination(S):null)||{name:"International Contractor"};
@@ -4576,8 +4593,25 @@ function rHome(el){
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc(trackName)}</span></div>
     <div class="career-dashboard-grid">
-      <div class="career-dashboard-fact"><span>Current profession</span><b>${esc(trackName)}</b></div>
-      <div class="career-dashboard-fact"><span>Current destination</span><b>${esc(c.destination.name)}</b></div>
+      ${(()=>{
+        /* Profession and destination are the two things that change what the app
+           assesses against, and they were read-only labels here — the learner had
+           to go and find the Career Center to alter either. They are the same
+           state, so changing one in either place shows up in the other. */
+        const pro=isProfessionalJourney(),tr=(pro&&window.Trades)?Trades.active(S):null;
+        const dests=(window.CareerCenter&&CareerCenter.destinations)||[];
+        return `
+      ${tr?`<label class="career-dashboard-fact career-dash-pick"><span>Current profession</span>
+        <select aria-label="Current profession" onchange="homeTradePick(this.value)">
+          ${Trades.all().map(x=>`<option value="${esc(x.id)}"${x.id===tr.id?" selected":""}>${esc(x.name)}</option>`).join("")}
+        </select></label>`
+      :`<div class="career-dashboard-fact"><span>Current profession</span><b>${esc(trackName)}</b></div>`}
+      ${dests.length?`<label class="career-dashboard-fact career-dash-pick"><span>Current destination</span>
+        <select aria-label="Current destination" onchange="homeDestPick(this.value)">
+          ${dests.map(d=>`<option value="${esc(d.id)}"${d.id===c.destination.id?" selected":""}>${esc(d.name)}</option>`).join("")}
+        </select></label>`
+      :`<div class="career-dashboard-fact"><span>Current destination</span><b>${esc(c.destination.name)}</b></div>`}`;
+      })()}
       <div class="career-dashboard-fact"><span>Current workplace</span><b>${esc(c.workplace)}</b></div>
       <div class="career-dashboard-fact"><span>Career milestone</span><b>${esc(c.milestone)}</b></div>
     </div>

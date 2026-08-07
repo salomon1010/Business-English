@@ -1141,6 +1141,8 @@
  "footer.guide_link": "Guia do usuário",
  "footer.play_link": "Google Play",
  "home.week_days": "dias esta semana",
+ "home.profession_set": "Profissão: {{name}}. As suas normas, vocabulário e respostas-modelo acompanham.",
+ "home.destination_set": "Destino: {{name}}. Os seus relatórios citarão as normas dele.",
  "sh.more_starters": "Mostrar mais {{n}} clipes",
  "sh.video_error_title": "Este clipe não será reproduzido",
  "sh.video_error_body": "O dono removeu ou bloqueou a incorporação. Escolha outro clipe — suas gravações e notas estão seguras.",

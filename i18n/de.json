@@ -1141,6 +1141,8 @@
  "footer.guide_link": "Benutzerhandbuch",
  "footer.play_link": "Google Play",
  "home.week_days": "Tage diese Woche",
+ "home.profession_set": "Beruf: {{name}}. Normen, Vokabular und Musterantworten folgen.",
+ "home.destination_set": "Ziel: {{name}}. Deine Berichte nennen dessen Normen.",
  "sh.more_starters": "{{n}} weitere Clips anzeigen",
  "sh.video_error_title": "Dieser Clip lässt sich nicht abspielen",
  "sh.video_error_body": "Der Eigentümer hat ihn entfernt oder das Einbetten gesperrt. Wähle einen anderen Clip — deine Aufnahmen und Notizen bleiben erhalten.",
