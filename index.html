@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=15"></script>
-<script src="professional-tracks.js?v=15"></script>
-<script src="competency-engine.js?v=15"></script>
-<script src="learning-coach.js?v=15"></script>
-<script src="professional-simulation-engine.js?v=15"></script>
-<script src="conversation-orchestrator.js?v=15"></script>
-<script src="adaptive-learning-engine.js?v=15"></script>
-<script src="career-center.js?v=15"></script>
-<script src="professional-skills-passport.js?v=15"></script>
-<script src="jurisdictions.js?v=15"></script>
-<script src="trades.js?v=15"></script>
-<script src="answer-evaluator.js?v=15"></script>
+<script src="curriculum-provider.js?v=16"></script>
+<script src="professional-tracks.js?v=16"></script>
+<script src="competency-engine.js?v=16"></script>
+<script src="learning-coach.js?v=16"></script>
+<script src="professional-simulation-engine.js?v=16"></script>
+<script src="conversation-orchestrator.js?v=16"></script>
+<script src="adaptive-learning-engine.js?v=16"></script>
+<script src="career-center.js?v=16"></script>
+<script src="professional-skills-passport.js?v=16"></script>
+<script src="jurisdictions.js?v=16"></script>
+<script src="trades.js?v=16"></script>
+<script src="answer-evaluator.js?v=16"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2472,10 +2472,22 @@ function trackShadowStarters(){return activeCurriculum().starters}
 function trackDayMeta(){return activeCurriculum().dayMeta}
 function trackSessionLinks(){return activeCurriculum().sessionLinks}
 function trackTemplates(){return activeCurriculum().templates}
-function trackWeeks(){return activeCurriculum().weeks}
+function trackWeeks(){
+  const weeks=activeCurriculum().weeks;
+  if(!window.Trades||!isProfessionalJourney())return weeks;
+  const tr=Trades.active(S);
+  return weeks.map(w=>Trades.weekFor(tr,w));
+}
 function trackPhases(){return activeCurriculum().phases}
 function phaseLabel(ph){const phase=trackPhases()[ph];return phase&&phase.name?phase.name:t("phase."+ph)}
-function trackPhrases(){return activeCurriculum().phrases}
+/* Overlaid in place: the index is the phrase's identity everywhere else
+   (S.phMaster["p"+ix]), so the order and the length must not move. */
+function trackPhrases(){
+  const ph=activeCurriculum().phrases;
+  if(!window.Trades||!isProfessionalJourney())return ph;
+  const tr=Trades.active(S);
+  return ph.map((p,ix)=>{const own=Trades.phraseFor(tr,ix);return own?Object.assign({},p,{p:own}):p});
+}
 function trackVocabulary(){return activeCurriculum().vocabulary}
 /* The trade's own terms lead, because they are the words this learner will be
    assessed on. The shared welding list follows — still useful, no longer the
@@ -4928,7 +4940,7 @@ function rJourney(el,wArg){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
-  <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?"Build the communication, technical language, and professional readiness to progress through your welding career.":t("journey.sub")}</p>
+  <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?`Build the communication, technical language, and professional readiness to progress through your ${esc((window.Trades&&Trades.active(S).career)||"welding")} career.`:t("journey.sub")}</p>
   <div class="seg-phase" role="tablist" aria-label="${esc(t("journey.phase_tabs_label"))}">
     ${Object.keys(phases).map(p=>`<button class="seg-phase-tab ${String(_jPhase)===String(p)?"on":""}" role="tab" aria-selected="${String(_jPhase)===String(p)}" onclick="jPhase('${esc(p)}')"><span class="seg-phase-lbl">${esc(phaseLabel(p))}</span><b>${esc(phases[p].wk||"")}</b></button>`).join("")}
   </div>
@@ -8247,7 +8259,7 @@ function rLibVocab(el){
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
   const curriculumWords=trackVocabularyWords(),vocabulary=trackVocabulary();
   el.innerHTML=`
-  ${curriculumWords.length?`<details class="professional-vocab-group"><summary><span><b>${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name+" vocabulary":null)||vocabulary.title||"Professional Journey Vocabulary")}</b><small>${curriculumWords.length} professional terms to support your journey.</small></span><span>Open vocabulary ›</span></summary><div class="professional-vocab-list">${vocabulary.intro?`<p style="font-size:13px;color:var(--mut);margin:0 0 3px">${esc(vocabulary.intro)}</p>`:""}${curriculumWords.map(item=>`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b>${esc(item.word)}</b><small style="display:block;color:var(--mut);margin-top:2px">${esc(item.definition)}</small></span><span class="chip">${esc(item.level)}</span><button class="btn btn-g btn-sm" onclick="vocSave('${esc(item.word)}','${esc(item.level)}')">${t("voc.save_title")}</button></div>`).join("")}</div></details>`:""}
+  ${curriculumWords.length?`<details class="professional-vocab-group"><summary><span><b>${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name+" vocabulary":null)||vocabulary.title||"Professional Journey Vocabulary")}</b><small>${curriculumWords.length} professional terms to support your journey.</small></span><span>Open vocabulary ›</span></summary><div class="professional-vocab-list">${(()=>{const _vi=(window.Trades&&isProfessionalJourney()?Trades.vocabIntroFor(Trades.active(S)):null)||vocabulary.intro;return _vi?`<p style="font-size:13px;color:var(--mut);margin:0 0 3px">${esc(_vi)}</p>`:""})()}${curriculumWords.map(item=>`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="flex:1;min-width:180px"><b>${esc(item.word)}</b><small style="display:block;color:var(--mut);margin-top:2px">${esc(item.definition)}</small></span><span class="chip">${esc(item.level)}</span><button class="btn btn-g btn-sm" onclick="vocSave('${esc(item.word)}','${esc(item.level)}')">${t("voc.save_title")}</button></div>`).join("")}</div></details>`:""}
   <div class="grid g2" style="align-items:start">
     <div>
       <div class="prac-subtabs">

@@ -32,7 +32,7 @@
   const TRADES = [
     {
       id: "welder",
-      name: "Professional Welder",
+      name: "Professional Welder", career: "welding",
       tagline: "The fusion specialist",
       focus: "Metallurgical bonding, arc physics and code-compliant deposit integrity.",
       pay: "$35–$55+ per hour",
@@ -77,7 +77,7 @@
     },
     {
       id: "pipefitter",
-      name: "Professional Pipefitter",
+      name: "Professional Pipefitter", career: "pipefitting",
       tagline: "The geometry and layout specialist",
       focus: "Precision blueprint mathematics, isometric interpretation and pipe line assembly.",
       pay: "$32–$48 per hour",
@@ -123,7 +123,7 @@
     },
     {
       id: "boilermaker",
-      name: "Professional Boilermaker",
+      name: "Professional Boilermaker", career: "boilermaking",
       tagline: "The heavy vessel and rigging specialist",
       focus: "High-pressure vessel fabrication, heavy rigging, tank repair and tube replacement.",
       pay: "$36–$52 per hour",
@@ -578,6 +578,90 @@
     }
   };
 
+  /* ==========================================================================
+     The rest of the curriculum, in the trade's words.
+     --------------------------------------------------------------------------
+     The twelve-week plan, the phrase bank and the vocabulary intro were written
+     for a welder, so a pipefitter was told to "introduce yourself as a welder in
+     60-90 seconds" and given "I'm a welder with experience in fabrication and
+     metalwork" to master in the phrase bank.
+
+     Only the strings that name the job are overridden. Everything about how to
+     hold a handover or raise a safety concern is the same work in all three
+     trades, and duplicating it would create three copies to keep in step.
+
+     Weeks 3, 6 and 10 have no workshop for a pipefitter, and 4, 6 and 7 none for
+     a boilermaker — their nine workshops sit inside a twelve-week plan. Those
+     weeks keep their communication theme and still carry shadowing, phrases and
+     practice; only the wording that assumed welding changes.
+     ========================================================================== */
+  const CURRICULUM = {
+    pipefitter: {
+      phrases: {
+        0:  "I'm a pipefitter with experience in fabrication and pipe layout.",
+        10: "I will follow the approved piping specification."
+      },
+      weeks: {
+        1: { mission:"Stage mission: introduce yourself as a pipefitter in 60\u201390 seconds.",
+             days:{ Tue:{focus:"Your pipefitting background"},
+                    Sat:{task:"Complete the First Day on a Pipe Crew simulation."} } },
+        5: { learningObjective:"Use confident safety language before, during, and after pipe work.",
+             days:{ Sun:{task:"Give a safety briefing for a pipe-fitting task."} } },
+        6: { stage:"Stage 6 \u2014 Piping Specifications", theme:"Piping Specifications",
+             learningObjective:"Explain a piping specification, sequence, and quality expectation.",
+             vocabularyFocus:"Specification, schedule, rating, tolerance, and sequence.",
+             days:{ Tue:{task:"Describe the order of a fitting task."},
+                    Sun:{task:"Explain a safe fitting procedure clearly."} } },
+        10:{ vocabularyFocus:"Pipeline, joint, permit, isolation, and pressure." },
+        11:{ mission:"Stage mission: complete a confident pipefitting interview introduction.",
+             days:{ Tue:{task:"Answer \u2018Tell me about yourself\u2019 as a pipefitter."} } }
+      },
+      vocabIntro:"Save the terms that help you communicate clearly through every stage of the pipefitting journey."
+    },
+    boilermaker: {
+      phrases: {
+        0:  "I'm a boilermaker with experience in pressure vessels and tube work.",
+        10: "I will follow the approved repair procedure."
+      },
+      weeks: {
+        1: { mission:"Stage mission: introduce yourself as a boilermaker in 60\u201390 seconds.",
+             days:{ Tue:{focus:"Your boilermaking background"},
+                    Sat:{task:"Complete the First Day on a Vessel Job simulation."} } },
+        5: { learningObjective:"Use confident safety language before, during, and after vessel work.",
+             days:{ Sun:{task:"Give a safety briefing for a vessel entry."} } },
+        6: { stage:"Stage 6 \u2014 Vessel Procedures", theme:"Vessel Procedures",
+             learningObjective:"Explain a repair procedure, sequence, and quality expectation.",
+             vocabularyFocus:"Procedure, pressure part, tolerance, hold point, and sequence.",
+             days:{ Tue:{task:"Describe the order of a tube replacement."},
+                    Sun:{task:"Explain a safe repair procedure clearly."} } },
+        10:{ vocabularyFocus:"Vessel, seam, permit, isolation, and pressure." },
+        11:{ mission:"Stage mission: complete a confident boilermaker interview introduction.",
+             days:{ Tue:{task:"Answer \u2018Tell me about yourself\u2019 as a boilermaker."} } }
+      },
+      vocabIntro:"Save the terms that help you communicate clearly through every stage of the boilermaking journey."
+    }
+  };
+
+  /** One week of the plan in the trade's words. Returns the pack's own week when
+     the trade has nothing to say about it, so callers never need to check. */
+  function weekFor(trade, week){
+    const ov = trade && CURRICULUM[trade.id] && CURRICULUM[trade.id].weeks && CURRICULUM[trade.id].weeks[week && week.n];
+    if (!ov) return week;
+    const out = Object.assign({}, week, ov);
+    if (ov.days){
+      out.days = Object.assign({}, week.days);
+      Object.keys(ov.days).forEach(d => { out.days[d] = Object.assign({}, out.days[d], ov.days[d]); });
+    }
+    return out;
+  }
+  /** One phrase-bank line, where the shared one names the wrong job. */
+  function phraseFor(trade, index){
+    const ph = trade && CURRICULUM[trade.id] && CURRICULUM[trade.id].phrases;
+    return (ph && ph[index]) || null;
+  }
+  function vocabIntroFor(trade){
+    return (trade && CURRICULUM[trade.id] && CURRICULUM[trade.id].vocabIntro) || null;
+  }
   /** Codes for a module: trade first, then whatever the caller falls back to. */
   function codesFor(trade, moduleId){
     const own = trade && trade.moduleCodes && trade.moduleCodes[moduleId];
@@ -623,7 +707,7 @@
   global.Trades = Object.freeze({
     all: () => TRADES.slice(),
     get: id => BY_ID.get(id) || null,
-    active, setActive, codesFor, benchmarksFor, questionFor, openingFor, closingFor, vocabFor, coversModule, scenarioFor,
+    active, setActive, codesFor, benchmarksFor, questionFor, openingFor, closingFor, weekFor, phraseFor, vocabIntroFor, vocabFor, coversModule, scenarioFor,
     DEFAULT_ID
   });
 })(window);
