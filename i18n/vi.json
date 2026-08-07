@@ -1000,6 +1000,8 @@
  "sh.starters_captions_note": "🎬 Mỗi clip ở đây tự viết bản ghi của nó — đánh dấu bất kỳ 20–30 giây nào và các từ sẽ hiện ra, đã có sẵn dấu trọng âm.",
  "sh.captions_none": "✏️ Tự gõ bản ghi của bạn",
  "sh.lines_eyebrow": "Từ hành trình nghề hàn của bạn",
+ "sh.title_pro": "Nói như người trong xưởng nói.",
+ "sh.sub_pro": "Những câu bạn thật sự cần ở nơi làm việc, do người đặt câu hỏi nói ra. Nghe, nói lại và xem kết quả — chấm điểm từng từ.",
  "sh.lines_title": "Câu nói nơi làm việc để luyện nhại",
  "sh.lines_sub": "Những câu thật từ chính các buổi thực hành của bạn, do người đặt câu hỏi nói ra. Nghe rồi lặp lại đến khi thật tự nhiên.",
  "sh.lines_more": "Thêm {{n}} câu",

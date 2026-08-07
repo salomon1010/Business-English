@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=7"></script>
-<script src="professional-tracks.js?v=7"></script>
-<script src="competency-engine.js?v=7"></script>
-<script src="learning-coach.js?v=7"></script>
-<script src="professional-simulation-engine.js?v=7"></script>
-<script src="conversation-orchestrator.js?v=7"></script>
-<script src="adaptive-learning-engine.js?v=7"></script>
-<script src="career-center.js?v=7"></script>
-<script src="professional-skills-passport.js?v=7"></script>
-<script src="jurisdictions.js?v=7"></script>
-<script src="trades.js?v=7"></script>
-<script src="answer-evaluator.js?v=7"></script>
+<script src="curriculum-provider.js?v=9"></script>
+<script src="professional-tracks.js?v=9"></script>
+<script src="competency-engine.js?v=9"></script>
+<script src="learning-coach.js?v=9"></script>
+<script src="professional-simulation-engine.js?v=9"></script>
+<script src="conversation-orchestrator.js?v=9"></script>
+<script src="adaptive-learning-engine.js?v=9"></script>
+<script src="career-center.js?v=9"></script>
+<script src="professional-skills-passport.js?v=9"></script>
+<script src="jurisdictions.js?v=9"></script>
+<script src="trades.js?v=9"></script>
+<script src="answer-evaluator.js?v=9"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2514,7 +2514,20 @@ function applyTrackIdentity(){
   if(indicator)indicator.classList.toggle("show",professional);
   /* This runs before the translation dictionary is initialized, so the track
      label is deliberately supplied by the track configuration. */
-  if(name&&track)name.textContent=track.themeLabel;
+  /* The chip is the only chrome on every screen, so it carries the thing the
+     learner must never be in doubt about: which profile the app is assessing
+     them as. "Welding" alone did not distinguish a pipefitter from a
+     boilermaker. Guarded because this also runs before S exists at boot. */
+  if(name&&track){
+    let label=track.themeLabel;
+    try{
+      if(professional&&window.Trades&&typeof S!=="undefined"){
+        const tr=Trades.active(S);
+        if(tr&&tr.name)label=tr.name.replace(/^Professional\s+/,"");
+      }
+    }catch(e){}
+    name.textContent=label;
+  }
 }
 applyTrackIdentity();
 function defState(){
@@ -3285,6 +3298,8 @@ const I18N_EN={
  "sh.starters_captions_note":"🎬 Every clip here writes its own transcript — mark any 20–30 seconds and the words appear, already stress-marked.",
  "sh.captions_none":"✏️ Type your own transcript",
  "sh.lines_eyebrow":"From your welding journey",
+ "sh.title_pro":"Say it like the shop says it.",
+ "sh.sub_pro":"The lines you will actually need at work, spoken by the person who asks for them. Listen, say it back, and see how you did — every word scored.",
  "sh.lines_title":"Workplace lines to shadow",
  "sh.lines_sub":"Real sentences from your own workshops, spoken by the person who asks for them. Listen, then say it back until it sounds like you.",
  "sh.lines_more":"{{n}} more lines",
@@ -4566,10 +4581,10 @@ addEventListener("click",e=>{
    been. It now returns where you came from, and says so. */
 let _careerFrom="profile";
 window.goCareer=(from)=>{_careerFrom=from||(cur&&cur.v)||"profile";go("career")};
-window.careerBack=()=>go(_careerFrom==="home"?"home":"profile");
-window.careerBackLabel=()=>_careerFrom==="home"?t("nav.home_label"):t("profile.eyebrow");
+window.careerBack=()=>go("home");   /* Home is the only door in */
+window.careerBackLabel=()=>t("nav.home_label");
 window.homeTradePick=(id)=>{
-  if(window.Trades&&Trades.setActive(S,id)){save();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
+  if(window.Trades&&Trades.setActive(S,id)){save();applyTrackIdentity();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
 };
 window.homeDestPick=(id)=>{
   S.careerCenter=S.careerCenter||{};S.careerCenter.destination=id;save();
@@ -5426,8 +5441,8 @@ function rShadow(el){
   clearInterval(shTick);ytPlayer=null;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
-  <h1 class="big">${t("sh.title")}</h1>
-  <p class="sub">${t("sh.sub")}</p>
+  <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
+  <p class="sub">${isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub")}</p>
   <div class="hr"></div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
@@ -9379,11 +9394,6 @@ function rProfile(el){
         were the hardest thing on it to find. Career Center stays
         professional-track only; the other two are for everybody. */""}
   <div class="pf-menu">
-${isProfessionalJourney()?`  <button class="pf-row pf-setup" onclick="goCareer('profile')">
-    <span class="pf-ic">${ic("briefcase")}</span>
-    <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>`:""}
   <button class="pf-row pf-setup" onclick="go('setup')">
     <span class="pf-ic">${ic("gear")}</span>
     <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
