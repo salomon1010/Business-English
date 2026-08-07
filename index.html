@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=16"></script>
-<script src="professional-tracks.js?v=16"></script>
-<script src="competency-engine.js?v=16"></script>
-<script src="learning-coach.js?v=16"></script>
-<script src="professional-simulation-engine.js?v=16"></script>
-<script src="conversation-orchestrator.js?v=16"></script>
-<script src="adaptive-learning-engine.js?v=16"></script>
-<script src="career-center.js?v=16"></script>
-<script src="professional-skills-passport.js?v=16"></script>
-<script src="jurisdictions.js?v=16"></script>
-<script src="trades.js?v=16"></script>
-<script src="answer-evaluator.js?v=16"></script>
+<script src="curriculum-provider.js?v=17"></script>
+<script src="professional-tracks.js?v=17"></script>
+<script src="competency-engine.js?v=17"></script>
+<script src="learning-coach.js?v=17"></script>
+<script src="professional-simulation-engine.js?v=17"></script>
+<script src="conversation-orchestrator.js?v=17"></script>
+<script src="adaptive-learning-engine.js?v=17"></script>
+<script src="career-center.js?v=17"></script>
+<script src="professional-skills-passport.js?v=17"></script>
+<script src="jurisdictions.js?v=17"></script>
+<script src="trades.js?v=17"></script>
+<script src="answer-evaluator.js?v=17"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -2406,7 +2406,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
-  <button class="track-indicator" id="trackIndicator" onclick="go('tracks')" aria-label="Open professional tracks"><span><small>Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
+  <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small>Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
@@ -4665,7 +4665,10 @@ addEventListener("click",e=>{
    been. It now returns where you came from, and says so. */
 let _careerFrom="profile";
 window.goCareer=(from)=>{_careerFrom=from||(cur&&cur.v)||"profile";go("career")};
-window.careerBack=()=>go("home");   /* Home is the only door in */
+/* Reached from Home, from the Profile row and now from the header chip, which
+   sits on every screen. Back goes Home in all three cases — the owner asked for
+   that explicitly, and it is the one destination that is never a surprise. */
+window.careerBack=()=>go("home");
 window.careerBackLabel=()=>t("nav.home_label");
 window.homeTradePick=(id)=>{
   if(window.Trades&&Trades.setActive(S,id)){save();applyTrackIdentity();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
