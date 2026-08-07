@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=32"></script>
-<script src="professional-tracks.js?v=32"></script>
-<script src="competency-engine.js?v=32"></script>
-<script src="learning-coach.js?v=32"></script>
-<script src="professional-simulation-engine.js?v=32"></script>
-<script src="conversation-orchestrator.js?v=32"></script>
-<script src="adaptive-learning-engine.js?v=32"></script>
-<script src="career-center.js?v=32"></script>
-<script src="professional-skills-passport.js?v=32"></script>
-<script src="jurisdictions.js?v=32"></script>
-<script src="trades.js?v=32"></script>
-<script src="answer-evaluator.js?v=32"></script>
-<script src="shadow-lines.js?v=32"></script>
+<script src="curriculum-provider.js?v=33"></script>
+<script src="professional-tracks.js?v=33"></script>
+<script src="competency-engine.js?v=33"></script>
+<script src="learning-coach.js?v=33"></script>
+<script src="professional-simulation-engine.js?v=33"></script>
+<script src="conversation-orchestrator.js?v=33"></script>
+<script src="adaptive-learning-engine.js?v=33"></script>
+<script src="career-center.js?v=33"></script>
+<script src="professional-skills-passport.js?v=33"></script>
+<script src="jurisdictions.js?v=33"></script>
+<script src="trades.js?v=33"></script>
+<script src="answer-evaluator.js?v=33"></script>
+<script src="shadow-lines.js?v=33"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -7816,28 +7816,62 @@ function simThreadHTML(run,sc){
 /* The spoken debrief the learner asked for: the person who put the question tells
    them how it went, in their own voice. Composed from the same rubric the card
    shows, so what they hear and what they read can never disagree. */
-function simFeedbackScript(a){
-  const pct=Math.round((a.coverage||0)*100);
-  const out=[];
+/* The whole report, said out loud.
+
+   Two things were wrong. It skipped three of the things on screen — the question
+   that was asked, what the learner actually said, and the coaching note that
+   explains WHY the answer matters — so the spoken version was thinner than the
+   written one it was meant to replace for someone who would rather listen.
+
+   And it was being cut off. The TTS endpoint caps a clip at 600 characters and
+   silently truncates past that; a typical script already ran longer, so the
+   feedback stopped mid-sentence. Rather than raising the cap — which would need
+   the Worker redeployed and would remove a real cost bound — the script is split
+   on sentence boundaries and the clips are played in order. */
+const FB_CLIP_CHARS=440;
+function simFeedbackParts(a){
+  const pct=Math.round((a.coverage||0)*100),out=[];
+  if(a.ask)out.push(`The question was. ${a.ask}`);
   if(!a.answered){
     out.push("You did not answer this one, so there is nothing for me to judge yet.");
+    if(a.why)out.push(a.why);
     out.push(`This is what we were expecting. ${a.model}`);
     out.push("Try it again and say it out loud, even if it is not perfect.");
-    return out.join(" ");
+    return out;
   }
+  if(a.said)out.push(`You said. ${a.said}`);
   out.push(a.covered.length
     ? `You did quite well here. You managed to ${a.covered.map(c=>c.label.toLowerCase()).join(", and to ")}.`
     : "This one did not go well, and I would rather tell you now than let an employer tell you.");
   if(a.missed.length)out.push(`But this is what we were expecting from you. You were supposed to ${a.missed.map(c=>c.label.toLowerCase()).join(", to ")}.`);
   else out.push("You covered everything we listen for on this question.");
   out.push(`This is how a professional would answer it. ${a.model}`);
+  if(a.why)out.push(a.why);
   out.push(`Your score on this question is ${pct} percent.`);
   out.push(pct>=75
     ? "That is a strong answer. Keep saying it that way."
     : "You should work more on knowing this type of requirement, so you can handle this kind of situation properly on site.");
   if(a.vocabMissed&&a.vocabMissed.length)out.push(`Learn these words for next time. ${a.vocabMissed.join(", ")}.`);
-  return out.join(" ");
+  return out;
 }
+/* Pack the parts into clips under the endpoint's limit, splitting a long part on
+   its own sentences rather than mid-word. */
+function simFeedbackClips(a){
+  const clips=[];let cur="";
+  const push=t=>{if(cur&&(cur.length+t.length+1)>FB_CLIP_CHARS){clips.push(cur);cur=""}cur=cur?cur+" "+t:t};
+  simFeedbackParts(a).forEach(part=>{
+    if(part.length<=FB_CLIP_CHARS)return push(part);
+    (part.match(/[^.!?]+[.!?]*\s*/g)||[part]).forEach(sent=>{
+      const t=sent.trim();if(!t)return;
+      if(t.length>FB_CLIP_CHARS){if(cur){clips.push(cur);cur=""}
+        for(let i=0;i<t.length;i+=FB_CLIP_CHARS)clips.push(t.slice(i,i+FB_CLIP_CHARS));return}
+      push(t);
+    });
+  });
+  if(cur)clips.push(cur);
+  return clips;
+}
+function simFeedbackScript(a){return simFeedbackParts(a).join(" ")}
 let _simFbSpeaking=null,_simReport={answers:[],scenarioId:null};
 window.simPlayFeedback=async(i)=>{
   const a=_simReport.answers[i];if(!a)return;
@@ -7848,15 +7882,22 @@ window.simPlayFeedback=async(i)=>{
   _simFbSpeaking=i;
   if(btn){btn.classList.add("on");btn.textContent="■ Stop"}
   const c=simCharacter(sc,a.characterId)||{},gender=c.g||"f",
-        voice=ttsVoice(c.voice,gender),style=c.voiceStyle||"",
-        text=simFeedbackScript(a);
-  const done=()=>{if(_simFbSpeaking===i)simStopFeedback()};
-  const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
-  if(canNatural){
-    try{await fbSayApi(text,1,voice,style);if(_ttsAudio)_ttsAudio.onended=done;else done();return}
-    catch(e){/* fall through to the browser voice */}
+        voice=ttsVoice(c.voice,gender),style=c.voiceStyle||"";
+  const clips=simFeedbackClips(a);
+  let natural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  for(const clip of clips){
+    if(_simFbSpeaking!==i)return;                     /* stopped mid-way */
+    if(natural){
+      try{
+        await fbSayApi(clip,1,voice,style);
+        await new Promise(res=>{if(_ttsAudio)_ttsAudio.onended=res;else res()});
+        continue;
+      }catch(e){natural=false;}   /* one failure drops the rest to the device voice */
+    }
+    if(_simFbSpeaking!==i)return;
+    await new Promise(res=>simSpeakBrowser(clip,gender,res));
   }
-  simSpeakBrowser(text,gender,done);
+  if(_simFbSpeaking===i)simStopFeedback();
 };
 function simStopFeedback(){
   if(window.speechSynthesis)speechSynthesis.cancel();
