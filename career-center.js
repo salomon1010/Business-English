@@ -20,7 +20,20 @@
   function gaps(s,t){return global.AdaptiveLearningEngine.skills(s,t).slice(0,4)}
   function readiness(s,t){return global.AdaptiveLearningEngine.prediction(s,t)}
   function pack(s,t){const mentors=(global.trackAiMentors&&global.trackAiMentors())||[],sims=(global.trackSimulations&&global.trackSimulations())||[];const r=global.AdaptiveLearningEngine.recommendation(s,t),at=Math.min(sims.length-1,Math.max(0,global.currentPos().w-1));return {mentor:mentors[Math.min(mentors.length-1,Math.max(0,global.currentPos().w-1))]||mentors[0],simulation:t.id==="general-english"?(sims[at]||sims[0]):null,recommendation:r}}
-  function render(s){const t=global.activeProfessionalTrack(),d=destination(s),g=gaps(s,t),p=readiness(s,t),k=pack(s,t),st=state(s);return `<div class="career-center"><div class="eyebrow pg-eyebrow"><button class="back" onclick="go('profile')">‹ Profile</button><span>Career Center</span></div><h1 class="big">Global Career Readiness Center</h1><p class="sub">Prepare your professional story, workplace communication, and practice plan for career opportunities.</p><section class="card career-destination"><h2>Career destination</h2><div class="career-select">${DESTINATIONS.map(x=>`<button class="chip ${x.id===d.id?"done":""}" onclick="CareerCenter.select('${x.id}')">${global.esc(x.name)}</button>`).join("")}</div><p><b>${global.esc(d.name)}</b> — educational career preparation only. Always confirm current employer, licensing, and legal requirements with official sources.</p>${(()=>{
+  function render(s){const t=global.activeProfessionalTrack(),d=destination(s),g=gaps(s,t),p=readiness(s,t),k=pack(s,t),st=state(s);return `<div class="career-center"><div class="eyebrow pg-eyebrow"><button class="back" onclick="go('profile')">‹ Profile</button><span>Career Center</span></div><h1 class="big">Global Career Readiness Center</h1><p class="sub">Prepare your professional story, workplace communication, and practice plan for career opportunities.</p>${(()=>{
+      /* The trade decides which codes, vocabulary and model answers the whole
+         app assesses against, so it belongs beside the destination rather than
+         buried in onboarding where it was chosen once and never seen again. */
+      if(!global.Trades||!global.isProfessionalJourney||!global.isProfessionalJourney())return "";
+      const cur=global.Trades.active(s);
+      return `<section class="card career-trade"><h2>Your profession</h2>
+        <div class="career-select">${global.Trades.all().map(x=>`<button class="chip ${x.id===cur.id?"done":""}" onclick="CareerCenter.trade('${global.esc(x.id)}')">${global.esc(x.name)}</button>`).join("")}</div>
+        <p><b>${global.esc(cur.name)}</b> — ${global.esc(cur.focus)}</p>
+        <div class="sim-skill-chips">${cur.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>
+        <p class="career-pay">${global.esc(cur.pay)} · ${global.esc(cur.payNote)} Indicative only — not an offer, a quote or a survey.</p>
+        <p class="career-pay">Changing this changes the standards you are assessed against, the vocabulary your answers are checked for, and the model answers you shadow.</p>
+      </section>`;
+    })()}<section class="card career-destination"><h2>Career destination</h2><div class="career-select">${DESTINATIONS.map(x=>`<button class="chip ${x.id===d.id?"done":""}" onclick="CareerCenter.select('${x.id}')">${global.esc(x.name)}</button>`).join("")}</div><p><b>${global.esc(d.name)}</b> — educational career preparation only. Always confirm current employer, licensing, and legal requirements with official sources.</p>${(()=>{
       /* Say plainly what choosing this destination changes, so the selector is
          not a label the rest of the app ignores. */
       const j=global.Jurisdictions&&global.Jurisdictions.active(s);
@@ -30,5 +43,9 @@
   function select(id){const s=global.appState();state(s).destination=id;global.save();global.go('career')}
   async function polish(){const s=global.appState(),input=(document.getElementById("careerResume")||{}).value||"",out=document.getElementById("careerResumeOut"),api=typeof POLISH_API!=="undefined"?POLISH_API:"";state(s).resume=input;global.save();if(!input.trim()){if(out)out.textContent="Write a short summary first.";return}if(out)out.textContent="Preparing your professional summary…";try{if(!api||!navigator.onLine)throw new Error("offline");const r=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:input.trim(),avoid:[]})});const j=await r.json();if(!r.ok||!Array.isArray(j.versions))throw new Error("unavailable");if(out)out.innerHTML=`<div class="career-polish">${j.versions.slice(0,2).map(v=>`<p><b>${global.esc(v.text)}</b><span>${global.esc(v.learn||"")}</span></p>`).join("")}</div>`}catch(e){if(out)out.innerHTML="<p class=\"sub\">Keep it focused: role, relevant experience, safety or quality standard, and the contribution you want to make.</p>"}}
   function openRecommended(){const s=global.appState(),t=global.activeProfessionalTrack(),r=global.AdaptiveLearningEngine.recommendation(s,t),pos=global.currentPos();global.go(r.go,pos.w,pos.d)}
-  global.CareerCenter=Object.freeze({render,select,polish,openRecommended,destination,gaps,readiness,pack,destinations:DESTINATIONS});
+    function trade(id){
+    const st=global.appState();
+    if(global.Trades&&global.Trades.setActive(st,id)){global.save();global.go("career")}
+  }
+  global.CareerCenter=Object.freeze({render,select,trade,polish,openRecommended,destination,gaps,readiness,pack,destinations:DESTINATIONS});
 })(window);

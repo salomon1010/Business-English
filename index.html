@@ -59,17 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=5"></script>
-<script src="professional-tracks.js?v=5"></script>
-<script src="competency-engine.js?v=5"></script>
-<script src="learning-coach.js?v=5"></script>
-<script src="professional-simulation-engine.js?v=5"></script>
-<script src="conversation-orchestrator.js?v=5"></script>
-<script src="adaptive-learning-engine.js?v=5"></script>
-<script src="career-center.js?v=5"></script>
-<script src="professional-skills-passport.js?v=5"></script>
-<script src="jurisdictions.js?v=5"></script>
-<script src="answer-evaluator.js?v=5"></script>
+<script src="curriculum-provider.js?v=6"></script>
+<script src="professional-tracks.js?v=6"></script>
+<script src="competency-engine.js?v=6"></script>
+<script src="learning-coach.js?v=6"></script>
+<script src="professional-simulation-engine.js?v=6"></script>
+<script src="conversation-orchestrator.js?v=6"></script>
+<script src="adaptive-learning-engine.js?v=6"></script>
+<script src="career-center.js?v=6"></script>
+<script src="professional-skills-passport.js?v=6"></script>
+<script src="jurisdictions.js?v=6"></script>
+<script src="trades.js?v=6"></script>
+<script src="answer-evaluator.js?v=6"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -745,6 +746,17 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.career-trade .sim-skill-chips{margin:8px 0}
+.career-pay{font-size:12px;color:var(--mut2);line-height:1.55;margin:6px 0 0}
+.ob-goals{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto}
+.ob-goal{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line2);
+  background:var(--card2);color:var(--txt);font-family:inherit;text-align:left;cursor:pointer;
+  transition:.15s;min-height:44px}
+.ob-goal:hover,.ob-goal:focus-visible{border-color:var(--acc);transform:translateY(-1px)}
+.ob-goal b{display:block;font-size:15px;margin-bottom:3px}
+.ob-goal small{display:block;color:var(--mut);font-size:12.5px;line-height:1.45}
+.ob-track-pay{margin-top:5px!important;color:var(--mut2)!important;font-size:11.5px!important}
+.ob-logo-weld{background:linear-gradient(145deg,#a66b08,#e2af2f)!important;color:#1b1202!important}
 .ob-tracks{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:0 auto}
 .ob-track{display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:16px;
   border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
@@ -2675,6 +2687,11 @@ const I18N_EN={
  "ob.track_sub":"You can change this any time. Your progress stays either way.",
  "ob.track_general_sub":"Meetings, presentations and everyday professional English.",
  "ob.track_welding_sub":"Workshop English for welders — first day, handovers, safety, interviews.",
+ "ob.trade_title":"Which trade do you work in?",
+ "ob.trade_sub":"This sets your codes, your vocabulary and what a good answer sounds like. You can change it later.",
+ "ob.trade_pay_note":"typical range, varies by region and employer",
+ "ob.trade_goal_sub":"We'll keep this in front of you, and shape your practice around it.",
+ "wc.body_trade":"Twenty-five focused minutes a day is all it takes.",
  "ob.role_title":"What do you do, {{name}}?",
  "ob.role_sub":"Every drill is a rehearsal for your real world — the standup, the update, the interview where you finally sound like yourself.",
  "ob.goal_title":"What's your #1 goal?",
@@ -5141,9 +5158,12 @@ function shWorkplaceLines(){
     Object.keys(qs).forEach(k=>{
       const q=qs[k];
       if(!q||!q.model)return;
+      const _tr=window.Trades?Trades.active(S):null;
+      const _mid=sc.regulatory&&sc.regulatory.moduleId;
+      const _model=(_tr&&_mid&&Trades.answerFor(_tr,_mid))||q.model;
       const askerId=k==="open"?(sc.lead||"hr"):((sc.turns||[]).find(t=>t.q===k)||{}).characterId;
       const c=(typeof simCharacter==="function"&&simCharacter(sc,askerId))||{};
-      out.push({id:sc.id+":"+k,scenario:sc.title,ask:q.ask||"",text:q.model,
+      out.push({id:sc.id+":"+k,scenario:sc.title,ask:q.ask||"",text:_model,
                 who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f",
                 vocab:(q.vocab||[]).slice(0,6)});
     });
@@ -7890,11 +7910,15 @@ function simAnalysisHTML(run,sc){
       /* Which standards apply depends on where the learner is applying. The
          benchmarks are the same everywhere; only the citation changes. */
       const j=window.Jurisdictions?Jurisdictions.active(S):null;
-      const codes=j?Jurisdictions.codesFor(j,reg.moduleId,reg.codes):(reg.codes||[]).map(c=>c.code+" — "+c.title);
+      /* Trade first — a pipefitter is held to B31.3, not to D1.1 — then the
+         jurisdiction, then the pack's own default. */
+      const tr=window.Trades?Trades.active(S):null;
+      const tradeCodes=tr&&window.Trades?Trades.codesFor(tr,reg.moduleId):null;
+      const codes=tradeCodes||(j?Jurisdictions.codesFor(j,reg.moduleId,reg.codes):(reg.codes||[]).map(c=>c.code+" — "+c.title));
       const note=j?Jurisdictions.emphasisFor(j,reg.moduleId):"";
       if(!codes.length)return "";
       return `<div class="sim-ans-regs">
-        <b>Assessed against${j?" · "+esc(j.label):""}</b>
+        <b>Assessed against${tr?" · "+esc(tr.name):""}${j?" · "+esc(j.label):""}</b>
         <div class="sim-skill-chips">${codes.map(c=>`<span>${esc(c)}</span>`).join("")}</div>
         <p>${esc(reg.requirement)}</p>
         ${note?`<p class="sim-ans-emph">${esc(note)}</p>`:""}
@@ -8052,8 +8076,23 @@ function simRecordAnswer(sc,text){
      conversation but there is no model answer to compare against, so they are
      left unscored rather than measured against the wrong question. */
   const key=asked&&asked.q;
-  const rubric=key&&(sc.questions||{})[key];
+  let rubric=key&&(sc.questions||{})[key];
   if(!rubric)return;
+  /* Overlay the trade: its extra required points, its vocabulary and its model
+     answer where the trade changes what a good answer is. The shared rubric is
+     left untouched — this is a copy for scoring this attempt. */
+  const tr=window.Trades?Trades.active(S):null,mid=sc.regulatory&&sc.regulatory.moduleId;
+  if(tr&&mid){
+    const extra=Trades.benchmarksFor(tr,mid).map(b=>({id:b.id,label:b.must,cues:b.cues}));
+    const model=Trades.answerFor(tr,mid);
+    if(extra.length||model||tr.vocab.length){
+      rubric=Object.assign({},rubric,{
+        points:(rubric.points||[]).concat(extra),
+        vocab:Array.from(new Set((rubric.vocab||[]).concat(Trades.vocabFor(tr)))).slice(0,10),
+        model:model||rubric.model
+      });
+    }
+  }
   const result=AnswerEvaluator.evaluate(text,rubric);
   simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
 }
@@ -10829,7 +10868,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 }
 
 /* ===== ONBOARDING (first launch) ===== */
-let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",best:0};
+let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",trade:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
 const OB_TARGET="the main blocker is the vendor api we expect a fix by friday";
 const OB_VOICES=TTS_VOICE_OPTS.filter(v=>v[0]!=="browser").map(v=>v[0]);   // natural voices (no device voice)
@@ -10854,7 +10893,7 @@ function obRender(){
     document.body.appendChild(el)}
   /* Welding leaves after the track step, so its dots only count the steps it will
      actually see. Showing seven and stopping at three would read as unfinished. */
-  const total=OB.track==="welding"?3:7;
+  const total=7;
   const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
@@ -10884,11 +10923,31 @@ function obRender(){
          <span class="ob-track-go">→</span>
        </button>
      </div>`,
-    `<div class="ob-logo">${ic("briefcase")}</div>
+    OB.track==="welding"
+     ?`<div class="ob-logo ob-logo-weld">${ic("briefcase")}</div>
+       <h1>${t("ob.trade_title")}</h1>
+       <p class="sub">${t("ob.trade_sub")}</p>
+       <div class="ob-tracks">${(window.Trades?Trades.all():[]).map(tr=>`
+         <button class="ob-track ob-track-weld" onclick="obTradePick('${esc(tr.id)}')">
+           <span class="ob-track-ic">${ic("briefcase")}</span>
+           <span class="ob-track-t"><b>${esc(tr.name)}</b><small>${esc(tr.focus)}</small>
+             <small class="ob-track-pay">${esc(tr.pay)} · ${esc(t("ob.trade_pay_note"))}</small></span>
+           <span class="ob-track-go">→</span>
+         </button>`).join("")}</div>`
+     :`<div class="ob-logo">${ic("briefcase")}</div>
      <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
      <p class="sub">${t("ob.role_sub")}</p>
      <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
-    `<div class="ob-logo">${ic("target")}</div>
+    OB.track==="welding"
+     ?(()=>{const tr=(window.Trades&&Trades.get(OB.trade))||null;
+        return `<div class="ob-logo ob-logo-weld">${ic("target")}</div>
+       <h1>${t("ob.goal_title")}</h1>
+       <p class="sub">${t("ob.trade_goal_sub")}</p>
+       <div class="ob-goals">${((tr&&tr.goals)||[]).map(g=>`
+         <button class="ob-goal" onclick="obGoalPick('${esc(g.id)}')">
+           <b>${esc(g.label)}</b><small>${esc(g.why)}</small>
+         </button>`).join("")}</div>`})()
+     :`<div class="ob-logo">${ic("target")}</div>
      <h1>${t("ob.goal_title")}</h1>
      <p class="sub">${t("ob.goal_sub")}</p>
      <div class="ob-chips">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
@@ -10900,8 +10959,8 @@ function obRender(){
      <h1>${t("ob.win_title")}</h1>
      <p class="sub">${t("ob.win_sub")}</p>
      <div class="ob-win">
-       <div class="ob-line">“${OB_LINE}”
-         <button class="ob-hear" onclick="fbSay(${jarg(OB_LINE)},.92)">${ic("sound")}<span>${t("ob.hear_first")}</span></button>
+       <div class="ob-line">“${obWinLine()}”
+         <button class="ob-hear" onclick="fbSay(${jarg(obWinLine())},.92)">${ic("sound")}<span>${t("ob.hear_first")}</span></button>
        </div>
        <div id="obStage" class="ob-stage">
          <button class="ob-mic" id="obMicBtn" onclick="obTry()" aria-label="${esc(t("ob.tap_say"))}">${ic("mic")}</button>
@@ -10922,7 +10981,7 @@ function obRender(){
   const sk=el.querySelector(".ob-skip-lang");if(sk)sk.focus();
   if(OB.step===6){
     if(!_voiceOverride)_voiceOverride=OB_VOICES[Math.floor(Math.random()*OB_VOICES.length)];   // surprise a new user with a random natural voice
-    fbWarm(OB_LINE);   // pre-load the clip so "Hear it first" plays instantly on iOS
+    fbWarm(obWinLine());   // pre-load the clip so "Hear it first" plays instantly on iOS
   }
   requestAnimationFrame(obFit);   // every step must fit the screen it's on
 }
@@ -10937,15 +10996,33 @@ window.obNext=()=>{
    questions offer "Product / PM" and "Finance / Business", which are not a
    welder's job and make the app feel like it was built for somebody else. A
    welder goes straight in. */
+/* The sentence a learner first hears themselves say should be one they will
+   actually need. "The main blocker is the vendor API" is not a welder's day. */
+function obWinLine(){
+  if(OB.track==="welding"&&window.Trades){
+    const tr=Trades.get(OB.trade);
+    if(tr&&tr.winLine)return tr.winLine;
+  }
+  return OB_LINE;
+}
 window.obTrackPick=(id)=>{
   OB.track=id;
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
   if(window.ProfessionalTrackContext)ProfessionalTrackContext.setActive(id);
   if(typeof applyTrackIdentity==="function")applyTrackIdentity();
-  if(id!=="general-english")return obFinish();
   obNext();
 };
+/* Which trade, inside the Welding track. It decides the codes, the vocabulary,
+   the extra benchmarks and the model answers the learner will be measured
+   against, so it is asked before anything else is tailored. */
+window.obTradePick=(id)=>{
+  OB.trade=id;
+  if(window.Trades)Trades.setActive(S,id);
+  OB.goal="";
+  obNext();
+};
+window.obGoalPick=(id)=>{OB.goal=id;obNext()};
 window.obLangPick=async(code)=>{
   OB.lang=code;
   await loadLangDict(code);
@@ -11018,13 +11095,14 @@ function obConfetti(){
 window.obFinish=()=>{
   _voiceOverride=null;   // onboarding done → the app now defaults to Alloy (unless the user changes it in Settings)
   S.profile={name:OB.name||"there",role:OB.role||"",goal:OB.goal||"",slot:OB.slot||"",lang:OB.lang||"en",ts:Date.now()};
+  if(OB.track==="welding"&&OB.trade&&window.Trades)Trades.setActive(S,OB.trade);
   if(OB.best>0)S.profile.baseline=OB.best;
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
   track("onboarding_complete",{role:OB.role||"none",goal:OB.goal||"none",lang:OB.lang||"en"});
   /* A welder starts on their own journey; General English keeps its familiar
      first stop in the Shadowing Studio. */
-  go(OB.track==="welding"?"home":"shadow");
+  go("shadow");   /* both tracks start where the practice is */
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };
 /* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
@@ -11038,7 +11116,15 @@ function obWelcome(){
       <h2 id="wcTtl">${t("wc.title")}</h2>
       <p class="wc-lead">${t("wc.lead",{name})}</p>
       ${sc!==null?`<div class="wc-score"><span class="wc-score-l">${t("wc.score_label")}</span><b>${sc}%</b></div>`:""}
-      <p class="wc-body">${t("wc.body")}</p>
+      <p class="wc-body">${(()=>{
+        /* A welder is not starting a twelve-week business-English programme, and
+           saying so would undo the trade they just chose. */
+        if(OB.track==="welding"&&window.Trades){
+          const tr=Trades.get(OB.trade);
+          if(tr&&tr.welcome)return esc(tr.welcome)+" "+esc(t("wc.body_trade"));
+        }
+        return t("wc.body");
+      })()}</p>
       <button class="btn btn-p wc-go" onclick="wcClose()">${t("wc.cta")}</button>
     </div>`;
   document.body.appendChild(ov);
