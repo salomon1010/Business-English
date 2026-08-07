@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=29"></script>
-<script src="professional-tracks.js?v=29"></script>
-<script src="competency-engine.js?v=29"></script>
-<script src="learning-coach.js?v=29"></script>
-<script src="professional-simulation-engine.js?v=29"></script>
-<script src="conversation-orchestrator.js?v=29"></script>
-<script src="adaptive-learning-engine.js?v=29"></script>
-<script src="career-center.js?v=29"></script>
-<script src="professional-skills-passport.js?v=29"></script>
-<script src="jurisdictions.js?v=29"></script>
-<script src="trades.js?v=29"></script>
-<script src="answer-evaluator.js?v=29"></script>
+<script src="curriculum-provider.js?v=30"></script>
+<script src="professional-tracks.js?v=30"></script>
+<script src="competency-engine.js?v=30"></script>
+<script src="learning-coach.js?v=30"></script>
+<script src="professional-simulation-engine.js?v=30"></script>
+<script src="conversation-orchestrator.js?v=30"></script>
+<script src="adaptive-learning-engine.js?v=30"></script>
+<script src="career-center.js?v=30"></script>
+<script src="professional-skills-passport.js?v=30"></script>
+<script src="jurisdictions.js?v=30"></script>
+<script src="trades.js?v=30"></script>
+<script src="answer-evaluator.js?v=30"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -8168,7 +8168,22 @@ function simAnalysisHTML(run,sc){
   </section>`;
 }
 function isFirstDayMission(sc){return activeProfessionalTrack().id==='welding'&&sc&&sc.id==='welding-sim-1'}
-function missionData(sc){return sc.mission||{company:'ABC Fabrication',title:'First Day at the Workshop',welcome:'Welcome to the team. Today is your first day.',locations:[],rewards:[],vocabulary:[],phrases:[],nextMission:{title:'Shift Handover',preview:''}}}
+/* The fallback used to be a hardcoded welding shop, so a pipefitter opening the
+   first workshop was welcomed to "First Day at the Workshop" at "ABC
+   Fabrication" while every other line on the screen said pipe crew. */
+function missionData(sc){
+  if(sc&&sc.mission){
+    /* The pack's mission block carries the welder's title. Where the trade has
+       renamed the workshop, the brief has to be renamed with it — otherwise a
+       pipefitter reads "First Day on a Pipe Crew" on the card and "First Day at
+       the Workshop" on the brief behind it. */
+    const own=typeof simTitle==="function"?simTitle(sc):null;
+    return (own&&own!==sc.title)?Object.assign({},sc.mission,{title:own}):sc.mission;
+  }
+  return {company:'',title:(typeof simTitle==="function"?simTitle(sc||{}):(sc&&sc.title))||'Your first day',
+    welcome:'Welcome to the team. Today is your first day.',
+    locations:[],rewards:[],vocabulary:[],phrases:[],nextMission:{title:'',preview:''}};
+}
 function simMissionBriefing(el,sc,characterId){const mission=missionData(sc),first=simCharacter(sc,characterId);el.innerHTML=`<button class="back" onclick="go('simulation')">‹ Workplace scenarios</button><section class="card sim-stage mission-brief"><div class="mission-company">${esc(mission.company)}</div><div class="eyebrow">Mission</div><h1 class="big">${esc(mission.title)}</h1><p class="sub">${esc(mission.welcome)}</p><div class="sim-card-meta"><span><b>12 minutes</b>Estimated duration</span><span><b>Beginner</b>Difficulty</span><span><b>First day</b>Workplace stage</span></div><span class="sim-card-label">Today's mission</span><div class="sim-objectives-preview">${(sc.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join('')}</div><span class="sim-card-label">Your workplace journey</span><div class="sim-story"><span>${esc((mission.locations||[]).join('  →  '))}</span></div><span class="sim-card-label">Rewards</span><div class="sim-skill-chips">${(mission.rewards||[]).map(reward=>`<span>✓ ${esc(reward)}</span>`).join('')}</div><p class="mission-contact">You will begin with <b>${esc(first.name)}</b>, ${esc(first.role)}.</p><button class="btn btn-p mission-start" onclick="simBeginMission('${esc(sc.id)}','${esc(first.id)}')">Start my first day →</button></section>`}
 function rSimulation(el,id,characterId){
   const engine=window.ProfessionalSimulationEngine,orchestrator=window.ConversationOrchestrator,items=trackSimulations();

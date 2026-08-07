@@ -48,7 +48,7 @@
       /* The workshops where this trade's own expertise is exercised. A welder is
          not assessed on isometric take-outs or steam-drum entry; those belong to
          the other two. Fewer, sharper reps beat a menu of twelve. */
-      modules: [1,2,3,4,5,6,9,11,12],
+      modules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       scenarios: {
         11: {title:"Welding Interview", scenario:"Answer a hiring panel on processes, positions and qualification."}
       },
@@ -89,8 +89,11 @@
         "Cut, bevel and align carbon steel, stainless and alloy pipe with torches, bevellers and clamps.",
         "Rig and position heavy spools, verifying pitch, alignment and root opening for the welder."
       ],
-      modules: [1,2,4,5,7,8,9,11,12],
+      modules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       scenarios: {
+        3: { title: "Torch and Gear Check", scenario: "Check your cutting gear and report a fault before work starts." },
+        6: { title: "Specification Briefing", scenario: "Explain a piping specification and its tolerances." },
+        10: { title: "Line Break Readiness", scenario: "Prove the line is dead before you open it." },
         1:  {title:"First Day on a Pipe Crew", scenario:"Meet the crew and complete onboarding safely."},
         4:  {title:"Spool Preparation and Fit-Up", scenario:"Check material against the isometric and set the fit-up."},
         7:  {title:"Isometric Clarification", scenario:"Resolve a missing dimension before anything is cut."},
@@ -135,8 +138,11 @@
         "Roll, expand and seal tubes into tube sheets to pressure tolerance.",
         "Work inside high-risk confined spaces under strict permit control."
       ],
-      modules: [1,2,3,5,8,9,10,11,12],
+      modules: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       scenarios: {
+        4: { title: "Plate and Tube Preparation", scenario: "Check material against the drawing and prepare it." },
+        6: { title: "Repair Procedure Briefing", scenario: "Explain a code repair procedure and its hold points." },
+        7: { title: "Drawing and Layout Clarification", scenario: "Resolve a tube layout question before anything is pulled." },
         1:  {title:"First Day on a Vessel Job", scenario:"Meet the crew and complete onboarding on an outage."},
         3:  {title:"Rigging and Gear Check", scenario:"Confirm lifting gear and the plan before anything moves."},
         8:  {title:"Lift and Trade Coordination", scenario:"Direct a lift safely around other trades."},
@@ -215,6 +221,64 @@
   const WORKSHOPS = {
 
     pipefitter: {
+      3: {
+        openings: {
+          supervisor:"That gear's yours for the day. Tell me how you'd check it over before you start.",
+          safety:"Priya, safety. Before you light up — talk me through your gear check.",
+          coworker:"Luis here. We're cutting in an hour. How do you go through the gear?",
+          qa:"Amelia. Talk me through how you check your cutting gear.",
+          hr:"Maya from HR, sitting in today. Tell me how you'd check the gear over."
+        },
+        open:{ask:"That gear's yours for the day. Tell me how you'd check it over before you start.",
+          model:"Hoses first — cuts, and the fittings tested with soapy water for leaks. Then the gauges and the flashback arrestors. Then the beveller and the grinder: guards on, discs not chipped. Anything that isn't right doesn't get used until it's sorted.",
+          vocab:["hose","fitting","gauge","flashback arrestor","beveller","guard"]},
+        t0:{ask:"Say the regulator keeps creeping. How would you report that?",
+          model:"Out of service and tell you straight away — a creeping regulator is a leak waiting to happen. I'd tag it and write down what it was doing, not just that it was faulty.",
+          vocab:["regulator","creep","out of service","tag","leak"]},
+        t1:{ask:"If the gear isn't right, what do you do — carry on, or stop?",
+          model:"Stop. There's usually another set in the store, and if there isn't we wait. Cutting gear that isn't right is not something you work around.",
+          vocab:["stop-work","out of service","gear"]},
+        t2:{ask:"And how would you make sure nobody else uses it in the meantime?",
+          model:"Tag it and take it off the rack into quarantine. A tag on its own gets ignored when somebody is in a hurry.",
+          vocab:["tag","quarantine","rack"]},
+        t3:{ask:"Tell me what you'd write in the log.",
+          model:"The gear number, what it was doing, the date and my name, and that it's quarantined. Enough for the next person to find it and know why it's out.",
+          vocab:["log","record","quarantine"]}
+      },
+      6: {
+        open:{ask:"New spec on this job. Tell me back what you understand by it.",
+          model:"It's B31.3 process piping, so the tolerances are tighter than the structural work I've been on — root opening and hi-lo both called out, and every joint checked before it's welded out. I work to the drawing, not to what I'm used to.",
+          vocab:["ASME B31.3","tolerance","root opening","hi-lo","fit-up"]},
+        t0:{ask:"What would you do if the spec and the drawing disagree?",
+          model:"Stop and ask. I don't pick whichever suits me. The spec usually governs, but I want that confirmed by whoever owns the drawing before I cut anything.",
+          vocab:["specification","drawing","governs","hold"]},
+        t1:{ask:"If you're not certain about a step, what happens next?",
+          model:"I ask before I do it, not after. Two minutes now against a cut-out later is not a hard choice.",
+          vocab:["hold point","cut-out","clarification"]},
+        t2:{ask:"How would you explain it to someone who missed the briefing?",
+          model:"Tighter tolerances than usual, every fit-up checked before welding, and the spec governs where the drawing is unclear. Then I'd point them at the copy on the board rather than trusting my summary of it.",
+          vocab:["tolerance","fit-up","specification","briefing"]},
+        t3:{ask:"Anything in it that changes how you protect yourself?",
+          model:"It's hot work in an occupied area, so the permit and the fire watch matter more than usual. And tighter fit-ups mean more grinding, so it's a face shield as well as glasses.",
+          vocab:["hot work","permit","fire watch","PPE"]}
+      },
+      10: {
+        open:{ask:"This is a controlled area. Tell me what you need in place before you start.",
+          model:"Before I break the flange I need the line drained and depressurised, the valves locked and tagged, a blind in where the spec calls for one, and a permit posted that says all of it. And I want to see the gauge read zero myself.",
+          vocab:["line break","depressurise","LOTO","blind","permit"]},
+        t0:{ask:"If the permit runs out mid-job, what do you do?",
+          model:"Stop and come out. The permit expiring means the conditions it was written against are no longer proved. It gets re-issued before I go back to it.",
+          vocab:["permit","expiry","re-issue"]},
+        t1:{ask:"And what should I be watching for while you're working?",
+          model:"Anything upstream changing — a valve moving, a pump starting, pressure coming back. If the line isn't dead any more I need to hear it from you, not find out the hard way.",
+          vocab:["upstream","isolation","valve","pressure"]},
+        t2:{ask:"Who do you call if something changes in the area?",
+          model:"You first, then the permit issuer and the control room. If it's the isolation that's changed, I'm out before it's discussed.",
+          vocab:["permit issuer","control room","isolation"]},
+        t3:{ask:"What has to be signed off before you leave?",
+          model:"The permit closed, the joint left safe or made up, and the tools counted back out. And I say plainly whether the line is ready to be re-pressurised or not.",
+          vocab:["permit close-out","made up","re-pressurise"]}
+      },
       1: {
         openings: {
           hr:"Good morning — you must be the new fitter. I'm Maya from HR. Tell me a little about yourself and the work you've done.",
@@ -393,6 +457,64 @@
     },
 
     boilermaker: {
+      4: {
+        open:{ask:"Material's on the rack. Tell me how you'd get it ready.",
+          model:"Check it against the drawing first — grade, thickness and heat number — then mark, cut and prep the edge to the weld prep on the drawing. Tubes get cut square and deburred, and the ends cleaned back before anything goes near the tube sheet.",
+          vocab:["heat number","grade","weld prep","deburr","tube sheet"]},
+        t0:{ask:"How would you tell me the prep isn't right?",
+          model:"I'd give you the measurement — the bevel angle is out, or the tube is a millimetre short of the sheet. Which piece, which dimension, and whether it can be re-prepped or has to be scrapped.",
+          vocab:["bevel","dimension","re-prep","scrap"]},
+        t1:{ask:"If the material isn't what the job called for, who do you tell?",
+          model:"You, and whoever holds the material certificates. On a pressure part the grade isn't a preference, it's the code — so I stop and quote the heat number rather than cut it.",
+          vocab:["material certificate","heat number","pressure part","code"]},
+        t2:{ask:"And if I've prepped it differently to you — how do we sort that out?",
+          model:"Back to the drawing and the procedure, together. If it's still not clear we ask the inspector rather than each of us doing it our own way.",
+          vocab:["procedure","drawing","inspector"]},
+        t3:{ask:"Anything about this prep that could put someone at risk?",
+          model:"Cutting and grinding is hot work, and plate on trestles has to be chocked. And tube ends are sharp until they're deburred — that's how people take the skin off a hand.",
+          vocab:["hot work","chock","trestle","deburr"]}
+      },
+      6: {
+        open:{ask:"New procedure on this repair. Tell me back what you understand by it.",
+          model:"It's a code repair on a pressure part to Section I, so the weld procedure is fixed and so is the sequence — preheat, fill, and inspection hold points in between. Nothing gets covered up before the inspector has seen it.",
+          vocab:["code repair","pressure part","ASME Section I","preheat","hold point"]},
+        t0:{ask:"What would you do if the procedure and the drawing disagree?",
+          model:"Stop and ask the inspector. On a pressure part I don't choose between two documents — whichever governs, I want it confirmed before an arc is struck.",
+          vocab:["procedure","inspector","governs","hold"]},
+        t1:{ask:"If you're not certain about a step, what happens next?",
+          model:"I ask before it's welded, not after. Once it's covered the only way to check it is to cut it out.",
+          vocab:["hold point","cut-out","inspection"]},
+        t2:{ask:"How would you explain it to someone who missed the briefing?",
+          model:"Code repair, fixed procedure, preheat before you start, and stop at every hold point for the inspector. Then send them to the procedure on the board rather than relying on me.",
+          vocab:["code repair","preheat","hold point","procedure"]},
+        t3:{ask:"Anything in it that changes how you protect yourself?",
+          model:"Preheat means the plate stays hot long after you stop — gloves and sleeves, and mind what you lean on. And if it's inside the vessel, the permit and the gas test apply the whole time, not only at entry.",
+          vocab:["preheat","PPE","permit","gas test","confined space"]}
+      },
+      7: {
+        openings: {
+          qa:"I'm Amelia, I inspect this vessel. You had a question on the drawing — which detail?",
+          supervisor:"Daniel here. You flagged something on the drawing. Which detail?",
+          coworker:"Luis. You said the tube layout isn't clear — what's the problem?",
+          hr:"Maya from HR, observing. Tell me what your question on the drawing is.",
+          safety:"Priya, safety. Before you go in — what's the question on the drawing?"
+        },
+        open:{ask:"You had a question on the drawing. Which detail?",
+          model:"The tube layout on the lower bank. The drawing gives me the pitch but not which holes were plugged in the last repair, and I can't set out the replacements without knowing which ones are live.",
+          vocab:["tube layout","pitch","plugged","bank"]},
+        t0:{ask:"So what do you think it's asking for?",
+          model:"I read it as the full row replaced and the two plugged tubes left alone. But that's my reading — if it's wrong I've either done work nobody asked for or left two tubes that should have come out.",
+          vocab:["row","plugged","replacement"]},
+        t1:{ask:"If I'm not available, who else would you ask?",
+          model:"The inspector, or the outage supervisor if it's urgent. If nobody is available it waits — I don't pull tubes on an assumption.",
+          vocab:["inspector","outage supervisor","hold"]},
+        t2:{ask:"Would you carry on and check later, or wait?",
+          model:"Wait. A tube I've pulled doesn't go back in, so everything before that is reversible and everything after it isn't. I'd move onto the prep work meanwhile.",
+          vocab:["pull","reversible","sequence"]},
+        t3:{ask:"How would you record the answer so the next person has it?",
+          model:"Mark it on the drawing with the date and who confirmed it, and get it into the outage record. On a repair the history matters as much as the work — the next inspector will ask.",
+          vocab:["mark-up","outage record","repair history","sign-off"]}
+      },
       1: {
         openings: {
           hr:"Good morning — you must be the new boilermaker. I'm Maya from HR. Tell me a little about yourself and the work you've done.",
