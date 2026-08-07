@@ -1145,6 +1145,7 @@
  "home.week_days": "días esta semana",
  "home.profession_set": "Profesión: {{name}}. Tus normas, vocabulario y respuestas modelo se ajustan.",
  "home.destination_set": "Destino: {{name}}. Tus informes citarán sus normas.",
+ "home.tracks_sub": "Cambia de profesión o mira las rutas en desarrollo.",
  "sh.more_starters": "Mostrar {{n}} clips más",
  "sh.video_error_title": "Este clip no se reproducirá",
  "sh.video_error_body": "El propietario lo eliminó o bloqueó la inserción. Elige otro clip: tus grabaciones y notas están a salvo.",

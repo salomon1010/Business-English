@@ -1145,6 +1145,7 @@
  "home.week_days": "jours cette semaine",
  "home.profession_set": "Métier : {{name}}. Vos normes, votre vocabulaire et vos réponses modèles suivent.",
  "home.destination_set": "Destination : {{name}}. Vos rapports citeront ses normes.",
+ "home.tracks_sub": "Changez de métier, ou voyez les parcours en préparation.",
  "sh.more_starters": "Afficher {{n}} clips de plus",
  "sh.video_error_title": "Cette vidéo ne peut pas être lue",
  "sh.video_error_body": "Le propriétaire l’a supprimée ou a bloqué l’intégration. Choisissez un autre extrait — vos enregistrements et notes sont intacts.",

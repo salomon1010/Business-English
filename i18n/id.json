@@ -1145,6 +1145,7 @@
  "home.week_days": "hari minggu ini",
  "home.profession_set": "Profesi: {{name}}. Standar, kosakata, dan jawaban model mengikuti.",
  "home.destination_set": "Tujuan: {{name}}. Laporan Anda akan mengutip standarnya.",
+ "home.tracks_sub": "Ganti profesi, atau lihat jalur yang sedang dikembangkan.",
  "sh.more_starters": "Tampilkan {{n}} klip lagi",
  "sh.video_error_title": "Klip ini tidak dapat diputar",
  "sh.video_error_body": "Pemiliknya menghapus atau memblokir penyematan. Pilih klip lain — rekaman dan catatan Anda aman.",

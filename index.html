@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=10"></script>
-<script src="professional-tracks.js?v=10"></script>
-<script src="competency-engine.js?v=10"></script>
-<script src="learning-coach.js?v=10"></script>
-<script src="professional-simulation-engine.js?v=10"></script>
-<script src="conversation-orchestrator.js?v=10"></script>
-<script src="adaptive-learning-engine.js?v=10"></script>
-<script src="career-center.js?v=10"></script>
-<script src="professional-skills-passport.js?v=10"></script>
-<script src="jurisdictions.js?v=10"></script>
-<script src="trades.js?v=10"></script>
-<script src="answer-evaluator.js?v=10"></script>
+<script src="curriculum-provider.js?v=11"></script>
+<script src="professional-tracks.js?v=11"></script>
+<script src="competency-engine.js?v=11"></script>
+<script src="learning-coach.js?v=11"></script>
+<script src="professional-simulation-engine.js?v=11"></script>
+<script src="conversation-orchestrator.js?v=11"></script>
+<script src="adaptive-learning-engine.js?v=11"></script>
+<script src="career-center.js?v=11"></script>
+<script src="professional-skills-passport.js?v=11"></script>
+<script src="jurisdictions.js?v=11"></script>
+<script src="trades.js?v=11"></script>
+<script src="answer-evaluator.js?v=11"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -3040,6 +3040,7 @@ const I18N_EN={
  "home.week_days":"days this week",
  "home.profession_set":"Profession set to {{name}}. Your codes, vocabulary and model answers now follow it.",
  "home.destination_set":"Destination set to {{name}}. Your reports now cite its standards.",
+ "home.tracks_sub":"Switch profession, or see the tracks in development.",
  "home.tabs_label":"Home sections",
  "home.tab_dashboard":"Dashboard",
  "home.tab_rules":"Execution rules",
@@ -4673,10 +4674,15 @@ function rHome(el){
     <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>`:""}
-  <details class="home-more career-dashboard-secondary">
-    <summary><span class="btn-ic">${ic("briefcase")}</span><span>Professional tracks</span><span class="hm-chev">›</span></summary>
-    <div class="home-more-body">${ProfessionalTrackContext.all().filter(item=>item.id==="general-english"||item.id==="welding").map(trackSelectionCard).join("")}<button class="btn btn-g" style="width:100%;margin-top:10px" onclick="go('tracks')">View other professional tracks →</button></div>
-  </details>`;
+  ${/* This was a disclosure that unfolded the same two cards the Professional
+        Tracks page already shows, with a button underneath to go to that page
+        anyway — two ways to the same place, one of them a dead end. It is now a
+        row that goes there, matching the Career Center row above it. */""}
+  <button class="pf-row pf-setup home-career" onclick="go('tracks')">
+    <span class="pf-ic">${ic("briefcase")}</span>
+    <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>`;
   manIconizeInline(el);
 }
 

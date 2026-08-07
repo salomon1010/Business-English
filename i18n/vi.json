@@ -1145,6 +1145,7 @@
  "home.week_days": "ngày tuần này",
  "home.profession_set": "Nghề: {{name}}. Tiêu chuẩn, từ vựng và câu trả lời mẫu sẽ theo đó.",
  "home.destination_set": "Điểm đến: {{name}}. Báo cáo của bạn sẽ trích tiêu chuẩn của nơi đó.",
+ "home.tracks_sub": "Đổi nghề, hoặc xem các lộ trình đang phát triển.",
  "sh.more_starters": "Hiện thêm {{n}} đoạn",
  "sh.video_error_title": "Không phát được đoạn này",
  "sh.video_error_body": "Chủ sở hữu đã xoá hoặc chặn nhúng. Hãy chọn đoạn khác — bản ghi và ghi chú của bạn vẫn an toàn.",

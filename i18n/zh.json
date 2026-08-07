@@ -1145,6 +1145,7 @@
  "home.week_days": "天 本周",
  "home.profession_set": "职业已设为 {{name}}。规范、词汇和范例答案随之调整。",
  "home.destination_set": "目的地已设为 {{name}}。报告将引用当地规范。",
+ "home.tracks_sub": "切换职业，或查看开发中的方向。",
  "sh.more_starters": "再显示 {{n}} 个片段",
  "sh.video_error_title": "此片段无法播放",
  "sh.video_error_body": "所有者已删除或禁止嵌入。请另选一个片段——你的录音和笔记都还在。",
