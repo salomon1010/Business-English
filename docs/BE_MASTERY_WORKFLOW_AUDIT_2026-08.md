@@ -302,12 +302,12 @@ Rules that make it cohere:
 | 2 | Session's scored speech counts as evidence on Progress | Change | hours | done — see changelog |
 | 3 | Readiness derives from `AnswerEvaluator`, not counters | Change | ~1 day | done — see changelog |
 | 4 | Profile roadmap drops counter percentages | Improve | hours | done with item 3 |
-| 5 | Deploy events Worker + 2 workshop events | Change | ~1 hour | open |
-| 6 | Phrase mastery requires one scored attempt | Improve | hours | open |
-| 7 | Prompt delimiters + adversarial fixtures | Improve | hours | open |
-| 8 | Tradesperson review of the 90 answers | Change | external | open |
-| 9 | Workshops for the empty weeks | Improve | days | open |
-| 10 | Extract views from index.html as touched | Improve | ongoing | open |
+| 5 | Deploy events Worker + 2 workshop events | Change | ~1 hour | code done — deploy still needed |
+| 6 | Phrase mastery requires one scored attempt | Improve | hours | done |
+| 7 | Prompt delimiters + adversarial fixtures | Improve | hours | done |
+| 8 | Tradesperson review of the answers | Change | external | review pack built — review still owed |
+| 9 | Workshops for the empty weeks | Improve | days | done |
+| 10 | Extract views from index.html as touched | Improve | ongoing | first seam cut; ongoing |
 
 **Leave alone:** the overlay architecture, the workshop report, i18n discipline,
 the two-Home split, the trade scoping. Those work as designed.
@@ -349,3 +349,44 @@ Items are struck off here as they land, with the commit that did it.
   card now shows answers demonstrated, readiness, the interview workshop, and a
   "Not shown yet" list of workshops with no attempt — which is something the
   learner can act on — plus a line stating the basis.
+
+- **Item 5 — workshop events instrumented.** `workshop_start` and
+  `workshop_score_band` added to the Worker allow-list and fired from the app.
+  Checking the client against the allow-list found four props being discarded on
+  arrival (`app_open`'s three bucketed retention fields and `share`'s kind) and
+  two being sent that policy forbids (`role`, `goal` — profile fields).
+  `scripts/check-events.mjs` now guards the whole class: 13 calls, 13 events, 13
+  props, no mismatches. **The Worker itself is still not deployed** — until
+  `cd backend/events && npx wrangler deploy` is run, every event is still lost.
+
+- **Item 6 — phrase mastery needs evidence.** Marking a phrase mastered requires
+  a recording of it. Gating on a network call would have broken offline-first, so
+  the recording unlocks the claim and the grade, when reachable, qualifies it.
+  Unmarking stays free.
+
+- **Item 7 — learner speech is fenced.** Every learner turn is delimited and the
+  prompt states that what is inside was said aloud and is never a command.
+  Forged fences are stripped first. `scripts/prompt-fixtures.mjs` asserts what is
+  ours to guarantee across 12 adversarial and degenerate inputs — all passing.
+  `buildRequest` is exported so the fixtures test the real assembly.
+
+- **Item 8 — the review is made possible, not done.** Signing off isometrics,
+  tube rolling and blinding needs a qualified tradesperson.
+  `scripts/build-review-pack.mjs` emits `docs/review/<trade>-content-review.md`:
+  every question, model answer, scored terms and governing codes, with a verdict
+  cell. 60 answers per trade. Generated, so it cannot drift from `trades.js`.
+  **The review itself is still owed.**
+
+- **Item 9 — every trade has all twelve workshops.** The six gaps were gaps in
+  authoring, not in relevance: pipefitters check cutting gear, work to a
+  specification and break lines under permit; boilermakers prep plate and tube,
+  work to a repair procedure and read a tube layout. 30 new answers. The welder
+  needed none — the pack is already its content. Also fixed: the mission brief
+  behind the first workshop carried the pack's title, so a pipefitter read one
+  name on the card and another on the brief.
+
+- **Item 10 — the first seam is cut.** The workplace-lines feature moved to
+  `shadow-lines.js` unchanged: 222 lines out, 8 functions, and nothing outside
+  referenced any of its internals. index.html is 11,701 lines, down from 11,922.
+  Verified by clicking the extracted handlers in a real browser, not by assuming
+  the globals resolved. This stays ongoing — one seam per change, when touched.
