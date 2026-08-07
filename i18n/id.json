@@ -1004,6 +1004,7 @@
  "sh.line_answering": "Menjawab: {{q}}",
  "sh.line_vocab": "Kata yang seharusnya ada di jawaban ini",
  "sh.line_takes": "{{n}} rekaman tersimpan di perangkat ini",
+ "sh.line_takes_h": "Rekaman Anda",
  "sh.captions_fetching": "Mengambil takarir video ini…",
  "sh.captions_manual": "Satu langkah untuk membuka penilaian: buka video ini di YouTube, ketuk “…lainnya” → “Tampilkan transkrip”, salin baris yang Anda tandai, lalu tempel di atas. Penanda waktu dihapus otomatis.",
  "sh.captions_open_yt": "Buka di YouTube",

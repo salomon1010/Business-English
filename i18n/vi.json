@@ -1004,6 +1004,7 @@
  "sh.line_answering": "Trả lời cho: {{q}}",
  "sh.line_vocab": "Những từ câu trả lời này cần có",
  "sh.line_takes": "Đã lưu {{n}} bản ghi trên thiết bị này",
+ "sh.line_takes_h": "Các bản ghi của bạn",
  "sh.captions_fetching": "Đang lấy phụ đề của video này…",
  "sh.captions_manual": "Một bước để mở khóa chấm điểm: mở video này trên YouTube, chạm “…thêm” → “Hiển thị bản ghi”, sao chép những dòng bạn đã đánh dấu rồi dán vào ô trên. Dấu thời gian sẽ tự động bị loại bỏ.",
  "sh.captions_open_yt": "Mở trên YouTube",

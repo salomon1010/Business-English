@@ -739,6 +739,8 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.sh-line-takes{margin-bottom:14px}
+.sh-line-takes>b{display:block;font-size:12.5px;margin-bottom:8px}
 .sh-line-extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .sh-line-voc{margin-top:10px}
 .sh-line-voc>b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);margin-bottom:6px}
@@ -3237,6 +3239,7 @@ const I18N_EN={
  "sh.line_answering":"Answering: {{q}}",
  "sh.line_vocab":"Words this answer should carry",
  "sh.line_takes":"{{n}} take(s) kept on this device",
+ "sh.line_takes_h":"Your takes",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -4997,8 +5000,8 @@ function countPauses(peaks,dur){
   for(const p of peaks){if(p<0.08){run++}else{if(run>=minRun)n++;run=0}}
   return n;
 }
-async function waveRender(ctxName){
-  const box=document.getElementById("waveBox");if(!box)return;
+async function waveRender(ctxName,boxId){
+  const box=document.getElementById(boxId||"waveBox");if(!box)return;
   try{
     const recs=await getRecs(ctxName);
     if(!recs.length){box.innerHTML="";return}
@@ -5042,8 +5045,8 @@ async function waveRender(ctxName){
     box.insertAdjacentHTML("beforeend",`<p style="font-size:12.5px;color:var(--mut);margin-top:8px">${insight}</p>`);
   }catch(e){box.innerHTML=""}
 }
-async function renderRecs(ctx){
-  const list=document.getElementById("recList");if(!list)return;
+async function renderRecs(ctx,listId){
+  const list=document.getElementById(listId||"recList");if(!list)return;
   waveRender(ctx);
   const recs=await getRecs(ctx);
   list.innerHTML=recs.length?recs.map(r=>{
@@ -5153,29 +5156,6 @@ function shLineFeedback(id,html){
    decodePeaks, countPauses, fbAssess and perfPanel rather than reimplementing
    any of them, so both sides of Shadow stay in step. */
 function shLineCtx(id){return "line-"+id}
-async function shLineWaveHTML(ctx){
-  const recs=await getRecs(ctx);
-  if(!recs.length)return "";
-  const N=420,latest=await decodePeaks(recs[0].blob,N),prev=recs[1]?await decodePeaks(recs[1].blob,N):null;
-  const W=640,H=110,mid=H/2,cv=document.createElement("canvas");cv.width=W;cv.height=H;
-  const g=cv.getContext("2d"),maxDur=Math.max(latest.dur,prev?prev.dur:0)||1;
-  const draw=(pk,dur,color)=>{const usable=W*(dur/maxDur),bw=usable/pk.length;g.fillStyle=color;
-    for(let i=0;i<pk.length;i++){const h=Math.max(1.5,pk[i]*(H/2-6));g.fillRect(i*bw,mid-h,Math.max(1,bw*.75),h*2)}};
-  if(prev)draw(prev.peaks,prev.dur,"rgba(148,163,184,.38)");
-  draw(latest.peaks,latest.dur,"color-mix(in srgb,var(--acc) 80%,transparent)".replace(/.*/,"rgba(212,151,23,.85)"));
-  g.fillStyle="rgba(255,255,255,.22)";g.fillRect(0,mid,W,1);
-  const pl=countPauses(latest.peaks,latest.dur);
-  let insight;
-  if(prev){
-    const dd=latest.dur-prev.dur,pp=countPauses(prev.peaks,prev.dur);
-    insight=t("wave.insight_prev",{cur:latest.dur.toFixed(1),prev:prev.dur.toFixed(1)})
-      +(Math.abs(dd)>=0.8?(dd<0?t("wave.tighter",{d:(-dd).toFixed(1)}):t("wave.longer",{d:dd.toFixed(1)})):t("wave.consistent"))
-      +(pp!==pl?t("wave.pauses_was",{n:pl,prev:pp}):t("wave.pauses_suffix",{n:pl}));
-  }else insight=t(pl!==1?"wave.first_many":"wave.first_one",{dur:latest.dur.toFixed(1),n:pl});
-  return `<div class="sh-line-wave"><b>${esc(t("wave.title"))}</b>
-    <img src="${cv.toDataURL("image/png")}" alt="" width="${W}" height="${H}">
-    <p>${insight}</p><small>${esc(t("sh.line_takes",{n:recs.length}))}</small></div>`;
-}
 window.shLineRecord=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
   const btn=document.getElementById("shr-"+CSS.escape(id)),ctx=shLineCtx(id);
@@ -5196,9 +5176,10 @@ window.shLineRecord=async(id)=>{
     try{await addRec(ctx,line.who+" — "+line.scenario,blob,Date.now())}catch(e){}
     let res=null;
     try{res=await fbAssess(blob,line.text)}catch(e){}
-    const wave=await shLineWaveHTML(ctx).catch(()=>"");
     if(!res||!res.words||!res.words.length){
-      shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>${wave}`);return;
+      shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nograde"))}</span>`);
+      try{await renderRecs(ctx,slot)}catch(e){}
+      return;
     }
     const col=v=>v>=80?"var(--green)":v>=55?"var(--gold)":"var(--red)";
     res.words.forEach(w=>{const k=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
@@ -5232,13 +5213,23 @@ window.shLineRecord=async(id)=>{
        the audio itself, the words this answer must carry, the waveform against
        the previous take, and the trend. */
     const box=document.getElementById(slot);
+    if(box)box.insertAdjacentHTML("afterbegin",`
+      <div class="sh-line-takes">
+        <b>${esc(t("sh.line_takes_h"))}</b>
+        <div id="recl-${esc(id)}"></div>
+        <div id="wave-${esc(id)}" style="margin-top:12px"></div>
+      </div>`);
+    /* The clip workspace's own take list and waveform, rendered into this line's
+       slot. Both take an element id now for the same reason fbShowResults does:
+       several lines can be open at once. */
+    try{await renderRecs(ctx,"recl-"+id)}catch(e){}
+    try{await waveRender(ctx,"wave-"+id)}catch(e){}
     if(box)box.insertAdjacentHTML("beforeend",`
       <div class="sh-line-extra">
         <div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
         <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
         ${(line.vocab||[]).length?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
           <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
-        ${wave}
         ${perfPanel(perfSeries("clip",ctx))}
       </div>`);
     return;

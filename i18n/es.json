@@ -1004,6 +1004,7 @@
  "sh.line_answering": "Respondiendo a: {{q}}",
  "sh.line_vocab": "Palabras que debe contener esta respuesta",
  "sh.line_takes": "{{n}} toma(s) guardadas en este dispositivo",
+ "sh.line_takes_h": "Tus tomas",
  "sh.captions_fetching": "Obteniendo los subtítulos de este vídeo…",
  "sh.captions_manual": "Un paso para desbloquear la puntuación: abre este vídeo en YouTube, toca «…más» → «Mostrar transcripción», copia las líneas que marcaste y pégalas arriba. Las marcas de tiempo se eliminan automáticamente.",
  "sh.captions_open_yt": "Abrir en YouTube",

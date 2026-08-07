@@ -1004,6 +1004,7 @@
  "sh.line_answering": "답변 질문: {{q}}",
  "sh.line_vocab": "이 답변에 들어가야 할 단어",
  "sh.line_takes": "이 기기에 저장된 녹음 {{n}}개",
+ "sh.line_takes_h": "내 녹음",
  "sh.captions_fetching": "이 영상의 자막을 가져오는 중…",
  "sh.captions_manual": "채점을 여는 방법은 한 단계입니다: 이 영상을 YouTube에서 열고 “…더보기” → “스크립트 표시”를 누른 뒤, 표시한 줄을 복사해 위에 붙여넣으세요. 타임스탬프는 자동으로 제거됩니다.",
  "sh.captions_open_yt": "YouTube에서 열기",
