@@ -59,17 +59,17 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=4"></script>
-<script src="professional-tracks.js?v=4"></script>
-<script src="competency-engine.js?v=4"></script>
-<script src="learning-coach.js?v=4"></script>
-<script src="professional-simulation-engine.js?v=4"></script>
-<script src="conversation-orchestrator.js?v=4"></script>
-<script src="adaptive-learning-engine.js?v=4"></script>
-<script src="career-center.js?v=4"></script>
-<script src="professional-skills-passport.js?v=4"></script>
-<script src="jurisdictions.js?v=4"></script>
-<script src="answer-evaluator.js?v=4"></script>
+<script src="curriculum-provider.js?v=5"></script>
+<script src="professional-tracks.js?v=5"></script>
+<script src="competency-engine.js?v=5"></script>
+<script src="learning-coach.js?v=5"></script>
+<script src="professional-simulation-engine.js?v=5"></script>
+<script src="conversation-orchestrator.js?v=5"></script>
+<script src="adaptive-learning-engine.js?v=5"></script>
+<script src="career-center.js?v=5"></script>
+<script src="professional-skills-passport.js?v=5"></script>
+<script src="jurisdictions.js?v=5"></script>
+<script src="answer-evaluator.js?v=5"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -745,6 +745,19 @@ body.sh-work-open{overflow:hidden}
 .sh-lines-fb{margin:0 0 14px;padding:11px 13px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);font-size:12.5px;line-height:1.6}
 .sh-lines-fb b{font-size:13.5px}
 .sh-lines-fb span:last-child{color:var(--mut)}
+.ob-tracks{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:0 auto}
+.ob-track{display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:16px;
+  border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
+  text-align:left;cursor:pointer;transition:.15s;min-height:44px}
+.ob-track:hover,.ob-track:focus-visible{border-color:var(--acc);transform:translateY(-1px)}
+.ob-track-ic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;
+  background:linear-gradient(145deg,#6366f1,#22d3ee);color:#fff}
+.ob-track-ic svg{width:22px;height:22px}
+.ob-track-weld .ob-track-ic{background:linear-gradient(145deg,#a66b08,#e2af2f);color:#1b1202}
+.ob-track-t{flex:1;min-width:0}
+.ob-track-t b{display:block;font-size:15.5px;margin-bottom:3px}
+.ob-track-t small{display:block;color:var(--mut);font-size:12.5px;line-height:1.45}
+.ob-track-go{flex:none;color:var(--mut)}
 .sh-line-report{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);overflow:hidden}
 .sh-line-report>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
   list-style:none;min-height:44px;font-size:13.5px;font-weight:700}
@@ -2658,6 +2671,10 @@ const I18N_EN={
  "ob.already_account":"Already have an account?",
  "ob.login":"Log in",
  "ob.skip_lang":"Skip — continue in English",
+ "ob.track_title":"What do you want to practise?",
+ "ob.track_sub":"You can change this any time. Your progress stays either way.",
+ "ob.track_general_sub":"Meetings, presentations and everyday professional English.",
+ "ob.track_welding_sub":"Workshop English for welders — first day, handovers, safety, interviews.",
  "ob.role_title":"What do you do, {{name}}?",
  "ob.role_sub":"Every drill is a rehearsal for your real world — the standup, the update, the interview where you finally sound like yourself.",
  "ob.goal_title":"What's your #1 goal?",
@@ -10812,7 +10829,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 }
 
 /* ===== ONBOARDING (first launch) ===== */
-let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",best:0};
+let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
 const OB_TARGET="the main blocker is the vendor api we expect a fix by friday";
 const OB_VOICES=TTS_VOICE_OPTS.filter(v=>v[0]!=="browser").map(v=>v[0]);   // natural voices (no device voice)
@@ -10835,7 +10852,10 @@ function obRender(){
     el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");
     el.setAttribute("aria-label",t("ob.hero_pre")+" "+t("ob.hero_em"));
     document.body.appendChild(el)}
-  const dots=`<div class="ob-dots">${[0,1,2,3,4,5].map(i=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
+  /* Welding leaves after the track step, so its dots only count the steps it will
+     actually see. Showing seven and stopping at three would read as unfinished. */
+  const total=OB.track==="welding"?3:7;
+  const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
     `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
      <h1>${t("ob.hero_pre")} <em class="ob-em">${t("ob.hero_em")}</em></h1>
@@ -10849,6 +10869,21 @@ function obRender(){
      <button class="btn-primary ob-go ob-skip-lang" onclick="obLangPick('en')">${t("ob.skip_lang")} →</button>
      <input id="obLangSearch" class="lang-search" aria-label="${esc(t("lang.search_placeholder"))}" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
      <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>`,
+    `<div class="ob-logo">${ic("briefcase")}</div>
+     <h1>${t("ob.track_title")}</h1>
+     <p class="sub">${t("ob.track_sub")}</p>
+     <div class="ob-tracks">
+       <button class="ob-track" onclick="obTrackPick('general-english')">
+         <span class="ob-track-ic">${ic("chat")}</span>
+         <span class="ob-track-t"><b>${t("tracks.general")}</b><small>${t("ob.track_general_sub")}</small></span>
+         <span class="ob-track-go">→</span>
+       </button>
+       <button class="ob-track ob-track-weld" onclick="obTrackPick('welding')">
+         <span class="ob-track-ic">${ic("briefcase")}</span>
+         <span class="ob-track-t"><b>${t("tracks.welding")}</b><small>${t("ob.track_welding_sub")}</small></span>
+         <span class="ob-track-go">→</span>
+       </button>
+     </div>`,
     `<div class="ob-logo">${ic("briefcase")}</div>
      <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
      <p class="sub">${t("ob.role_sub")}</p>
@@ -10880,8 +10915,12 @@ function obRender(){
   ];
   el.innerHTML=`<div class="ob-card" role="group" aria-label="${esc(t("ob.hero_pre"))}">${steps[OB.step]}${dots}</div>`;
   const inp=document.getElementById("obName");if(inp){inp.value=OB.name;inp.focus()}
-  const ls=document.getElementById("obLangSearch");if(ls)ls.focus();
-  if(OB.step===5){
+  /* Deliberately NOT the search field: focusing a text input raises the phone
+     keyboard over the very list the learner is trying to read, before they have
+     decided whether they want to search at all. Focus rests on Skip, so the
+     obvious action is one tap and the list is free to scroll. */
+  const sk=el.querySelector(".ob-skip-lang");if(sk)sk.focus();
+  if(OB.step===6){
     if(!_voiceOverride)_voiceOverride=OB_VOICES[Math.floor(Math.random()*OB_VOICES.length)];   // surprise a new user with a random natural voice
     fbWarm(OB_LINE);   // pre-load the clip so "Hear it first" plays instantly on iOS
   }
@@ -10890,8 +10929,22 @@ function obRender(){
 window.obNext=()=>{
   if(OB.step===0){OB.name=(document.getElementById("obName").value||"").trim();if(!OB.name)return toast(t("ob.name_required_toast"))}
   OB.step++;
-  if(OB.step>5)return obFinish();
+  if(OB.step>6)return obFinish();
   obRender();
+};
+/* Choosing a profession is the fork in onboarding. General English carries on
+   through role, goal and daily slot as it always has. Welding does not: those
+   questions offer "Product / PM" and "Finance / Business", which are not a
+   welder's job and make the app feel like it was built for somebody else. A
+   welder goes straight in. */
+window.obTrackPick=(id)=>{
+  OB.track=id;
+  S.professionalTracks=S.professionalTracks||{};
+  S.professionalTracks.activeId=id;
+  if(window.ProfessionalTrackContext)ProfessionalTrackContext.setActive(id);
+  if(typeof applyTrackIdentity==="function")applyTrackIdentity();
+  if(id!=="general-english")return obFinish();
+  obNext();
 };
 window.obLangPick=async(code)=>{
   OB.lang=code;
@@ -10969,7 +11022,9 @@ window.obFinish=()=>{
   save();
   const el=document.getElementById("obWrap");if(el)el.remove();
   track("onboarding_complete",{role:OB.role||"none",goal:OB.goal||"none",lang:OB.lang||"en"});
-  go("shadow");
+  /* A welder starts on their own journey; General English keeps its familiar
+     first stop in the Shadowing Studio. */
+  go(OB.track==="welding"?"home":"shadow");
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };
 /* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
