@@ -16,7 +16,23 @@
      Deliberately NOT "we're working through <scenario title>": nobody at work
      announces the title of the conversation they are having, and hearing one is
      what made this feel like a questionnaire. */
+  /* The trade the learner chose rewrites some of these questions outright: a
+     pipefitter is asked about sizes and schedules where a welder is asked about
+     positions. The pack stays the fallback, so a trade with no overlay for a
+     module keeps the shared workshop exactly as written. */
+  function tradeQ(sc,key){
+    if(!global.Trades||typeof global.isProfessionalJourney!=="function"||!global.isProfessionalJourney())return null;
+    const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
+    return mid?global.Trades.questionFor(global.Trades.active(global.S||{}),mid,key):null;
+  }
+  function tradeOpening(sc,c){
+    if(!global.Trades||typeof global.isProfessionalJourney!=="function"||!global.isProfessionalJourney())return null;
+    const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
+    return mid?global.Trades.openingFor(global.Trades.active(global.S||{}),mid,c.id):null;
+  }
   function opening(sc,c){
+    const tr=tradeOpening(sc,c);
+    if(tr)return tr.needsGreeting?`${c.name} here, ${String(c.role||"").toLowerCase()}. ${tr.text}`:tr.text;
     const set=(sc&&sc.openings)||{};
     if(set[c.id])return set[c.id];
     return `${c.name} here, ${String(c.role||"").toLowerCase()}. Tell me about yourself and the work you've done.`;
@@ -48,11 +64,17 @@
     const turns=sc.turns||[],i=Number(sim.beat)||0;
     if(i<turns.length){
       sim.beat=i+1;
-      const beat=turns[i],c=character(sc,beat.characterId);
-      return {characterId:c.id,text:beat.text,q:beat.q||null};
+      const beat=turns[i],c=character(sc,beat.characterId),tq=tradeQ(sc,beat.q);
+      return {characterId:c.id,text:(tq&&tq.ask)||beat.text,q:beat.q||null};
     }
     const close=sc.closing||{},c=character(sc,close.characterId);
-    return {characterId:c.id,text:close.text||"That's everything for today. Let's look at how it went.",complete:true};
+    let line=close.text||"That's everything for today. Let's look at how it went.";
+    if(global.Trades&&typeof global.isProfessionalJourney==="function"&&global.isProfessionalJourney()){
+      const mid=sc&&sc.regulatory&&sc.regulatory.moduleId;
+      const tc=mid&&global.Trades.closingFor(global.Trades.active(global.S||{}),mid);
+      if(tc)line=tc;
+    }
+    return {characterId:c.id,text:line,complete:true};
   }
   function send(sim,text){
     const sc=find(sim&&sim.id);if(!sc||!sim||sim.finished||!phrase(text))return {simulation:sim};

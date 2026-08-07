@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=14"></script>
-<script src="professional-tracks.js?v=14"></script>
-<script src="competency-engine.js?v=14"></script>
-<script src="learning-coach.js?v=14"></script>
-<script src="professional-simulation-engine.js?v=14"></script>
-<script src="conversation-orchestrator.js?v=14"></script>
-<script src="adaptive-learning-engine.js?v=14"></script>
-<script src="career-center.js?v=14"></script>
-<script src="professional-skills-passport.js?v=14"></script>
-<script src="jurisdictions.js?v=14"></script>
-<script src="trades.js?v=14"></script>
-<script src="answer-evaluator.js?v=14"></script>
+<script src="curriculum-provider.js?v=15"></script>
+<script src="professional-tracks.js?v=15"></script>
+<script src="competency-engine.js?v=15"></script>
+<script src="learning-coach.js?v=15"></script>
+<script src="professional-simulation-engine.js?v=15"></script>
+<script src="conversation-orchestrator.js?v=15"></script>
+<script src="adaptive-learning-engine.js?v=15"></script>
+<script src="career-center.js?v=15"></script>
+<script src="professional-skills-passport.js?v=15"></script>
+<script src="jurisdictions.js?v=15"></script>
+<script src="trades.js?v=15"></script>
+<script src="answer-evaluator.js?v=15"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -5291,14 +5291,15 @@ function shWorkplaceLines(){
     Object.keys(qs).forEach(k=>{
       const q=qs[k];
       if(!q||!q.model)return;
-      const _tr=window.Trades?Trades.active(S):null;
+      const _tr=window.Trades&&isProfessionalJourney()?Trades.active(S):null;
       const _mid=sc.regulatory&&sc.regulatory.moduleId;
-      const _model=(_tr&&_mid&&Trades.answerFor(_tr,_mid))||q.model;
+      const _tq=(_tr&&_mid&&Trades.questionFor(_tr,_mid,k))||null;
+      const _model=(_tq&&_tq.model)||q.model;
       const askerId=k==="open"?(sc.lead||"hr"):((sc.turns||[]).find(t=>t.q===k)||{}).characterId;
       const c=(typeof simCharacter==="function"&&simCharacter(sc,askerId))||{};
-      out.push({id:sc.id+":"+k,scenario:simTitle(sc),ask:q.ask||"",text:_model,
+      out.push({id:sc.id+":"+k,scenario:simTitle(sc),ask:(_tq&&_tq.ask)||q.ask||"",text:_model,
                 who:c.name||"",role:c.role||"",voice:c.voice||"",style:c.voiceStyle||"",g:c.g||"f",
-                vocab:(q.vocab||[]).slice(0,6)});
+                vocab:((_tq&&_tq.vocab)||q.vocab||[]).slice(0,6)});
     });
   });
   return out;
@@ -8217,12 +8218,13 @@ function simRecordAnswer(sc,text){
   const tr=window.Trades?Trades.active(S):null,mid=sc.regulatory&&sc.regulatory.moduleId;
   if(tr&&mid){
     const extra=Trades.benchmarksFor(tr,mid).map(b=>({id:b.id,label:b.must,cues:b.cues}));
-    const model=Trades.answerFor(tr,mid);
-    if(extra.length||model||tr.vocab.length){
+    const tq=Trades.questionFor(tr,mid,key);
+    if(extra.length||tq||tr.vocab.length){
       rubric=Object.assign({},rubric,{
         points:(rubric.points||[]).concat(extra),
-        vocab:Array.from(new Set((rubric.vocab||[]).concat(Trades.vocabFor(tr)))).slice(0,10),
-        model:model||rubric.model
+        vocab:Array.from(new Set(((tq&&tq.vocab)||rubric.vocab||[]).concat(Trades.vocabFor(tr)))).slice(0,10),
+        model:(tq&&tq.model)||rubric.model,
+        ask:(tq&&tq.ask)||rubric.ask
       });
     }
   }
