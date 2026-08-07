@@ -59,18 +59,18 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=6"></script>
-<script src="professional-tracks.js?v=6"></script>
-<script src="competency-engine.js?v=6"></script>
-<script src="learning-coach.js?v=6"></script>
-<script src="professional-simulation-engine.js?v=6"></script>
-<script src="conversation-orchestrator.js?v=6"></script>
-<script src="adaptive-learning-engine.js?v=6"></script>
-<script src="career-center.js?v=6"></script>
-<script src="professional-skills-passport.js?v=6"></script>
-<script src="jurisdictions.js?v=6"></script>
-<script src="trades.js?v=6"></script>
-<script src="answer-evaluator.js?v=6"></script>
+<script src="curriculum-provider.js?v=7"></script>
+<script src="professional-tracks.js?v=7"></script>
+<script src="competency-engine.js?v=7"></script>
+<script src="learning-coach.js?v=7"></script>
+<script src="professional-simulation-engine.js?v=7"></script>
+<script src="conversation-orchestrator.js?v=7"></script>
+<script src="adaptive-learning-engine.js?v=7"></script>
+<script src="career-center.js?v=7"></script>
+<script src="professional-skills-passport.js?v=7"></script>
+<script src="jurisdictions.js?v=7"></script>
+<script src="trades.js?v=7"></script>
+<script src="answer-evaluator.js?v=7"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -4561,6 +4561,13 @@ addEventListener("click",e=>{
 });
 
 /* ================= DASHBOARD ================= */
+/* The Career Center is reachable from Home and from Profile, and its back button
+   was hardcoded to Profile — so arriving from Home sent you somewhere you had not
+   been. It now returns where you came from, and says so. */
+let _careerFrom="profile";
+window.goCareer=(from)=>{_careerFrom=from||(cur&&cur.v)||"profile";go("career")};
+window.careerBack=()=>go(_careerFrom==="home"?"home":"profile");
+window.careerBackLabel=()=>_careerFrom==="home"?t("nav.home_label"):t("profile.eyebrow");
 window.homeTradePick=(id)=>{
   if(window.Trades&&Trades.setActive(S,id)){save();toast(t("home.profession_set",{name:Trades.get(id).name}));go("home")}
 };
@@ -4629,7 +4636,7 @@ function rHome(el){
         primary action rather than beside it, so the day's mission stays the
         decision Home asks for. General English does not have one. */
     isProfessionalJourney()?`
-  <button class="pf-row pf-setup home-career" onclick="go('career')">
+  <button class="pf-row pf-setup home-career" onclick="goCareer('home')">
     <span class="pf-ic">${ic("briefcase")}</span>
     <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
@@ -9372,7 +9379,7 @@ function rProfile(el){
         were the hardest thing on it to find. Career Center stays
         professional-track only; the other two are for everybody. */""}
   <div class="pf-menu">
-${isProfessionalJourney()?`  <button class="pf-row pf-setup" onclick="go('career')">
+${isProfessionalJourney()?`  <button class="pf-row pf-setup" onclick="goCareer('profile')">
     <span class="pf-ic">${ic("briefcase")}</span>
     <span class="pf-txt"><b>Career Center</b><small>Destination guidance, career gaps, and interview preparation.</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
