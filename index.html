@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=75"></script>
-<script src="professional-tracks.js?v=75"></script>
-<script src="competency-engine.js?v=75"></script>
-<script src="learning-coach.js?v=75"></script>
-<script src="professional-simulation-engine.js?v=75"></script>
-<script src="conversation-orchestrator.js?v=75"></script>
-<script src="adaptive-learning-engine.js?v=75"></script>
-<script src="career-center.js?v=75"></script>
-<script src="professional-skills-passport.js?v=75"></script>
-<script src="jurisdictions.js?v=75"></script>
-<script src="trades.js?v=75"></script>
-<script src="answer-evaluator.js?v=75"></script>
-<script src="shadow-lines.js?v=75"></script>
+<script src="curriculum-provider.js?v=76"></script>
+<script src="professional-tracks.js?v=76"></script>
+<script src="competency-engine.js?v=76"></script>
+<script src="learning-coach.js?v=76"></script>
+<script src="professional-simulation-engine.js?v=76"></script>
+<script src="conversation-orchestrator.js?v=76"></script>
+<script src="adaptive-learning-engine.js?v=76"></script>
+<script src="career-center.js?v=76"></script>
+<script src="professional-skills-passport.js?v=76"></script>
+<script src="jurisdictions.js?v=76"></script>
+<script src="trades.js?v=76"></script>
+<script src="answer-evaluator.js?v=76"></script>
+<script src="shadow-lines.js?v=76"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -4888,7 +4888,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=75&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
+  openDoc("flyer.html?v=76&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -10469,13 +10469,15 @@ function rpLibrary(el){
    ${cats}`;
   manIconizeInline(el);
 }
-/* The scenario page is the one place with room to show the person properly, so a
-   photographed scenario opens on a wide portrait instead of the small tile. If
-   the file is missing the browser fires onerror and the tile is put back in its
-   place, exactly as it is everywhere else — a scenario with no photo, and a
-   half-finished photo set, both look the way they did before. */
+/* The wide portrait is a professional-track thing only.
+   On a trade scenario the learner is about to speak to that face for ten
+   minutes, and the workshop photo carries the setting as well as the person, so
+   it earns the space. General English keeps the 120px tile it has always had:
+   its scenario pages are short, and a full-width headshot pushed the talking
+   points below the fold for a screen that was never crowded to begin with.
+   Falls back to the tile too when the photo file is missing. */
 function rpPortrait(sc){
-  const key=rpPhotoKey(sc);
+  const key=isProfessionalJourney()?rpPhotoKey(sc):null;
   if(!key)return rpAvatar(sc,120);
   return `<img class="rp-portrait" src="rp-photos/${key}.jpg" alt="${esc(sc.persona)}, ${esc(sc.role)}"
     onerror="this.outerHTML=rpAvatar(rpById('${sc.id}'),120)">`;
