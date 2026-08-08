@@ -6309,6 +6309,23 @@ document.addEventListener("mousedown",e=>{
    So: keep only the most recent interim, and when one piece merely extends the
    previous one, replace rather than append. Rebuilt from scratch each call, so
    running it repeatedly on a growing list is safe. */
+function srJoin(acc,piece){
+  if(!acc)return piece||"";
+  if(!piece)return acc;
+  if(piece.startsWith(acc))return piece;                 // cumulative growth → replace
+  if(acc.endsWith(piece)||acc.includes(piece))return acc; // already said → skip
+  /* A restarted engine usually re-recognises the tail of the stretch it just
+     ended, so the new piece opens with words we already hold. Drop the longest
+     overlap that lands on a word boundary. */
+  const a=acc.split(/\s+/),p=piece.split(/\s+/);
+  for(let k=Math.min(a.length,p.length);k>0;k--){
+    if(a.slice(-k).join(" ").toLowerCase()===p.slice(0,k).join(" ").toLowerCase()){
+      const rest=p.slice(k).join(" ");
+      return rest?acc+" "+rest:acc;
+    }
+  }
+  return acc+" "+piece;
+}
 function srText(results){
   const finals=[];let lastInterim="",lastFinalAt=-1;
   for(let i=0;i<results.length;i++){
@@ -6319,12 +6336,7 @@ function srText(results){
     else lastInterim=txt;                                          // only the latest trailing interim survives
   }
   if(lastFinalAt>-1&&!lastInterim)lastInterim="";
-  const join=(acc,piece)=>{
-    if(!acc)return piece;
-    if(piece.startsWith(acc))return piece;                // cumulative growth → replace
-    if(acc.endsWith(piece)||acc.includes(piece))return acc; // already said → skip
-    return acc+" "+piece;
-  };
+  const join=srJoin;
   let out="";
   for(const p of finals)out=join(out,p);
   return lastInterim?join(out,lastInterim):out;
@@ -6895,7 +6907,9 @@ function fbRecStart(cfg){
        the analysis is built from. */
     r.onresult=e=>{shFB.cur=srText(e.results)};
     r.onerror=()=>{};
-    const bank=()=>{shFB.txt=((shFB.txt||"")+" "+(shFB.cur||"")).trim();shFB.cur="";};
+    /* srJoin, not concat: a restarted engine often re-recognises the tail of the
+       stretch it just ended, which would bank the same words twice. */
+    const bank=()=>{shFB.txt=srJoin((shFB.txt||"").trim(),(shFB.cur||"").trim());shFB.cur="";};
     r.onend=()=>{
       /* the engine stops itself on silence — restart while still recording */
       bank();
@@ -8431,7 +8445,7 @@ function rSimulation(el,id,characterId){
   let needsOpening=false;
   if(!simRun||simRun.id!==selected.id){const saved=orchestrator&&orchestrator.active(S)[selected.id];simRun=saved||engine.start(selected.id);needsOpening=!simRun.voiceMeta;simRun.voiceMeta=simRun.voiceMeta||{startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=simRun.lastSpeakerId||((simRun.messages[0]||{}).characterId);if(saved){simRun.listening=false;simRun.voiceStatus='Tap to continue conversation'}simSave();}
   const run=simRun,debrief=run.debrief;
-  if(run.missionComplete&&!debrief&&isFirstDayMission(selected)){const daniel=simCharacter(selected,'supervisor');el.innerHTML=`<button class="back" onclick="simChooseAnother()">‹ Workplace scenarios</button><section class="card sim-stage mission-complete"><div class="eyebrow">Mission complete</div><h1 class="big">Your first day is complete</h1><p class="sub"><b>${esc(daniel.name)}:</b> Excellent work. You completed your first day successfully. We’re glad to have you on the team.</p><p class="sub">Open your learning debrief to see the words, phrases, and corrections that were actually captured during this conversation.</p><button class="btn btn-p" onclick="simOpenMissionDebrief()">Open learning debrief →</button></section>`;return}
+  if(run.missionComplete&&!debrief&&isFirstDayMission(selected)){const daniel=simCharacter(selected,'supervisor');el.innerHTML=`<button class="back" onclick="simChooseAnother()">‹ Workplace scenarios</button><section class="card sim-stage mission-complete"><div class="eyebrow">Mission complete</div><h1 class="big">Your first day is complete</h1><p class="sub"><b>${esc(daniel.name)}:</b> Excellent work. You completed your first day successfully. We’re glad to have you on the team.</p><p class="sub">Open your learning debrief to see the words, phrases, and corrections that were actually captured during this conversation.</p><button class="btn btn-p" onclick="simOpenMissionDebrief('${esc(selected.id)}')">Open learning debrief →</button></section>`;return}
   if(debrief){
     simRecordAttempt(run,selected);
     /* debrief.scores are keyword arithmetic — grammar was 45 + 12 per sentence
@@ -8489,17 +8503,31 @@ function simSubmitSpeechTurn(turn=simSpeechTurn){
   if(said)simProcessSpeech(said);else simReturnToReady();
 }
 function simVoiceListen(){
-  if(!simRun||simRun.debrief)return;
+  /* A finished conversation must never re-open the microphone. Welding restarts
+     recognition every time Android ends it, and without this the loop kept
+     running under the mission-complete screen, re-rendering it from under the
+     learner's thumb. */
+  if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){simSetStatus('Voice recognition is unavailable in this browser');return}
   if(simRecognition)return;
   const manual=simUsesManualVoiceTurn(),turn=simSpeechTurn||(simSpeechTurn={final:'',interim:'',finishRequested:false});
+  turn.base=turn.final||'';   // text already banked by earlier recognition instances
   const r=new SR();simRecognition=r;r.lang='en-US';r.interimResults=true;r.continuous=manual;
   simRun.listening=true;simSetStatus('Listening');
   const mic=document.getElementById('simMic');if(mic)mic.classList.add('listening');
   const label=document.getElementById('simMicLabel');if(label)label.textContent='Speaking… tap the microphone when you finish.';
-  r.onresult=e=>{turn.interim='';for(let i=e.resultIndex;i<e.results.length;i++){const said=e.results[i][0].transcript;if(e.results[i].isFinal)turn.final+=said+' ';else turn.interim+=said}};
+  /* Rebuild from the whole list through srText — never append. Android Chrome
+     re-sends earlier results, so `turn.final+=` repeated every word ("I I am
+     I am ready…"). turn.base carries what previous instances banked, and srJoin
+     drops a tail the new instance re-recognised. */
+  r.onresult=e=>{
+    if(simRecognition&&simRecognition!==r)return;   // a superseded instance must not write
+    turn.interim='';
+    turn.final=srJoin(turn.base||'',srText(e.results));
+  };
   r.onerror=e=>{
+    if(simRecognition&&simRecognition!==r)return;
     if(turn.finishRequested){simSubmitSpeechTurn(turn);return}
     if(manual&&simRun.listening&&(e.error==='no-speech'||e.error==='aborted')){
       simRecognition=null;
@@ -8510,8 +8538,10 @@ function simVoiceListen(){
     simRecognition=null;simSpeechTurn=null;simReturnToReady('Tap to try speaking again');
   };
   r.onend=()=>{
+    if(simRecognition&&simRecognition!==r)return;    // a newer instance owns the turn now
     if(simRecognition===r)simRecognition=null;
     if(!simRun)return;
+    if(simRun.debrief||simRun.finished||simRun.missionComplete)return;  // the conversation is over
     if(turn.finishRequested){
       simSubmitSpeechTurn(turn);
       return;
@@ -8572,7 +8602,7 @@ function simRecordAnswer(sc,text){
   const result=AnswerEvaluator.evaluate(text,rubric);
   simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
 }
-async function simProcessSpeech(text){if(!simRun)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
+async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
 window.simStart=(id,characterId)=>{
   /* Counts only. Which workshop, which trade — never a word of what was said.
      Both names are on the Worker's allow-list; adding a track() call without
@@ -8588,7 +8618,18 @@ window.simExit=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis
 window.simChooseAnother=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);simRun=null;go('simulation')};
 window.simVoiceToggle=()=>{if(simRecognition||(simRun&&simRun.listening)){simSetStatus('Processing your answer');const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';simStopListening(true);return}simVoiceListen()};
 window.simFinishEarly=()=>simComplete(false);
-window.simOpenMissionDebrief=()=>{if(!simRun)return;simRun.missionComplete=false;simComplete(false)};
+/* Takes the scenario id so it still works when the run only exists in storage —
+   a relaunched PWA renders this screen from the saved run, and the old version
+   silently did nothing because the in-memory simRun was null. */
+window.simOpenMissionDebrief=id=>{
+  simStopListening();
+  if(window.speechSynthesis)speechSynthesis.cancel();
+  if(!simRun&&id&&window.ConversationOrchestrator)simRun=ConversationOrchestrator.active(S)[id]||null;
+  if(!simRun)return go('simulation');
+  simRun.missionComplete=false;simSave();
+  if(simRun.debrief){go('simulation',simRun.id);return}
+  simComplete(false);
+};
 function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
