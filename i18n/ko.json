@@ -1296,5 +1296,7 @@
  "pro.best": "최고",
  "pro.the_other_n_interviews": "나머지 {{n}}개 면접",
  "pro.n_practised_n_to_try": "{{done}}개 완료 · {{left}}개 남음",
- "pro.none_practised_yet": "아직 연습 전"
+ "pro.none_practised_yet": "아직 연습 전",
+ "rp.back_coaches": "‹ 면접 코치",
+ "rp.more_coaches": "다른 면접 코치"
 }

@@ -1296,5 +1296,7 @@
  "pro.best": "лучший",
  "pro.the_other_n_interviews": "Ещё {{n}} собеседований",
  "pro.n_practised_n_to_try": "{{done}} пройдено · {{left}} осталось",
- "pro.none_practised_yet": "Пока ничего не пройдено"
+ "pro.none_practised_yet": "Пока ничего не пройдено",
+ "rp.back_coaches": "‹ Тренеры по собеседованиям",
+ "rp.more_coaches": "Ещё тренеры"
 }

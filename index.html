@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=76"></script>
-<script src="professional-tracks.js?v=76"></script>
-<script src="competency-engine.js?v=76"></script>
-<script src="learning-coach.js?v=76"></script>
-<script src="professional-simulation-engine.js?v=76"></script>
-<script src="conversation-orchestrator.js?v=76"></script>
-<script src="adaptive-learning-engine.js?v=76"></script>
-<script src="career-center.js?v=76"></script>
-<script src="professional-skills-passport.js?v=76"></script>
-<script src="jurisdictions.js?v=76"></script>
-<script src="trades.js?v=76"></script>
-<script src="answer-evaluator.js?v=76"></script>
-<script src="shadow-lines.js?v=76"></script>
+<script src="curriculum-provider.js?v=78"></script>
+<script src="professional-tracks.js?v=78"></script>
+<script src="competency-engine.js?v=78"></script>
+<script src="learning-coach.js?v=78"></script>
+<script src="professional-simulation-engine.js?v=78"></script>
+<script src="conversation-orchestrator.js?v=78"></script>
+<script src="adaptive-learning-engine.js?v=78"></script>
+<script src="career-center.js?v=78"></script>
+<script src="professional-skills-passport.js?v=78"></script>
+<script src="jurisdictions.js?v=78"></script>
+<script src="trades.js?v=78"></script>
+<script src="answer-evaluator.js?v=78"></script>
+<script src="shadow-lines.js?v=78"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -3140,6 +3140,8 @@ const I18N_EN={
   "pro.the_other_n_interviews":"The other {{n}} interviews",
   "pro.n_practised_n_to_try":"{{done}} practised · {{left}} still to try",
   "pro.none_practised_yet":"None practised yet",
+  "rp.back_coaches":"‹ Interview coaches",
+  "rp.more_coaches":"More interview coaches",
   "rp.off_ask":"Could you {{point}}?",
   "rp.off_done":"That covers what I needed. Thanks for talking it through.",
   "rp.off_note":"You're offline — the interviewer is working from its question list.",
@@ -4888,7 +4890,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=76&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
+  openDoc("flyer.html?v=78&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -10489,7 +10491,7 @@ function rpIntro(el,sc){
      these coaches are listed, so that is where back goes. */
   const pro=isProfessionalJourney();
   el.innerHTML=`
-   <button class="back" onclick="${pro?"goCareer('roleplay')":"go('roleplay')"}">${pro?"‹ Interview coaches":t("rp.back_lib")}</button>
+   ${rpBackBar()}
    <div class="rp-intro">
      ${rpPortrait(sc)}
      <small class="rp-persona">${esc(sc.persona)}</small>
@@ -10833,7 +10835,7 @@ Reply with JSON only:
 function rpUpdatePoints(){if(!rpConv)return;rpConv.sc.points.forEach((p,i)=>{const el=document.getElementById("rpp"+i);if(el)el.classList.toggle("done",rpConv.covered.has(i+1))});const pr=document.getElementById("rpProg");if(pr)pr.textContent=rpConv.covered.size+"/"+rpConv.sc.points.length;}
 function rpResetIdle(){rpClearIdle();if(rpConv)rpConv.idle=setTimeout(rpIdle,75000);}
 function rpClearIdle(){if(rpConv&&rpConv.idle){clearTimeout(rpConv.idle);rpConv.idle=null}}
-function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>go("roleplay"),t("rp.to_summary"),rpSummary)}
+function rpIdle(){if(!rpConv)return;rpShowModal(t("rp.idle_title"),t("rp.idle_body"),t("rp.back_lib_btn"),()=>rpBackList(),t("rp.to_summary"),rpSummary)}
 window.rpEnd=()=>rpSummary();
 let _rpLast=null,_rpLastTs=0;   /* the last finished conversation, kept for the review screen */
 
@@ -10844,7 +10846,27 @@ let _rpLast=null,_rpLastTs=0;   /* the last finished conversation, kept for the 
    from there feeds the quiz and the word games. */
 const RP_WEAK=80;                      /* below this a word is worth practising */
 function rpEvCol(sc){return sc>=80?"var(--green)":sc>=55?"var(--gold)":"var(--red)"}
-window.rpBackSummary=()=>{ if(_rpLast)rpReplaySummary(); else go("roleplay"); };
+/* Where "back to the list" goes, and what it is called.
+   go('roleplay') with no id hits the professional redirect in rRoleplay and
+   lands the learner in the workplace-simulation catalogue — a different feature
+   from the interview they were just in. On a professional track the interviews
+   are listed in the Career Center, so that is the way back. Every exit from an
+   interview screen goes through here, so the summary, the review and the idle
+   prompt can never disagree about it again. */
+function rpIsPro(){return typeof isProfessionalJourney==="function"&&isProfessionalJourney()}
+window.rpBackList=()=>{if(rpIsPro())goCareer("roleplay");else go("roleplay")};
+function rpBackLabel(){return rpIsPro()?t("rp.back_coaches"):t("rp.back_lib")}
+function rpMoreLabel(){return rpIsPro()?t("rp.more_coaches"):t("rp.more")}
+/* The way out has to survive scrolling: an interview screen is long enough to
+   lose it, and it is the only exit. Uses the app's standard sticky page header.
+   Professional track only — General English keeps the plain back button its
+   scenario pages have always had, because those screens are short enough that
+   it never scrolls out of reach. */
+function rpBackBar(){
+  const b=`<button class="back" onclick="rpBackList()">${rpBackLabel()}</button>`;
+  return rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub">${b}</div>`:b;
+}
+window.rpBackSummary=()=>{ if(_rpLast)rpReplaySummary(); else rpBackList(); };
 /* What the answer CONTAINED, next to how clearly it was said.
    The pronunciation pass below scores every word from the recording, which tells
    the learner they were understood — not whether they answered. An interview is
@@ -10907,7 +10929,7 @@ window.rpEvaluate=async()=>{
   const sc=_rpLast.sc,turns=_rpLast.turns;
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
-   <button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>
+   ${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button></div>`:`<button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>`}
    <div class="eyebrow">${t("rp.eval_h")}</div>
    <h1 class="big" style="margin:2px 0 4px">${t("fb.pron_h")}</h1>
    <p class="sub" style="margin-bottom:16px">${t("rp.eval_sub",{title:esc(sc.title)})}</p>
@@ -11217,17 +11239,17 @@ window.rpEvTry=w=>{
 function rpReplaySummary(){
   /* Re-draw the summary from the kept conversation, for the Back button on the
      review screen — rpSummary itself needs a live rpConv. */
-  if(!_rpLast)return go("roleplay");
+  if(!_rpLast)return rpBackList();
   const sc=_rpLast.sc,el=document.getElementById("v-roleplay");
   el.innerHTML=`
-   <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   ${rpBackBar()}
    <div class="rp-intro">
      ${rpAvatar(sc,84)}
      <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
      <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
      <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center">
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
-       <button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button>
+       <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
        ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
      </div>
    </div>`;
@@ -11263,7 +11285,7 @@ function rpSummary(){
   _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text)};
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
-   <button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+   ${rpBackBar()}
    <div class="rp-intro">
      ${rpAvatar(sc,84)}
      <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
@@ -11272,7 +11294,7 @@ function rpSummary(){
      <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point ${covered.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
-       <button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button>
+       <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
        ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
      </div>
    </div>`;
@@ -11398,12 +11420,12 @@ window.rvToggleMute=()=>{if(!RV)return;RV.muted=!RV.muted;const b=document.getEl
 function rvTeardown(){if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}RV=null}
 window.rvEnd=()=>{if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}const sc=RV.sc,covered=RV.covered;RV=null;
   const el=document.getElementById("v-roleplay");
-  el.innerHTML=`<button class="back" onclick="go('roleplay')">${t("rp.back_lib")}</button>
+  el.innerHTML=`${rpBackBar()}
    <div class="rp-intro">${rpAvatar(sc,84)}<h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
    <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
    <div class="stat" style="max-width:320px;margin-bottom:16px"><div class="n"><span class="stat-ic">${ic("check")}</span>${covered.size}/${sc.points.length}</div><div class="l">${t("rp.points_covered")}</div></div>
    <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point ${covered.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
-   <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap"><button class="btn btn-p" onclick="go('roleplay','${sc.id}')">${t("rp.again")}</button><button class="btn btn-g" onclick="go('roleplay')">${t("rp.more")}</button></div></div>`;
+   <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap"><button class="btn btn-p" onclick="go('roleplay','${sc.id}')">${t("rp.again")}</button><button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button></div></div>`;
   manIconizeInline(el);
 };
 

@@ -1296,5 +1296,7 @@
  "pro.best": "terbaik",
  "pro.the_other_n_interviews": "{{n}} wawancara lainnya",
  "pro.n_practised_n_to_try": "{{done}} dilatih · {{left}} belum",
- "pro.none_practised_yet": "Belum ada yang dilatih"
+ "pro.none_practised_yet": "Belum ada yang dilatih",
+ "rp.back_coaches": "‹ Pelatih wawancara",
+ "rp.more_coaches": "Pelatih lainnya"
 }

@@ -1296,5 +1296,7 @@
  "pro.best": "mejor",
  "pro.the_other_n_interviews": "Las otras {{n}} entrevistas",
  "pro.n_practised_n_to_try": "{{done}} practicadas · {{left}} por probar",
- "pro.none_practised_yet": "Ninguna practicada aún"
+ "pro.none_practised_yet": "Ninguna practicada aún",
+ "rp.back_coaches": "‹ Entrenadores de entrevista",
+ "rp.more_coaches": "Más entrenadores"
 }

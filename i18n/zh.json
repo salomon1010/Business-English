@@ -1296,5 +1296,7 @@
  "pro.best": "最好",
  "pro.the_other_n_interviews": "其余 {{n}} 场面试",
  "pro.n_practised_n_to_try": "已练习 {{done}} 场 · 还有 {{left}} 场",
- "pro.none_practised_yet": "尚未练习"
+ "pro.none_practised_yet": "尚未练习",
+ "rp.back_coaches": "‹ 面试教练",
+ "rp.more_coaches": "更多面试教练"
 }

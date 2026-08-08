@@ -1296,5 +1296,7 @@
  "pro.best": "tốt nhất",
  "pro.the_other_n_interviews": "{{n}} cuộc phỏng vấn còn lại",
  "pro.n_practised_n_to_try": "{{done}} đã luyện · còn {{left}}",
- "pro.none_practised_yet": "Chưa luyện cái nào"
+ "pro.none_practised_yet": "Chưa luyện cái nào",
+ "rp.back_coaches": "‹ Huấn luyện viên phỏng vấn",
+ "rp.more_coaches": "Thêm huấn luyện viên"
 }

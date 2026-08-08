@@ -1296,5 +1296,7 @@
  "pro.best": "Bestwert",
  "pro.the_other_n_interviews": "Die anderen {{n}} Gespräche",
  "pro.n_practised_n_to_try": "{{done}} geübt · {{left}} offen",
- "pro.none_practised_yet": "Noch keine geübt"
+ "pro.none_practised_yet": "Noch keine geübt",
+ "rp.back_coaches": "‹ Interview-Coaches",
+ "rp.more_coaches": "Weitere Coaches"
 }

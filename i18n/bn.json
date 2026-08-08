@@ -1296,5 +1296,7 @@
  "pro.best": "সেরা",
  "pro.the_other_n_interviews": "বাকি {{n}}টি সাক্ষাৎকার",
  "pro.n_practised_n_to_try": "{{done}}টি অনুশীলন · {{left}}টি বাকি",
- "pro.none_practised_yet": "এখনও কোনোটি অনুশীলন হয়নি"
+ "pro.none_practised_yet": "এখনও কোনোটি অনুশীলন হয়নি",
+ "rp.back_coaches": "‹ সাক্ষাৎকার কোচ",
+ "rp.more_coaches": "আরও কোচ"
 }

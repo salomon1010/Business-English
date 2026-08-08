@@ -1296,5 +1296,7 @@
  "pro.best": "सर्वोत्तम",
  "pro.the_other_n_interviews": "अन्य {{n}} साक्षात्कार",
  "pro.n_practised_n_to_try": "{{done}} अभ्यास किए · {{left}} बाकी",
- "pro.none_practised_yet": "अभी कोई अभ्यास नहीं"
+ "pro.none_practised_yet": "अभी कोई अभ्यास नहीं",
+ "rp.back_coaches": "‹ साक्षात्कार कोच",
+ "rp.more_coaches": "और कोच"
 }

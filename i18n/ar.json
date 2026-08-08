@@ -1296,5 +1296,7 @@
  "pro.best": "الأفضل",
  "pro.the_other_n_interviews": "المقابلات الـ{{n}} الأخرى",
  "pro.n_practised_n_to_try": "{{done}} تدرّبت · {{left}} متبقية",
- "pro.none_practised_yet": "لم تتدرب على أي منها بعد"
+ "pro.none_practised_yet": "لم تتدرب على أي منها بعد",
+ "rp.back_coaches": "‹ مدرّبو المقابلات",
+ "rp.more_coaches": "مدرّبون آخرون"
 }

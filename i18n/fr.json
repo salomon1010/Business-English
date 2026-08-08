@@ -1296,5 +1296,7 @@
  "pro.best": "meilleur",
  "pro.the_other_n_interviews": "Les {{n}} autres entretiens",
  "pro.n_practised_n_to_try": "{{done}} pratiqués · {{left}} à essayer",
- "pro.none_practised_yet": "Aucun encore pratiqué"
+ "pro.none_practised_yet": "Aucun encore pratiqué",
+ "rp.back_coaches": "‹ Coachs d'entretien",
+ "rp.more_coaches": "Plus de coachs"
 }

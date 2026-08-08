@@ -1296,5 +1296,7 @@
  "pro.best": "最高",
  "pro.the_other_n_interviews": "ほかの {{n}} 件の面接",
  "pro.n_practised_n_to_try": "{{done}} 件実施 · 残り {{left}} 件",
- "pro.none_practised_yet": "まだ実施していません"
+ "pro.none_practised_yet": "まだ実施していません",
+ "rp.back_coaches": "‹ 面接コーチ",
+ "rp.more_coaches": "ほかの面接コーチ"
 }

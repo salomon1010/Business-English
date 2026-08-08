@@ -1296,5 +1296,7 @@
  "pro.best": "بہترین",
  "pro.the_other_n_interviews": "باقی {{n}} انٹرویوز",
  "pro.n_practised_n_to_try": "{{done}} مشق شدہ · {{left}} باقی",
- "pro.none_practised_yet": "ابھی کوئی مشق نہیں"
+ "pro.none_practised_yet": "ابھی کوئی مشق نہیں",
+ "rp.back_coaches": "‹ انٹرویو کوچز",
+ "rp.more_coaches": "مزید کوچز"
 }

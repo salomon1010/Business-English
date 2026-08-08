@@ -1296,5 +1296,7 @@
  "pro.best": "migliore",
  "pro.the_other_n_interviews": "Gli altri {{n}} colloqui",
  "pro.n_practised_n_to_try": "{{done}} svolti · {{left}} da provare",
- "pro.none_practised_yet": "Nessuno ancora svolto"
+ "pro.none_practised_yet": "Nessuno ancora svolto",
+ "rp.back_coaches": "‹ Coach per i colloqui",
+ "rp.more_coaches": "Altri coach"
 }
