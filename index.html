@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=74"></script>
-<script src="professional-tracks.js?v=74"></script>
-<script src="competency-engine.js?v=74"></script>
-<script src="learning-coach.js?v=74"></script>
-<script src="professional-simulation-engine.js?v=74"></script>
-<script src="conversation-orchestrator.js?v=74"></script>
-<script src="adaptive-learning-engine.js?v=74"></script>
-<script src="career-center.js?v=74"></script>
-<script src="professional-skills-passport.js?v=74"></script>
-<script src="jurisdictions.js?v=74"></script>
-<script src="trades.js?v=74"></script>
-<script src="answer-evaluator.js?v=74"></script>
-<script src="shadow-lines.js?v=74"></script>
+<script src="curriculum-provider.js?v=75"></script>
+<script src="professional-tracks.js?v=75"></script>
+<script src="competency-engine.js?v=75"></script>
+<script src="learning-coach.js?v=75"></script>
+<script src="professional-simulation-engine.js?v=75"></script>
+<script src="conversation-orchestrator.js?v=75"></script>
+<script src="adaptive-learning-engine.js?v=75"></script>
+<script src="career-center.js?v=75"></script>
+<script src="professional-skills-passport.js?v=75"></script>
+<script src="jurisdictions.js?v=75"></script>
+<script src="trades.js?v=75"></script>
+<script src="answer-evaluator.js?v=75"></script>
+<script src="shadow-lines.js?v=75"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -5999,6 +5999,31 @@ function shStartTick(){
       else ytPlayer.pauseVideo();
     }
   },250);
+}
+/* The Shadowing Studio's four primitives, restored exactly as they were.
+   "Build dynamic curriculum engine" (9af19f2) lifted the hardcoded curriculum
+   constants out of index.html and took this adjacent block with them, leaving
+   every call site behind. The Studio has been dead in production ever since:
+
+     fmtT   — shSegUI() calls it first thing in shLoad(), so it threw before a
+              player was ever created. Nothing after it ran.
+     loadYT — awaited inside an async function, so its ReferenceError became an
+              unhandled rejection: no console error, no player, no workspace.
+              That silence is why this survived a deploy.
+     ytId   — every pasted YouTube link, so "Load video" was dead too.
+     ytApiP — loadYT's memo, or every call would inject the API script again.
+
+   Checked against the whole commit: these four were the only names removed
+   that are still called. */
+function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
+function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
+let ytApiP=null;
+function loadYT(){
+  if(window.YT&&YT.Player)return Promise.resolve();
+  if(ytApiP)return ytApiP;
+  ytApiP=new Promise(res=>{window.onYouTubeIframeAPIReady=()=>res();
+    const s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";document.head.appendChild(s)});
+  return ytApiP;
 }
 function shSegUI(){
   const st=document.getElementById("shStart"),en=document.getElementById("shEnd"),ln=document.getElementById("shLen");
