@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=36"></script>
-<script src="professional-tracks.js?v=36"></script>
-<script src="competency-engine.js?v=36"></script>
-<script src="learning-coach.js?v=36"></script>
-<script src="professional-simulation-engine.js?v=36"></script>
-<script src="conversation-orchestrator.js?v=36"></script>
-<script src="adaptive-learning-engine.js?v=36"></script>
-<script src="career-center.js?v=36"></script>
-<script src="professional-skills-passport.js?v=36"></script>
-<script src="jurisdictions.js?v=36"></script>
-<script src="trades.js?v=36"></script>
-<script src="answer-evaluator.js?v=36"></script>
-<script src="shadow-lines.js?v=36"></script>
+<script src="curriculum-provider.js?v=37"></script>
+<script src="professional-tracks.js?v=37"></script>
+<script src="competency-engine.js?v=37"></script>
+<script src="learning-coach.js?v=37"></script>
+<script src="professional-simulation-engine.js?v=37"></script>
+<script src="conversation-orchestrator.js?v=37"></script>
+<script src="adaptive-learning-engine.js?v=37"></script>
+<script src="career-center.js?v=37"></script>
+<script src="professional-skills-passport.js?v=37"></script>
+<script src="jurisdictions.js?v=37"></script>
+<script src="trades.js?v=37"></script>
+<script src="answer-evaluator.js?v=37"></script>
+<script src="shadow-lines.js?v=37"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -4797,7 +4797,7 @@ function rHome(el){
   <h1 class="big">What should I do today?</h1>
   <p class="sub">One focused mission for your professional journey.</p>
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
-    <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc(trackName)}</span></div>
+    <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
     <div class="career-dashboard-grid">
       ${(()=>{
         /* Profession and destination are the two things that change what the app

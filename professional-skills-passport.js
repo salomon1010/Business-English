@@ -37,9 +37,9 @@
       <div class="psp-stage"><span>Current Stage</span><b>${global.esc(stage().label)}</b></div>
       ${evidence}
       <h3 class="psp-sub">Practice activity</h3>
-      <p class="psp-note">A record of what you have worked on. These are counts of completed practice, not a measure of how well you weld or speak.</p>
+      <p class="psp-note">A record of what you have worked on. These are counts of completed practice, not a measure of your ${craft(s)} ability or your speaking.</p>
       <div class="psp-grid">${competencies.map(x=>bar(x.label,global.CompetencyEngine.score(s,t,x.id))).join("")}</div>
-      <p class="psp-basis">This page records what you have practised and said in English. It is not evidence of welding ability, certification, or eligibility to work — those are proved by test certificates and the awarding body.</p>
+      <p class="psp-basis">This page records what you have practised and said in English. It is not evidence of ${craft(s)} ability, certification, or eligibility to work — those are proved by test certificates and the awarding body.</p>
     </section>`;
   }
   /* Progress carried three panels that each printed a career-readiness figure
