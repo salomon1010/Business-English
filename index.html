@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=38"></script>
-<script src="professional-tracks.js?v=38"></script>
-<script src="competency-engine.js?v=38"></script>
-<script src="learning-coach.js?v=38"></script>
-<script src="professional-simulation-engine.js?v=38"></script>
-<script src="conversation-orchestrator.js?v=38"></script>
-<script src="adaptive-learning-engine.js?v=38"></script>
-<script src="career-center.js?v=38"></script>
-<script src="professional-skills-passport.js?v=38"></script>
-<script src="jurisdictions.js?v=38"></script>
-<script src="trades.js?v=38"></script>
-<script src="answer-evaluator.js?v=38"></script>
-<script src="shadow-lines.js?v=38"></script>
+<script src="curriculum-provider.js?v=39"></script>
+<script src="professional-tracks.js?v=39"></script>
+<script src="competency-engine.js?v=39"></script>
+<script src="learning-coach.js?v=39"></script>
+<script src="professional-simulation-engine.js?v=39"></script>
+<script src="conversation-orchestrator.js?v=39"></script>
+<script src="adaptive-learning-engine.js?v=39"></script>
+<script src="career-center.js?v=39"></script>
+<script src="professional-skills-passport.js?v=39"></script>
+<script src="jurisdictions.js?v=39"></script>
+<script src="trades.js?v=39"></script>
+<script src="answer-evaluator.js?v=39"></script>
+<script src="shadow-lines.js?v=39"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -776,13 +776,16 @@ body.sh-work-open{overflow:hidden}
 .pg-work-todo{color:var(--mut2);font-size:12px}
 .pg-growth .sim-skill-chips span.ok{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
 @media(max-width:420px){.pg-ev{grid-template-columns:1fr}}
+/* Four across, and only as tall as the three lines inside them — the phase name
+   over one or two lines and the stage range under it. They were squares, which
+   left most of each tile empty. */
 .seg-phase{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px}
 /* Square cards rather than a single nowrap row. The shared .seg-fit rule
    ellipsises its label, which turned four phase names into "Workshop Foun…",
    "Technical Com…" and "Workplace Stan…" — three of the four unreadable. Other
    screens still rely on that rule, so the Journey gets its own. */
 .seg-phase-tab{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;
-  gap:6px;aspect-ratio:1/1;min-height:0;padding:9px 7px;border-radius:13px;
+  gap:3px;aspect-ratio:auto;min-height:0;padding:8px 8px 9px;border-radius:12px;
   border:1px solid var(--line2);background:var(--card2);color:var(--txt);
   font-family:inherit;text-align:left;cursor:pointer;transition:.15s}
 .seg-phase-tab:hover{border-color:var(--acc)}
@@ -792,7 +795,7 @@ body.sh-work-open{overflow:hidden}
 .seg-phase-tab.on b{color:var(--on-accent);opacity:.78}
 .seg-phase-tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 
-@media(max-width:340px){.seg-phase-tab{aspect-ratio:auto;min-height:76px}}
+
 .career-dash-pick{display:flex;flex-direction:column;gap:5px;cursor:pointer}
 .career-dash-pick select{width:100%;min-height:40px;padding:6px 30px 6px 9px;border-radius:9px;
   border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
