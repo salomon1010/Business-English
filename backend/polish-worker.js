@@ -16,10 +16,17 @@
    Secret required (Worker → Settings → Variables → add secret):  OPENAI_KEY
    ============================================================================ */
 
+// Local testing happens on whatever port is free, and an origin that is not on
+// this list has every AI call blocked by CORS — grading, transcription, natural
+// voice and the workshop conversations all fail while the app looks fine. That
+// cost real debugging time, so the common dev ports are listed rather than the
+// one that happened to be used first.
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
-  "http://localhost:8000",     // local testing (python3 -m http.server 8000)
-  "http://127.0.0.1:8000",
+  "http://localhost:8000",  "http://127.0.0.1:8000",   // python3 -m http.server 8000
+  "http://localhost:4173",  "http://127.0.0.1:4173",   // vite preview
+  "http://localhost:5173",  "http://127.0.0.1:5173",   // vite dev
+  "http://localhost:3000",  "http://127.0.0.1:3000",
 ];
 
 const MAX_INPUT_CHARS = 400;   // bounds prompt size
@@ -105,7 +112,18 @@ const TTS_INSTRUCTIONS =
   "rhythm, clear articulation, and a friendly, encouraging tone. Never flat, " +
   "monotone, or robotic; sound like a real person speaking to a colleague.";
 
-async function callTTS(env, text, voice) {
+// A workplace character is not a communication coach. When the app names one —
+// "calm, direct shop supervisor" — the delivery note is appended to the house
+// instruction rather than replacing it, so the warmth and clarity survive and only
+// the persona changes. Capped and stripped of newlines: this text reaches the
+// provider, so it is treated as untrusted input, not as configuration.
+const MAX_TTS_STYLE = 180;
+function ttsInstructions(style) {
+  const s = String(style || "").replace(/[\r\n]+/g, " ").trim().slice(0, MAX_TTS_STYLE);
+  return s ? `${TTS_INSTRUCTIONS} For this line, speak in character: ${s}` : TTS_INSTRUCTIONS;
+}
+
+async function callTTS(env, text, voice, style) {
   return fetch("https://api.openai.com/v1/audio/speech", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${env.OPENAI_KEY}` },
@@ -113,7 +131,7 @@ async function callTTS(env, text, voice) {
       model: TTS_MODEL,
       voice,
       input: text,
-      instructions: TTS_INSTRUCTIONS,
+      instructions: ttsInstructions(style),
       response_format: "mp3",
     }),
   });
@@ -366,7 +384,18 @@ async function callChat(env, system, messages) {
   try { p = JSON.parse(raw); } catch { p = { reply: raw, covered: [] }; }
   if (!p.reply || typeof p.reply !== "string") p.reply = "Sorry, could you say that again?";
   if (!Array.isArray(p.covered)) p.covered = [];
-  p.covered = p.covered.map(Number).filter(n => Number.isFinite(n));
+  // Two callers, two id schemes: the interview coaches number their talking
+  // points 1..n, the workplace simulations name their objectives ("safety",
+  // "handover"). Coercing with Number() was written for the first and silently
+  // turned every one of the second into NaN, so the model's coverage judgement
+  // never reached the simulations at all. Both shapes pass through now; the
+  // client is the one that validates an id against its own rubric, and it
+  // already refuses anything it does not recognise.
+  p.covered = p.covered
+    .filter(v => typeof v === "number" ? Number.isFinite(v)
+               : typeof v === "string" ? v.length > 0 && v.length <= 64
+               : false)
+    .slice(0, 32);                       // a reply cannot cover more than a scenario has
   return { reply: p.reply.slice(0, 800), covered: p.covered };
 }
 
@@ -435,7 +464,7 @@ export default {
       let voice = String(body.voice || "alloy").toLowerCase();
       if (!TTS_VOICES.includes(voice)) voice = "alloy";
       try {
-        const r = await callTTS(env, text, voice);
+        const r = await callTTS(env, text, voice, body.style);
         if (!r.ok) return json({ error: "tts_unavailable", detail: "provider " + r.status }, 502, cors);
         return new Response(r.body, {
           status: 200,

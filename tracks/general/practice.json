@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "vocabularyIntervals": [
+    1,
+    3,
+    7,
+    21,
+    60
+  ],
+  "libraryGroups": [
+    {
+      "k": "vocabulary",
+      "ic": "book",
+      "n": "prac.tab_vocabulary",
+      "subs": [
+        {
+          "k": "vocab",
+          "ic": "book",
+          "n": "lib.tab_vocab"
+        },
+        {
+          "k": "saved",
+          "ic": "bookmark",
+          "n": "lib.tab_saved"
+        },
+        {
+          "k": "idioms",
+          "ic": "briefcase",
+          "n": "lib.tab_idioms"
+        }
+      ]
+    },
+    {
+      "k": "grammar",
+      "ic": "list",
+      "n": "prac.tab_grammar",
+      "subs": [
+        {
+          "k": "grammar",
+          "ic": "list",
+          "n": "lib.tab_grammar"
+        },
+        {
+          "k": "exercises",
+          "ic": "pencil",
+          "n": "lib.tab_exercises"
+        }
+      ]
+    }
+  ],
+  "simulations": []
+}

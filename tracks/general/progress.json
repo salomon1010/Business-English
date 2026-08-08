@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "reviewAxes": [
+    "Clarity",
+    "Fluency",
+    "Pronunciation",
+    "Business naturalness",
+    "Confidence"
+  ],
+  "monthMetrics": {
+    "4": {
+      "title": "Month 1 Dashboard — End of Week 4",
+      "obj": "Did I build a stable foundation in self-introduction, project updates, blocker explanation, clarification questions, and pronunciation awareness?",
+      "rows": [
+        [
+          "Total practice blocks completed",
+          "24+"
+        ],
+        [
+          "Recordings completed",
+          "16+"
+        ],
+        [
+          "Phrase bank phrases collected",
+          "40+"
+        ],
+        [
+          "90-sec self-intro completed cleanly",
+          "Yes"
+        ],
+        [
+          "2-min project update completed cleanly",
+          "Yes"
+        ],
+        [
+          "2-min blocker explanation completed cleanly",
+          "Yes"
+        ]
+      ],
+      "qs": [
+        "Can I explain who I am and what I do clearly?",
+        "Can I give a project update without getting lost?",
+        "Can I explain a blocker with structure?",
+        "Do I still sound translated or stiff?",
+        "Which 3 speaking weaknesses are most urgent next month?"
+      ]
+    },
+    "8": {
+      "title": "Month 2 Dashboard — End of Week 8",
+      "obj": "Did I improve technical-to-business explanation, recommendations, professional disagreement, and sprint/stakeholder meeting performance?",
+      "rows": [
+        [
+          "Total practice blocks completed",
+          "24+"
+        ],
+        [
+          "Recordings completed",
+          "16+"
+        ],
+        [
+          "Phrase bank additions",
+          "40+"
+        ],
+        [
+          "3-min technical explanation delivered clearly",
+          "Yes"
+        ],
+        [
+          "2-min recommendation delivered clearly",
+          "Yes"
+        ],
+        [
+          "Professional pushback simulation completed",
+          "Yes"
+        ]
+      ],
+      "qs": [
+        "Can I explain technical work in business language?",
+        "Can I recommend a solution instead of only describing a problem?",
+        "Can I disagree professionally without sounding weak or defensive?",
+        "Am I more useful in meetings than four weeks ago?",
+        "Where do I still ramble?"
+      ]
+    },
+    "12": {
+      "title": "Month 3 + Final Dashboard — End of Week 12",
+      "obj": "Can I now perform credibly in real professional conversations?",
+      "rows": [
+        [
+          "Test 1 — 90-sec self-introduction",
+          "clear, confident, professional"
+        ],
+        [
+          "Test 2 — 2-min project update",
+          "progress + blocker + next step"
+        ],
+        [
+          "Test 3 — 2-min blocker escalation",
+          "issue + impact + mitigation + ask"
+        ],
+        [
+          "Test 4 — 3-min tech-to-business explanation",
+          "simple, structured, no jargon"
+        ]
+      ],
+      "qs": [
+        "What is now clearly stronger than 12 weeks ago?",
+        "In what speaking situations do I still lose control?",
+        "What pronunciation issues still show up repeatedly?",
+        "Which 20 phrases are now part of my active speech?",
+        "What should the next 12-week cycle focus on?"
+      ]
+    }
+  },
+  "competencyConfig": {
+    "trackLabel": "General English",
+    "competencies": [
+      {"id": "communication", "label": "Communication", "max": 100},
+      {"id": "vocabulary", "label": "Professional Vocabulary", "max": 100},
+      {"id": "pronunciation", "label": "Pronunciation", "max": 100},
+      {"id": "confidence", "label": "Confidence", "max": 100},
+      {"id": "professionalism", "label": "Professionalism", "max": 100}
+    ],
+    "activityMappings": {
+      "shadow_session": {"communication": 2, "pronunciation": 3, "vocabulary": 2},
+      "phrase_lab": {"vocabulary": 3, "confidence": 2, "professionalism": 1},
+      "vocabulary_practice": {"vocabulary": 2},
+      "ai_conversation": {"communication": 5, "confidence": 4, "professionalism": 2},
+      "professional_coach": {"professionalism": 2, "confidence": 1},
+      "pronunciation_feedback": {"pronunciation": 2, "communication": 1}
+    },
+    "careerReadiness": {"weights": {"communication": 35, "vocabulary": 25, "confidence": 20, "professionalism": 15, "consistency": 5}},
+    "achievements": [
+      {"id": "first-conversation", "title": "First Conversation", "when": {"activity": "ai_conversation", "count": 1}},
+      {"id": "vocabulary-starter", "title": "Vocabulary Starter", "when": {"activity": "vocabulary_practice", "count": 3}},
+      {"id": "professional-speaker", "title": "Professional Speaker", "when": {"competency": "communication", "score": 10}},
+      {"id": "interview-beginner", "title": "Interview Beginner", "when": {"activity": "ai_conversation", "count": 2}}
+    ]
+  },
+  "reviewCheckpoints": [
+    4,
+    8,
+    12
+  ]
+}

@@ -1,0 +1,964 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "stopWords": [
+    "i",
+    "you",
+    "he",
+    "she",
+    "it",
+    "we",
+    "they",
+    "me",
+    "him",
+    "her",
+    "us",
+    "them",
+    "am",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "the",
+    "a",
+    "an",
+    "and",
+    "or",
+    "but",
+    "if",
+    "so",
+    "of",
+    "to",
+    "in",
+    "at",
+    "on",
+    "for",
+    "with",
+    "from",
+    "by",
+    "about",
+    "as",
+    "into",
+    "over",
+    "under",
+    "your",
+    "my",
+    "our",
+    "their",
+    "his",
+    "its",
+    "this",
+    "that",
+    "these",
+    "those",
+    "there",
+    "here",
+    "not",
+    "no",
+    "yes",
+    "do",
+    "does",
+    "did",
+    "done",
+    "have",
+    "has",
+    "had",
+    "having",
+    "will",
+    "would",
+    "can",
+    "could",
+    "should",
+    "shall",
+    "may",
+    "might",
+    "must",
+    "just",
+    "also",
+    "very",
+    "really",
+    "quite",
+    "than",
+    "then",
+    "when",
+    "while",
+    "where",
+    "which",
+    "who",
+    "whom",
+    "whose",
+    "what",
+    "why",
+    "how",
+    "all",
+    "any",
+    "some",
+    "more",
+    "most",
+    "other",
+    "another",
+    "each",
+    "every",
+    "few",
+    "many",
+    "much",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "ten",
+    "first",
+    "second",
+    "next",
+    "new",
+    "old",
+    "same",
+    "own",
+    "too",
+    "again",
+    "once",
+    "only",
+    "even",
+    "still",
+    "yet",
+    "already",
+    "always",
+    "never",
+    "sometimes",
+    "often",
+    "usually",
+    "now",
+    "today",
+    "please",
+    "thank",
+    "thanks",
+    "okay",
+    "ok",
+    "well",
+    "right",
+    "left",
+    "like",
+    "get",
+    "got",
+    "want",
+    "wanted",
+    "going",
+    "go",
+    "went",
+    "gone",
+    "come",
+    "came",
+    "make",
+    "made",
+    "know",
+    "knew",
+    "think",
+    "thought",
+    "say",
+    "said",
+    "see",
+    "saw",
+    "look",
+    "looked",
+    "good",
+    "great",
+    "nice",
+    "bad",
+    "big",
+    "small",
+    "little",
+    "i'm",
+    "i've",
+    "i'll",
+    "i'd",
+    "you're",
+    "you've",
+    "we're",
+    "we'll",
+    "they're",
+    "it's",
+    "that's",
+    "don't",
+    "doesn't",
+    "didn't",
+    "isn't",
+    "aren't",
+    "wasn't",
+    "weren't",
+    "can't",
+    "couldn't",
+    "won't",
+    "wouldn't",
+    "shouldn't",
+    "haven't",
+    "hasn't",
+    "let's",
+    "gonna",
+    "wanna"
+  ],
+  "cefrMap": {
+    "meeting": "A2",
+    "project": "A2",
+    "problem": "A2",
+    "question": "A2",
+    "report": "B1",
+    "update": "B1",
+    "account": "B1",
+    "issue": "B1",
+    "delay": "B1",
+    "process": "B1",
+    "support": "B1",
+    "request": "B1",
+    "schedule": "B1",
+    "delivery": "B1",
+    "feedback": "B1",
+    "challenge": "B2",
+    "blocker": "B2",
+    "dependency": "C1",
+    "escalation": "C1",
+    "mitigation": "C1",
+    "stakeholder": "C1",
+    "commencement": "C1",
+    "prioritize": "C1",
+    "transaction": "B2",
+    "pronunciation": "B2",
+    "recommendation": "B2",
+    "implementation": "C1",
+    "requirement": "B2",
+    "responsibility": "B2",
+    "experience": "B1",
+    "opportunity": "B2",
+    "university": "A2",
+    "universities": "A2",
+    "honored": "B2",
+    "individual": "B1",
+    "particular": "B1",
+    "vendor": "B2",
+    "timeline": "B2",
+    "budget": "B1",
+    "revenue": "B2",
+    "workflow": "B2"
+  },
+  "synonyms": {
+    "get": "obtain",
+    "big": "significant",
+    "help": "assist",
+    "show": "demonstrate",
+    "use": "leverage",
+    "start": "initiate",
+    "end": "conclude",
+    "buy": "purchase",
+    "need": "require",
+    "tell": "inform",
+    "ask": "request",
+    "fix": "resolve",
+    "check": "verify",
+    "choose": "select",
+    "handle": "manage",
+    "possible": "feasible",
+    "important": "critical",
+    "problem": "challenge",
+    "fast": "rapid",
+    "cheap": "cost-effective",
+    "idea": "proposal",
+    "talk": "discuss",
+    "give": "provide",
+    "find": "identify",
+    "stop": "discontinue"
+  },
+  "grammarFix": [
+    [
+      {},
+      "informations",
+      "information",
+      "“Information” is uncountable — never plural.",
+      "Word form"
+    ],
+    [
+      {},
+      "advices",
+      "advice",
+      "“Advice” is uncountable — use “a piece of advice”.",
+      "Word form"
+    ],
+    [
+      {},
+      "feedbacks",
+      "feedback",
+      "“Feedback” is uncountable.",
+      "Word form"
+    ],
+    [
+      {},
+      "peoples",
+      "people",
+      "“People” is already plural.",
+      "Word form"
+    ],
+    [
+      {},
+      "I am agree",
+      "I agree",
+      "“Agree” is a verb — no “am” needed.",
+      "Verb form"
+    ],
+    [
+      {},
+      "explain me",
+      "explain to me",
+      "“Explain” needs “to” before the person.",
+      "Preposition"
+    ],
+    [
+      {},
+      "discuss about",
+      "discuss",
+      "“Discuss” never takes “about”.",
+      "Preposition"
+    ],
+    [
+      {},
+      "since X years",
+      "for X years",
+      "Duration takes “for”; “since” takes a starting point.",
+      "Preposition"
+    ],
+    [
+      {},
+      "I have X years",
+      "I am X years old",
+      "Age uses “to be” in English.",
+      "Verb form"
+    ],
+    [
+      {},
+      "more better",
+      "better",
+      "The word is already comparative — drop “more”.",
+      "Comparative"
+    ],
+    [
+      {},
+      "didn't went",
+      "didn't go",
+      "After “didn't”, use the base form of the verb.",
+      "Verb tense"
+    ],
+    [
+      {},
+      "everybody are",
+      "everybody is",
+      "These words are grammatically singular.",
+      "Subject-verb agreement"
+    ],
+    [
+      {},
+      "he don't",
+      "he doesn't",
+      "Third person singular takes “doesn't”.",
+      "Subject-verb agreement"
+    ],
+    [
+      {},
+      "a issue",
+      "an issue",
+      "Use “an” before a vowel sound.",
+      "Article"
+    ],
+    [
+      {},
+      "I am here since",
+      "I have been here since",
+      "Ongoing duration needs the present perfect.",
+      "Verb tense"
+    ],
+    [
+      {},
+      "want that you",
+      "want you to",
+      "English uses “want + person + to”.",
+      "Word order"
+    ],
+    [
+      {},
+      "how it looks like",
+      "what it looks like",
+      "Use “what … looks like” or “how … looks”.",
+      "Word order"
+    ],
+    [
+      {},
+      "in this moment",
+      "at the moment",
+      "Time expressions take “at the moment / right now”.",
+      "Preposition"
+    ]
+  ],
+  "grammarGood": [
+    [
+      {},
+      "Verb form",
+      "Strong use of a modal verb — you're confidently expressing possibilities."
+    ],
+    [
+      {},
+      "Verb tense",
+      "Good use of the present continuous for an ongoing action."
+    ],
+    [
+      {},
+      "Verb tense",
+      "Nice present perfect — connecting the past to now like a native."
+    ],
+    [
+      {},
+      "Connector",
+      "Excellent linking word — it makes your speech sound structured."
+    ],
+    [
+      {},
+      "Adverbial",
+      "Great use of an adverb to add emphasis."
+    ],
+    [
+      {},
+      "Preposition",
+      "Perfect preposition + gerund — “thanks for + -ing”."
+    ]
+  ],
+  "grammarExercises": {
+    "blanks": [
+      {
+        "q": "We ___ the quarterly report last Friday.",
+        "o": [
+          "finish",
+          "finished",
+          "have finished"
+        ],
+        "a": 1,
+        "why": "A finished time (“last Friday”) takes the past simple."
+      },
+      {
+        "q": "I'm responsible ___ the reporting pipeline.",
+        "o": [
+          "of",
+          "for",
+          "to"
+        ],
+        "a": 1,
+        "why": "The fixed pair is “responsible for”."
+      },
+      {
+        "q": "Could you ___ me the updated figures by Thursday?",
+        "o": [
+          "send",
+          "to send",
+          "sending"
+        ],
+        "a": 0,
+        "why": "After “could you”, use the base form of the verb."
+      },
+      {
+        "q": "The main blocker ___ the delayed vendor contract.",
+        "o": [
+          "are",
+          "is",
+          "be"
+        ],
+        "a": 1,
+        "why": "“Blocker” is singular, so the verb is “is”."
+      },
+      {
+        "q": "We need to ___ a decision before the sprint starts.",
+        "o": [
+          "do",
+          "make",
+          "take"
+        ],
+        "a": 1,
+        "why": "English collocation: you *make* a decision."
+      },
+      {
+        "q": "This proposal ___ significantly from the last one.",
+        "o": [
+          "differs",
+          "different",
+          "differ"
+        ],
+        "a": 0,
+        "why": "A third-person singular subject takes “differs”."
+      },
+      {
+        "q": "Let's ___ the timeline once we hear from the client.",
+        "o": [
+          "revisit",
+          "revisited",
+          "revisiting"
+        ],
+        "a": 0,
+        "why": "After “let's”, use the base form."
+      },
+      {
+        "q": "I'd like to ___ your attention to slide four.",
+        "o": [
+          "bring",
+          "carry",
+          "put"
+        ],
+        "a": 0,
+        "why": "The set phrase is “bring your attention to”."
+      }
+    ],
+    "correction": [
+      {
+        "q": "“I am agree with your proposal.”",
+        "o": [
+          "I am agree with your proposal.",
+          "I agree with your proposal.",
+          "I am agreeing with your proposal."
+        ],
+        "a": 1,
+        "why": "“Agree” is a verb on its own — it needs no “am”."
+      },
+      {
+        "q": "“Can you explain me the process?”",
+        "o": [
+          "Can you explain me the process?",
+          "Can you explain to me the process?",
+          "Can you explain the process to me?"
+        ],
+        "a": 2,
+        "why": "“Explain” takes “to + person”, and the natural order puts the object first."
+      },
+      {
+        "q": "“We discussed about the budget.”",
+        "o": [
+          "We discussed about the budget.",
+          "We discussed the budget.",
+          "We discussed on the budget."
+        ],
+        "a": 1,
+        "why": "“Discuss” never takes “about”."
+      },
+      {
+        "q": "“I work here since three years.”",
+        "o": [
+          "I work here since three years.",
+          "I have worked here for three years.",
+          "I am working here since three years."
+        ],
+        "a": 1,
+        "why": "Duration takes “for”, and an ongoing period takes the present perfect."
+      },
+      {
+        "q": "“He don't have the access yet.”",
+        "o": [
+          "He don't have the access yet.",
+          "He doesn't have access yet.",
+          "He not have access yet."
+        ],
+        "a": 1,
+        "why": "Third person singular takes “doesn't” — and “access” is uncountable here."
+      },
+      {
+        "q": "“I need more informations before deciding.”",
+        "o": [
+          "I need more informations before deciding.",
+          "I need more information before deciding.",
+          "I need more of information before deciding."
+        ],
+        "a": 1,
+        "why": "“Information” is uncountable — it has no plural."
+      },
+      {
+        "q": "“The deadline is more closer than we thought.”",
+        "o": [
+          "The deadline is more closer than we thought.",
+          "The deadline is closer than we thought.",
+          "The deadline is more close than we thought."
+        ],
+        "a": 1,
+        "why": "“Closer” is already comparative — don't add “more”."
+      },
+      {
+        "q": "“Everybody are ready for the demo.”",
+        "o": [
+          "Everybody are ready for the demo.",
+          "Everybody is ready for the demo.",
+          "Everybody were ready for the demo."
+        ],
+        "a": 1,
+        "why": "“Everybody” is grammatically singular."
+      }
+    ],
+    "tenses": [
+      {
+        "q": "I ___ on the migration all week — it's still going.",
+        "o": [
+          "worked",
+          "have been working",
+          "was working"
+        ],
+        "a": 1,
+        "why": "Present perfect continuous: started in the past, still happening."
+      },
+      {
+        "q": "By the time we launch, we ___ every edge case.",
+        "o": [
+          "will test",
+          "will have tested",
+          "tested"
+        ],
+        "a": 1,
+        "why": "Future perfect: complete *before* another future point."
+      },
+      {
+        "q": "When the client called, I ___ the deck.",
+        "o": [
+          "was preparing",
+          "prepare",
+          "have prepared"
+        ],
+        "a": 0,
+        "why": "Past continuous for the longer background action interrupted by another."
+      },
+      {
+        "q": "We ___ that supplier since 2021.",
+        "o": [
+          "use",
+          "are using",
+          "have used"
+        ],
+        "a": 2,
+        "why": "“Since + a starting point” takes the present perfect."
+      },
+      {
+        "q": "The build ___ twice yesterday.",
+        "o": [
+          "has failed",
+          "failed",
+          "was failing"
+        ],
+        "a": 1,
+        "why": "“Yesterday” is finished time — past simple."
+      },
+      {
+        "q": "I ___ you the summary as soon as the meeting ends.",
+        "o": [
+          "send",
+          "will send",
+          "am sending"
+        ],
+        "a": 1,
+        "why": "A decision about the future made now takes “will”."
+      },
+      {
+        "q": "She ___ this team for six months before the reorg.",
+        "o": [
+          "led",
+          "had led",
+          "has led"
+        ],
+        "a": 1,
+        "why": "Past perfect: the earlier of two past events."
+      },
+      {
+        "q": "We ___ the results with the board next Tuesday.",
+        "o": [
+          "are reviewing",
+          "review",
+          "reviewed"
+        ],
+        "a": 0,
+        "why": "Present continuous is standard for fixed future arrangements."
+      }
+    ],
+    "articles": [
+      {
+        "q": "I've scheduled ___ hour-long review for Monday.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 1,
+        "why": "“Hour” starts with a vowel *sound*, so it takes “an”."
+      },
+      {
+        "q": "Can you send me ___ update you mentioned?",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 2,
+        "why": "A specific, already-mentioned thing takes “the”."
+      },
+      {
+        "q": "She's ___ engineer on the platform team.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 1,
+        "why": "“Engineer” starts with a vowel sound → “an”."
+      },
+      {
+        "q": "We need to hire ___ project manager.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 0,
+        "why": "One unspecified person → “a”."
+      },
+      {
+        "q": "___ data shows a clear upward trend.",
+        "o": [
+          "A",
+          "An",
+          "The"
+        ],
+        "a": 2,
+        "why": "Specific data you're both looking at → “the”."
+      },
+      {
+        "q": "He gave ___ excellent presentation yesterday.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 1,
+        "why": "“Excellent” starts with a vowel sound → “an”."
+      },
+      {
+        "q": "This is ___ university-wide policy.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 0,
+        "why": "“University” starts with a /juː/ consonant sound → “a”."
+      },
+      {
+        "q": "We're aiming for ___ 20% reduction in costs.",
+        "o": [
+          "a",
+          "an",
+          "the"
+        ],
+        "a": 0,
+        "why": "“Twenty” starts with a consonant sound → “a”."
+      }
+    ],
+    "preps": [
+      {
+        "q": "I'm responsible ___ delivering the reporting layer.",
+        "o": [
+          "of",
+          "for",
+          "to"
+        ],
+        "a": 1,
+        "why": "“Responsible for” — always."
+      },
+      {
+        "q": "We're waiting ___ the vendor's confirmation.",
+        "o": [
+          "for",
+          "on",
+          "at"
+        ],
+        "a": 0,
+        "why": "“Wait for” something in standard business English."
+      },
+      {
+        "q": "This depends ___ how quickly legal responds.",
+        "o": [
+          "of",
+          "on",
+          "from"
+        ],
+        "a": 1,
+        "why": "“Depend on” — never “depend of”."
+      },
+      {
+        "q": "Let's focus ___ the top three priorities.",
+        "o": [
+          "at",
+          "in",
+          "on"
+        ],
+        "a": 2,
+        "why": "“Focus on” is the fixed pair."
+      },
+      {
+        "q": "I'll get back ___ you by end of day.",
+        "o": [
+          "to",
+          "at",
+          "with"
+        ],
+        "a": 0,
+        "why": "“Get back to someone”."
+      },
+      {
+        "q": "We've been on this ___ three weeks.",
+        "o": [
+          "since",
+          "for",
+          "during"
+        ],
+        "a": 1,
+        "why": "A length of time takes “for”; “since” takes a start point."
+      },
+      {
+        "q": "She's in charge ___ the migration workstream.",
+        "o": [
+          "for",
+          "of",
+          "on"
+        ],
+        "a": 1,
+        "why": "“In charge of”."
+      },
+      {
+        "q": "Thanks ___ flagging that so early.",
+        "o": [
+          "to",
+          "for",
+          "of"
+        ],
+        "a": 1,
+        "why": "“Thanks for + -ing”."
+      }
+    ],
+    "business": [
+      {
+        "q": "Which is the most professional way to disagree?",
+        "o": [
+          "You're wrong about that.",
+          "I see the reasoning, but I have one concern.",
+          "I don't like that idea."
+        ],
+        "a": 1,
+        "why": "Acknowledge, then raise the concern — firm without being blunt."
+      },
+      {
+        "q": "Which opens a status update most clearly?",
+        "o": [
+          "So, yeah, things are happening.",
+          "At a high level, we're on track — with one blocker.",
+          "Everything is fine I think."
+        ],
+        "a": 1,
+        "why": "Signal the headline first; executives listen for structure."
+      },
+      {
+        "q": "Choose the most natural escalation:",
+        "o": [
+          "We have a big problem, it's very bad.",
+          "We've run into an issue with the vendor feed — here's the mitigation.",
+          "There is a problem and I don't know."
+        ],
+        "a": 1,
+        "why": "Name the issue, then immediately offer the mitigation."
+      },
+      {
+        "q": "Which asks for clarification most professionally?",
+        "o": [
+          "I didn't understand nothing.",
+          "Just to make sure I understand — are you asking about X or Y?",
+          "What? Say again."
+        ],
+        "a": 1,
+        "why": "Restating the options shows you were listening."
+      },
+      {
+        "q": "Which is best for a recommendation?",
+        "o": [
+          "Maybe we could possibly perhaps try it.",
+          "What I'd recommend is X, because it reduces delivery risk.",
+          "I think X, I don't know really."
+        ],
+        "a": 1,
+        "why": "State the recommendation, then the reason — no hedging."
+      },
+      {
+        "q": "Which is the cleanest way to buy time?",
+        "o": [
+          "I have no idea about that.",
+          "Let me check the numbers and come back to you this afternoon.",
+          "Erm, I can't answer."
+        ],
+        "a": 1,
+        "why": "Commit to a specific follow-up — it reads as control, not avoidance."
+      },
+      {
+        "q": "Which closes a meeting most effectively?",
+        "o": [
+          "OK bye.",
+          "To summarise: I'll send the figures, you'll confirm scope by Friday.",
+          "I think we're done, maybe."
+        ],
+        "a": 1,
+        "why": "A summary of owners and deadlines prevents rework."
+      },
+      {
+        "q": "Which softens a deadline pushback best?",
+        "o": [
+          "That's impossible.",
+          "That timeline is tight — to hit it, we'd need to drop the reporting scope.",
+          "No, we can't do it."
+        ],
+        "a": 1,
+        "why": "Offer the trade-off rather than a flat refusal."
+      }
+    ]
+  },
+  "grammarCategories": [
+    {
+      "k": "blanks",
+      "ic": "pencil",
+      "n": "gx.cat_blanks"
+    },
+    {
+      "k": "correction",
+      "ic": "check",
+      "n": "gx.cat_correction"
+    },
+    {
+      "k": "tenses",
+      "ic": "clock",
+      "n": "gx.cat_tenses"
+    },
+    {
+      "k": "articles",
+      "ic": "doc",
+      "n": "gx.cat_articles"
+    },
+    {
+      "k": "preps",
+      "ic": "link",
+      "n": "gx.cat_preps"
+    },
+    {
+      "k": "business",
+      "ic": "briefcase",
+      "n": "gx.cat_business"
+    },
+    {
+      "k": "weekly",
+      "ic": "calendar",
+      "n": "gx.cat_weekly"
+    }
+  ]
+}

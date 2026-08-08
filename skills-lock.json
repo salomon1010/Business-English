@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "skills": {
+    "chief-product-officer": {
+      "source": "etacCAD/my-claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/chief-product-officer/SKILL.md",
+      "computedHash": "dd16e698d58a81e87d605f7debfd81fbf9121084966786db2e6ba1a2aa2afad4"
+    },
+    "critique": {
+      "source": "hazelugo/fav_gits",
+      "sourceType": "github",
+      "skillPath": "impeccable-main/.claude/skills/critique/SKILL.md",
+      "computedHash": "2a0b9f0ec262bf7dbc7d40cf1a0bc398ed0beb690d503efc18ae8b6f32543855"
+    },
+    "curriculum-architect": {
+      "source": "NetRxn/learn-anything",
+      "sourceType": "github",
+      "skillPath": "learn-anything-plugin/skills/curriculum-architect/SKILL.md",
+      "computedHash": "c23ebd2a727aa352c2edd82820cebb597ad5ba7245dc25fca65c1c2e5a18e13b"
+    },
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "6d838b246d0e35d0b53f4f23f98ba7a1dd561937e64f7d0c7553b0928e376c3e"
+    },
+    "prompt-engineer": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "skillPath": "cli-tool/components/skills/ai-research/prompt-engineer/SKILL.md",
+      "computedHash": "2c7d393797a6a9838a344ac8cc152374227ffcc3f90fd3d75c0bc7c1ebb99fce"
+    },
+    "student-engagement-specialist": {
+      "source": "FerroxLabs/wayland",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "src/process/resources/skills-library/bodies/skills/education/student-engagement-specialist/SKILL.md",
+      "computedHash": "9739c293d7a9dc734fef5adc39ea3279653c4682beb7220c757d978f4724d21e"
+    },
+    "ui-designer": {
+      "source": "daymade/claude-code-skills",
+      "sourceType": "github",
+      "skillPath": "ui-designer/SKILL.md",
+      "computedHash": "80a80fff0ae9a784791ea465562155810453d2c3b4743eacb8911adae3c0aa28"
+    },
+    "welding-qualification": {
+      "source": "a5c-ai/babysitter",
+      "ref": "main",
+      "sourceType": "github",
+      "skillPath": "library/specializations/domains/science/mechanical-engineering/skills/welding-qualification/SKILL.md",
+      "computedHash": "8b9c29d442abb541cb57beb625af362fa0691436d23060da9bc8a878cddfbacd"
+    }
+  }
+}

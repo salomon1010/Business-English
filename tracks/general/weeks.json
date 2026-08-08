@@ -1,0 +1,767 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "days": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+  ],
+  "dayMeta": {
+    "Mon": {
+      "type": "Pronunciation + Shadowing",
+      "ic": "🎧",
+      "k": "headphones"
+    },
+    "Tue": {
+      "type": "Business Speaking Drill",
+      "ic": "🎯",
+      "k": "target"
+    },
+    "Wed": {
+      "type": "Vocabulary + Phrase Bank",
+      "ic": "💬",
+      "k": "chat"
+    },
+    "Thu": {
+      "type": "Meeting Simulation / Q&A",
+      "ic": "🧑‍💼",
+      "k": "user"
+    },
+    "Fri": {
+      "type": "Pronunciation + Delivery",
+      "ic": "🔊",
+      "k": "sound"
+    },
+    "Sat": {
+      "type": "Long-form Speaking",
+      "ic": "🎤",
+      "k": "mic"
+    },
+    "Sun": {
+      "type": "Weekly Review + Reset",
+      "ic": "📊",
+      "k": "chart"
+    }
+  },
+  "sessionLinks": {
+    "Mon": {
+      "v": "shadow",
+      "ic": "target",
+      "lk": "sess.link_shadow",
+      "wk": "sess.link_shadow_why_mon"
+    },
+    "Fri": {
+      "v": "shadow",
+      "ic": "target",
+      "lk": "sess.link_shadow",
+      "wk": "sess.link_shadow_why_fri"
+    },
+    "Wed": {
+      "v": "phrases",
+      "ic": "chat",
+      "lk": "sess.link_phrases",
+      "wk": "sess.link_phrases_why"
+    },
+    "Sun": {
+      "v": "review",
+      "ic": "chart",
+      "lk": "sess.link_review",
+      "wk": "sess.link_review_why"
+    }
+  },
+  "templates": {
+    "Mon": [
+      [
+        "0:00–2:00",
+        "Choose a 30–60 sec clip from a U.S. professional speaker (🎯 Shadow tab → starter videos & channels)."
+      ],
+      [
+        "2:00–8:00",
+        "Transcribe it exactly."
+      ],
+      [
+        "8:00–11:00",
+        "Mark stressed words, pauses, contractions, linked sounds, intonation."
+      ],
+      [
+        "11:00–18:00",
+        "Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."
+      ],
+      [
+        "18:00–22:00",
+        "Record yourself imitating the clip (use the recorder below)."
+      ],
+      [
+        "22:00–25:00",
+        "Log what sounded weak + one sound/stress pattern to fix next time."
+      ]
+    ],
+    "Tue": [
+      [
+        "0:00–3:00",
+        "Write the prompt and your answer structure."
+      ],
+      [
+        "3:00–8:00",
+        "Bullet points only: context → issue → action → result / next step."
+      ],
+      [
+        "8:00–14:00",
+        "Record answer version 1."
+      ],
+      [
+        "14:00–18:00",
+        "Listen back: mark filler words, grammar problems, vague wording, weak structure."
+      ],
+      [
+        "18:00–23:00",
+        "Record improved version 2."
+      ],
+      [
+        "23:00–25:00",
+        "Write your top 3 corrections in the notes."
+      ]
+    ],
+    "Wed": [
+      [
+        "0:00–8:00",
+        "Study the 10–15 phrases + idioms for this week (Phrases tab)."
+      ],
+      [
+        "8:00–16:00",
+        "Write 10 sentences of your own using your real work context."
+      ],
+      [
+        "16:00–22:00",
+        "Say all 10 aloud — record the best run."
+      ],
+      [
+        "22:00–25:00",
+        "Choose the best 5 phrases to actively reuse this week."
+      ]
+    ],
+    "Thu": [
+      [
+        "0:00–4:00",
+        "Set the meeting scenario."
+      ],
+      [
+        "4:00–8:00",
+        "List: your role, the problem, what you need to say."
+      ],
+      [
+        "8:00–16:00",
+        "Record the simulated answer or discussion."
+      ],
+      [
+        "16:00–21:00",
+        "Review: where you rambled, got unclear, or needed stronger phrases."
+      ],
+      [
+        "21:00–25:00",
+        "Redo a cleaner version."
+      ]
+    ],
+    "Fri": [
+      [
+        "0:00–2:00",
+        "Pick your weakest recording from this week."
+      ],
+      [
+        "2:00–8:00",
+        "Mark where the pace, stress or tone was flat or rushed."
+      ],
+      [
+        "8:00–11:00",
+        "Practice: slow down, stress key words, kill the monotone."
+      ],
+      [
+        "11:00–18:00",
+        "Shadow / drill the problem sections 6–8 times."
+      ],
+      [
+        "18:00–22:00",
+        "Record the improved 'after' version."
+      ],
+      [
+        "22:00–25:00",
+        "Self-score clarity / pace / naturalness in the notes."
+      ]
+    ],
+    "Sat": [
+      [
+        "0:00–5:00",
+        "Outline the talk (bullets, not a script)."
+      ],
+      [
+        "5:00–12:00",
+        "Record the 3–5 minute answer / presentation."
+      ],
+      [
+        "12:00–18:00",
+        "Review: clarity, confidence, structure, pronunciation, filler words."
+      ],
+      [
+        "18:00–25:00",
+        "Redo the weakest section only."
+      ]
+    ],
+    "Sun": [
+      [
+        "Step 1",
+        "Listen to at least 2 recordings from the week."
+      ],
+      [
+        "Step 2",
+        "Score the week below in the Reviews tab: clarity, fluency, pronunciation, business naturalness, confidence."
+      ],
+      [
+        "Step 3",
+        "Write 3 wins, 3 weaknesses, 3 corrections for next week."
+      ],
+      [
+        "Step 4",
+        "Review the phrase bank and keep 5 active phrases for next week."
+      ]
+    ]
+  },
+  "weeks": [
+    {
+      "n": 1,
+      "phase": 1,
+      "theme": "Introductions, role clarity & speech baseline",
+      "goal": "Build your baseline and start speaking clearly about yourself and your role.",
+      "days": {
+        "Mon": {
+          "focus": "Pronunciation baseline",
+          "task": "Shadow a 45–60 sec clip of a U.S. professional introducing themselves. Transcribe, mark stress & pauses, shadow 6–8×, record.",
+          "out": "Transcript · 1 recording · 3 pronunciation weaknesses noted"
+        },
+        "Tue": {
+          "focus": "“Tell me about yourself”",
+          "task": "Record a 90-second answer: current role → core responsibilities → previous experience → current focus.",
+          "out": "Bullet outline · recording v1 · corrected v2"
+        },
+        "Wed": {
+          "focus": "Core work vocabulary bank",
+          "task": "Build 15 phrases for introducing your role, then write 10 personal sentences using your real work.",
+          "out": "Phrase bank page: Role & Responsibilities"
+        },
+        "Thu": {
+          "focus": "Explain your role to a non-technical person",
+          "task": "Answer “What do you actually do at work?” as if speaking to a smart non-technical manager.",
+          "out": "2-min recording · list of overused technical words"
+        },
+        "Fri": {
+          "focus": "Rhythm and stress",
+          "task": "Take Thursday's explanation: slow down, stress key words, reduce monotone. Record version 2.",
+          "out": "Before/after comparison · self-score clarity/pace/naturalness"
+        },
+        "Sat": {
+          "focus": "Long-form speaking",
+          "task": "Speak 3 minutes: “My background, my current role, and the type of work I want to grow into.”",
+          "out": "3-min recording · review of fillers, grammar, transitions"
+        },
+        "Sun": {
+          "focus": "Weekly review",
+          "task": "Listen to all recordings; list top 5 recurring problems; set next week's correction targets.",
+          "out": "Weekly review completed in Reviews tab"
+        }
+      }
+    },
+    {
+      "n": 2,
+      "phase": 1,
+      "theme": "Project updates & status communication",
+      "goal": "Speak clearly about ongoing work, progress, blockers, and next steps.",
+      "days": {
+        "Mon": {
+          "focus": "Shadow a project-update clip",
+          "task": "Shadow a 30–60 sec standup/update style clip.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "“What are you working on this week?”",
+          "task": "Answer using: priority 1 → priority 2 → current progress → blocker → next step.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Project update phrases",
+          "task": "Build 15 update phrases (“This week I'm focused on…”, “The main blocker is…”) + 10 personal sentences.",
+          "out": "Phrase bank: Project Updates"
+        },
+        "Thu": {
+          "focus": "Meeting simulation",
+          "task": "“Can you give us a quick update on the data pipeline work?”",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Delivery correction",
+          "task": "Redo your update with better pace and fewer fillers.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Mock sprint update",
+          "task": "3-minute mock sprint/project update.",
+          "out": "3-min recording + review notes"
+        },
+        "Sun": {
+          "focus": "Review + score",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 3,
+      "phase": 1,
+      "theme": "Problems, blockers & escalation",
+      "goal": "Explain issues clearly without rambling.",
+      "days": {
+        "Mon": {
+          "focus": "Shadow a problem-explanation clip",
+          "task": "Shadow a clip where a speaker explains a problem or challenge.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "Explain a delayed dependency",
+          "task": "“A dependency is delayed and will affect delivery.” Structure: issue → cause → impact → mitigation → ask.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Escalation phrases",
+          "task": "Build phrases: “We've run into an issue with…”, “The root cause appears to be…”, “To mitigate that…”.",
+          "out": "Phrase bank: Blockers / Escalation"
+        },
+        "Thu": {
+          "focus": "Meeting simulation",
+          "task": "“Why is this task behind schedule and what's the recovery plan?”",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Calm delivery",
+          "task": "Say the same explanation in a calmer, more concise way.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Escalation update",
+          "task": "3-minute escalation update to a manager.",
+          "out": "3-min recording + error list"
+        },
+        "Sun": {
+          "focus": "Review + error list",
+          "task": "Weekly review and error list.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 4,
+      "phase": 1,
+      "theme": "Clarifying, asking questions & confirming",
+      "goal": "Stop staying silent when things are unclear.",
+      "days": {
+        "Mon": {
+          "focus": "Q&A rhythm",
+          "task": "Shadow a clip focused on Q&A rhythm and polite clarification.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "10 clarification questions",
+          "task": "Practice aloud: “Can you clarify what you mean by…?”, “Just to make sure I understand…”, “Are you asking about X or Y?”.",
+          "out": "Recording of all 10"
+        },
+        "Wed": {
+          "focus": "Clarify / confirm / summarize",
+          "task": "Build phrases for clarifying, confirming, summarizing, follow-up questions.",
+          "out": "Phrase bank: Clarifying"
+        },
+        "Thu": {
+          "focus": "Vague requirements",
+          "task": "You're in a planning meeting and requirements are vague. Ask 6 good questions out loud.",
+          "out": "Recording of 6 questions"
+        },
+        "Fri": {
+          "focus": "Natural clarification exchange",
+          "task": "Record a calm, natural clarification exchange.",
+          "out": "Recording"
+        },
+        "Sat": {
+          "focus": "4-minute meeting simulation",
+          "task": "Simulate a meeting discussion: ask questions, summarize, confirm next steps.",
+          "out": "4-min recording"
+        },
+        "Sun": {
+          "focus": "Month 1 dashboard",
+          "task": "Weekly review + complete the Month 1 dashboard in the Reviews tab.",
+          "out": "Month 1 dashboard completed"
+        }
+      }
+    },
+    {
+      "n": 5,
+      "phase": 2,
+      "theme": "Explaining technical work to non-technical stakeholders",
+      "goal": "Translate technical work into business language.",
+      "days": {
+        "Mon": {
+          "focus": "Explainer clip",
+          "task": "Shadow a product/business/tech explainer clip.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "Explain a data pipeline",
+          "task": "Explain a data pipeline or engineering task to a business stakeholder. No jargon unless you define it.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Tech-to-business phrases",
+          "task": "Build phrases: “In simple terms…”, “What this means for the business is…”, “The benefit is…”.",
+          "out": "Phrase bank: Tech to Business"
+        },
+        "Thu": {
+          "focus": "Data quality simulation",
+          "task": "“Explain why data quality checks matter before reporting.”",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Simplify and tighten",
+          "task": "Simplify and tighten the explanation.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Real project explanation",
+          "task": "3-minute explanation of one real project to a non-technical leader.",
+          "out": "3-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 6,
+      "phase": 2,
+      "theme": "Recommendations & decision language",
+      "goal": "Stop only reporting; start recommending.",
+      "days": {
+        "Mon": {
+          "focus": "Recommendation clip",
+          "task": "Shadow a clip of a manager or consultant giving recommendations.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "“What do you recommend?”",
+          "task": "Answer using: context → options → tradeoff → recommendation → reason.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Tradeoff phrases",
+          "task": "Build phrases: “What I'd recommend is…”, “The tradeoff is…”, “If speed is the priority, then…”.",
+          "out": "Phrase bank: Recommendations"
+        },
+        "Thu": {
+          "focus": "Delayed dependency",
+          "task": "Recommend how to handle a delayed dependency or data issue.",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Executive version",
+          "task": "Same recommendation, but shorter and more executive.",
+          "out": "Compressed recording"
+        },
+        "Sat": {
+          "focus": "Recommendation talk",
+          "task": "4-minute recommendation talk.",
+          "out": "4-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 7,
+      "phase": 2,
+      "theme": "Disagreeing professionally & pushing back",
+      "goal": "Speak with confidence without sounding aggressive or weak.",
+      "days": {
+        "Mon": {
+          "focus": "Polite disagreement clip",
+          "task": "Shadow a clip of polite disagreement / discussion.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "“We should launch immediately.”",
+          "task": "You disagree due to data or delivery risk. Respond professionally.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Pushback phrases",
+          "task": "Build phrases: “I see the reasoning, but I have one concern.”, “My hesitation is…”, “I'd suggest we validate X before…”.",
+          "out": "Phrase bank: Disagreement"
+        },
+        "Thu": {
+          "focus": "Unrealistic timeline",
+          "task": "Push back on an unrealistic timeline.",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Calm, not defensive",
+          "task": "Practice calm tone, not defensive tone.",
+          "out": "Tone-corrected recording"
+        },
+        "Sat": {
+          "focus": "Alignment discussion",
+          "task": "Simulate a 5-minute disagreement / alignment discussion.",
+          "out": "5-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 8,
+      "phase": 2,
+      "theme": "Sprint meetings, blockers & stakeholder coordination",
+      "goal": "Perform in the actual meeting patterns you face.",
+      "days": {
+        "Mon": {
+          "focus": "Standup / retro clip",
+          "task": "Shadow a standup / planning / retrospective / project meeting clip.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "Standup with blocker + ETA",
+          "task": "Standup update with blocker + dependency + ETA.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Agile / delivery phrases",
+          "task": "Build phrases: “We're waiting on…”, “We may need to re-sequence…”, “To keep the sprint on track…”.",
+          "out": "Phrase bank: Agile & Delivery"
+        },
+        "Thu": {
+          "focus": "Mock sprint update",
+          "task": "Run a 5-minute mock sprint update or retro discussion.",
+          "out": "5-min recording"
+        },
+        "Fri": {
+          "focus": "60-second compression",
+          "task": "Compress your update to 60 seconds and keep it sharp.",
+          "out": "60-sec recording"
+        },
+        "Sat": {
+          "focus": "Multi-part meeting",
+          "task": "Simulate: update → blocker → ask → next step → summary.",
+          "out": "Full meeting recording"
+        },
+        "Sun": {
+          "focus": "Month 2 dashboard",
+          "task": "Weekly review + complete the Month 2 dashboard in the Reviews tab.",
+          "out": "Month 2 dashboard completed"
+        }
+      }
+    },
+    {
+      "n": 9,
+      "phase": 3,
+      "theme": "Leadership-style summaries",
+      "goal": "Speak briefly, clearly, and with structure.",
+      "days": {
+        "Mon": {
+          "focus": "Executive update clip",
+          "task": "Shadow an executive update / business presentation clip.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "“Give me the 60-second version.”",
+          "task": "Take a complex project and summarize it in 60 seconds.",
+          "out": "60-sec recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Leadership phrases",
+          "task": "Build phrases: “At a high level…”, “The headline is…”, “The next decision we need is…”.",
+          "out": "Phrase bank: Leadership Summary"
+        },
+        "Thu": {
+          "focus": "Concise leadership update",
+          "task": "Give a concise leadership update.",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Brevity and emphasis",
+          "task": "Improve brevity and emphasis.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Executive summary",
+          "task": "3-minute executive-style summary.",
+          "out": "3-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 10,
+      "phase": 3,
+      "theme": "Interview & networking communication",
+      "goal": "Sell your experience clearly.",
+      "days": {
+        "Mon": {
+          "focus": "Interview clip",
+          "task": "Shadow an interview or professional networking conversation clip.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "“Tell me about a project you led.”",
+          "task": "Answer with situation → task → action → result.",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Achievement phrases",
+          "task": "Build phrases for achievement, ownership, problem-solving, leadership, collaboration.",
+          "out": "Phrase bank: Interview"
+        },
+        "Thu": {
+          "focus": "Interview simulation",
+          "task": "“Tell me about a challenge” · “Tell me about a conflict” · “Why are you moving into AI / engineering leadership?”",
+          "out": "3 answer recordings"
+        },
+        "Fri": {
+          "focus": "Pacing and confidence",
+          "task": "Clean up pacing and confidence.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Mock interview set",
+          "task": "5-minute mock interview answer set.",
+          "out": "5-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 11,
+      "phase": 3,
+      "theme": "Persuasion & stakeholder influence",
+      "goal": "Move from reporting to influencing.",
+      "days": {
+        "Mon": {
+          "focus": "Persuasive speaker clip",
+          "task": "Shadow a persuasive workplace speaker.",
+          "out": "Transcript · recording"
+        },
+        "Tue": {
+          "focus": "Convince stakeholders",
+          "task": "“Convince stakeholders to prioritize data quality / platform work / technical debt.”",
+          "out": "Recording v1 + v2"
+        },
+        "Wed": {
+          "focus": "Cost-of-delay phrases",
+          "task": "Build phrases: “The reason I'm recommending this now is…”, “The cost of delay is…”.",
+          "out": "Phrase bank: Persuasion"
+        },
+        "Thu": {
+          "focus": "Persuade a leader",
+          "task": "Persuade a leader to approve a change or resource need.",
+          "out": "Simulated answer recording"
+        },
+        "Fri": {
+          "focus": "Tighter and more confident",
+          "task": "Make it tighter and more confident.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Persuasive recommendation",
+          "task": "4-minute persuasive recommendation.",
+          "out": "4-min recording"
+        },
+        "Sun": {
+          "focus": "Review",
+          "task": "Weekly review and scoring.",
+          "out": "Weekly review completed"
+        }
+      }
+    },
+    {
+      "n": 12,
+      "phase": 3,
+      "theme": "Final integration week",
+      "goal": "Combine everything under realistic pressure.",
+      "days": {
+        "Mon": {
+          "focus": "Compare with Week 1",
+          "task": "Repeat a clip from Week 1. Shadow and compare with your Week 1 recording.",
+          "out": "Before/after comparison"
+        },
+        "Tue": {
+          "focus": "Update + blocker + recommendation",
+          "task": "2-minute update + blocker + recommendation.",
+          "out": "2-min recording"
+        },
+        "Wed": {
+          "focus": "Top 50 phrases",
+          "task": "Review the full 12-week phrase bank and choose your top 50 phrases.",
+          "out": "Top-50 list marked as mastered"
+        },
+        "Thu": {
+          "focus": "Full mock meeting",
+          "task": "Full contribution: update → clarification → disagreement → recommendation → summary.",
+          "out": "Full meeting recording"
+        },
+        "Fri": {
+          "focus": "Weakest task repeat",
+          "task": "Repeat your weakest speaking task from the whole program.",
+          "out": "Improved recording"
+        },
+        "Sat": {
+          "focus": "Final performance set",
+          "task": "Record all 4: 90-sec self-intro · 2-min project update · 2-min blocker escalation · 3-min tech-to-business explanation.",
+          "out": "4 final recordings"
+        },
+        "Sun": {
+          "focus": "Final dashboard",
+          "task": "Complete the Month 3 + Final Review dashboard in the Reviews tab.",
+          "out": "Final dashboard completed"
+        }
+      }
+    }
+  ],
+  "phases": {
+    "1": {
+      "name": "Foundation",
+      "wk": "Weeks 1–4",
+      "cls": "p1"
+    },
+    "2": {
+      "name": "Workplace Fluency",
+      "wk": "Weeks 5–8",
+      "cls": "p2"
+    },
+    "3": {
+      "name": "Executive Communication",
+      "wk": "Weeks 9–12",
+      "cls": "p3"
+    }
+  }
+}

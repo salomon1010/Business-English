@@ -1,0 +1,253 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* The welding companion to whatsapp-flyer.src.html. Same page geometry, same
+   rhythm, same close — only the identity changes, from the app's indigo/cyan to
+   the amber the professional track already uses on every one of its screens. A
+   welder who scans this and opens the app should recognise the colour. */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0b11; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
+  --txt:#eff2f8; --mut:#a2adc0; --amb:#f0a318; --gold:#fbbf24; --grn:#34d399; --ember:#f97316;
+}
+html,body{width:1080px;height:1920px}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Outfit','Avenir Next','Helvetica Neue',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden; position:relative;
+}
+/* ambient washes — the heat of an arc rather than the cool of an office */
+.wash{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.w1{width:820px;height:820px;left:-280px;top:-360px;background:rgba(240,163,24,.13)}
+.w2{width:760px;height:760px;right:-300px;top:300px;background:rgba(249,115,22,.085)}
+.w3{width:820px;height:820px;left:120px;bottom:-480px;background:rgba(251,191,36,.06)}
+.beam{position:absolute;left:-10%;right:-10%;top:1010px;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,.55),rgba(251,191,36,.75),rgba(240,163,24,.45),transparent);
+  filter:blur(1px);opacity:.8}
+.beam::after{content:"";position:absolute;inset:-70px 0;
+  background:radial-gradient(60% 100% at 50% 50%,rgba(251,191,36,.15),transparent 70%)}
+.grid{position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%,#000 30%,transparent 78%)}
+
+.page{position:relative;z-index:2;padding:52px 60px 0;height:1920px;display:flex;flex-direction:column}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:20px}
+.mark{width:80px;height:80px;border-radius:22px;overflow:hidden;flex:none;
+  box-shadow:0 10px 30px rgba(240,163,24,.42)}
+.brand .n{font-size:38px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.brand .n b{color:var(--gold);font-weight:800}
+.brand .s{font-size:19px;color:var(--mut);font-weight:400;margin-top:5px;letter-spacing:.2px}
+.hchip{margin-left:auto;display:flex;align-items:center;gap:10px;
+  padding:13px 22px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.05);font-size:20px;font-weight:600;color:#dbe6fb}
+.hchip .dot{width:9px;height:9px;border-radius:50%;background:var(--grn);
+  box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+
+/* ---------- the trades this speaks to ---------- */
+.trades{margin-top:14px;display:flex;gap:12px;align-items:center}
+.trades .tl{font-size:16px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:var(--mut)}
+.trades .tg{display:flex;gap:10px}
+.trades .tg span{padding:9px 20px;border-radius:999px;font-size:19px;font-weight:600;
+  border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.10);color:#ffd98a}
+
+/* ---------- hero ---------- */
+.kick{margin-top:18px;font-size:19px;font-weight:700;letter-spacing:3.4px;color:var(--gold);text-transform:uppercase}
+h1{margin-top:12px;font-size:70px;line-height:1.02;font-weight:800;letter-spacing:-2.2px}
+h1 em{font-style:italic;background:linear-gradient(96deg,#fbbf24,#f97316 65%,#fb923c);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:14px;font-size:24px;line-height:1.42;color:#bcc7d8;font-weight:300;max-width:960px}
+.sub b{color:#eff2f8;font-weight:600}
+
+/* ---------- the arc: the moment this fixes ---------- */
+.arc{margin-top:18px;display:grid;grid-template-columns:1fr 62px 1fr;align-items:stretch}
+.arc .side{border:1px solid var(--line);border-radius:18px;padding:16px 22px;background:rgba(255,255,255,.035)}
+.arc .side.now{background:linear-gradient(140deg,rgba(240,163,24,.10),rgba(249,115,22,.05));
+  border-color:rgba(251,191,36,.45);box-shadow:0 0 40px rgba(240,163,24,.18) inset}
+.arc .w{font-size:15px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--mut)}
+.arc .now .w{color:var(--gold)}
+.arc .l{font-size:23px;line-height:1.34;margin-top:8px;color:#c2ccdc;font-weight:300}
+.arc .now .l{color:#eff2f8;font-weight:500}
+.arc .mid{display:flex;align-items:center;justify-content:center}
+.arc .mid svg{width:40px;height:40px;stroke:var(--gold);fill:none;stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 10px rgba(251,191,36,.5))}
+
+/* ---------- proof strip ---------- */
+.proof{margin-top:14px;display:flex;gap:12px}
+.proof .p{flex:1;border:1px solid var(--line);border-radius:16px;padding:13px 18px;
+  background:rgba(255,255,255,.04);display:flex;align-items:baseline;gap:10px}
+.proof .v{font-size:34px;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(96deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+.proof .k{font-size:17px;color:var(--mut);font-weight:400;line-height:1.25}
+
+/* ---------- phones ---------- */
+.phones{margin-top:16px;display:flex;justify-content:center;align-items:flex-end;gap:20px}
+.ph{position:relative;border-radius:30px;overflow:hidden;background:#0a0e1a;
+  border:2px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 60px -12px rgba(0,0,0,.78), 0 0 0 1px rgba(255,255,255,.05) inset}
+.ph img{width:100%;display:block}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 14px;
+  font-size:17px;font-weight:700;text-align:center;letter-spacing:.3px;color:#eaf0fa;
+  background:linear-gradient(to top,rgba(6,8,14,.99) 30%,rgba(6,8,14,.92) 62%,transparent)}
+.ph.side{width:250px;height:326px;margin-bottom:18px;opacity:.95}
+.ph.main{width:286px;height:380px;border-color:rgba(251,191,36,.55);
+  box-shadow:0 36px 70px -14px rgba(0,0,0,.82), 0 0 60px rgba(240,163,24,.28)}
+
+/* ---------- features ---------- */
+.feats{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:11px 16px}
+.f{display:flex;gap:13px;padding:10px 18px;border-radius:20px;
+  background:var(--card);border:1px solid var(--line)}
+.f .ic{width:46px;height:46px;flex:none;border-radius:14px;display:grid;place-items:center;
+  background:rgba(240,163,24,.16);color:#ffcf6b;border:1px solid rgba(240,163,24,.28)}
+.f:nth-child(2) .ic,.f:nth-child(5) .ic{background:rgba(249,115,22,.14);color:#fdae72;border-color:rgba(249,115,22,.26)}
+.f:nth-child(3) .ic,.f:nth-child(6) .ic{background:rgba(52,211,153,.14);color:#4fdcaa;border-color:rgba(52,211,153,.24)}
+.f svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.9;fill:none;
+  stroke-linecap:round;stroke-linejoin:round}
+.f h3{font-size:23px;font-weight:700;letter-spacing:-.3px;line-height:1.15}
+.f p{margin-top:6px;font-size:18px;line-height:1.35;color:var(--mut);font-weight:300}
+
+/* ---------- trust ---------- */
+.trust{margin:15px 0 14px;display:flex;justify-content:center;flex-wrap:wrap;gap:14px}
+.t{padding:13px 24px;border-radius:999px;font-size:19px;font-weight:600;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);color:#cddaf0}
+.t.on{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);color:#8df0c6}
+
+/* ---------- cta ---------- */
+.cta{margin-top:auto;margin-bottom:0;position:relative;display:flex;align-items:center;gap:28px;
+  padding:24px 32px;border-radius:28px;
+  background:linear-gradient(100deg,rgba(240,163,24,.11),rgba(249,115,22,.055));
+  border:1px solid rgba(251,191,36,.38);
+  box-shadow:0 24px 70px rgba(20,12,2,.5)}
+.qrwrap{flex:none;display:flex;flex-direction:column;align-items:center;gap:11px}
+.qr{width:168px;height:168px;border-radius:20px;padding:13px;background:#fff;
+  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 14px 34px rgba(0,0,0,.42), 0 0 34px rgba(251,191,36,.24)}
+.qr img{width:100%;height:100%;display:block}
+.qrcap{font-size:15px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;
+  color:#ffd98a;text-shadow:0 0 16px rgba(251,191,36,.45)}
+.ctatext{flex:1;min-width:0}
+.cta .big{font-size:41px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
+.cta .big span{background:linear-gradient(93deg,#fbbf24,#fb923c);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.cta .sm{margin-top:9px;font-size:20.5px;color:#c3d2ea;font-weight:300;line-height:1.36;max-width:560px}
+.cta .sm b{color:#eff2f8;font-weight:600}
+.ctarule{flex:none;width:1px;align-self:stretch;margin:6px 0;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.20),transparent)}
+.play{flex:none}
+.play .box{width:212px;padding:16px 18px;border-radius:18px;display:flex;align-items:center;gap:13px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.045));
+  box-shadow:0 10px 26px rgba(0,0,0,.30)}
+.play .tri{width:30px;height:30px;flex:none;display:block}
+.play .g{font-size:14px;color:#a9bdd8;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;line-height:1}
+.play .p{font-size:25px;font-weight:700;margin-top:4px;letter-spacing:-.3px;line-height:1}
+.foot{margin-top:12px;margin-bottom:14px;display:flex;font-size:17px;color:#6c7f9d;font-weight:400}
+.foot .r{margin-left:auto}
+</style></head>
+<body>
+<div class="wash w1"></div><div class="wash w2"></div><div class="wash w3"></div>
+<div class="grid"></div>
+<div class="beam"></div>
+
+<div class="page">
+
+  <header>
+    <div class="mark"><img src="__LOGO__" style="width:121.9%;height:121.9%;margin:-10.95%;display:block"></div>
+    <div class="brand">
+      <div class="n">BE <b>Mastery</b></div>
+      <div class="s">English for the trade you already know</div>
+    </div>
+    <div class="hchip"><span class="dot"></span>app.lomonec.com</div>
+  </header>
+
+  <div class="trades">
+    <div class="tl">Built for</div>
+    <div class="tg"><span>Welders</span><span>Pipefitters</span><span>Boilermakers</span></div>
+  </div>
+
+  <div class="kick">professional english for the welding trades</div>
+  <h1>You know the work. <em>Now say it</em> in English.</h1>
+  <div class="sub"><b>Twelve interviewers who work where you work.</b> Speak your answers out loud — then see exactly what a strong answer needed, in the sentence you should have said.</div>
+
+  <div class="arc">
+    <div class="side">
+      <div class="w">Today</div>
+      <div class="l">You can do the job. In the interview the words come out small, and they hear a beginner.</div>
+    </div>
+    <div class="mid"><svg viewBox="0 0 24 24"><path d="M3 17.5 9 11l4 3.6L21 6"/><path d="M21 11V6h-5"/></svg></div>
+    <div class="side now">
+      <div class="w">After the practice</div>
+      <div class="l">You name the permit, the isolation and who you told — and the supervisor writes nothing down twice.</div>
+    </div>
+  </div>
+
+  <div class="proof">
+    <div class="p"><div class="v">12</div><div class="k">interviewers, each on<br>one part of your story</div></div>
+    <div class="p"><div class="v">12</div><div class="k">workshop scenarios,<br>from first day to permit</div></div>
+    <div class="p"><div class="v">3</div><div class="k">trades — the room<br>changes with you</div></div>
+  </div>
+
+  <div class="phones">
+    <div class="ph side"><img src="__SHOT_COACHES__"><div class="cap">Twelve coaches, any order</div></div>
+    <div class="ph main"><img src="__SHOT_REPORT__"><div class="cap">What your answer missed</div></div>
+    <div class="ph side"><img src="__SHOT_SCENARIOS__"><div class="cap">Real workshop situations</div></div>
+  </div>
+
+  <div class="feats">
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="2.9" y="15.4" width="18.2" height="2.4" rx="1.2"/><path d="M6.9 15.4v-2.3A5.1 5.1 0 0 1 12 8a5.1 5.1 0 0 1 5.1 5.1v2.3"/><path d="M12 8V5.9"/></svg></div>
+      <div><h3>Your trade, not "English"</h3><p>Welder, pipefitter or boilermaker — the scenario, the words and the model answers all change with you.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></div>
+      <div><h3>Interviews you can repeat</h3><p>Introduction, handover, stop-work, quality report, permit and isolation. Any of them, as often as you like.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3.6 19 6.1v5.4c0 4.1-2.9 7.1-7 8.9-4.1-1.8-7-4.8-7-8.9V6.1L12 3.6Z"/><path d="M9.2 11.8l2.1 2.1 3.9-4"/></svg></div>
+      <div><h3>A report that names the gap</h3><p>What you covered, what you missed, and the words that would have carried it — then a strong answer to hear and say back.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9.1" cy="8.6" r="2.7"/><path d="M3.9 19.2c0-2.7 2.3-4.1 5.2-4.1s5.2 1.4 5.2 4.1"/><path d="M15.8 6.4a2.7 2.7 0 0 1 0 5.4"/><path d="M17 15.3c1.9.4 3.1 1.6 3.1 3.4"/></svg></div>
+      <div><h3>A whole crew in the room</h3><p>HR, your supervisor, the tool room, materials and safety — and you can see who is speaking.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><rect x="9" y="2.5" width="6" height="11.5" rx="3"/><path d="M5 11.5a7 7 0 0 0 14 0M12 18.5V21.5"/></svg></div>
+      <div><h3>Scored on what you said</h3><p>Every word graded from your own recording. No score is ever invented from an activity you merely opened.</p></div></div>
+
+    <div class="f"><div class="ic"><svg viewBox="0 0 24 24"><path d="M7 18.5a4.5 4.5 0 0 1 .4-9 6.5 6.5 0 0 1 12.4 2.2 3.9 3.9 0 0 1-.8 6.8"/><path d="M12 21V12M9 14.5 12 11.5l3 3"/></svg></div>
+      <div><h3>Works on a bad line</h3><p>Lose the network mid-interview and it keeps going, working down its question list.</p></div></div>
+  </div>
+
+  <div class="trust">
+    <div class="t on">Free to start</div>
+    <div class="t">Works offline</div>
+    <div class="t">No ads</div>
+    <div class="t">Android &amp; iPhone</div>
+    <div class="t">15 languages</div>
+  </div>
+
+  <div class="cta">
+    <div class="qrwrap">
+      <div class="qr"><img src="__QR__"></div>
+      <div class="qrcap">Scan to start</div>
+    </div>
+    <div class="ctatext">
+      <div class="big">Start today — <span>app.lomonec.com</span></div>
+      <div class="sm">Scan the code or tap the link. <b>Nothing to install</b> — it opens in your browser, then works offline on site.</div>
+    </div>
+    <div class="ctarule"></div>
+    <div class="play"><div class="box">
+      <!-- monochrome play mark, deliberately NOT Google's four-colour logo: see
+           the note in whatsapp-flyer.src.html. Swap in the official badge
+           artwork before any paid placement. -->
+      <svg class="tri" viewBox="0 0 24 24" fill="none"><path d="M5 3.2v17.6a1 1 0 0 0 1.5.87l14.2-8.8a1 1 0 0 0 0-1.74L6.5 2.33A1 1 0 0 0 5 3.2Z" stroke="#e8d5b4" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <div><div class="g">Get it on</div><div class="p">Google Play</div></div>
+    </div></div>
+  </div>
+
+  <div class="foot">
+    <div>Built by Lomonec LLC · Language practice only — not a welding qualification</div>
+    <div class="r">contact@lomonec.com</div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,954 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "phrases": [
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I currently work as…",
+      "u": "Introduce your role"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "My focus is on…",
+      "u": "State your priority area"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I work closely with…",
+      "u": "Show collaboration"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I'm responsible for…",
+      "u": "Describe ownership"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "A big part of my role is…",
+      "u": "Highlight a key responsibility"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "My role sits at the intersection of…",
+      "u": "Position yourself across teams"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I have a background in…",
+      "u": "Introduce your experience"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I'm currently focused on improving…",
+      "u": "Show growth direction"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "I work with engineering, product, and business stakeholders to…",
+      "u": "Describe cross-functional work"
+    },
+    {
+      "w": 1,
+      "c": "Role & Responsibilities",
+      "p": "What I enjoy most about my work is…",
+      "u": "Add personality in interviews"
+    },
+    {
+      "w": 1,
+      "c": "Idioms",
+      "p": "Touch base",
+      "u": "To make brief contact — “Let's touch base on Friday about the migration.”",
+      "i": 1
+    },
+    {
+      "w": 1,
+      "c": "Idioms",
+      "p": "Get up to speed",
+      "u": "To learn what you need to know — “Give me a day to get up to speed on the codebase.”",
+      "i": 1
+    },
+    {
+      "w": 1,
+      "c": "Idioms",
+      "p": "On the same page",
+      "u": "In agreement — “Before we start, let's make sure we're on the same page.”",
+      "i": 1
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "This week I'm focused on…",
+      "u": "Open a status update"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "The current status is…",
+      "u": "Report progress"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "We've completed…",
+      "u": "Report finished work"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "The main blocker is…",
+      "u": "State the issue clearly"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "By Friday, I expect to…",
+      "u": "Commit to a timeline"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "We're on track to deliver by…",
+      "u": "Confirm the schedule"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "The next step is…",
+      "u": "Close with an action"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "In terms of progress, we're about halfway through…",
+      "u": "Quantify progress"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "I'll follow up with an update by…",
+      "u": "Promise follow-up"
+    },
+    {
+      "w": 2,
+      "c": "Project Updates",
+      "p": "Nothing is blocking me at the moment.",
+      "u": "Clean standup close"
+    },
+    {
+      "w": 2,
+      "c": "Idioms",
+      "p": "Keep someone in the loop",
+      "u": "Keep informed — “I'll keep you in the loop on the pipeline fix.”",
+      "i": 1
+    },
+    {
+      "w": 2,
+      "c": "Idioms",
+      "p": "Moving parts",
+      "u": "Many interconnected pieces — “This migration has a lot of moving parts.”",
+      "i": 1
+    },
+    {
+      "w": 2,
+      "c": "Idioms",
+      "p": "Back on track",
+      "u": "Progressing correctly again — “After the fix, we're back on track for Friday.”",
+      "i": 1
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "We've run into an issue with…",
+      "u": "Open an escalation"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "The root cause appears to be…",
+      "u": "Explain the cause"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "The risk is that…",
+      "u": "Frame the impact"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "To mitigate that, we're…",
+      "u": "Show your plan"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "What we need is…",
+      "u": "Make the ask"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "This will impact the timeline by…",
+      "u": "Quantify the delay"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "We flagged this early because…",
+      "u": "Show proactivity"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "The recovery plan is…",
+      "u": "Present the path forward"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "We need a decision on…",
+      "u": "Force clarity"
+    },
+    {
+      "w": 3,
+      "c": "Blockers & Escalation",
+      "p": "Worst case, we can…",
+      "u": "Show the fallback"
+    },
+    {
+      "w": 3,
+      "c": "Idioms",
+      "p": "Hit a roadblock",
+      "u": "Encounter an obstacle — “We hit a roadblock with the vendor API.”",
+      "i": 1
+    },
+    {
+      "w": 3,
+      "c": "Idioms",
+      "p": "Red flag",
+      "u": "A warning sign — “The failing tests were a red flag we couldn't ignore.”",
+      "i": 1
+    },
+    {
+      "w": 3,
+      "c": "Idioms",
+      "p": "Put out fires",
+      "u": "Handle urgent problems — “I spent the morning putting out fires in production.”",
+      "i": 1
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Can you clarify what you mean by…?",
+      "u": "Ask for precision"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Just to make sure I understand…",
+      "u": "Confirm meaning"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Are you asking about X or Y?",
+      "u": "Clarify scope"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "What timeline are we working against?",
+      "u": "Pin down deadlines"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "So, to summarize what we agreed…",
+      "u": "Close with a summary"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Did I get that right?",
+      "u": "Verify understanding"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Could you walk me through…?",
+      "u": "Request an explanation"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "What does success look like here?",
+      "u": "Clarify the goal"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Who owns this piece?",
+      "u": "Clarify responsibility"
+    },
+    {
+      "w": 4,
+      "c": "Clarifying & Confirming",
+      "p": "Before we move on, can we confirm…?",
+      "u": "Lock decisions in"
+    },
+    {
+      "w": 4,
+      "c": "Idioms",
+      "p": "Drill down",
+      "u": "Examine in detail — “Let's drill down into the numbers before deciding.”",
+      "i": 1
+    },
+    {
+      "w": 4,
+      "c": "Idioms",
+      "p": "Get the ball rolling",
+      "u": "Start something — “I'll get the ball rolling with a draft proposal.”",
+      "i": 1
+    },
+    {
+      "w": 4,
+      "c": "Idioms",
+      "p": "Unpack",
+      "u": "Analyze piece by piece — “There's a lot to unpack in that requirement.”",
+      "i": 1
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "In simple terms…",
+      "u": "Open a simplified explanation"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "What this means for the business is…",
+      "u": "Connect to business impact"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "The purpose of this process is…",
+      "u": "Explain the 'why'"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "The benefit is…",
+      "u": "State the value"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "The limitation is…",
+      "u": "Be honest about constraints"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "Think of it like…",
+      "u": "Use an analogy"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "Behind the scenes, what happens is…",
+      "u": "Explain the mechanism simply"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "The bottom line is…",
+      "u": "Land the key point"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "Without getting too technical…",
+      "u": "Signal simplification"
+    },
+    {
+      "w": 5,
+      "c": "Tech to Business",
+      "p": "The impact on reporting is…",
+      "u": "Tie to stakeholder outcomes"
+    },
+    {
+      "w": 5,
+      "c": "Idioms",
+      "p": "Big picture",
+      "u": "The overall view — “Let's step back and look at the big picture.”",
+      "i": 1
+    },
+    {
+      "w": 5,
+      "c": "Idioms",
+      "p": "Break it down",
+      "u": "Explain simply — “Let me break it down into three steps.”",
+      "i": 1
+    },
+    {
+      "w": 5,
+      "c": "Idioms",
+      "p": "Under the hood",
+      "u": "The hidden technical detail — “Under the hood, it's just a scheduled SQL job.”",
+      "i": 1
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "What I'd recommend is…",
+      "u": "Propose action"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "The tradeoff is…",
+      "u": "Explain options honestly"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "From a delivery perspective…",
+      "u": "Frame the angle"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "The lowest-risk option would be…",
+      "u": "Present the safe path"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "If speed is the priority, then…",
+      "u": "Condition the choice"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "If risk reduction is the priority, then…",
+      "u": "Present the alternative"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "We have two options here…",
+      "u": "Structure the decision"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "My recommendation is based on…",
+      "u": "Justify with evidence"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "The safest path forward is…",
+      "u": "Guide the decision"
+    },
+    {
+      "w": 6,
+      "c": "Recommendations",
+      "p": "Here's what I suggest we do next…",
+      "u": "Close with next steps"
+    },
+    {
+      "w": 6,
+      "c": "Idioms",
+      "p": "Weigh the pros and cons",
+      "u": "Compare advantages/disadvantages — “Let's weigh the pros and cons of each vendor.”",
+      "i": 1
+    },
+    {
+      "w": 6,
+      "c": "Idioms",
+      "p": "Low-hanging fruit",
+      "u": "Easy wins — “Fixing the duplicate rows is low-hanging fruit.”",
+      "i": 1
+    },
+    {
+      "w": 6,
+      "c": "Idioms",
+      "p": "Game changer",
+      "u": "Something transformative — “Automating that report was a game changer for the team.”",
+      "i": 1
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I see the reasoning, but I have one concern.",
+      "u": "Polite pushback opener"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I'm not sure that approach addresses…",
+      "u": "Question the fit"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "My hesitation is…",
+      "u": "Voice a concern softly"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I'd suggest we validate X before…",
+      "u": "Propose verification"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I think the risk of moving too quickly is…",
+      "u": "Frame the risk"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "That's a fair point, and at the same time…",
+      "u": "Acknowledge, then counter"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "Can I offer a different perspective?",
+      "u": "Ask permission to disagree"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I'd push back slightly on…",
+      "u": "Signal soft disagreement"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "I hear you — my concern is timing.",
+      "u": "Validate and redirect"
+    },
+    {
+      "w": 7,
+      "c": "Disagreement & Pushback",
+      "p": "Let's pressure-test that assumption.",
+      "u": "Challenge constructively"
+    },
+    {
+      "w": 7,
+      "c": "Idioms",
+      "p": "Play devil's advocate",
+      "u": "Argue the opposite to test an idea — “Let me play devil's advocate for a second.”",
+      "i": 1
+    },
+    {
+      "w": 7,
+      "c": "Idioms",
+      "p": "Push back",
+      "u": "To disagree/resist — “I had to push back on the launch date.”",
+      "i": 1
+    },
+    {
+      "w": 7,
+      "c": "Idioms",
+      "p": "Meet halfway",
+      "u": "Compromise — “Can we meet halfway: launch the beta, delay GA?”",
+      "i": 1
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "We're waiting on…",
+      "u": "Name the dependency"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "The dependency is…",
+      "u": "Be explicit about blockers"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "We may need to re-sequence…",
+      "u": "Propose re-planning"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "The acceptance criteria aren't fully clear yet.",
+      "u": "Flag ambiguity"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "To keep the sprint on track…",
+      "u": "Propose corrective action"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "That's outside the current scope.",
+      "u": "Protect the sprint"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "We're carrying that story over.",
+      "u": "Report rollover honestly"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "The ETA is end of sprint.",
+      "u": "Commit clearly"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "I'll raise that in the retro.",
+      "u": "Route feedback properly"
+    },
+    {
+      "w": 8,
+      "c": "Agile & Delivery",
+      "p": "Let's park that and come back to it.",
+      "u": "Defer without dismissing"
+    },
+    {
+      "w": 8,
+      "c": "Idioms",
+      "p": "Bandwidth",
+      "u": "Capacity to take on work — “I don't have the bandwidth this sprint.”",
+      "i": 1
+    },
+    {
+      "w": 8,
+      "c": "Idioms",
+      "p": "Circle back",
+      "u": "Return to a topic later — “Let's circle back on this after the demo.”",
+      "i": 1
+    },
+    {
+      "w": 8,
+      "c": "Idioms",
+      "p": "Take it offline",
+      "u": "Discuss outside the meeting — “Good question — let's take it offline.”",
+      "i": 1
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "At a high level…",
+      "u": "Open an executive summary"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "The headline is…",
+      "u": "Lead with the key message"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "The main risk is…",
+      "u": "Surface the top risk"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "The recommendation is…",
+      "u": "State the ask concisely"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "The next decision we need is…",
+      "u": "Drive the decision"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "Three things to know…",
+      "u": "Structure for executives"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "The key takeaway is…",
+      "u": "Land the message"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "To put this in context…",
+      "u": "Frame before detail"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "Bottom line: we're on track.",
+      "u": "Close with confidence"
+    },
+    {
+      "w": 9,
+      "c": "Leadership Summary",
+      "p": "I'll keep it brief.",
+      "u": "Signal respect for time"
+    },
+    {
+      "w": 9,
+      "c": "Idioms",
+      "p": "Bottom line",
+      "u": "The most important conclusion — “Bottom line: we need two more weeks.”",
+      "i": 1
+    },
+    {
+      "w": 9,
+      "c": "Idioms",
+      "p": "Move the needle",
+      "u": "Make measurable impact — “This optimization really moved the needle on costs.”",
+      "i": 1
+    },
+    {
+      "w": 9,
+      "c": "Idioms",
+      "p": "Cut to the chase",
+      "u": "Get to the point — “I'll cut to the chase: the migration is done.”",
+      "i": 1
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "I led the effort to…",
+      "u": "Show ownership"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "The challenge was…",
+      "u": "Set up the story"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "The result was a measurable improvement in…",
+      "u": "Quantify impact"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "I took ownership of…",
+      "u": "Demonstrate accountability"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "I collaborated with cross-functional teams to…",
+      "u": "Show teamwork"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "What I learned from that was…",
+      "u": "Show growth"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "The situation required me to…",
+      "u": "STAR structure"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "I influenced the decision by…",
+      "u": "Show leadership without authority"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "I'm looking to grow into…",
+      "u": "Frame the transition"
+    },
+    {
+      "w": 10,
+      "c": "Interview & Networking",
+      "p": "That experience taught me…",
+      "u": "Reflect credibly"
+    },
+    {
+      "w": 10,
+      "c": "Idioms",
+      "p": "Hit the ground running",
+      "u": "Start effectively immediately — “I can hit the ground running from day one.”",
+      "i": 1
+    },
+    {
+      "w": 10,
+      "c": "Idioms",
+      "p": "Wear many hats",
+      "u": "Have multiple roles — “In that startup I wore many hats.”",
+      "i": 1
+    },
+    {
+      "w": 10,
+      "c": "Idioms",
+      "p": "Step up to the plate",
+      "u": "Take responsibility — “When the lead left, I stepped up to the plate.”",
+      "i": 1
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "The reason I'm recommending this now is…",
+      "u": "Justify the timing"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "If we ignore this, the likely outcome is…",
+      "u": "Show consequences"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "The return on doing this now is…",
+      "u": "Frame the ROI"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "The cost of delay is…",
+      "u": "Quantify inaction"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "This pays for itself within…",
+      "u": "Make the business case"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "The data supports…",
+      "u": "Argue with evidence"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "What's at stake here is…",
+      "u": "Raise the stakes"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "The window to act is…",
+      "u": "Create urgency"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "I'm confident because…",
+      "u": "Back your position"
+    },
+    {
+      "w": 11,
+      "c": "Persuasion & Influence",
+      "p": "Here's what I need from you…",
+      "u": "Make a clear ask"
+    },
+    {
+      "w": 11,
+      "c": "Idioms",
+      "p": "Get buy-in",
+      "u": "Win agreement/support — “We need buy-in from leadership before Q3.”",
+      "i": 1
+    },
+    {
+      "w": 11,
+      "c": "Idioms",
+      "p": "Make the case",
+      "u": "Argue persuasively — “Let me make the case for prioritizing data quality.”",
+      "i": 1
+    },
+    {
+      "w": 11,
+      "c": "Idioms",
+      "p": "Win-win",
+      "u": "Good for everyone — “Automating this is a win-win for both teams.”",
+      "i": 1
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "At a high level… the main blocker is… what I'd recommend is…",
+      "u": "Chain: summary → issue → recommendation"
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "Just to make sure I understand… in simple terms…",
+      "u": "Chain: clarify → simplify"
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "I see the reasoning, but I have one concern — the cost of delay.",
+      "u": "Chain: pushback → persuasion"
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "The headline is… the next step is…",
+      "u": "Chain: executive open → action close"
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "I led the effort to… the result was…",
+      "u": "Chain: interview story"
+    },
+    {
+      "w": 12,
+      "c": "Integration",
+      "p": "We've run into an issue… the recovery plan is… what we need is…",
+      "u": "Chain: full escalation"
+    },
+    {
+      "w": 12,
+      "c": "Idioms",
+      "p": "Come full circle",
+      "u": "Return to the start with new understanding — “Twelve weeks later, we've come full circle.”",
+      "i": 1
+    },
+    {
+      "w": 12,
+      "c": "Idioms",
+      "p": "Raise the bar",
+      "u": "Set a higher standard — “This program raised the bar for my communication.”",
+      "i": 1
+    },
+    {
+      "w": 12,
+      "c": "Idioms",
+      "p": "Bring it home",
+      "u": "Finish strongly — “One final recording set — time to bring it home.”",
+      "i": 1
+    }
+  ]
+}

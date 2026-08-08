@@ -1,5 +1,77 @@
 # IMPLEMENTATION_ROADMAP
 
+## Version 2 — Welding Manual Voice Turns — Complete (2026-08-06)
+
+Welding voice interactions now use deliberate learner-controlled turns across both workplace simulations and professional coach conversations: tap the ready microphone to begin, speak for as long as needed, then tap the orange microphone to submit. A browser recognition pause cannot end or submit a Welding turn. The ready, recording, and processing states continue to use the existing green, orange, and blue microphone states. Character delivery retains the track-configured natural female and male voices, with the existing gender-matched browser fallback. General English timing is unchanged; no deployment was performed.
+
+## Version 2 — Experience Layer 1: Career Dashboard — Complete (2026-08-05)
+
+The Home screen is now the first Career Dashboard. It answers one learner question—**What should I do today?**—through one primary action: **Continue Today’s Mission**. It presents the active profession, selected destination, current workplace context, current career milestone, today’s mission, estimated 25-minute duration, and one coach recommendation in a single hierarchy. Track selection remains available only as a secondary disclosure.
+
+The existing General English and Welding session flows remain intact. This explicitly updates the frozen Dashboard under the owner-approved Version 2 Experience Layer request; Shadow, Phrase Lab, Vocabulary, Grammar, and Practice were not promoted from Home. The next Experience Layer should make those activities contextual steps inside the mission flow rather than independently featured destinations.
+
+## Professional Tracks
+
+### Sprint 12 — Mission-Based Learning Experience — Complete (2026-08-05)
+
+Built the first Welding scenario, **First Day at a Welding Workshop**, as a mission within the existing Professional Simulation Engine. The journey now begins with an ABC Fabrication mission briefing, supports selected interviewer entry, retains the existing adaptive voice conversation, captures mission vocabulary, phrase use, and a targeted grammar correction only when it occurs, and concludes with a mission-complete moment followed by an evidence-based learning debrief. The debrief and competency award now require actual learner speech; ending before speaking records no scores or awards. This is a reusable data-driven pattern for future mission scenarios, without a new application page, engine, backend, or deployment.
+
+### Sprint 11 — Professional Workplace Simulations Redesign — Complete (2026-08-05)
+
+Reframed the Welding simulation catalog as a progressive set of professional workplace scenarios rather than interview questions. Each of the existing 12 scenarios now communicates its real work context, skills developed, estimated duration, difficulty, recommended stage, visible objectives, workplace story, and available professional contacts.
+
+The learner chooses who to speak with using a direct **Talk to [name]** action. That selected professional now opens the existing voice-first simulation screen, preserving the current conversation orchestration, natural voices, objective tracking, local session memory, competency award, and workplace debrief. Returning to the catalog keeps the learner in the scenario journey; no new learning engine, screen runtime, backend, or deployment was added.
+
+### Sprint 10 — Live AI Workplace Engine — Complete (2026-08-05)
+
+Replaced the Professional Simulation interaction with a voice-first workplace experience. The new Conversation Orchestrator is profession-independent: track packs continue to provide characters, scenarios, objectives, and unexpected events, while the orchestrator manages active speaker, objective completion, conversation memory, service-backed follow-up turns, character changes, and persistence.
+
+The simulation UI now uses the established full-screen conversation layout: character header, one active spoken prompt, microphone control, speaking/listening state, and collapsible talking points instead of a call-style dashboard, typing, or a scrolling transcript. It uses the existing natural-voice service with track-defined female or male character voices, falling back to the app's gender-matched browser voices when needed, plus the existing secured AI conversation endpoint for contextual follow-ups. Active sessions, voice metadata, response-derived feedback signals, conversation history, objectives, competency awards, and debriefs are retained in the existing local learner state. Browser voice capability remains a client dependency; when recognition is unavailable the UI states that limitation without reintroducing text entry.
+
+The Welding learner-facing route now prioritizes the established **Talk it out** coach-card experience. Its twelve existing track conversations are labelled as professional interview types and retain their appropriate coaches and subject matter. The separate Workshop Simulation entry is intentionally withheld from the Welding Practice and Career Center paths, so the learner experience stays consistent with the role-play pattern.
+
+### Sprint 9 — Global Career Readiness Center — Complete (2026-08-05)
+
+Delivered a local, track-aware Career Center that turns existing professional learning evidence into career-preparation guidance. Learners can choose Cameroon, Nigeria, South Africa, Canada, the United States, or an International Contractor context and receive destination-specific interview, workplace communication, culture, and certification-preparation guidance.
+
+The Center reuses the active track, Adaptive Learning Engine, Skills Passport, AI mentors, and Professional Simulation Engine. It surfaces career and interview readiness, existing gap analysis, an AI-assisted professional-summary coach, and direct entry points to the relevant mentor and simulation. Certification information remains educational; learners are directed to verify current employer, licensing, legal, and authority requirements themselves. No new learning engine, backend, or deployment was introduced.
+
+### Sprint 8 — Complete Welding Professional Track Curriculum — Complete (2026-08-05)
+
+Expanded the Welding track from a single foundation week into a 12-stage Professional Journey. The stages progress from workshop entry and team communication through equipment, materials, safety, procedures, drawings, construction, QA, industrial work, interviews, and career readiness.
+
+Every stage now has a learning objective, shadow focus, phrase focus, vocabulary focus, AI mentor, professional simulation, daily task sequence, stage mission, and competency-focus mapping. The existing Curriculum Provider, Competency Engine, AI Coach, Simulation Engine, Career Readiness, Adaptive Learning, and Skills Passport continue to consume the same track data model. No new platform architecture was added.
+
+### Sprint 7 — Adaptive Learning Intelligence — Complete (2026-08-05)
+
+Delivered an explainable, local Adaptive Learning Engine that continuously prioritizes the learner’s next activity using active-track competency results, coaching evidence, simulation history, vocabulary retention, confidence, and pronunciation signals. The existing Home coach card now expresses the engine’s single best recommendation instead of a static curriculum next step.
+
+Profile now includes a Career Readiness Roadmap and Professional Activity Calendar; Progress includes a Weekly Growth Dashboard. Milestone labels replace generic completion language in the adaptive experience. Readiness, interview readiness, and estimated time to the next milestone are transparent formative predictions, not employment guarantees.
+
+### Sprint 6 — Professional Simulation Engine — Complete (2026-08-05)
+
+Delivered a reusable, track-configured Professional Simulation Engine alongside the existing Practice and AI conversation experiences. Simulation packs define the workplace scenario, characters, objectives, unexpected events, evaluation criteria, and debrief recommendation. The engine maintains the learner’s conversation state locally, carries forward stated facts into later character responses, records completed simulations, and awards existing configurable competency points.
+
+The initial Welding implementation is **First Day at a Welding Workshop**. It includes HR Recruiter, Supervisor, Coworker, Safety Officer, and QA Inspector interactions, an early-job safety event, and a six-area readiness debrief. No Week 2 curriculum was added.
+
+### Sprint 5 — AI Learning Coach — Complete (2026-08-05)
+
+Delivered a local-first learning coach that turns completed competency-mapped activities into immediate, personalized feedback. The coach persists activity summaries and a small track-scoped memory, then uses existing competency history, learning evidence, and curriculum position to generate the daily mission, smart Home recommendation, weekly review, and professional growth narrative.
+
+The coaching layer does not send learner content to a new service. It complements the existing AI conversation and speech capabilities while remaining available offline and preserving the established storage and synchronization model.
+
+### Sprint 4 — Professional Skills Passport & Competency Engine — Complete (2026-08-05)
+
+Delivered a reusable, track-scoped competency system backed by the existing local-first storage strategy. Curriculum packs now define their passport competencies, activity mappings, career-readiness weights, and achievement rules. The Profile and Progress pages render the shared Passport and Professional Growth views without changing the existing English progress experience.
+
+Mapped activities currently include session completion, shadow-session completion, Phrase Lab mastery, vocabulary practice, speaking feedback, and completed AI conversations. General English displays only communication competencies; Welding additionally displays professional technical, safety, QA/QC, blueprint-reading, and interview-readiness dimensions.
+
+### Sprint 3 — Welding Week 1 — Complete (2026-08-05)
+
+Delivered the first learner-facing Professional Track curriculum: **Professional Introduction to Welding**. The pack provides one week of seven guided sessions, shadowing starters, professional phrases, starter vocabulary, a weekly mission, and one HR Recruiter AI mentor conversation. The existing General English experience remains the default and uses its existing curriculum and role-play scenarios.
+
+Next: define and implement Welding Week 2 only after Sprint 3 approval.
+
 > Status: authored 2026-08-02. One screen at a time. **Never start the next
 > screen without approval.**
 

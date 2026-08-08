@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "resources": [
+    {
+      "ic": "🎬",
+      "k": "film",
+      "name": "Fluent American Shadowing",
+      "url": "https://www.youtube.com/@FluentAmericanShadowing",
+      "desc": "Clips built as shadowing exercises: visual text prompts, clear pauses, isolated stress patterns.",
+      "use": "Advanced American pronunciation, accent reduction & rhythm — perfect ready-made loops"
+    },
+    {
+      "ic": "🏋️",
+      "k": "dumbbell",
+      "name": "English Coach Chad",
+      "url": "https://www.youtube.com/@EnglishCoachChad",
+      "desc": "High-repetition “language gym” routines — standalone, rhythmic repeat-after-me sentences with crisp audio.",
+      "use": "Muscle-memory drills — ideal for your first shadowing weeks"
+    },
+    {
+      "ic": "🇺🇸",
+      "k": "mic",
+      "name": "Rachel's English",
+      "url": "https://www.youtube.com/@rachelsenglish",
+      "desc": "The premier channel for American mouth mechanics, physical articulation and phonetic breakdowns.",
+      "use": "Micro-intonation drills — bite-sized sound analysis of real conversations"
+    },
+    {
+      "ic": "🗣️",
+      "k": "sound",
+      "name": "Accent's Way English with Hadar",
+      "url": "https://www.youtube.com/@hadar.shemesh",
+      "desc": "For non-native speakers seeking professional fluency and public-speaking confidence, with shadowing playlists at varying speeds.",
+      "use": "Connected speech — master it slowly with 🐢 speed, then speed up"
+    },
+    {
+      "ic": "🔴",
+      "k": "play",
+      "name": "TED Talks",
+      "url": "https://www.youtube.com/@TED",
+      "desc": "Premium presentation-style content — exceptional pacing, deliberate pausing, crystal-clear enunciation, accurate captions.",
+      "use": "Executive presentation flow & high-level business vocabulary — Weeks 9–12"
+    }
+  ],
+  "starters": [
+    {
+      "vid": "UF8uR6Z6KLc",
+      "name": "Steve Jobs — Stanford Commencement Address",
+      "why": "Slow, clear, perfectly paced — the ideal first shadowing voice.",
+      "cap": true
+    },
+    {
+      "vid": "qp0HIF3SfI4",
+      "name": "Simon Sinek — How Great Leaders Inspire Action (TED)",
+      "why": "Presentation rhythm & persuasion language for meetings.",
+      "cap": true
+    },
+    {
+      "vid": "iRr9v_shgbY",
+      "name": "Emma Watson — HeForShe (UN Women)",
+      "why": "Slow, deliberate enunciation — clean professional English, great for beginners.",
+      "cap": true
+    },
+    {
+      "vid": "_iBvQrAC2Vs",
+      "name": "J.K. Rowling — Harvard Commencement Address",
+      "why": "Witty, articulate storytelling — rich vocabulary and clear British delivery.",
+      "cap": true
+    },
+    {
+      "vid": "elbqER_ZrLQ",
+      "name": "Emma Watson — One Young World Summit",
+      "why": "Personal, reflective delivery — activism and equality vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "ACzEHOe-Dcg",
+      "name": "Admiral McRaven — Make Your Bed (UT Commencement)",
+      "why": "Clear, measured American delivery — plain, motivational vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "x_MS-RFun8Q",
+      "name": "Elon Musk — Caltech Commencement Address",
+      "why": "Conversational, technical delivery — startup, tech and business vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "MZAjfsyJa1U",
+      "name": "Leonardo DiCaprio — UN Climate Summit Speech",
+      "why": "Impassioned, formal delivery — advocacy and climate vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "UKo3M6GmKLg",
+      "name": "Michelle Obama — “When They Go Low, We Go High” Speech",
+      "why": "Powerful, deliberate American delivery — persuasion and civic vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "8X_y7D8JcMA",
+      "name": "George W. Bush — SMU Commencement Address",
+      "why": "Relaxed, conversational American delivery — civic and everyday vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "Do8iVld-RB4",
+      "name": "Tim Cook — Duke Commencement Address",
+      "why": "Warm, measured corporate delivery — leadership and values vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "M7GhVsD2-ro",
+      "name": "Stephen Colbert — Wake Forest Commencement Address",
+      "why": "Fast, witty American delivery — humor, idioms and everyday speech.",
+      "cap": true
+    },
+    {
+      "vid": "qHc3FY9il1s",
+      "name": "Martin Luther King Jr. — I Have a Dream",
+      "why": "Historic oratory — powerful rhythm, cadence and repetition.",
+      "cap": true
+    },
+    {
+      "vid": "ydj-gpaRgh8",
+      "name": "Denzel Washington — AFI Award Speech",
+      "why": "Heartfelt, measured delivery — reflective, everyday vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "aSDrNOoMJS4",
+      "name": "Katy Perry — HRC National Dinner Speech",
+      "why": "Casual, expressive American delivery — conversational and idiomatic.",
+      "cap": true
+    },
+    {
+      "vid": "tbnzAVRZ9Xc",
+      "name": "Denzel Washington — “Fall Forward” (UPenn Commencement)",
+      "why": "Motivational American delivery — inspirational, everyday vocabulary.",
+      "cap": true
+    },
+    {
+      "vid": "RvzgUtjCxRw",
+      "name": "Keke Palmer — TED Talk",
+      "why": "Contemporary conversational delivery — personal storytelling and everyday speech.",
+      "cap": true
+    },
+    {
+      "vid": "QijH4UAqGD8",
+      "name": "Luvvie Ajayi Jones — Get Comfortable with Being Uncomfortable (TED)",
+      "why": "Bold, expressive delivery — persuasion and everyday speech.",
+      "cap": true
+    }
+  ]
+}
