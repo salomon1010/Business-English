@@ -108,7 +108,23 @@
     /* The modal says what you did well and what to do next, but never showed the
        evidence behind either. This opens the page that holds it: what you have
        actually said, workshop by workshop, and how clearly you said it. */
-    el.querySelector("#coachAnalysis").onclick=()=>{close();global.go("review")};const returnButton=el.querySelector("#coachScenarioReturn");if(returnButton)returnButton.onclick=()=>{close();if(typeof global.simChooseAnother==="function")global.simChooseAnother();else global.go("simulation")};
+    el.querySelector("#coachAnalysis").onclick=()=>{
+      close();
+      /* Straight to the report for the take just recorded, when there is one:
+         the audio, the word-by-word scoring and the terms the answer should have
+         carried are all already on the page behind this modal. Only when there
+         is no such report does this fall back to the Progress page. */
+      const slot=global._shLastReport&&document.getElementById(global._shLastReport);
+      const report=slot&&slot.querySelector(".sh-line-report");
+      if(report){
+        report.open=true;
+        report.scrollIntoView({behavior:"smooth",block:"center"});
+        report.classList.add("sh-line-report-flash");
+        setTimeout(()=>report.classList.remove("sh-line-report-flash"),1600);
+        return;
+      }
+      global.go("review");
+    };const returnButton=el.querySelector("#coachScenarioReturn");if(returnButton)returnButton.onclick=()=>{close();if(typeof global.simChooseAnother==="function")global.simChooseAnother();else global.go("simulation")};
   }
   function openMission(m){const next=m||mission(global.appState(),track()),pos=global.currentPos();global.go(next.go,pos.w,pos.d)}
   global.LearningCoach=Object.freeze({state,summary,recentSummary,mission,narrative,weeklyReview,coachCard,weeklyCard,narrativeCard,present,openMission});

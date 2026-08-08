@@ -92,6 +92,12 @@ function shLineCtx(id){return "line-"+id}
 function shLineFold(slot,headline){
   const box=document.getElementById(slot);
   if(!box||!box.children.length||box.querySelector(".sh-line-report"))return;
+  /* The coaching modal opens on top of this a moment later. It offers "Your
+     performance analysis", and this is what the learner means by that — the take
+     they just recorded, the words they missed. The report is built here and not
+     rebuilt on a re-render, so the button has to come back to this element
+     rather than navigate anywhere. */
+  window._shLastReport=slot;
   const d=document.createElement("details");
   d.className="sh-line-report";d.open=true;
   const sum=document.createElement("summary");

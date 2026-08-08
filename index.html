@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=39"></script>
-<script src="professional-tracks.js?v=39"></script>
-<script src="competency-engine.js?v=39"></script>
-<script src="learning-coach.js?v=39"></script>
-<script src="professional-simulation-engine.js?v=39"></script>
-<script src="conversation-orchestrator.js?v=39"></script>
-<script src="adaptive-learning-engine.js?v=39"></script>
-<script src="career-center.js?v=39"></script>
-<script src="professional-skills-passport.js?v=39"></script>
-<script src="jurisdictions.js?v=39"></script>
-<script src="trades.js?v=39"></script>
-<script src="answer-evaluator.js?v=39"></script>
-<script src="shadow-lines.js?v=39"></script>
+<script src="curriculum-provider.js?v=40"></script>
+<script src="professional-tracks.js?v=40"></script>
+<script src="competency-engine.js?v=40"></script>
+<script src="learning-coach.js?v=40"></script>
+<script src="professional-simulation-engine.js?v=40"></script>
+<script src="conversation-orchestrator.js?v=40"></script>
+<script src="adaptive-learning-engine.js?v=40"></script>
+<script src="career-center.js?v=40"></script>
+<script src="professional-skills-passport.js?v=40"></script>
+<script src="jurisdictions.js?v=40"></script>
+<script src="trades.js?v=40"></script>
+<script src="answer-evaluator.js?v=40"></script>
+<script src="shadow-lines.js?v=40"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -827,6 +827,9 @@ body.sh-work-open{overflow:hidden}
 .ob-track-t b{display:block;font-size:15.5px;margin-bottom:3px}
 .ob-track-t small{display:block;color:var(--mut);font-size:12.5px;line-height:1.45}
 .ob-track-go{flex:none;color:var(--mut)}
+/* A brief ring when the coaching modal sends you here, so it is obvious which
+   report it meant on a page that can hold sixty of them. */
+.sh-line-report-flash{outline:2px solid var(--acc);outline-offset:3px;border-radius:12px;transition:outline-color .5s}
 .sh-line-report{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);overflow:hidden}
 .sh-line-report>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
   list-style:none;min-height:44px;font-size:13.5px;font-weight:700}
