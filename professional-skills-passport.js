@@ -2,6 +2,17 @@
 (function(global){
   function track(){return global.ProfessionalTrackContext.active()}
   function cfg(){return global.CompetencyEngine.config(track())}
+  /* The two disclaimers below name the learner's own trade — "not a measure of
+     your welding ability" — so that a pipefitter is not told about welding.
+     craft() was written into those sentences but never defined, which made
+     render() throw a ReferenceError and took the entire Profile tab down on
+     every professional track. Trades carries the word already: career is
+     "welding", "pipefitting", "boilermaking". The fallback keeps the sentence
+     grammatical if the passport is ever rendered off a trade. */
+  function craft(s){
+    const tr=global.Trades&&global.Trades.active&&global.Trades.active(s);
+    return (tr&&tr.career)||"professional";
+  }
   function bar(label,value){return `<div class="psp-row"><div><b>${global.esc(label)}</b><span>${value}%</span></div><div class="bar"><i style="width:${value}%"></i></div></div>`}
   function stage(){const weeks=global.trackWeeks(),done=global.totalDone(),total=global.trackSessionCount();return {label:weeks.length?`Week ${global.currentPos().w} · ${weeks[global.currentPos().w-1].theme}`:"Not started",value:Math.min(100,Math.round(done/Math.max(1,total)*100))}}
   /* The Passport used to lead with "Career readiness 36%" — a weighted average of
@@ -32,11 +43,11 @@
         <p>No spoken evidence yet. Complete a workplace conversation and your answers will be scored against what a competent answer needs — that is what fills this page.</p>
       </div>`;
     return `<section class="card psp" aria-label="Professional Skills Passport">
-      <div class="psp-head"><div><div class="eyebrow">Professional Skills Passport</div><h2>Your communication evidence</h2></div></div>
-      <div class="psp-track"><span>Professional Track</span><b>${global.esc((global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(global.appState()).name:null)||c.trackLabel||t.id)}</b></div>
-      <div class="psp-stage"><span>Current Stage</span><b>${global.esc(stage().label)}</b></div>
+      <div class="psp-head"><div><div class="eyebrow">${global.t("pro.professional_skills_passport")}</div><h2>${global.t("pro.your_communication_evidence")}</h2></div></div>
+      <div class="psp-track"><span>${global.t("pro.professional_track")}</span><b>${global.esc((global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(global.appState()).name:null)||c.trackLabel||t.id)}</b></div>
+      <div class="psp-stage"><span>${global.t("pro.current_stage")}</span><b>${global.esc(stage().label)}</b></div>
       ${evidence}
-      <h3 class="psp-sub">Practice activity</h3>
+      <h3 class="psp-sub">${global.t("pro.practice_activity")}</h3>
       <p class="psp-note">A record of what you have worked on. These are counts of completed practice, not a measure of your ${craft(s)} ability or your speaking.</p>
       <div class="psp-grid">${competencies.map(x=>bar(x.label,global.CompetencyEngine.score(s,t,x.id))).join("")}</div>
       <p class="psp-basis">This page records what you have practised and said in English. It is not evidence of ${craft(s)} ability, certification, or eligibility to work — those are proved by test certificates and the awarding body.</p>
@@ -77,7 +88,7 @@
 
     return `<section class="card pg-growth">
       <div class="eyebrow">${global.esc(tr?tr.name:(cfg().trackLabel||t.id))}</div>
-      <h2>Your professional evidence</h2>
+      <h2>${global.t("pro.your_professional_evidence")}</h2>
       ${tr?`<div class="sim-skill-chips pg-codes">${tr.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>`:""}
       ${P&&P.hasWorkshopEvidence?`
         <div class="pg-ev">
@@ -88,21 +99,21 @@
         </div>`:`
         <p class="pg-empty">No workshop answers yet. Speak your way through one and this fills with what you actually said — no scores are invented from activity.</p>`}
       ${P&&P.spoken&&P.spoken.takes?`
-        <h3 class="pg-h">Speaking clarity</h3>
-        <p class="pg-note">From your daily sessions and shadowing — how much of what you said was recognised.</p>
+        <h3 class="pg-h">${global.t("pro.speaking_clarity")}</h3>
+        <p class="pg-note">${global.t("pro.from_your_daily_sessions_and_shadowing")}</p>
         <div class="pg-ev">
           <div><b>${P.spoken.takes}</b><span>takes scored</span></div>
           <div><b>${P.spoken.average}%</b><span>average clarity</span></div>
           <div><b>${P.spoken.best}%</b><span>best take</span></div>
         </div>`:""}
-      <h3 class="pg-h">Your workshops</h3>
+      <h3 class="pg-h">${global.t("pro.your_workshops")}</h3>
       <div class="pg-work">${rows.map(r=>`
         <div class="pg-work-row ${r.runs?"":"todo"}">
           <span class="pg-work-t">${global.esc(r.title)}</span>
           ${r.runs?`<span class="pg-work-n">${r.runs}×</span><b class="pg-work-b ${band(r.best)}">${pct(r.best)}%</b>`
                   :`<span class="pg-work-todo">not yet</span>`}
         </div>`).join("")}</div>
-      ${vocab.length?`<h3 class="pg-h">Trade vocabulary</h3>
+      ${vocab.length?`<h3 class="pg-h">${global.t("pro.trade_vocabulary")}</h3>
         <p class="pg-note">${vocabUsed.length} of ${vocab.length} used in something you said.</p>
         <div class="sim-skill-chips">${vocab.map(v=>`<span class="${vocabUsed.includes(v)?"ok":""}">${vocabUsed.includes(v)?"✓ ":""}${global.esc(v)}</span>`).join("")}</div>`:""}
       <p class="psp-basis">This is a record of what you have practised and said in English for this trade. It is not evidence of your ability to do the work, a certification, or eligibility to be employed.</p>
