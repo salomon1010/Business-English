@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=73"></script>
-<script src="professional-tracks.js?v=73"></script>
-<script src="competency-engine.js?v=73"></script>
-<script src="learning-coach.js?v=73"></script>
-<script src="professional-simulation-engine.js?v=73"></script>
-<script src="conversation-orchestrator.js?v=73"></script>
-<script src="adaptive-learning-engine.js?v=73"></script>
-<script src="career-center.js?v=73"></script>
-<script src="professional-skills-passport.js?v=73"></script>
-<script src="jurisdictions.js?v=73"></script>
-<script src="trades.js?v=73"></script>
-<script src="answer-evaluator.js?v=73"></script>
-<script src="shadow-lines.js?v=73"></script>
+<script src="curriculum-provider.js?v=74"></script>
+<script src="professional-tracks.js?v=74"></script>
+<script src="competency-engine.js?v=74"></script>
+<script src="learning-coach.js?v=74"></script>
+<script src="professional-simulation-engine.js?v=74"></script>
+<script src="conversation-orchestrator.js?v=74"></script>
+<script src="adaptive-learning-engine.js?v=74"></script>
+<script src="career-center.js?v=74"></script>
+<script src="professional-skills-passport.js?v=74"></script>
+<script src="jurisdictions.js?v=74"></script>
+<script src="trades.js?v=74"></script>
+<script src="answer-evaluator.js?v=74"></script>
+<script src="shadow-lines.js?v=74"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -11501,7 +11501,13 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
 /* ===== ONBOARDING (first launch) ===== */
 let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",trade:"",best:0};
 const OB_LINE="The main blocker is the vendor API — we expect a fix by Friday.";
-const OB_TARGET="the main blocker is the vendor api we expect a fix by friday";
+/* OB_TARGET used to be a second, hand-lowercased copy of OB_LINE, and the
+   scorer read it directly. Once obWinLine() started returning the learner's
+   trade sentence, the screen showed a pipefitter one line and scored them
+   against the vendor-API one — the word chips came from a sentence they had
+   never been asked to say. There is one source of truth now: the line on
+   screen. fbTokens() lowercases and strips punctuation itself, which is all
+   the copy was ever doing. */
 const OB_VOICES=TTS_VOICE_OPTS.filter(v=>v[0]!=="browser").map(v=>v[0]);   // natural voices (no device voice)
 const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","🌙 Evening wind-down"];
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
@@ -11679,7 +11685,7 @@ window.obTry=()=>{
   let got=false;
   r.onresult=e=>{got=true;
     const heard=e.results[0][0].transcript;
-    const tk=fbTokens(OB_TARGET),h=fbTokens(heard),ops=fbAlign(tk,h);
+    const tk=fbTokens(obWinLine()),h=fbTokens(heard),ops=fbAlign(tk,h);
     const ok=ops.filter(o=>o.op==="ok").length;
     obReveal(Math.round(100*ok/Math.max(tk.length,1)),ops);
   };
