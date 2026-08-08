@@ -7,3 +7,4 @@ review/
 
 # Node dependencies for services/ (assessor API and UI). Never served publicly.
 node_modules/
+marketing/build/
