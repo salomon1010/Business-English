@@ -384,7 +384,18 @@ async function callChat(env, system, messages) {
   try { p = JSON.parse(raw); } catch { p = { reply: raw, covered: [] }; }
   if (!p.reply || typeof p.reply !== "string") p.reply = "Sorry, could you say that again?";
   if (!Array.isArray(p.covered)) p.covered = [];
-  p.covered = p.covered.map(Number).filter(n => Number.isFinite(n));
+  // Two callers, two id schemes: the interview coaches number their talking
+  // points 1..n, the workplace simulations name their objectives ("safety",
+  // "handover"). Coercing with Number() was written for the first and silently
+  // turned every one of the second into NaN, so the model's coverage judgement
+  // never reached the simulations at all. Both shapes pass through now; the
+  // client is the one that validates an id against its own rubric, and it
+  // already refuses anything it does not recognise.
+  p.covered = p.covered
+    .filter(v => typeof v === "number" ? Number.isFinite(v)
+               : typeof v === "string" ? v.length > 0 && v.length <= 64
+               : false)
+    .slice(0, 32);                       // a reply cannot cover more than a scenario has
   return { reply: p.reply.slice(0, 800), covered: p.covered };
 }
 
