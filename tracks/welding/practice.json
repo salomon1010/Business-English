@@ -70,7 +70,81 @@
     "Describe experience",
     "State your career goal"
    ],
-   "greet": "Welcome. Please introduce yourself and tell me about your welding background."
+   "greet": "Welcome. Please introduce yourself and tell me about your welding background.",
+   "rubric": {
+    "points": [
+     {
+      "id": "who",
+      "label": "Introduce yourself",
+      "cues": [
+       "i am",
+       "i'm",
+       "my name",
+       "name is",
+       "welder",
+       "fabricator",
+       "pipefitter",
+       "boilermaker",
+       "fitter",
+       "tradesman",
+       "tradesperson"
+      ]
+     },
+     {
+      "id": "experience",
+      "label": "Describe experience",
+      "cues": [
+       "year",
+       "years",
+       "month",
+       "since",
+       "experience",
+       "worked",
+       "been working",
+       "weld",
+       "pipe",
+       "spool",
+       "tube",
+       "plate",
+       "vessel",
+       "boiler",
+       "structural",
+       "fabricat",
+       "joint",
+       "seam"
+      ]
+     },
+     {
+      "id": "goal",
+      "label": "State your career goal",
+      "cues": [
+       "looking",
+       "hoping",
+       "want to",
+       "would like",
+       "ready",
+       "keen",
+       "goal",
+       "move onto",
+       "move on to",
+       "next step"
+      ]
+     }
+    ],
+    "vocab": [
+     "experience",
+     "qualified",
+     "fabrication",
+     "structural",
+     "procedure"
+    ],
+    "model": "I'm a welder with six years' experience. I mostly run MIG and stick on structural steel — beams, columns and brackets. The last two years I've been on a fabrication shop floor doing fit-up and welding, and I'm looking for work where I can move onto pipe.",
+    "why": "A recruiter listens for three things in order: who you are, what you have actually done, and where you want to go. Give all three in about twenty seconds and you have answered before being asked twice.",
+    "models": {
+     "pipefitter": "I'm a pipefitter with six years' experience. I mostly work carbon and stainless spools — take-offs from isometrics, fit-up and bolt-up. The last two years I've been on maintenance turnarounds, and I'm looking for work where I can move onto larger bore process lines.",
+     "boilermaker": "I'm a boilermaker with six years' experience. I mostly work pressure parts and tube renewals — headers, panels and tube-to-header joints. The last two years I've been on outage work, and I'm looking for work where I can take on more repair planning."
+    }
+   }
   },
   {
    "id": "welding-mentor-2",
@@ -86,7 +160,80 @@
     "Ask a clear question",
     "Offer support"
    ],
-   "greet": "How is your shift going, and what does the team need to know?"
+   "greet": "How is your shift going, and what does the team need to know?",
+   "rubric": {
+    "points": [
+     {
+      "id": "update",
+      "label": "Give an update",
+      "cues": [
+       "finished",
+       "completed",
+       "done",
+       "got through",
+       "started",
+       "today",
+       "this shift",
+       "so far",
+       "progress",
+       "weld",
+       "pipe",
+       "spool",
+       "tube",
+       "plate",
+       "vessel",
+       "boiler",
+       "structural",
+       "fabricat",
+       "joint",
+       "seam"
+      ]
+     },
+     {
+      "id": "question",
+      "label": "Ask a clear question",
+      "cues": [
+       "?",
+       "do you",
+       "should i",
+       "can you",
+       "what about",
+       "where is",
+       "who is",
+       "is there",
+       "which"
+      ]
+     },
+     {
+      "id": "support",
+      "label": "Offer support",
+      "cues": [
+       "help",
+       "hand",
+       "cover",
+       "support",
+       "give you",
+       "i can",
+       "happy to",
+       "if you need",
+       "let me"
+      ]
+     }
+    ],
+    "vocab": [
+     "handover",
+     "outstanding",
+     "priority",
+     "progress",
+     "shift"
+    ],
+    "model": "I got through the fit-up on the two frames and welded one out. The second is tacked, not welded. One thing I need from you — is the revised drawing the one on the board, or is there a newer one? If you're short-handed on the night shift I'm happy to stay an hour and finish that second frame.",
+    "why": "A handover is judged on three things: what actually moved, what you still do not know, and what you are prepared to do about it. Vague handovers get repeated back to you as questions.",
+    "models": {
+     "pipefitter": "I got through the fit-up on the two spools and bolted one up. The second is tacked, not complete. One thing I need from you — is the revised isometric the one on the board, or is there a newer one? If you're short-handed tonight I'm happy to stay an hour and finish the second spool.",
+     "boilermaker": "I got through the fit-up on the two panels and completed one. The second is tacked, not finished. One thing I need from you — is the revised drawing the one on the board, or is there a newer one? If you're short-handed tonight I'm happy to stay an hour and finish that second panel."
+    }
+   }
   },
   {
    "id": "welding-mentor-3",
@@ -102,7 +249,86 @@
     "Report an issue",
     "Confirm next action"
    ],
-   "greet": "Before you start, what equipment checks have you completed?"
+   "greet": "Before you start, what equipment checks have you completed?",
+   "rubric": {
+    "points": [
+     {
+      "id": "check",
+      "label": "Name an equipment check",
+      "cues": [
+       "checked",
+       "check",
+       "inspected",
+       "looked at",
+       "tested",
+       "leads",
+       "cable",
+       "hose",
+       "regulator",
+       "gauge",
+       "clamp",
+       "earth",
+       "torch",
+       "gun",
+       "machine",
+       "gas"
+      ]
+     },
+     {
+      "id": "issue",
+      "label": "Report an issue",
+      "cues": [
+       "damaged",
+       "worn",
+       "faulty",
+       "not working",
+       "leak",
+       "crack",
+       "loose",
+       "broken",
+       "problem",
+       "wrong",
+       "missing",
+       "low"
+      ]
+     },
+     {
+      "id": "next",
+      "label": "Confirm next action",
+      "cues": [
+       "replace",
+       "swap",
+       "change",
+       "tag",
+       "take it out",
+       "quarantine",
+       "order",
+       "book",
+       "raise",
+       "report",
+       "until",
+       "told",
+       "tell",
+       "informed",
+       "reported",
+       "let",
+       "spoke",
+       "said to",
+       "raised it",
+       "flagged"
+      ]
+     }
+    ],
+    "vocab": [
+     "serviceable",
+     "defective",
+     "isolate",
+     "tag",
+     "spare"
+    ],
+    "model": "I checked the leads, the earth clamp and the gas before I started. The earth clamp is worn and it's not gripping properly. I've taken it out of service and tagged it, and I've told the tool room so it gets swapped before the next shift.",
+    "why": "A readiness report is only useful if it ends somewhere. What you checked, what was wrong, and what happens next — the last part is the one people forget, and it is the one your supervisor needs."
+   }
   },
   {
    "id": "welding-mentor-4",
@@ -118,7 +344,73 @@
     "Confirm specification",
     "Ask for clarification"
    ],
-   "greet": "Can you explain what material and preparation this task requires?"
+   "greet": "Can you explain what material and preparation this task requires?",
+   "rubric": {
+    "points": [
+     {
+      "id": "material",
+      "label": "Describe material",
+      "cues": [
+       "steel",
+       "stainless",
+       "carbon",
+       "alloy",
+       "aluminium",
+       "aluminum",
+       "plate",
+       "pipe",
+       "tube",
+       "grade",
+       "thickness",
+       "mm",
+       "inch",
+       "schedule",
+       "material"
+      ]
+     },
+     {
+      "id": "spec",
+      "label": "Confirm specification",
+      "cues": [
+       "spec",
+       "specification",
+       "drawing",
+       "procedure",
+       "wps",
+       "standard",
+       "code",
+       "says",
+       "calls for",
+       "required",
+       "revision"
+      ]
+     },
+     {
+      "id": "clarify",
+      "label": "Ask for clarification",
+      "cues": [
+       "?",
+       "can you confirm",
+       "could you check",
+       "am i right",
+       "should it be",
+       "which one",
+       "not clear",
+       "make sure",
+       "double check"
+      ]
+     }
+    ],
+    "vocab": [
+     "specification",
+     "grade",
+     "tolerance",
+     "revision",
+     "traceability"
+    ],
+    "model": "The material on the bench is the 10mm plate, and the drawing calls for that grade on this joint. Before I cut, can you confirm the thickness on the revised drawing is still 10mm? I'd rather check now than after it's prepped.",
+    "why": "Preparation questions cost a minute; preparation mistakes cost the job. Say what you have, say what the paperwork says, then ask the one question that closes the gap between them."
+   }
   },
   {
    "id": "welding-mentor-5",
@@ -134,7 +426,87 @@
     "Confirm PPE",
     "Use stop-work language"
    ],
-   "greet": "What would you check before starting this welding task?"
+   "greet": "What would you check before starting this welding task?",
+   "rubric": {
+    "points": [
+     {
+      "id": "hazard",
+      "label": "Identify a hazard",
+      "cues": [
+       "hazard",
+       "risk",
+       "danger",
+       "unsafe",
+       "fume",
+       "spark",
+       "hot",
+       "fire",
+       "trip",
+       "fall",
+       "cable",
+       "leak",
+       "gas",
+       "fumes",
+       "screen",
+       "noticed",
+       "saw"
+      ]
+     },
+     {
+      "id": "ppe",
+      "label": "Confirm PPE",
+      "cues": [
+       "ppe",
+       "helmet",
+       "mask",
+       "gloves",
+       "goggles",
+       "glasses",
+       "boots",
+       "sleeves",
+       "apron",
+       "respirator",
+       "ear",
+       "harness",
+       "extraction"
+      ]
+     },
+     {
+      "id": "stop",
+      "label": "Use stop-work language",
+      "cues": [
+       "stop",
+       "stopped",
+       "hold",
+       "not safe",
+       "won't start",
+       "will not start",
+       "before we",
+       "wait",
+       "pause",
+       "put it on hold",
+       "told",
+       "tell",
+       "informed",
+       "reported",
+       "let",
+       "spoke",
+       "said to",
+       "raised it",
+       "flagged"
+      ]
+     }
+    ],
+    "vocab": [
+     "hazard",
+     "stop-work",
+     "extraction",
+     "isolation",
+     "permit"
+    ],
+    "model": "I'm not starting yet. The extraction isn't running on that bay and there's no screen up, so anyone walking past gets the arc. I've got my helmet, gloves and sleeves on, but I'd like to stop until the screens are up and the extraction is on. I've told the supervisor.",
+    "why": "Stop-work language has to be calm, specific and impossible to misread. Name what you saw, say plainly that you are holding, and say who you have told. Softening it is what gets it overruled."
+   }
   },
   {
    "id": "welding-mentor-6",
@@ -150,7 +522,85 @@
     "Mention parameters",
     "Describe checks"
    ],
-   "greet": "Talk me through how you would follow the procedure."
+   "greet": "Talk me through how you would follow the procedure.",
+   "rubric": {
+    "points": [
+     {
+      "id": "sequence",
+      "label": "Explain sequence",
+      "cues": [
+       "first",
+       "then",
+       "after",
+       "next",
+       "start",
+       "begin",
+       "order",
+       "sequence",
+       "root",
+       "fill",
+       "cap",
+       "pass",
+       "step",
+       "tack"
+      ]
+     },
+     {
+      "id": "parameters",
+      "label": "Mention parameters",
+      "cues": [
+       "amp",
+       "amps",
+       "voltage",
+       "volts",
+       "current",
+       "speed",
+       "heat",
+       "temperature",
+       "preheat",
+       "interpass",
+       "gas",
+       "flow",
+       "setting",
+       "parameter",
+       "wps",
+       "procedure"
+      ]
+     },
+     {
+      "id": "checks",
+      "label": "Describe checks",
+      "cues": [
+       "check",
+       "checked",
+       "inspect",
+       "visual",
+       "measure",
+       "gauge",
+       "clean",
+       "grind",
+       "between",
+       "before",
+       "after",
+       "sign",
+       "record"
+      ]
+     }
+    ],
+    "vocab": [
+     "procedure",
+     "parameters",
+     "interpass",
+     "visual inspection",
+     "record"
+    ],
+    "model": "I follow the procedure sheet: tack it up, root pass, then fill and cap. I set the machine to what the procedure calls for and I check the interpass temperature between passes. After each pass I clean it back and do a visual before I carry on, and I record it on the sheet.",
+    "why": "Explaining a procedure well is about order and evidence, not detail. Say the sequence, say that your settings come from the procedure rather than from habit, and say how you check between steps.",
+    "models": {
+     "pipefitter": "I follow the procedure sheet: check the take-off against the isometric, fit and align, then tack and bolt up. I set anything adjustable to what the procedure calls for rather than from habit. I check alignment and gap before I go on, and I record it on the sheet.",
+     "boilermaker": "I follow the procedure sheet: prepare and align the tube ends, then work the joint in the order it calls for. I set anything adjustable to what the procedure calls for rather than from habit. I check between stages and I record it on the sheet."
+    }
+   }
   },
   {
    "id": "welding-mentor-7",
@@ -166,7 +616,73 @@
     "Ask about dimension",
     "Confirm symbols"
    ],
-   "greet": "What would you check on this drawing before you begin?"
+   "greet": "What would you check on this drawing before you begin?",
+   "rubric": {
+    "points": [
+     {
+      "id": "revision",
+      "label": "Check drawing revision",
+      "cues": [
+       "revision",
+       "rev",
+       "version",
+       "latest",
+       "current",
+       "issue",
+       "date",
+       "superseded",
+       "old drawing",
+       "which drawing"
+      ]
+     },
+     {
+      "id": "dimension",
+      "label": "Ask about dimension",
+      "cues": [
+       "dimension",
+       "size",
+       "length",
+       "width",
+       "thickness",
+       "diameter",
+       "mm",
+       "inch",
+       "measurement",
+       "tolerance",
+       "centre",
+       "center",
+       "spacing"
+      ]
+     },
+     {
+      "id": "symbols",
+      "label": "Confirm symbols",
+      "cues": [
+       "symbol",
+       "weld symbol",
+       "fillet",
+       "butt",
+       "leg",
+       "throat",
+       "arrow",
+       "notation",
+       "callout",
+       "detail",
+       "section",
+       "legend"
+      ]
+     }
+    ],
+    "vocab": [
+     "revision",
+     "tolerance",
+     "weld symbol",
+     "detail",
+     "datum"
+    ],
+    "model": "Before I set out, can I check this is the current revision? Mine is Rev B and I want to be sure nothing has superseded it. On this detail the dimension between the two brackets isn't clear to me — is that to the centre or to the edge? And can you confirm the symbol here is a 6mm fillet both sides?",
+    "why": "Drawing questions are cheap and rework is not. Confirm the revision first, because every other question is worthless if you are reading a superseded sheet."
+   }
   },
   {
    "id": "welding-mentor-8",
@@ -182,7 +698,74 @@
     "Request access",
     "Handle a schedule change"
    ],
-   "greet": "What do you need from the other trade to complete your task?"
+   "greet": "What do you need from the other trade to complete your task?",
+   "rubric": {
+    "points": [
+     {
+      "id": "update",
+      "label": "Give a site update",
+      "cues": [
+       "finished",
+       "completed",
+       "done",
+       "on track",
+       "behind",
+       "started",
+       "progress",
+       "area",
+       "level",
+       "bay",
+       "grid",
+       "today"
+      ]
+     },
+     {
+      "id": "access",
+      "label": "Request access",
+      "cues": [
+       "access",
+       "scaffold",
+       "platform",
+       "crane",
+       "lift",
+       "permit",
+       "isolate",
+       "shut",
+       "clear",
+       "need",
+       "can we",
+       "when can"
+      ]
+     },
+     {
+      "id": "schedule",
+      "label": "Handle a schedule change",
+      "cues": [
+       "delay",
+       "delayed",
+       "moved",
+       "reschedule",
+       "tomorrow",
+       "later",
+       "earlier",
+       "instead",
+       "priority",
+       "reorder",
+       "push",
+       "bring forward"
+      ]
+     }
+    ],
+    "vocab": [
+     "access",
+     "coordination",
+     "sequence",
+     "constraint",
+     "programme"
+    ],
+    "model": "We finished the brackets on level two and we're on track there. To start level three I need scaffold access on the north side — can that be booked for tomorrow morning? If it can't, I'd rather bring the level-one work forward than have the team standing.",
+    "why": "Coordinating with another trade is a negotiation, not a report. Say where you are, say exactly what you need and when, and offer the alternative — that is what stops a delay becoming an argument."
+   }
   },
   {
    "id": "welding-mentor-9",
@@ -198,7 +781,94 @@
     "Stay factual",
     "Propose next step"
    ],
-   "greet": "What did the inspection find, and what should happen next?"
+   "greet": "What did the inspection find, and what should happen next?",
+   "rubric": {
+    "points": [
+     {
+      "id": "defect",
+      "label": "Describe a defect",
+      "cues": [
+       "porosity",
+       "undercut",
+       "crack",
+       "lack of fusion",
+       "slag",
+       "inclusion",
+       "spatter",
+       "distortion",
+       "misalign",
+       "gap",
+       "defect",
+       "indication",
+       "reject",
+       "out of tolerance"
+      ]
+     },
+     {
+      "id": "factual",
+      "label": "Stay factual",
+      "cues": [
+       "measured",
+       "found",
+       "observed",
+       "saw",
+       "checked",
+       "mm",
+       "length",
+       "location",
+       "joint",
+       "on the",
+       "at the",
+       "report",
+       "record",
+       "photo"
+      ]
+     },
+     {
+      "id": "next",
+      "label": "Propose next step",
+      "cues": [
+       "repair",
+       "rework",
+       "grind",
+       "cut out",
+       "re-weld",
+       "reweld",
+       "hold",
+       "quarantine",
+       "raise",
+       "ncr",
+       "re-inspect",
+       "reinspect",
+       "propose",
+       "suggest",
+       "next step",
+       "told",
+       "tell",
+       "informed",
+       "reported",
+       "let",
+       "spoke",
+       "said to",
+       "raised it",
+       "flagged"
+      ]
+     }
+    ],
+    "vocab": [
+     "indication",
+     "nonconformity",
+     "rework",
+     "acceptance criteria",
+     "record"
+    ],
+    "model": "On the third joint I found porosity along about 40mm of the cap, on the outside. I've measured it and photographed it, and I haven't touched it. I'd propose we grind that section out and re-weld it, then re-inspect — but I wanted to raise it with you before I did anything.",
+    "why": "A quality report is trusted when it separates what you observed from what you think should happen. State the finding with its size and location first, then propose — do not lead with the fix.",
+    "models": {
+     "pipefitter": "On the third spool I found the flange face out of alignment by about 3mm across the bolt circle. I've measured it and photographed it, and I haven't touched it. I'd propose we break it back and re-fit, then re-check — but I wanted to raise it with you first.",
+     "boilermaker": "On the third tube joint I found an indication about 40mm along the seam. I've measured it and photographed it, and I haven't touched it. I'd propose we cut that section out and redo it, then re-inspect — but I wanted to raise it with you first."
+    }
+   }
   },
   {
    "id": "welding-mentor-10",
@@ -214,7 +884,84 @@
     "Mention isolation",
     "Report concern"
    ],
-   "greet": "Before controlled work begins, what must you confirm?"
+   "greet": "Before controlled work begins, what must you confirm?",
+   "rubric": {
+    "points": [
+     {
+      "id": "permit",
+      "label": "Confirm permit",
+      "cues": [
+       "permit",
+       "paperwork",
+       "authorisation",
+       "authorization",
+       "signed",
+       "issued",
+       "valid",
+       "hot work",
+       "clearance",
+       "approved",
+       "in date"
+      ]
+     },
+     {
+      "id": "isolation",
+      "label": "Mention isolation",
+      "cues": [
+       "isolation",
+       "isolated",
+       "lock",
+       "lockout",
+       "tag",
+       "locked off",
+       "de-energised",
+       "de-energized",
+       "drained",
+       "purged",
+       "depressur",
+       "blank",
+       "valve",
+       "breaker"
+      ]
+     },
+     {
+      "id": "concern",
+      "label": "Report concern",
+      "cues": [
+       "concern",
+       "not right",
+       "not sure",
+       "doesn't match",
+       "does not match",
+       "missing",
+       "expired",
+       "different",
+       "query",
+       "raise",
+       "check with",
+       "before we start",
+       "told",
+       "tell",
+       "informed",
+       "reported",
+       "let",
+       "spoke",
+       "said to",
+       "raised it",
+       "flagged"
+      ]
+     }
+    ],
+    "vocab": [
+     "permit",
+     "isolation",
+     "lockout",
+     "verification",
+     "authorised"
+    ],
+    "model": "Before we start I check the permit is issued and in date for this job and this area, and that the isolation is in place and tagged. On this one the permit lists two isolation points and I can only find one on the plant, so I'm not starting. I've raised it with the supervisor to confirm before we go any further.",
+    "why": "Controlled work is judged on what you refused to assume. Say what you confirmed, name the thing that did not match, and say plainly that you have not started."
+   }
   },
   {
    "id": "welding-mentor-11",
@@ -230,7 +977,88 @@
     "Give strength example",
     "State career direction"
    ],
-   "greet": "Tell me about yourself and your welding experience."
+   "greet": "Tell me about yourself and your welding experience.",
+   "rubric": {
+    "points": [
+     {
+      "id": "summary",
+      "label": "Summarise experience",
+      "cues": [
+       "year",
+       "years",
+       "experience",
+       "worked",
+       "mostly",
+       "mainly",
+       "background",
+       "qualified",
+       "certified",
+       "ticket",
+       "weld",
+       "pipe",
+       "spool",
+       "tube",
+       "plate",
+       "vessel",
+       "boiler",
+       "structural",
+       "fabricat",
+       "joint",
+       "seam"
+      ]
+     },
+     {
+      "id": "strength",
+      "label": "Give strength example",
+      "cues": [
+       "example",
+       "for instance",
+       "once",
+       "we had",
+       "there was",
+       "i managed",
+       "i sorted",
+       "i fixed",
+       "i handled",
+       "problem",
+       "job where",
+       "time when"
+      ]
+     },
+     {
+      "id": "direction",
+      "label": "State career direction",
+      "cues": [
+       "want to",
+       "looking",
+       "hoping",
+       "aim",
+       "goal",
+       "next",
+       "develop",
+       "learn",
+       "progress",
+       "supervisor",
+       "inspector",
+       "coded",
+       "qualification"
+      ]
+     }
+    ],
+    "vocab": [
+     "qualified",
+     "certification",
+     "experience",
+     "responsibility",
+     "progression"
+    ],
+    "model": "Six years, mostly structural and some pipe. A job I'd point to: we had repeated porosity on one run of joints and I traced it to the gas flow being knocked on the regulator — I raised it, we corrected it, and the reject rate went back to normal. What I want next is to get coded on pipe and work towards inspection.",
+    "why": "An interview answer needs one concrete example, not a list of adjectives. The example is what makes the summary believable and the ambition credible.",
+    "models": {
+     "pipefitter": "Six years, mostly carbon and stainless spools with some maintenance turnarounds. A job I'd point to: we had repeated misalignment on one run of joints and I traced it to a bent support — I raised it, we corrected it, and the rework went back to normal. What I want next is more responsibility on planning.",
+     "boilermaker": "Six years, mostly pressure parts and tube renewals. A job I'd point to: we had repeated leaks after one outage and I traced it to how the joints were being prepared — I raised it, we changed the prep, and the callbacks stopped. What I want next is to work towards inspection."
+    }
+   }
   },
   {
    "id": "welding-mentor-12",
@@ -246,7 +1074,80 @@
     "Show confidence",
     "Explain contribution"
    ],
-   "greet": "Why are you ready to contribute to this team?"
+   "greet": "Why are you ready to contribute to this team?",
+   "rubric": {
+    "points": [
+     {
+      "id": "standards",
+      "label": "Present standards",
+      "cues": [
+       "standard",
+       "code",
+       "specification",
+       "procedure",
+       "aws",
+       "asme",
+       "iso",
+       "en",
+       "bpvc",
+       "d1.1",
+       "9606",
+       "1090",
+       "quality",
+       "tolerance",
+       "acceptance"
+      ]
+     },
+     {
+      "id": "confidence",
+      "label": "Show confidence",
+      "cues": [
+       "i can",
+       "i am able",
+       "i'm confident",
+       "i am confident",
+       "comfortable",
+       "i've done",
+       "i have done",
+       "happy to",
+       "i would",
+       "my experience"
+      ]
+     },
+     {
+      "id": "contribution",
+      "label": "Explain contribution",
+      "cues": [
+       "contribute",
+       "bring",
+       "add",
+       "help",
+       "team",
+       "improve",
+       "reduce",
+       "save",
+       "support",
+       "train",
+       "mentor",
+       "reliable",
+       "on time"
+      ]
+     }
+    ],
+    "vocab": [
+     "standard",
+     "acceptance criteria",
+     "contribution",
+     "reliability",
+     "responsibility"
+    ],
+    "model": "I work to the standards the job is issued under — for structural that's been AWS D1.1, and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring to your team is steady output with a low reject rate, and I'm happy to help bring newer hands up to speed.",
+    "why": "A closing interview answer joins three things: the standard you are held to, evidence you can meet it, and what the team gets from you. Confidence without the first two sounds like a claim.",
+    "models": {
+     "pipefitter": "I work to the standards the job is issued under — on process work that's been ASME B31.3 — and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring is steady output with low rework, and I'm happy to help bring newer hands up to speed.",
+     "boilermaker": "I work to the standards the job is issued under — on pressure work that's been ASME BPVC — and I work to the procedure sheet rather than from habit. I'm comfortable being tested on that. What I'd bring is steady output with low rework, and I'm happy to help bring newer hands up to speed."
+    }
+   }
   }
  ],
  "simulationCharacters": [
@@ -872,7 +1773,9 @@
      "assembly point",
      "hot work"
     ]
-   }
+   },
+   "ic": "helmet",
+   "tone": "blue"
   },
   {
    "id": "welding-sim-2",
@@ -1330,7 +2233,9 @@
      "handover",
      "nonconformity"
     ]
-   }
+   },
+   "ic": "handover",
+   "tone": "teal"
   },
   {
    "id": "welding-sim-3",
@@ -1812,7 +2717,9 @@
      "regulator",
      "open circuit voltage"
     ]
-   }
+   },
+   "ic": "clipboard",
+   "tone": "purple"
   },
   {
    "id": "welding-sim-4",
@@ -2314,7 +3221,9 @@
      "root opening",
      "porosity"
     ]
-   }
+   },
+   "ic": "box",
+   "tone": "amber"
   },
   {
    "id": "welding-sim-5",
@@ -2820,7 +3729,9 @@
      "local exhaust ventilation",
      "permit to work"
     ]
-   }
+   },
+   "ic": "alert",
+   "tone": "red"
   },
   {
    "id": "welding-sim-6",
@@ -3310,7 +4221,9 @@
      "interpass temperature",
      "shielding gas flow"
     ]
-   }
+   },
+   "ic": "torch",
+   "tone": "blue"
   },
   {
    "id": "welding-sim-7",
@@ -3764,7 +4677,9 @@
      "field weld",
      "RFI"
     ]
-   }
+   },
+   "ic": "blueprint",
+   "tone": "green"
   },
   {
    "id": "welding-sim-8",
@@ -4241,7 +5156,9 @@
      "arc eye",
      "exclusion zone"
     ]
-   }
+   },
+   "ic": "team",
+   "tone": "purple"
   },
   {
    "id": "welding-sim-9",
@@ -4729,7 +5646,9 @@
      "nonconformity",
      "acceptance criteria"
     ]
-   }
+   },
+   "ic": "shield",
+   "tone": "teal"
   },
   {
    "id": "welding-sim-10",
@@ -5232,7 +6151,9 @@
      "LEL",
      "fire watch"
     ]
-   }
+   },
+   "ic": "lock",
+   "tone": "amber"
   },
   {
    "id": "welding-sim-11",
@@ -5790,7 +6711,9 @@
      "WPQ",
      "range of qualification"
     ]
-   }
+   },
+   "ic": "chat",
+   "tone": "blue"
   },
   {
    "id": "welding-sim-12",
@@ -6283,7 +7206,9 @@
      "revalidation",
      "TWF"
     ]
-   }
+   },
+   "ic": "trophy",
+   "tone": "green"
   }
  ]
 }
