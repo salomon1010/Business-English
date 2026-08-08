@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=40"></script>
-<script src="professional-tracks.js?v=40"></script>
-<script src="competency-engine.js?v=40"></script>
-<script src="learning-coach.js?v=40"></script>
-<script src="professional-simulation-engine.js?v=40"></script>
-<script src="conversation-orchestrator.js?v=40"></script>
-<script src="adaptive-learning-engine.js?v=40"></script>
-<script src="career-center.js?v=40"></script>
-<script src="professional-skills-passport.js?v=40"></script>
-<script src="jurisdictions.js?v=40"></script>
-<script src="trades.js?v=40"></script>
-<script src="answer-evaluator.js?v=40"></script>
-<script src="shadow-lines.js?v=40"></script>
+<script src="curriculum-provider.js?v=41"></script>
+<script src="professional-tracks.js?v=41"></script>
+<script src="competency-engine.js?v=41"></script>
+<script src="learning-coach.js?v=41"></script>
+<script src="professional-simulation-engine.js?v=41"></script>
+<script src="conversation-orchestrator.js?v=41"></script>
+<script src="adaptive-learning-engine.js?v=41"></script>
+<script src="career-center.js?v=41"></script>
+<script src="professional-skills-passport.js?v=41"></script>
+<script src="jurisdictions.js?v=41"></script>
+<script src="trades.js?v=41"></script>
+<script src="answer-evaluator.js?v=41"></script>
+<script src="shadow-lines.js?v=41"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -779,6 +779,11 @@ body.sh-work-open{overflow:hidden}
 /* Four across, and only as tall as the three lines inside them — the phase name
    over one or two lines and the stage range under it. They were squares, which
    left most of each tile empty. */
+.sh-trouble-entry{margin-bottom:16px}
+.sh-trouble-entry .sh-tb-n{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;
+  background:var(--accent-fill);color:var(--on-accent);font-size:12px;font-weight:800;font-style:normal}
+.sh-trouble-entry.has .pf-ic{background:var(--accent-fill);color:var(--on-accent)}
+.sh-back-lines{margin-bottom:12px}
 .seg-phase{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px}
 /* Square cards rather than a single nowrap row. The shared .seg-fit rule
    ellipsises its label, which turned four phase names into "Workshop Foun…",
@@ -2572,7 +2577,14 @@ function trackGrammarExercises(){return trackVocabulary().grammarExercises||{}}
 function trackGrammarCategories(){return trackVocabulary().grammarCategories||[]}
 function trackCefrMap(){return trackVocabulary().cefrMap||{}}
 function trackSynonyms(){return trackVocabulary().synonyms||{}}
-function isTrackStopWord(word){return (trackVocabulary().stopWords||[]).includes(word)}
+/* Called from a boot-time cleanup that runs before a professional track's
+   curriculum has finished loading. Unguarded, it threw there and took the whole
+   boot with it: a learner with saved trouble words got a blank app, with the
+   header and nav painted and every view empty. Not knowing a stopword is not
+   worth a dead app — say no and move on. */
+function isTrackStopWord(word){
+  try{return (trackVocabulary().stopWords||[]).includes(word)}catch(e){return false}
+}
 function trackVocabularyIntervals(){return trackPractice().vocabularyIntervals||[]}
 function trackLibraryGroups(){return trackPractice().libraryGroups||[]}
 function trackReviewAxes(){return activeCurriculum().reviewAxes}
@@ -3487,6 +3499,9 @@ const I18N_EN={
  "sh.tab_create":"Create clip",
  "sh.tab_clips":"My clips",
  "sh.tab_trouble":"Trouble words",
+ "sh.trouble_entry_sub":"The words the scoring keeps flagging. Hear one, slow it down, say it back — it clears when you get it right.",
+ "sh.trouble_none_sub":"Nothing flagged yet. Say a line back above and any word that trips you up collects here.",
+ "sh.back_to_lines":"Workplace lines",
  "sh.saved_clips_h":"⭐ My saved clips",
  "sh.saved_clips_sub":"Tap a clip to reload it.",
  "sh.trouble_h":"💪 My trouble words",
@@ -5435,11 +5450,24 @@ function rShadow(el){
   <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
   <p class="sub">${isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub")}</p>
   <div class="hr"></div>
-  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
+${(()=>{
+    /* Clips are a General English idea. On a Professional Track the lines come
+       from the learner's own workshops, so "Create clip" and "My clips 0" were
+       two controls that could never do anything — and they pushed aside the one
+       thing on this page the learner can act on. */
+    const tb=Object.keys(S.trouble||{}).length;
+    if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
-  </div>
+  </div>`;
+    if(_shTab==='trouble')return `<button class="back sh-back-lines" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
+    return `<button class="pf-row pf-setup sh-trouble-entry ${tb?"has":""}" onclick="shTab('trouble')">
+      <span class="pf-ic">${ic("dumbbell")}</span>
+      <span class="pf-txt"><b>${esc(t("sh.tab_trouble"))}${tb?` <em class="sh-tb-n">${tb}</em>`:""}</b><small>${esc(tb?t("sh.trouble_entry_sub"):t("sh.trouble_none_sub"))}</small></span>
+      <span class="pf-chev" aria-hidden="true">›</span>
+    </button>`;
+  })()}
   ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
   <div class="card" style="margin-bottom:16px;${_shTab==='create'&&!isProfessionalJourney()?'':'display:none'}">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -5601,7 +5629,8 @@ function tbRender(){
       </div>
       <div style="font-size:12px;color:var(--mut2);margin-top:6px" id="tbr_${esc(w).replace(/[^a-z0-9]/g,"_")}"></div>
     </div>`).join("")
-  :emptyState("dumbbell",t("sh.empty_trouble_title"),t("sh.empty_trouble_body"),t("sh.tab_create"),"shTab('create')");
+  :emptyState("dumbbell",t("sh.empty_trouble_title"),t("sh.empty_trouble_body"),
+      isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");
   manIconizeInline(box);
 }
 window.tbTry=word=>{
@@ -9879,11 +9908,14 @@ addEventListener("resize",syncEyebrowH);
     try{sessionStorage.setItem("be_view",h)}catch(e){}   // survives a refresh even if the hash is dropped (installed PWA start_url)
   };
 })();
-/* one-time cleanup: purge alignment-noise trouble words saved before the stopword filter existed */
+/* one-time cleanup: purge alignment-noise trouble words saved before the stopword
+   filter existed. Wrapped, because nothing here is worth failing a boot over. */
 (function(){
+  try{
   let dirty=false;
   Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||isTrackStopWord(w)){delete S.trouble[w];dirty=true}});
   if(dirty)save();
+  }catch(e){}
 })();
 /* Retention sweep: drop live simulation transcripts the learner will never
    resume, and strip the fabricated per-turn metrics written by the removed
