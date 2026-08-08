@@ -83,21 +83,21 @@
     const store=(s&&s.simulations&&s.simulations.attempts)||{};
     const notShown=sims.filter(sc=>!((store[sc.id]||[]).some(a=>a&&a.answered>0)))
       .map(sc=>(global.simTitle?global.simTitle(sc):sc.title)).slice(0,3);
-    return `<section class="card adaptive-roadmap"><div class="eyebrow">Career Readiness Roadmap</div>
+    return `<section class="card adaptive-roadmap"><div class="eyebrow">${global.t("pro.career_readiness_roadmap")}</div>
       <h2>${global.esc(m.current.title)}</h2><p>${global.esc(m.current.description)}</p>
       <div class="adaptive-grid">
-        <div><span>Answers demonstrated</span><b>${ev.demonstrated}/${ev.total}</b></div>
-        <div><span>Readiness</span><b>${pctOr(p.career)}</b></div>
-        <div><span>Interview workshop</span><b>${pctOr(p.interview)}</b></div>
+        <div><span>${global.t("pro.answers_demonstrated")}</span><b>${ev.demonstrated}/${ev.total}</b></div>
+        <div><span>${global.t("pro.readiness")}</span><b>${pctOr(p.career)}</b></div>
+        <div><span>${global.t("pro.interview_workshop")}</span><b>${pctOr(p.interview)}</b></div>
       </div>
-      ${notShown.length?`<h3>Not shown yet</h3><div class="adaptive-chips">${notShown.map(x=>`<span>${global.esc(x)}</span>`).join("")}</div>`:""}
-      <p class="adaptive-basis">Counted from answers you spoke and the app scored — never from activities opened.</p>
-      <h3>Recommended Activity</h3>
+      ${notShown.length?`<h3>${global.t("pro.not_shown_yet")}</h3><div class="adaptive-chips">${notShown.map(x=>`<span>${global.esc(x)}</span>`).join("")}</div>`:""}
+      <p class="adaptive-basis">${global.t("pro.counted_from_answers_you_spoke_and")}</p>
+      <h3>${global.t("pro.recommended_activity")}</h3>
       <p><b>${global.esc(recommendation(s,track()).title)}</b> — ${global.esc(recommendation(s,track()).reason)}</p>
       <button class="btn btn-p" onclick="AdaptiveLearningEngine.openRecommended()">${global.esc(recommendation(s,track()).title)} →</button></section>`;
   }
-  function growthCard(s){const t=track(),rows=weekly(s,t),p=prediction(s,t);return `<section class="card adaptive-growth"><div class="eyebrow">Weekly Growth Dashboard</div><h2>Professional growth this week</h2><div class="adaptive-grid"><div><span>Career readiness</span><b>${p.career}%</b></div><div><span>Interview readiness</span><b>${p.interview}%</b></div><div><span>Vocabulary retention</span><b>${retention(s).percent}%</b></div></div><div class="adaptive-bars">${rows.map(x=>`<div><span>${global.esc(x.label)} <b>${x.change>0?"+":""}${x.change}%</b></span><i><em style="width:${Math.min(100,Math.max(2,x.value))}%"></em></i></div>`).join("")}</div></section>`}
-  function heatmapCard(s){const t=track(),map=heatmap(s,t),today=new Date(),cells=[];for(let i=83;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const k=dateKey(d),n=map[k]||0;cells.push(`<span data-level="${Math.min(4,n)}" title="${k}: ${n} professional activit${n===1?"y":"ies"}"></span>`)}return `<section class="card adaptive-heat"><div class="eyebrow">Professional Activity Calendar</div><h2>Learning heatmap</h2><p>Each square shows professional activity recorded through the active track.</p><div class="adaptive-heat-grid">${cells.join("")}</div></section>`}
+  function growthCard(s){const t=track(),rows=weekly(s,t),p=prediction(s,t);return `<section class="card adaptive-growth"><div class="eyebrow">${global.t("pro.weekly_growth_dashboard")}</div><h2>${global.t("pro.professional_growth_this_week")}</h2><div class="adaptive-grid"><div><span>${global.t("pro.career_readiness")}</span><b>${p.career}%</b></div><div><span>${global.t("pro.interview_readiness")}</span><b>${p.interview}%</b></div><div><span>${global.t("pro.vocabulary_retention")}</span><b>${retention(s).percent}%</b></div></div><div class="adaptive-bars">${rows.map(x=>`<div><span>${global.esc(x.label)} <b>${x.change>0?"+":""}${x.change}%</b></span><i><em style="width:${Math.min(100,Math.max(2,x.value))}%"></em></i></div>`).join("")}</div></section>`}
+  function heatmapCard(s){const t=track(),map=heatmap(s,t),today=new Date(),cells=[];for(let i=83;i>=0;i--){const d=new Date(today);d.setDate(today.getDate()-i);const k=dateKey(d),n=map[k]||0;cells.push(`<span data-level="${Math.min(4,n)}" title="${k}: ${n} professional activit${n===1?"y":"ies"}"></span>`)}return `<section class="card adaptive-heat"><div class="eyebrow">${global.t("pro.professional_activity_calendar")}</div><h2>${global.t("pro.learning_heatmap")}</h2><p>${global.t("pro.each_square_shows_professional_activity_reco")}</p><div class="adaptive-heat-grid">${cells.join("")}</div></section>`}
   /* Only the session takes a week and a day. Passing them to every destination
      handed the workshop route a week number where it expects a workshop id. */
   function openRecommended(){
