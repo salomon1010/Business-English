@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=35"></script>
-<script src="professional-tracks.js?v=35"></script>
-<script src="competency-engine.js?v=35"></script>
-<script src="learning-coach.js?v=35"></script>
-<script src="professional-simulation-engine.js?v=35"></script>
-<script src="conversation-orchestrator.js?v=35"></script>
-<script src="adaptive-learning-engine.js?v=35"></script>
-<script src="career-center.js?v=35"></script>
-<script src="professional-skills-passport.js?v=35"></script>
-<script src="jurisdictions.js?v=35"></script>
-<script src="trades.js?v=35"></script>
-<script src="answer-evaluator.js?v=35"></script>
-<script src="shadow-lines.js?v=35"></script>
+<script src="curriculum-provider.js?v=36"></script>
+<script src="professional-tracks.js?v=36"></script>
+<script src="competency-engine.js?v=36"></script>
+<script src="learning-coach.js?v=36"></script>
+<script src="professional-simulation-engine.js?v=36"></script>
+<script src="conversation-orchestrator.js?v=36"></script>
+<script src="adaptive-learning-engine.js?v=36"></script>
+<script src="career-center.js?v=36"></script>
+<script src="professional-skills-passport.js?v=36"></script>
+<script src="jurisdictions.js?v=36"></script>
+<script src="trades.js?v=36"></script>
+<script src="answer-evaluator.js?v=36"></script>
+<script src="shadow-lines.js?v=36"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -5177,6 +5177,12 @@ function rSession(el,w,d){
         <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.transcript_desc")}</p>
         <div id="sessHeard" class="sess-heard">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span class="sess-heard-empty">${t("sess.transcript_empty")}</span>`}</div>
         <button class="btn btn-g sess-act" onclick="sessAnalyze('${key}')">${t("sess.analyze_btn")}</button>
+        ${/* The report belongs under the button that asks for it. It used to render
+             at the very bottom of the view, below the notes box, the self-score row
+             and the mark-complete button — so tapping Analyze appeared to do
+             nothing at all, and the word-by-word scoring and the words you can save
+             were somewhere the learner never scrolled to. */""}
+        <div id="fbOut" style="margin-top:12px"></div>
       </div>
       <div class="card">
         <b style="display:block;margin-bottom:10px">${t("sess.notes_title")}</b>
@@ -5191,8 +5197,7 @@ function rSession(el,w,d){
           ?`<button class="btn btn-g sess-done" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_done")}</button>`
           :`<button class="btn-primary" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_incomplete")}</button>`}
       </div>
-  </div>
-  <div id="fbOut" style="margin-top:4px"></div>`;
+  </div>`;
   manIconizeInline(el);
   renderRecs(key);
   tRender();   // reflect current timer state into the session digits + button + header pill
@@ -6687,6 +6692,8 @@ window.sessAnalyze=key=>{
   fbT0=Date.now()-(S.notes["shheardDur:sess-"+key]||30000);
   fbShowResults(document.getElementById("sessScript").value.trim(),heard,true);
   toast(t("sh.fb_from_sess_toast"));
+  const _o=document.getElementById("fbOut");
+  if(_o)_o.scrollIntoView({behavior:"smooth",block:"nearest"});
 };
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
