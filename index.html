@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=78"></script>
-<script src="professional-tracks.js?v=78"></script>
-<script src="competency-engine.js?v=78"></script>
-<script src="learning-coach.js?v=78"></script>
-<script src="professional-simulation-engine.js?v=78"></script>
-<script src="conversation-orchestrator.js?v=78"></script>
-<script src="adaptive-learning-engine.js?v=78"></script>
-<script src="career-center.js?v=78"></script>
-<script src="professional-skills-passport.js?v=78"></script>
-<script src="jurisdictions.js?v=78"></script>
-<script src="trades.js?v=78"></script>
-<script src="answer-evaluator.js?v=78"></script>
-<script src="shadow-lines.js?v=78"></script>
+<script src="curriculum-provider.js?v=79"></script>
+<script src="professional-tracks.js?v=79"></script>
+<script src="competency-engine.js?v=79"></script>
+<script src="learning-coach.js?v=79"></script>
+<script src="professional-simulation-engine.js?v=79"></script>
+<script src="conversation-orchestrator.js?v=79"></script>
+<script src="adaptive-learning-engine.js?v=79"></script>
+<script src="career-center.js?v=79"></script>
+<script src="professional-skills-passport.js?v=79"></script>
+<script src="jurisdictions.js?v=79"></script>
+<script src="trades.js?v=79"></script>
+<script src="answer-evaluator.js?v=79"></script>
+<script src="shadow-lines.js?v=79"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -296,6 +296,10 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 /* Global practice countdown — lives in the header, visible on every page while running */
 .hdr-timer{margin-left:auto;display:none;align-items:center;gap:7px;background:linear-gradient(150deg,rgba(99,102,241,.18),rgba(34,211,238,.14));border:1px solid rgba(99,102,241,.5);color:var(--txt);padding:5px 6px 5px 11px;border-radius:99px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:0 0 0 0 rgba(99,102,241,.35);transition:box-shadow .2s,transform .15s}
 .hdr-timer.show{display:flex}
+/* Professional tracks only: their header also carries the trade chip, so the
+   running timer is the fourth item in a row built for three. data-track is
+   "general" on General English, which keeps its streak throughout. */
+html.timer-on:not([data-track="general"]) .streak-pill{display:none}
 .hdr-timer:hover{transform:translateY(-1px)}
 .hdr-timer .ht-ic{display:inline-flex;line-height:0;color:var(--acc)}
 .hdr-timer .ht-ic svg{width:15px;height:15px}
@@ -4890,7 +4894,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=78&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
+  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -5460,6 +5464,13 @@ function tRender(){
     const on=timer.run||(timer.left>0&&timer.left<25*60);   // show while running or paused part-way; hide at full (cancelled) or 0 (done)
     pill.classList.toggle("show",on);
     pill.classList.toggle("running",timer.run);
+    /* A professional track puts a fourth thing in the header — the trade chip —
+       and with the timer running there is no room left: the streak was being
+       squeezed off the edge. The streak stands down while a block is live. It
+       is a number you check between sessions, not during one, and it comes
+       straight back when the timer is cancelled or finishes. General English
+       has no trade chip and so has the room; its header is untouched. */
+    document.documentElement.classList.toggle("timer-on",on);
   }
 }
 window.tToggle=()=>{
