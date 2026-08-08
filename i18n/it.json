@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "Rimosso da Vocabolario e grammatica",
  "voc.saved_toast": "🔖 Salvato in Vocabolario e grammatica",
  "voc.saved_all_toast": "🔖 Tutte le parole salvate in Vocabolario e grammatica",
+ "voc.pick_all": "Salva tutte e {{n}} per esercitarti",
+ "voc.pick_all_done": "Tutte salvate per l'esercizio ✓",
  "voc.goto_link": "Vai a Vocabolario e grammatica",
  "voc.back": "‹ Torna da dove ero",
  "ex.dictate_listening_hold": "🎙️ Registrazione — parla liberamente, tocca di nuovo il microfono per fermarti.",

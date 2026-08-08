@@ -59,19 +59,19 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=41"></script>
-<script src="professional-tracks.js?v=41"></script>
-<script src="competency-engine.js?v=41"></script>
-<script src="learning-coach.js?v=41"></script>
-<script src="professional-simulation-engine.js?v=41"></script>
-<script src="conversation-orchestrator.js?v=41"></script>
-<script src="adaptive-learning-engine.js?v=41"></script>
-<script src="career-center.js?v=41"></script>
-<script src="professional-skills-passport.js?v=41"></script>
-<script src="jurisdictions.js?v=41"></script>
-<script src="trades.js?v=41"></script>
-<script src="answer-evaluator.js?v=41"></script>
-<script src="shadow-lines.js?v=41"></script>
+<script src="curriculum-provider.js?v=43"></script>
+<script src="professional-tracks.js?v=43"></script>
+<script src="competency-engine.js?v=43"></script>
+<script src="learning-coach.js?v=43"></script>
+<script src="professional-simulation-engine.js?v=43"></script>
+<script src="conversation-orchestrator.js?v=43"></script>
+<script src="adaptive-learning-engine.js?v=43"></script>
+<script src="career-center.js?v=43"></script>
+<script src="professional-skills-passport.js?v=43"></script>
+<script src="jurisdictions.js?v=43"></script>
+<script src="trades.js?v=43"></script>
+<script src="answer-evaluator.js?v=43"></script>
+<script src="shadow-lines.js?v=43"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -779,6 +779,14 @@ body.sh-work-open{overflow:hidden}
 /* Four across, and only as tall as the three lines inside them — the phase name
    over one or two lines and the stage range under it. They were squares, which
    left most of each tile empty. */
+.voc-pick{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 10px}
+.voc-chip{font:inherit;font-size:12.5px;font-weight:600;line-height:1;cursor:pointer;
+  padding:8px 11px;min-height:34px;border-radius:999px;border:1px dashed var(--line2);
+  background:transparent;color:var(--mut);transition:.15s}
+.voc-chip:hover{border-color:var(--acc);color:var(--txt)}
+.voc-chip.on{border-style:solid;border-color:transparent;background:var(--accent-fill);color:var(--on-accent)}
+.voc-chip:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.voc-pick-all.done{opacity:.6}
 .sh-trouble-entry{margin-bottom:16px}
 .sh-trouble-entry .sh-tb-n{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;
   background:var(--accent-fill);color:var(--on-accent);font-size:12px;font-weight:800;font-style:normal}
@@ -3640,6 +3648,8 @@ const I18N_EN={
  "voc.removed_toast":"Removed from Vocabulary & Grammar",
  "voc.saved_toast":"🔖 Saved to Vocabulary & Grammar",
  "voc.saved_all_toast":"🔖 All words saved to Vocabulary & Grammar",
+ "voc.pick_all":"Save all {{n}} for practice",
+ "voc.pick_all_done":"All saved for practice ✓",
  "voc.goto_link":"Go to Vocabulary & Grammar",
  "voc.back":"‹ Back to where I was",
  "voc.sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
@@ -7493,6 +7503,61 @@ window.vocSave=(w,l)=>{
   else{S.vocab[w]={l,ts:Date.now()};paint(true);toast(t("voc.saved_toast"))}
   save();vlRender();
 };
+/* The words a learner missed are the whole point of a report, and they were
+   printed as dead chips. Tap one and it goes to Practice, where the study cards,
+   pop quizzes and word puzzles already run off S.vocab — so the interview and the
+   shadowing now feed the drills instead of ending at a list. Tapping again takes
+   it back out: this is the learner choosing what to work on, not the app
+   deciding for them. */
+function vocPickChips(words,level){
+  const list=(words||[]).filter(Boolean);
+  if(!list.length)return "";
+  const l=level||"Pro";
+  /* No id on purpose. The same word appears in the per-question card and again
+     in the workshop summary, so an id would be duplicated — and worse, the two
+     copies would disagree on screen. Every chip for a word repaints together. */
+  const chip=w=>{const on=!!S.vocab[w];
+    return `<button type="button" class="voc-chip ${on?"on":""}" aria-pressed="${on}"
+      onclick="vocPick(this)" data-w="${esc(w)}" data-l="${esc(l)}">${on?"✓":"+"} ${esc(w)}</button>`;};
+  const left=list.filter(w=>!S.vocab[w]).length;
+  return `<div class="voc-pick">${list.map(chip).join("")}</div>
+    <button type="button" class="btn btn-g btn-sm voc-pick-all${left?"":" done"}" onclick="vocPickAll(this)"
+      data-words="${esc(JSON.stringify(list))}" data-l="${esc(l)}">${left?esc(t("voc.pick_all",{n:left})):esc(t("voc.pick_all_done"))}</button>`;
+}
+function vocPickPaint(btn,on){
+  btn.classList.toggle("on",on);
+  btn.setAttribute("aria-pressed",String(on));
+  btn.textContent=(on?"✓ ":"+ ")+btn.dataset.w;
+}
+function vocPickSyncAll(scope){
+  const all=(scope||document).querySelector(".voc-pick-all");if(!all)return;
+  let words=[];try{words=JSON.parse(all.dataset.words||"[]")}catch(e){}
+  const left=words.filter(w=>!S.vocab[w]).length;
+  all.textContent=left?t("voc.pick_all",{n:left}):t("voc.pick_all_done");
+  all.classList.toggle("done",!left);
+}
+window.vocPick=btn=>{
+  const w=btn.dataset.w,l=btn.dataset.l||"Pro";
+  const on=!S.vocab[w];
+  if(on)S.vocab[w]={l,ts:Date.now()}; else delete S.vocab[w];
+  toast(t(on?"voc.saved_toast":"voc.removed_toast"));
+  document.querySelectorAll('.voc-chip').forEach(c=>{if(c.dataset.w===w)vocPickPaint(c,on)});
+  save();document.querySelectorAll(".voc-pick-all").forEach(b=>vocPickSyncAll(b.parentNode));
+  try{vlRender()}catch(e){}
+  try{navBadges()}catch(e){}
+};
+window.vocPickAll=btn=>{
+  let words=[];try{words=JSON.parse(btn.dataset.words||"[]")}catch(e){}
+  const l=btn.dataset.l||"Pro";
+  const scope=btn.closest(".sim-ans-voc,.sh-line-voc,.sim-ans-card")||document;
+  words.forEach(w=>{if(!S.vocab[w])S.vocab[w]={l,ts:Date.now()}});
+  save();
+  document.querySelectorAll(".voc-chip").forEach(c=>vocPickPaint(c,!!S.vocab[c.dataset.w]));
+  document.querySelectorAll(".voc-pick-all").forEach(b=>vocPickSyncAll(b.parentNode));
+  toast(t("voc.saved_all_toast"));
+  try{vlRender()}catch(e){}
+  try{navBadges()}catch(e){}
+};
 window.vocSaveAll=list=>{list.forEach(x=>{if(!S.vocab[x.w])S.vocab[x.w]={l:x.l,ts:Date.now()}});save();vlRender();toast(t("voc.saved_all_toast"));};
 /* jump to the My-vocabulary section, remembering where the user was so they can come back */
 window.gotoVocab=()=>{
@@ -8004,7 +8069,7 @@ function simAnswerCard(a,i){
       ${a.missed.length?`<div class="sim-ans-gap"><b>What was missing</b><ul>${a.missed.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
       <div class="sim-ans-model"><b>How you could have said it</b><p>“${esc(a.model)}”</p></div>
       ${a.why?`<p class="sim-ans-why">${esc(a.why)}</p>`:""}
-      ${a.vocabMissed.length?`<div class="sim-ans-voc"><b>Words to use next time</b><div class="sim-skill-chips">${a.vocabMissed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+      ${a.vocabMissed.length?`<div class="sim-ans-voc"><b>Words to use next time</b>${vocPickChips(a.vocabMissed,"Interview")}</div>`:""}
       ${a.vocabUsed.length?`<p class="sim-ans-why">You already used: ${esc(a.vocabUsed.join(", "))}.</p>`:""}
       ${a.source?`<p class="sim-ans-src">${esc(a.source)}</p>`:""}
     </div>
@@ -8085,7 +8150,7 @@ function simAnalysisHTML(run,sc){
     })()}
     <p class="sim-ans-src">This measures how completely you explained yourself in English against a model answer. It is not evidence of your welding ability, your certification, or whether you meet an employer's requirements — those are proved by test certificates and the awarding body.</p>
     ${rev.gaps.length?`<div class="sim-ans-gap"><b>Your repeating habit</b><ul>${rev.gaps.slice(0,3).map(g=>`<li>${esc(g.label)} — missed in ${g.times} answer${g.times===1?"":"s"}</li>`).join("")}</ul></div>`:""}
-    ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b><div class="sim-skill-chips">${rev.vocabToLearn.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+    ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b>${vocPickChips(rev.vocabToLearn,"Interview")}</div></div>`:""}
     <div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
       <button class="btn btn-p" onclick="${next.repeat?`simRestart('${esc(sc.id)}')`:`simInterviewStart('${esc(next.id)}','${esc(sc.lead||"hr")}')`}">${next.repeat?"Try this again":"Start it"} →</button></div>
     <h3 class="sim-ans-h">Question by question</h3>

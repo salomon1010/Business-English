@@ -183,7 +183,8 @@ window.shLineRecord=async(id)=>{
         <div class="sh-line-score" style="--c:${col(res.overall)}"><b>${res.overall}%</b>${esc(t("sh.line_yours"))}</div>
         <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
         ${(line.vocab||[]).length?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
-          <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}${missed.map(v=>`<span>${esc(v)}</span>`).join("")}</div></div>`:""}
+          <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}</div>
+          ${missed.length?vocPickChips(missed,"Shadowing"):""}</div>`:""}
         ${perfPanel(perfSeries("clip",ctx))}
       </div>`);
     shLineFold(slot,t("sh.line_report",{pct:res.overall}));

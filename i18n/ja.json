@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "「語彙と文法」から削除しました",
  "voc.saved_toast": "🔖 「語彙と文法」に保存しました",
  "voc.saved_all_toast": "🔖 すべての単語を「語彙と文法」に保存しました",
+ "voc.pick_all": "{{n}} 語すべてを練習に保存",
+ "voc.pick_all_done": "すべて練習に保存しました ✓",
  "voc.goto_link": "「語彙と文法」へ移動",
  "voc.back": "‹ 元の場所に戻る",
  "ex.dictate_listening_hold": "🎙️ 録音中 — 自由に話してください。止めるにはもう一度マイクをタップします。",

@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "Đã xóa khỏi Từ vựng & Ngữ pháp",
  "voc.saved_toast": "🔖 Đã lưu vào Từ vựng & Ngữ pháp",
  "voc.saved_all_toast": "🔖 Đã lưu tất cả các từ vào Từ vựng & Ngữ pháp",
+ "voc.pick_all": "Lưu cả {{n}} từ để luyện tập",
+ "voc.pick_all_done": "Đã lưu tất cả để luyện tập ✓",
  "voc.goto_link": "Đến Từ vựng & Ngữ pháp",
  "voc.back": "‹ Quay lại chỗ tôi đang xem",
  "ex.dictate_listening_hold": "🎙️ Đang ghi — cứ nói thoải mái, chạm micro lần nữa để dừng.",

@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "已从“词汇与语法”移除",
  "voc.saved_toast": "🔖 已存入“词汇与语法”",
  "voc.saved_all_toast": "🔖 所有单词已存入“词汇与语法”",
+ "voc.pick_all": "把这 {{n}} 个词存入练习",
+ "voc.pick_all_done": "已全部存入练习 ✓",
  "voc.goto_link": "前往“词汇与语法”",
  "voc.back": "‹ 回到我刚才的位置",
  "ex.dictate_listening_hold": "🎙️ 正在录音 — 尽管说，再次点击麦克风停止。",

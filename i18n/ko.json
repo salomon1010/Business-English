@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "어휘·문법에서 삭제했습니다",
  "voc.saved_toast": "🔖 어휘·문법에 저장했습니다",
  "voc.saved_all_toast": "🔖 모든 단어를 어휘·문법에 저장했습니다",
+ "voc.pick_all": "{{n}}개 모두 연습에 저장",
+ "voc.pick_all_done": "모두 연습에 저장됨 ✓",
  "voc.goto_link": "어휘·문법으로 이동",
  "voc.back": "‹ 보던 곳으로 돌아가기",
  "ex.dictate_listening_hold": "🎙️ 녹음 중 — 편하게 말하세요. 멈추려면 마이크를 다시 누르세요.",

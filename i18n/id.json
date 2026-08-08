@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "Dihapus dari Kosakata & Tata Bahasa",
  "voc.saved_toast": "🔖 Tersimpan di Kosakata & Tata Bahasa",
  "voc.saved_all_toast": "🔖 Semua kata tersimpan di Kosakata & Tata Bahasa",
+ "voc.pick_all": "Simpan semua {{n}} untuk latihan",
+ "voc.pick_all_done": "Semua tersimpan untuk latihan ✓",
  "voc.goto_link": "Buka Kosakata & Tata Bahasa",
  "voc.back": "‹ Kembali ke tempat saya tadi",
  "ex.dictate_listening_hold": "🎙️ Merekam — bicaralah bebas, ketuk mikrofon lagi untuk berhenti.",

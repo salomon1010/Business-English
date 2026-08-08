@@ -1040,6 +1040,8 @@
  "voc.removed_toast": "Aus Wortschatz und Grammatik entfernt",
  "voc.saved_toast": "🔖 In Wortschatz und Grammatik gespeichert",
  "voc.saved_all_toast": "🔖 Alle Wörter in Wortschatz und Grammatik gespeichert",
+ "voc.pick_all": "Alle {{n}} zum Üben speichern",
+ "voc.pick_all_done": "Alle zum Üben gespeichert ✓",
  "voc.goto_link": "Zu Wortschatz und Grammatik",
  "voc.back": "‹ Zurück, wo ich war",
  "ex.dictate_listening_hold": "🎙️ Nimmt auf — sprich frei, tippe nochmal aufs Mikrofon zum Stoppen.",
