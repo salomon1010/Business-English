@@ -809,6 +809,9 @@ body.sh-work-open{overflow:hidden}
    over one or two lines and the stage range under it. They were squares, which
    left most of each tile empty. */
 .voc-pick{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 10px}
+/* the "save these for practice" row under a speaking report's fix cards */
+.fb-fix-save{margin-top:14px}
+.fb-fix-save:empty{display:none}
 .voc-chip{font:inherit;font-size:12.5px;font-weight:600;line-height:1;cursor:pointer;
   padding:8px 11px;min-height:34px;border-radius:999px;border:1px dashed var(--line2);
   background:transparent;color:var(--mut);transition:.15s}
@@ -2787,7 +2790,12 @@ function applyTrackIdentity(){
 }
 applyTrackIdentity();
 function defState(){
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
+  /* vocab belongs here even though the Practice screen creates it on demand:
+     a speaking report offers the words you missed for saving, and it can be the
+     first screen that ever reads S.vocab. Reading it before Practice had been
+     opened threw and took the whole report down with it. load() backfills this
+     into any older state. */
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
 function load(){
   const def=defState();
@@ -5393,6 +5401,7 @@ function rSession(el,w,d){
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
+        <div id="shTrend"></div>
         <div class="hr"></div>
         <button class="btn btn-g sess-act" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
@@ -5435,6 +5444,10 @@ function rSession(el,w,d){
   </div>`;
   manIconizeInline(el);
   renderRecs(key);
+  /* The daily session records exactly what the Shadowing workspace records, and
+     is scored by the same engine — so it gets the same two pictures: the
+     waveform (drawn by renderRecs) and the score trend across attempts. */
+  try{shTrendRender("sess-"+key)}catch(e){}
   tRender();   // reflect current timer state into the session digits + button + header pill
 }
 window.toggleStep=(key,i)=>{
@@ -5824,14 +5837,14 @@ ${(()=>{
         </div>
       </div>
     </div>
+    ${/* No "start speaking feedback" button any more. It asked the learner to
+         speak a second time, into a different microphone, for a report the
+         recorder above already produces: shRec() runs speech recognition beside
+         the take and shFBDone() writes the report here the moment you stop. The
+         only control left is the fallback for a clip you recorded earlier —
+         re-analysing a stored take. */""}
     <div class="card" style="margin-top:16px">
-      <b style="font-size:15px">${t("sh.feedback_title")}</b> <span class="chip p3">${t("sh.feedback_beta_tag")}</span>
-      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("sh.feedback_desc")}</p>
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary sh-fb-go" id="fbBtn" onclick="fbToggle()">${tIc("sh.start_feedback_btn","mic")}</button>
-        <button class="btn btn-g" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
-        <span id="fbStatus" style="font-size:13px;color:var(--mut)"></span>
-      </div>
+      <button class="btn btn-g btn-sm" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
       <div id="fbOut" style="margin-top:6px"></div>
     </div>
   </div>
@@ -5975,15 +5988,19 @@ function shWorkKeys(e){
    panel. Data is S.fbV[vid], the per-clip attempt history the feedback pass
    already writes; nothing new is stored. Hidden below two attempts, when there
    is no trend to show yet. */
-window.shTrendRender=()=>{
+/* The key is passed in wherever the caller knows it — the daily session panel
+   uses the same element id and the same component, and its series is keyed
+   "sess-<day>". Falling back to fbCtx.vid keeps the call inside fbShowResults
+   correct on whichever surface produced the report. */
+window.shTrendRender=key=>{
   const box=document.getElementById("shTrend");if(!box)return;
-  const vid=shClip&&shClip.vid;
+  const vid=key||(fbCtx&&fbCtx.vid)||(shClip&&shClip.vid);
   const arr=(vid&&S.fbV&&S.fbV[vid])||[];
   box.innerHTML=perfPanel(perfSeries("clip",vid),{first:Math.max(1,arr.length-4)});
 };
 window.shOpenWork=()=>{
   const w=document.getElementById("shWork");if(!w)return;
-  try{shTrendRender()}catch(e){}
+  try{shTrendRender(shClip&&shClip.vid)}catch(e){}
   const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=(shClip&&shClip.title)||t("sh.eyebrow");
   _shPrevFocus=document.activeElement;
   w.style.display="flex";
@@ -7009,7 +7026,7 @@ window.sessAnalyze=key=>{
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let fbRec=null,fbOn=false,fbFinal="",fbT0=0;
+let fbT0=0;
 const FILLERS=["um","uh","er","erm","ah","hmm","mmm"];
 function fbTokens(s){return String(s).toLowerCase().replace(/[‿/|·…]/g," ").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).filter(Boolean)}
 function lev(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},(_,i)=>{const r=Array(n+1).fill(0);r[0]=i;return r});
@@ -7250,36 +7267,12 @@ function fbSayBrowser(w,rate){
     setTimeout(speakAll,80); /* Chrome drops speak() fired immediately after cancel() */
   }catch(e){toast(t("fb.tts_unavailable"))}
 }
-window.fbToggle=()=>{
-  if(!SR)return toast(t("fb.sr_unavailable"));
-  if(fbOn){try{fbRec.stop()}catch(e){}return}
-  const target=document.getElementById("shNote").value.trim();
-  if(!target)return toast(t("fb.write_transcript_first"));
-  fbFinal="";fbOn=true;fbT0=Date.now();
-  fbCtx={vid:shClip.vid,recCtx:shClip.vid?("shadow-"+shClip.vid):null};
-  document.getElementById("fbBtn").textContent=t("fb.stop_btn");
-  document.getElementById("fbStatus").textContent=t("fb.listening_status");
-  document.getElementById("fbOut").innerHTML="";
-  fbRec=new SR();fbRec.lang="en-US";fbRec.continuous=true;fbRec.interimResults=true;fbRec.maxAlternatives=1;
-  fbRec.onresult=e=>{
-    /* rebuilt from the whole list (see srText) — appending would repeat every
-       word on Android, which then wrecks the pronunciation scoring */
-    fbFinal=srText(e.results);
-    document.getElementById("fbStatus").textContent=t("fb.heard_status",{tail:fbFinal.trim().slice(-70)});
-  };
-  fbRec.onerror=e=>{
-    fbOn=false;document.getElementById("fbBtn").textContent=t("sh.start_feedback_btn");
-    document.getElementById("fbStatus").textContent="";
-    toast(e.error==="not-allowed"?t("fb.mic_blocked"):t("fb.sr_error",{err:e.error}));
-  };
-  fbRec.onend=()=>{
-    if(!fbOn)return;fbOn=false;
-    document.getElementById("fbBtn").textContent=t("sh.start_feedback_btn");
-    document.getElementById("fbStatus").textContent="";
-    fbShowResults(document.getElementById("shNote").value,fbFinal);
-  };
-  try{fbRec.start()}catch(e){fbOn=false;toast(t("fb.could_not_start"))}
-};
+/* fbToggle() is gone. It was a second, separate microphone: you recorded a
+   take above, then pressed "start speaking feedback" and said the whole thing
+   again into the browser recogniser to get a report. The take and the report
+   were never the same performance. shRec() already transcribes the recording
+   while it is being made, so the report is built from the take itself and
+   appears the moment you stop. */
 /* A coach names the two or three things worth fixing, not all of them. The rest
    stay one tap away. Ranked worst-first: a word that was not caught at all
    outranks one that was merely misheard, and among misheard words the least
@@ -7408,6 +7401,19 @@ function fbRanked(problems){
     return sev(a)-sev(b);
   });
 }
+/* The words worth saving out of a report: worst first, de-duplicated, and only
+   words long enough to be a real pronunciation problem rather than alignment
+   noise — the same test that decides what goes into S.trouble. */
+function fbFixWords(problems){
+  const seen=new Set(),out=[];
+  for(const o of fbRanked(problems)){
+    const w=String(o.t||"").toLowerCase();
+    if(w.length<4||isTrackStopWord(w)||seen.has(w))continue;
+    seen.add(w);out.push(w);
+    if(out.length>=12)break;
+  }
+  return out;
+}
 function fbFixCard(o,fromRec,hF){
   return `<div class="fb-item" id="fbi${o.i}">
       <span class="fb-pct" id="fbp${o.i}">${o.op==="sub"?wsim(o.t,o.h)+"%":"0%"}</span>
@@ -7423,9 +7429,7 @@ function fbFixCard(o,fromRec,hF){
     </div>`;
 }
 /* "Encourage another attempt" — the recorder that produced this feedback is the
-   only honest retry affordance, and both surfaces share #recBtn. fbToggle()
-   cannot be used: it reads #shNote and writes #fbBtn, which exist only in the
-   Shadow workspace, so calling it from a session would throw. */
+   only retry affordance there is now, and both surfaces share #recBtn. */
 window.fbAgain=()=>{
   const b=document.getElementById("recBtn");if(!b)return;
   const still=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -7505,6 +7509,12 @@ function fbShowResults(targetText,heardText,fromRec,outId){
         <summary><span class="btn-ic">${ic("mic")}</span>${t("fb.more_fixes",{n:fbRanked(problems).length-FB_TOP_FIXES})}<span class="hm-chev">▶</span></summary>
         <div class="home-more-body">${fbRanked(problems).slice(FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")}</div>
       </details>`:"")
+    /* The words that went wrong were a list you could listen to and nothing
+       else — the report ended and the work ended with it. Tapping a chip puts
+       the word into S.vocab, which is what the study cards, the pop quiz and
+       the word puzzles in Practice already run off, so a bad take turns into
+       something to drill. Same control the workshop reports use. */
+    +`<div class="fb-fix-save">${vocPickChips(fbFixWords(problems),"Shadowing")}</div>`
   :`<p style="font-size:13.5px;color:var(--green);font-weight:600">${t("fb.all_recognized")}</p>`}
   ${hasTarget?`<details class="home-more fb-sec">
     <summary><span class="btn-ic">${ic("doc")}</span>${t("fb.section_words")}<span class="hm-chev">▶</span></summary>
@@ -7782,10 +7792,14 @@ function vocPickChips(words,level){
   /* No id on purpose. The same word appears in the per-question card and again
      in the workshop summary, so an id would be duplicated — and worse, the two
      copies would disagree on screen. Every chip for a word repaints together. */
-  const chip=w=>{const on=!!S.vocab[w];
+  /* Read through a local copy: a speaking report can now render before the
+     learner has ever opened Practice, and S.vocab is only created on the first
+     save — reaching straight into it threw and took the whole report with it. */
+  const V=S.vocab||{};
+  const chip=w=>{const on=!!V[w];
     return `<button type="button" class="voc-chip ${on?"on":""}" aria-pressed="${on}"
       onclick="vocPick(this)" data-w="${esc(w)}" data-l="${esc(l)}">${on?"✓":"+"} ${esc(w)}</button>`;};
-  const left=list.filter(w=>!S.vocab[w]).length;
+  const left=list.filter(w=>!V[w]).length;
   return `<div class="voc-pick">${list.map(chip).join("")}</div>
     <button type="button" class="btn btn-g btn-sm voc-pick-all${left?"":" done"}" onclick="vocPickAll(this)"
       data-words="${esc(JSON.stringify(list))}" data-l="${esc(l)}">${left?esc(t("voc.pick_all",{n:left})):esc(t("voc.pick_all_done"))}</button>`;
