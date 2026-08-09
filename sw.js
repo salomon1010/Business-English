@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v298";
+const CACHE = "be12-v299";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
