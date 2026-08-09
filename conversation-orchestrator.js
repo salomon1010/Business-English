@@ -100,10 +100,20 @@ Set complete true only when the conversation has reached a natural end and the r
        track-pack fallback. The live service then replaces the next spoken turn. */
     const fallback=engine.send(sim,said);sim=fallback.simulation;
     let next=(sim.messages||[])[sim.messages.length-1]||{};
+    /* send() has already appended the scripted beat, so sim.messages now ends on
+       a character turn. Handing that to the model asks it to speak twice in a
+       row, and what it writes to follow its own question is the answer — the
+       learner's answer. That is how a supervisor came to tell a welder "I've
+       worked with carbon steel and stainless mostly", which was the welder's
+       line to say. The model is asked to follow the last thing that was
+       actually said to it, so the scripted beat it is about to replace is left
+       out of the transcript. */
+    const asked=(next&&next.role==="character")
+      ?Object.assign({},sim,{messages:(sim.messages||[]).slice(0,-1)}):sim;
     const api=typeof POLISH_API!=="undefined"?POLISH_API:"";
     if(api&&navigator.onLine){
       try{
-        const res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,sim)})});
+        const res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked)})});
         const data=await res.json().catch(()=>({}));
         if(res.ok&&data.reply){
           const valid=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).some(c=>c.id===data.characterId);
