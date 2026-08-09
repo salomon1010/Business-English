@@ -226,7 +226,7 @@ window.shLineMine=async(ctx,widx,wcount,word)=>{
    wrapped, so nothing that writes into this slot has to know about the wrapper.
    Open after a recording, because you just asked for it; closed when it is
    history restored on arrival, so the list of lines stays readable. */
-function shLineFold(slot,headline,open){
+function shLineFold(slot,id,headline,open){
   const box=document.getElementById(slot);
   if(!box||!box.children.length||box.querySelector(".sh-line-report"))return null;
   /* "Your performance analysis" elsewhere in the app means this — the take just
@@ -236,12 +236,36 @@ function shLineFold(slot,headline,open){
   const d=document.createElement("details");
   d.className="sh-line-report";d.open=!!open;
   const sum=document.createElement("summary");
-  sum.innerHTML=`<span class="sh-line-report-h">${esc(headline)}</span><span class="sh-line-chev" aria-hidden="true">›</span>`;
+  /* A report that survives the session has to be removable, or a bad take is
+     the first thing the learner sees on this line for good. stopPropagation is
+     what keeps the tap from also toggling the fold it sits in. */
+  sum.innerHTML=`<span class="sh-line-report-h">${esc(headline)}</span>
+    <button type="button" class="btn btn-g btn-sm sh-line-del"
+      onclick="event.preventDefault();event.stopPropagation();shLineDelete('${esc(id)}')"
+      title="${esc(t("cf.report_title"))}" aria-label="${esc(t("cf.report_title"))}">${ic("trash")}</button>
+    <span class="sh-line-chev" aria-hidden="true">›</span>`;
   const body=document.createElement("div");body.className="sh-line-report-body";
   while(box.firstChild)body.appendChild(box.firstChild);
   d.appendChild(sum);d.appendChild(body);box.appendChild(d);
+  manIconizeInline(sum);
   return d;
 }
+/* Delete the whole report for one line: the analysis, the score history behind
+   the trend, and the takes kept on this device. The takes go with it because
+   this report is the only place they are reachable from — leaving them would
+   orphan audio the learner believes they have deleted. */
+window.shLineDelete=async id=>{
+  if(!await askConfirm({title:t("cf.report_title"),body:t("cf.report_body"),confirmLabel:t("cf.delete")}))return;
+  const ctx=shLineCtx(id);
+  if(S.shLine)delete S.shLine[ctx];
+  if(S.fbV)delete S.fbV[ctx];
+  if(S.notes){delete S.notes["shheard:"+ctx];delete S.notes["shheardDur:"+ctx]}
+  save();
+  try{const recs=await getRecs(ctx);for(const r of recs)await delRec(r.id)}catch(e){}
+  const box=document.getElementById("shfb-"+id);if(box)box.innerHTML="";
+  if(window._shLastReport==="shfb-"+id)window._shLastReport=null;
+  toast(t("recs.deleted_toast"));
+};
 /* One builder for both paths: the report you have just earned, and the report
    you left behind last time. Performance over time and the word-by-word
    analysis come first — they are what the learner came back for — with the
@@ -270,12 +294,11 @@ async function shLineRender(id,line,data,open){
       <div id="wave-${esc(id)}" style="margin-top:12px"></div>
     </div>`;
   manIconizeInline(box);
-  const d=shLineFold(slot,t("sh.line_report",{pct:data.overall}),open);
+  const d=shLineFold(slot,id,t("sh.line_report",{pct:data.overall}),open);
   /* Decoding every take of every line on arrival would freeze the list, so a
      closed report fills itself the first time it is opened. */
   const fill=async()=>{
-    try{await renderRecs(ctx,"recl-"+id)}catch(e){}
-    try{await waveRender(ctx,"wave-"+id)}catch(e){}
+    try{await renderRecs(ctx,"recl-"+id,"wave-"+id)}catch(e){}
   };
   if(!d||d.open){await fill();return}
   let filled=false;
@@ -327,8 +350,7 @@ window.shLineRecord=async(id)=>{
         <div class="sh-line-takes"><b>${esc(t("sh.line_takes_h"))}</b><div id="recl-${esc(id)}"></div>
           <div id="wave-${esc(id)}" style="margin-top:12px"></div></div>`);
       try{manIconizeInline(document.getElementById("shfb-"+id))}catch(e){}
-      try{await renderRecs(ctx,"recl-"+id)}catch(e){}
-      try{await waveRender(ctx,"wave-"+id)}catch(e){}
+      try{await renderRecs(ctx,"recl-"+id,"wave-"+id)}catch(e){}
       return;
     }
     res.words.forEach(w=>{const k=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");

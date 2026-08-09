@@ -71,7 +71,7 @@
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=79"></script>
-<script src="shadow-lines.js?v=80"></script>
+<script src="shadow-lines.js?v=81"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -881,6 +881,9 @@ body.sh-work-open{overflow:hidden}
 .sh-line-report>summary::-webkit-details-marker{display:none}
 .sh-line-report-h{flex:1;min-width:0}
 .sh-line-chev{flex:none;color:var(--mut);transition:transform .18s;font-size:17px}
+.sh-line-del{flex:none;padding:0;width:36px;height:36px;min-height:36px;justify-content:center;color:var(--mut)}
+.sh-line-del svg{width:17px;height:17px}
+.sh-line-del:hover{color:var(--red);border-color:rgba(248,113,113,.45)}
 .sh-line-report[open]>summary .sh-line-chev{transform:rotate(90deg)}
 .sh-line-report[open]>summary{border-bottom:1px solid var(--line)}
 .sh-line-report-body{padding:14px}
@@ -4114,6 +4117,8 @@ const I18N_EN={
  "cf.clear":"Clear it",
  "cf.rec_title":"Delete this recording?",
  "cf.rec_body":"This recording will be permanently removed from this device. It can't be recovered.",
+ "cf.report_title":"Delete this analysis?",
+ "cf.report_body":"The scores for this line and the takes kept on this device will be removed with it. This can't be undone.",
  "cf.clip_title":"Delete this clip?",
  "cf.clip_body":"“{{name}}” will be removed from your saved clips, along with its marks and transcript.",
  "cf.clip_clear_title":"Clear this clip?",
@@ -5655,9 +5660,20 @@ async function waveRender(ctxName,boxId){
     box.insertAdjacentHTML("beforeend",`<p style="font-size:12.5px;color:var(--mut);margin-top:8px">${insight}</p>`);
   }catch(e){box.innerHTML=""}
 }
-async function renderRecs(ctx,listId){
+/* The take list, and the waveform that belongs to it. Both targets are named by
+   the caller, because a screen can hold more than one: the Shadowing Studio's
+   workplace lines each render their own takes, and there is a second, hidden
+   #recList/#waveBox from the clip workspace sitting in the same view. Writing
+   to the default when the caller had its own element is what made deleting a
+   recording look broken — the row was gone from the database and still on the
+   screen, because the redraw had landed somewhere the learner could not see. */
+async function renderRecs(ctx,listId,waveId){
   const list=document.getElementById(listId||"recList");if(!list)return;
-  waveRender(ctx);
+  waveRender(ctx,waveId);
+  /* Remembered on the element so a delete from inside this list can redraw
+     exactly the same pair without the caller passing them again. */
+  list.dataset.recCtx=ctx;
+  if(waveId)list.dataset.recWave=waveId; else delete list.dataset.recWave;
   const recs=await getRecs(ctx);
   list.innerHTML=recs.length?recs.map(r=>{
     const url=URL.createObjectURL(r.blob);
@@ -5665,7 +5681,7 @@ async function renderRecs(ctx,listId){
     return `<div class="rec-item"><span style="color:var(--mut2);white-space:nowrap">${dt}</span>
       <audio controls src="${url}"></audio>
       <a class="btn btn-g btn-sm" href="${url}" download="${esc(r.label||'recording')}.webm" title="${esc(t("recs.download_title"))}">⬇</a>
-      <button class="btn btn-danger btn-sm" onclick="removeRec(${r.id},'${ctx}')">✕</button></div>`;
+      <button class="btn btn-danger btn-sm" onclick="removeRec(${r.id},'${ctx}',this)" title="${esc(t("cf.delete"))}" aria-label="${esc(t("cf.delete"))}">✕</button></div>`;
   /* An empty list has two very different causes. "No recordings yet" over a
      browser that cannot store any is what made a real user think the app was
      broken by their network. getRecs() awaits dbReady, so DB is settled here. */
@@ -5676,9 +5692,15 @@ window.phDelRec=async(id,ix)=>{
   if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
   await delRec(id);renderPhRecs(ix);toast(t("recs.deleted_toast"));
 };
-window.removeRec=async(id,ctx)=>{
+window.removeRec=async(id,ctx,btn)=>{
   if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
-  await delRec(id);renderRecs(ctx);toast(t("recs.deleted_toast"));
+  await delRec(id);
+  /* Redraw the list the button was actually in, not whichever element happens
+     to answer to the default id. */
+  const item=btn&&btn.closest?btn.closest(".rec-item"):null;
+  const list=item&&item.parentElement;
+  await renderRecs(ctx,(list&&list.id)||undefined,(list&&list.dataset.recWave)||undefined);
+  toast(t("recs.deleted_toast"));
 };
 
 /* ================= SHADOW (YouGlish-style clip looper) ================= */
