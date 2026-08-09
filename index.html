@@ -991,6 +991,42 @@ body.sh-work-open{overflow:hidden}
   display:grid;place-items:center;font-size:12px;font-weight:800}
 .sim-ans-q{flex:1;min-width:0;font-size:13.5px;font-weight:600;line-height:1.4}
 .sim-ans-body{padding:0 16px 16px}
+/* Who is speaking to you in the report.
+   The card already printed the asker's name in bold, but a name does not tell
+   you that a voice is playing and has not finished. The feedback is read out as
+   several separate clips, and the gaps between them are long enough to read as
+   "it stopped" — so the learner walks away mid-answer. The face carries who is
+   talking; the ring and the bars carry "still going", and they run for the whole
+   playback, silences included, because the silences are exactly when the learner
+   needs telling to wait. */
+.sim-fb-speaker{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.sim-fb-speaker .sim-work-avatar{width:40px;height:40px;border-radius:13px;font-size:15px;
+  box-shadow:0 0 0 0 transparent;transition:box-shadow .3s}
+.sim-fb-who{flex:1;min-width:0}
+.sim-fb-who b{display:block;font-size:13.5px;font-weight:800;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sim-fb-who small{display:block;font-size:11.5px;color:var(--mut);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sim-fb-eq{flex:none;display:flex;align-items:flex-end;gap:3px;height:20px;opacity:.28}
+.sim-fb-eq i{display:block;width:3.5px;height:4px;border-radius:2px;background:var(--acc2)}
+.sim-fb-speaker.speaking .sim-fb-eq{opacity:1}
+.sim-fb-speaker.speaking .sim-fb-eq i{animation:simFbBar .9s ease-in-out infinite}
+.sim-fb-speaker.speaking .sim-fb-eq i:nth-child(2){animation-delay:.11s}
+.sim-fb-speaker.speaking .sim-fb-eq i:nth-child(3){animation-delay:.22s}
+.sim-fb-speaker.speaking .sim-fb-eq i:nth-child(4){animation-delay:.33s}
+.sim-fb-speaker.speaking .sim-fb-eq i:nth-child(5){animation-delay:.44s}
+.sim-fb-speaker.speaking .sim-work-avatar{animation:simFbGlow 1.5s ease-in-out infinite}
+@keyframes simFbBar{0%,100%{height:4px}50%{height:20px}}
+@keyframes simFbGlow{
+  0%,100%{box-shadow:0 0 0 2px color-mix(in srgb,var(--acc2) 60%,transparent)}
+  50%{box-shadow:0 0 0 6px color-mix(in srgb,var(--acc2) 20%,transparent),0 0 18px color-mix(in srgb,var(--acc2) 45%,transparent)}}
+/* Someone who has asked for less motion still needs to know a voice is running,
+   so the state stays — it simply stops moving. */
+@media(prefers-reduced-motion:reduce){
+  .sim-fb-speaker.speaking .sim-fb-eq i,.sim-fb-speaker.speaking .sim-work-avatar{animation:none}
+  .sim-fb-speaker.speaking .sim-fb-eq i{height:20px}
+  .sim-fb-speaker.speaking .sim-work-avatar{box-shadow:0 0 0 2px var(--acc2)}
+}
 .sim-ans-said{margin-bottom:12px}
 .sim-ans-said span,.sim-ans-good b,.sim-ans-gap b,.sim-ans-model b,.sim-ans-voc b{display:block;font-size:11px;font-weight:800;
   letter-spacing:.9px;text-transform:uppercase;color:var(--mut2);margin-bottom:5px}
@@ -8378,6 +8414,9 @@ window.simPlayFeedback=async(i)=>{
   simStopFeedback();
   _simFbSpeaking=i;
   if(btn){btn.classList.add("on");btn.textContent="■ Stop"}
+  /* Set once for the whole run of clips, not per clip — the animation carrying
+     across the gaps is the point. */
+  const spk=document.getElementById("simSpk"+i);if(spk)spk.classList.add("speaking");
   const c=simCharacter(sc,a.characterId)||{},gender=c.g||"f",
         voice=ttsVoice(c.voice,gender),style=c.voiceStyle||"";
   const clips=simFeedbackClips(a);
@@ -8436,6 +8475,8 @@ function simStopFeedback(){
   if(_simFbSpeaking!=null){
     const b=document.getElementById("simFb"+_simFbSpeaking);
     if(b){b.classList.remove("on");b.textContent="▶ Hear the feedback"}
+    const s=document.getElementById("simSpk"+_simFbSpeaking);
+    if(s)s.classList.remove("speaking");
   }
   _simFbSpeaking=null;
 }
@@ -8444,7 +8485,8 @@ function simAnswerCard(a,i){
   /* Same thresholds as the overall score, so one question reading amber and the
      total reading green can never mean two different things. */
   const band=!a.answered?"q-none":pct>=70?"q-good":pct>=50?"q-fair":"q-poor";
-  const asker=(()=>{const sc=ProfessionalSimulationEngine.find(_simReport.scenarioId);const c=sc&&simCharacter(sc,a.characterId);return c&&c.name?c.name:""})();
+  const person=(()=>{const sc=ProfessionalSimulationEngine.find(_simReport.scenarioId);return(sc&&simCharacter(sc,a.characterId))||null})();
+  const asker=person&&person.name?person.name:"";
   return `<details class="card sim-ans" ${i===0?"open":""}>
     <summary>
       <span class="sim-ans-n">${i+1}</span>
@@ -8452,6 +8494,11 @@ function simAnswerCard(a,i){
       <span class="sim-q-score ${band}">${a.answered?pct+"%":"—"}</span>
     </summary>
     <div class="sim-ans-body">
+      ${person?`<div class="sim-fb-speaker" id="simSpk${i}">
+        ${simFaceHTML(person)}
+        <span class="sim-fb-who"><b>${esc(person.name||"")}</b>${person.role?`<small>${esc(person.role)}</small>`:""}</span>
+        <span class="sim-fb-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+      </div>`:""}
       <button class="btn btn-g btn-sm sim-fb-play ${band}" id="simFb${i}" onclick="simPlayFeedback(${i})">▶ Hear the feedback</button>
       ${a.answered?`<div class="sim-ans-said"><span>You said</span><p>“${esc(a.said)}”</p></div>`:
         `<p class="sub">You did not give a spoken answer to this one, so there is nothing to compare yet.</p>`}
