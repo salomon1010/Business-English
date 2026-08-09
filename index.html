@@ -5495,14 +5495,29 @@ window.tOpen=()=>{const p=currentPos();go("session",timer.w||p.w,timer.d||p.d)};
 
 /* ================= RECORDER ================= */
 let rec={mr:null,chunks:[],t0:0,h:null,ctx:null,label:null};
+/* Filing a take is slower than ending the speech recogniser: onstop has to wait
+   for the recorder to flush, assemble the blob and finish an IndexedDB write,
+   while recognition ends the moment you tap stop. The speaking report is built
+   off that tap, so anything in it that needs the audio itself — the AI
+   pronunciation pass, the precise word timings — has to wait for the write
+   instead of racing it. Without this the Pronunciation coach looked for the
+   recording, found nothing, blanked its own panel, and only ever appeared if
+   you asked for the analysis a second time. */
+let recFiled=Promise.resolve();
 window.recToggle=async(ctx,label)=>{
   const btn=document.getElementById("recBtn"),st=document.getElementById("recState");
-  if(rec.mr&&rec.mr.state==="recording"){rec.mr.stop();return}
+  if(rec.mr&&rec.mr.state==="recording"){
+    recFiled=new Promise(res=>{rec.filed=res});
+    rec.mr.stop();return
+  }
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
     rec={mr:new MediaRecorder(stream),chunks:[],t0:Date.now(),h:null,ctx,label};
     rec.mr.ondataavailable=e=>rec.chunks.push(e.data);
     rec.mr.onstop=async()=>{
+      /* Whatever happens below, release anything waiting on this take — a
+         report that waits for a write that failed would hang for ever. */
+      try{
       clearInterval(rec.h);stream.getTracks().forEach(tr=>tr.stop());
       const blob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
       if(blob.size<1200||(Date.now()-rec.t0)<400){  /* discard accidental/empty taps */
@@ -5528,6 +5543,7 @@ window.recToggle=async(ctx,label)=>{
       renderRecs(rec.ctx);
       document.getElementById("streakN").textContent=streak();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
+      }finally{const f=rec.filed;rec.filed=null;if(f)f()}
     };
     rec.mr.start();
     btn.classList.add("recording");st.textContent=t("rec.recording_state");
@@ -7427,7 +7443,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   /* the emptiest state is the one where another attempt matters most */
   if(!h.length){out.innerHTML=`<p class="fb-nothing">${t("fb.nothing_heard")}</p>`
     +(document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
-  if(fromRec)getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings in the background
+  if(fromRec)recFiled.then(()=>getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid)))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings once the take is filed
   const hasTarget=tgt.length>0;
   const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
   const ops=hasTarget?fbAlign(tgt.filter(w=>!FILLERS.includes(w)),hF):[];
@@ -9196,6 +9212,8 @@ function fbAssess(blob,target){
 }
 async function fbRenderPron(target){
   const box=document.getElementById("fbPron");if(!box)return;
+  /* The take this grades is still being written when the report is drawn. */
+  try{await recFiled}catch(e){}
   const recs=await getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid)));
   if(!recs||!recs[0]){box.innerHTML="";return;}
   box.innerHTML=`<div class="fb-pron"><span class="fb-pron-spin">${ic("mic")}</span> ${t("fb.pron_analyzing")}</div>`;
@@ -9626,9 +9644,15 @@ async function phRecInto(ctx,label,btn,after){
         const _ix=Number(String(rec.ctx).slice(6)),_ph=trackPhrases()[_ix];
         if(_ph)fbAssess(phBlob,_ph.p).then(r=>{
           if(!r||!r.words||!r.words.length)return;
-          const ok=r.words.filter(w=>w&&w.ok).length;
+          /* The grader answers with a score per word and an overall — there is
+             no `ok` flag on a word, so counting one printed 0% beside every
+             phrase however well it had been said. Same 80 threshold the word
+             chips are coloured by, and the grader's own overall when it sends
+             one. */
+          const pct=Number.isFinite(r.overall)?Math.round(r.overall)
+            :Math.round(r.words.filter(w=>w&&w.score>=80).length/r.words.length*100);
           S.phScore=S.phScore||{};
-          S.phScore["p"+_ix]=Math.round(ok/r.words.length*100);
+          S.phScore["p"+_ix]=pct;
           save();if(after)after();
         }).catch(()=>{});
       }
@@ -11944,11 +11968,24 @@ function obMicIdle(msg){
   if(st)st.innerHTML=`<button class="ob-mic" id="obMicBtn" onclick="obTry()" aria-label="${esc(t("ob.tap_say"))}">${ic("mic")}</button><div class="ob-mic-lbl">${t("ob.tap_say")}</div>`;
   const out=document.getElementById("obTryOut");if(out)out.textContent=msg||"";
 }
-window.obTry=()=>{
+window.obTry=async()=>{
   if(!SR){
     const out=document.getElementById("obTryOut");if(out)out.textContent=t("ob.no_mic_line");
     const act=document.getElementById("obActions");if(act)act.innerHTML=`<button class="btn btn-p" onclick="obFinish()">${t("ob.win_start")}</button>`;
     return;
+  }
+  /* This is the first microphone in the app, on the screen the whole of
+     onboarding is building towards. SpeechRecognition does not reliably raise
+     its own permission prompt inside a webview — the TWA from Google Play is
+     one — so it starts deaf and the learner's first attempt dies as "didn't
+     catch that". Opening a real stream first is what gets the question asked;
+     it is closed immediately, exactly as simMicReady does for the workshop. */
+  const md=navigator.mediaDevices;
+  if(md&&md.getUserMedia){
+    try{
+      const stream=await md.getUserMedia({audio:true});
+      try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}
+    }catch(e){return obMicIdle(t("ob.mic_unavailable"))}
   }
   const st=document.getElementById("obStage");
   if(st)st.innerHTML=`<div class="ob-mic listening"><span class="ob-mic-rings"></span>${ic("mic")}</div><div class="ob-mic-lbl live">${t("ob.listening")}</div>`;

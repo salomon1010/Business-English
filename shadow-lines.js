@@ -131,8 +131,13 @@ window.shLineRecord=async(id)=>{
          learner to check their connection when the connection is fine wastes
          their time. */
       const why=navigator.onLine?"sh.line_blocked":"sh.line_nograde";
-      shLineFeedback(id,`<span class="sh-line-wait">${esc(t(why))}</span>`);
-      try{await renderRecs(ctx,slot)}catch(e){}
+      /* The take is kept whether or not it can be graded, so it still has to be
+         shown — an ungraded recording that vanishes reads as a lost recording.
+         It gets an element of its own because renderRecs writes over everything
+         in the element it is handed, message included. */
+      shLineFeedback(id,`<span class="sh-line-wait">${esc(t(why))}</span>
+        <div class="sh-line-takes"><b>${esc(t("sh.line_takes_h"))}</b><div id="recl-${esc(id)}"></div></div>`);
+      try{await renderRecs(ctx,"recl-"+id)}catch(e){}
       return;
     }
     const col=v=>v>=80?"var(--green)":v>=55?"var(--gold)":"var(--red)";
