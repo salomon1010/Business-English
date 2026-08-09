@@ -373,11 +373,38 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
    who had scrolled had to scroll all the way back to leave. It now rides along
    under the header as a pill. Sticky rather than fixed, so it stays inside the
    view and cannot overlap another screen's content. */
-.sess-back{position:sticky;top:66px;z-index:38;
-  padding:7px 12px;border-radius:999px;border:1px solid var(--line2);
-  background:color-mix(in srgb,var(--bg) 86%,transparent);
+/* The same pill is now used by every long page that has a way out or a "which
+   week am I in" label: the session, the week plan, Shadow's trouble words and
+   the Phrase Lab. --stick-top lets each page say how far down it parks. */
+.sess-back,.stick-back{position:sticky;top:var(--stick-top,70px);z-index:38;
+  width:fit-content;max-width:100%;
+  /* .back pulls itself 10px left so a bare text label lines up with the page.
+     A pill has its own padding, so that pull leaves it hanging off the edge —
+     the pill's own left edge is what should sit on the content margin. */
+  margin-left:0;
+  padding:7px 13px;border-radius:999px;border:1px solid var(--line2);
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  box-shadow:0 2px 10px rgba(0,0,0,.18)}
+  box-shadow:0 2px 10px rgba(0,0,0,.18);
+  transition:border-color .18s,box-shadow .18s,background .18s}
+/* Flush with the page until it actually parks under the header — from then on
+   it is floating over the content it covers, and needs an edge to read
+   against it. .is-stuck is set by stickBackSync() on scroll. */
+.sess-back.is-stuck,.stick-back.is-stuck{
+  border-color:color-mix(in srgb,var(--acc) 55%,var(--line2));
+  background:color-mix(in srgb,var(--bg) 95%,transparent);
+  box-shadow:0 6px 20px rgba(0,0,0,.28)}
+/* On a page whose eyebrow is itself sticky, the pill has to clear the eyebrow
+   rather than slide behind it — hence the measured height, not a guess. */
+.stick-eb{--stick-top:calc(62px + var(--pg-eyebrow-h,68px) + 6px)}
+/* Phrase Lab: which week's phrases these are. Stays on screen down the whole
+   list, and is the way back to that week's page. */
+.ph-wk-bar{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 14px;
+  font:inherit;font-size:14px;color:var(--mut);text-align:left}
+.ph-wk-bar .ph-wk-go{flex:none;color:var(--acc2);font-weight:800;font-size:17px;line-height:1}
+.ph-wk-bar .ph-wk-lbl{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button.ph-wk-bar:hover{border-color:var(--acc)}
+button.ph-wk-bar:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Help & Guide closes with the same control as every other in-app document, so
    "close" looks identical wherever the user meets it. Sits in the sticky
    eyebrow, so it cannot scroll away. */
@@ -1141,6 +1168,10 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   display:inline-flex;gap:6px;align-items:center;border-radius:var(--r-md)}
 .back:hover{background:var(--hover)}
 .back:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+/* …but a .back that is also a sticky pill carries its own padding, so the -10px
+   would leave the pill hanging off the left edge of the content. Needs to be
+   more specific than .back's shorthand margin, which is declared after it. */
+.back.stick-back,.back.sess-back{margin-left:0}
 .sess-return{display:flex;width:fit-content;margin:0 0 18px;padding:7px 13px;border:1px solid var(--line2);border-radius:11px;background:var(--card);cursor:pointer}
 /* Sitting inside the sticky header it needs its own line and tighter spacing —
    the 18px below it was for a button standing alone on the page. */
@@ -5369,7 +5400,7 @@ window.jPhase=p=>{_jPhase=p;const el=document.getElementById("v-journey");if(el)
 function rWeek(el,w){
   const wk=trackWeeks()[w-1],phases=trackPhases(),dayMeta=trackDayMeta();
   el.innerHTML=`
-  <button class="back" onclick="go('journey')">${t("week.back")}</button>
+  <button class="back stick-back" onclick="go('journey')">${t("week.back")}</button>
   <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
     <span class="chip ${phases[wk.phase].cls}">${phaseLabel(wk.phase)} · ${wk.phase in phases?phases[wk.phase].wk:""}</span>
     <span class="chip ${weekDone(w)===7?'done':''}">${t("week.sessions_done",{done:weekDone(w)})}</span>
@@ -5751,7 +5782,7 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    person says it. It needs no video, no captions, works offline for the text,
    and is tied to the stage the learner is on. */
 let _shTab="create";
-window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);};
+window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}};
 const SH_STARTERS_SHOWN=3;
 function shStarterCard(s,i){
   return `<div class="card sh-starter">
@@ -5783,7 +5814,7 @@ ${(()=>{
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
   </div>`;
-    if(_shTab==='trouble')return `<button class="back sh-back-lines" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
+    if(_shTab==='trouble')return `<button class="back sh-back-lines stick-back stick-eb" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
     return `<button class="pf-row pf-setup sh-trouble-entry ${tb?"has":""}" onclick="shTab('trouble')">
       <span class="pf-ic">${ic("dumbbell")}</span>
       <span class="pf-txt"><b>${esc(t("sh.tab_trouble"))}${tb?` <em class="sh-tb-n">${tb}</em>`:""}</b><small>${esc(tb?t("sh.trouble_entry_sub"):t("sh.trouble_none_sub"))}</small></span>
@@ -9644,7 +9675,20 @@ window.exDictate=()=>{
 /* Phrase Lab is split in two: professional phrases and business idioms.
    The week chips above still filter which week you're looking at. */
 let _phKind="phrases";
-window.phKind=k=>{_phKind=k;const el=document.getElementById("v-phrases");if(el)rPhrases(el,cur.arg1);};
+window.phKind=k=>{_phKind=k;const el=document.getElementById("v-phrases");if(el)rPhrases(el,cur.arg1);try{stickBackSync()}catch(e){}};
+/* The week label used to be a grey line of text at the top of the list — by the
+   third phrase card it had scrolled away, so a learner deep in the list had no
+   idea which week they were reading, and no way back to the week that sent them
+   here except the bottom nav. It is now a pill that rides under the header and
+   takes them to that week's page. */
+function phWeekBarHTML(w){
+  const wk=trackWeeks()[w-1];
+  if(!wk)return "";
+  return `<button class="stick-back stick-eb ph-wk-bar" onclick="go('journey',${w})">
+    <span class="ph-wk-go" aria-hidden="true">‹</span>
+    <span class="ph-wk-lbl">${t("ph.week_label",{w,theme:esc(wk.theme)})}</span>
+  </button>`;
+}
 function rPhrases(el,wFilter){
   const w=wFilter||currentPos().w;
   el.innerHTML=`
@@ -9677,14 +9721,13 @@ function rPhrases(el,wFilter){
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
     <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
   </div>
+  ${w==="all"?"":phWeekBarHTML(w)}
   <div id="phList"></div>`;
   const list=el.querySelector("#phList");
   let items;
   if(w==="all"){items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]);
     if(!items.length){list.innerHTML=`<p class="sub">${t("ph.nothing_mastered")}</p>`;return}}
-  else{const wk=trackWeeks()[w-1];
-    list.innerHTML=`<p style="font-size:14px;color:var(--mut);margin-bottom:14px">${t("ph.week_label",{w,theme:esc(wk.theme)})}</p>`;
-    items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
+  else{items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
   /* split the list by kind: professional phrases vs business idioms */
   items=items.filter(p=>_phKind==="idioms"?p.i:!p.i);
   if(!items.length){
@@ -10617,12 +10660,30 @@ function syncEyebrowH(){
   }catch(e){}
 }
 addEventListener("resize",syncEyebrowH);
+/* Marks a sticky pill the moment it stops travelling with the page and starts
+   floating over it. Compared against its own computed top rather than a
+   constant, because .stick-eb resolves to a measured offset. */
+function stickBackSync(){
+  try{
+    document.querySelectorAll(".view.on .stick-back,.view.on .sess-back").forEach(b=>{
+      const top=parseFloat(getComputedStyle(b).top)||0;
+      b.classList.toggle("is-stuck",b.getBoundingClientRect().top<=top+1);
+    });
+  }catch(e){}
+}
+let _sbFrame=0;
+addEventListener("scroll",()=>{
+  if(_sbFrame)return;
+  _sbFrame=requestAnimationFrame(()=>{_sbFrame=0;stickBackSync()});
+},{passive:true});
+addEventListener("resize",stickBackSync);
 /* Persist the current page in the URL hash so a refresh stays on the same page */
 (function(){
   const _go2=window.go;
   window.go=function(v,a1,a2){
     _go2(v,a1,a2);
     syncEyebrowH();
+    stickBackSync();
     const h="#"+[v,a1,a2].filter(x=>x!==undefined&&x!==null&&x!=="").join("/");
     if(location.hash!==h)history.replaceState(null,"",h);
     try{sessionStorage.setItem("be_view",h)}catch(e){}   // survives a refresh even if the hash is dropped (installed PWA start_url)
