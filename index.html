@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=79"></script>
 <script src="learning-coach.js?v=79"></script>
-<script src="professional-simulation-engine.js?v=79"></script>
+<script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=79"></script>
 <script src="adaptive-learning-engine.js?v=79"></script>
 <script src="career-center.js?v=79"></script>
@@ -8616,7 +8616,11 @@ function simRefresh(){
     if(face&&fresh)face.replaceWith(fresh);
   }
 }
-function simMissionLearning(sc,text){if(!isFirstDayMission(sc)||!simRun)return '';const mission=missionData(sc),learning=simRun.learning||(simRun.learning={words:[],phrases:[],grammar:[]}),lower=String(text||'').toLowerCase();(mission.vocabulary||[]).forEach(word=>{if(lower.includes(word.toLowerCase())&&!learning.words.includes(word))learning.words.push(word)});(mission.phrases||[]).forEach(phrase=>{const stem=phrase.replace('...','').trim().toLowerCase();if(stem&&lower.includes(stem)&&!learning.phrases.includes(phrase))learning.phrases.push(phrase)});if(/\bworked welding\b/i.test(text)){const correction='A natural way to say that is: “I worked on welding projects.”';if(!learning.grammar.includes(correction))learning.grammar.push(correction);return correction}return ''}
+/* Matched through the engine's normaliser, so "I've worked mainly on pipe"
+   counts against the phrase "I've worked mainly on…" and a spoken plural counts
+   against the word. Literal matching left this list empty after a conversation
+   in which the learner had used the language perfectly well. */
+function simMissionLearning(sc,text){if(!isFirstDayMission(sc)||!simRun)return '';const mission=missionData(sc),learning=simRun.learning||(simRun.learning={words:[],phrases:[],grammar:[]}),E=window.ProfessionalSimulationEngine,norm=(E&&E.normalise)||(x=>' '+String(x||'').toLowerCase()+' '),said=norm(text);(mission.vocabulary||[]).forEach(word=>{if(E&&E.matches?E.matches(text,[word]):said.includes(word.toLowerCase())){if(!learning.words.includes(word))learning.words.push(word)}});(mission.phrases||[]).forEach(phrase=>{const stem=norm(phrase.replace(/\.\.\.|…/g,' ')).trim();if(!stem)return;const lead=stem.split(' ').slice(0,3).join(' ');const hit=said.includes(' '+stem+' ')||said.includes(' '+stem)||(lead.split(' ').length===3&&said.includes(' '+lead+' '));if(hit&&!learning.phrases.includes(phrase))learning.phrases.push(phrase)});if(/\bworked welding\b/i.test(text)){const correction='A natural way to say that is: “I worked on welding projects.”';if(!learning.grammar.includes(correction))learning.grammar.push(correction);return correction}return ''}
 /* Each spoken answer is scored against the rubric for the question that was
    actually asked — not against the workshop as a whole. The question id is taken
    from the message the learner was answering, so a learner who takes a different

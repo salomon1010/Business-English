@@ -49,10 +49,59 @@
   }
   function words(text){return String(text||"").toLowerCase()}
   function phrase(text){return String(text||"").replace(/\s+/g," ").trim().slice(0,160)}
+  /* Objective credit used to be a raw substring test against the spoken text,
+     which is why a real conversation came back 0/5.
+
+     Nobody says "I am a welder" out loud — they say "I'm a welder", and "i am"
+     does not appear in that string. Same for "I'll wear my helmet" against the
+     keyword "will". And the packs name the craft as "welder", so a pipefitter
+     who introduced themselves correctly got no credit at all.
+
+     So: expand contractions, drop punctuation, match on word starts with a
+     little room for inflection (year/years, work/worked/working), and let the
+     learner's own trade stand in wherever the pack says welder. */
+  const CONTRACTIONS=[
+    [/\bcannot\b/g,"can not"],[/\bcan't\b/g,"can not"],[/\bwon't\b/g,"will not"],
+    [/\bi'm\b/g,"i am"],[/\bi've\b/g,"i have"],[/\bi'll\b/g,"i will"],[/\bi'd\b/g,"i would"],
+    [/\bwe're\b/g,"we are"],[/\bwe've\b/g,"we have"],[/\bwe'll\b/g,"we will"],
+    [/\byou're\b/g,"you are"],[/\byou've\b/g,"you have"],[/\bthey're\b/g,"they are"],
+    [/\bit's\b/g,"it is"],[/\bthat's\b/g,"that is"],[/\bthere's\b/g,"there is"],
+    [/\bdon't\b/g,"do not"],[/\bdidn't\b/g,"did not"],[/\bdoesn't\b/g,"does not"],
+    [/\bisn't\b/g,"is not"],[/\baren't\b/g,"are not"],[/\bwasn't\b/g,"was not"],
+    [/\bhaven't\b/g,"have not"],[/\bhasn't\b/g,"has not"],[/\bshouldn't\b/g,"should not"]
+  ];
+  function normalise(text){
+    let s=String(text||"").toLowerCase().replace(/[‘’ʼ`´]/g,"'");
+    CONTRACTIONS.forEach(pair=>{s=s.replace(pair[0],pair[1])});
+    return " "+s.replace(/[^a-z0-9' ]+/g," ").replace(/\s+/g," ").trim()+" ";
+  }
+  /* The craft word the learner would actually use about themselves. */
+  function craftWords(){
+    const out=["welder","welding"];
+    const tr=global.Trades&&global.Trades.active&&global.Trades.active(global.appState?global.appState():{});
+    if(tr){if(tr.id)out.push(String(tr.id).toLowerCase());if(tr.career)out.push(String(tr.career).toLowerCase());}
+    return out;
+  }
+  function hits(hay,key){
+    const k=normalise(key).trim();
+    if(!k)return false;
+    if(k.indexOf(" ")>-1)return hay.indexOf(" "+k+" ")>-1||hay.indexOf(" "+k)>-1;
+    /* a word counts if it starts with the keyword and is barely longer:
+       year→years, work→worked/working, safe→safety — but not can→candidate */
+    return hay.split(" ").some(w=>w.indexOf(k)===0&&w.length-k.length<=3);
+  }
+  function matches(text,keys){
+    const hay=normalise(text);
+    return (keys||[]).some(k=>{
+      const key=String(k||"").toLowerCase();
+      if(key==="welder"||key==="welding")return craftWords().some(c=>hits(hay,c));
+      return hits(hay,key);
+    });
+  }
   function objectives(sc,sim,text){
-    const low=words(text);(sc.objectives||[]).forEach(o=>{
+    (sc.objectives||[]).forEach(o=>{
       if(sim.completed.includes(o.id))return;
-      if((o.keywords||[]).some(k=>low.includes(k)))sim.completed.push(o.id);
+      if(matches(text,o.keywords))sim.completed.push(o.id);
     });
   }
   /* The offline / service-unavailable path.
@@ -96,5 +145,5 @@
     return {id:sim.id,completedAt:Date.now(),objectivesCompleted:done,totalObjectives:total,learnerTurns:learner.length,scores,strengths,weaknesses:missing.length?missing:["All stated onboarding objectives were covered"],recommendedNextSimulation:(sc.debrief&&sc.debrief.recommendedNextSimulation)||"Repeat this simulation to strengthen your next objective."};
   }
   function save(s,debrief){const st=state(s);st.history.push(debrief);if(st.history.length>50)st.history=st.history.slice(-50)}
-  global.ProfessionalSimulationEngine=Object.freeze({simulations,find,state,start,send,debrief,save,character});
+  global.ProfessionalSimulationEngine=Object.freeze({simulations,find,state,start,send,debrief,save,character,normalise,matches});
 })(window);
