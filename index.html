@@ -71,7 +71,7 @@
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=79"></script>
-<script src="shadow-lines.js?v=79"></script>
+<script src="shadow-lines.js?v=80"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -885,9 +885,28 @@ body.sh-work-open{overflow:hidden}
 .sh-line-report[open]>summary{border-bottom:1px solid var(--line)}
 .sh-line-report-body{padding:14px}
 .sh-line-report-body>*:first-child{margin-top:0}
-.sh-line-takes{margin-bottom:14px}
+.sh-line-takes{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
 .sh-line-takes>b{display:block;font-size:12.5px;margin-bottom:8px}
 .sh-line-extra{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+/* The Speaking-feedback slot is empty until that engine writes into it, and an
+   empty slot must not print its own divider. */
+.sh-line-extra:empty{display:none}
+.sh-line-head .fb-pw-wrap{margin-top:2px}
+/* "Analyze my last recording" — every word that did not land, with playback of
+   the model, playback of your own take, and a keep button. */
+.sh-line-analyze{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.sh-line-analyze-h{display:block;font-size:15px}
+.sh-line-analyze-sub{font-size:12.5px;color:var(--mut);line-height:1.55;margin:6px 0 10px}
+/* Word, score, then the four controls. Four 44px targets and a long technical
+   word do not share 430px, so on a phone the controls take their own row
+   instead of the word overflowing across the score. */
+.sh-line-analyze .rp-ev-word{row-gap:8px}
+.sh-line-analyze .rp-ev-wtxt{flex:1 1 110px;overflow-wrap:anywhere}
+.sh-line-analyze .rp-ev-wpct{flex:none}
+.sh-line-acts{display:flex;gap:8px;flex:none;margin-left:auto}
+@media(max-width:560px){.sh-line-acts{flex-basis:100%;margin-left:0}}
+.sh-line-voc-go{margin-top:12px}
+.sh-line-perf-one{margin:4px 0 8px;font-size:12.5px;color:var(--mut);line-height:1.55}
 .sh-line-voc{margin-top:10px}
 .sh-line-voc>b{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);margin-bottom:6px}
 .sh-line-voc .sim-skill-chips span.ok{color:var(--green);border-color:rgba(52,211,153,.5);background:rgba(52,211,153,.1)}
@@ -2737,9 +2756,14 @@ function appState(){return S}
      actually said. The modal opened on top of that and said less: it praised
      "a clear professional message" and "an active confidence-building step"
      for an interview whose whole learner turn was the single word "No".
+   - shadow_session ends on the shadowing report itself, which is the specific
+     thing the modal's own "Your performance analysis" button pointed back at:
+     the score, the trend across attempts, every word graded, the take. The
+     modal covered it with five generic panels and made the learner dismiss
+     something to reach what they had just earned.
    The summary is still written to S.coach either way. That is what feeds the
    coach card and the growth story, which is where a per-item nudge belongs. */
-const COACH_MODAL_SKIP=["professional_simulation","ai_conversation","vocabulary_practice","phrase_lab"];
+const COACH_MODAL_SKIP=["professional_simulation","ai_conversation","vocabulary_practice","phrase_lab","shadow_session"];
 function awardCompetency(input){
   if(!window.CompetencyEngine)return;
   const result=CompetencyEngine.logActivity(S,input);
@@ -3671,6 +3695,7 @@ const I18N_EN={
  "sh.line_takes":"{{n}} take(s) kept on this device",
  "sh.line_takes_h":"Your takes",
  "sh.line_report":"Your analysis · {{pct}}%",
+ "sh.line_perf_one":"One scored attempt so far. Say the line again and this becomes a line you can follow.",
  "sh.get_transcript_btn":"Transcript",
  "sh.clear_clip_btn":"Clear",
  "sh.clear_clip_title":"Clear the marks and start a new clip",
@@ -5861,6 +5886,10 @@ ${(()=>{
     <div id="tbBox"></div>
   </div>`;
   shRenderClips();tbRender();segSync(el);
+  /* Every workplace line you have already worked on gets its report back —
+     score, trend, words, takes — so arriving here shows the work so far rather
+     than an empty slot that only fills if you record again. */
+  try{shLinesRestore()}catch(e){}
   /* restore the last clip after a refresh — player paused, recordings & transcript back */
   if(S.lastClip&&S.lastClip.vid)shLoad(S.lastClip,true);
   manIconizeInline(el);
