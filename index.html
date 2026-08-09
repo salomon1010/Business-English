@@ -4497,6 +4497,30 @@ function countRecs(){return dbReady.then(()=>new Promise(res=>{
   if(!DB)return res(0);
   const rq=DB.transaction("recs").objectStore("recs").count();rq.onsuccess=()=>res(rq.result);rq.onerror=()=>res(0);
 }))}
+/* Recordings are filed per track, for the same reason session progress is (see
+   dayKey): "phrase 7" on Welding is not "phrase 7" on General English, and a
+   shadow clip saved on one track is not part of the other track's work. Without
+   this prefix a take recorded on the Welding side played back on the General
+   English side. Treat the two as separate apps that happen to share a database.
+   General English keeps the bare keys so every recording made before this change
+   stays attached to it. */
+function recCtx(base){
+  const id=activeProfessionalTrack().id;
+  return id==="general-english"?base:id+":"+base;
+}
+/* Strip the track prefix again — for anything that has to read the original
+   key back out of a stored ctx (labels, the phrase index). */
+function recBase(ctx){return String(ctx||"").replace(/^[a-z0-9-]+:(?=phrase|speech-|shadow-|w\d)/,"")}
+const phRecCtx=ix=>recCtx("phrase"+ix);
+const shRecCtx=vid=>recCtx("shadow-"+vid);
+/* Recordings belonging to the track that is open right now. */
+function trackRecs(){
+  const id=activeProfessionalTrack().id,pre=id==="general-english"?null:id+":";
+  return allRecs().then(rs=>rs.filter(r=>{
+    const has=/^[a-z0-9-]+:(?:phrase|speech-|shadow-|w\d)/.test(String(r.ctx||""));
+    return pre?String(r.ctx||"").startsWith(pre):!has;
+  }));
+}
 
 /* ================= GITHUB SYNC ================= */
 /* Progress + recordings are pushed to a (private) GitHub repo via the Contents API,
@@ -4567,8 +4591,9 @@ async function ghPull(){
 }
 const recName=r=>`${r.ctx}__${r.ts}.webm`;
 function labelFor(ctx){
-  if(ctx.startsWith("phrase")){const p=trackPhrases()[+ctx.slice(6)];return p?p.p.slice(0,40):"phrase"}
-  const m=ctx.match(/^w(\d+)([A-Za-z]{3})$/);return m?`W${m[1]} ${m[2]}`:ctx;
+  const base=recBase(ctx);
+  if(base.startsWith("phrase")){const p=trackPhrases()[+base.slice(6)];return p?p.p.slice(0,40):"phrase"}
+  const m=base.match(/^w(\d+)([A-Za-z]{3})$/);return m?`W${m[1]} ${m[2]}`:ctx;
 }
 async function ghUpRecs(){
   if(!ghCfg())return toast(t("gh.connect_first"));
@@ -5997,7 +6022,7 @@ async function shLoad(c,quiet){
          player failure. Without this the user got YouTube's own grey box inside
          the frame while every control stayed live against a dead player. */
       onError:()=>{clearInterval(shTick);shVideoError(true)}}});
-  renderRecs("shadow-"+shClip.vid);
+  renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
 }
 /* Shows an app-level message when the clip cannot play, and hides the controls
@@ -7017,8 +7042,8 @@ function fbRecStop(){
 window.shRec=()=>{
   if(!shClip.vid)return;
   const wasRecording=rec.mr&&rec.mr.state==="recording";
-  recToggle("shadow-"+shClip.vid,"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
-  if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:"shadow-"+shClip.vid});
+  recToggle(shRecCtx(shClip.vid),"Shadow — "+(shClip.title||shClip.vid).slice(0,60));
+  if(!wasRecording)fbRecStart({vid:shClip.vid,targetId:"shNote",heardId:"shHeardBox",recCtx:shRecCtx(shClip.vid)});
   else fbRecStop();
 };
 window.sessRec=(key,label)=>{
@@ -7059,7 +7084,7 @@ async function shFBDone(){
 window.fbFromRec=()=>{
   const heard=S.notes["shheard:"+shClip.vid];
   if(!heard)return toast(t("sh.no_shadow_rec_toast"));
-  fbCtx={vid:shClip.vid,recCtx:"shadow-"+shClip.vid};
+  fbCtx={vid:shClip.vid,recCtx:shRecCtx(shClip.vid)};
   fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
   fbShowResults(document.getElementById("shNote").value.trim(),heard,true);
   toast(t("sh.fb_from_last_toast"));
@@ -7498,7 +7523,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   /* the emptiest state is the one where another attempt matters most */
   if(!h.length){out.innerHTML=`<p class="fb-nothing">${t("fb.nothing_heard")}</p>`
     +(document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:"");return}
-  if(fromRec)recFiled.then(()=>getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid)))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings once the take is filed
+  if(fromRec)recFiled.then(()=>getRecs(fbCtx.recCtx||shRecCtx(shClip&&shClip.vid))).then(rs=>{if(rs&&rs[0])fbWords(rs[0].blob)}).catch(()=>{}); // warm precise word timings once the take is filed
   const hasTarget=tgt.length>0;
   const hF=h.filter(w=>!FILLERS.includes(w));               // heard words minus fillers — hIdx indexes THIS list
   const ops=hasTarget?fbAlign(tgt.filter(w=>!FILLERS.includes(w)),hF):[];
@@ -9294,7 +9319,7 @@ function fbPickWord(words,wordIdx,wordCount,heardWord){
 }
 window.fbYou=async(sf,ef,wordIdx,wordCount,heardWord)=>{
   if(ef==null)ef=sf;
-  const recs=await getRecs(fbCtx.recCtx||("shadow-"+shClip.vid));
+  const recs=await getRecs(fbCtx.recCtx||shRecCtx(shClip.vid));
   if(!recs.length)return toast(t("fb.you_no_rec_toast"));
   if(fbAud){fbAud.pause();fbAud=null}
   const blob=recs[0].blob;
@@ -9367,7 +9392,7 @@ async function fbRenderPron(target){
   const box=document.getElementById("fbPron");if(!box)return;
   /* The take this grades is still being written when the report is drawn. */
   try{await recFiled}catch(e){}
-  const recs=await getRecs(fbCtx.recCtx||("shadow-"+(shClip&&shClip.vid)));
+  const recs=await getRecs(fbCtx.recCtx||shRecCtx(shClip&&shClip.vid));
   if(!recs||!recs[0]){box.innerHTML="";return;}
   box.innerHTML=`<div class="fb-pron"><span class="fb-pron-spin">${ic("mic")}</span> ${t("fb.pron_analyzing")}</div>`;
   const res=await fbAssess(recs[0].blob,target);
@@ -9698,7 +9723,7 @@ function rPhrases(el,wFilter){
 /* ---- Your full speech: every example sentence of this week, in order ---- */
 let _phItems=[],_phWeek=1;
 function phSpKey(){return "sp"+_phWeek+"-"+_phKind}
-function phSpCtx(){return "speech-"+phSpKey()}
+function phSpCtx(){return recCtx("speech-"+phSpKey())}
 function phSpeechText(){
   return _phItems.map(p=>String(S.phExample["p"+p.ix]||"").replace(/\s+/g," ").trim())
                  .filter(Boolean).join(" ");
@@ -9766,7 +9791,7 @@ window.phHear=ix=>{
 window.phMaster=async k=>{
   if(!S.phMaster[k]){
     const ix=String(k).replace(/^p/,"");
-    let takes=[];try{takes=await getRecs("phrase"+ix)}catch(e){}
+    let takes=[];try{takes=await getRecs(phRecCtx(ix))}catch(e){}
     if(!takes.length){toast(t("ph.master_needs_rec"));return}
   }
   S.phMaster[k]=!S.phMaster[k];
@@ -9793,8 +9818,8 @@ async function phRecInto(ctx,label,btn,after){
          grader is reachable. Offline it simply stays ungraded — mastery must not
          require a network call in an offline-first app, so the recording alone
          is what unlocks the claim and the score is what qualifies it. */
-      if(String(rec.ctx||"").startsWith("phrase")){
-        const _ix=Number(String(rec.ctx).slice(6)),_ph=trackPhrases()[_ix];
+      if(recBase(rec.ctx).startsWith("phrase")){
+        const _ix=Number(recBase(rec.ctx).slice(6)),_ph=trackPhrases()[_ix];
         if(_ph)fbAssess(phBlob,_ph.p).then(r=>{
           if(!r||!r.words||!r.words.length)return;
           /* The grader answers with a score per word and an overall — there is
@@ -9815,11 +9840,11 @@ async function phRecInto(ctx,label,btn,after){
     rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
-window.phRec=ix=>phRecInto("phrase"+ix,trackPhrases()[ix].p.slice(0,40),
+window.phRec=ix=>phRecInto(phRecCtx(ix),trackPhrases()[ix].p.slice(0,40),
   document.getElementById("phrec"+ix),()=>renderPhRecs(ix));
 async function renderPhRecs(ix){
   const box=document.getElementById("phrecs"+ix);if(!box)return;
-  const recs=await getRecs("phrase"+ix);
+  const recs=await getRecs(phRecCtx(ix));
   const n=document.getElementById("phn"+ix);if(n)n.textContent=recs.length?t(recs.length>1?"ph.rec_count_many":"ph.rec_count_one",{n:recs.length}):"";
   box.innerHTML=recs.slice(0,3).map(r=>{
     const url=URL.createObjectURL(r.blob);
@@ -10350,10 +10375,14 @@ async function rSetup(el){
   segSync(el);
 }
 async function rData(el,embedded){
-  const recN=await countRecs();
+  /* Two different counts on purpose. The stat sits beside "sessions done on this
+     track", so it counts this track's recordings. GitHub sync backs up the whole
+     device, so the "still to upload" figure has to stay device-wide. */
+  const recAll=await countRecs();
+  const recN=(await trackRecs()).length;
   const p=S.profile||{name:"",role:"",goal:"",slot:""};
   const sel=(id,opts,cur,prefix)=>`<select id="${id}" style="width:100%">${opts.map(o=>`<option value="${esc(o)}" ${o===cur?"selected":""}>${esc(optLabel(o,opts,prefix).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</option>`).join("")}<option ${!opts.includes(cur)?"selected":""} value="">—</option></select>`;
-  const upN=recN-Object.keys(GH.up||{}).length;
+  const upN=recAll-Object.keys(GH.up||{}).length;
   el.innerHTML=`
   ${embedded?"":`<div class="eyebrow pg-eyebrow pg-sub">
     <button class="back" onclick="go('profile')">${t("profile.back")}</button>
