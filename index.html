@@ -8474,7 +8474,51 @@ function rSimulation(el,id,characterId){
   const body=document.getElementById("simBody");if(body)body.scrollTop=body.scrollHeight;
   if(needsOpening)setTimeout(()=>simVoiceSpeak(run.messages[0],selected),100);
 }
-let simRecognition=null,simUtterance=null,simSpeechTurn=null,simRestartTimer=null;
+let simRecognition=null,simUtterance=null,simSpeechTurn=null,simRestartTimer=null,simSubmitTimer=null;
+/* One gate in front of every microphone start, covering two separate device
+   faults that both end the same way — the learner speaks and nothing happens.
+
+   iOS: the character's reply plays through the shared <audio> element. While
+   that element still holds a source the audio session stays in "playback", and
+   a playback session will not hand the microphone to SpeechRecognition. The
+   recogniser starts, reports nothing, fires onend, and the turn dies in
+   silence. fbReleaseAudio drops the source and releases the session.
+
+   Android (and the TWA webview): SpeechRecognition does not reliably raise its
+   own permission prompt inside a webview, so it starts deaf. Opening a real
+   getUserMedia stream first is what rpListen has always done, and it is why the
+   roleplay microphone works where this one did not. The stream is closed at
+   once — it exists only to get the permission question asked and answered. */
+let _simMicOK=false;
+async function simMicReady(){
+  fbReleaseAudio();
+  if(window.speechSynthesis){try{speechSynthesis.cancel()}catch(_){}}
+  if(_simMicOK)return true;
+  const md=navigator.mediaDevices;
+  if(!md||!md.getUserMedia){_simMicOK=true;return true}   // older webview: let the recogniser try anyway
+  try{
+    const stream=await md.getUserMedia({audio:true});
+    try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}
+    _simMicOK=true;return true;
+  }catch(e){
+    simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');
+    return false;
+  }
+}
+/* Asking for the microphone is asynchronous, so there is a gap between the tap
+   and the recogniser existing. Two things have to hold across it: the button has
+   to look live immediately (otherwise the learner taps again, sees nothing, and
+   taps again), and a tap that lands inside the gap has to cancel the start
+   rather than queue a second one. The generation counter does the cancelling —
+   simStopListening bumps it, so any start still in flight retires quietly. */
+let _simStartGen=0;
+async function simVoiceStart(){
+  const gen=++_simStartGen;
+  if(simRun){simRun.listening=true;simSetStatus('Listening')}
+  const ok=await simMicReady();
+  if(gen!==_simStartGen||!simRun||!simRun.listening)return;   // superseded, or the learner tapped again
+  if(ok)simVoiceListen();else if(simRun)simRun.listening=false;
+}
 function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.remember(S,simRun)}
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));
   /* Status changes without a re-render, so the speaking ring is toggled here too
@@ -8482,10 +8526,13 @@ function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSav
   const bar=document.querySelector('.sim-work .rp-work-bar');
   if(bar){if(/ is speaking/i.test(status))bar.setAttribute('data-speaking','1');else bar.removeAttribute('data-speaking')}}
 function simVoiceSpeak(message,sc){
-  if(!message){simSetStatus('Ready to listen');return simVoiceListen()}
+  if(!message){simSetStatus('Ready to listen');return simVoiceStart()}
   simStopListening();const character=simCharacter(sc,message.characterId)||{},gender=character.g||"f",voice=ttsVoice(character.voice,gender),style=character.voiceStyle||"";
   simSetStatus(`${character.name||'Your colleague'} is speaking`);rpStopVoice();
-  const done=()=>{if(simUtterance!==message){return}simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};simUtterance=message;
+  /* Release the player the moment the line finishes, not when the learner taps.
+     On iOS the source left behind holds the audio session in playback and keeps
+     the microphone away from the recogniser for the whole of the next turn. */
+  const done=()=>{if(simUtterance!==message){return}fbReleaseAudio();simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};simUtterance=message;
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
   if(canNatural){fbSayApi(message.text,1,voice,style).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}if(_ttsAudio)_ttsAudio.onended=done;else done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
   simSpeakBrowser(message.text,gender,done);
@@ -8494,7 +8541,14 @@ function simSpeakBrowser(text,gender,done){
   if(!('speechSynthesis'in window)){done();return}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
   const voice=(gender==="m"?_rpVoices.m:_rpVoices.f)||_rpVoices.any,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
 }
-function simUsesManualVoiceTurn(){return activeProfessionalTrack().id==='welding'}
+/* Every workshop conversation is tap-to-start, tap-to-finish. This used to be
+   true for welding alone, while the label under the microphone promised "tap
+   again when you finish" in all of them. So in every other interview the
+   recogniser was single-shot: it ended itself at the first pause, submitted
+   whatever fragment it held — usually nothing — and reset. A learner who then
+   tapped to finish was in fact opening a fresh listen. That is the whole of the
+   "sometimes it works, sometimes nothing happens" behaviour. */
+function simUsesManualVoiceTurn(){return true}
 function simReturnToReady(status='Your turn — tap the microphone to speak'){
   if(simRun)simRun.listening=false;
   simSetStatus(status);
@@ -8502,7 +8556,12 @@ function simReturnToReady(status='Your turn — tap the microphone to speak'){
   if(label)label.textContent='Tap once to speak. Tap again when you finish.';
 }
 function simSubmitSpeechTurn(turn=simSpeechTurn){
-  if(!turn||turn.submitted||!simRun)return;
+  if(!simRun)return;
+  /* A finishing tap that landed before the recogniser existed — while the
+     permission prompt was still up. There is nothing to submit, but the mic must
+     not be left showing "preparing its response…" for ever. */
+  if(!turn){simReturnToReady();return}
+  if(turn.submitted)return;
   turn.submitted=true;simRun.listening=false;
   if(simSpeechTurn===turn)simSpeechTurn=null;
   const said=(turn.final||turn.interim).trim();
@@ -8517,6 +8576,7 @@ function simVoiceListen(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if(!SR){simSetStatus('Voice recognition is unavailable in this browser');return}
   if(simRecognition)return;
+  fbReleaseAudio();   // an iOS playback session will not release the mic — see simMicReady
   const manual=simUsesManualVoiceTurn(),turn=simSpeechTurn||(simSpeechTurn={final:'',interim:'',finishRequested:false});
   turn.base=turn.final||'';   // text already banked by earlier recognition instances
   const r=new SR();simRecognition=r;r.lang='en-US';r.interimResults=true;r.continuous=manual;
@@ -8534,6 +8594,13 @@ function simVoiceListen(){
   };
   r.onerror=e=>{
     if(turn.abandoned||(simRecognition&&simRecognition!==r))return;
+    /* A blocked microphone is not a network hiccup, and telling the learner to
+       "try speaking again" sends them round the same dead loop for ever. */
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){
+      _simMicOK=false;simRecognition=null;simSpeechTurn=null;
+      simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');
+      return;
+    }
     if(turn.finishRequested){simSubmitSpeechTurn(turn);return}
     if(manual&&simRun.listening&&(e.error==='no-speech'||e.error==='aborted')){
       simRecognition=null;
@@ -8570,20 +8637,28 @@ function simVoiceListen(){
 function simLeave(){
   if(simSpeechTurn)simSpeechTurn.abandoned=true;   // the closures held by a stale engine read this
   simStopListening();
-  clearTimeout(simRestartTimer);
+  clearTimeout(simRestartTimer);clearTimeout(simSubmitTimer);
   simUtterance=null;simSpeechTurn=null;
+  fbReleaseAudio();
   if(window.speechSynthesis)speechSynthesis.cancel();
   if(typeof rpStopVoice==="function")rpStopVoice();
   if(simRun)simRun.listening=false;
 }
 function simStopListening(completeTurn=false){
-  clearTimeout(simRestartTimer);
+  clearTimeout(simRestartTimer);clearTimeout(simSubmitTimer);
+  _simStartGen++;   // retire a start that is still waiting on the permission prompt
   if(simSpeechTurn)simSpeechTurn.finishRequested=!!completeTurn;
-  const recognition=simRecognition;
-  if(recognition){try{recognition.stop()}catch(e){}simRecognition=null}
+  const recognition=simRecognition,turn=simSpeechTurn;
+  if(recognition){try{recognition.stop()}catch(e){try{recognition.abort()}catch(_){}}simRecognition=null}
   if(simRun)simRun.listening=false;
   if(!completeTurn)simSpeechTurn=null;
   else if(!recognition)simSubmitSpeechTurn();
+  /* iOS Safari does not always fire onend after stop(), and when it does it can
+     deliver the last result afterwards. Without this the learner's words sat in
+     hand while the screen stayed on "preparing its response…" for good. The
+     grace period lets a trailing result land; onend submitting first makes it a
+     no-op, because a submitted turn is only ever submitted once. */
+  else simSubmitTimer=setTimeout(()=>{if(turn&&!turn.submitted&&!turn.abandoned)simSubmitSpeechTurn(turn)},1400);
 }
 /* Patch the conversation in place rather than re-rendering the view.
 
@@ -8654,10 +8729,24 @@ function simRecordAnswer(sc,text){
   const result=AnswerEvaluator.evaluate(text,rubric);
   simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
 }
+/* Put the learner's own words on screen the moment they finish, before the reply
+   is fetched. The thread was only redrawn once the workshop had answered, so on
+   a slow connection a learner who had just spoken saw nothing change for several
+   seconds and reasonably concluded the microphone had failed. simRefresh rebuilds
+   the thread from the run and replaces this bubble with the recorded one. */
+function simEchoLearner(text){
+  const body=document.getElementById("simBody");
+  if(!body||!text)return;
+  const b=document.createElement("div");
+  b.className="rp-bubble me";
+  b.innerHTML=`<span class="sim-bub-who">You</span>${esc(text)}`;
+  body.appendChild(b);
+  body.scrollTop=body.scrollHeight;
+}
 /* Nothing a microphone says may move the learner off the page they are on. A
    result arriving from an engine they left behind used to re-render straight
    back into the old conversation. */
-async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;if(!cur||cur.v!=="simulation"||!document.getElementById("simBody"))return;simSetStatus('Thinking');const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
+async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;if(!cur||cur.v!=="simulation"||!document.getElementById("simBody"))return;simSetStatus('Thinking');simEchoLearner(text);const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
 window.simStart=(id,characterId)=>{
   /* Counts only. Which workshop, which trade — never a word of what was said.
      Both names are on the Worker's allow-list; adding a track() call without
@@ -8671,7 +8760,21 @@ window.simInterviewStart=(scenarioId,characterId)=>{const scenario=ProfessionalS
 window.simRestart=id=>{const starter=simRun&&simRun.starterCharacterId;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun=ProfessionalSimulationEngine.start(id,starter);simRun.voiceMeta={startedAt:Date.now(),mode:'voice-first',turns:0};simRun.lastSpeakerId=(simRun.messages[0]||{}).characterId;simSave();go('simulation',id);setTimeout(()=>simVoiceSpeak(simRun.messages[0],ProfessionalSimulationEngine.find(id)),100)};
 window.simExit=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);simRun=null;go('practice')};
 window.simChooseAnother=()=>{simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);simRun=null;go('simulation')};
-window.simVoiceToggle=()=>{if(simRecognition||(simRun&&simRun.listening)){simSetStatus('Processing your answer');const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';simStopListening(true);return}simVoiceListen()};
+/* Async because the microphone is now asked for properly before the recogniser
+   is built. audioUnlock rides on the tap itself: iOS only lets the shared player
+   speak later if it was started from inside a real gesture, and this tap is the
+   one gesture every conversation is guaranteed to get. */
+window.simVoiceToggle=async()=>{
+  audioUnlock();
+  if(simRecognition||(simRun&&simRun.listening)){
+    simSetStatus('Processing your answer');
+    const label=document.getElementById('simMicLabel');
+    if(label)label.textContent='The workshop is preparing its response…';
+    simStopListening(true);
+    return;
+  }
+  await simVoiceStart();
+};
 /* "End practice" must always get the learner out. If building the report ever
    throws, falling back to the scenario list beats a button that does nothing. */
 window.simFinishEarly=()=>{
