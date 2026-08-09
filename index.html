@@ -8533,7 +8533,88 @@ async function simVoiceStart(){
   if(simRun){simRun.listening=true;simSetStatus('Listening')}
   const ok=await simMicReady();
   if(gen!==_simStartGen||!simRun||!simRun.listening)return;   // superseded, or the learner tapped again
-  if(ok)simVoiceListen();else if(simRun)simRun.listening=false;
+  if(!ok){if(simRun)simRun.listening=false;return}
+  if(simUsesRecorder())simRecordStart(gen);else simVoiceListen();
+}
+/* How a workshop turn reaches the app.
+
+   The browser's recogniser is the only thing that works with no connection, and
+   it is also why a conversation on iPhone stopped moving. Safari delivers
+   results for a turn or two and then goes quiet for the rest of the session:
+   every turn after that submitted nothing, the screen reset itself, and the
+   learner was left tapping a microphone that lit up and did nothing. The
+   interview met this exact wall and was moved onto the recorder — capture the
+   turn, send the clip to the Worker, transcribe it there. The workshop does the
+   same whenever it can, and keeps the recogniser for offline, where the scripted
+   track-pack replies are all there is anyway. */
+function simUsesRecorder(){
+  return !!(typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine
+    &&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder);
+}
+/* A turn that produced no words must say so. Silently going back to "your turn"
+   is indistinguishable from a microphone that never registered the tap, which is
+   what the whole failure looked like from the outside. Worded to contain "tap
+   to" so simSetStatus paints the mic ready rather than busy. */
+const SIM_NOTHING_HEARD='Nothing came through — tap to speak and try again';
+let simRec=null;
+async function simRecordStart(gen){
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
+  catch(e){simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');return}
+  /* The learner may have tapped again, or walked out, while the prompt was up. */
+  if(gen!==_simStartGen||!simRun||!simRun.listening||simRun.debrief||simRun.finished||simRun.missionComplete){
+    try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}
+    return;
+  }
+  let mr;
+  try{mr=new MediaRecorder(stream)}
+  catch(e){try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}return simVoiceListen()}   // no recorder here — the recogniser is all there is
+  /* The recorder hands over its audio in one dataavailable at stop, by which
+     point finishing the turn has already cleared simRec — so the take collects
+     into its own object, never through the global. */
+  const take={mr,stream,chunks:[],t0:Date.now()};
+  simRec=take;
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)take.chunks.push(e.data)};
+  try{mr.start()}
+  catch(e){simRecDiscard();return simVoiceListen()}
+  simSetStatus('Listening');
+  const mic=document.getElementById('simMic');if(mic)mic.classList.add('listening');
+  const label=document.getElementById('simMicLabel');if(label)label.textContent='Speaking… tap the microphone when you finish.';
+}
+/* Drop the recorder and the microphone without waiting for the clip — for
+   leaving the conversation, not for finishing a turn. */
+function simRecDiscard(){
+  const r=simRec;simRec=null;if(!r)return;
+  try{r.mr.stop()}catch(e){}
+  try{r.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}
+}
+/* Close the recorder and hand back what it captured. A recorder that never
+   fires onstop must not hang the turn — the same guard the interview carries. */
+function simTakeBlob(r){
+  return new Promise(res=>{
+    const mr=r.mr,blob=()=>r.chunks.length?new Blob(r.chunks,{type:(mr&&mr.mimeType)||"audio/webm"}):null;
+    if(!mr||mr.state==="inactive"){res(blob());return}
+    let done=false;
+    const finish=()=>{if(done)return;done=true;res(blob())};
+    mr.onstop=finish;
+    setTimeout(finish,1500);
+    try{mr.stop()}catch(e){finish()}
+  });
+}
+async function simRecordFinish(){
+  const r=simRec;if(!r)return;
+  simRec=null;
+  if(simRun)simRun.listening=false;
+  simSetStatus('Processing your answer');
+  const mic=document.getElementById('simMic');if(mic)mic.classList.remove('listening');
+  const label=document.getElementById('simMicLabel');if(label)label.textContent='The workshop is preparing its response…';
+  const blob=await simTakeBlob(r);
+  try{r.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}
+  if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;
+  let said="";
+  if(blob&&blob.size>1200){try{said=(await fbTranscribe(blob))||""}catch(e){}}
+  said=said.trim();
+  if(said)simProcessSpeech(said);else simReturnToReady(SIM_NOTHING_HEARD);
 }
 function simSave(){if(simRun&&window.ConversationOrchestrator)ConversationOrchestrator.remember(S,simRun)}
 function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSave();const el=document.getElementById('simStatus');if(el)el.textContent=status;const mic=document.getElementById('simMic');if(mic){mic.classList.remove('sim-ready','sim-listening','sim-active');mic.classList.add(/listening/i.test(status)?'sim-listening':/your turn|tap to/i.test(status)?'sim-ready':'sim-active')}const wave=document.getElementById('simWave');if(wave)wave.classList.toggle('live',/speaking|listening/i.test(status));
@@ -8581,7 +8662,7 @@ function simSubmitSpeechTurn(turn=simSpeechTurn){
   turn.submitted=true;simRun.listening=false;
   if(simSpeechTurn===turn)simSpeechTurn=null;
   const said=(turn.final||turn.interim).trim();
-  if(said)simProcessSpeech(said);else simReturnToReady();
+  if(said)simProcessSpeech(said);else simReturnToReady(SIM_NOTHING_HEARD);
 }
 function simVoiceListen(){
   /* A finished conversation must never re-open the microphone. Welding restarts
@@ -8663,11 +8744,17 @@ function simLeave(){
 function simStopListening(completeTurn=false){
   clearTimeout(simRestartTimer);clearTimeout(simSubmitTimer);
   _simStartGen++;   // retire a start that is still waiting on the permission prompt
+  simRecDiscard();  // finishing a recorded turn goes through simRecordFinish, never here
   if(simSpeechTurn)simSpeechTurn.finishRequested=!!completeTurn;
   const recognition=simRecognition,turn=simSpeechTurn;
   if(recognition){try{recognition.stop()}catch(e){try{recognition.abort()}catch(_){}}simRecognition=null}
   if(simRun)simRun.listening=false;
   if(!completeTurn)simSpeechTurn=null;
+  /* Finishing a turn that never existed — tapping twice while the permission
+     prompt is still up does it — used to fall through simSubmitSpeechTurn's own
+     guard and return in silence, leaving the screen on "preparing its response…"
+     with nothing on the way to replace it. */
+  else if(!turn)simReturnToReady(SIM_NOTHING_HEARD);
   else if(!recognition)simSubmitSpeechTurn();
   /* iOS Safari does not always fire onend after stop(), and when it does it can
      deliver the last result afterwards. Without this the learner's words sat in
@@ -8782,6 +8869,7 @@ window.simChooseAnother=()=>{simStopListening();if(window.speechSynthesis)speech
    one gesture every conversation is guaranteed to get. */
 window.simVoiceToggle=async()=>{
   audioUnlock();
+  if(simRec){simRecordFinish();return}
   if(simRecognition||(simRun&&simRun.listening)){
     simSetStatus('Processing your answer');
     const label=document.getElementById('simMicLabel');
