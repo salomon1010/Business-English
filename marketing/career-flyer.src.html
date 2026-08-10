@@ -1,0 +1,265 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* The career companion to welding-flyer.src.html — same page geometry, same
+   amber identity, same close. This one is not about the twelve weeks; it is
+   about the four things a tradesperson actually needs before they can work
+   abroad: the interview, the room, the evidence and the CV. */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0b11; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
+  --txt:#eff2f8; --mut:#a2adc0; --amb:#f0a318; --gold:#fbbf24; --grn:#34d399; --ember:#f97316;
+}
+html,body{width:1080px;height:1920px}
+body{
+  background:var(--bg); color:var(--txt);
+  font-family:'Outfit','Avenir Next','Helvetica Neue',Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden; position:relative;
+}
+.wash{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.w1{width:820px;height:820px;left:-280px;top:-360px;background:rgba(240,163,24,.13)}
+.w2{width:760px;height:760px;right:-300px;top:280px;background:rgba(249,115,22,.085)}
+.w3{width:820px;height:820px;left:120px;bottom:-480px;background:rgba(251,191,36,.06)}
+.beam{position:absolute;left:-10%;right:-10%;top:965px;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,.55),rgba(251,191,36,.75),rgba(240,163,24,.45),transparent);
+  filter:blur(1px);opacity:.8}
+.beam::after{content:"";position:absolute;inset:-70px 0;
+  background:radial-gradient(60% 100% at 50% 50%,rgba(251,191,36,.15),transparent 70%)}
+.grid{position:absolute;inset:0;opacity:.35;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(120% 80% at 50% 0%,#000 30%,transparent 78%)}
+
+.page{position:relative;z-index:2;padding:46px 60px 0;height:1920px;display:flex;flex-direction:column}
+
+/* ---------- header ---------- */
+header{display:flex;align-items:center;gap:20px}
+.mark{width:78px;height:78px;border-radius:22px;overflow:hidden;flex:none;
+  box-shadow:0 10px 30px rgba(240,163,24,.42)}
+.brand .n{font-size:37px;font-weight:800;letter-spacing:-.5px;line-height:1}
+.brand .n b{color:var(--gold);font-weight:800}
+.brand .s{font-size:18.5px;color:var(--mut);font-weight:400;margin-top:5px;letter-spacing:.2px}
+.hchip{margin-left:auto;display:flex;align-items:center;gap:10px;
+  padding:12px 21px;border:1px solid var(--line);border-radius:999px;
+  background:rgba(255,255,255,.05);font-size:19.5px;font-weight:600;color:#dbe6fb}
+.hchip .dot{width:9px;height:9px;border-radius:50%;background:var(--grn);
+  box-shadow:0 0 0 4px rgba(52,211,153,.18)}
+
+/* ---------- hero ---------- */
+.kick{margin-top:20px;font-size:18.5px;font-weight:700;letter-spacing:3.4px;color:var(--gold);text-transform:uppercase}
+h1{margin-top:11px;font-size:69px;line-height:1.02;font-weight:800;letter-spacing:-2.2px}
+h1 em{font-style:italic;background:linear-gradient(96deg,#fbbf24,#f97316 65%,#fb923c);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{margin-top:14px;font-size:23.5px;line-height:1.4;color:#bcc7d8;font-weight:300;max-width:975px}
+.sub b{color:#eff2f8;font-weight:600}
+
+/* ---------- proof strip ---------- */
+.proof{margin-top:17px;display:flex;gap:12px}
+.proof .p{flex:1;border:1px solid var(--line);border-radius:16px;padding:12px 18px;
+  background:rgba(255,255,255,.04);display:flex;align-items:baseline;gap:10px}
+.proof .v{font-size:33px;font-weight:800;letter-spacing:-1px;
+  background:linear-gradient(96deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+.proof .k{font-size:16.5px;color:var(--mut);font-weight:400;line-height:1.25}
+
+/* ---------- phones ---------- */
+.phones{margin-top:17px;display:flex;justify-content:center;align-items:flex-end;gap:20px}
+.ph{position:relative;border-radius:30px;overflow:hidden;background:#0a0e1a;
+  border:2px solid rgba(255,255,255,.14);
+  box-shadow:0 30px 60px -12px rgba(0,0,0,.78), 0 0 0 1px rgba(255,255,255,.05) inset}
+.ph img{width:100%;display:block}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 13px;
+  font-size:16.5px;font-weight:700;text-align:center;letter-spacing:.3px;color:#eaf0fa;
+  background:linear-gradient(to top,rgba(6,8,14,.99) 30%,rgba(6,8,14,.92) 62%,transparent)}
+.ph.side{width:248px;height:322px;margin-bottom:18px;opacity:.95}
+.ph.main{width:284px;height:376px;border-color:rgba(251,191,36,.55);
+  box-shadow:0 36px 70px -14px rgba(0,0,0,.82), 0 0 60px rgba(240,163,24,.28)}
+
+/* ---------- the four ----------
+   Numbered rather than bulleted: these are four separate rooms of one product,
+   and the number is what makes a reader count them instead of skim them. */
+.four{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.f{position:relative;display:flex;gap:14px;padding:14px 18px 15px;border-radius:20px;
+  background:var(--card);border:1px solid var(--line)}
+.f .n{width:44px;height:44px;flex:none;border-radius:13px;display:grid;place-items:center;
+  font-size:21px;font-weight:800;
+  background:rgba(240,163,24,.16);color:#ffcf6b;border:1px solid rgba(240,163,24,.30)}
+.f:nth-child(2) .n{background:rgba(249,115,22,.14);color:#fdae72;border-color:rgba(249,115,22,.26)}
+.f:nth-child(3) .n{background:rgba(52,211,153,.14);color:#4fdcaa;border-color:rgba(52,211,153,.24)}
+.f:nth-child(4) .n{background:rgba(96,165,250,.14);color:#8ec2ff;border-color:rgba(96,165,250,.26)}
+.f h3{font-size:22.5px;font-weight:700;letter-spacing:-.3px;line-height:1.15}
+.f p{margin-top:6px;font-size:17.5px;line-height:1.34;color:var(--mut);font-weight:300}
+.f p b{color:#dce6f5;font-weight:600}
+
+/* ---------- what you walk away with ---------- */
+.awards{margin-top:14px;display:flex;align-items:center;gap:14px;
+  padding:13px 20px;border-radius:18px;
+  background:linear-gradient(100deg,rgba(52,211,153,.10),rgba(240,163,24,.05));
+  border:1px solid rgba(52,211,153,.26)}
+.awards .lab{flex:none;font-size:15px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;color:#8df0c6}
+.awards .set{display:flex;gap:9px;flex-wrap:wrap}
+.awards .set span{padding:8px 16px;border-radius:999px;font-size:17px;font-weight:600;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#d6e3f4}
+
+/* ---------- the loop ----------
+   The gap between the chips and the CTA was blank page. It now carries the one
+   thing the four cards above do not say: what you actually DO, in order. */
+.steps{margin-top:14px;display:flex;align-items:stretch;gap:12px}
+.steps .s{flex:1;padding:14px 18px 15px;border-radius:18px;
+  background:var(--card);border:1px solid var(--line)}
+.steps .sn{font-size:14px;font-weight:800;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold)}
+.steps .st{margin-top:7px;font-size:21px;font-weight:700;letter-spacing:-.3px;line-height:1.15}
+.steps .sp{margin-top:6px;font-size:16.5px;line-height:1.32;color:var(--mut);font-weight:300}
+.steps .sarr{flex:none;display:flex;align-items:center;justify-content:center;width:34px}
+.steps .sarr svg{width:28px;height:28px;stroke:rgba(251,191,36,.55);fill:none;stroke-width:2;
+  stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- trust ---------- */
+.trust{margin:14px 0 13px;display:flex;justify-content:center;flex-wrap:wrap;gap:13px}
+.t{padding:12px 23px;border-radius:999px;font-size:18.5px;font-weight:600;
+  border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);color:#cddaf0}
+.t.on{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);color:#8df0c6}
+
+/* ---------- cta ---------- */
+.cta{margin-top:auto;margin-bottom:0;position:relative;display:flex;align-items:center;gap:26px;
+  padding:22px 32px;border-radius:28px;
+  background:linear-gradient(100deg,rgba(240,163,24,.11),rgba(249,115,22,.055));
+  border:1px solid rgba(251,191,36,.38);
+  box-shadow:0 24px 70px rgba(20,12,2,.5)}
+.qrwrap{flex:none;display:flex;flex-direction:column;align-items:center;gap:10px}
+.qr{width:162px;height:162px;border-radius:20px;padding:12px;background:#fff;
+  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 14px 34px rgba(0,0,0,.42), 0 0 34px rgba(251,191,36,.24)}
+.qr img{width:100%;height:100%;display:block}
+.qrcap{font-size:14.5px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;
+  color:#ffd98a;text-shadow:0 0 16px rgba(251,191,36,.45)}
+.ctatext{flex:1;min-width:0}
+.cta .big{font-size:39px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
+.cta .big span{background:linear-gradient(93deg,#fbbf24,#fb923c);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.cta .sm{margin-top:8px;font-size:19.5px;color:#c3d2ea;font-weight:300;line-height:1.34;max-width:545px}
+.cta .sm b{color:#eff2f8;font-weight:600}
+.play{flex:none}
+.play .box{width:206px;padding:15px 18px;border-radius:18px;display:flex;align-items:center;gap:13px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.045));
+  box-shadow:0 10px 26px rgba(0,0,0,.30)}
+.play .tri{width:29px;height:29px;flex:none;display:block}
+.play .g{font-size:13.5px;color:#a9bdd8;letter-spacing:1.5px;font-weight:700;text-transform:uppercase;line-height:1}
+.play .p{font-size:24px;font-weight:700;margin-top:4px;letter-spacing:-.3px;line-height:1}
+.foot{margin-top:11px;margin-bottom:13px;display:flex;font-size:16.5px;color:#6c7f9d;font-weight:400}
+.foot .r{margin-left:auto}
+</style></head>
+<body>
+<div class="wash w1"></div><div class="wash w2"></div><div class="wash w3"></div>
+<div class="grid"></div>
+<div class="beam"></div>
+
+<div class="page">
+
+  <header>
+    <div class="mark"><img src="__LOGO__" style="width:121.9%;height:121.9%;margin:-10.95%;display:block"></div>
+    <div class="brand">
+      <div class="n">BE <b>Mastery</b></div>
+      <div class="s">The interview, the site and the CV — in English</div>
+    </div>
+    <div class="hchip"><span class="dot"></span>app.lomonec.com</div>
+  </header>
+
+  <div class="kick">ai interview practice for the welding trades</div>
+  <h1>Sit the interview<br><em>before it counts.</em></h1>
+  <div class="sub"><b>Twelve interviewers and a whole crew in the room.</b> You speak your answers out loud, and every one is read back against what a competent answer needs — then you are shown the sentence you should have said.</div>
+
+  <div class="proof">
+    <div class="p"><div class="v">12</div><div class="k">interview coaches, each on<br>one part of your story</div></div>
+    <div class="p"><div class="v">12</div><div class="k">workplace scenarios,<br>first day to final briefing</div></div>
+    <div class="p"><div class="v">5</div><div class="k">people in the room —<br>HR, supervisor, safety, QA</div></div>
+  </div>
+
+  <div class="phones">
+    <div class="ph side"><img src="__SHOT_CAREER__"><div class="cap">Your Career Center</div></div>
+    <div class="ph main"><img src="__SHOT_REPORT__"><div class="cap">What your answer missed</div></div>
+    <div class="ph side"><img src="__SHOT_EVIDENCE__"><div class="cap">Evidence you can show</div></div>
+  </div>
+
+  <div class="four">
+    <div class="f"><div class="n">1</div><div>
+      <h3>Professional Interview Coaches</h3>
+      <p>Maya on your story, Daniel on teamwork, Priya on safety. <b>Twelve of them</b> — pick any, repeat it as often as you like.</p>
+    </div></div>
+    <div class="f"><div class="n">2</div><div>
+      <h3>Workplace scenarios</h3>
+      <p>Not one voice — the whole crew, on the same job, in the same conversation. <b>It goes like the real floor goes.</b></p>
+    </div></div>
+    <div class="f"><div class="n">3</div><div>
+      <h3>Your professional evidence</h3>
+      <p>Answers spoken, coverage, best take, trade words you have actually used. <b>Nothing is scored from a tap</b> — only from speech.</p>
+    </div></div>
+    <div class="f"><div class="n">4</div><div>
+      <h3>Resume &amp; LinkedIn Coach</h3>
+      <p>Your summary rewritten to read professionally, plus <b>what your destination expects</b> — its culture and its certification roadmap.</p>
+    </div></div>
+  </div>
+
+  <div class="awards">
+    <div class="lab">You unlock</div>
+    <div class="set">
+      <span>Workshop Ready</span><span>Safety Beginner</span>
+      <span>Professional Speaker</span><span>Interview Beginner</span>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="s">
+      <div class="sn">Step 1</div>
+      <div class="st">Choose who interviews you</div>
+      <div class="sp">HR, your supervisor, the tool room, safety or QA — whoever you dread most.</div>
+    </div>
+    <div class="sarr"><svg viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg></div>
+    <div class="s">
+      <div class="sn">Step 2</div>
+      <div class="st">Say your answer out loud</div>
+      <div class="sp">No typing. You talk, the way you would talk across a desk.</div>
+    </div>
+    <div class="sarr"><svg viewBox="0 0 24 24"><path d="M4 12h15"/><path d="M13 6l6 6-6 6"/></svg></div>
+    <div class="s">
+      <div class="sn">Step 3</div>
+      <div class="st">Hear what you missed</div>
+      <div class="sp">The person who asked tells you what was missing — then you run it again.</div>
+    </div>
+  </div>
+
+  <div class="trust">
+    <div class="t on">Free to start</div>
+    <div class="t">Works offline</div>
+    <div class="t">No ads</div>
+    <div class="t">Android &amp; iPhone</div>
+    <div class="t">15 languages</div>
+  </div>
+
+  <div class="cta">
+    <div class="qrwrap">
+      <div class="qr"><img src="__QR__"></div>
+      <div class="qrcap">Scan to start</div>
+    </div>
+    <div class="ctatext">
+      <div class="big">Start today —<br><span>app.lomonec.com</span></div>
+      <div class="sm">Scan the code or tap the link. <b>Nothing to install</b> — it opens in your browser, then works offline on site.</div>
+    </div>
+    <div class="play">
+      <div class="box">
+        <svg class="tri" viewBox="0 0 24 24" fill="none" stroke="#eff2f8" stroke-width="1.9" stroke-linejoin="round"><path d="M4 3.2 19.5 12 4 20.8Z"/></svg>
+        <div><div class="g">Get it on</div><div class="p">Google Play</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div>Built by Lomonec LLC · Language practice only — not a welding qualification</div>
+    <div class="r">contact@lomonec.com</div>
+  </div>
+
+</div>
+</body></html>

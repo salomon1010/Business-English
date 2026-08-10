@@ -27,6 +27,7 @@ def uri(path):
 SHOTS = REPO / "playstore/store-art-2026-08/phone"
 WELD = HERE / "shots-welding"
 GEN  = HERE / "shots-general"
+CAR  = HERE / "shots-career"
 
 FLYERS = {
     # the general-English poster: the store-art phone captures it has always used
@@ -51,6 +52,18 @@ FLYERS = {
             "__SHOT_REPORT__":     WELD / "w3-report.png",
             "__SHOT_SCENARIOS__":  WELD / "w4-scenarios.png",
             "__QR__":              HERE / "qr-applomonec.png",
+        },
+    },
+    # the career poster: the four Career Center / Passport features, captured by
+    # scripts/store-art/shoot-career.js
+    "career-flyer": {
+        "src": HERE / "career-flyer.src.html",
+        "tokens": {
+            "__LOGO__":          REPO / "logo.svg",
+            "__SHOT_CAREER__":   CAR / "c0-readiness.png",
+            "__SHOT_REPORT__":   CAR / "c5-report.png",
+            "__SHOT_EVIDENCE__": CAR / "c1-evidence.png",
+            "__QR__":            HERE / "qr-applomonec.png",
         },
     },
 }
