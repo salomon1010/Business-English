@@ -23,11 +23,6 @@ body{
 .w1{width:820px;height:820px;left:-280px;top:-360px;background:rgba(240,163,24,.13)}
 .w2{width:760px;height:760px;right:-300px;top:280px;background:rgba(249,115,22,.085)}
 .w3{width:820px;height:820px;left:120px;bottom:-480px;background:rgba(251,191,36,.06)}
-.beam{position:absolute;left:-10%;right:-10%;top:965px;height:2px;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(249,115,22,.55),rgba(251,191,36,.75),rgba(240,163,24,.45),transparent);
-  filter:blur(1px);opacity:.8}
-.beam::after{content:"";position:absolute;inset:-70px 0;
-  background:radial-gradient(60% 100% at 50% 50%,rgba(251,191,36,.15),transparent 70%)}
 .grid{position:absolute;inset:0;opacity:.35;
   background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
                    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
@@ -74,8 +69,8 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#fbbf24,#f97316 65%,#fb
 .ph .cap{position:absolute;left:0;right:0;bottom:0;padding:48px 14px 13px;
   font-size:16.5px;font-weight:700;text-align:center;letter-spacing:.3px;color:#eaf0fa;
   background:linear-gradient(to top,rgba(6,8,14,.99) 30%,rgba(6,8,14,.92) 62%,transparent)}
-.ph.side{width:248px;height:322px;margin-bottom:18px;opacity:.95}
-.ph.main{width:284px;height:376px;border-color:rgba(251,191,36,.55);
+.ph.side{width:262px;height:364px;margin-bottom:18px;opacity:.95}
+.ph.main{width:300px;height:426px;border-color:rgba(251,191,36,.55);
   box-shadow:0 36px 70px -14px rgba(0,0,0,.82), 0 0 60px rgba(240,163,24,.28)}
 
 /* ---------- the four ----------
@@ -155,7 +150,6 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#fbbf24,#f97316 65%,#fb
 <body>
 <div class="wash w1"></div><div class="wash w2"></div><div class="wash w3"></div>
 <div class="grid"></div>
-<div class="beam"></div>
 
 <div class="page">
 
