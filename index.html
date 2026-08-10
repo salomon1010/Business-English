@@ -382,18 +382,30 @@ main{max-width:1180px;margin:0 auto;padding:30px 20px 90px}
      A pill has its own padding, so that pull leaves it hanging off the edge —
      the pill's own left edge is what should sit on the content margin. */
   margin-left:0;
-  padding:7px 13px;border-radius:999px;border:1px solid var(--line2);
+  min-height:38px;padding:7px 15px 7px 13px;border-radius:999px;border:1px solid var(--line2);
   background:color-mix(in srgb,var(--bg) 88%,transparent);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   box-shadow:0 2px 10px rgba(0,0,0,.18);
-  transition:border-color .18s,box-shadow .18s,background .18s}
+  transition:border-color .2s,box-shadow .2s,background .2s,color .2s}
 /* Flush with the page until it actually parks under the header — from then on
    it is floating over the content it covers, and needs an edge to read
-   against it. .is-stuck is set by stickBackSync() on scroll. */
+   against it. .is-stuck is set by stickBackSync() on scroll.
+
+   Once it is floating it stops being a link on a page and becomes the one
+   control holding the way out, so it takes the accent: a tinted wash, an accent
+   rim, and a soft halo that lifts it off whatever is sliding underneath. The
+   inset line is what keeps it legible over a card edge passing behind the
+   blur. */
 .sess-back.is-stuck,.stick-back.is-stuck{
-  border-color:color-mix(in srgb,var(--acc) 55%,var(--line2));
-  background:color-mix(in srgb,var(--bg) 95%,transparent);
-  box-shadow:0 6px 20px rgba(0,0,0,.28)}
+  border-color:color-mix(in srgb,var(--acc) 62%,var(--line2));
+  background:color-mix(in srgb,var(--acc) 13%,color-mix(in srgb,var(--bg) 94%,transparent));
+  color:var(--accent-text);
+  box-shadow:0 8px 24px rgba(0,0,0,.34),
+             0 0 0 1px color-mix(in srgb,var(--acc) 16%,transparent) inset,
+             0 0 22px color-mix(in srgb,var(--acc) 22%,transparent)}
+.sess-back.is-stuck:hover,.stick-back.is-stuck:hover{
+  border-color:var(--acc);
+  background:color-mix(in srgb,var(--acc) 20%,color-mix(in srgb,var(--bg) 92%,transparent))}
 /* On a page whose eyebrow is itself sticky, the pill has to clear the eyebrow
    rather than slide behind it — hence the measured height, not a guess. */
 .stick-eb{--stick-top:calc(62px + var(--pg-eyebrow-h,68px) + 6px)}
@@ -8620,7 +8632,7 @@ function rSimulation(el,id,characterId){
      without disturbing any conversation in progress. */
   if(selected&&_simViewAttempt&&_simViewAttempt.answers){
     const past=_simViewAttempt,n=simAttempts(selected.id).findIndex(x=>x.startedAt===past.startedAt)+1;
-    el.innerHTML=`<button class="back" onclick="simCloseAttempt()">‹ Back</button>
+    el.innerHTML=`<button class="back stick-back" onclick="simCloseAttempt()">‹ Back</button>
       <div class="eyebrow">Attempt ${n} · ${new Date(past.at).toLocaleDateString()}</div>
       <h1 class="big">${esc(selected.title)}</h1>
       ${simProgressHTML(selected.id,past.startedAt)}
@@ -8644,7 +8656,7 @@ function rSimulation(el,id,characterId){
        the one derived from what they actually said. */
     const mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
+    el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
     simEnrichAnalysis(run,selected).then(changed=>{if(changed&&cur&&cur.v==="simulation"){simSave();go("simulation",selected.id)}});
     return;
