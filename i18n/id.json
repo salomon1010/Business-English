@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} dilatih · {{left}} belum",
  "pro.none_practised_yet": "Belum ada yang dilatih",
  "rp.back_coaches": "‹ Pelatih wawancara",
- "rp.more_coaches": "Pelatih lainnya"
+ "rp.more_coaches": "Pelatih lainnya",
+ "story.base_pro_one": "{{name}}, kamu melatih <b>bahasa Inggris {{trade}}</b> selama <b>{{days}} hari</b> minggu ini dan mengucapkan <b>{{words}} kata</b> dengan lantang.",
+ "story.base_pro_many": "{{name}}, kamu melatih <b>bahasa Inggris {{trade}}</b> selama <b>{{days}} hari</b> minggu ini dan mengucapkan <b>{{words}} kata</b> dengan lantang.",
+ "story.empty_pro": "{{name}}, belum ada yang tercatat di <b>bahasa Inggris {{trade}}</b>. Ucapkan satu jawaban bengkel, dan halaman ini akan mulai menceritakan bahasa yang menjadi ukuran profesimu.",
+ "area.name_gen": "Bahasa Inggris umum",
+ "area.name_pro": "Bahasa Inggris pengelasan",
+ "area.eyebrow_gen": "Tinjauan bahasa Inggris umum",
+ "area.eyebrow_pro": "Tinjauan {{trade}}",
+ "area.scope_gen_h": "Ini tinjauan bahasa Inggris umummu",
+ "area.scope_pro_h": "Ini tinjauan bahasa Inggris {{trade}}-mu",
+ "area.scope_gen": "Semua di bawah ini hanya menghitung bahasa Inggris umum yang kamu latih — rapat, wawancara, telepon, bahasa yang kamu pakai dengan siapa pun. Bahasa Inggris profesimu diukur di halamannya sendiri.",
+ "area.scope_pro": "Semua di bawah ini hanya menghitung bahasa Inggris yang kamu latih untuk profesimu — pengarahan keselamatan, izin kerja, serah terima shift, dan pertanyaan yang benar-benar diajukan penyelia. Bahasa Inggris umummu diukur di halamannya sendiri.",
+ "area.switch": "Buka tinjauan {{area}}"
 }

@@ -67,10 +67,10 @@
 <script src="conversation-orchestrator.js?v=79"></script>
 <script src="adaptive-learning-engine.js?v=79"></script>
 <script src="career-center.js?v=79"></script>
-<script src="professional-skills-passport.js?v=79"></script>
+<script src="professional-skills-passport.js?v=82"></script>
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
-<script src="answer-evaluator.js?v=79"></script>
+<script src="answer-evaluator.js?v=82"></script>
 <script src="shadow-lines.js?v=81"></script>
 <script>
 window.FB_CONFIG={
@@ -831,6 +831,15 @@ body.sh-work-open{overflow:hidden}
 .pg-ev b{display:block;font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent-text)}
 .pg-ev span{font-size:11.5px;color:var(--mut);line-height:1.35;display:block}
 .pg-empty{margin:12px 0;font-size:13px;color:var(--mut);line-height:1.6}
+/* Says which programme the review below is about, before any number appears.
+   Takes the track accent, so welding reads amber and general English indigo
+   without a second stylesheet. */
+.area-scope{margin:0 0 16px;padding:13px 15px;border-radius:14px;
+  background:var(--bg2);border:1px solid var(--line);border-left:4px solid var(--acc2)}
+.area-scope-t{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--txt)}
+.area-scope-t .btn-ic{flex:0 0 auto;color:var(--acc2)}
+.area-scope p{margin:6px 0 11px;font-size:12.5px;color:var(--mut);line-height:1.55}
+.area-scope .btn{width:auto}
 .pg-h{margin:20px 0 8px;font-size:15px}
 .pg-note{margin:0 0 8px;font-size:12.5px;color:var(--mut)}
 .pg-work{display:flex;flex-direction:column;gap:6px}
@@ -2854,6 +2863,7 @@ function awardCompetency(input){
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
+areaSplit();
 function applyTrackIdentity(){
   const track=activeProfessionalTrack();
   const professional=!!track&&track.id!=="general-english";
@@ -2901,7 +2911,7 @@ function defState(){
      first screen that ever reads S.vocab. Reading it before Practice had been
      opened threw and took the whole report down with it. load() backfills this
      into any older state. */
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},weeklyA:{},monthlyA:{},troubleA:{},dayLogA:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
 function load(){
   const def=defState();
@@ -2921,6 +2931,89 @@ function load(){
   return def;
 }
 function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{navBadges()}catch(e){}try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
+
+/* ===== TWO AREAS, ONE ENGINE ================================================
+   A learner runs two separate programmes here: their trade English (the Welding
+   track, with a trade overlay on top) and general business English. Progress
+   read one undivided pile, so both reviews printed the same figures — a
+   boilermaker who had never spoken a word of welding English was still told, in
+   amber, that they had spoken 253 words and hit 100%. Same numbers, different
+   colour: the review was not about the area it claimed to be about.
+
+   The area is stamped on a record when it is WRITTEN. Nothing is inferred
+   afterwards, because nothing later can know. Reads go through the accessors
+   below; a panel that forgets to scope shows the wrong area's work, which is a
+   visible bug rather than a silent merge.
+
+   What deliberately stays shared, and why: the streak and the calendar (the
+   habit is one habit — days you showed up, whichever programme you opened), the
+   phrase bank, and saved shadowing clips. Those are tools, not evidence. */
+const AREA_GEN="general-english";
+function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
+function areaIsPro(){return areaId()!==AREA_GEN}
+function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
+/* Per-area buckets, created on read so the first visit to an area starts empty
+   rather than inheriting the other one's history. */
+function areaBucket(field){const box=S[field]||(S[field]={});const a=areaId();return box[a]||(box[a]={})}
+function troubleMap(){return areaBucket("troubleA")}
+function weeklyStore(){return areaBucket("weeklyA")}
+function monthlyStore(){return areaBucket("monthlyA")}
+function areaDayLog(){return areaBucket("dayLogA")}
+function areaDates(){return Object.keys(areaDayLog()).sort()}
+function areaFbHist(){const a=areaId();return (S.fbHist||[]).filter(x=>x&&areaOf(x)===a)}
+function areaConvos(){const a=areaId();return (S.convos||[]).filter(c=>c&&areaOf(c)===a)}
+function areaAttempts(list){const a=areaId();return (list||[]).filter(r=>r&&areaOf(r)===a)}
+/* A word can honestly belong to both areas — "procedure" is trade language and
+   business language — so the tag is a list, not a single owner. Saving a word
+   already held by the other area adds this area to it rather than moving it.
+   An untagged word predates the split and shows wherever you are. */
+function areaVocab(){const a=areaId(),V=S.vocab||{},out={};
+  Object.keys(V).forEach(w=>{const v=V[w];if(v&&(!v.tk||v.tk.indexOf(a)>=0))out[w]=v});return out}
+function vocHas(w){const v=(S.vocab||{})[w];return !!v&&(!v.tk||v.tk.indexOf(areaId())>=0)}
+function vocPut(w,l){const a=areaId(),V=S.vocab||(S.vocab={}),v=V[w];
+  if(v){if(!Array.isArray(v.tk))v.tk=[];if(v.tk.indexOf(a)<0)v.tk.push(a);if(l&&!v.l)v.l=l;return v}
+  return V[w]={l:l||"",ts:Date.now(),tk:[a]}}
+/* Unsaving drops this area's claim on the word. The word itself only goes when
+   no area still wants it — otherwise clearing your welding library would quietly
+   empty half of your business-English one. */
+function vocDrop(w){const V=S.vocab||{},v=V[w];if(!v)return;
+  if(Array.isArray(v.tk)){v.tk=v.tk.filter(x=>x!==areaId());if(v.tk.length)return}
+  delete V[w]}
+/* The name each review is written against: the trade if there is one, otherwise
+   the track's own name, otherwise general English. */
+function areaTrade(){try{return (window.Trades&&areaIsPro())?Trades.active(S):null}catch(e){return null}}
+function areaLabel(){
+  const tr=areaTrade();if(tr&&tr.name)return tr.name;
+  if(areaIsPro()){try{const tk=ProfessionalTrackContext.get(areaId());if(tk)return t(tk.nameKey)}catch(e){}}
+  return t("area.name_gen");
+}
+/* THE ONE-TIME SPLIT. Records written before areas existed carry no stamp, and
+   nothing in the app can say which programme they came from. They are attributed
+   to the area that is open when the split runs — the learner's current
+   programme — rather than being counted twice or thrown away. Everything after
+   this is stamped where it is written and needs no guessing. */
+function areaSplit(){
+  if(S.areaSplit)return;
+  /* Folds the pre-split map into THIS area's bucket without disturbing buckets
+     that are already there. A device can arrive here after a cloud merge with
+     another device's areas already populated — overwriting them would delete
+     that work, and skipping the fold would strand this device's own. */
+  const a=areaId(),one=(cur,legacy)=>{
+    const b=Object.assign({},cur||{});
+    b[a]=Object.assign({},legacy||{},b[a]||{});
+    return b;
+  };
+  S.troubleA=one(S.troubleA,S.trouble);
+  S.weeklyA=one(S.weeklyA,S.weekly);
+  S.monthlyA=one(S.monthlyA,S.monthly);
+  S.dayLogA=one(S.dayLogA,S.dayLog);
+  (S.fbHist||[]).forEach(x=>{if(x&&!x.tk)x.tk=a});
+  (S.convos||[]).forEach(c=>{if(c&&!c.tk)c.tk=a});
+  const V=S.vocab||{};Object.keys(V).forEach(w=>{if(V[w]&&!V[w].tk)V[w].tk=[a]});
+  const at=(S.simulations&&S.simulations.attempts)||{};
+  Object.keys(at).forEach(id=>(at[id]||[]).forEach(r=>{if(r&&!r.tk)r.tk=a}));
+  S.areaSplit=1;save();
+}
 function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
@@ -3644,6 +3737,18 @@ const I18N_EN={
  "story.trouble_one":" <b>{{n}} trouble word</b> is waiting in your gym — clear it today 💪.",
  "story.trouble_many":" <b>{{n}} trouble words</b> are waiting in your gym — clear one today 💪.",
  "story.trouble_empty":" Your trouble-word gym is empty — flawless 💪.",
+ "story.base_pro_one":"{{name}}, you worked on <b>{{trade}} English</b> on <b>{{days}} day</b> this week and spoke <b>{{words}} words</b> of it out loud.",
+ "story.base_pro_many":"{{name}}, you worked on <b>{{trade}} English</b> on <b>{{days}} days</b> this week and spoke <b>{{words}} words</b> of it out loud.",
+ "story.empty_pro":"{{name}}, nothing has been recorded in <b>{{trade}} English</b> yet. Speak one workshop answer and this page starts telling the story of the language your trade is judged in.",
+ "area.name_gen":"General English",
+ "area.name_pro":"Welding English",
+ "area.eyebrow_gen":"General English review",
+ "area.eyebrow_pro":"{{trade}} review",
+ "area.scope_gen_h":"This is your general English review",
+ "area.scope_pro_h":"This is your {{trade}} English review",
+ "area.scope_gen":"Everything below counts only the general English you have practised — meetings, interviews, calls, the language you use with anyone. Your trade English is measured on its own page.",
+ "area.scope_pro":"Everything below counts only the English you have practised for the trade — the toolbox talk, the permit, the handover, the questions a supervisor actually asks. Your general English is measured on its own page.",
+ "area.switch":"Open your {{area}} review",
  "gauge.no_data":"Record a speaking-feedback session to measure your pace",
  "gauge.warming":"Warming up — natives average 140–160 wpm; push the pace a little",
  "gauge.perfect":"You're in the natural professional zone — just right! ✅",
@@ -4784,6 +4889,10 @@ function markPracticed(){
   const today=new Date().toISOString().slice(0,10);
   if(!S.dates.includes(today)){S.dates.push(today);S.dates.sort()}
   S.dayLog=S.dayLog||{};S.dayLog[today]=(S.dayLog[today]||0)+1;   // activity intensity for the progress calendar heatmap
+  /* The same tick, kept per area: the calendar and the streak are about the
+     habit and stay whole, but "days practised" inside a review must mean days
+     practised in THAT programme. */
+  const _al=areaDayLog();_al[today]=(_al[today]||0)+1;
   if(S.dayLog[today]===1){
     // once per day, not per action. Week alongside streak so retention can be
     // read against how far into the programme someone actually is.
@@ -5300,14 +5409,14 @@ function homePanelDashboard(activeTrackName){
    and keyboard-operable, and every next-step string is still a live i18n key. */
 function homeMetrics(pos,recN,activeTrackName){
   const sess="go('session',"+pos.w+",'"+pos.d+"')";
-  const vocN=Object.keys(S.vocab||{}).length;
+  const vocN=Object.keys(areaVocab()).length;
   const pron=rpScoreStats();
   const M=[
     {ic:"flame", n:streak(),                                                  suf:"",             lbl:"stat_streak",     next:"next_streak",     go:sess,             zero:streak()===0},
     {ic:"check", n:totalDone(),                                               suf:"/"+trackSessionCount(),lbl:"stat_sessions",   next:"next_sessions",   go:sess,             zero:totalDone()===0},
     {ic:"mic",   n:recN,                                                      suf:"",             lbl:"stat_recordings", next:"next_recordings", go:sess,             zero:recN===0},
     {ic:"chat",  n:masteredCount(),                                           suf:"/"+trackPhrases().length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
-    {ic:"book",  n:Object.keys(S.vocab||{}).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
+    {ic:"book",  n:Object.keys(areaVocab()).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
     {ic:"target",n:(S.clips||[]).length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:(S.clips||[]).length===0},
     {ic:"chat",  n:(S.convos||[]).length,                                     suf:"",             lbl:"stat_convos",     next:"next_convos",     go:"go('roleplay')", zero:(S.convos||[]).length===0},
     {ic:"pencil",n:Object.values(S.gram||{}).reduce((a,g)=>a+((g&&g.runs)||0),0), suf:"",         lbl:"stat_drills",     next:"next_drills",     go:"go('practice')", zero:!Object.keys(S.gram||{}).length},
@@ -5856,11 +5965,11 @@ ${(()=>{
        from the learner's own workshops, so "Create clip" and "My clips 0" were
        two controls that could never do anything — and they pushed aside the one
        thing on this page the learner can act on. */
-    const tb=Object.keys(S.trouble||{}).length;
+    const tb=Object.keys(troubleMap()).length;
     if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
-    <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(S.trouble||{}).length}</b></button>
+    <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(troubleMap()).length}</b></button>
   </div>`;
     if(_shTab==='trouble')return `<button class="back sh-back-lines stick-back stick-eb" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
     return `<button class="pf-row pf-setup sh-trouble-entry ${tb?"has":""}" onclick="shTab('trouble')">
@@ -6022,10 +6131,11 @@ ${(()=>{
 }
 function tbRender(){
   const box=document.getElementById("tbBox");if(!box)return;
-  const words=Object.keys(S.trouble||{}).sort((a,b)=>S.trouble[b]-S.trouble[a]);
+  const TB=troubleMap();
+  const words=Object.keys(TB).sort((a,b)=>TB[b]-TB[a]);
   box.innerHTML=words.length?words.map(w=>`
     <div class="fb-item" id="tb_${esc(w).replace(/[^a-z0-9]/g,"_")}" style="display:inline-block;margin:0 8px 8px 0;min-width:230px">
-      <span class="fb-pct">${t("tb.missed_count",{n:S.trouble[w]})}</span>
+      <span class="fb-pct">${t("tb.missed_count",{n:TB[w]})}</span>
       <span class="w">${esc(w)}</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
         <button class="btn btn-g btn-sm" onclick="fbSay('${esc(w)}',1)" aria-label="Hear">${ic("sound")}</button>
@@ -6049,9 +6159,10 @@ window.tbTry=word=>{
     const alts=[...e.results[0]].map(a=>a.transcript.toLowerCase().trim());
     const hit=alts.some(a=>fbTokens(a).some(x=>x===word||wsim(x,word)>=85));
     if(hit){
-      S.trouble[word]--;if(S.trouble[word]<=0)delete S.trouble[word];
+      const tb=troubleMap();
+      tb[word]--;if(tb[word]<=0)delete tb[word];
       save();tbRender();
-      toast(S.trouble[word]?t("tb.cleared_more_toast",{word,n:S.trouble[word]}):t("tb.cleared_done_toast",{word}));
+      toast(tb[word]?t("tb.cleared_more_toast",{word,n:tb[word]}):t("tb.cleared_done_toast",{word}));
     }else if(res)res.textContent=t("tb.heard_retry",{heard:alts[0]||"…"});
   };
   r.onerror=()=>{if(res)res.textContent=t("tb.mic_error")};
@@ -6645,7 +6756,7 @@ function shImgStats(){
     week:Math.max(1,(pos.w||1)-(pos.d==="Mon"?0:0)),
     done:totalDone(),streak:streak(),weekDone:weekDone(pos.w)>=7,
     phrases:masteredCount(),
-    words:Object.keys(S.vocab||{}).length,
+    words:Object.keys(areaVocab()).length,
     first,last,
     pctDone:pct()
   };
@@ -7032,7 +7143,7 @@ function navBadgeCount(view){
      that exists from day one, so they would badge an empty account and could
      never be "new". vocState() handles the rest — a word you get right is
      scheduled ahead and stops counting until it comes due again. */
-  try{return Object.keys(S.vocab||{}).filter(w=>vocState(w)==="ready").length}catch(e){return 0}
+  try{return Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){return 0}
 }
 function navBadges(){
   ["practice"].forEach(v=>{
@@ -7616,11 +7727,12 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   const fillerN=h.filter(w=>FILLERS.includes(w)).length;
   const paceMsg=wpm<95?t("fb.pace_slow",{wpm}):wpm>185?t("fb.pace_fast",{wpm}):t("fb.pace_natural",{wpm});
   /* history + trouble words */
-  if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
-  else{S.fbHist.push({ts:Date.now(),wpm,words:h.length});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
+  if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm,words:h.length,tk:areaId()});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
+  else{S.fbHist.push({ts:Date.now(),wpm,words:h.length,tk:areaId()});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
-  problems.forEach(o=>{if(o.t.length>=4&&!isTrackStopWord(o.t))S.trouble[o.t]=(S.trouble[o.t]||0)+1});
-  const scored=S.fbHist.filter(x=>x.score!=null);
+  const _tb=troubleMap();
+  problems.forEach(o=>{if(o.t.length>=4&&!isTrackStopWord(o.t))_tb[o.t]=(_tb[o.t]||0)+1});
+  const scored=areaFbHist().filter(x=>x.score!=null);
   const hist=scored.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
   const trend=scored.length>=2?(scored[scored.length-1].score-scored[scored.length-2].score):0;
   /* per-clip attempt tracking: repeat the same clip and watch yourself improve */
@@ -7888,7 +8000,7 @@ function vocabExtract(text){
     .sort((a,b)=>b.score-a.score).slice(0,10).map(x=>({w:x.w,l:cefr(x.w)}));
 }
 function vocRow(w,l){
-  const saved=!!S.vocab[w],safe=w.replace(/[^a-z0-9]/g,"_");
+  const saved=vocHas(w),safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
       <button class="btn btn-g voc-mini" onclick="event.stopPropagation();fbSay('${esc(w)}',1)" title="${esc(t("voc.hear_title"))}" aria-label="Hear">${ic("sound")}</button>
@@ -7930,8 +8042,8 @@ window.vocSave=(w,l)=>{
     b.setAttribute("aria-pressed",String(on));
     const lbl=t(on?"voc.saved_title":"voc.save_title");
     b.setAttribute("aria-label",lbl);b.setAttribute("title",lbl);};
-  if(S.vocab[w]){delete S.vocab[w];paint(false);toast(t("voc.removed_toast"))}
-  else{S.vocab[w]={l,ts:Date.now()};paint(true);toast(t("voc.saved_toast"))}
+  if(vocHas(w)){vocDrop(w);paint(false);toast(t("voc.removed_toast"))}
+  else{vocPut(w,l);paint(true);toast(t("voc.saved_toast"))}
   save();vlRender();
 };
 /* The words a learner missed are the whole point of a report, and they were
@@ -7950,7 +8062,7 @@ function vocPickChips(words,level){
   /* Read through a local copy: a speaking report can now render before the
      learner has ever opened Practice, and S.vocab is only created on the first
      save — reaching straight into it threw and took the whole report with it. */
-  const V=S.vocab||{};
+  const V=areaVocab();
   const chip=w=>{const on=!!V[w];
     return `<button type="button" class="voc-chip ${on?"on":""}" aria-pressed="${on}"
       onclick="vocPick(this)" data-w="${esc(w)}" data-l="${esc(l)}">${on?"✓":"+"} ${esc(w)}</button>`;};
@@ -7967,14 +8079,14 @@ function vocPickPaint(btn,on){
 function vocPickSyncAll(scope){
   const all=(scope||document).querySelector(".voc-pick-all");if(!all)return;
   let words=[];try{words=JSON.parse(all.dataset.words||"[]")}catch(e){}
-  const left=words.filter(w=>!S.vocab[w]).length;
+  const left=words.filter(w=>!vocHas(w)).length;
   all.textContent=left?t("voc.pick_all",{n:left}):t("voc.pick_all_done");
   all.classList.toggle("done",!left);
 }
 window.vocPick=btn=>{
   const w=btn.dataset.w,l=btn.dataset.l||"Pro";
-  const on=!S.vocab[w];
-  if(on)S.vocab[w]={l,ts:Date.now()}; else delete S.vocab[w];
+  const on=!vocHas(w);
+  if(on)vocPut(w,l); else vocDrop(w);
   toast(t(on?"voc.saved_toast":"voc.removed_toast"));
   document.querySelectorAll('.voc-chip').forEach(c=>{if(c.dataset.w===w)vocPickPaint(c,on)});
   save();document.querySelectorAll(".voc-pick-all").forEach(b=>vocPickSyncAll(b.parentNode));
@@ -7985,15 +8097,15 @@ window.vocPickAll=btn=>{
   let words=[];try{words=JSON.parse(btn.dataset.words||"[]")}catch(e){}
   const l=btn.dataset.l||"Pro";
   const scope=btn.closest(".sim-ans-voc,.sh-line-voc,.sim-ans-card")||document;
-  words.forEach(w=>{if(!S.vocab[w])S.vocab[w]={l,ts:Date.now()}});
+  words.forEach(w=>vocPut(w,l));
   save();
-  document.querySelectorAll(".voc-chip").forEach(c=>vocPickPaint(c,!!S.vocab[c.dataset.w]));
+  document.querySelectorAll(".voc-chip").forEach(c=>vocPickPaint(c,vocHas(c.dataset.w)));
   document.querySelectorAll(".voc-pick-all").forEach(b=>vocPickSyncAll(b.parentNode));
   toast(t("voc.saved_all_toast"));
   try{vlRender()}catch(e){}
   try{navBadges()}catch(e){}
 };
-window.vocSaveAll=list=>{list.forEach(x=>{if(!S.vocab[x.w])S.vocab[x.w]={l:x.l,ts:Date.now()}});save();vlRender();toast(t("voc.saved_all_toast"));};
+window.vocSaveAll=list=>{list.forEach(x=>vocPut(x.w,x.l));save();vlRender();toast(t("voc.saved_all_toast"));};
 /* jump to the My-vocabulary section, remembering where the user was so they can come back */
 window.gotoVocab=()=>{
   _vocReturn={v:cur.v,a1:cur.arg1,a2:cur.arg2};
@@ -8031,7 +8143,7 @@ function vocSynHTML(heardText){
 /* Vocabulary & Grammar refresh — re-renders the Practice tab if it's open (called by vocSave/vocSaveAll) */
 function vlRender(){const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);}
 window.vocQuiz=async()=>{
-  const words=Object.keys(S.vocab);if(!words.length)return;
+  const words=Object.keys(areaVocab());if(!words.length)return;
   const w=words[Math.floor(Math.random()*words.length)];
   const box=document.getElementById("vqBox");
   let def="";
@@ -8070,7 +8182,7 @@ window.vocQuizTry=w=>{
 /* spaced-repetition-lite: reps + due drive Ready / Up next / Learned buckets */
 function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
 function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+trackVocabularyIntervals()[Math.min(v.reps-1,trackVocabularyIntervals().length-1)]*86400000;awardCompetency({activityType:"vocabulary_practice",lesson:"Vocabulary · "+w,score:100,duration:1,dedupeKey:"vocab:"+w+":"+v.reps});}else{v.reps=0;v.due=Date.now();}save();}
-function vocBuckets(){const vocab=S.vocab||{};const b={ready:[],upnext:[],learned:[]};Object.keys(vocab).sort((a,c)=>vocab[c].ts-vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
+function vocBuckets(){const vocab=areaVocab();const b={ready:[],upnext:[],learned:[]};Object.keys(vocab).sort((a,c)=>vocab[c].ts-vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
 async function vocDef(w){
   try{const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
     const m=(e.meanings||[])[0]||{},d0=(m.definitions||[])[0]||{};
@@ -8245,7 +8357,7 @@ function simRecordAttempt(run,sc){
   const store=simAttemptStore(S);
   const list=store[sc.id]=store[sc.id]||[];
   if(list.some(a=>a.startedAt===run.startedAt))return;   /* re-rendering must not duplicate */
-  list.push({startedAt:run.startedAt,at:Date.now(),coverage:rev.coverage,
+  list.push({startedAt:run.startedAt,at:Date.now(),coverage:rev.coverage,tk:areaId(),
     answered:rev.answered,asked:rev.asked,answers:answers});
   try{const _p=Math.round((rev.coverage||0)*100);
     track("workshop_score_band",{band:simScoreBand(_p,null).tone,
@@ -9198,7 +9310,7 @@ function rLibIdioms(el){
   manIconizeInline(el);
 }
 window.pracTab=tab=>{_pracTab=tab;const el=document.getElementById("v-practice");if(el)rPractice(el);};
-window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;if(!S.vocab[w])S.vocab[w]={l:cefr(w),ts:Date.now()};save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
+window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;vocPut(w,cefr(w));save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
 function vlRenderInto(words){
   const box=document.getElementById("vlBox");if(!box)return;
   box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join("")
@@ -9213,7 +9325,7 @@ function pvOpen(html){
 }
 window.pvClose=()=>{const ov=document.getElementById("pvGame");if(ov){ov.classList.remove("show");ov.innerHTML="";}document.body.style.overflow="";const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);};
 function pvHint(w){return t("voc.quiz_hint_fallback",{letter:w[0].toUpperCase(),len:w.length,level:(S.vocab[w]||{l:"?"}).l})}
-function pvBucket(){const b=vocBuckets(),vocab=S.vocab||{};return b[_pracTab].length?b[_pracTab].slice():Object.keys(vocab);}
+function pvBucket(){const b=vocBuckets();return b[_pracTab].length?b[_pracTab].slice():Object.keys(areaVocab());}
 /* Each booster needs a different amount of material before it can run, so the
    green "ready" state is worked out per card with the same thresholds the
    start functions enforce. No words → grey card, and tapping still explains. */
@@ -9242,7 +9354,7 @@ window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(cor
 function fcEnd(){pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Quizzes (multiple choice) ---- */
 let _qz=null;
-window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("prac.quiz_need4"));_qz={words:words.sort(()=>Math.random()-.5),all:Object.keys(S.vocab),i:0,score:0,correct:""};qzRender();};
+window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("prac.quiz_need4"));_qz={words:words.sort(()=>Math.random()-.5),all:Object.keys(areaVocab()),i:0,score:0,correct:""};qzRender();};
 async function qzRender(){
   if(!_qz)return;if(_qz.i>=_qz.words.length)return qzEnd();
   const w=_qz.words[_qz.i];_qz.correct=w;
@@ -9516,7 +9628,7 @@ window.fbTry=(word,i)=>{
       res.textContent="";
       const it=document.getElementById("fbi"+i);it.classList.add("fixed");
       document.getElementById("fbp"+i).textContent="100%";
-      if(S.trouble[word]){S.trouble[word]--;if(S.trouble[word]<=0)delete S.trouble[word]}
+      const _tb=troubleMap();if(_tb[word]){_tb[word]--;if(_tb[word]<=0)delete _tb[word]}
       save();tbRender();
       toast(t("fb.try_perfect_toast",{word}));
     }else{
@@ -10006,41 +10118,53 @@ function pgGauge(wpm){
     ${[60,100,160,200].map(v=>`<text x="${X(v)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--mut2)" font-family="JetBrains Mono,monospace">${v}</text>`).join("")}
   </svg>`;
 }
+/* The week's story, told about ONE area. Every figure in it — days, words,
+   pronunciation, new vocabulary, trouble words — is drawn from the open
+   programme's own records, so the welding story is about welding English and
+   nothing else. The trade version names the trade, because "you practised 2
+   days" reads identically in both and that was the original complaint. */
 function pgStory(){
   const now=Date.now(),wk=7*864e5;
-  const week=S.fbHist.filter(x=>now-x.ts<wk);
-  const days=new Set(S.dates.filter(d=>now-new Date(d).getTime()<wk)).size;
+  const hist=areaFbHist();
+  const week=hist.filter(x=>now-x.ts<wk);
+  const days=areaDates().filter(d=>now-new Date(d).getTime()<wk).length;
   const words=week.reduce((a,x)=>a+(x.words||0),0);
-  const sc=S.fbHist.filter(x=>x.score!=null);
+  const sc=hist.filter(x=>x.score!=null);
   const recent=sc.slice(-3).map(x=>x.score),earlier=sc.slice(-6,-3).map(x=>x.score);
   const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
   const rNow=avg(recent),rPrev=avg(earlier);
-  const vocNew=Object.values(S.vocab||{}).filter(v=>now-v.ts<wk).length;
-  const tb=Object.keys(S.trouble||{}).length;
+  const vocNew=Object.values(areaVocab()).filter(v=>now-v.ts<wk).length;
+  const tb=Object.keys(troubleMap()).length;
   const name=S.profile&&S.profile.name?S.profile.name:"You";
-  if(!week.length&&!days)return t("story.empty",{name}).replace(/🎯\s*/,`<span class="inl-ic">${ic("target")}</span>`);
-  let s=t(days!==1?"story.base_many":"story.base_one",{name,days,words:words.toLocaleString()});
+  const trade=areaLabel();
+  if(!week.length&&!days)return t(areaIsPro()?"story.empty_pro":"story.empty",{name,trade}).replace(/🎯\s*/,`<span class="inl-ic">${ic("target")}</span>`);
+  let s=areaIsPro()
+    ?t(days!==1?"story.base_pro_many":"story.base_pro_one",{name,days,trade,words:words.toLocaleString()})
+    :t(days!==1?"story.base_many":"story.base_one",{name,days,words:words.toLocaleString()});
   if(rNow!=null&&rPrev!=null)s+=rNow>rPrev?t("story.climb",{prev:rPrev,now:rNow}):rNow<rPrev?t("story.dip",{prev:rPrev,now:rNow}):t("story.steady",{now:rNow});
   else if(rNow!=null)s+=t("story.recent_avg",{now:rNow});
   if(vocNew)s+=t(vocNew>1?"story.voc_many":"story.voc_one",{n:vocNew});
   s+=tb?t(tb>1?"story.trouble_many":"story.trouble_one",{n:tb}):t("story.trouble_empty");
   return s;
 }
+/* Every number below comes from the open area's records. Nothing here reads the
+   whole pile any more — that is what made the two reviews identical. */
 function progressHTML(){
-  const scored=S.fbHist.filter(x=>x.score!=null);
-  const totalWords=S.fbHist.reduce((a,x)=>a+(x.words||0),0);
+  const hist=areaFbHist(),convos=areaConvos();
+  const scored=hist.filter(x=>x.score!=null);
+  const totalWords=hist.reduce((a,x)=>a+(x.words||0),0);
   const best=scored.length?Math.max(...scored.map(x=>x.score)):null;
-  const lastWpm=S.fbHist.length?S.fbHist[S.fbHist.length-1].wpm:0;
-  const vocN=Object.keys(S.vocab||{}).length;
+  const lastWpm=hist.length?hist[hist.length-1].wpm:0;
+  const vocN=Object.keys(areaVocab()).length;
   /* vocabulary growth: cumulative count by save date */
-  const vts=Object.values(S.vocab||{}).map(v=>v.ts).sort((a,b)=>a-b);
+  const vts=Object.values(areaVocab()).map(v=>v.ts).sort((a,b)=>a-b);
   const vocCurve=vts.map((_,i)=>i+1);
   /* last 14 days of speaking activity */
   const days=[...Array(14)].map((_,i)=>{
     const d=new Date();d.setDate(d.getDate()-(13-i));
     const k=d.toISOString().slice(0,10);
     return{label:(d.getMonth()+1)+"/"+d.getDate(),today:i===13,
-      v:S.fbHist.filter(x=>new Date(x.ts).toISOString().slice(0,10)===k).reduce((a,x)=>a+(x.words||0),0)};
+      v:hist.filter(x=>new Date(x.ts).toISOString().slice(0,10)===k).reduce((a,x)=>a+(x.words||0),0)};
   });
   return`
   <div class="card" style="margin-bottom:22px;background:linear-gradient(150deg,rgba(99,102,241,.10),rgba(34,211,238,.04))">
@@ -10054,13 +10178,13 @@ function progressHTML(){
       <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${best!=null?best+"%":"—"}</div><div class="l">${t("prog.stat_best")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("bolt")}</span>${lastWpm||"—"}</div><div class="l">${t("prog.stat_pace")}</div></div>
       <div class="stat"><div class="n"><span class="stat-ic">${ic("book")}</span>${vocN}</div><div class="l">${t("prog.stat_vocab")}</div></div>
-      <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${(S.convos||[]).length}</div><div class="l">${t("prog.stat_convos")}</div></div>
-      <div class="stat"><div class="n"><span class="stat-ic">${ic("calendar")}</span>${(S.dates||[]).length}</div><div class="l">${t("prog.stat_days")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${convos.length}</div><div class="l">${t("prog.stat_convos")}</div></div>
+      <div class="stat"><div class="n"><span class="stat-ic">${ic("calendar")}</span>${areaDates().length}</div><div class="l">${t("prog.stat_days")}</div></div>
     </div>
-    ${(S.convos||[]).length?`<div class="card" style="background:var(--bg2);margin-bottom:16px">
+    ${convos.length?`<div class="card" style="background:var(--bg2);margin-bottom:16px">
       <b style="font-size:14px">${tInl("prog.convos_h","chat")}</b>
       <p style="font-size:11.5px;color:var(--mut2);margin:2px 0 10px">${t("prog.convos_sub")}</p>
-      ${(S.convos||[]).slice(-6).reverse().map(c=>{
+      ${convos.slice(-6).reverse().map(c=>{
         const full=c.covered>=c.total;
         return `<div class="cv-row">
           <span class="cv-t">${esc(c.title||"")}</span>
@@ -10091,6 +10215,38 @@ function progressHTML(){
     </div>
   </div>`;
 }
+/* WHOSE REVIEW IS THIS. Two programmes run in this app and their reviews used
+   to be indistinguishable — identical figures, one amber and one indigo. So the
+   page now says which area it is about before it shows a single number, and
+   offers the way to the other one.
+
+   Switching moves the whole app, not just this page: the curriculum, the
+   workshops, the vocabulary and the theme all belong to the area. Sending you
+   back to this same page afterwards is what makes it read as two reviews rather
+   than one review with a filter on it. */
+function areaScopeHTML(){
+  const pro=areaIsPro(),trade=areaLabel();
+  const other=pro?"general-english":"welding";
+  const otherName=pro?t("area.name_gen"):t("area.name_pro");
+  return `<div class="area-scope">
+    <div class="area-scope-t"><span class="btn-ic">${ic(pro?"helmet":"briefcase")}</span>
+      <b>${esc(pro?t("area.scope_pro_h",{trade}):t("area.scope_gen_h"))}</b></div>
+    <p>${esc(pro?t("area.scope_pro"):t("area.scope_gen"))}</p>
+    <button class="btn btn-g btn-sm" onclick="areaGoReview('${other}')">
+      <span class="btn-ic">${ic("repeat")}</span>${esc(t("area.switch",{area:otherName}))}</button>
+  </div>`;
+}
+/* Land on the other area's review, not its home screen — the point of the
+   button is to compare two reviews. */
+window.areaGoReview=id=>{
+  if(!ProfessionalTrackContext.get(id))return;
+  S.professionalTracks=S.professionalTracks||{};
+  S.professionalTracks.activeId=id;
+  ProfessionalTrackContext.setActive(id);
+  applyTrackIdentity();
+  _jPhase=null;save();
+  go("review");
+};
 /* Which half of the week review is on screen. The two panels used to sit side by
    side in a g2 grid, which on a phone meant scrolling past all five sliders to
    reach the written review — so they're a tab pair now. */
@@ -10098,7 +10254,8 @@ let _revTab="scores";
 window.revTab=(k,w)=>{_revTab=k;rReview(document.getElementById("v-review"),w)};
 function rReview(el,wArg){
   const w=wArg||currentPos().w;
-  const wr=S.weekly[w]||{scores:{},wins:"",weak:"",corr:"",top5:""};
+  const WK=weeklyStore();
+  const wr=WK[w]||{scores:{},wins:"",weak:"",corr:"",top5:""};
   const scores=`
     <div class="card">
       <p style="font-size:12.5px;color:var(--mut);margin:0 0 16px">${t("rev.selfscore_sub")}</p>
@@ -10121,15 +10278,16 @@ function rReview(el,wArg){
       <button class="btn ${wr.done?'btn-g':'btn-p'}" style="margin-top:14px;width:100%;justify-content:center" onclick="wkDone(${w})">${wr.done?t("rev.review_done"):t("rev.review_complete_btn",{w})}</button>
     </div>`;
   el.innerHTML=`
-  <div class="eyebrow pg-eyebrow">${t("rev.eyebrow")}</div>
+  <div class="eyebrow pg-eyebrow">${esc(areaIsPro()?t("area.eyebrow_pro",{trade:areaLabel()}):t("area.eyebrow_gen"))}</div>
   <h1 class="big">${t("rev.title")}</h1>
+  ${areaScopeHTML()}
   ${progressHTML()}
   ${/* The weekly AI review and the growth dashboard both reprinted the same
         readiness counter this panel used to show — three copies of one invented
         number on a single screen. One evidence panel now. */""}
   ${ProfessionalSkillsPassport.growth()}
   ${rpMetricsHTML()}
-  <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${S.weekly[x.n]&&S.weekly[x.n].done?' ✓':''}</button>`).join("")}</div>
+  <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('review',${x.n})">${t("week.tab",{n:x.n})}${WK[x.n]&&WK[x.n].done?' ✓':''}</button>`).join("")}</div>
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("rev.tabs_label"))}">
     <button class="seg-tab ${_revTab==='scores'?'on':''}" role="tab" aria-selected="${_revTab==='scores'}" onclick="revTab('scores',${w})"><span class="btn-ic">${ic("target")}</span><span class="seg-lbl">${t("rev.tab_scores")}</span></button>
     <button class="seg-tab ${_revTab==='written'?'on':''}" role="tab" aria-selected="${_revTab==='written'}" onclick="revTab('written',${w})"><span class="btn-ic">${ic("book")}</span><span class="seg-lbl">${t("rev.tab_written")}</span></button>
@@ -10140,7 +10298,7 @@ function rReview(el,wArg){
   drawTrend();
 }
 function rMonthly(w){
-  const M=trackMonthMetrics()[w],mr=S.monthly[w]||{actual:{},pass:{},ans:{}};
+  const M=trackMonthMetrics()[w],mr=monthlyStore()[w]||{actual:{},pass:{},ans:{}};
   return `<div class="card" style="margin-top:22px">
     <div class="eyebrow">${t("mon.checkpoint")}</div>
     <b style="font-size:17px">${M.title}</b>
@@ -10155,20 +10313,21 @@ function rMonthly(w){
   </div>`;
 }
 window.wkScore=(w,ax,v)=>{
-  const wr=S.weekly[w]||(S.weekly[w]={scores:{},wins:"",weak:"",corr:"",top5:""});
+  const WK=weeklyStore(),wr=WK[w]||(WK[w]={scores:{},wins:"",weak:"",corr:"",top5:""});
   wr.scores[ax]=+v;save();
   const el=document.getElementById("v"+ax.replace(/\s/g,""));if(el)el.textContent=v;
   drawTrend();
 };
-window.wkField=(w,f,v)=>{const wr=S.weekly[w]||(S.weekly[w]={scores:{}});wr[f]=v;save();toast(t("rev.saved_toast"))};
-window.wkDone=w=>{const wr=S.weekly[w]||(S.weekly[w]={scores:{}});wr.done=!wr.done;markPracticed();save();go("review",w)};
-window.moField=(w,f,i,v)=>{const m=S.monthly[w]||(S.monthly[w]={actual:{},pass:{},ans:{}});m[f][i]=v;save();toast(t("rev.saved_toast"))};
-window.moPass=(w,i)=>{const m=S.monthly[w]||(S.monthly[w]={actual:{},pass:{},ans:{}});m.pass[i]=!m.pass[i];save();go("review",w)};
+window.wkField=(w,f,v)=>{const WK=weeklyStore(),wr=WK[w]||(WK[w]={scores:{}});wr[f]=v;save();toast(t("rev.saved_toast"))};
+window.wkDone=w=>{const WK=weeklyStore(),wr=WK[w]||(WK[w]={scores:{}});wr.done=!wr.done;markPracticed();save();go("review",w)};
+window.moField=(w,f,i,v)=>{const MO=monthlyStore(),m=MO[w]||(MO[w]={actual:{},pass:{},ans:{}});m[f][i]=v;save();toast(t("rev.saved_toast"))};
+window.moPass=(w,i)=>{const MO=monthlyStore(),m=MO[w]||(MO[w]={actual:{},pass:{},ans:{}});m.pass[i]=!m.pass[i];save();go("review",w)};
 function drawTrend(){
   const cv=document.getElementById("trend");if(!cv)return;
   const ctx=cv.getContext("2d");ctx.clearRect(0,0,480,150);
+  const WK=weeklyStore();
   const avgs=trackWeeks().map(x=>{
-    const s=(S.weekly[x.n]||{}).scores||{};const vals=trackReviewAxes().map(a=>s[a]).filter(v=>v);
+    const s=(WK[x.n]||{}).scores||{};const vals=trackReviewAxes().map(a=>s[a]).filter(v=>v);
     return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null});
   ctx.strokeStyle="rgba(255,255,255,.08)";
   for(let y=0;y<=10;y+=5){ctx.beginPath();ctx.moveTo(20,140-y*13);ctx.lineTo(475,140-y*13);ctx.stroke()}
@@ -10753,7 +10912,11 @@ addEventListener("resize",stickBackSync);
 (function(){
   try{
   let dirty=false;
-  Object.keys(S.trouble||{}).forEach(w=>{if(w.length<4||isTrackStopWord(w)){delete S.trouble[w];dirty=true}});
+  /* Every area's gym, not just the open one — the sweep runs once and the other
+     area may not be opened for weeks. The pre-split map is still swept because a
+     device that syncs in from an older build can reintroduce it. */
+  const maps=[S.trouble||{}].concat(Object.values(S.troubleA||{}));
+  maps.forEach(m=>Object.keys(m).forEach(w=>{if(w.length<4||isTrackStopWord(w)){delete m[w];dirty=true}}));
   if(dirty)save();
   }catch(e){}
 })();
@@ -11561,7 +11724,7 @@ function rpEvWords(words){
    <div class="card" style="margin-top:16px">
      <b style="font-size:15px">${hIcon("target",t("rp.eval_words_h"))}</b>
      <p style="font-size:12.5px;color:var(--mut);margin:6px 0 14px">${t("rp.eval_words_sub")}</p>
-     ${words.map(w=>{const safe=w.word.replace(/[^a-z0-9]/g,"_"),on=!!S.vocab[w.word];return `
+     ${words.map(w=>{const safe=w.word.replace(/[^a-z0-9]/g,"_"),on=vocHas(w.word);return `
        <div class="rp-ev-word">
          <span class="rp-ev-wdot" style="background:${rpEvCol(w.score)}"></span>
          <span class="rp-ev-wtxt"><b>${esc(w.word)}</b>${w.note?`<small>${esc(w.note)}</small>`:""}</span>
@@ -11581,7 +11744,7 @@ function rpEvWords(words){
    Coming back to the same character is the point of the feature, so the value
    is in the comparison: how the score has moved, and which words keep being
    flagged. Only text and scores are kept — never audio. */
-function rpHistFor(id){return (S.convos||[]).filter(c=>c&&c.id===id).sort((a,b)=>b.ts-a.ts)}
+function rpHistFor(id){return areaConvos().filter(c=>c&&c.id===id).sort((a,b)=>b.ts-a.ts)}
 function rpHistDate(ts){
   try{return new Date(ts).toLocaleDateString(undefined,{day:"numeric",month:"short"})}catch(e){return""}
 }
@@ -11603,7 +11766,7 @@ function rpHistRecurring(rows){
 /* Aggregate of every conversation you have evaluated, for the dashboard tile
    and the Progress page. Only sessions with a score count towards the trend. */
 function rpScoreStats(){
-  const all=(S.convos||[]).slice();
+  const all=areaConvos();
   const sc=all.filter(c=>typeof c.overall==="number").sort((a,b)=>a.ts-b.ts);
   return {sessions:all.length,scored:sc.length,
     latest:sc.length?sc[sc.length-1].overall:null,
@@ -11764,8 +11927,8 @@ window.rpEvMine=async(ti,widx,wcount,word)=>{
 window.rpEvSave=w=>{
   S.vocab=S.vocab||{};
   const safe=w.replace(/[^a-z0-9]/g,"_"),b=document.getElementById("rpvs_"+safe);
-  if(S.vocab[w]){delete S.vocab[w];if(b){b.classList.remove("btn-p");b.classList.add("btn-g");b.innerHTML=ic("bookmark")}toast(t("voc.removed_toast"))}
-  else{S.vocab[w]={l:"",ts:Date.now()};if(b){b.classList.add("btn-p");b.classList.remove("btn-g");b.innerHTML=ic("check")}toast(t("voc.saved_toast"))}
+  if(vocHas(w)){vocDrop(w);if(b){b.classList.remove("btn-p");b.classList.add("btn-g");b.innerHTML=ic("bookmark")}toast(t("voc.removed_toast"))}
+  else{vocPut(w,"");if(b){b.classList.add("btn-p");b.classList.remove("btn-g");b.innerHTML=ic("check")}toast(t("voc.saved_toast"))}
   if(b)manIconizeInline(b);
   save(); try{navBadges()}catch(e){}
 };
@@ -11820,7 +11983,7 @@ function rpSummary(){
        Audio is deliberately not stored: it is large and, by design, never
        leaves the device or syncs. */
     _rpLastTs=Date.now();
-    S.convos.push({ts:_rpLastTs,id:sc.id,title:sc.title,cat:sc.cat,
+    S.convos.push({ts:_rpLastTs,id:sc.id,title:sc.title,cat:sc.cat,tk:areaId(),
       covered:covered.size,total:sc.points.length,
       turns:(rpConv.history||[]).filter(m=>m.role==="user").length,
       lines:(rpConv.turns||[]).filter(x=>x&&x.text).map(x=>({text:x.text}))});
@@ -11983,9 +12146,9 @@ const PRON_STARTERS=["particularly","comfortable","schedule","entrepreneur","col
 let pronWord="";
 function rPron(el,word){
   if(word)pronWord=String(word);
-  if(!pronWord)pronWord=(Object.keys(S.trouble||{})[0])||PRON_STARTERS[0];
+  if(!pronWord)pronWord=(Object.keys(troubleMap())[0])||PRON_STARTERS[0];
   const w=pronWord.trim();
-  const trouble=Object.keys(S.trouble||{}).slice(0,8);
+  const trouble=Object.keys(troubleMap()).slice(0,8);
   const chips=(trouble.length?trouble:PRON_STARTERS.slice(0,8));
   const key=w.toLowerCase().replace(/[^a-z']/g,"");
   const stressed=STRESS_MAP[key]||"";  /* only show a stress hint when the dictionary has it */
@@ -12032,7 +12195,7 @@ window.pronTry=()=>{
       return `<span class="fb-chip ${cls}">${esc(tw)}</span>`;
     }).join("");
     // clear solved words from the trouble gym
-    clears.forEach(cw=>{if(S.trouble&&S.trouble[cw]){delete S.trouble[cw];}});
+    clears.forEach(cw=>{const _tb=troubleMap();if(_tb[cw])delete _tb[cw];});
     if(clears.length){save();}
     if(res)res.innerHTML=`<div class="pron-chips-row">${chips}</div>
       <div class="pron-verdict ${allOk?'good':'work'}">${allOk?t("pron.clear"):t("pron.heard",{heard:esc(heard)})}</div>`;
@@ -12479,6 +12642,22 @@ function fbMerge(local,cloud){
        gram   — grammar drill stats; keep the best score and the higher run count.
        convos — AI conversations; union on timestamp, same 200 cap as roleplay. */
   m.dayLog=fbMax(local.dayLog,cloud.dayLog);
+  /* The per-area stores split one level deeper than everything above: the outer
+     key is the area, the inner one is the record. Merging them at the top level
+     would hand whichever device saved last the whole of the other's welding
+     history, so each area is merged with the same rule its undivided ancestor
+     used — max for counters, local-wins for written text. */
+  const byArea=(fn)=>(l,c)=>{const o={},L=l||{},C=c||{};
+    new Set(Object.keys(L).concat(Object.keys(C))).forEach(a=>{o[a]=fn(L[a],C[a])});return o};
+  m.troubleA=byArea(fbMax)(local.troubleA,cloud.troubleA);
+  m.dayLogA=byArea(fbMax)(local.dayLogA,cloud.dayLogA);
+  m.weeklyA=byArea((l,c)=>Object.assign({},c,l))(local.weeklyA,cloud.weeklyA);
+  m.monthlyA=byArea((l,c)=>Object.assign({},c,l))(local.monthlyA,cloud.monthlyA);
+  /* Both sides must have split before the merged copy counts as split. If either
+     device still holds untagged records, the next boot re-runs areaSplit() to
+     stamp them — and because the fold above is additive, re-running it cannot
+     undo what this merge just brought in. */
+  m.areaSplit=(local.areaSplit&&cloud.areaSplit)?1:0;
   m.gram=(()=>{
     const o={};[cloud.gram||{},local.gram||{}].forEach(src=>Object.keys(src).forEach(k=>{
       const a=o[k]||{best:0,runs:0},b=src[k]||{};

@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}}개 완료 · {{left}}개 남음",
  "pro.none_practised_yet": "아직 연습 전",
  "rp.back_coaches": "‹ 면접 코치",
- "rp.more_coaches": "다른 면접 코치"
+ "rp.more_coaches": "다른 면접 코치",
+ "story.base_pro_one": "{{name}}님, 이번 주 <b>{{days}}일</b> 동안 <b>{{trade}} 영어</b>를 연습했고 <b>{{words}}개 단어</b>를 소리 내어 말했습니다.",
+ "story.base_pro_many": "{{name}}님, 이번 주 <b>{{days}}일</b> 동안 <b>{{trade}} 영어</b>를 연습했고 <b>{{words}}개 단어</b>를 소리 내어 말했습니다.",
+ "story.empty_pro": "{{name}}님, <b>{{trade}} 영어</b>에는 아직 기록이 없습니다. 작업장 답변을 한 번 소리 내어 말해 보세요. 그러면 이 페이지가 당신의 기술이 평가받는 언어의 이야기를 시작합니다.",
+ "area.name_gen": "일반 영어",
+ "area.name_pro": "용접 영어",
+ "area.eyebrow_gen": "일반 영어 리뷰",
+ "area.eyebrow_pro": "{{trade}} 리뷰",
+ "area.scope_gen_h": "이것은 당신의 일반 영어 리뷰입니다",
+ "area.scope_pro_h": "이것은 당신의 {{trade}} 영어 리뷰입니다",
+ "area.scope_gen": "아래의 모든 수치는 연습한 일반 영어만 셉니다 — 회의, 면접, 통화, 누구와도 쓰는 말. 현장 영어는 별도의 페이지에서 측정됩니다.",
+ "area.scope_pro": "아래의 모든 수치는 이 일을 위해 연습한 영어만 셉니다 — 안전 회의, 작업 허가, 인수인계, 그리고 반장이 실제로 던지는 질문. 일반 영어는 별도의 페이지에서 측정됩니다.",
+ "area.switch": "{{area}} 리뷰 열기"
 }

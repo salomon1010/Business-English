@@ -153,12 +153,18 @@
      against model answers. This is the only place in the product where a number
      comes from what someone said rather than from how many buttons they pressed,
      so it is what the Passport should be built on. */
-  function portfolio(s){
+  /* `area` scopes the portfolio to one programme — the trade English or the
+     general English — because the two reviews must not report each other's
+     work. Called without it, the whole record is counted, which is what every
+     pre-split caller expects. A record with no stamp predates the split and
+     belongs to general English, matching areaOf() in the app. */
+  function portfolio(s,area){
+    const mine=r=>!area||((r&&r.tk)||"general-english")===area;
     const store=(s&&s.simulations&&s.simulations.attempts)||{};
     let workshops=0,attempts=0,answers=0,demonstrated=0,weighted=0,best=0;
     const perWorkshop=[];
     Object.keys(store).forEach(id=>{
-      const runs=(store[id]||[]).filter(a=>a&&a.answered>0);
+      const runs=(store[id]||[]).filter(a=>a&&a.answered>0&&mine(a));
       if(!runs.length)return;
       workshops++;attempts+=runs.length;
       let bestHere=0;
@@ -181,7 +187,7 @@
        coverage: coverage asks whether the required points were made, clarity
        asks whether the words were recognised. Averaging them would produce a
        number that answers neither question. */
-    const takes=((s&&s.fbHist)||[]).filter(x=>x&&typeof x.score==="number");
+    const takes=((s&&s.fbHist)||[]).filter(x=>x&&typeof x.score==="number"&&mine(x));
     const spoken={takes:takes.length,
                   average:takes.length?Math.round(takes.reduce((n,x)=>n+x.score,0)/takes.length):0,
                   best:takes.length?Math.max(...takes.map(x=>x.score)):0,
@@ -213,11 +219,13 @@
      ========================================================================== */
   const DEMONSTRATED_AT=0.7;
 
-  function readiness(s,sims){
+  function readiness(s,sims,area){
     const list=sims||[];
-    const P=portfolio(s);
+    const mine=r=>!area||((r&&r.tk)||"general-english")===area;
+    const P=portfolio(s,area);
     const total=list.reduce((n,sc)=>n+Object.keys((sc&&sc.questions)||{}).length,0);
-    const store=(s&&s.simulations&&s.simulations.attempts)||{};
+    const all=(s&&s.simulations&&s.simulations.attempts)||{};
+    const store={};Object.keys(all).forEach(id=>{const r=(all[id]||[]).filter(mine);if(r.length)store[id]=r});
     /* Count each question once, at its best attempt — otherwise repeating one
        workshop would raise readiness without widening what has been shown. */
     const bestByQuestion={};

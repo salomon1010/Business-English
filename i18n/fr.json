@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} pratiqués · {{left}} à essayer",
  "pro.none_practised_yet": "Aucun encore pratiqué",
  "rp.back_coaches": "‹ Coachs d'entretien",
- "rp.more_coaches": "Plus de coachs"
+ "rp.more_coaches": "Plus de coachs",
+ "story.base_pro_one": "{{name}}, vous avez travaillé l’<b>anglais {{trade}}</b> pendant <b>{{days}} jour</b> cette semaine et prononcé <b>{{words}} mots</b> à voix haute.",
+ "story.base_pro_many": "{{name}}, vous avez travaillé l’<b>anglais {{trade}}</b> pendant <b>{{days}} jours</b> cette semaine et prononcé <b>{{words}} mots</b> à voix haute.",
+ "story.empty_pro": "{{name}}, rien n’est encore enregistré en <b>anglais {{trade}}</b>. Dites à voix haute une réponse d’atelier et cette page commencera à raconter l’histoire de la langue sur laquelle votre métier est jugé.",
+ "area.name_gen": "Anglais général",
+ "area.name_pro": "Anglais du soudage",
+ "area.eyebrow_gen": "Bilan d’anglais général",
+ "area.eyebrow_pro": "Bilan {{trade}}",
+ "area.scope_gen_h": "Voici votre bilan d’anglais général",
+ "area.scope_pro_h": "Voici votre bilan d’anglais {{trade}}",
+ "area.scope_gen": "Tout ce qui suit ne compte que l’anglais général que vous avez travaillé : réunions, entretiens, appels, la langue que vous utilisez avec tout le monde. Votre anglais de métier est mesuré sur sa propre page.",
+ "area.scope_pro": "Tout ce qui suit ne compte que l’anglais que vous avez travaillé pour le métier : le briefing sécurité, le permis, la passation, les questions qu’un chef d’équipe pose vraiment. Votre anglais général est mesuré sur sa propre page.",
+ "area.switch": "Ouvrir votre bilan {{area}}"
 }

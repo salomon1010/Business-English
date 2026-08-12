@@ -68,6 +68,22 @@ not JS, and `new Function` chokes on it. Check it separately with
   if signed in). Activity for streak/calendar: `S.dates` (YYYY-MM-DD), `S.dayLog`
   (per-day count), `S.fbHist` (timestamped feedback). `markPracticed()` lights up a
   day — called by every practice action.
+- **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
+  programmes share one engine but must never share evidence: the Progress/Review
+  page reports on the OPEN area only. `areaId()` is the area (`S.professionalTracks
+  .activeId`); records are stamped `tk` **when written** (`fbHist`, `convos`,
+  `simulations.attempts`) and read back through `areaFbHist()` / `areaConvos()` /
+  `areaAttempts()`. Per-area maps: `troubleA` / `weeklyA` / `monthlyA` / `dayLogA`,
+  reached via `troubleMap()` / `weeklyStore()` / `monthlyStore()` / `areaDayLog()` —
+  **never touch `S.trouble` / `S.weekly` / `S.monthly` directly again**, they are
+  pre-split legacy. Vocabulary tags a LIST (`v.tk=["welding",…]`) because a word can
+  belong to both: use `areaVocab()` / `vocHas()` / `vocPut()` / `vocDrop()`, not
+  `S.vocab[w]=…`. `AnswerEvaluator.portfolio(s, area)` and `readiness(s, sims, area)`
+  take the area as an optional 2nd/3rd argument; omitting it counts everything.
+  `areaSplit()` is the one-time migration — it stamps legacy records with whatever
+  area was open at the time (nothing can know better) and is additive, so it is safe
+  after a cloud merge. Deliberately shared and NOT split: the streak, the Profile
+  calendar, the phrase bank, saved shadow clips.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

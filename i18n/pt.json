@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} praticadas · {{left}} por tentar",
  "pro.none_practised_yet": "Nenhuma praticada ainda",
  "rp.back_coaches": "‹ Treinadores de entrevista",
- "rp.more_coaches": "Mais treinadores"
+ "rp.more_coaches": "Mais treinadores",
+ "story.base_pro_one": "{{name}}, você trabalhou o <b>inglês de {{trade}}</b> por <b>{{days}} dia</b> esta semana e falou <b>{{words}} palavras</b> em voz alta.",
+ "story.base_pro_many": "{{name}}, você trabalhou o <b>inglês de {{trade}}</b> por <b>{{days}} dias</b> esta semana e falou <b>{{words}} palavras</b> em voz alta.",
+ "story.empty_pro": "{{name}}, ainda não há nada registado em <b>inglês de {{trade}}</b>. Fale uma resposta de oficina e esta página começa a contar a história da língua pela qual o seu ofício é avaliado.",
+ "area.name_gen": "Inglês geral",
+ "area.name_pro": "Inglês de soldadura",
+ "area.eyebrow_gen": "Balanço de inglês geral",
+ "area.eyebrow_pro": "Balanço de {{trade}}",
+ "area.scope_gen_h": "Este é o seu balanço de inglês geral",
+ "area.scope_pro_h": "Este é o seu balanço de inglês de {{trade}}",
+ "area.scope_gen": "Tudo o que está abaixo conta apenas o inglês geral que praticou — reuniões, entrevistas, chamadas, a língua que usa com qualquer pessoa. O seu inglês do ofício é medido na página dele.",
+ "area.scope_pro": "Tudo o que está abaixo conta apenas o inglês que praticou para o ofício — a conversa de segurança, a permissão, a passagem de turno, as perguntas que um supervisor faz mesmo. O seu inglês geral é medido na página dele.",
+ "area.switch": "Abrir o seu balanço de {{area}}"
 }

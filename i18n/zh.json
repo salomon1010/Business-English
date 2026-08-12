@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "已练习 {{done}} 场 · 还有 {{left}} 场",
  "pro.none_practised_yet": "尚未练习",
  "rp.back_coaches": "‹ 面试教练",
- "rp.more_coaches": "更多面试教练"
+ "rp.more_coaches": "更多面试教练",
+ "story.base_pro_one": "{{name}}，本周你练了 <b>{{days}} 天</b>的<b>{{trade}}英语</b>，大声说出 <b>{{words}} 个词</b>。",
+ "story.base_pro_many": "{{name}}，本周你练了 <b>{{days}} 天</b>的<b>{{trade}}英语</b>，大声说出 <b>{{words}} 个词</b>。",
+ "story.empty_pro": "{{name}}，<b>{{trade}}英语</b>里还没有任何记录。开口说出一段车间应答，这一页就会开始讲述那门决定你手艺评价的语言。",
+ "area.name_gen": "通用英语",
+ "area.name_pro": "焊接英语",
+ "area.eyebrow_gen": "通用英语回顾",
+ "area.eyebrow_pro": "{{trade}}回顾",
+ "area.scope_gen_h": "这是你的通用英语回顾",
+ "area.scope_pro_h": "这是你的{{trade}}英语回顾",
+ "area.scope_gen": "下面的每一项只统计你练过的通用英语——会议、面试、电话，以及你和任何人交流时用的语言。你的行业英语在它自己的页面上衡量。",
+ "area.scope_pro": "下面的每一项只统计你为这门手艺练过的英语——班前安全会、作业许可、交接班，以及班组长真正会问的问题。你的通用英语在它自己的页面上衡量。",
+ "area.switch": "打开你的{{area}}回顾"
 }

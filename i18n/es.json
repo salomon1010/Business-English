@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} practicadas · {{left}} por probar",
  "pro.none_practised_yet": "Ninguna practicada aún",
  "rp.back_coaches": "‹ Entrenadores de entrevista",
- "rp.more_coaches": "Más entrenadores"
+ "rp.more_coaches": "Más entrenadores",
+ "story.base_pro_one": "{{name}}, has trabajado el <b>inglés de {{trade}}</b> <b>{{days}} día</b> esta semana y has pronunciado <b>{{words}} palabras</b> en voz alta.",
+ "story.base_pro_many": "{{name}}, has trabajado el <b>inglés de {{trade}}</b> <b>{{days}} días</b> esta semana y has pronunciado <b>{{words}} palabras</b> en voz alta.",
+ "story.empty_pro": "{{name}}, todavía no hay nada registrado en <b>inglés de {{trade}}</b>. Di en voz alta una respuesta de taller y esta página empezará a contar la historia del idioma con el que se juzga tu oficio.",
+ "area.name_gen": "Inglés general",
+ "area.name_pro": "Inglés de soldadura",
+ "area.eyebrow_gen": "Balance de inglés general",
+ "area.eyebrow_pro": "Balance de {{trade}}",
+ "area.scope_gen_h": "Este es tu balance de inglés general",
+ "area.scope_pro_h": "Este es tu balance de inglés de {{trade}}",
+ "area.scope_gen": "Todo lo que aparece abajo cuenta solo el inglés general que has practicado: reuniones, entrevistas, llamadas, el idioma que usas con cualquiera. Tu inglés del oficio se mide en su propia página.",
+ "area.scope_pro": "Todo lo que aparece abajo cuenta solo el inglés que has practicado para el oficio: la charla de seguridad, el permiso, el relevo, las preguntas que un supervisor hace de verdad. Tu inglés general se mide en su propia página.",
+ "area.switch": "Abrir tu balance de {{area}}"
 }

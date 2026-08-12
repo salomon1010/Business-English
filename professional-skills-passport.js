@@ -2,6 +2,11 @@
 (function(global){
   function track(){return global.ProfessionalTrackContext.active()}
   function cfg(){return global.CompetencyEngine.config(track())}
+  /* Which programme this panel is reporting on. The Passport and the growth
+     panel both sit inside a review that is now about ONE area, so every
+     aggregate they draw has to be scoped the same way the review is. */
+  function area(){return (global.areaId&&global.areaId())||"general-english"}
+  function mine(r){return ((r&&r.tk)||"general-english")===area()}
   /* The two disclaimers below name the learner's own trade — "not a measure of
      your welding ability" — so that a pipefitter is not told about welding.
      craft() was written into those sentences but never defined, which made
@@ -26,7 +31,7 @@
      ability, because they are still a fair record of effort. */
   function render(){
     const s=global.appState(),t=track(),c=cfg();
-    const P=global.AnswerEvaluator?global.AnswerEvaluator.portfolio(s):null;
+    const P=global.AnswerEvaluator?global.AnswerEvaluator.portfolio(s,area()):null;
     const competencies=(c.competencies||[]).filter(x=>x.passport!==false);
     const pct=v=>Math.round(v*100);
     const evidence=P&&P.hasEvidence?`
@@ -65,13 +70,13 @@
   function growth(){
     const s=global.appState(),t=track();
     const tr=global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(s):null;
-    const P=global.AnswerEvaluator?global.AnswerEvaluator.portfolio(s):null;
+    const P=global.AnswerEvaluator?global.AnswerEvaluator.portfolio(s,area()):null;
     const sims=(global.trackSimulations&&global.trackSimulations())||[];
     const attempts=(s.simulations&&s.simulations.attempts)||{};
     const pct=v=>Math.round(v*100);
 
     const rows=sims.map(sc=>{
-      const runs=(attempts[sc.id]||[]).filter(a=>a&&a.answered>0);
+      const runs=(attempts[sc.id]||[]).filter(a=>a&&a.answered>0&&mine(a));
       const best=runs.length?Math.max(...runs.map(a=>Number(a.coverage)||0)):0;
       return {title:(global.simTitle?global.simTitle(sc):sc.title),runs:runs.length,best};
     });
@@ -82,7 +87,7 @@
     const used=new Set((P&&P.answers?[]:[]));
     /* Which of the trade's terms have actually been spoken, taken from the
        stored per-question evidence rather than from a counter. */
-    Object.keys(attempts).forEach(id=>(attempts[id]||[]).forEach(a=>
+    Object.keys(attempts).forEach(id=>(attempts[id]||[]).filter(mine).forEach(a=>
       (a.answers||[]).forEach(q=>(q.vocabUsed||[]).forEach(v=>used.add(v)))));
     const vocabUsed=vocab.filter(v=>used.has(v));
 

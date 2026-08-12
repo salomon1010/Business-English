@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} 件実施 · 残り {{left}} 件",
  "pro.none_practised_yet": "まだ実施していません",
  "rp.back_coaches": "‹ 面接コーチ",
- "rp.more_coaches": "ほかの面接コーチ"
+ "rp.more_coaches": "ほかの面接コーチ",
+ "story.base_pro_one": "{{name}}さん、今週は <b>{{days}}日</b>、<b>{{trade}}の英語</b>に取り組み、<b>{{words}}語</b>を声に出しました。",
+ "story.base_pro_many": "{{name}}さん、今週は <b>{{days}}日</b>、<b>{{trade}}の英語</b>に取り組み、<b>{{words}}語</b>を声に出しました。",
+ "story.empty_pro": "{{name}}さん、<b>{{trade}}の英語</b>にはまだ記録がありません。現場の応答をひとつ声に出せば、このページはあなたの技能が評価される言葉の物語を語りはじめます。",
+ "area.name_gen": "一般英語",
+ "area.name_pro": "溶接の英語",
+ "area.eyebrow_gen": "一般英語のふり返り",
+ "area.eyebrow_pro": "{{trade}}のふり返り",
+ "area.scope_gen_h": "これはあなたの一般英語のふり返りです",
+ "area.scope_pro_h": "これはあなたの{{trade}}英語のふり返りです",
+ "area.scope_gen": "以下の数字は、練習した一般英語だけを数えています——会議、面接、電話、誰とでも使う言葉。仕事の英語は専用のページで測られます。",
+ "area.scope_pro": "以下の数字は、この仕事のために練習した英語だけを数えています——安全ミーティング、作業許可、引き継ぎ、そして職長が実際に投げてくる質問。一般英語は専用のページで測られます。",
+ "area.switch": "{{area}}のふり返りを開く"
 }

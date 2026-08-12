@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} đã luyện · còn {{left}}",
  "pro.none_practised_yet": "Chưa luyện cái nào",
  "rp.back_coaches": "‹ Huấn luyện viên phỏng vấn",
- "rp.more_coaches": "Thêm huấn luyện viên"
+ "rp.more_coaches": "Thêm huấn luyện viên",
+ "story.base_pro_one": "{{name}}, tuần này bạn đã luyện <b>tiếng Anh {{trade}}</b> trong <b>{{days}} ngày</b> và nói to <b>{{words}} từ</b>.",
+ "story.base_pro_many": "{{name}}, tuần này bạn đã luyện <b>tiếng Anh {{trade}}</b> trong <b>{{days}} ngày</b> và nói to <b>{{words}} từ</b>.",
+ "story.empty_pro": "{{name}}, chưa có gì được ghi lại trong <b>tiếng Anh {{trade}}</b>. Hãy nói một câu trả lời trong xưởng, và trang này sẽ bắt đầu kể câu chuyện về thứ ngôn ngữ mà nghề của bạn được đánh giá bằng nó.",
+ "area.name_gen": "Tiếng Anh tổng quát",
+ "area.name_pro": "Tiếng Anh hàn",
+ "area.eyebrow_gen": "Đánh giá tiếng Anh tổng quát",
+ "area.eyebrow_pro": "Đánh giá {{trade}}",
+ "area.scope_gen_h": "Đây là bản đánh giá tiếng Anh tổng quát của bạn",
+ "area.scope_pro_h": "Đây là bản đánh giá tiếng Anh {{trade}} của bạn",
+ "area.scope_gen": "Mọi con số bên dưới chỉ tính phần tiếng Anh tổng quát bạn đã luyện — họp hành, phỏng vấn, gọi điện, thứ ngôn ngữ bạn dùng với bất kỳ ai. Tiếng Anh nghề của bạn được đo ở trang riêng.",
+ "area.scope_pro": "Mọi con số bên dưới chỉ tính phần tiếng Anh bạn đã luyện cho nghề — buổi nói chuyện an toàn, giấy phép làm việc, bàn giao ca, và những câu người giám sát thật sự hỏi. Tiếng Anh tổng quát của bạn được đo ở trang riêng.",
+ "area.switch": "Mở bản đánh giá {{area}}"
 }

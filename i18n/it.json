@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} svolti · {{left}} da provare",
  "pro.none_practised_yet": "Nessuno ancora svolto",
  "rp.back_coaches": "‹ Coach per i colloqui",
- "rp.more_coaches": "Altri coach"
+ "rp.more_coaches": "Altri coach",
+ "story.base_pro_one": "{{name}}, hai lavorato sull’<b>inglese di {{trade}}</b> per <b>{{days}} giorno</b> questa settimana e hai pronunciato <b>{{words}} parole</b> ad alta voce.",
+ "story.base_pro_many": "{{name}}, hai lavorato sull’<b>inglese di {{trade}}</b> per <b>{{days}} giorni</b> questa settimana e hai pronunciato <b>{{words}} parole</b> ad alta voce.",
+ "story.empty_pro": "{{name}}, non è ancora stato registrato nulla in <b>inglese di {{trade}}</b>. Pronuncia una risposta di officina e questa pagina inizierà a raccontare la storia della lingua con cui il tuo mestiere viene valutato.",
+ "area.name_gen": "Inglese generale",
+ "area.name_pro": "Inglese della saldatura",
+ "area.eyebrow_gen": "Bilancio di inglese generale",
+ "area.eyebrow_pro": "Bilancio {{trade}}",
+ "area.scope_gen_h": "Questo è il tuo bilancio di inglese generale",
+ "area.scope_pro_h": "Questo è il tuo bilancio di inglese di {{trade}}",
+ "area.scope_gen": "Tutto ciò che segue conta solo l’inglese generale che hai praticato: riunioni, colloqui, telefonate, la lingua che usi con chiunque. Il tuo inglese del mestiere si misura nella sua pagina.",
+ "area.scope_pro": "Tutto ciò che segue conta solo l’inglese che hai praticato per il mestiere: il briefing di sicurezza, il permesso, il passaggio di consegne, le domande che un capoturno fa davvero. Il tuo inglese generale si misura nella sua pagina.",
+ "area.switch": "Apri il tuo bilancio {{area}}"
 }

@@ -1298,5 +1298,17 @@
  "pro.n_practised_n_to_try": "{{done}} geübt · {{left}} offen",
  "pro.none_practised_yet": "Noch keine geübt",
  "rp.back_coaches": "‹ Interview-Coaches",
- "rp.more_coaches": "Weitere Coaches"
+ "rp.more_coaches": "Weitere Coaches",
+ "story.base_pro_one": "{{name}}, du hast diese Woche an <b>{{days}} Tag</b> an <b>{{trade}}-Englisch</b> gearbeitet und <b>{{words}} Wörter</b> laut gesprochen.",
+ "story.base_pro_many": "{{name}}, du hast diese Woche an <b>{{days}} Tagen</b> an <b>{{trade}}-Englisch</b> gearbeitet und <b>{{words}} Wörter</b> laut gesprochen.",
+ "story.empty_pro": "{{name}}, in <b>{{trade}}-Englisch</b> ist noch nichts aufgezeichnet. Sprich eine Werkstatt-Antwort laut aus, und diese Seite beginnt, die Geschichte der Sprache zu erzählen, an der dein Handwerk gemessen wird.",
+ "area.name_gen": "Allgemeines Englisch",
+ "area.name_pro": "Schweiß-Englisch",
+ "area.eyebrow_gen": "Bilanz: allgemeines Englisch",
+ "area.eyebrow_pro": "Bilanz: {{trade}}",
+ "area.scope_gen_h": "Das ist deine Bilanz für allgemeines Englisch",
+ "area.scope_pro_h": "Das ist deine Bilanz für {{trade}}-Englisch",
+ "area.scope_gen": "Alles unten zählt nur das allgemeine Englisch, das du geübt hast — Meetings, Vorstellungsgespräche, Telefonate, die Sprache, die du mit jedem sprichst. Dein Fach-Englisch wird auf einer eigenen Seite gemessen.",
+ "area.scope_pro": "Alles unten zählt nur das Englisch, das du für dein Handwerk geübt hast — die Sicherheitsunterweisung, den Erlaubnisschein, die Übergabe, die Fragen, die ein Vorarbeiter wirklich stellt. Dein allgemeines Englisch wird auf einer eigenen Seite gemessen.",
+ "area.switch": "Bilanz „{{area}}“ öffnen"
 }
