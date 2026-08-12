@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Ini tinjauan bahasa Inggris {{trade}}-mu",
  "area.scope_gen": "Semua di bawah ini hanya menghitung bahasa Inggris umum yang kamu latih — rapat, wawancara, telepon, bahasa yang kamu pakai dengan siapa pun. Bahasa Inggris profesimu diukur di halamannya sendiri.",
  "area.scope_pro": "Semua di bawah ini hanya menghitung bahasa Inggris yang kamu latih untuk profesimu — pengarahan keselamatan, izin kerja, serah terima shift, dan pertanyaan yang benar-benar diajukan penyelia. Bahasa Inggris umummu diukur di halamannya sendiri.",
- "area.switch": "Buka tinjauan {{area}}"
+ "area.switch": "Buka tinjauan {{area}}",
+ "area.counts": "Angka-angka ini hanya menghitung pekerjaan {{area}}-mu — area lain punya catatannya sendiri.",
+ "area.switch_profile": "Buka profil {{area}}-mu"
 }

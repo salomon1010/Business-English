@@ -29,7 +29,9 @@
   }
   function score(s,track,id){
     const cfg=config(track),def=(cfg.competencies||[]).find(x=>x.id===id);
-    if(id==="consistency")return Math.min(100,(s.dates||[]).length*5);
+    /* Days practised IN THIS AREA. Counting the account's days handed a brand
+       new welding learner the consistency score they earned on general English. */
+    if(id==="consistency")return Math.min(100,(global.areaDates?global.areaDates():(s.dates||[])).length*5);
     if(!def)return 0;
     return Math.min(100,Math.round((totals(s,track)[id]||0)/Math.max(1,def.max||100)*100));
   }

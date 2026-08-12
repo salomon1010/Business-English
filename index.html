@@ -61,16 +61,16 @@
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <script src="curriculum-provider.js?v=79"></script>
 <script src="professional-tracks.js?v=79"></script>
-<script src="competency-engine.js?v=79"></script>
-<script src="learning-coach.js?v=79"></script>
+<script src="competency-engine.js?v=83"></script>
+<script src="learning-coach.js?v=83"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=79"></script>
-<script src="adaptive-learning-engine.js?v=79"></script>
+<script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
-<script src="professional-skills-passport.js?v=82"></script>
+<script src="professional-skills-passport.js?v=83"></script>
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
-<script src="answer-evaluator.js?v=82"></script>
+<script src="answer-evaluator.js?v=83"></script>
 <script src="shadow-lines.js?v=81"></script>
 <script>
 window.FB_CONFIG={
@@ -840,6 +840,11 @@ body.sh-work-open{overflow:hidden}
 .area-scope-t .btn-ic{flex:0 0 auto;color:var(--acc2)}
 .area-scope p{margin:6px 0 11px;font-size:12.5px;color:var(--mut);line-height:1.55}
 .area-scope .btn{width:auto}
+/* The compact form on Profile: a caption, not a banner. */
+.area-note{max-width:560px;margin:2px auto 4px;padding:0 18px;text-align:center;
+  font-size:12.5px;line-height:1.55;color:var(--mut)}
+.area-note-go{display:inline;padding:0;border:0;background:none;cursor:pointer;
+  font:inherit;font-weight:700;color:var(--acc2);text-decoration:underline;text-underline-offset:2px}
 .pg-h{margin:20px 0 8px;font-size:15px}
 .pg-note{margin:0 0 8px;font-size:12.5px;color:var(--mut)}
 .pg-work{display:flex;flex-direction:column;gap:6px}
@@ -2911,7 +2916,7 @@ function defState(){
      first screen that ever reads S.vocab. Reading it before Practice had been
      opened threw and took the whole report down with it. load() backfills this
      into any older state. */
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},weeklyA:{},monthlyA:{},troubleA:{},dayLogA:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},weeklyA:{},monthlyA:{},troubleA:{},dayLogA:{},phMasterA:{},phExampleA:{},gramA:{},clipsA:{},quizHistA:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
 function load(){
   const def=defState();
@@ -2959,6 +2964,27 @@ function troubleMap(){return areaBucket("troubleA")}
 function weeklyStore(){return areaBucket("weeklyA")}
 function monthlyStore(){return areaBucket("monthlyA")}
 function areaDayLog(){return areaBucket("dayLogA")}
+/* The rest of the per-area record, by field name. Session progress (days,
+   steps, scores and the session half of notes) is NOT here: dayKey() already
+   prefixes those with the track id, so they were correct before areas existed
+   and re-homing them now would strand every completed session.
+
+   These are the ones that were NOT keyed by track and so bled across:
+     phMaster/phExample — the phrase index is the phrase's identity, and phrase 7
+       on Welding is the trade's wording of phrase 7, not the same sentence;
+     clips  — a clip saved for shop-floor listening is not general-English work;
+     gram   — the drill categories themselves are track-specific;
+     quizHist — the vocabulary it quizzes is already per-area. */
+const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA"};
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA"};
+function aMap(f){return areaBucket(AREA_MAPS[f])}
+function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
+/* Across every area at once. For questions about the ACCOUNT rather than about
+   one programme — "is there enough work here to be worth backing up?" — where
+   counting only the open area would nag someone who has plenty of work, just
+   not on this side. */
+function aCountAll(field){const box=S[field]||{};
+  return Object.values(box).reduce((n,m)=>n+(Array.isArray(m)?m.length:Object.keys(m||{}).length),0)}
 function areaDates(){return Object.keys(areaDayLog()).sort()}
 function areaFbHist(){const a=areaId();return (S.fbHist||[]).filter(x=>x&&areaOf(x)===a)}
 function areaConvos(){const a=areaId();return (S.convos||[]).filter(c=>c&&areaOf(c)===a)}
@@ -3007,6 +3033,18 @@ function areaSplit(){
   S.weeklyA=one(S.weeklyA,S.weekly);
   S.monthlyA=one(S.monthlyA,S.monthly);
   S.dayLogA=one(S.dayLogA,S.dayLog);
+  S.phMasterA=one(S.phMasterA,S.phMaster);
+  S.phExampleA=one(S.phExampleA,S.phExample);
+  S.gramA=one(S.gramA,S.gram);
+  /* Same fold, list-shaped: concatenate rather than merge keys, and keep the
+     order the learner saved them in. */
+  const oneList=(cur,legacy)=>{
+    const b=Object.assign({},cur||{});
+    b[a]=(legacy||[]).concat(b[a]||[]);
+    return b;
+  };
+  S.clipsA=oneList(S.clipsA,S.clips);
+  S.quizHistA=oneList(S.quizHistA,S.quizHist);
   (S.fbHist||[]).forEach(x=>{if(x&&!x.tk)x.tk=a});
   (S.convos||[]).forEach(c=>{if(c&&!c.tk)c.tk=a});
   const V=S.vocab||{};Object.keys(V).forEach(w=>{if(V[w]&&!V[w].tk)V[w].tk=[a]});
@@ -3749,6 +3787,8 @@ const I18N_EN={
  "area.scope_gen":"Everything below counts only the general English you have practised — meetings, interviews, calls, the language you use with anyone. Your trade English is measured on its own page.",
  "area.scope_pro":"Everything below counts only the English you have practised for the trade — the toolbox talk, the permit, the handover, the questions a supervisor actually asks. Your general English is measured on its own page.",
  "area.switch":"Open your {{area}} review",
+ "area.counts":"These counts cover your {{area}} work only — the other area keeps its own record.",
+ "area.switch_profile":"Open your {{area}} profile",
  "gauge.no_data":"Record a speaking-feedback session to measure your pace",
  "gauge.warming":"Warming up — natives average 140–160 wpm; push the pace a little",
  "gauge.perfect":"You're in the natural professional zone — just right! ✅",
@@ -4900,14 +4940,20 @@ function markPracticed(){
     try{pushDone()}catch(e){}   // done for today — call off tonight's push
   }
 }
+/* The streak, the calendar and everything derived from them report the OPEN
+   area. A learner running two programmes has two records of showing up, and a
+   welding page that counted general-English days was answering a question
+   nobody asked. S.dates stays as the account-wide log — it is what the cloud
+   merge and the backup prompt reason about — but no screen reads it directly. */
 function streak(){
-  if(!S.dates.length)return 0;
-  const set=new Set(S.dates);let n=0;const d=new Date();
+  const dates=areaDates();
+  if(!dates.length)return 0;
+  const set=new Set(dates);let n=0;const d=new Date();
   if(!set.has(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);
   while(set.has(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}
   return n;
 }
-function masteredCount(){return Object.keys(S.phMaster).filter(k=>S.phMaster[k]).length}
+function masteredCount(){const M=aMap("phMaster");return Object.keys(M).filter(k=>M[k]).length}
 
 /* ================= ROUTER ================= */
 let cur={v:"home"};
@@ -5417,9 +5463,9 @@ function homeMetrics(pos,recN,activeTrackName){
     {ic:"mic",   n:recN,                                                      suf:"",             lbl:"stat_recordings", next:"next_recordings", go:sess,             zero:recN===0},
     {ic:"chat",  n:masteredCount(),                                           suf:"/"+trackPhrases().length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
     {ic:"book",  n:Object.keys(areaVocab()).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
-    {ic:"target",n:(S.clips||[]).length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:(S.clips||[]).length===0},
+    {ic:"target",n:aList("clips").length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:aList("clips").length===0},
     {ic:"chat",  n:(S.convos||[]).length,                                     suf:"",             lbl:"stat_convos",     next:"next_convos",     go:"go('roleplay')", zero:(S.convos||[]).length===0},
-    {ic:"pencil",n:Object.values(S.gram||{}).reduce((a,g)=>a+((g&&g.runs)||0),0), suf:"",         lbl:"stat_drills",     next:"next_drills",     go:"go('practice')", zero:!Object.keys(S.gram||{}).length},
+    {ic:"pencil",n:Object.values(aMap("gram")).reduce((a,g)=>a+((g&&g.runs)||0),0), suf:"",       lbl:"stat_drills",     next:"next_drills",     go:"go('practice')", zero:!Object.keys(aMap("gram")).length},
     {ic:"mic",   n:pron.latest!=null?pron.latest+"%":"—",                     suf:"",             lbl:"stat_pron",       next:"next_pron",       go:"go('roleplay')", zero:!pron.scored},
   ];
   /* Two different questions, so two different flags. `dim` is about the tile —
@@ -5968,7 +6014,7 @@ ${(()=>{
     const tb=Object.keys(troubleMap()).length;
     if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
-    <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${(S.clips||[]).length}</b></button>
+    <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(troubleMap()).length}</b></button>
   </div>`;
     if(_shTab==='trouble')return `<button class="back sh-back-lines stick-back stick-eb" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
@@ -6422,8 +6468,7 @@ window.shLoopToggle=()=>{
 window.shSaveClip=()=>{
   if(!shClip.vid)return;
   if(!(shClip.end>shClip.start))return toast(t("sh.mark_start_end_first_toast"));
-  S.clips=S.clips||[];
-  S.clips.unshift({vid:shClip.vid,start:Math.floor(shClip.start*10)/10,end:Math.floor(shClip.end*10)/10,
+  aList("clips").unshift({vid:shClip.vid,start:Math.floor(shClip.start*10)/10,end:Math.floor(shClip.end*10)/10,
     title:shClip.title||shClip.vid,ts:Date.now(),txt:document.getElementById("shNote").value||""});
   save();shRenderClips();toast(t("sh.clip_saved_toast"));
 };
@@ -6554,12 +6599,12 @@ async function shPull(auto){
   if(!auto||box.value)toast(t("sh.transcript_pulled_toast"));
 }
 window.shPullTranscript=()=>shPull(false);
-window.shOpen=i=>{const c=(S.clips||[])[i];if(c)shLoad(c)};
+window.shOpen=i=>{const c=aList("clips")[i];if(c)shLoad(c)};
 window.shDel=async(i,ev)=>{
   ev.stopPropagation();
-  const c=(S.clips||[])[i];
+  const c=aList("clips")[i];
   if(!await askConfirm({title:t("cf.clip_title"),body:t("cf.clip_body",{name:(c&&(c.title||c.vid))||""}),confirmLabel:t("cf.delete")}))return;
-  S.clips.splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"));
+  aList("clips").splice(i,1);save();shRenderClips();toast(t("sh.clip_deleted_toast"));
 };
 /* Make the onboarding step fit the screen, whatever the phone.
    The CSS clamps get most of the way, but the result step's height also depends
@@ -6656,7 +6701,7 @@ function backupNudge(){
     if(!S.profile||S.backupAsked)return;
     if(window.FBUser)return;                       // already syncing to an account
     if(S.lastExport)return;                        // already has a backup
-    if(Object.keys(S.days||{}).length<10)return;   // not enough to be worth protecting yet
+    if(Object.keys(S.days||{}).length<10)return;   // account-wide: dayKey already prefixes by track
     S.backupAsked=Date.now();save();
     askConfirm({
       icon:"download",danger:false,
@@ -7182,7 +7227,7 @@ function emptyState(icon,title,body,ctaLabel,ctaOnclick){
 }
 function shRenderClips(){
   const box=document.getElementById("shClips");if(!box)return;
-  const cs=S.clips||[];
+  const cs=aList("clips");
   /* newest first — each clip owns a full row of its own, never packed side by side.
      Map to the real index first so reversing doesn't break open/delete. */
   box.innerHTML=cs.length?cs.map((c,i)=>({c,i})).reverse().map(({c,i})=>`
@@ -7319,7 +7364,7 @@ function gxItems(cat){
   const all=[];Object.keys(trackGrammarExercises()).forEach(k=>trackGrammarExercises()[k].forEach(it=>all.push(it)));
   return all.sort(()=>Math.random()-.5).slice(0,10);
 }
-function gxStats(cat){const g=(S.gram&&S.gram[cat])||null;return g?{best:g.best||0,runs:g.runs||0}:{best:0,runs:0}}
+function gxStats(cat){const g=aMap("gram")[cat]||null;return g?{best:g.best||0,runs:g.runs||0}:{best:0,runs:0}}
 let _gx=null;
 window.gxStart=cat=>{
   const items=gxItems(cat).sort(()=>Math.random()-.5).slice(0,8);
@@ -7353,7 +7398,7 @@ window.gxPick=choice=>{
 };
 function gxEnd(){
   const total=_gx.items.length,score=_gx.score,pct=Math.round(100*score/total);
-  S.gram=S.gram||{};const g=S.gram[_gx.cat]=S.gram[_gx.cat]||{best:0,runs:0};
+  const G=aMap("gram");const g=G[_gx.cat]=G[_gx.cat]||{best:0,runs:0};
   g.runs=(g.runs||0)+1;if(pct>(g.best||0))g.best=pct;
   /* Keep the run history, not just the best: without a series there is nothing
      to trend, and history cannot be reconstructed after the fact. Additive —
@@ -7556,10 +7601,10 @@ const FB_TOP_FIXES=3;
    Returns [{score, ts}] oldest-first. */
 function perfSeries(kind,key){
   try{
-    if(kind==="speaking")  return (S.fbHist||[]).filter(x=>typeof x.score==="number").map(x=>({score:x.score,ts:x.ts}));
+    if(kind==="speaking")  return areaFbHist().filter(x=>typeof x.score==="number").map(x=>({score:x.score,ts:x.ts}));
     if(kind==="clip")      return ((S.fbV||{})[key]||[]).map(v=>({score:v}));
-    if(kind==="grammar")   return (((S.gram||{})[key]||{}).hist||[]).map(x=>({score:x.p,ts:x.t}));
-    if(kind==="vocabquiz") return ((S.quizHist||[])).map(x=>({score:x.p,ts:x.t}));
+    if(kind==="grammar")   return ((aMap("gram")[key]||{}).hist||[]).map(x=>({score:x.p,ts:x.t}));
+    if(kind==="vocabquiz") return aList("quizHist").map(x=>({score:x.p,ts:x.t}));
   }catch(e){}
   return [];
 }
@@ -7608,7 +7653,7 @@ function perfOverviewHTML(){
 }
 /* the grammar category with the most runs — the one the user actually drills */
 function perfBestGramCat(){
-  const g=S.gram||{};let best=null,n=-1;
+  const g=aMap("gram");let best=null,n=-1;
   for(const k of Object.keys(g)){const l=((g[k]||{}).hist||[]).length;if(l>n){n=l;best=k}}
   return best;
 }
@@ -9275,7 +9320,8 @@ function rLibExercises(el){
 }
 /* ---- Library › Saved expressions (phrases the user recorded or mastered) ---- */
 function rLibSaved(el){
-  const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]||S.phExample["p"+p.ix]);
+  const PM=aMap("phMaster"),PX=aMap("phExample");
+  const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>PM["p"+p.ix]||PX["p"+p.ix]);
   el.innerHTML=`
   <p class="sub" style="margin:16px 0 14px">${t("lib.saved_sub")}</p>
   ${items.length?items.map(p=>`
@@ -9284,9 +9330,9 @@ function rLibSaved(el){
         <span style="flex:1;min-width:0">
           <b style="font-size:14.5px;display:block">“${esc(p.p)}”</b>
           <small style="font-size:12.5px;color:var(--mut)">${esc(p.u)}</small>
-          ${S.phExample["p"+p.ix]?`<p class="gr-why" style="margin-top:8px">${esc(S.phExample["p"+p.ix])}</p>`:""}
+          ${PX["p"+p.ix]?`<p class="gr-why" style="margin-top:8px">${esc(PX["p"+p.ix])}</p>`:""}
         </span>
-        ${S.phMaster["p"+p.ix]?`<span class="chip done" style="flex:none">${t("lib.mastered_chip")}</span>`:""}
+        ${PM["p"+p.ix]?`<span class="chip done" style="flex:none">${t("lib.mastered_chip")}</span>`:""}
       </div>
     </div>`).join("")
   :emptyState("bookmark",t("lib.empty_saved_title"),t("lib.empty_saved_body"),t("lib.go_phrases"),"go('phrases')")}`;
@@ -9376,7 +9422,7 @@ function qzEnd(){
   /* the run score used to be shown once and discarded — store it so the trend
      has something to plot next time */
   const pct=Math.round(100*_qz.score/Math.max(1,_qz.words.length));
-  S.quizHist=perfPush(S.quizHist||[],{t:Date.now(),p:pct},30);save();
+  perfPush(aList("quizHist"),{t:Date.now(),p:pct},30);save();
   pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.qz_summary",{score:_qz.score,total:_qz.words.length})}</p>${perfPanel(perfSeries("vocabquiz"))}<div class="pv-actions"><button class="btn btn-g" onclick="qzStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Crosswords (greedy generator) ---- */
 let _cw=null;
@@ -9896,7 +9942,7 @@ function rPhrases(el,wFilter){
   <div id="phList"></div>`;
   const list=el.querySelector("#phList");
   let items;
-  if(w==="all"){items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>S.phMaster["p"+p.ix]);
+  if(w==="all"){items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>aMap("phMaster")["p"+p.ix]);
     if(!items.length){list.innerHTML=`<p class="sub">${t("ph.nothing_mastered")}</p>`;return}}
   else{items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.w===w)}
   /* split the list by kind: professional phrases vs business idioms */
@@ -9910,12 +9956,12 @@ function rPhrases(el,wFilter){
     manIconizeInline(el);segSync(el);return;
   }
   list.innerHTML+=items.map(p=>{
-    const k="p"+p.ix,m=S.phMaster[k];
+    const k="p"+p.ix,m=aMap("phMaster")[k];
     return `<div class="ph-card ${m?'mastered':''}" id="ph${p.ix}">
       ${p.i?`<div class="idiom-tag">${tIc("ph.idiom_tag","briefcase")}</div>`:''}
       <div class="phrase">“${esc(p.p)}”</div>
       <div class="use">${esc(p.u)}</div>
-      <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("pencil")}</span><textarea rows="1" id="phex${p.ix}" class="grow-ta ex-ta" placeholder="${esc(t("ph.example_ph").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}" oninput="taGrow(this)" onchange="phEx('${k}',this.value)">${esc(S.phExample[k]||"")}</textarea></div>
+      <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("pencil")}</span><textarea rows="1" id="phex${p.ix}" class="grow-ta ex-ta" placeholder="${esc(t("ph.example_ph").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}" oninput="taGrow(this)" onchange="phEx('${k}',this.value)">${esc(aMap("phExample")[k]||"")}</textarea></div>
       <div class="ph-actions">
         <button class="btn btn-g btn-sm ph-icobtn" onclick="phHear(${p.ix})" title="${esc(t("ph.hear_btn"))}" aria-label="${esc(t("ph.hear_btn"))}">${ic("sound")}</button>
         <button class="btn btn-g btn-sm ph-icobtn" id="phrec${p.ix}" onclick="phRec(${p.ix})" title="${esc(t("ph.record_btn"))}" aria-label="${esc(t("ph.record_btn"))}">${ic("mic")}</button>
@@ -9939,12 +9985,14 @@ let _phItems=[],_phWeek=1;
 function phSpKey(){return "sp"+_phWeek+"-"+_phKind}
 function phSpCtx(){return recCtx("speech-"+phSpKey())}
 function phSpeechText(){
-  return _phItems.map(p=>String(S.phExample["p"+p.ix]||"").replace(/\s+/g," ").trim())
+  const PX=aMap("phExample");
+  return _phItems.map(p=>String(PX["p"+p.ix]||"").replace(/\s+/g," ").trim())
                  .filter(Boolean).join(" ");
 }
 function phSpeechCard(){
-  const k=phSpKey(),m=S.phMaster[k],txt=phSpeechText();
-  const done=_phItems.filter(p=>String(S.phExample["p"+p.ix]||"").trim()).length;
+  const PX=aMap("phExample");
+  const k=phSpKey(),m=aMap("phMaster")[k],txt=phSpeechText();
+  const done=_phItems.filter(p=>String(PX["p"+p.ix]||"").trim()).length;
   return `<div class="ph-speech ${m?'mastered':''}" id="phSpeech">
     <div class="ph-sp-top"><b>${hIcon("waveform",t("ph.speech_h"))}</b>
       <span class="ph-sp-count" id="phSpCount">${t("ph.speech_count",{n:done,total:_phItems.length})}</span></div>
@@ -9967,7 +10015,7 @@ function phSpeechSync(){
   const ta=document.getElementById("phSpTa"); if(!ta)return;
   ta.value=phSpeechText(); taGrow(ta);
   const c=document.getElementById("phSpCount");
-  if(c)c.textContent=t("ph.speech_count",{n:_phItems.filter(p=>String(S.phExample["p"+p.ix]||"").trim()).length,total:_phItems.length});
+  if(c)c.textContent=t("ph.speech_count",{n:(()=>{const X=aMap("phExample");return _phItems.filter(p=>String(X["p"+p.ix]||"").trim()).length})(),total:_phItems.length});
 }
 window.phSpHear=()=>{
   const txt=phSpeechText();
@@ -9990,7 +10038,7 @@ window.phDelSpRec=async id=>{
   if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
   await delRec(id);renderSpeechRecs();toast(t("recs.deleted_toast"));
 };
-window.phEx=(k,v)=>{S.phExample[k]=v;save();phSpeechSync();toast(t("ph.example_saved_toast"))};
+window.phEx=(k,v)=>{aMap("phExample")[k]=v;save();phSpeechSync();toast(t("ph.example_saved_toast"))};
 /* Hear your own sentence read back in a natural voice, so you know what you
    are aiming at before you record it. Nothing typed yet → hear the phrase. */
 window.phHear=ix=>{
@@ -10003,13 +10051,14 @@ window.phHear=ix=>{
    offline. Unmarking is always allowed: a learner who no longer feels sure about
    a phrase should not have to argue with the app. */
 window.phMaster=async k=>{
-  if(!S.phMaster[k]){
+  const PM=aMap("phMaster");
+  if(!PM[k]){
     const ix=String(k).replace(/^p/,"");
     let takes=[];try{takes=await getRecs(phRecCtx(ix))}catch(e){}
     if(!takes.length){toast(t("ph.master_needs_rec"));return}
   }
-  S.phMaster[k]=!S.phMaster[k];
-  if(S.phMaster[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});
+  PM[k]=!PM[k];
+  if(PM[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});
   save();go("phrases",cur.arg1);
 };
 /* Tap to record, tap again to stop. Shared by the phrase cards and the
@@ -10236,17 +10285,31 @@ function areaScopeHTML(){
       <span class="btn-ic">${ic("repeat")}</span>${esc(t("area.switch",{area:otherName}))}</button>
   </div>`;
 }
+/* The compact form, for Profile: one sentence naming the area these counts
+   belong to, and the way across. Same strings and the same switch as the
+   review banner, so there is one idea here, not two. */
+function areaNoteHTML(){
+  const pro=areaIsPro();
+  const other=pro?"general-english":"welding";
+  const otherName=pro?t("area.name_gen"):t("area.name_pro");
+  return `<p class="area-note">${esc(t("area.counts",{area:areaLabel()}))}
+    <button class="area-note-go" onclick="areaGoProfile('${other}')">${esc(t("area.switch_profile",{area:otherName}))}</button></p>`;
+}
+/* Land on the other area's PROFILE, for the same reason the review's button
+   lands on the review: you are comparing the same page across two programmes. */
+window.areaGoProfile=id=>{areaSwitch(id,"profile")};
 /* Land on the other area's review, not its home screen — the point of the
    button is to compare two reviews. */
-window.areaGoReview=id=>{
+function areaSwitch(id,view){
   if(!ProfessionalTrackContext.get(id))return;
   S.professionalTracks=S.professionalTracks||{};
   S.professionalTracks.activeId=id;
   ProfessionalTrackContext.setActive(id);
   applyTrackIdentity();
   _jPhase=null;save();
-  go("review");
-};
+  go(view);
+}
+window.areaGoReview=id=>{areaSwitch(id,"review")};
 /* Which half of the week review is on screen. The two panels used to sit side by
    side in a g2 grid, which on a phone meant scrolling past all five sliders to
    reach the written review — so they're a tab pair now. */
@@ -10361,7 +10424,7 @@ window.acVoicePreview=()=>{
 let calCur=null;
 function calLevel(c){return c<=0?0:c>=6?4:c>=4?3:c>=2?2:1}
 function bestStreak(){
-  const arr=[...new Set(S.dates||[])].sort();if(!arr.length)return 0;
+  const arr=[...new Set(areaDates())].sort();if(!arr.length)return 0;
   let best=1,cur=1;
   for(let i=1;i<arr.length;i++){
     const diff=Math.round((new Date(arr[i])-new Date(arr[i-1]))/86400000);
@@ -10369,7 +10432,8 @@ function bestStreak(){
   }
   return best;
 }
-function calActiveSet(){return new Set(S.dates||[])}
+function calActiveSet(){return new Set(areaDates())}
+function calLog(){return areaDayLog()}
 /* days practised in the current (Monday-based) week, out of the 6/week goal */
 function calWeekProgress(){
   const now=new Date(),today=now.toISOString().slice(0,10);
@@ -10382,7 +10446,10 @@ function calWeekProgress(){
 /* active days ÷ days since program start, as a % */
 function calConsistency(){
   const set=calActiveSet();if(!set.size)return 0;
-  const start=new Date((S.startDate||[...set].sort()[0])+"T00:00:00");
+  /* Measured from the first day of work IN THIS AREA when there is one: a
+     learner who spent eight weeks on general English and started welding on
+     Monday is not 3% consistent at welding. */
+  const start=new Date(([...set].sort()[0]||S.startDate)+"T00:00:00");
   const today=new Date();today.setHours(0,0,0,0);
   const totalDays=Math.max(1,Math.round((today-start)/864e5)+1);
   return Math.min(100,Math.round(set.size/totalDays*100));
@@ -10402,7 +10469,7 @@ function calBestDow(){
 function calLocale(){return (S.profile&&S.profile.lang)||undefined}
 function calMonthsAbbr(){return Array.from({length:12},(_,i)=>new Date(2020,i,1).toLocaleDateString(calLocale(),{month:"short"}))}
 function calYearHeat(){
-  const set=calActiveSet(),log=S.dayLog||{},MO=calMonthsAbbr();
+  const set=calActiveSet(),log=calLog(),MO=calMonthsAbbr();
   const today=new Date();today.setHours(0,0,0,0);
   const start=new Date(today);start.setDate(start.getDate()-363);
   start.setDate(start.getDate()-((start.getDay()+6)%7));   // align to Monday
@@ -10423,8 +10490,8 @@ function calYearHeat(){
 }
 /* rich breakdown for one day, shown in the inline detail panel */
 function calDayDetailHTML(ds){
-  const done=calActiveSet().has(ds),n=(S.dayLog||{})[ds]||0;
-  const fb=(S.fbHist||[]).filter(x=>x.ts&&new Date(x.ts).toISOString().slice(0,10)===ds);
+  const done=calActiveSet().has(ds),n=calLog()[ds]||0;
+  const fb=areaFbHist().filter(x=>x.ts&&new Date(x.ts).toISOString().slice(0,10)===ds);
   const words=fb.reduce((a,x)=>a+(x.words||0),0);
   const sc=fb.filter(x=>x.score!=null).map(x=>x.score);
   const best=sc.length?Math.max(...sc):null;
@@ -10447,7 +10514,7 @@ function calHTML(){
   const startDow=(new Date(year,month,1).getDay()+6)%7;   // Monday-first
   const dim=new Date(year,month+1,0).getDate();
   const now=new Date(),todayStr=now.toISOString().slice(0,10);
-  const set=new Set(S.dates||[]),log=S.dayLog||{};
+  const set=calActiveSet(),log=calLog();
   const dow=calDowInitials();
   let cells="",monthCount=0;
   for(let i=0;i<startDow;i++)cells+=`<div class="pcal-day blank"></div>`;
@@ -10516,8 +10583,13 @@ function rProfile(el){
   <div class="pf-stats stats-center">
     <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}</div><div class="l">${t("home.stat_sessions")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${(S.clips||[]).length}</div><div class="l">${t("home.stat_clips")}</div></div>
+    <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${aList("clips").length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  ${/* Everything from here down is a record of what this learner DID, so it is
+        scoped to the programme they are in. One line saying so, rather than the
+        full banner the review carries — Profile is already a long page, and the
+        header chip and the theme have said which area this is twice already. */""}
+  ${areaNoteHTML()}
   ${/* Where the learner is trying to GO belongs above the record of where they
         have been. These three were scattered down the page behind the Passport,
         the roadmap, two calendars and a wall of bars — the routes out of Profile
@@ -12653,6 +12725,22 @@ function fbMerge(local,cloud){
   m.dayLogA=byArea(fbMax)(local.dayLogA,cloud.dayLogA);
   m.weeklyA=byArea((l,c)=>Object.assign({},c,l))(local.weeklyA,cloud.weeklyA);
   m.monthlyA=byArea((l,c)=>Object.assign({},c,l))(local.monthlyA,cloud.monthlyA);
+  m.phMasterA=byArea(fbUnionTrue)(local.phMasterA,cloud.phMasterA);
+  m.phExampleA=byArea((l,c)=>Object.assign({},c,l))(local.phExampleA,cloud.phExampleA);
+  /* Same rule the undivided S.gram used: keep the best score and the higher run
+     count, per category, per area. */
+  m.gramA=byArea((l,c)=>{const o={};[c||{},l||{}].forEach(src=>Object.keys(src).forEach(k=>{
+    const x=o[k]||{best:0,runs:0},y=src[k]||{};
+    o[k]=Object.assign({},y,{best:Math.max(x.best||0,+y.best||0),runs:Math.max(x.runs||0,+y.runs||0)});
+  }));return o})(local.gramA,cloud.gramA);
+  /* Lists: union on a natural identity, since both devices append. */
+  const byAreaList=(key)=>(l,c)=>{const o={},L=l||{},C=c||{};
+    new Set(Object.keys(L).concat(Object.keys(C))).forEach(a=>{
+      const seen={};o[a]=[].concat(C[a]||[],L[a]||[]).filter(x=>{
+        const k=key(x);if(!k||seen[k])return false;seen[k]=1;return true});
+    });return o};
+  m.clipsA=byAreaList(c=>c&&(c.vid+"_"+c.start))(local.clipsA,cloud.clipsA);
+  m.quizHistA=byAreaList(q=>q&&q.t)(local.quizHistA,cloud.quizHistA);
   /* Both sides must have split before the merged copy counts as split. If either
      device still holds untagged records, the next boot re-runs areaSplit() to
      stamp them — and because the fold above is additive, re-running it cannot

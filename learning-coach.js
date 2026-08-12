@@ -33,7 +33,7 @@
     return fields.slice().sort((a,b)=>global.CompetencyEngine.score(s,t,a.id)-global.CompetencyEngine.score(s,t,b.id))[0].id;
   }
   function grammarSignal(s){
-    const runs=Object.values(s.gram||{}).reduce((n,x)=>n+Number((x&&x.runs)||0),0);
+    const runs=Object.values(global.aMap?global.aMap("gram"):(s.gram||{})).reduce((n,x)=>n+Number((x&&x.runs)||0),0);
     return runs?"Grammar practice is in motion—keep applying the correction notes you receive.":"No grammar signal yet—notice one sentence pattern in your next practice.";
   }
   function mission(s,t){

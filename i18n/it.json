@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Questo è il tuo bilancio di inglese di {{trade}}",
  "area.scope_gen": "Tutto ciò che segue conta solo l’inglese generale che hai praticato: riunioni, colloqui, telefonate, la lingua che usi con chiunque. Il tuo inglese del mestiere si misura nella sua pagina.",
  "area.scope_pro": "Tutto ciò che segue conta solo l’inglese che hai praticato per il mestiere: il briefing di sicurezza, il permesso, il passaggio di consegne, le domande che un capoturno fa davvero. Il tuo inglese generale si misura nella sua pagina.",
- "area.switch": "Apri il tuo bilancio {{area}}"
+ "area.switch": "Apri il tuo bilancio {{area}}",
+ "area.counts": "Questi conteggi riguardano solo il tuo lavoro di {{area}}: l’altra area tiene il proprio registro.",
+ "area.switch_profile": "Apri il tuo profilo {{area}}"
 }

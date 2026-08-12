@@ -28,8 +28,15 @@
   function logs(s,t){return global.CompetencyEngine.state(s).logs.filter(x=>x.track===t.id)}
   function label(id,t){const c=(cfg(t).competencies||[]).find(x=>x.id===id);return (c&&c.label)||id}
   function dateKey(d){return new Date(d).toISOString().slice(0,10)}
-  function retention(s){const all=Object.values(s.vocab||{}),due=all.filter(x=>!x.due||x.due<=Date.now()).length,learned=all.filter(x=>(x.reps||0)>=5).length;return {total:all.length,due,learned,percent:all.length?Math.round(learned/all.length*100):0}}
-  function pronunciation(s){const hist=(s.fbHist||[]).filter(x=>x.score!=null);return hist.length?Math.round(hist.slice(-5).reduce((n,x)=>n+x.score,0)/Math.min(5,hist.length)):null}
+  /* Scoped to the open area for the same reason the reviews are: the vocabulary
+     a welder is retaining is the trade's, and averaging it with business English
+     answers neither question. Falls back to the whole record if the app has not
+     defined the areas yet (older shell, cached engine). */
+  function areaId(){return (global.areaId&&global.areaId())||null}
+  function areaVocab(s){return global.areaVocab?global.areaVocab():(s.vocab||{})}
+  function areaFb(s){return global.areaFbHist?global.areaFbHist():(s.fbHist||[])}
+  function retention(s){const all=Object.values(areaVocab(s)),due=all.filter(x=>!x.due||x.due<=Date.now()).length,learned=all.filter(x=>(x.reps||0)>=5).length;return {total:all.length,due,learned,percent:all.length?Math.round(learned/all.length*100):0}}
+  function pronunciation(s){const hist=areaFb(s).filter(x=>x.score!=null);return hist.length?Math.round(hist.slice(-5).reduce((n,x)=>n+x.score,0)/Math.min(5,hist.length)):null}
   function skills(s,t){return (cfg(t).competencies||[]).map(c=>({id:c.id,label:c.label,score:global.CompetencyEngine.score(s,t,c.id)})).sort((a,b)=>a.score-b.score)}
   /* Null readiness means nobody has looked yet, which is not the same as being
      at the bottom of the ladder. It gets its own state rather than defaulting to
@@ -68,7 +75,7 @@
      activities they have opened. See AnswerEvaluator.readiness for why. */
   function prediction(s,t){
     const ev=global.AnswerEvaluator
-      ?global.AnswerEvaluator.readiness(s,(global.trackSimulations&&global.trackSimulations())||[])
+      ?global.AnswerEvaluator.readiness(s,(global.trackSimulations&&global.trackSimulations())||[],areaId())
       :{pct:null,interview:null,hasEvidence:false};
     return {career:ev.pct,interview:ev.interview,evidence:ev,estimate:""};
   }

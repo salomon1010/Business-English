@@ -82,8 +82,26 @@ not JS, and `new Function` chokes on it. Check it separately with
   take the area as an optional 2nd/3rd argument; omitting it counts everything.
   `areaSplit()` is the one-time migration — it stamps legacy records with whatever
   area was open at the time (nothing can know better) and is additive, so it is safe
-  after a cloud merge. Deliberately shared and NOT split: the streak, the Profile
-  calendar, the phrase bank, saved shadow clips.
+  after a cloud merge. Also per-area, via `aMap(f)` / `aList(f)`: `phMaster`,
+  `phExample`, `gram` (maps) and `clips`, `quizHist` (lists) — use those, never
+  `S.phMaster` etc. **`days` / `steps` / `scores` and session `notes` are already
+  correct without any of this**, because `dayKey()` prefixes the track id (same
+  trick as `recCtx()` for recordings) — do NOT re-home them. `streak()`,
+  `bestStreak()`, `calActiveSet()` / `calLog()` and everything the Progress
+  Calendar draws report the OPEN area; `S.dates` / `S.dayLog` survive as the
+  account-wide log that the cloud merge and the backup prompt reason about, and
+  no screen reads them directly. `aCountAll(field)` is the account-wide count for
+  those account-level questions. `CompetencyEngine.totals/score` and
+  `AdaptiveLearningEngine.logs/heatmap/weekly` were already track-filtered; the
+  fixed leaks were `score(…,"consistency")`, `retention()`, `pronunciation()` and
+  `LearningCoach` grammar runs.
+  **Deliberately shared and NOT split** — changing these is a regression: App
+  Setup and every setting under it (reminder, theme, language, voice, account /
+  sign-in, data, GitHub sync), Help & guide / manual, About, the profile identity
+  (name, role, goal, avatar), and share / invite / rate.
+  UI: `areaScopeHTML()` is the review's banner, `areaNoteHTML()` the compact
+  Profile caption; both switch via `areaSwitch(id, view)` and land on the same
+  page in the other area.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

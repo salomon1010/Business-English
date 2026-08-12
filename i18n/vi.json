@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Đây là bản đánh giá tiếng Anh {{trade}} của bạn",
  "area.scope_gen": "Mọi con số bên dưới chỉ tính phần tiếng Anh tổng quát bạn đã luyện — họp hành, phỏng vấn, gọi điện, thứ ngôn ngữ bạn dùng với bất kỳ ai. Tiếng Anh nghề của bạn được đo ở trang riêng.",
  "area.scope_pro": "Mọi con số bên dưới chỉ tính phần tiếng Anh bạn đã luyện cho nghề — buổi nói chuyện an toàn, giấy phép làm việc, bàn giao ca, và những câu người giám sát thật sự hỏi. Tiếng Anh tổng quát của bạn được đo ở trang riêng.",
- "area.switch": "Mở bản đánh giá {{area}}"
+ "area.switch": "Mở bản đánh giá {{area}}",
+ "area.counts": "Những con số này chỉ tính phần bạn đã làm ở {{area}} — lĩnh vực còn lại có hồ sơ riêng.",
+ "area.switch_profile": "Mở hồ sơ {{area}} của bạn"
 }

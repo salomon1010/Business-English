@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Voici votre bilan d’anglais {{trade}}",
  "area.scope_gen": "Tout ce qui suit ne compte que l’anglais général que vous avez travaillé : réunions, entretiens, appels, la langue que vous utilisez avec tout le monde. Votre anglais de métier est mesuré sur sa propre page.",
  "area.scope_pro": "Tout ce qui suit ne compte que l’anglais que vous avez travaillé pour le métier : le briefing sécurité, le permis, la passation, les questions qu’un chef d’équipe pose vraiment. Votre anglais général est mesuré sur sa propre page.",
- "area.switch": "Ouvrir votre bilan {{area}}"
+ "area.switch": "Ouvrir votre bilan {{area}}",
+ "area.counts": "Ces chiffres ne couvrent que votre travail en {{area}} — l’autre domaine tient son propre relevé.",
+ "area.switch_profile": "Ouvrir votre profil {{area}}"
 }

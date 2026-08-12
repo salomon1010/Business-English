@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Este es tu balance de inglés de {{trade}}",
  "area.scope_gen": "Todo lo que aparece abajo cuenta solo el inglés general que has practicado: reuniones, entrevistas, llamadas, el idioma que usas con cualquiera. Tu inglés del oficio se mide en su propia página.",
  "area.scope_pro": "Todo lo que aparece abajo cuenta solo el inglés que has practicado para el oficio: la charla de seguridad, el permiso, el relevo, las preguntas que un supervisor hace de verdad. Tu inglés general se mide en su propia página.",
- "area.switch": "Abrir tu balance de {{area}}"
+ "area.switch": "Abrir tu balance de {{area}}",
+ "area.counts": "Estos recuentos cubren solo tu trabajo de {{area}}: la otra área lleva su propio registro.",
+ "area.switch_profile": "Abrir tu perfil de {{area}}"
 }

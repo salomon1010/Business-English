@@ -1310,5 +1310,7 @@
  "area.scope_pro_h": "Das ist deine Bilanz für {{trade}}-Englisch",
  "area.scope_gen": "Alles unten zählt nur das allgemeine Englisch, das du geübt hast — Meetings, Vorstellungsgespräche, Telefonate, die Sprache, die du mit jedem sprichst. Dein Fach-Englisch wird auf einer eigenen Seite gemessen.",
  "area.scope_pro": "Alles unten zählt nur das Englisch, das du für dein Handwerk geübt hast — die Sicherheitsunterweisung, den Erlaubnisschein, die Übergabe, die Fragen, die ein Vorarbeiter wirklich stellt. Dein allgemeines Englisch wird auf einer eigenen Seite gemessen.",
- "area.switch": "Bilanz „{{area}}“ öffnen"
+ "area.switch": "Bilanz „{{area}}“ öffnen",
+ "area.counts": "Diese Zahlen zählen nur deine Arbeit in {{area}} — der andere Bereich führt seinen eigenen Nachweis.",
+ "area.switch_profile": "Dein Profil „{{area}}“ öffnen"
 }
