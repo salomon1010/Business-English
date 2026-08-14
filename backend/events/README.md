@@ -55,6 +55,18 @@ Column mapping, fixed by the Worker — `blob1` … `blob8` in this order:
 | `blob6` | `source` |
 | `blob7` | `lang` |
 | `blob8` | `result` |
+| `blob9` | `module` |
+| `blob10` | `trade` |
+| `blob11` | `band` |
+| `blob12` | `installed` |
+| `blob13` | `onboarded` |
+| `blob14` | `stage` |
+| `blob15` | `kind` |
+
+The order is `PROP_KEYS` insertion order — a `Set`, iterated in the order the
+keys were written — so **append new keys, never insert**. Putting one in the
+middle silently shifts every column after it, and old rows keep the old layout,
+so every historical query goes quietly wrong.
 
 **Which events fire at all, last 7 days**
 
@@ -86,6 +98,39 @@ FROM be_events WHERE blob1 = 'session_complete'
   AND timestamp > now() - INTERVAL '90' DAY
 GROUP BY week ORDER BY week
 ```
+
+**Installed app vs the open web** — the closest this dataset gets to "how many
+people use it, and how". `installed` is set from `display-mode: standalone`, so
+`yes` means the Android app from Play **or** a PWA someone added to their home
+screen, and `no` means a browser tab. It cannot separate Play from an iOS PWA;
+only Play Console can do that.
+
+```sql
+SELECT blob12 AS installed, sum(_sample_interval) AS opens
+FROM be_events WHERE blob1 = 'app_open'
+  AND timestamp > now() - INTERVAL '30' DAY
+GROUP BY installed
+```
+
+**How far along the people opening it are** — `stage` is bucketed session count,
+so this is the shape of your active base: mostly `0` means people arrive and do
+not start, a healthy tail in `7-27` and beyond means the programme is holding.
+
+```sql
+SELECT blob14 AS stage, sum(_sample_interval) AS opens
+FROM be_events WHERE blob1 = 'app_open'
+  AND timestamp > now() - INTERVAL '30' DAY
+GROUP BY stage ORDER BY stage
+```
+
+> **These are opens, not people.** There is no device ID anywhere in this
+> dataset, by design, so one person opening the app 40 times and 40 people
+> opening it once are indistinguishable here. For a real head-count use Play
+> Console (installs, active devices) and the Firestore `users/{uid}` collection
+> (one document per signed-in account — a floor, since sign-in is optional).
+> **Never add the web number to the Play number.** The Android app is a TWA: it
+> loads app.lomonec.com in a Chrome container, so every Play user also appears
+> in Cloudflare's page views. Adding them double-counts.
 
 **Which markets to translate for next**
 
