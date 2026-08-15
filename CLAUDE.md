@@ -324,11 +324,25 @@ Fixes / infra
   image licensing are common. Nothing can reconstruct this from the repo; it needs
   the owner's browser history. Also the reason the Play **AI asset declaration**
   can't be answered from the code alone.
-- **Analytics: page views live, events written but Worker not deployed yet.**
-  The Cloudflare beacon is collecting traffic and referrers. The 11 `track()`
-  calls now post to `backend/events/` — **deploy it (`npx wrangler deploy`) or
-  every event is quietly lost**, since sendBeacon reports no errors. Once up,
-  the funnel and the where-people-stop query are in that folder's README.
+- **Analytics: LIVE end to end since 2026-08-14.** The Cloudflare beacon collects
+  page views and referrers; `be-events` is deployed and its writes are confirmed
+  landing in the `be_events` Analytics Engine dataset (verified by querying them
+  back, not by trusting the 204 — the Worker swallows write errors on purpose).
+  Analytics Engine had to be enabled on the account by hand first; `wrangler
+  deploy` fails with `code: 10089` until it is. Read the numbers with
+  **`./backend/events/query.sh`** (`events` / `people` / `funnel` / `weeks` /
+  `stage` / `countries` / `raw`), which needs a token carrying Account
+  Analytics: Read — the wrangler OAuth login does NOT have that scope.
+  All 13 `track()` names and every prop key are verified against the Worker's
+  allow-list. Adding an event still means the Worker first, then index.html.
+  **The dataset cannot backfill** — nothing before 2026-08-14 exists anywhere.
+- **"How many users?" has no answer in this repo.** Events are counts, not
+  people (no device ID, by design). `app_open` carries `installed`
+  (display-mode standalone) which splits the installed app from the open web,
+  but cannot tell Play from an iOS PWA. **Never add the web and Play numbers** —
+  the TWA loads app.lomonec.com, so every Play user is already in the page
+  views. Real head-counts: Play Console (installs, active devices) and the
+  Firestore `users/{uid}` count (a floor — sign-in is optional).
 - **No email capture and no testimonials** anywhere. Both need things the repo
   can't supply on its own (a list backend / real users willing to be quoted).
 - **No iOS App Store presence** — iPhone users get the PWA install flow only.
