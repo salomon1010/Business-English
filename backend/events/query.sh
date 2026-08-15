@@ -3,6 +3,7 @@
 # BE Mastery — read the product-event numbers.
 #
 #   ./query.sh                 list the questions it can answer
+#   ./query.sh login           save the token once, so it stops asking
 #   ./query.sh events          which events fired, last 7 days
 #   ./query.sh people          installed app vs open web, last 30 days
 #   ./query.sh funnel          arrive -> finish onboarding -> practise
@@ -15,24 +16,48 @@
 # Make one at: dash.cloudflare.com -> My Profile -> API Tokens -> Create Token
 #              -> Custom token -> Account -> Account Analytics -> Read
 #
-# The token is a credential. This script reads it from $CF_TOKEN if it is set,
-# and otherwise asks for it without echoing it to the screen. It never writes it
-# to disk and it must never be committed — that is why there is no token file
-# here and no default value below.
+# WHERE THE TOKEN IS KEPT, AND WHY NOT HERE
+# -----------------------------------------
+# `./query.sh login` writes it to ~/.config/be-mastery/events.env, chmod 600 —
+# OUTSIDE this repository, deliberately. Everything committed here is served
+# publicly from app.lomonec.com (this very file is downloadable), so a token in
+# a repo-local .env is one careless `git add -A` away from being published to
+# the open web and fetchable over HTTP. Outside the repo it cannot be committed
+# by any mistake, so the safe thing needs no discipline to stay safe.
+# Order of preference: $CF_TOKEN, then that file, then ask.
 # ============================================================================
 set -euo pipefail
 
 ACCOUNT="${CF_ACCOUNT:-8d3cd584749c92c7076d30688dde2a1d}"
 DATASET="be_events"
+TOKEN_FILE="${CF_TOKEN_FILE:-$HOME/.config/be-mastery/events.env}"
 
-usage(){ sed -n '3,12p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage(){ sed -n '3,13p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+
+ask_token(){ printf 'Cloudflare API token (input hidden): ' >&2; read -rs REPLY_TOK < /dev/tty; echo >&2; }
 
 WHAT="${1:-}"
 [ -z "$WHAT" ] && usage 0
 
+if [ "$WHAT" = "login" ]; then
+  ask_token
+  [ -z "$REPLY_TOK" ] && { echo "Nothing entered — not saved." >&2; exit 1; }
+  mkdir -p "$(dirname "$TOKEN_FILE")"
+  ( umask 077; printf 'CF_TOKEN=%s\n' "$REPLY_TOK" > "$TOKEN_FILE" )
+  chmod 600 "$TOKEN_FILE"
+  echo "Saved to $TOKEN_FILE (readable only by you)."
+  echo "It is outside the repo, so it can never be committed or served."
+  echo "Now just run:  ./backend/events/query.sh people"
+  exit 0
+fi
+
+if [ -z "${CF_TOKEN:-}" ] && [ -r "$TOKEN_FILE" ]; then
+  # shellcheck disable=SC1090
+  CF_TOKEN="$(sed -n 's/^CF_TOKEN=//p' "$TOKEN_FILE" | head -1)"
+fi
 if [ -z "${CF_TOKEN:-}" ]; then
-  printf 'Cloudflare API token (input hidden): ' >&2
-  read -rs CF_TOKEN < /dev/tty; echo >&2
+  ask_token; CF_TOKEN="$REPLY_TOK"
+  echo "Tip: run './backend/events/query.sh login' once and it will stop asking." >&2
 fi
 [ -z "$CF_TOKEN" ] && { echo "No token given — nothing to query with." >&2; exit 1; }
 

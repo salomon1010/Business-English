@@ -7,4 +7,17 @@ review/
 
 # Node dependencies for services/ (assessor API and UI). Never served publicly.
 node_modules/
+
+# Secrets must never land here. EVERYTHING committed to this repo is served
+# publicly from app.lomonec.com — backend/events/query.sh is downloadable right
+# now — so a committed token is not merely leaked, it is published and fetchable
+# over HTTP. The real token lives OUTSIDE the repo, in
+# ~/.config/be-mastery/events.env (see `./backend/events/query.sh login`).
+# These patterns are the second line of defence, for the day someone creates a
+# .env here out of habit and runs `git add -A`.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
 marketing/build/
