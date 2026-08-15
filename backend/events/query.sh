@@ -5,6 +5,9 @@
 #   ./query.sh                 list the questions it can answer
 #   ./query.sh login           save the token once, so it stops asking
 #   ./query.sh dashboard       build the visual report and open it
+#   ./query.sh snapshot        update the all-time ledger only (no page)
+#   ./query.sh schedule        run the snapshot weekly, automatically
+#   ./query.sh unschedule      stop the weekly run
 #   ./query.sh events          which events fired, last 7 days
 #   ./query.sh people          installed app vs open web, last 30 days
 #   ./query.sh funnel          arrive -> finish onboarding -> practise
@@ -33,12 +36,64 @@ ACCOUNT="${CF_ACCOUNT:-8d3cd584749c92c7076d30688dde2a1d}"
 DATASET="be_events"
 TOKEN_FILE="${CF_TOKEN_FILE:-$HOME/.config/be-mastery/events.env}"
 
-usage(){ sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage(){ sed -n '3,17p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
-ask_token(){ printf 'Cloudflare API token (input hidden): ' >&2; read -rs REPLY_TOK < /dev/tty; echo >&2; }
+ask_token(){
+  # Under launchd there is no terminal to ask at. Reading /dev/tty would fail
+  # with an unhelpful error, so say plainly what is wrong and what fixes it.
+  if [ ! -r /dev/tty ] || [ ! -t 1 ] && [ ! -r /dev/tty ]; then
+    echo "No saved token and no terminal to ask at." >&2
+    echo "Run './backend/events/query.sh login' once from a terminal." >&2
+    exit 1
+  fi
+  printf 'Cloudflare API token (input hidden): ' >&2; read -rs REPLY_TOK < /dev/tty; echo >&2
+}
 
 WHAT="${1:-}"
 [ -z "$WHAT" ] && usage 0
+
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+LABEL="com.lomonec.be-events-snapshot"
+PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
+
+if [ "$WHAT" = "schedule" ]; then
+  # Weekly is deliberate overkill against a ~90-day retention window: it means
+  # twelve consecutive misses before a single event is lost, so a laptop that is
+  # shut for a fortnight costs nothing.
+  [ -r "$TOKEN_FILE" ] || { echo "Run './backend/events/query.sh login' first — the" >&2
+                            echo "scheduled run needs the saved token to work unattended." >&2; exit 1; }
+  mkdir -p "$HOME/Library/LaunchAgents" "$HOME/Library/Logs"
+  cat > "$PLIST" <<PLISTEOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+  <key>Label</key><string>$LABEL</string>
+  <key>ProgramArguments</key>
+  <array><string>/bin/bash</string><string>$SELF</string><string>snapshot</string></array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict>
+  <key>RunAtLoad</key><false/>
+  <key>StandardOutPath</key><string>$HOME/Library/Logs/be-events-snapshot.log</string>
+  <key>StandardErrorPath</key><string>$HOME/Library/Logs/be-events-snapshot.log</string>
+</dict></plist>
+PLISTEOF
+  launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || true
+  if launchctl bootstrap "gui/$(id -u)" "$PLIST" 2>/dev/null || launchctl load -w "$PLIST" 2>/dev/null; then
+    echo "Scheduled: the ledger updates every Monday at 10:00 (when the Mac is awake)."
+    echo "Log: ~/Library/Logs/be-events-snapshot.log"
+    echo "Stop it with: ./backend/events/query.sh unschedule"
+  else
+    echo "Could not register the job with launchd. The plist is at $PLIST." >&2; exit 1
+  fi
+  exit 0
+fi
+
+if [ "$WHAT" = "unschedule" ]; then
+  launchctl bootout "gui/$(id -u)/$LABEL" 2>/dev/null || launchctl unload -w "$PLIST" 2>/dev/null || true
+  rm -f "$PLIST"
+  echo "Stopped. The ledger keeps whatever it already has; nothing is deleted."
+  exit 0
+fi
 
 if [ "$WHAT" = "login" ]; then
   ask_token
@@ -90,7 +145,7 @@ case "$WHAT" in
                    AND timestamp > now() - INTERVAL '30' DAY
                  GROUP BY country ORDER BY n DESC LIMIT 20" ;;
   raw)       SQL="${2:-}"; [ -z "$SQL" ] && { echo "raw needs a SQL string." >&2; exit 1; } ;;
-  dashboard) SQL="" ;;   # handled below — it runs several queries, not one
+  dashboard|snapshot) SQL="" ;;   # handled below — several queries, not one
   *)         echo "Don't know '$WHAT'." >&2; usage 1 ;;
 esac
 
@@ -98,7 +153,7 @@ esac
 cf(){ curl -sS "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT/analytics_engine/sql" \
         -H "Authorization: Bearer $CF_TOKEN" --data "$1"; }
 
-if [ "$WHAT" = "dashboard" ]; then
+if [ "$WHAT" = "dashboard" ] || [ "$WHAT" = "snapshot" ]; then
   HISTORY="${CF_HISTORY_FILE:-$HOME/.config/be-mastery/history.json}"
   OUT="${DASHBOARD_OUT:-$(cd "$(dirname "$0")" && pwd)/dashboard.html}"
   TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
@@ -139,6 +194,18 @@ print(json.dumps({"rows": d.get("data") or [] if isinstance(d,dict) else []}))
   echo "Querying…" >&2
   run since     "SELECT blob1 AS event, sum(_sample_interval) AS n FROM $DATASET
                  WHERE timestamp > toDateTime($SINCE_UNIX) GROUP BY event"
+
+  # The scheduled run exists to keep the ledger whole, nothing else. It stops
+  # here: six more queries and an HTML file nobody is looking at would be waste,
+  # and a page written weekly by a background job is a stale page pretending to
+  # be current.
+  if [ "$WHAT" = "snapshot" ]; then
+    printf '{"since":%s}' "$(cat "$TMP/since.json")" > "$TMP/bundle.json"
+    python3 "$(cd "$(dirname "$0")" && pwd)/dashboard.py" "$TMP/bundle.json" "$HISTORY" -
+    echo "[$(date '+%Y-%m-%d %H:%M')] snapshot ok"
+    exit 0
+  fi
+
   run events    "SELECT blob1 AS event, sum(_sample_interval) AS n FROM $DATASET
                  WHERE timestamp > now() - INTERVAL '7' DAY GROUP BY event ORDER BY n DESC"
   run people    "SELECT blob12 AS installed, sum(_sample_interval) AS opens FROM $DATASET

@@ -282,6 +282,13 @@ th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--grid);font-
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px}
 """
 
+# OUT of "-" means ledger-only: the scheduled snapshot has no one to show a page
+# to, and writing one would only leave a stale file that looks current.
+if OUT == "-":
+    print("added this run: %s" % (added or "nothing new"))
+    print("all-time total: %d events across %d names" % (alltime, len(TOT)))
+    raise SystemExit(0)
+
 with open(OUT, "w", encoding="utf-8") as f:
     f.write("<!doctype html><html lang=\"en\"><head><meta charset=\"utf-8\">"
             "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">"
