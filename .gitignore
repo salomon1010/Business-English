@@ -20,4 +20,10 @@ node_modules/
 !.env.example
 *.pem
 *.key
+
+# The generated analytics dashboard. Same reason: committing it would publish
+# your own product numbers — opens, funnel, countries — at
+# app.lomonec.com/backend/events/dashboard.html for anyone to read. It is a
+# build artefact; regenerate it with `./backend/events/query.sh dashboard`.
+backend/events/dashboard.html
 marketing/build/
