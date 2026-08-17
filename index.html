@@ -692,6 +692,47 @@ body.sh-work-open{overflow:hidden}
 /* The "open/hide" line moved from the summary onto the text column, so that the
    icon sits beside the whole block rather than above a stray caption. */
 .sim-scenario-card>summary{display:flex;gap:13px;align-items:flex-start;list-style:none;cursor:pointer}.sim-scenario-card>summary::-webkit-details-marker{display:none}.sim-sum-t{min-width:0;flex:1}.sim-sum-t::after{content:"Choose who to speak with  →";display:block;color:var(--accent-text);font-size:12px;font-weight:800;margin-top:5px}.sim-scenario-card[open] .sim-sum-t::after{content:"Hide this scenario  ↑"}
+/* ---- Workplace communication: making the choice obvious (trade tracks only) --
+   The four people were the only actionable thing on the page and carried the
+   least visual weight of anything on it. This lifts the whole block into an
+   action panel, and marks the first conversation as the way in.
+
+   The pulse is the moving part, but it is not the message: the badge, the
+   accent border and the tinted fill say the same thing standing still, which is
+   exactly what a reduced-motion viewer is left with. Motion is never the only
+   carrier of meaning here. */
+.sim-pick{margin:12px 0 4px;padding:13px;border-radius:14px;
+  background:color-mix(in srgb,var(--accent) 7%,var(--bg2));
+  border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+.sim-pick .sim-card-label{margin:0}
+.sim-pick-hint{margin:3px 0 10px;font-size:11.5px;color:var(--mut);line-height:1.45}
+.sim-pick .sim-cast{margin:0}
+.sim-cast button.is-start{border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 15%,var(--bg2));
+  animation:simStartPulse 2.6s ease-in-out infinite}
+.sim-cast button.is-start b{color:var(--accent-text)}
+/* Specificity matters here: the long-standing `.sim-cast span` rule paints every
+   span inside the cast with the panel background, and it outranks a lone class.
+   Written as `.sim-cast button .sim-start-badge` the badge keeps its accent fill
+   — without this it renders white-on-white in light mode. */
+.sim-cast button .sim-start-badge{display:inline-block;margin:0 0 6px;padding:3px 8px;
+  border:0;border-radius:99px;
+  font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;
+  background:var(--accent-fill);color:var(--on-accent)}
+/* The shared --accent-fill / --on-accent pairing is tuned for the dark surface,
+   where it measures 6.3:1. On light it lands at 3.1:1 — under the 4.5 floor for
+   text this small, so light mode takes the deeper accent with white on top
+   (5.0:1). Measured in the browser both ways, not assumed: the two themes need
+   different steps, which is the whole reason dark mode is chosen rather than
+   flipped. */
+html[data-theme="light"] .sim-cast button .sim-start-badge{
+  background:var(--accent);color:#fff}
+@keyframes simStartPulse{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 48%,transparent)}
+  55%    {box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 0%,transparent)}}
+@media (prefers-reduced-motion:reduce){
+  .sim-cast button.is-start{animation:none;
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}}
 .sim-ic{flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff}
 .sim-ic svg{width:22px;height:22px}
 .sim-ic-blue{background:linear-gradient(145deg,#2f6fe0,#1d4ed8)}
@@ -8797,7 +8838,7 @@ function rSimulation(el,id,characterId){
     manIconizeInline(el);return;
   }
   if(!selected){
-    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body"><span class="sim-card-label">Choose who to speak with first</span><div class="sim-cast">${simCast(s).map(c=>`<button onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')"><b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`).join("")}</div><div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
+    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body">${(()=>{/* WELDING ONLY. The cast row is the only thing on this screen a learner can    act on, and it was drawn exactly like the three read-only panels beneath    it — same border, same background, same weight — with a caption doing all    the work. On a trade track it is now a panel that reads as the action, and    the first person carries a live cue so there is no decision to make before    the first tap. General English keeps the plain row it already had. */const pro=(typeof areaIsPro==="function")&&areaIsPro();/* Once the workshop has been attempted, "Start here" is no longer true — the    learner has been here and can pick for themselves. */const started=simAttempts(s.id).length>0;const cast=simCast(s).map((c,ci)=>{const lead=pro&&!started&&ci===0;return `<button class="${lead?"is-start":""}" onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')">${lead?`<span class="sim-start-badge">Start here</span>`:""}<b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`;}).join("");const label=`<span class="sim-card-label">Choose who to speak with first</span>`;if(!pro)return `${label}<div class="sim-cast">${cast}</div>`;return `<div class="sim-pick">${label}<p class="sim-pick-hint">Tap a name to open that conversation. You can speak to the others afterwards.</p><div class="sim-cast">${cast}</div></div>`;})()}<div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
       return `<span class="sim-card-label">Your previous reports</span><div class="sim-past">${at.map((a,n)=>`<button onclick="event.stopPropagation();simOpenAttempt('${esc(s.id)}',${a.startedAt})"><span>Attempt ${n+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b></button>`).join("")}</div>`})()}</div></details>`}).join("")}`;return;
   }
   if(isFirstDayMission(selected)&&characterId&&(!simRun||simRun.id!==selected.id)){simMissionBriefing(el,selected,characterId);return}
