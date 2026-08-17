@@ -318,12 +318,15 @@ Fixes / infra
     slot instead. Don't "fix" this by shooting the picker.
   - `feature-graphic.png` (1024×500) was checked 2026-08-01 and is **clean** —
     correct branding, no personal name, tagline already matches the new copy.
-- **`rp-photos/` has no recorded image sources.** 14 files, all 512×512 with every
-  scrap of metadata stripped — no EXIF, no software tag, no C2PA. The folder's own
-  README says to keep a source note per file and warns that Play removals for
-  image licensing are common. Nothing can reconstruct this from the repo; it needs
-  the owner's browser history. Also the reason the Play **AI asset declaration**
-  can't be answered from the code alone.
+- **`rp-photos/` — the 19 images are AI-GENERATED** (owner-confirmed 2026-08-17,
+  recorded in `rp-photos/SOURCES.md`). Nothing in the files says so: every scrap
+  of metadata was stripped before they were committed, and the `Exif` marker in
+  `maya.jpg` is a false positive (Huffman tables). This is *lower* risk than
+  stock photos of real people — no model releases, no likeness rights — so the
+  folder README's Google-Images warning does not apply. What is still open is
+  **which generator and which plan**, since several grant commercial use only on
+  a paid tier. Do not re-open the "where did these come from" question; it is
+  answered.
 - **Analytics: LIVE end to end since 2026-08-14.** The Cloudflare beacon collects
   page views and referrers; `be-events` is deployed and its writes are confirmed
   landing in the `be_events` Analytics Engine dataset (verified by querying them
