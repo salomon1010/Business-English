@@ -1312,5 +1312,8 @@
  "area.scope_pro": "Alles unten zählt nur das Englisch, das du für dein Handwerk geübt hast — die Sicherheitsunterweisung, den Erlaubnisschein, die Übergabe, die Fragen, die ein Vorarbeiter wirklich stellt. Dein allgemeines Englisch wird auf einer eigenen Seite gemessen.",
  "area.switch": "Bilanz „{{area}}“ öffnen",
  "area.counts": "Diese Zahlen zählen nur deine Arbeit in {{area}} — der andere Bereich führt seinen eigenen Nachweis.",
- "area.switch_profile": "Dein Profil „{{area}}“ öffnen"
+ "area.switch_profile": "Dein Profil „{{area}}“ öffnen",
+ "cf.report_title": "Diese Auswertung löschen?",
+ "cf.report_body": "Die Bewertungen dieses Satzes und die auf diesem Gerät gespeicherten Aufnahmen werden mit gelöscht. Das lässt sich nicht rückgängig machen.",
+ "sh.line_perf_one": "Bisher ein bewerteter Versuch. Sprich den Satz noch einmal, dann wird daraus eine Linie, der du folgen kannst."
 }

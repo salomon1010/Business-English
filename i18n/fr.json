@@ -1314,5 +1314,6 @@
  "area.counts": "Ces chiffres ne couvrent que votre travail en {{area}} — l’autre domaine tient son propre relevé.",
  "area.switch_profile": "Ouvrir votre profil {{area}}",
  "cf.report_body": "Les scores de cette phrase et les prises conservées sur cet appareil seront également supprimés. Cette action est irréversible.",
- "sh.line_perf_one": "Une tentative évaluée pour l'instant. Répétez la phrase : vous pourrez alors suivre votre progression sur cette phrase."
+ "sh.line_perf_one": "Une tentative évaluée pour l'instant. Répétez la phrase : vous pourrez alors suivre votre progression sur cette phrase.",
+ "cf.report_title": "Supprimer cette analyse ?"
 }

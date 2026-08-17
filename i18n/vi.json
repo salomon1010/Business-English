@@ -1312,5 +1312,8 @@
  "area.scope_pro": "Mọi con số bên dưới chỉ tính phần tiếng Anh bạn đã luyện cho nghề — buổi nói chuyện an toàn, giấy phép làm việc, bàn giao ca, và những câu người giám sát thật sự hỏi. Tiếng Anh tổng quát của bạn được đo ở trang riêng.",
  "area.switch": "Mở bản đánh giá {{area}}",
  "area.counts": "Những con số này chỉ tính phần bạn đã làm ở {{area}} — lĩnh vực còn lại có hồ sơ riêng.",
- "area.switch_profile": "Mở hồ sơ {{area}} của bạn"
+ "area.switch_profile": "Mở hồ sơ {{area}} của bạn",
+ "cf.report_title": "Xoá phân tích này?",
+ "cf.report_body": "Điểm của câu này và các bản ghi lưu trên thiết bị cũng sẽ bị xoá theo. Không thể hoàn tác.",
+ "sh.line_perf_one": "Mới có một lần được chấm điểm. Hãy nói lại câu này để nó trở thành một đường bạn có thể theo dõi."
 }

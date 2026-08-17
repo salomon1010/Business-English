@@ -1312,5 +1312,8 @@
  "area.scope_pro": "Semua di bawah ini hanya menghitung bahasa Inggris yang kamu latih untuk profesimu — pengarahan keselamatan, izin kerja, serah terima shift, dan pertanyaan yang benar-benar diajukan penyelia. Bahasa Inggris umummu diukur di halamannya sendiri.",
  "area.switch": "Buka tinjauan {{area}}",
  "area.counts": "Angka-angka ini hanya menghitung pekerjaan {{area}}-mu — area lain punya catatannya sendiri.",
- "area.switch_profile": "Buka profil {{area}}-mu"
+ "area.switch_profile": "Buka profil {{area}}-mu",
+ "cf.report_title": "Hapus analisis ini?",
+ "cf.report_body": "Skor untuk kalimat ini dan rekaman yang tersimpan di perangkat ini akan ikut terhapus. Tindakan ini tidak dapat dibatalkan.",
+ "sh.line_perf_one": "Baru satu percobaan yang dinilai. Ucapkan kalimatnya sekali lagi dan ini menjadi garis yang bisa kamu ikuti."
 }

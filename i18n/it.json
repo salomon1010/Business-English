@@ -1312,5 +1312,8 @@
  "area.scope_pro": "Tutto ciò che segue conta solo l’inglese che hai praticato per il mestiere: il briefing di sicurezza, il permesso, il passaggio di consegne, le domande che un capoturno fa davvero. Il tuo inglese generale si misura nella sua pagina.",
  "area.switch": "Apri il tuo bilancio {{area}}",
  "area.counts": "Questi conteggi riguardano solo il tuo lavoro di {{area}}: l’altra area tiene il proprio registro.",
- "area.switch_profile": "Apri il tuo profilo {{area}}"
+ "area.switch_profile": "Apri il tuo profilo {{area}}",
+ "cf.report_title": "Eliminare questa analisi?",
+ "cf.report_body": "I punteggi di questa frase e le registrazioni conservate su questo dispositivo verranno rimossi con essa. L'azione è irreversibile.",
+ "sh.line_perf_one": "Un tentativo valutato finora. Ripeti la frase e questa diventerà una linea che puoi seguire."
 }
