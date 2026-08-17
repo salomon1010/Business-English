@@ -764,6 +764,35 @@ html[data-theme="light"] .sim-cast button .sim-start-badge{
 .sim-fb-play.q-good:hover{background:rgba(52,211,153,.18)}
 .sim-fb-play.q-fair:hover{background:rgba(251,191,36,.18)}
 .sim-fb-play.q-poor:hover{background:rgba(248,113,113,.18)}
+/* ---- Two live highlights on the trade workshops --------------------------
+   1. The feedback button carries the score band already, but only as a resting
+      colour, so scrolling a five-question report gave no sense of which answers
+      went badly. It now pulses IN ITS OWN BAND COLOUR as it comes into view —
+      red stays red, amber stays amber — so the report reads at a glance before
+      a single word is. Three iterations, not forever: this is a page you read,
+      and a permanent animation under the text you are reading is a nuisance.
+   2. The speaker's face during a live conversation. simSetStatus already flips
+      data-speaking on and off around every line; the ring it drove was static,
+      so nothing on screen distinguished "Priya is talking" from "Priya has
+      finished". Now it breathes while she speaks and stops the moment she does.
+   Both are scoped to the professional tracks and both survive reduced motion,
+   where the resting colour and the static ring still carry the meaning. */
+.sim-fb-play.q-good{--band:var(--green)}
+.sim-fb-play.q-fair{--band:var(--gold)}
+.sim-fb-play.q-poor{--band:var(--red)}
+.sim-fb-play.q-none{--band:var(--mut)}
+.sim-fb-play.in-view{animation:simFbPulse 1.5s ease-in-out 3}
+@keyframes simFbPulse{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--band) 50%,transparent)}
+  55%    {box-shadow:0 0 0 9px color-mix(in srgb,var(--band) 0%,transparent)}}
+.professional-conversation .rp-work-bar[data-speaking] .sim-work-avatar{
+  animation:simSpeakPulse 1.45s ease-in-out infinite}
+@keyframes simSpeakPulse{
+  0%,100%{box-shadow:0 0 0 2px var(--acc2),0 0 0 0 color-mix(in srgb,var(--acc2) 60%,transparent)}
+  55%    {box-shadow:0 0 0 2px var(--acc2),0 0 0 10px color-mix(in srgb,var(--acc2) 0%,transparent)}}
+@media (prefers-reduced-motion:reduce){
+  .sim-fb-play.in-view{animation:none}
+  .professional-conversation .rp-work-bar[data-speaking] .sim-work-avatar{animation:none}}
 /* Playing: the same colour goes solid, so the active card is obvious in a list. */
 .sim-fb-play.on{border-color:transparent}
 .sim-fb-play.on.q-good{background:var(--green);color:#04150e}
@@ -8759,7 +8788,30 @@ Return JSON only: {"reply":"ok","items":[{"i":0,"covered":["id"]}]}`;
     return changed;
   }catch(e){return false}
 }
+/* Observed lazily, and armed from simAnalysisHTML rather than from each of its
+   callers: that function is the only thing in the app that produces a
+   .sim-fb-play, so a mount site added later cannot silently lose the highlight. */
+let _simFbObs=null;
+function simArmFeedbackPulse(){
+  if(!("IntersectionObserver"in window))return;
+  if(typeof areaIsPro==="function"&&!areaIsPro())return;   /* trade tracks only */
+  const els=document.querySelectorAll(".sim-fb-play:not([data-pulse])");
+  if(!els.length)return;
+  if(!_simFbObs){
+    _simFbObs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        /* Never while the clip is actually playing: the button is showing Stop,
+           which is its own signal, and two animations would fight. Toggled off
+           on exit so scrolling back up plays it again. */
+        const playing=e.target.classList.contains("on");
+        e.target.classList.toggle("in-view",e.isIntersecting&&!playing);
+      });
+    },{threshold:.55});
+  }
+  els.forEach(el=>{el.setAttribute("data-pulse","1");_simFbObs.observe(el)});
+}
 function simAnalysisHTML(run,sc){
+  setTimeout(simArmFeedbackPulse,0);        /* after this HTML reaches the DOM */
   if(!window.AnswerEvaluator)return "";
   const answers=(run.answers||[]);
   if(!answers.length)return "";
