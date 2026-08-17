@@ -418,17 +418,21 @@ const SH_LINES_SHOWN=6;
 function shWorkplaceLinesHTML(){
   const lines=shWorkplaceLines();
   if(!lines.length)return "";
-  const card=l=>`<div class="sh-line">
+  /* The first line is the way in. Twelve identical rows with twelve identical
+     buttons told a learner nothing about where to start, which is the same gap
+     the workshop cast had. Only the first, and only ever one. */
+  let _first=true;
+  const card=l=>{const lead=_first;_first=false;return `<div class="sh-line">
     <button class="sh-line-play" id="shl-${esc(l.id)}" onclick="shSayLine('${esc(l.id)}')"
       aria-label="Hear this line">▶</button>
     <div class="sh-line-t">
       <span class="sh-line-who">${esc(l.who)}${l.role?" · "+esc(l.role):""} <em>${esc(l.scenario)}</em></span>
       <p>“${esc(l.text)}”</p>
       ${l.ask?`<small>${esc(t("sh.line_answering",{q:l.ask}))}</small>`:""}
-      <button class="btn btn-g btn-sm sh-line-rec" id="shr-${esc(l.id)}" onclick="shLineRecord('${esc(l.id)}')">${esc(t("sh.line_rec"))}</button>
+      <button class="btn btn-g btn-sm sh-line-rec ${lead?"cta-lead":""}" id="shr-${esc(l.id)}" onclick="shLineRecord('${esc(l.id)}')">${esc(t("sh.line_rec"))}</button>
       <div class="sh-line-fb" id="shfb-${esc(l.id)}"></div>
     </div>
-  </div>`;
+  </div>`;};
   return `<div class="card sh-lines">
     <div class="eyebrow">${esc((window.Trades&&isProfessionalJourney()?t("sh.lines_eyebrow_trade",{trade:Trades.active(S).name}):null)||t("sh.lines_eyebrow"))}</div>
     <h2 class="sh-lines-h">${esc(t("sh.lines_title"))}</h2>
