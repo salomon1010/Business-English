@@ -21,6 +21,13 @@ node_modules/
 *.pem
 *.key
 
+# The promotion playbook. Kept out because everything committed here is served
+# publicly, and it contains posts written in the first person for you to send as
+# yourself — a scripted "I built this" post reads badly if someone can find the
+# script at app.lomonec.com. It is a working file, like review/. Back it up
+# outside the repo if you want it on another machine.
+marketing/PROMO-PLAYBOOK.md
+
 # The generated analytics dashboard. Same reason: committing it would publish
 # your own product numbers — opens, funnel, countries — at
 # app.lomonec.com/backend/events/dashboard.html for anyone to read. It is a
