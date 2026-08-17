@@ -24,8 +24,8 @@ crons = ["* * * * *"]
 
 [[kv_namespaces]]
 binding = "SUBS"
-id = "PASTE_KV_NAMESPACE_ID_HERE"
+id = "3a92211829224fc7a8824d500e31d61d"
 
 [vars]
 # Filled in from genkeys.js output — the base64url raw P-256 public key.
-VAPID_PUBLIC_KEY = "PASTE_VAPID_PUBLIC_KEY_HERE"
+VAPID_PUBLIC_KEY = "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c"
