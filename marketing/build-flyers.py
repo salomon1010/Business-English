@@ -28,6 +28,7 @@ SHOTS = REPO / "playstore/store-art-2026-08/phone"
 WELD = HERE / "shots-welding"
 GEN  = HERE / "shots-general"
 CAR  = HERE / "shots-career"
+POL  = HERE / "shots-polish"
 
 FLYERS = {
     # the general-English poster: the store-art phone captures it has always used
@@ -64,6 +65,19 @@ FLYERS = {
             "__SHOT_REPORT__":   CAR / "c5-report.png",
             "__SHOT_EVIDENCE__": CAR / "c1-evidence.png",
             "__QR__":            HERE / "qr-applomonec.png",
+        },
+    },
+    # the Executive Polish poster: one feature, captured live by
+    # scripts/store-art/shoot-polish.js (the polished sentence in the artwork is
+    # a real API result, so the shots and the flyer copy must be replaced together)
+    "polish-flyer": {
+        "src": HERE / "polish-flyer.src.html",
+        "tokens": {
+            "__LOGO__":        REPO / "logo.svg",
+            "__SHOT_BEFORE__": POL / "x1-before.png",
+            "__SHOT_AFTER__":  POL / "x2-polished.png",
+            "__SHOT_ALT__":    POL / "x3-alternates.png",
+            "__QR__":          HERE / "qr-applomonec.png",
         },
     },
 }

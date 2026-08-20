@@ -1,0 +1,33 @@
+*Rehearse the meeting before the meeting.*
+
+Ten minutes before your daily standup, you already know roughly what you are going to say. That is the moment this feature is for.
+
+Open BE Mastery → *Phrase Lab* → *Executive Polish*. Say your update out loud into the app, or type it. Then tap Polish it.
+
+*What it gives back*
+Two executive versions of your own sentence, and under each one, the phrase that made it stronger. Not a grammar correction — the way someone senior would have said the same thing.
+
+Real example, straight from the app:
+
+_You were going to say:_
+"Yesterday I had a meeting with the technical lead and this is what we did. Today I will be working on the API and tomorrow we will be working on the tests."
+
+_What you say instead:_
+"Yesterday, I met with the technical lead to discuss our action items. Today, I'm focusing on the API development, and tomorrow we will tackle the testing phase."
+
+Two phrases you now own: *action items* and *tackle the testing phase*.
+
+*The habit*
+1. Before the meeting, put in every line you plan to use.
+2. Polish it, and pick the version that sounds like the professional you want to be.
+3. Tap *Hear it*, then *Slow*. Say it back out loud until the pronunciation is clean and the words feel like yours.
+4. Walk in and use that version.
+
+Do it before every standup, every one-to-one, every client call. Your vocabulary grows by two or three real phrases a day — not from a word list, but from sentences you actually needed.
+
+Free. No account needed. Instructions in 15 languages.
+
+_Executive Polish needs internet; the rest of the app works offline. Only the sentence you write is sent — your recordings never leave your phone._
+
+👉 https://app.lomonec.com
+Android: https://play.google.com/store/apps/details?id=com.bemastery.app
