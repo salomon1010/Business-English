@@ -1131,6 +1131,7 @@
  "ph.speech_count": "{{n}}/{{total}} écrites ou collées",
  "ph.speech_empty": "Écrivez ou collez d'abord une ou deux phrases ci-dessus — cette zone se construit à partir d'elles.",
  "ph.exec_flow_h": "Comment construire votre discours complet",
+ "ph.exec_flow_lead": "À utiliser dix minutes avant la réunion. Vous savez déjà à peu près ce que vous allez dire — mettez ces phrases ici d'abord, et entrez en disant la version qu'un dirigeant aurait employée. Deux ou trois vraies expressions par jour, tirées de phrases dont vous aviez réellement besoin.",
  "ph.exec_flow_1": "Choisissez une expression ci-dessous — par exemple « I currently work as… » — puis touchez le micro ici et dites votre phrase entière à voix haute, pour qu'elle arrive dans la case. L'écrire marche tout aussi bien.",
  "ph.exec_flow_2": "Touchez « Peaufiner » et gardez la version qui ressemble le plus au professionnel que vous voulez être.",
  "ph.exec_flow_3": "Touchez « Copier » sur cette version, puis collez-la dans la case de cette expression, plus bas.",

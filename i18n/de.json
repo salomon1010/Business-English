@@ -1131,6 +1131,7 @@
  "ph.speech_count": "{{n}}/{{total}} geschrieben oder eingefügt",
  "ph.speech_empty": "Schreib oder füge erst ein, zwei Sätze oben ein — dieses Feld baut sich daraus auf.",
  "ph.exec_flow_h": "So baust du deine ganze Rede",
+ "ph.exec_flow_lead": "Nutze es zehn Minuten vor dem Meeting. Du weißt schon ungefähr, was du sagen wirst — schreib diese Sätze zuerst hier hinein und geh mit der Version hinein, die eine Führungskraft benutzt hätte. Zwei, drei echte Wendungen pro Tag, aus Sätzen, die du wirklich gebraucht hast.",
  "ph.exec_flow_1": "Wähle unten eine Wendung — etwa „I currently work as…“ — tippe dann hier aufs Mikrofon und sprich deinen ganzen Satz laut, damit er im Feld landet. Tippen geht genauso gut.",
  "ph.exec_flow_2": "Tippe auf „Aufpolieren“ und nimm die Version, die am ehesten nach dem Profi klingt, der du sein willst.",
  "ph.exec_flow_3": "Tippe bei dieser Version auf „Kopieren“ und füge sie unten in das Feld dieser Wendung ein.",

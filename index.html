@@ -1297,32 +1297,53 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .ex-field textarea{padding-left:38px;width:100%;display:block}
 .ex-field-ta .ex-field-ic{top:15px;transform:none}
 textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
-/* Desktop: two tidy lines — [ mic · bin ] on top, a full-width Polish button beneath */
-/* Every control here was 31px — including "Polish it", the feature's primary
-   action. The row now uses full-size controls; the button that starts the work
-   spans the row, the mic and clear are 48px squares beside it. */
-.ex-btns{display:flex;flex-wrap:wrap;gap:8px;align-content:flex-start;min-width:210px}
+/* Two tidy rows: [ mic | bin ] across the top, "Polish it" spanning both
+   beneath. A grid, not a flex row, because the point is that the two icon
+   buttons together measure exactly the primary button — 1fr + 1fr + the gap is
+   that guarantee, at any width, rather than a pair of 48px squares that left a
+   ragged hole beside them.
+
+   grid-auto-rows:minmax(48px,1fr) is what makes it follow the textarea: the
+   parent stretches, so dragging the box taller shares the extra height between
+   the two rows instead of leaving the block stranded at the top. */
+.ex-btns{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(48px,1fr);
+  gap:8px;min-width:210px}
 .ex-btns>.btn,.ex-btns>.btn-primary{min-height:48px;border-radius:var(--r-md)}
 /* padding:0 matters: .btn carries 11px/20px padding, which leaves only 8px of
    content box inside a 48px icon-only button. The global svg{max-width:100%}
    then clamped the 19px glyph to ~6px and both buttons rendered as empty
    boxes. Icon-only buttons centre their glyph with grid instead of padding. */
-.ex-micbtn{flex:0 0 48px;display:grid;place-items:center;padding:0}
+.ex-micbtn{display:grid;place-items:center;padding:0}
 .ex-micbtn svg{width:19px;height:19px}
-.ex-icobtn{flex:0 0 48px;display:grid;place-items:center;padding:0}
+.ex-icobtn{display:grid;place-items:center;padding:0}
 .ex-icobtn svg{width:18px;height:18px}
-.ex-polishbtn{flex:1 1 140px;min-height:48px;font-size:15px}
+.ex-polishbtn{grid-column:1/-1;min-height:48px;font-size:15px}
 .ex-polishbtn .btn-ic{margin:0}
 .ex-polishbtn svg{width:17px;height:17px}
 /* Dictation mic — cycling light ring so it reads as "start here" */
 /* The last spinning conic gradient in the app. A dictation button does not need
    perpetual motion to be found; the live state is what actually carries meaning,
    so that keeps its red fill and the idle state is an ordinary control. */
-.ex-micbtn{color:var(--txt)}
+.ex-micbtn{color:var(--txt);transition:border-color .2s,background .2s,color .2s}
 .ex-micbtn.ex-mic-live{background:var(--red);border-color:transparent;color:#fff}
 .ex-micbtn.ex-mic-live svg{color:#fff}
-/* Phone: keep all three on ONE line — Polish · mic · bin (40/40/20) */
-@media(max-width:520px){.ex-btns{flex-wrap:nowrap;min-width:100%}.ex-polishbtn{flex:2 1 0;order:-1;padding:7px 8px}.ex-micbtn{flex:2 1 0}.ex-icobtn{flex:1 1 0}}
+/* Nothing on this card said where to begin: an empty box and three controls of
+   equal weight. The mic wears an accent ring while there is nothing to polish,
+   so the first thing you meet is the thing to do first — speak. It is a
+   pointer, not an alarm: the first character typed or dictated clears it, and
+   Clear brings it back because the box is empty again. */
+.ex-micbtn.ex-mic-hint{border-color:var(--acc);color:var(--accent-text);
+  background:color-mix(in srgb,var(--acc) 13%,transparent);
+  animation:exHint 2.4s ease-in-out infinite}
+@keyframes exHint{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 45%,transparent)}
+  55%{box-shadow:0 0 0 8px color-mix(in srgb,var(--acc) 0%,transparent)}}
+@media(prefers-reduced-motion:reduce){
+  .ex-micbtn.ex-mic-hint{animation:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 38%,transparent)}}
+/* Phone: the block wraps under the textarea, so it takes the whole width and
+   keeps the same two rows. Cramming all three onto one line squeezed "Polish
+   it" — the feature's primary action — down to 8px of side padding. */
+@media(max-width:520px){.ex-btns{min-width:100%}}
 .ex-mic-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:exPulse 1.1s infinite}
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 /* "listening" is live state, so the pulse is motivated — but the red fill
@@ -1471,6 +1492,10 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-why{margin-top:12px;padding-top:11px;border-top:1px solid color-mix(in srgb,var(--green) 26%,transparent)}
 .ex-why b{display:block;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);margin-bottom:5px}
 .ex-why p{font-size:13px;color:var(--mut);line-height:1.55}
+.ex-flow-lead{margin:0 0 10px;padding:10px 12px;border-radius:10px;
+  border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line));
+  background:color-mix(in srgb,var(--acc) 8%,transparent);
+  font-size:13px;line-height:1.55;color:var(--txt)}
 .ex-changes{display:flex;flex-wrap:wrap;gap:6px}
 .ex-clean{font-size:13px;color:var(--green);font-weight:600;margin-top:10px}
 .ex-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
@@ -3852,6 +3877,7 @@ const I18N_EN={
  "ph.record_btn":"🎙️ Record",
  "ph.hear_btn":"Hear my sentence",
  "ph.exec_flow_h":"How to build your full speech",
+ "ph.exec_flow_lead":"Use it ten minutes before the meeting. You already know roughly what you are going to say — put those lines in here first, and walk in saying the version a leader would have used. Two or three real phrases a day, from sentences you actually needed.",
  "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — then tap the mic here and say your whole sentence out loud, so it lands in the box. Typing it works just as well.",
  "ph.exec_flow_2":"Tap Polish it, and take whichever version sounds most like the professional you want to be.",
  "ph.exec_flow_3":"Tap Copy on that version, then paste it into that phrase's own box below.",
@@ -9959,6 +9985,7 @@ window.exClear=()=>{
   const i=document.getElementById("exIn");if(i){i.value="";i.focus()}
   const o=document.getElementById("exOut");if(o)o.innerHTML="";
   const st=document.getElementById("exSt");if(st)st.textContent="";
+  exHint();
 };
 window.exAIPrompt=()=>{
   const inp=document.getElementById("exIn").value.trim()||"[paste what you said here]";
@@ -9998,8 +10025,17 @@ function exSetMic(on){
   exListening=on;
   const b=document.getElementById("exMic"),st=document.getElementById("exSt");
   if(b)b.classList.toggle("ex-mic-live",on);
+  if(on)exHint();                       // dictating IS the answer to "where do I start"
   if(st)st.textContent=on?t("ex.dictate_listening_hold"):"";
 }
+/* Show the "start here" ring only while there is nothing to polish. Called with
+   no argument from every place that changes the box, so it reads the box rather
+   than trying to remember a state — which is why Clear restores it for free. */
+window.exHint=()=>{
+  const b=document.getElementById("exMic"),i=document.getElementById("exIn");
+  if(!b)return;
+  b.classList.toggle("ex-mic-hint",!exListening&&!(i&&i.value.trim()));
+};
 window.exDictate=()=>{
   if(!SR)return toast(t("ex.dictate_sr_unavailable"));
   if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}return}   // second tap → stop
@@ -10052,9 +10088,9 @@ function rPhrases(el,wFilter){
     <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
-      <textarea id="exIn" rows="3" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
+      <textarea id="exIn" rows="3" oninput="exHint()" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
       <div class="ex-btns">
-        <button class="btn btn-g ex-micbtn" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
+        <button class="btn btn-g ex-micbtn ex-mic-hint" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
         <button class="btn btn-g ex-icobtn" onclick="exClear()" aria-label="Clear" title="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
         <button class="btn-primary ex-polishbtn" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
       </div>
@@ -10064,6 +10100,7 @@ function rPhrases(el,wFilter){
     <details class="home-more ex-sec ex-flow">
       <summary><span class="btn-ic">${ic("idea")}</span>${t("ph.exec_flow_h")}<span class="hm-chev">▶</span></summary>
       <div class="home-more-body">
+        <p class="ex-flow-lead">${t("ph.exec_flow_lead")}</p>
         <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
       </div>
     </details>
