@@ -1,0 +1,13 @@
+{
+ "area": "welding",
+ "input": "Yesterday I finished the joints on line 3, but the extraction fan was not working well, so I stopped and told the foreman. Today I will do the root pass on the new spool, and tomorrow I will grind and check the welds.",
+ "best": "I wrapped up the joints on line 3 yesterday; however, the extraction fan was underperforming, so I halted work and informed the foreman. Today, I plan to tackle the root pass on the new spool, and tomorrow I’ll grind and inspect the welds.",
+ "learn": "wrapped up, underperforming",
+ "alts": [
+  {
+   "text": "I completed the joints on line 3 yesterday, but due to the extraction fan’s inefficiency, I paused and reported it to the foreman. Today, I’ll conduct the root pass on the new spool, and I’ll grind and examine the welds tomorrow.",
+   "learn": "paused, reported"
+  }
+ ],
+ "top": 455
+}

@@ -29,6 +29,7 @@ WELD = HERE / "shots-welding"
 GEN  = HERE / "shots-general"
 CAR  = HERE / "shots-career"
 POL  = HERE / "shots-polish"
+POLW = HERE / "shots-polish-welding"
 
 FLYERS = {
     # the general-English poster: the store-art phone captures it has always used
@@ -77,6 +78,18 @@ FLYERS = {
             "__SHOT_BEFORE__": POL / "x1-before.png",
             "__SHOT_AFTER__":  POL / "x2-polished.png",
             "__SHOT_ALT__":    POL / "x3-alternates.png",
+            "__QR__":          HERE / "qr-applomonec.png",
+        },
+    },
+    # the same one habit, for the site: captured with the Welding area open, so
+    # the app in the artwork wears the trade's amber and lists the trade's phrases
+    "polish-welding-flyer": {
+        "src": HERE / "polish-welding-flyer.src.html",
+        "tokens": {
+            "__LOGO__":        REPO / "logo.svg",
+            "__SHOT_BEFORE__": POLW / "x1-before.png",
+            "__SHOT_AFTER__":  POLW / "x2-polished.png",
+            "__SHOT_ALT__":    POLW / "x3-alternates.png",
             "__QR__":          HERE / "qr-applomonec.png",
         },
     },
