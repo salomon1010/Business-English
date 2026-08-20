@@ -6,12 +6,19 @@ A4 page. Rather than stretch it or leave it floating on white, each page is
 filled with that flyer's own base colour and the artwork is centred on it — the
 page reads as designed rather than as a screenshot someone pasted into a doc.
 
-  python3 marketing/build-pdf.py            # welding first, then English
+  python3 marketing/build-pdf.py                   # welding first, then English
   ORDER=english python3 marketing/build-pdf.py
-  python3 marketing/build-pdf.py career     # just the career poster, own file
+  python3 marketing/build-pdf.py career            # just the career poster, own file
+  python3 marketing/build-pdf.py polish            # Executive Polish, office
+  python3 marketing/build-pdf.py polish-welding    # Executive Polish, site
 
 Output: marketing/be-mastery-flyers.pdf, or marketing/be-mastery-<name>.pdf
         when specific pages are named.
+
+Each poster is its own file rather than one fat handout: they are written for
+different rooms, and handing a welder the standup example (or a project manager
+the toolbox talk) wastes the page. Naming several pages in one call still
+concatenates them, for the rare occasion you want the set.
 """
 import os, sys, pathlib
 from PIL import Image
@@ -26,6 +33,8 @@ PAGES = {
     "english": HERE / "whatsapp-flyer.png",
     # the 2x master, so an A4 page at 300dpi is not upscaled from the share file
     "career":  HERE / "career-flyer@2x.png",
+    "polish":         HERE / "polish-flyer@2x.png",
+    "polish-welding": HERE / "polish-welding-flyer@2x.png",
 }
 if sys.argv[1:]:
     order = sys.argv[1:]
