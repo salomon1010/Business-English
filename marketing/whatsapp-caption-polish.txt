@@ -13,9 +13,9 @@ _You were going to say:_
 "Yesterday I had a meeting with the technical lead and this is what we did. Today I will be working on the API and tomorrow we will be working on the tests."
 
 _What you say instead:_
-"Yesterday, I met with the technical lead to discuss our action items. Today, I'm focusing on the API development, and tomorrow we will tackle the testing phase."
+"I had a discussion with the tech lead yesterday, and here's what we accomplished. Today, my primary focus is on the API, and tomorrow we'll shift our attention to the testing process."
 
-Two phrases you now own: *action items* and *tackle the testing phase*.
+Two phrases you now own: *primary focus on* and *shift our attention to*.
 
 *The habit*
 1. Before the meeting, put in every line you plan to use.

@@ -1,10 +1,12 @@
 {
- "best": "Yesterday, I met with the technical lead to discuss our action items. Today, I’m focusing on the API development, and tomorrow we will tackle the testing phase.",
- "learn": "action items, tackle the testing phase",
+ "area": "general-english",
+ "input": "Yesterday I had a meeting with the technical lead and this is what we did. Today I will be working on the API and tomorrow we will be working on the tests.",
+ "best": "I had a discussion with the tech lead yesterday, and here’s what we accomplished. Today, my primary focus is on the API, and tomorrow we’ll shift our attention to the testing process.",
+ "learn": "primary focus on, shift our attention to",
  "alts": [
   {
-   "text": "In our meeting yesterday, the technical lead and I established our priorities. I’ll be dedicating today to API work, and we’ll address testing tomorrow.",
-   "learn": "established our priorities, address testing"
+   "text": "I had a productive session with the technical lead recently to address our objectives. Today, I'll be dedicating my efforts to the API, and tomorrow, we'll concentrate on testing.",
+   "learn": "dedicating my efforts to, concentrate on"
   }
  ],
  "top": 455
