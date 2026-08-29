@@ -1867,6 +1867,42 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ra-stars button{background:none;border:0;padding:3px;line-height:0;cursor:pointer;color:var(--line2)}
 .ra-stars button.on{color:var(--gold)}
 .ra-stars svg{width:30px;height:30px;fill:currentColor;stroke:none}
+/* iOS "Add to Home Screen" walkthrough — Safari gives no install prompt, so the
+   three taps have to be shown. Art is inline SVG: it has to work offline and
+   read correctly in both themes, which a screenshot PNG would not. */
+.ios-ov .cf-card{max-width:355px}
+.ios-lead{font-size:13px;color:var(--mut);line-height:1.55;margin-bottom:12px}
+.ios-warn{display:flex;gap:9px;text-align:left;align-items:flex-start;font-size:12.5px;line-height:1.5;
+  color:var(--gold);background:rgba(251,191,36,.09);border:1px solid rgba(251,191,36,.28);
+  border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.ios-warn svg{width:17px;height:17px;flex:none;margin-top:1px}
+.ios-art{background:var(--bg2);border:1px solid var(--line);border-radius:16px;
+  padding:12px 10px;margin-bottom:13px;display:grid;place-items:center;overflow:hidden}
+.ios-art svg{width:100%;max-width:236px;height:auto;display:block}
+.ios-ring{animation:iosPulse 1.7s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes iosPulse{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.ios-ring{animation:none;opacity:1}}
+.ios-dots{display:flex;justify-content:center;gap:6px;margin-bottom:11px}
+.ios-dot{width:6px;height:6px;border-radius:50%;background:var(--line2);transition:.2s}
+.ios-dot.on{width:19px;border-radius:3px;background:var(--acc)}
+.ios-step{font-size:10.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--acc2);margin-bottom:6px}
+.ios-cap{font-size:13.5px;color:var(--txt);line-height:1.6;margin-bottom:18px;min-height:65px}
+/* Art classes rather than inline fills: a presentation attribute holding var()
+   is fragile, and the whole point of drawing this is that it follows the theme. */
+.ios-art .iosD{fill:var(--card);stroke:var(--line2);stroke-width:1.6}
+.ios-art .iosS{fill:var(--bg2);stroke:none}
+.ios-art .iosL{fill:var(--line);stroke:none}
+.ios-art .iosL2{fill:var(--line2);stroke:none}
+.ios-art .iosG{fill:none;stroke:var(--txt);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ios-art .iosA{fill:none;stroke:var(--acc2);stroke-width:2}
+.ios-art .iosAf{fill:color-mix(in srgb,var(--acc) 15%,transparent);stroke:var(--acc);stroke-width:1.4}
+.ios-art .iosAg{fill:none;stroke:var(--acc2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ios-art .iosGn{fill:none;stroke:var(--green);stroke-width:2}
+.ios-art .iosGnf{fill:var(--green);stroke:none}
+.ios-art .iosAr{fill:none;stroke:var(--acc2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ios-art .iosGf{fill:var(--green);stroke:none}
+.ios-art .iosKn{fill:#fff;stroke:none}
+.ios-art .iosAcc{fill:var(--acc2);stroke:none}
 /* WELCOME MODAL — first run. Persistent: only a user action closes it. */
 .wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
@@ -4462,6 +4498,21 @@ const I18N_EN={
  "rate.ask_title":"Five stars, if we’ve earned them",
  "rate.ask_body":"A rating on Google Play is how the next person in your position finds this app. Five stars are already set — tap Post, and Play will ask you to confirm them.",
  "rate.ask_go":"Post on Google Play",
+ "ios.add_title":"Put the app on your Home Screen",
+ "ios.add_lead":"Three taps and this page becomes a real app: its own icon, full screen with no address bar, and it opens even with no signal. Safari and Chrome both do it.",
+ "ios.inapp_warn":"This in-app browser cannot add to the Home Screen. Open app.lomonec.com in Safari or Chrome first, then follow these three steps.",
+ "ios.step_of":"Step {{n}} of 3",
+ "ios.s1_phone":"Tap the Share button in the bar at the bottom of Safari — the square with an arrow pointing up out of it.",
+ "ios.s1_pad":"Tap the Share button in the toolbar at the top — the square with an arrow pointing up out of it.",
+ "ios.s1_chrome":"Tap the Share button at the right of the address bar — the square with an arrow pointing up out of it.",
+ "ios.s2":"A panel slides up. Scroll down past the sharing options and tap “Add to Home Screen”.",
+ "ios.s3":"Leave “Open as Web App” switched on — that is what gives you the full screen and the offline start — then tap “Add” at the top right.",
+ "ios.next":"Next",
+ "ios.back":"Back",
+ "ios.done":"Got it",
+ "ios.later":"Not now",
+ "ios.row":"Add to Home Screen",
+ "ios.row_sub":"Turn this page into an app with its own icon",
  "footer.about_link":"About BE Mastery",
  "perf.overview_title":"Your progress",
  "perf.overview_sub":"Where you started, where you are now.",
@@ -7242,6 +7293,199 @@ function rateAsk(){
   document.addEventListener("keydown",key);
 }
 window.rateAsk=rateAsk;
+
+/* ===== iOS / iPadOS — "ADD TO HOME SCREEN" =====
+   Safari fires no beforeinstallprompt and never will: on iPhone and iPad the
+   only way to install a web app is Share → Add to Home Screen, by hand. So the
+   three taps are taught, with the art drawn rather than described — the Share
+   glyph is the thing people cannot find, and naming it is not the same as
+   pointing at it.
+   The art is inline SVG on purpose. Screenshots would be wrong in one theme,
+   wrong on the other device, and dead weight in the offline cache; this follows
+   the theme, scales to any width, and costs nothing to ship. */
+const IOS_KEY="be_ios_ask", IOS_SNOOZE=14*864e5;
+let IOS_STEP=0;
+function iosIsPad(){
+  const ua=navigator.userAgent||"";
+  if(/iPad/.test(ua))return true;
+  /* iPadOS 13+ reports itself as a Mac, so the UA alone cannot tell them apart.
+     Touch points are not enough either — some desktop Chromium builds report
+     them. A finger is a coarse pointer and a trackpad is a fine one, and that
+     is the difference that actually holds: no Mac answers coarse, every iPad
+     does. Both tests have to pass before we call a Mac an iPad. */
+  try{
+    return /Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1
+      &&matchMedia("(pointer:coarse)").matches;
+  }catch(e){return false}
+}
+function iosIs(){return /iPad|iPhone|iPod/.test(navigator.userAgent||"")||iosIsPad()}
+function iosStandalone(){
+  try{return navigator.standalone===true||(matchMedia&&matchMedia("(display-mode: standalone)").matches)}
+  catch(e){return false}
+}
+/* Which set of instructions this visitor needs. Chrome, Edge and Firefox on iOS
+   add to the Home Screen perfectly well — since iOS 16.4 the result is a real
+   web app, with the "Open as Web App" switch on by default — so this is not a
+   Safari-only feature and must not be described as one. What genuinely differs
+   is WHERE the Share button sits: the bottom bar in Safari on iPhone, the right
+   of the address bar in Chrome and friends, the top toolbar on iPad.
+   The in-app browsers (Facebook, Instagram, Line) are the real exception: they
+   have no Add to Home Screen at all, so they get sent out to a real browser. */
+function iosWhere(){
+  const ua=navigator.userAgent||"";
+  if(/FBAN|FBAV|Instagram|Line\/|Twitter/.test(ua))return "inapp";
+  if(iosIsPad())return "pad";
+  if(/CriOS|EdgiOS|FxiOS|OPiOS/.test(ua))return "topbar";
+  return "bottom";
+}
+function iosAskDue(){
+  if(!iosIs()||iosStandalone())return false;
+  if(window.top!==window.self)return false;
+  try{const t0=+localStorage.getItem(IOS_KEY)||0;if(Date.now()-t0<IOS_SNOOZE)return false}catch(e){}
+  return true;
+}
+/* The Share glyph and the plus-in-a-square, drawn in a 24×24 box so they can be
+   dropped anywhere in the scenes below with one transform. */
+const IOS_SHARE_G='<path d="M12 3.4v10.2M8.9 6.5 12 3.4l3.1 3.1"/><path d="M8.4 9.8H6.2v10.4h11.6V9.8h-2.2"/>';
+const IOS_PLUS_G='<rect x="3.8" y="3.8" width="16.4" height="16.4" rx="4.6"/><path d="M12 8.2v7.6M8.2 12h7.6"/>';
+function iosArt(step){
+  const where=iosWhere();
+  if(step===0&&where==="bottom")return `<svg viewBox="0 0 236 150" aria-hidden="true">
+    <rect class="iosD" x="79" y="4" width="78" height="142" rx="13"/>
+    <rect class="iosL2" x="104" y="9" width="28" height="4" rx="2"/>
+    <rect class="iosL2" x="90" y="26" width="52" height="4" rx="2"/>
+    <rect class="iosL" x="90" y="36" width="40" height="4" rx="2"/>
+    <rect class="iosL" x="90" y="48" width="56" height="32" rx="6"/>
+    <rect class="iosL" x="90" y="88" width="48" height="4" rx="2"/>
+    <rect class="iosL" x="90" y="97" width="56" height="4" rx="2"/>
+    <path class="iosD" d="M79 116h78" stroke-width="1.2"/>
+    <g class="iosG" transform="translate(108.2,121.2) scale(.82)">${IOS_SHARE_G}</g>
+    <circle class="iosA ios-ring" cx="118" cy="131" r="14.5"/>
+    <path class="iosAr" d="M206 82c-9 27-30 42-50 46"/>
+    <path class="iosAr" d="M156 128l11-4M156 128l9 7"/>
+  </svg>`;
+  /* Chrome, Edge, Firefox on iPhone: the Share glyph lives at the right-hand
+     end of the address bar, at the top — not in the bottom bar. */
+  if(step===0&&where!=="pad")return `<svg viewBox="0 0 236 150" aria-hidden="true">
+    <rect class="iosD" x="76" y="4" width="84" height="142" rx="13"/>
+    <rect class="iosL2" x="104" y="9" width="28" height="4" rx="2"/>
+    <rect class="iosL" x="82" y="18" width="50" height="13" rx="6.5"/>
+    <g class="iosG" transform="translate(139.8,17.3) scale(.6)">${IOS_SHARE_G}</g>
+    <circle class="iosA ios-ring" cx="147" cy="24.5" r="10.5"/>
+    <path class="iosD" d="M76 38h84" stroke-width="1.2"/>
+    <rect class="iosL2" x="86" y="50" width="52" height="4" rx="2"/>
+    <rect class="iosL" x="86" y="60" width="40" height="4" rx="2"/>
+    <rect class="iosL" x="86" y="72" width="64" height="30" rx="6"/>
+    <rect class="iosL" x="86" y="110" width="50" height="4" rx="2"/>
+    <rect class="iosL" x="86" y="119" width="60" height="4" rx="2"/>
+    <path class="iosAr" d="M64 108c14-6 22-30 24-58"/>
+    <path class="iosAr" d="M88 50l-7 10M88 50l6 10"/>
+  </svg>`;
+  if(step===0)return `<svg viewBox="0 0 236 150" aria-hidden="true">
+    <rect class="iosD" x="16" y="14" width="204" height="122" rx="12"/>
+    <path class="iosD" d="M16 46h204" stroke-width="1.2"/>
+    <rect class="iosL" x="46" y="23" width="122" height="14" rx="7"/>
+    <g class="iosG" transform="translate(186.4,20.4) scale(.8)">${IOS_SHARE_G}</g>
+    <circle class="iosA ios-ring" cx="196" cy="30" r="13.5"/>
+    <rect class="iosL2" x="34" y="60" width="70" height="5" rx="2.5"/>
+    <rect class="iosL" x="34" y="73" width="110" height="4" rx="2"/>
+    <rect class="iosL" x="34" y="84" width="96" height="4" rx="2"/>
+    <rect class="iosL" x="34" y="98" width="80" height="22" rx="6"/>
+    <rect class="iosL" x="154" y="60" width="48" height="60" rx="7"/>
+    <path class="iosAr" d="M150 118c30-6 44-30 47-54"/>
+    <path class="iosAr" d="M197 64l-6 10M197 64l7 9"/>
+  </svg>`;
+  if(step===1)return `<svg viewBox="0 0 236 150" aria-hidden="true">
+    <rect class="iosD" x="40" y="12" width="156" height="132" rx="16"/>
+    <rect class="iosL2" x="108" y="20" width="20" height="3.5" rx="1.75"/>
+    <circle class="iosL" cx="61" cy="45" r="9"/><circle class="iosL" cx="89" cy="45" r="9"/>
+    <circle class="iosL" cx="117" cy="45" r="9"/><circle class="iosL" cx="145" cy="45" r="9"/>
+    <circle class="iosL" cx="173" cy="45" r="9"/>
+    <path class="iosD" d="M40 64h156" stroke-width="1.2"/>
+    <rect class="iosL" x="54" y="72" width="16" height="16" rx="4.5"/>
+    <rect class="iosL" x="80" y="78" width="62" height="4" rx="2"/>
+    <rect class="iosAf" x="46" y="96" width="144" height="30" rx="9"/>
+    <g class="iosAg" transform="translate(54,101) scale(.85)">${IOS_PLUS_G}</g>
+    <rect class="iosAcc" x="80" y="108" width="86" height="5" rx="2.5"/>
+    <rect class="iosA ios-ring" x="46" y="96" width="144" height="30" rx="9" fill="none"/>
+    <rect class="iosL" x="54" y="134" width="16" height="6" rx="3"/>
+    <rect class="iosL" x="80" y="135" width="52" height="4" rx="2"/>
+  </svg>`;
+  /* The confirmation sheet, drawn as iOS actually presents it: a cancel cross,
+     the Add button top right, the app's own icon and name, and the "Open as Web
+     App" switch that has to stay on. */
+  return `<svg viewBox="0 0 236 150" aria-hidden="true">
+    <defs><clipPath id="iosIcoClip"><rect x="40" y="56" width="26" height="26" rx="7.5"/></clipPath></defs>
+    <rect class="iosD" x="26" y="10" width="184" height="130" rx="14"/>
+    <circle class="iosL" cx="44" cy="27" r="8.5"/>
+    <path class="iosG" d="M41.2 24.2l5.6 5.6M46.8 24.2l-5.6 5.6" stroke-width="1.5"/>
+    <rect class="iosL2" x="66" y="24" width="76" height="6" rx="3"/>
+    <rect class="iosAcc" x="162" y="17" width="36" height="19" rx="9.5"/>
+    <rect class="iosA ios-ring" x="158.5" y="13.5" width="43" height="26" rx="13" fill="none"/>
+    <path class="iosD" d="M26 46h184" stroke-width="1.2"/>
+    <image href="icon-192.png" x="40" y="56" width="26" height="26" clip-path="url(#iosIcoClip)"/>
+    <rect class="iosL2" x="78" y="60" width="56" height="6" rx="3"/>
+    <rect class="iosL" x="78" y="74" width="90" height="5" rx="2.5"/>
+    <path class="iosD" d="M26 92h184" stroke-width="1.2"/>
+    <rect class="iosL2" x="40" y="107" width="74" height="6" rx="3"/>
+    <rect class="iosGf" x="160" y="101" width="34" height="19" rx="9.5"/>
+    <circle class="iosKn" cx="185" cy="110.5" r="7.4"/>
+    <rect class="iosL" x="40" y="129" width="116" height="4" rx="2"/>
+  </svg>`;
+}
+function iosPaint(ov){
+  const w=iosWhere();
+  const s1=w==="pad"?t("ios.s1_pad"):w==="bottom"?t("ios.s1_phone"):t("ios.s1_chrome");
+  const cap=[s1,t("ios.s2"),t("ios.s3")][IOS_STEP];
+  ov.querySelector(".ios-art").innerHTML=iosArt(IOS_STEP);
+  ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:IOS_STEP+1});
+  ov.querySelector(".ios-cap").textContent=cap;
+  ov.querySelectorAll(".ios-dot").forEach((d,i)=>d.classList.toggle("on",i===IOS_STEP));
+  ov.querySelector("[data-io='back']").textContent=IOS_STEP===0?t("ios.later"):t("ios.back");
+  ov.querySelector("[data-io='next']").textContent=IOS_STEP===2?t("ios.done"):t("ios.next");
+}
+/* force: opened from Profile, so it ignores the snooze and the platform test —
+   somebody asking for the instructions gets the instructions. */
+function iosAsk(force){
+  if(!force&&!iosAskDue())return;
+  if(document.querySelector(".ios-ov")||document.querySelector(".pi-ov"))return;
+  IOS_STEP=0;
+  const ov=document.createElement("div");
+  ov.className="cf-ov ios-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="ioT">
+    <img class="pi-logo" src="icon-192.png" alt="">
+    <h3 id="ioT">${esc(t("ios.add_title"))}</h3>
+    <p class="ios-lead">${esc(t("ios.add_lead"))}</p>
+    ${iosWhere()==="inapp"?`<div class="ios-warn">${ic("alert")}<span>${esc(t("ios.inapp_warn"))}</span></div>`:""}
+    <div class="ios-art"></div>
+    <div class="ios-dots">${[0,1,2].map(i=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
+    <div class="ios-step"></div>
+    <p class="ios-cap"></p>
+    <div class="cf-actions">
+      <button class="btn btn-g" data-io="back"></button>
+      <button class="btn btn-p" data-io="next"></button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  iosPaint(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
+  const later=()=>{try{localStorage.setItem(IOS_KEY,String(Date.now()))}catch(e){}};
+  function key(e){if(e.key==="Escape"){later();close()}}
+  ov.addEventListener("click",e=>{
+    const b=e.target.closest("[data-io]");
+    if(b){
+      if(b.dataset.io==="next"){
+        if(IOS_STEP<2){IOS_STEP++;return iosPaint(ov)}
+        later();return close();                       // walked the whole way through
+      }
+      if(IOS_STEP>0){IOS_STEP--;return iosPaint(ov)}
+      later();return close();                         // "Not now" on the first step
+    }
+    if(e.target===ov){later();close()}
+  });
+  document.addEventListener("keydown",key);
+}
+window.iosAsk=iosAsk;
 
 window.shLinkedIn=async()=>{
   await shShare("cert");
@@ -10924,6 +11168,15 @@ function rProfile(el){
     <span class="pf-txt"><b>${t("profile.help")}</b><small>${t("help.row_sub")}</small></span>
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>
+  ${/* Android has Chrome's own install path; on iOS this walkthrough is the only
+        route there is, so it earns a permanent row — someone who tapped "Not now"
+        a fortnight ago still has to be able to find it. */
+    iosIs()&&!iosStandalone()?`
+  <button class="pf-row pf-setup" onclick="iosAsk(true)">
+    <span class="pf-ic">${ic("phone")}</span>
+    <span class="pf-txt"><b>${t("ios.row")}</b><small>${t("ios.row_sub")}</small></span>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>`:""}
   </div>
   ${/* General English and a Professional Track are different products on this
         screen. A General English learner is building confidence in meetings and
@@ -12629,7 +12882,7 @@ window.pronTry=()=>{
   });
   /* Android browser visitors get the offer to install the real app from Play.
      Slightly delayed so it lands on a painted screen, not a blank one. */
-  setTimeout(()=>{try{playAsk()}catch(e){}},500);
+  setTimeout(()=>{try{playAsk();iosAsk()}catch(e){}},500);
 })();
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();
