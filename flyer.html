@@ -76,6 +76,22 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
   .cta-ghost:hover{border-color:var(--acc);transform:translateY(-2px)}
   .cta svg,.cta-ghost svg{width:19px;height:19px}
   .free-line{font-size:13px;color:var(--mut2);margin-top:18px;max-width:58ch}
+  /* Android install offer — see playAsk() at the foot of the page */
+  .pi-ov{position:fixed;inset:0;z-index:900;background:rgba(6,9,18,.8);backdrop-filter:blur(6px);
+    display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .18s ease}
+  .pi-ov.show{opacity:1}
+  .pi-card{max-width:340px;width:100%;background:var(--card);border:1px solid var(--line2);
+    border-radius:20px;padding:26px 24px 22px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);
+    transform:translateY(8px) scale(.98);transition:transform .18s cubic-bezier(.2,.8,.3,1)}
+  .pi-ov.show .pi-card{transform:none}
+  .pi-card img{width:64px;height:64px;border-radius:18px;margin:0 auto 14px;display:block}
+  .pi-card h3{font-size:17.5px;font-weight:800;line-height:1.3;margin-bottom:8px}
+  .pi-card p{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+  .pi-card button{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;
+    min-height:46px;border-radius:13px;font-weight:700;font-size:15px;cursor:pointer;border:1px solid transparent}
+  .pi-get{background:var(--grad);color:#08111f;margin-bottom:8px}
+  .pi-later{background:transparent;color:var(--txt);border-color:var(--line2)!important}
+  .pi-card svg{width:18px;height:18px}
   .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:34px;align-items:center}
   @media(max-width:820px){.hero-grid{grid-template-columns:1fr;gap:30px}}
   .hero-shot{display:flex;justify-content:center}
@@ -589,6 +605,75 @@ var PLAY={en:"Get it on Google Play",es:"Consíguelo en Google Play",fr:"Disponi
  hi:"Google Play पर पाएं",bn:"Google Play-তে পান",id:"Dapatkan di Google Play",
  vi:"Tải trên Google Play",zh:"在 Google Play 获取",ja:"Google Play で手に入れよう",ko:"Google Play에서 받기"};
 Object.keys(PLAY).forEach(function(k){if(FL[k])FL[k].cta_play=PLAY[k]});
+
+/* Android visitors are offered the real app from Play. Same wording as the app's
+   own dialog (index.html, playAsk) — kept here because this page is the public
+   landing page and is often the first thing a shared link opens.
+   Not shown inside the app's About iframe, inside an installed app, or once the
+   visitor has said "continue in the browser" (quiet for a fortnight). */
+var PLAY_ASK={
+ en:["Get the app from Google Play","Same app, same free progress — but on your home screen, ready offline, and able to remind you at the time you choose. It installs from the Play Store in one tap.","Install from Google Play","Continue in the browser"],
+ es:["Consigue la app en Google Play","La misma app, el mismo progreso gratuito, pero en tu pantalla de inicio, lista sin conexión y capaz de recordártelo a la hora que elijas. Se instala desde Play Store con un toque.","Instalar desde Google Play","Seguir en el navegador"],
+ fr:["Installez l’application depuis Google Play","La même application, la même progression gratuite — mais sur votre écran d’accueil, disponible hors ligne et capable de vous rappeler à l’heure que vous choisissez. L’installation depuis le Play Store se fait en une seule fois.","Installer depuis Google Play","Continuer dans le navigateur"],
+ pt:["Instale o app pela Google Play","O mesmo app, o mesmo progresso gratuito — mas na sua tela inicial, pronto offline e capaz de lembrar você no horário que escolher. Instala pela Play Store com um toque.","Instalar pela Google Play","Continuar no navegador"],
+ it:["Scarica l’app da Google Play","La stessa app, gli stessi progressi gratuiti — ma sulla schermata home, pronta offline e in grado di ricordartelo all’ora che scegli. Si installa dal Play Store con un tocco.","Installa da Google Play","Continua nel browser"],
+ de:["Hol dir die App bei Google Play","Dieselbe App, derselbe kostenlose Fortschritt — aber auf deinem Startbildschirm, offline bereit und mit einer Erinnerung zur Uhrzeit deiner Wahl. Installation aus dem Play Store mit einem Tippen.","Aus Google Play installieren","Im Browser weitermachen"],
+ ru:["Установите приложение из Google Play","То же приложение и тот же бесплатный прогресс — но на главном экране, готовое офлайн и способное напомнить в выбранное вами время. Устанавливается из Play Маркета одним касанием.","Установить из Google Play","Продолжить в браузере"],
+ ar:["احصل على التطبيق من Google Play","التطبيق نفسه والتقدّم المجاني نفسه — لكن على شاشتك الرئيسية، جاهز دون إنترنت، ويذكّرك في الوقت الذي تختاره. يُثبَّت من متجر Play بلمسة واحدة.","التثبيت من Google Play","المتابعة في المتصفح"],
+ ur:["ایپ Google Play سے حاصل کریں","وہی ایپ، وہی مفت پیش رفت — مگر آپ کی ہوم اسکرین پر، آف لائن تیار، اور آپ کے چُنے ہوئے وقت پر یاد دلانے کے قابل۔ Play Store سے ایک ٹیپ میں انسٹال ہو جاتی ہے۔","Google Play سے انسٹال کریں","براؤزر میں جاری رکھیں"],
+ hi:["ऐप Google Play से पाएं","वही ऐप, वही मुफ़्त प्रगति — पर आपकी होम स्क्रीन पर, ऑफ़लाइन तैयार, और आपके चुने समय पर याद दिलाने में सक्षम। Play Store से एक टैप में इंस्टॉल हो जाता है।","Google Play से इंस्टॉल करें","ब्राउज़र में जारी रखें"],
+ bn:["অ্যাপটি Google Play থেকে নিন","একই অ্যাপ, একই বিনামূল্যের অগ্রগতি — তবে আপনার হোম স্ক্রিনে, অফলাইনে প্রস্তুত, আর আপনার বেছে নেওয়া সময়ে মনে করিয়ে দিতে সক্ষম। Play Store থেকে এক ট্যাপেই ইনস্টল হয়।","Google Play থেকে ইনস্টল করুন","ব্রাউজারে চালিয়ে যান"],
+ id:["Dapatkan aplikasinya di Google Play","Aplikasi yang sama, progres gratis yang sama — tetapi ada di layar utama, siap offline, dan bisa mengingatkanmu pada jam yang kamu pilih. Terpasang dari Play Store hanya dengan satu ketukan.","Pasang dari Google Play","Lanjutkan di browser"],
+ vi:["Tải ứng dụng trên Google Play","Vẫn ứng dụng đó, vẫn tiến trình miễn phí đó — nhưng nằm trên màn hình chính, sẵn sàng ngoại tuyến và nhắc bạn vào giờ bạn chọn. Cài từ Play Store chỉ với một chạm.","Cài từ Google Play","Tiếp tục trong trình duyệt"],
+ zh:["在 Google Play 获取这款应用","同一个应用，同样免费的进度——但它在你的主屏幕上，离线可用，并能在你选定的时间提醒你。在 Play 商店一键安装。","从 Google Play 安装","继续在浏览器中使用"],
+ ja:["アプリを Google Play で入手","同じアプリ、同じ無料の進捗——でもホーム画面にあり、オフラインでも起動し、あなたが選んだ時刻に知らせてくれます。Play ストアからワンタップでインストールできます。","Google Play からインストール","ブラウザで続ける"],
+ ko:["Google Play에서 앱 받기","같은 앱, 같은 무료 진행 기록 — 다만 홈 화면에 있고, 오프라인에서도 열리며, 원하는 시간에 알려 줍니다. Play 스토어에서 한 번의 탭으로 설치됩니다.","Google Play에서 설치","브라우저에서 계속하기"]
+};
+var PLAY_URL="https://play.google.com/store/apps/details?id=com.bemastery.app";
+var PLAY_KEY="be_play_ask", PLAY_SNOOZE=14*864e5, PLAY_BIP=null;
+window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();PLAY_BIP=e});
+function playAskDue(){
+  if(!/Android/i.test(navigator.userAgent||""))return false;
+  try{
+    if((matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true)return false;
+    if((document.referrer||"").indexOf("android-app://")===0)return false;
+  }catch(e){}
+  if(window.top!==window.self)return false;         // the app's About panel
+  try{var t0=+localStorage.getItem(PLAY_KEY)||0;if(Date.now()-t0<PLAY_SNOOZE)return false}catch(e){}
+  return true;
+}
+function playLater(){try{localStorage.setItem(PLAY_KEY,String(Date.now()))}catch(e){}}
+function playGo(){
+  playLater();                                      // asked and answered
+  if(PLAY_BIP){var ev=PLAY_BIP;PLAY_BIP=null;try{ev.prompt();return}catch(e){}}
+  window.open(PLAY_URL,"_blank","noopener");
+}
+function playAsk(){
+  if(!playAskDue())return;
+  var d=PLAY_ASK[pickLang()]||PLAY_ASK.en;
+  var ov=document.createElement("div");
+  ov.className="pi-ov";
+  ov.innerHTML='<div class="pi-card" role="dialog" aria-modal="true">'+
+    '<img src="icon-192.png" alt="">'+
+    '<h3></h3><p></p>'+
+    '<button class="pi-get" data-pi="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3.2 15.6 12 4 20.8z"/><path d="M4 3.2 20 12 4 20.8"/><path d="M12.6 9.4 4 3.2M12.6 14.6 4 20.8"/></svg><span></span></button>'+
+    '<button class="pi-later" data-pi="0"></button></div>';
+  ov.querySelector("h3").textContent=d[0];
+  ov.querySelector("p").textContent=d[1];
+  ov.querySelector(".pi-get span").textContent=d[2];
+  ov.querySelector(".pi-later").textContent=d[3];
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ov.classList.add("show")});
+  ov.addEventListener("click",function(e){
+    var b=e.target.closest("[data-pi]");
+    if(!b&&e.target!==ov)return;
+    if(b&&b.getAttribute("data-pi")==="1")playGo(); else playLater();
+    ov.classList.remove("show");setTimeout(function(){ov.remove()},180);
+  });
+}
+/* Chrome may hand us beforeinstallprompt a moment after load; a short wait lets
+   the dialog offer the in-page Play install rather than only the store page. */
+setTimeout(playAsk,700);
 
 var RTL={ar:1,ur:1,fa:1,he:1};
 function pickLang(){

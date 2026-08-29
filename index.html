@@ -1858,6 +1858,15 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .cf-card p{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
 .cf-actions{display:flex;gap:10px}
 .cf-actions .btn{flex:1;justify-content:center;min-height:44px}
+.pi-ov .cf-card{max-width:340px}
+.pi-logo{width:64px;height:64px;border-radius:18px;margin:0 auto 14px;display:block}
+.pi-ov .cf-actions{flex-direction:column;gap:8px}
+.pi-ov .cf-actions .btn{width:100%}
+.pi-ov .cf-actions .btn svg{width:18px;height:18px}
+.ra-stars{display:flex;justify-content:center;gap:6px;margin:2px 0 14px}
+.ra-stars button{background:none;border:0;padding:3px;line-height:0;cursor:pointer;color:var(--line2)}
+.ra-stars button.on{color:var(--gold)}
+.ra-stars svg{width:30px;height:30px;fill:currentColor;stroke:none}
 /* WELCOME MODAL — first run. Persistent: only a user action closes it. */
 .wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
@@ -4446,6 +4455,13 @@ const I18N_EN={
  "rate.sub":"A rating on Google Play is how the next person finds this. It takes a minute, and it helps more than you\u2019d think.",
  "rate.yes":"Rate on Google Play",
  "rate.later":"Not now",
+ "play.ask_title":"Get the app from Google Play",
+ "play.ask_body":"Same app, same free progress — but on your home screen, ready offline, and able to remind you at the time you choose. It installs from the Play Store in one tap.",
+ "play.ask_get":"Install from Google Play",
+ "play.ask_later":"Continue in the browser",
+ "rate.ask_title":"Five stars, if we’ve earned them",
+ "rate.ask_body":"A rating on Google Play is how the next person in your position finds this app. Five stars are already set — tap Post, and Play will ask you to confirm them.",
+ "rate.ask_go":"Post on Google Play",
  "footer.about_link":"About BE Mastery",
  "perf.overview_title":"Your progress",
  "perf.overview_sub":"Where you started, where you are now.",
@@ -5896,7 +5912,9 @@ window.toggleDay=(key,w,d)=>{
   /* Ticking a day off is the clearest "I did the work" signal in the app, and
      carrying the week is what makes drop-out visible: without it you can see
      that people stop, but not where in the 12 weeks they stop. */
-  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}))}
+  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
+    /* Finishing a day is the moment the app has earned an opinion — ask then. */
+    setTimeout(()=>{try{rateAsk()}catch(e){}},1600)}
   save();go("session",w,d);
 };
 /* timer — runs globally; the header pill mirrors it on every page */
@@ -7097,6 +7115,133 @@ function rateHTML(){
 function rateHide(){const el=document.getElementById("homeRate");if(el)el.remove()}
 window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(PLAY_URL,"_blank","noopener")};
 window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};
+
+/* ===== "GET IT ON GOOGLE PLAY" (Android browsers only) =====
+   A shared link lands people in a browser tab. On Android the same app exists
+   on Play, and installed it gets what a tab cannot: an icon on the home screen,
+   an offline start-up and a reminder that fires. Chrome only offers its own
+   install prompt once it decides the visitor is "engaged", and Firefox and
+   Samsung Internet never offer one at all — so the offer is made here instead,
+   on the first screen, with a plain way past it.
+   Never shown inside the Play app itself (a TWA is standalone and arrives with
+   an android-app:// referrer), inside an installed PWA, inside the About
+   iframe, or when Play reports the app is already on the phone.
+   The snooze is in localStorage, not S: it is about this browser on this
+   phone, so it must not ride the cloud sync onto someone's other devices. */
+const PLAY_SNOOZE=14*864e5;          // "Continue in the browser" quietens it for a fortnight
+const PLAY_SNOOZE_KEY="be_play_ask";
+let PLAY_BIP=null;                   /* Chrome's beforeinstallprompt, parked for our own button.
+                                        With prefer_related_applications in manifest.json its
+                                        platform is "play", so prompt() opens the Play install
+                                        dialog in-page instead of installing a WebAPK. */
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();PLAY_BIP=e});
+function playStandalone(){
+  try{
+    return (matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true
+      ||(document.referrer||"").startsWith("android-app://");
+  }catch(e){return false}
+}
+function playAskDue(){
+  if(!/Android/i.test(navigator.userAgent||""))return false;
+  if(playStandalone())return false;
+  if(window.top!==window.self)return false;
+  try{const t0=+localStorage.getItem(PLAY_SNOOZE_KEY)||0;if(Date.now()-t0<PLAY_SNOOZE)return false}catch(e){}
+  return true;
+}
+async function playAsk(){
+  if(!playAskDue())return;
+  /* Chrome can tell us the Play app is already installed — offering it then is noise. */
+  try{
+    if(navigator.getInstalledRelatedApps){
+      const apps=await navigator.getInstalledRelatedApps();
+      if(apps&&apps.length)return;
+    }
+  }catch(e){}
+  if(document.querySelector(".pi-ov"))return;
+  const ov=document.createElement("div");
+  ov.className="cf-ov pi-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="piT">
+    <img class="pi-logo" src="icon-192.png" alt="">
+    <h3 id="piT">${esc(t("play.ask_title"))}</h3>
+    <p>${esc(t("play.ask_body"))}</p>
+    <div class="cf-actions">
+      <button class="btn btn-p" data-pi="1">${ic("play")}${esc(t("play.ask_get"))}</button>
+      <button class="btn btn-g" data-pi="0">${esc(t("play.ask_later"))}</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
+  function key(e){if(e.key==="Escape"){playLater();close()}}
+  ov.addEventListener("click",e=>{
+    const b=e.target.closest("[data-pi]");
+    if(b){if(b.dataset.pi==="1")playGo();else playLater();return close()}
+    if(e.target===ov){playLater();close()}       // tap outside = not now
+  });
+  document.addEventListener("keydown",key);
+}
+function playLater(){try{localStorage.setItem(PLAY_SNOOZE_KEY,String(Date.now()))}catch(e){}}
+async function playGo(){
+  try{localStorage.setItem(PLAY_SNOOZE_KEY,String(Date.now()))}catch(e){}   // asked and answered; don't re-ask on the way back
+  track("play_click",{source:"android_ask"});
+  /* prompt() must run inside the click, so it goes first and nothing is awaited
+     before it. If Chrome never gave us the event (Firefox, Samsung Internet, or
+     an engagement rule not met), fall back to the store page. */
+  if(PLAY_BIP){
+    const ev=PLAY_BIP;PLAY_BIP=null;
+    try{ev.prompt();const c=await ev.userChoice;if(c&&c.outcome==="accepted")return}catch(e){}
+  }
+  window.open(PLAY_URL,"_blank","noopener");
+}
+window.playAsk=playAsk;
+
+/* ===== RATE ON GOOGLE PLAY — the direct ask (Android) =====
+   The Home card is the quiet version of this; here it is a dialog, raised once
+   a session has just been finished and the app has earned an opinion.
+   The five stars come pre-set, so the ask is unambiguous and one tap away — but
+   they are what we are asking FOR, not a rating that has been cast: nothing on
+   the web can post to Play on someone's behalf, so "Post" opens the listing and
+   Play asks them to confirm. The copy says exactly that; do not reword it into
+   a promise that the stars travel, because they don't.
+   Whatever number they pick leads to the same place: steering low raters away
+   from the store is review gating, and Play policy forbids it. */
+let RA_STARS=5;
+function rateAskDue(){
+  if(!/Android/i.test(navigator.userAgent||""))return false;   // there is no Play listing to send anyone else to
+  return rateDue();                                            // 7+ sessions · not rated · 30 days since "not now"
+}
+function rateStarsPaint(ov){
+  ov.querySelectorAll("[data-st]").forEach(b=>b.classList.toggle("on",+b.dataset.st<=RA_STARS));
+}
+function rateAsk(){
+  if(!rateAskDue())return;
+  if(document.querySelector(".ra-ov")||document.querySelector(".pi-ov"))return;   // never two dialogs deep
+  RA_STARS=5;
+  const ov=document.createElement("div");
+  ov.className="cf-ov pi-ov ra-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="raT">
+    <img class="pi-logo" src="icon-192.png" alt="">
+    <h3 id="raT">${esc(t("rate.ask_title"))}</h3>
+    <div class="ra-stars">${[1,2,3,4,5].map(n=>
+      `<button class="on" data-st="${n}" aria-label="${n}">${ic("star")}</button>`).join("")}</div>
+    <p>${esc(t("rate.ask_body"))}</p>
+    <div class="cf-actions">
+      <button class="btn btn-p" data-ra="1">${ic("star")}${esc(t("rate.ask_go"))}</button>
+      <button class="btn btn-g" data-ra="0">${esc(t("rate.later"))}</button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
+  function key(e){if(e.key==="Escape"){rateLater();close()}}
+  ov.addEventListener("click",e=>{
+    const st=e.target.closest("[data-st]");
+    if(st){RA_STARS=+st.dataset.st;return rateStarsPaint(ov)}
+    const b=e.target.closest("[data-ra]");
+    if(b){if(b.dataset.ra==="1")rateGo();else rateLater();return close()}
+    if(e.target===ov){rateLater();close()}          // tap outside = not now
+  });
+  document.addEventListener("keydown",key);
+}
+window.rateAsk=rateAsk;
 
 window.shLinkedIn=async()=>{
   await shShare("cert");
@@ -12482,6 +12627,9 @@ window.pronTry=()=>{
     /* bucketed, not the raw count — retention shape without a high-cardinality field */
     stage:done===0?"0":done<7?"1-6":done<28?"7-27":done<84?"28-83":"84+"
   });
+  /* Android browser visitors get the offer to install the real app from Play.
+     Slightly delayed so it lands on a painted screen, not a blank one. */
+  setTimeout(()=>{try{playAsk()}catch(e){}},500);
 })();
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();

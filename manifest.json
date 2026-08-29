@@ -7,6 +7,10 @@
   "categories": ["education", "productivity", "business"],
   "start_url": "./",
   "scope": "./",
+  "related_applications": [
+    { "platform": "play", "id": "com.bemastery.app", "url": "https://play.google.com/store/apps/details?id=com.bemastery.app" }
+  ],
+  "prefer_related_applications": true,
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a0e1a",
