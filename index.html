@@ -8999,10 +8999,82 @@ async function vocDef(w){
   VOC_DEF_INFLIGHT[w]=run;
   return run;
 }
+/* ---- The sense that matters at work ----
+   A dictionary is a dictionary: it leads with the oldest sense — which is how a
+   business learner met "stakeholder" as the man holding the bets — and it
+   carries an example for barely half the words. Neither is what this app needs.
+   So when the Worker is reachable, the dictionary's own answer is handed to the
+   model together with the word, and it returns the sense that matters at work
+   plus one sentence a professional would actually say.
+   One small call per word for the life of the device: the result is cached on
+   disk like everything else. Nothing waits on it — the card paints the free
+   answer first and upgrades itself in place if the model improves on it, so an
+   offline learner simply keeps the dictionary version. */
+function vocAreaHint(){
+  try{const tr=areaTrade();if(tr&&tr.name)return " working in "+tr.name;
+      return areaIsPro()?" working in "+areaLabel():""}catch(e){return ""}
+}
+async function vocAI(w,base){
+  if(typeof POLISH_API==="undefined"||!POLISH_API||!navigator.onLine)return null;
+  /* The Worker's chat mode returns {reply, covered} and drops every other field,
+     so both halves travel inside "reply" separated by ~~. That is not a hack
+     worth removing: it keeps this working with the Worker exactly as deployed,
+     with no backend change and nothing new to keep in sync. */
+  const sys=`You write vocabulary cards for someone learning professional English${vocAreaHint()}.
+You are given a word and the dictionary's definition of it.
+Reply with JSON only, in exactly this shape: {"reply":"<definition> ~~ <example>"}
+<definition> — the sense of the word that matters at work: one sentence of plain English, under 18 words.
+<example> — one natural sentence a professional would really say or write, containing the word itself, under 20 words.
+Use British English. If the dictionary's sense is archaic, literal or off-topic for working life, give the modern working sense instead.
+Put nothing else in "reply": no labels, no quotes around the halves, and exactly one ~~ between them.`;
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({chat:{system:sys,messages:[{role:"user",
+        content:JSON.stringify({word:String(w).slice(0,60),dictionary:String((base&&base.def)||"").slice(0,300)})}]}})});
+    if(!r.ok)return null;
+    const j=await r.json().catch(()=>null);
+    const reply=(j&&typeof j.reply==="string")?j.reply.trim():"";
+    if(!reply||/could you say that again/i.test(reply))return null;   // callChat's own fallback text
+    const bits=reply.split("~~");
+    const def=(bits[0]||"").trim().replace(/^["“']|["”']$/g,"");
+    const ex=(bits[1]||"").trim().replace(/^["“']|["”']$/g,"");
+    /* An example that does not contain the word teaches nothing about it. Match
+       on the first token so "follow-up" still matches "a follow-up call". */
+    const stem=String(w).split(/[\s-]+/)[0].replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    let okEx="";
+    try{okEx=(ex&&stem&&new RegExp(stem,"i").test(ex))?ex:""}catch(e){okEx=ex}
+    return (def||okEx)?{def,example:okEx}:null;
+  }catch(e){return null}
+}
+/* The full answer: dictionary first (fast, offline, free), then the model's
+   improvement on it if there is one. Cached under the same key, flagged so a
+   word is never sent twice. */
+async function vocDefRich(w){
+  const store=vocDefStore();
+  if(store[w]&&store[w].ai)return store[w];
+  const key="rich:"+w;
+  if(VOC_DEF_INFLIGHT[key])return VOC_DEF_INFLIGHT[key];
+  const run=(async()=>{
+    const base=await vocDef(w);
+    let out=base;
+    try{
+      const ai=await vocAI(w,base);
+      if(ai&&(ai.def||ai.example)){
+        out={def:ai.def||base.def,example:ai.example||base.example||vocExample(w),
+             pos:base.pos||"",from:base.from||"",ai:1};
+        if(out.def){store[w]=out;vocDefSave();}
+      }
+    }catch(e){}
+    delete VOC_DEF_INFLIGHT[key];
+    return out;
+  })();
+  VOC_DEF_INFLIGHT[key]=run;
+  return run;
+}
 /* Warm the next card while the current one is being read. Fire and forget:
    the result lands in the cache, and vocDef joins the in-flight request if the
    learner flips before it returns. */
-function vocPrefetch(w){if(w)vocDef(w).catch(()=>{})}
+function vocPrefetch(w){if(w)vocDefRich(w).catch(()=>{})}
 let _pracTab="ready";
 /* Library hub — one home for every kind of language the user collects.
    libTab switches the section; _pracTab switches the Study/Review/Mastered bucket. */
@@ -10186,7 +10258,22 @@ async function fcRender(){
     <div class="pv-actions"><button class="btn btn-g" onclick="fcGrade(false)">${t("prac.still_learning")}</button><button class="btn btn-p" onclick="fcGrade(true)">${t("prac.knew_it")}</button></div>`);
   vocPrefetch(_fc.words[_fc.i+1]);                 // the next card, while this one is read
   const d=await vocDef(w),back=document.getElementById("fcBack");
-  if(back)back.innerHTML=`${d.pos||d.from?`<i class="pv-pos">${esc([d.pos,d.from].filter(Boolean).join(" · "))}</i>`:""}<div class="pv-def">${esc(d.def||pvHint(w))}</div>${d.example?`<div class="pv-ex">“${esc(d.example)}”</div>`:""}`;
+  if(back)back.innerHTML=fcBackHTML(w,d);
+  /* The dictionary answer is already on the card. If the model has a better
+     sense or an example the dictionary lacked, swap it in underneath the
+     learner — but only while they are still on this card. */
+  vocDefRich(w).then(r=>{
+    if(!r||!_fc||_fc.words[_fc.i]!==w)return;
+    if(r.def===d.def&&r.example===d.example)return;
+    const el=document.getElementById("fcBack");
+    if(el)el.innerHTML=fcBackHTML(w,r);
+  }).catch(()=>{});
+}
+/* One renderer for the back of the card, because it is painted twice: once from
+   the dictionary and again if the model improves on it. */
+function fcBackHTML(w,d){
+  const tag=[d.pos,d.from].filter(Boolean).join(" · ");
+  return `${tag?`<i class="pv-pos">${esc(tag)}</i>`:""}<div class="pv-def">${esc(d.def||pvHint(w))}</div>${d.example?`<div class="pv-ex">“${esc(d.example)}”</div>`:""}`;
 }
 window.fcFlip=()=>{const c=document.getElementById("fcCard");if(c)c.classList.toggle("flipped");};
 window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(correct)_fc.know++;_fc.i++;fcRender();};

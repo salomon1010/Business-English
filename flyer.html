@@ -671,9 +671,71 @@ function playAsk(){
     ov.classList.remove("show");setTimeout(function(){ov.remove()},180);
   });
 }
+/* iPhone and iPad get a different offer, and deliberately NOT the walkthrough
+   the app itself shows. "Add to Home Screen" installs whatever page is open —
+   run it here and the learner ends up with an icon for the marketing page
+   instead of the app. So the right move on this page is to hand them over:
+   open app.lomonec.com, where the four-step guide is waiting. */
+var IOS_ASK={
+ en:["Get the app on your iPhone","Open the app itself and it will show you how to add it to your Home Screen — its own icon, full screen, and it works offline.","Open the app"],
+ es:["Consigue la app en tu iPhone","Abre la propia app y te enseñará a añadirla a tu pantalla de inicio: su propio icono, pantalla completa y funciona sin conexión.","Abrir la app"],
+ fr:["Installez l’application sur votre iPhone","Ouvrez l’application elle-même : elle vous montrera comment l’ajouter à votre écran d’accueil — sa propre icône, plein écran, et elle fonctionne hors ligne.","Ouvrir l’application"],
+ pt:["Instale o app no seu iPhone","Abra o próprio app e ele mostrará como adicioná-lo à sua tela de início: ícone próprio, tela cheia e funciona offline.","Abrir o app"],
+ it:["Installa l’app sul tuo iPhone","Apri l’app stessa: ti mostrerà come aggiungerla alla schermata Home — icona propria, schermo intero e funziona offline.","Apri l’app"],
+ de:["Hol dir die App auf dein iPhone","Öffne die App selbst — sie zeigt dir, wie du sie auf den Home-Bildschirm legst: eigenes Symbol, Vollbild, und sie läuft offline.","App öffnen"],
+ ru:["Установите приложение на iPhone","Откройте само приложение — оно покажет, как добавить его на экран «Домой»: свой значок, полный экран и работа офлайн.","Открыть приложение"],
+ ar:["احصل على التطبيق على iPhone","افتح التطبيق نفسه وسيوضّح لك كيف تضيفه إلى شاشتك الرئيسية: أيقونة خاصة به، وملء الشاشة، ويعمل دون إنترنت.","افتح التطبيق"],
+ ur:["ایپ اپنے iPhone پر حاصل کریں","خود ایپ کھولیں، وہ آپ کو دکھائے گی کہ اسے ہوم اسکرین پر کیسے شامل کریں — اپنا آئیکن، پوری اسکرین، اور آف لائن کام۔","ایپ کھولیں"],
+ hi:["ऐप को अपने iPhone पर पाएं","ऐप को ही खोलें — वह दिखाएगा कि उसे होम स्क्रीन पर कैसे जोड़ें: अपना आइकन, पूरी स्क्रीन, और ऑफ़लाइन काम।","ऐप खोलें"],
+ bn:["অ্যাপটি আপনার iPhone-এ নিন","অ্যাপটিই খুলুন — এটি দেখাবে কীভাবে হোম স্ক্রিনে যোগ করবেন: নিজস্ব আইকন, পূর্ণ স্ক্রিন, আর অফলাইনে চলে।","অ্যাপ খুলুন"],
+ id:["Dapatkan aplikasinya di iPhone-mu","Buka aplikasinya sendiri — ia akan menunjukkan cara menambahkannya ke Layar Utama: ikon sendiri, layar penuh, dan jalan offline.","Buka aplikasi"],
+ vi:["Cài ứng dụng trên iPhone của bạn","Hãy mở chính ứng dụng — nó sẽ chỉ bạn cách thêm vào Màn hình chính: biểu tượng riêng, toàn màn hình và chạy ngoại tuyến.","Mở ứng dụng"],
+ zh:["在你的 iPhone 上安装这款应用","打开应用本身，它会告诉你如何添加到主屏幕——自己的图标、全屏，而且离线可用。","打开应用"],
+ ja:["iPhoneにアプリを入れる","アプリ自体を開いてください。ホーム画面への追加方法を案内します——独自のアイコン、全画面、オフラインでも動きます。","アプリを開く"],
+ ko:["iPhone에 앱 설치하기","앱을 직접 열면 홈 화면에 추가하는 방법을 안내합니다 — 고유 아이콘, 전체 화면, 오프라인 실행.","앱 열기"]
+};
+var IOS_KEY="be_ios_ask";
+function iosIsPad(){
+  var ua=navigator.userAgent||"";
+  if(/iPad/.test(ua))return true;
+  try{return /Macintosh/.test(ua)&&(navigator.maxTouchPoints||0)>1&&matchMedia("(pointer:coarse)").matches}
+  catch(e){return false}
+}
+function iosAskDue(){
+  var ua=navigator.userAgent||"";
+  if(!/iPad|iPhone|iPod/.test(ua)&&!iosIsPad())return false;
+  try{if((matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true)return false}catch(e){}
+  if(window.top!==window.self)return false;          // the app's About panel
+  try{var t0=+localStorage.getItem(IOS_KEY)||0;if(Date.now()-t0<864e5)return false}catch(e){}
+  return true;
+}
+function iosAsk(){
+  if(!iosAskDue())return;
+  var d=IOS_ASK[pickLang()]||IOS_ASK.en, later=(PLAY_ASK[pickLang()]||PLAY_ASK.en)[3];
+  var ov=document.createElement("div");
+  ov.className="pi-ov";
+  ov.innerHTML='<div class="pi-card" role="dialog" aria-modal="true">'+
+    '<img src="icon-192.png" alt="">'+
+    '<h3></h3><p></p>'+
+    '<button class="pi-get" data-io="1"><span></span></button>'+
+    '<button class="pi-later" data-io="0"></button></div>';
+  ov.querySelector("h3").textContent=d[0];
+  ov.querySelector("p").textContent=d[1];
+  ov.querySelector(".pi-get span").textContent=d[2];
+  ov.querySelector(".pi-later").textContent=later;
+  document.body.appendChild(ov);
+  requestAnimationFrame(function(){ov.classList.add("show")});
+  ov.addEventListener("click",function(e){
+    var b=e.target.closest("[data-io]");
+    if(!b&&e.target!==ov)return;
+    try{localStorage.setItem(IOS_KEY,String(Date.now()))}catch(err){}
+    if(b&&b.getAttribute("data-io")==="1"){location.href="https://app.lomonec.com/";return}
+    ov.classList.remove("show");setTimeout(function(){ov.remove()},180);
+  });
+}
 /* Chrome may hand us beforeinstallprompt a moment after load; a short wait lets
    the dialog offer the in-page Play install rather than only the store page. */
-setTimeout(playAsk,700);
+setTimeout(function(){playAsk();iosAsk();},700);
 
 var RTL={ar:1,ur:1,fa:1,he:1};
 function pickLang(){
