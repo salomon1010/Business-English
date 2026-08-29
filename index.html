@@ -1903,6 +1903,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ios-art .iosGf{fill:var(--green);stroke:none}
 .ios-art .iosKn{fill:#fff;stroke:none}
 .ios-art .iosAcc{fill:var(--acc2);stroke:none}
+.home-ios:hover{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.home-ios-ic{background:color-mix(in srgb,var(--acc) 18%,transparent)!important;color:var(--acc2)}
+.home-ios-go{color:var(--acc2)}
+.help-mode + .home-ios,.help-searchbar+.home-ios{margin-top:12px}
+.help-hero + .home-ios{margin:4px 0 14px}
 /* WELCOME MODAL — first run. Persistent: only a user action closes it. */
 .wc-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .28s ease}
@@ -5239,6 +5244,7 @@ async function rManual(el,embedded){
     <div class="help-hero">
       <h1><span class="hero-ic">${ic("hand")}</span>${greet}</h1>
     </div>
+    ${iosCardHTML()}
     <div class="help-searchbar">
       <div class="help-search"><span class="help-search-ic">${ic("search")}</span><input id="helpSearch" type="search" placeholder="${esc(t("help.search_ph"))}" aria-label="${esc(t("help.search_ph"))}" oninput="helpFilter(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();helpJump(event.shiftKey?-1:1)}"><div class="help-nav" id="helpNav" hidden><span class="help-count" id="helpCount">0/0</span><button type="button" class="help-arrow" onclick="helpJump(-1)" aria-label="Previous match">‹</button><button type="button" class="help-arrow" onclick="helpJump(1)" aria-label="Next match">›</button></div></div>
     </div>
@@ -5494,6 +5500,7 @@ function rHomeGeneral(el){
       <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
     </div>
   </div>
+  ${iosCardHTML()}
   ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
   ${/* The track you are NOT on. Its own card told the learner what they already
         knew — "General English · Current track" on the General English Home —
@@ -5524,6 +5531,7 @@ function rHome(el){
   el.innerHTML=`
   <h1 class="big">What should I do today?</h1>
   <p class="sub">One focused mission for your professional journey.</p>
+  ${iosCardHTML()}
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
     <div class="career-dashboard-grid">
@@ -5629,6 +5637,7 @@ function homePanelDashboard(activeTrackName){
   weeks.forEach(w=>phaseCounts[w.phase]=(phaseCounts[w.phase]||0)+weekDone(w.n));
   const circ=2*Math.PI*62;
   return `
+    ${iosCardHTML()}
     ${rateHTML()}
     <div class="card home-ring">
       <div class="ring-wrap">
@@ -7303,7 +7312,11 @@ window.rateAsk=rateAsk;
    The art is inline SVG on purpose. Screenshots would be wrong in one theme,
    wrong on the other device, and dead weight in the offline cache; this follows
    the theme, scales to any width, and costs nothing to ship. */
-const IOS_KEY="be_ios_ask", IOS_SNOOZE=14*864e5;
+/* "Not now" holds the dialog for a day, not a fortnight. Until the icon is on
+   the Home Screen this is a browser tab that will be closed and forgotten, and
+   the whole point of the app — opening it tomorrow — depends on it being there.
+   So it asks again tomorrow, every day, until iOS reports standalone. */
+const IOS_KEY="be_ios_ask", IOS_SNOOZE=864e5;
 let IOS_STEP=0;
 function iosIsPad(){
   const ua=navigator.userAgent||"";
@@ -7486,6 +7499,21 @@ function iosAsk(force){
   document.addEventListener("keydown",key);
 }
 window.iosAsk=iosAsk;
+/* The always-there version of the same offer. The dialog can be waved away for
+   the day; this cannot be dismissed at all, because it is the only standing
+   answer to "how do I get this on my phone?". It renders on Home and at the top
+   of the Help centre, and vanishes the moment iOS reports standalone. */
+function iosCardHTML(){
+  if(!iosIs()||iosStandalone())return "";
+  return `<button class="card home-due home-ios" onclick="iosAsk(true)">
+      <span class="home-due-ic home-ios-ic">${ic("phone")}</span>
+      <span class="home-due-t">
+        <b>${t("ios.row")}</b>
+        <small>${t("ios.row_sub")}</small>
+      </span>
+      <span class="home-due-go home-ios-go">→</span>
+    </button>`;
+}
 
 window.shLinkedIn=async()=>{
   await shShare("cert");
