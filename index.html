@@ -8679,7 +8679,15 @@ window.vocOpen=async(w,safe)=>{
       ${ph?`<span style="font-family:'JetBrains Mono',monospace;color:var(--acc2);font-size:13px">${esc(ph)}</span>`:""}
       ${aud?`<button class="btn btn-g btn-sm" style="margin-left:8px" onclick="new Audio('${aud}').play()">${t("voc.real_voice")}</button>`:""}
       ${(e.meanings||[]).slice(0,2).map(m=>`<div style="margin-top:8px"><i style="color:var(--pink)">${esc(m.partOfSpeech)}</i> — ${esc((m.definitions[0]||{}).definition||"")}${(m.definitions[0]||{}).example?`<div style="color:var(--mut2);margin-top:2px">“${esc(m.definitions[0].example)}”</div>`:""}</div>`).join("")}`;
-  }catch(e){slot.innerHTML=t("voc.no_entry")}
+  }catch(e){
+    /* The rich entry (phonetics, audio) is only in the first source. When it has
+       nothing, the meaning is still worth having, so fall through to the full
+       lookup before admitting defeat. */
+    const d=await vocDef(w);
+    slot.innerHTML=d.def
+      ?`<div style="margin-top:4px">${d.pos||d.from?`<i style="color:var(--pink)">${esc([d.pos,d.from].filter(Boolean).join(" · "))}</i> — `:""}${esc(d.def)}${d.example?`<div style="color:var(--mut2);margin-top:2px">“${esc(d.example)}”</div>`:""}</div>`
+      :t("voc.no_entry");
+  }
 };
 const VOC_DEFS={};
 window.vocSave=(w,l)=>{
@@ -8796,11 +8804,7 @@ window.vocQuiz=async()=>{
   const words=Object.keys(areaVocab());if(!words.length)return;
   const w=words[Math.floor(Math.random()*words.length)];
   const box=document.getElementById("vqBox");
-  let def="";
-  try{
-    const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
-    def=((e.meanings[0]||{}).definitions[0]||{}).definition||"";
-  }catch(e){}
+  const def=(await vocDef(w)).def;   // same lookup as the flashcards, cache included
   const hint=def?esc(def):t("voc.quiz_hint_fallback",{letter:w[0].toUpperCase(),len:w.length,level:S.vocab[w].l});
   box.innerHTML=`<div class="card" style="background:var(--card2);margin-bottom:12px">
     <div class="eyebrow">${t("voc.quiz_q")}</div>
@@ -8833,12 +8837,172 @@ window.vocQuizTry=w=>{
 function vocState(w){const v=S.vocab[w];if(!v)return"ready";if((v.reps||0)>=5)return"learned";if(!v.due||v.due<=Date.now())return"ready";return"upnext"}
 function vocMark(w,correct){const v=S.vocab[w];if(!v)return;if(correct){v.reps=(v.reps||0)+1;v.due=Date.now()+trackVocabularyIntervals()[Math.min(v.reps-1,trackVocabularyIntervals().length-1)]*86400000;awardCompetency({activityType:"vocabulary_practice",lesson:"Vocabulary · "+w,score:100,duration:1,dedupeKey:"vocab:"+w+":"+v.reps});}else{v.reps=0;v.due=Date.now();}save();}
 function vocBuckets(){const vocab=areaVocab();const b={ready:[],upnext:[],learned:[]};Object.keys(vocab).sort((a,c)=>vocab[c].ts-vocab[a].ts).forEach(w=>b[vocState(w)].push(w));return b;}
-async function vocDef(w){
-  try{const e=VOC_DEFS[w]||(VOC_DEFS[w]=(await(await fetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(w))).json())[0]);
-    const m=(e.meanings||[])[0]||{},d0=(m.definitions||[])[0]||{};
-    return {def:d0.definition||"",example:d0.example||"",pos:m.partOfSpeech||""};
-  }catch(e){return {def:"",example:"",pos:""}}
+/* ===== WHAT A WORD MEANS =====
+   "It starts with U, has 8 letters, level B2" is not a definition, it is the
+   confession that a lookup failed — and it was showing for EVERY word, because
+   api.dictionaryapi.dev stopped sending an Access-Control-Allow-Origin header.
+   curl still gets an answer from it; a browser never does. So the meaning of
+   every saved word had quietly been unavailable, and the card was reduced to
+   counting letters.
+   Wiktionary's REST endpoint does send CORS, covers inflected forms and the
+   technical vocabulary a welding track needs, and is the primary source now.
+   dictionaryapi is still asked — in parallel, never in front — because it is
+   the only one of the two that carries phonetics and audio, and because it may
+   yet start sending the header again. It costs nothing while it fails.
+
+   Speed is a feature here: the card is face-down and the learner is waiting.
+   One request answers most words, a second follows a "form of" pointer, both
+   are capped by a timeout, and the next card is fetched while this one is being
+   read — so flipping is usually instant. What is fetched once is kept on disk,
+   in localStorage rather than in S: a definition is the same for everybody, so
+   it has no business riding the cloud sync onto the user's other devices. */
+const VOC_DEF_KEY="be_voc_defs", VOC_DEF_TIMEOUT=3000;
+let VOC_DEF_STORE=null;
+const VOC_DEF_INFLIGHT={};
+function vocDefStore(){
+  if(VOC_DEF_STORE)return VOC_DEF_STORE;
+  try{VOC_DEF_STORE=JSON.parse(localStorage.getItem(VOC_DEF_KEY)||"{}")}catch(e){VOC_DEF_STORE={}}
+  return VOC_DEF_STORE;
 }
+function vocDefSave(){try{localStorage.setItem(VOC_DEF_KEY,JSON.stringify(VOC_DEF_STORE||{}))}catch(e){}}
+/* A slow source must not hold the card face-down indefinitely. */
+function vocFetch(url){
+  const c=("AbortController" in window)?new AbortController():null;
+  const timer=setTimeout(()=>{try{c&&c.abort()}catch(e){}},VOC_DEF_TIMEOUT);
+  return fetch(url,c?{signal:c.signal}:undefined).finally(()=>clearTimeout(timer));
+}
+function vocStrip(html){
+  if(!html)return "";
+  const d=document.createElement("div");d.innerHTML=String(html);
+  return (d.textContent||"").replace(/\s+/g," ").trim();
+}
+/* "simple past and past participle of unveil" is a signpost, not a meaning.
+   Read the word it points at so the real definition can be fetched instead. */
+const VOC_FORM_OF=/^\(?[^)]*\)?\s*(simple past|past participle|present participle|gerund|plural|singular|comparative|superlative|inflection|inflected form|alternative (spelling|form)|obsolete (spelling|form)|misspelling|archaic (spelling|form))\b/i;
+function vocFormOf(def){
+  if(!def||!VOC_FORM_OF.test(def))return "";
+  const m=/\bof\s+([A-Za-z][A-Za-z'’-]*)/i.exec(def);
+  return m?m[1].toLowerCase():"";
+}
+/* Wiktionary lists the oldest sense first as often as not, which is how a
+   business-English learner met "fillet" as a hair ribbon. Senses flagged
+   obsolete, archaic, dated or rare go to the back of the queue; a sense that
+   comes with an example sentence goes to the front. */
+const VOC_STALE=/^\(?\s*(obsolete|archaic|dated|rare|historical|poetic|dialectal)\b/i;
+/* NOT vocPick — that name is already taken by the save-this-word button, and a
+   function declaration here loses to the window.vocPick assignment above it. */
+function vocBestSense(cands){
+  if(!cands.length)return null;
+  const score=c=>(c.example?4:0)+(VOC_STALE.test(c.def)?-4:0)+(vocFormOf(c.def)?-8:0);
+  return cands.slice().sort((a,b)=>score(b)-score(a))[0];
+}
+async function vocFetchWik(word){
+  const r=await vocFetch("https://en.wiktionary.org/api/rest_v1/page/definition/"+encodeURIComponent(word));
+  if(!r.ok)return null;
+  const j=await r.json(),cands=[];
+  ((j&&j.en)||[]).forEach(block=>(block.definitions||[]).forEach(d=>{
+    const def=vocStrip(d.definition);
+    if(!def||def.length<3)return;
+    cands.push({def,example:vocStrip((((d.parsedExamples||[])[0])||{}).example||(d.examples||[])[0]||""),
+                pos:(block.partOfSpeech||"").toLowerCase()});
+  }));
+  return vocBestSense(cands);
+}
+/* api.dictionaryapi.dev sends no Access-Control-Allow-Origin header, so in a
+   browser it cannot succeed — and it takes about twenty seconds to say so.
+   One attempt per session is the most it is worth; after that it is off. */
+let VOC_DICT_DEAD=false;
+async function vocFetchDict(word){
+  if(VOC_DICT_DEAD)return null;
+  const r=await vocFetch("https://api.dictionaryapi.dev/api/v2/entries/en/"+encodeURIComponent(word))
+    .catch(e=>{VOC_DICT_DEAD=true;throw e});
+  if(!r.ok)return null;
+  const j=await r.json(),e=Array.isArray(j)?j[0]:null;
+  if(!e)return null;
+  VOC_DEFS[word]=e;                          // the rich entry, for the row that wants phonetics
+  const cands=[];
+  (e.meanings||[]).forEach(m=>(m.definitions||[]).forEach(d=>{
+    if(d.definition)cands.push({def:d.definition,example:d.example||"",pos:m.partOfSpeech||""});
+  }));
+  return vocBestSense(cands);
+}
+/* Wiktionary alone decides how long a card waits. Measured: Wiktionary answers
+   in about 40ms; dictionaryapi takes twenty seconds to fail. Waiting on both —
+   even with a timeout — meant every single flip sat at "Loading definition…"
+   for the length of the timeout. So the dead source is fired and forgotten: it
+   fills VOC_DEFS with phonetics if it ever comes back, and it is awaited only
+   when Wiktionary itself had nothing, where a slow answer beats no answer. */
+async function vocLookup(word){
+  let hit=null;
+  try{hit=await vocFetchWik(word)}catch(e){}
+  if(hit&&hit.def)return hit;
+  try{hit=await vocFetchDict(word)}catch(e){}     // only once Wiktionary has failed
+  return (hit&&hit.def)?hit:null;
+}
+/* ---- Examples ----
+   A definition without a sentence is a dictionary; a definition with one is a
+   lesson. Wiktionary supplies an example for maybe half the words, so the rest
+   are drawn from the material this learner is actually working through: their
+   own saved shadow transcripts first, then the phrase bank, then the week's
+   tasks. That is what "in context" means here — the word as it appears in their
+   own course, not a sentence invented for them. Nothing is fabricated: if no
+   real sentence exists, the card simply shows none. */
+function vocCorpus(){
+  const out=[];
+  const push=x=>{if(x&&typeof x==="string"&&x.length>8)out.push(x)};
+  try{(aList("clips")||[]).forEach(c=>push(c&&c.txt))}catch(e){}
+  try{(trackPhrases()||[]).forEach(p=>push(p&&p.p))}catch(e){}
+  try{trackWeeks().forEach(wk=>{
+    push(wk&&wk.theme);
+    Object.keys((wk&&wk.days)||{}).forEach(k=>{const d=wk.days[k];push(d&&d.task);push(d&&d.focus)});
+  })}catch(e){}
+  return out;
+}
+function vocExample(w){
+  const esc_=String(w||"").replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  if(!esc_)return "";
+  let re;try{re=new RegExp("\\b"+esc_+"\\b","i")}catch(e){return ""}
+  const corpus=vocCorpus();
+  for(let i=0;i<corpus.length;i++){
+    const chunk=corpus[i];
+    if(!re.test(chunk))continue;
+    /* No lookbehind in the split: a regex literal using it is a parse error on
+       older Safari, which would take the whole script down, not just this line. */
+    const sent=chunk.split(/[.!?…]+\s+/).find(x=>re.test(x))||chunk;
+    const pick=sent.trim().replace(/\s+/g," ");
+    if(pick.length>=12&&pick.length<=200)return /[.!?…]$/.test(pick)?pick:pick+".";
+  }
+  return "";
+}
+async function vocDef(w){
+  const store=vocDefStore();
+  if(store[w]&&store[w].def)return store[w];
+  if(VOC_DEF_INFLIGHT[w])return VOC_DEF_INFLIGHT[w];      // a prefetch already asked; join it
+  const run=(async()=>{
+    let hit=null;
+    try{hit=await vocLookup(w)}catch(e){}
+    /* Followed one hop only: "unveiled" → "unveil" is worth a second request,
+       a chain of them is not. */
+    if(hit&&vocFormOf(hit.def)){
+      const lemma=vocFormOf(hit.def);
+      try{
+        const better=await vocLookup(lemma);
+        if(better&&better.def&&!vocFormOf(better.def)){better.from=lemma;hit=better;}
+      }catch(e){}
+    }
+    const res=(hit&&hit.def)?hit:{def:"",example:"",pos:""};
+    if(res.def&&!res.example)res.example=vocExample(res.from||w)||vocExample(w);
+    if(res.def){store[w]=res;vocDefSave();}
+    delete VOC_DEF_INFLIGHT[w];
+    return res;
+  })();
+  VOC_DEF_INFLIGHT[w]=run;
+  return run;
+}
+/* Warm the next card while the current one is being read. Fire and forget:
+   the result lands in the cache, and vocDef joins the in-flight request if the
+   learner flips before it returns. */
+function vocPrefetch(w){if(w)vocDef(w).catch(()=>{})}
 let _pracTab="ready";
 /* Library hub — one home for every kind of language the user collects.
    libTab switches the section; _pracTab switches the Study/Review/Mastered bucket. */
@@ -10020,8 +10184,9 @@ async function fcRender(){
       <div class="pv-face pv-back" id="fcBack"><div class="pv-loading">${t("voc.loading_def")}</div></div>
     </div>
     <div class="pv-actions"><button class="btn btn-g" onclick="fcGrade(false)">${t("prac.still_learning")}</button><button class="btn btn-p" onclick="fcGrade(true)">${t("prac.knew_it")}</button></div>`);
+  vocPrefetch(_fc.words[_fc.i+1]);                 // the next card, while this one is read
   const d=await vocDef(w),back=document.getElementById("fcBack");
-  if(back)back.innerHTML=`${d.pos?`<i class="pv-pos">${esc(d.pos)}</i>`:""}<div class="pv-def">${esc(d.def||pvHint(w))}</div>${d.example?`<div class="pv-ex">“${esc(d.example)}”</div>`:""}`;
+  if(back)back.innerHTML=`${d.pos||d.from?`<i class="pv-pos">${esc([d.pos,d.from].filter(Boolean).join(" · "))}</i>`:""}<div class="pv-def">${esc(d.def||pvHint(w))}</div>${d.example?`<div class="pv-ex">“${esc(d.example)}”</div>`:""}`;
 }
 window.fcFlip=()=>{const c=document.getElementById("fcCard");if(c)c.classList.toggle("flipped");};
 window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(correct)_fc.know++;_fc.i++;fcRender();};
@@ -10032,6 +10197,7 @@ window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("pra
 async function qzRender(){
   if(!_qz)return;if(_qz.i>=_qz.words.length)return qzEnd();
   const w=_qz.words[_qz.i];_qz.correct=w;
+  vocPrefetch(_qz.words[_qz.i+1]);
   const d=await vocDef(w),clue=d.def||pvHint(w);
   const others=_qz.all.filter(x=>x!==w).sort(()=>Math.random()-.5).slice(0,3);
   const opts=[w,...others].sort(()=>Math.random()-.5);
