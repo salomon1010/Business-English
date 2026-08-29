@@ -1897,6 +1897,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ios-dot.on{width:19px;border-radius:3px;background:var(--acc)}
 .ios-step{font-size:10.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--acc2);margin-bottom:6px}
 .ios-cap{font-size:13.5px;color:var(--txt);line-height:1.6;margin-bottom:18px;min-height:65px}
+.ios-menu .btn{width:100%;justify-content:center;min-height:46px;margin-bottom:9px}
+.ios-note{font-size:12px;color:var(--mut2);line-height:1.45;margin:-3px 0 14px}
 /* Art classes rather than inline fills: a presentation attribute holding var()
    is fragile, and the whole point of drawing this is that it follows the theme. */
 .ios-art .iosD{fill:var(--card);stroke:var(--line2);stroke-width:1.6}
@@ -4523,6 +4525,9 @@ const I18N_EN={
  "ios.s2":"A panel slides up. At the end of the row of round buttons, tap “View More” — the ⌄ chevron. In Safari there is no chevron: just scroll the list down.",
  "ios.s3":"The full list opens. Tap “Add to Home Screen” — it sits at the bottom, under Print.",
  "ios.s4":"Leave “Open as Web App” switched on — that is what gives you the full screen and the offline start — then tap “Add” at the top right.",
+ "ios.quick":"Add the icon now",
+ "ios.quick_note":"Opens your browser’s share panel — then choose “Add to Home Screen”.",
+ "ios.guide":"Show me the four steps",
  "ios.next":"Next",
  "ios.back":"Back",
  "ios.done":"Got it",
@@ -7329,6 +7334,7 @@ window.rateAsk=rateAsk;
    So it asks again tomorrow, every day, until iOS reports standalone. */
 const IOS_KEY="be_ios_ask", IOS_SNOOZE=864e5;
 const IOS_STEPS=[0,1,2,3], IOS_LAST=IOS_STEPS.length-1;
+let IOS_MODE="menu";   // "menu" = choose a route · "steps" = the walkthrough
 let IOS_STEP=0;
 function iosIsPad(){
   const ua=navigator.userAgent||"";
@@ -7494,6 +7500,11 @@ function iosArt(step){
   </svg>`;
 }
 function iosPaint(ov){
+  /* Two faces on one dialog: the menu of routes, and the walkthrough itself. */
+  const menu=IOS_MODE==="menu";
+  ov.querySelector(".ios-menu").hidden=!menu;
+  ov.querySelector(".ios-walk").hidden=menu;
+  if(menu)return;
   /* Only the iPad still branches: it has no bottom toolbar, so there is only
      one place its Share button can be. On the iPhone the picture shows both
      positions instead of betting on a user-agent guess — see iosArt. */
@@ -7503,7 +7514,9 @@ function iosPaint(ov){
   ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:IOS_STEP+1,t:IOS_LAST+1});
   ov.querySelector(".ios-cap").textContent=cap;
   ov.querySelectorAll(".ios-dot").forEach((d,i)=>d.classList.toggle("on",i===IOS_STEP));
-  ov.querySelector("[data-io='back']").textContent=IOS_STEP===0?t("ios.later"):t("ios.back");
+  /* Back never closes the dialog now — on step one it returns to the menu, so
+     the shortcut and the way out are always one tap away. */
+  ov.querySelector("[data-io='back']").textContent=t("ios.back");
   ov.querySelector("[data-io='next']").textContent=IOS_STEP===IOS_LAST?t("ios.done"):t("ios.next");
 }
 /* force: opened from Profile, so it ignores the snooze and the platform test —
@@ -7511,7 +7524,11 @@ function iosPaint(ov){
 function iosAsk(force){
   if(!force&&!iosAskDue())return;
   if(document.querySelector(".ios-ov")||document.querySelector(".pi-ov"))return;
-  IOS_STEP=0;
+  IOS_STEP=0;IOS_MODE="menu";
+  /* The shortcut is offered only where the browser can actually open a share
+     panel. Where it cannot, the menu is simply the guide and the way out —
+     an inert button would be worse than no button. */
+  const canShare=!!navigator.share;
   const ov=document.createElement("div");
   ov.className="cf-ov ios-ov";
   ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="ioT">
@@ -7519,13 +7536,21 @@ function iosAsk(force){
     <h3 id="ioT">${esc(t("ios.add_title"))}</h3>
     <p class="ios-lead">${esc(t("ios.add_lead"))}</p>
     ${iosWhere()==="inapp"?`<div class="ios-warn">${ic("alert")}<span>${esc(t("ios.inapp_warn"))}</span></div>`:""}
-    <div class="ios-art"></div>
-    <div class="ios-dots">${IOS_STEPS.map((_,i)=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
-    <div class="ios-step"></div>
-    <p class="ios-cap"></p>
-    <div class="cf-actions">
-      <button class="btn btn-g" data-io="back"></button>
-      <button class="btn btn-p" data-io="next"></button>
+    <div class="ios-menu">
+      ${canShare?`<button class="btn btn-p" data-io="quick">${ic("upload")}${esc(t("ios.quick"))}</button>
+      <p class="ios-note">${esc(t("ios.quick_note"))}</p>`:""}
+      <button class="btn btn-g" data-io="guide">${ic("list")}${esc(t("ios.guide"))}</button>
+      <button class="btn btn-g" data-io="skip">${esc(t("ios.later"))}</button>
+    </div>
+    <div class="ios-walk" hidden>
+      <div class="ios-art"></div>
+      <div class="ios-dots">${IOS_STEPS.map((_,i)=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
+      <div class="ios-step"></div>
+      <p class="ios-cap"></p>
+      <div class="cf-actions">
+        <button class="btn btn-g" data-io="back"></button>
+        <button class="btn btn-p" data-io="next"></button>
+      </div>
     </div></div>`;
   document.body.appendChild(ov);
   iosPaint(ov);
@@ -7536,12 +7561,25 @@ function iosAsk(force){
   ov.addEventListener("click",e=>{
     const b=e.target.closest("[data-io]");
     if(b){
-      if(b.dataset.io==="next"){
+      const act=b.dataset.io;
+      if(act==="quick"){
+        /* navigator.share must be reached from inside the tap — anything awaited
+           first loses the gesture and the panel never opens. Whether iOS puts
+           "Add to Home Screen" in a panel a web page opened is not something
+           the app can find out, so the guide is put on screen behind it either
+           way: if the shortcut finishes the job the dialog is never seen again,
+           and if it does not, the four steps are already waiting. */
+        try{navigator.share({title:document.title,url:APP_URL}).catch(()=>{})}catch(err){}
+        IOS_MODE="steps";IOS_STEP=0;return iosPaint(ov);
+      }
+      if(act==="guide"){IOS_MODE="steps";IOS_STEP=0;return iosPaint(ov)}
+      if(act==="skip"){later();return close()}
+      if(act==="next"){
         if(IOS_STEP<IOS_LAST){IOS_STEP++;return iosPaint(ov)}
         later();return close();                       // walked the whole way through
       }
       if(IOS_STEP>0){IOS_STEP--;return iosPaint(ov)}
-      later();return close();                         // "Not now" on the first step
+      IOS_MODE="menu";return iosPaint(ov);            // back from step one = the menu
     }
     if(e.target===ov){later();close()}
   });
