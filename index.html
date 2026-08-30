@@ -1998,6 +1998,25 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .exd-bub.them{background:var(--card);border:1px solid var(--line2);color:var(--txt);border-bottom-left-radius:4px}
 .exd-bub.me{background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--txt);
   margin-left:auto;border-bottom-right-radius:4px}
+/* Shadow: a clip with a marked loop. Practice: a due-count card. Session: a
+   timer face. Review: a week of scores. All small, all built from the same
+   tokens as the demos above. */
+.exd-vid{height:46px;border-radius:8px;background:linear-gradient(135deg,var(--card),var(--bg2));
+  border:1px solid var(--line2);display:grid;place-items:center;color:var(--mut2);font-size:9.5px}
+.exd-scrub{position:relative;height:7px;border-radius:99px;background:var(--line);margin-top:7px}
+.exd-scrub span{position:absolute;top:0;bottom:0;border-radius:99px;background:var(--grad)}
+.exd-scrub i{position:absolute;top:-3px;width:3px;height:13px;border-radius:2px;background:var(--acc2)}
+.exd-times{display:flex;justify-content:space-between;font-size:8.5px;color:var(--mut2);margin-top:4px}
+.exd-words{display:flex;flex-wrap:wrap;gap:4px}
+.exd-w{font-size:10px;padding:2px 7px;border-radius:99px;border:1px solid var(--line2);color:var(--mut)}
+.exd-w.ok{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent)}
+.exd-w.warn{color:var(--gold);border-color:color-mix(in srgb,var(--gold) 45%,transparent)}
+.exd-w.bad{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,transparent)}
+.exd-clock{font-size:26px;font-weight:800;letter-spacing:-1px;text-align:center;color:var(--txt);
+  font-variant-numeric:tabular-nums}
+.exd-week{display:flex;gap:4px;align-items:flex-end;height:44px;margin-top:6px}
+.exd-week i{flex:1;border-radius:3px 3px 0 0;background:var(--grad);opacity:.85}
+.exd-center{text-align:center}
 @keyframes exdFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
   .exd-caret,.exd-ring::after,.exd-wave i,.exd-fade{animation:none}
@@ -4467,6 +4486,30 @@ const I18N_EN={
  "how.ws_2":"Choose who to speak to first. The supervisor, the inspector and your colleague are three different conversations about the same job.",
  "how.ws_3":"Speak your side out loud. Work through the objectives in your own words — nobody is marking your grammar, only whether the message landed.",
  "how.ws_4":"The debrief shows which objectives you hit, the technical vocabulary you used, and what to try next time.",
+ "how.sh_title":"Steal a voice you admire",
+ "how.sh_lead":"Paste any YouTube clip, mark twenty seconds of it, and say it back until their rhythm becomes yours.",
+ "how.sh_1":"Paste a YouTube link — a talk, an interview, anyone whose English you want. Or take one of the suggested clips.",
+ "how.sh_2":"Mark the twenty to thirty seconds worth repeating: set the start, set the end. That section then loops.",
+ "how.sh_3":"Play it, then say it back over the top. Same speed, same stress, same pauses — an imitation, not a translation.",
+ "how.sh_4":"Record yourself and get it back word by word: green where you matched, amber where you drifted.",
+ "how.pr_title":"Drill what you already collected",
+ "how.pr_lead":"Every word you saved while practising comes back on the day you were about to forget it.",
+ "how.pr_1":"The green card counts the words due today. The schedule decides which ones, not you.",
+ "how.pr_2":"Study cards show the word; you say what it means, then flip to check.",
+ "how.pr_3":"Answer honestly. “I knew it” pushes the word further away; “still learning” brings it back tomorrow.",
+ "how.pr_4":"Quizzes and the word grid work the same words a different way, so you recall them instead of just recognising them.",
+ "how.se_title":"Twenty-five minutes, done properly",
+ "how.se_lead":"One sharp block beats a sloppy hour. This is where the new voice actually gets built.",
+ "how.se_1":"Start the timer and leave it running. It is a commitment, not a stopwatch.",
+ "how.se_2":"Do the day’s work. The links take you to the shadowing or the phrases and bring you back here.",
+ "how.se_3":"Record yourself at least once. A session with no evidence is a session you cannot review later.",
+ "how.se_4":"Score yourself, write one honest line, and mark the day complete. That tick is what lights up your calendar.",
+ "how.rv_title":"Measure it, or drift",
+ "how.rv_lead":"The one page that answers the only question that matters: is any of this working?",
+ "how.rv_1":"Listen to two recordings from the week before you score anything. Memory flatters; the tape does not.",
+ "how.rv_2":"Rate the week out of ten. It is your judgement — the number only has to be honest, not kind.",
+ "how.rv_3":"Write one line about what changed. In eight weeks this is the paragraph that proves it did.",
+ "how.rv_4":"The trend across the twelve weeks is the shape of you getting better. Watch the shape, not any single week.",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.key_phrase":"Key phrase used",
@@ -6002,7 +6045,8 @@ function rSession(el,w,d){
   </div>
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
-  <p style="font-size:13px;color:var(--gold);margin-bottom:${sessionLinks[d]?"10px":"20px"}">${t("sess.evidence",{out:esc(dd.out)})}</p>
+  <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
+  <div class="how-row">${howBtn("session")}</div>
   ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   <div class="sess-body">
@@ -6361,6 +6405,7 @@ function rShadow(el){
   <div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
   <p class="sub">${isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub")}</p>
+  <div class="how-row">${howBtn("shadow")}</div>
   <div class="hr"></div>
 ${(()=>{
     /* Clips are a General English idea. On a Professional Track the lines come
@@ -9268,6 +9313,7 @@ function rPractice(el){
   <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
+  <div class="how-row">${howBtn("practice")}</div>
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
@@ -11181,6 +11227,111 @@ const HOW={
         <div class="exd-chg">Vocabulary used: <b>root pass</b> · <b>cap</b> · <b>handover</b></div>
       </div></div>`
     ]
+  },
+  shadow:{
+    title:"how.sh_title", lead:"how.sh_lead",
+    view:"shadow", point:"#shUrl",
+    art:[
+      ()=>`<div class="exd">
+        <div class="exd-row"><div class="exd-box" style="min-height:0;display:flex;align-items:center;font-size:10px">youtube.com/watch?v=…<i class="exd-caret"></i></div>
+        <div class="exd-btns"><span class="exd-b exd-go exd-ring">${ic("play")}Load</span></div></div>
+      </div>`,
+      ()=>`<div class="exd">
+        <div class="exd-vid">${ic("film")}</div>
+        <div class="exd-scrub"><span style="left:26%;right:47%"></span><i style="left:26%"></i><i style="left:53%"></i></div>
+        <div class="exd-times"><span>0:42</span><span>0:24 marked</span><span>1:06</span></div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("skipstart")}Start</span><span class="exd-b">${ic("forward")}End</span><span class="exd-b">${ic("repeat")}Loop</span></div>
+      </div>`,
+      ()=>`<div class="exd">
+        <div class="exd-res on"><p>“The main blocker is the vendor API — we expect a fix by Friday.”</p></div>
+        <div class="exd-pills"><span class="exd-b">${ic("play")}Them</span><span class="exd-b exd-ring">${ic("mic")}You</span></div>
+        <div class="exd-wave">${[5,12,7,14,6,11,4,13,8,10,5,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
+      </div>`,
+      ()=>`<div class="exd">
+        <div class="exd-res on"><div class="exd-res-lbl">Word by word</div>
+        <div class="exd-words"><span class="exd-w ok">the</span><span class="exd-w ok">main</span><span class="exd-w ok">blocker</span><span class="exd-w warn">vendor</span><span class="exd-w bad">API</span><span class="exd-w ok">by</span><span class="exd-w ok">Friday</span></div>
+        <div class="exd-chg">Green matched · amber drifted · red was not heard</div></div>
+      </div>`
+    ]
+  },
+  practice:{
+    title:"how.pr_title", lead:"how.pr_lead",
+    view:"practice", point:".prac-ex-card",
+    art:[
+      ()=>`<div class="exd"><div class="exd-res on" style="border-color:color-mix(in srgb,var(--green) 50%,transparent)">
+        <div class="exd-res-lbl" style="color:var(--green)">Due today</div>
+        <p><b>7 words are ready to review</b></p>
+        <div class="exd-chg">Chosen by the schedule, on the day you were about to forget them.</div>
+      </div></div>`,
+      ()=>`<div class="exd exd-center"><div class="exd-res on">
+        <div class="exd-res-lbl">Study card</div>
+        <p style="font-size:17px;font-weight:800;margin:6px 0">handover</p>
+        <div class="exd-chg">Tap to turn it over</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <p>The process of transferring responsibility at the end of a shift.</p>
+        <div class="exd-pills"><span class="exd-b">Still learning</span><span class="exd-b exd-go exd-ring">I knew it</span></div>
+        <div class="exd-chg">Knew it → comes back later · Still learning → comes back tomorrow</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-cast">
+        <span class="exd-p exd-ring"><i>${ic("cards")}</i><b>Study cards</b><small>Flip &amp; recall</small></span>
+        <span class="exd-p"><i>${ic("target")}</i><b>Pop quizzes</b><small>Pick the word</small></span>
+        <span class="exd-p"><i>${ic("grid")}</i><b>Word grid</b><small>Fill the grid</small></span>
+      </div></div>`
+    ]
+  },
+  session:{
+    title:"how.se_title", lead:"how.se_lead",
+    view:"session", point:".timer-box",
+    art:[
+      ()=>`<div class="exd exd-center"><div class="exd-res on">
+        <div class="exd-res-lbl">Focused practice block</div>
+        <div class="exd-clock">25:00</div>
+        <div class="exd-pills" style="justify-content:center"><span class="exd-b exd-go exd-ring">${ic("play")}Start</span><span class="exd-b">${ic("pause")}Pause</span></div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-obj">
+        <span><i>□</i>Shadowing — mark a clip and record</span>
+        <span><i>□</i>Phrase Lab — this week's phrases</span>
+        <span><i>□</i>Review — score the week</span>
+      </div><div class="exd-chg">Each link takes you there and brings you back.</div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Today's recording</div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("mic")}Record</span><span class="exd-b">${ic("play")}Play</span></div>
+        <div class="exd-wave">${[4,10,6,13,5,12,7,11,4,9,6,10].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Finish the day</div>
+        <div class="exd-obj">
+          <span class="ok"><i>${ic("check")}</i>Recorded once</span>
+          <span class="ok"><i>${ic("check")}</i>Scored yourself 7/10</span>
+          <span class="ok"><i>${ic("check")}</i>Marked the day complete</span>
+        </div></div></div>`
+    ]
+  },
+  review:{
+    title:"how.rv_title", lead:"how.rv_lead",
+    view:"review", point:"#v-review .card",
+    art:[
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Before you score</div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("play")}Monday's recording</span><span class="exd-b">${ic("play")}Thursday's</span></div>
+        <div class="exd-chg">Memory flatters. The tape does not.</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Week 4 self-score</div>
+        <div class="exd-scrub" style="margin-top:10px"><span style="left:0;right:30%"></span><i style="left:70%"></i></div>
+        <div class="exd-times"><span>1</span><span><b style="color:var(--acc2)">7 / 10</b></span><span>10</span></div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Week 4 written review</div>
+        <p style="color:var(--mut)">“Stopped saying ‘informations’. Still rushing the ends of sentences.”</p>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Twelve weeks</div>
+        <div class="exd-week">${[30,36,32,44,48,45,58,62,60,72,78,86].map(h=>`<i style="height:${h}%"></i>`).join("")}</div>
+        <div class="exd-chg">Watch the shape, not any single week.</div>
+      </div></div>`
+    ]
   }
 };
 let HOW_ID=null, HOW_STEP=0;
@@ -11680,6 +11831,7 @@ function rReview(el,wArg){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${esc(areaIsPro()?t("area.eyebrow_pro",{trade:areaLabel()}):t("area.eyebrow_gen"))}</div>
   <h1 class="big">${t("rev.title")}</h1>
+  <div class="how-row">${howBtn("review")}</div>
   ${areaScopeHTML()}
   ${progressHTML()}
   ${/* The weekly AI review and the growth dashboard both reprinted the same
