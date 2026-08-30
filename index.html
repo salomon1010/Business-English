@@ -1899,6 +1899,48 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ios-cap{font-size:13.5px;color:var(--txt);line-height:1.6;margin-bottom:18px;min-height:65px}
 .ios-menu .btn{width:100%;justify-content:center;min-height:46px;margin-bottom:9px}
 .ios-note{font-size:12px;color:var(--mut2);line-height:1.45;margin:-3px 0 14px}
+/* EXECUTIVE POLISH — the "how it works" demo.
+   Not SVG like the iOS walkthrough: this one has to show real sentences being
+   rewritten, and real text in a real layout is what makes it recognisable as
+   the screen the learner is looking at. So the art is a small live mock of the
+   actual card, typing and all. */
+.exd{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:11px;text-align:left;font-size:11px}
+.exd-head{display:flex;align-items:center;gap:6px;margin-bottom:9px}
+.exd-head b{font-size:11.5px}
+.exd-head .exd-chip{font-size:9px;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold)}
+.exd-row{display:flex;gap:7px;align-items:stretch}
+.exd-box{flex:1;min-height:62px;background:var(--card);border:1px solid var(--line2);border-radius:9px;
+  padding:7px 8px;font-size:10.5px;line-height:1.5;color:var(--mut);word-break:break-word}
+.exd-btns{display:flex;flex-direction:column;gap:5px;flex:none}
+.exd-b{display:flex;align-items:center;justify-content:center;gap:4px;min-width:34px;height:19px;padding:0 7px;
+  border-radius:7px;background:var(--card);border:1px solid var(--line2);color:var(--mut);font-size:9.5px;font-weight:700}
+.exd-b svg{width:11px;height:11px}
+.exd-go{background:var(--grad);color:#08111f;border-color:transparent;white-space:nowrap}
+.exd-caret{display:inline-block;width:1.5px;height:11px;background:var(--acc2);vertical-align:-2px;
+  margin-left:1px;animation:exdBlink 1s steps(1) infinite}
+@keyframes exdBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+/* the pulse that says "this is the thing to tap" */
+.exd-ring{position:relative}
+.exd-ring::after{content:"";position:absolute;inset:-4px;border-radius:11px;border:2px solid var(--acc2);
+  animation:exdPulse 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes exdPulse{0%,100%{opacity:.3;transform:scale(.96)}50%{opacity:1;transform:scale(1.02)}}
+.exd-res{background:var(--card);border:1px solid var(--line2);border-radius:9px;padding:8px 9px;margin-top:7px}
+.exd-res.on{border-color:color-mix(in srgb,var(--gold) 50%,transparent);background:color-mix(in srgb,var(--gold) 7%,var(--card))}
+.exd-res-lbl{font-size:8.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--gold);margin-bottom:3px}
+.exd-res p{font-size:10.5px;line-height:1.5;color:var(--txt);margin:0}
+.exd-pills{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.exd-chg{margin-top:8px;font-size:9.5px;color:var(--mut2);line-height:1.6}
+.exd-chg b{color:var(--green);font-weight:700}
+.exd-wave{display:flex;align-items:flex-end;gap:2px;height:14px;margin-top:6px}
+.exd-wave i{width:2.5px;border-radius:2px;background:var(--acc2);animation:exdWave 1s ease-in-out infinite}
+@keyframes exdWave{0%,100%{height:3px}50%{height:14px}}
+.ex-howbtn{float:right;margin:-2px 0 0 8px}
+html[dir="rtl"] .ex-howbtn{float:left;margin:-2px 8px 0 0}
+.exd-fade{animation:exdFade .45s ease-out both}
+@keyframes exdFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .exd-caret,.exd-ring::after,.exd-wave i,.exd-fade{animation:none}
+}
 /* Art classes rather than inline fills: a presentation attribute holding var()
    is fragile, and the whole point of drawing this is that it follows the theme. */
 .ios-art .iosD{fill:var(--card);stroke:var(--line2);stroke-width:1.6}
@@ -4344,6 +4386,14 @@ const I18N_EN={
  "ex.dictate_listening_hold":"🎙️ Recording — speak freely, tap the mic again to stop.",
  "ex.dictate_title":"Tap to start dictating; tap again to stop",
  "ex.clear_btn":"🗑 Clear",
+ "ex.how_btn":"How it works",
+ "ex.how_title":"Polish what you are about to say",
+ "ex.how_lead":"Ten minutes before the meeting, put in the sentence you were going to use anyway — and walk in with the version a leader would have said.",
+ "ex.how_1":"Tap the mic and say your sentence exactly as it comes out — “um I think maybe we need to fix the problem”. Typing it works just as well. Nothing has to be correct yet.",
+ "ex.how_2":"Tap “Polish it”. Your sentence goes away rough and comes back written for the room you are about to walk into.",
+ "ex.how_3":"Two executive versions come back. Pick the one that sounds like the professional you want to be, and read “What changed” — those are the words you were missing.",
+ "ex.how_4":"Tap “Hear it”, say it out loud twice until it feels like yours, then copy it. That sentence is now ready for the meeting.",
+ "ex.how_try":"Try it now",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.key_phrase":"Key phrase used",
@@ -10835,7 +10885,144 @@ function phWeekBarHTML(w){
     <span class="ph-wk-lbl">${t("ph.week_label",{w,theme:esc(wk.theme)})}</span>
   </button>`;
 }
+/* ===== EXECUTIVE POLISH — "HOW IT WORKS" =====
+   The feature is the least self-explanatory thing in the app: a box, a mic and
+   a button, with nothing on screen saying what it is for. People were meeting
+   it cold. So it gets the same treatment as the iOS install — a short stepped
+   walkthrough — but built from live HTML rather than SVG, because here the
+   thing worth showing is a real sentence being rewritten, and only real text
+   in the real layout makes it recognisable as the screen in front of them.
+   It types, it pulses, it reveals: closer to a ten-second video than a diagram.
+   The last step hands them straight into the box with the mic ready, because a
+   walkthrough that ends in admiration rather than a first attempt has failed.
+
+   The example sentences stay in English in every language. They are the thing
+   being taught — the same reason the phrase bank is not translated. Only the
+   captions around them follow the user's language. */
+const EX_ROUGH="um I think maybe we need to fix the problem with the informations";
+const EX_V1="I'd suggest we address the data issue before it affects the timeline.";
+const EX_V2="We should resolve the reporting error now, so it doesn't hold up delivery.";
+const EX_HOW_KEY="be_ex_how";
+let EX_HOW_STEP=0, EX_TYPER=null;
+const EX_HOW_LAST=3;
+/* Labels are borrowed from the real buttons so the mock cannot drift from the
+   screen it is describing; the leading emoji is stripped the way tIc does. */
+function exdLbl(k){return t(k).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}
+function exdCard(boxHTML,ringGo){
+  return `<div class="exd">
+    <div class="exd-head"><b>${esc(exdLbl("ph.exec_title"))}</b><span class="exd-chip">${esc(t("ph.exec_tag"))}</span></div>
+    <div class="exd-row">
+      <div class="exd-box">${boxHTML}</div>
+      <div class="exd-btns">
+        <span class="exd-b${ringGo?"":" exd-ring"}">${ic("mic")}</span>
+        <span class="exd-b">${ic("trash")}</span>
+        <span class="exd-b exd-go${ringGo?" exd-ring":""}">${ic("sparkle")}${esc(exdLbl("ph.exec_polish_btn"))}</span>
+      </div>
+    </div>
+  </div>`;
+}
+function exHowArt(step){
+  if(step===0)return exdCard(`<span id="exdType"></span><i class="exd-caret"></i>`,false);
+  if(step===1)return exdCard(esc(EX_ROUGH),true);
+  if(step===2)return `<div class="exd">
+    <div class="exd-box" style="min-height:0;font-size:10px;opacity:.6">${esc(EX_ROUGH)}</div>
+    <div class="exd-res on exd-fade">
+      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 1</div>
+      <p>${esc(EX_V1)}</p>
+      <div class="exd-pills"><span class="exd-b">${ic("sound")}${esc(exdLbl("ex.hear_btn"))}</span><span class="exd-b">${ic("doc")}${esc(exdLbl("ex.copy_btn"))}</span></div>
+    </div>
+    <div class="exd-res exd-fade" style="animation-delay:.18s">
+      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 2</div>
+      <p>${esc(EX_V2)}</p>
+    </div>
+    <div class="exd-chg">${esc(exdLbl("ex.what_changed"))} informations → <b>data</b> · fix → <b>address</b> · maybe → <b>I'd suggest</b></div>
+  </div>`;
+  return `<div class="exd">
+    <div class="exd-res on">
+      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 1</div>
+      <p>${esc(EX_V1)}</p>
+      <div class="exd-pills"><span class="exd-b exd-ring">${ic("sound")}${esc(exdLbl("ex.hear_btn"))}</span><span class="exd-b">${ic("gauge")}${esc(exdLbl("ex.slow_btn"))}</span><span class="exd-b">${ic("doc")}${esc(exdLbl("ex.copy_btn"))}</span></div>
+      <div class="exd-wave">${[6,11,4,14,8,13,5,10,7,12,4,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
+    </div>
+  </div>`;
+}
+/* The typing is the whole point of step one: it shows that what goes in is
+   allowed to be a mess. Cleared on every repaint so two timers can never run. */
+function exHowType(ov){
+  clearInterval(EX_TYPER);EX_TYPER=null;
+  const el=ov.querySelector("#exdType");if(!el)return;
+  let i=0;
+  EX_TYPER=setInterval(()=>{
+    if(!document.body.contains(el)){clearInterval(EX_TYPER);EX_TYPER=null;return}
+    el.textContent=EX_ROUGH.slice(0,++i);
+    if(i>=EX_ROUGH.length){clearInterval(EX_TYPER);EX_TYPER=null;setTimeout(()=>{i=0;exHowType(ov)},1800)}
+  },38);
+}
+function exHowPaint(ov){
+  ov.querySelector(".exd-art").innerHTML=exHowArt(EX_HOW_STEP);
+  ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:EX_HOW_STEP+1,t:EX_HOW_LAST+1});
+  ov.querySelector(".ios-cap").textContent=t("ex.how_"+(EX_HOW_STEP+1));
+  ov.querySelectorAll(".ios-dot").forEach((d,i)=>d.classList.toggle("on",i===EX_HOW_STEP));
+  ov.querySelector("[data-ex='back']").textContent=t("ios.back");
+  ov.querySelector("[data-ex='next']").textContent=EX_HOW_STEP===EX_HOW_LAST?t("ex.how_try"):t("ios.next");
+  if(EX_HOW_STEP===0)exHowType(ov); else {clearInterval(EX_TYPER);EX_TYPER=null;}
+}
+window.exHow=()=>{
+  if(document.querySelector(".exd-ov"))return;
+  EX_HOW_STEP=0;
+  try{localStorage.setItem(EX_HOW_KEY,"1")}catch(e){}
+  const ov=document.createElement("div");
+  ov.className="cf-ov ios-ov exd-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="exhT">
+    <h3 id="exhT">${esc(t("ex.how_title"))}</h3>
+    <p class="ios-lead">${esc(t("ex.how_lead"))}</p>
+    <div class="ios-art exd-art" style="padding:0;background:none;border:0"></div>
+    <div class="ios-dots">${[0,1,2,3].map(i=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
+    <div class="ios-step"></div>
+    <p class="ios-cap"></p>
+    <div class="cf-actions">
+      <button class="btn btn-g" data-ex="back"></button>
+      <button class="btn btn-p" data-ex="next"></button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  exHowPaint(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  const close=()=>{clearInterval(EX_TYPER);EX_TYPER=null;document.removeEventListener("keydown",key);
+    ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
+  function key(e){if(e.key==="Escape")close()}
+  ov.addEventListener("click",e=>{
+    const b=e.target.closest("[data-ex]");
+    if(b){
+      if(b.dataset.ex==="next"){
+        if(EX_HOW_STEP<EX_HOW_LAST){EX_HOW_STEP++;return exHowPaint(ov)}
+        close();return exTry();                       // straight into the box
+      }
+      if(EX_HOW_STEP>0){EX_HOW_STEP--;return exHowPaint(ov)}
+      return close();
+    }
+    if(e.target===ov)close();
+  });
+  document.addEventListener("keydown",key);
+};
+/* Ends the walkthrough where it should: the real box, focused, scrolled to,
+   briefly ringed so the eye finds it. Empty on purpose — the sentence they need
+   is their own, not the demo's. */
+window.exTry=()=>{
+  const go1=()=>{
+    const box=document.getElementById("exIn");
+    if(!box)return;
+    try{box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){box.scrollIntoView()}
+    box.focus({preventScroll:true});
+    box.classList.add("exd-ring");setTimeout(()=>box.classList.remove("exd-ring"),2600);
+  };
+  if(cur&&cur.v==="phrases")setTimeout(go1,220);
+  else{go("phrases");setTimeout(go1,360)}
+};
 function rPhrases(el,wFilter){
+  /* Shown once, on the first visit to this page. Executive Polish is a box, a
+     mic and a button with nothing explaining itself, and people were meeting it
+     cold; after that it lives behind the "How it works" button in the header. */
+  try{if(!localStorage.getItem(EX_HOW_KEY))setTimeout(()=>{if(cur&&cur.v==="phrases")exHow()},700)}catch(e){}
   const w=wFilter||currentPos().w;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
@@ -10843,6 +11030,7 @@ function rPhrases(el,wFilter){
   <p class="sub">${t("ph.sub")}</p>
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
     <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
+    <button class="btn btn-g btn-sm ex-howbtn" onclick="exHow()">${tIc("ex.how_btn","idea")}</button>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
       <textarea id="exIn" rows="3" oninput="exHint()" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
