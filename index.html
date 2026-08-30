@@ -4492,6 +4492,12 @@ const I18N_EN={
  "how.sh_2":"Mark the twenty to thirty seconds worth repeating: set the start, set the end. That section then loops.",
  "how.sh_3":"Play it, then say it back over the top. Same speed, same stress, same pauses — an imitation, not a translation.",
  "how.sh_4":"Record yourself and get it back word by word: green where you matched, amber where you drifted.",
+ "how.shw_title":"Say it like the shop says it",
+ "how.shw_lead":"The lines you will actually need at work, spoken by the person who asks for them — and every word of yours scored when you say them back.",
+ "how.shw_1":"The lines come from your own workshops. Each one tells you who asks it and which question it answers.",
+ "how.shw_2":"Tap play to hear it said properly, at the speed it is really said on the job.",
+ "how.shw_3":"Tap “Say it yourself”, say the line out loud, then “Stop and check”.",
+ "how.shw_4":"You get a score and your delivery word by word — plus the words that answer is supposed to carry.",
  "how.pr_title":"Drill what you already collected",
  "how.pr_lead":"Every word you saved while practising comes back on the day you were about to forget it.",
  "how.pr_1":"The green card counts the words due today. The schedule decides which ones, not you.",
@@ -11228,7 +11234,38 @@ const HOW={
       </div></div>`
     ]
   },
-  shadow:{
+  /* Two shadowing screens, one button. General English pastes a clip; a trade
+     track shadows the lines from its own workshops and never sees a URL box. */
+  shadow:{pick:()=>isProfessionalJourney()?HOW._shadowPro:HOW._shadowGen},
+  _shadowPro:{
+    title:"how.shw_title", lead:"how.shw_lead",
+    view:"shadow", point:".sh-line",
+    art:[
+      ()=>`<div class="exd">
+        <div class="exd-res on">
+          <div class="exd-res-lbl">Supervisor · asks you</div>
+          <p>“Run me through where you got to on the number-two line.”</p>
+          <div class="exd-chg">Answering: <b>the shift handover question</b></div>
+        </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Hear the line</div>
+        <p>“We completed the root pass and left the cap open for inspection.”</p>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("play")}Play</span><span class="exd-b">${ic("gauge")}Slow</span></div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Your turn</div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("mic")}Say it yourself</span><span class="exd-b">${ic("stop")}Stop and check</span></div>
+        <div class="exd-wave">${[5,12,7,14,6,11,4,13,8,10,5,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Your delivery</div>
+        <p style="font-size:15px"><b style="color:var(--green)">82%</b> <span style="color:var(--mut2);font-size:10px">word match</span></p>
+        <div class="exd-words"><span class="exd-w ok">completed</span><span class="exd-w ok">root</span><span class="exd-w ok">pass</span><span class="exd-w warn">cap</span><span class="exd-w bad">inspection</span></div>
+        <div class="exd-chg">Words this answer should carry: <b>root pass</b> · <b>cap</b> · <b>inspection</b></div>
+      </div></div>`
+    ]
+  },
+  _shadowGen:{
     title:"how.sh_title", lead:"how.sh_lead",
     view:"shadow", point:"#shUrl",
     art:[
@@ -11335,8 +11372,15 @@ const HOW={
   }
 };
 let HOW_ID=null, HOW_STEP=0;
+/* Some screens are two different screens wearing one name. Shadowing is the
+   clearest: General English pastes a YouTube clip and marks a loop, while a
+   professional track has no URL box at all — that card is display:none — and
+   shows workplace lines drawn from the learner's own workshops instead.
+   One walkthrough describing the other would be worse than none, so an entry
+   may carry a pick() and choose its own shape when it opens. */
+function howCfg(id){const c=HOW[id];return (c&&typeof c.pick==="function")?c.pick():c}
 function howPaint(ov){
-  const cfg=HOW[HOW_ID],last=cfg.art.length-1;
+  const cfg=howCfg(HOW_ID),last=cfg.art.length-1;
   ov.querySelector(".exd-art").innerHTML=cfg.art[HOW_STEP]();
   ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:HOW_STEP+1,t:last+1});
   ov.querySelector(".ios-cap").textContent=t(cfg.title.replace(/_title$/,"_")+(HOW_STEP+1));
@@ -11345,7 +11389,7 @@ function howPaint(ov){
   ov.querySelector("[data-hw='next']").textContent=HOW_STEP===last?t("ex.how_try"):t("ios.next");
 }
 window.howOpen=id=>{
-  const cfg=HOW[id];if(!cfg||document.querySelector(".exd-ov"))return;
+  const cfg=howCfg(id);if(!cfg||document.querySelector(".exd-ov"))return;
   HOW_ID=id;HOW_STEP=0;howMark(id);
   const last=cfg.art.length-1;
   const ov=document.createElement("div");
