@@ -1934,8 +1934,47 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .exd-wave{display:flex;align-items:flex-end;gap:2px;height:14px;margin-top:6px}
 .exd-wave i{width:2.5px;border-radius:2px;background:var(--acc2);animation:exdWave 1s ease-in-out infinite}
 @keyframes exdWave{0%,100%{height:3px}50%{height:14px}}
-.ex-howbtn{float:right;margin:-2px 0 0 8px}
-html[dir="rtl"] .ex-howbtn{float:left;margin:-2px 8px 0 0}
+/* The header used to float the button out of the flow, which dropped it on top
+   of the description underneath. A flex row keeps the three pieces on one line
+   and lets the button fall cleanly onto its own line when there is no room. */
+.ex-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.ex-head-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;flex:1 1 auto}
+.ex-head-t b{font-size:15px;display:inline-flex;align-items:center;gap:6px}
+.ex-desc{font-size:12.5px;color:var(--mut);margin:0 0 12px;line-height:1.55}
+.ex-howbtn{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+  padding:8px 13px;min-height:36px;border-radius:11px;font:inherit;font-size:12.5px;font-weight:800;
+  color:var(--gold);background:color-mix(in srgb,var(--gold) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--gold) 42%,transparent);transition:.16s}
+.ex-howbtn svg{width:15px;height:15px}
+.ex-howbtn:hover{background:color-mix(in srgb,var(--gold) 22%,transparent);transform:translateY(-1px)}
+/* Until it has been opened once it breathes, because the feature underneath it
+   is the one nobody understands on sight. After that it stops asking. */
+.ex-howbtn.is-new{animation:exHowGlow 2.4s ease-in-out infinite}
+@keyframes exHowGlow{
+  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 42%,transparent)}
+  70%,100%{box-shadow:0 0 0 8px color-mix(in srgb,var(--gold) 0%,transparent)}
+}
+@media (max-width:420px){.ex-howbtn{flex:1 1 100%;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.ex-howbtn.is-new{animation:none}}
+/* The demo mock must fill its slot. .ios-art centres its child with place-items,
+   which shrank it to its content width and left it floating off the axis every
+   other element in the card is aligned to. */
+.exd-ov .ios-art{display:block;padding:0;background:none;border:0}
+.exd-ov .exd{width:100%}
+.exd-ov .ios-cap{min-height:0;margin-bottom:16px}
+.exd-ov .ios-lead{margin-bottom:14px}
+/* Step three is the tallest — two versions plus the what-changed line — and on
+   a 667px phone it ran past the bottom of the screen, taking the Next button
+   with it. The overlay centres with flex + margin:auto rather than
+   place-items:center, because that is the combination that still lets you
+   scroll to the top of an item taller than its container. */
+.exd-ov{display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:16px}
+.exd-ov .cf-card{margin:auto}
+@media (max-height:700px){
+  .exd-ov .ios-lead{font-size:12.5px;margin-bottom:10px}
+  .exd-ov .ios-cap{font-size:12.5px;margin-bottom:12px}
+  .exd-ov .exd-res{padding:7px 8px;margin-top:6px}
+}
 .exd-fade{animation:exdFade .45s ease-out both}
 @keyframes exdFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
@@ -10903,6 +10942,7 @@ const EX_ROUGH="um I think maybe we need to fix the problem with the information
 const EX_V1="I'd suggest we address the data issue before it affects the timeline.";
 const EX_V2="We should resolve the reporting error now, so it doesn't hold up delivery.";
 const EX_HOW_KEY="be_ex_how";
+function exHowSeen(){try{return !!localStorage.getItem(EX_HOW_KEY)}catch(e){return false}}
 let EX_HOW_STEP=0, EX_TYPER=null;
 const EX_HOW_LAST=3;
 /* Labels are borrowed from the real buttons so the mock cannot drift from the
@@ -10976,7 +11016,7 @@ window.exHow=()=>{
   ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="exhT">
     <h3 id="exhT">${esc(t("ex.how_title"))}</h3>
     <p class="ios-lead">${esc(t("ex.how_lead"))}</p>
-    <div class="ios-art exd-art" style="padding:0;background:none;border:0"></div>
+    <div class="ios-art exd-art"></div>
     <div class="ios-dots">${[0,1,2,3].map(i=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
     <div class="ios-step"></div>
     <p class="ios-cap"></p>
@@ -11029,9 +11069,14 @@ function rPhrases(el,wFilter){
   <h1 class="big">${t("ph.title")}</h1>
   <p class="sub">${t("ph.sub")}</p>
   <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
-    <b style="font-size:15px">${tIc("ph.exec_title","briefcase")}</b> <span class="chip p3">${t("ph.exec_tag")}</span>
-    <button class="btn btn-g btn-sm ex-howbtn" onclick="exHow()">${tIc("ex.how_btn","idea")}</button>
-    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("ph.exec_desc")}</p>
+    <div class="ex-head">
+      <div class="ex-head-t">
+        <b>${tIc("ph.exec_title","briefcase")}</b>
+        <span class="chip p3">${t("ph.exec_tag")}</span>
+      </div>
+      <button class="ex-howbtn${exHowSeen()?"":" is-new"}" onclick="exHow()">${ic("idea")}<span>${esc(t("ex.how_btn"))}</span></button>
+    </div>
+    <p class="ex-desc">${t("ph.exec_desc")}</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
       <textarea id="exIn" rows="3" oninput="exHint()" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
       <div class="ex-btns">
