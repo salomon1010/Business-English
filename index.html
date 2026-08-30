@@ -1937,6 +1937,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* The header used to float the button out of the flow, which dropped it on top
    of the description underneath. A flex row keeps the three pieces on one line
    and lets the button fall cleanly onto its own line when there is no room. */
+.how-row{display:flex;margin:0 0 18px}
+@media (max-width:420px){.how-row .ex-howbtn{flex:1 1 auto}}
 .ex-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
 .ex-head-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;flex:1 1 auto}
 .ex-head-t b{font-size:15px;display:inline-flex;align-items:center;gap:6px}
@@ -1976,6 +1978,26 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   .exd-ov .exd-res{padding:7px 8px;margin-top:6px}
 }
 .exd-fade{animation:exdFade .45s ease-out both}
+/* Shared by every "How it works" demo — the people row, the objective list and
+   the conversation bubbles below are used by the interview and workshop ones. */
+.exd-cast{display:flex;gap:6px}
+.exd-p{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;
+  background:var(--card);border:1px solid var(--line2);border-radius:9px;padding:8px 5px}
+.exd-p i{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-style:normal;
+  font-size:11px;font-weight:800;background:var(--grad);color:#08111f}
+.exd-p b{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.exd-p small{font-size:8.5px;color:var(--mut2);line-height:1.25}
+.exd-obj{display:grid;gap:5px;margin-top:5px}
+.exd-obj span{display:flex;gap:6px;align-items:flex-start;font-size:10px;line-height:1.4;color:var(--mut)}
+.exd-obj i{flex:none;width:12px;height:12px;border-radius:3px;border:1px solid var(--line2);
+  font-style:normal;font-size:8px;display:grid;place-items:center;margin-top:1px}
+.exd-obj .ok{color:var(--txt)}
+.exd-obj .ok i{background:var(--green);border-color:transparent;color:#06210f}
+.exd-obj .no i{border-color:color-mix(in srgb,var(--gold) 55%,transparent);color:var(--gold)}
+.exd-bub{max-width:82%;padding:6px 9px;border-radius:11px;font-size:10.5px;line-height:1.45;margin-bottom:5px}
+.exd-bub.them{background:var(--card);border:1px solid var(--line2);color:var(--txt);border-bottom-left-radius:4px}
+.exd-bub.me{background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--txt);
+  margin-left:auto;border-bottom-right-radius:4px}
 @keyframes exdFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
   .exd-caret,.exd-ring::after,.exd-wave i,.exd-fade{animation:none}
@@ -4433,6 +4455,18 @@ const I18N_EN={
  "ex.how_3":"Two executive versions come back. Pick the one that sounds like the professional you want to be, and read “What changed” — those are the words you were missing.",
  "ex.how_4":"Tap “Hear it”, say it out loud twice until it feels like yours, then copy it. That sentence is now ready for the meeting.",
  "ex.how_try":"Try it now",
+ "how.iv_title":"Practise the questions you dread",
+ "how.iv_lead":"A real interviewer who listens, follows up, and tells you afterwards what you actually covered. Rehearse it here so the real room is the second time.",
+ "how.iv_1":"Pick the person and the question you are least ready for. Each one behaves differently — one probes vague answers, one tests whether you hold your ground.",
+ "how.iv_2":"Before you start, read the talking points. That is what a strong answer contains — not a script, a checklist.",
+ "how.iv_3":"Tap the mic and answer out loud, as you would in the room. They will follow up on anything vague, exactly like a real interviewer.",
+ "how.iv_4":"At the end you get a debrief: which points you covered, which you missed, and the words you reached for. Run it again and close the gaps.",
+ "how.ws_title":"Rehearse the conversations of the job",
+ "how.ws_lead":"A shift handover, a safety concern, a supervisor asking why the job is late. Say them out loud here first, so the words are already in your mouth on the day.",
+ "how.ws_1":"Choose a workplace scenario. Each one is a real situation you will meet on the job, with its own objectives.",
+ "how.ws_2":"Choose who to speak to first. The supervisor, the inspector and your colleague are three different conversations about the same job.",
+ "how.ws_3":"Speak your side out loud. Work through the objectives in your own words — nobody is marking your grammar, only whether the message landed.",
+ "how.ws_4":"The debrief shows which objectives you hit, the technical vocabulary you used, and what to try next time.",
  "ex.dictate_mic_error":"Mic error — try again",
  "ex.polishing":"✨ Polishing — writing professional versions…",
  "ex.key_phrase":"Key phrase used",
@@ -9788,7 +9822,7 @@ function rSimulation(el,id,characterId){
     manIconizeInline(el);return;
   }
   if(!selected){
-    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body">${(()=>{/* WELDING ONLY. The cast row is the only thing on this screen a learner can    act on, and it was drawn exactly like the three read-only panels beneath    it — same border, same background, same weight — with a caption doing all    the work. On a trade track it is now a panel that reads as the action, and    the first person carries a live cue so there is no decision to make before    the first tap. General English keeps the plain row it already had. */const pro=(typeof areaIsPro==="function")&&areaIsPro();/* Once the workshop has been attempted, "Start here" is no longer true — the    learner has been here and can pick for themselves. */const started=simAttempts(s.id).length>0;const cast=simCast(s).map((c,ci)=>{const lead=pro&&!started&&ci===0;return `<button class="${lead?"is-start":""}" onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')">${lead?`<span class="sim-start-badge">Start here</span>`:""}<b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`;}).join("");const label=`<span class="sim-card-label">Choose who to speak with first</span>`;if(!pro)return `${label}<div class="sim-cast">${cast}</div>`;return `<div class="sim-pick">${label}<p class="sim-pick-hint">Tap a name to open that conversation. You can speak to the others afterwards.</p><div class="sim-cast">${cast}</div></div>`;})()}<div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
+    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p><div class="how-row">${howBtn("workshop")}</div>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body">${(()=>{/* WELDING ONLY. The cast row is the only thing on this screen a learner can    act on, and it was drawn exactly like the three read-only panels beneath    it — same border, same background, same weight — with a caption doing all    the work. On a trade track it is now a panel that reads as the action, and    the first person carries a live cue so there is no decision to make before    the first tap. General English keeps the plain row it already had. */const pro=(typeof areaIsPro==="function")&&areaIsPro();/* Once the workshop has been attempted, "Start here" is no longer true — the    learner has been here and can pick for themselves. */const started=simAttempts(s.id).length>0;const cast=simCast(s).map((c,ci)=>{const lead=pro&&!started&&ci===0;return `<button class="${lead?"is-start":""}" onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')">${lead?`<span class="sim-start-badge">Start here</span>`:""}<b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`;}).join("");const label=`<span class="sim-card-label">Choose who to speak with first</span>`;if(!pro)return `${label}<div class="sim-cast">${cast}</div>`;return `<div class="sim-pick">${label}<p class="sim-pick-hint">Tap a name to open that conversation. You can speak to the others afterwards.</p><div class="sim-cast">${cast}</div></div>`;})()}<div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
       return `<span class="sim-card-label">Your previous reports</span><div class="sim-past">${at.map((a,n)=>`<button onclick="event.stopPropagation();simOpenAttempt('${esc(s.id)}',${a.startedAt})"><span>Attempt ${n+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b></button>`).join("")}</div>`})()}</div></details>`}).join("")}`;return;
   }
   if(isFirstDayMission(selected)&&characterId&&(!simRun||simRun.id!==selected.id)){simMissionBriefing(el,selected,characterId);return}
@@ -11057,6 +11091,146 @@ window.exTry=()=>{
   };
   if(cur&&cur.v==="phrases")setTimeout(go1,220);
   else{go("phrases");setTimeout(go1,360)}
+};
+/* ===== "HOW IT WORKS" — the general engine =====
+   Executive Polish got a walkthrough because nobody could tell what it was for
+   on sight. The interviews and the workplace workshops have exactly the same
+   problem, and a third hand-written copy of the same dialog would have been the
+   moment to regret not generalising. So: one renderer, one set of styles, and a
+   table of walkthroughs. Adding the next one is an entry in HOW, not a rewrite.
+
+   The demo art stays deliberate HTML rather than SVG — see the note on .exd —
+   because what makes these legible is that they look like the screen the person
+   is standing in front of, and that means real text in the real layout.
+   Every walkthrough ends on "Try it now" and hands the learner to the thing
+   itself: a walkthrough that ends in admiration rather than a first attempt has
+   failed. */
+const HOW_SEEN="be_how_";
+function howSeen(id){try{return !!localStorage.getItem(HOW_SEEN+id)}catch(e){return false}}
+function howMark(id){try{localStorage.setItem(HOW_SEEN+id,"1")}catch(e){}}
+/* The button that opens one. It breathes until it has been opened once, then
+   stops asking — the feature behind it is the one nobody understands on sight. */
+function howBtn(id){
+  return `<button class="ex-howbtn${howSeen(id)?"":" is-new"}" onclick="howOpen('${esc(id)}')">${ic("idea")}<span>${esc(t("ex.how_btn"))}</span></button>`;
+}
+/* Scrolls to the real thing and rings it, so the walkthrough ends in the app
+   rather than in the dialog. */
+function howPoint(sel){
+  const el=document.querySelector(sel);if(!el)return;
+  try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){el.scrollIntoView()}
+  el.classList.add("exd-ring");setTimeout(()=>el.classList.remove("exd-ring"),2600);
+}
+const HOW={
+  interview:{
+    title:"how.iv_title", lead:"how.iv_lead",
+    view:"roleplay", point:".rp-hero",
+    art:[
+      ()=>`<div class="exd"><div class="exd-cast">
+        <span class="exd-p exd-ring"><i>R</i><b>Rachel</b><small>hiring manager</small></span>
+        <span class="exd-p"><i>D</i><b>Daniel</b><small>director</small></span>
+        <span class="exd-p"><i>A</i><b>Aisha</b><small>head of people</small></span>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Tell me about yourself</div>
+        <div class="exd-obj">
+          <span><i>□</i>Give a 60-second summary: role, responsibilities, focus</span>
+          <span><i>□</i>Name one concrete achievement with a result</span>
+          <span><i>□</i>Say why this role interests you</span>
+        </div></div></div>`,
+      ()=>`<div class="exd">
+        <div class="exd-bub them">So — tell me about yourself.</div>
+        <div class="exd-bub me exd-fade">I'm a project engineer with six years in industrial maintenance…</div>
+        <div class="exd-bub them exd-fade" style="animation-delay:.25s">What kind of projects, specifically?</div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("mic")}Answer</span></div>
+      </div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Your debrief</div>
+        <div class="exd-obj">
+          <span class="ok"><i>${ic("check")}</i>60-second summary</span>
+          <span class="ok"><i>${ic("check")}</i>Concrete achievement, with a result</span>
+          <span class="no"><i>—</i>Why this role interests you</span>
+        </div></div></div>`
+    ]
+  },
+  workshop:{
+    title:"how.ws_title", lead:"how.ws_lead",
+    view:"simulation", point:".sim-scenario-card",
+    art:[
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Workplace scenario</div>
+        <p><b>Shift handover</b></p>
+        <div class="exd-chg">The night shift is waiting. Tell them what you finished, what you did not, and what to watch.</div>
+      </div></div>`,
+      ()=>`<div class="exd"><div class="exd-cast">
+        <span class="exd-p exd-ring"><i>S</i><b>Samuel</b><small>supervisor</small></span>
+        <span class="exd-p"><i>M</i><b>Maya</b><small>inspector</small></span>
+        <span class="exd-p"><i>T</i><b>Tom</b><small>colleague</small></span>
+      </div></div>`,
+      ()=>`<div class="exd">
+        <div class="exd-bub them">How far did you get on the number-two line?</div>
+        <div class="exd-bub me exd-fade">We completed the root pass, but the cap is still open…</div>
+        <div class="exd-pills"><span class="exd-b exd-ring">${ic("mic")}Speak</span></div>
+      </div>`,
+      ()=>`<div class="exd"><div class="exd-res on">
+        <div class="exd-res-lbl">Your debrief</div>
+        <div class="exd-obj">
+          <span class="ok"><i>${ic("check")}</i>Reported what was completed</span>
+          <span class="ok"><i>${ic("check")}</i>Flagged the open weld</span>
+          <span class="no"><i>—</i>Named the safety risk for the next shift</span>
+        </div>
+        <div class="exd-chg">Vocabulary used: <b>root pass</b> · <b>cap</b> · <b>handover</b></div>
+      </div></div>`
+    ]
+  }
+};
+let HOW_ID=null, HOW_STEP=0;
+function howPaint(ov){
+  const cfg=HOW[HOW_ID],last=cfg.art.length-1;
+  ov.querySelector(".exd-art").innerHTML=cfg.art[HOW_STEP]();
+  ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:HOW_STEP+1,t:last+1});
+  ov.querySelector(".ios-cap").textContent=t(cfg.title.replace(/_title$/,"_")+(HOW_STEP+1));
+  ov.querySelectorAll(".ios-dot").forEach((d,i)=>d.classList.toggle("on",i===HOW_STEP));
+  ov.querySelector("[data-hw='back']").textContent=t("ios.back");
+  ov.querySelector("[data-hw='next']").textContent=HOW_STEP===last?t("ex.how_try"):t("ios.next");
+}
+window.howOpen=id=>{
+  const cfg=HOW[id];if(!cfg||document.querySelector(".exd-ov"))return;
+  HOW_ID=id;HOW_STEP=0;howMark(id);
+  const last=cfg.art.length-1;
+  const ov=document.createElement("div");
+  ov.className="cf-ov ios-ov exd-ov";
+  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="hwT">
+    <h3 id="hwT">${esc(t(cfg.title))}</h3>
+    <p class="ios-lead">${esc(t(cfg.lead))}</p>
+    <div class="ios-art exd-art"></div>
+    <div class="ios-dots">${cfg.art.map((_,i)=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
+    <div class="ios-step"></div>
+    <p class="ios-cap"></p>
+    <div class="cf-actions">
+      <button class="btn btn-g" data-hw="back"></button>
+      <button class="btn btn-p" data-hw="next"></button>
+    </div></div>`;
+  document.body.appendChild(ov);
+  howPaint(ov);
+  requestAnimationFrame(()=>ov.classList.add("show"));
+  const close=()=>{document.removeEventListener("keydown",key);ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
+  function key(e){if(e.key==="Escape")close()}
+  ov.addEventListener("click",e=>{
+    const b=e.target.closest("[data-hw]");
+    if(b){
+      if(b.dataset.hw==="next"){
+        if(HOW_STEP<last){HOW_STEP++;return howPaint(ov)}
+        close();
+        if(cur&&cur.v===cfg.view)setTimeout(()=>howPoint(cfg.point),220);
+        else{go(cfg.view);setTimeout(()=>howPoint(cfg.point),380)}
+        return;
+      }
+      if(HOW_STEP>0){HOW_STEP--;return howPaint(ov)}
+      return close();
+    }
+    if(e.target===ov)close();
+  });
+  document.addEventListener("keydown",key);
 };
 function rPhrases(el,wFilter){
   /* Shown once, on the first visit to this page. Executive Polish is a box, a
@@ -12420,7 +12594,8 @@ function rpLibrary(el){
      <span>${professional?"Professional coaches":t("rp.eyebrow")}</span>
    </div>
    <h1 class="big">${professional?"Talk it out — professional interviews":t("rp.title")}</h1>
-   <p class="sub" style="margin-bottom:18px">${professional?"Choose a coach and practise the interview conversation for each professional skill.":t("rp.sub")}</p>
+   <p class="sub" style="margin-bottom:12px">${professional?"Choose a coach and practise the interview conversation for each professional skill.":t("rp.sub")}</p>
+   <div class="how-row">${howBtn("interview")}</div>
    <!-- key box removed: the Worker holds the key now -->
    <!-- ElevenLabs key box removed: the Worker already serves natural TTS -->
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
