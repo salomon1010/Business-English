@@ -40,3 +40,14 @@ Then convert to MP4 (TikTok will not reliably take WebM):
 same technique the Play Store screenshot rig uses. It exists so the screens are
 populated rather than empty. It is not a real user's data and nothing in it is
 presented as one.
+
+## Never record the General English Shadow picker
+
+It renders real YouTube thumbnails — Steve Jobs at Stanford, Simon Sinek's TED
+talk — which is someone else's likeness and copyright. That is already the
+documented reason there is no Shadow screenshot in the Play listing (see
+CLAUDE.md). It is worse in social video, which travels further than a store page.
+
+A clip was recorded from it during this work and deleted. If you want a
+shadowing clip, use the **welding** track: `05-shadow` shows workshop lines
+spoken by the workshop cast, and every asset in it is yours.
