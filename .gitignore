@@ -28,6 +28,11 @@ node_modules/
 # outside the repo if you want it on another machine.
 marketing/PROMO-PLAYBOOK.md
 
+# Generated promo videos — 30 MB of MP4 that would otherwise be served from
+# app.lomonec.com and bloat every clone. Reproducible any time with
+# scripts/promo-video/record.mjs, which IS committed.
+marketing/video/
+
 # The generated analytics dashboard. Same reason: committing it would publish
 # your own product numbers — opens, funnel, countries — at
 # app.lomonec.com/backend/events/dashboard.html for anyone to read. It is a
