@@ -5,7 +5,9 @@ Two documents, one design system.
 | File | Audience |
 |---|---|
 | `BE-Mastery-Industrial-Training-Partnership-Proposal.docx` | **Send this.** The pitch. |
+| `BE-Mastery-Petrocertif-Academy-Pilot-Proposal.docx` | **Send this** to Petrocertif / JFN Academy. The adapted, named version. |
 | `BE-Mastery-Partnership-Target-List-INTERNAL.docx` | **Never send this.** Who to approach, in what order, and why. |
+| `petrocertif-first-approach.md` | **Never send this.** The message to write, the questions to ask, the wording problem to raise. |
 
 Keeping them apart is the point: the target list carries the prioritisation, the
 two segments deliberately left unnamed, and the caution about not citing a
@@ -16,6 +18,7 @@ Reproduces from a clean checkout:
     python3 build_assets.py      # wordmark + mastheads + closing bands -> assets/
     python3 build_proposal.py    # -> ...Partnership-Proposal.docx
     python3 build_targets.py     # -> ...Target-List-INTERNAL.docx
+    python3 build_jfn.py         # -> ...Petrocertif-Academy-Pilot-Proposal.docx
     python3 check_fit.py [file]  # per-page fill, so nothing silently overflows
 
 `docxkit.py` holds the shared layout kit — palette, ruled section headings,
@@ -52,6 +55,23 @@ the file reads back cleanly through python-docx, and `check_fit.py` measures
 every page against the 28.6 cm column.
 
 To produce the PDF: open in Word and File → Save As → PDF.
+
+## The Petrocertif version
+
+Adapted, not re-templated. Their published course offer already names the app
+("…via our LomoneC App: app.lomonec.com"), so the argument is that the promise
+exists and this makes it real — not "please try my product". Written to be
+forwarded: the champion is one partner among several.
+
+Scoped to boilermaking, industrial piping and welding production supervision,
+because those are the three trades BE Mastery actually carries. The other six
+disciplines in their catalogue are named as the expansion the pilot chooses,
+not as things that exist.
+
+Section 06 states in writing that the certificate is a completion certificate,
+not a proficiency qualification, and that written English is not assessed —
+their course page currently promises "certification in written and spoken
+English", which the product does not do.
 
 ## Facts in the target list
 

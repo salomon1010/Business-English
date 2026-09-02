@@ -71,7 +71,11 @@ DOC = sys.argv[1] if len(sys.argv) > 1 else \
 doc = Document(HERE / DOC)
 
 # images are anchored to their own paragraphs; measure them from the files
-IMG = {"header.jpg": 21.0 * 880 / 2480, "footer.jpg": 21.0 * 300 / 2480}
+# measured from the files themselves — an earlier hand-maintained table drifted
+# silently when the masthead was shortened, which quietly skewed every estimate
+from PIL import Image as _I
+IMG = {f.name: 21.0 * _I.open(f).height / _I.open(f).width
+       for f in (HERE / "assets").glob("*.jpg")}
 
 pages, cur, page = [], 0.0, 1
 body = doc.element.body
@@ -86,8 +90,9 @@ def iter_blocks(parent):
             yield Table(child, parent)
 
 img_i = 0
-img_order = ["header-targets.jpg", "footer-internal.jpg"] if "TARGET" in DOC \
-    else ["header.jpg", "footer.jpg"]
+img_order = (["header-targets.jpg", "footer-internal.jpg"] if "TARGET" in DOC
+             else ["header-jfn.jpg", "footer.jpg"] if "Petrocertif" in DOC
+             else ["header.jpg", "footer.jpg"])
 for blk in iter_blocks(doc):
     if isinstance(blk, Paragraph):
         has_pic = blk._p.findall(".//" + qn("w:drawing"))

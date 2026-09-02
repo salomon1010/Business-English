@@ -186,6 +186,9 @@ band(OUT / "header-targets.jpg", 2480, 742, "PARTNERSHIP TARGET LIST",
      ["Where to take this", "proposal first"],
      "Africa, Canada and the United States — ordered by how fast each could sign a pilot")
 footer_internal(OUT / "footer-internal.jpg")
+band(OUT / "header-jfn.jpg", 2480, 742, "FOUR-WEEK PILOT PROPOSAL",
+     ["Petrocertif Academy", "× BE Mastery"],
+     "Professional English for supervisors in industrial and energy projects")
 for p in sorted(OUT.iterdir()):
     im = Image.open(p)
     print("%-22s %sx%s" % (p.name, im.width, im.height))
