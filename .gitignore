@@ -39,3 +39,7 @@ marketing/video/
 # build artefact; regenerate it with `./backend/events/query.sh dashboard`.
 backend/events/dashboard.html
 marketing/build/
+
+# python bytecode
+__pycache__/
+*.pyc

@@ -124,10 +124,68 @@ def footer_band(path, W=2480, H=300):
     img.save(path, quality=96)
 
 
+def band(path, W, H, eyebrow_text, lines, sub, headline_px=108, sub_px=48):
+    """The masthead, parameterised — the proposal and the target list share it
+    so the two documents read as one set."""
+    img = Image.new("RGB", (W, H), INK)
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        t = y / H
+        d.line([(0, y), (W, y)], fill=(round(38 + 26 * t), round(28 + 18 * t),
+                                       round(88 + 62 * t)))
+    bloom = Image.new("RGB", (W, H), (0, 0, 0))
+    ImageDraw.Draw(bloom).ellipse([W * 0.52, -H * 0.9, W * 1.5, H * 1.5], fill=(64, 44, 162))
+    bloom = bloom.filter(ImageFilter.GaussianBlur(W // 9))
+    img = Image.blend(img, ImageChops.add(img, bloom), 0.62)
+    d = ImageDraw.Draw(img)
+    M = 150
+    mark = Image.open(OUT / "lomonec-white.png")
+    mw = 470
+    mark = mark.resize((mw, round(mark.height * mw / mark.width)), Image.LANCZOS)
+    img.paste(mark, (M, 96), mark)
+    ex = M + mw + 58
+    d.line([(ex, 110), (ex, 110 + mark.height)], fill=(126, 110, 200), width=4)
+    fe = ImageFont.truetype(BOLD, 42)
+    x = ex + 46
+    for ch in eyebrow_text:
+        d.text((x, 110 + mark.height // 2 - 26), ch, font=fe, fill=(196, 186, 255))
+        x += d.textlength(ch, font=fe) + 7
+    ic = app_icon(190)
+    img.paste(ic, (W - M - ic.width, 96), ic)
+    fh = ImageFont.truetype(BOLD, headline_px)
+    y = 332
+    for ln in lines:
+        d.text((M, y), ln, font=fh, fill=WHITE)
+        y += round(headline_px * 1.18)
+    d.text((M, 610), sub, font=ImageFont.truetype(REG, sub_px), fill=(203, 195, 245))
+    img.save(path, quality=96)
+
+
+def footer_internal(path, W=2480, H=230):
+    img = Image.new("RGB", (W, H), INK)
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        t = y / H
+        d.line([(0, y), (W, y)], fill=(round(36 + 14 * t), round(26 + 10 * t),
+                                       round(84 + 34 * t)))
+    M = 150
+    d.text((M, 66), "Internal working document", font=ImageFont.truetype(BOLD, 50), fill=WHITE)
+    fr = ImageFont.truetype(REG, 38)
+    d.text((M, 134), "Lomonec LLC  ·  BE Mastery  ·  not for circulation to partners",
+           font=fr, fill=(186, 176, 232))
+    tw = d.textlength("app.lomonec.com", font=fr)
+    d.text((W - M - tw, 134), "app.lomonec.com", font=fr, fill=(167, 152, 255))
+    img.save(path, quality=96)
+
+
 wordmark(OUT / "lomonec.png", INK, ACCENT)
 wordmark(OUT / "lomonec-white.png", WHITE, LILAC)
 header_band(OUT / "header.jpg")
 footer_band(OUT / "footer.jpg")
+band(OUT / "header-targets.jpg", 2480, 742, "PARTNERSHIP TARGET LIST",
+     ["Where to take this", "proposal first"],
+     "Africa, Canada and the United States — ordered by how fast each could sign a pilot")
+footer_internal(OUT / "footer-internal.jpg")
 for p in sorted(OUT.iterdir()):
     im = Image.open(p)
     print("%-22s %sx%s" % (p.name, im.width, im.height))

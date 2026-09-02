@@ -1,10 +1,25 @@
 # Partnership proposal — BE Mastery × Industrial Training Partner
 
+Two documents, one design system.
+
+| File | Audience |
+|---|---|
+| `BE-Mastery-Industrial-Training-Partnership-Proposal.docx` | **Send this.** The pitch. |
+| `BE-Mastery-Partnership-Target-List-INTERNAL.docx` | **Never send this.** Who to approach, in what order, and why. |
+
+Keeping them apart is the point: the target list carries the prioritisation, the
+two segments deliberately left unnamed, and the caution about not citing a
+reference you have not cleared. None of that should reach a prospect.
+
 Reproduces from a clean checkout:
 
-    python3 build_assets.py      # wordmark + masthead/closing bands -> assets/
-    python3 build_proposal.py    # -> BE-Mastery-Industrial-Training-Partnership-Proposal.docx
-    python3 check_fit.py         # per-page fill, so nothing silently overflows
+    python3 build_assets.py      # wordmark + mastheads + closing bands -> assets/
+    python3 build_proposal.py    # -> ...Partnership-Proposal.docx
+    python3 build_targets.py     # -> ...Target-List-INTERNAL.docx
+    python3 check_fit.py [file]  # per-page fill, so nothing silently overflows
+
+`docxkit.py` holds the shared layout kit — palette, ruled section headings,
+lavender cards, gutter arithmetic — so the two documents cannot drift apart.
 
 **Design** follows the Lomonec offer sheet: indigo masthead, letterspaced
 eyebrows over ruled section headings, lavender cards, a dark closing band.
@@ -38,7 +53,16 @@ every page against the 28.6 cm column.
 
 To produce the PDF: open in Word and File → Save As → PDF.
 
-## Facts in the document
+## Facts in the target list
+
+Every organisation, email and phone number was taken from that organisation's own
+published pages in September 2026 — none is inferred, and none was recalled from
+memory. Two segments are named only as categories (overseas recruitment agencies,
+large EPC contractors) because the specific operators could not be vouched for.
+The note about IRCC OSLT funding ending is flagged **unverified** in the document
+itself; one college page 404'd and another blocked automated access.
+
+## Facts in the proposal
 
 Verified against the app source, not asserted: 12 workplace scenarios, a
 five-person cast, 12 interview coaches, 15 language files, offline after first

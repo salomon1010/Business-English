@@ -65,7 +65,10 @@ def para_cm(p, width_cm):
     return (before + after + body) / 72 * 2.54
 
 MEASURE = 17.6
-doc = Document(HERE / "BE-Mastery-Industrial-Training-Partnership-Proposal.docx")
+import sys
+DOC = sys.argv[1] if len(sys.argv) > 1 else \
+    "BE-Mastery-Industrial-Training-Partnership-Proposal.docx"
+doc = Document(HERE / DOC)
 
 # images are anchored to their own paragraphs; measure them from the files
 IMG = {"header.jpg": 21.0 * 880 / 2480, "footer.jpg": 21.0 * 300 / 2480}
@@ -83,7 +86,8 @@ def iter_blocks(parent):
             yield Table(child, parent)
 
 img_i = 0
-img_order = ["header.jpg", "footer.jpg"]
+img_order = ["header-targets.jpg", "footer-internal.jpg"] if "TARGET" in DOC \
+    else ["header.jpg", "footer.jpg"]
 for blk in iter_blocks(doc):
     if isinstance(blk, Paragraph):
         has_pic = blk._p.findall(".//" + qn("w:drawing"))
@@ -108,7 +112,7 @@ for blk in iter_blocks(doc):
 pages.append((page, cur))
 
 USABLE = 29.7 - 1.1        # top margin is 0 (the band bleeds)
-print("usable column height: %.1f cm\n" % USABLE)
+print("%s\nusable column height: %.1f cm\n" % (DOC, USABLE))
 ok = True
 for n, h in pages:
     slack = USABLE - h
