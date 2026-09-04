@@ -109,13 +109,15 @@ def card_text(s, x, y, w, title, body, tcol=INK, bcol=BODY, tsize=15, bsize=12):
 
 
 def footer(s, dark=False):
-    tf = tb(s, M, Inches(6.92), Inches(11.6), Inches(0.3))
-    para(tf, "Lomonec LLC  ·  BE Mastery  ·  app.lomonec.com", 9.5, False,
-         PALE if dark else MUTED, 0, first=True)
+    """Only the address. The Lomonec wordmark is on the background, bottom
+    left, and the BE Mastery lockup is top right — on every slide."""
+    tf = tb(s, Inches(8.0), Inches(6.98), Inches(4.47), Inches(0.3))
+    para(tf, "app.lomonec.com  ·  contact@lomonec.com", 9.5, False,
+         PALE if dark else MUTED, 0, first=True, align=PP_ALIGN.RIGHT)
 
 
 # ═══════════════════════════ 1 · title ═══════════════════════════
-s = slide("deck-dark.jpg", notes=(
+s = slide("deck-title.jpg", notes=(
     "Open by naming the two things you want from this meeting, so nothing is a surprise:\n\n"
     "\"Two things today. First, I want to propose a pilot — one cohort, four weeks, free. "
     "Second, and honestly: this is the first time I present this properly, and I want you to "
@@ -127,7 +129,6 @@ para(tf, "FOUR-WEEK PILOT PROPOSAL", 13, True, LILAC, 20, first=True)
 para(tf, "%s\n× BE Mastery" % PARTNER, 44, True, WHITE, 16, line=1.06)
 para(tf, "Professional English for supervisors in industrial and energy projects",
      17, False, PALE, 0)
-footer(s, dark=True)
 
 # ═══════════════════════════ 2 · agenda ═══════════════════════════
 s = slide("deck-light.jpg", notes=(
@@ -272,7 +273,7 @@ for img, eb, head, rows, notes in PRODUCT:
         r = p.add_run(); r.text = rest
         r.font.name = "Arial"; r.font.size = Pt(13.5); r.font.color.rgb = BODY
         y += Inches(1.28)
-    s.shapes.add_picture(str(A / img), Inches(8.35), Inches(0.72), height=Inches(6.0))
+    s.shapes.add_picture(str(A / img), Inches(8.35), Inches(1.06), height=Inches(5.6))
     footer(s)
 
 # ═══════════════════════ 10 · where it fits ═══════════════════════
@@ -532,7 +533,7 @@ for t_, d in nots:
     para(tf, t_, 15, True, INK, 3, first=True, line=1.1)
     para(tf, d, 12.5, False, BODY, 0, line=1.28)
     y += Inches(1.32)
-tf = tb(s, M, Inches(6.72), Inches(11.6), Inches(0.5))
+tf = tb(s, M, Inches(6.5), Inches(11.6), Inches(0.5))
 para(tf, "Worth reflecting in the course page wording before the cohort starts — a suggested "
          "sentence is in the proposal.", 12.5, True, MUTED, 0, first=True)
 footer(s)
