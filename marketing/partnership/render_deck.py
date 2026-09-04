@@ -9,13 +9,14 @@ colour. It is not PowerPoint's typesetter, so line breaks may differ by a word,
 but it is read from the file rather than from intent — which is what makes it
 worth looking at.
 """
-import pathlib, sys
+import pathlib, sys, sys
 from pptx import Presentation
 from pptx.util import Emu
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = pathlib.Path(__file__).resolve().parent
-OUT = HERE / "assets" / "deck-preview"
+DECK = sys.argv[1] if len(sys.argv) > 1 else "Petrocertif-Pilot-Presentation.pptx"
+OUT = HERE / "assets" / ("deck-preview-value" if "Value" in DECK else "deck-preview")
 OUT.mkdir(parents=True, exist_ok=True)
 SCALE = 2.0                                    # px per point
 FONTS = {(False, False): "/System/Library/Fonts/Supplemental/Arial.ttf",
@@ -62,7 +63,7 @@ def wrap(draw, runs, width_px):
     return lines or [[]]
 
 
-prs = Presentation(HERE / "Petrocertif-Pilot-Presentation.pptx")
+prs = Presentation(HERE / DECK)
 SW = int(Emu(prs.slide_width).pt * SCALE)
 SH = int(Emu(prs.slide_height).pt * SCALE)
 
@@ -121,13 +122,15 @@ for idx, slide in enumerate(prs.slides, start=1):
     img.save(OUT / ("slide-%02d.png" % idx))
 
 # one contact sheet so the whole deck can be taken in at once
-cols, rows = 3, 6
+n = len(prs.slides._sldIdLst)
+cols = 3
+rows = (n + cols - 1) // cols
 tw, th = SW // 4, SH // 4
 sheet = Image.new("RGB", (cols * tw + (cols + 1) * 12, rows * th + (rows + 1) * 12),
                   (232, 230, 242))
-for i in range(18):
+for i in range(n):
     t = Image.open(OUT / ("slide-%02d.png" % (i + 1))).resize((tw, th), Image.LANCZOS)
     r, c = divmod(i, cols)
     sheet.paste(t, (12 + c * (tw + 12), 12 + r * (th + 12)))
 sheet.save(OUT / "contact-sheet.png")
-print("rendered 18 slides + contact sheet -> %s" % OUT.relative_to(HERE))
+print("rendered %d slides + contact sheet -> %s" % (n, OUT.relative_to(HERE)))

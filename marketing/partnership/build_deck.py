@@ -9,115 +9,22 @@ other training organisation.
   python3 deck_assets.py && python3 build_deck.py
 """
 import pathlib
-from pptx import Presentation
 from pptx.dml.color import RGBColor
-from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
-from pptx.util import Inches, Pt, Emu
+from pptx.enum.shapes import MSO_SHAPE
+from pptx.enum.text import PP_ALIGN
+from pptx.util import Inches, Pt
 
-HERE = pathlib.Path(__file__).resolve().parent
-A = HERE / "assets"
+from deckkit import (A, ACCENT, BODY, GREEN, H, HERE, INK, LILAC, M, MUTED,
+                     PALE, W, WHITE, card, card_text, eyebrow, footer, heading,
+                     new_deck, para, rule, slide, tb)
 
 PARTNER = "Petrocertif Construction Academy"
 PARTNER_SHORT = "Petrocertif"
 
-INK = RGBColor(0x2B, 0x1F, 0x5E)
-ACCENT = RGBColor(0x4A, 0x32, 0xDC)
-LILAC = RGBColor(0xA7, 0x98, 0xFF)
-BODY = RGBColor(0x3A, 0x3A, 0x46)
-MUTED = RGBColor(0x6B, 0x70, 0x83)
-WHITE = RGBColor(0xFF, 0xFF, 0xFF)
-PALE = RGBColor(0xCB, 0xC3, 0xF5)
-GREEN = RGBColor(0x1D, 0x6B, 0x46)
-
-W, H = Inches(13.333), Inches(7.5)
-M = Inches(0.86)                                  # slide margin
-
-prs = Presentation()
-prs.slide_width, prs.slide_height = W, H
-BLANK = prs.slide_layouts[6]
-
-
-def slide(bg, notes=""):
-    s = prs.slides.add_slide(BLANK)
-    s.shapes.add_picture(str(A / bg), 0, 0, width=W, height=H)
-    if notes:
-        s.notes_slide.notes_text_frame.text = notes
-    return s
-
-
-def tb(s, x, y, w, h):
-    box = s.shapes.add_textbox(x, y, w, h)
-    tf = box.text_frame
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-    return tf
-
-
-def para(tf, text, size, bold=False, colour=BODY, space_after=6, first=False,
-         align=PP_ALIGN.LEFT, line=None, italic=False):
-    p = tf.paragraphs[0] if first else tf.add_paragraph()
-    p.alignment = align
-    r = p.add_run(); r.text = text
-    f = r.font
-    f.name = "Arial"; f.size = Pt(size); f.bold = bold; f.italic = italic
-    f.color.rgb = colour
-    p.space_after = Pt(space_after)
-    if line:
-        p.line_spacing = line
-    return p
-
-
-def eyebrow(s, text, colour=ACCENT, y=None):
-    tf = tb(s, M, y or Inches(0.62), Inches(11), Inches(0.34))
-    p = para(tf, text.upper(), 12.5, True, colour, 0, first=True)
-    p.runs[0].font.name = "Arial"
-    return tf
-
-
-def heading(s, text, y=Inches(1.05), size=34, colour=INK, w=Inches(11.6)):
-    tf = tb(s, M, y, w, Inches(1.5))
-    para(tf, text, size, True, colour, 0, first=True, line=1.06)
-    return tf
-
-
-def rule(s, y, w=Inches(2.0), colour=ACCENT, h=Pt(3.5)):
-    from pptx.enum.shapes import MSO_SHAPE
-    sh = s.shapes.add_shape(MSO_SHAPE.RECTANGLE, M, y, w, h)
-    sh.fill.solid(); sh.fill.fore_color.rgb = colour
-    sh.line.fill.background()
-    sh.shadow.inherit = False
-    return sh
-
-
-def card(s, x, y, w, h, fill=RGBColor(0xF6, 0xF5, 0xFD),
-         line=RGBColor(0xDD, 0xD9, 0xF5)):
-    from pptx.enum.shapes import MSO_SHAPE
-    sh = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, x, y, w, h)
-    sh.adjustments[0] = 0.06
-    sh.fill.solid(); sh.fill.fore_color.rgb = fill
-    sh.line.color.rgb = line; sh.line.width = Pt(1)
-    sh.shadow.inherit = False
-    return sh
-
-
-def card_text(s, x, y, w, title, body, tcol=INK, bcol=BODY, tsize=15, bsize=12):
-    tf = tb(s, x + Inches(0.28), y + Inches(0.22), w - Inches(0.56), Inches(1))
-    para(tf, title, tsize, True, tcol, 5, first=True, line=1.08)
-    if body:
-        para(tf, body, bsize, False, bcol, 0, line=1.28)
-    return tf
-
-
-def footer(s, dark=False):
-    """Only the address. The Lomonec wordmark is on the background, bottom
-    left, and the BE Mastery lockup is top right — on every slide."""
-    tf = tb(s, Inches(8.0), Inches(6.98), Inches(4.47), Inches(0.3))
-    para(tf, "app.lomonec.com  ·  contact@lomonec.com", 9.5, False,
-         PALE if dark else MUTED, 0, first=True, align=PP_ALIGN.RIGHT)
-
+prs = new_deck()
 
 # ═══════════════════════════ 1 · title ═══════════════════════════
-s = slide("deck-title.jpg", notes=(
+s = slide(prs, "deck-title.jpg", notes=(
     "Open by naming the two things you want from this meeting, so nothing is a surprise:\n\n"
     "\"Two things today. First, I want to propose a pilot — one cohort, four weeks, free. "
     "Second, and honestly: this is the first time I present this properly, and I want you to "
@@ -131,7 +38,7 @@ para(tf, "Professional English for supervisors in industrial and energy projects
      17, False, PALE, 0)
 
 # ═══════════════════════════ 2 · agenda ═══════════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Say the running order out loud and give the time. People relax when they know how long "
     "something will take.\n\n"
     "\"Twenty minutes. Five on the problem, five on the tool, ten on how the pilot actually "
@@ -159,7 +66,7 @@ for n, t, b in items:
 footer(s)
 
 # ═══════════════════════════ 3 · the gap ═══════════════════════════
-s = slide("deck-dark-left.jpg", notes=(
+s = slide(prs, "deck-dark-left.jpg", notes=(
     "This is the whole argument. Say it slowly and then stop talking.\n\n"
     "\"Your courses teach someone to read an isometric, a P&ID, a metal-structure drawing. "
     "That is real skill and it is what they pay you for. But on an international site the "
@@ -178,7 +85,7 @@ para(tf, "Brief the crew from the drawing  ·  tell the fabricator the fit-up is
 footer(s, dark=True)
 
 # ═══════════════════════════ 4 · their own promise ═══════════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "This is the slide that makes the meeting easy, and it is his own copy, so it cannot be "
     "argued with.\n\n"
     "\"You already tell your learners this. It is on your course page today. I am not asking "
@@ -258,7 +165,7 @@ PRODUCT = [
      "This slide is the bridge into the pilot half of the meeting."),
 ]
 for img, eb, head, rows, notes in PRODUCT:
-    s = slide("deck-light.jpg", notes=notes)
+    s = slide(prs, "deck-light.jpg", notes=notes)
     eyebrow(s, eb)
     heading(s, head, size=31, w=Inches(7.0))
     rule(s, Inches(2.12))
@@ -277,7 +184,7 @@ for img, eb, head, rows, notes in PRODUCT:
     footer(s)
 
 # ═══════════════════════ 10 · where it fits ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Be straight about the limit before he finds it himself. This builds more trust than any "
     "feature slide.\n\n"
     "\"BE Mastery carries three trades today: welder, pipefitter, boilermaker. Those map onto "
@@ -323,7 +230,7 @@ para(tf, "Electrical, civil, instrumentation, renewable energy, metal structures
 footer(s)
 
 # ═══════════════════════ 11 · the pilot ═══════════════════════
-s = slide("deck-dark.jpg", notes=(
+s = slide(prs, "deck-dark.jpg", notes=(
     "Say the whole ask in one breath, then stop.\n\n"
     "\"One cohort. Twenty to thirty of your learners from those three programmes. Four weeks. "
     "Free — no licence, no per-seat cost, no commitment after it ends. You give me the cohort "
@@ -350,7 +257,7 @@ para(tf, "Nothing is published without your written approval. No licence discuss
 footer(s, dark=True)
 
 # ═══════════════════════ 12 · who does what ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Read the left column slowly — it is short on purpose, and it is the part he is buying.\n\n"
     "\"Your side is four things, and three of them take an hour in total. My side is everything "
     "else.\"\n\n"
@@ -394,7 +301,7 @@ for title, fill, line, rows in cols:
 footer(s)
 
 # ═══════════════════════ 13 · what a learner does ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "He will ask this, so answer it before he does. Be concrete — a training director thinks in "
     "contact hours.\n\n"
     "\"Twenty-five minutes a day, in their own time, on their own phone. Not a class, not a "
@@ -431,7 +338,7 @@ para(tf, "About 10 hours across the four weeks — in their own time, no timetab
 footer(s)
 
 # ═══════════════════════ 14 · the four weeks ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Keep this short — it is a reassurance slide, not a content slide.\n\n"
     "\"Week one we set them up and capture a baseline: their first recorded answer, before any "
     "practice. Weeks two and three they just use it. Week four they run the interview "
@@ -464,7 +371,7 @@ for eb, t_, d in weeks:
 footer(s)
 
 # ═══════════════════════ 15 · what we measure ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "\"Success is agreed before we start, not argued about afterwards. Seven numbers. If you "
     "want to add one, add it now — that is much better than discovering in week four that we "
     "were measuring different things.\"\n\n"
@@ -500,7 +407,7 @@ para(tf, "Add it now, not in week four.", 12, False, GREEN, 0, line=1.15)
 footer(s)
 
 # ═══════════════════════ 16 · what this is not ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Do not skip this. Saying it yourself, before he asks, is what separates a partner from a "
     "vendor.\n\n"
     "\"Three things this is not. It is not a trade qualification. It is not a recognised English "
@@ -539,7 +446,7 @@ para(tf, "Worth reflecting in the course page wording before the cohort starts �
 footer(s)
 
 # ═══════════════════════ 17 · what each side gets ═══════════════════════
-s = slide("deck-light.jpg", notes=(
+s = slide(prs, "deck-light.jpg", notes=(
     "Say his side first and mean it. Then be honest about yours — it is disarming, and he "
     "already knows.\n\n"
     "\"For you: the English line on your page stops being a promise and becomes something you "
@@ -579,7 +486,7 @@ for title, fill, line, rows in sides:
 footer(s)
 
 # ═══════════════════════ 18 · the ask ═══════════════════════
-s = slide("deck-dark.jpg", notes=(
+s = slide(prs, "deck-dark.jpg", notes=(
     "End on the smallest possible yes, and then be quiet. Do not fill the silence.\n\n"
     "\"So: one cohort, four weeks, free. If you say yes today, week one can start whenever your "
     "next intake does.\"\n\n"

@@ -9,7 +9,7 @@ spacing, and flags any box whose text needs more height than it was given.
 That catches the failure that actually matters, which is text spilling onto the
 element below it.
 """
-import pathlib, sys
+import pathlib, sys, sys
 from pptx import Presentation
 from pptx.util import Emu, Pt
 from PIL import ImageFont
@@ -63,7 +63,8 @@ def needed_height_pt(tf, width_pt):
     return total
 
 
-prs = Presentation(HERE / "Petrocertif-Pilot-Presentation.pptx")
+DECK = sys.argv[1] if len(sys.argv) > 1 else "Petrocertif-Pilot-Presentation.pptx"
+prs = Presentation(HERE / DECK)
 SW, SH = Emu(prs.slide_width).pt, Emu(prs.slide_height).pt
 print("slide %.0f x %.0f pt · %d slides\n" % (SW, SH, len(prs.slides._sldIdLst)))
 

@@ -44,3 +44,4 @@ marketing/build/
 __pycache__/
 *.pyc
 marketing/partnership/assets/deck-preview/slide-*.png
+marketing/partnership/assets/deck-preview-value/slide-*.png

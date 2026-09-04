@@ -7,7 +7,8 @@ Two documents, one design system.
 | `BE-Mastery-Industrial-Training-Partnership-Proposal.docx` | **Send this.** The pitch. |
 | `BE-Mastery-Petrocertif-Academy-Pilot-Proposal.docx` | **Send this** to Petrocertif / JFN Academy. The adapted, named version. |
 | `BE-Mastery-Partnership-Target-List-INTERNAL.docx` | **Never send this.** Who to approach, in what order, and why. |
-| `Petrocertif-Pilot-Presentation.pptx` | **Present this.** 18 slides, speaker notes on every one. |
+| `Petrocertif-Pilot-Presentation.pptx` | **Present to the sponsor.** 18 slides — the pilot proposal, with the product shown on screen. |
+| `Petrocertif-Partner-Value-Presentation.pptx` | **Present to the other partners.** 12 slides — the business case, no product tour. |
 | `BE-Mastery-Pilot-Playbook.docx` | **Send on yes.** How the four weeks run: roles, schedule, tools, forms. |
 | `BE-Mastery-Learner-Guide-EN-FR.docx` | **Send to learners** in week 0. Bilingual, two pages. |
 | `petrocertif-first-approach.md` | **Never send this.** The message to write, the questions to ask, the wording problem to raise. |
@@ -25,9 +26,15 @@ Reproduces from a clean checkout:
     python3 build_jfn.py         # -> ...Petrocertif-Academy-Pilot-Proposal.docx
     python3 build_playbook.py    # -> BE-Mastery-Pilot-Playbook.docx
     python3 build_learner_guide.py   # -> BE-Mastery-Learner-Guide-EN-FR.docx
-    python3 deck_assets.py && python3 build_deck.py   # -> the .pptx
-    python3 check_deck.py        # box fit, collisions, speaker notes
-    python3 render_deck.py       # slide PNGs + contact sheet
+    python3 deck_assets.py
+    python3 build_deck.py        # -> Petrocertif-Pilot-Presentation.pptx
+    python3 build_value_deck.py  # -> Petrocertif-Partner-Value-Presentation.pptx
+    python3 check_deck.py  [deck.pptx]   # box fit, collisions, speaker notes
+    python3 render_deck.py [deck.pptx]   # slide PNGs + contact sheet
+
+`deckkit.py` holds the shared slide kit; branding is baked into the background
+images by `deck_assets.py`, so it cannot be dragged off or lost when a slide is
+duplicated.
     python3 check_fit.py [file]  # per-page fill, so nothing silently overflows
 
 `docxkit.py` holds the shared layout kit — palette, ruled section headings,
@@ -54,6 +61,14 @@ length can be changed without a designer.
   textbook answer, but a reader that autofits anyway still shrink-wraps a table
   with short cells — which is what collapsed the welder-pathway table.
 - Column widths must be set on `table.columns` (`w:tblGrid`), not only on cells.
+
+## Two decks, two rooms
+
+The pilot deck argues *to the sponsor* and shows the product on screen — he has
+to believe the thing works. The value deck argues *to the other partners*, who
+were not at that meeting and have no reason to care about a product tour: what
+it adds to the offer, to graduates, to placement, and what it costs if it fails
+(nothing). Same design system, different argument.
 
 ## Sequencing — this matters more than the documents
 
