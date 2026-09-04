@@ -7,7 +7,11 @@ Two documents, one design system.
 | `BE-Mastery-Industrial-Training-Partnership-Proposal.docx` | **Send this.** The pitch. |
 | `BE-Mastery-Petrocertif-Academy-Pilot-Proposal.docx` | **Send this** to Petrocertif / JFN Academy. The adapted, named version. |
 | `BE-Mastery-Partnership-Target-List-INTERNAL.docx` | **Never send this.** Who to approach, in what order, and why. |
+| `Petrocertif-Pilot-Presentation.pptx` | **Present this.** 18 slides, speaker notes on every one. |
+| `BE-Mastery-Pilot-Playbook.docx` | **Send on yes.** How the four weeks run: roles, schedule, tools, forms. |
+| `BE-Mastery-Learner-Guide-EN-FR.docx` | **Send to learners** in week 0. Bilingual, two pages. |
 | `petrocertif-first-approach.md` | **Never send this.** The message to write, the questions to ask, the wording problem to raise. |
+| `presentation-brief.md` | **Never send this.** Rehearsal notes, objections, what to send when. |
 
 Keeping them apart is the point: the target list carries the prioritisation, the
 two segments deliberately left unnamed, and the caution about not citing a
@@ -19,6 +23,11 @@ Reproduces from a clean checkout:
     python3 build_proposal.py    # -> ...Partnership-Proposal.docx
     python3 build_targets.py     # -> ...Target-List-INTERNAL.docx
     python3 build_jfn.py         # -> ...Petrocertif-Academy-Pilot-Proposal.docx
+    python3 build_playbook.py    # -> BE-Mastery-Pilot-Playbook.docx
+    python3 build_learner_guide.py   # -> BE-Mastery-Learner-Guide-EN-FR.docx
+    python3 deck_assets.py && python3 build_deck.py   # -> the .pptx
+    python3 check_deck.py        # box fit, collisions, speaker notes
+    python3 render_deck.py       # slide PNGs + contact sheet
     python3 check_fit.py [file]  # per-page fill, so nothing silently overflows
 
 `docxkit.py` holds the shared layout kit — palette, ruled section headings,
@@ -46,6 +55,12 @@ length can be changed without a designer.
   with short cells — which is what collapsed the welder-pathway table.
 - Column widths must be set on `table.columns` (`w:tblGrid`), not only on cells.
 
+## Sequencing — this matters more than the documents
+
+Proposal at the meeting. Playbook only once they say yes; sent earlier it turns
+a free four-week trial into an implementation project. Learner guide in week 0,
+with the induction invite.
+
 ## Verification
 
 No LibreOffice or pandoc here, and Word's AppleScript dictionary does not load
@@ -55,6 +70,14 @@ the file reads back cleanly through python-docx, and `check_fit.py` measures
 every page against the 28.6 cm column.
 
 To produce the PDF: open in Word and File → Save As → PDF.
+
+The deck has no renderer here either — PowerPoint's AppleScript reports a
+successful export and writes no files, and `qlmanage` hangs on .pptx. So
+`check_deck.py` measures every text box against its frame and flags collisions,
+and `render_deck.py` draws the saved presentation with Pillow to
+`assets/deck-preview/`. That preview is read from the file, not from intent,
+which is how the footer collision on slide 13 was found — the box-fit check
+could not see it.
 
 ## The Petrocertif version
 

@@ -92,6 +92,8 @@ def iter_blocks(parent):
 img_i = 0
 img_order = (["header-targets.jpg", "footer-internal.jpg"] if "TARGET" in DOC
              else ["header-jfn.jpg", "footer.jpg"] if "Petrocertif" in DOC
+             else ["header-learner.jpg", "footer.jpg"] if "Learner" in DOC
+             else ["header-playbook.jpg", "footer.jpg"] if "Playbook" in DOC
              else ["header.jpg", "footer.jpg"])
 for blk in iter_blocks(doc):
     if isinstance(blk, Paragraph):

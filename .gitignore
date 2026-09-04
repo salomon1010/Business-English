@@ -43,3 +43,4 @@ marketing/build/
 # python bytecode
 __pycache__/
 *.pyc
+marketing/partnership/assets/deck-preview/slide-*.png

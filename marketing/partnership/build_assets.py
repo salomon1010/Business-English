@@ -186,9 +186,15 @@ band(OUT / "header-targets.jpg", 2480, 742, "PARTNERSHIP TARGET LIST",
      ["Where to take this", "proposal first"],
      "Africa, Canada and the United States — ordered by how fast each could sign a pilot")
 footer_internal(OUT / "footer-internal.jpg")
+band(OUT / "header-playbook.jpg", 2480, 742, "PILOT PLAYBOOK",
+     ["How the four weeks", "actually run"],
+     "Roles, schedule, tools, measurement — Petrocertif Construction Academy")
+band(OUT / "header-learner.jpg", 2480, 700, "LEARNER GUIDE  ·  GUIDE APPRENANT",
+     ["Your four weeks", "with BE Mastery"],
+     "Twenty-five minutes a day  ·  Vingt-cinq minutes par jour")
 band(OUT / "header-jfn.jpg", 2480, 742, "FOUR-WEEK PILOT PROPOSAL",
      ["Petrocertif Academy", "× BE Mastery"],
      "Professional English for supervisors in industrial and energy projects")
-for p in sorted(OUT.iterdir()):
+for p in sorted(x for x in OUT.iterdir() if x.is_file()):
     im = Image.open(p)
     print("%-22s %sx%s" % (p.name, im.width, im.height))
