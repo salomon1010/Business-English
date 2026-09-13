@@ -18,6 +18,10 @@ const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", 
    activate sweep below. */
 const REM_CACHE = "be-rem";
 const REM_KEY = "./__reminder__";
+/* The small road-map picture the app draws for the expanded notification. It
+   lives only in REM_CACHE — there is no such file on the server — so the fetch
+   handler below answers for it before the network is ever asked. */
+const REM_MAP_KEY = "./__reminder_map__.png";
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -46,6 +50,10 @@ const NET_TIMEOUT = 3000;
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
+  if (new URL(req.url).pathname.endsWith(REM_MAP_KEY.slice(1))) {
+    e.respondWith(caches.open(REM_CACHE).then(c => c.match(REM_MAP_KEY)).then(r => r || new Response("", { status: 404 })));
+    return;
+  }
 
   e.respondWith((async () => {
     const cached = await caches.match(req);
@@ -101,7 +109,7 @@ self.addEventListener("push", e => {
           title: "Time to practise",
           body: "25 minutes today keeps the streak alive.",
         };
-        return self.registration.showNotification(text.title, {
+        const opts = {
           body: text.body,
           icon: "icon-192.png",
           badge: "icon-192.png",
@@ -109,8 +117,10 @@ self.addEventListener("push", e => {
           renotify: false,
           lang: (d && d.lang) || "en",
           dir: (d && d.dir) || "auto",   // ar / ur read right-to-left
-          data: { url: "./" },
-        });
+          data: { url: "./#journey" },   // tap lands on the road map
+        };
+        if (d && d.image) opts.image = d.image;   // the road-map strip, shown when expanded
+        return self.registration.showNotification(text.title, opts);
       })
   );
 });
@@ -121,8 +131,9 @@ self.addEventListener("notificationclick", e => {
   e.notification.close();
   e.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
-      for (const c of list) if ("focus" in c) return c.focus();
-      if (clients.openWindow) return clients.openWindow("./");
+      const url = (e.notification.data && e.notification.data.url) || "./";
+      for (const c of list) if ("focus" in c) { try { c.postMessage({ type: "open", view: "journey" }) } catch (err) {} return c.focus(); }
+      if (clients.openWindow) return clients.openWindow(url);
     })
   );
 });

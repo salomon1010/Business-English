@@ -125,6 +125,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
   so they are track-scoped like everything else. No `track()` events — the
   Worker allow-list has none for it, and a silently-dropped call is a lie.
+- **Road map (Weeks tab, both areas).** `rmSteps()` builds the board from the
+  same data as the week cards — `trackWeeks` / `weekDone` / `currentPos` /
+  `fndState` / `reviewCheckpoints` — so it cannot disagree with them; `rmHTML()`
+  renders it, `rmMount(el)` runs the fill/ring/counter animation. States are
+  `done` / `now` (exactly one beacon) / `next` (exactly one, the first grey step
+  after the beacon) / `locked`. Welding inherits the general `[4,8,12]`
+  checkpoints through the curriculum merge (an empty array inherits), and the
+  week view already shows `rMonthly` there, so the map shows them too — do not
+  "fix" that in the map alone. The daily reminder reuses it: `rmNotifBody()` is
+  the text and `rmNotifImage()` draws a 1024×512 strip on a canvas that
+  `remCacheText()` parks in the `be-rem` cache as `./__reminder_map__.png`;
+  sw.js serves that path from the cache and passes it as the notification
+  `image` (Android shows it when expanded; desktop mostly ignores `image`).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

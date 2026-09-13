@@ -1,7 +1,7 @@
 import { createRequire } from "node:module";
 import { seed } from "./seed.mjs";
 import fs from "node:fs";
-const P = "/Users/salomonnorengoucheme/.vscode/extensions/danielsanmedium.dscodegpt-3.24.57/standalone/";
+const P = "/Users/salomonnorengoucheme/.vscode/extensions/danielsanmedium.dscodegpt-3.24.68/standalone/";
 const { chromium } = createRequire(P)("patchright");
 
 const OUT = process.argv[2];
