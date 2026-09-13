@@ -128,7 +128,11 @@ not JS, and `new Function` chokes on it. Check it separately with
 - **Road map (Weeks tab, both areas).** `rmSteps()` builds the board from the
   same data as the week cards — `trackWeeks` / `weekDone` / `currentPos` /
   `fndState` / `reviewCheckpoints` — so it cannot disagree with them; `rmHTML()`
-  renders it, `rmMount(el)` runs the fill/ring/counter animation. States are
+  renders the header, `rmMount(el)` → `rmDraw(road)` draws the board: an SVG
+  serpentine road (vertical tangents at each pin, crossings between rows) with
+  HTML labels beside the pins, phase "road signs" on the crossing that enters a
+  phase, chevrons on the other crossings, and the lit stretch drawn by
+  stroke-dasharray up to the beacon. It redraws on width change (ResizeObserver). States are
   `done` / `now` (exactly one beacon) / `next` (exactly one, the first grey step
   after the beacon) / `locked`. Welding inherits the general `[4,8,12]`
   checkpoints through the curriculum merge (an empty array inherits), and the

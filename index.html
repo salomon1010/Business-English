@@ -1367,112 +1367,89 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .chip.p4{color:#86efac;border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.09)}
 :root[data-theme="light"] .chip.p4{color:#065f46;background:rgba(52,211,153,.16);border-color:rgba(6,95,70,.35)}
 
-.rm-board{position:relative;margin-top:16px;padding:6px 0 4px}
-.rm-spine{position:absolute;top:22px;bottom:22px;left:21px;width:4px;border-radius:99px;background:var(--line2);overflow:hidden}
-.rm-spine i{position:absolute;left:0;top:0;width:100%;height:0;border-radius:inherit;
-  background:linear-gradient(180deg,var(--acc2),var(--acc));transition:height 1.4s cubic-bezier(.2,.8,.2,1)}
-.rm-spine i::after{content:"";position:absolute;inset:0;
-  background:repeating-linear-gradient(180deg,transparent 0 14px,rgba(255,255,255,.45) 14px 20px);
-  animation:rmFlow 1.6s linear infinite}
-@keyframes rmFlow{to{background-position:0 34px}}
-.rm-steps{list-style:none;margin:0;padding:0;position:relative}
-.rm-step{position:relative;display:flex;gap:14px;align-items:flex-start;padding:0 0 18px 0;
-  animation:rmIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*45ms)}
-@keyframes rmIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.rm-node{position:relative;flex:0 0 46px;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;
-  font-weight:900;font-size:15px;color:var(--txt);background:var(--card);border:2px solid var(--line2);z-index:1;
-  font-variant-numeric:tabular-nums}
-.rm-node svg{width:20px;height:20px}
-.rm-card{flex:1;min-width:0;position:relative;padding:12px 14px;border:1px solid var(--line2);border-radius:14px;background:var(--card);
-  cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
-.rm-card::before{content:"";position:absolute;top:22px;left:-14px;width:14px;height:2px;background:var(--line2)}
-.rm-card:hover{transform:translateX(3px);border-color:var(--acc)}
-.rm-card .rm-k{font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut)}
-.rm-card h3{font-size:15px;margin:3px 0 4px;line-height:1.3}
-.rm-card .rm-s{font-size:12.5px;color:var(--mut);line-height:1.4}
-.rm-bar{height:5px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);margin-top:9px;overflow:hidden}
-.rm-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
-.rm-tag{position:absolute;top:-9px;right:12px;padding:2px 8px;border-radius:99px;font-size:9.5px;font-weight:800;letter-spacing:.7px;
-  text-transform:uppercase;background:var(--accent-fill);color:var(--on-accent);box-shadow:var(--sh-1)}
-html[data-theme="light"] .rm-tag{background:var(--accent);color:#fff}
-/* done: lit */
-.rm-step.done .rm-node{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:var(--on-accent);
-  box-shadow:0 4px 14px color-mix(in srgb,var(--acc) 35%,transparent)}
-.rm-step.done .rm-card{border-color:color-mix(in srgb,var(--acc) 40%,var(--line2))}
-.rm-step.done .rm-card::before{background:var(--acc)}
-/* now: the beacon */
-.rm-step.now .rm-node{border-color:var(--acc2);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 18%,var(--card));
-  box-shadow:0 0 0 0 color-mix(in srgb,var(--acc2) 55%,transparent),0 0 18px color-mix(in srgb,var(--acc2) 40%,transparent);
-  animation:rmBeacon 2.2s ease-out infinite}
-@keyframes rmBeacon{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc2) 55%,transparent),0 0 18px color-mix(in srgb,var(--acc2) 40%,transparent)}
-  70%{box-shadow:0 0 0 14px color-mix(in srgb,var(--acc2) 0%,transparent),0 0 22px color-mix(in srgb,var(--acc2) 55%,transparent)}
-  100%{box-shadow:0 0 0 14px transparent,0 0 18px color-mix(in srgb,var(--acc2) 40%,transparent)}}
-.rm-step.now .rm-node::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px dashed var(--acc2);opacity:.7;animation:rmSpin 9s linear infinite}
+/* the road: an S-curve down the page, pins alternating sides — the classic
+   learning-roadmap poster, drawn from live data */
+.rm-road{position:relative;margin-top:18px;min-height:200px}
+.rm-road svg{display:block;width:100%;height:auto;overflow:visible}
+.rm-band{fill:var(--acc);opacity:.045}
+.rm-band.now{opacity:.10}
+.rm-band-lbl{font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;fill:var(--mut)}
+.rm-band-lbl.now{fill:var(--accent-text)}
+.rm-band-pct{font-size:11px;font-weight:800;fill:var(--mut)}
+.rm-asph{fill:none;stroke:var(--line2);stroke-width:30;stroke-linecap:round;stroke-linejoin:round}
+:root[data-theme="light"] .rm-asph{stroke:#d9deea}
+.rm-asph-lit{fill:none;stroke:url(#rmRoadGrad);stroke-width:30;stroke-linecap:round;stroke-linejoin:round;transition:stroke-dasharray 1.6s cubic-bezier(.2,.8,.2,1);
+  filter:drop-shadow(0 4px 10px color-mix(in srgb,var(--acc) 35%,transparent))}
+.rm-dash{fill:none;stroke:rgba(255,255,255,.34);stroke-width:2.5;stroke-dasharray:9 12;stroke-linecap:round}
+:root[data-theme="light"] .rm-dash{stroke:rgba(255,255,255,.9)}
+.rm-traffic{fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-dasharray:3 26;opacity:.75;animation:rmTraffic 1.3s linear infinite}
+@keyframes rmTraffic{to{stroke-dashoffset:-29}}
+.rm-sign rect{fill:var(--card);stroke:var(--line2);stroke-width:1.5}
+.rm-sign text{font-size:11px;font-weight:800;letter-spacing:.4px;fill:var(--mut);text-anchor:middle;dominant-baseline:central}
+.rm-sign.done rect,.rm-sign.now rect{stroke:var(--acc2);fill:color-mix(in srgb,var(--acc) 22%,var(--card))}
+.rm-sign.done text,.rm-sign.now text{fill:var(--accent-text)}
+.rm-sign.now rect{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--acc2) 55%,transparent))}
+.rm-arw{fill:none;stroke:var(--mut2);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.rm-arw.lit{stroke:#fff;animation:rmArw 1.2s ease-in-out infinite}
+.rm-arw.dim{opacity:.6}
+@keyframes rmArw{0%{transform:translateX(-7px);opacity:.2}50%{opacity:1}100%{transform:translateX(7px);opacity:.2}}
+.rm-pin{cursor:pointer}
+.rm-pin .rm-pin-bg{fill:var(--card);stroke:var(--line2);stroke-width:2.5}
+.rm-pin .rm-pin-ic{color:var(--mut2)}
+.rm-pin text{font-size:16px;font-weight:900;fill:var(--mut2);text-anchor:middle;dominant-baseline:central;font-variant-numeric:tabular-nums}
+.rm-pin.done .rm-pin-bg{fill:url(#rmPinGrad);stroke:rgba(255,255,255,.55)}
+.rm-pin.done .rm-pin-ic{color:var(--on-accent)}
+.rm-pin.now .rm-pin-bg{fill:color-mix(in srgb,var(--acc) 22%,var(--card));stroke:var(--acc2);stroke-width:3}
+.rm-pin.now text{fill:var(--accent-text)}
+.rm-pin.now .rm-pin-ic{color:var(--accent-text)}
+.rm-pin.next .rm-pin-bg{stroke:var(--acc2);stroke-dasharray:5 4}
+.rm-pin.next text,.rm-pin.next .rm-pin-ic{fill:var(--accent-text);color:var(--accent-text)}
+.rm-pin.locked .rm-pin-bg{fill:var(--bg2)}
+.rm-pin.cert.done .rm-pin-bg{fill:url(#rmGoldGrad);stroke:#fff}
+.rm-pin.cert.done .rm-pin-ic{color:#3b2a00}
+.rm-ring1,.rm-ring2{fill:none;stroke:var(--acc2);transform-box:fill-box;transform-origin:center}
+.rm-ring1{stroke-width:2;opacity:.9;animation:rmRing 2.2s ease-out infinite}
+.rm-ring2{stroke-width:1.5;stroke-dasharray:4 5;opacity:.75;animation:rmSpin 9s linear infinite}
+@keyframes rmRing{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.9);opacity:0}}
 @keyframes rmSpin{to{transform:rotate(360deg)}}
-.rm-step.now .rm-card{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg2));
-  box-shadow:0 8px 26px color-mix(in srgb,var(--acc) 22%,transparent)}
-.rm-step.now .rm-card::before{background:var(--acc2)}
-.rm-step.now .rm-card .rm-k{color:var(--accent-text)}
-/* next: outlined, with a moving dashed link from the beacon */
-.rm-step.next .rm-node{border-style:dashed;border-color:var(--acc2);color:var(--accent-text)}
-.rm-step.next .rm-card{border-style:dashed;border-color:color-mix(in srgb,var(--acc2) 70%,var(--line2))}
-.rm-step.next::before{content:"";position:absolute;left:21px;top:-18px;width:4px;height:40px;z-index:1;
-  background:repeating-linear-gradient(180deg,var(--acc2) 0 6px,transparent 6px 12px);animation:rmDash 1s linear infinite}
-@keyframes rmDash{to{background-position:0 12px}}
-.rm-step.next .rm-tag{background:transparent;color:var(--accent-text);border:1px dashed var(--acc2);box-shadow:none}
-html[data-theme="light"] .rm-step.next .rm-tag{background:transparent;color:var(--acc)}
-/* locked: grey, ahead of you */
-.rm-step.locked .rm-node{color:var(--mut2);border-color:var(--line);background:var(--bg2)}
-.rm-step.locked .rm-card{border-color:var(--line);background:color-mix(in srgb,var(--card) 70%,var(--bg))}
-.rm-step.locked .rm-card h3{color:var(--mut)}
-.rm-step.locked .rm-card .rm-k,.rm-step.locked .rm-card .rm-s{color:var(--mut2)}
-.rm-step.locked .rm-card:hover{transform:none;border-color:var(--line2)}
-.rm-step.locked .rm-bar{opacity:.5}
-/* checkpoint: a diamond gate; certificate: the trophy */
-.rm-step.check .rm-node{border-radius:12px;transform:rotate(45deg);width:40px;height:40px;margin:3px}
-.rm-step.check .rm-node svg{transform:rotate(-45deg)}
-.rm-step.check .rm-card::before{left:-11px;width:11px}
-.rm-step.cert .rm-node{width:54px;height:54px;flex-basis:54px;margin-left:-4px}
-.rm-step.cert.done .rm-node{background:linear-gradient(135deg,var(--gold),#fff3c4);color:#3b2a00;box-shadow:0 0 26px color-mix(in srgb,var(--gold) 55%,transparent)}
-.rm-step.cert .rm-card::before{top:26px}
-/* arrows between steps: lit ones travel, grey ones wait */
-.rm-step::after,.rm-phase::after{content:"";position:absolute;left:15px;bottom:1px;width:12px;height:12px;z-index:1;background:var(--mut2);
-  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat;
-  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/></svg>") center/contain no-repeat}
-.rm-phase::after{bottom:0}
-.rm-step.done::after,.rm-phase.done::after,.rm-phase.now::after{background:var(--acc2);animation:rmArrow 1.4s ease-in-out infinite}
-.rm-step.now::after{background:var(--acc2);animation:rmArrow 1.4s ease-in-out infinite}
-.rm-step.locked::after,.rm-phase.locked::after,.rm-step.next::after{opacity:.6}
-.rm-step:last-child::after{display:none}
-@keyframes rmArrow{0%{transform:translateY(-4px);opacity:.25}50%{opacity:1}100%{transform:translateY(4px);opacity:.25}}
-/* phase gates across the spine */
-.rm-phase{position:relative;display:flex;align-items:center;gap:10px;margin:2px 0 16px;padding:0;list-style:none;
-  animation:rmIn .55s both;animation-delay:calc(var(--i,0)*45ms)}
-.rm-phase .rm-gate{flex:0 0 46px;display:grid;place-items:center;z-index:1}
-.rm-phase .rm-gate i{display:block;width:18px;height:18px;border-radius:5px;transform:rotate(45deg);background:var(--card);border:2px solid var(--line2)}
-.rm-phase.done .rm-gate i,.rm-phase.now .rm-gate i{border-color:var(--acc2);background:linear-gradient(135deg,var(--acc),var(--acc2))}
-.rm-phase .rm-ph{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;border-radius:12px;
-  border:1px solid var(--line2);background:color-mix(in srgb,var(--card) 60%,var(--bg));cursor:pointer;min-width:0}
-.rm-phase .rm-ph b{font-size:12.5px;letter-spacing:.3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rm-phase .rm-ph span{font-size:11px;color:var(--mut);white-space:nowrap;font-weight:700}
-.rm-phase.now .rm-ph{border-color:color-mix(in srgb,var(--acc) 55%,var(--line2))}
-.rm-phase.locked .rm-ph{opacity:.7}
-.rm-phase.locked .rm-ph b{color:var(--mut)}
+.rm-start{font-size:10.5px;font-weight:900;letter-spacing:2px;fill:var(--accent-text)}
+.rm-lbl{position:absolute;transform:translateY(-50%);padding:8px 11px;border:1px solid var(--line2);border-radius:13px;background:var(--card);cursor:pointer;
+  transition:transform .2s,border-color .2s,box-shadow .2s;box-shadow:var(--sh-1);
+  animation:rmIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*40ms)}
+@keyframes rmIn{from{opacity:0;transform:translateY(calc(-50% + 8px))}to{opacity:1;transform:translateY(-50%)}}
+.rm-lbl:hover{transform:translateY(calc(-50% - 2px));border-color:var(--acc)}
+.rm-lbl .rm-k{font-size:10px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut)}
+.rm-lbl h3{font-size:13.5px;margin:1px 0 2px;line-height:1.22;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rm-meta{display:flex;align-items:center;gap:8px;margin-top:3px}
+.rm-lbl .rm-s{font-size:11px;color:var(--mut);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+.rm-bar{flex:1;min-width:34px;height:4px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);overflow:hidden}
+.rm-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.rm-tag{position:absolute;top:-9px;left:10px;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.7px;
+  text-transform:uppercase;background:var(--accent-fill);color:var(--on-accent);box-shadow:var(--sh-1);white-space:nowrap}
+html[data-theme="light"] .rm-tag{background:var(--accent);color:#fff}
+.rm-lbl.done{border-color:color-mix(in srgb,var(--acc) 40%,var(--line2))}
+.rm-lbl.now{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--bg2));box-shadow:0 8px 26px color-mix(in srgb,var(--acc) 22%,transparent)}
+.rm-lbl.now .rm-k{color:var(--accent-text)}
+.rm-lbl.next{border-style:dashed;border-color:color-mix(in srgb,var(--acc2) 70%,var(--line2))}
+.rm-lbl.next .rm-tag{background:transparent;color:var(--accent-text);border:1px dashed var(--acc2);box-shadow:none}
+html[data-theme="light"] .rm-lbl.next .rm-tag{color:var(--acc)}
+.rm-lbl.locked{border-color:var(--line);background:color-mix(in srgb,var(--card) 70%,var(--bg));box-shadow:none}
+.rm-lbl.locked h3{color:var(--mut)}
+.rm-lbl.locked .rm-k,.rm-lbl.locked .rm-s{color:var(--mut2)}
+.rm-lbl.locked .rm-bar{opacity:.5}
+.rm-lbl.locked:hover{transform:translateY(-50%);border-color:var(--line2)}
 .rm-sub-h{font-size:13px;font-weight:800;letter-spacing:.4px;color:var(--mut);margin:4px 0 12px;text-transform:uppercase}
 .wk-card.wk-here{border-color:var(--accent)}
 @media (min-width:720px){
   .rm-head{padding:22px 24px;gap:24px}
   .rm-ring{width:124px;height:124px;flex-basis:124px}
   .rm-ring-txt b{font-size:31px}
+  .rm-lbl h3{font-size:15px}
 }
 @media (prefers-reduced-motion:reduce){
-  .rm-step,.rm-phase{animation:none}
-  .rm-step.now .rm-node{animation:none}
-  .rm-step.now .rm-node::after{animation:none}
-  .rm-spine i::after,.rm-step.next::before,.rm-step::after,.rm-phase::after{animation:none}
-  .rm-ring-fg,.rm-spine i,.rm-bar i{transition:none}
+  .rm-lbl,.rm-traffic,.rm-arw.lit,.rm-ring1,.rm-ring2{animation:none}
+  .rm-ring-fg,.rm-asph-lit,.rm-bar i{transition:none}
 }
-
 /* WEEK DETAIL / DAYS */
 .day-row-go{color:var(--mut);font-size:18px;flex:none}
 .sh-range-go{color:var(--mut);flex:none}
@@ -6306,42 +6283,15 @@ function rmSteps(){
   if(iNow>=0){const nx=steps.slice(iNow+1).find(s=>s.state==="locked");if(nx)nx.state="next"}
   return {steps,total,done,pct:total?Math.round(done/total*100):0,iNow};
 }
+function rmPhase(steps,p){
+  const per=trackDays().length,ws=steps.filter(s=>s.kind==="week"&&String(s.phase)===String(p));
+  const d=ws.reduce((n,s)=>n+Math.round(s.pct/100*per),0),tot=ws.length*per;
+  return {d,tot,state:ws.every(s=>s.state==="done")?"done":ws.some(s=>s.state==="now")?"now":"locked"};
+}
 function rmHTML(){
   const {steps,total,done,pct,iNow}=rmSteps(),phases=trackPhases(),per=trackDays().length;
   const now=steps[iNow],next=steps.find(s=>s.state==="next");
-  const phaseOf=p=>{
-    const ws=steps.filter(s=>s.kind==="week"&&String(s.phase)===String(p));
-    const d=ws.reduce((n,s)=>n+Math.round(s.pct/100*per),0),tot=ws.length*per;
-    return {d,tot,state:ws.every(s=>s.state==="done")?"done":ws.some(s=>s.state==="now")?"now":"locked"};
-  };
-  const nodeInner=s=>{
-    if(s.state==="done")return ic("check");
-    if(s.kind==="cert")return ic("trophy");
-    if(s.kind==="check")return ic("clipboard");
-    if(s.kind==="fnd")return ic("mic");
-    return s.state==="locked"?ic("lock"):esc(s.num);
-  };
-  let i=0,lastPhase=null,html="";
-  for(const s of steps){
-    if(s.kind==="week"&&String(s.phase)!==String(lastPhase)){
-      lastPhase=s.phase;const ph=phases[s.phase]||{},st=phaseOf(s.phase);
-      html+=`<li class="rm-phase ${st.state} ${esc(ph.cls||"")}" style="--i:${i++}">
-        <span class="rm-gate"><i></i></span>
-        <div class="rm-ph" role="button" tabindex="0" onclick="jPhase('${esc(String(s.phase))}');document.getElementById('rmDetail')?.scrollIntoView({behavior:'smooth',block:'start'})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
-          <b>${esc(phaseLabel(s.phase))}</b><span>${esc(ph.wk||"")} · ${st.d}/${st.tot}</span></div></li>`;
-    }
-    const tag=s.state==="now"?t("rm.here"):s.state==="next"?t("rm.next"):"";
-    html+=`<li class="rm-step ${s.state} ${s.kind}" style="--i:${i++}" data-id="${s.id}">
-      <span class="rm-node" aria-hidden="true">${nodeInner(s)}</span>
-      <div class="rm-card" role="button" tabindex="0" onclick="${s.go}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}"
-        aria-label="${esc(s.k+" — "+s.title+(tag?" — "+tag:s.state==="locked"?" — "+t("rm.locked"):s.state==="done"?" — "+t("rm.done"):""))}">
-        ${tag?`<span class="rm-tag">${esc(tag)}</span>`:""}
-        <div class="rm-k">${esc(s.k)}</div>
-        <h3>${esc(s.title)}</h3>
-        ${s.sub?`<div class="rm-s">${esc(s.sub)}</div>`:""}
-        ${s.pct!=null?`<div class="rm-bar"><i data-w="${s.pct}"></i></div>`:""}
-      </div></li>`;
-  }
+  const phaseOf=p=>rmPhase(steps,p);
   const line=now?`<span>${esc(t("rm.here"))}:</span> <b>${esc(now.k+" — "+now.title)}</b>`:`<b>${esc(t("rm.finished_line"))}</b>`;
   const nextLine=next?`<span>${esc(t("rm.next"))}:</span> <b>${esc(next.k+" — "+next.title)}</b>`:"";
   return `<section class="rm" aria-label="${esc(t("rm.label"))}">
@@ -6360,36 +6310,112 @@ function rmHTML(){
         ${now?`<button class="rm-jump" onclick="rmJump()">${ic("compass")} ${esc(t("rm.jump"))}</button>`:""}
       </div>
     </div>
-    <div class="rm-board">
-      <div class="rm-spine" aria-hidden="true"><i id="rmFill"></i></div>
-      <ol class="rm-steps">${html}</ol>
-    </div>
+    ${rmBoardHTML()}
   </section>`;
 }
 /* The animated parts need the DOM: the spine fills to the beacon, the ring and
    bars grow from zero, the number counts up. All guarded so a re-render
    mid-animation just starts again. */
+/* The board itself is drawn in rmMount, because the S-curve needs the real
+   width. What rmHTML leaves is the header and an empty road. */
+function rmBoardHTML(){return `<div class="rm-road" id="rmRoad" aria-hidden="false"></div>`}
+function rmDraw(road){
+  const {steps,iNow}=rmSteps(),phaseOf=p=>rmPhase(steps,p);
+  const W=road.clientWidth||360;if(W<120)return;
+  const rtl=(document.documentElement.getAttribute("dir")||"ltr")==="rtl";
+  const N=steps.length,DY=W<480?128:138,PADT=64,PADB=48,PX=Math.round(Math.min(64,Math.max(40,W*.12)));
+  const H=PADT+(N-1)*DY+PADB;
+  const pts=steps.map((s,i)=>({x:(i%2===0)!==rtl?PX:W-PX,y:PADT+i*DY}));
+  /* vertical tangents at every pin: the road runs down past each pin and
+     crosses to the other side between rows, so the space beside a pin is free
+     for its label and the arrows land on the crossings. */
+  let d=`M${pts[0].x} ${pts[0].y}`;
+  for(let i=0;i<N-1;i++){const a=pts[i],b=pts[i+1],k=DY*.72;d+=` C${a.x} ${a.y+k} ${b.x} ${b.y-k} ${b.x} ${b.y}`}
+  const iconOf=s=>s.state==="done"?"check":s.kind==="cert"?"trophy":s.kind==="check"?"clipboard":s.kind==="fnd"?"mic":s.state==="locked"?"lock":null;
+  /* phase bands behind the rows they own */
+  let bands="";const seen=new Set();
+  steps.forEach((s,i)=>{if(s.kind!=="week"||seen.has(String(s.phase)))return;seen.add(String(s.phase));
+    const idx=steps.map((t,j)=>t.kind==="week"&&String(t.phase)===String(s.phase)?j:-1).filter(j=>j>=0);
+    const last=Math.max(...idx,...steps.map((t,j)=>t.kind==="check"&&String(t.phase)===String(s.phase)?j:-1));
+    const y0=pts[idx[0]].y-DY/2,y1=pts[last].y+DY/2;
+    const ws=idx.map(j=>steps[j]),st=ws.every(t=>t.state==="done")?"done":ws.some(t=>t.state==="now")?"now":"locked";
+    const per=trackDays().length,dn=ws.reduce((n,t)=>n+Math.round(t.pct/100*per),0);
+    bands+=`<rect class="rm-band ${st}" x="0" y="${y0}" width="${W}" height="${y1-y0}" rx="18"/>`});
+  /* one arrow per link, sitting on the road at its midpoint, pointing onward */
+  const probe=document.createElementNS("http://www.w3.org/2000/svg","path");probe.setAttribute("d",d);
+  const segLen=[];let acc=0;
+  {const tmp=document.createElementNS("http://www.w3.org/2000/svg","svg");tmp.style.cssText="position:absolute;width:0;height:0;overflow:hidden";tmp.appendChild(probe);document.body.appendChild(tmp);
+    const total=probe.getTotalLength();
+    /* lengths to each pin, by walking the path and snapping to the pins' y */
+    const marks=[0];let L=0,step=Math.max(2,total/1500);
+    for(let i=1;i<N;i++){let best=null,bd=1e9;for(let l=L;l<=total;l+=step){const p=probe.getPointAtLength(l);const dd=Math.hypot(p.x-pts[i].x,p.y-pts[i].y);if(dd<bd){bd=dd;best=l}if(dd<1.5)break}marks.push(best);L=best}
+    segLen.push(...marks);segLen.total=total;
+    var arrows="",signs="";
+    for(let i=0;i<N-1;i++){const m=(marks[i]+marks[i+1])/2,p=probe.getPointAtLength(m),q=probe.getPointAtLength(m+2);
+      const ang=Math.atan2(q.y-p.y,q.x-p.x)*180/Math.PI,lit=steps[i].state==="done",dim=steps[i].state==="now";
+      const nx=steps[i+1],entering=nx.kind==="week"&&!(steps.slice(0,i+1).some(t=>t.kind==="week"&&String(t.phase)===String(nx.phase)));
+      if(entering){/* a road sign at the phase entrance, in place of the arrow */
+        const ph=phaseOf(nx.phase),label=phaseLabel(nx.phase),txt=`${label} · ${ph.d}/${ph.tot}`,w=Math.min(W-24,Math.max(120,txt.length*6.6+28));
+        signs+=`<g class="rm-sign ${ph.state}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})"><rect x="${-w/2}" y="-13" width="${w}" height="26" rx="13"/><text>${esc(txt)}</text></g>`;
+        continue}
+      arrows+=`<g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${ang.toFixed(1)})"><path class="rm-arw ${lit?"lit":dim?"dim":""}" d="M-4 -7 L4 0 L-4 7"/></g>`}
+    tmp.remove();
+  }
+  const litLen=iNow>=0?segLen[iNow]:(steps.every(s=>s.state==="done")?segLen.total:0);
+  const pins=steps.map((s,i)=>{const p=pts[i],ico=iconOf(s),r=s.kind==="cert"?26:22;
+    return `<g class="rm-pin ${s.state} ${s.kind}" transform="translate(${p.x} ${p.y})" role="button" tabindex="0" aria-label="${esc(s.k+" — "+s.title)}" onclick="${s.go}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.dispatchEvent(new MouseEvent('click'))}">
+      ${s.state==="now"?`<circle class="rm-ring1" r="${r+6}"/><circle class="rm-ring2" r="${r+9}"/>`:""}
+      <circle class="rm-pin-bg" r="${r}"/>
+      ${ico?`<g class="rm-pin-ic" transform="translate(-12 -12)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICON[ico]}</svg></g>`:`<text>${esc(s.num)}</text>`}
+    </g>`}).join("");
+  road.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <defs>
+      <linearGradient id="rmRoadGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)"/><stop offset="1" stop-color="var(--acc)"/></linearGradient>
+      <linearGradient id="rmPinGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--acc)"/><stop offset="1" stop-color="var(--acc2)"/></linearGradient>
+      <linearGradient id="rmGoldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--gold)"/><stop offset="1" stop-color="#fff3c4"/></linearGradient>
+    </defs>
+    ${bands}
+    <path class="rm-asph" d="${d}"/>
+    <path class="rm-asph-lit" d="${d}" style="stroke-dasharray:0 ${segLen.total}" data-lit="${litLen}"/>
+    <path class="rm-dash" d="${d}"/>
+    <path class="rm-traffic" d="${d}" style="stroke-dasharray:3 26;stroke-dashoffset:0" pathLength="${segLen.total}" data-lit="${litLen}"/>
+    ${arrows}${signs}
+    <text class="rm-start" x="${pts[0].x}" y="${pts[0].y-38}" text-anchor="middle">START</text>
+    ${pins}
+  </svg>`;
+  /* the traffic dots run only on the lit stretch: clip them with a mask */
+  const tr=road.querySelector(".rm-traffic");
+  if(litLen>0){tr.setAttribute("stroke-dasharray","3 26");const svg=road.querySelector("svg");const mid="rmTrafMask";
+    svg.querySelector("defs").insertAdjacentHTML("beforeend",`<mask id="${mid}"><path d="${d}" fill="none" stroke="#fff" stroke-width="34" stroke-linecap="round" stroke-dasharray="${litLen} ${segLen.total}"/></mask>`);
+    tr.setAttribute("mask",`url(#${mid})`)}else tr.remove();
+  /* labels: HTML, beside each pin, on the side the road has left free */
+  const LW=Math.max(150,W-2*PX-2*34-6);
+  steps.forEach((s,i)=>{const p=pts[i],left=p.x<W/2,tag=s.state==="now"?t("rm.here"):s.state==="next"?t("rm.next"):"";
+    const el=document.createElement("div");el.className="rm-lbl "+s.state;el.style.cssText=`--i:${i};top:${p.y}px;width:${LW}px;${left?`left:${p.x+34}px`:`right:${W-p.x+34}px`}`;
+    el.setAttribute("role","button");el.tabIndex=0;el.setAttribute("onclick",s.go);
+    el.setAttribute("aria-label",s.k+" — "+s.title+(tag?" — "+tag:s.state==="locked"?" — "+t("rm.locked"):s.state==="done"?" — "+t("rm.done"):""));
+    el.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();el.click()}};
+    el.innerHTML=`${tag?`<span class="rm-tag">${esc(tag)}</span>`:""}<div class="rm-k">${esc(s.k)}</div><h3>${esc(s.title)}</h3>${s.sub||s.pct!=null?`<div class="rm-meta">${s.sub?`<span class="rm-s">${esc(s.sub)}</span>`:""}${s.pct!=null?`<span class="rm-bar"><i data-w="${s.pct}"></i></span>`:""}</div>`:""}`;
+    road.appendChild(el)});
+  road.style.height=H+"px";
+  requestAnimationFrame(()=>{const lit=road.querySelector(".rm-asph-lit");if(lit)lit.style.strokeDasharray=`${litLen} ${segLen.total}`;
+    road.querySelectorAll(".rm-bar i").forEach(b=>{b.style.width=b.dataset.w+"%"})});
+}
 function rmMount(root){
   const rm=root.querySelector(".rm");if(!rm)return;
   const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
-  const fill=()=>{
-    const list=rm.querySelector(".rm-steps"),bar=rm.querySelector("#rmFill");if(!list||!bar)return;
-    const target=rm.querySelector(".rm-step.now .rm-node")||[...rm.querySelectorAll(".rm-step.done .rm-node")].pop();
-    if(!target){bar.style.height="0";return}
-    const top=target.getBoundingClientRect().top-list.getBoundingClientRect().top+target.offsetHeight/2;
-    bar.style.height=Math.max(0,top)+"px";
-  };
+  const road=rm.querySelector("#rmRoad");
+  let lastW=0;const draw=()=>{if(!road||!document.body.contains(road))return;const w=road.clientWidth;if(w&&w!==lastW){lastW=w;rmDraw(road)}};
   requestAnimationFrame(()=>{
-    fill();
+    draw();
     const ring=rm.querySelector(".rm-ring-fg");if(ring){const p=+ring.dataset.p||0;ring.style.strokeDashoffset=String(314.16*(1-p/100))}
-    rm.querySelectorAll(".rm-bar i").forEach(b=>{b.style.width=b.dataset.w+"%"});
     const num=rm.querySelector("[data-count]");
     if(num){const to=+num.dataset.count||0;if(reduce){num.textContent=to+"%"}else{const t0=performance.now();const tick=n=>{const k=Math.min(1,(n-t0)/1100),e=1-Math.pow(1-k,3);num.textContent=Math.round(to*e)+"%";if(k<1)requestAnimationFrame(tick)};requestAnimationFrame(tick)}}
   });
   if(rmMount._ro)rmMount._ro.disconnect();
-  if(window.ResizeObserver){rmMount._ro=new ResizeObserver(()=>{if(document.body.contains(rm))fill()});rmMount._ro.observe(rm)}
+  if(window.ResizeObserver&&road){rmMount._ro=new ResizeObserver(()=>draw());rmMount._ro.observe(road)}
 }
-window.rmJump=()=>{const el=document.querySelector(".rm-step.now");if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"center"})};
+window.rmJump=()=>{const el=document.querySelector(".rm-lbl.now");if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"center"})};
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
   const allWeeks=trackWeeks(),phases=trackPhases();
