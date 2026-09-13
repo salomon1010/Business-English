@@ -62,7 +62,7 @@
 <script src="curriculum-provider.js?v=85"></script>
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=83"></script>
-<script src="learning-coach.js?v=83"></script>
+<script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=79"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
@@ -1141,6 +1141,25 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .fnd-dots{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 2px}
 .fnd-dots span{width:14px;height:14px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);cursor:pointer}
 .fnd-dots span.done{background:var(--green);border-color:var(--green)}
+.fnd-dots span.locked{cursor:default;opacity:.55}
+.path-locked{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--mut);margin-top:6px}
+.path-locked svg{width:16px;height:16px}
+.day-row.locked{opacity:.55;cursor:not-allowed}.day-row.locked:hover{transform:none;border-color:var(--line)}
+.day-row.here{border-color:var(--acc)}
+.path-tools h2{font-size:18px;margin:4px 0 6px}.path-tools>.sub{margin:0 0 12px}
+.path-tool-list{display:grid;gap:8px}
+.path-tool{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer;transition:.15s;font:inherit}
+.path-tool:hover{border-color:var(--acc)}
+.path-tool.rec{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--card2))}
+.path-tool.locked{opacity:.55;cursor:not-allowed}
+.path-tool .pt-ic{flex:none;width:38px;height:38px;border-radius:11px;background:var(--bg2);display:grid;place-items:center;color:var(--acc)}
+.path-tool .pt-t{flex:1;min-width:0}.path-tool .pt-t b{display:block;font-size:14px}.path-tool .pt-t small{display:block;font-size:12px;color:var(--mut);line-height:1.4}
+.path-tool .chip{flex:none}
+.coach-path{margin:14px 0 4px;padding:13px 14px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}
+.coach-path b.cp-h{display:block;font-size:13px;margin-bottom:6px}
+.coach-path p{margin:4px 0!important;font-size:13px!important;line-height:1.5}
+.coach-path p span{font-weight:800;color:var(--accent-text);margin-right:6px}
+.coach-path .btn{margin-top:10px}
 .fnd-dots span.now{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
 .fnd-theme-fr{margin-top:-6px;color:var(--mut2)}
 .fnd-how{font-size:13px;margin:10px 0 14px}
@@ -3569,10 +3588,10 @@ const I18N_EN={
  "ob.already_account":"Already have an account?",
  "ob.login":"Log in",
  "ob.skip_lang":"Skip — continue in English",
- "ob.track_title":"What do you want to practise?",
- "ob.track_sub":"You can change this any time. Your progress stays either way.",
- "ob.track_general_sub":"Meetings, presentations and everyday professional English.",
- "ob.track_welding_sub":"Workshop English for welders — first day, handovers, safety, interviews.",
+ "ob.track_title":"Where do you want to learn?",
+ "ob.track_sub":"Everything that follows — Start here, the fifteen Foundations days and every session — is built for the environment you choose. You can switch later; progress is kept separately for each.",
+ "ob.track_general_sub":"For the office: meetings, presentations, calls and everyday professional English. Start here begins with three simple workplace sentences a day.",
+ "ob.track_welding_sub":"For the workshop and the site: first day, safety, handovers, tool talk and job interviews for welders, pipefitters and boilermakers. Start here begins with three sentences from a real shift.",
  "ob.trade_title":"Which trade do you work in?",
  "ob.trade_sub":"This sets your codes, your vocabulary and what a good answer sounds like. You can change it later.",
  "ob.trade_pay_note":"typical range, varies by region and employer",
@@ -4021,6 +4040,8 @@ const I18N_EN={
  "wc.score_label":"Assessment score",
  "wc.body":"We've built your 12-week plan around your answers. Twenty-five focused minutes a day, six days a week — that's all it takes.",
  "wc.cta":"Start Week 1",
+ "wc.env_line":"You are learning in {{env}}. Next comes Start here — a one-minute check that decides your first step.",
+ "wc.cta_start":"Start here →",
  "wc.close":"Close",
  "journey.phase_tabs_label":"Learning track",
  "journey.phase_progress":"{{phase}} · {{done}} of {{total}} sessions done",
@@ -4129,6 +4150,50 @@ const I18N_EN={
  "fnd.check_done":"Done",
  "fnd.check_result_fnd":"We'll start with Foundations. Three sentences a day.",
  "fnd.check_result_full":"You're ready for the full programme.",
+ "path.step":"{{unit}} · {{d}} — {{focus}}",
+ "path.locked_eyebrow":"Step by step",
+ "path.locked_h":"Not yet",
+ "path.locked_sub":"Finish {{step}} first and mark it done. This one opens right after.",
+ "path.locked_go":"Go to the open step →",
+ "path.locked_toast":"Finish {{step}} first.",
+ "path.fnd_locked_toast":"Finish Day {{n}} first.",
+ "path.after_fnd":"Opens after Foundations",
+ "path.handoff_eyebrow":"Foundations complete",
+ "path.handoff_h":"Your next step",
+ "path.handoff_sub":"Each step opens the one after it. Do it, mark it done, and the app moves you on.",
+ "path.handoff_btn":"Start →",
+ "path.next_btn":"Next step: {{step}} →",
+ "path.all_done":"Every session is done. Nothing is left on the path.",
+ "path.here":"You are here",
+ "path.coach_h":"Your path",
+ "path.done_lbl":"Done",
+ "path.next_lbl":"Next",
+ "path.tool_lbl":"Best tool",
+ "path.at_start":"You are at the start.",
+ "path.done_check":"You took the one-minute check.",
+ "path.done_fnd":"You finished Foundations day {{n}} — {{theme}}.",
+ "path.done_fnd_all":"You finished all fifteen Foundations days.",
+ "path.done_session":"You completed {{step}}.",
+ "path.next_fnd":"Foundations day {{n}} — {{theme}}",
+ "tools.eyebrow":"Best tool for your step",
+ "tools.rec":"Recommended",
+ "tools.locked":"After Foundations",
+ "tools.shadow":"Shadowing Studio",
+ "tools.shadow_sub":"Copy a native speaker's rhythm and sounds, line by line.",
+ "tools.phrases":"Phrase Lab & Executive Polish",
+ "tools.phrases_sub":"This week's phrases, and your own sentences made boardroom-ready.",
+ "tools.vocab":"Vocabulary & grammar drills",
+ "tools.vocab_sub":"Flashcards, quizzes and crosswords on the words you have collected.",
+ "tools.sim":"Workplace conversations",
+ "tools.sim_sub":"A full conversation with a workplace character, answer by answer.",
+ "tools.fnd":"Foundations — today's three sentences",
+ "tools.fnd_sub":"Hear it, understand it, say it, record it.",
+ "tools.why_shadow":"This step is about sound and rhythm. Shadowing gives you a native model to copy before you record.",
+ "tools.why_phrases":"This step is a speaking task. Phrase Lab gives you the sentences to build it from, and Executive Polish upgrades what you say.",
+ "tools.why_vocab":"This step is about words. Flashcards and quizzes make them stick before you have to use them.",
+ "tools.why_sim":"This step is a conversation. A workplace scenario puts a character in front of you and scores each answer.",
+ "tools.why_fnd":"You are in Foundations. Today's three sentences are the step — the other tools open with the full programme.",
+ "tools.why_done":"Every session is done. Pick any tool and keep the language alive.",
  "ph.exec_flow_h":"How to build your full speech",
  "ph.exec_flow_lead":"Use it ten minutes before the meeting. You already know roughly what you are going to say — put those lines in here first, and walk in saying the version a leader would have used. Two or three real phrases a day, from sentences you actually needed.",
  "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — then tap the mic here and say your whole sentence out loud, so it lands in the box. Typing it works just as well.",
@@ -5753,7 +5818,7 @@ function rHomeGeneral(el){
       <h2>${t("home.week_line",{w:pos.w,d:pos.d,focus:esc(day.focus||wk.theme||"")})}</h2>
       <p style="color:var(--mut);font-size:14px;margin-bottom:8px"><span class="inl-ic">${ic(trackDayMeta()[pos.d].k)}</span>${dayTypeLabel(pos.d)} · ${esc(wk.theme)}</p>
       <p style="font-size:14.5px;line-height:1.6;margin-bottom:16px">${esc(day.task||"")}</p>
-      <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
+      ${pathMissionBtn(pos.w,pos.d,t("home.start_btn"))}
     </div>
   </div>
   ${fndHomeCardHTML()}
@@ -5822,7 +5887,7 @@ function rHome(el){
       <p class="career-dashboard-why">Why it matters: ${esc(c.wk.goal||"Build clearer professional communication for the workplace.")}</p>
     </div>
     <div class="career-dashboard-coach"><span class="coach-ic">${ic("idea")}</span><div><b>Coach recommendation · ${esc(c.coach.title)}</b><p>${esc(c.coach.body)}</p></div></div>
-    <button class="btn-primary" onclick="go('session',${c.pos.w},'${c.pos.d}')">Continue Today’s Mission →</button>
+    ${pathMissionBtn(c.pos.w,c.pos.d,"Continue Today’s Mission →")}
   </section>
   ${/* The way back out, named. A row reading "Switch profession" does not say
         what the alternative is; this card does. */""}
@@ -6062,8 +6127,8 @@ function rJourney(el,wArg){
     /* The week the learner is actually on, not the first one on screen. This is
        the only page where the app already knows exactly where they are, and it
        was not saying so. */
-    const here=w.n===_cur;
-    return `<div class="card wk-card ${here?"cta-lead":""}" onclick="go('journey',${w.n})">
+    const here=w.n===_cur,locked=pathLocked(w.n,trackDays()[0]);
+    return `<div class="card wk-card ${here?"cta-lead":""} ${locked?"locked":""}" onclick="go('journey',${w.n})">
       ${here?`<span class="cta-lead-tag">You are here</span>`:""}
       <div style="display:flex;justify-content:space-between;align-items:center"><span class="num">${esc(journeyUnit(w.n))}</span><span class="chip ${phases[w.phase].cls}">${phaseLabel(w.phase)}</span></div>
       <h3>${esc(w.theme)}</h3>
@@ -6084,12 +6149,13 @@ function rWeek(el,w){
   <h1 class="big" style="font-size:30px">${isProfessionalJourney()?`${esc(wk.stage||("Stage "+w))} — <em>${esc(wk.theme)}</em>`:t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.mission||wk.goal)})}</p>
   <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
-  ${trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
-    return `<div class="day-row ${done?'done':''}" onclick="go('session',${w},'${d}')">
-      <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:ic(dayMeta[d].k)}</div>
-      <div class="t"><b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
+  ${(()=>{const p=currentPos();return trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
+    const locked=pathLocked(w,d),here=!locked&&!done&&p.w===w&&p.d===d;
+    return `<div class="day-row ${done?'done':''} ${locked?'locked':''} ${here?'here':''}" onclick="${locked?'pathNudge()':`go('session',${w},'${d}')`}" ${locked?'aria-disabled="true"':''}>
+      <div class="ic">${done?`<span style="color:var(--green)">${ic("check")}</span>`:(locked?ic("lock"):ic(dayMeta[d].k))}</div>
+      <div class="t">${here?`<span class="cta-lead-tag">${t("path.here")}</span>`:""}<b>${d} — ${esc(dd.focus)}</b><span>${dayTypeLabel(d)} · ${esc(dd.task)}</span></div>
       <span class="day-row-go" aria-hidden="true">›</span>
-    </div>`}).join("")}`;
+    </div>`}).join("")})()}`;
   manIconizeInline(el);
 }
 
@@ -6107,6 +6173,8 @@ let timer={left:25*60,run:false,h:null};
    call, so a re-render would wipe a running clock and any in-progress
    recording. Step ticks and disclosures all mutate in place. */
 function rSession(el,w,d){
+  if(fndBlocks()){fndGateHTML(el);return}
+  if(pathLocked(w,d)){pathLockedHTML(el,w);return}
   const weeks=trackWeeks(),phrases=trackPhrases(),phases=trackPhases(),dayMeta=trackDayMeta(),sessionLinks=trackSessionLinks(),templates=trackTemplates();
   const wk=weeks[w-1],dd=wk.days[d],key=dayKey(w,d),tpl=templates[d];
   const stepsDone=S.steps[key]||[];
@@ -6201,7 +6269,10 @@ function rSession(el,w,d){
         <div class="score-row" role="radiogroup" aria-label="${esc(t("sess.selfscore_title"))}">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="score-b ${S.scores[key]===n?'on':''}" role="radio" aria-checked="${S.scores[key]===n}" onclick="setScore('${key}',${n})">${n}</button>`).join("")}</div>
         <div class="hr"></div>
         ${S.days[key]
-          ?`<button class="btn btn-g sess-done" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_done")}</button>`
+          ?`<button class="btn btn-g sess-done" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_done")}</button>
+            ${(()=>{if(totalDone()>=trackSessionCount())return `<p class="sub" style="margin-top:10px">${t("path.all_done")}</p>`;
+              const p=currentPos();if(p.w===w&&p.d===d)return "";
+              return `<button class="btn-primary" style="margin-top:10px" onclick="go('session',${p.w},'${p.d}')">${t("path.next_btn",{step:esc(pathStepLabel(p.w,p.d))})}</button>`})()}`
           :`<button class="btn-primary" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_incomplete")}</button>`}
       </div>
   </div>`;
@@ -9390,6 +9461,7 @@ function rPractice(el){
   <h1 class="big">${t("prac.title")}</h1>
   <p class="sub">${t("prac.sub")}</p>
   <div class="how-row">${howBtn("practice")}</div>
+  ${pathToolsHTML()}
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
@@ -9929,7 +10001,7 @@ function missionData(sc){
 }
 function simMissionBriefing(el,sc,characterId){const mission=missionData(sc),first=simCharacter(sc,characterId);el.innerHTML=`<button class="back" onclick="go('simulation')">‹ Workplace scenarios</button><section class="card sim-stage mission-brief"><div class="mission-company">${esc(mission.company)}</div><div class="eyebrow">Mission</div><h1 class="big">${esc(mission.title)}</h1><p class="sub">${esc(mission.welcome)}</p><div class="sim-card-meta"><span><b>12 minutes</b>Estimated duration</span><span><b>Beginner</b>Difficulty</span><span><b>First day</b>Workplace stage</span></div><span class="sim-card-label">Today's mission</span><div class="sim-objectives-preview">${(sc.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join('')}</div><span class="sim-card-label">Your workplace journey</span><div class="sim-story"><span>${esc((mission.locations||[]).join('  →  '))}</span></div><span class="sim-card-label">Rewards</span><div class="sim-skill-chips">${(mission.rewards||[]).map(reward=>`<span>✓ ${esc(reward)}</span>`).join('')}</div><p class="mission-contact">You will begin with <b>${esc(first.name)}</b>, ${esc(first.role)}.</p><button class="btn btn-p mission-start" onclick="simBeginMission('${esc(sc.id)}','${esc(first.id)}')">Start my first day →</button></section>`}
 function rSimulation(el,id,characterId){
-  if(typeof fndGated==="function"&&fndGated()){fndGateHTML(el);return}
+  if(typeof fndBlocks==="function"&&fndBlocks()){fndGateHTML(el);return}
   const engine=window.ProfessionalSimulationEngine,orchestrator=window.ConversationOrchestrator,items=trackSimulations();
   if(!engine||!items.length){el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><h1 class="big">Professional Simulation</h1><p class="sub">Professional simulations will appear when they are available for this track.</p>`;return}
   const selected=id?engine.find(id):null;
@@ -11732,6 +11804,103 @@ function fndNeedsPlacement(){return fndAvailable()&&!fndState().placed}
 function fndGated(){const f=fndState();return fndAvailable()&&f.placed==="foundations"&&!f.finished}
 function fndDayOf(){return Math.min(FND_TOTAL_DAYS,Math.max(1,fndState().day||1))}
 function fndDaysDone(){const d=fndState().done;return Object.keys(d).filter(k=>/^d\d+$/.test(k)&&d[k]).length}
+/* ---- the path. One order on every track: the check, the Foundations days,
+   then the sessions week by week. A step opens only when the one before it is
+   marked done; steps already done stay open to revisit. Nothing here knows
+   which track it is on — dayKey / currentPos / fndState are all per-track. ---- */
+function fndBlocks(){return fndGated()||fndNeedsPlacement()}
+function pathIndex(w,d){const days=trackDays();return (Number(w)-1)*days.length+Math.max(0,days.indexOf(d))}
+function pathLocked(w,d){
+  if(fndBlocks())return true;
+  if(S.days[dayKey(w,d)])return false;
+  const p=currentPos();return pathIndex(w,d)>pathIndex(p.w,p.d);
+}
+function pathStepLabel(w,d){const wk=trackWeeks()[w-1]||{},dd=(wk.days||{})[d]||{};return t("path.step",{unit:journeyUnit(w),d,focus:dd.focus||wk.theme||""})}
+function pathLockedHTML(el,w){
+  const p=currentPos();
+  el.innerHTML=`<button class="back stick-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
+  <section class="card sim-stage fnd-gate">
+    <div class="eyebrow">${t("path.locked_eyebrow")}</div>
+    <h1 class="big">${t("path.locked_h")}</h1>
+    <p class="sub">${t("path.locked_sub",{step:esc(pathStepLabel(p.w,p.d))})}</p>
+    <button class="btn-primary" style="margin-top:14px" onclick="go('session',${p.w},'${p.d}')">${t("path.locked_go")}</button>
+  </section>`;
+  manIconizeInline(el);
+}
+/* a tap on a locked row: say what is open, and go there */
+window.pathNudge=()=>{const p=currentPos();toast(t("path.locked_toast",{step:pathStepLabel(p.w,p.d)}));go("session",p.w,p.d)};
+/* the one button Home shows for the session that is open — or the reason it is not */
+function pathMissionBtn(w,d,label){
+  if(!pathLocked(w,d))return `<button class="btn-primary" onclick="go('session',${w},'${d}')">${label}</button>`;
+  return `<p class="path-locked">${ic("lock")} ${t("path.after_fnd")}</p>`;
+}
+/* ---- where they are, in words: what was just done, what comes next, and the
+   tool that fits it. Read by the coach modal and the Practice page. ---- */
+function pathSummary(){
+  const days=trackDays();
+  if(fndNeedsPlacement())return {done:null,next:{label:t("fnd.check_open"),go:["home"]},task:t("fnd.check_sub")};
+  if(fndGated()){
+    const n=fndDayOf(),pack=fndPack(),th=i=>fndFill(pack.days[i-1].theme||"","en");
+    return {done:n>1?t("path.done_fnd",{n:n-1,theme:th(n-1)}):t("path.done_check"),next:{label:t("path.next_fnd",{n,theme:th(n)}),go:["foundations",n]},task:t("fnd.how")};
+  }
+  const p=currentPos(),idx=pathIndex(p.w,p.d),f=fndAvailable()?fndState():null;
+  let done=null;
+  if(idx>0){const pw=Math.floor((idx-1)/days.length)+1,pd=days[(idx-1)%days.length];done=t("path.done_session",{step:pathStepLabel(pw,pd)})}
+  else if(f&&f.finishedAt)done=t("path.done_fnd_all");
+  if(totalDone()>=trackSessionCount())return {done,next:null,task:t("path.all_done")};
+  const wk=trackWeeks()[p.w-1]||{},dd=(wk.days||{})[p.d]||{};
+  return {done,next:{label:pathStepLabel(p.w,p.d),go:["session",p.w,p.d]},task:dd.task||"",d:p.d};
+}
+function pathTools(){
+  const sim=isProfessionalJourney()?"simulation":"roleplay";
+  const list=[
+    {id:"shadow",go:["shadow"],ic:"headphones"},
+    {id:"phrases",go:["phrases"],ic:"chat"},
+    {id:"vocab",go:["practice"],ic:"cards"},
+    {id:"sim",go:[sim],ic:"user",locked:fndBlocks()}
+  ];
+  if(fndBlocks())list.unshift({id:"fnd",go:fndNeedsPlacement()?["home"]:["foundations"],ic:"mic"});
+  return list;
+}
+function pathToolPick(){
+  if(fndBlocks())return {id:"fnd",why:t("tools.why_fnd")};
+  if(totalDone()>=trackSessionCount())return {id:"phrases",why:t("tools.why_done")};
+  const d=currentPos().d;
+  const map={Mon:"shadow",Fri:"shadow",Tue:"phrases",Wed:"vocab",Thu:"sim",Sat:isProfessionalJourney()?"sim":"phrases",Sun:"vocab"};
+  const id=map[d]||"phrases";
+  return {id,why:t("tools.why_"+id)};
+}
+window.pathToolGo=(id)=>{
+  const tool=pathTools().find(x=>x.id===id);if(!tool)return;
+  if(tool.locked){pathNudge();return}
+  go(...tool.go);
+  /* the vocabulary drills live on the Practice page itself, under the library */
+  if(id==="vocab")setTimeout(()=>{try{libGroup("vocabulary");const kb=document.querySelector(".prac-kb");if(kb)kb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},80);
+};
+window.pathGoNext=()=>{const s=pathSummary();if(s.next)go(...s.next.go);else go("journey")};
+function pathToolsHTML(){
+  const pick=pathToolPick(),s=pathSummary();
+  return `<section class="card path-tools" aria-label="${esc(t("tools.eyebrow"))}">
+    <div class="eyebrow">${t("tools.eyebrow")}</div>
+    <h2>${s.next?esc(s.next.label):t("path.all_done")}</h2>
+    <p class="sub">${esc(pick.why)}</p>
+    <div class="path-tool-list">${pathTools().map(x=>`<button class="path-tool ${x.id===pick.id?"rec":""} ${x.locked?"locked":""}" onclick="pathToolGo('${x.id}')" ${x.locked?'aria-disabled="true"':""}>
+      <span class="pt-ic">${ic(x.locked?"lock":x.ic)}</span>
+      <span class="pt-t"><b>${t("tools."+x.id)}</b><small>${t("tools."+x.id+"_sub")}</small></span>
+      ${x.id===pick.id?`<span class="chip done">${t("tools.rec")}</span>`:(x.locked?`<span class="chip">${t("tools.locked")}</span>`:"")}
+    </button>`).join("")}</div>
+  </section>`;
+}
+/* the block the coach modal carries: done / next / best tool, and the one button */
+window.pathCoachHTML=()=>{
+  const s=pathSummary(),pick=pathToolPick();
+  return `<div class="coach-path"><b class="cp-h">${t("path.coach_h")}</b>
+    <p><span>${t("path.done_lbl")}</span>${esc(s.done||t("path.at_start"))}</p>
+    <p><span>${t("path.next_lbl")}</span>${s.next?`${esc(s.next.label)}${s.task?" — "+esc(s.task):""}`:esc(s.task)}</p>
+    <p><span>${t("path.tool_lbl")}</span>${t("tools."+pick.id)} — ${esc(pick.why)}</p>
+    ${s.next?`<button class="btn btn-p" onclick="document.getElementById('coachSummary')?.remove();pathGoNext()">${t("path.next_btn",{step:esc(s.next.label)})}</button>`:""}
+  </div>`;
+};
 /* The trade name is the only thing that changes per learner — in the English
    line and in whichever language the gloss is shown in. */
 const FND_TRADE={"fr":{"welder":"soudeur","pipefitter":"tuyauteur","boilermaker":"chaudronnier"},"es":{"welder":"soldador","pipefitter":"tubero","boilermaker":"calderero"},"pt":{"welder":"soldador","pipefitter":"encanador industrial","boilermaker":"caldeireiro"},"it":{"welder":"saldatore","pipefitter":"tubista","boilermaker":"calderaio"},"de":{"welder":"Schweißer","pipefitter":"Rohrschlosser","boilermaker":"Kesselbauer"},"ru":{"welder":"сварщик","pipefitter":"трубопроводчик","boilermaker":"котельщик"},"ar":{"welder":"لحّام","pipefitter":"فني أنابيب","boilermaker":"صانع غلايات"},"ur":{"welder":"ویلڈر","pipefitter":"پائپ فٹر","boilermaker":"بوائلر میکر"},"hi":{"welder":"वेल्डर","pipefitter":"पाइप फ़िटर","boilermaker":"बॉयलर मेकर"},"bn":{"welder":"ওয়েল্ডার","pipefitter":"পাইপ ফিটার","boilermaker":"বয়লার মেকার"},"id":{"welder":"tukang las","pipefitter":"tukang pipa","boilermaker":"pembuat ketel"},"vi":{"welder":"thợ hàn","pipefitter":"thợ lắp ống","boilermaker":"thợ nồi hơi"},"zh":{"welder":"焊工","pipefitter":"管道工","boilermaker":"锅炉工"},"ja":{"welder":"溶接工","pipefitter":"配管工","boilermaker":"ボイラー工"},"ko":{"welder":"용접공","pipefitter":"배관공","boilermaker":"보일러공"}};
@@ -11800,7 +11969,8 @@ window.fndCloseCheck=()=>{const ov=document.getElementById("fndCheckOv");if(ov)o
 let _fndCheckShown=false;
 function fndHomeCardHTML(){
   if(fndNeedsPlacement()){
-    if(!_fndCheckShown){_fndCheckShown=true;setTimeout(()=>{if(fndNeedsPlacement())fndOpenCheck("home")},350)}
+    /* not while the onboarding wizard is up — obFinish/wcClose open it after */
+    if(!_fndCheckShown&&!document.getElementById("obWrap")){_fndCheckShown=true;setTimeout(()=>{if(fndNeedsPlacement()&&!document.getElementById("obWrap")&&!document.getElementById("wcOv"))fndOpenCheck("home")},350)}
     return `<section class="card fnd-home" aria-label="${esc(t("fnd.title"))}">
       <div class="eyebrow">${t("fnd.eyebrow")}</div>
       <h2>${t("fnd.check_h")}</h2>
@@ -11808,7 +11978,21 @@ function fndHomeCardHTML(){
       <button class="btn-primary" onclick="fndOpenCheck('home')">${t("fnd.check_open")}</button>
     </section>`;
   }
-  if(!fndGated())return "";
+  if(!fndGated()){
+    /* Finished Foundations, not yet started the programme: the toast is gone in
+       seconds, so the hand-off lives here until the first session is done. */
+    const f=fndState();
+    if(f.finished&&f.finishedAt&&totalDone()===0){const p=currentPos();return `<section class="card fnd-home" aria-label="${esc(t("path.handoff_h"))}">
+      <div class="eyebrow">${t("path.handoff_eyebrow")}</div>
+      <h2>${t("path.handoff_h")}</h2>
+      <p class="sub">${t("path.handoff_sub")}</p>
+      <div class="fnd-home-row">
+        <span class="fnd-home-day">${esc(pathStepLabel(p.w,p.d))}</span>
+        <button class="btn-primary" onclick="go('session',${p.w},'${p.d}')">${t("path.handoff_btn")}</button>
+      </div>
+    </section>`}
+    return "";
+  }
   const day=fndDayOf(),done=fndDaysDone();
   return `<section class="card fnd-home" aria-label="${esc(t("fnd.title"))}">
     <div class="eyebrow">${t("fnd.eyebrow")}</div>
@@ -11824,6 +12008,16 @@ function fndHomeCardHTML(){
 
 /* ---- the gate on the full-speed parts of the track ---- */
 function fndGateHTML(el){
+  if(fndNeedsPlacement()){
+    el.innerHTML=`<button class="back stick-back" onclick="go('home')">‹ ${t("bnav.home")}</button>
+    <section class="card sim-stage fnd-gate">
+      <div class="eyebrow">${t("fnd.eyebrow")}</div>
+      <h1 class="big">${t("fnd.check_h")}</h1>
+      <p class="sub">${t("fnd.check_sub")}</p>
+      <button class="btn-primary" style="margin-top:14px" onclick="fndOpenCheck('gate')">${t("fnd.check_open")}</button>
+    </section>`;
+    manIconizeInline(el);return;
+  }
   el.innerHTML=`<button class="back stick-back" onclick="go('home')">‹ ${t("bnav.home")}</button>
   <section class="card sim-stage fnd-gate">
     <div class="eyebrow">${t("fnd.eyebrow")}</div>
@@ -11844,7 +12038,10 @@ function rFoundations(el,dayArg){
   const pack=fndPack();
   if(!pack){go("home");return}
   const f=fndState();
-  const day=Math.min(FND_TOTAL_DAYS,Math.max(1,Number(dayArg)||fndDayOf()));
+  if(fndNeedsPlacement()){go("home");return}
+  let day=Math.min(FND_TOTAL_DAYS,Math.max(1,Number(dayArg)||fndDayOf()));
+  /* days beyond the one that is open are not reachable, not even by the hash */
+  if(day>fndDayOf()){toast(t("path.fnd_locked_toast",{n:fndDayOf()}));day=fndDayOf()}
   const d=pack.days[day-1];if(!d){go("home");return}
   const doneKey="d"+day;
   const recDone=f.done[doneKey+"r"]||{};
@@ -11862,7 +12059,7 @@ function rFoundations(el,dayArg){
   <div class="eyebrow">${t("fnd.title")} · ${t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS})}</div>
   <h1 class="big">${esc(d.theme)}</h1>
   <p class="sub fnd-theme-fr">${esc(theme)}</p>
-  <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`).join("")}</div>
+  <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>(i+1<=fndDayOf()?`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`:`<span class="locked"></span>`)).join("")}</div>
   <p class="sub fnd-how">${t("fnd.how")}</p>
   ${d.items.map((it,i)=>{
     const en=fndFill(it.en,"en"),fr=fndFill(gloss(it),gl);
@@ -11902,7 +12099,7 @@ window.fndRecord=(day,i)=>{
     const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
     /* a day is done when all three are recorded — the recording is the evidence,
        the score (if the grader is reachable) is the feedback */
-    if(pack.days[day-1].items.every((_,j)=>f.done[k][j]))f.done["d"+day]=true;
+    if(pack.days[day-1].items.every((_,j)=>f.done[k][j])){f.done["d"+day]=true;markPracticed()}
     save();
     const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
   },blob=>{
@@ -11922,12 +12119,15 @@ function fndDrawScore(i,r){
 }
 window.fndNextDay=(day)=>{
   const f=fndState();
+  if(!f.done["d"+day]){toast(t("fnd.rec_first"));return}
   f.day=Math.max(f.day||1,day+1);
   save();
   go("foundations",day+1);
 };
 window.fndFinish=()=>{
   const f=fndState();
+  const missing=Array.from({length:FND_TOTAL_DAYS},(_,i)=>i+1).find(n=>!f.done["d"+n]);
+  if(missing){toast(t("path.fnd_locked_toast",{n:missing}));f.day=missing;save();go("foundations",missing);return}
   f.finished=true;f.finishedAt=Date.now();
   save();
   toast(t("fnd.all_done_toast"));
@@ -13062,7 +13262,7 @@ function rpAvatar(sc,size){
 let rpConv=null;
 function rRoleplay(el,id){
   rpEndConv();
-  if(typeof fndGated==="function"&&fndGated()){fndGateHTML(el);return}
+  if(typeof fndBlocks==="function"&&fndBlocks()){fndGateHTML(el);return}
   /* Load the photo manifest once, whatever the entry point. It used to be
      fetched only by the library, so arriving straight at a scenario — the
      featured card, a link, or the summary screen — drew the coloured fallback
@@ -14434,9 +14634,11 @@ window.obFinish=()=>{
    not sending them makes the client match the policy instead of relying on the
    server to enforce it. */
 track("onboarding_complete",{lang:OB.lang||"en"});
-  /* A welder starts on their own journey; General English keeps its familiar
-     first stop in the Shadowing Studio. */
-  go("shadow");   /* both tracks start where the practice is */
+  /* Both tracks land on Home, which leads with "Start here". The check must
+     not pop over the welcome modal, so it is held back and opened when the
+     welcome is dismissed (wcClose). */
+  _fndCheckShown=true;
+  go("home");
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };
 /* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
@@ -14459,7 +14661,8 @@ function obWelcome(){
         }
         return t("wc.body");
       })()}</p>
-      <button class="btn btn-p wc-go" onclick="wcClose()">${t("wc.cta")}</button>
+      <p class="wc-body"><b>${t("wc.env_line",{env:esc(t(activeProfessionalTrack().nameKey))})}</b></p>
+      <button class="btn btn-p wc-go" onclick="wcClose()">${t("wc.cta_start")}</button>
     </div>`;
   document.body.appendChild(ov);
   requestAnimationFrame(()=>ov.classList.add("show"));
@@ -14473,6 +14676,8 @@ window.wcClose=()=>{
   document.removeEventListener("keydown",wcKey);
   ov.classList.remove("show");
   setTimeout(()=>ov.remove(),220);
+  /* the first thing after the welcome is the one-minute check — Start here */
+  if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())setTimeout(()=>{if(fndNeedsPlacement())fndOpenCheck("welcome")},260);
 };
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
