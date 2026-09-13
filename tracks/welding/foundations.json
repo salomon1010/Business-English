@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1",
+  "trackId": "welding",
+  "_note": "Stage 0 of the welding track. A1-A2, listen-and-repeat only, French gloss on every line. {trade} / {tradeFr} are replaced by the active trade. Fifteen days, three sentences a day; q/qfr items are a question the learner HEARS and a short answer they SAY.",
+  "check": [
+    {"en": "Good morning. Where is the supervisor?", "fr": "Bonjour. Où est le superviseur ?"},
+    {"en": "The pipes are in the yard, next to the crane.", "fr": "Les tuyaux sont dans la cour, à côté de la grue."},
+    {"en": "I finished the two frames, but the third one needs a repair before the test tomorrow.", "fr": "J'ai fini les deux cadres, mais le troisième a besoin d'une réparation avant le test de demain."}
+  ],
+  "days": [
+    {"n": 1, "theme": "Arriving on site", "fr": "Arriver sur le chantier", "items": [
+      {"en": "Good morning. I'm the new {trade}.", "fr": "Bonjour. Je suis le nouveau {tradeFr}."},
+      {"en": "My name is Alex. I start today.", "fr": "Je m'appelle Alex. Je commence aujourd'hui."},
+      {"en": "Where is the supervisor?", "fr": "Où est le superviseur ?"}
+    ]},
+    {"n": 2, "theme": "When you don't understand", "fr": "Quand vous ne comprenez pas", "items": [
+      {"en": "Sorry, I don't understand.", "fr": "Désolé, je ne comprends pas."},
+      {"en": "Can you repeat that, please?", "fr": "Pouvez-vous répéter, s'il vous plaît ?"},
+      {"en": "Can you speak more slowly?", "fr": "Pouvez-vous parler plus lentement ?"}
+    ]},
+    {"n": 3, "theme": "Numbers and measurements", "fr": "Les nombres et les mesures", "items": [
+      {"en": "Six millimetres.", "fr": "Six millimètres."},
+      {"en": "It's twelve metres long.", "fr": "Ça fait douze mètres de long."},
+      {"en": "Two pieces, not three.", "fr": "Deux pièces, pas trois."}
+    ]},
+    {"n": 4, "theme": "Safety words", "fr": "Les mots de sécurité", "items": [
+      {"en": "Where is the fire extinguisher?", "fr": "Où est l'extincteur ?"},
+      {"en": "I need a helmet and gloves.", "fr": "J'ai besoin d'un casque et de gants."},
+      {"en": "Stop. It's not safe.", "fr": "Arrêtez. Ce n'est pas sûr."}
+    ]},
+    {"n": 5, "theme": "Where things are", "fr": "Où sont les choses", "items": [
+      {"en": "The welding machine is here.", "fr": "Le poste à souder est ici."},
+      {"en": "The pipes are in the yard.", "fr": "Les tuyaux sont dans la cour."},
+      {"en": "Bay three, next to the crane.", "fr": "Baie trois, à côté de la grue."}
+    ]},
+    {"n": 6, "theme": "The supervisor asks about you", "fr": "Le superviseur vous pose des questions", "items": [
+      {"q": "What's your name?", "qfr": "Comment vous appelez-vous ?", "en": "My name is Alex.", "fr": "Je m'appelle Alex."},
+      {"q": "Where are you from?", "qfr": "D'où venez-vous ?", "en": "I'm from Cameroon.", "fr": "Je viens du Cameroun."},
+      {"q": "What is your job?", "qfr": "Quel est votre métier ?", "en": "I'm a {trade}.", "fr": "Je suis {tradeFr}."}
+    ]},
+    {"n": 7, "theme": "Your experience", "fr": "Votre expérience", "items": [
+      {"q": "How many years of experience do you have?", "qfr": "Combien d'années d'expérience avez-vous ?", "en": "Five years.", "fr": "Cinq ans."},
+      {"q": "What can you weld?", "qfr": "Que savez-vous souder ?", "en": "Steel plate and pipe.", "fr": "De la tôle d'acier et du tuyau."},
+      {"q": "Can you read a drawing?", "qfr": "Savez-vous lire un plan ?", "en": "Yes, I can read a drawing.", "fr": "Oui, je sais lire un plan."}
+    ]},
+    {"n": 8, "theme": "Today's work", "fr": "Le travail d'aujourd'hui", "items": [
+      {"q": "Where are you working today?", "qfr": "Où travaillez-vous aujourd'hui ?", "en": "I'm on the pipe rack, bay three.", "fr": "Je suis sur le rack de tuyauterie, baie trois."},
+      {"q": "Is it finished?", "qfr": "C'est fini ?", "en": "Not yet. One more hour.", "fr": "Pas encore. Encore une heure."},
+      {"q": "Any problems?", "qfr": "Des problèmes ?", "en": "No problems.", "fr": "Pas de problème."}
+    ]},
+    {"n": 9, "theme": "Reporting a problem", "fr": "Signaler un problème", "items": [
+      {"en": "There is a problem with the machine.", "fr": "Il y a un problème avec la machine."},
+      {"en": "The gas is finished.", "fr": "Il n'y a plus de gaz."},
+      {"en": "This weld is not good. I will do it again.", "fr": "Cette soudure n'est pas bonne. Je vais la refaire."}
+    ]},
+    {"n": 10, "theme": "Asking for things", "fr": "Demander quelque chose", "items": [
+      {"en": "I need more rods.", "fr": "J'ai besoin de plus de baguettes."},
+      {"en": "Can I have the drawing, please?", "fr": "Puis-je avoir le plan, s'il vous plaît ?"},
+      {"en": "Do you have a grinder?", "fr": "Avez-vous une meuleuse ?"}
+    ]},
+    {"n": 11, "theme": "Safety questions", "fr": "Les questions de sécurité", "items": [
+      {"q": "Do you have your permit?", "qfr": "Avez-vous votre permis de travail ?", "en": "Yes, here is my permit.", "fr": "Oui, voici mon permis."},
+      {"q": "Is the line isolated?", "qfr": "La ligne est-elle isolée ?", "en": "Yes, it is isolated.", "fr": "Oui, elle est isolée."},
+      {"q": "Did you check the gas?", "qfr": "Avez-vous vérifié le gaz ?", "en": "Yes, I checked the gas.", "fr": "Oui, j'ai vérifié le gaz."}
+    ]},
+    {"n": 12, "theme": "Handing over your work", "fr": "Faire la passation", "items": [
+      {"en": "I finished the two frames.", "fr": "J'ai fini les deux cadres."},
+      {"en": "The third one is not finished.", "fr": "Le troisième n'est pas fini."},
+      {"en": "Tomorrow I will do the test.", "fr": "Demain je ferai le test."}
+    ]},
+    {"n": 13, "theme": "Talking about time", "fr": "Parler du temps", "items": [
+      {"q": "When will it be ready?", "qfr": "Quand est-ce que ce sera prêt ?", "en": "Tomorrow morning.", "fr": "Demain matin."},
+      {"q": "How long will it take?", "qfr": "Combien de temps ça va prendre ?", "en": "About two hours.", "fr": "Environ deux heures."},
+      {"q": "Can you stay late?", "qfr": "Pouvez-vous rester plus tard ?", "en": "Yes, I can stay one hour.", "fr": "Oui, je peux rester une heure."}
+    ]},
+    {"n": 14, "theme": "Being polite", "fr": "Être poli", "items": [
+      {"en": "Thank you very much.", "fr": "Merci beaucoup."},
+      {"en": "Sorry, that was my mistake.", "fr": "Désolé, c'était mon erreur."},
+      {"en": "No problem. I will fix it.", "fr": "Pas de problème. Je vais le réparer."}
+    ]},
+    {"n": 15, "theme": "Putting it together", "fr": "Tout mettre ensemble", "items": [
+      {"en": "Good morning. I'm Alex, the new {trade}. I have five years of experience.", "fr": "Bonjour. Je suis Alex, le nouveau {tradeFr}. J'ai cinq ans d'expérience."},
+      {"en": "Today I'm on bay three. No problems.", "fr": "Aujourd'hui je suis sur la baie trois. Pas de problème."},
+      {"en": "I finished two frames. Tomorrow I will do the test.", "fr": "J'ai fini deux cadres. Demain je ferai le test."}
+    ]}
+  ]
+}

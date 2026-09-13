@@ -59,7 +59,7 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=79"></script>
+<script src="curriculum-provider.js?v=85"></script>
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=83"></script>
@@ -1133,6 +1133,40 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    talking; the ring and the bars carry "still going", and they run for the whole
    playback, silences included, because the silences are exactly when the learner
    needs telling to wait. */
+/* ---- Foundations (Stage 0) ---- */
+.fnd-home{border-color:color-mix(in srgb,var(--acc) 45%,var(--line2));background:linear-gradient(150deg,color-mix(in srgb,var(--acc) 12%,var(--card)),var(--card))}
+.fnd-home h2{font-size:20px;margin:4px 0 6px}.fnd-home .sub{margin:0 0 12px}
+.fnd-home-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px}
+.fnd-home-day{font-size:13px;font-weight:800;color:var(--accent-text)}
+.fnd-dots{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 2px}
+.fnd-dots span{width:14px;height:14px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);cursor:pointer}
+.fnd-dots span.done{background:var(--green);border-color:var(--green)}
+.fnd-dots span.now{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
+.fnd-theme-fr{margin-top:-6px;color:var(--mut2)}
+.fnd-how{font-size:13px;margin:10px 0 14px}
+.fnd-item{margin-top:12px;padding:16px 18px;transition:border-color .2s}
+.fnd-item.done{border-color:color-mix(in srgb,var(--green) 55%,var(--line2))}
+.fnd-lbl{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut2);margin-bottom:5px}
+.fnd-q{padding-bottom:12px;margin-bottom:12px;border-bottom:1px dashed var(--line)}
+.fnd-q-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.fnd-q-row b{font-size:16px;line-height:1.35}
+.fnd-en{font-size:clamp(19px,4.6vw,24px);font-weight:800;line-height:1.3;color:var(--txt)}
+.fnd-fr{font-size:14px;color:var(--mut);line-height:1.4;margin-top:4px}
+.fnd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.fnd-acts .btn{min-height:44px}.fnd-rec{flex:1 1 140px;justify-content:center}
+.fnd-result{margin-top:10px;min-height:4px}
+.fnd-tick{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
+.fnd-tick svg{width:16px;height:16px}
+.fnd-overall{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;margin-top:6px}
+.fnd-foot{margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fnd-foot.ready{border-color:color-mix(in srgb,var(--green) 55%,var(--line2))}
+.fnd-gate .fnd-dots{margin-top:14px}
+.fnd-check .btn-primary[disabled]{opacity:.42;cursor:not-allowed;filter:saturate(.6)}
+.fnd-check-row{padding:12px 0;border-top:1px solid var(--line)}
+.fnd-check-row.answered{opacity:.85}
+.fnd-check-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fnd-check-n{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--bg2);font-size:12px;font-weight:800;color:var(--mut)}
+.fnd-check-q{margin:9px 0 7px;font-size:13.5px;font-weight:700}
+.fnd-check-ans{display:flex;gap:8px}.fnd-check-ans .btn{flex:1;justify-content:center}
 .sim-fb-speaker{display:flex;align-items:center;gap:11px;margin-bottom:11px}
 .sim-fb-speaker .sim-work-avatar{width:40px;height:40px;border-radius:13px;font-size:15px;
   box-shadow:0 0 0 0 transparent;transition:box-shadow .3s}
@@ -3007,6 +3041,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-profile" class="view"></div>
   <div id="v-roleplay" class="view"></div>
   <div id="v-simulation" class="view"></div>
+  <div id="v-foundations" class="view"></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
@@ -4061,6 +4096,39 @@ const I18N_EN={
  "ph.example_ph":"✍️ My example sentence from my real work…",
  "ph.record_btn":"🎙️ Record",
  "ph.hear_btn":"Hear my sentence",
+ "fnd.title":"Foundations",
+ "fnd.eyebrow":"Start here",
+ "fnd.day_of":"Day {{n}} of {{total}}",
+ "fnd.home_h":"Foundations: three sentences a day",
+ "fnd.home_sub":"Hear it. Understand it. Say it. Record it. Fifteen short days, and the full programme opens when you finish.",
+ "fnd.home_btn":"Today's three sentences →",
+ "fnd.how":"For each sentence: tap Hear, read the French underneath, then Record yourself saying it. All three recorded finishes the day.",
+ "fnd.hear":"Hear",
+ "fnd.slow":"Slow",
+ "fnd.record":"Record",
+ "fnd.record_again":"Record again",
+ "fnd.you_hear":"You hear",
+ "fnd.you_say":"You say",
+ "fnd.say_it":"Say it",
+ "fnd.recorded":"Recorded",
+ "fnd.rec_first":"Record all three to finish the day.",
+ "fnd.day_done":"Day {{n}} done. Come back tomorrow, or carry on.",
+ "fnd.next_day":"Next day →",
+ "fnd.finished_btn":"Open the full programme →",
+ "fnd.all_done_toast":"Foundations complete — the workplace conversations and interview coaches are open.",
+ "fnd.gate_h":"Foundations first",
+ "fnd.gate_sub":"This part uses full-speed English. Finish the fifteen Foundations days first — or take the one-minute check if you think you are ready.",
+ "fnd.gate_go":"Go to Foundations",
+ "fnd.gate_check":"Take the check",
+ "fnd.check_h":"Before you start",
+ "fnd.check_sub":"Listen to three sentences and say honestly whether you understood each one. This only decides where you begin.",
+ "fnd.check_open":"Take the one-minute check",
+ "fnd.check_q":"Did you understand this?",
+ "fnd.check_yes":"Yes",
+ "fnd.check_no":"No / not sure",
+ "fnd.check_done":"Done",
+ "fnd.check_result_fnd":"We'll start with Foundations. Three sentences a day.",
+ "fnd.check_result_full":"You're ready for the full programme.",
  "ph.exec_flow_h":"How to build your full speech",
  "ph.exec_flow_lead":"Use it ten minutes before the meeting. You already know roughly what you are going to say — put those lines in here first, and walk in saying the version a leader would have used. Two or three real phrases a day, from sentences you actually needed.",
  "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — then tap the mic here and say your whole sentence out loud, so it lands in the box. Typing it works just as well.",
@@ -5353,7 +5421,7 @@ function masteredCount(){const M=aMap("phMaster");return Object.keys(M).filter(k
 let cur={v:"home"};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function bnavSync(v){
-  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"?"practice":v));
+  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"?"practice":(v==="foundations"?"home":v)));
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 /* Remembers the session a jump-button came from, so the destination tab can
@@ -5369,14 +5437,14 @@ function go(v,arg1,arg2){
      just as they tapped a different colleague to speak to. */
   if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave();
   cur={v,arg1,arg2};
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"?"practice":v); /* settings lives under the Profile tab */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks})[v](el,arg1,arg2);
+  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations})[v](el,arg1,arg2);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -5688,6 +5756,7 @@ function rHomeGeneral(el){
       <button class="btn-primary" onclick="go('session',${pos.w},'${pos.d}')">${t("home.start_btn")}</button>
     </div>
   </div>
+  ${fndHomeCardHTML()}
   ${iosCardHTML()}
   ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
   ${/* The track you are NOT on. Its own card told the learner what they already
@@ -5720,6 +5789,7 @@ function rHome(el){
   <h1 class="big">What should I do today?</h1>
   <p class="sub">One focused mission for your professional journey.</p>
   ${iosCardHTML()}
+  ${fndHomeCardHTML()}
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
     <div class="career-dashboard-grid">
@@ -9859,6 +9929,7 @@ function missionData(sc){
 }
 function simMissionBriefing(el,sc,characterId){const mission=missionData(sc),first=simCharacter(sc,characterId);el.innerHTML=`<button class="back" onclick="go('simulation')">‹ Workplace scenarios</button><section class="card sim-stage mission-brief"><div class="mission-company">${esc(mission.company)}</div><div class="eyebrow">Mission</div><h1 class="big">${esc(mission.title)}</h1><p class="sub">${esc(mission.welcome)}</p><div class="sim-card-meta"><span><b>12 minutes</b>Estimated duration</span><span><b>Beginner</b>Difficulty</span><span><b>First day</b>Workplace stage</span></div><span class="sim-card-label">Today's mission</span><div class="sim-objectives-preview">${(sc.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join('')}</div><span class="sim-card-label">Your workplace journey</span><div class="sim-story"><span>${esc((mission.locations||[]).join('  →  '))}</span></div><span class="sim-card-label">Rewards</span><div class="sim-skill-chips">${(mission.rewards||[]).map(reward=>`<span>✓ ${esc(reward)}</span>`).join('')}</div><p class="mission-contact">You will begin with <b>${esc(first.name)}</b>, ${esc(first.role)}.</p><button class="btn btn-p mission-start" onclick="simBeginMission('${esc(sc.id)}','${esc(first.id)}')">Start my first day →</button></section>`}
 function rSimulation(el,id,characterId){
+  if(typeof fndGated==="function"&&fndGated()){fndGateHTML(el);return}
   const engine=window.ProfessionalSimulationEngine,orchestrator=window.ConversationOrchestrator,items=trackSimulations();
   if(!engine||!items.length){el.innerHTML=`<button class="back" onclick="go('practice')">‹ Practice</button><h1 class="big">Professional Simulation</h1><p class="sub">Professional simulations will appear when they are available for this track.</p>`;return}
   const selected=id?engine.find(id):null;
@@ -11595,7 +11666,7 @@ window.phMaster=async k=>{
 };
 /* Tap to record, tap again to stop. Shared by the phrase cards and the
    full-speech box, which only differ by where the clip is filed. */
-async function phRecInto(ctx,label,btn,after){
+async function phRecInto(ctx,label,btn,after,onBlob){
   if(rec.mr&&rec.mr.state==="recording"){rec.mr.stop();return}
   try{
     const stream=await navigator.mediaDevices.getUserMedia({audio:true});
@@ -11630,11 +11701,233 @@ async function phRecInto(ctx,label,btn,after){
         }).catch(()=>{});
       }
       toast(t("ph.rec_saved_toast"));if(after)after();
+      if(onBlob){try{onBlob(phBlob)}catch(e){}}
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
     rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
+/* ================= FOUNDATIONS — Stage 0 of a professional track =================
+   The first real feedback from francophone learners was that the welding track
+   opens at a level they cannot follow: a fluent question, a B2 model answer,
+   and no idea where to start. This is the bridge, not a course. Fifteen days,
+   three sentences a day, French gloss under every line, listen-and-repeat only.
+   The workplace conversations and the interview coaches stay behind a gate
+   until it is done — or until the learner passes the one-minute check, which
+   is the escape hatch that keeps the gate from ever being a trap. */
+const FND_TOTAL_DAYS=15;
+function fndPack(){
+  const c=activeCurriculum();
+  return (c&&c.foundations&&Array.isArray(c.foundations.days)&&c.foundations.days.length)?c.foundations:null;
+}
+/* Per-area, like everything else that counts as progress. */
+function fndState(){
+  S.fnd=S.fnd||{};
+  const k=areaId();
+  if(!S.fnd[k])S.fnd[k]={placed:null,day:1,done:{},finished:false,checkedAt:null};
+  return S.fnd[k];
+}
+function fndAvailable(){return !!fndPack()}
+function fndNeedsPlacement(){return fndAvailable()&&!fndState().placed}
+function fndGated(){const f=fndState();return fndAvailable()&&f.placed==="foundations"&&!f.finished}
+function fndDayOf(){return Math.min(FND_TOTAL_DAYS,Math.max(1,fndState().day||1))}
+function fndDaysDone(){const d=fndState().done;return Object.keys(d).filter(k=>/^d\d+$/.test(k)&&d[k]).length}
+/* The trade name is the only thing that changes per learner. */
+const FND_TRADE_FR={"welder":"soudeur","pipefitter":"tuyauteur","boilermaker":"chaudronnier"};
+function fndFill(txt){
+  let en="welder",fr="soudeur";
+  try{
+    const tr=window.Trades&&Trades.active(S);
+    const nm=String((tr&&tr.name)||"").toLowerCase();
+    for(const k of Object.keys(FND_TRADE_FR)){if(nm.includes(k)){en=k;fr=FND_TRADE_FR[k];break}}
+  }catch(e){}
+  return String(txt||"").replace(/\{trade\}/g,en).replace(/\{tradeFr\}/g,fr);
+}
+function fndRecCtx(day,i){return recCtx("fnd"+day+"-"+i)}
+
+/* ---- the three-sentence check. One minute, honest by design: it decides
+   where the learner starts, not what they are worth. ---- */
+window.fndOpenCheck=(reason)=>{
+  const pack=fndPack();if(!pack)return;
+  const items=(pack.check||[]).slice(0,3);
+  let ov=document.getElementById("fndCheckOv");
+  if(!ov){ov=document.createElement("div");ov.id="fndCheckOv";ov.className="lang-modal-ov";document.body.appendChild(ov)}
+  const answers={};
+  const draw=()=>{
+    const n=items.length,got=Object.keys(answers).length;
+    ov.innerHTML=`<div class="lang-modal fnd-check" role="dialog" aria-modal="true" aria-label="${esc(t("fnd.check_h"))}">
+      <button class="auth-x" onclick="fndCloseCheck()" aria-label="${esc(t("cf.cancel"))}">×</button>
+      <div class="eyebrow" style="margin-bottom:6px">${t("fnd.eyebrow")}</div>
+      <h2 style="font-size:20px;font-weight:800;margin:0 0 6px">${t("fnd.check_h")}</h2>
+      <p class="sub" style="margin:0 0 14px">${t("fnd.check_sub")}</p>
+      ${items.map((it,i)=>`<div class="fnd-check-row ${answers[i]===undefined?"":"answered"}">
+        <div class="fnd-check-top">
+          <span class="fnd-check-n">${i+1}</span>
+          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en))},.9)">${ic("sound")} ${t("fnd.hear")}</button>
+          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en))},.7)">${ic("sound")} ${t("fnd.slow")}</button>
+        </div>
+        <p class="fnd-check-q">${t("fnd.check_q")}</p>
+        <div class="fnd-check-ans">
+          <button class="btn ${answers[i]===true?"btn-p":"btn-g"} btn-sm" onclick="fndAnswer(${i},true)">${t("fnd.check_yes")}</button>
+          <button class="btn ${answers[i]===false?"btn-p":"btn-g"} btn-sm" onclick="fndAnswer(${i},false)">${t("fnd.check_no")}</button>
+        </div>
+      </div>`).join("")}
+      <button class="btn-primary" style="width:100%;justify-content:center;margin-top:12px" ${got<n?"disabled":""} onclick="fndFinishCheck()">${t("fnd.check_done")}</button>
+    </div>`;
+    manIconizeInline(ov);
+  };
+  window.fndAnswer=(i,v)=>{answers[i]=v;draw()};
+  window.fndFinishCheck=()=>{
+    const f=fndState();
+    const allYes=items.every((_,i)=>answers[i]===true);
+    f.placed=allYes?"full":"foundations";
+    f.checkedAt=Date.now();
+    if(allYes)f.finished=true;          /* passing the check IS finishing it */
+    save();
+    fndCloseCheck();
+    toast(t(allYes?"fnd.check_result_full":"fnd.check_result_fnd"));
+    go(allYes?"home":"foundations");
+  };
+  draw();
+};
+window.fndCloseCheck=()=>{const ov=document.getElementById("fndCheckOv");if(ov)ov.remove()};
+
+/* ---- the card Home leads with while Foundations is the job ---- */
+let _fndCheckShown=false;
+function fndHomeCardHTML(){
+  if(fndNeedsPlacement()){
+    if(!_fndCheckShown){_fndCheckShown=true;setTimeout(()=>{if(fndNeedsPlacement())fndOpenCheck("home")},350)}
+    return `<section class="card fnd-home" aria-label="${esc(t("fnd.title"))}">
+      <div class="eyebrow">${t("fnd.eyebrow")}</div>
+      <h2>${t("fnd.check_h")}</h2>
+      <p class="sub">${t("fnd.check_sub")}</p>
+      <button class="btn-primary" onclick="fndOpenCheck('home')">${t("fnd.check_open")}</button>
+    </section>`;
+  }
+  if(!fndGated())return "";
+  const day=fndDayOf(),done=fndDaysDone();
+  return `<section class="card fnd-home" aria-label="${esc(t("fnd.title"))}">
+    <div class="eyebrow">${t("fnd.eyebrow")}</div>
+    <h2>${t("fnd.home_h")}</h2>
+    <p class="sub">${t("fnd.home_sub")}</p>
+    <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>`<span class="${i<done?"done":(i===day-1?"now":"")}"></span>`).join("")}</div>
+    <div class="fnd-home-row">
+      <span class="fnd-home-day">${t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS})}</span>
+      <button class="btn-primary" onclick="go('foundations')">${t("fnd.home_btn")}</button>
+    </div>
+  </section>`;
+}
+
+/* ---- the gate on the full-speed parts of the track ---- */
+function fndGateHTML(el){
+  el.innerHTML=`<button class="back stick-back" onclick="go('home')">‹ ${t("bnav.home")}</button>
+  <section class="card sim-stage fnd-gate">
+    <div class="eyebrow">${t("fnd.eyebrow")}</div>
+    <h1 class="big">${t("fnd.gate_h")}</h1>
+    <p class="sub">${t("fnd.gate_sub")}</p>
+    <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>`<span class="${i<fndDaysDone()?"done":(i===fndDayOf()-1?"now":"")}"></span>`).join("")}</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+      <button class="btn-primary" onclick="go('foundations')">${t("fnd.gate_go")}</button>
+      <button class="btn btn-g" onclick="fndOpenCheck('gate')">${t("fnd.gate_check")}</button>
+    </div>
+  </section>`;
+  manIconizeInline(el);
+}
+
+/* ---- the day view ---- */
+let _fndScores={};
+function rFoundations(el,dayArg){
+  const pack=fndPack();
+  if(!pack){go("home");return}
+  const f=fndState();
+  const day=Math.min(FND_TOTAL_DAYS,Math.max(1,Number(dayArg)||fndDayOf()));
+  const d=pack.days[day-1];if(!d){go("home");return}
+  const doneKey="d"+day;
+  const recDone=f.done[doneKey+"r"]||{};
+  const allRec=d.items.every((_,i)=>recDone[i]);
+  const lang=(S.profile&&S.profile.lang)||"en";
+  /* A pack may carry a gloss per language code; French is what both packs
+     have today, so it is the fallback rather than the rule. */
+  const gloss=it=>it[lang]||it.fr||"";
+  const qgloss=it=>it["q"+lang]||it.qfr||"";
+  el.innerHTML=`
+  <button class="back stick-back" onclick="go('home')">‹ ${t("bnav.home")}</button>
+  <div class="eyebrow">${t("fnd.title")} · ${t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS})}</div>
+  <h1 class="big">${esc(d.theme)}</h1>
+  <p class="sub fnd-theme-fr">${esc(d.fr)}</p>
+  <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`).join("")}</div>
+  <p class="sub fnd-how">${t("fnd.how")}</p>
+  ${d.items.map((it,i)=>{
+    const en=fndFill(it.en),fr=fndFill(gloss(it));
+    const q=it.q?fndFill(it.q):"",qfr=it.q?fndFill(qgloss(it)):"";
+    return `<section class="card fnd-item ${recDone[i]?"done":""}" id="fndItem${i}">
+      ${q?`<div class="fnd-q"><span class="fnd-lbl">${t("fnd.you_hear")}</span>
+        <div class="fnd-q-row"><b>${esc(q)}</b>
+          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(q)},.9)" aria-label="${esc(t("fnd.hear"))}">${ic("sound")}</button></div>
+        <div class="fnd-fr">${esc(qfr)}</div></div>`:""}
+      <span class="fnd-lbl">${q?t("fnd.you_say"):t("fnd.say_it")}</span>
+      <div class="fnd-en">${esc(en)}</div>
+      <div class="fnd-fr">${esc(fr)}</div>
+      <div class="fnd-acts">
+        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.92)">${ic("sound")} ${t("fnd.hear")}</button>
+        <button class="btn btn-g" onclick="fbSay(${jarg(en)},.7)">${ic("sound")} ${t("fnd.slow")}</button>
+        <button class="btn ${recDone[i]?"btn-g":"btn-p"} fnd-rec" id="fndRec${i}" onclick="fndRecord(${day},${i})">${ic("mic")} ${t(recDone[i]?"fnd.record_again":"fnd.record")}</button>
+      </div>
+      <div class="fnd-result" id="fndRes${i}">${recDone[i]?`<span class="fnd-tick">${ic("check")} ${t("fnd.recorded")}</span>`:""}</div>
+    </section>`}).join("")}
+  <div class="card fnd-foot ${allRec?"ready":""}">
+    ${allRec
+      ?`<b>${t("fnd.day_done",{n:day})}</b>
+        ${day<FND_TOTAL_DAYS
+          ?`<button class="btn-primary" onclick="fndNextDay(${day})">${t("fnd.next_day")}</button>`
+          :`<button class="btn-primary" onclick="fndFinish()">${t("fnd.finished_btn")}</button>`}`
+      :`<span class="sub">${t("fnd.rec_first")}</span>`}
+  </div>`;
+  manIconizeInline(el);
+  /* redraw any scores from this session so a re-render does not lose them */
+  Object.keys(_fndScores).forEach(k=>{const [dd,ii]=k.split("-");if(Number(dd)===day)fndDrawScore(Number(ii),_fndScores[k])});
+}
+window.fndRecord=(day,i)=>{
+  const pack=fndPack();if(!pack)return;
+  const it=pack.days[day-1].items[i],en=fndFill(it.en);
+  const btn=document.getElementById("fndRec"+i);
+  phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,()=>{
+    const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
+    /* a day is done when all three are recorded — the recording is the evidence,
+       the score (if the grader is reachable) is the feedback */
+    if(pack.days[day-1].items.every((_,j)=>f.done[k][j]))f.done["d"+day]=true;
+    save();
+    const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
+  },blob=>{
+    fbAssess(blob,en).then(r=>{
+      if(!r||!r.words||!r.words.length)return;
+      _fndScores[day+"-"+i]=r;
+      fndDrawScore(i,r);
+    }).catch(()=>{});
+  });
+};
+function fndDrawScore(i,r){
+  const box=document.getElementById("fndRes"+i);if(!box)return;
+  const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
+  const overall=Number.isFinite(r.overall)?Math.round(r.overall):Math.round(r.words.filter(w=>w&&w.score>=80).length/r.words.length*100);
+  box.innerHTML=`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
+    <div class="fnd-overall" style="color:${col(overall)}">${overall}%</div>`;
+}
+window.fndNextDay=(day)=>{
+  const f=fndState();
+  f.day=Math.max(f.day||1,day+1);
+  save();
+  go("foundations",day+1);
+};
+window.fndFinish=()=>{
+  const f=fndState();
+  f.finished=true;f.finishedAt=Date.now();
+  save();
+  toast(t("fnd.all_done_toast"));
+  try{awardCompetency({activityType:"phrase_lab",lesson:"Foundations",duration:15,dedupeKey:"fnd:done"})}catch(e){}
+  go("home");
+};
+
 window.phRec=ix=>phRecInto(phRecCtx(ix),trackPhrases()[ix].p.slice(0,40),
   document.getElementById("phrec"+ix),()=>renderPhRecs(ix));
 async function renderPhRecs(ix){
@@ -12762,6 +13055,7 @@ function rpAvatar(sc,size){
 let rpConv=null;
 function rRoleplay(el,id){
   rpEndConv();
+  if(typeof fndGated==="function"&&fndGated()){fndGateHTML(el);return}
   /* Load the photo manifest once, whatever the entry point. It used to be
      fetched only by the library, so arriving straight at a scenario — the
      featured card, a link, or the summary screen — drew the coloured fallback

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "_note": "Stage 0 of General English. A1-A2, listen-and-repeat only, French gloss on every line (other glosses can be added per item as language-code keys, e.g. \"es\"). Fifteen days, three sentences a day; q/qfr items are a question the learner HEARS and a short answer they SAY.",
+  "check": [
+    {"en": "Good morning. Where is the meeting room?", "fr": "Bonjour. Où est la salle de réunion ?"},
+    {"en": "The report is on your desk, next to the printer.", "fr": "Le rapport est sur votre bureau, à côté de l'imprimante."},
+    {"en": "I finished the two reports, but the third one needs a review before the meeting tomorrow.", "fr": "J'ai fini les deux rapports, mais le troisième a besoin d'une relecture avant la réunion de demain."}
+  ],
+  "days": [
+    {"n": 1, "theme": "Your first day", "fr": "Votre premier jour", "items": [
+      {"en": "Good morning. I'm the new colleague.", "fr": "Bonjour. Je suis le nouveau collègue."},
+      {"en": "My name is Alex. I start today.", "fr": "Je m'appelle Alex. Je commence aujourd'hui."},
+      {"en": "Where is the manager?", "fr": "Où est le responsable ?"}
+    ]},
+    {"n": 2, "theme": "When you don't understand", "fr": "Quand vous ne comprenez pas", "items": [
+      {"en": "Sorry, I don't understand.", "fr": "Désolé, je ne comprends pas."},
+      {"en": "Can you repeat that, please?", "fr": "Pouvez-vous répéter, s'il vous plaît ?"},
+      {"en": "Can you speak more slowly?", "fr": "Pouvez-vous parler plus lentement ?"}
+    ]},
+    {"n": 3, "theme": "Numbers, dates and times", "fr": "Les nombres, les dates et les heures", "items": [
+      {"en": "The meeting is at ten o'clock.", "fr": "La réunion est à dix heures."},
+      {"en": "It's on Tuesday, the fifth.", "fr": "C'est mardi, le cinq."},
+      {"en": "Two hundred and fifty, not three hundred.", "fr": "Deux cent cinquante, pas trois cents."}
+    ]},
+    {"n": 4, "theme": "In the office", "fr": "Au bureau", "items": [
+      {"en": "Where is the printer?", "fr": "Où est l'imprimante ?"},
+      {"en": "I need a laptop and a badge.", "fr": "J'ai besoin d'un ordinateur portable et d'un badge."},
+      {"en": "The meeting room is on the second floor.", "fr": "La salle de réunion est au deuxième étage."}
+    ]},
+    {"n": 5, "theme": "Email and phone", "fr": "Courriel et téléphone", "items": [
+      {"en": "I will send you an email.", "fr": "Je vais vous envoyer un courriel."},
+      {"en": "Can I call you at three?", "fr": "Puis-je vous appeler à quinze heures ?"},
+      {"en": "Please send me the file.", "fr": "Envoyez-moi le fichier, s'il vous plaît."}
+    ]},
+    {"n": 6, "theme": "Your manager asks about you", "fr": "Votre responsable vous pose des questions", "items": [
+      {"q": "What's your name?", "qfr": "Comment vous appelez-vous ?", "en": "My name is Alex.", "fr": "Je m'appelle Alex."},
+      {"q": "Where are you from?", "qfr": "D'où venez-vous ?", "en": "I'm from Cameroon.", "fr": "Je viens du Cameroun."},
+      {"q": "What is your job?", "qfr": "Quel est votre métier ?", "en": "I'm an accountant.", "fr": "Je suis comptable."}
+    ]},
+    {"n": 7, "theme": "Your experience", "fr": "Votre expérience", "items": [
+      {"q": "How many years of experience do you have?", "qfr": "Combien d'années d'expérience avez-vous ?", "en": "Five years.", "fr": "Cinq ans."},
+      {"q": "What did you do before?", "qfr": "Que faisiez-vous avant ?", "en": "I worked in a bank.", "fr": "Je travaillais dans une banque."},
+      {"q": "Can you use Excel?", "qfr": "Savez-vous utiliser Excel ?", "en": "Yes, I can use Excel.", "fr": "Oui, je sais utiliser Excel."}
+    ]},
+    {"n": 8, "theme": "Today's work", "fr": "Le travail d'aujourd'hui", "items": [
+      {"q": "What are you working on today?", "qfr": "Sur quoi travaillez-vous aujourd'hui ?", "en": "I'm working on the report.", "fr": "Je travaille sur le rapport."},
+      {"q": "Is it finished?", "qfr": "C'est fini ?", "en": "Not yet. One more hour.", "fr": "Pas encore. Encore une heure."},
+      {"q": "Any problems?", "qfr": "Des problèmes ?", "en": "No problems.", "fr": "Pas de problème."}
+    ]},
+    {"n": 9, "theme": "Reporting a problem", "fr": "Signaler un problème", "items": [
+      {"en": "There is a problem with the computer.", "fr": "Il y a un problème avec l'ordinateur."},
+      {"en": "The internet is not working.", "fr": "Internet ne fonctionne pas."},
+      {"en": "This number is not correct. I will check it.", "fr": "Ce chiffre n'est pas correct. Je vais le vérifier."}
+    ]},
+    {"n": 10, "theme": "Asking for things", "fr": "Demander quelque chose", "items": [
+      {"en": "I need more time.", "fr": "J'ai besoin de plus de temps."},
+      {"en": "Can I have the document, please?", "fr": "Puis-je avoir le document, s'il vous plaît ?"},
+      {"en": "Do you have a minute?", "fr": "Avez-vous une minute ?"}
+    ]},
+    {"n": 11, "theme": "In a meeting", "fr": "En réunion", "items": [
+      {"q": "Do you agree?", "qfr": "Êtes-vous d'accord ?", "en": "Yes, I agree.", "fr": "Oui, je suis d'accord."},
+      {"q": "Is the plan ready?", "qfr": "Le plan est-il prêt ?", "en": "Yes, it is ready.", "fr": "Oui, il est prêt."},
+      {"q": "Did you check the numbers?", "qfr": "Avez-vous vérifié les chiffres ?", "en": "Yes, I checked the numbers.", "fr": "Oui, j'ai vérifié les chiffres."}
+    ]},
+    {"n": 12, "theme": "Giving an update", "fr": "Faire le point", "items": [
+      {"en": "I finished the two reports.", "fr": "J'ai fini les deux rapports."},
+      {"en": "The third one is not finished.", "fr": "Le troisième n'est pas fini."},
+      {"en": "Tomorrow I will send it.", "fr": "Demain je l'enverrai."}
+    ]},
+    {"n": 13, "theme": "Talking about time", "fr": "Parler du temps", "items": [
+      {"q": "When will it be ready?", "qfr": "Quand est-ce que ce sera prêt ?", "en": "Tomorrow morning.", "fr": "Demain matin."},
+      {"q": "How long will it take?", "qfr": "Combien de temps ça va prendre ?", "en": "About two hours.", "fr": "Environ deux heures."},
+      {"q": "Can you stay late?", "qfr": "Pouvez-vous rester plus tard ?", "en": "Yes, I can stay one hour.", "fr": "Oui, je peux rester une heure."}
+    ]},
+    {"n": 14, "theme": "Being polite", "fr": "Être poli", "items": [
+      {"en": "Thank you very much.", "fr": "Merci beaucoup."},
+      {"en": "Sorry, that was my mistake.", "fr": "Désolé, c'était mon erreur."},
+      {"en": "No problem. I will fix it.", "fr": "Pas de problème. Je vais corriger ça."}
+    ]},
+    {"n": 15, "theme": "Putting it together", "fr": "Tout mettre ensemble", "items": [
+      {"en": "Good morning. I'm Alex, the new accountant. I have five years of experience.", "fr": "Bonjour. Je suis Alex, le nouveau comptable. J'ai cinq ans d'expérience."},
+      {"en": "Today I'm working on the report. No problems.", "fr": "Aujourd'hui je travaille sur le rapport. Pas de problème."},
+      {"en": "I finished two reports. Tomorrow I will send the third one.", "fr": "J'ai fini deux rapports. Demain j'enverrai le troisième."}
+    ]}
+  ]
+}

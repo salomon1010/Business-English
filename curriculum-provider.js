@@ -8,6 +8,9 @@
    ============================================================================ */
 (function(global){
   const SECTIONS=["weeks","shadow","phrases","vocabulary","practice","progress"];
+  /* Sections a track MAY carry. A missing file is not an error — General
+     English has no Foundations stage and must keep loading without one. */
+  const OPTIONAL=["foundations"];
   const packs=new Map();
   const loading=new Map();
 
@@ -40,7 +43,10 @@
       competencyConfig:sections.progress.competencyConfig||{},
       reviewAxes:sections.progress.reviewAxes||[],
       monthMetrics:sections.progress.monthMetrics||{},
-      reviewCheckpoints:sections.progress.reviewCheckpoints||[]
+      reviewCheckpoints:sections.progress.reviewCheckpoints||[],
+      /* Stage 0: A1-A2 listen-and-repeat with a French gloss, and the
+         three-sentence placement check. null when the track has none. */
+      foundations:sections.foundations||null
     });
   }
   async function load(id){
@@ -50,7 +56,13 @@
       const response=await fetch("tracks/"+encodeURIComponent(id)+"/"+name+".json");
       if(!response.ok)throw new Error("Could not load curriculum section: "+id+"/"+name);
       return [name,validateSection(name,await response.json())];
-    })).then(entries=>{
+    }).concat(OPTIONAL.map(async name=>{
+      try{
+        const response=await fetch("tracks/"+encodeURIComponent(id)+"/"+name+".json");
+        if(!response.ok)return [name,null];
+        return [name,validateSection(name,await response.json())];
+      }catch(e){return [name,null]}
+    }))).then(entries=>{
       const sections=Object.fromEntries(entries);
       const pack=hydrate(id,sections);
       packs.set(id,pack);
@@ -65,5 +77,5 @@
     return isReady(requested)?requested:(packs.get("general")||null);
   }
 
-  global.CurriculumProvider=Object.freeze({load,forTrack,isReady,sections:()=>SECTIONS.slice()});
+  global.CurriculumProvider=Object.freeze({load,forTrack,isReady,sections:()=>SECTIONS.slice(),optional:()=>OPTIONAL.slice()});
 })(window);
