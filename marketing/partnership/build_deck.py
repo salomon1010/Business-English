@@ -302,25 +302,28 @@ footer(s)
 
 # ═══════════════════════ 13 · what a learner does ═══════════════════════
 s = slide(prs, "deck-light.jpg", notes=(
-    "He will ask this, so answer it before he does. Be concrete — a training director thinks in "
-    "contact hours.\n\n"
-    "\"Twenty-five minutes a day, in their own time, on their own phone. Not a class, not a "
-    "timetable. Four things: warm up by shadowing a real speaker, do the day's session, run one "
-    "workplace conversation, then read the report on what they missed. Roughly ten hours across "
-    "the four weeks.\"\n\n"
+    "He will ask this, so answer it before he does. And lead with the thing his own learners "
+    "told you.\n\n"
+    "\"The first feedback from your students was that the app opened above their level. So it "
+    "now starts with a one-minute check, and anyone not ready begins with Foundations: three "
+    "sentences a day, French under every line, fifteen days. Then the full programme — "
+    "twenty-five minutes a day, on their own phone.\"\n\n"
+    "Say that this was built in a week from their feedback. It is the best evidence you have "
+    "that you listen.\n\n"
     "If he pushes on whether they will actually do it: be honest. Some will not. That is exactly "
     "what activation and weekly-return numbers are for, and it is why the pilot is worth running."))
 eyebrow(s, "What a learner actually does")
-heading(s, "Twenty-five minutes a day, on their own phone", size=29)
+heading(s, "Two stages, on their own phone", size=31)
 rule(s, Inches(2.12))
 acts = [
-    ("5 min", "Shadow", "Loop a short clip of a real speaker and copy the rhythm out loud."),
-    ("10 min", "Today's session", "The prepared daily session — pronunciation, a speaking "
-     "drill, or a meeting simulation."),
-    ("7 min", "One workplace conversation", "Speak with the supervisor, the inspector or HR — "
-     "and answer out loud."),
-    ("3 min", "Read the report", "What was covered, what was missed, and the sentence that "
-     "would have carried it."),
+    ("Check", "One minute, day one", "Three sentences: did you understand each one? Honest "
+     "answers decide where they start — nothing else."),
+    ("Stage 1", "Foundations · 15 min a day, weeks 1–2", "Three sentences a day, French under "
+     "every line. Hear it, say it, record it. Fifteen days."),
+    ("Stage 2", "The full programme · 25 min a day, weeks 3–4", "Shadowing, the daily session, "
+     "one workplace conversation, and the report on what they missed."),
+    ("Weekly", "One interview coach", "In stage 2 — the activity closest to the interview they "
+     "are actually preparing for."),
 ]
 y = Inches(2.5)
 for t_, name, desc in acts:
@@ -333,8 +336,8 @@ for t_, name, desc in acts:
     para(tf, desc, 13, False, BODY, 0, first=True, line=1.25)
     y += Inches(0.99)
 tf = tb(s, M, Inches(6.42), Inches(11.6), Inches(0.4))
-para(tf, "About 10 hours across the four weeks — in their own time, no timetable, no classroom.",
-     13.5, True, MUTED, 0, first=True)
+para(tf, "Learners who pass the check start stage 2 in week 1. Nobody is left staring at a "
+         "screen they cannot follow.", 13.5, True, MUTED, 0, first=True)
 footer(s)
 
 # ═══════════════════════ 14 · the four weeks ═══════════════════════
@@ -346,17 +349,17 @@ s = slide(prs, "deck-light.jpg", notes=(
     "the same person.\"\n\n"
     "The baseline is the bit that makes the whole pilot credible. Do not let week one slip."))
 eyebrow(s, "The four weeks")
-heading(s, "Baseline, practice, measure again", size=32)
+heading(s, "Check, Foundations, conversations, measure", size=30)
 rule(s, Inches(2.12))
 weeks = [
-    ("WEEK 1", "Set up and baseline", "Induction, accounts created, and every learner records "
-     "one answer before any practice. That recording is the before."),
-    ("WEEKS 2–3", "Practice", "Learners work in their own time. A weekly figure comes to you. "
-     "I chase nobody through you."),
-    ("WEEK 4", "Measure again", "Interview simulations, the same measurement as week one, plus "
-     "learner and instructor feedback."),
-    ("AFTER", "Joint report", "Written up together. Nothing published without your written "
-     "approval."),
+    ("WEEK 1", "Check and baseline", "Induction, the one-minute check, and every learner "
+     "records three Foundations sentences before any practice. That is the before."),
+    ("WEEKS 1–2", "Foundations", "Three sentences a day, fifteen minutes. Learners who passed "
+     "the check go straight to stage 2."),
+    ("WEEKS 3–4", "Conversations", "Workplace scenarios and interview coaches. The same scenario "
+     "recorded in week 3 and again in week 4."),
+    ("AFTER", "Joint report", "The day-1 sentences re-recorded, learner by learner. Nothing "
+     "published without your written approval."),
 ]
 x = M
 for eb, t_, d in weeks:
@@ -378,7 +381,7 @@ s = slide(prs, "deck-light.jpg", notes=(
     "Genuinely invite him to add one. An institution that helps define the measure believes the "
     "result."))
 eyebrow(s, "Agreed before we start, not after")
-heading(s, "The seven things we report", size=32)
+heading(s, "The eight things we report", size=32)
 rule(s, Inches(2.12))
 meas = [
     ("Activation", "learners who start and finish setup"),
@@ -386,24 +389,27 @@ meas = [
     ("Speaking activities", "workplace scenarios completed"),
     ("Recurring usage", "learners returning week on week"),
     ("Learner feedback", "confidence, and whether it felt useful"),
-    ("Coverage change", "first recorded answer against last"),
+    ("Progress through Foundations", "days completed; who reached stage 2"),
+    ("Coverage change", "first recording against last, per learner"),
     ("Instructor observations", "what your staff notice in class"),
 ]
-x, y = M, Inches(2.6)
+# eight measures plus the invitation card is five rows; tighter than the
+# seven-row version so the last row clears the footer
+x, y = M, Inches(2.5)
 for i, (a_, b_) in enumerate(meas):
-    card(s, x, y, Inches(5.6), Inches(0.86))
-    tf = tb(s, x + Inches(0.3), y + Inches(0.15), Inches(5.0), Inches(0.6))
-    para(tf, a_, 14, True, INK, 2, first=True, line=1.1)
-    para(tf, b_, 12, False, MUTED, 0, line=1.15)
+    card(s, x, y, Inches(5.6), Inches(0.74))
+    tf = tb(s, x + Inches(0.3), y + Inches(0.11), Inches(5.0), Inches(0.55))
+    para(tf, a_, 13, True, INK, 1, first=True, line=1.08)
+    para(tf, b_, 11, False, MUTED, 0, line=1.12)
     if i % 2 == 0:
         x += Inches(6.0)
     else:
-        x = M; y += Inches(0.98)
-c = card(s, M + Inches(6.0), y, Inches(5.6), Inches(0.86),
+        x = M; y += Inches(0.84)
+c = card(s, M, y, Inches(5.6), Inches(0.74),
          fill=RGBColor(0xEA, 0xF6, 0xF0), line=RGBColor(0xBF, 0xE0, 0xCE))
-tf = tb(s, M + Inches(6.3), y + Inches(0.15), Inches(5.0), Inches(0.6))
-para(tf, "Want an eighth?", 14, True, GREEN, 2, first=True, line=1.1)
-para(tf, "Add it now, not in week four.", 12, False, GREEN, 0, line=1.15)
+tf = tb(s, M + Inches(0.3), y + Inches(0.11), Inches(5.0), Inches(0.55))
+para(tf, "Want a ninth?", 13, True, GREEN, 1, first=True, line=1.08)
+para(tf, "Add it now, not in week four.", 11, False, GREEN, 0, line=1.12)
 footer(s)
 
 # ═══════════════════════ 16 · what this is not ═══════════════════════

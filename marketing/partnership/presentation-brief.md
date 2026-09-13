@@ -52,7 +52,30 @@ If you are running out of time, cut slides 6, 7 and 9 — not slide 8.
 
 ---
 
+## Lead with what their students told you
+
+Before any objection comes up, say this yourself, early — on slide 13 at the
+latest:
+
+> "The first feedback from your students was that the app opened above their
+> level. So it now starts with a one-minute check, and anyone not ready begins
+> with Foundations: three sentences a day, French under every line, fifteen
+> days. It was built in a week, from what they said."
+
+That sentence does three jobs. It shows you listen. It turns a weakness they
+already know about into evidence. And it pre-empts the hardest question in the
+room — *"our learners are not at that level"* — because you have already
+answered it.
+
 ## Objections, and honest answers
+
+**"Our learners' English is too weak for this."**
+It was. Their students said so, and Foundations exists because of it. Every
+learner now starts with the check; nobody is put in front of a screen they
+cannot follow. And the measurement changed with it: for A1–A2 learners the
+before-and-after is the same three sentences recorded four weeks apart, not a
+scenario they could not attempt.
+
 
 **"Will they actually use it?"**
 Some will not. That is exactly what activation and weekly-return measure, and it

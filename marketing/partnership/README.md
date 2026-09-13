@@ -70,6 +70,17 @@ were not at that meeting and have no reason to care about a product tour: what
 it adds to the offer, to graduates, to placement, and what it costs if it fails
 (nothing). Same design system, different argument.
 
+## Foundations changed the pilot (September 2026)
+
+The first francophone learners said the app opened above their level. The app
+now has a one-minute placement check and a fifteen-day Foundations stage on both
+tracks, and every document here was revised to match: the pilot runs as two
+stages, the baseline is three Foundations sentences recorded on day one (which
+an A1 learner can actually do), and "progress through Foundations" is the
+eighth measure. The pilot question changed too — it now asks whether learners
+starting where they really are reach their first workplace conversation in four
+weeks.
+
 ## Sequencing — this matters more than the documents
 
 Proposal at the meeting. Playbook only once they say yes; sent earlier it turns

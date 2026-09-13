@@ -95,9 +95,10 @@ feat = [
     ("Evidence, not attendance",
      "Answers spoken, coverage, best take, trade words actually used. Every figure comes from "
      "speech — nothing is scored from opening a screen."),
-    ("Reaches your learners",
-     "Instructions in 15 languages including French, works offline after first load, installs "
-     "from the browser on Android and iPhone."),
+    ("Starts where the learner is",
+     "A one-minute check places each learner. Those not yet ready begin with Foundations: "
+     "fifteen days, three sentences a day, French under every line. Instructions in 15 "
+     "languages, offline after first load."),
     ("Free during the pilot",
      "No licence, no per-seat cost, no commitment beyond the four weeks. You supply the cohort; "
      "we supply the measurement."),
@@ -112,7 +113,8 @@ pagebreak(doc)
 section_head(doc, "02", "Where it fits your catalogue today")
 txt(doc, "BE Mastery currently carries three trades: welder, pipefitter and boilermaker. Those "
          "map exactly onto three of your programmes, which is why the pilot is scoped to them "
-         "rather than spread across the catalogue.",
+         "rather than spread across the catalogue. Every learner meets the same two stages: "
+         "Foundations first, then the workplace conversations below.",
     size=10, after=8, line=1.4)
 two_col_table(doc, ("Your programme", "What the learner practises saying"), [
     ("Reading & Interpretation of Plans in Boiler Making",
@@ -164,16 +166,19 @@ c.paragraphs[-1].paragraph_format.space_after = Pt(0)
 gutter(doc, 8)
 
 two_col_table(doc, ("Week", "What happens"), [
-    ("Week 1", "Induction, accounts created, first recorded answer captured as the baseline"),
-    ("Weeks 2–3", "Learners practise in their own time — 25 minutes a day is the design target"),
-    ("Week 4", "Interview simulations, closing measurement, learner and instructor feedback"),
+    ("Week 1", "Induction. Every learner takes the one-minute check and records three Foundations "
+               "sentences — that first recording is the baseline"),
+    ("Weeks 1–2", "Foundations: fifteen days of three sentences, about fifteen minutes a day, "
+                  "French under every line. Learners who passed the check go straight to stage 2"),
+    ("Weeks 3–4", "Workplace conversations and interview coaches — the same scenario recorded "
+                  "in week 3 and again in week 4"),
     ("After", "Joint report. Nothing is published without Petrocertif's written approval"),
 ], split=0.20)
 
 # ---------------- page 3 ----------------
 pagebreak(doc)
 section_head(doc, "04", "What we agree to measure")
-txt(doc, "Success is agreed before the pilot starts, not argued about afterwards. Seven things, "
+txt(doc, "Success is agreed before the pilot starts, not argued about afterwards. Eight things, "
          "reported together:", size=10, after=8, line=1.4)
 t = grid(doc, 1, 3, [Cm(CONTENT_W.cm * 0.5 - GAP.cm / 2), GAP,
                      Cm(CONTENT_W.cm * 0.5 - GAP.cm / 2)])
@@ -183,7 +188,8 @@ measures = [
     ("Speaking activities", " — workplace scenarios completed"),
     ("Recurring usage", " — learners returning week on week"),
     ("Learner feedback", " — confidence, and whether it felt useful"),
-    ("Coverage change", " — first recorded answer against last"),
+    ("Progress through Foundations", " — days completed, and who reached the conversations"),
+    ("Coverage change", " — first recorded answer against last, for those who reached stage 2"),
     ("Instructor observations", " — what your staff notice in class"),
 ]
 for col, items in ((0, measures[:4]), (2, measures[4:])):
@@ -198,8 +204,9 @@ for col, items in ((0, measures[:4]), (2, measures[4:])):
 gutter(doc, 8)
 
 callout(doc, MINT, "BFE0CE", "The one question the pilot answers", GREEN_INK,
-        [("Does adding profession-specific spoken-English practice to a Petrocertif programme "
-          "measurably improve how confidently a supervisor explains their work in English?", True)])
+        [("Starting from where your learners actually are, does fifteen minutes a day of spoken "
+          "practice get them to their first workplace conversation in English within four weeks — "
+          "and measurably improve it once they are there?", True)])
 gutter(doc, 9)
 
 section_head(doc, "05", "What each side gets out of it")
@@ -227,11 +234,11 @@ callout(doc, ROSE, "F2C9C9", "Two things to state plainly", RGBColor(0xA3, 0x2B,
           "transcription, and no learner personal data is shared with any third party. Both "
           "points are worth reflecting in the course page wording before the cohort starts.",
           False)])
-gutter(doc, 10)
+gutter(doc, 5)
 
 txt(doc, "One cohort. Four weeks. No cost, no licence discussion, and nothing published without "
-         "your approval.", size=10.5, colour=MUTED, align=WD_ALIGN_PARAGRAPH.CENTER,
-    before=6, after=10, italic=True)
+         "your approval.", size=10, colour=MUTED, align=WD_ALIGN_PARAGRAPH.CENTER,
+    before=2, after=6, italic=True)
 bleed_image(doc, A / "footer.jpg")
 
 normalise(doc)

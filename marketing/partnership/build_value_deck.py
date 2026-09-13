@@ -35,8 +35,8 @@ def bullets(s, x, y, w, rows, gap=Inches(1.12), h=Inches(0.96), fill=CARD_L,
             line=LINE_L, size=13.5):
     for lead, rest in rows:
         card(s, x, y, w, h, fill=fill, line=line)
-        tf = tb(s, x + Inches(0.3), y + Inches(0.18), w - Inches(0.6), Inches(0.7))
-        p = para(tf, "", size, False, BODY, 0, first=True, line=1.3)
+        tf = tb(s, x + Inches(0.3), y + Inches(0.12), w - Inches(0.6), h - Inches(0.2))
+        p = para(tf, "", size, False, BODY, 0, first=True, line=1.28)
         r = p.add_run(); r.text = lead
         r.font.name = "Arial"; r.font.size = Pt(size); r.font.bold = True
         r.font.color.rgb = INK
@@ -151,6 +151,9 @@ s = slide(prs, "deck-light.jpg", notes=(
     "workplace conversation practice, an interview room, a report that names what was missing, "
     "and a record the learner can show an employer. Free for your learners during the pilot, "
     "and free for the academy permanently — there is no platform fee in this model.\"\n\n"
+    "Point at 'Starts where the learner is' and say where it came from: \"Your own students "
+    "told us the app opened above their level. This was built from that, in a week. That is "
+    "how this partnership will work.\"\n\n"
     "If someone asks the cost question here, take it: 'Nothing during the pilot. After it, "
     "whatever the pilot shows is fair — and you would help set that.'"))
 eyebrow(s, "What is in the package")
@@ -163,9 +166,11 @@ left = [
     ("A report on every answer", " — what was covered, what was missed, the better sentence"),
 ]
 right = [
-    ("A career centre", " — destination guidance, plus a CV and LinkedIn coach"),
+    ("Starts where the learner is", " — a one-minute check, then Foundations: three "
+     "sentences a day, French under every line"),
     ("Evidence they can show", " — answers spoken, coverage, trade words actually used"),
-    ("84 guided daily sessions", " — 25 minutes a day, in 15 languages, offline after first load"),
+    ("A career centre and 84 daily sessions", " — CV and LinkedIn coach; 15 languages; offline "
+     "after first load"),
 ]
 bullets(s, M, Inches(2.6), Inches(5.6), left)
 bullets(s, M + Inches(6.0), Inches(2.6), Inches(5.6), right)
@@ -263,8 +268,9 @@ for big, lab in items:
     x += Inches(2.96)
 tf = tb(s, M, Inches(5.25), Inches(11.6), Inches(1.2))
 para(tf, "Your technical teaching, your assessments and your certification are untouched. "
-         "Recordings never leave the learner's phone, and nothing is published without your "
-         "written approval.", 16, False, PALE, 0, first=True, line=1.35)
+         "Recordings never leave the learner's phone, nothing is published without your written "
+         "approval — and no learner is put in front of English they cannot yet follow.",
+     16, False, PALE, 0, first=True, line=1.35)
 footer(s, dark=True)
 
 # ═══════════ 9 · what we ask ═══════════

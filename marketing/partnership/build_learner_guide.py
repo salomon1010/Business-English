@@ -74,39 +74,54 @@ bilingual(doc,
         "Aucun compte à créer, rien à payer. La connexion est facultative : elle sert seulement à "
         "synchroniser votre progression."]))
 
-section_head(doc, "02", "Your twenty-five minutes  ·  Vos vingt-cinq minutes")
+section_head(doc, "02", "Start here: Foundations  ·  Commencez ici : les bases")
+bilingual(doc,
+    ("Fifteen minutes a day, for fifteen days", [
+        "The app opens with a one-minute check: three sentences, did you understand each one? "
+        "Answer honestly — it only decides where you start.",
+        "Then Foundations: three sentences a day. Tap Hear, read the French underneath, say it, "
+        "record it. All three recorded finishes the day.",
+        "The workplace conversations and interview coaches open when you finish day 15 — or "
+        "earlier, if you pass the check."]),
+    ("Quinze minutes par jour, pendant quinze jours", [
+        "L'application commence par un test d'une minute : trois phrases, les avez-vous "
+        "comprises ? Répondez honnêtement — cela décide seulement où vous commencez.",
+        "Ensuite les bases : trois phrases par jour. Touchez Écouter, lisez le français en "
+        "dessous, dites-la, enregistrez-la. Les trois enregistrées, la journée est finie.",
+        "Les conversations de chantier et les coachs d'entretien s'ouvrent quand vous finissez le "
+        "jour 15 — ou plus tôt, si vous réussissez le test."]),
+    fill=CARD, border="D6D0F4")
+
+doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+gutter(doc, 10)
+section_head(doc, "03", "Then: twenty-five minutes  ·  Ensuite : vingt-cinq minutes")
 bilingual(doc,
     ("Every day, in your own time", [
         "5 min — Shadowing: loop a short clip of a real speaker and copy the rhythm out loud.",
         "10 min — The day's session: pronunciation, a speaking drill or a meeting simulation.",
         "7 min — One workplace conversation: speak with the supervisor, the inspector or HR.",
-        "3 min — Read the report: what you covered, what you missed, and the better sentence.",
-        "Once a week, run one interview coach — it is closest to the real interview."]),
+        "3 min — Read the report: what you covered, what you missed, and the better sentence."]),
     ("Chaque jour, à votre rythme", [
         "5 min — Shadowing : répétez à voix haute un court extrait d'un locuteur natif.",
         "10 min — La séance du jour : prononciation, exercice oral ou simulation de réunion.",
         "7 min — Une conversation de chantier : parlez au superviseur, à l'inspecteur ou aux RH.",
-        "3 min — Lisez le rapport : ce que vous avez couvert, ce qui manquait, la meilleure phrase.",
-        "Une fois par semaine, faites un entretien avec un coach — c'est le plus proche du réel."]))
+        "3 min — Lisez le rapport : ce que vous avez couvert, ce qui manquait, la meilleure phrase."]))
 
-# ---------------- page 2 ----------------
-doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
-gutter(doc, 10)
-section_head(doc, "03", "Week 1 matters most  ·  La semaine 1 compte le plus")
+section_head(doc, "04", "Week 1 matters most  ·  La semaine 1 compte le plus")
 bilingual(doc,
-    ("Record one answer before you practise", [
-        "In your first week, before anything else, run one workplace conversation and record your "
-        "answer. It will not be good — that is the point. It is the before.",
-        "In week four you answer the same question again. That difference is the only proof "
-        "any of us will have that this worked. Skip it and your progress cannot be measured."]),
-    ("Enregistrez une réponse avant de vous entraîner", [
-        "Dès la première semaine, avant tout, faites une conversation de chantier et enregistrez "
-        "votre réponse. Elle ne sera pas bonne — c'est le but. C'est l'avant.",
-        "En semaine quatre, vous répondrez à la même question. Cette différence est la seule "
-        "preuve que cela a fonctionné. Sans elle, rien ne peut être mesuré."]),
+    ("Record day 1 before you practise", [
+        "On your first day, record the three Foundations sentences before anything else. They "
+        "will not sound good — that is the point. It is the before.",
+        "In week four you record the same three sentences again. That difference is the only "
+        "proof any of us will have that this worked. Skip it and your progress cannot be measured."]),
+    ("Enregistrez le jour 1 avant de vous entraîner", [
+        "Le premier jour, enregistrez les trois phrases des bases avant tout le reste. Elles ne "
+        "sonneront pas bien — c'est le but. C'est l'avant.",
+        "En semaine quatre, vous enregistrez les trois mêmes phrases. Cette différence est la "
+        "seule preuve que cela a fonctionné. Sans elle, rien ne peut être mesuré."]),
     fill=CARD, border="D6D0F4")
 
-section_head(doc, "04", "Your privacy  ·  Votre confidentialité")
+section_head(doc, "05", "Your privacy  ·  Votre confidentialité")
 bilingual(doc,
     ("What your school can and cannot see", [
         "Your recordings stay on your own phone. Your school never receives them, and neither does "
@@ -122,7 +137,9 @@ bilingual(doc,
         "Jamais votre voix, vos mots, ni votre nom associé à une note."]),
     fill=MINT, border="BFE0CE")
 
-section_head(doc, "05", "Honest limits  ·  Limites à connaître")
+doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
+gutter(doc, 10)
+section_head(doc, "06", "Honest limits  ·  Limites à connaître")
 bilingual(doc,
     ("What this is not", [
         "This is spoken English practice. It is not a language diploma, not IELTS, and written "

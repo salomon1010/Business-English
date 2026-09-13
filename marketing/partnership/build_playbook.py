@@ -129,15 +129,19 @@ table(doc, ("When", "Who", "What happens"), [
     ("Week 0 · setup", "Both",
      "Cohort list agreed. Roles named. Course-page wording checked. Learner guide sent."),
     ("Week 1 · day 1", "Lomonec",
-     "20-minute induction, in person or on a call. Everyone installs and signs in together."),
-    ("Week 1 · days 2–5", "Learners",
-     "Each learner records ONE workplace answer before practising. This is the baseline."),
-    ("Weeks 2–3", "Learners",
-     "Daily practice in their own time. A weekly figure goes to the sponsor every Monday."),
+     "20-minute induction, in person or on a call. Everyone installs together, takes the "
+     "one-minute check, and records the first three Foundations sentences — the baseline."),
+    ("Weeks 1–2", "Learners",
+     "Foundations: three sentences a day, about fifteen minutes, French under every line. "
+     "Learners who passed the check skip straight to stage 2."),
+    ("Weeks 3–4", "Learners",
+     "Workplace conversations and interview coaches. The same scenario is recorded in week 3 "
+     "and again in week 4. A weekly figure goes to the sponsor every Monday."),
     ("Week 2 · midpoint", "Instructor",
      "Ten minutes: what have you noticed, and who has gone quiet?"),
     ("Week 4 · days 1–3", "Learners",
-     "Interview simulations, then the closing measurement — the same task as the baseline."),
+     "Closing measurement: the day-15 Foundations sentences re-recorded, and the week-3 "
+     "scenario again for those who reached it."),
     ("Week 4 · day 5", "Both",
      "Learner survey and instructor observations collected."),
     ("Week 5", "Lomonec",
@@ -145,15 +149,27 @@ table(doc, ("When", "Who", "What happens"), [
 ], widths=[Cm(CONTENT_W.cm * 0.20), Cm(CONTENT_W.cm * 0.16), Cm(CONTENT_W.cm * 0.64)])
 callout(doc, MINT, "BFE0CE", "The one thing that cannot slip", GREEN_INK,
         [("The week-1 baseline. ", True),
-         ("Without a recorded answer from before any practice, there is no before-and-after and "
-          "the pilot proves nothing. If a learner joins late, they still record a baseline "
-          "first.", False)])
+         ("Three Foundations sentences recorded before any practice — for every learner, "
+          "including those who pass the check. Without it there is no before-and-after and the "
+          "pilot proves nothing. A learner who joins late still records a baseline first.", False)])
 
 # ---------------- page 2 ----------------
 pagebreak(doc)
 section_head(doc, "03", "What a learner does")
-txt(doc, "Twenty-five minutes a day, in their own time, on their own phone. No classroom, no "
-         "timetable, nothing for the academy to schedule.", size=10, after=8, line=1.38)
+txt(doc, "In their own time, on their own phone. No classroom, no timetable, nothing for the "
+         "academy to schedule. Two stages, because the first cohort told us the app opened above "
+         "their level:", size=10, after=8, line=1.38)
+txt(doc, "Stage 1 · Foundations — about 15 minutes a day, weeks 1–2", size=11, bold=True,
+    colour=INK, after=5, line=1.2)
+table(doc, ("Step", "Activity", "What it builds"), [
+    ("Hear", "Tap Hear, then Slow", "The sound of the sentence at two speeds"),
+    ("Understand", "Read the French underneath", "Meaning first — nobody repeats what they cannot follow"),
+    ("Say", "Shadow it out loud", "Rhythm and stress, by copying"),
+    ("Record", "Record all three sentences", "The day's evidence, and a word score when online"),
+], widths=[Cm(CONTENT_W.cm * 0.16), Cm(CONTENT_W.cm * 0.34), Cm(CONTENT_W.cm * 0.50)])
+gutter(doc, 6)
+txt(doc, "Stage 2 · The full programme — about 25 minutes a day, weeks 3–4", size=11, bold=True,
+    colour=INK, after=5, line=1.2)
 table(doc, ("Time", "Activity", "What it builds"), [
     ("5 min", "Shadowing", "Loop a short clip of a real speaker and copy the rhythm out loud"),
     ("10 min", "The day's session",
@@ -163,9 +179,9 @@ table(doc, ("Time", "Activity", "What it builds"), [
     ("3 min", "Read the report",
      "What was covered, what was missed, and the sentence that would have carried it"),
 ], widths=[Cm(CONTENT_W.cm * 0.13), Cm(CONTENT_W.cm * 0.31), Cm(CONTENT_W.cm * 0.56)])
-txt(doc, "About ten hours across the four weeks. Once a week they should also run one interview "
-         "coach — that is the activity closest to what they are actually preparing for.",
-    size=9.5, colour=MUTED, before=6, after=9, line=1.38)
+txt(doc, "Learners who pass the one-minute check begin stage 2 in week 1. Once a week in stage 2 "
+         "they should also run one interview coach — the activity closest to what they are "
+         "preparing for.", size=9.5, colour=MUTED, before=6, after=9, line=1.38)
 
 section_head(doc, "04", "Tools and documents — who gets what, and when")
 table(doc, ("Document or tool", "Goes to", "When"), [
@@ -186,7 +202,8 @@ table(doc, ("Measure", "How it is captured"), [
     ("Participation", "Learners active in each of the four weeks"),
     ("Speaking activities", "Count of workplace scenarios and interview coaches completed"),
     ("Recurring usage", "Learners returning in week 2, 3 and 4 — the honest retention number"),
-    ("Coverage change", "Baseline answer versus closing answer on the same task"),
+    ("Progress through Foundations", "Days completed per learner, and how many reached stage 2"),
+    ("Coverage change", "Baseline recording versus closing recording, learner by learner"),
     ("Learner feedback", "The week-4 survey in Appendix B"),
     ("Instructor observations", "The sheet in Appendix A, at midpoint and at the end"),
 ], widths=[Cm(CONTENT_W.cm * 0.30), Cm(CONTENT_W.cm * 0.70)])
@@ -251,16 +268,19 @@ txt(doc, "The same task, twice, four weeks apart — this is the only comparison
          "shows movement in an individual learner rather than usage of an app.",
     size=10, after=8, line=1.38)
 table(doc, ("Step", "What happens"), [
-    ("1 · Same scenario",
-     "Every learner runs the same workplace scenario in week 1 and again in week 4"),
-    ("2 · Before practice",
-     "The week-1 attempt is recorded before any other activity, on induction day if possible"),
+    ("1 · Same sentences",
+     "Every learner records the three day-1 Foundations sentences on induction day, before any "
+     "practice, and records them again in week 4. Same words, four weeks apart"),
+    ("2 · Same scenario, stage 2",
+     "Learners who reach the workplace conversations run the same scenario in week 3 and again "
+     "in week 4"),
     ("3 · Recorded by the app",
-     "Coverage, the points covered and missed, and the words used are captured automatically"),
+     "Word scores for the sentences; coverage, points covered and missed for the scenario — "
+     "captured automatically, offline-safe"),
     ("4 · Compared per learner",
-     "First attempt against last, learner by learner — not a cohort average hiding the spread"),
+     "First recording against last, learner by learner — not a cohort average hiding the spread"),
     ("5 · Reported with attrition",
-     "Learners who did not complete both attempts are reported as such, never dropped"),
+     "Learners who did not complete both recordings are reported as such, never dropped"),
 ], widths=[Cm(CONTENT_W.cm * 0.28), Cm(CONTENT_W.cm * 0.72)])
 callout(doc, GOLD, "F0DFB4", "What this measurement is and is not", AMBER_INK,
         [("It measures how completely someone explained themselves in English against a model "
