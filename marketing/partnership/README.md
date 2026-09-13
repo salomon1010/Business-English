@@ -74,7 +74,8 @@ it adds to the offer, to graduates, to placement, and what it costs if it fails
 
 The first francophone learners said the app opened above their level. The app
 now has a one-minute placement check and a fifteen-day Foundations stage on both
-tracks, and every document here was revised to match: the pilot runs as two
+tracks — glossed in all fifteen app languages, French for this cohort — and
+every document here was revised to match: the pilot runs as two
 stages, the baseline is three Foundations sentences recorded on day one (which
 an A1 learner can actually do), and "progress through Foundations" is the
 eighth measure. The pilot question changed too — it now asks whether learners
