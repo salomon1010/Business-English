@@ -22,6 +22,11 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
 - **`manual/<code>.html`** — in-app Help-centre content (English + 14 langs),
   fetched by `rManual()`.
 - **`i18n/<code>.json`** — 15 language override files (flat `{key: "translated"}`).
+- **`tracks/<id>/foundations.json`** — Stage 0 of each track (welding and general):
+  15 days × 3 A1–A2 sentences plus the 3-sentence placement check. Every line
+  carries a gloss per language code (`fr es pt … ko`); questions the learner
+  *hears* carry `q<code>`. Loaded by `curriculum-provider.js` as an **optional**
+  section (`OPTIONAL=["foundations"]`) — a missing file is `null`, not an error.
 - **`backend/polish-worker.js`** + `backend/README.md` — Cloudflare Worker that
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
 
@@ -102,6 +107,24 @@ not JS, and `new Function` chokes on it. Check it separately with
   UI: `areaScopeHTML()` is the review's banner, `areaNoteHTML()` the compact
   Profile caption; both switch via `areaSwitch(id, view)` and land on the same
   page in the other area.
+- **Foundations (Stage 0) — READ BEFORE TOUCHING HOME, SIMULATION OR ROLEPLAY.**
+  Built 2026-09-13 after the first francophone learners said the app opened above
+  their level. State is per area in `S.fnd[areaId()]` = `{placed:
+  null|"foundations"|"full", day, done:{d1:true, d1r:{0:true,…}}, finished}`.
+  `fndNeedsPlacement()` → the 3-sentence check (`fndOpenCheck`) auto-opens once
+  per session from Home; all-yes sets `placed:"full"` **and** `finished:true`
+  (passing IS finishing). `fndGated()` = placed in Foundations and not finished;
+  `rSimulation` and `rRoleplay` render `fndGateHTML` instead of themselves while
+  it is true — the check button on that gate is the escape hatch that stops the
+  gate ever trapping a misplaced B1 learner. Home leads with `fndHomeCardHTML()`
+  on both tracks. The day view is `rFoundations` (`go("foundations", day)`);
+  `fndRecord` reuses `phRecInto` with its 5th `onBlob` argument and grades via
+  `fbAssess` — the **recording** finishes an item, the **score** is feedback
+  (offline-first). The gloss shown is the app language when the pack has it,
+  else French (`gl` in `rFoundations`); `fndFill(txt, lang)` fills `{trade}` in
+  English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
+  so they are track-scoped like everything else. No `track()` events — the
+  Worker allow-list has none for it, and a silently-dropped call is a lie.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in
@@ -177,6 +200,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   rating sets `S.rated`.
 - **`manifest.json`** carries `screenshots` (narrow form factor) so Chrome shows
   the richer install prompt.
+- **Play listing text** lives in `playstore/listing-full-description.txt` and is
+  pasted into Play Console by hand. The full description has a hard 4,000-char
+  limit and the file sits at exactly that; count before editing.
 
 ## Secrets & gotchas
 - **OpenAI key** lives *only* in the Cloudflare Worker (Executive Polish). Never in
@@ -235,6 +261,12 @@ Features
   **hidden from the UI** and listed under Premium "coming soon" (browser-only tech
   wasn't good enough yet). Don't re-expose without the user asking.
 
+- **Foundations / placement check (2026-09-13)** — see Key systems. Also in the
+  help centre (section 2 of every `manual/<code>.html`), the flyer (11th benefit
+  card, 16 languages) and the Play listing (`playstore/listing-full-description.txt`,
+  at exactly 4,000 chars — trim before adding). The partnership documents in
+  `marketing/partnership/` describe the pilot as two stages because of it.
+
 Narrative / i18n
 - The **transformation "dream" voice** was applied across onboarding, home, journey,
   session, phrases/shadow/executive-polish, feedback verdicts, empty states,
@@ -251,7 +283,7 @@ Fixes / infra
 - Support email is **contact@lomonec.com**.
 - Screenshots regenerated with a neutral "Alex" profile, cache-busted `?v=`.
 - 15 `i18n/*.json` files exist (es fr pt it de ru ar ur hi bn id vi zh ja ko).
-  **Key parity verified 2026-08-02**: `I18N_EN` holds 1,111 keys and every one of
+  **Key parity verified 2026-09-13**: `I18N_EN` holds 1,426 keys and every one of
   the 15 files carries exactly those — no missing keys, no orphans. What may still
   lag is the *text* behind a key when English narrative copy changes (see i18n
   above); the key set itself is complete. When auditing, match keys with

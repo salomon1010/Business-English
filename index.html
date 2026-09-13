@@ -11732,16 +11732,20 @@ function fndNeedsPlacement(){return fndAvailable()&&!fndState().placed}
 function fndGated(){const f=fndState();return fndAvailable()&&f.placed==="foundations"&&!f.finished}
 function fndDayOf(){return Math.min(FND_TOTAL_DAYS,Math.max(1,fndState().day||1))}
 function fndDaysDone(){const d=fndState().done;return Object.keys(d).filter(k=>/^d\d+$/.test(k)&&d[k]).length}
-/* The trade name is the only thing that changes per learner. */
-const FND_TRADE_FR={"welder":"soudeur","pipefitter":"tuyauteur","boilermaker":"chaudronnier"};
-function fndFill(txt){
-  let en="welder",fr="soudeur";
+/* The trade name is the only thing that changes per learner — in the English
+   line and in whichever language the gloss is shown in. */
+const FND_TRADE={"fr":{"welder":"soudeur","pipefitter":"tuyauteur","boilermaker":"chaudronnier"},"es":{"welder":"soldador","pipefitter":"tubero","boilermaker":"calderero"},"pt":{"welder":"soldador","pipefitter":"encanador industrial","boilermaker":"caldeireiro"},"it":{"welder":"saldatore","pipefitter":"tubista","boilermaker":"calderaio"},"de":{"welder":"Schweißer","pipefitter":"Rohrschlosser","boilermaker":"Kesselbauer"},"ru":{"welder":"сварщик","pipefitter":"трубопроводчик","boilermaker":"котельщик"},"ar":{"welder":"لحّام","pipefitter":"فني أنابيب","boilermaker":"صانع غلايات"},"ur":{"welder":"ویلڈر","pipefitter":"پائپ فٹر","boilermaker":"بوائلر میکر"},"hi":{"welder":"वेल्डर","pipefitter":"पाइप फ़िटर","boilermaker":"बॉयलर मेकर"},"bn":{"welder":"ওয়েল্ডার","pipefitter":"পাইপ ফিটার","boilermaker":"বয়লার মেকার"},"id":{"welder":"tukang las","pipefitter":"tukang pipa","boilermaker":"pembuat ketel"},"vi":{"welder":"thợ hàn","pipefitter":"thợ lắp ống","boilermaker":"thợ nồi hơi"},"zh":{"welder":"焊工","pipefitter":"管道工","boilermaker":"锅炉工"},"ja":{"welder":"溶接工","pipefitter":"配管工","boilermaker":"ボイラー工"},"ko":{"welder":"용접공","pipefitter":"배관공","boilermaker":"보일러공"}};
+function fndTradeKey(){
   try{
-    const tr=window.Trades&&Trades.active(S);
-    const nm=String((tr&&tr.name)||"").toLowerCase();
-    for(const k of Object.keys(FND_TRADE_FR)){if(nm.includes(k)){en=k;fr=FND_TRADE_FR[k];break}}
+    const nm=String(((window.Trades&&Trades.active(S))||{}).name||"").toLowerCase();
+    for(const k of ["pipefitter","boilermaker","welder"])if(nm.includes(k))return k;
   }catch(e){}
-  return String(txt||"").replace(/\{trade\}/g,en).replace(/\{tradeFr\}/g,fr);
+  return "welder";
+}
+function fndFill(txt,lang){
+  const k=fndTradeKey();
+  const L=(FND_TRADE[lang]||FND_TRADE.fr)[k];
+  return String(txt||"").replace(/\{trade\}/g,k).replace(/\{tradeL\}|\{tradeFr\}/g,L);
 }
 function fndRecCtx(day,i){return recCtx("fnd"+day+"-"+i)}
 
@@ -11763,8 +11767,8 @@ window.fndOpenCheck=(reason)=>{
       ${items.map((it,i)=>`<div class="fnd-check-row ${answers[i]===undefined?"":"answered"}">
         <div class="fnd-check-top">
           <span class="fnd-check-n">${i+1}</span>
-          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en))},.9)">${ic("sound")} ${t("fnd.hear")}</button>
-          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en))},.7)">${ic("sound")} ${t("fnd.slow")}</button>
+          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en,"en"))},.9)">${ic("sound")} ${t("fnd.hear")}</button>
+          <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(fndFill(it.en,"en"))},.7)">${ic("sound")} ${t("fnd.slow")}</button>
         </div>
         <p class="fnd-check-q">${t("fnd.check_q")}</p>
         <div class="fnd-check-ans">
@@ -11845,21 +11849,24 @@ function rFoundations(el,dayArg){
   const doneKey="d"+day;
   const recDone=f.done[doneKey+"r"]||{};
   const allRec=d.items.every((_,i)=>recDone[i]);
-  const lang=(S.profile&&S.profile.lang)||"en";
-  /* A pack may carry a gloss per language code; French is what both packs
-     have today, so it is the fallback rather than the rule. */
-  const gloss=it=>it[lang]||it.fr||"";
-  const qgloss=it=>it["q"+lang]||it.qfr||"";
+  /* The gloss follows the app language. English UI still gets a gloss —
+     French, because that is who asked for this — and any language the pack
+     does not carry falls back the same way. */
+  const ui=(S.profile&&S.profile.lang)||"en";
+  const gl=(ui!=="en"&&pack.days[0]&&pack.days[0][ui])?ui:"fr";
+  const gloss=it=>it[gl]||it.fr||"";
+  const qgloss=it=>it["q"+gl]||it.qfr||"";
+  const theme=d[gl]||d.fr||"";
   el.innerHTML=`
   <button class="back stick-back" onclick="go('home')">‹ ${t("bnav.home")}</button>
   <div class="eyebrow">${t("fnd.title")} · ${t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS})}</div>
   <h1 class="big">${esc(d.theme)}</h1>
-  <p class="sub fnd-theme-fr">${esc(d.fr)}</p>
+  <p class="sub fnd-theme-fr">${esc(theme)}</p>
   <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`).join("")}</div>
   <p class="sub fnd-how">${t("fnd.how")}</p>
   ${d.items.map((it,i)=>{
-    const en=fndFill(it.en),fr=fndFill(gloss(it));
-    const q=it.q?fndFill(it.q):"",qfr=it.q?fndFill(qgloss(it)):"";
+    const en=fndFill(it.en,"en"),fr=fndFill(gloss(it),gl);
+    const q=it.q?fndFill(it.q,"en"):"",qfr=it.q?fndFill(qgloss(it),gl):"";
     return `<section class="card fnd-item ${recDone[i]?"done":""}" id="fndItem${i}">
       ${q?`<div class="fnd-q"><span class="fnd-lbl">${t("fnd.you_hear")}</span>
         <div class="fnd-q-row"><b>${esc(q)}</b>
@@ -11889,7 +11896,7 @@ function rFoundations(el,dayArg){
 }
 window.fndRecord=(day,i)=>{
   const pack=fndPack();if(!pack)return;
-  const it=pack.days[day-1].items[i],en=fndFill(it.en);
+  const it=pack.days[day-1].items[i],en=fndFill(it.en,"en");
   const btn=document.getElementById("fndRec"+i);
   phRecInto(fndRecCtx(day,i),en.slice(0,40),btn,()=>{
     const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
