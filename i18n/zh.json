@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "可以下载和分享",
  "rm.detail": "本阶段的课程",
  "rm.notif_body": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。下一步：{{next}}。",
- "rm.notif_body_last": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。最后一个阶段——完成它。"
+ "rm.notif_body_last": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。最后一个阶段——完成它。",
+ "rm.btn": "路线图"
 }

@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Bereit zum Herunterladen und Teilen",
  "rm.detail": "Einheiten dieser Phase",
  "rm.notif_body": "Du bist bei {{here}} · {{done}} von {{total}} Einheiten ({{pct}} %). Als Nächstes: {{next}}.",
- "rm.notif_body_last": "Du bist bei {{here}} · {{done}} von {{total}} Einheiten ({{pct}} %). Die letzte Etappe — bring sie zu Ende."
+ "rm.notif_body_last": "Du bist bei {{here}} · {{done}} von {{total}} Einheiten ({{pct}} %). Die letzte Etappe — bring sie zu Ende.",
+ "rm.btn": "Roadmap"
 }

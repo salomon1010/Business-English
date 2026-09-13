@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Siap diunduh dan dibagikan",
  "rm.detail": "Sesi dalam fase ini",
  "rm.notif_body": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Berikutnya: {{next}}.",
- "rm.notif_body_last": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Tahap terakhir — selesaikan."
+ "rm.notif_body_last": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Tahap terakhir — selesaikan.",
+ "rm.btn": "Peta jalan"
 }

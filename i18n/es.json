@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Listo para descargar y compartir",
  "rm.detail": "Sesiones de esta fase",
  "rm.notif_body": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). Siguiente: {{next}}.",
- "rm.notif_body_last": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). La última etapa — termínala."
+ "rm.notif_body_last": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). La última etapa — termínala.",
+ "rm.btn": "Hoja de ruta"
 }

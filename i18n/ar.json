@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "جاهزة للتنزيل والمشاركة",
  "rm.detail": "جلسات هذه المرحلة",
  "rm.notif_body": "أنت في {{here}} · {{done}} من {{total}} جلسة ({{pct}}٪). التالي: {{next}}.",
- "rm.notif_body_last": "أنت في {{here}} · {{done}} من {{total}} جلسة ({{pct}}٪). المرحلة الأخيرة — أكملها."
+ "rm.notif_body_last": "أنت في {{here}} · {{done}} من {{total}} جلسة ({{pct}}٪). المرحلة الأخيرة — أكملها.",
+ "rm.btn": "خارطة الطريق"
 }

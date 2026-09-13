@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Pronto da scaricare e condividere",
  "rm.detail": "Sessioni di questa fase",
  "rm.notif_body": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). Prossimo: {{next}}.",
- "rm.notif_body_last": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). L’ultima tappa — completala."
+ "rm.notif_body_last": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). L’ultima tappa — completala.",
+ "rm.btn": "Tabella di marcia"
 }

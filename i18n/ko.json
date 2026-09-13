@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "다운로드와 공유 준비 완료",
  "rm.detail": "이 단계의 세션",
  "rm.notif_body": "현재 위치: {{here}} · {{total}}회 중 {{done}}회 ({{pct}}%). 다음: {{next}}.",
- "rm.notif_body_last": "현재 위치: {{here}} · {{total}}회 중 {{done}}회 ({{pct}}%). 마지막 단계입니다 — 끝까지 마치세요."
+ "rm.notif_body_last": "현재 위치: {{here}} · {{total}}회 중 {{done}}회 ({{pct}}%). 마지막 단계입니다 — 끝까지 마치세요.",
+ "rm.btn": "로드맵"
 }

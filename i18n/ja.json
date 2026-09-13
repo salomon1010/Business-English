@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "ダウンロードと共有の準備完了",
  "rm.detail": "このフェーズのセッション",
  "rm.notif_body": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。次：{{next}}。",
- "rm.notif_body_last": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。最後のステージです。やり遂げましょう。"
+ "rm.notif_body_last": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。最後のステージです。やり遂げましょう。",
+ "rm.btn": "ロードマップ"
 }

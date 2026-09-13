@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Prêt à télécharger et à partager",
  "rm.detail": "Séances de cette phase",
  "rm.notif_body": "Vous en êtes à {{here}} · {{done}} séances sur {{total}} ({{pct}} %). Ensuite : {{next}}.",
- "rm.notif_body_last": "Vous en êtes à {{here}} · {{done}} séances sur {{total}} ({{pct}} %). La dernière étape — terminez-la."
+ "rm.notif_body_last": "Vous en êtes à {{here}} · {{done}} séances sur {{total}} ({{pct}} %). La dernière étape — terminez-la.",
+ "rm.btn": "Feuille de route"
 }

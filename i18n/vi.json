@@ -1492,5 +1492,6 @@
  "rm.cert_ready": "Sẵn sàng tải về và chia sẻ",
  "rm.detail": "Các buổi trong giai đoạn này",
  "rm.notif_body": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Tiếp theo: {{next}}.",
- "rm.notif_body_last": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Chặng cuối — hãy hoàn thành."
+ "rm.notif_body_last": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Chặng cuối — hãy hoàn thành.",
+ "rm.btn": "Lộ trình"
 }
