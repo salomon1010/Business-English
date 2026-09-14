@@ -6038,6 +6038,7 @@ function rHomeGeneral(el){
   </div>
   ${fndHomeCardHTML()}
   ${iosCardHTML()}
+  ${rateHTML()}
   ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
   ${/* The track you are NOT on. Its own card told the learner what they already
         knew — "General English · Current track" on the General English Home —
@@ -6070,6 +6071,7 @@ function rHome(el){
   <p class="sub">One focused mission for your professional journey.</p>
   ${iosCardHTML()}
   ${fndHomeCardHTML()}
+  ${rateHTML()}
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
     <div class="career-dashboard-grid">
@@ -7936,14 +7938,18 @@ window.shApp=async()=>{
   catch(e){toast(APP_URL)}                       // clipboard blocked (insecure context / permissions)
 };
 
-const RATE_MIN=7, RATE_SNOOZE=30*864e5;          // sessions before asking · 30 days after "not now"
-function rateDue(){
-  if(S.rated)return false;
-  if(totalDone()<RATE_MIN)return false;
+/* Persistent, by the owner's decision (14 Sep 2026): until a rating has been
+   posted, the Home card is there every visit, and the five-star dialog comes
+   back three days after "Not now" — it used to sleep for thirty. Nothing here
+   gates by score or rewards a rating; Play's policy allows asking, not steering. */
+const RATE_MIN=7, RATE_SNOOZE=3*864e5;           // sessions before asking · 3 days after "not now" (dialog only)
+function rateEarned(){return !S.rated&&totalDone()>=RATE_MIN}
+function rateDue(){                              // the dialog: earned, and not put off in the last 3 days
+  if(!rateEarned())return false;
   return !S.rateSnoozed||Date.now()-S.rateSnoozed>RATE_SNOOZE;
 }
-function rateHTML(){
-  if(!rateDue())return "";
+function rateHTML(){                             // the Home card: earned — every visit, until rated
+  if(!rateEarned()||!/Android/i.test(navigator.userAgent||""))return "";
   return `<div class="card home-rate" id="homeRate">
     <span class="home-due-ic" style="background:rgba(251,191,36,.18);color:var(--gold)">${ic("star")}</span>
     <span class="home-due-t">
@@ -7958,7 +7964,7 @@ function rateHTML(){
 }
 function rateHide(){const el=document.getElementById("homeRate");if(el)el.remove()}
 window.rateGo=()=>{S.rated=true;save();track("rate_click");rateHide();window.open(PLAY_URL,"_blank","noopener")};
-window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};
+window.rateLater=()=>{S.rateSnoozed=Date.now();save();track("rate_later");rateHide()};   /* the card returns on the next visit to Home */
 
 /* ===== "GET IT ON GOOGLE PLAY" (Android browsers only) =====
    A shared link lands people in a browser tab. On Android the same app exists
