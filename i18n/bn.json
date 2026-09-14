@@ -1476,6 +1476,7 @@
  "rm.complete": "সম্পন্ন",
  "rm.sessions": "{{total}}টির মধ্যে {{done}}টি সেশন সম্পন্ন",
  "rm.here": "আপনি এখানে",
+ "rm.notice_open": "দেখান",
  "rm.next": "পরবর্তী",
  "rm.done": "হয়ে গেছে",
  "rm.locked": "লক করা",

@@ -2650,6 +2650,10 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-terms{text-align:center;font-size:11px;color:var(--mut);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
+.rm-notice{border-color:rgba(99,102,241,.5);display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ic txt x" "ic go x";column-gap:12px;row-gap:10px;align-items:start}
+.rm-notice .nudge-ic{grid-area:ic;margin-top:2px}.rm-notice .rm-txt{grid-area:txt;font-size:13px;line-height:1.5}
+.rm-notice .auth-go{grid-area:go;justify-self:start}.rm-notice .auth-x{grid-area:x;align-self:start}
+.sync-nudge:not(.rm-notice) ~ .rm-notice, #syncNudge ~ .rm-notice{bottom:calc(84px + 74px + env(safe-area-inset-bottom))}
 /* One reading column on a wide screen.
 
    Blocks had each picked their own width and alignment — the career dashboard
@@ -5099,6 +5103,7 @@ const I18N_EN={
  "bnav.home":"Home",
  "bnav.weeks":"Road map",
  "rm.new_toast":"New: your road map lives here — every stage, where you are, what is next.",
+ "rm.notice_open":"Show me",
  "bnav.shadow":"Shadow",
  "bnav.practice":"Practice",
  "bnav.phrases":"Phrase Lab",
@@ -5710,7 +5715,10 @@ function go(v,arg1,arg2){
      is now the road map. */
   if(v==="journey"&&!S.rmSeen){S.rmSeen=Date.now();save()}
   document.querySelectorAll('[data-v="journey"]').forEach(b=>b.classList.toggle("rm-new",!S.rmSeen));
-  if(v==="home"&&!S.rmSeen&&!S.rmToasted&&S.profile){S.rmToasted=Date.now();save();setTimeout(()=>{if(!S.rmSeen)toast(t("rm.new_toast"))},2500)}
+  /* The road-map notice stays on Home until the learner acts on it — a toast
+     cleared itself after 2.2 s, before anyone had read it. rmNoticeSync draws
+     or removes the card on every navigation. */
+  rmNoticeSync(v);
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
@@ -15733,6 +15741,19 @@ window.fbAuthCard=function(){
 function fbDismissed(){return localStorage.getItem(FB_NUDGE_KEY)==="1"}
 window.fbDismissNudge=function(){localStorage.setItem(FB_NUDGE_KEY,"1");fbHideNudge()};
 function fbHideNudge(){const n=document.getElementById("syncNudge");if(n)n.remove()}
+/* "New: your road map lives here" — a card above the bottom bar, on Home only,
+   until the learner opens the map or dismisses it. Mirrors the sync nudge. */
+window.rmNoticeDismiss=()=>{S.rmSeen=Date.now();save();rmNoticeSync(cur&&cur.v);document.querySelectorAll('[data-v="journey"]').forEach(b=>b.classList.remove("rm-new"))};
+function rmNoticeSync(v){
+  const old=document.getElementById("rmNotice");if(old)old.remove();
+  if(v!=="home"||S.rmSeen||!S.profile)return;
+  const n=document.createElement("div");n.className="sync-nudge rm-notice";n.id="rmNotice";n.setAttribute("role","status");
+  n.innerHTML=`<span class="nudge-ic" style="color:var(--acc2);line-height:0;flex:none">${ic("map")}</span>
+    <div class="rm-txt">${esc(t("rm.new_toast"))}</div>
+    <button class="btn-outline auth-go" onclick="go('journey')">${esc(t("rm.notice_open"))}</button>
+    <button class="auth-x" style="position:static;font-size:20px" onclick="rmNoticeDismiss()" aria-label="${esc(t("wc.close"))}">×</button>`;
+  document.body.appendChild(n);
+}
 function fbUpdateNudge(){
   fbHideNudge();
   if(!fbConfigured()||FBUser||fbDismissed())return;

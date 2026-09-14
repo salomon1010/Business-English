@@ -1476,6 +1476,7 @@
  "rm.complete": "geschafft",
  "rm.sessions": "{{done}} von {{total}} Einheiten erledigt",
  "rm.here": "Du bist hier",
+ "rm.notice_open": "Zeig mir",
  "rm.next": "Als Nächstes",
  "rm.done": "Erledigt",
  "rm.locked": "Gesperrt",

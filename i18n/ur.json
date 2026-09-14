@@ -1476,6 +1476,7 @@
  "rm.complete": "مکمل",
  "rm.sessions": "{{total}} میں سے {{done}} سیشن مکمل",
  "rm.here": "آپ یہاں ہیں",
+ "rm.notice_open": "دکھائیں",
  "rm.next": "اگلا",
  "rm.done": "ہو گیا",
  "rm.locked": "مقفل",

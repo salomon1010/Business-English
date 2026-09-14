@@ -1476,6 +1476,7 @@
  "rm.complete": "達成",
  "rm.sessions": "{{total}}回中{{done}}回のセッションを完了",
  "rm.here": "現在地",
+ "rm.notice_open": "見てみる",
  "rm.next": "次",
  "rm.done": "完了",
  "rm.locked": "ロック中",

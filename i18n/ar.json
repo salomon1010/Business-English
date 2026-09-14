@@ -1476,6 +1476,7 @@
  "rm.complete": "مكتمل",
  "rm.sessions": "أنجزت {{done}} من {{total}} جلسة",
  "rm.here": "أنت هنا",
+ "rm.notice_open": "أرِني",
  "rm.next": "التالي",
  "rm.done": "تم",
  "rm.locked": "مقفل",

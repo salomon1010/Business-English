@@ -1476,6 +1476,7 @@
  "rm.complete": "पूरा",
  "rm.sessions": "{{total}} में से {{done}} सत्र पूरे",
  "rm.here": "आप यहाँ हैं",
+ "rm.notice_open": "मुझे दिखाएँ",
  "rm.next": "अगला",
  "rm.done": "हो गया",
  "rm.locked": "लॉक",

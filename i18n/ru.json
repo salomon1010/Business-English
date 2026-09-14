@@ -1476,6 +1476,7 @@
  "rm.complete": "выполнено",
  "rm.sessions": "{{done}} из {{total}} занятий выполнено",
  "rm.here": "Вы здесь",
+ "rm.notice_open": "Показать",
  "rm.next": "Далее",
  "rm.done": "Готово",
  "rm.locked": "Закрыто",

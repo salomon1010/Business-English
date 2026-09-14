@@ -1476,6 +1476,7 @@
  "rm.complete": "已完成",
  "rm.sessions": "已完成 {{done}}/{{total}} 节课",
  "rm.here": "你在这里",
+ "rm.notice_open": "看看",
  "rm.next": "下一步",
  "rm.done": "已完成",
  "rm.locked": "未解锁",

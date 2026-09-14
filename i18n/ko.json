@@ -1476,6 +1476,7 @@
  "rm.complete": "완료",
  "rm.sessions": "{{total}}회 중 {{done}}회 세션 완료",
  "rm.here": "현재 위치",
+ "rm.notice_open": "보기",
  "rm.next": "다음",
  "rm.done": "완료",
  "rm.locked": "잠김",
