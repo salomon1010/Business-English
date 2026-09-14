@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ Willkommen zurück, {{name}} — dein Fortschritt ist synchronisiert",
  "auth.sync_issue_toast": "⚠️ Synchronisierungsproblem: {{err}}",
  "nav.dashboard": "🏠 Dashboard",
- "nav.weeks": "🗺️ 12 Wochen",
+ "nav.weeks": "🗺️ Roadmap",
  "nav.phrases": "💬 Redewendungs-Labor",
  "nav.shadow": "🎯 Shadowing-Studio",
  "nav.reviews": "📊 Rückblicke",
  "nav.account": "👤 Konto",
  "nav.manual": "📘 Handbuch",
  "bnav.home": "Start",
- "bnav.weeks": "Wochen",
+ "bnav.weeks": "Roadmap",
  "bnav.shadow": "Shadowing",
  "bnav.phrases": "Wendungen",
  "bnav.progress": "Fortschritt",
@@ -1493,5 +1493,6 @@
  "rm.detail": "Einheiten dieser Phase",
  "rm.notif_body": "Du bist bei {{here}} · {{done}} von {{total}} Einheiten ({{pct}} %). Als Nächstes: {{next}}.",
  "rm.notif_body_last": "Du bist bei {{here}} · {{done}} von {{total}} Einheiten ({{pct}} %). Die letzte Etappe — bring sie zu Ende.",
- "rm.btn": "Roadmap"
+ "rm.btn": "Roadmap",
+ "rm.new_toast": "Neu: deine Roadmap. Jede Etappe, wo du stehst und was als Nächstes kommt — unter dem Karten-Tab."
 }

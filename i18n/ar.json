@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ أهلًا بعودتك يا {{name}} — تقدّمك متزامن",
  "auth.sync_issue_toast": "⚠️ مشكلة في المزامنة: {{err}}",
  "nav.dashboard": "🏠 اللوحة",
- "nav.weeks": "🗺️ ١٢ أسبوعًا",
+ "nav.weeks": "🗺️ خارطة الطريق",
  "nav.phrases": "💬 مختبر العبارات",
  "nav.shadow": "🎯 استوديو المحاكاة",
  "nav.reviews": "📊 مراجعات",
  "nav.account": "👤 الحساب",
  "nav.manual": "📘 الدليل",
  "bnav.home": "الرئيسية",
- "bnav.weeks": "الأسابيع",
+ "bnav.weeks": "الخريطة",
  "bnav.shadow": "المحاكاة",
  "bnav.phrases": "العبارات",
  "bnav.progress": "التقدّم",
@@ -1493,5 +1493,6 @@
  "rm.detail": "جلسات هذه المرحلة",
  "rm.notif_body": "أنت في {{here}} · {{done}} من {{total}} جلسة ({{pct}}٪). التالي: {{next}}.",
  "rm.notif_body_last": "أنت في {{here}} · {{done}} من {{total}} جلسة ({{pct}}٪). المرحلة الأخيرة — أكملها.",
- "rm.btn": "خارطة الطريق"
+ "rm.btn": "خارطة الطريق",
+ "rm.new_toast": "جديد: خارطة طريقك. كل المراحل، وأين أنت، وما التالي — تحت تبويب الخريطة."
 }

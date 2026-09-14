@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ Bienvenido/a de nuevo, {{name}} — tu progreso está sincronizado",
  "auth.sync_issue_toast": "⚠️ Problema de sincronización: {{err}}",
  "nav.dashboard": "🏠 Panel",
- "nav.weeks": "🗺️ 12 semanas",
+ "nav.weeks": "🗺️ Hoja de ruta",
  "nav.phrases": "💬 Laboratorio de frases",
  "nav.shadow": "🎯 Estudio de Shadowing",
  "nav.reviews": "📊 Repasos",
  "nav.account": "👤 Cuenta",
  "nav.manual": "📘 Manual",
  "bnav.home": "Inicio",
- "bnav.weeks": "Semanas",
+ "bnav.weeks": "Ruta",
  "bnav.shadow": "Shadowing",
  "bnav.phrases": "Frases",
  "bnav.progress": "Progreso",
@@ -1493,5 +1493,6 @@
  "rm.detail": "Sesiones de esta fase",
  "rm.notif_body": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). Siguiente: {{next}}.",
  "rm.notif_body_last": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). La última etapa — termínala.",
- "rm.btn": "Hoja de ruta"
+ "rm.btn": "Hoja de ruta",
+ "rm.new_toast": "Nuevo: tu hoja de ruta. Cada etapa, dónde estás y qué sigue — en la pestaña del mapa."
 }

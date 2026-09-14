@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ Chào mừng trở lại, {{name}} — tiến độ của bạn đã đồng bộ",
  "auth.sync_issue_toast": "⚠️ Sự cố đồng bộ: {{err}}",
  "nav.dashboard": "🏠 Bảng điều khiển",
- "nav.weeks": "🗺️ 12 Tuần",
+ "nav.weeks": "🗺️ Lộ trình",
  "nav.phrases": "💬 Phòng thí nghiệm cụm từ",
  "nav.shadow": "🎯 Xưởng Shadowing",
  "nav.reviews": "📊 Ôn tập",
  "nav.account": "👤 Tài khoản",
  "nav.manual": "📘 Hướng dẫn",
  "bnav.home": "Trang chủ",
- "bnav.weeks": "Tuần",
+ "bnav.weeks": "Lộ trình",
  "bnav.shadow": "Shadowing",
  "bnav.phrases": "Cụm từ",
  "bnav.progress": "Tiến độ",
@@ -1493,5 +1493,6 @@
  "rm.detail": "Các buổi trong giai đoạn này",
  "rm.notif_body": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Tiếp theo: {{next}}.",
  "rm.notif_body_last": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Chặng cuối — hãy hoàn thành.",
- "rm.btn": "Lộ trình"
+ "rm.btn": "Lộ trình",
+ "rm.new_toast": "Mới: lộ trình của bạn. Mọi chặng, bạn đang ở đâu, tiếp theo là gì — trong thẻ bản đồ."
 }

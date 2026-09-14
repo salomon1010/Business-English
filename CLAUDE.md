@@ -125,7 +125,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
   so they are track-scoped like everything else. No `track()` events — the
   Worker allow-list has none for it, and a silently-dropped call is a lie.
-- **Road map (Weeks tab, both areas).** `rmSteps()` builds the board from the
+- **Road map (the "Road map" tab — formerly "Weeks" — both areas).** `rmSteps()` builds the board from the
   same data as the week cards — `trackWeeks` / `weekDone` / `currentPos` /
   `fndState` / `reviewCheckpoints` — so it cannot disagree with them; `rmHTML()`
   renders the header, `rmMount(el)` → `rmDraw(road)` draws the board: an SVG

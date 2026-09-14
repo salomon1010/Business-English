@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ Selamat datang kembali, {{name}} — kemajuan Anda tersinkron",
  "auth.sync_issue_toast": "⚠️ Masalah sinkronisasi: {{err}}",
  "nav.dashboard": "🏠 Dasbor",
- "nav.weeks": "🗺️ 12 Minggu",
+ "nav.weeks": "🗺️ Peta jalan",
  "nav.phrases": "💬 Lab frasa",
  "nav.shadow": "🎯 Studio Shadowing",
  "nav.reviews": "📊 Tinjauan",
  "nav.account": "👤 Akun",
  "nav.manual": "📘 Panduan",
  "bnav.home": "Beranda",
- "bnav.weeks": "Minggu",
+ "bnav.weeks": "Peta",
  "bnav.shadow": "Shadowing",
  "bnav.phrases": "Frasa",
  "bnav.progress": "Kemajuan",
@@ -1493,5 +1493,6 @@
  "rm.detail": "Sesi dalam fase ini",
  "rm.notif_body": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Berikutnya: {{next}}.",
  "rm.notif_body_last": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Tahap terakhir — selesaikan.",
- "rm.btn": "Peta jalan"
+ "rm.btn": "Peta jalan",
+ "rm.new_toast": "Baru: peta jalan Anda. Setiap tahap, posisi Anda, dan langkah berikutnya — di tab peta."
 }

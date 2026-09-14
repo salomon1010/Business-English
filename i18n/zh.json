@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ 欢迎回来，{{name}}——你的进度已同步",
  "auth.sync_issue_toast": "⚠️ 同步问题：{{err}}",
  "nav.dashboard": "🏠 仪表盘",
- "nav.weeks": "🗺️ 12 周",
+ "nav.weeks": "🗺️ 路线图",
  "nav.phrases": "💬 短语实验室",
  "nav.shadow": "🎯 跟读工作室",
  "nav.reviews": "📊 复盘",
  "nav.account": "👤 账号",
  "nav.manual": "📘 手册",
  "bnav.home": "首页",
- "bnav.weeks": "周次",
+ "bnav.weeks": "路线图",
  "bnav.shadow": "跟读",
  "bnav.phrases": "短语",
  "bnav.progress": "进度",
@@ -1493,5 +1493,6 @@
  "rm.detail": "本阶段的课程",
  "rm.notif_body": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。下一步：{{next}}。",
  "rm.notif_body_last": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。最后一个阶段——完成它。",
- "rm.btn": "路线图"
+ "rm.btn": "路线图",
+ "rm.new_toast": "新功能：你的路线图。每个阶段、你的位置、下一步——都在地图标签下。"
 }

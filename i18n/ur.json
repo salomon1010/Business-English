@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ واپسی پر خوش آمدید، {{name}} — آپ کی پیش رفت سِنک ہے",
  "auth.sync_issue_toast": "⚠️ سِنک کا مسئلہ: {{err}}",
  "nav.dashboard": "🏠 ڈیش بورڈ",
- "nav.weeks": "🗺️ 12 ہفتے",
+ "nav.weeks": "🗺️ روڈ میپ",
  "nav.phrases": "💬 فقروں کی لیب",
  "nav.shadow": "🎯 شیڈوئنگ اسٹوڈیو",
  "nav.reviews": "📊 جائزے",
  "nav.account": "👤 اکاؤنٹ",
  "nav.manual": "📘 دستی کتابچہ",
  "bnav.home": "ہوم",
- "bnav.weeks": "ہفتے",
+ "bnav.weeks": "نقشہ",
  "bnav.shadow": "شیڈوئنگ",
  "bnav.phrases": "فقرے",
  "bnav.progress": "پیش رفت",
@@ -1493,5 +1493,6 @@
  "rm.detail": "اس مرحلے کے سیشن",
  "rm.notif_body": "آپ {{here}} پر ہیں · {{total}} میں سے {{done}} سیشن ({{pct}}%)۔ اگلا: {{next}}۔",
  "rm.notif_body_last": "آپ {{here}} پر ہیں · {{total}} میں سے {{done}} سیشن ({{pct}}%)۔ آخری مرحلہ — اسے مکمل کریں۔",
- "rm.btn": "روڈ میپ"
+ "rm.btn": "روڈ میپ",
+ "rm.new_toast": "نیا: آپ کا روڈ میپ۔ ہر مرحلہ، آپ کہاں ہیں اور آگے کیا ہے — نقشے کے ٹیب میں۔"
 }

@@ -1478,6 +1478,12 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 @keyframes rsPop{from{transform:scale(.4)}to{transform:scale(1)}}
 @media (max-width:760px){.rm-cel{bottom:96px}}
 @media (prefers-reduced-motion:reduce){.rm-cel{transition:none}.rs-lit{animation:none;stroke-dashoffset:0}.rs-pin circle,.rs-pin .rs-ring{animation:none}}
+/* the map tab, until first opened */
+.rm-new .ic svg,.rm-new .tab-ic svg{animation:rmTabGlow 2.2s ease-in-out infinite;color:var(--accent-text)}
+.rm-new::after{content:"";position:absolute;top:4px;right:calc(50% - 16px);width:8px;height:8px;border-radius:50%;background:var(--acc2);box-shadow:0 0 0 2px var(--bnav-bg),0 0 10px var(--acc2)}
+.tab.rm-new::after{top:6px;right:8px}
+@keyframes rmTabGlow{0%,100%{filter:drop-shadow(0 0 0 transparent);transform:none}50%{filter:drop-shadow(0 0 6px var(--acc2));transform:translateY(-1px) scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.rm-new .ic svg,.rm-new .tab-ic svg{animation:none}}
 .rm-sub-h{font-size:13px;font-weight:800;letter-spacing:.4px;color:var(--mut);margin:4px 0 12px;text-transform:uppercase}
 .wk-card.wk-here{border-color:var(--accent)}
 @media (min-width:720px){
@@ -2672,9 +2678,9 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   .bnav-item.on .ic{transform:translateY(-2px) scale(1.12)}
   .bnav-item.on::before{content:"";position:absolute;width:0}
   main{padding-bottom:110px}
-  .toast{bottom:96px}
+  body .toast{bottom:104px}   /* above the bottom nav; the base rule below would otherwise win by order */
 }
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:150;transition:.3s;opacity:0}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:150;transition:.3s;opacity:0;max-width:min(92vw,440px);text-align:center;line-height:1.4}
 .toast.show{transform:translateX(-50%);opacity:1}
 /* ---- In-app document viewer -------------------------------------------
    One overlay for every internal document reached from the footer (Privacy,
@@ -3197,7 +3203,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
   <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small id="trackIndicatorDest">Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
-  <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">12 Weeks</span></button>
+  <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
   <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
@@ -3246,7 +3252,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 
 <!-- Mobile bottom navigation (app style) -->
 <nav class="bottom-nav" aria-label="Main navigation">
-  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Weeks</span></button>
+  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Road map</span></button>
   <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
   <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
   <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
@@ -5076,7 +5082,7 @@ const I18N_EN={
  "prac.tab_vocabulary":"Vocabulary",
  "prac.tab_grammar":"Grammar",
  "nav.dashboard":"🏠 Dashboard",
- "nav.weeks":"🗺️ 12 Weeks",
+ "nav.weeks":"🗺️ Road map",
  "nav.phrases":"💬 Phrase Lab",
  "nav.shadow":"🎯 Shadow Studio",
  "nav.practice":"🎯 Practice",
@@ -5085,7 +5091,8 @@ const I18N_EN={
  "nav.profile":"Profile",
  "nav.manual":"📘 Manual",
  "bnav.home":"Home",
- "bnav.weeks":"Weeks",
+ "bnav.weeks":"Road map",
+ "rm.new_toast":"New: your road map lives here — every stage, where you are, what is next.",
  "bnav.shadow":"Shadow",
  "bnav.practice":"Practice",
  "bnav.phrases":"Phrase Lab",
@@ -5692,6 +5699,12 @@ function go(v,arg1,arg2){
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
+  /* The map tab glows until it has been opened once. Existing learners knew
+     that tab as "Weeks"; the glow and the one-time toast are how they learn it
+     is now the road map. */
+  if(v==="journey"&&!S.rmSeen){S.rmSeen=Date.now();save()}
+  document.querySelectorAll('[data-v="journey"]').forEach(b=>b.classList.toggle("rm-new",!S.rmSeen));
+  if(v==="home"&&!S.rmSeen&&!S.rmToasted&&S.profile){S.rmToasted=Date.now();save();setTimeout(()=>{if(!S.rmSeen)toast(t("rm.new_toast"))},2500)}
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");

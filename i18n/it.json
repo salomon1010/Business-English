@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ Bentornato/a, {{name}} — il tuo progresso è sincronizzato",
  "auth.sync_issue_toast": "⚠️ Problema di sincronizzazione: {{err}}",
  "nav.dashboard": "🏠 Dashboard",
- "nav.weeks": "🗺️ 12 settimane",
+ "nav.weeks": "🗺️ Tabella di marcia",
  "nav.phrases": "💬 Laboratorio di frasi",
  "nav.shadow": "🎯 Studio di Shadowing",
  "nav.reviews": "📊 Revisioni",
  "nav.account": "👤 Account",
  "nav.manual": "📘 Manuale",
  "bnav.home": "Home",
- "bnav.weeks": "Settimane",
+ "bnav.weeks": "Percorso",
  "bnav.shadow": "Shadowing",
  "bnav.phrases": "Frasi",
  "bnav.progress": "Progresso",
@@ -1493,5 +1493,6 @@
  "rm.detail": "Sessioni di questa fase",
  "rm.notif_body": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). Prossimo: {{next}}.",
  "rm.notif_body_last": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). L’ultima tappa — completala.",
- "rm.btn": "Tabella di marcia"
+ "rm.btn": "Tabella di marcia",
+ "rm.new_toast": "Novità: la tua tabella di marcia. Ogni tappa, dove sei e cosa viene dopo — nella scheda mappa."
 }

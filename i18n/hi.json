@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ फिर से स्वागत है, {{name}} — आपकी प्रगति सिंक है",
  "auth.sync_issue_toast": "⚠️ सिंक समस्या: {{err}}",
  "nav.dashboard": "🏠 डैशबोर्ड",
- "nav.weeks": "🗺️ 12 सप्ताह",
+ "nav.weeks": "🗺️ रोडमैप",
  "nav.phrases": "💬 वाक्यांश लैब",
  "nav.shadow": "🎯 शैडोइंग स्टूडियो",
  "nav.reviews": "📊 समीक्षाएँ",
  "nav.account": "👤 खाता",
  "nav.manual": "📘 मैनुअल",
  "bnav.home": "होम",
- "bnav.weeks": "सप्ताह",
+ "bnav.weeks": "रोडमैप",
  "bnav.shadow": "शैडोइंग",
  "bnav.phrases": "वाक्यांश",
  "bnav.progress": "प्रगति",
@@ -1493,5 +1493,6 @@
  "rm.detail": "इस चरण के सत्र",
  "rm.notif_body": "आप {{here}} पर हैं · {{total}} में से {{done}} सत्र ({{pct}}%)। अगला: {{next}}।",
  "rm.notif_body_last": "आप {{here}} पर हैं · {{total}} में से {{done}} सत्र ({{pct}}%)। आख़िरी चरण — इसे पूरा करें।",
- "rm.btn": "रोडमैप"
+ "rm.btn": "रोडमैप",
+ "rm.new_toast": "नया: आपका रोडमैप। हर चरण, आप कहाँ हैं और आगे क्या है — मैप टैब में।"
 }

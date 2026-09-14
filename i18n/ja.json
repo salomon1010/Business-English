@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ おかえりなさい、{{name}}さん——進捗は同期済みです",
  "auth.sync_issue_toast": "⚠️ 同期の問題：{{err}}",
  "nav.dashboard": "🏠 ダッシュボード",
- "nav.weeks": "🗺️ 12週間",
+ "nav.weeks": "🗺️ ロードマップ",
  "nav.phrases": "💬 フレーズ・ラボ",
  "nav.shadow": "🎯 シャドーイング・スタジオ",
  "nav.reviews": "📊 レビュー",
  "nav.account": "👤 アカウント",
  "nav.manual": "📘 マニュアル",
  "bnav.home": "ホーム",
- "bnav.weeks": "週",
+ "bnav.weeks": "ロードマップ",
  "bnav.shadow": "シャドーイング",
  "bnav.phrases": "フレーズ",
  "bnav.progress": "進捗",
@@ -1493,5 +1493,6 @@
  "rm.detail": "このフェーズのセッション",
  "rm.notif_body": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。次：{{next}}。",
  "rm.notif_body_last": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。最後のステージです。やり遂げましょう。",
- "rm.btn": "ロードマップ"
+ "rm.btn": "ロードマップ",
+ "rm.new_toast": "新機能：ロードマップ。全ステージ、現在地、次の一歩 — マップタブにあります。"
 }

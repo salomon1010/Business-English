@@ -598,14 +598,14 @@
  "auth.welcome_back_named_toast": "☁️ আবার স্বাগতম, {{name}} — আপনার অগ্রগতি সিঙ্ক করা",
  "auth.sync_issue_toast": "⚠️ সিঙ্ক সমস্যা: {{err}}",
  "nav.dashboard": "🏠 ড্যাশবোর্ড",
- "nav.weeks": "🗺️ ১২ সপ্তাহ",
+ "nav.weeks": "🗺️ রোডম্যাপ",
  "nav.phrases": "💬 বাক্যাংশ ল্যাব",
  "nav.shadow": "🎯 শ্যাডোয়িং স্টুডিও",
  "nav.reviews": "📊 পর্যালোচনা",
  "nav.account": "👤 অ্যাকাউন্ট",
  "nav.manual": "📘 নির্দেশিকা",
  "bnav.home": "হোম",
- "bnav.weeks": "সপ্তাহ",
+ "bnav.weeks": "রোডম্যাপ",
  "bnav.shadow": "শ্যাডোইং",
  "bnav.phrases": "বাক্যাংশ",
  "bnav.progress": "অগ্রগতি",
@@ -1493,5 +1493,6 @@
  "rm.detail": "এই পর্যায়ের সেশন",
  "rm.notif_body": "আপনি {{here}}-এ আছেন · {{total}}টির মধ্যে {{done}}টি সেশন ({{pct}}%)। পরবর্তী: {{next}}।",
  "rm.notif_body_last": "আপনি {{here}}-এ আছেন · {{total}}টির মধ্যে {{done}}টি সেশন ({{pct}}%)। শেষ ধাপ — এটি শেষ করুন।",
- "rm.btn": "রোডম্যাপ"
+ "rm.btn": "রোডম্যাপ",
+ "rm.new_toast": "নতুন: আপনার রোডম্যাপ। প্রতিটি ধাপ, আপনি কোথায় আছেন, এরপর কী — মানচিত্র ট্যাবে।"
 }
