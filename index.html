@@ -6036,9 +6036,7 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${fndHomeCardHTML()}
-  ${iosCardHTML()}
-  ${rateHTML()}
-  ${window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""}
+  ${homeNudgeHTML()}
   ${/* The track you are NOT on. Its own card told the learner what they already
         knew — "General English · Current track" on the General English Home —
         and the only actionable half was the other one. The row stays underneath
@@ -6068,9 +6066,8 @@ function rHome(el){
   el.innerHTML=`
   <h1 class="big">What should I do today?</h1>
   <p class="sub">One focused mission for your professional journey.</p>
-  ${iosCardHTML()}
   ${fndHomeCardHTML()}
-  ${rateHTML()}
+  ${homeNudgeHTML()}
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
     <div class="career-dashboard-grid">
@@ -6176,8 +6173,7 @@ function homePanelDashboard(activeTrackName){
   weeks.forEach(w=>phaseCounts[w.phase]=(phaseCounts[w.phase]||0)+weekDone(w.n));
   const circ=2*Math.PI*62;
   return `
-    ${iosCardHTML()}
-    ${rateHTML()}
+    ${homeNudgeHTML()}
     <div class="card home-ring">
       <div class="ring-wrap">
         <div class="ring">
@@ -12566,10 +12562,25 @@ window.fndCloseCheck=()=>{const ov=document.getElementById("fndCheckOv");if(ov)o
 
 /* ---- the card Home leads with while Foundations is the job ---- */
 let _fndCheckShown=false;
+/* ONE optional card on Home, by priority — never three competing for the top
+   of a phone screen. The Foundations card is not optional (it is the next
+   step) and is not in this list. Order: get the app on the phone first (it
+   unlocks reminders), then the coach's advice, then the rating ask. */
+function homeNudgeHTML(){
+  const tries=[
+    ()=>iosCardHTML(),
+    ()=>window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):"",
+    ()=>rateHTML()
+  ];
+  for(const f of tries){let h="";try{h=f()||""}catch(e){}if(h.trim())return h}
+  return "";
+}
 function fndHomeCardHTML(){
   if(fndNeedsPlacement()){
     /* not while the onboarding wizard is up — obFinish/wcClose open it after */
-    if(!_fndCheckShown&&!document.getElementById("obWrap")){_fndCheckShown=true;setTimeout(()=>{if(fndNeedsPlacement()&&!document.getElementById("obWrap")&&!document.getElementById("wcOv"))fndOpenCheck("home")},350)}
+    /* The check no longer opens itself over Home (it used to pop up 350 ms after
+       the page, right behind the welcome card — two dialogs before the first
+       screen). This card, first on Home, is the way in. */
     return `<section class="card fnd-home" aria-label="${esc(t("fnd.title"))}">
       <div class="eyebrow">${t("fnd.eyebrow")}</div>
       <h2>${t("fnd.check_h")}</h2>
@@ -15277,8 +15288,7 @@ window.wcClose=()=>{
   document.removeEventListener("keydown",wcKey);
   ov.classList.remove("show");
   setTimeout(()=>ov.remove(),220);
-  /* the first thing after the welcome is the one-minute check — Start here */
-  if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())setTimeout(()=>{if(fndNeedsPlacement())fndOpenCheck("welcome")},260);
+  /* the one-minute check waits on Home as its first card — not as a second dialog */
 };
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
@@ -15794,7 +15804,7 @@ window.fbDismissNudge=function(){localStorage.setItem(FB_NUDGE_KEY,"1");fbHideNu
 function fbHideNudge(){const n=document.getElementById("syncNudge");if(n)n.remove()}
 /* "New: your road map lives here" — a card above the bottom bar, on Home only,
    until the learner opens the map or dismisses it. Mirrors the sync nudge. */
-window.rmNoticeDismiss=()=>{S.rmSeen=Date.now();save();rmNoticeSync(cur&&cur.v);document.querySelectorAll('[data-v="journey"]').forEach(b=>b.classList.remove("rm-new"))};
+window.rmNoticeDismiss=()=>{S.rmSeen=Date.now();save();rmNoticeSync(cur&&cur.v);document.querySelectorAll('[data-v="journey"]').forEach(b=>b.classList.remove("rm-new"));try{fbUpdateNudge()}catch(e){}};
 function rmNoticeSync(v){
   const old=document.getElementById("rmNotice");if(old)old.remove();
   if(v!=="home"||S.rmSeen||!S.profile)return;
@@ -15807,6 +15817,7 @@ function rmNoticeSync(v){
 }
 function fbUpdateNudge(){
   fbHideNudge();
+  if(document.getElementById("rmNotice"))return;      /* one floating bar at a time; the road-map notice goes first */
   if(!fbConfigured()||FBUser||fbDismissed())return;
   if(totalDone()<1)return;
   const n=document.createElement("div");n.className="sync-nudge";n.id="syncNudge";

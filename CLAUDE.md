@@ -31,9 +31,10 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
 
 ## Deploy workflow — READ THIS
-- **Local-first by default: do NOT `git push` until the user explicitly says
-  "deploy".** They test on their own machine first (`python3 -m http.server 8000`).
-  Local commits are fine; pushing to `origin/main` is what auto-deploys.
+- **Deploy after every change (owner's standing instruction, 14 Sep 2026:
+  "always deploy").** Verify locally first (`python3 -m http.server 8000` and
+  the browser checks below), then commit, bump the cache and push — pushing to
+  `origin/main` is what auto-deploys. Do not leave verified work unpushed.
 - **To deploy** (only on the user's go-ahead):
   1. JS-parse check (see below) + validate any changed `i18n/*.json`.
   2. Bump `sw.js` `be12-vNN` → next number.
