@@ -6407,9 +6407,15 @@ function rmDraw(road){
   const segLen=[];let acc=0;
   {const tmp=document.createElementNS("http://www.w3.org/2000/svg","svg");tmp.style.cssText="position:absolute;width:0;height:0;overflow:hidden";tmp.appendChild(probe);document.body.appendChild(tmp);
     const total=probe.getTotalLength();
-    /* lengths to each pin, by walking the path and snapping to the pins' y */
-    const marks=[0];let L=0,step=Math.max(2,total/1500);
-    for(let i=1;i<N;i++){let best=null,bd=1e9;for(let l=L;l<=total;l+=step){const p=probe.getPointAtLength(l);const dd=Math.hypot(p.x-pts[i].x,p.y-pts[i].y);if(dd<bd){bd=dd;best=l}if(dd<1.5)break}marks.push(best);L=best}
+    /* lengths to each pin. The road is one cubic per link, so the length to a
+       pin is the sum of the links before it: N-1 measurements. The old way
+       walked the whole path with getPointAtLength up to 1,500 times per pin —
+       about 25,000 geometry calls, three seconds on a laptop, longer on a
+       phone — which is why opening the road map felt slow. */
+    const marks=[0];
+    {const seg=document.createElementNS("http://www.w3.org/2000/svg","path");tmp.appendChild(seg);let acc2=0;
+     for(let i=0;i<N-1;i++){const a=pts[i],b=pts[i+1],k=DY*.72;seg.setAttribute("d",`M${a.x} ${a.y} C${a.x} ${a.y+k} ${b.x} ${b.y-k} ${b.x} ${b.y}`);acc2+=seg.getTotalLength();marks.push(acc2)}
+     seg.remove()}
     segLen.push(...marks);segLen.total=total;
     var arrows="",signs="";
     for(let i=0;i<N-1;i++){const m=(marks[i]+marks[i+1])/2,p=probe.getPointAtLength(m),q=probe.getPointAtLength(m+2);
