@@ -1450,6 +1450,34 @@ html[data-theme="light"] .rm-lbl.next .rm-tag{color:var(--acc)}
 .rm-lbl.locked .rm-k,.rm-lbl.locked .rm-s{color:var(--mut2)}
 .rm-lbl.locked .rm-bar{opacity:.5}
 .rm-lbl.locked:hover{transform:translateY(-50%);border-color:var(--line2)}
+/* the progress strip */
+.rm-cel{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120%);z-index:140;width:min(92vw,420px);
+  opacity:0;transition:transform .38s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.rm-cel.show{transform:translateX(-50%);opacity:1}
+.rm-cel-in{display:block;width:100%;text-align:left;padding:12px 40px 10px 14px;border-radius:16px;border:1px solid var(--acc);cursor:pointer;color:var(--txt);font-family:inherit;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 22%,var(--card)),var(--card) 70%);box-shadow:var(--sh-3),0 0 0 1px color-mix(in srgb,var(--acc2) 30%,transparent)}
+html[dir="rtl"] .rm-cel-in{text-align:right;padding:12px 14px 10px 40px}
+.rm-cel-top{display:flex;align-items:center;gap:12px;min-width:0}
+.rm-cel-pct{font-size:22px;font-weight:900;letter-spacing:-.5px;color:var(--accent-text);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.rm-cel-txt{display:flex;flex-direction:column;min-width:0}
+.rm-cel-txt b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm-cel-txt span{font-size:11.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rm-cel-x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:var(--mut);font-size:18px;line-height:1;cursor:pointer;min-height:auto;display:grid;place-items:center}
+html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
+.rm-strip{display:block;width:100%;height:30px;margin-top:6px;overflow:visible}
+.rs-road{stroke:var(--line2);stroke-width:4;stroke-linecap:round}
+.rs-lit{stroke:var(--acc2);stroke-width:4;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;animation:rsLit 1.1s cubic-bezier(.2,.8,.2,1) .25s forwards}
+@keyframes rsLit{to{stroke-dashoffset:0}}
+.rs-pin circle{fill:var(--bg2);stroke:var(--line2);stroke-width:2}
+.rs-pin.done circle{fill:var(--acc);stroke:var(--acc2)}
+.rs-pin.now circle{fill:var(--card);stroke:var(--acc2);stroke-width:2.5}
+.rs-pin.next circle{stroke:var(--acc2);stroke-dasharray:3 2}
+.rs-pin.cert.done circle{fill:var(--gold);stroke:#fff}
+.rs-pin .rs-ring{fill:none;stroke:var(--acc2);stroke-width:1.5;transform-box:fill-box;transform-origin:center;animation:rmRing 1.8s ease-out infinite}
+.rs-pin.done circle{transform-box:fill-box;transform-origin:center;animation:rsPop .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*0ms)}
+@keyframes rsPop{from{transform:scale(.4)}to{transform:scale(1)}}
+@media (max-width:760px){.rm-cel{bottom:96px}}
+@media (prefers-reduced-motion:reduce){.rm-cel{transition:none}.rs-lit{animation:none;stroke-dashoffset:0}.rs-pin circle,.rs-pin .rs-ring{animation:none}}
 .rm-sub-h{font-size:13px;font-weight:800;letter-spacing:.4px;color:var(--mut);margin:4px 0 12px;text-transform:uppercase}
 .wk-card.wk-here{border-color:var(--accent)}
 @media (min-width:720px){
@@ -6443,6 +6471,49 @@ window.rmOpen=()=>{
   ov.querySelector(".rm-ov-x").focus();
 };
 window.rmClose=()=>{const ov=document.getElementById("rmOv");if(!ov)return;document.removeEventListener("keydown",ov._esc);document.body.style.overflow="";ov.classList.remove("show");setTimeout(()=>ov.remove(),250)};
+/* ---- The progress strip ----
+   A floating road-map card that exists only for the moment progress happens:
+   a session ticked, a Foundations day recorded. It slides up, lights the pin
+   that just changed, says where you are and what is next, and leaves on its
+   own. Tap it for the full map. Never permanent — the header button is the
+   always-there way in, and a fixed card would cover the very buttons that
+   make progress. Skipped when the reminder-style dialogs are up. */
+function rmStripSVG(){
+  const {steps,iNow}=rmSteps(),n=steps.length,W=300,H=30,r=Math.min(6.5,(W-28)/Math.max(1,n-1)/2-2.5),pad=14,gap=(W-2*pad)/Math.max(1,n-1);
+  const x=i=>pad+i*gap,litTo=iNow>=0?x(iNow):x(n-1);
+  const pins=steps.map((s,i)=>{const cx=x(i),cls=s.state;
+    return `<g class="rs-pin ${cls} ${s.kind}" transform="translate(${cx.toFixed(1)} ${H/2})">${cls==="now"?`<circle class="rs-ring" r="${r+4}"/>`:""}<circle r="${s.kind==="cert"?r+2:r}"/></g>`}).join("");
+  return `<svg class="rm-strip" viewBox="0 0 ${W} ${H}" aria-hidden="true">
+    <line class="rs-road" x1="${pad}" y1="${H/2}" x2="${W-pad}" y2="${H/2}"/>
+    <line class="rs-lit" x1="${pad}" y1="${H/2}" x2="${litTo.toFixed(1)}" y2="${H/2}"/>
+    ${pins}</svg>`;
+}
+const RM_BUSY="#rmOv,#coachSummary,.cf-ov,.wc-ov,.ra-ov,.pi-ov";
+/* After a session the coach summary opens on top; the strip waits its turn
+   and shows once that is dismissed (giving up quietly after a minute). */
+function rmCelebrate(){
+  const t0=Date.now();
+  (function tick(){
+    if(!document.querySelector(RM_BUSY))return rmCelebrateNow();
+    if(Date.now()-t0<60000)setTimeout(tick,400);
+  })();
+}
+function rmCelebrateNow(){
+  try{
+    if(document.querySelector(RM_BUSY))return;
+    const old=document.getElementById("rmCel");if(old)old.remove();
+    const {steps,iNow,done,total,pct}=rmSteps(),now=steps[iNow],next=steps.find(s=>s.state==="next");
+    const el=document.createElement("div");el.className="rm-cel";el.id="rmCel";el.setAttribute("role","status");
+    const where=now?`${esc(now.k)} · ${esc(now.title)}`:esc(t("rm.finished_line"));
+    el.innerHTML=`<button class="rm-cel-in" onclick="document.getElementById('rmCel')?.remove();rmOpen()" aria-label="${esc(t("rm.label"))}">
+      <div class="rm-cel-top"><span class="rm-cel-pct">${pct}%</span><span class="rm-cel-txt"><b>${where}</b><span>${esc(t("rm.sessions",{done,total}))}${next?` · ${esc(t("rm.next"))}: ${esc(next.k)}`:""}</span></span></div>
+      ${rmStripSVG()}</button>
+      <button class="rm-cel-x" onclick="document.getElementById('rmCel')?.remove()" aria-label="${esc(t("wc.close"))}">×</button>`;
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add("show"));
+    el._t=setTimeout(()=>{el.classList.remove("show");setTimeout(()=>el.remove(),350)},7000);
+  }catch(e){}
+}
 window.rmJump=()=>{const el=(document.getElementById("rmOv")||document).querySelector(".rm-lbl.now");if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"center"})};
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
@@ -6652,6 +6723,7 @@ window.toggleDay=(key,w,d)=>{
     /* Finishing a day is the moment the app has earned an opinion — ask then. */
     setTimeout(()=>{try{rateAsk()}catch(e){}},1600)}
   save();go("session",w,d);
+  if(S.days[key])setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
 };
 /* timer — runs globally; the header pill mirrors it on every page */
 function tRender(){
@@ -12542,9 +12614,11 @@ window.fndRecord=(day,i)=>{
     const f=fndState();const k="d"+day+"r";f.done[k]=f.done[k]||{};f.done[k][i]=true;
     /* a day is done when all three are recorded — the recording is the evidence,
        the score (if the grader is reachable) is the feedback */
-    if(pack.days[day-1].items.every((_,j)=>f.done[k][j])){f.done["d"+day]=true;markPracticed()}
+    const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
+    if(dayDone){f.done["d"+day]=true;markPracticed()}
     save();
     const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
+    if(dayDone)setTimeout(rmCelebrate,500);
   },blob=>{
     fbAssess(blob,en).then(r=>{
       if(!r||!r.words||!r.words.length)return;

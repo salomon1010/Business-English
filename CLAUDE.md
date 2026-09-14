@@ -142,6 +142,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   `remCacheText()` parks in the `be-rem` cache as `./__reminder_map__.png`;
   sw.js serves that path from the cache and passes it as the notification
   `image` (Android shows it when expanded; desktop mostly ignores `image`).
+  Two more ways in: the header map button (`rmOpen()`, a full-screen sheet
+  over any page) and the **progress strip** `rmCelebrate()` — a floating card
+  shown only after `toggleDay` marks a session or a Foundations day finishes,
+  waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
+  is deliberately NO permanent floating button (it would cover the action
+  buttons and break the one-accent-per-screen rule).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in
