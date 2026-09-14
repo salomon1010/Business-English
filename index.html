@@ -489,6 +489,22 @@ h1.big em{font-style:italic;color:var(--accent)}
 :root[data-theme="light"] .chip.p2{color:#0e7490;background:rgba(34,211,238,.15);border-color:rgba(14,116,144,.35)}
 :root[data-theme="light"] .chip.p3{color:var(--gold);background:rgba(251,191,36,.2);border-color:rgba(180,83,9,.4)}
 .bar{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
+/* PERFORMANCE — read before adding an animation or a blur.
+   The bottom icon bar and the top nav are on screen for the whole session, and
+   each carried a backdrop-filter blur. A blur behind a fixed bar is re-rendered
+   on every scroll frame, twice over here, and on a mid-range Android that alone
+   is the difference between a page that glides and one that stutters. The bars
+   are 97% opaque anyway, so the blur was costing far more than it showed. On a
+   touch device they are now simply near-opaque. Desktop keeps the glass.
+   Same family of fix elsewhere in this file: progress bars animate with
+   transform:scaleX instead of width (width forces a layout every frame), and
+   the attention rings animate a pseudo-element's transform and opacity instead
+   of box-shadow (box-shadow forces a blurred repaint every frame). */
+@media (pointer:coarse){
+  nav,.bottom-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  nav{background:color-mix(in srgb,var(--bg) 94%,transparent)}
+  .bottom-nav{background:color-mix(in srgb,var(--bg2) 98%,transparent)}
+}
 .bar>i{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .5s}
 .hr{border:none;border-top:1px solid var(--line);margin:18px 0}
 
@@ -1434,7 +1450,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .rm-meta{display:flex;align-items:center;gap:8px;margin-top:3px}
 .rm-lbl .rm-s{font-size:11px;color:var(--mut);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
 .rm-bar{flex:1;min-width:34px;height:4px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);overflow:hidden}
-.rm-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.rm-bar i{display:block;height:100%;width:100%;transform:scaleX(0);transform-origin:left;border-radius:inherit;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:transform 1.1s cubic-bezier(.2,.8,.2,1)}
 .rm-tag{position:absolute;top:-9px;left:10px;padding:2px 8px;border-radius:99px;font-size:9px;font-weight:800;letter-spacing:.7px;
   text-transform:uppercase;background:var(--accent-fill);color:var(--on-accent);box-shadow:var(--sh-1);white-space:nowrap}
 html[data-theme="light"] .rm-tag{background:var(--accent);color:#fff}
@@ -1551,14 +1567,16 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    so the first thing you meet is the thing to do first — speak. It is a
    pointer, not an alarm: the first character typed or dictated clears it, and
    Clear brings it back because the box is empty again. */
-.ex-micbtn.ex-mic-hint{border-color:var(--acc);color:var(--accent-text);
-  background:color-mix(in srgb,var(--acc) 13%,transparent);
-  animation:exHint 2.4s ease-in-out infinite}
-@keyframes exHint{
-  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 45%,transparent)}
-  55%{box-shadow:0 0 0 8px color-mix(in srgb,var(--acc) 0%,transparent)}}
+.ex-micbtn.ex-mic-hint{border-color:var(--acc);color:var(--accent-text);position:relative;
+  background:color-mix(in srgb,var(--acc) 13%,transparent)}
+.ex-micbtn.ex-mic-hint::after{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;
+  border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);
+  animation:exRingOut 2.4s ease-out infinite}
+/* One ring for every "look here" in the app: scale + opacity only, so it never
+   leaves the compositor. */
+@keyframes exRingOut{0%{transform:scale(1);opacity:.9}70%,100%{transform:scale(1.28);opacity:0}}
 @media(prefers-reduced-motion:reduce){
-  .ex-micbtn.ex-mic-hint{animation:none;box-shadow:0 0 0 2px color-mix(in srgb,var(--acc) 38%,transparent)}}
+  .ex-micbtn.ex-mic-hint::after{animation:none;opacity:.6;transform:none}}
 /* Phone: the block wraps under the textarea, so it takes the whole width and
    keeps the same two rows. Cramming all three onto one line squeezed "Polish
    it" — the feature's primary action — down to 8px of side padding. */
@@ -2176,13 +2194,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-howbtn:hover{background:color-mix(in srgb,var(--gold) 22%,transparent);transform:translateY(-1px)}
 /* Until it has been opened once it breathes, because the feature underneath it
    is the one nobody understands on sight. After that it stops asking. */
-.ex-howbtn.is-new{animation:exHowGlow 2.4s ease-in-out infinite}
-@keyframes exHowGlow{
-  0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--gold) 42%,transparent)}
-  70%,100%{box-shadow:0 0 0 8px color-mix(in srgb,var(--gold) 0%,transparent)}
-}
+.ex-howbtn{position:relative}
+.ex-howbtn.is-new::after{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;
+  border:2px solid color-mix(in srgb,var(--gold) 55%,transparent);animation:exRingOut 2.4s ease-out infinite}
 @media (max-width:420px){.ex-howbtn{flex:1 1 100%;justify-content:center}}
-@media (prefers-reduced-motion:reduce){.ex-howbtn.is-new{animation:none}}
+@media (prefers-reduced-motion:reduce){.ex-howbtn.is-new::after{animation:none;opacity:.6;transform:none}}
 /* The demo mock must fill its slot. .ios-art centres its child with place-items,
    which shrank it to its content width and left it floating off the axis every
    other element in the card is aligned to. */
@@ -5698,6 +5714,23 @@ function bnavSync(v){
    offer a "back to your session" breadcrumb. */
 let SESS_RETURN=null;
 window.sessGo=function(v,w,d){SESS_RETURN={v,w,d};go(v)};
+/* Page switches jump to the top; they must not glide there. html has
+   scroll-behavior:smooth for deliberate in-page jumps, which turned every tab
+   change into an animated scroll running underneath the new page's render and
+   entrance animations — felt as the page freezing on tap, worst on the long
+   General English pages. behavior:"instant" would be the modern answer, but
+   older Chrome throws on an enum it does not know, and a throw here would take
+   navigation down with it. Switching the CSS off for one frame works everywhere. */
+function jumpTop(){
+  const h=document.documentElement,prev=h.style.scrollBehavior;
+  h.style.scrollBehavior="auto";
+  /* The style change has to be flushed before scrollTo reads it, or the call
+     still sees "smooth" and glides. Measured: without this read it animates;
+     with it, the jump is synchronous. */
+  void getComputedStyle(h).scrollBehavior;
+  try{window.scrollTo(0,0)}catch(e){}
+  h.style.scrollBehavior=prev;
+}
 function go(v,arg1,arg2){
   if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}
   /* Walking out of a workshop conversation has to switch the microphone off.
@@ -5742,7 +5775,7 @@ function go(v,arg1,arg2){
   }
   document.getElementById("streakN").textContent=streak();
   try{navBadges()}catch(e){}
-  window.scrollTo({top:0});
+  jumpTop();
   if(v==="home")setTimeout(backupNudge,1200);   // only on the dashboard, never mid-task
 }
 
@@ -5789,7 +5822,7 @@ async function rManual(el,embedded){
   if(md){manIconize(md);helpCollapse(md);}
   _helpOrig=md?md.innerHTML:"";   // clean copy for search highlighting/reset
   syncEyebrowH();                 // the eyebrow exists only now, after the fetch
-  window.scrollTo({top:0});
+  jumpTop();
 }
 /* The manual rendered as one 28,000px document — 34 handset screens of prose
    under the topic cards, all of it in the DOM at once. Each section becomes a
@@ -6473,7 +6506,7 @@ function rmDraw(road){
     road.appendChild(el)});
   road.style.height=H+"px";
   requestAnimationFrame(()=>{const lit=road.querySelector(".rm-asph-lit");if(lit)lit.style.strokeDasharray=`${litLen} ${segLen.total}`;
-    road.querySelectorAll(".rm-bar i").forEach(b=>{b.style.width=b.dataset.w+"%"})});
+    road.querySelectorAll(".rm-bar i").forEach(b=>{b.style.transform="scaleX("+(Math.max(0,Math.min(100,+b.dataset.w||0))/100)+")"})});
 }
 function rmMount(root){
   const rm=root.querySelector(".rm");if(!rm)return;
@@ -7328,7 +7361,7 @@ window.shCloseWork=()=>{
   document.removeEventListener("keydown",shWorkKeys);
   if(_shPrevFocus&&document.contains(_shPrevFocus)){try{_shPrevFocus.focus()}catch(e){}}
   _shPrevFocus=null;
-  window.scrollTo({top:0});
+  jumpTop();
 };
 let shLooping=true,shCounting=false,shPing={};
 function shStartTick(){
@@ -13582,7 +13615,7 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
       bnavSync("session");
       document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});
       const el=document.getElementById("v-journey");el.classList.add("on");
-      rSession(el,a1,a2);document.getElementById("streakN").textContent=streak();window.scrollTo({top:0});
+      rSession(el,a1,a2);document.getElementById("streakN").textContent=streak();jumpTop();
       return;
     }
     _go(v,a1,a2);
@@ -14983,7 +15016,14 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
        network-first, so the fresh version is already loaded — the reload is only
        useful for an update that lands while you're actively using the app. */
     if(Date.now()-_bootAt<5000)return;
-    _swReloading=true;location.reload();
+    /* Never reload under someone's thumb. A new version landing mid-session used
+       to reload the page on the spot — from the learner's side that is the app
+       freezing and starting over, halfway through a tap. The fresh version is
+       already loaded (network-first), so the reload can wait until the app is
+       put in the background, where nobody sees it happen. */
+    _swReloading=true;
+    const later=()=>{if(document.visibilityState==="hidden"){document.removeEventListener("visibilitychange",later);location.reload()}};
+    document.addEventListener("visibilitychange",later);
   });
   navigator.serviceWorker.register("sw.js").then(reg=>{
     reg.update();
