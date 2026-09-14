@@ -1,0 +1,81 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Road map, large-print edition — the same two features as roadmap-flyer, set
+   for a reader who is holding a phone at arm's length or looking at a printed
+   A4 on a notice board: bigger type, bigger phones, half the words. */
+:root{ --bg:#0a0b11; --txt:#eff2f8; --mut:#a8b2c4; --a:#f0a318; --a2:#fbbf24; --grn:#34d399; --hi:#f97316; --card:rgba(255,255,255,.05); --line:rgba(255,255,255,.11); --w1:rgba(240,163,24,.26); --w2:rgba(249,115,22,.16); --w3:rgba(251,191,36,.12); }
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:var(--bg);color:var(--txt);font-family:Outfit,system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden}
+.page{position:relative;width:1080px;height:1920px;padding:56px 60px 44px;display:flex;flex-direction:column;overflow:hidden}
+.w{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.w1{width:900px;height:900px;left:-300px;top:-340px;background:var(--w1)}
+.w2{width:780px;height:780px;right:-280px;top:420px;background:var(--w2)}
+.w3{width:860px;height:860px;left:120px;bottom:-470px;background:var(--w3)}
+header{position:relative;display:flex;align-items:center;gap:22px}
+.mark{width:84px;height:84px;border-radius:24px;overflow:hidden;flex:none;box-shadow:0 12px 34px rgba(0,0,0,.45)}
+.brand .n{font-size:40px;font-weight:900;letter-spacing:-.5px;line-height:1}
+.brand .n b{color:var(--a2)}
+.brand .s{font-size:22px;color:var(--mut);margin-top:6px}
+.kick{position:relative;margin-top:44px;font-size:22px;font-weight:800;letter-spacing:4px;text-transform:uppercase;color:var(--a2)}
+h1{position:relative;margin-top:14px;font-size:92px;line-height:1.02;font-weight:900;letter-spacing:-2.5px}
+h1 em{font-style:italic;background:linear-gradient(90deg,#fbbf24,#f97316);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{position:relative;margin-top:26px;font-size:32px;line-height:1.36;color:var(--mut);max-width:980px}
+.sub b{color:var(--txt);font-weight:700}
+.phones{position:relative;margin-top:36px;display:flex;justify-content:center;align-items:flex-end;gap:22px}
+.ph{position:relative;border-radius:36px;overflow:hidden;border:3px solid var(--line);background:#0b1020;box-shadow:0 30px 70px rgba(0,0,0,.6)}
+.ph img{width:100%;display:block}
+.ph.side{width:322px;height:470px;margin-bottom:22px}
+.ph.main{width:404px;height:588px;border-color:color-mix(in srgb,var(--a2) 60%,transparent);box-shadow:0 34px 90px rgba(0,0,0,.65),0 0 0 8px color-mix(in srgb,var(--a2) 14%,transparent)}
+.ph .cap{position:absolute;left:0;right:0;bottom:0;padding:64px 14px 20px;text-align:center;font-size:23px;white-space:nowrap;font-weight:800;background:linear-gradient(180deg,transparent,rgba(5,8,18,.96) 55%)}
+.ph.main .cap{font-size:29px;color:var(--a2)}
+.three{position:relative;margin-top:38px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.t{background:var(--card);border:2px solid var(--line);border-radius:26px;padding:26px 26px 28px}
+.t .n{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:30px;font-weight:900;color:#0a0b11;background:var(--a2);margin-bottom:16px}
+.t h3{font-size:31px;font-weight:800;line-height:1.12;letter-spacing:-.4px}
+.t p{margin-top:10px;font-size:23px;line-height:1.36;color:var(--mut)}
+.t p b{color:var(--txt)}
+.cta{position:relative;margin-top:auto;display:flex;align-items:center;gap:30px;padding:30px 34px;border-radius:30px;background:linear-gradient(135deg,color-mix(in srgb,var(--a) 22%,transparent),color-mix(in srgb,var(--grn) 10%,transparent));border:2px solid color-mix(in srgb,var(--a2) 45%,transparent)}
+.qr{width:190px;height:190px;border-radius:22px;background:#fff;padding:12px;flex:none}
+.qr img{width:100%;height:100%;display:block}
+.ctatext{flex:1}
+.big{font-size:52px;font-weight:900;line-height:1.04;letter-spacing:-1.2px}
+.big span{color:var(--a2)}
+.sm{margin-top:12px;font-size:25px;line-height:1.35;color:var(--mut)}
+.sm b{color:var(--txt)}
+.foot{position:relative;margin-top:22px;display:flex;justify-content:space-between;font-size:20px;color:var(--mut)}
+</style></head><body>
+<div class="page">
+  <div class="w w1"></div><div class="w w2"></div><div class="w w3"></div>
+  <header>
+    <div class="mark"><img src="__LOGO__" style="width:121.9%;height:121.9%;margin:-10.95%;display:block"></div>
+    <div class="brand"><div class="n">BE <b>Mastery</b></div><div class="s">Your road map · and the one place to start</div></div>
+  </header>
+
+  <div class="kick">Where you are · what comes next</div>
+  <h1>Never lose<br><em>your place again.</em></h1>
+  <div class="sub"><b>One check tells you where to start. One road shows where you are.</b> Three sentences a day if English feels fast — then the full programme opens.</div>
+
+  <div class="phones">
+    <div class="ph side"><img src="__SHOT_BEFORE__"><div class="cap">Start here, every day</div></div>
+    <div class="ph main"><img src="__SHOT_AFTER__"><div class="cap">You are here — always</div></div>
+    <div class="ph side"><img src="__SHOT_ALT__"><div class="cap">Three sentences a day</div></div>
+  </div>
+
+  <div class="three">
+    <div class="t"><div class="n">1</div><h3>A one-minute check</h3><p>Three sentences. Did you understand? <b>It decides where you start</b> — nothing else.</p></div>
+    <div class="t"><div class="n">2</div><h3>Foundations, if you need it</h3><p>Three sentences a day, your language underneath. <b>Fifteen days.</b></p></div>
+    <div class="t"><div class="n">3</div><h3>One lit pin: you</h3><p>Twelve stages on one road. <b>You are here. Next.</b> Never a list to feel behind on.</p></div>
+  </div>
+
+  <div class="cta">
+    <div class="qr"><img src="__QR__"></div>
+    <div class="ctatext">
+      <div class="big">Find your place —<br><span>app.lomonec.com</span></div>
+      <div class="sm">Scan or tap. <b>Nothing to install</b> — opens in your browser, works offline. Free.</div>
+    </div>
+  </div>
+
+  <div class="foot"><div>Built by Lomonec LLC · Language practice only — not a welding qualification</div><div>contact@lomonec.com</div></div>
+</div>
+</body></html>
