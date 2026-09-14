@@ -35,6 +35,7 @@ PAGES = {
     "career":  HERE / "career-flyer@2x.png",
     "polish":         HERE / "polish-flyer@2x.png",
     "polish-welding": HERE / "polish-welding-flyer@2x.png",
+    "roadmap":        HERE / "roadmap-flyer@2x.png",
 }
 if sys.argv[1:]:
     order = sys.argv[1:]

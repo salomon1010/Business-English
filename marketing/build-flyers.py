@@ -68,6 +68,18 @@ FLYERS = {
             "__QR__":            HERE / "qr-applomonec.png",
         },
     },
+    # the road-map poster: where you are, what comes next, and the one place to
+    # start — captured from a learner three weeks in (marketing/shots-roadmap/)
+    "roadmap-flyer": {
+        "src": HERE / "roadmap-flyer.src.html",
+        "tokens": {
+            "__LOGO__":             REPO / "logo.svg",
+            "__SHOT_START__":       HERE / "shots-roadmap/r3-home-start.png",
+            "__SHOT_ROADMAP__":     HERE / "shots-roadmap/r1-roadmap-beacon.png",
+            "__SHOT_FOUNDATIONS__": HERE / "shots-roadmap/r4-foundations-day.png",
+            "__QR__":               HERE / "qr-applomonec.png",
+        },
+    },
     # the Executive Polish poster: one feature, captured live by
     # scripts/store-art/shoot-polish.js (the polished sentence in the artwork is
     # a real API result, so the shots and the flyer copy must be replaced together)
