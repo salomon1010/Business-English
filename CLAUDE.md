@@ -37,6 +37,12 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   `origin/main` is what auto-deploys. Do not leave verified work unpushed.
 - **To deploy** (only on the user's go-ahead):
   1. JS-parse check (see below) + validate any changed `i18n/*.json`.
+  1b. **Smoke suite:** `cd tests && npm test` (real headless Chromium; starts its
+     own local server). 20 checks: onboarding → one welcome card, every bottom-bar
+     tab reaches its page, no invisible overlay, road map < 300 ms, Home cards,
+     the notices, reminder copy, speech chunking, no JS errors. After the push,
+     `BASE=https://app.lomonec.com npm test` proves the live site. First time:
+     `cd tests && npm install && npx playwright install chromium-headless-shell`.
   2. Bump `sw.js` `be12-vNN` → next number.
   3. `git add`, commit (co-author line below), `git push origin main`.
   4. Poll live until it flips, in a **background** Bash job (GitHub Pages usually

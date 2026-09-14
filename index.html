@@ -12565,12 +12565,12 @@ let _fndCheckShown=false;
 /* ONE optional card on Home, by priority — never three competing for the top
    of a phone screen. The Foundations card is not optional (it is the next
    step) and is not in this list. Order: get the app on the phone first (it
-   unlocks reminders), then the coach's advice, then the rating ask. */
+   unlocks reminders), then the rating ask (once), then the coach's advice. */
 function homeNudgeHTML(){
   const tries=[
     ()=>iosCardHTML(),
-    ()=>window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):"",
-    ()=>rateHTML()
+    ()=>rateHTML(),            /* asked once, then gone — ahead of the coach, who is there every day */
+    ()=>window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""
   ];
   for(const f of tries){let h="";try{h=f()||""}catch(e){}if(h.trim())return h}
   return "";
@@ -14967,7 +14967,10 @@ window.pronTry=()=>{
   });
   /* Android browser visitors get the offer to install the real app from Play.
      Slightly delayed so it lands on a painted screen, not a blank one. */
-  setTimeout(()=>{try{playAsk();iosAsk()}catch(e){}},500);
+  /* …and never over the onboarding wizard or the welcome card: a first-time
+     visitor sees the app before being asked to install it. Home carries the
+     standing install card for iPhone; the sheets wait for the next launch. */
+  setTimeout(()=>{try{if(S.profile&&!document.getElementById("obWrap")&&!document.getElementById("wcOv")){playAsk();iosAsk()}}catch(e){}},500);
 })();
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();
