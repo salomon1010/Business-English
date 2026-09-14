@@ -6558,11 +6558,10 @@ function rJourney(el,wArg){
   if(_jPhase===null){const cw=currentPos().w;_jPhase=(allWeeks[cw-1]||allWeeks[0]).phase}
   const weeks=allWeeks.filter(w=>String(w.phase)===String(_jPhase));
   const pDone=weeks.reduce((s,w)=>s+weekDone(w.n),0),pTotal=weeks.length*trackDays().length;
-  /* No introduction above the road: the tab is named after it, and the road's
-     own head says where you are and what is next. The eyebrow, the "12-Week
-     Journey" title and the paragraph were removed on 14 Sep 2026 — the page
-     already exists; it does not need to announce itself. */
   el.innerHTML=`
+  <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
+  <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
+  <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?`Build the communication, technical language, and professional readiness to progress through your ${esc((window.Trades&&Trades.active(S).career)||"welding")} career.`:t("journey.sub")}</p>
   ${rmHTML()}
   <h2 class="rm-sub-h" id="rmDetail">${esc(t("rm.detail"))}</h2>
   ${isProfessionalJourney()
