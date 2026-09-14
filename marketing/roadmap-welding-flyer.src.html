@@ -4,19 +4,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* The road-map poster — where you are, what comes next, one place to start.
-   The other three flyers sell the whole app. This one sells the ten minutes
-   before a meeting: say the line you were going to say, take the version that
-   comes back, and walk in with it.
+/* The road map, for the site — the welding companion to roadmap-flyer.src.html.
+   Same page geometry and the same one habit, but the room is the toolbox talk
+   rather than the standup, and the identity is the trade posters' amber, because
+   that is the colour the app itself wears once the Welding area is open.
 
-   Colour follows the screen rather than the other posters: indigo for the words
-   you arrived with, green for the executive version, because that is exactly
-   how the two states are coloured inside the app. Amber stays the trade
-   posters' identity. */
+   The screenshots are captured with that area open (shoot-polish.js welding), so
+   the phrases under the lab are the trade's own and the header carries the
+   Welder chip. A welder reading this should recognise their own screen. */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080c18; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
-  --txt:#eef2fb; --mut:#93a6c6; --ind:#6f7cf6; --cyn:#22d3ee; --grn:#34d399; --amb:#fbbf24;
+  --bg:#0a0b11; --card:rgba(255,255,255,.045); --line:rgba(255,255,255,.10);
+  --txt:#eff2f8; --mut:#a2adc0; --amb:#f0a318; --gold:#fbbf24; --grn:#34d399; --ember:#f97316;
 }
 html,body{width:1080px;height:1920px}
 body{
@@ -25,9 +24,9 @@ body{
   -webkit-font-smoothing:antialiased; overflow:hidden; position:relative;
 }
 .wash{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
-.w1{width:900px;height:900px;left:-300px;top:-340px;background:rgba(111,124,246,.30)}
-.w2{width:780px;height:780px;right:-280px;top:300px;background:rgba(34,211,238,.20)}
-.w3{width:860px;height:860px;left:120px;bottom:-470px;background:rgba(52,211,153,.15)}
+.w1{width:840px;height:840px;left:-290px;top:-370px;background:rgba(240,163,24,.14)}
+.w2{width:760px;height:760px;right:-300px;top:300px;background:rgba(249,115,22,.09)}
+.w3{width:840px;height:840px;left:130px;bottom:-490px;background:rgba(251,191,36,.06)}
 .grid{position:absolute;inset:0;opacity:.35;
   background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
                    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
@@ -39,9 +38,9 @@ body{
 /* ---------- header ---------- */
 header{display:flex;align-items:center;gap:20px}
 .mark{width:76px;height:76px;border-radius:21px;overflow:hidden;flex:none;
-  box-shadow:0 10px 30px rgba(79,110,246,.42)}
+  box-shadow:0 10px 30px rgba(240,163,24,.42)}
 .brand .n{font-size:36px;font-weight:800;letter-spacing:-.5px;line-height:1}
-.brand .n b{color:var(--cyn);font-weight:800}
+.brand .n b{color:var(--gold);font-weight:800}
 .brand .s{font-size:18.5px;color:var(--mut);font-weight:400;margin-top:5px;letter-spacing:.2px}
 .hchip{margin-left:auto;display:flex;align-items:center;gap:10px;
   padding:12px 21px;border:1px solid var(--line);border-radius:999px;
@@ -51,36 +50,37 @@ header{display:flex;align-items:center;gap:20px}
 
 /* ---------- hero ---------- */
 .kick{margin-top:22px;font-size:18px;font-weight:700;letter-spacing:3.4px;
-  color:var(--amb);text-transform:uppercase}
+  color:var(--gold);text-transform:uppercase}
 h1{margin-top:11px;font-size:70px;line-height:1.02;font-weight:800;letter-spacing:-2.2px}
-h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 70%,#34d399);
+h1 em{font-style:italic;background:linear-gradient(96deg,#fbbf24,#f97316 65%,#fb923c);
   -webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{margin-top:14px;font-size:23.5px;line-height:1.4;color:#bcc7d8;font-weight:300;max-width:960px}
-.sub b{color:#eff2fb;font-weight:600}
+.sub{margin-top:14px;font-size:23.5px;line-height:1.4;color:#bcc7d8;font-weight:300;max-width:965px}
+.sub b{color:#eff2f8;font-weight:600}
 
 /* ---------- the swap ----------
    The proof of this feature is not a claim, it is two sentences side by side.
    Both are real: the left one was typed into the app, the right one is what the
    app gave back, screenshot and all. */
-.swap{margin-top:20px;display:grid;grid-template-columns:1fr 66px 1fr;align-items:stretch}
+.swap{margin-top:16px;display:grid;grid-template-columns:1fr 66px 1fr;align-items:stretch}
 .swap .side{border:1px solid var(--line);border-radius:20px;padding:17px 22px 18px;
   background:rgba(255,255,255,.035);display:flex;flex-direction:column}
-.swap .side.was{border-color:rgba(111,124,246,.34)}
-.swap .side.now{background:linear-gradient(140deg,rgba(52,211,153,.13),rgba(34,211,238,.06));
-  border-color:rgba(52,211,153,.42);box-shadow:0 0 40px rgba(52,211,153,.14) inset}
+.swap .side.was{border-color:rgba(255,255,255,.16)}
+.swap .side.now{background:linear-gradient(140deg,rgba(240,163,24,.14),rgba(249,115,22,.06));
+  border-color:rgba(251,191,36,.44);box-shadow:0 0 40px rgba(240,163,24,.14) inset}
 .swap .w{font-size:14.5px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;color:var(--mut)}
-.swap .now .w{color:#6ee7b7}
+.swap .now .w{color:#ffd07a}
 .swap .l{font-size:21.5px;line-height:1.36;margin-top:9px;color:#c7d5ec;font-weight:300}
-.swap .now .l{color:#eff2fb;font-weight:500}
+.swap .now .l{color:#eff2f8;font-weight:500}
+.swap .now .l u{text-decoration:none;color:#ffd98a;font-weight:700}
 .swap .mid{display:flex;align-items:center;justify-content:center}
-.swap .mid svg{width:38px;height:38px;stroke:var(--grn);fill:none;stroke-width:2.2;
+.swap .mid svg{width:38px;height:38px;stroke:var(--gold);fill:none;stroke-width:2.2;
   stroke-linecap:round;stroke-linejoin:round}
 .swap .why{margin-top:auto;padding-top:13px;font-size:17.5px;line-height:1.34;
   color:#8b9cba;font-weight:300;font-style:italic}
 .gain{margin-top:auto;padding-top:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.gain .lab{font-size:13.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#8df0c6}
+.gain .lab{font-size:13.5px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#ffd07a}
 .gain span.k{padding:6px 14px;border-radius:999px;font-size:17.5px;font-weight:600;
-  border:1px solid rgba(52,211,153,.34);background:rgba(52,211,153,.11);color:#b6f5da}
+  border:1px solid rgba(251,191,36,.36);background:rgba(240,163,24,.12);color:#ffe0a3}
 
 /* ---------- phones ---------- */
 .phones{margin-top:26px;display:flex;justify-content:center;align-items:flex-end;gap:20px}
@@ -92,44 +92,55 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 70%,#34
   font-size:16px;font-weight:700;text-align:center;letter-spacing:.3px;color:#eaf0fa;
   background:linear-gradient(to top,rgba(6,8,14,.99) 30%,rgba(6,8,14,.92) 62%,transparent)}
 .ph.side{width:282px;height:386px;margin-bottom:18px;opacity:.95}
-.ph.main{width:324px;height:452px;border-color:rgba(52,211,153,.5);
-  box-shadow:0 36px 70px -14px rgba(0,0,0,.82), 0 0 60px rgba(52,211,153,.22)}
+.ph.main{width:324px;height:452px;border-color:rgba(251,191,36,.55);
+  box-shadow:0 36px 70px -14px rgba(0,0,0,.82), 0 0 60px rgba(240,163,24,.26)}
 
-/* ---------- the ten minutes before the meeting ---------- */
-.loop{margin-top:26px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.st{padding:17px 18px 18px;border-radius:19px;background:var(--card);border:1px solid var(--line)}
+/* ---------- the five minutes before the talk ---------- */
+.loop{margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.st{padding:13px 16px 14px;border-radius:19px;background:var(--card);border:1px solid var(--line)}
 .st .n{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
   font-size:19.5px;font-weight:800;
-  background:rgba(111,124,246,.17);color:#b3bbff;border:1px solid rgba(111,124,246,.32)}
-.st:nth-child(2) .n{background:rgba(251,191,36,.15);color:#ffd07a;border-color:rgba(251,191,36,.3)}
-.st:nth-child(3) .n{background:rgba(34,211,238,.14);color:#8ce6f7;border-color:rgba(34,211,238,.28)}
-.st:nth-child(4) .n{background:rgba(52,211,153,.15);color:#7ceec0;border-color:rgba(52,211,153,.3)}
+  background:rgba(240,163,24,.16);color:#ffcf6b;border:1px solid rgba(240,163,24,.30)}
+.st:nth-child(2) .n{background:rgba(249,115,22,.14);color:#fdae72;border-color:rgba(249,115,22,.26)}
+.st:nth-child(3) .n{background:rgba(96,165,250,.14);color:#8ec2ff;border-color:rgba(96,165,250,.26)}
+.st:nth-child(4) .n{background:rgba(52,211,153,.14);color:#7ceec0;border-color:rgba(52,211,153,.26)}
 .st h3{margin-top:11px;font-size:22px;font-weight:700;letter-spacing:-.3px;line-height:1.14}
 .st p{margin-top:7px;font-size:17px;line-height:1.34;color:var(--mut);font-weight:300}
 .st p b{color:#dce6f5;font-weight:600}
 
-/* ---------- what it costs you, what it gives back ---------- */
-.trust{margin:22px 0 0;display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+/* ---------- the rooms it is for ----------
+   A welder does not have one meeting, they have six. Naming them is what turns
+   "an English app" into "the thing I use before the talk at seven". */
+.rooms{margin-top:13px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:11px 18px;border-radius:18px;
+  background:linear-gradient(100deg,rgba(240,163,24,.09),rgba(249,115,22,.04));
+  border:1px solid rgba(240,163,24,.24)}
+.rooms .lab{flex:none;font-size:14.5px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase;color:#ffd07a}
+.rooms span.r{padding:8px 16px;border-radius:999px;font-size:17.5px;font-weight:600;
+  border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:#d6e3f4}
+
+/* ---------- trust ---------- */
+.trust{margin:11px 0 0;display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
 .t{padding:11px 22px;border-radius:999px;font-size:18.5px;font-weight:600;
   border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);color:#cddaf0}
 .t.on{border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.12);color:#8df0c6}
-.note{margin-top:14px;text-align:center;font-size:16px;color:#7f92b2;font-weight:300}
+.note{margin-top:8px;text-align:center;font-size:16px;color:#7f92b2;font-weight:300}
 
 /* ---------- cta ---------- */
 .cta{margin-top:auto;margin-bottom:0;position:relative;display:flex;align-items:center;gap:26px;
   padding:21px 32px;border-radius:28px;
-  background:linear-gradient(100deg,rgba(111,124,246,.13),rgba(34,211,238,.06));
-  border:1px solid rgba(111,124,246,.4);
-  box-shadow:0 24px 70px rgba(4,8,22,.55)}
+  background:linear-gradient(100deg,rgba(240,163,24,.11),rgba(249,115,22,.055));
+  border:1px solid rgba(251,191,36,.38);
+  box-shadow:0 24px 70px rgba(20,12,2,.5)}
 .qrwrap{flex:none;display:flex;flex-direction:column;align-items:center;gap:9px}
 .qr{width:158px;height:158px;border-radius:20px;padding:12px;background:#fff;
-  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 14px 34px rgba(0,0,0,.42), 0 0 34px rgba(111,124,246,.28)}
+  box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 14px 34px rgba(0,0,0,.42), 0 0 34px rgba(251,191,36,.24)}
 .qr img{width:100%;height:100%;display:block}
 .qrcap{font-size:14px;font-weight:800;letter-spacing:2.6px;text-transform:uppercase;
-  color:#b9c4ff;text-shadow:0 0 16px rgba(111,124,246,.5)}
+  color:#ffd98a;text-shadow:0 0 16px rgba(251,191,36,.45)}
 .ctatext{flex:1;min-width:0}
 .cta .big{font-size:38px;font-weight:800;letter-spacing:-.9px;line-height:1.05}
-.cta .big span{background:linear-gradient(93deg,#8b93ff,#22d3ee);
+.cta .big span{background:linear-gradient(93deg,#fbbf24,#fb923c);
   -webkit-background-clip:text;background-clip:text;color:transparent}
 .cta .sm{margin-top:8px;font-size:19px;color:#c3d2ea;font-weight:300;line-height:1.34;max-width:530px}
 .cta .sm b{color:#eff2f8;font-weight:600}
@@ -172,7 +183,7 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 70%,#34
     <div class="mid"><svg viewBox="0 0 24 24"><path d="M4 12h14"/><path d="M13 6l6 6-6 6"/></svg></div>
     <div class="side now">
       <div class="w">What week two looks like now</div>
-      <div class="l">“Home says: <b>Day 4 of 15 — today’s three sentences.</b> Done. The road lights up behind me. <b>You are here: Week 3.</b> Next: Week 4. I know exactly what tomorrow is.”</div>
+      <div class="l">“Home says: <b>Day 4 of 15 — today’s three sentences.</b> Done. The road lights up behind me. <b>You are here: Stage 3.</b> Next: Stage 4. I know exactly what tomorrow is.”</div>
       <div class="gain">
         <span class="lab">Always lit</span>
         <span class="k">You are here</span>
@@ -209,7 +220,7 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 70%,#34
     <div class="t">Android &amp; iPhone</div>
     <div class="t">15 languages</div>
   </div>
-  <div class="note">One road from Stage 0 to your certificate — 12 weeks, 3 review checkpoints. Your daily reminder carries a picture of it and opens straight onto the map.</div>
+  <div class="note">One road from Stage 0 to your certificate — 12 stages, 3 review checkpoints. Your daily reminder carries a picture of it and opens straight onto the map.</div>
 
   <div class="cta">
     <div class="qrwrap">
@@ -229,7 +240,7 @@ h1 em{font-style:italic;background:linear-gradient(96deg,#8b93ff,#22d3ee 70%,#34
   </div>
 
   <div class="foot">
-    <div>Built by Lomonec LLC · Language practice only — not a language certification</div>
+    <div>Built by Lomonec LLC · Language practice only — not a welding qualification</div>
     <div class="r">contact@lomonec.com</div>
   </div>
 

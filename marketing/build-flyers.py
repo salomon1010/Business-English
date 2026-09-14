@@ -68,16 +68,27 @@ FLYERS = {
             "__QR__":            HERE / "qr-applomonec.png",
         },
     },
-    # the road-map poster: where you are, what comes next, and the one place to
-    # start — captured from a learner three weeks in (marketing/shots-roadmap/)
+    # the road-map posters, in the Executive Polish style: one habit, one
+    # before/after, three phones. Captured from a learner three weeks in
+    # (marketing/shots-roadmap/, g* general and r* welding).
     "roadmap-flyer": {
         "src": HERE / "roadmap-flyer.src.html",
         "tokens": {
-            "__LOGO__":             REPO / "logo.svg",
-            "__SHOT_START__":       HERE / "shots-roadmap/r3-home-start.png",
-            "__SHOT_ROADMAP__":     HERE / "shots-roadmap/r1-roadmap-beacon.png",
-            "__SHOT_FOUNDATIONS__": HERE / "shots-roadmap/r4-foundations-day.png",
-            "__QR__":               HERE / "qr-applomonec.png",
+            "__LOGO__":        REPO / "logo.svg",
+            "__SHOT_BEFORE__": HERE / "shots-roadmap/g3-home-start.png",
+            "__SHOT_AFTER__":  HERE / "shots-roadmap/g1-roadmap-beacon.png",
+            "__SHOT_ALT__":    HERE / "shots-roadmap/g4-foundations-day.png",
+            "__QR__":          HERE / "qr-applomonec.png",
+        },
+    },
+    "roadmap-welding-flyer": {
+        "src": HERE / "roadmap-welding-flyer.src.html",
+        "tokens": {
+            "__LOGO__":        REPO / "logo.svg",
+            "__SHOT_BEFORE__": HERE / "shots-roadmap/r3-home-start.png",
+            "__SHOT_AFTER__":  HERE / "shots-roadmap/r1-roadmap-beacon.png",
+            "__SHOT_ALT__":    HERE / "shots-roadmap/r4-foundations-day.png",
+            "__QR__":          HERE / "qr-applomonec.png",
         },
     },
     # the Executive Polish poster: one feature, captured live by
