@@ -812,6 +812,7 @@
  "rem.switch": "Nhắc tôi luyện tập",
  "rem.note": "Một lời nhắc vào giờ bạn chọn. Khi ứng dụng đóng, điện thoại có thể giữ lại — bạn vẫn được nhắc ở lần mở tiếp theo.",
  "rem.blocked": "Thông báo bị chặn với ứng dụng này, nên lời nhắc sẽ hiện bên trong ứng dụng. Bạn có thể cho phép trong cài đặt trình duyệt.",
+ "rem.ios_install": "Trên iPhone, lời nhắc chỉ hiện trên màn hình khóa khi ứng dụng đã ở Màn hình chính. Hãy thêm, mở từ đó, rồi bật mục này.",
  "rem.title": "Đến giờ luyện tập",
  "rem.body": "Hai mươi lăm phút của Tuần {{n}} — chuỗi của bạn đang chờ.",
  "rem.missed": "Buổi Tuần {{n}} hôm nay vẫn còn dang dở — chỉ cần hai mươi lăm phút.",

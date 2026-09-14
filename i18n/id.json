@@ -812,6 +812,7 @@
  "rem.switch": "Ingatkan aku berlatih",
  "rem.note": "Pengingat pada jam yang kamu pilih. Saat aplikasi tertutup ponsel bisa menahannya — kamu tetap diingatkan saat membukanya lagi.",
  "rem.blocked": "Notifikasi diblokir untuk aplikasi ini, jadi pengingat akan muncul di dalam aplikasi. Kamu bisa mengizinkannya di pengaturan peramban.",
+ "rem.ios_install": "Di iPhone, pengingat hanya sampai ke layar kunci setelah aplikasi ada di Layar Utama. Tambahkan, buka dari sana, lalu aktifkan ini.",
  "rem.title": "Waktunya berlatih",
  "rem.body": "Dua puluh lima menit di Minggu {{n}} — rentetanmu menunggu.",
  "rem.missed": "Sesi Minggu {{n}} hari ini masih terbuka — dua puluh lima menit saja.",

@@ -812,6 +812,7 @@
  "rem.switch": "Ricordami di esercitarmi",
  "rem.note": "Un avviso all'ora che scegli. Ad app chiusa il telefono può trattenerlo — te lo ricorderemo alla prossima apertura.",
  "rem.blocked": "Le notifiche sono bloccate per questa app, quindi i promemoria appariranno al suo interno. Puoi consentirle nelle impostazioni del browser.",
+ "rem.ios_install": "Su iPhone i promemoria arrivano sulla schermata di blocco solo se l’app è nella schermata Home. Aggiungila, aprila da lì, poi attiva questa opzione.",
  "rem.title": "È ora di esercitarsi",
  "rem.body": "Venticinque minuti sulla settimana {{n}} — la tua serie ti aspetta.",
  "rem.missed": "La sessione di oggi della settimana {{n}} è ancora aperta — bastano venticinque minuti.",

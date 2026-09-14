@@ -812,6 +812,7 @@
  "rem.switch": "Me rappeler de pratiquer",
  "rem.note": "Un rappel à l'heure choisie. Lorsque l'application est fermée, votre téléphone peut le différer — vous serez tout de même prévenu à la prochaine ouverture.",
  "rem.blocked": "Les notifications sont bloquées pour cette application : les rappels apparaîtront donc dans l'application. Vous pouvez les autoriser dans les paramètres de votre navigateur.",
+ "rem.ios_install": "Sur iPhone, les rappels n’atteignent l’écran verrouillé que si l’app est sur l’écran d’accueil. Ajoutez-la, ouvrez-la depuis là, puis activez ceci.",
  "rem.title": "C'est l'heure de pratiquer",
  "rem.body": "Vingt-cinq minutes pour la semaine {{n}} — votre série vous attend.",
  "rem.missed": "La séance de la semaine {{n}} est encore ouverte — vingt-cinq minutes suffisent.",

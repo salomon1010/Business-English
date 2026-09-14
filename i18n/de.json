@@ -812,6 +812,7 @@
  "rem.switch": "Ans Üben erinnern",
  "rem.note": "Ein Hinweis zur gewählten Zeit. Bei geschlossener App kann dein Handy ihn zurückhalten — du wirst beim nächsten Öffnen erinnert.",
  "rem.blocked": "Benachrichtigungen sind für diese App blockiert, Erinnerungen erscheinen daher in der App. Du kannst sie in den Browsereinstellungen erlauben.",
+ "rem.ios_install": "Auf dem iPhone erreichen Erinnerungen den Sperrbildschirm erst, wenn die App auf dem Home-Bildschirm liegt. Hinzufügen, von dort öffnen, dann hier einschalten.",
  "rem.title": "Zeit zum Üben",
  "rem.body": "Fünfundzwanzig Minuten in Woche {{n}} — deine Serie wartet.",
  "rem.missed": "Die heutige Einheit aus Woche {{n}} ist noch offen — fünfundzwanzig Minuten genügen.",

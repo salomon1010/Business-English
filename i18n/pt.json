@@ -812,6 +812,7 @@
  "rem.switch": "Lembrar-me de praticar",
  "rem.note": "Um aviso no horário que escolher. Com o app fechado, seu telefone pode segurá-lo — você será lembrado na próxima vez que abrir.",
  "rem.blocked": "As notificações estão bloqueadas para este app, então os lembretes aparecerão dentro dele. Você pode permiti-las nas configurações do navegador.",
+ "rem.ios_install": "No iPhone, os lembretes só chegam à tela de bloqueio quando o app está na tela de início. Adicione, abra por lá e depois ative isto.",
  "rem.title": "Hora de praticar",
  "rem.body": "Vinte e cinco minutos da Semana {{n}} — sua sequência espera.",
  "rem.missed": "A sessão de hoje da Semana {{n}} continua aberta — vinte e cinco minutos bastam.",

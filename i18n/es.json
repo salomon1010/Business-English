@@ -812,6 +812,7 @@
  "rem.switch": "Recuérdame practicar",
  "rem.note": "Un aviso a la hora que elijas. Con la app cerrada tu teléfono puede retenerlo — te lo recordaremos la próxima vez que la abras.",
  "rem.blocked": "Las notificaciones están bloqueadas para esta app, así que los recordatorios aparecerán dentro de ella. Puedes permitirlas en los ajustes del navegador.",
+ "rem.ios_install": "En iPhone, los recordatorios solo llegan a la pantalla de bloqueo cuando la app está en la pantalla de inicio. Añádela, ábrela desde ahí y luego activa esto.",
  "rem.title": "Hora de practicar",
  "rem.body": "Veinticinco minutos de la Semana {{n}} — tu racha te espera.",
  "rem.missed": "La sesión de hoy de la Semana {{n}} sigue pendiente — solo hacen falta veinticinco minutos.",
