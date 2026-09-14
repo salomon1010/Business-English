@@ -9037,21 +9037,55 @@ function fbVoicePref(){return _voiceOverride||(S.profile&&S.profile.voice)||"all
    a workmate and a recruiter all came out sounding like the same person.
    It is part of the cache key: the same sentence spoken by two characters is two
    different clips, and reusing one for the other is exactly the bug it looks like. */
+/* One clip, fetched once. In-flight requests are shared, so a sentence asked
+   for twice (a prefetch, then the play) costs one call. */
+const _ttsInflight=new Map();
+function fbTtsUrl(text,voice,style){
+  const key=voice+"|"+(style||"")+"|"+text;
+  if(_ttsCache.has(key))return Promise.resolve(_ttsCache.get(key));
+  if(_ttsInflight.has(key))return _ttsInflight.get(key);
+  const p=fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(style?{tts:text,voice,style}:{tts:text,voice})})
+    .then(async r=>{if(!r.ok)throw new Error("tts "+r.status);const url=URL.createObjectURL(await r.blob());
+      _ttsCache.set(key,url);if(_ttsCache.size>40){const k=_ttsCache.keys().next().value;URL.revokeObjectURL(_ttsCache.get(k));_ttsCache.delete(k)}return url})
+    .finally(()=>_ttsInflight.delete(key));
+  _ttsInflight.set(key,p);return p;
+}
+/* A colleague's line, sentence by sentence. The first sentence is short, so its
+   clip comes back fast and speech starts while the rest are still being made —
+   all requested at once, then played back to back through the one player. A
+   whole paragraph used to be synthesised before a single word was heard; that
+   wait was the silence in the workshop conversations. */
+function ttsChunks(text){
+  const t=String(text||"").replace(/\s+/g," ").trim();if(!t)return[];
+  const sent=t.match(/[^.!?…]+[.!?…]+["')\]]*\s*|[^.!?…]+$/g)||[t];
+  const out=[];let buf="";
+  sent.forEach((x,i)=>{x=x.trim();if(!x)return;
+    if(i===0){out.push(x);return}                       /* the opener alone: fastest first word */
+    if((buf+" "+x).trim().length>180&&buf){out.push(buf);buf=x}else buf=(buf+" "+x).trim()});
+  if(buf)out.push(buf);
+  return out.map(c=>c.slice(0,600));
+}
+function fbPrefetchLine(text,voice,style){try{ttsChunks(text).forEach(c=>fbTtsUrl(c,voice,style).catch(()=>{}))}catch(_){}}
+async function fbSayLine(text,voice,style,stillWanted){
+  const chunks=ttsChunks(text);if(!chunks.length)return;
+  const urls=chunks.map(c=>fbTtsUrl(c,voice,style));          /* all in flight at once */
+  fbStopAudio();
+  const a=ttsPlayer();_ttsAudio=a;a.playbackRate=1;
+  for(let i=0;i<urls.length;i++){
+    const url=await urls[i];
+    if(stillWanted&&!stillWanted())return;
+    if(i+1<urls.length){urls[i+1].catch(()=>{})}
+    await new Promise((res,rej)=>{a.onended=res;a.onerror=rej;a.src=url;a.play().catch(rej)});
+  }
+}
 async function fbSayApi(text,rate,voiceOverride,style){
   /* Last line of defence. Callers are expected to pass a validated id, but this
      is the single door to the provider, so it validates again rather than
      trusting them — an unknown id here would be silently swapped for the
      provider's default and the learner would hear a voice nobody chose. */
-  const voice=ttsVoice(voiceOverride),key=voice+"|"+(style||"")+"|"+text;
+  const voice=ttsVoice(voiceOverride);
   if(voice==="browser")throw new Error("device voice selected");
-  let url=_ttsCache.get(key);
-  if(!url){
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(style?{tts:text,voice,style}:{tts:text,voice})});
-    if(!r.ok)throw new Error("tts "+r.status);
-    url=URL.createObjectURL(await r.blob());
-    _ttsCache.set(key,url);
-    if(_ttsCache.size>40){const k=_ttsCache.keys().next().value;URL.revokeObjectURL(_ttsCache.get(k));_ttsCache.delete(k)}
-  }
+  const url=await fbTtsUrl(text,voice,style);
   fbStopAudio();
   const a=ttsPlayer();_ttsAudio=a;
   a.onended=null;a.src=url;
@@ -10751,7 +10785,7 @@ function simVoiceSpeak(message,sc){
      the microphone away from the recogniser for the whole of the next turn. */
   const done=()=>{if(simUtterance!==message){return}fbReleaseAudio();simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};simUtterance=message;
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
-  if(canNatural){fbSayApi(message.text,1,voice,style).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}if(_ttsAudio)_ttsAudio.onended=done;else done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
+  if(canNatural){fbSayLine(message.text,voice,style,()=>simUtterance===message).then(()=>{if(simUtterance!==message){fbReleaseAudio();return}done()}).catch(()=>simSpeakBrowser(message.text,gender,done));return}
   simSpeakBrowser(message.text,gender,done);
 }
 function simSpeakBrowser(text,gender,done){
@@ -10969,7 +11003,10 @@ function simEchoLearner(text){
 /* Nothing a microphone says may move the learner off the page they are on. A
    result arriving from an engine they left behind used to re-render straight
    back into the old conversation. */
-async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;if(!cur||cur.v!=="simulation"||!document.getElementById("simBody"))return;simSetStatus('Thinking');simEchoLearner(text);const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),120)}
+async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finished||simRun.missionComplete)return;if(!cur||cur.v!=="simulation"||!document.getElementById("simBody"))return;simSetStatus('Thinking');simEchoLearner(text);const sc=ProfessionalSimulationEngine.find(simRun.id),microLearning=simMissionLearning(sc,text);simRecordAnswer(sc,text);const result=await ConversationOrchestrator.respond(simRun,text);simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();if(result.complete)return simComplete(true);
+  /* synthesis starts now, before the redraw, not 120 ms after it */
+  try{if(result.reply&&result.reply.text&&typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"){const ch=simCharacter(sc,result.reply.characterId)||{};fbPrefetchLine(result.reply.text,ttsVoice(ch.voice,ch.g||"f"),ch.voiceStyle||"")}}catch(_){}
+  simRefresh();setTimeout(()=>simVoiceSpeak(result.reply,sc),0)}
 window.simStart=(id,characterId)=>{
   /* Counts only. Which workshop, which trade — never a word of what was said.
      Both names are on the Worker's allow-list; adding a track() call without
