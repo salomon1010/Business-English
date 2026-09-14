@@ -2066,6 +2066,12 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .cf-ov{position:fixed;inset:0;z-index:150;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);
   display:grid;place-items:center;padding:22px;opacity:0;transition:opacity .18s ease}
 .cf-ov.show{opacity:1}
+/* An overlay that is not shown must not block the screen. These sheets are
+   created transparent and faded in on the next frame; if that frame never
+   comes (app sent to the background at the wrong moment, a locked phone) the
+   invisible sheet used to sit over the whole app and eat every tap — the
+   bottom bar looked fine and nothing responded. Invisible means untouchable. */
+.cf-ov:not(.show),.wc-ov:not(.show){pointer-events:none}
 .cf-card{max-width:380px;width:100%;background:var(--card);border:1px solid var(--line2);
   border-radius:20px;padding:26px 24px 22px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6);
   transform:translateY(8px) scale(.98);transition:transform .18s cubic-bezier(.2,.8,.3,1)}
