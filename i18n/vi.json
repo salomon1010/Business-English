@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Đang ghi — cứ nói thoải mái, chạm micro lần nữa để dừng.",
  "ex.dictate_title": "Chạm để bắt đầu đọc; chạm lần nữa để dừng",
  "ex.clear_btn": "🗑 Xóa",
+ "nav.render_failed": "Không vẽ được trang này.",
+ "nav.retry": "Thử lại",
  "ex.how_btn": "Cách hoạt động",
  "ex.how_title": "Trau chuốt điều bạn sắp nói",
  "ex.how_lead": "Mười phút trước cuộc họp, hãy đưa vào câu bạn vốn định nói — rồi bước vào với phiên bản mà một người lãnh đạo đã dùng.",

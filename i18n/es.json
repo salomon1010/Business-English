@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Grabando — habla con libertad, toca el micrófono otra vez para parar.",
  "ex.dictate_title": "Toca para empezar a dictar; toca otra vez para parar",
  "ex.clear_btn": "🗑 Borrar",
+ "nav.render_failed": "Esta página no se pudo dibujar.",
+ "nav.retry": "Reintentar",
  "ex.how_btn": "Cómo funciona",
  "ex.how_title": "Pule lo que estás a punto de decir",
  "ex.how_lead": "Diez minutos antes de la reunión, escribe la frase que ibas a usar de todos modos, y entra con la versión que habría dicho un líder.",

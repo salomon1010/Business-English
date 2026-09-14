@@ -2710,6 +2710,26 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 }
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card2);border:1px solid var(--acc);padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;z-index:150;transition:.3s;opacity:0;max-width:min(92vw,440px);text-align:center;line-height:1.4}
 .toast.show{transform:translateX(-50%);opacity:1}
+/* THE BOTTOM-NAV FREEZE. Opacity does not stop hit-testing — only pointer-events
+   does. The hidden toast slid DOWN 80px to opacity 0, which parked an invisible
+   z-index-150 box, as wide as its last message, on top of the bottom bar. Taps
+   on Phrase Lab and Practice landed on it and died; after a long message four of
+   the six icons did. Measured with elementFromPoint on a 3×3 grid per button.
+   A toast is a status line, never a control, so it takes no taps at all — and
+   the same rule covers every sheet that fades rather than unmounts. */
+.toast{pointer-events:none}
+.rm-ov:not(.show),.rm-cel:not(.show){pointer-events:none}
+/* Offers and guides — the Play install sheet, the iPhone guide, the "How it
+   works" demos, the rating ask, the first-run welcome — open on their own, and
+   used to cover the bottom bar. A learner who tapped an icon a moment after
+   one appeared got nothing, and read it as the app freezing. On a phone these
+   now stop above the bar: the six icons stay lit and live, and tapping one
+   navigates and dismisses the offer (see go()). Confirmations (a plain .cf-ov
+   asked before a delete) and the onboarding remain fully modal — those are
+   answers to the learner's own action, not interruptions. */
+@media (pointer:coarse){
+  .cf-ov.pi-ov,.cf-ov.ios-ov,.cf-ov.exd-ov,.cf-ov.ra-ov,.wc-ov{bottom:var(--bnav-h,72px)}
+}
 /* ---- In-app document viewer -------------------------------------------
    One overlay for every internal document reached from the footer (Privacy,
    About, and anything added later). It sits ON TOP of the current view rather
@@ -3544,9 +3564,11 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
    developer tools) or perfReport() in a console. Nothing leaves the device. */
 let _perfLast=0;const _perfLog=[];
 addEventListener("pointerdown",()=>{_perfLast=performance.now()},{passive:true,capture:true});
-function perfMark(kind,ms){
-  if(ms<80&&kind!=="save")return;if(kind==="save"&&ms<30)return;
-  _perfLog.push({kind,ms:Math.round(ms),v:(typeof cur!=="undefined"&&cur&&cur.v)||"",after:Math.round(performance.now()-_perfLast),at:Date.now()});
+function perfMark(kind,ms,note){
+  /* task: any main-thread task over 80 ms · save: a write over 30 ms · render: a
+     page draw over 80 ms · error: a renderer or teardown that threw (always kept) */
+  if(kind==="task"&&ms<80)return;if(kind==="save"&&ms<30)return;if(kind==="render"&&ms<80)return;
+  _perfLog.push({kind,ms:Math.round(ms),v:(typeof cur!=="undefined"&&cur&&cur.v)||"",after:Math.round(performance.now()-_perfLast),at:Date.now(),note:note||""});
   if(_perfLog.length>40)_perfLog.shift();
   try{localStorage.setItem("be_perf",JSON.stringify(_perfLog))}catch(e){}
 }
@@ -4868,6 +4890,8 @@ const I18N_EN={
  "ex.dictate_listening_hold":"🎙️ Recording — speak freely, tap the mic again to stop.",
  "ex.dictate_title":"Tap to start dictating; tap again to stop",
  "ex.clear_btn":"🗑 Clear",
+ "nav.render_failed":"This page could not be drawn.",
+ "nav.retry":"Try again",
  "ex.how_btn":"How it works",
  "ex.how_title":"Polish what you are about to say",
  "ex.how_lead":"Ten minutes before the meeting, put in the sentence you were going to use anyway — and walk in with the version a leader would have said.",
@@ -5783,14 +5807,32 @@ function jumpTop(){
   try{window.scrollTo(0,0)}catch(e){}
   h.style.scrollBehavior=prev;
 }
+/* An offer that opens on its own must not open under a moving thumb. If the
+   learner tapped within the last 1.2 s they are busy: try again shortly. Gives
+   up after ~6 s and opens anyway, so a slow, steady tapper still gets it. */
+function whenIdle(fn,tries){
+  tries=tries==null?8:tries;
+  if(performance.now()-_perfLast>1200||tries<=0){try{fn()}catch(e){}return}
+  setTimeout(()=>whenIdle(fn,tries-1),750);
+}
+/* Offers and guides are dismissed by navigating: a "How it works" for the
+   Phrase Lab has no business sitting over the Practice page, and the Play
+   sheet over a session. Confirmations and the onboarding are left alone. */
+function goDismissOffers(){
+  try{
+    document.querySelectorAll(".cf-ov.pi-ov,.cf-ov.ios-ov,.cf-ov.exd-ov,.cf-ov.ra-ov,.wc-ov").forEach(o=>o.remove());
+    if(typeof EX_TYPER!=="undefined"&&EX_TYPER){clearInterval(EX_TYPER);EX_TYPER=null}
+  }catch(e){}
+}
 function go(v,arg1,arg2){
-  if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}
+  goDismissOffers();
+  try{if(cur&&cur.v==="roleplay"&&v!=="roleplay"){if(typeof rpEndConv==="function")rpEndConv();if(typeof rvTeardown==="function")rvTeardown();}}catch(err){try{perfMark("error",0,"teardown:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   /* Walking out of a workshop conversation has to switch the microphone off.
      Welding restarts recognition every time Android ends it, and that loop kept
      running after the learner navigated away — re-rendering the view underneath
      them and, on a stale turn, dragging them back into the old conversation
      just as they tapped a different colleague to speak to. */
-  if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave();
+  try{if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave()}catch(err){try{perfMark("error",0,"simLeave:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   cur={v,arg1,arg2};
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
@@ -5808,7 +5850,21 @@ function go(v,arg1,arg2){
   /* clear inactive views so duplicate element ids (recList, waveBox, fbOut…) never shadow the active one */
   document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-"+v)x.innerHTML=""});
   const el=document.getElementById("v-"+v);el.classList.add("on");
-  ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations})[v](el,arg1,arg2);
+  /* A renderer that throws must not take navigation down with it. Before, the
+     exception left this function here — view cleared, page blank, the hash and
+     the sticky header never updated — and a second tap on the same icon threw
+     again, so from the learner's side the icon simply stopped working. Now the
+     failure is caught, written to the stall log as an "error" entry with the
+     page name, and the page shows a plain retry instead of nothing. */
+  const _t0=performance.now();
+  try{
+    ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations})[v](el,arg1,arg2);
+  }catch(err){
+    try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
+    try{console.error("[go]",v,err)}catch(e){}
+    el.innerHTML=`<div class="card" style="margin:24px 0;text-align:center"><p style="color:var(--mut);margin-bottom:12px">${esc(t("nav.render_failed"))}</p><button class="btn btn-p" onclick="go(${jarg(v)},${jarg(arg1)},${jarg(arg2)})">${esc(t("nav.retry"))}</button></div>`;
+  }
+  perfMark("render",performance.now()-_t0,v);
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -5828,7 +5884,7 @@ function go(v,arg1,arg2){
   document.getElementById("streakN").textContent=streak();
   try{navBadges()}catch(e){}
   jumpTop();
-  if(v==="home")setTimeout(backupNudge,1200);   // only on the dashboard, never mid-task
+  if(v==="home")setTimeout(()=>whenIdle(backupNudge),1200);   // only on the dashboard, never mid-task, never under a thumb
 }
 
 /* Put App Setup on the Profile page eyebrow. That row is sticky, so unlike the
@@ -6838,7 +6894,7 @@ window.toggleDay=(key,w,d)=>{
      that people stop, but not where in the 12 weeks they stop. */
   if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
     /* Finishing a day is the moment the app has earned an opinion — ask then. */
-    setTimeout(()=>{try{rateAsk()}catch(e){}},1600)}
+    setTimeout(()=>whenIdle(rateAsk),1600)}
   save();go("session",w,d);
   if(S.days[key])setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
 };
@@ -12254,7 +12310,7 @@ function rPhrases(el,wFilter){
   /* Shown once, on the first visit to this page. Executive Polish is a box, a
      mic and a button with nothing explaining itself, and people were meeting it
      cold; after that it lives behind the "How it works" button in the header. */
-  try{if(!localStorage.getItem(EX_HOW_KEY))setTimeout(()=>{if(cur&&cur.v==="phrases")exHow()},700)}catch(e){}
+  try{if(!localStorage.getItem(EX_HOW_KEY))setTimeout(()=>whenIdle(()=>{if(cur&&cur.v==="phrases")exHow()}),700)}catch(e){}
   const w=wFilter||currentPos().w;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
@@ -13545,8 +13601,8 @@ async function rData(el,embedded){
   </div>
   ${localStorage.be12_dev==="1"?`<div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
     <b style="font-size:16px">${hIcon("gauge","Stalls on this device")}</b>
-    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 8px">Main-thread tasks over 80 ms and slow saves, newest first. Saved state: <b>${perfReport().stateKB} KB</b>.</p>
-    <pre style="font-size:11px;line-height:1.5;white-space:pre-wrap;color:var(--mut);max-height:220px;overflow:auto;margin:0 0 14px">${esc(perfReport().stalls.map(x=>`${new Date(x.at).toLocaleTimeString()}  ${x.kind.padEnd(4)} ${String(x.ms).padStart(4)} ms  on ${x.v||"-"}  ${x.after<2000?x.after+" ms after a tap":""}`).join("\n")||"none recorded yet")}</pre>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 8px">Newest first: main-thread tasks over 80 ms, page draws over 80 ms, slow saves, and any page that failed to draw. Saved state: <b>${perfReport().stateKB} KB</b>.</p>
+    <pre style="font-size:11px;line-height:1.5;white-space:pre-wrap;color:var(--mut);max-height:220px;overflow:auto;margin:0 0 14px">${esc(perfReport().stalls.map(x=>`${new Date(x.at).toLocaleTimeString()}  ${x.kind.padEnd(6)} ${String(x.ms).padStart(4)} ms  on ${x.v||"-"}  ${x.after<2000?x.after+" ms after a tap":""}${x.note?"  "+x.note:""}`).join("\n")||"none recorded yet")}</pre>
     <b style="font-size:16px">${hIcon("gear",t("acc.gh_title"))}</b>
     <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">${t("acc.gh_desc")}</p>
     <div class="grid g2" style="gap:10px;margin-bottom:12px">
@@ -13692,6 +13748,9 @@ function syncEyebrowH(){
   }catch(e){}
 }
 addEventListener("resize",syncEyebrowH);
+/* The bottom bar's measured height, so offer sheets can stop exactly above it. */
+function syncBnavH(){try{const b=document.querySelector(".bottom-nav");const h=b?Math.ceil(b.getBoundingClientRect().height):0;if(h>0)document.documentElement.style.setProperty("--bnav-h",h+"px")}catch(e){}}
+addEventListener("resize",syncBnavH);setTimeout(syncBnavH,0);setTimeout(syncBnavH,1500);
 /* Marks a sticky pill the moment it stops travelling with the page and starts
    floating over it. Compared against its own computed top rather than a
    constant, because .stick-eb resolves to a measured offset. */
@@ -15058,7 +15117,11 @@ window.pronTry=()=>{
   /* …and never over the onboarding wizard or the welcome card: a first-time
      visitor sees the app before being asked to install it. Home carries the
      standing install card for iPhone; the sheets wait for the next launch. */
-  setTimeout(()=>{try{if(S.profile&&!document.getElementById("obWrap")&&!document.getElementById("wcOv")){playAsk();iosAsk()}}catch(e){}},500);
+  /* Eligibility is decided once, here — someone who has just finished
+     onboarding is not asked this launch — and only the opening waits for an
+     idle thumb. Re-checking inside the wait would let the sheet slip in the
+     moment the welcome card closed, which is exactly what this guard is for. */
+  setTimeout(()=>{if(S.profile&&!document.getElementById("obWrap")&&!document.getElementById("wcOv"))whenIdle(()=>{playAsk();iosAsk()})},500);
 })();
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();

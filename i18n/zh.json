@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ 正在录音 — 尽管说，再次点击麦克风停止。",
  "ex.dictate_title": "点击开始口述；再次点击停止",
  "ex.clear_btn": "🗑 清空",
+ "nav.render_failed": "这个页面无法绘制。",
+ "nav.retry": "重试",
  "ex.how_btn": "它是怎么用的",
  "ex.how_title": "把你即将要说的话打磨一遍",
  "ex.how_lead": "开会前十分钟，把你本来就要说的那句话放进来——然后带着一位领导者会用的版本走进去。",

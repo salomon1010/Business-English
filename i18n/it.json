@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Registrazione — parla liberamente, tocca di nuovo il microfono per fermarti.",
  "ex.dictate_title": "Tocca per dettare; tocca di nuovo per fermarti",
  "ex.clear_btn": "🗑 Cancella",
+ "nav.render_failed": "Questa pagina non è stata disegnata.",
+ "nav.retry": "Riprova",
  "ex.how_btn": "Come funziona",
  "ex.how_title": "Rifinisci ciò che stai per dire",
  "ex.how_lead": "Dieci minuti prima della riunione, metti qui la frase che avresti detto comunque — ed entra con la versione che avrebbe usato un leader.",

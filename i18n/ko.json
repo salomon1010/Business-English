@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ 녹음 중 — 편하게 말하세요. 멈추려면 마이크를 다시 누르세요.",
  "ex.dictate_title": "누르면 받아쓰기 시작, 다시 누르면 정지",
  "ex.clear_btn": "🗑 지우기",
+ "nav.render_failed": "이 페이지를 그리지 못했습니다.",
+ "nav.retry": "다시 시도",
  "ex.how_btn": "사용법",
  "ex.how_title": "곧 할 말을 다듬으세요",
  "ex.how_lead": "회의 10분 전, 어차피 하려던 문장을 넣어 보세요 — 그리고 리더라면 썼을 버전을 들고 들어가세요.",

@@ -99,6 +99,65 @@ ok("Reminder note on an uninstalled iPhone says to add to Home Screen", await pa
 /* ── speech: sentence chunks, opener first ── */
 ok("A colleague's line is split with the first sentence alone", await page.evaluate(() => { const c = ttsChunks("Hello there. Welcome to the workshop, please put on your helmet. Ready?"); return c.length >= 2 && c[0] === "Hello there."; }));
 
+/* ── the bottom bar takes every tap, everywhere on every button ──
+   The invisible toast used to park itself over Phrase Lab and Practice at
+   z-index 150 after fading out; the old centre-point check missed it by a few
+   pixels. Nine points per button, after a long message has shown and hidden. */
+const grid = await page.evaluate(async () => {
+  document.querySelectorAll(".cf-ov,.wc-ov").forEach(e => e.remove());
+  toast("Twenty-five minutes — attention fades here. Wrap up and log what you did today, then rest.");
+  await new Promise(r => setTimeout(r, 2700));                       // shown, then hidden again
+  const bad = [];
+  for (const b of document.querySelectorAll(".bnav-item")) {
+    const r = b.getBoundingClientRect();
+    for (const fy of [0.2, 0.5, 0.8]) for (const fx of [0.25, 0.5, 0.75]) {
+      const el = document.elementFromPoint(r.left + r.width * fx, r.top + r.height * fy);
+      if (!b.contains(el)) bad.push(b.dataset.v + "@" + fx + "," + fy + "→" + (el ? (el.id || el.className || el.tagName) : "?"));
+    }
+  }
+  return bad;
+});
+ok("After a toast has hidden, every point on every bar button still reaches the button", grid.length === 0, grid.slice(0, 4).join(" | "));
+
+/* ── an offer that opened on its own never blocks the bar ── */
+const offer = await page.evaluate(async () => {
+  go("phrases"); await new Promise(r => setTimeout(r, 300));
+  localStorage.removeItem("be_ex_how"); exHow(); await new Promise(r => setTimeout(r, 250));
+  const open = !!document.querySelector(".exd-ov");
+  const b = document.querySelector('.bnav-item[data-v="practice"]'); const rc = b.getBoundingClientRect();
+  const reach = b.contains(document.elementFromPoint(rc.left + rc.width / 2, rc.top + rc.height / 2));
+  b.click(); await new Promise(r => setTimeout(r, 350));
+  return { open, reach, landed: cur.v, offerGone: !document.querySelector(".exd-ov") };
+});
+ok("With a 'How it works' offer open, a bar tap still reaches the button, navigates, and clears the offer", offer.open && offer.reach && offer.landed === "practice" && offer.offerGone, JSON.stringify(offer));
+
+/* ── a page that fails to draw does not take the bar down with it ── */
+const broken = await page.evaluate(async () => {
+  const real = rShadow; window.rShadow = () => { throw new Error("smoke: forced render failure"); };
+  let threw = false; try { go("shadow"); } catch (e) { threw = true; }
+  const retry = !!document.querySelector("#v-shadow .btn"); const logged = _perfLog.some(x => x.kind === "error");
+  window.rShadow = real; go("practice"); await new Promise(r => setTimeout(r, 300));
+  return { threw, retry, logged, recovered: cur.v === "practice" && document.getElementById("v-practice").innerText.length > 20 };
+});
+ok("A renderer that throws leaves a retry card, logs it, and the next tap still navigates", !broken.threw && broken.retry && broken.logged && broken.recovered, JSON.stringify(broken));
+
+/* ── onboarding lands on the road map on both tracks ── */
+const land = await page.evaluate(async () => {
+  const out = {};
+  for (const tr of ["general-english", "welding"]) {
+    localStorage.removeItem(LS_KEY); S = load(); OB.name = "Smoke"; OB.track = tr;
+    /* what obTrackPick does minus obNext(), which needs the wizard's DOM */
+    if (tr === "welding") { S.professionalTracks = { activeId: "welding" }; ProfessionalTrackContext.setActive("welding"); OB.trade = "welder"; }
+    else { S.professionalTracks = { activeId: "general-english" }; ProfessionalTrackContext.setActive("general-english"); }
+    obFinish(); await new Promise(r => setTimeout(r, 300));
+    out[tr] = { v: cur.v, track: activeProfessionalTrack().id, homeFirst: document.getElementById("v-home").classList.contains("on"), welcome: !!document.getElementById("wcOv") };
+    try { wcClose(); } catch (e) {} document.querySelectorAll(".cf-ov,.wc-ov").forEach(e => e.remove()); await new Promise(r => setTimeout(r, 250));
+  }
+  return out;
+});
+ok("Onboarding lands on the road map, not Home — General English", land["general-english"].v === "journey" && !land["general-english"].homeFirst && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
+ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected", land["welding"].v === "journey" && !land["welding"].homeFirst && land["welding"].track === "welding", JSON.stringify(land["welding"]));
+
 /* ── no JavaScript errors anywhere above ── */
 ok("No uncaught JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));
 

@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Nimmt auf — sprich frei, tippe nochmal aufs Mikrofon zum Stoppen.",
  "ex.dictate_title": "Tippen zum Diktieren; nochmal tippen zum Stoppen",
  "ex.clear_btn": "🗑 Löschen",
+ "nav.render_failed": "Diese Seite konnte nicht gezeichnet werden.",
+ "nav.retry": "Erneut versuchen",
  "ex.how_btn": "So funktioniert es",
  "ex.how_title": "Feile an dem, was du gleich sagst",
  "ex.how_lead": "Zehn Minuten vor dem Meeting: schreib den Satz hinein, den du ohnehin sagen wolltest — und geh mit der Version hinein, die eine Führungskraft benutzt hätte.",

@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Merekam — bicaralah bebas, ketuk mikrofon lagi untuk berhenti.",
  "ex.dictate_title": "Ketuk untuk mulai mendikte; ketuk lagi untuk berhenti",
  "ex.clear_btn": "🗑 Bersihkan",
+ "nav.render_failed": "Halaman ini tidak bisa digambar.",
+ "nav.retry": "Coba lagi",
  "ex.how_btn": "Cara kerjanya",
  "ex.how_title": "Poles apa yang akan kamu katakan",
  "ex.how_lead": "Sepuluh menit sebelum rapat, masukkan kalimat yang memang akan kamu pakai — lalu masuk dengan versi yang akan dipakai seorang pemimpin.",

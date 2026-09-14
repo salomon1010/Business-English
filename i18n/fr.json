@@ -1048,6 +1048,8 @@
  "ex.dictate_listening_hold": "🎙️ Enregistrement — parlez librement, touchez à nouveau le micro pour arrêter.",
  "ex.dictate_title": "Touchez pour dicter ; touchez à nouveau pour arrêter",
  "ex.clear_btn": "🗑 Effacer",
+ "nav.render_failed": "Cette page n'a pas pu s'afficher.",
+ "nav.retry": "Réessayer",
  "ex.how_btn": "Comment ça marche",
  "ex.how_title": "Peaufinez ce que vous allez dire",
  "ex.how_lead": "Dix minutes avant la réunion, mettez ici la phrase que vous alliez dire de toute façon — et entrez avec la version qu’un dirigeant aurait employée.",
