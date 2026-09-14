@@ -500,6 +500,8 @@ h1.big em{font-style:italic;color:var(--accent)}
    transform:scaleX instead of width (width forces a layout every frame), and
    the attention rings animate a pseudo-element's transform and opacity instead
    of box-shadow (box-shadow forces a blurred repaint every frame). */
+/* A button never waits for the browser to rule out a double-tap zoom. */
+button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:manipulation}
 @media (pointer:coarse){
   nav,.bottom-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
   nav{background:color-mix(in srgb,var(--bg) 94%,transparent)}
@@ -3404,6 +3406,8 @@ const RULES=[
 ];
 /* ================= STATE & STORAGE ================= */
 const LS_KEY="be12_v1";
+/* save() below defers its write; these must exist before the first early save(). */
+let _saveH=null,_saveIdle=false;
 let S=load();
 function appState(){return S}
 /* The five-panel coach modal is a full-screen interruption, so it belongs only at
@@ -3501,7 +3505,55 @@ function load(){
   }catch(e){}
   return def;
 }
-function save(){S.savedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(S));try{navBadges()}catch(e){}try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}try{if(window.fbPush)fbPush()}catch(e){}}
+/* save() used to serialise the whole of S and write it to localStorage on the
+   spot — synchronously, inside whatever tap had just happened, from 73 call
+   sites, sometimes several times in one handler. S is every transcript,
+   recording note, quiz and workshop the learner has ever kept, so on a phone
+   with months of history that is tens to hundreds of milliseconds spent before
+   the screen could show what the tap did. From the learner's side: the app
+   freezing for a beat on every action.
+   Now a save is a promise to write soon: the first call in a burst schedules
+   one write for the next idle moment (never later than 400 ms), and every call
+   until then just refreshes savedAt. The write is forced synchronously the
+   moment the page is hidden, unloaded or reloaded, so nothing is lost — the
+   window is at most a few hundred milliseconds of the app being on screen.
+   perfMark() records any write that still takes a while, for the maker panel. */
+function saveFlush(){
+  if(_saveH!==null){try{(_saveIdle?cancelIdleCallback:clearTimeout)(_saveH)}catch(e){}_saveH=null}
+  const t0=performance.now();
+  try{localStorage.setItem(LS_KEY,JSON.stringify(S))}catch(e){}
+  perfMark("save",performance.now()-t0);
+  try{navBadges()}catch(e){}
+  try{if(GH.auto&&ghCfg())ghQueue()}catch(e){}
+  try{if(window.fbPush)fbPush()}catch(e){}
+}
+function save(){
+  S.savedAt=Date.now();
+  if(_saveH!==null)return;
+  if(window.requestIdleCallback){_saveIdle=true;_saveH=requestIdleCallback(saveFlush,{timeout:400})}
+  else{_saveIdle=false;_saveH=setTimeout(saveFlush,0)}
+}
+addEventListener("pagehide",()=>{if(_saveH!==null)saveFlush()});
+addEventListener("beforeunload",()=>{if(_saveH!==null)saveFlush()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&_saveH!==null)saveFlush()});
+/* ---- What the main thread was doing when the app stalled ----
+   Headless profiling cannot feel a phone. This keeps the last forty stalls
+   (any main-thread task over 80 ms, and any slow save) with the page they
+   happened on and how long after the last tap, so a freeze reported from a
+   real device comes with data. Read it from the maker panel (App Setup →
+   developer tools) or perfReport() in a console. Nothing leaves the device. */
+let _perfLast=0;const _perfLog=[];
+addEventListener("pointerdown",()=>{_perfLast=performance.now()},{passive:true,capture:true});
+function perfMark(kind,ms){
+  if(ms<80&&kind!=="save")return;if(kind==="save"&&ms<30)return;
+  _perfLog.push({kind,ms:Math.round(ms),v:(typeof cur!=="undefined"&&cur&&cur.v)||"",after:Math.round(performance.now()-_perfLast),at:Date.now()});
+  if(_perfLog.length>40)_perfLog.shift();
+  try{localStorage.setItem("be_perf",JSON.stringify(_perfLog))}catch(e){}
+}
+try{new PerformanceObserver(l=>l.getEntries().forEach(e=>perfMark("task",e.duration))).observe({type:"longtask",buffered:false})}catch(e){}
+window.perfReport=()=>{let log=_perfLog;try{log=JSON.parse(localStorage.getItem("be_perf")||"[]")}catch(e){}
+  let size=0;try{size=Math.round((localStorage.getItem(LS_KEY)||"").length/1024)}catch(e){}
+  return {stateKB:size,stalls:log.slice(-40).reverse()}};
 
 /* ===== TWO AREAS, ONE ENGINE ================================================
    A learner runs two separate programmes here: their trade English (the Welding
@@ -13492,6 +13544,9 @@ async function rData(el,embedded){
     <div class="stat" onclick="devTap()" style="cursor:default"><div class="n">${S.startDate}</div><div class="l">${t("acc.stat_startdate")}</div></div>
   </div>
   ${localStorage.be12_dev==="1"?`<div class="card" style="margin-top:18px;border-color:rgba(34,211,238,.35)">
+    <b style="font-size:16px">${hIcon("gauge","Stalls on this device")}</b>
+    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 8px">Main-thread tasks over 80 ms and slow saves, newest first. Saved state: <b>${perfReport().stateKB} KB</b>.</p>
+    <pre style="font-size:11px;line-height:1.5;white-space:pre-wrap;color:var(--mut);max-height:220px;overflow:auto;margin:0 0 14px">${esc(perfReport().stalls.map(x=>`${new Date(x.at).toLocaleTimeString()}  ${x.kind.padEnd(4)} ${String(x.ms).padStart(4)} ms  on ${x.v||"-"}  ${x.after<2000?x.after+" ms after a tap":""}`).join("\n")||"none recorded yet")}</pre>
     <b style="font-size:16px">${hIcon("gear",t("acc.gh_title"))}</b>
     <p style="font-size:13px;color:var(--mut);line-height:1.6;margin:6px 0 14px">${t("acc.gh_desc")}</p>
     <div class="grid g2" style="gap:10px;margin-bottom:12px">
@@ -15022,7 +15077,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
        already loaded (network-first), so the reload can wait until the app is
        put in the background, where nobody sees it happen. */
     _swReloading=true;
-    const later=()=>{if(document.visibilityState==="hidden"){document.removeEventListener("visibilitychange",later);location.reload()}};
+    const later=()=>{if(document.visibilityState==="hidden"){document.removeEventListener("visibilitychange",later);try{saveFlush()}catch(e){}location.reload()}};
     document.addEventListener("visibilitychange",later);
   });
   navigator.serviceWorker.register("sw.js").then(reg=>{
@@ -15289,11 +15344,12 @@ window.obFinish=()=>{
    not sending them makes the client match the policy instead of relying on the
    server to enforce it. */
 track("onboarding_complete",{lang:OB.lang||"en"});
-  /* Both tracks land on Home, which leads with "Start here". The check must
-     not pop over the welcome modal, so it is held back and opened when the
-     welcome is dismissed (wcClose). */
+  /* Both tracks land on the road map: the first thing a new learner sees is
+     the whole twelve weeks laid out, with the beacon on day one. Home, and its
+     "Start here" placement card, is one tap away. The check must not pop over
+     the welcome modal, so it is held back until the welcome is dismissed. */
   _fndCheckShown=true;
-  go("home");
+  go("journey");
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };
 /* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
