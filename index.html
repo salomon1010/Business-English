@@ -4161,19 +4161,18 @@ const I18N_EN={
  "acc.save":"Save changes",
  "acc.free_plan":"🎁 Free plan",
  "acc.free_active":"Active — everything included",
- "acc.free_1":"84 guided sessions across 12 weeks",
- "acc.free_2":"🎯 Shadowing studio with clip looping",
- "acc.free_3":"🗣️ Speaking feedback: pronunciation, grammar, pace",
- "acc.free_4":"📈 Waveform comparison & progress charts",
- "acc.free_5":"📚 Vocabulary bank with quiz & 152 phrases",
- "acc.free_6":"Works offline · all data stays on your device",
+ "acc.free_1":"Start here: a one-minute check, then fifteen Foundations days of three sentences",
+ "acc.free_2":"A 12-week road map of guided 25-minute sessions — for the office or the workshop",
+ "acc.free_3":"Shadowing studio with clip looping and word-by-word speaking feedback",
+ "acc.free_4":"Executive Polish: your sentence, rewritten boardroom-ready",
+ "acc.free_5":"Workplace conversations and role-play with AI characters",
+ "acc.free_6":"Vocabulary bank, phrase lab, quizzes and progress charts",
+ "acc.free_7":"Optional cloud backup with a free account · works offline without one",
+ "acc.free_8":"Interface and glosses in 15 languages",
+ "acc.prem_1":"Team & HR progress dashboards",
+ "acc.prem_2":"Pronunciation coach with per-sound scoring",
  "acc.premium":"⭐ Premium",
  "acc.coming_soon":"Coming soon",
- "acc.prem_1":"🤖 AI coach: deep rewrites & live conversation practice",
- "acc.prem_2":"☁️ Automatic cloud backup across devices",
- "acc.prem_3":"👥 Team & HR progress dashboards",
- "acc.prem_4":"💬 AI conversation practice: real-time role-play",
- "acc.prem_5":"🎙️ Pronunciation coach with per-sound scoring",
  "acc.about_title":"About BE Mastery",
  "acc.copyright":"© 2026 Lomonec LLC. All rights reserved. The app, its design, logo, curriculum and content are the intellectual property of Lomonec LLC.",
  "acc.support_link":"✉️ Support",
@@ -13662,13 +13661,13 @@ async function rData(el,embedded){
           <b style="font-size:16px">${hIcon("gift",t("acc.free_plan"))}</b><span class="chip done">${t("acc.free_active")}</span>
         </div>
         <ul style="list-style:none;margin-top:12px">
-          ${["acc.free_1","acc.free_2","acc.free_3","acc.free_4","acc.free_5","acc.free_6"].map(k=>`<li style="font-size:13.5px;color:var(--mut);padding:4px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--green);margin-top:2px">${ic("check")}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
+          ${["acc.free_1","acc.free_2","acc.free_3","acc.free_4","acc.free_5","acc.free_6","acc.free_7","acc.free_8"].map(k=>`<li style="font-size:13.5px;color:var(--mut);padding:4px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--green);margin-top:2px">${ic("check")}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
       </div>
       <div class="card" style="opacity:.75;margin-bottom:16px">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip p3">${t("acc.coming_soon")}</span>
         <ul style="list-style:none;margin-top:10px">
-          ${["acc.prem_1","acc.prem_2","acc.prem_3","acc.prem_4","acc.prem_5"].map((k,i)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut);margin-top:2px">${ic(["sparkle","cloud","user","chat","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
+          ${["acc.prem_1","acc.prem_2"].map((k,i)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut);margin-top:2px">${ic(["user","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
       </div>
       <!-- the About card now lives in App Setup → About the app -->
