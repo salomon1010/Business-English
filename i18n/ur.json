@@ -1502,5 +1502,6 @@
  "rm.back_title": "خوش آمدید، {{name}}",
  "rm.back_body": "مکمل: {{done}} · اگلا: {{next}}",
  "rm.back_go": "جاری رکھیں ←",
- "footer.soon": "جلد آ رہا ہے"
+ "footer.soon": "جلد آ رہا ہے",
+ "rm.switch_title": "آپ اب {{env}} میں ہیں"
 }

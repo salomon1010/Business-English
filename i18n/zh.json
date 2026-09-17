@@ -1502,5 +1502,6 @@
  "rm.back_title": "欢迎回来，{{name}}",
  "rm.back_body": "已完成：{{done}} · 下一步：{{next}}",
  "rm.back_go": "继续 →",
- "footer.soon": "即将推出"
+ "footer.soon": "即将推出",
+ "rm.switch_title": "你现在在{{env}}"
 }

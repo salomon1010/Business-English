@@ -1502,5 +1502,6 @@
  "rm.back_title": "다시 오신 것을 환영합니다, {{name}}",
  "rm.back_body": "완료: {{done}} · 다음: {{next}}",
  "rm.back_go": "계속 →",
- "footer.soon": "곧 제공"
+ "footer.soon": "곧 제공",
+ "rm.switch_title": "지금은 {{env}}입니다"
 }

@@ -178,6 +178,16 @@ const back = await page.evaluate(() => {
 });
 ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
 
+/* ── switching area from the Home card lands on the other area's road map, centred ── */
+const sw = await page.evaluate(async () => {
+  document.getElementById("rmCel")?.remove();
+  selectProfessionalTrack("welding"); await new Promise(r => setTimeout(r, 600));
+  const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
+  const strip = document.getElementById("rmCel");
+  return { v: cur.v, track: activeProfessionalTrack().id, now: inView(document.querySelector(".rm-lbl.now")), title: strip ? strip.querySelector("b").innerText : null };
+});
+ok("Switching area lands on that area's road map, centred, saying which area it is", sw.v === "journey" && sw.track === "welding" && sw.now && /Welding/.test(sw.title || ""), JSON.stringify(sw));
+
 /* ── no JavaScript errors anywhere above ── */
 ok("No uncaught JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));
 

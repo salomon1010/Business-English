@@ -1502,5 +1502,6 @@
  "rm.back_title": "おかえりなさい、{{name}}",
  "rm.back_body": "完了：{{done}} · 次：{{next}}",
  "rm.back_go": "続ける →",
- "footer.soon": "近日公開"
+ "footer.soon": "近日公開",
+ "rm.switch_title": "現在は{{env}}です"
 }

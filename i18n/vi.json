@@ -1502,5 +1502,6 @@
  "rm.back_title": "Chào mừng trở lại, {{name}}",
  "rm.back_body": "Đã xong: {{done}} · Tiếp theo: {{next}}",
  "rm.back_go": "Tiếp tục →",
- "footer.soon": "Sắp ra mắt"
+ "footer.soon": "Sắp ra mắt",
+ "rm.switch_title": "Bạn đang ở {{env}}"
 }

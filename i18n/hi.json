@@ -1502,5 +1502,6 @@
  "rm.back_title": "वापसी पर स्वागत है, {{name}}",
  "rm.back_body": "पूरा: {{done}} · अगला: {{next}}",
  "rm.back_go": "जारी रखें →",
- "footer.soon": "जल्द आ रहा है"
+ "footer.soon": "जल्द आ रहा है",
+ "rm.switch_title": "आप अब {{env}} में हैं"
 }

@@ -1502,5 +1502,6 @@
  "rm.back_title": "Willkommen zurück, {{name}}",
  "rm.back_body": "Erledigt: {{done}} · Weiter: {{next}}",
  "rm.back_go": "Weiter →",
- "footer.soon": "Demnächst"
+ "footer.soon": "Demnächst",
+ "rm.switch_title": "Du bist jetzt in {{env}}"
 }

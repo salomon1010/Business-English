@@ -1502,5 +1502,6 @@
  "rm.back_title": "Selamat datang kembali, {{name}}",
  "rm.back_body": "Selesai: {{done}} · Berikutnya: {{next}}",
  "rm.back_go": "Lanjutkan →",
- "footer.soon": "Segera hadir"
+ "footer.soon": "Segera hadir",
+ "rm.switch_title": "Anda sekarang di {{env}}"
 }

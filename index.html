@@ -3575,7 +3575,7 @@ function save(){
    wherever the hash last pointed. Shorter gaps keep the exact page (the
    refresh fix). Threshold is the owner's choice — no published standard. ---- */
 const RETURN_GAP_MS=2*60*60*1000;
-let _rmReturn=false,_hiddenAt=0;
+let _rmReturn=false,_hiddenAt=0,_rmSwitch=false;   /* _rmSwitch: the landing follows an area switch, not a comeback */
 function isComeback(prev){
   if(!prev)return false;
   const now=Date.now();
@@ -4357,6 +4357,7 @@ const I18N_EN={
  "rm.back_title":"Welcome back, {{name}}",
  "rm.back_body":"Done: {{done}} · Next: {{next}}",
  "rm.back_go":"Continue →",
+ "rm.switch_title":"You're now in {{env}}",
  "rm.stage0":"Stage 0",
  "rm.fnd_passed":"Check passed \u2014 you started on the full programme",
  "rm.fnd_days":"{{n}} of {{total}} days done",
@@ -6480,8 +6481,11 @@ window.selectProfessionalTrack=id=>{
   applyTrackIdentity();
   _jPhase=null;
   save();
-  toast(track.status==="foundation"?t("tracks.foundation_body"):t("tracks.selected",{track:t(track.nameKey)}));
-  go("home");
+  /* A track without a curriculum has no map to show; every other switch lands
+     on the road map of the new area, centred on done → here → next, with the
+     strip saying which area this now is. */
+  if(track.status==="foundation"){toast(t("tracks.foundation_body"));go("home");return}
+  _rmSwitch=true;_rmReturn=true;go("journey");
 };
 /* ================= JOURNEY ================= */
 /* One learning track at a time — the 12 weeks are split by phase so the page
@@ -6755,9 +6759,10 @@ function rmReturnStrip(){
     if(document.querySelector(RM_BUSY))return;
     const old=document.getElementById("rmCel");if(old)old.remove();
     const s=pathSummary(),name=esc(S.profile&&S.profile.name||"");
+    const switched=_rmSwitch;_rmSwitch=false;
     const el=document.createElement("div");el.className="rm-cel";el.id="rmCel";el.setAttribute("role","status");
     el.innerHTML=`<button class="rm-cel-in" onclick="document.getElementById('rmCel')?.remove();pathGoNext()" aria-label="${esc(t("rm.back_go"))}">
-      <div class="rm-cel-top"><span class="rm-cel-pct">${ic("hand")}</span><span class="rm-cel-txt"><b>${t("rm.back_title",{name})}</b><span>${t("rm.back_body",{done:esc(s.done||t("path.at_start")),next:esc(s.next?s.next.label:s.task||"")})}</span></span></div>
+      <div class="rm-cel-top"><span class="rm-cel-pct">${ic("hand")}</span><span class="rm-cel-txt"><b>${switched?t("rm.switch_title",{env:esc(t(activeProfessionalTrack().nameKey))}):t("rm.back_title",{name})}</b><span>${t("rm.back_body",{done:esc(s.done||t("path.at_start")),next:esc(s.next?s.next.label:s.task||"")})}</span></span></div>
       ${rmStripSVG()}</button>
       <button class="rm-cel-x" onclick="document.getElementById('rmCel')?.remove()" aria-label="${esc(t("wc.close"))}">×</button>`;
     document.body.appendChild(el);

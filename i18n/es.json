@@ -1502,5 +1502,6 @@
  "rm.back_title": "Bienvenido de nuevo, {{name}}",
  "rm.back_body": "Hecho: {{done}} · Siguiente: {{next}}",
  "rm.back_go": "Continuar →",
- "footer.soon": "Próximamente"
+ "footer.soon": "Próximamente",
+ "rm.switch_title": "Ahora estás en {{env}}"
 }

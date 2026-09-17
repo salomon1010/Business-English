@@ -1502,5 +1502,6 @@
  "rm.back_title": "Bon retour, {{name}}",
  "rm.back_body": "Fait : {{done}} · Suivant : {{next}}",
  "rm.back_go": "Continuer →",
- "footer.soon": "Bientôt disponible"
+ "footer.soon": "Bientôt disponible",
+ "rm.switch_title": "Vous êtes maintenant dans {{env}}"
 }

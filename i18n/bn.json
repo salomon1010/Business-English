@@ -1502,5 +1502,6 @@
  "rm.back_title": "ফিরে আসায় স্বাগতম, {{name}}",
  "rm.back_body": "সম্পন্ন: {{done}} · পরবর্তী: {{next}}",
  "rm.back_go": "চালিয়ে যান →",
- "footer.soon": "শীঘ্রই আসছে"
+ "footer.soon": "শীঘ্রই আসছে",
+ "rm.switch_title": "আপনি এখন {{env}}-এ আছেন"
 }
