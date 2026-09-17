@@ -152,6 +152,14 @@ times. Trends and ratios are trustworthy; absolute user counts are not. Play
 Console gives you real install and retention figures; use those for anything
 that has to be exact.
 
+## Coming back
+
+`return_open` fires when a launch (or a resume from the background) comes after
+two hours away or on a new calendar day and the app opens on the road map.
+`gap` says how long: `2h-1d`, `1-3d`, `4-7d`, `8d+`. `./query.sh returns`
+groups the last 30 days by it. Counts, not people, like everything here — a
+learner who comes back daily is one row per day.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to

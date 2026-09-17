@@ -14,6 +14,7 @@
 #   ./query.sh weeks           where in the 12 weeks people stop
 #   ./query.sh stage           how far along the people opening it are
 #   ./query.sh countries       which markets to translate for next
+#   ./query.sh returns         who comes back, and after how long away
 #   ./query.sh raw "SELECT …"  anything else
 #
 # Needs a Cloudflare API token with Account -> Account Analytics -> Read.
@@ -140,6 +141,11 @@ case "$WHAT" in
                  FROM $DATASET WHERE blob1 = 'app_open'
                    AND timestamp > now() - INTERVAL '30' DAY
                  GROUP BY stage ORDER BY stage" ;;
+  # blob16 is 'gap' on return_open: 2h-1d | 1-3d | 4-7d | 8d+. A comeback is a
+  # launch after >=2 h away or on a new day, landing on the road map.
+  returns)   SQL="SELECT blob16 AS away, sum(_sample_interval) AS comebacks
+                 FROM $DATASET WHERE timestamp > now() - INTERVAL '30' DAY
+                 AND blob1='return_open' GROUP BY away ORDER BY comebacks DESC" ;;
   countries) SQL="SELECT blob2 AS country, sum(_sample_interval) AS n
                  FROM $DATASET WHERE blob1 = 'app_open'
                    AND timestamp > now() - INTERVAL '30' DAY

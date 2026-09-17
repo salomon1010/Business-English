@@ -55,6 +55,9 @@ const EVENTS = new Set([
   // events that answer "does this work?". Neither carries what was said.
   "workshop_start",
   "workshop_score_band",
+  // A learner coming back after two hours or more, landing on the road map.
+  // Answers "do people come back, and after how long?" — counts, not people.
+  "return_open",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -66,7 +69,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // bucketed retention fields and the share kind. Appended rather than inserted
   // — PROP_KEYS iteration order is the blob column order, so inserting in the
   // middle would shift every existing column.
-  "installed", "onboarded", "stage", "kind"]);
+  "installed", "onboarded", "stage", "kind",
+  // gap: 2h-1d | 1-3d | 4-7d | 8d+ — how long return_open was away. Appended, as above.
+  "gap"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

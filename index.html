@@ -3567,6 +3567,8 @@ function isComeback(prev){
   return now-prev>=RETURN_GAP_MS||new Date(prev).toDateString()!==new Date(now).toDateString();
 }
 function touchSeen(){S.lastSeen=Date.now();_hiddenAt=S.lastSeen;save()}
+/* how long they were away, as a small enum — the Worker allow-list has only these */
+function gapBand(prev){const d=(Date.now()-prev)/864e5;return d<1?"2h-1d":d<=3?"1-3d":d<=7?"4-7d":"8d+"}
 addEventListener("pagehide",()=>{touchSeen();if(_saveH!==null)saveFlush()});
 addEventListener("beforeunload",()=>{if(_saveH!==null)saveFlush()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){touchSeen();if(_saveH!==null)saveFlush()}});
@@ -15156,7 +15158,7 @@ window.pronTry=()=>{
      was asked for (no hash, or Home), never for someone who still has the
      one-minute check to take — Home opens that for them. */
   const _prevSeen=S.lastSeen;
-  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true}
+  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true;track("return_open",{gap:gapBand(_prevSeen)})}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
@@ -15905,7 +15907,7 @@ document.addEventListener("visibilitychange",()=>{
     if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
     if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
     if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())return;
-    _rmReturn=true;go("journey");
+    _rmReturn=true;go("journey");track("return_open",{gap:gapBand(away)});
   }catch(e){}
 });
 window.addEventListener("focus",()=>fbSyncPull());
