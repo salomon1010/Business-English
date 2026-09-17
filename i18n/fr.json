@@ -1501,5 +1501,6 @@
  "rm.new_toast": "Nouveau : votre feuille de route. Chaque étape, où vous en êtes, la suite — sous l’onglet carte.",
  "rm.back_title": "Bon retour, {{name}}",
  "rm.back_body": "Fait : {{done}} · Suivant : {{next}}",
- "rm.back_go": "Continuer →"
+ "rm.back_go": "Continuer →",
+ "footer.soon": "Bientôt disponible"
 }

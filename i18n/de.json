@@ -1501,5 +1501,6 @@
  "rm.new_toast": "Neu: deine Roadmap. Jede Etappe, wo du stehst und was als Nächstes kommt — unter dem Karten-Tab.",
  "rm.back_title": "Willkommen zurück, {{name}}",
  "rm.back_body": "Erledigt: {{done}} · Weiter: {{next}}",
- "rm.back_go": "Weiter →"
+ "rm.back_go": "Weiter →",
+ "footer.soon": "Demnächst"
 }

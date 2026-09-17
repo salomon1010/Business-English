@@ -1501,5 +1501,6 @@
  "rm.new_toast": "Mới: lộ trình của bạn. Mọi chặng, bạn đang ở đâu, tiếp theo là gì — trong thẻ bản đồ.",
  "rm.back_title": "Chào mừng trở lại, {{name}}",
  "rm.back_body": "Đã xong: {{done}} · Tiếp theo: {{next}}",
- "rm.back_go": "Tiếp tục →"
+ "rm.back_go": "Tiếp tục →",
+ "footer.soon": "Sắp ra mắt"
 }

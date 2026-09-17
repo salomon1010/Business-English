@@ -1501,5 +1501,6 @@
  "rm.new_toast": "새 기능: 나의 로드맵. 모든 단계, 현재 위치, 다음 할 일 — 지도 탭에서 확인하세요.",
  "rm.back_title": "다시 오신 것을 환영합니다, {{name}}",
  "rm.back_body": "완료: {{done}} · 다음: {{next}}",
- "rm.back_go": "계속 →"
+ "rm.back_go": "계속 →",
+ "footer.soon": "곧 제공"
 }
