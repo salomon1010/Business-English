@@ -15152,6 +15152,11 @@ window.pronTry=()=>{
   let v=decodeURIComponent(p[0]||"home"),a1=p[1]?decodeURIComponent(p[1]):undefined,a2=p[2]?decodeURIComponent(p[2]):undefined;
   if(a1&&/^\d+$/.test(a1))a1=+a1;
   if(!valid.includes(v))v="home";
+  /* Back after a gap → the road map, centred. Only when nothing more specific
+     was asked for (no hash, or Home), never for someone who still has the
+     one-minute check to take — Home opens that for them. */
+  const _prevSeen=S.lastSeen;
+  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
@@ -15165,6 +15170,7 @@ window.pronTry=()=>{
   }
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
+  touchSeen();
   /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
   const done=totalDone();
   track("app_open",{
@@ -15198,11 +15204,6 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
     /* Never reload under someone's thumb. A new version landing mid-session used
        to reload the page on the spot — from the learner's side that is the app
        freezing and starting over, halfway through a tap. The fresh version is
-  /* Back after a gap → the road map, centred. Only when nothing more specific
-     was asked for (no hash, or Home), never for someone who still has the
-     one-minute check to take — Home opens that for them. */
-  const _prevSeen=S.lastSeen;
-  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true}
        already loaded (network-first), so the reload can wait until the app is
        put in the background, where nobody sees it happen. */
     _swReloading=true;
@@ -15216,7 +15217,6 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
     setInterval(()=>reg.update().catch(()=>{}),3600000);
   }).catch(()=>{});
 }
-  touchSeen();
 
 /* ===== ONBOARDING (first launch) ===== */
 let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",trade:"",best:0};
