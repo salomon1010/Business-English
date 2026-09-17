@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Tiếp theo: {{next}}.",
  "rm.notif_body_last": "Bạn đang ở {{here}} · {{done}}/{{total}} buổi ({{pct}}%). Chặng cuối — hãy hoàn thành.",
  "rm.btn": "Lộ trình",
- "rm.new_toast": "Mới: lộ trình của bạn. Mọi chặng, bạn đang ở đâu, tiếp theo là gì — trong thẻ bản đồ."
+ "rm.new_toast": "Mới: lộ trình của bạn. Mọi chặng, bạn đang ở đâu, tiếp theo là gì — trong thẻ bản đồ.",
+ "rm.back_title": "Chào mừng trở lại, {{name}}",
+ "rm.back_body": "Đã xong: {{done}} · Tiếp theo: {{next}}",
+ "rm.back_go": "Tiếp tục →"
 }

@@ -3553,9 +3553,23 @@ function save(){
   if(window.requestIdleCallback){_saveIdle=true;_saveH=requestIdleCallback(saveFlush,{timeout:400})}
   else{_saveIdle=false;_saveH=setTimeout(saveFlush,0)}
 }
-addEventListener("pagehide",()=>{if(_saveH!==null)saveFlush()});
+/* ---- Coming back. S.lastSeen is when the app was last in front of the
+   learner (not S.savedAt, which any boot-time save bumps before it can be
+   read). A gap of two hours, or a new calendar day, counts as a comeback: the
+   app then opens on the road map, centred on done → here → next, instead of
+   wherever the hash last pointed. Shorter gaps keep the exact page (the
+   refresh fix). Threshold is the owner's choice — no published standard. ---- */
+const RETURN_GAP_MS=2*60*60*1000;
+let _rmReturn=false,_hiddenAt=0;
+function isComeback(prev){
+  if(!prev)return false;
+  const now=Date.now();
+  return now-prev>=RETURN_GAP_MS||new Date(prev).toDateString()!==new Date(now).toDateString();
+}
+function touchSeen(){S.lastSeen=Date.now();_hiddenAt=S.lastSeen;save()}
+addEventListener("pagehide",()=>{touchSeen();if(_saveH!==null)saveFlush()});
 addEventListener("beforeunload",()=>{if(_saveH!==null)saveFlush()});
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&_saveH!==null)saveFlush()});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){touchSeen();if(_saveH!==null)saveFlush()}});
 /* ---- What the main thread was doing when the app stalled ----
    Headless profiling cannot feel a phone. This keeps the last forty stalls
    (any main-thread task over 80 ms, and any slow save) with the page they
@@ -4323,6 +4337,9 @@ const I18N_EN={
  "rm.locked":"Locked",
  "rm.finished_line":"Every stage is complete. Your certificate is ready.",
  "rm.jump":"Take me to where I am",
+ "rm.back_title":"Welcome back, {{name}}",
+ "rm.back_body":"Done: {{done}} · Next: {{next}}",
+ "rm.back_go":"Continue →",
  "rm.stage0":"Stage 0",
  "rm.fnd_passed":"Check passed \u2014 you started on the full programme",
  "rm.fnd_days":"{{n}} of {{total}} days done",
@@ -6687,7 +6704,48 @@ function rmCelebrateNow(){
     el._t=setTimeout(()=>{el.classList.remove("show");setTimeout(()=>el.remove(),350)},7000);
   }catch(e){}
 }
-window.rmJump=()=>{const el=(document.getElementById("rmOv")||document).querySelector(".rm-lbl.now");if(el)el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion:reduce)").matches?"auto":"smooth",block:"center"})};
+/* Centre the cluster that matters — the last step done, "you are here" and
+   "next" — not just the beacon, so "next" does not fall off a small phone.
+   Falls back to the beacon alone when the three do not fit, and to the last
+   done pin when everything is finished. */
+function rmCentre(scope,smooth){
+  const root=scope||document.getElementById("rmOv")||document;
+  const labels=[...root.querySelectorAll(".rm-lbl")];if(!labels.length)return false;
+  const iNow=labels.findIndex(l=>l.classList.contains("now"));
+  let group;
+  if(iNow>=0){
+    group=[labels[iNow]];
+    const prev=labels.slice(0,iNow).reverse().find(l=>l.classList.contains("done"));if(prev)group.unshift(prev);
+    const next=labels.slice(iNow+1).find(l=>l.classList.contains("next"));if(next)group.push(next);
+  }else{const last=labels.filter(l=>l.classList.contains("done")).pop();group=[last||labels[0]]}
+  const scroller=root===document?window:root;
+  const vh=root===document?innerHeight:root.clientHeight;
+  const rects=group.map(l=>l.getBoundingClientRect());
+  let top=Math.min(...rects.map(r=>r.top)),bottom=Math.max(...rects.map(r=>r.bottom));
+  if(bottom-top>vh*0.9&&iNow>=0){const r=labels[iNow].getBoundingClientRect();top=r.top;bottom=r.bottom}
+  const mid=(top+bottom)/2,delta=mid-vh/2;
+  const behavior=smooth&&!matchMedia("(prefers-reduced-motion:reduce)").matches?"smooth":"auto";
+  scroller.scrollBy({top:delta,behavior});
+  return true;
+}
+window.rmJump=()=>rmCentre(null,true);
+/* The one-line welcome after a comeback: what was done, what is next, tap to
+   go there. Same look as the progress strip; neutral — never "you missed N days". */
+function rmReturnStrip(){
+  try{
+    if(document.querySelector(RM_BUSY))return;
+    const old=document.getElementById("rmCel");if(old)old.remove();
+    const s=pathSummary(),name=esc(S.profile&&S.profile.name||"");
+    const el=document.createElement("div");el.className="rm-cel";el.id="rmCel";el.setAttribute("role","status");
+    el.innerHTML=`<button class="rm-cel-in" onclick="document.getElementById('rmCel')?.remove();pathGoNext()" aria-label="${esc(t("rm.back_go"))}">
+      <div class="rm-cel-top"><span class="rm-cel-pct">${ic("hand")}</span><span class="rm-cel-txt"><b>${t("rm.back_title",{name})}</b><span>${t("rm.back_body",{done:esc(s.done||t("path.at_start")),next:esc(s.next?s.next.label:s.task||"")})}</span></span></div>
+      ${rmStripSVG()}</button>
+      <button class="rm-cel-x" onclick="document.getElementById('rmCel')?.remove()" aria-label="${esc(t("wc.close"))}">×</button>`;
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>el.classList.add("show"));
+    el._t=setTimeout(()=>{el.classList.remove("show");setTimeout(()=>el.remove(),350)},9000);
+  }catch(e){}
+}
 function rJourney(el,wArg){
   if(wArg){return rWeek(el,wArg)}
   const allWeeks=trackWeeks(),phases=trackPhases();
@@ -6726,6 +6784,9 @@ function rJourney(el,wArg){
       <div class="dots">${trackDays().map(d=>`<div class="dot ${S.days[dayKey(w.n,d)]?'done':''}">${S.days[dayKey(w.n,d)]?'✓':d[0]}</div>`).join("")}</div>
     </div>`}).join("")})()}</div>`;
   manIconizeInline(el);segSync(el);rmMount(el);
+  /* a comeback landing: rmMount draws in its own frame and go() has just
+     scrolled to the top, so the centring waits two frames */
+  if(_rmReturn){_rmReturn=false;requestAnimationFrame(()=>requestAnimationFrame(()=>{if(cur.v!=="journey")return;rmCentre(document,false);rmReturnStrip()}))}
 }
 window.jPhase=p=>{_jPhase=p;const el=document.getElementById("v-journey");if(el)rJourney(el);};
 function rWeek(el,w){
@@ -8738,7 +8799,7 @@ async function remCacheText(){
 
 /* A tap on the notification while the app is open: sw.js focuses this window
    and asks it to show the road map, instead of reloading it on a new URL. */
-if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{go("journey")}catch(err){}});
+if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}});
 async function pushSync(){
   const c=remCfg();
   if(!c.on)return pushOff();
@@ -15137,6 +15198,11 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
     /* Never reload under someone's thumb. A new version landing mid-session used
        to reload the page on the spot — from the learner's side that is the app
        freezing and starting over, halfway through a tap. The fresh version is
+  /* Back after a gap → the road map, centred. Only when nothing more specific
+     was asked for (no hash, or Home), never for someone who still has the
+     one-minute check to take — Home opens that for them. */
+  const _prevSeen=S.lastSeen;
+  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true}
        already loaded (network-first), so the reload can wait until the app is
        put in the background, where nobody sees it happen. */
     _swReloading=true;
@@ -15150,6 +15216,7 @@ if("serviceWorker" in navigator&&location.protocol==="https:"){
     setInterval(()=>reg.update().catch(()=>{}),3600000);
   }).catch(()=>{});
 }
+  touchSeen();
 
 /* ===== ONBOARDING (first launch) ===== */
 let OB={step:0,name:"",role:"",goal:"",slot:"",lang:"",track:"",trade:"",best:0};
@@ -15827,7 +15894,20 @@ async function fbSyncPull(){
   fbSyncing=false;
 }
 window.fbSyncPull=fbSyncPull;
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")fbSyncPull()});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState!=="visible")return;
+  fbSyncPull();
+  /* the app was left open in the background and picked up again hours later:
+     same landing as a cold launch, unless the learner is mid-session */
+  try{
+    const away=_hiddenAt;_hiddenAt=0;
+    if(!S.profile||!isComeback(away))return;
+    if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
+    if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
+    if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())return;
+    _rmReturn=true;go("journey");
+  }catch(e){}
+});
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
 function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}

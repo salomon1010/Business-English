@@ -1498,5 +1498,8 @@
  "rm.notif_body": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。次：{{next}}。",
  "rm.notif_body_last": "現在地：{{here}} · {{total}}回中{{done}}回（{{pct}}%）。最後のステージです。やり遂げましょう。",
  "rm.btn": "ロードマップ",
- "rm.new_toast": "新機能：ロードマップ。全ステージ、現在地、次の一歩 — マップタブにあります。"
+ "rm.new_toast": "新機能：ロードマップ。全ステージ、現在地、次の一歩 — マップタブにあります。",
+ "rm.back_title": "おかえりなさい、{{name}}",
+ "rm.back_body": "完了：{{done}} · 次：{{next}}",
+ "rm.back_go": "続ける →"
 }

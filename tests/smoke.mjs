@@ -158,6 +158,26 @@ const land = await page.evaluate(async () => {
 ok("Onboarding lands on the road map, not Home — General English", land["general-english"].v === "journey" && !land["general-english"].homeFirst && land["general-english"].track === "general-english", JSON.stringify(land["general-english"]));
 ok("Onboarding lands on the road map, not Home — Welding, with the welding track selected", land["welding"].v === "journey" && !land["welding"].homeFirst && land["welding"].track === "welding", JSON.stringify(land["welding"]));
 
+/* ── coming back after hours lands on the road map, centred on done → here → next ── */
+await page.evaluate(() => {
+  localStorage.removeItem(LS_KEY); S = load();
+  S.profile = { name: "Smoke", role: "", goal: "", slot: "", lang: "en", ts: Date.now() };
+  S.professionalTracks = { activeId: "general-english" }; ProfessionalTrackContext.setActive("general-english");
+  const f = fndState(); f.placed = "foundations"; f.finished = true; f.finishedAt = Date.now() - 864e5; f.day = 15; for (let n = 1; n <= 15; n++) f.done["d" + n] = true;
+  S.days[dayKey(1, "Mon")] = true; S.days[dayKey(1, "Tue")] = true;
+  S.rmSeen = Date.now();                       /* the map's own intro was already seen */
+  S.lastSeen = Date.now() - 3 * 3600 * 1000;    /* away three hours */
+  saveFlush();
+  touchSeen = () => {}; saveFlush = () => {};   /* leaving the page must not refresh lastSeen for this test */
+  sessionStorage.clear();
+});
+await page.goto(BASE + "/index.html?back=" + Date.now(), { waitUntil: "load" }); await wait(1200);
+const back = await page.evaluate(() => {
+  const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
+  return { hash: location.hash, now: inView(document.querySelector(".rm-lbl.now")), next: inView(document.querySelector(".rm-lbl.next")), strip: !!document.getElementById("rmCel") };
+});
+ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
+
 /* ── no JavaScript errors anywhere above ── */
 ok("No uncaught JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));
 

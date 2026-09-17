@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Vous en êtes à {{here}} · {{done}} séances sur {{total}} ({{pct}} %). Ensuite : {{next}}.",
  "rm.notif_body_last": "Vous en êtes à {{here}} · {{done}} séances sur {{total}} ({{pct}} %). La dernière étape — terminez-la.",
  "rm.btn": "Feuille de route",
- "rm.new_toast": "Nouveau : votre feuille de route. Chaque étape, où vous en êtes, la suite — sous l’onglet carte."
+ "rm.new_toast": "Nouveau : votre feuille de route. Chaque étape, où vous en êtes, la suite — sous l’onglet carte.",
+ "rm.back_title": "Bon retour, {{name}}",
+ "rm.back_body": "Fait : {{done}} · Suivant : {{next}}",
+ "rm.back_go": "Continuer →"
 }

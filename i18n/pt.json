@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Você está em {{here}} · {{done}} de {{total}} sessões ({{pct}}%). A seguir: {{next}}.",
  "rm.notif_body_last": "Você está em {{here}} · {{done}} de {{total}} sessões ({{pct}}%). A última etapa — termine-a.",
  "rm.btn": "Roteiro",
- "rm.new_toast": "Novo: o seu roteiro. Cada etapa, onde você está e o que vem a seguir — na aba do mapa."
+ "rm.new_toast": "Novo: o seu roteiro. Cada etapa, onde você está e o que vem a seguir — na aba do mapa.",
+ "rm.back_title": "Bem-vindo de volta, {{name}}",
+ "rm.back_body": "Feito: {{done}} · Seguinte: {{next}}",
+ "rm.back_go": "Continuar →"
 }

@@ -1498,5 +1498,8 @@
  "rm.notif_body": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。下一步：{{next}}。",
  "rm.notif_body_last": "你在 {{here}} · 已完成 {{done}}/{{total}} 节课（{{pct}}%）。最后一个阶段——完成它。",
  "rm.btn": "路线图",
- "rm.new_toast": "新功能：你的路线图。每个阶段、你的位置、下一步——都在地图标签下。"
+ "rm.new_toast": "新功能：你的路线图。每个阶段、你的位置、下一步——都在地图标签下。",
+ "rm.back_title": "欢迎回来，{{name}}",
+ "rm.back_body": "已完成：{{done}} · 下一步：{{next}}",
+ "rm.back_go": "继续 →"
 }

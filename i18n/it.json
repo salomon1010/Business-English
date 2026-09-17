@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). Prossimo: {{next}}.",
  "rm.notif_body_last": "Sei a {{here}} · {{done}} sessioni su {{total}} ({{pct}}%). L’ultima tappa — completala.",
  "rm.btn": "Tabella di marcia",
- "rm.new_toast": "Novità: la tua tabella di marcia. Ogni tappa, dove sei e cosa viene dopo — nella scheda mappa."
+ "rm.new_toast": "Novità: la tua tabella di marcia. Ogni tappa, dove sei e cosa viene dopo — nella scheda mappa.",
+ "rm.back_title": "Bentornato, {{name}}",
+ "rm.back_body": "Fatto: {{done}} · Prossimo: {{next}}",
+ "rm.back_go": "Continua →"
 }

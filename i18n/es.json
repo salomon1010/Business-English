@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). Siguiente: {{next}}.",
  "rm.notif_body_last": "Estás en {{here}} · {{done}} de {{total}} sesiones ({{pct}}%). La última etapa — termínala.",
  "rm.btn": "Hoja de ruta",
- "rm.new_toast": "Nuevo: tu hoja de ruta. Cada etapa, dónde estás y qué sigue — en la pestaña del mapa."
+ "rm.new_toast": "Nuevo: tu hoja de ruta. Cada etapa, dónde estás y qué sigue — en la pestaña del mapa.",
+ "rm.back_title": "Bienvenido de nuevo, {{name}}",
+ "rm.back_body": "Hecho: {{done}} · Siguiente: {{next}}",
+ "rm.back_go": "Continuar →"
 }

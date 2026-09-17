@@ -1498,5 +1498,8 @@
  "rm.notif_body": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Berikutnya: {{next}}.",
  "rm.notif_body_last": "Anda di {{here}} · {{done}} dari {{total}} sesi ({{pct}}%). Tahap terakhir — selesaikan.",
  "rm.btn": "Peta jalan",
- "rm.new_toast": "Baru: peta jalan Anda. Setiap tahap, posisi Anda, dan langkah berikutnya — di tab peta."
+ "rm.new_toast": "Baru: peta jalan Anda. Setiap tahap, posisi Anda, dan langkah berikutnya — di tab peta.",
+ "rm.back_title": "Selamat datang kembali, {{name}}",
+ "rm.back_body": "Selesai: {{done}} · Berikutnya: {{next}}",
+ "rm.back_go": "Lanjutkan →"
 }
