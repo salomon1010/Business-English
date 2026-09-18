@@ -1,49 +1,75 @@
-# Practice Partner — release plan
+# Practice Partner + Shadow Studio V2 — release and rollback plan
 
-Nothing in this document has been applied. It is the exact list of
-production changes required, to be run by the owner after review.
+**Nothing in this document has been applied.** The branch ships with every
+production flag off and the Worker kill switch closed, so merging alone
+changes nothing a learner can see. Each step below is run by the owner,
+in order, after review.
 
 ## 0. Review
-Branch `feature/practice-partner` — see the final report for the commands.
+Branch `feature/practice-partner`. `main` is untouched (`e848b7a`). See the
+final report for the commit list and test commands.
 
-## 1. Cloudflare (new Worker `be-partner`) — from `backend/partner/`
-```
-npx wrangler d1 create be-partner            # copy database_id into wrangler.toml
-npx wrangler d1 migrations apply be-partner --remote
-npx wrangler r2 bucket create be-partner-audio
-npx wrangler deploy                          # DEV_AUTH is NOT set in production
-```
-Then put the deployed URL into `PARTNER_API` in `index.html` (default is
-`https://be-partner.nore-ngou.workers.dev`). Optional belt-and-braces: an R2
-lifecycle rule deleting objects older than 30 days (the Worker already deletes
-at 14 days after a pair closes).
+## 1. Merge (safe: everything off)
+Merge to `main`, bump `sw.js` `be12-vNN` (also precaches `shadow-sync.js`),
+push, poll live, `BASE=https://app.lomonec.com npm test` from `tests/`.
+Result: identical app for every learner. Welding unchanged. `partner_*` and
+`shadow_v2_*` events are not sent because no flag is on.
 
 ## 2. Events Worker — from `backend/events/`
-`npx wrangler deploy` so `partner_pair`, `partner_turn`, `partner_report`,
-`partner_block` are accepted (they are on the allow-list on this branch).
-Deploy this **before** the site, or those events are dropped silently.
+`npx wrangler deploy` so the new names are accepted. Deploy this **before**
+any flag goes on, or those events are dropped silently.
 
-## 3. Site
-Merge to `main`, bump `sw.js` `be12-vNN`, push; poll live; run
-`BASE=https://app.lomonec.com npm test` from `tests/`.
+## 3. Partner Worker — from `backend/partner/` (first time)
+```
+npx wrangler d1 create be-partner            # paste database_id into wrangler.toml
+npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002
+npx wrangler r2 bucket create be-partner-audio
+npx wrangler deploy                          # PARTNER_ENABLED stays "0"
+curl https://be-partner.<account>.workers.dev/health   # {ok:true, dev:false, enabled:false}
+```
+`DEV_AUTH` and `IP_PER_MIN` exist only in `[env.dev]`. Optional
+belt-and-braces: an R2 lifecycle rule deleting objects older than 30 days.
 
-## 4. Firebase
-No change. The Worker verifies ID tokens against Google's public certificates;
-no service account, no rule change, no new collection.
+## 4. Shadow Studio V2 — internal preview, then on
+- Internal testers set `localStorage.be_flags =
+  '{"shadow_studio_v2_enabled":true,"shadow_apply_phrase_enabled":true}'` on
+  the live site and run the manual checklist rows 8–9 on real phones.
+- To release: flip `shadow_studio_v2_enabled` (and, if wanted,
+  `shadow_apply_phrase_enabled`) to `true` in `FLAGS_DEFAULT`, bump `sw.js`,
+  push. General English only by construction (`svOn()`).
 
-## 5. Legal / listing
-`privacy.html` (on this branch) goes live with the site. Play listing: add one
-line about practising with another learner, within the 4,000-char limit.
+## 5. Practice Partner — staged
+1. **Worker on**: set `PARTNER_ENABLED = "1"` in `[vars]`, `npx wrangler
+   deploy`. Nothing visible yet — the client flag is still off.
+2. **Pilot cohort** (same lesson, same language — pairs form at once):
+   testers set `be_flags` with `practice_partner_enabled`,
+   `practice_partner_matching_enabled`, `practice_partner_voice_enabled`
+   (and `practice_partner_notifications_enabled`) and run the manual
+   checklist. Watch `./backend/events/query.sh` for the funnel
+   (`partner_profile_completed → match_requested → candidate_shown →
+   trial_started → turn_sent → session_completed → continue/rematch →
+   connection_created`) and the D1 counts:
+   `wrangler d1 execute be-partner --remote --command "select kind, closed_reason, count(*) from pairs group by 1,2"`.
+3. **General release**: flip the four `practice_partner_*` flags in
+   `FLAGS_DEFAULT`, bump `sw.js`, push. Update the Play listing (one line,
+   within the 4,000-char limit) and, if desired, the flyer.
 
-## Rollout
-- Pilot cohort first (the Petrocertif group: same track, band and language —
-  pairs form immediately). Read `./backend/events/query.sh partner` and the
-  D1 counts (`wrangler d1 execute be-partner --remote --command "select count(*) from pairs"`).
-- Kill switch: set `PARTNER_API=""` in index.html and bump `sw.js` — the
-  Practice card then shows "temporarily unavailable" and no request is made.
+## 6. Legal
+`privacy.html` section 8b (18+, what is shared, retention, screening) goes
+live with step 1 — it is accurate whether or not the feature is on.
+
+## Rollback (each independent, fastest first)
+| Symptom | Action | Effect |
+|---|---|---|
+| Anything wrong server-side | `PARTNER_ENABLED = "0"` + `wrangler deploy` (seconds) | Every partner call returns 503 `disabled`; the client shows the offline card; no data written |
+| Anything wrong client-side | flip the flag(s) back to `false` in `FLAGS_DEFAULT`, bump `sw.js`, push (GitHub Pages ~1 min) | Feature hidden; Welding never affected |
+| Shadow V2 misbehaving | `shadow_studio_v2_enabled: false`, bump, push | The classic Shadow Studio is untouched underneath |
+| Need to stop matching only | `practice_partner_matching_enabled: false` | Existing sessions can finish; no new pairs |
+| Need to silence notifications | `practice_partner_notifications_enabled: false` | Home card and badge stay; no toasts |
+| Data concern | `wrangler d1 execute … "delete from interest"` (queue) — never drop tables; audio purges itself 14 d after close | |
+
+None of the rollbacks needs a Play upload (the TWA loads the live site).
 
 ## Later phases (not on this branch)
-Phase 2 push with payload ("your partner replied") — `be-push` needs
-`p256dh`/`auth` storage, uid→device map, RFC 8291 encryption, `/notify`.
-Phase 3 live 15-minute audio calls — WebRTC + Cloudflare TURN, presence.
-Phase 4 Premium via Play Billing — unlimited pairs, filters, live calls.
+Push with payload ("your turn") via `be-push`; live 15-minute audio calls
+(WebRTC + Cloudflare TURN); Premium via Play Billing; human moderation queue.

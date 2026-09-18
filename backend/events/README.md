@@ -167,11 +167,33 @@ partner" on the demand card (Home and Practice), with `track` and the level
 `band` (Foundations day or week bucket, in `stage`). It measures the pull for
 the Practice Partner feature before it is built. `./query.sh partner` reads it.
 
-## Practice Partner (feature branch)
+## Practice Partner and Shadow Studio V2 (feature branch, not deployed)
 
-`partner_pair` (a pair formed), `partner_turn` (+`day` 0–6, a voice turn
-sent), `partner_report`, `partner_block`. Deploy this Worker before the site
-that ships them, or they are dropped with 204.
+Allow-listed on `feature/practice-partner`; **this Worker must be deployed
+before any client flag is turned on**, or every one of these is dropped with 204.
+
+The MVP names `partner_pair`, `partner_turn` (+`day`), `partner_report`,
+`partner_block` stay on the list but the phase-2 client no longer sends them.
+
+Phase-2 funnel, in order (General English only — the client fires them only
+behind `ppAvailable()`): `partner_profile_completed` → `partner_match_requested`
+(+`now`: "1" for Practise now) → `partner_queue_joined` →
+`partner_candidate_shown` (+`n` 1–3) → `partner_trial_started` (+`now`,
+`regular`) → `partner_turn_recorded` / `partner_turn_sent` /
+`partner_turn_received` (+`round` 1–4) → `partner_session_completed` →
+`partner_continue_selected` / `partner_rematch_selected` →
+`partner_connection_created` (+`state` mutual|regular) /
+`partner_connection_disconnected`. Safety and support: `partner_reported`,
+`partner_blocked`, `partner_ai_fallback`, `partner_notification_sent`.
+
+Shadow Studio V2: `shadow_v2_opened` (+`level` word|sentence|text|none),
+`shadow_v2_mode` and `shadow_v2_challenge_started` (+`mode`),
+`shadow_v2_sentence_shadowed` (+`level`), `shadow_apply_phrase` (+`to` ai|partner).
+
+Prop keys added: `n`, `round`, `now`, `regular`, `state`, `level`, `mode`, `to` —
+all small enums. Nothing here carries a name, a uid, a transcript or audio.
+Read the funnel with `./query.sh funnel`-style queries on these names once
+data exists; nothing exists before the flags go on.
 
 ## Adding an event
 

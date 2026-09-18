@@ -1,97 +1,126 @@
-# Practice Partner — test plan
+# Practice Partner + Shadow Studio V2 — test plan (as built, 2026-09-18)
 
-Three layers, all runnable locally with zero production access.
+Four automated layers plus a manual real-device checklist. Everything
+automated runs locally with zero production access.
 
-## 1. Worker integration tests — `backend/partner/test/run.mjs`
-Starts nothing itself; expects `npx wrangler dev --local --port 8787` running
-in `backend/partner/` (local D1 + R2 emulation, `DEV_AUTH=1` from
-`wrangler.toml [env.dev]`). Uses two dev users `alice`, `bob` (and `mallory`,
-`carol` for negative cases) via `X-Dev-User`.
+## 1. Pure engine — `tests/shadow-sync.test.mjs` (23 checks)
+`node shadow-sync.test.mjs` from `tests/`. No browser, no server.
+`normalizeCaptions` (word level, sentence level, per-segment fallback, clip
+marks), `normalizeText` (pasted transcript → untimed sentences), `locate`
+(binary search, boundaries, grace window, stateless seek backwards),
+`neighbour`, plus two real bundled caption files (`captions/*.json`): the
+Stanford talk (cues only → sentence level) and a YouTube json3 file (word
+level, every segment has words).
 
-| # | case | expectation |
-|---|---|---|
-| 1 | unauthenticated `GET /me` | 401 |
-| 2 | `/interest` before consent | 403 `consent` |
-| 3 | consent for alice/bob | 200, member rows |
-| 4 | alice joins (general, w1-4, fr) → waiting | `status:"waiting"`, `waitingCount:1` |
-| 5 | carol joins (welding) → still waiting (constraint) | not paired with alice |
-| 6 | bob joins (general, w1-4, fr) → paired with alice | both `/me` show pair, partner name only |
-| 7 | prompt position | pair `prompt_week` = min(alice, bob) |
-| 8 | alice sends turn (multipart audio) | 201, seq 1 |
-| 9 | bob `/me` → unread 1; `GET /turns/:id/audio` as bob | 200 audio bytes |
-| 10 | mallory `GET /turns/:id/audio` | 403 (audio access security) |
-| 11 | mallory `GET /pairs/:id` | 403 (unauthorized access) |
-| 12 | alice sends 3 more turns same day | 4th → 429 `limit` |
-| 13 | transcript with a phone number / "whatsapp" / email | 422 `moderation`, no R2 object |
-| 14 | duplicate `turn_id` | second call returns the same turn, no new row |
-| 15 | audio > 1.5 MB | 413 |
-| 16 | bob replies; alice `/me` unread 1; `/seen` clears it | |
-| 17 | duo streak after both sent today | `duoStreak:1` |
-| 18 | silence: alice's last turn backdated 25 h (test hook `X-Dev-Now`) | `/me` → `partnerSilentH >= 24`, `fallback:true` |
-| 19 | report ×1 from alice, ×1 from carol on bob | `strikes:2`, bob `suspended_until` set, pair closed `suspended` |
-| 20 | block: alice blocks dave after pairing | pair closed `blocked`; dave gets 403 on pair & audio; re-queue never pairs them |
-| 21 | leave | pair closed `left`; both can re-queue |
-| 22 | same-gender: eve(f, same_gender) never paired with frank(m) | |
-| 23 | rate limits: 11th `/interest` join in a day → 429 | |
-| 24 | cron `/__cron` (dev-only trigger): expired pair closed, closed-14d audio deleted | |
-| 25 | token path: forged RS256 token with a local key vs a fake certs endpoint | verifier rejects wrong aud / iss / expired / bad signature; accepts good |
+## 2. Worker integration — `backend/partner/test/run.mjs` (48 checks)
+Expects `npx wrangler dev --env dev --port 8787` in `backend/partner/` (local
+D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
+`[env.dev]`). Dev users via `X-Dev-User`, movable clock via `X-Dev-Now`,
+`POST /__reset` between runs, `POST /__cron` for maintenance.
 
-## 2. Browser end-to-end — `tests/smoke.mjs` (Playwright, 390×844 mobile)
-Runs when `PARTNER_API=http://127.0.0.1:8787` is reachable; skips with a
-notice otherwise (so the suite still passes on machines without wrangler).
-Two browser contexts (alice, bob) with `be_partner_dev_user` set.
+| Area | Cases |
+|---|---|
+| Auth / consent | 401 without token · `/interest` before consent → 403 `consent` · consent without 18+ → 403 `age` · consent with 18+ and preferences |
+| **Track boundary** | `welding` → 403 `track` · unknown track → 403 `track` |
+| Queue / candidates | first in queue → waiting, no candidates · second learner sees the first as a candidate with reasons and **no uid** · `/match` re-mints offers · `/match` while not waiting → 409 · band two steps away excluded |
+| Scoring | `score()` unit: perfect match high with reasons, weak match low |
+| Offers / pairing | an offer cannot be used by someone else (404) · invite → trial pair, round 1 of 4, connection `trial` · consumed offer → 404 · **race** for one candidate: exactly one wins |
+| Turns | round 1 → 201 · twice in a row → 409 `not_your_turn` · partner sees round 2, unread 1 · audio: non-member 403, no auth 401, member 200 · contact details → 422 `moderation` · four turns → complete; fifth → 409 `complete` |
+| Decide / connections | neither decided · one continues, pair stays open · non-member 403 · both continue → closed `completed`, mutual (1 session) · `/next` starts a regular session · `/next` while active → 409 · second completed session → `regular` · continue before complete → 409 `not_complete` · rematch closes for both, reason `rematch`, nothing exposed · **cooldown**: not offered again |
+| Silence / fallback | 25 h silent → `fallback`, `canRepair` · rematch after timeout allowed |
+| Safety | two distinct reporters → suspended 30 d, pair closed, cannot rejoin · block → pair closed, blocked side 403 on pair and audio |
+| Health | `/health` reports `dev` and `enabled` |
 
-- new user: Practice tab shows the Practice Partner card; opening it shows the
-  consent sheet; refusing keeps everything unshared.
-- existing user without a match: "Get a partner" → waiting state with count;
-  refresh keeps waiting state; withdraw works.
-- match: bob joins → both see the partner (first name, band) and today's
-  prompt from the curriculum (assert text equals the curriculum task).
-- record/playback/re-record: mock `getUserMedia` (Playwright `--use-fake-device-for-media-stream`);
-  Send disabled until a take exists; playback control appears; re-record
-  replaces; a second Send tap during flight does nothing (duplicate).
-- send: turn appears in alice's thread; bob's Home shows the card and Practice
-  badge after `GET /me`; bob plays the audio (request returns 200).
-- partner response: bob sends; alice notified.
-- AI fallback: with `X-Dev-Now` advanced 25 h, alice sees the explicit
-  "hasn't responded" card and the AI-coach button opens `#roleplay`.
-- block and report from the thread menu; the pair ends on both sides.
-- logout/login: signing out hides the thread (401 → sign-in card); refresh on
-  `#partner` restores the thread.
-- network failure: Worker unreachable → offline card, no crash, retry works.
-- no JavaScript errors across the run.
+## 3. Browser end-to-end — `tests/partner.mjs` (45 checks)
+Playwright, headless Chromium, 390×844, fake microphone
+(`--use-fake-device-for-media-stream`). Starts its own static server and
+expects the local Worker on 8787 (skips with a notice otherwise). Three
+browser contexts: Alice and Carla (General English), Bob (a second General
+English learner and, separately, a **Welding** learner) with flags on via
+`localStorage.be_flags`.
 
-## 3. Static checks
-- JS parse check of every inline script (CLAUDE.md one-liner).
-- i18n key parity: `I18N_EN` vs the 15 files.
-- `node --check` on the Worker; `wrangler deploy --dry-run` (no upload).
-- Existing smoke checks (27) must still pass.
+- **Boundary**: GE Practice tab shows the card · Welding: no card, `#partner`
+  shows the GE-only notice with no fetch and no consent, the Worker refuses
+  the track when called directly, Home shows no card.
+- **Consent / profile**: first visit asks · sheet lists what is shared, server
+  upload, 18+, goals, availability · goal pre-selected from the learner
+  profile · without 18+ nothing is sent · agreeing registers preferences and
+  shows Match me / Practise now.
+- **Matching**: no candidates → honest message, AI coach offered (labelled),
+  stays in line · waiting card shows the AI fallback labelled AI · Match me →
+  1–3 cards with first name, band, goal, plain reason, no score, no uid · Try
+  a practice → trial session, round 1 of 4, your turn · round-1 task equals
+  the curriculum speaking task · the unchosen learner is still waiting.
+- **Recording**: live timer · stop → take with player · re-record replaces ·
+  Send enabled after the coach, score labelled AI · send stores one turn
+  (double tap ignored), status → waiting, day marked practised · speaking
+  twice refused by the Worker · audio 403 / 401.
+- **Rounds / notifications**: reply accepted (round 2) · reply → Home card,
+  Practice badge, **one** toast · same reply does not toast twice · round-3
+  prompt · fourth turn completes.
+- **Decide / connections**: decision card with one AI-labelled tip and two
+  choices · recorder gone · choice recorded, nothing shown to the partner ·
+  both continue → mutual card with session count and Start · Start → regular
+  session · Find someone else → closed, neutral toast, other side only sees
+  "ended" · cooldown honoured.
+- **Shadow Studio V2**: library clip → word-level asset, four modes,
+  sentences rendered · playback lights the current sentence and word ·
+  Challenge hides text until revealed · Apply It shows the expression with AI
+  and Partner options · Use with a partner → Practice Partner with the phrase
+  queued · Practise now pairs at once and round 1 uses the phrase.
+- **Resilience**: Worker unreachable → offline card with retry, no crash ·
+  reconnect restores · **flags off → nothing visible (production default)** ·
+  signed out → sign-in card, no data · no uncaught JS errors in any browser.
 
-## Manual (recorded in the PR)
-- Real microphone on a phone via the local server; audio plays back on the
-  partner's phone.
+## 4. Existing suite — `tests/smoke.mjs` (27 checks)
+Unchanged; must stay green with the flags off (the default). `cd tests &&
+npm test` runs smoke → shadow-sync → partner.
+
+## 5. Static checks
+- JS parse check of every inline script (CLAUDE.md one-liner) and
+  `node --check` on `shadow-sync.js` and the Worker.
+- i18n key parity: `I18N_EN` (1,750 keys) vs the 15 files; `{{placeholders}}`
+  of the new keys checked against English.
+- `npx wrangler deploy --dry-run --env dev` (builds, uploads nothing).
 
 ## Results (2026-09-18, branch `feature/practice-partner`)
 
 | Suite | Result |
 |---|---|
-| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **28/28** |
-| `tests/smoke.mjs` (existing app suite) | **27/27** |
-| `tests/partner.mjs` (two browsers, 390×844, fake microphone) | **35/35** |
-| JS parse check (4 inline scripts) | 0 errors |
-| i18n parity (`I18N_EN` 1,636 keys vs 15 files) | no missing, no orphans |
-| `wrangler deploy --dry-run --env dev` | builds, 22.7 KiB; nothing uploaded |
+| `tests/shadow-sync.test.mjs` | **23/23** |
+| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **48/48** |
+| `tests/partner.mjs` (three browser contexts, fake microphone) | **45/45** |
+| `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
+| JS parse check | 0 errors |
+| i18n parity | 1,750 keys in EN and in each of 15 files; no missing, no orphans |
 
-Manual, in the Playwright MCP browser (dark theme, 390 px): consent → get a
-partner → waiting → paired → curriculum prompt → synthetic take → send →
-moderation refusal → partner reply → Home card / badge / toast → play audio →
-day roll-over → AI fallback → report → block (partner gets 403). Screenshot of
-the thread reviewed for design consistency.
+**Not tested, and not claimed:** a real microphone on a physical phone;
+iOS Safari MediaRecorder behaviour; the Firebase ID-token path against
+Google's live JWKS (the verifier is unit-tested with a generated RSA key pair
+and rejects wrong aud / iss / exp / kid / signature); any production
+Cloudflare resource. See the manual checklist below.
 
-Observed once, not reproduced: two smoke checks (welcome card) failed in a run
-where the local Worker process had just died; three subsequent runs were green.
+## Manual QA checklist (real devices, before any production flag is turned on)
 
-Not tested: a real microphone on a physical phone (no device in this
-session); Firebase ID-token path against Google's live JWKS (verifier is
-unit-tested with a generated RSA key pair and rejects wrong aud/iss/exp/kid/
-signature).
+Run against a staging deployment of the Worker with `PARTNER_ENABLED="1"`
+and a client with `be_flags` set. Tick each on **iPhone Safari** and
+**Android Chrome**; note OS and browser versions.
+
+| # | Check | iOS | Android |
+|---|---|---|---|
+| 1 | Microphone permission prompt appears once; denial shows the app's own explanation, not a blank | | |
+| 2 | `MediaRecorder` produces audio (iOS: `audio/mp4`; Android: `audio/webm`) and the Worker accepts both | | |
+| 3 | Live timer runs; stop at 60 s is enforced | | |
+| 4 | Playback of your own take works with the phone on silent / ringer switch | | |
+| 5 | Re-record replaces the take; Send stays disabled until the coach returns | | |
+| 6 | Upload on a slow network (throttle to 3G): progress state, no double send, clear error on failure | | |
+| 7 | Partner's turn plays back; scrubbing works; transcript matches | | |
+| 8 | Shadow V2: word highlight keeps time with the YouTube player after a seek and after speed 0.75 | | |
+| 9 | Shadow V2: auto-scroll stops while the learner scrolls and resumes 3 s later | | |
+| 10 | Background → foreground: the thread refreshes; a turn that arrived meanwhile raises exactly one toast | | |
+| 11 | Lock the phone during a recording: recording stops cleanly, no orphan take | | |
+| 12 | Audio failure (permission revoked mid-session): clear error, Send disabled, no crash | | |
+| 13 | Notification (when `practice_partner_notifications_enabled`): shown once, tapping opens `#partner` | | |
+| 14 | Welding learner on the same device: no Practice card, no Home card, `#partner` shows the GE-only notice | | |
+| 15 | Installed PWA / TWA relaunch lands back on `#partner` | | |
+| 16 | Dark theme: every new card readable; RTL (Arabic, Urdu) layouts do not overflow | | |

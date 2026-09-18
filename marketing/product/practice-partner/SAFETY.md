@@ -1,73 +1,100 @@
-# Practice Partner — safety
+# Practice Partner — safety (as built, 2026-09-18)
 
 Human-to-human voice is the most sensitive thing BE Mastery has ever carried.
-Every control below is implemented and tested on this branch unless marked
-*(documented, not automated)*.
+Every control below is implemented and covered by a test on this branch
+unless marked *(documented, not automated)*.
 
-## Consent
-- A consent sheet opens before anything is shared. It states exactly what the
-  partner sees (first name, level band, interface language, each voice turn
-  and its transcript), that audio is kept at most 14 days after a pair ends,
-  that turns are screened, and how to report/block. Stored as
-  `members.consent_at`; the Worker refuses `/interest` and `/turns` without it.
-- Age: the sheet states 16+. *(Declared, not verified — same as the rest of
-  the app.)*
+## Scope boundary
+- General English only. The Worker refuses any other track (`403 track`)
+  before a row is written; the client hides the feature elsewhere. A Welding
+  learner cannot be matched, offered, or notified.
+
+## Consent and age
+- A consent sheet opens before anything is shared: what the partner sees
+  (first name, level band, interface language), that each sent turn and its
+  transcript go to our server and to that one partner, 14-day retention,
+  automatic screening, the labelled AI fallback, report/block.
+- **18+**: the sheet has an "I confirm I am 18 or over" box. `POST /consent`
+  without `adult: true` is refused (`403 age`); `members.adult` is stored.
+  Declared, not verified — same as the rest of the app. `privacy.html` says
+  18+.
 
 ## Minimal exposure
-- Only `name` (first name, ≤24 chars), `band`, `lang` of the partner are
-  returned by the API. No uid of the partner, no email, no photo, no country.
-- No list of people, ever: while waiting the API returns a count only.
+- A partner or candidate is shown as `name` (first name, ≤ 24 chars), `band`,
+  up to two goals, an optional topic word and "available now / later". No
+  uid, e-mail, photo, country, gender or score — ever.
+- Candidates are addressed by **opaque offer ids** (30-minute TTL) and
+  sessions by pair ids; there is nothing to enumerate.
+- No list of everyone waiting. Match me shows at most three; Practise now
+  shows nobody.
 
 ## No side channels
-- No text input exists in the feature. The only text is the transcript the
-  coach produced from the recording.
-- Transcripts are screened server-side before a turn is stored: phone-number
-  patterns (7+ digits with separators), e-mail, URLs, `@handles`, and the words
-  whatsapp / telegram / instagram / snapchat / facebook / tiktok / discord /
-  signal / imo / viber. A hit rejects the turn with `moderation`, the audio is
-  not stored, and the client explains why. (Speech-to-text is imperfect; this
-  catches the obvious cases and raises the cost of the rest. It is *screening*,
-  not a guarantee — SAFETY copy says "screened", never "moderated by humans".)
-- Audio is never publicly addressable: R2 objects are served only via
+- No text input exists. The only text is the transcript the coach produced.
+- Transcripts are **screened** server-side before a turn is stored: phone
+  numbers, e-mail, URLs and bare domains, `@handles`, messenger names
+  (WhatsApp, Telegram, Instagram, Snapchat, Facebook, TikTok, Discord,
+  Signal, Viber, imo, WeChat, Messenger) and "my number / call me / add me"
+  in English and French. A hit → `422 moderation`, audio not stored, an
+  audit row `turn_screened`, and the client explains why. Screening, not
+  moderation — copy never says "moderated by humans".
+- Audio is never publicly addressable: R2 objects are served only through
   `GET /turns/:id/audio` after membership and block checks.
 
-## Report, block, leave
-- **Report** (reasons: harassment, contact details, not English, abusive,
-  other): one counted report per reporter per person. Two distinct reporters →
-  `suspended_until = now + 30 days`: cannot pair, cannot send, active pair is
-  closed with reason `suspended`. Reports are rate-limited (5/day) so they
-  cannot be used as a weapon; a report never reveals itself to the reported
-  person.
-- **Block**: closes the pair, inserts a `blocks` row; matching excludes both
-  directions forever; the blocked person receives 403 on the pair and its
-  audio from that moment. Blocking is silent (the other side sees "This pair
-  has ended").
-- **Leave**: closes the pair with `left`, allowed any time; the leaver may
-  re-queue at once, the other side is told the pair ended and may re-queue.
+## AI is always AI
+- The AI coach appears in three places: when Practise now finds nobody,
+  when a partner is silent 24 h, and as the one-line tip after a session.
+  Every one carries the `pp.ai_tag` badge ("AI") and copy that says so. An
+  AI turn is never inserted into the thread as if the partner had spoken.
+
+## Report, block, leave, decide
+- **Report** (harassment, contact details, not English, abusive, other): one
+  counted report per reporter per person; two distinct reporters →
+  `suspended_until = now + 30 days`, removed from the queue, active pair
+  closed `suspended`, audit `suspended`. 5 reports/day so it cannot be
+  weaponised; a report is invisible to the reported person.
+- **Block**: closes the pair, `blocks` row, `connections.state = blocked`;
+  matching excludes both directions forever; the blocked person receives 403
+  on the pair and its audio. Silent.
+- **Leave**: closes the pair `left`, allowed any time.
+- **Decide** "find someone else": closes the pair `rematch`, 14-day
+  `cooldowns` row, connection `disconnected`. The partner sees "this session
+  has ended", never the reason. Neither decision is shown to the other.
 
 ## Abuse prevention and rate limits (Worker, per uid per UTC day)
-- `/interest`: 10 joins/day. `/turns`: 3 per pair-day; audio ≤ 1.5 MB and
-  ≤ 75 s. `/report`: 5/day. `/block`: 20/day. All routes: 120 requests/min per
-  IP in-memory (same pattern as `be-polish`).
-- Duplicate submissions: the client disables Send while a request is in
-  flight and sends a client-generated `turn_id`; the Worker treats a repeated
-  id as the same turn (idempotent insert).
+`interest 10 · match 30 · invite 10 · report 5 · block 20 · decide 40`;
+turns: one per round, alternating, four per session; audio ≥ 1.2 KB, ≤ 1.5
+MB, ≤ 75 s; all routes 120 requests/min per IP (`IP_PER_MIN` env; tests
+raise it). Duplicate sends are idempotent on the client-generated `turn_id`.
+Pairing is a D1 batch so a candidate cannot be paired twice.
 
-## Same-gender option
-- Optional `gender` (`f`/`m`/`x`) and `same_gender` flag, collected on the
-  consent sheet with a plain explanation. Used **only** by matching. Never
-  displayed to the partner.
+## Reliability, not reputation
+- `sessions_completed`, `sessions_abandoned` (the member with fewer turns
+  when an incomplete pair expires) and reply latency feed the matching score
+  at a small weight. They are **never shown** to anyone.
+
+## Audit
+- `audit` rows for queue joins, pairings, screened turns, completions,
+  decisions, connections, leaves, reports, suspensions, blocks — actor, target
+  uid, pair id, small meta. Never transcripts or audio. Kept 90 days.
+
+## Kill switches
+- Server: `PARTNER_ENABLED="0"` (production default) → 503 `disabled` on
+  everything but `/health`.
+- Client: `practice_partner_enabled` off by default; `PARTNER_API=""` also
+  hides the feature.
 
 ## Retention
-- Turn audio and transcripts of a closed pair are deleted by the daily cron
-  14 days after closure. Active pairs expire after 7 days (then the same
-  clock starts). `reports` and `blocks` are kept (they protect people).
+- Audio and transcripts of a closed pair are deleted by the daily cron 14 days
+  after closure. Active pairs expire after `PAIR_DAYS` (7). Offers expire in
+  30 min, cooldowns in 14 days, audit in 90 days. `reports` and `blocks` are
+  kept.
 
 ## Privacy copy
-- `privacy.html` gains a "Practice Partner" section (on this branch) saying
-  what is shared, with whom, for how long, and how to report.
+- `privacy.html` section 8b: what is shared, with whom, for how long, how to
+  report, 18+.
 
 ## What is explicitly NOT built
-- No human moderation queue *(documented; reports are visible only in D1)*.
+- No human moderation queue *(reports are visible only in D1 / audit)*.
 - No automatic audio content analysis (only the transcript is screened).
-- No under-16 verification.
+- No age verification beyond the declaration.
+- No matching by gender beyond the optional same-gender flag.

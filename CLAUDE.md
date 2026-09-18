@@ -155,17 +155,42 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
-- **Practice Partner (feature/practice-partner, NOT on main yet).** Asynchronous
-  voice practice between two learners, paired for a week on the same track and
-  band; the day's prompt comes from the curriculum (`ppPrompt`, speaking days
-  first). All data lives behind a fourth Worker, `backend/partner/`
-  (`be-partner`, D1 + R2) — Firestore is untouched. Client: `PARTNER_API`,
-  `ppApi()`, `rPartner`, `ppHomeCardHTML()`, Practice badge via `ppUnread()`,
-  i18n `pp.*`. Auth = Firebase ID token verified in the Worker; local dev uses
-  `DEV_AUTH` + `X-Dev-User` (only when `PARTNER_API` is localhost). Tests:
-  `backend/partner/test/run.mjs` (Worker, 28) and `tests/partner.mjs` (two
-  browsers, fake mic, 35). Design and release steps:
-  `marketing/product/practice-partner/`. Kill switch: `PARTNER_API=""`.
+- **Feature flags + the General-English-only boundary (feature/practice-partner,
+  NOT on main yet).** `FLAGS_DEFAULT` + `flag(name)`; `localStorage.be_flags`
+  (JSON) overrides for local/test/internal preview. Production defaults are OFF
+  for `practice_partner_enabled / _matching_enabled / _voice_enabled /
+  _notifications_enabled`, `shadow_studio_v2_enabled`, `shadow_apply_phrase_enabled`;
+  ON for `practice_partner_ai_fallback_enabled`, `shadow_word_timing_enabled`.
+  `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
+  check every GE-only feature makes — Welding gets exactly the app it has today.
+- **Practice Partner (feature/practice-partner, NOT on main yet; General English
+  only).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
+  me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or
+  **Practise now** → a 4-round alternating voice session on the curriculum task →
+  each decides alone (`continue` / `rematch`) → mutual → regular connection, or a
+  14-day cooldown. AI coach fallback and the post-session tip are always tagged AI.
+  Fourth Worker `backend/partner/` (`be-partner`, D1 + R2 + cron; migrations 0001
+  + 0002; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
+  `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403) — Firestore
+  untouched. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
+  `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
+  prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
+  `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
+  `backend/partner/test/run.mjs` (48), `tests/partner.mjs` (45, three contexts
+  incl. a Welding learner, fake mic). Docs: `marketing/product/practice-partner/`
+  (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
+  real-device checklist, RELEASE_PLAN incl. rollback, SHADOW_STUDIO_V2).
+  `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
+- **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
+  `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
+  `neighbour`; levels word → sentence → text → none, honestly labelled) + panel
+  `#shV2` in `.sh-work` (`shV2Load` at the end of `shLoad`, `svRender`, rAF `svTick`
+  reading `shCurT()`, `svStop` from `shCloseWork`). Modes watch / shadow /
+  challenge / apply; Apply It → AI (`S.applyPhrase`, roleplay) or partner
+  (`ppState().applyPhrase`). Captions: `captions/<vid>.json` (18; 13 with word
+  times). `sw.js` precaches `shadow-sync.js?v=1`. Tests `tests/shadow-sync.test.mjs`
+  (23). Events for both features are on the `be-events` allow-list on the branch
+  only — deploy that Worker before any flag goes on.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

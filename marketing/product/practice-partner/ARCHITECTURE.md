@@ -1,88 +1,145 @@
-# Practice Partner — architecture
+# Practice Partner — architecture (as built, 2026-09-18)
 
-## Discovery (what exists, read from the code on 2026-09-18)
+## Discovery (what exists, reused how)
 
 | Area | What exists | Reused how |
 |---|---|---|
-| App | One file `index.html` (HTML+CSS+JS), `go(view)` router, `#v-<name>` divs, `valid[]` list in `boot()`, bottom-bar map | New view `partner` registered in all three places; Practice tab stays lit |
-| Auth | Firebase Auth (compat SDK, lazy `fbLoad()`), `FBUser`, `fbOpenModal('up'|'in')` | Required for the feature; the ID token authenticates every Worker call |
-| User data | `users/{uid}` Firestore doc = one JSON blob (`S`), rules published by hand | **Not touched.** Partner data lives in D1 |
-| Recording | `MediaRecorder` in `phRecInto` / `rpListen`; IndexedDB `recs` store | Same pattern, own small recorder (`ppRecord`) so the take stays in memory until sent; not saved to `recs` |
-| Transcription | `fbTranscribe(blob)` → `POLISH_API` (Whisper) | Reused as is |
-| Speech assessment | `fbAssess(blob, target)` → `POLISH_API` (`assess`) | Reused: target = the transcript (the roleplay does the same) |
-| AI colleague | `rRoleplay` (General) / `rSimulation` (Welding), polish Worker `chat` | The explicit fallback: "Keep practising with your AI coach" opens it |
-| Curriculum | `trackWeeks()[w-1].days[d].{focus,task}`, `fndPack().days[n-1].items[].en` | Prompts are computed from these, both members compute the same |
-| Progress / streak | `markPracticed()`, `S.dates`, `streak()` | Sending a turn calls `markPracticed()`; duo streak is computed by the Worker |
-| Notifications | `be-push` (payload-less, device id not tied to uid); in-app cards | **In-app only** in this MVP: Home card + Practice badge + toast on `GET /me`. Push is Phase 2 |
-| Storage | none for user media beyond IndexedDB | New: R2 via the Worker |
-| Workers | `be-polish`, `be-push` (KV), `be-events` (Analytics Engine) | New fourth Worker `be-partner` (D1 + R2). Separate so partner load can never take Polish down |
-| Analytics | `track(name, props)` → `be-events` allow-list | `partner_interest` (already live), plus `partner_pair`, `partner_turn`, `partner_report`, `partner_block` added to the allow-list on this branch |
-| Deployment | GitHub Pages from `main`, `sw.js` cache bump; Workers via `wrangler deploy` | Nothing deployed from this branch |
-| Privacy | `fbSyncPayload` strips spoken transcripts before cloud sync; privacy.html | Partner turns are the first voice that leaves the device to another person — consent sheet + privacy text added |
+| App | One file `index.html`, `go(view)` router, `#v-<name>` divs, `valid[]` in `boot()`, bottom-bar map | View `partner`; Practice tab stays lit |
+| Track boundary | `areaId()`, `AREA_GEN = "general-english"` | `isGeneralEnglish()` — every GE-only feature checks it |
+| Feature flags | none before this branch | `FLAGS_DEFAULT` + `flag(name)`; `localStorage.be_flags` (JSON) overrides for local/test/internal preview |
+| Auth | Firebase Auth (compat SDK, lazy `fbLoad()`), `FBUser` | Required; the ID token authenticates every Worker call |
+| User data | `users/{uid}` Firestore blob (`S`) | **Not touched.** Partner data lives in D1/R2 |
+| Recording | `MediaRecorder` in `phRecInto` / `rpListen` | Own small recorder (`ppRecord`); take stays in memory until sent |
+| Transcription / assessment | `fbTranscribe(blob)`, `fbAssess(blob, target)` → `be-polish` | Reused unchanged |
+| AI coach | `rRoleplay` (General English), `be-polish` `chat` | The labelled fallback: "Practise with AI" opens it |
+| Curriculum | `trackWeeks()[w-1].days[d].task`, `fndPack().days[n-1].items[].en` | `ppPrompt(pair)` computes the round prompts client-side; both members compute the same from the pair's `prompt_week` / `fnd_day` (+ `prompt_json.phrase`) |
+| Progress | `markPracticed()` | Sending a turn calls it |
+| Notifications | `be-push` (payload-less), in-app cards | **In-app only**: Home card, Practice badge, toast / `Notification` via `ppNotify()` (dedup by turn id + 60 s) |
+| Workers | `be-polish`, `be-push`, `be-events` | Fourth Worker `be-partner` (D1 + R2 + cron) |
+| Analytics | `track(name, props)` → `be-events` allow-list | `partner_*` funnel and `shadow_v2_*` names added to the allow-list on this branch (Worker not deployed) |
+| Shadow Studio | `.sh-work` workspace, YouTube player, `shSeek`/`shCurT`, transcript box | Shadow Studio V2 panel `#shV2` + `shadow-sync.js`; Apply It hands a phrase to Practice Partner (`ppState().applyPhrase`) |
 
 ## Components
 
 ```
-index.html (client)                      backend/partner/ (Worker: be-partner)
- ┌─────────────────────────┐             ┌──────────────────────────────┐
- │ Practice → rp-entry card│             │ auth: Firebase ID token       │
- │ #partner view (rPartner)│  fetch +    │   (RS256, Google x509 certs)  │
- │  consent sheet          │  Bearer ──▶ │   or X-Dev-User when DEV_AUTH │
- │  get a partner / waiting│             │ routes: /me /consent /interest│
- │  thread: prompt, turns  │             │   /turns /turns/:id/audio     │
- │  ppRecord → fbTranscribe│             │   /seen /leave /report /block │
- │          → fbAssess     │             │ D1: members interest pairs    │
- │  AI fallback → roleplay │             │     turns reports blocks      │
- │ Home card + Practice    │             │     counters                  │
- │   badge from GET /me    │             │ R2: pairs/{pair}/{turn}.webm  │
- └─────────────────────────┘             │ cron daily: expire pairs,     │
-                                         │   delete audio of closed pairs│
-                                         └──────────────────────────────┘
+index.html (client, General English only)      backend/partner/ (Worker: be-partner)
+┌───────────────────────────────────────┐      ┌────────────────────────────────────┐
+│ FLAGS: practice_partner_enabled …     │      │ PARTNER_ENABLED != "1" → 503 on all │
+│ ppAvailable() = API && flag && GE     │      │   but /health                       │
+│ Practice card · Home card · badge     │      │ auth: Firebase ID token (RS256,     │
+│ #partner (rPartner)                   │      │   Google JWKS) or X-Dev-User when   │
+│  consent (18+) · goals/mode/avail     │ fetch│   DEV_AUTH="1" (local only)         │
+│  Match me → candidate cards (offers)  │ ───▶ │ /me /consent /prefs /interest       │
+│  Practise now → paired or AI (label)  │      │ /match /invite /next                │
+│  thread: rounds 1–4, prompt, record   │      │ /pairs/:id (GET) /pairs/:id/seen    │
+│   → fbTranscribe → fbAssess → send    │      │   /leave /report /block /decide     │
+│  decide: again / someone else         │      │ /turns (POST) /turns/:id/audio      │
+│  connection card → POST /next         │      │ D1: members interest pairs turns    │
+│  AI tip (tagged AI) · AI fallback     │      │   reports blocks counters           │
+│ Shadow V2 Apply It → applyPhrase      │      │   connections cooldowns offers audit│
+│ ppNotify(): dedup by turn id          │      │ R2: pairs/{pair}/{turn}.{ext}       │
+└───────────────────────────────────────┘      │ cron daily: expire, reliability,    │
+                                               │   purge audio 14 d after close,     │
+                                               │   sweep offers/cooldowns/audit      │
+                                               └────────────────────────────────────┘
 ```
+
+## Session model (try-before-connect)
+
+- A **pair** is one session: `kind` `trial` (first time) or `regular`
+  (started from a connection), `rounds = 4`, curriculum position = the lower of the two members'
+  (`prompt_week` / `fnd_day`), `prompt_json = {phrase}` when started from
+  Shadow Studio's Apply It.
+- `roundsView(pair, turns, uid)`: turns alternate; you may lead by at most
+  one; `per = 2` each; `complete` when `turns >= rounds` (or `completed_at`
+  set). `POST /turns` refuses `complete` (409) and `not_your_turn` (409).
+- On the fourth turn the Worker stamps `completed_at`, increments
+  `sessions_completed` for both and audits `session_completed`.
+- `POST /pairs/:id/decide {choice: continue|rematch}` — allowed when
+  complete, or `rematch` after `PARTNER_TIMEOUT_H` (24 h) of partner silence.
+  Both `continue` → `connections` row `mutual` (sessions 1) or `regular`
+  (sessions ≥ 2), pair closed `completed`. Any `rematch` → `cooldowns` row
+  for 14 days, connection `disconnected`, pair closed `rematch`.
+- `POST /next` — a member of a `mutual`/`regular` connection starts the next
+  session directly (409 `busy` if the partner is in a pair, 409 `paired` if
+  you are).
+
+## Matching
+
+- `POST /interest {track, band, lang, promptWeek, fndDay, mode: now|later,
+  topic?, goals?, phrase?}` — upserts the queue row (`403 track` unless
+  `general-english`). Then `candidates()` scores every other queued learner
+  on the same track. `mode:"now"` with a candidate → pair created at once;
+  otherwise up to 3 **offers** are minted (opaque 16-hex ids, 30-minute TTL)
+  and returned as cards `{offer, name, band, goals(≤2), topic,
+  availability, reasons, waitingMin}`. No uid ever leaves the Worker.
+- `POST /match` — re-mint up to 3 offers for a learner already waiting.
+- `POST /invite {offer}` — try a practice with that candidate. Pairing is one
+  D1 `batch` (delete both interest rows, insert the pair) so two simultaneous
+  invites cannot both succeed; the loser gets 409 `gone` or 404 `offer`.
+- Scoring: `score()` — exported and unit-tested — with `WEIGHTS_DEFAULT`
+  overridable through the `MATCH_WEIGHTS` Worker var. Reasons are the
+  strongest true facts, max two, as enum strings the client translates
+  (`same_level`, `same_lesson`, `same_stage`, `goal:<g>`, `available_now`,
+  `same_time:<a>`, `practised_before`).
 
 ## Request flow: sending a turn
 
-1. Client records (`MediaRecorder`, ≤60 s enforced by timer), keeps the blob in
-   memory, plays it back on request; re-record replaces it.
+1. Client records (`MediaRecorder`, ≤ 60 s timer), keeps the blob in memory,
+   plays it back; re-record replaces it.
 2. `fbTranscribe(blob)` → transcript; `fbAssess(blob, transcript)` → per-word
-   score. Both are the existing calls to `be-polish`. Offline → the turn cannot
-   be sent (the feature needs a network anyway) and the UI says so.
-3. `POST /turns` multipart: `audio` (blob), `day`, `transcript`, `score`,
-   `duration_ms`. The Worker: verifies token → member consented and not
-   suspended → active pair → not blocked → day within the pair week → seq ≤ 3 →
-   bytes/duration within limits → **transcript screen** (contact details,
-   handles, links) → stores R2 object → inserts row. Returns the turn.
+   score. Offline → the turn cannot be sent and the UI says so.
+3. `POST /turns` multipart `audio, transcript, score, duration_ms, turn_id`.
+   Worker: token → consented, not suspended → active pair → not blocked →
+   not duplicate (`turn_id` idempotent) → not complete → my turn → size
+   (≥ 1.2 KB, ≤ 1.5 MB) and length (≤ 75 s) → **transcript screen** → R2 put
+   → D1 insert (R2 object deleted if the insert fails) → response-latency
+   counters → completion check.
 4. The partner's next `GET /me` (boot, tab focus, opening the view, or the
-   60-second poll while the thread is open) carries `unread > 0` → card, badge,
-   toast.
+   poll while the thread is open) carries the new turn; `ppNotify()` raises
+   the card / badge / toast once per turn id.
 
 ## Auth
 
 `Authorization: Bearer <Firebase ID token>`. The Worker fetches Google's
-securetoken x509 certificates (cached 1 h), verifies RS256 with WebCrypto,
-checks `aud == FIREBASE_PROJECT_ID` (`be-mastery`), `iss ==
-https://securetoken.google.com/be-mastery`, `exp`, `sub`. The client gets the
-token from `FBUser.getIdToken()`.
+securetoken JWKS (cached), verifies RS256 with WebCrypto, checks `aud`,
+`iss`, `exp`, `sub`. **Development:** `DEV_AUTH="1"` (only in
+`[env.dev]`) accepts `X-Dev-User` and `X-Dev-Now` (movable clock); the client
+sends them only when `ppApiBase()` is `localhost`/`127.0.0.1` and
+`localStorage.be_partner_dev_user` is set.
 
-**Development mode:** with the Worker var `DEV_AUTH="1"` (set only in the
-local `wrangler dev` environment, never in production config) the header
-`X-Dev-User: <id>` is accepted in place of a token. The client sends it only
-when `PARTNER_API` points at `localhost`/`127.0.0.1` and
-`localStorage.be_partner_dev_user` is set. This is how the whole flow is
-tested with two browser contexts without creating Firebase accounts.
+## Feature flags (client, `FLAGS_DEFAULT`)
+
+| Flag | Production default | Gates |
+|---|---|---|
+| `practice_partner_enabled` | off | the whole feature (`ppAvailable()`), the Apply-It partner button |
+| `practice_partner_matching_enabled` | off | Match me / Practise now buttons (consent and profile still reachable) |
+| `practice_partner_voice_enabled` | off | the recorder in the thread (`pp.voice_off` otherwise) |
+| `practice_partner_ai_fallback_enabled` | on | the labelled AI coach offer when no human / partner silent |
+| `practice_partner_notifications_enabled` | off | `ppNotify()` toast / `Notification` (Home card and badge stay) |
+| `shadow_studio_v2_enabled` | off | the `#shV2` panel |
+| `shadow_word_timing_enabled` | on | word-level karaoke when the caption file has word times |
+| `shadow_apply_phrase_enabled` | off | the Apply tab in Shadow Studio V2 |
+
+Server side, `PARTNER_ENABLED="0"` in production `wrangler.toml` returns 503
+`disabled` on everything but `/health` even if a client has flags on.
 
 ## What changes where
 
-- `index.html`: `PARTNER_API` const; `rPartner` view + CSS; Practice card;
-  Home card; `ppApi()` fetch helper; `ppRecord`; i18n keys `pp.*`.
-- `backend/partner/`: `partner-worker.js`, `wrangler.toml`, `migrations/`,
-  `README.md`, `test/` (integration tests against `wrangler dev`).
-- `backend/events/events-worker.js`: four new event names (not deployed).
-- `i18n/*.json`: `pp.*` keys.
-- `tests/smoke.mjs`: partner checks that run against a local `wrangler dev`.
-- `privacy.html`: a section on partner voice sharing.
-- `sw.js`: **not** bumped on this branch (bump happens at release).
+- `index.html`: flags block; `PARTNER_API`, `ppApi()`, `rPartner`, `ppHomeCardHTML()`,
+  `ppUnread()`, `ppNotify()`, `ppPrompt()`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`;
+  Shadow V2 block (`shV2Load`, `svRender`, `svTick`, `svApply*`); i18n `pp.*`, `sv.*`.
+- `shadow-sync.js` (new), `captions/*.json` (word times where available), `sw.js`
+  precache entry for `shadow-sync.js`.
+- `backend/partner/`: `partner-worker.js`, `wrangler.toml`, `migrations/0001`, `0002`,
+  `README.md`, `test/run.mjs`.
+- `backend/events/events-worker.js`: new event names and prop keys (not deployed).
+- `i18n/*.json`: `pp.*` and `sv.*` keys in 15 languages.
+- `tests/partner.mjs`, `tests/shadow-sync.test.mjs`, `tests/package.json`.
+- `privacy.html`: Practice Partner section (18+).
+- `sw.js`: cache name **not** bumped on this branch (bump at release).
 
 ## What does NOT change
 
-Firestore documents or rules; `be-polish` and `be-push` code; existing views.
+Firestore documents or rules; `be-polish` and `be-push` code; the Welding
+programme; every existing view when the flags are off.
