@@ -1206,6 +1206,12 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-radio{cursor:pointer}.pp-radio input{display:none}.pp-radio.on{background:var(--accent-fill);color:var(--on-accent)}
 .pp-check{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px}
 .pp-home{cursor:pointer}
+.pp-rounds{display:flex;align-items:center;gap:6px;margin-top:12px;flex-wrap:wrap}.pp-rounds span{width:12px;height:12px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2)}.pp-rounds span.done{background:var(--green);border-color:var(--green)}.pp-rounds span.now{background:var(--acc);border-color:var(--acc)}.pp-rounds b{font-size:12.5px;color:var(--mut);margin-left:6px}
+.pp-cand{margin-top:10px}.pp-cand .btn-primary{margin-top:10px;width:100%;justify-content:center}.pp-cand-topic{font-size:12.5px;color:var(--mut);display:flex;gap:6px;align-items:center;margin:8px 0 0}.pp-cand-topic svg{width:14px;height:14px}
+.pp-why{font-size:13px;margin:8px 0 0;display:flex;gap:6px;align-items:flex-start;color:var(--accent-text)}.pp-why svg{width:15px;height:15px;flex:none;margin-top:2px}
+.pp-decide b{font-size:16px;display:block;margin:4px 0 6px}.pp-tip{font-size:13.5px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin:8px 0}.pp-tip svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--gold)}
+.pp-ai-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold);margin-right:6px;vertical-align:middle}
+.pp-conn{margin-top:12px}.pp-apply-card{margin-top:12px}.pp-adult{margin-top:12px;font-weight:700}
 .pp-row svg,.pp-recbtn svg,.pp-sheet-btn svg,.pp-play svg{width:18px;height:18px;flex:none}.pp-row .btn,.pp-row .btn-primary{display:inline-flex;align-items:center;gap:8px}
 /* ---- Foundations (Stage 0) ---- */
 .fnd-home{margin:0 0 16px;border-color:color-mix(in srgb,var(--acc) 45%,var(--line2));background:linear-gradient(150deg,color-mix(in srgb,var(--acc) 12%,var(--card)),var(--card))}
@@ -4507,16 +4513,109 @@ const I18N_EN={
  "sv.apply_eyebrow":"Apply it","sv.apply_sub":"Use this expression in your own sentence — with the AI coach, or with a real learner.",
  "sv.apply_ai":"Practise with AI","sv.apply_partner":"Use it with a partner","sv.apply_pick":"Tap another sentence in the transcript to pick a different expression.",
  "pp.title":"Practice Partner",
+ "pp.home_decide_h":"Your practice with {{name}} is complete",
+ "pp.err_notcomplete":"Finish the four turns first.",
+ "pp.err_gone":"That learner just got paired with someone else. Here are new matches.",
+ "pp.err_complete":"This session is complete.",
+ "pp.err_turn":"It is your partner's turn now.",
+ "pp.sent_complete_toast":"Sent — that completes the session. Decide when you are ready.",
+ "pp.conn_busy":"Your partner is in another session right now.",
+ "pp.conn_start":"Start today's practice →",
+ "pp.conn_last":"last {{date}}",
+ "pp.conn_sub":"Practised together {{n}} time(s)",
+ "pp.conn_h":"Your practice partner: {{name}}",
+ "pp.rematch_toast":"No problem. Let's find another partner.",
+ "pp.mutual_toast":"You and {{name}} are now practice partners!",
+ "pp.continue_toast":"Noted. When your partner agrees, you become regular partners.",
+ "pp.rematch_sub":"No problem. This session closes and you go back in line. Your partner is not told why.",
+ "pp.rematch_h":"Find someone else?",
+ "pp.decided_wait":"Waiting for {{name}} to decide.",
+ "pp.decided_both":"Both decided.",
+ "pp.decided_rematch":"You chose to find someone else",
+ "pp.decided_continue":"You chose to practise with {{name}} again",
+ "pp.decide_fine":"Neither answer is shown to your partner.",
+ "pp.decide_rematch":"Find someone else",
+ "pp.decide_continue":"Practise together again",
+ "pp.decide_sub":"Your partner decides too, on their own. Only if you both say again do you become regular partners.",
+ "pp.decide_h":"How was this practice?",
+ "pp.decide_eyebrow":"Session complete",
+ "pp.coach_ok":"{{n}}% on your last turn. Slow down on the longer words next time.",
+ "pp.coach_good":"Clear and steady — {{n}}% on your last turn. Keep that pace.",
+ "pp.coach_word":"One thing to work on: “{{word}}” ({{n}}%). Say it slowly once, then in the sentence.",
+ "pp.ai_tag":"AI",
+ "pp.voice_off":"Voice turns are switched off in this build.",
+ "pp.wait_sub":"Your partner records the next turn. You can do any other practice meanwhile — we will tell you.",
+ "pp.wait_h":"Waiting for {{name}}",
+ "pp.apply_clear":"Use the lesson task instead",
+ "pp.apply_note":"Your next practice will use this expression. Your partner gets the same task.",
+ "pp.r2_phrase":"Respond to your partner, then use “{{phrase}}” in your own sentence and ask a follow-up question.",
+ "pp.r1_phrase":"Use the expression “{{phrase}}” to tell your partner about something you are working on this week.",
+ "pp.apply_title":"Use your expression",
+ "pp.r4":"Respond, then finish with one sentence about what you will do next week.",
+ "pp.r3":"Answer your partner's question, and add one detail they did not ask about.",
+ "pp.r2":"Respond to what your partner said about {{topic}}, then ask one follow-up question.",
+ "pp.r1":"{{task}}",
+ "pp.round_n":"Round {{n}}",
+ "pp.prompt_generic":"Today's practice",
+ "pp.status_complete":"Session complete",
+ "pp.status_waiting":"Round {{n}} of {{max}} — waiting for {{name}}",
+ "pp.status_yours":"Round {{n}} of {{max}} — your turn",
+ "pp.kind_regular":"Regular partners",
+ "pp.kind_trial":"Trial practice",
+ "pp.closed_completed":"Nice work — session complete.",
+ "pp.closed_rematch":"Your last session ended. You can find a new partner.",
+ "pp.nohuman_sub":"Start AI practice while we look for your next human session. The coach is AI, never a person.",
+ "pp.nohuman_h":"No partner available yet",
+ "pp.keep_looking":"Keep looking",
+ "pp.nocand_sub":"You are in line — the next compatible learner sees you first. Practise with the AI coach while we keep looking.",
+ "pp.nocand_h":"No suitable partner is available right now",
+ "pp.cands_back":"Back",
+ "pp.try_btn":"Try a practice →",
+ "pp.why_time":"both free in the {{time}}",
+ "pp.why_goal":"same goal: {{goal}}",
+ "pp.why_similar":"similar level",
+ "pp.why_before":"you practised together before",
+ "pp.why_now":"available now",
+ "pp.why_stage":"same stage",
+ "pp.why_lesson":"same lesson",
+ "pp.why_level":"same level",
+ "pp.why_label":"Why:",
+ "pp.cands_sub":"Try a practice with one of them. It is four short turns — then you both decide.",
+ "pp.cands_h":"We found learners with similar goals",
+ "pp.cands_eyebrow":"Your practice matches",
+ "pp.match_again":"Show me candidates",
+ "pp.now_btn":"Practise now",
+ "pp.match_btn":"Match me →",
+ "pp.avail_weekends":"Weekends",
+ "pp.avail_evening":"Evening",
+ "pp.avail_afternoon":"Afternoon",
+ "pp.avail_morning":"Morning",
+ "pp.avail_h":"When are you usually free?",
+ "pp.mode_either":"Voice, and live when it comes",
+ "pp.mode_voice":"Voice messages",
+ "pp.mode_h":"How do you want to practise?",
+ "pp.goal_fluency":"Fluency & confidence",
+ "pp.goal_daily":"Daily life",
+ "pp.goal_pronunciation":"Pronunciation",
+ "pp.goal_interview":"Interview English",
+ "pp.goal_workplace":"Workplace English",
+ "pp.goal_casual":"Casual conversation",
+ "pp.goal_sub":"Pick up to three. This is how we choose your partner.",
+ "pp.goal_h":"What do you want to practise?",
+ "pp.need_adult":"Practice Partner is for learners aged 18 and over.",
+ "pp.ge_only_btn":"Switch to General English",
+ "pp.ge_only_sub":"It pairs General English learners on the same lesson. Switch to General English to use it; your welding progress stays where it is.",
+ "pp.ge_only_h":"Practice Partner is part of General English",
  "pp.eyebrow":"Practice Partner",
- "pp.tagline":"BE Mastery teaches you what to say. Practice Partner gives you someone to say it to.",
+ "pp.tagline":"BE Mastery teaches you what to say. Shadow Studio helps you say it. Practice Partner finds someone to say it to.",
  "pp.card_sub":"Practise English with another learner — short voice turns on today's lesson, no scheduling, no chat.",
- "pp.how1_h":"Get paired for a week",
- "pp.how1":"With a learner on your programme and level. First names only — no photos, no profiles.",
- "pp.how2_h":"Speak on today's lesson",
- "pp.how2":"Both of you get the same task from the programme. Record up to 60 seconds, hear it back, see the coach's score, then send.",
- "pp.how3_h":"Listen and reply when you can",
- "pp.how3":"Nothing is live. Your partner replies in their own time; you keep a duo streak together.",
- "pp.rules":"No typed messages, no contact details, no photos. Report or block at any time. If your partner goes quiet, the AI coach steps in — clearly marked as AI.",
+ "pp.how1_h":"Match me — or practise now",
+ "pp.how1":"Up to three learners on your programme and level, each with a reason. First names only — no photos, no profiles, nothing to browse.",
+ "pp.how2_h":"Try a practice: four short turns",
+ "pp.how2":"Both of you get the same task from the programme. Record up to 60 seconds, hear it back, see the coach's score, then send. Your partner replies in their own time.",
+ "pp.how3_h":"Then decide — alone",
+ "pp.how3":"Practise together again, or find someone else. Only when you both say again do you become regular partners. Nobody has to explain.",
+ "pp.rules":"No typed messages, no contact details, no photos. Report or block at any time. If your partner goes quiet, the AI coach steps in — clearly marked as AI. For learners aged 18 and over.",
  "pp.off_h":"Practice Partner is temporarily unavailable",
  "pp.off_sub":"Please try again later. Your other practice tools are unaffected.",
  "pp.signin_h":"Create your free account to get a partner",
@@ -4533,11 +4632,11 @@ const I18N_EN={
  "pp.consent_open":"Read and continue →",
  "pp.consent_h":"What Practice Partner shares",
  "pp.consent_1":"Your partner sees your first name ({{name}}), your level band and your language — nothing else. No photo, no e-mail.",
- "pp.consent_2":"Each voice turn you send, and its transcript, is heard by that one partner only. Audio is stored securely and deleted 14 days after a pair ends.",
+ "pp.consent_2":"Each voice turn you send, and its transcript, is uploaded to our server and heard by that one partner only. Audio is deleted 14 days after a session ends. Coach scores also use the server.",
  "pp.consent_3":"Transcripts are screened for phone numbers, e-mails, links and social handles before a turn is delivered. Turns with contact details are refused.",
- "pp.consent_4":"A pair lasts one week. If a partner is silent for a day, the AI coach is offered instead — always marked as AI.",
+ "pp.consent_4":"A session is four short turns. If a partner is silent for a day, the AI coach is offered instead — always marked as AI — and you can find someone else.",
  "pp.consent_5":"You can report or block your partner at any time. Two reports from different people suspend an account for 30 days.",
- "pp.consent_age":"For learners aged 16 and over.",
+ "pp.consent_age":"I confirm I am 18 or older.",
  "pp.gender_h":"Same-gender partner (optional)",
  "pp.gender_sub":"Tell us your gender only if you want a partner of the same gender. It is never shown to anyone.",
  "pp.gender_skip":"Prefer not to say",
@@ -4551,8 +4650,8 @@ const I18N_EN={
  "pp.consent_done":"Saved. You can get a partner now.",
  "pp.suspended_h":"Practice Partner is paused on your account",
  "pp.suspended_sub":"Two partners reported this account. Partner practice reopens on {{date}}. Every other part of BE Mastery works as before.",
- "pp.get_h":"Get a partner for this week",
- "pp.get_sub":"You will be paired with a {{track}} learner in your band ({{band}}). Usually instant when someone is waiting.",
+ "pp.get_h":"Find your practice partner",
+ "pp.get_sub":"We match you on what you are learning, your level ({{band}}) and how you like to practise.",
  "pp.get_btn":"Get a partner →",
  "pp.get_fine":"One partner at a time, for one week.",
  "pp.prefs":"Change preferences",
@@ -4564,7 +4663,7 @@ const I18N_EN={
  "pp.waiting_h":"Looking for your partner…",
  "pp.waiting_count":"{{n}} other learner(s) in your band are waiting too — you will be paired as soon as one is compatible.",
  "pp.waiting_alone":"You are first in line for your band. The next learner who asks is paired with you.",
- "pp.waiting_sub":"You can close the app. Your Home screen will tell you when you have a partner.",
+ "pp.waiting_sub":"You can close the app. Your Home screen will tell you when a learner tries a practice with you.",
  "pp.withdraw":"Stop looking",
  "pp.refresh":"Check again",
  "pp.waiting_toast":"You're in line. We'll pair you as soon as someone is ready.",
@@ -4587,7 +4686,7 @@ const I18N_EN={
  "pp.repair_btn":"Find a new partner",
  "pp.repair_h":"Find a new partner?",
  "pp.repair_sub":"This ends the current pair and puts you back in line. Your turns so far stay with the old pair.",
- "pp.prompt_eyebrow":"Today's task — both of you",
+ "pp.prompt_eyebrow":"Round {{n}} of {{max}} — your task",
  "pp.prompt_none":"Today's task will appear here.",
  "pp.prompt_frame":"Tell your partner, in your own words:",
  "pp.fnd_task":"Say these three sentences to your partner, then add one sentence of your own.",
@@ -4635,8 +4734,8 @@ const I18N_EN={
  "pp.toast_reply":"{{name}} replied to your turn.",
  "pp.home_reply_h":"{{name}} replied",
  "pp.home_reply_sub":"Listen, then record your next turn on today's task.",
- "pp.home_prompt_h":"Today's task with {{name}} is waiting",
- "pp.home_prompt_sub":"Record one turn to keep your duo streak.",
+ "pp.home_prompt_h":"Your turn with {{name}}",
+ "pp.home_prompt_sub":"Record one short turn on today's task.",
  "pp.home_open":"Open Practice Partner →",
  "fnd.title":"Foundations",
  "fnd.eyebrow":"Start here",
@@ -10484,7 +10583,7 @@ function rPractice(el){
   ${pathToolsHTML()}
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
-  ${ppApiBase()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
+  ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
     <span class="rp-entry-ic pp-entry-ic">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
     <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
     <span class="rp-entry-go">→</span>
@@ -13018,25 +13117,29 @@ function svTick(){
 }
 
 /* ================= PRACTICE PARTNER =================
-   "BE Mastery teaches you what to say. Practice Partner gives you someone to
-   say it to." Two learners on the same programme and level are paired for a
-   week; each day both get the day's task from the curriculum; each records a
-   short turn, hears it, sees the coach's score, and sends; the partner listens
-   and replies when they can. Nothing live, nothing typed, nobody browsed.
-   All data lives behind the be-partner Worker (backend/partner/); the app's
-   Firestore document is untouched. Design: marketing/product/practice-partner/.
-
-   Auth: the Firebase ID token. For local development the Worker's dev mode
-   accepts X-Dev-User, and this client only sends it when PARTNER_API points
-   at localhost/127.0.0.1 (localStorage be_partner_api + be_partner_dev_user). */
+   "BE Mastery teaches you what to say. Shadow Studio helps you say it.
+   Practice Partner finds someone to say it to. AI Coach helps both improve."
+   General English only (isGeneralEnglish() + practice_partner_enabled): the
+   Practice card, the Home card, the route and every Worker call are gated,
+   and the Worker refuses any other track on its own.
+   Model: Match me → up to 3 candidates with a reason → Try practice → a
+   trial of four short voice turns on today's task → each decides alone:
+   practise together again (both → a mutual partner) or find someone else
+   (a 14-day cooldown, nothing said). Practice now takes the best candidate
+   at once; nobody available → the AI coach, clearly labelled, and you stay
+   in line. All data lives behind be-partner (backend/partner/).
+   Auth: the Firebase ID token; local dev uses X-Dev-User only when
+   PARTNER_API points at localhost. */
 const PARTNER_API="https://be-partner.nore-ngou.workers.dev";   /* "" = feature off (kill switch) */
 const PP_MAX_MS=60000, PP_POLL_MS=60000;
-let ppMe=null,ppRec=null,ppBusy=false,ppPollH=null,ppLastFetch=0;
+let ppMe=null,ppRec=null,ppBusy=false,ppPollH=null,ppLastFetch=0,ppCands=null;
 const ppAudioUrls=new Map();
 function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=null)return o.replace(/\/+$/,"")}catch(e){}return PARTNER_API}
 function ppDevUser(){try{if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(ppApiBase()))return null;return localStorage.getItem("be_partner_dev_user")||null}catch(e){return null}}
 function ppSignedIn(){return !!(FBUser||ppDevUser())}
 function ppState(){S.pp=S.pp||{};return S.pp}
+/* the feature exists for this learner: flag on, General English, an endpoint */
+function ppAvailable(){return !!ppApiBase()&&flag("practice_partner_enabled")&&isGeneralEnglish()}
 async function ppHeaders(){
   const h={};const dev=ppDevUser();
   if(dev){h["x-dev-user"]=dev;try{const n=localStorage.getItem("be_partner_dev_now");if(n)h["x-dev-now"]=n}catch(e){}return h}
@@ -13044,7 +13147,7 @@ async function ppHeaders(){
   return h;
 }
 async function ppApi(method,path,body){
-  if(!ppApiBase())throw Object.assign(new Error("off"),{code:"off"});
+  if(!ppAvailable())throw Object.assign(new Error("off"),{code:"off"});
   const h=await ppHeaders();let b=body;
   if(body&&!(body instanceof FormData)){h["content-type"]="application/json";b=JSON.stringify(body)}
   let r;
@@ -13055,51 +13158,59 @@ async function ppApi(method,path,body){
   if(!r.ok)throw Object.assign(new Error((j&&j.error)||String(r.status)),{code:(j&&j.error)||"http",status:r.status,detail:j&&j.detail});
   return j;
 }
-/* the learner's situation, from the Worker; cached in S.pp for Home and offline */
 async function ppRefresh(silent){
-  if(!ppApiBase()||!ppSignedIn())return null;
+  if(!ppAvailable()||!ppSignedIn())return null;
   try{
     ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();
     const st=ppState();st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
     ppNotify();navBadges();
   }catch(e){
     if(e.code==="auth")ppMe={auth:false};
+    else if(e.code==="disabled")ppMe={disabled:true};
     else if(!silent)ppMe={error:e.code};
   }
   return ppMe;
 }
-/* a partner reply the learner has not seen yet: one toast per new turn, the
-   Home card and the Practice badge do the rest */
-function ppUnread(){const m=(ppState().lastMe)||ppMe;return m&&m.pair?Number(m.pair.unread||0):0}
+function ppUnread(){if(!ppAvailable())return 0;const m=(ppState().lastMe)||ppMe;return m&&m.pair?Number(m.pair.unread||0):0}
+/* in-app notification: one toast per new partner turn, deduplicated by turn
+   id and rate-limited to one per minute; the Home card and the Practice
+   badge carry the rest. Push (with payload) is a later phase. */
 function ppNotify(){
-  const m=ppMe;if(!m||!m.pair||!m.pair.unread)return;
+  const m=ppMe;if(!m||!m.pair||!m.pair.unread||!flag("practice_partner_notifications_enabled"))return;
   const last=[...m.pair.turns].reverse().find(t=>!t.mine);if(!last)return;
-  const st=ppState();if(st.notified===last.id)return;
-  st.notified=last.id;save();
-  if(cur&&cur.v!=="partner")toast(t("pp.toast_reply",{name:m.pair.partner.name}));
+  const st=ppState();if(st.notified===last.id||Date.now()-(st.notifiedAt||0)<60000)return;
+  st.notified=last.id;st.notifiedAt=Date.now();save();
+  if(cur&&cur.v!=="partner"){toast(t("pp.toast_reply",{name:m.pair.partner.name}));try{track("partner_notification_sent",{kind:"reply"})}catch(e){}}
 }
 /* ---- what BE Mastery already knows about the learner, for matching ---- */
 function ppBand(){if(fndGated()){return fndDayOf()<=7?"fnd-1-7":"fnd-8-15"}const w=currentPos().w;return w<=4?"w1-4":w<=8?"w5-8":"w9-12"}
 function ppPosition(){return fndGated()?{promptWeek:0,fndDay:fndDayOf()}:{promptWeek:currentPos().w,fndDay:0}}
+function ppTopic(){try{const p=currentPos(),wk=trackWeeks()[p.w-1];return String((wk&&wk.theme)||"").slice(0,60)}catch(e){return ""}}
 function ppFirstName(){return String((S.profile&&S.profile.name)||"").trim().split(/\s+/)[0].slice(0,24)||"Learner"}
-/* the day's prompt, computed from the curriculum of the pair's track — both
-   members compute the same thing, the Worker stores only the position */
+function ppGoalFromProfile(){const g=(S.profile&&S.profile.goal)||"";return /interview/i.test(g)?"interview":/present|meeting|work|career|promot/i.test(g)?"workplace":/confiden|fluen/i.test(g)?"fluency":""}
+/* the session's task, computed from the General English curriculum for
+   (promptWeek | fndDay) and the round; an Apply-it phrase overrides the topic */
 function ppPrompt(pair){
-  const day=Math.max(0,Math.min(6,Number(pair.day)||0));
-  let cu;try{cu=ProfessionalTrackContext.resolveCurriculum(pair.track)}catch(e){cu=activeCurriculum()}
+  let cu;try{cu=ProfessionalTrackContext.resolveCurriculum("general-english")}catch(e){cu=activeCurriculum()}
+  const round=Math.max(1,Math.min(pair.rounds||4,pair.round||1));
+  const phrase=pair.prompt&&pair.prompt.phrase;
+  let topic="",task="",title="";
   if(pair.promptWeek>0){
-    /* the week's speaking tasks first (Tue / Thu / Sat are the drills), the
-       shadowing and review days last — a partner is someone to say it TO */
-    const order=["Tue","Thu","Sat","Fri","Mon","Wed","Sun"].filter(x=>(cu.days||[]).includes(x)).concat((cu.days||[]).filter(x=>!["Tue","Thu","Sat","Fri","Mon","Wed","Sun"].includes(x)));
-    const wk=(cu.weeks||[])[pair.promptWeek-1],d=order[day]||(cu.days||[])[day],dd=wk&&wk.days&&wk.days[d];
-    if(!dd)return null;
-    const unit=(pair.track!=="general-english"&&wk.stage)||t("journey.week_label",{n:pair.promptWeek});
-    return {title:`${unit} · ${d} — ${dd.focus||""}`,task:dd.task||"",out:dd.out||""};
+    const order=["Tue","Thu","Sat","Fri","Mon","Wed","Sun"];
+    const wk=(cu.weeks||[])[pair.promptWeek-1],d=order.find(x=>wk&&wk.days&&wk.days[x])||"Tue",dd=wk&&wk.days&&wk.days[d];
+    if(dd){topic=dd.focus||wk.theme||"";task=dd.task||"";title=`${t("journey.week_label",{n:pair.promptWeek})} — ${topic}`}
+  }else if(cu.foundations&&cu.foundations.days){
+    const n=Math.min(15,Math.max(1,pair.fndDay||1)),dy=cu.foundations.days[n-1];
+    if(dy){topic=fndFill(dy.theme||"","en");task=t("pp.fnd_task")+" "+dy.items.map(it=>fndFill(it.en,"en")).join(" ");title=t("path.next_fnd",{n,theme:topic})}
   }
-  const pack=cu.foundations;if(!pack||!pack.days)return null;
-  const n=Math.min(15,Math.max(1,(pair.fndDay||1)+day)),dy=pack.days[n-1];if(!dy)return null;
-  const lines=dy.items.map(it=>fndFill(it.en,"en"));
-  return {title:t("path.next_fnd",{n,theme:fndFill(dy.theme||"","en")}),task:t("pp.fnd_task"),lines};
+  if(phrase){title=t("pp.apply_title");topic=phrase}
+  const rounds={
+    1:phrase?t("pp.r1_phrase",{phrase}):t("pp.r1",{task}),
+    2:phrase?t("pp.r2_phrase",{phrase}):t("pp.r2",{topic}),
+    3:t("pp.r3"),
+    4:t("pp.r4")
+  };
+  return {title:title||t("pp.prompt_generic"),topic,task:rounds[round]||rounds[1],round};
 }
 /* ---------------------------------------------------------------- view */
 function rPartner(el){
@@ -13107,7 +13218,8 @@ function rPartner(el){
   const back=`<button class="back stick-back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div><h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
   const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
-  if(!ppApiBase()){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
+  if(!isGeneralEnglish()){shell(`<section class="card pp-cta"><b>${t("pp.ge_only_h")}</b><p class="sub">${t("pp.ge_only_sub")}</p><button class="btn-primary" onclick="selectProfessionalTrack('general-english')">${t("pp.ge_only_btn")}</button></section>`);return}
+  if(!ppAvailable()){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
   if(!ppSignedIn()){
     shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p>
       <button class="btn-primary" onclick="fbOpenModal('up')">${t("pp.signin_btn")}</button></section>`);return;
@@ -13117,7 +13229,7 @@ function rPartner(el){
       <button class="btn-primary" onclick="go('home')">${t("fnd.check_open")}</button></section>`);return;
   }
   shell(`<section class="card"><p class="sub">${t("pp.loading")}</p></section>`);
-  ppRefresh().then(()=>{if(cur.v!=="partner")return;ppRender(el);ppPollH=setInterval(()=>{if(cur.v!=="partner"){clearInterval(ppPollH);return}ppRefresh(true).then(()=>{if(cur.v==="partner"&&!ppRec)ppRender(el)})},PP_POLL_MS)});
+  ppRefresh().then(()=>{if(cur.v!=="partner")return;ppRender(el);ppPollH=setInterval(()=>{if(cur.v!=="partner"){clearInterval(ppPollH);return}ppRefresh(true).then(()=>{if(cur.v==="partner"&&!ppRec&&!ppCands)ppRender(el)})},PP_POLL_MS)});
 }
 function ppIntroHTML(){
   return `<section class="card pp-intro">
@@ -13135,62 +13247,115 @@ function ppRender(el){
   const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
   const m=ppMe;
   if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
+  if(m.disabled){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
   if(m.auth===false){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p><button class="btn-primary" onclick="fbOpenModal('in')">${t("pp.signin_btn")}</button></section>`);return}
   if(!m.consented){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.consent_cta_h")}</b><p class="sub">${t("pp.consent_cta_sub")}</p><button class="btn-primary" onclick="ppOpenConsent()">${t("pp.consent_open")}</button></section>`);return}
   if(m.suspendedUntil){shell(`<section class="card pp-cta"><b>${t("pp.suspended_h")}</b><p class="sub">${t("pp.suspended_sub",{date:new Date(m.suspendedUntil).toLocaleDateString()})}</p></section>`);return}
   if(m.pair){shell(ppThreadHTML(m.pair));ppRenderRecorder();ppMarkSeen(m.pair);return}
+  if(ppCands){shell(ppCandidatesHTML(ppCands));return}
+  const apply=ppState().applyPhrase;
+  const applyCard=apply?`<section class="card pp-apply-card"><div class="eyebrow">${t("sv.apply_eyebrow")}</div><p class="sv-phrase">“${esc(apply.text)}”</p><p class="sub">${t("pp.apply_note")}</p><button class="btn btn-g btn-sm" onclick="ppState().applyPhrase=null;save();go('partner')">${t("pp.apply_clear")}</button></section>`:"";
+  const conn=m.connection?`<section class="card pp-conn">
+      <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
+      <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div></div>
+      <div class="pp-row">${m.connection.canStart?`<button class="btn-primary" onclick="ppNext()">${t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`}</div>
+    </section>`:"";
   if(m.waiting){
-    shell(`${ppIntroHTML()}<section class="card pp-cta pp-wait">
+    shell(`${applyCard}${conn}<section class="card pp-cta pp-wait">
       <div class="pp-wait-ring">${ic("clock")}</div>
       <b>${t("pp.waiting_h")}</b>
       <p class="sub">${m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone")}</p>
       <p class="sub">${t("pp.waiting_sub")}</p>
-      <div class="pp-row"><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button><button class="btn btn-g" onclick="go('partner')">${t("pp.refresh")}</button></div>
-    </section>`);return;
+      <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
+    </section>
+    ${flag("practice_partner_ai_fallback_enabled")?`<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
+      <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice()">${t("pp.fallback_btn")}</button></div></section>`:""}`);return;
   }
-  const closed=m.lastClosed?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(m.lastClosed.reason||"left"))}</p>`:"";
-  shell(`${ppIntroHTML()}<section class="card pp-cta">${closed}
-    <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand()),track:t(activeProfessionalTrack().nameKey)})}</p>
-    <button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppJoin()">${t("pp.get_btn")}</button>
+  const closed=m.lastClosed?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"))}</p>`:"";
+  shell(`${applyCard}${conn}${ppIntroHTML()}<section class="card pp-cta">${closed}
+    <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
+    <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppMatch()">${t("pp.match_btn")}</button><button class="btn btn-g" ${ppBusy?"disabled":""} onclick="ppNow()">${t("pp.now_btn")}</button></div>
     <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
   </section>`);
 }
+const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar"};
+function ppReasonText(r){
+  if(PP_REASON_KEY[r])return t(PP_REASON_KEY[r]);
+  if(r.startsWith("goal:"))return t("pp.why_goal",{goal:t("pp.goal_"+r.slice(5))});
+  if(r.startsWith("same_time:"))return t("pp.why_time",{time:t("pp.avail_"+r.slice(10))});
+  return "";
+}
+function ppCandidatesHTML(cards){
+  if(!cards.length)return `<section class="card pp-cta"><b>${t("pp.nocand_h")}</b><p class="sub">${t("pp.nocand_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice()">${t("pp.fallback_btn")}</button><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.keep_looking")}</button></div></section>`;
+  return `<section class="card"><div class="eyebrow">${t("pp.cands_eyebrow")}</div><b style="font-size:16px;display:block;margin:4px 0 4px">${t("pp.cands_h")}</b><p class="sub">${t("pp.cands_sub")}</p></section>
+  ${cards.map(c=>`<section class="card pp-cand">
+    <div class="pp-head-row"><span class="pp-avatar">${esc(c.name.slice(0,1).toUpperCase())}</span>
+      <div class="pp-head-t"><b>${esc(c.name)}</b><small>${t("pp.band_"+c.band)}${c.goals&&c.goals.length?" · "+c.goals.map(g=>t("pp.goal_"+g)).join(", "):""}${c.availability==="now"?" · "+t("pp.why_now"):""}</small></div></div>
+    ${c.topic?`<p class="pp-cand-topic">${ic("book")} ${esc(c.topic)}</p>`:""}
+    <p class="pp-why">${ic("check")} ${t("pp.why_label")} ${esc(c.reasons.map(ppReasonText).filter(Boolean).join(" + ")||t("pp.why_similar"))}</p>
+    <button class="btn-primary" onclick="ppInvite('${esc(c.offer)}')">${t("pp.try_btn")}</button>
+  </section>`).join("")}
+  <div class="pp-row"><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.cands_back")}</button></div>`;
+}
 function ppThreadHTML(p){
   const pr=ppPrompt(p);
-  const day=Math.min(7,(p.day||0)+1);
-  const canRecord=p.myTurnsToday<p.turnsPerDay&&p.day<7;
   const turns=p.turns.map(tn=>`<div class="pp-turn ${tn.mine?"mine":"theirs"}" id="ppT${tn.id}">
-      <div class="pp-turn-top"><b>${tn.mine?t("pp.you"):esc(p.partner.name)}</b><span>${t("pp.day_n",{n:tn.day+1})}${tn.score!=null?` · <i class="pp-score">${tn.score}%</i>`:""}</span></div>
+      <div class="pp-turn-top"><b>${tn.mine?t("pp.you"):esc(p.partner.name)}</b><span>${t("pp.round_n",{n:tn.seq})}${tn.score!=null?` · <i class="pp-score">${tn.score}%</i>`:""}</span></div>
       <button class="btn btn-g btn-sm pp-play" onclick="ppPlay('${tn.id}',this)">${ic("play")} ${t("pp.play")}${tn.durationMs?` · ${Math.round(tn.durationMs/1000)}s`:""}</button>
       ${tn.transcript?`<p class="pp-tx">${esc(tn.transcript)}</p>`:`<p class="pp-tx pp-tx-none">${t("pp.no_transcript")}</p>`}
     </div>`).join("");
+  const status=p.complete?t("pp.status_complete"):p.myTurn?t("pp.status_yours",{n:p.round,max:p.rounds}):t("pp.status_waiting",{name:esc(p.partner.name),n:p.round,max:p.rounds});
   return `<section class="card pp-head">
     <div class="pp-head-row">
       <span class="pp-avatar">${esc(p.partner.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small>${t("pp.band_"+p.band)} · ${t("pp.day_of",{n:day})}</small></div>
+      <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small>${t("pp.band_"+p.band)} · ${p.kind==="regular"?t("pp.kind_regular"):t("pp.kind_trial")}</small></div>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
     </div>
-    <div class="pp-stats"><span>${ic("flame")} ${t("pp.duo_streak",{n:p.duoStreak||0})}</span><span>${ic("check")} ${t("pp.turns_today",{n:p.myTurnsToday,max:p.turnsPerDay})}</span></div>
+    <div class="pp-rounds" aria-label="${esc(status)}">${Array.from({length:p.rounds},(_,i)=>`<span class="${i<p.turns.length?"done":(i===p.turns.length&&!p.complete?"now":"")}"></span>`).join("")}<b>${status}</b></div>
   </section>
   ${p.fallback?`<section class="card pp-fallback">
     <div class="eyebrow">${t("pp.ai_eyebrow")}</div>
     <b>${t("pp.fallback_h",{name:esc(p.partner.name),h:p.partnerSilentH})}</b>
     <p class="sub">${t("pp.fallback_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" onclick="go('${p.track==="welding"?"simulation":"roleplay"}')">${t("pp.fallback_btn")}</button>
-    ${p.canRepair?`<button class="btn btn-g" onclick="ppRepair()">${t("pp.repair_btn")}</button>`:""}</div>
+    <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice()">${t("pp.fallback_btn")}</button>
+    ${p.canRepair?`<button class="btn btn-g" onclick="ppDecide('rematch')">${t("pp.repair_btn")}</button>`:""}</div>
   </section>`:""}
-  <section class="card pp-prompt">
-    <div class="eyebrow">${t("pp.prompt_eyebrow")}</div>
-    ${pr?`<b>${esc(pr.title)}</b><p class="pp-frame">${t("pp.prompt_frame")}</p><p>${esc(pr.task)}</p>${pr.lines?`<ul class="pp-lines">${pr.lines.map(l=>`<li>${esc(l)} <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(l)},.9)" aria-label="Hear">${ic("sound")}</button></li>`).join("")}</ul>`:""}${pr.out?`<p class="pp-fine">${t("sess.evidence",{out:esc(pr.out)})}</p>`:""}`:`<p class="sub">${t("pp.prompt_none")}</p>`}
-  </section>
+  ${p.complete?ppDecisionHTML(p):`<section class="card pp-prompt">
+    <div class="eyebrow">${t("pp.prompt_eyebrow",{n:p.round,max:p.rounds})}</div>
+    <b>${esc(pr.title)}</b><p>${esc(pr.task)}</p>
+  </section>`}
   <div class="pp-thread">${turns||`<p class="sub pp-empty">${t("pp.thread_empty")}</p>`}</div>
-  <section class="card pp-recorder" id="ppRecorder" data-can="${canRecord?1:0}"></section>`;
+  <section class="card pp-recorder" id="ppRecorder" data-can="${p.myTurn?1:0}" data-waiting="${p.waiting?1:0}"></section>`;
+}
+/* one improvement point from the coach: the lowest-scoring word of the
+   learner's own last turn, if any was graded */
+function ppCoachTip(p){
+  const mine=[...p.turns].reverse().find(t=>t.mine);
+  if(!mine)return "";
+  const w=ppState().lastWords&&ppState().lastWords[mine.id];
+  if(w&&w.length){const low=[...w].sort((a,b)=>a.score-b.score)[0];if(low&&low.score<80)return t("pp.coach_word",{word:esc(low.word),n:low.score})}
+  if(mine.score!=null)return mine.score>=80?t("pp.coach_good",{n:mine.score}):t("pp.coach_ok",{n:mine.score});
+  return "";
+}
+function ppDecisionHTML(p){
+  const tip=ppCoachTip(p);
+  if(p.myDecision)return `<section class="card pp-decide"><div class="eyebrow">${t("pp.decide_eyebrow")}</div><b>${p.myDecision==="continue"?t("pp.decided_continue",{name:esc(p.partner.name)}):t("pp.decided_rematch")}</b><p class="sub">${p.partnerDecided?t("pp.decided_both"):t("pp.decided_wait",{name:esc(p.partner.name)})}</p>${tip?`<p class="pp-tip">${ic("sparkle")} ${tip}</p>`:""}</section>`;
+  return `<section class="card pp-decide">
+    <div class="eyebrow">${t("pp.decide_eyebrow")}</div>
+    <b>${t("pp.decide_h")}</b>
+    ${tip?`<p class="pp-tip">${ic("sparkle")} <span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${tip}</p>`:""}
+    <p class="sub">${t("pp.decide_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" onclick="ppDecide('continue')">${t("pp.decide_continue")}</button><button class="btn btn-g" onclick="ppDecide('rematch')">${t("pp.decide_rematch")}</button></div>
+    <p class="pp-fine">${t("pp.decide_fine")}</p>
+  </section>`;
 }
 function ppRenderRecorder(){
   const box=document.getElementById("ppRecorder");if(!box)return;
   const p=ppMe&&ppMe.pair;if(!p)return;
-  const can=box.dataset.can==="1";
-  if(!can){box.innerHTML=`<b>${t("pp.limit_h")}</b><p class="sub">${p.day>=7?t("pp.week_over"):t("pp.limit_sub",{max:p.turnsPerDay})}</p>`;manIconizeInline(box);return}
+  if(p.complete){box.innerHTML="";return}
+  if(box.dataset.can!=="1"){box.innerHTML=`<b>${t("pp.wait_h",{name:esc(p.partner.name)})}</b><p class="sub">${t("pp.wait_sub")}</p>`;manIconizeInline(box);return}
+  if(!flag("practice_partner_voice_enabled")){box.innerHTML=`<b>${t("pp.off_h")}</b><p class="sub">${t("pp.voice_off")}</p>`;return}
   const r=ppRec;
   if(!r){box.innerHTML=`<b>${t("pp.rec_h")}</b><p class="sub">${t("pp.rec_sub")}</p>
     <button class="btn-primary pp-recbtn" onclick="ppRecToggle()">${ic("mic")} ${t("pp.rec_start")}</button>`;manIconizeInline(box);return}
@@ -13200,7 +13365,7 @@ function ppRenderRecorder(){
   box.innerHTML=`<b>${t("pp.take_h",{s:Math.round((r.dur||0)/1000)})}</b>
     <audio controls src="${r.url}" class="pp-audio" preload="metadata"></audio>
     ${r.busy?`<p class="sub">${ic("mic")} ${t("pp.grading")}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}
-      ${r.score!=null?`<p class="pp-scoreline">${t("pp.score",{n:r.score})}</p>`:""}${words}`}
+      ${r.score!=null?`<p class="pp-scoreline"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.score",{n:r.score})}</p>`:""}${words}`}
     <div class="pp-row">
       <button class="btn btn-g" onclick="ppRecToggle()">${ic("repeat")} ${t("pp.rec_again")}</button>
       <button class="btn-primary" id="ppSend" ${r.busy||ppBusy?"disabled":""} onclick="ppSend()">${ic("upload")} ${t("pp.send")}</button>
@@ -13225,8 +13390,7 @@ window.ppRecToggle=async()=>{
     const blob=new Blob(r.chunks,{type:mr.mimeType||"audio/webm"});
     if(blob.size<1200||r.dur<800){ppRec=null;toast(t("ph.too_short_toast"));ppRenderRecorder();return}
     r.blob=blob;r.url=URL.createObjectURL(blob);r.busy=true;ppRenderRecorder();
-    /* the coach listens first: transcript, then a word-by-word score against it
-       (the same two calls the workplace scenarios make) */
+    try{track("partner_turn_recorded",{})}catch(e){}
     try{r.transcript=(await fbTranscribe(blob))||""}catch(e){r.transcript=""}
     if(r.transcript){try{const res=await fbAssess(blob,r.transcript);if(res&&res.words&&res.words.length){r.words=res.words;r.score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=80).length/res.words.length*100)}}catch(e){}}
     r.busy=false;if(ppRec===r)ppRenderRecorder();
@@ -13240,22 +13404,22 @@ window.ppSend=async()=>{
   ppBusy=true;const btn=document.getElementById("ppSend");if(btn)btn.disabled=true;
   r.turnId=r.turnId||[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("");
   const fd=new FormData();
-  fd.set("audio",r.blob,"turn."+((r.blob.type||"").includes("mp4")?"m4a":"webm"));fd.set("day",String(p.day));fd.set("transcript",r.transcript||"");
+  fd.set("audio",r.blob,"turn."+((r.blob.type||"").includes("mp4")?"m4a":"webm"));fd.set("transcript",r.transcript||"");
   if(r.score!=null)fd.set("score",String(r.score));fd.set("duration_ms",String(r.dur));fd.set("turn_id",r.turnId);
   try{
-    await ppApi("POST","/turns",fd);
-    markPracticed();save();try{track("partner_turn",{day:String(p.day)})}catch(e){}
+    const res=await ppApi("POST","/turns",fd);
+    if(r.words){const st=ppState();st.lastWords=st.lastWords||{};st.lastWords[r.turnId]=r.words.map(w=>({word:w.word,score:w.score}));const keys=Object.keys(st.lastWords);if(keys.length>8)delete st.lastWords[keys[0]]}
+    markPracticed();save();try{track("partner_turn_sent",{round:String(res&&res.turn?res.turn.seq:0)});if(res&&res.complete)track("partner_session_completed",{})}catch(e){}
     try{URL.revokeObjectURL(r.url)}catch(e){}ppRec=null;
-    toast(t("pp.sent_toast"));
+    toast(res&&res.complete?t("pp.sent_complete_toast"):t("pp.sent_toast"));
     await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
   }catch(e){
-    const msg=e.code==="moderation"?t("pp.err_moderation"):e.code==="limit"?t("pp.err_limit"):e.code==="day"?t("pp.err_day"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
+    const msg=e.code==="moderation"?t("pp.err_moderation"):e.code==="limit"?t("pp.err_limit"):e.code==="not_your_turn"?t("pp.err_turn"):e.code==="complete"?t("pp.err_complete"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
     toast(msg);
     if(e.code==="moderation"){r.transcript="";r.score=null;r.words=null;ppRec=null;ppRenderRecorder()}
-    if(e.code==="day"||e.code==="no_pair"||e.code==="expired"){await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+    if(e.code==="not_your_turn"||e.code==="complete"||e.code==="no_pair"){await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
   }finally{ppBusy=false;const b=document.getElementById("ppSend");if(b)b.disabled=false}
 };
-/* the partner's audio: fetched with the same credentials, never a public URL */
 window.ppPlay=async(id,btn)=>{
   try{
     audioUnlock();
@@ -13265,30 +13429,77 @@ window.ppPlay=async(id,btn)=>{
       const h=await ppHeaders();const r=await fetch(ppApiBase()+"/turns/"+id+"/audio",{headers:h});
       if(!r.ok)throw new Error(String(r.status));
       url=URL.createObjectURL(await r.blob());ppAudioUrls.set(id,url);
+      try{track("partner_turn_received",{})}catch(e){}
     }
     const a=new Audio(url);a.play().catch(()=>{});
   }catch(e){toast(t("pp.play_failed"))}
   finally{if(btn)btn.disabled=false}
 };
 /* --------------------------------------------------------------- actions */
-window.ppJoin=async()=>{
-  if(ppBusy)return;ppBusy=true;
+function ppJoinBody(mode){
+  const pos=ppPosition(),st=ppState();
+  return {track:"general-english",band:ppBand(),lang:(S.profile&&S.profile.lang)||"en",promptWeek:pos.promptWeek,fndDay:pos.fndDay,mode,topic:ppTopic(),phrase:st.applyPhrase?st.applyPhrase.text:undefined};
+}
+/* Match me: join the queue and show up to three candidates */
+window.ppMatch=async()=>{
+  if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
+  ppBusy=true;
   try{
-    const pos=ppPosition();
-    const r=await ppApi("POST","/interest",{track:activeProfessionalTrack().id,band:ppBand(),lang:(S.profile&&S.profile.lang)||"en",promptWeek:pos.promptWeek,fndDay:pos.fndDay});
+    const r=await ppApi("POST","/interest",ppJoinBody("later"));
     ppMe=r;ppState().lastMe=r;save();
-    try{track("partner_interest",{track:activeProfessionalTrack().id});if(r.status==="paired")track("partner_pair",{})}catch(e){}
-    toast(r.status==="paired"?t("pp.paired_toast",{name:r.pair.partner.name}):t("pp.waiting_toast"));
+    try{track("partner_match_requested",{});track("partner_queue_joined",{})}catch(e){}
+    if(r.status==="paired"){ppCands=null}
+    else{ppCands=r.candidates||[];try{if(ppCands.length)track("partner_candidate_shown",{n:String(ppCands.length)})}catch(e){}}
+  }catch(e){ppCands=null;toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+};
+/* Practice now: take the best candidate immediately, or stay in line with the AI coach offered */
+window.ppNow=async()=>{
+  if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
+  ppBusy=true;ppCands=null;
+  try{
+    const r=await ppApi("POST","/interest",ppJoinBody("now"));
+    ppMe=r;ppState().lastMe=r;save();
+    try{track("partner_match_requested",{now:"1"});if(r.status==="paired")track("partner_trial_started",{})}catch(e){}
+    if(r.status==="paired"){ppState().applyPhrase=null;toast(t("pp.paired_toast",{name:r.pair.partner.name}))}
+    else{toast(t("pp.nohuman_h"));try{track("partner_ai_fallback",{})}catch(e){}}
   }catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
-window.ppWithdraw=async()=>{try{ppMe=await ppApi("DELETE","/interest");ppState().lastMe=ppMe;save()}catch(e){}const el=document.getElementById("v-partner");if(el)ppRender(el)};
-function ppMarkSeen(p){if(!p.unread)return;ppApi("POST","/pairs/"+p.id+"/seen").then(()=>{if(ppMe&&ppMe.pair){ppMe.pair.unread=0;ppState().lastMe=ppMe;save();navBadges()}}).catch(()=>{})}
-window.ppRepair=async()=>{
-  const ok=await askConfirm({icon:"repeat",danger:false,title:t("pp.repair_h"),body:t("pp.repair_sub"),confirmLabel:t("pp.repair_btn"),cancelLabel:t("wc.close")});
-  if(!ok)return;
-  try{await ppApi("POST","/pairs/"+ppMe.pair.id+"/leave");await ppJoin()}catch(e){toast(t("pp.err_generic"))}
+window.ppInvite=async offer=>{
+  if(ppBusy)return;ppBusy=true;
+  try{
+    const st=ppState();
+    const r=await ppApi("POST","/invite",{offer,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
+    ppMe=r;st.lastMe=r;st.applyPhrase=null;save();ppCands=null;
+    try{track("partner_trial_started",{})}catch(e){}
+    toast(t("pp.paired_toast",{name:r.pair.partner.name}));
+  }catch(e){
+    if(e.code==="offer"||e.code==="gone"){toast(t("pp.err_gone"));ppCands=null;await ppMatch();return}
+    toast(e.code==="limit"?t("pp.err_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
+  }finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
+window.ppNext=async()=>{
+  if(ppBusy)return;ppBusy=true;
+  try{const pos=ppPosition(),st=ppState();const r=await ppApi("POST","/next",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});ppMe=r;st.lastMe=r;st.applyPhrase=null;save();try{track("partner_trial_started",{regular:"1"})}catch(e){}}
+  catch(e){toast(e.code==="busy"?t("pp.conn_busy"):t("pp.err_generic"))}
+  finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+};
+window.ppDecide=async choice=>{
+  const p=ppMe&&ppMe.pair;if(!p||ppBusy)return;
+  if(choice==="rematch"){const ok=await askConfirm({icon:"repeat",danger:false,title:t("pp.rematch_h"),body:t("pp.rematch_sub"),confirmLabel:t("pp.decide_rematch"),cancelLabel:t("wc.close")});if(!ok)return}
+  ppBusy=true;
+  try{
+    const r=await ppApi("POST","/pairs/"+p.id+"/decide",{choice});ppMe=r;ppState().lastMe=r;save();
+    try{track(choice==="continue"?"partner_continue_selected":"partner_rematch_selected",{});if(r.connection&&!r.pair)track("partner_connection_created",{state:r.connection.state})}catch(e){}
+    toast(choice==="continue"?(r.connection&&!r.pair?t("pp.mutual_toast",{name:r.connection.name}):t("pp.continue_toast")):t("pp.rematch_toast"));
+  }catch(e){toast(e.code==="not_complete"?t("pp.err_notcomplete"):t("pp.err_generic"))}
+  finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+};
+/* the AI coach, clearly labelled, on the same kind of task — the existing conversation practice */
+window.ppAiPractice=()=>{try{track("partner_ai_fallback",{})}catch(e){}go("roleplay")};
+window.ppWithdraw=async()=>{try{ppMe=await ppApi("DELETE","/interest");ppState().lastMe=ppMe;save()}catch(e){}ppCands=null;const el=document.getElementById("v-partner");if(el)ppRender(el)};
+function ppMarkSeen(p){if(!p.unread)return;ppApi("POST","/pairs/"+p.id+"/seen").then(()=>{if(ppMe&&ppMe.pair){ppMe.pair.unread=0;ppState().lastMe=ppMe;save();navBadges()}}).catch(()=>{})}
 window.ppMenu=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
   document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
@@ -13317,7 +13528,7 @@ window.ppReport=async()=>{
 };
 window.ppReportSend=async reason=>{
   document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
-  try{ppMe=await ppApi("POST","/pairs/"+ppMe.pair.id+"/report",{reason});ppState().lastMe=ppMe;save();try{track("partner_report",{})}catch(e){}toast(t("pp.report_done"))}
+  try{ppMe=await ppApi("POST","/pairs/"+ppMe.pair.id+"/report",{reason});ppState().lastMe=ppMe;save();try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}
   catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
@@ -13326,7 +13537,7 @@ window.ppBlock=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
   const ok=await askConfirm({icon:"ban",title:t("pp.block_h",{name:p.partner.name}),body:t("pp.block_sub"),confirmLabel:t("pp.block"),cancelLabel:t("wc.close")});
   if(!ok)return;
-  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/block");ppState().lastMe=ppMe;save();try{track("partner_block",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/block");ppState().lastMe=ppMe;save();try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 window.ppLeave=async()=>{
@@ -13334,14 +13545,17 @@ window.ppLeave=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
   const ok=await askConfirm({icon:"close",danger:false,title:t("pp.leave_h"),body:t("pp.leave_sub"),confirmLabel:t("pp.leave"),cancelLabel:t("wc.close")});
   if(!ok)return;
-  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/leave");ppState().lastMe=ppMe;save()}catch(e){toast(t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/leave");ppState().lastMe=ppMe;save();try{track("partner_connection_disconnected",{})}catch(e){}}catch(e){toast(t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
-/* ---- consent: what is shared, with whom, for how long — before anything is */
+/* ---- consent + preferences: what is shared, 18+, and the few matching
+   preferences the app cannot infer (goal, mode, availability) ---- */
 window.ppOpenConsent=(prefsOnly)=>{
   document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
-  const m=ppMe||{};const st=ppState();
-  const g=st.gender||"",sg=!!st.sameGender;
+  const m=ppMe||{},pf=(m.prefs)||{};const st=ppState();
+  const g=pf.gender||st.gender||"",sg=pf.sameGender!=null?pf.sameGender:!!st.sameGender;
+  const goals=pf.goals||(ppGoalFromProfile()?[ppGoalFromProfile()]:[]),mode=pf.mode||"voice",avail=pf.avail||[];
+  const chip=(name,v,label,on,type)=>`<label class="chip pp-radio ${on?"on":""}"><input type="${type}" name="${name}" value="${v}" ${on?"checked":""}> ${label}</label>`;
   const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
   ov.innerHTML=`<div class="lang-modal pp-sheet pp-consent" role="dialog" aria-modal="true" aria-label="${esc(t("pp.consent_h"))}">
     <div class="eyebrow">${t("pp.eyebrow")}</div>
@@ -13354,42 +13568,56 @@ window.ppOpenConsent=(prefsOnly)=>{
       <li>${ic("ban")} ${t("pp.consent_5")}</li>
     </ul>
     <div class="pp-prefs">
-      <b>${t("pp.gender_h")}</b><small>${t("pp.gender_sub")}</small>
-      <div class="pp-row" role="radiogroup">${[["","pp.gender_skip"],["f","pp.gender_f"],["m","pp.gender_m"],["x","pp.gender_x"]].map(([v,k])=>`<label class="chip pp-radio ${g===v?"on":""}"><input type="radio" name="ppg" value="${v}" ${g===v?"checked":""}> ${t(k)}</label>`).join("")}</div>
+      <b>${t("pp.goal_h")}</b><small>${t("pp.goal_sub")}</small>
+      <div class="pp-row" role="group">${["casual","workplace","interview","pronunciation","daily","fluency"].map(v=>chip("ppgoal",v,t("pp.goal_"+v),goals.includes(v),"checkbox")).join("")}</div>
+      <b style="margin-top:10px">${t("pp.mode_h")}</b>
+      <div class="pp-row" role="radiogroup">${[["voice","pp.mode_voice"],["either","pp.mode_either"]].map(([v,k])=>chip("ppmode",v,t(k),mode===v||(mode==="live"&&v==="either"),"radio")).join("")}</div>
+      <b style="margin-top:10px">${t("pp.avail_h")}</b>
+      <div class="pp-row" role="group">${["morning","afternoon","evening","weekends"].map(v=>chip("ppavail",v,t("pp.avail_"+v),avail.includes(v),"checkbox")).join("")}</div>
+      <b style="margin-top:10px">${t("pp.gender_h")}</b><small>${t("pp.gender_sub")}</small>
+      <div class="pp-row" role="radiogroup">${[["","pp.gender_skip"],["f","pp.gender_f"],["m","pp.gender_m"],["x","pp.gender_x"]].map(([v,k])=>chip("ppg",v,t(k),g===v,"radio")).join("")}</div>
       <label class="pp-check"><input type="checkbox" id="ppSame" ${sg?"checked":""}> ${t("pp.same_gender")}</label>
     </div>
-    <p class="pp-fine">${t("pp.consent_age")} · <a href="privacy.html#partner" target="_blank">${t("acc.privacy_link").replace(/^[^\w]+/,"")}</a></p>
+    <label class="pp-check pp-adult"><input type="checkbox" id="ppAdult" ${m.adult?"checked":""}> ${t("pp.consent_age")}</label>
+    <p class="pp-fine"><a href="privacy.html#partner" target="_blank">${t("acc.privacy_link").replace(/^[^\w]+/,"")}</a></p>
     <div class="pp-row">
       <button class="btn btn-g" onclick="this.closest('.pp-sheet-ov').remove()">${t("pp.consent_no")}</button>
       <button class="btn-primary" onclick="ppConsent(this)">${prefsOnly?t("acc.save"):t("pp.consent_yes")}</button>
     </div>
   </div>`;
-  ov.querySelectorAll('input[name="ppg"]').forEach(i=>i.addEventListener("change",()=>{ov.querySelectorAll(".pp-radio").forEach(l=>l.classList.toggle("on",l.querySelector("input").checked))}));
+  ov.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{ov.querySelectorAll(".pp-radio").forEach(l=>l.classList.toggle("on",l.querySelector("input").checked))}));
   document.body.appendChild(ov);manIconizeInline(ov);
 };
 window.ppConsent=async btn=>{
   const ov=btn.closest(".pp-sheet-ov");
   const g=(ov.querySelector('input[name="ppg"]:checked')||{}).value||"";
   const same=!!(ov.querySelector("#ppSame")||{}).checked;
+  const adult=!!(ov.querySelector("#ppAdult")||{}).checked;
+  const goals=[...ov.querySelectorAll('input[name="ppgoal"]:checked')].map(i=>i.value).slice(0,3);
+  const mode=(ov.querySelector('input[name="ppmode"]:checked')||{}).value||"voice";
+  const avail=[...ov.querySelectorAll('input[name="ppavail"]:checked')].map(i=>i.value);
+  if(!adult){toast(t("pp.need_adult"));return}
   if(same&&!g){toast(t("pp.same_needs_gender"));return}
   btn.disabled=true;
   try{
-    ppMe=await ppApi("POST","/consent",{name:ppFirstName(),lang:(S.profile&&S.profile.lang)||"en",gender:g||null,sameGender:same});
+    ppMe=await ppApi("POST","/consent",{name:ppFirstName(),lang:(S.profile&&S.profile.lang)||"en",adult:true,gender:g||null,sameGender:same,goals,mode,avail,tz:-Math.round(new Date().getTimezoneOffset()/60)});
     const st=ppState();st.consent=true;st.gender=g;st.sameGender=same;st.lastMe=ppMe;save();
+    try{track("partner_profile_completed",{})}catch(e){}
     ov.remove();toast(t("pp.consent_done"));
-  }catch(e){btn.disabled=false;toast(e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));return}
+  }catch(e){btn.disabled=false;toast(e.code==="age"?t("pp.need_adult"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));return}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 /* ---- Home: one card, only when there is something to do ---- */
 function ppHomeCardHTML(){
-  const m=ppState().lastMe;if(!m||!m.pair||!ppApiBase())return "";
+  if(!ppAvailable())return "";
+  const m=ppState().lastMe;if(!m)return "";
   const p=m.pair;
-  if(p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
-  if(p.myTurnsToday===0&&p.day<7)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  if(p&&p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  if(p&&p.complete&&!p.myDecision)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_decide_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.decide_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  if(p&&p.myTurn)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   return "";
 }
-/* refresh quietly when the app comes back and there is a partner to hear from */
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ppState().consent&&Date.now()-ppLastFetch>PP_POLL_MS)ppRefresh(true).then(()=>{if(cur&&cur.v==="home")try{go("home")}catch(e){}})});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ppState().consent&&ppAvailable()&&Date.now()-ppLastFetch>PP_POLL_MS)ppRefresh(true).then(()=>{if(cur&&cur.v==="home")try{go("home")}catch(e){}})});
 
 /* ================= FOUNDATIONS — Stage 0 of a professional track =================
    The first real feedback from francophone learners was that the welding track
