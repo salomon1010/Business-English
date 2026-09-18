@@ -380,6 +380,9 @@ async function callChat(env, system, messages) {
   if (!r.ok) throw new Error("provider " + r.status);
   const j = await r.json();
   const raw = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").trim();
+  return shapeChat(raw);
+}
+function shapeChat(raw) {
   let p;
   try { p = JSON.parse(raw); } catch { p = { reply: raw, covered: [] }; }
   if (!p.reply || typeof p.reply !== "string") p.reply = "Sorry, could you say that again?";
@@ -396,7 +399,91 @@ async function callChat(env, system, messages) {
                : typeof v === "string" ? v.length > 0 && v.length <= 64
                : false)
     .slice(0, 32);                       // a reply cannot cover more than a scenario has
-  return { reply: p.reply.slice(0, 800), covered: p.covered };
+  const out = { reply: p.reply.slice(0, 800), covered: p.covered };
+  if (typeof p.characterId === "string" && p.characterId.length <= 64) out.characterId = p.characterId;
+  return out;
+}
+
+/* Walks the model's JSON as it is typed, finds the "reply" string, decodes
+   it (escapes included) and calls emit({s}) for each finished sentence; end()
+   emits whatever is left. Pure, so it is unit-tested in Node. */
+export function replyWalker(emit) {
+  let head = "", inReply = false, done = false, esc = false, uni = null, reply = "", sentAt = 0;
+  const flush = final => {
+    const pending = reply.slice(sentAt);
+    const parts = final ? [pending] : (pending.match(/[^.!?…]+[.!?…]+["')\]]*\s+/g) || []);
+    for (const part of parts) { const t = part.trim(); if (t) emit({ s: t }); sentAt += part.length; }
+  };
+  const feedChar = ch => {
+    if (done) return;
+    if (esc) {
+      if (uni !== null) { uni += ch; if (uni.length === 4) { reply += String.fromCharCode(parseInt(uni, 16) || 63); uni = null; esc = false; } return; }
+      if (ch === "u") { uni = ""; return; }
+      reply += (ch === "n" || ch === "t" || ch === "r") ? " " : ch; esc = false; return;
+    }
+    if (ch === "\\") { esc = true; uni = null; return; }
+    if (ch === '"') { done = true; flush(true); return; }
+    reply += ch; if (/\s/.test(ch)) flush(false);
+  };
+  return {
+    feed(delta) {
+      for (const ch of delta) {
+        if (inReply) { feedChar(ch); continue; }
+        head += ch;
+        const m = /"reply"\s*:\s*"$/.test(head);
+        if (m) { inReply = true; head = ""; }
+      }
+    },
+    end() { if (inReply && !done) { done = true; flush(true); } },
+    text() { return reply; }
+  };
+}
+
+/* ---- Streaming chat: the same call with stream:true, read token by token.
+   The model answers as a JSON object whose first field is "reply"; this walks
+   that string as it is typed and emits each finished sentence at once, so the
+   app can start speaking while the rest is still being written. The last
+   line carries the full, validated object exactly as the non-streaming path
+   would have returned it. NDJSON, one object per line:
+     {"s":"First sentence."}   … {"done":true,"reply":…,"covered":[…],"characterId":…}
+   Anything that goes wrong mid-stream ends with {"error":…}; the client then
+   falls back to what it already has. */
+async function streamChat(env, system, messages, cors) {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({
+      model: CHAT_MODEL, max_tokens: 400, temperature: 0.8, stream: true,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, ...messages],
+    }),
+  });
+  if (!r.ok || !r.body) throw new Error("provider " + r.status);
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const { readable, writable } = new TransformStream();
+  const w = writable.getWriter();
+  const line = obj => w.write(enc.encode(JSON.stringify(obj) + "\n"));
+  (async () => {
+    let raw = "", sse = "";
+    const walker = replyWalker(obj => line(obj));
+    try {
+      const reader = r.body.getReader();
+      while (true) {
+        const { value, done } = await reader.read(); if (done) break;
+        sse += dec.decode(value, { stream: true });
+        let nl; while ((nl = sse.indexOf("\n")) >= 0) {
+          const l = sse.slice(0, nl).trim(); sse = sse.slice(nl + 1);
+          if (!l.startsWith("data:")) continue; const d = l.slice(5).trim(); if (d === "[DONE]") continue;
+          let delta = ""; try { delta = JSON.parse(d).choices[0].delta.content || ""; } catch { continue; }
+          raw += delta; walker.feed(delta);
+        }
+      }
+      walker.end();
+      await line({ done: true, ...shapeChat(raw.trim()) });
+    } catch (e) { try { await line({ error: String(e.message || e) }); } catch {} }
+    try { await w.close(); } catch {}
+  })();
+  return new Response(readable, { status: 200, headers: { "content-type": "application/x-ndjson", "cache-control": "no-store", ...cors } });
 }
 
 export default {
@@ -438,6 +525,7 @@ export default {
         .map(m => ({ role: m.role, content: m.content.slice(0, 2000) }));
       if (!system || !messages.length) return json({ error: "bad_request" }, 400, cors);
       try {
+        if (body.chat.stream === true) return await streamChat(env, system, messages, cors);
         return json(await callChat(env, system, messages), 200, cors);
       } catch (e) {
         return json({ error: "chat_unavailable", detail: String(e.message || e) }, 502, cors);
