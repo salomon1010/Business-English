@@ -1,0 +1,42 @@
+-- Practice Partner phase 2: preferences, reliability, try-before-connect,
+-- rematch cooldowns, opaque candidate offers, audit. Additive only.
+ALTER TABLE members ADD COLUMN goals TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE members ADD COLUMN mode TEXT NOT NULL DEFAULT 'voice';
+ALTER TABLE members ADD COLUMN avail TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE members ADD COLUMN tz INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN adult INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN opted_out INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN sessions_completed INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN sessions_abandoned INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN resp_ms_sum INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE members ADD COLUMN resp_n INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE interest ADD COLUMN mode TEXT NOT NULL DEFAULT 'later';
+ALTER TABLE interest ADD COLUMN topic TEXT NOT NULL DEFAULT '';
+ALTER TABLE interest ADD COLUMN goals TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE pairs ADD COLUMN kind TEXT NOT NULL DEFAULT 'trial';
+ALTER TABLE pairs ADD COLUMN rounds INTEGER NOT NULL DEFAULT 4;
+ALTER TABLE pairs ADD COLUMN prompt_json TEXT;
+ALTER TABLE pairs ADD COLUMN decision_a TEXT;
+ALTER TABLE pairs ADD COLUMN decision_b TEXT;
+ALTER TABLE pairs ADD COLUMN completed_at INTEGER;
+CREATE TABLE IF NOT EXISTS connections (
+  a TEXT NOT NULL, b TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'trial',
+  sessions INTEGER NOT NULL DEFAULT 0,
+  created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, last_practice_at INTEGER,
+  PRIMARY KEY (a, b)
+);
+CREATE TABLE IF NOT EXISTS cooldowns (
+  a TEXT NOT NULL, b TEXT NOT NULL, until INTEGER NOT NULL, reason TEXT NOT NULL,
+  PRIMARY KEY (a, b)
+);
+CREATE TABLE IF NOT EXISTS offers (
+  id TEXT PRIMARY KEY, for_uid TEXT NOT NULL, cand_uid TEXT NOT NULL,
+  reasons TEXT NOT NULL DEFAULT '[]', created_at INTEGER NOT NULL, expires_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS offers_cand ON offers(cand_uid, created_at);
+CREATE TABLE IF NOT EXISTS audit (
+  id TEXT PRIMARY KEY, ts INTEGER NOT NULL, actor TEXT NOT NULL, action TEXT NOT NULL,
+  target TEXT, pair_id TEXT, meta TEXT NOT NULL DEFAULT '{}'
+);
+CREATE INDEX IF NOT EXISTS audit_ts ON audit(ts);
