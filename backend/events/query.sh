@@ -15,6 +15,7 @@
 #   ./query.sh stage           how far along the people opening it are
 #   ./query.sh countries       which markets to translate for next
 #   ./query.sh returns         who comes back, and after how long away
+#   ./query.sh partner         how many want a practice partner, by track
 #   ./query.sh raw "SELECT …"  anything else
 #
 # Needs a Cloudflare API token with Account -> Account Analytics -> Read.
@@ -146,6 +147,10 @@ case "$WHAT" in
   returns)   SQL="SELECT blob16 AS away, sum(_sample_interval) AS comebacks
                  FROM $DATASET WHERE timestamp > now() - INTERVAL '30' DAY
                  AND blob1='return_open' GROUP BY away ORDER BY comebacks DESC" ;;
+  # blob17 is 'track' on partner_interest; blob14 the level bucket ('stage').
+  partner)   SQL="SELECT blob17 AS track, blob14 AS stage, sum(_sample_interval) AS taps
+                 FROM $DATASET WHERE timestamp > now() - INTERVAL '90' DAY
+                 AND blob1='partner_interest' GROUP BY track, stage ORDER BY taps DESC" ;;
   countries) SQL="SELECT blob2 AS country, sum(_sample_interval) AS n
                  FROM $DATASET WHERE blob1 = 'app_open'
                    AND timestamp > now() - INTERVAL '30' DAY

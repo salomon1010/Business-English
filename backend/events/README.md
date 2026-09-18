@@ -160,6 +160,13 @@ two hours away or on a new calendar day and the app opens on the road map.
 groups the last 30 days by it. Counts, not people, like everything here — a
 learner who comes back daily is one row per day.
 
+## Partner demand
+
+`partner_interest` fires once per device when a learner taps "Yes, I want a
+partner" on the demand card (Home and Practice), with `track` and the level
+`band` (Foundations day or week bucket, in `stage`). It measures the pull for
+the Practice Partner feature before it is built. `./query.sh partner` reads it.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to
