@@ -35,7 +35,7 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | Health | `/health` reports `dev` and `enabled` |
 | ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
 
-## 3. Browser end-to-end — `tests/partner.mjs` (46 checks)
+## 3. Browser end-to-end — `tests/partner.mjs` (47 checks)
 Playwright, headless Chromium, 390×844, fake microphone
 (`--use-fake-device-for-media-stream`). Starts its own static server and
 expects the local Worker on 8787 (skips with a notice otherwise). Three
@@ -49,7 +49,9 @@ English learner and, separately, a **Welding** learner) with flags on via
   panel hidden and no asset built with every flag on**.
 - **Consent / profile**: first visit asks · sheet lists what is shared, server
   upload, 18+, goals, availability · goal pre-selected from the learner
-  profile · without 18+ nothing is sent · agreeing registers preferences and
+  profile · **the sheet scrolls inside at 375×812 and the Agree button is
+  reachable** (found in the phase-5 viewport audit: `.lang-modal` clips at
+  88vh) · without 18+ nothing is sent · agreeing registers preferences and
   shows Match me / Practise now.
 - **Matching**: no candidates → honest message, AI coach offered (labelled),
   stays in line · waiting card shows the AI fallback labelled AI · Match me →
@@ -88,13 +90,13 @@ npm test` runs smoke → shadow-sync → partner.
   of the new keys checked against English.
 - `npx wrangler deploy --dry-run --env dev` (builds, uploads nothing).
 
-## Results (2026-09-18, phase 4, branch `feature/practice-partner`)
+## Results (2026-09-18, phase 5, branch `feature/practice-partner`)
 
 | Suite | Result |
 |---|---|
 | `tests/shadow-sync.test.mjs` | **27/27** |
 | `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **51/51** |
-| `tests/partner.mjs` (three browser contexts, fake microphone) | **46/46** |
+| `tests/partner.mjs` (three browser contexts, fake microphone) | **47/47** |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
 | i18n parity | 1,750 keys in EN and in each of 15 files; no missing, no orphans |
@@ -107,7 +109,17 @@ Google's live JWKS (the verifier is unit-tested with a generated RSA key pair
 and rejects wrong aud / iss / exp / kid / signature); any production
 Cloudflare resource. See the manual checklist below.
 
+## Viewport audit (phase 5, headless Chromium)
+375×812, 390×844, 412×915 × en / fr / ar (RTL): consent sheet, partner page,
+Shadow V2 panel, Apply tab — `scrollWidth === clientWidth` everywhere, no
+element past the right edge, no page errors. Two defects found and fixed:
+the sticky back button rendered underneath the sticky eyebrow, and the
+consent sheet was clipped (Agree unreachable on a phone).
+
 ## Manual QA checklist (real devices, before any production flag is turned on)
+**The owner-facing, per-device version is `DEVICE_CHECKLIST.md` (36 rows ×
+iPhone Safari / Android Chrome, with staging set-up in PILOT.md).** The short
+form below is kept for reference.
 
 Run against a staging deployment of the Worker with `PARTNER_ENABLED="1"`
 and a client with `be_flags` set. Tick each on **iPhone Safari** and

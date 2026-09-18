@@ -68,6 +68,11 @@ ok("Consent sheet: what is shared, server upload stated, 18+, goals, availabilit
 ok("Goal is pre-selected from the learner's profile (meetings → Workplace English)", await A.page.evaluate(() => document.querySelector('.pp-consent input[value="workplace"]').checked));
 await A.page.click('.pp-consent label:has(input[value="interview"])'); await A.page.click('.pp-consent label:has(input[value="evening"])'); await A.page.click('.pp-consent label:has(input[name="ppg"][value="f"])');
 await A.page.click(".pp-consent .btn-primary"); await sleep(400);
+ok("Consent sheet scrolls on a small phone: Agree button reachable at 375×812", await (async () => {
+  await A.page.setViewportSize({ width: 375, height: 812 });
+  const r = await A.page.evaluate(() => { const sh = document.querySelector(".pp-consent"); if (!sh) return null; const canScroll = getComputedStyle(sh).overflowY === "auto" && sh.scrollHeight > sh.clientHeight; sh.scrollTop = sh.scrollHeight; const b = [...sh.querySelectorAll("button.btn-primary")].pop().getBoundingClientRect(); return { canScroll, inView: b.top >= 0 && b.bottom <= window.innerHeight }; });
+  await A.page.setViewportSize({ width: 390, height: 844 });
+  return r && r.canScroll && r.inView; })(), await A.page.evaluate(() => { const sh = document.querySelector(".pp-consent"); return sh ? JSON.stringify({ ov: getComputedStyle(sh).overflowY, sh: sh.scrollHeight, ch: sh.clientHeight, mh: getComputedStyle(sh).maxHeight }) : "no sheet"; }));
 ok("Without the 18+ confirmation nothing is sent", (await txt(A.page, "#toast")).includes("18") && !(await (await api("alice", "GET", "/me")).json()).consented);
 await A.page.click(".pp-consent #ppAdult"); await sleep(100);
 await A.page.click(".pp-consent .btn-primary"); await sleep(1200);

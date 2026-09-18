@@ -176,11 +176,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (51), `tests/partner.mjs` (46, three contexts
+  `backend/partner/test/run.mjs` (51), `tests/partner.mjs` (47, three contexts
   incl. a Welding learner, fake mic). Docs: `marketing/product/practice-partner/`
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
-  real-device checklist, RELEASE_PLAN incl. rollback, PILOT — the owner's
-  step list, what to watch and the rollback timings — SHADOW_STUDIO_V2).
+  real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
+  the branch, the owner's step list, what to watch, rollback timings —
+  DEVICE_CHECKLIST (36 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
+  `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
   `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /

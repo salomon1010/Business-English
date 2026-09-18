@@ -32,6 +32,14 @@ holds one id and any other track is refused with `403 track`.
 | GET | `/turns/:id/audio` | streams audio to pair members only |
 Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`.
 
+## Environments
+`[vars]` = production (`PARTNER_ENABLED="0"`, placeholder D1 id). `[env.dev]` =
+local only (`DEV_AUTH`, `IP_PER_MIN`, emulated D1/R2). `[env.staging]` = a
+separate Worker `be-partner-staging` with its own D1/R2, `PARTNER_ENABLED="1"`,
+real token verification, no `DEV_AUTH` — for real-device testing from the
+branch (see `marketing/product/practice-partner/PILOT.md` § Staging). Not
+deployed.
+
 ## Local development (nothing leaves the machine)
 ```
 npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 + 0002 + 0003

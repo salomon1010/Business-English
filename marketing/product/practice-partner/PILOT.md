@@ -3,14 +3,53 @@
 Status: **not started.** Nothing here has been executed. Every step is an
 owner action; none is performed by the build sessions.
 
-## Preconditions (all true on `feature/practice-partner` at `15381a6`+)
+## Preconditions (all true on `feature/practice-partner` at `ac17dca`+)
 - Every client flag in `FLAGS_DEFAULT` for these features is `false`.
 - `backend/partner/wrangler.toml` `[vars]` has `PARTNER_ENABLED = "0"`; `DEV_AUTH`
   and `IP_PER_MIN` exist only under `[env.dev]`; `database_id` is a placeholder,
   so `wrangler deploy` without the id fails rather than deploying blind.
 - `privacy.html` 8b is accurate for the feature whether on or off.
 
-## Sequence (owner)
+## Staging — device testing from the branch, before any merge (owner)
+Nothing has to be merged or switched on in production to run the device
+checklist. Three things are needed: the branch served over **HTTPS on a fixed
+hostname** (phones refuse `getUserMedia` on plain http, and both Workers
+allow-list origins), a **staging** copy of the partner Worker, and the Polish
+Worker allowing that hostname.
+
+1. Serve the branch locally: `python3 -m http.server 8000` in the repo root.
+2. Expose it on a fixed HTTPS hostname, e.g. a Cloudflare named tunnel
+   `staging.lomonec.com → http://localhost:8000` (`cloudflared tunnel create
+   be-staging`, DNS route, `cloudflared tunnel run`). A random
+   `*.trycloudflare.com` quick tunnel works for Shadow V2 only — the Polish
+   Worker will refuse it, so turns arrive without transcript or score.
+3. Staging Worker (config already in `backend/partner/wrangler.toml [env.staging]`,
+   no `DEV_AUTH`, `PARTNER_ENABLED="1"`, its own D1 and R2):
+   ```
+   cd backend/partner
+   npx wrangler d1 create be-partner-staging            # paste id into [[env.staging.d1_databases]]
+   npx wrangler d1 migrations apply be-partner-staging --remote --env staging
+   npx wrangler r2 bucket create be-partner-staging-audio
+   npx wrangler deploy --env staging
+   curl https://be-partner-staging.<account>.workers.dev/health   # {ok:true, dev:false, enabled:true}
+   ```
+4. **Owner decision — Polish Worker CORS.** `backend/polish-worker.js`
+   `ALLOWED_ORIGINS` is a hard-coded list; add `"https://staging.lomonec.com"`
+   and `npx wrangler deploy` it from `backend/`. This touches the live Polish
+   Worker (one extra allowed origin, nothing else) and was **not** done by the
+   build session.
+5. On each phone open `https://staging.lomonec.com/`, sign in with a test
+   Firebase account (email/password works from any origin), switch to General
+   English, pass the placement check, then in the browser console or via
+   the dev toggle set:
+   `localStorage.be_partner_api = "https://be-partner-staging.<account>.workers.dev"`
+   and `localStorage.be_flags` (below). Reload. The Worker verifies the real
+   ID token exactly as production will.
+6. Run `DEVICE_CHECKLIST.md` (36 rows × 2 devices). Record results in the file.
+7. Tear down: `npx wrangler delete --env staging` (or keep it for the pilot's
+   internal preview); the staging D1/R2 hold only test accounts' audio.
+
+## Sequence to production (owner, after the checklist passes)
 | # | Action | Where | Verifies |
 |---|---|---|---|
 | 1 | Code review; merge `feature/practice-partner` → `main` | GitHub | Everything off: learners see no change |
@@ -20,12 +59,11 @@ owner action; none is performed by the build sessions.
 | 5 | `npx wrangler d1 migrations apply be-partner --remote` (0001, 0002, 0003 — all additive) | Cloudflare | |
 | 6 | `npx wrangler r2 bucket create be-partner-audio` | Cloudflare | |
 | 7 | `cd backend/partner && npx wrangler deploy` (no `--env`) | Cloudflare | `curl …/health` → `{"ok":true,"dev":false,"enabled":false}`; `/me` with a real token → 503 `disabled` |
-| 8 | Internal preview: on the live site set `localStorage.be_flags` (see below); Worker still off → the partner page shows "temporarily unavailable"; Shadow V2 works | phones | Client gating and Shadow V2 on real devices |
-| 9 | Real-device checklist (TEST_PLAN.md, 16 rows) on iPhone Safari + Android Chrome | phones | **This is the blocker today** |
-| 10 | `PARTNER_ENABLED = "1"` in `[vars]`, `wrangler deploy` | Cloudflare | `/health` → `enabled:true` |
-| 11 | Pilot cohort of 6–12 General English learners on the same lesson and language, each with `be_flags` set; 2 weeks | | Funnel below |
-| 12 | Monitor daily (below); expand to a second cohort only when no warning sign fired for 7 days | | |
-| 13 | General release: flip flags in `FLAGS_DEFAULT`, bump `sw.js`, push | repo | |
+| 8 | Internal preview on the live site with `be_flags`; Worker still off → partner page shows "temporarily unavailable"; Shadow V2 works | phones | Client gating on production |
+| 9 | `PARTNER_ENABLED = "1"` in `[vars]`, `wrangler deploy` | Cloudflare | `/health` → `enabled:true` |
+| 10 | Pilot cohort of 6–12 General English learners on the same lesson and language, each with `be_flags` set; 2 weeks | | Signals below |
+| 11 | Monitor daily; expand to a second cohort only when no warning sign fired for 7 days | | |
+| 12 | General release: flip flags in `FLAGS_DEFAULT`, bump `sw.js`, push | repo | |
 
 Internal-preview flags:
 ```

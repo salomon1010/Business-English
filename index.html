@@ -1201,6 +1201,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-live{color:var(--red);display:flex;align-items:center;gap:8px}.pp-live svg{width:18px;height:18px}
 .pp-audio{width:100%;margin:10px 0 4px}.pp-scoreline{font-weight:800;color:var(--accent-text);margin:6px 0}
 .pp-sheet{max-width:420px}.pp-sheet-btn{width:100%;justify-content:flex-start;margin-top:8px}
+/* the consent sheet is taller than a phone screen; .lang-modal clips at 88vh, so
+   this one scrolls inside (momentum on iOS) and the Agree button stays reachable */
+.lang-modal.pp-consent{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;max-height:calc(100vh - 44px);max-height:calc(100dvh - 44px)}
 .pp-consent-list{list-style:none;margin:6px 0 14px;display:grid;gap:9px}.pp-consent-list li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45}.pp-consent-list svg{width:18px;height:18px;flex:none;color:var(--acc);margin-top:1px}
 .pp-prefs{padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.pp-prefs b{display:block;font-size:13.5px}.pp-prefs small{display:block;font-size:12px;color:var(--mut);margin-bottom:8px}
 .pp-radio{cursor:pointer}.pp-radio input{display:none}.pp-radio.on{background:var(--accent-fill);color:var(--on-accent)}
@@ -13215,9 +13218,11 @@ function ppPrompt(pair){
 /* ---------------------------------------------------------------- view */
 function rPartner(el){
   clearInterval(ppPollH);
-  const back=`<button class="back stick-back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div><h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
-  const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
+  /* eyebrow first, then the back button with .stick-eb so it sticks BELOW the
+     sticky eyebrow instead of underneath it (same pattern as the phrase-week bar) */
+  const back=`<button class="back stick-back stick-eb" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const shell=inner=>{el.innerHTML=head+inner;manIconizeInline(el)};
   if(!isGeneralEnglish()){shell(`<section class="card pp-cta"><b>${t("pp.ge_only_h")}</b><p class="sub">${t("pp.ge_only_sub")}</p><button class="btn-primary" onclick="selectProfessionalTrack('general-english')">${t("pp.ge_only_btn")}</button></section>`);return}
   if(!ppAvailable()){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
   if(!ppSignedIn()){
@@ -13242,9 +13247,11 @@ function ppIntroHTML(){
   </section>`;
 }
 function ppRender(el){
-  const back=`<button class="back stick-back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div><h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
-  const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
+  /* eyebrow first, then the back button with .stick-eb so it sticks BELOW the
+     sticky eyebrow instead of underneath it (same pattern as the phrase-week bar) */
+  const back=`<button class="back stick-back stick-eb" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const shell=inner=>{el.innerHTML=head+inner;manIconizeInline(el)};
   const m=ppMe;
   if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
   if(m.disabled){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}

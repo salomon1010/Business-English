@@ -64,3 +64,40 @@ migrations_dir = "migrations"
 [[env.dev.r2_buckets]]
 binding = "AUDIO"
 bucket_name = "be-partner-audio"
+
+# ---------------------------------------------------------------------------
+# STAGING — a separate Worker, database and bucket for real-device testing
+# from the feature branch, so nothing has to be merged or switched on in
+# production first. Owner-run, never by a build session:
+#     npx wrangler d1 create be-partner-staging          # paste id below
+#     npx wrangler d1 migrations apply be-partner-staging --remote --env staging
+#     npx wrangler r2 bucket create be-partner-staging-audio
+#     npx wrangler deploy --env staging
+# No DEV_AUTH here: phones sign in with a real Firebase account and the
+# Worker verifies the ID token exactly as production will. The app is served
+# from the branch through an HTTPS tunnel on a FIXED hostname (getUserMedia
+# needs a secure context and the allow-lists need a stable origin) — see
+# marketing/product/practice-partner/PILOT.md "Staging".
+[env.staging]
+name = "be-partner-staging"
+[env.staging.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000"
+PARTNER_ENABLED = "1"
+MATCH_WEIGHTS = "{}"
+PAIR_DAYS = "7"
+PARTNER_TIMEOUT_H = "24"
+TURNS_PER_DAY = "3"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "be-partner-staging"
+database_id = "REPLACE-WITH-wrangler-d1-create-OUTPUT"
+migrations_dir = "migrations"
+
+[[env.staging.r2_buckets]]
+binding = "AUDIO"
+bucket_name = "be-partner-staging-audio"
+
+[env.staging.triggers]
+crons = ["17 3 * * *"]
