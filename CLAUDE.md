@@ -181,8 +181,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
   the branch, the owner's step list, what to watch, rollback timings —
-  DEVICE_CHECKLIST (36 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
+  DEVICE_CHECKLIST (37 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
   `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
+  Staging also needs `https://staging.lomonec.com` in the Polish Worker's
+  hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).
   `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /

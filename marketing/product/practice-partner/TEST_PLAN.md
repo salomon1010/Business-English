@@ -117,12 +117,13 @@ the sticky back button rendered underneath the sticky eyebrow, and the
 consent sheet was clipped (Agree unreachable on a phone).
 
 ## Manual QA checklist (real devices, before any production flag is turned on)
-**The owner-facing, per-device version is `DEVICE_CHECKLIST.md` (36 rows ×
+**The owner-facing, per-device version is `DEVICE_CHECKLIST.md` (37 rows ×
 iPhone Safari / Android Chrome, with staging set-up in PILOT.md).** The short
 form below is kept for reference.
 
-Run against a staging deployment of the Worker with `PARTNER_ENABLED="1"`
-and a client with `be_flags` set. Tick each on **iPhone Safari** and
+Run against the `staging` Worker environment (`wrangler deploy --env staging`,
+`PARTNER_ENABLED="1"`, real Firebase tokens) with the branch served over HTTPS
+and `be_flags` set — exact set-up in PILOT.md § Staging. Tick each on **iPhone Safari** and
 **Android Chrome**; note OS and browser versions.
 
 | # | Check | iOS | Android |

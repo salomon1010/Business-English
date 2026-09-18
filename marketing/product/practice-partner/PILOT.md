@@ -33,11 +33,29 @@ Worker allowing that hostname.
    npx wrangler deploy --env staging
    curl https://be-partner-staging.<account>.workers.dev/health   # {ok:true, dev:false, enabled:true}
    ```
-4. **Owner decision — Polish Worker CORS.** `backend/polish-worker.js`
-   `ALLOWED_ORIGINS` is a hard-coded list; add `"https://staging.lomonec.com"`
-   and `npx wrangler deploy` it from `backend/`. This touches the live Polish
-   Worker (one extra allowed origin, nothing else) and was **not** done by the
-   build session.
+4. **Owner decision — Polish Worker origin.** Transcription and the coach
+   score (`fbTranscribe` / `fbAssess`) go to the live `be-polish` Worker, whose
+   allow-list is a code constant, not an environment variable:
+   `backend/polish-worker.js` → `const ALLOWED_ORIGINS = [ "https://app.lomonec.com", …localhost ports… ]`.
+   A request from any other origin gets **403 Forbidden** server-side (not
+   only a missing CORS header), so from `https://staging.lomonec.com` every
+   turn would be sent with an empty transcript and no score, and Shadow V2
+   grading would fail. `backend/wrangler.toml` for `be-polish` has no
+   environments, so there is no staging copy to deploy instead.
+   The change, if you approve it, is one line and one deploy:
+   ```
+   // backend/polish-worker.js, inside ALLOWED_ORIGINS
+   "https://staging.lomonec.com",     // staging tunnel for device testing
+   ```
+   then `cd backend && npx wrangler deploy`. **This redeploys the production
+   Polish Worker** with exactly one extra allowed origin (a hostname only you
+   control); nothing else in it changes. The build session did **not** make
+   this edit because it alters production behaviour. Remove the line and
+   redeploy when staging is torn down.
+   Alternative without touching production: deploy a second Worker
+   (`be-polish-staging`) from a copy of the file with the line added and its
+   own `OPENAI_API_KEY` secret — but the app's `POLISH_API` is a constant
+   with no override, so that also needs a client change. Not recommended.
 5. On each phone open `https://staging.lomonec.com/`, sign in with a test
    Firebase account (email/password works from any origin), switch to General
    English, pass the placement check, then in the browser console or via
@@ -45,9 +63,14 @@ Worker allowing that hostname.
    `localStorage.be_partner_api = "https://be-partner-staging.<account>.workers.dev"`
    and `localStorage.be_flags` (below). Reload. The Worker verifies the real
    ID token exactly as production will.
-6. Run `DEVICE_CHECKLIST.md` (36 rows × 2 devices). Record results in the file.
-7. Tear down: `npx wrangler delete --env staging` (or keep it for the pilot's
-   internal preview); the staging D1/R2 hold only test accounts' audio.
+6. Run `DEVICE_CHECKLIST.md` (37 rows × 2 devices). Record results in the file.
+7. Turn everything back off: on each phone clear `be_flags` and
+   `be_partner_api` (or Profile → Reset everything on the test account);
+   `npx wrangler delete --env staging` (or keep it for the pilot's internal
+   preview) — the staging D1/R2 hold only test accounts' audio; remove the
+   staging line from the Polish allow-list and redeploy `be-polish`; stop the
+   tunnel. Production has not changed at any point: `PARTNER_ENABLED="0"`,
+   flags off, no production D1/R2.
 
 ## Sequence to production (owner, after the checklist passes)
 | # | Action | Where | Verifies |

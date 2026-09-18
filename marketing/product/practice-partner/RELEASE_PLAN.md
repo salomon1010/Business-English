@@ -10,6 +10,11 @@ Branch `feature/practice-partner`. `main` carries only the other session's
 footer commit (`35e2da2`), which is also on this branch. See the
 final report for the commit list and test commands.
 
+## 0b. Before merging: real-device validation from the branch
+PILOT.md § Staging + DEVICE_CHECKLIST.md. Uses the `staging` Worker
+environment, a staging D1/R2 and one extra allowed origin on the Polish
+Worker (owner decision, documented there). Production is not touched.
+
 ## 1. Merge (safe: everything off)
 Merge to `main`, bump `sw.js` `be12-vNN` (also precaches `shadow-sync.js`),
 push, poll live, `BASE=https://app.lomonec.com npm test` from `tests/`.

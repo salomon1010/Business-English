@@ -38,7 +38,7 @@ happened, including OS dialogs.
 | I-19 Rematch | a second session with C (or B after leaving) | tap "Find someone else" | neutral toast; back to Match me; other side sees only "ended"; B/C not offered again | | |
 | I-20 Shadow V2 | flags on | Shadow → pick a library clip | panel with Watch / Shadow / Challenge / Apply it under the player | | |
 | I-21 Video | clip loaded | play | YouTube plays inline (not full-screen takeover) | | |
-| I-22 Transcript | playing | watch the panel | current sentence highlighted, panel auto-scrolls | | |
+| I-22 Transcript / captions | playing | watch the panel; scroll it by hand | captions shown as sentences; current one highlighted; auto-scroll pauses while you scroll and resumes ~3 s later | | |
 | I-23 Word highlight | word-level clip (e.g. the first library clip) | play at 1× and 0.75× | current word lights within ~1 word of the audio; no drift after 60 s | | |
 | I-24 Sentence highlight | cue-only clip (Stanford talk) | play | sentence lights, panel says "sentence by sentence" | | |
 | I-25 Seek | playing | tap a sentence; drag the YouTube scrubber | highlight jumps immediately; no stuck highlight | | |
@@ -52,18 +52,19 @@ happened, including OS dialogs.
 | I-33 Mic denial | fresh Safari site settings → Deny | tap Record | app's own "microphone denied" toast; no blank screen | | |
 | I-34 Mic interruption | recording | receive a phone call | recording stops cleanly; take kept or "too short" toast | | |
 | I-35 Logout / login | signed in, in a session | sign out → sign in | partner page shows sign-in card while out; thread restored after sign-in | | |
-| I-36 Welding isolation | same phone, switch area to Welding | Practice tab, Home, `#partner`, Shadow clip | no Practice Partner card, no Home card, `#partner` shows the "part of General English" notice, no Shadow V2 panel | | |
+| I-36 Welding isolation | same phone, **all client flags still ON**, switch area to Welding | Practice tab, Home, type `#partner` in the address bar, open a Shadow clip, open the Apply tab | no Practice Partner card, no Home partner card, `#partner` shows the "part of General English" notice and fetches nothing, no Shadow V2 panel, so no Apply It → Partner; in Safari's console `fetch(localStorage.be_partner_api+"/interest",{method:"POST",headers:{authorization:"Bearer "+await FBUser.getIdToken(),"content-type":"application/json"},body:JSON.stringify({track:"welding",band:"w1-4",lang:"en"})}).then(r=>r.json())` → `{error:"track"}` (finish or leave any open session first, or you get `paired` before the track check) | | |
+| I-37 Flags off | General English, `localStorage.removeItem("be_flags")`, reload | Practice tab, Home, `#partner`, Shadow clip | nothing partner-related visible; `#partner` says unavailable; no Shadow V2 panel (production default) | | |
 
 ## Android Chrome — model ______ Android ______ Chrome ______
 
 | ID | Precondition | Action | Expected | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| A-01 … A-36 | same as I-01 … I-36 | same | same, plus: A-10 Chrome mic prompt; A-11 playback with media volume; A-21 inline YouTube; A-32 recent-apps switch as well as lock | | |
+| A-01 … A-37 | same as I-01 … I-37 | same | same, plus: A-10 Chrome mic prompt; A-11 playback with media volume; A-21 inline YouTube; A-32 recent-apps switch as well as lock | | |
 
 Copy the iPhone table here and rename the IDs `A-nn` before starting; keep
 both tables in this file so the results live next to the code.
 
 ## Result summary (owner fills in)
-- iPhone: __ / 36 pass — blocking failures: ______
-- Android: __ / 36 pass — blocking failures: ______
+- iPhone: __ / 37 pass — blocking failures: ______
+- Android: __ / 37 pass — blocking failures: ______
 - Date, tester, staging Worker version (`/health` output): ______
