@@ -149,8 +149,11 @@ await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { ba
   /* pair 2: Vic speaks only an hour before the week runs out → Wes is NOT abandoned */
   await join("vic", { band: "fnd-8-15" }); o = (await join("wes", { band: "fnd-8-15" })).json.candidates[0].offer; await call("wes", "POST", "/invite", { offer: o });
   clock = base + 7 * 86_400_000 - 3_600_000; await turn("wes", "hello vic");
+  /* pair 3: one turn each, then both went quiet → a tie: either could have spoken next, nobody is blamed */
+  clock = base; await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w5-8" }); o = (await join("yul", { band: "w5-8" })).json.candidates[0].offer; await call("yul", "POST", "/invite", { offer: o });
+  await turn("yul", "hi xan"); clock = base + 86_400_000; await turn("xan", "hi yul");
   clock = base + 7 * 86_400_000 + 60_000; const c = await call("alice", "POST", "/__cron"); clock = null;
-  ok("expired pairs: only the side that had a full timeout to reply is marked abandoned", c.status === 200 && c.json.expired >= 2 && c.json.abandoned === 1, JSON.stringify(c.json)); }
+  ok("expired pairs: only the side that had a full timeout to reply is marked abandoned; a tie blames nobody", c.status === 200 && c.json.expired >= 3 && c.json.abandoned === 1, JSON.stringify(c.json)); }
 
 /* audit + cron */
 { const me = await call("alice", "GET", "/me"); clock = me.json.serverNow + 40 * 86_400_000; const c = await call("alice", "POST", "/__cron"); clock = null;

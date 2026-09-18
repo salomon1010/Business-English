@@ -179,7 +179,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   `backend/partner/test/run.mjs` (51), `tests/partner.mjs` (46, three contexts
   incl. a Welding learner, fake mic). Docs: `marketing/product/practice-partner/`
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
-  real-device checklist, RELEASE_PLAN incl. rollback, SHADOW_STUDIO_V2).
+  real-device checklist, RELEASE_PLAN incl. rollback, PILOT — the owner's
+  step list, what to watch and the rollback timings — SHADOW_STUDIO_V2).
   `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
@@ -188,8 +189,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   reading `shCurT()`, `svStop` from `shCloseWork`). Modes watch / shadow /
   challenge / apply; Apply It → AI (`S.applyPhrase`, roleplay) or partner
   (`ppState().applyPhrase`). Captions: `captions/<vid>.json` (18; 13 with word
-  times). `sw.js` precaches `shadow-sync.js?v=1`. Tests `tests/shadow-sync.test.mjs`
-  (23). Events for both features are on the `be-events` allow-list on the branch
+  times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
+  (27). Events for both features are on the `be-events` allow-list on the branch
   only — deploy that Worker before any flag goes on.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).

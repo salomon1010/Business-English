@@ -65,7 +65,7 @@ word-level asset down to sentence level.
 `sv.*` (16 keys) in `I18N_EN` and all 15 `i18n/*.json`.
 
 ## Tests
-`tests/shadow-sync.test.mjs` (23, pure) and the Shadow V2 block of
+`tests/shadow-sync.test.mjs` (27, pure; includes malformed caption files) and the Shadow V2 block of
 `tests/partner.mjs` (word-level asset, four modes, highlight follows time,
 Challenge hides text, Apply It hands the phrase to Practice Partner and it
 appears in round 1). Real-device timing (iOS Safari, Android Chrome) is in

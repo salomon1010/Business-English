@@ -30,9 +30,13 @@
   /* Caption cues carry only a start; a cue ends where the next begins. Words
      are attached to the cue whose window they fall in. */
   function normalizeCaptions(cap, clipStartS, clipEndS) {
-    const cues = Array.isArray(cap && cap.cues) ? cap.cues.filter(c => c && typeof c.t === "number" && c.txt) : [];
+    /* defensive: a caption file is data from outside — drop cues and words
+       whose time is not a finite number, and sort both, because locate()
+       binary-searches segment starts and a cue ends where the next begins */
+    const fin = v => typeof v === "number" && Number.isFinite(v);
+    const cues = Array.isArray(cap && cap.cues) ? cap.cues.filter(c => c && fin(c.t) && c.txt).slice().sort((a, b) => a.t - b.t) : [];
     if (!cues.length) return { segments: [], level: "none" };
-    const words = Array.isArray(cap.words) ? cap.words.filter(w => w && typeof w.t === "number" && w.w).slice().sort((a, b) => a.t - b.t) : [];
+    const words = Array.isArray(cap.words) ? cap.words.filter(w => w && fin(w.t) && w.w).slice().sort((a, b) => a.t - b.t) : [];
     const s0 = Math.max(0, Number(clipStartS) || 0), s1 = Number(clipEndS) > s0 ? Number(clipEndS) : Infinity;
     const segs = [];
     for (let i = 0; i < cues.length; i++) {

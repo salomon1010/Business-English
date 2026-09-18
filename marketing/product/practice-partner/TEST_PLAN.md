@@ -3,14 +3,16 @@
 Four automated layers plus a manual real-device checklist. Everything
 automated runs locally with zero production access.
 
-## 1. Pure engine — `tests/shadow-sync.test.mjs` (23 checks)
+## 1. Pure engine — `tests/shadow-sync.test.mjs` (27 checks)
 `node shadow-sync.test.mjs` from `tests/`. No browser, no server.
 `normalizeCaptions` (word level, sentence level, per-segment fallback, clip
 marks), `normalizeText` (pasted transcript → untimed sentences), `locate`
 (binary search, boundaries, grace window, stateless seek backwards),
 `neighbour`, plus two real bundled caption files (`captions/*.json`): the
 Stanford talk (cues only → sentence level) and a YouTube json3 file (word
-level, every segment has words).
+level, every segment has words). Malformed input: unsorted / NaN / string /
+empty cues, NaN words, words outside every cue, cues that are not an array,
+rapid seeks across all of it.
 
 ## 2. Worker integration — `backend/partner/test/run.mjs` (51 checks)
 Expects `npx wrangler dev --env dev --port 8787` in `backend/partner/` (local
@@ -28,7 +30,7 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | Turns | round 1 → 201 · twice in a row → 409 `not_your_turn` · partner sees round 2, unread 1 · audio: non-member 403, no auth 401, member 200 · contact details → 422 `moderation` · four turns → complete; fifth → 409 `complete` |
 | Decide / connections | neither decided · one continues, pair stays open · non-member 403 · both continue → closed `completed`, mutual (1 session) · `/next` starts a regular session · `/next` while active → 409 · second completed session → `regular` · continue before complete → 409 `not_complete` · rematch closes for both, reason `rematch`, nothing exposed · **cooldown**: not offered again |
 | Silence / fallback | 25 h silent → `fallback`, `canRepair` · rematch after timeout allowed |
-| Reliability | expired pairs: only the side whose turn it was **and** who had a full `PARTNER_TIMEOUT_H` to reply is marked abandoned |
+| Reliability | expired pairs: only the side whose turn it was **and** who had a full `PARTNER_TIMEOUT_H` to reply is marked abandoned; one turn each then silence (a tie — either could have spoken) blames nobody |
 | Safety | two distinct reporters → suspended 30 d, pair closed, cannot rejoin · block → pair closed, blocked side 403 on pair and audio |
 | Health | `/health` reports `dev` and `enabled` |
 | ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
@@ -86,16 +88,18 @@ npm test` runs smoke → shadow-sync → partner.
   of the new keys checked against English.
 - `npx wrangler deploy --dry-run --env dev` (builds, uploads nothing).
 
-## Results (2026-09-18, phase 3, branch `feature/practice-partner`)
+## Results (2026-09-18, phase 4, branch `feature/practice-partner`)
 
 | Suite | Result |
 |---|---|
-| `tests/shadow-sync.test.mjs` | **23/23** |
+| `tests/shadow-sync.test.mjs` | **27/27** |
 | `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **51/51** |
 | `tests/partner.mjs` (three browser contexts, fake microphone) | **46/46** |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
 | i18n parity | 1,750 keys in EN and in each of 15 files; no missing, no orphans |
+| Direct-access audit (script, local Worker) | unauth 401 · garbage Bearer 401 · member 200 · non-member 403 · member of another pair 403 · blocked side 403 · unknown turn 404 · R2 key as URL 404 · `/members` 404 · non-member turn inject 409 `no_pair` · non-member decide 403 · > 1.5 MB 413 · > 75 s 400 · Welding `/interest` 403 `track` · partner object exposes `name, band, lang` only |
+| Server kill switch (second local Worker, `PARTNER_ENABLED=0`) | `/health` `enabled:false`; `/me` and audio 503 `disabled`; client renders the "temporarily unavailable" card |
 
 **Not tested, and not claimed:** a real microphone on a physical phone;
 iOS Safari MediaRecorder behaviour; the Firebase ID-token path against

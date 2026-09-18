@@ -61,6 +61,16 @@ try {
   ok("locate inside a real segment finds it", S.locate(ra, mid.startMs + 10).seg === Math.floor(ra.segments.length / 2));
 } catch (e) { ok("real caption file present", false, e.message); }
 
+/* malformed caption files: unsorted cues, NaN / string times, empty text, words outside any cue */
+{ const bad = { cues: [{ t: 8, txt: "Third." }, { t: 0, txt: "First." }, { t: NaN, txt: "ghost" }, { t: "4", txt: "string time" }, { t: 4, txt: "" }, { t: 4, txt: "Second." }],
+    words: [{ t: 4.2, w: "Second." }, { t: NaN, w: "x" }, { t: 0.1, w: "First." }, { t: 99, w: "late" }] };
+  const a = S.normalizeCaptions(bad, 0, 0);
+  const texts = a.segments.map(x => x.text);
+  ok("malformed captions: unsorted / NaN / string / empty cues → sorted valid segments only", texts.join("|") === "First.|Second.|Third." && a.segments.every((x, i, arr) => i === 0 || arr[i - 1].startMs < x.startMs), texts.join("|"));
+  ok("malformed captions: NaN words dropped, words attached to the right cue, a word after the last cue's window is dropped (that segment falls back to sentence)", a.level === "word" && a.segments[0].words.length === 1 && a.segments[1].words.length === 1 && !a.segments[2].words && S.locate(a, 4300).word === 0 && S.locate(a, 8100).word === -1);
+  ok("rapid seeks across a malformed file never throw", (() => { try { for (let t = -5000; t < 20000; t += 137) S.locate(a, t); return true; } catch (e) { return false; } })());
+  ok("cues that are not an array → none", S.normalizeCaptions({ cues: "nope" }, 0, 0).level === "none" && S.normalizeCaptions(null, 0, 0).level === "none"); }
+
 const pass = res.filter(r => r.pass).length;
 console.log(`\n  ${pass}/${res.length} pass`);
 process.exit(pass === res.length ? 0 : 1);
