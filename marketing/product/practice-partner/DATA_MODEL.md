@@ -11,7 +11,10 @@ never returned to another learner: candidates are addressed by **offer ids**,
 sessions by **pair ids**.
 
 Migrations: `0001_init.sql` (MVP tables), `0002_matching_connections.sql`
-(additive: new columns and four new tables). Both must be applied.
+(additive: new columns and four new tables), `0003_indexes.sql` (indexes for
+the cron and connection lookups). All additive; all must be applied. Rollback
+of 0002/0003 is not needed for the code to run — unused columns and indexes
+are harmless — so no down-migration is shipped.
 
 ## `members` — one row per learner who consented
 | column | notes |

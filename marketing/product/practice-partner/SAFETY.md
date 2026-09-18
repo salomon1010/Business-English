@@ -68,8 +68,10 @@ raise it). Duplicate sends are idempotent on the client-generated `turn_id`.
 Pairing is a D1 batch so a candidate cannot be paired twice.
 
 ## Reliability, not reputation
-- `sessions_completed`, `sessions_abandoned` (the member with fewer turns
-  when an incomplete pair expires) and reply latency feed the matching score
+- `sessions_completed`, `sessions_abandoned` (the member whose turn it was
+  when an incomplete pair expires — and only if they had a full
+  `PARTNER_TIMEOUT_H` to reply, so a turn sent an hour before expiry does
+  not penalise the other side) and reply latency feed the matching score
   at a small weight. They are **never shown** to anyone.
 
 ## Audit

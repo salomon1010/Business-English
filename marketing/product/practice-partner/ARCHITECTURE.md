@@ -102,8 +102,10 @@ index.html (client, General English only)      backend/partner/ (Worker: be-part
 ## Auth
 
 `Authorization: Bearer <Firebase ID token>`. The Worker fetches Google's
-securetoken JWKS (cached), verifies RS256 with WebCrypto, checks `aud`,
-`iss`, `exp`, `sub`. **Development:** `DEV_AUTH="1"` (only in
+securetoken JWKS (cached 1 h; an unknown `kid` triggers one refetch per
+minute so key rotation does not lock users out), verifies RS256 with
+WebCrypto, rejects non-RSA / non-RS256 keys, checks `aud`, `iss`, `exp`,
+`iat`, `sub`. **Development:** `DEV_AUTH="1"` (only in
 `[env.dev]`) accepts `X-Dev-User` and `X-Dev-Now` (movable clock); the client
 sends them only when `ppApiBase()` is `localhost`/`127.0.0.1` and
 `localStorage.be_partner_dev_user` is set.

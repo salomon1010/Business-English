@@ -102,8 +102,8 @@ async function audit(env, ms, actor, action, target, pairId, meta) {
 
 /* ------------------------------------------------------------ auth (JWT) */
 let jwksCache = { at: 0, keys: null };
-async function fetchJwks(fetcher) {
-  if (jwksCache.keys && Date.now() - jwksCache.at < 3_600_000) return jwksCache.keys;
+async function fetchJwks(fetcher, force) {
+  if (!force && jwksCache.keys && Date.now() - jwksCache.at < 3_600_000) return jwksCache.keys;
   const r = await fetcher(JWKS_URL); if (!r.ok) throw new Error("jwks " + r.status);
   const j = await r.json(); jwksCache = { at: Date.now(), keys: j.keys || [] }; return jwksCache.keys;
 }
@@ -113,7 +113,11 @@ export async function verifyIdToken(token, projectId, deps = {}) {
   const parts = String(token || "").split("."); if (parts.length !== 3) throw new Error("malformed");
   const header = JSON.parse(new TextDecoder().decode(b64u(parts[0]))), payload = JSON.parse(new TextDecoder().decode(b64u(parts[1])));
   if (header.alg !== "RS256" || !header.kid) throw new Error("alg");
-  const keys = deps.keys || await fetchJwks(fetcher); const jwk = keys.find(k => k.kid === header.kid); if (!jwk) throw new Error("kid");
+  let keys = deps.keys || await fetchJwks(fetcher); let jwk = keys.find(k => k.kid === header.kid);
+  /* Google rotates signing keys; an unknown kid on a cached set means "refetch once", not "reject" */
+  if (!jwk && !deps.keys && nowMs - jwksCache.at > 60_000) { keys = await fetchJwks(fetcher, true); jwk = keys.find(k => k.kid === header.kid); }
+  if (!jwk) throw new Error("kid");
+  if (jwk.kty !== "RSA" || (jwk.alg && jwk.alg !== "RS256")) throw new Error("alg");
   const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
   const ok = await crypto.subtle.verify({ name: "RSASSA-PKCS1-v1_5" }, key, b64u(parts[2]), new TextEncoder().encode(parts[0] + "." + parts[1]));
   if (!ok) throw new Error("signature");
@@ -541,14 +545,19 @@ async function handle(req, env, ctx) {
 /* ------------------------------------------------------- daily maintenance */
 async function maintenance(env, ms) {
   const pairDays = Number(env.PAIR_DAYS || 7);
+  const timeoutMs = Number(env.PARTNER_TIMEOUT_H || 24) * 3_600_000;
   const expired = (await q(env, "SELECT * FROM pairs WHERE status='active' AND created_at <= ?", ms - pairDays * DAY).all()).results || [];
+  let abandoned = 0;
   for (const p of expired) {
     if (!p.completed_at) {
-      /* abandoned: the member with fewer turns carries it */
-      const turns = (await q(env, "SELECT from_uid FROM turns WHERE pair_id=?", p.id).all()).results || [];
+      /* abandoned: the member whose turn it was carries it — but only when they
+         had at least PARTNER_TIMEOUT_H to reply. A turn sent an hour before the
+         week ran out is not the other side's fault. Equal counts = nobody. */
+      const turns = (await q(env, "SELECT from_uid, created_at FROM turns WHERE pair_id=? ORDER BY created_at", p.id).all()).results || [];
       const a = turns.filter(t => t.from_uid === p.uid_a).length, b = turns.length - a;
       const laggard = a === b ? null : a < b ? p.uid_a : p.uid_b;
-      if (laggard) await q(env, "UPDATE members SET sessions_abandoned=sessions_abandoned+1 WHERE uid=?", laggard).run();
+      const lastAt = turns.length ? turns[turns.length - 1].created_at : p.created_at;
+      if (laggard && ms - lastAt >= timeoutMs) { abandoned++; await q(env, "UPDATE members SET sessions_abandoned=sessions_abandoned+1 WHERE uid=?", laggard).run(); }
     }
     await closePair(env, p, "expired", ms);
   }
@@ -563,7 +572,7 @@ async function maintenance(env, ms) {
   await q(env, "DELETE FROM cooldowns WHERE until < ?", ms).run();
   await q(env, "DELETE FROM counters WHERE key NOT LIKE ?", "%:" + dayKey(ms)).run();
   await q(env, "DELETE FROM audit WHERE ts < ?", ms - 90 * DAY).run();
-  return { expired: expired.length, purgedTurns: purged };
+  return { expired: expired.length, abandoned, purgedTurns: purged };
 }
 
 export default {
@@ -571,7 +580,7 @@ export default {
     const h = cors(env, req.headers.get("origin") || "");
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: h });
     let res;
-    try { res = await handle(req, env, ctx); } catch (e) { res = err(500, "server", String(e && e.message || e).slice(0, 200)); }
+    try { res = await handle(req, env, ctx); } catch (e) { console.error("partner", String(e && e.message || e).slice(0, 200)); res = err(500, "server", env.DEV_AUTH === "1" ? String(e && e.message || e).slice(0, 200) : undefined); }
     const out = new Response(res.body, res);
     for (const [k, v] of Object.entries(h)) out.headers.set(k, v);
     return out;

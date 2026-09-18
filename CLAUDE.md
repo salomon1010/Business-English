@@ -170,13 +170,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   each decides alone (`continue` / `rematch`) → mutual → regular connection, or a
   14-day cooldown. AI coach fallback and the post-session tip are always tagged AI.
   Fourth Worker `backend/partner/` (`be-partner`, D1 + R2 + cron; migrations 0001
-  + 0002; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
+  + 0002 + 0003; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
   `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403) — Firestore
   untouched. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (48), `tests/partner.mjs` (45, three contexts
+  `backend/partner/test/run.mjs` (51), `tests/partner.mjs` (46, three contexts
   incl. a Welding learner, fake mic). Docs: `marketing/product/practice-partner/`
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, SHADOW_STUDIO_V2).

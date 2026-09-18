@@ -6,7 +6,8 @@ changes nothing a learner can see. Each step below is run by the owner,
 in order, after review.
 
 ## 0. Review
-Branch `feature/practice-partner`. `main` is untouched (`e848b7a`). See the
+Branch `feature/practice-partner`. `main` carries only the other session's
+footer commit (`35e2da2`), which is also on this branch. See the
 final report for the commit list and test commands.
 
 ## 1. Merge (safe: everything off)
@@ -22,7 +23,7 @@ any flag goes on, or those events are dropped silently.
 ## 3. Partner Worker — from `backend/partner/` (first time)
 ```
 npx wrangler d1 create be-partner            # paste database_id into wrangler.toml
-npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002
+npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002 + 0003
 npx wrangler r2 bucket create be-partner-audio
 npx wrangler deploy                          # PARTNER_ENABLED stays "0"
 curl https://be-partner.<account>.workers.dev/health   # {ok:true, dev:false, enabled:false}

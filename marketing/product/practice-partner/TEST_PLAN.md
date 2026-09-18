@@ -12,7 +12,7 @@ marks), `normalizeText` (pasted transcript → untimed sentences), `locate`
 Stanford talk (cues only → sentence level) and a YouTube json3 file (word
 level, every segment has words).
 
-## 2. Worker integration — `backend/partner/test/run.mjs` (48 checks)
+## 2. Worker integration — `backend/partner/test/run.mjs` (51 checks)
 Expects `npx wrangler dev --env dev --port 8787` in `backend/partner/` (local
 D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 `[env.dev]`). Dev users via `X-Dev-User`, movable clock via `X-Dev-Now`,
@@ -20,7 +20,7 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 
 | Area | Cases |
 |---|---|
-| Auth / consent | 401 without token · `/interest` before consent → 403 `consent` · consent without 18+ → 403 `age` · consent with 18+ and preferences |
+| Auth / consent | 401 without token · `/interest` before consent → 403 `consent` · consent without 18+ → 403 `age` · consent with 18+ and preferences · broken JSON body → 4xx, never a 500 with internals |
 | **Track boundary** | `welding` → 403 `track` · unknown track → 403 `track` |
 | Queue / candidates | first in queue → waiting, no candidates · second learner sees the first as a candidate with reasons and **no uid** · `/match` re-mints offers · `/match` while not waiting → 409 · band two steps away excluded |
 | Scoring | `score()` unit: perfect match high with reasons, weak match low |
@@ -28,10 +28,12 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | Turns | round 1 → 201 · twice in a row → 409 `not_your_turn` · partner sees round 2, unread 1 · audio: non-member 403, no auth 401, member 200 · contact details → 422 `moderation` · four turns → complete; fifth → 409 `complete` |
 | Decide / connections | neither decided · one continues, pair stays open · non-member 403 · both continue → closed `completed`, mutual (1 session) · `/next` starts a regular session · `/next` while active → 409 · second completed session → `regular` · continue before complete → 409 `not_complete` · rematch closes for both, reason `rematch`, nothing exposed · **cooldown**: not offered again |
 | Silence / fallback | 25 h silent → `fallback`, `canRepair` · rematch after timeout allowed |
+| Reliability | expired pairs: only the side whose turn it was **and** who had a full `PARTNER_TIMEOUT_H` to reply is marked abandoned |
 | Safety | two distinct reporters → suspended 30 d, pair closed, cannot rejoin · block → pair closed, blocked side 403 on pair and audio |
 | Health | `/health` reports `dev` and `enabled` |
+| ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
 
-## 3. Browser end-to-end — `tests/partner.mjs` (45 checks)
+## 3. Browser end-to-end — `tests/partner.mjs` (46 checks)
 Playwright, headless Chromium, 390×844, fake microphone
 (`--use-fake-device-for-media-stream`). Starts its own static server and
 expects the local Worker on 8787 (skips with a notice otherwise). Three
@@ -41,7 +43,8 @@ English learner and, separately, a **Welding** learner) with flags on via
 
 - **Boundary**: GE Practice tab shows the card · Welding: no card, `#partner`
   shows the GE-only notice with no fetch and no consent, the Worker refuses
-  the track when called directly, Home shows no card.
+  the track when called directly, Home shows no card, **Shadow Studio V2
+  panel hidden and no asset built with every flag on**.
 - **Consent / profile**: first visit asks · sheet lists what is shared, server
   upload, 18+, goals, availability · goal pre-selected from the learner
   profile · without 18+ nothing is sent · agreeing registers preferences and
@@ -83,13 +86,13 @@ npm test` runs smoke → shadow-sync → partner.
   of the new keys checked against English.
 - `npx wrangler deploy --dry-run --env dev` (builds, uploads nothing).
 
-## Results (2026-09-18, branch `feature/practice-partner`)
+## Results (2026-09-18, phase 3, branch `feature/practice-partner`)
 
 | Suite | Result |
 |---|---|
 | `tests/shadow-sync.test.mjs` | **23/23** |
-| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **48/48** |
-| `tests/partner.mjs` (three browser contexts, fake microphone) | **45/45** |
+| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **51/51** |
+| `tests/partner.mjs` (three browser contexts, fake microphone) | **46/46** |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
 | i18n parity | 1,750 keys in EN and in each of 15 files; no missing, no orphans |

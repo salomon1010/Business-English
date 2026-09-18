@@ -34,9 +34,9 @@ Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cr
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 + 0002
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 + 0002 + 0003
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 48 integration checks against the local Worker
+node test/run.mjs            # 51 integration checks against the local Worker
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and
@@ -56,4 +56,6 @@ closed + never re-paired; rematch = 14-day cooldown; two distinct reporters =
 block 20, decide 40); turns alternate, four per session, audio ≤ 1.5 MB /
 ≤ 75 s; per-IP limit; `audit` table (90 days); audio of closed pairs purged
 14 days after close by the daily cron, which also stamps abandoned sessions
-on the laggard's reliability counter and sweeps offers, cooldowns, counters.
+on the side whose turn it was (only if they had a full `PARTNER_TIMEOUT_H`
+to reply) and sweeps offers, cooldowns, counters. Error bodies carry a
+`detail` only under `DEV_AUTH`; production 500s are logged, not echoed.

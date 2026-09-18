@@ -138,10 +138,26 @@ await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { ba
   ok("duplicate turn_id is idempotent", a.status === 201 && b.status === 200 && b.json.duplicate === true);
   ok("audio over 1.5 MB → 413", (await turn("rex", "big", { audio: audioBlob(1_600_000) })).status === 413); }
 
+/* reliability fairness: an expired pair only counts as abandoned for the side
+   whose turn it was AND who had at least PARTNER_TIMEOUT_H to reply */
+{ const base = (await call("alice", "GET", "/me")).json.serverNow;
+  clock = base + 8 * 86_400_000; await call("alice", "POST", "/__cron");   /* flush every earlier pair so the count below is only ours */
+  await consent("tom", "Tom"); await consent("uma", "Uma"); await consent("vic", "Vic"); await consent("wes", "Wes");
+  /* pair 1: Tom speaks on day 0, Uma never replies → Uma abandoned */
+  clock = base; await join("tom", { band: "w9-12" }); let o = (await join("uma", { band: "w9-12" })).json.candidates[0].offer; await call("uma", "POST", "/invite", { offer: o });
+  await turn("uma", "hello tom");
+  /* pair 2: Vic speaks only an hour before the week runs out → Wes is NOT abandoned */
+  await join("vic", { band: "fnd-8-15" }); o = (await join("wes", { band: "fnd-8-15" })).json.candidates[0].offer; await call("wes", "POST", "/invite", { offer: o });
+  clock = base + 7 * 86_400_000 - 3_600_000; await turn("wes", "hello vic");
+  clock = base + 7 * 86_400_000 + 60_000; const c = await call("alice", "POST", "/__cron"); clock = null;
+  ok("expired pairs: only the side that had a full timeout to reply is marked abandoned", c.status === 200 && c.json.expired >= 2 && c.json.abandoned === 1, JSON.stringify(c.json)); }
+
 /* audit + cron */
 { const me = await call("alice", "GET", "/me"); clock = me.json.serverNow + 40 * 86_400_000; const c = await call("alice", "POST", "/__cron"); clock = null;
   ok("cron closes stale pairs and purges audio 14 d after close", c.status === 200 && c.json.purgedTurns >= 1 && (await call("bob", "GET", `/turns/${t1.id}/audio`)).status === 404, JSON.stringify(c.json)); }
 ok("kill switch is a Worker setting, reported by /health", "enabled" in H);
+{ const r = await fetch(BASE + "/consent", { method: "POST", headers: { "x-dev-user": "alice", "content-type": "application/json" }, body: "{" });
+  ok("a broken body is a 4xx, not a 500 with internals", r.status >= 400 && r.status < 500, String(r.status)); }
 
 /* ID-token verifier */
 { const { privateKey, publicKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
@@ -151,7 +167,19 @@ ok("kill switch is a Worker setting, reported by /health", "enabled" in H);
   const sec = Math.floor(Date.now() / 1000), good = { aud: "be-mastery", iss: "https://securetoken.google.com/be-mastery", sub: "uid123", iat: sec - 10, exp: sec + 3600 };
   const deps = { keys: [jwk] };
   const r = { ok: await verifyIdToken(mk(good), "be-mastery", deps).catch(e => "ERR " + e.message), aud: await verifyIdToken(mk({ ...good, aud: "x" }), "be-mastery", deps).catch(e => e.message), iss: await verifyIdToken(mk({ ...good, iss: "https://evil" }), "be-mastery", deps).catch(e => e.message), exp: await verifyIdToken(mk({ ...good, exp: sec - 1 }), "be-mastery", deps).catch(e => e.message), kid: await verifyIdToken(mk(good, "k9"), "be-mastery", deps).catch(e => e.message), sig: await verifyIdToken(mk(good).replace(/\.[^.]+$/, ".AAAA"), "be-mastery", deps).catch(e => e.message) };
-  ok("ID-token verifier: accepts valid, rejects aud/iss/exp/kid/signature", r.ok === "uid123" && r.aud === "aud" && r.iss === "iss" && r.exp === "expired" && r.kid === "kid" && r.sig === "signature", JSON.stringify(r)); }
+  ok("ID-token verifier: accepts valid, rejects aud/iss/exp/kid/signature", r.ok === "uid123" && r.aud === "aud" && r.iss === "iss" && r.exp === "expired" && r.kid === "kid" && r.sig === "signature", JSON.stringify(r));
+  /* key rotation: an unknown kid triggers exactly one JWKS refetch; malformed / wrong-alg / non-RSA tokens never reach the fetch */
+  { let fetches = 0; const fetcher = async () => { fetches++; return { ok: true, json: async () => ({ keys: [jwk] }) }; };
+    const viaFetch = await verifyIdToken(mk(good), "be-mastery", { fetch: fetcher }).catch(e => "ERR " + e.message);
+    const rotated = await verifyIdToken(mk(good, "k2"), "be-mastery", { fetch: fetcher }).catch(e => e.message);
+    /* a minute later the same unknown kid is allowed one refetch, and the rotated key is then found */
+    const fetcher2 = async () => { fetches++; return { ok: true, json: async () => ({ keys: [jwk, { ...jwk, kid: "k2" }] }) }; };
+    const afterRotation = await verifyIdToken(mk(good, "k2"), "be-mastery", { fetch: fetcher2, now: Date.now() + 120_000 }).catch(e => "ERR " + e.message);
+    const malformed = await verifyIdToken("abc.def", "be-mastery", deps).catch(e => e.message);
+    const hs = b64u(JSON.stringify({ alg: "HS256", kid: "k1" })) + "." + b64u(JSON.stringify(good)) + ".AAAA";
+    const wrongAlg = await verifyIdToken(hs, "be-mastery", deps).catch(e => e.message);
+    const ec = await verifyIdToken(mk(good), "be-mastery", { keys: [{ ...jwk, kty: "EC" }] }).catch(e => e.message);
+    ok("ID-token verifier: JWKS fetched once, cached; unknown kid → one rate-limited refetch finds the rotated key; malformed/HS256/non-RSA rejected", viaFetch === "uid123" && rotated === "kid" && afterRotation === "uid123" && fetches === 2 && malformed === "malformed" && wrongAlg === "alg" && ec === "alg", JSON.stringify({ viaFetch, rotated, afterRotation, fetches, malformed, wrongAlg, ec })); } }
 ok("screenTranscript: clean text passes, handle rejected", screenTranscript("I work on the second shift") && !screenTranscript("find me at @alice_d"));
 
 const pass = res.filter(r => r.pass).length;

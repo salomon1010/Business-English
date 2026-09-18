@@ -53,6 +53,9 @@ ok("Welding: the #partner route shows the General-English-only notice, no data, 
 const wj = await (await api("wendy", "POST", "/consent", { name: "Wendy", lang: "en", adult: true })).json();
 const wt = await (await api("wendy", "POST", "/interest", { track: "welding", band: "w1-4", lang: "en" })).json();
 ok("Welding: the Worker refuses the track even when called directly (403 track)", wj.consented && wt.error === "track");
+await W.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2000);
+ok("Welding: Shadow Studio V2 panel is hidden and no asset is built, flags on", await W.page.evaluate(() => { const b = document.getElementById("shV2"); return !svOn() && svAsset === null && (!b || b.style.display === "none"); }));
+await W.page.evaluate(() => { try { shCloseWork(); } catch (e) {} });
 ok("Welding: Home shows no partner card", await W.page.evaluate(async () => { go("home"); await new Promise(r => setTimeout(r, 300)); return !document.querySelector(".pp-home"); }));
 await W.ctx.close();
 

@@ -13395,7 +13395,16 @@ window.ppRecToggle=async()=>{
     if(r.transcript){try{const res=await fbAssess(blob,r.transcript);if(res&&res.words&&res.words.length){r.words=res.words;r.score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=80).length/res.words.length*100)}}catch(e){}}
     r.busy=false;if(ppRec===r)ppRenderRecorder();
   };
-  mr.start();
+  /* phones end a recording for us: the screen locks, a call comes in, the app
+     is backgrounded, or the OS takes the microphone back. Stop cleanly so the
+     take so far is kept, instead of leaving a recorder that never fires onstop. */
+  const stopIf=()=>{if(mr.state==="recording"){try{mr.stop()}catch(e){}}};
+  const onHide=()=>{if(document.visibilityState==="hidden")stopIf()};
+  document.addEventListener("visibilitychange",onHide);
+  stream.getTracks().forEach(tr=>{tr.onended=stopIf});
+  mr.onerror=()=>{clearInterval(r.tick);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRec===r)ppRec=null;toast(t("rec.mic_denied_toast"));ppRenderRecorder()};
+  const onstop=mr.onstop;mr.onstop=()=>{document.removeEventListener("visibilitychange",onHide);return onstop()};
+  try{mr.start()}catch(e){mr.onerror();return}   /* no timeslice — same as every other recorder in the app; onstop delivers the take */
   r.tick=setInterval(()=>{const el=document.getElementById("ppTimer");const s=Math.floor((Date.now()-r.t0)/1000);if(el)el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(Date.now()-r.t0>=PP_MAX_MS&&mr.state==="recording")mr.stop()},250);
   ppRenderRecorder();
 };
