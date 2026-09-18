@@ -99,6 +99,20 @@ a{color:var(--acc)}
   <p>Reminders are off unless you turn them on in Settings. If you do, and you allow notifications, your browser creates an anonymous <b>push address</b> for this app and we store it, together with the <b>time of day you picked</b> and a <b>random device ID</b> we generate. That is everything we hold. There is no name, no email, no account link and no practice history attached to it, and the reminder itself is sent empty &mdash; the wording you see is composed on your own device, which is also why it appears in your own language.</p>
   <p>The one thing your device does tell us is that you have finished a session today, so that the evening reminder is not sent at all. We store the date and nothing else about what you did. Switching reminders off in Settings deletes the push address and the stored time immediately; so does revoking notification permission or uninstalling the app.</p>
 
+  <h2 id="partner">8b. Practice Partner (optional)</h2>
+  <p>Practice Partner pairs you with one other learner for a week so you can practise speaking. It is optional and needs the free account. If you use it:</p>
+  <ul>
+    <li><b>What your partner sees:</b> your first name, your level band and your interface language. Nothing else — no photo, no e-mail, no country.</li>
+    <li><b>What leaves your device:</b> each voice turn you choose to send, and its transcript. They are sent over an encrypted connection to a Cloudflare Worker operated by Lomonec LLC, stored in Cloudflare R2 and D1, and made available to that one partner only. Audio is never given a public address.</li>
+    <li><b>Screening:</b> transcripts are checked automatically for phone numbers, e-mail addresses, links and social-media handles before a turn is delivered. This is automatic screening, not human moderation.</li>
+    <li><b>Retention:</b> turns are deleted 14 days after a pair ends (a pair lasts up to 7 days). Reports and blocks are kept so that they keep protecting people.</li>
+    <li><b>Optional gender:</b> if you choose a same-gender partner we store the gender you tell us. It is used only for matching and is never shown to anyone.</li>
+    <li><b>Reports and blocks:</b> you can report or block a partner at any time. Two reports from different people suspend an account from Practice Partner for 30 days.</li>
+    <li><b>AI fallback:</b> if a partner is silent for a day, the app offers the AI coach instead. AI turns are always labelled as AI and never presented as your partner.</li>
+    <li><b>Age:</b> Practice Partner is for learners aged 16 and over.</li>
+  </ul>
+  <p>To delete your Practice Partner data, e-mail <a href="mailto:contact@lomonec.com">contact@lomonec.com</a> from the address of your account.</p>
+
   <h2>9. Children</h2>
   <p>The app is intended for professionals and learners aged 13 and over.</p>
 

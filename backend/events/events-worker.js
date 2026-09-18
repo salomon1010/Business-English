@@ -61,6 +61,10 @@ const EVENTS = new Set([
   // Someone tapped "I want a practice partner" on the demand card. Sizes the
   // partner feature before it is built. Counts, not people.
   "partner_interest",
+  // Practice Partner (feature/practice-partner): a pair formed, a voice turn
+  // sent (+day 0-6), a report filed, a block placed. Counts only — no names,
+  // no audio, no transcript, no uid.
+  "partner_pair", "partner_turn", "partner_report", "partner_block",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.

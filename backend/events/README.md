@@ -167,6 +167,12 @@ partner" on the demand card (Home and Practice), with `track` and the level
 `band` (Foundations day or week bucket, in `stage`). It measures the pull for
 the Practice Partner feature before it is built. `./query.sh partner` reads it.
 
+## Practice Partner (feature branch)
+
+`partner_pair` (a pair formed), `partner_turn` (+`day` 0–6, a voice turn
+sent), `partner_report`, `partner_block`. Deploy this Worker before the site
+that ships them, or they are dropped with 204.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to

@@ -155,6 +155,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
+- **Practice Partner (feature/practice-partner, NOT on main yet).** Asynchronous
+  voice practice between two learners, paired for a week on the same track and
+  band; the day's prompt comes from the curriculum (`ppPrompt`, speaking days
+  first). All data lives behind a fourth Worker, `backend/partner/`
+  (`be-partner`, D1 + R2) — Firestore is untouched. Client: `PARTNER_API`,
+  `ppApi()`, `rPartner`, `ppHomeCardHTML()`, Practice badge via `ppUnread()`,
+  i18n `pp.*`. Auth = Firebase ID token verified in the Worker; local dev uses
+  `DEV_AUTH` + `X-Dev-User` (only when `PARTNER_API` is localhost). Tests:
+  `backend/partner/test/run.mjs` (Worker, 28) and `tests/partner.mjs` (two
+  browsers, fake mic, 35). Design and release steps:
+  `marketing/product/practice-partner/`. Kill switch: `PARTNER_API=""`.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

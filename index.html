@@ -1162,6 +1162,38 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    talking; the ring and the bars carry "still going", and they run for the whole
    playback, silences included, because the silences are exactly when the learner
    needs telling to wait. */
+/* ---- Practice Partner ---- */
+.pp-entry-ic{position:relative}.pp-dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
+.pp-intro .pp-steps{display:grid;gap:10px}.pp-steps>div{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:start}
+.pp-steps b{font-size:14px}.pp-steps small{grid-column:2;font-size:12.5px;color:var(--mut);line-height:1.45}
+.pp-n{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-weight:800;font-size:13px;display:grid;place-items:center}
+.pp-rules{margin:14px 0 0;font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:flex-start;line-height:1.45}.pp-rules svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
+.pp-cta{margin-top:12px}.pp-cta b{font-size:16px;display:block;margin-bottom:4px}.pp-cta .btn-primary{margin-top:10px}
+.pp-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pp-fine{font-size:12px;color:var(--mut2);margin-top:10px;line-height:1.45}
+.pp-wait{text-align:center}.pp-wait-ring{width:56px;height:56px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;background:var(--bg2);color:var(--acc);animation:ppPulse 1.6s ease-in-out infinite}
+@keyframes ppPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
+.pp-closed{font-size:13px;color:var(--mut);display:flex;gap:8px;align-items:center;margin:0 0 10px}.pp-closed svg{width:16px;height:16px}
+.pp-head-row{display:flex;align-items:center;gap:12px}.pp-avatar{width:44px;height:44px;border-radius:14px;background:var(--grad);color:#fff;font-weight:900;font-size:18px;display:grid;place-items:center;flex:none}
+.pp-head-t{flex:1;min-width:0}.pp-head-t b{display:block;font-size:16px}.pp-head-t small{font-size:12.5px;color:var(--mut)}
+.pp-menu{width:40px;height:40px;padding:0;display:grid;place-items:center;flex:none}
+.pp-stats{display:flex;gap:14px;margin-top:12px;font-size:13px;color:var(--mut)}.pp-stats span{display:inline-flex;align-items:center;gap:6px}.pp-stats svg{width:15px;height:15px}
+.pp-fallback{border-color:color-mix(in srgb,var(--gold) 55%,var(--line2));margin-top:12px}.pp-fallback b{font-size:15px;display:block;margin:4px 0}
+.pp-prompt{margin-top:12px}.pp-prompt b{display:block;font-size:15px;margin:4px 0 6px}.pp-prompt p{font-size:14px;line-height:1.55;color:var(--txt)}.pp-frame{font-size:12.5px!important;color:var(--mut)!important;margin-bottom:4px}
+.pp-lines{list-style:none;margin:8px 0 0;display:grid;gap:6px}.pp-lines li{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700}.pp-lines .btn{min-width:40px;padding:6px 8px}
+.pp-thread{margin-top:14px;display:grid;gap:10px}.pp-empty{text-align:center;padding:10px 0}
+.pp-turn{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card2);max-width:92%}.pp-turn.mine{margin-left:auto;background:color-mix(in srgb,var(--acc) 10%,var(--card2));border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
+.pp-turn-top{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--mut);margin-bottom:8px}.pp-turn-top b{color:var(--txt)}.pp-score{font-style:normal;font-weight:800;color:var(--accent-text)}
+.pp-play{display:inline-flex;gap:6px;align-items:center}.pp-tx{margin:8px 0 0;font-size:13.5px;line-height:1.5}.pp-tx-none{color:var(--mut2);font-style:italic}
+.pp-recorder{margin-top:14px}.pp-recorder b{display:block;font-size:15px;margin-bottom:4px}.pp-recbtn{margin-top:10px;width:100%;justify-content:center}.pp-stop{background:var(--red)!important;color:#fff!important}
+.pp-live{color:var(--red);display:flex;align-items:center;gap:8px}.pp-live svg{width:18px;height:18px}
+.pp-audio{width:100%;margin:10px 0 4px}.pp-scoreline{font-weight:800;color:var(--accent-text);margin:6px 0}
+.pp-sheet{max-width:420px}.pp-sheet-btn{width:100%;justify-content:flex-start;margin-top:8px}
+.pp-consent-list{list-style:none;margin:6px 0 14px;display:grid;gap:9px}.pp-consent-list li{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;line-height:1.45}.pp-consent-list svg{width:18px;height:18px;flex:none;color:var(--acc);margin-top:1px}
+.pp-prefs{padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.pp-prefs b{display:block;font-size:13.5px}.pp-prefs small{display:block;font-size:12px;color:var(--mut);margin-bottom:8px}
+.pp-radio{cursor:pointer}.pp-radio input{display:none}.pp-radio.on{background:var(--accent-fill);color:var(--on-accent)}
+.pp-check{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px}
+.pp-home{cursor:pointer}
+.pp-row svg,.pp-recbtn svg,.pp-sheet-btn svg,.pp-play svg{width:18px;height:18px;flex:none}.pp-row .btn,.pp-row .btn-primary{display:inline-flex;align-items:center;gap:8px}
 /* ---- Foundations (Stage 0) ---- */
 .fnd-home{margin:0 0 16px;border-color:color-mix(in srgb,var(--acc) 45%,var(--line2));background:linear-gradient(150deg,color-mix(in srgb,var(--acc) 12%,var(--card)),var(--card))}
 .fnd-home h2{font-size:20px;margin:4px 0 6px}.fnd-home .sub{margin:0 0 12px}
@@ -3282,6 +3314,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-roleplay" class="view"></div>
   <div id="v-simulation" class="view"></div>
   <div id="v-foundations" class="view"></div>
+  <div id="v-partner" class="view"></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
@@ -4449,6 +4482,138 @@ const I18N_EN={
  "ph.example_ph":"✍️ My example sentence from my real work…",
  "ph.record_btn":"🎙️ Record",
  "ph.hear_btn":"Hear my sentence",
+ "pp.title":"Practice Partner",
+ "pp.eyebrow":"Practice Partner",
+ "pp.tagline":"BE Mastery teaches you what to say. Practice Partner gives you someone to say it to.",
+ "pp.card_sub":"Practise English with another learner — short voice turns on today's lesson, no scheduling, no chat.",
+ "pp.how1_h":"Get paired for a week",
+ "pp.how1":"With a learner on your programme and level. First names only — no photos, no profiles.",
+ "pp.how2_h":"Speak on today's lesson",
+ "pp.how2":"Both of you get the same task from the programme. Record up to 60 seconds, hear it back, see the coach's score, then send.",
+ "pp.how3_h":"Listen and reply when you can",
+ "pp.how3":"Nothing is live. Your partner replies in their own time; you keep a duo streak together.",
+ "pp.rules":"No typed messages, no contact details, no photos. Report or block at any time. If your partner goes quiet, the AI coach steps in — clearly marked as AI.",
+ "pp.off_h":"Practice Partner is temporarily unavailable",
+ "pp.off_sub":"Please try again later. Your other practice tools are unaffected.",
+ "pp.signin_h":"Create your free account to get a partner",
+ "pp.signin_sub":"Pairing two people needs an account. It is the same free account that backs up your progress.",
+ "pp.signin_btn":"Create my free account",
+ "pp.check_h":"Take the one-minute check first",
+ "pp.check_sub":"Your partner is matched to your level, and the check is how the app learns it.",
+ "pp.loading":"Checking your partner status…",
+ "pp.offline_h":"Can't reach the partner service",
+ "pp.offline_sub":"Practice Partner needs a connection. Check your network and try again.",
+ "pp.retry":"Try again",
+ "pp.consent_cta_h":"Before your first partner",
+ "pp.consent_cta_sub":"One minute to read what is shared, and to set your preferences.",
+ "pp.consent_open":"Read and continue →",
+ "pp.consent_h":"What Practice Partner shares",
+ "pp.consent_1":"Your partner sees your first name ({{name}}), your level band and your language — nothing else. No photo, no e-mail.",
+ "pp.consent_2":"Each voice turn you send, and its transcript, is heard by that one partner only. Audio is stored securely and deleted 14 days after a pair ends.",
+ "pp.consent_3":"Transcripts are screened for phone numbers, e-mails, links and social handles before a turn is delivered. Turns with contact details are refused.",
+ "pp.consent_4":"A pair lasts one week. If a partner is silent for a day, the AI coach is offered instead — always marked as AI.",
+ "pp.consent_5":"You can report or block your partner at any time. Two reports from different people suspend an account for 30 days.",
+ "pp.consent_age":"For learners aged 16 and over.",
+ "pp.gender_h":"Same-gender partner (optional)",
+ "pp.gender_sub":"Tell us your gender only if you want a partner of the same gender. It is never shown to anyone.",
+ "pp.gender_skip":"Prefer not to say",
+ "pp.gender_f":"Woman",
+ "pp.gender_m":"Man",
+ "pp.gender_x":"Other",
+ "pp.same_gender":"Only pair me with the same gender",
+ "pp.same_needs_gender":"Choose your gender to use the same-gender option.",
+ "pp.consent_no":"Not now",
+ "pp.consent_yes":"I agree — continue",
+ "pp.consent_done":"Saved. You can get a partner now.",
+ "pp.suspended_h":"Practice Partner is paused on your account",
+ "pp.suspended_sub":"Two partners reported this account. Partner practice reopens on {{date}}. Every other part of BE Mastery works as before.",
+ "pp.get_h":"Get a partner for this week",
+ "pp.get_sub":"You will be paired with a {{track}} learner in your band ({{band}}). Usually instant when someone is waiting.",
+ "pp.get_btn":"Get a partner →",
+ "pp.get_fine":"One partner at a time, for one week.",
+ "pp.prefs":"Change preferences",
+ "pp.band_fnd-1-7":"Foundations, days 1–7",
+ "pp.band_fnd-8-15":"Foundations, days 8–15",
+ "pp.band_w1-4":"Weeks 1–4",
+ "pp.band_w5-8":"Weeks 5–8",
+ "pp.band_w9-12":"Weeks 9–12",
+ "pp.waiting_h":"Looking for your partner…",
+ "pp.waiting_count":"{{n}} other learner(s) in your band are waiting too — you will be paired as soon as one is compatible.",
+ "pp.waiting_alone":"You are first in line for your band. The next learner who asks is paired with you.",
+ "pp.waiting_sub":"You can close the app. Your Home screen will tell you when you have a partner.",
+ "pp.withdraw":"Stop looking",
+ "pp.refresh":"Check again",
+ "pp.waiting_toast":"You're in line. We'll pair you as soon as someone is ready.",
+ "pp.paired_toast":"Paired with {{name}}!",
+ "pp.closed_left":"Your last pair ended. You can get a new partner.",
+ "pp.closed_blocked":"Your last pair ended.",
+ "pp.closed_expired":"Your week with your last partner is complete. Get a new partner for this week.",
+ "pp.closed_suspended":"Your last pair ended.",
+ "pp.with":"Your partner: {{name}}",
+ "pp.day_of":"Day {{n}} of 7",
+ "pp.day_n":"Day {{n}}",
+ "pp.menu":"Partner options",
+ "pp.duo_streak":"Duo streak {{n}}",
+ "pp.turns_today":"{{n}}/{{max}} turns today",
+ "pp.you":"You",
+ "pp.ai_eyebrow":"AI coach — not your partner",
+ "pp.fallback_h":"{{name}} hasn't responded yet ({{h}} h).",
+ "pp.fallback_sub":"Keep practising with your AI coach on the same kind of task. Everything the coach says is generated by AI, never by your partner.",
+ "pp.fallback_btn":"Practise with the AI coach →",
+ "pp.repair_btn":"Find a new partner",
+ "pp.repair_h":"Find a new partner?",
+ "pp.repair_sub":"This ends the current pair and puts you back in line. Your turns so far stay with the old pair.",
+ "pp.prompt_eyebrow":"Today's task — both of you",
+ "pp.prompt_none":"Today's task will appear here.",
+ "pp.prompt_frame":"Tell your partner, in your own words:",
+ "pp.fnd_task":"Say these three sentences to your partner, then add one sentence of your own.",
+ "pp.thread_empty":"No turns yet. Record the first one — your partner gets the same task.",
+ "pp.play":"Play",
+ "pp.no_transcript":"(no transcript)",
+ "pp.play_failed":"Couldn't play that turn. Check your connection.",
+ "pp.limit_h":"That's your three turns for today",
+ "pp.limit_sub":"Come back tomorrow for the next task, or listen to your partner's turns again. ({{max}} per day keeps this practice, not chat.)",
+ "pp.week_over":"Your week with this partner is complete.",
+ "pp.rec_h":"Your turn",
+ "pp.rec_sub":"Up to 60 seconds. You will hear it back and see the coach's score before anything is sent.",
+ "pp.rec_start":"Record",
+ "pp.rec_live":"Recording",
+ "pp.rec_stop":"Stop",
+ "pp.take_h":"Your take ({{s}} s)",
+ "pp.grading":"The coach is listening…",
+ "pp.no_transcript_yet":"The coach couldn't hear words in this take. You can still send it, or record again.",
+ "pp.score":"Coach score: {{n}}%",
+ "pp.rec_again":"Record again",
+ "pp.send":"Send to partner",
+ "pp.send_fine":"Sending shares this recording and its transcript with your partner only.",
+ "pp.sent_toast":"Sent. Your partner will hear it when they open the app.",
+ "pp.err_moderation":"Not sent: the transcript contains a phone number, link, e-mail or social handle. Contact details aren't allowed here — record again without them.",
+ "pp.err_limit":"You've reached today's limit.",
+ "pp.err_day":"A new day started — the task changed. Please record again.",
+ "pp.err_nopair":"This pair has ended.",
+ "pp.err_generic":"Something went wrong. Please try again.",
+ "pp.report":"Report {{name}}",
+ "pp.report_h":"Report your partner",
+ "pp.report_sub":"Tell us what happened. Your partner is not told who reported them.",
+ "pp.reason_harassment":"Harassment or unwanted personal comments",
+ "pp.reason_contact_info":"Asked for contact details or a number",
+ "pp.reason_not_english":"Not practising English",
+ "pp.reason_abuse":"Abusive or hateful",
+ "pp.reason_other":"Something else",
+ "pp.report_done":"Thank you. Your report is recorded.",
+ "pp.block":"Block",
+ "pp.block_h":"Block {{name}}?",
+ "pp.block_sub":"This ends the pair now. You will never be paired again, and they can no longer hear your turns.",
+ "pp.block_done":"Blocked. You can get a new partner.",
+ "pp.leave":"Leave this pair",
+ "pp.leave_h":"Leave this pair?",
+ "pp.leave_sub":"You can get a new partner straight away. Your partner is told the pair ended.",
+ "pp.toast_reply":"{{name}} replied to your turn.",
+ "pp.home_reply_h":"{{name}} replied",
+ "pp.home_reply_sub":"Listen, then record your next turn on today's task.",
+ "pp.home_prompt_h":"Today's task with {{name}} is waiting",
+ "pp.home_prompt_sub":"Record one turn to keep your duo streak.",
+ "pp.home_open":"Open Practice Partner →",
  "fnd.title":"Foundations",
  "fnd.eyebrow":"Start here",
  "fnd.day_of":"Day {{n}} of {{total}}",
@@ -5826,7 +5991,7 @@ function masteredCount(){const M=aMap("phMaster");return Object.keys(M).filter(k
 let cur={v:"home"};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function bnavSync(v){
-  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"?"practice":(v==="foundations"?"home":v)));
+  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)));
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 /* Remembers the session a jump-button came from, so the destination tab can
@@ -5877,7 +6042,7 @@ function go(v,arg1,arg2){
      just as they tapped a different colleague to speak to. */
   try{if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave()}catch(err){try{perfMark("error",0,"simLeave:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   cur={v,arg1,arg2};
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -5901,7 +6066,7 @@ function go(v,arg1,arg2){
      page name, and the page shows a plain retry instead of nothing. */
   const _t0=performance.now();
   try{
-    ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations})[v](el,arg1,arg2);
+    ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -6220,6 +6385,7 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${fndHomeCardHTML()}
+  ${ppHomeCardHTML()}
   ${homeNudgeHTML()}
   ${/* The track you are NOT on. Its own card told the learner what they already
         knew — "General English · Current track" on the General English Home —
@@ -6251,6 +6417,7 @@ function rHome(el){
   <h1 class="big">What should I do today?</h1>
   <p class="sub">One focused mission for your professional journey.</p>
   ${fndHomeCardHTML()}
+  ${ppHomeCardHTML()}
   ${homeNudgeHTML()}
   <section class="card career-dashboard" aria-label="Today's Career Dashboard">
     <div class="career-dashboard-kicker"><div class="eyebrow">Career Dashboard</div><span class="career-dashboard-track">${esc((window.Trades&&isProfessionalJourney()?Trades.active(S).name:null)||trackName)}</span></div>
@@ -8936,7 +9103,9 @@ function navBadgeCount(view){
      that exists from day one, so they would badge an empty account and could
      never be "new". vocState() handles the rest — a word you get right is
      scheduled ahead and stops counting until it comes due again. */
-  try{return Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){return 0}
+  let n=0;try{n=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
+  try{n+=ppUnread()}catch(e){}   /* a partner reply waiting to be heard */
+  return n;
 }
 function navBadges(){
   ["practice"].forEach(v=>{
@@ -10288,6 +10457,11 @@ function rPractice(el){
   ${pathToolsHTML()}
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
+  ${ppApiBase()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
+    <span class="rp-entry-ic pp-entry-ic">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
+    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
+    <span class="rp-entry-go">→</span>
+  </button>`:""}
   <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
     <span class="rp-entry-ic"><img src="${isProfessionalJourney()?"workshop-team-card.jpg":"rp-photos/oneone.jpg"}" alt="" loading="lazy" onerror="this.remove()"></span>
     <!-- The card said "Professional Interview Coaches" but opened the workplace
@@ -12652,6 +12826,380 @@ async function phRecInto(ctx,label,btn,after,onBlob){
     rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
+/* ================= PRACTICE PARTNER =================
+   "BE Mastery teaches you what to say. Practice Partner gives you someone to
+   say it to." Two learners on the same programme and level are paired for a
+   week; each day both get the day's task from the curriculum; each records a
+   short turn, hears it, sees the coach's score, and sends; the partner listens
+   and replies when they can. Nothing live, nothing typed, nobody browsed.
+   All data lives behind the be-partner Worker (backend/partner/); the app's
+   Firestore document is untouched. Design: marketing/product/practice-partner/.
+
+   Auth: the Firebase ID token. For local development the Worker's dev mode
+   accepts X-Dev-User, and this client only sends it when PARTNER_API points
+   at localhost/127.0.0.1 (localStorage be_partner_api + be_partner_dev_user). */
+const PARTNER_API="https://be-partner.nore-ngou.workers.dev";   /* "" = feature off (kill switch) */
+const PP_MAX_MS=60000, PP_POLL_MS=60000;
+let ppMe=null,ppRec=null,ppBusy=false,ppPollH=null,ppLastFetch=0;
+const ppAudioUrls=new Map();
+function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=null)return o.replace(/\/+$/,"")}catch(e){}return PARTNER_API}
+function ppDevUser(){try{if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(ppApiBase()))return null;return localStorage.getItem("be_partner_dev_user")||null}catch(e){return null}}
+function ppSignedIn(){return !!(FBUser||ppDevUser())}
+function ppState(){S.pp=S.pp||{};return S.pp}
+async function ppHeaders(){
+  const h={};const dev=ppDevUser();
+  if(dev){h["x-dev-user"]=dev;try{const n=localStorage.getItem("be_partner_dev_now");if(n)h["x-dev-now"]=n}catch(e){}return h}
+  if(FBUser){h.authorization="Bearer "+await FBUser.getIdToken()}
+  return h;
+}
+async function ppApi(method,path,body){
+  if(!ppApiBase())throw Object.assign(new Error("off"),{code:"off"});
+  const h=await ppHeaders();let b=body;
+  if(body&&!(body instanceof FormData)){h["content-type"]="application/json";b=JSON.stringify(body)}
+  let r;
+  try{r=await fetch(ppApiBase()+path,{method,headers:h,body:b})}
+  catch(e){throw Object.assign(new Error("network"),{code:"network"})}
+  const ct=r.headers.get("content-type")||"";
+  const j=ct.includes("json")?await r.json().catch(()=>({})):null;
+  if(!r.ok)throw Object.assign(new Error((j&&j.error)||String(r.status)),{code:(j&&j.error)||"http",status:r.status,detail:j&&j.detail});
+  return j;
+}
+/* the learner's situation, from the Worker; cached in S.pp for Home and offline */
+async function ppRefresh(silent){
+  if(!ppApiBase()||!ppSignedIn())return null;
+  try{
+    ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();
+    const st=ppState();st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
+    ppNotify();navBadges();
+  }catch(e){
+    if(e.code==="auth")ppMe={auth:false};
+    else if(!silent)ppMe={error:e.code};
+  }
+  return ppMe;
+}
+/* a partner reply the learner has not seen yet: one toast per new turn, the
+   Home card and the Practice badge do the rest */
+function ppUnread(){const m=(ppState().lastMe)||ppMe;return m&&m.pair?Number(m.pair.unread||0):0}
+function ppNotify(){
+  const m=ppMe;if(!m||!m.pair||!m.pair.unread)return;
+  const last=[...m.pair.turns].reverse().find(t=>!t.mine);if(!last)return;
+  const st=ppState();if(st.notified===last.id)return;
+  st.notified=last.id;save();
+  if(cur&&cur.v!=="partner")toast(t("pp.toast_reply",{name:m.pair.partner.name}));
+}
+/* ---- what BE Mastery already knows about the learner, for matching ---- */
+function ppBand(){if(fndGated()){return fndDayOf()<=7?"fnd-1-7":"fnd-8-15"}const w=currentPos().w;return w<=4?"w1-4":w<=8?"w5-8":"w9-12"}
+function ppPosition(){return fndGated()?{promptWeek:0,fndDay:fndDayOf()}:{promptWeek:currentPos().w,fndDay:0}}
+function ppFirstName(){return String((S.profile&&S.profile.name)||"").trim().split(/\s+/)[0].slice(0,24)||"Learner"}
+/* the day's prompt, computed from the curriculum of the pair's track — both
+   members compute the same thing, the Worker stores only the position */
+function ppPrompt(pair){
+  const day=Math.max(0,Math.min(6,Number(pair.day)||0));
+  let cu;try{cu=ProfessionalTrackContext.resolveCurriculum(pair.track)}catch(e){cu=activeCurriculum()}
+  if(pair.promptWeek>0){
+    /* the week's speaking tasks first (Tue / Thu / Sat are the drills), the
+       shadowing and review days last — a partner is someone to say it TO */
+    const order=["Tue","Thu","Sat","Fri","Mon","Wed","Sun"].filter(x=>(cu.days||[]).includes(x)).concat((cu.days||[]).filter(x=>!["Tue","Thu","Sat","Fri","Mon","Wed","Sun"].includes(x)));
+    const wk=(cu.weeks||[])[pair.promptWeek-1],d=order[day]||(cu.days||[])[day],dd=wk&&wk.days&&wk.days[d];
+    if(!dd)return null;
+    const unit=(pair.track!=="general-english"&&wk.stage)||t("journey.week_label",{n:pair.promptWeek});
+    return {title:`${unit} · ${d} — ${dd.focus||""}`,task:dd.task||"",out:dd.out||""};
+  }
+  const pack=cu.foundations;if(!pack||!pack.days)return null;
+  const n=Math.min(15,Math.max(1,(pair.fndDay||1)+day)),dy=pack.days[n-1];if(!dy)return null;
+  const lines=dy.items.map(it=>fndFill(it.en,"en"));
+  return {title:t("path.next_fnd",{n,theme:fndFill(dy.theme||"","en")}),task:t("pp.fnd_task"),lines};
+}
+/* ---------------------------------------------------------------- view */
+function rPartner(el){
+  clearInterval(ppPollH);
+  const back=`<button class="back stick-back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div><h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
+  if(!ppApiBase()){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
+  if(!ppSignedIn()){
+    shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p>
+      <button class="btn-primary" onclick="fbOpenModal('up')">${t("pp.signin_btn")}</button></section>`);return;
+  }
+  if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement()){
+    shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.check_h")}</b><p class="sub">${t("pp.check_sub")}</p>
+      <button class="btn-primary" onclick="go('home')">${t("fnd.check_open")}</button></section>`);return;
+  }
+  shell(`<section class="card"><p class="sub">${t("pp.loading")}</p></section>`);
+  ppRefresh().then(()=>{if(cur.v!=="partner")return;ppRender(el);ppPollH=setInterval(()=>{if(cur.v!=="partner"){clearInterval(ppPollH);return}ppRefresh(true).then(()=>{if(cur.v==="partner"&&!ppRec)ppRender(el)})},PP_POLL_MS)});
+}
+function ppIntroHTML(){
+  return `<section class="card pp-intro">
+    <div class="pp-steps">
+      <div><span class="pp-n">1</span><b>${t("pp.how1_h")}</b><small>${t("pp.how1")}</small></div>
+      <div><span class="pp-n">2</span><b>${t("pp.how2_h")}</b><small>${t("pp.how2")}</small></div>
+      <div><span class="pp-n">3</span><b>${t("pp.how3_h")}</b><small>${t("pp.how3")}</small></div>
+    </div>
+    <p class="pp-rules">${ic("shield")} ${t("pp.rules")}</p>
+  </section>`;
+}
+function ppRender(el){
+  const back=`<button class="back stick-back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div><h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const shell=inner=>{el.innerHTML=back+head+inner;manIconizeInline(el)};
+  const m=ppMe;
+  if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
+  if(m.auth===false){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p><button class="btn-primary" onclick="fbOpenModal('in')">${t("pp.signin_btn")}</button></section>`);return}
+  if(!m.consented){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.consent_cta_h")}</b><p class="sub">${t("pp.consent_cta_sub")}</p><button class="btn-primary" onclick="ppOpenConsent()">${t("pp.consent_open")}</button></section>`);return}
+  if(m.suspendedUntil){shell(`<section class="card pp-cta"><b>${t("pp.suspended_h")}</b><p class="sub">${t("pp.suspended_sub",{date:new Date(m.suspendedUntil).toLocaleDateString()})}</p></section>`);return}
+  if(m.pair){shell(ppThreadHTML(m.pair));ppRenderRecorder();ppMarkSeen(m.pair);return}
+  if(m.waiting){
+    shell(`${ppIntroHTML()}<section class="card pp-cta pp-wait">
+      <div class="pp-wait-ring">${ic("clock")}</div>
+      <b>${t("pp.waiting_h")}</b>
+      <p class="sub">${m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone")}</p>
+      <p class="sub">${t("pp.waiting_sub")}</p>
+      <div class="pp-row"><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button><button class="btn btn-g" onclick="go('partner')">${t("pp.refresh")}</button></div>
+    </section>`);return;
+  }
+  const closed=m.lastClosed?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(m.lastClosed.reason||"left"))}</p>`:"";
+  shell(`${ppIntroHTML()}<section class="card pp-cta">${closed}
+    <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand()),track:t(activeProfessionalTrack().nameKey)})}</p>
+    <button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppJoin()">${t("pp.get_btn")}</button>
+    <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
+  </section>`);
+}
+function ppThreadHTML(p){
+  const pr=ppPrompt(p);
+  const day=Math.min(7,(p.day||0)+1);
+  const canRecord=p.myTurnsToday<p.turnsPerDay&&p.day<7;
+  const turns=p.turns.map(tn=>`<div class="pp-turn ${tn.mine?"mine":"theirs"}" id="ppT${tn.id}">
+      <div class="pp-turn-top"><b>${tn.mine?t("pp.you"):esc(p.partner.name)}</b><span>${t("pp.day_n",{n:tn.day+1})}${tn.score!=null?` · <i class="pp-score">${tn.score}%</i>`:""}</span></div>
+      <button class="btn btn-g btn-sm pp-play" onclick="ppPlay('${tn.id}',this)">${ic("play")} ${t("pp.play")}${tn.durationMs?` · ${Math.round(tn.durationMs/1000)}s`:""}</button>
+      ${tn.transcript?`<p class="pp-tx">${esc(tn.transcript)}</p>`:`<p class="pp-tx pp-tx-none">${t("pp.no_transcript")}</p>`}
+    </div>`).join("");
+  return `<section class="card pp-head">
+    <div class="pp-head-row">
+      <span class="pp-avatar">${esc(p.partner.name.slice(0,1).toUpperCase())}</span>
+      <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small>${t("pp.band_"+p.band)} · ${t("pp.day_of",{n:day})}</small></div>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
+    </div>
+    <div class="pp-stats"><span>${ic("flame")} ${t("pp.duo_streak",{n:p.duoStreak||0})}</span><span>${ic("check")} ${t("pp.turns_today",{n:p.myTurnsToday,max:p.turnsPerDay})}</span></div>
+  </section>
+  ${p.fallback?`<section class="card pp-fallback">
+    <div class="eyebrow">${t("pp.ai_eyebrow")}</div>
+    <b>${t("pp.fallback_h",{name:esc(p.partner.name),h:p.partnerSilentH})}</b>
+    <p class="sub">${t("pp.fallback_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" onclick="go('${p.track==="welding"?"simulation":"roleplay"}')">${t("pp.fallback_btn")}</button>
+    ${p.canRepair?`<button class="btn btn-g" onclick="ppRepair()">${t("pp.repair_btn")}</button>`:""}</div>
+  </section>`:""}
+  <section class="card pp-prompt">
+    <div class="eyebrow">${t("pp.prompt_eyebrow")}</div>
+    ${pr?`<b>${esc(pr.title)}</b><p class="pp-frame">${t("pp.prompt_frame")}</p><p>${esc(pr.task)}</p>${pr.lines?`<ul class="pp-lines">${pr.lines.map(l=>`<li>${esc(l)} <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(l)},.9)" aria-label="Hear">${ic("sound")}</button></li>`).join("")}</ul>`:""}${pr.out?`<p class="pp-fine">${t("sess.evidence",{out:esc(pr.out)})}</p>`:""}`:`<p class="sub">${t("pp.prompt_none")}</p>`}
+  </section>
+  <div class="pp-thread">${turns||`<p class="sub pp-empty">${t("pp.thread_empty")}</p>`}</div>
+  <section class="card pp-recorder" id="ppRecorder" data-can="${canRecord?1:0}"></section>`;
+}
+function ppRenderRecorder(){
+  const box=document.getElementById("ppRecorder");if(!box)return;
+  const p=ppMe&&ppMe.pair;if(!p)return;
+  const can=box.dataset.can==="1";
+  if(!can){box.innerHTML=`<b>${t("pp.limit_h")}</b><p class="sub">${p.day>=7?t("pp.week_over"):t("pp.limit_sub",{max:p.turnsPerDay})}</p>`;manIconizeInline(box);return}
+  const r=ppRec;
+  if(!r){box.innerHTML=`<b>${t("pp.rec_h")}</b><p class="sub">${t("pp.rec_sub")}</p>
+    <button class="btn-primary pp-recbtn" onclick="ppRecToggle()">${ic("mic")} ${t("pp.rec_start")}</button>`;manIconizeInline(box);return}
+  if(r.mr&&r.mr.state==="recording"){box.innerHTML=`<b class="pp-live">${ic("mic")} ${t("pp.rec_live")} <span id="ppTimer">0:00</span> / 1:00</b>
+    <button class="btn-primary pp-recbtn pp-stop" onclick="ppRecToggle()">${ic("stop")} ${t("pp.rec_stop")}</button>`;manIconizeInline(box);return}
+  const words=r.words&&r.words.length?`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${w.score>=80?"var(--green)":w.score>=55?"var(--gold)":"var(--red)"}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`:"";
+  box.innerHTML=`<b>${t("pp.take_h",{s:Math.round((r.dur||0)/1000)})}</b>
+    <audio controls src="${r.url}" class="pp-audio" preload="metadata"></audio>
+    ${r.busy?`<p class="sub">${ic("mic")} ${t("pp.grading")}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}
+      ${r.score!=null?`<p class="pp-scoreline">${t("pp.score",{n:r.score})}</p>`:""}${words}`}
+    <div class="pp-row">
+      <button class="btn btn-g" onclick="ppRecToggle()">${ic("repeat")} ${t("pp.rec_again")}</button>
+      <button class="btn-primary" id="ppSend" ${r.busy||ppBusy?"disabled":""} onclick="ppSend()">${ic("upload")} ${t("pp.send")}</button>
+    </div>
+    <p class="pp-fine">${t("pp.send_fine")}</p>`;
+  manIconizeInline(box);
+}
+/* ------------------------------------------------------------ recording */
+window.ppRecToggle=async()=>{
+  if(ppRec&&ppRec.mr&&ppRec.mr.state==="recording"){ppRec.mr.stop();return}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)return toast(t("fb.sr_unavailable"));
+  if(!navigator.onLine)return toast(t("rp.need_online"));
+  if(ppRec&&ppRec.url){try{URL.revokeObjectURL(ppRec.url)}catch(e){}}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(t("rec.mic_denied_toast"))}
+  const mr=new MediaRecorder(stream);
+  const r={mr,chunks:[],t0:Date.now(),blob:null,url:null,dur:0,transcript:"",score:null,words:null,busy:false,tick:null};
+  ppRec=r;
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)r.chunks.push(e.data)};
+  mr.onstop=async()=>{
+    clearInterval(r.tick);stream.getTracks().forEach(tr=>tr.stop());
+    r.dur=Date.now()-r.t0;
+    const blob=new Blob(r.chunks,{type:mr.mimeType||"audio/webm"});
+    if(blob.size<1200||r.dur<800){ppRec=null;toast(t("ph.too_short_toast"));ppRenderRecorder();return}
+    r.blob=blob;r.url=URL.createObjectURL(blob);r.busy=true;ppRenderRecorder();
+    /* the coach listens first: transcript, then a word-by-word score against it
+       (the same two calls the workplace scenarios make) */
+    try{r.transcript=(await fbTranscribe(blob))||""}catch(e){r.transcript=""}
+    if(r.transcript){try{const res=await fbAssess(blob,r.transcript);if(res&&res.words&&res.words.length){r.words=res.words;r.score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=80).length/res.words.length*100)}}catch(e){}}
+    r.busy=false;if(ppRec===r)ppRenderRecorder();
+  };
+  mr.start();
+  r.tick=setInterval(()=>{const el=document.getElementById("ppTimer");const s=Math.floor((Date.now()-r.t0)/1000);if(el)el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(Date.now()-r.t0>=PP_MAX_MS&&mr.state==="recording")mr.stop()},250);
+  ppRenderRecorder();
+};
+window.ppSend=async()=>{
+  const r=ppRec,p=ppMe&&ppMe.pair;if(!r||!r.blob||r.busy||ppBusy||!p)return;
+  ppBusy=true;const btn=document.getElementById("ppSend");if(btn)btn.disabled=true;
+  r.turnId=r.turnId||[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("");
+  const fd=new FormData();
+  fd.set("audio",r.blob,"turn."+((r.blob.type||"").includes("mp4")?"m4a":"webm"));fd.set("day",String(p.day));fd.set("transcript",r.transcript||"");
+  if(r.score!=null)fd.set("score",String(r.score));fd.set("duration_ms",String(r.dur));fd.set("turn_id",r.turnId);
+  try{
+    await ppApi("POST","/turns",fd);
+    markPracticed();save();try{track("partner_turn",{day:String(p.day)})}catch(e){}
+    try{URL.revokeObjectURL(r.url)}catch(e){}ppRec=null;
+    toast(t("pp.sent_toast"));
+    await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+  }catch(e){
+    const msg=e.code==="moderation"?t("pp.err_moderation"):e.code==="limit"?t("pp.err_limit"):e.code==="day"?t("pp.err_day"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
+    toast(msg);
+    if(e.code==="moderation"){r.transcript="";r.score=null;r.words=null;ppRec=null;ppRenderRecorder()}
+    if(e.code==="day"||e.code==="no_pair"||e.code==="expired"){await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+  }finally{ppBusy=false;const b=document.getElementById("ppSend");if(b)b.disabled=false}
+};
+/* the partner's audio: fetched with the same credentials, never a public URL */
+window.ppPlay=async(id,btn)=>{
+  try{
+    audioUnlock();
+    let url=ppAudioUrls.get(id);
+    if(!url){
+      if(btn)btn.disabled=true;
+      const h=await ppHeaders();const r=await fetch(ppApiBase()+"/turns/"+id+"/audio",{headers:h});
+      if(!r.ok)throw new Error(String(r.status));
+      url=URL.createObjectURL(await r.blob());ppAudioUrls.set(id,url);
+    }
+    const a=new Audio(url);a.play().catch(()=>{});
+  }catch(e){toast(t("pp.play_failed"))}
+  finally{if(btn)btn.disabled=false}
+};
+/* --------------------------------------------------------------- actions */
+window.ppJoin=async()=>{
+  if(ppBusy)return;ppBusy=true;
+  try{
+    const pos=ppPosition();
+    const r=await ppApi("POST","/interest",{track:activeProfessionalTrack().id,band:ppBand(),lang:(S.profile&&S.profile.lang)||"en",promptWeek:pos.promptWeek,fndDay:pos.fndDay});
+    ppMe=r;ppState().lastMe=r;save();
+    try{track("partner_interest",{track:activeProfessionalTrack().id});if(r.status==="paired")track("partner_pair",{})}catch(e){}
+    toast(r.status==="paired"?t("pp.paired_toast",{name:r.pair.partner.name}):t("pp.waiting_toast"));
+  }catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+};
+window.ppWithdraw=async()=>{try{ppMe=await ppApi("DELETE","/interest");ppState().lastMe=ppMe;save()}catch(e){}const el=document.getElementById("v-partner");if(el)ppRender(el)};
+function ppMarkSeen(p){if(!p.unread)return;ppApi("POST","/pairs/"+p.id+"/seen").then(()=>{if(ppMe&&ppMe.pair){ppMe.pair.unread=0;ppState().lastMe=ppMe;save();navBadges()}}).catch(()=>{})}
+window.ppRepair=async()=>{
+  const ok=await askConfirm({icon:"repeat",danger:false,title:t("pp.repair_h"),body:t("pp.repair_sub"),confirmLabel:t("pp.repair_btn"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  try{await ppApi("POST","/pairs/"+ppMe.pair.id+"/leave");await ppJoin()}catch(e){toast(t("pp.err_generic"))}
+};
+window.ppMenu=async()=>{
+  const p=ppMe&&ppMe.pair;if(!p)return;
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true">
+    <h2 style="font-size:18px;margin:0 0 10px">${t("pp.menu")}</h2>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppReport()">${ic("alert")} ${t("pp.report",{name:esc(p.partner.name)})}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppBlock()">${ic("ban")} ${t("pp.block")}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="this.closest('.pp-sheet-ov').remove()">${t("wc.close")}</button>
+  </div>`;
+  ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});
+  document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.ppReport=async()=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const p=ppMe&&ppMe.pair;if(!p)return;
+  const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
+  const reasons=["harassment","contact_info","not_english","abuse","other"];
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true">
+    <h2 style="font-size:18px;margin:0 0 4px">${t("pp.report_h")}</h2><p class="sub" style="margin:0 0 12px">${t("pp.report_sub")}</p>
+    ${reasons.map(r=>`<button class="btn btn-g pp-sheet-btn" onclick="ppReportSend('${r}')">${t("pp.reason_"+r)}</button>`).join("")}
+    <button class="btn btn-g pp-sheet-btn" onclick="this.closest('.pp-sheet-ov').remove()">${t("wc.close")}</button></div>`;
+  ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});
+  document.body.appendChild(ov);
+};
+window.ppReportSend=async reason=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  try{ppMe=await ppApi("POST","/pairs/"+ppMe.pair.id+"/report",{reason});ppState().lastMe=ppMe;save();try{track("partner_report",{})}catch(e){}toast(t("pp.report_done"))}
+  catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+window.ppBlock=async()=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const p=ppMe&&ppMe.pair;if(!p)return;
+  const ok=await askConfirm({icon:"ban",title:t("pp.block_h",{name:p.partner.name}),body:t("pp.block_sub"),confirmLabel:t("pp.block"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/block");ppState().lastMe=ppMe;save();try{track("partner_block",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+window.ppLeave=async()=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const p=ppMe&&ppMe.pair;if(!p)return;
+  const ok=await askConfirm({icon:"close",danger:false,title:t("pp.leave_h"),body:t("pp.leave_sub"),confirmLabel:t("pp.leave"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/leave");ppState().lastMe=ppMe;save()}catch(e){toast(t("pp.err_generic"))}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+/* ---- consent: what is shared, with whom, for how long — before anything is */
+window.ppOpenConsent=(prefsOnly)=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const m=ppMe||{};const st=ppState();
+  const g=st.gender||"",sg=!!st.sameGender;
+  const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
+  ov.innerHTML=`<div class="lang-modal pp-sheet pp-consent" role="dialog" aria-modal="true" aria-label="${esc(t("pp.consent_h"))}">
+    <div class="eyebrow">${t("pp.eyebrow")}</div>
+    <h2 style="font-size:19px;margin:4px 0 8px">${t("pp.consent_h")}</h2>
+    <ul class="pp-consent-list">
+      <li>${ic("user")} ${t("pp.consent_1",{name:esc(ppFirstName())})}</li>
+      <li>${ic("mic")} ${t("pp.consent_2")}</li>
+      <li>${ic("shield")} ${t("pp.consent_3")}</li>
+      <li>${ic("clock")} ${t("pp.consent_4")}</li>
+      <li>${ic("ban")} ${t("pp.consent_5")}</li>
+    </ul>
+    <div class="pp-prefs">
+      <b>${t("pp.gender_h")}</b><small>${t("pp.gender_sub")}</small>
+      <div class="pp-row" role="radiogroup">${[["","pp.gender_skip"],["f","pp.gender_f"],["m","pp.gender_m"],["x","pp.gender_x"]].map(([v,k])=>`<label class="chip pp-radio ${g===v?"on":""}"><input type="radio" name="ppg" value="${v}" ${g===v?"checked":""}> ${t(k)}</label>`).join("")}</div>
+      <label class="pp-check"><input type="checkbox" id="ppSame" ${sg?"checked":""}> ${t("pp.same_gender")}</label>
+    </div>
+    <p class="pp-fine">${t("pp.consent_age")} · <a href="privacy.html#partner" target="_blank">${t("acc.privacy_link").replace(/^[^\w]+/,"")}</a></p>
+    <div class="pp-row">
+      <button class="btn btn-g" onclick="this.closest('.pp-sheet-ov').remove()">${t("pp.consent_no")}</button>
+      <button class="btn-primary" onclick="ppConsent(this)">${prefsOnly?t("acc.save"):t("pp.consent_yes")}</button>
+    </div>
+  </div>`;
+  ov.querySelectorAll('input[name="ppg"]').forEach(i=>i.addEventListener("change",()=>{ov.querySelectorAll(".pp-radio").forEach(l=>l.classList.toggle("on",l.querySelector("input").checked))}));
+  document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.ppConsent=async btn=>{
+  const ov=btn.closest(".pp-sheet-ov");
+  const g=(ov.querySelector('input[name="ppg"]:checked')||{}).value||"";
+  const same=!!(ov.querySelector("#ppSame")||{}).checked;
+  if(same&&!g){toast(t("pp.same_needs_gender"));return}
+  btn.disabled=true;
+  try{
+    ppMe=await ppApi("POST","/consent",{name:ppFirstName(),lang:(S.profile&&S.profile.lang)||"en",gender:g||null,sameGender:same});
+    const st=ppState();st.consent=true;st.gender=g;st.sameGender=same;st.lastMe=ppMe;save();
+    ov.remove();toast(t("pp.consent_done"));
+  }catch(e){btn.disabled=false;toast(e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));return}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+/* ---- Home: one card, only when there is something to do ---- */
+function ppHomeCardHTML(){
+  const m=ppState().lastMe;if(!m||!m.pair||!ppApiBase())return "";
+  const p=m.pair;
+  if(p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  if(p.myTurnsToday===0&&p.day<7)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  return "";
+}
+/* refresh quietly when the app comes back and there is a partner to hear from */
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ppState().consent&&Date.now()-ppLastFetch>PP_POLL_MS)ppRefresh(true).then(()=>{if(cur&&cur.v==="home")try{go("home")}catch(e){}})});
+
 /* ================= FOUNDATIONS — Stage 0 of a professional track =================
    The first real feedback from francophone learners was that the welding track
    opens at a level they cannot follow: a fluent question, a B2 model answer,
@@ -15221,7 +15769,7 @@ window.pronTry=()=>{
 (async function boot(){
   try{await Promise.all([CurriculumProvider.load("general"),CurriculumProvider.load("welding")])}
   catch(e){console.error("[curriculum]",e);document.getElementById("v-home").innerHTML="<p class=\"sub\">Could not load the learning curriculum. Please reconnect and try again.</p>";return}
-  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks"];
+  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);
@@ -15247,6 +15795,7 @@ window.pronTry=()=>{
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
   touchSeen();
+  try{if(ppState().consent)setTimeout(()=>ppRefresh(true).then(()=>{if(cur&&cur.v==="home")go("home")}),1500)}catch(e){}
   /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
   const done=totalDone();
   track("app_open",{

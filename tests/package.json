@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs",
+    "test": "node smoke.mjs && node partner.mjs",
+    "test:partner": "node partner.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
     "test:stress": "node stress.mjs"
   },
