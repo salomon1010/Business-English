@@ -65,6 +65,7 @@
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=80"></script>
+<script src="shadow-sync.js?v=1"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
 <script src="professional-skills-passport.js?v=83"></script>
@@ -1162,6 +1163,18 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    talking; the ring and the bars carry "still going", and they run for the whole
    playback, silences included, because the silences are exactly when the learner
    needs telling to wait. */
+/* ---- Shadow Studio V2 ---- */
+.sv{margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--card2)}
+.sv-tabs{margin-bottom:8px}.sv-note{font-size:12px;color:var(--mut2);margin:0 0 8px}
+.sv-tx{max-height:38vh;overflow-y:auto;padding:4px 2px;scroll-behavior:smooth;-webkit-overflow-scrolling:touch}
+.sv-seg{margin:0 0 8px;padding:6px 8px;border-radius:9px;font-size:15px;line-height:1.55;color:var(--mut);cursor:pointer;transition:background .15s,color .15s}
+.sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.sv-seg.pick{outline:1px dashed color-mix(in srgb,var(--acc) 60%,transparent)}
+.sv-w{border-radius:4px;padding:0 1px;transition:background .08s}.sv-w.now{background:var(--acc);color:var(--on-accent)}
+.sv-tx.hidden .sv-seg{filter:blur(7px);user-select:none;pointer-events:none}
+.sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}.sv-ctl .btn{display:inline-flex;align-items:center;gap:6px}.sv-ctl svg{width:16px;height:16px}.sv-ctl .btn.on{border-color:var(--acc);color:var(--accent-text)}
+.sv-empty{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mut)}.sv-empty svg{width:16px;height:16px;flex:none}
+.sv-apply{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.sv-phrase{font-size:16px;font-weight:800;margin:6px 0}
 /* ---- Practice Partner ---- */
 .pp-entry-ic{position:relative}.pp-dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
 .pp-intro .pp-steps{display:grid;gap:10px}.pp-steps>div{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:start}
@@ -4482,6 +4495,17 @@ const I18N_EN={
  "ph.example_ph":"✍️ My example sentence from my real work…",
  "ph.record_btn":"🎙️ Record",
  "ph.hear_btn":"Hear my sentence",
+ "sv.none":"No transcript for this clip yet. Paste one in the transcript box, or pick a library clip — sentence and word highlighting follow the clip's captions.",
+ "sv.modes":"Shadow Studio modes",
+ "sv.mode_watch":"Watch","sv.mode_shadow":"Shadow","sv.mode_challenge":"Challenge","sv.mode_apply":"Apply it",
+ "sv.level_word":"Word-by-word highlighting from this clip's captions.",
+ "sv.level_sentence":"Sentence highlighting — this clip's captions have no word timing.",
+ "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
+ "sv.challenge_note":"Listen and say it before you look.",
+ "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
+ "sv.reveal":"Reveal","sv.hide":"Hide again",
+ "sv.apply_eyebrow":"Apply it","sv.apply_sub":"Use this expression in your own sentence — with the AI coach, or with a real learner.",
+ "sv.apply_ai":"Practise with AI","sv.apply_partner":"Use it with a partner","sv.apply_pick":"Tap another sentence in the transcript to pick a different expression.",
  "pp.title":"Practice Partner",
  "pp.eyebrow":"Practice Partner",
  "pp.tagline":"BE Mastery teaches you what to say. Practice Partner gives you someone to say it to.",
@@ -7479,6 +7503,7 @@ ${(()=>{
       <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">${ic("repeat")}</button>
       <button class="btn btn-g" onclick="shSaveClip()">${tIc("sh.save_clip_btn","star")}</button>
     </div>
+    <div class="sv" id="shV2" style="display:none"></div>
     <div class="sh-seg" id="shSeg">
       <div class="sh-seg-row">
         <span class="lbl">${t("sh.clip_label")}</span>
@@ -7657,6 +7682,7 @@ async function shLoad(c,quiet){
       onError:()=>{clearInterval(shTick);shVideoError(true)}}});
   renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
+  shV2Load();
 }
 /* Shows an app-level message when the clip cannot play, and hides the controls
    that would otherwise act on a dead player. Closing the workspace returns to
@@ -7720,6 +7746,7 @@ window.shOpenWork=()=>{
 };
 /* close the workspace and return to the picker (pause the video, keep state) */
 window.shCloseWork=()=>{
+  try{svStop()}catch(e){}
   try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
   const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic("play");
   const w=document.getElementById("shWork");if(w)w.style.display="none";
@@ -12826,6 +12853,170 @@ async function phRecInto(ctx,label,btn,after,onBlob){
     rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
+/* ================= FEATURE FLAGS =================
+   Production defaults are OFF for everything not yet released. Local and test
+   builds turn flags on through localStorage.be_flags (a JSON object), which is
+   also how an internal tester previews a feature before general release.
+   Flags gate UI *and* the Worker calls the UI would make; the Worker has its
+   own PARTNER_ENABLED switch as the server-side boundary. */
+const FLAGS_DEFAULT={
+  practice_partner_enabled:false,
+  practice_partner_matching_enabled:false,
+  practice_partner_voice_enabled:false,
+  practice_partner_ai_fallback_enabled:true,
+  practice_partner_notifications_enabled:false,
+  shadow_studio_v2_enabled:false,
+  shadow_word_timing_enabled:true,
+  shadow_apply_phrase_enabled:false
+};
+function flag(name){
+  let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
+  if(o&&typeof o==="object"&&name in o)return !!o[name];
+  return !!FLAGS_DEFAULT[name];
+}
+/* The one boundary every General-English-only feature checks. Welding, and any
+   future track, gets exactly the app it has today. */
+function isGeneralEnglish(){return areaId()===AREA_GEN}
+
+/* ================= SHADOW STUDIO V2 =================
+   "Shadow Studio helps you say it." A synchronised transcript beside the
+   existing player: word karaoke when the caption file has word times, the
+   current sentence when it has only cue times, a static sentence list for a
+   pasted transcript, and nothing at all (the lightweight clip mode is
+   untouched) when there is no text. Engine: shadow-sync.js. General English
+   only, behind shadow_studio_v2_enabled. */
+let svAsset=null,svMode="watch",svRaf=null,svLast={seg:-1,word:-1},svUserScrollAt=0,svRepeat=null,svPick=-1,svRevealed=false;
+function svOn(){return flag("shadow_studio_v2_enabled")&&isGeneralEnglish()}
+function svBox(){return document.getElementById("shV2")}
+/* build the asset for the loaded clip: bundled/worker captions first, else the
+   transcript box, else none */
+async function shV2Load(){
+  const box=svBox();if(!box)return;
+  if(!svOn()){box.style.display="none";svAsset=null;svStop();return}
+  const vid=shClip.vid;
+  let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
+  if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
+  let asset=null;
+  if(cap&&cap.cues&&cap.cues.length){
+    asset=ShadowSync.normalizeCaptions(cap,shClip.start,shClip.end);
+    if(asset.level==="word"&&!flag("shadow_word_timing_enabled")){asset.segments.forEach(s=>{delete s.words});asset.level="sentence"}
+  }
+  if(!asset||asset.level==="none"){
+    const txt=(document.getElementById("shNote")||{}).value||"";
+    asset=ShadowSync.normalizeText(txt);
+  }
+  svAsset=asset;svLast={seg:-1,word:-1};svRepeat=null;svPick=-1;svRevealed=false;
+  svRender();
+  try{track("shadow_v2_opened",{level:asset.level})}catch(e){}
+  if(asset.level==="word"||asset.level==="sentence")svStart();else svStop();
+}
+function svRender(){
+  const box=svBox();if(!box)return;
+  const a=svAsset;
+  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);return}
+  box.style.display="";
+  const timed=a.level==="word"||a.level==="sentence";
+  const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
+    .filter(([m])=>m!=="apply"||flag("shadow_apply_phrase_enabled"))
+    .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
+  const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
+    ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
+    :esc(s.text)}</p>`).join("");
+  const levelNote=a.level==="word"?t("sv.level_word"):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  box.innerHTML=`
+    <div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>
+    <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
+    <div class="sv-tx ${svMode==="challenge"&&!svRevealed?"hidden":""}" id="svTx" onscroll="svUserScrollAt=Date.now()">${segs}</div>
+    <div class="sv-ctl">
+      ${timed?`<button class="btn btn-g btn-sm" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}">${ic("rewind")}</button>
+      <button class="btn btn-g btn-sm ${svRepeat?"on":""}" onclick="svRepeatToggle()">${ic("repeat")} ${t("sv.repeat")}</button>
+      <button class="btn btn-g btn-sm" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
+      ${svMode==="shadow"&&timed?`<button class="btn btn-p btn-sm" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button>`:""}
+      ${svMode==="challenge"?(svRevealed?`<button class="btn btn-g btn-sm" onclick="svHide()">${ic("eye")} ${t("sv.hide")}</button>`:`<button class="btn btn-p btn-sm" onclick="svReveal()">${ic("eye")} ${t("sv.reveal")}</button>`):""}
+    </div>
+    ${svMode==="apply"?svApplyHTML():""}`;
+  manIconizeInline(box);
+  svLast={seg:-1,word:-1};
+}
+function svApplyHTML(){
+  const a=svAsset,i=svPick>=0?svPick:svLast.seg;
+  const s=a&&a.segments[i>=0?i:0];
+  if(!s)return "";
+  const phrase=s.text;
+  return `<div class="sv-apply">
+    <div class="eyebrow">${t("sv.apply_eyebrow")}</div>
+    <p class="sv-phrase">“${esc(phrase)}”</p>
+    <p class="sub">${t("sv.apply_sub")}</p>
+    <div class="pp-row">
+      <button class="btn btn-g" onclick="svApplyAI()">${ic("sparkle")} ${t("sv.apply_ai")}</button>
+      ${flag("practice_partner_enabled")?`<button class="btn-primary" onclick="svApplyPartner()">${ic("user")} ${t("sv.apply_partner")}</button>`:""}
+    </div>
+    <p class="pp-fine">${t("sv.apply_pick")}</p>
+  </div>`;
+}
+window.svSetMode=m=>{svMode=m;svRevealed=false;svRender();try{track(m==="challenge"?"shadow_v2_challenge_started":"shadow_v2_mode",{mode:m})}catch(e){}};
+window.svTapSeg=i=>{
+  svPick=i;const s=svAsset&&svAsset.segments[i];
+  if(s&&s.startMs>=0&&ytPlayer){shSeekTo(s.startMs/1000);try{ytPlayer.playVideo()}catch(e){}}
+  else svRender();
+};
+window.svStep=d=>{const i=svPick>=0?svPick:Math.max(0,svLast.seg);const n=ShadowSync.neighbour(svAsset,i,d);if(n){svPick=n.index;shSeekTo(n.startMs/1000)}};
+window.svRepeatToggle=()=>{
+  if(svRepeat){svRepeat=null}
+  else{const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i];if(s&&s.startMs>=0){svRepeat={i,start:s.startMs/1000,end:s.endMs/1000};shSeekTo(svRepeat.start)}}
+  svRender();
+};
+/* set the clip marks to this sentence and open the recorder: the existing
+   shadow recorder (shRec) then records against exactly this line */
+window.svShadowThis=()=>{
+  const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i];if(!s||s.startMs<0)return;
+  shClip.start=s.startMs/1000;shClip.end=s.endMs/1000;shCounting=false;
+  const nb=document.getElementById("shNote");if(nb&&!nb.value.trim()){nb.value=s.text;taGrow(nb)}
+  try{shSegUI()}catch(e){}
+  shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}
+  try{track("shadow_v2_sentence_shadowed",{level:svAsset.level})}catch(e){}
+  const rb=document.getElementById("recBtn");if(rb)rb.scrollIntoView({behavior:"smooth",block:"center"});
+};
+window.svReveal=()=>{svRevealed=true;svRender()};
+window.svHide=()=>{svRevealed=false;svRender()};
+window.svApplyAI=()=>{
+  const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i>=0?i:0];if(!s)return;
+  S.applyPhrase={text:s.text,vid:shClip.vid,ts:Date.now()};save();
+  try{track("shadow_apply_phrase",{to:"ai"})}catch(e){}
+  shCloseWork();go("roleplay");
+};
+window.svApplyPartner=()=>{
+  const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i>=0?i:0];if(!s)return;
+  ppState().applyPhrase={text:s.text.slice(0,160),vid:shClip.vid,ts:Date.now()};save();
+  try{track("shadow_apply_phrase",{to:"partner"})}catch(e){}
+  shCloseWork();go("partner");
+};
+/* the render loop: one requestAnimationFrame while the workspace is open and
+   the asset is timed. Only class changes on a change of index — no layout
+   work per frame — and auto-scroll only on a sentence change, never while the
+   learner scrolled in the last 3 s. */
+function svStart(){svStop();const step=()=>{svTick();svRaf=requestAnimationFrame(step)};svRaf=requestAnimationFrame(step)}
+function svStop(){if(svRaf)cancelAnimationFrame(svRaf);svRaf=null}
+function svTick(){
+  const a=svAsset,tx=document.getElementById("svTx");
+  if(!a||!tx)return;
+  const ready=!!(ytPlayer&&ytPlayer.getCurrentTime);
+  if(!ready&&Date.now()-shSeek.at>=1200)return;          /* no player and no recent seek: nothing to sync to */
+  let tS=0;try{tS=ready?shCurT():shSeek.t}catch(e){return}
+  if(svRepeat&&tS>=svRepeat.end){shSeekTo(svRepeat.start);return}
+  const loc=ShadowSync.locate(a,tS*1000);
+  if(loc.seg===svLast.seg&&loc.word===svLast.word)return;
+  if(loc.seg!==svLast.seg){
+    tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(Date.now()-svUserScrollAt>3000)el.scrollIntoView({block:"center",behavior:"smooth"})}}
+  }
+  if(loc.word!==svLast.word||loc.seg!==svLast.seg){
+    tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
+    if(loc.seg>=0&&loc.word>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"] .sv-w[data-k="${loc.word}"]`);if(el)el.classList.add("now")}
+  }
+  svLast=loc;
+}
+
 /* ================= PRACTICE PARTNER =================
    "BE Mastery teaches you what to say. Practice Partner gives you someone to
    say it to." Two learners on the same programme and level are paired for a
