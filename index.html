@@ -1176,7 +1176,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-empty{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mut)}.sv-empty svg{width:16px;height:16px;flex:none}
 .sv-apply{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.sv-phrase{font-size:16px;font-weight:800;margin:6px 0}
 /* ---- Practice Partner ---- */
-.pp-entry-ic{position:relative}.pp-dot{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
+.pp-entry-ic{position:relative}.pp-entry-ic img{z-index:1}.pp-dot{z-index:2;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
 .pp-intro .pp-steps{display:grid;gap:10px}.pp-steps>div{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:start}
 .pp-steps b{font-size:14px}.pp-steps small{grid-column:2;font-size:12.5px;color:var(--mut);line-height:1.45}
 .pp-n{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-weight:800;font-size:13px;display:grid;place-items:center}
@@ -10587,7 +10587,7 @@ function rPractice(el){
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
-    <span class="rp-entry-ic pp-entry-ic">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
+    <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
     <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
     <span class="rp-entry-go">→</span>
   </button>`:""}
