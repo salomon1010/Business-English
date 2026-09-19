@@ -1185,7 +1185,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-n{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-weight:800;font-size:13px;display:grid;place-items:center}
 .pp-rules{margin:14px 0 0;font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:flex-start;line-height:1.45}.pp-rules svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
 .pp-cta{margin-top:12px}.pp-cta b{font-size:16px;display:block;margin-bottom:4px}.pp-cta .btn-primary{margin-top:10px}
-.pp-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pp-fine{font-size:12px;color:var(--mut2);margin-top:10px;line-height:1.45}
+.pp-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pp-row>.btn-primary{flex:1 1 100%;justify-content:center}.pp-row>.btn{flex:1 1 0;justify-content:center;min-width:0}.pp-fine{font-size:12px;color:var(--mut2);margin-top:10px;line-height:1.45}
 .pp-wait{text-align:center}.pp-wait-ring{width:56px;height:56px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;background:var(--bg2);color:var(--acc);animation:ppPulse 1.6s ease-in-out infinite}
 @keyframes ppPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
 .pp-closed{font-size:13px;color:var(--mut);display:flex;gap:8px;align-items:center;margin:0 0 10px}.pp-closed svg{width:16px;height:16px}
@@ -3851,6 +3851,7 @@ const ICON={
   ban:'<circle cx="12" cy="12" r="8.4"/><path d="m6.6 6.6 10.8 10.8"/>',
   stop:'<path d="M8.3 3.6h7.4l5.2 5.2v7.4l-5.2 5.2H8.3l-5.2-5.2V8.8Z"/>',
   repeat:'<path d="M17 3.5 20.5 7 17 10.5"/><path d="M20.5 7H8.5a4.5 4.5 0 0 0-4.5 4.5"/><path d="M7 20.5 3.5 17 7 13.5"/><path d="M3.5 17h12a4.5 4.5 0 0 0 4.5-4.5"/>',
+  more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
   gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v2.3M12 19.2v2.3M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.3M19.2 12h2.3M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/>',
   sparkle:'<path d="M12 3.2l1.9 5.1 5.1 1.9-5.1 1.9L12 17.2l-1.9-5.1L5 10.2l5.1-1.9Z"/>',
   info:'<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5"/><circle cx="12" cy="7.9" r="0.8" fill="currentColor" stroke="none"/>',
@@ -4748,6 +4749,11 @@ const I18N_EN={
  "pp.pill_async_yours":"Practice with {{name}} · your turn",
  "pp.pill_async_wait":"Practice with {{name}} · waiting for {{name}}",
  "pp.pill_decide":"Practice with {{name}} · your decision",
+ "pp.waiting_avail_h":"{{n}} learner(s) available to practise",
+ "pp.waiting_avail_sub":"Someone compatible is in line right now. See who and send a request — or wait for them to pick you.",
+ "pp.waiting_since":"In line since {{time}}. You stay listed until you tap Stop looking.",
+ "pp.avail_h":"{{n}} learner(s) available to practise with you",
+ "pp.avail_sub":"Someone compatible just joined the waiting list. See who, and send a practice request.",
  "pp.tinv_eyebrow":"Practice invitation",
  "pp.tinv_h":"{{name}} wants to try a practice with you",
  "pp.tinv_sub":"Four short voice turns on today's task — record when you can, no call. You both decide afterwards.",
@@ -13380,7 +13386,7 @@ function rPartner(el){
   ppRefresh().then(()=>{if(cur.v!=="partner")return;ppRender(el);/* a connected partner may be invited to a live call at any moment, so the
        page polls faster while there is a connection and no room is open (never
        during a call — the room has its own bounded poll) */
-    const period=()=>ppLiveOn()&&ppMe&&ppMe.connection&&!ppLive?8000:PP_POLL_MS;
+    const period=()=>ppMe&&!ppLive&&(ppMe.waiting||ppMe.pairInvite||ppMe.invite||(ppLiveOn()&&ppMe.connection))?8000:PP_POLL_MS;
     const loop=()=>{ppPollH=setTimeout(()=>{if(cur.v!=="partner")return;if(ppLive){loop();return}ppRefresh(true).then(()=>{if(cur.v==="partner"&&!ppRec&&!ppCands&&!ppLive)ppRender(el);loop()})},period())};
     loop()});
 }
@@ -13418,14 +13424,15 @@ function ppRender(el){
   const conn=m.connection?`<section class="card pp-conn">
       <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
-      <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button></div>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
       <div class="pp-row">${m.connection.canStart?`<button class="btn-primary" onclick="ppNext()">${t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`}${ppLiveOn()&&m.connection.canLive&&!m.live?`<button class="btn btn-g" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>`:""}</div>
     </section>`:"";
   if(m.waiting){
     shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-wait">
       <div class="pp-wait-ring">${ic("clock")}</div>
-      <b>${t("pp.waiting_h")}</b>
-      <p class="sub">${m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone")}</p>
+      <b>${m.waiting.available>0?t("pp.waiting_avail_h",{n:m.waiting.available}):t("pp.waiting_h")}</b>
+      <p class="sub">${m.waiting.available>0?t("pp.waiting_avail_sub"):(m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone"))}</p>
+      <p class="pp-fine">${t("pp.waiting_since",{time:new Date(m.waiting.since).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})})}</p>
       <p class="sub">${t("pp.waiting_sub")}</p>
       <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
     </section>
@@ -13951,6 +13958,16 @@ function ppChime(){
 function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
 function ppCallSync(){
   const m=ppMe||ppState().lastMe,l=m&&m.live;
+  const st0=ppState();
+  if(m&&m.waiting&&ppAvailable()&&!m.invite&&!m.pairInvite&&!(m.live&&m.live.state==="invited")){
+    const n=m.waiting.available||0;
+    if(n>(st0.availSeen||0)){st0.availSeen=n;save();const el=ppCallEl(),key="avail:"+m.waiting.since+":"+n;
+      if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t("pp.avail_h",{n})}</b><small>${t("pp.avail_sub")}</small></div></div>
+        <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppCallHide();ppMatch()">${ic("user")} ${t("pp.match_again")}</button><button class="pp-call-decline" onclick="ppCallHide()">${t("wc.close")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
+      return;
+    }
+    if(n===0&&st0.availSeen){st0.availSeen=0;save()}
+  }
   const tinv=m&&m.invite&&m.invite.expiresAt>Date.now()&&ppAvailable();
   if(tinv&&!(l&&l.role==="guest"&&l.state==="invited")){
     const el=ppCallEl(),key="trial:"+m.invite.id;
@@ -14316,6 +14333,7 @@ function ppHomeCardHTML(){
   if(!ppAvailable())return "";
   const m=ppState().lastMe;if(!m)return "";
   const p=m.pair;
+  if(m.waiting&&m.waiting.available>0&&!m.pair)return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.avail_h",{n:m.waiting.available})}</h2><p class="sub">${t("pp.avail_sub")}</p></section>`;
   if(m.invite)return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.tinv_eyebrow")}</div><h2>${t("pp.tinv_h",{name:esc(m.invite.partner.name)})}</h2><p class="sub">${t("pp.tinv_sub")}</p></section>`;
   if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx())return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.live_eyebrow")}</div><h2>${t("pp.live_invite_h",{name:esc(m.live.partner.name)})}</h2><p class="sub">${t("pp.live_invite_sub")}</p></section>`;
   if(p&&p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;

@@ -1671,7 +1671,7 @@
  "pp.mode_h": "¿Cómo quieres practicar?",
  "pp.mode_voice": "Mensajes de voz",
  "pp.mode_either": "Voz, y en directo cuando llegue",
- "pp.avail_h": "¿Cuándo sueles estar libre?",
+ "pp.avail_h": "{{n}} aprendiz(es) disponible(s) para practicar contigo",
  "pp.avail_morning": "Mañana",
  "pp.avail_afternoon": "Tarde",
  "pp.avail_evening": "Noche",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "En vivo con {{name}} · toca para volver",
  "pp.pill_async_yours": "Práctica con {{name}} · tu turno",
  "pp.pill_async_wait": "Práctica con {{name}} · esperando a {{name}}",
- "pp.pill_decide": "Práctica con {{name}} · tu decisión"
+ "pp.pill_decide": "Práctica con {{name}} · tu decisión",
+ "pp.waiting_avail_h": "{{n}} aprendiz(es) disponible(s) para practicar",
+ "pp.waiting_avail_sub": "Alguien compatible está en la fila ahora mismo. Mira quién y envía una solicitud — o espera a que te elija.",
+ "pp.waiting_since": "En la fila desde las {{time}}. Sigues en la lista hasta que toques «Dejar de buscar».",
+ "pp.avail_sub": "Alguien compatible acaba de unirse a la lista de espera. Mira quién y envía una solicitud de práctica."
 }

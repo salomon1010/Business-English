@@ -359,7 +359,10 @@ async function meView(env, uid, ms) {
   const waiting = m ? await q(env, "SELECT * FROM interest WHERE uid=?", uid).first() : null;
   if (waiting) {
     const c = await q(env, "SELECT COUNT(*) AS n FROM interest WHERE track=? AND band=?", waiting.track, waiting.band).first();
-    out.waiting = { track: waiting.track, band: waiting.band, mode: waiting.mode, since: waiting.created_at, count: c ? c.n : 1 };
+    /* how many compatible learners are in line right now (no offers minted — a
+       count for the waiting card and the "someone is available" notice) */
+    let available = 0; try { available = (await candidates(env, uid, ms, 3)).length; } catch (e) {}
+    out.waiting = { track: waiting.track, band: waiting.band, mode: waiting.mode, since: waiting.created_at, count: c ? c.n : 1, available };
   }
   if (m) {
     await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=? AND (uid_a=? OR uid_b=?)", ms, ms, uid, uid).run();

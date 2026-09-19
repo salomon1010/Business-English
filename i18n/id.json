@@ -1671,7 +1671,7 @@
  "pp.mode_h": "Bagaimana Anda ingin berlatih?",
  "pp.mode_voice": "Pesan suara",
  "pp.mode_either": "Suara, plus langsung bila tersedia",
- "pp.avail_h": "Kapan Anda biasanya luang?",
+ "pp.avail_h": "{{n}} pelajar tersedia untuk berlatih dengan Anda",
  "pp.avail_morning": "Pagi",
  "pp.avail_afternoon": "Siang",
  "pp.avail_evening": "Malam",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "Langsung dengan {{name}} · ketuk untuk kembali",
  "pp.pill_async_yours": "Latihan dengan {{name}} · giliran Anda",
  "pp.pill_async_wait": "Latihan dengan {{name}} · menunggu {{name}}",
- "pp.pill_decide": "Latihan dengan {{name}} · keputusan Anda"
+ "pp.pill_decide": "Latihan dengan {{name}} · keputusan Anda",
+ "pp.waiting_avail_h": "{{n}} pelajar tersedia untuk berlatih",
+ "pp.waiting_avail_sub": "Seseorang yang cocok sedang dalam antrean. Lihat siapa dan kirim permintaan — atau tunggu mereka memilih Anda.",
+ "pp.waiting_since": "Dalam antrean sejak {{time}}. Anda tetap terdaftar sampai mengetuk «Berhenti mencari».",
+ "pp.avail_sub": "Seseorang yang cocok baru saja masuk daftar tunggu. Lihat siapa dan kirim permintaan latihan."
 }

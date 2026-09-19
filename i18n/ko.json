@@ -1671,7 +1671,7 @@
  "pp.mode_h": "어떻게 연습하고 싶나요?",
  "pp.mode_voice": "음성 메시지",
  "pp.mode_either": "음성, 가능하면 실시간도",
- "pp.avail_h": "보통 언제 시간이 되나요?",
+ "pp.avail_h": "당신과 연습 가능한 학습자 {{n}}명",
  "pp.avail_morning": "아침",
  "pp.avail_afternoon": "오후",
  "pp.avail_evening": "저녁",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "{{name}}와(과) 실시간 · 눌러서 돌아가기",
  "pp.pill_async_yours": "{{name}}와(과) 연습 · 내 차례",
  "pp.pill_async_wait": "{{name}}와(과) 연습 · {{name}} 기다리는 중",
- "pp.pill_decide": "{{name}}와(과) 연습 · 내 결정"
+ "pp.pill_decide": "{{name}}와(과) 연습 · 내 결정",
+ "pp.waiting_avail_h": "연습 가능한 학습자 {{n}}명",
+ "pp.waiting_avail_sub": "맞는 사람이 지금 대기 줄에 있습니다. 누구인지 보고 요청을 보내거나, 상대가 고를 때까지 기다리세요.",
+ "pp.waiting_since": "{{time}}부터 대기 중. 「찾기 중단」을 누를 때까지 목록에 남습니다.",
+ "pp.avail_sub": "맞는 사람이 방금 대기 목록에 들어왔습니다. 누구인지 보고 연습 요청을 보내세요."
 }

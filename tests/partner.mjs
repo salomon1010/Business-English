@@ -90,6 +90,13 @@ ok("Agreeing registers with preferences and shows Match me / Practise now", (awa
 await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
 ok("No candidates → honest message, AI coach offered, stays in line", (await txt(A.page, "#v-partner")).includes("No suitable partner") && (await txt(A.page, "#v-partner")).includes("AI coach") && (await (await api("alice", "GET", "/me")).json()).waiting);
 await A.page.click('button:has-text("Keep looking")'); await sleep(900);
+ok("Waiting list: the card says since when, and a newcomer raises 'N learner(s) available' + a banner on the waiter's side", await (async () => {
+  const before = await txt(A.page, ".pp-wait"); await api("zoe", "POST", "/consent", { name: "Zoe", lang: "fr", adult: true }); await api("zoe", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+  await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); ppCallSync(); }); await sleep(400);
+  const after = await txt(A.page, ".pp-wait"), banner = await txt(A.page, "#ppCall.on");
+  await A.page.evaluate(() => ppCallHide()); await api("zoe", "DELETE", "/interest");
+  await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); });
+  return before.includes("In line since") && after.includes("1 learner(s) available to practise") && banner.includes("available to practise with you") && banner.includes("Show me candidates"); })());
 ok("Waiting state shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
 
 /* ---------- Level 2: the AI coach session (Polish Worker intercepted — no live AI call) ---------- */

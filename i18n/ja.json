@@ -1671,7 +1671,7 @@
  "pp.mode_h": "どのように練習したいですか？",
  "pp.mode_voice": "ボイスメッセージ",
  "pp.mode_either": "ボイス、可能ならライブも",
- "pp.avail_h": "普段いつ時間がありますか？",
+ "pp.avail_h": "あなたと練習できる学習者 {{n}}人",
  "pp.avail_morning": "朝",
  "pp.avail_afternoon": "昼",
  "pp.avail_evening": "夜",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "{{name}}とライブ中 · タップで戻る",
  "pp.pill_async_yours": "{{name}}と練習中 · あなたの番",
  "pp.pill_async_wait": "{{name}}と練習中 · {{name}}を待っています",
- "pp.pill_decide": "{{name}}と練習中 · あなたの決定"
+ "pp.pill_decide": "{{name}}と練習中 · あなたの決定",
+ "pp.waiting_avail_h": "練習できる学習者 {{n}}人",
+ "pp.waiting_avail_sub": "合う学習者が今待機列にいます。誰か確認してリクエストを送るか、相手が選ぶのを待ちましょう。",
+ "pp.waiting_since": "{{time}}から待機中。「探すのをやめる」をタップするまで掲載されます。",
+ "pp.avail_sub": "合う学習者が待機リストに加わりました。誰か確認して練習リクエストを送りましょう。"
 }

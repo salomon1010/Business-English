@@ -1671,7 +1671,7 @@
  "pp.mode_h": "Bạn muốn luyện thế nào?",
  "pp.mode_voice": "Tin nhắn thoại",
  "pp.mode_either": "Thoại, và trực tiếp khi có",
- "pp.avail_h": "Bạn thường rảnh khi nào?",
+ "pp.avail_h": "{{n}} người học sẵn sàng luyện cùng bạn",
  "pp.avail_morning": "Sáng",
  "pp.avail_afternoon": "Chiều",
  "pp.avail_evening": "Tối",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "Trực tiếp với {{name}} · chạm để quay lại",
  "pp.pill_async_yours": "Luyện với {{name}} · đến lượt bạn",
  "pp.pill_async_wait": "Luyện với {{name}} · đang chờ {{name}}",
- "pp.pill_decide": "Luyện với {{name}} · bạn quyết định"
+ "pp.pill_decide": "Luyện với {{name}} · bạn quyết định",
+ "pp.waiting_avail_h": "{{n}} người học sẵn sàng luyện",
+ "pp.waiting_avail_sub": "Có người phù hợp đang trong hàng chờ. Xem là ai và gửi yêu cầu — hoặc chờ họ chọn bạn.",
+ "pp.waiting_since": "Trong hàng chờ từ {{time}}. Bạn vẫn được liệt kê cho đến khi chạm «Ngừng tìm».",
+ "pp.avail_sub": "Một người phù hợp vừa vào danh sách chờ. Xem là ai và gửi yêu cầu luyện tập."
 }

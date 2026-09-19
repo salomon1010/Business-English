@@ -1671,7 +1671,7 @@
  "pp.mode_h": "你想怎样练习？",
  "pp.mode_voice": "语音消息",
  "pp.mode_either": "语音，有条件时也可实时",
- "pp.avail_h": "你通常什么时候有空？",
+ "pp.avail_h": "{{n}} 位学习者可与你练习",
  "pp.avail_morning": "上午",
  "pp.avail_afternoon": "下午",
  "pp.avail_evening": "晚上",
@@ -1850,5 +1850,9 @@
  "pp.pill_live": "与 {{name}} 实时练习 · 点按返回",
  "pp.pill_async_yours": "与 {{name}} 练习 · 轮到你",
  "pp.pill_async_wait": "与 {{name}} 练习 · 等待 {{name}}",
- "pp.pill_decide": "与 {{name}} 练习 · 请你决定"
+ "pp.pill_decide": "与 {{name}} 练习 · 请你决定",
+ "pp.waiting_avail_h": "{{n}} 位学习者可练习",
+ "pp.waiting_avail_sub": "现在有合适的人在队列中。看看是谁并发送请求——或等对方选你。",
+ "pp.waiting_since": "自 {{time}} 起排队。点按「停止寻找」前你会一直在列表中。",
+ "pp.avail_sub": "刚有合适的人加入等候名单。看看是谁，并发送练习请求。"
 }
