@@ -28,7 +28,7 @@ any flag goes on, or those events are dropped silently.
 ## 3. Partner Worker — from `backend/partner/` (first time)
 ```
 npx wrangler d1 create be-partner            # paste database_id into wrangler.toml
-npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002 + 0003 + 0004
+npx wrangler d1 migrations apply be-partner --remote   # 0001 … 0007 (all additive)
 npx wrangler r2 bucket create be-partner-audio
 npx wrangler deploy                          # PARTNER_ENABLED and LIVE_ENABLED stay "0"
 # optional, for live calls across carrier NAT: wrangler secret put TURN_KEY_ID / TURN_KEY_TOKEN (Cloudflare Calls TURN key)

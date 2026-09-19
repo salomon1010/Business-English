@@ -63,7 +63,7 @@ const LIVE_KINDS = new Set(["offer", "answer", "ice", "state", "round", "bye"]);
 const IP_PER_MIN_DEFAULT = 300;   // two phones on one Wi-Fi polling a live call sit around 100/min together
 /* soft-scoring weights; overridable per environment through MATCH_WEIGHTS (JSON) */
 const WEIGHTS_DEFAULT = { level: 0.22, goal: 0.20, curriculum: 0.16, mode: 0.12, availability: 0.10, timezone: 0.08, topic: 0.05, reliability: 0.04, history: 0.03 };
-const MIN_MATCH_SCORE = 0.35;
+const MIN_MATCH_SCORE = 0.35;   // ranking floor only — no longer a filter (owner: no compatibility gate)
 
 /* ---- the transcript screen: anything that could move the conversation off
    the app. Deliberately broad; the cost of a false positive is one re-take. */
@@ -240,6 +240,7 @@ function score(me, mm, c, W, hist) {
   if (sharedAvail.length && r.length < 2) r.push("same_time:" + sharedAvail[0]);
   if (hist) r.unshift("practised_before");
   if (!r.length && level >= 0.5) r.push("similar_level");
+  if (!r.length) r.push("in_line");
   return { score: s, reasons: r.slice(0, 2) };
 }
 /* hard filters, then scoring, then diversification (candidates offered
@@ -250,13 +251,16 @@ async function candidates(env, uid, ms, limit = 3) {
   if (!me || !mm) return [];
   const rows = (await q(env, `SELECT i.uid, i.track, i.band, i.lang, i.prompt_week, i.fnd_day, i.mode AS imode, i.topic, i.goals, i.created_at,
       m.gender, m.same_gender, m.suspended_until, m.opted_out, m.mode, m.avail, m.tz, m.sessions_completed, m.sessions_abandoned
-    FROM interest i JOIN members m ON m.uid=i.uid WHERE i.uid<>? AND i.track=? ORDER BY i.created_at ASC LIMIT 200`, uid, me.track).all()).results || [];
+    FROM interest i JOIN members m ON m.uid=i.uid WHERE i.uid<>? AND i.track=? AND i.created_at>? ORDER BY i.created_at ASC LIMIT 200`, uid, me.track, ms - 7 * DAY).all()).results || [];
   const W = weights(env), out = [];
   for (const c of rows) {
     if (!TRACKS.has(c.track)) continue;
     if (c.suspended_until && c.suspended_until > ms) continue;
     if (c.opted_out) continue;
-    if (Math.abs(bandIdx(me.band) - bandIdx(c.band)) > 1) continue;
+    /* no compatibility gate (owner, 2026-09-19): anyone in line on this track
+       can be asked; band, goals and the rest only order the cards. What stays
+       is safety — suspension, opt-out, the same-gender preference, blocks, a
+       cooldown after an ended pair — and "not already in a session". */
     if (mm.same_gender && (!mm.gender || c.gender !== mm.gender)) continue;
     if (c.same_gender && (!c.gender || c.gender !== mm.gender)) continue;
     if (await blockedEither(env, uid, c.uid)) continue;
@@ -265,7 +269,6 @@ async function candidates(env, uid, ms, limit = 3) {
     const conn = await connection(env, uid, c.uid);
     if (conn && (conn.state === "blocked" || conn.state === "disconnected" || conn.state === "ended")) continue;
     const { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
-    if (s < MIN_MATCH_SCORE) continue;
     const exposure = (await q(env, "SELECT COUNT(*) AS n FROM offers WHERE cand_uid=? AND created_at>?", c.uid, ms - DAY).first()).n;
     out.push({ c, s: s - Math.min(0.15, exposure * 0.03), reasons });
   }
@@ -291,13 +294,13 @@ async function offerCards(env, uid, ms, cands) {
    open proposal per host→guest is enough: asking again returns it. */
 const invitedPairFor = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host<>? AND (uid_a=? OR uid_b=?) AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, uid, uid, ms).first();
 const invitedPairBy = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, ms).first();
-async function proposePair(env, uid, cand, ms, seed) {
+async function proposePair(env, uid, cand, ms, seed, live) {
   if (await activePair(env, uid) || await activePair(env, cand)) return null;
   const open = await q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND (uid_a=? OR uid_b=?) AND invite_expires>? LIMIT 1", uid, cand, cand, ms).first();
   if (open) return open.id;
   const id = rid(), [x, y] = pairKey(uid, cand);
-  await q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json,host,invite_expires) VALUES(?,?,?,?,?,?,?,?,'invited',?,'trial',4,?,?,?)",
-    id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, seed.promptJson || null, uid, ms + TRIAL_INVITE_MS).run();
+  await q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json,host,invite_expires,live_wanted) VALUES(?,?,?,?,?,?,?,?,'invited',?,'trial',4,?,?,?,?)",
+    id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, seed.promptJson || null, uid, ms + TRIAL_INVITE_MS, live ? 1 : 0).run();
   await audit(env, ms, uid, "trial_invited", cand, id, {});
   return id;
 }
@@ -365,11 +368,27 @@ async function meView(env, uid, ms) {
     out.waiting = { track: waiting.track, band: waiting.band, mode: waiting.mode, since: waiting.created_at, count: c ? c.n : 1, available };
   }
   if (m) {
+    /* presence: counts only, never a list. "online" = eligible learners on
+       the General English track seen in the last 5 minutes or in the queue,
+       band within one step, not me, not blocked/suspended/opted out;
+       "waiting" = those of them in the queue. Stale queue rows (7 days) do
+       not count. */
+    try {
+      const rows = (await q(env, `SELECT m.uid, i.band, i.created_at AS q_at FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.track='general-english' AND i.created_at>?
+        WHERE m.uid<>? AND (m.suspended_until IS NULL OR m.suspended_until<=?) AND (m.opted_out=0 OR m.opted_out IS NULL) AND (i.uid IS NOT NULL OR m.last_seen>?) LIMIT 300`, ms - 7 * DAY, uid, ms, ms - 5 * 60_000).all()).results || [];
+      let online = 0, waiting = 0;
+      for (const r of rows) {
+        if (r.uid === uid) continue;
+        if (await blockedEither(env, uid, r.uid)) continue;
+        online++; if (r.q_at) waiting++;
+      }
+      out.presence = { online, waiting };
+    } catch (e) { out.presence = { online: 0, waiting: 0 }; }
     await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=? AND (uid_a=? OR uid_b=?)", ms, ms, uid, uid).run();
     const inv = await invitedPairFor(env, uid, ms);
-    if (inv && !(await blockedEither(env, uid, inv.host))) { const p = await member(env, inv.host); let prompt = null; try { prompt = inv.prompt_json ? JSON.parse(inv.prompt_json) : null; } catch (e) {} out.invite = { id: inv.id, partner: { name: p ? p.name : "?" }, band: inv.band, promptWeek: inv.prompt_week, fndDay: inv.fnd_day, prompt, expiresAt: inv.invite_expires, createdAt: inv.created_at }; }
+    if (inv && !(await blockedEither(env, uid, inv.host))) { const p = await member(env, inv.host); let prompt = null; try { prompt = inv.prompt_json ? JSON.parse(inv.prompt_json) : null; } catch (e) {} out.invite = { id: inv.id, live: !!inv.live_wanted, partner: { name: p ? p.name : "?" }, band: inv.band, promptWeek: inv.prompt_week, fndDay: inv.fnd_day, prompt, expiresAt: inv.invite_expires, createdAt: inv.created_at }; }
     const mine = await invitedPairBy(env, uid, ms);
-    if (mine) { const other = otherOf(mine, uid), p = await member(env, other); out.pairInvite = { id: mine.id, partner: { name: p ? p.name : "?" }, expiresAt: mine.invite_expires, createdAt: mine.created_at }; }
+    if (mine) { const other = otherOf(mine, uid), p = await member(env, other); out.pairInvite = { id: mine.id, live: !!mine.live_wanted, partner: { name: p ? p.name : "?" }, expiresAt: mine.invite_expires, createdAt: mine.created_at }; }
   }
   const pair = m ? await activePair(env, uid) : null;
   if (pair) {
@@ -426,6 +445,14 @@ async function handle(req, env, ctx) {
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
     for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions"]) await q(env, `DELETE FROM ${t}`).run();
     let cursor; do { const l = await env.AUDIO.list({ cursor }); for (const o of l.objects) await env.AUDIO.delete(o.key); cursor = l.truncated ? l.cursor : null; } while (cursor);
+    return json({ ok: true });
+  }
+  /* dev only (same guard): clear one learner's daily counters, so a long
+     browser run can keep joining the queue without loosening the caps the
+     Worker suite asserts */
+  if (req.method === "POST" && path === "/__uncap" && env.DEV_AUTH === "1") {
+    const b = await req.json().catch(() => ({})); if (typeof b.uid !== "string" || !b.uid) return err(400, "uid");
+    await q(env, "DELETE FROM counters WHERE key LIKE ?", b.uid + ":%").run();
     return json({ ok: true });
   }
 
@@ -517,7 +544,7 @@ async function handle(req, env, ctx) {
     if (await activePair(env, uid)) return err(409, "paired");
     const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first(), theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
     if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid) || await cooled(env, uid, off.cand_uid, ms)) return err(409, "gone");
-    const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase));
+    const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase), b.live === true && env.LIVE_ENABLED === "1");
     if (!pairId) return err(409, "gone");
     return json({ status: "invited", ...(await meView(env, uid, ms)) });
   }
@@ -539,6 +566,14 @@ async function handle(req, env, ctx) {
         if (isHost) return err(403, "forbidden");
         if (suspended) return err(403, "suspended", m.suspended_until);
         const ok = await acceptPair(env, pair, ms); if (!ok) return err(409, "gone");
+        /* a live proposal: the room opens now, host side, so the guest's accept is
+           one tap and the host's poll walks straight in */
+        if (pair.live_wanted && env.LIVE_ENABLED === "1" && !(await openLive(env, pair.host)) && !(await openLive(env, uid))) {
+          const lid = rid();
+          await q(env, "INSERT INTO live_sessions(id,host,guest,state,band,prompt_week,fnd_day,prompt_json,created_at,updated_at,expires_at) VALUES(?,?,?,'invited',?,?,?,?,?,?,?)",
+            lid, pair.host, uid, pair.band, pair.prompt_week || 0, pair.fnd_day || 0, pair.prompt_json || null, ms, ms, ms + LIVE_INVITE_MS).run();
+          await audit(env, ms, pair.host, "live_invited", uid, lid, { via: "proposal" });
+        }
         return json({ ok: true, already: false, ...(await meView(env, uid, ms)) });
       }
       if ((pm[2] === "decline" && isHost) || (pm[2] === "cancel" && !isHost)) return err(403, "forbidden");
@@ -667,9 +702,13 @@ async function handle(req, env, ctx) {
     const withName = async (v) => { const p = await member(env, v.other); const { other, ...rest } = v; return { ...rest, partner: { name: p ? p.name : "?" } }; };
     if (req.method === "POST" && path === "/live") {
       const b = await req.json().catch(() => ({}));
-      const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular')", uid, uid).all()).results || [];
-      const c = conns[0]; if (!c) return err(404, "no_connection");
-      const other = c.a === uid ? c.b : c.a;
+      /* live is for whoever you are practising with: the open session's partner
+         first (a trial included — "if you are not compatible, leave"), else
+         your connected partner */
+      let other = null;
+      const ap = await activePair(env, uid); if (ap) other = otherOf(ap, uid);
+      if (!other) { const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular')", uid, uid).all()).results || []; if (conns[0]) other = conns[0].a === uid ? conns[0].b : conns[0].a; }
+      if (!other) return err(404, "no_connection");
       if (await blockedEither(env, uid, other)) return err(403, "forbidden");
       const mine = await openLive(env, uid); if (mine) return json({ live: await withName(view(mine, uid)), ...(await meView(env, uid, ms)) });   // idempotent
       if (await openLive(env, other)) return err(409, "busy");
@@ -873,6 +912,8 @@ async function maintenance(env, ms) {
   await q(env, "UPDATE live_sessions SET state='expired', end_reason='expired', ended_at=?, updated_at=? WHERE state IN ('invited','accepted','connecting','active','reconnecting') AND expires_at < ?", ms, ms, ms).run();
   await q(env, "DELETE FROM live_signals WHERE session_id IN (SELECT id FROM live_sessions WHERE state NOT IN ('invited','accepted','connecting','active','reconnecting'))").run();
   await q(env, "DELETE FROM live_sessions WHERE state NOT IN ('invited','accepted','connecting','active','reconnecting') AND updated_at < ?", ms - 30 * DAY).run();
+  /* a learner who never came back stops being "waiting" after 7 days */
+  await q(env, "DELETE FROM interest WHERE created_at < ?", ms - 7 * DAY).run();
   await q(env, "DELETE FROM offers WHERE expires_at < ?", ms).run();
   await q(env, "DELETE FROM cooldowns WHERE until < ?", ms).run();
   await q(env, "DELETE FROM counters WHERE key NOT LIKE ?", "%:" + dayKey(ms)).run();

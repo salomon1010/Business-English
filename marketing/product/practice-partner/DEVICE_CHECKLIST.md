@@ -83,6 +83,20 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-44 API | Safari console (token from `FBUser.getIdToken()`) | `POST /interest` track welding; `POST /ai/session` track welding; `POST /live`; `GET /live/<id>`; `GET /turns/<id>/audio` | `{error:"track"}`, `{error:"track"}`, 404, 403, 404/403 | | |
 | I-45 Flags off | General English, remove `be_flags`, reload | Practice, Home, `#partner`, Shadow | nothing partner-related; `#partner` unavailable; no Shadow V2 (production default) | | |
 
+### 5b. Live availability UX (2) — added 2026-09-19
+| ID | Precondition | Action | Expected | P/F | Notes |
+|---|---|---|---|---|---|
+| I-51 How it works | Practice tab | tap **How it works** inside the Practice Partner card | a sheet with the three steps ("anyone in line", "talk live, or record four short turns", "then decide"), **Find a practice partner** and Close; the card itself does not open | | |
+| I-52 Presence strip | partner page, B signed in on the other phone | read the strip under the title | "N learner(s) online · M waiting to practise" with a green beacon when N > 0; grey "No one online right now…" when 0; **no names**; tap → candidate cards | | |
+| I-53 Waiting card colour | A in line, B in line | read A's waiting card | heading/sub-line **green** while someone else waits ("1 other learner(s) are waiting too — tap Show me candidates"); B leaves the queue → the line goes back to the plain colour | | |
+| I-54 Auto-discovery (2) | A waiting on the partner page, B not in line | B taps Match me | within ~8 s A's candidate cards open by themselves, one toast "1 learner(s) waiting — pick one", **no** availability banner on top of the cards; A closes the cards → they do not reopen until someone new arrives | | |
+| I-55 Floating button | A on Home / Road map / Profile | look bottom-right | **Find a practice partner** pill above the bottom nav, covering no button; absent on the partner page, in a live room, on Welding, signed out; tap → partner page with the candidate cards (in line once, not twice) | | |
+| I-56 No compatibility gate (2) | A Week 1–4, B Week 9–12 | A: Match me | B is offered (reason line present), no "not compatible" anywhere | | |
+| I-57 Live from a card (2) | cards open | A: **Practise live** on B's card | A: "Waiting for B to accept… the call opens here"; B: banner "A wants to practise live with you" / **Accept & talk**; B accepts once → B is in the room, A's phone walks into the room by itself (no extra tap); connect as I-34 | | |
+| I-58 Live inside a trial (2) | recorded trial with a stranger, round 1 | A: More options → Practise live | invitation reaches B as in I-32; no "practise once first" rule | | |
+| I-59 Live beacon | live call open, A goes Home | top-right dot | a green dot with the road map's expanding ring + slow dashed ring (same motion as "you are here"); faster ring while connected; tap → back to the room; gone when the call ends | | |
+| I-60 Partner left (2) | trial open, A mid-take | B: Leave today's practice | A: one dialog "B left today's practice" — **Close** / **Find another partner**; Close → the session, the recorder, the notice line and B's name are gone at once (no reload); Find another partner → candidate cards / waiting card, nothing of B left | | |
+
 ### 6. Network and recovery
 | ID | Precondition | Action | Expected | P/F | Notes |
 |---|---|---|---|---|---|
@@ -93,10 +107,10 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-50 Layout | every screen above | | nothing behind the bottom nav; sheets scroll; buttons tappable; RTL (Arabic) does not overflow | | |
 
 ## Android Chrome — model ______ Android ______ Chrome ______ · network: ______
-Copy the 50 rows above as `A-01 … A-50`. Android-specific: A-09 Chrome mic prompt and `audio/webm`; A-34 inline audio with media volume; A-37 recent-apps switch as well as lock.
+Copy the 60 rows above as `A-01 … A-60`. Android-specific: A-09 Chrome mic prompt and `audio/webm`; A-34 inline audio with media volume; A-37 recent-apps switch as well as lock.
 
 ## Result summary (owner fills in)
-- iPhone: __ / 50 — blocking failures: ______
-- Android: __ / 50 — blocking failures: ______
+- iPhone: __ / 60 — blocking failures: ______
+- Android: __ / 60 — blocking failures: ______
 - TURN configured on staging: yes / no — I-42 / A-42 result: ______
 - Date, tester, staging Worker version (`/health` + `wrangler deployments list --env staging`): ______

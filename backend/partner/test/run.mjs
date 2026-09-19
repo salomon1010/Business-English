@@ -52,7 +52,8 @@ ok("unknown track refused too", (await join("alice", { track: "cooking" })).json
 { const r = await call("bob", "POST", "/match"); ok("/match returns fresh offers for someone in the queue", r.status === 200 && r.json.candidates.length === 1); }
 ok("/match for someone not in the queue → 409", (await call("carol", "POST", "/consent", { name: "Carol", lang: "fr", adult: true })).status === 200 && (await call("carol", "POST", "/match")).json.error === "not_waiting");
 await consent("dave", "Dave", { gender: "m" }); await join("dave", { band: "w9-12" });
-{ const r = await call("bob", "POST", "/match"); ok("band two steps away is excluded (Dave w9-12 not offered to Bob w1-4)", r.json.candidates.every(c => c.name !== "Dave")); }
+{ const r = await call("bob", "POST", "/match"); const names = r.json.candidates.map(c => c.name);
+  ok("no compatibility gate: a learner two bands away (Dave w9-12) is still offered to Bob w1-4, ranked after the same band, with a plain reason", names.includes("Dave") && (names.indexOf("Dave") > 0 || names.length === 1) && r.json.candidates.every(c => c.reasons.length > 0), JSON.stringify(r.json.candidates.map(c => [c.name, c.band, c.reasons]))); }
 { const me = { band: "w1-4", goals: '["workplace"]', prompt_week: 2, topic: "", fnd_day: 0 }, mm = { mode: "voice", avail: '["evening"]', tz: 1, gender: "f" };
   const c = { band: "w1-4", goals: '["workplace"]', prompt_week: 2, topic: "", fnd_day: 0, mode: "voice", avail: '["evening"]', tz: 1, imode: "later", sessions_completed: 0, sessions_abandoned: 0 };
   const s = score(me, mm, c, WEIGHTS_DEFAULT, false); const far = score(me, mm, { ...c, band: "w5-8", prompt_week: 8, goals: '["casual"]', avail: '["morning"]', tz: 9 }, WEIGHTS_DEFAULT, false);
@@ -107,6 +108,29 @@ let t1 = null;
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
   ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
 
+/* ---------------- presence: counts only; stale queue rows are neither available nor counted ---------------- */
+{ await consent("pam", "Pam"); await consent("quo", "Quo"); await consent("rae", "Rae");
+  const base = (await call("pam", "GET", "/me")).json.serverNow;
+  await join("pam", { band: "w1-4" }); await join("quo", { band: "w1-4" });
+  const pm = await call("pam", "GET", "/me");
+  ok("presence: counts only (online, waiting), never ids; excludes self; a queued peer counts as waiting", pm.json.presence && typeof pm.json.presence.online === "number" && pm.json.presence.waiting >= 1 && Object.keys(pm.json.presence).join() === "online,waiting" && !JSON.stringify(pm.json.presence).includes("dev:"));
+  await call("pam", "POST", `/connection/block`, { cid: "0000000000000000" }).catch(() => {});   /* no-op: proves a bad cid is harmless */
+  await join("rae", { band: "w9-12" });
+  const pm2 = await call("pam", "GET", "/me");
+  ok("presence: a learner two bands away counts too (no compatibility gate)", pm2.json.presence.waiting === pm.json.presence.waiting + 1);
+  const oq = (await call("pam", "POST", "/match")).json.candidates.find(c => c.name === "Quo");
+  await call("pam", "POST", "/connection/end", { cid: "0000000000000000" }).catch(() => {});
+  const pairP = await tryPair("pam", "quo", oq.offer); await call("pam", "POST", `/pairs/${pairP.json.pair.id}/block`);
+  await join("quo", { band: "w1-4" }); const pj = await join("pam", { band: "w1-4" }); const pm3 = await call("pam", "GET", "/me");
+  ok("presence: a blocked learner is never counted nor offered", pm3.json.presence.waiting === pm2.json.presence.waiting - 1 && !(pj.json.candidates || []).some(c => c.name === "Quo"));
+  /* stale queue rows: 8 days old → neither a candidate nor waiting; the cron removes them */
+  await join("rae", { band: "w1-4" }); clock = base + 8 * 86_400_000; await join("pam", { band: "w1-4" });
+  const late = await call("pam", "GET", "/me"); const cands = await call("pam", "POST", "/match");
+  ok("a queue entry older than 7 days is not available and not counted", late.json.presence.waiting === 0 && !cands.json.candidates.some(c => c.name === "Rae"));
+  const cr = await call("pam", "POST", "/__cron");
+  ok("cron purges stale queue rows", cr.status === 200 && !(await call("rae", "GET", "/me")).json.waiting); clock = null;
+  await call("pam", "DELETE", "/interest"); }
+
 /* ---------------- proposals: decline, cancel, expiry; the other side is told who closed ---------------- */
 { await consent("ada", "Ada"); await consent("ben", "Ben"); await join("ada", { band: "w9-12" }); let o = (await join("ben", { band: "w9-12" })).json.candidates.find(c => c.name === "Ada").offer;
   let inv = await call("ben", "POST", "/invite", { offer: o }); const d = await call("ada", "POST", `/pairs/${inv.json.pairInvite.id}/decline`);
@@ -159,7 +183,28 @@ let t1 = null;
 
 /* ---------------- live practice (Level 3): alice + bob are regular partners ---------------- */
 { const noConn = await call("carol", "POST", "/live", { band: "w1-4", promptWeek: 3 });
-  ok("live: needs a mutual/regular connection (404 no_connection)", noConn.status === 404 && noConn.json.error === "no_connection");
+  ok("live: needs someone you practise with — no open session and no connection → 404 no_connection", noConn.status === 404 && noConn.json.error === "no_connection");
+  /* live from a trial: two strangers in a session may talk at once (owner: no waiting for one practice together) */
+  await consent("sid", "Sid"); await consent("tia", "Tia"); await join("sid", { band: "w5-8" }); await join("tia", { band: "w1-4" });
+  const os = (await call("sid", "POST", "/match")).json.candidates.find(c => c.name === "Tia");
+  const tp = await tryPair("sid", "tia", os.offer);
+  const tl = await call("sid", "POST", "/live", { band: "w5-8", promptWeek: 2 });
+  ok("live: allowed inside an open trial session with a stranger, different band", tp.json.pair && tp.json.pair.kind === "trial" && tl.status === 201 && tl.json.live.role === "host" && tl.json.live.partner.name === "Tia", JSON.stringify(tl.json));
+  ok("live: the trial partner sees the invitation", (await call("tia", "GET", "/me")).json.live?.state === "invited");
+  await call("sid", "POST", `/live/${tl.json.live.id}/cancel`); await call("sid", "POST", `/pairs/${tp.json.pair.id}/leave`);
+  /* a live proposal from a candidate card: accepting opens the room for the host at once */
+  await consent("ulf", "Ulf"); await consent("vic", "Vic"); await join("ulf", { band: "w1-4" }); await join("vic", { band: "w9-12" });
+  const ov = (await call("ulf", "POST", "/match")).json.candidates.find(c => c.name === "Vic");
+  const pinv = await call("ulf", "POST", "/invite", { offer: ov.offer, live: true });
+  const vme = await call("vic", "GET", "/me");
+  ok("live proposal: the invitation is marked live on both sides", pinv.json.pairInvite && pinv.json.pairInvite.live === true && vme.json.invite && vme.json.invite.live === true, JSON.stringify([pinv.json.pairInvite, vme.json.invite]));
+  const vacc = await call("vic", "POST", `/pairs/${vme.json.invite.id}/accept`);
+  const ume = await call("ulf", "GET", "/me");
+  ok("live proposal accepted → pair active and a live session open: guest sees it as guest/invited, host as host", vacc.json.pair && vacc.json.live && vacc.json.live.role === "guest" && vacc.json.live.state === "invited" && ume.json.live && ume.json.live.role === "host" && ume.json.live.partner.name === "Vic", JSON.stringify([vacc.json.live, ume.json.live]));
+  const vjoin = await call("vic", "POST", `/live/${vacc.json.live.id}/accept`);
+  ok("live proposal: the guest joins with one more call; recorded trial not required", vjoin.status === 200 && ["accepted", "active"].includes(vjoin.json.live.state), JSON.stringify(vjoin.json));
+  await call("vic", "POST", `/live/${vacc.json.live.id}/end`); await call("ulf", "POST", `/pairs/${vacc.json.pair.id}/leave`);
+  ok("plain proposal (no live flag) opens no live session", await (async () => { await join("ulf", { band: "w1-4" }); await join("vic", { band: "w1-4" }); const o2 = (await call("ulf", "POST", "/match")).json.candidates.find(c => c.name === "Vic"); if (!o2) return "cooldown"; const t2 = await tryPair("ulf", "vic", o2.offer); const r = !!t2.json.pair && !t2.json.live; await call("ulf", "POST", `/pairs/${t2.json.pair.id}/leave`); return r; })() !== false);
   const inv = await call("alice", "POST", "/live", { band: "w1-4", promptWeek: 3, phrase: "I've been working on" });
   ok("live: host invites the connected partner → invited session, opaque id, partner first name only", inv.status === 201 && inv.json.live && inv.json.live.state === "invited" && inv.json.live.role === "host" && /^[a-f0-9]{16}$/.test(inv.json.live.id) && inv.json.live.partner && Object.keys(inv.json.live.partner).join() === "name" && !("other" in inv.json.live), JSON.stringify(inv.json.live));
   const L = inv.json.live.id;

@@ -26,7 +26,7 @@ holds one id and any other track is refused with `403 track`.
 | POST | `/interest` | `{track, band, lang, promptWeek, fndDay, mode: now\|later, topic?, goals?, phrase?}` — join the queue; `now` pairs with the best candidate at once, `later` returns up to 3 candidate cards |
 | DELETE | `/interest` | leave the queue |
 | POST | `/match` | fresh candidate cards (opaque `offer` ids, 30-min TTL, reasons, never uids) |
-| POST | `/invite` | `{offer, phrase?}` — **propose** a trial: a pair in state `invited` (10 min); both learners stay in the queue until the guest answers |
+| POST | `/invite` | `{offer, live?, phrase?}` — **propose** a trial: a pair in state `invited` (10 min); both learners stay in the queue until the guest answers. `live:true` (0007 `pairs.live_wanted`) asks for a call: the guest's **accept** also opens a `live_sessions` row (host = proposer, state `invited`), so the host's poll walks into the room and the guest's join is one more tap |
 | POST | `/pairs/:id/accept` · `/decline` (guest) · `/cancel` (host) | the guest's answer; accept is the atomic step that takes both out of the queue and activates the pair (closes any other open proposals for either); idempotent |
 | POST | `/next` | `{promptWeek, fndDay, band, phrase?}` — a connected (mutual/regular) partner starts the next session |
 | GET | `/pairs/:id` | the pair, members only |
@@ -35,13 +35,15 @@ holds one id and any other track is refused with `403 track`.
 | GET | `/turns/:id/audio` | streams audio to pair members only |
 | POST | `/connection/end` · `/connection/report {reason}` · `/connection/block` | `{cid}` — partner management from the connection card; `cid` is an opaque hash resolved only against the caller's own connections (anyone else's → 404). End = state `ended` + 14-day cooldown + any open session/call with that partner closed as `left`; idempotent; not a block, not a report; 10/day |
 | POST | `/ai/session` | `{id, track, reason?}` — opens an AI coach session for the count: 12 new per learner per day, idempotent on `id`, `403 track` for any other track |
-| POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite the connected partner (idempotent per open session; 20/day) |
+| POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite whoever you practise with: the **open session's partner first** (a trial with a stranger included — "if it does not click, leave"), else the connected partner; 404 `no_connection` when neither (idempotent per open session; 20/day) |
 | GET | `/live/:id` | session view + `iceServers` (members only) |
 | POST | `/live/:id/accept` · `/decline` (guest) · `/cancel` (host) | as named, idempotent |
 | POST | `/live/:id/signal` | `{kind: offer\|answer\|ice\|state\|round\|bye, payload ≤ 8 KB}`; drives `connecting` / `active` / `reconnecting` |
 | GET | `/live/:id/signals?after=N` | the other member's signals after N, plus state |
 | POST | `/live/:id/end` `{reason: left\|completed\|failed}` · `/report {reason}` · `/block` | end (idempotent); report/block end the call for both |
-Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`.
+Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`, `POST /__uncap {uid}` (clears one learner's daily counters so the long browser run keeps its production-default caps).
+
+`/me` also carries `presence: {online, waiting}` — counts only (members seen in the last 5 min, and queue rows younger than 7 days), never ids or names, excluding the caller and anyone either side has blocked. **No compatibility gate (owner, 2026-09-19):** `candidates()` offers anyone in line on the track; band, goals, lesson, availability and time zone only *order* the cards (`MIN_MATCH_SCORE` is no longer a filter). What still excludes: suspension, opt-out, the same-gender preference, blocks, the cooldown after an ended pair, and "already in a session". A card with no other true fact carries the reason `in_line`. Queue rows older than 7 days are neither offered nor counted; the daily cron deletes them.
 
 ## Environments
 `[vars]` = production (`PARTNER_ENABLED="0"`, placeholder D1 id). `[env.dev]` =
@@ -53,9 +55,9 @@ deployed.
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0006
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0007
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 87 integration checks against the local Worker
+node test/run.mjs            # 98 integration checks against the local Worker
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and

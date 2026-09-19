@@ -47,6 +47,7 @@ const W = await learner("wendy", "Wendy Weld", "welding", false);
 
 /* ---------- General-English-only boundary ---------- */
 ok("General English: Practice tab shows the Practice Partner card", (await txt(A.page, ".pp-entry")).includes("Practice Partner"));
+ok("The card carries 'How it works' → a sheet with the three steps (anyone in line; live or recorded; decide alone), a Find-a-partner button and Close; tapping it does not open the page", await (async () => { await A.page.click(".pp-entry .pp-how-link"); await sleep(300); const t1 = await txt(A.page, ".pp-how-ov"); const stayed = await A.page.evaluate(() => cur.v === "practice"); await A.page.click(".pp-how-ov .btn-g"); await sleep(200); return stayed && t1.includes("anyone in line") && t1.includes("Talk live, or record") && t1.includes("Then decide") && t1.includes("Find a practice partner") && !(await A.page.$(".pp-how-ov")); })());
 ok("Practice tab: the 'Best tool' shortcut and the Life Simulations card carry the same name and open the same page (roleplay)", await A.page.evaluate(() => { const strip = [...document.querySelectorAll(".path-tool")].find(b => b.getAttribute("onclick").includes("'sim'")); const card = [...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("roleplay")); return !!strip && !!card && strip.innerText.includes("Practise a real conversation") && card.innerText.includes("Practise a real conversation") && !strip.innerText.includes("Workplace conversations") && pathTools().find(x => x.id === "sim").go[0] === "roleplay"; }));
 ok("Welding: the same shortcut and card keep the professional simulation route", await W.page.evaluate(() => pathTools().find(x => x.id === "sim").go[0] === "simulation" && !![...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("simulation"))));
 ok("Welding: no Practice Partner card on the Practice tab", await W.page.evaluate(() => !document.querySelector(".pp-entry")));
@@ -65,6 +66,7 @@ await W.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa
 ok("Welding: Shadow Studio V2 panel is hidden and no asset is built, flags on", await W.page.evaluate(() => { const b = document.getElementById("shV2"); return !svOn() && svAsset === null && (!b || b.style.display === "none"); }));
 await W.page.evaluate(() => { try { shCloseWork(); } catch (e) {} });
 ok("Welding: Home shows no partner card", await W.page.evaluate(async () => { go("home"); await new Promise(r => setTimeout(r, 300)); return !document.querySelector(".pp-home"); }));
+ok("Welding: no presence strip, no floating button (flags on, consented via API)", await W.page.evaluate(() => { ppFabSync(); return !document.querySelector(".pp-presence") && !document.querySelector("#ppFab.on"); }));
 await W.ctx.close();
 
 /* ---------- consent with 18+ and preferences ---------- */
@@ -88,7 +90,7 @@ ok("Agreeing registers with preferences and shows Match me / Practise now", (awa
 
 /* ---------- no partner available: AI fallback, no dead end ---------- */
 await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
-ok("No candidates → honest message, AI coach offered, stays in line", (await txt(A.page, "#v-partner")).includes("No suitable partner") && (await txt(A.page, "#v-partner")).includes("AI coach") && (await (await api("alice", "GET", "/me")).json()).waiting);
+ok("No candidates → honest message, AI coach offered, stays in line", (await txt(A.page, "#v-partner")).includes("No one is available right now") && (await txt(A.page, "#v-partner")).includes("AI coach") && (await (await api("alice", "GET", "/me")).json()).waiting);
 await A.page.click('button:has-text("Keep looking")'); await sleep(900);
 ok("Waiting list: the card says since when, and a newcomer raises 'N learner(s) available' + a banner on the waiter's side", await (async () => {
   const before = await txt(A.page, ".pp-wait"); await api("zoe", "POST", "/consent", { name: "Zoe", lang: "fr", adult: true }); await api("zoe", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
@@ -98,6 +100,39 @@ ok("Waiting list: the card says since when, and a newcomer raises 'N learner(s) 
   await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); });
   return before.includes("In line since") && after.includes("1 learner(s) available to practise") && banner.includes("available to practise with you") && banner.includes("Show me candidates"); })());
 ok("Waiting state shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
+
+/* ---------- live availability UX: presence strip, auto-discovery, FAB, newcomer toast ---------- */
+ok("Waiting card: 'You're on the waiting list — looking for your partner…'", (await txt(A.page, ".pp-wait")).includes("You're on the waiting list"));
+ok("Presence strip on the partner page: counts from /me.presence, actionable, no names", await (async () => { const p = await A.page.evaluate(() => ({ txt: (document.querySelector("#v-partner .pp-presence")?.innerText || "").replace(/\s+/g, " "), pres: ppMe.presence, btn: document.querySelector("#v-partner .pp-presence")?.tagName })); const expect = p.pres.online > 0 ? `${p.pres.online} learner(s) online` : "No one online right now"; return p.btn === "BUTTON" && p.txt.includes(expect) && !/Zoe|Bob|Carla/.test(p.txt); })());
+/* a newcomer while Alice waits on the partner page: the strip rises and discovery opens by itself, once */
+await api("eve", "POST", "/consent", { name: "Eve", lang: "fr", adult: true }); await api("eve", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+await A.page.evaluate(() => { ppCallHide(); ppCandsToasted = null; ppAutoAvail = 0; ppCands = null; go("partner"); }); await A.page.waitForFunction(() => Array.isArray(ppCands) && ppCands.length > 0, null, { timeout: 15000 }).catch(() => {});
+const auto = await A.page.evaluate(() => ({ cands: Array.isArray(ppCands) ? ppCands.map(c => c.name) : null, avail: ppAutoAvail, strip: (document.querySelector("#v-partner .pp-presence")?.innerText || "").replace(/\s+/g, " "), toast: document.getElementById("toast")?.innerText || "", note: (document.querySelector(".pp-cand")?.innerText || "").replace(/\s+/g, " ") }));
+ok("Auto-discovery: someone arrives while I wait → the candidate cards open without a tap (once per rise)", auto.cands && auto.cands.includes("Eve") && auto.avail === 1, JSON.stringify(auto));
+ok("Presence strip counts the newcomer as waiting", auto.strip.includes("waiting to practise"), auto.strip);
+ok("Newcomer toast '1 learner(s) waiting — pick one', shown once for the same set", auto.toast.includes("1 learner(s) waiting") && (await A.page.evaluate(() => { const before = document.getElementById("toast").innerText; document.getElementById("toast").innerText = ""; return ppMatch().then(() => document.getElementById("toast").innerText === ""); })), auto.toast);
+ok("Candidate card: 'Practise live' first and 'Try a practice' second — live is open to anyone in line; the note says either can leave", auto.note.includes("Practise live") && auto.note.includes("Try a practice") && auto.note.includes("either of you can leave") && auto.note.indexOf("Practise live") < auto.note.indexOf("Try a practice"), auto.note);
+ok("No second auto-discovery while the count does not rise (cards closed, next poll leaves them closed)", await (async () => { await A.page.evaluate(() => { ppCands = null; ppRender(document.getElementById("v-partner")); }); await sleep(9000); return await A.page.evaluate(() => ppCands === null && ppAutoAvail === 1); })());
+/* the floating button: every page but the partner page; one tap → discovery; never a second queue entry */
+await A.page.evaluate(() => go("home")); await sleep(500);
+const fab = await A.page.evaluate(() => { ppFabSync(); const e = document.getElementById("ppFab"); const r = e.getBoundingClientRect(); const nav = document.querySelector(".bnav")?.getBoundingClientRect(); return { on: e.classList.contains("on"), txt: e.innerText.trim(), clearOfNav: !nav || r.bottom <= nav.top, right: r.right <= innerWidth }; });
+ok("Floating 'Find a practice partner' button on Home: visible, above the bottom nav", fab.on && fab.txt === "Find a practice partner" && fab.clearOfNav && fab.right, JSON.stringify(fab));
+ok("Floating button hidden on the partner page and while a call banner is up", await (async () => { await A.page.evaluate(() => go("partner")); await sleep(500); const onPartner = await A.page.evaluate(() => { ppFabSync(); return document.getElementById("ppFab").classList.contains("on"); }); await A.page.evaluate(() => go("home")); await sleep(400); const withBanner = await A.page.evaluate(() => { ppCallEl().classList.add("on"); ppFabSync(); const on = document.getElementById("ppFab").classList.contains("on"); ppCallEl().classList.remove("on"); ppFabSync(); return on; }); return !onPartner && !withBanner; })());
+ok("Floating button on a 375×812 phone does not cover the Home primary buttons", await (async () => { await A.page.setViewportSize({ width: 375, height: 812 }); await sleep(300); const r = await A.page.evaluate(() => { ppFabSync(); const f = document.getElementById("ppFab").getBoundingClientRect(); const btns = [...document.querySelectorAll("#v-home .btn-primary")].map(b => b.getBoundingClientRect()).filter(b => b.width > 0 && b.bottom > 0 && b.top < innerHeight); const overlap = btns.some(b => !(b.right < f.left || b.left > f.right || b.bottom < f.top || b.top > f.bottom)); return { overlap, w: f.width, h: f.height }; }); await A.page.setViewportSize({ width: 1000, height: 900 }); return !r.overlap && r.h >= 44; })());
+await A.page.evaluate(() => { ppCands = null; ppCandsToasted = null; }); await A.page.click("#ppFab"); await A.page.waitForFunction(() => Array.isArray(ppCands) && ppCands.length > 0, null, { timeout: 8000 }).catch(() => {});
+ok("Tap the floating button → partner page with the candidate cards open; still exactly one place in line", A.page.url().endsWith("#partner") && (await A.page.evaluate(() => Array.isArray(ppCands) && ppCands.some(c => c.name === "Eve"))) && (await (await api("alice", "GET", "/me")).json()).waiting != null);
+/* a live proposal from the card: the guest's accept opens the room for the host at once */
+await A.page.click('.pp-cand button:has-text("Practise live")'); await sleep(1200);
+const lw = await A.page.evaluate(() => ({ live: ppMe.pairInvite && ppMe.pairInvite.live, want: ppLiveWant, txt: document.querySelector(".pp-trial-wait")?.innerText.replace(/\s+/g, " ") || "" }));
+ok("Practise live on a candidate → a live proposal: 'Waiting for Eve to accept…' + 'the call opens here'", lw.live === true && lw.want === true && lw.txt.includes("Waiting for Eve") && lw.txt.includes("the call opens here"), JSON.stringify(lw));
+{ const em = await (await api("eve", "GET", "/me")).json(); ok("Guest side: the invitation is marked live (banner will say 'wants to practise live')", em.invite && em.invite.live === true); await api("eve", "POST", `/pairs/${em.invite.id}/accept`); }
+await A.page.evaluate(() => ppRefresh()); await A.page.waitForSelector(".pp-live-head", { timeout: 15000 }).catch(() => {});
+ok("Host walks straight into the room when the guest accepts — no extra tap: 'Waiting for Eve to join…'", (await txt(A.page, ".pp-live-head")).includes("Waiting for Eve") && (await A.page.evaluate(() => ppLive && ppLive.id === ppMe.live.id && ppMe.live.role === "host")), await txt(A.page, "#v-partner").then(x => x.slice(0, 200)));
+ok("Guest: /me shows the live session as guest/invited, on a trial pair with a stranger", await (async () => { const em = await (await api("eve", "GET", "/me")).json(); return em.live && em.live.role === "guest" && em.live.state === "invited" && em.pair && em.pair.kind === "trial"; })());
+await A.page.evaluate(async () => { await ppLiveCancel(); }); await sleep(300);
+{ const am = await (await api("alice", "GET", "/me")).json(); await api("alice", "POST", `/pairs/${am.pair.id}/leave`); }
+await api("eve", "DELETE", "/interest"); await A.page.evaluate(async () => { ppCands = null; ppAutoAvail = 0; ppLiveWant = false; await ppRefresh(); await ppMatch(); ppCands = null; ppState().dismissedClosed = ppMe.lastClosed && ppMe.lastClosed.id; ppRender(document.getElementById("v-partner")); });
+ok("Back in line after leaving (cooldown with Eve), waiting card shown", (await (await api("alice", "GET", "/me")).json()).waiting != null && (await txt(A.page, ".pp-wait")).includes("waiting list"));
 
 /* ---------- Level 2: the AI coach session (Polish Worker intercepted — no live AI call) ---------- */
 let aiFail = false, aiCalls = 0;
@@ -126,14 +161,14 @@ aiFail = false; await A.page.click('.pp-cta button:has-text("Try again")'); awai
 const aiDone = await txt(A.page, ".pp-decide");
 ok("Retry sends the same turn once; the fourth turn completes the AI practice with one AI-tagged tip and no decision about a human", aiCalls === 3 && aiDone.includes("AI practice complete") && /\bAI\b/.test(aiDone) && !aiDone.includes("together again") && (await A.page.evaluate(() => ppState().ai.turns.length)) === 4, `calls=${aiCalls} ${aiDone}`);
 await A.page.click('.pp-decide button:has-text("Back to Practice Partner")'); await sleep(400); await A.page.unroute(u => u.href.startsWith("https://be-polish."));
-ok("Back → the waiting card again, AI session closed", (await txt(A.page, "#v-partner")).includes("Looking for your partner"));
+ok("Back → the waiting card again, AI session closed", /looking for your partner/i.test(await txt(A.page, "#v-partner")));
 
 /* ---------- candidates with reasons; try a practice ---------- */
 for (const [u, n, g] of [["bob", "Bob", "m"], ["carla", "Carla", "f"]]) { await api(u, "POST", "/consent", { name: n, lang: "fr", adult: true, gender: g, goals: ["workplace"], avail: ["evening"], tz: 0 }); await api(u, "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1, goals: ["workplace"] }); }
 await A.page.click('button:has-text("Show me candidates")'); await sleep(1200);
 const cards = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
 ok("Match me → 1–3 candidate cards with first name, band, goal and a plain reason; no score, no uid", cards.length === 2 && cards.every(c => /Why: same level/.test(c) && !/\d+%/.test(c) && !/uid/.test(c)), JSON.stringify(cards));
-await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Carla/.test(x.innerText)); c.querySelector(".btn-primary").click(); }); await sleep(1300);
+await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Carla/.test(x.innerText)); [...c.querySelectorAll("button")].find(b => /Try a practice/.test(b.innerText)).click(); }); await sleep(1300);
 const waitTxt = await txt(A.page, "#v-partner");
 ok("Try a practice → a proposal: host sees 'Waiting for Carla to accept…' with Cancel, still in line; no session yet", waitTxt.includes("Waiting for Carla to accept") && waitTxt.includes("Cancel the invitation") && !waitTxt.includes("Round 1 of 4") && (await (await api("alice", "GET", "/me")).json()).pairInvite);
 const carlaMe = await (await api("carla", "GET", "/me")).json();
@@ -142,12 +177,13 @@ await api("carla", "POST", `/pairs/${carlaMe.invite.id}/accept`);
 await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); }); await sleep(400);
 const head = await txt(A.page, "#v-partner .pp-head");
 ok("Host away from the partner page sees the ongoing-practice pill for the open recording session, and it is hidden on the partner page", await (async () => { await A.page.evaluate(() => go("home")); await sleep(500); const on = await A.page.evaluate(() => { ppPillSync(); const e = document.getElementById("ppPill"); return e && e.classList.contains("on") ? e.innerText : ""; }); await A.page.evaluate(() => go("partner")); await sleep(400); const off = await A.page.evaluate(() => { ppPillSync(); const e = document.getElementById("ppPill"); return !e || !e.classList.contains("on"); }); return on.includes("Practice with Carla") && off; })());
-ok("Session header says Human partner (mirrors the AI label)", (await txt(A.page, ".pp-head")).includes("Human partner"));
+ok("Session header says Human partner (mirrors the AI label)", (await txt(A.page, ".pp-head")).includes("Human partner"), (await txt(A.page, "#v-partner")).slice(0, 400) + " | cf=" + (await txt(A.page, ".cf-ov")).slice(0, 120));
 ok("Try a practice → trial session, round 1 of 4, your turn", head.includes("Your partner: Carla") && head.includes("Trial practice") && head.includes("Round 1 of 4 — your turn"));
 const prompt = await txt(A.page, "#v-partner .pp-prompt");
 const expected = await A.page.evaluate(() => trackWeeks()[0].days.Tue.task.slice(0, 40));
 ok("Round 1 task is the General English curriculum speaking task", prompt.includes(expected));
 ok("An open session shows More options: AI coach (tagged AI) and Leave today's practice, with honest sub-lines", await (async () => { const m = await txt(A.page, ".pp-more"); return /more options/i.test(m) && /\bAI\b/.test(m) && m.includes("Practise with the AI coach") && m.includes("Carla is not involved") && m.includes("Leave today's practice") && m.includes("stay partners"); })());
+ok("Inside a trial with a stranger, More options already offers Practise live (no 'one practice first' rule)", (await txt(A.page, ".pp-more")).includes("Practise live"));
 ok("AI from inside a session: same task, human session untouched, banner offers the way back", await (async () => {
   await A.page.route(u => u.href.startsWith("https://be-polish."), route => route.fulfill({ status: 403, body: "Forbidden" }));
   await A.page.click('.pp-more button:has-text("AI coach")'); await A.page.waitForSelector(".pp-ai-head", { timeout: 10000 }); await sleep(300);
@@ -196,6 +232,7 @@ const conn = await txt(A.page, ".pp-conn");
 ok("Both continue → mutual partner card with session count and Start today's practice", conn.includes("Your practice partner: Carla") && conn.includes("1 time") && conn.includes("Start today's practice"));
 /* ---------- Level 3: live practice between the two connected humans (real WebRTC, two browser contexts, fake mics) ---------- */
 ok("Connection card offers 'Practise live' to a connected partner", conn.includes("Practise live"));
+ok("Live-first: with a connected partner, 'Practise live' is the first, accented button with a 3-pulse attention ring; the choice is explained", await A.page.evaluate(() => { const btns = [...document.querySelectorAll(".pp-conn .pp-row button")]; return btns.length >= 2 && btns[0].innerText.includes("Practise live") && btns[0].classList.contains("pp-attn") && btns[0].classList.contains("btn-primary") && /Live: talk now/.test(document.querySelector(".pp-conn").innerText); }));
 await A.page.click('.pp-conn button:has-text("Practise live")'); await A.page.waitForSelector(".pp-live-head", { timeout: 10000 });
 ok("Host invites → waiting room labelled human, cancel available, nothing else on the page", (await txt(A.page, ".pp-live-head")).includes("Waiting for Carla") && (await txt(A.page, ".pp-live-head")).includes("A real learner, live") && (await txt(A.page, "#v-partner")).includes("Cancel the invitation"));
 const C = await learner("carla", "Carla", "general-english", false);
@@ -242,7 +279,7 @@ const afterLeave = await txt(A.page, "#v-partner"); ok("Leaving today's practice
 await api("bob", "DELETE", "/interest");   /* nobody else waiting → the honest "no partner yet" state */
 await A.page.click('#v-partner .pp-cta button:has-text("Practise now")'); await sleep(1300);
 const waitingConn = await txt(A.page, "#v-partner");
-ok("A connected learner can look for someone new without ending the partnership: waiting card + AI COACH — NOT YOUR PARTNER card, connection card still shown", waitingConn.includes("Looking for your partner") && waitingConn.includes("AI COACH — NOT YOUR PARTNER") && waitingConn.includes("Practise with the AI coach") && waitingConn.includes("Your practice partner: Carla"));
+ok("A connected learner can look for someone new without ending the partnership: waiting card + AI COACH — NOT YOUR PARTNER card, connection card still shown", /looking for your partner/i.test(waitingConn) && waitingConn.includes("AI COACH — NOT YOUR PARTNER") && waitingConn.includes("Practise with the AI coach") && waitingConn.includes("Your practice partner: Carla"));
 await A.page.click('button:has-text("Stop looking")'); await sleep(900);
 await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });   /* Bob back in line for the rematch section */
 await A.page.click(".pp-conn .pp-menu"); await sleep(200);
@@ -259,7 +296,7 @@ ok("Ending again through the API is harmless (already:true)", (await (await api(
 await A.page.click('button:has-text("Show me candidates")').catch(() => {}); await sleep(300);
 await A.page.evaluate(() => ppMatch()); await sleep(1200);
 const cards2 = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
-await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Bob/.test(x.innerText)); c && c.querySelector(".btn-primary").click(); }); await sleep(1300);
+await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Bob/.test(x.innerText)); c && [...c.querySelectorAll("button")].find(b => /Try a practice/.test(b.innerText)).click(); }); await sleep(1300);
 { const bm = await (await api("bob", "GET", "/me")).json(); await api("bob", "POST", `/pairs/${bm.invite.id}/accept`); }
 for (const [u, s] of [["alice", "one"], ["bob", "two"], ["alice", "three"], ["bob", "four"]]) await apiTurn(u, s);
 await A.page.evaluate(() => go("partner")); await sleep(1300);
@@ -286,18 +323,32 @@ ok("Use it with a partner → Practice Partner with the phrase queued for the ne
 /* Alice ended her partnership with Carla above and rematched Bob, so both are in cooldown; a fresh learner takes the pairing */
 await api("dina", "POST", "/consent", { name: "Dina", lang: "fr", adult: true, gender: "f", goals: ["workplace"], avail: ["evening"], tz: 0 });
 await api("dina", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+await fetch(WORKER + "/__uncap", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:alice" }) }).catch(() => {});   /* a long run: reset Alice's daily caps (dev-only route) */
+/* with no compatibility gate, anyone in line may be the best pick — clear the others so the pick is Dina */
+for (const u of ["bob", "zoe", "eve", "carla"]) await api(u, "DELETE", "/interest");
 await A.page.click('button:has-text("Practise now")'); await sleep(1500);
-ok("Practise now → an invitation to the best available learner (Dina), not an instant pair", (await txt(A.page, "#v-partner")).includes("Waiting for Dina to accept"));
-{ const dm = await (await api("dina", "GET", "/me")).json(); await api("dina", "POST", `/pairs/${dm.invite.id}/accept`); }
+ok("Practise now → an invitation to the best available learner (Dina), not an instant pair", (await txt(A.page, "#v-partner")).includes("Waiting for Dina to accept"), (await txt(A.page, "#v-partner")).slice(0, 700) + " | toast=" + (await txt(A.page, "#toast")) + " | me=" + JSON.stringify(await (await api("alice", "GET", "/me")).json()).slice(0, 300));
+{ const dm = await (await api("dina", "GET", "/me")).json(); if (dm.invite) await api("dina", "POST", `/pairs/${dm.invite.id}/accept`); }
 await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); }); await sleep(400);
 const applied = await txt(A.page, ".pp-prompt");
 ok("Once Dina accepts, round 1 uses the shadowed expression", applied.includes("Use the expression") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"), applied.slice(0, 160));
+/* the partner leaves: one dialog — Close / Find another partner — and either answer clears that partner from the screen at once */
+{ const dm = await (await api("dina", "GET", "/me")).json(); await api("dina", "POST", `/pairs/${dm.pair.id}/leave`); }
+await A.page.evaluate(async () => { await ppRefresh(true); ppNotify(); }); await A.page.waitForSelector(".cf-ov", { timeout: 5000 });
+const gone = await txt(A.page, ".cf-ov");
+ok("Partner leaves → dialog 'Dina left today's practice' with Close and Find another partner", gone.includes("Dina left today's practice") && gone.includes("Close") && gone.includes("Find another partner"), gone);
+await A.page.click('.cf-ov [data-cf="1"]'); await sleep(300);
+const afterClose = await A.page.evaluate(() => ({ head: !!document.querySelector("#v-partner .pp-head"), rec: !!document.querySelector("#ppRecorder"), closedLine: !!document.querySelector(".pp-closed"), dina: /Dina/.test(document.getElementById("v-partner").innerText), cta: /Match me/.test(document.getElementById("v-partner").innerText) }));
+ok("Close → the session, recorder, notice line and the partner's name are gone at once, no reload; Match me is back", !afterClose.head && !afterClose.rec && !afterClose.closedLine && !afterClose.dina && afterClose.cta, JSON.stringify(afterClose));
+await A.page.evaluate(async () => { await ppRefresh(true); ppState().noticedClosed = null; ppNotify(); }); await A.page.waitForSelector(".cf-ov", { timeout: 5000 }).catch(() => {});
+const fap = await (async () => { if (!(await A.page.$(".cf-ov"))) return "no dialog"; await A.page.click('.cf-ov [data-cf="0"]'); await sleep(1500); return await A.page.evaluate(() => JSON.stringify({ v: cur.v, closed: !!document.querySelector(".pp-closed"), cands: Array.isArray(ppCands), waiting: !!ppMe.waiting, toast: document.getElementById("toast")?.innerText || "", txt: document.getElementById("v-partner").innerText.replace(/\s+/g, " ").slice(0, 200) })); })();
+ok("Find another partner → straight into discovery, nothing of the old partner left", /"v":"partner","closed":false,"cands":true,"waiting":true/.test(fap), fap);
 
 /* ---------- degraded conditions ---------- */
 await A.page.evaluate(() => localStorage.setItem("be_partner_api", "http://127.0.0.1:1")); await A.page.evaluate(() => go("partner")); await sleep(1500);
 ok("Worker unreachable → offline card with retry, no crash", (await txt(A.page, "#v-partner")).includes("Can't reach the partner service"));
 await A.page.evaluate(W => localStorage.setItem("be_partner_api", W), WORKER); await A.page.evaluate(() => go("partner")); await sleep(1300);
-ok("Reconnect restores the session", (await txt(A.page, ".pp-head")).includes("Dina"));
+ok("Reconnect restores the partner page", /Match me|waiting list|looking for your partner|Try a practice|Practise live|No one is available/i.test(await txt(A.page, "#v-partner")), (await txt(A.page, "#v-partner")).slice(0, 300));
 await A.page.evaluate(() => { localStorage.setItem("be_flags", JSON.stringify({})); go("practice"); }); await sleep(400);
 ok("Flags off → no card on Practice, no Home card, route shows unavailable (production default)", await A.page.evaluate(async () => { const noCard = !document.querySelector(".pp-entry"); go("partner"); await new Promise(r => setTimeout(r, 300)); return noCard && /temporarily unavailable/.test(document.getElementById("v-partner").innerText); }));
 await A.page.evaluate(F => localStorage.setItem("be_flags", JSON.stringify(F)), FLAGS);

@@ -194,6 +194,12 @@ waiting | nocand | silent | choice | again) → `partner_ai_turn` (+`round`) →
 `partner_live_failed` (+`reason` mic); `partner_live_help` (AI phrase help
 during a call). No audio, no transcript, no names.
 
+Live availability UX (2026-09-19): `partner_find_started` (the floating
+"Find a practice partner" button), `partner_availability_viewed` (a tap on
+the presence strip), `partner_queue_left` (Stop looking), and
+`partner_trial_declined` (Not now on a proposal). Counts only — the strip
+shows numbers, never who.
+
 Shadow Studio V2: `shadow_v2_opened` (+`level` word|sentence|text|none),
 `shadow_v2_mode` and `shadow_v2_challenge_started` (+`mode`),
 `shadow_v2_sentence_shadowed` (+`level`), `shadow_apply_phrase` (+`to` ai|partner).

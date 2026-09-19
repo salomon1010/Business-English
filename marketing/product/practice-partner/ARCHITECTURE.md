@@ -86,10 +86,39 @@ not connect — a documented limitation).
 
 ## Matching
 
+- **No compatibility gate (owner decision, 2026-09-19).** Anyone in line on
+  the track can be asked; band, goals, lesson, availability and time zone
+  only order the cards. The learner, not a score, decides — and "if it does
+  not click, either of you can leave" is the rule on every card and in the
+  How-it-works sheet. What still excludes a candidate is safety and state:
+  suspension, opt-out, the same-gender preference, blocks, the cooldown
+  after an ended pair, and "already in a session".
+- **Live is for whoever you practise with.** `POST /live` targets the open
+  session's partner first (a trial with a stranger included), else the
+  connected partner. A candidate card offers **Practise live** (a proposal
+  with `live:true`: the guest's accept opens the room for the host at once —
+  client `ppLiveWant` walks the host in on the next `/me`; the guest's
+  accept goes straight to `ppLiveAccept()`) and **Try a practice** (recorded)
+  side by side. Inside any open session, More options carries Practise live.
+- **Presence and discovery.** `/me.presence {online, waiting}` feeds the
+  strip on top of the partner page (`ppPresenceHTML`, green beacon when
+  someone is there, tap → discovery). While a learner waits on the page,
+  a rise in `waiting.available` opens the candidate cards without a tap,
+  once per rise (`ppAutoAvail`), and mutes the availability banner for the
+  same arrival. A floating **Find a practice partner** button (`#ppFab`)
+  sits on every page except the partner page, live rooms, Welding, signed-out
+  and unconsented; tapping it lands on discovery for an idle or waiting
+  learner. The newcomer toast dedupes by who is on the cards (offer ids are
+  minted per call). The **live beacon** (`#ppLiveDot`, pill dot, call-banner
+  dot, presence dot) reuses the road map's `rmRing` + `rmSpin` animations.
+- **Partner left.** One dialog (`pp.gone_*`) — **Close** / **Find another
+  partner** — and either answer clears that partner from the screen at once
+  (`dismissedClosed`, take and cards dropped, re-render; the poll also
+  re-renders when the pair id vanishes even mid-take).
 - `POST /interest {track, band, lang, promptWeek, fndDay, mode: now|later,
   topic?, goals?, phrase?}` — upserts the queue row (`403 track` unless
   `general-english`). Then `candidates()` scores every other queued learner
-  on the same track. `mode:"now"` with a candidate → pair created at once;
+  on the same track (rows younger than 7 days; the cron purges older ones). `mode:"now"` with a candidate → pair created at once;
   otherwise up to 3 **offers** are minted (opaque 16-hex ids, 30-minute TTL)
   and returned as cards `{offer, name, band, goals(≤2), topic,
   availability, reasons, waitingMin}`. No uid ever leaves the Worker.
@@ -101,7 +130,7 @@ not connect — a documented limitation).
   overridable through the `MATCH_WEIGHTS` Worker var. Reasons are the
   strongest true facts, max two, as enum strings the client translates
   (`same_level`, `same_lesson`, `same_stage`, `goal:<g>`, `available_now`,
-  `same_time:<a>`, `practised_before`).
+  `same_time:<a>`, `practised_before`, `in_line`).
 
 ## Request flow: sending a turn
 

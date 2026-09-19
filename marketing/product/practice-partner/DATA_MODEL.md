@@ -68,6 +68,7 @@ are harmless — so no down-migration is shipped.
 | **host** (0005) | who proposed / started it |
 | **invite_expires** (0005) | 10 min after the proposal |
 | **closed_by** (0006) | who closed it (NULL = system) — drives "{name} left today's practice" on the other side |
+| **live_wanted** (0007) | 1 when the proposal asked for a live call ("Practise live" on a candidate card); the guest's accept then opens the `live_sessions` row for the host |
 | closed_reason | `completed` / `rematch` / `left` / `blocked` / `expired` / `suspended` / `declined` / `cancelled` |
 | **decision_a, decision_b** | `continue` / `rematch` / NULL |
 | **completed_at** | set when the fourth turn lands |

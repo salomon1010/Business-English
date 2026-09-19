@@ -79,6 +79,8 @@ const EVENTS = new Set([
   "partner_live_completed", "partner_live_left", "partner_live_failed", "partner_live_help",
   // partner management: leaving today's session vs ending the partnership
   "partner_left", "partner_connection_ended", "partner_trial_invited",
+  // discovery: the floating button, the presence strip, leaving the queue, declining a proposal
+  "partner_find_started", "partner_availability_viewed", "partner_queue_left", "partner_trial_declined",
   // Shadow Studio V2 (General English only)
   "shadow_v2_opened", "shadow_v2_mode", "shadow_v2_sentence_shadowed", "shadow_v2_challenge_started", "shadow_apply_phrase",
 ]);
