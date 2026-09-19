@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "Isto termina a sua parceria com {{name}} e procura um novo parceiro. {{name}} só vê que a parceria terminou.",
  "pp.more_eyebrow": "Mais opções",
  "pp.more_ai_sub": "A mesma tarefa, com o coach IA. {{name}} não participa e esta sessão fica aberta para quando voltar.",
- "pp.more_leave_sub": "Termina apenas a sessão de hoje. Se são parceiros de prática, continuam a sê-lo."
+ "pp.more_leave_sub": "Termina apenas a sessão de hoje. Se são parceiros de prática, continuam a sê-lo.",
+ "pp.human_tag": "Parceiro humano",
+ "pp.ai_then_human": "Agora grave para {{name}} →",
+ "pp.live_go": "Começar"
 }

@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "这会结束你与 {{name}} 的伙伴关系并寻找新伙伴。{{name}} 只会看到伙伴关系已结束。",
  "pp.more_eyebrow": "更多选项",
  "pp.more_ai_sub": "同样的任务，与 AI 教练练习。{{name}} 不参与，这次练习会保持开启，等你回来。",
- "pp.more_leave_sub": "只结束今天的练习。如果你们是练习伙伴，关系保持不变。"
+ "pp.more_leave_sub": "只结束今天的练习。如果你们是练习伙伴，关系保持不变。",
+ "pp.human_tag": "真人伙伴",
+ "pp.ai_then_human": "现在为 {{name}} 录一段 →",
+ "pp.live_go": "开始"
 }

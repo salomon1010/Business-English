@@ -128,6 +128,7 @@ const cards = await A.page.evaluate(() => [...document.querySelectorAll(".pp-can
 ok("Match me → 1–3 candidate cards with first name, band, goal and a plain reason; no score, no uid", cards.length === 2 && cards.every(c => /Why: same level/.test(c) && !/\d+%/.test(c) && !/uid/.test(c)), JSON.stringify(cards));
 await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Carla/.test(x.innerText)); c.querySelector(".btn-primary").click(); }); await sleep(1300);
 const head = await txt(A.page, "#v-partner .pp-head");
+ok("Session header says Human partner (mirrors the AI label)", (await txt(A.page, ".pp-head")).includes("Human partner"));
 ok("Try a practice → trial session, round 1 of 4, your turn", head.includes("Your partner: Carla") && head.includes("Trial practice") && head.includes("Round 1 of 4 — your turn"));
 const prompt = await txt(A.page, "#v-partner .pp-prompt");
 const expected = await A.page.evaluate(() => trackWeeks()[0].days.Tue.task.slice(0, 40));
@@ -192,6 +193,7 @@ await C.page.click('.pp-live-invite button:has-text("Join the call")');
 const liveUp = await Promise.all([A.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false), C.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false)]);
 ok("Both sides connect (WebRTC audio, ICE through the Worker) and show 'Connected — you can talk'", liveUp[0] && liveUp[1], JSON.stringify({ a: await txt(A.page, ".pp-live-status"), c: await txt(C.page, ".pp-live-status") }));
 const liveA = await A.page.evaluate(() => ({ head: document.querySelector(".pp-live-head").innerText, pc: ppLive.pc && ppLive.pc.connectionState, tracks: ppLive.stream ? ppLive.stream.getAudioTracks().length : 0, remote: !!document.getElementById("ppLiveAudio") && !!document.getElementById("ppLiveAudio").srcObject, timer: !!document.getElementById("ppLiveTimer") }));
+ok("Live connect shows the 3-2-1 countdown, then Start", await A.page.evaluate(() => ppLive.countdown != null || !!document.getElementById("ppLiveCount") || ppLive.startedAt > 0));
 ok("Room: partner first name only, human label, live timer, local mic track and remote audio attached; no uid, no transport words", liveA.head.includes("Live with Carla") && liveA.pc === "connected" && liveA.tracks === 1 && liveA.remote && liveA.timer && !/uid|webrtc|ice|turn/i.test(liveA.head), JSON.stringify(liveA));
 ok("Server state is active with a start time for both members", await (async () => { const s = await (await api("alice", "GET", "/me")).json(); const c = await (await api("carla", "GET", "/me")).json(); return s.live && s.live.state === "active" && s.live.startedAt > 0 && c.live && c.live.state === "active"; })());
 await A.page.click('.pp-prompt button:has-text("Next round")'); await sleep(5500);

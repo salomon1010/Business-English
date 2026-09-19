@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "Termina la tua collaborazione con {{name}} e cerca un nuovo partner. {{name}} vede solo che la collaborazione è finita.",
  "pp.more_eyebrow": "Altre opzioni",
  "pp.more_ai_sub": "Lo stesso compito, con il coach IA. {{name}} non è coinvolto e questa sessione resta aperta per quando torni.",
- "pp.more_leave_sub": "Termina solo la sessione di oggi. Se siete partner di pratica, lo restate."
+ "pp.more_leave_sub": "Termina solo la sessione di oggi. Se siete partner di pratica, lo restate.",
+ "pp.human_tag": "Partner umano",
+ "pp.ai_then_human": "Ora registralo per {{name}} →",
+ "pp.live_go": "Via"
 }

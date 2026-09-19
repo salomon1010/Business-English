@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "Ini mengakhiri kemitraan Anda dengan {{name}} dan mencari partner baru. {{name}} hanya melihat bahwa kemitraan berakhir.",
  "pp.more_eyebrow": "Pilihan lain",
  "pp.more_ai_sub": "Tugas yang sama, dengan pelatih AI. {{name}} tidak terlibat dan sesi ini tetap terbuka sampai Anda kembali.",
- "pp.more_leave_sub": "Hanya mengakhiri sesi hari ini. Jika kalian partner latihan, kalian tetap partner."
+ "pp.more_leave_sub": "Hanya mengakhiri sesi hari ini. Jika kalian partner latihan, kalian tetap partner.",
+ "pp.human_tag": "Partner manusia",
+ "pp.ai_then_human": "Sekarang rekam untuk {{name}} →",
+ "pp.live_go": "Mulai"
 }

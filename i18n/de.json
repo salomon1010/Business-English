@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "Das beendet deine Partnerschaft mit {{name}} und sucht einen neuen Partner. {{name}} sieht nur, dass die Partnerschaft beendet ist.",
  "pp.more_eyebrow": "Weitere Optionen",
  "pp.more_ai_sub": "Dieselbe Aufgabe, mit dem KI-Coach. {{name}} ist nicht beteiligt, und diese Sitzung bleibt offen, bis du zurückkommst.",
- "pp.more_leave_sub": "Beendet nur die heutige Sitzung. Wenn ihr Übungspartner seid, bleibt ihr es."
+ "pp.more_leave_sub": "Beendet nur die heutige Sitzung. Wenn ihr Übungspartner seid, bleibt ihr es.",
+ "pp.human_tag": "Menschlicher Partner",
+ "pp.ai_then_human": "Jetzt für {{name}} aufnehmen →",
+ "pp.live_go": "Los"
 }

@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "Esto termina tu relación de práctica con {{name}} y busca un compañero nuevo. {{name}} solo ve que la relación terminó.",
  "pp.more_eyebrow": "Más opciones",
  "pp.more_ai_sub": "La misma tarea, con el coach IA. {{name}} no participa y esta sesión sigue abierta para cuando vuelvas.",
- "pp.more_leave_sub": "Solo termina la sesión de hoy. Si sois compañeros de práctica, seguís siéndolo."
+ "pp.more_leave_sub": "Solo termina la sesión de hoy. Si sois compañeros de práctica, seguís siéndolo.",
+ "pp.human_tag": "Compañero humano",
+ "pp.ai_then_human": "Ahora grábalo para {{name}} →",
+ "pp.live_go": "Empieza"
 }

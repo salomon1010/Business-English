@@ -1219,6 +1219,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-turn-ai{border-color:color-mix(in srgb,var(--gold) 40%,var(--line))}.pp-turn-ai .pp-turn-top b{display:inline-flex;gap:6px;align-items:center}
 .pp-human-back{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.pp-human-back svg{width:18px;height:18px;flex:none;color:var(--green)}.pp-human-back b{flex:1;font-size:13.5px}
 .pp-ai-resume b{display:block;margin:6px 0 2px;font-size:15px}
+.pp-human-tag{color:var(--green);font-weight:700}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
 .pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
 .pp-live-status{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:8px 0 0}.pp-live-status svg{width:18px;height:18px;flex:none;margin-top:1px}.pp-live-status.active svg{color:var(--green)}.pp-live-status.reconnecting{color:var(--gold)}
@@ -4724,6 +4725,9 @@ const I18N_EN={
  "pp.ai_resume_h":"An AI practice is still open",
  "pp.ai_resume_sub":"Turn {{n}} of {{max}} done with the AI coach.",
  "pp.ai_resume_btn":"Continue with the AI coach",
+ "pp.human_tag":"Human partner",
+ "pp.ai_then_human":"Now record it for {{name}} →",
+ "pp.live_go":"Start",
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
@@ -13414,7 +13418,7 @@ function ppThreadHTML(p){
   return `<section class="card pp-head">
     <div class="pp-head-row">
       <span class="pp-avatar">${esc(p.partner.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small>${t("pp.band_"+p.band)} · ${p.kind==="regular"?t("pp.kind_regular"):t("pp.kind_trial")}</small></div>
+      <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small><span class="pp-human-tag">${t("pp.human_tag")}</span> · ${t("pp.band_"+p.band)} · ${p.kind==="regular"?t("pp.kind_regular"):t("pp.kind_trial")}</small></div>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
     </div>
     <div class="pp-rounds" aria-label="${esc(status)}">${Array.from({length:p.rounds},(_,i)=>`<span class="${i<p.turns.length?"done":(i===p.turns.length&&!p.complete?"now":"")}"></span>`).join("")}<b>${status}</b></div>
@@ -13670,7 +13674,7 @@ async function ppLiveConnect(){
   pc.ontrack=e=>{let a=document.getElementById("ppLiveAudio");if(!a){a=document.createElement("audio");a.id="ppLiveAudio";a.autoplay=true;a.playsInline=true;a.setAttribute("playsinline","");document.body.appendChild(a)}a.srcObject=e.streams[0]||new MediaStream([e.track]);a.play().catch(()=>{})};
   pc.onconnectionstatechange=()=>{
     if(ppLive!==L)return;const s=pc.connectionState;
-    if(s==="connected"){L.sinceDrop=0;L.restarts=0;if(L.status!=="active"){const first=!L.startedAt;L.startedAt=L.startedAt||Date.now();ppLiveSignal("state","connected");try{track(first?"partner_live_started":"partner_live_reconnected",{})}catch(e){}}L.status="active";ppLiveRender();ppLiveTick()}
+    if(s==="connected"){L.sinceDrop=0;L.restarts=0;if(L.status!=="active"){const first=!L.startedAt;L.startedAt=L.startedAt||Date.now();ppLiveSignal("state","connected");try{track(first?"partner_live_started":"partner_live_reconnected",{})}catch(e){}if(first)ppLiveCountdown(L)}L.status="active";ppLiveRender();ppLiveTick()}
     else if(s==="disconnected"||s==="failed"){if(L.status==="active"||L.status==="connecting"){L.status="reconnecting";L.sinceDrop=L.sinceDrop||Date.now();ppLiveSignal("state","reconnecting");ppLiveRender();if(L.role==="host")ppLiveRestart()}}
     else if(s==="closed"){if(!L.ended)ppLiveEnd("failed")}
   };
@@ -13711,6 +13715,12 @@ function ppLivePoll(){
     }catch(e){if(e.code==="forbidden"||e.code==="closed"){ppLiveGone(e.code);return}}
     ppLivePoll();
   },fast?PP_LIVE_POLL_FAST:PP_LIVE_POLL_SLOW);
+}
+/* "3… 2… 1… Start" the first time the two voices connect — a beat to breathe
+   before the task, the same on both phones */
+function ppLiveCountdown(L){
+  L.countdown=3;const step=()=>{if(ppLive!==L||L.ended)return;const el=document.getElementById("ppLiveCount");if(el)el.textContent=L.countdown>0?String(L.countdown):t("pp.live_go");if(L.countdown<0){L.countdown=null;ppLiveRender();return}L.countdown--;setTimeout(step,900)};
+  setTimeout(step,300);
 }
 function ppLiveTick(){const L=ppLive;if(!L)return;clearInterval(L.tickT);L.tickT=setInterval(()=>{const el=document.getElementById("ppLiveTimer");if(!el||!L.startedAt){return}const s=Math.floor((Date.now()-L.startedAt)/1000);el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},1000)}
 window.ppLiveMute=()=>{const L=ppLive;if(!L||!L.stream)return;L.muted=!L.muted;L.stream.getAudioTracks().forEach(tr=>tr.enabled=!L.muted);ppLiveRender()};
@@ -13776,6 +13786,7 @@ function ppLiveHTML(L){
       <div class="pp-head-t"><b>${t("pp.live_with",{name:esc(L.partner.name)})}</b><small>${t("pp.live_human")}</small></div>
       <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?"0:00":""}</span>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button></div>
+    ${L.countdown!=null?`<div class="pp-live-count" id="ppLiveCount" aria-live="polite">${L.countdown>0?L.countdown:t("pp.live_go")}</div>`:""}
     <p class="pp-live-status ${L.status}">${live?ic("mic"):ic("clock")} ${ppLiveStatusText(L)}</p>
     ${L.micErr?`<div class="pp-row"><button class="btn btn-g btn-sm" onclick="ppLiveRetryMic()">${t("pp.retry")}</button></div>`:""}
     ${L.status==="invited"?`<div class="pp-row"><button class="btn btn-g" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`:""}
@@ -13954,7 +13965,7 @@ function ppAiHTML(a){
   </section>
   ${done?`<section class="card pp-decide"><div class="eyebrow">${t("pp.decide_eyebrow")}</div><b>${t("pp.ai_done_h")}</b><p class="sub">${t("pp.ai_done_sub")}</p>
       ${ppAiTip(a)?`<p class="pp-tip"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${ppAiTip(a)}</p>`:""}
-      <div class="pp-row"><button class="btn-primary" onclick="ppAiAgain()">${t("pp.ai_again")}</button><button class="btn btn-g" onclick="ppAiClose()">${t("pp.ai_back")}</button></div></section>`
+      <div class="pp-row">${ppMe&&ppMe.pair&&ppMe.pair.myTurn&&!ppMe.pair.complete?`<button class="btn-primary" onclick="ppAiClose()">${ic("mic")} ${t("pp.ai_then_human",{name:esc(ppMe.pair.partner.name)})}</button><button class="btn btn-g" onclick="ppAiAgain()">${t("pp.ai_again")}</button>`:`<button class="btn-primary" onclick="ppAiAgain()">${t("pp.ai_again")}</button><button class="btn btn-g" onclick="ppAiClose()">${t("pp.ai_back")}</button>`}</div></section>`
    :`<section class="card pp-prompt"><div class="eyebrow">${t("pp.prompt_eyebrow",{n:pair.round,max:PP_AI_ROUNDS})}</div><b>${esc(pr.title)}</b><p>${esc(pr.task)}</p></section>`}
   <div class="pp-thread">${turns||`<p class="sub pp-empty">${t("pp.ai_thread_empty")}</p>`}</div>
   ${a.error&&a.pending?`<section class="card pp-cta"><b>${t("pp.ai_err")}</b><div class="pp-row"><button class="btn-primary" onclick="ppAiSubmit()">${t("pp.retry")}</button></div></section>`:""}

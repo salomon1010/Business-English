@@ -1815,5 +1815,8 @@
  "pp.findelse_sub": "{{name}}와(과)의 파트너 관계를 끝내고 새 파트너를 찾습니다. {{name}}에게는 관계가 끝났다는 것만 보입니다.",
  "pp.more_eyebrow": "다른 선택",
  "pp.more_ai_sub": "같은 과제를 AI 코치와. {{name}}은(는) 관여하지 않으며 이 세션은 돌아올 때까지 열려 있습니다.",
- "pp.more_leave_sub": "오늘 세션만 끝납니다. 연습 파트너라면 관계는 그대로입니다."
+ "pp.more_leave_sub": "오늘 세션만 끝납니다. 연습 파트너라면 관계는 그대로입니다.",
+ "pp.human_tag": "사람 파트너",
+ "pp.ai_then_human": "이제 {{name}}에게 녹음하기 →",
+ "pp.live_go": "시작"
 }
