@@ -79,7 +79,7 @@ rows are **incomplete until TURN is configured and re-tested**.
 ### 5. Welding isolation (same phone)
 | ID | Precondition | Action | Expected | P/F | Notes |
 |---|---|---|---|---|---|
-| I-43 UI | **all flags ON**, switch area to Welding | Practice, Home, `#partner`, Shadow clip, Apply tab | no Practice Partner card, no Home partner card, `#partner` = "part of General English" notice with no fetch, no Shadow V2 panel, no Apply → Partner; the Welding role-play/simulation cards unchanged | | |
+| I-43 UI | **all flags ON**, switch area to Welding | Practice, Home, `#partner`, Shadow clip, Apply tab | no Practice Partner card, no Home partner card, typing `#partner` lands straight on the Practice tab (nothing partner-branded, no fetch), no Shadow V2 panel, no Apply → Partner; the Welding role-play/simulation cards unchanged | | |
 | I-44 API | Safari console (token from `FBUser.getIdToken()`) | `POST /interest` track welding; `POST /ai/session` track welding; `POST /live`; `GET /live/<id>`; `GET /turns/<id>/audio` | `{error:"track"}`, `{error:"track"}`, 404, 403, 404/403 | | |
 | I-45 Flags off | General English, remove `be_flags`, reload | Practice, Home, `#partner`, Shadow | nothing partner-related; `#partner` unavailable; no Shadow V2 (production default) | | |
 

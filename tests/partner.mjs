@@ -51,7 +51,7 @@ ok("Practice tab: the 'Best tool' shortcut and the Life Simulations card carry t
 ok("Welding: the same shortcut and card keep the professional simulation route", await W.page.evaluate(() => pathTools().find(x => x.id === "sim").go[0] === "simulation" && !![...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("simulation"))));
 ok("Welding: no Practice Partner card on the Practice tab", await W.page.evaluate(() => !document.querySelector(".pp-entry")));
 await W.page.evaluate(() => go("partner")); await sleep(500);
-ok("Welding: the #partner route shows the General-English-only notice, no data, no consent", (await txt(W.page, "#v-partner")).includes("part of General English") && !(await txt(W.page, "#v-partner")).includes("Before your first partner"));
+ok("Welding: the #partner route renders nothing partner-branded and lands on Practice; no fetch, no consent", await W.page.evaluate(async () => { location.hash = "#partner"; go("partner"); await new Promise(r => setTimeout(r, 400)); return cur.v === "practice" && !document.querySelector("#v-partner").innerHTML.trim() && !document.querySelector(".pp-consent"); }));
 const wj = await (await api("wendy", "POST", "/consent", { name: "Wendy", lang: "en", adult: true })).json();
 const wt = await (await api("wendy", "POST", "/interest", { track: "welding", band: "w1-4", lang: "en" })).json();
 ok("Welding: the Worker refuses the track even when called directly (403 track)", wj.consented && wt.error === "track");

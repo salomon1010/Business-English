@@ -13314,7 +13314,10 @@ function rPartner(el){
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
   const shell=inner=>{el.innerHTML=head+inner;manIconizeInline(el)};
-  if(!isGeneralEnglish()){shell(`<section class="card pp-cta"><b>${t("pp.ge_only_h")}</b><p class="sub">${t("pp.ge_only_sub")}</p><button class="btn-primary" onclick="selectProfessionalTrack('general-english')">${t("pp.ge_only_btn")}</button></section>`);return}
+  /* not a General English learner (a typed or restored #partner hash on
+     Welding): nothing partner-branded is rendered at all — straight back to
+     the Practice tab, which on Welding carries its own simulations */
+  if(!isGeneralEnglish()){el.innerHTML="";ppLiveTeardown(false);setTimeout(()=>go("practice"),0);return}
   if(!ppAvailable()){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
   if(!ppSignedIn()){
     shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p>
