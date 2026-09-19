@@ -1866,7 +1866,7 @@
  "pp.presence_none": "现在没有人在线 —— 有人来时我们会告诉你",
  "pp.cands_toast": "{{n}} 位学习者在等待 —— 选一位吧",
  "pp.fab": "和真人对话",
- "pp.fab_small": "和真人练习",
+ "pp.fab_small": "和真人练习", "pp.fab_online": "{{n}} 人在线",
  "pp.conn_choice": "实时：现在就说，大约五分钟。今日练习：有空时录音。",
  "pp.cand_live_note": "现在实时通话，或录四个简短回合。合不来的话，任何一方都可以离开。",
  "pp.why_line": "正在等待练习",

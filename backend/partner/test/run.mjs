@@ -36,6 +36,8 @@ async function tryPair(host, guest, offer) { const inv = await call(host, "POST"
 { const r = await fetch(BASE + "/__reset", { method: "POST" }); if (r.status !== 200) { console.log("reset failed", r.status); process.exit(1); } }
 const H = await (await fetch(BASE + "/health")).json();
 ok("health reports dev + enabled", H.ok && H.dev && H.enabled);
+const P0 = await call(null, "GET", "/presence");
+ok("public /presence needs no auth and carries counts only", P0.status === 200 && P0.json && typeof P0.json.online === "number" && typeof P0.json.waiting === "number" && Object.keys(P0.json).length === 2);
 
 /* auth, consent, age, boundary */
 ok("unauthenticated GET /me → 401", (await call(null, "GET", "/me")).status === 401);

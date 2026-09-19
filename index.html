@@ -1323,6 +1323,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
 :root[data-theme="light"] #ppFab{border-color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.2)}
 #ppFab:active{transform:scale(.95)}
+/* the online-count badge (owner, 2026-09-19): how many learners are online right now — green like the presence dot, hidden at zero */
+#ppFab .pp-fab-n{position:absolute;top:-5px;right:-7px;min-width:9px;height:19px;padding:0 5px;border-radius:10px;background:#12a56a;color:#fff;font-size:10.5px;font-weight:800;line-height:19px;text-align:center;text-shadow:none;border:2px solid var(--bg,#0f1222);box-shadow:0 1px 3px rgba(0,0,0,.35);pointer-events:none}
+:root[data-theme="light"] #ppFab .pp-fab-n{border-color:#fff}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -4889,6 +4892,7 @@ const I18N_EN={
  "pp.cands_toast":"{{n}} learner(s) waiting — pick one",
  "pp.fab":"Talk to a real person",
  "pp.fab_small":"Practise with real person",
+ "pp.fab_online":"{{n}} online",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -14301,7 +14305,9 @@ function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.
    - nowhere else: Profile, App Setup, Help & guide, Career, Tracks, Reviews,
      Partner set-up and every other utility or account screen, and never
      inside Practice Partner or a live call.
-   General English only — ppAvailable() already carries that. ---- */
+   General English only — ppAvailable() already carries that. On the Practice
+   tab it needs no sign-in or consent (discovery); on every other screen it
+   waits for both, so it never nags someone who has not opted in. ---- */
 const PP_FAB_VIEWS=new Set(["home","journey","practice","shadow","phrases"]);
 const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
 const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-micbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
@@ -14327,6 +14333,28 @@ function ppFabOverlaps(el){
   }
   return false;
 }
+/* the badge's count. Signed in, /me already carries presence (it excludes
+   blocked learners and me). Not signed in, the public counts-only /presence
+   (no auth, two integers, cached 30 s at the edge) — at most once a minute and
+   only while the button is on screen. */
+let ppPub={online:0,waiting:0,at:0,busy:false};
+function ppPresencePoll(){
+  if(ppPub.busy||Date.now()-ppPub.at<60000)return;
+  ppPub.busy=true;
+  fetch(ppApiBase()+"/presence").then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}const el=document.getElementById("ppFab");if(el&&el.classList.contains("on"))ppFabBadge(el)}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
+}
+function ppFabBadge(el){
+  const m=ppMe||ppState().lastMe;
+  const mine=!!(m&&m.presence);
+  const n=mine?(m.presence.online||0):ppPub.online;
+  let b=el.querySelector(".pp-fab-n");
+  if(n>0){
+    if(!b){b=document.createElement("span");b.className="pp-fab-n";el.insertBefore(b,el.firstChild)}
+    b.textContent=n>99?"99+":String(n);
+    el.setAttribute("aria-label",t("pp.fab")+" · "+t("pp.fab_online",{n}));el.title=el.getAttribute("aria-label");
+  }else{if(b)b.remove();el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab")}
+  if(!mine)ppPresencePoll();
+}
 function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
@@ -14334,13 +14362,19 @@ function ppFabSync(){
   const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
   const overlay=!!document.querySelector(".sh-work[style*='flex']")||!!document.querySelector(".rp-work.show")||!!document.querySelector(".pv-game.show");
   const onTab=PP_FAB_VIEWS.has(v),onRec=PP_FAB_REC_VIEWS.has(v);
-  let show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
+  /* the Practice tab is where the feature is discovered (owner, 2026-09-19: "I don't
+     see the floating button. For the practice, please add that"): there it shows for
+     every General English learner the moment the feature is on — the partner page
+     itself asks for sign-in and consent. Everywhere else it waits for both. */
+  const discover=v==="practice";
+  let show=ppAvailable()&&(discover||(ppSignedIn()&&m&&m.consented))&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
   if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab_small")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
   el.classList.toggle("lift",lift);
   if(onRec&&ppFabOverlaps(el)){el.classList.remove("on");return}
   el.classList.add("on");
+  ppFabBadge(el);
 }
 /* the controls move under it as the page scrolls; a take starts without any
    navigation — so the recording screens are re-checked cheaply as that happens */
