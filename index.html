@@ -5639,13 +5639,14 @@ const I18N_EN={
  "auth.err_user_not_found":"No account with that email — try Sign up.",
  "auth.err_popup_closed":"Sign-in window closed.",
  "auth.err_network":"Network problem — check your connection.",
+ "auth.err_too_many":"Too many attempts from this device. Wait a little while, then try again.",
  "auth.err_unauthorized_domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings).",
  "auth.err_generic":"Something went wrong.",
  "auth.unavailable_toast":"⚠️ Sign-in unavailable",
  "auth.signed_in_toast":"✅ Signed in",
  "auth.reset_need_email":"Type your email above first, then tap this.",
  "auth.reset_sent_toast":"📧 Password reset email sent",
-"auth.reset_sent_note":"If an account exists for {{email}}, a reset link is on its way. Check your spam folder too — it comes from noreply@be-mastery.firebaseapp.com. Wrong address? Correct it above and tap again.",
+"auth.reset_sent_note":"If an account exists for {{email}}, a reset link is on its way. Check your spam folder too — it comes from {{from}}. Wrong address? Correct it above and tap again.",
  "auth.signout_confirm":"Sign out? Your progress stays on this device.",
  "auth.signed_out_toast":"Signed out",
  "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
@@ -9285,6 +9286,8 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
    declines permission. In all of those the old setTimeout plus the launch nudge
    still run, exactly as before — push is added on top, never depended on. */
 const PUSH_API="https://be-push.nore-ngou.workers.dev";
+/* Branded password-reset email (backend/mail, Brevo). Empty string = Firebase's own plain email. */
+const MAIL_API="https://be-mail.nore-ngou.workers.dev";
 const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
 /* ---- The reminder knows where you are ----
    The daily notification used to say "Week 5" and nothing else. It now carries
@@ -18109,7 +18112,7 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
-function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
+function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
@@ -18148,7 +18151,18 @@ window.fbReset=async function(){
   const em=((document.getElementById("authEmail")||{}).value||"").trim();
   if(!em)return fbSetErr(t("auth.reset_need_email"));
   const link=document.querySelector(".auth-forgot");if(link)link.style.pointerEvents="none";
-  try{await FBauth.sendPasswordResetEmail(em);fbSetErr(t("auth.reset_sent_note",{email:em}),true);toast(t("auth.reset_sent_toast"))}
+  const lang=(S.profile&&S.profile.lang)||"en";
+  /* Our Worker sends the branded email from noreply@lomonec.com. If it is
+     down, Firebase's plain email still goes out — a learner must never be
+     left with no email at all. The note names whichever sender it was. */
+  let sent=false;
+  if(MAIL_API){
+    try{const r=await fetch(MAIL_API+"/reset",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,lang})});
+      if(r.status===400){const j=await r.json().catch(()=>({}));fbSetErr(j.error==="bad email"?t("auth.err_invalid_email"):t("auth.err_generic"));if(link)link.style.pointerEvents="";return}
+      sent=r.ok}catch(e){}
+  }
+  try{if(!sent)await FBauth.sendPasswordResetEmail(em,{url:APP_URL});
+    fbSetErr(t("auth.reset_sent_note",{email:em,from:sent?"noreply@lomonec.com":"noreply@be-mastery.firebaseapp.com"}),true);toast(t("auth.reset_sent_toast"))}
   catch(e){fbSetErr(fbErr(e))}
   finally{if(link)setTimeout(()=>{link.style.pointerEvents=""},4000)}   // one tap, one email: no double-sends from a nervous thumb
 };

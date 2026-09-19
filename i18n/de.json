@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Kein Konto mit dieser E-Mail — versuch Registrieren.",
  "auth.err_popup_closed": "Anmeldefenster geschlossen.",
  "auth.err_network": "Netzwerkproblem — prüf deine Verbindung.",
+ "auth.err_too_many": "Zu viele Versuche von diesem Gerät. Warte kurz und versuche es dann erneut.",
  "auth.err_unauthorized_domain": "Diese Website ist in Firebase noch nicht autorisiert (füge sie unter Authentication → Settings hinzu).",
  "auth.err_generic": "Etwas ist schiefgelaufen.",
  "auth.unavailable_toast": "⚠️ Anmeldung nicht verfügbar",
@@ -1888,5 +1889,5 @@
  "pp.partners_sub": "Ihr habt beide gewählt, weiter zusammen zu üben.",
  "pp.partners_btn": "Zusammen üben →",
  "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
- "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von noreply@be-mastery.firebaseapp.com. Falsche Adresse? Oben korrigieren und erneut tippen."
+ "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von {{from}}. Falsche Adresse? Oben korrigieren und erneut tippen."
 }

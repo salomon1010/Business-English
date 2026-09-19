@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "이 이메일의 계정이 없어요 — 가입을 시도하세요.",
  "auth.err_popup_closed": "로그인 창이 닫혔어요.",
  "auth.err_network": "네트워크 문제 — 연결을 확인하세요.",
+ "auth.err_too_many": "이 기기에서 너무 많이 시도했어요. 잠시 기다렸다가 다시 시도하세요.",
  "auth.err_unauthorized_domain": "이 사이트는 아직 Firebase에서 승인되지 않았어요 (Authentication → Settings에서 추가하세요).",
  "auth.err_generic": "문제가 발생했어요.",
  "auth.unavailable_toast": "⚠️ 로그인을 사용할 수 없어요",
@@ -1888,5 +1889,5 @@
  "pp.partners_sub": "두 사람 모두 함께 계속 연습하기를 선택했어요.",
  "pp.partners_btn": "함께 연습하기 →",
  "nav.curriculum_failed": "수업을 내려받지 못했습니다. 연결을 확인하고 다시 시도하세요.",
- "auth.reset_sent_note": "{{email}} 계정이 있으면 재설정 링크가 발송됩니다. 스팸함도 확인하세요. 발신자는 noreply@be-mastery.firebaseapp.com 입니다. 주소가 틀렸다면 위에서 고친 뒤 다시 탭하세요."
+ "auth.reset_sent_note": "{{email}} 계정이 있으면 재설정 링크가 발송됩니다. 스팸함도 확인하세요. 발신자는 {{from}} 입니다. 주소가 틀렸다면 위에서 고친 뒤 다시 탭하세요."
 }

@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Không có tài khoản với email đó — hãy thử Đăng ký.",
  "auth.err_popup_closed": "Cửa sổ đăng nhập đã đóng.",
  "auth.err_network": "Sự cố mạng — kiểm tra kết nối của bạn.",
+ "auth.err_too_many": "Quá nhiều lần thử từ thiết bị này. Hãy đợi một lát rồi thử lại.",
  "auth.err_unauthorized_domain": "Trang này chưa được ủy quyền trong Firebase (thêm nó trong Authentication → Settings).",
  "auth.err_generic": "Đã xảy ra lỗi.",
  "auth.unavailable_toast": "⚠️ Đăng nhập không khả dụng",
@@ -1888,5 +1889,5 @@
  "pp.partners_sub": "Cả hai đều chọn tiếp tục luyện tập cùng nhau.",
  "pp.partners_btn": "Luyện tập cùng nhau →",
  "nav.curriculum_failed": "Không tải được bài học. Kiểm tra kết nối và thử lại.",
- "auth.reset_sent_note": "Nếu có tài khoản cho {{email}}, liên kết đặt lại đang được gửi. Hãy kiểm tra cả thư rác — thư đến từ noreply@be-mastery.firebaseapp.com. Sai địa chỉ? Sửa ở trên rồi chạm lại."
+ "auth.reset_sent_note": "Nếu có tài khoản cho {{email}}, liên kết đặt lại đang được gửi. Hãy kiểm tra cả thư rác — thư đến từ {{from}}. Sai địa chỉ? Sửa ở trên rồi chạm lại."
 }

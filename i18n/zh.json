@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "没有使用该邮箱的账号——请尝试注册。",
  "auth.err_popup_closed": "登录窗口已关闭。",
  "auth.err_network": "网络问题——请检查你的连接。",
+ "auth.err_too_many": "此设备尝试次数过多。请稍等片刻后再试。",
  "auth.err_unauthorized_domain": "此站点尚未在 Firebase 中获授权（请在 Authentication → Settings 中添加）。",
  "auth.err_generic": "出了点问题。",
  "auth.unavailable_toast": "⚠️ 登录不可用",
@@ -1888,5 +1889,5 @@
  "pp.partners_sub": "你们都选择了继续一起练习。",
  "pp.partners_btn": "一起练习 →",
  "nav.curriculum_failed": "无法下载课程。请检查网络连接后重试。",
- "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 noreply@be-mastery.firebaseapp.com。地址错了？在上方更正后再点一次。"
+ "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 {{from}}。地址错了？在上方更正后再点一次。"
 }
