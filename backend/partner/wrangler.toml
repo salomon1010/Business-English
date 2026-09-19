@@ -38,7 +38,7 @@ TURNS_PER_DAY = "3"
 [[d1_databases]]
 binding = "DB"
 database_name = "be-partner"
-database_id = "REPLACE-WITH-wrangler-d1-create-OUTPUT"
+database_id = "9ad063a2-b677-483a-af27-5001531f7151"
 migrations_dir = "migrations"
 
 [[r2_buckets]]
