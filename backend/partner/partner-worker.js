@@ -49,7 +49,12 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10 };
+const DAILY_LIMITS_DEFAULT = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10 };
+/* per-environment overrides through the DAILY_LIMITS var (JSON) — staging
+   raises them so a day of device testing on one account does not hit the
+   anti-abuse caps; production keeps the defaults */
+let _limitsEnv = null, DAILY_LIMITS = { ...DAILY_LIMITS_DEFAULT };
+function applyLimits(env) { if (_limitsEnv === env) return; _limitsEnv = env; DAILY_LIMITS = { ...DAILY_LIMITS_DEFAULT }; try { const o = JSON.parse(env.DAILY_LIMITS || "{}"); for (const k of Object.keys(DAILY_LIMITS_DEFAULT)) if (Number.isFinite(o[k]) && o[k] > 0) DAILY_LIMITS[k] = o[k]; } catch (e) {} }
 /* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
@@ -360,6 +365,7 @@ async function meView(env, uid, ms) {
 
 /* ------------------------------------------------------------ handlers */
 async function handle(req, env, ctx) {
+  applyLimits(env);
   const url = new URL(req.url), path = url.pathname.replace(/\/+$/, "") || "/", ms = now(req, env);
   const ip = req.headers.get("cf-connecting-ip") || "0";
   if (ipLimited(ip, env)) return err(429, "ip_limit");

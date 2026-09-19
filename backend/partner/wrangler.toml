@@ -30,6 +30,7 @@ LIVE_ENABLED = "0"             # live human practice (Level 3): separate switch,
 # `TURN_KEY_TOKEN` (Cloudflare Calls TURN key). Without them the Worker hands
 # out STUN only, and phones behind carrier NAT may fail to connect.
 MATCH_WEIGHTS = "{}"           # JSON overrides of WEIGHTS_DEFAULT in partner-worker.js
+# DAILY_LIMITS (JSON) may override the per-learner daily caps; unset here = production defaults
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
 TURNS_PER_DAY = "3"
@@ -57,7 +58,8 @@ TURNS_PER_DAY = "3"
 PARTNER_ENABLED = "1"
 LIVE_ENABLED = "1"
 MATCH_WEIGHTS = "{}"
-IP_PER_MIN = "100000"          # the test suites hammer one IP; production keeps the 120 default
+IP_PER_MIN = "100000"
+DAILY_LIMITS = "{}"            # the test suites assert the production defaults          # the test suites hammer one IP; production keeps the 120 default
 DEV_AUTH = "1"
 
 [[env.dev.d1_databases]]
@@ -90,6 +92,7 @@ FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000"
 PARTNER_ENABLED = "1"
 LIVE_ENABLED = "1"
+DAILY_LIMITS = "{\"interest\":200,\"match\":300,\"invite\":100,\"live\":100,\"ai\":60,\"end\":50,\"report\":20,\"block\":50}"   # staging only: a day of device testing on one account
 MATCH_WEIGHTS = "{}"
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
