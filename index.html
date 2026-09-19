@@ -283,6 +283,7 @@ window.FB_CONFIG={
 /* Partner cards sit on the picture: a hairline violet edge and a soft top light. */
 :root[data-view="partner"] #v-partner .card{box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.05)}
 :root[data-view="partner"] #v-partner .pp-head{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+:root:not([data-theme="light"])[data-view="partner"] #v-partner h1.big,:root:not([data-theme="light"])[data-view="partner"] #v-partner>.sub{text-shadow:0 2px 14px rgba(11,8,32,.85),0 0 2px rgba(11,8,32,.6)}
 :root[data-view="partner"] #v-partner .pg-eyebrow{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* Welding is amber everywhere, including the workplace simulations. The
    simulations used to swap the whole palette back to the General English blue,
@@ -1230,6 +1231,13 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-empty{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mut)}.sv-empty svg{width:16px;height:16px;flex:none}
 .sv-apply{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.sv-phrase{font-size:16px;font-weight:800;margin:6px 0}
 /* ---- Practice Partner ---- */
+.rp-entry.pp-entry{border-color:rgba(99,102,241,.6);background:linear-gradient(150deg,rgba(99,102,241,.30),rgba(124,58,237,.16) 55%,rgba(34,211,238,.08));box-shadow:0 6px 20px rgba(99,102,241,.16),inset 0 1px 0 rgba(255,255,255,.06)}
+:root[data-theme="light"] .rp-entry.pp-entry{background:linear-gradient(150deg,rgba(99,102,241,.16),rgba(124,58,237,.08) 55%,rgba(34,211,238,.05))}
+/* "Practise live": a quiet, continuous glow — a soft violet halo that breathes,
+   never bright, always on (owner: "a little thing all around, very smoothly") */
+.pp-live-glow{position:relative;animation:pplivebreathe 3.2s ease-in-out infinite}
+@keyframes pplivebreathe{0%,100%{box-shadow:0 0 0 0 rgba(99,102,241,.0),0 0 10px 0 rgba(99,102,241,.18);border-color:rgba(99,102,241,.45)}50%{box-shadow:0 0 0 3px rgba(99,102,241,.16),0 0 18px 2px rgba(99,102,241,.32);border-color:rgba(99,102,241,.8)}}
+@media (prefers-reduced-motion:reduce){.pp-live-glow{animation:none;box-shadow:0 0 0 2px rgba(99,102,241,.2)}}
 .pp-entry-ic{position:relative}.pp-entry-ic img{z-index:1}.pp-dot{z-index:2;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
 .pp-intro .pp-steps{display:grid;gap:10px}.pp-steps>div{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:start}
 .pp-steps b{font-size:14px}.pp-steps small{grid-column:2;font-size:12.5px;color:var(--mut);line-height:1.45}
@@ -13556,7 +13564,7 @@ function ppRender(el){
       <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
       ${(()=>{const liveFirst=ppLiveOn()&&m.connection.canLive&&!m.live;const start=m.connection.canStart?`<button class="${liveFirst?"btn btn-g":"btn-primary"}" onclick="ppNext()">${t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`;
-        return liveFirst?`<div class="pp-row"><button class="btn-primary pp-attn" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>${start}</div><p class="pp-fine">${t("pp.conn_choice")}</p>`:`<div class="pp-row">${start}</div>`})()}
+        return liveFirst?`<div class="pp-row"><button class="btn-primary pp-attn pp-live-glow" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>${start}</div><p class="pp-fine">${t("pp.conn_choice")}</p>`:`<div class="pp-row">${start}</div>`})()}
     </section>`:"";
   if(m.waiting){
     shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-wait">
@@ -13632,7 +13640,7 @@ function ppThreadHTML(p){
   <section class="card pp-recorder" id="ppRecorder" data-can="${p.myTurn?1:0}" data-waiting="${p.waiting?1:0}"></section>
   ${p.complete?"":`<section class="card pp-more">
     <div class="eyebrow">${t("pp.more_eyebrow")}</div>
-    ${ppLiveOn()&&!(ppMe&&ppMe.live)?`<button class="btn btn-g pp-more-btn" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>
+    ${ppLiveOn()&&!(ppMe&&ppMe.live)?`<button class="btn btn-g pp-more-btn pp-live-glow" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>
     <p class="pp-fine">${t("pp.more_live_sub",{name:esc(p.partner.name)})}</p>`:""}
     ${flag("practice_partner_ai_fallback_enabled")?`<button class="btn btn-g pp-more-btn" onclick="ppAiPractice('session')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button>
     <p class="pp-fine">${t("pp.more_ai_sub",{name:esc(p.partner.name)})}</p>`:""}
