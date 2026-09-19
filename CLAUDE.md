@@ -176,7 +176,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (51), `tests/partner.mjs` (47, three contexts
+  `backend/partner/test/run.mjs` (69), `tests/partner.mjs` (67, four contexts
   incl. a Welding learner, fake mic). Docs: `marketing/product/practice-partner/`
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
@@ -186,6 +186,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   Staging also needs `https://staging.lomonec.com` in the Polish Worker's
   hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).
   `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
+- **Practice Partner Levels 2–3 (same branch).** Level 2 = the **AI coach
+  session** (`ppAiStart`, `S.pp.ai`, one open at a time, pending-turn
+  idempotency; replies via the Polish `chat` route, spoken with the natural
+  voice; always AI-tagged; human thread untouched). Level 3 = **live practice**:
+  WebRTC audio between two *connected* partners, signalling relayed by the
+  Worker (`/live*`, `live_sessions` + `live_signals`, migration 0004, server
+  state machine, `LIVE_ENABLED` var "0" in prod; TURN optional via
+  `TURN_KEY_ID`/`TURN_KEY_TOKEN` secrets, STUN-only otherwise); client
+  `ppLive*`, flag `practice_partner_live_enabled` (off). Nothing recorded in
+  live. Tests: Worker 69, e2e 67 (two contexts connect over real WebRTC).
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
   `neighbour`; levels word → sentence → text → none, honestly labelled) + panel

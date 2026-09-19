@@ -44,6 +44,26 @@ index.html (client, General English only)      backend/partner/ (Worker: be-part
                                                └────────────────────────────────────┘
 ```
 
+## The three levels
+| Level | What | Where it runs |
+|---|---|---|
+| 1 Recording / async human | the four-turn voice thread below | client + Worker + R2 |
+| 2 AI coach practice | the same four turns with the AI coach when nobody is waiting, a partner is silent, or the learner chooses it (`ppAiStart`, state `S.pp.ai`, one open session at a time, pending-turn idempotency, Retry never resends) — replies from the Polish Worker `chat` route spoken with the natural voice; every card, turn and score carries the AI tag; the human thread is never touched | client + Polish Worker |
+| 3 Live human practice | a real-time WebRTC voice call between two **connected** partners; the Worker owns the state machine and relays signalling as `live_signals` rows the peers poll (1.2 s while connecting, 4 s while talking); audio is peer to peer and never stored; AI only as text "phrase help" on the side | client + Worker (D1) |
+
+### Live state machine (server-authoritative)
+`invited` → `accepted` (guest) → `connecting` (first offer/answer) → `active`
+(first "connected" report; `started_at`) ⇄ `reconnecting` → `ended`
+(`left` / `completed` / `blocked` / `suspended`) — or `declined` / `cancelled`
+/ `expired` (10 min invitation, 45 min from the last transition) / `failed`.
+Every transition is a conditional `UPDATE … WHERE state=?`, so repeats are
+harmless. Client: `ppLiveInvite / ppLiveAccept / ppLiveConnect / ppLivePoll /
+ppLiveEnd`, bounded ICE restarts by the host, 45 s connect and 60 s
+reconnect ceilings, `pagehide` → `/end` with keepalive. ICE: STUN always;
+TURN minted from Cloudflare Calls per request when `TURN_KEY_ID` /
+`TURN_KEY_TOKEN` secrets exist (without them, phones behind carrier NAT may
+not connect — a documented limitation).
+
 ## Session model (try-before-connect)
 
 - A **pair** is one session: `kind` `trial` (first time) or `regular`
@@ -119,6 +139,7 @@ sends them only when `ppApiBase()` is `localhost`/`127.0.0.1` and
 | `practice_partner_voice_enabled` | off | the recorder in the thread (`pp.voice_off` otherwise) |
 | `practice_partner_ai_fallback_enabled` | on | the labelled AI coach offer when no human / partner silent |
 | `practice_partner_notifications_enabled` | off | `ppNotify()` toast / `Notification` (Home card and badge stay) |
+| `practice_partner_live_enabled` | off | Practise-live button, invitation cards, the room (`ppLiveOn()`); the Worker's own `LIVE_ENABLED` var is the server boundary |
 | `shadow_studio_v2_enabled` | off | the `#shV2` panel |
 | `shadow_word_timing_enabled` | on | word-level karaoke when the caption file has word times |
 | `shadow_apply_phrase_enabled` | off | the Apply tab in Shadow Studio V2 |

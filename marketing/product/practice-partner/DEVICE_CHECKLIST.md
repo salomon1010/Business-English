@@ -53,18 +53,28 @@ happened, including OS dialogs.
 | I-34 Mic interruption | recording | receive a phone call | recording stops cleanly; take kept or "too short" toast | | |
 | I-35 Logout / login | signed in, in a session | sign out → sign in | partner page shows sign-in card while out; thread restored after sign-in | | |
 | I-36 Welding isolation | same phone, **all client flags still ON**, switch area to Welding | Practice tab, Home, type `#partner` in the address bar, open a Shadow clip, open the Apply tab | no Practice Partner card, no Home partner card, `#partner` shows the "part of General English" notice and fetches nothing, no Shadow V2 panel, so no Apply It → Partner; in Safari's console `fetch(localStorage.be_partner_api+"/interest",{method:"POST",headers:{authorization:"Bearer "+await FBUser.getIdToken(),"content-type":"application/json"},body:JSON.stringify({track:"welding",band:"w1-4",lang:"en"})}).then(r=>r.json())` → `{error:"track"}` (finish or leave any open session first, or you get `paired` before the track check) | | |
+| I-38 AI coach | nobody waiting (or partner silent) | Practise with the AI coach → record → Send to the AI coach ×2 | page and every turn say AI; the coach's reply is spoken; four turns → "AI practice complete" with one AI-tagged tip; the human thread is unchanged | | |
+| I-39 AI failure | airplane mode after recording | Send to the AI coach | "did not answer" card with Try again; the take is kept; retry sends once | | |
+| I-40 Live invite | A and B are connected partners, both signed in | A: Practise live | A: "Waiting for B…"; B (within ~8 s): Home card + toast + Join/Not now | | |
+| I-41 Live call | B: Join the call → both allow the mic | | both show "Connected — you can talk" within ~15 s; two-way audio audible; timer runs on both | | |
+| I-42 Live controls | in the call | Next round on A; Mute on A; Phrase help | B sees Round 2 within ~5 s; B stops hearing A while muted; three AI-tagged phrases appear as text only | | |
+| I-43 Live drop | in the call | A: airplane mode 10 s, then off | both show "Connection lost. Trying again…"; audio returns within ~30 s, or the call ends with a clear message after 60 s | | |
+| I-44 Live background | in the call | A: lock the phone 20 s, unlock | audio continues or reconnects; no stuck screen | | |
+| I-45 Live leave | in the call | A: Leave | A "You left"; B "A left the live practice" within ~5 s; both mics released (no mic indicator) | | |
+| I-46 Live block | new call | B: menu → Block | B's call ends at once; A sees "left"; A can no longer invite B | | |
+| I-47 Live report | new call | A: menu → Report → reason | toast "reported"; the call continues; the report is in the audit (owner checks D1) | | |
 | I-37 Flags off | General English, `localStorage.removeItem("be_flags")`, reload | Practice tab, Home, `#partner`, Shadow clip | nothing partner-related visible; `#partner` says unavailable; no Shadow V2 panel (production default) | | |
 
 ## Android Chrome — model ______ Android ______ Chrome ______
 
 | ID | Precondition | Action | Expected | Pass/Fail | Notes |
 |---|---|---|---|---|---|
-| A-01 … A-37 | same as I-01 … I-37 | same | same, plus: A-10 Chrome mic prompt; A-11 playback with media volume; A-21 inline YouTube; A-32 recent-apps switch as well as lock | | |
+| A-01 … A-47 | same as I-01 … I-47 | same | same, plus: A-10 Chrome mic prompt; A-11 playback with media volume; A-21 inline YouTube; A-32 recent-apps switch as well as lock | | |
 
 Copy the iPhone table here and rename the IDs `A-nn` before starting; keep
 both tables in this file so the results live next to the code.
 
 ## Result summary (owner fills in)
-- iPhone: __ / 37 pass — blocking failures: ______
-- Android: __ / 37 pass — blocking failures: ______
+- iPhone: __ / 47 pass — blocking failures: ______
+- Android: __ / 47 pass — blocking failures: ______
 - Date, tester, staging Worker version (`/health` output): ______

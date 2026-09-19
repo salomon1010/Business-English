@@ -28,7 +28,7 @@ Worker allowing that hostname.
    ```
    cd backend/partner
    npx wrangler d1 create be-partner-staging            # paste id into [[env.staging.d1_databases]]
-   npx wrangler d1 migrations apply be-partner-staging --remote --env staging
+   npx wrangler d1 migrations apply be-partner-staging --remote --env staging   # 0001–0004
    npx wrangler r2 bucket create be-partner-staging-audio
    npx wrangler deploy --env staging
    curl https://be-partner-staging.<account>.workers.dev/health   # {ok:true, dev:false, enabled:true}
@@ -79,7 +79,7 @@ Worker allowing that hostname.
 | 2 | Bump `sw.js` `be12-vNN`, push, poll live, `BASE=https://app.lomonec.com npm test` | repo | Live site healthy; `shadow-sync.js?v=2` precached |
 | 3 | `cd backend/events && npx wrangler deploy` | Cloudflare | `partner_*` / `shadow_v2_*` names accepted (dropped with 204 until then) |
 | 4 | `npx wrangler d1 create be-partner` → paste `database_id` into `wrangler.toml [[d1_databases]]` | Cloudflare | |
-| 5 | `npx wrangler d1 migrations apply be-partner --remote` (0001, 0002, 0003 — all additive) | Cloudflare | |
+| 5 | `npx wrangler d1 migrations apply be-partner --remote` (0001–0004 — all additive) | Cloudflare | |
 | 6 | `npx wrangler r2 bucket create be-partner-audio` | Cloudflare | |
 | 7 | `cd backend/partner && npx wrangler deploy` (no `--env`) | Cloudflare | `curl …/health` → `{"ok":true,"dev":false,"enabled":false}`; `/me` with a real token → 503 `disabled` |
 | 8 | Internal preview on the live site with `be_flags`; Worker still off → partner page shows "temporarily unavailable"; Shadow V2 works | phones | Client gating on production |

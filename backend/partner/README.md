@@ -13,6 +13,8 @@ holds one id and any other track is refused with `403 track`.
 | `PAIR_DAYS` / `PARTNER_TIMEOUT_H` | 7 / 24 | 7 / 24 | session expiry · partner-silence threshold for the AI fallback and early rematch |
 | `IP_PER_MIN` | unset (120) | 100000 | per-IP request limit; the suites hammer one IP |
 | `DEV_AUTH` | **unset** | `"1"` | accept `X-Dev-User` / `X-Dev-Now`, enable `/__reset` and `/__cron` |
+| `LIVE_ENABLED` | `"0"` | `"1"` | live practice (Level 3): `/live*` → 403 `live_off` otherwise; staging "1" |
+| `TURN_KEY_ID` / `TURN_KEY_TOKEN` | secrets, unset | unset | Cloudflare Calls TURN key → short-lived TURN creds in `GET /live/:id`; STUN only without |
 
 ## Routes (all need `Authorization: Bearer <Firebase ID token>`)
 | Method | Path | Does |
@@ -30,6 +32,12 @@ holds one id and any other track is refused with `403 track`.
 | POST | `/pairs/:id/seen` · `/leave` · `/report {reason}` · `/block` · `/decide {choice: continue\|rematch}` | as named |
 | POST | `/turns` | multipart `audio, transcript, score, duration_ms, turn_id` — turn-order enforced, screened, stored; idempotent on `turn_id`; the 4th turn completes the session |
 | GET | `/turns/:id/audio` | streams audio to pair members only |
+| POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite the connected partner (idempotent per open session; 20/day) |
+| GET | `/live/:id` | session view + `iceServers` (members only) |
+| POST | `/live/:id/accept` · `/decline` (guest) · `/cancel` (host) | as named, idempotent |
+| POST | `/live/:id/signal` | `{kind: offer\|answer\|ice\|state\|round\|bye, payload ≤ 8 KB}`; drives `connecting` / `active` / `reconnecting` |
+| GET | `/live/:id/signals?after=N` | the other member's signals after N, plus state |
+| POST | `/live/:id/end` `{reason: left\|completed\|failed}` · `/report {reason}` · `/block` | end (idempotent); report/block end the call for both |
 Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`.
 
 ## Environments
@@ -42,9 +50,9 @@ deployed.
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 + 0002 + 0003
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0004
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 51 integration checks against the local Worker
+node test/run.mjs            # 69 integration checks against the local Worker
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and
@@ -54,7 +62,7 @@ The client sends `X-Dev-User` instead of a Firebase token only for localhost/127
 ## Errors the client handles
 `auth` 401 · `disabled` 503 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` 403 ·
 `paired` / `not_waiting` / `gone` / `busy` / `closed` / `complete` / `not_your_turn` / `not_complete` / `no_pair` 409 ·
-`offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `limit` / `ip_limit` 429.
+`offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `limit` / `ip_limit` 429 · `live_off` 403 · `closed` 409 (live).
 
 ## Safety rules implemented here
 Transcript screen (phones, e-mails, links, handles, messenger names, "call

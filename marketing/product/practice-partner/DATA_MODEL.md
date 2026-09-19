@@ -99,18 +99,38 @@ are harmless — so no down-migration is shipped.
 | until | 14 days after a `rematch` decision |
 | reason | `rematch` |
 
+## `live_sessions` (0004) — one live call
+| column | notes |
+|---|---|
+| id PK | 16-hex, opaque |
+| host, guest | members (a mutual/regular connection is required to create one) |
+| state | `invited accepted connecting active reconnecting ended declined cancelled expired failed` |
+| band, prompt_week, fnd_day, prompt_json | the task seed, as for pairs |
+| created_at, updated_at, accepted_at, started_at, ended_at, end_reason | |
+| expires_at | 10 min after the invitation, 45 min after each later transition; the cron expires the rest |
+| host_seen, guest_seen | last poll from each side |
+
+## `live_signals` (0004) — WebRTC signalling relay
+| column | notes |
+|---|---|
+| id | autoincrement; `?after=` cursor |
+| session_id, from_uid | |
+| kind | `offer answer ice state round bye` |
+| payload | ≤ 8 KB text (SDP / candidate JSON / a round number); ≤ 400 rows per side per session |
+Deleted as soon as the session closes. **No audio is ever stored for live practice.**
+
 ## `reports`, `blocks`, `counters`
 Unchanged from the MVP: one counted report per reporter per person (unique on
 `by_uid, about_uid`), blocks are a composite-PK row both directions are
 checked against, `counters.key = uid:route:yyyymmdd` for the daily limits
-(`interest 10, match 30, invite 10, report 5, block 20, decide 40`).
+(`interest 10, match 30, invite 10, report 5, block 20, decide 40, live 20`).
 
 ## `audit`
 | column | notes |
 |---|---|
 | id PK, ts | |
 | actor | uid or `system` |
-| action | `queue_joined pair_created turn_screened session_completed decided connection_mutual connection_regular left reported suspended blocked` |
+| action | `queue_joined pair_created turn_screened session_completed decided connection_mutual connection_regular left reported suspended blocked live_invited live_accepted live_declined live_cancelled live_started live_reconnecting live_left live_completed live_failed` |
 | target, pair_id | the other uid / the pair |
 | meta | small JSON (`{mode}`, `{choice}`, `{reason, strikes}`, …) — never transcripts or audio |
 Kept 90 days, then swept by the cron.
@@ -135,5 +155,6 @@ the daily cron (`PURGE_AFTER_CLOSE_MS`).
 ## Client-side mirror (`S.pp`, localStorage)
 
 `{ consent, seenIntro, lastMe: <GET /me>, lastFetch, notified: <turn id>,
-notifiedAt: ms, applyPhrase?: {text, vid, ts} }`. A cache for the Home card and offline
+notifiedAt: ms, notifiedLive: <session id>, applyPhrase?: {text, vid, ts},
+ai?: {id, reason, seed, turns, history, pending, startedAt, completedAt, abandonedAt} }`. A cache for the Home card and offline
 display; the Worker is the source of truth.

@@ -54,7 +54,7 @@ const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
 const LIVE_KINDS = new Set(["offer", "answer", "ice", "state", "round", "bye"]);
-const IP_PER_MIN_DEFAULT = 120;
+const IP_PER_MIN_DEFAULT = 300;   // two phones on one Wi-Fi polling a live call sit around 100/min together
 /* soft-scoring weights; overridable per environment through MATCH_WEIGHTS (JSON) */
 const WEIGHTS_DEFAULT = { level: 0.22, goal: 0.20, curriculum: 0.16, mode: 0.12, availability: 0.10, timezone: 0.08, topic: 0.05, reliability: 0.04, history: 0.03 };
 const MIN_MATCH_SCORE = 0.35;

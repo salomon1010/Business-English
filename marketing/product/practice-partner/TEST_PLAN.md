@@ -14,7 +14,7 @@ level, every segment has words). Malformed input: unsorted / NaN / string /
 empty cues, NaN words, words outside every cue, cues that are not an array,
 rapid seeks across all of it.
 
-## 2. Worker integration — `backend/partner/test/run.mjs` (51 checks)
+## 2. Worker integration — `backend/partner/test/run.mjs` (69 checks)
 Expects `npx wrangler dev --env dev --port 8787` in `backend/partner/` (local
 D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 `[env.dev]`). Dev users via `X-Dev-User`, movable clock via `X-Dev-Now`,
@@ -33,9 +33,10 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | Reliability | expired pairs: only the side whose turn it was **and** who had a full `PARTNER_TIMEOUT_H` to reply is marked abandoned; one turn each then silence (a tie — either could have spoken) blames nobody |
 | Safety | two distinct reporters → suspended 30 d, pair closed, cannot rejoin · block → pair closed, blocked side 403 on pair and audio |
 | Health | `/health` reports `dev` and `enabled` |
+| **Live (18)** | needs a connection (404) · invite → `invited`, opaque id, first name only · idempotent invite · guest sees it in `/me` · non-member 403 on read/accept/signal, no auth 401 · host cannot accept, signalling before acceptance 409 · accept → `accepted` + ICE, twice harmless · offer → `connecting`, guest receives only the host's signals · answer + ice reach the host, `?after=` cursor, no echo · first `connected` → `active` + `startedAt` · reconnecting ⇄ active · bad kinds / oversized payloads 400 · end → `ended/completed`, twice harmless, signalling after 409 · host cancel / guest decline · unanswered invitation expires at 10 min · block during a call ends it for both, 403 afterwards, no live in `/me` · no new session against a blocked partner |
 | ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
 
-## 3. Browser end-to-end — `tests/partner.mjs` (47 checks)
+## 3. Browser end-to-end — `tests/partner.mjs` (67 checks)
 Playwright, headless Chromium, 390×844, fake microphone
 (`--use-fake-device-for-media-stream`). Starts its own static server and
 expects the local Worker on 8787 (skips with a notice otherwise). Three
@@ -62,6 +63,8 @@ English learner and, separately, a **Welding** learner) with flags on via
   Send enabled after the coach, score labelled AI · send stores one turn
   (double tap ignored), status → waiting, day marked practised · speaking
   twice refused by the Worker · audio 403 / 401.
+- **AI coach session (8, Polish Worker intercepted)**: opens on the partner page labelled AI/not a person · round-1 task equals the learner's curriculum task · starting again returns the same session · one AI reply per learner turn, double tap sends nothing twice · human thread untouched · AI failure keeps the take as a pending turn with Retry · retry sends it once and the fourth turn completes with an AI-tagged tip · Back returns to the waiting card.
+- **Live practice (12, two browser contexts, real WebRTC, fake microphones)**: connection card offers Practise live · host waiting room labelled human with Cancel · guest Home card · guest invitation card (Join / Not now) · both sides reach "Connected — you can talk" (local track + remote audio attached, `connectionState` connected) · server active with `startedAt` · shared round counter · mute toggles the track · phrase help = three AI-tagged phrases, text only · host leaves → both released and told, server ended/left · connection card back.
 - **Rounds / notifications**: reply accepted (round 2) · reply → Home card,
   Practice badge, **one** toast · same reply does not toast twice · round-3
   prompt · fourth turn completes.
@@ -90,16 +93,16 @@ npm test` runs smoke → shadow-sync → partner.
   of the new keys checked against English.
 - `npx wrangler deploy --dry-run --env dev` (builds, uploads nothing).
 
-## Results (2026-09-18, phase 5, branch `feature/practice-partner`)
+## Results (2026-09-18, Levels 2–3, branch `feature/practice-partner`)
 
 | Suite | Result |
 |---|---|
 | `tests/shadow-sync.test.mjs` | **27/27** |
-| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **51/51** |
-| `tests/partner.mjs` (three browser contexts, fake microphone) | **47/47** |
+| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **69/69** |
+| `tests/partner.mjs` (four browser contexts, fake microphones, real WebRTC) | **67/67** |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
-| i18n parity | 1,750 keys in EN and in each of 15 files; no missing, no orphans |
+| i18n parity | 1,805 keys in EN and in each of 15 files; no missing, no orphans |
 | Direct-access audit (script, local Worker) | unauth 401 · garbage Bearer 401 · member 200 · non-member 403 · member of another pair 403 · blocked side 403 · unknown turn 404 · R2 key as URL 404 · `/members` 404 · non-member turn inject 409 `no_pair` · non-member decide 403 · > 1.5 MB 413 · > 75 s 400 · Welding `/interest` 403 `track` · partner object exposes `name, band, lang` only |
 | Server kill switch (second local Worker, `PARTNER_ENABLED=0`) | `/health` `enabled:false`; `/me` and audio 503 `disabled`; client renders the "temporarily unavailable" card |
 

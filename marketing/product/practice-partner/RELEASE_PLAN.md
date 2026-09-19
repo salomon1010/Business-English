@@ -28,9 +28,10 @@ any flag goes on, or those events are dropped silently.
 ## 3. Partner Worker — from `backend/partner/` (first time)
 ```
 npx wrangler d1 create be-partner            # paste database_id into wrangler.toml
-npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002 + 0003
+npx wrangler d1 migrations apply be-partner --remote   # 0001 + 0002 + 0003 + 0004
 npx wrangler r2 bucket create be-partner-audio
-npx wrangler deploy                          # PARTNER_ENABLED stays "0"
+npx wrangler deploy                          # PARTNER_ENABLED and LIVE_ENABLED stay "0"
+# optional, for live calls across carrier NAT: wrangler secret put TURN_KEY_ID / TURN_KEY_TOKEN (Cloudflare Calls TURN key)
 curl https://be-partner.<account>.workers.dev/health   # {ok:true, dev:false, enabled:false}
 ```
 `DEV_AUTH` and `IP_PER_MIN` exist only in `[env.dev]`. Optional
@@ -68,6 +69,8 @@ live with step 1 — it is accurate whether or not the feature is on.
 | Symptom | Action | Effect |
 |---|---|---|
 | Anything wrong server-side | `PARTNER_ENABLED = "0"` + `wrangler deploy` (seconds) | Every partner call returns 503 `disabled`; the client shows the offline card; no data written |
+| Live calls only | `LIVE_ENABLED = "0"` + deploy, or `practice_partner_live_enabled: false` | `/live` → 403 `live_off`; open calls end at their next poll; recording practice untouched |
+| AI coach practice only | `practice_partner_ai_fallback_enabled: false` | the AI buttons disappear; an open AI session cannot be continued |
 | Anything wrong client-side | flip the flag(s) back to `false` in `FLAGS_DEFAULT`, bump `sw.js`, push (GitHub Pages ~1 min) | Feature hidden; Welding never affected |
 | Shadow V2 misbehaving | `shadow_studio_v2_enabled: false`, bump, push | The classic Shadow Studio is untouched underneath |
 | Need to stop matching only | `practice_partner_matching_enabled: false` | Existing sessions can finish; no new pairs |

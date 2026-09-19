@@ -46,6 +46,27 @@ unless marked *(documented, not automated)*.
   Every one carries the `pp.ai_tag` badge ("AI") and copy that says so. An
   AI turn is never inserted into the thread as if the partner had spoken.
 
+## Live practice (Level 3)
+- Only two **connected** partners (mutual/regular) can start a call; one open
+  live session per learner; opaque 16-hex ids; every route checks membership
+  and blocks; `LIVE_ENABLED` is a server switch separate from the partner one.
+- Audio is peer to peer and **never recorded or stored**; the Worker relays
+  only signalling (≤ 8 KB, ≤ 400 rows per side) and deletes it when the
+  session closes.
+- Report and block work **during** a call from the room menu: block tears the
+  call down on the learner's device before the request leaves, and the Worker
+  ends the session for both sides and blocks both directions; the other side
+  sees only "left".
+- Invitations expire in 10 minutes, sessions 45 minutes after their last
+  transition; the daily cron closes the rest. Daily limit: 20 live sessions.
+- TURN credentials, when configured, are short-lived and minted per request;
+  no permanent secret reaches the client.
+
+## AI coach practice (Level 2)
+- Labelled AI on the card, every turn, every score line and the resume card;
+  the human thread is a separate object and is never merged. The transcript
+  sent to the model is fenced as speech, not instructions.
+
 ## Report, block, leave, decide
 - **Report** (harassment, contact details, not English, abusive, other): one
   counted report per reporter per person; two distinct reporters →
