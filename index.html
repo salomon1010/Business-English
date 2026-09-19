@@ -233,6 +233,57 @@ window.FB_CONFIG={
   --wash1:rgba(99,102,241,.10); --wash2:rgba(246,196,83,.08);
   --accent-fill:#8b5900; --accent-text:#784b00;
 }
+/* Practice Partner is the one place in the app where a real person is on the
+   other side. It gets its own violet environment so the learner feels the
+   change of room — same tokens as everywhere else, re-coloured while the
+   partner view is open. go() stamps data-view on <html>. */
+:root[data-view="partner"]{
+  --bg:#0b0820; --bg2:#110d2c; --card:rgba(24,19,56,.88); --card2:#221b4c;
+  --line:rgba(167,139,250,.16); --line2:rgba(167,139,250,.28);
+  --acc:#8b5cf6; --acc2:#c084fc; --pink:#e879f9;
+  --grad:linear-gradient(135deg,#7c3aed,#c084fc);
+  --nav-bg:rgba(11,8,32,.78); --bnav-bg:rgba(17,13,44,.94); --scroll:#332a5e;
+  --hover:rgba(167,139,250,.08);
+  --wash1:rgba(139,92,246,.24); --wash2:rgba(192,132,252,.10);
+  --sh-2:0 6px 20px rgba(5,2,20,.45); --sh-3:0 16px 44px rgba(5,2,20,.55);
+  --accent:var(--acc); --focus:var(--acc2); --on-accent:#fff;
+  --accent-fill:#6d3fe0; --accent-text:#b7a3fb;
+}
+:root[data-theme="light"][data-view="partner"]{
+  --bg:#f5f2fe; --bg2:#ffffff; --card:rgba(255,255,255,.9); --card2:#efe9fd;
+  --line:rgba(76,29,149,.12); --line2:rgba(76,29,149,.22);
+  --acc:#6d28d9; --acc2:#7e22ce; --pink:#a21caf;
+  --grad:linear-gradient(135deg,#6d28d9,#a855f7);
+  --nav-bg:rgba(245,242,254,.85); --bnav-bg:rgba(255,255,255,.96); --scroll:#cdc3ea;
+  --hover:rgba(76,29,149,.06);
+  --wash1:rgba(109,40,217,.10); --wash2:rgba(168,85,247,.08);
+  --accent-fill:#6d28d9; --accent-text:#5b21b6;
+}
+/* The backdrop: the picture floats behind the cards, masked to a soft blob
+   and drifting slowly; two glow orbs and a faint grid give it depth. Fixed to
+   the viewport and outside the views, because .view's entry animation uses a
+   transform, which would pin a fixed child to the page for 350 ms. */
+#ppBg{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+:root[data-view="partner"] #ppBg{display:block}
+:root[data-view="partner"] .view{position:relative;z-index:1}
+.pp-bg-img{position:absolute;top:-6vh;right:-18vw;width:min(118vw,720px);aspect-ratio:1;background:url("img/partner-bg.jpg") center/cover no-repeat;opacity:.34;filter:saturate(1.05) blur(.6px);
+  -webkit-mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);
+  animation:ppBgDrift 26s ease-in-out infinite alternate}
+.pp-bg-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(124,58,237,.35),rgba(11,8,32,.15) 55%,rgba(192,132,252,.25));mix-blend-mode:multiply}
+.pp-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
+.pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#7c3aed,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
+.pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#c084fc,transparent 70%);opacity:.38;animation:ppBgDrift 40s ease-in-out infinite alternate}
+.pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(167,139,250,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.07) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
+:root[data-theme="light"] .pp-bg-img{opacity:.26}:root[data-theme="light"] .pp-bg-img::after{background:linear-gradient(160deg,rgba(109,40,217,.18),rgba(255,255,255,.1) 55%,rgba(168,85,247,.16))}
+:root[data-theme="light"] .pp-bg-orb{opacity:.28}:root[data-theme="light"] .pp-bg-orb.b{opacity:.2}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(76,29,149,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(76,29,149,.07) 1px,transparent 1px)}
+@keyframes ppBgDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-3vw,2.5vh,0) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){.pp-bg-img,.pp-bg-orb{animation:none}}
+@media (min-width:900px){.pp-bg-img{right:calc(50% - 560px);top:-4vh}}
+/* Partner cards sit on the picture: a hairline violet edge and a soft top light. */
+:root[data-view="partner"] #v-partner .card{box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.05)}
+:root[data-view="partner"] #v-partner .pp-head{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+:root[data-view="partner"] #v-partner .pg-eyebrow{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
 /* Welding is amber everywhere, including the workplace simulations. The
    simulations used to swap the whole palette back to the General English blue,
    which meant a learner on the Welding track met indigo buttons the moment they
@@ -1242,12 +1293,18 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppLiveDot.on::before,#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppLiveDot.on::after,#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
-/* the floating "Practise with a partner" button: a round white pill with a dark
-   outline (the Meet-style help button the owner pointed at), bottom-right,
-   above the bottom nav */
-#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:64px;height:64px;padding:0 4px;border-radius:50%;border:2px solid #111;background:#fff;color:#111;font:inherit;font-size:8.5px;line-height:1.05;font-weight:800;text-align:center;letter-spacing:0;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s}
-#ppFab .pp-fab-ic{flex:none;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}#ppFab .pp-fab-ic svg{width:20px;height:20px}#ppFab>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:56px}
-:root[data-theme="dark"] #ppFab{background:#fff;color:#111}
+/* the floating "Talk to a real person" button: a 64 px circle in the Practice
+   Partner look — the two-learners photo under a violet wash in the app accent,
+   a light ring, the label on the darker lower half, a slow beacon ring */
+#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:64px;height:64px;padding:0 5px 7px;border-radius:50%;border:2px solid rgba(255,255,255,.9);
+  background:linear-gradient(180deg,rgba(99,102,241,.22) 0%,rgba(99,102,241,.45) 45%,rgba(67,56,202,.92) 100%),url("rp-photos/partner.jpg") center 28%/cover no-repeat;
+  color:#fff;font:inherit;font-size:8px;line-height:1.05;font-weight:800;text-align:center;letter-spacing:0;text-shadow:0 1px 2px rgba(0,0,0,.6);
+  box-shadow:0 8px 22px rgba(99,102,241,.55),0 2px 6px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
+#ppFab .pp-fab-ic{display:none}
+#ppFab>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:56px}
+#ppFab.on::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.7;pointer-events:none;transform-origin:center;animation:rmRing 3s ease-out infinite}
+@media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;opacity:0}}
+:root[data-theme="light"] #ppFab{border-color:#fff;box-shadow:0 8px 22px rgba(79,70,229,.45),0 2px 6px rgba(0,0,0,.25)}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -3385,6 +3442,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-simulation" class="view"></div>
   <div id="v-foundations" class="view"></div>
   <div id="v-partner" class="view"></div>
+  <div id="ppBg" aria-hidden="true"><span class="pp-bg-img"></span><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
@@ -6343,6 +6401,7 @@ function go(v,arg1,arg2){
      just as they tapped a different colleague to speak to. */
   try{if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave()}catch(err){try{perfMark("error",0,"simLeave:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   cur={v,arg1,arg2};
+  document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
