@@ -171,17 +171,21 @@ ok("Leaving Challenge drops its state; Watch shows the transcript again", await 
 await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svSetMode("watch"); }); await sleep(300);
 const fa = await A.page.evaluate(async () => {
   const body = document.querySelector(".sh-work-body"), tx = document.getElementById("svTx"), nw = document.getElementById("svNow");
-  const play = i => { const s = svAsset.segments[i]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); };
-  body.scrollTop = 0; play(5); await new Promise(r => setTimeout(r, 900));
-  const bx = tx.getBoundingClientRect(), firstVisible = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > bx.top + 2)?.dataset.i;
-  const r = { cardShown: !nw.hidden, cardText: nw.innerText.slice(0, 30), cardWord: nw.querySelector(".sv-w.now")?.innerText, litWord: svAsset.segments[5].words[2].text, listNext: firstVisible, bodyScroll: body.scrollTop, orange: getComputedStyle(nw.querySelector(".sv-w.now")).backgroundColor,
-    lines: [...nw.querySelectorAll(".sv-now-line")].map(l => l.dataset.i + (l.classList.contains("now") ? "*" : "")) };
-  play(6); await new Promise(r => setTimeout(r, 300)); r.lines6 = [...nw.querySelectorAll(".sv-now-line")].map(l => l.dataset.i + (l.classList.contains("now") ? "*" : "")); r.lit6 = nw.querySelector(".sv-w.now")?.innerText === svAsset.segments[6].words[2].text;
-  play(12); await new Promise(r => setTimeout(r, 900)); r.lines12 = [...nw.querySelectorAll(".sv-now-line")].map(l => l.dataset.i); r.listNext2 = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > tx.getBoundingClientRect().top + 2)?.dataset.i; r.bodyScroll2 = body.scrollTop;
+  const lh = parseFloat(getComputedStyle(nw).lineHeight);
+  const play = (i, k) => { const s = svAsset.segments[i]; shSeek = { t: (s.words[k].startMs + 5) / 1000, at: Date.now() }; svTick(); };
+  const snap = (i, k) => { const spans = [...nw.querySelectorAll(".sv-w")]; const lit = nw.querySelector(".sv-w.now"); return { lines: new Set(spans.map(e => Math.round(e.getBoundingClientRect().top))).size, h: Math.round(nw.getBoundingClientRect().height), litOk: !!lit && lit.innerText === svAsset.segments[i].words[k].text, win: svNowWin && svNowWin.join("-") }; };
+  body.scrollTop = 0; play(5, 2); await new Promise(r => setTimeout(r, 900));
+  const r = { cardShown: !nw.hidden, orange: getComputedStyle(nw.querySelector(".sv-w.now")).backgroundColor, a: snap(5, 2), bodyScroll: body.scrollTop };
+  /* walk every word of five lines: the card is always exactly two visual lines, the same height, the spoken word lit */
+  let heights = new Set(), lineCounts = new Set(), litMiss = 0, wins = new Set();
+  for (let i = 5; i <= 9; i++) for (let k = 0; k < svAsset.segments[i].words.length; k++) { play(i, k); const x = snap(i, k); heights.add(x.h); lineCounts.add(x.lines); wins.add(x.win); const loc = ShadowSync.locate(svAsset, shSeek.t * 1000); if (loc.seg === i && loc.word === k && !x.litOk) litMiss++; }
+  await new Promise(r => setTimeout(r, 900));
+  const bx = tx.getBoundingClientRect(); r.listFirst = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > bx.top + 2)?.dataset.i; r.lastSegInWin = svFlat[svNowWin[1] - 1].i; r.bodyScroll2 = body.scrollTop;
+  r.heights = [...heights]; r.lineCounts = [...lineCounts]; r.litMiss = litMiss; r.windows = wins.size; r.lh = lh;
   body.scrollTop = 500; await new Promise(r => setTimeout(r, 200)); const st = document.querySelector(".sh-stick").getBoundingClientRect(); r.stickTop = Math.round(st.top); r.bodyTop = Math.round(body.getBoundingClientRect().top); body.scrollTop = 0;
   return r;
 });
-ok("Follow-along: the pinned card holds TWO lines (spoken one bright) with the word lit in orange; the highlight runs into the second line without the window moving; the next pair replaces both; the list starts after the pair; the page itself never scrolls", fa.cardShown && fa.cardWord === fa.litWord && fa.lines.join() === "5*,6" && fa.lines6.join() === "5,6*" && fa.lit6 && fa.lines12.join() === "12,13" && fa.listNext === "7" && fa.listNext2 === "14" && fa.bodyScroll === 0 && fa.bodyScroll2 === 0 && /249, 115, 22/.test(fa.orange), JSON.stringify(fa));
+ok("Follow-along: the pinned card is ALWAYS exactly two visual lines — same height through five lines of speech, never one, never three — the spoken word lit in orange, windows advancing as speech leaves them; the list starts after the window; the page itself never scrolls", fa.cardShown && /249, 115, 22/.test(fa.orange) && fa.a.litOk && fa.a.lines === 2 && fa.heights.length === 1 && fa.lineCounts.join() === "2" && fa.litMiss === 0 && fa.windows >= 2 && String(fa.lastSegInWin + 1) === fa.listFirst && fa.bodyScroll === 0 && fa.bodyScroll2 === 0, JSON.stringify(fa));
 ok("Pinned: after the learner scrolls the workspace, the player block is still at the top of the scroll area", fa.stickTop === fa.bodyTop, JSON.stringify({ stickTop: fa.stickTop, bodyTop: fa.bodyTop }));
 await A.page.evaluate(() => { svPick = 5; svSetMode("challenge"); }); await sleep(200);
 ok("Challenge: the now-line card is hidden with the transcript — the line does not leak through the card", await A.page.evaluate(() => document.getElementById("svNow").hidden && !document.getElementById("svNow").innerText.trim()));

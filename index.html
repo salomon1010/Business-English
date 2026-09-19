@@ -1256,8 +1256,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-now{margin:10px 0 0;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line2);font-size:16px;line-height:1.65;letter-spacing:.2px;color:var(--txt);font-weight:600;word-spacing:2px}
 .sv-now[hidden]{display:none}
 .sv-now .sv-w{padding:0 3px;border-radius:6px}
-.sv-now-line{color:var(--mut);transition:color .2s}.sv-now-line.now{color:var(--txt)}
-.sv-now-line+.sv-now-line{margin-top:2px}
+.sv-now{height:calc(2 * 1.65em + 20px);overflow:hidden}   /* exactly two lines, always — never one, never three */
 .sv-tx .sv-seg{color:var(--mut)}.sv-tx .sv-seg.now{background:transparent;color:var(--mut)}   /* the list is the road ahead; the card is the line */
 .sv-tx .sv-seg.now .sv-w{color:var(--mut)}.sv-tx .sv-seg.now .sv-w.now{background:transparent;box-shadow:none;color:var(--txt);font-weight:600}
 .sv-tx.hidden{display:none}
@@ -13492,7 +13491,7 @@ function svRender(){
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
   const keep=svLast.seg;svLast={seg:-1,word:-1};
-  svNowDraw(keep,true);
+  svNowDraw(keep,true,svLast.word);
   if(svMode==="challenge"&&!txHidden){const el=box.querySelector(`.sv-seg[data-i="${svChSegIndex()}"]`);if(el)el.classList.add("pick")}
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
@@ -13779,7 +13778,8 @@ function svOnTxScroll(){if(Date.now()>svAutoUntil)svUserScrollAt=Date.now()}
 function svScrollTo(tx,el){
   svAutoUntil=Date.now()+800;
   /* the card above shows the window's two lines, so the box starts at the line after them */
-  const after=svNowBase>=0?tx.querySelector(`.sv-seg[data-i="${svNowBase+2}"]`):null;
+  const lastSeg=svNowWin&&svFlat&&svFlat[svNowWin[1]-1]?svFlat[svNowWin[1]-1].i:-1;
+  const after=lastSeg>=0?tx.querySelector(`.sv-seg[data-i="${lastSeg+1}"]`):null;
   const nxt=after||el.nextElementSibling;
   const tgt=nxt||el,r=tgt.getBoundingClientRect(),box=tx.getBoundingClientRect();
   const top=tx.scrollTop+(r.top-box.top)-(nxt?4:(tx.clientHeight-r.height)/2);
@@ -13787,22 +13787,49 @@ function svScrollTo(tx,el){
 }
 /* the pinned card under the video: the sentence being spoken, one span per
    word so the tick can light the word without touching the rest */
-/* The card holds TWO lines — the one being spoken and the next — like a
-   two-line subtitle window: the lit word runs down the first line, on through
-   the second, and only when speech leaves the second line does the window
-   move on to the next pair. svNowBase is the index of the window's first
-   line; the window only re-renders when it moves, so the tick can light words
-   with a class change alone. */
-let svNowBase=-1;
-function svNowDraw(i,force){
+/* The card is a two-line window over the clip's words — VISUAL lines, not
+   caption cues: words are laid into the card until a third line would start,
+   the lit word runs through those two lines, and when speech leaves the
+   window the next words fill it. A cue that wraps to three lines, or two short
+   cues, no longer decide the card's height: it is always exactly two lines
+   tall (min/max-height in CSS, overflow hidden). svFlat is every timed word
+   in order with its (seg, k); svNowWin = [from, to) in that flat list. A
+   seek back restarts the window at the first word of that line; a natural
+   continuation carries on from where the last window ended. */
+let svNowBase=-1,svFlat=null,svFlatOf=null,svNowWin=null;
+function svFlatBuild(){
+  const a=svAsset;svFlat=[];svFlatOf=a;if(!a)return;
+  a.segments.forEach((s,i)=>{if(s.words&&s.words.length)s.words.forEach((w,k)=>svFlat.push({i,k,text:w.text}));else if(s.text)svFlat.push({i,k:-1,text:s.text})});
+}
+function svFlatIndex(seg,word){
+  if(svFlatOf!==svAsset)svFlatBuild();
+  for(let f=0;f<svFlat.length;f++){const x=svFlat[f];if(x.i===seg&&(x.k===word||x.k===-1))return f;if(x.i>seg)return Math.max(0,f-1)}
+  return Math.max(0,svFlat.length-1);
+}
+function svNowDraw(i,force,word){
   const nw=document.getElementById("svNow");if(!nw)return;
   const a=svAsset,tx=document.getElementById("svTx");
   const hidden=!(a&&i>=0&&a.segments[i])||!svOn()||(tx&&tx.classList.contains("hidden"));
-  if(hidden){nw.hidden=true;nw.innerHTML="";svNowBase=-1;return}
-  if(!force&&svNowBase>=0&&i>=svNowBase&&i<=svNowBase+1){nw.hidden=false;return}   // still inside the window
-  svNowBase=i;
-  const line=j=>{const s=a.segments[j];if(!s)return "";return `<div class="sv-now-line" data-i="${j}">${s.words&&s.words.length?s.words.map((w,k)=>`<span class="sv-w" data-i="${j}" data-k="${k}">${esc(w.text)}</span>`).join(" "):esc(s.text)}</div>`};
-  nw.innerHTML=line(i)+line(i+1);nw.hidden=false;
+  if(hidden){nw.hidden=true;nw.innerHTML="";svNowBase=-1;svNowWin=null;return}
+  if(svFlatOf!==a)svFlatBuild();
+  if(!svFlat.length){nw.hidden=true;return}
+  const f=svFlatIndex(i,word==null||word<0?0:word);
+  if(!force&&svNowWin&&f>=svNowWin[0]&&f<svNowWin[1]){nw.hidden=false;return}   // still inside the window
+  let from=(!force&&svNowWin&&f===svNowWin[1])?svNowWin[1]:svFlatIndex(i,0);   // carry on, or restart at this line's first word
+  if(from>f)from=f;
+  nw.hidden=false;
+  /* lay words in until a third line would start */
+  const cs=getComputedStyle(nw),lh=parseFloat(cs.lineHeight)||26,pad=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom),limit=lh*2+2;
+  const span=x=>`<span class="sv-w" data-f="${x.f}" data-i="${x.i}" data-k="${x.k}">${esc(x.text)}</span>`;
+  let to=from,html="";
+  while(to<svFlat.length){
+    const trial=html+(html?" ":"")+span(Object.assign({f:to},svFlat[to]));
+    nw.innerHTML=trial;
+    if(nw.scrollHeight-pad>limit&&to>from)break;
+    html=trial;to++;
+  }
+  nw.innerHTML=html;svNowWin=[from,to];svNowBase=svFlat[from].i;
+  const lit=nw.querySelector(`.sv-w[data-f="${f}"]`);if(lit)lit.classList.add("now");
 }
 function svTick(){
   const a=svAsset,tx=document.getElementById("svTx");
@@ -13815,18 +13842,20 @@ function svTick(){
   const loc=ShadowSync.locate(a,tS*1000);
   if(loc.seg===svLast.seg&&loc.word===svLast.word)return;
   if(loc.seg!==svLast.seg){
-    const wasBase=svNowBase;svNowDraw(loc.seg);
+    const wasWin=svNowWin;svNowDraw(loc.seg,false,loc.word);
     if(svPick<0&&loc.seg>=0)svExprDraw(loc.seg);   // never touch svLast here: the word block below compares against it
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
-    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(svNowBase!==wasBase&&Date.now()-svUserScrollAt>3000)svScrollTo(tx,el)}}
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000)svScrollTo(tx,el)}}
   }
   if(loc.word!==svLast.word||loc.seg!==svLast.seg){
     tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
     if(loc.seg>=0&&loc.word>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"] .sv-w[data-k="${loc.word}"]`);if(el)el.classList.add("now")}
     const nw=document.getElementById("svNow");
-    if(nw&&!nw.hidden){nw.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));nw.querySelectorAll(".sv-now-line.now").forEach(e=>e.classList.remove("now"));
-      if(loc.seg>=0){const ln=nw.querySelector(`.sv-now-line[data-i="${loc.seg}"]`);if(ln)ln.classList.add("now")}
-      if(loc.word>=0){const w=nw.querySelector(`.sv-w[data-i="${loc.seg}"][data-k="${loc.word}"]`);if(w)w.classList.add("now")}}
+    if(nw&&!nw.hidden&&loc.seg>=0){
+      const wasWin2=svNowWin;svNowDraw(loc.seg,false,loc.word);            // the word may have crossed the window's end inside one line
+      if(svNowWin!==wasWin2&&Date.now()-svUserScrollAt>3000){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el)svScrollTo(tx,el)}
+      nw.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
+      const w=nw.querySelector(`.sv-w[data-f="${svFlatIndex(loc.seg,loc.word<0?0:loc.word)}"]`);if(w)w.classList.add("now")}
   }
   svLast=loc;
 }
