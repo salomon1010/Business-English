@@ -3821,6 +3821,11 @@ window.perfReport=()=>{let log=_perfLog;try{log=JSON.parse(localStorage.getItem(
    habit is one habit — days you showed up, whichever programme you opened), the
    phrase bank, and saved shadowing clips. Those are tools, not evidence. */
 const AREA_GEN="general-english";
+/* The App Store build: the same web app inside a Capacitor shell (mobile/ios).
+   Apple's guideline 2.3.10 — no references to other platforms — so the
+   Google Play link and button are dropped there. Everything else is identical. */
+const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
+if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
 function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
 function areaIsPro(){return areaId()!==AREA_GEN}
 function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
@@ -6690,7 +6695,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
+  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+(IS_IOS_APP?"&ios=1":""),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -15606,7 +15611,7 @@ function rProfile(el){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
     <div class="btn-row">
       <button class="btn btn-g pf-act" onclick="shApp()">${tIc("invite.btn","link")}</button>
-      <a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
+      ${IS_IOS_APP?"":`<a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>`}
     </div>
   </div>
   <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">

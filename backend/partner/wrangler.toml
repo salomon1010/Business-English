@@ -23,7 +23,7 @@ compatibility_date = "2026-07-31"
 
 [vars]
 FIREBASE_PROJECT_ID = "be-mastery"
-ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io"
+ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io,capacitor://localhost"   # capacitor://localhost = the App Store build
 PARTNER_ENABLED = "0"          # production kill switch: "1" only at release approval
 LIVE_ENABLED = "0"             # live human practice (Level 3): separate switch, off in production
 # TURN for live practice is optional: `wrangler secret put TURN_KEY_ID` and
@@ -89,7 +89,7 @@ bucket_name = "be-partner-audio"
 name = "be-partner-staging"
 [env.staging.vars]
 FIREBASE_PROJECT_ID = "be-mastery"
-ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000"
+ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000,capacitor://localhost"
 PARTNER_ENABLED = "1"
 LIVE_ENABLED = "1"
 DAILY_LIMITS = "{\"interest\":200,\"match\":300,\"invite\":100,\"live\":100,\"ai\":60,\"end\":50,\"report\":20,\"block\":50}"   # staging only: a day of device testing on one account
