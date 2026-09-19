@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "No hay ninguna cuenta con ese correo — prueba Registrarte.",
  "auth.err_popup_closed": "Ventana de inicio de sesión cerrada.",
  "auth.err_network": "Problema de red — revisa tu conexión.",
+ "auth.err_too_many": "Demasiados intentos desde este dispositivo. Espera un momento y vuelve a intentarlo.",
  "auth.err_unauthorized_domain": "Este sitio aún no está autorizado en Firebase (añádelo en Authentication → Settings).",
  "auth.err_generic": "Algo salió mal.",
  "auth.unavailable_toast": "⚠️ Inicio de sesión no disponible",

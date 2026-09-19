@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Нет аккаунта с этим email — попробуйте зарегистрироваться.",
  "auth.err_popup_closed": "Окно входа закрыто.",
  "auth.err_network": "Проблема с сетью — проверьте подключение.",
+ "auth.err_too_many": "Слишком много попыток с этого устройства. Подождите немного и попробуйте снова.",
  "auth.err_unauthorized_domain": "Этот сайт ещё не авторизован в Firebase (добавьте его в Authentication → Settings).",
  "auth.err_generic": "Что-то пошло не так.",
  "auth.unavailable_toast": "⚠️ Вход недоступен",

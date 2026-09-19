@@ -5630,6 +5630,7 @@ const I18N_EN={
  "auth.err_user_not_found":"No account with that email — try Sign up.",
  "auth.err_popup_closed":"Sign-in window closed.",
  "auth.err_network":"Network problem — check your connection.",
+ "auth.err_too_many":"Too many attempts from this device. Wait a little while, then try again.",
  "auth.err_unauthorized_domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings).",
  "auth.err_generic":"Something went wrong.",
  "auth.unavailable_toast":"⚠️ Sign-in unavailable",
@@ -18036,7 +18037,7 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
-function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
+function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
 function fbSetErr(m,ok){const el=document.getElementById("authErr");if(!el)return;el.textContent=m||"";el.classList.toggle("ok",!!(ok&&m))}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){

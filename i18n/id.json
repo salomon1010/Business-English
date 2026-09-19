@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Tidak ada akun dengan email itu — coba Daftar.",
  "auth.err_popup_closed": "Jendela masuk ditutup.",
  "auth.err_network": "Masalah jaringan — periksa koneksi Anda.",
+ "auth.err_too_many": "Terlalu banyak percobaan dari perangkat ini. Tunggu sebentar, lalu coba lagi.",
  "auth.err_unauthorized_domain": "Situs ini belum diotorisasi di Firebase (tambahkan di Authentication → Settings).",
  "auth.err_generic": "Terjadi kesalahan.",
  "auth.unavailable_toast": "⚠️ Masuk tidak tersedia",

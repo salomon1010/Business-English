@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "このメールのアカウントはありません——サインアップをお試しください。",
  "auth.err_popup_closed": "ログインウィンドウが閉じられました。",
  "auth.err_network": "ネットワークの問題——接続を確認してください。",
+ "auth.err_too_many": "この端末からの試行回数が多すぎます。少し待ってからもう一度お試しください。",
  "auth.err_unauthorized_domain": "このサイトはまだ Firebase で承認されていません（Authentication → Settings で追加してください）。",
  "auth.err_generic": "問題が発生しました。",
  "auth.unavailable_toast": "⚠️ ログインは利用できません",

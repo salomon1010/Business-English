@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "没有使用该邮箱的账号——请尝试注册。",
  "auth.err_popup_closed": "登录窗口已关闭。",
  "auth.err_network": "网络问题——请检查你的连接。",
+ "auth.err_too_many": "此设备尝试次数过多。请稍等片刻后再试。",
  "auth.err_unauthorized_domain": "此站点尚未在 Firebase 中获授权（请在 Authentication → Settings 中添加）。",
  "auth.err_generic": "出了点问题。",
  "auth.unavailable_toast": "⚠️ 登录不可用",

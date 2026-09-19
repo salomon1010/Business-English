@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Kein Konto mit dieser E-Mail — versuch Registrieren.",
  "auth.err_popup_closed": "Anmeldefenster geschlossen.",
  "auth.err_network": "Netzwerkproblem — prüf deine Verbindung.",
+ "auth.err_too_many": "Zu viele Versuche von diesem Gerät. Warte kurz und versuche es dann erneut.",
  "auth.err_unauthorized_domain": "Diese Website ist in Firebase noch nicht autorisiert (füge sie unter Authentication → Settings hinzu).",
  "auth.err_generic": "Etwas ist schiefgelaufen.",
  "auth.unavailable_toast": "⚠️ Anmeldung nicht verfügbar",

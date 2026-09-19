@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "এই ইমেলে কোনো অ্যাকাউন্ট নেই — সাইন আপ চেষ্টা করুন।",
  "auth.err_popup_closed": "সাইন-ইন উইন্ডো বন্ধ হয়েছে।",
  "auth.err_network": "নেটওয়ার্ক সমস্যা — আপনার সংযোগ দেখুন।",
+ "auth.err_too_many": "এই ডিভাইস থেকে অনেক বেশি চেষ্টা হয়েছে। একটু অপেক্ষা করুন, তারপর আবার চেষ্টা করুন।",
  "auth.err_unauthorized_domain": "এই সাইট এখনো Firebase-এ অনুমোদিত নয় (Authentication → Settings-এ যোগ করুন)।",
  "auth.err_generic": "কিছু একটা ভুল হয়েছে।",
  "auth.unavailable_toast": "⚠️ সাইন-ইন উপলব্ধ নয়",

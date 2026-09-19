@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "इस ईमेल का कोई खाता नहीं — साइन अप आज़माएँ।",
  "auth.err_popup_closed": "साइन-इन विंडो बंद हो गई।",
  "auth.err_network": "नेटवर्क समस्या — अपना कनेक्शन जाँचें।",
+ "auth.err_too_many": "इस डिवाइस से बहुत अधिक प्रयास हुए। थोड़ी देर रुकें, फिर दोबारा कोशिश करें।",
  "auth.err_unauthorized_domain": "यह साइट अभी Firebase में अधिकृत नहीं है (इसे Authentication → Settings में जोड़ें)।",
  "auth.err_generic": "कुछ ग़लत हो गया।",
  "auth.unavailable_toast": "⚠️ साइन-इन उपलब्ध नहीं",

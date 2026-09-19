@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "اس ای میل کا کوئی اکاؤنٹ نہیں — سائن اپ آزمائیں۔",
  "auth.err_popup_closed": "سائن اِن ونڈو بند ہو گئی۔",
  "auth.err_network": "نیٹ ورک کا مسئلہ — اپنا کنکشن دیکھیں۔",
+ "auth.err_too_many": "اس ڈیوائس سے بہت زیادہ کوششیں ہوئیں۔ تھوڑی دیر انتظار کریں، پھر دوبارہ کوشش کریں۔",
  "auth.err_unauthorized_domain": "یہ سائٹ ابھی Firebase میں مجاز نہیں (اسے Authentication ← Settings میں شامل کریں)۔",
  "auth.err_generic": "کچھ غلط ہو گیا۔",
  "auth.unavailable_toast": "⚠️ سائن اِن دستیاب نہیں",

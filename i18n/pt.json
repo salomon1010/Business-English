@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Nenhuma conta com esse e-mail — tente Cadastrar-se.",
  "auth.err_popup_closed": "Janela de login fechada.",
  "auth.err_network": "Problema de rede — verifique sua conexão.",
+ "auth.err_too_many": "Demasiadas tentativas neste dispositivo. Aguarde um pouco e tente novamente.",
  "auth.err_unauthorized_domain": "Este site ainda não está autorizado no Firebase (adicione-o em Authentication → Settings).",
  "auth.err_generic": "Algo deu errado.",
  "auth.unavailable_toast": "⚠️ Login indisponível",

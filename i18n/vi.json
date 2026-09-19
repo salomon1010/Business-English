@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Không có tài khoản với email đó — hãy thử Đăng ký.",
  "auth.err_popup_closed": "Cửa sổ đăng nhập đã đóng.",
  "auth.err_network": "Sự cố mạng — kiểm tra kết nối của bạn.",
+ "auth.err_too_many": "Quá nhiều lần thử từ thiết bị này. Hãy đợi một lát rồi thử lại.",
  "auth.err_unauthorized_domain": "Trang này chưa được ủy quyền trong Firebase (thêm nó trong Authentication → Settings).",
  "auth.err_generic": "Đã xảy ra lỗi.",
  "auth.unavailable_toast": "⚠️ Đăng nhập không khả dụng",

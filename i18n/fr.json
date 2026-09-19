@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Aucun compte avec cet e-mail — essayez de vous inscrire.",
  "auth.err_popup_closed": "Fenêtre de connexion fermée.",
  "auth.err_network": "Problème réseau — vérifiez votre connexion.",
+ "auth.err_too_many": "Trop de tentatives depuis cet appareil. Patientez un moment, puis réessayez.",
  "auth.err_unauthorized_domain": "Ce site n'est pas encore autorisé dans Firebase (ajoutez-le dans Authentication → Settings).",
  "auth.err_generic": "Une erreur s'est produite.",
  "auth.unavailable_toast": "⚠️ Connexion indisponible",

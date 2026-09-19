@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Nessun account con questa e-mail — prova a Registrarti.",
  "auth.err_popup_closed": "Finestra di accesso chiusa.",
  "auth.err_network": "Problema di rete — controlla la tua connessione.",
+ "auth.err_too_many": "Troppi tentativi da questo dispositivo. Attendi un po' e riprova.",
  "auth.err_unauthorized_domain": "Questo sito non è ancora autorizzato in Firebase (aggiungilo in Authentication → Settings).",
  "auth.err_generic": "Qualcosa è andato storto.",
  "auth.unavailable_toast": "⚠️ Accesso non disponibile",
