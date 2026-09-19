@@ -2818,7 +2818,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    top/right are pulled in so the × stays visually where it was. */
 .auth-x{position:absolute;top:6px;right:8px;width:44px;height:44px;display:grid;place-items:center;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
 .auth-card input{margin-bottom:10px}
-.auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}
+.auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}.auth-err.ok{color:var(--green);line-height:1.45}
 .auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
 /* the sign-in buttons were .btn-p — white on --grad, ~1.9:1 at the cyan end —
    and 38px in the Dashboard nudge. Shared by Settings and that nudge. */
@@ -5640,6 +5640,7 @@ const I18N_EN={
  "auth.signed_in_toast":"✅ Signed in",
  "auth.reset_need_email":"Type your email above first, then tap this.",
  "auth.reset_sent_toast":"📧 Password reset email sent",
+"auth.reset_sent_note":"If an account exists for {{email}}, a reset link is on its way. Check your spam folder too — it comes from noreply@be-mastery.firebaseapp.com. Wrong address? Correct it above and tap again.",
  "auth.signout_confirm":"Sign out? Your progress stays on this device.",
  "auth.signed_out_toast":"Signed out",
  "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
@@ -18104,7 +18105,7 @@ document.addEventListener("visibilitychange",()=>{
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
 function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
-function fbSetErr(m){const el=document.getElementById("authErr");if(el)el.textContent=m||""}
+function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
   if(!FBauth)return toast(t("auth.unavailable_toast"));
@@ -18134,11 +18135,17 @@ window.fbEmailAuth=async function(mode){
     fbCloseModal();toast(t("auth.signed_in_toast"));
   }catch(e){fbSetErr(fbErr(e))}
 };
+/* The confirmation used to be a two-second toast saying "sent" — easy to miss,
+   and wrong for a mistyped address (Firebase answers success either way, so
+   that nobody can probe which emails have accounts). It now stays on the form,
+   names the address it went to and says where to look for it. */
 window.fbReset=async function(){
   const em=((document.getElementById("authEmail")||{}).value||"").trim();
   if(!em)return fbSetErr(t("auth.reset_need_email"));
-  try{await FBauth.sendPasswordResetEmail(em);fbSetErr("");toast(t("auth.reset_sent_toast"))}
+  const link=document.querySelector(".auth-forgot");if(link)link.style.pointerEvents="none";
+  try{await FBauth.sendPasswordResetEmail(em);fbSetErr(t("auth.reset_sent_note",{email:em}),true);toast(t("auth.reset_sent_toast"))}
   catch(e){fbSetErr(fbErr(e))}
+  finally{if(link)setTimeout(()=>{link.style.pointerEvents=""},4000)}   // one tap, one email: no double-sends from a nervous thumb
 };
 /* Signing out leaves NOTHING of that account behind. Progress belongs to the
    account and is safe in the cloud, so clearing it costs nothing and stops the

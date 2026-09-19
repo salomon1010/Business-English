@@ -1887,5 +1887,6 @@
  "pp.partners_h": "Sois compañeros de práctica",
  "pp.partners_sub": "Los dos elegisteis seguir practicando juntos.",
  "pp.partners_btn": "Practicar juntos →",
- "nav.curriculum_failed": "No se pudieron descargar las lecciones. Comprueba tu conexión e inténtalo de nuevo."
+ "nav.curriculum_failed": "No se pudieron descargar las lecciones. Comprueba tu conexión e inténtalo de nuevo.",
+ "auth.reset_sent_note": "Si existe una cuenta para {{email}}, el enlace de restablecimiento está en camino. Revisa también la carpeta de spam: llega desde noreply@be-mastery.firebaseapp.com. ¿Dirección equivocada? Corrígela arriba y vuelve a tocar."
 }

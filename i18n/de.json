@@ -1887,5 +1887,6 @@
  "pp.partners_h": "Ihr seid Übungspartner",
  "pp.partners_sub": "Ihr habt beide gewählt, weiter zusammen zu üben.",
  "pp.partners_btn": "Zusammen üben →",
- "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut."
+ "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
+ "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von noreply@be-mastery.firebaseapp.com. Falsche Adresse? Oben korrigieren und erneut tippen."
 }

@@ -1887,5 +1887,6 @@
  "pp.partners_h": "你们成为练习伙伴了",
  "pp.partners_sub": "你们都选择了继续一起练习。",
  "pp.partners_btn": "一起练习 →",
- "nav.curriculum_failed": "无法下载课程。请检查网络连接后重试。"
+ "nav.curriculum_failed": "无法下载课程。请检查网络连接后重试。",
+ "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 noreply@be-mastery.firebaseapp.com。地址错了？在上方更正后再点一次。"
 }

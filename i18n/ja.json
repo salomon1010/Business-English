@@ -1887,5 +1887,6 @@
  "pp.partners_h": "練習パートナーになりました",
  "pp.partners_sub": "二人とも一緒に練習を続けることを選びました。",
  "pp.partners_btn": "一緒に練習する →",
- "nav.curriculum_failed": "レッスンをダウンロードできませんでした。接続を確認して、もう一度お試しください。"
+ "nav.curriculum_failed": "レッスンをダウンロードできませんでした。接続を確認して、もう一度お試しください。",
+ "auth.reset_sent_note": "{{email}} のアカウントがあれば、再設定リンクを送信しました。迷惑メールフォルダも確認してください。送信元は noreply@be-mastery.firebaseapp.com です。アドレスが違う場合は上で修正して、もう一度タップしてください。"
 }

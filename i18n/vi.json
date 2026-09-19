@@ -1887,5 +1887,6 @@
  "pp.partners_h": "Hai bạn là bạn luyện tập",
  "pp.partners_sub": "Cả hai đều chọn tiếp tục luyện tập cùng nhau.",
  "pp.partners_btn": "Luyện tập cùng nhau →",
- "nav.curriculum_failed": "Không tải được bài học. Kiểm tra kết nối và thử lại."
+ "nav.curriculum_failed": "Không tải được bài học. Kiểm tra kết nối và thử lại.",
+ "auth.reset_sent_note": "Nếu có tài khoản cho {{email}}, liên kết đặt lại đang được gửi. Hãy kiểm tra cả thư rác — thư đến từ noreply@be-mastery.firebaseapp.com. Sai địa chỉ? Sửa ở trên rồi chạm lại."
 }

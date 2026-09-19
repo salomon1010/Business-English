@@ -1887,5 +1887,6 @@
  "pp.partners_h": "Vocês são parceiros de prática",
  "pp.partners_sub": "Vocês dois escolheram continuar juntos.",
  "pp.partners_btn": "Praticar juntos →",
- "nav.curriculum_failed": "Não foi possível transferir as lições. Verifique a ligação e tente de novo."
+ "nav.curriculum_failed": "Não foi possível transferir as lições. Verifique a ligação e tente de novo.",
+ "auth.reset_sent_note": "Se existir uma conta para {{email}}, o link de redefinição está a caminho. Veja também a pasta de spam — vem de noreply@be-mastery.firebaseapp.com. Endereço errado? Corrija acima e toque de novo."
 }
