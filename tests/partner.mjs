@@ -99,7 +99,7 @@ ok("Waiting list: the card says since when, and a newcomer raises 'N learner(s) 
   await A.page.evaluate(() => ppCallHide()); await api("zoe", "DELETE", "/interest");
   await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); });
   return before.includes("In line since") && after.includes("1 learner(s) available to practise") && banner.includes("available to practise with you") && banner.includes("Show me candidates"); })());
-ok("Waiting state shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
+ok("Waiting state (nobody in line) shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
 
 /* ---------- live availability UX: presence strip, auto-discovery, FAB, newcomer toast ---------- */
 ok("Waiting card: 'You're on the waiting list — looking for your partner…'", (await txt(A.page, ".pp-wait")).includes("You're on the waiting list"));
@@ -110,6 +110,7 @@ await A.page.evaluate(() => { ppCallHide(); ppCandsToasted = null; ppAutoAvail =
 const auto = await A.page.evaluate(() => ({ cands: Array.isArray(ppCands) ? ppCands.map(c => c.name) : null, avail: ppAutoAvail, strip: (document.querySelector("#v-partner .pp-presence")?.innerText || "").replace(/\s+/g, " "), toast: document.getElementById("toast")?.innerText || "", note: (document.querySelector(".pp-cand")?.innerText || "").replace(/\s+/g, " ") }));
 ok("Auto-discovery: someone arrives while I wait → the candidate cards open without a tap (once per rise)", auto.cands && auto.cands.includes("Eve") && auto.avail === 1, JSON.stringify(auto));
 ok("Presence strip counts the newcomer as waiting", auto.strip.includes("waiting to practise"), auto.strip);
+ok("While a human is in line the AI coach is NOT offered: no fallback card, no 'No one is available' card", await A.page.evaluate(() => { ppRender(document.getElementById("v-partner")); const t = document.getElementById("v-partner").innerText; return !document.querySelector(".pp-fallback") && !/No one is available/.test(t) && document.querySelectorAll(".pp-cand").length > 0; }));
 ok("Newcomer toast '1 learner(s) waiting — pick one', shown once for the same set", auto.toast.includes("1 learner(s) waiting") && (await A.page.evaluate(() => { const before = document.getElementById("toast").innerText; document.getElementById("toast").innerText = ""; return ppMatch().then(() => document.getElementById("toast").innerText === ""); })), auto.toast);
 ok("Candidate card: 'Practise live' first and 'Try a practice' second — live is open to anyone in line; the note says either can leave", auto.note.includes("Practise live") && auto.note.includes("Try a practice") && auto.note.includes("either of you can leave") && auto.note.indexOf("Practise live") < auto.note.indexOf("Try a practice"), auto.note);
 ok("No second auto-discovery while the count does not rise (cards closed, next poll leaves them closed)", await (async () => { await A.page.evaluate(() => { ppCands = null; ppRender(document.getElementById("v-partner")); }); await sleep(9000); return await A.page.evaluate(() => ppCands === null && ppAutoAvail === 1); })());
@@ -305,7 +306,7 @@ ok("Find someone else → session closed, neutral toast, back to Match me; Bob o
 ok("The other side is told WHO closed it (byOther + first name) so the app can show 'Alice chose to find someone else'", await (async () => { const lc = (await (await api("bob", "GET", "/me")).json()).lastClosed; return lc.byOther === true && lc.name === "Alice"; })());
 await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
 await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
-ok("Cooldown: Bob is not offered again after a rematch", await A.page.evaluate(() => ![...document.querySelectorAll(".pp-cand")].some(c => /Bob/.test(c.innerText))));
+ok("After a rematch Bob is still offered while he is online (never hidden), and the strip's count equals the cards", await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].some(c => /Bob/.test(c.innerText)) && ppMe.presence.waiting === ppMe.waiting.available));
 
 /* ---------- Shadow Studio V2 → Apply it → partner mission ---------- */
 await A.page.evaluate(() => { ppCands = null; go("shadow"); }); await sleep(400);

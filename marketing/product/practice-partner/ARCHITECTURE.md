@@ -79,7 +79,7 @@ not connect — a documented limitation).
   complete, or `rematch` after `PARTNER_TIMEOUT_H` (24 h) of partner silence.
   Both `continue` → `connections` row `mutual` (sessions 1) or `regular`
   (sessions ≥ 2), pair closed `completed`. Any `rematch` → `cooldowns` row
-  for 14 days, connection `disconnected`, pair closed `rematch`.
+  for 14 days (ranking only, since 2026-09-19), connection `disconnected`, pair closed `rematch`.
 - `POST /next` — a member of a `mutual`/`regular` connection starts the next
   session directly (409 `busy` if the partner is in a pair, 409 `paired` if
   you are).
@@ -91,8 +91,13 @@ not connect — a documented limitation).
   only order the cards. The learner, not a score, decides — and "if it does
   not click, either of you can leave" is the rule on every card and in the
   How-it-works sheet. What still excludes a candidate is safety and state:
-  suspension, opt-out, the same-gender preference, blocks, the cooldown
-  after an ended pair, and "already in a session".
+  suspension, opt-out, the same-gender preference, blocks, and "already in a
+  session". A learner you ended with or rematched away from is **still
+  offered while online, sorted last** — the `cooldowns` row and the
+  `ended`/`disconnected` state only rank, they never hide (the strip counts
+  from the same filter, so it can never say "1 waiting" over "no one is
+  available"). While anyone is in line the AI coach is not offered; it
+  returns when the count is back at zero.
 - **Live is for whoever you practise with.** `POST /live` targets the open
   session's partner first (a trial with a stranger included), else the
   connected partner. A candidate card offers **Practise live** (a proposal

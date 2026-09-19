@@ -13496,7 +13496,7 @@ function ppRender(el){
       <p class="sub">${t("pp.waiting_sub")}</p>
       <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
     </section>
-    ${flag("practice_partner_ai_fallback_enabled")?`<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
+    ${flag("practice_partner_ai_fallback_enabled")&&!(m.waiting.available>0)?`<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
       <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('waiting')">${t("pp.fallback_btn")}</button></div></section>`:""}`);return;
   }
   const closed=m.lastClosed&&ppState().dismissedClosed!==m.lastClosed.id?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed","declined","cancelled"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"),{name:esc(m.lastClosed.name||"")})}</p>`:"";
@@ -13514,6 +13514,9 @@ function ppReasonText(r){
   return "";
 }
 function ppCandidatesHTML(cards){
+  /* a human first: while someone is in line the AI coach is not offered — the
+     learner picks a person; only when the count is back at zero (someone else
+     took them) does the AI card return */
   if(!cards.length)return `<section class="card pp-cta"><b>${t("pp.nocand_h")}</b><p class="sub">${t("pp.nocand_sub")}</p>
     <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('nocand')">${t("pp.fallback_btn")}</button><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.keep_looking")}</button></div></section>`;
   return `<section class="card"><div class="eyebrow">${t("pp.cands_eyebrow")}</div><b style="font-size:16px;display:block;margin:4px 0 4px">${t("pp.cands_h")}</b><p class="sub">${t("pp.cands_sub")}</p></section>

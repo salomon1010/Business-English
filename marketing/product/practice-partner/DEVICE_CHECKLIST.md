@@ -45,15 +45,15 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-18 Partner options | connection card | gear on the card | sheet: **Find someone else**, **End partnership**, **Report B**, **Block**, Close; no photo, no profile | | |
 | I-19 End partnership | options | End partnership → confirm | text says not a block, not a report; card gone; Match me available; B: card gone, no reason shown, B not blocked (B can still be matched by others) | | |
 | I-20 Ending twice | after I-19 | (API) `POST /connection/end` again | 404 `no_connection` / harmless | | |
-| I-21 Find someone else | new connection with B (redo I-07–I-14) | options → Find someone else → confirm | partnership ended **and** matching starts; B not offered again (cooldown) | | |
-| I-22 Rematch in a session | trial with C | decision card → Find someone else | neutral toast; C sees only "ended"; C not offered again | | |
+| I-21 Find someone else | new connection with B (redo I-07–I-14) | options → Find someone else → confirm | partnership ended **and** matching starts; B is still offered while online, sorted last (never hidden) | | |
+| I-22 Rematch in a session | trial with C | decision card → Find someone else | neutral toast; C sees only "ended"; C still offered while online, sorted last | | |
 | I-23 Block (2) | session or card | Block → confirm | pair/session ends at once; blocked side gets no more turns, 403 on audio; cannot be matched again | | |
 | I-24 Report (2) | session or card | Report → reason | "reported" toast; nothing shown to the other side; row in `audit`/`reports` (owner checks D1) | | |
 
 ### 3. Level 2 — AI coach
 | ID | Precondition | Action | Expected | P/F | Notes |
 |---|---|---|---|---|---|
-| I-25 Reachable while connected | connected, nobody else waiting | Practise now | "Looking for your partner…" **and** card **AI COACH — NOT YOUR PARTNER** / "No partner available yet" / **Practise with the AI coach →**; connection card still shown | | |
+| I-25 Reachable while connected | connected, nobody else waiting | Practise now | "You're on the waiting list…" **and** card **AI COACH — NOT YOUR PARTNER** / **Practise with the AI coach →**; connection card still shown. **With B in line the AI card is absent** and the strip count equals the candidate cards (never "1 waiting" + "No one is available") | | |
 | I-26 No candidates | Match me, nobody waiting | | "No suitable partner is available right now" + the AI button + Keep looking | | |
 | I-27 AI session | tap the AI button | | header **AI · AI coach**, "not a person", Round 1 of 4, your current lesson task, recorder | | |
 | I-28 AI turns | record → Send to the AI coach ×2 | | each reply tagged AI and spoken; "AI practice complete" with one AI-tagged tip; Practise again / Back | | |

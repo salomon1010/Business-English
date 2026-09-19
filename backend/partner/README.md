@@ -43,7 +43,7 @@ holds one id and any other track is refused with `403 track`.
 | POST | `/live/:id/end` `{reason: left\|completed\|failed}` · `/report {reason}` · `/block` | end (idempotent); report/block end the call for both |
 Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`, `POST /__uncap {uid}` (clears one learner's daily counters so the long browser run keeps its production-default caps).
 
-`/me` also carries `presence: {online, waiting}` — counts only (members seen in the last 5 min, and queue rows younger than 7 days), never ids or names, excluding the caller and anyone either side has blocked. **No compatibility gate (owner, 2026-09-19):** `candidates()` offers anyone in line on the track; band, goals, lesson, availability and time zone only *order* the cards (`MIN_MATCH_SCORE` is no longer a filter). What still excludes: suspension, opt-out, the same-gender preference, blocks, the cooldown after an ended pair, and "already in a session". A card with no other true fact carries the reason `in_line`. Queue rows older than 7 days are neither offered nor counted; the daily cron deletes them.
+`/me` also carries `presence: {online, waiting}` — counts only (members seen in the last 5 min, and queue rows younger than 7 days), never ids or names, excluding the caller and anyone either side has blocked. **No compatibility gate (owner, 2026-09-19):** `candidates()` offers anyone in line on the track; band, goals, lesson, availability and time zone only *order* the cards (`MIN_MATCH_SCORE` is no longer a filter). What still excludes: suspension, opt-out, the same-gender preference, blocks, and "already in a session"; a cooldown or an `ended`/`disconnected` connection only sorts that learner last. `presence.waiting` and `waiting.available` are the same number from the same filter (`candidates()` scores against a neutral row when the caller is not in line). A card with no other true fact carries the reason `in_line`. Queue rows older than 7 days are neither offered nor counted; the daily cron deletes them.
 
 ## Environments
 `[vars]` = production (`PARTNER_ENABLED="0"`, placeholder D1 id). `[env.dev]` =
@@ -72,7 +72,7 @@ The client sends `X-Dev-User` instead of a Firebase token only for localhost/127
 ## Safety rules implemented here
 Transcript screen (phones, e-mails, links, handles, messenger names, "call
 me / add me" EN+FR); audio only via membership-checked route; block = pair
-closed + never re-paired; rematch = 14-day cooldown; two distinct reporters =
+closed + never re-paired; rematch = 14-day cooldown (sorts that learner last — it no longer hides them); two distinct reporters =
 30-day suspension; daily limits (interest 10, match 30, invite 10, report 5,
 block 20, decide 40, live 20, AI sessions 12, end partnership 10); turns alternate, four per session, audio ≤ 1.5 MB /
 ≤ 75 s; per-IP limit; `audit` table (90 days); audio of closed pairs purged

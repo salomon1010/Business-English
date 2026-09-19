@@ -168,7 +168,7 @@ let t1 = null;
   const end2 = await call("yara", "POST", "/connection/end", { cid });
   ok("ending twice is harmless (already:true)", end2.status === 200 && end2.json.already === true);
   await join("zed", { band: "w5-8" }); const yj = await join("yara", { band: "w5-8" });
-  ok("an ended partner is not offered again (cooldown + ended state)", !yj.json.candidates.some(c => c.name === "Zed")); await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
+  ok("an ended partner who is online is still offered (ranked last), and the strip counts them — the same number the cards show", yj.json.candidates.some(c => c.name === "Zed") && (await call("yara", "GET", "/me")).json.presence.waiting === (await call("yara", "GET", "/me")).json.waiting.available); await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
   ok("not a block: Zed can still be read normally, and a report through the connection is recorded", (await call("zed", "GET", "/me")).status === 200 && (await call("yara", "POST", "/connection/report", { cid, reason: "other" })).status === 200); }
 
 /* ---------------- AI coach sessions are counted per learner (Level 2) ---------------- */
@@ -255,7 +255,8 @@ await join("hana", { band: "w5-8" }); const oi = (await join("ivan", { band: "w5
   const ivanMe = await call("ivan", "GET", "/me");
   ok("'Find someone else' closes the pair for both, reason rematch, no explanation exposed", !rm.json.pair && !ivanMe.json.pair && ivanMe.json.lastClosed.reason === "rematch");
   await join("hana", { band: "w5-8" }); const again = await join("ivan", { band: "w5-8" });
-  ok("cooldown: the rejected pair is not offered again", again.json.candidates.every(c => c.name !== "Hana") && again.json.status === "waiting");
+  ok("after a rematch the rejected learner is still offered while online (sorted last), never hidden", again.json.candidates.some(c => c.name === "Hana") && again.json.status === "waiting");
+  ok("presence for a learner NOT in line counts the same people a Match me would show", await (async () => { await call("ivan", "DELETE", "/interest"); const m = await call("ivan", "GET", "/me"); return !m.json.waiting && m.json.presence.waiting === 1; })());
   await call("hana", "DELETE", "/interest"); await call("ivan", "DELETE", "/interest"); }
 
 /* timeout: rematch allowed after 24 h of silence even if incomplete; fallback flag */

@@ -176,10 +176,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (98), `tests/partner.mjs` (115, browser
+  `backend/partner/test/run.mjs` (99), `tests/partner.mjs` (116, browser
   contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
-  line; band/goals only rank; safety filters stay); live is for whoever you
+  line; band/goals only rank; a cooldown or ended connection sorts last but
+  never hides — Block hides; `presence.waiting` === `waiting.available`, one
+  filter; the AI coach card is absent while anyone is in line); live is for whoever you
   practise with (`POST /live` → open pair first, a trial with a stranger
   included; candidate cards carry **Practise live** = `/invite {live:true}`,
   migration 0007 `pairs.live_wanted`, the guest's accept opens the room for

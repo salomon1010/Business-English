@@ -14,7 +14,7 @@ level, every segment has words). Malformed input: unsorted / NaN / string /
 empty cues, NaN words, words outside every cue, cues that are not an array,
 rapid seeks across all of it.
 
-## 2. Worker integration — `backend/partner/test/run.mjs` (98 checks)
+## 2. Worker integration — `backend/partner/test/run.mjs` (99 checks)
 Expects `npx wrangler dev --env dev --port 8787` in `backend/partner/` (local
 D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 `[env.dev]`). Dev users via `X-Dev-User`, movable clock via `X-Dev-Now`,
@@ -38,7 +38,7 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | **Live (18)** | needs a connection (404) · invite → `invited`, opaque id, first name only · idempotent invite · guest sees it in `/me` · non-member 403 on read/accept/signal, no auth 401 · host cannot accept, signalling before acceptance 409 · accept → `accepted` + ICE, twice harmless · offer → `connecting`, guest receives only the host's signals · answer + ice reach the host, `?after=` cursor, no echo · first `connected` → `active` + `startedAt` · reconnecting ⇄ active · bad kinds / oversized payloads 400 · end → `ended/completed`, twice harmless, signalling after 409 · host cancel / guest decline · unanswered invitation expires at 10 min · block during a call ends it for both, 403 afterwards, no live in `/me` · no new session against a blocked partner |
 | ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
 
-## 3. Browser end-to-end — `tests/partner.mjs` (115 checks)
+## 3. Browser end-to-end — `tests/partner.mjs` (116 checks)
 Playwright, headless Chromium, 390×844, fake microphone
 (`--use-fake-device-for-media-stream`). Starts its own static server and
 expects the local Worker on 8787 (skips with a notice otherwise). Three
@@ -102,8 +102,8 @@ npm test` runs smoke → shadow-sync → partner.
 | Suite | Result |
 |---|---|
 | `tests/shadow-sync.test.mjs` | **27/27** |
-| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **98/98** — adds presence counts, stale-queue exclusion and cron purge, no-gate offers (two bands away still offered, ranked after), live inside a trial, live proposals (`live:true` → room opens on accept), blocked never counted |
-| `tests/partner.mjs` (browser contexts, fake microphones, real WebRTC) | **115/115** — adds presence strip (GE / Welding), waiting-card copy and green state, auto-discovery once per rise, newcomer toast dedup, `#ppFab` visible/hidden rules + 375×812 no-overlap + one-tap discovery, live-first connection card with `.pp-attn`, candidate card live/recorded buttons, Practise live from a card → host walks into the room on accept, More options live inside a trial, partner-left dialog Close / Find another partner clearing the screen, How-it-works sheet |
+| `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **99/99** — adds presence counts, stale-queue exclusion and cron purge, no-gate offers (two bands away still offered, ranked after), live inside a trial, live proposals (`live:true` → room opens on accept), blocked never counted |
+| `tests/partner.mjs` (browser contexts, fake microphones, real WebRTC) | **116/116** — adds presence strip (GE / Welding), waiting-card copy and green state, auto-discovery once per rise, newcomer toast dedup, `#ppFab` visible/hidden rules + 375×812 no-overlap + one-tap discovery, live-first connection card with `.pp-attn`, candidate card live/recorded buttons, Practise live from a card → host walks into the room on accept, More options live inside a trial, partner-left dialog Close / Find another partner clearing the screen, How-it-works sheet |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
 | i18n parity | 1,869 keys in EN and in each of 15 files; no missing, no orphans |

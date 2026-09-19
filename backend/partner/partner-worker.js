@@ -246,9 +246,11 @@ function score(me, mm, c, W, hist) {
 /* hard filters, then scoring, then diversification (candidates offered
    often in the last day are pushed down so a small pool is not exhausted) */
 async function candidates(env, uid, ms, limit = 3) {
-  const me = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first();
   const mm = await member(env, uid);
-  if (!me || !mm) return [];
+  if (!mm) return [];
+  /* not in line yet (the presence strip asks before a tap): score against a
+     neutral row so the count is the same set a Match me would show */
+  const me = (await q(env, "SELECT * FROM interest WHERE uid=?", uid).first()) || { uid, track: "general-english", band: null, lang: mm.lang, prompt_week: 0, fnd_day: 0, topic: null, goals: mm.goals, mode: "later", created_at: ms };
   const rows = (await q(env, `SELECT i.uid, i.track, i.band, i.lang, i.prompt_week, i.fnd_day, i.mode AS imode, i.topic, i.goals, i.created_at,
       m.gender, m.same_gender, m.suspended_until, m.opted_out, m.mode, m.avail, m.tz, m.sessions_completed, m.sessions_abandoned
     FROM interest i JOIN members m ON m.uid=i.uid WHERE i.uid<>? AND i.track=? AND i.created_at>? ORDER BY i.created_at ASC LIMIT 200`, uid, me.track, ms - 7 * DAY).all()).results || [];
@@ -264,11 +266,15 @@ async function candidates(env, uid, ms, limit = 3) {
     if (mm.same_gender && (!mm.gender || c.gender !== mm.gender)) continue;
     if (c.same_gender && (!c.gender || c.gender !== mm.gender)) continue;
     if (await blockedEither(env, uid, c.uid)) continue;
-    if (await cooled(env, uid, c.uid, ms)) continue;
     if (await activePair(env, c.uid)) continue;
     const conn = await connection(env, uid, c.uid);
-    if (conn && (conn.state === "blocked" || conn.state === "disconnected" || conn.state === "ended")) continue;
-    const { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
+    if (conn && conn.state === "blocked") continue;
+    /* someone you ended with or rematched away from is still online and still
+       askable (owner, 2026-09-19: the strip must never count a learner the
+       cards then hide) — they just sort last */
+    const again = (await cooled(env, uid, c.uid, ms)) || (conn && (conn.state === "disconnected" || conn.state === "ended"));
+    let { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
+    if (again) s -= 1;
     const exposure = (await q(env, "SELECT COUNT(*) AS n FROM offers WHERE cand_uid=? AND created_at>?", c.uid, ms - DAY).first()).n;
     out.push({ c, s: s - Math.min(0.15, exposure * 0.03), reasons });
   }
@@ -364,7 +370,7 @@ async function meView(env, uid, ms) {
     const c = await q(env, "SELECT COUNT(*) AS n FROM interest WHERE track=? AND band=?", waiting.track, waiting.band).first();
     /* how many compatible learners are in line right now (no offers minted — a
        count for the waiting card and the "someone is available" notice) */
-    let available = 0; try { available = (await candidates(env, uid, ms, 3)).length; } catch (e) {}
+    let available = 0; try { available = (await candidates(env, uid, ms, 300)).length; } catch (e) {}
     out.waiting = { track: waiting.track, band: waiting.band, mode: waiting.mode, since: waiting.created_at, count: c ? c.n : 1, available };
   }
   if (m) {
@@ -376,12 +382,15 @@ async function meView(env, uid, ms) {
     try {
       const rows = (await q(env, `SELECT m.uid, i.band, i.created_at AS q_at FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.track='general-english' AND i.created_at>?
         WHERE m.uid<>? AND (m.suspended_until IS NULL OR m.suspended_until<=?) AND (m.opted_out=0 OR m.opted_out IS NULL) AND (i.uid IS NOT NULL OR m.last_seen>?) LIMIT 300`, ms - 7 * DAY, uid, ms, ms - 5 * 60_000).all()).results || [];
-      let online = 0, waiting = 0;
+      let online = 0;
       for (const r of rows) {
         if (r.uid === uid) continue;
         if (await blockedEither(env, uid, r.uid)) continue;
-        online++; if (r.q_at) waiting++;
+        online++;
       }
+      /* "waiting" is exactly the set the cards can show — same filter, same
+         number — so the strip never promises someone the cards then hide */
+      const waiting = out.waiting ? out.waiting.available : (await candidates(env, uid, ms, 300)).length;
       out.presence = { online, waiting };
     } catch (e) { out.presence = { online: 0, waiting: 0 }; }
     await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=? AND (uid_a=? OR uid_b=?)", ms, ms, uid, uid).run();
@@ -543,7 +552,7 @@ async function handle(req, env, ctx) {
     if (await bump(env, uid, "invite", ms) > DAILY_LIMITS.invite) return err(429, "limit");
     if (await activePair(env, uid)) return err(409, "paired");
     const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first(), theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
-    if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid) || await cooled(env, uid, off.cand_uid, ms)) return err(409, "gone");
+    if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid)) return err(409, "gone");
     const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase), b.live === true && env.LIVE_ENABLED === "1");
     if (!pairId) return err(409, "gone");
     return json({ status: "invited", ...(await meView(env, uid, ms)) });
