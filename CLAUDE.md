@@ -157,7 +157,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   buttons and break the one-accent-per-screen rule).
 - **Feature flags + the General-English-only boundary (feature/practice-partner,
   NOT on main yet).** `FLAGS_DEFAULT` + `flag(name)`; `localStorage.be_flags`
-  (JSON) overrides for local/test/internal preview. Production defaults are OFF
+  (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
+  on the URL writes that override (`-name` off, `off` clears) and strips itself. Production defaults are OFF
   for `practice_partner_enabled / _matching_enabled / _voice_enabled /
   _notifications_enabled`, `shadow_studio_v2_enabled`, `shadow_apply_phrase_enabled`;
   ON for `practice_partner_ai_fallback_enabled`, `shadow_word_timing_enabled`.
