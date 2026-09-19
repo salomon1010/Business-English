@@ -63,7 +63,7 @@ Authentication → Templates → Password reset: set the sender name to
 
 ## Limits
 
-- 5 requests per IP per hour, best effort (in-isolate memory). Firebase adds
+- 4 requests per email address per hour, best effort (in-isolate memory). `npx wrangler tail` prints `reset: sent | limited | no such user` per request, never the address. Firebase adds
   its own per-address throttle behind that.
 - Email Service free-tier quotas apply — see
   https://developers.cloudflare.com/email-service/platform/limits/.

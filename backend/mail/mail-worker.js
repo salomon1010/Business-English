@@ -38,7 +38,7 @@ const ALLOWED_ORIGINS = [
   "http://127.0.0.1:8000",
 ];
 
-const IP_PER_HOUR   = 5;      // per address, best effort (per isolate)
+const PER_HOUR      = 4;      // per email address, best effort (per isolate)
 const TOKEN_TTL_SEC = 55 * 60;
 
 /* ---------------------------------------------------------------- helpers -- */
@@ -245,11 +245,15 @@ function render(c, link, env){
 
 /* ----------------------------------------------------------- rate limit -- */
 
-const hits = new Map();   // ip → [timestamps]; per isolate, best effort
-function limited(ip){
-  const now = Date.now(), keep = (hits.get(ip) || []).filter(t => now - t < 3600e3);
-  keep.push(now); hits.set(ip, keep);
-  return keep.length > IP_PER_HOUR;
+/* Keyed by the address, not the caller's IP: a whole household or office
+   behind one IP must not lock each other out, and one address is what a
+   flood would hammer. Per isolate, so best effort — Firebase's own
+   per-address throttle sits behind it. */
+const hits = new Map();   // email → [timestamps]
+function limited(email){
+  const now = Date.now(), keep = (hits.get(email) || []).filter(t => now - t < 3600e3);
+  keep.push(now); hits.set(email, keep);
+  return keep.length > PER_HOUR;
 }
 
 /* --------------------------------------------------------------- routes -- */
@@ -260,21 +264,23 @@ async function reset(req, env, origin){
   const lang  = /^[a-z]{2}$/.test(body.lang || "") ? body.lang : "en";
   if (!EMAIL_RE.test(email) || email.length > 254) return json({ error: "bad email" }, 400, origin);
 
-  const ip = req.headers.get("CF-Connecting-IP") || "?";
-  if (limited(ip)) return json({ ok: true }, 200, origin);     // silent, on purpose
+  /* The console.log lines carry the outcome only — never the address — so
+     `wrangler tail` can say why nothing arrived. */
+  if (limited(email)) { console.log("reset: limited"); return json({ ok: true }, 200, origin); }
 
   const link = await resetLink(env, email, lang);
-  if (!link) return json({ ok: true }, 200, origin);           // unknown user: same answer
+  if (!link) { console.log("reset: no such user or firebase throttle"); return json({ ok: true }, 200, origin); }
 
   const c = COPY[lang] || COPY.en;
   const { html, text } = render(c, link, env);
-  await env.EMAIL.send({
+  const res = await env.EMAIL.send({
     from: { email: env.FROM_EMAIL, name: env.FROM_NAME },
     to: email,
     replyTo: env.REPLY_TO,
     subject: c.subject,
     html, text,
   });
+  console.log("reset: sent", lang, (res && res.messageId) || "");
   return json({ ok: true }, 200, origin);
 }
 
@@ -289,7 +295,7 @@ export default {
       if (url.pathname === "/reset") return await reset(req, env, origin);
       return json({ error: "not found" }, 404, origin);
     } catch (e) {
-      console.log("mail error", e && e.message);
+      console.log("mail error", (e && e.code) || "", e && e.message);
       return json({ error: "mail" }, 502, origin);   // app falls back to Firebase's email
     }
   },
