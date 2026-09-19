@@ -13351,10 +13351,10 @@ const FLAGS_DEFAULT={
   practice_partner_ai_fallback_enabled:true,
   practice_partner_notifications_enabled:true,
   practice_partner_live_enabled:false,
-  shadow_studio_v2_enabled:false,
+  shadow_studio_v2_enabled:true,       // released 2026-09-19: Watch / Shadow / Challenge, General English only
   shadow_word_timing_enabled:true,
-  shadow_apply_phrase_enabled:false,
-  shadow_challenge_enabled:false
+  shadow_apply_phrase_enabled:false,   // the Apply It tab stays off: svApplyAI writes S.applyPhrase and nothing reads it
+  shadow_challenge_enabled:true
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */

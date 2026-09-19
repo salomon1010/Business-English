@@ -208,7 +208,7 @@ if (!process.env.BASE) {
     await p.goto(scheme + "/index.html?env=" + Date.now(), { waitUntil: "load" }); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const env = beEnv();
-      const flagsOff = ["practice_partner_enabled", "practice_partner_matching_enabled", "practice_partner_voice_enabled", "practice_partner_notifications_enabled", "practice_partner_live_enabled", "shadow_studio_v2_enabled", "shadow_apply_phrase_enabled"];
+      const flagsOff = ["practice_partner_enabled", "practice_partner_matching_enabled", "practice_partner_voice_enabled", "practice_partner_notifications_enabled", "practice_partner_live_enabled", "shadow_studio_v2_enabled", "shadow_apply_phrase_enabled", "shadow_challenge_enabled"];
       const base = { env, partner: ppApiBase(), flags: Object.fromEntries(flagsOff.map(f => [f, flag(f)])), aiFallback: flag("practice_partner_ai_fallback_enabled"), wordTiming: flag("shadow_word_timing_enabled") };
       /* overrides must still win everywhere */
       localStorage.setItem("be_partner_api", "http://127.0.0.1:1"); localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: !flag("practice_partner_enabled") }));
@@ -224,7 +224,7 @@ if (!process.env.BASE) {
   ok("staging.lomonec.com → staging Events Worker, staging Partner Worker, PILOT flags on", st.env && st.beacon === "https://be-events-staging.nore-ngou.workers.dev/e" && st.partner === "https://be-partner-staging.nore-ngou.workers.dev" && Object.values(st.flags).every(Boolean) && st.aiFallback && st.wordTiming, JSON.stringify(st));
   /* the released production set (RELEASE_PLAN §5.3, 2026-09-19): the four practice_partner_*
      flags are ON; live calls, Shadow Studio V2 and Apply-It phrase stay OFF until their own release */
-  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: false, shadow_apply_phrase_enabled: false };
+  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: false, shadow_challenge_enabled: true };
   const sameFlags = (got) => JSON.stringify(got) === JSON.stringify(PROD_FLAGS);
   ok("app.lomonec.com → production Events Worker, production Partner API constant, exactly the released flag set", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(pr.flags) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
   ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(lo.flags), JSON.stringify(lo));
