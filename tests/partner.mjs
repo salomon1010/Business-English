@@ -233,14 +233,15 @@ await A.page.evaluate(async () => { const blob = new Blob([new Uint8Array(20000)
 ok("Carla's fourth turn completes the session", (await (await apiTurn("carla", "Great, thanks. See you next week.")).json()).complete === true);
 await A.page.evaluate(() => go("partner")); await sleep(1300);
 const decide = await txt(A.page, ".pp-decide");
-ok("Completion → decision card with one AI-labelled coach tip and two choices", decide.includes("How was this practice?") && decide.includes("AI") && decide.includes("numbers") && decide.includes("Practise together again") && decide.includes("Find someone else"), decide.slice(0, 200));
+ok("Completion → decision card with one AI-labelled coach tip and two choices", decide.includes("How was this practice?") && decide.includes("AI") && decide.includes("numbers") && decide.includes("Keep practising together") && decide.includes("If they choose the same, you'll become regular practice partners") && decide.includes("Find someone else") && decide.includes("Try a different learner") && decide.includes("Not now") && decide.includes("Come back to Practice Partner later"), decide.slice(0, 400));
+ok("Decision card: the three choices are one primary and two quiet buttons, in that order", await A.page.evaluate(() => { const b = [...document.querySelectorAll(".pp-decide button")].map(x => [x.innerText.trim(), x.className]); return b.length === 3 && /Keep practising/.test(b[0][0]) && /btn-primary/.test(b[0][1]) && /Find someone else/.test(b[1][0]) && /btn-g/.test(b[1][1]) && /Not now/.test(b[2][0]) && /pp-later/.test(b[2][1]); }));
 ok("Recorder is gone after completion", await A.page.evaluate(() => document.getElementById("ppRecorder").innerText.trim() === ""));
-await A.page.click('button:has-text("Practise together again")'); await sleep(900);
+await A.page.click('button:has-text("Keep practising together")'); await sleep(900);
 ok("Alice's choice is recorded; waiting for Carla; nothing shown to Carla about it", (await txt(A.page, ".pp-decide")).includes("Waiting for Carla") && (await (await api("carla", "GET", "/me")).json()).pair.partnerDecided === true && !(await (await api("carla", "GET", "/me")).json()).pair.myDecision);
 await api("carla", "POST", "/pairs/" + (await (await api("carla", "GET", "/me")).json()).pair.id + "/decide", { choice: "continue" });
 await A.page.evaluate(() => go("partner")); await sleep(1300);
 const conn = await txt(A.page, ".pp-conn");
-ok("Both continue → mutual partner card with session count and Start today's practice", conn.includes("Your practice partner: Carla") && conn.includes("1 time") && conn.includes("Start today's practice"));
+ok("Both continue → success state: 'You're practice partners' / 'You both chose to keep practising together' / 'Practise together →', session count 1", conn.includes("You're practice partners") && conn.includes("You both chose to keep practising together") && conn.includes("Practise together →") && conn.includes("1 time"), conn.slice(0, 300));
 /* ---------- Level 3: live practice between the two connected humans (real WebRTC, two browser contexts, fake mics) ---------- */
 ok("Connection card offers 'Practise live' to a connected partner", conn.includes("Practise live"));
 ok("Live-first: with a connected partner, 'Practise live' is the first, accented button with a 3-pulse attention ring; the choice is explained", await A.page.evaluate(() => { const btns = [...document.querySelectorAll(".pp-conn .pp-row button")]; return btns.length >= 2 && btns[0].innerText.includes("Practise live") && btns[0].classList.contains("pp-attn") && btns[0].classList.contains("btn-primary") && /Live: talk now/.test(document.querySelector(".pp-conn").innerText); }));
