@@ -53,6 +53,12 @@ ok("Welding: the #partner route shows the General-English-only notice, no data, 
 const wj = await (await api("wendy", "POST", "/consent", { name: "Wendy", lang: "en", adult: true })).json();
 const wt = await (await api("wendy", "POST", "/interest", { track: "welding", band: "w1-4", lang: "en" })).json();
 ok("Welding: the Worker refuses the track even when called directly (403 track)", wj.consented && wt.error === "track");
+ok("Welding: direct API — AI session 403 track, live invite 404 (no connection), a live session id 403, partner audio 404/403", await (async () => {
+  const ai = await (await api("wendy", "POST", "/ai/session", { id: "0123456789abcdef", track: "welding" })).json();
+  const lv = await api("wendy", "POST", "/live", { band: "w1-4", promptWeek: 1 });
+  const ls = await api("wendy", "GET", "/live/0123456789abcdef");
+  const au = await api("wendy", "GET", "/turns/0123456789abcdef/audio");
+  return ai.error === "track" && lv.status === 404 && ls.status === 403 && (au.status === 404 || au.status === 403); })());
 await W.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2000);
 ok("Welding: Shadow Studio V2 panel is hidden and no asset is built, flags on", await W.page.evaluate(() => { const b = document.getElementById("shV2"); return !svOn() && svAsset === null && (!b || b.style.display === "none"); }));
 await W.page.evaluate(() => { try { shCloseWork(); } catch (e) {} });

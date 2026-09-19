@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "لائیو مشق کا وقت ختم ہو گیا",
  "pp.live_done_declined": "{{name}} ابھی دستیاب نہیں",
  "pp.live_done_cancelled": "دعوت منسوخ",
- "pp.live_done_time": "{{m}}:{{s}} بولنے کی مشق، لائیو۔"
+ "pp.live_done_time": "{{m}}:{{s}} بولنے کی مشق، لائیو۔",
+ "pp.ai_limit": "آج کے لیے AI مشق کافی ہے — بارہ سیشن۔ آپ کا انسانی پارٹنر اور کل کی مشق منتظر ہیں۔"
 }

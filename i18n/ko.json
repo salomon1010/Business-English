@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "실시간 연습 시간이 만료되었습니다",
  "pp.live_done_declined": "{{name}}은(는) 지금 가능하지 않습니다",
  "pp.live_done_cancelled": "초대가 취소되었습니다",
- "pp.live_done_time": "{{m}}:{{s}} 말하기 연습, 실시간."
+ "pp.live_done_time": "{{m}}:{{s}} 말하기 연습, 실시간.",
+ "pp.ai_limit": "오늘의 AI 연습은 충분합니다 — 12회. 사람 파트너와 내일의 연습이 기다리고 있습니다."
 }

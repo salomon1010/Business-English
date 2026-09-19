@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "Buổi luyện trực tiếp đã hết hạn",
  "pp.live_done_declined": "{{name}} hiện không rảnh",
  "pp.live_done_cancelled": "Đã huỷ lời mời",
- "pp.live_done_time": "{{m}}:{{s}} luyện nói, trực tiếp."
+ "pp.live_done_time": "{{m}}:{{s}} luyện nói, trực tiếp.",
+ "pp.ai_limit": "Hôm nay luyện với AI thế là đủ — mười hai buổi. Bạn luyện là người thật và buổi luyện ngày mai đang chờ bạn."
 }

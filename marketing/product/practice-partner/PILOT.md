@@ -56,11 +56,28 @@ Worker allowing that hostname.
    (`be-polish-staging`) from a copy of the file with the line added and its
    own `OPENAI_API_KEY` secret — but the app's `POLISH_API` is a constant
    with no override, so that also needs a client change. Not recommended.
+4b. **Staging analytics** — `be-events` is one production Worker with a
+   hard-coded origin list, so staging events were being refused (403). The
+   branch now has `backend/events/wrangler.toml [env.staging]`
+   (`be-events-staging`, dataset `be_events_staging`, `EXTRA_ORIGINS`
+   = the staging origin). Deployed. On each phone also set
+   `localStorage.be_events_api = "https://be-events-staging.nore-ngou.workers.dev/e"`.
+   Read staging numbers from the `be_events_staging` dataset; production's
+   `be-events` is unchanged and still needs its own deploy at release.
+4c. **TURN (optional, recommended before testing on cellular)** — staging has
+   no secrets today, so live calls use STUN only and two phones behind carrier
+   NAT may fail to connect. To add TURN: Cloudflare dashboard → Calls → TURN
+   keys → Create → copy the key id and token, then
+   `cd backend/partner && npx wrangler secret put TURN_KEY_ID --env staging`
+   and `npx wrangler secret put TURN_KEY_TOKEN --env staging` (paste when
+   prompted). No redeploy needed; `GET /live/:id` then returns a `turn:`
+   server alongside STUN. Same two secrets on production at release time.
 5. On each phone open `https://staging.lomonec.com/`, sign in with a test
    Firebase account (email/password works from any origin), switch to General
    English, pass the placement check, then in the browser console or via
    the dev toggle set:
-   `localStorage.be_partner_api = "https://be-partner-staging.<account>.workers.dev"`
+   `localStorage.be_partner_api = "https://be-partner-staging.nore-ngou.workers.dev"`,
+   `localStorage.be_events_api = "https://be-events-staging.nore-ngou.workers.dev/e"`
    and `localStorage.be_flags` (below). Reload. The Worker verifies the real
    ID token exactly as production will.
 6. Run `DEVICE_CHECKLIST.md` (37 rows × 2 devices). Record results in the file.
@@ -90,7 +107,7 @@ Worker allowing that hostname.
 
 Internal-preview flags:
 ```
-localStorage.be_flags = '{"practice_partner_enabled":true,"practice_partner_matching_enabled":true,"practice_partner_voice_enabled":true,"practice_partner_notifications_enabled":true,"shadow_studio_v2_enabled":true,"shadow_apply_phrase_enabled":true}'
+localStorage.be_flags = '{"practice_partner_enabled":true,"practice_partner_matching_enabled":true,"practice_partner_voice_enabled":true,"practice_partner_notifications_enabled":true,"practice_partner_ai_fallback_enabled":true,"practice_partner_live_enabled":true,"shadow_studio_v2_enabled":true,"shadow_apply_phrase_enabled":true,"shadow_word_timing_enabled":true}'
 ```
 
 ## What to watch during the pilot

@@ -104,8 +104,8 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;
 
-function cors(origin){
-  const ok = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+function cors(origin, extra = []){
+  const ok = ALLOWED_ORIGINS.includes(origin) || extra.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
     "Access-Control-Allow-Origin": ok,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -122,14 +122,17 @@ function clean(v){
 export default {
   async fetch(req, env){
     const origin = req.headers.get("Origin") || "";
+    const extra = String(env.EXTRA_ORIGINS || "").split(",").map(x => x.trim()).filter(Boolean);
     if (req.method === "OPTIONS") {
-      return new Response(null, { status: 204, headers: cors(origin) });
+      return new Response(null, { status: 204, headers: cors(origin, extra) });
     }
     if (req.method !== "POST") {
-      return new Response("method", { status: 405, headers: cors(origin) });
+      return new Response("method", { status: 405, headers: cors(origin, extra) });
     }
-    if (!ALLOWED_ORIGINS.includes(origin)) {
-      return new Response("origin", { status: 403, headers: cors(origin) });
+    /* EXTRA_ORIGINS is set only on the staging environment (wrangler.toml
+       [env.staging]); production has no such var, so nothing changes there */
+    if (!ALLOWED_ORIGINS.includes(origin) && !extra.includes(origin)) {
+      return new Response("origin", { status: 403, headers: cors(origin, extra) });
     }
 
     /* The client uses sendBeacon, which cannot set Content-Type: application/json
@@ -142,7 +145,7 @@ export default {
     try { b = JSON.parse(raw); } catch (e) { b = null; }
     if (!b || !EVENTS.has(b.name)) {
       // 204 either way: a rejected event must not tell a prober what exists.
-      return new Response(null, { status: 204, headers: cors(origin) });
+      return new Response(null, { status: 204, headers: cors(origin, extra) });
     }
 
     const blobs = [b.name, req.cf && req.cf.country ? req.cf.country : "??"];
@@ -157,6 +160,6 @@ export default {
       });
     } catch (e) { /* never let analytics break the app */ }
 
-    return new Response(null, { status: 204, headers: cors(origin) });
+    return new Response(null, { status: 204, headers: cors(origin, extra) });
   },
 };

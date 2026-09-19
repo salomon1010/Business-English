@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "Latihan langsung kedaluwarsa",
  "pp.live_done_declined": "{{name}} sedang tidak tersedia",
  "pp.live_done_cancelled": "Undangan dibatalkan",
- "pp.live_done_time": "{{m}}:{{s}} latihan berbicara, langsung."
+ "pp.live_done_time": "{{m}}:{{s}} latihan berbicara, langsung.",
+ "pp.ai_limit": "Latihan AI hari ini sudah cukup — dua belas sesi. Partner manusia Anda dan latihan besok menunggu."
 }

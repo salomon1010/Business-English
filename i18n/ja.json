@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "ライブ練習がタイムアウトしました",
  "pp.live_done_declined": "{{name}}は今は参加できません",
  "pp.live_done_cancelled": "招待を取り消しました",
- "pp.live_done_time": "{{m}}:{{s}} のスピーキング練習、ライブで。"
+ "pp.live_done_time": "{{m}}:{{s}} のスピーキング練習、ライブで。",
+ "pp.ai_limit": "今日のAI練習はここまで（12セッション）。人間のパートナーと明日の練習が待っています。"
 }

@@ -203,6 +203,13 @@ all small enums. Nothing here carries a name, a uid, a transcript or audio.
 Read the funnel with `./query.sh funnel`-style queries on these names once
 data exists; nothing exists before the flags go on.
 
+## Staging
+`[env.staging]` in `wrangler.toml` → Worker `be-events-staging`, dataset
+`be_events_staging`, `EXTRA_ORIGINS` = the staging tunnel origin. Production
+has no `EXTRA_ORIGINS`, so its behaviour is unchanged. Test phones point at
+it with `localStorage.be_events_api`. Query with the same SQL against
+`be_events_staging`.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to

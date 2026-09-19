@@ -126,6 +126,9 @@ window.FB_CONFIG={
      without a CORS preflight it is not permitted to make — hence text/plain,
      parsed server-side. Don't change that without reading the Worker comment. */
   var EVENTS_API="https://be-events.nore-ngou.workers.dev/e";
+  /* staging phones point at be-events-staging with localStorage.be_events_api
+     (same idea as be_partner_api); an empty string switches events off */
+  try{var _evo=localStorage.getItem("be_events_api");if(_evo!==null)EVENTS_API=_evo}catch(e){}
   if(EVENTS_API)window.track=function(name,props){
     try{
       var body=JSON.stringify({name:name,props:props||null});
@@ -4712,6 +4715,7 @@ const I18N_EN={
  "pp.ai_resume_h":"An AI practice is still open",
  "pp.ai_resume_sub":"Turn {{n}} of {{max}} done with the AI coach.",
  "pp.ai_resume_btn":"Continue with the AI coach",
+ "pp.ai_limit":"That is enough AI practice for today — twelve sessions. Your human partner and tomorrow's practice are waiting.",
  "pp.live_eyebrow":"Live practice — human partner",
  "pp.live_btn":"Practise live",
  "pp.live_with":"Live with {{name}}",
@@ -13822,12 +13826,18 @@ let ppAiOpen=false, ppAiBusy=false;
 function ppAi(){return ppState().ai||null}
 function ppAiActive(){const a=ppAi();return a&&!a.completedAt&&!a.abandonedAt?a:null}
 function ppAiTitle(){return t("pp.ai_coach")}
-window.ppAiStart=(reason)=>{
+window.ppAiStart=async(reason)=>{
   if(!ppAvailable()||!flag("practice_partner_ai_fallback_enabled"))return toast(t("pp.off_sub"));
   let a=ppAiActive();
   if(!a){
+    if(ppBusy)return;ppBusy=true;
     const pos=ppPosition(),st=ppState(),p=ppMe&&ppMe.pair;
-    a={id:[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join(""),reason:reason||"choice",
+    const id=[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("");
+    /* the Worker counts new AI sessions per learner (12/day) and refuses the wrong track */
+    try{await ppApi("POST","/ai/session",{id,track:areaId(),reason:reason||"choice"})}
+    catch(e){ppBusy=false;return toast(e.code==="limit"?t("pp.ai_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+    ppBusy=false;
+    a={id,reason:reason||"choice",
        seed:{promptWeek:p?p.promptWeek:pos.promptWeek,fndDay:p?p.fndDay:pos.fndDay,band:p?p.band:ppBand(),phrase:(p&&p.prompt&&p.prompt.phrase)||(st.applyPhrase&&st.applyPhrase.text)||null,pairId:p?p.id:null},
        turns:[],history:[],pending:null,startedAt:Date.now(),completedAt:null,abandonedAt:null};
     st.ai=a;save();

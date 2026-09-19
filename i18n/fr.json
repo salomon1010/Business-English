@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "La pratique en direct a expiré",
  "pp.live_done_declined": "{{name}} n'est pas disponible pour le moment",
  "pp.live_done_cancelled": "Invitation annulée",
- "pp.live_done_time": "{{m}}:{{s}} de pratique orale, en direct."
+ "pp.live_done_time": "{{m}}:{{s}} de pratique orale, en direct.",
+ "pp.ai_limit": "Assez de pratique IA pour aujourd'hui — douze séances. Votre partenaire humain et la pratique de demain vous attendent."
 }

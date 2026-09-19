@@ -98,6 +98,16 @@ let t1 = null;
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
   ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
 
+/* ---------------- AI coach sessions are counted per learner (Level 2) ---------------- */
+{ const ids = Array.from({ length: 13 }, (_, i) => (i + 1).toString(16).padStart(16, "0"));
+  ok("ai: the wrong track is refused before anything is counted (403 track)", (await call("bob", "POST", "/ai/session", { id: ids[0], track: "welding" })).json.error === "track");
+  const first = await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english", reason: "waiting" });
+  const again = await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" });
+  ok("ai: a new session opens (201); reopening the same id is a no-op (200, repeat) and does not count", first.status === 201 && first.json.repeat === false && again.status === 200 && again.json.repeat === true);
+  let last = 0; for (let i = 1; i < 13; i++) { last = (await call("bob", "POST", "/ai/session", { id: ids[i], track: "general-english" })).status; if (last === 429) break; }
+  ok("ai: the 13th new session in a day → 429 limit; a repeat of an earlier id still succeeds", last === 429 && (await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 200);
+  ok("ai: malformed id → 400; no auth → 401", (await call("bob", "POST", "/ai/session", { id: "x", track: "general-english" })).status === 400 && (await call(null, "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 401); }
+
 /* ---------------- live practice (Level 3): alice + bob are regular partners ---------------- */
 { const noConn = await call("carol", "POST", "/live", { band: "w1-4", promptWeek: 3 });
   ok("live: needs a mutual/regular connection (404 no_connection)", noConn.status === 404 && noConn.json.error === "no_connection");

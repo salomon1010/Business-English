@@ -49,7 +49,7 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20 };
+const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12 };
 /* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
@@ -506,6 +506,23 @@ async function handle(req, env, ctx) {
       return json(await meView(env, uid, ms));
     }
   }
+  /* POST /ai/session {id, track} — the AI coach session itself runs on the
+     client and the Polish Worker, but it is opened through here so the count
+     is per AUTHENTICATED learner, not per IP: 12 new sessions a day (enough
+     for a keen learner, not enough to run a bot through it). Idempotent on
+     the client's session id — a repeated open never counts twice. */
+  if (req.method === "POST" && path === "/ai/session") {
+    if (suspended) return err(403, "suspended", m.suspended_until);
+    const b = await req.json().catch(() => ({}));
+    if (!TRACKS.has(b.track)) return err(403, "track");
+    const id = /^[a-f0-9]{16}$/.test(b.id || "") ? b.id : null; if (!id) return err(400, "bad_request");
+    const seen = await q(env, "SELECT 1 AS x FROM audit WHERE actor=? AND action='ai_started' AND pair_id=? LIMIT 1", uid, id).first();
+    if (seen) return json({ ok: true, id, repeat: true });
+    if (await bump(env, uid, "ai", ms) > DAILY_LIMITS.ai) return err(429, "limit");
+    await audit(env, ms, uid, "ai_started", null, id, { reason: clean(b.reason, 16) });
+    return json({ ok: true, id, repeat: false }, 201);
+  }
+
   /* ================================================================ LIVE (Level 3)
      A live session is a real-time voice call between two CONNECTED partners.
      The Worker holds the state machine and relays WebRTC signalling as

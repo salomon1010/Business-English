@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "实时练习已超时",
  "pp.live_done_declined": "{{name}} 现在没空",
  "pp.live_done_cancelled": "邀请已取消",
- "pp.live_done_time": "{{m}}:{{s}} 的口语练习，实时进行。"
+ "pp.live_done_time": "{{m}}:{{s}} 的口语练习，实时进行。",
+ "pp.ai_limit": "今天的 AI 练习已经足够——十二次。你的真人伙伴和明天的练习在等你。"
 }

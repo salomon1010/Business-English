@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "Die Live-Übung ist abgelaufen",
  "pp.live_done_declined": "{{name}} ist gerade nicht verfügbar",
  "pp.live_done_cancelled": "Einladung zurückgezogen",
- "pp.live_done_time": "{{m}}:{{s}} Sprechübung, live."
+ "pp.live_done_time": "{{m}}:{{s}} Sprechübung, live.",
+ "pp.ai_limit": "Genug KI-Übung für heute — zwölf Sitzungen. Dein menschlicher Partner und die Übung von morgen warten."
 }

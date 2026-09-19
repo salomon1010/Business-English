@@ -1803,5 +1803,6 @@
  "pp.live_done_expired": "La práctica en vivo caducó",
  "pp.live_done_declined": "{{name}} no está disponible ahora",
  "pp.live_done_cancelled": "Invitación cancelada",
- "pp.live_done_time": "{{m}}:{{s}} de práctica oral, en vivo."
+ "pp.live_done_time": "{{m}}:{{s}} de práctica oral, en vivo.",
+ "pp.ai_limit": "Suficiente práctica con IA por hoy — doce sesiones. Tu compañero humano y la práctica de mañana te esperan."
 }
