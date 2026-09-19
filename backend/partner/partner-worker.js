@@ -674,7 +674,10 @@ async function handle(req, env, ctx) {
     }
     if (pm[2] === "decide") {
       const b = await req.json().catch(() => ({}));
-      if (!["continue", "rematch"].includes(b.choice)) return err(400, "bad_request");
+      /* continue = keep practising (a regular connection only when BOTH say so);
+         rematch = someone else (cooldown); later = not now (the trial stays on
+         record, no connection, no cooldown, both are free to come back) */
+      if (!["continue", "rematch", "later"].includes(b.choice)) return err(400, "bad_request");
       if (pair.status !== "active") return err(409, "closed");
       if (await bump(env, uid, "decide", ms) > DAILY_LIMITS.decide) return err(429, "limit");
       const turns = (await q(env, "SELECT from_uid, created_at FROM turns WHERE pair_id=?", pair.id).all()).results || [];
@@ -682,6 +685,7 @@ async function handle(req, env, ctx) {
       const myLast = [...turns].reverse().find(t => t.from_uid === uid);
       const silentMs = ms - Math.max(myLast ? myLast.created_at : 0, pair.created_at);
       if (!rv.complete && !(b.choice === "rematch" && silentMs >= Number(env.PARTNER_TIMEOUT_H || 24) * 3_600_000)) return err(409, "not_complete");
+      if (b.choice === "continue" && (await blockedEither(env, uid, other))) return err(403, "forbidden");   /* a block on either side can never become a connection */
       const col = pair.uid_a === uid ? "decision_a" : "decision_b";
       await q(env, `UPDATE pairs SET ${col}=? WHERE id=?`, b.choice, pair.id).run();
       const fresh = await q(env, "SELECT * FROM pairs WHERE id=?", pair.id).first();
@@ -693,13 +697,21 @@ async function handle(req, env, ctx) {
           q(env, "UPDATE connections SET state='disconnected', updated_at=? WHERE a=? AND b=? AND state<>'blocked'", ms, x, y),
         ]);
         await closePair(env, fresh, "rematch", ms, uid);
+      } else if (b.choice === "later") {
+        /* nothing is created; closing the pair frees both to practise with anyone */
+        await closePair(env, fresh, "completed", ms, uid);
       } else if (fresh.decision_a === "continue" && fresh.decision_b === "continue") {
-        const conn = await connection(env, uid, other);
-        const sessions = ((conn && conn.sessions) || 0) + 1;
-        const state = sessions >= 2 ? "regular" : "mutual";
-        await q(env, "INSERT INTO connections(a,b,state,sessions,created_at,updated_at,last_practice_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(a,b) DO UPDATE SET state=excluded.state, sessions=excluded.sessions, updated_at=excluded.updated_at, last_practice_at=excluded.last_practice_at", x, y, state, sessions, ms, ms, ms).run();
-        await closePair(env, fresh, "completed", ms);
-        await audit(env, ms, "system", "connection_" + state, y, pair.id, { sessions });
+        /* mutual consent, once: the close is the atomic step — only the call
+           whose UPDATE actually flips the pair creates the connection, so two
+           simultaneous "continue"s (or a repeat) cannot count a session twice */
+        const flipped = await q(env, "UPDATE pairs SET status='closed', closed_reason='completed', closed_at=? WHERE id=? AND status='active' AND decision_a='continue' AND decision_b='continue'", ms, pair.id).run();
+        if (flipped && flipped.meta && flipped.meta.changes) {
+          const conn = await connection(env, uid, other);
+          const sessions = ((conn && conn.sessions) || 0) + 1;
+          const state = sessions >= 2 ? "regular" : "mutual";
+          await q(env, "INSERT INTO connections(a,b,state,sessions,created_at,updated_at,last_practice_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(a,b) DO UPDATE SET state=excluded.state, sessions=excluded.sessions, updated_at=excluded.updated_at, last_practice_at=excluded.last_practice_at", x, y, state, sessions, ms, ms, ms).run();
+          await audit(env, ms, "system", "connection_" + state, y, pair.id, { sessions });
+        }
       }
       return json(await meView(env, uid, ms));
     }

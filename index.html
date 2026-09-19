@@ -126,7 +126,14 @@ window.FB_CONFIG={
      without a CORS preflight it is not permitted to make — hence text/plain,
      parsed server-side. Don't change that without reading the Worker comment. */
   var EVENTS_API="https://be-events.nore-ngou.workers.dev/e";
-  /* staging phones point at be-events-staging with localStorage.be_events_api
+  /* The staging tunnel (staging.lomonec.com, PILOT.md § Staging) configures
+     itself by hostname so a phone never depends on hand-set keys — a Private
+     tab drops them and the app silently fell back to production defaults.
+     app.lomonec.com and localhost are untouched. beEnv(host) is the one
+     place that knows; partner API and feature flags read the same function. */
+  window.beEnv=function(host){return (host||location.hostname)==="staging.lomonec.com"?{events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",flags:true}:null};
+  try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
+  /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
   try{var _evo=localStorage.getItem("be_events_api");if(_evo!==null)EVENTS_API=_evo}catch(e){}
   if(EVENTS_API)window.track=function(name,props){
@@ -1323,9 +1330,11 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 #ppPill .pp-pill-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#fff}#ppPill.pp-pill-live{background:linear-gradient(135deg,#0b6b8f,#12a56a)}
 .pp-human-tag{color:var(--green);font-weight:700}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
 .pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
-.pp-hangup{flex:none;width:40px;height:40px;margin-left:8px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(229,72,77,.45);font:inherit;padding:0}.pp-hangup svg{width:20px;height:20px}.pp-hangup:active{transform:scale(.94)}
+.pp-hangup{flex:none;width:44px;height:44px;margin-left:8px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(229,72,77,.45);font:inherit;padding:0}.pp-hangup svg{width:20px;height:20px}.pp-hangup:active{transform:scale(.94)}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
 .pp-live-status{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:8px 0 0}.pp-live-status svg{width:18px;height:18px;flex:none;margin-top:1px}.pp-live-status.active svg{color:var(--green)}.pp-live-status.reconnecting{color:var(--gold)}.pp-live-status.active{align-items:center;gap:12px}.pp-live-status-t{display:flex;flex-direction:column;gap:2px;min-width:0}.pp-live-status-t b{font-weight:600}.pp-live-status-t small{font-size:12px;opacity:.72}.pp-mic-btn{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--green);background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green);display:inline-flex;align-items:center;justify-content:center;padding:0;font:inherit;cursor:pointer;box-shadow:0 0 0 0 rgba(34,197,94,.45);animation:ppMicPulse 2.2s ease-out infinite;transition:background .15s,border-color .15s,color .15s}.pp-mic-btn svg{width:24px;height:24px}.pp-mic-btn:active{transform:scale(.94)}.pp-mic-btn:disabled{opacity:.45;animation:none;cursor:default}.pp-live-status.is-muted .pp-mic-btn{border-color:#e5484d;background:#e5484d;color:#fff;animation:none;box-shadow:0 4px 12px rgba(229,72,77,.4)}.pp-live-status.is-muted .pp-mic-btn svg{color:#fff}.pp-live-status.is-muted .pp-live-status-t b{color:#e5484d}@keyframes ppMicPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}@media (prefers-reduced-motion:reduce){.pp-mic-btn{animation:none}}
+.pp-decide .pp-later{font-weight:600;color:var(--mut);border-color:transparent;background:transparent}.pp-decide .pp-row{margin-top:10px}.pp-decide .pp-fine{margin:4px 0 0}
+.pp-live-status .pp-live-status-t{flex:1;min-width:0}.pp-live-status .pp-hangup{align-self:center;margin-left:auto}.pp-live-status.active .pp-hangup svg,.pp-live-status .pp-hangup svg{color:#fff;width:20px;height:20px;margin-top:0}
 .pp-live-ctl .pp-leave{margin-left:auto}
 /* "Leave" is the cancel action of a partner session: red text, red cross, red edge — never grey like the neutral options around it */
 .pp-leave-btn{color:var(--red);border-color:color-mix(in srgb,var(--red) 55%,transparent);background:color-mix(in srgb,var(--red) 12%,transparent);font-weight:700}.pp-leave-btn svg{color:var(--red)}.pp-leave-btn:active{background:color-mix(in srgb,var(--red) 22%,transparent)}.pp-help{margin:6px 0 0 24px;padding:0;font-size:14px;line-height:1.6}.pp-help li{margin:2px 0}
@@ -4665,17 +4674,25 @@ const I18N_EN={
  "pp.findelse_sub":"This ends your partnership with {{name}} and looks for a new partner. {{name}} only sees that the partnership ended.",
  "pp.rematch_toast":"No problem. Let's find another partner.",
  "pp.mutual_toast":"You and {{name}} are now practice partners!",
- "pp.continue_toast":"Noted. When your partner agrees, you become regular partners.",
+ "pp.continue_toast":"Noted. If your partner chooses the same, you become practice partners.",
  "pp.rematch_sub":"No problem. This session closes and you go back in line. Your partner is not told why.",
  "pp.rematch_h":"Find someone else?",
  "pp.decided_wait":"Waiting for {{name}} to decide.",
  "pp.decided_both":"Both decided.",
  "pp.decided_rematch":"You chose to find someone else",
- "pp.decided_continue":"You chose to practise with {{name}} again",
+ "pp.decided_continue":"You chose to keep practising with {{name}}",
  "pp.decide_fine":"Neither answer is shown to your partner.",
  "pp.decide_rematch":"Find someone else",
- "pp.decide_continue":"Practise together again",
- "pp.decide_sub":"Your partner decides too, on their own. Only if you both say again do you become regular partners.",
+ "pp.decide_continue":"Keep practising together →",
+ "pp.decide_continue_sub":"Keep practising with this learner. If they choose the same, you'll become regular practice partners.",
+ "pp.decide_rematch_sub":"Try a different learner.",
+ "pp.decide_later":"Not now",
+ "pp.decide_later_sub":"Come back to Practice Partner later.",
+ "pp.decided_later":"Not now — you can come back to Practice Partner any time",
+ "pp.partners_h":"You're practice partners",
+ "pp.partners_sub":"You both chose to keep practising together.",
+ "pp.partners_btn":"Practise together →",
+ "pp.decide_sub":"Your partner decides too, on their own. Nothing happens unless you both choose to keep practising.",
  "pp.decide_h":"How was this practice?",
  "pp.decide_eyebrow":"Session complete",
  "pp.coach_ok":"{{n}}% on your last turn. Slow down on the longer words next time.",
@@ -4890,8 +4907,8 @@ const I18N_EN={
  "pp.closed_cancelled":"The invitation was cancelled.",
  "pp.gone_left_h":"{{name}} left today's practice",
  "pp.gone_left_sub":"Today's session ended on their side. If you are practice partners, you still are — you can start again another day or find someone else.",
- "pp.gone_rematch_h":"{{name}} chose to find someone else",
- "pp.gone_rematch_sub":"No reason is given — that is normal. Your place in line is kept; the next learner who joins sees you first.",
+ "pp.gone_rematch_h":"Your partner chose to try another learner",
+ "pp.gone_rematch_sub":"Let's find someone else to practise with. No reason is given — that is normal. Your place in line is kept.",
  "pp.gone_declined_h":"{{name}} is not available right now",
  "pp.gone_declined_sub":"Your invitation was declined. You are still in line — try another candidate or practise with the AI coach.",
  "pp.gone_cancelled_h":"{{name}} cancelled the invitation",
@@ -13231,10 +13248,24 @@ const FLAGS_DEFAULT={
   shadow_word_timing_enabled:true,
   shadow_apply_phrase_enabled:false
 };
+/* the internal-preview set from PILOT.md, on by default on the staging host
+   only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
+const FLAGS_STAGING={
+  practice_partner_enabled:true,
+  practice_partner_matching_enabled:true,
+  practice_partner_voice_enabled:true,
+  practice_partner_ai_fallback_enabled:true,
+  practice_partner_notifications_enabled:true,
+  practice_partner_live_enabled:true,
+  shadow_studio_v2_enabled:true,
+  shadow_word_timing_enabled:true,
+  shadow_apply_phrase_enabled:true
+};
 function flag(name){
   let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
   if(o&&typeof o==="object"&&name in o)return !!o[name];
-  return !!FLAGS_DEFAULT[name];
+  let env=null;try{env=beEnv()}catch(e){}
+  return !!((env&&env.flags?FLAGS_STAGING:FLAGS_DEFAULT)[name]);
 }
 /* The one boundary every General-English-only feature checks. Welding, and any
    future track, gets exactly the app it has today. */
@@ -13397,7 +13428,7 @@ const PARTNER_API="https://be-partner.nore-ngou.workers.dev";   /* "" = feature 
 const PP_MAX_MS=60000, PP_POLL_MS=60000;
 let ppMe=null,ppRec=null,ppBusy=false,ppPollH=null,ppLastFetch=0,ppCands=null,ppCandsToasted=null,ppAutoAvail=0,ppPairSeen=null,ppLiveWant=false;
 const ppAudioUrls=new Map();
-function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=null)return o.replace(/\/+$/,"")}catch(e){}return PARTNER_API}
+function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=null)return o.replace(/\/+$/,"")}catch(e){}try{const env=beEnv();if(env)return env.partner}catch(e){}return PARTNER_API}
 function ppDevUser(){try{if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(ppApiBase()))return null;return localStorage.getItem("be_partner_dev_user")||null}catch(e){return null}}
 function ppSignedIn(){return !!(FBUser||ppDevUser())}
 function ppState(){S.pp=S.pp||{};return S.pp}
@@ -13435,8 +13466,12 @@ async function ppApi(method,path,body){
 async function ppRefresh(silent){
   if(!ppAvailable()||!ppSignedIn())return null;
   try{
+    const prev=ppMe||ppState().lastMe;
     ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();
-    const st=ppState();st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
+    const st=ppState();
+    /* a connection that was not there a moment ago = mutual consent just landed (this side or the other): show the success state until the next practice with them starts */
+    if(ppMe.connection&&ppMe.connection.state==="mutual"&&ppMe.connection.sessions===1&&!(prev&&prev.connection&&prev.connection.cid===ppMe.connection.cid))st.partnersFresh=ppMe.connection.cid;
+    st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
     ppNotify();navBadges();ppCallSync();ppPillSync();ppFabSync();
     if(ppLiveWant){const l=ppMe&&ppMe.live;if(l&&l.role==="host"&&!ppLive){ppLiveWant=false;if(cur&&cur.v!=="partner")go("partner");setTimeout(()=>ppLiveResume(),cur&&cur.v==="partner"?0:400)}else if(!(ppMe&&ppMe.pairInvite))ppLiveWant=false}
   }catch(e){
@@ -13555,13 +13590,16 @@ function ppPresenceHTML(){
   return `<button type="button" class="pp-presence ${none?"none":"some"}" onclick="ppPresenceTap()" aria-live="polite"><span class="pp-presence-dot"></span><span>${label}</span><span class="pp-pill-go">›</span></button>`;
 }
 window.ppPresenceTap=()=>{const m=ppMe;try{track("partner_availability_viewed",{})}catch(e){}if(m&&m.pair){const el=document.getElementById("v-partner");if(el)el.querySelector(".pp-thread")?.scrollIntoView({behavior:"smooth"});return}if(m&&m.invite){return}ppMatch()};
-/* The AI coach is a standing choice, not a fallback (owner, 2026-09-19): the
-   same card sits under the partner options on the idle page, the waiting card
-   and the candidate list, so a learner who went to look at real people can
-   come back and pick the coach instead. */
+/* Human first (owner, 2026-09-19, final): the AI coach card appears only when
+   no askable human is available — nobody in line or online (idle page,
+   waiting card, an empty candidate list) — or through the existing fallback
+   conditions (a silent partner, the More-options choice inside a session).
+   It never sits next to a real learner's card. Always labelled AI. */
+function ppHumanAvailable(){const m=ppMe;if(!m)return false;if(m.waiting&&m.waiting.available>0)return true;if(Array.isArray(ppCands)&&ppCands.length>0)return true;return !!(m.presence&&m.presence.waiting>0)}
 function ppAiChoiceHTML(reason,noHuman){
   if(!flag("practice_partner_ai_fallback_enabled"))return "";
-  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${noHuman?t("pp.nohuman_h"):t("pp.ai_choice_h")}</b><p class="sub">${noHuman?t("pp.nohuman_sub"):t("pp.ai_choice_sub")}</p>
+  if(ppHumanAvailable())return "";
+  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
     <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('${reason}')">${t("pp.fallback_btn")}</button></div></section>`;
 }
 function ppIntroHTML(){
@@ -13597,9 +13635,9 @@ function ppRender(el){
   const aiResume=ppTrialCardHTML(m)+ppLiveCardHTML(m)+ppAiResumeHTML();
   const conn=m.connection?`<section class="card pp-conn">
       <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
+      <div class="pp-head-t"><b>${ppPartnersFresh(m)?t("pp.partners_h"):t("pp.conn_h",{name:esc(m.connection.name)})}</b>${ppPartnersFresh(m)?`<small>${t("pp.partners_sub")}</small>`:""}<small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
-      ${(()=>{const liveFirst=ppLiveOn()&&m.connection.canLive&&!m.live;const start=m.connection.canStart?`<button class="${liveFirst?"btn btn-g":"btn-primary"}" onclick="ppNext()">${t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`;
+      ${(()=>{const liveFirst=ppLiveOn()&&m.connection.canLive&&!m.live;const start=m.connection.canStart?`<button class="${liveFirst?"btn btn-g":"btn-primary"}" onclick="ppNext()">${ppPartnersFresh(m)?t("pp.partners_btn"):t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`;
         return liveFirst?`<div class="pp-row"><button class="btn-primary pp-attn pp-live-glow" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>${start}</div><p class="pp-fine">${t("pp.conn_choice")}</p>`:`<div class="pp-row">${start}</div>`})()}
     </section>`:"";
   if(m.waiting){
@@ -13693,15 +13731,22 @@ function ppCoachTip(p){
   if(mine.score!=null)return mine.score>=80?t("pp.coach_good",{n:mine.score}):t("pp.coach_ok",{n:mine.score});
   return "";
 }
+/* the success state right after mutual consent: "You're practice partners" on
+   the connection card until the next session with them starts (the card then
+   reads as usual). The connection itself is what the server says; this only
+   changes the words. Also set when the OTHER side completed the pair. */
+function ppPartnersFresh(m){const c=m&&m.connection;return !!(c&&!m.pair&&ppState().partnersFresh===c.cid)}
 function ppDecisionHTML(p){
   const tip=ppCoachTip(p);
-  if(p.myDecision)return `<section class="card pp-decide"><div class="eyebrow">${t("pp.decide_eyebrow")}</div><b>${p.myDecision==="continue"?t("pp.decided_continue",{name:esc(p.partner.name)}):t("pp.decided_rematch")}</b><p class="sub">${p.partnerDecided?t("pp.decided_both"):t("pp.decided_wait",{name:esc(p.partner.name)})}</p>${tip?`<p class="pp-tip">${ic("sparkle")} ${tip}</p>`:""}</section>`;
+  if(p.myDecision)return `<section class="card pp-decide"><div class="eyebrow">${t("pp.decide_eyebrow")}</div><b>${p.myDecision==="continue"?t("pp.decided_continue",{name:esc(p.partner.name)}):p.myDecision==="later"?t("pp.decided_later"):t("pp.decided_rematch")}</b><p class="sub">${p.partnerDecided?t("pp.decided_both"):t("pp.decided_wait",{name:esc(p.partner.name)})}</p>${tip?`<p class="pp-tip">${ic("sparkle")} ${tip}</p>`:""}</section>`;
   return `<section class="card pp-decide">
     <div class="eyebrow">${t("pp.decide_eyebrow")}</div>
     <b>${t("pp.decide_h")}</b>
     ${tip?`<p class="pp-tip">${ic("sparkle")} <span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${tip}</p>`:""}
     <p class="sub">${t("pp.decide_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" onclick="ppDecide('continue')">${t("pp.decide_continue")}</button><button class="btn btn-g" onclick="ppDecide('rematch')">${t("pp.decide_rematch")}</button></div>
+    <div class="pp-row"><button class="btn-primary" onclick="ppDecide('continue')">${t("pp.decide_continue")}</button></div><p class="pp-fine">${t("pp.decide_continue_sub")}</p>
+    <div class="pp-row"><button class="btn btn-g" onclick="ppDecide('rematch')">${t("pp.decide_rematch")}</button></div><p class="pp-fine">${t("pp.decide_rematch_sub")}</p>
+    <div class="pp-row"><button class="btn btn-g pp-later" onclick="ppDecide('later')">${t("pp.decide_later")}</button></div><p class="pp-fine">${t("pp.decide_later_sub")}</p>
     <p class="pp-fine">${t("pp.decide_fine")}</p>
   </section>`;
 }
@@ -13848,7 +13893,7 @@ window.ppInvite=async(offer,live)=>{
 };
 window.ppNext=async()=>{
   if(ppBusy)return;ppBusy=true;
-  try{const pos=ppPosition(),st=ppState();const r=await ppApi("POST","/next",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});ppMe=r;st.lastMe=r;st.applyPhrase=null;save();try{track("partner_trial_started",{regular:"1"})}catch(e){}}
+  try{const pos=ppPosition(),st=ppState();const r=await ppApi("POST","/next",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});ppMe=r;st.lastMe=r;st.partnersFresh=null;st.applyPhrase=null;save();try{track("partner_trial_started",{regular:"1"})}catch(e){}}
   catch(e){toast(e.code==="busy"?t("pp.conn_busy"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
@@ -13858,8 +13903,9 @@ window.ppDecide=async choice=>{
   ppBusy=true;
   try{
     const r=await ppApi("POST","/pairs/"+p.id+"/decide",{choice});ppMe=r;ppState().lastMe=r;save();
-    try{track(choice==="continue"?"partner_continue_selected":"partner_rematch_selected",{});if(r.connection&&!r.pair)track("partner_connection_created",{state:r.connection.state})}catch(e){}
-    toast(choice==="continue"?(r.connection&&!r.pair?t("pp.mutual_toast",{name:r.connection.name}):t("pp.continue_toast")):t("pp.rematch_toast"));
+    try{if(choice!=="later")track(choice==="continue"?"partner_continue_selected":"partner_rematch_selected",{});if(r.connection&&!r.pair)track("partner_connection_created",{state:r.connection.state})}catch(e){}
+    if(choice==="continue"&&r.connection&&!r.pair)ppState().partnersFresh=r.connection.cid;save();
+    toast(choice==="continue"?(r.connection&&!r.pair?t("pp.mutual_toast",{name:r.connection.name}):t("pp.continue_toast")):choice==="later"?t("pp.decided_later"):t("pp.rematch_toast"));
   }catch(e){toast(e.code==="not_complete"?t("pp.err_notcomplete"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
@@ -13885,7 +13931,7 @@ window.ppLiveInvite=async()=>{
   try{
     const pos=ppPosition(),st=ppState();
     const r=await ppApi("POST","/live",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
-    ppMe=r;st.lastMe=r;save();try{track("partner_live_invited",{})}catch(e){}
+    ppMe=r;st.lastMe=r;st.partnersFresh=null;save();try{track("partner_live_invited",{})}catch(e){}
     ppLiveOpen(r.live,null);
   }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
@@ -14064,10 +14110,9 @@ function ppLiveHTML(L){
     <div class="pp-head-row"><span class="pp-avatar">${esc(L.partner.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.live_with",{name:esc(L.partner.name)})}</b><small>${t("pp.live_human")}</small></div>
       <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?"0:00":""}</span>
-      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button>
-      <button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
     ${L.countdown!=null?`<div class="pp-live-count" id="ppLiveCount" aria-live="polite">${L.countdown>0?L.countdown:t("pp.live_go")}</div>`:""}
-    ${live?`<div class="pp-live-status active ${L.muted?"is-muted":""}"><button class="pp-mic-btn" onclick="ppLiveMute()" ${L.stream?"":"disabled"} aria-pressed="${L.muted?"true":"false"}" aria-label="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}" title="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}">${ic(L.muted?"mic-off":"mic")}</button><span class="pp-live-status-t"><b>${L.muted?t("pp.live_muted"):ppLiveStatusText(L)}</b><small>${L.muted?t("pp.live_mic_hint_off"):t("pp.live_mic_hint_on")}</small></span></div>`:`<p class="pp-live-status ${L.status}">${ic("clock")} ${ppLiveStatusText(L)}</p>`}
+    ${live?`<div class="pp-live-status active ${L.muted?"is-muted":""}"><button class="pp-mic-btn" onclick="ppLiveMute()" ${L.stream?"":"disabled"} aria-pressed="${L.muted?"true":"false"}" aria-label="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}" title="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}">${ic(L.muted?"mic-off":"mic")}</button><span class="pp-live-status-t"><b>${L.muted?t("pp.live_muted"):ppLiveStatusText(L)}</b><small>${L.muted?t("pp.live_mic_hint_off"):t("pp.live_mic_hint_on")}</small></span><button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>`:`<div class="pp-live-status ${L.status}"><span class="pp-live-status-t"><b>${ic("clock")} ${ppLiveStatusText(L)}</b></span><button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>`}
     ${L.micErr?`<div class="pp-row"><button class="btn btn-g btn-sm" onclick="ppLiveRetryMic()">${t("pp.retry")}</button></div>`:""}
     ${(()=>{try{return localStorage.getItem("be_partner_debug")&&L.diag?`<p class="pp-fine">candidates — host ${L.diag.host} · srflx ${L.diag.srflx} · relay ${L.diag.relay} · from partner ${L.diag.remote} · ice ${L.pc?L.pc.iceConnectionState:"-"}</p>`:""}catch(e){return ""}})()}
     ${L.status==="invited"?`<div class="pp-row"><button class="btn btn-g" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`:""}

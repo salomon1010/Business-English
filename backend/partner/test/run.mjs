@@ -202,6 +202,47 @@ let t1 = null;
   await call("ora", "POST", `/pairs/${acc.json.pair.id}/leave`);
   ok("an online member seen more than 5 minutes ago is not offered", await (async () => { clock = (await call("ora", "GET", "/me")).json.serverNow + 6 * 60_000; await join("ora", { band: "w1-4" }); const m2 = await call("ora", "POST", "/match"); const r = !m2.json.candidates.some(c => c.name === "Oli"); clock = null; return r; })()); }
 
+/* ---------------- post-trial decisions: mutual consent only, "later" never connects, blocks never connect ---------------- */
+{ const trial = async (h, g, hb = "w1-4", gb = "w1-4") => { await consent(h, h[0].toUpperCase() + h.slice(1)); await consent(g, g[0].toUpperCase() + g.slice(1)); await join(g, { band: gb }); await join(h, { band: hb });
+    const o = (await call(h, "POST", "/match")).json.candidates.find(c => c.name.toLowerCase() === g); const p = await tryPair(h, g, o.offer);
+    for (const [u, txt] of [[h, "one"], [g, "two"], [h, "three"], [g, "four"]]) await turn(u, txt); return p.json.pair.id; };
+  const decide = (u, id, choice) => call(u, "POST", `/pairs/${id}/decide`, { choice });
+  /* 1 + 2 + 3: A continues → waiting, no connection; B continues → connection; both idempotent */
+  let id = await trial("pa", "pb");
+  const a1 = await decide("pa", id, "continue"), a1again = await decide("pa", id, "continue");
+  ok("1. A chooses continue → waiting state, no connection yet", a1.status === 200 && a1.json.pair && a1.json.pair.myDecision === "continue" && !a1.json.connection && !(await call("pb", "GET", "/me")).json.connection);
+  ok("3a. repeating A's continue is idempotent (same state, still no connection)", a1again.status === 200 && a1again.json.pair && !a1again.json.connection);
+  const b1 = await decide("pb", id, "continue");
+  ok("2. B chooses continue → mutual consent → one connection, pair closed 'completed', both see it", b1.status === 200 && !b1.json.pair && b1.json.connection && b1.json.connection.state === "mutual" && b1.json.connection.sessions === 1 && (await call("pa", "GET", "/me")).json.connection?.name === "Pb");
+  const b1again = await decide("pb", id, "continue"), a1late = await decide("pa", id, "continue");
+  ok("3b. a repeat after the connection is 409 closed and the session count stays 1", b1again.status === 409 && a1late.status === 409 && (await call("pa", "GET", "/me")).json.connection.sessions === 1);
+  /* 4: A continue, B someone else → no connection, cooldown, A told neutrally */
+  id = await trial("pc", "pd"); await decide("pc", id, "continue"); const d4 = await decide("pd", id, "rematch");
+  const c4 = (await call("pc", "GET", "/me")).json;
+  ok("4. A continue + B find-someone-else → no connection, pair closed 'rematch', A sees only that it ended (no decision detail)", d4.status === 200 && !d4.json.connection && !c4.connection && !c4.pair && c4.lastClosed && c4.lastClosed.reason === "rematch" && c4.lastClosed.byOther === true && !("decision" in c4.lastClosed));
+  /* 5: both someone else */
+  id = await trial("pe", "pf"); const e5 = await decide("pe", id, "rematch"); const f5 = await decide("pf", id, "rematch");
+  ok("5. both find-someone-else → no connection; second call 409 closed (pair already closed by the first)", e5.status === 200 && !e5.json.connection && f5.status === 409 && !(await call("pf", "GET", "/me")).json.connection);
+  /* 6: not now */
+  id = await trial("pg", "ph"); const g6 = await decide("pg", id, "later");
+  const h6 = (await call("ph", "GET", "/me")).json;
+  ok("6. Not now → no connection, no cooldown, trial kept on record as 'completed'; both free to practise again", g6.status === 200 && !g6.json.pair && !g6.json.connection && !h6.pair && !h6.connection && h6.lastClosed && h6.lastClosed.reason === "completed" && !(await call("pg", "GET", "/me")).json.pair, JSON.stringify({ g6: g6.json.error || g6.status, h6: h6.lastClosed, pair: !!h6.pair }));
+  ok("6b. A 'continue' after the other said Not now → 409 closed, still no connection", (await decide("ph", id, "continue")).status === 409 && !(await call("ph", "GET", "/me")).json.connection);
+  ok("6c. Not now needs a completed trial (409 not_complete), and any other word is 400", await (async () => { const nid = await trial("pi", "pj"); const bad = await decide("pi", nid, "maybe"); return bad.status === 400; })());
+  /* 7: blocked / suspended */
+  id = await trial("pk", "pl"); const bk = await call("pl", "POST", `/pairs/${id}/block`); const k7 = await decide("pk", id, "continue");
+  ok("7a. after a block the pair is closed → continue is 409/403, no connection", bk.status === 200 && [403, 409].includes(k7.status) && !(await call("pk", "GET", "/me")).json.connection, JSON.stringify({ bk: bk.json.error || bk.status, k7: k7.json }));
+  /* two distinct reporters who each practised with Pn → Pn suspended; the open pair with Pm closes and nothing can connect */
+  let idx = await trial("px", "pn"); await call("px", "POST", `/pairs/${idx}/report`, { reason: "abuse" }); await decide("px", idx, "later");
+  id = await trial("pm", "pn"); await decide("pm", id, "continue"); await call("pm", "POST", `/pairs/${id}/report`, { reason: "abuse" });
+  const n7 = (await call("pn", "GET", "/me")).json; const n7d = await decide("pn", id, "continue");
+  ok("7b. suspension closes the open pair; the suspended learner's 'continue' is refused and no connection exists", !!n7.suspendedUntil && !n7.pair && [403, 409].includes(n7d.status) && !(await call("pm", "GET", "/me")).json.connection, JSON.stringify({ susp: n7.suspendedUntil, pair: !!n7.pair, d: n7d.json }));
+  /* 8 + 9: Welding never gets a pair to decide on; direct API cannot forge the other side */
+  ok("8. Welding: no pair can exist (interest 403 track), so /decide has nothing to act on", (await call("wl3", "POST", "/interest", { track: "welding", band: "w1-4", lang: "en" })).status === 403);
+  id = await trial("po", "pq"); const forged = await decide("po", id, "continue");
+  ok("9. one side's continue alone never creates a connection, and a stranger's decide is 403", forged.status === 200 && !forged.json.connection && (await call("pr", "POST", `/pairs/${id}/decide`, { choice: "continue" })).status === 403 && !(await call("pq", "GET", "/me")).json.connection);
+  await decide("pq", id, "later"); }
+
 /* ---------------- account deletion: DELETE /me erases everything Practice Partner holds ---------------- */
 { await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w1-4" }); await join("yul", { band: "w1-4" });
   const ox = (await call("xan", "POST", "/match")).json.candidates.find(c => c.name === "Yul");

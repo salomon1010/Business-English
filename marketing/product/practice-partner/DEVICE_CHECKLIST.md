@@ -34,7 +34,9 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-11 Partner receives / responds | B | B opens Home, plays, records, sends | B: Home card + badge + one toast; A: same, one toast, B's turn playable with transcript | | |
 | I-12 Four rounds | | A, B, A, B | both: "Session complete"; recorder gone | | |
 | I-13 AI tip | complete | read | one line tagged **AI**; every score line tagged AI | | |
-| I-14 Continue (2) | complete | both "Practise together again" | "You and B are now practice partners"; connection card | | |
+| I-14 Continue (2) | complete | A: **Keep practising together →** (card shows "Waiting for B to decide", B sees nothing about it); B: the same | both: **You're practice partners** / "You both chose to keep practising together" / **Practise together →**; tapping it starts the next structured session | | |
+| I-14b Not now (2) | complete, fresh trial | A: **Not now** | A: "Not now — you can come back…"; no connection on either phone; B's card simply says the session is complete; both can Match me again | | |
+| I-14c One-sided (2) | complete, fresh trial | A: Keep practising; B: Find someone else | A: dialog "Your partner chose to try another learner" → Find another partner / Close; no connection; B not offered to A for 14 days | | |
 | I-15 Regular session | connected | Start today's practice → 4 rounds → both continue | card says **Regular partners** · 2 sessions | | |
 
 ### 2. Partner management (2)
