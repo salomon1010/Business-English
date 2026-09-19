@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Inicio de sesión no disponible",
  "auth.signed_in_toast": "✅ Sesión iniciada",
  "auth.reset_need_email": "Escribe primero tu correo arriba, luego toca esto.",
- "auth.reset_sent_toast": "📧 Correo de restablecimiento enviado. ¿No está en tu bandeja de entrada? Revisa la carpeta de Spam o Correo no deseado — viene de noreply@be-mastery.firebaseapp.com. Márcalo como «No es spam» para que el próximo llegue a tu bandeja.",
+ "auth.reset_sent_toast": "📧 Correo de restablecimiento enviado. ¿No está en tu bandeja de entrada? Revisa la carpeta de Spam o Correo no deseado — viene de {{from}}. Márcalo como «No es spam» para que el próximo llegue a tu bandeja.",
  "auth.signout_confirm": "¿Cerrar sesión? Tu progreso se queda en este dispositivo.",
  "auth.signed_out_toast": "Sesión cerrada",
  "auth.delete_confirm": "¿Eliminar tu cuenta en la nube y todos los datos sincronizados? Tu progreso en el dispositivo se queda a menos que también lo restablezcas. Esto no se puede deshacer.",

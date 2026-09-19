@@ -5635,7 +5635,7 @@ const I18N_EN={
  "auth.unavailable_toast":"⚠️ Sign-in unavailable",
  "auth.signed_in_toast":"✅ Signed in",
  "auth.reset_need_email":"Type your email above first, then tap this.",
- "auth.reset_sent_toast":"📧 Reset email sent. Not in your inbox? Check your Spam or Junk folder — it comes from noreply@be-mastery.firebaseapp.com. Mark it \"Not spam\" so the next one lands in your inbox.",
+ "auth.reset_sent_toast":"📧 Reset email sent. Not in your inbox? Check your Spam or Junk folder — it comes from {{from}}. Mark it \"Not spam\" so the next one lands in your inbox.",
  "auth.signout_confirm":"Sign out? Your progress stays on this device.",
  "auth.signed_out_toast":"Signed out",
  "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
@@ -9274,6 +9274,8 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
    declines permission. In all of those the old setTimeout plus the launch nudge
    still run, exactly as before — push is added on top, never depended on. */
 const PUSH_API="https://be-push.nore-ngou.workers.dev";
+/* Branded password-reset email (backend/mail). Empty string = use Firebase's own plain email. */
+const MAIL_API="https://be-mail.nore-ngou.workers.dev";
 const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
 /* ---- The reminder knows where you are ----
    The daily notification used to say "Week 5" and nothing else. It now carries
@@ -18068,8 +18070,20 @@ window.fbEmailAuth=async function(mode){
 window.fbReset=async function(){
   const em=((document.getElementById("authEmail")||{}).value||"").trim();
   if(!em)return fbSetErr(t("auth.reset_need_email"));
-  try{await FBauth.sendPasswordResetEmail(em);fbSetErr(t("auth.reset_sent_toast"),true)}   /* stays on screen: the spam-folder hint is the point */
-  catch(e){fbSetErr(fbErr(e))}
+  const lang=(S.profile&&S.profile.lang)||"en";
+  /* Our Worker sends the branded email from noreply@lomonec.com. If it is
+     down or not deployed, Firebase's plain email still goes out — a learner
+     must never be left with no email at all. */
+  let sent=false;
+  if(MAIL_API){
+    try{const r=await fetch(MAIL_API+"/reset",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,lang})});
+      if(r.status===400){const j=await r.json().catch(()=>({}));return fbSetErr(j.error==="bad email"?t("auth.err_invalid_email"):t("auth.err_generic"))}
+      sent=r.ok}catch(e){}
+  }
+  try{
+    if(!sent)await FBauth.sendPasswordResetEmail(em,{url:APP_URL});
+    fbSetErr(t("auth.reset_sent_toast",{from:sent?"noreply@lomonec.com":"noreply@be-mastery.firebaseapp.com"}),true)   /* stays on screen: the spam-folder hint is the point */
+  }catch(e){fbSetErr(fbErr(e))}
 };
 /* Signing out leaves NOTHING of that account behind. Progress belongs to the
    account and is safe in the cloud, so clearing it costs nothing and stops the

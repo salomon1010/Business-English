@@ -1,0 +1,29 @@
+# Cloudflare Worker config for BE Mastery transactional email (Lomonec LLC).
+#
+# FOURTH production Worker, separate from be-polish / be-push / be-events.
+# It sends the branded password-reset email. Firebase's own template cannot
+# be styled (Firebase blocks body edits to fight spam), so this Worker asks
+# Firebase for the reset LINK and sends the message itself through
+# Cloudflare Email Service.
+#
+# Deploy from this folder — see README.md for the one-time setup:
+#     npx wrangler email sending enable lomonec.com   # once — then add the DNS records it prints
+#     npx wrangler secret put FB_SA_JSON                # once — the Firebase service-account JSON
+#     npx wrangler deploy
+#
+# The service-account JSON is a secret and lives only in Cloudflare. It must
+# never be committed: this repo is public.
+
+name = "be-mail"
+main = "mail-worker.js"
+compatibility_date = "2026-07-31"
+
+[[send_email]]
+name = "EMAIL"
+
+[vars]
+FB_PROJECT_ID = "be-mastery"
+FROM_EMAIL    = "noreply@lomonec.com"
+FROM_NAME     = "BE Mastery"
+REPLY_TO      = "contact@lomonec.com"
+APP_URL       = "https://app.lomonec.com/"

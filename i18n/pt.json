@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Login indisponível",
  "auth.signed_in_toast": "✅ Conectado",
  "auth.reset_need_email": "Digite seu e-mail acima primeiro, depois toque nisto.",
- "auth.reset_sent_toast": "📧 E-mail de redefinição enviado. Não está na caixa de entrada? Verifique a pasta Spam ou Lixo eletrónico — vem de noreply@be-mastery.firebaseapp.com. Marque como «Não é spam» para o próximo chegar à caixa de entrada.",
+ "auth.reset_sent_toast": "📧 E-mail de redefinição enviado. Não está na caixa de entrada? Verifique a pasta Spam ou Lixo eletrónico — vem de {{from}}. Marque como «Não é spam» para o próximo chegar à caixa de entrada.",
  "auth.signout_confirm": "Sair? Seu progresso permanece neste dispositivo.",
  "auth.signed_out_toast": "Desconectado",
  "auth.delete_confirm": "Excluir sua conta na nuvem e todos os dados sincronizados? Seu progresso no dispositivo permanece, a menos que você também o redefina. Isso não pode ser desfeito.",
