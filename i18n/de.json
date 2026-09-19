@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Anmeldung nicht verfügbar",
  "auth.signed_in_toast": "✅ Angemeldet",
  "auth.reset_need_email": "Gib zuerst oben deine E-Mail ein, dann tippe hier.",
- "auth.reset_sent_toast": "📧 E-Mail zum Zurücksetzen des Passworts gesendet",
+ "auth.reset_sent_toast": "📧 E-Mail zum Zurücksetzen gesendet. Nicht im Posteingang? Prüfe den Spam- oder Junk-Ordner — sie kommt von noreply@be-mastery.firebaseapp.com. Markiere sie als „Kein Spam“, damit die nächste im Posteingang landet.",
  "auth.signout_confirm": "Abmelden? Dein Fortschritt bleibt auf diesem Gerät.",
  "auth.signed_out_toast": "Abgemeldet",
  "auth.delete_confirm": "Dein Cloud-Konto und alle synchronisierten Daten löschen? Dein Fortschritt auf dem Gerät bleibt, sofern du ihn nicht auch zurücksetzt. Dies kann nicht rückgängig gemacht werden.",

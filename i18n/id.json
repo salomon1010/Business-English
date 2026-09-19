@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Masuk tidak tersedia",
  "auth.signed_in_toast": "✅ Berhasil masuk",
  "auth.reset_need_email": "Ketik email Anda di atas dulu, lalu ketuk ini.",
- "auth.reset_sent_toast": "📧 Email atur ulang kata sandi terkirim",
+ "auth.reset_sent_toast": "📧 Email atur ulang terkirim. Tidak ada di kotak masuk? Periksa folder Spam atau Sampah — dikirim dari noreply@be-mastery.firebaseapp.com. Tandai «Bukan spam» agar yang berikutnya masuk ke kotak masuk.",
  "auth.signout_confirm": "Keluar? Kemajuan Anda tetap di perangkat ini.",
  "auth.signed_out_toast": "Berhasil keluar",
  "auth.delete_confirm": "Hapus akun cloud Anda dan semua data tersinkron? Kemajuan di perangkat tetap ada kecuali Anda juga menyetel ulangnya. Ini tidak dapat dibatalkan.",

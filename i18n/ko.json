@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ 로그인을 사용할 수 없어요",
  "auth.signed_in_toast": "✅ 로그인했어요",
  "auth.reset_need_email": "먼저 위에 이메일을 입력한 뒤 이것을 누르세요.",
- "auth.reset_sent_toast": "📧 비밀번호 재설정 이메일을 보냈어요",
+ "auth.reset_sent_toast": "📧 재설정 이메일을 보냈어요. 받은편지함에 없나요? 스팸함을 확인하세요 — noreply@be-mastery.firebaseapp.com에서 보냅니다. ‘스팸 아님’으로 표시하면 다음 메일은 받은편지함으로 옵니다.",
  "auth.signout_confirm": "로그아웃할까요? 진행 상황은 이 기기에 남아요.",
  "auth.signed_out_toast": "로그아웃했어요",
  "auth.delete_confirm": "클라우드 계정과 동기화된 모든 데이터를 삭제할까요? 기기의 진행 상황은 함께 초기화하지 않는 한 남아요. 되돌릴 수 없어요.",

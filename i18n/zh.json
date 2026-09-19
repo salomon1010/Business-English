@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ 登录不可用",
  "auth.signed_in_toast": "✅ 已登录",
  "auth.reset_need_email": "请先在上方输入你的邮箱，再点这里。",
- "auth.reset_sent_toast": "📧 重置密码邮件已发送",
+ "auth.reset_sent_toast": "📧 重置邮件已发送。收件箱里没有？请查看“垃圾邮件”文件夹——发件人是 noreply@be-mastery.firebaseapp.com。标记为“非垃圾邮件”，下次就会进入收件箱。",
  "auth.signout_confirm": "退出登录？你的进度会保留在此设备上。",
  "auth.signed_out_toast": "已退出登录",
  "auth.delete_confirm": "删除你的云端账号和所有已同步的数据？除非你也重置本设备，否则设备上的进度会保留。此操作无法撤销。",

@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ سائن اِن دستیاب نہیں",
  "auth.signed_in_toast": "✅ سائن اِن ہو گئے",
  "auth.reset_need_email": "پہلے اوپر اپنا ای میل درج کریں، پھر اسے ٹیپ کریں۔",
- "auth.reset_sent_toast": "📧 پاس ورڈ ری سیٹ ای میل بھیج دی گئی",
+ "auth.reset_sent_toast": "📧 ری سیٹ ای میل بھیج دی گئی۔ ان باکس میں نہیں؟ اپنا Spam یا Junk فولڈر دیکھیں — یہ noreply@be-mastery.firebaseapp.com سے آتی ہے۔ اسے «Not spam» نشان زد کریں تاکہ اگلی ان باکس میں آئے۔",
  "auth.signout_confirm": "سائن آؤٹ کریں؟ آپ کی پیش رفت اسی آلے پر رہے گی۔",
  "auth.signed_out_toast": "سائن آؤٹ ہو گئے",
  "auth.delete_confirm": "اپنا کلاؤڈ اکاؤنٹ اور تمام سِنک شدہ ڈیٹا حذف کریں؟ جب تک آپ اسے بھی ری سیٹ نہ کریں، آلے کی پیش رفت رہے گی۔ اسے واپس نہیں کیا جا سکتا۔",

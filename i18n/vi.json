@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Đăng nhập không khả dụng",
  "auth.signed_in_toast": "✅ Đã đăng nhập",
  "auth.reset_need_email": "Nhập email của bạn ở trên trước, rồi nhấn cái này.",
- "auth.reset_sent_toast": "📧 Đã gửi email đặt lại mật khẩu",
+ "auth.reset_sent_toast": "📧 Đã gửi email đặt lại mật khẩu. Không thấy trong hộp thư đến? Hãy kiểm tra thư mục Spam hoặc Thư rác — email đến từ noreply@be-mastery.firebaseapp.com. Đánh dấu «Không phải spam» để lần sau email vào hộp thư đến.",
  "auth.signout_confirm": "Đăng xuất? Tiến độ của bạn vẫn ở trên thiết bị này.",
  "auth.signed_out_toast": "Đã đăng xuất",
  "auth.delete_confirm": "Xóa tài khoản đám mây và mọi dữ liệu đã đồng bộ? Tiến độ trên thiết bị vẫn còn trừ khi bạn cũng đặt lại nó. Không thể hoàn tác.",

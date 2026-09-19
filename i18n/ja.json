@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ ログインは利用できません",
  "auth.signed_in_toast": "✅ ログインしました",
  "auth.reset_need_email": "まず上にメールアドレスを入力してから、これをタップしてください。",
- "auth.reset_sent_toast": "📧 パスワード再設定メールを送信しました",
+ "auth.reset_sent_toast": "📧 再設定メールを送信しました。受信トレイにない場合は、迷惑メールフォルダを確認してください。送信元は noreply@be-mastery.firebaseapp.com です。「迷惑メールではない」に設定すると、次回は受信トレイに届きます。",
  "auth.signout_confirm": "ログアウトしますか？進捗はこの端末に残ります。",
  "auth.signed_out_toast": "ログアウトしました",
  "auth.delete_confirm": "クラウドアカウントとすべての同期データを削除しますか？端末上の進捗は、リセットしない限り残ります。この操作は取り消せません。",

@@ -557,7 +557,7 @@
  "auth.unavailable_toast": "⚠️ Connexion indisponible",
  "auth.signed_in_toast": "✅ Connecté",
  "auth.reset_need_email": "Saisissez d'abord votre e-mail ci-dessus, puis touchez ceci.",
- "auth.reset_sent_toast": "📧 E-mail de réinitialisation du mot de passe envoyé",
+ "auth.reset_sent_toast": "📧 E-mail de réinitialisation envoyé. Rien dans votre boîte de réception ? Vérifiez le dossier Spam ou Courrier indésirable — il vient de noreply@be-mastery.firebaseapp.com. Marquez-le « Non spam » pour que le prochain arrive dans votre boîte de réception.",
  "auth.signout_confirm": "Se déconnecter ? Votre progression reste sur cet appareil.",
  "auth.signed_out_toast": "Déconnecté",
  "auth.delete_confirm": "Supprimer votre compte cloud et toutes les données synchronisées ? Votre progression sur l'appareil reste, sauf si vous la réinitialisez aussi. Cette action est irréversible.",
