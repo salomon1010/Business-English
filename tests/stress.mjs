@@ -58,6 +58,10 @@ async function seedBig() {
   }, LOREM);
 }
 async function onboard(track) {
+  /* boot's own go("home") must land before the wizard is finished, as it always
+     does for a human — on the live site the curriculum fetch made it arrive
+     after obFinish(), which scheduled Home's backup nudge over the road map */
+  await sleep(2500);   // a person spends far longer than this in the wizard; boot must not still be landing
   await page.evaluate(async (track) => { OB.name = "Stress"; OB.track = track; S.professionalTracks = { activeId: track }; ProfessionalTrackContext.setActive(track); if (track === "welding") OB.trade = "welder"; obFinish(); }, track);
   await sleep(500);
   const r = await page.evaluate(() => ({ landed: cur.v, hash: location.hash, track: activeProfessionalTrack().id, welcome: !!document.getElementById("wcOv"), homeFirst: document.getElementById("v-home").classList.contains("on") }));
