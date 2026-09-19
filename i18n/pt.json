@@ -1824,5 +1824,6 @@
  "pp.call_accept": "Aceitar e começar",
  "pp.call_decline": "Agora não",
  "pp.call_host": "O seu convite ao vivo a {{name}} está aberto",
- "pp.call_return": "Voltar"
+ "pp.call_return": "Voltar",
+ "pp.more_live_sub": "Convide {{name}} para falar agora — uma chamada de voz curta sobre esta mesma tarefa."
 }

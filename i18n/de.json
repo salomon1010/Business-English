@@ -1824,5 +1824,6 @@
  "pp.call_accept": "Annehmen und starten",
  "pp.call_decline": "Jetzt nicht",
  "pp.call_host": "Deine Live-Einladung an {{name}} ist offen",
- "pp.call_return": "Zurück"
+ "pp.call_return": "Zurück",
+ "pp.more_live_sub": "Lade {{name}} ein, jetzt zu sprechen — ein kurzer Sprachanruf zu derselben Aufgabe."
 }

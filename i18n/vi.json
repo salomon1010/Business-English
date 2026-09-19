@@ -1824,5 +1824,6 @@
  "pp.call_accept": "Chấp nhận và bắt đầu",
  "pp.call_decline": "Để sau",
  "pp.call_host": "Lời mời trực tiếp của bạn tới {{name}} đang mở",
- "pp.call_return": "Quay lại"
+ "pp.call_return": "Quay lại",
+ "pp.more_live_sub": "Mời {{name}} nói chuyện ngay — một cuộc gọi thoại ngắn về chính bài này."
 }

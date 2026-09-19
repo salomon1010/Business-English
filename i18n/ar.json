@@ -1824,5 +1824,6 @@
  "pp.call_accept": "قبول وبدء",
  "pp.call_decline": "ليس الآن",
  "pp.call_host": "دعوتك المباشرة إلى {{name}} مفتوحة",
- "pp.call_return": "العودة"
+ "pp.call_return": "العودة",
+ "pp.more_live_sub": "ادعُ {{name}} للتحدث الآن — مكالمة صوتية قصيرة حول المهمة نفسها."
 }

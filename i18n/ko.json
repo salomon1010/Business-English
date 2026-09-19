@@ -1824,5 +1824,6 @@
  "pp.call_accept": "수락하고 시작",
  "pp.call_decline": "다음에",
  "pp.call_host": "{{name}}에게 보낸 실시간 초대가 열려 있습니다",
- "pp.call_return": "돌아가기"
+ "pp.call_return": "돌아가기",
+ "pp.more_live_sub": "{{name}}에게 지금 대화를 제안하세요 — 같은 과제로 짧은 음성 통화."
 }

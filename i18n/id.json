@@ -1824,5 +1824,6 @@
  "pp.call_accept": "Terima & mulai",
  "pp.call_decline": "Nanti saja",
  "pp.call_host": "Undangan langsung Anda untuk {{name}} masih terbuka",
- "pp.call_return": "Kembali"
+ "pp.call_return": "Kembali",
+ "pp.more_live_sub": "Undang {{name}} untuk bicara sekarang — panggilan suara singkat tentang tugas yang sama."
 }

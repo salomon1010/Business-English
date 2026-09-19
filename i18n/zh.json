@@ -1824,5 +1824,6 @@
  "pp.call_accept": "接受并开始",
  "pp.call_decline": "暂不",
  "pp.call_host": "你向 {{name}} 发出的实时邀请仍在等待",
- "pp.call_return": "返回"
+ "pp.call_return": "返回",
+ "pp.more_live_sub": "邀请 {{name}} 现在就聊——围绕同一任务的简短语音通话。"
 }

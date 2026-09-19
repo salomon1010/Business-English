@@ -1824,5 +1824,6 @@
  "pp.call_accept": "Accepter et commencer",
  "pp.call_decline": "Pas maintenant",
  "pp.call_host": "Votre invitation en direct à {{name}} est ouverte",
- "pp.call_return": "Revenir"
+ "pp.call_return": "Revenir",
+ "pp.more_live_sub": "Invitez {{name}} à parler maintenant — un court appel vocal sur cette même tâche."
 }

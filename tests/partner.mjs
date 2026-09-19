@@ -214,6 +214,7 @@ await A.page.click('.pp-live-end button'); await C.page.click('.pp-live-end butt
 ok("After the call the connection card is back with Start and Practise live", (await txt(A.page, ".pp-conn")).includes("Practise live") && (await txt(A.page, ".pp-conn")).includes("Start today"));
 
 await A.page.click('button:has-text("Start today")'); await sleep(1300);
+ok("Inside a session with a connected partner, More options offers Practise live too", await (async () => { await sleep(300); const m = await txt(A.page, ".pp-more"); return m.includes("Practise live") && m.includes("Invite Carla to talk right now"); })());
 ok("Start → a regular session with the same partner", (await txt(A.page, ".pp-head")).includes("Regular partners") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"));
 
 /* ---------- partner management: leave today's practice ≠ end partnership; AI reachable while connected ---------- */

@@ -4740,6 +4740,7 @@ const I18N_EN={
  "pp.call_decline":"Not now",
  "pp.call_host":"Your live invitation to {{name}} is open",
  "pp.call_return":"Return",
+ "pp.more_live_sub":"Invite {{name}} to talk right now — a short voice call on this same task.",
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
@@ -13453,6 +13454,8 @@ function ppThreadHTML(p){
   <section class="card pp-recorder" id="ppRecorder" data-can="${p.myTurn?1:0}" data-waiting="${p.waiting?1:0}"></section>
   ${p.complete?"":`<section class="card pp-more">
     <div class="eyebrow">${t("pp.more_eyebrow")}</div>
+    ${ppLiveOn()&&p.connection&&(p.connection.state==="mutual"||p.connection.state==="regular")&&!(ppMe&&ppMe.live)?`<button class="btn btn-g pp-more-btn" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>
+    <p class="pp-fine">${t("pp.more_live_sub",{name:esc(p.partner.name)})}</p>`:""}
     ${flag("practice_partner_ai_fallback_enabled")?`<button class="btn btn-g pp-more-btn" onclick="ppAiPractice('session')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button>
     <p class="pp-fine">${t("pp.more_ai_sub",{name:esc(p.partner.name)})}</p>`:""}
     <button class="btn btn-g pp-more-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
@@ -13871,6 +13874,19 @@ window.ppLiveResume=async()=>{const l=ppLiveSess();if(!l)return;let ice=null;try
    app is visible; never during a call, which has its own poll). */
 let ppCallT=null,ppCallShown=null;
 function ppCallEl(){let el=document.getElementById("ppCall");if(!el){el=document.createElement("div");el.id="ppCall";el.setAttribute("role","alert");document.body.appendChild(el)}return el}
+/* a short two-tone chime for the banner: WebAudio on the same unlocked
+   context path the app uses; iOS ignores navigator.vibrate, so the sound is
+   what a phone in the hand actually notices. Silent if audio is not allowed. */
+let _ppChimeAC=null;
+function ppChime(){
+  try{
+    _ppChimeAC=_ppChimeAC||new (window.AudioContext||window.webkitAudioContext)();
+    const ac=_ppChimeAC;if(ac.state==="suspended")ac.resume().catch(()=>{});
+    const t0=ac.currentTime;
+    [[660,0],[880,.18],[660,.36],[880,.54]].forEach(([f,at])=>{const o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0+at);g.gain.exponentialRampToValueAtTime(0.25,t0+at+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+at+0.16);o.connect(g).connect(ac.destination);o.start(t0+at);o.stop(t0+at+0.18)});
+  }catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}
+}
 function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
 function ppCallSync(){
   const m=ppMe||ppState().lastMe,l=m&&m.live;
@@ -13886,7 +13902,7 @@ function ppCallSync(){
         <div class="pp-call-t"><b>${t("pp.call_host",{name:esc(l.partner.name)})}</b><small>${t("pp.live_waiting",{name:esc(l.partner.name)})}</small></div></div>
       <div class="pp-call-btns"><button class="pp-call-accept" onclick="go('partner')">${t("pp.call_return")}</button><button class="pp-call-decline" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`;
     manIconizeInline(el);el.classList.add("on");ppCallShown=key;
-    if(guestInvite){try{if(navigator.vibrate)navigator.vibrate([120,80,120])}catch(e){}}
+    if(guestInvite)ppChime();
   }
 }
 function ppCallLoop(){
@@ -13901,6 +13917,7 @@ function ppCallLoop(){
 }
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ppCallSync()});
 window.addEventListener("hashchange",()=>{try{ppCallSync()}catch(e){}});
+document.addEventListener("touchend",()=>{try{_ppChimeAC=_ppChimeAC||new (window.AudioContext||window.webkitAudioContext)();if(_ppChimeAC.state==="suspended")_ppChimeAC.resume().catch(()=>{})}catch(e){}},{once:true,passive:true});
 setTimeout(ppCallLoop,4000);
 
 /* ================= AI COACH PRACTICE (Level 2) =================
