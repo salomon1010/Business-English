@@ -1300,16 +1300,17 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
-/* the floating "Talk to a real person" button — really small (owner,
-   2026-09-19, after the 64 px circle and the extended pill both read as too
-   big): a 44 px photo circle, the minimum tap target, nothing else. The label
-   stays as the accessible name and the tooltip; the quiet breathing halo stays. */
-#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:block;width:44px;height:44px;padding:0;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);
-  background:linear-gradient(180deg,rgba(76,60,190,.18),rgba(30,27,75,.35)),url("rp-photos/partner.jpg") center 28%/cover no-repeat;filter:saturate(.9);
-  color:#fff;font:inherit;
+/* the floating "Talk to a real person" button — small, with the label inside
+   the circle (owner, 2026-09-19: "really small", then "the text… fit in the
+   circle"): a 52 px photo circle, the label at 8 px on the darker lower half,
+   three short lines at most (pp.fab_small is kept short in every language for
+   that). The full label (pp.fab) is the accessible name and the tooltip. */
+#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:52px;height:52px;padding:0 3px 5px;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);
+  background:linear-gradient(180deg,rgba(49,46,129,.3) 0%,rgba(40,36,110,.55) 40%,rgba(22,18,52,.95) 100%),url("rp-photos/partner.jpg") center 22%/cover no-repeat;filter:saturate(.9);
+  color:#fff;font:inherit;font-size:8px;line-height:1.08;font-weight:800;text-align:center;letter-spacing:0;text-shadow:0 1px 2px rgba(0,0,0,.7);
   box-shadow:0 4px 12px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
 #ppFab .pp-fab-ic,#ppFab .pp-fab-ic svg{display:none}
-#ppFab>span:last-child{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+#ppFab>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:46px;overflow-wrap:break-word}
 /* the same quiet breathing halo as "Practise live" (.pp-live-glow), not a beacon */
 #ppFab.on::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:2px solid rgba(150,150,180,.38);pointer-events:none;animation:pplivebreathe 3.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
@@ -4865,6 +4866,7 @@ const I18N_EN={
  "pp.presence_none":"No one online right now — you'll be told when someone arrives",
  "pp.cands_toast":"{{n}} learner(s) waiting — pick one",
  "pp.fab":"Talk to a real person",
+ "pp.fab_small":"Practise with real person",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -14285,7 +14287,7 @@ function ppFabSync(){
   let show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
-  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
+  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab_small")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
   el.classList.toggle("lift",lift);
   if(onRec&&ppFabOverlaps(el)){el.classList.remove("on");return}
   el.classList.add("on");

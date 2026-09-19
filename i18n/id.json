@@ -1866,6 +1866,7 @@
  "pp.presence_none": "Belum ada yang online — kami beri tahu begitu ada yang datang",
  "pp.cands_toast": "{{n}} pelajar menunggu — pilih satu",
  "pp.fab": "Bicara dengan orang sungguhan",
+  "pp.fab_small": "Latihan dengan orang",
  "pp.conn_choice": "Langsung: bicara sekarang, sekitar lima menit. Latihan hari ini: rekam saat sempat.",
  "pp.cand_live_note": "Bicara langsung sekarang, atau rekam empat giliran singkat. Kalau tidak cocok, siapa pun boleh pergi.",
  "pp.why_line": "menunggu untuk berlatih sekarang",

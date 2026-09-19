@@ -1866,6 +1866,7 @@
  "pp.presence_none": "Nessuno online al momento — ti avviseremo quando arriva qualcuno",
  "pp.cands_toast": "{{n}} studente/i in attesa — scegline uno",
  "pp.fab": "Parla con una persona vera",
+  "pp.fab_small": "Pratica con qualcuno",
  "pp.conn_choice": "Dal vivo: parla adesso, circa cinque minuti. Pratica di oggi: registra quando puoi.",
  "pp.cand_live_note": "Parla dal vivo adesso, oppure registra quattro turni brevi. Se non funziona, ciascuno dei due può andarsene.",
  "pp.why_line": "in attesa di esercitarsi adesso",
