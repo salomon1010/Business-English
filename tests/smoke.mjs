@@ -190,6 +190,43 @@ const sw = await page.evaluate(async () => {
 });
 ok("Switching area lands on that area's road map, centred, saying which area it is", sw.v === "journey" && sw.track === "welding" && sw.now && /Welding/.test(sw.title || ""), JSON.stringify(sw));
 
+/* ── environment defaults by hostname (staging self-configures; production and localhost do not) ──
+   The page is loaded under three real hostnames by routing them to the local server, so
+   location.hostname is genuinely what the app sees. Every outbound beacon / Worker call is
+   captured, never sent. */
+if (!process.env.BASE) {
+  const envCase = async (host) => {
+    const c = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const p = await c.newPage(); const outbound = [];
+    await p.route("**/*", async route => {
+      const u = new URL(route.request().url());
+      if (u.hostname === host) { const r = await fetch("http://localhost:8765" + u.pathname + u.search).catch(() => null); if (!r) return route.abort(); return route.fulfill({ status: r.status, body: Buffer.from(await r.arrayBuffer()), headers: { "content-type": r.headers.get("content-type") || "application/octet-stream" } }); }
+      outbound.push(u.origin + u.pathname); return route.abort();
+    });
+    p.on("request", r => { const u = new URL(r.url()); if (u.hostname !== host && !outbound.includes(u.origin + u.pathname)) outbound.push(u.origin + u.pathname); });
+    const scheme = host === "localhost" ? "http://localhost:8765" : "https://" + host;
+    await p.goto(scheme + "/index.html?env=" + Date.now(), { waitUntil: "load" }); await p.waitForTimeout(300);
+    const r = await p.evaluate(() => {
+      const env = beEnv();
+      const flagsOff = ["practice_partner_enabled", "practice_partner_matching_enabled", "practice_partner_voice_enabled", "practice_partner_notifications_enabled", "practice_partner_live_enabled", "shadow_studio_v2_enabled", "shadow_apply_phrase_enabled"];
+      const base = { env, partner: ppApiBase(), flags: Object.fromEntries(flagsOff.map(f => [f, flag(f)])), aiFallback: flag("practice_partner_ai_fallback_enabled"), wordTiming: flag("shadow_word_timing_enabled") };
+      /* overrides must still win everywhere */
+      localStorage.setItem("be_partner_api", "http://127.0.0.1:1"); localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: !flag("practice_partner_enabled") }));
+      const over = { partner: ppApiBase(), flag: flag("practice_partner_enabled") };
+      localStorage.removeItem("be_partner_api"); localStorage.removeItem("be_flags");
+      track("app_open", { installed: "0" });
+      return { ...base, over };
+    });
+    await p.waitForTimeout(400); await c.close();
+    return { ...r, beacon: outbound.find(x => x.includes("be-events")) || null };
+  };
+  const st = await envCase("staging.lomonec.com"), pr = await envCase("app.lomonec.com"), lo = await envCase("localhost");
+  ok("staging.lomonec.com → staging Events Worker, staging Partner Worker, PILOT flags on", st.env && st.beacon === "https://be-events-staging.nore-ngou.workers.dev/e" && st.partner === "https://be-partner-staging.nore-ngou.workers.dev" && Object.values(st.flags).every(Boolean) && st.aiFallback && st.wordTiming, JSON.stringify(st));
+  ok("app.lomonec.com → production Events Worker, production Partner API constant, partner/Shadow flags OFF", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && Object.values(pr.flags).every(v => v === false) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
+  ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && Object.values(lo.flags).every(v => v === false), JSON.stringify(lo));
+  ok("localStorage.be_partner_api and be_flags still override the defaults on every hostname", st.over.partner === "http://127.0.0.1:1" && st.over.flag === false && pr.over.partner === "http://127.0.0.1:1" && pr.over.flag === true && lo.over.partner === "http://127.0.0.1:1" && lo.over.flag === true, JSON.stringify({ st: st.over, pr: pr.over, lo: lo.over }));
+}
+
 /* ── no JavaScript errors anywhere above ── */
 ok("No uncaught JavaScript errors", errors.length === 0, errors.slice(0, 3).join(" | "));
 
