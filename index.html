@@ -13370,6 +13370,24 @@ const FLAGS_STAGING={
   shadow_apply_phrase_enabled:true,
   shadow_challenge_enabled:true
 };
+/* A tester on a phone has no console to set be_flags with, so the URL can:
+   ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
+   this device, ?flags=off clears every override, and ?flags=-name turns one
+   off. Only names in FLAGS_DEFAULT count; the parameter is removed from the
+   address once read so a shared link does not carry it around. Same power as
+   the localStorage override it writes — a preview switch, not a boundary:
+   the Workers keep their own server-side switches. */
+(function(){
+  try{
+    const q=new URLSearchParams(location.search),v=q.get("flags");if(v==null)return;
+    let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
+    o=(o&&typeof o==="object")?o:{};
+    if(v==="off")o={};
+    else for(const raw of v.split(",")){const off=raw.startsWith("-"),n=raw.replace(/^-/,"").trim();if(n in FLAGS_DEFAULT)o[n]=!off}
+    if(Object.keys(o).length)localStorage.setItem("be_flags",JSON.stringify(o));else localStorage.removeItem("be_flags");
+    q.delete("flags");const rest=q.toString();history.replaceState(null,"",location.pathname+(rest?"?"+rest:"")+location.hash);
+  }catch(e){}
+})();
 function flag(name){
   let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
   if(o&&typeof o==="object"&&name in o)return !!o[name];
