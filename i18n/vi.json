@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Thử thách",
  "sv.mode_apply": "Áp dụng",
  "sv.level_word": "Tô sáng từng từ theo phụ đề của clip này.",
+ "sv.level_word_est": "Tô sáng từ được ước tính từ thời gian câu của đoạn này — có thể lệch khi ngắt nghỉ dài.",
  "sv.level_sentence": "Tô sáng từng câu — phụ đề của clip này không có thời gian từng từ.",
  "sv.level_text": "Bản chép lời của bạn, từng câu một. Clip này không có thời gian nên không tô sáng — chạm vào một câu để lặp lại.",
  "sv.challenge_note": "Nghe và nói trước khi nhìn.",

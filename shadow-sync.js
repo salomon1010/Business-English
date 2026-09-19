@@ -62,6 +62,31 @@
     return { segments: segs, level: anyWords ? "word" : "sentence" };
   }
 
+  /* Sentence-only captions (13 of the 18 library clips have word times; the
+     rest, and every Worker-fetched caption file, carry cue times only): give
+     each word an ESTIMATED moment by sharing the cue's span out by letter
+     count. Steady speech tracks well; a long pause inside a cue drifts. The
+     result is marked `estimated` so the panel can say so — this is not word
+     timing from the captions, and nothing else should treat it as such. */
+  function estimateWords(asset) {
+    if (!asset || !asset.segments || !asset.segments.length) return asset;
+    const segs = asset.segments.map(seg => {
+      if ((seg.words && seg.words.length) || !(seg.endMs > seg.startMs)) return seg;
+      const parts = String(seg.text || "").split(/\s+/).filter(Boolean);
+      if (!parts.length) return seg;
+      const weights = parts.map(w => Math.max(1, w.replace(/[^\p{L}\p{N}']/gu, "").length) + 1);
+      const total = weights.reduce((a, b) => a + b, 0), span = seg.endMs - seg.startMs;
+      let at = seg.startMs;
+      const words = parts.map((w, k) => {
+        const start = Math.round(at); at += span * weights[k] / total;
+        return { id: seg.id + "w" + k, text: w, startMs: start, endMs: Math.max(start + 80, Math.round(at)), estimated: true };
+      });
+      return Object.assign({}, seg, { words });
+    });
+    const anyEst = segs.some(s => s.words && s.words.length && s.words[0].estimated);
+    return { segments: segs, level: segs.some(s => s.words && s.words.length) ? "word" : asset.level, estimated: anyEst || !!asset.estimated };
+  }
+
   /* A transcript the learner typed or pasted: sentences, no timing. */
   function normalizeText(text) {
     const sents = splitSentences(text);
@@ -214,7 +239,7 @@
     return { coverage: +coverage.toFixed(2), ok: okN, total: tgt.length, missing, wrong, misplaced, swapped, extra, fillers, pauses, durS, pace, weak, strong, pass, good, improve };
   }
 
-  const api = { normalizeCaptions, normalizeText, locate, neighbour, levelOf, splitSentences, tokens, align, findExpression, usedExpression, challenge, FILLERS, PASS };
+  const api = { normalizeCaptions, normalizeText, estimateWords, locate, neighbour, levelOf, splitSentences, tokens, align, findExpression, usedExpression, challenge, FILLERS, PASS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.ShadowSync = api;
 })(typeof window !== "undefined" ? window : globalThis);

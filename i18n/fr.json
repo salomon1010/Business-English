@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Défi",
  "sv.mode_apply": "Utiliser",
  "sv.level_word": "Surlignage mot par mot d'après les sous-titres de cet extrait.",
+ "sv.level_word_est": "Surlignage des mots estimé d'après le minutage des phrases de cet extrait — il peut décaler lors des longues pauses.",
  "sv.level_sentence": "Surlignage par phrase — les sous-titres de cet extrait n'ont pas de minutage par mot.",
  "sv.level_text": "Votre transcription, phrase par phrase. Pas de minutage pour cet extrait, rien ne s'allume — touchez une phrase pour la répéter.",
  "sv.challenge_note": "Écoutez et dites-le avant de regarder.",

@@ -167,6 +167,30 @@ ok("APPLY IT still there: expression + 'Practise with AI' (partner button only w
 await A.page.evaluate(() => svSetMode("watch")); await sleep(100);
 ok("Leaving Challenge drops its state; Watch shows the transcript again", await A.page.evaluate(() => svCh === null && !document.getElementById("svTx").classList.contains("hidden")));
 
+/* ---------- the follow-along player: pinned video + now-line card + list of what is next ---------- */
+await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svSetMode("watch"); }); await sleep(300);
+const fa = await A.page.evaluate(async () => {
+  const body = document.querySelector(".sh-work-body"), tx = document.getElementById("svTx"), nw = document.getElementById("svNow");
+  const play = i => { const s = svAsset.segments[i]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); };
+  body.scrollTop = 0; play(5); await new Promise(r => setTimeout(r, 900));
+  const bx = tx.getBoundingClientRect(), firstVisible = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > bx.top + 2)?.dataset.i;
+  const r = { cardShown: !nw.hidden, cardText: nw.innerText.slice(0, 30), cardWord: nw.querySelector(".sv-w.now")?.innerText, litWord: svAsset.segments[5].words[2].text, listNext: firstVisible, bodyScroll: body.scrollTop, orange: getComputedStyle(nw.querySelector(".sv-w.now")).backgroundColor };
+  play(12); await new Promise(r => setTimeout(r, 900)); r.listNext2 = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > tx.getBoundingClientRect().top + 2)?.dataset.i; r.bodyScroll2 = body.scrollTop;
+  body.scrollTop = 500; await new Promise(r => setTimeout(r, 200)); const st = document.querySelector(".sh-stick").getBoundingClientRect(); r.stickTop = Math.round(st.top); r.bodyTop = Math.round(body.getBoundingClientRect().top); body.scrollTop = 0;
+  return r;
+});
+ok("Follow-along: the current line is in the pinned card with the spoken word lit in orange; the list starts at the NEXT line; the page itself never scrolls", fa.cardShown && fa.cardWord === fa.litWord && fa.listNext === "6" && fa.listNext2 === "13" && fa.bodyScroll === 0 && fa.bodyScroll2 === 0 && /249, 115, 22/.test(fa.orange), JSON.stringify(fa));
+ok("Pinned: after the learner scrolls the workspace, the player block is still at the top of the scroll area", fa.stickTop === fa.bodyTop, JSON.stringify({ stickTop: fa.stickTop, bodyTop: fa.bodyTop }));
+await A.page.evaluate(() => { svPick = 5; svSetMode("challenge"); }); await sleep(200);
+ok("Challenge: the now-line card is hidden with the transcript — the line does not leak through the card", await A.page.evaluate(() => document.getElementById("svNow").hidden && !document.getElementById("svNow").innerText.trim()));
+await A.page.evaluate(() => { svSetMode("watch"); svPick = -1; }); await sleep(200);
+
+/* ---------- sentence-only captions get estimated word timing, honestly labelled ---------- */
+const est = await A.page.evaluate(async () => { await shLoad({ vid: "UF8uR6Z6KLc", start: 0, end: 0, title: "Jobs" }, true); await new Promise(r => setTimeout(r, 2500)); return { level: svAsset && svAsset.level, estimated: !!(svAsset && svAsset.estimated), words: !!(svAsset && svAsset.segments[0].words && svAsset.segments[0].words.length), note: document.querySelector("#shV2 .sv-note")?.innerText || "" }; });
+ok("Jobs clip (cue times only): words estimated from the sentence timing, level word, note says 'estimated'", est.level === "word" && est.estimated && est.words && /estimated/i.test(est.note), JSON.stringify(est));
+await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); });
+ok("Back on a word-timed clip: not estimated, plain word note", await A.page.evaluate(() => svAsset.level === "word" && !svAsset.estimated && !/estimated/i.test(document.querySelector("#shV2 .sv-note").innerText)));
+
 /* ---------- current expression chip, in every mode ---------- */
 const chip = await A.page.evaluate(() => { const phr = trackPhrases(); const first = (typeof phr[0] === "string" ? phr[0] : phr[0] && phr[0].p) || ""; const tk = ShadowSync.tokens(first.replace(/\.{3}|…/g, " ")).join(" ");
   const i = svAsset.segments.length - 1; svAsset.segments[i].text = "so " + tk + " tomorrow"; svPick = i; svSetMode("watch"); const el = document.getElementById("svExpr");

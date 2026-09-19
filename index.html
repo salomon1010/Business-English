@@ -65,7 +65,7 @@
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=80"></script>
-<script src="shadow-sync.js?v=3"></script>
+<script src="shadow-sync.js?v=4"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
 <script src="professional-skills-passport.js?v=83"></script>
@@ -682,7 +682,14 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .sh-work-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
 .sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
 .sh-work-x svg{width:20px;height:20px}
-.sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-width:1000px;width:100%;margin:0 auto}
+.sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 18px calc(18px + env(safe-area-inset-bottom));max-width:1000px;width:100%;margin:0 auto}
+/* the player and its transport stay put while the transcript scrolls under
+   them — the video is the reference, the text follows it */
+.sh-stick{padding:14px 0 10px}
+@media(max-width:899px){.sh-stick{position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 8px 16px -12px rgba(0,0,0,.5)}}
+.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px}
+.sh-stick .sh-pill button{min-width:46px}
+.sh-stick .sh-time{min-width:0}
 .sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* the overlay's entrance fade is ours to suppress, not the browser's */
 /* the picker must not scroll underneath the overlay */
@@ -1240,7 +1247,17 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-seg{margin:0 0 8px;padding:6px 8px;border-radius:9px;font-size:15px;line-height:1.55;color:var(--mut);cursor:pointer;transition:background .15s,color .15s}
 .sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 12%,transparent)}
 .sv-seg.pick{outline:1px dashed color-mix(in srgb,var(--acc) 60%,transparent)}
-.sv-w{border-radius:4px;padding:0 1px;transition:background .08s}.sv-w.now{background:var(--acc);color:var(--on-accent)}
+.sv-w{border-radius:4px;padding:0 2px;transition:background .08s}
+/* the word being spoken: yellow in both themes — a learner following with the
+   eye needs one unmistakable mark, not a tint of the accent */
+.sv-w.now{background:#f97316;color:#fff;font-weight:700;box-shadow:0 0 0 3px #f97316;border-radius:6px}
+.sv-seg.now .sv-w:not(.now){color:var(--txt)}
+/* the line being spoken, pinned under the video: big, white, the word lit */
+.sv-now{margin:10px 0 0;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line2);font-size:16px;line-height:1.65;letter-spacing:.2px;color:var(--txt);font-weight:600;word-spacing:2px}
+.sv-now[hidden]{display:none}
+.sv-now .sv-w{padding:0 3px;border-radius:6px}
+.sv-tx .sv-seg{color:var(--mut)}.sv-tx .sv-seg.now{background:transparent;color:var(--mut)}   /* the list is the road ahead; the card is the line */
+.sv-tx .sv-seg.now .sv-w{color:var(--mut)}.sv-tx .sv-seg.now .sv-w.now{background:transparent;box-shadow:none;color:var(--txt);font-weight:600}
 .sv-tx.hidden{display:none}
 .sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
 .sv-expr[hidden]{display:none}.sv-expr b{color:var(--txt);font-weight:700}.sv-expr .sv-expr-lbl{text-transform:uppercase;letter-spacing:1px;font-size:10.5px;font-weight:800;color:var(--accent-text)}
@@ -4695,6 +4712,7 @@ const I18N_EN={
  "sv.modes":"Shadow Studio modes",
  "sv.mode_watch":"Watch","sv.mode_shadow":"Shadow","sv.mode_challenge":"Challenge","sv.mode_apply":"Apply it",
  "sv.level_word":"Word-by-word highlighting from this clip's captions.",
+ "sv.level_word_est":"Word highlighting estimated from this clip's sentence timing — it can drift on long pauses.",
  "sv.level_sentence":"Sentence highlighting — this clip's captions have no word timing.",
  "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
  "sv.challenge_note":"Listen and say it before you look.",
@@ -7943,6 +7961,7 @@ ${(()=>{
     </div>
     <div class="sh-work-body">
   <div id="shPlayerWrap">
+    <div class="sh-stick">
     <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
     <div class="sh-viderr" id="shVidErr" style="display:none" role="alert">
       <span class="sh-viderr-ic">${ic("alert")}</span>
@@ -7952,6 +7971,7 @@ ${(()=>{
       </span>
       <button class="btn btn-g" onclick="shCloseWork()">${t("sh.video_error_btn")}</button>
     </div>
+    <div class="sv-now" id="svNow" hidden aria-live="off"></div>
     <div class="sh-ctl">
       <div class="sh-pill">
         <button onclick="shRestart()" title="${esc(t("sh.restart_title"))}">${ic("skipstart")}</button>
@@ -7963,7 +7983,8 @@ ${(()=>{
       <span style="flex:1"></span>
       <button class="sh-round" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
       <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">${ic("repeat")}</button>
-      <button class="btn btn-g" onclick="shSaveClip()">${tIc("sh.save_clip_btn","star")}</button>
+      <button class="sh-round" onclick="shSaveClip()" title="${esc(t("sh.save_clip_btn"))}" aria-label="${esc(t("sh.save_clip_btn"))}">${ic("star")}</button>
+    </div>
     </div>
     <div class="sv" id="shV2" style="display:none"></div>
     <div class="sh-seg" id="shSeg">
@@ -13412,7 +13433,7 @@ function svBox(){return document.getElementById("shV2")}
    transcript box, else none */
 async function shV2Load(){
   const box=svBox();if(!box)return;
-  if(!svOn()){box.style.display="none";svAsset=null;svStop();return}
+  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);return}
   const vid=shClip.vid;
   let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
   if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
@@ -13420,6 +13441,7 @@ async function shV2Load(){
   if(cap&&cap.cues&&cap.cues.length){
     asset=ShadowSync.normalizeCaptions(cap,shClip.start,shClip.end);
     if(asset.level==="word"&&!flag("shadow_word_timing_enabled")){asset.segments.forEach(s=>{delete s.words});asset.level="sentence"}
+    else if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);   // marked estimated; the note says so
   }
   if(!asset||asset.level==="none"){
     const txt=(document.getElementById("shNote")||{}).value||"";
@@ -13442,7 +13464,7 @@ function svRender(){
   const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`).join("");
-  const levelNote=a.level==="word"?t("sv.level_word"):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  const levelNote=a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
   /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
      collapsed while the learner is meant to produce from memory (ready /
      recording / grading at recall or independent, recording at guided) and
@@ -13457,7 +13479,7 @@ function svRender(){
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
-    <div class="sv-tx ${txHidden?"hidden":""}" id="svTx" onscroll="svUserScrollAt=Date.now()">${segs}</div>
+    <div class="sv-tx ${txHidden?"hidden":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     <div class="sv-ctl">
       ${timed?`<button class="btn btn-g btn-sm" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}">${ic("rewind")}</button>
       <button class="btn btn-g btn-sm ${svRepeat?"on":""}" onclick="svRepeatToggle()">${ic("repeat")} ${t("sv.repeat")}</button>
@@ -13467,7 +13489,8 @@ function svRender(){
     </div>
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
-  svLast={seg:-1,word:-1};
+  const keep=svLast.seg;svLast={seg:-1,word:-1};
+  svNowDraw(keep);
   if(svMode==="challenge"&&!txHidden){const el=box.querySelector(`.sv-seg[data-i="${svChSegIndex()}"]`);if(el)el.classList.add("pick")}
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
@@ -13744,6 +13767,29 @@ window.svApplyPartner=()=>{
    learner scrolled in the last 3 s. */
 function svStart(){svStop();const step=()=>{svTick();svRaf=requestAnimationFrame(step)};svRaf=requestAnimationFrame(step)}
 function svStop(){if(svRaf)cancelAnimationFrame(svRaf);svRaf=null}
+/* scroll the transcript box alone. scrollIntoView walked every scrollable
+   ancestor, so each new sentence also scrolled the workspace and pushed the
+   video off the top of a phone — the text "went up" and took the player with it. */
+let svAutoUntil=0;
+/* a scroll the code started must not count as the learner scrolling — that
+   would silence the follow-along for 3 s after every line */
+function svOnTxScroll(){if(Date.now()>svAutoUntil)svUserScrollAt=Date.now()}
+function svScrollTo(tx,el){
+  svAutoUntil=Date.now()+800;
+  const nxt=el.nextElementSibling;                       // the card above shows the current line, so the box starts at the next
+  const tgt=nxt||el,r=tgt.getBoundingClientRect(),box=tx.getBoundingClientRect();
+  const top=tx.scrollTop+(r.top-box.top)-(nxt?4:(tx.clientHeight-r.height)/2);
+  try{tx.scrollTo({top:Math.max(0,top),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){tx.scrollTop=Math.max(0,top)}
+}
+/* the pinned card under the video: the sentence being spoken, one span per
+   word so the tick can light the word without touching the rest */
+function svNowDraw(i){
+  const nw=document.getElementById("svNow");if(!nw)return;
+  const a=svAsset,s=a&&i>=0&&a.segments[i],tx=document.getElementById("svTx");
+  const hidden=!s||!svOn()||(tx&&tx.classList.contains("hidden"));
+  nw.hidden=hidden;if(hidden){nw.innerHTML="";return}
+  nw.innerHTML=s.words&&s.words.length?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" "):esc(s.text);
+}
 function svTick(){
   const a=svAsset,tx=document.getElementById("svTx");
   if(!a||!tx)return;
@@ -13755,13 +13801,16 @@ function svTick(){
   const loc=ShadowSync.locate(a,tS*1000);
   if(loc.seg===svLast.seg&&loc.word===svLast.word)return;
   if(loc.seg!==svLast.seg){
+    svNowDraw(loc.seg);
     if(svPick<0&&loc.seg>=0){svLast.seg=loc.seg;svExprDraw()}
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
-    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(Date.now()-svUserScrollAt>3000)el.scrollIntoView({block:"center",behavior:"smooth"})}}
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(Date.now()-svUserScrollAt>3000)svScrollTo(tx,el)}}
   }
   if(loc.word!==svLast.word||loc.seg!==svLast.seg){
     tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
     if(loc.seg>=0&&loc.word>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"] .sv-w[data-k="${loc.word}"]`);if(el)el.classList.add("now")}
+    const nw=document.getElementById("svNow");
+    if(nw&&!nw.hidden){nw.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));if(loc.word>=0){const w=nw.querySelector(`.sv-w[data-k="${loc.word}"]`);if(w)w.classList.add("now")}}
   }
   svLast=loc;
 }

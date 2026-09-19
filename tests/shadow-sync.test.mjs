@@ -25,6 +25,12 @@ const clipped = S.normalizeCaptions(cap, 13.6, 17.5);
 ok("clip marks drop segments that do not overlap [start,end] (s0 ends at 13.5)", clipped.segments.length === 2 && clipped.segments[0].id === "s1" && clipped.segments[1].id === "s2");
 const sentenceOnly = S.normalizeCaptions({ cues: cap.cues }, 0, 0);
 ok("cues without words → sentence level", sentenceOnly.level === "sentence" && !sentenceOnly.segments[0].words);
+{ const est = ShadowSync.estimateWords(sentenceOnly); const w = est.segments[0].words, seg = est.segments[0];
+  const mono = w.every((x, i) => i === 0 || x.startMs >= w[i - 1].startMs) && w.every(x => x.endMs > x.startMs);
+  ok("estimateWords: a sentence-only asset becomes word level, marked estimated; words span the cue in order and every word is flagged", est.level === "word" && est.estimated === true && w.length === seg.text.split(/\s+/).length && w[0].startMs === seg.startMs && w[w.length - 1].endMs === seg.endMs && mono && w.every(x => x.estimated), JSON.stringify(w.slice(0, 3)));
+  ok("estimateWords: longer words get more time", (() => { const a = ShadowSync.estimateWords({ level: "sentence", segments: [{ id: "s", text: "I understand", startMs: 0, endMs: 1300 }] }).segments[0].words; return a[1].endMs - a[1].startMs > a[0].endMs - a[0].startMs; })());
+  ok("estimateWords: an asset that already has word times is returned untouched (not estimated)", (() => { const src = ShadowSync.normalizeCaptions({ cues: [{ t: 0, txt: "a b" }], words: [{ t: 0, w: "a" }, { t: 0.5, w: "b" }] }); const r = ShadowSync.estimateWords(src); return r.level === "word" && !r.estimated && r.segments[0].words[1].startMs === 500 && !r.segments[0].words[0].estimated; })());
+  ok("estimateWords: locate() lights the estimated word for a time inside the cue", (() => { const l = ShadowSync.locate(est, seg.startMs + Math.round((seg.endMs - seg.startMs) * 0.9)); return l.seg === 0 && l.word === w.length - 1; })()); }
 const mixed = S.normalizeCaptions({ cues: cap.cues, words: cap.words.filter(w => w.t < 13.5) }, 0, 0);
 ok("per-segment fallback: word-level asset with a wordless segment", mixed.level === "word" && mixed.segments[0].words && !mixed.segments[1].words);
 const txt = S.normalizeText("Hello there. How are you doing today? Fine, thanks!  ");

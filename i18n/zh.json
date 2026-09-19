@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "挑战",
  "sv.mode_apply": "运用",
  "sv.level_word": "根据这段视频的字幕逐词高亮。",
+ "sv.level_word_est": "单词高亮由本片段的句子时间估算——遇到长停顿可能会有偏差。",
  "sv.level_sentence": "逐句高亮——这段视频的字幕没有逐词时间。",
  "sv.level_text": "你的文字稿，逐句显示。这段视频没有时间信息，因此不会高亮——点按句子即可重复。",
  "sv.challenge_note": "先听并说出来，再看文字。",

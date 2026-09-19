@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Reto",
  "sv.mode_apply": "Aplícalo",
  "sv.level_word": "Resaltado palabra por palabra según los subtítulos de este clip.",
+ "sv.level_word_est": "Resaltado de palabras estimado a partir del tiempo de las frases de este clip — puede desviarse en pausas largas.",
  "sv.level_sentence": "Resaltado por frase: los subtítulos de este clip no tienen tiempos por palabra.",
  "sv.level_text": "Tu transcripción, frase por frase. Sin tiempos para este clip, nada se ilumina; toca una frase para repetirla.",
  "sv.challenge_note": "Escucha y dilo antes de mirar.",

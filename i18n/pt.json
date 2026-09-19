@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Desafio",
  "sv.mode_apply": "Aplicar",
  "sv.level_word": "Destaque palavra a palavra a partir das legendas deste clipe.",
+ "sv.level_word_est": "Realce de palavras estimado a partir do tempo das frases deste clipe — pode desviar em pausas longas.",
  "sv.level_sentence": "Destaque por frase — as legendas deste clipe não têm tempos por palavra.",
  "sv.level_text": "A sua transcrição, frase a frase. Sem tempos para este clipe, nada acende — toque numa frase para a repetir.",
  "sv.challenge_note": "Ouça e diga antes de olhar.",

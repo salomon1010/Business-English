@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Sfida",
  "sv.mode_apply": "Applicalo",
  "sv.level_word": "Evidenziazione parola per parola dai sottotitoli di questa clip.",
+ "sv.level_word_est": "Evidenziazione delle parole stimata dai tempi delle frasi di questa clip — può sfasarsi nelle pause lunghe.",
  "sv.level_sentence": "Evidenziazione per frase: i sottotitoli di questa clip non hanno tempi per parola.",
  "sv.level_text": "La tua trascrizione, frase per frase. Nessun tempo per questa clip, quindi nulla si illumina: tocca una frase per ripeterla.",
  "sv.challenge_note": "Ascolta e dillo prima di guardare.",

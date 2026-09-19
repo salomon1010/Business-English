@@ -1643,6 +1643,7 @@
  "sv.mode_challenge": "Tantangan",
  "sv.mode_apply": "Terapkan",
  "sv.level_word": "Penyorotan kata per kata dari takarir klip ini.",
+ "sv.level_word_est": "Sorotan kata diperkirakan dari waktu kalimat klip ini — bisa meleset pada jeda panjang.",
  "sv.level_sentence": "Penyorotan kalimat per kalimat — takarir klip ini tidak punya waktu per kata.",
  "sv.level_text": "Transkrip Anda, kalimat per kalimat. Klip ini tidak punya penanda waktu, jadi tidak ada yang disorot — ketuk kalimat untuk mengulanginya.",
  "sv.challenge_note": "Dengarkan dan ucapkan sebelum melihat.",
