@@ -58,6 +58,7 @@ function applyLimits(env) { if (_limitsEnv === env) return; _limitsEnv = env; DA
 /* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
+const TRIAL_INVITE_MS = 10 * 60_000;   // a "Try a practice" invitation waits this long for the other learner
 const LIVE_KINDS = new Set(["offer", "answer", "ice", "state", "round", "bye"]);
 const IP_PER_MIN_DEFAULT = 300;   // two phones on one Wi-Fi polling a live call sit around 100/min together
 /* soft-scoring weights; overridable per environment through MATCH_WEIGHTS (JSON) */
@@ -201,11 +202,12 @@ async function doBlock(env, uid, other, ms) {
     q(env, "INSERT OR IGNORE INTO blocks(by_uid,about_uid,created_at) VALUES(?,?,?)", uid, other, ms),
     q(env, "INSERT INTO connections(a,b,state,sessions,created_at,updated_at) VALUES(?,?,'blocked',0,?,?) ON CONFLICT(a,b) DO UPDATE SET state='blocked', updated_at=excluded.updated_at", x, y, ms, ms),
   ]);
-  const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "blocked", ms);
+  const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "blocked", ms, uid);
+  await q(env, "UPDATE pairs SET status='closed', closed_reason='blocked', closed_at=?, closed_by=? WHERE status='invited' AND uid_a=? AND uid_b=?", ms, uid, x, y).run();
   const l = await openLive(env, uid); if (l && (l.host === other || l.guest === other)) await liveClose(env, l, "ended", "blocked", ms);
   return null;
 }
-async function closePair(env, pair, reason, ms) { await q(env, "UPDATE pairs SET status='closed', closed_reason=?, closed_at=? WHERE id=? AND status='active'", reason, ms, pair.id).run(); }
+async function closePair(env, pair, reason, ms, by) { await q(env, "UPDATE pairs SET status='closed', closed_reason=?, closed_at=?, closed_by=? WHERE id=? AND status='active'", reason, ms, by || null, pair.id).run(); }
 const otherOf = (pair, uid) => (pair.uid_a === uid ? pair.uid_b : pair.uid_a);
 const isMember = (pair, uid) => !!pair && (pair.uid_a === uid || pair.uid_b === uid);
 const bandIdx = b => BANDS.indexOf(b);
@@ -283,6 +285,40 @@ async function offerCards(env, uid, ms, cands) {
 /* pair two people atomically: both interest rows must still exist. In D1 a
    batch is one transaction, so two inviters racing for the same candidate
    cannot both win — the second sees fewer than two rows deleted. */
+/* a trial is PROPOSED, not started: the host asks, the guest answers within
+   TRIAL_INVITE_MS. Both stay in the queue meanwhile (and remain visible to
+   others); acceptance is the atomic step that takes them both out. One
+   open proposal per host→guest is enough: asking again returns it. */
+const invitedPairFor = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host<>? AND (uid_a=? OR uid_b=?) AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, uid, uid, ms).first();
+const invitedPairBy = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, ms).first();
+async function proposePair(env, uid, cand, ms, seed) {
+  if (await activePair(env, uid) || await activePair(env, cand)) return null;
+  const open = await q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND (uid_a=? OR uid_b=?) AND invite_expires>? LIMIT 1", uid, cand, cand, ms).first();
+  if (open) return open.id;
+  const id = rid(), [x, y] = pairKey(uid, cand);
+  await q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json,host,invite_expires) VALUES(?,?,?,?,?,?,?,?,'invited',?,'trial',4,?,?,?)",
+    id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, seed.promptJson || null, uid, ms + TRIAL_INVITE_MS).run();
+  await audit(env, ms, uid, "trial_invited", cand, id, {});
+  return id;
+}
+/* the guest said yes: both leave the queue, the pair goes active, any other
+   open proposals involving either of them are closed as 'expired' */
+async function acceptPair(env, pair, ms) {
+  const a = pair.uid_a, b = pair.uid_b;
+  if (await activePair(env, a) || await activePair(env, b)) { await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE id=? AND status='invited'", ms, pair.id).run(); return false; }
+  const res = await env.DB.batch([
+    q(env, "UPDATE pairs SET status='active', week_start=?, created_at=? WHERE id=? AND status='invited'", ms, ms, pair.id),
+    q(env, "DELETE FROM interest WHERE uid IN (?,?)", a, b),
+    q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND id<>? AND (uid_a IN (?,?) OR uid_b IN (?,?))", ms, pair.id, a, b, a, b),
+    q(env, "DELETE FROM offers WHERE for_uid IN (?,?) OR cand_uid IN (?,?)", a, b, a, b),
+  ]);
+  if (!(res[0] && res[0].meta && res[0].meta.changes)) return false;
+  const conn = await connection(env, a, b);
+  if (!conn) await q(env, "INSERT OR IGNORE INTO connections(a,b,state,sessions,created_at,updated_at) VALUES(?,?,'trial',0,?,?)", a, b, ms, ms).run();
+  await audit(env, ms, pair.host === a ? b : a, "trial_accepted", pair.host, pair.id, {});
+  await audit(env, ms, "system", "pair_created", null, pair.id, { kind: "trial" });
+  return true;
+}
 async function createPair(env, uid, cand, ms, seed) {
   const conn = await connection(env, uid, cand);
   const kind = conn && (conn.state === "mutual" || conn.state === "regular") ? "regular" : "trial";
@@ -290,8 +326,8 @@ async function createPair(env, uid, cand, ms, seed) {
   const [x, y] = pairKey(uid, cand);
   const res = await env.DB.batch([
     q(env, "DELETE FROM interest WHERE uid IN (?,?)", uid, cand),
-    q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json) VALUES(?,?,?,?,?,?,?,?,'active',?,?,4,?)",
-      id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, kind, seed.promptJson || null),
+    q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json,host) VALUES(?,?,?,?,?,?,?,?,'active',?,?,4,?,?)",
+      id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, kind, seed.promptJson || null, uid),
   ]);
   const deleted = res[0] && res[0].meta ? res[0].meta.changes : 0;
   if (deleted < 2) { await q(env, "DELETE FROM pairs WHERE id=?", id).run(); return null; }
@@ -325,6 +361,13 @@ async function meView(env, uid, ms) {
     const c = await q(env, "SELECT COUNT(*) AS n FROM interest WHERE track=? AND band=?", waiting.track, waiting.band).first();
     out.waiting = { track: waiting.track, band: waiting.band, mode: waiting.mode, since: waiting.created_at, count: c ? c.n : 1 };
   }
+  if (m) {
+    await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=? AND (uid_a=? OR uid_b=?)", ms, ms, uid, uid).run();
+    const inv = await invitedPairFor(env, uid, ms);
+    if (inv && !(await blockedEither(env, uid, inv.host))) { const p = await member(env, inv.host); let prompt = null; try { prompt = inv.prompt_json ? JSON.parse(inv.prompt_json) : null; } catch (e) {} out.invite = { id: inv.id, partner: { name: p ? p.name : "?" }, band: inv.band, promptWeek: inv.prompt_week, fndDay: inv.fnd_day, prompt, expiresAt: inv.invite_expires, createdAt: inv.created_at }; }
+    const mine = await invitedPairBy(env, uid, ms);
+    if (mine) { const other = otherOf(mine, uid), p = await member(env, other); out.pairInvite = { id: mine.id, partner: { name: p ? p.name : "?" }, expiresAt: mine.invite_expires, createdAt: mine.created_at }; }
+  }
   const pair = m ? await activePair(env, uid) : null;
   if (pair) {
     const partnerUid = otherOf(pair, uid), p = await member(env, partnerUid);
@@ -349,8 +392,14 @@ async function meView(env, uid, ms) {
       connection: conn ? { state: conn.state, sessions: conn.sessions } : null,
     };
   } else if (m) {
-    const last = await q(env, "SELECT closed_reason, closed_at FROM pairs WHERE status='closed' AND (uid_a=? OR uid_b=?) ORDER BY closed_at DESC LIMIT 1", uid, uid).first();
-    if (last && ms - last.closed_at < 3 * DAY) out.lastClosed = { reason: last.closed_reason, at: last.closed_at };
+    const last = await q(env, "SELECT id, uid_a, uid_b, closed_reason, closed_at, closed_by FROM pairs WHERE status='closed' AND (uid_a=? OR uid_b=?) ORDER BY closed_at DESC LIMIT 1", uid, uid).first();
+    if (last && ms - last.closed_at < 3 * DAY) {
+      const o = otherOf(last, uid), p = await member(env, o);
+      const byOther = !!last.closed_by && last.closed_by !== uid;
+      /* the blocked side is only ever told the partner left */
+      const reason = last.closed_reason === "blocked" && byOther ? "left" : last.closed_reason;
+      out.lastClosed = { id: last.id, reason, at: last.closed_at, byOther, name: p ? p.name : "?" };
+    }
     const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular') ORDER BY last_practice_at DESC LIMIT 1", uid, uid).all()).results || [];
     if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { cid: await connId(conns[0].a, conns[0].b), name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
   }
@@ -436,11 +485,12 @@ async function handle(req, env, ctx) {
     await audit(env, ms, uid, "queue_joined", null, null, { mode });
     let pairId = null, cards = [];
     const cands = await candidates(env, uid, ms, 3);
+    let invited = null;
     if (mode === "now" && cands.length) {
       const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first();
-      pairId = await createPair(env, uid, cands[0].c.uid, ms, seedFrom(mine, cands[0].c, b.phrase));
+      invited = await proposePair(env, uid, cands[0].c.uid, ms, seedFrom(mine, cands[0].c, b.phrase));
     } else if (cands.length) cards = await offerCards(env, uid, ms, cands);
-    return json({ status: pairId ? "paired" : "waiting", candidates: cards, ...(await meView(env, uid, ms)) });
+    return json({ status: invited ? "invited" : "waiting", candidates: cards, ...(await meView(env, uid, ms)) });
   }
   if (req.method === "DELETE" && path === "/interest") { await q(env, "DELETE FROM interest WHERE uid=?", uid).run(); return json(await meView(env, uid, ms)); }
 
@@ -464,20 +514,39 @@ async function handle(req, env, ctx) {
     if (await activePair(env, uid)) return err(409, "paired");
     const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first(), theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
     if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid) || await cooled(env, uid, off.cand_uid, ms)) return err(409, "gone");
-    const pairId = await createPair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase));
+    const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase));
     if (!pairId) return err(409, "gone");
-    return json({ status: "paired", ...(await meView(env, uid, ms)) });
+    return json({ status: "invited", ...(await meView(env, uid, ms)) });
   }
 
   /* pair-scoped: /pairs/:id/(seen|leave|report|block|decide) */
-  let pm = /^\/pairs\/([a-f0-9]{16})\/(seen|leave|report|block|decide)$/.exec(path);
+  let pm = /^\/pairs\/([a-f0-9]{16})\/(seen|leave|report|block|decide|accept|decline|cancel)$/.exec(path);
   if (pm && req.method === "POST") {
     const pair = await q(env, "SELECT * FROM pairs WHERE id=?", pm[1]).first();
     if (!isMember(pair, uid)) return err(403, "forbidden");
     const other = otherOf(pair, uid);
     if (await blockedEither(env, uid, other) && pm[2] !== "block") return err(403, "forbidden");
+    /* a proposed trial: the guest accepts or declines, the host may cancel */
+    if (pm[2] === "accept" || pm[2] === "decline" || pm[2] === "cancel") {
+      if (pair.status === "active" && pm[2] === "accept") return json({ ok: true, already: true, ...(await meView(env, uid, ms)) });
+      if (pair.status !== "invited") return err(409, "closed");
+      if (pair.invite_expires <= ms) { await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE id=? AND status='invited'", ms, pair.id).run(); return err(409, "closed"); }
+      const isHost = pair.host === uid;
+      if (pm[2] === "accept") {
+        if (isHost) return err(403, "forbidden");
+        if (suspended) return err(403, "suspended", m.suspended_until);
+        const ok = await acceptPair(env, pair, ms); if (!ok) return err(409, "gone");
+        return json({ ok: true, already: false, ...(await meView(env, uid, ms)) });
+      }
+      if ((pm[2] === "decline" && isHost) || (pm[2] === "cancel" && !isHost)) return err(403, "forbidden");
+      const why = pm[2] === "decline" ? "declined" : "cancelled";
+      await q(env, "UPDATE pairs SET status='closed', closed_reason=?, closed_at=?, closed_by=? WHERE id=? AND status='invited'", why, ms, uid, pair.id).run();
+      await audit(env, ms, uid, "trial_" + why, other, pair.id, {});
+      return json({ ok: true, ...(await meView(env, uid, ms)) });
+    }
+    if (pair.status === "invited") return err(409, "closed");   /* nothing else applies to a proposal */
     if (pm[2] === "seen") { await q(env, `UPDATE pairs SET ${pair.uid_a === uid ? "seen_a" : "seen_b"}=? WHERE id=?`, ms, pair.id).run(); return json({ ok: true }); }
-    if (pm[2] === "leave") { await closePair(env, pair, "left", ms); await audit(env, ms, uid, "left", other, pair.id, {}); return json(await meView(env, uid, ms)); }
+    if (pm[2] === "leave") { await closePair(env, pair, "left", ms, uid); await audit(env, ms, uid, "left", other, pair.id, {}); return json(await meView(env, uid, ms)); }
     if (pm[2] === "report") {
       const b = await req.json().catch(() => ({}));
       if (!REASONS.has(b.reason)) return err(400, "bad_request");
@@ -509,7 +578,7 @@ async function handle(req, env, ctx) {
           q(env, "INSERT INTO cooldowns(a,b,until,reason) VALUES(?,?,?,'rematch') ON CONFLICT(a,b) DO UPDATE SET until=excluded.until, reason='rematch'", x, y, ms + COOLDOWN_MS),
           q(env, "UPDATE connections SET state='disconnected', updated_at=? WHERE a=? AND b=? AND state<>'blocked'", ms, x, y),
         ]);
-        await closePair(env, fresh, "rematch", ms);
+        await closePair(env, fresh, "rematch", ms, uid);
       } else if (fresh.decision_a === "continue" && fresh.decision_b === "continue") {
         const conn = await connection(env, uid, other);
         const sessions = ((conn && conn.sessions) || 0) + 1;
@@ -542,7 +611,7 @@ async function handle(req, env, ctx) {
           q(env, "INSERT INTO cooldowns(a,b,until,reason) VALUES(?,?,?,'ended') ON CONFLICT(a,b) DO UPDATE SET until=excluded.until, reason='ended'", c.a, c.b, ms + COOLDOWN_MS),
         ]);
         /* an open session with that partner cannot outlive the partnership */
-        const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "left", ms);
+        const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "left", ms, uid);
         const l = await openLive(env, uid); if (l && (l.host === other || l.guest === other)) await liveClose(env, l, "ended", "left", ms);
         await audit(env, ms, uid, "connection_ended", other, null, { sessions: c.sessions });
         return json({ ok: true, already: false, ...(await meView(env, uid, ms)) });
@@ -787,6 +856,7 @@ async function maintenance(env, ms) {
     }
     await closePair(env, p, "expired", ms);
   }
+  await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=?", ms, ms).run();
   const stale = (await q(env, "SELECT id FROM pairs WHERE status='closed' AND closed_at <= ?", ms - PURGE_AFTER_CLOSE_MS).all()).results || [];
   let purged = 0;
   for (const p of stale) {

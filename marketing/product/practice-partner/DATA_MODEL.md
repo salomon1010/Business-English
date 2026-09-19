@@ -64,8 +64,11 @@ are harmless — so no down-migration is shipped.
 | **kind** | `trial` (first session together) / `regular` (started from a connection) |
 | **rounds** | 4 |
 | **prompt_json** | `{phrase}` when the session was started from Shadow Studio's Apply It, else NULL; the curriculum position lives in `prompt_week` / `fnd_day` |
-| status | `active` / `closed` |
-| closed_reason | `completed` / `rematch` / `left` / `blocked` / `expired` / `suspended` |
+| status | `invited` (a proposal, 0005) / `active` / `closed` |
+| **host** (0005) | who proposed / started it |
+| **invite_expires** (0005) | 10 min after the proposal |
+| **closed_by** (0006) | who closed it (NULL = system) — drives "{name} left today's practice" on the other side |
+| closed_reason | `completed` / `rematch` / `left` / `blocked` / `expired` / `suspended` / `declined` / `cancelled` |
 | **decision_a, decision_b** | `continue` / `rematch` / NULL |
 | **completed_at** | set when the fourth turn lands |
 | seen_a, seen_b | last time each opened the thread (drives unread) |

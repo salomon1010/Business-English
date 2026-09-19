@@ -30,6 +30,8 @@ function turnForm(transcript, o = {}) {
   return fd;
 }
 const turn = (u, text, o) => call(u, "POST", "/turns", turnForm(text, o));
+/* a trial is proposed by the host and accepted by the guest; returns the guest's accept response (carries the pair) */
+async function tryPair(host, guest, offer) { const inv = await call(host, "POST", "/invite", { offer }); if (!inv.json.pairInvite) return inv; return call(guest, "POST", `/pairs/${inv.json.pairInvite.id}/accept`); }
 
 { const r = await fetch(BASE + "/__reset", { method: "POST" }); if (r.status !== 200) { console.log("reset failed", r.status); process.exit(1); } }
 const H = await (await fetch(BASE + "/health")).json();
@@ -60,16 +62,23 @@ await consent("dave", "Dave", { gender: "m" }); await join("dave", { band: "w9-1
 let pairId = null, offer = null;
 { const r = await call("bob", "POST", "/match"); offer = r.json.candidates[0].offer;
   const stolen = await call("carol", "POST", "/invite", { offer }); ok("an offer cannot be used by someone else (404)", stolen.status === 404);
-  const inv = await call("bob", "POST", "/invite", { offer }); pairId = inv.json.pair && inv.json.pair.id;
-  ok("invite → trial pair, Alice sees Bob, connection state trial, round 1 of 4", inv.json.status === "paired" && inv.json.pair.kind === "trial" && inv.json.pair.rounds === 4 && inv.json.pair.round === 1 && (await call("alice", "GET", "/me")).json.pair.partner.name === "Bob" && inv.json.pair.connection.state === "trial", JSON.stringify(inv.json)); }
+  const inv = await call("bob", "POST", "/invite", { offer }); pairId = inv.json.pairInvite && inv.json.pairInvite.id;
+  const aliceMe = await call("alice", "GET", "/me");
+  ok("invite → a PROPOSAL, not a session: host sees 'waiting for Alice', Alice sees 'Bob wants to try a practice', nobody has a pair yet, both still in the queue", inv.json.status === "invited" && !inv.json.pair && inv.json.pairInvite.partner.name === "Alice" && aliceMe.json.invite && aliceMe.json.invite.id === pairId && aliceMe.json.invite.partner.name === "Bob" && !aliceMe.json.pair && aliceMe.json.waiting && inv.json.waiting, JSON.stringify({ inv: inv.json.pairInvite, alice: aliceMe.json.invite }));
+  ok("the host cannot accept their own proposal; a stranger cannot accept or decline it", (await call("bob", "POST", `/pairs/${pairId}/accept`)).status === 403 && (await call("carol", "POST", `/pairs/${pairId}/accept`)).status === 403 && (await call("carol", "POST", `/pairs/${pairId}/decline`)).status === 403);
+  ok("turns cannot be sent into a proposal", (await turn("bob", "too early")).json.error === "no_pair");
+  const acc = await call("alice", "POST", `/pairs/${pairId}/accept`); const acc2 = await call("alice", "POST", `/pairs/${pairId}/accept`);
+  ok("guest accepts → trial pair active for both, connection trial, round 1 of 4, both out of the queue; accepting twice is harmless", acc.status === 200 && acc.json.pair && acc.json.pair.id === pairId && acc.json.pair.kind === "trial" && acc.json.pair.round === 1 && acc.json.pair.connection.state === "trial" && !acc.json.waiting && (await call("bob", "GET", "/me")).json.pair.partner.name === "Alice" && acc2.status === 200 && acc2.json.already === true, JSON.stringify(acc.json.pair)); }
 ok("re-using the consumed offer → 404", (await call("bob", "POST", "/invite", { offer })).status === 404);
 
 /* concurrency: two inviters race for the same waiting learner — exactly one wins */
 await consent("erin", "Erin"); await consent("fay", "Fay"); await consent("gus", "Gus");
 await join("gus"); const oe = (await join("erin")).json.candidates[0].offer, of = (await join("fay")).json.candidates.find(c => c.name === "Gus").offer;
 { const [a, b] = await Promise.all([call("erin", "POST", "/invite", { offer: oe }), call("fay", "POST", "/invite", { offer: of })]);
-  const wins = [a, b].filter(x => x.status === 200).length, gone = [a, b].filter(x => (x.status === 409 && x.json.error === "gone") || (x.status === 404 && x.json.error === "offer")).length;
-  ok("race for one candidate: exactly one wins, the other is told the offer is gone", wins === 1 && gone === 1, `${a.status} ${b.status}`); }
+  const gusMe = await call("gus", "GET", "/me");
+  const acc = await call("gus", "POST", `/pairs/${a.json.pairInvite.id}/accept`);
+  const lost = await call("gus", "POST", `/pairs/${b.json.pairInvite.id}/accept`);
+  ok("two proposals for one learner: both wait; accepting one activates it and closes the other (second accept → closed)", a.status === 200 && b.status === 200 && gusMe.json.invite && acc.status === 200 && acc.json.pair && lost.status === 409 && (await call("fay", "GET", "/me")).json.lastClosed && (await call("fay", "GET", "/me")).json.lastClosed.reason === "expired", `${acc.status} ${lost.status}`); }
 for (const u of ["erin", "fay"]) { const me = await call(u, "GET", "/me"); if (me.json.pair) await call(u, "POST", `/pairs/${me.json.pair.id}/leave`); await call(u, "DELETE", "/interest"); }
 await call("gus", "DELETE", "/interest");
 
@@ -98,8 +107,26 @@ let t1 = null;
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
   ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
 
+/* ---------------- proposals: decline, cancel, expiry; the other side is told who closed ---------------- */
+{ await consent("ada", "Ada"); await consent("ben", "Ben"); await join("ada", { band: "w9-12" }); let o = (await join("ben", { band: "w9-12" })).json.candidates.find(c => c.name === "Ada").offer;
+  let inv = await call("ben", "POST", "/invite", { offer: o }); const d = await call("ada", "POST", `/pairs/${inv.json.pairInvite.id}/decline`);
+  const benMe = await call("ben", "GET", "/me");
+  ok("guest declines → host told 'declined' by the other side with her first name; both still in line", d.status === 200 && benMe.json.lastClosed.reason === "declined" && benMe.json.lastClosed.byOther === true && benMe.json.lastClosed.name === "Ada" && benMe.json.waiting && !benMe.json.pairInvite);
+  o = (await call("ben", "POST", "/match")).json.candidates.find(c => c.name === "Ada").offer; inv = await call("ben", "POST", "/invite", { offer: o });
+  const c = await call("ben", "POST", `/pairs/${inv.json.pairInvite.id}/cancel`); const adaMe = await call("ada", "GET", "/me");
+  ok("host cancels → guest told 'cancelled' by the other side; the guest cannot cancel a host's proposal", c.status === 200 && adaMe.json.lastClosed.reason === "cancelled" && adaMe.json.lastClosed.byOther === true && !adaMe.json.invite);
+  o = (await call("ben", "POST", "/match")).json.candidates.find(c => c.name === "Ada").offer; const acc = await tryPair("ben", "ada", o);
+  await call("ada", "POST", `/pairs/${acc.json.pair.id}/leave`); const benAfter = await call("ben", "GET", "/me");
+  ok("leave today's practice → the partner is told 'left' by the other side, with her name", benAfter.json.lastClosed.reason === "left" && benAfter.json.lastClosed.byOther === true && benAfter.json.lastClosed.name === "Ada");
+  await join("ada", { band: "w9-12" }); await join("ben", { band: "w9-12" });
+  const base = (await call("ada", "GET", "/me")).json.serverNow;
+  o = (await call("ben", "POST", "/match")).json.candidates.find(c => c.name === "Ada").offer; inv = await call("ben", "POST", "/invite", { offer: o });
+  clock = base + 11 * 60_000; const late = await call("ada", "POST", `/pairs/${inv.json.pairInvite.id}/accept`); const adaLate = await call("ada", "GET", "/me"); clock = null;
+  ok("an unanswered proposal expires after 10 minutes; accepting it then is refused and neither side is blamed", late.status === 409 && !adaLate.json.invite && adaLate.json.lastClosed.reason === "expired" && adaLate.json.lastClosed.byOther === false);
+  await call("ada", "DELETE", "/interest"); await call("ben", "DELETE", "/interest"); }
+
 /* ---------------- partner management: end partnership is distinct from leave / rematch / block ---------------- */
-{ await consent("yara", "Yara"); await consent("zed", "Zed"); await join("yara", { band: "w5-8" }); const oz = (await join("zed", { band: "w5-8" })).json.candidates[0].offer; const pz = (await call("zed", "POST", "/invite", { offer: oz })).json.pair.id;
+{ await consent("yara", "Yara"); await consent("zed", "Zed"); await join("yara", { band: "w5-8" }); const oz = (await join("zed", { band: "w5-8" })).json.candidates[0].offer; const pz = (await tryPair("zed", "yara", oz)).json.pair.id;
   for (const [u, txt] of [["zed", "one"], ["yara", "two"], ["zed", "three"], ["yara", "four"]]) await turn(u, txt);
   await call("yara", "POST", `/pairs/${pz}/decide`, { choice: "continue" }); await call("zed", "POST", `/pairs/${pz}/decide`, { choice: "continue" });
   const me = await call("yara", "GET", "/me"); const cid = me.json.connection && me.json.connection.cid;
@@ -176,7 +203,7 @@ let t1 = null;
 /* rematch: closes the pair, cooldown, not re-offered */
 await consent("hana", "Hana", { gender: "f" }); await consent("ivan", "Ivan", { gender: "m" });
 await join("hana", { band: "w5-8" }); const oi = (await join("ivan", { band: "w5-8" })).json.candidates[0].offer;
-{ const inv = await call("ivan", "POST", "/invite", { offer: oi }); const pid = inv.json.pair.id;
+{ const inv = await tryPair("ivan", "hana", oi); const pid = inv.json.pair.id;
   const tooEarly = await call("hana", "POST", `/pairs/${pid}/decide`, { choice: "continue" }); ok("continue before the session is complete → 409 not_complete", tooEarly.json.error === "not_complete");
   for (const [u, txt] of [["ivan", "One"], ["hana", "Two"], ["ivan", "Three"], ["hana", "Four"]]) await turn(u, txt);
   const rm = await call("hana", "POST", `/pairs/${pid}/decide`, { choice: "rematch" });
@@ -188,19 +215,19 @@ await join("hana", { band: "w5-8" }); const oi = (await join("ivan", { band: "w5
 
 /* timeout: rematch allowed after 24 h of silence even if incomplete; fallback flag */
 await consent("jo", "Jo"); await consent("kim", "Kim"); await join("jo", { band: "w9-12" }); const ok2 = (await join("kim", { band: "w9-12" })).json.candidates[0].offer;
-{ const inv = await call("kim", "POST", "/invite", { offer: ok2 }); const pid = inv.json.pair.id; await turn("kim", "Hello Jo");
+{ const inv = await tryPair("kim", "jo", ok2); const pid = inv.json.pair.id; await turn("kim", "Hello Jo");
   const base = (await call("kim", "GET", "/me")).json.serverNow; clock = base + 25 * 3_600_000;
   const me = await call("kim", "GET", "/me"); ok("partner silent 25 h → fallback true, canRepair true", me.json.pair.fallback === true && me.json.pair.canRepair === true, JSON.stringify({ f: me.json.pair.fallback, r: me.json.pair.canRepair, h: me.json.pair.partnerSilentH }));
   const rm = await call("kim", "POST", `/pairs/${pid}/decide`, { choice: "rematch" }); ok("rematch after timeout is allowed", rm.status === 200 && !rm.json.pair); clock = null; }
 
 /* report → suspend; block → 403 + never matched; opt-out leaves the queue; limits */
 await consent("lee", "Lee"); await consent("mia", "Mia"); await consent("ned", "Ned");
-await join("ned", { band: "fnd-1-7" }); const ol = (await join("lee", { band: "fnd-1-7" })).json.candidates[0].offer; const p1 = (await call("lee", "POST", "/invite", { offer: ol })).json.pair.id;
+await join("ned", { band: "fnd-1-7" }); const ol = (await join("lee", { band: "fnd-1-7" })).json.candidates[0].offer; const p1 = (await tryPair("lee", "ned", ol)).json.pair.id;
 await call("lee", "POST", `/pairs/${p1}/report`, { reason: "harassment" }); await call("lee", "POST", `/pairs/${p1}/leave`);
-await join("ned", { band: "fnd-1-7" }); const om = (await join("mia", { band: "fnd-1-7" })).json.candidates[0].offer; const p2 = (await call("mia", "POST", "/invite", { offer: om })).json.pair.id;
+await join("ned", { band: "fnd-1-7" }); const om = (await join("mia", { band: "fnd-1-7" })).json.candidates[0].offer; const p2 = (await tryPair("mia", "ned", om)).json.pair.id;
 { const rep = await call("mia", "POST", `/pairs/${p2}/report`, { reason: "contact_info" }); const nedMe = await call("ned", "GET", "/me"); const nj = await join("ned", { band: "fnd-1-7" });
   ok("two distinct reporters → suspended 30 d, pair closed, cannot rejoin", rep.status === 200 && nedMe.json.suspendedUntil && !nedMe.json.pair && nj.json.error === "suspended"); }
-await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { band: "w1-4" }); const op = (await join("pia", { band: "w1-4" })).json.candidates[0].offer; const p3 = (await call("pia", "POST", "/invite", { offer: op })).json.pair.id;
+await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { band: "w1-4" }); const op = (await join("pia", { band: "w1-4" })).json.candidates[0].offer; const p3 = (await tryPair("pia", "olu", op)).json.pair.id;
 { const t = await turn("pia", "Hi Olu"); const blk = await call("olu", "POST", `/pairs/${p3}/block`);
   ok("block: pair closed, blocked side gets 403 on pair and audio", blk.status === 200 && (await call("pia", "GET", `/pairs/${p3}`)).status === 403 && (await call("pia", "GET", `/turns/${t.json.turn.id}/audio`)).status === 403);
   await join("pia", { band: "w1-4" }); const again = await join("olu", { band: "w1-4" }); ok("blocked pair is never a candidate again", again.json.candidates.every(c => c.name !== "Pia"));
@@ -208,7 +235,7 @@ await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { ba
 { await join("carol"); const out = await call("carol", "POST", "/prefs", { optedOut: true }); const j = await join("carol");
   ok("opt-out leaves the queue and refuses joining", !out.json.waiting && j.json.error === "opted_out"); await call("carol", "POST", "/prefs", { optedOut: false }); }
 { await consent("quin", "Quin"); let last = 0; for (let i = 0; i < 11; i++) { last = (await join("quin", { band: "w9-12" })).status; if (last === 429) break; } ok("11th queue join in a day → 429", last === 429); await call("quin", "DELETE", "/interest"); }
-{ const dup = "abcdefabcdef0123"; await consent("rex", "Rex"); await consent("sam", "Sam"); await join("rex", { band: "w5-8" }); const o = (await join("sam", { band: "w5-8" })).json.candidates[0].offer; await call("sam", "POST", "/invite", { offer: o });
+{ const dup = "abcdefabcdef0123"; await consent("rex", "Rex"); await consent("sam", "Sam"); await join("rex", { band: "w5-8" }); const o = (await join("sam", { band: "w5-8" })).json.candidates[0].offer; await tryPair("sam", "rex", o);
   const a = await turn("sam", "first", { turnId: dup }); const b = await turn("sam", "first", { turnId: dup });
   ok("duplicate turn_id is idempotent", a.status === 201 && b.status === 200 && b.json.duplicate === true);
   ok("audio over 1.5 MB → 413", (await turn("rex", "big", { audio: audioBlob(1_600_000) })).status === 413); }
@@ -219,13 +246,13 @@ await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { ba
   clock = base + 8 * 86_400_000; await call("alice", "POST", "/__cron");   /* flush every earlier pair so the count below is only ours */
   await consent("tom", "Tom"); await consent("uma", "Uma"); await consent("vic", "Vic"); await consent("wes", "Wes");
   /* pair 1: Tom speaks on day 0, Uma never replies → Uma abandoned */
-  clock = base; await join("tom", { band: "w9-12" }); let o = (await join("uma", { band: "w9-12" })).json.candidates[0].offer; await call("uma", "POST", "/invite", { offer: o });
+  clock = base; await join("tom", { band: "w9-12" }); let o = (await join("uma", { band: "w9-12" })).json.candidates[0].offer; await tryPair("uma", "tom", o);
   await turn("uma", "hello tom");
   /* pair 2: Vic speaks only an hour before the week runs out → Wes is NOT abandoned */
-  await join("vic", { band: "fnd-8-15" }); o = (await join("wes", { band: "fnd-8-15" })).json.candidates[0].offer; await call("wes", "POST", "/invite", { offer: o });
+  await join("vic", { band: "fnd-8-15" }); o = (await join("wes", { band: "fnd-8-15" })).json.candidates[0].offer; await tryPair("wes", "vic", o);
   clock = base + 7 * 86_400_000 - 3_600_000; await turn("wes", "hello vic");
   /* pair 3: one turn each, then both went quiet → a tie: either could have spoken next, nobody is blamed */
-  clock = base; await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w5-8" }); o = (await join("yul", { band: "w5-8" })).json.candidates[0].offer; await call("yul", "POST", "/invite", { offer: o });
+  clock = base; await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w5-8" }); o = (await join("yul", { band: "w5-8" })).json.candidates[0].offer; await tryPair("yul", "xan", o);
   await turn("yul", "hi xan"); clock = base + 86_400_000; await turn("xan", "hi yul");
   clock = base + 7 * 86_400_000 + 60_000; const c = await call("alice", "POST", "/__cron"); clock = null;
   ok("expired pairs: only the side that had a full timeout to reply is marked abandoned; a tie blames nobody", c.status === 200 && c.json.expired >= 3 && c.json.abandoned === 1, JSON.stringify(c.json)); }

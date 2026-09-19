@@ -20,13 +20,14 @@ holds one id and any other track is refused with `403 track`.
 | Method | Path | Does |
 |---|---|---|
 | GET | `/health` | `{ok, dev, enabled}` (no auth) |
-| GET | `/me` | consent, `adult`, prefs, waiting state, active pair with partner `{name, band, lang}`, `rounds` view, turns, unread, `fallback`/`canRepair`, decisions, `lastClosed`, the best `connection` |
+| GET | `/me` | consent, `adult`, prefs, waiting state, `invite` (a proposal for me) / `pairInvite` (my open proposal), active pair with partner `{name, band, lang}`, `rounds` view, turns, unread, `fallback`/`canRepair`, decisions, `lastClosed {reason, byOther, name}`, the best `connection` |
 | POST | `/consent` | `{name, lang, adult: true, gender?, sameGender?, goals?, mode?, avail?, tz?}` — refuses without `adult` (`403 age`) |
 | POST | `/prefs` | update goals / mode / avail / tz / same-gender / opt-out |
 | POST | `/interest` | `{track, band, lang, promptWeek, fndDay, mode: now\|later, topic?, goals?, phrase?}` — join the queue; `now` pairs with the best candidate at once, `later` returns up to 3 candidate cards |
 | DELETE | `/interest` | leave the queue |
 | POST | `/match` | fresh candidate cards (opaque `offer` ids, 30-min TTL, reasons, never uids) |
-| POST | `/invite` | `{offer, phrase?}` — try a practice: creates the 4-round trial pair atomically |
+| POST | `/invite` | `{offer, phrase?}` — **propose** a trial: a pair in state `invited` (10 min); both learners stay in the queue until the guest answers |
+| POST | `/pairs/:id/accept` · `/decline` (guest) · `/cancel` (host) | the guest's answer; accept is the atomic step that takes both out of the queue and activates the pair (closes any other open proposals for either); idempotent |
 | POST | `/next` | `{promptWeek, fndDay, band, phrase?}` — a connected (mutual/regular) partner starts the next session |
 | GET | `/pairs/:id` | the pair, members only |
 | POST | `/pairs/:id/seen` · `/leave` · `/report {reason}` · `/block` · `/decide {choice: continue\|rematch}` | as named |
@@ -52,9 +53,9 @@ deployed.
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0004
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0006
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 80 integration checks against the local Worker
+node test/run.mjs            # 87 integration checks against the local Worker
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and

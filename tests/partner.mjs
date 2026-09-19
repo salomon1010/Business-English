@@ -127,6 +127,12 @@ await A.page.click('button:has-text("Show me candidates")'); await sleep(1200);
 const cards = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
 ok("Match me → 1–3 candidate cards with first name, band, goal and a plain reason; no score, no uid", cards.length === 2 && cards.every(c => /Why: same level/.test(c) && !/\d+%/.test(c) && !/uid/.test(c)), JSON.stringify(cards));
 await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Carla/.test(x.innerText)); c.querySelector(".btn-primary").click(); }); await sleep(1300);
+const waitTxt = await txt(A.page, "#v-partner");
+ok("Try a practice → a proposal: host sees 'Waiting for Carla to accept…' with Cancel, still in line; no session yet", waitTxt.includes("Waiting for Carla to accept") && waitTxt.includes("Cancel the invitation") && !waitTxt.includes("Round 1 of 4") && (await (await api("alice", "GET", "/me")).json()).pairInvite);
+const carlaMe = await (await api("carla", "GET", "/me")).json();
+ok("Guest: /me carries the invitation with the host's first name only; a stranger cannot accept it", carlaMe.invite && carlaMe.invite.partner.name === "Alice" && Object.keys(carlaMe.invite.partner).join() === "name" && (await api("bob", "POST", `/pairs/${carlaMe.invite.id}/accept`)).status === 403);
+await api("carla", "POST", `/pairs/${carlaMe.invite.id}/accept`);
+await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); }); await sleep(400);
 const head = await txt(A.page, "#v-partner .pp-head");
 ok("Session header says Human partner (mirrors the AI label)", (await txt(A.page, ".pp-head")).includes("Human partner"));
 ok("Try a practice → trial session, round 1 of 4, your turn", head.includes("Your partner: Carla") && head.includes("Trial practice") && head.includes("Round 1 of 4 — your turn"));
@@ -245,10 +251,12 @@ await A.page.click('button:has-text("Show me candidates")').catch(() => {}); awa
 await A.page.evaluate(() => ppMatch()); await sleep(1200);
 const cards2 = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
 await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Bob/.test(x.innerText)); c && c.querySelector(".btn-primary").click(); }); await sleep(1300);
+{ const bm = await (await api("bob", "GET", "/me")).json(); await api("bob", "POST", `/pairs/${bm.invite.id}/accept`); }
 for (const [u, s] of [["alice", "one"], ["bob", "two"], ["alice", "three"], ["bob", "four"]]) await apiTurn(u, s);
 await A.page.evaluate(() => go("partner")); await sleep(1300);
 await A.page.click('button:has-text("Find someone else")'); await sleep(300); await A.page.click(".cf-card button:has-text('Find someone else')"); await sleep(1200);
 ok("Find someone else → session closed, neutral toast, back to Match me; Bob only sees 'ended'", (await txt(A.page, "#v-partner")).includes("Match me") && (await (await api("bob", "GET", "/me")).json()).lastClosed.reason === "rematch");
+ok("The other side is told WHO closed it (byOther + first name) so the app can show 'Alice chose to find someone else'", await (async () => { const lc = (await (await api("bob", "GET", "/me")).json()).lastClosed; return lc.byOther === true && lc.name === "Alice"; })());
 await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
 await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
 ok("Cooldown: Bob is not offered again after a rematch", await A.page.evaluate(() => ![...document.querySelectorAll(".pp-cand")].some(c => /Bob/.test(c.innerText))));
@@ -270,8 +278,11 @@ ok("Use it with a partner → Practice Partner with the phrase queued for the ne
 await api("dina", "POST", "/consent", { name: "Dina", lang: "fr", adult: true, gender: "f", goals: ["workplace"], avail: ["evening"], tz: 0 });
 await api("dina", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
 await A.page.click('button:has-text("Practise now")'); await sleep(1500);
+ok("Practise now → an invitation to the best available learner (Dina), not an instant pair", (await txt(A.page, "#v-partner")).includes("Waiting for Dina to accept"));
+{ const dm = await (await api("dina", "GET", "/me")).json(); await api("dina", "POST", `/pairs/${dm.invite.id}/accept`); }
+await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); }); await sleep(400);
 const applied = await txt(A.page, ".pp-prompt");
-ok("Practise now pairs at once and round 1 uses the shadowed expression", applied.includes("Use the expression") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"), applied.slice(0, 160));
+ok("Once Dina accepts, round 1 uses the shadowed expression", applied.includes("Use the expression") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"), applied.slice(0, 160));
 
 /* ---------- degraded conditions ---------- */
 await A.page.evaluate(() => localStorage.setItem("be_partner_api", "http://127.0.0.1:1")); await A.page.evaluate(() => go("partner")); await sleep(1500);

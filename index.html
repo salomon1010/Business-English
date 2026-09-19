@@ -4741,6 +4741,27 @@ const I18N_EN={
  "pp.call_host":"Your live invitation to {{name}} is open",
  "pp.call_return":"Return",
  "pp.more_live_sub":"Invite {{name}} to talk right now — a short voice call on this same task.",
+ "pp.tinv_eyebrow":"Practice invitation",
+ "pp.tinv_h":"{{name}} wants to try a practice with you",
+ "pp.tinv_sub":"Four short voice turns on today's task — record when you can, no call. You both decide afterwards.",
+ "pp.tinv_accept":"Accept",
+ "pp.tinv_decline":"Not now",
+ "pp.tinv_sent":"Invitation sent to {{name}}. You will be paired when they accept.",
+ "pp.tinv_wait_h":"Waiting for {{name}} to accept…",
+ "pp.tinv_wait_sub":"They have ten minutes. You stay in line meanwhile, so someone else may find you first.",
+ "pp.tinv_cancel":"Cancel the invitation",
+ "pp.tinv_gone":"That invitation is no longer open.",
+ "pp.closed_declined":"{{name}} is not available right now. Try another candidate.",
+ "pp.closed_cancelled":"The invitation was cancelled.",
+ "pp.gone_left_h":"{{name}} left today's practice",
+ "pp.gone_left_sub":"Today's session ended on their side. If you are practice partners, you still are — you can start again another day or find someone else.",
+ "pp.gone_rematch_h":"{{name}} chose to find someone else",
+ "pp.gone_rematch_sub":"No reason is given — that is normal. Your place in line is kept; the next compatible learner sees you first.",
+ "pp.gone_declined_h":"{{name}} is not available right now",
+ "pp.gone_declined_sub":"Your invitation was declined. You are still in line — try another candidate or practise with the AI coach.",
+ "pp.gone_cancelled_h":"{{name}} cancelled the invitation",
+ "pp.gone_cancelled_sub":"Nothing to do — you are still in line.",
+ "pp.gone_go":"Open Practice Partner",
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
@@ -13282,6 +13303,14 @@ function ppNotify(){
   if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx()){
     const st=ppState();if(st.notifiedLive!==m.live.id){st.notifiedLive=m.live.id;save();toast(t("pp.live_invite_h",{name:m.live.partner.name}));try{if(navigator.vibrate)navigator.vibrate(120)}catch(e){}try{track("partner_notification_sent",{kind:"live"})}catch(e){}}
   }
+  /* the partner ended today's session, chose someone else, declined or
+     cancelled: one clear message they can close and carry on */
+  if(m.lastClosed&&m.lastClosed.byOther&&["left","rematch","declined","cancelled"].includes(m.lastClosed.reason)){
+    const st=ppState();if(st.noticedClosed!==m.lastClosed.id){st.noticedClosed=m.lastClosed.id;save();
+      const name=m.lastClosed.name||"";
+      askConfirm({icon:"info",danger:false,title:t("pp.gone_"+m.lastClosed.reason+"_h",{name}),body:t("pp.gone_"+m.lastClosed.reason+"_sub",{name}),confirmLabel:t("wc.close"),cancelLabel:t("pp.gone_go")}).then(ok=>{if(!ok&&cur&&cur.v!=="partner")go("partner")});
+      try{track("partner_notification_sent",{kind:"closed"})}catch(e){}}
+  }
   if(!m.pair||!m.pair.unread)return;
   const last=[...m.pair.turns].reverse().find(t=>!t.mine);if(!last)return;
   const st=ppState();if(st.notified===last.id||Date.now()-(st.notifiedAt||0)<60000)return;
@@ -13378,7 +13407,7 @@ function ppRender(el){
   if(ppCands){shell(ppCandidatesHTML(ppCands));return}
   const apply=ppState().applyPhrase;
   const applyCard=apply?`<section class="card pp-apply-card"><div class="eyebrow">${t("sv.apply_eyebrow")}</div><p class="sv-phrase">“${esc(apply.text)}”</p><p class="sub">${t("pp.apply_note")}</p><button class="btn btn-g btn-sm" onclick="ppState().applyPhrase=null;save();go('partner')">${t("pp.apply_clear")}</button></section>`:"";
-  const aiResume=ppLiveCardHTML(m)+ppAiResumeHTML();
+  const aiResume=ppTrialCardHTML(m)+ppLiveCardHTML(m)+ppAiResumeHTML();
   const conn=m.connection?`<section class="card pp-conn">
       <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
@@ -13396,7 +13425,7 @@ function ppRender(el){
     ${flag("practice_partner_ai_fallback_enabled")?`<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
       <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('waiting')">${t("pp.fallback_btn")}</button></div></section>`:""}`);return;
   }
-  const closed=m.lastClosed?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"))}</p>`:"";
+  const closed=m.lastClosed?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed","declined","cancelled"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"),{name:esc(m.lastClosed.name||"")})}</p>`:"";
   shell(`${aiResume}${applyCard}${conn}${ppIntroHTML()}<section class="card pp-cta">${closed}
     <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
     <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppMatch()">${t("pp.match_btn")}</button><button class="btn btn-g" ${ppBusy?"disabled":""} onclick="ppNow()">${t("pp.now_btn")}</button></div>
@@ -13604,8 +13633,8 @@ window.ppNow=async()=>{
   try{
     const r=await ppApi("POST","/interest",ppJoinBody("now"));
     ppMe=r;ppState().lastMe=r;save();
-    try{track("partner_match_requested",{now:"1"});if(r.status==="paired")track("partner_trial_started",{})}catch(e){}
-    if(r.status==="paired"){ppState().applyPhrase=null;toast(t("pp.paired_toast",{name:r.pair.partner.name}))}
+    try{track("partner_match_requested",{now:"1"});if(r.status==="invited")track("partner_trial_invited",{})}catch(e){}
+    if(r.status==="invited"){toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}))}
     else{toast(t("pp.nohuman_h"));try{track("partner_ai_fallback",{})}catch(e){}}
   }catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
@@ -13615,9 +13644,9 @@ window.ppInvite=async offer=>{
   try{
     const st=ppState();
     const r=await ppApi("POST","/invite",{offer,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
-    ppMe=r;st.lastMe=r;st.applyPhrase=null;save();ppCands=null;
-    try{track("partner_trial_started",{})}catch(e){}
-    toast(t("pp.paired_toast",{name:r.pair.partner.name}));
+    ppMe=r;st.lastMe=r;save();ppCands=null;
+    try{track("partner_trial_invited",{})}catch(e){}
+    toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}));
   }catch(e){
     if(e.code==="offer"||e.code==="gone"){toast(t("pp.err_gone"));ppCands=null;await ppMatch();return}
     toast(e.code==="limit"?t("pp.err_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
@@ -13671,6 +13700,31 @@ window.ppLiveAccept=async()=>{
   catch(e){toast(e.code==="closed"?t("pp.live_gone"):t("pp.err_generic"));await ppRefresh(true)}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
+/* ---- a proposed trial: the guest says yes or not now, the host may cancel ---- */
+window.ppTrialAccept=async()=>{
+  const inv=ppMe&&ppMe.invite;if(!inv||ppBusy)return;ppBusy=true;ppCallHide();
+  try{const r=await ppApi("POST","/pairs/"+inv.id+"/accept");ppMe=r;ppState().lastMe=r;ppState().applyPhrase=null;save();try{track("partner_trial_started",{})}catch(e){}if(r.pair)toast(t("pp.paired_toast",{name:r.pair.partner.name}))}
+  catch(e){toast(e.code==="gone"||e.code==="closed"?t("pp.tinv_gone"):t("pp.err_generic"));await ppRefresh(true)}
+  finally{ppBusy=false;if(cur&&cur.v!=="partner")go("partner");else{const el=document.getElementById("v-partner");if(el)ppRender(el)}}
+};
+window.ppTrialDecline=async()=>{
+  const inv=ppMe&&ppMe.invite;if(!inv)return;ppCallHide();
+  try{const r=await ppApi("POST","/pairs/"+inv.id+"/decline");ppMe=r;ppState().lastMe=r;save()}catch(e){}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+window.ppTrialCancel=async()=>{
+  const pi=ppMe&&ppMe.pairInvite;if(!pi)return;
+  try{const r=await ppApi("POST","/pairs/"+pi.id+"/cancel");ppMe=r;ppState().lastMe=r;save()}catch(e){}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+function ppTrialCardHTML(m){
+  if(!m||!ppAvailable())return "";
+  if(m.invite)return `<section class="card pp-live-invite pp-trial-invite"><div class="eyebrow">${t("pp.tinv_eyebrow")}</div><b>${t("pp.tinv_h",{name:esc(m.invite.partner.name)})}</b><p class="sub">${t("pp.tinv_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" onclick="ppTrialAccept()">${ic("check")} ${t("pp.tinv_accept")}</button><button class="btn btn-g" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div></section>`;
+  if(m.pairInvite)return `<section class="card pp-live-invite pp-trial-wait"><div class="eyebrow">${t("pp.tinv_eyebrow")}</div><b>${t("pp.tinv_wait_h",{name:esc(m.pairInvite.partner.name)})}</b><p class="sub">${t("pp.tinv_wait_sub")}</p>
+    <div class="pp-row"><button class="btn btn-g" onclick="ppTrialCancel()">${t("pp.tinv_cancel")}</button></div></section>`;
+  return "";
+}
 window.ppLiveDecline=async()=>{const l=ppLiveSess();if(!l)return;ppCallHide();try{const r=await ppApi("POST","/live/"+l.id+"/decline");ppMe=r;ppState().lastMe=r;save()}catch(e){}const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
 window.ppLiveCancel=async()=>{const l=ppLiveSess();if(!l)return;try{const r=await ppApi("POST","/live/"+l.id+"/cancel");ppMe=r;ppState().lastMe=r;save()}catch(e){}ppLiveTeardown(false);const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
 /* ---- the room ---- */
@@ -13890,6 +13944,13 @@ function ppChime(){
 function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
 function ppCallSync(){
   const m=ppMe||ppState().lastMe,l=m&&m.live;
+  const tinv=m&&m.invite&&m.invite.expiresAt>Date.now()&&ppAvailable();
+  if(tinv&&!(l&&l.role==="guest"&&l.state==="invited")){
+    const el=ppCallEl(),key="trial:"+m.invite.id;
+    if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t("pp.tinv_h",{name:esc(m.invite.partner.name)})}</b><small>${t("pp.tinv_sub")}</small></div></div>
+      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppTrialAccept()">${ic("check")} ${t("pp.tinv_accept")}</button><button class="pp-call-decline" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
+    return;
+  }
   const guestInvite=l&&l.role==="guest"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx();
   const hostWaiting=l&&l.role==="host"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx()&&!(cur&&cur.v==="partner");
   if(!guestInvite&&!hostWaiting){if(ppCallShown)ppCallHide();return}
@@ -13910,7 +13971,7 @@ function ppCallLoop(){
   ppCallT=setTimeout(async()=>{
     if(document.visibilityState==="visible"&&ppAvailable()&&ppSignedIn()&&ppState().consent&&!ppLive){
       const m=ppMe||ppState().lastMe;
-      if(m&&(m.connection||m.live)){await ppRefresh(true);ppCallSync()}
+      if(m&&(m.connection||m.live||m.waiting||m.invite||m.pairInvite)){await ppRefresh(true);ppCallSync()}
     }
     ppCallLoop();
   },10000);
@@ -14226,6 +14287,7 @@ function ppHomeCardHTML(){
   if(!ppAvailable())return "";
   const m=ppState().lastMe;if(!m)return "";
   const p=m.pair;
+  if(m.invite)return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.tinv_eyebrow")}</div><h2>${t("pp.tinv_h",{name:esc(m.invite.partner.name)})}</h2><p class="sub">${t("pp.tinv_sub")}</p></section>`;
   if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx())return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.live_eyebrow")}</div><h2>${t("pp.live_invite_h",{name:esc(m.live.partner.name)})}</h2><p class="sub">${t("pp.live_invite_sub")}</p></section>`;
   if(p&&p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   if(p&&p.complete&&!p.myDecision)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_decide_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.decide_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
