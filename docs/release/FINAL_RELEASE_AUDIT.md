@@ -254,10 +254,21 @@ in-app path erases it and the text says so.
 
 ## 18. iOS native audit (Part 37)
 
-BLOCKED — NATIVE APP PACKAGING NOT YET PRESENT. Next steps: decide PWA-only
-vs native shell; if native, create the Xcode project with WKWebView + native
-mic/audio session, `PrivacyInfo.xcprivacy`, usage descriptions, associated
-domains for `app.lomonec.com`, push, and demonstrate 4.2 value.
+**Updated 2026-09-19 (later the same day):** the iOS project now exists —
+`mobile/ios/` (Capacitor 8, SPM, local web bundle, `capacitor://localhost`
+origin), with `Info.plist` (`NSMicrophoneUsageDescription`,
+`ITSAppUsesNonExemptEncryption=NO`, iPhone-only portrait, 1.1.0 (1)),
+`PrivacyInfo.xcprivacy` (no tracking; e-mail, name, audio, user content
+linked; product interaction not linked; UserDefaults CA92.1), 1024 icon,
+brand launch screen, listing / review notes / privacy answers and 6.9"
+screenshots under `mobile/ios/appstore/`. Apple's current requirement
+(fetched): uploads must be built with Xcode 26 / iOS 26 SDK. **Still BLOCKED
+on this machine:** no Xcode, no signing identity, no App Store Connect key —
+archive, validation and upload happen on a Mac with Xcode 26 and the Lomonec
+team (steps in `mobile/ios/README.md`). Before the app's networked features
+work inside the shell, the three Workers must be redeployed with the
+`capacitor://localhost` origin now in their allow-lists (a production deploy,
+not done).
 
 ## 19. Android native audit (Part 38)
 

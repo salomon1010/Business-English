@@ -24,6 +24,7 @@
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
   "https://staging.lomonec.com",
+  "capacitor://localhost",   // the App Store build (mobile/ios): WKWebView cannot use https for a local bundle
   "http://localhost:8000",  "http://127.0.0.1:8000",   // python3 -m http.server 8000
   "http://localhost:4173",  "http://127.0.0.1:4173",   // vite preview
   "http://localhost:5173",  "http://127.0.0.1:5173",   // vite dev

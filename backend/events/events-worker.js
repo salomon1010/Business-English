@@ -33,6 +33,7 @@
 
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
+  "capacitor://localhost",   // the App Store build (mobile/ios)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
