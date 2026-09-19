@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Termine seulement la séance du jour. Si vous êtes partenaires de pratique, vous le restez.",
  "pp.human_tag": "Partenaire humain",
  "pp.ai_then_human": "Enregistrez-le maintenant pour {{name}} →",
- "pp.live_go": "C'est parti"
+ "pp.live_go": "C'est parti",
+ "pp.call_h": "{{name}} veut pratiquer en direct avec vous",
+ "pp.call_sub": "Un vrai apprenant vous attend — environ cinq minutes sur la tâche du jour.",
+ "pp.call_accept": "Accepter et commencer",
+ "pp.call_decline": "Pas maintenant",
+ "pp.call_host": "Votre invitation en direct à {{name}} est ouverte",
+ "pp.call_return": "Revenir"
 }

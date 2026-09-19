@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "今日のセッションだけが終わります。練習パートナー同士なら関係はそのままです。",
  "pp.human_tag": "人間のパートナー",
  "pp.ai_then_human": "今度は{{name}}に向けて録音 →",
- "pp.live_go": "スタート"
+ "pp.live_go": "スタート",
+ "pp.call_h": "{{name}}があなたとライブ練習を希望しています",
+ "pp.call_sub": "実際の学習者が待っています。今日の課題で約5分。",
+ "pp.call_accept": "承諾して始める",
+ "pp.call_decline": "今はやめる",
+ "pp.call_host": "{{name}}へのライブ招待が開いています",
+ "pp.call_return": "戻る"
 }

@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Beendet nur die heutige Sitzung. Wenn ihr Übungspartner seid, bleibt ihr es.",
  "pp.human_tag": "Menschlicher Partner",
  "pp.ai_then_human": "Jetzt für {{name}} aufnehmen →",
- "pp.live_go": "Los"
+ "pp.live_go": "Los",
+ "pp.call_h": "{{name}} möchte live mit dir üben",
+ "pp.call_sub": "Ein echter Lernender wartet — etwa fünf Minuten zur heutigen Aufgabe.",
+ "pp.call_accept": "Annehmen und starten",
+ "pp.call_decline": "Jetzt nicht",
+ "pp.call_host": "Deine Live-Einladung an {{name}} ist offen",
+ "pp.call_return": "Zurück"
 }

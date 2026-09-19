@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Hanya mengakhiri sesi hari ini. Jika kalian partner latihan, kalian tetap partner.",
  "pp.human_tag": "Partner manusia",
  "pp.ai_then_human": "Sekarang rekam untuk {{name}} →",
- "pp.live_go": "Mulai"
+ "pp.live_go": "Mulai",
+ "pp.call_h": "{{name}} ingin berlatih langsung dengan Anda",
+ "pp.call_sub": "Pelajar sungguhan sedang menunggu — sekitar lima menit untuk tugas hari ini.",
+ "pp.call_accept": "Terima & mulai",
+ "pp.call_decline": "Nanti saja",
+ "pp.call_host": "Undangan langsung Anda untuk {{name}} masih terbuka",
+ "pp.call_return": "Kembali"
 }

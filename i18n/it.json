@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Termina solo la sessione di oggi. Se siete partner di pratica, lo restate.",
  "pp.human_tag": "Partner umano",
  "pp.ai_then_human": "Ora registralo per {{name}} →",
- "pp.live_go": "Via"
+ "pp.live_go": "Via",
+ "pp.call_h": "{{name}} vuole praticare dal vivo con te",
+ "pp.call_sub": "Un vero studente ti aspetta — circa cinque minuti sul compito di oggi.",
+ "pp.call_accept": "Accetta e inizia",
+ "pp.call_decline": "Non ora",
+ "pp.call_host": "Il tuo invito dal vivo a {{name}} è aperto",
+ "pp.call_return": "Torna"
 }

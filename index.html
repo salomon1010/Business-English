@@ -1219,6 +1219,12 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-turn-ai{border-color:color-mix(in srgb,var(--gold) 40%,var(--line))}.pp-turn-ai .pp-turn-top b{display:inline-flex;gap:6px;align-items:center}
 .pp-human-back{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.pp-human-back svg{width:18px;height:18px;flex:none;color:var(--green)}.pp-human-back b{flex:1;font-size:13.5px}
 .pp-ai-resume b{display:block;margin:6px 0 2px;font-size:15px}
+#ppCall{position:fixed;left:0;right:0;top:0;z-index:200;transform:translateY(-110%);transition:transform .28s ease;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 12px;background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+#ppCall.on{transform:none}#ppCall .pp-call-in{display:flex;gap:12px;align-items:center}#ppCall .pp-call-t b{display:block;font-size:16px;line-height:1.25}#ppCall .pp-call-t small{display:block;font-size:12.5px;opacity:.9;margin-top:2px}
+#ppCall .pp-call-dot{flex:none;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.6);animation:ppcall 1.2s infinite}#ppCall .pp-call-dot.wait{animation-duration:2.4s;opacity:.85}
+@keyframes ppcall{0%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}70%{box-shadow:0 0 0 12px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+#ppCall .pp-call-btns{display:flex;gap:8px;margin-top:10px}#ppCall .pp-call-btns button{flex:1;min-height:46px;border-radius:12px;font:inherit;font-weight:800;font-size:15px;border:0;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+#ppCall .pp-call-accept{background:#fff;color:#0b5d3b}#ppCall .pp-call-accept svg{width:18px;height:18px}#ppCall .pp-call-decline{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35)!important}
 .pp-human-tag{color:var(--green);font-weight:700}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
 .pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
@@ -4728,6 +4734,12 @@ const I18N_EN={
  "pp.human_tag":"Human partner",
  "pp.ai_then_human":"Now record it for {{name}} →",
  "pp.live_go":"Start",
+ "pp.call_h":"{{name}} wants to practise live with you",
+ "pp.call_sub":"A real learner is waiting — about five minutes on today's task.",
+ "pp.call_accept":"Accept & start",
+ "pp.call_decline":"Not now",
+ "pp.call_host":"Your live invitation to {{name}} is open",
+ "pp.call_return":"Return",
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
@@ -13251,7 +13263,7 @@ async function ppRefresh(silent){
   try{
     ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();
     const st=ppState();st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
-    ppNotify();navBadges();
+    ppNotify();navBadges();ppCallSync();
   }catch(e){
     if(e.code==="auth")ppMe={auth:false};
     else if(e.code==="disabled")ppMe={disabled:true};
@@ -13266,7 +13278,7 @@ function ppUnread(){if(!ppAvailable())return 0;const m=(ppState().lastMe)||ppMe;
 function ppNotify(){
   const m=ppMe;if(!m||!flag("practice_partner_notifications_enabled"))return;
   /* a live invitation: once per session id, only while it is still open */
-  if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&flag("practice_partner_live_enabled")){
+  if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx()){
     const st=ppState();if(st.notifiedLive!==m.live.id){st.notifiedLive=m.live.id;save();toast(t("pp.live_invite_h",{name:m.live.partner.name}));try{if(navigator.vibrate)navigator.vibrate(120)}catch(e){}try{track("partner_notification_sent",{kind:"live"})}catch(e){}}
   }
   if(!m.pair||!m.pair.unread)return;
@@ -13358,7 +13370,7 @@ function ppRender(el){
   if(m.auth===false){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.signin_h")}</b><p class="sub">${t("pp.signin_sub")}</p><button class="btn-primary" onclick="fbOpenModal('in')">${t("pp.signin_btn")}</button></section>`);return}
   if(!m.consented){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.consent_cta_h")}</b><p class="sub">${t("pp.consent_cta_sub")}</p><button class="btn-primary" onclick="ppOpenConsent()">${t("pp.consent_open")}</button></section>`);return}
   if(m.suspendedUntil){shell(`<section class="card pp-cta"><b>${t("pp.suspended_h")}</b><p class="sub">${t("pp.suspended_sub",{date:new Date(m.suspendedUntil).toLocaleDateString()})}</p></section>`);return}
-  if(ppLive&&ppLiveOn()){shell(ppLiveHTML(ppLive));if(ppLive.status==="active")ppLiveTick();return}
+  if(ppLive&&ppLiveRx()){shell(ppLiveHTML(ppLive));if(ppLive.status==="active")ppLiveTick();return}
   if(ppAiOpen&&ppAiActive()){shell(ppAiHTML(ppAiActive()));ppRenderRecorder();return}
   if(ppAiOpen&&ppAi()&&ppAi().completedAt){shell(ppAiHTML(ppAi()));return}
   if(m.pair){shell(ppLiveCardHTML(m)+ppAiResumeHTML()+ppThreadHTML(m.pair));ppRenderRecorder();ppMarkSeen(m.pair);return}
@@ -13651,11 +13663,12 @@ window.ppLiveInvite=async()=>{
 };
 window.ppLiveAccept=async()=>{
   const l=ppLiveSess();if(!l||ppBusy)return;ppBusy=true;
+  ppCallHide();if(cur&&cur.v!=="partner")go("partner");
   try{const r=await ppApi("POST","/live/"+l.id+"/accept");ppMe.live=r.live;try{track("partner_live_accepted",{})}catch(e){}ppLiveOpen(r.live,r.iceServers)}
   catch(e){toast(e.code==="closed"?t("pp.live_gone"):t("pp.err_generic"));await ppRefresh(true)}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
-window.ppLiveDecline=async()=>{const l=ppLiveSess();if(!l)return;try{const r=await ppApi("POST","/live/"+l.id+"/decline");ppMe=r;ppState().lastMe=r;save()}catch(e){}const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
+window.ppLiveDecline=async()=>{const l=ppLiveSess();if(!l)return;ppCallHide();try{const r=await ppApi("POST","/live/"+l.id+"/decline");ppMe=r;ppState().lastMe=r;save()}catch(e){}const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
 window.ppLiveCancel=async()=>{const l=ppLiveSess();if(!l)return;try{const r=await ppApi("POST","/live/"+l.id+"/cancel");ppMe=r;ppState().lastMe=r;save()}catch(e){}ppLiveTeardown(false);const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
 /* ---- the room ---- */
 function ppLiveOpen(sess,ice){
@@ -13839,13 +13852,56 @@ window.ppLiveBlock=async()=>{
   ppLiveClose();
 };
 /* the invitation the guest sees, and the host's waiting card, on the partner page */
+/* receiving an invitation needs only Practice Partner itself: the server
+   already allowed the host, so a stale device flag must not hide a real
+   person who is waiting. Starting a call still needs the live flag. */
+function ppLiveRx(){return ppAvailable()}
 function ppLiveCardHTML(m){
-  const l=m.live;if(!l||!ppLiveOn())return "";
+  const l=m.live;if(!l||!ppLiveRx())return "";
   if(l.role==="guest"&&l.state==="invited")return `<section class="card pp-live-invite"><div class="eyebrow">${t("pp.live_eyebrow")}</div><b>${t("pp.live_invite_h",{name:esc(l.partner.name)})}</b><p class="sub">${t("pp.live_invite_sub")}</p>
     <div class="pp-row"><button class="btn-primary" onclick="ppLiveAccept()">${ic("mic")} ${t("pp.live_join")}</button><button class="btn btn-g" onclick="ppLiveDecline()">${t("pp.live_decline")}</button></div></section>`;
   return `<section class="card pp-live-invite"><div class="eyebrow">${t("pp.live_eyebrow")}</div><b>${t("pp.live_open_h",{name:esc(l.partner.name)})}</b><div class="pp-row"><button class="btn-primary" onclick="ppLiveResume()">${t("pp.live_resume")}</button></div></section>`;
 }
 window.ppLiveResume=async()=>{const l=ppLiveSess();if(!l)return;let ice=null;try{const r=await ppApi("GET","/live/"+l.id);ice=r.iceServers;ppMe.live=r.live}catch(e){}ppLiveOpen(ppMe.live,ice);ppLiveRender()};
+
+/* ---- the incoming-call banner: on every page, until answered or expired ----
+   A real person is waiting, so it behaves like a call: fixed at the top,
+   green, the sender's first name, Accept & start / Not now. Fed by a light
+   app-wide check every 10 s while the learner has a partner (only when the
+   app is visible; never during a call, which has its own poll). */
+let ppCallT=null,ppCallShown=null;
+function ppCallEl(){let el=document.getElementById("ppCall");if(!el){el=document.createElement("div");el.id="ppCall";el.setAttribute("role","alert");document.body.appendChild(el)}return el}
+function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
+function ppCallSync(){
+  const m=ppMe||ppState().lastMe,l=m&&m.live;
+  const guestInvite=l&&l.role==="guest"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx();
+  const hostWaiting=l&&l.role==="host"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx()&&!(cur&&cur.v==="partner");
+  if(!guestInvite&&!hostWaiting){if(ppCallShown)ppCallHide();return}
+  const el=ppCallEl(),key=l.id+":"+l.role;
+  if(ppCallShown!==key){
+    el.innerHTML=guestInvite?`<div class="pp-call-in"><span class="pp-call-dot"></span>
+        <div class="pp-call-t"><b>${t("pp.call_h",{name:esc(l.partner.name)})}</b><small>${t("pp.call_sub")}</small></div></div>
+      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppLiveAccept()">${ic("mic")} ${t("pp.call_accept")}</button><button class="pp-call-decline" onclick="ppLiveDecline()">${t("pp.call_decline")}</button></div>`
+     :`<div class="pp-call-in"><span class="pp-call-dot wait"></span>
+        <div class="pp-call-t"><b>${t("pp.call_host",{name:esc(l.partner.name)})}</b><small>${t("pp.live_waiting",{name:esc(l.partner.name)})}</small></div></div>
+      <div class="pp-call-btns"><button class="pp-call-accept" onclick="go('partner')">${t("pp.call_return")}</button><button class="pp-call-decline" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`;
+    manIconizeInline(el);el.classList.add("on");ppCallShown=key;
+    if(guestInvite){try{if(navigator.vibrate)navigator.vibrate([120,80,120])}catch(e){}}
+  }
+}
+function ppCallLoop(){
+  clearTimeout(ppCallT);
+  ppCallT=setTimeout(async()=>{
+    if(document.visibilityState==="visible"&&ppAvailable()&&ppSignedIn()&&ppState().consent&&!ppLive){
+      const m=ppMe||ppState().lastMe;
+      if(m&&(m.connection||m.live)){await ppRefresh(true);ppCallSync()}
+    }
+    ppCallLoop();
+  },10000);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ppCallSync()});
+window.addEventListener("hashchange",()=>{try{ppCallSync()}catch(e){}});
+setTimeout(ppCallLoop,4000);
 
 /* ================= AI COACH PRACTICE (Level 2) =================
    The labelled fallback: when nobody is waiting, when a partner has gone
@@ -14153,7 +14209,7 @@ function ppHomeCardHTML(){
   if(!ppAvailable())return "";
   const m=ppState().lastMe;if(!m)return "";
   const p=m.pair;
-  if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&flag("practice_partner_live_enabled"))return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.live_eyebrow")}</div><h2>${t("pp.live_invite_h",{name:esc(m.live.partner.name)})}</h2><p class="sub">${t("pp.live_invite_sub")}</p></section>`;
+  if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx())return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.live_eyebrow")}</div><h2>${t("pp.live_invite_h",{name:esc(m.live.partner.name)})}</h2><p class="sub">${t("pp.live_invite_sub")}</p></section>`;
   if(p&&p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   if(p&&p.complete&&!p.myDecision)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_decide_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.decide_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   if(p&&p.myTurn)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;

@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "只结束今天的练习。如果你们是练习伙伴，关系保持不变。",
  "pp.human_tag": "真人伙伴",
  "pp.ai_then_human": "现在为 {{name}} 录一段 →",
- "pp.live_go": "开始"
+ "pp.live_go": "开始",
+ "pp.call_h": "{{name}} 想和你实时练习",
+ "pp.call_sub": "一位真实学习者正在等你——围绕今天的任务约五分钟。",
+ "pp.call_accept": "接受并开始",
+ "pp.call_decline": "暂不",
+ "pp.call_host": "你向 {{name}} 发出的实时邀请仍在等待",
+ "pp.call_return": "返回"
 }

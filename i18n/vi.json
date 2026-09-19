@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Chỉ kết thúc buổi hôm nay. Nếu hai bạn là bạn luyện, vẫn là bạn luyện.",
  "pp.human_tag": "Bạn luyện là người thật",
  "pp.ai_then_human": "Giờ ghi âm gửi {{name}} →",
- "pp.live_go": "Bắt đầu"
+ "pp.live_go": "Bắt đầu",
+ "pp.call_h": "{{name}} muốn luyện trực tiếp với bạn",
+ "pp.call_sub": "Một người học thật đang chờ — khoảng năm phút cho bài hôm nay.",
+ "pp.call_accept": "Chấp nhận và bắt đầu",
+ "pp.call_decline": "Để sau",
+ "pp.call_host": "Lời mời trực tiếp của bạn tới {{name}} đang mở",
+ "pp.call_return": "Quay lại"
 }

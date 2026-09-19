@@ -189,7 +189,11 @@ await C.page.evaluate(async () => { await ppRefresh(); go("home"); }); await sle
 ok("Guest: Home shows the live invitation card", (await txt(C.page, ".pp-home-live")).includes("Alice invites you to practise live"));
 await C.page.evaluate(() => go("partner")); await C.page.waitForSelector(".pp-live-invite", { timeout: 10000 });
 ok("Guest: the invitation on the partner page says voice call, four rounds, mic only in the call; Join / Not now", (await txt(C.page, ".pp-live-invite")).includes("four rounds") && (await txt(C.page, ".pp-live-invite")).includes("Join the call") && (await txt(C.page, ".pp-live-invite")).includes("Not now"));
-await C.page.click('.pp-live-invite button:has-text("Join the call")');
+await C.page.evaluate(() => go("home")); await sleep(600);
+const callTxt = await txt(C.page, "#ppCall.on");
+ok("Guest: a persistent call banner at the top of ANY page — sender's name, Accept & start / Not now", callTxt.includes("Alice wants to practise live with you") && callTxt.includes("Accept & start") && callTxt.includes("Not now"));
+ok("Guest: the banner shows even if this device's live flag is missing (a real person is waiting)", await C.page.evaluate(() => { const f = JSON.parse(localStorage.getItem("be_flags")); f.practice_partner_live_enabled = false; localStorage.setItem("be_flags", JSON.stringify(f)); ppCallShown = null; ppCallSync(); const on = !!document.querySelector("#ppCall.on"); f.practice_partner_live_enabled = true; localStorage.setItem("be_flags", JSON.stringify(f)); return on; }));
+await C.page.click('#ppCall .pp-call-accept');
 const liveUp = await Promise.all([A.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false), C.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false)]);
 ok("Both sides connect (WebRTC audio, ICE through the Worker) and show 'Connected — you can talk'", liveUp[0] && liveUp[1], JSON.stringify({ a: await txt(A.page, ".pp-live-status"), c: await txt(C.page, ".pp-live-status") }));
 const liveA = await A.page.evaluate(() => ({ head: document.querySelector(".pp-live-head").innerText, pc: ppLive.pc && ppLive.pc.connectionState, tracks: ppLive.stream ? ppLive.stream.getAudioTracks().length : 0, remote: !!document.getElementById("ppLiveAudio") && !!document.getElementById("ppLiveAudio").srcObject, timer: !!document.getElementById("ppLiveTimer") }));

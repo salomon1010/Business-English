@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "오늘 세션만 끝납니다. 연습 파트너라면 관계는 그대로입니다.",
  "pp.human_tag": "사람 파트너",
  "pp.ai_then_human": "이제 {{name}}에게 녹음하기 →",
- "pp.live_go": "시작"
+ "pp.live_go": "시작",
+ "pp.call_h": "{{name}}이(가) 당신과 실시간 연습을 원합니다",
+ "pp.call_sub": "실제 학습자가 기다리고 있습니다 — 오늘 과제로 약 5분.",
+ "pp.call_accept": "수락하고 시작",
+ "pp.call_decline": "다음에",
+ "pp.call_host": "{{name}}에게 보낸 실시간 초대가 열려 있습니다",
+ "pp.call_return": "돌아가기"
 }

@@ -1818,5 +1818,11 @@
  "pp.more_leave_sub": "Solo termina la sesión de hoy. Si sois compañeros de práctica, seguís siéndolo.",
  "pp.human_tag": "Compañero humano",
  "pp.ai_then_human": "Ahora grábalo para {{name}} →",
- "pp.live_go": "Empieza"
+ "pp.live_go": "Empieza",
+ "pp.call_h": "{{name}} quiere practicar en vivo contigo",
+ "pp.call_sub": "Un aprendiz real te espera — unos cinco minutos con la tarea de hoy.",
+ "pp.call_accept": "Aceptar y empezar",
+ "pp.call_decline": "Ahora no",
+ "pp.call_host": "Tu invitación en vivo a {{name}} está abierta",
+ "pp.call_return": "Volver"
 }
