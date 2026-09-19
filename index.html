@@ -13555,13 +13555,16 @@ function ppPresenceHTML(){
   return `<button type="button" class="pp-presence ${none?"none":"some"}" onclick="ppPresenceTap()" aria-live="polite"><span class="pp-presence-dot"></span><span>${label}</span><span class="pp-pill-go">›</span></button>`;
 }
 window.ppPresenceTap=()=>{const m=ppMe;try{track("partner_availability_viewed",{})}catch(e){}if(m&&m.pair){const el=document.getElementById("v-partner");if(el)el.querySelector(".pp-thread")?.scrollIntoView({behavior:"smooth"});return}if(m&&m.invite){return}ppMatch()};
-/* The AI coach is a standing choice, not a fallback (owner, 2026-09-19): the
-   same card sits under the partner options on the idle page, the waiting card
-   and the candidate list, so a learner who went to look at real people can
-   come back and pick the coach instead. */
+/* Human first (owner, 2026-09-19, final): the AI coach card appears only when
+   no askable human is available — nobody in line or online (idle page,
+   waiting card, an empty candidate list) — or through the existing fallback
+   conditions (a silent partner, the More-options choice inside a session).
+   It never sits next to a real learner's card. Always labelled AI. */
+function ppHumanAvailable(){const m=ppMe;if(!m)return false;if(m.waiting&&m.waiting.available>0)return true;if(Array.isArray(ppCands)&&ppCands.length>0)return true;return !!(m.presence&&m.presence.waiting>0)}
 function ppAiChoiceHTML(reason,noHuman){
   if(!flag("practice_partner_ai_fallback_enabled"))return "";
-  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${noHuman?t("pp.nohuman_h"):t("pp.ai_choice_h")}</b><p class="sub">${noHuman?t("pp.nohuman_sub"):t("pp.ai_choice_sub")}</p>
+  if(ppHumanAvailable())return "";
+  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
     <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('${reason}')">${t("pp.fallback_btn")}</button></div></section>`;
 }
 function ppIntroHTML(){
