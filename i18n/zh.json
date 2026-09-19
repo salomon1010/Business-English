@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "围绕今天的任务进行一次简短语音通话。不会录音 —— 任何一方随时可以离开。",
  "pp.tinv_live_accept": "接受并开始通话",
  "pp.tinv_wait_live_sub": "对方有十分钟。一旦接受，通话就在这里开始。",
- "pp.live_hangup": "挂断"
+ "pp.live_hangup": "挂断",
+ "auth.delete_partner_fail": "无法连接 Practice Partner 服务以清除你的伙伴数据。请检查网络后重试 —— 尚未删除任何内容。"
 }

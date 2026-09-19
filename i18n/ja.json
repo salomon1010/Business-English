@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "今日の課題について短い音声通話。何も録音されません — どちらもいつでも離れられます。",
  "pp.tinv_live_accept": "承諾して話す",
  "pp.tinv_wait_live_sub": "相手には10分あります。承諾されたらすぐ、ここで通話が始まります。",
- "pp.live_hangup": "通話を終了"
+ "pp.live_hangup": "通話を終了",
+ "auth.delete_partner_fail": "パートナーデータを消去するための Practice Partner サービスに接続できませんでした。接続を確認して再試行してください — 何も削除されていません。"
 }

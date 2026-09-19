@@ -2922,6 +2922,12 @@ html[dir="rtl"] .doc-theme{right:auto;left:max(14px,calc(env(safe-area-inset-lef
 @media (prefers-reduced-motion:reduce){.doc-ov{animation:none}}
 .footer-note{text-align:center;color:var(--mut);font-size:12.5px;margin-top:50px;line-height:1.7}
 .social-row{display:flex;justify-content:center;gap:4px;margin:14px 0 8px}
+/* The footer (credit, social row, About / guide / Play) shows on the Profile
+   page only (owner, 2026-09-19). Hidden with CSS, not removed: these are the
+   crawlable links out of the app shell and the no-JS summary still needs them.
+   The About page is the flyer in a full-screen overlay with its own footer. */
+.footer-note,.social-row{display:none}
+:root[data-view="profile"] .footer-note{display:block}:root[data-view="profile"] .social-row{display:flex}
 .social-row a{width:44px;height:44px;display:grid;place-items:center;border-radius:12px;color:var(--mut);transition:.15s}
 .social-row a svg{width:22px;height:22px}
 .social-row a:hover{color:var(--txt);background:var(--card2)}

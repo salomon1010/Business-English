@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "Một cuộc gọi thoại ngắn về bài tập hôm nay. Không ghi âm gì cả — và ai cũng có thể rời đi bất cứ lúc nào.",
  "pp.tinv_live_accept": "Chấp nhận & nói",
  "pp.tinv_wait_live_sub": "Họ có mười phút. Ngay khi họ chấp nhận, cuộc gọi sẽ mở tại đây.",
- "pp.live_hangup": "Kết thúc cuộc gọi"
+ "pp.live_hangup": "Kết thúc cuộc gọi",
+ "auth.delete_partner_fail": "Không thể kết nối dịch vụ Practice Partner để xoá dữ liệu bạn luyện tập. Kiểm tra kết nối và thử lại — chưa có gì bị xoá."
 }

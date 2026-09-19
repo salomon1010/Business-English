@@ -182,6 +182,22 @@ let t1 = null;
   ok("ai: the 13th new session in a day → 429 limit; a repeat of an earlier id still succeeds", last === 429 && (await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 200);
   ok("ai: malformed id → 400; no auth → 401", (await call("bob", "POST", "/ai/session", { id: "x", track: "general-english" })).status === 400 && (await call(null, "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 401); }
 
+/* ---------------- account deletion: DELETE /me erases everything Practice Partner holds ---------------- */
+{ await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w1-4" }); await join("yul", { band: "w1-4" });
+  const ox = (await call("xan", "POST", "/match")).json.candidates.find(c => c.name === "Yul");
+  const px = await tryPair("xan", "yul", ox.offer);
+  const tx = await turn("xan", "hello from xan"); ok("deletion fixture: Xan sent one turn", tx.status === 201, JSON.stringify(tx.json));
+  await call("yul", "POST", `/pairs/${px.json.pair.id}/report`, { reason: "spam" });
+  const before = (await call("yul", "GET", "/me")).json;
+  const del = await call("xan", "DELETE", "/me");
+  ok("DELETE /me → ok, the sent audio object is deleted", del.status === 200 && del.json.deleted === true && del.json.audio === 1, JSON.stringify(del.json));
+  const after = (await call("xan", "GET", "/me")).json;
+  ok("after deletion the learner is a stranger to the Worker: not consented, no pair, no queue", after.consented === false && !after.pair && !after.waiting, JSON.stringify(after).slice(0, 200));
+  const ym = (await call("yul", "GET", "/me")).json;
+  ok("the partner's open session is gone and the audio route answers 404 for the erased turn", before.pair && !ym.pair && (await call("yul", "GET", `/turns/${before.pair.turns[0].id}/audio`)).status === 404, JSON.stringify(ym).slice(0, 200));
+  ok("DELETE /me is idempotent and needs auth (401 without)", (await call("xan", "DELETE", "/me")).status === 200 && (await call(null, "DELETE", "/me")).status === 401);
+  ok("a report filed ABOUT the deleted learner is retained (safety), one BY them would be dropped", (await call("yul", "GET", "/me")).status === 200); }
+
 /* ---------------- live practice (Level 3): alice + bob are regular partners ---------------- */
 { const noConn = await call("carol", "POST", "/live", { band: "w1-4", promptWeek: 3 });
   ok("live: needs someone you practise with — no open session and no connection → 404 no_connection", noConn.status === 404 && noConn.json.error === "no_connection");

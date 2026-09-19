@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "오늘의 과제로 짧은 음성 통화. 아무것도 녹음되지 않으며, 누구든 언제든지 떠날 수 있어요.",
  "pp.tinv_live_accept": "수락하고 대화하기",
  "pp.tinv_wait_live_sub": "상대에게 10분이 있어요. 수락하는 즉시 여기서 통화가 열립니다.",
- "pp.live_hangup": "통화 종료"
+ "pp.live_hangup": "통화 종료",
+ "auth.delete_partner_fail": "파트너 데이터를 지우기 위한 Practice Partner 서비스에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요 — 아무것도 삭제되지 않았습니다."
 }

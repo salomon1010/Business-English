@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "Un court appel vocal sur la tâche du jour. Rien n'est enregistré — et chacun peut partir à tout moment.",
  "pp.tinv_live_accept": "Accepter et parler",
  "pp.tinv_wait_live_sub": "Il ou elle a dix minutes. Dès l'acceptation, l'appel s'ouvre ici.",
- "pp.live_hangup": "Raccrocher"
+ "pp.live_hangup": "Raccrocher",
+ "auth.delete_partner_fail": "Impossible de joindre le service Practice Partner pour effacer vos données de partenaire. Vérifiez votre connexion et réessayez — rien n'a été supprimé."
 }

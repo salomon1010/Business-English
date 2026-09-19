@@ -179,6 +179,35 @@ async function iceServers(env) {
   }
   return out;
 }
+/* Erase everything Practice Partner holds about one learner. Idempotent: a
+   second call finds nothing and still answers ok. What stays, and why (this is
+   also what privacy.html says): reports OTHER people filed about this learner
+   and blocks OTHER people placed on them (their safety choices, keyed by an
+   id that no longer resolves to anyone), and audit rows, which the cron drops
+   after 90 days. The partner of an open session sees it end as "left". */
+async function eraseMember(env, uid, ms) {
+  const p = await activePair(env, uid); if (p) await closePair(env, p, "left", ms, uid);
+  const l = await openLive(env, uid); if (l) await liveClose(env, l, "ended", "left", ms);
+  const turns = (await q(env, "SELECT id, audio_key FROM turns WHERE from_uid=?", uid).all()).results || [];
+  let audio = 0; for (const t of turns) { try { await env.AUDIO.delete(t.audio_key); audio++; } catch (e) {} }
+  await env.DB.batch([
+    q(env, "DELETE FROM turns WHERE from_uid=?", uid),
+    q(env, "DELETE FROM turns WHERE pair_id IN (SELECT id FROM pairs WHERE uid_a=? OR uid_b=?)", uid, uid),
+    q(env, "DELETE FROM live_signals WHERE session_id IN (SELECT id FROM live_sessions WHERE host=? OR guest=?)", uid, uid),
+    q(env, "DELETE FROM live_sessions WHERE host=? OR guest=?", uid, uid),
+    q(env, "DELETE FROM pairs WHERE uid_a=? OR uid_b=?", uid, uid),
+    q(env, "DELETE FROM interest WHERE uid=?", uid),
+    q(env, "DELETE FROM offers WHERE for_uid=? OR cand_uid=?", uid, uid),
+    q(env, "DELETE FROM connections WHERE a=? OR b=?", uid, uid),
+    q(env, "DELETE FROM cooldowns WHERE a=? OR b=?", uid, uid),
+    q(env, "DELETE FROM reports WHERE by_uid=?", uid),
+    q(env, "DELETE FROM blocks WHERE by_uid=?", uid),
+    q(env, "DELETE FROM counters WHERE key LIKE ?", uid + ":%"),
+    q(env, "DELETE FROM members WHERE uid=?", uid),
+  ]);
+  await audit(env, ms, uid, "account_deleted", null, null, { audio });
+  return { ok: true, deleted: true, audio };
+}
 /* report and block are shared by the async thread and live practice */
 async function doReport(env, uid, other, ctxId, reason, ms) {
   if (await bump(env, uid, "report", ms) > DAILY_LIMITS.report) return err(429, "limit");
@@ -451,6 +480,14 @@ async function handle(req, env, ctx) {
   const ip = req.headers.get("cf-connecting-ip") || "0";
   if (ipLimited(ip, env)) return err(429, "ip_limit");
   if (path === "/health") return json({ ok: true, dev: env.DEV_AUTH === "1", enabled: env.PARTNER_ENABLED === "1" });
+  /* Account deletion (Apple 5.1.1(v), Google Play account-deletion policy):
+     the app's "Delete account" calls this before it deletes the Firebase user.
+     It sits ABOVE the kill switch on purpose — a learner who took part in the
+     pilot must be able to erase their data even after PARTNER_ENABLED="0". */
+  if (req.method === "DELETE" && path === "/me") {
+    const duid = await authUid(req, env); if (!duid) return err(401, "auth");
+    return json(await eraseMember(env, duid, ms));
+  }
   if (env.PARTNER_ENABLED !== "1") return err(503, "disabled");
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
     for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions"]) await q(env, `DELETE FROM ${t}`).run();

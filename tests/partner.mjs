@@ -361,6 +361,10 @@ await A.page.evaluate(F => localStorage.setItem("be_flags", JSON.stringify(F)), 
 await A.page.evaluate(() => { localStorage.removeItem("be_partner_dev_user"); go("partner"); }); await sleep(600);
 ok("Signed out → sign-in card, no data", (await txt(A.page, "#v-partner")).includes("Create your free account"));
 
+/* ---------- account deletion path: the app's Delete account erases partner data first ---------- */
+await A.page.evaluate(() => { localStorage.setItem("be_partner_dev_user", "alice"); localStorage.setItem("be_flags", JSON.stringify({})); });   /* flags OFF on purpose: the erase must not depend on them */
+ok("ppEraseMe() reaches the Worker with the feature flags off and erases the learner: /me → not consented, no data", await (async () => { await A.page.evaluate(() => ppEraseMe()); const m = await (await api("alice", "GET", "/me")).json(); return m.consented === false && !m.pair && !m.waiting && !m.connection; })());
+await A.page.evaluate(F => localStorage.setItem("be_flags", JSON.stringify(F)), FLAGS);
 ok("No uncaught JavaScript errors in any browser", errors.length === 0, errors.slice(0, 3).join(" | "));
 
 await browser.close(); if (server) server.kill();

@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "Una llamada de voz corta sobre la tarea de hoy. No se graba nada — y cualquiera puede irse en cualquier momento.",
  "pp.tinv_live_accept": "Aceptar y hablar",
  "pp.tinv_wait_live_sub": "Tiene diez minutos. En cuanto acepte, la llamada se abre aquí.",
- "pp.live_hangup": "Colgar"
+ "pp.live_hangup": "Colgar",
+ "auth.delete_partner_fail": "No se pudo contactar con el servicio Practice Partner para borrar tus datos de compañero. Comprueba tu conexión e inténtalo de nuevo — no se ha borrado nada."
 }

@@ -1871,5 +1871,6 @@
  "pp.tinv_live_sub": "Panggilan suara singkat tentang tugas hari ini. Tidak ada yang direkam — dan siapa pun boleh pergi kapan saja.",
  "pp.tinv_live_accept": "Terima & bicara",
  "pp.tinv_wait_live_sub": "Mereka punya sepuluh menit. Begitu diterima, panggilan terbuka di sini.",
- "pp.live_hangup": "Tutup panggilan"
+ "pp.live_hangup": "Tutup panggilan",
+ "auth.delete_partner_fail": "Tidak dapat menghubungi layanan Practice Partner untuk menghapus data teman Anda. Periksa koneksi dan coba lagi — tidak ada yang dihapus."
 }

@@ -176,7 +176,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (100), `tests/partner.mjs` (121, browser
+  `backend/partner/test/run.mjs` (106), `tests/partner.mjs` (122, browser
   contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
@@ -192,7 +192,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   Close / Find another partner and either clears the partner from the screen
   at once (`dismissedClosed`); the Practice-tab card has **How it works**
   (`ppHowSheet`). Dev-only `POST /__uncap {uid}` resets one learner's daily
-  caps for the long browser run. Docs: `marketing/product/practice-partner/`
+  caps for the long browser run. **Account deletion:** `DELETE /me` (above the
+  kill switch) erases the learner's partner data; `fbDeleteAccount` calls
+  `ppEraseMe()` first (flag-independent, 404 = nothing held) — Apple 5.1.1(v)
+  / Play account-deletion. Release audit: `docs/release/FINAL_RELEASE_AUDIT.md`
+  (2026-09-19): code READY FOR MERGE; Android TWA must move to target API 36
+  before the next Play upload; no iOS project. Docs: `marketing/product/practice-partner/`
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
   the branch, the owner's step list, what to watch, rollback timings —
