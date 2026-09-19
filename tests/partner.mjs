@@ -84,6 +84,35 @@ ok("No candidates → honest message, AI coach offered, stays in line", (await t
 await A.page.click('button:has-text("Keep looking")'); await sleep(900);
 ok("Waiting state shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
 
+/* ---------- Level 2: the AI coach session (Polish Worker intercepted — no live AI call) ---------- */
+let aiFail = false, aiCalls = 0;
+await A.page.route(u => u.href.startsWith("https://be-polish."), async route => {
+  let body = {}; try { if ((route.request().headers()["content-type"] || "").includes("json")) body = route.request().postDataJSON() || {}; } catch (e) {}
+  if (body.chat) { aiCalls++; if (aiFail) return route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ error: "chat_unavailable" }) });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Nice — that sounds busy. What was the hardest part of it?", tip: "Say 'project' with a clear /dʒ/ sound.", covered: [] }) }); }
+  return route.fulfill({ status: 403, body: "Forbidden" });   /* transcription/assessment stay unavailable, as on a non-allow-listed origin */
+});
+const aiRec = async () => { await A.page.click("#ppRecorder .pp-recbtn"); await A.page.waitForSelector("#ppRecorder .pp-stop", { timeout: 10000 }); await sleep(2000); await A.page.click("#ppRecorder .pp-stop"); await A.page.waitForFunction(() => ppRec && !ppRec.busy && ppRec.blob, null, { timeout: 30000 }); };
+await A.page.click('.pp-fallback button:has-text("AI coach")'); await sleep(500);
+const aiHead = await txt(A.page, ".pp-ai-head"), aiPrompt = await txt(A.page, ".pp-prompt");
+const curTask = await A.page.evaluate(() => ppPrompt({ rounds: 4, round: 1, promptWeek: ppPosition().promptWeek, fndDay: ppPosition().fndDay }).task);
+ok("AI coach session opens on the partner page, labelled AI, not a person", /\bAI\b/.test(aiHead) && aiHead.includes("not a person") && (await txt(A.page, "#v-partner")).includes("Round 1 of 4"), aiHead);
+ok("AI session uses the learner's General English curriculum task for round 1", curTask.length > 10 && aiPrompt.includes(curTask.slice(0, 40)), aiPrompt);
+const aiId = await A.page.evaluate(() => ppState().ai.id);
+await A.page.evaluate(() => ppAiStart("choice")); await sleep(200);
+ok("Starting the AI practice again returns the same open session (no duplicate)", await A.page.evaluate(id => ppState().ai.id === id, aiId));
+await aiRec(); await A.page.click("#ppRecorder #ppSend"); await A.page.evaluate(() => ppAiSubmit()); await A.page.waitForSelector(".pp-turn-ai", { timeout: 15000 });
+const aiTurn = await txt(A.page, ".pp-turn-ai");
+ok("Learner turn → one AI reply, tagged AI, spoken text shown; a double tap sends nothing twice", aiCalls === 1 && /\bAI\b/.test(aiTurn) && aiTurn.includes("hardest part") && (await A.page.evaluate(() => ppState().ai.turns.length)) === 2, `calls=${aiCalls} ${aiTurn}`);
+ok("Human thread untouched by the AI session (still waiting, no pair)", (await (await api("alice", "GET", "/me")).json()).waiting && !(await (await api("alice", "GET", "/me")).json()).pair);
+aiFail = true; await aiRec(); await A.page.click("#ppRecorder #ppSend"); await sleep(1200);
+ok("AI failure: the take is kept as a pending turn, an error card offers Retry, nothing is lost", (await txt(A.page, "#v-partner")).includes("did not answer") && (await A.page.evaluate(() => ppState().ai.pending === true && ppState().ai.turns.filter(x => x.mine).length === 2)));
+aiFail = false; await A.page.click('.pp-cta button:has-text("Try again")'); await A.page.waitForFunction(() => ppState().ai && ppState().ai.completedAt, null, { timeout: 15000 });
+const aiDone = await txt(A.page, ".pp-decide");
+ok("Retry sends the same turn once; the fourth turn completes the AI practice with one AI-tagged tip and no decision about a human", aiCalls === 3 && aiDone.includes("AI practice complete") && /\bAI\b/.test(aiDone) && !aiDone.includes("together again") && (await A.page.evaluate(() => ppState().ai.turns.length)) === 4, `calls=${aiCalls} ${aiDone}`);
+await A.page.click('.pp-decide button:has-text("Back to Practice Partner")'); await sleep(400); await A.page.unroute(u => u.href.startsWith("https://be-polish."));
+ok("Back → the waiting card again, AI session closed", (await txt(A.page, "#v-partner")).includes("Looking for your partner"));
+
 /* ---------- candidates with reasons; try a practice ---------- */
 for (const [u, n, g] of [["bob", "Bob", "m"], ["carla", "Carla", "f"]]) { await api(u, "POST", "/consent", { name: n, lang: "fr", adult: true, gender: g, goals: ["workplace"], avail: ["evening"], tz: 0 }); await api(u, "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1, goals: ["workplace"] }); }
 await A.page.click('button:has-text("Show me candidates")'); await sleep(1200);
