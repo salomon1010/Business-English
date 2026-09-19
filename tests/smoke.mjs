@@ -222,9 +222,13 @@ if (!process.env.BASE) {
   };
   const st = await envCase("staging.lomonec.com"), pr = await envCase("app.lomonec.com"), lo = await envCase("localhost");
   ok("staging.lomonec.com → staging Events Worker, staging Partner Worker, PILOT flags on", st.env && st.beacon === "https://be-events-staging.nore-ngou.workers.dev/e" && st.partner === "https://be-partner-staging.nore-ngou.workers.dev" && Object.values(st.flags).every(Boolean) && st.aiFallback && st.wordTiming, JSON.stringify(st));
-  ok("app.lomonec.com → production Events Worker, production Partner API constant, partner/Shadow flags OFF", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && Object.values(pr.flags).every(v => v === false) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
-  ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && Object.values(lo.flags).every(v => v === false), JSON.stringify(lo));
-  ok("localStorage.be_partner_api and be_flags still override the defaults on every hostname", st.over.partner === "http://127.0.0.1:1" && st.over.flag === false && pr.over.partner === "http://127.0.0.1:1" && pr.over.flag === true && lo.over.partner === "http://127.0.0.1:1" && lo.over.flag === true, JSON.stringify({ st: st.over, pr: pr.over, lo: lo.over }));
+  /* the released production set (RELEASE_PLAN §5.3, 2026-09-19): the four practice_partner_*
+     flags are ON; live calls, Shadow Studio V2 and Apply-It phrase stay OFF until their own release */
+  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: false, shadow_apply_phrase_enabled: false };
+  const sameFlags = (got) => JSON.stringify(got) === JSON.stringify(PROD_FLAGS);
+  ok("app.lomonec.com → production Events Worker, production Partner API constant, exactly the released flag set", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(pr.flags) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
+  ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(lo.flags), JSON.stringify(lo));
+  ok("localStorage.be_partner_api and be_flags still override the defaults on every hostname", [st, pr, lo].every(x => x.over.partner === "http://127.0.0.1:1" && x.over.flag === !x.flags.practice_partner_enabled), JSON.stringify({ st: st.over, pr: pr.over, lo: lo.over }));
 }
 
 /* ── no JavaScript errors anywhere above ── */
