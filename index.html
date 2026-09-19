@@ -59,7 +59,7 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=85"></script>
+<script src="curriculum-provider.js?v=86"></script>
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=84"></script>
@@ -3872,8 +3872,8 @@ function areaVocab(){const a=areaId(),V=S.vocab||{},out={};
   Object.keys(V).forEach(w=>{const v=V[w];if(v&&(!v.tk||v.tk.indexOf(a)>=0))out[w]=v});return out}
 function vocHas(w){const v=(S.vocab||{})[w];return !!v&&(!v.tk||v.tk.indexOf(areaId())>=0)}
 function vocPut(w,l){const a=areaId(),V=S.vocab||(S.vocab={}),v=V[w];
-  if(v){if(!Array.isArray(v.tk))v.tk=[];if(v.tk.indexOf(a)<0)v.tk.push(a);if(l&&!v.l)v.l=l;return v}
-  return V[w]={l:l||"",ts:Date.now(),tk:[a]}}
+  if(v){if(!Array.isArray(v.tk))v.tk=[];if(v.tk.indexOf(a)<0)v.tk.push(a);if(!v.l)v.l=l||cefr(w)||"B1";return v}
+  return V[w]={l:l||cefr(w)||"B1",ts:Date.now(),tk:[a]}}
 /* Unsaving drops this area's claim on the word. The word itself only goes when
    no area still wants it — otherwise clearing your welding library would quietly
    empty half of your business-English one. */
@@ -5506,6 +5506,7 @@ const I18N_EN={
  "ex.dictate_title":"Tap to start dictating; tap again to stop",
  "ex.clear_btn":"🗑 Clear",
  "nav.render_failed":"This page could not be drawn.",
+ "nav.curriculum_failed":"The lessons could not be downloaded. Check your connection and try again.",
  "nav.retry":"Try again",
  "ex.how_btn":"How it works",
  "ex.how_title":"Polish what you are about to say",
@@ -6477,7 +6478,8 @@ function go(v,arg1,arg2){
      page name, and the page shows a plain retry instead of nothing. */
   const _t0=performance.now();
   try{
-    ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
+    if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -10410,6 +10412,11 @@ function vocabExtract(text){
     .sort((a,b)=>b.score-a.score).slice(0,10).map(x=>({w:x.w,l:cefr(x.w)}));
 }
 function vocRow(w,l){
+  /* A word saved from a Life Simulation (rpEvSave) carried l:"" and the row
+     did ""[0].toLowerCase() — one such word and the whole Practice page threw
+     ("This page could not be drawn", 2026-09-19). The level is derived when
+     it is missing, here and at the save. */
+  if(!l||typeof l!=="string"){l=cefr(w)||"B1";const v=S.vocab&&S.vocab[w];if(v&&typeof v==="object")v.l=l}
   const saved=vocHas(w),safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
@@ -12040,7 +12047,7 @@ window.pracTab=tab=>{_pracTab=tab;const el=document.getElementById("v-practice")
 window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;vocPut(w,cefr(w));save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
 function vlRenderInto(words){
   const box=document.getElementById("vlBox");if(!box)return;
-  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join("")
+  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w]&&S.vocab[w].l)).join("")
     :emptyState("book",t("prac.empty_title_"+_pracTab),t("prac.empty_"+_pracTab),t("sh.tab_create"),"go('shadow')");
   manIconizeInline(box);
 }
@@ -14308,7 +14315,7 @@ function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.
    General English only — ppAvailable() already carries that. On the Practice
    tab it needs no sign-in or consent (discovery); on every other screen it
    waits for both, so it never nags someone who has not opted in. ---- */
-const PP_FAB_VIEWS=new Set(["home","journey","practice","shadow","phrases"]);
+const PP_FAB_VIEWS=new Set(["journey","shadow","phrases"]);   // owner, 2026-09-19: "map, shadow and lab only" — not Home, not Practice
 const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
 const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-micbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
 function ppRecordingNow(){
@@ -14362,12 +14369,12 @@ function ppFabSync(){
   const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
   const overlay=!!document.querySelector(".sh-work[style*='flex']")||!!document.querySelector(".rp-work.show")||!!document.querySelector(".pv-game.show");
   const onTab=PP_FAB_VIEWS.has(v),onRec=PP_FAB_REC_VIEWS.has(v);
-  /* the Practice tab is where the feature is discovered (owner, 2026-09-19: "I don't
-     see the floating button. For the practice, please add that"): there it shows for
-     every General English learner the moment the feature is on — the partner page
-     itself asks for sign-in and consent. Everywhere else it waits for both. */
-  const discover=v==="practice";
-  let show=ppAvailable()&&(discover||(ppSignedIn()&&m&&m.consented))&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
+  /* On its three tabs (Road map, Shadow, Phrase Lab — owner, 2026-09-19) the
+     button is how the feature is discovered: it shows for every General English
+     learner the moment the feature is on, and the partner page itself asks for
+     sign-in and consent. On the recording screens it waits for both, so it never
+     nags someone mid-session who has not opted in. */
+  let show=ppAvailable()&&(onTab||(onRec&&ppSignedIn()&&m&&m.consented))&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
   if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab_small")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
@@ -17298,9 +17305,38 @@ window.pronTry=()=>{
   try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
 };
 
+/* The curriculum, with a way back. Both packs used to be awaited together and
+   one failed fetch out of sixteen ended the app: a one-line message on Home,
+   no button, and every tab afterwards drawing against nothing. Now the OPEN
+   track is what boot waits for (each file already retries three times), the
+   other pack loads in the background and is fetched on demand when the learner
+   switches, and a failure shows a card whose button really reloads the data
+   and then finishes booting. go() shows the same card instead of a renderer
+   crash while the pack is still missing. */
+window._booted=false;let _bootRetrying=false;
+function curriculumCardHTML(msg){return `<div class="card" style="margin:24px 0;text-align:center"><p style="color:var(--mut);margin-bottom:12px">${esc(msg)}</p><button class="btn btn-p" onclick="bootRetry()">${esc(t("nav.retry"))}</button></div>`}
+async function curriculumBoot(){
+  const mine=areaIsPro()?"welding":"general",other=mine==="welding"?"general":"welding";
+  CurriculumProvider.load(other).catch(e=>{try{console.warn("[curriculum] background",e)}catch(_){}});
+  try{await CurriculumProvider.load(mine);return true}
+  catch(e){try{console.error("[curriculum]",e)}catch(_){}try{perfMark("error",0,"curriculum "+String(e&&e.message||e).slice(0,60))}catch(_){}return false}
+}
+window.bootRetry=async()=>{
+  document.querySelectorAll('.view button[onclick="bootRetry()"]').forEach(b=>{b.disabled=true});
+  if(!(await curriculumBoot())){
+    const el=document.querySelector(".view.on")||document.getElementById("v-home");
+    el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));return;
+  }
+  if(!_booted){bootMain();return}
+  const v=(typeof cur!=="undefined"&&cur&&cur.v)||"home";
+  try{go(v,cur&&cur.a1,cur&&cur.a2)}catch(e){go("home")}
+};
 (async function boot(){
-  try{await Promise.all([CurriculumProvider.load("general"),CurriculumProvider.load("welding")])}
-  catch(e){console.error("[curriculum]",e);document.getElementById("v-home").innerHTML="<p class=\"sub\">Could not load the learning curriculum. Please reconnect and try again.</p>";return}
+  if(!(await curriculumBoot())){document.getElementById("v-home").innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));return}
+  bootMain();
+})();
+async function bootMain(){
+  if(_booted)return;_booted=true;
   const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
@@ -17346,7 +17382,7 @@ window.pronTry=()=>{
      idle thumb. Re-checking inside the wait would let the sheet slip in the
      moment the welcome card closed, which is exactly what this guard is for. */
   setTimeout(()=>{if(S.profile&&!document.getElementById("obWrap")&&!document.getElementById("wcOv"))whenIdle(()=>{playAsk();iosAsk()})},500);
-})();
+}
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:"){

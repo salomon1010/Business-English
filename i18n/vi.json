@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Hiện chưa có ai trực tuyến — chúng tôi sẽ báo ngay khi có người",
  "pp.cands_toast": "{{n}} người học đang chờ — hãy chọn một người",
  "pp.fab": "Nói chuyện với người thật",
- "pp.fab_small": "Tập với người thật", "pp.fab_online": "{{n}} trực tuyến",
+ "pp.fab_small": "Tập với người thật",
+ "pp.fab_online": "{{n}} trực tuyến",
  "pp.conn_choice": "Trực tiếp: nói ngay, khoảng năm phút. Bài luyện hôm nay: ghi âm khi bạn rảnh.",
  "pp.cand_live_note": "Nói trực tiếp ngay, hoặc ghi âm bốn lượt ngắn. Nếu không hợp, ai cũng có thể rời đi.",
  "pp.why_line": "đang chờ luyện tập ngay bây giờ",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Để sau — bạn có thể quay lại Practice Partner bất cứ lúc nào",
  "pp.partners_h": "Hai bạn là bạn luyện tập",
  "pp.partners_sub": "Cả hai đều chọn tiếp tục luyện tập cùng nhau.",
- "pp.partners_btn": "Luyện tập cùng nhau →"
+ "pp.partners_btn": "Luyện tập cùng nhau →",
+ "nav.curriculum_failed": "Không tải được bài học. Kiểm tra kết nối và thử lại."
 }

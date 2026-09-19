@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Nessuno online al momento — ti avviseremo quando arriva qualcuno",
  "pp.cands_toast": "{{n}} studente/i in attesa — scegline uno",
  "pp.fab": "Parla con una persona vera",
- "pp.fab_small": "Pratica con qualcuno", "pp.fab_online": "{{n}} online",
+ "pp.fab_small": "Pratica con qualcuno",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Dal vivo: parla adesso, circa cinque minuti. Pratica di oggi: registra quando puoi.",
  "pp.cand_live_note": "Parla dal vivo adesso, oppure registra quattro turni brevi. Se non funziona, ciascuno dei due può andarsene.",
  "pp.why_line": "in attesa di esercitarsi adesso",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Non ora — puoi tornare su Practice Partner quando vuoi",
  "pp.partners_h": "Siete partner di pratica",
  "pp.partners_sub": "Avete scelto entrambi di continuare insieme.",
- "pp.partners_btn": "Esercitatevi insieme →"
+ "pp.partners_btn": "Esercitatevi insieme →",
+ "nav.curriculum_failed": "Impossibile scaricare le lezioni. Controlla la connessione e riprova."
 }

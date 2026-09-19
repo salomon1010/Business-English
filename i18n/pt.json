@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Ninguém online agora — avisamos quando alguém chegar",
  "pp.cands_toast": "{{n}} aprendiz(es) à espera — escolha um",
  "pp.fab": "Fale com uma pessoa real",
- "pp.fab_small": "Pratique com alguém", "pp.fab_online": "{{n}} online",
+ "pp.fab_small": "Pratique com alguém",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Ao vivo: fale agora, cerca de cinco minutos. Prática de hoje: grave quando puder.",
  "pp.cand_live_note": "Fale ao vivo agora, ou grave quatro turnos curtos. Se não encaixar, qualquer um dos dois pode sair.",
  "pp.why_line": "à espera para praticar agora",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Agora não — você pode voltar ao Practice Partner a qualquer momento",
  "pp.partners_h": "Vocês são parceiros de prática",
  "pp.partners_sub": "Vocês dois escolheram continuar juntos.",
- "pp.partners_btn": "Praticar juntos →"
+ "pp.partners_btn": "Praticar juntos →",
+ "nav.curriculum_failed": "Não foi possível transferir as lições. Verifique a ligação e tente de novo."
 }

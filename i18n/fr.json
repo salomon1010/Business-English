@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Personne en ligne pour l'instant — nous vous préviendrons dès que quelqu'un arrive",
  "pp.cands_toast": "{{n}} apprenant(s) en attente — choisissez-en un",
  "pp.fab": "Parler à une vraie personne",
- "pp.fab_small": "Pratique avec quelqu'un", "pp.fab_online": "{{n}} en ligne",
+ "pp.fab_small": "Pratique avec quelqu'un",
+ "pp.fab_online": "{{n}} en ligne",
  "pp.conn_choice": "En direct : parlez maintenant, environ cinq minutes. Pratique du jour : enregistrez quand vous pouvez.",
  "pp.cand_live_note": "Parlez en direct maintenant, ou enregistrez quatre tours courts. Si le courant ne passe pas, chacun peut partir.",
  "pp.why_line": "attend pour pratiquer maintenant",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Pas maintenant — vous pouvez revenir dans Practice Partner à tout moment",
  "pp.partners_h": "Vous êtes partenaires de pratique",
  "pp.partners_sub": "Vous avez tous les deux choisi de continuer ensemble.",
- "pp.partners_btn": "Pratiquer ensemble →"
+ "pp.partners_btn": "Pratiquer ensemble →",
+ "nav.curriculum_failed": "Les leçons n'ont pas pu être téléchargées. Vérifiez votre connexion et réessayez."
 }

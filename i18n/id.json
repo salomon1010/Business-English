@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Belum ada yang online — kami beri tahu begitu ada yang datang",
  "pp.cands_toast": "{{n}} pelajar menunggu — pilih satu",
  "pp.fab": "Bicara dengan orang sungguhan",
- "pp.fab_small": "Latihan dengan orang", "pp.fab_online": "{{n}} online",
+ "pp.fab_small": "Latihan dengan orang",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Langsung: bicara sekarang, sekitar lima menit. Latihan hari ini: rekam saat sempat.",
  "pp.cand_live_note": "Bicara langsung sekarang, atau rekam empat giliran singkat. Kalau tidak cocok, siapa pun boleh pergi.",
  "pp.why_line": "menunggu untuk berlatih sekarang",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Nanti saja — Anda bisa kembali ke Practice Partner kapan saja",
  "pp.partners_h": "Kalian teman latihan",
  "pp.partners_sub": "Kalian berdua memilih untuk terus berlatih bersama.",
- "pp.partners_btn": "Berlatih bersama →"
+ "pp.partners_btn": "Berlatih bersama →",
+ "nav.curriculum_failed": "Pelajaran tidak dapat diunduh. Periksa koneksi Anda dan coba lagi."
 }

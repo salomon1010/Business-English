@@ -1866,7 +1866,8 @@
  "pp.presence_none": "Gerade niemand online — wir sagen Bescheid, sobald jemand kommt",
  "pp.cands_toast": "{{n}} Lernende warten — wähle eine Person",
  "pp.fab": "Mit einem echten Menschen sprechen",
- "pp.fab_small": "Mit jemandem üben", "pp.fab_online": "{{n}} online",
+ "pp.fab_small": "Mit jemandem üben",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Live: jetzt sprechen, etwa fünf Minuten. Heutige Übung: aufnehmen, wann du kannst.",
  "pp.cand_live_note": "Jetzt live sprechen oder vier kurze Runden aufnehmen. Wenn es nicht passt, kann jeder von euch gehen.",
  "pp.why_line": "wartet jetzt aufs Üben",
@@ -1885,5 +1886,6 @@
  "pp.decided_later": "Jetzt nicht — du kannst jederzeit zu Practice Partner zurückkommen",
  "pp.partners_h": "Ihr seid Übungspartner",
  "pp.partners_sub": "Ihr habt beide gewählt, weiter zusammen zu üben.",
- "pp.partners_btn": "Zusammen üben →"
+ "pp.partners_btn": "Zusammen üben →",
+ "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut."
 }
