@@ -53,6 +53,16 @@ const ALLOWED_ORIGINS = [
 
 const VAPID_SUBJECT = "mailto:contact@lomonec.com";
 const MAX_PER_CRON  = 900;   // safety valve: one minute cannot fan out forever
+/* Online alerts (owner, 2026-09-19): every 10 minutes (the second cron trigger)
+   asks the partner Worker's public /presence for the number of General
+   English learners online; when it is ≥ 1, phones that asked for these alerts
+   ("pres:" entries) are woken — at most once per PRES_GAP_SEC each, never
+   between PRES_QUIET_FROM and PRES_QUIET_TO local hours (the phone sends its
+   UTC offset). The wake-up is bare like the reminder; the answer to "why?"
+   is parked under why:<id> for the service worker to read. */
+const PRES_GAP_SEC    = 4 * 60 * 60;
+const PRES_QUIET_FROM = 22, PRES_QUIET_TO = 8;
+const PRES_WHY_TTL    = 15 * 60;
 const JWT_TTL_SEC   = 3 * 60 * 60;
 
 /* ---------------------------------------------------------------- helpers -- */
@@ -86,9 +96,10 @@ function json(body, status, origin){
 
 // Reject anything that is not a plausible push endpoint, so this cannot be
 // turned into a general-purpose request relay.
-function validEndpoint(u){
+function validEndpoint(u, env){
   let p;
   try { p = new URL(u); } catch (e) { return false; }
+  if (env && env.DEV_LOCAL_ENDPOINTS === "1" && p.protocol === "http:" && p.hostname === "127.0.0.1") return u.length < 1000;   // the local test suite's fake push service only
   return p.protocol === "https:" && u.length < 1000;
 }
 
@@ -154,8 +165,43 @@ async function sendOne(env, rec, audCache){
 }
 
 async function forget(env, id, slot){
-  await env.SUBS.delete(`slot:${slot}:${id}`);
+  if (slot) await env.SUBS.delete(`slot:${slot}:${id}`);
+  await env.SUBS.delete(`pres:${id}`);
   await env.SUBS.delete(`sub:${id}`);
+}
+
+/* ---------------------------------------------------------- online alerts -- */
+
+function localHour(tzMin, now){ return ((now.getUTCHours() * 60 + now.getUTCMinutes() + tzMin) / 60 + 48) % 24; }
+function quietNow(tzMin, now){ const h = localHour(tzMin, now); return h >= PRES_QUIET_FROM || h < PRES_QUIET_TO; }
+
+async function runPresence(env, now){
+  if (!env.PARTNER_API) return;
+  let p = null;
+  try { const r = await fetch(env.PARTNER_API + "/presence", { headers: { "accept": "application/json" } }); if (r.ok) p = await r.json(); } catch (e) {}
+  const online = p && Number(p.online) || 0, waiting = p && Number(p.waiting) || 0;
+  if (online < 1) { console.log(JSON.stringify({ presence: "none" })); return; }
+  const audCache = {};
+  let cursor, scanned = 0, sent = 0, quiet = 0, recent = 0, dropped = 0;
+  do {
+    const page = await env.SUBS.list({ prefix: "pres:", cursor });
+    for (const k of page.keys) {
+      if (scanned >= MAX_PER_CRON) break;
+      scanned++;
+      const rec = await env.SUBS.get(k.name, "json");
+      if (!rec || !rec.endpoint) continue;
+      if (quietNow(rec.tz || 0, now)) { quiet++; continue; }
+      if (await env.SUBS.get(`plast:${rec.id}`)) { recent++; continue; }
+      let out; try { out = await sendOne(env, rec, audCache); } catch (e) { out = "fail:throw"; }
+      if (out === "sent") {
+        sent++;
+        await env.SUBS.put(`why:${rec.id}`, JSON.stringify({ kind: "presence", n: online, waiting, at: Date.now() }), { expirationTtl: PRES_WHY_TTL });
+        await env.SUBS.put(`plast:${rec.id}`, "1", { expirationTtl: PRES_GAP_SEC });
+      } else if (out === "gone") { await forget(env, rec.id, rec.slot); dropped++; }
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor && scanned < MAX_PER_CRON);
+  console.log(JSON.stringify({ presence: online, waiting, scanned, sent, quiet, recent, dropped }));
 }
 
 /* ------------------------------------------------------------------ routes -- */
@@ -165,9 +211,11 @@ async function subscribe(req, env, origin){
   if (!b) return json({ error: "bad json" }, 400, origin);
 
   const id   = cleanId(b.id);
-  const slot = cleanSlot(b.slot);
-  if (!id || !slot) return json({ error: "bad id or slot" }, 400, origin);
-  if (!b.endpoint || !validEndpoint(b.endpoint)) {
+  const slot = b.slot == null ? null : cleanSlot(b.slot);   // null: online alerts only, no daily reminder
+  const presence = b.presence === true;
+  const tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : 0;
+  if (!id || (b.slot != null && !slot) || (!slot && !presence)) return json({ error: "bad id or slot" }, 400, origin);
+  if (!b.endpoint || !validEndpoint(b.endpoint, env)) {
     return json({ error: "bad endpoint" }, 400, origin);
   }
 
@@ -178,10 +226,22 @@ async function subscribe(req, env, origin){
     await env.SUBS.delete(`slot:${prev.slot}:${id}`);
   }
 
-  const rec = { id, slot, endpoint: b.endpoint };
-  await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
+  const rec = { id, slot, endpoint: b.endpoint, presence, tz };
+  if (slot) await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
+  if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
+  else await env.SUBS.delete(`pres:${id}`);
   await env.SUBS.put(`sub:${id}`, JSON.stringify(rec));
-  return json({ ok: true, slot }, 200, origin);
+  return json({ ok: true, slot, presence }, 200, origin);
+}
+
+// The service worker asks what a bare push was for. Public by id (an opaque
+// random id the phone chose); the answer is two small numbers or "reminder".
+async function why(req, env, origin){
+  const id = cleanId(new URL(req.url).searchParams.get("id") || "");
+  if (!id) return json({ error: "bad id" }, 400, origin);
+  const w = await env.SUBS.get(`why:${id}`, "json");
+  if (w && Date.now() - (w.at || 0) < PRES_WHY_TTL * 1000) return json({ kind: "presence", n: w.n, waiting: w.waiting, at: w.at }, 200, origin);
+  return json({ kind: "reminder" }, 200, origin);
 }
 
 async function unsubscribe(req, env, origin){
@@ -251,6 +311,7 @@ export default {
     if (req.method === "GET" && path === "/key") {
       return json({ key: env.VAPID_PUBLIC_KEY || "" }, 200, origin);
     }
+    if (req.method === "GET" && path === "/why") return why(req, env, origin);
 
     if (req.method !== "POST") return json({ error: "method" }, 405, origin);
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: "origin" }, 403, origin);
@@ -262,6 +323,7 @@ export default {
   },
 
   async scheduled(evt, env, ctx){
-    ctx.waitUntil(runCron(env));
+    /* two triggers: every minute = the daily reminders, every ten = online alerts */
+    ctx.waitUntil(evt.cron && evt.cron.startsWith("*/10") ? runPresence(env, new Date()) : runCron(env));
   },
 };

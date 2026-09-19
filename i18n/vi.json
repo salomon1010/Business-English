@@ -1950,5 +1950,14 @@
  "sv.ch_imp_extra": "Bám sát câu — không thêm từ.",
  "sv.ch_imp_levelup": "Không có gì cần sửa. Lên mức tiếp theo.",
  "nav.curriculum_failed": "Không tải được bài học. Kiểm tra kết nối và thử lại.",
- "auth.reset_sent_note": "Nếu có tài khoản cho {{email}}, liên kết đặt lại đang được gửi. Hãy kiểm tra cả thư rác — thư đến từ {{from}}. Sai địa chỉ? Sửa ở trên rồi chạm lại."
+ "auth.reset_sent_note": "Nếu có tài khoản cho {{email}}, liên kết đặt lại đang được gửi. Hãy kiểm tra cả thư rác — thư đến từ {{from}}. Sai địa chỉ? Sửa ở trên rồi chạm lại.",
+ "pp.online_line": "{{n}} trực tuyến · {{w}} đang chờ",
+ "pp.online_toast": "{{n}} đang trực tuyến — chạm để cùng luyện tập",
+ "pp.online_toast_one": "1 người đang trực tuyến — chạm để cùng luyện tập",
+ "pp.online_push_title": "Có người đang trực tuyến",
+ "pp.online_push_body": "{{n}} trực tuyến — một buổi luyện ngắn chỉ cách một chạm.",
+ "pp.online_nudge": "Được báo khi có người trực tuyến — kể cả khi đã đóng ứng dụng.",
+ "pp.online_nudge_btn": "Bật",
+ "rem.online_switch": "Báo cho tôi khi có người trực tuyến",
+ "rem.online_sub": "Thông báo khi có người trực tuyến để luyện tập — nhiều nhất vài giờ một lần, không bao giờ vào ban đêm."
 }

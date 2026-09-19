@@ -1950,5 +1950,14 @@
  "sv.ch_imp_extra": "Tetap pada kalimatnya — tanpa kata tambahan.",
  "sv.ch_imp_levelup": "Tidak ada yang perlu diperbaiki. Naik ke tingkat berikutnya.",
  "nav.curriculum_failed": "Pelajaran tidak dapat diunduh. Periksa koneksi Anda dan coba lagi.",
- "auth.reset_sent_note": "Jika ada akun untuk {{email}}, tautan reset sedang dikirim. Periksa juga folder spam — dikirim dari {{from}}. Alamat salah? Perbaiki di atas lalu ketuk lagi."
+ "auth.reset_sent_note": "Jika ada akun untuk {{email}}, tautan reset sedang dikirim. Periksa juga folder spam — dikirim dari {{from}}. Alamat salah? Perbaiki di atas lalu ketuk lagi.",
+ "pp.online_line": "{{n}} online · {{w}} menunggu",
+ "pp.online_toast": "{{n}} online sekarang — ketuk untuk berlatih bersama",
+ "pp.online_toast_one": "1 pelajar online sekarang — ketuk untuk berlatih bersama",
+ "pp.online_push_title": "Pelajar sedang online",
+ "pp.online_push_body": "{{n}} online — latihan singkat hanya satu ketukan.",
+ "pp.online_nudge": "Dapatkan pemberitahuan saat pelajar online — bahkan saat aplikasi tertutup.",
+ "pp.online_nudge_btn": "Aktifkan",
+ "rem.online_switch": "Beri tahu saat pelajar online",
+ "rem.online_sub": "Pemberitahuan saat ada yang online untuk berlatih — paling banyak setiap beberapa jam, tidak pernah di malam hari."
 }

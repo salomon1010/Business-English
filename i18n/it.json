@@ -1950,5 +1950,14 @@
  "sv.ch_imp_extra": "Resta sulla frase: niente parole in più.",
  "sv.ch_imp_levelup": "Niente da correggere. Passa al livello successivo.",
  "nav.curriculum_failed": "Impossibile scaricare le lezioni. Controlla la connessione e riprova.",
- "auth.reset_sent_note": "Se esiste un account per {{email}}, il link di reimpostazione è in arrivo. Controlla anche lo spam: arriva da {{from}}. Indirizzo sbagliato? Correggilo sopra e tocca di nuovo."
+ "auth.reset_sent_note": "Se esiste un account per {{email}}, il link di reimpostazione è in arrivo. Controlla anche lo spam: arriva da {{from}}. Indirizzo sbagliato? Correggilo sopra e tocca di nuovo.",
+ "pp.online_line": "{{n}} online · {{w}} in attesa",
+ "pp.online_toast": "{{n}} online adesso: tocca per esercitarti insieme",
+ "pp.online_toast_one": "1 persona online adesso: tocca per esercitarti insieme",
+ "pp.online_push_title": "Ci sono persone online",
+ "pp.online_push_body": "{{n}} online: una breve pratica è a un tocco.",
+ "pp.online_nudge": "Sappi quando ci sono persone online, anche ad app chiusa.",
+ "pp.online_nudge_btn": "Attiva",
+ "rem.online_switch": "Avvisami quando ci sono persone online",
+ "rem.online_sub": "Una notifica quando qualcuno è online per esercitarsi: al massimo ogni poche ore, mai di notte."
 }

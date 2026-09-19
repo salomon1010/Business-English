@@ -1950,5 +1950,14 @@
  "sv.ch_imp_extra": "Restez sur la phrase — pas de mots en plus.",
  "sv.ch_imp_levelup": "Rien à corriger ici. Passez au niveau suivant.",
  "nav.curriculum_failed": "Les leçons n'ont pas pu être téléchargées. Vérifiez votre connexion et réessayez.",
- "auth.reset_sent_note": "S'il existe un compte pour {{email}}, un lien de réinitialisation est en route. Vérifiez aussi vos spams : il vient de {{from}}. Mauvaise adresse ? Corrigez-la ci-dessus et touchez à nouveau."
+ "auth.reset_sent_note": "S'il existe un compte pour {{email}}, un lien de réinitialisation est en route. Vérifiez aussi vos spams : il vient de {{from}}. Mauvaise adresse ? Corrigez-la ci-dessus et touchez à nouveau.",
+ "pp.online_line": "{{n}} en ligne · {{w}} en attente",
+ "pp.online_toast": "{{n}} en ligne maintenant — touchez pour pratiquer ensemble",
+ "pp.online_toast_one": "1 apprenant en ligne maintenant — touchez pour pratiquer ensemble",
+ "pp.online_push_title": "Des apprenants sont en ligne",
+ "pp.online_push_body": "{{n}} en ligne — une courte pratique est à un geste.",
+ "pp.online_nudge": "Soyez prévenu quand des apprenants sont en ligne — même l'application fermée.",
+ "pp.online_nudge_btn": "Activer",
+ "rem.online_switch": "Me prévenir quand des apprenants sont en ligne",
+ "rem.online_sub": "Une notification quand quelqu'un est en ligne pour pratiquer — au plus toutes les quelques heures, jamais la nuit."
 }

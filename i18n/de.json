@@ -1950,5 +1950,14 @@
  "sv.ch_imp_extra": "Bleib beim Satz – keine zusätzlichen Wörter.",
  "sv.ch_imp_levelup": "Nichts zu korrigieren. Nimm die nächste Stufe.",
  "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
- "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von {{from}}. Falsche Adresse? Oben korrigieren und erneut tippen."
+ "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von {{from}}. Falsche Adresse? Oben korrigieren und erneut tippen.",
+ "pp.online_line": "{{n}} online · {{w}} in der Warteschlange",
+ "pp.online_toast": "{{n}} gerade online – tippen, um zusammen zu üben",
+ "pp.online_toast_one": "1 Lernende:r gerade online – tippen, um zusammen zu üben",
+ "pp.online_push_title": "Lernende sind online",
+ "pp.online_push_body": "{{n}} online – eine kurze Übung ist nur einen Tipp entfernt.",
+ "pp.online_nudge": "Erfahre, wenn Lernende online sind – auch bei geschlossener App.",
+ "pp.online_nudge_btn": "Einschalten",
+ "rem.online_switch": "Sag mir Bescheid, wenn Lernende online sind",
+ "rem.online_sub": "Eine Benachrichtigung, wenn jemand zum Üben online ist – höchstens alle paar Stunden, nie nachts."
 }

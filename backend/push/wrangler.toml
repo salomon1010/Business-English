@@ -20,7 +20,7 @@ compatibility_date = "2026-07-31"
 # ~1,440 invocations a day regardless of how many people have reminders on —
 # comfortably inside the free tier's 100k/day.
 [triggers]
-crons = ["* * * * *"]
+crons = ["* * * * *", "*/10 * * * *"]   # reminders every minute; online alerts every ten (PARTNER_API)
 
 [[kv_namespaces]]
 binding = "SUBS"
@@ -29,3 +29,5 @@ id = "3a92211829224fc7a8824d500e31d61d"
 [vars]
 # Filled in from genkeys.js output — the base64url raw P-256 public key.
 VAPID_PUBLIC_KEY = "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c"
+# Online alerts: the partner Worker's public /presence (counts only). Empty = alerts off.
+PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
