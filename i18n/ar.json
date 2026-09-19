@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "رُفضت دعوتك. ما زلت في الطابور — جرّب مرشحاً آخر أو تدرّب مع مدرّب الذكاء الاصطناعي.",
  "pp.gone_cancelled_h": "ألغى {{name}} الدعوة",
  "pp.gone_cancelled_sub": "لا شيء لفعله — ما زلت في الطابور.",
- "pp.gone_go": "فتح شريك التدريب"
+ "pp.gone_go": "فتح شريك التدريب",
+ "pp.pill_live": "مباشرة مع {{name}} · اضغط للعودة",
+ "pp.pill_async_yours": "تدريب مع {{name}} · دورك",
+ "pp.pill_async_wait": "تدريب مع {{name}} · بانتظار {{name}}",
+ "pp.pill_decide": "تدريب مع {{name}} · قرارك"
 }

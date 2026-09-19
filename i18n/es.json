@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "Tu invitación fue rechazada. Sigues en la fila — prueba con otro candidato o practica con el coach IA.",
  "pp.gone_cancelled_h": "{{name}} canceló la invitación",
  "pp.gone_cancelled_sub": "Nada que hacer — sigues en la fila.",
- "pp.gone_go": "Abrir Compañero de práctica"
+ "pp.gone_go": "Abrir Compañero de práctica",
+ "pp.pill_live": "En vivo con {{name}} · toca para volver",
+ "pp.pill_async_yours": "Práctica con {{name}} · tu turno",
+ "pp.pill_async_wait": "Práctica con {{name}} · esperando a {{name}}",
+ "pp.pill_decide": "Práctica con {{name}} · tu decisión"
 }

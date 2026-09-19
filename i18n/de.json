@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "Deine Einladung wurde abgelehnt. Du bist weiter in der Warteschlange — versuch einen anderen Kandidaten oder übe mit dem KI-Coach.",
  "pp.gone_cancelled_h": "{{name}} hat die Einladung zurückgezogen",
  "pp.gone_cancelled_sub": "Nichts zu tun — du bist weiter in der Warteschlange.",
- "pp.gone_go": "Übungspartner öffnen"
+ "pp.gone_go": "Übungspartner öffnen",
+ "pp.pill_live": "Live mit {{name}} · tippen zum Zurückkehren",
+ "pp.pill_async_yours": "Übung mit {{name}} · du bist dran",
+ "pp.pill_async_wait": "Übung mit {{name}} · warten auf {{name}}",
+ "pp.pill_decide": "Übung mit {{name}} · deine Entscheidung"
 }

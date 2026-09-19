@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "Votre invitation a été déclinée. Vous êtes toujours dans la file — essayez un autre candidat ou pratiquez avec le coach IA.",
  "pp.gone_cancelled_h": "{{name}} a annulé l'invitation",
  "pp.gone_cancelled_sub": "Rien à faire — vous êtes toujours dans la file.",
- "pp.gone_go": "Ouvrir Partenaire de pratique"
+ "pp.gone_go": "Ouvrir Partenaire de pratique",
+ "pp.pill_live": "En direct avec {{name}} · touchez pour revenir",
+ "pp.pill_async_yours": "Pratique avec {{name}} · à vous",
+ "pp.pill_async_wait": "Pratique avec {{name}} · en attente de {{name}}",
+ "pp.pill_decide": "Pratique avec {{name}} · votre décision"
 }

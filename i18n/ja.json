@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "招待は断られました。まだ待機列にいます。別の候補を試すか、AIコーチと練習しましょう。",
  "pp.gone_cancelled_h": "{{name}}が招待を取り消しました",
  "pp.gone_cancelled_sub": "何もする必要はありません。まだ待機列にいます。",
- "pp.gone_go": "練習パートナーを開く"
+ "pp.gone_go": "練習パートナーを開く",
+ "pp.pill_live": "{{name}}とライブ中 · タップで戻る",
+ "pp.pill_async_yours": "{{name}}と練習中 · あなたの番",
+ "pp.pill_async_wait": "{{name}}と練習中 · {{name}}を待っています",
+ "pp.pill_decide": "{{name}}と練習中 · あなたの決定"
 }

@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "초대가 거절되었습니다. 아직 대기 줄에 있습니다 — 다른 후보를 시도하거나 AI 코치와 연습하세요.",
  "pp.gone_cancelled_h": "{{name}}이(가) 초대를 취소했습니다",
  "pp.gone_cancelled_sub": "할 일이 없습니다 — 아직 대기 줄에 있습니다.",
- "pp.gone_go": "연습 파트너 열기"
+ "pp.gone_go": "연습 파트너 열기",
+ "pp.pill_live": "{{name}}와(과) 실시간 · 눌러서 돌아가기",
+ "pp.pill_async_yours": "{{name}}와(과) 연습 · 내 차례",
+ "pp.pill_async_wait": "{{name}}와(과) 연습 · {{name}} 기다리는 중",
+ "pp.pill_decide": "{{name}}와(과) 연습 · 내 결정"
 }

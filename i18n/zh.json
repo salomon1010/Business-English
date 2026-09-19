@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "你的邀请被婉拒。你仍在队列中——试试其他候选人，或和 AI 教练练习。",
  "pp.gone_cancelled_h": "{{name}} 取消了邀请",
  "pp.gone_cancelled_sub": "无需操作——你仍在队列中。",
- "pp.gone_go": "打开练习伙伴"
+ "pp.gone_go": "打开练习伙伴",
+ "pp.pill_live": "与 {{name}} 实时练习 · 点按返回",
+ "pp.pill_async_yours": "与 {{name}} 练习 · 轮到你",
+ "pp.pill_async_wait": "与 {{name}} 练习 · 等待 {{name}}",
+ "pp.pill_decide": "与 {{name}} 练习 · 请你决定"
 }

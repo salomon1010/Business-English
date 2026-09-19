@@ -1846,5 +1846,9 @@
  "pp.gone_declined_sub": "Lời mời của bạn bị từ chối. Bạn vẫn trong hàng chờ — thử ứng viên khác hoặc luyện với huấn luyện viên AI.",
  "pp.gone_cancelled_h": "{{name}} đã huỷ lời mời",
  "pp.gone_cancelled_sub": "Không cần làm gì — bạn vẫn trong hàng chờ.",
- "pp.gone_go": "Mở Practice Partner"
+ "pp.gone_go": "Mở Practice Partner",
+ "pp.pill_live": "Trực tiếp với {{name}} · chạm để quay lại",
+ "pp.pill_async_yours": "Luyện với {{name}} · đến lượt bạn",
+ "pp.pill_async_wait": "Luyện với {{name}} · đang chờ {{name}}",
+ "pp.pill_decide": "Luyện với {{name}} · bạn quyết định"
 }
