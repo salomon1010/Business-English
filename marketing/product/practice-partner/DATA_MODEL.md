@@ -88,7 +88,8 @@ are harmless — so no down-migration is shipped.
 | column | notes |
 |---|---|
 | a, b PK | sorted uid pair |
-| state | `trial` / `mutual` / `regular` / `disconnected` / `blocked` |
+| state | `trial` / `mutual` / `regular` / `disconnected` (after a rematch) / `ended` (learner ended the partnership) / `blocked` |
+| *(derived)* `cid` | 16-hex SHA-256 of `a|b`, shown on the card; resolved server-side only against the caller's own rows |
 | sessions | completed sessions together |
 | created_at, updated_at, last_practice_at | |
 
@@ -97,7 +98,7 @@ are harmless — so no down-migration is shipped.
 |---|---|
 | a, b PK | sorted uid pair |
 | until | 14 days after a `rematch` decision |
-| reason | `rematch` |
+| reason | `rematch` / `ended` |
 
 ## `live_sessions` (0004) — one live call
 | column | notes |
@@ -130,7 +131,7 @@ checked against, `counters.key = uid:route:yyyymmdd` for the daily limits
 |---|---|
 | id PK, ts | |
 | actor | uid or `system` |
-| action | `queue_joined pair_created turn_screened session_completed decided connection_mutual connection_regular left reported suspended blocked live_invited live_accepted live_declined live_cancelled live_started live_reconnecting live_left live_completed live_failed` |
+| action | `queue_joined pair_created turn_screened session_completed decided connection_mutual connection_regular left reported suspended blocked live_invited live_accepted live_declined live_cancelled live_started live_reconnecting live_left live_completed live_failed connection_ended ai_started` |
 | target, pair_id | the other uid / the pair |
 | meta | small JSON (`{mode}`, `{choice}`, `{reason, strikes}`, …) — never transcripts or audio |
 Kept 90 days, then swept by the cron.

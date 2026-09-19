@@ -67,6 +67,12 @@ unless marked *(documented, not automated)*.
   the human thread is a separate object and is never merged. The transcript
   sent to the model is fenced as speech, not instructions.
 
+## Partner management — five different actions
+- **Leave today's practice** (`/pairs/:id/leave`): closes the session only; the partnership, if any, stays.
+- **Find someone else** in a session (`decide rematch`): closes the session, 14-day cooldown, connection `disconnected`.
+- **End partnership** (`/connection/end {cid}`): connection `ended`, 14-day cooldown, any open session/call with that partner closed as `left`; not a block, not a report; the other learner only sees the partnership is gone. Idempotent; the `cid` resolves only against the caller's own connections, so nobody can end someone else's.
+- **Block** / **Report**: unchanged safety actions, now also available from the connection card (`/connection/block`, `/connection/report`) and during live calls.
+
 ## Report, block, leave, decide
 - **Report** (harassment, contact details, not English, abusive, other): one
   counted report per reporter per person; two distinct reporters →

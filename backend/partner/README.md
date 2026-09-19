@@ -32,6 +32,7 @@ holds one id and any other track is refused with `403 track`.
 | POST | `/pairs/:id/seen` · `/leave` · `/report {reason}` · `/block` · `/decide {choice: continue\|rematch}` | as named |
 | POST | `/turns` | multipart `audio, transcript, score, duration_ms, turn_id` — turn-order enforced, screened, stored; idempotent on `turn_id`; the 4th turn completes the session |
 | GET | `/turns/:id/audio` | streams audio to pair members only |
+| POST | `/connection/end` · `/connection/report {reason}` · `/connection/block` | `{cid}` — partner management from the connection card; `cid` is an opaque hash resolved only against the caller's own connections (anyone else's → 404). End = state `ended` + 14-day cooldown + any open session/call with that partner closed as `left`; idempotent; not a block, not a report; 10/day |
 | POST | `/ai/session` | `{id, track, reason?}` — opens an AI coach session for the count: 12 new per learner per day, idempotent on `id`, `403 track` for any other track |
 | POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite the connected partner (idempotent per open session; 20/day) |
 | GET | `/live/:id` | session view + `iceServers` (members only) |
@@ -53,7 +54,7 @@ deployed.
 ```
 npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0004
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 73 integration checks against the local Worker
+node test/run.mjs            # 80 integration checks against the local Worker
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and
@@ -70,7 +71,7 @@ Transcript screen (phones, e-mails, links, handles, messenger names, "call
 me / add me" EN+FR); audio only via membership-checked route; block = pair
 closed + never re-paired; rematch = 14-day cooldown; two distinct reporters =
 30-day suspension; daily limits (interest 10, match 30, invite 10, report 5,
-block 20, decide 40, live 20, AI sessions 12); turns alternate, four per session, audio ≤ 1.5 MB /
+block 20, decide 40, live 20, AI sessions 12, end partnership 10); turns alternate, four per session, audio ≤ 1.5 MB /
 ≤ 75 s; per-IP limit; `audit` table (90 days); audio of closed pairs purged
 14 days after close by the daily cron, which also stamps abandoned sessions
 on the side whose turn it was (only if they had a full `PARTNER_TIMEOUT_H`

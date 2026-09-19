@@ -98,6 +98,28 @@ let t1 = null;
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
   ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
 
+/* ---------------- partner management: end partnership is distinct from leave / rematch / block ---------------- */
+{ await consent("yara", "Yara"); await consent("zed", "Zed"); await join("yara", { band: "w5-8" }); const oz = (await join("zed", { band: "w5-8" })).json.candidates[0].offer; const pz = (await call("zed", "POST", "/invite", { offer: oz })).json.pair.id;
+  for (const [u, txt] of [["zed", "one"], ["yara", "two"], ["zed", "three"], ["yara", "four"]]) await turn(u, txt);
+  await call("yara", "POST", `/pairs/${pz}/decide`, { choice: "continue" }); await call("zed", "POST", `/pairs/${pz}/decide`, { choice: "continue" });
+  const me = await call("yara", "GET", "/me"); const cid = me.json.connection && me.json.connection.cid;
+  ok("connection card carries an opaque cid, no uid", /^[a-f0-9]{16}$/.test(cid || "") && !JSON.stringify(me.json.connection).includes("dev:"));
+  /* leave today's practice keeps the partnership */
+  const nx = await call("yara", "POST", "/next", { band: "w5-8", promptWeek: 5 }); await call("yara", "POST", `/pairs/${nx.json.pair.id}/leave`);
+  const afterLeave = await call("yara", "GET", "/me");
+  ok("leave today's practice closes only the session — the partnership stays", !afterLeave.json.pair && afterLeave.json.connection && afterLeave.json.connection.cid === cid && afterLeave.json.lastClosed.reason === "left");
+  ok("someone else's cid does not resolve for another learner (404), malformed 400, no auth 401", (await call("carol", "POST", "/connection/end", { cid })).status === 404 && (await call("yara", "POST", "/connection/end", { cid: "zz" })).status === 400 && (await call(null, "POST", "/connection/end", { cid })).status === 401);
+  /* end with a session open: the session closes too */
+  await call("zed", "POST", "/next", { band: "w5-8", promptWeek: 5 });
+  const end = await call("yara", "POST", "/connection/end", { cid });
+  const zedMe = await call("zed", "GET", "/me");
+  ok("end partnership → connection ended for both, open session closed as 'left', no block, cooldown", end.status === 200 && end.json.already === false && !end.json.connection && !end.json.pair && !zedMe.json.connection && !zedMe.json.pair && zedMe.json.lastClosed && zedMe.json.lastClosed.reason === "left" && !zedMe.json.suspendedUntil, JSON.stringify({ end: end.json.connection, zed: zedMe.json.lastClosed }));
+  const end2 = await call("yara", "POST", "/connection/end", { cid });
+  ok("ending twice is harmless (already:true)", end2.status === 200 && end2.json.already === true);
+  await join("zed", { band: "w5-8" }); const yj = await join("yara", { band: "w5-8" });
+  ok("an ended partner is not offered again (cooldown + ended state)", !yj.json.candidates.some(c => c.name === "Zed")); await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
+  ok("not a block: Zed can still be read normally, and a report through the connection is recorded", (await call("zed", "GET", "/me")).status === 200 && (await call("yara", "POST", "/connection/report", { cid, reason: "other" })).status === 200); }
+
 /* ---------------- AI coach sessions are counted per learner (Level 2) ---------------- */
 { const ids = Array.from({ length: 13 }, (_, i) => (i + 1).toString(16).padStart(16, "0"));
   ok("ai: the wrong track is refused before anything is counted (403 track)", (await call("bob", "POST", "/ai/session", { id: ids[0], track: "welding" })).json.error === "track");

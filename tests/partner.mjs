@@ -47,6 +47,8 @@ const W = await learner("wendy", "Wendy Weld", "welding", false);
 
 /* ---------- General-English-only boundary ---------- */
 ok("General English: Practice tab shows the Practice Partner card", (await txt(A.page, ".pp-entry")).includes("Practice Partner"));
+ok("Practice tab: the 'Best tool' shortcut and the Life Simulations card carry the same name and open the same page (roleplay)", await A.page.evaluate(() => { const strip = [...document.querySelectorAll(".path-tool")].find(b => b.getAttribute("onclick").includes("'sim'")); const card = [...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("roleplay")); return !!strip && !!card && strip.innerText.includes("Practise a real conversation") && card.innerText.includes("Practise a real conversation") && !strip.innerText.includes("Workplace conversations") && pathTools().find(x => x.id === "sim").go[0] === "roleplay"; }));
+ok("Welding: the same shortcut and card keep the professional simulation route", await W.page.evaluate(() => pathTools().find(x => x.id === "sim").go[0] === "simulation" && !![...document.querySelectorAll(".rp-entry")].find(b => (b.getAttribute("onclick") || "").includes("simulation"))));
 ok("Welding: no Practice Partner card on the Practice tab", await W.page.evaluate(() => !document.querySelector(".pp-entry")));
 await W.page.evaluate(() => go("partner")); await sleep(500);
 ok("Welding: the #partner route shows the General-English-only notice, no data, no consent", (await txt(W.page, "#v-partner")).includes("part of General English") && !(await txt(W.page, "#v-partner")).includes("Before your first partner"));
@@ -200,8 +202,30 @@ ok("After the call the connection card is back with Start and Practise live", (a
 await A.page.click('button:has-text("Start today")'); await sleep(1300);
 ok("Start → a regular session with the same partner", (await txt(A.page, ".pp-head")).includes("Regular partners") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"));
 
-/* ---------- rematch: leave without a word; cooldown; new candidates ---------- */
-await A.page.click(".pp-menu"); await sleep(200); await A.page.click('button:has-text("Leave this pair")'); await sleep(300); await A.page.click(".cf-card button:has-text('Leave')"); await sleep(1000);
+/* ---------- partner management: leave today's practice ≠ end partnership; AI reachable while connected ---------- */
+await A.page.click(".pp-menu"); await sleep(200);
+ok("Session menu offers 'Leave today's practice' (not 'leave pair'), Report, Block", (await txt(A.page, ".pp-sheet")).includes("Leave today's practice") && (await txt(A.page, ".pp-sheet")).includes("Report Carla") && (await txt(A.page, ".pp-sheet")).includes("Block"));
+await A.page.click('button:has-text("Leave today\'s practice")'); await sleep(300);
+ok("Leave confirmation says the partnership stays", (await txt(A.page, ".cf-card")).includes("stay partners"));
+await A.page.click(".cf-card button:has-text('Leave')"); await sleep(1200);
+const afterLeave = await txt(A.page, "#v-partner"); ok("Leaving today's practice keeps the partnership: connection card still there with the partner kind, Start and Practise live, options gear", afterLeave.includes("Your practice partner: Carla") && afterLeave.includes("Practice partners") && afterLeave.includes("Start today") && afterLeave.includes("Practise live") && (await A.page.evaluate(() => !!document.querySelector(".pp-conn .pp-menu"))) && (await (await api("alice", "GET", "/me")).json()).connection);
+await api("bob", "DELETE", "/interest");   /* nobody else waiting → the honest "no partner yet" state */
+await A.page.click('#v-partner .pp-cta button:has-text("Practise now")'); await sleep(1300);
+const waitingConn = await txt(A.page, "#v-partner");
+ok("A connected learner can look for someone new without ending the partnership: waiting card + AI COACH — NOT YOUR PARTNER card, connection card still shown", waitingConn.includes("Looking for your partner") && waitingConn.includes("AI COACH — NOT YOUR PARTNER") && waitingConn.includes("Practise with the AI coach") && waitingConn.includes("Your practice partner: Carla"));
+await A.page.click('button:has-text("Stop looking")'); await sleep(900);
+await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });   /* Bob back in line for the rematch section */
+await A.page.click(".pp-conn .pp-menu"); await sleep(200);
+const optsTxt = await txt(A.page, ".pp-sheet");
+ok("Partner options: Find someone else, End partnership, Report, Block — four distinct actions, no profile, no photo", optsTxt.includes("Find someone else") && optsTxt.includes("End partnership") && optsTxt.includes("Report Carla") && optsTxt.includes("Block") && !(await A.page.evaluate(() => !!document.querySelector(".pp-sheet img"))));
+await A.page.click('.pp-sheet button:has-text("End partnership")'); await sleep(300);
+ok("End partnership asks for explicit confirmation and says it is not a block or report", (await txt(A.page, ".cf-card")).includes("End this partnership?") && (await txt(A.page, ".cf-card")).includes("not a block and not a report"));
+await A.page.click(".cf-card button:has-text('End partnership')"); await sleep(1300);
+const ended = await txt(A.page, "#v-partner");
+ok("After ending: no connection card, Match me available, Carla not suspended or blocked, Carla sees no connection and no reason", !ended.includes("Your practice partner: Carla") && ended.includes("Match me") && await (async () => { const c = await (await api("carla", "GET", "/me")).json(); return !c.connection && !c.suspendedUntil && !JSON.stringify(c).includes("ended by"); })());
+ok("Ending again through the API is harmless (already:true)", (await (await api("alice", "POST", "/connection/end", { cid: "0000000000000000" })).json()).error === "no_connection");
+
+/* ---------- rematch: cooldown; new candidates ---------- */
 await A.page.click('button:has-text("Show me candidates")').catch(() => {}); await sleep(300);
 await A.page.evaluate(() => ppMatch()); await sleep(1200);
 const cards2 = await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].map(c => c.innerText.replace(/\s+/g, " ")));
@@ -227,7 +251,9 @@ await A.page.evaluate(() => { shOpenWork(); svPick = 5; svSetMode("apply"); }); 
 ok("Apply it shows the expression with AI and Partner options", (await txt(A.page, ".sv-apply")).includes("Practise with AI") && (await txt(A.page, ".sv-apply")).includes("Use it with a partner"));
 await A.page.click(".sv-apply .btn-primary"); await sleep(1400);
 ok("Use it with a partner → Practice Partner with the phrase queued for the next session", A.page.url().endsWith("#partner") && (await txt(A.page, ".pp-apply-card")).includes("Your next practice will use this expression"));
-await api("carla", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+/* Alice ended her partnership with Carla above and rematched Bob, so both are in cooldown; a fresh learner takes the pairing */
+await api("dina", "POST", "/consent", { name: "Dina", lang: "fr", adult: true, gender: "f", goals: ["workplace"], avail: ["evening"], tz: 0 });
+await api("dina", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
 await A.page.click('button:has-text("Practise now")'); await sleep(1500);
 const applied = await txt(A.page, ".pp-prompt");
 ok("Practise now pairs at once and round 1 uses the shadowed expression", applied.includes("Use the expression") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"), applied.slice(0, 160));
@@ -236,7 +262,7 @@ ok("Practise now pairs at once and round 1 uses the shadowed expression", applie
 await A.page.evaluate(() => localStorage.setItem("be_partner_api", "http://127.0.0.1:1")); await A.page.evaluate(() => go("partner")); await sleep(1500);
 ok("Worker unreachable → offline card with retry, no crash", (await txt(A.page, "#v-partner")).includes("Can't reach the partner service"));
 await A.page.evaluate(W => localStorage.setItem("be_partner_api", W), WORKER); await A.page.evaluate(() => go("partner")); await sleep(1300);
-ok("Reconnect restores the session", (await txt(A.page, ".pp-head")).includes("Carla"));
+ok("Reconnect restores the session", (await txt(A.page, ".pp-head")).includes("Dina"));
 await A.page.evaluate(() => { localStorage.setItem("be_flags", JSON.stringify({})); go("practice"); }); await sleep(400);
 ok("Flags off → no card on Practice, no Home card, route shows unavailable (production default)", await A.page.evaluate(async () => { const noCard = !document.querySelector(".pp-entry"); go("partner"); await new Promise(r => setTimeout(r, 300)); return noCard && /temporarily unavailable/.test(document.getElementById("v-partner").innerText); }));
 await A.page.evaluate(F => localStorage.setItem("be_flags", JSON.stringify(F)), FLAGS);

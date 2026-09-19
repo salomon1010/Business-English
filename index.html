@@ -4539,6 +4539,14 @@ const I18N_EN={
  "pp.conn_last":"last {{date}}",
  "pp.conn_sub":"Practised together {{n}} time(s)",
  "pp.conn_h":"Your practice partner: {{name}}",
+ "pp.kind_mutual":"Practice partners",
+ "pp.conn_options_sub":"Your practice with {{name}} is yours to manage. None of these tells {{name}} why.",
+ "pp.end_btn":"End partnership",
+ "pp.end_h":"End this partnership?",
+ "pp.end_sub":"This stops future practice with {{name}}. It is not a block and not a report — {{name}} only sees that the partnership ended. You can find another practice partner later.",
+ "pp.end_done":"Partnership ended.",
+ "pp.findelse_h":"Find someone else?",
+ "pp.findelse_sub":"This ends your partnership with {{name}} and looks for a new partner. {{name}} only sees that the partnership ended.",
  "pp.rematch_toast":"No problem. Let's find another partner.",
  "pp.mutual_toast":"You and {{name}} are now practice partners!",
  "pp.continue_toast":"Noted. When your partner agrees, you become regular partners.",
@@ -4683,7 +4691,7 @@ const I18N_EN={
  "pp.refresh":"Check again",
  "pp.waiting_toast":"You're in line. We'll pair you as soon as someone is ready.",
  "pp.paired_toast":"Paired with {{name}}!",
- "pp.closed_left":"Your last pair ended. You can get a new partner.",
+ "pp.closed_left":"Your last session ended. You can start again or get a new partner.",
  "pp.closed_blocked":"Your last pair ended.",
  "pp.closed_expired":"Your week with your last partner is complete. Get a new partner for this week.",
  "pp.closed_suspended":"Your last pair ended.",
@@ -4799,9 +4807,9 @@ const I18N_EN={
  "pp.block_h":"Block {{name}}?",
  "pp.block_sub":"This ends the pair now. You will never be paired again, and they can no longer hear your turns.",
  "pp.block_done":"Blocked. You can get a new partner.",
- "pp.leave":"Leave this pair",
- "pp.leave_h":"Leave this pair?",
- "pp.leave_sub":"You can get a new partner straight away. Your partner is told the pair ended.",
+ "pp.leave":"Leave today's practice",
+ "pp.leave_h":"Leave today's practice?",
+ "pp.leave_sub":"This ends today's session only. If you are practice partners, you stay partners and can start again another day. Your partner is told the session ended.",
  "pp.toast_reply":"{{name}} replied to your turn.",
  "pp.home_reply_h":"{{name}} replied",
  "pp.home_reply_sub":"Listen, then record your next turn on today's task.",
@@ -4875,8 +4883,8 @@ const I18N_EN={
  "tools.phrases_sub":"This week's phrases, and your own sentences made boardroom-ready.",
  "tools.vocab":"Vocabulary & grammar drills",
  "tools.vocab_sub":"Flashcards, quizzes and crosswords on the words you have collected.",
- "tools.sim":"Workplace conversations",
- "tools.sim_sub":"A full conversation with a workplace character, answer by answer.",
+ "tools.sim":"Practise a real conversation",
+ "tools.sim_sub":"The AI colleague from Life Simulations — a full conversation, answer by answer.",
  "tools.fnd":"Foundations — today's three sentences",
  "tools.fnd_sub":"Hear it, understand it, say it, record it.",
  "tools.why_shadow":"This step is about sound and rhythm. Shadowing gives you a native model to copy before you record.",
@@ -13347,7 +13355,8 @@ function ppRender(el){
   const aiResume=ppLiveCardHTML(m)+ppAiResumeHTML();
   const conn=m.connection?`<section class="card pp-conn">
       <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div></div>
+      <div class="pp-head-t"><b>${t("pp.conn_h",{name:esc(m.connection.name)})}</b><small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button></div>
       <div class="pp-row">${m.connection.canStart?`<button class="btn-primary" onclick="ppNext()">${t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`}${ppLiveOn()&&m.connection.canLive&&!m.live?`<button class="btn btn-g" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>`:""}</div>
     </section>`:"";
   if(m.waiting){
@@ -13972,6 +13981,53 @@ window.ppMenu=async()=>{
   ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});
   document.body.appendChild(ov);manIconizeInline(ov);
 };
+/* ---- partner options on the connection card: four DIFFERENT things ----
+   Find someone else = end this partnership and look again; End partnership =
+   stop, no search; Block and Report are the safety actions. "Leave today's
+   practice" lives in the session menu and never touches the partnership. */
+window.ppConnMenu=()=>{
+  const c=ppMe&&ppMe.connection;if(!c)return;
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><h2 style="font-size:18px;margin:0 0 4px">${t("pp.menu")}</h2><p class="sub" style="margin:0 0 12px">${t("pp.conn_options_sub",{name:esc(c.name)})}</p>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppConnEnd(true)">${ic("repeat")} ${t("pp.decide_rematch")}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppConnEnd(false)">${ic("close")} ${t("pp.end_btn")}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppConnReport()">${ic("alert")} ${t("pp.report",{name:esc(c.name)})}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="ppConnBlock()">${ic("ban")} ${t("pp.block")}</button>
+    <button class="btn btn-g pp-sheet-btn" onclick="this.closest('.pp-sheet-ov').remove()">${t("wc.close")}</button></div>`;
+  ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.ppConnEnd=async(findElse)=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const c=ppMe&&ppMe.connection;if(!c||ppBusy)return;
+  const ok=await askConfirm({icon:findElse?"repeat":"close",danger:!findElse,title:findElse?t("pp.findelse_h"):t("pp.end_h"),body:findElse?t("pp.findelse_sub",{name:c.name}):t("pp.end_sub",{name:c.name}),confirmLabel:findElse?t("pp.decide_rematch"):t("pp.end_btn"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  ppBusy=true;
+  try{const r=await ppApi("POST","/connection/end",{cid:c.cid});ppMe=r;ppState().lastMe=r;save();try{track("partner_connection_ended",{})}catch(e){}toast(t("pp.end_done"))}
+  catch(e){ppBusy=false;toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"));return}
+  ppBusy=false;
+  if(findElse)ppMatch();else{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
+};
+window.ppConnReport=()=>{
+  const c=ppMe&&ppMe.connection;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!c)return;
+  const ov=document.createElement("div");ov.className="lang-modal-ov pp-sheet-ov";
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><h2 style="font-size:18px;margin:0 0 4px">${t("pp.report_h")}</h2><p class="sub" style="margin:0 0 12px">${t("pp.report_sub")}</p>
+    ${["harassment","contact_info","not_english","abuse","other"].map(r=>`<button class="btn btn-g pp-sheet-btn" onclick="ppConnReportSend('${r}')">${t("pp.reason_"+r)}</button>`).join("")}
+    <button class="btn btn-g pp-sheet-btn" onclick="this.closest('.pp-sheet-ov').remove()">${t("wc.close")}</button></div>`;
+  ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});document.body.appendChild(ov);
+};
+window.ppConnReportSend=async reason=>{
+  const c=ppMe&&ppMe.connection;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!c)return;
+  try{ppMe=await ppApi("POST","/connection/report",{cid:c.cid,reason});ppState().lastMe=ppMe;save();try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
+window.ppConnBlock=async()=>{
+  const c=ppMe&&ppMe.connection;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!c)return;
+  const ok=await askConfirm({icon:"ban",title:t("pp.block_h",{name:c.name}),body:t("pp.block_sub"),confirmLabel:t("pp.block"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  try{ppMe=await ppApi("POST","/connection/block",{cid:c.cid});ppState().lastMe=ppMe;save();try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
+};
 window.ppReport=async()=>{
   document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
   const p=ppMe&&ppMe.pair;if(!p)return;
@@ -14003,7 +14059,7 @@ window.ppLeave=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
   const ok=await askConfirm({icon:"close",danger:false,title:t("pp.leave_h"),body:t("pp.leave_sub"),confirmLabel:t("pp.leave"),cancelLabel:t("wc.close")});
   if(!ok)return;
-  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/leave");ppState().lastMe=ppMe;save();try{track("partner_connection_disconnected",{})}catch(e){}}catch(e){toast(t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/leave");ppState().lastMe=ppMe;save();try{track("partner_left",{})}catch(e){}}catch(e){toast(t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 /* ---- consent + preferences: what is shared, 18+, and the few matching

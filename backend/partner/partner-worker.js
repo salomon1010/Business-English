@@ -49,7 +49,7 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12 };
+const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10 };
 /* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
@@ -148,6 +148,15 @@ const activePair = (env, uid) => q(env, "SELECT * FROM pairs WHERE status='activ
 async function blockedEither(env, a, b) { return !!(await q(env, "SELECT 1 AS x FROM blocks WHERE (by_uid=? AND about_uid=?) OR (by_uid=? AND about_uid=?) LIMIT 1", a, b, b, a).first()); }
 async function cooled(env, a, b, ms) { const [x, y] = pairKey(a, b); const r = await q(env, "SELECT until FROM cooldowns WHERE a=? AND b=?", x, y).first(); return !!(r && r.until > ms); }
 async function connection(env, a, b) { const [x, y] = pairKey(a, b); return q(env, "SELECT * FROM connections WHERE a=? AND b=?", x, y).first(); }
+/* the card's opaque handle for a connection: derived, never stored, and only
+   ever resolved against the CALLER's own connections — so it cannot name
+   someone else's partnership */
+async function connId(a, b) { const [x, y] = pairKey(a, b); const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(x + "|" + y)); return [...new Uint8Array(d)].slice(0, 8).map(v => v.toString(16).padStart(2, "0")).join(""); }
+async function myConnectionByCid(env, uid, cid) {
+  const rows = (await q(env, "SELECT * FROM connections WHERE a=? OR b=?", uid, uid).all()).results || [];
+  for (const c of rows) if ((await connId(c.a, c.b)) === cid) return c;
+  return null;
+}
 const openLive = (env, uid) => q(env, "SELECT * FROM live_sessions WHERE (host=? OR guest=?) AND state IN ('invited','accepted','connecting','active','reconnecting') ORDER BY created_at DESC LIMIT 1", uid, uid).first();
 async function liveClose(env, s, state, reason, ms) { await q(env, "UPDATE live_sessions SET state=?, end_reason=?, ended_at=?, updated_at=? WHERE id=? AND state IN ('invited','accepted','connecting','active','reconnecting')", state, reason, ms, ms, s.id).run(); }
 /* STUN always; TURN only when the owner has put Cloudflare Calls TURN key
@@ -247,7 +256,7 @@ async function candidates(env, uid, ms, limit = 3) {
     if (await cooled(env, uid, c.uid, ms)) continue;
     if (await activePair(env, c.uid)) continue;
     const conn = await connection(env, uid, c.uid);
-    if (conn && (conn.state === "blocked" || conn.state === "disconnected")) continue;
+    if (conn && (conn.state === "blocked" || conn.state === "disconnected" || conn.state === "ended")) continue;
     const { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
     if (s < MIN_MATCH_SCORE) continue;
     const exposure = (await q(env, "SELECT COUNT(*) AS n FROM offers WHERE cand_uid=? AND created_at>?", c.uid, ms - DAY).first()).n;
@@ -338,7 +347,7 @@ async function meView(env, uid, ms) {
     const last = await q(env, "SELECT closed_reason, closed_at FROM pairs WHERE status='closed' AND (uid_a=? OR uid_b=?) ORDER BY closed_at DESC LIMIT 1", uid, uid).first();
     if (last && ms - last.closed_at < 3 * DAY) out.lastClosed = { reason: last.closed_reason, at: last.closed_at };
     const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular') ORDER BY last_practice_at DESC LIMIT 1", uid, uid).all()).results || [];
-    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
+    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { cid: await connId(conns[0].a, conns[0].b), name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
   }
   /* an open live session (either role) rides along so the invitation card,
      the resume card and the notification all come from the same read */
@@ -506,6 +515,45 @@ async function handle(req, env, ctx) {
       return json(await meView(env, uid, ms));
     }
   }
+  /* ---------------- partner management on the connection card ----------------
+     POST /connection/end    {cid}          — end the partnership (not a block, not a report)
+     POST /connection/report {cid, reason}  — report the partner outside a session
+     POST /connection/block  {cid}          — block the partner outside a session
+     The cid is resolved against the caller's OWN connections only; anyone
+     else's partnership simply does not resolve (404). Ending is idempotent. */
+  {
+    const cm = /^\/connection\/(end|report|block)$/.exec(path);
+    if (cm && req.method === "POST") {
+      const b = await req.json().catch(() => ({}));
+      const cid = /^[a-f0-9]{16}$/.test(b.cid || "") ? b.cid : null; if (!cid) return err(400, "bad_request");
+      const c = await myConnectionByCid(env, uid, cid); if (!c) return err(404, "no_connection");
+      const other = c.a === uid ? c.b : c.a;
+      if (cm[1] === "end") {
+        if (c.state === "ended" || c.state === "blocked") return json({ ok: true, already: true, ...(await meView(env, uid, ms)) });
+        if (await bump(env, uid, "end", ms) > DAILY_LIMITS.end) return err(429, "limit");
+        await env.DB.batch([
+          q(env, "UPDATE connections SET state='ended', updated_at=? WHERE a=? AND b=? AND state NOT IN ('blocked')", ms, c.a, c.b),
+          q(env, "INSERT INTO cooldowns(a,b,until,reason) VALUES(?,?,?,'ended') ON CONFLICT(a,b) DO UPDATE SET until=excluded.until, reason='ended'", c.a, c.b, ms + COOLDOWN_MS),
+        ]);
+        /* an open session with that partner cannot outlive the partnership */
+        const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "left", ms);
+        const l = await openLive(env, uid); if (l && (l.host === other || l.guest === other)) await liveClose(env, l, "ended", "left", ms);
+        await audit(env, ms, uid, "connection_ended", other, null, { sessions: c.sessions });
+        return json({ ok: true, already: false, ...(await meView(env, uid, ms)) });
+      }
+      if (cm[1] === "report") {
+        if (!REASONS.has(b.reason)) return err(400, "bad_request");
+        const r = await doReport(env, uid, other, "conn:" + cid, b.reason, ms); if (r) return r;
+        return json({ ok: true, ...(await meView(env, uid, ms)) });
+      }
+      if (cm[1] === "block") {
+        const r = await doBlock(env, uid, other, ms); if (r) return r;
+        await audit(env, ms, uid, "blocked", other, null, { connection: true });
+        return json({ ok: true, ...(await meView(env, uid, ms)) });
+      }
+    }
+  }
+
   /* POST /ai/session {id, track} — the AI coach session itself runs on the
      client and the Polish Worker, but it is opened through here so the count
      is per AUTHENTICATED learner, not per IP: 12 new sessions a day (enough
