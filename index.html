@@ -13545,7 +13545,7 @@ function ppThreadHTML(p){
     <div class="pp-head-row">
       <span class="pp-avatar">${esc(p.partner.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.with",{name:esc(p.partner.name)})}</b><small><span class="pp-human-tag">${t("pp.human_tag")}</span> · ${t("pp.band_"+p.band)} · ${p.kind==="regular"?t("pp.kind_regular"):t("pp.kind_trial")}</small></div>
-      <button class="btn btn-g btn-sm pp-menu" onclick="ppMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button>
     </div>
     <div class="pp-rounds" aria-label="${esc(status)}">${Array.from({length:p.rounds},(_,i)=>`<span class="${i<p.turns.length?"done":(i===p.turns.length&&!p.complete?"now":"")}"></span>`).join("")}<b>${status}</b></div>
   </section>
@@ -13950,7 +13950,7 @@ function ppLiveHTML(L){
     <div class="pp-head-row"><span class="pp-avatar">${esc(L.partner.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.live_with",{name:esc(L.partner.name)})}</b><small>${t("pp.live_human")}</small></div>
       <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?"0:00":""}</span>
-      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button>
       <button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>
     ${L.countdown!=null?`<div class="pp-live-count" id="ppLiveCount" aria-live="polite">${L.countdown>0?L.countdown:t("pp.live_go")}</div>`:""}
     <p class="pp-live-status ${L.status}">${live?ic("mic"):ic("clock")} ${ppLiveStatusText(L)}</p>
