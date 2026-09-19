@@ -176,7 +176,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (99), `tests/partner.mjs` (116, browser
+  `backend/partner/test/run.mjs` (99), `tests/partner.mjs` (120, browser
   contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
@@ -186,7 +186,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   included; candidate cards carry **Practise live** = `/invite {live:true}`,
   migration 0007 `pairs.live_wanted`, the guest's accept opens the room for
   the host; More options in any session has Practise live); presence strip
-  `ppPresenceHTML()` + floating `#ppFab` on every non-partner page; the live
+  `ppPresenceHTML()` (+ Home card counts) + floating `#ppFab` on every non-partner page (steps above the pill, gone only in a live room / under a call banner; needs only the server's `consented`); red hang-up button `ppLiveHangup` in the call card; the live
   beacon (`#ppLiveDot`, pill/call/presence dots) reuses the road map's
   `rmRing`/`rmSpin`, not a box-shadow throb; the partner-left dialog is
   Close / Find another partner and either clears the partner from the screen
@@ -196,7 +196,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
   the branch, the owner's step list, what to watch, rollback timings —
-  DEVICE_CHECKLIST (60 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
+  DEVICE_CHECKLIST (63 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
   `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
   Staging also needs `https://staging.lomonec.com` in the Polish Worker's
   hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).

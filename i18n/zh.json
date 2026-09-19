@@ -1867,5 +1867,6 @@
  "pp.tinv_live_h": "{{name}} 想和你实时练习",
  "pp.tinv_live_sub": "围绕今天的任务进行一次简短语音通话。不会录音 —— 任何一方随时可以离开。",
  "pp.tinv_live_accept": "接受并开始通话",
- "pp.tinv_wait_live_sub": "对方有十分钟。一旦接受，通话就在这里开始。"
+ "pp.tinv_wait_live_sub": "对方有十分钟。一旦接受，通话就在这里开始。",
+ "pp.live_hangup": "挂断"
 }

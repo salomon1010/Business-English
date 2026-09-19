@@ -1867,5 +1867,6 @@
  "pp.tinv_live_h": "{{name}} möchte live mit dir üben",
  "pp.tinv_live_sub": "Ein kurzer Sprachanruf zur heutigen Aufgabe. Nichts wird aufgenommen — und jeder kann jederzeit gehen.",
  "pp.tinv_live_accept": "Annehmen und sprechen",
- "pp.tinv_wait_live_sub": "Die Person hat zehn Minuten. Sobald sie annimmt, öffnet sich der Anruf hier."
+ "pp.tinv_wait_live_sub": "Die Person hat zehn Minuten. Sobald sie annimmt, öffnet sich der Anruf hier.",
+ "pp.live_hangup": "Auflegen"
 }

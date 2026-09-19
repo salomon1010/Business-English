@@ -38,7 +38,7 @@ D1 + R2 emulation, `DEV_AUTH=1`, `PARTNER_ENABLED=1`, `IP_PER_MIN=100000` from
 | **Live (18)** | needs a connection (404) · invite → `invited`, opaque id, first name only · idempotent invite · guest sees it in `/me` · non-member 403 on read/accept/signal, no auth 401 · host cannot accept, signalling before acceptance 409 · accept → `accepted` + ICE, twice harmless · offer → `connecting`, guest receives only the host's signals · answer + ice reach the host, `?after=` cursor, no echo · first `connected` → `active` + `startedAt` · reconnecting ⇄ active · bad kinds / oversized payloads 400 · end → `ended/completed`, twice harmless, signalling after 409 · host cancel / guest decline · unanswered invitation expires at 10 min · block during a call ends it for both, 403 afterwards, no live in `/me` · no new session against a blocked partner |
 | ID token | generated RSA pair: accepts valid; rejects aud / iss / exp / kid / signature; JWKS fetched once and cached; unknown kid → one rate-limited refetch finds a rotated key; malformed, HS256 and non-RSA keys rejected before any fetch |
 
-## 3. Browser end-to-end — `tests/partner.mjs` (116 checks)
+## 3. Browser end-to-end — `tests/partner.mjs` (120 checks)
 Playwright, headless Chromium, 390×844, fake microphone
 (`--use-fake-device-for-media-stream`). Starts its own static server and
 expects the local Worker on 8787 (skips with a notice otherwise). Three
@@ -103,10 +103,10 @@ npm test` runs smoke → shadow-sync → partner.
 |---|---|
 | `tests/shadow-sync.test.mjs` | **27/27** |
 | `backend/partner/test/run.mjs` (local Worker, D1/R2 emulated) | **99/99** — adds presence counts, stale-queue exclusion and cron purge, no-gate offers (two bands away still offered, ranked after), live inside a trial, live proposals (`live:true` → room opens on accept), blocked never counted |
-| `tests/partner.mjs` (browser contexts, fake microphones, real WebRTC) | **116/116** — adds presence strip (GE / Welding), waiting-card copy and green state, auto-discovery once per rise, newcomer toast dedup, `#ppFab` visible/hidden rules + 375×812 no-overlap + one-tap discovery, live-first connection card with `.pp-attn`, candidate card live/recorded buttons, Practise live from a card → host walks into the room on accept, More options live inside a trial, partner-left dialog Close / Find another partner clearing the screen, How-it-works sheet |
+| `tests/partner.mjs` (browser contexts, fake microphones, real WebRTC) | **120/120** — adds presence strip (GE / Welding), waiting-card copy and green state, auto-discovery once per rise, newcomer toast dedup, `#ppFab` visible/hidden rules + 375×812 no-overlap + one-tap discovery, live-first connection card with `.pp-attn`, candidate card live/recorded buttons, Practise live from a card → host walks into the room on accept, More options live inside a trial, partner-left dialog Close / Find another partner clearing the screen, How-it-works sheet |
 | `tests/smoke.mjs` (existing app suite, flags off) | **27/27** |
 | JS parse check | 0 errors |
-| i18n parity | 1,869 keys in EN and in each of 15 files; no missing, no orphans |
+| i18n parity | 1,870 keys in EN and in each of 15 files; no missing, no orphans |
 | Direct-access audit (script, local Worker) | unauth 401 · garbage Bearer 401 · member 200 · non-member 403 · member of another pair 403 · blocked side 403 · unknown turn 404 · R2 key as URL 404 · `/members` 404 · non-member turn inject 409 `no_pair` · non-member decide 403 · > 1.5 MB 413 · > 75 s 400 · Welding `/interest` 403 `track` · partner object exposes `name, band, lang` only |
 | Server kill switch (second local Worker, `PARTNER_ENABLED=0`) | `/health` `enabled:false`; `/me` and audio 503 `disabled`; client renders the "temporarily unavailable" card |
 

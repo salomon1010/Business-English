@@ -111,11 +111,15 @@ not connect — a documented limitation).
   a rise in `waiting.available` opens the candidate cards without a tap,
   once per rise (`ppAutoAvail`), and mutes the availability banner for the
   same arrival. A floating **Find a practice partner** button (`#ppFab`)
-  sits on every page except the partner page, live rooms, Welding, signed-out
-  and unconsented; tapping it lands on discovery for an idle or waiting
+  sits on every page except the partner page, live rooms, under a call banner,
+  Welding, signed-out and unconsented (it steps above the session pill, `.lift`); tapping it lands on discovery for an idle or waiting
   learner. The newcomer toast dedupes by who is on the cards (offer ids are
   minted per call). The **live beacon** (`#ppLiveDot`, pill dot, call-banner
   dot, presence dot) reuses the road map's `rmRing` + `rmSpin` animations.
+- **Hang up.** The call card carries a red phone button (`ppLiveHangup`):
+  cancel while the host waits, decline for an invited guest, leave in a call —
+  one tap, no confirmation, as on a phone. The Home card shows the green
+  presence counts when idle and someone is online.
 - **Partner left.** One dialog (`pp.gone_*`) — **Close** / **Find another
   partner** — and either answer clears that partner from the screen at once
   (`dismissedClosed`, take and cards dropped, re-render; the poll also

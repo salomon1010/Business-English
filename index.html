@@ -1243,13 +1243,14 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
 #ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:120;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0b6b8f,#12a56a);color:#fff;font:inherit;font-size:13.5px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s}
-#ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
+#ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #ppPill.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}#ppPill .pp-pill-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ppPill .pp-pill-go{opacity:.8;font-size:16px;line-height:1}
 #ppPill .pp-pill-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#fff}#ppPill.pp-pill-live{background:linear-gradient(135deg,#0b6b8f,#12a56a)}
 .pp-human-tag{color:var(--green);font-weight:700}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
 .pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
+.pp-hangup{flex:none;width:40px;height:40px;margin-left:8px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(229,72,77,.45);font:inherit;padding:0}.pp-hangup svg{width:20px;height:20px}.pp-hangup:active{transform:scale(.94)}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
 .pp-live-status{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:8px 0 0}.pp-live-status svg{width:18px;height:18px;flex:none;margin-top:1px}.pp-live-status.active svg{color:var(--green)}.pp-live-status.reconnecting{color:var(--gold)}
 .pp-live-ctl .pp-leave{margin-left:auto}.pp-help{margin:6px 0 0 24px;padding:0;font-size:14px;line-height:1.6}.pp-help li{margin:2px 0}
@@ -3915,6 +3916,7 @@ const ICON={
   party:'<path d="M4 20l5-14 9 9-14 5Z"/><path d="M9 6l9 9M14 3.5v2M18.5 8h2M16.5 5.5l1.4-1.4"/>',
   doc:'<path d="M7 3.5h7l4 4V20a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M13.8 3.5V8H18"/><path d="M9 12.5h6M9 15.5h4"/>',
   phone:'<rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><path d="M10.5 18.5h3"/>',
+  hangup:'<path d="M3.5 13.2c4.9-4.6 12.1-4.6 17 0"/><path d="M3.5 13.2l2.6 2.6 2.9-2.2-.5-3.1M20.5 13.2l-2.6 2.6-2.9-2.2.5-3.1"/><path d="M5 5l14 14"/>',
   box:'<path d="M3.5 7.6 12 3l8.5 4.6v8.8L12 21l-8.5-4.6Z"/><path d="M3.5 7.6 12 12.2l8.5-4.6M12 12.2V21"/>'
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
@@ -4839,6 +4841,7 @@ const I18N_EN={
  "pp.live_help":"Phrase help",
  "pp.live_help_h":"Phrases you could use:",
  "pp.live_leave":"Leave",
+ "pp.live_hangup":"Hang up",
  "pp.live_finish":"Finish",
  "pp.live_fine":"Report or block from the menu at any time. Leaving ends the call for both of you.",
  "pp.live_gone":"That invitation is no longer open.",
@@ -13885,6 +13888,9 @@ window.ppLiveMute=()=>{const L=ppLive;if(!L||!L.stream)return;L.muted=!L.muted;L
 window.ppLiveRound=d=>{const L=ppLive;if(!L)return;L.round=Math.max(1,Math.min(PP_LIVE_ROUNDS,L.round+d));ppLiveSignal("round",String(L.round));ppLiveRender()};
 window.ppLiveRetryMic=()=>{const L=ppLive;if(!L)return;L.micErr=null;if(L.pc){try{L.pc.close()}catch(e){}L.pc=null}ppLiveConnect()};
 /* leaving: tell the partner first (bye), then the server; completed when the rounds are done */
+/* the red phone button: one tap ends whatever this room is — a pending
+   invitation is cancelled (host) or declined (guest), a call is left */
+window.ppLiveHangup=()=>{const L=ppLive;if(!L)return;if(L.status==="invited"){return L.role==="host"?ppLiveCancel():ppLiveDecline()}return ppLiveLeave()};
 window.ppLiveLeave=async()=>{const L=ppLive;if(!L)return;const done=L.round>=PP_LIVE_ROUNDS&&L.startedAt;await ppLiveSignal("bye","1");ppLiveEnd(done?"completed":"left")};
 async function ppLiveEnd(reason){
   const L=ppLive;if(!L||L.ended)return;L.ended=reason;
@@ -13944,7 +13950,8 @@ function ppLiveHTML(L){
     <div class="pp-head-row"><span class="pp-avatar">${esc(L.partner.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.live_with",{name:esc(L.partner.name)})}</b><small>${t("pp.live_human")}</small></div>
       <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?"0:00":""}</span>
-      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button></div>
+      <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("gear")}</button>
+      <button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>
     ${L.countdown!=null?`<div class="pp-live-count" id="ppLiveCount" aria-live="polite">${L.countdown>0?L.countdown:t("pp.live_go")}</div>`:""}
     <p class="pp-live-status ${L.status}">${live?ic("mic"):ic("clock")} ${ppLiveStatusText(L)}</p>
     ${L.micErr?`<div class="pp-row"><button class="btn btn-g btn-sm" onclick="ppLiveRetryMic()">${t("pp.retry")}</button></div>`:""}
@@ -14112,11 +14119,13 @@ function ppLiveDotSync(){
 function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
-  const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.on");
-  const show=ppAvailable()&&ppSignedIn()&&ppState().consent&&m&&m.consented&&!(cur&&cur.v==="partner")&&!ppLive&&!busyUi&&!document.querySelector(".sh-work[style*='flex']");
+  const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
+  const show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&!(cur&&cur.v==="partner")&&!ppLive&&!busyUi&&!document.querySelector(".sh-work[style*='flex']");
   if(!show){if(el)el.classList.remove("on");return}
+  const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
+  if(el)el.classList.toggle("lift",lift);
   if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.innerHTML=`${ic("user")}<span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");sessionStorage.setItem("pp_fab_seen","1")}}
-  el.classList.add("on");
+  el.classList.toggle("lift",lift);el.classList.add("on");
 }
 window.ppFabTap=()=>{
   try{track("partner_find_started",{})}catch(e){}
@@ -14454,6 +14463,7 @@ function ppHomeCardHTML(){
   if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&ppLiveRx())return `<section class="card pp-home pp-home-live" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.live_eyebrow")}</div><h2>${t("pp.live_invite_h",{name:esc(m.live.partner.name)})}</h2><p class="sub">${t("pp.live_invite_sub")}</p></section>`;
   if(p&&p.unread)return `<section class="card fnd-home pp-home" onclick="go('partner')" role="button" tabindex="0"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_reply_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_reply_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   if(p&&p.complete&&!p.myDecision)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_decide_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.decide_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
+  if(!p&&m.consented&&m.presence&&m.presence.online>0)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2 class="pp-green">${t("pp.presence_online",{n:m.presence.online})}${m.presence.waiting>0?" · "+t("pp.presence_waiting",{n:m.presence.waiting}):""}</h2><p class="sub">${m.presence.waiting>0?t("pp.waiting_avail_sub"):t("pp.card_sub")}</p><button class="btn-primary">${t("pp.fab")}</button></section>`;
   if(p&&p.myTurn)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   return "";
 }

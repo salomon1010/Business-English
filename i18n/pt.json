@@ -1867,5 +1867,6 @@
  "pp.tinv_live_h": "{{name}} quer praticar ao vivo com você",
  "pp.tinv_live_sub": "Uma chamada de voz curta sobre a tarefa de hoje. Nada é gravado — e qualquer um pode sair a qualquer momento.",
  "pp.tinv_live_accept": "Aceitar e falar",
- "pp.tinv_wait_live_sub": "Tem dez minutos. Assim que aceitar, a chamada abre aqui."
+ "pp.tinv_wait_live_sub": "Tem dez minutos. Assim que aceitar, a chamada abre aqui.",
+ "pp.live_hangup": "Desligar"
 }

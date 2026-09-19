@@ -1867,5 +1867,6 @@
  "pp.tinv_live_h": "{{name}} muốn luyện tập trực tiếp với bạn",
  "pp.tinv_live_sub": "Một cuộc gọi thoại ngắn về bài tập hôm nay. Không ghi âm gì cả — và ai cũng có thể rời đi bất cứ lúc nào.",
  "pp.tinv_live_accept": "Chấp nhận & nói",
- "pp.tinv_wait_live_sub": "Họ có mười phút. Ngay khi họ chấp nhận, cuộc gọi sẽ mở tại đây."
+ "pp.tinv_wait_live_sub": "Họ có mười phút. Ngay khi họ chấp nhận, cuộc gọi sẽ mở tại đây.",
+ "pp.live_hangup": "Kết thúc cuộc gọi"
 }

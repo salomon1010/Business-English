@@ -1867,5 +1867,6 @@
  "pp.tinv_live_h": "{{name}} ingin berlatih langsung dengan Anda",
  "pp.tinv_live_sub": "Panggilan suara singkat tentang tugas hari ini. Tidak ada yang direkam — dan siapa pun boleh pergi kapan saja.",
  "pp.tinv_live_accept": "Terima & bicara",
- "pp.tinv_wait_live_sub": "Mereka punya sepuluh menit. Begitu diterima, panggilan terbuka di sini."
+ "pp.tinv_wait_live_sub": "Mereka punya sepuluh menit. Begitu diterima, panggilan terbuka di sini.",
+ "pp.live_hangup": "Tutup panggilan"
 }

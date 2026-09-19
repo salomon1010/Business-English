@@ -95,6 +95,9 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-57 Live from a card (2) | cards open | A: **Practise live** on B's card | A: "Waiting for B to accept… the call opens here"; B: banner "A wants to practise live with you" / **Accept & talk**; B accepts once → B is in the room, A's phone walks into the room by itself (no extra tap); connect as I-34 | | |
 | I-58 Live inside a trial (2) | recorded trial with a stranger, round 1 | A: More options → Practise live | invitation reaches B as in I-32; no "practise once first" rule | | |
 | I-59 Live beacon | live call open, A goes Home | top-right dot | a green dot with the road map's expanding ring + slow dashed ring (same motion as "you are here"); faster ring while connected; tap → back to the room; gone when the call ends | | |
+| I-61 Hang up (2) | in a call | A: red phone button in the call card | call ends for both at once ("You left" / "A left"), mics off; while still waiting for B, the same button cancels the invitation | | |
+| I-62 Home presence card | idle on Home, B online | read the Practice Partner card | green "N learner(s) online · M waiting to practise" + Find a practice partner; in line with B available → "1 learner(s) available to practise with you" instead | | |
+| I-63 Floating button + pill | recording session open, on Home | look bottom-right | the floating button sits **above** the session pill, neither covers the other; it is absent only in a live room or under a call banner | | |
 | I-60 Partner left (2) | trial open, A mid-take | B: Leave today's practice | A: one dialog "B left today's practice" — **Close** / **Find another partner**; Close → the session, the recorder, the notice line and B's name are gone at once (no reload); Find another partner → candidate cards / waiting card, nothing of B left | | |
 
 ### 6. Network and recovery
@@ -107,10 +110,10 @@ rows are **incomplete until TURN is configured and re-tested**.
 | I-50 Layout | every screen above | | nothing behind the bottom nav; sheets scroll; buttons tappable; RTL (Arabic) does not overflow | | |
 
 ## Android Chrome — model ______ Android ______ Chrome ______ · network: ______
-Copy the 60 rows above as `A-01 … A-60`. Android-specific: A-09 Chrome mic prompt and `audio/webm`; A-34 inline audio with media volume; A-37 recent-apps switch as well as lock.
+Copy the 63 rows above as `A-01 … A-63`. Android-specific: A-09 Chrome mic prompt and `audio/webm`; A-34 inline audio with media volume; A-37 recent-apps switch as well as lock.
 
 ## Result summary (owner fills in)
-- iPhone: __ / 60 — blocking failures: ______
-- Android: __ / 60 — blocking failures: ______
+- iPhone: __ / 63 — blocking failures: ______
+- Android: __ / 63 — blocking failures: ______
 - TURN configured on staging: yes / no — I-42 / A-42 result: ______
 - Date, tester, staging Worker version (`/health` + `wrangler deployments list --env staging`): ______
