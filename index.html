@@ -9384,7 +9384,7 @@ async function remCacheText(){
 
 /* A tap on the notification while the app is open: sw.js focuses this window
    and asks it to show the road map, instead of reloading it on a new URL. */
-if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}});
+if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
 async function pushSync(){
   const c=remCfg();
   if(!c.on)return pushOff();
@@ -14160,6 +14160,20 @@ function ppChime(){
   }catch(e){}
   try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}
 }
+/* the same three moments as a system notification when the app is not in
+   front (Android / desktop; an iOS PWA shows these only while installed and
+   permitted). Vibrates, replaces itself, one per event. Timers pause on a
+   backgrounded iPhone, so this is best-effort there — the sound and banner on
+   return are what iOS reliably gets. */
+function ppOsNotify(title,body,view){
+  try{
+    if(document.visibilityState==="visible")return;
+    if(typeof Notification==="undefined"||Notification.permission!=="granted")return;
+    const opts={body,icon:"icon-192.png",badge:"icon-192.png",tag:"be-partner",renotify:true,vibrate:[200,100,200],data:{url:"./#"+(view||"partner"),view:view||"partner"}};
+    if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(reg=>reg.showNotification(title,opts)).catch(()=>{try{new Notification(title,opts)}catch(e){}});
+    else{try{new Notification(title,opts)}catch(e){}}
+  }catch(e){}
+}
 function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
 function ppCallSync(){
   const m=ppMe||ppState().lastMe,l=m&&m.live;
@@ -14171,7 +14185,7 @@ function ppCallSync(){
     else
     if(n>(st0.availSeen||0)){st0.availSeen=n;save();const el=ppCallEl(),key="avail:"+m.waiting.since+":"+n;
       if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t("pp.avail_h",{n})}</b><small>${t("pp.avail_sub")}</small></div></div>
-        <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppCallHide();ppMatch()">${ic("user")} ${t("pp.match_again")}</button><button class="pp-call-decline" onclick="ppCallHide()">${t("wc.close")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
+        <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppCallHide();ppMatch()">${ic("user")} ${t("pp.match_again")}</button><button class="pp-call-decline" onclick="ppCallHide()">${t("wc.close")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime();ppOsNotify(t("pp.avail_h",{n}),t("pp.avail_sub"))}
       return;
     }
     if(n<(st0.availSeen||0)){st0.availSeen=n;save()}   /* track the current count so the next arrival counts as new */
@@ -14180,7 +14194,7 @@ function ppCallSync(){
   if(tinv&&!(l&&l.role==="guest"&&l.state==="invited")){
     const el=ppCallEl(),key="trial:"+m.invite.id;
     if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t(m.invite.live?"pp.tinv_live_h":"pp.tinv_h",{name:esc(m.invite.partner.name)})}</b><small>${t(m.invite.live?"pp.tinv_live_sub":"pp.tinv_sub")}</small></div></div>
-      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppTrialAccept()">${ic(m.invite.live?"mic":"check")} ${t(m.invite.live?"pp.tinv_live_accept":"pp.tinv_accept")}</button><button class="pp-call-decline" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
+      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppTrialAccept()">${ic(m.invite.live?"mic":"check")} ${t(m.invite.live?"pp.tinv_live_accept":"pp.tinv_accept")}</button><button class="pp-call-decline" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime();ppOsNotify(t(m.invite.live?"pp.tinv_live_h":"pp.tinv_h",{name:m.invite.partner.name}),t(m.invite.live?"pp.tinv_live_sub":"pp.tinv_sub"))}
     return;
   }
   const guestInvite=l&&l.role==="guest"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx();
@@ -14195,7 +14209,7 @@ function ppCallSync(){
         <div class="pp-call-t"><b>${t("pp.call_host",{name:esc(l.partner.name)})}</b><small>${t("pp.live_waiting",{name:esc(l.partner.name)})}</small></div></div>
       <div class="pp-call-btns"><button class="pp-call-accept" onclick="go('partner')">${t("pp.call_return")}</button><button class="pp-call-decline" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`;
     manIconizeInline(el);el.classList.add("on");ppCallShown=key;
-    if(guestInvite)ppChime();
+    if(guestInvite){ppChime();ppOsNotify(t("pp.live_invite_h",{name:l.partner.name}),t("pp.live_human"))}
   }
 }
 /* ---- the ongoing-practice pill: a small green pulse on every screen except
@@ -14226,19 +14240,65 @@ function ppPillSync(){
    bottom-left corner of every page. #ppPill already brings the learner back to
    a live call from any other page. Kept as a no-op for its callers. */
 function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.remove()}
-/* ---- the floating "Find a practice partner" button: one tap into partner
-   discovery from anywhere in the app; hidden where it would be noise ---- */
+/* ---- the floating "Talk to a real person" button: one tap into partner
+   discovery. Where it lives (owner, 2026-09-19):
+   - the five tabs a learner practises from: Home, Road map, Practice, Shadow
+     (the picker; the workspace is full-screen and covers it) and Phrase Lab;
+   - the recording screens reached from them (daily session, Foundations day,
+     the simulation / role-play pickers, pronunciation) only while no take is
+     running and the button would not sit on a record / action control —
+     re-checked on scroll, because that is what moves the controls;
+   - nowhere else: Profile, App Setup, Help & guide, Career, Tracks, Reviews,
+     Partner set-up and every other utility or account screen, and never
+     inside Practice Partner or a live call.
+   General English only — ppAvailable() already carries that. ---- */
+const PP_FAB_VIEWS=new Set(["home","journey","practice","shadow","phrases"]);
+const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
+const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-micbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
+function ppRecordingNow(){
+  try{
+    if(rec&&rec.mr&&rec.mr.state==="recording")return true;         /* MediaRecorder: session, shadow, phrases, foundations */
+    if(typeof exListening!=="undefined"&&exListening)return true;    /* Executive Polish dictation */
+    if(typeof shFB!=="undefined"&&shFB&&shFB.on)return true;         /* parallel transcription */
+    if(typeof simRec!=="undefined"&&simRec)return true;              /* simulation take */
+  }catch(e){}
+  return false;
+}
+/* true when a visible control's box meets the button's box (8 px margin) */
+function ppFabOverlaps(el){
+  const r=el.getBoundingClientRect();
+  /* hidden, it sits 12 px lower (its off-state transform): widen the top edge by that */
+  const fx1=r.left-8,fx2=r.right+8,fy1=r.top-20,fy2=r.bottom+8;
+  const vs=document.querySelector(".view.on");if(!vs)return false;   /* the session draws into #v-journey — measure the open view, not an id */
+  for(const c of vs.querySelectorAll(PP_FAB_CONTROLS)){
+    const b=c.getBoundingClientRect();
+    if(!b.width||!b.height)continue;
+    if(b.right>fx1&&b.left<fx2&&b.bottom>fy1&&b.top<fy2)return true;
+  }
+  return false;
+}
 function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
+  const v=cur&&cur.v;
   const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
-  const show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&!(cur&&(cur.v==="partner"||cur.v==="setup"))&&!ppLive&&!busyUi&&!document.querySelector(".sh-work[style*='flex']");
+  const overlay=!!document.querySelector(".sh-work[style*='flex']")||!!document.querySelector(".rp-work.show")||!!document.querySelector(".pv-game.show");
+  const onTab=PP_FAB_VIEWS.has(v),onRec=PP_FAB_REC_VIEWS.has(v);
+  let show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
-  if(el)el.classList.toggle("lift",lift);
-  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");sessionStorage.setItem("pp_fab_seen","1")}}
-  el.classList.toggle("lift",lift);el.classList.add("on");
+  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
+  el.classList.toggle("lift",lift);
+  if(onRec&&ppFabOverlaps(el)){el.classList.remove("on");return}
+  el.classList.add("on");
 }
+/* the controls move under it as the page scrolls; a take starts without any
+   navigation — so the recording screens are re-checked cheaply as that happens */
+let _ppFabRaf=0;
+function ppFabRecheck(){if(_ppFabRaf)return;_ppFabRaf=requestAnimationFrame(()=>{_ppFabRaf=0;try{if(cur&&(PP_FAB_REC_VIEWS.has(cur.v)||PP_FAB_VIEWS.has(cur.v)))ppFabSync()}catch(e){}})}
+window.addEventListener("scroll",ppFabRecheck,{passive:true,capture:true});
+window.addEventListener("resize",ppFabRecheck);
+setInterval(()=>{try{if(document.getElementById("ppFab")||(cur&&PP_FAB_REC_VIEWS.has(cur.v)))ppFabRecheck()}catch(e){}},600);
 window.ppFabTap=()=>{
   try{track("partner_find_started",{})}catch(e){}
   const m=ppMe||ppState().lastMe;
