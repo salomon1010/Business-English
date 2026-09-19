@@ -13961,6 +13961,7 @@ function ppCallSync(){
   const st0=ppState();
   if(m&&m.waiting&&ppAvailable()&&!m.invite&&!m.pairInvite&&!(m.live&&m.live.state==="invited")){
     const n=m.waiting.available||0;
+    if(n>0&&ppCallShown&&String(ppCallShown).startsWith("avail:"))return;   /* already up — leave it until answered or closed */
     if(n>(st0.availSeen||0)){st0.availSeen=n;save();const el=ppCallEl(),key="avail:"+m.waiting.since+":"+n;
       if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t("pp.avail_h",{n})}</b><small>${t("pp.avail_sub")}</small></div></div>
         <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppCallHide();ppMatch()">${ic("user")} ${t("pp.match_again")}</button><button class="pp-call-decline" onclick="ppCallHide()">${t("wc.close")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
