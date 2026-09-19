@@ -1863,7 +1863,7 @@
  "pp.presence_waiting": "{{n}} warten aufs Üben",
  "pp.presence_none": "Gerade niemand online — wir sagen Bescheid, sobald jemand kommt",
  "pp.cands_toast": "{{n}} Lernende warten — wähle eine Person",
- "pp.fab": "Übungspartner finden",
+ "pp.fab": "Mit einem echten Menschen sprechen",
  "pp.conn_choice": "Live: jetzt sprechen, etwa fünf Minuten. Heutige Übung: aufnehmen, wann du kannst.",
  "pp.cand_live_note": "Jetzt live sprechen oder vier kurze Runden aufnehmen. Wenn es nicht passt, kann jeder von euch gehen.",
  "pp.why_line": "wartet jetzt aufs Üben",

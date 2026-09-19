@@ -1863,7 +1863,7 @@
  "pp.presence_waiting": "{{n}} en attente de pratiquer",
  "pp.presence_none": "Personne en ligne pour l'instant — nous vous préviendrons dès que quelqu'un arrive",
  "pp.cands_toast": "{{n}} apprenant(s) en attente — choisissez-en un",
- "pp.fab": "Trouver un partenaire",
+ "pp.fab": "Parler à une vraie personne",
  "pp.conn_choice": "En direct : parlez maintenant, environ cinq minutes. Pratique du jour : enregistrez quand vous pouvez.",
  "pp.cand_live_note": "Parlez en direct maintenant, ou enregistrez quatre tours courts. Si le courant ne passe pas, chacun peut partir.",
  "pp.why_line": "attend pour pratiquer maintenant",

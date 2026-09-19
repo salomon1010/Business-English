@@ -1242,7 +1242,12 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppLiveDot.on::before,#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppLiveDot.on::after,#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
-#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:120;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0b6b8f,#12a56a);color:#fff;font:inherit;font-size:13.5px;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.4);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s}
+/* the floating "Practise with a partner" button: a round white pill with a dark
+   outline (the Meet-style help button the owner pointed at), bottom-right,
+   above the bottom nav */
+#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 96px);z-index:120;display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px 0 14px;border-radius:999px;border:2px solid #111;background:#fff;color:#111;font:inherit;font-size:14px;font-weight:800;letter-spacing:.1px;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s}
+#ppFab .pp-fab-ic{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #111;display:inline-flex;align-items:center;justify-content:center}#ppFab .pp-fab-ic svg{width:15px;height:15px}
+:root[data-theme="dark"] #ppFab{background:#fff;color:#111}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -4781,7 +4786,7 @@ const I18N_EN={
  "pp.presence_waiting":"{{n}} waiting to practise",
  "pp.presence_none":"No one online right now — you'll be told when someone arrives",
  "pp.cands_toast":"{{n}} learner(s) waiting — pick one",
- "pp.fab":"Find a practice partner",
+ "pp.fab":"Talk to a real person",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -14127,11 +14132,11 @@ function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
   const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
-  const show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&!(cur&&cur.v==="partner")&&!ppLive&&!busyUi&&!document.querySelector(".sh-work[style*='flex']");
+  const show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&!(cur&&(cur.v==="partner"||cur.v==="setup"))&&!ppLive&&!busyUi&&!document.querySelector(".sh-work[style*='flex']");
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
   if(el)el.classList.toggle("lift",lift);
-  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.innerHTML=`${ic("user")}<span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");sessionStorage.setItem("pp_fab_seen","1")}}
+  if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");sessionStorage.setItem("pp_fab_seen","1")}}
   el.classList.toggle("lift",lift);el.classList.add("on");
 }
 window.ppFabTap=()=>{
