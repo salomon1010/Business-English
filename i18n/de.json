@@ -1888,6 +1888,8 @@
  "pp.partners_h": "Ihr seid Übungspartner",
  "pp.partners_sub": "Ihr habt beide gewählt, weiter zusammen zu üben.",
  "pp.partners_btn": "Zusammen üben →",
+ "sv.cur_expr": "Aktuelle Wendung",
+ "sv.ch_last_words": "beim letzten Mal {{ok}} von {{total}} Wörtern",
  "sv.ch_eyebrow": "Du bist dran.",
  "sv.ch_levels": "Schwierigkeit",
  "sv.ch_lv_guided": "Geführt",

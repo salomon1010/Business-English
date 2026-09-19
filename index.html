@@ -674,7 +674,7 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .sh-work-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
 .sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
 .sh-work-x svg{width:20px;height:20px}
-.sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px;max-width:1000px;width:100%;margin:0 auto}
+.sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 18px calc(18px + env(safe-area-inset-bottom));max-width:1000px;width:100%;margin:0 auto}
 .sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* the overlay's entrance fade is ours to suppress, not the browser's */
 /* the picker must not scroll underneath the overlay */
@@ -1233,7 +1233,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 12%,transparent)}
 .sv-seg.pick{outline:1px dashed color-mix(in srgb,var(--acc) 60%,transparent)}
 .sv-w{border-radius:4px;padding:0 1px;transition:background .08s}.sv-w.now{background:var(--acc);color:var(--on-accent)}
-.sv-tx.hidden .sv-seg{filter:blur(7px);user-select:none;pointer-events:none}
+.sv-tx.hidden{display:none}
+.sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
+.sv-expr[hidden]{display:none}.sv-expr b{color:var(--txt);font-weight:700}.sv-expr .sv-expr-lbl{text-transform:uppercase;letter-spacing:1px;font-size:10.5px;font-weight:800;color:var(--accent-text)}
 .sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}.sv-ctl .btn{display:inline-flex;align-items:center;gap:6px}.sv-ctl svg{width:16px;height:16px}.sv-ctl .btn.on{border-color:var(--acc);color:var(--accent-text)}
 .sv-empty{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mut)}.sv-empty svg{width:16px;height:16px;flex:none}
 .sv-apply{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.sv-phrase{font-size:16px;font-weight:800;margin:6px 0}
@@ -1978,6 +1980,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .yt-shell{background:#000;border:2px solid #000;border-radius:18px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.45)}
 .yt-ratio{position:relative;width:100%;aspect-ratio:16/9;background:#000}
 .yt-ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* A laptop is short and wide: at 16:9 across the whole column the player ate
+   70% of the height and the modes and transcript began under the fold. The
+   player keeps its ratio but stops at 44% of the viewport, centred — the
+   transcript is the point of the studio, so it must be visible with it. */
+@media(min-width:900px){.sh-work .yt-shell{max-width:min(100%,calc(44vh * 16 / 9));margin:0 auto}}
 .sh-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
 .sh-pill{display:flex;gap:2px;background:#000;border-radius:16px;padding:6px}
 .sh-pill button{min-width:52px;height:44px;border:none;background:transparent;color:#fff;font-size:19px;border-radius:12px;transition:.15s}
@@ -4687,6 +4694,8 @@ const I18N_EN={
  "sv.reveal":"Reveal","sv.hide":"Hide again",
  "sv.apply_eyebrow":"Apply it","sv.apply_sub":"Use this expression in your own sentence — with the AI coach, or with a real learner.",
  "sv.apply_ai":"Practise with AI","sv.apply_partner":"Use it with a partner","sv.apply_pick":"Tap another sentence in the transcript to pick a different expression.",
+ "sv.cur_expr":"Current expression",
+ "sv.ch_last_words":"last time {{ok}} of {{total}} words",
  "sv.ch_eyebrow":"Your turn.","sv.ch_levels":"Difficulty","sv.ch_lv_guided":"Guided","sv.ch_lv_recall":"Recall","sv.ch_lv_independent":"Independent",
  "sv.ch_hint_guided":"Read the line once, then say it without looking — it disappears when you record.",
  "sv.ch_hint_recall":"Listen, then say it from memory. The transcript stays hidden.",
@@ -13388,21 +13397,53 @@ function svRender(){
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`).join("");
   const levelNote=a.level==="word"?t("sv.level_word"):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
+     collapsed while the learner is meant to produce from memory (ready /
+     recording / grading at recall or independent, recording at guided) and
+     back — with the line marked — once feedback is in. A blurred list used to
+     stay on screen here and pushed the microphone under the fold on a phone;
+     hiding it puts "Your turn" straight under the tabs. "Show transcript" is
+     the escape hatch, and shows it un-blurred. */
+  const txHidden=svMode==="challenge"&&!svRevealed&&svTxHiddenNow();
+  const chPanel=svMode==="challenge"&&svChOn()?svChHTML():"";
   box.innerHTML=`
     <div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
-    <div class="sv-tx ${svMode==="challenge"&&!svRevealed?"hidden":""}" id="svTx" onscroll="svUserScrollAt=Date.now()">${segs}</div>
+    <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
+    ${chPanel}
+    <div class="sv-tx ${txHidden?"hidden":""}" id="svTx" onscroll="svUserScrollAt=Date.now()">${segs}</div>
     <div class="sv-ctl">
       ${timed?`<button class="btn btn-g btn-sm" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}">${ic("rewind")}</button>
       <button class="btn btn-g btn-sm ${svRepeat?"on":""}" onclick="svRepeatToggle()">${ic("repeat")} ${t("sv.repeat")}</button>
       <button class="btn btn-g btn-sm" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
       ${svMode==="shadow"&&timed?`<button class="btn btn-p btn-sm" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button>`:""}
-      ${svMode==="challenge"?(svRevealed?`<button class="btn btn-g btn-sm" onclick="svHide()">${ic("eye")} ${t("sv.hide")}</button>`:`<button class="btn btn-p btn-sm" onclick="svReveal()">${ic("eye")} ${t("sv.reveal")}</button>`):""}
+      ${svMode==="challenge"?(txHidden?`<button class="btn btn-g btn-sm" onclick="svReveal()">${ic("eye")} ${t("sv.reveal")}</button>`:svRevealed&&svTxHiddenNow()?`<button class="btn btn-g btn-sm" onclick="svHide()">${ic("eye")} ${t("sv.hide")}</button>`:``):""}
     </div>
-    ${svMode==="apply"?svApplyHTML():svMode==="challenge"&&svChOn()?svChHTML():""}`;
+    ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
   svLast={seg:-1,word:-1};
+  if(svMode==="challenge"&&!txHidden){const el=box.querySelector(`.sv-seg[data-i="${svChSegIndex()}"]`);if(el)el.classList.add("pick")}
 }
+/* is the transcript meant to be out of sight right now? Only Challenge hides
+   it, and only while the learner should be recalling: before and during the
+   attempt. Feedback, the pass state and an error show it again. Guided keeps
+   it until the recording starts. */
+function svTxHiddenNow(){
+  if(svMode!=="challenge")return false;
+  const c=svCh;if(!c)return true;
+  if(c.phase==="feedback"||c.phase==="done"||c.phase==="error")return false;
+  if(c.level==="guided")return c.phase==="recording"||c.phase==="grading";
+  return true;
+}
+/* the curriculum expression the current line carries, if any — the same
+   lookup Challenge uses, shown as a chip in every mode so the learner sees
+   what the clip is teaching before being asked to use it */
+function svExprText(){
+  const a=svAsset;if(!a)return "";
+  const i=svPick>=0?svPick:(svLast.seg>=0?svLast.seg:-1);const s=i>=0&&a.segments[i];if(!s)return "";
+  try{const ex=ShadowSync.findExpression(s.text,trackPhrases());return ex?ex.phrase:""}catch(e){return ""}
+}
+function svExprDraw(){const el=document.getElementById("svExpr");if(!el)return;const x=svExprText();el.hidden=!x;const b=el.querySelector("b");if(b)b.textContent=x}
 function svApplyHTML(){
   const a=svAsset,i=svPick>=0?svPick:svLast.seg;
   const s=a&&a.segments[i>=0?i:0];
@@ -13419,7 +13460,7 @@ function svApplyHTML(){
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
 }
-window.svSetMode=m=>{svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"?"shadow_v2_challenge_started":"shadow_v2_mode",{mode:m})}catch(e){}};
+window.svSetMode=m=>{svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
 window.svTapSeg=i=>{
   svPick=i;const s=svAsset&&svAsset.segments[i];
   if(svMode==="challenge"&&svCh&&svCh.seg!==i){svChReset();svRender()}
@@ -13475,7 +13516,15 @@ function svChStart(){
   svCh={seg:i,level:svChLevelGet(),phase:"ready",attempt:0,fb:null,heard:"",err:null,busy:false,blob:null,listened:false,use:null};
   try{track("shadow_challenge_started",{level:svCh.level})}catch(e){}
 }
-function svChDraw(){const el=document.getElementById("svCh");if(!el)return;el.outerHTML=svChHTML();try{manIconizeInline(svBox())}catch(e){}}
+function svChDraw(){
+  const el=document.getElementById("svCh");if(!el)return;
+  /* a phase that changes whether the transcript shows (ready → feedback, try
+     again → ready) re-renders the whole panel, so the transcript and its
+     Reveal / Hide control agree with the phase; otherwise only the panel */
+  const tx=document.getElementById("svTx"),hide=!svRevealed&&svTxHiddenNow();
+  if(tx&&tx.classList.contains("hidden")!==hide){svRender();return}
+  el.outerHTML=svChHTML();try{manIconizeInline(svBox())}catch(e){}
+}
 function svChHTML(){
   svChStart();const s=svChSegObj();if(!svCh||!s)return "";
   const c=svCh,L=c.level,ex=ShadowSync.findExpression(s.text,trackPhrases()),nWords=ShadowSync.tokens(s.text).length;
@@ -13494,7 +13543,7 @@ function svChHTML(){
   let body="";
   if(c.phase==="ready"||c.phase==="recording"||c.phase==="grading"){
     body=`<div class="sv-ch-row">${listenBtn}${recBtn}</div>
-      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?t("sv.ch_grading"):errTxt||(c.attempt?t("sv.ch_attempt",{n:c.attempt+1}):"")}</p>`;
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?t("sv.ch_grading"):errTxt||(c.attempt?t("sv.ch_attempt",{n:c.attempt+1})+(c.last&&c.last.total?" · "+t("sv.ch_last_words",{ok:c.last.ok,total:c.last.total}):""):"")}</p>`;
   }else if(c.phase==="error"){
     body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p>
       <div class="sv-ch-row"><button class="btn-primary" onclick="svChRegrade()">${t("sv.ch_err_retry")}</button><button class="btn btn-g" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
@@ -13590,10 +13639,11 @@ async function svChGrade(blob){
     const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
     if(!words&&!heard&&!assess){svCh.phase="error";svCh.err=navigator.onLine?"ai":"net";svChDraw();return}
     const fb=ShadowSync.challenge(s.text,heard,{words,assess,targetMs:s.endMs>s.startMs?s.endMs-s.startMs:null});
-    svCh.attempt++;svCh.fb=fb;svCh.heard=heard;svCh.phase=fb.pass?"done":"feedback";
+    svCh.attempt++;svCh.fb=fb;svCh.heard=heard;svCh.phase=fb.pass?"done":"feedback";svCh.last={ok:fb.ok,total:fb.total};
     const m=aMap("svCh"),key=shClip.vid+":"+s.id,prev=m[key]||{};
     m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:svCh.level,ts:Date.now(),done:!!(prev.done||fb.pass)};save();
-    try{track("shadow_challenge_completed",{level:svCh.level,result:fb.pass?"pass":"retry"})}catch(e){}
+    try{track("shadow_challenge_feedback_received",{level:svCh.level,result:fb.pass?"pass":"retry"})}catch(e){}
+    if(fb.pass)try{track("shadow_challenge_completed",{level:svCh.level})}catch(e){}
   }catch(e){svCh.phase="error";svCh.err=navigator.onLine?"ai":"net"}
   svChDraw();
 }
@@ -13659,6 +13709,7 @@ function svTick(){
   const loc=ShadowSync.locate(a,tS*1000);
   if(loc.seg===svLast.seg&&loc.word===svLast.word)return;
   if(loc.seg!==svLast.seg){
+    if(svPick<0&&loc.seg>=0){svLast.seg=loc.seg;svExprDraw()}
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
     if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(Date.now()-svUserScrollAt>3000)el.scrollIntoView({block:"center",behavior:"smooth"})}}
   }

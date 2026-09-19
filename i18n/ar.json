@@ -1888,6 +1888,8 @@
  "pp.partners_h": "أنتما شريكا تدريب",
  "pp.partners_sub": "اخترتما معاً مواصلة التدريب.",
  "pp.partners_btn": "تدرّبا معاً ←",
+ "sv.cur_expr": "التعبير الحالي",
+ "sv.ch_last_words": "في المرة الماضية {{ok}} من {{total}} كلمة",
  "sv.ch_eyebrow": "دورك.",
  "sv.ch_levels": "الصعوبة",
  "sv.ch_lv_guided": "موجَّه",

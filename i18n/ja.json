@@ -1888,6 +1888,8 @@
  "pp.partners_h": "練習パートナーになりました",
  "pp.partners_sub": "二人とも一緒に練習を続けることを選びました。",
  "pp.partners_btn": "一緒に練習する →",
+ "sv.cur_expr": "今回の表現",
+ "sv.ch_last_words": "前回は {{total}} 語中 {{ok}} 語",
  "sv.ch_eyebrow": "あなたの番です。",
  "sv.ch_levels": "難易度",
  "sv.ch_lv_guided": "ガイド",

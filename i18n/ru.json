@@ -1888,6 +1888,8 @@
  "pp.partners_h": "Вы партнёры по практике",
  "pp.partners_sub": "Вы оба решили продолжать вместе.",
  "pp.partners_btn": "Заниматься вместе →",
+ "sv.cur_expr": "Текущее выражение",
+ "sv.ch_last_words": "в прошлый раз {{ok}} из {{total}} слов",
  "sv.ch_eyebrow": "Ваша очередь.",
  "sv.ch_levels": "Сложность",
  "sv.ch_lv_guided": "С подсказкой",

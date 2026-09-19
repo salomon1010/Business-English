@@ -1888,6 +1888,8 @@
  "pp.partners_h": "आप अभ्यास साथी हैं",
  "pp.partners_sub": "आप दोनों ने साथ अभ्यास जारी रखना चुना।",
  "pp.partners_btn": "साथ अभ्यास करें →",
+ "sv.cur_expr": "वर्तमान अभिव्यक्ति",
+ "sv.ch_last_words": "पिछली बार {{total}} में से {{ok}} शब्द",
  "sv.ch_eyebrow": "आपकी बारी।",
  "sv.ch_levels": "कठिनाई",
  "sv.ch_lv_guided": "निर्देशित",

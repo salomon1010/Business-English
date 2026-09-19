@@ -116,13 +116,50 @@ grade exactly as `fbAssess` already does for Foundations and the phrases.
 
 **Events** (allow-listed in `backend/events/events-worker.js` on the branch —
 **the Worker must be deployed before the flag goes on**, otherwise dropped with
-204): `shadow_challenge_started {level}` · `shadow_challenge_recorded {level}` ·
-`shadow_challenge_completed {level, result: pass|retry}` · `shadow_challenge_retry
-{level}` · `shadow_challenge_apply_it {result: used|missed}`. The existing
-`shadow_v2_challenge_started {mode}` still fires when the tab is opened.
+204): `shadow_challenge_opened` (the tab) · `shadow_challenge_started {level}` ·
+`shadow_challenge_recorded {level}` · `shadow_challenge_feedback_received
+{level, result: pass|retry}` (every graded take) · `shadow_challenge_completed
+{level}` (a pass only) · `shadow_challenge_retry {level}` ·
+`shadow_challenge_apply_it {result: used|missed}`.
 
-**Strings** `sv.ch_*` (59 keys) in `I18N_EN` and all 15 files (machine
-transcreation — native review recommended, fr first).
+**Strings** `sv.ch_*` (59 keys) + `sv.cur_expr`, `sv.ch_last_words` in
+`I18N_EN` and all 15 files (machine transcreation — native review
+recommended, fr first).
+
+## V2.1 — the player as a learning player (2026-09-19, branch `feature/shadow-studio-v21`, not merged)
+Built on the Challenge branch after merging `main` (be12-v358). What changed:
+
+- **Transcript by mode**, enforced in `svTxHiddenNow()`: Watch / Shadow
+  visible and synchronised; Challenge collapsed (`display:none`, no longer a
+  blurred block that pushed the microphone 1,100 px down a phone) while the
+  learner should be recalling — ready / recording / grading at Recall and
+  Independent, recording and grading at Guided — and **visible again with the
+  target line outlined** at feedback, pass and error. "Show transcript" is the
+  escape hatch and shows it un-blurred; the control reads Show / Hide to match
+  the real state and is secondary, so Record stays the one accent.
+- **"Your turn" sits directly under the mode tabs** in Challenge, so on a
+  390×844 phone Record is at ~360 px — inside the first screen, no scrolling.
+- **Current expression chip** (`svExprText()` / `svExprDraw()`): in every
+  mode, when the picked or currently spoken line carries a curriculum phrase,
+  a one-line "CURRENT EXPRESSION · get back to you" appears under the tabs.
+  `svTick` updates one text node when the sentence changes — no re-render.
+- **Progress between attempts**: the ready state after Try again reads
+  "Attempt 2 · last time 6 of 8 words" (`fb.ok` / `fb.total`, the same count
+  the pass rule uses — not a score).
+- **Desktop**: the player stops at 44 vh, centred (`.sh-work .yt-shell` at
+  ≥ 900 px), so video + transport + modes + "Your turn" fit a 1280×800 laptop.
+- **Safe area**: `.sh-work-body` pads the bottom by
+  `env(safe-area-inset-bottom)`.
+- **Practice Partner floating button**: unchanged, and verified to sit under
+  the full-screen workspace (z 120 < 130) and clear the bottom nav on the
+  picker page — covered, never overlapping the mic or transcript.
+- **Events**: `shadow_challenge_opened` and `shadow_challenge_feedback_received`
+  added (see above); `completed` now means a pass.
+- **Tests**: `tests/shadow-challenge.mjs` 36 → 44 (panel-before-transcript and
+  mic in the first screen, transcript back at feedback with the line marked,
+  progress line, expression chip, the seven events, Welding by direct state
+  manipulation — `svMode`/`svAsset` forced by hand still draw nothing —
+  floating button under the workspace). Not run on a real phone.
 
 **Tests** `tests/shadow-sync.test.mjs` (+19: every rule and its priority,
 expression detection) and `tests/shadow-challenge.mjs` (36, headless Chromium

@@ -234,6 +234,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   `shadow_challenge_*` (Worker allow-list on the branch, not deployed). GE only via
   `svChOn()` at every entry point. Tests `tests/shadow-challenge.mjs` (36). See
   `marketing/product/practice-partner/SHADOW_STUDIO_V2.md` § Challenge.
+  **V2.1 (branch `feature/shadow-studio-v21`, 2026-09-19, NOT merged; = Challenge
+  branch + main + polish):** transcript collapses in Challenge and returns at
+  feedback (`svTxHiddenNow()`), "Your turn" directly under the tabs, "Current
+  expression" chip (`svExprText`), "last time 6 of 8 words", desktop player
+  capped at 44 vh, safe-area bottom, events `shadow_challenge_opened` /
+  `_feedback_received`; `_completed` = a pass. 44 e2e checks. Same doc, § V2.1.
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
   `neighbour`; levels word → sentence → text → none, honestly labelled) + panel
   `#shV2` in `.sh-work` (`shV2Load` at the end of `shLoad`, `svRender`, rAF `svTick`

@@ -204,6 +204,13 @@ Shadow Studio V2: `shadow_v2_opened` (+`level` word|sentence|text|none),
 `shadow_v2_mode` and `shadow_v2_challenge_started` (+`mode`),
 `shadow_v2_sentence_shadowed` (+`level`), `shadow_apply_phrase` (+`to` ai|partner).
 
+Shadow Studio Challenge (2.1): `shadow_challenge_opened` (the tab), `shadow_challenge_started`
+(+`level` guided|recall|independent), `shadow_challenge_recorded`,
+`shadow_challenge_feedback_received` (+`level`, `result` pass|retry — one per graded take),
+`shadow_challenge_completed` (+`level` — a pass only), `shadow_challenge_retry`,
+`shadow_challenge_apply_it` (+`result` used|missed). Not deployed with the branch — deploy the
+Worker before the flag goes on, or these are dropped with 204.
+
 Prop keys added: `n`, `round`, `now`, `regular`, `state`, `level`, `mode`, `to` —
 all small enums. Nothing here carries a name, a uid, a transcript or audio.
 Read the funnel with `./query.sh funnel`-style queries on these names once

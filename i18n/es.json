@@ -1888,6 +1888,8 @@
  "pp.partners_h": "Sois compañeros de práctica",
  "pp.partners_sub": "Los dos elegisteis seguir practicando juntos.",
  "pp.partners_btn": "Practicar juntos →",
+ "sv.cur_expr": "Expresión actual",
+ "sv.ch_last_words": "la última vez {{ok}} de {{total}} palabras",
  "sv.ch_eyebrow": "A ti.",
  "sv.ch_levels": "Dificultad",
  "sv.ch_lv_guided": "Guiado",

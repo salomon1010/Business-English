@@ -1888,6 +1888,8 @@
  "pp.partners_h": "آپ مشق کے ساتھی ہیں",
  "pp.partners_sub": "آپ دونوں نے ساتھ مشق جاری رکھنے کا انتخاب کیا۔",
  "pp.partners_btn": "ساتھ مشق کریں ←",
+ "sv.cur_expr": "موجودہ اظہار",
+ "sv.ch_last_words": "پچھلی بار {{total}} میں سے {{ok}} الفاظ",
  "sv.ch_eyebrow": "آپ کی باری۔",
  "sv.ch_levels": "دشواری",
  "sv.ch_lv_guided": "رہنمائی",

@@ -76,10 +76,13 @@ const sh = await A.page.evaluate(() => { const b = [...document.querySelectorAll
 ok("SHADOW still works: 'Shadow this sentence' sets the clip marks to the line and the classic recorder is there; no Challenge panel", sh.btn && sh.start && sh.end && sh.rec && !sh.panel, JSON.stringify(sh));
 
 /* ---------- CHALLENGE starts ---------- */
+await A.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.track = (n, p) => { __ev.push([n, p || {}]); return t0 && t0(n, p); }; });
 await A.page.evaluate(() => svSetMode("challenge")); await sleep(200);
-const st = await A.page.evaluate(() => { const s = svAsset.segments[5]; const panel = document.getElementById("svCh"); return { panel: !!panel, hidden: document.getElementById("svTx").classList.contains("hidden"), blur: getComputedStyle(document.querySelector("#svTx .sv-seg")).filter, level: svCh && svCh.level, phase: svCh && svCh.phase, seg: svCh && svCh.seg, tabs: [...panel.querySelectorAll(".sv-ch-lv .seg-tab")].map(b => b.innerText.trim()), leak: panel.innerText.includes(s.text), turn: /your turn/i.test(panel.innerText), listen: !![...panel.querySelectorAll("button")].find(b => /Listen/.test(b.innerText)), rec: !!document.getElementById("svChRecBtn"), words: panel.innerText.includes(ShadowSync.tokens(s.text).length + " words") }; });
+ok("Analytics: entering the tab sends shadow_challenge_opened, then shadow_challenge_started (+level)", await A.page.evaluate(() => __ev.some(e => e[0] === "shadow_challenge_opened") && __ev.some(e => e[0] === "shadow_challenge_started" && e[1].level === "recall")), await A.page.evaluate(() => JSON.stringify(__ev)));
+const st = await A.page.evaluate(() => { const s = svAsset.segments[5]; const panel = document.getElementById("svCh"); return { panel: !!panel, hidden: document.getElementById("svTx").classList.contains("hidden"), blur: getComputedStyle(document.getElementById("svTx")).display, recTop: document.getElementById("svChRecBtn")?.getBoundingClientRect().top, panelFirst: (document.getElementById("svCh")?.compareDocumentPosition(document.getElementById("svTx")) & 4) === 4, level: svCh && svCh.level, phase: svCh && svCh.phase, seg: svCh && svCh.seg, tabs: [...panel.querySelectorAll(".sv-ch-lv .seg-tab")].map(b => b.innerText.trim()), leak: panel.innerText.includes(s.text), turn: /your turn/i.test(panel.innerText), listen: !![...panel.querySelectorAll("button")].find(b => /Listen/.test(b.innerText)), rec: !!document.getElementById("svChRecBtn"), words: panel.innerText.includes(ShadowSync.tokens(s.text).length + " words") }; });
 ok("CHALLENGE starts: panel with 'Your turn', three levels, Recall by default, the picked line as target, phase ready", st.panel && st.turn && st.tabs.join() === "Guided,Recall,Independent" && st.level === "recall" && st.phase === "ready" && st.seg === 5, JSON.stringify(st));
-ok("Transcript hidden: the list is blurred and the target sentence appears nowhere in the panel; only the word count and a Listen button", st.hidden && /blur/.test(st.blur) && !st.leak && st.words && st.listen && st.rec, JSON.stringify(st));
+ok("Transcript hidden: the list is collapsed (display none, not blurred) and the target sentence appears nowhere in the panel; only the word count and a Listen button", st.hidden && st.blur === "none" && !st.leak && st.words && st.listen && st.rec, JSON.stringify(st));
+ok("Phone: 'Your turn' sits before the transcript and the Record button is inside the first screen, no scrolling", st.panelFirst && st.recTop > 0 && st.recTop < 844 - 48, JSON.stringify({ recTop: st.recTop, panelFirst: st.panelFirst }));
 ok("Existing Reveal escape hatch still present in Challenge", !!(await A.page.$("#shV2 .sv-ctl button[onclick='svReveal()']")));
 await A.page.click("#svCh .sv-ch-lv .seg-tab:nth-child(1)"); await sleep(200);
 const gd = await A.page.evaluate(() => { const s = svAsset.segments[5]; const p = document.getElementById("svCh"); return { level: svCh.level, shown: p.innerText.includes(s.text), saved: aMap("svCh")._level }; });
@@ -100,15 +103,18 @@ await sleep(1600); await A.page.click("#svChRecBtn");
 ok("Stop → grading → feedback", await waitPhase(A.page, "feedback"), "phase=" + await phase(A.page));
 const fb1 = await A.page.evaluate(() => { const p = document.getElementById("svCh"); const s = svAsset.segments[5]; return { attempt: svCh.attempt, good: p.querySelector(".sv-ch-line.good")?.innerText, imp: p.querySelector(".sv-ch-line.imp")?.innerText, ai: p.innerText.includes("AI feedback"), heard: p.innerText.includes("You said"), target: p.innerText.includes(s.text), again: !![...p.querySelectorAll("button")].find(b => /Try again/.test(b.innerText)), replay: !![...p.querySelectorAll("button")].find(b => /Play my attempt/.test(b.innerText)), lines: p.querySelectorAll(".sv-ch-line").length, pass: svCh.fb.pass }; });
 ok("Feedback: exactly one GOOD and one IMPROVE, labelled AI, missing words named, target revealed after the attempt, Try again + replay", fb1.attempt === 1 && fb1.lines === 2 && /^GOOD/i.test(fb1.good) && /^IMPROVE/i.test(fb1.imp) && /Missing/.test(fb1.imp) && fb1.ai && fb1.heard && fb1.target && fb1.again && fb1.replay && !fb1.pass, JSON.stringify(fb1));
+const vis = await A.page.evaluate(() => ({ disp: getComputedStyle(document.getElementById("svTx")).display, pick: document.querySelector("#svTx .sv-seg.pick")?.dataset.i, reveal: !!document.querySelector("#shV2 .sv-ctl button[onclick='svReveal()']"), ev: __ev.filter(e => e[0] === "shadow_challenge_feedback_received").map(e => e[1].result), done: __ev.some(e => e[0] === "shadow_challenge_completed") }));
+ok("Feedback state: the transcript is visible again with the target line marked, no Reveal button; feedback_received{retry} sent, completed NOT sent", vis.disp !== "none" && vis.pick === "5" && !vis.reveal && vis.ev.join() === "retry" && !vis.done, JSON.stringify(vis));
 await A.page.click("#svCh .btn-primary"); await sleep(150);
-const rt = await A.page.evaluate(() => ({ phase: svCh.phase, fb: svCh.fb, attempt: svCh.attempt, state: document.querySelector("#svCh .sv-ch-state").innerText }));
-ok("Try again → ready for attempt 2, feedback cleared, attempt count kept", rt.phase === "ready" && rt.fb === null && rt.attempt === 1 && /Attempt 2/.test(rt.state), JSON.stringify(rt));
+const rt = await A.page.evaluate(() => ({ phase: svCh.phase, fb: svCh.fb, attempt: svCh.attempt, state: document.querySelector("#svCh .sv-ch-state").innerText, hidden: getComputedStyle(document.getElementById("svTx")).display === "none" }));
+ok("Try again → ready for attempt 2, feedback cleared, attempt count kept, last result shown as words ('6 of 8'), transcript hidden again", rt.phase === "ready" && rt.fb === null && rt.attempt === 1 && /Attempt 2/.test(rt.state) && /last time \d+ of \d+ words/.test(rt.state) && rt.hidden, JSON.stringify(rt));
 heard = tgtWords.join(" ");
 await record(A.page);
 ok("Full line → done", await waitPhase(A.page, "done"), "phase=" + await phase(A.page));
 const dn = await A.page.evaluate(() => { const p = document.getElementById("svCh"); const s = svAsset.segments[5]; const m = aMap("svCh")["MZAjfsyJa1U:" + s.id]; return { title: p.innerText.includes("You said it without reading"), good: p.querySelector(".sv-ch-line.good")?.innerText, next: !![...p.querySelectorAll("button")].find(b => /Next sentence/.test(b.innerText)), up: !![...p.querySelectorAll("button")].find(b => /Independent level/.test(b.innerText)), saved: m && m.done === true && m.n === 2 && m.best === 100 && m.level === "recall", use: !![...p.querySelectorAll("button")].find(b => /Use it yourself/.test(b.innerText)) }; });
 ok("Completion: success line, GOOD 'every word', Next sentence + 'Try the Independent level', per-area record {done, n:2, best:100}", dn.title && /every word/.test(dn.good) && dn.next && dn.up && dn.saved, JSON.stringify(dn));
 ok("No 'Use it yourself' when the line carries no curriculum expression", !dn.use);
+ok("Analytics: a pass sends shadow_challenge_completed (+level) exactly once, after feedback_received{pass}", await A.page.evaluate(() => __ev.filter(e => e[0] === "shadow_challenge_completed").length === 1 && __ev.filter(e => e[0] === "shadow_challenge_feedback_received").map(e => e[1].result).join() === "retry,pass"));
 await A.page.click("#svCh button:has-text('Next sentence')"); await sleep(200);
 ok("Next sentence moves the target and resets the loop", await A.page.evaluate(() => svCh.seg === 6 && svCh.phase === "ready" && svCh.attempt === 0 && svPick === 6));
 
@@ -157,9 +163,17 @@ ok("Done closes the Use-it panel; the challenge stays complete", await A.page.ev
 
 /* ---------- the existing APPLY IT tab is untouched ---------- */
 await A.page.evaluate(() => svSetMode("apply")); await sleep(200);
-ok("APPLY IT still there: expression + 'Practise with AI' (partner button only with its own flag)", (await txt(A.page, ".sv-apply")).includes("Practise with AI") && !(await txt(A.page, ".sv-apply")).includes("Use it with a partner") && !(await A.page.$("#svCh")));
+ok("APPLY IT still there: expression + 'Practise with AI' (partner button only with its own flag)", (await txt(A.page, ".sv-apply")).includes("Practise with AI") && (await txt(A.page, ".sv-apply")).includes("Use it with a partner") === await A.page.evaluate(() => flag("practice_partner_enabled")) && !(await A.page.$("#svCh")));
 await A.page.evaluate(() => svSetMode("watch")); await sleep(100);
 ok("Leaving Challenge drops its state; Watch shows the transcript again", await A.page.evaluate(() => svCh === null && !document.getElementById("svTx").classList.contains("hidden")));
+
+/* ---------- current expression chip, in every mode ---------- */
+const chip = await A.page.evaluate(() => { const phr = trackPhrases(); const first = (typeof phr[0] === "string" ? phr[0] : phr[0] && phr[0].p) || ""; const tk = ShadowSync.tokens(first.replace(/\.{3}|…/g, " ")).join(" ");
+  const i = svAsset.segments.length - 1; svAsset.segments[i].text = "so " + tk + " tomorrow"; svPick = i; svSetMode("watch"); const el = document.getElementById("svExpr");
+  const r = { first, shown: !!el && !el.hidden, text: el && el.innerText, expr: svExprText() }; svAsset.segments[i].text = "zzz"; svRender(); r.gone = document.getElementById("svExpr").hidden; r.seg0 = svExprText(); svPick = 0; svRender(); return r; });
+ok("Watch: a line that carries a curriculum expression shows the 'Current expression' chip; a line without one hides it", chip.shown && /Current expression/i.test(chip.text) && chip.expr && chip.gone, JSON.stringify(chip));
+const rtEv = await A.page.evaluate(() => __ev.some(e => e[0] === "shadow_challenge_retry"));
+ok("Analytics: Try again sends shadow_challenge_retry", rtEv);
 
 /* ---------- microphone refused ---------- */
 await M.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
@@ -174,12 +188,19 @@ const wd = await W.page.evaluate(() => { shOpenWork(); const b = document.getEle
   r.state = svCh; r.panel = !!document.getElementById("svCh"); r.level = (S.svChA && S.svChA.welding && S.svChA.welding._level) || null; r.map = JSON.stringify(S.svChA || {}); r.mr = rec.mr && rec.mr.state; return r; });
 ok("Welding, same flags: V2 panel hidden, svChOn() false, every entry point is a no-op — no state, no panel, no level saved, no recorder started; the classic Shadow recorder is unchanged", !wd.on && !wd.chOn && wd.asset === null && wd.hidden && wd.classic && wd.state === null && !wd.panel && wd.level === null && wd.mr !== "recording", JSON.stringify(wd));
 ok("Welding: the General English challenge record is not readable through the per-area map", await W.page.evaluate(() => Object.keys(aMap("svCh")).length === 0));
+const forced = await W.page.evaluate(() => { svMode = "challenge"; svAsset = ShadowSync.normalizeText("I will get back to you by the end of the day."); svPick = 0; svRender(); svChStart(); return { panel: !!document.getElementById("svCh"), state: svCh, chOn: svChOn(), html: (document.getElementById("shV2") || {}).innerHTML || "" }; });
+ok("Welding: forcing svMode/svAsset by hand still draws no Challenge panel and creates no state — the gate is svChOn(), not the tab", !forced.panel && forced.state === null && !forced.chOn && !/Your turn/i.test(forced.html), JSON.stringify({ panel: forced.panel, chOn: forced.chOn }));
 ok("General English learner's challenge record lives under its own area only", await A.page.evaluate(() => S.svChA && S.svChA["general-english"] && !S.svChA.welding));
 
 /* ---------- mobile fit, i18n parity, no JS errors ---------- */
 await A.page.evaluate(() => { svPick = 0; svSetMode("challenge"); }); await sleep(200);
 const fit = await A.page.evaluate(() => { const p = document.getElementById("svCh"); const b = document.getElementById("svChRecBtn").getBoundingClientRect(); return { over: p.scrollWidth > p.clientWidth + 1, page: document.documentElement.scrollWidth > window.innerWidth + 1, hit: b.width >= 44 && b.height >= 44 }; });
 ok("Phone width: the panel does not overflow, no horizontal page scroll, the record button is a ≥44 px target", !fit.over && !fit.page && fit.hit, JSON.stringify(fit));
+const fab = await A.page.evaluate(() => { const f = [...document.querySelectorAll("button,a")].find(e => /real person/i.test(e.innerText || "") && getComputedStyle(e).position === "fixed"); if (!f) return { none: true };
+  const r = f.getBoundingClientRect(); const work = document.querySelector(".sh-work"); const zi = +getComputedStyle(work).zIndex, zf = +getComputedStyle(f).zIndex;
+  const rec = document.getElementById("svChRecBtn").getBoundingClientRect(); const overlap = !(r.right < rec.left || r.left > rec.right || r.bottom < rec.top || r.top > rec.bottom);
+  return { none: false, coveredByWorkspace: zi > zf, hitsWorkspace: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.closest(".sh-work") !== null, overlap }; });
+ok("Practice Partner floating button: present, sits under the full-screen workspace (never over the mic or the transcript)", fab.none || (fab.coveredByWorkspace && fab.hitsWorkspace && !fab.overlap), JSON.stringify(fab));
 const parity = (() => { const h = readFileSync(new URL("../index.html", import.meta.url), "utf8"); const m = h.match(/const I18N_EN\s*=\s*\{/); const s = h.indexOf("{", m.index); let d = 0, i = s; for (; i < h.length; i++) { if (h[i] === "{") d++; else if (h[i] === "}") { d--; if (!d) break; } }
   const keys = new Set(); const re = /"([A-Za-z0-9_.\-]+)"\s*:/g; let x; const blk = h.slice(s, i + 1); while ((x = re.exec(blk))) keys.add(x[1]);
   const bad = []; for (const f of readdirSync(new URL("../i18n", import.meta.url))) { const j = JSON.parse(readFileSync(new URL("../i18n/" + f, import.meta.url), "utf8")); const jk = Object.keys(j); const miss = [...keys].filter(k => !(k in j)).length, orph = jk.filter(k => !keys.has(k)).length; if (miss || orph) bad.push(f + ":" + miss + "/" + orph); }

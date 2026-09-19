@@ -84,8 +84,11 @@ const EVENTS = new Set([
   "partner_find_started", "partner_availability_viewed", "partner_queue_left", "partner_trial_declined",
   // Shadow Studio V2 (General English only)
   "shadow_v2_opened", "shadow_v2_mode", "shadow_v2_sentence_shadowed", "shadow_v2_challenge_started", "shadow_apply_phrase",
-  // Shadow Studio Challenge (General English only): started (+level), recorded, completed (+level, result pass|retry), retry, "use it yourself" (+result used|missed)
-  "shadow_challenge_started", "shadow_challenge_recorded", "shadow_challenge_completed", "shadow_challenge_retry", "shadow_challenge_apply_it",
+  // Shadow Studio Challenge (General English only): opened (the tab), started (+level), recorded,
+  // feedback_received (+level, result pass|retry — every graded take), completed (+level — a pass),
+  // retry, "use it yourself" (+result used|missed)
+  "shadow_challenge_opened", "shadow_challenge_started", "shadow_challenge_recorded", "shadow_challenge_feedback_received",
+  "shadow_challenge_completed", "shadow_challenge_retry", "shadow_challenge_apply_it",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.

@@ -1888,6 +1888,8 @@
  "pp.partners_h": "연습 파트너가 되었어요",
  "pp.partners_sub": "두 사람 모두 함께 계속 연습하기를 선택했어요.",
  "pp.partners_btn": "함께 연습하기 →",
+ "sv.cur_expr": "현재 표현",
+ "sv.ch_last_words": "지난번 {{total}}개 중 {{ok}}개 단어",
  "sv.ch_eyebrow": "당신 차례입니다.",
  "sv.ch_levels": "난이도",
  "sv.ch_lv_guided": "가이드",

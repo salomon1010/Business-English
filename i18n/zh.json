@@ -1888,6 +1888,8 @@
  "pp.partners_h": "你们成为练习伙伴了",
  "pp.partners_sub": "你们都选择了继续一起练习。",
  "pp.partners_btn": "一起练习 →",
+ "sv.cur_expr": "当前表达",
+ "sv.ch_last_words": "上次 {{total}} 个词中说对 {{ok}} 个",
  "sv.ch_eyebrow": "轮到你了。",
  "sv.ch_levels": "难度",
  "sv.ch_lv_guided": "引导",
