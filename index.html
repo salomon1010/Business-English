@@ -238,16 +238,16 @@ window.FB_CONFIG={
    change of room — same tokens as everywhere else, re-coloured while the
    partner view is open. go() stamps data-view on <html>. */
 :root[data-view="partner"]{
-  --bg:#0b0820; --bg2:#110d2c; --card:rgba(24,19,56,.88); --card2:#221b4c;
-  --line:rgba(167,139,250,.16); --line2:rgba(167,139,250,.28);
-  --acc:#8b5cf6; --acc2:#c084fc; --pink:#e879f9;
-  --grad:linear-gradient(135deg,#7c3aed,#c084fc);
-  --nav-bg:rgba(11,8,32,.78); --bnav-bg:rgba(17,13,44,.94); --scroll:#332a5e;
-  --hover:rgba(167,139,250,.08);
-  --wash1:rgba(139,92,246,.24); --wash2:rgba(192,132,252,.10);
-  --sh-2:0 6px 20px rgba(5,2,20,.45); --sh-3:0 16px 44px rgba(5,2,20,.55);
+  --bg:#070516; --bg2:#0c0921; --card:rgba(18,14,44,.9); --card2:#1a1440;
+  --line:rgba(167,139,250,.14); --line2:rgba(167,139,250,.26);
+  --acc:#7c4ee8; --acc2:#b078f5; --pink:#d966ea;
+  --grad:linear-gradient(135deg,#6d2fd6,#a66ef0);
+  --nav-bg:rgba(7,5,22,.8); --bnav-bg:rgba(12,9,33,.95); --scroll:#2a2350;
+  --hover:rgba(167,139,250,.07);
+  --wash1:rgba(124,78,232,.22); --wash2:rgba(176,120,245,.09);
+  --sh-2:0 6px 20px rgba(3,1,14,.5); --sh-3:0 16px 44px rgba(3,1,14,.6);
   --accent:var(--acc); --focus:var(--acc2); --on-accent:#fff;
-  --accent-fill:#6d3fe0; --accent-text:#b7a3fb;
+  --accent-fill:#5f33cf; --accent-text:#ad98f7;
 }
 :root[data-theme="light"][data-view="partner"]{
   --bg:#f5f2fe; --bg2:#ffffff; --card:rgba(255,255,255,.9); --card2:#efe9fd;
@@ -266,13 +266,13 @@ window.FB_CONFIG={
 #ppBg{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 :root[data-view="partner"] #ppBg{display:block}
 :root[data-view="partner"] .view{position:relative;z-index:1}
-.pp-bg-img{position:absolute;top:-6vh;right:-18vw;width:min(118vw,720px);aspect-ratio:1;background:url("rp-photos/partner.jpg") center/cover no-repeat;opacity:.34;filter:saturate(1.05) blur(.6px);
+.pp-bg-img{position:absolute;top:-6vh;right:-18vw;width:min(118vw,720px);aspect-ratio:1;background:url("rp-photos/partner.jpg") center/cover no-repeat;opacity:.3;filter:saturate(1.02) blur(.6px);
   -webkit-mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);
   animation:ppBgDrift 26s ease-in-out infinite alternate}
-.pp-bg-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(124,58,237,.35),rgba(11,8,32,.15) 55%,rgba(192,132,252,.25));mix-blend-mode:multiply}
+.pp-bg-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(94,40,200,.45),rgba(7,5,22,.3) 55%,rgba(166,110,240,.25));mix-blend-mode:multiply}
 .pp-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
-.pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#7c3aed,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
-.pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#c084fc,transparent 70%);opacity:.38;animation:ppBgDrift 40s ease-in-out infinite alternate}
+.pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#5f2fc9,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
+.pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#9b63ea,transparent 70%);opacity:.34;animation:ppBgDrift 40s ease-in-out infinite alternate}
 .pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(167,139,250,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.07) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
 :root[data-theme="light"] .pp-bg-img{opacity:.26}:root[data-theme="light"] .pp-bg-img::after{background:linear-gradient(160deg,rgba(109,40,217,.18),rgba(255,255,255,.1) 55%,rgba(168,85,247,.16))}
