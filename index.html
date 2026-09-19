@@ -1290,15 +1290,13 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 /* The live beacon is the road map's beacon: a ring that grows and fades
    (rmRing) over a slow dashed ring (rmSpin) — the same calm motion learners
    already know from "you are here". No box-shadow throb. */
-#ppLiveDot{position:fixed;top:calc(env(safe-area-inset-top,0px) + 70px);right:12px;z-index:145;width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:#12a56a;opacity:0;transform:scale(.6);pointer-events:none;transition:opacity .25s,transform .25s;padding:0}
-#ppLiveDot.on{opacity:1;transform:none;pointer-events:auto}
-.pp-beacon,#ppLiveDot,#ppPill .pp-pill-dot,#ppCall .pp-call-dot,.pp-presence .pp-presence-dot{position:relative}
-.pp-beacon::before,.pp-beacon::after,#ppLiveDot.on::before,#ppLiveDot.on::after,#ppPill.on .pp-pill-dot::before,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::before,#ppCall.on .pp-call-dot::after,.pp-presence.some .pp-presence-dot::before,.pp-presence.some .pp-presence-dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;pointer-events:none;border:2px solid currentColor;transform-origin:center}
-#ppLiveDot.on::before,#ppLiveDot.on::after{color:#12a56a}#ppPill.on .pp-pill-dot::before,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::before,#ppCall.on .pp-call-dot::after{color:#fff}.pp-presence.some .pp-presence-dot::before,.pp-presence.some .pp-presence-dot::after{color:var(--green)}
-.pp-beacon::before,#ppLiveDot.on::before,#ppPill.on .pp-pill-dot::before,#ppCall.on .pp-call-dot::before,.pp-presence.some .pp-presence-dot::before{opacity:.9;animation:rmRing 2.2s ease-out infinite}
-.pp-beacon::after,#ppLiveDot.on::after,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::after,.pp-presence.some .pp-presence-dot::after{border-width:1.5px;border-style:dashed;opacity:.75;animation:rmSpin 9s linear infinite}
-#ppLiveDot.active::before,#ppPill.pp-pill-live .pp-pill-dot::before{animation-duration:1.4s}
-@media (prefers-reduced-motion:reduce){#ppLiveDot.on::before,#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppLiveDot.on::after,#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
+.pp-beacon,#ppPill .pp-pill-dot,#ppCall .pp-call-dot,.pp-presence .pp-presence-dot{position:relative}
+.pp-beacon::before,.pp-beacon::after,#ppPill.on .pp-pill-dot::before,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::before,#ppCall.on .pp-call-dot::after,.pp-presence.some .pp-presence-dot::before,.pp-presence.some .pp-presence-dot::after{content:"";position:absolute;inset:-5px;border-radius:50%;pointer-events:none;border:2px solid currentColor;transform-origin:center}
+#ppPill.on .pp-pill-dot::before,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::before,#ppCall.on .pp-call-dot::after{color:#fff}.pp-presence.some .pp-presence-dot::before,.pp-presence.some .pp-presence-dot::after{color:var(--green)}
+.pp-beacon::before,#ppPill.on .pp-pill-dot::before,#ppCall.on .pp-call-dot::before,.pp-presence.some .pp-presence-dot::before{opacity:.9;animation:rmRing 2.2s ease-out infinite}
+.pp-beacon::after,#ppPill.on .pp-pill-dot::after,#ppCall.on .pp-call-dot::after,.pp-presence.some .pp-presence-dot::after{border-width:1.5px;border-style:dashed;opacity:.75;animation:rmSpin 9s linear infinite}
+#ppPill.pp-pill-live .pp-pill-dot::before{animation-duration:1.4s}
+@media (prefers-reduced-motion:reduce){#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
 /* the floating "Talk to a real person" button: a 64 px circle in the Practice
@@ -5602,8 +5600,9 @@ const I18N_EN={
  "auth.reset_sent_toast":"📧 Password reset email sent",
  "auth.signout_confirm":"Sign out? Your progress stays on this device.",
  "auth.signed_out_toast":"Signed out",
- "auth.delete_confirm":"Delete your cloud account and all synced data? Your on-device progress stays unless you also reset it. This cannot be undone.",
+ "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
  "auth.deleted_toast":"Account deleted",
+ "auth.delete_partner_fail":"Could not reach the Practice Partner service to erase your partner data. Check your connection and try again — nothing was deleted.",
  "auth.reauth_toast":"For security, sign in again then delete.",
  "auth.not_setup_toast":"⚠️ Cloud sign-in isn't set up yet",
  "auth.create_title":"Create your account",
@@ -13396,6 +13395,16 @@ async function ppHeaders(){
   if(FBUser){h.authorization="Bearer "+await FBUser.getIdToken()}
   return h;
 }
+/* account deletion: reaches the Worker regardless of feature flags or area —
+   a learner who used Practice Partner during a pilot and now has the flag off
+   must still be able to erase that data. Only a network / server failure
+   throws; a Worker that is not deployed (no PARTNER_API) means no data. */
+async function ppEraseMe(){
+  if(!ppApiBase())return;
+  const h=await ppHeaders();let r;
+  try{r=await fetch(ppApiBase()+"/me",{method:"DELETE",headers:h})}catch(e){throw Object.assign(new Error("network"),{code:"network"})}
+  if(!r.ok&&r.status!==404)throw Object.assign(new Error("server"),{code:"server",status:r.status});   /* 404 = no Worker at that address = nothing held */
+}
 async function ppApi(method,path,body){
   if(!ppAvailable())throw Object.assign(new Error("off"),{code:"off"});
   const h=await ppHeaders();let b=body;
@@ -14189,13 +14198,11 @@ function ppPillSync(){
 }
 /* ---- the live dot: a small green pulse at the top right, on every page,
    only while a live call is connected / connecting; tap = back to the call ---- */
-function ppLiveDotSync(){
-  let el=document.getElementById("ppLiveDot");
-  const on=ppLive&&!ppLive.ended&&["accepted","connecting","active","reconnecting"].includes(ppLive.status);
-  if(!on){if(el)el.classList.remove("on");return}
-  if(!el){el=document.createElement("button");el.id="ppLiveDot";el.type="button";el.setAttribute("aria-label","Live practice");el.onclick=()=>go("partner");document.body.appendChild(el)}
-  el.classList.toggle("active",ppLive.status==="active");el.classList.add("on");
-}
+/* The green "live" dot is gone (owner, 2026-09-19). It was meant to float
+   top-right, but a later position:relative rule dropped it into the flow at the
+   bottom-left corner of every page. #ppPill already brings the learner back to
+   a live call from any other page. Kept as a no-op for its callers. */
+function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.remove()}
 /* ---- the floating "Find a practice partner" button: one tap into partner
    discovery from anywhere in the app; hidden where it would be noise ---- */
 function ppFabSync(){
@@ -17948,6 +17955,16 @@ window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
   if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm"),confirmLabel:t("cf.delete")}))return;
   try{
+    /* Practice Partner data lives in its own Worker (D1 + R2). It must go with the
+       account (Apple 5.1.1(v), Google Play account deletion), and it needs the
+       Firebase token, so it goes FIRST. Only a learner who actually used the
+       feature is sent there; if that erase fails we stop, rather than delete the
+       account and leave partner data behind. */
+    if(typeof ppState==="function"&&(ppState().consent||(ppState().lastMe&&ppState().lastMe.consented))){
+      try{await ppEraseMe()}
+      catch(e){toast(t("auth.delete_partner_fail"));return}
+      try{S.pp={};save()}catch(e){}
+    }
     await FBdb.collection("users").doc(FBUser.uid).delete();
     await FBUser.delete();
     fbWipeDevice();                 // deleting the account must not leave its data on the device
