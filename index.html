@@ -2869,10 +2869,11 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   .psp,.coach-card,.coach-week,.coach-narrative,.pcal,.pf-stats,.pf-setup,
   .sim-stage,.sim-live,.adaptive-roadmap,.adaptive-growth,.adaptive-heat,
   .pg-growth,.career-center{max-width:none;margin-left:0;margin-right:0}
-  /* .hero is a two-column grid, and Home now puts a single track card in it —
-     the other track, the one you are not on. Alone it stopped two-thirds short
-     of everything below it. */
-  .hero > .track-entry:only-child{grid-column:1/-1}
+  /* .hero is a two-column grid from when Home showed a ring beside today's
+     card. Every .hero on Home now holds ONE child — today's card, or the one
+     track you are not on — and alone it stopped 60% of the way across, a
+     different right edge from every card under it. Any lone child spans. */
+  .hero > :only-child{grid-column:1/-1}
 }
 .sync-nudge .nudge-ic svg{width:24px;height:24px}
 /* BOTTOM NAV (mobile app style) */
