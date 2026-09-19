@@ -84,7 +84,49 @@
       return Object.assign({}, seg, { words });
     });
     const anyEst = segs.some(s => s.words && s.words.length && s.words[0].estimated);
-    return { segments: segs, level: segs.some(s => s.words && s.words.length) ? "word" : asset.level, estimated: anyEst || !!asset.estimated };
+    return Object.assign({}, asset, { segments: segs, level: segs.some(s => s.words && s.words.length) ? "word" : asset.level, estimated: anyEst || !!asset.estimated });
+  }
+
+  /* A transcript the learner pasted, with timing worked out:
+       1. YouTube's "Show transcript" panel copies with timestamps — "0:04" on
+          its own line or at the start of one, "[00:04]", "1:02:03". Two or more
+          make real cue timing (each cue ends where the next starts; the last
+          runs to the video's end or TAIL_MS). Level "sentence", source
+          "stamps".
+       2. No timestamps: the sentences are spread over the clip's length by
+          letter count. Honest but rough — level "sentence", source "spread",
+          `estimated` true — and needs durationS; without it → normalizeText.
+     Either way estimateWords() then gives per-word times, so a pasted clip
+     lights up exactly like a library one. The plain text (stamps stripped) is
+     returned as `text` for the notes box and the recorder. */
+  const STAMP = /^[\[(]?((?:\d{1,2}:)?\d{1,2}:\d{2})[\])]?(?=\s|$)/;
+  function stampToS(x) { const p = x.split(":").map(Number); return p.length === 3 ? p[0] * 3600 + p[1] * 60 + p[2] : p[0] * 60 + p[1]; }
+  function normalizePasted(raw, opts) {
+    const o = opts || {}, startS = Math.max(0, Number(o.startS) || 0), durationS = Number(o.durationS) > 0 ? Number(o.durationS) : 0;
+    /* every timestamp starts a line, wherever it was pasted */
+    const lines = String(raw || "").replace(/\r/g, "").replace(/(^|\s)([\[(]?(?:\d{1,2}:)?\d{1,2}:\d{2}[\])]?)(?=\s|$)/g, "$1\n$2").split("\n");
+    const cues = []; let cur = null, stamps = 0;
+    for (const ln of lines) {
+      const t = ln.trim(); if (!t) continue;
+      const m = t.match(STAMP);
+      if (m) { stamps++; cur = { t: stampToS(m[1]), txt: t.slice(m[0].length).trim() }; cues.push(cur); }
+      else if (cur) cur.txt = (cur.txt ? cur.txt + " " : "") + t;
+      else cues.push({ t: -1, txt: t });
+    }
+    const text = stamps >= 2 ? cues.map(c => c.txt).filter(Boolean).join("\n") : String(raw || "").replace(/\r/g, "").trim();   // one lone "12:30" in prose is prose
+    if (stamps >= 2 && cues.filter(c => c.t >= 0 && c.txt).length >= 2) {
+      const timed = cues.filter(c => c.t >= 0 && c.txt);
+      const cap = { cues: timed.map(c => ({ t: c.t, txt: c.txt })) };
+      const a = normalizeCaptions(cap, startS, durationS ? startS + durationS : 0);
+      return Object.assign(a, { source: "stamps", text });
+    }
+    const sents = splitSentences(text);
+    if (!sents.length) return { segments: [], level: "none", text };
+    if (!durationS) return Object.assign(normalizeText(text), { text });
+    const weights = sents.map(t => Math.max(1, t.replace(/[^\p{L}\p{N}]/gu, "").length) + 6);
+    const total = weights.reduce((x, y) => x + y, 0); let at = startS * 1000;
+    const segs = sents.map((t, i) => { const startMs = Math.round(at); at += durationS * 1000 * weights[i] / total; return { id: "p" + i, text: t, startMs, endMs: Math.max(startMs + MIN_SEG_MS, Math.round(at)) }; });
+    return { segments: segs, level: "sentence", estimated: true, source: "spread", text };
   }
 
   /* A transcript the learner typed or pasted: sentences, no timing. */
@@ -239,7 +281,7 @@
     return { coverage: +coverage.toFixed(2), ok: okN, total: tgt.length, missing, wrong, misplaced, swapped, extra, fillers, pauses, durS, pace, weak, strong, pass, good, improve };
   }
 
-  const api = { normalizeCaptions, normalizeText, estimateWords, locate, neighbour, levelOf, splitSentences, tokens, align, findExpression, usedExpression, challenge, FILLERS, PASS };
+  const api = { normalizeCaptions, normalizeText, normalizePasted, estimateWords, locate, neighbour, levelOf, splitSentences, tokens, align, findExpression, usedExpression, challenge, FILLERS, PASS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.ShadowSync = api;
 })(typeof window !== "undefined" ? window : globalThis);

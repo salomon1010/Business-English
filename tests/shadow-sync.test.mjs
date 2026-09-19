@@ -31,6 +31,21 @@ ok("cues without words → sentence level", sentenceOnly.level === "sentence" &&
   ok("estimateWords: longer words get more time", (() => { const a = ShadowSync.estimateWords({ level: "sentence", segments: [{ id: "s", text: "I understand", startMs: 0, endMs: 1300 }] }).segments[0].words; return a[1].endMs - a[1].startMs > a[0].endMs - a[0].startMs; })());
   ok("estimateWords: an asset that already has word times is returned untouched (not estimated)", (() => { const src = ShadowSync.normalizeCaptions({ cues: [{ t: 0, txt: "a b" }], words: [{ t: 0, w: "a" }, { t: 0.5, w: "b" }] }); const r = ShadowSync.estimateWords(src); return r.level === "word" && !r.estimated && r.segments[0].words[1].startMs === 500 && !r.segments[0].words[0].estimated; })());
   ok("estimateWords: locate() lights the estimated word for a time inside the cue", (() => { const l = ShadowSync.locate(est, seg.startMs + Math.round((seg.endMs - seg.startMs) * 0.9)); return l.seg === 0 && l.word === w.length - 1; })()); }
+/* normalizePasted: the learner's own transcript, timed */
+{ const yt = "0:00\nToday I want to tell you three stories.\n0:04\nThat's it. No big deal.\n0:07\nJust three stories.";
+  const a = S.normalizePasted(yt, { durationS: 600 });
+  ok("normalizePasted: YouTube's transcript panel (stamp on its own line) → sentence cues at the stamps, source 'stamps', plain text without stamps", a.level === "sentence" && a.source === "stamps" && a.segments.length === 3 && a.segments[1].startMs === 4000 && a.segments[1].endMs === 7000 && a.segments[0].text === "Today I want to tell you three stories." && !/0:0/.test(a.text) && a.text.split("\n").length === 3, JSON.stringify(a.segments.map(x => [x.startMs, x.endMs])));
+  const b = S.normalizePasted("[00:10] Hello there. (00:14) How are you? 1:02:03 Late.");
+  ok("normalizePasted: stamps inline, bracketed, and h:mm:ss all count", b.source === "stamps" && b.segments.map(x => x.startMs).join() === "10000,14000,3723000" && b.segments[2].text === "Late.", JSON.stringify(b.segments));
+  const c = S.normalizePasted("One short sentence. And a much longer second sentence that carries on for a while.", { durationS: 20 });
+  ok("normalizePasted: no stamps + a duration → sentences spread over the length by letter count, source 'spread', estimated", c.level === "sentence" && c.source === "spread" && c.estimated === true && c.segments[0].startMs === 0 && c.segments[1].endMs === 20000 && c.segments[1].endMs - c.segments[1].startMs > c.segments[0].endMs - c.segments[0].startMs, JSON.stringify(c.segments.map(x => [x.startMs, x.endMs])));
+  const d = S.normalizePasted("No duration here. Two sentences.");
+  ok("normalizePasted: no stamps and no duration → plain text level (nothing invented), text kept", d.level === "text" && d.segments.length === 2 && d.text === "No duration here. Two sentences.");
+  const e = S.normalizePasted("Plain 12:30 meeting talk with no real stamps.");
+  ok("normalizePasted: one lone time in prose stays prose", e.level === "text" && e.text.includes("12:30"));
+  const f = S.estimateWords(a);
+  ok("normalizePasted → estimateWords keeps source and text, gives word level", f.source === "stamps" && f.level === "word" && f.estimated && f.text === a.text && f.segments[1].words[0].startMs === 4000);
+  ok("normalizePasted: empty → none", S.normalizePasted("").level === "none"); }
 const mixed = S.normalizeCaptions({ cues: cap.cues, words: cap.words.filter(w => w.t < 13.5) }, 0, 0);
 ok("per-segment fallback: word-level asset with a wordless segment", mixed.level === "word" && mixed.segments[0].words && !mixed.segments[1].words);
 const txt = S.normalizeText("Hello there. How are you doing today? Fine, thanks!  ");

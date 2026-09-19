@@ -65,7 +65,7 @@
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=80"></script>
-<script src="shadow-sync.js?v=4"></script>
+<script src="shadow-sync.js?v=5"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
 <script src="professional-skills-passport.js?v=83"></script>
@@ -672,6 +672,8 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .pcal-legend i[data-lvl="4"]{background:rgba(52,211,153,.88)}
 /* Shadowing workspace — focused full-screen practice window */
 .sh-work{position:fixed;top:0;left:0;right:0;bottom:0;z-index:130;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
+.sh-paste{width:100%;margin-top:10px;min-height:64px;font-size:14px}
+.sh-paste-hint{font-size:12px;color:var(--mut);margin:6px 0 0;line-height:1.5}
 .sh-hint{display:flex;gap:9px;align-items:flex-start;margin-top:10px;padding:10px 14px;background:linear-gradient(150deg,rgba(99,102,241,.11),rgba(34,211,238,.07));border:1px solid rgba(99,102,241,.3);border-radius:11px;font-size:13px;line-height:1.5;color:var(--mut)}
 .sh-hint b{color:var(--txt)}
 .sh-hint .sh-hint-ic{flex:none;color:var(--acc);display:inline-flex;line-height:0;margin-top:1px}
@@ -5315,6 +5317,10 @@ const I18N_EN={
  "sh.eyebrow":"Shadowing Studio",
  "sh.title":"Cut a clip. <em>Loop it. Shadow it.</em>",
  "sh.sub":"Choose the voice you wish you had — paste any YouTube clip, mark 20–30 seconds, and shadow it until their fluency quietly becomes yours.",
+ "sh.paste_ph":"Transcript (optional) — paste the video's transcript here. YouTube: ⋯ under the video → Show transcript → select all → copy. Timestamps are welcome.",
+ "sh.paste_hint":"With a transcript, this clip works exactly like the built-in ones: the words light up as they are spoken, and Watch, Shadow and Challenge all work.",
+ "sv.level_stamps":"Timing from your transcript's timestamps; the word highlighting inside each line is estimated.",
+ "sv.level_spread":"Timing estimated from the video's length — for a closer match, paste YouTube's transcript with its timestamps.",
  "sh.url_ph":"Paste a YouTube link, e.g. https://www.youtube.com/watch?v=…",
  "sh.more_starters":"Show {{n}} more clips",
  "sh.video_error_title":"This clip will not play",
@@ -7928,10 +7934,10 @@ ${(()=>{
   })()}
   ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
   <div class="card" style="margin-bottom:16px;${_shTab==='create'&&!isProfessionalJourney()?'':'display:none'}">
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="flex:1;min-width:240px" onkeydown="if(event.key==='Enter')shLoadFromInput()">
-      <button class="btn btn-g btn-sm" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
-    </div>
+    <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="width:100%" onkeydown="if(event.key==='Enter')shLoadFromInput()">
+    <textarea id="shPaste" class="grow-ta sh-paste" rows="3" placeholder="${esc(t("sh.paste_ph"))}" oninput="taGrow(this)"></textarea>
+    <p class="sh-paste-hint">${tInl("sh.paste_hint","doc")}</p>
+    <button class="btn-primary" style="margin-top:10px" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
     ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
@@ -8010,7 +8016,7 @@ ${(()=>{
       <div class="card">
         <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
-        <textarea rows="4" id="shNote" class="grow-ta" placeholder="${esc(t("sh.transcript_ph"))}" oninput="taGrow(this)" onpaste="setTimeout(()=>shCleanPaste(this),0)"></textarea>
+        <textarea rows="4" id="shNote" class="grow-ta" placeholder="${esc(t("sh.transcript_ph"))}" oninput="taGrow(this)" onchange="shNoteChanged()" onpaste="setTimeout(()=>shCleanPaste(this),0)"></textarea>
         <p class="sh-cap-hint" id="shCapHint"></p>
         <p class="sh-edit-note">${tIc("sh.transcript_editable","pencil")}</p>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
@@ -8135,8 +8141,15 @@ window.shLoadFromInput=()=>{
   const u=document.getElementById("shUrl").value;
   const id=ytId(u);
   if(!id)return toast(t("sh.bad_link_toast"));
+  /* the optional transcript travels with the video: kept raw (timestamps and
+     all) per video id, so the sync can use YouTube's stamps, and it survives
+     a reload and "Continue your last clip" */
+  const pb=document.getElementById("shPaste"),raw=pb?pb.value.trim():"";
+  if(raw){S.shTx=S.shTx||{};S.shTx[id]=raw;delete S.notes["sh:"+id];save();pb.value="";taGrow(pb)}
   shLoad({vid:id,start:0,end:0,title:u});
 };
+/* the pasted transcript for a video, raw; "" when there is none */
+function shPasted(vid){return (S.shTx&&S.shTx[vid])||""}
 async function shLoad(c,quiet){
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
   /* remember the last clip so a page refresh restores the player, transcript and recordings */
@@ -8149,7 +8162,7 @@ async function shLoad(c,quiet){
   /* library clips ship a human-marked transcript (correct lexical stress);
      load it as-is. A saved user edit always wins. Arbitrary pasted clips have
      no txt — the ✨ Mark stress button gives them best-effort algorithmic marks. */
-  const _nb=document.getElementById("shNote");_nb.value=S.notes["sh:"+shClip.vid]||c.txt||"";taGrow(_nb);
+  const _nb=document.getElementById("shNote");_nb.value=S.notes["sh:"+shClip.vid]||c.txt||(shPasted(shClip.vid)?ShadowSync.normalizePasted(shPasted(shClip.vid)).text:"")||"";taGrow(_nb);
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
   await loadYT();
@@ -8159,7 +8172,8 @@ async function shLoad(c,quiet){
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
     events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
-      if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick()},
+      if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick();
+      if(svAsset&&(svAsset.level==="text"||svAsset.level==="none"))shV2Load();   /* a pasted transcript spread over the length needs the duration, known only now */},
       /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or
          player failure. Without this the user got YouTube's own grey box inside
          the frame while every control stayed live against a dead player. */
@@ -8485,8 +8499,14 @@ function shCapHelp(){
     <a href="https://www.youtube.com/watch?v=${encodeURIComponent(shClip.vid||"")}" target="_blank" rel="noopener">${esc(t("sh.captions_open_yt"))}</a>`;
 }
 /* Strip the timestamps YouTube's transcript panel includes when copied. */
+/* the notes box was edited: the V2 transcript follows it (only when no
+   caption file or kept paste already times this clip) */
+window.shNoteChanged=()=>{if(shClip.vid&&!shPasted(shClip.vid)&&svAsset&&(!svAsset.source||svAsset.source==="spread"))shV2Load()};
 window.shCleanPaste=el=>{
   const raw=el.value;
+  /* pasted with YouTube's timestamps: keep the raw copy with the video so the
+     sync can use the stamps; the box itself shows the clean text */
+  if(shClip.vid&&(raw.match(/(^|\s)[\[(]?(?:\d{1,2}:)?\d{1,2}:\d{2}[\])]?(?=\s|$)/g)||[]).length>=2){S.shTx=S.shTx||{};S.shTx[shClip.vid]=raw.trim();save();setTimeout(shV2Load,0)}
   const cleaned=raw.replace(/^\s*\d{1,2}:\d{2}(?::\d{2})?\s*/gm,"").replace(/\n{2,}/g,"\n").replace(/[ \t]+/g," ").trim();
   if(cleaned!==raw.trim()){el.value=cleaned;taGrow(el);}
 };
@@ -13445,8 +13465,13 @@ async function shV2Load(){
     else if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);   // marked estimated; the note says so
   }
   if(!asset||asset.level==="none"){
-    const txt=(document.getElementById("shNote")||{}).value||"";
-    asset=ShadowSync.normalizeText(txt);
+    /* no captions: the learner's transcript — the paste kept with the video
+       (timestamps if YouTube's panel was copied) or the notes box — timed
+       from its stamps, else spread over the video's length once known */
+    const raw=shPasted(vid)||(document.getElementById("shNote")||{}).value||"";
+    let dur=0;try{dur=ytPlayer&&ytPlayer.getDuration?ytPlayer.getDuration():0}catch(e){}
+    asset=ShadowSync.normalizePasted(raw,{startS:0,durationS:dur});
+    if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);
   }
   svAsset=asset;svLast={seg:-1,word:-1};svRepeat=null;svPick=-1;svRevealed=false;svChReset();
   svRender();
@@ -13465,7 +13490,7 @@ function svRender(){
   const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`).join("");
-  const levelNote=a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  const levelNote=a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
   /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
      collapsed while the learner is meant to produce from memory (ready /
      recording / grading at recall or independent, recording at guided) and
