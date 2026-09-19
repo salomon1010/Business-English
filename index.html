@@ -4799,7 +4799,7 @@ const I18N_EN={
  "pp.band_w9-12":"Weeks 9–12",
  "pp.waiting_h":"You're on the waiting list — looking for your partner…",
  "pp.waiting_count":"{{n}} other learner(s) are waiting too — tap Show me candidates and start.",
- "pp.waiting_alone":"You are first in line for your band. The next learner who asks is paired with you.",
+ "pp.waiting_alone":"Nobody else is online right now. The moment someone is, you will see them here — and anyone who asks is paired with you.",
  "pp.waiting_sub":"You can close the app. Your Home screen will tell you when a learner tries a practice with you.",
  "pp.withdraw":"Stop looking",
  "pp.refresh":"Check again",
@@ -4857,13 +4857,15 @@ const I18N_EN={
  "pp.avail_h":"{{n}} learner(s) available to practise with you",
  "pp.avail_sub":"Someone just joined the waiting list. See who, and send a practice request.",
  "pp.presence_online":"{{n}} learner(s) online",
- "pp.presence_waiting":"{{n}} waiting to practise",
+ "pp.presence_waiting":"{{n}} ready to practise",
  "pp.presence_none":"No one online right now — you'll be told when someone arrives",
  "pp.cands_toast":"{{n}} learner(s) waiting — pick one",
  "pp.fab":"Talk to a real person",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
+ "pp.why_online":"online right now",
+ "pp.band_unknown":"Level not set yet",
  "pp.tinv_live_h":"{{name}} wants to practise live with you",
  "pp.tinv_live_sub":"A short voice call on today's task. Nothing is recorded — and either of you can leave at any time.",
  "pp.tinv_live_accept":"Accept & talk",
@@ -13604,7 +13606,7 @@ function ppRender(el){
     <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
   </section>`);
 }
-const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar",in_line:"pp.why_line"};
+const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar",in_line:"pp.why_line",online_now:"pp.why_online"};
 function ppReasonText(r){
   if(PP_REASON_KEY[r])return t(PP_REASON_KEY[r]);
   if(r.startsWith("goal:"))return t("pp.why_goal",{goal:t("pp.goal_"+r.slice(5))});
@@ -13620,7 +13622,7 @@ function ppCandidatesHTML(cards){
   return `<section class="card"><div class="eyebrow">${t("pp.cands_eyebrow")}</div><b style="font-size:16px;display:block;margin:4px 0 4px">${t("pp.cands_h")}</b><p class="sub">${t("pp.cands_sub")}</p></section>
   ${cards.map(c=>`<section class="card pp-cand">
     <div class="pp-head-row"><span class="pp-avatar">${esc(c.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${esc(c.name)}</b><small>${t("pp.band_"+c.band)}${c.goals&&c.goals.length?" · "+c.goals.map(g=>t("pp.goal_"+g)).join(", "):""}${c.availability==="now"?" · "+t("pp.why_now"):""}</small></div></div>
+      <div class="pp-head-t"><b>${esc(c.name)}</b><small>${c.band?t("pp.band_"+c.band):t("pp.band_unknown")}${c.goals&&c.goals.length?" · "+c.goals.map(g=>t("pp.goal_"+g)).join(", "):""}${c.availability==="now"?" · "+t("pp.why_now"):""}</small></div></div>
     ${c.topic?`<p class="pp-cand-topic">${ic("book")} ${esc(c.topic)}</p>`:""}
     <p class="pp-why">${ic("check")} ${t("pp.why_label")} ${esc(c.reasons.map(ppReasonText).filter(Boolean).join(" + ")||t("pp.why_similar"))}</p>
     ${ppLiveOn()?`<div class="pp-row"><button class="btn-primary" onclick="ppInvite('${esc(c.offer)}',true)">${ic("mic")} ${t("pp.live_btn")}</button><button class="btn btn-g" onclick="ppInvite('${esc(c.offer)}')">${t("pp.try_btn")}</button></div>`:`<button class="btn-primary" onclick="ppInvite('${esc(c.offer)}')">${t("pp.try_btn")}</button>`}
@@ -14542,7 +14544,7 @@ window.ppConsent=async btn=>{
   if(same&&!g){toast(t("pp.same_needs_gender"));return}
   btn.disabled=true;
   try{
-    ppMe=await ppApi("POST","/consent",{name:ppFirstName(),lang:(S.profile&&S.profile.lang)||"en",adult:true,gender:g||null,sameGender:same,goals,mode,avail,tz:-Math.round(new Date().getTimezoneOffset()/60)});
+    ppMe=await ppApi("POST","/consent",{track:"general-english",name:ppFirstName(),lang:(S.profile&&S.profile.lang)||"en",adult:true,gender:g||null,sameGender:same,goals,mode,avail,tz:-Math.round(new Date().getTimezoneOffset()/60)});
     const st=ppState();st.consent=true;st.gender=g;st.sameGender=same;st.lastMe=ppMe;save();
     try{track("partner_profile_completed",{})}catch(e){}
     ov.remove();toast(t("pp.consent_done"));
@@ -14664,13 +14666,17 @@ window.pathToolGo=(id)=>{
   if(id==="vocab")setTimeout(()=>{try{libGroup("vocabulary");const kb=document.querySelector(".prac-kb");if(kb)kb.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}},80);
 };
 window.pathGoNext=()=>{const s=pathSummary();if(s.next)go(...s.next.go);else go("journey")};
+/* The conversation row is drawn only on the days it is the pick (Thu, and Sat
+   on Welding): the Life Simulations card lower on the page already opens the
+   same scenario, and on other days the row was a duplicate three cards apart
+   (owner, 2026-09-19). The list itself keeps it so pathToolGo still resolves. */
 function pathToolsHTML(){
   const pick=pathToolPick(),s=pathSummary();
   return `<section class="card path-tools" aria-label="${esc(t("tools.eyebrow"))}">
     <div class="eyebrow">${t("tools.eyebrow")}</div>
     <h2>${s.next?esc(s.next.label):t("path.all_done")}</h2>
     <p class="sub">${esc(pick.why)}</p>
-    <div class="path-tool-list">${pathTools().map(x=>`<button class="path-tool ${x.id===pick.id?"rec":""} ${x.locked?"locked":""}" onclick="pathToolGo('${x.id}')" ${x.locked?'aria-disabled="true"':""}>
+    <div class="path-tool-list">${pathTools().filter(x=>x.id!=="sim"||x.id===pick.id).map(x=>`<button class="path-tool ${x.id===pick.id?"rec":""} ${x.locked?"locked":""}" onclick="pathToolGo('${x.id}')" ${x.locked?'aria-disabled="true"':""}>
       <span class="pt-ic">${ic(x.locked?"lock":x.ic)}</span>
       <span class="pt-t"><b>${t("tools."+x.id)}</b><small>${t("tools."+x.id+"_sub")}</small></span>
       ${x.id===pick.id?`<span class="chip done">${t("tools.rec")}</span>`:(x.locked?`<span class="chip">${t("tools.locked")}</span>`:"")}
