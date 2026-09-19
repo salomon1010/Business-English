@@ -18,8 +18,10 @@
         SDK) and calls Identity Toolkit accounts:sendOobCode with
         returnOobLink:true. Firebase then RETURNS the link and does NOT send
         its own email.
-     3. The Worker sends the branded HTML + text email through the Email
-        Service binding, from noreply@lomonec.com.
+     3. The Worker sends the branded HTML + text email through Brevo's
+        transactional API, from noreply@lomonec.com. (Cloudflare Email
+        Service needs the Workers Paid plan; Brevo already has lomonec.com
+        authenticated — DKIM + DMARC — and a free tier.)
 
    WHAT IT NEVER TELLS THE CALLER
    ------------------------------
@@ -28,7 +30,7 @@
    (bad config, provider down) return 5xx, so the app can fall back to
    Firebase's own email and the learner still gets one.
 
-   SECRETS: FB_SA_JSON — the service-account key JSON (see README.md).
+   SECRETS: FB_SA_JSON — the service-account key JSON; BREVO_API_KEY (see README.md).
    ============================================================================ */
 
 const ALLOWED_ORIGINS = [
@@ -273,13 +275,21 @@ async function reset(req, env, origin){
 
   const c = COPY[lang] || COPY.en;
   const { html, text } = render(c, link, env);
-  const res = await env.EMAIL.send({
-    from: { email: env.FROM_EMAIL, name: env.FROM_NAME },
-    to: email,
-    replyTo: env.REPLY_TO,
-    subject: c.subject,
-    html, text,
+  const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: { "api-key": env.BREVO_API_KEY, "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify({
+      sender: { email: env.FROM_EMAIL, name: env.FROM_NAME },
+      to: [{ email }],
+      replyTo: { email: env.REPLY_TO },
+      subject: c.subject,
+      htmlContent: html,
+      textContent: text,
+      tags: ["password-reset"],
+    }),
   });
+  const res = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error("brevo " + r.status + " " + (res.code || "") + " " + (res.message || ""));
   console.log("reset: sent", lang, (res && res.messageId) || "");
   return json({ ok: true }, 200, origin);
 }
@@ -295,7 +305,7 @@ export default {
       if (url.pathname === "/reset") return await reset(req, env, origin);
       return json({ error: "not found" }, 404, origin);
     } catch (e) {
-      console.log("mail error", (e && e.code) || "", e && e.message);
+      console.log("mail error", e && e.message);
       return json({ error: "mail" }, 502, origin);   // app falls back to Firebase's email
     }
   },
