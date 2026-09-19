@@ -50,3 +50,6 @@ tests/node_modules/
 # Local wrangler state (dev D1 sqlite, logs) — never source, never served
 .wrangler/
 tests/node_modules
+
+# local Worker secrets for tests (a throwaway VAPID key) — never commit
+backend/push/.dev.vars

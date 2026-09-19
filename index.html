@@ -350,6 +350,14 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 :root[data-theme="light"] .nav-badge{color:#fff}
 .tab .nav-badge{top:2px;right:6px}
 .bnav-item .nav-badge{top:3px;left:50%;margin-left:4px;box-shadow:0 0 0 2px var(--bnav-bg)}
+/* learners online right now: the same badge, green, so the tab itself says
+   "someone is there" before the page is opened (owner, 2026-09-19) */
+.nav-badge.online{background:#12a56a;color:#fff}
+.pp-online-pill{position:absolute;top:10px;right:12px;display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,#12a56a 18%,transparent);color:#34d399;font-size:11.5px;font-weight:800;letter-spacing:.2px;white-space:nowrap}
+.pp-online-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:#12a56a;box-shadow:0 0 0 3px color-mix(in srgb,#12a56a 25%,transparent)}
+.pp-entry{position:relative}.pp-entry .rp-entry-go{margin-top:8px}
+.toast.pp-online{cursor:pointer;border-color:#12a56a}
+.pp-online-nudge{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:0 0 10px}.pp-online-nudge .btn{flex:none}
 @keyframes badge-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .tab-ic{display:inline-flex;line-height:0}
 .tab-ic svg{width:17px;height:17px}
@@ -3933,7 +3941,7 @@ function areaSplit(){
   Object.keys(at).forEach(id=>(at[id]||[]).forEach(r=>{if(r&&!r.tk)r.tk=a}));
   S.areaSplit=1;save();
 }
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200)}
+function toast(m,ms){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),ms||2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
 function jarg(s){return esc(JSON.stringify(s))}
@@ -4899,6 +4907,10 @@ const I18N_EN={
  "pp.fab":"Talk to a real person",
  "pp.fab_small":"Practise with real person",
  "pp.fab_online":"{{n}} online",
+ "pp.online_line":"{{n}} online · {{w}} in line","pp.online_toast":"{{n}} online now — tap to practise together","pp.online_toast_one":"1 learner online now — tap to practise together",
+ "pp.online_push_title":"Learners online now","pp.online_push_body":"{{n}} online — a short practice is one tap away.",
+ "pp.online_nudge":"Get told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
+ "rem.online_switch":"Tell me when learners are online","rem.online_sub":"A notification when someone is online to practise with — at most every few hours, never at night.",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -9412,6 +9424,8 @@ async function remCacheText(){
     const body={
       title:t("rem.title"),
       body:rmNotifBody(),
+      pushId:pushId(),
+      online:{title:t("pp.online_push_title"),body:t("pp.online_push_body",{n:"{{n}}"})},
       image:png?REM_MAP_KEY:null,
       lang:html.getAttribute("lang")||"en",
       dir:html.getAttribute("dir")||"auto",
@@ -9423,9 +9437,16 @@ async function remCacheText(){
 /* A tap on the notification while the app is open: sw.js focuses this window
    and asks it to show the road map, instead of reloading it on a new URL. */
 if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
+/* Online alerts ride the same subscription as the daily reminder: the Worker
+   keeps a "pres:" entry for a phone that wants them and wakes it (at most
+   every 4 h, never at night) when the partner Worker reports someone online.
+   Default on — the switch lives under the reminder in Settings. */
+function ppAlertsOn(){return S.ppAlerts!==false}
+window.ppAlertsToggle=on=>{S.ppAlerts=!!on;save();if(on){try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission().then(()=>pushSync())}catch(e){}}pushSync()};
 async function pushSync(){
   const c=remCfg();
-  if(!c.on)return pushOff();
+  const wantPres=ppAvailable()&&ppAlertsOn();
+  if(!c.on&&!wantPres)return pushOff();
   if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
   if(!window.Notification||Notification.permission!=="granted")return;
   try{
@@ -9441,7 +9462,7 @@ async function pushSync(){
     const j=sub.toJSON();
     await fetch(PUSH_API+"/subscribe",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:pushId(),slot:pushSlot(c.time),endpoint:j.endpoint}),
+      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,endpoint:j.endpoint,presence:wantPres,tz:-new Date().getTimezoneOffset()}),
     });
   }catch(e){}                              // offline, blocked, unsupported — silent
 }
@@ -9535,13 +9556,18 @@ function navBadgeCount(view){
 }
 function navBadges(){
   ["practice"].forEach(v=>{
-    const n=navBadgeCount(v);
+    /* a partner's reply first (it is waiting for you), then learners online
+       (green), then words due */
+    let unread=0;try{unread=ppUnread()}catch(e){}
+    const on=unread>0?0:((typeof ppOnlineCount==="function")?ppOnlineCount():0);
+    const n=on>0?on:navBadgeCount(v);
     document.querySelectorAll('[data-v="'+v+'"]').forEach(el=>{
       let b=el.querySelector(".nav-badge");
       if(n>0){
         if(!b){b=document.createElement("span");b.className="nav-badge";el.appendChild(b)}
         b.textContent=n>9?"9+":String(n);
-        b.setAttribute("aria-label",t("nav.badge_aria",{n}));
+        b.classList.toggle("online",on>0);
+        b.setAttribute("aria-label",on>0?t("pp.fab_online",{n:on}):t("nav.badge_aria",{n}));
       }else if(b)b.remove();
     });
   });
@@ -10892,6 +10918,7 @@ function rPractice(el){
     <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
     <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small><span class="pp-how-link" role="button" tabindex="0" onclick="event.stopPropagation();ppHowSheet()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();ppHowSheet()}">${ic("info")} ${t("pp.how_btn")}</span></span>
     <span class="rp-entry-go">→</span>
+    <span class="pp-online-pill" id="ppEntryOnline" style="display:none"></span>
   </button>`:""}
   <button class="card rp-entry ${isProfessionalJourney()?"workplace-simulation-entry":""}" onclick="go('${isProfessionalJourney()?"simulation":"roleplay"}')">
     <span class="rp-entry-ic"><img src="${isProfessionalJourney()?"workshop-team-card.jpg":"rp-photos/oneone.jpg"}" alt="" loading="lazy" onerror="this.remove()"></span>
@@ -10942,6 +10969,7 @@ function rPractice(el){
   else if(_libTab==="saved")rLibSaved(body);
   else rLibIdioms(body);
   manIconizeInline(el);segSync(el);
+  try{ppOnlineSync()}catch(e){}   /* the card's "N online" pill reads the count already polled */
 }
 
 /* ================= PROFESSIONAL SIMULATIONS ================= */
@@ -13493,7 +13521,7 @@ async function ppRefresh(silent){
   if(!ppAvailable()||!ppSignedIn())return null;
   try{
     const prev=ppMe||ppState().lastMe;
-    ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();
+    ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();ppState().meAt=Date.now();try{ppOnlineSync()}catch(e){}
     const st=ppState();
     /* a connection that was not there a moment ago = mutual consent just landed (this side or the other): show the success state until the next practice with them starts */
     if(ppMe.connection&&ppMe.connection.state==="mutual"&&ppMe.connection.sessions===1&&!(prev&&prev.connection&&prev.connection.cid===ppMe.connection.cid))st.partnersFresh=ppMe.connection.cid;
@@ -13644,7 +13672,11 @@ function ppRender(el){
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
-  const shell=inner=>{el.innerHTML=head+(ppLive?"":ppPresenceHTML())+inner;manIconizeInline(el)};
+  /* one line, once: the phone can be told when learners are online even with
+     the app closed — only while permission has never been asked */
+  const nudge=(()=>{try{return !ppLive&&ppAlertsOn()&&window.Notification&&Notification.permission==="default"&&("PushManager" in window)&&!ppState().nudgeDone}catch(e){return false}})()
+    ?`<p class="pp-fine pp-online-nudge">${t("pp.online_nudge")} <button class="btn btn-g btn-sm" onclick="ppState().nudgeDone=true;save();ppAlertsToggle(true);this.parentNode.remove()">${t("pp.online_nudge_btn")}</button></p>`:"";
+  const shell=inner=>{el.innerHTML=head+(ppLive?"":ppPresenceHTML())+nudge+inner;manIconizeInline(el)};
   const m=ppMe;
   if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
   if(m.disabled){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
@@ -14354,23 +14386,54 @@ function ppFabOverlaps(el){
    blocked learners and me). Not signed in, the public counts-only /presence
    (no auth, two integers, cached 30 s at the edge) — at most once a minute and
    only while the button is on screen. */
-let ppPub={online:0,waiting:0,at:0,busy:false};
-function ppPresencePoll(){
-  if(ppPub.busy||Date.now()-ppPub.at<60000)return;
-  ppPub.busy=true;
-  fetch(ppApiBase()+"/presence").then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}const el=document.getElementById("ppFab");if(el&&el.classList.contains("on"))ppFabBadge(el)}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
-}
-function ppFabBadge(el){
+let ppPub={online:0,waiting:0,at:0,busy:false,alertAt:0,lastN:0};
+/* ONE number for the whole app (owner, 2026-09-19: "always show how many are
+   online"): the Practice tab badge, the Practice Partner card, the floating
+   button and the in-app alert all read ppOnlineCount(). Signed in, /me's
+   presence (it excludes me and anyone blocked) wins while fresh; otherwise the
+   public counts. Polled once a minute while the app is visible. */
+function ppOnlineCount(){
+  if(!ppAvailable())return 0;
   const m=ppMe||ppState().lastMe;
-  const mine=!!(m&&m.presence);
-  const n=mine?(m.presence.online||0):ppPub.online;
+  if(m&&m.presence&&typeof m.presence.online==="number"&&Date.now()-(ppState().meAt||0)<120000)return m.presence.online;
+  return ppPub.online;
+}
+function ppWaitingCount(){const m=ppMe||ppState().lastMe;return (m&&m.presence&&typeof m.presence.waiting==="number")?m.presence.waiting:ppPub.waiting}
+function ppPresencePoll(force){
+  if(!ppAvailable())return;
+  if(ppPub.busy||(!force&&Date.now()-ppPub.at<60000))return;
+  ppPub.busy=true;
+  fetch(ppApiBase()+"/presence").then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}ppOnlineSync()}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
+}
+/* paint the count everywhere it lives, and say so once when people appear */
+function ppOnlineSync(){
+  const n=ppOnlineCount(),w=ppWaitingCount();
+  try{navBadges()}catch(e){}
+  const pill=document.getElementById("ppEntryOnline");
+  if(pill){pill.style.display=n>0?"":"none";pill.textContent=w>0?t("pp.online_line",{n,w}):t("pp.fab_online",{n})}
+  const fab=document.getElementById("ppFab");if(fab&&fab.classList.contains("on"))ppFabBadge(fab);
+  if(n>0&&ppPub.lastN===0&&Date.now()-ppPub.alertAt>30*60000&&!(cur&&cur.v==="partner")&&flag("practice_partner_notifications_enabled")){
+    ppPub.alertAt=Date.now();
+    const el=document.getElementById("toast");
+    toast(n===1?t("pp.online_toast_one"):t("pp.online_toast",{n}),5000);
+    if(el){el.classList.add("pp-online");el.onclick=()=>{el.onclick=null;el.classList.remove("pp-online","show");go("partner")};setTimeout(()=>{el.classList.remove("pp-online");el.onclick=null},5200)}
+    try{if(navigator.vibrate)navigator.vibrate(60)}catch(e){}
+    try{track("partner_notification_sent",{kind:"online"})}catch(e){}
+  }
+  ppPub.lastN=n;
+}
+setInterval(()=>{if(document.visibilityState==="visible")ppPresencePoll()},60000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")ppPresencePoll(true)});
+setTimeout(()=>ppPresencePoll(true),1500);
+function ppFabBadge(el){
+  const n=ppOnlineCount();
   let b=el.querySelector(".pp-fab-n");
   if(n>0){
     if(!b){b=document.createElement("span");b.className="pp-fab-n";el.insertBefore(b,el.firstChild)}
     b.textContent=n>99?"99+":String(n);
     el.setAttribute("aria-label",t("pp.fab")+" · "+t("pp.fab_online",{n}));el.title=el.getAttribute("aria-label");
   }else{if(b)b.remove();el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab")}
-  if(!mine)ppPresencePoll();
+  ppPresencePoll();
 }
 function ppFabSync(){
   let el=document.getElementById("ppFab");
@@ -15771,6 +15834,13 @@ async function rData(el,embedded){
         <input type="time" id="remTime" aria-label="${esc(t("rem.label"))}" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
       </div>
       <p class="rem-note" id="remNote">${remNoteHTML()}</p>
+      ${ppAvailable()?`<div class="rem-box" style="margin-top:8px">
+        <label class="rem-row">
+          <input type="checkbox" id="ppAlertsOn" ${ppAlertsOn()?"checked":""} onchange="ppAlertsToggle(this.checked)">
+          <span>${t("rem.online_switch")}</span>
+        </label>
+      </div>
+      <p class="rem-note">${t("rem.online_sub")}</p>`:""}
       <h3 class="set-h">${t("cal.label")}</h3>
       <div class="btn-row">
         <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>

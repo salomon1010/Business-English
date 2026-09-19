@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v358";
+const CACHE = "be12-v359";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
@@ -98,13 +98,33 @@ self.addEventListener("fetch", e => {
    a push arriving at all means a notification is wanted. The English fallback
    below is for the case where the cache entry is somehow missing — showing the
    wrong language beats Chrome's "this site was updated in the background". */
+/* A push carries no payload (see backend/push/README.md), so the worker asks
+   be-push what the wake-up was for: "presence" (learners online right now —
+   owner, 2026-09-19) or the daily reminder. The answer is looked up by the
+   subscription id the app parks in the reminder cache; no answer → reminder. */
+const PUSH_API = "https://be-push.nore-ngou.workers.dev";
+function pushWhy(d) {
+  if (!d || !d.pushId) return Promise.resolve(null);
+  return fetch(PUSH_API + "/why?id=" + encodeURIComponent(d.pushId), { cache: "no-store" })
+    .then(r => (r.ok ? r.json() : null)).catch(() => null);
+}
 self.addEventListener("push", e => {
   e.waitUntil(
     caches.open(REM_CACHE)
       .then(c => c.match(REM_KEY))
       .then(r => (r ? r.json() : null))
       .catch(() => null)
-      .then(d => {
+      .then(d => pushWhy(d).then(why => {
+        if (why && why.kind === "presence" && d && d.online && d.online.title) {
+          const n = Number(why.n) || 1;
+          return self.registration.showNotification(d.online.title, {
+            body: String(d.online.body).replace("{{n}}", String(n)),
+            icon: "icon-192.png", badge: "icon-192.png",
+            tag: "be-online", renotify: true,
+            lang: d.lang || "en", dir: d.dir || "auto",
+            data: { url: "./#partner", view: "partner" },   // tap lands on the partner page
+          });
+        }
         const text = d && d.title && d.body ? d : {
           title: "Time to practise",
           body: "25 minutes today keeps the streak alive.",
@@ -121,7 +141,7 @@ self.addEventListener("push", e => {
         };
         if (d && d.image) opts.image = d.image;   // the road-map strip, shown when expanded
         return self.registration.showNotification(text.title, opts);
-      })
+      }))
   );
 });
 

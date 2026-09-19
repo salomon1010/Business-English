@@ -1889,5 +1889,14 @@
  "pp.partners_sub": "你们都选择了继续一起练习。",
  "pp.partners_btn": "一起练习 →",
  "nav.curriculum_failed": "无法下载课程。请检查网络连接后重试。",
- "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 {{from}}。地址错了？在上方更正后再点一次。"
+ "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 {{from}}。地址错了？在上方更正后再点一次。",
+ "pp.online_line": "{{n}} 人在线 · {{w}} 人排队",
+ "pp.online_toast": "现在有 {{n}} 人在线——点击一起练习",
+ "pp.online_toast_one": "现在有 1 人在线——点击一起练习",
+ "pp.online_push_title": "有学习者在线",
+ "pp.online_push_body": "{{n}} 人在线——轻点一下即可开始简短练习。",
+ "pp.online_nudge": "有学习者在线时收到提醒——即使应用已关闭。",
+ "pp.online_nudge_btn": "开启",
+ "rem.online_switch": "有学习者在线时通知我",
+ "rem.online_sub": "有人在线可以一起练习时收到通知——最多每几小时一次，夜间不发送。"
 }

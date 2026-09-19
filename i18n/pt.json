@@ -1889,5 +1889,14 @@
  "pp.partners_sub": "Vocês dois escolheram continuar juntos.",
  "pp.partners_btn": "Praticar juntos →",
  "nav.curriculum_failed": "Não foi possível transferir as lições. Verifique a ligação e tente de novo.",
- "auth.reset_sent_note": "Se existir uma conta para {{email}}, o link de redefinição está a caminho. Veja também a pasta de spam — vem de {{from}}. Endereço errado? Corrija acima e toque de novo."
+ "auth.reset_sent_note": "Se existir uma conta para {{email}}, o link de redefinição está a caminho. Veja também a pasta de spam — vem de {{from}}. Endereço errado? Corrija acima e toque de novo.",
+ "pp.online_line": "{{n}} online · {{w}} na fila",
+ "pp.online_toast": "{{n}} online agora — toque para praticar juntos",
+ "pp.online_toast_one": "1 pessoa online agora — toque para praticar juntos",
+ "pp.online_push_title": "Há pessoas online",
+ "pp.online_push_body": "{{n}} online — uma prática curta está a um toque.",
+ "pp.online_nudge": "Saiba quando há pessoas online — mesmo com a app fechada.",
+ "pp.online_nudge_btn": "Ativar",
+ "rem.online_switch": "Avisar-me quando há pessoas online",
+ "rem.online_sub": "Uma notificação quando alguém está online para praticar — no máximo de poucas em poucas horas, nunca à noite."
 }

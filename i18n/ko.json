@@ -1889,5 +1889,14 @@
  "pp.partners_sub": "두 사람 모두 함께 계속 연습하기를 선택했어요.",
  "pp.partners_btn": "함께 연습하기 →",
  "nav.curriculum_failed": "수업을 내려받지 못했습니다. 연결을 확인하고 다시 시도하세요.",
- "auth.reset_sent_note": "{{email}} 계정이 있으면 재설정 링크가 발송됩니다. 스팸함도 확인하세요. 발신자는 {{from}} 입니다. 주소가 틀렸다면 위에서 고친 뒤 다시 탭하세요."
+ "auth.reset_sent_note": "{{email}} 계정이 있으면 재설정 링크가 발송됩니다. 스팸함도 확인하세요. 발신자는 {{from}} 입니다. 주소가 틀렸다면 위에서 고친 뒤 다시 탭하세요.",
+ "pp.online_line": "{{n}}명 온라인 · {{w}}명 대기",
+ "pp.online_toast": "지금 {{n}}명 온라인 — 탭해서 함께 연습하세요",
+ "pp.online_toast_one": "지금 1명 온라인 — 탭해서 함께 연습하세요",
+ "pp.online_push_title": "학습자가 온라인입니다",
+ "pp.online_push_body": "{{n}}명 온라인 — 짧은 연습이 한 번의 탭 거리에.",
+ "pp.online_nudge": "학습자가 온라인일 때 알림 받기 — 앱을 닫아도.",
+ "pp.online_nudge_btn": "켜기",
+ "rem.online_switch": "학습자가 온라인일 때 알려주기",
+ "rem.online_sub": "누군가 연습을 위해 온라인일 때 알림 — 최대 몇 시간에 한 번, 밤에는 보내지 않습니다."
 }
