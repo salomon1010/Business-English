@@ -22,7 +22,7 @@ const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond, detail 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, userAgent: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36" });
 const page = await ctx.newPage();
-const errors = []; page.on("pageerror", e => errors.push(String(e.message)));
+const errors = []; page.on("pageerror", e => errors.push(String(e.message) + " @ " + String(e.stack || "").split("\n").slice(1, 3).join(" | ")));
 await page.goto(BASE + "/index.html?smoke=" + Date.now(), { waitUntil: "load" });
 const wait = ms => page.waitForTimeout(ms);
 
@@ -181,9 +181,11 @@ ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the
 /* ── switching area from the Home card lands on the other area's road map, centred ── */
 const sw = await page.evaluate(async () => {
   document.getElementById("rmCel")?.remove();
-  selectProfessionalTrack("welding"); await new Promise(r => setTimeout(r, 600));
+  selectProfessionalTrack("welding");
+  /* the other area's curriculum loads from a file: wait for the strip to paint, up to 4 s */
+  let strip = null; for (let i = 0; i < 40 && !(strip = document.getElementById("rmCel")); i++) await new Promise(r => setTimeout(r, 100));
+  await new Promise(r => setTimeout(r, 200));
   const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
-  const strip = document.getElementById("rmCel");
   return { v: cur.v, track: activeProfessionalTrack().id, now: inView(document.querySelector(".rm-lbl.now")), title: strip ? strip.querySelector("b").innerText : null };
 });
 ok("Switching area lands on that area's road map, centred, saying which area it is", sw.v === "journey" && sw.track === "welding" && sw.now && /Welding/.test(sw.title || ""), JSON.stringify(sw));

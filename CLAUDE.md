@@ -155,6 +155,86 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
+- **Feature flags + the General-English-only boundary (feature/practice-partner,
+  NOT on main yet).** `FLAGS_DEFAULT` + `flag(name)`; `localStorage.be_flags`
+  (JSON) overrides for local/test/internal preview. Production defaults are OFF
+  for `practice_partner_enabled / _matching_enabled / _voice_enabled /
+  _notifications_enabled`, `shadow_studio_v2_enabled`, `shadow_apply_phrase_enabled`;
+  ON for `practice_partner_ai_fallback_enabled`, `shadow_word_timing_enabled`.
+  `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
+  check every GE-only feature makes — Welding gets exactly the app it has today.
+- **Practice Partner (feature/practice-partner, NOT on main yet; General English
+  only).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
+  me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or
+  **Practise now** → a 4-round alternating voice session on the curriculum task →
+  each decides alone (`continue` / `rematch`) → mutual → regular connection, or a
+  14-day cooldown. AI coach fallback and the post-session tip are always tagged AI.
+  Fourth Worker `backend/partner/` (`be-partner`, D1 + R2 + cron; migrations 0001
+  + 0002 + 0003; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
+  `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403) — Firestore
+  untouched. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
+  `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
+  prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
+  `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
+  `backend/partner/test/run.mjs` (106), `tests/partner.mjs` (122, browser
+  contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
+  not reintroduce:** no compatibility gate (`candidates()` offers anyone in
+  line; band/goals only rank; a cooldown or ended connection sorts last but
+  never hides — Block hides; `presence.waiting` === `waiting.available`, one
+  filter; the AI coach card is absent while anyone is in line); live is for whoever you
+  practise with (`POST /live` → open pair first, a trial with a stranger
+  included; candidate cards carry **Practise live** = `/invite {live:true}`,
+  migration 0007 `pairs.live_wanted`, the guest's accept opens the room for
+  the host; More options in any session has Practise live); presence strip
+  `ppPresenceHTML()` (+ Home card counts) + floating `#ppFab` on every non-partner page (steps above the pill, gone only in a live room / under a call banner; needs only the server's `consented`); red hang-up button `ppLiveHangup` in the call card; `ppLiveOn()` follows `/me.liveEnabled` (server `LIVE_ENABLED`), not the per-device flag; `go()` uses replaceState (no hashchange) so it calls `ppCallSync/ppPillSync/ppLiveDotSync/ppFabSync` itself; the live
+  beacon (`#ppLiveDot`, pill/call/presence dots) reuses the road map's
+  `rmRing`/`rmSpin`, not a box-shadow throb; the partner-left dialog is
+  Close / Find another partner and either clears the partner from the screen
+  at once (`dismissedClosed`); the Practice-tab card has **How it works**
+  (`ppHowSheet`). Dev-only `POST /__uncap {uid}` resets one learner's daily
+  caps for the long browser run. **Account deletion:** `DELETE /me` (above the
+  kill switch) erases the learner's partner data; `fbDeleteAccount` calls
+  `ppEraseMe()` first (flag-independent, 404 = nothing held) — Apple 5.1.1(v)
+  / Play account-deletion. Release audit: `docs/release/FINAL_RELEASE_AUDIT.md`
+  (2026-09-19): code READY FOR MERGE; Android TWA must move to target API 36
+  before the next Play upload; no iOS project. Docs: `marketing/product/practice-partner/`
+  (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
+  real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
+  the branch, the owner's step list, what to watch, rollback timings —
+  DEVICE_CHECKLIST (63 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
+  `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
+  Staging also needs `https://staging.lomonec.com` in the Polish Worker's
+  hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).
+  `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
+- **Practice Partner Levels 2–3 (same branch).** Level 2 = the **AI coach
+  session** (`ppAiStart`, `S.pp.ai`, one open at a time, pending-turn
+  idempotency; replies via the Polish `chat` route, spoken with the natural
+  voice; always AI-tagged; human thread untouched). Level 3 = **live practice**:
+  WebRTC audio between two *connected* partners, signalling relayed by the
+  Worker (`/live*`, `live_sessions` + `live_signals`, migration 0004, server
+  state machine, `LIVE_ENABLED` var "0" in prod; TURN optional via
+  `TURN_KEY_ID`/`TURN_KEY_TOKEN` secrets, STUN-only otherwise); client
+  `ppLive*`, flag `practice_partner_live_enabled` (off). Nothing recorded in
+  live. AI sessions are opened through `POST /ai/session` (12/day per learner,
+  idempotent). Partner management: **Leave today's practice** (session only,
+  `/pairs/:id/leave`) ≠ **Find someone else** (rematch + cooldown) ≠ **End
+  partnership** (`/connection/end {cid}`, connection `ended`, not a block) ≠
+  Block ≠ Report; the connection card has a Partner options sheet
+  (`ppConnMenu`). `tools.sim` on the Practice tab now carries the same name
+  as the Life Simulations card (`home.rp_title`) — same `roleplay` page, one
+  name. `be-events` has `[env.staging]` (`be-events-staging`, own
+  dataset, `EXTRA_ORIGINS`); phones use `localStorage.be_events_api`. Tests:
+  Worker 80, e2e 78 (two contexts connect over real WebRTC).
+- **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
+  `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
+  `neighbour`; levels word → sentence → text → none, honestly labelled) + panel
+  `#shV2` in `.sh-work` (`shV2Load` at the end of `shLoad`, `svRender`, rAF `svTick`
+  reading `shCurT()`, `svStop` from `shCloseWork`). Modes watch / shadow /
+  challenge / apply; Apply It → AI (`S.applyPhrase`, roleplay) or partner
+  (`ppState().applyPhrase`). Captions: `captions/<vid>.json` (18; 13 with word
+  times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
+  (27). Events for both features are on the `be-events` allow-list on the branch
+  only — deploy that Worker before any flag goes on.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

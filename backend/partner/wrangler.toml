@@ -1,0 +1,112 @@
+# Cloudflare Worker config for BE Mastery Practice Partner (Lomonec LLC).
+#
+# A FOURTH Worker, separate from be-polish / be-push / be-events, so that
+# partner traffic and its database can never take Executive Polish down.
+#
+# NOT DEPLOYED YET. First-time production setup (owner, after review):
+#     npx wrangler d1 create be-partner            # paste database_id below
+#     npx wrangler d1 migrations apply be-partner --remote
+#     npx wrangler r2 bucket create be-partner-audio
+#     npx wrangler deploy
+#
+# Local development / tests (no Cloudflare account needed, nothing leaves the
+# machine — D1 and R2 are emulated on disk under .wrangler/):
+#     npx wrangler d1 migrations apply be-partner --local --env dev
+#     npx wrangler dev --env dev --port 8787
+#
+# DEV_AUTH="1" exists ONLY in [env.dev]. It lets the tests pass a user id in an
+# X-Dev-User header instead of a Firebase ID token. Never set it in production.
+
+name = "be-partner"
+main = "partner-worker.js"
+compatibility_date = "2026-07-31"
+
+[vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io"
+PARTNER_ENABLED = "0"          # production kill switch: "1" only at release approval
+LIVE_ENABLED = "0"             # live human practice (Level 3): separate switch, off in production
+# TURN for live practice is optional: `wrangler secret put TURN_KEY_ID` and
+# `TURN_KEY_TOKEN` (Cloudflare Calls TURN key). Without them the Worker hands
+# out STUN only, and phones behind carrier NAT may fail to connect.
+MATCH_WEIGHTS = "{}"           # JSON overrides of WEIGHTS_DEFAULT in partner-worker.js
+# DAILY_LIMITS (JSON) may override the per-learner daily caps; unset here = production defaults
+PAIR_DAYS = "7"
+PARTNER_TIMEOUT_H = "24"
+TURNS_PER_DAY = "3"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "be-partner"
+database_id = "REPLACE-WITH-wrangler-d1-create-OUTPUT"
+migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "AUDIO"
+bucket_name = "be-partner-audio"
+
+[triggers]
+crons = ["17 3 * * *"]   # daily: expire week-old pairs, delete audio 14 days after a pair closes
+
+[env.dev]
+[env.dev.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "http://localhost:8011,http://127.0.0.1:8011,http://localhost:8765,http://127.0.0.1:8765,http://localhost:8000,http://127.0.0.1:8000"
+PAIR_DAYS = "7"
+PARTNER_TIMEOUT_H = "24"
+TURNS_PER_DAY = "3"
+PARTNER_ENABLED = "1"
+LIVE_ENABLED = "1"
+MATCH_WEIGHTS = "{}"
+IP_PER_MIN = "100000"
+DAILY_LIMITS = "{}"            # the test suites assert the production defaults          # the test suites hammer one IP; production keeps the 120 default
+DEV_AUTH = "1"
+
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "be-partner"
+database_id = "local-dev"
+migrations_dir = "migrations"
+
+[[env.dev.r2_buckets]]
+binding = "AUDIO"
+bucket_name = "be-partner-audio"
+
+# ---------------------------------------------------------------------------
+# STAGING — a separate Worker, database and bucket for real-device testing
+# from the feature branch, so nothing has to be merged or switched on in
+# production first. Owner-run, never by a build session:
+#     npx wrangler d1 create be-partner-staging          # paste id below
+#     npx wrangler d1 migrations apply be-partner-staging --remote --env staging
+#     npx wrangler r2 bucket create be-partner-staging-audio
+#     npx wrangler deploy --env staging
+# No DEV_AUTH here: phones sign in with a real Firebase account and the
+# Worker verifies the ID token exactly as production will. The app is served
+# from the branch through an HTTPS tunnel on a FIXED hostname (getUserMedia
+# needs a secure context and the allow-lists need a stable origin) — see
+# marketing/product/practice-partner/PILOT.md "Staging".
+[env.staging]
+name = "be-partner-staging"
+[env.staging.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000"
+PARTNER_ENABLED = "1"
+LIVE_ENABLED = "1"
+DAILY_LIMITS = "{\"interest\":200,\"match\":300,\"invite\":100,\"live\":100,\"ai\":60,\"end\":50,\"report\":20,\"block\":50}"   # staging only: a day of device testing on one account
+MATCH_WEIGHTS = "{}"
+PAIR_DAYS = "7"
+PARTNER_TIMEOUT_H = "24"
+TURNS_PER_DAY = "3"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "be-partner-staging"
+database_id = "4cd14280-0eaf-422b-b986-84ebe29a1204"
+migrations_dir = "migrations"
+
+[[env.staging.r2_buckets]]
+binding = "AUDIO"
+bucket_name = "be-partner-staging-audio"
+
+[env.staging.triggers]
+crons = ["17 3 * * *"]

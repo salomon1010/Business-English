@@ -93,7 +93,25 @@ Set complete true only when the conversation has reached a natural end and the r
      in scripts/prompt-fixtures.mjs can assert the boundary holds without a key,
      a network call, or a second copy of this assembly drifting out of step. */
   function buildRequest(sc,sim){return {system:prompt(sc,sim),messages:transcript(sim)};}
-  async function respond(sim,text){
+  /* Streaming: the Worker sends one JSON object per line — {s:"sentence"} as
+     each sentence of the reply is finished, then {done:true, reply, covered,
+     characterId}. hooks.onSentence hears the sentences as they land so speech
+     can start before the reply is complete. Resolves to the same shape the
+     plain call returns, or null if the stream failed before it finished. */
+  async function fetchStreamed(api,req,hooks){
+    const res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:Object.assign({stream:true},req)})});
+    if(!res.ok||!res.body)return {ok:false,status:res.status};
+    const reader=res.body.getReader(),dec=new TextDecoder();let buf="",data=null,heard=[];
+    while(true){const {value,done}=await reader.read();if(done)break;buf+=dec.decode(value,{stream:true});
+      let nl;while((nl=buf.indexOf("\n"))>=0){const l=buf.slice(0,nl).trim();buf=buf.slice(nl+1);if(!l)continue;
+        let o;try{o=JSON.parse(l)}catch(e){continue}
+        if(o.s){heard.push(o.s);try{hooks.onSentence(o.s)}catch(e){}}
+        else if(o.done){data=o}
+        else if(o.error){break}}}
+    if(!data&&heard.length)data={reply:heard.join(" "),covered:[],partial:true};   /* what was said stands */
+    return {ok:!!data,status:200,data};
+  }
+  async function respond(sim,text,hooks){
     const engine=global.ProfessionalSimulationEngine,sc=engine.find(sim.id),said=clean(text);
     if(!sc||!said)return {simulation:sim};
     /* Existing objective and fact capture remains the authoritative, portable
@@ -113,8 +131,14 @@ Set complete true only when the conversation has reached a natural end and the r
     const api=typeof POLISH_API!=="undefined"?POLISH_API:"";
     if(api&&navigator.onLine){
       try{
-        const res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked)})});
-        const data=await res.json().catch(()=>({}));
+        let res,data;
+        if(hooks&&typeof hooks.onSentence==="function"){
+          const st=await fetchStreamed(api,buildRequest(sc,asked),hooks);
+          res={ok:st.ok,status:st.status};data=st.data||{};
+        }else{
+          res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked)})});
+          data=await res.json().catch(()=>({}));
+        }
         if(res.ok&&data.reply){
           const valid=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).some(c=>c.id===data.characterId);
           next.text=clean(data.reply);next.characterId=valid?data.characterId:next.characterId;

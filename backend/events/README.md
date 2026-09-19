@@ -167,6 +167,55 @@ partner" on the demand card (Home and Practice), with `track` and the level
 `band` (Foundations day or week bucket, in `stage`). It measures the pull for
 the Practice Partner feature before it is built. `./query.sh partner` reads it.
 
+## Practice Partner and Shadow Studio V2 (feature branch, not deployed)
+
+Allow-listed on `feature/practice-partner`; **this Worker must be deployed
+before any client flag is turned on**, or every one of these is dropped with 204.
+
+The MVP names `partner_pair`, `partner_turn` (+`day`), `partner_report`,
+`partner_block` stay on the list but the phase-2 client no longer sends them.
+
+Phase-2 funnel, in order (General English only — the client fires them only
+behind `ppAvailable()`): `partner_profile_completed` → `partner_match_requested`
+(+`now`: "1" for Practise now) → `partner_queue_joined` →
+`partner_candidate_shown` (+`n` 1–3) → `partner_trial_started` (+`now`,
+`regular`) → `partner_turn_recorded` / `partner_turn_sent` /
+`partner_turn_received` (+`round` 1–4) → `partner_session_completed` →
+`partner_continue_selected` / `partner_rematch_selected` →
+`partner_connection_created` (+`state` mutual|regular) /
+`partner_connection_disconnected`. Safety and support: `partner_reported`,
+`partner_blocked`, `partner_ai_fallback`, `partner_notification_sent`.
+
+Level 2 — the AI coach session: `partner_ai_fallback_started` (+`kind`:
+waiting | nocand | silent | choice | again) → `partner_ai_turn` (+`round`) →
+`partner_ai_fallback_completed`. Level 3 — live practice:
+`partner_live_invited` → `partner_live_accepted` → `partner_live_started` →
+(`partner_live_reconnected`) → `partner_live_completed` | `partner_live_left` |
+`partner_live_failed` (+`reason` mic); `partner_live_help` (AI phrase help
+during a call). No audio, no transcript, no names.
+
+Live availability UX (2026-09-19): `partner_find_started` (the floating
+"Find a practice partner" button), `partner_availability_viewed` (a tap on
+the presence strip), `partner_queue_left` (Stop looking), and
+`partner_trial_declined` (Not now on a proposal). Counts only — the strip
+shows numbers, never who.
+
+Shadow Studio V2: `shadow_v2_opened` (+`level` word|sentence|text|none),
+`shadow_v2_mode` and `shadow_v2_challenge_started` (+`mode`),
+`shadow_v2_sentence_shadowed` (+`level`), `shadow_apply_phrase` (+`to` ai|partner).
+
+Prop keys added: `n`, `round`, `now`, `regular`, `state`, `level`, `mode`, `to` —
+all small enums. Nothing here carries a name, a uid, a transcript or audio.
+Read the funnel with `./query.sh funnel`-style queries on these names once
+data exists; nothing exists before the flags go on.
+
+## Staging
+`[env.staging]` in `wrangler.toml` → Worker `be-events-staging`, dataset
+`be_events_staging`, `EXTRA_ORIGINS` = the staging tunnel origin. Production
+has no `EXTRA_ORIGINS`, so its behaviour is unchanged. Test phones point at
+it with `localStorage.be_events_api`. Query with the same SQL against
+`be_events_staging`.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to

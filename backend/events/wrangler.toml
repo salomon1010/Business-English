@@ -17,3 +17,16 @@ compatibility_date = "2026-07-31"
 [[analytics_engine_datasets]]
 binding = "AE"
 dataset = "be_events"
+
+# ---------------------------------------------------------------------------
+# STAGING — a separate Worker and dataset so device-testing events never mix
+# with production numbers. Owner-run: `npx wrangler deploy --env staging`.
+# The client is pointed at it with localStorage.be_events_api on the test
+# phones (see marketing/product/practice-partner/PILOT.md § Staging).
+[env.staging]
+name = "be-events-staging"
+[env.staging.vars]
+EXTRA_ORIGINS = "https://staging.lomonec.com"
+[[env.staging.analytics_engine_datasets]]
+binding = "AE"
+dataset = "be_events_staging"
