@@ -17,7 +17,7 @@ let BASE = process.env.BASE, server = null;
 if (!BASE) { server = spawn("python3", ["-m", "http.server", "8765"], { cwd: new URL("..", import.meta.url).pathname, stdio: "ignore" }); await sleep(700); BASE = "http://localhost:8765"; }
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
-const FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_ai_fallback_enabled: true, practice_partner_notifications_enabled: true, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: true };
+const FLAGS = { practice_partner_live_enabled: true, practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_ai_fallback_enabled: true, practice_partner_notifications_enabled: true, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: true };
 
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const errors = [];
@@ -163,6 +163,34 @@ await api("carla", "POST", "/pairs/" + (await (await api("carla", "GET", "/me"))
 await A.page.evaluate(() => go("partner")); await sleep(1300);
 const conn = await txt(A.page, ".pp-conn");
 ok("Both continue → mutual partner card with session count and Start today's practice", conn.includes("Your practice partner: Carla") && conn.includes("1 time") && conn.includes("Start today's practice"));
+/* ---------- Level 3: live practice between the two connected humans (real WebRTC, two browser contexts, fake mics) ---------- */
+ok("Connection card offers 'Practise live' to a connected partner", conn.includes("Practise live"));
+await A.page.click('.pp-conn button:has-text("Practise live")'); await A.page.waitForSelector(".pp-live-head", { timeout: 10000 });
+ok("Host invites → waiting room labelled human, cancel available, nothing else on the page", (await txt(A.page, ".pp-live-head")).includes("Waiting for Carla") && (await txt(A.page, ".pp-live-head")).includes("A real learner, live") && (await txt(A.page, "#v-partner")).includes("Cancel the invitation"));
+const C = await learner("carla", "Carla", "general-english", false);
+await C.page.evaluate(async () => { await ppRefresh(); go("home"); }); await sleep(1500);   /* a consented learner's app refreshes /me at boot; this context is brand new */
+ok("Guest: Home shows the live invitation card", (await txt(C.page, ".pp-home-live")).includes("Alice invites you to practise live"));
+await C.page.evaluate(() => go("partner")); await C.page.waitForSelector(".pp-live-invite", { timeout: 10000 });
+ok("Guest: the invitation on the partner page says voice call, four rounds, mic only in the call; Join / Not now", (await txt(C.page, ".pp-live-invite")).includes("four rounds") && (await txt(C.page, ".pp-live-invite")).includes("Join the call") && (await txt(C.page, ".pp-live-invite")).includes("Not now"));
+await C.page.click('.pp-live-invite button:has-text("Join the call")');
+const liveUp = await Promise.all([A.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false), C.page.waitForSelector(".pp-live-status.active", { timeout: 40000 }).then(() => true).catch(() => false)]);
+ok("Both sides connect (WebRTC audio, ICE through the Worker) and show 'Connected — you can talk'", liveUp[0] && liveUp[1], JSON.stringify({ a: await txt(A.page, ".pp-live-status"), c: await txt(C.page, ".pp-live-status") }));
+const liveA = await A.page.evaluate(() => ({ head: document.querySelector(".pp-live-head").innerText, pc: ppLive.pc && ppLive.pc.connectionState, tracks: ppLive.stream ? ppLive.stream.getAudioTracks().length : 0, remote: !!document.getElementById("ppLiveAudio") && !!document.getElementById("ppLiveAudio").srcObject, timer: !!document.getElementById("ppLiveTimer") }));
+ok("Room: partner first name only, human label, live timer, local mic track and remote audio attached; no uid, no transport words", liveA.head.includes("Live with Carla") && liveA.pc === "connected" && liveA.tracks === 1 && liveA.remote && liveA.timer && !/uid|webrtc|ice|turn/i.test(liveA.head), JSON.stringify(liveA));
+ok("Server state is active with a start time for both members", await (async () => { const s = await (await api("alice", "GET", "/me")).json(); const c = await (await api("carla", "GET", "/me")).json(); return s.live && s.live.state === "active" && s.live.startedAt > 0 && c.live && c.live.state === "active"; })());
+await A.page.click('.pp-prompt button:has-text("Next round")'); await sleep(5500);
+ok("Round counter is shared: host taps Next round → guest sees Round 2 on the next poll", (await txt(C.page, ".pp-prompt")).includes("Round 2 of 4") && (await txt(A.page, ".pp-prompt")).includes("Round 2 of 4"));
+await A.page.click('.pp-live-ctl button:has-text("Mute")'); await sleep(200);
+ok("Mute toggles the local track and the button", (await A.page.evaluate(() => ppLive.muted && ppLive.stream.getAudioTracks()[0].enabled === false)) && (await txt(A.page, ".pp-live-ctl")).includes("Unmute"));
+await A.page.route(u => u.href.startsWith("https://be-polish."), route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Could you tell me more about that?\nThat's a good point.\nLet me give you an example.", covered: [] }) }));
+await A.page.click('.pp-live-ctl button:has-text("Phrase help")'); await A.page.waitForSelector(".pp-live-ctl .pp-help", { timeout: 10000 });
+ok("Phrase help: three AI-tagged phrases on the side, text only — the AI never joins the call", (await A.page.evaluate(() => document.querySelectorAll(".pp-live-ctl .pp-help li").length)) === 3 && (await txt(A.page, ".pp-live-ctl .pp-tip")).includes("AI") && !(await A.page.evaluate(() => !!document.querySelector("#ppLiveAudio + audio"))));
+await A.page.unroute(u => u.href.startsWith("https://be-polish."));
+await A.page.click('.pp-live-ctl button.pp-leave'); await A.page.waitForSelector(".pp-live-end", { timeout: 10000 }); await sleep(5500);
+ok("Host leaves → host sees 'You left', guest sees 'Alice left' within a poll; both microphones released; server ended/left", (await txt(A.page, ".pp-live-end")).includes("You left the live practice") && (await txt(C.page, ".pp-live-end")).includes("Alice left the live practice") && (await A.page.evaluate(() => !ppLive.stream && !ppLive.pc)) && (await C.page.evaluate(() => !ppLive.stream && !ppLive.pc)) && !(await (await api("alice", "GET", "/me")).json()).live, JSON.stringify({ a: await txt(A.page, ".pp-live-end"), c: await txt(C.page, ".pp-live-end") }));
+await A.page.click('.pp-live-end button'); await C.page.click('.pp-live-end button'); await sleep(1200); await C.ctx.close();
+ok("After the call the connection card is back with Start and Practise live", (await txt(A.page, ".pp-conn")).includes("Practise live") && (await txt(A.page, ".pp-conn")).includes("Start today"));
+
 await A.page.click('button:has-text("Start today")'); await sleep(1300);
 ok("Start → a regular session with the same partner", (await txt(A.page, ".pp-head")).includes("Regular partners") && (await txt(A.page, ".pp-head")).includes("Round 1 of 4"));
 

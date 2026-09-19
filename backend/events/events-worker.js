@@ -73,6 +73,10 @@ const EVENTS = new Set([
   "partner_session_completed", "partner_continue_selected", "partner_rematch_selected",
   "partner_connection_created", "partner_connection_disconnected", "partner_reported", "partner_blocked",
   "partner_ai_fallback", "partner_notification_sent",
+  // Level 2 (AI coach session) and Level 3 (live practice) lifecycle. Counts only.
+  "partner_ai_fallback_started", "partner_ai_turn", "partner_ai_fallback_completed",
+  "partner_live_invited", "partner_live_accepted", "partner_live_started", "partner_live_reconnected",
+  "partner_live_completed", "partner_live_left", "partner_live_failed", "partner_live_help",
   // Shadow Studio V2 (General English only)
   "shadow_v2_opened", "shadow_v2_mode", "shadow_v2_sentence_shadowed", "shadow_v2_challenge_started", "shadow_apply_phrase",
 ]);
@@ -93,7 +97,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   "track",
   // phase 2: n (candidates shown), round (1-4), now ("1"), regular ("1"), state (mutual|regular),
   // level (word|sentence|text|none), mode (watch|shadow|challenge|apply), to (ai|partner)
-  "n", "round", "now", "regular", "state", "level", "mode", "to"]);
+  "n", "round", "now", "regular", "state", "level", "mode", "to",
+  // reason: mic | (why an AI/live path was taken: waiting | nocand | silent | choice | again). Appended, as above.
+  "reason"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

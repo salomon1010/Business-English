@@ -186,6 +186,14 @@ behind `ppAvailable()`): `partner_profile_completed` → `partner_match_requeste
 `partner_connection_disconnected`. Safety and support: `partner_reported`,
 `partner_blocked`, `partner_ai_fallback`, `partner_notification_sent`.
 
+Level 2 — the AI coach session: `partner_ai_fallback_started` (+`kind`:
+waiting | nocand | silent | choice | again) → `partner_ai_turn` (+`round`) →
+`partner_ai_fallback_completed`. Level 3 — live practice:
+`partner_live_invited` → `partner_live_accepted` → `partner_live_started` →
+(`partner_live_reconnected`) → `partner_live_completed` | `partner_live_left` |
+`partner_live_failed` (+`reason` mic); `partner_live_help` (AI phrase help
+during a call). No audio, no transcript, no names.
+
 Shadow Studio V2: `shadow_v2_opened` (+`level` word|sentence|text|none),
 `shadow_v2_mode` and `shadow_v2_challenge_started` (+`mode`),
 `shadow_v2_sentence_shadowed` (+`level`), `shadow_apply_phrase` (+`to` ai|partner).
