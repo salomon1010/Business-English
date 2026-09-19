@@ -13966,7 +13966,7 @@ function ppCallSync(){
         <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppCallHide();ppMatch()">${ic("user")} ${t("pp.match_again")}</button><button class="pp-call-decline" onclick="ppCallHide()">${t("wc.close")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime()}
       return;
     }
-    if(n===0&&st0.availSeen){st0.availSeen=0;save()}
+    if(n<(st0.availSeen||0)){st0.availSeen=n;save()}   /* track the current count so the next arrival counts as new */
   }
   const tinv=m&&m.invite&&m.invite.expiresAt>Date.now()&&ppAvailable();
   if(tinv&&!(l&&l.role==="guest"&&l.state==="invited")){
