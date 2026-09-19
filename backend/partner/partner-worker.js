@@ -33,6 +33,8 @@
      session and is permanent both ways.
    - Reliability (completed / abandoned sessions, response latency) is an
      internal matching signal, never shown to anyone.
+   - Live practice (Level 3): /live routes, LIVE_ENABLED="1" only where allowed;
+     WebRTC audio peer to peer, signalling relayed as rows, nothing recorded.
    - PARTNER_ENABLED != "1" → 503 `disabled` on everything but /health.
    - DEV_AUTH="1" (local wrangler env only) accepts X-Dev-User / X-Dev-Now so
      the whole flow runs locally with no Firebase account and a movable clock.
@@ -47,7 +49,11 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40 };
+const DAILY_LIMITS = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20 };
+/* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
+const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
+const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
+const LIVE_KINDS = new Set(["offer", "answer", "ice", "state", "round", "bye"]);
 const IP_PER_MIN_DEFAULT = 120;
 /* soft-scoring weights; overridable per environment through MATCH_WEIGHTS (JSON) */
 const WEIGHTS_DEFAULT = { level: 0.22, goal: 0.20, curriculum: 0.16, mode: 0.12, availability: 0.10, timezone: 0.08, topic: 0.05, reliability: 0.04, history: 0.03 };
@@ -142,6 +148,49 @@ const activePair = (env, uid) => q(env, "SELECT * FROM pairs WHERE status='activ
 async function blockedEither(env, a, b) { return !!(await q(env, "SELECT 1 AS x FROM blocks WHERE (by_uid=? AND about_uid=?) OR (by_uid=? AND about_uid=?) LIMIT 1", a, b, b, a).first()); }
 async function cooled(env, a, b, ms) { const [x, y] = pairKey(a, b); const r = await q(env, "SELECT until FROM cooldowns WHERE a=? AND b=?", x, y).first(); return !!(r && r.until > ms); }
 async function connection(env, a, b) { const [x, y] = pairKey(a, b); return q(env, "SELECT * FROM connections WHERE a=? AND b=?", x, y).first(); }
+const openLive = (env, uid) => q(env, "SELECT * FROM live_sessions WHERE (host=? OR guest=?) AND state IN ('invited','accepted','connecting','active','reconnecting') ORDER BY created_at DESC LIMIT 1", uid, uid).first();
+async function liveClose(env, s, state, reason, ms) { await q(env, "UPDATE live_sessions SET state=?, end_reason=?, ended_at=?, updated_at=? WHERE id=? AND state IN ('invited','accepted','connecting','active','reconnecting')", state, reason, ms, ms, s.id).run(); }
+/* STUN always; TURN only when the owner has put Cloudflare Calls TURN key
+   credentials in the environment (short-lived creds minted per request, never
+   a permanent secret to the client). Without TURN, two phones behind carrier
+   NAT may fail to connect — documented, not hidden. */
+async function iceServers(env) {
+  const out = [{ urls: "stun:stun.cloudflare.com:3478" }];
+  if (env.TURN_KEY_ID && env.TURN_KEY_TOKEN) {
+    try {
+      const r = await fetch(`https://rtc.live.cloudflare.com/v1/turn/keys/${env.TURN_KEY_ID}/credentials/generate`, { method: "POST", headers: { authorization: "Bearer " + env.TURN_KEY_TOKEN, "content-type": "application/json" }, body: JSON.stringify({ ttl: 3600 }) });
+      if (r.ok) { const j = await r.json(); if (j.iceServers) out.push(j.iceServers); }
+    } catch (e) {}
+  }
+  return out;
+}
+/* report and block are shared by the async thread and live practice */
+async function doReport(env, uid, other, ctxId, reason, ms) {
+  if (await bump(env, uid, "report", ms) > DAILY_LIMITS.report) return err(429, "limit");
+  await q(env, "INSERT OR IGNORE INTO reports(id,pair_id,by_uid,about_uid,reason,created_at) VALUES(?,?,?,?,?,?)", rid(), ctxId, uid, other, reason, ms).run();
+  const n = (await q(env, "SELECT COUNT(DISTINCT by_uid) AS n FROM reports WHERE about_uid=?", other).first()).n;
+  await q(env, "UPDATE members SET strikes=? WHERE uid=?", n, other).run();
+  await audit(env, ms, uid, "reported", other, ctxId, { reason, strikes: n });
+  if (n >= 2) {
+    await q(env, "UPDATE members SET suspended_until=? WHERE uid=?", ms + SUSPEND_MS, other).run();
+    await q(env, "DELETE FROM interest WHERE uid=?", other).run();
+    const p = await activePair(env, other); if (p) await closePair(env, p, "suspended", ms);
+    const l = await openLive(env, other); if (l) await liveClose(env, l, "ended", "suspended", ms);
+    await audit(env, ms, "system", "suspended", other, ctxId, { days: 30 });
+  }
+  return null;
+}
+async function doBlock(env, uid, other, ms) {
+  if (await bump(env, uid, "block", ms) > DAILY_LIMITS.block) return err(429, "limit");
+  const [x, y] = pairKey(uid, other);
+  await env.DB.batch([
+    q(env, "INSERT OR IGNORE INTO blocks(by_uid,about_uid,created_at) VALUES(?,?,?)", uid, other, ms),
+    q(env, "INSERT INTO connections(a,b,state,sessions,created_at,updated_at) VALUES(?,?,'blocked',0,?,?) ON CONFLICT(a,b) DO UPDATE SET state='blocked', updated_at=excluded.updated_at", x, y, ms, ms),
+  ]);
+  const p = await activePair(env, uid); if (p && otherOf(p, uid) === other) await closePair(env, p, "blocked", ms);
+  const l = await openLive(env, uid); if (l && (l.host === other || l.guest === other)) await liveClose(env, l, "ended", "blocked", ms);
+  return null;
+}
 async function closePair(env, pair, reason, ms) { await q(env, "UPDATE pairs SET status='closed', closed_reason=?, closed_at=? WHERE id=? AND status='active'", reason, ms, pair.id).run(); }
 const otherOf = (pair, uid) => (pair.uid_a === uid ? pair.uid_b : pair.uid_a);
 const isMember = (pair, uid) => !!pair && (pair.uid_a === uid || pair.uid_b === uid);
@@ -289,7 +338,13 @@ async function meView(env, uid, ms) {
     const last = await q(env, "SELECT closed_reason, closed_at FROM pairs WHERE status='closed' AND (uid_a=? OR uid_b=?) ORDER BY closed_at DESC LIMIT 1", uid, uid).first();
     if (last && ms - last.closed_at < 3 * DAY) out.lastClosed = { reason: last.closed_reason, at: last.closed_at };
     const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular') ORDER BY last_practice_at DESC LIMIT 1", uid, uid).all()).results || [];
-    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)) }; }
+    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
+  }
+  /* an open live session (either role) rides along so the invitation card,
+     the resume card and the notification all come from the same read */
+  if (m && env.LIVE_ENABLED === "1") {
+    const l = await openLive(env, uid);
+    if (l && l.expires_at > ms) { const other = l.host === uid ? l.guest : l.host; const p = await member(env, other); if (!(await blockedEither(env, uid, other))) out.live = { id: l.id, role: l.host === uid ? "host" : "guest", state: l.state, partner: { name: p ? p.name : "?" }, createdAt: l.created_at, startedAt: l.started_at, expiresAt: l.expires_at }; }
   }
   return out;
 }
@@ -302,7 +357,7 @@ async function handle(req, env, ctx) {
   if (path === "/health") return json({ ok: true, dev: env.DEV_AUTH === "1", enabled: env.PARTNER_ENABLED === "1" });
   if (env.PARTNER_ENABLED !== "1") return err(503, "disabled");
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
-    for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit"]) await q(env, `DELETE FROM ${t}`).run();
+    for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions"]) await q(env, `DELETE FROM ${t}`).run();
     let cursor; do { const l = await env.AUDIO.list({ cursor }); for (const o of l.objects) await env.AUDIO.delete(o.key); cursor = l.truncated ? l.cursor : null; } while (cursor);
     return json({ ok: true });
   }
@@ -411,21 +466,11 @@ async function handle(req, env, ctx) {
     if (pm[2] === "report") {
       const b = await req.json().catch(() => ({}));
       if (!REASONS.has(b.reason)) return err(400, "bad_request");
-      if (await bump(env, uid, "report", ms) > DAILY_LIMITS.report) return err(429, "limit");
-      await q(env, "INSERT OR IGNORE INTO reports(id,pair_id,by_uid,about_uid,reason,created_at) VALUES(?,?,?,?,?,?)", rid(), pair.id, uid, other, b.reason, ms).run();
-      const n = (await q(env, "SELECT COUNT(DISTINCT by_uid) AS n FROM reports WHERE about_uid=?", other).first()).n;
-      await q(env, "UPDATE members SET strikes=? WHERE uid=?", n, other).run();
-      await audit(env, ms, uid, "reported", other, pair.id, { reason: b.reason, strikes: n });
-      if (n >= 2) { await q(env, "UPDATE members SET suspended_until=? WHERE uid=?", ms + SUSPEND_MS, other).run(); await q(env, "DELETE FROM interest WHERE uid=?", other).run(); await closePair(env, pair, "suspended", ms); await audit(env, ms, "system", "suspended", other, pair.id, { days: 30 }); }
+      const r = await doReport(env, uid, other, pair.id, b.reason, ms); if (r) return r;
       return json({ ok: true, ...(await meView(env, uid, ms)) });
     }
     if (pm[2] === "block") {
-      if (await bump(env, uid, "block", ms) > DAILY_LIMITS.block) return err(429, "limit");
-      const [x, y] = pairKey(uid, other);
-      await env.DB.batch([
-        q(env, "INSERT OR IGNORE INTO blocks(by_uid,about_uid,created_at) VALUES(?,?,?)", uid, other, ms),
-        q(env, "INSERT INTO connections(a,b,state,sessions,created_at,updated_at) VALUES(?,?,'blocked',0,?,?) ON CONFLICT(a,b) DO UPDATE SET state='blocked', updated_at=excluded.updated_at", x, y, ms, ms),
-      ]);
+      const r = await doBlock(env, uid, other, ms); if (r) return r;
       await closePair(env, pair, "blocked", ms); await audit(env, ms, uid, "blocked", other, pair.id, {});
       return json({ ok: true, ...(await meView(env, uid, ms)) });
     }
@@ -461,6 +506,116 @@ async function handle(req, env, ctx) {
       return json(await meView(env, uid, ms));
     }
   }
+  /* ================================================================ LIVE (Level 3)
+     A live session is a real-time voice call between two CONNECTED partners.
+     The Worker holds the state machine and relays WebRTC signalling as
+     append-only rows; audio flows peer to peer and is never stored.
+       invited → accepted → connecting → active ⇄ reconnecting → ended
+       invited → declined | cancelled | expired ; any open → failed | ended(blocked)
+     Every route: member only, block check, LIVE_ENABLED, opaque 16-hex ids. */
+  if (path === "/live" || path.startsWith("/live/")) {
+    if (env.LIVE_ENABLED !== "1") return err(403, "live_off");
+    if (suspended) return err(403, "suspended", m.suspended_until);
+    const view = (s, meUid) => {
+      const role = s.host === meUid ? "host" : "guest", other = role === "host" ? s.guest : s.host;
+      let prompt = null; try { prompt = s.prompt_json ? JSON.parse(s.prompt_json) : null; } catch (e) {}
+      return { id: s.id, role, state: s.state, band: s.band, promptWeek: s.prompt_week, fndDay: s.fnd_day, prompt, createdAt: s.created_at, acceptedAt: s.accepted_at, startedAt: s.started_at, endedAt: s.ended_at, endReason: s.end_reason, expiresAt: s.expires_at, other };
+    };
+    const withName = async (v) => { const p = await member(env, v.other); const { other, ...rest } = v; return { ...rest, partner: { name: p ? p.name : "?" } }; };
+    if (req.method === "POST" && path === "/live") {
+      const b = await req.json().catch(() => ({}));
+      const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular')", uid, uid).all()).results || [];
+      const c = conns[0]; if (!c) return err(404, "no_connection");
+      const other = c.a === uid ? c.b : c.a;
+      if (await blockedEither(env, uid, other)) return err(403, "forbidden");
+      const mine = await openLive(env, uid); if (mine) return json({ live: await withName(view(mine, uid)), ...(await meView(env, uid, ms)) });   // idempotent
+      if (await openLive(env, other)) return err(409, "busy");
+      if (await bump(env, uid, "live", ms) > DAILY_LIMITS.live) return err(429, "limit");
+      const id = rid();
+      await q(env, "INSERT INTO live_sessions(id,host,guest,state,band,prompt_week,fnd_day,prompt_json,created_at,updated_at,expires_at) VALUES(?,?,?,'invited',?,?,?,?,?,?,?)",
+        id, uid, other, BANDS.includes(b.band) ? b.band : null, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), b.phrase ? JSON.stringify({ phrase: clean(b.phrase, 160) }) : null, ms, ms, ms + LIVE_INVITE_MS).run();
+      await audit(env, ms, uid, "live_invited", other, id, {});
+      const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", id).first();
+      return json({ live: await withName(view(s, uid)), ...(await meView(env, uid, ms)) }, 201);
+    }
+    const lm = /^\/live\/([a-f0-9]{16})(?:\/(accept|decline|cancel|signal|signals|end|report|block))?$/.exec(path);
+    if (!lm) return err(404, "not_found");
+    const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", lm[1]).first();
+    if (!s || (s.host !== uid && s.guest !== uid)) return err(403, "forbidden");
+    const other = s.host === uid ? s.guest : s.host, isHost = s.host === uid, act = lm[2] || "";
+    if (act !== "block" && await blockedEither(env, uid, other)) return err(403, "forbidden");
+    const open = LIVE_OPEN.has(s.state) && s.expires_at > ms;
+    if (LIVE_OPEN.has(s.state) && s.expires_at <= ms) { await liveClose(env, s, "expired", "expired", ms); s.state = "expired"; }
+    const seenCol = isHost ? "host_seen" : "guest_seen";
+    if (req.method === "GET" && act === "") {
+      await q(env, `UPDATE live_sessions SET ${seenCol}=? WHERE id=?`, ms, s.id).run();
+      return json({ live: await withName(view(s, uid)), iceServers: await iceServers(env), partnerSeen: isHost ? s.guest_seen : s.host_seen });
+    }
+    if (req.method === "GET" && act === "signals") {
+      const after = Math.max(0, Number(url.searchParams.get("after")) || 0);
+      const rows = (await q(env, "SELECT id,kind,payload,created_at FROM live_signals WHERE session_id=? AND from_uid<>? AND id>? ORDER BY id LIMIT 100", s.id, uid, after).all()).results || [];
+      await q(env, `UPDATE live_sessions SET ${seenCol}=? WHERE id=?`, ms, s.id).run();
+      return json({ state: s.state, endReason: s.end_reason, startedAt: s.started_at, partnerSeen: isHost ? s.guest_seen : s.host_seen, signals: rows.map(r => ({ id: r.id, kind: r.kind, payload: r.payload, at: r.created_at })) });
+    }
+    if (req.method !== "POST") return err(404, "not_found");
+    if (act === "accept") {
+      if (isHost) return err(403, "forbidden");
+      if (s.state === "invited" && open) { await q(env, "UPDATE live_sessions SET state='accepted', accepted_at=?, updated_at=?, expires_at=? WHERE id=? AND state='invited'", ms, ms, ms + LIVE_SESSION_MS, s.id).run(); await audit(env, ms, uid, "live_accepted", other, s.id, {}); }
+      else if (!LIVE_OPEN.has(s.state)) return err(409, "closed");
+      const f = await q(env, "SELECT * FROM live_sessions WHERE id=?", s.id).first();
+      return json({ live: await withName(view(f, uid)), iceServers: await iceServers(env) });
+    }
+    if (act === "decline" || act === "cancel") {
+      if ((act === "decline" && isHost) || (act === "cancel" && !isHost)) return err(403, "forbidden");
+      if (open && (s.state === "invited" || s.state === "accepted")) { await liveClose(env, s, act === "decline" ? "declined" : "cancelled", act === "decline" ? "declined" : "cancelled", ms); await audit(env, ms, uid, "live_" + act, other, s.id, {}); }
+      return json(await meView(env, uid, ms));
+    }
+    if (act === "signal") {
+      if (!open || s.state === "invited") return err(409, "closed");
+      const b = await req.json().catch(() => ({}));
+      if (!LIVE_KINDS.has(b.kind) || typeof b.payload !== "string" || b.payload.length > 8000) return err(400, "bad_request");
+      const n = (await q(env, "SELECT COUNT(*) AS n FROM live_signals WHERE session_id=? AND from_uid=?", s.id, uid).first()).n;
+      if (n >= LIVE_MAX_SIGNALS) return err(429, "limit");
+      await q(env, "INSERT INTO live_signals(session_id,from_uid,kind,payload,created_at) VALUES(?,?,?,?,?)", s.id, uid, b.kind, b.payload, ms).run();
+      /* the transport drives the state: an offer/answer means connecting, the
+         first "connected" report starts the clock, a drop reports reconnecting */
+      let next = null;
+      if ((b.kind === "offer" || b.kind === "answer") && s.state === "accepted") next = "connecting";
+      if (b.kind === "state" && b.payload === "connected" && (s.state === "connecting" || s.state === "reconnecting" || s.state === "accepted")) next = "active";
+      if (b.kind === "state" && b.payload === "reconnecting" && s.state === "active") next = "reconnecting";
+      if (next) {
+        await q(env, `UPDATE live_sessions SET state=?, updated_at=?, expires_at=? ${next === "active" && !s.started_at ? ", started_at=" + Number(ms) : ""} WHERE id=? AND state=?`, next, ms, ms + LIVE_SESSION_MS, s.id, s.state).run();
+        if (next === "active" && !s.started_at) await audit(env, ms, "system", "live_started", null, s.id, {});
+        if (next === "reconnecting") await audit(env, ms, uid, "live_reconnecting", other, s.id, {});
+      }
+      if (b.kind === "bye") { await liveClose(env, s, "ended", "left", ms); await audit(env, ms, uid, "live_left", other, s.id, {}); }
+      const f = await q(env, "SELECT state FROM live_sessions WHERE id=?", s.id).first();
+      return json({ ok: true, state: f.state });
+    }
+    if (act === "end") {
+      const b = await req.json().catch(() => ({}));
+      const reason = ["left", "completed", "failed"].includes(b.reason) ? b.reason : "left";
+      if (LIVE_OPEN.has(s.state)) { await liveClose(env, s, reason === "failed" ? "failed" : "ended", reason, ms); await audit(env, ms, uid, "live_" + (reason === "completed" ? "completed" : reason === "failed" ? "failed" : "left"), other, s.id, { secs: s.started_at ? Math.round((ms - s.started_at) / 1000) : 0 }); }
+      const f = await q(env, "SELECT * FROM live_sessions WHERE id=?", s.id).first();
+      return json({ live: await withName(view(f, uid)), ...(await meView(env, uid, ms)) });
+    }
+    if (act === "report") {
+      const b = await req.json().catch(() => ({}));
+      if (!REASONS.has(b.reason)) return err(400, "bad_request");
+      const r = await doReport(env, uid, other, s.id, b.reason, ms); if (r) return r;
+      const fresh = await q(env, "SELECT * FROM live_sessions WHERE id=?", s.id).first();
+      if (LIVE_OPEN.has(fresh.state) && (await member(env, other)).suspended_until > ms) await liveClose(env, fresh, "ended", "suspended", ms);
+      return json({ ok: true, ...(await meView(env, uid, ms)) });
+    }
+    if (act === "block") {
+      const r = await doBlock(env, uid, other, ms); if (r) return r;
+      if (LIVE_OPEN.has(s.state)) await liveClose(env, s, "ended", "blocked", ms);
+      await audit(env, ms, uid, "blocked", other, s.id, { live: true });
+      return json({ ok: true, ...(await meView(env, uid, ms)) });
+    }
+    return err(404, "not_found");
+  }
+
   /* POST /next {promptWeek, fndDay, band, phrase?} — a connected partner starts the next session directly */
   if (req.method === "POST" && path === "/next") {
     if (suspended) return err(403, "suspended", m.suspended_until);
@@ -568,6 +723,12 @@ async function maintenance(env, ms) {
     for (const t of turns) { await env.AUDIO.delete(t.audio_key).catch(() => {}); purged++; }
     await q(env, "DELETE FROM turns WHERE pair_id=?", p.id).run();
   }
+  /* live: open sessions past their expiry close as expired; signalling rows
+     of closed sessions go at once (they are worthless after the call), the
+     session rows after 30 days */
+  await q(env, "UPDATE live_sessions SET state='expired', end_reason='expired', ended_at=?, updated_at=? WHERE state IN ('invited','accepted','connecting','active','reconnecting') AND expires_at < ?", ms, ms, ms).run();
+  await q(env, "DELETE FROM live_signals WHERE session_id IN (SELECT id FROM live_sessions WHERE state NOT IN ('invited','accepted','connecting','active','reconnecting'))").run();
+  await q(env, "DELETE FROM live_sessions WHERE state NOT IN ('invited','accepted','connecting','active','reconnecting') AND updated_at < ?", ms - 30 * DAY).run();
   await q(env, "DELETE FROM offers WHERE expires_at < ?", ms).run();
   await q(env, "DELETE FROM cooldowns WHERE until < ?", ms).run();
   await q(env, "DELETE FROM counters WHERE key NOT LIKE ?", "%:" + dayKey(ms)).run();

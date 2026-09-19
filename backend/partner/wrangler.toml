@@ -25,6 +25,10 @@ compatibility_date = "2026-07-31"
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io"
 PARTNER_ENABLED = "0"          # production kill switch: "1" only at release approval
+LIVE_ENABLED = "0"             # live human practice (Level 3): separate switch, off in production
+# TURN for live practice is optional: `wrangler secret put TURN_KEY_ID` and
+# `TURN_KEY_TOKEN` (Cloudflare Calls TURN key). Without them the Worker hands
+# out STUN only, and phones behind carrier NAT may fail to connect.
 MATCH_WEIGHTS = "{}"           # JSON overrides of WEIGHTS_DEFAULT in partner-worker.js
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
@@ -51,6 +55,7 @@ PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
 TURNS_PER_DAY = "3"
 PARTNER_ENABLED = "1"
+LIVE_ENABLED = "1"
 MATCH_WEIGHTS = "{}"
 IP_PER_MIN = "100000"          # the test suites hammer one IP; production keeps the 120 default
 DEV_AUTH = "1"
@@ -84,6 +89,7 @@ name = "be-partner-staging"
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.0.0.1:8000"
 PARTNER_ENABLED = "1"
+LIVE_ENABLED = "1"
 MATCH_WEIGHTS = "{}"
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
@@ -92,7 +98,7 @@ TURNS_PER_DAY = "3"
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "be-partner-staging"
-database_id = "REPLACE-WITH-wrangler-d1-create-OUTPUT"
+database_id = "4cd14280-0eaf-422b-b986-84ebe29a1204"
 migrations_dir = "migrations"
 
 [[env.staging.r2_buckets]]

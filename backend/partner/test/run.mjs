@@ -98,6 +98,49 @@ let t1 = null;
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
   ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
 
+/* ---------------- live practice (Level 3): alice + bob are regular partners ---------------- */
+{ const noConn = await call("carol", "POST", "/live", { band: "w1-4", promptWeek: 3 });
+  ok("live: needs a mutual/regular connection (404 no_connection)", noConn.status === 404 && noConn.json.error === "no_connection");
+  const inv = await call("alice", "POST", "/live", { band: "w1-4", promptWeek: 3, phrase: "I've been working on" });
+  ok("live: host invites the connected partner → invited session, opaque id, partner first name only", inv.status === 201 && inv.json.live && inv.json.live.state === "invited" && inv.json.live.role === "host" && /^[a-f0-9]{16}$/.test(inv.json.live.id) && inv.json.live.partner && Object.keys(inv.json.live.partner).join() === "name" && !("other" in inv.json.live), JSON.stringify(inv.json.live));
+  const L = inv.json.live.id;
+  const again = await call("alice", "POST", "/live", { band: "w1-4", promptWeek: 3 });
+  ok("live: inviting again returns the same open session (idempotent)", again.status === 200 && again.json.live.id === L);
+  const bobMe = await call("bob", "GET", "/me");
+  ok("live: the guest sees the invitation in /me with role guest and connection.canLive false while it is open", bobMe.json.live && bobMe.json.live.id === L && bobMe.json.live.role === "guest" && bobMe.json.live.state === "invited");
+  ok("live: a non-member cannot read, accept or signal (403)", (await call("carol", "GET", `/live/${L}`)).status === 403 && (await call("carol", "POST", `/live/${L}/accept`)).status === 403 && (await call("carol", "POST", `/live/${L}/signal`, { kind: "offer", payload: "x" })).status === 403 && (await call(null, "GET", `/live/${L}`)).status === 401);
+  ok("live: the host cannot accept their own invitation; signalling before acceptance is refused", (await call("alice", "POST", `/live/${L}/accept`)).status === 403 && (await call("alice", "POST", `/live/${L}/signal`, { kind: "offer", payload: "sdp" })).status === 409);
+  const acc = await call("bob", "POST", `/live/${L}/accept`); const acc2 = await call("bob", "POST", `/live/${L}/accept`);
+  ok("live: guest accepts → accepted, ICE servers returned (STUN at least); accepting twice is harmless", acc.status === 200 && acc.json.live.state === "accepted" && Array.isArray(acc.json.iceServers) && acc.json.iceServers.length >= 1 && acc2.status === 200 && acc2.json.live.state === "accepted", JSON.stringify(acc.json));
+  const off = await call("alice", "POST", `/live/${L}/signal`, { kind: "offer", payload: "v=0 offer" });
+  const bobSig = await call("bob", "GET", `/live/${L}/signals?after=0`);
+  ok("live: offer → state connecting; the guest polls and receives only the host's signals", off.json.state === "connecting" && bobSig.json.state === "connecting" && bobSig.json.signals.length === 1 && bobSig.json.signals[0].kind === "offer" && bobSig.json.signals[0].payload === "v=0 offer");
+  await call("bob", "POST", `/live/${L}/signal`, { kind: "answer", payload: "v=0 answer" }); await call("bob", "POST", `/live/${L}/signal`, { kind: "ice", payload: "{\"candidate\":\"x\"}" });
+  const aliceSig = await call("alice", "GET", `/live/${L}/signals?after=0`); const lastId = aliceSig.json.signals[aliceSig.json.signals.length - 1].id;
+  const aliceSig2 = await call("alice", "GET", `/live/${L}/signals?after=${lastId}`);
+  ok("live: answer + ice reach the host; ?after= returns nothing new; own signals never echo back", aliceSig.json.signals.map(x => x.kind).join() === "answer,ice" && aliceSig2.json.signals.length === 0 && !bobSig.json.signals.some(x => x.kind === "answer"));
+  const con = await call("bob", "POST", `/live/${L}/signal`, { kind: "state", payload: "connected" });
+  const st = await call("alice", "GET", `/live/${L}`);
+  ok("live: first 'connected' report → active with startedAt; the other side reads the same state", con.json.state === "active" && st.json.live.state === "active" && st.json.live.startedAt > 0);
+  const rc = await call("alice", "POST", `/live/${L}/signal`, { kind: "state", payload: "reconnecting" }); const rc2 = await call("alice", "POST", `/live/${L}/signal`, { kind: "state", payload: "connected" });
+  ok("live: reconnecting ⇄ active transitions are server-side and idempotent", rc.json.state === "reconnecting" && rc2.json.state === "active");
+  ok("live: bad kinds and oversized payloads are refused", (await call("bob", "POST", `/live/${L}/signal`, { kind: "video", payload: "x" })).status === 400 && (await call("bob", "POST", `/live/${L}/signal`, { kind: "ice", payload: "x".repeat(9000) })).status === 400);
+  const end = await call("bob", "POST", `/live/${L}/end`, { reason: "completed" }); const end2 = await call("bob", "POST", `/live/${L}/end`, { reason: "completed" });
+  ok("live: end → ended/completed; ending twice is harmless; signalling after the end is refused", end.json.live.state === "ended" && end.json.live.endReason === "completed" && end2.status === 200 && end2.json.live.state === "ended" && (await call("alice", "POST", `/live/${L}/signal`, { kind: "ice", payload: "x" })).status === 409);
+  /* decline, cancel, expiry, block */
+  const inv2 = (await call("bob", "POST", "/live", { band: "w1-4" })).json.live.id;
+  ok("live: the host can cancel an open invitation; the guest cannot", (await call("alice", "POST", `/live/${inv2}/cancel`)).status === 403 && (await call("bob", "POST", `/live/${inv2}/cancel`)).status === 200 && (await call("bob", "GET", `/live/${inv2}`)).json.live.state === "cancelled");
+  const inv3 = (await call("bob", "POST", "/live", { band: "w1-4" })).json.live.id;
+  ok("live: the guest can decline", (await call("alice", "POST", `/live/${inv3}/decline`)).status === 200 && (await call("alice", "GET", `/live/${inv3}`)).json.live.state === "declined");
+  const base = (await call("alice", "GET", "/me")).json.serverNow;
+  const inv4 = (await call("alice", "POST", "/live", { band: "w1-4" })).json.live.id;
+  clock = base + 11 * 60_000; const stale = await call("bob", "GET", `/live/${inv4}`); clock = null;
+  ok("live: an invitation nobody answered expires after 10 minutes", stale.json.live.state === "expired");
+  const inv5 = (await call("alice", "POST", "/live", { band: "w1-4" })).json.live.id; await call("bob", "POST", `/live/${inv5}/accept`); await call("alice", "POST", `/live/${inv5}/signal`, { kind: "offer", payload: "o" });
+  const blk = await call("bob", "POST", `/live/${inv5}/block`);
+  ok("live: block during a session → ended at once, both sides lose the session (403) and /me carries no live session", blk.status === 200 && (await call("alice", "GET", `/live/${inv5}`)).status === 403 && (await call("bob", "GET", `/live/${inv5}`)).status === 403 && !(await call("alice", "GET", "/me")).json.live && !(await call("bob", "GET", "/me")).json.live);
+  ok("live: no second live session can be started against a blocked partner", (await call("alice", "POST", "/live", { band: "w1-4" })).status === 403 || (await call("alice", "POST", "/live", { band: "w1-4" })).status === 404); }
+
 /* rematch: closes the pair, cooldown, not re-offered */
 await consent("hana", "Hana", { gender: "f" }); await consent("ivan", "Ivan", { gender: "m" });
 await join("hana", { band: "w5-8" }); const oi = (await join("ivan", { band: "w5-8" })).json.candidates[0].offer;
