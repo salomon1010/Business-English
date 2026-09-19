@@ -168,8 +168,9 @@ let t1 = null;
   ok("end partnership → connection ended for both, open session closed as 'left', no block, cooldown", end.status === 200 && end.json.already === false && !end.json.connection && !end.json.pair && !zedMe.json.connection && !zedMe.json.pair && zedMe.json.lastClosed && zedMe.json.lastClosed.reason === "left" && !zedMe.json.suspendedUntil, JSON.stringify({ end: end.json.connection, zed: zedMe.json.lastClosed }));
   const end2 = await call("yara", "POST", "/connection/end", { cid });
   ok("ending twice is harmless (already:true)", end2.status === 200 && end2.json.already === true);
+  clock = (await call("yara", "GET", "/me")).json.serverNow + 6 * 60_000;   /* everyone else "seen" > 5 min ago: only in-line members remain */
   await join("zed", { band: "w5-8" }); const yj = await join("yara", { band: "w5-8" });
-  ok("an ended partner who is online is still offered (ranked last), and the strip counts them — the same number the cards show", yj.json.candidates.some(c => c.name === "Zed") && (await call("yara", "GET", "/me")).json.presence.waiting === (await call("yara", "GET", "/me")).json.waiting.available); await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
+  ok("an ended partner who is online is still offered (ranked last), and the strip counts them — the same number the cards show", yj.json.candidates.some(c => c.name === "Zed") && (await call("yara", "GET", "/me")).json.presence.waiting === (await call("yara", "GET", "/me")).json.waiting.available, JSON.stringify(yj.json.candidates || yj.json)); clock = null; await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
   ok("not a block: Zed can still be read normally, and a report through the connection is recorded", (await call("zed", "GET", "/me")).status === 200 && (await call("yara", "POST", "/connection/report", { cid, reason: "other" })).status === 200); }
 
 /* ---------------- AI coach sessions are counted per learner (Level 2) ---------------- */
@@ -181,6 +182,25 @@ let t1 = null;
   let last = 0; for (let i = 1; i < 13; i++) { last = (await call("bob", "POST", "/ai/session", { id: ids[i], track: "general-english" })).status; if (last === 429) break; }
   ok("ai: the 13th new session in a day → 429 limit; a repeat of an earlier id still succeeds", last === 429 && (await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 200);
   ok("ai: malformed id → 400; no auth → 401", (await call("bob", "POST", "/ai/session", { id: "x", track: "general-english" })).status === 400 && (await call(null, "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 401); }
+
+/* ---------------- online, not in line: still a candidate (owner, 2026-09-19); Welding never ---------------- */
+{ await consent("ora", "Ora"); await join("ora", { band: "w1-4" });
+  const on = await call("oli", "POST", "/consent", { name: "Oli", lang: "en", adult: true, track: "general-english" });   /* consented on General English, never tapped Match me */
+  await call("oli", "GET", "/me");   /* seen just now */
+  const wl = await call("wl", "POST", "/consent", { name: "Wl", lang: "en", adult: true, track: "welding" });
+  const bad = await call("wl2", "POST", "/consent", { name: "Wl2", lang: "en", adult: true });   /* no track at all: never offered */
+  await call("wl2", "GET", "/me");
+  const mo = await call("ora", "POST", "/match");
+  ok("an online General English member who is NOT in line is offered (reason online_now, band unknown), and counted", on.status === 200 && mo.json.candidates.some(c => c.name === "Oli" && c.inLine === false && c.reasons.includes("online_now") && c.band === null) && (await call("ora", "GET", "/me")).json.presence.waiting >= 1, JSON.stringify(mo.json.candidates));
+  ok("consent with track=welding is refused (403); a member without a track is never offered", wl.status === 403 && wl.json.error === "track" && bad.status === 200 && !mo.json.candidates.some(c => c.name === "Wl2"));
+  const oo = mo.json.candidates.find(c => c.name === "Oli");
+  const inv = await call("ora", "POST", "/invite", { offer: oo.offer });
+  const om = await call("oli", "GET", "/me");
+  ok("the online member can be asked: proposal created, they see the invitation", inv.status === 200 && inv.json.pairInvite && om.json.invite && om.json.invite.partner.name === "Ora", JSON.stringify([inv.json.error, om.json.invite]));
+  const acc = await call("oli", "POST", `/pairs/${om.json.invite.id}/accept`);
+  ok("…and accept it → active trial pair", acc.status === 200 && acc.json.pair && acc.json.pair.kind === "trial");
+  await call("ora", "POST", `/pairs/${acc.json.pair.id}/leave`);
+  ok("an online member seen more than 5 minutes ago is not offered", await (async () => { clock = (await call("ora", "GET", "/me")).json.serverNow + 6 * 60_000; await join("ora", { band: "w1-4" }); const m2 = await call("ora", "POST", "/match"); const r = !m2.json.candidates.some(c => c.name === "Oli"); clock = null; return r; })()); }
 
 /* ---------------- account deletion: DELETE /me erases everything Practice Partner holds ---------------- */
 { await consent("xan", "Xan"); await consent("yul", "Yul"); await join("xan", { band: "w1-4" }); await join("yul", { band: "w1-4" });
@@ -271,9 +291,11 @@ await join("hana", { band: "w5-8" }); const oi = (await join("ivan", { band: "w5
   const rm = await call("hana", "POST", `/pairs/${pid}/decide`, { choice: "rematch" });
   const ivanMe = await call("ivan", "GET", "/me");
   ok("'Find someone else' closes the pair for both, reason rematch, no explanation exposed", !rm.json.pair && !ivanMe.json.pair && ivanMe.json.lastClosed.reason === "rematch");
-  await join("hana", { band: "w5-8" }); const again = await join("ivan", { band: "w5-8" });
-  ok("after a rematch the rejected learner is still offered while online (sorted last), never hidden", again.json.candidates.some(c => c.name === "Hana") && again.json.status === "waiting");
-  ok("presence for a learner NOT in line counts the same people a Match me would show", await (async () => { await call("ivan", "DELETE", "/interest"); const m = await call("ivan", "GET", "/me"); return !m.json.waiting && m.json.presence.waiting === 1; })());
+  for (const u of ["ora", "alice", "bob", "carol"]) await call(u, "DELETE", "/interest").catch(() => {});   /* three cards only: clear the other queues so the ranked-last learner fits */
+  clock = (await call("ivan", "GET", "/me")).json.serverNow + 20 * 60_000;   /* well past every earlier "seen" stamp, so nobody else is online */
+  await join("hana", { band: "w5-8" }); const again = await join("ivan", { band: "w5-8" }); clock = null;
+  ok("after a rematch the rejected learner is still offered while online (sorted last), never hidden", again.json.candidates.some(c => c.name === "Hana") && again.json.status === "waiting", JSON.stringify(again.json.candidates || again.json));
+  ok("presence for a learner NOT in line counts the same people a Match me would show", await (async () => { await call("ivan", "DELETE", "/interest"); const m = await call("ivan", "GET", "/me"); return !m.json.waiting && m.json.presence.waiting >= 1; })());
   await call("hana", "DELETE", "/interest"); await call("ivan", "DELETE", "/interest"); }
 
 /* timeout: rematch allowed after 24 h of silence even if incomplete; fallback flag */

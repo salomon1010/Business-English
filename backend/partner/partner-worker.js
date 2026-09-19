@@ -280,10 +280,28 @@ async function candidates(env, uid, ms, limit = 3) {
   /* not in line yet (the presence strip asks before a tap): score against a
      neutral row so the count is the same set a Match me would show */
   const me = (await q(env, "SELECT * FROM interest WHERE uid=?", uid).first()) || { uid, track: "general-english", band: null, lang: mm.lang, prompt_week: 0, fnd_day: 0, topic: null, goals: mm.goals, mode: "later", created_at: ms };
-  const rows = (await q(env, `SELECT i.uid, i.track, i.band, i.lang, i.prompt_week, i.fnd_day, i.mode AS imode, i.topic, i.goals, i.created_at,
+  /* whoever can be asked right now: everyone IN LINE on this track (a queue
+     row younger than 7 days) plus everyone merely ONLINE on this track
+     (consented, seen in the last 5 minutes, not in a session) — owner rule
+     2026-09-19: "as soon as someone is available, Show me candidates shows
+     them". An online member has no queue row, so their card is built from the
+     member row (band unknown → ranked by the rest). members.track is what
+     keeps a Welding member from ever appearing here. */
+  const rows = (await q(env, `SELECT m.uid, COALESCE(i.track, m.track) AS track, i.band, COALESCE(i.lang, m.lang) AS lang, COALESCE(i.prompt_week, 0) AS prompt_week, COALESCE(i.fnd_day, 0) AS fnd_day,
+      COALESCE(i.mode, 'later') AS imode, i.topic, COALESCE(i.goals, m.goals) AS goals, COALESCE(i.created_at, m.last_seen) AS created_at, (i.uid IS NOT NULL) AS in_line,
       m.gender, m.same_gender, m.suspended_until, m.opted_out, m.mode, m.avail, m.tz, m.sessions_completed, m.sessions_abandoned
-    FROM interest i JOIN members m ON m.uid=i.uid WHERE i.uid<>? AND i.track=? AND i.created_at>? ORDER BY i.created_at ASC LIMIT 200`, uid, me.track, ms - 7 * DAY).all()).results || [];
+    FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.created_at>?
+    WHERE m.uid<>? AND m.adult=1 AND ((i.uid IS NOT NULL AND i.track=?) OR (i.uid IS NULL AND m.track=? AND m.last_seen>? AND m.last_seen<=?))
+    ORDER BY in_line DESC, created_at ASC LIMIT 200`, ms - 7 * DAY, uid, me.track, me.track, ms - 5 * 60_000, ms + 60_000).all()).results || [];
   const W = weights(env), out = [];
+  /* four set queries instead of five per row (this runs on every /me poll):
+     who I have blocked / who blocked me, who is in an open session, my
+     connections, my cooldowns, and how often each candidate was offered today */
+  const blocked = new Set(((await q(env, "SELECT by_uid, about_uid FROM blocks WHERE by_uid=? OR about_uid=?", uid, uid).all()).results || []).map(r => (r.by_uid === uid ? r.about_uid : r.by_uid)));
+  const busy = new Set(((await q(env, "SELECT uid_a, uid_b FROM pairs WHERE status='active'").all()).results || []).flatMap(r => [r.uid_a, r.uid_b]));
+  const conns = new Map(((await q(env, "SELECT * FROM connections WHERE a=? OR b=?", uid, uid).all()).results || []).map(r => [r.a === uid ? r.b : r.a, r]));
+  const cools = new Set(((await q(env, "SELECT a, b FROM cooldowns WHERE (a=? OR b=?) AND until>?", uid, uid, ms).all()).results || []).map(r => (r.a === uid ? r.b : r.a)));
+  const exposures = new Map(((await q(env, "SELECT cand_uid, COUNT(*) AS n FROM offers WHERE created_at>? GROUP BY cand_uid", ms - DAY).all()).results || []).map(r => [r.cand_uid, r.n]));
   for (const c of rows) {
     if (!TRACKS.has(c.track)) continue;
     if (c.suspended_until && c.suspended_until > ms) continue;
@@ -294,17 +312,18 @@ async function candidates(env, uid, ms, limit = 3) {
        cooldown after an ended pair — and "not already in a session". */
     if (mm.same_gender && (!mm.gender || c.gender !== mm.gender)) continue;
     if (c.same_gender && (!c.gender || c.gender !== mm.gender)) continue;
-    if (await blockedEither(env, uid, c.uid)) continue;
-    if (await activePair(env, c.uid)) continue;
-    const conn = await connection(env, uid, c.uid);
+    if (blocked.has(c.uid)) continue;
+    if (busy.has(c.uid)) continue;
+    const conn = conns.get(c.uid) || null;
     if (conn && conn.state === "blocked") continue;
     /* someone you ended with or rematched away from is still online and still
        askable (owner, 2026-09-19: the strip must never count a learner the
        cards then hide) — they just sort last */
-    const again = (await cooled(env, uid, c.uid, ms)) || (conn && (conn.state === "disconnected" || conn.state === "ended"));
+    const again = cools.has(c.uid) || (conn && (conn.state === "disconnected" || conn.state === "ended"));
     let { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
     if (again) s -= 1;
-    const exposure = (await q(env, "SELECT COUNT(*) AS n FROM offers WHERE cand_uid=? AND created_at>?", c.uid, ms - DAY).first()).n;
+    if (!c.in_line) { s -= 0.5; reasons = ["online_now", ...reasons.filter(r => r !== "in_line")].slice(0, 2); }   /* people actually in line come first */
+    const exposure = exposures.get(c.uid) || 0;
     out.push({ c, s: s - Math.min(0.15, exposure * 0.03), reasons });
   }
   out.sort((a, b) => b.s - a.s || a.c.created_at - b.c.created_at);
@@ -316,7 +335,7 @@ async function offerCards(env, uid, ms, cands) {
     const id = rid();
     await q(env, "INSERT INTO offers(id,for_uid,cand_uid,reasons,created_at,expires_at) VALUES(?,?,?,?,?,?)", id, uid, c.uid, JSON.stringify(reasons), ms, ms + OFFER_TTL_MS).run();
     const p = await member(env, c.uid);
-    cards.push({ offer: id, name: p ? p.name : "?", band: c.band, goals: jl(c.goals).slice(0, 2), topic: c.topic || "", availability: c.imode === "now" ? "now" : "later", reasons, waitingMin: Math.max(0, Math.round((ms - c.created_at) / 60_000)) });
+    cards.push({ offer: id, name: p ? p.name : "?", band: c.band || null, inLine: !!c.in_line, goals: jl(c.goals).slice(0, 2), topic: c.topic || "", availability: c.imode === "now" ? "now" : "later", reasons, waitingMin: Math.max(0, Math.round((ms - c.created_at) / 60_000)) });
   }
   return cards;
 }
@@ -521,8 +540,12 @@ async function handle(req, env, ctx) {
     const same = b.sameGender && gender ? 1 : 0;
     const goals = JSON.stringify(parseList(b.goals, GOALS, 3)), mode = MODES.has(b.mode) ? b.mode : "voice", avail = JSON.stringify(parseList(b.avail, AVAIL, 4));
     const tz = Math.max(-12, Math.min(14, Math.round(Number(b.tz) || 0)));
-    if (m) await q(env, "UPDATE members SET name=?, lang=?, gender=?, same_gender=?, adult=1, goals=?, mode=?, avail=?, tz=?, last_seen=? WHERE uid=?", name, lang, gender, same, goals, mode, avail, tz, ms, uid).run();
-    else await q(env, "INSERT INTO members(uid,name,lang,gender,same_gender,consent_at,created_at,last_seen,adult,goals,mode,avail,tz) VALUES(?,?,?,?,?,?,?,?,1,?,?,?,?)", uid, name, lang, gender, same, ms, ms, ms, goals, mode, avail, tz).run();
+    /* the programme is optional here (older clients) but, when given, must be
+       the one this Worker serves — it is what lets an online member be offered */
+    if (b.track !== undefined && !TRACKS.has(b.track)) return err(403, "track");
+    const track = TRACKS.has(b.track) ? b.track : (m && m.track) || null;
+    if (m) await q(env, "UPDATE members SET name=?, lang=?, gender=?, same_gender=?, adult=1, goals=?, mode=?, avail=?, tz=?, last_seen=?, track=? WHERE uid=?", name, lang, gender, same, goals, mode, avail, tz, ms, track, uid).run();
+    else await q(env, "INSERT INTO members(uid,name,lang,gender,same_gender,consent_at,created_at,last_seen,adult,goals,mode,avail,tz,track) VALUES(?,?,?,?,?,?,?,?,1,?,?,?,?,?)", uid, name, lang, gender, same, ms, ms, ms, goals, mode, avail, tz, track).run();
     await audit(env, ms, uid, m ? "prefs_updated" : "consented", null, null, {});
     return json(await meView(env, uid, ms));
   }
@@ -557,6 +580,7 @@ async function handle(req, env, ctx) {
     const pw = Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), fd = Math.max(0, Math.min(15, Number(b.fndDay) || 0));
     const mode = b.mode === "now" ? "now" : "later", topic = clean(b.topic, 60);
     const gl = parseList(b.goals, GOALS, 3), goals = JSON.stringify(gl.length ? gl : jl(m.goals));
+    await q(env, "UPDATE members SET track=? WHERE uid=?", b.track, uid).run();
     await q(env, "INSERT INTO interest(uid,track,band,lang,prompt_week,fnd_day,created_at,mode,topic,goals) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(uid) DO UPDATE SET track=excluded.track, band=excluded.band, lang=excluded.lang, prompt_week=excluded.prompt_week, fnd_day=excluded.fnd_day, mode=excluded.mode, topic=excluded.topic, goals=excluded.goals",
       uid, b.track, b.band, lang, pw, fd, ms, mode, topic, goals).run();
     await audit(env, ms, uid, "queue_joined", null, null, { mode });
@@ -589,7 +613,12 @@ async function handle(req, env, ctx) {
     if (!off || off.expires_at < ms) return err(404, "offer");
     if (await bump(env, uid, "invite", ms) > DAILY_LIMITS.invite) return err(429, "limit");
     if (await activePair(env, uid)) return err(409, "paired");
-    const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first(), theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
+    const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first();
+    let theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
+    if (!theirs) {   /* an online member, not in line: still askable while they are on this track, seen recently and free */
+      const om = await member(env, off.cand_uid);
+      if (om && TRACKS.has(om.track) && om.last_seen > ms - 5 * 60_000 && !om.opted_out && !(om.suspended_until > ms)) theirs = { uid: om.uid, track: om.track, band: null, lang: om.lang, prompt_week: 0, fnd_day: 0 };
+    }
     if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid)) return err(409, "gone");
     const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase), b.live === true && env.LIVE_ENABLED === "1");
     if (!pairId) return err(409, "gone");
