@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Kein Konto mit dieser E-Mail — versuch Registrieren.",
  "auth.err_popup_closed": "Anmeldefenster geschlossen.",
  "auth.err_network": "Netzwerkproblem — prüf deine Verbindung.",
+ "auth.err_too_many": "Zu viele Versuche von diesem Gerät. Warte kurz und versuche es dann erneut.",
  "auth.err_unauthorized_domain": "Diese Website ist in Firebase noch nicht autorisiert (füge sie unter Authentication → Settings hinzu).",
  "auth.err_generic": "Etwas ist schiefgelaufen.",
  "auth.unavailable_toast": "⚠️ Anmeldung nicht verfügbar",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} Lernende warten — wähle eine Person",
  "pp.fab": "Mit einem echten Menschen sprechen",
  "pp.fab_small": "Mit jemandem üben",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Live: jetzt sprechen, etwa fünf Minuten. Heutige Übung: aufnehmen, wann du kannst.",
  "pp.cand_live_note": "Jetzt live sprechen oder vier kurze Runden aufnehmen. Wenn es nicht passt, kann jeder von euch gehen.",
  "pp.why_line": "wartet jetzt aufs Üben",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "Etwas langsamer, damit jedes Wort ankommt.",
  "sv.ch_imp_fillers": "Lass die Füllwörter weg ({{n}}) – mach lieber eine stille Pause.",
  "sv.ch_imp_extra": "Bleib beim Satz – keine zusätzlichen Wörter.",
- "sv.ch_imp_levelup": "Nichts zu korrigieren. Nimm die nächste Stufe."
+ "sv.ch_imp_levelup": "Nichts zu korrigieren. Nimm die nächste Stufe.",
+ "nav.curriculum_failed": "Die Lektionen konnten nicht geladen werden. Prüfe deine Verbindung und versuche es erneut.",
+ "auth.reset_sent_note": "Wenn ein Konto für {{email}} existiert, ist ein Link zum Zurücksetzen unterwegs. Sieh auch im Spam-Ordner nach – er kommt von {{from}}. Falsche Adresse? Oben korrigieren und erneut tippen."
 }

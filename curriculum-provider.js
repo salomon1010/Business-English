@@ -49,12 +49,31 @@
       foundations:sections.foundations||null
     });
   }
+  /* One file, up to three tries. A phone on a flaky connection — or one that
+     opened the app in the seconds a deploy was still settling — used to lose
+     the whole app to a single failed fetch out of sixteen: boot gave up, Home
+     showed one line, and every tab after that drew against a null curriculum
+     ("This page could not be drawn", 2026-09-19). Retrying the file is the
+     cheap half of the fix; the boot's own retry button is the other half. */
+  const TRIES=3,BACKOFF_MS=[0,600,1500];
+  async function fetchSection(id,name){
+    let last=null;
+    for(let i=0;i<TRIES;i++){
+      if(BACKOFF_MS[i])await new Promise(r=>setTimeout(r,BACKOFF_MS[i]));
+      try{
+        const response=await fetch("tracks/"+encodeURIComponent(id)+"/"+name+".json",i?{cache:"reload"}:undefined);
+        if(response.ok)return response;
+        last=new Error("Could not load curriculum section: "+id+"/"+name+" ("+response.status+")");
+        if(response.status===404&&i)break;             // a real 404 will not change on the third try
+      }catch(e){last=e}
+    }
+    throw last||new Error("Could not load curriculum section: "+id+"/"+name);
+  }
   async function load(id){
     if(packs.has(id))return packs.get(id);
     if(loading.has(id))return loading.get(id);
     const request=Promise.all(SECTIONS.map(async name=>{
-      const response=await fetch("tracks/"+encodeURIComponent(id)+"/"+name+".json");
-      if(!response.ok)throw new Error("Could not load curriculum section: "+id+"/"+name);
+      const response=await fetchSection(id,name);
       return [name,validateSection(name,await response.json())];
     }).concat(OPTIONAL.map(async name=>{
       try{
@@ -77,5 +96,6 @@
     return isReady(requested)?requested:(packs.get("general")||null);
   }
 
-  global.CurriculumProvider=Object.freeze({load,forTrack,isReady,sections:()=>SECTIONS.slice(),optional:()=>OPTIONAL.slice()});
+  function has(id){return packs.has(id)}
+  global.CurriculumProvider=Object.freeze({load,forTrack,isReady,has,sections:()=>SECTIONS.slice(),optional:()=>OPTIONAL.slice()});
 })(window);

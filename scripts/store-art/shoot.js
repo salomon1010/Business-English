@@ -29,6 +29,8 @@ const PRESETS = {
   // css box the app lays out in, then the multiplier that hits Play's pixel size
   phone:  { w: 540, h: 1200, s: 2, out: "phone" },    // -> 1080x2400
   tablet: { w: 720, h: 1280, s: 2, out: "tablet" },   // -> 1440x2560
+  // App Store, 6.9" iPhone (the one size App Store Connect requires today): 1320x2868
+  iphone: { w: 440, h: 956, s: 3, out: "iphone-6.9" },
 };
 
 // go = router args, applied directly rather than via the hash so boot order can't
@@ -115,8 +117,10 @@ const seed = () => {
     deviceScaleFactor: 1,
   });
 
-  // seed once for the origin; the iframe shares it
-  await page.goto(BASE + "/scripts/store-art/frame.html");
+  // seed once for the origin; the iframe shares it. The iframe must NOT hold the
+  // app while we seed: since save() became a deferred write that flushes on
+  // pagehide, an app booted before the seed would overwrite it on navigation.
+  await page.goto(BASE + "/scripts/store-art/frame.html?u=about:blank");
   await page.evaluate(seed);
 
   const url = `${BASE}/scripts/store-art/frame.html?w=${P.w}&h=${P.h}&s=${P.s}&u=${encodeURIComponent("../../index.html")}`;

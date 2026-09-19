@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "このメールのアカウントはありません——サインアップをお試しください。",
  "auth.err_popup_closed": "ログインウィンドウが閉じられました。",
  "auth.err_network": "ネットワークの問題——接続を確認してください。",
+ "auth.err_too_many": "この端末からの試行回数が多すぎます。少し待ってからもう一度お試しください。",
  "auth.err_unauthorized_domain": "このサイトはまだ Firebase で承認されていません（Authentication → Settings で追加してください）。",
  "auth.err_generic": "問題が発生しました。",
  "auth.unavailable_toast": "⚠️ ログインは利用できません",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} 人の学習者が待っています — 一人選んでください",
  "pp.fab": "本物の人と話す",
  "pp.fab_small": "本物の人と練習",
+ "pp.fab_online": "{{n}}人オンライン",
  "pp.conn_choice": "ライブ：今すぐ話す、約5分。今日の練習：都合のよいときに録音。",
  "pp.cand_live_note": "今すぐライブで話すか、短い4ターンを録音。合わなければ、どちらもいつでも離れられます。",
  "pp.why_line": "今、練習を待っています",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "少しゆっくり。一語一語が届くように。",
  "sv.ch_imp_fillers": "つなぎ言葉（{{n}}）を減らし、無音で間を取りましょう。",
  "sv.ch_imp_extra": "文のとおりに。余計な言葉は入れずに。",
- "sv.ch_imp_levelup": "直すところはありません。次のレベルへ。"
+ "sv.ch_imp_levelup": "直すところはありません。次のレベルへ。",
+ "nav.curriculum_failed": "レッスンをダウンロードできませんでした。接続を確認して、もう一度お試しください。",
+ "auth.reset_sent_note": "{{email}} のアカウントがあれば、再設定リンクを送信しました。迷惑メールフォルダも確認してください。送信元は {{from}} です。アドレスが違う場合は上で修正して、もう一度タップしてください。"
 }

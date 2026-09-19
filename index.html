@@ -59,7 +59,7 @@
      in the boot path. A device that HAS signed in still loads it at boot (see
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-<script src="curriculum-provider.js?v=85"></script>
+<script src="curriculum-provider.js?v=86"></script>
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=84"></script>
@@ -1344,6 +1344,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
 :root[data-theme="light"] #ppFab{border-color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.2)}
 #ppFab:active{transform:scale(.95)}
+/* the online-count badge (owner, 2026-09-19): how many learners are online right now — green like the presence dot, hidden at zero */
+#ppFab .pp-fab-n{position:absolute;top:-5px;right:-7px;min-width:9px;height:19px;padding:0 5px;border-radius:10px;background:#12a56a;color:#fff;font-size:10.5px;font-weight:800;line-height:19px;text-align:center;text-shadow:none;border:2px solid var(--bg,#0f1222);box-shadow:0 1px 3px rgba(0,0,0,.35);pointer-events:none}
+:root[data-theme="light"] #ppFab .pp-fab-n{border-color:#fff}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -2836,7 +2839,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    top/right are pulled in so the × stays visually where it was. */
 .auth-x{position:absolute;top:6px;right:8px;width:44px;height:44px;display:grid;place-items:center;background:none;border:none;color:var(--mut);font-size:24px;cursor:pointer;line-height:1}
 .auth-card input{margin-bottom:10px}
-.auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}
+.auth-err{color:#fca5a5;font-size:12.5px;text-align:center;min-height:16px;margin:2px 0 8px}.auth-err.ok{color:var(--green);line-height:1.45}
 .auth-alt{text-align:center;font-size:13px;color:var(--mut);margin-top:16px}
 /* the sign-in buttons were .btn-p — white on --grad, ~1.9:1 at the cyan end —
    and 38px in the Dashboard nudge. Shared by Settings and that nudge. */
@@ -2887,10 +2890,11 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
   .psp,.coach-card,.coach-week,.coach-narrative,.pcal,.pf-stats,.pf-setup,
   .sim-stage,.sim-live,.adaptive-roadmap,.adaptive-growth,.adaptive-heat,
   .pg-growth,.career-center{max-width:none;margin-left:0;margin-right:0}
-  /* .hero is a two-column grid, and Home now puts a single track card in it —
-     the other track, the one you are not on. Alone it stopped two-thirds short
-     of everything below it. */
-  .hero > .track-entry:only-child{grid-column:1/-1}
+  /* .hero is a two-column grid from when Home showed a ring beside today's
+     card. Every .hero on Home now holds ONE child — today's card, or the one
+     track you are not on — and alone it stopped 60% of the way across, a
+     different right edge from every card under it. Any lone child spans. */
+  .hero > :only-child{grid-column:1/-1}
 }
 .sync-nudge .nudge-ic svg{width:24px;height:24px}
 /* BOTTOM NAV (mobile app style) */
@@ -2955,7 +2959,10 @@ html[dir="rtl"] .doc-close{left:auto;right:max(14px,calc(env(safe-area-inset-rig
 html[dir="rtl"] .doc-theme{right:auto;left:max(14px,calc(env(safe-area-inset-left) + 8px))}
 @media (prefers-reduced-motion:reduce){.doc-ov{animation:none}}
 .footer-note{text-align:center;color:var(--mut);font-size:12.5px;margin-top:50px;line-height:1.7}
-.social-row{display:flex;justify-content:center;gap:4px;margin:14px 0 8px}
+/* It is a <nav>, so it inherited the sticky top bar's tinted background and
+   hairline — a dark band behind the icons (owner, 2026-09-19: "remove the
+   fond"). Plain, on the page background, like the links under it. */
+.social-row{display:flex;justify-content:center;gap:4px;margin:44px 0 0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;position:static;padding:0}
 /* The footer (credit, social row, About / guide / Play) shows on the Profile
    page only (owner, 2026-09-19). Hidden with CSS, not removed: these are the
    crawlable links out of the app shell and the no-JS summary still needs them.
@@ -3498,13 +3505,14 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-manual" class="view"></div>
   <div id="v-setup" class="view"></div>
   <div id="v-tracks" class="view"></div>
-  <div class="footer-note" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
   <!-- Sibling, not part of footer.note: setLang replaces that node's innerHTML
        wholesale, so a link added inside it would vanish on every language change.
        These are also the only crawlable links out of the app shell. -->
   <!-- Follow Lomonec. Live: YouTube, TikTok. Instagram, Facebook and X are
        reserved and greyed until the accounts exist; a tap says so. Own SVGs,
        filled brand marks, not the stroke ICON set. -->
+  <!-- Order (owner, 2026-09-19): the icons first, then every text link in the
+       one footer style underneath — no second row with its own spacing. -->
   <nav class="social-row" aria-label="Lomonec on social media">
     <a class="soon" href="#" data-i18n-aria="footer.soon" aria-label="Coming soon" title="Coming soon" onclick="toast(t('footer.soon'));return false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
     <a class="soon" href="#" data-i18n-aria="footer.soon" aria-label="Coming soon" title="Coming soon" onclick="toast(t('footer.soon'));return false"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M14 8.5V6.8c0-.8.5-1 .9-1H17V2.5h-2.9C11 2.5 10 4.7 10 6.5v2H7.5V12H10v9.5h4V12h2.7l.4-3.5H14Z"/></svg></a>
@@ -3512,7 +3520,8 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
     <a href="https://www.tiktok.com/@lomonec" target="_blank" rel="noopener" aria-label="Lomonec on TikTok" title="TikTok"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 3c.3 2.3 1.6 3.7 3.8 3.9v3.1c-1.4 0-2.7-.4-3.8-1.2v5.6a5.6 5.6 0 1 1-4.8-5.5v3.2a2.5 2.5 0 1 0 1.7 2.3V3h3.1Z"/></svg></a>
     <a href="https://x.com/lomonec" target="_blank" rel="noopener" aria-label="Lomonec on X" title="X"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 3h3l-6.7 7.7L22 21h-6.2l-4.8-6.3L5.4 21h-3l7.2-8.2L2 3h6.3l4.4 5.8L17.8 3Zm-1 16.2h1.7L7.3 4.7H5.5l11.3 14.5Z"/></svg></a>
   </nav>
-  <div class="footer-note" style="margin-top:-6px">
+  <div class="footer-note" style="margin-top:6px" data-i18n-html="footer.note">© 2026 Lomonec LLC — BE Mastery · <a href="privacy.html" target="_blank">Privacy</a> · <a href="mailto:contact@lomonec.com">Support</a></div>
+  <div class="footer-note" style="margin-top:0">
     <a href="flyer.html" data-i18n="footer.about_link">About BE Mastery</a> ·
     <!-- href kept so crawlers and no-JS visitors still reach the guide (this is
          one of the few crawlable links out of the app shell). With JS, the
@@ -3842,6 +3851,11 @@ window.perfReport=()=>{let log=_perfLog;try{log=JSON.parse(localStorage.getItem(
    habit is one habit — days you showed up, whichever programme you opened), the
    phrase bank, and saved shadowing clips. Those are tools, not evidence. */
 const AREA_GEN="general-english";
+/* The App Store build: the same web app inside a Capacitor shell (mobile/ios).
+   Apple's guideline 2.3.10 — no references to other platforms — so the
+   Google Play link and button are dropped there. Everything else is identical. */
+const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
+if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
 function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
 function areaIsPro(){return areaId()!==AREA_GEN}
 function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
@@ -3885,8 +3899,8 @@ function areaVocab(){const a=areaId(),V=S.vocab||{},out={};
   Object.keys(V).forEach(w=>{const v=V[w];if(v&&(!v.tk||v.tk.indexOf(a)>=0))out[w]=v});return out}
 function vocHas(w){const v=(S.vocab||{})[w];return !!v&&(!v.tk||v.tk.indexOf(areaId())>=0)}
 function vocPut(w,l){const a=areaId(),V=S.vocab||(S.vocab={}),v=V[w];
-  if(v){if(!Array.isArray(v.tk))v.tk=[];if(v.tk.indexOf(a)<0)v.tk.push(a);if(l&&!v.l)v.l=l;return v}
-  return V[w]={l:l||"",ts:Date.now(),tk:[a]}}
+  if(v){if(!Array.isArray(v.tk))v.tk=[];if(v.tk.indexOf(a)<0)v.tk.push(a);if(!v.l)v.l=l||cefr(w)||"B1";return v}
+  return V[w]={l:l||cefr(w)||"B1",ts:Date.now(),tk:[a]}}
 /* Unsaving drops this area's claim on the word. The word itself only goes when
    no area still wants it — otherwise clearing your welding library would quietly
    empty half of your business-English one. */
@@ -4928,6 +4942,7 @@ const I18N_EN={
  "pp.cands_toast":"{{n}} learner(s) waiting — pick one",
  "pp.fab":"Talk to a real person",
  "pp.fab_small":"Practise with real person",
+ "pp.fab_online":"{{n}} online",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -5541,6 +5556,7 @@ const I18N_EN={
  "ex.dictate_title":"Tap to start dictating; tap again to stop",
  "ex.clear_btn":"🗑 Clear",
  "nav.render_failed":"This page could not be drawn.",
+ "nav.curriculum_failed":"The lessons could not be downloaded. Check your connection and try again.",
  "nav.retry":"Try again",
  "ex.how_btn":"How it works",
  "ex.how_title":"Polish what you are about to say",
@@ -5668,12 +5684,14 @@ const I18N_EN={
  "auth.err_user_not_found":"No account with that email — try Sign up.",
  "auth.err_popup_closed":"Sign-in window closed.",
  "auth.err_network":"Network problem — check your connection.",
+ "auth.err_too_many":"Too many attempts from this device. Wait a little while, then try again.",
  "auth.err_unauthorized_domain":"This site isn't authorized in Firebase yet (add it under Authentication → Settings).",
  "auth.err_generic":"Something went wrong.",
  "auth.unavailable_toast":"⚠️ Sign-in unavailable",
  "auth.signed_in_toast":"✅ Signed in",
  "auth.reset_need_email":"Type your email above first, then tap this.",
  "auth.reset_sent_toast":"📧 Password reset email sent",
+"auth.reset_sent_note":"If an account exists for {{email}}, a reset link is on its way. Check your spam folder too — it comes from {{from}}. Wrong address? Correct it above and tap again.",
  "auth.signout_confirm":"Sign out? Your progress stays on this device.",
  "auth.signed_out_toast":"Signed out",
  "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
@@ -6512,7 +6530,8 @@ function go(v,arg1,arg2){
      page name, and the page shows a plain retry instead of nothing. */
   const _t0=performance.now();
   try{
-    ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
+    if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -6734,7 +6753,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme),
+  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+(IS_IOS_APP?"&ios=1":""),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
@@ -9312,6 +9331,8 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
    declines permission. In all of those the old setTimeout plus the launch nudge
    still run, exactly as before — push is added on top, never depended on. */
 const PUSH_API="https://be-push.nore-ngou.workers.dev";
+/* Branded password-reset email (backend/mail, Brevo). Empty string = Firebase's own plain email. */
+const MAIL_API="https://be-mail.nore-ngou.workers.dev";
 const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
 /* ---- The reminder knows where you are ----
    The daily notification used to say "Week 5" and nothing else. It now carries
@@ -10445,6 +10466,11 @@ function vocabExtract(text){
     .sort((a,b)=>b.score-a.score).slice(0,10).map(x=>({w:x.w,l:cefr(x.w)}));
 }
 function vocRow(w,l){
+  /* A word saved from a Life Simulation (rpEvSave) carried l:"" and the row
+     did ""[0].toLowerCase() — one such word and the whole Practice page threw
+     ("This page could not be drawn", 2026-09-19). The level is derived when
+     it is missing, here and at the save. */
+  if(!l||typeof l!=="string"){l=cefr(w)||"B1";const v=S.vocab&&S.vocab[w];if(v&&typeof v==="object")v.l=l}
   const saved=vocHas(w),safe=w.replace(/[^a-z0-9]/g,"_");
   return`<div class="voc-row" id="vr_${safe}">
     <div class="voc-head" onclick="vocOpen('${esc(w)}','${safe}')">
@@ -12075,7 +12101,7 @@ window.pracTab=tab=>{_pracTab=tab;const el=document.getElementById("v-practice")
 window.pracAdd=()=>{const inp=document.getElementById("pracAddIn");if(!inp)return;const w=inp.value.trim().toLowerCase().replace(/[^a-z'-]/g,"");if(!w)return;vocPut(w,cefr(w));save();inp.value="";const el=document.getElementById("v-practice");if(el)rPractice(el);toast(t("voc.saved_toast"));};
 function vlRenderInto(words){
   const box=document.getElementById("vlBox");if(!box)return;
-  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w].l)).join("")
+  box.innerHTML=words.length?words.map(w=>vocRow(w,S.vocab[w]&&S.vocab[w].l)).join("")
     :emptyState("book",t("prac.empty_title_"+_pracTab),t("prac.empty_"+_pracTab),t("sh.tab_create"),"go('shadow')");
   manIconizeInline(box);
 }
@@ -13282,11 +13308,11 @@ async function phRecInto(ctx,label,btn,after,onBlob){
    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
    own PARTNER_ENABLED switch as the server-side boundary. */
 const FLAGS_DEFAULT={
-  practice_partner_enabled:false,
-  practice_partner_matching_enabled:false,
-  practice_partner_voice_enabled:false,
+  practice_partner_enabled:true,
+  practice_partner_matching_enabled:true,
+  practice_partner_voice_enabled:true,
   practice_partner_ai_fallback_enabled:true,
-  practice_partner_notifications_enabled:false,
+  practice_partner_notifications_enabled:true,
   practice_partner_live_enabled:false,
   shadow_studio_v2_enabled:false,
   shadow_word_timing_enabled:true,
@@ -14529,8 +14555,10 @@ function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.
    - nowhere else: Profile, App Setup, Help & guide, Career, Tracks, Reviews,
      Partner set-up and every other utility or account screen, and never
      inside Practice Partner or a live call.
-   General English only — ppAvailable() already carries that. ---- */
-const PP_FAB_VIEWS=new Set(["home","journey","practice","shadow","phrases"]);
+   General English only — ppAvailable() already carries that. On the Practice
+   tab it needs no sign-in or consent (discovery); on every other screen it
+   waits for both, so it never nags someone who has not opted in. ---- */
+const PP_FAB_VIEWS=new Set(["journey","shadow","phrases"]);   // owner, 2026-09-19: "map, shadow and lab only" — not Home, not Practice
 const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
 const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-micbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
 function ppRecordingNow(){
@@ -14555,6 +14583,28 @@ function ppFabOverlaps(el){
   }
   return false;
 }
+/* the badge's count. Signed in, /me already carries presence (it excludes
+   blocked learners and me). Not signed in, the public counts-only /presence
+   (no auth, two integers, cached 30 s at the edge) — at most once a minute and
+   only while the button is on screen. */
+let ppPub={online:0,waiting:0,at:0,busy:false};
+function ppPresencePoll(){
+  if(ppPub.busy||Date.now()-ppPub.at<60000)return;
+  ppPub.busy=true;
+  fetch(ppApiBase()+"/presence").then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}const el=document.getElementById("ppFab");if(el&&el.classList.contains("on"))ppFabBadge(el)}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
+}
+function ppFabBadge(el){
+  const m=ppMe||ppState().lastMe;
+  const mine=!!(m&&m.presence);
+  const n=mine?(m.presence.online||0):ppPub.online;
+  let b=el.querySelector(".pp-fab-n");
+  if(n>0){
+    if(!b){b=document.createElement("span");b.className="pp-fab-n";el.insertBefore(b,el.firstChild)}
+    b.textContent=n>99?"99+":String(n);
+    el.setAttribute("aria-label",t("pp.fab")+" · "+t("pp.fab_online",{n}));el.title=el.getAttribute("aria-label");
+  }else{if(b)b.remove();el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab")}
+  if(!mine)ppPresencePoll();
+}
 function ppFabSync(){
   let el=document.getElementById("ppFab");
   const m=ppMe||ppState().lastMe;
@@ -14562,13 +14612,19 @@ function ppFabSync(){
   const busyUi=!!document.querySelector("#ppCall.on")||!!document.querySelector("#ppPill.pp-pill-live.on");
   const overlay=!!document.querySelector(".sh-work[style*='flex']")||!!document.querySelector(".rp-work.show")||!!document.querySelector(".pv-game.show");
   const onTab=PP_FAB_VIEWS.has(v),onRec=PP_FAB_REC_VIEWS.has(v);
-  let show=ppAvailable()&&ppSignedIn()&&m&&m.consented&&(onTab||onRec)&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
+  /* On its three tabs (Road map, Shadow, Phrase Lab — owner, 2026-09-19) the
+     button is how the feature is discovered: it shows for every General English
+     learner the moment the feature is on, and the partner page itself asks for
+     sign-in and consent. On the recording screens it waits for both, so it never
+     nags someone mid-session who has not opted in. */
+  let show=ppAvailable()&&(onTab||(onRec&&ppSignedIn()&&m&&m.consented))&&!ppLive&&!busyUi&&!overlay&&!ppRecordingNow();
   if(!show){if(el)el.classList.remove("on");return}
   const lift=!!document.querySelector("#ppPill.on");   /* the session pill sits centre-bottom: step over it */
   if(!el){el=document.createElement("button");el.id="ppFab";el.type="button";el.onclick=ppFabTap;el.setAttribute("aria-label",t("pp.fab"));el.title=t("pp.fab");el.innerHTML=`<span class="pp-fab-ic">${ic("user")}</span><span>${t("pp.fab_small")}</span>`;manIconizeInline(el);document.body.appendChild(el);if(!sessionStorage.getItem("pp_fab_seen")){el.classList.add("enter");el.addEventListener("animationend",()=>el.classList.remove("enter"),{once:true});sessionStorage.setItem("pp_fab_seen","1")}}
   el.classList.toggle("lift",lift);
   if(onRec&&ppFabOverlaps(el)){el.classList.remove("on");return}
   el.classList.add("on");
+  ppFabBadge(el);
 }
 /* the controls move under it as the page scrolls; a take starts without any
    navigation — so the recording screens are re-checked cheaply as that happens */
@@ -15839,7 +15895,7 @@ function rProfile(el){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
     <div class="btn-row">
       <button class="btn btn-g pf-act" onclick="shApp()">${tIc("invite.btn","link")}</button>
-      <a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>
+      ${IS_IOS_APP?"":`<a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>`}
     </div>
   </div>
   <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
@@ -17492,9 +17548,38 @@ window.pronTry=()=>{
   try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
 };
 
+/* The curriculum, with a way back. Both packs used to be awaited together and
+   one failed fetch out of sixteen ended the app: a one-line message on Home,
+   no button, and every tab afterwards drawing against nothing. Now the OPEN
+   track is what boot waits for (each file already retries three times), the
+   other pack loads in the background and is fetched on demand when the learner
+   switches, and a failure shows a card whose button really reloads the data
+   and then finishes booting. go() shows the same card instead of a renderer
+   crash while the pack is still missing. */
+window._booted=false;let _bootRetrying=false;
+function curriculumCardHTML(msg){return `<div class="card" style="margin:24px 0;text-align:center"><p style="color:var(--mut);margin-bottom:12px">${esc(msg)}</p><button class="btn btn-p" onclick="bootRetry()">${esc(t("nav.retry"))}</button></div>`}
+async function curriculumBoot(){
+  const mine=areaIsPro()?"welding":"general",other=mine==="welding"?"general":"welding";
+  CurriculumProvider.load(other).catch(e=>{try{console.warn("[curriculum] background",e)}catch(_){}});
+  try{await CurriculumProvider.load(mine);return true}
+  catch(e){try{console.error("[curriculum]",e)}catch(_){}try{perfMark("error",0,"curriculum "+String(e&&e.message||e).slice(0,60))}catch(_){}return false}
+}
+window.bootRetry=async()=>{
+  document.querySelectorAll('.view button[onclick="bootRetry()"]').forEach(b=>{b.disabled=true});
+  if(!(await curriculumBoot())){
+    const el=document.querySelector(".view.on")||document.getElementById("v-home");
+    el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));return;
+  }
+  if(!_booted){bootMain();return}
+  const v=(typeof cur!=="undefined"&&cur&&cur.v)||"home";
+  try{go(v,cur&&cur.a1,cur&&cur.a2)}catch(e){go("home")}
+};
 (async function boot(){
-  try{await Promise.all([CurriculumProvider.load("general"),CurriculumProvider.load("welding")])}
-  catch(e){console.error("[curriculum]",e);document.getElementById("v-home").innerHTML="<p class=\"sub\">Could not load the learning curriculum. Please reconnect and try again.</p>";return}
+  if(!(await curriculumBoot())){document.getElementById("v-home").innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));return}
+  bootMain();
+})();
+async function bootMain(){
+  if(_booted)return;_booted=true;
   const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
@@ -17540,7 +17625,7 @@ window.pronTry=()=>{
      idle thumb. Re-checking inside the wait would let the sheet slip in the
      moment the welcome card closed, which is exactly what this guard is for. */
   setTimeout(()=>{if(S.profile&&!document.getElementById("obWrap")&&!document.getElementById("wcOv"))whenIdle(()=>{playAsk();iosAsk()})},500);
-})();
+}
 window.addEventListener("appinstalled",()=>track("install"));
 ghAutoStart();
 if("serviceWorker" in navigator&&location.protocol==="https:"){
@@ -18261,8 +18346,8 @@ document.addEventListener("visibilitychange",()=>{
 });
 window.addEventListener("focus",()=>fbSyncPull());
 /* --- provider actions --- */
-function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
-function fbSetErr(m){const el=document.getElementById("authErr");if(el)el.textContent=m||""}
+function fbErr(e){const c=(e&&e.code)||"",map={"auth/invalid-email":t("auth.err_invalid_email"),"auth/missing-password":t("auth.err_missing_password"),"auth/weak-password":t("auth.err_weak_password"),"auth/email-already-in-use":t("auth.err_email_in_use"),"auth/invalid-credential":t("auth.err_invalid_credential"),"auth/wrong-password":t("auth.err_wrong_password"),"auth/user-not-found":t("auth.err_user_not_found"),"auth/popup-closed-by-user":t("auth.err_popup_closed"),"auth/cancelled-popup-request":"","auth/network-request-failed":t("auth.err_network"),"auth/too-many-requests":t("auth.err_too_many"),"auth/unauthorized-domain":t("auth.err_unauthorized_domain")};return c in map?map[c]:((e&&e.message)||t("auth.err_generic"))}
+function fbSetErr(m,ok){const el=document.getElementById("authErr");if(el){el.textContent=m||"";el.classList.toggle("ok",!!ok&&!!m)}}
 function fbIsStandalone(){try{return (window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true}catch(e){return false}}
 window.fbGoogle=async function(){
   if(!FBauth)return toast(t("auth.unavailable_toast"));
@@ -18292,11 +18377,28 @@ window.fbEmailAuth=async function(mode){
     fbCloseModal();toast(t("auth.signed_in_toast"));
   }catch(e){fbSetErr(fbErr(e))}
 };
+/* The confirmation used to be a two-second toast saying "sent" — easy to miss,
+   and wrong for a mistyped address (Firebase answers success either way, so
+   that nobody can probe which emails have accounts). It now stays on the form,
+   names the address it went to and says where to look for it. */
 window.fbReset=async function(){
   const em=((document.getElementById("authEmail")||{}).value||"").trim();
   if(!em)return fbSetErr(t("auth.reset_need_email"));
-  try{await FBauth.sendPasswordResetEmail(em);fbSetErr("");toast(t("auth.reset_sent_toast"))}
+  const link=document.querySelector(".auth-forgot");if(link)link.style.pointerEvents="none";
+  const lang=(S.profile&&S.profile.lang)||"en";
+  /* Our Worker sends the branded email from noreply@lomonec.com. If it is
+     down, Firebase's plain email still goes out — a learner must never be
+     left with no email at all. The note names whichever sender it was. */
+  let sent=false;
+  if(MAIL_API){
+    try{const r=await fetch(MAIL_API+"/reset",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:em,lang})});
+      if(r.status===400){const j=await r.json().catch(()=>({}));fbSetErr(j.error==="bad email"?t("auth.err_invalid_email"):t("auth.err_generic"));if(link)link.style.pointerEvents="";return}
+      sent=r.ok}catch(e){}
+  }
+  try{if(!sent)await FBauth.sendPasswordResetEmail(em,{url:APP_URL});
+    fbSetErr(t("auth.reset_sent_note",{email:em,from:sent?"noreply@lomonec.com":"noreply@be-mastery.firebaseapp.com"}),true);toast(t("auth.reset_sent_toast"))}
   catch(e){fbSetErr(fbErr(e))}
+  finally{if(link)setTimeout(()=>{link.style.pointerEvents=""},4000)}   // one tap, one email: no double-sends from a nervous thumb
 };
 /* Signing out leaves NOTHING of that account behind. Progress belongs to the
    account and is safe in the cloud, so clearing it costs nothing and stops the

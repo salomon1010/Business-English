@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Nenhuma conta com esse e-mail — tente Cadastrar-se.",
  "auth.err_popup_closed": "Janela de login fechada.",
  "auth.err_network": "Problema de rede — verifique sua conexão.",
+ "auth.err_too_many": "Demasiadas tentativas neste dispositivo. Aguarde um pouco e tente novamente.",
  "auth.err_unauthorized_domain": "Este site ainda não está autorizado no Firebase (adicione-o em Authentication → Settings).",
  "auth.err_generic": "Algo deu errado.",
  "auth.unavailable_toast": "⚠️ Login indisponível",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} aprendiz(es) à espera — escolha um",
  "pp.fab": "Fale com uma pessoa real",
  "pp.fab_small": "Pratique com alguém",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Ao vivo: fale agora, cerca de cinco minutos. Prática de hoje: grave quando puder.",
  "pp.cand_live_note": "Fale ao vivo agora, ou grave quatro turnos curtos. Se não encaixar, qualquer um dos dois pode sair.",
  "pp.why_line": "à espera para praticar agora",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "Um pouco mais devagar para cada palavra se ouvir.",
  "sv.ch_imp_fillers": "Corte as muletas ({{n}}) — faça uma pausa em silêncio.",
  "sv.ch_imp_extra": "Fique na frase — sem palavras a mais.",
- "sv.ch_imp_levelup": "Nada a corrigir. Passe ao nível seguinte."
+ "sv.ch_imp_levelup": "Nada a corrigir. Passe ao nível seguinte.",
+ "nav.curriculum_failed": "Não foi possível transferir as lições. Verifique a ligação e tente de novo.",
+ "auth.reset_sent_note": "Se existir uma conta para {{email}}, o link de redefinição está a caminho. Veja também a pasta de spam — vem de {{from}}. Endereço errado? Corrija acima e toque de novo."
 }

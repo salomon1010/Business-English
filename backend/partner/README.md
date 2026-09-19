@@ -20,6 +20,7 @@ holds one id and any other track is refused with `403 track`.
 | Method | Path | Does |
 |---|---|---|
 | GET | `/health` | `{ok, dev, enabled}` (no auth) |
+| GET | `/presence` | `{online, waiting}` — counts only, no auth, cached 30 s; the floating button's badge before sign-in |
 | DELETE | `/me` | **account deletion** — erases everything held about the caller (member row, prefs, queue entry, offers, every turn they sent + its R2 audio, their pairs and turns, connections, cooldowns, live sessions/signals, counters, reports and blocks *they* filed). Sits above the `PARTNER_ENABLED` kill switch so a pilot learner can erase after roll-back. Kept: reports/blocks *about* them (other people's safety choices) and audit rows (90 d). Called by the app's Delete account before the Firebase user is deleted; idempotent |
 | GET | `/me` | consent, `adult`, prefs, waiting state, `invite` (a proposal for me) / `pairInvite` (my open proposal), active pair with partner `{name, band, lang}`, `rounds` view, turns, unread, `fallback`/`canRepair`, decisions, `lastClosed {reason, byOther, name}`, the best `connection` |
 | POST | `/consent` | `{name, lang, adult: true, gender?, sameGender?, goals?, mode?, avail?, tz?}` — refuses without `adult` (`403 age`) |

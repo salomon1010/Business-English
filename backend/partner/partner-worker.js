@@ -508,6 +508,17 @@ async function handle(req, env, ctx) {
     return json(await eraseMember(env, duid, ms));
   }
   if (env.PARTNER_ENABLED !== "1") return err(503, "disabled");
+  /* Public, counts only, no auth: the floating button's badge for a learner
+     who has not signed in yet. Same "online" rule as /me's presence minus the
+     per-person block filter (there is no "me" to filter against). Nothing
+     personal leaves — two integers, cached 30 s at the edge. */
+  if (req.method === "GET" && path === "/presence") {
+    const fresh = ms - 7 * DAY;
+    const o = await q(env, `SELECT COUNT(DISTINCT m.uid) AS n FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.track='general-english' AND i.created_at>?
+      WHERE (m.suspended_until IS NULL OR m.suspended_until<=?) AND (m.opted_out=0 OR m.opted_out IS NULL) AND (i.uid IS NOT NULL OR m.last_seen>?)`, fresh, ms, ms - 5 * 60_000).first();
+    const w = await q(env, "SELECT COUNT(DISTINCT uid) AS n FROM interest WHERE track='general-english' AND created_at>?", fresh).first();
+    return new Response(JSON.stringify({ online: o ? o.n : 0, waiting: w ? w.n : 0 }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30" } });
+  }
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
     for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions"]) await q(env, `DELETE FROM ${t}`).run();
     let cursor; do { const l = await env.AUDIO.list({ cursor }); for (const o of l.objects) await env.AUDIO.delete(o.key); cursor = l.truncated ? l.cursor : null; } while (cursor);

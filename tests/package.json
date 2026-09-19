@@ -3,12 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-challenge.mjs && node partner.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
     "test:partner": "node partner.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
     "test:stress": "node stress.mjs",
-    "test:challenge": "node shadow-challenge.mjs"
+    "test": "node smoke.mjs && node shadow-sync.test.mjs && node boot-recovery.mjs && node shadow-challenge.mjs && node partner.mjs"
   },
   "devDependencies": {
     "playwright": "1.56.1"

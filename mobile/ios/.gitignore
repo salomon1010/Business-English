@@ -1,0 +1,18 @@
+# Generated / never committed
+node_modules/
+www/
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcodeproj/project.xcworkspace/xcuserdata/
+*.ipa
+*.xcarchive
+# Signing material must never land in git (see README)
+*.p12
+*.cer
+*.mobileprovision
+*.p8
+AuthKey_*
+ExportOptions*.plist

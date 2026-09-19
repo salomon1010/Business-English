@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Tidak ada akun dengan email itu — coba Daftar.",
  "auth.err_popup_closed": "Jendela masuk ditutup.",
  "auth.err_network": "Masalah jaringan — periksa koneksi Anda.",
+ "auth.err_too_many": "Terlalu banyak percobaan dari perangkat ini. Tunggu sebentar, lalu coba lagi.",
  "auth.err_unauthorized_domain": "Situs ini belum diotorisasi di Firebase (tambahkan di Authentication → Settings).",
  "auth.err_generic": "Terjadi kesalahan.",
  "auth.unavailable_toast": "⚠️ Masuk tidak tersedia",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} pelajar menunggu — pilih satu",
  "pp.fab": "Bicara dengan orang sungguhan",
  "pp.fab_small": "Latihan dengan orang",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Langsung: bicara sekarang, sekitar lima menit. Latihan hari ini: rekam saat sempat.",
  "pp.cand_live_note": "Bicara langsung sekarang, atau rekam empat giliran singkat. Kalau tidak cocok, siapa pun boleh pergi.",
  "pp.why_line": "menunggu untuk berlatih sekarang",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "Sedikit lebih lambat agar setiap kata terdengar.",
  "sv.ch_imp_fillers": "Hilangkan kata pengisi ({{n}}) — jeda diam saja.",
  "sv.ch_imp_extra": "Tetap pada kalimatnya — tanpa kata tambahan.",
- "sv.ch_imp_levelup": "Tidak ada yang perlu diperbaiki. Naik ke tingkat berikutnya."
+ "sv.ch_imp_levelup": "Tidak ada yang perlu diperbaiki. Naik ke tingkat berikutnya.",
+ "nav.curriculum_failed": "Pelajaran tidak dapat diunduh. Periksa koneksi Anda dan coba lagi.",
+ "auth.reset_sent_note": "Jika ada akun untuk {{email}}, tautan reset sedang dikirim. Periksa juga folder spam — dikirim dari {{from}}. Alamat salah? Perbaiki di atas lalu ketuk lagi."
 }

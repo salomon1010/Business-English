@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "没有使用该邮箱的账号——请尝试注册。",
  "auth.err_popup_closed": "登录窗口已关闭。",
  "auth.err_network": "网络问题——请检查你的连接。",
+ "auth.err_too_many": "此设备尝试次数过多。请稍等片刻后再试。",
  "auth.err_unauthorized_domain": "此站点尚未在 Firebase 中获授权（请在 Authentication → Settings 中添加）。",
  "auth.err_generic": "出了点问题。",
  "auth.unavailable_toast": "⚠️ 登录不可用",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} 位学习者在等待 —— 选一位吧",
  "pp.fab": "和真人对话",
  "pp.fab_small": "和真人练习",
+ "pp.fab_online": "{{n}} 人在线",
  "pp.conn_choice": "实时：现在就说，大约五分钟。今日练习：有空时录音。",
  "pp.cand_live_note": "现在实时通话，或录四个简短回合。合不来的话，任何一方都可以离开。",
  "pp.why_line": "正在等待练习",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "稍微慢一点，让每个词都清楚。",
  "sv.ch_imp_fillers": "去掉口头禅（{{n}}）——改为安静停顿。",
  "sv.ch_imp_extra": "只说这句话——不要加词。",
- "sv.ch_imp_levelup": "没有要改的。进入下一级。"
+ "sv.ch_imp_levelup": "没有要改的。进入下一级。",
+ "nav.curriculum_failed": "无法下载课程。请检查网络连接后重试。",
+ "auth.reset_sent_note": "如果 {{email}} 有账户，重置链接已在发送中。也请查看垃圾邮件文件夹——发件人是 {{from}}。地址错了？在上方更正后再点一次。"
 }

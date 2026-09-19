@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Aucun compte avec cet e-mail — essayez de vous inscrire.",
  "auth.err_popup_closed": "Fenêtre de connexion fermée.",
  "auth.err_network": "Problème réseau — vérifiez votre connexion.",
+ "auth.err_too_many": "Trop de tentatives depuis cet appareil. Patientez un moment, puis réessayez.",
  "auth.err_unauthorized_domain": "Ce site n'est pas encore autorisé dans Firebase (ajoutez-le dans Authentication → Settings).",
  "auth.err_generic": "Une erreur s'est produite.",
  "auth.unavailable_toast": "⚠️ Connexion indisponible",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} apprenant(s) en attente — choisissez-en un",
  "pp.fab": "Parler à une vraie personne",
  "pp.fab_small": "Pratique avec quelqu'un",
+ "pp.fab_online": "{{n}} en ligne",
  "pp.conn_choice": "En direct : parlez maintenant, environ cinq minutes. Pratique du jour : enregistrez quand vous pouvez.",
  "pp.cand_live_note": "Parlez en direct maintenant, ou enregistrez quatre tours courts. Si le courant ne passe pas, chacun peut partir.",
  "pp.why_line": "attend pour pratiquer maintenant",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "Ralentissez légèrement pour que chaque mot passe.",
  "sv.ch_imp_fillers": "Supprimez les hésitations ({{n}}) — faites plutôt une pause silencieuse.",
  "sv.ch_imp_extra": "Restez sur la phrase — pas de mots en plus.",
- "sv.ch_imp_levelup": "Rien à corriger ici. Passez au niveau suivant."
+ "sv.ch_imp_levelup": "Rien à corriger ici. Passez au niveau suivant.",
+ "nav.curriculum_failed": "Les leçons n'ont pas pu être téléchargées. Vérifiez votre connexion et réessayez.",
+ "auth.reset_sent_note": "S'il existe un compte pour {{email}}, un lien de réinitialisation est en route. Vérifiez aussi vos spams : il vient de {{from}}. Mauvaise adresse ? Corrigez-la ci-dessus et touchez à nouveau."
 }

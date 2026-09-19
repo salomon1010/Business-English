@@ -552,6 +552,7 @@
  "auth.err_user_not_found": "Nessun account con questa e-mail — prova a Registrarti.",
  "auth.err_popup_closed": "Finestra di accesso chiusa.",
  "auth.err_network": "Problema di rete — controlla la tua connessione.",
+ "auth.err_too_many": "Troppi tentativi da questo dispositivo. Attendi un po' e riprova.",
  "auth.err_unauthorized_domain": "Questo sito non è ancora autorizzato in Firebase (aggiungilo in Authentication → Settings).",
  "auth.err_generic": "Qualcosa è andato storto.",
  "auth.unavailable_toast": "⚠️ Accesso non disponibile",
@@ -1867,6 +1868,7 @@
  "pp.cands_toast": "{{n}} studente/i in attesa — scegline uno",
  "pp.fab": "Parla con una persona vera",
  "pp.fab_small": "Pratica con qualcuno",
+ "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Dal vivo: parla adesso, circa cinque minuti. Pratica di oggi: registra quando puoi.",
  "pp.cand_live_note": "Parla dal vivo adesso, oppure registra quattro turni brevi. Se non funziona, ciascuno dei due può andarsene.",
  "pp.why_line": "in attesa di esercitarsi adesso",
@@ -1944,5 +1946,7 @@
  "sv.ch_imp_fast": "Rallenta un po' così ogni parola arriva.",
  "sv.ch_imp_fillers": "Elimina i riempitivi ({{n}}): fai una pausa in silenzio.",
  "sv.ch_imp_extra": "Resta sulla frase: niente parole in più.",
- "sv.ch_imp_levelup": "Niente da correggere. Passa al livello successivo."
+ "sv.ch_imp_levelup": "Niente da correggere. Passa al livello successivo.",
+ "nav.curriculum_failed": "Impossibile scaricare le lezioni. Controlla la connessione e riprova.",
+ "auth.reset_sent_note": "Se esiste un account per {{email}}, il link di reimpostazione è in arrivo. Controlla anche lo spam: arriva da {{from}}. Indirizzo sbagliato? Correggilo sopra e tocca di nuovo."
 }

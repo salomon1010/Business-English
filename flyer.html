@@ -27,6 +27,10 @@
 <meta name="twitter:image" content="https://app.lomonec.com/og.png">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<script>
+/* App Store build (index.html opens this with ?ios=1): no Google Play badges (Apple 2.3.10) */
+try{if(/[?&]ios=1\b/.test(location.search)){var _noPlay=function(){document.querySelectorAll('a[href*="play.google.com"]').forEach(function(a){a.remove()})};document.addEventListener("DOMContentLoaded",_noPlay);window.addEventListener("load",_noPlay);setTimeout(_noPlay,600);setTimeout(_noPlay,2000)}}catch(e){}
+</script>
 <script>/* apply theme early (from ?theme= passed by the app, else the OS preference) to avoid a flash */
 (function(){try{var p=new URLSearchParams(location.search).get("theme");
 var t=p||"dark";   // default to dark unless the app passed an explicit theme

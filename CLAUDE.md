@@ -243,6 +243,22 @@ not JS, and `new Function` chokes on it. Check it separately with
   times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
   (27). Events for both features are on the `be-events` allow-list on the branch
   only — deploy that Worker before any flag goes on.
+- **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
+  CocoaPods) around the web app: `npm run sync` copies the repo root into
+  `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is
+  `capacitor://localhost` — it is in the three Workers' allow-lists in code
+  (`polish-worker.js`, `events-worker.js`, `partner/wrangler.toml`) and those
+  Workers must be **redeployed** before the app's AI/scoring/analytics/partner
+  calls work; that is a production deploy, the owner's call. `IS_IOS_APP`
+  (index.html) hides the Google Play link/button and the About page's Play
+  badges (Apple 2.3.10); nothing else differs. Bundle id `com.bemastery.app`,
+  1.1.0 (1), iPhone-only portrait, iOS 15+, `NSMicrophoneUsageDescription`,
+  `PrivacyInfo.xcprivacy`, `ITSAppUsesNonExemptEncryption=NO`. Listing text,
+  review notes, privacy answers and 6.9" screenshots (1320×2868, from
+  `scripts/store-art/shoot.js iphone`) are in `mobile/ios/appstore/`. **No
+  Xcode on this Mac** (Command Line Tools only, no signing identity): the
+  archive/upload steps in `mobile/ios/README.md` need a Mac with Xcode 26
+  and the Lomonec team. Nothing signing-related is ever committed.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in
