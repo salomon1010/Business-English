@@ -49,3 +49,4 @@ tests/node_modules/
 
 # Local wrangler state (dev D1 sqlite, logs) — never source, never served
 .wrangler/
+tests/node_modules
