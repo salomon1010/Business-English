@@ -70,3 +70,68 @@ word-level asset down to sentence level.
 Challenge hides text, Apply It hands the phrase to Practice Partner and it
 appears in round 1). Real-device timing (iOS Safari, Android Chrome) is in
 the manual checklist in TEST_PLAN.md and has **not** been performed.
+
+## Challenge (2026-09-19, branch `feature/shadow-challenge`, not merged)
+The Challenge tab used to blur the transcript and stop. It is now the step from
+imitation to production: **imitate → retrieve → produce → one correction →
+again → use the expression.** General English only, behind
+`shadow_challenge_enabled` (off in production; on for the staging host through
+`FLAGS_STAGING`), and `svChOn()` is checked at every entry point, not only when
+the tab is drawn — on Welding the functions are no-ops and no state is written.
+
+**Loop** (one line of the clip, the sentence picked in Watch/Shadow or the
+current one): Listen → Record (tap / tap to stop; `phRecInto`, ctx
+`shadow-ch-<vid>-<seg>`) → grade → **GOOD** + **IMPROVE** (exactly one each,
+labelled AI) → Try again / Play my attempt / Next sentence → on a pass,
+"Use it yourself" when the line carries a curriculum phrase
+(`ShadowSync.findExpression(text, trackPhrases())`): one own sentence, graded
+only on whether the expression was used (`usedExpression`) — no chat.
+
+**Levels** (`aMap("svCh")._level`, default Recall): *Guided* shows the line
+until recording starts; *Recall* hides it, Listen allowed; *Independent* hides
+it and allows no replay before the first attempt (prompt = the expression, or
+the first word).
+
+**Grading** reuses the Polish Worker calls the app already makes:
+`fbWords` (Whisper text + word times; `fbTranscribe` if no times) and
+`fbAssess` (AI per-word scores). `ShadowSync.challenge(target, heard, {words,
+assess, targetMs})` is pure and returns i18n keys: coverage (target words
+said, pass ≥ 0.8), missing / substituted / swapped words, extra words,
+fillers, pauses ≥ 0.55 s (→ "Connect ‘get back to’ more smoothly"), pace vs
+the clip segment, weakest AI-scored word (< 60) with its note. Priority:
+production first (nothing heard → order → missing → wrong), then pauses,
+pronunciation, pace, fillers, extras; GOOD never names the dimension IMPROVE
+is about. No signal → the rule is skipped; nothing is scored locally.
+Offline / Worker down → an explicit network state with "Retry feedback" on
+the saved take; microphone refused → a mic message; too short → say the
+whole line. A second tap while acquiring the microphone or while grading is
+ignored (`busy` / `grading`), so a double-tap cannot submit twice.
+
+**State** `svCh = {seg, level, phase: ready|recording|grading|feedback|done|
+error, attempt, fb, heard, err: mic|short|net|ai, busy, blob, use}`;
+completion per area in `aMap("svCh")[vid+":"+segId] = {best, n, level, ts,
+done}`. Takes are filed in the local recordings store like every other take
+(same retention as the Shadow recorder); the Worker receives audio for the
+grade exactly as `fbAssess` already does for Foundations and the phrases.
+
+**Events** (allow-listed in `backend/events/events-worker.js` on the branch —
+**the Worker must be deployed before the flag goes on**, otherwise dropped with
+204): `shadow_challenge_started {level}` · `shadow_challenge_recorded {level}` ·
+`shadow_challenge_completed {level, result: pass|retry}` · `shadow_challenge_retry
+{level}` · `shadow_challenge_apply_it {result: used|missed}`. The existing
+`shadow_v2_challenge_started {mode}` still fires when the tab is opened.
+
+**Strings** `sv.ch_*` (59 keys) in `I18N_EN` and all 15 files (machine
+transcreation — native review recommended, fr first).
+
+**Tests** `tests/shadow-sync.test.mjs` (+19: every rule and its priority,
+expression detection) and `tests/shadow-challenge.mjs` (36, headless Chromium
+390×844, fake microphone, the Polish Worker answered by a route: Watch and
+Shadow unchanged, start, transcript hidden, levels, recording state, feedback,
+retry, completion, per-area record, next sentence, double-tap guard, offline
+→ retry, Worker unreachable, pasted transcript, Use it yourself used/missed,
+Apply It untouched, microphone refused, Welding no-op, i18n parity, phone fit,
+no JS errors). Not yet done on real phones (iOS Safari, Android Chrome).
+
+**Known gap (pre-existing, untouched):** `svApplyAI` writes `S.applyPhrase`
+but the role-play never reads it, so Apply It → AI opens a plain role-play.

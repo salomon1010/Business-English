@@ -226,6 +226,14 @@ not JS, and `new Function` chokes on it. Check it separately with
   dataset, `EXTRA_ORIGINS`); phones use `localStorage.be_events_api`. Tests:
   Worker 80, e2e 78 (two contexts connect over real WebRTC).
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
+  **Challenge (branch `feature/shadow-challenge`, 2026-09-19, NOT merged).** The
+  Challenge tab records and grades: `svCh` state machine + `svChHTML()` panel in
+  `#shV2`, engine `ShadowSync.challenge/findExpression/usedExpression` in
+  `shadow-sync.js?v=3` (i18n keys, unit-tested), levels guided/recall/independent
+  in `aMap("svCh")`, flag `shadow_challenge_enabled` (off), events
+  `shadow_challenge_*` (Worker allow-list on the branch, not deployed). GE only via
+  `svChOn()` at every entry point. Tests `tests/shadow-challenge.mjs` (36). See
+  `marketing/product/practice-partner/SHADOW_STUDIO_V2.md` § Challenge.
   `shadow-sync.js` (pure engine: `normalizeCaptions` / `normalizeText` / `locate` /
   `neighbour`; levels word → sentence → text → none, honestly labelled) + panel
   `#shV2` in `.sh-work` (`shV2Load` at the end of `shLoad`, `svRender`, rAF `svTick`

@@ -71,6 +71,47 @@ try {
   ok("rapid seeks across a malformed file never throw", (() => { try { for (let t = -5000; t < 20000; t += 137) S.locate(a, t); return true; } catch (e) { return false; } })());
   ok("cues that are not an array → none", S.normalizeCaptions({ cues: "nope" }, 0, 0).level === "none" && S.normalizeCaptions(null, 0, 0).level === "none"); }
 
+/* ---------- CHALLENGE: one strength, one correction, i18n keys only ---------- */
+{ const T = "I'll get back to you by the end of the day.";
+  const tw = (ws, gapAt = -1) => ws.map((w, i) => ({ w, start: i * 0.3 + (gapAt >= 0 && i >= gapAt ? 0.8 : 0), end: i * 0.3 + 0.25 + (gapAt >= 0 && i >= gapAt ? 0.8 : 0) }));
+  const said = T.toLowerCase().replace(/[^a-z' ]/g, "");
+  let r = S.challenge(T, said, { words: tw(said.split(" ")), targetMs: 2600 });
+  ok("perfect line → pass, GOOD every word, IMPROVE = nothing to fix (level up)", r.pass && r.coverage === 1 && r.good.k === "sv.ch_good_all" && r.improve.k === "sv.ch_imp_levelup", JSON.stringify(r.improve));
+  ok("tokens: apostrophes do not split a match (I'll ≡ Ill)", S.tokens("I'll").join() === S.tokens("Ill").join() && S.tokens("Don't stop!").length === 2);
+  r = S.challenge(T, "I'll get back to you by the end of the day", { words: tw(said.split(" "), 2), targetMs: 2600 });
+  ok("a 0.8 s pause before 'back' → IMPROVE connect 'get back to' (the spec's example), and GOOD is not about smoothness", r.improve.k === "sv.ch_imp_connect" && r.improve.v.phrase === "get back to" && r.good.k === "sv.ch_good_all", JSON.stringify(r));
+  r = S.challenge(T, "I'll get back to you by the end of day");
+  ok("one missing word → IMPROVE names it, still a pass, GOOD says most of the line was there", r.improve.k === "sv.ch_imp_missing" && r.improve.v.words === "the" && r.missing.length === 1 && r.pass && r.good.k === "sv.ch_good_most", JSON.stringify(r.improve));
+  r = S.challenge(T, "I'll get back to you by the day");
+  ok("three missing words → IMPROVE lists up to three, below the pass line", r.improve.k === "sv.ch_imp_missing" && r.missing.length === 3 && !r.pass, JSON.stringify(r.improve));
+  r = S.challenge(T, "I'll get back to you");
+  ok("half the line → not a pass, GOOD credits the attempt", !r.pass && r.coverage < 0.8 && r.good.k === "sv.ch_good_tried", JSON.stringify({ c: r.coverage, g: r.good }));
+  r = S.challenge(T, "I'll get back to you by the end of the week");
+  ok("a substituted word → IMPROVE 'I heard X for Y'", r.improve.k === "sv.ch_imp_wrong" && r.improve.v.said === "week" && r.improve.v.target === "day", JSON.stringify(r.improve));
+  r = S.challenge("I need to follow up on the email.", "I need to follow on up the email");
+  ok("same words, different order → IMPROVE order", r.improve.k === "sv.ch_imp_order", JSON.stringify(r.improve));
+  r = S.challenge(T, "");
+  ok("nothing heard → IMPROVE speak up, no pass", r.improve.k === "sv.ch_imp_nothing" && !r.pass);
+  r = S.challenge(T, "um " + said + " uh", { words: tw(("um " + said + " uh").split(" ")), targetMs: 2600 });
+  ok("fillers are not counted as missing or extra words, and are the improvement when nothing else is wrong", r.coverage === 1 && r.extra === 0 && r.fillers === 2 && r.improve.k === "sv.ch_imp_fillers" && r.improve.v.n === 2, JSON.stringify(r.improve));
+  r = S.challenge(T, said + " okay thanks");
+  ok("two extra words → IMPROVE keep to the line", r.extra === 2 && r.improve.k === "sv.ch_imp_extra");
+  r = S.challenge(T, said, { words: tw(said.split(" ")), targetMs: 1000 });
+  ok("far slower than the clip (pace 2.6×) → IMPROVE faster; GOOD stays on the words", r.pace > 1.6 && r.improve.k === "sv.ch_imp_slow" && r.good.k === "sv.ch_good_all", JSON.stringify({ pace: r.pace, imp: r.improve }));
+  r = S.challenge(T, said, { assess: { overall: 70, words: [{ word: "get", score: 92 }, { word: "back", score: 40, note: "vowel too short" }] } });
+  ok("AI grade: weakest word under 60 → IMPROVE pron with its note; GOOD is not the pronunciation of another word", r.improve.k === "sv.ch_imp_pron" && r.improve.v.word === "back" && r.improve.v.note === " — vowel too short" && r.good.k === "sv.ch_good_all", JSON.stringify(r.improve));
+  r = S.challenge(T, "I'll get back to you by the day", { assess: { overall: 90, words: [{ word: "back", score: 95 }] } });
+  ok("a strong word is the GOOD only when coverage is not already the strength", r.good.k === "sv.ch_good_most" || r.good.k === "sv.ch_good_word", r.good.k);
+  r = S.challenge(T, said);
+  ok("no timings and no AI grade → no pause, pace or pronunciation rule fires; nothing is invented", r.pauses.length === 0 && r.pace === null && r.weak.length === 0 && r.durS === null);
+  const phrases = [{ w: 1, p: "I currently work as…" }, { w: 2, p: "follow up on…" }, { w: 3, p: "get back to you…" }, { w: 4, p: "by…" }];
+  const ex = S.findExpression(T, phrases);
+  ok("findExpression: the curriculum phrase inside the line, ellipsis stripped, one-word phrases ignored", ex && ex.phrase === "get back to you" && ex.tokens.join(" ") === "get back to you" && ex.w === 3, JSON.stringify(ex));
+  ok("findExpression: the longest match wins; none → null", S.findExpression("I need to follow up on it", [{ p: "follow up…" }, { p: "follow up on…" }]).phrase === "follow up on" && S.findExpression("Good morning everyone.", phrases) === null);
+  ok("usedExpression: in order and consecutive; punctuation and case ignored; split apart → false", S.usedExpression("Tomorrow I'll FOLLOW up on the email, promise.", ["follow", "up", "on"]) && !S.usedExpression("I follow the plan up on time", ["follow", "up", "on"]));
+  ok("every feedback key is an i18n key the app defines", (() => { const en = readFileSync(new URL("../index.html", import.meta.url), "utf8"); const keys = ["sv.ch_good_all", "sv.ch_good_smooth", "sv.ch_good_rhythm", "sv.ch_good_word", "sv.ch_good_most", "sv.ch_good_tried", "sv.ch_imp_nothing", "sv.ch_imp_missing", "sv.ch_imp_wrong", "sv.ch_imp_order", "sv.ch_imp_connect", "sv.ch_imp_pron", "sv.ch_imp_slow", "sv.ch_imp_fast", "sv.ch_imp_fillers", "sv.ch_imp_extra", "sv.ch_imp_levelup"]; return keys.every(k => en.includes('"' + k + '":')); })());
+}
+
 const pass = res.filter(r => r.pass).length;
 console.log(`\n  ${pass}/${res.length} pass`);
 process.exit(pass === res.length ? 0 : 1);
