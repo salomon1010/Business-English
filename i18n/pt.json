@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Semanas 9–12",
  "pp.waiting_h": "Você está na lista de espera — procurando o seu parceiro…",
  "pp.waiting_count": "Mais {{n}} aprendiz(es) também esperam — toque em «Ver candidatos» e comece.",
- "pp.waiting_alone": "É o primeiro da fila no seu nível. O próximo aluno que pedir será o seu parceiro.",
+ "pp.waiting_alone": "Mais ninguém está online agora. Assim que alguém estiver, você o verá aqui — e quem pedir é emparelhado com você.",
  "pp.waiting_sub": "Pode fechar a app. O ecrã inicial avisa quando um aluno experimentar uma prática consigo.",
  "pp.withdraw": "Parar de procurar",
  "pp.refresh": "Verificar de novo",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Você está na fila — o próximo aprendiz que chegar vê você primeiro. Pratique com o coach de IA enquanto continuamos procurando.",
  "pp.keep_looking": "Continuar a procurar",
  "pp.nohuman_h": "Ainda não há parceiro disponível",
+ "pp.ai_choice_h": "Ou pratique com o coach de IA",
+ "pp.ai_choice_sub": "Você escolhe: um aluno real, ou o coach de IA agora mesmo. O coach é uma IA, nunca uma pessoa.",
  "pp.nohuman_sub": "Comece com a IA enquanto procuramos a sua próxima sessão humana. O coach é IA, nunca uma pessoa.",
  "pp.closed_rematch": "A sua última sessão terminou. Pode encontrar um novo parceiro.",
  "pp.closed_completed": "Bom trabalho — sessão concluída.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Alguém acabou de entrar na lista de espera. Veja quem e envie um pedido de prática.",
  "pp.how_btn": "Como funciona",
  "pp.presence_online": "{{n}} aprendiz(es) online",
- "pp.presence_waiting": "{{n}} à espera para praticar",
+ "pp.presence_waiting": "{{n}} pronto(s) para praticar",
  "pp.presence_none": "Ninguém online agora — avisamos quando alguém chegar",
  "pp.cands_toast": "{{n}} aprendiz(es) à espera — escolha um",
  "pp.fab": "Fale com uma pessoa real",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Aceitar e falar",
  "pp.tinv_wait_live_sub": "Tem dez minutos. Assim que aceitar, a chamada abre aqui.",
  "pp.live_hangup": "Desligar",
- "auth.delete_partner_fail": "Não foi possível contactar o serviço Practice Partner para apagar os seus dados de parceiro. Verifique a ligação e tente de novo — nada foi apagado."
+ "auth.delete_partner_fail": "Não foi possível contactar o serviço Practice Partner para apagar os seus dados de parceiro. Verifique a ligação e tente de novo — nada foi apagado.",
+ "pp.why_online": "online agora",
+ "pp.band_unknown": "Nível ainda não definido"
 }

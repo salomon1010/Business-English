@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Semaines 9–12",
  "pp.waiting_h": "Vous êtes sur la liste d'attente — nous cherchons votre partenaire…",
  "pp.waiting_count": "{{n}} autre(s) apprenant(s) attendent aussi — touchez « Voir les candidats » et commencez.",
- "pp.waiting_alone": "Vous êtes le premier de la file pour votre niveau. Le prochain apprenant qui demande sera jumelé avec vous.",
+ "pp.waiting_alone": "Personne d'autre n'est en ligne pour l'instant. Dès que quelqu'un l'est, vous le verrez ici — et toute personne qui demande est jumelée avec vous.",
  "pp.waiting_sub": "Vous pouvez fermer l'application. Votre écran d'accueil vous préviendra quand un apprenant essaiera une pratique avec vous.",
  "pp.withdraw": "Arrêter la recherche",
  "pp.refresh": "Vérifier à nouveau",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Vous êtes dans la file — le prochain apprenant qui arrive vous voit en premier. Pratiquez avec le coach IA pendant que nous cherchons.",
  "pp.keep_looking": "Continuer à chercher",
  "pp.nohuman_h": "Pas encore de partenaire disponible",
+ "pp.ai_choice_h": "Ou entraînez-vous avec le coach IA",
+ "pp.ai_choice_sub": "À vous de choisir : un vrai apprenant, ou le coach IA tout de suite. Le coach est une IA, jamais une personne.",
  "pp.nohuman_sub": "Commencez avec l'IA pendant que nous cherchons votre prochaine session humaine. Le coach est une IA, jamais une personne.",
  "pp.closed_rematch": "Votre dernière session est terminée. Vous pouvez trouver un nouveau partenaire.",
  "pp.closed_completed": "Bravo — session terminée.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Quelqu'un vient de rejoindre la liste d'attente. Voyez qui, et envoyez une demande de pratique.",
  "pp.how_btn": "Comment ça marche",
  "pp.presence_online": "{{n}} apprenant(s) en ligne",
- "pp.presence_waiting": "{{n}} en attente de pratiquer",
+ "pp.presence_waiting": "{{n}} prêt(s) à pratiquer",
  "pp.presence_none": "Personne en ligne pour l'instant — nous vous préviendrons dès que quelqu'un arrive",
  "pp.cands_toast": "{{n}} apprenant(s) en attente — choisissez-en un",
  "pp.fab": "Parler à une vraie personne",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Accepter et parler",
  "pp.tinv_wait_live_sub": "Il ou elle a dix minutes. Dès l'acceptation, l'appel s'ouvre ici.",
  "pp.live_hangup": "Raccrocher",
- "auth.delete_partner_fail": "Impossible de joindre le service Practice Partner pour effacer vos données de partenaire. Vérifiez votre connexion et réessayez — rien n'a été supprimé."
+ "auth.delete_partner_fail": "Impossible de joindre le service Practice Partner pour effacer vos données de partenaire. Vérifiez votre connexion et réessayez — rien n'a été supprimé.",
+ "pp.why_online": "en ligne en ce moment",
+ "pp.band_unknown": "Niveau pas encore défini"
 }

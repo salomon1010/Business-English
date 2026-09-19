@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Wochen 9–12",
  "pp.waiting_h": "Du bist auf der Warteliste — wir suchen deinen Partner…",
  "pp.waiting_count": "{{n}} weitere Lernende warten auch — tippe auf „Kandidaten zeigen“ und leg los.",
- "pp.waiting_alone": "Du bist der Erste in der Reihe für deine Stufe. Der nächste Lernende, der fragt, wird dein Partner.",
+ "pp.waiting_alone": "Gerade ist niemand sonst online. Sobald jemand da ist, siehst du ihn hier — und wer anfragt, wird mit dir zusammengebracht.",
  "pp.waiting_sub": "Du kannst die App schließen. Dein Startbildschirm sagt dir, wenn jemand eine Übung mit dir probiert.",
  "pp.withdraw": "Suche beenden",
  "pp.refresh": "Erneut prüfen",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Du bist in der Reihe — wer als Nächstes kommt, sieht dich zuerst. Übe mit dem KI-Coach, während wir weitersuchen.",
  "pp.keep_looking": "Weitersuchen",
  "pp.nohuman_h": "Noch kein Partner verfügbar",
+ "pp.ai_choice_h": "Oder übe mit dem KI-Coach",
+ "pp.ai_choice_sub": "Deine Wahl: ein echter Lernender oder sofort der KI-Coach. Der Coach ist eine KI, nie ein Mensch.",
  "pp.nohuman_sub": "Fang mit der KI an, während wir deine nächste menschliche Sitzung suchen. Der Coach ist KI, nie eine Person.",
  "pp.closed_rematch": "Deine letzte Sitzung ist beendet. Du kannst einen neuen Partner finden.",
  "pp.closed_completed": "Gut gemacht — Sitzung abgeschlossen.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Jemand ist gerade der Warteliste beigetreten. Sieh, wer, und schick eine Übungsanfrage.",
  "pp.how_btn": "So funktioniert es",
  "pp.presence_online": "{{n}} Lernende online",
- "pp.presence_waiting": "{{n}} warten aufs Üben",
+ "pp.presence_waiting": "{{n}} bereit zum Üben",
  "pp.presence_none": "Gerade niemand online — wir sagen Bescheid, sobald jemand kommt",
  "pp.cands_toast": "{{n}} Lernende warten — wähle eine Person",
  "pp.fab": "Mit einem echten Menschen sprechen",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Annehmen und sprechen",
  "pp.tinv_wait_live_sub": "Die Person hat zehn Minuten. Sobald sie annimmt, öffnet sich der Anruf hier.",
  "pp.live_hangup": "Auflegen",
- "auth.delete_partner_fail": "Der Practice-Partner-Dienst war nicht erreichbar, um deine Partnerdaten zu löschen. Prüfe die Verbindung und versuche es erneut — es wurde nichts gelöscht."
+ "auth.delete_partner_fail": "Der Practice-Partner-Dienst war nicht erreichbar, um deine Partnerdaten zu löschen. Prüfe die Verbindung und versuche es erneut — es wurde nichts gelöscht.",
+ "pp.why_online": "gerade online",
+ "pp.band_unknown": "Stufe noch nicht festgelegt"
 }

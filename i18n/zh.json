@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "第 9–12 周",
  "pp.waiting_h": "你在等待名单上 —— 正在为你寻找伙伴…",
  "pp.waiting_count": "还有 {{n}} 位学习者也在等待 —— 点按「查看候选人」开始。",
- "pp.waiting_alone": "你在本级别排在第一位。下一位提出请求的学习者将成为你的搭档。",
+ "pp.waiting_alone": "现在没有其他人在线。一有人上线，你就会在这里看到 —— 任何发出请求的人都会与你配对。",
  "pp.waiting_sub": "你可以关闭应用。有人和你试练时，主页会通知你。",
  "pp.withdraw": "停止寻找",
  "pp.refresh": "再查看",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "你在队列中 —— 下一位加入的学习者会先看到你。在我们继续寻找时，先和 AI 教练练习吧。",
  "pp.keep_looking": "继续寻找",
  "pp.nohuman_h": "暂时没有伙伴",
+ "pp.ai_choice_h": "或者与 AI 教练练习",
+ "pp.ai_choice_sub": "由你决定：真人学习者，或立即与 AI 教练练习。教练是 AI，绝不是真人。",
  "pp.nohuman_sub": "在我们寻找下一次真人练习时，先和 AI 开始。教练是 AI，绝不是真人。",
  "pp.closed_rematch": "上一次练习已结束。你可以寻找新伙伴。",
  "pp.closed_completed": "很好——练习已完成。",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "刚有人加入等待名单。看看是谁，发送练习请求。",
  "pp.how_btn": "如何使用",
  "pp.presence_online": "{{n}} 位学习者在线",
- "pp.presence_waiting": "{{n}} 位等待练习",
+ "pp.presence_waiting": "{{n}} 位可以练习",
  "pp.presence_none": "现在没有人在线 —— 有人来时我们会告诉你",
  "pp.cands_toast": "{{n}} 位学习者在等待 —— 选一位吧",
  "pp.fab": "和真人对话",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "接受并开始通话",
  "pp.tinv_wait_live_sub": "对方有十分钟。一旦接受，通话就在这里开始。",
  "pp.live_hangup": "挂断",
- "auth.delete_partner_fail": "无法连接 Practice Partner 服务以清除你的伙伴数据。请检查网络后重试 —— 尚未删除任何内容。"
+ "auth.delete_partner_fail": "无法连接 Practice Partner 服务以清除你的伙伴数据。请检查网络后重试 —— 尚未删除任何内容。",
+ "pp.why_online": "现在在线",
+ "pp.band_unknown": "尚未设置级别"
 }

@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Minggu 9–12",
  "pp.waiting_h": "Anda ada di daftar tunggu — mencari teman latihan Anda…",
  "pp.waiting_count": "{{n}} pelajar lain juga menunggu — ketuk “Tampilkan kandidat” dan mulai.",
- "pp.waiting_alone": "Anda pertama di antrean untuk tingkat Anda. Pelajar berikutnya yang meminta akan menjadi mitra Anda.",
+ "pp.waiting_alone": "Belum ada orang lain yang online. Begitu ada, Anda akan melihatnya di sini — dan siapa pun yang meminta akan dipasangkan dengan Anda.",
  "pp.waiting_sub": "Anda boleh menutup aplikasi. Layar Beranda akan memberi tahu saat seseorang mencoba latihan bersama Anda.",
  "pp.withdraw": "Berhenti mencari",
  "pp.refresh": "Cek lagi",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Anda dalam antrean — pelajar berikutnya yang datang melihat Anda lebih dulu. Berlatihlah dengan pelatih AI selagi kami terus mencari.",
  "pp.keep_looking": "Terus cari",
  "pp.nohuman_h": "Belum ada partner tersedia",
+ "pp.ai_choice_h": "Atau berlatih dengan pelatih AI",
+ "pp.ai_choice_sub": "Pilihan Anda: pelajar sungguhan, atau pelatih AI sekarang juga. Pelatih ini AI, bukan manusia.",
  "pp.nohuman_sub": "Mulai dengan AI sementara kami mencari sesi manusia berikutnya. Pelatih ini AI, bukan manusia.",
  "pp.closed_rematch": "Sesi terakhir Anda sudah berakhir. Anda bisa mencari partner baru.",
  "pp.closed_completed": "Hebat — sesi selesai.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Seseorang baru saja masuk daftar tunggu. Lihat siapa, dan kirim permintaan latihan.",
  "pp.how_btn": "Cara kerjanya",
  "pp.presence_online": "{{n}} pelajar online",
- "pp.presence_waiting": "{{n}} menunggu untuk berlatih",
+ "pp.presence_waiting": "{{n}} siap berlatih",
  "pp.presence_none": "Belum ada yang online — kami beri tahu begitu ada yang datang",
  "pp.cands_toast": "{{n}} pelajar menunggu — pilih satu",
  "pp.fab": "Bicara dengan orang sungguhan",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Terima & bicara",
  "pp.tinv_wait_live_sub": "Mereka punya sepuluh menit. Begitu diterima, panggilan terbuka di sini.",
  "pp.live_hangup": "Tutup panggilan",
- "auth.delete_partner_fail": "Tidak dapat menghubungi layanan Practice Partner untuk menghapus data teman Anda. Periksa koneksi dan coba lagi — tidak ada yang dihapus."
+ "auth.delete_partner_fail": "Tidak dapat menghubungi layanan Practice Partner untuk menghapus data teman Anda. Periksa koneksi dan coba lagi — tidak ada yang dihapus.",
+ "pp.why_online": "sedang online",
+ "pp.band_unknown": "Level belum diatur"
 }

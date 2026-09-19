@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Tuần 9–12",
  "pp.waiting_h": "Bạn đang trong danh sách chờ — đang tìm bạn luyện tập cho bạn…",
  "pp.waiting_count": "{{n}} người học khác cũng đang chờ — nhấn “Xem ứng viên” và bắt đầu.",
- "pp.waiting_alone": "Bạn đứng đầu hàng chờ trong nhóm của mình. Người tiếp theo yêu cầu sẽ là bạn cùng cặp.",
+ "pp.waiting_alone": "Hiện chưa có ai khác trực tuyến. Ngay khi có, bạn sẽ thấy họ ở đây — và ai gửi lời mời sẽ được ghép với bạn.",
  "pp.waiting_sub": "Bạn có thể đóng ứng dụng. Màn hình chính sẽ báo khi có người thử luyện cùng bạn.",
  "pp.withdraw": "Ngừng tìm",
  "pp.refresh": "Kiểm tra lại",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Bạn đang trong hàng chờ — người học tiếp theo tham gia sẽ thấy bạn trước. Hãy luyện với huấn luyện viên AI trong lúc chúng tôi tiếp tục tìm.",
  "pp.keep_looking": "Tiếp tục tìm",
  "pp.nohuman_h": "Chưa có bạn luyện",
+ "pp.ai_choice_h": "Hoặc luyện tập với huấn luyện viên AI",
+ "pp.ai_choice_sub": "Bạn chọn: một người học thật, hoặc huấn luyện viên AI ngay bây giờ. Huấn luyện viên là AI, không bao giờ là người.",
  "pp.nohuman_sub": "Bắt đầu với AI trong lúc chúng tôi tìm buổi luyện với người tiếp theo. Huấn luyện viên là AI, không bao giờ là người.",
  "pp.closed_rematch": "Buổi trước đã kết thúc. Bạn có thể tìm bạn luyện mới.",
  "pp.closed_completed": "Tuyệt — buổi luyện đã hoàn thành.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Vừa có người vào danh sách chờ. Xem là ai và gửi lời mời luyện tập.",
  "pp.how_btn": "Cách hoạt động",
  "pp.presence_online": "{{n}} người học đang trực tuyến",
- "pp.presence_waiting": "{{n}} đang chờ luyện tập",
+ "pp.presence_waiting": "{{n}} sẵn sàng luyện tập",
  "pp.presence_none": "Hiện chưa có ai trực tuyến — chúng tôi sẽ báo ngay khi có người",
  "pp.cands_toast": "{{n}} người học đang chờ — hãy chọn một người",
  "pp.fab": "Nói chuyện với người thật",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Chấp nhận & nói",
  "pp.tinv_wait_live_sub": "Họ có mười phút. Ngay khi họ chấp nhận, cuộc gọi sẽ mở tại đây.",
  "pp.live_hangup": "Kết thúc cuộc gọi",
- "auth.delete_partner_fail": "Không thể kết nối dịch vụ Practice Partner để xoá dữ liệu bạn luyện tập. Kiểm tra kết nối và thử lại — chưa có gì bị xoá."
+ "auth.delete_partner_fail": "Không thể kết nối dịch vụ Practice Partner để xoá dữ liệu bạn luyện tập. Kiểm tra kết nối và thử lại — chưa có gì bị xoá.",
+ "pp.why_online": "đang trực tuyến",
+ "pp.band_unknown": "Chưa đặt trình độ"
 }

@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Settimane 9–12",
  "pp.waiting_h": "Sei in lista d'attesa — stiamo cercando il tuo partner…",
  "pp.waiting_count": "Altri {{n}} studenti aspettano — tocca «Mostra i candidati» e inizia.",
- "pp.waiting_alone": "Sei il primo in fila per il tuo livello. Il prossimo studente che lo chiede sarà il tuo partner.",
+ "pp.waiting_alone": "Nessun altro è online al momento. Appena qualcuno lo sarà, lo vedrai qui — e chiunque chieda viene abbinato a te.",
  "pp.waiting_sub": "Puoi chiudere l'app. La schermata Home ti avviserà quando uno studente proverà una pratica con te.",
  "pp.withdraw": "Smetti di cercare",
  "pp.refresh": "Controlla di nuovo",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Sei in coda — il prossimo studente che arriva ti vede per primo. Esercitati con il coach IA mentre continuiamo a cercare.",
  "pp.keep_looking": "Continua a cercare",
  "pp.nohuman_h": "Nessun partner ancora disponibile",
+ "pp.ai_choice_h": "Oppure esercitati con il coach IA",
+ "pp.ai_choice_sub": "Scegli tu: un vero studente, o il coach IA subito. Il coach è un'IA, mai una persona.",
  "pp.nohuman_sub": "Inizia con l'IA mentre cerchiamo la tua prossima sessione umana. Il coach è un'IA, mai una persona.",
  "pp.closed_rematch": "L'ultima sessione è terminata. Puoi trovare un nuovo partner.",
  "pp.closed_completed": "Ottimo lavoro: sessione completata.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Qualcuno si è appena unito alla lista d'attesa. Guarda chi e invia una richiesta di pratica.",
  "pp.how_btn": "Come funziona",
  "pp.presence_online": "{{n}} studente/i online",
- "pp.presence_waiting": "{{n}} in attesa di esercitarsi",
+ "pp.presence_waiting": "{{n}} pronto/i a esercitarsi",
  "pp.presence_none": "Nessuno online al momento — ti avviseremo quando arriva qualcuno",
  "pp.cands_toast": "{{n}} studente/i in attesa — scegline uno",
  "pp.fab": "Parla con una persona vera",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Accetta e parla",
  "pp.tinv_wait_live_sub": "Ha dieci minuti. Appena accetta, la chiamata si apre qui.",
  "pp.live_hangup": "Riaggancia",
- "auth.delete_partner_fail": "Impossibile raggiungere il servizio Practice Partner per cancellare i dati del partner. Controlla la connessione e riprova — non è stato cancellato nulla."
+ "auth.delete_partner_fail": "Impossibile raggiungere il servizio Practice Partner per cancellare i dati del partner. Controlla la connessione e riprova — non è stato cancellato nulla.",
+ "pp.why_online": "online adesso",
+ "pp.band_unknown": "Livello non ancora impostato"
 }

@@ -1300,19 +1300,23 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (prefers-reduced-motion:reduce){#ppPill .pp-pill-dot::before,#ppCall .pp-call-dot::before,.pp-presence .pp-presence-dot::before,.pp-beacon::before{animation:none;opacity:0}#ppPill .pp-pill-dot::after,#ppCall .pp-call-dot::after,.pp-presence .pp-presence-dot::after,.pp-beacon::after{animation:none}}
 .pp-presence{display:flex;align-items:center;gap:9px;width:100%;margin:-4px 0 12px;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:700;text-align:left}.pp-presence .pp-presence-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--mut)}.pp-presence.some .pp-presence-dot{background:var(--green)}.pp-presence.none{color:var(--mut);font-weight:600}.pp-presence span:nth-child(2){flex:1}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
-/* the floating "Talk to a real person" button: a 64 px circle in the Practice
-   Partner look — the two-learners photo under a violet wash in the app accent,
-   a light ring, the label on the darker lower half, the live breathing halo */
-#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:64px;height:64px;padding:0 5px 7px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);
-  background:linear-gradient(180deg,rgba(49,46,129,.45) 0%,rgba(55,48,163,.62) 45%,rgba(30,27,75,.94) 100%),url("rp-photos/partner.jpg") center 28%/cover no-repeat;filter:saturate(.85);
-  color:#fff;font:inherit;font-size:8px;line-height:1.05;font-weight:800;text-align:center;letter-spacing:0;text-shadow:0 1px 2px rgba(0,0,0,.6);
-  box-shadow:0 6px 16px rgba(99,102,241,.22),0 2px 6px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
-#ppFab .pp-fab-ic{display:none}
-#ppFab>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:56px}
+/* the floating "Talk to a real person" button — an extended pill (owner,
+   2026-09-19: "modern and proportional"): the two-learners photo in a 40 px
+   circle at the left, the label at a readable 13 px beside it, one dark
+   glass body, the quiet breathing halo. The photo is the .pp-fab-ic span. */
+#ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:inline-flex;align-items:center;gap:10px;height:52px;max-width:calc(100vw - 28px);padding:0 16px 0 6px;border-radius:999px;border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg,rgba(38,32,82,.96),rgba(22,18,52,.96));-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  color:#fff;font:inherit;font-size:13px;line-height:1.2;font-weight:700;text-align:left;letter-spacing:0;white-space:nowrap;
+  box-shadow:0 8px 20px rgba(0,0,0,.35),0 1px 0 rgba(255,255,255,.06) inset;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
+#ppFab .pp-fab-ic{display:block;flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(255,255,255,.55);background:linear-gradient(180deg,rgba(76,60,190,.18),rgba(30,27,75,.35)),url("rp-photos/partner.jpg") center 28%/cover no-repeat;filter:saturate(.9)}
+#ppFab .pp-fab-ic svg{display:none}
+#ppFab>span:last-child{overflow:hidden;text-overflow:ellipsis;max-width:min(52vw,190px)}
 /* the same quiet breathing halo as "Practise live" (.pp-live-glow), not a beacon */
-#ppFab.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(150,150,180,.38);pointer-events:none;animation:pplivebreathe 3.2s ease-in-out infinite}
+#ppFab.on::after{content:"";position:absolute;inset:-4px;border-radius:999px;border:2px solid rgba(150,150,180,.38);pointer-events:none;animation:pplivebreathe 3.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
-:root[data-theme="light"] #ppFab{border-color:rgba(255,255,255,.8);box-shadow:0 6px 16px rgba(95,92,135,.22),0 2px 6px rgba(0,0,0,.2)}
+:root[data-theme="light"] #ppFab{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(243,240,255,.96));color:#1e1b4b;border-color:rgba(76,29,149,.18);box-shadow:0 8px 20px rgba(15,23,42,.14),0 1px 0 #fff inset}
+:root[data-theme="light"] #ppFab .pp-fab-ic{border-color:#fff}
+#ppFab:active{transform:scale(.97)}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
@@ -4702,6 +4706,8 @@ const I18N_EN={
  "pp.closed_rematch":"Your last session ended. You can find a new partner.",
  "pp.nohuman_sub":"Start AI practice while we look for your next human session. The coach is AI, never a person.",
  "pp.nohuman_h":"No partner available yet",
+ "pp.ai_choice_h":"Or practise with the AI coach",
+ "pp.ai_choice_sub":"Your choice: a real learner, or the AI coach right now. The coach is AI, never a person.",
  "pp.keep_looking":"Keep looking",
  "pp.nocand_sub":"You are in line — the next learner who joins sees you first. Practise with the AI coach while we keep looking.",
  "pp.nocand_h":"No one is available right now",
@@ -13549,6 +13555,15 @@ function ppPresenceHTML(){
   return `<button type="button" class="pp-presence ${none?"none":"some"}" onclick="ppPresenceTap()" aria-live="polite"><span class="pp-presence-dot"></span><span>${label}</span><span class="pp-pill-go">›</span></button>`;
 }
 window.ppPresenceTap=()=>{const m=ppMe;try{track("partner_availability_viewed",{})}catch(e){}if(m&&m.pair){const el=document.getElementById("v-partner");if(el)el.querySelector(".pp-thread")?.scrollIntoView({behavior:"smooth"});return}if(m&&m.invite){return}ppMatch()};
+/* The AI coach is a standing choice, not a fallback (owner, 2026-09-19): the
+   same card sits under the partner options on the idle page, the waiting card
+   and the candidate list, so a learner who went to look at real people can
+   come back and pick the coach instead. */
+function ppAiChoiceHTML(reason,noHuman){
+  if(!flag("practice_partner_ai_fallback_enabled"))return "";
+  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${noHuman?t("pp.nohuman_h"):t("pp.ai_choice_h")}</b><p class="sub">${noHuman?t("pp.nohuman_sub"):t("pp.ai_choice_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('${reason}')">${t("pp.fallback_btn")}</button></div></section>`;
+}
 function ppIntroHTML(){
   return `<section class="card pp-intro">
     <div class="pp-steps">
@@ -13596,15 +13611,14 @@ function ppRender(el){
       <p class="sub">${t("pp.waiting_sub")}</p>
       <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
     </section>
-    ${flag("practice_partner_ai_fallback_enabled")&&!(m.waiting.available>0)?`<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
-      <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('waiting')">${t("pp.fallback_btn")}</button></div></section>`:""}`);return;
+    ${ppAiChoiceHTML("waiting",!(m.waiting.available>0))}`);return;
   }
   const closed=m.lastClosed&&ppState().dismissedClosed!==m.lastClosed.id?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed","declined","cancelled"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"),{name:esc(m.lastClosed.name||"")})}</p>`:"";
   shell(`${aiResume}${applyCard}${conn}${ppIntroHTML()}<section class="card pp-cta">${closed}
     <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
     <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppMatch()">${t("pp.match_btn")}</button><button class="btn btn-g" ${ppBusy?"disabled":""} onclick="ppNow()">${t("pp.now_btn")}</button></div>
     <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
-  </section>`);
+  </section>${ppAiChoiceHTML("choice",false)}`);
 }
 const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar",in_line:"pp.why_line",online_now:"pp.why_online"};
 function ppReasonText(r){
@@ -13614,9 +13628,8 @@ function ppReasonText(r){
   return "";
 }
 function ppCandidatesHTML(cards){
-  /* a human first: while someone is in line the AI coach is not offered — the
-     learner picks a person; only when the count is back at zero (someone else
-     took them) does the AI card return */
+  /* the AI coach stays on offer under the list (owner, 2026-09-19) — the
+     learner who came to see real people can still choose the coach here */
   if(!cards.length)return `<section class="card pp-cta"><b>${t("pp.nocand_h")}</b><p class="sub">${t("pp.nocand_sub")}</p>
     <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('nocand')">${t("pp.fallback_btn")}</button><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.keep_looking")}</button></div></section>`;
   return `<section class="card"><div class="eyebrow">${t("pp.cands_eyebrow")}</div><b style="font-size:16px;display:block;margin:4px 0 4px">${t("pp.cands_h")}</b><p class="sub">${t("pp.cands_sub")}</p></section>
@@ -13628,7 +13641,8 @@ function ppCandidatesHTML(cards){
     ${ppLiveOn()?`<div class="pp-row"><button class="btn-primary" onclick="ppInvite('${esc(c.offer)}',true)">${ic("mic")} ${t("pp.live_btn")}</button><button class="btn btn-g" onclick="ppInvite('${esc(c.offer)}')">${t("pp.try_btn")}</button></div>`:`<button class="btn-primary" onclick="ppInvite('${esc(c.offer)}')">${t("pp.try_btn")}</button>`}
     <p class="pp-fine">${t("pp.cand_live_note")}</p>
   </section>`).join("")}
-  <div class="pp-row"><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.cands_back")}</button></div>`;
+  <div class="pp-row"><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.cands_back")}</button></div>
+  ${ppAiChoiceHTML("cands",false)}`;
 }
 function ppThreadHTML(p){
   const pr=ppPrompt(p);

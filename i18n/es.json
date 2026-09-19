@@ -1560,7 +1560,7 @@
  "pp.band_w9-12": "Semanas 9–12",
  "pp.waiting_h": "Estás en la lista de espera — buscando a tu compañero…",
  "pp.waiting_count": "{{n}} aprendiz(es) más también esperan — toca «Ver candidatos» y empieza.",
- "pp.waiting_alone": "Eres el primero de la fila en tu nivel. El siguiente estudiante que lo pida será tu compañero.",
+ "pp.waiting_alone": "Nadie más está en línea ahora mismo. En cuanto alguien lo esté, lo verás aquí — y cualquiera que pida queda emparejado contigo.",
  "pp.waiting_sub": "Puedes cerrar la app. Tu pantalla de inicio te avisará cuando un estudiante pruebe una práctica contigo.",
  "pp.withdraw": "Dejar de buscar",
  "pp.refresh": "Comprobar de nuevo",
@@ -1697,6 +1697,8 @@
  "pp.nocand_sub": "Estás en la fila — el próximo aprendiz que llegue te verá primero. Practica con el coach de IA mientras seguimos buscando.",
  "pp.keep_looking": "Seguir buscando",
  "pp.nohuman_h": "Aún no hay compañero disponible",
+ "pp.ai_choice_h": "O practica con el coach de IA",
+ "pp.ai_choice_sub": "Tú eliges: un estudiante real, o el coach de IA ahora mismo. El coach es una IA, nunca una persona.",
  "pp.nohuman_sub": "Empieza con la IA mientras buscamos tu próxima sesión humana. El coach es una IA, nunca una persona.",
  "pp.closed_rematch": "Tu última sesión terminó. Puedes buscar un nuevo compañero.",
  "pp.closed_completed": "Buen trabajo: sesión completada.",
@@ -1860,7 +1862,7 @@
  "pp.avail_sub": "Alguien acaba de unirse a la lista de espera. Mira quién y envía una solicitud de práctica.",
  "pp.how_btn": "Cómo funciona",
  "pp.presence_online": "{{n}} aprendiz(es) en línea",
- "pp.presence_waiting": "{{n}} esperando para practicar",
+ "pp.presence_waiting": "{{n}} listo(s) para practicar",
  "pp.presence_none": "Nadie en línea ahora mismo — te avisaremos cuando llegue alguien",
  "pp.cands_toast": "{{n}} aprendiz(es) esperando — elige uno",
  "pp.fab": "Habla con una persona real",
@@ -1872,5 +1874,7 @@
  "pp.tinv_live_accept": "Aceptar y hablar",
  "pp.tinv_wait_live_sub": "Tiene diez minutos. En cuanto acepte, la llamada se abre aquí.",
  "pp.live_hangup": "Colgar",
- "auth.delete_partner_fail": "No se pudo contactar con el servicio Practice Partner para borrar tus datos de compañero. Comprueba tu conexión e inténtalo de nuevo — no se ha borrado nada."
+ "auth.delete_partner_fail": "No se pudo contactar con el servicio Practice Partner para borrar tus datos de compañero. Comprueba tu conexión e inténtalo de nuevo — no se ha borrado nada.",
+ "pp.why_online": "en línea ahora mismo",
+ "pp.band_unknown": "Nivel aún no definido"
 }
