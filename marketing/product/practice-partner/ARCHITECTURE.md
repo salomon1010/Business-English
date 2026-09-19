@@ -98,6 +98,7 @@ not connect — a documented limitation).
   from the same filter, so it can never say "1 waiting" over "no one is
   available"). While anyone is in line the AI coach is not offered; it
   returns when the count is back at zero.
+- **Live on/off is the server's call.** `/me.liveEnabled` mirrors `LIVE_ENABLED`; `ppLiveOn()` reads it, so a phone whose `be_flags` predates the live flag still gets Practise live (owner report, 2026-09-19). The client flag only applies before the first `/me` answer.
 - **Live is for whoever you practise with.** `POST /live` targets the open
   session's partner first (a trial with a stranger included), else the
   connected partner. A candidate card offers **Practise live** (a proposal

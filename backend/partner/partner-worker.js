@@ -392,6 +392,7 @@ async function meView(env, uid, ms) {
          number — so the strip never promises someone the cards then hide */
       const waiting = out.waiting ? out.waiting.available : (await candidates(env, uid, ms, 300)).length;
       out.presence = { online, waiting };
+      out.liveEnabled = env.LIVE_ENABLED === "1";   /* the client's single source of truth for the live buttons */
     } catch (e) { out.presence = { online: 0, waiting: 0 }; }
     await q(env, "UPDATE pairs SET status='closed', closed_reason='expired', closed_at=? WHERE status='invited' AND invite_expires<=? AND (uid_a=? OR uid_b=?)", ms, ms, uid, uid).run();
     const inv = await invitedPairFor(env, uid, ms);

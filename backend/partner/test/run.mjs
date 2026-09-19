@@ -113,6 +113,7 @@ let t1 = null;
   const base = (await call("pam", "GET", "/me")).json.serverNow;
   await join("pam", { band: "w1-4" }); await join("quo", { band: "w1-4" });
   const pm = await call("pam", "GET", "/me");
+  ok("/me carries liveEnabled from the Worker (LIVE_ENABLED), so every device shows the same live buttons", pm.json.liveEnabled === true);
   ok("presence: counts only (online, waiting), never ids; excludes self; a queued peer counts as waiting", pm.json.presence && typeof pm.json.presence.online === "number" && pm.json.presence.waiting >= 1 && Object.keys(pm.json.presence).join() === "online,waiting" && !JSON.stringify(pm.json.presence).includes("dev:"));
   await call("pam", "POST", `/connection/block`, { cid: "0000000000000000" }).catch(() => {});   /* no-op: proves a bad cid is harmless */
   await join("rae", { band: "w9-12" });

@@ -176,7 +176,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (99), `tests/partner.mjs` (120, browser
+  `backend/partner/test/run.mjs` (100), `tests/partner.mjs` (121, browser
   contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
@@ -186,7 +186,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   included; candidate cards carry **Practise live** = `/invite {live:true}`,
   migration 0007 `pairs.live_wanted`, the guest's accept opens the room for
   the host; More options in any session has Practise live); presence strip
-  `ppPresenceHTML()` (+ Home card counts) + floating `#ppFab` on every non-partner page (steps above the pill, gone only in a live room / under a call banner; needs only the server's `consented`); red hang-up button `ppLiveHangup` in the call card; the live
+  `ppPresenceHTML()` (+ Home card counts) + floating `#ppFab` on every non-partner page (steps above the pill, gone only in a live room / under a call banner; needs only the server's `consented`); red hang-up button `ppLiveHangup` in the call card; `ppLiveOn()` follows `/me.liveEnabled` (server `LIVE_ENABLED`), not the per-device flag; `go()` uses replaceState (no hashchange) so it calls `ppCallSync/ppPillSync/ppLiveDotSync/ppFabSync` itself; the live
   beacon (`#ppLiveDot`, pill/call/presence dots) reuses the road map's
   `rmRing`/`rmSpin`, not a box-shadow throb; the partner-left dialog is
   Close / Find another partner and either clears the partner from the screen

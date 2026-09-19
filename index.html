@@ -13309,6 +13309,7 @@ function ppApiBase(){try{const o=localStorage.getItem("be_partner_api");if(o!=nu
 function ppDevUser(){try{if(!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(ppApiBase()))return null;return localStorage.getItem("be_partner_dev_user")||null}catch(e){return null}}
 function ppSignedIn(){return !!(FBUser||ppDevUser())}
 function ppState(){S.pp=S.pp||{};return S.pp}
+function ppConsented(){const st=ppState();return !!(st.consent||(st.lastMe&&st.lastMe.consented)||(ppMe&&ppMe.consented))}
 /* the feature exists for this learner: flag on, General English, an endpoint */
 function ppAvailable(){return !!ppApiBase()&&flag("practice_partner_enabled")&&isGeneralEnglish()}
 async function ppHeaders(){
@@ -13763,7 +13764,10 @@ window.ppDecide=async choice=>{
    transport. */
 const PP_LIVE_ROUNDS=4, PP_LIVE_POLL_FAST=1200, PP_LIVE_POLL_SLOW=4000, PP_LIVE_CONNECT_MS=45000, PP_LIVE_RECONNECT_MS=60000, PP_LIVE_ICE=[{urls:"stun:stun.cloudflare.com:3478"}];
 let ppLive=null;   /* {id, role, pc, stream, ice, after, pollT, tickT, muted, round, status, startedAt, restarts, sinceDrop, help, ended} */
-function ppLiveOn(){return ppAvailable()&&flag("practice_partner_live_enabled")}
+/* live is on when the SERVER says so (LIVE_ENABLED, carried on /me) — every
+   device sees the same buttons; the client flag only matters before the first
+   /me answer, or as a rollback switch when the Worker cannot be redeployed */
+function ppLiveOn(){if(!ppAvailable())return false;const m=ppMe||ppState().lastMe;if(m&&typeof m.liveEnabled==="boolean")return m.liveEnabled;return flag("practice_partner_live_enabled")}
 function ppLiveSess(){return ppMe&&ppMe.live||null}
 /* ---- entry: host invites, guest accepts / declines ---- */
 window.ppLiveInvite=async()=>{
@@ -14138,7 +14142,7 @@ window.ppFabTap=()=>{
 function ppCallLoop(){
   clearTimeout(ppCallT);
   ppCallT=setTimeout(async()=>{
-    if(document.visibilityState==="visible"&&ppAvailable()&&ppSignedIn()&&ppState().consent&&!ppLive){
+    if(document.visibilityState==="visible"&&ppAvailable()&&ppSignedIn()&&ppConsented()&&!ppLive){
       const m=ppMe||ppState().lastMe;
       if(m&&(m.connection||m.live||m.waiting||m.invite||m.pairInvite||m.pair)){await ppRefresh(true);ppCallSync()}
       ppPillSync();
@@ -14467,7 +14471,7 @@ function ppHomeCardHTML(){
   if(p&&p.myTurn)return `<section class="card pp-home" role="button" tabindex="0" onclick="go('partner')"><div class="eyebrow">${t("pp.eyebrow")}</div><h2>${t("pp.home_prompt_h",{name:esc(p.partner.name)})}</h2><p class="sub">${t("pp.home_prompt_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.home_open")}</button></section>`;
   return "";
 }
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ppState().consent&&ppAvailable()&&Date.now()-ppLastFetch>PP_POLL_MS)ppRefresh(true).then(()=>{if(cur&&cur.v==="home")try{go("home")}catch(e){}})});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&ppConsented()&&ppAvailable()&&Date.now()-ppLastFetch>PP_POLL_MS)ppRefresh(true).then(()=>{if(cur&&cur.v==="home")try{go("home")}catch(e){}})});
 
 /* ================= FOUNDATIONS — Stage 0 of a professional track =================
    The first real feedback from francophone learners was that the welding track
@@ -15732,6 +15736,9 @@ addEventListener("resize",stickBackSync);
     const h="#"+[v,a1,a2].filter(x=>x!==undefined&&x!==null&&x!=="").join("/");
     if(location.hash!==h)history.replaceState(null,"",h);
     try{sessionStorage.setItem("be_view",h)}catch(e){}   // survives a refresh even if the hash is dropped (installed PWA start_url)
+    /* replaceState fires no hashchange, so the floating partner UI (call banner,
+       session pill, live dot, Find-a-partner button) is synced here, per view */
+    try{if(typeof ppFabSync==="function"){ppCallSync();ppPillSync();ppLiveDotSync();ppFabSync()}}catch(e){}
   };
 })();
 /* one-time cleanup: purge alignment-noise trouble words saved before the stopword
@@ -17064,7 +17071,7 @@ window.pronTry=()=>{
   localizeStatic();
   try{go(v,a1,a2)}catch(e){go("home")}
   touchSeen();
-  try{if(ppState().consent)setTimeout(()=>ppRefresh(true).then(()=>{if(cur&&cur.v==="home")go("home")}),1500)}catch(e){}
+  try{if(ppAvailable()&&ppSignedIn())setTimeout(()=>ppRefresh(true).then(()=>{if(cur&&cur.v==="home")go("home");ppFabSync()}),1500)}catch(e){}
   /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
   const done=totalDone();
   track("app_open",{
