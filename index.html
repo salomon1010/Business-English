@@ -13267,7 +13267,7 @@ function ppNotify(){
   const m=ppMe;if(!m||!flag("practice_partner_notifications_enabled"))return;
   /* a live invitation: once per session id, only while it is still open */
   if(m.live&&m.live.role==="guest"&&m.live.state==="invited"&&flag("practice_partner_live_enabled")){
-    const st=ppState();if(st.notifiedLive!==m.live.id){st.notifiedLive=m.live.id;save();if(cur&&cur.v!=="partner"){toast(t("pp.live_invite_h",{name:m.live.partner.name}));try{track("partner_notification_sent",{kind:"live"})}catch(e){}}}
+    const st=ppState();if(st.notifiedLive!==m.live.id){st.notifiedLive=m.live.id;save();toast(t("pp.live_invite_h",{name:m.live.partner.name}));try{if(navigator.vibrate)navigator.vibrate(120)}catch(e){}try{track("partner_notification_sent",{kind:"live"})}catch(e){}}
   }
   if(!m.pair||!m.pair.unread)return;
   const last=[...m.pair.turns].reverse().find(t=>!t.mine);if(!last)return;
