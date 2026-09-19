@@ -1812,5 +1812,8 @@
  "pp.end_sub": "Việc này dừng các buổi luyện sau này với {{name}}. Không phải chặn, không phải báo cáo — {{name}} chỉ thấy quan hệ đã kết thúc. Bạn có thể tìm bạn luyện khác sau.",
  "pp.end_done": "Đã kết thúc quan hệ bạn luyện.",
  "pp.findelse_h": "Tìm người khác?",
- "pp.findelse_sub": "Việc này kết thúc quan hệ bạn luyện với {{name}} và tìm người mới. {{name}} chỉ thấy quan hệ đã kết thúc."
+ "pp.findelse_sub": "Việc này kết thúc quan hệ bạn luyện với {{name}} và tìm người mới. {{name}} chỉ thấy quan hệ đã kết thúc.",
+ "pp.more_eyebrow": "Lựa chọn khác",
+ "pp.more_ai_sub": "Cùng bài, với huấn luyện viên AI. {{name}} không tham gia và buổi này vẫn mở cho đến khi bạn quay lại.",
+ "pp.more_leave_sub": "Chỉ kết thúc buổi hôm nay. Nếu hai bạn là bạn luyện, vẫn là bạn luyện."
 }

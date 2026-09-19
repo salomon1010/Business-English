@@ -1219,6 +1219,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-turn-ai{border-color:color-mix(in srgb,var(--gold) 40%,var(--line))}.pp-turn-ai .pp-turn-top b{display:inline-flex;gap:6px;align-items:center}
 .pp-human-back{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-color:color-mix(in srgb,var(--green) 45%,var(--line))}.pp-human-back svg{width:18px;height:18px;flex:none;color:var(--green)}.pp-human-back b{flex:1;font-size:13.5px}
 .pp-ai-resume b{display:block;margin:6px 0 2px;font-size:15px}
+.pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
 .pp-live-status{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:8px 0 0}.pp-live-status svg{width:18px;height:18px;flex:none;margin-top:1px}.pp-live-status.active svg{color:var(--green)}.pp-live-status.reconnecting{color:var(--gold)}
 .pp-live-ctl .pp-leave{margin-left:auto}.pp-help{margin:6px 0 0 24px;padding:0;font-size:14px;line-height:1.6}.pp-help li{margin:2px 0}
@@ -4723,6 +4724,9 @@ const I18N_EN={
  "pp.ai_resume_h":"An AI practice is still open",
  "pp.ai_resume_sub":"Turn {{n}} of {{max}} done with the AI coach.",
  "pp.ai_resume_btn":"Continue with the AI coach",
+ "pp.more_eyebrow":"More options",
+ "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
+ "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
  "pp.ai_limit":"That is enough AI practice for today — twelve sessions. Your human partner and tomorrow's practice are waiting.",
  "pp.live_eyebrow":"Live practice — human partner",
  "pp.live_btn":"Practise live",
@@ -13300,9 +13304,10 @@ function ppPrompt(pair){
 /* ---------------------------------------------------------------- view */
 function rPartner(el){
   clearTimeout(ppPollH);
-  /* eyebrow first, then the back button with .stick-eb so it sticks BELOW the
-     sticky eyebrow instead of underneath it (same pattern as the phrase-week bar) */
-  const back=`<button class="back stick-back stick-eb" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  /* a plain in-flow back link: on a real iPhone the sticky variant was pushed
+     down over the page title at scroll-top (its natural offset is smaller than
+     the sticky top). Mid-page exits are on the session's "More options" card. */
+  const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
   const shell=inner=>{el.innerHTML=head+inner;manIconizeInline(el)};
   if(!isGeneralEnglish()){shell(`<section class="card pp-cta"><b>${t("pp.ge_only_h")}</b><p class="sub">${t("pp.ge_only_sub")}</p><button class="btn-primary" onclick="selectProfessionalTrack('general-english')">${t("pp.ge_only_btn")}</button></section>`);return}
@@ -13334,9 +13339,10 @@ function ppIntroHTML(){
   </section>`;
 }
 function ppRender(el){
-  /* eyebrow first, then the back button with .stick-eb so it sticks BELOW the
-     sticky eyebrow instead of underneath it (same pattern as the phrase-week bar) */
-  const back=`<button class="back stick-back stick-eb" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
+  /* a plain in-flow back link: on a real iPhone the sticky variant was pushed
+     down over the page title at scroll-top (its natural offset is smaller than
+     the sticky top). Mid-page exits are on the session's "More options" card. */
+  const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
   const shell=inner=>{el.innerHTML=head+inner;manIconizeInline(el)};
   const m=ppMe;
@@ -13425,7 +13431,14 @@ function ppThreadHTML(p){
     <b>${esc(pr.title)}</b><p>${esc(pr.task)}</p>
   </section>`}
   <div class="pp-thread">${turns||`<p class="sub pp-empty">${t("pp.thread_empty")}</p>`}</div>
-  <section class="card pp-recorder" id="ppRecorder" data-can="${p.myTurn?1:0}" data-waiting="${p.waiting?1:0}"></section>`;
+  <section class="card pp-recorder" id="ppRecorder" data-can="${p.myTurn?1:0}" data-waiting="${p.waiting?1:0}"></section>
+  ${p.complete?"":`<section class="card pp-more">
+    <div class="eyebrow">${t("pp.more_eyebrow")}</div>
+    ${flag("practice_partner_ai_fallback_enabled")?`<button class="btn btn-g pp-more-btn" onclick="ppAiPractice('session')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button>
+    <p class="pp-fine">${t("pp.more_ai_sub",{name:esc(p.partner.name)})}</p>`:""}
+    <button class="btn btn-g pp-more-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
+    <p class="pp-fine">${t("pp.more_leave_sub")}</p>
+  </section>`}`;
 }
 /* one improvement point from the coach: the lowest-scoring word of the
    learner's own last turn, if any was graded */

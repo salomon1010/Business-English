@@ -132,6 +132,14 @@ ok("Try a practice → trial session, round 1 of 4, your turn", head.includes("Y
 const prompt = await txt(A.page, "#v-partner .pp-prompt");
 const expected = await A.page.evaluate(() => trackWeeks()[0].days.Tue.task.slice(0, 40));
 ok("Round 1 task is the General English curriculum speaking task", prompt.includes(expected));
+ok("An open session shows More options: AI coach (tagged AI) and Leave today's practice, with honest sub-lines", await (async () => { const m = await txt(A.page, ".pp-more"); return /more options/i.test(m) && /\bAI\b/.test(m) && m.includes("Practise with the AI coach") && m.includes("Carla is not involved") && m.includes("Leave today's practice") && m.includes("stay partners"); })());
+ok("AI from inside a session: same task, human session untouched, banner offers the way back", await (async () => {
+  await A.page.route(u => u.href.startsWith("https://be-polish."), route => route.fulfill({ status: 403, body: "Forbidden" }));
+  await A.page.click('.pp-more button:has-text("AI coach")'); await A.page.waitForSelector(".pp-ai-head", { timeout: 10000 }); await sleep(300);
+  const task = await txt(A.page, ".pp-prompt"), head = await txt(A.page, ".pp-ai-head"), back = await txt(A.page, ".pp-human-back");
+  const pair = (await (await api("alice", "GET", "/me")).json()).pair;
+  await A.page.click('.pp-human-back button'); await sleep(500); await A.page.unroute(u => u.href.startsWith("https://be-polish."));
+  return /\bAI\b/.test(head) && task.includes("Tell me about yourself") && back.includes("Carla") && pair && pair.turns.length === 0 && (await txt(A.page, ".pp-head")).includes("Carla"); })());
 ok("Bob (not chosen) is still waiting, not paired", (await (await api("bob", "GET", "/me")).json()).waiting != null);
 
 /* ---------- record / listen / re-record / coach / send (real MediaRecorder, fake mic) ---------- */
@@ -205,7 +213,7 @@ ok("Start → a regular session with the same partner", (await txt(A.page, ".pp-
 /* ---------- partner management: leave today's practice ≠ end partnership; AI reachable while connected ---------- */
 await A.page.click(".pp-menu"); await sleep(200);
 ok("Session menu offers 'Leave today's practice' (not 'leave pair'), Report, Block", (await txt(A.page, ".pp-sheet")).includes("Leave today's practice") && (await txt(A.page, ".pp-sheet")).includes("Report Carla") && (await txt(A.page, ".pp-sheet")).includes("Block"));
-await A.page.click('button:has-text("Leave today\'s practice")'); await sleep(300);
+await A.page.click('.pp-sheet button:has-text("Leave today\'s practice")'); await sleep(300);
 ok("Leave confirmation says the partnership stays", (await txt(A.page, ".cf-card")).includes("stay partners"));
 await A.page.click(".cf-card button:has-text('Leave')"); await sleep(1200);
 const afterLeave = await txt(A.page, "#v-partner"); ok("Leaving today's practice keeps the partnership: connection card still there with the partner kind, Start and Practise live, options gear", afterLeave.includes("Your practice partner: Carla") && afterLeave.includes("Practice partners") && afterLeave.includes("Start today") && afterLeave.includes("Practise live") && (await A.page.evaluate(() => !!document.querySelector(".pp-conn .pp-menu"))) && (await (await api("alice", "GET", "/me")).json()).connection);

@@ -1812,5 +1812,8 @@
  "pp.end_sub": "Esto detiene las prácticas futuras con {{name}}. No es un bloqueo ni una denuncia — {{name}} solo ve que la relación terminó. Podrás buscar otro compañero más adelante.",
  "pp.end_done": "Relación de práctica terminada.",
  "pp.findelse_h": "¿Buscar a otra persona?",
- "pp.findelse_sub": "Esto termina tu relación de práctica con {{name}} y busca un compañero nuevo. {{name}} solo ve que la relación terminó."
+ "pp.findelse_sub": "Esto termina tu relación de práctica con {{name}} y busca un compañero nuevo. {{name}} solo ve que la relación terminó.",
+ "pp.more_eyebrow": "Más opciones",
+ "pp.more_ai_sub": "La misma tarea, con el coach IA. {{name}} no participa y esta sesión sigue abierta para cuando vuelvas.",
+ "pp.more_leave_sub": "Solo termina la sesión de hoy. Si sois compañeros de práctica, seguís siéndolo."
 }

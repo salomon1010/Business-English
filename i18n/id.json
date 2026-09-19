@@ -1812,5 +1812,8 @@
  "pp.end_sub": "Ini menghentikan latihan berikutnya dengan {{name}}. Bukan blokir dan bukan laporan — {{name}} hanya melihat bahwa kemitraan berakhir. Anda bisa mencari partner lain nanti.",
  "pp.end_done": "Kemitraan berakhir.",
  "pp.findelse_h": "Cari orang lain?",
- "pp.findelse_sub": "Ini mengakhiri kemitraan Anda dengan {{name}} dan mencari partner baru. {{name}} hanya melihat bahwa kemitraan berakhir."
+ "pp.findelse_sub": "Ini mengakhiri kemitraan Anda dengan {{name}} dan mencari partner baru. {{name}} hanya melihat bahwa kemitraan berakhir.",
+ "pp.more_eyebrow": "Pilihan lain",
+ "pp.more_ai_sub": "Tugas yang sama, dengan pelatih AI. {{name}} tidak terlibat dan sesi ini tetap terbuka sampai Anda kembali.",
+ "pp.more_leave_sub": "Hanya mengakhiri sesi hari ini. Jika kalian partner latihan, kalian tetap partner."
 }
