@@ -1303,15 +1303,16 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-attn{animation:ppattn 1s 3}@keyframes ppattn{0%,100%{box-shadow:0 0 0 0 rgba(18,165,106,0)}50%{box-shadow:0 0 0 8px rgba(18,165,106,.35)}}
 /* the floating "Talk to a real person" button: a 64 px circle in the Practice
    Partner look — the two-learners photo under a violet wash in the app accent,
-   a light ring, the label on the darker lower half, a slow beacon ring */
+   a light ring, the label on the darker lower half, the live breathing halo */
 #ppFab{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:120;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:64px;height:64px;padding:0 5px 7px;border-radius:50%;border:1.5px solid rgba(255,255,255,.45);
   background:linear-gradient(180deg,rgba(49,46,129,.45) 0%,rgba(55,48,163,.62) 45%,rgba(30,27,75,.94) 100%),url("rp-photos/partner.jpg") center 28%/cover no-repeat;filter:saturate(.85);
   color:#fff;font:inherit;font-size:8px;line-height:1.05;font-weight:800;text-align:center;letter-spacing:0;text-shadow:0 1px 2px rgba(0,0,0,.6);
   box-shadow:0 6px 16px rgba(99,102,241,.22),0 2px 6px rgba(0,0,0,.35);opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .25s,transform .25s;overflow:visible}
 #ppFab .pp-fab-ic{display:none}
 #ppFab>span:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:56px}
-#ppFab.on::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid var(--acc);opacity:.7;pointer-events:none;transform-origin:center;animation:rmRing 3s ease-out infinite}
-@media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;opacity:0}}
+/* the same quiet breathing halo as "Practise live" (.pp-live-glow), not a beacon */
+#ppFab.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(99,102,241,.45);pointer-events:none;animation:pplivebreathe 3.2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){#ppFab.on::after{animation:none;box-shadow:0 0 0 2px rgba(99,102,241,.2)}}
 :root[data-theme="light"] #ppFab{border-color:rgba(255,255,255,.8);box-shadow:0 6px 16px rgba(79,70,229,.22),0 2px 6px rgba(0,0,0,.2)}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:18px;height:18px}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
@@ -1323,7 +1324,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-hangup{flex:none;width:40px;height:40px;margin-left:8px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(229,72,77,.45);font:inherit;padding:0}.pp-hangup svg{width:20px;height:20px}.pp-hangup:active{transform:scale(.94)}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
 .pp-live-status{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.45;margin:8px 0 0}.pp-live-status svg{width:18px;height:18px;flex:none;margin-top:1px}.pp-live-status.active svg{color:var(--green)}.pp-live-status.reconnecting{color:var(--gold)}.pp-live-status.active{align-items:center;gap:12px}.pp-live-status-t{display:flex;flex-direction:column;gap:2px;min-width:0}.pp-live-status-t b{font-weight:600}.pp-live-status-t small{font-size:12px;opacity:.72}.pp-mic-btn{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--green);background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green);display:inline-flex;align-items:center;justify-content:center;padding:0;font:inherit;cursor:pointer;box-shadow:0 0 0 0 rgba(34,197,94,.45);animation:ppMicPulse 2.2s ease-out infinite;transition:background .15s,border-color .15s,color .15s}.pp-mic-btn svg{width:24px;height:24px}.pp-mic-btn:active{transform:scale(.94)}.pp-mic-btn:disabled{opacity:.45;animation:none;cursor:default}.pp-live-status.is-muted .pp-mic-btn{border-color:#e5484d;background:#e5484d;color:#fff;animation:none;box-shadow:0 4px 12px rgba(229,72,77,.4)}.pp-live-status.is-muted .pp-mic-btn svg{color:#fff}.pp-live-status.is-muted .pp-live-status-t b{color:#e5484d}@keyframes ppMicPulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}70%{box-shadow:0 0 0 10px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}@media (prefers-reduced-motion:reduce){.pp-mic-btn{animation:none}}
-.pp-live-ctl .pp-leave{margin-left:auto}.pp-help{margin:6px 0 0 24px;padding:0;font-size:14px;line-height:1.6}.pp-help li{margin:2px 0}
+.pp-live-ctl .pp-leave{margin-left:auto}
+/* "Leave" is the cancel action of a partner session: red text, red cross, red edge — never grey like the neutral options around it */
+.pp-leave-btn{color:var(--red);border-color:color-mix(in srgb,var(--red) 55%,transparent);background:color-mix(in srgb,var(--red) 12%,transparent);font-weight:700}.pp-leave-btn svg{color:var(--red)}.pp-leave-btn:active{background:color-mix(in srgb,var(--red) 22%,transparent)}.pp-help{margin:6px 0 0 24px;padding:0;font-size:14px;line-height:1.6}.pp-help li{margin:2px 0}
 .pp-live-invite b{display:block;margin:6px 0 4px;font-size:16px}.pp-home-live{border-color:color-mix(in srgb,var(--green) 45%,var(--line))}
 .pp-decide b{font-size:16px;display:block;margin:4px 0 6px}.pp-tip{font-size:13.5px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin:8px 0}.pp-tip svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--gold)}
 .pp-ai-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold);margin-right:6px;vertical-align:middle}
@@ -13644,7 +13647,7 @@ function ppThreadHTML(p){
     <p class="pp-fine">${t("pp.more_live_sub",{name:esc(p.partner.name)})}</p>`:""}
     ${flag("practice_partner_ai_fallback_enabled")?`<button class="btn btn-g pp-more-btn" onclick="ppAiPractice('session')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button>
     <p class="pp-fine">${t("pp.more_ai_sub",{name:esc(p.partner.name)})}</p>`:""}
-    <button class="btn btn-g pp-more-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
+    <button class="btn btn-danger pp-more-btn pp-leave-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
     <p class="pp-fine">${t("pp.more_leave_sub")}</p>
   </section>`}`;
 }
@@ -14044,7 +14047,7 @@ function ppLiveHTML(L){
   <section class="card pp-live-ctl">
     <div class="pp-row"><button class="btn ${L.muted?"btn-p":"btn-g"}" onclick="ppLiveMute()" ${L.stream?"":"disabled"}>${ic(L.muted?"mic-off":"mic")} ${L.muted?t("pp.live_unmute"):t("pp.live_mute")}</button>
       <button class="btn btn-g" onclick="ppLiveHelp()" ${L.helpBusy?"disabled":""}>${ic("sparkle")} ${t("pp.live_help")}</button>
-      <button class="btn btn-g pp-leave" onclick="ppLiveLeave()">${ic("close")} ${L.round>=PP_LIVE_ROUNDS?t("pp.live_finish"):t("pp.live_leave")}</button></div>
+      <button class="btn ${L.round>=PP_LIVE_ROUNDS?"btn-g":"btn-danger pp-leave-btn"} pp-leave" onclick="ppLiveLeave()">${ic("close")} ${L.round>=PP_LIVE_ROUNDS?t("pp.live_finish"):t("pp.live_leave")}</button></div>
     ${L.help&&L.help.length?`<p class="pp-tip"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.live_help_h")}</p><ul class="pp-help">${L.help.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`:L.help?`<p class="sub">${t("pp.ai_err")}</p>`:""}
     <p class="pp-fine">${t("pp.live_fine")}</p>
   </section>`:""}`;
@@ -14386,7 +14389,7 @@ window.ppMenu=async()=>{
     <h2 style="font-size:18px;margin:0 0 10px">${t("pp.menu")}</h2>
     <button class="btn btn-g pp-sheet-btn" onclick="ppReport()">${ic("alert")} ${t("pp.report",{name:esc(p.partner.name)})}</button>
     <button class="btn btn-g pp-sheet-btn" onclick="ppBlock()">${ic("ban")} ${t("pp.block")}</button>
-    <button class="btn btn-g pp-sheet-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
+    <button class="btn btn-danger pp-sheet-btn pp-leave-btn" onclick="ppLeave()">${ic("close")} ${t("pp.leave")}</button>
     <button class="btn btn-g pp-sheet-btn" onclick="this.closest('.pp-sheet-ov').remove()">${t("wc.close")}</button>
   </div>`;
   ov.addEventListener("click",e=>{if(e.target===ov)ov.remove()});
