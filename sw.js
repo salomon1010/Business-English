@@ -132,7 +132,8 @@ self.addEventListener("notificationclick", e => {
   e.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
       const url = (e.notification.data && e.notification.data.url) || "./";
-      for (const c of list) if ("focus" in c) { try { c.postMessage({ type: "open", view: "journey" }) } catch (err) {} return c.focus(); }
+      const view = (e.notification.data && e.notification.data.view) || "journey";   // partner notifications land on the partner page
+      for (const c of list) if ("focus" in c) { try { c.postMessage({ type: "open", view }) } catch (err) {} return c.focus(); }
       if (clients.openWindow) return clients.openWindow(url);
     })
   );
