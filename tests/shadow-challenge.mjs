@@ -201,6 +201,23 @@ const fl = await A.page.evaluate(async () => {
   (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; return r; });
 ok("Tapping Watch (fold, then release) never interrupts the follow-along: the card keeps lighting the spoken word, the list keeps moving, and the card follows even when the list is not on the page", fl.before === fl.want1 && fl.afterFold === fl.want2 && fl.listStill && fl.listNow === "7" && fl.afterRelease === fl.want3 && fl.noList === fl.want4, JSON.stringify(fl));
 
+/* ---------- the highlight keeps moving through a seek, and the clip loop jumps the word back on the frame the clip ends ---------- */
+const sk = await A.page.evaluate(async () => {
+  const real = ytPlayer; let p = 30, state = 1; const seeks = [];
+  ytPlayer = { getCurrentTime: () => p, getPlayerState: () => state, getPlaybackRate: () => 1, seekTo: t => seeks.push(t), pauseVideo() {}, playVideo() {} };
+  try {
+    shSeekTo(10); const r = { atSeek: shCurT() };                                   // the player still says 30: the target is the truth
+    await new Promise(r => setTimeout(r, 300)); r.after300 = shCurT();             // ... and it advances while the video plays
+    p = 10.35; r.landed = shCurT();                                                  // the player has moved near the target: trust it again
+    state = 2; shSeekTo(20); await new Promise(r => setTimeout(r, 200)); r.paused = shCurT();   // paused: the target does not drift
+    /* the clip loop: at the end of the clip the tick itself seeks to Start, so the word jumps back with the video */
+    state = 1; const keep = { ...shClip }; shClip.start = 5; shClip.end = 7; shLooping = true; svRepeat = null; shSeek = { t: 0, at: 0 }; p = 7.2; svTick();
+    r.looped = seeks[seeks.length - 1] === 5 && shSeek.t === 5; r.loopT = shCurT(); Object.assign(shClip, keep);
+    return r;
+  } finally { ytPlayer = real; shSeek = { t: 0, at: 0 }; }
+});
+ok("Highlight through a seek: the target time right after seeking, advancing while playing (not frozen for 1.2 s), the player again once it lands, no drift while paused; the clip loop seeks to Start from the tick and the word follows at once", Math.abs(sk.atSeek - 10) < 0.05 && sk.after300 > 10.2 && sk.after300 < 10.6 && sk.landed === 10.35 && Math.abs(sk.paused - 20) < 0.01 && sk.looped && sk.loopT >= 5 && sk.loopT < 5.2, JSON.stringify(sk));
+
 /* ---------- the follow-along player: pinned video + now-line card + list of what is next ---------- */
 await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; (svMode === "watch" ? svRender() : svSetMode("watch")); }); await sleep(300);
 const fa = await A.page.evaluate(async () => {

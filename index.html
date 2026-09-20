@@ -8300,7 +8300,7 @@ function shStartTick(){
       }
     }
     if(shClip.end>shClip.start&&t>=shClip.end){
-      if(shLooping)ytPlayer.seekTo(shClip.start,true);
+      if(shLooping)shSeekTo(shClip.start);   // through shSeekTo so the word highlight jumps back with the loop, not 300 ms later
       else ytPlayer.pauseVideo();
     }
   },250);
@@ -8377,12 +8377,23 @@ window.shClearMarks=async()=>{
   shSegUI();
   toast(t("sh.clip_cleared_toast"));
 };
-window.shRestart=()=>{if(ytPlayer)ytPlayer.seekTo(shClip.start,true),ytPlayer.playVideo()};
+window.shRestart=()=>{if(ytPlayer)shSeekTo(shClip.start),ytPlayer.playVideo()};
 /* rapid clicks: base the next skip on the pending seek target, since the
    player keeps reporting the old time for a moment after seekTo() */
 let shSeek={t:0,at:0};
-function shCurT(){return(Date.now()-shSeek.at<1200)?shSeek.t:ytPlayer.getCurrentTime()}
-function shSeekTo(t){shSeek={t,at:Date.now()};ytPlayer.seekTo(t,true)}
+/* the time the highlight follows. For 1.2 s after a seek the player still
+   reports the OLD position, so the target is used — but it must advance
+   while the video plays, or the word sits still for a second after every
+   loop, Start, back-5 or tap. Once the player reports a time near the
+   target, the player is the truth again. */
+function shCurT(){
+  const p=ytPlayer.getCurrentTime(),age=Date.now()-shSeek.at;
+  if(age>=1200)return p;
+  if(p!==shSeek.p0&&p>=shSeek.t-0.05&&p-shSeek.t<2.5)return p;   // moved since the seek and near the target: landed
+  let playing=false,rate=1;try{playing=ytPlayer.getPlayerState()===1;rate=ytPlayer.getPlaybackRate()||1}catch(e){}
+  return shSeek.t+(playing?age/1000*rate:0);
+}
+function shSeekTo(t){let p0;try{p0=ytPlayer.getCurrentTime()}catch(e){}shSeek={t,at:Date.now(),p0};ytPlayer.seekTo(t,true)}
 window.shBack5=()=>{if(ytPlayer)shSeekTo(Math.max(shClip.start,shCurT()-5))};
 window.shFwd5=()=>{
   if(!ytPlayer)return;
@@ -13925,6 +13936,7 @@ function svTick(){
   let tS=0;try{tS=ready?shCurT():shSeek.t}catch(e){return}
   if(svChStopAt!=null&&tS*1000>=svChStopAt){svChStopAt=null;try{ytPlayer.pauseVideo()}catch(e){}}
   if(svRepeat&&tS>=svRepeat.end){shSeekTo(svRepeat.start);return}
+  if(!svRepeat&&shLooping&&shClip.end>shClip.start&&tS>=shClip.end){shSeekTo(shClip.start);return}   // the clip loop on the frame it ends, not on the next 250 ms poll
   const loc=ShadowSync.locate(a,tS*1000);
   if(loc.seg===svLast.seg&&loc.word===svLast.word)return;
   if(loc.seg!==svLast.seg){
