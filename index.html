@@ -13513,11 +13513,11 @@ async function phRecInto(ctx,label,btn,after,onBlob){
    Flags gate UI *and* the Worker calls the UI would make; the Worker has its
    own PARTNER_ENABLED switch as the server-side boundary. */
 const FLAGS_DEFAULT={
-  practice_partner_enabled:true,
-  practice_partner_matching_enabled:true,
-  practice_partner_voice_enabled:true,
+  practice_partner_enabled:false,
+  practice_partner_matching_enabled:false,
+  practice_partner_voice_enabled:false,
   practice_partner_ai_fallback_enabled:true,
-  practice_partner_notifications_enabled:true,
+  practice_partner_notifications_enabled:false,
   practice_partner_live_enabled:false,
   shadow_studio_v2_enabled:true,       // released 2026-09-19: Watch / Shadow / Challenge, General English only
   shadow_word_timing_enabled:true,
