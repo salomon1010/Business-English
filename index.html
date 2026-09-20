@@ -274,35 +274,27 @@ window.FB_CONFIG={
 #ppBg{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 :root[data-view="partner"] #ppBg{display:block}
 :root[data-view="partner"] .view{position:relative;z-index:1}
-/* Owner, 2026-09-20: the whole scene must be on screen on a phone — two
-   learners facing each other, the chat bubble between them, speech lines and
-   sound waves showing they are connected and talking. So it is a landscape
-   composition, centred, never wider than the viewport, sitting in the band
-   between the header and the first card (the cards slide over it on scroll). */
-.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 100px);left:0;right:0;margin:0 auto;width:min(92vw,560px);aspect-ratio:600/320;color:#cfd3e6;opacity:.34;
-  -webkit-mask-image:radial-gradient(ellipse closest-side,#000 74%,rgba(0,0,0,.75) 90%,transparent 108%);mask-image:radial-gradient(ellipse closest-side,#000 74%,rgba(0,0,0,.75) 90%,transparent 108%);
-  filter:drop-shadow(0 0 12px rgba(167,139,250,.22));animation:ppBgDrift 26s ease-in-out infinite alternate}
-.pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.8}
-.pp-bg-art .pp-bg-accs{stroke:var(--acc)}
-.pp-bg-art .pp-bg-grad{stroke:url(#ppBgGrad)}
-.pp-bg-spin{transform-origin:300px 160px;animation:ppBgSpin 120s linear infinite}
-.pp-bg-wave{animation:ppBgWave 2.6s ease-in-out infinite}
-.pp-bg-wave.b{animation-delay:1.3s}
+/* Owner's mock, 2026-09-20 (third pass): the scene sits to the RIGHT of the
+   title block — top under the eyebrow, bottom at the first card — and the
+   back link, title and tagline keep their place at the left. Square
+   composition: glow ring, dashed arc head-to-head through the chat bubble,
+   two learners, a few beacons. */
+.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 92px);right:max(-2vw,calc(50% - 430px));width:min(50vw,300px);aspect-ratio:1;color:#b9bdd4;opacity:.5;
+  filter:drop-shadow(0 0 14px rgba(167,139,250,.2));animation:ppBgDrift 26s ease-in-out infinite alternate}
+.pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.95}
 .pp-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.42}
 .pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#4f4a8a,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
 .pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#7c78a6,transparent 70%);opacity:.26;animation:ppBgDrift 40s ease-in-out infinite alternate}
 .pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(190,194,214,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(190,194,214,.06) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
-:root[data-theme="light"] .pp-bg-art{color:#4e526a;opacity:.18;filter:none}
+:root[data-theme="light"] .pp-bg-art{color:#4e526a;opacity:.3;filter:none}
 :root[data-theme="light"] .pp-bg-orb{opacity:.2}:root[data-theme="light"] .pp-bg-orb.b{opacity:.14}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(60,64,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(60,64,90,.06) 1px,transparent 1px)}
 @keyframes ppBgDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,1.2vh,0) scale(1.03)}}
-@keyframes ppBgWave{0%,100%{opacity:.35}50%{opacity:1}}
-@keyframes ppBgSpin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.pp-bg-art,.pp-bg-orb,.pp-bg-spin,.pp-bg-wave{animation:none}}
-@media (min-width:900px){.pp-bg-art{top:calc(env(safe-area-inset-top,0px) + 104px)}}
-/* Owner, later the same day: the scene is a BACKDROP — the back link, title
-   and tagline start straight under the eyebrow and the picture sits behind
-   them, so nothing is pushed down the page. Kept faint enough to read over. */
+@media (prefers-reduced-motion:reduce){.pp-bg-art,.pp-bg-orb{animation:none}}
+@media (min-width:900px){.pp-bg-art{top:calc(env(safe-area-inset-top,0px) + 100px)}}
+/* Owner: "smaller, in the background" — the text keeps its natural width and
+   place; the scene is a small backdrop at the right of the title band. The
+   tagline is one sentence per line, as in the mock. */
 /* Partner cards sit on the line-art: a hairline violet edge and a soft top light. */
 :root[data-view="partner"] #v-partner .card{box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.05)}
 :root[data-view="partner"] #v-partner .pp-head{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
@@ -3635,7 +3627,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-simulation" class="view"></div>
   <div id="v-foundations" class="view"></div>
   <div id="v-partner" class="view"></div>
-  <div id="ppBg" aria-hidden="true"><svg class="pp-bg-art" viewBox="0 0 600 320" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><defs><linearGradient id="ppBgGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#a78bfa"/><stop offset=".5" stop-color="#22d3ee"/><stop offset="1" stop-color="#a78bfa"/></linearGradient><g id="ppBgPerson"><circle cx="0" cy="-44" r="30"/><path d="M-58 56c0-32 26-52 58-52s58 20 58 52"/></g></defs><ellipse cx="300" cy="262" rx="250" ry="34" opacity=".35" stroke-dasharray="3 10"/><ellipse cx="300" cy="262" rx="190" ry="22" opacity=".25"/><use href="#ppBgPerson" x="118" y="204"/><use href="#ppBgPerson" x="482" y="204"/><g class="pp-bg-wave pp-bg-accs"><path d="M160 150a22 22 0 0 1 0 22"/><path d="M172 140a38 38 0 0 1 0 42"/></g><g class="pp-bg-wave b pp-bg-accs"><path d="M440 172a22 22 0 0 0 0-22"/><path d="M428 182a38 38 0 0 0 0-42"/></g><path class="pp-bg-grad" d="M182 158C214 120 240 104 258 100" stroke-dasharray="7 9"/><path class="pp-bg-grad" d="M418 158C386 120 360 104 342 100" stroke-dasharray="7 9"/><g transform="translate(300 96) scale(5.2) translate(-12 -12)" stroke-width="0.48" class="pp-bg-grad"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/></g><g stroke="none"><circle cx="286" cy="90" r="4.2" class="pp-bg-acc"/><circle cx="300" cy="90" r="4.2" class="pp-bg-acc"/><circle cx="314" cy="90" r="4.2" class="pp-bg-acc"/></g><g transform="translate(58 92) scale(1.5) translate(-12 -12)" stroke-width="1.2" opacity=".8"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/></g><g transform="translate(544 92) scale(1.5) translate(-12 -12)" stroke-width="1.2" opacity=".8"><path d="M12 3.2l1.9 5.1 5.1 1.9-5.1 1.9L12 17.2l-1.9-5.1L5 10.2l5.1-1.9Z"/></g><g class="pp-bg-spin" stroke="none"><circle cx="300" cy="22" r="4" class="pp-bg-acc"/><circle cx="90" cy="40" r="3" fill="currentColor" opacity=".6"/><circle cx="510" cy="40" r="3" fill="currentColor" opacity=".6"/><circle cx="60" cy="230" r="3.5" fill="currentColor" opacity=".5"/><circle cx="540" cy="230" r="3.5" class="pp-bg-acc"/></g></svg><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
+  <div id="ppBg" aria-hidden="true"><svg class="pp-bg-art" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="ppBgBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter><g id="ppBgPerson"><circle cx="0" cy="0" r="28"/><path d="M-56 84a56 56 0 0 1 112 0"/></g></defs><circle cx="300" cy="300" r="238" stroke-width="30" opacity=".16" filter="url(#ppBgBlur)"/><circle cx="300" cy="300" r="238" opacity=".32"/><circle cx="300" cy="300" r="196" opacity=".14"/><path d="M192 302a126 126 0 0 1 66-96M342 206a126 126 0 0 1 66 96" stroke-dasharray="7 9" opacity=".8"/><path d="M244 178h112a12 12 0 0 1 12 12v62a12 12 0 0 1-12 12h-70l-30 26v-26h-12a12 12 0 0 1-12-12v-62a12 12 0 0 1 12-12Z"/><g fill="currentColor" stroke="none"><circle cx="280" cy="221" r="5"/><circle cx="300" cy="221" r="5"/><circle cx="320" cy="221" r="5"/></g><use href="#ppBgPerson" x="182" y="320"/><use href="#ppBgPerson" x="418" y="320"/><path d="M62 96h58a8 8 0 0 1 8 8v30a8 8 0 0 1-8 8H84l-14 13v-13h-8a8 8 0 0 1-8-8v-30a8 8 0 0 1 8-8Z" opacity=".45"/><g stroke="none"><circle cx="300" cy="106" r="5" fill="currentColor" opacity=".75"/><circle cx="96" cy="270" r="5" fill="currentColor" opacity=".6"/><circle cx="176" cy="478" r="5" fill="currentColor" opacity=".55"/><circle cx="556" cy="104" r="4.5" fill="currentColor" opacity=".6"/><circle cx="522" cy="208" r="7" class="pp-bg-acc"/><circle cx="510" cy="458" r="6" class="pp-bg-acc"/></g></svg><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
@@ -4121,6 +4113,8 @@ function zoomReset(){
 document.addEventListener("focusout",e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))setTimeout(zoomReset,60)});
 window.addEventListener("orientationchange",()=>setTimeout(zoomReset,300));
 function toast(m,ms){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),ms||2200)}
+/* the Practice Partner tagline is three sentences, shown one per line */
+function ppTaglineHTML(){return t("pp.tagline").split(/(?<=[.!?。])\s+/).map(esc).join("<br>")}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
 function jarg(s){return esc(JSON.stringify(s))}
@@ -14605,7 +14599,7 @@ function rPartner(el,arg1){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub pp-tagline">${ppTaglineHTML()}</p>`;
   const shell=inner=>{el.innerHTML=head+ppPresenceHTML()+ppTabsHTML()+inner;manIconizeInline(el)};
   /* not a General English learner (a typed or restored #partner hash on
      Welding): nothing partner-branded is rendered at all — straight back to
@@ -14679,7 +14673,7 @@ function ppRender(el){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub pp-tagline">${ppTaglineHTML()}</p>`;
   /* one line, once: the phone can be told when learners are online even with
      the app closed — only while permission has never been asked */
   const nudge=(()=>{try{return !ppLive&&ppAlertsOn()&&window.Notification&&Notification.permission==="default"&&("PushManager" in window)&&!ppState().nudgeDone}catch(e){return false}})()
