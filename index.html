@@ -718,7 +718,8 @@ body.sh-work-open{overflow:hidden}
 .sh-starter p{font-size:12.5px;color:var(--mut);flex:1;line-height:1.5}
 .sh-starter-cap{align-self:flex-start;font-size:11px}
 .sh-starter-acts{display:flex;gap:8px}
-.sh-own-chips{display:flex;gap:6px;flex-wrap:wrap}.sh-own-chips .chip{font-size:11px;padding:3px 9px}.sh-own-chips .chip svg{width:13px;height:13px}
+.sh-own-chips{display:flex;gap:6px;flex-wrap:wrap}
+#shOwnTop .sh-own-top-card{margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--line)}.sh-own-chips .chip{font-size:11px;padding:3px 9px}.sh-own-chips .chip svg{width:13px;height:13px}
 .sh-own-badge{border-color:var(--acc);color:var(--accent-text,var(--acc));background:color-mix(in srgb,var(--acc) 12%,transparent)}
 .sh-own-tx{color:var(--ok,#22c55e)}.sh-own-notx{color:var(--mut)}
 .sh-own-del{color:var(--danger,#ef4444)}.sh-own-head b{font-weight:800;color:var(--txt);margin-left:6px}
@@ -7980,6 +7981,7 @@ ${(()=>{
     </div>
     ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
+    <div id="shOwnTop">${isProfessionalJourney()?"":shOwnHTML(true)}</div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
     <div class="grid g3">${trackShadowStarters().slice(0,SH_STARTERS_SHOWN).map(shStarterCard).join("")}</div>
@@ -7987,7 +7989,7 @@ ${(()=>{
       <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
       <div class="home-more-body"><div class="grid g3">${trackShadowStarters().slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
     </details>`:""}
-    <div id="shOwn">${shOwnHTML()}</div>
+    <div id="shOwn">${shOwnHTML(false)}</div>
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
@@ -8233,14 +8235,25 @@ function shOwnCard(o,i){
     </div>
   </div>`;
 }
-function shOwnHTML(){
-  const L=shOwn();
-  return `<div class="hr"></div>
+/* The learner's own videos lead the page (owner, 2026-09-19: "put the 5 new
+   videos of the user on top"): newest first, above the link box, as soon as
+   there is one. With none yet, the hint keeps its old place under the
+   starters, where the empty state makes sense. Cards keep their store index
+   so open / remove address the right entry whatever the sort. */
+function shOwnHTML(top){
+  const all=shOwn(),L=all.map((o,i)=>({o,i})).sort((a,b)=>((b.o&&b.o.ts)||0)-((a.o&&a.o.ts)||0)).slice(0,SH_OWN_MAX);
+  if(top&&!L.length)return "";
+  if(!top&&L.length)return "";
+  return `<div class="sh-own-top-card">${top?"":'<div class="hr"></div>'}
     <div class="eyebrow sh-own-head" style="margin-bottom:4px">${tInl("sh.own_title","user")} <b class="sh-own-n">${L.length}/${SH_OWN_MAX}</b></div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${L.length?t("sh.own_sub",{max:SH_OWN_MAX}):t("sh.own_empty",{max:SH_OWN_MAX})}</p>
-    ${L.length?`<div class="grid g3">${L.map(shOwnCard).join("")}</div>`:""}`;
+    ${L.length?`<div class="grid g3">${L.map(x=>shOwnCard(x.o,x.i)).join("")}</div>`:""}</div>`;
 }
-function shOwnRender(){const el=document.getElementById("shOwn");if(el){el.innerHTML=shOwnHTML();try{manIconizeInline(el)}catch(e){}}}
+function shOwnRender(){
+  const top=document.getElementById("shOwnTop"),el=document.getElementById("shOwn");
+  if(top){top.innerHTML=shOwnHTML(true);try{manIconizeInline(top)}catch(e){}}
+  if(el){el.innerHTML=shOwnHTML(false);try{manIconizeInline(el)}catch(e){}}
+}
 /* empty the link box and the transcript box — the link box always carries
    the last video's URL (shLoad fills it), so pasting a new one meant
    selecting and deleting first. Only the two boxes: nothing saved is touched. */
