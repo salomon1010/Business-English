@@ -689,9 +689,10 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    them — the video is the reference, the text follows it */
 .sh-stick{padding:14px 0 10px}
 @media(max-width:899px){.sh-stick{position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 8px 16px -12px rgba(0,0,0,.5)}}
-.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px;justify-content:space-between}
+.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px}
+.sh-stick .sh-pill{flex:1 1 auto;width:100%}
 .sh-stick .sh-pill button{min-width:40px}
-.sh-time-in{display:inline-flex;align-items:center;padding:0 8px 0 6px;min-width:44px;justify-content:center}
+.sh-time-in{display:inline-flex;align-items:center;padding:0 6px;min-width:44px;flex:1 1 auto;justify-content:center}
 @media(max-width:379px){.sh-stick .sh-pill button,.sh-stick .sh-round{min-width:36px;padding:0 4px}.sh-stick .sh-time-in{min-width:40px;padding:0 4px}.sh-stick .sh-pill{padding:6px 4px}}
 .sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* the overlay's entrance fade is ours to suppress, not the browser's */
@@ -2027,7 +2028,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .sh-round{min-width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:#fff;font-size:15px;transition:.15s;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 8px}
 .sh-round:hover{background:rgba(255,255,255,.14)}
 .sh-rate{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.3px}
-.sh-pill-b{margin-left:auto}
+
 .sh-round:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Loop is a toggle, not an action. It was a filled --grad circle, which made it
    the loudest thing in the workspace and outranked every real step of the
@@ -7996,8 +7997,6 @@ ${(()=>{
         <button id="shPlayBtn" onclick="shPlayPause()" title="${esc(t("sh.playpause_title"))}">${ic("pause")}</button>
         <button onclick="shFwd5()" title="${esc(t("sh.fwd5_title"))}"><i>5</i>${ic("forward")}</button>
         <span class="sh-time sh-time-in"><span id="shNow">0:00</span></span>
-      </div>
-      <div class="sh-pill sh-pill-b">
         <button class="sh-round sh-rate" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
         <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}" aria-pressed="true">${ic("repeat")}</button>
         <button class="sh-round" onclick="shSaveClip()" title="${esc(t("sh.save_clip_btn"))}" aria-label="${esc(t("sh.save_clip_btn"))}">${ic("star")}</button>
