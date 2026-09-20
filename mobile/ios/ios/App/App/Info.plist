@@ -28,6 +28,8 @@
 	<false/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>BE Mastery uses the microphone so you can record your spoken English for pronunciation feedback, send short voice turns to a practice partner, and talk in a live practice call. Lesson recordings stay on your device; a voice turn you choose to send, and the audio used for scoring, are sent over an encrypted connection to our servers.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>BE Mastery uses the camera only for the optional Posture Coach in the Shadowing Studio. Frames are analysed on your phone in real time; no image or video is stored or sent anywhere.</string>
 	<key>UIRequiresFullScreen</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>

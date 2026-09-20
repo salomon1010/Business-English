@@ -47,11 +47,21 @@ const SHOTS = [
   // third-party YouTube artwork, and the one that doesn't (Trouble words) is
   // two-thirds empty. Practice fills the slot instead — it is the spaced-
   // repetition gym, which nothing else in the set shows.
-  { file: "06-practice",  go: ["practice"], settle: 600 },
+  { file: "06-practice",  go: ["practice"], settle: 4500 },
   // the trend section sits below the calendar, so scroll past both the avatar
   // block and the month grid
   { file: "07-trend",     go: ["profile"], settle: 1100, scrollTo: 1500 },
 ];
+// Practice Partner (App Store set): real UI against the local be-partner Worker
+// (wrangler dev, DEV_AUTH) — "Alex" is consented, "Sam" is in line, so the page
+// shows the presence strip and Match me finds a real candidate card. Opt-in:
+//   PARTNER=1 PARTNER_API=http://127.0.0.1:8790 node scripts/store-art/shoot.js iphone
+const PARTNER_API = process.env.PARTNER_API || "http://127.0.0.1:8790";
+const PARTNER_SHOTS = [
+  { file: "08-partner", go: ["partner"], settle: 4500 },
+  { file: "09-partner-match", go: ["partner"], settle: 1200, after: async (w) => { await w.ppMatch(); }, afterSettle: 4500 },
+];
+if (process.env.PARTNER === "1") SHOTS.push(...PARTNER_SHOTS);
 
 const seed = () => {
   const DAY = 86400000, now = Date.now();
@@ -96,11 +106,18 @@ const seed = () => {
     profile: { name: "Alex", role: "Product / PM", goal: "\u{1F3A4} Speak confidently in meetings",
                slot: "☀️ Morning coffee", lang: "en", ts: now - 40 * DAY },
     dates, dayLog, startDate: iso(now - 40 * DAY),
+    // past the placement check (otherwise Practice and Practice Partner show the
+    // Foundations gate), and the partner-alerts nudge already seen — the App
+    // Store shell has no web push, so the "Turn on" row must not appear in a shot
+    fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } },
+    pp: { nudgeDone: true },
+    rmSeen: now,   // the one-time "your road map lives here" announcement, already seen
   };
   localStorage.setItem("be12_v1", JSON.stringify(S));
   localStorage.setItem("be_theme", "dark");
   // the cloud sign-in nudge floats over the bottom of every page ~800ms in
   localStorage.setItem("be12_syncNudge", "1");
+  if (window.__partnerApi) { localStorage.setItem("be_partner_api", window.__partnerApi); localStorage.setItem("be_partner_dev_user", "alex"); }
 };
 
 (async () => {
@@ -121,6 +138,15 @@ const seed = () => {
   // app while we seed: since save() became a deferred write that flushes on
   // pagehide, an app booted before the seed would overwrite it on navigation.
   await page.goto(BASE + "/scripts/store-art/frame.html?u=about:blank");
+  if (process.env.PARTNER === "1") {
+    const api = (u, p, b) => fetch(PARTNER_API + p, { method: "POST", headers: { "x-dev-user": u, "content-type": "application/json" }, body: JSON.stringify(b) });
+    const h = await (await fetch(PARTNER_API + "/health")).json().catch(() => null);
+    if (!h || !h.dev) { console.error("PARTNER=1 needs a local be-partner (wrangler dev --env dev) at " + PARTNER_API); process.exit(1); }
+    await api("alex", "/consent", { name: "Alex", lang: "en", adult: true, goals: ["workplace"], avail: ["morning"], tz: 0 });
+    await api("sam", "/consent", { name: "Sam", lang: "en", adult: true, goals: ["workplace"], avail: ["morning"], tz: 0 });
+    await api("sam", "/interest", { track: "general-english", band: "w1-4", lang: "en", promptWeek: 1 });
+    await page.evaluate(api => { window.__partnerApi = api; }, PARTNER_API);
+  }
   await page.evaluate(seed);
 
   const url = `${BASE}/scripts/store-art/frame.html?w=${P.w}&h=${P.h}&s=${P.s}&u=${encodeURIComponent("../../index.html")}`;
@@ -142,6 +168,15 @@ const seed = () => {
     }, shot.go);
 
     await page.waitForTimeout(shot.settle || 500);
+    // toasts are transient by design (presence nudges, "N learners waiting");
+    // a capture must not freeze one over the page
+    const clearToasts = () => page.evaluate(() => { const d = document.getElementById("fr").contentWindow.document; d.querySelectorAll("#toast, .toast").forEach(t => { t.style.display = "none"; }); });
+    await clearToasts();
+    if (shot.after) {
+      await page.evaluate(async (fn) => { const w = document.getElementById("fr").contentWindow; await (new Function("w", "return (" + fn + ")(w)"))(w); }, shot.after.toString());
+      await page.waitForTimeout(shot.afterSettle || 800);
+      await clearToasts();
+    }
     if (shot.scrollTo) {
       await page.evaluate(y => document.getElementById("fr").contentWindow.scrollTo(0, y), shot.scrollTo);
       await page.waitForTimeout(350);

@@ -1,5 +1,9 @@
 # App Review notes (paste into "Notes" in App Store Connect; fill the credentials there, never here)
 
+> Superseded on 2026-09-20 by `docs/APPLE_APP_REVIEW.md` § Notes, which is the
+> maintained text (live calls off, camera wording, relay). Keep this file only
+> as the short form; when the two differ, the docs/ version wins.
+
 BE Mastery is a Business English learning app: a 12-week spoken-English
 programme with recording, pronunciation feedback and a phrase bank. Everything
 below can be reviewed with the two demo accounts entered in the *Sign-in

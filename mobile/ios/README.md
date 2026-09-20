@@ -61,10 +61,19 @@ xcrun altool --validate-app -f build/export/App.ipa -t ios --apiKey <KEY_ID> --a
   because the bundle is local. Updates ship as App Store releases.
 - The Workers' origin allow-lists include `capacitor://localhost`
   (`backend/polish-worker.js`, `backend/events/events-worker.js`,
-  `backend/partner/wrangler.toml`). **Those Workers must be redeployed before
-  the iOS app can use Executive Polish, scoring, the AI coach, analytics or
-  Practice Partner** — a production deployment, done deliberately, not by
-  this build.
+  `backend/partner/wrangler.toml`). All three production Workers answer that
+  origin (verified 2026-09-20: `Access-Control-Allow-Origin: capacitor://localhost`
+  from be-polish, be-events and be-partner) — `node scripts/check-release.mjs --live`
+  re-checks it.
+- The camera is used only by the Posture Coach (Shadowing Studio); frames are
+  analysed in memory. `NSCameraUsageDescription` is in Info.plist — without it
+  iOS terminates the app on the first camera access.
+- The "Add to Home Screen" sheet and the Google Play rating card never show
+  in the shell (`iosStandalone()` returns true under `IS_IOS_APP`; the rating
+  card is Android-only by user agent).
+- Same-origin `target="_blank"` links (the privacy policy from the consent
+  sheet, the deletion page) open in the in-app document sheet in the shell,
+  because WKWebView has no tab to open them in. External links go to Safari.
 - Firebase e-mail/password sign-in works from `localhost` (authorized by
   default). Google/Apple sign-in stay hidden, as on the web.
 

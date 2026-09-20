@@ -3956,6 +3956,18 @@ const AREA_GEN="general-english";
    Google Play link and button are dropped there. Everything else is identical. */
 const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
 if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
+/* In the shell a same-origin target=_blank link (privacy.html, delete-account.html)
+   has no tab to open in: WKWebView would either navigate the whole app away or
+   drop the tap. Show those pages in the in-app document sheet instead, which has
+   its own close button. External links keep their default: Capacitor hands them
+   to Safari. */
+if(IS_IOS_APP)document.addEventListener("click",e=>{
+  const a=e.target&&e.target.closest?e.target.closest('a[target="_blank"]'):null;if(!a)return;
+  const h=a.getAttribute("href")||"";
+  if(!/^[a-z0-9_.\/-]+\.html(#[\w-]*)?$/i.test(h))return;
+  e.preventDefault();
+  try{openDoc(h,(a.textContent||"").trim(),{theme:true})}catch(err){location.href=h}
+},true);
 function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
 function areaIsPro(){return areaId()!==AREA_GEN}
 function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
@@ -8544,8 +8556,61 @@ function shStartTick(){
    that are still called. */
 function ytId(u){const m=String(u||"").match(/(?:youtu\.be\/|v=|shorts\/|embed\/|live\/)([A-Za-z0-9_-]{11})/);return m?m[1]:(/^[A-Za-z0-9_-]{11}$/.test(String(u||"").trim())?String(u).trim():null)}
 function fmtT(s){s=Math.max(0,Math.floor(s));return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`}
+/* ---- YouTube inside the App Store shell (IS_IOS_APP only) ----
+   At capacitor://localhost WKWebView sends no Referer, and since 2025 YouTube's
+   embedded player refuses to play without one ("error 153"). So the shell does
+   not embed YouTube directly: it frames yt-embed.html on app.lomonec.com (an
+   https page, which carries a Referer), and that page hosts the real player and
+   relays it over postMessage. RemoteYT is a stand-in for YT.Player with exactly
+   the surface the studio uses — getCurrentTime / play / pause / seekTo / rate /
+   duration / state / destroy / getVideoData / onReady / onError — so nothing
+   else in the studio knows the difference. The clock is interpolated between
+   the ~10 Hz snapshots the relay sends while playing. On any https origin (the
+   web app, staging) this class is never used. localStorage.be_yt_relay points
+   the shell at a different relay for testing. */
+const YT_RELAY_DEFAULT="https://app.lomonec.com/yt-embed.html";
+function ytRelayUrl(){try{return localStorage.getItem("be_yt_relay")||YT_RELAY_DEFAULT}catch(e){return YT_RELAY_DEFAULT}}
+class RemoteYT{
+  constructor(elId,opts){
+    opts=opts||{};const pv=opts.playerVars||{},ev=opts.events||{};
+    this._ev=ev;this._ready=false;this._t=0;this._at=Date.now();this._state=-1;this._rate=1;this._dur=0;this._title="";this._gone=false;
+    const relay=ytRelayUrl();let origin="";try{origin=new URL(relay,location.href).origin}catch(e){}
+    this._origin=origin;
+    const el=document.getElementById(elId);if(!el)throw new Error("RemoteYT: no element "+elId);
+    const f=document.createElement("iframe");
+    f.src=relay+"?v="+encodeURIComponent(opts.videoId||"")+"&start="+encodeURIComponent(Math.max(0,Math.floor(Number(pv.start)||0)))+"&o="+encodeURIComponent(location.origin);
+    f.setAttribute("allow","autoplay; encrypted-media; picture-in-picture; fullscreen");
+    f.setAttribute("allowfullscreen","");f.setAttribute("playsinline","");f.setAttribute("title","YouTube");
+    f.style.cssText="position:absolute;inset:0;width:100%;height:100%;border:0;background:#0b0f1a";
+    el.appendChild(f);this._f=f;
+    this._onMsg=e=>{
+      if(this._gone||!this._f||e.source!==this._f.contentWindow||e.origin!==this._origin)return;
+      const m=e.data||{};if(m.be!=="yt")return;
+      if(m.ev==="ready"){this._ready=true;this._title=m.title||"";this._dur=Number(m.duration)||0;this._rate=Number(m.rate)||1;clearTimeout(this._to);try{if(ev.onReady)ev.onReady({target:this})}catch(err){}}
+      else if(m.ev==="time"){this._t=Number(m.t)||0;this._at=Date.now();this._state=Number(m.state);this._rate=Number(m.rate)||1;if(m.duration)this._dur=Number(m.duration)||this._dur}
+      else if(m.ev==="state"){this._state=Number(m.state);this._at=Date.now()}
+      else if(m.ev==="error"){clearTimeout(this._to);try{if(ev.onError)ev.onError({data:m.code,target:this})}catch(err){}}
+    };
+    window.addEventListener("message",this._onMsg);
+    /* a relay that never answers (offline, or the page is not deployed yet) must
+       surface as a video error, not as a dead player under live controls */
+    this._to=setTimeout(()=>{if(!this._ready&&!this._gone){try{if(ev.onError)ev.onError({data:-2,target:this})}catch(err){}}},20000);
+  }
+  _send(m){if(this._gone||!this._f||!this._f.contentWindow)return;try{this._f.contentWindow.postMessage(Object.assign({be:"yt"},m),this._origin)}catch(e){}}
+  getCurrentTime(){if(this._state!==1)return this._t;const t=this._t+(Date.now()-this._at)/1000*(this._rate||1);return this._dur?Math.min(t,this._dur):t}
+  getDuration(){return this._dur}
+  getPlayerState(){return this._state}
+  getPlaybackRate(){return this._rate||1}
+  getVideoData(){return {title:this._title,video_id:""}}
+  playVideo(){this._send({cmd:"play"})}
+  pauseVideo(){this._send({cmd:"pause"})}
+  seekTo(t,allowSeekAhead){this._t=Number(t)||0;this._at=Date.now();this._send({cmd:"seek",t:this._t,allowSeekAhead:allowSeekAhead!==false})}
+  setPlaybackRate(r){this._rate=Number(r)||1;this._send({cmd:"rate",rate:this._rate})}
+  destroy(){this._gone=true;clearTimeout(this._to);window.removeEventListener("message",this._onMsg);try{if(this._f&&this._f.parentNode)this._f.parentNode.removeChild(this._f)}catch(e){}this._f=null}
+}
 let ytApiP=null;
 function loadYT(){
+  if(IS_IOS_APP){window.YT=window.YT||{};if(YT.Player!==RemoteYT)YT.Player=RemoteYT;return Promise.resolve()}
   if(window.YT&&YT.Player)return Promise.resolve();
   if(ytApiP)return ytApiP;
   ytApiP=new Promise(res=>{window.onYouTubeIframeAPIReady=()=>res();
@@ -9302,6 +9367,10 @@ function iosIsPad(){
 }
 function iosIs(){return /iPad|iPhone|iPod/.test(navigator.userAgent||"")||iosIsPad()}
 function iosStandalone(){
+  /* the App Store shell is already installed: WKWebView reports neither
+     navigator.standalone nor display-mode, so without this the "Add to Home
+     Screen" sheet would open inside the native app */
+  if(IS_IOS_APP)return true;
   try{return navigator.standalone===true||(matchMedia&&matchMedia("(display-mode: standalone)").matches)}
   catch(e){return false}
 }

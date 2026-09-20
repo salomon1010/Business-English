@@ -304,6 +304,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   Xcode on this Mac** (Command Line Tools only, no signing identity): the
   archive/upload steps in `mobile/ios/README.md` need a Mac with Xcode 26
   and the Lomonec team. Nothing signing-related is ever committed.
+  **App Store preparation (2026-09-20, branch `release/ios-appstore`):**
+  `docs/APPLE_DEPLOYMENT.md` (A–N), `docs/APPLE_RELEASE_CHECKLIST.md`,
+  `docs/APPLE_APP_REVIEW.md`; `mobile/ios/scripts/check-release.mjs [--live]`
+  and `bump-build.mjs`; shared scheme committed. Shell fixes behind
+  `IS_IOS_APP`: `NSCameraUsageDescription` (Posture Coach), no
+  Add-to-Home-Screen sheet, same-origin `_blank` links via `openDoc`, and the
+  **YouTube relay** — WKWebView sends no Referer from `capacitor://`, YouTube
+  answers error 153, so the studio frames `yt-embed.html` on app.lomonec.com
+  and `RemoteYT` stands in for `YT.Player` (test `tests/ios-yt-relay.mjs`).
+  `yt-embed.html` must be live on `main` before Shadow is tested in TestFlight.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in
@@ -559,4 +569,7 @@ Fixes / infra
   Firestore `users/{uid}` count (a floor — sign-in is optional).
 - **No email capture and no testimonials** anywhere. Both need things the repo
   can't supply on its own (a list backend / real users willing to be quoted).
-- **No iOS App Store presence** — iPhone users get the PWA install flow only.
+- **iOS App Store: prepared, not shipped.** The Capacitor shell, listing text,
+  privacy answers, screenshots, review notes and release docs exist
+  (`docs/APPLE_*.md`); no archive has been built (no Xcode on this Mac), no
+  upload, no review. iPhone users get the PWA install flow until then.

@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex">
+<title>BE Mastery — video</title>
+<!--
+  YouTube relay for the iOS app (mobile/ios). Inside the App Store shell the
+  web app runs at capacitor://localhost, and WKWebView sends no Referer from a
+  custom scheme, so YouTube's embedded player answers "error 153" (embedder
+  identity missing). This page is served from https://app.lomonec.com, where
+  the Referer exists, and hosts the real player; the app frames THIS page and
+  drives it over postMessage. The shell's RemoteYT (index.html, IS_IOS_APP
+  only) speaks the protocol below; the web app on any https origin never loads
+  this file.
+
+  parent → here   {be:"yt", cmd:"play"|"pause"|"seek"|"rate"|"poll", t?, allowSeekAhead?, rate?}
+  here → parent   {be:"yt", ev:"ready", title, duration, rate}
+                  {be:"yt", ev:"state", state}               YT.PlayerState codes
+                  {be:"yt", ev:"error", code}                YouTube error codes
+                  {be:"yt", ev:"time", t, state, rate, duration, at}   ~10 Hz while playing, and after every command
+
+  Messages are accepted only from the origin named in ?o= (the parent), and
+  posted only to it. Nothing here reads or stores anything about the learner.
+-->
+<style>
+  html,body{margin:0;height:100%;background:#0b0f1a;overflow:hidden}
+  #p,#p iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  #msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#9aa4b8;font:15px/1.4 -apple-system,system-ui,sans-serif;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+<div id="p"></div>
+<div id="msg"></div>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var vid=(q.get("v")||"").trim(), start=Math.max(0,Math.floor(Number(q.get("start"))||0));
+  var parentOrigin=q.get("o")||"";
+  var msg=document.getElementById("msg");
+  function say(t){msg.textContent=t;msg.style.display="flex"}
+  if(!/^[A-Za-z0-9_-]{11}$/.test(vid)){say("No video.");return}
+  if(!parentOrigin||window.parent===window){say("This page is opened by the BE Mastery app.");return}
+  var player=null, ready=false, timer=null;
+  function post(m){m.be="yt";try{window.parent.postMessage(m,parentOrigin)}catch(e){}}
+  function snap(){
+    if(!ready)return;
+    var t=0,st=-1,r=1,d=0;
+    try{t=player.getCurrentTime()||0;st=player.getPlayerState();r=player.getPlaybackRate()||1;d=player.getDuration()||0}catch(e){}
+    post({ev:"time",t:t,state:st,rate:r,duration:d,at:Date.now()});
+  }
+  function tick(on){
+    clearInterval(timer);timer=null;
+    if(on)timer=setInterval(snap,100);
+  }
+  window.addEventListener("message",function(e){
+    if(e.origin!==parentOrigin)return;
+    var m=e.data||{};if(m.be!=="yt"||!ready)return;
+    try{
+      if(m.cmd==="play")player.playVideo();
+      else if(m.cmd==="pause")player.pauseVideo();
+      else if(m.cmd==="seek")player.seekTo(Number(m.t)||0,m.allowSeekAhead!==false);
+      else if(m.cmd==="rate")player.setPlaybackRate(Number(m.rate)||1);
+    }catch(err){}
+    snap();
+  });
+  window.onYouTubeIframeAPIReady=function(){
+    player=new YT.Player("p",{
+      videoId:vid,
+      width:"100%",height:"100%",
+      playerVars:{start:start,rel:0,playsinline:1,modestbranding:1,origin:location.origin},
+      events:{
+        onReady:function(ev){
+          ready=true;
+          var title="";try{title=ev.target.getVideoData().title||""}catch(e){}
+          var d=0,r=1;try{d=ev.target.getDuration()||0;r=ev.target.getPlaybackRate()||1}catch(e){}
+          post({ev:"ready",title:title,duration:d,rate:r});
+          snap();
+        },
+        onStateChange:function(ev){
+          post({ev:"state",state:ev.data});
+          tick(ev.data===1);   /* 1 = playing: stream the clock; otherwise one snapshot is enough */
+          snap();
+        },
+        onError:function(ev){post({ev:"error",code:ev.data});say("This video cannot be played here.")}
+      }
+    });
+  };
+  var s=document.createElement("script");s.src="https://www.youtube.com/iframe_api";s.async=true;
+  s.onerror=function(){post({ev:"error",code:-1});say("YouTube could not be reached.")};
+  document.head.appendChild(s);
+})();
+</script>
+</body>
+</html>
