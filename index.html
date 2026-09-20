@@ -3474,8 +3474,11 @@ html,body{max-width:100%;overflow-x:clip}
 /* owner's design, 2026-09-20: the step icon is a bare line-icon in the accent
    tint — no tile, no glow — as on the store screenshots. The first step keeps
    its logo image (it sets background:none inline and sizes the image itself). */
-.ob-logo:not(.ob-logo-img){background:none!important;box-shadow:none;color:color-mix(in srgb,var(--acc) 72%,#fff)}
-.ob-logo:not(.ob-logo-img) svg{width:76%;height:76%;stroke-width:1.5}
+/* Owner, 2026-09-20 (second pass): smaller and a little higher. The icon is
+   ~44px, not ~58px, and sits at the TOP of its 76px box rather than its centre,
+   so it rises ~16px while the heading below does not move. */
+.ob-logo:not(.ob-logo-img){background:none!important;box-shadow:none;color:color-mix(in srgb,var(--acc) 72%,#fff);place-items:start center}
+.ob-logo:not(.ob-logo-img) svg{width:clamp(34px,5.4vh,44px);height:clamp(34px,5.4vh,44px);stroke-width:1.5}
 :root[data-theme="light"] .ob-logo:not(.ob-logo-img){color:var(--acc)}
 .ob-logo-weld:not(.ob-logo-img){color:#e2af2f!important}
 :root[data-theme="light"] .ob-logo-weld:not(.ob-logo-img){color:#a66b08!important}
