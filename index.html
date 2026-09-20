@@ -2864,7 +2864,8 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-hear:hover{border-color:var(--acc);transform:translateY(-1px)}
 .ob-hear svg{width:15px;height:15px;color:var(--acc)}
 .ob-stage{position:relative;margin:14px 0 10px;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden}
-.ob-mic{width:88px;height:88px;border-radius:50%;border:none;background:var(--grad);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 32px rgba(99,102,241,.42);transition:transform .15s;position:relative}
+.ob-mic{width:88px;height:88px;border-radius:50%;border:2px solid color-mix(in srgb,var(--acc) 80%,#fff);background:color-mix(in srgb,var(--acc) 7%,transparent);color:color-mix(in srgb,var(--acc) 72%,#fff);display:grid;place-items:center;cursor:pointer;box-shadow:none;transition:transform .15s;position:relative}   /* owner's design, 2026-09-20: a ring, not a gradient disc */
+:root[data-theme="light"] .ob-mic{border-color:var(--acc);color:var(--acc)}
 .ob-mic:hover{transform:scale(1.06)}
 .ob-mic svg{width:34px;height:34px}
 .ob-mic.listening{animation:obMicPulse 1.2s ease-in-out infinite}
@@ -3466,6 +3467,17 @@ html,body{max-width:100%;overflow-x:clip}
 .ob-logo{width:clamp(50px,8.6vh,76px);height:clamp(50px,8.6vh,76px);
   border-radius:clamp(15px,2.5vh,22px);margin-bottom:clamp(8px,2.2vh,20px)}
 .ob-logo svg{width:52%;height:52%}
+/* owner's design, 2026-09-20: the step icon is a bare line-icon in the accent
+   tint — no tile, no glow — as on the store screenshots. The first step keeps
+   its logo image (it sets background:none inline and sizes the image itself). */
+.ob-logo:not(.ob-logo-img){background:none!important;box-shadow:none;color:color-mix(in srgb,var(--acc) 72%,#fff)}
+.ob-logo:not(.ob-logo-img) svg{width:76%;height:76%;stroke-width:1.5}
+:root[data-theme="light"] .ob-logo:not(.ob-logo-img){color:var(--acc)}
+.ob-logo-weld:not(.ob-logo-img){color:#e2af2f!important}
+:root[data-theme="light"] .ob-logo-weld:not(.ob-logo-img){color:#a66b08!important}
+.ob-search{position:relative}
+.ob-search>svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--mut);pointer-events:none}
+.ob-search .lang-search{padding-left:44px}
 .ob-card h2{font-size:clamp(19px,3.1vh,34px);margin-bottom:clamp(5px,1.1vh,10px)}
 .ob-card .sub{margin-bottom:clamp(9px,2.6vh,26px);font-size:clamp(12.5px,1.85vh,15.5px)}
 .ob-dots{margin-top:clamp(9px,2.6vh,26px)}
@@ -4113,7 +4125,7 @@ const ICON={
   blueprint:'<rect x="3.5" y="4.6" width="17" height="14.8" rx="1.7"/><path d="M6.8 8.6h4.6v4.2H6.8z"/><path d="M14.2 8.6h3.4M14.2 12h3.4M6.8 16.2h10.8"/>',
   team:'<circle cx="9.1" cy="8.6" r="2.7"/><path d="M3.9 19.2c0-2.7 2.3-4.1 5.2-4.1s5.2 1.4 5.2 4.1"/><path d="M15.8 6.4a2.7 2.7 0 0 1 0 5.4"/><path d="M17 15.3c1.9.4 3.1 1.6 3.1 3.4"/>',
   shield:'<path d="M12 3.6 19 6.1v5.4c0 4.1-2.9 7.1-7 8.9-4.1-1.8-7-4.8-7-8.9V6.1L12 3.6Z"/><path d="M9.2 11.8l2.1 2.1 3.9-4"/>',
-  rocket:'<path d="M12 3.3c3 1.3 4.7 4 4.7 7.3 0 2-.7 3.8-1.9 5.2H9.2C8 14.4 7.3 12.6 7.3 10.6c0-3.3 1.7-6 4.7-7.3Z"/><circle cx="12" cy="9.8" r="1.5"/><path d="M9.2 15.8 7.6 19l2.7-1M14.8 15.8 16.4 19l-2.7-1"/>',
+  rocket:'<path d="M9.6 14.4c-1.1-2.7-.6-5.8 1.5-7.9C13.9 3.7 17.5 3.1 20.9 3.1c0 3.4-.6 7-3.4 9.8-2.1 2.1-5.2 2.6-7.9 1.5Z"/><circle cx="14.6" cy="9.4" r="1.6"/><path d="M10.2 9.2 7.4 9.7c-.9.2-1.6.8-1.9 1.7L4.8 13.6l3.7-.9"/><path d="M14.8 13.8l-.5 2.8c-.2.9-.8 1.6-1.7 1.9l-2.2.7.9-3.7"/><path d="M6.6 17.4 3.4 20.6M8.6 19.6l-1.3 1.3M4.6 15.6l-1.3 1.3"/>',
   compass:'<circle cx="12" cy="12" r="8.4"/><path d="m14.6 9.4-1.5 3.7-3.7 1.5 1.5-3.7 3.7-1.5Z"/>',
   clock:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.9"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/>',
@@ -18512,7 +18524,7 @@ function obRender(){
   const total=7;
   const dots=`<div class="ob-dots">${Array.from({length:total},(_,i)=>`<span class="ob-dot ${i===OB.step?'on':''}"></span>`).join("")}</div>`;
   const steps=[
-    `<div class="ob-logo" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
+    `<div class="ob-logo ob-logo-img" style="background:none;padding:0"><img src="logo.svg" alt="" style="width:76px;height:76px;border-radius:22px;display:block"></div>
      <h1>${t("ob.hero_pre")} <em class="ob-em">${t("ob.hero_em")}</em></h1>
      <p class="sub">${t("ob.hero_sub")}</p>
      <input id="obName" aria-label="${esc(t("ob.name_placeholder"))}" placeholder="${esc(t("ob.name_placeholder"))}" style="max-width:320px;margin:0 auto 22px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
@@ -18522,9 +18534,9 @@ function obRender(){
      <h1>${t("lang.step_title")}</h1>
      <p class="sub">${t("lang.step_sub")}</p>
      <button class="btn-primary ob-go ob-skip-lang" onclick="obLangPick('en')">${t("ob.skip_lang")} →</button>
-     <input id="obLangSearch" class="lang-search" aria-label="${esc(t("lang.search_placeholder"))}" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')">
+     <div class="ob-search">${ic("search")}<input id="obLangSearch" class="lang-search" aria-label="${esc(t("lang.search_placeholder"))}" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('obLangList').innerHTML=langListHTML(this.value,'obLangPick')"></div>
      <div id="obLangList" class="lang-list">${langListHTML("","obLangPick")}</div>`,
-    `<div class="ob-logo">${ic("briefcase")}</div>
+    `<div class="ob-logo">${ic("map")}</div>
      <h1>${t("ob.track_title")}</h1>
      <p class="sub">${t("ob.track_sub")}</p>
      <div class="ob-tracks">
