@@ -14889,7 +14889,11 @@ window.ppMatch=async()=>{
     else{ppCands=r.candidates||[];try{if(ppCands.length)track("partner_candidate_shown",{n:String(ppCands.length)})}catch(e){}
       /* offer ids are minted per call, so the "same set" key is who is on the cards */
       const key=ppCands.map(c=>c.name+"|"+c.band).sort().join(",");if(ppCands.length&&ppCandsToasted!==key){ppCandsToasted=key;toast(t("pp.cands_toast",{n:ppCands.length}))}}
-  }catch(e){ppCands=null;toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  }catch(e){ppCands=null;
+    /* the two answers that mean "you first": no toast, the right door instead */
+    if(e.code==="consent"||e.code==="age"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{ppOpenConsent()}catch(_){}return}
+    if(e.code==="auth"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{fbOpenModal("in")}catch(_){}return}
+    toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 /* Practice now: take the best candidate immediately, or stay in line with the AI coach offered */
@@ -15442,8 +15446,11 @@ window.ppFabTap=()=>{
   const m=ppMe||ppState().lastMe;
   go("partner");
   /* idle or in line → straight into discovery (the queue entry is an upsert, so
-     a waiting learner keeps one place); invited / paired / live → their own screen */
-  if(m&&!m.pair&&!m.invite&&!m.pairInvite&&!m.live){setTimeout(()=>{if(cur&&cur.v==="partner"&&!ppBusy)ppMatch()},350)}
+     a waiting learner keeps one place); invited / paired / live → their own screen.
+     Not signed in or not yet consented → the page's own card says what to do;
+     joining the queue would only earn a 401/403 and a "Something went wrong"
+     toast (owner, 2026-09-20). */
+  if(m&&!m.pair&&!m.invite&&!m.pairInvite&&!m.live&&ppSignedIn()&&ppConsented()&&m.auth!==false&&m.consented!==false){setTimeout(()=>{if(cur&&cur.v==="partner"&&!ppBusy)ppMatch()},350)}
 };
 function ppCallLoop(){
   clearTimeout(ppCallT);
