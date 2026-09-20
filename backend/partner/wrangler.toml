@@ -24,7 +24,7 @@ compatibility_date = "2026-07-31"
 [vars]
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://app.lomonec.com,https://salomon1010.github.io,capacitor://localhost"   # capacitor://localhost = the App Store build
-PARTNER_ENABLED = "0"          # production kill switch: "1" only at release approval
+PARTNER_ENABLED = "1"          # production kill switch: opened 2026-09-20 on the owner's release decision
 LIVE_ENABLED = "0"             # live human practice (Level 3): separate switch, off in production
 # TURN for live practice is optional: `wrangler secret put TURN_KEY_ID` and
 # `TURN_KEY_TOKEN` (Cloudflare Calls TURN key). Without them the Worker hands

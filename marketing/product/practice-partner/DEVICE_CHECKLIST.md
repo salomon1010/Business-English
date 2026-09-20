@@ -14,6 +14,26 @@ Staging is **STUN-only** unless the owner has set the TURN secrets (PILOT.md
 § Staging 4c): Wi‑Fi/Wi‑Fi rows are valid without TURN; the Wi‑Fi/cellular
 rows are **incomplete until TURN is configured and re-tested**.
 
+## Release record — 20 Sep 2026
+
+**Released to production on the owner's explicit decision with 24 of 66 rows
+certified** (build = `6ed1d87` + `0e1cb23` + `e6e1026`, the exact tree served
+on staging.lomonec.com from 05:51 UTC; be-partner-staging `f7ee7d60`). The
+owner was told that the remaining 42 rows had no evidence and chose to
+release anyway ("I would like to deploy it anyway"). Live practice stays off
+in production (`LIVE_ENABLED="0"`).
+
+Certified from staging D1 evidence (two iPhones, accounts Troy / Gyre / Quirt,
+04:18–06:28 UTC): I-01 → I-17, I-23, I-24, I-25, I-26, I-27, I-28, I-30,
+I-34, I-35 (Mute only), I-39, I-40, I-57, I-58. I-15 is a partial pass (a
+regular session started twice, no second set of turns).
+
+**Released without evidence (42 rows):** I-14b, I-14c, I-18 → I-22, I-29,
+I-31 → I-33, I-35 (Next round, Phrase help), I-36 → I-38, I-41 → I-56,
+I-59 → I-66. The network / recovery rows (I-36, I-37, I-38, I-42, I-46 →
+I-50) are the ones most likely to surface as support e-mail; run them on
+production first.
+
 ## iPhone Safari — model ______ iOS ______ Safari ______ · network: ______
 
 ### 0. Account and entry

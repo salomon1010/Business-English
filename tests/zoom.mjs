@@ -11,6 +11,10 @@ const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c
 const browser = await webkit.launch(); const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 await ctx.addInitScript(() => { localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), reminder: { on: true, time: "19:00" } })); });
 const page = await ctx.newPage(); const errs = []; page.on("pageerror", e => errs.push(e.message));
+/* the released flags make the page poll the public /presence count; on localhost the
+   production Worker's allow-list refuses the origin and WebKit reports that as a page
+   error, which is an environment artefact, not the app — answer it locally */
+await page.route(/\/presence(\?|$)/, r => r.fulfill({ status: 200, contentType: "application/json", body: '{"online":0,"waiting":0}' }));
 await page.goto("http://localhost:8776/index.html?z=" + Date.now(), { waitUntil: "load" }); await sleep(1500);
 const r = await page.evaluate(async () => {
   const out = { small: [] }; const cs = (el, p) => el ? getComputedStyle(el)[p] : "none-found";

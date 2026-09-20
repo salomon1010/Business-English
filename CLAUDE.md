@@ -159,17 +159,23 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
-- **Feature flags + the General-English-only boundary (feature/practice-partner,
-  NOT on main yet).** `FLAGS_DEFAULT` + `flag(name)`; `localStorage.be_flags`
+- **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
+  `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
-  on the URL writes that override (`-name` off, `off` clears) and strips itself. Production defaults are OFF
-  for `practice_partner_enabled / _matching_enabled / _voice_enabled /
-  _notifications_enabled`, `shadow_studio_v2_enabled`, `shadow_apply_phrase_enabled`;
-  ON for `practice_partner_ai_fallback_enabled`, `shadow_word_timing_enabled`.
+  on the URL writes that override (`-name` off, `off` clears) and strips itself.
+  **Production defaults since 2026-09-20 (be12-v379):** ON for
+  `practice_partner_enabled / _matching_enabled / _voice_enabled /
+  _notifications_enabled / _ai_fallback_enabled`, `shadow_studio_v2_enabled`,
+  `shadow_word_timing_enabled`, `shadow_challenge_enabled`; OFF for
+  `practice_partner_live_enabled` (live follows the Worker's `LIVE_ENABLED`,
+  "0" in production until TURN is tested there) and `shadow_apply_phrase_enabled`.
+  Practice Partner was released on the owner's explicit decision with 24 of 66
+  DEVICE_CHECKLIST rows certified — see its "Release record" before assuming a
+  row was tested.
   `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
   check every GE-only feature makes — Welding gets exactly the app it has today.
-- **Practice Partner (feature/practice-partner, NOT on main yet; General English
-  only).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
+- **Practice Partner (LIVE in production since 2026-09-20, be12-v379; General
+  English only; live calls still off).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
   me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or
   **Practise now** → a 4-round alternating voice session on the curriculum task →
   each decides alone (`continue` / `rematch`) → mutual → regular connection, or a
@@ -225,7 +231,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
   Staging also needs `https://staging.lomonec.com` in the Polish Worker's
   hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).
-  `privacy.html` 8b says 18+. Nothing deployed, no production flag on.
+  `privacy.html` 8b says 18+. **Production state:** `be-partner` deployed with
+  `PARTNER_ENABLED="1"`, `LIVE_ENABLED="0"`; client flags on (above). Rollback
+  = `PARTNER_ENABLED="0"` + redeploy (the app then shows "unavailable"), then
+  flags off + cache bump if the UI must go too.
 - **Practice Partner Levels 2–3 (same branch).** Level 2 = the **AI coach
   session** (`ppAiStart`, `S.pp.ai`, one open at a time, pending-turn
   idempotency; replies via the Polish `chat` route, spoken with the natural
