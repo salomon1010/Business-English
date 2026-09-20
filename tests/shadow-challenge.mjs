@@ -25,7 +25,7 @@ const errors = [];
 async function learner(id, track, opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: opts.noMic ? [] : ["microphone"] });
   await ctx.addInitScript(({ track, FLAGS, noMic }) => {
-    localStorage.setItem("be_flags", JSON.stringify(FLAGS));
+    localStorage.setItem("be_flags", JSON.stringify(FLAGS)); localStorage.setItem("be_sv_txopen", "1"); localStorage.setItem("be_sv_watchopen", "1");   // the suite measures the list; the defaults (folded) have their own checks
     if (!localStorage.getItem("be12_v1")) {
       const st = { profile: { name: "Test", role: "", goal: "Speak with confidence in meetings", slot: "", lang: "en", ts: Date.now() }, professionalTracks: { activeId: track },
         fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: Date.now() }, "welding": { placed: "full", finished: true, day: 15, done: {}, checkedAt: Date.now() } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now() };
@@ -67,8 +67,8 @@ const M = await learner("mia", "general-english", { noMic: true });
 /* ---------- the clip, WATCH and SHADOW as before ---------- */
 await A.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
 await A.page.evaluate(() => shOpenWork()); await sleep(300);
-const sv = await A.page.evaluate(() => ({ level: svAsset && svAsset.level, tabs: [...document.querySelectorAll("#shV2 .seg-tab")].map(b => b.innerText.trim()), segs: document.querySelectorAll("#shV2 .sv-seg").length, mode: svMode }));
-ok("General English: library clip → word-level asset, the four tabs, Watch by default, no Challenge panel yet", sv.level === "word" && sv.tabs.join() === "Watch,Shadow,Challenge,Apply it" && sv.segs > 10 && sv.mode === "watch" && !(await A.page.$("#svCh")), JSON.stringify(sv));
+const sv = await A.page.evaluate(() => ({ level: svAsset && svAsset.level, tabs: [...document.querySelectorAll("#svTabs .seg-tab, #shV2 .sv-tabs .seg-tab")].map(b => b.innerText.trim()), segs: document.querySelectorAll("#shV2 .sv-seg").length, mode: svMode }));
+ok("General English: library clip → word-level asset, the four tabs, Watch by default, no Challenge panel yet", sv.level === "word" && sv.tabs.map(x => x.replace("▾", "")).join() === "Watch,Shadow,Challenge,Apply it" && sv.segs > 10 && sv.mode === "watch" && !(await A.page.$("#svCh")), JSON.stringify(sv));
 const lit = await A.page.evaluate(() => { const s = svAsset.segments[5]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); return { seg: document.querySelector(".sv-seg.now")?.dataset.i, word: document.querySelector(".sv-w.now")?.innerText, expect: s.words[2].text }; });
 ok("WATCH still works: playback time lights the current sentence and word", lit.seg === "5" && lit.word === lit.expect, JSON.stringify(lit));
 await A.page.evaluate(() => { svPick = 5; svSetMode("shadow"); }); await sleep(150);
@@ -164,11 +164,30 @@ ok("Done closes the Use-it panel; the challenge stays complete", await A.page.ev
 /* ---------- the existing APPLY IT tab is untouched ---------- */
 await A.page.evaluate(() => svSetMode("apply")); await sleep(200);
 ok("APPLY IT still there: expression + 'Practise with AI' (partner button only with its own flag)", (await txt(A.page, ".sv-apply")).includes("Practise with AI") && (await txt(A.page, ".sv-apply")).includes("Use it with a partner") === await A.page.evaluate(() => flag("practice_partner_enabled")) && !(await A.page.$("#svCh")));
-await A.page.evaluate(() => svSetMode("watch")); await sleep(100);
+await A.page.evaluate(() => (svMode === "watch" ? svRender() : svSetMode("watch"))); await sleep(100);
 ok("Leaving Challenge drops its state; Watch shows the transcript again", await A.page.evaluate(() => svCh === null && !document.getElementById("svTx").classList.contains("hidden")));
 
+/* ---------- the workspace layout: tabs pinned with the player, clip tools first, the list folded by default ---------- */
+const lay = await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svMode = "shadow"; svWatchOpen = false; svSetMode("watch"); svTxOpen = false; svRender(); await new Promise(r => setTimeout(r, 200));
+  const vis = s => { const e = document.querySelector(s); if (!e || e.hidden || getComputedStyle(e).display === "none") return null; const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.bottom)]; };
+  /* arriving in Watch: folded — only the pinned block */
+  const below = () => [...document.getElementById("shPlayerWrap").children].filter(e => !e.classList.contains("sh-stick") && !e.hidden && getComputedStyle(e).display !== "none").length;
+  const rf = { foldedBelow: below(), cardWords: document.querySelectorAll("#svNow .sv-w").length, chev: !!document.querySelector("#svTabs .sv-chev"), expanded: document.querySelector("#svTabs .seg-tab").getAttribute("aria-expanded") };
+  document.querySelector("#svTabs .seg-tab").click(); await new Promise(r => setTimeout(r, 200));   // Watch again = release
+  rf.releasedBelow = below(); rf.expanded2 = document.querySelector("#svTabs .seg-tab").getAttribute("aria-expanded");
+  const r = { ...rf, tabsInStick: !!document.querySelector(".sh-stick #svTabs .seg-tab"), tabs: vis("#svTabs"), clip: vis("#shSeg"), hint: vis("#shMarkHint"), list: vis("#svTx"), fold: document.querySelector("#shV2 .sv-ctl button[onclick='svTxToggle()']")?.innerText, stickBottom: Math.round(document.querySelector(".sh-stick").getBoundingClientRect().bottom) };
+  svTxToggle(); await new Promise(r => setTimeout(r, 200)); r.listOpen = vis("#svTx"); r.remembered = localStorage.getItem("be_sv_txopen"); r.foldOpen = document.querySelector("#shV2 .sv-ctl button[onclick='svTxToggle()']")?.innerText;
+  svPick = 5; svSetMode("challenge"); await new Promise(r => setTimeout(r, 200)); r.chClip = vis("#shSeg"); r.chHint = vis("#shMarkHint"); r.chRec = vis("#svChRecBtn"); r.chFold = !!document.querySelector("#shV2 .sv-ctl button[onclick='svTxToggle()']");
+  svSetMode("shadow"); await new Promise(r => setTimeout(r, 200)); r.shClip = vis("#shSeg"); r.card = document.querySelectorAll("#svNow .sv-w").length; r.cardLine = svNowBase;
+  const w = document.querySelector("#svNow .sv-w[data-k='2']"); w.click(); r.tapPick = svPick; r.tapSeekOk = Math.abs(shSeek.t * 1000 - svAsset.segments[+w.dataset.i].words[2].startMs) < 2;
+  (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; return r; });
+ok("Watch is the fold: arriving in Watch shows only the pinned block (video, two-line card, transport, tabs) with a chevron on Watch; tapping Watch again releases the tools", lay.foldedBelow === 0 && lay.cardWords > 0 && lay.chev && lay.expanded === "false" && lay.releasedBelow >= 4 && lay.expanded2 === "true", JSON.stringify({ foldedBelow: lay.foldedBelow, releasedBelow: lay.releasedBelow, cardWords: lay.cardWords, expanded: [lay.expanded, lay.expanded2] }));
+ok("Layout (released): the mode tabs sit in the pinned block under the transport; the clip Start/End row is the first thing below it; the list is folded behind 'Full transcript (N lines)'", lay.tabsInStick && lay.tabs && lay.clip && lay.clip[0] >= lay.stickBottom && lay.clip[0] - lay.stickBottom < 40 && lay.hint && !lay.list && /Full transcript \(\d+ lines\)/.test(lay.fold), JSON.stringify(lay));
+ok("Unfolding shows the list, reads 'Fold transcript', and is remembered on the device", !!lay.listOpen && lay.remembered === "1" && /Fold/.test(lay.foldOpen), JSON.stringify({ listOpen: lay.listOpen, remembered: lay.remembered }));
+ok("Challenge hides the clip tools and the fold button; Record is on screen. Shadow brings the clip row back; the paused card shows the picked line; tapping a word in the card seeks there and picks its line", !lay.chClip && !lay.chHint && lay.chRec && lay.chRec[1] < 844 && !lay.chFold && lay.shClip && lay.card > 0 && lay.cardLine === 5 && lay.tapPick === 5 && lay.tapSeekOk, JSON.stringify(lay));
+
 /* ---------- the follow-along player: pinned video + now-line card + list of what is next ---------- */
-await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svSetMode("watch"); }); await sleep(300);
+await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; (svMode === "watch" ? svRender() : svSetMode("watch")); }); await sleep(300);
 const fa = await A.page.evaluate(async () => {
   const body = document.querySelector(".sh-work-body"), tx = document.getElementById("svTx"), nw = document.getElementById("svNow");
   const lh = parseFloat(getComputedStyle(nw).lineHeight);
@@ -189,7 +208,7 @@ ok("Follow-along: the pinned card is ALWAYS exactly two visual lines — same he
 ok("Pinned: after the learner scrolls the workspace, the player block is still at the top of the scroll area", fa.stickTop === fa.bodyTop, JSON.stringify({ stickTop: fa.stickTop, bodyTop: fa.bodyTop }));
 await A.page.evaluate(() => { svPick = 5; svSetMode("challenge"); }); await sleep(200);
 ok("Challenge: the now-line card is hidden with the transcript — the line does not leak through the card", await A.page.evaluate(() => document.getElementById("svNow").hidden && !document.getElementById("svNow").innerText.trim()));
-await A.page.evaluate(() => { svSetMode("watch"); svPick = -1; }); await sleep(200);
+await A.page.evaluate(() => { (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; }); await sleep(200);
 
 /* ---------- sentence-only captions get estimated word timing, honestly labelled ---------- */
 const est = await A.page.evaluate(async () => { await shLoad({ vid: "UF8uR6Z6KLc", start: 0, end: 0, title: "Jobs" }, true); await new Promise(r => setTimeout(r, 2500)); return { level: svAsset && svAsset.level, estimated: !!(svAsset && svAsset.estimated), words: !!(svAsset && svAsset.segments[0].words && svAsset.segments[0].words.length), note: document.querySelector("#shV2 .sv-note")?.innerText || "" }; });
@@ -203,11 +222,11 @@ await A.ctx.route(noCaps, r => r.fulfill({ status: 404, body: "" }));   // prete
 const stamped = "0:00\nI stand before you not as an expert but as a concerned citizen.\n0:06\nOne of the 400,000 people who marched in the streets of New York on Sunday.\n0:12\nAnd the billions of others around the world who want to solve our climate crisis.";
 await A.page.evaluate(async () => { shCloseWork(); go("shadow"); delete _capCache.MZAjfsyJa1U; }); await sleep(300);
 await A.page.evaluate(s => { document.getElementById("shUrl").value = "https://www.youtube.com/watch?v=MZAjfsyJa1U"; document.getElementById("shPaste").value = s; shLoadFromInput(); }, stamped); await sleep(4000);
-const pst = await A.page.evaluate(() => { const s = svAsset.segments[1]; shSeek = { t: (s.words[3].startMs + 5) / 1000, at: Date.now() }; svTick(); return { saved: !!(S.shTx && S.shTx.MZAjfsyJa1U), boxCleared: document.getElementById("shPaste").value === "", notesPlain: !/0:0/.test(document.getElementById("shNote").value) && document.getElementById("shNote").value.startsWith("I stand"), level: svAsset.level, source: svAsset.source, segs: svAsset.segments.length, line2: [svAsset.segments[1].startMs, svAsset.segments[1].endMs], lit: document.querySelector("#svNow .sv-w.now")?.innerText, want: s.words[3].text, note: document.querySelector("#shV2 .sv-note").innerText, tabs: [...document.querySelectorAll("#shV2 .seg-tab")].map(x => x.innerText.trim()).join() }; });
-ok("Own video + transcript pasted with YouTube's timestamps: kept with the video, box cleared, notes get the plain text; cues at the stamps (6.0–12.0 s), words estimated, the card lights the word; Watch / Shadow / Challenge tabs", pst.saved && pst.boxCleared && pst.notesPlain && pst.level === "word" && pst.source === "stamps" && pst.segs === 3 && pst.line2.join() === "6000,12000" && pst.lit === pst.want && /timestamps/i.test(pst.note) && pst.tabs.startsWith("Watch,Shadow,Challenge"), JSON.stringify(pst));
+const pst = await A.page.evaluate(() => { const s = svAsset.segments[1]; shSeek = { t: (s.words[3].startMs + 5) / 1000, at: Date.now() }; svTick(); return { saved: !!(S.shTx && S.shTx.MZAjfsyJa1U), boxCleared: document.getElementById("shPaste").value === "", notesPlain: !/0:0/.test(document.getElementById("shNote").value) && document.getElementById("shNote").value.startsWith("I stand"), level: svAsset.level, source: svAsset.source, segs: svAsset.segments.length, line2: [svAsset.segments[1].startMs, svAsset.segments[1].endMs], lit: document.querySelector("#svNow .sv-w.now")?.innerText, want: s.words[3].text, note: document.querySelector("#shV2 .sv-note").innerText, tabs: [...document.querySelectorAll("#svTabs .seg-tab, #shV2 .sv-tabs .seg-tab")].map(x => x.innerText.trim()).join() }; });
+ok("Own video + transcript pasted with YouTube's timestamps: kept with the video, box cleared, notes get the plain text; cues at the stamps (6.0–12.0 s), words estimated, the card lights the word; Watch / Shadow / Challenge tabs", pst.saved && pst.boxCleared && pst.notesPlain && pst.level === "word" && pst.source === "stamps" && pst.segs === 3 && pst.line2.join() === "6000,12000" && pst.lit === pst.want && /timestamps/i.test(pst.note) && pst.tabs.replace("▾", "").startsWith("Watch,Shadow,Challenge"), JSON.stringify(pst));
 await A.page.evaluate(() => { svPick = 1; svSetMode("challenge"); }); await sleep(200);
 ok("Challenge on the pasted clip: panel ready on the picked line, transcript hidden", await A.page.evaluate(() => !!document.getElementById("svCh") && svCh.phase === "ready" && svCh.seg === 1 && getComputedStyle(document.getElementById("svTx")).display === "none"));
-await A.page.evaluate(async () => { svSetMode("watch"); svPick = -1; shCloseWork(); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "again" }, true); }); await sleep(3000);
+await A.page.evaluate(async () => { (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; shCloseWork(); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "again" }, true); }); await sleep(3000);
 ok("Continue the same video later: the pasted transcript and its timing are still there", await A.page.evaluate(() => svAsset.source === "stamps" && svAsset.level === "word"));
 await A.page.evaluate(() => { delete S.shTx.MZAjfsyJa1U; save(); shCloseWork(); go("shadow"); delete _capCache.MZAjfsyJa1U; }); await sleep(300);
 await A.page.evaluate(() => { document.getElementById("shUrl").value = "https://www.youtube.com/watch?v=MZAjfsyJa1U"; document.getElementById("shPaste").value = "I stand before you not as an expert but as a concerned citizen. One of the 400,000 people who marched in the streets of New York on Sunday. And the billions of others around the world who want to solve our climate crisis."; shLoadFromInput(); }); await sleep(5000);
@@ -218,7 +237,7 @@ await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0,
 
 /* ---------- current expression chip, in every mode ---------- */
 const chip = await A.page.evaluate(() => { const phr = trackPhrases(); const first = (typeof phr[0] === "string" ? phr[0] : phr[0] && phr[0].p) || ""; const tk = ShadowSync.tokens(first.replace(/\.{3}|…/g, " ")).join(" ");
-  const i = svAsset.segments.length - 1; svAsset.segments[i].text = "so " + tk + " tomorrow"; svPick = i; svSetMode("watch"); const el = document.getElementById("svExpr");
+  const i = svAsset.segments.length - 1; svAsset.segments[i].text = "so " + tk + " tomorrow"; svPick = i; (svMode === "watch" ? svRender() : svSetMode("watch")); const el = document.getElementById("svExpr");
   const r = { first, shown: !!el && !el.hidden, text: el && el.innerText, expr: svExprText() }; svAsset.segments[i].text = "zzz"; svRender(); r.gone = document.getElementById("svExpr").hidden; r.seg0 = svExprText(); svPick = 0; svRender(); return r; });
 ok("Watch: a line that carries a curriculum expression shows the 'Current expression' chip; a line without one hides it", chip.shown && /Current expression/i.test(chip.text) && chip.expr && chip.gone, JSON.stringify(chip));
 const rtEv = await A.page.evaluate(() => __ev.some(e => e[0] === "shadow_challenge_retry"));

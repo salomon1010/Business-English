@@ -1655,6 +1655,8 @@
  "sv.next": "Nächster Satz",
  "sv.repeat": "Wiederholen",
  "sv.shadow_this": "Diesen Satz nachsprechen",
+ "sv.tx_unfold": "Ganzes Transkript ({{n}} Zeilen)",
+ "sv.tx_fold": "Transkript einklappen",
  "sv.reveal": "Aufdecken",
  "sv.hide": "Wieder verbergen",
  "sv.apply_eyebrow": "Anwenden",

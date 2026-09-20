@@ -1655,6 +1655,8 @@
  "sv.next": "次の文",
  "sv.repeat": "繰り返す",
  "sv.shadow_this": "この文をシャドーする",
+ "sv.tx_unfold": "全文（{{n}}行）",
+ "sv.tx_fold": "文字起こしをたたむ",
  "sv.reveal": "表示",
  "sv.hide": "再び隠す",
  "sv.apply_eyebrow": "使ってみる",

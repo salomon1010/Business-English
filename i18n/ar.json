@@ -1655,6 +1655,8 @@
  "sv.next": "الجملة التالية",
  "sv.repeat": "كرّر",
  "sv.shadow_this": "كرّر هذه الجملة",
+ "sv.tx_unfold": "النص الكامل ({{n}} سطرًا)",
+ "sv.tx_fold": "طيّ النص",
  "sv.reveal": "اكشف",
  "sv.hide": "أخفِ مجدداً",
  "sv.apply_eyebrow": "طبّقها",

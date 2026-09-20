@@ -1655,6 +1655,8 @@
  "sv.next": "Frase seguinte",
  "sv.repeat": "Repetir",
  "sv.shadow_this": "Repetir esta frase",
+ "sv.tx_unfold": "Transcrição completa ({{n}} linhas)",
+ "sv.tx_fold": "Recolher a transcrição",
  "sv.reveal": "Revelar",
  "sv.hide": "Esconder de novo",
  "sv.apply_eyebrow": "Aplique",

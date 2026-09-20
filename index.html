@@ -689,9 +689,10 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    them — the video is the reference, the text follows it */
 .sh-stick{padding:14px 0 10px}
 @media(max-width:899px){.sh-stick{position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 8px 16px -12px rgba(0,0,0,.5)}}
-.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px}
-.sh-stick .sh-pill button{min-width:46px}
-.sh-stick .sh-time{min-width:0}
+.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px;justify-content:space-between}
+.sh-stick .sh-pill button{min-width:40px}
+.sh-time-in{display:inline-flex;align-items:center;padding:0 8px 0 6px;min-width:44px;justify-content:center}
+@media(max-width:379px){.sh-stick .sh-pill button,.sh-stick .sh-round{min-width:36px;padding:0 4px}.sh-stick .sh-time-in{min-width:40px;padding:0 4px}.sh-stick .sh-pill{padding:6px 4px}}
 .sh-work-x:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* the overlay's entrance fade is ours to suppress, not the browser's */
 /* the picker must not scroll underneath the overlay */
@@ -1261,7 +1262,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-now{height:calc(2 * 1.65em + 20px);overflow:hidden}   /* exactly two lines, always — never one, never three */
 .sv-tx .sv-seg{color:var(--mut)}.sv-tx .sv-seg.now{background:transparent;color:var(--mut)}   /* the list is the road ahead; the card is the line */
 .sv-tx .sv-seg.now .sv-w{color:var(--mut)}.sv-tx .sv-seg.now .sv-w.now{background:transparent;box-shadow:none;color:var(--txt);font-weight:600}
-.sv-tx.hidden{display:none}
+.sv-tx.hidden,.sv-tx.folded{display:none}
+.sh-stick .sv-tabs{margin-top:10px}
+.sv-chev{display:inline-block;margin-left:5px;font-size:11px;opacity:.8;transition:transform .2s}.sv-chev.open{transform:rotate(180deg)}
+.sv-now .sv-w{cursor:pointer}
 .sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
 .sv-expr[hidden]{display:none}.sv-expr b{color:var(--txt);font-weight:700}.sv-expr .sv-expr-lbl{text-transform:uppercase;letter-spacing:1px;font-size:10.5px;font-weight:800;color:var(--accent-text)}
 .sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}.sv-ctl .btn{display:inline-flex;align-items:center;gap:6px}.sv-ctl svg{width:16px;height:16px}.sv-ctl .btn.on{border-color:var(--acc);color:var(--accent-text)}
@@ -2013,17 +2017,22 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
    player keeps its ratio but stops at 44% of the viewport, centred — the
    transcript is the point of the studio, so it must be visible with it. */
 @media(min-width:900px){.sh-work .yt-shell{max-width:min(100%,calc(44vh * 16 / 9));margin:0 auto}}
-.sh-ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}
+.sh-ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.sh-ctl>span[style*="flex:1"]{display:none}
 .sh-pill{display:flex;gap:2px;background:#000;border-radius:16px;padding:6px}
 .sh-pill button{min-width:52px;height:44px;border:none;background:transparent;color:#fff;font-size:19px;border-radius:12px;transition:.15s}
 .sh-pill button:hover{background:rgba(255,255,255,.14)}
-.sh-round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:17px;transition:.15s;cursor:pointer}
-.sh-round:hover{border-color:var(--acc2);color:var(--acc2)}
+/* the three secondary controls share the transport's black pill: one
+   family, one height, one radius — not three loose circles */
+.sh-round{min-width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:#fff;font-size:15px;transition:.15s;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0 8px}
+.sh-round:hover{background:rgba(255,255,255,.14)}
+.sh-rate{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;letter-spacing:.3px}
+.sh-pill-b{margin-left:auto}
 .sh-round:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Loop is a toggle, not an action. It was a filled --grad circle, which made it
    the loudest thing in the workspace and outranked every real step of the
    Listen-Shadow-Record loop. On-state is now a tint plus a ring. */
-.sh-round.on{background:color-mix(in srgb,var(--accent) 16%,transparent);border-color:var(--accent);color:var(--accent)}
+.sh-round.on{background:color-mix(in srgb,var(--acc) 34%,transparent);color:#fff;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acc) 70%,transparent)}
 .sh-round svg{width:20px;height:20px}
 .sh-pill button{display:inline-flex;align-items:center;justify-content:center;gap:2px}
 .sh-pill button svg{width:22px;height:22px}
@@ -4721,6 +4730,7 @@ const I18N_EN={
  "sv.challenge_note":"Listen and say it before you look.",
  "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
  "sv.reveal":"Reveal","sv.hide":"Hide again",
+ "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript",
  "sv.apply_eyebrow":"Apply it","sv.apply_sub":"Use this expression in your own sentence — with the AI coach, or with a real learner.",
  "sv.apply_ai":"Practise with AI","sv.apply_partner":"Use it with a partner","sv.apply_pick":"Tap another sentence in the transcript to pick a different expression.",
  "sv.cur_expr":"Current expression",
@@ -7985,15 +7995,16 @@ ${(()=>{
         <button onclick="shBack5()" title="${esc(t("sh.back5_title"))}">${ic("rewind")}<i>5</i></button>
         <button id="shPlayBtn" onclick="shPlayPause()" title="${esc(t("sh.playpause_title"))}">${ic("pause")}</button>
         <button onclick="shFwd5()" title="${esc(t("sh.fwd5_title"))}"><i>5</i>${ic("forward")}</button>
+        <span class="sh-time sh-time-in"><span id="shNow">0:00</span></span>
       </div>
-      <span class="sh-time"><span id="shNow">0:00</span></span>
-      <span style="flex:1"></span>
-      <button class="sh-round" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
-      <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}">${ic("repeat")}</button>
-      <button class="sh-round" onclick="shSaveClip()" title="${esc(t("sh.save_clip_btn"))}" aria-label="${esc(t("sh.save_clip_btn"))}">${ic("star")}</button>
+      <div class="sh-pill sh-pill-b">
+        <button class="sh-round sh-rate" id="shRateBtn" onclick="shRate()" title="${esc(t("sh.rate_title"))}">1×</button>
+        <button class="sh-round on" id="shLoopBtn" onclick="shLoopToggle()" title="${esc(t("sh.loop_title"))}" aria-pressed="true">${ic("repeat")}</button>
+        <button class="sh-round" onclick="shSaveClip()" title="${esc(t("sh.save_clip_btn"))}" aria-label="${esc(t("sh.save_clip_btn"))}">${ic("star")}</button>
+      </div>
     </div>
+    <div class="seg-tabs seg-fit sv-tabs" id="svTabs" role="tablist" aria-label="${esc(t("sv.modes"))}" hidden></div>
     </div>
-    <div class="sv" id="shV2" style="display:none"></div>
     <div class="sh-seg" id="shSeg">
       <div class="sh-seg-row">
         <span class="lbl">${t("sh.clip_label")}</span>
@@ -8011,8 +8022,9 @@ ${(()=>{
         <span class="sh-len" id="shLen"></span>
       </div>
     </div>
-    <div class="sh-hint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
-    <div class="grid g2" style="margin-top:16px">
+    <div class="sh-hint" id="shMarkHint"><span class="sh-hint-ic">${ic("idea")}</span><span>${t("sh.mark_hint")}</span></div>
+    <div class="sv" id="shV2" style="display:none"></div>
+    <div class="grid g2" id="shLower" style="margin-top:16px">
       <div class="card">
         <b style="font-size:15px">${hIcon("film",t("sh.transcript_notes_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin:4px 0 10px">${t("sh.transcript_notes_desc")}</p>
@@ -8190,7 +8202,7 @@ function shVideoError(on){
   if(box)box.style.display=on?"":"none";
   const ctl=document.querySelector(".sh-ctl"),seg=document.getElementById("shSeg");
   if(ctl)ctl.style.display=on?"none":"";
-  if(seg)seg.style.display=on?"none":"";
+  if(seg){if(on)seg.style.display="none";else svLayoutSync()}   // back from an error: the fold decides, not this
 }
 
 /* The workspace covers the whole viewport, so it has to behave like a dialog and
@@ -8239,6 +8251,7 @@ window.shOpenWork=()=>{
   w.style.display="flex";
   document.body.classList.add("sh-work-open");   // stops the picker scrolling behind the overlay
   const body=w.querySelector(".sh-work-body");if(body)body.scrollTop=0;
+  try{if(svAsset&&svOn()){svNowDraw(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0),true,svLast.word);svLayoutSync()}}catch(e){}   // the card measures its two lines only once on screen
   document.addEventListener("keydown",shWorkKeys);
   const x=w.querySelector(".sh-work-x");if(x)x.focus();
 };
@@ -8384,7 +8397,7 @@ window.shRate=()=>{
 };
 window.shLoopToggle=()=>{
   shLooping=!shLooping;
-  document.getElementById("shLoopBtn").classList.toggle("on",shLooping);
+  const lb=document.getElementById("shLoopBtn");lb.classList.toggle("on",shLooping);lb.setAttribute("aria-pressed",String(!!shLooping));
   toast(shLooping?t("sh.loop_on_toast"):t("sh.loop_off_toast"));
 };
 window.shSaveClip=()=>{
@@ -13454,7 +13467,7 @@ function svBox(){return document.getElementById("shV2")}
    transcript box, else none */
 async function shV2Load(){
   const box=svBox();if(!box)return;
-  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);return}
+  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}shClipToolsShow(true);shLowerShow(true);return}
   const vid=shClip.vid;
   let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
   if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
@@ -13481,12 +13494,12 @@ async function shV2Load(){
 function svRender(){
   const box=svBox();if(!box)return;
   const a=svAsset;
-  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);return}
+  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}shClipToolsShow(true);shLowerShow(true);return}
   box.style.display="";
   const timed=a.level==="word"||a.level==="sentence";
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
     .filter(([m])=>m!=="apply"||flag("shadow_apply_phrase_enabled"))
-    .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
+    .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" ${m==="watch"?`aria-expanded="${svMode==="watch"&&svWatchOpen}"`:""} onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}${m==="watch"?`<span class="sv-chev ${svMode==="watch"&&svWatchOpen?"open":""}" aria-hidden="true">▾</span>`:""}</span></button>`).join("");
   const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`).join("");
@@ -13500,13 +13513,25 @@ function svRender(){
      the escape hatch, and shows it un-blurred. */
   const txHidden=svMode==="challenge"&&!svRevealed&&svTxHiddenNow();
   const chPanel=svMode==="challenge"&&svChOn()?svChHTML():"";
+  /* the tabs sit in the pinned block when it is there (always one tap away,
+     even mid-shadow); the full list is folded by default — the card under
+     the video already shows what is being said — and the clip tools are the
+     first thing under the player in Watch and Shadow, hidden in Challenge */
+  const tabsEl=document.getElementById("svTabs");
+  if(tabsEl){tabsEl.innerHTML=tabs;tabsEl.hidden=false}
+  const folded=svMode!=="challenge"&&!svTxOpen;
+  const watchFolded=svMode==="watch"&&!svWatchOpen;
+  shClipToolsShow(svMode!=="challenge"&&!watchFolded);
+  shLowerShow(!watchFolded);
+  if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
   box.innerHTML=`
-    <div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>
+    ${tabsEl?"":`<div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>`}
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
-    <div class="sv-tx ${txHidden?"hidden":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
+    <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     <div class="sv-ctl">
+      ${svMode!=="challenge"?`<button class="btn btn-g btn-sm ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}">${ic("doc")} ${svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length})}</button>`:""}
       ${timed?`<button class="btn btn-g btn-sm" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}">${ic("rewind")}</button>
       <button class="btn btn-g btn-sm ${svRepeat?"on":""}" onclick="svRepeatToggle()">${ic("repeat")} ${t("sv.repeat")}</button>
       <button class="btn btn-g btn-sm" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
@@ -13515,14 +13540,30 @@ function svRender(){
     </div>
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
-  const keep=svLast.seg;svLast={seg:-1,word:-1};
-  svNowDraw(keep,true,svLast.word);
+  const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first
+  svNowDraw(keep,true,-1);
   if(svMode==="challenge"&&!txHidden){const el=box.querySelector(`.sv-seg[data-i="${svChSegIndex()}"]`);if(el)el.classList.add("pick")}
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
    it, and only while the learner should be recalling: before and during the
    attempt. Feedback, the pass state and an error show it again. Guided keeps
    it until the recording starts. */
+/* the full list, folded or open; remembered on this device */
+let svTxOpen=false;try{svTxOpen=localStorage.getItem("be_sv_txopen")==="1"}catch(e){}
+window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen",svTxOpen?"1":"0")}catch(e){}svRender()};
+/* the fold state applied to the clip tools and the lower cards: everything
+   shown when the V2 panel is off (Welding, no text), else Watch-folded hides
+   both and Challenge hides the clip tools */
+function svLayoutSync(){
+  const on=!!(svAsset&&svOn()),wf=svMode==="watch"&&!svWatchOpen;
+  shClipToolsShow(!on||(svMode!=="challenge"&&!wf));shLowerShow(!on||!wf);
+}
+function shLowerShow(on){
+  const box=document.getElementById("shV2");if(!box)return;
+  let el=box.nextElementSibling;                                   // every card under the panel: notes, recordings, the fallback analysis, the report
+  while(el){if(!el.dataset.svKeep)el.style.display=on?"":"none";el=el.nextElementSibling}
+}
+function shClipToolsShow(on){["shSeg","shMarkHint"].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=on?"":"none"})}
 function svTxHiddenNow(){
   if(svMode!=="challenge")return false;
   const c=svCh;if(!c)return true;
@@ -13555,7 +13596,14 @@ function svApplyHTML(){
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
 }
-window.svSetMode=m=>{svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
+/* Watch is also the fold: the first tap (or arriving) folds everything under
+   the pinned block — video, card, transport, tabs, nothing else, for pure
+   watching; tapping Watch again releases the clip tools and the list. Shadow
+   and Challenge always show theirs. */
+let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
+window.svSetMode=m=>{
+  if(m==="watch"&&svMode==="watch"){svWatchOpen=!svWatchOpen;try{localStorage.setItem("be_sv_watchopen",svWatchOpen?"1":"0")}catch(e){}}
+  svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
 window.svTapSeg=i=>{
   svPick=i;const s=svAsset&&svAsset.segments[i];
   if(svMode==="challenge"&&svCh&&svCh.seg!==i){svChReset();svRender()}
@@ -13840,9 +13888,10 @@ function svNowDraw(i,force,word){
   if(!svFlat.length){nw.hidden=true;return}
   const f=svFlatIndex(i,word==null||word<0?0:word);
   if(!force&&svNowWin&&f>=svNowWin[0]&&f<svNowWin[1]){nw.hidden=false;return}   // still inside the window
+  nw.hidden=false;
+  if(!nw.offsetParent){nw.innerHTML="";svNowWin=null;return}                     // workspace not on screen yet: nothing to measure against; shOpenWork redraws
   let from=(!force&&svNowWin&&f===svNowWin[1])?svNowWin[1]:svFlatIndex(i,0);   // carry on, or restart at this line's first word
   if(from>f)from=f;
-  nw.hidden=false;
   /* lay words in until a third line would start */
   const cs=getComputedStyle(nw),lh=parseFloat(cs.lineHeight)||26,pad=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom),limit=lh*2+2;
   const span=x=>`<span class="sv-w" data-f="${x.f}" data-i="${x.i}" data-k="${x.k}">${esc(x.text)}</span>`;
@@ -13854,6 +13903,7 @@ function svNowDraw(i,force,word){
     html=trial;to++;
   }
   nw.innerHTML=html;svNowWin=[from,to];svNowBase=svFlat[from].i;
+  if(!nw.onclick)nw.onclick=ev=>{const w=ev.target.closest(".sv-w");if(!w)return;const i=+w.dataset.i,k=+w.dataset.k,s=svAsset&&svAsset.segments[i];const ms=s&&(k>=0&&s.words&&s.words[k]?s.words[k].startMs:s.startMs);if(!(ms>=0))return;svPick=i;shSeekTo(ms/1000);try{ytPlayer.playVideo()}catch(e){}};
   const lit=nw.querySelector(`.sv-w[data-f="${f}"]`);if(lit)lit.classList.add("now");
 }
 function svTick(){

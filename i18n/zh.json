@@ -1655,6 +1655,8 @@
  "sv.next": "下一句",
  "sv.repeat": "重复",
  "sv.shadow_this": "跟读这一句",
+ "sv.tx_unfold": "完整文字稿（{{n}} 行）",
+ "sv.tx_fold": "收起文字稿",
  "sv.reveal": "显示",
  "sv.hide": "再次隐藏",
  "sv.apply_eyebrow": "运用",
