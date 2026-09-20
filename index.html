@@ -678,18 +678,18 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .sh-hint b{color:var(--txt)}
 .sh-hint .sh-hint-ic{flex:none;color:var(--acc);display:inline-flex;line-height:0;margin-top:1px}
 .sh-hint .sh-hint-ic svg{width:17px;height:17px}
-.sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:max(12px,env(safe-area-inset-top)) 18px 12px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
+.sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(6px,env(safe-area-inset-top)) 14px 6px;min-height:44px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
 .sh-work-title{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px;min-width:0}
 .sh-work-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--acc2);flex:none}
-.sh-work-x{width:38px;height:38px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
+.sh-work-x{width:32px;height:32px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
 .sh-work-x:hover{border-color:var(--acc);color:var(--acc)}
-.sh-work-x svg{width:20px;height:20px}
+.sh-work-x svg{width:18px;height:18px}
 .sh-work-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 18px calc(18px + env(safe-area-inset-bottom));max-width:1000px;width:100%;margin:0 auto}
 /* the player and its transport stay put while the transcript scrolls under
    them — the video is the reference, the text follows it */
-.sh-stick{padding:14px 0 10px}
+.sh-stick{padding:8px 0 4px}   /* compact: a phone screen is short, and everything under this block scrolls */
 @media(max-width:899px){.sh-stick{position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 8px 16px -12px rgba(0,0,0,.5)}}
-.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:10px}
+.sh-stick .sh-ctl{flex-wrap:nowrap;gap:8px;margin-top:8px}
 .sh-stick .sh-pill{flex:1 1 auto;width:100%}
 .sh-stick .sh-pill button{min-width:40px}
 .sh-time-in{display:inline-flex;align-items:center;padding:0 6px;min-width:44px;flex:1 1 auto;justify-content:center}
@@ -1257,14 +1257,15 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-w.now{background:#f97316;color:#fff;font-weight:700;box-shadow:0 0 0 3px #f97316;border-radius:6px}
 .sv-seg.now .sv-w:not(.now){color:var(--txt)}
 /* the line being spoken, pinned under the video: big, white, the word lit */
-.sv-now{margin:10px 0 0;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line2);font-size:16px;line-height:1.65;letter-spacing:.2px;color:var(--txt);font-weight:600;word-spacing:2px}
+.sv-now{margin:8px 0 0;padding:10px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line2);font-size:16px;line-height:1.65;letter-spacing:.2px;color:var(--txt);font-weight:600;word-spacing:2px}
 .sv-now[hidden]{display:none}
 .sv-now .sv-w{padding:0 3px;border-radius:6px}
 .sv-now{height:calc(2 * 1.65em + 20px);overflow:hidden}   /* exactly two lines, always — never one, never three */
 .sv-tx .sv-seg{color:var(--mut)}.sv-tx .sv-seg.now{background:transparent;color:var(--mut)}   /* the list is the road ahead; the card is the line */
 .sv-tx .sv-seg.now .sv-w{color:var(--mut)}.sv-tx .sv-seg.now .sv-w.now{background:transparent;box-shadow:none;color:var(--txt);font-weight:600}
 .sv-tx.hidden,.sv-tx.folded{display:none}
-.sh-stick .sv-tabs{margin-top:10px}
+.sh-stick .sv-tabs{margin:8px 0 0}
+.sh-work .sh-seg{margin-top:8px}.sh-work .sh-hint{margin-top:8px}.sh-work .sv{margin-top:8px}
 .sv-chev{display:inline-block;margin-left:5px;font-size:11px;opacity:.8;transition:transform .2s}.sv-chev.open{transform:rotate(180deg)}
 .sv-now .sv-w{cursor:pointer}
 .sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
@@ -13519,16 +13520,18 @@ function svRender(){
   const txHidden=svMode==="challenge"&&!svRevealed&&svTxHiddenNow();
   const chPanel=svMode==="challenge"&&svChOn()?svChHTML():"";
   /* the tabs sit in the pinned block when it is there (always one tap away,
-     even mid-shadow); the full list is folded by default — the card under
-     the video already shows what is being said — and the clip tools are the
-     first thing under the player in Watch and Shadow, hidden in Challenge */
+     even mid-shadow). WATCH always shows the full list, scrolling with the
+     speech — an empty Watch read as broken — and its chevron only folds the
+     clip tools and the cards under the list. SHADOW folds the list by
+     default (the card under the video already shows the line) behind the
+     Transcript button. The clip tools are the first thing under the player
+     in Watch (released) and Shadow, hidden in Challenge. */
   const tabsEl=document.getElementById("svTabs");
   if(tabsEl){tabsEl.innerHTML=tabs;tabsEl.hidden=false}
-  const folded=svMode!=="challenge"&&!svTxOpen;
+  const folded=svMode==="shadow"&&!svTxOpen;
   const watchFolded=svMode==="watch"&&!svWatchOpen;
   shClipToolsShow(svMode!=="challenge"&&!watchFolded);
   shLowerShow(!watchFolded);
-  if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
   box.innerHTML=`
     ${tabsEl?"":`<div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>`}
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
@@ -13536,7 +13539,7 @@ function svRender(){
     ${chPanel}
     <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     <div class="sv-ctl sv-ctl-row">
-      ${svMode!=="challenge"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
+      ${svMode==="shadow"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
       ${timed?`<button class="btn btn-g btn-sm sv-ic" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}" title="${esc(t("sv.prev"))}">${ic("rewind")}</button>
       <button class="btn btn-g btn-sm sv-ic ${svRepeat?"on":""}" onclick="svRepeatToggle()" aria-pressed="${!!svRepeat}" aria-label="${esc(t("sv.repeat"))}" title="${esc(t("sv.repeat"))}">${ic("repeat")}</button>
       <button class="btn btn-g btn-sm sv-ic" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}" title="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
@@ -13601,9 +13604,9 @@ function svApplyHTML(){
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
 }
-/* Watch is also the fold: the first tap (or arriving) folds everything under
-   the pinned block — video, card, transport, tabs, nothing else, for pure
-   watching; tapping Watch again releases the clip tools and the list. Shadow
+/* Watch is also the fold: arriving folds the clip tools and the cards under
+   the list — video, card, transport, tabs and the moving transcript, nothing
+   else, for pure watching; tapping Watch again releases the tools. Shadow
    and Challenge always show theirs. */
 let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
 window.svSetMode=m=>{
@@ -13912,8 +13915,11 @@ function svNowDraw(i,force,word){
   const lit=nw.querySelector(`.sv-w[data-f="${f}"]`);if(lit)lit.classList.add("now");
 }
 function svTick(){
-  const a=svAsset,tx=document.getElementById("svTx");
-  if(!a||!tx)return;
+  /* the card under the video follows the speech whether or not the list is
+     on the page — a missing #svTx used to stop the whole tick, so folding
+     Watch froze the card mid-sentence */
+  const a=svAsset,tx=document.getElementById("svTx")||{querySelector(){return null},querySelectorAll(){return []}};
+  if(!a)return;
   const ready=!!(ytPlayer&&ytPlayer.getCurrentTime);
   if(!ready&&Date.now()-shSeek.at>=1200)return;          /* no player and no recent seek: nothing to sync to */
   let tS=0;try{tS=ready?shCurT():shSeek.t}catch(e){return}
@@ -13925,7 +13931,7 @@ function svTick(){
     const wasWin=svNowWin;svNowDraw(loc.seg,false,loc.word);
     if(svPick<0&&loc.seg>=0)svExprDraw(loc.seg);   // never touch svLast here: the word block below compares against it
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
-    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000)svScrollTo(tx,el)}}
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000&&el.offsetParent)svScrollTo(tx,el)}}
   }
   if(loc.word!==svLast.word||loc.seg!==svLast.seg){
     tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
@@ -13933,7 +13939,7 @@ function svTick(){
     const nw=document.getElementById("svNow");
     if(nw&&!nw.hidden&&loc.seg>=0){
       const wasWin2=svNowWin;svNowDraw(loc.seg,false,loc.word);            // the word may have crossed the window's end inside one line
-      if(svNowWin!==wasWin2&&Date.now()-svUserScrollAt>3000){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el)svScrollTo(tx,el)}
+      if(svNowWin!==wasWin2&&Date.now()-svUserScrollAt>3000){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el&&el.offsetParent)svScrollTo(tx,el)}
       nw.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
       const w=nw.querySelector(`.sv-w[data-f="${svFlatIndex(loc.seg,loc.word<0?0:loc.word)}"]`);if(w)w.classList.add("now")}
   }
