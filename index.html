@@ -3956,6 +3956,18 @@ const AREA_GEN="general-english";
    Google Play link and button are dropped there. Everything else is identical. */
 const IS_IOS_APP=!!(window.Capacitor&&window.Capacitor.getPlatform&&window.Capacitor.getPlatform()==="ios");
 if(IS_IOS_APP)document.addEventListener("DOMContentLoaded",()=>{document.querySelectorAll('a[href*="play.google.com"]').forEach(a=>{const prev=a.previousSibling;if(prev&&prev.nodeType===3)prev.textContent=prev.textContent.replace(/\s*·\s*$/,"");a.remove()})});
+/* In the shell a same-origin target=_blank link (privacy.html, delete-account.html)
+   has no tab to open in: WKWebView would either navigate the whole app away or
+   drop the tap. Show those pages in the in-app document sheet instead, which has
+   its own close button. External links keep their default: Capacitor hands them
+   to Safari. */
+if(IS_IOS_APP)document.addEventListener("click",e=>{
+  const a=e.target&&e.target.closest?e.target.closest('a[target="_blank"]'):null;if(!a)return;
+  const h=a.getAttribute("href")||"";
+  if(!/^[a-z0-9_.\/-]+\.html(#[\w-]*)?$/i.test(h))return;
+  e.preventDefault();
+  try{openDoc(h,(a.textContent||"").trim(),{theme:true})}catch(err){location.href=h}
+},true);
 function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
 function areaIsPro(){return areaId()!==AREA_GEN}
 function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
@@ -9302,6 +9314,10 @@ function iosIsPad(){
 }
 function iosIs(){return /iPad|iPhone|iPod/.test(navigator.userAgent||"")||iosIsPad()}
 function iosStandalone(){
+  /* the App Store shell is already installed: WKWebView reports neither
+     navigator.standalone nor display-mode, so without this the "Add to Home
+     Screen" sheet would open inside the native app */
+  if(IS_IOS_APP)return true;
   try{return navigator.standalone===true||(matchMedia&&matchMedia("(display-mode: standalone)").matches)}
   catch(e){return false}
 }
