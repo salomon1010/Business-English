@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" id="vpMeta" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google-site-verification" content="jhJ7WJuNrifvgVF1mXZj9pXhKRobrOybJXLcn2FSsOE" />
 <title>Business English Mastery — 12-Week System</title>
 <meta name="theme-color" content="#0a0e1a">
@@ -2084,7 +2084,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .rem-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px}
 .rem-row{display:flex;align-items:center;gap:9px;flex:1;min-width:170px;cursor:pointer;font-size:14px}
 .rem-row input{width:22px;height:22px;min-height:0;accent-color:var(--acc);flex:none;margin:0}
-.rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}
+.rem-box input[type=time]{width:auto;flex:none;padding:7px 10px;font-size:14px}   /* 16px on touch devices via the iOS rule above */
 .rem-box input[type=time]:disabled{opacity:.45}
 .rem-note{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:6px}
 .fb-sync{font-size:12px;line-height:1.5;margin:10px 0 0}
@@ -3469,10 +3469,18 @@ html{
    parser discarded BOTH rules. Keep the block terminated. */
 button,a,.btn,.seg-tab,.cat-tab,.tab,.bnav-item,.stat[role=button],.clip-row{touch-action:manipulation}
 /* iOS zooms the whole page when focusing a field whose text is under 16px —
-   enforced app-wide, not just inside the mobile block */
+   enforced app-wide, not just inside the mobile block. !important, because a
+   class rule (.sh-paste, input[type=time]) is more specific than these
+   element selectors and had quietly won: the Shadow transcript box zoomed the
+   app in and nothing zoomed it out (owner, 2026-09-20). */
 @supports(-webkit-touch-callout:none){
-  input,select,textarea{font-size:max(16px,1em)}
+  input,select,textarea,[contenteditable="true"]{font-size:max(16px,1em)!important}
 }
+/* The other way a phone ends up zoomed: a double-tap on text — a transcript
+   sentence, a word row, a paragraph. Buttons already had this; now everything
+   does. Pinch-zoom and scrolling are untouched (manipulation only removes the
+   double-tap gesture), so accessibility zoom still works. */
+*,*::before,*::after{touch-action:manipulation}
 main{min-width:0}
 .card,.stat,.grid>*{min-width:0}                 /* let grid/flex children shrink */
 img,video,canvas,svg{max-width:100%}
@@ -3484,7 +3492,7 @@ pre,code{overflow-wrap:anywhere}
 @media(max-width:820px){
   .btn{min-height:44px}
   .btn-sm{min-height:44px}
-  input,select,textarea{min-height:44px;font-size:16px}  /* 16px stops iOS zoom-on-focus */
+  input,select,textarea,[contenteditable="true"]{min-height:44px;font-size:max(16px,1em)!important}  /* 16px stops iOS zoom-on-focus; !important so no class rule (.sh-paste, input[type=time]) can undercut it */
   textarea{min-height:88px}
   .seg-tab,.prac-subtab{min-height:44px}
   .voc-mini,.ph-icobtn,.ex-icobtn{min-width:44px;min-height:44px}
@@ -4013,6 +4021,23 @@ function areaSplit(){
   Object.keys(at).forEach(id=>(at[id]||[]).forEach(r=>{if(r&&!r.tk)r.tk=a}));
   S.areaSplit=1;save();
 }
+/* Belt and braces for the zoom: if a phone is still zoomed in after a field
+   loses focus, after a page change or when the Shadow workspace closes, pull
+   it back to 1×. Done by clamping the viewport for one frame and releasing
+   it — the only way a page can zoom itself out on iOS — so pinch-zoom stays
+   available the rest of the time. A deliberate pinch mid-page is left alone
+   until one of those three moments. */
+function zoomReset(){
+  try{
+    const vv=window.visualViewport;if(!vv||vv.scale<=1.02)return;
+    const m=document.getElementById("vpMeta");if(!m)return;
+    const base="width=device-width, initial-scale=1, viewport-fit=cover";
+    m.setAttribute("content",base+", maximum-scale=1");
+    setTimeout(()=>m.setAttribute("content",base),120);
+  }catch(e){}
+}
+document.addEventListener("focusout",e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))setTimeout(zoomReset,60)});
+window.addEventListener("orientationchange",()=>setTimeout(zoomReset,300));
 function toast(m,ms){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),ms||2200)}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
@@ -6613,6 +6638,7 @@ function go(v,arg1,arg2){
      failure is caught, written to the stall log as an "error" entry with the
      page name, and the page shows a plain retry instead of nothing. */
   const _t0=performance.now();
+  try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
     else ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
@@ -8360,6 +8386,7 @@ window.shOpenWork=()=>{
 /* close the workspace and return to the picker (pause the video, keep state) */
 window.shCloseWork=()=>{
   try{svStop()}catch(e){}
+  try{setTimeout(zoomReset,50)}catch(e){}
   try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
   const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic("play");
   const w=document.getElementById("shWork");if(w)w.style.display="none";

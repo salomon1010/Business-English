@@ -7,7 +7,8 @@ const server = spawn("python3", ["-m", "http.server", "8768"], { cwd: new URL(".
 const BASE = "http://localhost:8768";
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : " — " + d}`); };
 const browser = await chromium.launch();
-const seed = () => { localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), vocab: Object.fromEntries(Array.from({ length: 12 }, (_, i) => ["word" + i, { ts: Date.now(), due: 0 }])) })); };
+/* the partner flags are OFF in production (freeze, 2026-09-20): the suite turns them on through be_flags, as an internal tester would, so the button rule stays tested */
+const seed = () => { localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true })); localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), vocab: Object.fromEntries(Array.from({ length: 12 }, (_, i) => ["word" + i, { ts: Date.now(), due: 0 }])) })); };
 
 /* A: a welding file fails permanently (404) — a General English learner must not notice */
 { const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }); await ctx.addInitScript(seed);
