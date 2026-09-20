@@ -30,7 +30,12 @@
    - Audio is never publicly addressable: GET /turns/:id/audio after a
      membership + block check only.
    - Two distinct reporters suspend a member for 30 days. A block closes the
-     session and is permanent both ways.
+     session and holds both ways until the person who placed it lifts it
+     (/connection/unblock); the blocked side is never told either way.
+   - History is the learner's own device record (S.ppHist in the app); this
+     Worker forgets turns 14 days after a session closes. DELETE /history is
+     the "clear my history" half that removes the caller's own recordings
+     from closed sessions at once.
    - Reliability (completed / abandoned sessions, response latency) is an
      internal matching signal, never shown to anyone.
    - Live practice (Level 3): /live routes, LIVE_ENABLED="1" only where allowed;
@@ -185,13 +190,28 @@ async function iceServers(env) {
    and blocks OTHER people placed on them (their safety choices, keyed by an
    id that no longer resolves to anyone), and audit rows, which the cron drops
    after 90 days. The partner of an open session sees it end as "left". */
+/* the learner's own recordings: every turn they sent (account deletion) or
+   only those of sessions that are already closed ("clear my history" — an
+   open session keeps its turns so the partner's thread does not lose half
+   a conversation mid-way). Audio first, then the rows; a missing object is
+   not an error. */
+async function eraseTurns(env, uid, closedOnly) {
+  const sql = closedOnly
+    ? "SELECT t.id, t.audio_key FROM turns t JOIN pairs p ON p.id=t.pair_id WHERE t.from_uid=? AND p.status='closed'"
+    : "SELECT id, audio_key FROM turns WHERE from_uid=?";
+  const turns = (await q(env, sql, uid).all()).results || [];
+  let audio = 0; for (const t of turns) { try { await env.AUDIO.delete(t.audio_key); audio++; } catch (e) {} }
+  for (let i = 0; i < turns.length; i += 50) {   /* D1 caps bound parameters per statement */
+    const ch = turns.slice(i, i + 50);
+    await q(env, `DELETE FROM turns WHERE id IN (${ch.map(() => "?").join(",")})`, ...ch.map(t => t.id)).run();
+  }
+  return { turns: turns.length, audio };
+}
 async function eraseMember(env, uid, ms) {
   const p = await activePair(env, uid); if (p) await closePair(env, p, "left", ms, uid);
   const l = await openLive(env, uid); if (l) await liveClose(env, l, "ended", "left", ms);
-  const turns = (await q(env, "SELECT id, audio_key FROM turns WHERE from_uid=?", uid).all()).results || [];
-  let audio = 0; for (const t of turns) { try { await env.AUDIO.delete(t.audio_key); audio++; } catch (e) {} }
+  const { audio } = await eraseTurns(env, uid, false);
   await env.DB.batch([
-    q(env, "DELETE FROM turns WHERE from_uid=?", uid),
     q(env, "DELETE FROM turns WHERE pair_id IN (SELECT id FROM pairs WHERE uid_a=? OR uid_b=?)", uid, uid),
     q(env, "DELETE FROM live_signals WHERE session_id IN (SELECT id FROM live_sessions WHERE host=? OR guest=?)", uid, uid),
     q(env, "DELETE FROM live_sessions WHERE host=? OR guest=?", uid, uid),
@@ -371,9 +391,15 @@ async function acceptPair(env, pair, ms) {
   ]);
   if (!(res[0] && res[0].meta && res[0].meta.changes)) return false;
   const conn = await connection(env, a, b);
+  /* two learners who are already partners and meet again through the queue
+     get a regular session, not a second trial with a second vote (found on
+     staging 2026-09-20: the proposal row is minted as 'trial' before anyone
+     has looked at the connection) */
+  const kind = conn && (conn.state === "mutual" || conn.state === "regular") ? "regular" : "trial";
+  if (kind === "regular") await q(env, "UPDATE pairs SET kind='regular' WHERE id=?", pair.id).run();
   if (!conn) await q(env, "INSERT OR IGNORE INTO connections(a,b,state,sessions,created_at,updated_at) VALUES(?,?,'trial',0,?,?)", a, b, ms, ms).run();
   await audit(env, ms, pair.host === a ? b : a, "trial_accepted", pair.host, pair.id, {});
-  await audit(env, ms, "system", "pair_created", null, pair.id, { kind: "trial" });
+  await audit(env, ms, "system", "pair_created", null, pair.id, { kind });
   return true;
 }
 async function createPair(env, uid, cand, ms, seed) {
@@ -482,6 +508,14 @@ async function meView(env, uid, ms) {
     }
     const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular') ORDER BY last_practice_at DESC LIMIT 1", uid, uid).all()).results || [];
     if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { cid: await connId(conns[0].a, conns[0].b), name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
+  }
+  /* the learners I blocked, so the app can offer to lift a block: first name
+     (or "?" once that account is gone), the connection handle, when. Never
+     the other direction — nobody learns who blocked them. */
+  if (m) {
+    const rows = (await q(env, "SELECT about_uid, created_at FROM blocks WHERE by_uid=? ORDER BY created_at DESC LIMIT 50", uid).all()).results || [];
+    out.blocked = [];
+    for (const r of rows) { const p = await member(env, r.about_uid); out.blocked.push({ cid: await connId(uid, r.about_uid), name: p ? p.name : "?", at: r.created_at }); }
   }
   /* an open live session (either role) rides along so the invitation card,
      the resume card and the notification all come from the same read */
@@ -720,10 +754,15 @@ async function handle(req, env, ctx) {
      POST /connection/end    {cid}          — end the partnership (not a block, not a report)
      POST /connection/report {cid, reason}  — report the partner outside a session
      POST /connection/block  {cid}          — block the partner outside a session
+     POST /connection/unblock {cid}         — lift MY block: a fresh start, not a
+                                              restored partnership (state 'ended',
+                                              no cooldown); the other side's own
+                                              block, if any, stands
      The cid is resolved against the caller's OWN connections only; anyone
-     else's partnership simply does not resolve (404). Ending is idempotent. */
+     else's partnership simply does not resolve (404). Ending and unblocking
+     are idempotent. */
   {
-    const cm = /^\/connection\/(end|report|block)$/.exec(path);
+    const cm = /^\/connection\/(end|report|block|unblock)$/.exec(path);
     if (cm && req.method === "POST") {
       const b = await req.json().catch(() => ({}));
       const cid = /^[a-f0-9]{16}$/.test(b.cid || "") ? b.cid : null; if (!cid) return err(400, "bad_request");
@@ -752,7 +791,27 @@ async function handle(req, env, ctx) {
         await audit(env, ms, uid, "blocked", other, null, { connection: true });
         return json({ ok: true, ...(await meView(env, uid, ms)) });
       }
+      if (cm[1] === "unblock") {
+        const mine = await q(env, "SELECT 1 AS x FROM blocks WHERE by_uid=? AND about_uid=?", uid, other).first();
+        if (!mine) return json({ ok: true, already: true, ...(await meView(env, uid, ms)) });
+        if (await bump(env, uid, "block", ms) > DAILY_LIMITS.block) return err(429, "limit");
+        await q(env, "DELETE FROM blocks WHERE by_uid=? AND about_uid=?", uid, other).run();
+        const theirs = await q(env, "SELECT 1 AS x FROM blocks WHERE by_uid=? AND about_uid=?", other, uid).first();
+        if (!theirs) await q(env, "UPDATE connections SET state='ended', updated_at=? WHERE a=? AND b=? AND state='blocked'", ms, c.a, c.b).run();
+        await audit(env, ms, uid, "unblocked", other, null, { theirs: !!theirs });
+        return json({ ok: true, already: false, ...(await meView(env, uid, ms)) });
+      }
     }
+  }
+
+  /* DELETE /history — "clear my history": the caller's own recordings from
+     sessions that are already closed go now instead of at the 14-day purge.
+     The device-side record (S.ppHist) is the app's to clear; pairs, connections
+     and safety rows stay (they are what keeps matching honest). Idempotent. */
+  if (req.method === "DELETE" && path === "/history") {
+    const r = await eraseTurns(env, uid, true);
+    if (r.turns) await audit(env, ms, uid, "history_cleared", null, null, r);
+    return json({ ok: true, ...r });
   }
 
   /* POST /ai/session {id, track} — the AI coach session itself runs on the

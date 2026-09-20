@@ -129,6 +129,14 @@ Unchanged from the MVP: one counted report per reporter per person (unique on
 `by_uid, about_uid`), blocks are a composite-PK row both directions are
 checked against, `counters.key = uid:route:yyyymmdd` for the daily limits
 (`interest 10, match 30, invite 10, report 5, block 20, decide 40, live 20`).
+A block is no longer permanent: `POST /connection/unblock {cid}` deletes the
+blocker's own row (the other side's block, if any, stands), moves the
+connection `blocked → ended` (a fresh start, no cooldown, nothing restored)
+and audits `unblocked`; it shares the `block` daily counter. `GET /me` carries
+`blocked: [{cid, name, at}]` for the blocker only — nobody learns who blocked
+them. `DELETE /history` deletes the caller's own turns (R2 + rows) of
+**closed** pairs at once instead of at the 14-day purge (audit
+`history_cleared`); open sessions, pairs, connections and safety rows stay.
 
 ## `audit`
 | column | notes |
@@ -156,6 +164,20 @@ Kept 90 days, then swept by the cron.
 `pairs/{pair_id}/{turn_id}.{ext}`. Read only through `GET /turns/:id/audio`
 after membership and block checks. Deleted 14 days after the pair closes by
 the daily cron (`PURGE_AFTER_CLOSE_MS`).
+
+## Client-side history (`S.ppHist`, localStorage + cloud copy)
+
+The learner's own record of Practice Partner, kept because the Worker forgets
+turns 14 days after a session closes. A top-level list (not inside `S.pp`,
+which the cloud merge treats as local-wins), area-stamped `tk` like `fbHist`,
+200 entries per area, merged by `id` in `fbMerge` (the fuller copy wins).
+Kinds: `session` (one per pair: my turns `{seq, dur, score, tx ≤300 chars,
+weak[≤3 {word, score}]}`, `theirs` count, `pkind`, `decision`, `outcome`),
+`live` (`secs, rounds, end`), `ai` (my turns, the coach's `tips`), `safety`
+(`report | block | unblock | end | rematch`), `match` (`joined | invited |
+accepted | declined | withdrew`). The partner's transcript is never stored;
+`fbSyncPayload` strips `tx` from the cloud copy (scores and weak words travel).
+"Clear my history" empties the area's entries and calls `DELETE /history`.
 
 ## Client-side mirror (`S.pp`, localStorage)
 

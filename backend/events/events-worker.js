@@ -82,6 +82,8 @@ const EVENTS = new Set([
   "partner_left", "partner_connection_ended", "partner_trial_invited",
   // discovery: the floating button, the presence strip, leaving the queue, declining a proposal
   "partner_find_started", "partner_availability_viewed", "partner_queue_left", "partner_trial_declined",
+  // a block lifted by the person who placed it; the learner cleared their own history
+  "partner_unblocked", "partner_history_cleared",
   // Shadow Studio V2 (General English only)
   "shadow_v2_opened", "shadow_v2_mode", "shadow_v2_sentence_shadowed", "shadow_v2_challenge_started", "shadow_apply_phrase",
 ]);

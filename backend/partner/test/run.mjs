@@ -173,6 +173,40 @@ let t1 = null;
   ok("an ended partner who is online is still offered (ranked last), and the strip counts them — the same number the cards show", yj.json.candidates.some(c => c.name === "Zed") && (await call("yara", "GET", "/me")).json.presence.waiting === (await call("yara", "GET", "/me")).json.waiting.available, JSON.stringify(yj.json.candidates || yj.json)); clock = null; await call("yara", "DELETE", "/interest"); await call("zed", "DELETE", "/interest");
   ok("not a block: Zed can still be read normally, and a report through the connection is recorded", (await call("zed", "GET", "/me")).status === 200 && (await call("yara", "POST", "/connection/report", { cid, reason: "other" })).status === 200); }
 
+/* ---------------- unblock (fresh start), clear my history, regular kind via the queue ---------------- */
+{ await consent("ula", "Ula"); await consent("vic", "Vic"); await join("ula", { band: "w9-12" }); const ov = (await join("vic", { band: "w9-12" })).json.candidates.find(c => c.name === "Ula").offer;
+  const pv = (await tryPair("vic", "ula", ov)).json.pair.id;
+  for (const [u, txt] of [["vic", "one"], ["ula", "two"], ["vic", "three"], ["ula", "four"]]) await turn(u, txt);
+  await call("ula", "POST", `/pairs/${pv}/decide`, { choice: "continue" }); await call("vic", "POST", `/pairs/${pv}/decide`, { choice: "continue" });
+  /* partners who meet again through the queue get a REGULAR session (the staging bug) */
+  await join("ula", { band: "w9-12" }); const ov2 = (await join("vic", { band: "w9-12" })).json.candidates.find(c => c.name === "Ula").offer;
+  const again = await tryPair("vic", "ula", ov2);
+  ok("kind: two mutual partners paired through a queue proposal get kind=regular, not a second trial", again.json.pair && again.json.pair.kind === "regular", JSON.stringify(again.json.pair && again.json.pair.kind));
+  for (const [u, txt] of [["vic", "r1"], ["ula", "r2"]]) await turn(u, txt);
+  await call("ula", "POST", `/pairs/${again.json.pair.id}/leave`);
+  /* clear my history: closed-session turns go, an open session keeps its turns */
+  const nx = await call("ula", "POST", "/next", { band: "w9-12", promptWeek: 9 }); await turn("ula", "open-one");
+  const openId = nx.json.pair.id;
+  const before = (await call("ula", "GET", "/me")).json;
+  const hc = await call("ula", "DELETE", "/history");
+  const after = (await call("ula", "GET", "/me")).json;
+  ok("DELETE /history removes my turns of closed sessions (3) and their audio, keeps the open session's turn, and the partnership", hc.status === 200 && hc.json.turns === 3 && hc.json.audio === 3 && after.pair && after.pair.id === openId && after.pair.turns.length === 1 && after.pair.connection && before.pair.connection, JSON.stringify([hc.json, after.pair && after.pair.turns.length]));
+  ok("DELETE /history twice → nothing left to remove, still ok", (await call("ula", "DELETE", "/history")).json.turns === 0);
+  await call("ula", "POST", `/pairs/${openId}/leave`);
+  /* block → the blocker sees the name in /me.blocked; the blocked side sees nothing */
+  const cidU = (await call("ula", "GET", "/me")).json.connection.cid;
+  await call("ula", "POST", "/connection/block", { cid: cidU });
+  const ub = (await call("ula", "GET", "/me")).json, vb = (await call("vic", "GET", "/me")).json;
+  ok("block: /me.blocked lists Vic with the cid for the blocker only; Vic's /me has an empty list and no connection", ub.blocked.length === 1 && ub.blocked[0].name === "Vic" && ub.blocked[0].cid === cidU && !ub.connection && Array.isArray(vb.blocked) && vb.blocked.length === 0 && !vb.connection, JSON.stringify([ub.blocked, vb.blocked]));
+  ok("unblock by the blocked side does nothing (already:true) — it is not their block", (await call("vic", "POST", "/connection/unblock", { cid: cidU })).json.already === true && (await call("ula", "GET", "/me")).json.blocked.length === 1);
+  ok("unblock: malformed cid 400, someone else's cid 404", (await call("ula", "POST", "/connection/unblock", { cid: "zz" })).status === 400 && (await call("carol", "POST", "/connection/unblock", { cid: cidU })).status === 404);
+  const un = await call("ula", "POST", "/connection/unblock", { cid: cidU });
+  clock = (await call("ula", "GET", "/me")).json.serverNow + 6 * 60_000;
+  await join("vic", { band: "w9-12" }); const uj = await join("ula", { band: "w9-12" });
+  ok("unblock = fresh start: block gone, no partnership restored, Vic can be offered to Ula again", un.status === 200 && un.json.already === false && un.json.blocked.length === 0 && !un.json.connection && uj.json.candidates.some(c => c.name === "Vic"), JSON.stringify([un.json.blocked, un.json.connection, (uj.json.candidates || []).map(c => c.name)]));
+  ok("unblocking twice is harmless (already:true)", (await call("ula", "POST", "/connection/unblock", { cid: cidU })).json.already === true);
+  await call("ula", "DELETE", "/interest"); await call("vic", "DELETE", "/interest"); }
+
 /* ---------------- AI coach sessions are counted per learner (Level 2) ---------------- */
 { const ids = Array.from({ length: 13 }, (_, i) => (i + 1).toString(16).padStart(16, "0"));
   ok("ai: the wrong track is refused before anything is counted (403 track)", (await call("bob", "POST", "/ai/session", { id: ids[0], track: "welding" })).json.error === "track");

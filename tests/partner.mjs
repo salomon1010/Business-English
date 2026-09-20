@@ -321,6 +321,43 @@ await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", 
 await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
 ok("After a rematch Bob is still offered while he is online (never hidden), and the strip's count equals the cards", await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].some(c => /Bob/.test(c.innerText)) && ppMe.presence.waiting === ppMe.waiting.available));
 
+/* ---------- History tab; block → unblock (a fresh start); clear my history ---------- */
+await A.page.evaluate(() => go("partner", "history")); await sleep(1200);
+const hist = await txt(A.page, "#v-partner");
+ok("History tab: tabs, summary tiles, the human sessions (Carla, Bob), the live call, the AI coach, the safety actions — grouped by day", /Practise\s+History/.test(hist) && hist.includes("Turns sent") && /Practice with Carla/.test(hist) && /Practice with Bob/.test(hist) && /Live call with Carla/.test(hist) && /AI coach practice/.test(hist) && /You ended the partnership with Carla/.test(hist) && /You looked for someone new after Bob/.test(hist) && /today/i.test(hist), hist.slice(0, 300));
+ok("A session entry holds my own turns with scores and how many came back, never the partner's words; the cloud copy keeps scores and drops transcripts", await A.page.evaluate(() => { const e = (S.ppHist || []).find(x => x.kind === "session" && x.partner === "Carla"); const out = fbSyncPayload(S); const c = (out.ppHist || []).find(x => x.id === e.id); return !!e && e.turns.length >= 1 && e.theirs >= 1 && e.turns.some(t => t.score != null) && Object.keys(e).every(k => !/their.*(tx|transcript)/i.test(k)) && c.turns.every(t => !("tx" in t)); }));
+await A.page.click('.pp-hist-chips button:has-text("Safety")'); await sleep(200);
+ok("Filter chips narrow the list without a reload", await A.page.evaluate(() => { const rows = [...document.querySelectorAll(".pp-hist-row")]; return rows.length >= 2 && rows.every(r => /reported|blocked|unblocked|ended the partnership|looked for someone new/i.test(r.innerText)); }));
+/* block Bob from a new session, then lift it */
+await A.page.evaluate(() => go("partner")); await sleep(800); await A.page.evaluate(() => ppMatch()); await sleep(1300);
+await A.page.evaluate(() => { const c = [...document.querySelectorAll(".pp-cand")].find(x => /Bob/.test(x.innerText)); c && [...c.querySelectorAll("button")].find(b => /Try a practice/.test(b.innerText)).click(); }); await sleep(1300);
+{ const bm = await (await api("bob", "GET", "/me")).json(); if (bm.invite) await api("bob", "POST", `/pairs/${bm.invite.id}/accept`); }
+await A.page.evaluate(() => go("partner")); await sleep(1300);
+await A.page.click(".pp-head .pp-menu"); await sleep(200); await A.page.click('.pp-sheet button:has-text("Block")'); await sleep(300);
+ok("Block confirmation says the block can be lifted later under Change preferences", (await txt(A.page, ".cf-card")).includes("lift the block"), await txt(A.page, ".cf-card"));
+await A.page.click(".cf-card button:has-text('Block')"); await sleep(1300);
+const bl = await (await api("alice", "GET", "/me")).json();
+ok("Block → session closed, /me.blocked lists Bob with an opaque cid; Bob is only told 'left'", !bl.pair && bl.blocked.length === 1 && bl.blocked[0].name === "Bob" && /^[a-f0-9]{16}$/.test(bl.blocked[0].cid) && (await (await api("bob", "GET", "/me")).json()).lastClosed.reason === "left", JSON.stringify(bl.blocked));
+await A.page.evaluate(() => go("partner", "history")); await sleep(1200);
+ok("History shows 'You blocked Bob' with an Unblock button", await A.page.evaluate(() => { const r = [...document.querySelectorAll(".pp-hist-row")].find(x => /You blocked Bob/.test(x.innerText)); return !!r && !!r.querySelector("button"); }));
+await A.page.evaluate(() => ppOpenConsent(true)); await sleep(300);
+ok("Change preferences lists Blocked learners: Bob, with Unblock", (await txt(A.page, ".pp-blocked")).includes("Bob") && (await txt(A.page, ".pp-blocked")).includes("Unblock"));
+await A.page.click(".pp-blocked button"); await sleep(300);
+ok("Unblock asks for confirmation and says the other side is not told", (await txt(A.page, ".cf-card")).includes("Unblock Bob?") && (await txt(A.page, ".cf-card")).includes("not told"));
+await A.page.click(".cf-card button:has-text('Unblock')"); await sleep(1500);
+const ub = await (await api("alice", "GET", "/me")).json();
+ok("Unblock = fresh start: block gone, no partnership restored, history says 'You unblocked Bob'", ub.blocked.length === 0 && !ub.connection && (await txt(A.page, "#v-partner")).includes("You unblocked Bob"), JSON.stringify([ub.blocked, ub.connection]));
+await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+await A.page.evaluate(() => go("partner")); await sleep(600); await A.page.evaluate(() => ppMatch()); await sleep(1300);
+ok("Bob can be offered to Alice again", await A.page.evaluate(() => [...document.querySelectorAll(".pp-cand")].some(c => /Bob/.test(c.innerText))));
+/* clear my history: the device record goes, my recordings of closed sessions go from the server now, safety rows stay */
+await A.page.evaluate(() => go("partner", "history")); await sleep(1000);
+await A.page.click('button:has-text("Clear my history")'); await sleep(300);
+ok("Clear asks first and says what stays (reports and blocks)", (await txt(A.page, ".cf-card")).includes("Reports and blocks stay"));
+await A.page.click(".cf-card button:has-text('Clear my history')"); await sleep(1600);
+ok("After clearing: empty state on the History tab, nothing left in S.ppHist for this area, the Worker holds no turn of Alice's for closed sessions", (await txt(A.page, "#v-partner")).includes("Your first practice will appear here") && await A.page.evaluate(() => !(S.ppHist || []).some(e => e.tk === areaId())) && (await (await api("alice", "DELETE", "/history")).json()).turns === 0);
+await A.page.evaluate(() => go("partner")); await sleep(800);
+
 /* ---------- Shadow Studio V2 → Apply it → partner mission ---------- */
 await A.page.evaluate(() => { ppCands = null; go("shadow"); }); await sleep(400);
 await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
