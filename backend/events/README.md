@@ -235,3 +235,6 @@ written, and it stops a careless future `track()` shipping something personal
 without anyone noticing. Props are short enums by design. **Never** add one that
 could carry free text — no phrase text, no transcript, no note, no name, no
 email. If an event seems to need one, the event is wrong.
+
+## Four-round review events (2026-09-20)
+`partner_review_ready` (+`evidence` audio|asr|none), `partner_review_coach`, `partner_review_practice` (+`result` pass|retry), `partner_review_saved`, `partner_review_game`. Counts only: never the topic text, a word, a transcript or a score. Answer "do learners open the lesson, play the coach, repeat, save, play?" — the funnel after a completed human session.

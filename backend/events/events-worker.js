@@ -91,6 +91,11 @@ const EVENTS = new Set([
   // retry, "use it yourself" (+result used|missed)
   "shadow_challenge_opened", "shadow_challenge_started", "shadow_challenge_recorded", "shadow_challenge_feedback_received",
   "shadow_challenge_completed", "shadow_challenge_retry", "shadow_challenge_apply_it",
+  // Round Review (Practice Partner, General English only): a review landed
+  // (+evidence audio|asr|none), the voice coach was played, a pronunciation or
+  // sentence practice attempt was graded (+result pass|retry), an item was
+  // saved to vocabulary, the conversation booster game was played. Counts only.
+  "partner_review_ready", "partner_review_coach", "partner_review_practice", "partner_review_saved", "partner_review_game",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -111,7 +116,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // level (word|sentence|text|none), mode (watch|shadow|challenge|apply), to (ai|partner)
   "n", "round", "now", "regular", "state", "level", "mode", "to",
   // reason: mic | (why an AI/live path was taken: waiting | nocand | silent | choice | again). Appended, as above.
-  "reason"]);
+  "reason",
+  // evidence: audio | asr | none — how much the Round Review could say about pronunciation. Appended, as above.
+  "evidence"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

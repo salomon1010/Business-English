@@ -235,6 +235,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   `PARTNER_ENABLED="1"`, `LIVE_ENABLED="0"`; client flags on (above). Rollback
   = `PARTNER_ENABLED="0"` + redeploy (the app then shows "unavailable"), then
   flags off + cache bump if the UI must go too.
+- **Four-round review (feature/round-review, 2026-09-20, NOT on main).** When a
+  human session's four turns are in, each client asks `POST /pairs/:id/review
+  {context, learned}` for ITS OWN topic-aware lesson (migration 0009 `reviews`
+  UNIQUE(pair, uid) + `turns.words`); `context` = the day's curriculum from
+  `ppRevContext(pair)` (week, topic, objective, task with its "A → B → C"
+  components, phrase bank) — the Worker owns no curriculum. Model via
+  `OPENAI_KEY` on be-partner (`503 review_off` without it), `REVIEW_STUB="1"`
+  in dev/tests. `reviewShape` clamps everything; evidence `audio|asr|none`
+  is shown and gates pronunciation claims. Client: `S.ppRev` (like ppHist),
+  `ppRevRequest/ppRevHTML/ppRevPractice/ppRevCoach/ppRevSave`, the
+  Conversation booster game `cvStart` (GE only), `ppRevLearned` → `reused`.
+  Doc: `marketing/product/practice-partner/FOUR_ROUND_REVIEW.md`.
 - **Practice Partner Levels 2–3 (same branch).** Level 2 = the **AI coach
   session** (`ppAiStart`, `S.pp.ai`, one open at a time, pending-turn
   idempotency; replies via the Polish `chat` route, spoken with the natural

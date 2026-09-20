@@ -40,13 +40,26 @@
      internal matching signal, never shown to anyone.
    - Live practice (Level 3): /live routes, LIVE_ENABLED="1" only where allowed;
      WebRTC audio peer to peer, signalling relayed as rows, nothing recorded.
+   - Four-round review (2026-09-20): when a session is complete, POST
+     /pairs/:id/review turns the learner's OWN four-round performance (both
+     their turns, the per-word pronunciation evidence the app sent with them,
+     the partner's turns as conversational context only) plus the DAY'S
+     CURRICULUM CONTEXT the app sends (week, topic, objective, task, phrase
+     bank) into one private lesson: what went well, what to improve, topic
+     mastery by component, pronunciation, sentence patterns, natural English,
+     topic vocabulary (must know / upgrade / next level), a voice-coach script,
+     a polished version of the learner's own answer, five indicators with
+     round-level evidence, the next practice plan. One row per (pair, uid),
+     readable by that uid alone — the partner's review is never served to the
+     other side. The AI call needs OPENAI_KEY (secret); REVIEW_STUB="1" (dev
+     and tests) builds a deterministic review from the transcripts instead.
    - PARTNER_ENABLED != "1" → 503 `disabled` on everything but /health.
    - DEV_AUTH="1" (local wrangler env only) accepts X-Dev-User / X-Dev-Now so
      the whole flow runs locally with no Firebase account and a movable clock.
    ============================================================================ */
 
 const JWKS_URL = "https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com";
-const MAX_AUDIO_BYTES = 1_500_000, MAX_TURN_MS = 75_000, MAX_NAME = 24, MAX_TRANSCRIPT = 2000;
+const MAX_AUDIO_BYTES = 1_500_000, MAX_TURN_MS = 75_000, MAX_NAME = 24, MAX_TRANSCRIPT = 2000, MAX_WORDS_JSON = 8000;
 const DAY = 86_400_000, SUSPEND_MS = 30 * DAY, PURGE_AFTER_CLOSE_MS = 14 * DAY, OFFER_TTL_MS = 30 * 60_000, COOLDOWN_MS = 14 * DAY;
 const BANDS = ["fnd-1-7", "fnd-8-15", "w1-4", "w5-8", "w9-12"];
 const TRACKS = new Set(["general-english"]);                       // the product boundary — see header
@@ -54,7 +67,7 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS_DEFAULT = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10 };
+const DAILY_LIMITS_DEFAULT = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10, review: 20 };
 /* per-environment overrides through the DAILY_LIMITS var (JSON) — staging
    raises them so a day of device testing on one account does not hit the
    anti-abuse caps; production keeps the defaults */
@@ -223,6 +236,7 @@ async function eraseMember(env, uid, ms) {
     q(env, "DELETE FROM reports WHERE by_uid=?", uid),
     q(env, "DELETE FROM blocks WHERE by_uid=?", uid),
     q(env, "DELETE FROM counters WHERE key LIKE ?", uid + ":%"),
+    q(env, "DELETE FROM reviews WHERE uid=?", uid),
     q(env, "DELETE FROM members WHERE uid=?", uid),
   ]);
   await audit(env, ms, uid, "account_deleted", null, null, { audio });
@@ -554,7 +568,7 @@ async function handle(req, env, ctx) {
     return new Response(JSON.stringify({ online: o ? o.n : 0, waiting: w ? w.n : 0 }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30" } });
   }
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
-    for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions"]) await q(env, `DELETE FROM ${t}`).run();
+    for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions", "reviews"]) await q(env, `DELETE FROM ${t}`).run();
     let cursor; do { const l = await env.AUDIO.list({ cursor }); for (const o of l.objects) await env.AUDIO.delete(o.key); cursor = l.truncated ? l.cursor : null; } while (cursor);
     return json({ ok: true });
   }
@@ -821,6 +835,9 @@ async function handle(req, env, ctx) {
      and safety rows stay (they are what keeps matching honest). Idempotent. */
   if (req.method === "DELETE" && path === "/history") {
     const r = await eraseTurns(env, uid, true);
+    /* the learner's own Round Reviews of closed sessions go with the turns they came from */
+    const rv = await q(env, "DELETE FROM reviews WHERE uid=? AND pair_id IN (SELECT id FROM pairs WHERE status='closed')", uid).run();
+    r.reviews = (rv.meta && rv.meta.changes) || 0;
     if (r.turns) await audit(env, ms, uid, "history_cleared", null, null, r);
     return json({ ok: true, ...r });
   }
@@ -1002,13 +1019,14 @@ async function handle(req, env, ctx) {
     const transcript = clean(fd.get("transcript"), MAX_TRANSCRIPT);
     if (!screenTranscript(transcript)) { await audit(env, ms, uid, "turn_screened", other, pair.id, {}); return err(422, "moderation"); }
     const score = fd.get("score") === null || fd.get("score") === "" ? null : Math.max(0, Math.min(100, Math.round(Number(fd.get("score")) || 0)));
+    const words = wordsEvidence(fd.get("words"));   /* per-word pronunciation evidence, for the Round Review */
     const mime = /^audio\/(webm|ogg|mp4|mpeg|wav|x-m4a|aac)/i.test(audio.type) ? audio.type.split(";")[0] : "audio/webm";
     const ext = mime.includes("mp4") || mime.includes("m4a") || mime.includes("aac") ? "m4a" : mime.includes("ogg") ? "ogg" : mime.includes("wav") ? "wav" : mime.includes("mpeg") ? "mp3" : "webm";
     const key = `pairs/${pair.id}/${turnId}.${ext}`;
     await env.AUDIO.put(key, audio.stream(), { httpMetadata: { contentType: mime } });
     try {
-      await q(env, "INSERT INTO turns(id,pair_id,from_uid,day,seq,audio_key,mime,bytes,duration_ms,transcript,score,created_at) VALUES(?,?,?,0,?,?,?,?,?,?,?,?)",
-        turnId, pair.id, uid, turns.length + 1, key, mime, audio.size, durationMs, transcript, score, ms).run();
+      await q(env, "INSERT INTO turns(id,pair_id,from_uid,day,seq,audio_key,mime,bytes,duration_ms,transcript,score,words,created_at) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?)",
+        turnId, pair.id, uid, turns.length + 1, key, mime, audio.size, durationMs, transcript, score, words, ms).run();
     } catch (e) { await env.AUDIO.delete(key).catch(() => {}); throw e; }
     /* reliability: how fast did this reply follow the partner's last turn */
     const theirLast = [...turns].reverse().find(t => t.from_uid !== uid);
@@ -1020,6 +1038,71 @@ async function handle(req, env, ctx) {
       await audit(env, ms, "system", "session_completed", null, pair.id, { turns: turns.length + 1 });
     }
     return json({ turn: { id: turnId, seq: turns.length + 1, at: ms }, complete }, 201);
+  }
+
+  /* ================================================================ FOUR-ROUND REVIEW
+     POST /pairs/:id/review {context?, learned?} — once the session is complete
+     (all four rounds in), the caller's OWN performance across their rounds
+     becomes a private, topic-aware lesson. Member only; the pair must be on an
+     allowed track; idempotent per (pair, uid) — a repeat returns the stored
+     review, a concurrent repeat gets 202 {pending:true} while the first is
+     still being written. `context` = the day's curriculum (week, topic,
+     objective, task, phrase bank — the app owns the curriculum, the Worker
+     does not), `learned` = up to 20 expressions the learner saved earlier
+     (their own data), so the review can say "you used X correctly". The
+     partner's turns reach the model as the questions that were answered and
+     nothing of them is stored in the review. */
+  if (req.method === "POST" && (pm = /^\/pairs\/([a-f0-9]{16})\/review$/.exec(path))) {
+    if (suspended) return err(403, "suspended", m.suspended_until);
+    const pair = await q(env, "SELECT * FROM pairs WHERE id=?", pm[1]).first();
+    if (!isMember(pair, uid)) return err(403, "forbidden");
+    if (!TRACKS.has(pair.track)) return err(403, "track");
+    const turns = (await q(env, "SELECT seq, from_uid, transcript, words, duration_ms, score FROM turns WHERE pair_id=? ORDER BY seq", pair.id).all()).results || [];
+    const rv = roundsView(pair, turns, uid);
+    if (!rv.complete) return err(409, "not_complete");
+    const mine = turns.filter(t => t.from_uid === uid);
+    if (!mine.length) return err(404, "not_found");
+    const have = await q(env, "SELECT * FROM reviews WHERE pair_id=? AND uid=?", pair.id, uid).first();
+    if (have && have.status === "ready") return json(reviewRow(have, pair));
+    if (have && have.status === "pending" && ms - have.created_at < 90_000) return json({ pending: true }, 202);
+    if (have) await q(env, "DELETE FROM reviews WHERE id=?", have.id).run();   /* a stale pending row (the first attempt died) */
+    if (env.REVIEW_STUB !== "1" && !env.OPENAI_KEY) return err(503, "review_off");   /* not configured here: say so, never serve heuristics as a model's reading */
+    if (await bump(env, uid, "review", ms) > DAILY_LIMITS.review) return err(429, "limit");
+    const n = ((await q(env, "SELECT COUNT(*) AS n FROM reviews WHERE uid=? AND status='ready'", uid).first()) || {}).n || 0;
+    const id = rid();
+    try { await q(env, "INSERT INTO reviews(id,pair_id,uid,round,status,json,created_at) VALUES(?,?,?,?,'pending','{}',?)", id, pair.id, uid, n + 1, ms).run(); }
+    catch (e) { return json({ pending: true }, 202); }   /* lost the race: the other request is writing it */
+    const b = await req.json().catch(() => ({}));
+    const prevRev = await q(env, "SELECT json FROM reviews WHERE uid=? AND status='ready' ORDER BY created_at DESC LIMIT 1", uid).first();
+    let prevNext = []; try { const pj = JSON.parse(prevRev ? prevRev.json : "{}"); prevNext = nextPlanItems(pj.next).slice(0, 5); } catch (e) {}
+    let prompt = null; try { prompt = pair.prompt_json ? JSON.parse(pair.prompt_json) : null; } catch (e) {}
+    const learned = (Array.isArray(b.learned) ? b.learned : []).map(s => clean(s, 60)).filter(Boolean).slice(0, 20);
+    const context = reviewContext(b.context, prompt);
+    const myTurns = mine.map(t => { let w = null; try { w = t.words ? JSON.parse(t.words) : null; } catch (e) {} return { seq: t.seq, transcript: t.transcript, words: w, durationMs: t.duration_ms, score: t.score }; });
+    const theirTurns = turns.filter(t => t.from_uid !== uid).map(t => ({ seq: t.seq, transcript: String(t.transcript || "").slice(0, 600) }));
+    const input = { myTurns, theirTurns, context, lang: m.lang || "en", band: pair.band, round: n + 1, prevNext, learned };
+    let review, model;
+    try {
+      const r = env.REVIEW_STUB === "1" ? reviewStub(input) : await reviewAI(env, input);
+      review = reviewShape(r.review, input); model = r.model;
+    } catch (e) {
+      await q(env, "DELETE FROM reviews WHERE id=?", id).run();
+      await audit(env, ms, uid, "review_failed", null, pair.id, {});
+      return err(502, "review_unavailable", env.DEV_AUTH === "1" ? String(e.message || e) : undefined);
+    }
+    await q(env, "UPDATE reviews SET status='ready', evidence=?, model=?, json=? WHERE id=?", review.evidence, model, JSON.stringify(review), id).run();
+    await audit(env, ms, uid, "review_ready", null, pair.id, { evidence: review.evidence });
+    const row = await q(env, "SELECT * FROM reviews WHERE id=?", id).first();
+    return json(reviewRow(row, pair), 201);
+  }
+
+  /* GET /reviews — the caller's own reviews, newest first (≤ 40), for the
+     across-sessions line and the History tab. Nobody else's, ever. */
+  if (req.method === "GET" && path === "/reviews") {
+    const rows = (await q(env, "SELECT * FROM reviews WHERE uid=? AND status='ready' ORDER BY created_at DESC LIMIT 40", uid).all()).results || [];
+    const out = [];
+    for (const r of rows) { const pair = await q(env, "SELECT * FROM pairs WHERE id=?", r.pair_id).first(); out.push(reviewRow(r, pair)); }
+    return json({ reviews: out });
   }
 
   /* GET /turns/:id/audio — members only, never a public URL */
@@ -1035,6 +1118,202 @@ async function handle(req, env, ctx) {
 
   if (req.method === "POST" && path === "/__cron" && env.DEV_AUTH === "1") return json(await maintenance(env, ms));
   return err(404, "not_found");
+}
+
+/* ================================================================ FOUR-ROUND REVIEW engine
+   The learner's own rounds of one session → one private, topic-aware lesson.
+   Layers: wordsEvidence() keeps what the app sent with each turn;
+   reviewContext() keeps the day's curriculum the app sent with the request;
+   reviewAI() / reviewStub() produce a candidate; reviewShape() is the only
+   thing that reaches a phone — every field clamped, every list capped, every
+   enum checked, so neither the model nor a bug can hand the client something
+   unbounded or off-schema.
+
+   Honesty rules baked into the prompt and the shaper:
+   - evidence: "audio" only when an audio-in model scored the words of at
+     least one of the learner's turns (mode "ai"); "asr" when only a recogniser
+     heard them (mode "whisper" — it recognises words, it does not judge
+     sounds); "none" when nothing was scored. Under "asr"/"none" a
+     pronunciation item may only be "worth checking", never "mispronounced".
+   - indicators are BE Mastery learning indicators from observable signals
+     (the transcripts, the scores, the model's judgement) — not a proficiency
+     measurement, and the client says so. Round-level values are evidence
+     for the line; the session values are the result.
+   - fixes carry a kind: error | awkward | unnatural | self_correction |
+     hesitation. Only "error" may be called wrong.
+   - the daily topic is the anchor: task mastery is judged against the
+     components the curriculum task names, never against invented ones. */
+function wordsEvidence(raw) {
+  if (!raw || typeof raw !== "string" || raw.length > MAX_WORDS_JSON) return null;
+  let v; try { v = JSON.parse(raw); } catch (e) { return null; }
+  const list = (Array.isArray(v && v.list) ? v.list : []).map(w => ({ word: clean(w && w.word, 40), score: Math.max(0, Math.min(100, Math.round(Number(w && w.score)) || 0)), note: clean(w && w.note, 60) })).filter(w => w.word).slice(0, 80);
+  if (!list.length) return null;
+  const mode = v.mode === "ai" ? "ai" : "whisper";
+  return JSON.stringify({ mode, list });
+}
+/* the day's curriculum as the app sent it, clamped; the session's own
+   phrase (Apply It) wins as topic when there is one */
+function reviewContext(c, prompt) {
+  c = c && typeof c === "object" ? c : {};
+  const out = {
+    week: Math.max(0, Math.min(52, Number(c.week) || 0)), day: clean(c.day, 12),
+    topic: clean(c.topic, 160), objective: clean(c.objective, 300), task: clean(c.task, 400), out: clean(c.out, 200), theme: clean(c.theme, 160),
+    phrases: (Array.isArray(c.phrases) ? c.phrases : []).map(p => ({ p: clean(p && p.p, 80), u: clean(p && p.u, 80) })).filter(p => p.p).slice(0, 12),
+  };
+  if (prompt && prompt.phrase) { out.phrase = clean(prompt.phrase, 160); if (!out.topic) out.topic = out.phrase; }
+  if (!out.topic) out.topic = "a workplace conversation";
+  return out;
+}
+const nextPlanItems = n => { if (!n || typeof n !== "object") return []; const o = []; (n.pron || []).forEach(x => o.push("Pronounce " + x)); (n.vocab || []).forEach(x => o.push("Use " + x)); if (n.pattern) o.push(n.pattern); if (n.skill) o.push(n.skill); return o.filter(Boolean); };
+const REVIEW_MODEL = "gpt-4o-mini";
+const REVIEW_SYSTEM = `You are an applied-linguistics coach for adult learners of spoken English (Business English Mastery). ONE learner has just finished a four-round practice conversation with another learner about the DAY'S CURRICULUM TOPIC. You receive: the curriculum context (week, topic, objective, the task with its expected components, the week's phrase bank), the learner's own turns (automatic transcripts, ~60 s each) with optional per-word pronunciation scores, and the partner's turns purely as the questions that were answered. Analyse THIS learner's performance ACROSS ALL THEIR ROUNDS against the day's task. Answer with minified JSON matching exactly:
+{"topic":"the topic in a few words",
+ "summary":"1-2 warm, specific sentences",
+ "well":[{"text":"strength shown, with the actual words","evidence":"Round 1"}],
+ "improve":[{"text":"recurring pattern worth fixing, with counts where true","evidence":"Rounds 1 and 3"}],
+ "task":{"objective":"what the learner was supposed to accomplish","components":[{"name":"","status":"strong|developing|needs_practice|missing","note":"one sentence"}],"verdict":"one sentence: did they acquire the English this task needed?"},
+ "rounds":[{"seq":1,"pron":0-100 or null,"grammar":0-100,"vocab":0-100,"fluency":0-100,"task":0-100}],
+ "indicators":{"pron":0-100 or null,"grammar":0-100,"vocab":0-100,"fluency":0-100,"task":0-100},
+ "pron":[{"word":"","heard":"","target":"respelling or IPA","why":"one simple sentence","confidence":"heard|check","rounds":[1,3]}],
+ "fixes":[{"said":"exact quote","better":"","why":"one plain sentence","kind":"error|awkward|unnatural|self_correction|hesitation","practice":"the sentence to say aloud","pattern":"the recurring pattern, or empty","count":1}],
+ "natural":[{"said":"","natural":"","professional":""}],
+ "vocab":{"used_well":["terms the learner used correctly"],"misused":[{"term":"","said":"","better":""}],"must":[{"term":"","meaning":"","pron":"","example":"","ctx":""}],"upgrade":[{"term":"","replaces":"the basic word they overused","count":3,"meaning":"","example":""}],"next":[{"term":"","meaning":"","pron":"","example":"","ctx":""}],"patterns":["I've been working in … for …"]},
+ "answer":{"original":"condensed, in the learner's words","polished":"the improved answer, same facts","changed":["vocabulary: …","structure: …"]},
+ "coach":{"script":["sentence","sentence"],"practice":[{"say":"","teach":""}]},
+ "next":{"pron":["word"],"vocab":["term"],"pattern":"sentence pattern to master","answer":"one improved sentence to rehearse","skill":"one communication skill for the next session"},
+ "reused":[{"term":"","ok":true,"note":""}],
+ "prev":[{"text":"","met":true,"note":""}],
+ "highlights":[""]}
+Rules:
+- The daily topic is the anchor. Derive the task components from the task text (it often reads "A → B → C → D"); judge each from the learner's rounds. Never invent components the task does not imply. If the session carried a specific phrase to apply, one component is "used the phrase".
+- Quote the learner exactly in "said"; keep their intended meaning and facts in every rewrite, including "answer.polished".
+- well / improve: 2-4 each, evidence-based (cite rounds, quote words, give real counts). No generic praise.
+- fixes: at most 4, the recurring or highest-value ones. "error" only for incorrect grammar; "awkward" for grammatical but clumsy; "unnatural" for phrasing a fluent speaker would not use; "self_correction" when the learner fixed themselves (praise it); "hesitation" for normal speech hesitation (never a fault). Never call awkward or unnatural English "wrong".
+- pron: aggregate across rounds. With evidence "audio" a word scored under 70 may be "heard". With "asr" or "none" you have NO sound evidence: at most 3 words "check" that are commonly hard for a speaker of the learner's first language, said to be worth checking. Do not penalise an understandable accent. Empty is fine.
+- vocab: only what this topic and this learner's speech call for. must = 2-4 highest-priority items (from the phrase bank when it fits); upgrade = words they repeated (with the real count); next = 1-3 level-appropriate stretches; patterns = 1-3 sentence patterns. Do not dump the whole phrase bank.
+- rounds: one entry per learner turn (their seq numbers) — round-level evidence; indicators = the session result. pron null when evidence is "none". These are learning indicators, not a proficiency measurement.
+- coach.script: 3 to 6 short spoken sentences in a natural teacher voice: what went well across the rounds, the one pattern to change, the two or three expressions to learn, "listen to each one and repeat". Under 110 words. coach.practice: 2 to 4 things to repeat with a one-line teach.
+- next: concrete and specific to what was found (1-2 pron, 2-3 vocab, one pattern, one sentence, one skill).
+- reused: for each "learned" item used, ok:true with a one-line praise; for important unused ones, ok:false with a gentle way in. Max 3.
+- prev: judge each item of "prevNext" met or not from this session. Max 5.
+- Never mention the partner's mistakes or quote the partner. All text in English, short, concrete. Output JSON only.`;
+async function reviewAI(env, input) {
+  const evidence = reviewEvidence(input.myTurns);
+  const user = JSON.stringify({
+    curriculum: input.context, first_language: input.lang, level_band: input.band, session_number: input.round,
+    my_rounds: input.myTurns.map(t => ({ round: t.seq, transcript: t.transcript, overall_score: t.score, duration_s: Math.round((t.durationMs || 0) / 1000), word_scores: t.words ? t.words.list.slice(0, 80) : [] })),
+    partner_rounds_context_only: input.theirTurns, evidence, prevNext: input.prevNext, learned: input.learned,
+  });
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST", headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({ model: REVIEW_MODEL, temperature: 0.3, max_tokens: 2600, response_format: { type: "json_object" }, messages: [{ role: "system", content: REVIEW_SYSTEM }, { role: "user", content: user }] }),
+  });
+  if (!r.ok) throw new Error("provider " + r.status);
+  const j = await r.json();
+  const raw = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").trim();
+  let review; try { review = JSON.parse(raw); } catch (e) { throw new Error("bad_json"); }
+  return { review, model: REVIEW_MODEL };
+}
+function reviewEvidence(myTurns) { const modes = myTurns.map(t => t.words && t.words.mode).filter(Boolean); return modes.includes("ai") ? "audio" : modes.length ? "asr" : "none"; }
+/* Deterministic review from the transcripts alone — dev and tests (no key,
+   nothing leaves the machine). Simple heuristics stand in for the model: the
+   task's "A → B → C" components matched by keyword, "since" + duration, "very
+   good", overused basic words counted across rounds, the phrase bank. */
+function reviewStub(input) {
+  const ctx = input.context, all = input.myTurns.map(t => t.transcript).join(" "), low = [];
+  input.myTurns.forEach(t => (t.words ? t.words.list : []).forEach(w => { if (w.score < 70) low.push({ ...w, seq: t.seq }); }));
+  const evidence = reviewEvidence(input.myTurns);
+  const rx = s => new RegExp("\\b" + s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
+  const count = (s, txt = all) => (txt.match(new RegExp("\\b" + s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "gi")) || []).length;
+  const parts = (ctx.task.match(/[^:]+→[^.]+/) ? ctx.task.replace(/^[^:]*:\s*/, "") : "").split("→").map(s => s.trim().replace(/[.]$/, "")).filter(Boolean).slice(0, 5);
+  const compWords = { "current role": /\b(work as|i am a|i'm a|my role|my job|i work|i am working|i'm working)\b/i, "core responsibilities": /\b(responsib|in charge|manage|handle|take care)\b/i, "previous experience": /\b(before|previous|used to|experience|years)\b/i, "current focus": /\b(focus|currently|right now|at the moment|working on)\b/i };
+  const components = parts.map(name => { const re = compWords[name.toLowerCase()] || rx(name.split(" ")[0]); const hits = input.myTurns.filter(t => re.test(t.transcript)).map(t => t.seq); const status = hits.length >= 2 || (hits.length === 1 && input.myTurns.find(t => t.seq === hits[0]).transcript.length >= 60) ? "strong" : hits.length === 1 ? "developing" : "missing"; return { name, status, note: hits.length ? `Covered in round${hits.length > 1 ? "s" : ""} ${hits.join(" and ")}.` : "Not covered in this session." }; });
+  if (ctx.phrase) components.push({ name: "used the phrase", status: rx(ctx.phrase.replace(/…/g, "")).test(all) ? "strong" : "missing", note: "" });
+  const fixes = [];
+  const m1 = /\b(I am|I'm) (working|living|studying) (in|at|on) (.+?) since (\w+ years?)\b/i.exec(all);
+  if (m1) fixes.push({ said: m1[0], better: `I've been ${m1[2]} ${m1[3]} ${m1[4]} for ${m1[5]}`, why: "Use the present perfect continuous with 'for' + a duration.", kind: "error", practice: `I've been ${m1[2]} ${m1[3]} ${m1[4]} for ${m1[5]}.`, pattern: "duration with 'since' instead of 'for'", count: count("since") });
+  if (count("very good")) fixes.push({ said: "very good", better: "really effective", why: "'Good' is vague in a work context; a precise adjective sounds more professional.", kind: "unnatural", practice: "The new process is really effective.", pattern: "vague adjectives", count: count("very good") });
+  if (/\.\.\.|\bum\b|\buh\b/i.test(all)) fixes.push({ said: (all.match(/[^.]*\.\.\.[^.]*/) || [all.slice(0, 60)])[0].trim(), better: (all.match(/[^.]*\.\.\.[^.]*/) || [all.slice(0, 60)])[0].replace(/\.\.\./g, "").trim(), why: "A pause while you think is normal speech — nothing to fix.", kind: "hesitation", practice: "", pattern: "", count: 1 });
+  const basic = [["work on", "be responsible for"], ["good", "effective"], ["big", "significant"], ["thing", "aspect"], ["nice", "pleasant"]].map(([w, up]) => ({ w, up, n: count(w) })).filter(x => x.n >= 1).sort((a, b) => b.n - a.n);
+  const bank = ctx.phrases.slice(0, 6);
+  const usedWell = bank.filter(p => rx(p.p.replace(/…/g, "").trim()).test(all)).map(p => p.p);
+  const must = bank.filter(p => !rx(p.p.replace(/…/g, "").trim()).test(all)).slice(0, 3).map(p => ({ term: p.p, meaning: p.u || "a phrase for this topic", pron: "", example: p.p.replace(/…/g, "") + " the reporting process.", ctx: ctx.topic }));
+  if (!must.length) must.push({ term: "I'm responsible for", meaning: "Describe ownership of a task", pron: "", example: "I'm responsible for the weekly report.", ctx: ctx.topic });
+  const upgrade = basic.slice(0, 2).map(x => ({ term: x.up, replaces: x.w, count: x.n, meaning: `a more precise way to say '${x.w}'`, example: `I'm responsible for the invoice process.` }));
+  const longest = [...new Set(all.toLowerCase().replace(/[^a-z' ]/g, " ").split(/\s+/).filter(w => w.length >= 8))].slice(0, 2);
+  const next = longest.map(w => ({ term: w, meaning: "a word you used — make it yours", pron: w, example: `We should talk about the ${w}.`, ctx: "from your rounds" }));
+  const pron = []; const seen = new Set();
+  for (const w of low) { if (seen.has(w.word)) { pron.find(p => p.word === w.word).rounds.push(w.seq); continue; } seen.add(w.word); pron.push({ word: w.word, heard: w.note || "unclear", target: w.word, why: "Say it slowly, then at normal speed.", confidence: evidence === "audio" ? "heard" : "check", rounds: [w.seq] }); if (pron.length >= 3) break; }
+  const sc = t => Number.isFinite(t.score) ? t.score : 70;
+  const rounds = input.myTurns.map(t => { const tx = t.transcript; const tk = Math.round(100 * components.filter(c => (compWords[c.name.toLowerCase()] || rx(c.name.split(" ")[0])).test(tx)).length / Math.max(1, components.length)); return { seq: t.seq, pron: t.words ? Math.round(t.words.list.reduce((a, w) => a + w.score, 0) / t.words.list.length) : null, grammar: Math.max(30, sc(t) - (/since \w+ years/i.test(tx) ? 12 : 0)), vocab: Math.max(30, sc(t) - basic.filter(x => rx(x.w).test(tx)).length * 8), fluency: Math.max(30, sc(t) - (/\.\.\./.test(tx) ? 10 : 0)), task: tk }; });
+  const avg = k => { const v = rounds.map(r => r[k]).filter(x => x != null); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null; };
+  const strong = components.filter(c => c.status === "strong").map(c => c.name), missing = components.filter(c => c.status !== "strong").map(c => c.name);
+  const learned = input.learned || [], reused = learned.slice(0, 3).map(term => ({ term, ok: rx(term.replace(/…/g, "").trim()).test(all), note: "" }));
+  const prev = (input.prevNext || []).map(text => ({ text, met: rx(text.split(" ").slice(-1)[0].replace(/[^a-zA-Z']/g, "") || "zzz").test(all), note: "" }));
+  const original = input.myTurns.map(t => t.transcript).join(" ").slice(0, 400);
+  let polished = original; fixes.filter(f => f.kind === "error" || f.kind === "unnatural").forEach(f => { polished = polished.replace(f.said, f.better); }); basic.slice(0, 1).forEach(x => { polished = x.w === "work on" ? polished.replace(/\bI work on\b/i, "I'm responsible for") : polished.replace(new RegExp("\\b" + x.w + "\\b", "i"), x.up); });
+  const script = [strong.length ? `You did well explaining your ${strong[0]}${strong[1] ? " and your " + strong[1] : ""}.` : `You kept the conversation going across your rounds.`];
+  if (basic[0]) script.push(`Across the rounds I noticed you used "${basic[0].w}" ${basic[0].n} time${basic[0].n > 1 ? "s" : ""}. For this topic, learn "${basic[0].up}".`);
+  if (fixes[0] && fixes[0].kind === "error") script.push(`You said, "${fixes[0].said}". Say instead, "${fixes[0].better}". ${fixes[0].why}`);
+  if (must[0]) script.push(`And add the expression "${must[0].term.replace(/…/g, "")}".`);
+  script.push("Listen to each one and repeat.");
+  return { model: "stub", review: {
+    topic: ctx.topic, summary: `This conversation was about ${ctx.topic}. ${strong.length ? "You covered " + strong.join(" and ") + " clearly." : "You kept going through every round."} ${missing.length ? "The missing piece was " + missing[0] + "." : ""}`.trim(),
+    well: (strong.slice(0, 2).map(n => ({ text: `You explained your ${n} clearly.`, evidence: "Rounds " + input.myTurns.map(t => t.seq).join(" and ") })).concat(usedWell.slice(0, 1).map(p => ({ text: `You used "${p}" correctly.`, evidence: "" }))).concat([{ text: "You answered in every round and kept the conversation going.", evidence: "Rounds " + input.myTurns.map(t => t.seq).join(" and ") }])).slice(0, 3),
+    improve: [].concat(basic[0] ? [{ text: `You used "${basic[0].w}" ${basic[0].n} time${basic[0].n > 1 ? "s" : ""} — for this topic, learn "${basic[0].up}".`, evidence: "across your rounds" }] : [], missing[0] ? [{ text: `The missing piece was your ${missing[0]}. Practise connecting your current role to it.`, evidence: "" }] : [], fixes[0] && fixes[0].kind === "error" ? [{ text: fixes[0].pattern, evidence: "Round " + input.myTurns[0].seq }] : []),
+    task: { objective: ctx.objective || ctx.task, components, verdict: missing.length ? `Most of the task landed; ${missing[0]} still needs the language for it.` : "You had the English this task needed." },
+    rounds, indicators: { pron: evidence === "none" ? null : avg("pron"), grammar: avg("grammar"), vocab: avg("vocab"), fluency: avg("fluency"), task: avg("task") },
+    pron, fixes, natural: fixes[0] && fixes[0].kind !== "hesitation" ? [{ said: fixes[0].said, natural: fixes[0].better, professional: fixes[0].better.replace(/^I've been/, "I have been") }] : [],
+    vocab: { used_well: usedWell, misused: [], must, upgrade, next, patterns: ["I've been working in … for …", "I'm responsible for …"] },
+    answer: { original, polished, changed: [].concat(basic[0] ? [`vocabulary: "${basic[0].w}" → "${basic[0].up}"`] : [], fixes.filter(f => f.kind === "error").map(f => `grammar: ${f.pattern}`), pron[0] ? [`pronunciation target: ${pron[0].word}`] : []) },
+    coach: { script, practice: [].concat(fixes[0] && fixes[0].practice ? [{ say: fixes[0].practice, teach: fixes[0].why }] : [], must[0] ? [{ say: must[0].example, teach: must[0].meaning }] : [], upgrade[0] ? [{ say: upgrade[0].example, teach: upgrade[0].meaning }] : []) },
+    next: { pron: pron.slice(0, 2).map(p => p.word), vocab: [].concat(upgrade.map(u => u.term), must.map(m => m.term)).slice(0, 3), pattern: "I've been working in … for …", answer: fixes[0] && fixes[0].practice ? fixes[0].practice : polished.split(/(?<=[.!?])\s+/)[0], skill: missing[0] ? `Cover your ${missing[0]} without being asked.` : "Add one detail your partner did not ask about." },
+    reused, prev, highlights: usedWell.slice(0, 2),
+  } };
+}
+const S_ = (v, n) => clean(typeof v === "string" ? v : "", n);
+const N_ = v => (v === null || v === undefined || v === "" ? null : Math.max(0, Math.min(100, Math.round(Number(v)))));
+const L_ = (v, n) => (Array.isArray(v) ? v : []).slice(0, n);
+const SL_ = (v, n, len) => L_(v, n).map(s => S_(s, len)).filter(Boolean);
+function reviewShape(r, input) {
+  r = r && typeof r === "object" ? r : {};
+  const evidence = reviewEvidence(input.myTurns);
+  const ind = r.indicators && typeof r.indicators === "object" ? r.indicators : {};
+  const kinds = new Set(["error", "awkward", "unnatural", "self_correction", "hesitation"]), st = new Set(["strong", "developing", "needs_practice", "missing"]);
+  const mySeqs = new Set(input.myTurns.map(t => t.seq));
+  const term = (x, len) => ({ term: S_(x && x.term, 60), meaning: S_(x && x.meaning, 160), pron: S_(x && x.pron, 60), example: S_(x && x.example, 200), ctx: S_(x && x.ctx, len || 120) });
+  const v = r.vocab && typeof r.vocab === "object" ? r.vocab : {};
+  const task = r.task && typeof r.task === "object" ? r.task : {};
+  const ans = r.answer && typeof r.answer === "object" ? r.answer : {};
+  const nx = r.next && typeof r.next === "object" ? r.next : {};
+  const out = {
+    v: 2, evidence, round: input.round, seqs: [...mySeqs],
+    topic: S_(r.topic, 120) || input.context.topic, summary: S_(r.summary, 320),
+    well: L_(r.well, 4).map(x => ({ text: S_(x && x.text, 240), evidence: S_(x && x.evidence, 60) })).filter(x => x.text),
+    improve: L_(r.improve, 4).map(x => ({ text: S_(x && x.text, 240), evidence: S_(x && x.evidence, 60) })).filter(x => x.text),
+    task: { objective: S_(task.objective, 300) || input.context.objective, components: L_(task.components, 6).map(c => ({ name: S_(c && c.name, 60), status: st.has(c && c.status) ? c.status : "developing", note: S_(c && c.note, 160) })).filter(c => c.name), verdict: S_(task.verdict, 240) },
+    rounds: L_(r.rounds, 4).map(x => ({ seq: Number(x && x.seq), pron: evidence === "none" ? null : N_(x && x.pron), grammar: N_(x && x.grammar) ?? 60, vocab: N_(x && x.vocab) ?? 60, fluency: N_(x && x.fluency) ?? 60, task: N_(x && x.task) ?? 60 })).filter(x => mySeqs.has(x.seq)).sort((a, b) => a.seq - b.seq),
+    indicators: { pron: evidence === "none" ? null : N_(ind.pron), grammar: N_(ind.grammar) ?? 60, vocab: N_(ind.vocab) ?? 60, fluency: N_(ind.fluency) ?? 60, task: N_(ind.task) ?? 60 },
+    pron: L_(r.pron, 4).map(x => ({ word: S_(x && x.word, 40), heard: S_(x && x.heard, 60), target: S_(x && x.target, 60), why: S_(x && x.why, 160), confidence: evidence === "audio" && x && x.confidence === "heard" ? "heard" : "check", rounds: L_(x && x.rounds, 4).map(Number).filter(n => mySeqs.has(n)) })).filter(x => x.word),
+    fixes: L_(r.fixes, 4).map(x => ({ said: S_(x && x.said, 240), better: S_(x && x.better, 240), why: S_(x && x.why, 240), kind: kinds.has(x && x.kind) ? x.kind : "awkward", practice: S_(x && x.practice, 240), pattern: S_(x && x.pattern, 80), count: Math.max(0, Math.min(20, Math.round(Number(x && x.count)) || 0)) })).filter(x => x.said && x.better),
+    natural: L_(r.natural, 3).map(x => ({ said: S_(x && x.said, 240), natural: S_(x && x.natural, 240), professional: S_(x && x.professional, 240) })).filter(x => x.said && (x.natural || x.professional)),
+    vocab: { used_well: SL_(v.used_well, 6, 60), misused: L_(v.misused, 3).map(x => ({ term: S_(x && x.term, 60), said: S_(x && x.said, 160), better: S_(x && x.better, 160) })).filter(x => x.term && x.better),
+      must: L_(v.must, 4).map(x => term(x)).filter(x => x.term && x.meaning), upgrade: L_(v.upgrade, 3).map(x => ({ term: S_(x && x.term, 60), replaces: S_(x && x.replaces, 40), count: Math.max(0, Math.min(20, Math.round(Number(x && x.count)) || 0)), meaning: S_(x && x.meaning, 160), example: S_(x && x.example, 200) })).filter(x => x.term && x.replaces),
+      next: L_(v.next, 3).map(x => term(x)).filter(x => x.term && x.meaning), patterns: SL_(v.patterns, 3, 100) },
+    answer: { original: S_(ans.original, 600), polished: S_(ans.polished, 700), changed: SL_(ans.changed, 5, 120) },
+    coach: { script: SL_(r.coach && r.coach.script, 7, 240), practice: L_(r.coach && r.coach.practice, 4).map(x => ({ say: S_(x && x.say, 240), teach: S_(x && x.teach, 200) })).filter(x => x.say) },
+    next: { pron: SL_(nx.pron, 2, 40), vocab: SL_(nx.vocab, 3, 60), pattern: S_(nx.pattern, 120), answer: S_(nx.answer, 240), skill: S_(nx.skill, 160) },
+    reused: L_(r.reused, 3).map(x => ({ term: S_(x && x.term, 60), ok: !!(x && x.ok), note: S_(x && x.note, 160) })).filter(x => x.term),
+    prev: L_(r.prev, 5).map(x => ({ text: S_(x && x.text, 160), met: !!(x && x.met), note: S_(x && x.note, 160) })).filter(x => x.text),
+    highlights: SL_(r.highlights, 2, 120),
+  };
+  if (!out.coach.script.length) out.coach.script = [out.summary || "Good work. Listen to the sentences below and repeat them."];
+  if (!out.answer.polished) out.answer.polished = out.answer.original;
+  return out;
+}
+function reviewRow(row, pair) {
+  let review; try { review = JSON.parse(row.json); } catch (e) { review = {}; }
+  return { id: row.id, pairId: row.pair_id, round: row.round, evidence: row.evidence, at: row.created_at, partnerBand: pair ? pair.band : null, review };
 }
 
 /* ------------------------------------------------------- daily maintenance */

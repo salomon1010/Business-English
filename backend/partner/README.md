@@ -14,6 +14,8 @@ holds one id and any other track is refused with `403 track`.
 | `IP_PER_MIN` | unset (120) | 100000 | per-IP request limit; the suites hammer one IP |
 | `DEV_AUTH` | **unset** | `"1"` | accept `X-Dev-User` / `X-Dev-Now`, enable `/__reset` and `/__cron` |
 | `LIVE_ENABLED` | `"0"` | `"1"` | live practice (Level 3): `/live*` → 403 `live_off` otherwise; staging "1" |
+| `OPENAI_KEY` | **secret, to set** (`npx wrangler secret put OPENAI_KEY`) | unset | the four-round review's model call (same provider key as Executive Polish); without it `POST /pairs/:id/review` → `503 review_off` |
+| `REVIEW_STUB` | unset | `"1"` | build the review deterministically from the transcripts instead of calling the model — tests and local runs, never production |
 | `TURN_KEY_ID` / `TURN_KEY_TOKEN` | secrets, unset | unset | Cloudflare Calls TURN key → short-lived TURN creds in `GET /live/:id`; STUN only without |
 
 ## Routes (all need `Authorization: Bearer <Firebase ID token>`)
@@ -21,7 +23,7 @@ holds one id and any other track is refused with `403 track`.
 |---|---|---|
 | GET | `/health` | `{ok, dev, enabled}` (no auth) |
 | GET | `/presence` | `{online, waiting}` — counts only, no auth, cached 30 s; the floating button's badge before sign-in |
-| DELETE | `/me` | **account deletion** — erases everything held about the caller (member row, prefs, queue entry, offers, every turn they sent + its R2 audio, their pairs and turns, connections, cooldowns, live sessions/signals, counters, reports and blocks *they* filed). Sits above the `PARTNER_ENABLED` kill switch so a pilot learner can erase after roll-back. Kept: reports/blocks *about* them (other people's safety choices) and audit rows (90 d). Called by the app's Delete account before the Firebase user is deleted; idempotent |
+| DELETE | `/me` | **account deletion** — erases everything held about the caller (member row, prefs, queue entry, offers, every turn they sent + its R2 audio, their four-round reviews, their pairs and turns, connections, cooldowns, live sessions/signals, counters, reports and blocks *they* filed). Sits above the `PARTNER_ENABLED` kill switch so a pilot learner can erase after roll-back. Kept: reports/blocks *about* them (other people's safety choices) and audit rows (90 d). Called by the app's Delete account before the Firebase user is deleted; idempotent |
 | GET | `/me` | consent, `adult`, prefs, waiting state, `invite` (a proposal for me) / `pairInvite` (my open proposal), active pair with partner `{name, band, lang}`, `rounds` view, turns, unread, `fallback`/`canRepair`, decisions, `lastClosed {reason, byOther, name}`, the best `connection` |
 | POST | `/consent` | `{name, lang, adult: true, gender?, sameGender?, goals?, mode?, avail?, tz?}` — refuses without `adult` (`403 age`) |
 | POST | `/prefs` | update goals / mode / avail / tz / same-gender / opt-out |
@@ -37,6 +39,8 @@ holds one id and any other track is refused with `403 track`.
 | GET | `/turns/:id/audio` | streams audio to pair members only |
 | POST | `/connection/end` · `/connection/report {reason}` · `/connection/block` | `{cid}` — partner management from the connection card; `cid` is an opaque hash resolved only against the caller's own connections (anyone else's → 404). End = state `ended` + 14-day cooldown + any open session/call with that partner closed as `left`; idempotent; not a block, not a report; 10/day |
 | POST | `/ai/session` | `{id, track, reason?}` — opens an AI coach session for the count: 12 new per learner per day, idempotent on `id`, `403 track` for any other track |
+| POST | `/pairs/:id/review` | **four-round review** (migration 0009). `{context?, learned?}` — once the session is complete (409 `not_complete` before), the caller's OWN rounds become one private, topic-aware lesson: what went well / to improve with round evidence, task mastery per component of the day's task, pronunciation targets (evidence-labelled: `audio` when an audio-in model scored the turn's words, `asr` when only a recogniser heard them, `none`), recurring sentence patterns (kind `error|awkward|unnatural|self_correction|hesitation`), natural English, topic vocabulary (`used_well / misused / must / upgrade / next / patterns`), a coach script, a polished answer with the learner's facts, five indicators (`pron grammar vocab fluency task`) with per-round evidence, the next practice plan, reuse of `learned`, the previous plan judged. `context` = the day's curriculum the app sends (week, day, topic, objective, task, phrase bank — clamped by `reviewContext`); `learned` ≤ 20 strings. Member only; `403 track` if the pair is not on an allowed track; idempotent per (pair, uid): repeat → 200 the stored row, concurrent → 202 `{pending:true}`; 20/day. The partner's turns reach the model only as the questions that were answered and are not stored in the review. Every field is clamped by `reviewShape` before storage |
+| GET | `/reviews` | the caller's own reviews, newest first (≤ 40): `{id, pairId, round (session number), evidence, at, review}`. Nobody else's — there is no route to another learner's review |
 | POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite whoever you practise with: the **open session's partner first** (a trial with a stranger included — "if it does not click, leave"), else the connected partner; 404 `no_connection` when neither (idempotent per open session; 20/day) |
 | GET | `/live/:id` | session view + `iceServers` (members only) |
 | POST | `/live/:id/accept` · `/decline` (guest) · `/cancel` (host) | as named, idempotent |
@@ -57,9 +61,9 @@ deployed.
 
 ## Local development (nothing leaves the machine)
 ```
-npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0008
+npx wrangler d1 migrations apply be-partner --local --env dev   # 0001 … 0009
 npx wrangler dev --env dev --port 8787
-node test/run.mjs            # 98 integration checks against the local Worker
+node test/run.mjs            # 146 integration checks against the local Worker (REVIEW_STUB=1 in [env.dev])
 ```
 In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.1:8787"`,
 `localStorage.be_partner_dev_user = "alice"` and
@@ -67,7 +71,7 @@ In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.
 The client sends `X-Dev-User` instead of a Firebase token only for localhost/127.0.0.1 hosts.
 
 ## Errors the client handles
-`auth` 401 · `disabled` 503 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` 403 ·
+`auth` 401 · `disabled` 503 · `review_off` 503 · `review_unavailable` 502 · `not_complete` 409 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` 403 ·
 `paired` / `not_waiting` / `gone` / `busy` / `closed` / `complete` / `not_your_turn` / `not_complete` / `no_pair` 409 ·
 `offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `limit` / `ip_limit` 429 · `live_off` 403 · `closed` 409 (live).
 
@@ -76,7 +80,7 @@ Transcript screen (phones, e-mails, links, handles, messenger names, "call
 me / add me" EN+FR); audio only via membership-checked route; block = pair
 closed + never re-paired; rematch = 14-day cooldown (sorts that learner last — it no longer hides them); two distinct reporters =
 30-day suspension; daily limits (interest 10, match 30, invite 10, report 5,
-block 20, decide 40, live 20, AI sessions 12, end partnership 10); turns alternate, four per session, audio ≤ 1.5 MB /
+block 20, decide 40, live 20, AI sessions 12, end partnership 10, reviews 20); turns alternate, four per session, audio ≤ 1.5 MB /
 ≤ 75 s; per-IP limit; `audit` table (90 days); audio of closed pairs purged
 14 days after close by the daily cron, which also stamps abandoned sessions
 on the side whose turn it was (only if they had a full `PARTNER_TIMEOUT_H`

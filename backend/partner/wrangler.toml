@@ -34,6 +34,9 @@ MATCH_WEIGHTS = "{}"           # JSON overrides of WEIGHTS_DEFAULT in partner-wo
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
 TURNS_PER_DAY = "3"
+# Round Review needs the AI key as a secret: `npx wrangler secret put OPENAI_KEY`
+# (the same provider key Executive Polish uses). Without it POST /pairs/:id/review
+# answers 503 review_off. REVIEW_STUB="1" (dev only) builds a deterministic review.
 
 [[d1_databases]]
 binding = "DB"
@@ -61,6 +64,7 @@ MATCH_WEIGHTS = "{}"
 IP_PER_MIN = "100000"
 DAILY_LIMITS = "{}"            # the test suites assert the production defaults          # the test suites hammer one IP; production keeps the 120 default
 DEV_AUTH = "1"
+REVIEW_STUB = "1"              # Round Review without a provider key: deterministic from the transcript
 
 [[env.dev.d1_databases]]
 binding = "DB"

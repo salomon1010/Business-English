@@ -27,6 +27,7 @@ function turnForm(transcript, o = {}) {
   const fd = new FormData();
   fd.set("audio", o.audio || audioBlob(), "turn.webm"); fd.set("transcript", transcript);
   fd.set("score", String(o.score ?? 82)); fd.set("duration_ms", String(o.duration ?? 12_000)); if (o.turnId) fd.set("turn_id", o.turnId);
+  if (o.words) fd.set("words", JSON.stringify(o.words));
   return fd;
 }
 const turn = (u, text, o) => call(u, "POST", "/turns", turnForm(text, o));
@@ -87,17 +88,37 @@ await call("gus", "DELETE", "/interest");
 
 /* rounds: alternate, 2 each, then complete */
 let t1 = null;
-{ const a = await turn("alice", "Hello Bob, I am Alice. This week I worked on the new invoice process."); t1 = a.json.turn;
+{ const a = await turn("alice", "Hello Bob, I am Alice. I am working in data since three years. This week I worked on the new invoice process, it was very good.",
+    { words: { mode: "whisper", list: [{ word: "invoice", score: 95 }, { word: "process", score: 95 }, { word: "approvals", score: 40, note: "unclear" }] } }); t1 = a.json.turn;
   ok("Alice speaks first (round 1) → 201", a.status === 201 && a.json.turn.seq === 1);
+  ok("no four-round review before the session is complete (409 not_complete) — the analysis waits for all four rounds", (await call("alice", "POST", `/pairs/${pairId}/review`, { context: { topic: "x" } })).json.error === "not_complete");
   const again = await turn("alice", "Let me add something."); ok("Alice cannot speak twice in a row → 409 not_your_turn", again.json.error === "not_your_turn");
   const bobMe = await call("bob", "GET", "/me"); ok("Bob sees round 2, unread 1, it is his turn", bobMe.json.pair.round === 2 && bobMe.json.pair.unread === 1 && bobMe.json.pair.myTurn === true);
   ok("non-member cannot stream the audio (403); no auth 401", (await call("carol", "GET", `/turns/${t1.id}/audio`)).status === 403 && (await call(null, "GET", `/turns/${t1.id}/audio`)).status === 401);
   ok("member streams the audio", (await call("bob", "GET", `/turns/${t1.id}/audio`)).status === 200);
   ok("contact details in a transcript → 422 moderation", (await turn("bob", "add me on whatsapp 06 12 34 56 78")).status === 422);
   const b1 = await turn("bob", "Hi Alice, nice to meet you. I work in logistics. What was hard about the invoices?"); ok("Bob replies (round 2)", b1.status === 201 && !b1.json.complete);
-  const a2 = await turn("alice", "The hardest part was the approvals."); const b2 = await turn("bob", "Thanks, that makes sense. Next week I will try the same.");
+  const a2 = await turn("alice", "The hardest part was the approvals. I am responsible for the weekly report and it was very good to finish it."); const b2 = await turn("bob", "Thanks, that makes sense. Next week I will try the same.");
   ok("four turns → session complete flag; further turns 409 complete", a2.status === 201 && b2.status === 201 && b2.json.complete === true && (await turn("alice", "one more")).json.error === "complete");
   const me = await call("alice", "GET", "/me"); ok("both see complete, no one has decided", me.json.pair.complete && me.json.pair.myDecision === null && me.json.pair.partnerDecided === false); }
+
+/* Four-round review: the learner's own session → a private, topic-aware lesson; idempotent; never the partner's */
+const CTX = { week: 1, day: "Tue", topic: "“Tell me about yourself”", objective: "Build your baseline and start speaking clearly about yourself and your role.", task: "Record a 90-second answer: current role → core responsibilities → previous experience → current focus.", phrases: [{ p: "I currently work as…", u: "Introduce your role" }, { p: "I'm responsible for…", u: "Describe ownership" }, { p: "My background is in…", u: "Give your history" }] };
+{ const r1 = await call("alice", "POST", `/pairs/${pairId}/review`, { context: CTX }); const R = r1.json && r1.json.review;
+  ok("Alice reviews her completed session → 201: topic anchored, summary, what went well / to improve with evidence, task components from the curriculum task, 5 indicators + per-round evidence, coach script, polished answer, next practice", r1.status === 201 && R && R.topic.includes("Tell me about yourself") && R.summary && R.well.length >= 1 && R.improve.length >= 1 && R.task.components.length === 4 && typeof R.indicators.task === "number" && R.rounds.length === 2 && R.rounds.map(x => x.seq).join() === "1,3" && R.coach.script.length >= 3 && R.answer.polished && R.next.vocab.length >= 1 && R.next.skill, JSON.stringify(r1.json).slice(0, 400));
+  ok("task mastery names the curriculum's components, not invented ones: current role / core responsibilities / previous experience / current focus, each with a status", R && R.task.components.map(c => c.name).join("|") === "current role|core responsibilities|previous experience|current focus" && R.task.components.every(c => ["strong", "developing", "needs_practice", "missing"].includes(c.status)), JSON.stringify(R && R.task));
+  ok("the stub finds 'I am working in data since three years' → an 'error' fix with the present perfect and 'for'; 'very good' → an 'unnatural' fix, not an error; the recurring pattern is named", R && R.fixes.some(f => f.kind === "error" && /I've been working in data for three years/.test(f.better) && f.pattern) && R.fixes.some(f => f.kind === "unnatural" && f.said === "very good"), JSON.stringify(R && R.fixes));
+  ok("topic vocabulary: phrase-bank items not used become MUST KNOW; an overused basic word gets an UPGRADE with its count; sentence patterns listed", R && R.vocab.must.length >= 1 && R.vocab.must.every(m => m.term && m.meaning) && R.vocab.upgrade.some(u => u.replaces === "good" && u.count >= 1) && R.vocab.patterns.length >= 1, JSON.stringify(R && R.vocab));
+  ok("the polished answer keeps the learner's facts (invoice process, approvals) and applies the fixes", R && /invoice process/.test(R.answer.polished) && /approvals/.test(R.answer.polished) && /I've been working in data for three years/.test(R.answer.polished) && R.answer.changed.length >= 1, R && R.answer.polished);
+  ok("pronunciation honesty: words came from the recogniser (mode whisper) → evidence 'asr', the low word is 'check' (worth checking) with the round it came from, never 'heard'", R && R.evidence === "asr" && R.pron.length === 1 && R.pron[0].word === "approvals" && R.pron[0].confidence === "check" && R.pron[0].rounds.join() === "1", JSON.stringify(R && R.pron));
+  const r1b = await call("alice", "POST", `/pairs/${pairId}/review`, { context: CTX });
+  ok("a repeat is idempotent: 200, same id, same review — the model is not called twice", r1b.status === 200 && r1b.json.id === r1.json.id && JSON.stringify(r1b.json.review) === JSON.stringify(R));
+  ok("a non-member cannot review the session (403)", (await call("carol", "POST", `/pairs/${pairId}/review`, { context: CTX })).status === 403);
+  const rb = await call("bob", "POST", `/pairs/${pairId}/review`, { context: CTX });
+  ok("Bob's review of the same session is his own and private: 201, his rounds (2 and 4), nothing of Alice's turns quoted in 'said' or the polished answer", rb.status === 201 && rb.json.review.rounds.map(x => x.seq).join() === "2,4" && rb.json.review.fixes.every(f => !/invoice process|three years/.test(f.said)) && !/invoice process|three years/.test(rb.json.review.answer.original) && rb.json.id !== r1.json.id, JSON.stringify(rb.json).slice(0, 300));
+  const la = await call("alice", "GET", "/reviews"), lb = await call("bob", "GET", "/reviews");
+  ok("GET /reviews lists only the caller's own reviews (Alice 1, Bob 1) with pair id, session number and evidence — never the other learner's", la.json.reviews.length === 1 && la.json.reviews[0].id === r1.json.id && la.json.reviews[0].round === 1 && lb.json.reviews.length === 1 && lb.json.reviews[0].id === rb.json.id, JSON.stringify([la.json.reviews.map(r => [r.id, r.round]), lb.json.reviews.map(r => [r.id, r.round])]));
+}
 
 /* decide: continue by both → mutual connection; then /next starts a regular session */
 { const early = await call("bob", "POST", `/pairs/${pairId}/decide`, { choice: "continue" }); ok("Bob decides continue; pair stays open until Alice decides", early.status === 200 && early.json.pair && early.json.pair.myDecision === "continue");
@@ -194,6 +215,11 @@ let t1 = null;
   const after = (await call("ula", "GET", "/me")).json;
   ok("DELETE /history removes my turns of closed sessions (3) and their audio, keeps the open session's turn, and the partnership", hc.status === 200 && hc.json.turns === 3 && hc.json.audio === 3 && after.pair && after.pair.id === openId && after.pair.turns.length === 1 && after.pair.connection && before.pair.connection, JSON.stringify([hc.json, after.pair && after.pair.turns.length]));
   ok("DELETE /history twice → nothing left to remove, still ok", (await call("ula", "DELETE", "/history")).json.turns === 0);
+  ok("DELETE /history reports the reviews it removed (a number; Ula never asked for one → 0)", typeof hc.json.reviews === "number" && hc.json.reviews === 0);
+  { /* history clearing takes the Round Reviews of closed sessions with it; the open session's stays */
+    const mine = await call("alice", "GET", "/reviews"); const before = mine.json.reviews.length;
+    const hc = await call("alice", "DELETE", "/history"); const after = (await call("alice", "GET", "/reviews")).json.reviews.length;
+    ok("Alice clears her history → her reviews of CLOSED sessions are deleted with the turns; what remains belongs to open sessions only", hc.status === 200 && before >= 1 && hc.json.reviews >= 1 && after === before - hc.json.reviews, JSON.stringify([before, hc.json, after])); }
   await call("ula", "POST", `/pairs/${openId}/leave`);
   /* block → the blocker sees the name in /me.blocked; the blocked side sees nothing */
   const cidU = (await call("ula", "GET", "/me")).json.connection.cid;
