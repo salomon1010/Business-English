@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "Vous avez déjà {{max}} vidéos à vous — retirez-en une pour garder celle-ci",
  "sh.own_removed_toast": "Vidéo retirée",
  "cf.own_title": "Retirer cette vidéo ?",
- "cf.own_body": "« {{name}} » et sa transcription seront retirées de Vos vidéos. Vos enregistrements sont conservés."
+ "cf.own_body": "« {{name}} » et sa transcription seront retirées de Vos vidéos. Vos enregistrements sont conservés.",
+ "sh.clear_inputs": "Effacer le lien et la transcription"
 }

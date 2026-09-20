@@ -673,6 +673,8 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 /* Shadowing workspace — focused full-screen practice window */
 .sh-work{position:fixed;top:0;left:0;right:0;bottom:0;z-index:130;background:var(--bg);display:none;flex-direction:column;animation:fade .2s}
 .sh-paste{width:100%;margin-top:10px;min-height:64px;font-size:14px}
+.sh-load-row{display:flex;gap:8px;margin-top:10px;align-items:stretch}.sh-load-row .btn-primary{flex:1 1 auto;min-width:0;margin:0}
+.sh-in-clear{flex:none;min-width:52px;justify-content:center;color:var(--danger,#ef4444);border-color:color-mix(in srgb,var(--danger,#ef4444) 45%,var(--line2))}.sh-in-clear svg{width:20px;height:20px}
 .sh-paste-hint{font-size:12px;color:var(--mut);margin:6px 0 0;line-height:1.5}
 .sh-hint{display:flex;gap:9px;align-items:flex-start;margin-top:10px;padding:10px 14px;background:linear-gradient(150deg,rgba(99,102,241,.11),rgba(34,211,238,.07));border:1px solid rgba(99,102,241,.3);border-radius:11px;font-size:13px;line-height:1.5;color:var(--mut)}
 .sh-hint b{color:var(--txt)}
@@ -5430,6 +5432,7 @@ const I18N_EN={
  "sh.empty_trouble_body":"Words you mispronounce are collected here automatically. Record a shadow session and your speaking feedback will fill this list.",
  "sh.tab_create":"Create clip",
  "sh.tab_clips":"My clips",
+ "sh.clear_inputs":"Clear the link and the transcript",
  "sh.own_title":"🎬 Your videos",
  "sh.own_sub":"Videos you added yourself, with your transcript — up to {{max}}. They stay here until you remove them, so you can come back to one clip for as long as it takes.",
  "sh.own_empty":"Load a YouTube link above with its transcript and it is kept here — up to {{max}} of your own videos, ready to reopen any day.",
@@ -7971,7 +7974,10 @@ ${(()=>{
     <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="width:100%" onkeydown="if(event.key==='Enter')shLoadFromInput()">
     <textarea id="shPaste" class="grow-ta sh-paste" rows="3" placeholder="${esc(t("sh.paste_ph"))}" oninput="taGrow(this)"></textarea>
     <p class="sh-paste-hint">${tInl("sh.paste_hint","doc")}</p>
-    <button class="btn-primary" style="margin-top:10px" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
+    <div class="sh-load-row">
+      <button class="btn-primary" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
+      <button class="btn btn-g sh-in-clear" onclick="shClearInputs()" title="${esc(t("sh.clear_inputs"))}" aria-label="${esc(t("sh.clear_inputs"))}">${ic("trash")}</button>
+    </div>
     ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
@@ -8235,6 +8241,14 @@ function shOwnHTML(){
     ${L.length?`<div class="grid g3">${L.map(shOwnCard).join("")}</div>`:""}`;
 }
 function shOwnRender(){const el=document.getElementById("shOwn");if(el){el.innerHTML=shOwnHTML();try{manIconizeInline(el)}catch(e){}}}
+/* empty the link box and the transcript box — the link box always carries
+   the last video's URL (shLoad fills it), so pasting a new one meant
+   selecting and deleting first. Only the two boxes: nothing saved is touched. */
+window.shClearInputs=()=>{
+  const u=document.getElementById("shUrl"),pb=document.getElementById("shPaste");
+  if(u)u.value="";if(pb){pb.value="";try{taGrow(pb)}catch(e){}}
+  if(u)u.focus();
+};
 /* the pasted transcript for a video, raw; "" when there is none */
 function shPasted(vid){return (S.shTx&&S.shTx[vid])||""}
 async function shLoad(c,quiet){

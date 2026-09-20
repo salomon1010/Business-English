@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "Bạn đã có {{max}} video của mình — gỡ một video để giữ video này",
  "sh.own_removed_toast": "Đã gỡ video",
  "cf.own_title": "Gỡ video này?",
- "cf.own_body": "“{{name}}” và bản chép lời của nó sẽ bị gỡ khỏi Video của bạn. Các bản ghi âm của bạn vẫn được giữ."
+ "cf.own_body": "“{{name}}” và bản chép lời của nó sẽ bị gỡ khỏi Video của bạn. Các bản ghi âm của bạn vẫn được giữ.",
+ "sh.clear_inputs": "Xóa liên kết và bản chép lời"
 }

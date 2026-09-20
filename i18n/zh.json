@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "你已有 {{max}} 个自己的视频——移除一个才能保留这个",
  "sh.own_removed_toast": "视频已移除",
  "cf.own_title": "移除此视频？",
- "cf.own_body": "“{{name}}”及其文字稿将从「你的视频」中移除。你的录音会保留。"
+ "cf.own_body": "“{{name}}”及其文字稿将从「你的视频」中移除。你的录音会保留。",
+ "sh.clear_inputs": "清空链接和文字稿"
 }

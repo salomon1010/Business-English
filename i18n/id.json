@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "Anda sudah punya {{max}} video sendiri — hapus satu untuk menyimpan yang ini",
  "sh.own_removed_toast": "Video dihapus",
  "cf.own_title": "Hapus video ini?",
- "cf.own_body": "“{{name}}” dan transkripnya akan dihapus dari Video Anda. Rekaman Anda tetap tersimpan."
+ "cf.own_body": "“{{name}}” dan transkripnya akan dihapus dari Video Anda. Rekaman Anda tetap tersimpan.",
+ "sh.clear_inputs": "Kosongkan tautan dan transkrip"
 }

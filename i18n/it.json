@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "Hai già {{max}} video tuoi — rimuovine uno per tenere questo",
  "sh.own_removed_toast": "Video rimosso",
  "cf.own_title": "Rimuovere questo video?",
- "cf.own_body": "“{{name}}” e la sua trascrizione saranno rimossi da I tuoi video. Le tue registrazioni restano."
+ "cf.own_body": "“{{name}}” e la sua trascrizione saranno rimossi da I tuoi video. Le tue registrazioni restano.",
+ "sh.clear_inputs": "Cancella il link e la trascrizione"
 }

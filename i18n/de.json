@@ -1979,5 +1979,6 @@
  "sh.own_full_toast": "Du hast schon {{max}} eigene Videos — entferne eins, um dieses zu behalten",
  "sh.own_removed_toast": "Video entfernt",
  "cf.own_title": "Dieses Video entfernen?",
- "cf.own_body": "„{{name}}“ und sein Transkript werden aus Deine Videos entfernt. Deine Aufnahmen bleiben erhalten."
+ "cf.own_body": "„{{name}}“ und sein Transkript werden aus Deine Videos entfernt. Deine Aufnahmen bleiben erhalten.",
+ "sh.clear_inputs": "Link und Transkript leeren"
 }
