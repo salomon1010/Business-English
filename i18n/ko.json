@@ -1656,6 +1656,7 @@
  "sv.repeat": "반복",
  "sv.shadow_this": "이 문장 섀도잉",
  "sv.tx_unfold": "전체 대본 ({{n}}줄)",
+ "sv.tx_btn": "대본",
  "sv.tx_fold": "대본 접기",
  "sv.reveal": "보이기",
  "sv.hide": "다시 숨기기",

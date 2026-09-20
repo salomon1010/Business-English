@@ -1269,7 +1269,13 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-now .sv-w{cursor:pointer}
 .sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
 .sv-expr[hidden]{display:none}.sv-expr b{color:var(--txt);font-weight:700}.sv-expr .sv-expr-lbl{text-transform:uppercase;letter-spacing:1px;font-size:10.5px;font-weight:800;color:var(--accent-text)}
-.sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}.sv-ctl .btn{display:inline-flex;align-items:center;gap:6px}.sv-ctl svg{width:16px;height:16px}.sv-ctl .btn.on{border-color:var(--acc);color:var(--accent-text)}
+.sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+/* one line, always: the transcript switch grows, the three steppers are square */
+.sv-ctl-row{flex-wrap:nowrap}.sv-ctl-row .sv-tx-btn{flex:1 1 auto;min-width:0;justify-content:center;white-space:nowrap}
+.sv-ctl-row .sv-ic{flex:0 0 44px;width:44px;padding:0;justify-content:center}
+.sv-tx-n{font-size:11px;font-weight:700;padding:1px 6px;border-radius:99px;background:var(--bg2);border:1px solid var(--line);color:var(--mut);margin-left:2px}
+.sv-tx-btn.on .sv-tx-n{border-color:var(--acc);color:var(--accent-text)}
+.sv-shadow-this{width:100%;justify-content:center}.sv-ctl .btn{display:inline-flex;align-items:center;gap:6px}.sv-ctl svg{width:16px;height:16px}.sv-ctl .btn.on{border-color:var(--acc);color:var(--accent-text)}
 .sv-empty{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--mut)}.sv-empty svg{width:16px;height:16px;flex:none}
 .sv-apply{margin-top:12px;padding:12px;border-radius:12px;background:var(--bg2);border:1px solid var(--line)}.sv-phrase{font-size:16px;font-weight:800;margin:6px 0}
 /* Challenge: one line, say it without reading, one strength + one correction */
@@ -4731,7 +4737,7 @@ const I18N_EN={
  "sv.challenge_note":"Listen and say it before you look.",
  "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
  "sv.reveal":"Reveal","sv.hide":"Hide again",
- "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript",
+ "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript","sv.tx_btn":"Transcript",
  "sv.apply_eyebrow":"Apply it","sv.apply_sub":"Use this expression in your own sentence — with the AI coach, or with a real learner.",
  "sv.apply_ai":"Practise with AI","sv.apply_partner":"Use it with a partner","sv.apply_pick":"Tap another sentence in the transcript to pick a different expression.",
  "sv.cur_expr":"Current expression",
@@ -13529,14 +13535,14 @@ function svRender(){
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
     <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
-    <div class="sv-ctl">
-      ${svMode!=="challenge"?`<button class="btn btn-g btn-sm ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}">${ic("doc")} ${svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length})}</button>`:""}
-      ${timed?`<button class="btn btn-g btn-sm" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}">${ic("rewind")}</button>
-      <button class="btn btn-g btn-sm ${svRepeat?"on":""}" onclick="svRepeatToggle()">${ic("repeat")} ${t("sv.repeat")}</button>
-      <button class="btn btn-g btn-sm" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
-      ${svMode==="shadow"&&timed?`<button class="btn btn-p btn-sm" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button>`:""}
+    <div class="sv-ctl sv-ctl-row">
+      ${svMode!=="challenge"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
+      ${timed?`<button class="btn btn-g btn-sm sv-ic" onclick="svStep(-1)" aria-label="${esc(t("sv.prev"))}" title="${esc(t("sv.prev"))}">${ic("rewind")}</button>
+      <button class="btn btn-g btn-sm sv-ic ${svRepeat?"on":""}" onclick="svRepeatToggle()" aria-pressed="${!!svRepeat}" aria-label="${esc(t("sv.repeat"))}" title="${esc(t("sv.repeat"))}">${ic("repeat")}</button>
+      <button class="btn btn-g btn-sm sv-ic" onclick="svStep(1)" aria-label="${esc(t("sv.next"))}" title="${esc(t("sv.next"))}">${ic("forward")}</button>`:""}
       ${svMode==="challenge"?(txHidden?`<button class="btn btn-g btn-sm" onclick="svReveal()">${ic("eye")} ${t("sv.reveal")}</button>`:svRevealed&&svTxHiddenNow()?`<button class="btn btn-g btn-sm" onclick="svHide()">${ic("eye")} ${t("sv.hide")}</button>`:``):""}
     </div>
+    ${svMode==="shadow"&&timed?`<div class="sv-ctl"><button class="btn-primary sv-shadow-this" onclick="svShadowThis()">${ic("mic")} ${t("sv.shadow_this")}</button></div>`:""}
     ${svMode==="apply"?svApplyHTML():""}`;
   manIconizeInline(box);
   const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first

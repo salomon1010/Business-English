@@ -1656,6 +1656,7 @@
  "sv.repeat": "Wiederholen",
  "sv.shadow_this": "Diesen Satz nachsprechen",
  "sv.tx_unfold": "Ganzes Transkript ({{n}} Zeilen)",
+ "sv.tx_btn": "Transkript",
  "sv.tx_fold": "Transkript einklappen",
  "sv.reveal": "Aufdecken",
  "sv.hide": "Wieder verbergen",
