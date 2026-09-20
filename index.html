@@ -13484,7 +13484,7 @@ function svBox(){return document.getElementById("shV2")}
    transcript box, else none */
 async function shV2Load(){
   const box=svBox();if(!box)return;
-  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}shClipToolsShow(true);shLowerShow(true);return}
+  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);return}
   const vid=shClip.vid;
   let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
   if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
@@ -13511,7 +13511,7 @@ async function shV2Load(){
 function svRender(){
   const box=svBox();if(!box)return;
   const a=svAsset;
-  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}shClipToolsShow(true);shLowerShow(true);return}
+  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);return}
   box.style.display="";
   const timed=a.level==="word"||a.level==="sentence";
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
@@ -13531,18 +13531,22 @@ function svRender(){
   const txHidden=svMode==="challenge"&&!svRevealed&&svTxHiddenNow();
   const chPanel=svMode==="challenge"&&svChOn()?svChHTML():"";
   /* the tabs sit in the pinned block when it is there (always one tap away,
-     even mid-shadow). WATCH always shows the full list, scrolling with the
-     speech — an empty Watch read as broken — and its chevron only folds the
-     clip tools and the cards under the list. SHADOW folds the list by
-     default (the card under the video already shows the line) behind the
-     Transcript button. The clip tools are the first thing under the player
-     in Watch (released) and Shadow, hidden in Challenge. */
+     even mid-shadow). WATCH is the fold: closed, nothing under the pinned
+     block (the card keeps following — the tick does not need the list);
+     open, the full list is on the page and scrolls with the speech from the
+     line being spoken. SHADOW folds the list by default (the card under the
+     video already shows the line) behind the Transcript button. The clip
+     tools are the first thing under the player in Watch (open) and Shadow,
+     hidden in Challenge. */
   const tabsEl=document.getElementById("svTabs");
   if(tabsEl){tabsEl.innerHTML=tabs;tabsEl.hidden=false}
   const folded=svMode==="shadow"&&!svTxOpen;
   const watchFolded=svMode==="watch"&&!svWatchOpen;
   shClipToolsShow(svMode!=="challenge"&&!watchFolded);
   shLowerShow(!watchFolded);
+  svPlace(svMode==="watch");
+  if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
+  svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
   box.innerHTML=`
     ${tabsEl?"":`<div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>`}
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
@@ -13567,8 +13571,18 @@ function svRender(){
    it, and only while the learner should be recalling: before and during the
    attempt. Feedback, the pass state and an error show it again. Guided keeps
    it until the recording starts. */
+/* where the panel sits: in Watch the transcript is the point, so it goes
+   straight under the tabs and the clip tools follow it; in Shadow and
+   Challenge the clip tools come first (its original place, after #shMarkHint).
+   A DOM move rather than CSS order, so shLowerShow's sibling walk stays true. */
+function svPlace(first){
+  const box=svBox(),seg=document.getElementById("shSeg"),hint=document.getElementById("shMarkHint");if(!box||!seg||!hint||box.parentNode!==seg.parentNode)return;
+  if(first){if(box.nextElementSibling!==seg)seg.parentNode.insertBefore(box,seg)}
+  else if(hint.nextElementSibling!==box)hint.parentNode.insertBefore(box,hint.nextElementSibling);
+}
 /* the full list, folded or open; remembered on this device */
 let svTxOpen=false;try{svTxOpen=localStorage.getItem("be_sv_txopen")==="1"}catch(e){}
+let svTxFresh=false;   // set by svRender, cleared by the first tick that can scroll the new list to the spoken line
 window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen",svTxOpen?"1":"0")}catch(e){}svRender()};
 /* the fold state applied to the clip tools and the lower cards: everything
    shown when the V2 panel is off (Welding, no text), else Watch-folded hides
@@ -13615,10 +13629,11 @@ function svApplyHTML(){
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
 }
-/* Watch is also the fold: arriving folds the clip tools and the cards under
-   the list — video, card, transport, tabs and the moving transcript, nothing
-   else, for pure watching; tapping Watch again releases the tools. Shadow
-   and Challenge always show theirs. */
+/* Watch is also the fold: the first tap (or arriving) hides everything under
+   the pinned block — video, card, transport, tabs, nothing else, for pure
+   watching; tapping Watch again opens the full transcript (already at the
+   line being spoken, moving with the video) and the clip tools. Shadow and
+   Challenge always show theirs. */
 let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
 window.svSetMode=m=>{
   if(m==="watch"&&svMode==="watch"){svWatchOpen=!svWatchOpen;try{localStorage.setItem("be_sv_watchopen",svWatchOpen?"1":"0")}catch(e){}}
@@ -13869,12 +13884,12 @@ let svAutoUntil=0;
 function svOnTxScroll(){if(Date.now()>svAutoUntil)svUserScrollAt=Date.now()}
 function svScrollTo(tx,el){
   svAutoUntil=Date.now()+800;
-  /* the card above shows the window's two lines, so the box starts at the line after them */
-  const lastSeg=svNowWin&&svFlat&&svFlat[svNowWin[1]-1]?svFlat[svNowWin[1]-1].i:-1;
-  const after=lastSeg>=0?tx.querySelector(`.sv-seg[data-i="${lastSeg+1}"]`):null;
-  const nxt=after||el.nextElementSibling;
-  const tgt=nxt||el,r=tgt.getBoundingClientRect(),box=tx.getBoundingClientRect();
-  const top=tx.scrollTop+(r.top-box.top)-(nxt?4:(tx.clientHeight-r.height)/2);
+  /* the line being spoken sits at the top of the box, its word lit, the
+     road ahead under it — so the list visibly moves with the voice. (It used
+     to start at the line AFTER the card's window; with the spoken line out
+     of sight the list looked frozen.) */
+  const r=el.getBoundingClientRect(),box=tx.getBoundingClientRect();
+  const top=tx.scrollTop+(r.top-box.top)-4;
   try{tx.scrollTo({top:Math.max(0,top),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){tx.scrollTop=Math.max(0,top)}
 }
 /* the pinned card under the video: the sentence being spoken, one span per
@@ -13943,7 +13958,7 @@ function svTick(){
     const wasWin=svNowWin;svNowDraw(loc.seg,false,loc.word);
     if(svPick<0&&loc.seg>=0)svExprDraw(loc.seg);   // never touch svLast here: the word block below compares against it
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
-    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000&&el.offsetParent)svScrollTo(tx,el)}}
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if((svTxFresh||(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000))&&el.offsetParent){svScrollTo(tx,el);svTxFresh=false}}}
   }
   if(loc.word!==svLast.word||loc.seg!==svLast.seg){
     tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));
