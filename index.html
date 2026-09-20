@@ -1402,6 +1402,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 :root[data-theme="light"] #ppFab .pp-fab-n{border-color:#fff}
 #ppFab.on{opacity:1;transform:none;pointer-events:auto}#ppFab.lift{bottom:calc(env(safe-area-inset-bottom,0px) + 150px)}#ppFab svg{width:29px;height:29px;stroke-width:1.5}#ppFab.enter.on{animation:ppfab .6s ease-out}@keyframes ppfab{0%{transform:translateY(24px) scale(.9);opacity:0}60%{transform:translateY(-4px) scale(1.02);opacity:1}100%{transform:none}}
 @media (prefers-reduced-motion:reduce){.pp-attn,#ppFab.enter.on,.pp-presence.some .pp-presence-dot{animation:none}}
+/* Desktop: the disc keeps company with the 880px column instead of drifting to
+   the far edge of a wide window — its centre sits ~115px past the column's
+   right edge, and never closer than 14px to the viewport on narrow desktops. */
+@media(min-width:900px){#ppFab{right:max(14px,calc(50% - 570px))}}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #ppPill.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}#ppPill .pp-pill-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ppPill .pp-pill-go{opacity:.8;font-size:16px;line-height:1}
 #ppPill .pp-pill-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#fff}#ppPill.pp-pill-live{background:linear-gradient(135deg,#0b6b8f,#12a56a)}
