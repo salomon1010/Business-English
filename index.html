@@ -279,10 +279,10 @@ window.FB_CONFIG={
    sound waves showing they are connected and talking. So it is a landscape
    composition, centred, never wider than the viewport, sitting in the band
    between the header and the first card (the cards slide over it on scroll). */
-.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 100px);left:0;right:0;margin:0 auto;width:min(92vw,560px);aspect-ratio:600/320;color:#cfd3e6;opacity:.6;
+.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 100px);left:0;right:0;margin:0 auto;width:min(92vw,560px);aspect-ratio:600/320;color:#cfd3e6;opacity:.34;
   -webkit-mask-image:radial-gradient(ellipse closest-side,#000 74%,rgba(0,0,0,.75) 90%,transparent 108%);mask-image:radial-gradient(ellipse closest-side,#000 74%,rgba(0,0,0,.75) 90%,transparent 108%);
   filter:drop-shadow(0 0 12px rgba(167,139,250,.22));animation:ppBgDrift 26s ease-in-out infinite alternate}
-.pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.95}
+.pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.8}
 .pp-bg-art .pp-bg-accs{stroke:var(--acc)}
 .pp-bg-art .pp-bg-grad{stroke:url(#ppBgGrad)}
 .pp-bg-spin{transform-origin:300px 160px;animation:ppBgSpin 120s linear infinite}
@@ -293,17 +293,16 @@ window.FB_CONFIG={
 .pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#7c78a6,transparent 70%);opacity:.26;animation:ppBgDrift 40s ease-in-out infinite alternate}
 .pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(190,194,214,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(190,194,214,.06) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
-:root[data-theme="light"] .pp-bg-art{color:#4e526a;opacity:.32;filter:none}
+:root[data-theme="light"] .pp-bg-art{color:#4e526a;opacity:.18;filter:none}
 :root[data-theme="light"] .pp-bg-orb{opacity:.2}:root[data-theme="light"] .pp-bg-orb.b{opacity:.14}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(60,64,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(60,64,90,.06) 1px,transparent 1px)}
 @keyframes ppBgDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,1.2vh,0) scale(1.03)}}
 @keyframes ppBgWave{0%,100%{opacity:.35}50%{opacity:1}}
 @keyframes ppBgSpin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.pp-bg-art,.pp-bg-orb,.pp-bg-spin,.pp-bg-wave{animation:none}}
 @media (min-width:900px){.pp-bg-art{top:calc(env(safe-area-inset-top,0px) + 104px)}}
-/* The scene owns the band under the eyebrow: the back link (and so the title)
-   starts below it, so the whole picture is seen before any text. Same width
-   maths as .pp-bg-art (600:320), plus a little air. */
-:root[data-view="partner"] #v-partner>.back{margin-top:calc(min(92vw,560px) * 0.5 + 14px)}
+/* Owner, later the same day: the scene is a BACKDROP — the back link, title
+   and tagline start straight under the eyebrow and the picture sits behind
+   them, so nothing is pushed down the page. Kept faint enough to read over. */
 /* Partner cards sit on the line-art: a hairline violet edge and a soft top light. */
 :root[data-view="partner"] #v-partner .card{box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.05)}
 :root[data-view="partner"] #v-partner .pp-head{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
