@@ -72,6 +72,8 @@ unless marked *(documented, not automated)*.
 - **Find someone else** in a session (`decide rematch`): closes the session, 14-day cooldown (ranks that learner last in the cards; since 2026-09-19 it does not hide them — Block does), connection `disconnected`.
 - **End partnership** (`/connection/end {cid}`): connection `ended`, 14-day cooldown, any open session/call with that partner closed as `left`; not a block, not a report; the other learner only sees the partnership is gone. Idempotent; the `cid` resolves only against the caller's own connections, so nobody can end someone else's.
 - **Block** / **Report**: unchanged safety actions, now also available from the connection card (`/connection/block`, `/connection/report`) and during live calls.
+- **Unblock** (`/connection/unblock {cid}`, 2026-09-20): only the person who placed a block can lift it — from **Change preferences → Blocked learners** or the History tab. A fresh start, not a restored partnership: the connection goes `blocked → ended`, no cooldown, the two can be offered to each other again like strangers. The other side is never told, in either direction; if they blocked too, their block stands.
+- **History** (the second tab of the page): the learner's own device record of every session, turn, score, call, AI practice and safety action — the partner's words are never kept. **Clear my history** removes it on the device and in the account backup and deletes the learner's own recordings of closed sessions from the server at once (`DELETE /history`); reports and blocks stay, because they protect other people.
 
 ## Report, block, leave, decide
 - **Report** (harassment, contact details, not English, abusive, other): one

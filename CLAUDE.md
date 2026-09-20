@@ -75,7 +75,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   `go`. Current page persists in `location.hash` **and** `sessionStorage["be_view"]`
   (so an installed-PWA relaunch to `start_url:"./"`, which drops the hash, restores
   the page). Valid views incl. home/journey/phrases/shadow/review/profile/data/
-  session/manual (roleplay/pron exist but are hidden from nav).
+  session/manual. `pron` exists but is hidden from nav. `roleplay` is NOT hidden:
+  on General English the Practice tab shows a "Life Simulations" card
+  (`home.rp_title`, "Practise a real conversation") that calls `go('roleplay')`
+  — 14 `SCENARIOS`, replies via the Worker; on Welding the same card opens
+  `simulation`. Verified on the live site 2026-09-14.
 - **State:** single `S` object in `localStorage`; `save()` persists (+ Firebase push
   if signed in). Activity for streak/calendar: `S.dates` (YYYY-MM-DD), `S.dayLog`
   (per-day count), `S.fbHist` (timestamped feedback). `markPracticed()` lights up a
@@ -177,7 +181,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:
-  `backend/partner/test/run.mjs` (106), `tests/partner.mjs` (122, browser
+  `backend/partner/test/run.mjs` (132), `tests/partner.mjs` (136, browser
   contexts incl. a Welding learner, fake mic). **Owner rules, 2026-09-19 — do
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
@@ -202,7 +206,22 @@ not JS, and `new Function` chokes on it. Check it separately with
   (PRODUCT_SPEC, ARCHITECTURE, DATA_MODEL, SAFETY, TEST_PLAN incl. the manual
   real-device checklist, RELEASE_PLAN incl. rollback, PILOT — staging from
   the branch, the owner's step list, what to watch, rollback timings —
-  DEVICE_CHECKLIST (63 rows × iPhone / Android, none run), SHADOW_STUDIO_V2).
+  DEVICE_CHECKLIST (66 rows × iPhone / Android; Levels 1–3 partly certified on
+  staging 2026-09-20, evidence in the notes column), SHADOW_STUDIO_V2).
+  **Unblock + History (2026-09-20):** `POST /connection/unblock {cid}` lifts
+  only the caller's own block (connection `blocked → ended`, fresh start, no
+  cooldown, the other side never told); `GET /me.blocked` lists them for the
+  blocker; UI in Change preferences → Blocked learners and on the History row.
+  The page has two tabs (`ppTabsHTML`): Practise and **History**
+  (`go('partner','history')`, `ppHistoryHTML`). History lives in **`S.ppHist`**
+  (top-level, `tk`-stamped, 200/area, merged by id in `fbMerge`, `tx` stripped
+  by `fbSyncPayload`) because the Worker purges turns 14 days after close;
+  `ppHistSyncPair` rebuilds the session entry from `/me.pair` on every refresh,
+  `ppHistLive/Ai/Safety/Match` log the rest; the partner's transcript is never
+  kept. **Clear my history** = local wipe + `DELETE /history` (own turns of
+  closed pairs, R2 + rows). Also fixed: `acceptPair` now gives two connected
+  partners a `regular` pair (it minted `trial`), and the duplicated `pp.avail_h`
+  key — the preferences heading is `pp.free_h`.
   `wrangler.toml` has `[env.staging]` (own Worker/D1/R2, no DEV_AUTH) for that.
   Staging also needs `https://staging.lomonec.com` in the Polish Worker's
   hard-coded `ALLOWED_ORIGINS` (a production redeploy — owner decision, not done).

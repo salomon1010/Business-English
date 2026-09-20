@@ -1415,6 +1415,34 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-decide b{font-size:16px;display:block;margin:4px 0 6px}.pp-tip{font-size:13.5px;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin:8px 0}.pp-tip svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--gold)}
 .pp-ai-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold);margin-right:6px;vertical-align:middle}
 .pp-conn{margin-top:12px}.pp-apply-card{margin-top:12px}.pp-adult{margin-top:12px;font-weight:700}
+/* History tab + blocked learners */
+.pp-tabs{margin:2px 0 12px}.pp-tabs .seg-tab{flex:1 1 0;justify-content:center;display:inline-flex;align-items:center;gap:6px;line-height:1}.pp-tabs .seg-tab svg{width:16px;height:16px;flex:0 0 auto}
+.pp-hist-head .sub{margin:2px 0 10px}.pp-hist-stats{margin:0 0 6px}.pp-hist-stats .stat{padding:10px 6px}.pp-hist-stats .stat .l{font-size:11px}
+.pp-hist-trend{margin:4px 0 0}
+.pp-hist-chips{margin:0 0 10px}.pp-hist-chips .seg-tab{padding:6px 12px;font-size:12px}
+.pp-hist-list{padding:6px 12px}
+.pp-hist-day{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:10px 0 4px}
+.pp-hist-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.pp-hist-day+.pp-hist-row{border-top:0}
+details.pp-hist-row{display:block}details.pp-hist-row>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none}
+details.pp-hist-row>summary::-webkit-details-marker{display:none}
+details.pp-hist-row>summary::after{content:"›";color:var(--mut);font-size:18px;transition:transform .15s}
+details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
+.pp-hist-ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--acc);flex:0 0 auto}
+.pp-hist-ic svg{width:16px;height:16px}
+.pp-hist-ic.pp-hist-ai{background:color-mix(in srgb,var(--gold) 22%,transparent);color:var(--gold)}
+.pp-hist-ic.pp-hist-safe{background:color-mix(in srgb,var(--mut) 18%,transparent);color:var(--mut)}
+.pp-hist-t{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}.pp-hist-t b{font-size:14px;line-height:1.25}.pp-hist-t small{color:var(--mut);font-size:12px}
+.pp-hist-tm{color:var(--mut);font-size:11px;flex:0 0 auto}
+.pp-hist-minor .pp-hist-t b{font-weight:600;color:var(--mut)}
+.pp-hist-detail{padding:4px 0 6px 42px}
+.pp-hist-turn{padding:6px 0;border-top:1px dashed var(--line)}.pp-hist-turn:first-child{border-top:0}.pp-hist-turn b{font-size:13px}.pp-hist-turn .pp-tx{margin:4px 0}
+.pp-hist-weak{display:flex;gap:6px;align-items:center;color:var(--mut);font-size:12px}.pp-hist-weak svg{width:14px;height:14px;flex:0 0 auto}
+.pp-hist-line{margin:6px 0 0;font-size:13px;color:var(--mut)}
+.pp-hist-note{margin:12px 2px 6px;display:flex;gap:8px;align-items:flex-start}.pp-hist-note svg{width:16px;height:16px;flex:0 0 auto;margin-top:1px}
+.btn-danger-soft{color:var(--red);border-color:color-mix(in srgb,var(--red) 45%,var(--line2))}
+.pp-blocked{margin-top:12px}.pp-blocked>b{display:flex;align-items:center;gap:6px}.pp-blocked>b svg{width:16px;height:16px}
+.pp-blocked-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line)}.pp-blocked-row>span{display:flex;gap:4px;align-items:baseline;flex-wrap:wrap}.pp-blocked-row small{color:var(--mut)}
 .pp-row svg,.pp-recbtn svg,.pp-sheet-btn svg,.pp-play svg{width:18px;height:18px;flex:none}.pp-row .btn,.pp-row .btn-primary{display:inline-flex;align-items:center;gap:8px}
 /* ---- Foundations (Stage 0) ---- */
 .fnd-home{margin:0 0 16px;border-color:color-mix(in srgb,var(--acc) 45%,var(--line2));background:linear-gradient(150deg,color-mix(in srgb,var(--acc) 12%,var(--card)),var(--card))}
@@ -4894,7 +4922,7 @@ const I18N_EN={
  "pp.avail_evening":"Evening",
  "pp.avail_afternoon":"Afternoon",
  "pp.avail_morning":"Morning",
- "pp.avail_h":"When are you usually free?",
+ "pp.free_h":"When are you usually free?",
  "pp.mode_either":"Voice, and live when it comes",
  "pp.mode_voice":"Voice messages",
  "pp.mode_h":"How do you want to practise?",
@@ -5154,9 +5182,75 @@ const I18N_EN={
  "pp.report_done":"Thank you. Your report is recorded.",
  "pp.block":"Block",
  "pp.block_h":"Block {{name}}?",
- "pp.block_sub":"This ends the pair now. You will never be paired again, and they can no longer hear your turns.",
+ "pp.block_sub":"This ends the pair now. You will not be paired again and they can no longer hear your turns — unless you lift the block later under Change preferences.",
  "pp.block_done":"Blocked. You can get a new partner.",
  "pp.leave":"Leave today's practice",
+ "pp.tab_practise":"Practise",
+ "pp.tab_history":"History",
+ "pp.hist_h":"Your history",
+ "pp.hist_sub":"Everything you did here, kept on your device so you can see how you are moving.",
+ "pp.hist_empty_h":"Your story starts with one recording.",
+ "pp.hist_empty_sub":"Your first practice will appear here — each turn, each score, each call.",
+ "pp.hist_stat_sessions":"Sessions",
+ "pp.hist_stat_turns":"Turns sent",
+ "pp.hist_stat_avg":"Average score",
+ "pp.hist_stat_live":"Live calls",
+ "pp.hist_trend_up":"Your last {{n}} turns average {{a}}% — up {{d}} on the {{n}} before.",
+ "pp.hist_trend_down":"Your last {{n}} turns average {{a}}% — down {{d}} on the {{n}} before. One slow, clear turn brings it back.",
+ "pp.hist_trend_flat":"Your last {{n}} turns average {{a}}% — steady.",
+ "pp.hist_trend_few":"After five sent turns this line shows whether you are moving up.",
+ "pp.hist_f_all":"All",
+ "pp.hist_f_session":"Sessions",
+ "pp.hist_f_live":"Live",
+ "pp.hist_f_ai":"AI coach",
+ "pp.hist_f_safety":"Safety",
+ "pp.hist_today":"Today",
+ "pp.hist_yesterday":"Yesterday",
+ "pp.hist_session":"Practice with {{name}}",
+ "pp.hist_live":"Live call with {{name}}",
+ "pp.hist_ai":"AI coach practice",
+ "pp.hist_sent_n":"{{n}} sent",
+ "pp.hist_theirs_n":"{{n}} from {{name}}",
+ "pp.hist_turn":"Your turn {{n}}",
+ "pp.hist_weak":"Work on: {{word}} ({{n}}%)",
+ "pp.hist_tip":"Tip",
+ "pp.hist_decision_continue":"You chose to keep practising together.",
+ "pp.hist_decision_rematch":"You chose someone else.",
+ "pp.hist_decision_later":"You chose not now.",
+ "pp.hist_out_partners":"You became practice partners.",
+ "pp.hist_out_left":"The session ended early.",
+ "pp.hist_out_expired":"The session expired.",
+ "pp.hist_out_ended":"The partnership ended.",
+ "pp.hist_live_completed":"finished, {{n}} rounds",
+ "pp.hist_live_left":"you left",
+ "pp.hist_live_partner_left":"{{name}} left",
+ "pp.hist_live_failed":"could not connect",
+ "pp.hist_live_other":"did not take place",
+ "pp.hist_secs":"{{m}} min {{s}} s",
+ "pp.hist_incomplete":"not finished",
+ "pp.hist_safety_report":"You reported {{name}}",
+ "pp.hist_safety_block":"You blocked {{name}}",
+ "pp.hist_safety_unblock":"You unblocked {{name}}",
+ "pp.hist_safety_end":"You ended the partnership with {{name}}",
+ "pp.hist_safety_rematch":"You looked for someone new after {{name}}",
+ "pp.hist_match_joined":"You joined the waiting list",
+ "pp.hist_match_invited":"You asked {{name}} to practise",
+ "pp.hist_match_accepted":"You accepted {{name}}",
+ "pp.hist_match_declined":"You declined {{name}}",
+ "pp.hist_match_withdrew":"You left the waiting list",
+ "pp.hist_note":"Your recordings leave our server 14 days after a session ends. Reports and blocks stay.",
+ "pp.hist_clear":"Clear my history",
+ "pp.hist_clear_h":"Clear your history?",
+ "pp.hist_clear_sub":"This removes the record on this device and in your account backup, and deletes your own recordings from our server for finished sessions. Reports and blocks stay.",
+ "pp.hist_cleared":"History cleared. {{n}} recording(s) removed from the server.",
+ "pp.hist_cleared_offline":"History cleared on this device. The server could not be reached — your recordings are removed there 14 days after each session anyway.",
+ "pp.blocked_h":"Blocked learners",
+ "pp.blocked_sub":"They cannot see you or be matched with you. Lifting a block is a fresh start, not a return to the old partnership.",
+ "pp.blocked_anon":"A learner",
+ "pp.unblock":"Unblock",
+ "pp.unblock_h":"Unblock {{name}}?",
+ "pp.unblock_sub":"{{name}} could be offered to you again. They are not told.",
+ "pp.unblock_done":"Block lifted.",
  "pp.leave_h":"Leave today's practice?",
  "pp.leave_sub":"This ends today's session only. If you are practice partners, you stay partners and can start again another day. Your partner is told the session ended.",
  "pp.toast_reply":"{{name}} replied to your turn.",
@@ -14155,8 +14249,11 @@ async function ppRefresh(silent){
     ppMe=await ppApi("GET","/me");ppLastFetch=Date.now();ppState().meAt=Date.now();try{ppOnlineSync()}catch(e){}
     const st=ppState();
     /* a connection that was not there a moment ago = mutual consent just landed (this side or the other): show the success state until the next practice with them starts */
-    if(ppMe.connection&&ppMe.connection.state==="mutual"&&ppMe.connection.sessions===1&&!(prev&&prev.connection&&prev.connection.cid===ppMe.connection.cid))st.partnersFresh=ppMe.connection.cid;
+    const fresh=ppMe.connection&&ppMe.connection.state==="mutual"&&ppMe.connection.sessions===1&&!(prev&&prev.connection&&prev.connection.cid===ppMe.connection.cid);
+    if(fresh)st.partnersFresh=ppMe.connection.cid;
     st.lastMe=ppMe;st.consent=!!ppMe.consented;save();
+    try{if(ppMe.pair)ppHistSyncPair(ppMe.pair);
+      if(ppMe.lastClosed){ppHistClosed(ppMe.lastClosed);if(fresh&&ppHistGet("pair:"+ppMe.lastClosed.id))ppHistPut({id:"pair:"+ppMe.lastClosed.id,outcome:"partners"})}}catch(e){}
     ppNotify();navBadges();ppCallSync();ppPillSync();ppFabSync();
     if(ppLiveWant){const l=ppMe&&ppMe.live;if(l&&l.role==="host"&&!ppLive){ppLiveWant=false;if(cur&&cur.v!=="partner")go("partner");setTimeout(()=>ppLiveResume(),cur&&cur.v==="partner"?0:400)}else if(!(ppMe&&ppMe.pairInvite))ppLiveWant=false}
   }catch(e){
@@ -14229,14 +14326,172 @@ function ppPrompt(pair){
   return {title:title||t("pp.prompt_generic"),topic,task:rounds[round]||rounds[1],round};
 }
 /* ---------------------------------------------------------------- view */
-function rPartner(el){
+/* ---- History: the learner's own record of Practice Partner. It lives on the
+   device (S.ppHist, area-stamped like fbHist and merged by id in fbMerge)
+   because the Worker forgets turns 14 days after a session closes. Only the
+   learner's OWN transcripts are kept, capped at 300 chars; the partner's words
+   never are — their audio is purged by design and a copy on my phone would
+   undo that. Each entry carries what there is to improve on: score, weakest
+   words, the coach's tip. ---- */
+const PP_HIST_CAP=200;
+function ppHistAll(){if(!Array.isArray(S.ppHist))S.ppHist=[];return S.ppHist}
+function ppHist(){const a=areaId();return ppHistAll().filter(e=>e&&e.id&&e.tk===a).sort((x,y)=>y.ts-x.ts)}
+function ppHistGet(id){return ppHistAll().find(e=>e&&e.id===id)||null}
+function ppHistPut(e){
+  const all=ppHistAll();const i=all.findIndex(x=>x&&x.id===e.id);
+  if(i>=0)Object.assign(all[i],e);else all.push(Object.assign({ts:Date.now(),tk:areaId()},e));
+  const a=areaId(),mine=all.filter(x=>x&&x.tk===a);
+  if(mine.length>PP_HIST_CAP){const drop=new Set(mine.sort((x,y)=>x.ts-y.ts).slice(0,mine.length-PP_HIST_CAP).map(x=>x.id));S.ppHist=all.filter(x=>x&&!drop.has(x.id))}
+  save();return ppHistGet(e.id);
+}
+function ppHistWeak(words){if(!Array.isArray(words))return [];return words.filter(w=>w&&w.word&&w.score!=null).sort((x,y)=>x.score-y.score).slice(0,3).map(w=>({word:String(w.word).slice(0,30),score:Math.round(w.score)}))}
+function ppHistTx(t){return String(t||"").slice(0,300)}
+/* the session entry is rebuilt from the server's view of the open pair on
+   every refresh — my turns with transcript and score, how many came back,
+   the kind, the partner — so it cannot drift from what the thread shows.
+   Per-word scores come from the client's own lastWords store. */
+function ppHistSyncPair(p){
+  if(!p||!p.id)return;
+  const lw=ppState().lastWords||{};
+  const turns=(p.turns||[]).filter(tn=>tn.mine).map(tn=>({seq:tn.seq,dur:tn.durationMs?Math.round(tn.durationMs/1000):null,score:tn.score!=null?Math.round(tn.score):null,tx:ppHistTx(tn.transcript),weak:ppHistWeak(lw[tn.id])}));
+  const prev=ppHistGet("pair:"+p.id);
+  ppHistPut({id:"pair:"+p.id,ts:prev?prev.ts:(p.startedAt||Date.now()),kind:"session",pairId:p.id,partner:p.partner?p.partner.name:"?",pkind:p.kind,turns,theirs:(p.turns||[]).filter(tn=>!tn.mine).length,complete:!!p.complete,decision:p.myDecision||(prev&&prev.decision)||null});
+}
+/* how a session ended, from the server's lastClosed; "partners" is written by
+   ppRefresh the moment the mutual connection lands, whichever side was last */
+function ppHistClosed(lc){
+  if(!lc||!lc.id)return;const e=ppHistGet("pair:"+lc.id);if(!e||e.outcome)return;
+  const r=lc.reason;
+  ppHistPut({id:e.id,outcome:r==="completed"?"done":r==="expired"?"expired":r==="rematch"?"ended":"left"});
+}
+function ppHistLive(L,end){
+  if(!L||!L.id)return;
+  ppHistPut({id:"live:"+L.id,kind:"live",sid:L.id,partner:L.partner?L.partner.name:"?",secs:L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0,rounds:L.round||1,end:end||"other"});
+}
+function ppHistAi(a){
+  if(!a||!a.id)return;
+  const turns=(a.turns||[]).filter(x=>x.mine).map(x=>({score:x.score!=null?Math.round(x.score):null,tx:ppHistTx(x.transcript),weak:ppHistWeak(x.words)}));
+  const tips=(a.turns||[]).filter(x=>x.ai&&x.tip).map(x=>String(x.tip).slice(0,120));
+  ppHistPut({id:"ai:"+a.id,ts:a.startedAt||Date.now(),kind:"ai",sid:a.id,reason:a.reason,turns,tips,complete:!!a.completedAt});
+}
+function ppHistSafety(action,name){ppHistPut({id:"safe:"+action+":"+Date.now(),kind:"safety",action,partner:name||""})}
+function ppHistMatch(action,name){ppHistPut({id:"match:"+action+":"+Date.now(),kind:"match",action,partner:name||""})}
+/* the two tabs of the page: Practise (everything that exists today) and
+   History. Not shown before consent (nothing to show) nor inside a call. */
+function ppTabsHTML(){
+  if(!ppMe||!ppMe.consented||ppLive)return "";
+  const h=!!(cur&&cur.arg1==="history");
+  return `<div class="seg-tabs seg-fit pp-tabs" role="tablist"><button class="seg-tab ${h?"":"on"}" role="tab" aria-selected="${!h}" onclick="go('partner')">${ic("mic")} ${t("pp.tab_practise")}</button><button class="seg-tab ${h?"on":""}" role="tab" aria-selected="${h}" onclick="go('partner','history')">${ic("clock")} ${t("pp.tab_history")}</button></div>`;
+}
+/* ---- the History tab: a summary strip, one honest trend line, filter
+   chips and a day-grouped timeline (newest first), each row expandable with
+   <details> so the page keeps no state of its own. ---- */
+let ppHistFilter="all";
+function ppHistScores(){/* my scores in the order I earned them, human sessions and AI alike */
+  const out=[];ppHist().slice().reverse().forEach(e=>{if((e.kind==="session"||e.kind==="ai")&&Array.isArray(e.turns))e.turns.forEach(tn=>{if(tn.score!=null)out.push(tn.score)})});return out;
+}
+function ppHistTrendHTML(){
+  const sc=ppHistScores();if(sc.length<5)return `<p class="pp-fine pp-hist-trend">${t("pp.hist_trend_few")}</p>`;
+  const avg=a=>Math.round(a.reduce((x,y)=>x+y,0)/a.length);
+  const last=sc.slice(-5),prev=sc.slice(-10,-5);const a=avg(last);
+  if(prev.length<5)return `<p class="pp-fine pp-hist-trend">${t("pp.hist_trend_flat",{n:5,a})}</p>`;
+  const d=a-avg(prev);
+  return `<p class="pp-fine pp-hist-trend">${d>1?t("pp.hist_trend_up",{n:5,a,d}):d<-1?t("pp.hist_trend_down",{n:5,a,d:-d}):t("pp.hist_trend_flat",{n:5,a})}</p>`;
+}
+function ppHistSecs(secs){const m=Math.floor((secs||0)/60),sx=(secs||0)%60;return t("pp.hist_secs",{m,s:sx})}
+function ppHistDayLabel(ts){
+  const d=new Date(ts),n=new Date();const k=x=>x.toDateString();
+  if(k(d)===k(n))return t("pp.hist_today");n.setDate(n.getDate()-1);if(k(d)===k(n))return t("pp.hist_yesterday");
+  return d.toLocaleDateString([],{weekday:"short",day:"numeric",month:"short"});
+}
+function ppHistTurnsHTML(turns,withSeq){
+  return (turns||[]).map((tn,i)=>`<div class="pp-hist-turn"><b>${t("pp.hist_turn",{n:withSeq&&tn.seq?tn.seq:i+1})}${tn.dur?` · ${tn.dur} s`:""}${tn.score!=null?` · <i class="pp-score">${tn.score}%</i>`:""}</b>${tn.tx?`<p class="pp-tx">${esc(tn.tx)}</p>`:""}${tn.weak&&tn.weak.length?`<small class="pp-hist-weak">${ic("target")} ${tn.weak.map(w=>t("pp.hist_weak",{word:esc(w.word),n:w.score})).join(" · ")}</small>`:""}</div>`).join("");
+}
+function ppHistRowHTML(e){
+  const tm=new Date(e.ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});
+  const scoreOf=tns=>{const v=(tns||[]).map(x=>x.score).filter(x=>x!=null);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null};
+  if(e.kind==="session"){
+    const sc=scoreOf(e.turns),name=esc(e.partner||"?");
+    const meta=[e.pkind==="regular"?t("pp.kind_regular"):t("pp.kind_trial"),t("pp.hist_sent_n",{n:(e.turns||[]).length}),t("pp.hist_theirs_n",{n:e.theirs||0,name})].join(" · ");
+    const tail=[e.decision?t("pp.hist_decision_"+e.decision):"",e.outcome&&e.outcome!=="done"?t("pp.hist_out_"+e.outcome):""].filter(Boolean).map(x=>`<p class="pp-hist-line">${x}</p>`).join("");
+    return `<details class="pp-hist-row"><summary><span class="pp-hist-ic">${ic("user")}</span><span class="pp-hist-t"><b>${t("pp.hist_session",{name})}</b><small>${meta}</small></span>${sc!=null?`<i class="pp-score">${sc}%</i>`:""}<small class="pp-hist-tm">${tm}</small></summary><div class="pp-hist-detail">${ppHistTurnsHTML(e.turns,true)}${tail}</div></details>`;
+  }
+  if(e.kind==="live"){
+    const name=esc(e.partner||"?");const end=e.end==="completed"?t("pp.hist_live_completed",{n:e.rounds||1}):e.end==="left"?t("pp.hist_live_left"):e.end==="partner_left"?t("pp.hist_live_partner_left",{name}):e.end==="failed"?t("pp.hist_live_failed"):t("pp.hist_live_other");
+    return `<div class="pp-hist-row"><span class="pp-hist-ic pp-hist-live">${ic("mic")}</span><span class="pp-hist-t"><b>${t("pp.hist_live",{name})}</b><small>${e.secs?ppHistSecs(e.secs)+" · ":""}${end}</small></span><small class="pp-hist-tm">${tm}</small></div>`;
+  }
+  if(e.kind==="ai"){
+    const sc=scoreOf(e.turns);
+    const tips=(e.tips||[]).map(x=>`<p class="pp-hist-line"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.hist_tip")}: ${esc(x)}</p>`).join("");
+    return `<details class="pp-hist-row"><summary><span class="pp-hist-ic pp-hist-ai">${ic("sparkle")}</span><span class="pp-hist-t"><b><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.hist_ai")}</b><small>${t("pp.hist_sent_n",{n:(e.turns||[]).length})}${e.complete?"":" · "+t("pp.hist_incomplete")}</small></span>${sc!=null?`<i class="pp-score">${sc}%</i>`:""}<small class="pp-hist-tm">${tm}</small></summary><div class="pp-hist-detail">${ppHistTurnsHTML(e.turns,false)}${tips}</div></details>`;
+  }
+  if(e.kind==="safety"){
+    const name=esc(e.partner||t("pp.blocked_anon"));
+    const still=e.action==="block"&&ppMe&&Array.isArray(ppMe.blocked)&&ppMe.blocked.find(b=>b.name===e.partner);
+    return `<div class="pp-hist-row"><span class="pp-hist-ic pp-hist-safe">${ic(e.action==="report"?"alert":e.action==="block"?"ban":e.action==="unblock"?"check":"repeat")}</span><span class="pp-hist-t"><b>${t("pp.hist_safety_"+e.action,{name})}</b></span>${still?`<button class="btn btn-g btn-sm" onclick="ppUnblock('${esc(still.cid)}','${esc(still.name)}')">${t("pp.unblock")}</button>`:""}<small class="pp-hist-tm">${tm}</small></div>`;
+  }
+  if(e.kind==="match"){
+    return `<div class="pp-hist-row pp-hist-minor"><span class="pp-hist-ic">${ic("clock")}</span><span class="pp-hist-t"><b>${t("pp.hist_match_"+e.action,{name:esc(e.partner||"?")})}</b></span><small class="pp-hist-tm">${tm}</small></div>`;
+  }
+  return "";
+}
+function ppHistListHTML(){
+  const all=ppHist();
+  const F=[["all","pp.hist_f_all"],["session","pp.hist_f_session"],["live","pp.hist_f_live"],["ai","pp.hist_f_ai"],["safety","pp.hist_f_safety"]];
+  const chips=`<div class="seg-tabs pp-hist-chips" role="tablist">${F.map(([k,l])=>`<button class="seg-tab ${ppHistFilter===k?"on":""}" role="tab" aria-selected="${ppHistFilter===k}" onclick="ppHistFilterSet('${k}')">${t(l)}</button>`).join("")}</div>`;
+  const rows=all.filter(e=>ppHistFilter==="all"?true:e.kind===ppHistFilter);
+  if(!rows.length)return chips+`<section class="card pp-cta"><b>${t("pp.hist_empty_h")}</b><p class="sub">${t("pp.hist_empty_sub")}</p></section>`;
+  let out="",day="";
+  rows.forEach(e=>{const d=ppHistDayLabel(e.ts);if(d!==day){day=d;out+=`<div class="pp-hist-day">${d}</div>`}out+=ppHistRowHTML(e)});
+  return chips+`<section class="card pp-hist-list">${out}</section>`;
+}
+function ppHistoryHTML(){
+  const all=ppHist();
+  const sessions=all.filter(e=>e.kind==="session"&&(e.complete||(e.turns&&e.turns.length))).length;
+  const turns=all.filter(e=>e.kind==="session").reduce((n,e)=>n+((e.turns||[]).length),0);
+  const sc=ppHistScores();const avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length):null;
+  const live=all.filter(e=>e.kind==="live"&&e.secs>0).length;
+  const stat=(icon,n,label)=>`<div class="stat${n?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic(icon)}</span>${n==null?"–":n}</div><div class="l">${label}</div></div>`;
+  return `<section class="card pp-hist-head"><b>${t("pp.hist_h")}</b><p class="sub">${t("pp.hist_sub")}</p>
+    <div class="grid g4 stats-center pp-hist-stats">${stat("user",sessions,t("pp.hist_stat_sessions"))}${stat("mic",turns,t("pp.hist_stat_turns"))}${stat("gauge",avg!=null?avg+"%":null,t("pp.hist_stat_avg"))}${stat("headphones",live,t("pp.hist_stat_live"))}</div>
+    ${ppHistTrendHTML()}</section>
+    <div id="ppHistBox">${ppHistListHTML()}</div>
+    <p class="pp-fine pp-hist-note">${ic("shield")} ${t("pp.hist_note")}</p>
+    ${all.length?`<div class="pp-row"><button class="btn btn-g btn-danger-soft" onclick="ppClearHistory()">${ic("close")} ${t("pp.hist_clear")}</button></div>`:""}`;
+}
+window.ppHistFilterSet=f=>{ppHistFilter=f;const box=document.getElementById("ppHistBox");if(box){box.innerHTML=ppHistListHTML();manIconizeInline(box)}};
+window.ppClearHistory=async()=>{
+  const ok=await askConfirm({icon:"close",danger:true,title:t("pp.hist_clear_h"),body:t("pp.hist_clear_sub"),confirmLabel:t("pp.hist_clear"),cancelLabel:t("wc.close")});
+  if(!ok)return;
+  const a=areaId();S.ppHist=ppHistAll().filter(e=>e&&e.tk!==a);save();
+  try{track("partner_history_cleared",{})}catch(e){}
+  /* the device record is gone either way; the server half is reported as it went */
+  try{const r=await ppApi("DELETE","/history");toast(t("pp.hist_cleared",{n:r&&r.turns!=null?r.turns:0}))}catch(e){toast(t("pp.hist_cleared_offline"))}
+  if(cur&&cur.v==="partner")go("partner","history");
+};
+/* lift a block I placed: a fresh start, not a restored partnership */
+window.ppUnblock=async(cid,name)=>{
+  document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
+  const nm=name||t("pp.blocked_anon");
+  const ok=await askConfirm({icon:"check",danger:false,title:t("pp.unblock_h",{name:nm}),body:t("pp.unblock_sub",{name:nm}),confirmLabel:t("pp.unblock"),cancelLabel:t("wc.close")});
+  if(!ok||ppBusy)return;ppBusy=true;
+  try{const r=await ppApi("POST","/connection/unblock",{cid});ppMe=r;ppState().lastMe=r;save();ppHistSafety("unblock",name||"");try{track("partner_unblocked",{})}catch(e){}toast(t("pp.unblock_done"))}
+  catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  finally{ppBusy=false;if(cur&&cur.v==="partner")go("partner",cur.arg1)}
+};
+function ppBlockedHTML(){
+  const b=ppMe&&Array.isArray(ppMe.blocked)?ppMe.blocked:[];if(!b.length)return "";
+  return `<div class="pp-prefs pp-blocked"><b>${ic("ban")} ${t("pp.blocked_h")}</b><small>${t("pp.blocked_sub")}</small>
+    ${b.map(x=>`<div class="pp-blocked-row"><span>${esc(x.name&&x.name!=="?"?x.name:t("pp.blocked_anon"))}<small> · ${new Date(x.at).toLocaleDateString()}</small></span><button class="btn btn-g btn-sm" onclick="ppUnblock('${esc(x.cid)}','${esc(x.name&&x.name!=="?"?x.name:"")}')">${t("pp.unblock")}</button></div>`).join("")}</div>`;
+}
+function rPartner(el,arg1){
   clearTimeout(ppPollH);
   /* a plain in-flow back link: on a real iPhone the sticky variant was pushed
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
   const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub">${t("pp.tagline")}</p>`;
-  const shell=inner=>{el.innerHTML=head+ppPresenceHTML()+inner;manIconizeInline(el)};
+  const shell=inner=>{el.innerHTML=head+ppPresenceHTML()+ppTabsHTML()+inner;manIconizeInline(el)};
   /* not a General English learner (a typed or restored #partner hash on
      Welding): nothing partner-branded is rendered at all — straight back to
      the Practice tab, which on Welding carries its own simulations */
@@ -14249,6 +14504,13 @@ function rPartner(el){
   if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement()){
     shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.check_h")}</b><p class="sub">${t("pp.check_sub")}</p>
       <button class="btn-primary" onclick="go('home')">${t("fnd.check_open")}</button></section>`);return;
+  }
+  if(arg1==="history"){
+    /* the History tab: drawn from the device record at once, then once more
+       after one server read (the blocked list rides on /me); no polling */
+    shell(ppHistoryHTML());
+    ppRefresh(true).then(()=>{if(cur.v==="partner"&&cur.arg1==="history")shell(ppHistoryHTML())});
+    return;
   }
   shell(`<section class="card"><p class="sub">${t("pp.loading")}</p></section>`);
   ppRefresh().then(()=>{if(cur.v!=="partner")return;ppRender(el);/* a connected partner may be invited to a live call at any moment, so the
@@ -14307,7 +14569,7 @@ function ppRender(el){
      the app closed — only while permission has never been asked */
   const nudge=(()=>{try{return !ppLive&&ppAlertsOn()&&window.Notification&&Notification.permission==="default"&&("PushManager" in window)&&!ppState().nudgeDone}catch(e){return false}})()
     ?`<p class="pp-fine pp-online-nudge">${t("pp.online_nudge")} <button class="btn btn-g btn-sm" onclick="ppState().nudgeDone=true;save();ppAlertsToggle(true);this.parentNode.remove()">${t("pp.online_nudge_btn")}</button></p>`:"";
-  const shell=inner=>{el.innerHTML=head+(ppLive?"":ppPresenceHTML())+nudge+inner;manIconizeInline(el)};
+  const shell=inner=>{el.innerHTML=head+(ppLive?"":ppPresenceHTML()+ppTabsHTML())+nudge+inner;manIconizeInline(el)};
   const m=ppMe;
   if(!m||m.error){shell(`${ppIntroHTML()}<section class="card pp-cta"><b>${t("pp.offline_h")}</b><p class="sub">${t("pp.offline_sub")}</p><button class="btn-primary" onclick="go('partner')">${t("pp.retry")}</button></section>`);return}
   if(m.disabled){shell(`<section class="card"><b>${t("pp.off_h")}</b><p class="sub">${t("pp.off_sub")}</p></section>`);return}
@@ -14544,8 +14806,9 @@ window.ppMatch=async()=>{
   if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
   ppBusy=true;
   try{
+    const wasWaiting=!!(ppMe&&ppMe.waiting);
     const r=await ppApi("POST","/interest",ppJoinBody("later"));
-    ppMe=r;ppState().lastMe=r;save();
+    ppMe=r;ppState().lastMe=r;save();if(!wasWaiting)ppHistMatch("joined");
     try{track("partner_match_requested",{});track("partner_queue_joined",{})}catch(e){}
     if(r.status==="paired"){ppCands=null}
     else{ppCands=r.candidates||[];try{if(ppCands.length)track("partner_candidate_shown",{n:String(ppCands.length)})}catch(e){}
@@ -14559,8 +14822,9 @@ window.ppNow=async()=>{
   if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
   ppBusy=true;ppCands=null;
   try{
+    const wasWaiting=!!(ppMe&&ppMe.waiting);
     const r=await ppApi("POST","/interest",ppJoinBody("now"));
-    ppMe=r;ppState().lastMe=r;save();
+    ppMe=r;ppState().lastMe=r;save();if(!wasWaiting)ppHistMatch("joined");
     try{track("partner_match_requested",{now:"1"});if(r.status==="invited")track("partner_trial_invited",{})}catch(e){}
     if(r.status==="invited"){toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}))}
     else{toast(t("pp.nohuman_h"));try{track("partner_ai_fallback",{})}catch(e){}}
@@ -14573,6 +14837,7 @@ window.ppInvite=async(offer,live)=>{
     const st=ppState();live=!!live&&ppLiveOn();
     const r=await ppApi("POST","/invite",{offer,live,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
     ppMe=r;st.lastMe=r;save();ppCands=null;ppLiveWant=live;   /* the host walks into the room the moment the guest says yes */
+    ppHistMatch("invited",r.pairInvite?r.pairInvite.partner.name:"");
     try{track("partner_trial_invited",{})}catch(e){}
     toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}));
   }catch(e){
@@ -14592,6 +14857,8 @@ window.ppDecide=async choice=>{
   ppBusy=true;
   try{
     const r=await ppApi("POST","/pairs/"+p.id+"/decide",{choice});ppMe=r;ppState().lastMe=r;save();
+    if(ppHistGet("pair:"+p.id))ppHistPut({id:"pair:"+p.id,decision:choice,...(choice==="continue"&&r.connection&&!r.pair?{outcome:"partners"}:{})});
+    if(choice==="rematch")ppHistSafety("rematch",p.partner.name);
     try{if(choice!=="later")track(choice==="continue"?"partner_continue_selected":"partner_rematch_selected",{});if(r.connection&&!r.pair)track("partner_connection_created",{state:r.connection.state})}catch(e){}
     if(choice==="continue"&&r.connection&&!r.pair)ppState().partnersFresh=r.connection.cid;save();
     toast(choice==="continue"?(r.connection&&!r.pair?t("pp.mutual_toast",{name:r.connection.name}):t("pp.continue_toast")):choice==="later"?t("pp.decided_later"):t("pp.rematch_toast"));
@@ -14636,7 +14903,7 @@ window.ppLiveAccept=async()=>{
 window.ppTrialAccept=async()=>{
   const inv=ppMe&&ppMe.invite;if(!inv||ppBusy)return;ppBusy=true;ppCallHide();
   let goLive=false;
-  try{const r=await ppApi("POST","/pairs/"+inv.id+"/accept");ppMe=r;ppState().lastMe=r;ppState().applyPhrase=null;save();try{track("partner_trial_started",{})}catch(e){}
+  try{const r=await ppApi("POST","/pairs/"+inv.id+"/accept");ppMe=r;ppState().lastMe=r;ppState().applyPhrase=null;save();ppHistMatch("accepted",inv.partner?inv.partner.name:"");try{track("partner_trial_started",{})}catch(e){}
     goLive=!!(inv.live&&r.live&&r.live.role==="guest"&&r.live.state==="invited");if(r.pair&&!goLive)toast(t("pp.paired_toast",{name:r.pair.partner.name}))}
   catch(e){toast(e.code==="gone"||e.code==="closed"?t("pp.tinv_gone"):t("pp.err_generic"));await ppRefresh(true)}
   finally{ppBusy=false;if(cur&&cur.v!=="partner")go("partner");else{const el=document.getElementById("v-partner");if(el)ppRender(el)}}
@@ -14644,7 +14911,7 @@ window.ppTrialAccept=async()=>{
 };
 window.ppTrialDecline=async()=>{
   const inv=ppMe&&ppMe.invite;if(!inv)return;ppCallHide();
-  try{const r=await ppApi("POST","/pairs/"+inv.id+"/decline");ppMe=r;ppState().lastMe=r;save();try{track("partner_trial_declined",{})}catch(e){}}catch(e){}
+  try{const r=await ppApi("POST","/pairs/"+inv.id+"/decline");ppMe=r;ppState().lastMe=r;save();ppHistMatch("declined",inv.partner?inv.partner.name:"");try{track("partner_trial_declined",{})}catch(e){}}catch(e){}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 window.ppTrialCancel=async()=>{
@@ -14746,11 +15013,12 @@ async function ppLiveEnd(reason){
   const secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;
   try{const r=await ppApi("POST","/live/"+L.id+"/end",{reason});if(r&&r.consented!==undefined){ppMe=r;ppState().lastMe=r;save()}}catch(e){}
   if(L.startedAt){markPracticed();save()}
+  ppHistLive(L,reason);
   try{track(reason==="completed"?"partner_live_completed":reason==="failed"?"partner_live_failed":"partner_live_left",{})}catch(e){}
   ppLiveTeardown(true);L.secs=secs;ppLiveRender();
 }
 /* the other side ended it (bye, block, expiry, decline) — neutral wording, never the reason behind a block */
-function ppLiveGone(why){const L=ppLive;if(!L||L.ended)return;L.ended=why==="completed"?"completed":why==="expired"?"expired":why==="declined"||why==="cancelled"?why:"partner_left";L.secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;ppLiveTeardown(true);ppRefresh(true).then(()=>{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)});ppLiveRender()}
+function ppLiveGone(why){const L=ppLive;if(!L||L.ended)return;L.ended=why==="completed"?"completed":why==="expired"?"expired":why==="declined"||why==="cancelled"?why:"partner_left";L.secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;ppLiveTeardown(true);if(L.startedAt||L.ended==="declined"||L.ended==="cancelled")ppHistLive(L,L.ended);ppRefresh(true).then(()=>{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)});ppLiveRender()}
 function ppLiveTeardown(keep){
   const L=ppLive;if(!L)return;clearTimeout(L.pollT);clearInterval(L.tickT);
   try{const d=document.getElementById("ppLiveDot");if(d)d.classList.remove("on")}catch(e){}
@@ -14850,7 +15118,7 @@ window.ppLiveReport=()=>{
 };
 window.ppLiveReportSend=async reason=>{
   const L=ppLive;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!L)return;
-  try{await ppApi("POST","/live/"+L.id+"/report",{reason});try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  try{await ppApi("POST","/live/"+L.id+"/report",{reason});ppHistSafety("report",L.partner?L.partner.name:"");try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
 };
 window.ppLiveBlock=async()=>{
   const L=ppLive;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!L)return;
@@ -14858,7 +15126,7 @@ window.ppLiveBlock=async()=>{
   if(!ok)return;
   /* end the call first so the audio stops the instant they confirm, then the server closes and blocks */
   L.ended="left";ppLiveTeardown(true);
-  try{await ppApi("POST","/live/"+L.id+"/block");try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  try{await ppApi("POST","/live/"+L.id+"/block");ppHistSafety("block",L.partner?L.partner.name:"");try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
   ppLiveClose();
 };
 /* the invitation the guest sees, and the host's waiting card, on the partner page */
@@ -15156,7 +15424,7 @@ window.ppAiStart=async(reason)=>{
 };
 window.ppAiPractice=(reason)=>ppAiStart(reason||"choice");   /* every "Practise with the AI coach" button */
 window.ppAiClose=()=>{ppAiOpen=false;ppRec=null;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
-window.ppAiAbandon=()=>{const a=ppAiActive();if(a){a.abandonedAt=Date.now();save()}ppAiClose()};
+window.ppAiAbandon=()=>{const a=ppAiActive();if(a){a.abandonedAt=Date.now();save();if(a.turns.length)ppHistAi(a)}ppAiClose()};
 window.ppAiAgain=()=>{const st=ppState();st.ai=null;save();ppAiStart("again")};
 /* the pseudo-pair ppPrompt() reads — the learner's round is 1 or 2 (the coach
    holds the other two), so the task text matches the human session exactly */
@@ -15202,7 +15470,7 @@ window.ppAiSubmit=async()=>{
     a.turns.push({ai:true,text:res.reply,tip:res.tip,at:Date.now()});a.history.push({role:"assistant",content:JSON.stringify({reply:res.reply,tip:res.tip})});
     a.pending=null;
     if(a.turns.filter(x=>x.mine).length>=PP_AI_ROUNDS/2){a.completedAt=Date.now();try{track("partner_ai_fallback_completed",{})}catch(e){}}
-    save();ppAiBusy=false;ppAiRender();
+    save();ppHistAi(a);ppAiBusy=false;ppAiRender();
     ppAiSay(res.reply);
   }catch(e){
     ppAiBusy=false;a.error=e&&e.message==="busy"?"busy":"ai";save();ppAiRender();
@@ -15264,7 +15532,7 @@ function ppAiRenderRecorder(box){
 /* the small card that brings the learner back to an unfinished AI session */
 function ppAiResumeHTML(){const a=ppAiActive();if(!a||ppAiOpen)return "";return `<section class="card pp-ai-resume"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> <b>${t("pp.ai_resume_h")}</b><p class="sub">${t("pp.ai_resume_sub",{n:a.turns.length,max:PP_AI_ROUNDS})}</p><div class="pp-row"><button class="btn-primary btn-sm" onclick="ppAiStart()">${t("pp.ai_resume_btn")}</button><button class="btn btn-g btn-sm" onclick="ppAiAbandon()">${t("pp.leave")}</button></div></section>`}
 
-window.ppWithdraw=async()=>{try{ppMe=await ppApi("DELETE","/interest");ppState().lastMe=ppMe;save();try{track("partner_queue_left",{})}catch(e){}}catch(e){}ppCands=null;ppAutoAvail=0;ppState().availSeen=0;save();const el=document.getElementById("v-partner");if(el)ppRender(el)};
+window.ppWithdraw=async()=>{const was=!!(ppMe&&ppMe.waiting);try{ppMe=await ppApi("DELETE","/interest");ppState().lastMe=ppMe;save();if(was)ppHistMatch("withdrew");try{track("partner_queue_left",{})}catch(e){}}catch(e){}ppCands=null;ppAutoAvail=0;ppState().availSeen=0;save();const el=document.getElementById("v-partner");if(el)ppRender(el)};
 function ppMarkSeen(p){if(!p.unread)return;ppApi("POST","/pairs/"+p.id+"/seen").then(()=>{if(ppMe&&ppMe.pair){ppMe.pair.unread=0;ppState().lastMe=ppMe;save();navBadges()}}).catch(()=>{})}
 window.ppMenu=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
@@ -15302,7 +15570,7 @@ window.ppConnEnd=async(findElse)=>{
   const ok=await askConfirm({icon:findElse?"repeat":"close",danger:!findElse,title:findElse?t("pp.findelse_h"):t("pp.end_h"),body:findElse?t("pp.findelse_sub",{name:c.name}):t("pp.end_sub",{name:c.name}),confirmLabel:findElse?t("pp.decide_rematch"):t("pp.end_btn"),cancelLabel:t("wc.close")});
   if(!ok)return;
   ppBusy=true;
-  try{const r=await ppApi("POST","/connection/end",{cid:c.cid});ppMe=r;ppState().lastMe=r;save();try{track("partner_connection_ended",{})}catch(e){}toast(t("pp.end_done"))}
+  try{const r=await ppApi("POST","/connection/end",{cid:c.cid});ppMe=r;ppState().lastMe=r;save();ppHistSafety(findElse?"rematch":"end",c.name);try{track("partner_connection_ended",{})}catch(e){}toast(t("pp.end_done"))}
   catch(e){ppBusy=false;toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"));return}
   ppBusy=false;
   if(findElse)ppMatch();else{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
@@ -15317,14 +15585,14 @@ window.ppConnReport=()=>{
 };
 window.ppConnReportSend=async reason=>{
   const c=ppMe&&ppMe.connection;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!c)return;
-  try{ppMe=await ppApi("POST","/connection/report",{cid:c.cid,reason});ppState().lastMe=ppMe;save();try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/connection/report",{cid:c.cid,reason});ppState().lastMe=ppMe;save();ppHistSafety("report",c.name);try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 window.ppConnBlock=async()=>{
   const c=ppMe&&ppMe.connection;document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());if(!c)return;
   const ok=await askConfirm({icon:"ban",title:t("pp.block_h",{name:c.name}),body:t("pp.block_sub"),confirmLabel:t("pp.block"),cancelLabel:t("wc.close")});
   if(!ok)return;
-  try{ppMe=await ppApi("POST","/connection/block",{cid:c.cid});ppState().lastMe=ppMe;save();try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/connection/block",{cid:c.cid});ppState().lastMe=ppMe;save();ppHistSafety("block",c.name);try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 window.ppReport=async()=>{
@@ -15341,7 +15609,7 @@ window.ppReport=async()=>{
 };
 window.ppReportSend=async reason=>{
   document.querySelectorAll(".pp-sheet-ov").forEach(e=>e.remove());
-  try{ppMe=await ppApi("POST","/pairs/"+ppMe.pair.id+"/report",{reason});ppState().lastMe=ppMe;save();try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}
+  try{const nm=ppMe.pair.partner.name;ppMe=await ppApi("POST","/pairs/"+ppMe.pair.id+"/report",{reason});ppState().lastMe=ppMe;save();ppHistSafety("report",nm);try{track("partner_reported",{})}catch(e){}toast(t("pp.report_done"))}
   catch(e){toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
@@ -15350,7 +15618,7 @@ window.ppBlock=async()=>{
   const p=ppMe&&ppMe.pair;if(!p)return;
   const ok=await askConfirm({icon:"ban",title:t("pp.block_h",{name:p.partner.name}),body:t("pp.block_sub"),confirmLabel:t("pp.block"),cancelLabel:t("wc.close")});
   if(!ok)return;
-  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/block");ppState().lastMe=ppMe;save();try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
+  try{ppMe=await ppApi("POST","/pairs/"+p.id+"/block");ppState().lastMe=ppMe;save();ppHistSafety("block",p.partner.name);try{track("partner_blocked",{})}catch(e){}toast(t("pp.block_done"))}catch(e){toast(t("pp.err_generic"))}
   const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);
 };
 window.ppLeave=async()=>{
@@ -15385,12 +15653,13 @@ window.ppOpenConsent=(prefsOnly)=>{
       <div class="pp-row" role="group">${["casual","workplace","interview","pronunciation","daily","fluency"].map(v=>chip("ppgoal",v,t("pp.goal_"+v),goals.includes(v),"checkbox")).join("")}</div>
       <b style="margin-top:10px">${t("pp.mode_h")}</b>
       <div class="pp-row" role="radiogroup">${[["voice","pp.mode_voice"],["either","pp.mode_either"]].map(([v,k])=>chip("ppmode",v,t(k),mode===v||(mode==="live"&&v==="either"),"radio")).join("")}</div>
-      <b style="margin-top:10px">${t("pp.avail_h")}</b>
+      <b style="margin-top:10px">${t("pp.free_h")}</b>
       <div class="pp-row" role="group">${["morning","afternoon","evening","weekends"].map(v=>chip("ppavail",v,t("pp.avail_"+v),avail.includes(v),"checkbox")).join("")}</div>
       <b style="margin-top:10px">${t("pp.gender_h")}</b><small>${t("pp.gender_sub")}</small>
       <div class="pp-row" role="radiogroup">${[["","pp.gender_skip"],["f","pp.gender_f"],["m","pp.gender_m"],["x","pp.gender_x"]].map(([v,k])=>chip("ppg",v,t(k),g===v,"radio")).join("")}</div>
       <label class="pp-check"><input type="checkbox" id="ppSame" ${sg?"checked":""}> ${t("pp.same_gender")}</label>
     </div>
+    ${prefsOnly?ppBlockedHTML():""}
     <label class="pp-check pp-adult"><input type="checkbox" id="ppAdult" ${m.adult?"checked":""}> ${t("pp.consent_age")}</label>
     <p class="pp-fine"><a href="privacy.html#partner" target="_blank">${t("acc.privacy_link").replace(/^[^\w]+/,"")}</a></p>
     <div class="pp-row">
@@ -18501,6 +18770,10 @@ function fbMerge(local,cloud){
   m.trouble=fbMax(local.trouble,cloud.trouble);
   m.fbV=Object.assign({},cloud.fbV,local.fbV);
   const seen={};m.fbHist=[].concat(cloud.fbHist||[],local.fbHist||[]).filter(x=>{const k=x&&x.ts;if(!k||seen[k])return false;seen[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-50);
+  /* Practice Partner history: union by entry id; when both devices hold the
+     same entry the fuller one wins (a session entry grows as turns are sent). */
+  {const by={};[].concat(local.ppHist||[],cloud.ppHist||[]).forEach(x=>{if(!x||!x.id)return;const cur=by[x.id];if(!cur||JSON.stringify(x).length>JSON.stringify(cur).length)by[x.id]=x});
+    m.ppHist=Object.values(by).sort((a,b)=>a.ts-b.ts).slice(-400);}
   /* Everything not named here falls through Object.assign, where LOCAL wins the
      whole object — so anything the other device recorded is dropped, not merged.
      These three were being lost that way:
@@ -18723,6 +18996,11 @@ function fbSyncPayload(s){
   if(out.careerCenter){
     out.careerCenter=Object.assign({},out.careerCenter);
     delete out.careerCenter.resume;       /* employers, roles, years */
+  }
+  if(Array.isArray(out.ppHist)){
+    /* Practice Partner history: scores, weak words, outcomes and the coach's
+       tips travel; the learner's own transcripts stay here (same rule as convos) */
+    out.ppHist=out.ppHist.map(e=>{if(!e||!Array.isArray(e.turns))return e;const y=Object.assign({},e);y.turns=e.turns.map(tn=>{const z=Object.assign({},tn);delete z.tx;return z});return y});
   }
   if(Array.isArray(out.convos)){
     /* Keep the conversation record and its scores; drop the sentences themselves.
