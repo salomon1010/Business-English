@@ -1,4 +1,4 @@
-# be-mail — branded password-reset email
+# be-mail — branded password-reset and welcome emails
 
 Fourth production Worker. Sends the BE Mastery password-reset email from
 `noreply@lomonec.com` via **Brevo** with the logo, a button, the social links
@@ -73,3 +73,35 @@ Authentication → Templates → Password reset: set the sender name to
   its own per-address throttle behind that.
 - Brevo free tier: 300 emails/day. The Worker sends one per request, so a
   day of 300 resets would be the first sign of abuse, not a capacity problem.
+
+## Welcome email (`POST /welcome`, 2026-09-19)
+
+Sent once, right after an account is created (`fbWelcome()` in `index.html`,
+fire-and-forget after `createUserWithEmailAndPassword`). Roku-style: the
+animated hero `mail/welcome.gif` (six frames — tagline, road map, Shadow
+Studio, Phrase Lab, Practice Partner, "your first 25 minutes start today";
+rebuilt by `node scripts/mail/hero.mjs`, 244 KB), a greeting by name, the
+four things to do, the **Open BE Mastery** button, the login address, the
+Home-Screen / Google Play tip, and the same footer as the reset email.
+en / fr / es / pt; others get English. Brevo tag `welcome`.
+
+**Who may trigger it.** The request carries the learner's own Firebase ID
+token (`Authorization: Bearer`), verified against Google's signing keys (aud
+= project, iss = securetoken). The Worker then asks Firebase (admin
+`accounts:lookup`) when that account was created and sends only if it is
+under 30 minutes old — so the route cannot be replayed later, cannot be
+aimed at another address (the address comes from Firebase, not the body),
+and is once per account (in-isolate, plus the hourly per-address cap).
+Wrong origin → 403; no or bad token → 401; old account or repeat → `200
+{sent:false}`. Nothing is stored.
+
+**Test.** `cd tests && node mail-welcome.mjs` (12 checks) runs the Worker
+locally with Google and Brevo played by the test itself (`backend/mail/.dev.vars`
+is written with throwaway keys and is gitignored).
+
+**Reuse.** `renderWelcome()` is the layout to copy for the engagement mails
+the owner has in mind (a new TikTok / YouTube / X video, subscription news):
+hero image or GIF, one paragraph, one button, a short list, the footer.
+Those are marketing mails, not transactional — they need a consent list and
+an unsubscribe link (Brevo's list feature), which this Worker deliberately
+does not have.

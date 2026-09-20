@@ -18800,11 +18800,23 @@ window.fbEmailAuth=async function(mode){
   const pw=(document.getElementById("authPw")||{}).value||"";
   fbSetErr("");
   try{
-    if(mode==="up")await FBauth.createUserWithEmailAndPassword(em,pw);
+    if(mode==="up"){await FBauth.createUserWithEmailAndPassword(em,pw);fbWelcome()}
     else await FBauth.signInWithEmailAndPassword(em,pw);
     fbCloseModal();toast(t("auth.signed_in_toast"));
   }catch(e){fbSetErr(fbErr(e))}
 };
+/* The welcome email (owner, 2026-09-19): once, right after the account is
+   created, from noreply@lomonec.com through the mail Worker — the learner's
+   own ID token proves who is asking, and the Worker itself checks with
+   Firebase that the account is minutes old. Fire-and-forget: sign-up never
+   waits on it and never fails because of it. */
+function fbWelcome(){
+  try{
+    if(!MAIL_API||!FBauth||!FBauth.currentUser)return;
+    const lang=(S.profile&&S.profile.lang)||"en",name=((S.profile&&S.profile.name)||"").trim().slice(0,40);
+    FBauth.currentUser.getIdToken().then(tok=>fetch(MAIL_API+"/welcome",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+tok},body:JSON.stringify({lang,name})})).catch(()=>{});
+  }catch(e){}
+}
 /* The confirmation used to be a two-second toast saying "sent" — easy to miss,
    and wrong for a mistyped address (Firebase answers success either way, so
    that nobody can probe which emails have accounts). It now stays on the form,

@@ -53,3 +53,5 @@ tests/node_modules
 
 # local Worker secrets for tests (a throwaway VAPID key) — never commit
 backend/push/.dev.vars
+
+backend/mail/.dev.vars
