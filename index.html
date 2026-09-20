@@ -2922,7 +2922,8 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-chip:hover,.ob-chip.on{border-color:var(--acc);background:rgba(99,102,241,.14)}
 .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:26px}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
-.ob-dot.on{background:var(--acc2);width:22px;border-radius:99px}
+.ob-dot.on{background:var(--acc);width:22px;border-radius:99px}   /* owner's design, 2026-09-20: the accent, not cyan */
+.ob-chips-list .ob-chip{width:100%;max-width:340px;justify-content:flex-start;text-align:left}   /* the goals read as a list, icon at the left, as on the store screenshots */
 /* AUTH (optional cloud sign-in) */
 .auth-ov{position:fixed;inset:0;z-index:120;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:22px;animation:fade .2s}
 .auth-card{max-width:400px;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:22px;padding:28px 24px;box-shadow:0 30px 90px rgba(0,0,0,.6);animation:fade .3s;max-height:92vh;overflow:auto}
@@ -4151,6 +4152,7 @@ const ICON={
   sun:'<circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.4M12 19v2.4M4.5 4.5l1.7 1.7M17.8 17.8l1.7 1.7M2.6 12H5M19 12h2.4M4.5 19.5l1.7-1.7M17.8 6.2l1.7-1.7"/>',
   moon:'<path d="M20.5 14.2A8.2 8.2 0 1 1 9.8 3.5a6.5 6.5 0 0 0 10.7 10.7Z"/>',
   briefcase:'<rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M8.5 7.5V6a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v1.5"/><path d="M3 12.6h18"/>',
+  podium:'<rect x="3.5" y="4" width="17" height="10.5" rx="1.6"/><path d="M12 14.5V18M8.6 21.2 12 18l3.4 3.2"/><path d="m7.5 11.2 2.6-2.6 2 2 4.2-4.2"/>',
   clipboard:'<rect x="5" y="4.5" width="14" height="16" rx="2"/><rect x="9" y="3" width="6" height="3.4" rx="1.1"/><path d="M8.5 10.5h7M8.5 14h5"/>',
   pencil:'<path d="M14.4 5.6 18.4 9.6"/><path d="M4 20l1-4L16.2 4.8a2 2 0 0 1 2.9 2.9L8 19l-4 1Z"/>',
   gauge:'<path d="M4 15.5a8 8 0 0 1 16 0"/><path d="M4 15.5h16"/><path d="M12 15.5 8.6 12.1"/>',
@@ -18504,6 +18506,7 @@ const OB_SLOTS=["☀️ Morning coffee","🍽️ Lunch break","🚇 Commute","�
 const OB_ROLES=["Engineering / Data","Product / PM","Finance / Business","Sales / Marketing","Student","Other"];
 const OB_GOALS=["🎤 Speak confidently in meetings","💼 Sound more executive","🏆 Ace interviews in English","🗣️ Improve my accent & clarity"];
 const GOAL_ICONS=["mic","briefcase","trophy","waveform"];
+const ROLE_ICONS=["bolt","podium","chart","sound","book","more"];
 const SLOT_ICONS=["sun","utensils","train","moon"];
 /* Roles/goals/slots are STORED as canonical English (S.profile.role etc.) but DISPLAYED translated.
    optLabel maps a stored canonical value to its translated label by index; unknown values pass through. */
@@ -18565,7 +18568,7 @@ function obRender(){
      :`<div class="ob-logo">${ic("briefcase")}</div>
      <h1>${t("ob.role_title",{name:esc(OB.name||"friend")})}</h1>
      <p class="sub">${t("ob.role_sub")}</p>
-     <div class="ob-chips">${OB_ROLES.map(r=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()">${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
+     <div class="ob-chips">${OB_ROLES.map((r,i)=>`<button class="ob-chip ${OB.role===r?'on':''}" onclick="OB.role='${r}';obNext()"><span class="btn-ic">${ic(ROLE_ICONS[i])}</span>${optLabel(r,OB_ROLES,"role.")}</button>`).join("")}</div>`,
     OB.track==="welding"
      ?(()=>{const tr=(window.Trades&&Trades.get(OB.trade))||null;
         return `<div class="ob-logo ob-logo-weld">${ic("target")}</div>
@@ -18578,7 +18581,7 @@ function obRender(){
      :`<div class="ob-logo">${ic("target")}</div>
      <h1>${t("ob.goal_title")}</h1>
      <p class="sub">${t("ob.goal_sub")}</p>
-     <div class="ob-chips">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
+     <div class="ob-chips ob-chips-list">${OB_GOALS.map((g,i)=>`<button class="ob-chip ${OB.goal===g?'on':''}" onclick="OB.goal='${g.replace(/'/g,"\\'")}';obNext()"><span class="btn-ic">${ic(GOAL_ICONS[i])}</span>${optLabel(g,OB_GOALS,"goal.").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</button>`).join("")}</div>`,
     `<div class="ob-logo">${ic("clock")}</div>
      <h1>${t("ob.slot_title")}</h1>
      <p class="sub">${t("ob.slot_sub")}</p>
