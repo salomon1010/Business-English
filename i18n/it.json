@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Sappi quando ci sono persone online, anche ad app chiusa.",
  "pp.online_nudge_btn": "Attiva",
  "rem.online_switch": "Avvisami quando ci sono persone online",
- "rem.online_sub": "Una notifica quando qualcuno è online per esercitarsi: al massimo ogni poche ore, mai di notte."
+ "rem.online_sub": "Una notifica quando qualcuno è online per esercitarsi: al massimo ogni poche ore, mai di notte.",
+ "sh.own_title": "🎬 I tuoi video",
+ "sh.own_sub": "Video che hai aggiunto tu, con la tua trascrizione — fino a {{max}}. Restano qui finché non li rimuovi, così puoi tornare sullo stesso clip per tutto il tempo che serve.",
+ "sh.own_empty": "Carica qui sopra un link YouTube con la trascrizione e resta salvato qui — fino a {{max}} video tuoi, pronti da riaprire in qualsiasi giorno.",
+ "sh.own_badge": "Aggiunto da te",
+ "sh.own_tx": "Trascrizione aggiunta",
+ "sh.own_notx": "Senza trascrizione",
+ "sh.own_remove": "Rimuovi questo video",
+ "sh.own_saved_toast": "Salvato in I tuoi video ({{n}}/{{max}})",
+ "sh.own_full_toast": "Hai già {{max}} video tuoi — rimuovine uno per tenere questo",
+ "sh.own_removed_toast": "Video rimosso",
+ "cf.own_title": "Rimuovere questo video?",
+ "cf.own_body": "“{{name}}” e la sua trascrizione saranno rimossi da I tuoi video. Le tue registrazioni restano."
 }

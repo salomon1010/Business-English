@@ -716,6 +716,10 @@ body.sh-work-open{overflow:hidden}
 .sh-starter p{font-size:12.5px;color:var(--mut);flex:1;line-height:1.5}
 .sh-starter-cap{align-self:flex-start;font-size:11px}
 .sh-starter-acts{display:flex;gap:8px}
+.sh-own-chips{display:flex;gap:6px;flex-wrap:wrap}.sh-own-chips .chip{font-size:11px;padding:3px 9px}.sh-own-chips .chip svg{width:13px;height:13px}
+.sh-own-badge{border-color:var(--acc);color:var(--accent-text,var(--acc));background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.sh-own-tx{color:var(--ok,#22c55e)}.sh-own-notx{color:var(--mut)}
+.sh-own-del{color:var(--danger,#ef4444)}.sh-own-head b{font-weight:800;color:var(--txt);margin-left:6px}
 /* :not() so the icon-only copy button is not stretched by the same rule that
    makes "Shadow this" fill the row */
 .sh-starter-acts>.btn:not(.sh-starter-copy){flex:1;justify-content:center}
@@ -3930,7 +3934,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA"};
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA"};
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA"};   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -5426,6 +5430,18 @@ const I18N_EN={
  "sh.empty_trouble_body":"Words you mispronounce are collected here automatically. Record a shadow session and your speaking feedback will fill this list.",
  "sh.tab_create":"Create clip",
  "sh.tab_clips":"My clips",
+ "sh.own_title":"🎬 Your videos",
+ "sh.own_sub":"Videos you added yourself, with your transcript — up to {{max}}. They stay here until you remove them, so you can come back to one clip for as long as it takes.",
+ "sh.own_empty":"Load a YouTube link above with its transcript and it is kept here — up to {{max}} of your own videos, ready to reopen any day.",
+ "sh.own_badge":"Added by you",
+ "sh.own_tx":"Transcript added",
+ "sh.own_notx":"No transcript",
+ "sh.own_remove":"Remove this video",
+ "sh.own_saved_toast":"Saved to Your videos ({{n}}/{{max}})",
+ "sh.own_full_toast":"You already have {{max}} of your own videos — remove one to keep this one",
+ "sh.own_removed_toast":"Video removed",
+ "cf.own_title":"Remove this video?",
+ "cf.own_body":"“{{name}}” and its transcript will be removed from Your videos. Your recordings are kept.",
  "sh.tab_trouble":"Trouble words",
  "sh.trouble_entry_sub":"The words the scoring keeps flagging. Hear one, slow it down, say it back — it clears when you get it right.",
  "sh.trouble_none_sub":"Nothing flagged yet. Say a line back above and any word that trips you up collects here.",
@@ -7965,6 +7981,7 @@ ${(()=>{
       <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
       <div class="home-more-body"><div class="grid g3">${trackShadowStarters().slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
     </details>`:""}
+    <div id="shOwn">${shOwnHTML()}</div>
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
@@ -8164,8 +8181,60 @@ window.shLoadFromInput=()=>{
      a reload and "Continue your last clip" */
   const pb=document.getElementById("shPaste"),raw=pb?pb.value.trim():"";
   if(raw){S.shTx=S.shTx||{};S.shTx[id]=raw;delete S.notes["sh:"+id];save();pb.value="";taGrow(pb)}
+  /* and the video itself joins "Your videos" so the learner can come back to
+     it in a week — up to SH_OWN_MAX; the sixth still plays, it just is not kept */
+  const st=shOwnAdd(id,u);
+  if(st==="saved")toast(t("sh.own_saved_toast",{n:shOwn().length,max:SH_OWN_MAX}));
+  else if(st==="full")toast(t("sh.own_full_toast",{max:SH_OWN_MAX}));
   shLoad({vid:id,start:0,end:0,title:u});
 };
+/* ---- Your videos: the learner's own links + transcripts, kept across days ----
+   A learner who pastes a link and a transcript is building a clip they will
+   shadow for a week, not a minute. The list is per area (General English only
+   has the picker), capped at SH_OWN_MAX, newest first; the transcript stays in
+   S.shTx (raw, stamps and all) and goes with the video when it is removed. */
+const SH_OWN_MAX=5;
+function shOwn(){return aList("shOwn")}
+function shOwnFind(vid){return shOwn().findIndex(o=>o&&o.vid===vid)}
+function shOwnTitle(o){const x=String(o.title||"");return /^https?:\/\//i.test(x)||x===o.vid?"YouTube · "+o.vid:x}
+/* "saved" | "exists" | "full" */
+function shOwnAdd(vid,title){
+  if(!vid)return "full";
+  const i=shOwnFind(vid);
+  if(i>=0){shOwn()[i].ts=Date.now();save();shOwnRender();return "exists"}
+  if(shOwn().length>=SH_OWN_MAX)return "full";
+  shOwn().unshift({vid,title:title||vid,ts:Date.now()});save();shOwnRender();return "saved";
+}
+window.shOwnOpen=i=>{const o=shOwn()[i];if(!o)return;document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+o.vid;shLoad({vid:o.vid,start:0,end:0,title:shOwnTitle(o)})};
+window.shOwnDel=async(i,ev)=>{
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  const o=shOwn()[i];if(!o)return;
+  if(!await askConfirm({title:t("cf.own_title"),body:t("cf.own_body",{name:shOwnTitle(o)}),confirmLabel:t("cf.delete")}))return;
+  shOwn().splice(i,1);
+  if(S.shTx)delete S.shTx[o.vid];                     // the transcript was theirs too
+  if(S.lastClip&&S.lastClip.vid===o.vid)S.lastClip=null;   // "Continue your last clip" must not resurrect it
+  save();shOwnRender();toast(t("sh.own_removed_toast"));
+};
+function shOwnCard(o,i){
+  const tx=!!shPasted(o.vid);
+  return `<div class="card sh-starter sh-own" data-vid="${esc(o.vid)}">
+    <img src="https://i.ytimg.com/vi/${esc(o.vid)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180">
+    <b>${esc(shOwnTitle(o))}</b>
+    <div class="sh-own-chips"><span class="chip sh-own-badge">${ic("user")} ${t("sh.own_badge")}</span><span class="chip ${tx?"sh-own-tx":"sh-own-notx"}">${ic(tx?"check":"pencil")} ${t(tx?"sh.own_tx":"sh.own_notx")}</span></div>
+    <div class="sh-starter-acts">
+      <button class="btn btn-g" onclick="shOwnOpen(${i})">${t("sh.shadow_this_btn")}</button>
+      <button class="btn btn-g sh-starter-copy sh-own-del" onclick="shOwnDel(${i},event)" title="${esc(t("sh.own_remove"))}" aria-label="${esc(t("sh.own_remove"))}">${ic("trash")}</button>
+    </div>
+  </div>`;
+}
+function shOwnHTML(){
+  const L=shOwn();
+  return `<div class="hr"></div>
+    <div class="eyebrow sh-own-head" style="margin-bottom:4px">${tInl("sh.own_title","user")} <b class="sh-own-n">${L.length}/${SH_OWN_MAX}</b></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${L.length?t("sh.own_sub",{max:SH_OWN_MAX}):t("sh.own_empty",{max:SH_OWN_MAX})}</p>
+    ${L.length?`<div class="grid g3">${L.map(shOwnCard).join("")}</div>`:""}`;
+}
+function shOwnRender(){const el=document.getElementById("shOwn");if(el){el.innerHTML=shOwnHTML();try{manIconizeInline(el)}catch(e){}}}
 /* the pasted transcript for a video, raw; "" when there is none */
 function shPasted(vid){return (S.shTx&&S.shTx[vid])||""}
 async function shLoad(c,quiet){
@@ -8189,7 +8258,7 @@ async function shLoad(c,quiet){
   shVideoError(false);
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
-    events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;}}catch(_){}
+    events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shWorkTitle");if(wt)wt.textContent=t;const oi=shOwnFind(shClip.vid);if(oi>=0&&shOwn()[oi].title!==t){shOwn()[oi].title=t;save();shOwnRender()}}}catch(_){}
       if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick();
       if(svAsset&&(svAsset.level==="text"||svAsset.level==="none"))shV2Load();   /* a pasted transcript spread over the length needs the duration, known only now */},
       /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or

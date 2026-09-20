@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Erfahre, wenn Lernende online sind – auch bei geschlossener App.",
  "pp.online_nudge_btn": "Einschalten",
  "rem.online_switch": "Sag mir Bescheid, wenn Lernende online sind",
- "rem.online_sub": "Eine Benachrichtigung, wenn jemand zum Üben online ist – höchstens alle paar Stunden, nie nachts."
+ "rem.online_sub": "Eine Benachrichtigung, wenn jemand zum Üben online ist – höchstens alle paar Stunden, nie nachts.",
+ "sh.own_title": "🎬 Deine Videos",
+ "sh.own_sub": "Videos, die du selbst hinzugefügt hast, mit deinem Transkript — bis zu {{max}}. Sie bleiben hier, bis du sie entfernst, damit du so lange an einem Clip bleiben kannst, wie es braucht.",
+ "sh.own_empty": "Lade oben einen YouTube-Link mit Transkript und er wird hier behalten — bis zu {{max}} eigene Videos, an jedem Tag wieder zu öffnen.",
+ "sh.own_badge": "Von dir hinzugefügt",
+ "sh.own_tx": "Transkript hinzugefügt",
+ "sh.own_notx": "Kein Transkript",
+ "sh.own_remove": "Dieses Video entfernen",
+ "sh.own_saved_toast": "In Deine Videos gespeichert ({{n}}/{{max}})",
+ "sh.own_full_toast": "Du hast schon {{max}} eigene Videos — entferne eins, um dieses zu behalten",
+ "sh.own_removed_toast": "Video entfernt",
+ "cf.own_title": "Dieses Video entfernen?",
+ "cf.own_body": "„{{name}}“ und sein Transkript werden aus Deine Videos entfernt. Deine Aufnahmen bleiben erhalten."
 }

@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Soyez prévenu quand des apprenants sont en ligne — même l'application fermée.",
  "pp.online_nudge_btn": "Activer",
  "rem.online_switch": "Me prévenir quand des apprenants sont en ligne",
- "rem.online_sub": "Une notification quand quelqu'un est en ligne pour pratiquer — au plus toutes les quelques heures, jamais la nuit."
+ "rem.online_sub": "Une notification quand quelqu'un est en ligne pour pratiquer — au plus toutes les quelques heures, jamais la nuit.",
+ "sh.own_title": "🎬 Vos vidéos",
+ "sh.own_sub": "Les vidéos que vous avez ajoutées vous-même, avec votre transcription — jusqu'à {{max}}. Elles restent ici tant que vous ne les retirez pas, pour revenir sur le même extrait aussi longtemps qu'il le faut.",
+ "sh.own_empty": "Chargez ci-dessus un lien YouTube avec sa transcription : il est gardé ici — jusqu'à {{max}} vidéos à vous, à rouvrir n'importe quel jour.",
+ "sh.own_badge": "Ajoutée par vous",
+ "sh.own_tx": "Transcription ajoutée",
+ "sh.own_notx": "Sans transcription",
+ "sh.own_remove": "Retirer cette vidéo",
+ "sh.own_saved_toast": "Enregistrée dans Vos vidéos ({{n}}/{{max}})",
+ "sh.own_full_toast": "Vous avez déjà {{max}} vidéos à vous — retirez-en une pour garder celle-ci",
+ "sh.own_removed_toast": "Vidéo retirée",
+ "cf.own_title": "Retirer cette vidéo ?",
+ "cf.own_body": "« {{name}} » et sa transcription seront retirées de Vos vidéos. Vos enregistrements sont conservés."
 }

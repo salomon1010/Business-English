@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Được báo khi có người trực tuyến — kể cả khi đã đóng ứng dụng.",
  "pp.online_nudge_btn": "Bật",
  "rem.online_switch": "Báo cho tôi khi có người trực tuyến",
- "rem.online_sub": "Thông báo khi có người trực tuyến để luyện tập — nhiều nhất vài giờ một lần, không bao giờ vào ban đêm."
+ "rem.online_sub": "Thông báo khi có người trực tuyến để luyện tập — nhiều nhất vài giờ một lần, không bao giờ vào ban đêm.",
+ "sh.own_title": "🎬 Video của bạn",
+ "sh.own_sub": "Những video bạn tự thêm, kèm bản chép lời của bạn — tối đa {{max}}. Chúng ở lại đây cho đến khi bạn gỡ, để bạn quay lại cùng một đoạn bao lâu tùy ý.",
+ "sh.own_empty": "Tải một liên kết YouTube ở trên kèm bản chép lời và nó được giữ ở đây — tối đa {{max}} video của riêng bạn, sẵn sàng mở lại bất cứ ngày nào.",
+ "sh.own_badge": "Do bạn thêm",
+ "sh.own_tx": "Đã thêm bản chép lời",
+ "sh.own_notx": "Chưa có bản chép lời",
+ "sh.own_remove": "Gỡ video này",
+ "sh.own_saved_toast": "Đã lưu vào Video của bạn ({{n}}/{{max}})",
+ "sh.own_full_toast": "Bạn đã có {{max}} video của mình — gỡ một video để giữ video này",
+ "sh.own_removed_toast": "Đã gỡ video",
+ "cf.own_title": "Gỡ video này?",
+ "cf.own_body": "“{{name}}” và bản chép lời của nó sẽ bị gỡ khỏi Video của bạn. Các bản ghi âm của bạn vẫn được giữ."
 }

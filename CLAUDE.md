@@ -250,6 +250,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
   (27). Events for both features are on the `be-events` allow-list on the branch
   only — deploy that Worker before any flag goes on.
+- **Your videos (2026-09-19, General English picker).** A learner's own YouTube
+  link + pasted transcript is kept when they press Load: `aList("shOwn")`
+  (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the
+  sixth still plays, it is not kept; a repeat refreshes `ts`). The transcript
+  stays raw in `S.shTx[vid]` and is deleted with the video (`shOwnDel`, which
+  also clears `S.lastClip` for it). Rendered by `shOwnHTML()` into `#shOwn`
+  under the library starters ("Added by you" badge, transcript chip, Shadow
+  this, bin); `shOwnRender()` refreshes it in place; the YouTube title
+  replaces the pasted URL once `onReady` knows it. Keys `sh.own_*`,
+  `cf.own_*` in 16 languages (machine transcreation).
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is

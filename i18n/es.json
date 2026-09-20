@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Entérate cuando haya personas en línea, incluso con la app cerrada.",
  "pp.online_nudge_btn": "Activar",
  "rem.online_switch": "Avisarme cuando haya personas en línea",
- "rem.online_sub": "Una notificación cuando alguien esté en línea para practicar: como mucho cada pocas horas, nunca de noche."
+ "rem.online_sub": "Una notificación cuando alguien esté en línea para practicar: como mucho cada pocas horas, nunca de noche.",
+ "sh.own_title": "🎬 Tus vídeos",
+ "sh.own_sub": "Vídeos que añadiste tú, con tu transcripción — hasta {{max}}. Se quedan aquí hasta que los quites, para que vuelvas al mismo clip el tiempo que haga falta.",
+ "sh.own_empty": "Carga arriba un enlace de YouTube con su transcripción y se guarda aquí — hasta {{max}} vídeos tuyos, listos para reabrir cualquier día.",
+ "sh.own_badge": "Añadido por ti",
+ "sh.own_tx": "Transcripción añadida",
+ "sh.own_notx": "Sin transcripción",
+ "sh.own_remove": "Quitar este vídeo",
+ "sh.own_saved_toast": "Guardado en Tus vídeos ({{n}}/{{max}})",
+ "sh.own_full_toast": "Ya tienes {{max}} vídeos tuyos — quita uno para conservar este",
+ "sh.own_removed_toast": "Vídeo quitado",
+ "cf.own_title": "¿Quitar este vídeo?",
+ "cf.own_body": "“{{name}}” y su transcripción se quitarán de Tus vídeos. Tus grabaciones se conservan."
 }

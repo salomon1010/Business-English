@@ -1967,5 +1967,17 @@
  "pp.online_nudge": "Dapatkan pemberitahuan saat pelajar online — bahkan saat aplikasi tertutup.",
  "pp.online_nudge_btn": "Aktifkan",
  "rem.online_switch": "Beri tahu saat pelajar online",
- "rem.online_sub": "Pemberitahuan saat ada yang online untuk berlatih — paling banyak setiap beberapa jam, tidak pernah di malam hari."
+ "rem.online_sub": "Pemberitahuan saat ada yang online untuk berlatih — paling banyak setiap beberapa jam, tidak pernah di malam hari.",
+ "sh.own_title": "🎬 Video Anda",
+ "sh.own_sub": "Video yang Anda tambahkan sendiri, dengan transkrip Anda — hingga {{max}}. Tetap di sini sampai Anda menghapusnya, jadi Anda bisa kembali ke klip yang sama selama yang dibutuhkan.",
+ "sh.own_empty": "Muat tautan YouTube di atas beserta transkripnya dan video itu disimpan di sini — hingga {{max}} video Anda sendiri, siap dibuka kembali kapan saja.",
+ "sh.own_badge": "Ditambahkan oleh Anda",
+ "sh.own_tx": "Transkrip ditambahkan",
+ "sh.own_notx": "Tanpa transkrip",
+ "sh.own_remove": "Hapus video ini",
+ "sh.own_saved_toast": "Disimpan ke Video Anda ({{n}}/{{max}})",
+ "sh.own_full_toast": "Anda sudah punya {{max}} video sendiri — hapus satu untuk menyimpan yang ini",
+ "sh.own_removed_toast": "Video dihapus",
+ "cf.own_title": "Hapus video ini?",
+ "cf.own_body": "“{{name}}” dan transkripnya akan dihapus dari Video Anda. Rekaman Anda tetap tersimpan."
 }
