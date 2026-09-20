@@ -1419,7 +1419,12 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-tabs{margin:2px 0 12px}.pp-tabs .seg-tab{flex:1 1 0;justify-content:center;display:inline-flex;align-items:center;gap:6px;line-height:1}.pp-tabs .seg-tab svg{width:16px;height:16px;flex:0 0 auto}
 .pp-hist-head .sub{margin:2px 0 10px}.pp-hist-stats{margin:0 0 6px}.pp-hist-stats .stat{padding:10px 6px}.pp-hist-stats .stat .l{font-size:11px}
 .pp-hist-trend{margin:4px 0 0}
-.pp-hist-chips{margin:0 0 10px}.pp-hist-chips .seg-tab{padding:6px 12px;font-size:12px}
+/* the History filters: five equal pills across the whole band, one line at
+   every phone width — no scroller, no fade, no ragged widths */
+.seg-tabs.pp-hist-chips{display:flex;gap:6px;flex-wrap:nowrap;overflow:visible;margin:12px 0 12px;padding:0;-webkit-mask-image:none;mask-image:none}
+.seg-tabs.pp-hist-chips .seg-tab{flex:1 1 0;min-width:0;min-height:40px;padding:0 6px;font-size:12.5px;font-weight:700;justify-content:center;border-radius:99px}
+.seg-tabs.pp-hist-chips .seg-tab .seg-lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:379px){.seg-tabs.pp-hist-chips{gap:4px}.seg-tabs.pp-hist-chips .seg-tab{font-size:11.5px;padding:0 4px}}
 .pp-hist-list{padding:6px 12px}
 .pp-hist-day{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:10px 0 4px}
 .pp-hist-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
@@ -14438,7 +14443,7 @@ function ppHistRowHTML(e){
 function ppHistListHTML(){
   const all=ppHist();
   const F=[["all","pp.hist_f_all"],["session","pp.hist_f_session"],["live","pp.hist_f_live"],["ai","pp.hist_f_ai"],["safety","pp.hist_f_safety"]];
-  const chips=`<div class="seg-tabs pp-hist-chips" role="tablist">${F.map(([k,l])=>`<button class="seg-tab ${ppHistFilter===k?"on":""}" role="tab" aria-selected="${ppHistFilter===k}" onclick="ppHistFilterSet('${k}')">${t(l)}</button>`).join("")}</div>`;
+  const chips=`<div class="seg-tabs seg-fit pp-hist-chips" role="tablist" aria-label="${esc(t("pp.hist_h"))}">${F.map(([k,l])=>`<button class="seg-tab ${ppHistFilter===k?"on":""}" role="tab" aria-selected="${ppHistFilter===k}" onclick="ppHistFilterSet('${k}')"><span class="seg-lbl">${t(l)}</span></button>`).join("")}</div>`;
   const rows=all.filter(e=>ppHistFilter==="all"?true:e.kind===ppHistFilter);
   if(!rows.length)return chips+`<section class="card pp-cta"><b>${t("pp.hist_empty_h")}</b><p class="sub">${t("pp.hist_empty_sub")}</p></section>`;
   let out="",day="";
