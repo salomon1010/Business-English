@@ -1943,6 +1943,7 @@
  "pp.cands_toast": "{{n}} aprendiz(es) à espera — escolha um",
  "pp.fab": "Fale com uma pessoa real",
  "pp.fab_small": "Pratique com alguém",
+ "pp.fab_disc": "Pessoas reais",
  "pp.fab_online": "{{n}} online",
  "pp.conn_choice": "Ao vivo: fale agora, cerca de cinco minutos. Prática de hoje: grave quando puder.",
  "pp.cand_live_note": "Fale ao vivo agora, ou grave quatro turnos curtos. Se não encaixar, qualquer um dos dois pode sair.",
