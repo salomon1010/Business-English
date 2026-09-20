@@ -13531,19 +13531,19 @@ function svRender(){
   const txHidden=svMode==="challenge"&&!svRevealed&&svTxHiddenNow();
   const chPanel=svMode==="challenge"&&svChOn()?svChHTML():"";
   /* the tabs sit in the pinned block when it is there (always one tap away,
-     even mid-shadow). WATCH is the fold: closed, nothing under the pinned
-     block (the card keeps following — the tick does not need the list);
-     open, the full list is on the page and scrolls with the speech from the
-     line being spoken. SHADOW folds the list by default (the card under the
-     video already shows the line) behind the Transcript button. The clip
-     tools are the first thing under the player in Watch (open) and Shadow,
-     hidden in Challenge. */
+     even mid-shadow). WATCH is the transcript's fold: closed, the clip tools
+     and the cards sit straight under the tabs and the list is off the page
+     (the card keeps following — the tick does not need the list); open, the
+     full list slides in under the tabs, already at the line being spoken,
+     and scrolls with the speech, the clip tools after it. SHADOW folds the
+     list by default (the card under the video already shows the line)
+     behind the Transcript button. The clip tools are hidden in Challenge. */
   const tabsEl=document.getElementById("svTabs");
   if(tabsEl){tabsEl.innerHTML=tabs;tabsEl.hidden=false}
   const folded=svMode==="shadow"&&!svTxOpen;
   const watchFolded=svMode==="watch"&&!svWatchOpen;
-  shClipToolsShow(svMode!=="challenge"&&!watchFolded);
-  shLowerShow(!watchFolded);
+  shClipToolsShow(svMode!=="challenge");
+  shLowerShow(true);
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
   svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
@@ -13584,12 +13584,12 @@ function svPlace(first){
 let svTxOpen=false;try{svTxOpen=localStorage.getItem("be_sv_txopen")==="1"}catch(e){}
 let svTxFresh=false;   // set by svRender, cleared by the first tick that can scroll the new list to the spoken line
 window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen",svTxOpen?"1":"0")}catch(e){}svRender()};
-/* the fold state applied to the clip tools and the lower cards: everything
-   shown when the V2 panel is off (Welding, no text), else Watch-folded hides
-   both and Challenge hides the clip tools */
+/* the layout applied to the clip tools and the lower cards: everything
+   shown when the V2 panel is off (Welding, no text); Challenge hides the
+   clip tools. (The Watch fold only concerns the transcript panel itself.) */
 function svLayoutSync(){
-  const on=!!(svAsset&&svOn()),wf=svMode==="watch"&&!svWatchOpen;
-  shClipToolsShow(!on||(svMode!=="challenge"&&!wf));shLowerShow(!on||!wf);
+  const on=!!(svAsset&&svOn());
+  shClipToolsShow(!on||svMode!=="challenge");shLowerShow(true);
 }
 function shLowerShow(on){
   const box=document.getElementById("shV2");if(!box)return;
@@ -13629,11 +13629,10 @@ function svApplyHTML(){
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
 }
-/* Watch is also the fold: the first tap (or arriving) hides everything under
-   the pinned block — video, card, transport, tabs, nothing else, for pure
-   watching; tapping Watch again opens the full transcript (already at the
-   line being spoken, moving with the video) and the clip tools. Shadow and
-   Challenge always show theirs. */
+/* Watch is also the transcript's fold: closed (arriving), the clip tools and
+   the cards sit straight under the tabs with no list; tapping Watch again
+   slides the full transcript in under the tabs, already at the line being
+   spoken and moving with the video. Shadow and Challenge have their own. */
 let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
 window.svSetMode=m=>{
   if(m==="watch"&&svMode==="watch"){svWatchOpen=!svWatchOpen;try{localStorage.setItem("be_sv_watchopen",svWatchOpen?"1":"0")}catch(e){}}
