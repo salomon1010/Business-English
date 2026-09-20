@@ -266,28 +266,31 @@ window.FB_CONFIG={
   --wash1:rgba(109,40,217,.10); --wash2:rgba(168,85,247,.08);
   --accent-fill:#6d28d9; --accent-text:#5b21b6;
 }
-/* The backdrop: the picture floats behind the cards, masked to a soft blob
-   and drifting slowly; two glow orbs and a faint grid give it depth. Fixed to
+/* The backdrop: line-art in the app's own icon language (chat bubble, two
+   learners, mic / sparkle / globe on orbit rings) floats behind the cards,
+   masked to a soft blob and drifting slowly; two glow orbs and a faint grid give it depth. Fixed to
    the viewport and outside the views, because .view's entry animation uses a
    transform, which would pin a fixed child to the page for 350 ms. */
 #ppBg{display:none;position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 :root[data-view="partner"] #ppBg{display:block}
 :root[data-view="partner"] .view{position:relative;z-index:1}
-.pp-bg-img{position:absolute;top:-6vh;right:-18vw;width:min(118vw,720px);aspect-ratio:1;background:url("rp-photos/partner.jpg") center/cover no-repeat;opacity:.3;filter:saturate(1.02) blur(.6px);
-  -webkit-mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);mask-image:radial-gradient(closest-side,#000 42%,rgba(0,0,0,.55) 66%,transparent 100%);
-  animation:ppBgDrift 26s ease-in-out infinite alternate}
-.pp-bg-img::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(94,40,200,.45),rgba(7,5,22,.3) 55%,rgba(166,110,240,.25));mix-blend-mode:multiply}
-.pp-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55}
-.pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#5f2fc9,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
-.pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#9b63ea,transparent 70%);opacity:.34;animation:ppBgDrift 40s ease-in-out infinite alternate}
-.pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(167,139,250,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(167,139,250,.07) 1px,transparent 1px);background-size:44px 44px;
+.pp-bg-art{position:absolute;top:4vh;right:-30vw;width:min(104vw,660px);aspect-ratio:1;color:#c3c7d8;opacity:.42;
+  -webkit-mask-image:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.6) 72%,transparent 100%);mask-image:radial-gradient(closest-side,#000 48%,rgba(0,0,0,.6) 72%,transparent 100%);
+  filter:drop-shadow(0 0 10px rgba(167,139,250,.18));animation:ppBgDrift 26s ease-in-out infinite alternate}
+.pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.9}
+.pp-bg-spin{transform-origin:300px 300px;animation:ppBgSpin 120s linear infinite}
+.pp-bg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.42}
+.pp-bg-orb.a{width:52vw;max-width:420px;aspect-ratio:1;left:-14vw;top:38vh;background:radial-gradient(circle,#4f4a8a,transparent 70%);animation:ppBgDrift 34s ease-in-out infinite alternate-reverse}
+.pp-bg-orb.b{width:60vw;max-width:520px;aspect-ratio:1;right:-20vw;bottom:-14vh;background:radial-gradient(circle,#7c78a6,transparent 70%);opacity:.26;animation:ppBgDrift 40s ease-in-out infinite alternate}
+.pp-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(190,194,214,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(190,194,214,.06) 1px,transparent 1px);background-size:44px 44px;
   -webkit-mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(180deg,transparent,#000 30%,#000 70%,transparent)}
-:root[data-theme="light"] .pp-bg-img{opacity:.26}:root[data-theme="light"] .pp-bg-img::after{background:linear-gradient(160deg,rgba(109,40,217,.18),rgba(255,255,255,.1) 55%,rgba(168,85,247,.16))}
-:root[data-theme="light"] .pp-bg-orb{opacity:.28}:root[data-theme="light"] .pp-bg-orb.b{opacity:.2}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(76,29,149,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(76,29,149,.07) 1px,transparent 1px)}
+:root[data-theme="light"] .pp-bg-art{color:#4e526a;opacity:.2;filter:none}
+:root[data-theme="light"] .pp-bg-orb{opacity:.2}:root[data-theme="light"] .pp-bg-orb.b{opacity:.14}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(60,64,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(60,64,90,.06) 1px,transparent 1px)}
 @keyframes ppBgDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(-3vw,2.5vh,0) scale(1.05)}}
-@media (prefers-reduced-motion:reduce){.pp-bg-img,.pp-bg-orb{animation:none}}
-@media (min-width:900px){.pp-bg-img{right:calc(50% - 560px);top:-4vh}}
-/* Partner cards sit on the picture: a hairline violet edge and a soft top light. */
+@keyframes ppBgSpin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.pp-bg-art,.pp-bg-orb,.pp-bg-spin{animation:none}}
+@media (min-width:900px){.pp-bg-art{right:calc(50% - 600px);top:0}}
+/* Partner cards sit on the line-art: a hairline violet edge and a soft top light. */
 :root[data-view="partner"] #v-partner .card{box-shadow:var(--sh-2),inset 0 1px 0 rgba(255,255,255,.05)}
 :root[data-view="partner"] #v-partner .pp-head{border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
 :root:not([data-theme="light"])[data-view="partner"] #v-partner h1.big,:root:not([data-theme="light"])[data-view="partner"] #v-partner>.sub{text-shadow:0 2px 14px rgba(11,8,32,.85),0 0 2px rgba(11,8,32,.6)}
@@ -3612,7 +3615,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-simulation" class="view"></div>
   <div id="v-foundations" class="view"></div>
   <div id="v-partner" class="view"></div>
-  <div id="ppBg" aria-hidden="true"><span class="pp-bg-img"></span><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
+  <div id="ppBg" aria-hidden="true"><svg class="pp-bg-art" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><defs><g id="ppBgPerson"><circle cx="0" cy="-36" r="25"/><path d="M-50 46c0-28 22-46 50-46s50 18 50 46"/></g></defs><circle cx="300" cy="300" r="266" stroke-dasharray="2 13" opacity=".45"/><circle cx="300" cy="300" r="208" opacity=".3"/><ellipse cx="300" cy="300" rx="292" ry="126" transform="rotate(-16 300 300)" opacity=".28"/><path d="M150 300a150 150 0 0 1 300 0" stroke-dasharray="9 11" opacity=".75"/><g transform="translate(300 222) scale(6.6) translate(-12 -12)" stroke-width="0.273"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/></g><g fill="currentColor" stroke="none"><circle cx="283" cy="214" r="4.5"/><circle cx="300" cy="214" r="4.5"/><circle cx="317" cy="214" r="4.5"/></g><use href="#ppBgPerson" x="168" y="352"/><use href="#ppBgPerson" x="432" y="352"/><g transform="translate(118 168) scale(1.7) translate(-12 -12)" stroke-width="1.059"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/></g><g transform="translate(486 112) scale(1.6) translate(-12 -12)" stroke-width="1.125"><path d="M12 3.2l1.9 5.1 5.1 1.9-5.1 1.9L12 17.2l-1.9-5.1L5 10.2l5.1-1.9Z"/></g><g transform="translate(512 436) scale(1.6) translate(-12 -12)" stroke-width="1.125"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.4 2.3 2.4 14.7 0 17c-2.4-2.3-2.4-14.7 0-17Z"/></g><g transform="translate(92 436) scale(1.6) translate(-12 -12)" stroke-width="1.125"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/></g><g class="pp-bg-spin"><circle cx="300" cy="34" r="5" fill="currentColor" stroke="none" opacity=".7"/><circle cx="530" cy="167" r="6" class="pp-bg-acc" stroke="none"/><circle cx="530" cy="433" r="4" fill="currentColor" stroke="none" opacity=".6"/><circle cx="300" cy="566" r="5" class="pp-bg-acc" stroke="none"/><circle cx="70" cy="433" r="4" fill="currentColor" stroke="none" opacity=".6"/><circle cx="70" cy="167" r="6" fill="currentColor" stroke="none" opacity=".8"/></g><circle cx="384" cy="472" r="4" fill="currentColor" stroke="none" opacity=".5"/><circle cx="214" cy="128" r="3.5" fill="currentColor" stroke="none" opacity=".5"/></svg><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
   <div id="v-data" class="view"></div>
