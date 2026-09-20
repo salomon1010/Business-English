@@ -6974,7 +6974,7 @@ window.docToggleTheme=function(){
 window.openAbout=function(){
   const lang=(S.profile&&S.profile.lang)||"en";
   const theme=document.documentElement.getAttribute("data-theme")||"dark";
-  openDoc("flyer.html?v=79&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+(IS_IOS_APP?"&ios=1":""),
+  openDoc("flyer.html?v=84&lang="+encodeURIComponent(lang)+"&theme="+encodeURIComponent(theme)+(IS_IOS_APP?"&ios=1":""),
     t("profile.about"),{theme:true});   // v= bumps each flyer change so caches never serve a stale About page
 };
 window.openPrivacy=function(){openDoc("privacy.html",t("acc.privacy_link"))};
