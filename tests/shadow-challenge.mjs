@@ -279,26 +279,27 @@ const own = await A.page.evaluate(async () => {
   const r = {};
   r.keptOnLoad = shOwn().length === 1 && shOwn()[0].vid === "MZAjfsyJa1U";                      // the two Loads above added it once
   shCloseWork(); go("shadow"); shTab("create"); await new Promise(r => setTimeout(r, 200));
-  const sec = document.getElementById("shOwn");
-  r.section = !!sec && /Your videos/i.test(sec.innerText) && /1\/5/.test(sec.innerText);
+  /* with at least one video the section leads the page in #shOwnTop (406058d); #shOwn keeps only the empty-state hint */
+  const sec = document.getElementById("shOwnTop");
+  r.section = !!sec && /Your videos/i.test(sec.innerText) && /1\/5/.test(sec.innerText) && !!(sec.compareDocumentPosition(document.getElementById("shUrl")) & Node.DOCUMENT_POSITION_PRECEDING) && !!(sec.compareDocumentPosition(document.querySelector(".sh-starter:not(.sh-own)")) & Node.DOCUMENT_POSITION_FOLLOWING);   // after the link box, before the starter clips
   const card = sec && sec.querySelector(".sh-own"); r.card = !!card; r.badge = !!card && /Added by you/.test(card.innerText); r.txChip = !!card && /Transcript added|No transcript/.test(card.innerText);
   r.thumb = !!card && card.querySelector("img").src.includes("MZAjfsyJa1U"); r.remove = !!card && !!card.querySelector(".sh-own-del");
   /* the cap: four more fill it, the sixth still plays but is not kept */
   const st = ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3", "aaaaaaaaaa4"].map(v => shOwnAdd(v, "https://youtu.be/" + v)); r.filled = st.every(x => x === "saved") && shOwn().length === 5;
   r.sixth = shOwnAdd("aaaaaaaaaa5", "x") === "full" && shOwn().length === 5; r.again = shOwnAdd("MZAjfsyJa1U", "x") === "exists" && shOwn().length === 5;
-  r.five = document.querySelectorAll("#shOwn .sh-own").length === 5 && /5\/5/.test(document.getElementById("shOwn").innerText);
+  r.five = document.querySelectorAll("#shOwnTop .sh-own").length === 5 && /5\/5/.test(document.getElementById("shOwnTop").innerText);
   /* opening one loads the video with its transcript; removing one takes its transcript with it and never resurrects through "Continue" */
   S.shTx.aaaaaaaaaa1 = "0:01 hello there\n0:03 second line"; S.lastClip = { vid: "aaaaaaaaaa1" }; save();
   const i1 = shOwnFind("aaaaaaaaaa1"); const realConfirm = window.askConfirm; window.askConfirm = async () => true;
   try { await shOwnDel(i1, { stopPropagation() {} }); } finally { window.askConfirm = realConfirm; }
-  r.removed = shOwn().length === 4 && shOwnFind("aaaaaaaaaa1") < 0 && !S.shTx.aaaaaaaaaa1 && !S.lastClip && document.querySelectorAll("#shOwn .sh-own").length === 4;
-  r.openBtn = !!document.querySelector("#shOwn .sh-own button[onclick^='shOwnOpen']");
+  r.removed = shOwn().length === 4 && shOwnFind("aaaaaaaaaa1") < 0 && !S.shTx.aaaaaaaaaa1 && !S.lastClip && document.querySelectorAll("#shOwnTop .sh-own").length === 4;
+  r.openBtn = !!document.querySelector("#shOwnTop .sh-own button[onclick^='shOwnOpen']");
   /* clean up: keep only the real one */
   ["aaaaaaaaaa2", "aaaaaaaaaa3", "aaaaaaaaaa4"].forEach(v => { const i = shOwnFind(v); if (i >= 0) shOwn().splice(i, 1); }); save(); shOwnRender();
-  r.cleaned = shOwn().length === 1 && /1\/5/.test(document.getElementById("shOwn").innerText);
+  r.cleaned = shOwn().length === 1 && /1\/5/.test(document.getElementById("shOwnTop").innerText) && document.getElementById("shOwn").innerHTML === "";
   return r;
 });
-ok("Your videos: the loaded link is kept once; the picker lists it under the library with an 'Added by you' badge, transcript chip, thumbnail, open and remove; five is the cap (the sixth is not kept, a repeat is not duplicated); removing one drops its transcript and 'Continue your last clip'", own.keptOnLoad && own.section && own.card && own.badge && own.txChip && own.thumb && own.remove && own.filled && own.sixth && own.again && own.five && own.removed && own.openBtn && own.cleaned, JSON.stringify(own));
+ok("Your videos: the loaded link is kept once; the picker lists it right after the link box, before the starter clips, with an 'Added by you' badge, transcript chip, thumbnail, open and remove; five is the cap (the sixth is not kept, a repeat is not duplicated); removing one drops its transcript and 'Continue your last clip'", own.keptOnLoad && own.section && own.card && own.badge && own.txChip && own.thumb && own.remove && own.filled && own.sixth && own.again && own.five && own.removed && own.openBtn && own.cleaned, JSON.stringify(own));
 const ownW = await W.page.evaluate(() => ({ list: (S.shOwnA && S.shOwnA.welding) ? S.shOwnA.welding.length : 0, section: !!document.getElementById("shOwn") && document.getElementById("shOwn").offsetParent !== null }));
 const clr = await A.page.evaluate(() => { const u = document.getElementById("shUrl"), pb = document.getElementById("shPaste"); u.value = "https://youtu.be/MZAjfsyJa1U"; pb.value = "0:01 something"; const btn = document.querySelector(".sh-load-row .sh-in-clear"); const before = JSON.stringify([shOwn(), S.shTx]); const r = { btn: !!btn, beside: !!btn && btn.previousElementSibling === document.querySelector(".sh-load-row .btn-primary"), big: !!btn && btn.getBoundingClientRect().height >= 44 }; btn && btn.click(); r.cleared = u.value === "" && pb.value === ""; r.kept = JSON.stringify([shOwn(), S.shTx]) === before && shOwn().length === 1; r.focused = document.activeElement === u; return r; });
 ok("A bin beside Load video empties the link box and the transcript box (≥44 px, focus back on the link) and touches nothing saved", clr.btn && clr.beside && clr.big && clr.cleared && clr.kept && clr.focused, JSON.stringify(clr));
