@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "単語練習",
  "sh.hist_play": "自分の録音を再生",
  "sh.hist_open": "この文を開く",
- "sh.hist_open_clip": "このクリップを開く"
+ "sh.hist_open_clip": "このクリップを開く",
+ "sv.sh_original": "元のトランスクリプト",
+ "sv.sh_hint": "クリップはこの段落を繰り返します。単語をタップして聞き、翻訳してから録音しましょう。",
+ "sv.sh_translate": "翻訳",
+ "sv.sh_hear": "聞く",
+ "sv.sh_speed": "速度",
+ "sv.sh_record": "録音",
+ "sv.sh_stop": "停止",
+ "sv.sh_replay": "もう一度",
+ "sv.sh_tr_wait": "翻訳中…",
+ "sv.sh_tr_err": "翻訳には接続が必要です。しばらくしてもう一度お試しください。"
 }

@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "单词练习",
  "sh.hist_play": "播放我的录音",
  "sh.hist_open": "打开这一句",
- "sh.hist_open_clip": "打开这个片段"
+ "sh.hist_open_clip": "打开这个片段",
+ "sv.sh_original": "原文",
+ "sv.sh_hint": "片段在这一段循环播放。点击单词可听发音，翻译后再录音。",
+ "sv.sh_translate": "翻译",
+ "sv.sh_hear": "听",
+ "sv.sh_speed": "速度",
+ "sv.sh_record": "录音",
+ "sv.sh_stop": "停止",
+ "sv.sh_replay": "重播",
+ "sv.sh_tr_wait": "翻译中…",
+ "sv.sh_tr_err": "翻译需要网络连接。请稍后再试。"
 }

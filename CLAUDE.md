@@ -294,10 +294,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   carries `data-svmode` (set in `svRender` / `svLayoutSync`, removed when V2
   is off) and the CSS does the hiding: **Watch** = the transcript — the
   `.yt-shell` folds to 1 px (sound keeps playing), no clip tools, no cards,
-  the list always open (no Watch fold any more); **Shadow** = the clip and the
-  mic — video, transport, Start/End + hint, line nav + Shadow this sentence,
-  the recorder card and its report; `#svTx`, the fold button and the notes
-  card hidden; **Challenge** = its own panel only (`shLowerShow(false)`).
+  the list always open (no Watch fold any more), the spoken paragraph lit as a
+  whole with its word marked; **Shadow (v411)** = ONE paragraph: `svShHTML()`
+  renders the "Original transcript" card (word chips → `fbSay`, plain text,
+  the translation box, prev/next paragraph, ⭐ save clip, Translate (only when
+  the app language is not English; the Worker's `chat` route asked for
+  `{"reply"}`, cached in `localStorage.be_sv_tr` ≤200) and Hear it); on entry
+  `svShEnter()` snaps `shClip` Start/End to the paragraph, turns the clip loop
+  on and puts its text in `#shNote` so the studio report grades it; the foot
+  bar `#svShBar` (Speed = `shRate`, Record = `shRec`, Replay) is mirrored from
+  the hidden `.rec-panel` by `svShBarSync()`; transport, follow-along card,
+  Start/End tools and the whole `#shLower` grid are hidden there, the report
+  card after it is not. Entering Watch or Challenge turns the clip loop off.
+  **Challenge** = its own panel only (`shLowerShow(false)`).
   Welding never carries the attribute and keeps the classic workspace.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   **Challenge (branch `feature/shadow-challenge`, 2026-09-19, NOT merged).** The

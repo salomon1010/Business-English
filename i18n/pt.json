@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "Prática de palavras",
  "sh.hist_play": "Ouvir a minha gravação",
  "sh.hist_open": "Abrir esta frase",
- "sh.hist_open_clip": "Abrir este clipe"
+ "sh.hist_open_clip": "Abrir este clipe",
+ "sv.sh_original": "Transcrição original",
+ "sv.sh_hint": "O clipe repete este parágrafo. Toque numa palavra para a ouvir, traduza e depois grave.",
+ "sv.sh_translate": "Traduzir",
+ "sv.sh_hear": "Ouvir",
+ "sv.sh_speed": "Velocidade",
+ "sv.sh_record": "Gravar",
+ "sv.sh_stop": "Parar",
+ "sv.sh_replay": "Repetir",
+ "sv.sh_tr_wait": "A traduzir…",
+ "sv.sh_tr_err": "A tradução precisa de ligação. Tente de novo daqui a pouco."
 }

@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "단어 연습",
  "sh.hist_play": "내 녹음 재생",
  "sh.hist_open": "이 문장 열기",
- "sh.hist_open_clip": "이 클립 열기"
+ "sh.hist_open_clip": "이 클립 열기",
+ "sv.sh_original": "원문",
+ "sv.sh_hint": "클립이 이 문단을 반복합니다. 단어를 탭해 듣고, 번역한 뒤 녹음하세요.",
+ "sv.sh_translate": "번역",
+ "sv.sh_hear": "듣기",
+ "sv.sh_speed": "속도",
+ "sv.sh_record": "녹음",
+ "sv.sh_stop": "정지",
+ "sv.sh_replay": "다시 듣기",
+ "sv.sh_tr_wait": "번역 중…",
+ "sv.sh_tr_err": "번역에는 연결이 필요합니다. 잠시 후 다시 시도하세요."
 }

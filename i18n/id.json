@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "Latihan kata",
  "sh.hist_play": "Putar rekaman saya",
  "sh.hist_open": "Buka kalimat ini",
- "sh.hist_open_clip": "Buka klip ini"
+ "sh.hist_open_clip": "Buka klip ini",
+ "sv.sh_original": "Transkrip asli",
+ "sv.sh_hint": "Klip berulang pada paragraf ini. Ketuk kata untuk mendengarnya, terjemahkan, lalu rekam.",
+ "sv.sh_translate": "Terjemahkan",
+ "sv.sh_hear": "Dengar",
+ "sv.sh_speed": "Kecepatan",
+ "sv.sh_record": "Rekam",
+ "sv.sh_stop": "Berhenti",
+ "sv.sh_replay": "Putar ulang",
+ "sv.sh_tr_wait": "Menerjemahkan…",
+ "sv.sh_tr_err": "Terjemahan butuh koneksi. Coba lagi sebentar lagi."
 }

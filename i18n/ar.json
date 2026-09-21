@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "تدريب الكلمات",
  "sh.hist_play": "تشغيل تسجيلي",
  "sh.hist_open": "فتح هذه الجملة",
- "sh.hist_open_clip": "فتح هذا المقطع"
+ "sh.hist_open_clip": "فتح هذا المقطع",
+ "sv.sh_original": "النص الأصلي",
+ "sv.sh_hint": "يكرر المقطع هذه الفقرة. اضغط على كلمة لسماعها، ترجمها، ثم سجّل.",
+ "sv.sh_translate": "ترجمة",
+ "sv.sh_hear": "استمع",
+ "sv.sh_speed": "السرعة",
+ "sv.sh_record": "تسجيل",
+ "sv.sh_stop": "إيقاف",
+ "sv.sh_replay": "إعادة",
+ "sv.sh_tr_wait": "جارٍ الترجمة…",
+ "sv.sh_tr_err": "تحتاج الترجمة إلى اتصال. حاول مرة أخرى بعد قليل."
 }

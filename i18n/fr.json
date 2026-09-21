@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "Mots travaillés",
  "sh.hist_play": "Écouter ma prise",
  "sh.hist_open": "Ouvrir cette phrase",
- "sh.hist_open_clip": "Ouvrir ce clip"
+ "sh.hist_open_clip": "Ouvrir ce clip",
+ "sv.sh_original": "Transcription originale",
+ "sv.sh_hint": "Le clip boucle sur ce paragraphe. Touchez un mot pour l'entendre, traduisez-le, puis enregistrez.",
+ "sv.sh_translate": "Traduire",
+ "sv.sh_hear": "Écouter",
+ "sv.sh_speed": "Vitesse",
+ "sv.sh_record": "Enregistrer",
+ "sv.sh_stop": "Stop",
+ "sv.sh_replay": "Réécouter",
+ "sv.sh_tr_wait": "Traduction…",
+ "sv.sh_tr_err": "La traduction a besoin d'une connexion. Réessayez dans un instant."
 }

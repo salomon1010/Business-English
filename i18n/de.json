@@ -2412,5 +2412,15 @@
  "sh.hist_drills": "Wortübung",
  "sh.hist_play": "Meine Aufnahme abspielen",
  "sh.hist_open": "Diesen Satz öffnen",
- "sh.hist_open_clip": "Diesen Clip öffnen"
+ "sh.hist_open_clip": "Diesen Clip öffnen",
+ "sv.sh_original": "Originaltranskript",
+ "sv.sh_hint": "Der Clip wiederholt diesen Absatz. Tippe ein Wort an, um es zu hören, übersetze ihn, dann nimm auf.",
+ "sv.sh_translate": "Übersetzen",
+ "sv.sh_hear": "Anhören",
+ "sv.sh_speed": "Tempo",
+ "sv.sh_record": "Aufnehmen",
+ "sv.sh_stop": "Stopp",
+ "sv.sh_replay": "Wiederholen",
+ "sv.sh_tr_wait": "Übersetze…",
+ "sv.sh_tr_err": "Die Übersetzung braucht eine Verbindung. Versuche es gleich noch einmal."
 }
