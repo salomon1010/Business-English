@@ -1493,6 +1493,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-rv-conf{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--mut) 16%,transparent);color:var(--mut)}.pp-rv-conf.heard{background:color-mix(in srgb,var(--acc2) 18%,transparent);color:var(--acc2)}
 .pp-rv-pron-vs{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}.pp-rv-pron-vs span{font-size:15px;font-weight:700}.pp-rv-pron-vs small{display:block;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--mut2);font-weight:500}
 .pp-rv-coach .pp-row{margin-top:6px}#ppRevCoachBtn.on{background:var(--red)}
+.sim-ans-model-src{display:block;font-size:12px;color:var(--mut);margin:2px 0 6px;line-height:1.4}
+.pp-rv-model{margin-top:14px;padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2)}.pp-rv-model .eyebrow{margin-bottom:6px}
+.pp-rv-model-struct{display:flex;gap:6px;align-items:center;font-size:12.5px;font-weight:600;color:var(--acc);margin:0 0 8px}.pp-rv-model-struct svg{width:15px;height:15px}
+.pp-rv-model-answer{font-size:15.5px;font-weight:600;line-height:1.55;margin:0 0 8px;color:var(--txt)}.pp-rv-model-moves{margin:0 0 6px;padding-left:18px;font-size:13px;color:var(--mut);line-height:1.5}.pp-rv-model-moves li{margin:2px 0}
 .pp-rv-script{margin-top:10px;font-size:14px;line-height:1.55}.pp-rv-script summary{cursor:pointer;color:var(--mut);font-size:13px}.pp-rv-script p{margin:6px 0 0}
 .pp-rv-coach-items{margin-top:12px}.pp-rv-coach-item p{font-size:15.5px;font-weight:700;margin:0}.pp-rv-coach-item small{display:block;color:var(--mut);font-size:13px;margin-top:4px;line-height:1.45}
 .pp-rv-coach-item{padding:12px 0;border-top:1px solid var(--line)}.pp-rv-coach-item:first-of-type{border-top:0}
@@ -5416,22 +5420,22 @@ const I18N_EN={
  "pp.rv_ev_asr":"Only a speech recogniser heard your rounds: it recognises words, it does not judge sounds. Pronunciation items are worth checking, not verdicts.",
  "pp.rv_ev_none":"No word scores came with your rounds, so nothing here claims to have heard your pronunciation. Grammar, vocabulary, fluency and the task come from the transcripts.",
  "pp.rv_no_evidence_short":"no sound evidence",
- "pp.rv_sec_well":"1 · What you did well",
- "pp.rv_sec_improve":"2 · What you should improve",
- "pp.rv_sec_task":"3 · Topic mastery",
+ "pp.rv_sec_well":"2 · What you did well",
+ "pp.rv_sec_improve":"3 · What you should improve",
+ "pp.rv_sec_task":"4 · Topic mastery",
  "pp.rv_topic_label":"Topic",
  "pp.rv_st_strong":"Strong",
  "pp.rv_st_developing":"Developing",
  "pp.rv_st_needs_practice":"Needs practice",
  "pp.rv_st_missing":"Missing",
- "pp.rv_sec_pron":"4 · Pronunciation",
+ "pp.rv_sec_pron":"5 · Pronunciation",
  "pp.rv_pron_none":"Nothing to flag from the words that were recognised. The graded sentences below are where pronunciation practice happens.",
  "pp.rv_pron_none_audio":"The listening model heard every word clearly across your rounds. Keep it that way with the graded sentences below.",
  "pp.rv_conf_heard":"Heard in your recording",
  "pp.rv_conf_check":"Worth checking",
  "pp.rv_in_rounds":"round {{r}}",
  "pp.rv_target":"Target",
- "pp.rv_sec_said":"5 · Sentence structure and grammar",
+ "pp.rv_sec_said":"6 · Sentence structure and grammar",
  "pp.rv_sec_said_sub":"Recurring patterns first, not every slip. A pause or a self-correction is normal speech, not a fault.",
  "pp.rv_you_said":"You said",
  "pp.rv_better":"Better",
@@ -5443,10 +5447,10 @@ const I18N_EN={
  "pp.rv_kind_self_correction":"Nice self-correction",
  "pp.rv_kind_hesitation":"Normal hesitation",
  "pp.rv_keep_sentence":"Keep this sentence",
- "pp.rv_sec_natural":"6 · Natural English",
+ "pp.rv_sec_natural":"7 · Natural English",
  "pp.rv_ver_natural":"More natural",
  "pp.rv_ver_pro":"More professional",
- "pp.rv_sec_vocab":"7 · Vocabulary to master",
+ "pp.rv_sec_vocab":"8 · Vocabulary to master",
  "pp.rv_sec_vocab_sub":"Built from today's topic and your own rounds — what you used well, what you overused, what you were missing.",
  "pp.rv_used_well":"You used well",
  "pp.rv_voc_must":"Must know",
@@ -5476,8 +5480,12 @@ const I18N_EN={
  "pp.rv_tries":"{{n}} tries",
  "pp.rv_ungraded":"Recorded. Grading needs a connection — try again when you're online.",
  "pp.rv_asr_note":"Scored by word recognition only (the listening model was not available), so this says whether each word was recognised, not how it sounded.",
- "pp.rv_sec_coach":"8 · Voice coach",
- "pp.rv_coach_sub":"What went well across your rounds, the one pattern to change, the expressions to learn — in a teacher's voice. Then, for each moment that mattered: what was expected, what you said, and the full sentence to say instead — practise it until it is yours.",
+ "pp.rv_sec_coach":"1 · Voice coach",
+ "pp.rv_coach_sub":"Press play and hear the whole feedback: what happened across your rounds, the one pattern to change, the expressions to learn — then the full answer this task was expecting from you, built with your own details. Below, each moment that mattered: what was expected, what you said, and the sentence to say instead — practise until it is yours.",
+ "pp.rv_coach_model_h":"What I was expecting from you",
+ "pp.rv_coach_model_sub":"A complete answer on your own topic, with your own facts, in the structure professionals use for this kind of question.",
+ "pp.rv_coach_model_moves":"How it is built",
+ "pp.rv_coach_model_note":"Built only from what you actually said — nothing invented. Say it until it is yours, then make it your own.",
  "pp.rv_coach_expected":"What was expected",
  "pp.rv_coach_said":"You said",
  "pp.rv_coach_missed":"You did not cover this.",
@@ -11900,7 +11908,7 @@ function simFeedbackParts(a){
   if(!a.answered){
     out.push("You did not answer this one, so there is nothing for me to judge yet.");
     if(a.why)out.push(a.why);
-    out.push(`This is what we were expecting. ${a.model}`);
+    out.push(`This is what we were expecting. ${a.modelAi||a.model}`);
     out.push("Try it again and say it out loud, even if it is not perfect.");
     return out;
   }
@@ -11910,7 +11918,7 @@ function simFeedbackParts(a){
     : "This one did not go well, and I would rather tell you now than let an employer tell you.");
   if(a.missed.length)out.push(`But this is what we were expecting from you. You were supposed to ${a.missed.map(c=>c.label.toLowerCase()).join(", to ")}.`);
   else out.push("You covered everything we listen for on this question.");
-  out.push(`This is how a professional would answer it. ${a.model}`);
+  out.push(a.modelAi?`This is how you could have said it, with your own details. ${a.modelAi.replace(/\[([^\]]+)\]/g,"$1")}`:`This is how a professional would answer it. ${a.model}`);
   if(a.why)out.push(a.why);
   out.push(`Your score on this question is ${pct} percent.`);
   out.push(pct>=75
@@ -12036,7 +12044,7 @@ function simAnswerCard(a,i){
         `<p class="sub">You did not give a spoken answer to this one, so there is nothing to compare yet.</p>`}
       ${a.covered.length?`<div class="sim-ans-good"><b>What you did well</b><ul>${a.covered.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
       ${a.missed.length?`<div class="sim-ans-gap"><b>What was missing</b><ul>${a.missed.map(c=>`<li>${esc(c.label)}</li>`).join("")}</ul></div>`:""}
-      <div class="sim-ans-model"><b>How you could have said it</b><p>“${esc(a.model)}”</p></div>
+      <div class="sim-ans-model"><b>${a.modelAi?"How you could have said it":"How a professional might say it"}</b>${a.modelAi?`<small class="sim-ans-model-src">Built from your own answer — your facts, the missing points added. A [slot] is a detail only you can fill in.</small>`:`<small class="sim-ans-model-src">${_simAssistBusy?"An example answer — your own version is being built…":"An example answer, not built from yours."}</small>`}<p>“${esc(a.modelAi||a.model)}”</p></div>
       ${a.why?`<p class="sim-ans-why">${esc(a.why)}</p>`:""}
       ${a.vocabMissed.length?`<div class="sim-ans-voc"><b>Words to use next time</b>${vocPickChips(a.vocabMissed,"Interview")}</div>`:""}
       ${a.vocabUsed.length?`<p class="sim-ans-why">You already used: ${esc(a.vocabUsed.join(", "))}.</p>`:""}
@@ -12051,35 +12059,52 @@ function simAnswerCard(a,i){
    only honours point ids that already exist in the rubric, and can never remove
    something the learner earned or invent a score. Offline this simply does not
    run and the deterministic result stands. */
-let _simAssistDone=null;
+let _simAssistDone=null,_simAssistBusy=false;
+/* One request PER ANSWERED QUESTION at the end of the workshop (owner,
+   2026-09-21): "How you could have said it" must be built from what the
+   learner actually said — their job, their years, their materials — not the
+   rubric's canned example. The Worker's chat route returns exactly
+   {reply, covered}: reply carries the learner's own answer rebuilt around the
+   subject they chose, covering the missing points with their facts (a detail
+   they never gave becomes a short [slot], never an invention); covered carries
+   the point ids the original answer genuinely addressed, which applyAssist
+   honours strictly additively. The canned rubric answer stays as the offline
+   fallback and is labelled as an example, not as theirs. */
 async function simEnrichAnalysis(run,sc){
-  if(!run||!window.AnswerEvaluator||_simAssistDone===run.startedAt)return false;
-  const answers=(run.answers||[]).filter(a=>a.answered&&a.missed.length);
-  if(!answers.length||!POLISH_API||!navigator.onLine)return false;
-  _simAssistDone=run.startedAt;
-  const items=answers.map((a,i)=>({i,said:a.said,missing:a.missed.map(m=>({id:m.id,means:m.label}))}));
-  const sys=`You check whether a spoken answer covered specific points. For each item you are given what the learner said and the points a marker recorded as MISSING.
-Some were marked missing only because the learner used different words. Decide, for each item, which of those missing point ids the learner genuinely did address in meaning.
-Be strict: only include an id if the meaning is really there. Do not reward intention, politeness or length. Do not judge their English.
-Return JSON only: {"reply":"ok","items":[{"i":0,"covered":["id"]}]}`;
-  try{
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:JSON.stringify(items).slice(0,4000)}]}})});
-    if(!r.ok)return false;
-    const j=await r.json().catch(()=>({}));
-    const rows=Array.isArray(j.items)?j.items:[];
-    let changed=false;
-    rows.forEach(row=>{
-      const a=answers[Number(row&&row.i)];
-      if(!a)return;
-      const rubric=(sc.questions||{})[a.q];
-      if(!rubric)return;
+  /* null = nothing ran (already done for this run, offline, nothing to ask):
+     the caller must NOT redraw on null, or the redraw would call this again */
+  if(!run||!window.AnswerEvaluator||_simAssistDone===run.startedAt)return null;
+  const answers=(run.answers||[]).filter(a=>a.answered&&a.said&&!a.modelAi);
+  if(!answers.length||!POLISH_API||!navigator.onLine)return null;
+  _simAssistDone=run.startedAt;_simAssistBusy=true;
+  const tr=window.Trades?Trades.active(S):null;
+  const sys=`You are a spoken-English coach for tradespeople. A learner answered a workplace or interview question aloud. Rewrite THEIR answer as the answer they should have given.
+Rules: keep every fact they gave (their job title, years, materials, processes, employers, sites, numbers) and build the whole answer around the subject THEY chose — if they said they work on pipes, the answer is about their pipe work. Cover each MISSING point in one clear sentence using only their facts; where a detail is unknown, write a short slot in square brackets, e.g. [how many] years, [which process]. Use 2 to 4 of the vocabulary words only where they fit naturally. 40 to 90 words, first person, spoken, plain, professional. The style reference shows tone and shape only — never copy its facts, names or numbers.
+Also list which of the point ids the learner's ORIGINAL answer already covered in meaning. Be strict: only an id whose meaning is really there.
+Return JSON only: {"reply":"the rebuilt answer","covered":["id"]}`;
+  let changed=false;
+  const one=async a=>{
+    const rubric=(sc.questions||{})[a.q];if(!rubric)return;
+    const body={question:a.ask||"",said:a.said,points:(rubric.points||[]).map(p=>({id:p.id,means:p.label})),missing:a.missed.map(m=>m.id),vocab:(a.vocabMissed||[]).concat(a.vocabUsed||[]).slice(0,10),style_reference:a.model||"",trade:tr&&tr.name||""};
+    try{
+      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:JSON.stringify(body).slice(0,4000)}]}})});
+      if(!r.ok)return;
+      const j=await r.json().catch(()=>({}));
+      const reply=String(j.reply||"").trim();
+      /* a real rewrite: long enough to be an answer, and not the reference or a refusal */
+      if(reply.split(/\s+/).length>=15&&reply!==a.model&&!/^sorry, could you/i.test(reply)){a.modelAi=reply;changed=true}
       const before=a.covered.length;
-      AnswerEvaluator.applyAssist(a,rubric,row.covered);
+      AnswerEvaluator.applyAssist(a,rubric,Array.isArray(j.covered)?j.covered:[]);
       if(a.covered.length!==before)changed=true;
-    });
-    return changed;
-  }catch(e){return false}
+    }catch(e){}
+  };
+  await Promise.all(answers.slice(0,8).map(one));
+  _simAssistBusy=false;
+  if(changed){
+    /* the attempt already recorded for this run carries copies of the answers — keep it in step */
+    try{const list=simAttemptStore(S)[sc.id]||[];const at=list.find(x=>x.startedAt===run.startedAt);if(at)at.answers=run.answers}catch(e){}
+  }
+  return changed;
 }
 /* Observed lazily, and armed from simAnalysisHTML rather than from each of its
    callers: that function is the only thing in the app that produces a
@@ -12202,7 +12227,7 @@ function rSimulation(el,id,characterId){
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
     el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
-    simEnrichAnalysis(run,selected).then(changed=>{if(changed&&cur&&cur.v==="simulation"){simSave();go("simulation",selected.id)}});
+    simEnrichAnalysis(run,selected).then(changed=>{if(changed===null)return;if(cur&&cur.v==="simulation"&&simRun&&simRun.startedAt===run.startedAt&&_simFbSpeaking==null){if(changed)simSave();go("simulation",selected.id)}});
     return;
   }
   const speaker=simCharacter(selected,run.lastSpeakerId||((run.messages||[]).slice(-1)[0]||{}).characterId)||simCast(selected)[0];
@@ -15032,7 +15057,10 @@ const ppRevHear=(text)=>`<button class="btn btn-g btn-sm pp-rv-hear" onclick="pp
 window.ppRevCoach=async(revId)=>{
   const rev=ppRevGet(revId);if(!rev)return;
   if(ppRevCoachOn){ppRevCoachStop();return}
-  const lines=(rev.review.coach.script||[]).filter(Boolean);if(!lines.length)return;
+  /* the whole feedback in one press: the script, then the full answer the
+     task expected (a review written before coach.model existed has none) */
+  const M=rev.review.coach.model||{};
+  const lines=(rev.review.coach.script||[]).filter(Boolean).concat(M.answer?(String(M.answer).match(/[^.!?]+[.!?]+["”']?/g)||[String(M.answer)]).map(x=>x.trim()).filter(Boolean):[]);if(!lines.length)return;
   ppRevCoachOn=true;ppRevCoachPaint(revId,true);
   rev.coached=(rev.coached||0)+1;save();try{track("partner_review_coach",{})}catch(_){}
   const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
@@ -15129,6 +15157,7 @@ function ppRevHTML(rev){
   /* each coach item is a real moment from this conversation: what the task
      expected there, what the learner said (or that they missed it), then the
      full polished sentence — Hear / Slow / Say it, until two clear takes */
+  const M=R.coach.model||{};   // the full expected answer (absent on reviews written before it existed)
   const coachPractice=R.coach.practice.map((c,i)=>{const pr=(rev.practice||{})["coach:"+i];const done=pr&&(pr.passes||0)>=PP_REV_MASTER;
     return `<div class="pp-rv-coach-item ${done?"mastered":""}">
       ${c.expected?`<div class="pp-rv-cx"><small class="pp-rv-cx-k">${t("pp.rv_coach_expected")}</small><span>${esc(c.expected)}</span></div>`:""}
@@ -15154,6 +15183,19 @@ function ppRevHTML(rev){
     <p class="pp-rv-summary"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${esc(R.summary)}</p>
     <p class="pp-fine">${ic("info")} ${evLine}</p>
   </section>
+  <section class="card pp-rv-sec pp-rv-coach"><div class="eyebrow">${t("pp.rv_sec_coach")}</div>
+    <p class="sub">${t("pp.rv_coach_sub")}</p>
+    <div class="pp-row"><button class="btn-primary" id="ppRevCoachBtn" onclick="ppRevCoach('${rev.id}')">${ic("play")} ${t("pp.rv_coach_play")}</button></div>
+    <details class="pp-rv-script"><summary>${t("pp.rv_coach_script")}</summary>${R.coach.script.map(s=>`<p>${esc(s)}</p>`).join("")}</details>
+    ${M.answer?`<div class="pp-rv-model"><small class="eyebrow">${t("pp.rv_coach_model_h")}</small>
+      <p class="sub">${t("pp.rv_coach_model_sub")}</p>
+      ${M.structure?`<p class="pp-rv-model-struct">${ic("list")} ${esc(M.structure)}</p>`:""}
+      <p class="pp-rv-model-answer">${esc(M.answer)}</p>
+      ${M.moves&&M.moves.length?`<small class="pp-rv-cx-k">${t("pp.rv_coach_model_moves")}</small><ul class="pp-rv-model-moves">${M.moves.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`:""}
+      <div class="pp-rv-voc-acts">${ppRevHear(M.answer)}${ppRevPracticeBox(rev,"model",M.answer,t("pp.rv_coach_model_h"))}</div>
+      <p class="pp-fine">${t("pp.rv_coach_model_note")}</p></div>`:""}
+    ${coachPractice?`<div class="pp-rv-coach-items"><small class="eyebrow">${t("pp.rv_coach_repeat")}</small>${coachPractice}</div>`:""}
+  </section>
   <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_well")}</div>
     ${R.well.map(x=>`<p class="pp-rv-line ok">${ic("check")} <span>${esc(x.text)}${x.evidence?` <i>${esc(x.evidence)}</i>`:""}</span></p>`).join("")}
   </section>
@@ -15174,12 +15216,6 @@ function ppRevHTML(rev){
   <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_vocab")}</div><p class="sub">${t("pp.rv_sec_vocab_sub")}</p>${vocab}
     <div class="pp-row"><button class="btn btn-g" onclick="ppRevSaveAll('${rev.id}')">${ic("bookmark")} ${t("pp.rv_save_all")}</button></div>
     <p class="pp-fine">${t("pp.rv_save_note")}</p></section>
-  <section class="card pp-rv-sec pp-rv-coach"><div class="eyebrow">${t("pp.rv_sec_coach")}</div>
-    <p class="sub">${t("pp.rv_coach_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" id="ppRevCoachBtn" onclick="ppRevCoach('${rev.id}')">${ic("play")} ${t("pp.rv_coach_play")}</button></div>
-    <details class="pp-rv-script"><summary>${t("pp.rv_coach_script")}</summary>${R.coach.script.map(s=>`<p>${esc(s)}</p>`).join("")}</details>
-    ${coachPractice?`<div class="pp-rv-coach-items"><small class="eyebrow">${t("pp.rv_coach_repeat")}</small>${coachPractice}</div>`:""}
-  </section>
   ${R.answer.polished?`<section class="card pp-rv-sec pp-rv-answer"><div class="eyebrow">${t("pp.rv_sec_answer")}</div>
     ${R.answer.original?`<div class="pp-rv-said"><small>${t("pp.rv_answer_original")}</small><p>${esc(R.answer.original)}</p></div>`:""}
     <div class="pp-rv-better"><small>${t("pp.rv_answer_polished")}</small><p>${esc(R.answer.polished)}</p></div>

@@ -247,6 +247,25 @@ not JS, and `new Function` chokes on it. Check it separately with
   `ppRevRequest/ppRevHTML/ppRevPractice/ppRevCoach/ppRevSave`, the
   Conversation booster game `cvStart` (GE only), `ppRevLearned` → `reused`.
   Doc: `marketing/product/practice-partner/FOUR_ROUND_REVIEW.md`.
+  **Owner 2026-09-21: the Voice coach is section 1** (play once, hear
+  everything) and carries `coach.model` = "What I was expecting from you":
+  the full answer in the learner's OWN facts, in the named professional
+  structure for that question type (Present → Past → Future, STAR, …),
+  spoken by the coach straight after the script (`ppRevCoach` appends its
+  sentences; the script's last line is the fixed lead-in). Reviews written
+  before it have no `model` and render without the block. The be-partner
+  Worker must be redeployed for production reviews to carry it.
+- **Simulation "How you could have said it" (2026-09-21).** Built from the
+  learner's OWN answer, not the rubric's canned example: `simEnrichAnalysis`
+  makes one Polish-Worker `chat` call per answered question at the end of the
+  workshop (`reply` = the rebuilt answer with their facts, missing points
+  added, unknown details as `[slots]`; `covered` = the point ids the original
+  answer really hit → `applyAssist`). Stored as `a.modelAi` beside the canned
+  `a.model`, which stays as the offline fallback labelled "How a professional
+  might say it · an example answer". `shapeChat` passes only `reply/covered/
+  characterId`, so the old batched `items` request never worked — do not
+  bring it back. Returns `null` when nothing ran; the debrief must not redraw
+  on null (it would loop).
 - **Practice Partner Levels 2–3 (same branch).** Level 2 = the **AI coach
   session** (`ppAiStart`, `S.pp.ai`, one open at a time, pending-turn
   idempotency; replies via the Polish `chat` route, spoken with the natural

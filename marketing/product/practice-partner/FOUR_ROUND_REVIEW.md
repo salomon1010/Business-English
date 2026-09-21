@@ -31,23 +31,38 @@ four are in, each learner's app asks the Worker for **its own** review:
 
 ## The report (client `ppRevHTML`, in this order)
 This conversation was about: *topic* · session n · evidence line →
-1 What you did well (evidence-cited) → 2 What you should improve (recurring
-patterns with counts) → 3 Topic mastery (the task's components, each
-Strong / Developing / Needs practice / Missing, plus a verdict) →
-4 Pronunciation (You said / Target / Why / Hear / Say it, graded; "Heard in
+**1 Voice coach — first, owner 2026-09-21** ("the learner can just tap play
+and hear all the feedback"): the script spoken sentence by sentence in the
+natural voice (device voice fallback) — what the conversation was about,
+what went well with their words, the one pattern to change, the expressions,
+then the fixed lead-in *"Now listen to the full answer I was expecting from
+you, built with your own details."* — after which the coach reads
+**`coach.model`**: *What I was expecting from you* — the named professional
+structure for that question type (Present → Past → Future for "Tell me about
+yourself"; Situation → Task → Action → Result for an achievement or a
+problem; Point → Reason → Example → Next step for an opinion; …), the full
+80–150-word answer built ONLY from the facts the learner gave (their role,
+years, projects, numbers — the topic they chose, emphasised), *How it is
+built* (one line per part), Hear / Slow / Say it (graded, key `model`).
+Nothing invented: a part they never covered is bridged from what they said.
+The model has no live web access — the structures come from the widely-taught
+interview / business-communication guidance in its training, and the prompt
+names them so the choice is visible. Then 2–4 real moments from this
+conversation, each a card: *What was expected* · *You said* (or "you did not
+cover this") · *Say it like this* — the full polished sentence, 8–25 words,
+the learner's own facts · why; Hear / Slow / Say it, graded; **Mastered**
+after `PP_REV_MASTER` = 2 clear takes ≥ 80, `practice[key].passes` on the
+entry) → 2 What you did well (evidence-cited) → 3 What you should improve
+(recurring patterns with counts) → 4 Topic mastery (the task's components,
+each Strong / Developing / Needs practice / Missing, plus a verdict) →
+5 Pronunciation (You said / Target / Why / Hear / Say it, graded; "Heard in
 your recording" only under audio evidence, otherwise "Worth checking") →
-5 Sentence structure and grammar (You said → Better → Why → Try, kinds
+6 Sentence structure and grammar (You said → Better → Why → Try, kinds
 `Grammar / Sounds clumsy / More natural / Nice self-correction / Normal
-hesitation`; only Grammar is ever "wrong") → 6 Natural English (more natural
-/ more professional) → 7 Vocabulary to master (used well · misused · Must
+hesitation`; only Grammar is ever "wrong") → 7 Natural English (more natural
+/ more professional) → 8 Vocabulary to master (used well · misused · Must
 know · Useful upgrade with the real count · Next level · Sentence patterns;
-every item: Hear · Say it · Save) → 8 Voice coach (script spoken sentence by
-sentence in the natural voice, device voice fallback; then, **owner 2026-09-21**,
-2–4 real moments from this conversation, each a card: *What was expected* ·
-*You said* (or "you did not cover this") · *Say it like this* — the full
-polished sentence, 8–25 words, the learner's own facts · why; Hear / Slow /
-Say it, graded; **Mastered** after `PP_REV_MASTER` = 2 clear takes ≥ 80,
-`practice[key].passes` on the entry) → Your answer, rebuilt (original / polished / what changed; Hear;
+every item: Hear · Say it · Save) → Your answer, rebuilt (original / polished / what changed; Hear;
 record your version, graded) → Progress (five indicator tiles with delta vs
 last session; line chart R1 → R3 → Session; biggest improvement / still
 developing / next priority; last plan judged; reused expressions) → Your next
@@ -86,6 +101,18 @@ synced whole — it holds only the learner's own words). Practice attempts,
 saves and coach plays live on the entry. `Clear my history` wipes the area's
 reviews locally and the Worker deletes the caller's reviews of closed
 sessions (`DELETE /history`); `DELETE /me` deletes them all.
+
+## Tests that ran (2026-09-21, local, be-main tree on port 8011 + dev Worker)
+- Worker `backend/partner/test/run.mjs`: 146/146 (the review check now also
+  proves `coach.model`: named structure, ≥ 20 words, the learner's own facts,
+  3+ moves, the script ends in the lead-in).
+- Browser `tests/partner.mjs`: 152/154 — the same two Shadow Studio V2
+  checks as before; new: Voice coach is section 1, the expected-answer block
+  with structure / facts / How it is built / Hear · Slow · Say it.
+- **Trap found today:** a stale `python -m http.server 8765` from another
+  session's worktree silently took the suite's port, so `npm test` and the
+  e2e "passed" against an old tree. Check `lsof -iTCP:8765` or pass an
+  explicit `BASE=` on 8011/8000/8765 (the dev Worker's CORS list).
 
 ## Tests that ran (2026-09-20, local)
 - Worker `backend/partner/test/run.mjs`: 146/146 — completion gate,
