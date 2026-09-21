@@ -1493,6 +1493,11 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-rv-conf{font-size:11px;font-weight:700;padding:3px 9px;border-radius:99px;background:color-mix(in srgb,var(--mut) 16%,transparent);color:var(--mut)}.pp-rv-conf.heard{background:color-mix(in srgb,var(--acc2) 18%,transparent);color:var(--acc2)}
 .pp-rv-pron-vs{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}.pp-rv-pron-vs span{font-size:15px;font-weight:700}.pp-rv-pron-vs small{display:block;font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--mut2);font-weight:500}
 .pp-rv-coach .pp-row{margin-top:6px}#ppRevCoachBtn.on{background:var(--red)}
+/* Stop + live strip pinned under the eyebrow only while the coach speaks (.on);
+   sticky inside the coach card, so it follows the learner down the script and
+   the model answer and stops with the card. The partner room's card colour is
+   90% opaque, so it is layered over --bg to hide the text scrolling beneath. */
+.pp-rv-coach-dock.on{position:sticky;top:calc(62px + var(--pg-eyebrow-h,68px) + 6px);z-index:37;background:linear-gradient(var(--card),var(--card)),var(--bg);margin:0 -16px;padding:0 16px 10px;box-shadow:0 10px 16px -12px rgba(0,0,0,.5)}
 /* the coach's "I am speaking" strip: equaliser + the sentence being said; stays
    as a green "finished" line when the coach reaches the end, a grey "stopped"
    line when the learner cut it. Reduced motion keeps the state, not the motion. */
@@ -15528,6 +15533,10 @@ function ppRevCoachPaint(revId,on,end){
   b.innerHTML=(on?ic("stop"):ic("play"))+" "+(on?t("pp.rv_coach_stop"):t("pp.rv_coach_play"));b.classList.toggle("on",!!on);
   const live=document.getElementById("ppRevCoachLive"),st=document.getElementById("ppRevCoachState"),now=document.getElementById("ppRevCoachNow");
   if(!live)return;
+  /* while the coach speaks, Stop + the live strip stay pinned under the page
+     eyebrow as the learner scrolls down to read along; scrolling back up
+     returns them to their place, and the end of the speech releases them */
+  const dock=document.getElementById("ppRevCoachDock");if(dock)dock.classList.toggle("on",!!on);
   live.classList.remove("on","done","stopped");
   document.querySelectorAll(".pp-rv-script p.now,.pp-rv-model-answer.now").forEach(e=>e.classList.remove("now"));
   if(on){live.classList.add("on");st.textContent=t("pp.rv_coach_speaking");now.textContent="";const d=document.getElementById("ppRevScript");if(d)d.open=true}
@@ -15646,8 +15655,8 @@ function ppRevHTML(rev){
   </section>
   <section class="card pp-rv-sec pp-rv-coach"><div class="eyebrow">${t("pp.rv_sec_coach")}</div>
     <p class="sub">${t("pp.rv_coach_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" id="ppRevCoachBtn" onclick="ppRevCoach('${rev.id}')">${ic("play")} ${t("pp.rv_coach_play")}</button></div>
-    <div class="pp-rv-live" id="ppRevCoachLive" aria-live="polite"><span class="sim-fb-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-rv-live-t"><b id="ppRevCoachState"></b><span id="ppRevCoachNow"></span></span></div>
+    <div class="pp-rv-coach-dock" id="ppRevCoachDock"><div class="pp-row"><button class="btn-primary" id="ppRevCoachBtn" onclick="ppRevCoach('${rev.id}')">${ic("play")} ${t("pp.rv_coach_play")}</button></div>
+    <div class="pp-rv-live" id="ppRevCoachLive" aria-live="polite"><span class="sim-fb-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-rv-live-t"><b id="ppRevCoachState"></b><span id="ppRevCoachNow"></span></span></div></div>
     <details class="pp-rv-script" id="ppRevScript"><summary>${t("pp.rv_coach_script")}</summary>${R.coach.script.map(s=>`<p>${esc(s)}</p>`).join("")}</details>
     ${M.answer?`<div class="pp-rv-model"><small class="eyebrow">${t("pp.rv_coach_model_h")}</small>
       <p class="sub">${t("pp.rv_coach_model_sub")}</p>
