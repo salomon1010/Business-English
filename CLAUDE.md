@@ -253,8 +253,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   structure for that question type (Present → Past → Future, STAR, …),
   spoken by the coach straight after the script (`ppRevCoach` appends its
   sentences; the script's last line is the fixed lead-in). Reviews written
-  before it have no `model` and render without the block. The be-partner
-  Worker must be redeployed for production reviews to carry it.
+  before it have no `model` and render without the block. be-partner was
+  redeployed by the owner 2026-09-21 (version 0ee2b698), so production
+  reviews carry it. **Deploy command for every Worker with several
+  environments:** `npx wrangler deploy --env ""` for production (the
+  top-level config) — the empty string is how wrangler names the top
+  level; without `--env` it deploys the same thing but warns "Multiple
+  environments are defined… no target environment was specified".
 - **Simulation "How you could have said it" (2026-09-21).** Built from the
   learner's OWN answer, not the rubric's canned example: `simEnrichAnalysis`
   makes one Polish-Worker `chat` call per answered question at the end of the

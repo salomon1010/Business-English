@@ -5,6 +5,22 @@ and the full data model: `marketing/product/practice-partner/`. **Not
 deployed** — see `RELEASE_PLAN.md` there. **General English only**: `TRACKS`
 holds one id and any other track is refused with `403 track`.
 
+## Deploy (production)
+
+```
+cd backend/partner
+npx wrangler d1 migrations apply be-partner --remote --env ""   # only when a migration was added
+npx wrangler deploy --env ""                                     # production = the top-level environment
+```
+
+`--env ""` is deliberate: the config carries `[env.dev]` and `[env.staging]`
+too, and wrangler warns ("Multiple environments are defined … no target
+environment was specified") whenever the deploy names none. Naming the
+top level with an empty string silences it and makes the target explicit.
+Staging is `--env staging`. Check what is live with `curl …/health` and
+`npx wrangler deployments list --env ""`; secrets with
+`npx wrangler secret list --env ""`.
+
 ## Switches (wrangler.toml `[vars]`)
 | Var | Production | Dev | Effect |
 |---|---|---|---|

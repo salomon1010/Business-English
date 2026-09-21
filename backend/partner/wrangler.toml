@@ -3,11 +3,15 @@
 # A FOURTH Worker, separate from be-polish / be-push / be-events, so that
 # partner traffic and its database can never take Executive Polish down.
 #
-# NOT DEPLOYED YET. First-time production setup (owner, after review):
-#     npx wrangler d1 create be-partner            # paste database_id below
-#     npx wrangler d1 migrations apply be-partner --remote
-#     npx wrangler r2 bucket create be-partner-audio
-#     npx wrangler deploy
+# PRODUCTION = the top-level environment of this file (deployed 2026-09-21).
+# Three environments live here (top-level, [env.dev], [env.staging]), so
+# wrangler warns when the deploy command names none. Always say which:
+#     npx wrangler deploy --env ""              # production (top-level)
+#     npx wrangler deploy --env staging         # staging.lomonec.com
+# `--env ""` (empty string) IS the documented way to target the top level —
+# it is not a typo. A migration goes first when one was added:
+#     npx wrangler d1 migrations apply be-partner --remote --env ""
+# First-time setup was: d1 create be-partner, r2 bucket create be-partner-audio.
 #
 # Local development / tests (no Cloudflare account needed, nothing leaves the
 # machine — D1 and R2 are emulated on disk under .wrangler/):
