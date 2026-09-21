@@ -362,6 +362,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   drills, `shHistPlay` (the take from the recordings store by ctx + ts) and
   `shHistOpen` (reload the clip, Challenge on that line) — with the trouble
   words (`tbRender`) as a section under it.
+  **v409:** the studio's own Shadow report (`fbShowResults` from a take,
+  `fbCtx.vid===shClip.vid`) is filed there too as `kind:"shadow"`
+  (`shHistShadowPut`: score, wpm, fillers, `fix` words) and drawn by
+  `shHistShadowCard` (Challenge entries by `shHistChallengeCard`); Challenge is
+  its own page — `shLowerShow(false)` hides every card under the panel while
+  `svMode==="challenge"`; the Shadow report and notes stay with Watch / Shadow.
   The report draws on the transcript and re-scores in place when the grade
   lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
   `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
