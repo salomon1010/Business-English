@@ -1495,6 +1495,12 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pp-rv-coach .pp-row{margin-top:6px}#ppRevCoachBtn.on{background:var(--red)}
 .pp-rv-script{margin-top:10px;font-size:14px;line-height:1.55}.pp-rv-script summary{cursor:pointer;color:var(--mut);font-size:13px}.pp-rv-script p{margin:6px 0 0}
 .pp-rv-coach-items{margin-top:12px}.pp-rv-coach-item p{font-size:15.5px;font-weight:700;margin:0}.pp-rv-coach-item small{display:block;color:var(--mut);font-size:13px;margin-top:4px;line-height:1.45}
+.pp-rv-coach-item{padding:12px 0;border-top:1px solid var(--line)}.pp-rv-coach-item:first-of-type{border-top:0}
+.pp-rv-cx{margin:0 0 6px}.pp-rv-cx-k{font-size:10.5px!important;letter-spacing:.7px;text-transform:uppercase;color:var(--mut2)!important;margin:0 0 2px!important;font-weight:600}
+.pp-rv-cx>span{display:block;font-size:14px;line-height:1.45;color:var(--txt)}.pp-rv-cx-said{color:var(--mut)!important}.pp-rv-cx.say p{color:var(--acc)}
+.pp-rv-mastered{display:inline-flex;align-items:center;gap:4px;margin-left:6px;color:var(--green);letter-spacing:0;text-transform:none;font-size:11.5px}.pp-rv-mastered svg{width:13px;height:13px}
+.pp-rv-coach-item.mastered .pp-rv-cx.say p{color:var(--green)}
+.pp-rv-master{margin-top:6px!important;font-weight:600}.pp-rv-master.done{color:var(--green)}.pp-rv-master.done svg{width:14px;height:14px;vertical-align:-2px}
 .pp-rv-note-line{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.5;margin:6px 0}.pp-rv-note-line svg{width:16px;height:16px;flex:none;margin-top:3px;color:var(--acc2)}
 .pp-rv-reuse{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;margin:8px 0 0;color:var(--mut)}.pp-rv-reuse.ok{color:var(--txt)}.pp-rv-reuse svg{width:16px;height:16px;flex:none;margin-top:2px}.pp-rv-reuse.ok svg{color:var(--green)}
 .pp-rv-focus{margin:4px 0 0;padding-left:0;list-style:none;counter-reset:rvf}.pp-rv-focus li{counter-increment:rvf;position:relative;padding:10px 12px 10px 42px;border-radius:12px;background:var(--bg2);border:1px solid var(--line);margin-top:8px;font-size:14.5px;line-height:1.45}
@@ -5469,7 +5475,14 @@ const I18N_EN={
  "pp.rv_ungraded":"Recorded. Grading needs a connection — try again when you're online.",
  "pp.rv_asr_note":"Scored by word recognition only (the listening model was not available), so this says whether each word was recognised, not how it sounded.",
  "pp.rv_sec_coach":"8 · Voice coach",
- "pp.rv_coach_sub":"What went well across your rounds, the one pattern to change, the expressions to learn — in a teacher's voice. Then listen, repeat, and get graded.",
+ "pp.rv_coach_sub":"What went well across your rounds, the one pattern to change, the expressions to learn — in a teacher's voice. Then, for each moment that mattered: what was expected, what you said, and the full sentence to say instead — practise it until it is yours.",
+ "pp.rv_coach_expected":"What was expected",
+ "pp.rv_coach_said":"You said",
+ "pp.rv_coach_missed":"You did not cover this.",
+ "pp.rv_coach_say":"Say it like this",
+ "pp.rv_mastered":"Mastered",
+ "pp.rv_master_prog":"{{n}} of {{m}} clear takes — say it again until it's yours",
+ "pp.rv_master_done":"Two clear takes — this sentence is yours now.",
  "pp.rv_coach_play":"Play the coach",
  "pp.rv_coach_stop":"Stop",
  "pp.rv_coach_script":"Read what the coach says",
@@ -12783,7 +12796,7 @@ function pvOpen(html){
   if(!ov){ov=document.createElement("div");ov.id="pvGame";ov.className="pv-game";document.body.appendChild(ov);}
   ov.innerHTML=`<div class="pv-inner">${html}</div>`;ov.classList.add("show");document.body.style.overflow="hidden";manIconizeInline(ov);
 }
-window.pvClose=()=>{const ov=document.getElementById("pvGame");if(ov){ov.classList.remove("show");ov.innerHTML="";}document.body.style.overflow="";const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);};
+window.pvClose=()=>{const ov=document.getElementById("pvGame");if(ov){ov.classList.remove("show");ov.innerHTML="";}if(typeof _cv!=="undefined"&&_cv)_cv.closed=true;document.body.style.overflow="";const el=document.getElementById("v-practice");if(el&&cur&&cur.v==="practice")rPractice(el);};
 function pvHint(w){return t("voc.quiz_hint_fallback",{letter:w[0].toUpperCase(),len:w.length,level:(S.vocab[w]||{l:"?"}).l})}
 function pvBucket(){const b=vocBuckets();return b[_pracTab].length?b[_pracTab].slice():Object.keys(areaVocab());}
 /* Each booster needs a different amount of material before it can run, so the
@@ -14753,7 +14766,7 @@ function ppHistMatch(action,name){ppHistPut({id:"match:"+action+":"+Date.now(),k
    (it recognises words, it does not judge sounds); "none" = no word scores.
    Indicators are BE Mastery learning indicators built from observable
    signals, and the screen says so. */
-const PP_REV_CAP=60, PP_REV_PASS=80, PP_REV_TAKE_MS=20000;
+const PP_REV_CAP=60, PP_REV_PASS=80, PP_REV_TAKE_MS=20000, PP_REV_MASTER=2;   /* clear takes (≥ PP_REV_PASS) before a coach sentence counts as mastered */
 let ppRevOpenId=null, ppRevTake=null, ppRevCoachOn=false;
 function ppRevAll(){if(!Array.isArray(S.ppRev))S.ppRev=[];return S.ppRev}
 function ppRevList(){const a=areaId();return ppRevAll().filter(r=>r&&r.id&&r.tk===a&&r.review).sort((x,y)=>x.at-y.at)}
@@ -14939,7 +14952,7 @@ window.ppRevPractice=async(revId,key,target,label)=>{
     rec.tries++;markPracticed();
     if(!res){rec.ungraded=(rec.ungraded||0)+1;save();ppRevPaint(revId,key,{state:"ungraded"});return}
     const score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=PP_REV_PASS).length/res.words.length*100);
-    if(rec.first==null)rec.first=score;rec.last=score;if(rec.best==null||score>rec.best)rec.best=score;rec.mode=res.mode||"";
+    if(rec.first==null)rec.first=score;rec.last=score;if(rec.best==null||score>rec.best)rec.best=score;rec.mode=res.mode||"";if(score>=PP_REV_PASS)rec.passes=(rec.passes||0)+1;
     rec.words=res.words.slice(0,40).map(w=>({word:String(w.word).slice(0,30),score:Math.round(w.score),note:String(w.note||"").slice(0,60)}));
     save();try{track("partner_review_practice",{result:score>=PP_REV_PASS?"pass":"retry"})}catch(_){}
     ppRevPaint(revId,key,{state:"done",score,words:rec.words,mode:rec.mode});
@@ -14965,8 +14978,12 @@ function ppRevResultHTML(revId,key,st,r){
   if(st.state==="grading")return `<span class="pp-rv-live">${ic("mic")} ${t("pp.grading")}</span>`;
   if(st.state==="short")return `${btn(false)}<span class="pp-rv-note">${t("ph.too_short_toast")}</span>`;
   if(st.state==="ungraded")return `${btn(false)}<span class="pp-rv-note">${t("pp.rv_ungraded")}</span>`;
-  const pass=st.score>=PP_REV_PASS;
-  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${st.score}%</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${r&&r.best!=null&&r.tries>1?`<small>${t("pp.rv_best",{n:r.best})} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>
+  const pass=st.score>=PP_REV_PASS,coach=key.startsWith("coach:"),passes=r&&r.passes||0;
+  /* a coach sentence is "mastered" after PP_REV_MASTER clear takes; the card's
+     header badge follows on the next render, the box says so at once */
+  const mastery=coach?(passes>=PP_REV_MASTER?`<p class="pp-rv-note pp-rv-master done">${ic("check")} ${t("pp.rv_master_done")}</p>`:`<p class="pp-rv-note pp-rv-master">${t("pp.rv_master_prog",{n:passes,m:PP_REV_MASTER})}</p>`):"";
+  if(coach&&passes>=PP_REV_MASTER){const item=document.querySelector(`[data-rvkey="${CSS.escape(key)}"]`)?.closest(".pp-rv-coach-item");if(item)item.classList.add("mastered")}
+  return `<div class="pp-rv-score ${pass?"pass":""}"><b style="--c:${col(st.score)}">${st.score}%</b><span>${pass?t("pp.rv_pass"):t("pp.rv_retry")}</span>${r&&r.best!=null&&r.tries>1?`<small>${t("pp.rv_best",{n:r.best})} · ${t("pp.rv_tries",{n:r.tries})}</small>`:""}</div>${mastery}
     ${chips(st.words)}${st.mode==="whisper"?`<p class="pp-rv-note">${t("pp.rv_asr_note")}</p>`:""}
     <div class="pp-rv-acts">${btn(false)}</div>`;
 }
@@ -15076,7 +15093,16 @@ function ppRevHTML(rev){
       ${w.why?`<p class="pp-rv-why">${esc(w.why)}</p>`:""}
       <div class="pp-rv-voc-acts">${ppRevHear(w.word)}${ppRevPracticeBox(rev,"pron:"+i,w.word,w.word)}${ppRevSaveBtn(rev,"pron",i,w.word)}</div>
     </div>`).join("");
-  const coachPractice=R.coach.practice.map((c,i)=>`<div class="pp-rv-coach-item"><p>“${esc(c.say)}”</p>${c.teach?`<small>${esc(c.teach)}</small>`:""}<div class="pp-rv-voc-acts">${ppRevHear(c.say)}${ppRevPracticeBox(rev,"coach:"+i,c.say,c.say)}</div></div>`).join("");
+  /* each coach item is a real moment from this conversation: what the task
+     expected there, what the learner said (or that they missed it), then the
+     full polished sentence — Hear / Slow / Say it, until two clear takes */
+  const coachPractice=R.coach.practice.map((c,i)=>{const pr=(rev.practice||{})["coach:"+i];const done=pr&&(pr.passes||0)>=PP_REV_MASTER;
+    return `<div class="pp-rv-coach-item ${done?"mastered":""}">
+      ${c.expected?`<div class="pp-rv-cx"><small class="pp-rv-cx-k">${t("pp.rv_coach_expected")}</small><span>${esc(c.expected)}</span></div>`:""}
+      <div class="pp-rv-cx"><small class="pp-rv-cx-k">${t("pp.rv_coach_said")}</small><span class="pp-rv-cx-said">${c.said?`“${esc(c.said)}”`:`<i>${t("pp.rv_coach_missed")}</i>`}</span></div>
+      <div class="pp-rv-cx say"><small class="pp-rv-cx-k">${t("pp.rv_coach_say")}${done?` <b class="pp-rv-mastered">${ic("check")} ${t("pp.rv_mastered")}</b>`:""}</small><p>“${esc(c.say)}”</p></div>
+      ${c.teach?`<small>${esc(c.teach)}</small>`:""}
+      <div class="pp-rv-voc-acts">${ppRevHear(c.say)}${ppRevPracticeBox(rev,"coach:"+i,c.say,c.say)}</div></div>`}).join("");
   const reused=R.reused.map(x=>`<p class="pp-rv-reuse ${x.ok?"ok":""}">${ic(x.ok?"check":"bookmark")} ${x.ok?t("pp.rv_reused_ok",{w:esc(x.term)}):t("pp.rv_reused_no",{w:esc(x.term)})}${x.note?` — ${esc(x.note)}`:""}</p>`).join("");
   const prev=R.prev.length?`<div class="pp-rv-prev"><small>${t("pp.rv_prev_h")}</small>${R.prev.map(x=>`<p class="${x.met?"met":""}">${ic(x.met?"check":"repeat")} ${esc(x.text)}${x.note?` <span>— ${esc(x.note)}</span>`:""}</p>`).join("")}</div>`:"";
   const N=R.next,nextItems=[];
@@ -15189,7 +15215,9 @@ window.cvStart=()=>{if(!cvReady())return toast(t("pp.cv_need"));_cv={rounds:cvMa
 function cvTop(){return `<div class="pv-top"><button class="pv-x" onclick="pvClose()">×</button><span class="pv-title">${tIc("pp.cv_title","chat")}</span><span class="pv-prog">${_cv.i+1}/${_cv.rounds.length}</span></div>`}
 function cvSrc(it){return it.topic||it.problem?`<p class="pp-cv-src">${ic("info")} ${[it.topic,it.problem].filter(Boolean).map(esc).join(" · ")}</p>`:""}
 function cvRender(){
-  if(!_cv)return;if(_cv.i>=_cv.rounds.length)return cvEnd();
+  /* a pick arms a short timer for the next round; if the learner closed the
+     booster inside that second, the timer must not pop it open again */
+  if(!_cv||_cv.closed)return;if(_cv.i>=_cv.rounds.length)return cvEnd();
   const r=_cv.rounds[_cv.i];
   if(r.type==="hear"){pvOpen(`${cvTop()}<div class="pv-quiz"><div class="pv-clue"><span class="eyebrow">${t("pp.cv_hear")}</span><button class="btn btn-g" onclick="fbSay(${jarg(r.it.term)},1)">${ic("sound")} ${t("pp.rv_hear")}</button><p class="pp-cv-mean">${esc(r.it.meaning)}</p>${cvSrc(r.it)}</div>
     <div class="pv-opts" id="cvOpts">${r.opts.map(o=>`<button class="pv-opt" data-w="${esc(o)}" onclick="cvPick(${jarg(o)})">${esc(o)}</button>`).join("")}</div></div>`);setTimeout(()=>fbSay(r.it.term,1),300);return}

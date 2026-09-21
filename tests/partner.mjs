@@ -272,6 +272,7 @@ ok("Recorder is gone after completion", await A.page.evaluate(() => document.get
     if (body.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: assessScore, mode: "ai", words: body.assess.split(/\s+/).slice(0, 6).map(w => ({ word: w, score: assessScore, note: "" })) }) });
     return route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ error: "unavailable" }) }); });
   const boxKey = await A.page.evaluate(() => { const b = document.querySelector('.pp-rv-coach-item [data-rvkey], .pp-rv-answer [data-rvkey], .pp-rv-fix [data-rvkey]'); b.scrollIntoView(); return b.dataset.rvkey; });
+  if (process.env.SHOT) await A.page.locator('.pp-rv-coach').screenshot({ path: process.env.SHOT });   /* SHOT=/path.png → a picture of the coach card for a visual check */
   await A.page.click(`[data-rvkey="${boxKey}"] .pp-rv-rec`); await sleep(1800); await A.page.click(`[data-rvkey="${boxKey}"] .pp-rv-rec`);
   await A.page.waitForFunction(k => /Got it|once more/.test(document.querySelector(`[data-rvkey="${k}"]`)?.innerText || ""), boxKey, { timeout: 20000 }).catch(() => {});
   const p1 = await A.page.evaluate(k => { const r = ppRevList()[0].practice[k]; return { txt: document.querySelector(`[data-rvkey="${k}"]`).innerText, tries: r && r.tries, best: r && r.best, first: r && r.first, practised: S.dates.includes(new Date().toISOString().slice(0, 10)) }; }, boxKey);

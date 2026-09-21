@@ -1179,7 +1179,7 @@ const REVIEW_SYSTEM = `You are an applied-linguistics coach for adult learners o
  "natural":[{"said":"","natural":"","professional":""}],
  "vocab":{"used_well":["terms the learner used correctly"],"misused":[{"term":"","said":"","better":""}],"must":[{"term":"","meaning":"","pron":"","example":"","ctx":""}],"upgrade":[{"term":"","replaces":"the basic word they overused","count":3,"meaning":"","example":""}],"next":[{"term":"","meaning":"","pron":"","example":"","ctx":""}],"patterns":["I've been working in … for …"]},
  "answer":{"original":"condensed, in the learner's words","polished":"the improved answer, same facts","changed":["vocabulary: …","structure: …"]},
- "coach":{"script":["sentence","sentence"],"practice":[{"say":"","teach":""}]},
+ "coach":{"script":["sentence","sentence"],"practice":[{"said":"the learner's exact words, or empty","expected":"what the task expected at that point","say":"the full polished sentence to say","teach":"why it is better"}]},
  "next":{"pron":["word"],"vocab":["term"],"pattern":"sentence pattern to master","answer":"one improved sentence to rehearse","skill":"one communication skill for the next session"},
  "reused":[{"term":"","ok":true,"note":""}],
  "prev":[{"text":"","met":true,"note":""}],
@@ -1192,7 +1192,7 @@ Rules:
 - pron: aggregate across rounds. With evidence "audio" a word scored under 70 may be "heard". With "asr" or "none" you have NO sound evidence: at most 3 words "check" that are commonly hard for a speaker of the learner's first language, said to be worth checking. Do not penalise an understandable accent. Empty is fine.
 - vocab: only what this topic and this learner's speech call for. must = 2-4 highest-priority items (from the phrase bank when it fits); upgrade = words they repeated (with the real count); next = 1-3 level-appropriate stretches; patterns = 1-3 sentence patterns. Do not dump the whole phrase bank.
 - rounds: one entry per learner turn (their seq numbers) — round-level evidence; indicators = the session result. pron null when evidence is "none". These are learning indicators, not a proficiency measurement.
-- coach.script: 3 to 6 short spoken sentences in a natural teacher voice: what went well across the rounds, the one pattern to change, the two or three expressions to learn, "listen to each one and repeat". Under 110 words. coach.practice: 2 to 4 things to repeat with a one-line teach.
+- coach.script: 3 to 6 short spoken sentences in a natural teacher voice: what went well across the rounds, the one pattern to change, the two or three expressions to learn, "listen to each one and repeat". Under 110 words. coach.practice: 2 to 4 REAL EXAMPLES from this conversation, each a complete sentence the learner can master. "said" = the learner's exact words for that moment (empty if they never covered it); "expected" = what the task expected there, in one plain line; "say" = the full sentence they should have said — natural, professional, 8 to 25 words, keeping their own facts, never a fragment; "teach" = one sentence on why it is better. Take them from the fixes, the missing task components and the must-know vocabulary, in that order.
 - next: concrete and specific to what was found (1-2 pron, 2-3 vocab, one pattern, one sentence, one skill).
 - reused: for each "learned" item used, ok:true with a one-line praise; for important unused ones, ok:false with a gentle way in. Max 3.
 - prev: judge each item of "prevNext" met or not from this session. Max 5.
@@ -1266,7 +1266,7 @@ function reviewStub(input) {
     pron, fixes, natural: fixes[0] && fixes[0].kind !== "hesitation" ? [{ said: fixes[0].said, natural: fixes[0].better, professional: fixes[0].better.replace(/^I've been/, "I have been") }] : [],
     vocab: { used_well: usedWell, misused: [], must, upgrade, next, patterns: ["I've been working in … for …", "I'm responsible for …"] },
     answer: { original, polished, changed: [].concat(basic[0] ? [`vocabulary: "${basic[0].w}" → "${basic[0].up}"`] : [], fixes.filter(f => f.kind === "error").map(f => `grammar: ${f.pattern}`), pron[0] ? [`pronunciation target: ${pron[0].word}`] : []) },
-    coach: { script, practice: [].concat(fixes[0] && fixes[0].practice ? [{ say: fixes[0].practice, teach: fixes[0].why }] : [], must[0] ? [{ say: must[0].example, teach: must[0].meaning }] : [], upgrade[0] ? [{ say: upgrade[0].example, teach: upgrade[0].meaning }] : []) },
+    coach: { script, practice: [].concat(fixes[0] && fixes[0].practice ? [{ said: fixes[0].said, expected: ctx.objective || ctx.task || "", say: fixes[0].practice, teach: fixes[0].why }] : [], missing[0] ? [{ said: "", expected: `Cover your ${missing[0]}.`, say: `As for my ${missing[0]}, I am responsible for the day-to-day work of my team.`, teach: `The task asked for your ${missing[0]}; this sentence covers it in one clear line.` }] : [], must[0] ? [{ said: "", expected: `Use "${must[0].term}" for this topic.`, say: must[0].example, teach: must[0].meaning }] : [], upgrade[0] ? [{ said: upgrade[0].replaces, expected: `A more precise word than "${upgrade[0].replaces}".`, say: upgrade[0].example, teach: upgrade[0].meaning }] : []).slice(0, 4) },
     next: { pron: pron.slice(0, 2).map(p => p.word), vocab: [].concat(upgrade.map(u => u.term), must.map(m => m.term)).slice(0, 3), pattern: "I've been working in … for …", answer: fixes[0] && fixes[0].practice ? fixes[0].practice : polished.split(/(?<=[.!?])\s+/)[0], skill: missing[0] ? `Cover your ${missing[0]} without being asked.` : "Add one detail your partner did not ask about." },
     reused, prev, highlights: usedWell.slice(0, 2),
   } };
@@ -1301,7 +1301,7 @@ function reviewShape(r, input) {
       must: L_(v.must, 4).map(x => term(x)).filter(x => x.term && x.meaning), upgrade: L_(v.upgrade, 3).map(x => ({ term: S_(x && x.term, 60), replaces: S_(x && x.replaces, 40), count: Math.max(0, Math.min(20, Math.round(Number(x && x.count)) || 0)), meaning: S_(x && x.meaning, 160), example: S_(x && x.example, 200) })).filter(x => x.term && x.replaces),
       next: L_(v.next, 3).map(x => term(x)).filter(x => x.term && x.meaning), patterns: SL_(v.patterns, 3, 100) },
     answer: { original: S_(ans.original, 600), polished: S_(ans.polished, 700), changed: SL_(ans.changed, 5, 120) },
-    coach: { script: SL_(r.coach && r.coach.script, 7, 240), practice: L_(r.coach && r.coach.practice, 4).map(x => ({ say: S_(x && x.say, 240), teach: S_(x && x.teach, 200) })).filter(x => x.say) },
+    coach: { script: SL_(r.coach && r.coach.script, 7, 240), practice: L_(r.coach && r.coach.practice, 4).map(x => ({ said: S_(x && x.said, 240), expected: S_(x && x.expected, 200), say: S_(x && x.say, 240), teach: S_(x && x.teach, 200) })).filter(x => x.say) },
     next: { pron: SL_(nx.pron, 2, 40), vocab: SL_(nx.vocab, 3, 60), pattern: S_(nx.pattern, 120), answer: S_(nx.answer, 240), skill: S_(nx.skill, 160) },
     reused: L_(r.reused, 3).map(x => ({ term: S_(x && x.term, 60), ok: !!(x && x.ok), note: S_(x && x.note, 160) })).filter(x => x.term),
     prev: L_(r.prev, 5).map(x => ({ text: S_(x && x.text, 160), met: !!(x && x.met), note: S_(x && x.note, 160) })).filter(x => x.text),

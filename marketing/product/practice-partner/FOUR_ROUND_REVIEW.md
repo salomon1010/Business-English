@@ -42,8 +42,12 @@ hesitation`; only Grammar is ever "wrong") → 6 Natural English (more natural
 / more professional) → 7 Vocabulary to master (used well · misused · Must
 know · Useful upgrade with the real count · Next level · Sentence patterns;
 every item: Hear · Say it · Save) → 8 Voice coach (script spoken sentence by
-sentence in the natural voice, device voice fallback; then Listen → repeat →
-graded) → Your answer, rebuilt (original / polished / what changed; Hear;
+sentence in the natural voice, device voice fallback; then, **owner 2026-09-21**,
+2–4 real moments from this conversation, each a card: *What was expected* ·
+*You said* (or "you did not cover this") · *Say it like this* — the full
+polished sentence, 8–25 words, the learner's own facts · why; Hear / Slow /
+Say it, graded; **Mastered** after `PP_REV_MASTER` = 2 clear takes ≥ 80,
+`practice[key].passes` on the entry) → Your answer, rebuilt (original / polished / what changed; Hear;
 record your version, graded) → Progress (five indicator tiles with delta vs
 last session; line chart R1 → R3 → Session; biggest improvement / still
 developing / next priority; last plan judged; reused expressions) → Your next
