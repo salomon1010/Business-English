@@ -1357,6 +1357,19 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-ch-cta .btn-primary{width:100%;justify-content:center}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
 .sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
+/* Shadow history: one card per Challenge attempt, grouped by day */
+.sh-hist-day{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:14px 0 6px}.sh-hist-day:first-child{margin-top:4px}
+.sh-hist-item{border:1px solid var(--line2);border-radius:12px;background:var(--card2);margin:0 0 8px;overflow:hidden;border-left-width:3px}
+.sh-hist-item.d-strong{border-left-color:var(--green)}.sh-hist-item.d-good{border-left-color:var(--acc)}.sh-hist-item.d-practice{border-left-color:var(--gold)}.sh-hist-item.d-attention{border-left-color:var(--red)}
+.sh-hist-hd{display:flex;flex-direction:column;gap:4px;width:100%;padding:10px 12px;background:none;border:0;color:var(--txt);text-align:left;font:inherit;cursor:pointer}
+.sh-hist-top{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--mut2)}.sh-hist-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.sh-hist-time{flex:none}
+.sh-hist-line{font-size:14px;font-weight:600;line-height:1.4}
+.sh-hist-sum{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}.sh-hist-sum>span{flex:1;min-width:0}.sh-hist-v{flex:none;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:6px;background:var(--bg2);color:var(--txt)}
+.d-strong .sh-hist-v{color:var(--green)}.d-good .sh-hist-v{color:var(--acc)}.d-practice .sh-hist-v{color:var(--gold)}.d-attention .sh-hist-v{color:var(--red)}
+.sh-hist-body{padding:0 12px 12px;border-top:1px solid var(--line)}.sh-hist-body .sv-ch-cmp-you{margin-top:10px}
+.sh-hist-issues{margin-top:10px;display:flex;flex-direction:column;gap:8px}.sh-hist-issue{display:flex;gap:10px;font-size:13px;line-height:1.45}.sh-hist-issue>b{flex:none;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-size:11px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}.sh-hist-issue small{color:var(--mut2)}
+.sh-hist-none{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);margin:10px 0 0}.sh-hist-none svg{width:16px;height:16px}
+.sh-hist-drills{margin-top:10px}.sh-hist-drill{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:13px}.sh-hist-drill .sv-ch-hist-a{cursor:default}
 /* ---- Practice Partner ---- */
 .rp-entry.pp-entry{border-color:rgba(99,102,241,.6);background:linear-gradient(150deg,rgba(99,102,241,.30),rgba(124,58,237,.16) 55%,rgba(34,211,238,.08));box-shadow:0 6px 20px rgba(99,102,241,.16),inset 0 1px 0 rgba(255,255,255,.06)}
 :root[data-theme="light"] .rp-entry.pp-entry{background:linear-gradient(150deg,rgba(99,102,241,.16),rgba(124,58,237,.08) 55%,rgba(34,211,238,.05))}
@@ -4234,7 +4247,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA"};
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA"};   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -6047,7 +6060,7 @@ const I18N_EN={
  "sh.own_removed_toast":"Video removed",
  "cf.own_title":"Remove this video?",
  "cf.own_body":"“{{name}}” and its transcript will be removed from Your videos. Your recordings are kept.",
- "sh.tab_trouble":"Trouble words",
+ "sh.tab_trouble":"Trouble words","sh.tab_history":"History","sh.hist_h":"Your Shadow history","sh.hist_sub":"Your last {{n}} Challenge attempts — the line, what you said, what to fix and the words you practised. Tap one for the detail, or go back to that line.","sh.hist_entry_sub":"Every Challenge attempt: the line, the verdict, what to fix — and your trouble words.","sh.hist_empty_title":"No Challenge attempts yet","sh.hist_empty_body":"Every line you say in Challenge is kept here with what to fix, so you can pick up where you left off.","sh.hist_today":"Today","sh.hist_yesterday":"Yesterday","sh.hist_focus":"Focus","sh.hist_none":"Nothing to fix","sh.hist_drills":"Word practice","sh.hist_play":"Play my take","sh.hist_open":"Open this line",
  "sh.trouble_entry_sub":"The words the scoring keeps flagging. Hear one, slow it down, say it back — it clears when you get it right.",
  "sh.trouble_none_sub":"Nothing flagged yet. Say a line back above and any word that trips you up collects here.",
  "sh.back_to_lines":"Workplace lines",
@@ -8695,12 +8708,13 @@ ${(()=>{
     if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
-    <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("dumbbell")}</span><span class="seg-lbl">${t("sh.tab_trouble")}</span> <b>${Object.keys(troubleMap()).length}</b></button>
+    <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("clock")}</span><span class="seg-lbl">${t("sh.tab_history")}</span> <b>${aList("chHist").length}</b></button>
   </div>`;
     if(_shTab==='trouble')return `<button class="back sh-back-lines stick-back stick-eb" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
-    return `<button class="pf-row pf-setup sh-trouble-entry ${tb?"has":""}" onclick="shTab('trouble')">
-      <span class="pf-ic">${ic("dumbbell")}</span>
-      <span class="pf-txt"><b>${esc(t("sh.tab_trouble"))}${tb?` <em class="sh-tb-n">${tb}</em>`:""}</b><small>${esc(tb?t("sh.trouble_entry_sub"):t("sh.trouble_none_sub"))}</small></span>
+    const hn=aList("chHist").length;
+    return `<button class="pf-row pf-setup sh-trouble-entry ${tb||hn?"has":""}" onclick="shTab('trouble')">
+      <span class="pf-ic">${ic("clock")}</span>
+      <span class="pf-txt"><b>${esc(t("sh.tab_history"))}${hn?` <em class="sh-tb-n">${hn}</em>`:""}</b><small>${esc(hn?t("sh.hist_entry_sub"):tb?t("sh.trouble_entry_sub"):t("sh.trouble_none_sub"))}</small></span>
       <span class="pf-chev" aria-hidden="true">›</span>
     </button>`;
   })()}
@@ -8851,11 +8865,14 @@ ${(()=>{
     <div id="shClips"></div>
   </div>
   <div ${_shTab==='trouble'?'':'style="display:none"'}>
-    <h3 style="margin:6px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
+    <h3 style="margin:6px 0 6px">${hIcon("clock",t("sh.hist_h"))}</h3>
+    <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.hist_sub",{n:SV_CH_HIST_MAX})}</p>
+    <div id="shHist"></div>
+    <h3 style="margin:18px 0 6px">${hIcon("dumbbell",t("sh.trouble_h"))}</h3>
     <p style="font-size:13px;color:var(--mut);margin-bottom:8px">${t("sh.trouble_sub")}</p>
     <div id="tbBox"></div>
   </div>`;
-  shRenderClips();tbRender();segSync(el);
+  shRenderClips();shHistRender();tbRender();segSync(el);
   /* Every workplace line you have already worked on gets its report back —
      score, trend, words, takes — so arriving here shows the work so far rather
      than an empty slot that only fills if you record again. */
@@ -15004,7 +15021,8 @@ async function svChGrade(blob){
     if(!c.assessTried){c.pending=true;assessP.then(a=>{if(svCh!==c||c.attempt!==n||!c.fb)return;c.pending=false;c.assessTried=true;
       if(a){c.fb=build(words,heard,a);const h=c.hist[c.hist.length-1];if(h&&h.n===n)h.fb=c.fb}svChDraw()})}
     const m=aMap("svCh"),key=shClip.vid+":"+s.id,prev=m[key]||{};
-    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:c.level,ts:Date.now(),done:!!(prev.done||fb.pass)};save();
+    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:c.level,ts:Date.now(),done:!!(prev.done||fb.pass)};
+    svChHistPut(c,s,fb,heard);save();
     try{track("shadow_challenge_feedback_received",{level:c.level,result:fb.pass?"pass":"retry"})}catch(e){}
     if(fb.pass)try{track("shadow_challenge_completed",{level:c.level})}catch(e){}
   }catch(e){c.phase="error";c.err=navigator.onLine?"ai":"net"}
@@ -15043,6 +15061,9 @@ function svChDimState(fb,d){
   if(d==="pron"&&svCh&&svCh.pending)return "pending";
   return fb.dims[d]?fb.dims[d].state:"na";
 }
+/* a word-level issue is named by its words; a whole-line one (rhythm, order) by its kind */
+function svChWhole(it){return it.type==="rhythm"||it.type==="order"||it.type==="nothing"||!it.text}
+function svChIssueTitle(it){return svChWhole(it)?svChKind(it):`“${esc(it.text)}”`}
 function svChKind(it){
   if(it.type==="missing")return t(it.tSpan&&it.tSpan[1]>it.tSpan[0]?"sv.ch_kind_missing":"sv.ch_kind_missing1");
   return t("sv.ch_kind_"+it.type);
@@ -15070,7 +15091,7 @@ function svChIssueHTML(it,idx,open){
   const practise=drillable||it.type==="missing"?`<button class="sv-ch-play acc" onclick="event.stopPropagation();svChDrillOpen(${idx})" aria-label="${esc(t("sv.ch_btn_practise"))}">${ic("mic")}<span>${t("sv.ch_btn_practise")}</span></button>`:"";
   const head=`<button class="sv-ch-issue-hd" onclick="svChOpen(${idx})" aria-expanded="${open}">
       <span class="sv-ch-issue-n">${idx+1}</span>
-      <span class="sv-ch-issue-t"><b>${it.text?`“${esc(it.text)}”`:svChKind(it)}</b><small>${it.text?svChKind(it):""}${it.score!=null?` · ${it.score}%`:""}${it.gapS?` · ${it.gapS}s`:""}</small></span>
+      <span class="sv-ch-issue-t"><b>${svChIssueTitle(it)}</b><small>${svChWhole(it)?"":svChKind(it)}${it.score!=null?` · ${it.score}%`:""}${it.gapS?` · ${it.gapS}s`:""}</small></span>
       <span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></button>`;
   const body=open?`<div class="sv-ch-issue-body">
       <p class="sv-ch-fix">${svChFixText(it)}</p>
@@ -15145,7 +15166,7 @@ function svChHistHTML(){
     <div class="sv-ch-hist">${h.map((a,i)=>`<button class="sv-ch-hist-a d-${a.fb.verdict}" onclick="svChPlayAttempt(${i})" ${a.blob?"":"disabled"} aria-label="${esc(t("sv.ch_attempt",{n:a.n}))}"><span>${ic("play")}${t("sv.ch_attempt",{n:a.n})}</span><b>${t("sv.ch_st_"+a.fb.verdict)}</b></button>`).join("")}</div></div>`;
 }
 function svChNextHTML(fb){
-  const items=fb.issues.filter(it=>it.type!=="levelup").map(it=>it.text?`“${esc(it.text)}”`:svChKind(it).toLowerCase());
+  const items=fb.issues.filter(it=>it.type!=="levelup").map(it=>svChWhole(it)?svChKind(it).toLowerCase():`“${esc(it.text)}”`);
   if(!items.length&&fb.pass)return "";                    /* a clean pass: the done block says what comes next */
   return `<div class="sv-ch-next"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_next_h")}</div>
     <p>${items.length?t("sv.ch_next_body",{list:items.join(" · ")}):t("sv.ch_next_clean")}</p></div>`;
@@ -15292,11 +15313,88 @@ async function svChDrillGrade(d,blob){
     if(!assess&&!heard){d.phase="ready";d.err=navigator.onLine?"ai":"net";svChDraw();return}
     const st=ShadowSync.drillState(assess,heard,d.text);
     d.attempts.push({state:st.state,score:st.score,mode:st.mode,heard:st.heard,note:st.note,blob});
-    d.phase="ready";                                   /* no analytics event: the Worker allow-list has none for a word drill */
+    d.phase="ready";svChHistDrill(d);                                   /* no analytics event: the Worker allow-list has none for a word drill */
   }catch(e){d.phase="ready";d.err=navigator.onLine?"ai":"net"}
   if(svCh&&svCh.drill===d)svChDraw();
 }
 window.svChDrillPlay=async i=>{const a=svCh&&svCh.drill&&svCh.drill.attempts[i];if(!a)return;svChStopAll();await svChPlayBlob(a.blob)};
+/* ---------- CHALLENGE HISTORY: every attempt kept, per area ----------
+   One entry per graded attempt: the clip and the line, the verdict, what was
+   said, the issues (what to fix) and the dimensions, plus the word drills that
+   followed it. Newest first, SV_CH_HIST_MAX kept, stored with aList("chHist")
+   so Welding and General English never see each other's, merged across
+   devices by timestamp, the spoken words never leaving the device. The takes
+   themselves stay in the recordings store; the entry remembers the context so
+   the history page can play the take back. */
+const SV_CH_HIST_MAX=20;
+function svChHistPut(c,s,fb,heard){
+  const L=aList("chHist");
+  const issues=fb.issues.filter(x=>x.type!=="levelup").map(x=>({type:x.type,text:x.text||"",k:x.k,v:x.v||null,score:x.score==null?null:x.score,note:x.note||"",gapS:x.gapS||null}));
+  const dims={};Object.keys(fb.dims).forEach(k=>{dims[k]=fb.dims[k].state});
+  const e={ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,level:c.level,verdict:fb.verdict,coverage:fb.coverage,ok:fb.ok,total:fb.total,pass:!!fb.pass,heard:String(heard||"").slice(0,400),issues,dims,pronMode:fb.pronMode||null,ctx:svChCtx(),drills:[]};
+  L.unshift(e);if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
+  c.histRef=e.ts;
+}
+/* a drill's attempts are filed under the line attempt they followed */
+function svChHistDrill(d){
+  const c=svCh;if(!c||!c.histRef)return;const e=aList("chHist").find(x=>x.ts===c.histRef);if(!e)return;
+  let w=e.drills.find(x=>x.k===d.k);if(!w){w={k:d.k,text:d.text,attempts:[]};e.drills.push(w)}
+  w.attempts=d.attempts.map(a=>({state:a.state,score:a.score,mode:a.mode,heard:a.heard})).slice(0,10);save();
+}
+function shHistDayLabel(ts){
+  const d=new Date(ts),now=new Date(),day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime();
+  const diff=Math.round((day(now)-day(d))/864e5);
+  if(diff===0)return t("sh.hist_today");if(diff===1)return t("sh.hist_yesterday");
+  let lang="en";try{lang=(S.profile&&S.profile.lang)||"en"}catch(e){}
+  try{return d.toLocaleDateString(lang,{weekday:"short",day:"numeric",month:"short"})}catch(e){return d.toLocaleDateString()}
+}
+let _shHistOpen=null;
+function shHistRender(){
+  const box=document.getElementById("shHist");if(!box)return;
+  const L=aList("chHist");
+  if(!L.length){box.innerHTML=emptyState("clock",t("sh.hist_empty_title"),t("sh.hist_empty_body"),isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");manIconizeInline(box);return}
+  const groups=[];L.forEach(e=>{const lbl=shHistDayLabel(e.ts);const g=groups[groups.length-1];if(g&&g.lbl===lbl)g.items.push(e);else groups.push({lbl,items:[e]})});
+  const time=ts=>{try{return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch(e){return ""}};
+  box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>{
+    const open=_shHistOpen===e.ts,focus=e.issues.map(x=>svChIssueTitle(x)).join(" · ");
+    const dims=["words","pron","fluency","timing","rhythm"].filter(k=>e.dims[k]&&e.dims[k]!=="na").map(k=>`<span class="sv-ch-dim d-${e.dims[k]}"><span>${t("sv.ch_dim_"+k)}</span><b>${t("sv.ch_st_"+e.dims[k])}</b></span>`).join("");
+    const body=open?`<div class="sh-hist-body">
+        ${e.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(e.heard)}</p>`:""}
+        ${dims?`<div class="sv-ch-dims">${dims}</div>`:""}
+        ${e.issues.length?`<div class="sh-hist-issues">${e.issues.map((x,i)=>`<div class="sh-hist-issue"><b>${i+1}</b><span><strong>${svChIssueTitle(x)}</strong> <small>${svChWhole(x)?"":esc(t(x.type==="missing"?(x.text.split(" ").length>1?"sv.ch_kind_missing":"sv.ch_kind_missing1"):"sv.ch_kind_"+x.type))}${x.score!=null?` · ${x.score}%`:""}</small><br>${svChFixText(x)}</span></div>`).join("")}</div>`:`<p class="sh-hist-none">${ic("check")} ${t("sh.hist_none")}</p>`}
+        ${e.drills.length?`<div class="sh-hist-drills"><span class="sv-ch-lbl">${t("sh.hist_drills")}</span>${e.drills.map(w=>`<div class="sh-hist-drill"><b>${esc(w.text)}</b><span class="sv-ch-hist">${w.attempts.map((a,i)=>`<span class="sv-ch-hist-a d-${a.state}"><span>${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></span>`).join("")}</span></div>`).join("")}</div>`:""}
+        <div class="sv-ch-row tight">
+          <button class="sv-ch-play" onclick="shHistPlay(${e.ts})">${ic("mic")}<span>${t("sh.hist_play")}</span></button>
+          <button class="sv-ch-play acc" onclick="shHistOpen(${e.ts})">${ic("play")}<span>${t("sh.hist_open")}</span></button>
+        </div></div>`:"";
+    return `<div class="sh-hist-item d-${e.verdict} ${open?"open":""}">
+      <button class="sh-hist-hd" onclick="shHistToggle(${e.ts})" aria-expanded="${open}">
+        <span class="sh-hist-top"><span class="sh-hist-title">${esc(e.title)}</span><span class="sh-hist-time">${time(e.ts)} · ${t("sv.ch_attempt",{n:e.n})}</span></span>
+        <span class="sh-hist-line">“${esc(e.text)}”</span>
+        <span class="sh-hist-sum"><b class="sh-hist-v">${t("sv.ch_st_"+e.verdict)}</b><span>${e.issues.length?`${t("sh.hist_focus")}: ${focus}`:t("sh.hist_none")}</span><span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></span>
+      </button>${body}</div>`}).join("")).join("");
+  manIconizeInline(box);
+}
+window.shHistToggle=ts=>{_shHistOpen=_shHistOpen===ts?null:ts;shHistRender()};
+/* the take that produced this entry: the newest recording of that line's
+   context made before the report was written */
+window.shHistPlay=async ts=>{
+  const e=aList("chHist").find(x=>x.ts===ts);if(!e)return;
+  const recs=await getRecs(e.ctx);const r=(recs||[]).find(x=>x.ts<=ts+1000)||(recs||[])[0];
+  if(!r){toast(t("sv.ch_no_take"));return}
+  if(fbAud){try{fbAud.pause()}catch(x){}}fbStopAudio();
+  const a=new Audio(URL.createObjectURL(r.blob));fbAud=a;a.play().catch(()=>{});
+};
+/* back to that line, in Challenge */
+window.shHistOpen=async ts=>{
+  const e=aList("chHist").find(x=>x.ts===ts);if(!e)return;
+  _shTab="create";await shLoad({vid:e.vid,start:0,end:0,title:e.title},true);
+  shOpenWork();
+  for(let i=0;i<40&&!(svAsset&&svAsset.segments&&svAsset.segments.length);i++)await new Promise(r=>setTimeout(r,150));
+  if(!svAsset||!svAsset.segments)return;
+  const idx=svAsset.segments.findIndex(x=>x.id===e.seg||x.text===e.text);
+  if(idx>=0)svPick=idx;svChReset();svSetMode("challenge");
+};
 window.svChSaveVocab=k=>{
   if(!svChOn()||!k)return;
   if(vocHas(k)){vocDrop(k);toast(t("voc.removed_toast"))}
@@ -20674,6 +20772,8 @@ function fbMerge(local,cloud){
   m.clipsA=byAreaList(c=>c&&(c.vid+"_"+c.start))(local.clipsA,cloud.clipsA);
   m.quizHistA=byAreaList(q=>q&&q.t)(local.quizHistA,cloud.quizHistA);
   m.exRepA=byAreaList(r=>r&&r.at)(local.exRepA,cloud.exRepA);
+  m.chHistA=byAreaList(r=>r&&r.ts)(local.chHistA,cloud.chHistA);
+  Object.keys(m.chHistA||{}).forEach(a=>{m.chHistA[a].sort((x,y)=>(y.ts||0)-(x.ts||0));m.chHistA[a].length=Math.min(m.chHistA[a].length,SV_CH_HIST_MAX)});
   Object.keys(m.exRepA||{}).forEach(a=>{m.exRepA[a].sort((x,y)=>(y.at||0)-(x.at||0));m.exRepA[a].length=Math.min(m.exRepA[a].length,EX_REP_MAX)});
   /* Both sides must have split before the merged copy counts as split. If either
      device still holds untagged records, the next boot re-runs areaSplit() to
@@ -20856,6 +20956,9 @@ let fbLastPull=0;
 function fbSyncPayload(s){
   if(!s||typeof s!=="object")return s;
   const out=Object.assign({},s);
+  /* the Challenge history travels (the line, the verdict, what to fix); the
+     learner's own spoken words stay on the device, as everywhere else */
+  if(out.chHistA){const o={};Object.entries(out.chHistA).forEach(([a,list])=>{o[a]=(list||[]).map(e=>{const y=Object.assign({},e);delete y.heard;return y})});out.chHistA=o}
   if(out.simulations){
     out.simulations=Object.assign({},out.simulations);
     delete out.simulations.live;          /* live transcripts + extracted facts */

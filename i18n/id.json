@@ -2398,5 +2398,18 @@
  "sv.ch_key_sub": "dicoret: kata berbeda",
  "sv.ch_key_gap": "| ragu-ragu",
  "sv.ch_pass_left1": "Kemajuan bagus — satu hal masih perlu dilatih. Sekali lagi dan kalimat ini milik Anda.",
- "sv.ch_pass_leftn": "Kemajuan bagus — {{n}} hal masih perlu dilatih. Sekali lagi dan kalimat ini milik Anda."
+ "sv.ch_pass_leftn": "Kemajuan bagus — {{n}} hal masih perlu dilatih. Sekali lagi dan kalimat ini milik Anda.",
+ "sh.tab_history": "Riwayat",
+ "sh.hist_h": "Riwayat Shadow Anda",
+ "sh.hist_sub": "{{n}} percobaan Challenge terakhir Anda — kalimatnya, apa yang Anda ucapkan, apa yang perlu diperbaiki, dan kata yang dilatih. Ketuk salah satu untuk detail, atau kembali ke kalimat itu.",
+ "sh.hist_entry_sub": "Setiap percobaan Challenge: kalimat, penilaian, apa yang perlu diperbaiki — dan kata-kata sulit Anda.",
+ "sh.hist_empty_title": "Belum ada percobaan Challenge",
+ "sh.hist_empty_body": "Setiap kalimat yang Anda ucapkan di Challenge tersimpan di sini beserta apa yang perlu diperbaiki, agar Anda bisa melanjutkan.",
+ "sh.hist_today": "Hari ini",
+ "sh.hist_yesterday": "Kemarin",
+ "sh.hist_focus": "Fokus",
+ "sh.hist_none": "Tidak ada yang perlu diperbaiki",
+ "sh.hist_drills": "Latihan kata",
+ "sh.hist_play": "Putar rekaman saya",
+ "sh.hist_open": "Buka kalimat ini"
 }

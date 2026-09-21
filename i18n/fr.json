@@ -2398,5 +2398,18 @@
  "sv.ch_key_sub": "barré : mot différent",
  "sv.ch_key_gap": "| hésitation",
  "sv.ch_pass_left1": "Bons progrès — il reste un point à travailler. Encore un essai et la phrase est à vous.",
- "sv.ch_pass_leftn": "Bons progrès — il reste {{n}} points à travailler. Encore un essai et la phrase est à vous."
+ "sv.ch_pass_leftn": "Bons progrès — il reste {{n}} points à travailler. Encore un essai et la phrase est à vous.",
+ "sh.tab_history": "Historique",
+ "sh.hist_h": "Votre historique Shadow",
+ "sh.hist_sub": "Vos {{n}} dernières tentatives Challenge — la phrase, ce que vous avez dit, ce qu'il faut corriger et les mots travaillés. Touchez-en une pour le détail, ou revenez sur cette phrase.",
+ "sh.hist_entry_sub": "Chaque tentative Challenge : la phrase, le verdict, ce qu'il faut corriger — et vos mots difficiles.",
+ "sh.hist_empty_title": "Pas encore de tentative Challenge",
+ "sh.hist_empty_body": "Chaque phrase dite en Challenge est gardée ici avec ce qu'il faut corriger, pour reprendre là où vous en étiez.",
+ "sh.hist_today": "Aujourd'hui",
+ "sh.hist_yesterday": "Hier",
+ "sh.hist_focus": "Priorité",
+ "sh.hist_none": "Rien à corriger",
+ "sh.hist_drills": "Mots travaillés",
+ "sh.hist_play": "Écouter ma prise",
+ "sh.hist_open": "Ouvrir cette phrase"
 }

@@ -2398,5 +2398,18 @@
  "sv.ch_key_sub": "취소선: 다른 단어",
  "sv.ch_key_gap": "| 머뭇거림",
  "sv.ch_pass_left1": "좋은 진전입니다 — 한 가지가 아직 연습이 필요합니다. 한 번 더 하면 이 문장은 당신의 것입니다.",
- "sv.ch_pass_leftn": "좋은 진전입니다 — {{n}}가지가 아직 연습이 필요합니다. 한 번 더 하면 이 문장은 당신의 것입니다."
+ "sv.ch_pass_leftn": "좋은 진전입니다 — {{n}}가지가 아직 연습이 필요합니다. 한 번 더 하면 이 문장은 당신의 것입니다.",
+ "sh.tab_history": "기록",
+ "sh.hist_h": "섀도잉 기록",
+ "sh.hist_sub": "최근 {{n}}회의 챌린지 시도 — 문장, 말한 내용, 고칠 점, 연습한 단어. 하나를 탭해 자세히 보거나 그 문장으로 돌아가세요.",
+ "sh.hist_entry_sub": "모든 챌린지 시도: 문장, 평가, 고칠 점 — 그리고 어려운 단어.",
+ "sh.hist_empty_title": "아직 챌린지 시도가 없습니다",
+ "sh.hist_empty_body": "챌린지에서 말한 모든 문장이 고칠 점과 함께 여기에 남아, 멈춘 곳에서 이어갈 수 있습니다.",
+ "sh.hist_today": "오늘",
+ "sh.hist_yesterday": "어제",
+ "sh.hist_focus": "집중",
+ "sh.hist_none": "고칠 점 없음",
+ "sh.hist_drills": "단어 연습",
+ "sh.hist_play": "내 녹음 재생",
+ "sh.hist_open": "이 문장 열기"
 }

@@ -353,6 +353,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   → attempts (`svCh.hist`, in memory, playable) → Next attempt → Try again.
   `svChReveal()` scrolls the workspace so the report / drill / recorder sits
   under the sticky player (on a phone the pinned block hides >half the screen).
+  **History (be12-v408):** every graded attempt is filed in `aList("chHist")`
+  (`chHistA`, per area, newest first, `SV_CH_HIST_MAX`=20, merged by `ts` in
+  `fbMerge`, `heard` stripped by `fbSyncPayload`) by `svChHistPut`; a drill
+  joins the attempt it followed (`svChHistDrill`, `svCh.histRef`). The picker's
+  third tab (`_shTab==="trouble"`, label `sh.tab_history`) is `shHistRender()`
+  — day groups, one card per attempt, detail with what was said / issues /
+  drills, `shHistPlay` (the take from the recordings store by ctx + ts) and
+  `shHistOpen` (reload the clip, Challenge on that line) — with the trouble
+  words (`tbRender`) as a section under it.
   The report draws on the transcript and re-scores in place when the grade
   lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
   `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
