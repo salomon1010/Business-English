@@ -2099,7 +2099,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
-.ex-polish{width:100%;justify-content:center;min-height:54px;font-size:16.5px}
+.ex-polish{width:100%;justify-content:center;min-height:54px;font-size:16.5px}.ex-polish:disabled{opacity:.6}
+.ex-rep-card{margin-top:14px;padding:0}.ex-rep-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}.ex-rep-card>summary::-webkit-details-marker{display:none}
+.ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:20px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
+.ex-rep-chev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:transform .2s}.ex-rep-chev svg{width:18px;height:18px}.ex-rep-card[open]>summary .ex-rep-chev{transform:rotate(180deg)}
+.ex-rep-card>.ex-report{padding:0 18px 18px}.ex-rep-card>.ex-report .ex-rep-top{display:none}
 .ex-bank-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:14px;cursor:pointer;font:inherit;color:inherit}.ex-bank-link b{display:block;font-size:14.5px}.ex-bank-link small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}.ex-bank-link .btn-ic{color:var(--acc)}
 .ex-version{padding:14px 0;border-top:1px solid var(--line)}.ex-version:first-of-type{border-top:0;padding-top:6px}
 .ex-ver-k{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:6px}.ex-ver-n{width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
@@ -4330,6 +4334,7 @@ const ICON={
   help:'<circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.6-1.9 1.9-2.2 3.2"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/>',
   flame:'<path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/>',
   check:'<path d="M20 6.6 9.4 17.2 4 11.8"/>',
+  chevron:'<path d="m6 9 6 6 6-6"/>',
   bolt:'<path d="M13 2.6 4.6 13.4H11l-1 8 8.4-11H12l1-7.8Z"/>',
   idea:'<path d="M9.2 17.5h5.6"/><path d="M10 20.5h4"/><path d="M12 3.2a6 6 0 0 1 3.8 10.6c-.6.5-.9 1.1-.9 1.9H9.1c0-.8-.3-1.4-.9-1.9A6 6 0 0 1 12 3.2Z"/>',
   list:'<path d="M8.5 6h11.5M8.5 12h11.5M8.5 18h11.5"/><circle cx="4.3" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="18" r="1.1" fill="currentColor" stroke="none"/>',
@@ -6135,6 +6140,7 @@ const I18N_EN={
  "ex.page_sub":"Say it the way you always have — and hear it come back two ways a leader would say it, with the idioms and professional phrases that get you there. Speak them a few times, and that voice becomes yours.",
  "ex.in_ph":"Tap the mic and speak for about a minute — or type what you said here.",
  "ex.clear_btn":"Clear",
+ "ex.busy_status":"Polishing… your report opens below.",
  "ex.polish_btn":"Polish it",
  "ex.versions_h":"Two other ways to say it",
  "ex.versions_sub":"The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
@@ -13433,7 +13439,7 @@ const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
 const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
-let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false};
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false,repOpen:true};
 let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
 function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function exLang(){return (S.profile&&S.profile.lang)||"en"}
@@ -13453,14 +13459,14 @@ window.exShuffle=()=>{
   manIconizeInline(document.getElementById("exCard"));
 };
 function exLastHTML(){
-  const r=exReps()[0];if(!r||!r.m)return "";
+  const r=exReps()[0];if(!r||!r.m||(ex.showReport&&ex.report===r))return "";
   const m=r.m,bits=[];
   if(m.wpm)bits.push(t("ex.last_wpm",{n:m.wpm}));
   if(m.hes!=null)bits.push(t("ex.last_hes",{n:m.hes}));
   bits.push(t("ex.last_fill",{n:m.fillerN||0}));
   return `<button class="ex-last" onclick="exOpenLast()"><span class="btn-ic">${ic("chart")}</span><span><b>${esc(t("ex.last_h"))}</b> · ${bits.join(" · ")}</span><span class="ex-last-go">›</span></button>`;
 }
-window.exOpenLast=()=>{const r=exReps()[0];if(!r)return;ex.report=r;ex.blob=null;exSetUrl(null);ex.showReport=true;exRenderReport(r)};
+window.exOpenLast=()=>{const r=exReps()[0];if(!r)return;ex.report=r;ex.blob=null;exSetUrl(null);ex.showReport=true;ex.repOpen=true;exRenderReport(r)};
 function exCardHTML(){
   return `<div class="card ex-card" id="exCard">
     <div class="ex-head">
@@ -13530,7 +13536,7 @@ window.exRecord=async()=>{
       const secs=(Date.now()-ex.t0)/1000;
       const blob=new Blob(ex.chunks,{type:mr.mimeType||"audio/webm"});
       exReset();
-      if(secs<EX_MIN_S||blob.size<2000){exStage(exIdleHTML());exStatus(t("ex.rec_min",{s:EX_MIN_S}));return}
+      if(secs<EX_MIN_S||blob.size<2000){exStatus(t("ex.rec_min",{s:EX_MIN_S}));return}
       exRun({blob,secs});
     };
     mr.start(1000);
@@ -13560,7 +13566,7 @@ function exWaitHTML(step){
 function exStep(msg){const s=document.getElementById("exStep");if(s)s.textContent=msg}
 async function exRun(src){
   ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
-  exStage(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));
+  exReportShow(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));exStatus(t("ex.busy_status"));
   let text=src.text||"",words=null,audio=null,sttFailed=false;
   if(src.pre){text=src.pre.text;words=src.pre.words;audio=src.pre.audio}   /* Polish it on the box that still holds this recording's transcript */
   else if(src.blob){
@@ -13573,11 +13579,11 @@ async function exRun(src){
     if(text)ex.take={blob:src.blob,secs:src.secs,text,words,audio};
   }
   if(!text){
-    ex.phase="idle";exStage(exIdleHTML());exStatus(t("ex.stt_off"));
+    ex.phase="idle";exReportShow("",true);exStatus(t("ex.stt_off"));
     const ta=document.getElementById("exIn");if(ta)ta.focus();
     return;
   }
-  ex.draft=text;
+  ex.draft=text;const _ta=document.getElementById("exIn");if(_ta){_ta.value=text;taGrow(_ta)}   /* the transcript lands in the box */
   exStep(t("ex.step_measure"));
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
@@ -13586,7 +13592,7 @@ async function exRun(src){
   ex.report=rep;
   const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
-  ex.phase="idle";ex.showReport=true;
+  ex.phase="idle";ex.showReport=true;ex.repOpen=true;exStatus("");
   exRenderReport(rep);
 }
 async function exTranscribe(blob){
@@ -13846,17 +13852,18 @@ window.exSaveTerm=(term,meaning,example,btn)=>{
   save();toast(t("ex.saved_toast",{w:term}));
   if(btn){btn.disabled=true;btn.innerHTML=ic("check")+" "+esc(term);manIconizeInline(btn)}
 };
-function exRenderReport(rep){
+function exRenderReport(rep,quiet){
   const m=rep.m,ai=rep.ai,prev=exReps().find(r=>r!==rep&&r.at<rep.at)||null;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
   const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
   const cp=(ai&&ai.concept_title)?{title:ai.concept_title,body:ai.concept_body}:exConcept(m);
-  const html=`<div class="ex-report">
-    <div class="ex-rep-top">
-      <div class="ex-eyebrow">${esc(t("ex.report_eyebrow"))}</div>
-      <h3 class="ex-rep-h">${esc(t("ex.report_h"))}</h3>
-      <p class="ex-rep-meta">${esc(m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words}))}</p>
-    </div>
+  const meta=m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words});
+  const html=`<details class="card ex-rep-card" ${ex.repOpen!==false?"open":""} ontoggle="exReportToggle(this)">
+    <summary class="ex-rep-sum">
+      <span class="ex-rep-sum-t"><span class="ex-eyebrow">${esc(t("ex.report_eyebrow"))}</span><b>${esc(t("ex.report_h"))}</b><small>${esc(meta)} · ${esc(exRepWhen(rep.at))}</small></span>
+      <span class="ex-rep-chev" aria-hidden="true">${ic("chevron")}</span>
+    </summary>
+    <div class="ex-report">
     ${rep.sttFailed?`<p class="ex-note">${esc(t("ex.stt_off"))}</p>`:""}
 
     ${exVersionsHTML(ai)}
@@ -13924,17 +13931,17 @@ function exRenderReport(rep){
     </section>
 
     <div class="ex-again">
-      <button class="btn-primary ex-againbtn" onclick="exAgain()">${tIc("ex.again_btn","mic")}</button>
+      <button class="btn-primary ex-againbtn" onclick="exStartAgain()">${tIc("ex.again_btn","mic")}</button>
       ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}
     </div>
     <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">▶</span></summary>
       <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
-  </div>`;
-  exStage(html);
-  const top=document.getElementById("exCard");
-  if(top){try{top.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}
+    </div>
+  </details>`;
+  exReportShow(html,quiet);
 }
-window.exAgain=()=>{exSetUrl(null);ex.blob=null;ex.take=null;ex.draft="";ex.showReport=false;exStage(exIdleHTML());const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
+function exRepWhen(at){try{const d=new Date(at),now=new Date();return d.toDateString()===now.toDateString()?d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):d.toLocaleDateString()}catch(e){return ""}}
+window.exAgain=()=>exStartAgain();   /* old name; exStartAgain is defined further down */
 /* Kept for the smoke test and any old bookmark of the walkthrough. */
 window.exHow=()=>howOpen("polish");
 
@@ -14280,11 +14287,23 @@ function rPhrases(el){
   <h1 class="big">${t("ex.page_title")}</h1>
   <p class="sub">${t("ex.page_sub")}</p>
   ${exCardHTML()}
+  <div id="exReportWrap"></div>
   <button class="card ex-bank-link" onclick="go('phrasebank')"><span class="btn-ic">${ic("chat")}</span><span><b>${esc(t("ex.bank_link"))}</b><small>${esc(t("ex.bank_sub"))}</small></span><span class="ex-last-go">›</span></button>`;
   manIconizeInline(el);
-  if(ex.phase==="busy")exStage(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
+  if(ex.phase==="busy")exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
   else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}
 }
+/* The report lives BELOW the input card (owner, 2026-09-21): the box, mic,
+   bin and Polish it stay on top after every run, so the next take is one tap
+   away; the report is a card of its own that opens and closes. */
+function exReportShow(html,quiet){
+  const w=document.getElementById("exReportWrap");if(!w)return;
+  w.innerHTML=html;manIconizeInline(w);
+  if(!quiet){const c=w.firstElementChild;if(c){try{c.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}}
+}
+window.exReportToggle=d=>{ex.repOpen=!!d.open};
+/* "Start again": back up to the box, cleared, mic ready — the report stays below */
+window.exStartAgain=()=>{exClear();const top=document.getElementById("exCard");if(top){try{top.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
 /* ---- the phrase bank: this week's professional phrases and business idioms ---- */
 function rPhraseBank(el,wFilter){
   const w=wFilter||currentPos().w;

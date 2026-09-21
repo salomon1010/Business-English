@@ -487,7 +487,13 @@ Features
   professional phrases/idioms each introduces listed in `learn` and marked
   in the text, `exMark`) and **`idioms`** (3 the learner did not use:
   meaning / when / example on their topic — "A new idiom for you to learn"),
-  rendered by `exVersionsHTML` / `exIdiomsHTML` at the TOP of the report;
+  rendered by `exVersionsHTML` / `exIdiomsHTML` at the TOP of the report.
+  **The report lives BELOW the input card** (owner, later the same evening):
+  `#exReportWrap` after `#exCard`, filled by `exReportShow` — the box, mic,
+  bin and Polish it never get replaced, the report is a collapsible
+  `details.ex-rep-card` (`ex.repOpen`), the wait animation shows there too,
+  and Record again (`exStartAgain`) clears the box and scrolls back up
+  while the report stays. `ic("chevron")` was added for its toggle;
   `exSaveTerm` puts either into `vocPut` + the dictionary seed. **The
   professional-phrase and business-idiom lists left the page**: they are the
   phrase bank, `rPhraseBank` / `go('phrasebank', w)` (`#v-phrasebank`, lit
