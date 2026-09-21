@@ -65,7 +65,7 @@
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=81"></script>
-<script src="shadow-sync.js?v=5"></script>
+<script src="shadow-sync.js?v=6"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
 <script src="professional-skills-passport.js?v=83"></script>
@@ -1327,6 +1327,36 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-ch-heard{font-size:12.5px;color:var(--mut);margin:6px 0 0}
 .sv-ch-done{display:flex;gap:10px;align-items:center;margin-top:10px;font-weight:700;line-height:1.4}.sv-ch-done svg{width:22px;height:22px;color:var(--green);flex:none}
 .sv-ch-use{margin-top:10px;padding:10px 12px;border-radius:10px;border:1px dashed color-mix(in srgb,var(--acc) 50%,transparent)}
+.sv-ch-rep{margin-top:10px}.sv-ch-rep .eyebrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.sv-ch-rep .eyebrow svg,.sv-ch-rep .sv-ch-line b svg{width:14px;height:14px}
+.sv-ch-hd{font-size:17px;font-weight:800;margin:6px 0 8px;line-height:1.35}.sv-ch-hd span{font-weight:500;color:var(--mut);font-size:14px;display:block}
+.sv-ch-dims{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.sv-ch-dim{display:inline-flex;flex-direction:column;gap:1px;padding:5px 9px;border-radius:9px;background:var(--card2);border:1px solid var(--line2);font-size:11px;color:var(--mut2);min-width:64px}.sv-ch-dim b{font-size:12px;color:var(--txt)}
+.d-strong b{color:var(--green)}.d-good b{color:var(--acc)}.d-practice b{color:var(--gold)}.d-attention b{color:var(--red)}.d-pending b{color:var(--mut)}
+.sv-ch-prog{font-weight:700}.p-better{color:var(--green)}.p-worse{color:var(--gold)}.p-same{color:var(--mut)}
+.sv-ch-sec{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.sv-ch-sec-h{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:6px}.sv-ch-sec-h svg{width:14px;height:14px}
+.sv-ch-issue{border:1px solid var(--line2);border-radius:10px;background:var(--card2);margin:6px 0;overflow:hidden}.sv-ch-issue.open{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
+.sv-ch-issue-hd{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 10px;background:none;border:0;color:var(--txt);text-align:left;font:inherit;cursor:pointer}
+.sv-ch-issue-n{flex:none;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-weight:800;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
+.sv-ch-issue-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.sv-ch-issue-t b{font-size:15px}.sv-ch-issue-t small{font-size:12px;color:var(--mut2)}
+.sv-ch-issue-body{padding:0 10px 10px 44px}
+.sv-ch-fix{font-size:13.5px;line-height:1.45;margin:0 0 8px}
+.sv-ch-row.tight{gap:6px;margin:4px 0}
+.sv-ch-play{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:20px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;font-weight:600;cursor:pointer}.sv-ch-play svg{width:16px;height:16px;flex:none}.sv-ch-play i{font-style:normal;font-weight:400;color:var(--mut2);font-size:11px}
+.sv-ch-play.acc{border-color:var(--acc);color:var(--acc)}.sv-ch-play.on{background:var(--acc);color:#fff;border-color:var(--acc)}.sv-ch-play:disabled{opacity:.45}
+.sv-ch-speed{display:inline-flex;border:1px solid var(--line2);border-radius:20px;overflow:hidden}.sv-ch-speed button{min-height:40px;min-width:44px;padding:0 8px;border:0;background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-ch-speed button.on{background:var(--acc);color:#fff}
+.sv-ch-stress{font-size:12.5px;color:var(--mut);margin:6px 0 0;display:flex;gap:8px}.sv-ch-stress b{color:var(--txt);letter-spacing:.3px}
+.sv-ch-cmp-t,.sv-ch-cmp-you{font-size:14px;line-height:1.7;margin:8px 0 0}.sv-ch-lbl{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut2);font-weight:700;line-height:1.4}.sv-ch-cmp-you{color:var(--mut)}
+.sv-ch-tk{border-radius:4px;padding:0 3px}.sv-ch-tk.ok{background:color-mix(in srgb,var(--green) 14%,transparent)}.sv-ch-tk.miss{background:color-mix(in srgb,var(--red) 18%,transparent);text-decoration:underline dotted}.sv-ch-tk.sub{background:color-mix(in srgb,var(--mut) 25%,transparent);text-decoration:line-through}.sv-ch-tk.pron{background:color-mix(in srgb,var(--gold) 22%,transparent)}
+.sv-ch-tk.gap::after{content:" |";color:var(--gold);font-weight:800}
+.sv-ch-weak{display:flex;gap:8px;flex-wrap:wrap}.sv-ch-wk{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--card2)}
+.sv-ch-wk-w{min-height:40px;padding:0 12px;border:0;background:none;color:var(--txt);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.sv-ch-wk-w small{font-size:11px;color:var(--mut2);font-weight:600}
+.sv-ch-wk-star{min-width:40px;border:0;border-left:1px solid var(--line2);background:none;color:var(--mut2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.sv-ch-wk-star svg{width:16px;height:16px}.sv-ch-wk-star.on{color:var(--gold)}
+.sv-ch-hist{display:flex;gap:6px;flex-wrap:wrap}.sv-ch-hist-a{display:inline-flex;flex-direction:column;gap:1px;min-height:44px;padding:5px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--mut2);font:inherit;font-size:11px;cursor:pointer;text-align:left}.sv-ch-hist-a b{font-size:12.5px;color:var(--txt)}.sv-ch-hist-a:disabled{opacity:.5}
+.sv-ch-next{margin-top:12px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent);border:1px solid color-mix(in srgb,var(--acc) 35%,transparent)}.sv-ch-next p{margin:0;font-size:14px;line-height:1.5}
+.sv-ch-cta .btn-primary{width:100%;justify-content:center}
+.sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
+.sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
 /* ---- Practice Partner ---- */
 .rp-entry.pp-entry{border-color:rgba(99,102,241,.6);background:linear-gradient(150deg,rgba(99,102,241,.30),rgba(124,58,237,.16) 55%,rgba(34,211,238,.08));box-shadow:0 6px 20px rgba(99,102,241,.16),inset 0 1px 0 rgba(255,255,255,.06)}
 :root[data-theme="light"] .rp-entry.pp-entry{background:linear-gradient(150deg,rgba(99,102,241,.16),rgba(124,58,237,.08) 55%,rgba(34,211,238,.05))}
@@ -5057,6 +5087,81 @@ const I18N_EN={
  "sv.ch_imp_connect":"Connect “{{phrase}}” more smoothly.","sv.ch_imp_pron":"Work on “{{word}}”{{note}}.","sv.ch_imp_slow":"A little faster — say it as one thought.",
  "sv.ch_imp_fast":"Slow down slightly so every word lands.","sv.ch_imp_fillers":"Drop the fillers ({{n}}) — pause silently instead.","sv.ch_imp_extra":"Keep to the line — no extra words.",
  "sv.ch_imp_levelup":"Nothing to fix here. Take the next level.",
+ "sv.ch_imp_missing_phrase":"Missing: “{{phrase}}”. Say the whole line.",
+ "sv.ch_imp_rhythm":"Your words were more evenly timed than the speaker's. Stretch the important words, shorten the small ones.",
+ "sv.ch_rep_eyebrow":"Shadow report",
+ "sv.ch_v_strong":"Strong attempt.",
+ "sv.ch_v_good":"Good attempt.",
+ "sv.ch_v_practice":"A solid start.",
+ "sv.ch_v_attention":"Keep going.",
+ "sv.ch_focus_on":"Focus on {{dims}}.",
+ "sv.ch_focus_none":"Nothing to fix on this line.",
+ "sv.ch_dim_words":"Words",
+ "sv.ch_dim_pron":"Pronunciation",
+ "sv.ch_dim_fluency":"Fluency",
+ "sv.ch_dim_timing":"Timing",
+ "sv.ch_dim_rhythm":"Rhythm",
+ "sv.ch_st_strong":"Strong",
+ "sv.ch_st_good":"Good",
+ "sv.ch_st_practice":"Needs practice",
+ "sv.ch_st_attention":"Needs attention",
+ "sv.ch_st_pending":"Listening…",
+ "sv.ch_pron_na":"Pronunciation listening was not available for this take — the words were checked from the transcript only.",
+ "sv.ch_rhythm_est":"Rhythm compares the length of your words with the speaker's — an estimate.",
+ "sv.ch_focus_h":"Your focus",
+ "sv.ch_kind_missing":"Missing phrase",
+ "sv.ch_kind_missing1":"Missing word",
+ "sv.ch_kind_wrong":"Different word",
+ "sv.ch_kind_order":"Word order",
+ "sv.ch_kind_pron":"Pronunciation",
+ "sv.ch_kind_pause":"Hesitation",
+ "sv.ch_kind_slow":"Pace",
+ "sv.ch_kind_fast":"Pace",
+ "sv.ch_kind_fillers":"Fillers",
+ "sv.ch_kind_extra":"Extra words",
+ "sv.ch_kind_rhythm":"Rhythm",
+ "sv.ch_kind_nothing":"Nothing heard",
+ "sv.ch_btn_speaker":"Speaker",
+ "sv.ch_btn_me":"Me",
+ "sv.ch_btn_practise":"Practise",
+ "sv.ch_btn_voice":"Model voice",
+ "sv.ch_btn_slow":"Slow",
+ "sv.ch_btn_ab":"A/B compare",
+ "sv.ch_btn_stop":"Stop",
+ "sv.ch_approx":"approx.",
+ "sv.ch_fix_pron":"Say the word on its own three times, then inside the line.",
+ "sv.ch_fix_missing":"Say “{{phrase}}” inside the line, not as an afterthought — hear the speaker, then say the whole line in one go.",
+ "sv.ch_fix_wrong":"The speaker says “{{target}}”; you said “{{said}}”. Hear it, then say the line again.",
+ "sv.ch_fix_pause":"Say these words as one piece, with no gap: “{{phrase}}”.",
+ "sv.ch_fix_order":"Listen once more, then say the line in one go, in the speaker's order.",
+ "sv.ch_stress_h":"Stress",
+ "sv.ch_orig_h":"Original",
+ "sv.ch_orig_play":"Play line",
+ "sv.ch_orig_loop":"Loop",
+ "sv.ch_orig_speed":"Speed",
+ "sv.ch_cmp_h":"Compare",
+ "sv.ch_cmp_target":"Target",
+ "sv.ch_cmp_you":"You said",
+ "sv.ch_cmp_key":"Green: said · amber: pronunciation · red: missing · struck through: a different word · | hesitation",
+ "sv.ch_weak_h":"Practise your weakest words",
+ "sv.ch_save_vocab":"Save to vocabulary",
+ "sv.ch_saved_vocab":"In your vocabulary",
+ "sv.ch_next_h":"Next attempt",
+ "sv.ch_next_body":"Listen to the original once. Focus on: {{list}}. Then shadow the line again.",
+ "sv.ch_next_clean":"Listen once more, then say it again exactly as the speaker does.",
+ "sv.ch_hist_h":"Attempts",
+ "sv.ch_prog_better":"Better than last time",
+ "sv.ch_prog_same":"Same as last time",
+ "sv.ch_prog_worse":"Not quite last time's take",
+ "sv.ch_drill_h":"Practise the word",
+ "sv.ch_drill_rec":"Record the word",
+ "sv.ch_drill_hint":"Say just the word. Tap to stop.",
+ "sv.ch_drill_grading":"Listening…",
+ "sv.ch_drill_attempt":"Attempt {{n}}",
+ "sv.ch_drill_state_heard":"Heard clearly",
+ "sv.ch_drill_state_notheard":"Not recognised — once more, a little slower",
+ "sv.ch_drill_done":"Back to the report",
+ "sv.ch_no_take":"That recording is no longer on this device.",
  "pp.title":"Practice Partner",
  "pp.home_decide_h":"Your practice with {{name}} is complete",
  "pp.err_notcomplete":"Finish the four turns first.",
@@ -14756,13 +14861,14 @@ function svChLevelGet(){const m=aMap("svCh");return SV_CH_LEVELS.includes(m._lev
 function svChSegIndex(){return svPick>=0?svPick:(svLast.seg>=0?svLast.seg:0)}
 function svChSegObj(){return svAsset&&svAsset.segments[svChSegIndex()]||null}
 function svChCtx(kind){return recCtx("shadow-ch"+(kind||"")+"-"+shClip.vid+"-"+svChSegIndex())}
-function svChReset(){svCh=null;svChStopAt=null}
+function svChReset(){if(svCh){try{svChStopAll()}catch(e){}}svCh=null;svChStopAt=null;svChOnStop=null}
 /* explicit state: which line, which level, where in the loop, what came back */
 function svChStart(){
   if(!svChOn()||!svAsset||!svAsset.segments.length)return;
   const i=svChSegIndex();
   if(svCh&&svCh.seg===i)return;
-  svCh={seg:i,level:svChLevelGet(),phase:"ready",attempt:0,fb:null,heard:"",err:null,busy:false,blob:null,listened:false,use:null};
+  svCh={seg:i,level:svChLevelGet(),phase:"ready",attempt:0,fb:null,heard:"",err:null,busy:false,blob:null,listened:false,use:null,
+    hist:[],open:null,drill:null,speed:1,ab:null,pending:false,assessTried:false};   /* the report: attempts this session, the open issue, the word drill, the clip speed */
   try{track("shadow_challenge_started",{level:svCh.level})}catch(e){}
 }
 function svChDraw(){
@@ -14797,14 +14903,7 @@ function svChHTML(){
     body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p>
       <div class="sv-ch-row"><button class="btn-primary" onclick="svChRegrade()">${t("sv.ch_err_retry")}</button><button class="btn btn-g" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
   }else{
-    const fb=c.fb;
-    body=`<div class="sv-ch-fb" aria-live="polite">
-      <div class="eyebrow">${ic("sparkle")} ${t("sv.ch_fb_eyebrow")} · ${t("sv.ch_attempt",{n:c.attempt})}</div>
-      <p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t(fb.good.k,fb.good.v||{})}</span></p>
-      <p class="sv-ch-line imp"><b>${t("sv.ch_improve")}</b><span>${t(fb.improve.k,fb.improve.v||{})}</span></p>
-      ${c.heard?`<p class="sv-ch-heard">${t("sv.ch_you_said",{text:c.heard})}</p>`:""}
-      <p class="pp-fine">${t("sv.ch_ai_note")}</p>
-    </div>`;
+    body=svChReportHTML(c,s);
     if(c.phase==="done"){
       const nextLv=SV_CH_LEVELS[SV_CH_LEVELS.indexOf(L)+1];
       body+=`<div class="sv-ch-done">${ic("check")}<span>${t("sv.ch_pass_title")}<br><span class="sv-ch-meta">${t("sv.ch_pass_sub")}</span></span></div>
@@ -14815,9 +14914,8 @@ function svChHTML(){
         ${nextLv?`<button class="btn btn-g btn-sm" onclick="svChLevel('${nextLv}')">${t("sv.ch_level_up",{level:t("sv.ch_lv_"+nextLv)})}</button>`:""}
       </div>${c.use?svChUseHTML(c.use):""}`;
     }else{
-      body+=`<div class="sv-ch-row">
-        <button class="btn-primary" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
-        <button class="btn btn-g btn-sm" onclick="svChReplay()">${ic("play")} ${t("sv.ch_replay")}</button>${listenBtn}
+      body+=`<div class="sv-ch-row sv-ch-cta">
+        <button class="btn-primary" onclick="svChRetry()">${ic("mic")} ${t("sv.ch_try_again")}</button>
       </div>`;
     }
   }
@@ -14879,29 +14977,312 @@ window.svChRecord=()=>{
 };
 async function svChGrade(blob){
   if(!svChOn()||!svCh)return;const s=svChSegObj();if(!s)return;
-  svCh.phase="grading";svCh.err=null;svChDraw();
-  if(!POLISH_API||!navigator.onLine){svCh.phase="error";svCh.err="net";svChDraw();return}
+  const c=svCh;c.phase="grading";c.err=null;c.pending=false;svChDraw();
+  if(!POLISH_API||!navigator.onLine){c.phase="error";c.err="net";svChDraw();return}
+  /* the clip's own word times (real or estimated — the engine knows which) give
+     the speaker's spans and, when real, the rhythm comparison */
+  const tw=s.words&&s.words.length?s.words:null,twEst=!tw||!!(svAsset&&svAsset.estimated)||tw.some(w=>w.estimated);
+  const targetMs=tw&&!twEst?tw[tw.length-1].endMs-tw[0].startMs:(s.endMs>s.startMs?s.endMs-s.startMs:null);
+  const build=(words,heard,assess)=>ShadowSync.challenge(s.text,heard,{words,assess,targetMs,targetWords:tw,targetEstimated:twEst});
   try{
-    const res=await Promise.race([Promise.all([fbWords(blob).catch(()=>null),fbAssess(blob,s.text).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),30000))]);
-    if(res==="timeout")throw new Error("timeout");
-    const [words,assess]=res;
+    const assessP=fbAssess(blob,s.text).catch(()=>null),wordsP=fbWords(blob).catch(()=>null);
+    /* the transcript draws the report; the pronunciation grade joins it when
+       it lands (a short wait first, so the two usually arrive as one) */
+    const words=await Promise.race([wordsP,new Promise(r=>setTimeout(()=>r("timeout"),30000))]);
+    if(words==="timeout")throw new Error("timeout");
+    if(svCh!==c)return;
     const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
-    if(!words&&!heard&&!assess){svCh.phase="error";svCh.err=navigator.onLine?"ai":"net";svChDraw();return}
-    const fb=ShadowSync.challenge(s.text,heard,{words,assess,targetMs:s.endMs>s.startMs?s.endMs-s.startMs:null});
-    svCh.attempt++;svCh.fb=fb;svCh.heard=heard;svCh.phase=fb.pass?"done":"feedback";svCh.last={ok:fb.ok,total:fb.total};
+    let assess=await Promise.race([assessP,new Promise(r=>setTimeout(()=>r("pending"),words||heard?1500:15000))]);
+    if(assess==="pending")assess=null;else c.assessTried=true;
+    if(!words&&!heard&&!assess){c.phase="error";c.err=navigator.onLine?"ai":"net";svChDraw();return}
+    if(svCh!==c)return;
+    const fb=build(words,heard,assess);
+    c.attempt++;c.fb=fb;c.heard=heard;c.blob=blob;c.phase=fb.pass?"done":"feedback";c.last={ok:fb.ok,total:fb.total};
+    c.hist.push({n:c.attempt,fb,heard,blob,ts:Date.now()});if(c.hist.length>10)c.hist.shift();
+    c.open=fb.issues.some(x=>x.type!=="levelup")?0:null;c.drill=null;c.ab=null;
+    const n=c.attempt;
+    if(!c.assessTried){c.pending=true;assessP.then(a=>{if(svCh!==c||c.attempt!==n||!c.fb)return;c.pending=false;c.assessTried=true;
+      if(a){c.fb=build(words,heard,a);const h=c.hist[c.hist.length-1];if(h&&h.n===n)h.fb=c.fb}svChDraw()})}
     const m=aMap("svCh"),key=shClip.vid+":"+s.id,prev=m[key]||{};
-    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:svCh.level,ts:Date.now(),done:!!(prev.done||fb.pass)};save();
-    try{track("shadow_challenge_feedback_received",{level:svCh.level,result:fb.pass?"pass":"retry"})}catch(e){}
-    if(fb.pass)try{track("shadow_challenge_completed",{level:svCh.level})}catch(e){}
-  }catch(e){svCh.phase="error";svCh.err=navigator.onLine?"ai":"net"}
-  svChDraw();
+    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:c.level,ts:Date.now(),done:!!(prev.done||fb.pass)};save();
+    try{track("shadow_challenge_feedback_received",{level:c.level,result:fb.pass?"pass":"retry"})}catch(e){}
+    if(fb.pass)try{track("shadow_challenge_completed",{level:c.level})}catch(e){}
+  }catch(e){c.phase="error";c.err=navigator.onLine?"ai":"net"}
+  if(svCh===c)svChDraw();
 }
 window.svChRegrade=()=>{if(svCh&&svCh.blob&&svCh.phase!=="grading")svChGrade(svCh.blob)};
-window.svChRetry=()=>{if(!svChOn()||!svCh)return;svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw()};
+window.svChRetry=()=>{if(!svChOn()||!svCh)return;svChStopAll();svRepeat=null;svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;svCh.open=null;svCh.drill=null;svCh.pending=false;svCh.assessTried=false;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw()};
 window.svChNext=()=>{if(!svChOn()||!svAsset)return;const n=ShadowSync.neighbour(svAsset,svChSegIndex(),1);if(!n)return;svPick=n.index;svChReset();svRender()};
 window.svChReplay=async()=>{
   if(!svChOn())return;const recs=await getRecs(svChCtx());if(!recs||!recs[0])return;
   if(fbAud){try{fbAud.pause()}catch(e){}}const a=new Audio(URL.createObjectURL(recs[0].blob));fbAud=a;a.play().catch(()=>{});
+};
+/* ---------- CHALLENGE REPORT: a coach for the next attempt, not a grade ----------
+   Level 1: verdict + the dimensions the pipeline really measured + up to three
+   things to fix. Level 2: tap one → what to change, the speaker's words, your
+   words, the model voice. Level 3: practise that word on its own, attempt by
+   attempt. Then the original line (play / loop / speed), the A/B comparison
+   with the coloured transcript, the weakest words, and the one instruction
+   for the next attempt. Every button that plays something plays a real
+   recording: the clip (seek + stop), the take (Whisper span), or the natural
+   voice — never a claim without audio. Nothing here is drawn for a dimension
+   the engine reported as na. */
+const SV_CH_SPEEDS=[0.75,1,1.25];
+let svChOnStop=null;                                   /* what to do when the clip reaches the stop mark (A/B) */
+function svChHasBlob(){return !!(svCh&&svCh.blob)}
+function svChSpeakerOK(){const s=svChSegObj();return !!(s&&s.startMs>=0&&ytPlayer&&ytPlayer.seekTo)}
+function svChDimState(fb,d){
+  if(d==="pron"&&svCh&&svCh.pending)return "pending";
+  return fb.dims[d]?fb.dims[d].state:"na";
+}
+function svChKind(it){
+  if(it.type==="missing")return t(it.tSpan&&it.tSpan[1]>it.tSpan[0]?"sv.ch_kind_missing":"sv.ch_kind_missing1");
+  return t("sv.ch_kind_"+it.type);
+}
+/* the instruction for one issue: the AI's own note when it gave one, else the rule */
+function svChFixText(it){
+  if(it.type==="pron")return it.note?esc(it.note.charAt(0).toUpperCase()+it.note.slice(1))+"."+" "+t("sv.ch_fix_pron"):t("sv.ch_fix_pron");
+  if(it.type==="missing")return t("sv.ch_fix_missing",{phrase:it.text});
+  if(it.type==="wrong")return t("sv.ch_fix_wrong",{target:it.v.target,said:it.v.said});
+  if(it.type==="pause")return t("sv.ch_fix_pause",{phrase:it.v.phrase});
+  if(it.type==="order")return t("sv.ch_fix_order");
+  if(it.type==="rhythm")return t("sv.ch_imp_rhythm");
+  return t(it.k,it.v||{});
+}
+/* play buttons for a span: the speaker (clip seek, or the model voice when the
+   line has no times), then the learner's own words */
+function svChSpanBtns(it,idx){
+  const sp=it.ms&&svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig(${it.ms[0]},${it.ms[1]})" aria-label="${esc(t("sv.ch_btn_speaker"))}">${ic("play")}<span>${t("sv.ch_btn_speaker")}${it.est?` <i>${t("sv.ch_approx")}</i>`:""}</span></button>`
+    :`<button class="sv-ch-play" onclick="svChVoice(${idx},1)" aria-label="${esc(t("sv.ch_btn_voice"))}">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`;
+  const me=it.s&&svChHasBlob()?`<button class="sv-ch-play" onclick="svChPlayMe(${it.s[0]},${it.s[1]})" aria-label="${esc(t("sv.ch_btn_me"))}">${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>`:"";
+  return sp+me;
+}
+function svChIssueHTML(it,idx,open){
+  const drillable=it.type==="pron"||it.type==="wrong"||(it.type==="missing"&&it.tSpan&&it.tSpan[1]===it.tSpan[0]);
+  const practise=drillable||it.type==="missing"?`<button class="sv-ch-play acc" onclick="event.stopPropagation();svChDrillOpen(${idx})" aria-label="${esc(t("sv.ch_btn_practise"))}">${ic("mic")}<span>${t("sv.ch_btn_practise")}</span></button>`:"";
+  const head=`<button class="sv-ch-issue-hd" onclick="svChOpen(${idx})" aria-expanded="${open}">
+      <span class="sv-ch-issue-n">${idx+1}</span>
+      <span class="sv-ch-issue-t"><b>${it.text?`“${esc(it.text)}”`:svChKind(it)}</b><small>${it.text?svChKind(it):""}${it.score!=null?` · ${it.score}%`:""}${it.gapS?` · ${it.gapS}s`:""}</small></span>
+      <span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></button>`;
+  const body=open?`<div class="sv-ch-issue-body">
+      <p class="sv-ch-fix">${svChFixText(it)}</p>
+      <div class="sv-ch-row tight">${svChSpanBtns(it,idx)}${it.text&&it.text.split(" ").length<=3?`<button class="sv-ch-play" onclick="svChVoice(${idx},0.7)">${ic("sound")}<span>${t("sv.ch_btn_slow")}</span></button>`:""}${practise}</div>
+      ${svChStressHTML(it.text)}</div>`:"";
+  return `<div class="sv-ch-issue ${open?"open":""} k-${it.dim}">${head}${body}</div>`;
+}
+/* the dictionary's stress pattern, only when it has the word */
+function svChStressHTML(text){
+  const w=String(text||"").split(" ");if(w.length!==1)return "";
+  const st=STRESS_MAP[w[0].toLowerCase().replace(/[^a-z]/g,"")];
+  return st?`<p class="sv-ch-stress"><span>${t("sv.ch_stress_h")}</span><b>${esc(st)}</b></p>`:"";
+}
+function svChDimsHTML(fb){
+  const order=["words","pron","fluency","timing","rhythm"];
+  const chips=order.map(d=>{const st=svChDimState(fb,d);if(st==="na")return "";
+    return `<span class="sv-ch-dim d-${st}"><span>${t("sv.ch_dim_"+d)}</span><b>${t("sv.ch_st_"+st)}</b></span>`}).join("");
+  const notes=[];
+  if(fb.pronMode==="whisper"||(fb.pronMode===null&&!svCh.pending&&svCh.assessTried))notes.push(t("sv.ch_pron_na"));
+  if(fb.rhythm)notes.push(t("sv.ch_rhythm_est"));
+  return `<div class="sv-ch-dims">${chips}</div>${notes.length?`<p class="pp-fine">${notes.join(" ")}</p>`:""}`;
+}
+function svChFocusLine(fb){
+  const dims=[];fb.issues.forEach(it=>{if(it.type!=="levelup"&&!dims.includes(it.dim))dims.push(it.dim)});
+  if(!dims.length)return t("sv.ch_focus_none");
+  return t("sv.ch_focus_on",{dims:dims.slice(0,2).map(d=>t("sv.ch_dim_"+d).toLowerCase()).join(" + ")});
+}
+function svChCompareHTML(fb,s){
+  const tk=fb.tokens.map(x=>`<span class="sv-ch-tk ${x.state}${x.pauseAfter?" gap":""}" ${x.h&&x.state==="sub"?`title="${esc(x.h)}"`:""}>${esc(x.text)}</span>`).join(" ");
+  const heard=svCh.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(svCh.heard)}</p>`:"";
+  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("repeat")} ${t("sv.ch_cmp_h")}</div>
+    <div class="sv-ch-row tight">
+      ${svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig()">${ic("play")}<span>${t("sv.ch_btn_speaker")}</span></button>`:`<button class="sv-ch-play" onclick="fbSay(svChSegObj().text,1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`}
+      <button class="sv-ch-play" onclick="svChPlayMe()" ${svChHasBlob()?"":"disabled"}>${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>
+      ${svChSpeakerOK()&&svChHasBlob()?`<button class="sv-ch-play acc" id="svChAbBtn" onclick="svChAB()">${ic("repeat")}<span>${svCh.ab?t("sv.ch_btn_stop"):t("sv.ch_btn_ab")}</span></button>`:""}
+    </div>
+    <p class="sv-ch-cmp-t"><span class="sv-ch-lbl">${t("sv.ch_cmp_target")}</span>${tk}</p>${heard}
+    <p class="pp-fine">${t("sv.ch_cmp_key")}</p></div>`;
+}
+function svChOrigHTML(s){
+  if(!svChSpeakerOK())return "";
+  const rate=svCh.speed||1;
+  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("video")} ${t("sv.ch_orig_h")}</div>
+    <div class="sv-ch-row tight">
+      <button class="sv-ch-play" onclick="svChPlayOrig()">${ic("play")}<span>${t("sv.ch_orig_play")}</span></button>
+      <button class="sv-ch-play ${svRepeat&&svRepeat.i===svCh.seg?"on":""}" id="svChLoopBtn" onclick="svChLoop()" aria-pressed="${!!(svRepeat&&svRepeat.i===svCh.seg)}">${ic("repeat")}<span>${t("sv.ch_orig_loop")}</span></button>
+      <span class="sv-ch-speed" role="group" aria-label="${esc(t("sv.ch_orig_speed"))}">${SV_CH_SPEEDS.map(r=>`<button class="${rate===r?"on":""}" onclick="svChSpeed(${r})" aria-pressed="${rate===r}">${String(r).replace(/^0/,"")}×</button>`).join("")}</span>
+    </div></div>`;
+}
+function svChWeakHTML(fb){
+  const ws=fb.weakWords.slice(0,6);if(!ws.length)return "";
+  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_weak_h")}</div>
+    <div class="sv-ch-weak">${ws.map((w,i)=>`<span class="sv-ch-wk">
+      <button class="sv-ch-wk-w" onclick="svChDrillWord(${i})">${esc(w.text)}${w.score!=null?`<small>${w.score}%</small>`:""}</button>
+      ${w.vocab?`<button class="sv-ch-wk-star ${vocHas(w.k)?"on":""}" onclick="svChSaveVocab('${esc(w.k)}')" aria-label="${esc(t(vocHas(w.k)?"sv.ch_saved_vocab":"sv.ch_save_vocab"))}" aria-pressed="${vocHas(w.k)}">${ic("star")}</button>`:""}</span>`).join("")}</div></div>`;
+}
+function svChHistHTML(){
+  const h=svCh.hist||[];if(h.length<2)return "";
+  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("chart")} ${t("sv.ch_hist_h")}</div>
+    <div class="sv-ch-hist">${h.map((a,i)=>`<button class="sv-ch-hist-a d-${a.fb.verdict}" onclick="svChPlayAttempt(${i})" ${a.blob?"":"disabled"}><span>${t("sv.ch_attempt",{n:a.n})}</span><b>${t("sv.ch_st_"+a.fb.verdict)}</b></button>`).join("")}</div></div>`;
+}
+function svChNextHTML(fb){
+  const items=fb.issues.filter(it=>it.type!=="levelup").map(it=>it.text?`“${esc(it.text)}”`:svChKind(it).toLowerCase());
+  if(!items.length&&fb.pass)return "";                    /* a clean pass: the done block says what comes next */
+  return `<div class="sv-ch-next"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_next_h")}</div>
+    <p>${items.length?t("sv.ch_next_body",{list:items.join(" · ")}):t("sv.ch_next_clean")}</p></div>`;
+}
+function svChReportHTML(c,s){
+  const fb=c.fb,prog=c.hist&&c.hist.length>1?ShadowSync.progress(c.hist[c.hist.length-2].fb,fb):"first";
+  const issues=fb.issues.filter(it=>it.type!=="levelup");
+  return `<div class="sv-ch-rep" aria-live="polite">
+    <div class="eyebrow">${ic("sparkle")} ${t("sv.ch_rep_eyebrow")} · ${t("sv.ch_attempt",{n:c.attempt})}${prog!=="first"?` · <span class="sv-ch-prog p-${prog}">${t("sv.ch_prog_"+prog)}</span>`:""}</div>
+    <h4 class="sv-ch-hd">${t("sv.ch_v_"+fb.verdict)} <span>${svChFocusLine(fb)}</span></h4>
+    ${svChDimsHTML(fb)}
+    <p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t(fb.good.k,fb.good.v||{})}</span></p>
+    ${issues.length?`<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_focus_h")}</div>${issues.map((it,i)=>svChIssueHTML(it,i,c.open===i)).join("")}</div>`:""}
+    ${c.drill?svChDrillHTML(c.drill):""}
+    ${svChOrigHTML(s)}
+    ${svChCompareHTML(fb,s)}
+    ${svChWeakHTML(fb)}
+    ${svChHistHTML()}
+    ${svChNextHTML(fb)}
+    <p class="pp-fine">${t("sv.ch_ai_note")}</p>
+  </div>`;
+}
+/* ---------- playback ---------- */
+function svChStopAll(){
+  svChOnStop=null;if(svCh)svCh.ab=null;
+  if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}
+  fbStopAudio();
+}
+/* the clip: the whole line, or a span inside it, at the panel's speed */
+function svChSeekPlay(ms0,ms1){
+  const s=svChSegObj();if(!s)return;svRepeat=null;
+  const a=ms0!=null?ms0:s.startMs,b=ms1!=null?ms1:s.endMs;
+  try{ytPlayer.setPlaybackRate(svCh.speed||1)}catch(e){}
+  shSeekTo(Math.max(0,a/1000-0.05));svChStopAt=b+60;svCh.listened=true;try{ytPlayer.playVideo()}catch(e){}
+}
+window.svChPlayOrig=(ms0,ms1)=>{
+  if(!svChOn()||!svCh)return;const s=svChSegObj();if(!s)return;
+  if(!svChSpeakerOK()){fbSay(s.text,svCh.speed||1);return}
+  svChStopAll();svChSeekPlay(ms0,ms1);
+};
+window.svChLoop=()=>{
+  if(!svChOn()||!svCh)return;const s=svChSegObj();if(!s||!svChSpeakerOK())return;
+  svChStopAll();
+  if(svRepeat&&svRepeat.i===svCh.seg){svRepeat=null;try{ytPlayer.pauseVideo()}catch(e){}}
+  else{svRepeat={i:svCh.seg,start:s.startMs/1000,end:s.endMs/1000};try{ytPlayer.setPlaybackRate(svCh.speed||1)}catch(e){}shSeekTo(svRepeat.start);svChStopAt=null;try{ytPlayer.playVideo()}catch(e){}}
+  svChDraw();
+};
+window.svChSpeed=r=>{
+  if(!svChOn()||!svCh||!SV_CH_SPEEDS.includes(r))return;
+  svCh.speed=r;shClip.rate=r;try{ytPlayer.setPlaybackRate(r)}catch(e){}
+  const b=document.getElementById("shRateBtn");if(b)b.textContent=(r+"×").replace("0.",".");
+  svChDraw();
+};
+/* the take, or a span of it (Whisper seconds) */
+function svChPlayBlob(blob,s0,s1){
+  return new Promise(res=>{
+    if(!blob){toast(t("sv.ch_no_take"));return res()}
+    if(fbAud){try{fbAud.pause()}catch(e){}}
+    const a=new Audio(URL.createObjectURL(blob));fbAud=a;
+    const go=d=>{const st=s0!=null?Math.max(0,s0-0.06):0,en=s1!=null?Math.min(d,s1+0.1):d;
+      a.currentTime=st;a.play().catch(()=>res());
+      const ms=Math.max(350,(en-st)*1000+120);
+      const done=()=>{if(fbAud===a){try{a.pause()}catch(e){}}res()};
+      a.onended=done;setTimeout(done,ms)};
+    a.onloadedmetadata=()=>{if(isFinite(a.duration)&&a.duration>0)go(a.duration);else{a.currentTime=1e10;a.onseeked=()=>{a.onseeked=null;go(a.duration)}}};
+    a.onerror=()=>res();
+  });
+}
+window.svChPlayMe=async(s0,s1)=>{
+  if(!svChOn()||!svCh)return;
+  let blob=svCh.blob;
+  if(!blob){const recs=await getRecs(svChCtx());blob=recs&&recs[0]?recs[0].blob:null;if(blob)svCh.blob=blob}
+  svChStopAll();await svChPlayBlob(blob,s0,s1);
+};
+window.svChPlayAttempt=async i=>{const a=svCh&&svCh.hist&&svCh.hist[i];if(!a)return;svChStopAll();await svChPlayBlob(a.blob)};
+/* A/B: speaker → me → speaker → me, cancelled by any other play or a tap */
+window.svChAB=async()=>{
+  if(!svChOn()||!svCh)return;
+  if(svCh.ab){svChStopAll();try{ytPlayer.pauseVideo()}catch(e){}svChDraw();return}
+  const s=svChSegObj();if(!s||!svChSpeakerOK()||!svCh.blob)return;
+  const tok={};svChStopAll();svCh.ab=tok;svChDraw();
+  const orig=()=>new Promise(res=>{if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}svChSeekPlay();svChOnStop=res;setTimeout(res,(s.endMs-s.startMs)/(svCh.speed||1)+2500)});
+  for(let k=0;k<2&&svCh&&svCh.ab===tok;k++){
+    await orig();if(!svCh||svCh.ab!==tok)break;
+    await new Promise(r=>setTimeout(r,350));
+    await svChPlayBlob(svCh.blob);if(!svCh||svCh.ab!==tok)break;
+    await new Promise(r=>setTimeout(r,350));
+  }
+  if(svCh&&svCh.ab===tok){svCh.ab=null;svChDraw()}
+};
+/* the natural voice for one word or phrase (a model, not the speaker) */
+window.svChVoice=(idx,rate)=>{
+  const it=svCh&&svCh.fb&&svCh.fb.issues.filter(x=>x.type!=="levelup")[idx];if(!it||!it.text)return;
+  svChStopAll();fbSay(it.text,rate||1);
+};
+window.svChOpen=i=>{if(!svCh)return;svCh.open=svCh.open===i?null:i;svChDraw()};
+/* ---------- the word drill ---------- */
+function svChDrillHTML(d){
+  const busy=d.phase==="grading";
+  const errTxt=d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const sp=d.ms&&svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig(${d.ms[0]},${d.ms[1]})">${ic("play")}<span>${t("sv.ch_btn_speaker")}${d.est?` <i>${t("sv.ch_approx")}</i>`:""}</span></button>`:"";
+  const me=d.s&&svChHasBlob()?`<button class="sv-ch-play" onclick="svChPlayMe(${d.s[0]},${d.s[1]})">${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>`:"";
+  const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="svChDrillPlay(${i})"><span>${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
+  const last=d.attempts[d.attempts.length-1];
+  return `<div class="sv-ch-drill" id="svChDrill">
+    <div class="sv-ch-sec-h">${ic("mic")} ${t("sv.ch_drill_h")}</div>
+    <p class="sv-ch-drill-w">${esc(d.text)}</p>
+    <div class="sv-ch-row tight">${sp}${me}<button class="sv-ch-play" onclick="svChStopAll();fbSay('${esc(d.text).replace(/'/g,"\\'")}',1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button><button class="sv-ch-play" onclick="svChStopAll();fbSay('${esc(d.text).replace(/'/g,"\\'")}',0.7)">${ic("sound")}<span>${t("sv.ch_btn_slow")}</span></button></div>
+    <p class="sv-ch-fix">${d.note?esc(d.note.charAt(0).toUpperCase()+d.note.slice(1))+". ":""}${t("sv.ch_fix_pron")}</p>
+    ${svChStressHTML(d.text)}
+    <div class="sv-ch-row"><span class="sv-ch-rec"><button class="rec-btn ${d.phase==="recording"?"on":""}" id="svChDrillRecBtn" onclick="svChDrillRecord()" ${busy?"disabled":""} aria-pressed="${d.phase==="recording"}" aria-label="${esc(t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec")}</span></span></div>
+    <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${d.phase==="recording"?t("sv.ch_drill_hint"):d.phase==="grading"?t("sv.ch_drill_grading"):errTxt||(last&&last.note&&last.note!==d.note?esc(last.note):"")}</p>
+    ${att?`<div class="sv-ch-hist">${att}</div>`:""}
+    <div class="sv-ch-row tight">${d.vocab?`<button class="btn btn-g btn-sm ${vocHas(d.k)?"on":""}" onclick="svChSaveVocab('${esc(d.k)}')">${ic("star")} ${t(vocHas(d.k)?"sv.ch_saved_vocab":"sv.ch_save_vocab")}</button>`:""}<button class="btn btn-g btn-sm" onclick="svChDrillClose()">${ic("check")} ${t("sv.ch_drill_done")}</button></div>
+  </div>`;
+}
+function svChDrillStart(w){
+  if(!svChOn()||!svCh||!w)return;
+  svChStopAll();
+  svCh.drill={k:w.k,text:w.text,i:w.i,ms:w.ms||null,est:!!w.est,s:w.s||null,note:w.note||"",vocab:!!w.vocab,phase:"ready",attempts:[],err:null,busy:false,blob:null};
+  svChDraw();
+  setTimeout(()=>{const el=document.getElementById("svChDrill");if(el&&el.scrollIntoView)try{el.scrollIntoView({block:"nearest",behavior:"smooth"})}catch(e){}},50);
+}
+window.svChDrillOpen=idx=>{
+  const it=svCh&&svCh.fb&&svCh.fb.issues.filter(x=>x.type!=="levelup")[idx];if(!it)return;
+  const tk=it.tSpan?svCh.fb.tokens[it.tSpan[0]]:null;
+  svChDrillStart({k:tk?tk.k:ShadowSync.tokens(it.text)[0],text:it.text,i:it.tSpan?it.tSpan[0]:-1,ms:it.ms,est:it.est,s:it.s,note:it.note||"",vocab:!!(tk&&!tk.fn&&it.text.split(" ").length===1&&tk.k.length>=3)});
+};
+window.svChDrillWord=i=>{const w=svCh&&svCh.fb&&svCh.fb.weakWords[i];if(w)svChDrillStart(w)};
+window.svChDrillClose=()=>{if(!svCh)return;svCh.drill=null;svChDraw()};
+window.svChDrillRecord=()=>{
+  const d=svCh&&svCh.drill;if(!svChOn()||!d)return;
+  svChStopAll();
+  svChRec("w"+Math.max(0,d.i),("Word — "+d.text).slice(0,60),blob=>{if(svCh&&svCh.drill===d){d.blob=blob;svChDrillGrade(d,blob)}},()=>svCh&&svCh.drill,f=>{if(svCh&&svCh.drill)f(svCh.drill)});
+};
+async function svChDrillGrade(d,blob){
+  if(!svChOn()||!svCh||svCh.drill!==d)return;
+  d.phase="grading";d.err=null;svChDraw();
+  if(!POLISH_API||!navigator.onLine){d.phase="ready";d.err="net";svChDraw();return}
+  try{
+    const res=await Promise.race([Promise.all([fbAssess(blob,d.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
+    if(res==="timeout")throw new Error("timeout");
+    const [assess,words]=res;
+    const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
+    if(!assess&&!heard){d.phase="ready";d.err=navigator.onLine?"ai":"net";svChDraw();return}
+    const st=ShadowSync.drillState(assess,heard,d.text);
+    d.attempts.push({state:st.state,score:st.score,mode:st.mode,heard:st.heard,note:st.note,blob});
+    d.phase="ready";                                   /* no analytics event: the Worker allow-list has none for a word drill */
+  }catch(e){d.phase="ready";d.err=navigator.onLine?"ai":"net"}
+  if(svCh&&svCh.drill===d)svChDraw();
+}
+window.svChDrillPlay=async i=>{const a=svCh&&svCh.drill&&svCh.drill.attempts[i];if(!a)return;svChStopAll();await svChPlayBlob(a.blob)};
+window.svChSaveVocab=k=>{
+  if(!svChOn()||!k)return;
+  if(vocHas(k)){vocDrop(k);toast(t("voc.removed_toast"))}
+  else{vocPut(k);toast(t("sv.ch_saved_vocab"))}
+  save();svChDraw();
 };
 window.svChUse=()=>{
   if(!svChOn()||!svCh||svCh.phase!=="done")return;const s=svChSegObj();const ex=s&&ShadowSync.findExpression(s.text,trackPhrases());if(!ex)return;
@@ -15021,7 +15402,7 @@ function svTick(){
   const ready=!!(ytPlayer&&ytPlayer.getCurrentTime);
   if(!ready&&Date.now()-shSeek.at>=1200)return;          /* no player and no recent seek: nothing to sync to */
   let tS=0;try{tS=ready?shCurT():shSeek.t}catch(e){return}
-  if(svChStopAt!=null&&tS*1000>=svChStopAt){svChStopAt=null;try{ytPlayer.pauseVideo()}catch(e){}}
+  if(svChStopAt!=null&&tS*1000>=svChStopAt){svChStopAt=null;try{ytPlayer.pauseVideo()}catch(e){}const f=svChOnStop;svChOnStop=null;if(f)try{f()}catch(e){}}
   if(svRepeat&&tS>=svRepeat.end){shSeekTo(svRepeat.start);return}
   if(!svRepeat&&shLooping&&shClip.end>shClip.start&&tS>=shClip.end){shSeekTo(shClip.start);return}   // the clip loop on the frame it ends, not on the next 250 ms poll
   const loc=ShadowSync.locate(a,tS*1000);

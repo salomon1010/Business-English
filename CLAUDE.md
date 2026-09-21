@@ -324,6 +324,33 @@ not JS, and `new Function` chokes on it. Check it separately with
   this, bin); `shOwnRender()` refreshes it in place; the YouTube title
   replaces the pasted URL once `onReady` knows it. Keys `sh.own_*`,
   `cf.own_*` in 16 languages (machine transcreation).
+- **Shadow Challenge V2 — the coaching report (branch `feature/shadow-challenge-v2`,
+  2026-09-21, NOT merged/deployed).** `ShadowSync.challenge()` now returns a
+  report: `tokens` (per target word: ok/miss/sub/pron, the clip span `ms` and
+  the take span `s`), `issues` (≤3, typed, prioritised: missing phrase → wrong
+  word → pronunciation → hesitation → pace → fillers → extra → rhythm),
+  `dims` (words / pron / fluency / timing / rhythm, each `strong|good|practice|
+  attention|na`), `verdict`, `weakWords`; plus `verdict()`, `progress(prev,cur)`,
+  `drillState()`. **Honesty rules, keep them:** `norm()` folds contractions
+  (I'm ≡ I am), UK/US spelling and numbers on BOTH sides; the caption word track
+  only lends timings (the cue TEXT defines the tokens — the track can carry a
+  word the cue does not); pronunciation is a dimension only when the Worker's
+  `assess` answered `mode:"ai"` (the Whisper fallback is a string match → `na`
+  + a note); rhythm only with REAL clip word times and ≥6 aligned words; timing
+  against an estimated (cue-only) line only reports "slower"; pitch / stress /
+  intonation are NOT measured (the speaker's audio is inside the YouTube frame)
+  and get no dimension. UI (`svChReportHTML` + `svChIssueHTML` / `svChDrill*` /
+  `svChPlayOrig` / `svChPlayMe` / `svChAB` / `svChLoop` / `svChSpeed`): snapshot
+  → Your focus (expand → what to improve, Speaker (clip seek, "approx." when
+  estimated) / Me (Whisper span of the take) / Model voice (TTS) / Practise) →
+  word drill (`phRecInto` ctx `shadow-chw…`, `fbAssess(word)` per attempt, no
+  analytics event) → Original (play / loop = `svRepeat` / 0.75-1-1.25×) →
+  Compare (A/B via `svChOnStop` from the tick; coloured target) → weakest words
+  (⭐ `vocPut`, content words only) → attempts (`svCh.hist`, in memory) → Next
+  attempt → Try again. The report draws on the transcript and re-scores in
+  place when the grade lands (`svCh.pending`). No Worker change; audio stays on
+  the device. Tests: `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs`
+  (75, `BASE=` a port that serves THIS tree).
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is
