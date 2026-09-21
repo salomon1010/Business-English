@@ -2095,6 +2095,18 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
 .ex-prompt-btn{min-height:36px}
+.ex-btnrow{display:flex;gap:10px;margin:10px 0}.ex-btnrow .btn{flex:1;justify-content:center;min-height:52px;font-size:20px}
+.ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}
+@keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
+@media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
+.ex-polish{width:100%;justify-content:center;min-height:54px;font-size:16.5px}
+.ex-bank-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:14px;cursor:pointer;font:inherit;color:inherit}.ex-bank-link b{display:block;font-size:14.5px}.ex-bank-link small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}.ex-bank-link .btn-ic{color:var(--acc)}
+.ex-version{padding:14px 0;border-top:1px solid var(--line)}.ex-version:first-of-type{border-top:0;padding-top:6px}
+.ex-ver-k{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:6px}.ex-ver-n{width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.ex-ver-t{font-size:15.5px;line-height:1.6;margin:0 0 8px}.ex-mark{background:color-mix(in srgb,var(--acc) 22%,transparent);color:inherit;border-radius:4px;padding:0 3px;font-weight:600}
+.ex-learn{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 10px}.ex-learn-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid var(--acc);background:transparent;color:var(--acc);font:inherit;font-size:13px;cursor:pointer}.ex-learn-chip:disabled{opacity:.7;border-color:var(--green);color:var(--green)}.ex-learn-chip svg{width:14px;height:14px}
+.ex-idiom{padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line2);margin-top:10px}.ex-idiom-tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;font-weight:700;color:var(--gold,#e2b64a);margin-bottom:6px}.ex-idiom-tag svg{width:14px;height:14px}
+.ex-idiom-t{font-size:17px;font-weight:700;margin:0 0 8px;color:var(--acc)}.ex-idiom .ex-p{margin:4px 0}.ex-idiom .ex-acts{margin-top:10px}.ex-save:disabled{border-color:var(--green);color:var(--green)}
 .ex-recbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:12px 16px;border-radius:var(--r-lg,16px);
   border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--txt);
   text-align:left;cursor:pointer;font:inherit;transition:background .2s,border-color .2s,transform .15s}
@@ -3783,6 +3795,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-home" class="view on"></div>
   <div id="v-journey" class="view"></div>
   <div id="v-phrases" class="view"></div>
+  <div id="v-phrasebank" class="view"></div>
   <div id="v-shadow" class="view"></div>
   <div id="v-practice" class="view"></div>
   <div id="v-review" class="view"></div>
@@ -4989,7 +5002,7 @@ const I18N_EN={
  "ph.title":"Repeat. Record. <em>Own it.</em>",
  "ph.sub":"These are the exact words the confident ones use — say each one aloud, make it your own, and record it until the perfect phrase is already on your tongue when the room turns to you.",
  "ph.exec_title":"💼 Executive Polish",
- "ph.exec_tag":"speak for a minute",
+ "ph.exec_tag":"say it like a leader",
  "ph.exec_desc":"Speak for about a minute — your project, your role, the update you owe someone. Hear how you come across: structure, filler words, pace, delivery. Then you know exactly what to work on before you walk into the room.",
  "ph.nothing_mastered":"Nothing mastered yet — open a weekly tab and claim your first phrase.",
  "ph.week_label":"Week {{w}} — <b style=\"color:var(--txt)\">{{theme}}</b>",
@@ -6111,11 +6124,30 @@ const I18N_EN={
  "ex.how_btn":"How it works",
  "ex.how_title":"Speak for a minute. Hear exactly what to fix.",
  "ex.how_lead":"Before the meeting, say the thing you are going to say anyway — and find out how it lands before anyone else does.",
- "ex.how_1":"Tap Record and talk for about a minute — your project, your role, the update you owe someone. Say it the way it comes out; rough is fine.",
+ "ex.how_1":"Tap the mic and talk for about a minute — your project, your role, the update you owe someone — or type it. Say it the way it comes out; rough is fine. Then Polish it.",
  "ex.how_2":"The app writes down what you said and measures how you said it: pace, pauses, how much your voice moves, filler words, hedges.",
- "ex.how_3":"You get your speech in numbers, your key message, a sharper version of it, and the one thing to work on next.",
- "ex.how_4":"Practise the sharper version, record again, and hear the difference — before you walk into the room.",
+ "ex.how_3":"You get the same thing said two other ways a leader would say it — your facts, with the new idioms and professional phrases marked — plus your speech in numbers, your key message and the one thing to work on next.",
+ "ex.how_4":"And three new idioms chosen for your topic, to start using in your next conversation. Save them, say the versions aloud, record again — and hear the difference.",
+ "ex.how_demo_idiom":"To finish something that was hard to complete. “Two more days and we get it over the line.”",
  "ex.how_try":"Try it now",
+ "ex.page_eyebrow":"Executive Polish — say it like a leader",
+ "ex.page_title":"Speak. Polish. <em>Own it.</em>",
+ "ex.page_sub":"Say it the way you always have — and hear it come back two ways a leader would say it, with the idioms and professional phrases that get you there. Speak them a few times, and that voice becomes yours.",
+ "ex.in_ph":"Tap the mic and speak for about a minute — or type what you said here.",
+ "ex.clear_btn":"Clear",
+ "ex.polish_btn":"Polish it",
+ "ex.versions_h":"Two other ways to say it",
+ "ex.versions_sub":"The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
+ "ex.version_new":"New in this version — tap to save",
+ "ex.idioms_h":"New idioms to learn",
+ "ex.idioms_sub":"Three professional idioms you did not use, chosen for your topic — start using them in your next conversation.",
+ "ex.idiom_new":"A new idiom for you to learn",
+ "ex.idiom_meaning":"Meaning:",
+ "ex.idiom_when":"When to use it:",
+ "ex.save_btn":"Save to my words",
+ "ex.saved_toast":"“{{w}}” saved to your words",
+ "ex.bank_link":"This week's phrases & idioms",
+ "ex.bank_sub":"The programme's professional phrases and business idioms, week by week — record and master them.",
  "ex.prompt_h":"Today's prompt",
  "ex.prompt_1":"Introduce yourself to a new client: your role, one strength, one detail about you.",
  "ex.prompt_2":"Give an update on the project you are working on now: where it stands, what is blocked, what happens next.",
@@ -7181,7 +7213,7 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":(v==="phrasebank"?"phrases":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -7207,7 +7239,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -7698,7 +7730,7 @@ function homeMetrics(pos,recN,activeTrackName){
     {ic:"flame", n:streak(),                                                  suf:"",             lbl:"stat_streak",     next:"next_streak",     go:sess,             zero:streak()===0},
     {ic:"check", n:totalDone(),                                               suf:"/"+trackSessionCount(),lbl:"stat_sessions",   next:"next_sessions",   go:sess,             zero:totalDone()===0},
     {ic:"mic",   n:recN,                                                      suf:"",             lbl:"stat_recordings", next:"next_recordings", go:sess,             zero:recN===0},
-    {ic:"chat",  n:masteredCount(),                                           suf:"/"+trackPhrases().length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrases')",  zero:masteredCount()===0},
+    {ic:"chat",  n:masteredCount(),                                           suf:"/"+trackPhrases().length, lbl:"stat_phrases",next:"next_phrases",    go:"go('phrasebank')",  zero:masteredCount()===0},
     {ic:"book",  n:Object.keys(areaVocab()).filter(w=>vocState(w)==="learned").length, suf:"/"+vocN, lbl:"stat_vocab",  next:"next_vocab",      go:"go('practice')", zero:vocN===0},
     {ic:"target",n:aList("clips").length,                                      suf:"",             lbl:"stat_clips",      next:"next_clips",      go:"go('shadow')",   zero:aList("clips").length===0},
     {ic:"chat",  n:(S.convos||[]).length,                                     suf:"",             lbl:"stat_convos",     next:"next_convos",     go:"go('roleplay')", zero:(S.convos||[]).length===0},
@@ -8137,7 +8169,7 @@ function rWeek(el,w){
   </div>
   <h1 class="big" style="font-size:30px">${isProfessionalJourney()?`${esc(wk.stage||("Stage "+w))} — <em>${esc(wk.theme)}</em>`:t("week.title",{w,theme:esc(wk.theme)})}</h1>
   <p class="sub" style="margin-bottom:8px">${t("week.goal_label",{goal:esc(wk.mission||wk.goal)})}</p>
-  <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrases',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
+  <p style="font-size:13.5px;margin-bottom:20px"><a href="#" onclick="go('phrasebank',${w});return false"><span class="inl-ic">${ic("chat")}</span>${t("week.open_phrases").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}</a></p>
   ${(()=>{const p=currentPos();return trackDays().map(d=>{const dd=wk.days[d];const done=S.days[dayKey(w,d)];
     const locked=pathLocked(w,d),here=!locked&&!done&&p.w===w&&p.d===d;
     return `<div class="day-row ${done?'done':''} ${locked?'locked':''} ${here?'here':''}" onclick="${locked?'pathNudge()':`go('session',${w},'${d}')`}" ${locked?'aria-disabled="true"':''}>
@@ -12980,7 +13012,7 @@ function rLibSaved(el){
         ${PM["p"+p.ix]?`<span class="chip done" style="flex:none">${t("lib.mastered_chip")}</span>`:""}
       </div>
     </div>`).join("")
-  :emptyState("bookmark",t("lib.empty_saved_title"),t("lib.empty_saved_body"),t("lib.go_phrases"),"go('phrases')")}`;
+  :emptyState("bookmark",t("lib.empty_saved_title"),t("lib.empty_saved_body"),t("lib.go_phrases"),"go('phrasebank')")}`;
   manIconizeInline(el);
 }
 /* ---- Library › Business idioms ---- */
@@ -13401,7 +13433,7 @@ const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
 const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
-let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null};
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false};
 let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
 function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function exLang(){return (S.profile&&S.profile.lang)||"en"}
@@ -13428,7 +13460,7 @@ function exLastHTML(){
   bits.push(t("ex.last_fill",{n:m.fillerN||0}));
   return `<button class="ex-last" onclick="exOpenLast()"><span class="btn-ic">${ic("chart")}</span><span><b>${esc(t("ex.last_h"))}</b> · ${bits.join(" · ")}</span><span class="ex-last-go">›</span></button>`;
 }
-window.exOpenLast=()=>{const r=exReps()[0];if(!r)return;ex.report=r;ex.blob=null;exSetUrl(null);exRenderReport(r)};
+window.exOpenLast=()=>{const r=exReps()[0];if(!r)return;ex.report=r;ex.blob=null;exSetUrl(null);ex.showReport=true;exRenderReport(r)};
 function exCardHTML(){
   return `<div class="card ex-card" id="exCard">
     <div class="ex-head">
@@ -13442,19 +13474,34 @@ function exCardHTML(){
     <div id="exStage">${exIdleHTML()}</div>
   </div>`;
 }
+/* The box holds what you said: the transcript lands in it after a recording,
+   or you type / paste. Mic records (up to EX_MAX_S), the bin clears, Polish it
+   runs the analysis on the box — with the recording's audio numbers when the
+   text is still the transcript of that recording (ex.take). */
 function exIdleHTML(){
+  const txt=ex.draft||"";
   return `${exPromptHTML()}
-    <button class="ex-recbtn" id="exRecBtn" onclick="exRecord()"><span class="ex-rec-ic">${ic("mic")}</span><span class="ex-rec-l"><b>${esc(t("ex.rec_btn"))}</b><small>${esc(t("ex.rec_sub",{s:EX_MAX_S}))}</small></span></button>
+    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="4" class="grow-ta ex-ta" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea></div>
+    <div class="ex-btnrow">
+      <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
+      <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
+    </div>
+    <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
     <p class="ex-status" id="exSt"></p>
-    ${exLastHTML()}
-    <details class="home-more ex-sec ex-paste">
-      <summary><span class="btn-ic">${ic("doc")}</span>${t("ex.paste_h")}<span class="hm-chev">▶</span></summary>
-      <div class="home-more-body">
-        <textarea id="exIn" rows="4" placeholder="${esc(t("ex.paste_ph"))}" style="width:100%;resize:vertical;min-height:84px;font-family:inherit;line-height:1.5"></textarea>
-        <button class="btn btn-g ex-paste-btn" onclick="exAnalyseText()">${tIc("ex.paste_btn","sparkle")}</button>
-      </div>
-    </details>`;
+    ${exLastHTML()}`;
 }
+window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
+window.exClear=()=>{if(ex.phase==="rec")return;ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exStatus("")};
+/* Polish it: the recording's audio goes with its own transcript; edited or
+   typed text is measured as text only. */
+window.exPolish=()=>{
+  if(ex.phase!=="idle")return;
+  const ta=document.getElementById("exIn"),text=ta?ta.value.replace(/\s+/g," ").trim():"";
+  if(!text||text.split(" ").length<5)return toast(t("ex.type_first_toast"));
+  const tk=ex.take;
+  if(tk&&tk.text===text)exRun({blob:tk.blob,secs:tk.secs,pre:tk});
+  else exRun({text});
+};
 function exStage(html){const s=document.getElementById("exStage");if(s){s.innerHTML=html;manIconizeInline(s)}}
 function exStatus(msg){const st=document.getElementById("exSt");if(st)st.textContent=msg||""}
 function exSetUrl(u){if(ex.url){try{URL.revokeObjectURL(ex.url)}catch(e){}}ex.url=u}
@@ -13488,7 +13535,7 @@ window.exRecord=async()=>{
     };
     mr.start(1000);
     const b=document.getElementById("exRecBtn");
-    if(b){b.classList.add("is-live");b.querySelector(".ex-rec-l").innerHTML=`<b id="exTimer">${exFmtS(0)} / ${exFmtS(EX_MAX_S)}</b><small>${esc(t("ex.rec_stop"))}</small>`}
+    if(b){b.classList.add("is-live");const tm=document.getElementById("exTimer");if(tm)tm.textContent=exFmtS(0)+" / "+exFmtS(EX_MAX_S)}
     exStatus(t("ex.rec_hint"));
     ex.tick=setInterval(()=>{const tm=document.getElementById("exTimer");if(tm)tm.textContent=exFmtS((Date.now()-ex.t0)/1000)+" / "+exFmtS(EX_MAX_S)},250);
     ex.stopT=setTimeout(exStopRec,EX_MAX_S*1000);   /* a minute is the exercise; ninety seconds is the ceiling */
@@ -13496,15 +13543,10 @@ window.exRecord=async()=>{
 };
 function exStopRec(){
   clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
-  const b=document.getElementById("exRecBtn");if(b)b.classList.remove("is-live");
+  const b=document.getElementById("exRecBtn");if(b){b.classList.remove("is-live");const tm=document.getElementById("exTimer");if(tm)tm.textContent=""}
   try{if(ex.mr&&ex.mr.state==="recording")ex.mr.stop();else exReset()}catch(e){exReset()}
 }
-window.exAnalyseText=()=>{
-  const el=document.getElementById("exIn"),text=el?el.value.replace(/\s+/g," ").trim():"";
-  if(!text)return toast(t("ex.type_first_toast"));
-  if(text.split(" ").length<5)return toast(t("ex.type_first_toast"));
-  exRun({text});
-};
+window.exAnalyseText=()=>exPolish();   /* old name, kept for the walkthrough */
 
 /* ---------- the pipeline ---------- */
 function exWaitHTML(step){
@@ -13520,19 +13562,22 @@ async function exRun(src){
   ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
   exStage(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));
   let text=src.text||"",words=null,audio=null,sttFailed=false;
-  if(src.blob){
+  if(src.pre){text=src.pre.text;words=src.pre.words;audio=src.pre.audio}   /* Polish it on the box that still holds this recording's transcript */
+  else if(src.blob){
     /* transcript and audio numbers in parallel — the audio pass is local */
     const [tx,au]=await Promise.all([exTranscribe(src.blob),exAudioStats(src.blob)]);
     audio=au;
     if(tx&&tx.text){text=tx.text;words=tx.words}else sttFailed=true;
     if(!audio)audio={dur:src.secs||0,pitch:null,pauses:[]};
     if(!audio.dur)audio.dur=src.secs||0;
+    if(text)ex.take={blob:src.blob,secs:src.secs,text,words,audio};
   }
   if(!text){
     ex.phase="idle";exStage(exIdleHTML());exStatus(t("ex.stt_off"));
-    const d=document.querySelector(".ex-paste");if(d)d.open=true;
+    const ta=document.getElementById("exIn");if(ta)ta.focus();
     return;
   }
+  ex.draft=text;
   exStep(t("ex.step_measure"));
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
@@ -13541,7 +13586,7 @@ async function exRun(src){
   ex.report=rep;
   const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
-  ex.phase="idle";
+  ex.phase="idle";ex.showReport=true;
   exRenderReport(rep);
 }
 async function exTranscribe(blob){
@@ -13750,6 +13795,57 @@ function exActs(s,lead){return `<div class="ex-acts">
   <button class="btn btn-g" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button></div>`}
 function exSec(icon,eyebrow,sub){return `<div class="ex-sechead"><span class="ex-sec-ic">${ic(icon)}</span><div><div class="ex-eyebrow">${esc(eyebrow)}</div>${sub?`<div class="ex-sec-sub">${esc(sub)}</div>`:""}</div></div>`}
 function exQuote(label,body,cls){return `<div class="ex-q ${cls||""}">${label?`<span class="ex-q-l">${esc(label)}</span>`:""}<p>${esc(body)}</p></div>`}
+/* The same thing, said two other ways — every fact kept, the new phrases and
+   idioms marked, each one savable to the learner's words. */
+function exMark(text,learn){
+  let h=esc(text);
+  (learn||[]).forEach(l=>{const e=esc(l).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");h=h.replace(new RegExp(e,"i"),m=>`<mark class="ex-mark">${m}</mark>`)});
+  return h;
+}
+function exVersionsHTML(ai){
+  const vs=(ai&&Array.isArray(ai.versions))?ai.versions.filter(v=>v&&v.text):[];
+  if(!vs.length)return "";
+  return `<section class="ex-block ex-versions">
+    ${exSec("sparkle",t("ex.versions_h"),t("ex.versions_sub"))}
+    ${vs.map((v,i)=>`<div class="ex-version">
+      <div class="ex-ver-k"><span class="ex-ver-n">${i+1}</span>${esc(v.style||"")}</div>
+      <p class="ex-ver-t">${exMark(v.text,v.learn)}</p>
+      ${v.learn&&v.learn.length?`<div class="ex-k">${esc(t("ex.version_new"))}</div><div class="ex-learn">${v.learn.map(l=>`<button class="ex-learn-chip" onclick="exSaveTerm(${jarg(l)},'',${jarg(v.text)},this)">${ic("bookmark")} ${esc(l)}</button>`).join("")}</div>`:""}
+      ${exActs(v.text,i===0)}
+    </div>`).join("")}
+  </section>`;
+}
+/* "This is a new idiom you should be learning" — three the learner did not use,
+   each with its meaning, when it fits, and a sentence on their own topic. */
+function exIdiomsHTML(ai){
+  const ids=(ai&&Array.isArray(ai.idioms))?ai.idioms.filter(x=>x&&x.idiom):[];
+  if(!ids.length)return "";
+  return `<section class="ex-block ex-idioms">
+    ${exSec("briefcase",t("ex.idioms_h"),t("ex.idioms_sub"))}
+    ${ids.map(x=>`<div class="ex-idiom">
+      <div class="ex-idiom-tag">${ic("sparkle")} ${esc(t("ex.idiom_new"))}</div>
+      <p class="ex-idiom-t">“${esc(x.idiom)}”</p>
+      <p class="ex-p"><b>${esc(t("ex.idiom_meaning"))}</b> ${esc(x.meaning)}</p>
+      ${x.when?`<p class="ex-p"><b>${esc(t("ex.idiom_when"))}</b> ${esc(x.when)}</p>`:""}
+      ${x.example?`<p class="ex-p ex-ex">${esc(x.example)}</p>`:""}
+      <div class="ex-acts">
+        <button class="btn btn-g" onclick="fbSay(${jarg(x.example||x.idiom)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="fbSay(${jarg(x.example||x.idiom)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+        <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(x.idiom)},${jarg(x.meaning)},${jarg(x.example||"")},this)">${tIc("ex.save_btn","bookmark")}</button>
+      </div>
+    </div>`).join("")}
+  </section>`;
+}
+/* Into the learner's own words (spaced repetition, the games), with the
+   meaning and the example so a flashcard has something to show. */
+window.exSaveTerm=(term,meaning,example,btn)=>{
+  term=String(term||"").replace(/…/g,"").trim().replace(/\s+/g," ");if(!term)return;
+  const e=vocPut(term,cefr(term)||"B2");
+  Object.assign(e,{meaning:meaning||e.meaning||"",example:example||e.example||"",ctx:t("ex.report_eyebrow"),src:{ex:true,at:Date.now()}});
+  try{const store=vocDefStore();store[term]={def:meaning||"",example:example||"",pos:t("ex.report_eyebrow"),ts:Date.now()};vocDefSave()}catch(x){}
+  save();toast(t("ex.saved_toast",{w:term}));
+  if(btn){btn.disabled=true;btn.innerHTML=ic("check")+" "+esc(term);manIconizeInline(btn)}
+};
 function exRenderReport(rep){
   const m=rep.m,ai=rep.ai,prev=exReps().find(r=>r!==rep&&r.at<rep.at)||null;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
@@ -13762,6 +13858,9 @@ function exRenderReport(rep){
       <p class="ex-rep-meta">${esc(m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words}))}</p>
     </div>
     ${rep.sttFailed?`<p class="ex-note">${esc(t("ex.stt_off"))}</p>`:""}
+
+    ${exVersionsHTML(ai)}
+    ${exIdiomsHTML(ai)}
 
     <section class="ex-block">
       ${exSec("gauge",t("ex.delivery_h"),t("ex.delivery_sub"))}
@@ -13835,7 +13934,7 @@ function exRenderReport(rep){
   const top=document.getElementById("exCard");
   if(top){try{top.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}
 }
-window.exAgain=()=>{exSetUrl(null);ex.blob=null;exStage(exIdleHTML());const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
+window.exAgain=()=>{exSetUrl(null);ex.blob=null;ex.take=null;ex.draft="";ex.showReport=false;exStage(exIdleHTML());const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
 /* Kept for the smoke test and any old bookmark of the walkthrough. */
 window.exHow=()=>howOpen("polish");
 
@@ -13843,7 +13942,7 @@ window.exHow=()=>howOpen("polish");
 /* Phrase Lab is split in two: professional phrases and business idioms.
    The week chips above still filter which week you're looking at. */
 let _phKind="phrases";
-window.phKind=k=>{_phKind=k;const el=document.getElementById("v-phrases");if(el)rPhrases(el,cur.arg1);try{stickBackSync()}catch(e){}};
+window.phKind=k=>{_phKind=k;const el=document.getElementById("v-phrasebank");if(el)rPhraseBank(el,cur.arg1);try{stickBackSync()}catch(e){}};
 /* The week label used to be a grey line of text at the top of the list — by the
    third phrase card it had scrolled away, so a learner deep in the list had no
    idea which week they were reading, and no way back to the week that sent them
@@ -13874,6 +13973,7 @@ function phWeekBarHTML(w){
    screen it is describing; the leading emoji is stripped the way tIc does. */
 function exdLbl(k){return t(k).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}
 const EX_SHARPER="I lead the night shift, and my team has cut rework by a third this year.";
+const EX_SHARPER2="The bottom line: under my lead, the night shift has cut rework by a third this year — and we are on track to keep it there.";
 const HOW_SEEN="be_how_";
 function howSeen(id){try{return !!localStorage.getItem(HOW_SEEN+id)}catch(e){return false}}
 function howMark(id){try{localStorage.setItem(HOW_SEEN+id,"1")}catch(e){}}
@@ -13892,20 +13992,21 @@ function howPoint(sel){
 const HOW={
   polish:{
     title:"ex.how_title", lead:"ex.how_lead",
-    view:"phrases", point:"#exRecBtn",
+    view:"phrases", point:".ex-polish",
     art:[
       ()=>`<div class="exd"><div class="exd-head"><b>${esc(exdLbl("ph.exec_title"))}</b><span class="exd-chip">${esc(t("ph.exec_tag"))}</span></div>
-        <div class="exd-box" style="min-height:0"><span class="exd-res-lbl">${esc(t("ex.prompt_h"))}</span>${esc(t("ex.prompt_1"))}</div>
-        <span class="exd-b exd-go exd-rec exd-ring">${ic("mic")}${esc(exdLbl("ex.rec_btn"))}</span></div>`,
+        <div class="exd-box" style="min-height:0;color:var(--mut)">${esc(t("ex.in_ph"))}</div>
+        <div style="display:flex;gap:8px;margin:8px 0"><span class="exd-b exd-rec exd-ring" style="flex:1;justify-content:center">${ic("mic")}</span><span class="exd-b" style="flex:1;justify-content:center">${ic("trash")}</span></div>
+        <span class="exd-b exd-go">${ic("sparkle")}${esc(t("ex.polish_btn"))}</span></div>`,
       ()=>`<div class="exd exd-center"><div class="exd-res-lbl">${esc(t("ex.report_eyebrow"))}</div><b class="exd-big">${esc(t("ex.listening_h"))}</b>
         <div class="exd-wave">${[6,11,4,14,8,13,5,10,7,12,4,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
         <small>${esc(t("ex.step_measure"))}</small></div>`,
-      ()=>`<div class="exd"><div class="exd-res-lbl">${esc(t("ex.delivery_h"))} · ${esc(t("ex.delivery_sub"))}</div>
-        <div class="exd-stats"><span><b>128</b>${esc(t("ex.wpm"))}<i>${esc(t("ex.b_pace_ok"))}</i></span><span><b>2.7</b>${esc(t("ex.semis"))}<i>${esc(t("ex.b_expressive"))}</i></span><span><b>3</b>${esc(t("ex.hes"))}<i>${esc(t("ex.b_few"))}</i></span></div>
-        <div class="exd-res on exd-fade"><div class="exd-res-lbl">${esc(t("ex.sharper"))}</div><p>${esc(EX_SHARPER)}</p></div>
-        <div class="exd-chg">${esc(t("ex.fillers"))}: um <b>×3</b> · ${esc(t("ex.hedges"))}: I think <b>×2</b></div></div>`,
-      ()=>`<div class="exd"><div class="exd-res on"><div class="exd-res-lbl">${esc(t("ex.next_rec"))}</div><p>${esc(t("ex.how_demo_next"))}</p></div>
-        <span class="exd-b exd-go exd-rec exd-ring" style="margin-top:8px">${ic("mic")}${esc(exdLbl("ex.again_btn"))}</span></div>`
+      ()=>`<div class="exd"><div class="exd-res-lbl">${esc(t("ex.versions_h"))}</div>
+        <div class="exd-res on exd-fade"><div class="exd-res-lbl">1 · Clear and direct</div><p>${esc(EX_SHARPER)}</p></div>
+        <div class="exd-res on exd-fade" style="animation-delay:.5s"><div class="exd-res-lbl">2 · Executive polish</div><p>${esc(EX_SHARPER2)}</p></div>
+        <div class="exd-chg">${esc(t("ex.fillers"))}: um <b>×3</b> · ${esc(t("ex.hedges"))}: I think <b>×2</b> · 128 ${esc(t("ex.wpm"))}</div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on"><div class="exd-res-lbl">${esc(t("ex.idiom_new"))}</div><p><b>“get it over the line”</b><br><small>${esc(t("ex.how_demo_idiom"))}</small></p></div>
+        <span class="exd-b exd-go" style="margin-top:8px">${ic("bookmark")}${esc(t("ex.save_btn"))}</span></div>`
     ]
   },
   interview:{
@@ -14162,18 +14263,36 @@ window.howOpen=id=>{
   });
   document.addEventListener("keydown",key);
 };
-function rPhrases(el,wFilter){
+/* The Phrase Lab tab IS Executive Polish (owner, 2026-09-21): speak → two
+   other versions of what you said, with the idioms and professional phrases
+   they introduce → the analysis report → new idioms to learn. The week's
+   phrase and idiom lists moved to their own page, the phrase bank
+   (`rPhraseBank`, go('phrasebank', w)), linked from the bottom of this page,
+   from the week cards and from the Home stat. */
+function rPhrases(el){
   /* The Polish walkthrough opens itself once, on the first visit: a record
      button with nothing explaining what comes back was meeting people cold.
      After that it lives behind the "How it works" button in the card header. */
   if(!howSeen("polish"))setTimeout(()=>whenIdle(()=>{if(cur&&cur.v==="phrases")howOpen("polish")}),700);
   if(ex.phase==="rec")exReset();               /* a re-render mid-recording drops the take rather than leaving the mic open */
+  el.innerHTML=`
+  <div class="eyebrow pg-eyebrow">${t("ex.page_eyebrow")}</div>
+  <h1 class="big">${t("ex.page_title")}</h1>
+  <p class="sub">${t("ex.page_sub")}</p>
+  ${exCardHTML()}
+  <button class="card ex-bank-link" onclick="go('phrasebank')"><span class="btn-ic">${ic("chat")}</span><span><b>${esc(t("ex.bank_link"))}</b><small>${esc(t("ex.bank_sub"))}</small></span><span class="ex-last-go">›</span></button>`;
+  manIconizeInline(el);
+  if(ex.phase==="busy")exStage(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
+  else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}
+}
+/* ---- the phrase bank: this week's professional phrases and business idioms ---- */
+function rPhraseBank(el,wFilter){
   const w=wFilter||currentPos().w;
   el.innerHTML=`
+  <button class="back stick-back" onclick="go('phrases')">‹ ${esc(t("ph.exec_title").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</button>
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
   <h1 class="big">${t("ph.title")}</h1>
   <p class="sub">${t("ph.sub")}</p>
-  ${exCardHTML()}
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
     <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
@@ -14219,7 +14338,6 @@ function rPhrases(el,wFilter){
   taGrow(document.getElementById("phSpTa"));
   renderSpeechRecs();
   manIconizeInline(el);segSync(el);
-  if(ex.phase==="busy")exStage(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a list re-render */
 }
 /* ---- Your full speech: every example sentence of this week, in order ---- */
 let _phItems=[],_phWeek=1;
@@ -14300,7 +14418,7 @@ window.phMaster=async k=>{
   }
   PM[k]=!PM[k];
   if(PM[k])awardCompetency({activityType:"phrase_lab",lesson:"Phrase Lab",duration:1,dedupeKey:"phrase:"+k});
-  save();go("phrases",cur.arg1);
+  save();go("phrasebank",cur.arg1);
 };
 /* Tap to record, tap again to stop. Shared by the phrase cards and the
    full-speech box, which only differ by where the clip is filed. */
@@ -19632,7 +19750,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
+  const valid=["home","journey","phrases","phrasebank","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);

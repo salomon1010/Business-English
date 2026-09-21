@@ -417,14 +417,18 @@ async function callAnalyse(env, transcript, metrics, lang) {
     '"remember_title":"<3-8 words>","remember_body":"<two sentences>",' +
     '"next_recording":"<the exact task for the next 60-second recording>",' +
     '"quick_win_title":"<3-8 words>","quick_win_goal":"<one measurable goal>",' +
-    '"concept_title":"<a speaking principle they just used or need, 2-5 words>","concept_body":"<one sentence tying it to their speech>"} ' +
-    "structure has 3 to 5 items of at most 6 words each; hedges has 0 to 3 items.";
+    '"concept_title":"<a speaking principle they just used or need, 2-5 words>","concept_body":"<one sentence tying it to their speech>",' +
+    '"versions":[{"style":"<2-4 words naming the register, e.g. Clear and direct / Executive polish>","text":"<the WHOLE speech said again in that register>","learn":["<each professional phrase or business idiom this version introduced, exact words as they appear in text>"]}],' +
+    '"idioms":[{"idiom":"<a professional idiom or executive phrase the learner did NOT use>","meaning":"<plain meaning, one line>","when":"<the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
+    "structure has 3 to 5 items of at most 6 words each; hedges has 0 to 3 items. " +
+    "versions has EXACTLY 2 items: two different ways the learner could have said the same thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler, no hedging; version 1 plain and direct (B1), version 2 polished executive English (B2-C1). Each version must weave in 2 or 3 professional phrases or business idioms naturally and list them in learn, and versions and their learn items are always in English. " +
+    "idioms has EXACTLY 3 items: NEW professional idioms or executive phrases (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation; idiom and example in English, meaning and when in " + language + ".";
   const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics);
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
     body: JSON.stringify({
-      model: AN_MODEL, max_tokens: 1100, temperature: 0.5,
+      model: AN_MODEL, max_tokens: 2600, temperature: 0.5,
       response_format: { type: "json_object" },
       messages: [{ role: "system", content: system }, { role: "user", content: user }],
     }),
@@ -440,6 +444,13 @@ async function callAnalyse(env, transcript, metrics, lang) {
   out.hedges = (Array.isArray(p.hedges) ? p.hedges : [])
     .map(h => h && typeof h === "object" ? { said: anStr(h.said, 60), better: anStr(h.better, 160) } : null)
     .filter(h => h && h.said && h.better).slice(0, 3);
+  /* two full versions of what they said (owner, 2026-09-21) + three idioms to learn */
+  out.versions = (Array.isArray(p.versions) ? p.versions : [])
+    .map(v => v && typeof v === "object" ? { style: anStr(v.style, 40), text: anStr(v.text, 1600), learn: (Array.isArray(v.learn) ? v.learn : []).map(x => anStr(x, 60)).filter(Boolean).slice(0, 4) } : null)
+    .filter(v => v && v.text.split(" ").length >= 8).slice(0, 2);
+  out.idioms = (Array.isArray(p.idioms) ? p.idioms : [])
+    .map(x => x && typeof x === "object" ? { idiom: anStr(x.idiom, 60), meaning: anStr(x.meaning, 160), when: anStr(x.when, 160), example: anStr(x.example, 220) } : null)
+    .filter(x => x && x.idiom && x.meaning).slice(0, 3);
   return out;
 }
 
