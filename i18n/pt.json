@@ -2422,5 +2422,8 @@
  "sv.sh_stop": "Parar",
  "sv.sh_replay": "Repetir",
  "sv.sh_tr_wait": "A traduzir…",
- "sv.sh_tr_err": "A tradução precisa de ligação. Tente de novo daqui a pouco."
+ "sv.sh_tr_err": "A tradução precisa de ligação. Tente de novo daqui a pouco.",
+ "sv.sh_fav": "Guardar em Os meus clipes",
+ "sv.sh_unfav": "Remover de Os meus clipes",
+ "sv.sh_unfav_toast": "Removido de Os meus clipes."
 }

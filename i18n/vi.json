@@ -2422,5 +2422,8 @@
  "sv.sh_stop": "Dừng",
  "sv.sh_replay": "Nghe lại",
  "sv.sh_tr_wait": "Đang dịch…",
- "sv.sh_tr_err": "Dịch cần kết nối mạng. Thử lại sau giây lát."
+ "sv.sh_tr_err": "Dịch cần kết nối mạng. Thử lại sau giây lát.",
+ "sv.sh_fav": "Lưu vào Clip của tôi",
+ "sv.sh_unfav": "Bỏ khỏi Clip của tôi",
+ "sv.sh_unfav_toast": "Đã bỏ khỏi Clip của tôi."
 }

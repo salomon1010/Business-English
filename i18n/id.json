@@ -2422,5 +2422,8 @@
  "sv.sh_stop": "Berhenti",
  "sv.sh_replay": "Putar ulang",
  "sv.sh_tr_wait": "Menerjemahkan…",
- "sv.sh_tr_err": "Terjemahan butuh koneksi. Coba lagi sebentar lagi."
+ "sv.sh_tr_err": "Terjemahan butuh koneksi. Coba lagi sebentar lagi.",
+ "sv.sh_fav": "Simpan ke Klip saya",
+ "sv.sh_unfav": "Hapus dari Klip saya",
+ "sv.sh_unfav_toast": "Dihapus dari Klip saya."
 }

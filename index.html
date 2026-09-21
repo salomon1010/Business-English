@@ -1378,6 +1378,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-shbar-rec.on .sv-shbar-mic{background:var(--red);animation:svchpulse 1.2s infinite}.sv-shbar-time{font-family:ui-monospace,monospace;font-size:12px;color:var(--red)}
 /* the paragraph card */
 .sv-sh-hd{display:flex;align-items:center;gap:8px;margin:2px 0 8px}.sv-sh-title{flex:1;font-weight:700;font-size:14px}.sv-sh-nav{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut2)}.sv-sh-nav .sv-ch-play,.sv-sh-hd>.sv-ch-play{min-height:36px;padding:0 10px}
+.sv-sh-fav.on{background:var(--bg2);color:var(--gold);border-color:color-mix(in srgb,var(--gold) 55%,transparent)}.sv-sh-fav.on svg{fill:var(--gold)}
 .sv-sh-card{padding:14px 14px 12px;border-radius:14px;background:var(--card2);border:1px solid var(--line2)}
 .sv-sh-words{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:12px}.sv-sh-w{background:none;border:0;padding:0 0 3px;font:inherit;font-size:19px;font-weight:700;color:var(--txt);border-bottom:2px solid color-mix(in srgb,var(--txt) 35%,transparent);cursor:pointer}.sv-sh-w:active{color:var(--acc);border-bottom-color:var(--acc)}
 .sv-sh-text{font-size:14px;line-height:1.6;color:var(--mut);margin:0}
@@ -5101,7 +5102,7 @@ const I18N_EN={
  "sv.level_sentence":"Sentence highlighting — this clip's captions have no word timing.",
  "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
  "sv.challenge_note":"Listen and say it before you look.",
- "sv.sh_original":"Original transcript","sv.sh_hint":"The clip loops on this paragraph. Tap a word to hear it, translate it, then record.","sv.sh_translate":"Translate","sv.sh_hear":"Hear it","sv.sh_speed":"Speed","sv.sh_record":"Record","sv.sh_stop":"Stop","sv.sh_replay":"Replay","sv.sh_tr_wait":"Translating…","sv.sh_tr_err":"Translation needs a connection. Try again in a moment.",
+ "sv.sh_original":"Original transcript","sv.sh_fav":"Save to My clips","sv.sh_unfav":"Remove from My clips","sv.sh_unfav_toast":"Removed from My clips.","sv.sh_hint":"The clip loops on this paragraph. Tap a word to hear it, translate it, then record.","sv.sh_translate":"Translate","sv.sh_hear":"Hear it","sv.sh_speed":"Speed","sv.sh_record":"Record","sv.sh_stop":"Stop","sv.sh_replay":"Replay","sv.sh_tr_wait":"Translating…","sv.sh_tr_err":"Translation needs a connection. Try again in a moment.",
  "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
  "sv.reveal":"Reveal","sv.hide":"Hide again",
  "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript","sv.tx_btn":"Transcript",
@@ -14941,7 +14942,7 @@ function svShHTML(){
   const words=sg.text.split(/\s+/).filter(Boolean).map(w=>`<button class="sv-sh-w" onclick="fbSay('${esc(w.replace(/[^A-Za-z0-9'’-]/g,"")).replace(/'/g,"\\'")}',1)">${esc(w)}</button>`).join(" ");
   const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
   return `<div class="sv-sh" id="svSh">
-    <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play" onclick="shSaveClip()" aria-label="${esc(t("sh.save_clip_btn").replace(/^\S+\s*/,""))}">${ic("star")}</button></div>
+    <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
       <div class="sv-sh-words">${words}</div>
       <p class="sv-sh-text">${esc(sg.text)}</p>
@@ -14965,6 +14966,16 @@ function svShEnter(){
   }
   const nb=document.getElementById("shNote");if(nb&&nb.value.trim()!==sg.text){nb.value=sg.text;try{taGrow(nb)}catch(e){}}
 }
+/* the star: this paragraph's clip in My clips, or not */
+function svShFavAt(){const g=svShGroup();if(!g||!shClip.vid)return -1;const st=Math.floor(g.startMs/100)/10;return aList("clips").findIndex(c=>c.vid===shClip.vid&&Math.abs((c.start||0)-st)<0.06)}
+function svShFavOn(){return svShFavAt()>=0}
+window.svShFav=()=>{
+  const g=svShGroup();if(!g||!shClip.vid)return;const i=svShFavAt(),L=aList("clips");
+  if(i>=0){L.splice(i,1);save();toast(t("sv.sh_unfav_toast"))}
+  else{L.unshift({vid:shClip.vid,start:Math.floor(g.startMs/100)/10,end:Math.floor(g.endMs/100)/10,title:shClip.title||shClip.vid,ts:Date.now(),txt:g.text});save();toast(t("sh.clip_saved_toast"))}
+  try{shRenderClips()}catch(e){}
+  const b=document.querySelector("#svSh .sv-sh-fav");if(b){b.classList.toggle("on",i<0);b.setAttribute("aria-pressed",String(i<0));b.setAttribute("aria-label",t(i<0?"sv.sh_unfav":"sv.sh_fav"))}
+};
 window.svShStep=d=>{const ps=svParas(svAsset),k=ps.findIndex(p=>p.from===svShGroup().from)+d;if(k<0||k>=ps.length)return;svShPara=ps[k].from;svRender();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShReplay=()=>{if(!svAsset)return;svChStopAll();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShSpeed=()=>{shRate();svShBarSync()};

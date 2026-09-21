@@ -2422,5 +2422,8 @@
  "sv.sh_stop": "Stop",
  "sv.sh_replay": "Réécouter",
  "sv.sh_tr_wait": "Traduction…",
- "sv.sh_tr_err": "La traduction a besoin d'une connexion. Réessayez dans un instant."
+ "sv.sh_tr_err": "La traduction a besoin d'une connexion. Réessayez dans un instant.",
+ "sv.sh_fav": "Ajouter à Mes clips",
+ "sv.sh_unfav": "Retirer de Mes clips",
+ "sv.sh_unfav_toast": "Retiré de Mes clips."
 }
