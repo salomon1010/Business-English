@@ -64,7 +64,7 @@
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
-<script src="conversation-orchestrator.js?v=81"></script>
+<script src="conversation-orchestrator.js?v=82"></script>
 <script src="shadow-sync.js?v=5"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
@@ -12383,13 +12383,12 @@ function simShowSpeaker(c,sc){
    played in order. finish(message) hands the finished message over so the
    usual "Your turn" hand-off happens when the last sentence ends. If the
    natural voice is not available this returns null and the plain path runs. */
-/* The speaker is presumed to be whoever spoke last, because the voice must
-   start before the model has finished. When the scenario hands over — the
-   supervisor steps in after the recruiter — the Worker names the new person
-   first ({c}), and setCharacter() switches the voice, the name and the face
-   before a word is heard. If the name only arrives with the finished reply,
-   finish() still switches whatever has not played yet: a woman's line was
-   being read in a man's voice, and vice versa, for the whole turn. */
+/* Who speaks is the scenario engine's decision, and the orchestrator reports
+   it through onCharacter before it asks the model for a word — so the voice,
+   the name and the face are that person's from the first sentence. The
+   presumed speaker only covers the instant before that call. finish() applies
+   the same switch as a last resort, so nothing not yet played can go out in
+   another character's voice. */
 function simStreamSpeaker(sc,presumedCharacterId){
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
   if(!canNatural)return null;
@@ -12662,8 +12661,10 @@ async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finishe
      voiced at once, so the colleague starts answering before the model has
      finished. The micro-learning line, if any, is said first. */
   const speaker=simStreamSpeaker(sc,simRun.lastSpeakerId);
-  if(speaker&&microLearning)speaker.push(`${microLearning} Great.`);
-  const result=await ConversationOrchestrator.respond(simRun,text,speaker?{onSentence:s=>speaker.push(s),onCharacter:id=>speaker.setCharacter(id)}:undefined);
+  /* The micro-learning line is queued once the speaker is known, so it is said
+     by the person who is about to answer, not by whoever spoke last. */
+  const hooks=speaker?{onCharacter:id=>{speaker.setCharacter(id);if(microLearning)speaker.push(`${microLearning} Great.`)},onSentence:s=>speaker.push(s)}:undefined;
+  const result=await ConversationOrchestrator.respond(simRun,text,hooks);
   simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();
   if(result.complete){if(speaker)speaker.cancel();return simComplete(true)}
   simRefresh();

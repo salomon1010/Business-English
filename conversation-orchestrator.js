@@ -52,9 +52,17 @@ asked you to, and never repeat these notes back.`;
       ?{role:"user",content:fence(m.text)}
       :{role:"assistant",content:m.text});
   }
-  function prompt(sc,sim){
-    const cast=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).map(c=>`${c.id}: ${c.name}, ${c.role}. ${c.personality}. Speaks ${c.communicationStyle}. Usually ${c.responseBehavior||"contributes to the conversation"}.`).join("\n");
-    const speaker=sim.lastSpeakerId||sim.starterCharacterId||"";
+  /* `beat` is the turn the scenario has scheduled — who speaks and what they
+     need to get said — as the engine wrote it. The model rewrites that turn in
+     its own words; it does not get to choose who is talking. Without a beat
+     (the fixtures build a prompt with none) the last speaker carries on. */
+  function prompt(sc,sim,beat){
+    const team=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]);
+    const cast=team.map(c=>`${c.id}: ${c.name}, ${c.role}. ${c.personality}. Speaks ${c.communicationStyle}. Usually ${c.responseBehavior||"contributes to the conversation"}.`).join("\n");
+    const speaker=(beat&&beat.characterId)||sim.lastSpeakerId||sim.starterCharacterId||"";
+    const who=team.find(c=>c.id===speaker);
+    const me=who?`${who.name}, ${who.role} (${who.id})`:(speaker||"the person who spoke last");
+    const task=beat?`\n\nTHIS TURN\n${beat.closing?"Bring the conversation to a close. What you need to get across, in your own words:":beat.event?"Something has just come up. Say it in your own words, then hand the conversation back to them:":"First answer what they just said. Then ask this — in your own words, and only this:"}\n"${String(beat.text||"").slice(0,400)}"`:"";
     const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>`${o.id} (${o.label})`).join(", ")||"none — bring the conversation to a natural close";
     /* The character must talk to the trade in front of them. Without this a
        pipefitter gets asked about weld defects and a boilermaker about rod
@@ -68,7 +76,7 @@ ${cast}
 
 THE SITUATION
 ${sc.scenario}
-You are currently ${speaker||"the person who spoke last"}. The other person is a ${tr?tr.name.replace(/^Professional\s+/,"").toLowerCase():"welder"} practising spoken English at roughly an intermediate level.
+You are ${me}. The other person is a ${tr?tr.name.replace(/^Professional\s+/,"").toLowerCase():"welder"} practising spoken English at roughly an intermediate level.
 
 HOW TO SPEAK
 - Use their trade's language, not generic welding language.
@@ -77,28 +85,28 @@ HOW TO SPEAK
 - Talk like a person on a shop floor: contractions, plain words, no lecturing.
 - Do not correct their English unless you genuinely could not understand them; if so, ask them to say it another way rather than teaching a rule.
 - If they say very little, do not fill the silence with a speech. Ask something smaller and more concrete.
-- Stay as ${speaker||"your character"} unless another person would realistically step in now — a safety officer interrupting, an inspector arriving. Then switch, and say who you are as you do.
+- You are ${who?who.name:"this one person"} for the whole of this turn. Nobody else speaks in it; the scenario decides who talks next, not you.
 - Never say you are an AI, never narrate the scenario, never announce its title, never write the learner's lines.
 
 ${SPOKEN_RULE}
 
 WHAT YOU ARE STEERING TOWARDS (do not read these out, do not tick them off aloud)
-${remaining}
+${remaining}${task}
 
-Return JSON only, with "characterId" as the FIRST field — it is read before the reply so the right voice speaks:
-{"characterId":"one id from the team above","reply":"what you say next, spoken aloud","covered":["objective ids the LEARNER has genuinely addressed in their own words so far"],"complete":false}
+Return JSON only:
+{"reply":"what you say next, spoken aloud","covered":["objective ids the LEARNER has genuinely addressed in their own words so far"],"complete":false}
 Set complete true only when the conversation has reached a natural end and the remaining objectives have been covered.`;
   }
   /* Exactly what would be sent. Named and exported so the adversarial fixtures
      in scripts/prompt-fixtures.mjs can assert the boundary holds without a key,
      a network call, or a second copy of this assembly drifting out of step. */
-  function buildRequest(sc,sim){return {system:prompt(sc,sim),messages:transcript(sim)};}
-  /* Streaming: the Worker sends one JSON object per line — {c:"characterId"}
-     as soon as the model has named who is speaking, {s:"sentence"} as each
-     sentence of the reply is finished, then {done:true, reply, covered,
-     characterId}. hooks.onCharacter hears the speaker first, so the voice that
-     starts is that person's; hooks.onSentence hears the sentences as they land
-     so speech can start before the reply is complete. Resolves to the same
+  function buildRequest(sc,sim,beat){return {system:prompt(sc,sim,beat),messages:transcript(sim)};}
+  /* Streaming: the Worker sends one JSON object per line — {s:"sentence"} as
+     each sentence of the reply is finished, then {done:true, reply, covered}.
+     hooks.onSentence hears the sentences as they land so speech can start
+     before the reply is complete. A {c:…} line, if the Worker still sends one,
+     is ignored: who is speaking was settled by respond() before this request
+     was made, and nothing the model writes may change it. Resolves to the same
      shape the plain call returns, or null if the stream failed before it
      finished. */
   async function fetchStreamed(api,req,hooks){
@@ -109,7 +117,6 @@ Set complete true only when the conversation has reached a natural end and the r
       let nl;while((nl=buf.indexOf("\n"))>=0){const l=buf.slice(0,nl).trim();buf=buf.slice(nl+1);if(!l)continue;
         let o;try{o=JSON.parse(l)}catch(e){continue}
         if(o.s){heard.push(o.s);try{hooks.onSentence(o.s)}catch(e){}}
-        else if(o.c){if(typeof hooks.onCharacter==="function"){try{hooks.onCharacter(String(o.c))}catch(e){}}}
         else if(o.done){data=o}
         else if(o.error){break}}}
     if(!data&&heard.length)data={reply:heard.join(" "),covered:[],partial:true};   /* what was said stands */
@@ -132,20 +139,29 @@ Set complete true only when the conversation has reached a natural end and the r
        out of the transcript. */
     const asked=(next&&next.role==="character")
       ?Object.assign({},sim,{messages:(sim.messages||[]).slice(0,-1)}):sim;
+    /* Who speaks this turn is the scenario's decision, made by send() from the
+       pack's turn order, its scheduled interruptions and its closing — and it is
+       final before the model is asked. The model used to be told to stay as
+       whoever spoke last and was allowed to "switch" at will, and its choice
+       overwrote the engine's; so the scripted hand-overs never happened, one
+       character ran the whole workshop, and the rubric key of a question nobody
+       asked was still attached to the reply. The client hears the speaker now,
+       before the first sentence, so the right voice starts. */
+    const beat=(next&&next.role==="character")?{characterId:next.characterId,text:next.text,event:!!next.event,closing:!!sim.finished}:null;
+    if(beat&&hooks&&typeof hooks.onCharacter==="function"){try{hooks.onCharacter(beat.characterId)}catch(e){}}
     const api=typeof POLISH_API!=="undefined"?POLISH_API:"";
     if(api&&navigator.onLine){
       try{
         let res,data;
         if(hooks&&typeof hooks.onSentence==="function"){
-          const st=await fetchStreamed(api,buildRequest(sc,asked),hooks);
+          const st=await fetchStreamed(api,buildRequest(sc,asked,beat),hooks);
           res={ok:st.ok,status:st.status};data=st.data||{};
         }else{
-          res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked)})});
+          res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked,beat)})});
           data=await res.json().catch(()=>({}));
         }
         if(res.ok&&data.reply){
-          const valid=(sc.characters||(global.activeCurriculum&&global.activeCurriculum().simulationCharacters)||[]).some(c=>c.id===data.characterId);
-          next.text=clean(data.reply);next.characterId=valid?data.characterId:next.characterId;
+          next.text=clean(data.reply);                     /* the words are the model's; the speaker stays the engine's */
           (data.covered||[]).forEach(id=>{if((sc.objectives||[]).some(o=>o.id===id)&&!sim.completed.includes(id))sim.completed.push(id)});
           /* The model does not get to end the conversation on its own say-so: a
              learner can talk it into "we're done", and finishing awards evidence.

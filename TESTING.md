@@ -91,3 +91,24 @@ To retest first-launch behavior, clear the site's storage first
 - Speech recognition: Chrome/Edge only (not Firefox; Safari partial)
 - BlueStacks: TWA splash may hang without Chrome installed in the emulator
 - iOS Safari: install via Share → Add to Home Screen; mic works, recognition may be limited
+
+## 13. Workplace scenarios (Welding) — who speaks
+Automated, no key or network needed:
+- `cd tests && node sim-identity.test.mjs` — engine + orchestrator in Node with a
+  faked Worker that always claims to be Maya: cast ids/voices are unique and
+  accepted by the Worker; every scenario's speakers follow the pack's `turns`,
+  `unexpectedEvents` and `closing`; the client is told the speaker
+  (`onCharacter`) before the first sentence; the prompt names that person and
+  no longer invites the model to switch; persisted runs replay the same
+  speakers; the Worker-down path follows the same order; General English has
+  no workshops.
+- `cd tests && node workshop.mjs` — headless Chromium, phone viewport,
+  "First Day on a Pipe Crew" through the UI (Practice → card → Talk to Maya →
+  briefing → start): the six turns run Daniel → Luis → Priya → Luis → Amelia →
+  Amelia, every TTS request of a turn carries that person's voice and the bar
+  and bubble show that name; identical text from two people is two clips;
+  refresh mid-conversation keeps every speaker and resumes with the next
+  scheduled person; two learner turns fired at once cross no voices.
+Manual, on a phone with the natural voice on: open the first-day workshop,
+choose Maya, answer six times; each hand-over should change name, face and
+voice together, and nobody should ever be heard in another person's voice.

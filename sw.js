@@ -7,7 +7,7 @@ const CACHE = "be12-v400";
    than visibly. */
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
   "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=79", "competency-engine.js?v=83", "learning-coach.js?v=84",
-  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=81", "shadow-sync.js?v=5", "adaptive-learning-engine.js?v=83",
+  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=82", "shadow-sync.js?v=5", "adaptive-learning-engine.js?v=83",
   "career-center.js?v=79", "professional-skills-passport.js?v=83", "answer-evaluator.js?v=83", "shadow-lines.js?v=84",
   "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json",
   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json", "tracks/welding/foundations.json"];
