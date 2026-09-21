@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "琥珀色：发音",
  "sv.ch_key_miss": "红色：缺少",
  "sv.ch_key_sub": "删除线：用词不同",
- "sv.ch_key_gap": "| 停顿"
+ "sv.ch_key_gap": "| 停顿",
+ "sv.ch_pass_left1": "进步不错——还有一处需要练习。再试一次，这句就是你的了。",
+ "sv.ch_pass_leftn": "进步不错——还有 {{n}} 处需要练习。再试一次，这句就是你的了。"
 }

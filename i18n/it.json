@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "ambra: pronuncia",
  "sv.ch_key_miss": "rosso: mancante",
  "sv.ch_key_sub": "barrato: parola diversa",
- "sv.ch_key_gap": "| esitazione"
+ "sv.ch_key_gap": "| esitazione",
+ "sv.ch_pass_left1": "Buoni progressi: resta una cosa da esercitare. Un altro tentativo e la frase è tua.",
+ "sv.ch_pass_leftn": "Buoni progressi: restano {{n}} cose da esercitare. Un altro tentativo e la frase è tua."
 }

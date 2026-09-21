@@ -324,8 +324,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   this, bin); `shOwnRender()` refreshes it in place; the YouTube title
   replaces the pasted URL once `onReady` knows it. Keys `sh.own_*`,
   `cf.own_*` in 16 languages (machine transcreation).
-- **Shadow Challenge V2 — the coaching report (branch `feature/shadow-challenge-v2`,
-  2026-09-21, NOT merged/deployed).** `ShadowSync.challenge()` now returns a
+- **Shadow Challenge V2 — the coaching report (deployed 2026-09-21, be12-v407,
+  owner-authorised).** In production the Polish Worker's `assess` answers
+  `mode:"whisper"` (no audio-in model on the account), so the Pronunciation
+  dimension reads "not available" until that changes — by design, not a bug. `ShadowSync.challenge()` now returns a
   report: `tokens` (per target word: ok/miss/sub/pron, the clip span `ms` and
   the take span `s`), `issues` (≤3, typed, prioritised: missing phrase → wrong
   word → pronunciation → hesitation → pace → fillers → extra → rhythm),

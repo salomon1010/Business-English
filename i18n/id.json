@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "kuning: pelafalan",
  "sv.ch_key_miss": "merah: terlewat",
  "sv.ch_key_sub": "dicoret: kata berbeda",
- "sv.ch_key_gap": "| ragu-ragu"
+ "sv.ch_key_gap": "| ragu-ragu",
+ "sv.ch_pass_left1": "Kemajuan bagus — satu hal masih perlu dilatih. Sekali lagi dan kalimat ini milik Anda.",
+ "sv.ch_pass_leftn": "Kemajuan bagus — {{n}} hal masih perlu dilatih. Sekali lagi dan kalimat ini milik Anda."
 }

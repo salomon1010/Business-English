@@ -5072,7 +5072,7 @@ const I18N_EN={
  "sv.ch_listen":"Listen","sv.ch_record":"Record","sv.ch_stop":"Tap to stop","sv.ch_recording":"Recording… tap to stop when you have said it.",
  "sv.ch_grading":"Listening to your attempt…","sv.ch_attempt":"Attempt {{n}}","sv.ch_fb_eyebrow":"AI feedback","sv.ch_good":"Good","sv.ch_improve":"Improve",
  "sv.ch_you_said":"You said: “{{text}}”","sv.ch_target_was":"Target: “{{text}}”","sv.ch_try_again":"Try again","sv.ch_replay":"Play my attempt","sv.ch_next":"Next sentence",
- "sv.ch_pass_title":"You said it without reading.","sv.ch_pass_sub":"That line is yours now. Use it, or take the next one.","sv.ch_level_up":"Try the {{level}} level",
+ "sv.ch_pass_title":"You said it without reading.","sv.ch_pass_sub":"That line is yours now. Use it, or take the next one.","sv.ch_pass_left1":"Good progress — one thing still needs practice. Another go makes the line yours.","sv.ch_pass_leftn":"Good progress — {{n}} things still need practice. Another go makes the line yours.","sv.ch_level_up":"Try the {{level}} level",
  "sv.ch_use_btn":"Use it yourself","sv.ch_use_prompt":"Use “{{phrase}}” in your own sentence.","sv.ch_use_sub":"One sentence, your own words. Record when you are ready.",
  "sv.ch_use_good":"You used “{{phrase}}” in your own sentence.","sv.ch_use_missed":"I did not hear “{{phrase}}”. Say a sentence that includes it.",
  "sv.ch_use_longer":"Add a little more — who, what, or when.","sv.ch_use_done":"Done",
@@ -14904,8 +14904,8 @@ function svChHTML(){
     body=svChReportHTML(c,s);
     if(c.phase==="done"){
       const nextLv=SV_CH_LEVELS[SV_CH_LEVELS.indexOf(L)+1];
-      const left=c.fb.issues.some(x=>x.type!=="levelup")&&!(ex&&!c.use);   /* passed, but the report still names something: another go is the main action */
-      body+=`<div class="sv-ch-done">${ic("check")}<span>${t("sv.ch_pass_title")}<br><span class="sv-ch-meta">${t("sv.ch_pass_sub")}</span></span></div>
+      const nLeft=c.fb.issues.filter(x=>x.type!=="levelup").length,left=nLeft>0&&!(ex&&!c.use);   /* passed, but the report still names something: another go is the main action */
+      body+=`<div class="sv-ch-done">${ic("check")}<span>${t("sv.ch_pass_title")}<br><span class="sv-ch-meta">${nLeft===0?t("sv.ch_pass_sub"):nLeft===1?t("sv.ch_pass_left1"):t("sv.ch_pass_leftn",{n:nLeft})}</span></span></div>
       <div class="sv-ch-row">
         ${ex&&!c.use?`<button class="btn-primary" onclick="svChUse()">${ic("sparkle")} ${t("sv.ch_use_btn")}</button>`:""}
         ${left?`<button class="btn-primary" onclick="svChRetry()">${ic("mic")} ${t("sv.ch_try_again")}</button>`:""}

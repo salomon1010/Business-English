@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "Gelb: Aussprache",
  "sv.ch_key_miss": "Rot: fehlt",
  "sv.ch_key_sub": "durchgestrichen: anderes Wort",
- "sv.ch_key_gap": "| Zögern"
+ "sv.ch_key_gap": "| Zögern",
+ "sv.ch_pass_left1": "Guter Fortschritt — eine Sache braucht noch Übung. Noch ein Versuch, und der Satz gehört dir.",
+ "sv.ch_pass_leftn": "Guter Fortschritt — {{n}} Dinge brauchen noch Übung. Noch ein Versuch, und der Satz gehört dir."
 }

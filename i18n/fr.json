@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "orange : prononciation",
  "sv.ch_key_miss": "rouge : manquant",
  "sv.ch_key_sub": "barré : mot différent",
- "sv.ch_key_gap": "| hésitation"
+ "sv.ch_key_gap": "| hésitation",
+ "sv.ch_pass_left1": "Bons progrès — il reste un point à travailler. Encore un essai et la phrase est à vous.",
+ "sv.ch_pass_leftn": "Bons progrès — il reste {{n}} points à travailler. Encore un essai et la phrase est à vous."
 }

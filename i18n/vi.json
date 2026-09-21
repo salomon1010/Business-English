@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "vàng: phát âm",
  "sv.ch_key_miss": "đỏ: thiếu",
  "sv.ch_key_sub": "gạch ngang: từ khác",
- "sv.ch_key_gap": "| ngập ngừng"
+ "sv.ch_key_gap": "| ngập ngừng",
+ "sv.ch_pass_left1": "Tiến bộ tốt — còn một điểm cần luyện. Thử thêm một lần nữa là câu này thuộc về bạn.",
+ "sv.ch_pass_leftn": "Tiến bộ tốt — còn {{n}} điểm cần luyện. Thử thêm một lần nữa là câu này thuộc về bạn."
 }

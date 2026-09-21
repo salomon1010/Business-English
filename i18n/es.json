@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "ámbar: pronunciación",
  "sv.ch_key_miss": "rojo: omitido",
  "sv.ch_key_sub": "tachado: palabra distinta",
- "sv.ch_key_gap": "| vacilación"
+ "sv.ch_key_gap": "| vacilación",
+ "sv.ch_pass_left1": "Buen avance: aún queda una cosa por practicar. Un intento más y la frase será tuya.",
+ "sv.ch_pass_leftn": "Buen avance: aún quedan {{n}} cosas por practicar. Un intento más y la frase será tuya."
 }

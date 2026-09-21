@@ -2396,5 +2396,7 @@
  "sv.ch_key_pron": "âmbar: pronúncia",
  "sv.ch_key_miss": "vermelho: em falta",
  "sv.ch_key_sub": "riscado: palavra diferente",
- "sv.ch_key_gap": "| hesitação"
+ "sv.ch_key_gap": "| hesitação",
+ "sv.ch_pass_left1": "Bom progresso — falta praticar uma coisa. Mais uma tentativa e a frase é sua.",
+ "sv.ch_pass_leftn": "Bom progresso — faltam praticar {{n}} coisas. Mais uma tentativa e a frase é sua."
 }
