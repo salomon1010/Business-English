@@ -1360,7 +1360,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 /* the three pages of the studio (General English, V2 on): what each one hides */
 #shWork[data-svmode="watch"] #svNow{display:none!important}   /* the list itself lights the paragraph and the word */
 #shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 420px);min-height:180px}
-#shWork[data-svmode="watch"] .sv-tx .sv-seg{margin:0 0 14px;padding:10px 12px;border-radius:12px;font-size:16px;line-height:1.6;border:1px solid transparent}
+#shWork[data-svmode="watch"] .sv-para{margin:0 0 14px;padding:8px 12px;border-radius:12px;border:1px solid transparent}
+#shWork[data-svmode="watch"] .sv-para:has(.sv-seg.now){background:color-mix(in srgb,var(--acc) 10%,transparent);border-color:color-mix(in srgb,var(--acc) 35%,transparent)}
+#shWork[data-svmode="watch"] .sv-para:has(.sv-seg.now) .sv-seg,#shWork[data-svmode="watch"] .sv-para:has(.sv-seg.now) .sv-w{color:var(--txt)}
+#shWork[data-svmode="watch"] .sv-tx .sv-seg{margin:0;padding:3px 0;border-radius:0;font-size:16px;line-height:1.6;background:transparent!important}
 #shWork[data-svmode="watch"] #shSeg,#shWork[data-svmode="watch"] #shMarkHint,#shWork[data-svmode="watch"] .sv-shadow-this{display:none!important}
 #shWork[data-svmode="shadow"] #svTx,#shWork[data-svmode="shadow"] .sv-tx-btn,#shWork[data-svmode="shadow"] #svNow,#shWork[data-svmode="shadow"] .sh-ctl,#shWork[data-svmode="shadow"] #shSeg,#shWork[data-svmode="shadow"] #shMarkHint,#shWork[data-svmode="shadow"] #shLower{display:none!important}
 #shWork[data-svmode="shadow"] .sh-work-body{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
@@ -1380,7 +1383,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-sh-tr{font-size:14.5px;line-height:1.6;color:var(--txt);margin:10px 0 0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent)}.sv-sh-tr.empty{display:none}.sv-sh-tr.wait{color:var(--mut)}.sv-sh-tr.err{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
 .sv-sh-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
 /* Watch: the paragraph being spoken is lit as a whole, its word marked */
-#shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 10%,transparent);border-color:color-mix(in srgb,var(--acc) 35%,transparent)}
+#shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt)}
 #shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w{color:var(--txt)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w.now{background:var(--acc);color:#fff;border-radius:5px;box-shadow:none}
 /* Shadow history: one card per Challenge attempt, grouped by day */
 .sh-hist-day{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:14px 0 6px}.sh-hist-day:first-child{margin-top:4px}
@@ -4074,7 +4077,7 @@ function appState(){return S}
      something to reach what they had just earned.
    The summary is still written to S.coach either way. That is what feeds the
    coach card and the growth story, which is where a per-item nudge belongs. */
-const COACH_MODAL_SKIP=["professional_simulation","ai_conversation","vocabulary_practice","phrase_lab","shadow_session"];
+const COACH_MODAL_SKIP=["professional_simulation","ai_conversation","vocabulary_practice","phrase_lab","shadow_session","pronunciation_feedback"];   // pronunciation_feedback: the Shadow report IS the page (owner, 2026-09-21)
 function awardCompetency(input){
   if(!window.CompetencyEngine)return;
   const result=CompetencyEngine.logActivity(S,input);
@@ -14744,9 +14747,11 @@ function svRender(){
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
     .filter(([m])=>m!=="apply"||flag("shadow_apply_phrase_enabled"))
     .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
-  const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
+  const segHTML=(s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
-    :esc(s.text)}</p>`).join("");
+    :esc(s.text)}</p>`;
+  const segs=svMode==="watch"?svParas(a).map((p,k)=>`<div class="sv-para" data-p="${k}">${a.segments.slice(p.from,p.to+1).map((s,j)=>segHTML(s,p.from+j)).join("")}</div>`).join("")
+    :a.segments.map(segHTML).join("");
   const levelNote=a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
   /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
      collapsed while the learner is meant to produce from memory (ready /
@@ -14780,7 +14785,7 @@ function svRender(){
   shLowerShow(svMode==="shadow");
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
-  if(svMode==="shadow"){if(!svShPinned)svPick=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
+  if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
   svShPinned=false;
   svShBarSync();
   svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
@@ -14874,6 +14879,7 @@ function svApplyHTML(){
 let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
 window.svSetMode=m=>{
   if(m!=="shadow"&&shLooping){shLooping=false;const lb=document.getElementById("shLoopBtn");if(lb){lb.classList.remove("on");lb.setAttribute("aria-pressed","false")}}
+  if(m==="watch"&&svMode==="shadow"){shClip.end=0;shCounting=false;try{shSegUI()}catch(e){}}   /* the paragraph's clip stays behind: Watch plays on through the whole talk */
   svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
 window.svTapSeg=i=>{
   svPick=i;const s=svAsset&&svAsset.segments[i];
@@ -14900,17 +14906,39 @@ window.svRepeatToggle=()=>{
 /* the paragraph the video has reached wins; a tapped one when nothing has
    played yet; the first otherwise. Once on the page it is pinned (svPick) so
    the loop cannot swap the card as it wraps. */
-function svShIndex(){if(svShPinned&&svPick>=0)return svPick;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
-function svShSeg(){return svAsset&&svAsset.segments[svShIndex()]||null}
+/* Paragraphs for reading: consecutive lines of the transcript grouped two or
+   three at a time — a group closes after three lines, or after two when a
+   sentence has just ended and there is already a paragraph's worth of text.
+   The lines themselves (their timing, their words) are not touched. */
+function svParas(a){
+  if(!a||!a.segments)return [];
+  if(a._paras&&a._parasN===a.segments.length)return a._paras;
+  const out=[];let cur=null,chars=0;
+  a.segments.forEach((sg,i)=>{const txt=String(sg.text||"").trim(),ends=/[.!?…]["'’)\]]*$/.test(txt);
+    if(!cur){cur={from:i,to:i};chars=txt.length}else{cur.to=i;chars+=txt.length+1}
+    const n=cur.to-cur.from+1;
+    if(n>=3||(n>=2&&ends&&chars>=110)||chars>=260){out.push(cur);cur=null;chars=0}});
+  if(cur)out.push(cur);
+  a._paras=out;a._parasN=a.segments.length;return out;
+}
+function svParaOf(i){const ps=svParas(svAsset);return ps.find(p=>i>=p.from&&i<=p.to)||ps[0]||null}
+/* the paragraph as one piece: its lines, text and time span */
+function svShGroup(){
+  const p=svParaOf(svShIndex());if(!p||!svAsset)return null;
+  const segs=svAsset.segments.slice(p.from,p.to+1),first=segs[0],last=segs[segs.length-1];
+  return {from:p.from,to:p.to,segs,id:first.id+(segs.length>1?"-"+last.id:""),text:segs.map(x=>x.text).join(" "),startMs:first.startMs,endMs:last.endMs};
+}
+function svShIndex(){if(svShPinned&&svShPara>=0)return svShPara;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
+function svShSeg(){return svShGroup()}
 function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:""}}
-let svShPinned=false;   /* the paragraph on the Shadow page stays put until the learner moves it or leaves */
+let svShPinned=false,svShPara=-1;   /* the paragraph on the Shadow page (its first line) stays put until the learner moves it or leaves; svPick is not touched */
 let _svTr={};try{_svTr=JSON.parse(localStorage.getItem("be_sv_tr")||"{}")||{}}catch(e){_svTr={}}
 function svShTrKey(sg){const l=svShLang();return shClip.vid+":"+sg.id+":"+l.code}
 function svShHTML(){
   const sg=svShSeg();if(!sg)return "";
-  const i=svShIndex(),a=svAsset,lang=svShLang(),tr=_svTr[svShTrKey(sg)];
+  const a=svAsset,lang=svShLang(),tr=_svTr[svShTrKey(sg)],ps=svParas(a),i=ps.findIndex(p=>p.from===sg.from);
   const words=sg.text.split(/\s+/).filter(Boolean).map(w=>`<button class="sv-sh-w" onclick="fbSay('${esc(w.replace(/[^A-Za-z0-9'’-]/g,"")).replace(/'/g,"\\'")}',1)">${esc(w)}</button>`).join(" ");
-  const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${a.segments.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<a.segments.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
+  const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
   return `<div class="sv-sh" id="svSh">
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play" onclick="shSaveClip()" aria-label="${esc(t("sh.save_clip_btn").replace(/^\S+\s*/,""))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
@@ -14936,7 +14964,7 @@ function svShEnter(){
   }
   const nb=document.getElementById("shNote");if(nb&&nb.value.trim()!==sg.text){nb.value=sg.text;try{taGrow(nb)}catch(e){}}
 }
-window.svShStep=d=>{const n=ShadowSync.neighbour(svAsset,svShIndex(),d);if(!n)return;svPick=n.index;svRender();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
+window.svShStep=d=>{const ps=svParas(svAsset),k=ps.findIndex(p=>p.from===svShGroup().from)+d;if(k<0||k>=ps.length)return;svShPara=ps[k].from;svRender();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShReplay=()=>{if(!svAsset)return;svChStopAll();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShSpeed=()=>{shRate();svShBarSync()};
 window.svShTranslate=async()=>{

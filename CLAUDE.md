@@ -298,7 +298,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   word), the list always open (no Watch fold any more); tapping Shadow sends
   the paragraph the video has reached (`svShIndex()`: `svLast.seg` first, a
   tapped one only when nothing has played) and pins it (`svShPinned`) until
-  the learner moves it or leaves; **Shadow (v411)** = ONE paragraph: `svShHTML()`
+  the learner moves it or leaves — `svShPara`, never `svPick`, so Challenge
+  keeps the learner's own line). **Paragraphs (v413):** `svParas(asset)` groups
+  consecutive lines 2–3 at a time for reading (closes after three lines, or
+  two once a sentence has ended with ≥110 chars; the lines' timing/words are
+  untouched); Watch wraps them in `.sv-para` blocks (the lit one via `:has`),
+  Shadow takes the whole paragraph (`svShGroup()`: text, span, `id` =
+  first-last). Back in Watch `shClip.end=0` and the loop is off so the talk
+  plays on. `pronunciation_feedback` is in `COACH_MODAL_SKIP`: no coach
+  pop-up after a Shadow report; **Shadow (v411)** = ONE paragraph: `svShHTML()`
   renders the "Original transcript" card (word chips → `fbSay`, plain text,
   the translation box, prev/next paragraph, ⭐ save clip, Translate (only when
   the app language is not English; the Worker's `chat` route asked for
