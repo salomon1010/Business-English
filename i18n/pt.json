@@ -2401,15 +2401,16 @@
  "sv.ch_pass_leftn": "Bom progresso — faltam praticar {{n}} coisas. Mais uma tentativa e a frase é sua.",
  "sh.tab_history": "Histórico",
  "sh.hist_h": "O seu histórico de Shadow",
- "sh.hist_sub": "As suas últimas {{n}} tentativas de Challenge — a frase, o que disse, o que corrigir e as palavras praticadas. Toque numa para ver o detalhe ou volte a essa frase.",
- "sh.hist_entry_sub": "Cada tentativa de Challenge: a frase, o veredicto, o que corrigir — e as suas palavras difíceis.",
- "sh.hist_empty_title": "Ainda sem tentativas de Challenge",
- "sh.hist_empty_body": "Cada frase que diz no Challenge fica aqui com o que corrigir, para retomar onde parou.",
+ "sh.hist_sub": "Os seus últimos {{n}} relatórios de Shadow e Challenge — o que disse, o resultado, o que corrigir e as palavras praticadas. Toque num para ver o detalhe ou volte a esse clipe ou frase.",
+ "sh.hist_entry_sub": "Cada relatório de Shadow e Challenge: o que disse, o resultado, o que corrigir — e as suas palavras difíceis.",
+ "sh.hist_empty_title": "Ainda sem relatórios",
+ "sh.hist_empty_body": "Cada gravação de Shadow e cada tentativa de Challenge fica aqui com o que corrigir, para retomar onde parou.",
  "sh.hist_today": "Hoje",
  "sh.hist_yesterday": "Ontem",
  "sh.hist_focus": "Foco",
  "sh.hist_none": "Nada a corrigir",
  "sh.hist_drills": "Prática de palavras",
  "sh.hist_play": "Ouvir a minha gravação",
- "sh.hist_open": "Abrir esta frase"
+ "sh.hist_open": "Abrir esta frase",
+ "sh.hist_open_clip": "Abrir este clipe"
 }

@@ -2401,15 +2401,16 @@
  "sv.ch_pass_leftn": "Guter Fortschritt — {{n}} Dinge brauchen noch Übung. Noch ein Versuch, und der Satz gehört dir.",
  "sh.tab_history": "Verlauf",
  "sh.hist_h": "Dein Shadow-Verlauf",
- "sh.hist_sub": "Deine letzten {{n}} Challenge-Versuche — der Satz, was du gesagt hast, was zu verbessern ist und die geübten Wörter. Tippe einen an für Details oder kehre zu dem Satz zurück.",
- "sh.hist_entry_sub": "Jeder Challenge-Versuch: der Satz, das Urteil, was zu verbessern ist — und deine schwierigen Wörter.",
- "sh.hist_empty_title": "Noch keine Challenge-Versuche",
- "sh.hist_empty_body": "Jeder Satz, den du in Challenge sagst, bleibt hier mit dem, was zu verbessern ist — so machst du dort weiter, wo du aufgehört hast.",
+ "sh.hist_sub": "Deine letzten {{n}} Shadow- und Challenge-Berichte — was du gesagt hast, das Ergebnis, was zu verbessern ist und die geübten Wörter. Tippe einen an für Details oder kehre zu dem Clip oder Satz zurück.",
+ "sh.hist_entry_sub": "Jeder Shadow- und Challenge-Bericht: was du gesagt hast, das Ergebnis, was zu verbessern ist — und deine schwierigen Wörter.",
+ "sh.hist_empty_title": "Noch keine Berichte",
+ "sh.hist_empty_body": "Jede Shadow-Aufnahme und jeder Challenge-Versuch bleibt hier mit dem, was zu verbessern ist — so machst du dort weiter, wo du aufgehört hast.",
  "sh.hist_today": "Heute",
  "sh.hist_yesterday": "Gestern",
  "sh.hist_focus": "Fokus",
  "sh.hist_none": "Nichts zu verbessern",
  "sh.hist_drills": "Wortübung",
  "sh.hist_play": "Meine Aufnahme abspielen",
- "sh.hist_open": "Diesen Satz öffnen"
+ "sh.hist_open": "Diesen Satz öffnen",
+ "sh.hist_open_clip": "Diesen Clip öffnen"
 }

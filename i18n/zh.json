@@ -2401,15 +2401,16 @@
  "sv.ch_pass_leftn": "进步不错——还有 {{n}} 处需要练习。再试一次，这句就是你的了。",
  "sh.tab_history": "历史",
  "sh.hist_h": "你的跟读历史",
- "sh.hist_sub": "你最近 {{n}} 次挑战尝试——句子、你说了什么、需要改进什么以及练习过的词。点击一条查看详情，或回到那一句。",
- "sh.hist_entry_sub": "每一次挑战尝试：句子、评价、需要改进什么——以及你的难词。",
- "sh.hist_empty_title": "还没有挑战尝试",
- "sh.hist_empty_body": "你在挑战中说过的每一句都会保存在这里，连同需要改进的地方，方便你从上次的地方继续。",
+ "sh.hist_sub": "你最近 {{n}} 份跟读和挑战报告——你说了什么、结果、需要改进什么以及练习过的词。点击一条查看详情，或回到那个片段或那一句。",
+ "sh.hist_entry_sub": "每一份跟读和挑战报告：你说了什么、结果、需要改进什么——以及你的难词。",
+ "sh.hist_empty_title": "还没有报告",
+ "sh.hist_empty_body": "你的每次跟读录音和每次挑战尝试都会保存在这里，连同需要改进的地方，方便你从上次的地方继续。",
  "sh.hist_today": "今天",
  "sh.hist_yesterday": "昨天",
  "sh.hist_focus": "重点",
  "sh.hist_none": "无需改进",
  "sh.hist_drills": "单词练习",
  "sh.hist_play": "播放我的录音",
- "sh.hist_open": "打开这一句"
+ "sh.hist_open": "打开这一句",
+ "sh.hist_open_clip": "打开这个片段"
 }

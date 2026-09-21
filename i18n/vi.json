@@ -2401,15 +2401,16 @@
  "sv.ch_pass_leftn": "Tiến bộ tốt — còn {{n}} điểm cần luyện. Thử thêm một lần nữa là câu này thuộc về bạn.",
  "sh.tab_history": "Lịch sử",
  "sh.hist_h": "Lịch sử Shadow của bạn",
- "sh.hist_sub": "{{n}} lần thử Challenge gần nhất — câu, bạn đã nói gì, cần sửa gì và các từ đã luyện. Chạm vào một mục để xem chi tiết, hoặc quay lại câu đó.",
- "sh.hist_entry_sub": "Mỗi lần thử Challenge: câu, đánh giá, cần sửa gì — và các từ khó của bạn.",
- "sh.hist_empty_title": "Chưa có lần thử Challenge nào",
- "sh.hist_empty_body": "Mỗi câu bạn nói trong Challenge được giữ ở đây cùng những gì cần sửa, để bạn tiếp tục từ chỗ đã dừng.",
+ "sh.hist_sub": "{{n}} báo cáo Shadow và Challenge gần nhất — bạn đã nói gì, kết quả, cần sửa gì và các từ đã luyện. Chạm vào một mục để xem chi tiết, hoặc quay lại clip hay câu đó.",
+ "sh.hist_entry_sub": "Mỗi báo cáo Shadow và Challenge: bạn đã nói gì, kết quả, cần sửa gì — và các từ khó của bạn.",
+ "sh.hist_empty_title": "Chưa có báo cáo nào",
+ "sh.hist_empty_body": "Mỗi bản ghi Shadow và mỗi lần thử Challenge được giữ ở đây cùng những gì cần sửa, để bạn tiếp tục từ chỗ đã dừng.",
  "sh.hist_today": "Hôm nay",
  "sh.hist_yesterday": "Hôm qua",
  "sh.hist_focus": "Trọng tâm",
  "sh.hist_none": "Không có gì cần sửa",
  "sh.hist_drills": "Luyện từ",
  "sh.hist_play": "Phát bản ghi của tôi",
- "sh.hist_open": "Mở câu này"
+ "sh.hist_open": "Mở câu này",
+ "sh.hist_open_clip": "Mở clip này"
 }

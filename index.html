@@ -1369,6 +1369,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sh-hist-body{padding:0 12px 12px;border-top:1px solid var(--line)}.sh-hist-body .sv-ch-cmp-you{margin-top:10px}
 .sh-hist-issues{margin-top:10px;display:flex;flex-direction:column;gap:8px}.sh-hist-issue{display:flex;gap:10px;font-size:13px;line-height:1.45}.sh-hist-issue>b{flex:none;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-size:11px;display:inline-flex;align-items:center;justify-content:center;margin-top:1px}.sh-hist-issue small{color:var(--mut2)}
 .sh-hist-none{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);margin:10px 0 0}.sh-hist-none svg{width:16px;height:16px}
+.sh-hist-kind{flex:none;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:800;padding:2px 6px;border-radius:5px}.k-ch{background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc)}.k-sh{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.sh-hist-pace{font-size:13px;color:var(--mut);margin:8px 0 0}.sh-hist-fix{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.sh-hist-fix .sv-ch-wk-w svg{width:14px;height:14px}
 .sh-hist-drills{margin-top:10px}.sh-hist-drill{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:6px;font-size:13px}.sh-hist-drill .sv-ch-hist-a{cursor:default}
 /* ---- Practice Partner ---- */
 .rp-entry.pp-entry{border-color:rgba(99,102,241,.6);background:linear-gradient(150deg,rgba(99,102,241,.30),rgba(124,58,237,.16) 55%,rgba(34,211,238,.08));box-shadow:0 6px 20px rgba(99,102,241,.16),inset 0 1px 0 rgba(255,255,255,.06)}
@@ -6060,7 +6062,7 @@ const I18N_EN={
  "sh.own_removed_toast":"Video removed",
  "cf.own_title":"Remove this video?",
  "cf.own_body":"“{{name}}” and its transcript will be removed from Your videos. Your recordings are kept.",
- "sh.tab_trouble":"Trouble words","sh.tab_history":"History","sh.hist_h":"Your Shadow history","sh.hist_sub":"Your last {{n}} Challenge attempts — the line, what you said, what to fix and the words you practised. Tap one for the detail, or go back to that line.","sh.hist_entry_sub":"Every Challenge attempt: the line, the verdict, what to fix — and your trouble words.","sh.hist_empty_title":"No Challenge attempts yet","sh.hist_empty_body":"Every line you say in Challenge is kept here with what to fix, so you can pick up where you left off.","sh.hist_today":"Today","sh.hist_yesterday":"Yesterday","sh.hist_focus":"Focus","sh.hist_none":"Nothing to fix","sh.hist_drills":"Word practice","sh.hist_play":"Play my take","sh.hist_open":"Open this line",
+ "sh.tab_trouble":"Trouble words","sh.tab_history":"History","sh.hist_h":"Your Shadow history","sh.hist_sub":"Your last {{n}} Shadow and Challenge reports — what you said, the result, what to fix and the words you practised. Tap one for the detail, or go back to that clip or line.","sh.hist_entry_sub":"Every Shadow and Challenge report: what you said, the result, what to fix — and your trouble words.","sh.hist_empty_title":"No reports yet","sh.hist_empty_body":"Every Shadow take and every Challenge attempt is kept here with what to fix, so you can pick up where you left off.","sh.hist_open_clip":"Open this clip","sh.hist_today":"Today","sh.hist_yesterday":"Yesterday","sh.hist_focus":"Focus","sh.hist_none":"Nothing to fix","sh.hist_drills":"Word practice","sh.hist_play":"Play my take","sh.hist_open":"Open this line",
  "sh.trouble_entry_sub":"The words the scoring keeps flagging. Hear one, slow it down, say it back — it clears when you get it right.",
  "sh.trouble_none_sub":"Nothing flagged yet. Say a line back above and any word that trips you up collects here.",
  "sh.back_to_lines":"Workplace lines",
@@ -11213,6 +11215,8 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   /* history + trouble words */
   if(hasTarget){S.fbHist.push({ts:Date.now(),score,wpm,words:h.length,tk:areaId()});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
   else{S.fbHist.push({ts:Date.now(),wpm,words:h.length,tk:areaId()});if(S.fbHist.length>50)S.fbHist=S.fbHist.slice(-50)}
+  /* the studio's own Shadow report joins its History (a Challenge keeps its own shape there) */
+  if(fromRec&&!outId&&shClip&&shClip.vid&&fbCtx.vid===shClip.vid)try{shHistShadowPut({text:targetText,heard:heardText,score:hasTarget?score:null,wpm,fillers:fillerN,fix:fbFixWords(problems).slice(0,6)})}catch(e){}
   /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
   const _tb=troubleMap();
   problems.forEach(o=>{if(o.t.length>=4&&!isTrackStopWord(o.t))_tb[o.t]=(_tb[o.t]||0)+1});
@@ -14735,7 +14739,7 @@ function svRender(){
   const folded=svMode==="shadow"&&!svTxOpen;
   const watchFolded=svMode==="watch"&&!svWatchOpen;
   shClipToolsShow(svMode!=="challenge");
-  shLowerShow(true);
+  shLowerShow(svMode!=="challenge");                               /* Challenge is its own page: the notes, the recordings and the Shadow report stay with Watch / Shadow */
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
   svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
@@ -14781,7 +14785,7 @@ window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen
    clip tools. (The Watch fold only concerns the transcript panel itself.) */
 function svLayoutSync(){
   const on=!!(svAsset&&svOn());
-  shClipToolsShow(!on||svMode!=="challenge");shLowerShow(true);
+  shClipToolsShow(!on||svMode!=="challenge");shLowerShow(!on||svMode!=="challenge");
 }
 function shLowerShow(on){
   const box=document.getElementById("shV2");if(!box)return;
@@ -15331,7 +15335,7 @@ function svChHistPut(c,s,fb,heard){
   const L=aList("chHist");
   const issues=fb.issues.filter(x=>x.type!=="levelup").map(x=>({type:x.type,text:x.text||"",k:x.k,v:x.v||null,score:x.score==null?null:x.score,note:x.note||"",gapS:x.gapS||null}));
   const dims={};Object.keys(fb.dims).forEach(k=>{dims[k]=fb.dims[k].state});
-  const e={ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,level:c.level,verdict:fb.verdict,coverage:fb.coverage,ok:fb.ok,total:fb.total,pass:!!fb.pass,heard:String(heard||"").slice(0,400),issues,dims,pronMode:fb.pronMode||null,ctx:svChCtx(),drills:[]};
+  const e={kind:"challenge",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,level:c.level,verdict:fb.verdict,coverage:fb.coverage,ok:fb.ok,total:fb.total,pass:!!fb.pass,heard:String(heard||"").slice(0,400),issues,dims,pronMode:fb.pronMode||null,ctx:svChCtx(),drills:[]};
   L.unshift(e);if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
   c.histRef=e.ts;
 }
@@ -15340,6 +15344,14 @@ function svChHistDrill(d){
   const c=svCh;if(!c||!c.histRef)return;const e=aList("chHist").find(x=>x.ts===c.histRef);if(!e)return;
   let w=e.drills.find(x=>x.k===d.k);if(!w){w={k:d.k,text:d.text,attempts:[]};e.drills.push(w)}
   w.attempts=d.attempts.map(a=>({state:a.state,score:a.score,mode:a.mode,heard:a.heard})).slice(0,10);save();
+}
+/* a Shadow report: the clip's words, what was said, the score, the pace, the
+   words to fix — the studio's own report, in its own shape */
+function shHistShadowPut(r){
+  const L=aList("chHist");
+  L.unshift({kind:"shadow",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,text:String(r.text||"").replace(/\s+/g," ").trim().slice(0,220),heard:String(r.heard||"").replace(/\s+/g," ").trim().slice(0,400),
+    score:r.score,wpm:r.wpm||null,fillers:r.fillers||0,fix:r.fix||[],ctx:shRecCtx(shClip.vid)});
+  if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
 }
 function shHistDayLabel(ts){
   const d=new Date(ts),now=new Date(),day=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime();
@@ -15355,7 +15367,10 @@ function shHistRender(){
   if(!L.length){box.innerHTML=emptyState("clock",t("sh.hist_empty_title"),t("sh.hist_empty_body"),isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");manIconizeInline(box);return}
   const groups=[];L.forEach(e=>{const lbl=shHistDayLabel(e.ts);const g=groups[groups.length-1];if(g&&g.lbl===lbl)g.items.push(e);else groups.push({lbl,items:[e]})});
   const time=ts=>{try{return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch(e){return ""}};
-  box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>{
+  box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>e.kind==="shadow"?shHistShadowCard(e,time):shHistChallengeCard(e,time)).join("")).join("");
+  manIconizeInline(box);
+}
+function shHistChallengeCard(e,time){
     const open=_shHistOpen===e.ts,focus=e.issues.map(x=>svChIssueTitle(x)).join(" · ");
     const dims=["words","pron","fluency","timing","rhythm"].filter(k=>e.dims[k]&&e.dims[k]!=="na").map(k=>`<span class="sv-ch-dim d-${e.dims[k]}"><span>${t("sv.ch_dim_"+k)}</span><b>${t("sv.ch_st_"+e.dims[k])}</b></span>`).join("");
     const body=open?`<div class="sh-hist-body">
@@ -15369,11 +15384,29 @@ function shHistRender(){
         </div></div>`:"";
     return `<div class="sh-hist-item d-${e.verdict} ${open?"open":""}">
       <button class="sh-hist-hd" onclick="shHistToggle(${e.ts})" aria-expanded="${open}">
-        <span class="sh-hist-top"><span class="sh-hist-title">${esc(e.title)}</span><span class="sh-hist-time">${time(e.ts)} · ${t("sv.ch_attempt",{n:e.n})}</span></span>
+        <span class="sh-hist-top"><span class="sh-hist-kind k-ch">${t("sv.mode_challenge")}</span><span class="sh-hist-title">${esc(e.title)}</span><span class="sh-hist-time">${time(e.ts)} · ${t("sv.ch_attempt",{n:e.n})}</span></span>
         <span class="sh-hist-line">“${esc(e.text)}”</span>
         <span class="sh-hist-sum"><b class="sh-hist-v">${t("sv.ch_st_"+e.verdict)}</b><span>${e.issues.length?`${t("sh.hist_focus")}: ${focus}`:t("sh.hist_none")}</span><span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></span>
-      </button>${body}</div>`}).join("")).join("");
-  manIconizeInline(box);
+      </button>${body}</div>`;
+}
+function shHistShadowCard(e,time){
+    const open=_shHistOpen===e.ts,sc=e.score,v=sc==null?"good":sc>=80?"strong":sc>=55?"practice":"attention";
+    const fix=(e.fix||[]).map(w=>`“${esc(w)}”`).join(" · ");
+    const pace=e.wpm?t(e.wpm<95?"fb.pace_slow":e.wpm>185?"fb.pace_fast":"fb.pace_natural",{wpm:e.wpm}):"";
+    const body=open?`<div class="sh-hist-body">
+        ${e.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(e.heard)}</p>`:""}
+        ${pace?`<p class="sh-hist-pace">${pace}${e.fillers?` · ${t(e.fillers===1?"fb.fillers_one":"fb.fillers_many",{n:e.fillers})}`:""}</p>`:""}
+        ${(e.fix||[]).length?`<div class="sh-hist-fix">${e.fix.map(w=>`<span class="sv-ch-wk"><button class="sv-ch-wk-w" onclick="fbSay('${esc(w)}',1)">${ic("sound")} ${esc(w)}</button><button class="sv-ch-wk-star" onclick="fbSay('${esc(w)}',0.5)" aria-label="${esc(t("fb.slow_btn"))}">${ic("gauge")}</button></span>`).join("")}</div>`:`<p class="sh-hist-none">${ic("check")} ${t("sh.hist_none")}</p>`}
+        <div class="sv-ch-row tight">
+          <button class="sv-ch-play" onclick="shHistPlay(${e.ts})">${ic("mic")}<span>${t("sh.hist_play")}</span></button>
+          <button class="sv-ch-play acc" onclick="shHistOpen(${e.ts})">${ic("play")}<span>${t("sh.hist_open_clip")}</span></button>
+        </div></div>`:"";
+    return `<div class="sh-hist-item d-${v} ${open?"open":""}">
+      <button class="sh-hist-hd" onclick="shHistToggle(${e.ts})" aria-expanded="${open}">
+        <span class="sh-hist-top"><span class="sh-hist-kind k-sh">${t("sv.mode_shadow")}</span><span class="sh-hist-title">${esc(e.title)}</span><span class="sh-hist-time">${time(e.ts)}</span></span>
+        <span class="sh-hist-line">“${esc(e.text)}${e.text.length>=220?"…":""}”</span>
+        <span class="sh-hist-sum"><b class="sh-hist-v">${sc==null?t("sv.mode_shadow"):sc+"%"}</b><span>${fix?`${t("sh.hist_focus")}: ${fix}`:t("sh.hist_none")}</span><span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></span>
+      </button>${body}</div>`;
 }
 window.shHistToggle=ts=>{_shHistOpen=_shHistOpen===ts?null:ts;shHistRender()};
 /* the take that produced this entry: the newest recording of that line's
@@ -15391,6 +15424,7 @@ window.shHistOpen=async ts=>{
   _shTab="create";await shLoad({vid:e.vid,start:0,end:0,title:e.title},true);
   shOpenWork();
   for(let i=0;i<40&&!(svAsset&&svAsset.segments&&svAsset.segments.length);i++)await new Promise(r=>setTimeout(r,150));
+  if(e.kind==="shadow"){svSetMode("shadow");return}
   if(!svAsset||!svAsset.segments)return;
   const idx=svAsset.segments.findIndex(x=>x.id===e.seg||x.text===e.text);
   if(idx>=0)svPick=idx;svChReset();svSetMode("challenge");

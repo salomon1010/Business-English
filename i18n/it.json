@@ -2401,15 +2401,16 @@
  "sv.ch_pass_leftn": "Buoni progressi: restano {{n}} cose da esercitare. Un altro tentativo e la frase è tua.",
  "sh.tab_history": "Cronologia",
  "sh.hist_h": "La tua cronologia Shadow",
- "sh.hist_sub": "I tuoi ultimi {{n}} tentativi di Challenge: la frase, cosa hai detto, cosa correggere e le parole esercitate. Tocca uno per il dettaglio o torna a quella frase.",
- "sh.hist_entry_sub": "Ogni tentativo di Challenge: la frase, il verdetto, cosa correggere — e le tue parole difficili.",
- "sh.hist_empty_title": "Ancora nessun tentativo di Challenge",
- "sh.hist_empty_body": "Ogni frase detta in Challenge resta qui con cosa correggere, per riprendere da dove eri.",
+ "sh.hist_sub": "I tuoi ultimi {{n}} report di Shadow e Challenge: cosa hai detto, il risultato, cosa correggere e le parole esercitate. Tocca uno per il dettaglio o torna a quel clip o a quella frase.",
+ "sh.hist_entry_sub": "Ogni report di Shadow e Challenge: cosa hai detto, il risultato, cosa correggere — e le tue parole difficili.",
+ "sh.hist_empty_title": "Ancora nessun report",
+ "sh.hist_empty_body": "Ogni registrazione Shadow e ogni tentativo Challenge resta qui con cosa correggere, per riprendere da dove eri.",
  "sh.hist_today": "Oggi",
  "sh.hist_yesterday": "Ieri",
  "sh.hist_focus": "Obiettivo",
  "sh.hist_none": "Niente da correggere",
  "sh.hist_drills": "Esercizio delle parole",
  "sh.hist_play": "Ascolta la mia registrazione",
- "sh.hist_open": "Apri questa frase"
+ "sh.hist_open": "Apri questa frase",
+ "sh.hist_open_clip": "Apri questo clip"
 }
