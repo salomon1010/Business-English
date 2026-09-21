@@ -865,6 +865,7 @@
  "auth.conflict_body": "Anda berlatih di perangkat ini tanpa masuk. Memuat akun akan menggantikan hasil itu; menyimpannya akan menambahkannya ke akun Anda.",
  "auth.conflict_use_account": "Gunakan akun saya",
  "auth.conflict_keep_device": "Simpan hasil di perangkat ini",
+ "auth.conflict_always": "Selalu gunakan akun saya di perangkat ini dan jangan tanya lagi",
  "auth.signout_confirm_clean": "Keluar dan bersihkan perangkat ini? Kemajuan Anda tetap aman di akun dan kembali saat Anda masuk. Rekaman yang tersimpan di sini dihapus — rekaman tidak pernah ada di akun.",
  "ob.hear_first": "Dengarkan dulu",
  "ob.tap_say": "Ketuk dan ucapkan",

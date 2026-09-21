@@ -865,6 +865,7 @@
  "auth.conflict_body": "로그인하지 않은 채로 이 기기에서 연습했습니다. 계정을 불러오면 그 기록은 대체되고, 유지하면 계정에 추가됩니다.",
  "auth.conflict_use_account": "내 계정 사용",
  "auth.conflict_keep_device": "이 기기의 기록 유지",
+ "auth.conflict_always": "이 기기에서는 항상 내 계정을 사용하고 다시 묻지 않기",
  "auth.signout_confirm_clean": "로그아웃하고 이 기기를 비울까요? 진행 상황은 계정에 안전하게 남아 로그인하면 돌아옵니다. 여기 저장된 녹음은 삭제됩니다 — 계정에 있던 적이 없습니다.",
  "ob.hear_first": "먼저 들어보기",
  "ob.tap_say": "눌러서 말하기",

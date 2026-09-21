@@ -865,6 +865,7 @@
  "auth.conflict_body": "Você praticou neste dispositivo sem estar conectado. Carregar a sua conta substitui esse trabalho. Mantê-lo o adiciona à sua conta.",
  "auth.conflict_use_account": "Usar a minha conta",
  "auth.conflict_keep_device": "Manter o deste dispositivo",
+ "auth.conflict_always": "Usar sempre a minha conta neste dispositivo e não perguntar de novo",
  "auth.signout_confirm_clean": "Sair e limpar este dispositivo? O seu progresso continua na sua conta e volta quando entrar. As gravações guardadas aqui são apagadas — nunca estiveram na sua conta.",
  "ob.hear_first": "Ouça primeiro",
  "ob.tap_say": "Toque e diga",

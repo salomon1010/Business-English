@@ -865,6 +865,7 @@
  "auth.conflict_body": "Du hast auf diesem Gerät geübt, ohne angemeldet zu sein. Lädst du dein Konto, wird diese Arbeit ersetzt. Behältst du sie, wird sie deinem Konto hinzugefügt.",
  "auth.conflict_use_account": "Mein Konto verwenden",
  "auth.conflict_keep_device": "Arbeit auf diesem Gerät behalten",
+ "auth.conflict_always": "Auf diesem Gerät immer mein Konto verwenden und nicht mehr fragen",
  "auth.signout_confirm_clean": "Abmelden und dieses Gerät leeren? Dein Fortschritt bleibt im Konto und kommt bei der Anmeldung zurück. Hier gespeicherte Aufnahmen werden gelöscht — sie waren nie im Konto.",
  "ob.hear_first": "Erst anhören",
  "ob.tap_say": "Tippen und sprechen",

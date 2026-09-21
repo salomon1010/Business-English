@@ -865,6 +865,7 @@
  "auth.conflict_body": "你在未登录的情况下用本设备练习过。载入账户会替换这些记录；选择保留则会把它们加入你的账户。",
  "auth.conflict_use_account": "使用我的账户",
  "auth.conflict_keep_device": "保留本设备的记录",
+ "auth.conflict_always": "在此设备上始终使用我的账户，不再询问",
  "auth.signout_confirm_clean": "退出登录并清空本设备？你的进度安全保存在账户中，登录后会回来。保存在这里的录音会被删除——它们从未上传到账户。",
  "ob.hear_first": "先听一遍",
  "ob.tap_say": "点击并说出来",

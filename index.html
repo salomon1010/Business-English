@@ -2513,6 +2513,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .cf-ic svg{width:24px;height:24px}
 .cf-card h3{font-size:17.5px;font-weight:800;line-height:1.3;margin-bottom:8px}
 .cf-card p{font-size:13.5px;color:var(--mut);line-height:1.6;margin-bottom:20px}
+.cf-check{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:13px;color:var(--mut);line-height:1.45;margin:-8px 0 18px;cursor:pointer}
+.cf-check input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:var(--acc)}
 .cf-actions{display:flex;gap:10px}
 .cf-actions .btn{flex:1;justify-content:center;min-height:44px}
 .pi-ov .cf-card{max-width:340px}
@@ -6241,6 +6243,7 @@ const I18N_EN={
  "auth.conflict_body":"You practised on this device without being signed in. Load your account and this device's unsaved work is replaced. Keep it and it will be added to your account instead.",
  "auth.conflict_use_account":"Use my account",
  "auth.conflict_keep_device":"Keep this device's work",
+ "auth.conflict_always":"Always use my account on this device and don't ask again",
  "auth.signout_confirm_clean":"Sign out and clear this device? Your progress stays safe in your account and comes back when you log in. Recordings saved here are deleted — they were never in your account.",
  "auth.welcome_back_named_toast":"☁️ Welcome back, {{name}} — your progress is synced",
  "auth.sync_issue_toast":"⚠️ Sync issue: {{err}}",
@@ -9243,7 +9246,9 @@ function backupNudge(){
 }
 /* Ask before anything destructive. One in-app dialog for every delete/overwrite,
    instead of the browser's confirm() (which looks foreign and is blocked in some
-   installed-app webviews). Returns a promise: `if(!await askConfirm({…}))return`. */
+   installed-app webviews). Returns a promise: `if(!await askConfirm({…}))return`.
+   Optional `check:"label"` adds a tick-box under the body; the promise then
+   resolves `{ok, check}` (see the sign-in conflict dialog). */
 function askConfirm(o){
   return new Promise(res=>{
     document.querySelectorAll(".cf-ov").forEach(e=>e.remove());
@@ -9253,14 +9258,18 @@ function askConfirm(o){
       <div class="cf-ic ${o.danger===false?"":"danger"}">${ic(o.icon||"trash")}</div>
       <h3 id="cfT">${esc(o.title||t("cf.title"))}</h3>
       ${o.body?`<p>${esc(o.body)}</p>`:""}
+      ${o.check?`<label class="cf-check"><input type="checkbox" id="cfChk"> <span>${esc(o.check)}</span></label>`:""}
       <div class="cf-actions">
         <button class="btn btn-g" data-cf="0">${esc(o.cancelLabel||t("cf.cancel"))}</button>
         <button class="btn ${o.danger===false?"btn-p":"btn-danger"}" data-cf="1">${esc(o.confirmLabel||t("cf.confirm"))}</button>
       </div></div>`;
     document.body.appendChild(ov);
     requestAnimationFrame(()=>ov.classList.add("show"));
+    /* With `check`, the promise resolves {ok, check} instead of a boolean, so the
+       caller learns whether the "don't ask again" box was ticked. */
     const done=v=>{document.removeEventListener("keydown",key);ov.classList.remove("show");
-      setTimeout(()=>ov.remove(),180);res(v)};
+      const chk=o.check?!!(ov.querySelector("#cfChk")||{}).checked:undefined;
+      setTimeout(()=>ov.remove(),180);res(o.check?{ok:v,check:chk}:v)};
     function key(e){if(e.key==="Escape")done(false)}
     ov.addEventListener("click",e=>{
       const b=e.target.closest("[data-cf]");
@@ -19625,6 +19634,7 @@ let FBauth=null,FBdb=null,FBUser=null,fbPushTimer=null,fbSyncing=false;
    "this device is just behind its own account" from "this is somebody else's
    data left on the device", and those two cases need opposite handling. */
 const FB_OWNER_KEY="be12_owner";
+const FB_TRUST_KEY="be12_trust_account";   // "always use my account on this device" — set by the sign-in conflict dialog
 const FB_NUDGE_KEY="be12_syncNudge";
 const FB_SDK="https://www.gstatic.com/firebasejs/10.12.5/";
 const FB_PARTS=["firebase-app-compat.js","firebase-auth-compat.js","firebase-firestore-compat.js"];
@@ -19789,12 +19799,25 @@ async function fbFirstSync(u){
          receives, so an unfiltered comparison would differ every time and raise
          the conflict dialog on every single sign-in. Both sides are filtered so
          a cloud document written before the filter existed still compares. */
+      /* "Always use my account" (the tick-box) is a per-device answer: once
+         given, this device takes the account copy on every later sign-in
+         without asking. It survives sign-out on purpose — the whole point is
+         that practising signed-out on this device never raises the question
+         again. It is only honoured together with "Use my account"; ticking it
+         and then keeping the device's work is ignored. Clearing site data
+         resets it, like everything else on the device. */
       if(fbSnapshotSig(fbSyncPayload(merged))!==fbSnapshotSig(fbSyncPayload(cloud))){
-        const useAccount=await askConfirm({
-          icon:"cloud",danger:false,
-          title:t("auth.conflict_title"),body:t("auth.conflict_body"),
-          confirmLabel:t("auth.conflict_use_account"),cancelLabel:t("auth.conflict_keep_device")});
-        take=useAccount?cloud:merged;      // keep-this-device still uploads, never discards
+        if(localStorage.getItem(FB_TRUST_KEY)==="1"){
+          take=cloud;
+        }else{
+          const r=await askConfirm({
+            icon:"cloud",danger:false,
+            title:t("auth.conflict_title"),body:t("auth.conflict_body"),
+            check:t("auth.conflict_always"),
+            confirmLabel:t("auth.conflict_use_account"),cancelLabel:t("auth.conflict_keep_device")});
+          if(r.ok&&r.check)localStorage.setItem(FB_TRUST_KEY,"1");
+          take=r.ok?cloud:merged;      // keep-this-device still uploads, never discards
+        }
       }
       S=take;
     }

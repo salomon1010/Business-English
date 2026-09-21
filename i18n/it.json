@@ -865,6 +865,7 @@
  "auth.conflict_body": "Ti sei esercitato su questo dispositivo senza aver effettuato l'accesso. Caricare l'account sostituisce quel lavoro. Tenerlo lo aggiunge al tuo account.",
  "auth.conflict_use_account": "Usa il mio account",
  "auth.conflict_keep_device": "Tieni ciò che è su questo dispositivo",
+ "auth.conflict_always": "Usa sempre il mio account su questo dispositivo e non chiedere più",
  "auth.signout_confirm_clean": "Uscire e ripulire questo dispositivo? I progressi restano al sicuro nell'account e tornano al prossimo accesso. Le registrazioni salvate qui vengono eliminate: non sono mai state nell'account.",
  "ob.hear_first": "Ascoltalo prima",
  "ob.tap_say": "Tocca e dillo",

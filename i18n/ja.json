@@ -865,6 +865,7 @@
  "auth.conflict_body": "ログインせずにこの端末で練習しました。アカウントを読み込むとその内容は置き換わり、残す場合はアカウントに追加されます。",
  "auth.conflict_use_account": "アカウントを使う",
  "auth.conflict_keep_device": "この端末の内容を残す",
+ "auth.conflict_always": "この端末では常にアカウントを使い、今後は確認しない",
  "auth.signout_confirm_clean": "ログアウトしてこの端末を消去しますか？進捗はアカウントに安全に残り、ログインすれば戻ります。ここに保存した録音は削除されます — アカウントには入っていません。",
  "ob.hear_first": "まず聞いてみる",
  "ob.tap_say": "タップして言う",

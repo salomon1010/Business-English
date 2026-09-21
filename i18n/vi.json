@@ -865,6 +865,7 @@
  "auth.conflict_body": "Bạn đã luyện trên thiết bị này khi chưa đăng nhập. Tải tài khoản sẽ thay thế phần đó; giữ lại sẽ thêm nó vào tài khoản của bạn.",
  "auth.conflict_use_account": "Dùng tài khoản của tôi",
  "auth.conflict_keep_device": "Giữ phần trên thiết bị này",
+ "auth.conflict_always": "Luôn dùng tài khoản của tôi trên thiết bị này và không hỏi lại",
  "auth.signout_confirm_clean": "Đăng xuất và xoá sạch thiết bị này? Tiến trình vẫn an toàn trong tài khoản và trở lại khi bạn đăng nhập. Các bản ghi lưu ở đây sẽ bị xoá — chúng chưa bao giờ ở trong tài khoản.",
  "ob.hear_first": "Nghe trước đã",
  "ob.tap_say": "Chạm và nói",
