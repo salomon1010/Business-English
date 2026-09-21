@@ -476,11 +476,27 @@ Features
   the numbers and a rule-based quick win (`exQuickWin` / `exConcept`) never
   need the AI, and the report says when the coach was unreachable. Last five
   reports per area in `aList("exRep")` (`exRepA`, merged by `at`, transcript
-  stripped from the cloud copy). Walkthrough is `HOW.polish`. **The week chip
-  row on the Phrase Lab page was removed** (owner, 2026-09-21): the phrase list
-  below shows the current week (or the week the journey linked to) with the
-  week pill; `go('phrases','all')` still works by URL. The old rewrite route
-  (`body.text`) stays in the Worker but nothing calls it.
+  stripped from the cloud copy). Walkthrough is `HOW.polish`.
+  **Restructured again the same evening (owner): the Phrase Lab tab IS
+  Executive Polish.** The card is text box (`#exIn`, the transcript lands in
+  it after a recording, or you type) + mic (`exRecord`, timer in the button)
+  + bin (`exClear`) + **Polish it** (`exPolish`: audio numbers travel with
+  the transcript via `ex.take`; edited text is measured as text). The
+  analyse route now also returns **`versions`** (exactly 2: the whole speech
+  said two other ways — plain/direct and executive — every fact kept, the
+  professional phrases/idioms each introduces listed in `learn` and marked
+  in the text, `exMark`) and **`idioms`** (3 the learner did not use:
+  meaning / when / example on their topic — "A new idiom for you to learn"),
+  rendered by `exVersionsHTML` / `exIdiomsHTML` at the TOP of the report;
+  `exSaveTerm` puts either into `vocPut` + the dictionary seed. **The
+  professional-phrase and business-idiom lists left the page**: they are the
+  phrase bank, `rPhraseBank` / `go('phrasebank', w)` (`#v-phrasebank`, lit
+  under the Phrase Lab tab), linked from the bottom of the Polish page, the
+  week cards and the Home stat; `phKind` / `phMaster` re-render the bank;
+  `go('phrasebank','all')` = mastered only. The old sentence rewrite route
+  (`body.text`) stays in the Worker but nothing calls it. The Polish Worker
+  (`backend/`, `be-polish`) must be redeployed for versions/idioms — the
+  client renders nothing for them until then.
 - **Shadowing Studio**: pick/paste a YouTube clip → a **focused full-screen
   workspace** (`.sh-work`, opened by `shLoad`→`shOpenWork`, closed by
   `shCloseWork`) with player, clip marking, transcript, record, waveform, posture
