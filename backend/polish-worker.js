@@ -139,12 +139,17 @@ async function callTTS(env, text, voice, style) {
   });
 }
 
-async function callTranscribe(env, bytes, mime) {
+// Whisper drops "um" and "uh" unless it is shown that they are wanted. The
+// speech analysis wants them (they are the "filler words" it counts), the
+// shadowing and role-play callers do not — so it is opt-in: POST ...?fillers=1.
+const FILLER_PROMPT = "Um, uh, er, hmm, you know, I mean, like, so... Okay, um, let me think.";
+async function callTranscribe(env, bytes, mime, keepFillers) {
   const form = new FormData();
   form.append("model", STT_MODEL);
   form.append("response_format", "verbose_json");
   form.append("timestamp_granularities[]", "word");
   form.append("language", "en");
+  if (keepFillers) form.append("prompt", FILLER_PROMPT);
   const ext = mime.includes("mp4") || mime.includes("m4a") ? "m4a"
     : mime.includes("ogg") ? "ogg"
     : mime.includes("wav") ? "wav"
@@ -367,6 +372,77 @@ const chatHits = new Map();
 const CHAT_MODEL = "gpt-4o-mini";
 const MAX_CHAT_TURNS = 40;
 
+/* ---------------------------------------------------------------
+   Executive Polish — speech analysis.
+
+   The learner spoke for about a minute. The app already measured what a
+   machine measures well (pace, pauses, pitch range, filler and hedging
+   counts, sentence length, vocabulary) on the device; this call asks the
+   model for what only a reader can judge — the key message, how it was
+   structured, what makes it credible or not, and the one thing to work on
+   next. Every field is a short string, sliced hard, so the report renders
+   the same whatever the model returns.
+--------------------------------------------------------------- */
+const AN_MODEL = "gpt-4o-mini";
+const AN_PER_MIN = 6;
+const AN_PER_DAY = 150;
+const anHits = new Map();
+const MAX_AN_CHARS = 4000;     // ~10 minutes of speech; the app sends ~1
+const AN_FIELDS = {            // field -> max chars
+  key_message: 240, clarity: 8, sharper: 280, structure_note: 260, answer_directly: 260,
+  example: 280, evidence: 260, credibility: 260, remember_title: 90, remember_body: 320,
+  next_recording: 320, quick_win_title: 90, quick_win_goal: 220, concept_title: 70, concept_body: 240,
+};
+const AN_LANGS = { en:"English", es:"Spanish", fr:"French", pt:"Portuguese", it:"Italian", de:"German", ru:"Russian", ar:"Arabic", ur:"Urdu", hi:"Hindi", bn:"Bengali", id:"Indonesian", vi:"Vietnamese", zh:"Chinese", ja:"Japanese", ko:"Korean" };
+function anStr(v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
+async function callAnalyse(env, transcript, metrics, lang) {
+  const language = AN_LANGS[lang] || "English";
+  const system =
+    "You are an executive speaking coach for professionals who use English as a second language. " +
+    "The learner spoke for about a minute (transcript below, fillers kept). Measured numbers are given; do not re-measure. " +
+    "Judge what a listener judges: the key message, the structure, what makes the speaker credible, and the one change that matters most. " +
+    "Be concrete and specific: quote the learner's own words. Never invent facts the learner did not say. " +
+    "Write in " + language + ", EXCEPT key_message, sharper, example and the hedges' better versions, which are lines the learner will SAY and must be in plain spoken English (B1 level, short). " +
+    "Respond with ONLY minified JSON, no code fences, exactly these keys: " +
+    '{"key_message":"<the one thing they were saying, one sentence, English, in their words>",' +
+    '"clarity":"clear"|"fuzzy",' +
+    '"sharper":"<the key message said better: one plain sentence, max 22 words>",' +
+    '"structure":["<part 1>","<part 2>",...],' +
+    '"structure_note":"<one sentence: what the order did for the listener>",' +
+    '"answer_directly":"<one sentence: the first change to make to the opening>",' +
+    '"example":"<one English sentence they could open with>",' +
+    '"evidence":"<one sentence on the proof they gave or did not give>",' +
+    '"credibility":"<one sentence on hedges and certainty, quoting them>",' +
+    '"hedges":[{"said":"<phrase they used>","better":"<the same idea stated plainly>"}],' +
+    '"remember_title":"<3-8 words>","remember_body":"<two sentences>",' +
+    '"next_recording":"<the exact task for the next 60-second recording>",' +
+    '"quick_win_title":"<3-8 words>","quick_win_goal":"<one measurable goal>",' +
+    '"concept_title":"<a speaking principle they just used or need, 2-5 words>","concept_body":"<one sentence tying it to their speech>"} ' +
+    "structure has 3 to 5 items of at most 6 words each; hedges has 0 to 3 items.";
+  const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics);
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({
+      model: AN_MODEL, max_tokens: 1100, temperature: 0.5,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, { role: "user", content: user }],
+    }),
+  });
+  if (!r.ok) throw new Error("provider " + r.status);
+  const j = await r.json();
+  const raw = ((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "{}").trim();
+  let p; try { p = JSON.parse(raw); } catch { p = {}; }
+  const out = {};
+  for (const [k, max] of Object.entries(AN_FIELDS)) out[k] = anStr(p[k], max);
+  out.clarity = out.clarity === "fuzzy" ? "fuzzy" : "clear";
+  out.structure = (Array.isArray(p.structure) ? p.structure : []).map(x => anStr(x, 60)).filter(Boolean).slice(0, 5);
+  out.hedges = (Array.isArray(p.hedges) ? p.hedges : [])
+    .map(h => h && typeof h === "object" ? { said: anStr(h.said, 60), better: anStr(h.better, 160) } : null)
+    .filter(h => h && h.said && h.better).slice(0, 3);
+  return out;
+}
+
 async function callChat(env, system, messages) {
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -515,7 +591,8 @@ export default {
       if (!bytes.byteLength) return json({ error: "empty" }, 400, cors);
       if (bytes.byteLength > MAX_STT_BYTES) return json({ error: "too_large" }, 413, cors);
       try {
-        const out = await callTranscribe(env, bytes, ctype);
+        const keepFillers = new URL(request.url).searchParams.get("fillers") === "1";
+        const out = await callTranscribe(env, bytes, ctype, keepFillers);
         return json(out, 200, cors);
       } catch (e) {
         return json({ error: "stt_unavailable", detail: String(e.message || e) }, 502, cors);
@@ -585,6 +662,24 @@ export default {
         return json(out, 200, cors);
       } catch (e) {
         return json({ error: "assess_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
+
+    // ---- Speech-analysis path: transcript + device-measured numbers → coaching report ----
+    if (body.analyse && typeof body.analyse === "object") {
+      if (rateLimited(ip, anHits, AN_PER_MIN, AN_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const transcript = String(body.analyse.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
+      if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
+      const metrics = body.analyse.metrics && typeof body.analyse.metrics === "object" ? body.analyse.metrics : {};
+      const m = {};                                    // numbers only, a bounded set — nothing personal rides along
+      for (const k of ["seconds","words","wpm","hesitations","fillers","hedges","wordsPerSentence","sentences","vocabularyPct","pitchSemitones"]) {
+        if (Number.isFinite(+metrics[k])) m[k] = Math.round(+metrics[k] * 10) / 10;
+      }
+      const lang = String(body.analyse.lang || "en").slice(0, 5).toLowerCase();
+      try {
+        return json(await callAnalyse(env, transcript, m, lang), 200, cors);
+      } catch (e) {
+        return json({ error: "analyse_unavailable", detail: String(e.message || e) }, 502, cors);
       }
     }
 

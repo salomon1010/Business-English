@@ -456,13 +456,26 @@ UI / design
 - All stat-card grids **centre-aligned** (`.stats-center`).
 
 Features
-- **Executive Polish** (Phrases tab): say it casually → **two** boardroom-ready
-  rewrites via AI. Powered by the **Cloudflare Worker** (`POLISH_API`, holds the
-  OpenAI key) so users need only internet, no key; offline/no-URL falls back to a
-  local rule-based clean-up. User-controlled **dictation mic** (tap start / tap
-  stop, whole paragraphs), resizable textarea, **Clear** button. Shows two versions
-  at a time with "Polish again" for more (extra results queued to save cost; the
-  avoid-list sent to the API is capped at 6).
+- **Executive Polish** (Phrase Lab tab) — **rebuilt 2026-09-21 as a speech
+  analysis, not a rewrite.** The learner taps Record and speaks for about a
+  minute (`EX_MAX_S` 90, `EX_MIN_S` 8; a prompt card with six `ex.prompt_N`
+  topics; "Or paste what you said" is the no-mic fallback). Pipeline `exRun`:
+  Whisper via the Worker with **`?fillers=1`** (keeps the "um"s) + on-device
+  `exAudioStats` (RMS silences, autocorrelation pitch → semitone spread and a
+  contour) → `exTextStats` (wpm, hesitations = word gaps ≥ 0.7 s + vocalised
+  fillers, `EX_FILLERS` / `EX_HEDGES` counts, words/sentence, distinct-word %)
+  → Worker `{analyse:{transcript,metrics,lang}}` (new route, `callAnalyse`,
+  gpt-4o-mini JSON: key message, clarity, sharper version, structure,
+  credibility, hedges→better, action plan, concept). `exRenderReport` draws
+  Delivery / Texture / Message / Credibility / Action plan / Concept unlocked;
+  the numbers and a rule-based quick win (`exQuickWin` / `exConcept`) never
+  need the AI, and the report says when the coach was unreachable. Last five
+  reports per area in `aList("exRep")` (`exRepA`, merged by `at`, transcript
+  stripped from the cloud copy). Walkthrough is `HOW.polish`. **The week chip
+  row on the Phrase Lab page was removed** (owner, 2026-09-21): the phrase list
+  below shows the current week (or the week the journey linked to) with the
+  week pill; `go('phrases','all')` still works by URL. The old rewrite route
+  (`body.text`) stays in the Worker but nothing calls it.
 - **Shadowing Studio**: pick/paste a YouTube clip → a **focused full-screen
   workspace** (`.sh-work`, opened by `shLoad`→`shOpenWork`, closed by
   `shCloseWork`) with player, clip marking, transcript, record, waveform, posture

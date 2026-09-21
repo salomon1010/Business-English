@@ -122,7 +122,7 @@ ok("After a toast has hidden, every point on every bar button still reaches the 
 /* ── an offer that opened on its own never blocks the bar ── */
 const offer = await page.evaluate(async () => {
   go("phrases"); await new Promise(r => setTimeout(r, 300));
-  localStorage.removeItem("be_ex_how"); exHow(); await new Promise(r => setTimeout(r, 250));
+  localStorage.removeItem("be_how_polish"); howOpen("polish"); await new Promise(r => setTimeout(r, 250));
   const open = !!document.querySelector(".exd-ov");
   const b = document.querySelector('.bnav-item[data-v="practice"]'); const rc = b.getBoundingClientRect();
   const reach = b.contains(document.elementFromPoint(rc.left + rc.width / 2, rc.top + rc.height / 2));

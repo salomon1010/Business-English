@@ -1952,56 +1952,6 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 .ex-field textarea{padding-left:38px;width:100%;display:block}
 .ex-field-ta .ex-field-ic{top:15px;transform:none}
 textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
-/* Two tidy rows: [ mic | bin ] across the top, "Polish it" spanning both
-   beneath. A grid, not a flex row, because the point is that the two icon
-   buttons together measure exactly the primary button — 1fr + 1fr + the gap is
-   that guarantee, at any width, rather than a pair of 48px squares that left a
-   ragged hole beside them.
-
-   grid-auto-rows:minmax(48px,1fr) is what makes it follow the textarea: the
-   parent stretches, so dragging the box taller shares the extra height between
-   the two rows instead of leaving the block stranded at the top. */
-.ex-btns{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(48px,1fr);
-  gap:8px;min-width:210px}
-.ex-btns>.btn,.ex-btns>.btn-primary{min-height:48px;border-radius:var(--r-md)}
-/* padding:0 matters: .btn carries 11px/20px padding, which leaves only 8px of
-   content box inside a 48px icon-only button. The global svg{max-width:100%}
-   then clamped the 19px glyph to ~6px and both buttons rendered as empty
-   boxes. Icon-only buttons centre their glyph with grid instead of padding. */
-.ex-micbtn{display:grid;place-items:center;padding:0}
-.ex-micbtn svg{width:19px;height:19px}
-.ex-icobtn{display:grid;place-items:center;padding:0}
-.ex-icobtn svg{width:18px;height:18px}
-.ex-polishbtn{grid-column:1/-1;min-height:48px;font-size:15px}
-.ex-polishbtn .btn-ic{margin:0}
-.ex-polishbtn svg{width:17px;height:17px}
-/* Dictation mic — cycling light ring so it reads as "start here" */
-/* The last spinning conic gradient in the app. A dictation button does not need
-   perpetual motion to be found; the live state is what actually carries meaning,
-   so that keeps its red fill and the idle state is an ordinary control. */
-.ex-micbtn{color:var(--txt);transition:border-color .2s,background .2s,color .2s}
-.ex-micbtn.ex-mic-live{background:var(--red);border-color:transparent;color:#fff}
-.ex-micbtn.ex-mic-live svg{color:#fff}
-/* Nothing on this card said where to begin: an empty box and three controls of
-   equal weight. The mic wears an accent ring while there is nothing to polish,
-   so the first thing you meet is the thing to do first — speak. It is a
-   pointer, not an alarm: the first character typed or dictated clears it, and
-   Clear brings it back because the box is empty again. */
-.ex-micbtn.ex-mic-hint{border-color:var(--acc);color:var(--accent-text);position:relative;
-  background:color-mix(in srgb,var(--acc) 13%,transparent)}
-.ex-micbtn.ex-mic-hint::after{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;
-  border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);
-  animation:exRingOut 2.4s ease-out infinite}
-/* One ring for every "look here" in the app: scale + opacity only, so it never
-   leaves the compositor. */
-@keyframes exRingOut{0%{transform:scale(1);opacity:.9}70%,100%{transform:scale(1.28);opacity:0}}
-@media(prefers-reduced-motion:reduce){
-  .ex-micbtn.ex-mic-hint::after{animation:none;opacity:.6;transform:none}}
-/* Phone: the block wraps under the textarea, so it takes the whole width and
-   keeps the same two rows. Cramming all three onto one line squeezed "Polish
-   it" — the feature's primary action — down to 8px of side padding. */
-@media(max-width:520px){.ex-btns{min-width:100%}}
-.ex-mic-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important;animation:exPulse 1.1s infinite}
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 /* "listening" is live state, so the pulse is motivated — but the red fill
    already carries the meaning without it. */
@@ -2136,42 +2086,127 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ph-sp-top b{font-size:15.5px}
 .ph-sp-count{font-size:11.5px;color:var(--mut);border:1px solid var(--line2);border-radius:999px;padding:2px 9px}
 .ph-sp-sub{font-size:12.5px;color:var(--mut);margin:0 0 10px}
-/* The loop that turns a polished sentence into part of your speech. */
-.ex-flow ol{margin:0;padding-left:20px;font-size:12.5px;color:var(--mut);line-height:1.65}
-.ex-flow li{margin-bottom:4px}
 
-/* EXECUTIVE POLISH results — one recommended line, then disclosure. */
-.ex-h{font-size:15px;font-weight:800;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+/* EXECUTIVE POLISH — the card, the recorder, the report. Section eyebrows
+   in small caps, one gold rule beside every judged sentence, stat tiles in
+   threes: a report you can read top to bottom on a phone. */
+.ex-card{margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)}
+.ex-prompt{position:relative;border:1px solid var(--line2);border-radius:var(--r-md,12px);padding:12px 14px;margin:0 0 12px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+.ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
+.ex-prompt-btn{min-height:36px}
+.ex-recbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:12px 16px;border-radius:var(--r-lg,16px);
+  border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--txt);
+  text-align:left;cursor:pointer;font:inherit;transition:background .2s,border-color .2s,transform .15s}
+.ex-recbtn:hover{border-color:var(--acc)}
+.ex-recbtn:active{transform:scale(.99)}
+.ex-rec-ic{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--accent-fill,var(--acc));color:var(--on-accent,#fff)}
+.ex-rec-ic svg{width:22px;height:22px}
+.ex-rec-l{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ex-rec-l b{font-size:15.5px;font-weight:700;line-height:1.3}
+.ex-rec-l small{font-size:12.5px;color:var(--mut)}
+.ex-recbtn.is-live{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,transparent)}
+.ex-recbtn.is-live .ex-rec-ic{background:var(--red);color:#fff;animation:exPulse 1.1s infinite}
+.ex-recbtn.is-live .ex-rec-l b{font-variant-numeric:tabular-nums;color:var(--red)}
+.ex-status{display:block;font-size:12.5px;color:var(--mut);margin:8px 0 0;min-height:0;line-height:1.5}
+.ex-status:empty{display:none}
+.ex-last{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:10px 12px;border-radius:var(--r-md,12px);
+  border:1px solid var(--line2);background:var(--card);color:var(--mut);font:inherit;font-size:12.5px;text-align:left;cursor:pointer}
+.ex-last b{color:var(--txt)}
+.ex-last .btn-ic{color:var(--acc2)}
+.ex-last-go{margin-left:auto;font-size:18px;color:var(--mut2)}
+.ex-paste-btn{margin-top:10px;width:100%;justify-content:center}
+/* waiting */
+.ex-wait{text-align:center;padding:26px 8px 18px}
+.ex-wait-eyebrow,.ex-eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.ex-wait-h{font-size:26px;font-weight:800;letter-spacing:-.3px;margin:8px 0 18px;line-height:1.15}
+.ex-wait-wave{display:flex;justify-content:center;align-items:center;gap:6px;height:44px;margin-bottom:14px}
+.ex-wait-wave i{display:block;width:5px;height:12px;border-radius:5px;background:var(--gold);animation:exWave .9s ease-in-out infinite alternate}
+@keyframes exWave{to{height:40px}}
+.ex-wait-step{font-size:13.5px;color:var(--mut);margin:0}
+@media(prefers-reduced-motion:reduce){.ex-wait-wave i{animation:none;height:24px}.ex-recbtn.is-live .ex-rec-ic{animation:none}}
+/* report */
+.ex-report{margin-top:4px}
+.ex-rep-top{padding:6px 0 14px;border-bottom:1px solid var(--line)}
+.ex-rep-h{font-size:24px;font-weight:800;letter-spacing:-.3px;margin:6px 0 4px;line-height:1.15}
+.ex-rep-meta{font-size:12.5px;color:var(--mut);margin:0}
+.ex-block{padding:18px 0 6px;border-bottom:1px solid var(--line)}
+.ex-block:last-of-type{border-bottom:none}
+.ex-sechead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.ex-sec-ic{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
+.ex-sec-ic svg{width:18px;height:18px}
+.ex-sechead .ex-eyebrow{color:var(--txt)}
+.ex-sec-sub{font-size:12.5px;color:var(--mut);margin-top:1px}
+.ex-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.ex-stats-2{grid-template-columns:repeat(2,1fr)}
+.ex-stat{text-align:center;padding:12px 6px 10px;border-radius:var(--r-md,12px);background:var(--card);border:1px solid var(--line)}
+.ex-stat-n{display:block;font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1;font-variant-numeric:tabular-nums}
+.ex-stat-n small{font-size:14px;font-weight:700;color:var(--mut)}
+.ex-stat-u{display:block;font-size:11.5px;color:var(--mut);margin-top:6px}
+.ex-stat-b{display:block;font-size:10px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;margin-top:7px}
+.ex-stat-b.is-good{color:var(--green)}
+.ex-stat-b.is-warn{color:var(--gold)}
+.ex-stat-b.is-bad{color:var(--red)}
+.ex-stat-b.is-na{color:var(--mut2)}
+.ex-delta{font-weight:700;color:var(--acc2)}
+.ex-fine{font-size:11.5px;color:var(--mut2);line-height:1.5;margin:6px 0 0}
+.ex-pitch{margin:4px 0 14px}
+.ex-pitch-h{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut);margin-bottom:6px}
+.ex-pitch svg{display:block;width:100%;height:110px;border-radius:10px;background:var(--card);border:1px solid var(--line)}
+.ex-pitch-line{fill:none;stroke:var(--gold);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.ex-pitch-mid{stroke:var(--mut2);stroke-width:1;stroke-dasharray:4 6;vector-effect:non-scaling-stroke}
+.ex-pitch-dot{fill:var(--red)}
+.ex-legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--mut);margin-top:8px}
+.ex-legend span{display:inline-flex;align-items:center;gap:6px}
+.ex-legend i{display:inline-block;width:14px;height:3px;border-radius:2px;background:var(--gold)}
+.ex-legend .ex-lg-mid{background:none;border-top:1px dashed var(--mut2);height:0}
+.ex-legend .ex-lg-dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.ex-q{position:relative;padding:2px 0 2px 14px;margin:8px 0 10px;border-left:3px solid var(--gold)}
+.ex-q p{margin:0;font-size:14px;line-height:1.6;color:var(--txt)}
+.ex-q-l{display:inline;font-weight:700;color:var(--gold);margin-right:5px}
+.ex-q.gold p{display:inline}
+.ex-k{font-size:10.5px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin:14px 0 6px}
+.ex-k:first-of-type{margin-top:0}
+.ex-keymsg{font-size:17px;font-weight:600;line-height:1.5;margin:0 0 8px;letter-spacing:-.1px}
+.ex-clar{display:flex;gap:14px;font-size:12.5px;color:var(--mut2);margin-bottom:6px}
+.ex-clar .on{color:var(--green);font-weight:700}
+.ex-clar .on.warn{color:var(--gold)}
 .ex-best{background:color-mix(in srgb,var(--green) 8%,transparent);
   border:1px solid color-mix(in srgb,var(--green) 34%,transparent);
   border-radius:var(--r-lg);padding:16px 18px}
-.ex-best-t{font-size:17px;font-weight:600;line-height:1.5;letter-spacing:-.1px}
-.ex-why{margin-top:12px;padding-top:11px;border-top:1px solid color-mix(in srgb,var(--green) 26%,transparent)}
-.ex-why b{display:block;font-size:12px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--green);margin-bottom:5px}
-.ex-why p{font-size:13px;color:var(--mut);line-height:1.55}
-.ex-flow-lead{margin:0 0 10px;padding:10px 12px;border-radius:10px;
-  border:1px solid color-mix(in srgb,var(--acc) 30%,var(--line));
-  background:color-mix(in srgb,var(--acc) 8%,transparent);
-  font-size:13px;line-height:1.55;color:var(--txt)}
-.ex-changes{display:flex;flex-wrap:wrap;gap:6px}
-.ex-clean{font-size:13px;color:var(--green);font-weight:600;margin-top:10px}
+.ex-best-t{font-size:17px;font-weight:600;line-height:1.5;letter-spacing:-.1px;margin:0}
 .ex-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .ex-acts>.btn{flex:1 1 auto;min-height:44px;justify-content:center;white-space:nowrap}
-/* reuse is the point of a polished line, so Copy is the emphasised action */
 .ex-copy{background:color-mix(in srgb,var(--green) 16%,transparent);
   border:1px solid color-mix(in srgb,var(--green) 45%,transparent);color:var(--txt);font-weight:700}
 .ex-copy:hover{background:color-mix(in srgb,var(--green) 26%,transparent)}
-.ex-alt{padding:2px 0 10px}
-.ex-alt+.ex-alt{border-top:1px solid var(--line);padding-top:14px}
-.ex-alt-t{font-size:15.5px;font-weight:600;line-height:1.5}
-.ex-alt-why{font-size:12.5px;color:var(--mut);margin-top:6px;line-height:1.5}
+.ex-struct{list-style:none;margin:0;padding:0}
+.ex-struct li{display:flex;gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.ex-struct li:last-child{border-bottom:none}
+.ex-struct li span{flex:none;font-size:12px;font-weight:800;color:var(--gold);letter-spacing:1px;font-variant-numeric:tabular-nums}
+.ex-p{margin:0 0 4px;font-size:14px;line-height:1.6}
+.ex-ex{font-style:italic}
+.ex-tic-k{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);margin:10px 0 6px}
+.ex-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ex-tic{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 11px;border-radius:10px;border:1px solid var(--line2);background:var(--card)}
+.ex-tic b{color:var(--red);font-weight:800}
+.ex-tic.warn b{color:var(--gold)}
+.ex-none{font-size:13px;color:var(--green);font-weight:600;margin:0}
+.ex-fixes{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.ex-fix{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;font-size:13.5px;line-height:1.5}
+.ex-fix s{color:var(--mut)}
+.ex-fix span{color:var(--mut2)}
+.ex-fix b{font-weight:600}
+.ex-h4{font-size:19px;font-weight:800;letter-spacing:-.2px;margin:0 0 6px;line-height:1.25}
+.ex-next{margin:14px 0 4px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);background:color-mix(in srgb,var(--gold) 7%,transparent)}
+.ex-next .ex-k{margin-top:0}
+.ex-next p{margin:0;font-size:15px;line-height:1.55}
+.ex-concept .ex-concept-t{font-family:Georgia,"Times New Roman",serif;font-size:24px;font-weight:700}
+.ex-again{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.ex-audio{width:100%;height:40px}
+.ex-tx{font-size:13.5px;line-height:1.65;color:var(--mut);margin:0}
 .ex-sec{margin:12px 0 0}
-.ex-frames div{padding:6px 0;font-size:12.5px;color:var(--mut);line-height:1.55}
-.ex-frames div+div{border-top:1px solid var(--line)}
-.ex-frames b{color:var(--acc2)}
-.ex-more-hint{font-size:12.5px;color:var(--mut);margin-top:12px;line-height:1.5}
 .ex-note{font-size:12.5px;color:var(--gold);margin-bottom:10px;line-height:1.5}
-.ex-status{font-size:12.5px;color:var(--mut)}
 .ex-aiprompt{min-height:44px;margin-top:12px}
 .ph-score{font-weight:800;opacity:.8;margin-left:2px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
@@ -2690,6 +2725,15 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .exd-week{display:flex;gap:4px;align-items:flex-end;height:44px;margin-top:6px}
 .exd-week i{flex:1;border-radius:3px 3px 0 0;background:var(--grad);opacity:.85}
 .exd-center{text-align:center}
+/* the Polish walkthrough: a record button, a listening screen, three stat tiles */
+.exd-rec{display:inline-flex;width:100%;height:30px;font-size:10.5px;margin-top:8px;border-radius:9px}
+.exd-rec svg{width:13px;height:13px}
+.exd-big{display:block;font-size:16px;font-weight:800;margin:4px 0 8px;letter-spacing:-.2px}
+.exd-center small{display:block;font-size:10px;color:var(--mut);margin-top:6px}
+.exd-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.exd-stats span{display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 3px;border-radius:8px;background:var(--card);border:1px solid var(--line2);font-size:8.5px;color:var(--mut);text-align:center}
+.exd-stats b{font-size:16px;color:var(--txt);line-height:1}
+.exd-stats i{font-style:normal;font-size:7.5px;font-weight:800;letter-spacing:.6px;color:var(--green)}
 @keyframes exdFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){
   .exd-caret,.exd-ring::after,.exd-wave i,.exd-fade{animation:none}
@@ -4139,7 +4183,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA"};
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA"};   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA"};   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -4681,7 +4725,7 @@ const I18N_EN={
  "acc.free_1":"Start here: a one-minute check, then fifteen Foundations days of three sentences",
  "acc.free_2":"A 12-week road map of guided 25-minute sessions — for the office or the workshop",
  "acc.free_3":"Shadowing studio with clip looping and word-by-word speaking feedback",
- "acc.free_4":"Executive Polish: your sentence, rewritten boardroom-ready",
+ "acc.free_4":"Executive Polish: speak for a minute, hear exactly what to fix",
  "acc.free_5":"Workplace conversations and role-play with AI characters",
  "acc.free_6":"Vocabulary bank, phrase lab, quizzes and progress charts",
  "acc.free_7":"Optional cloud backup with a free account · works offline without one",
@@ -4895,9 +4939,6 @@ const I18N_EN={
  "week.tab":"W{{n}}",
  "starter.0.why":"Slow, clear, perfectly paced — the ideal first shadowing voice.",
  "starter.1.why":"Presentation rhythm & persuasion language for meetings.",
- "exframe.0":"Open like an executive",
- "exframe.1":"State the issue",
- "exframe.2":"Close with action",
  "sess.back":"← Week {{w}}",
  "sess.return":"← Back to your session · Week {{w}} · {{d}}",
  "sess.link_shadow":"Open the Shadow Studio",
@@ -4948,11 +4989,8 @@ const I18N_EN={
  "ph.title":"Repeat. Record. <em>Own it.</em>",
  "ph.sub":"These are the exact words the confident ones use — say each one aloud, make it your own, and record it until the perfect phrase is already on your tongue when the room turns to you.",
  "ph.exec_title":"💼 Executive Polish",
- "ph.exec_tag":"say it like a leader",
- "ph.exec_desc":"Say it the way you always have — and hear it come back the way a leader would. Speak it a few times, and that voice becomes yours.",
- "ph.exec_ph":"e.g. um I think maybe we need to fix the problem with the informations",
- "ph.exec_polish_btn":"✨ Polish it",
- "ph.all_mastered_tab":"All mastered ✓",
+ "ph.exec_tag":"speak for a minute",
+ "ph.exec_desc":"Speak for about a minute — your project, your role, the update you owe someone. Hear how you come across: structure, filler words, pace, delivery. Then you know exactly what to work on before you walk into the room.",
  "ph.nothing_mastered":"Nothing mastered yet — open a weekly tab and claim your first phrase.",
  "ph.week_label":"Week {{w}} — <b style=\"color:var(--txt)\">{{theme}}</b>",
  "ph.idiom_tag":"💼 BUSINESS IDIOM",
@@ -5662,12 +5700,6 @@ const I18N_EN={
  "tools.why_sim":"This step is a conversation. A workplace scenario puts a character in front of you and scores each answer.",
  "tools.why_fnd":"You are in Foundations. Today's three sentences are the step — the other tools open with the full programme.",
  "tools.why_done":"Every session is done. Pick any tool and keep the language alive.",
- "ph.exec_flow_h":"How to build your full speech",
- "ph.exec_flow_lead":"Use it ten minutes before the meeting. You already know roughly what you are going to say — put those lines in here first, and walk in saying the version a leader would have used. Two or three real phrases a day, from sentences you actually needed.",
- "ph.exec_flow_1":"Pick a phrase below — say “I currently work as…” — then tap the mic here and say your whole sentence out loud, so it lands in the box. Typing it works just as well.",
- "ph.exec_flow_2":"Tap Polish it, and take whichever version sounds most like the professional you want to be.",
- "ph.exec_flow_3":"Tap Copy on that version, then paste it into that phrase's own box below.",
- "ph.exec_flow_4":"Every sentence you save joins Your full speech at the bottom of this page — hear it, then say the whole thing yourself.",
  "ph.speech_h":"🎤 Your full speech",
  "ph.speech_sub":"Every sentence you've written this week, joined into one answer. Hear it, then say the whole thing yourself — that is the version of you who walks into the room already fluent.",
  "ph.speech_ph":"Write or paste your sentences above and they gather here, one line at a time.",
@@ -6068,33 +6100,153 @@ const I18N_EN={
  "fb.try_heard_retry":"Heard “{{heard}}” — listen to the example and try again",
  "fb.try_mic_error2":"Mic error — try again",
  "fb.try_didnt_hear2":"Didn't hear you — try again",
- "ex.type_first_toast":"Type or dictate a sentence first",
- "ex.exec_version":"💼 Executive version",
+ "ex.type_first_toast":"Paste or type a few sentences first",
  "ex.hear_btn":"🔊 Hear it",
  "ex.slow_btn":"🐢 Slow",
  "ex.copy_btn":"📋 Copy",
  "ex.copied_toast":"Copied 📋",
- "ex.ai_prompt_btn":"🤖 AI coach prompt",
- "ex.ai_prompt_title":"Copy a ready-made coaching prompt for ChatGPT, Claude or Gemini",
- "ex.what_changed":"What changed:",
- "ex.already_clean":"Already clean — try saying it with the frames below 👇",
- "ex.ai_copied_toast":"🤖 Coach prompt copied — paste it into ChatGPT, Claude or Gemini",
- "ex.dictate_sr_unavailable":"⚠️ Dictation needs Chrome, Edge or Safari",
- "ex.dictate_listening":"🎧 Listening…",
- "ex.dictate_listening_hold":"🎙️ Recording — speak freely, tap the mic again to stop.",
- "ex.dictate_title":"Tap to start dictating; tap again to stop",
- "ex.clear_btn":"🗑 Clear",
  "nav.render_failed":"This page could not be drawn.",
  "nav.curriculum_failed":"The lessons could not be downloaded. Check your connection and try again.",
  "nav.retry":"Try again",
  "ex.how_btn":"How it works",
- "ex.how_title":"Polish what you are about to say",
- "ex.how_lead":"Ten minutes before the meeting, put in the sentence you were going to use anyway — and walk in with the version a leader would have said.",
- "ex.how_1":"Tap the mic and say your sentence exactly as it comes out — “um I think maybe we need to fix the problem”. Typing it works just as well. Nothing has to be correct yet.",
- "ex.how_2":"Tap “Polish it”. Your sentence goes away rough and comes back written for the room you are about to walk into.",
- "ex.how_3":"Two executive versions come back. Pick the one that sounds like the professional you want to be, and read “What changed” — those are the words you were missing.",
- "ex.how_4":"Tap “Hear it”, say it out loud twice until it feels like yours, then copy it. That sentence is now ready for the meeting.",
+ "ex.how_title":"Speak for a minute. Hear exactly what to fix.",
+ "ex.how_lead":"Before the meeting, say the thing you are going to say anyway — and find out how it lands before anyone else does.",
+ "ex.how_1":"Tap Record and talk for about a minute — your project, your role, the update you owe someone. Say it the way it comes out; rough is fine.",
+ "ex.how_2":"The app writes down what you said and measures how you said it: pace, pauses, how much your voice moves, filler words, hedges.",
+ "ex.how_3":"You get your speech in numbers, your key message, a sharper version of it, and the one thing to work on next.",
+ "ex.how_4":"Practise the sharper version, record again, and hear the difference — before you walk into the room.",
  "ex.how_try":"Try it now",
+ "ex.prompt_h":"Today's prompt",
+ "ex.prompt_1":"Introduce yourself to a new client: your role, one strength, one detail about you.",
+ "ex.prompt_2":"Give an update on the project you are working on now: where it stands, what is blocked, what happens next.",
+ "ex.prompt_3":"Explain a decision you made at work recently, and why it was the right one.",
+ "ex.prompt_4":"Describe a problem your team solved this month — what went wrong, what you did, what changed.",
+ "ex.prompt_5":"Tell a new colleague what your job involves on a normal day.",
+ "ex.prompt_6":"Argue for one thing your team should start doing, and what it would change.",
+ "ex.prompt_shuffle":"Another prompt",
+ "ex.rec_btn":"Record — speak for about a minute",
+ "ex.rec_sub":"Tap to start. Up to {{s}} seconds.",
+ "ex.rec_stop":"Tap to stop and analyse",
+ "ex.rec_hint":"Speak freely, as you would in the meeting. Tap again when you have made your point.",
+ "ex.rec_min":"Say a little more — at least {{s}} seconds.",
+ "ex.rec_unsupported":"Recording needs Chrome, Edge or Safari",
+ "ex.rec_busy":"Another recording is running — stop it first",
+ "ex.paste_h":"Or paste what you said",
+ "ex.paste_ph":"Paste or type what you said — a minute of speech, roughly 100–180 words.",
+ "ex.paste_btn":"Analyse the text",
+ "ex.listening_h":"The AI is listening.",
+ "ex.step_stt":"Writing down what you said…",
+ "ex.step_measure":"Measuring pace, pauses and voice…",
+ "ex.step_plan":"Writing your action plan…",
+ "ex.report_eyebrow":"Analysis",
+ "ex.report_h":"How you came across",
+ "ex.report_meta":"{{n}} words in {{s}} seconds",
+ "ex.report_meta_text":"{{n}} words — text only, so pace and voice are not measured",
+ "ex.delivery_h":"Delivery",
+ "ex.delivery_sub":"Your speech in numbers",
+ "ex.wpm":"words / min",
+ "ex.semis":"semitones",
+ "ex.hes":"hesitations",
+ "ex.b_slow":"TOO SLOW",
+ "ex.b_pace_ok":"GOOD PACE",
+ "ex.b_fast":"TOO FAST",
+ "ex.b_flat":"FLAT",
+ "ex.b_steady":"STEADY",
+ "ex.b_expressive":"EXPRESSIVE",
+ "ex.b_spotless":"SPOTLESS",
+ "ex.b_few":"A FEW",
+ "ex.b_many":"MANY",
+ "ex.b_vshort":"VERY SHORT",
+ "ex.b_good":"GOOD",
+ "ex.b_long":"LONG",
+ "ex.b_vlong":"VERY LONG",
+ "ex.b_repetitive":"REPETITIVE",
+ "ex.b_fine":"FINE",
+ "ex.b_varied":"VARIED",
+ "ex.b_na":"NOT MEASURED",
+ "ex.vs_last":"since last time",
+ "ex.pitch_h":"Your voice across your speech",
+ "ex.pitch_note":"Pitch is estimated on your device from the recording — a guide to how much your voice moves, not a lab measurement.",
+ "ex.legend_voice":"your voice",
+ "ex.legend_mid":"your average",
+ "ex.legend_pause":"hesitation",
+ "ex.texture_h":"Texture",
+ "ex.vocab":"distinct words",
+ "ex.wps":"words / sentence",
+ "ex.n_pace_slow":"At {{n}} words a minute you sound careful rather than confident — aim for 110 to 160.",
+ "ex.n_pace_ok":"{{n}} words a minute is a pace a listener can follow without effort.",
+ "ex.n_pace_fast":"At {{n}} words a minute the listener is running to keep up — aim for 110 to 160.",
+ "ex.n_hes_0":"No hesitations: your silences were pauses, not gaps.",
+ "ex.n_hes_some":"{{n}} hesitations — each one tells the room you are still deciding what to say.",
+ "ex.n_pitch_flat":"Your voice stayed on one note; the key words did not stand out.",
+ "ex.n_pitch_ok":"Your voice moved — the important words had somewhere to go.",
+ "ex.n_voc_low":"Many words came back more than once — the same idea in the same clothes.",
+ "ex.n_voc_ok":"Varied vocabulary: enough renewal to hold attention.",
+ "ex.n_wps_short":"Sentences of {{n}} words chop the flow — connect the ideas that belong together.",
+ "ex.n_wps_ok":"{{n}} words a sentence: one idea at a time, and room to breathe.",
+ "ex.n_wps_long":"At {{n}} words a sentence the listener loses the start before you reach the end.",
+ "ex.msg_h":"Message",
+ "ex.key_msg":"Key message",
+ "ex.clear":"Stated clearly",
+ "ex.fuzzy":"Fuzzy",
+ "ex.sharper":"Sharper version",
+ "ex.structure":"Your structure",
+ "ex.answer":"Answer directly",
+ "ex.example":"Example",
+ "ex.evidence":"Evidence & arguments",
+ "ex.cred_h":"Credibility",
+ "ex.cred_signals":"Credibility signals",
+ "ex.tics":"Speech tics",
+ "ex.fillers":"Filler words",
+ "ex.hedges":"Minimizing phrases",
+ "ex.none_found":"None — clean.",
+ "ex.plan_h":"Action plan",
+ "ex.remember":"One thing to remember",
+ "ex.next_rec":"In your next recording",
+ "ex.quick_win":"Quick win",
+ "ex.goal":"Goal:",
+ "ex.concept_h":"Concept unlocked",
+ "ex.concept_did":"You just did it:",
+ "ex.again_btn":"Record again",
+ "ex.hear_me":"Hear yourself",
+ "ex.transcript_h":"What you said",
+ "ex.last_h":"Last time",
+ "ex.last_wpm":"{{n}} words/min",
+ "ex.last_hes":"{{n}} hesitations",
+ "ex.last_fill":"{{n}} fillers",
+ "ex.ai_off":"The coach could not be reached, so this report is the numbers only. Connect to the internet and record again for the message, structure and plan.",
+ "ex.stt_off":"Could not write down what you said — check the connection and try again, or paste the text below.",
+ "ex.qw_fill_t":"Trade “{{w}}” for silence",
+ "ex.qw_fill_g":"You said “{{w}}” {{n}} times. Next recording: 0. When the word comes, close your mouth and let the pause do the work.",
+ "ex.qw_hedge_t":"State it — do not soften it",
+ "ex.qw_hedge_g":"“{{w}}” appeared {{n}} times. Next recording: none. Say the sentence without it and let it stand.",
+ "ex.qw_slow_t":"Pick up the pace",
+ "ex.qw_slow_g":"{{n}} words a minute. Say the same thing again in three-quarters of the time — aim for 120.",
+ "ex.qw_fast_t":"Give the listener time",
+ "ex.qw_fast_g":"{{n}} words a minute. Put a full second of silence after each sentence — aim for 140.",
+ "ex.qw_hes_t":"Decide the sentence before you start it",
+ "ex.qw_hes_g":"{{n}} hesitations. Next recording: fewer than 3 — pause before the sentence, not in the middle of it.",
+ "ex.qw_short_t":"Connect what belongs together",
+ "ex.qw_short_g":"Sentences averaged {{n}} words. Join two related ideas with “because”, “so” or “which means”.",
+ "ex.qw_long_t":"One idea per sentence",
+ "ex.qw_long_g":"Sentences averaged {{n}} words. Put a full stop where you would take a breath — aim for under 20.",
+ "ex.qw_flat_t":"Lift the key word",
+ "ex.qw_flat_g":"Your voice barely moved. In each sentence, choose one word and say it higher and slower than the rest.",
+ "ex.qw_clean_t":"Add one number",
+ "ex.qw_clean_g":"The delivery is clean. Next recording: put one concrete figure — a percentage, a date, a count — in your first three sentences.",
+ "ex.c_silence_t":"Silence beats “um”",
+ "ex.c_silence_b":"No fillers, no hesitations: every pause read as thought, not doubt.",
+ "ex.c_one_idea_t":"One idea per sentence",
+ "ex.c_one_idea_b":"Your sentences average {{n}} words: one idea at a time.",
+ "ex.c_state_t":"State it, don't soften it",
+ "ex.c_state_b":"Not one “I think” or “maybe” — you said what you meant and let it stand.",
+ "ex.c_pace_t":"The listener's pace",
+ "ex.c_pace_b":"{{n}} words a minute: fast enough to hold attention, slow enough to follow.",
+ "ex.c_voice_t":"A voice that moves",
+ "ex.c_voice_b":"A range of {{n}} semitones: the important words had somewhere to go.",
+ "ex.c_default_t":"Structure first",
+ "ex.c_default_b":"A listener remembers the order before the words: point, reason, example, next step.",
+ "ex.how_demo_next":"Open with your role and one result, then one strength. Zero “I think”.",
  "how.iv_title":"Practise the questions you dread",
  "how.iv_lead":"A real interviewer who listens, follows up, and tells you afterwards what you actually covered. Rehearse it here so the real room is the second time.",
  "how.iv_1":"Pick the person and the question you are least ready for. Each one behaves differently — one probes vague answers, one tests whether you hold your ground.",
@@ -6137,15 +6289,6 @@ const I18N_EN={
  "how.rv_2":"Rate the week out of ten. It is your judgement — the number only has to be honest, not kind.",
  "how.rv_3":"Write one line about what changed. In eight weeks this is the paragraph that proves it did.",
  "how.rv_4":"The trend across the twelve weeks is the shape of you getting better. Watch the shape, not any single week.",
- "ex.dictate_mic_error":"Mic error — try again",
- "ex.polishing":"✨ Polishing — writing professional versions…",
- "ex.key_phrase":"Key phrase used",
- "ex.another_way":"Another way to say it",
- "ex.frames_h":"Executive frames",
- "ex.exec_versions":"💼 Executive versions — pick one",
- "ex.more_hint":"Press <b>Polish it</b> again for a fresh set of versions.",
- "ex.ai_err":"Online rewrite unavailable right now — showing a basic clean-up instead",
- "ex.offline_note":"📶 You're offline — showing a basic clean-up. Connect to the internet for several professional versions with different idioms.",
  "rec.too_short_state":"Too short — tap and speak a bit longer",
  "rec.too_short_toast":"⚠️ Too short to save — hold and speak",
  "rec.saved_state":"Saved ✓ — tap to record again",
@@ -7034,6 +7177,8 @@ function go(v,arg1,arg2){
      them and, on a stale turn, dragging them back into the old conversation
      just as they tapped a different colleague to speak to. */
   try{if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave()}catch(err){try{perfMark("error",0,"simLeave:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
+  /* The Polish mic is a page-level recorder: leaving the Phrase Lab closes it. */
+  try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)); /* settings lives under the Profile tab */
@@ -13203,29 +13348,6 @@ window.fbTry=(word,i)=>{
   r.start();
 };
 
-/* ===== EXECUTIVE POLISH: casual → executive speech (rule-based) ===== */
-const EXEC_FRAMES=[["Open like an executive","The headline is… / At a high level…"],["State the issue","The main blocker is… / The root cause appears to be…"],["Close with action","The next step is… / What I need from you is…"]];
-function execPolish(text){
-  let out=" "+String(text).trim()+" ";const changes=[];
-  for(const f of FILLERS){
-    const re=new RegExp("\\b"+f+"\\b[,]* ","gi");
-    if(re.test(out)){out=out.replace(re,"");changes.push(`removed filler “${f}”`)}
-  }
-  const SOFT=[[/\bi think maybe (we|you|they) (should|need to|could)\b/gi,"I recommend $1"],[/\brecommend (we|you|they) need to\b/gi,"recommend $1"],[/\bi think maybe\b,?\s*/gi,""],[/\bi think\b,?\s*/gi,""],[/\bmaybe\b\s*/gi,""],[/\bsorry about that\b[.,]?\s*/gi,""],[/\bto be honest\b,?\s*/gi,""],[/\bkind of\b/gi,""],[/\bsort of\b/gi,""],[/\bjust\b/gi,""],[/\bstuff\b/gi,"work"],[/\bthings\b/gi,"items"],[/\ba lot of\b/gi,"significant"],[/\bvery very\b/gi,"extremely"]];
-  for(const[re,rep]of SOFT){if(re.test(out)){out=out.replace(re,rep);changes.push(`“${re.source.replace(/\\b|\(.*?\)/g,"").trim()}” → ${rep?rep.replace(/\$1\s*/,""):"(removed)"}`)}}
-  for(const[re,bad,corr]of trackGrammarFix()){
-    if(re.test(out)){out=out.replace(re,m=>corr==="for X years"?m.replace(/since/i,"for"):corr);changes.push(`${bad} → ${corr}`)}
-  }
-  for(const[a,b]of Object.entries(trackSynonyms())){
-    /* don't upgrade verbs into ungrammatical infinitives: "need to" stays "need to" */
-    const re=a==="need"?/\bneed\b(?!\s+to)/gi:a==="get"?/\bget\b(?!\s+(to|up|back|it|out))/gi:new RegExp("\\b"+a+"\\b","gi");
-    if(re.test(out)){out=out.replace(re,b);changes.push(`${a} → ${b}`)}
-  }
-  out=out.replace(/\s+/g," ").replace(/\s+([,.!?])/g,"$1").trim();
-  if(out)out=out[0].toUpperCase()+out.slice(1);
-  if(out&&!/[.!?]$/.test(out))out+=".";
-  return{out,changes};
-}
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
@@ -13254,166 +13376,468 @@ function ttsVoice(requested,gender){
   return TTS_VOICE_IDS.has(pref)?pref:"alloy";
 }
 
-/* Reference material, not a result. It used to print under every polish; it is
-   the same three frames every time, so it is disclosed rather than repeated. */
-function exFramesHTML(){return `<details class="home-more ex-sec">
-  <summary><span class="btn-ic">${ic("list")}</span>${t("ex.frames_h")}<span class="hm-chev">▶</span></summary>
-  <div class="home-more-body ex-frames">${EXEC_FRAMES.map((f,i)=>`<div><b>${t("exframe."+i)}:</b> <i>${f[1]}</i></div>`).join("")}</div>
-</details>`}
-/* Actions for one sentence. Copy leads: the point of a polished line is to use
-   it in the real conversation, so reuse is the action, not an afterthought. */
+/* ===== EXECUTIVE POLISH — speak for a minute, hear exactly what to fix =====
+   Rebuilt 2026-09-21. It used to take one typed sentence and hand back two
+   rewrites. Now it does what the learner actually needs before a meeting:
+   they speak for about a minute, and the app reports how they came across —
+   pace, hesitations, voice range, filler words, hedging, sentence length,
+   vocabulary — then the key message, the structure, what made it credible,
+   and the one thing to work on in the next recording.
+
+   Two layers, deliberately:
+     measured — everything a machine measures well is measured HERE, on the
+       device, from the recording and the transcript (exAudioStats, exTextStats).
+       It works with the AI unreachable, and the report says which numbers are
+       estimates (pitch).
+     judged   — what only a reader judges (message, structure, credibility, the
+       plan) comes from the Worker's `analyse` route (exAI). When that is not
+       reachable the report still has every number and a rule-based quick win;
+       the judged sections are simply absent and say so.
+   The transcript comes from the Worker's Whisper route with ?fillers=1 so the
+   "um"s survive — they are the point. Offline there is nothing to transcribe,
+   so the paste box takes the text the learner already has. */
+const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
+/* Counted in the transcript. Kept conservative: "like" and "so" are left out
+   because they are usually real words, and a wrong count is worse than none. */
+const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
+const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null};
+let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
+function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+function exLang(){return (S.profile&&S.profile.lang)||"en"}
+function exReps(){return aList("exRep")}
+
+/* ---------- the card ---------- */
+function exPromptHTML(){
+  return `<div class="ex-prompt" id="exPrompt">
+    <span class="ex-prompt-k">${t("ex.prompt_h")}</span>
+    <p class="ex-prompt-t">${esc(t("ex.prompt_"+(ex.prompt+1)))}</p>
+    <button class="btn btn-g btn-sm ex-prompt-btn" onclick="exShuffle()">${tIc("ex.prompt_shuffle","repeat")}</button>
+  </div>`;
+}
+window.exShuffle=()=>{
+  ex.prompt=(ex.prompt+1+Math.floor(Math.random()*(EX_PROMPT_N-1)))%EX_PROMPT_N;
+  const el=document.getElementById("exPrompt");if(el)el.outerHTML=exPromptHTML();
+  manIconizeInline(document.getElementById("exCard"));
+};
+function exLastHTML(){
+  const r=exReps()[0];if(!r||!r.m)return "";
+  const m=r.m,bits=[];
+  if(m.wpm)bits.push(t("ex.last_wpm",{n:m.wpm}));
+  if(m.hes!=null)bits.push(t("ex.last_hes",{n:m.hes}));
+  bits.push(t("ex.last_fill",{n:m.fillerN||0}));
+  return `<button class="ex-last" onclick="exOpenLast()"><span class="btn-ic">${ic("chart")}</span><span><b>${esc(t("ex.last_h"))}</b> · ${bits.join(" · ")}</span><span class="ex-last-go">›</span></button>`;
+}
+window.exOpenLast=()=>{const r=exReps()[0];if(!r)return;ex.report=r;ex.blob=null;exSetUrl(null);exRenderReport(r)};
+function exCardHTML(){
+  return `<div class="card ex-card" id="exCard">
+    <div class="ex-head">
+      <div class="ex-head-t">
+        <b>${tIc("ph.exec_title","briefcase")}</b>
+        <span class="chip p3">${t("ph.exec_tag")}</span>
+      </div>
+      ${howBtn("polish")}
+    </div>
+    <p class="ex-desc">${t("ph.exec_desc")}</p>
+    <div id="exStage">${exIdleHTML()}</div>
+  </div>`;
+}
+function exIdleHTML(){
+  return `${exPromptHTML()}
+    <button class="ex-recbtn" id="exRecBtn" onclick="exRecord()"><span class="ex-rec-ic">${ic("mic")}</span><span class="ex-rec-l"><b>${esc(t("ex.rec_btn"))}</b><small>${esc(t("ex.rec_sub",{s:EX_MAX_S}))}</small></span></button>
+    <p class="ex-status" id="exSt"></p>
+    ${exLastHTML()}
+    <details class="home-more ex-sec ex-paste">
+      <summary><span class="btn-ic">${ic("doc")}</span>${t("ex.paste_h")}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body">
+        <textarea id="exIn" rows="4" placeholder="${esc(t("ex.paste_ph"))}" style="width:100%;resize:vertical;min-height:84px;font-family:inherit;line-height:1.5"></textarea>
+        <button class="btn btn-g ex-paste-btn" onclick="exAnalyseText()">${tIc("ex.paste_btn","sparkle")}</button>
+      </div>
+    </details>`;
+}
+function exStage(html){const s=document.getElementById("exStage");if(s){s.innerHTML=html;manIconizeInline(s)}}
+function exStatus(msg){const st=document.getElementById("exSt");if(st)st.textContent=msg||""}
+function exSetUrl(u){if(ex.url){try{URL.revokeObjectURL(ex.url)}catch(e){}}ex.url=u}
+function exReset(){
+  clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
+  if(ex.stream){try{ex.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}}
+  ex.mr=null;ex.stream=null;ex.chunks=[];exListening=false;ex.phase="idle";
+}
+/* Leaving the page mid-recording must not leave the mic open. */
+function exLeave(){if(ex.phase==="rec"){exReset()}}
+
+/* ---------- recording ---------- */
+window.exRecord=async()=>{
+  if(ex.phase==="rec"){exStopRec();return}
+  if(ex.phase!=="idle")return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||typeof MediaRecorder==="undefined")return toast(t("ex.rec_unsupported"));
+  if(rec&&rec.mr&&rec.mr.state==="recording")return toast(t("ex.rec_busy"));
+  try{
+    audioUnlock();
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    ex.stream=stream;ex.chunks=[];ex.t0=Date.now();ex.phase="rec";exListening=true;
+    const mr=ex.mr=new MediaRecorder(stream);
+    mr.ondataavailable=e=>{if(e.data&&e.data.size)ex.chunks.push(e.data)};
+    mr.onstop=()=>{
+      if(ex.mr!==mr)return;                        /* abandoned: the learner left the page and exReset() already closed the mic */
+      const secs=(Date.now()-ex.t0)/1000;
+      const blob=new Blob(ex.chunks,{type:mr.mimeType||"audio/webm"});
+      exReset();
+      if(secs<EX_MIN_S||blob.size<2000){exStage(exIdleHTML());exStatus(t("ex.rec_min",{s:EX_MIN_S}));return}
+      exRun({blob,secs});
+    };
+    mr.start(1000);
+    const b=document.getElementById("exRecBtn");
+    if(b){b.classList.add("is-live");b.querySelector(".ex-rec-l").innerHTML=`<b id="exTimer">${exFmtS(0)} / ${exFmtS(EX_MAX_S)}</b><small>${esc(t("ex.rec_stop"))}</small>`}
+    exStatus(t("ex.rec_hint"));
+    ex.tick=setInterval(()=>{const tm=document.getElementById("exTimer");if(tm)tm.textContent=exFmtS((Date.now()-ex.t0)/1000)+" / "+exFmtS(EX_MAX_S)},250);
+    ex.stopT=setTimeout(exStopRec,EX_MAX_S*1000);   /* a minute is the exercise; ninety seconds is the ceiling */
+  }catch(e){exReset();toast(t("ph.mic_denied_toast"))}
+};
+function exStopRec(){
+  clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
+  const b=document.getElementById("exRecBtn");if(b)b.classList.remove("is-live");
+  try{if(ex.mr&&ex.mr.state==="recording")ex.mr.stop();else exReset()}catch(e){exReset()}
+}
+window.exAnalyseText=()=>{
+  const el=document.getElementById("exIn"),text=el?el.value.replace(/\s+/g," ").trim():"";
+  if(!text)return toast(t("ex.type_first_toast"));
+  if(text.split(" ").length<5)return toast(t("ex.type_first_toast"));
+  exRun({text});
+};
+
+/* ---------- the pipeline ---------- */
+function exWaitHTML(step){
+  return `<div class="ex-wait">
+    <div class="ex-wait-eyebrow">${esc(t("ex.report_eyebrow"))}</div>
+    <h3 class="ex-wait-h">${esc(t("ex.listening_h"))}</h3>
+    <div class="ex-wait-wave" aria-hidden="true">${[0,1,2,3,4].map(i=>`<i style="animation-delay:${i*120}ms"></i>`).join("")}</div>
+    <p class="ex-wait-step" id="exStep">${esc(step)}</p>
+  </div>`;
+}
+function exStep(msg){const s=document.getElementById("exStep");if(s)s.textContent=msg}
+async function exRun(src){
+  ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
+  exStage(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));
+  let text=src.text||"",words=null,audio=null,sttFailed=false;
+  if(src.blob){
+    /* transcript and audio numbers in parallel — the audio pass is local */
+    const [tx,au]=await Promise.all([exTranscribe(src.blob),exAudioStats(src.blob)]);
+    audio=au;
+    if(tx&&tx.text){text=tx.text;words=tx.words}else sttFailed=true;
+    if(!audio)audio={dur:src.secs||0,pitch:null,pauses:[]};
+    if(!audio.dur)audio.dur=src.secs||0;
+  }
+  if(!text){
+    ex.phase="idle";exStage(exIdleHTML());exStatus(t("ex.stt_off"));
+    const d=document.querySelector(".ex-paste");if(d)d.open=true;
+    return;
+  }
+  exStep(t("ex.step_measure"));
+  const m=exTextStats(text,words,audio);
+  exStep(t("ex.step_plan"));
+  const ai=await exAI(text,m);
+  const rep={at:Date.now(),tk:areaId(),m,ai:ai||null,tx:text,sttFailed};
+  ex.report=rep;
+  const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
+  markPracticed();save();
+  ex.phase="idle";
+  exRenderReport(rep);
+}
+async function exTranscribe(blob){
+  if(!POLISH_API||!navigator.onLine)return null;
+  try{
+    const r=await fetch(POLISH_API+"/?fillers=1",{method:"POST",headers:{"content-type":blob.type||"audio/webm"},body:blob});
+    if(!r.ok)return null;
+    const j=await r.json();
+    const text=String((j&&j.text)||"").replace(/\s+/g," ").trim();
+    const words=Array.isArray(j.words)?j.words.map(x=>({w:String(x.w||""),start:+x.start,end:+x.end})).filter(x=>x.w&&isFinite(x.start)&&isFinite(x.end)):null;
+    return text?{text,words:(words&&words.length)?words:null}:null;
+  }catch(e){return null}
+}
+async function exAI(transcript,m){
+  if(!POLISH_API||!navigator.onLine)return null;
+  const metrics={seconds:m.sec,words:m.words,wpm:m.wpm,hesitations:m.hes,fillers:m.fillerN,hedges:m.hedgeN,wordsPerSentence:m.wps,sentences:m.sents,vocabularyPct:m.ttr,pitchSemitones:m.semis};
+  Object.keys(metrics).forEach(k=>{if(metrics[k]==null)delete metrics[k]});
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({analyse:{transcript,metrics,lang:exLang()}})});
+    if(!r.ok)return null;
+    const j=await r.json();
+    return (j&&typeof j==="object"&&(j.sharper||j.key_message))?j:null;
+  }catch(e){return null}
+}
+
+/* ---------- measured on the device ---------- */
+/* Decodes the recording once and reads two things off it: where the silences
+   are (RMS, 20 ms frames — the same idea as fbSegments) and the pitch contour
+   (normalised autocorrelation on an 8 kHz copy, 40 ms frames every 20 ms,
+   80–400 Hz). The pitch is an estimate — good enough to say "flat" or
+   "expressive" and to draw the line, not a lab number, and the report says so. */
+async function exAudioStats(blob){
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;
+  let ac,buf;
+  try{ac=new AC();buf=await ac.decodeAudioData(await blob.arrayBuffer())}catch(e){try{ac&&ac.close()}catch(_){}return null}
+  try{ac.close()}catch(_){}
+  try{
+    const data=buf.getChannelData(0),sr=buf.sampleRate,dur=buf.duration;
+    /* --- silences --- */
+    const fLen=Math.max(1,Math.round(sr*0.02)),nF=Math.floor(data.length/fLen);
+    const rms=new Float32Array(nF);let peak=1e-6;
+    for(let i=0;i<nF;i++){let s=0;const off=i*fLen;for(let j=0;j<fLen;j++){const v=data[off+j];s+=v*v}const r=Math.sqrt(s/fLen);rms[i]=r;if(r>peak)peak=r}
+    const thr=Math.max(0.012,peak*0.12);
+    let first=-1,last=-1;for(let i=0;i<nF;i++){if(rms[i]>thr){if(first<0)first=i;last=i}}
+    const pauses=[];let sil=0;
+    for(let i=first;i<=last&&i>=0;i++){
+      if(rms[i]>thr){if(sil>=40)pauses.push({t:+((i-sil)*0.02).toFixed(2),len:+(sil*0.02).toFixed(2)});sil=0}   /* ≥ 0.8 s of quiet inside the speech */
+      else sil++;
+    }
+    /* --- pitch --- */
+    const dec=Math.max(1,Math.round(sr/8000)),sr8=sr/dec,n8=Math.floor(data.length/dec);
+    const x=new Float32Array(n8);
+    for(let i=0;i<n8;i++){let s=0;const off=i*dec;for(let j=0;j<dec;j++)s+=data[off+j];x[i]=s/dec}
+    const win=Math.round(sr8*0.04),hop=Math.round(sr8*0.02),minLag=Math.round(sr8/400),maxLag=Math.round(sr8/80);
+    const semis=[],times=[];
+    let c=0;
+    for(let start=0;start+win+maxLag<n8;start+=hop){
+      if(++c%400===0)await new Promise(r=>setTimeout(r,0));          /* keep the wait screen animating */
+      let mean=0,e=0;for(let i=0;i<win;i++)mean+=x[start+i];mean/=win;
+      for(let i=0;i<win;i++){const v=x[start+i]-mean;e+=v*v}
+      if(Math.sqrt(e/win)<thr*0.9){continue}
+      let best=0,bestLag=0;const rl=new Float32Array(maxLag+1);
+      for(let lag=minLag;lag<=maxLag;lag++){
+        let s=0,e2=0;
+        for(let i=0;i<win;i++){const a=x[start+i]-mean,b=x[start+i+lag]-mean;s+=a*b;e2+=b*b}
+        const r=s/Math.sqrt(e*e2+1e-9);rl[lag]=r;if(r>best){best=r;bestLag=lag}
+      }
+      if(best<0.72)continue;
+      /* prefer the shortest lag that is nearly as good — an octave error picks the double */
+      for(let lag=minLag;lag<bestLag;lag++){if(rl[lag]>=best*0.92&&rl[lag]>=rl[lag-1]&&rl[lag]>=rl[lag+1]){bestLag=lag;break}}
+      let lagF=bestLag;
+      if(bestLag>minLag&&bestLag<maxLag){const y0=rl[bestLag-1],y1=rl[bestLag],y2=rl[bestLag+1];const d=(y0-2*y1+y2);if(d<0)lagF=bestLag+0.5*(y0-y2)/d}
+      const f0=sr8/lagF;if(f0<75||f0>420)continue;
+      semis.push(12*Math.log2(f0/110));times.push((start+win/2)/sr8);
+    }
+    let pitch=null,semiSd=null;
+    if(semis.length>=25){
+      const med=a=>{const b=a.slice().sort((p,q)=>p-q);return b[Math.floor(b.length/2)]};
+      const centre=med(semis),keep=[],kt=[];
+      for(let i=0;i<semis.length;i++){const lo=Math.max(0,i-2),w=semis.slice(lo,i+3);const mv=med(w);if(Math.abs(mv-centre)<=9){keep.push(mv);kt.push(times[i])}}
+      if(keep.length>=25){
+        const mean=keep.reduce((a,b)=>a+b,0)/keep.length;
+        semiSd=Math.sqrt(keep.reduce((a,b)=>a+(b-mean)*(b-mean),0)/keep.length);
+        const nb=Math.min(140,Math.max(40,Math.round(dur*2))),series=new Array(nb).fill(null),cnt=new Array(nb).fill(0);
+        for(let i=0;i<keep.length;i++){const b=Math.min(nb-1,Math.floor(kt[i]/dur*nb));series[b]=(series[b]||0)+keep[i];cnt[b]++}
+        for(let b=0;b<nb;b++)if(cnt[b])series[b]=+(series[b]/cnt[b]).toFixed(2);
+        pitch={series,mean:+mean.toFixed(2),voiced:+(keep.length/Math.max(1,semis.length)).toFixed(2)};
+      }
+    }
+    return {dur:+dur.toFixed(2),pauses,pitch,semis:semiSd==null?null:+semiSd.toFixed(1)};
+  }catch(e){return {dur:buf.duration||0,pauses:[],pitch:null,semis:null}}
+}
+function exCount(text,list){
+  const low=" "+text.toLowerCase().replace(/[^a-z' ]+/g," ").replace(/\s+/g," ")+" ";
+  const out=[];
+  for(const w of list){const n=low.split(" "+w+" ").length-1;if(n)out.push({w,n})}
+  out.sort((a,b)=>b.n-a.n);return out;
+}
+function exTextStats(text,words,audio){
+  const toks=text.toLowerCase().replace(/[^a-z'\s]+/g," ").split(/\s+/).filter(Boolean);
+  const nW=toks.length;
+  const sec=audio&&audio.dur?+audio.dur.toFixed(1):null;
+  const wpm=sec&&sec>=5?Math.round(nW/(sec/60)):null;
+  const fillers=exCount(text,EX_FILLERS),fillerN=fillers.reduce((a,b)=>a+b.n,0);
+  const hedges=exCount(text,EX_HEDGES),hedgeN=hedges.reduce((a,b)=>a+b.n,0);
+  /* sentences: Whisper punctuates; pasted text may not, and one 120-word
+     "sentence" is a missing full stop, not a finding */
+  const sentsRaw=text.split(/[.!?]+(?:\s|$)/).map(s=>s.trim()).filter(s=>s.split(/\s+/).length>=2);
+  const sents=sentsRaw.length;
+  const wps=(sents>=2||(sents===1&&nW<=30))?Math.round(nW/Math.max(1,sents)):null;
+  const ttr=nW>=8?Math.round(new Set(toks).size/nW*100):null;
+  /* hesitations: silent gaps between words ≥ 0.7 s when the words are timed,
+     else quiet stretches ≥ 0.8 s inside the speech; plus the vocalised ones */
+  let hesList=null;
+  if(words&&words.length>3){hesList=[];for(let i=1;i<words.length;i++){const g=words[i].start-words[i-1].end;if(g>=0.7)hesList.push({t:+words[i-1].end.toFixed(2),len:+g.toFixed(2)})}}
+  else if(audio&&audio.pauses)hesList=audio.pauses.slice();
+  const vocal=fillers.filter(f=>["um","uh","er","erm","ah","hmm","mm"].includes(f.w)).reduce((a,b)=>a+b.n,0);
+  const hes=hesList?hesList.length+vocal:(audio?vocal:null);
+  return {sec,words:nW,wpm,fillers,fillerN,hedges,hedgeN,sents,wps,ttr,hes,hesList:hesList||[],semis:audio?audio.semis:null,pitch:audio?audio.pitch:null};
+}
+
+/* ---------- verdicts (rule-based, always available) ---------- */
+function exBand(kind,v){
+  if(v==null)return {k:"ex.b_na",c:"na"};
+  switch(kind){
+    case "wpm":return v<105?{k:"ex.b_slow",c:"bad"}:v>165?{k:"ex.b_fast",c:"bad"}:{k:"ex.b_pace_ok",c:"good"};
+    case "semis":return v<1.5?{k:"ex.b_flat",c:"warn"}:v<2.5?{k:"ex.b_steady",c:"good"}:{k:"ex.b_expressive",c:"good"};
+    case "hes":return v===0?{k:"ex.b_spotless",c:"good"}:v<=3?{k:"ex.b_few",c:"warn"}:{k:"ex.b_many",c:"bad"};
+    case "wps":return v<9?{k:"ex.b_vshort",c:"warn"}:v<=20?{k:"ex.b_good",c:"good"}:v<=28?{k:"ex.b_long",c:"warn"}:{k:"ex.b_vlong",c:"bad"};
+    case "ttr":return v<45?{k:"ex.b_repetitive",c:"warn"}:v<62?{k:"ex.b_fine",c:"good"}:{k:"ex.b_varied",c:"good"};
+  }
+  return {k:"ex.b_na",c:"na"};
+}
+/* One measured sentence under Delivery and one under Texture. */
+function exDeliveryNote(m){
+  const parts=[];
+  if(m.wpm!=null)parts.push(t(m.wpm<105?"ex.n_pace_slow":m.wpm>165?"ex.n_pace_fast":"ex.n_pace_ok",{n:m.wpm}));
+  if(m.hes!=null)parts.push(t(m.hes===0?"ex.n_hes_0":"ex.n_hes_some",{n:m.hes}));
+  if(m.semis!=null)parts.push(t(m.semis<1.5?"ex.n_pitch_flat":"ex.n_pitch_ok"));
+  return parts.join(" ");
+}
+function exTextureNote(m){
+  const parts=[];
+  if(m.ttr!=null)parts.push(t(m.ttr<45?"ex.n_voc_low":"ex.n_voc_ok"));
+  if(m.wps!=null)parts.push(t(m.wps<9?"ex.n_wps_short":m.wps>20?"ex.n_wps_long":"ex.n_wps_ok",{n:m.wps}));
+  return parts.join(" ");
+}
+/* The single most useful change, from the numbers alone. Order = what a
+   listener notices first. */
+function exQuickWin(m){
+  const top=(m.fillers[0]||{}).w,hed=(m.hedges[0]||{}).w;
+  if(m.fillerN>=3&&top)return {title:t("ex.qw_fill_t"),goal:t("ex.qw_fill_g",{w:top,n:m.fillerN})};
+  if(m.hedgeN>=2&&hed)return {title:t("ex.qw_hedge_t"),goal:t("ex.qw_hedge_g",{w:hed,n:m.hedgeN})};
+  if(m.wpm!=null&&m.wpm<105)return {title:t("ex.qw_slow_t"),goal:t("ex.qw_slow_g",{n:m.wpm})};
+  if(m.wpm!=null&&m.wpm>165)return {title:t("ex.qw_fast_t"),goal:t("ex.qw_fast_g",{n:m.wpm})};
+  if(m.hes!=null&&m.hes>=4)return {title:t("ex.qw_hes_t"),goal:t("ex.qw_hes_g",{n:m.hes})};
+  if(m.wps!=null&&m.wps<9&&m.sents>=3)return {title:t("ex.qw_short_t"),goal:t("ex.qw_short_g",{n:m.wps})};
+  if(m.wps!=null&&m.wps>24)return {title:t("ex.qw_long_t"),goal:t("ex.qw_long_g",{n:m.wps})};
+  if(m.semis!=null&&m.semis<1.5)return {title:t("ex.qw_flat_t"),goal:t("ex.qw_flat_g")};
+  return {title:t("ex.qw_clean_t"),goal:t("ex.qw_clean_g")};
+}
+/* Something they did right, named — so the next recording keeps it. */
+function exConcept(m){
+  if(m.hes===0&&m.fillerN===0)return {title:t("ex.c_silence_t"),body:t("ex.c_silence_b")};
+  if(m.wps!=null&&m.wps>=6&&m.wps<=16&&m.sents>=3)return {title:t("ex.c_one_idea_t"),body:t("ex.c_one_idea_b",{n:m.wps})};
+  if(m.hedgeN===0&&m.words>=40)return {title:t("ex.c_state_t"),body:t("ex.c_state_b")};
+  if(m.wpm!=null&&m.wpm>=105&&m.wpm<=165)return {title:t("ex.c_pace_t"),body:t("ex.c_pace_b",{n:m.wpm})};
+  if(m.semis!=null&&m.semis>=2.5)return {title:t("ex.c_voice_t"),body:t("ex.c_voice_b",{n:m.semis})};
+  return {title:t("ex.c_default_t"),body:t("ex.c_default_b")};
+}
+
+/* ---------- the report ---------- */
+function exStatHTML(kind,v,unitKey,fmt){
+  const b=exBand(kind,v);
+  return `<div class="ex-stat"><b class="ex-stat-n">${v==null?"—":(fmt?fmt(v):v)}</b><span class="ex-stat-u">${esc(t(unitKey))}</span><span class="ex-stat-b is-${b.c}">${esc(t(b.k))}</span></div>`;
+}
+/* The pitch line: one SVG, viewBox 600×130, x = time, y = semitones around the
+   mean, a dashed line at the mean, dots on the baseline for each hesitation. */
+function exPitchSVG(m){
+  const p=m.pitch;if(!p||!p.series)return "";
+  const W=600,H=130,pad=12,n=p.series.length,rng=8;
+  const y=v=>H/2-((v-p.mean)/rng)*(H/2-pad);
+  let d="",pen=false;
+  p.series.forEach((v,i)=>{
+    if(v==null){pen=false;return}
+    const X=(i+0.5)/n*W,Y=Math.max(pad,Math.min(H-pad,y(v)));
+    d+=(pen?" L":" M")+X.toFixed(1)+" "+Y.toFixed(1);pen=true;
+  });
+  const dur=m.sec||1;
+  const dots=(m.hesList||[]).map(h=>`<circle cx="${(h.t/dur*W).toFixed(1)}" cy="${H-6}" r="4" class="ex-pitch-dot"/>`).join("");
+  return `<div class="ex-pitch"><div class="ex-pitch-h">${esc(t("ex.pitch_h"))}</div>
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="0" x2="${W}" y1="${H/2}" y2="${H/2}" class="ex-pitch-mid"/>
+      <path d="${d.trim()}" class="ex-pitch-line"/>${dots}
+    </svg>
+    <div class="ex-legend"><span><i class="ex-lg-line"></i>${esc(t("ex.legend_voice"))}</span><span><i class="ex-lg-mid"></i>${esc(t("ex.legend_mid"))}</span>${(m.hesList||[]).length?`<span><i class="ex-lg-dot"></i>${esc(t("ex.legend_pause"))}</span>`:""}</div>
+    <p class="ex-fine">${esc(t("ex.pitch_note"))}</p></div>`;
+}
+function exChips(list,cls){
+  if(!list||!list.length)return `<p class="ex-none">${esc(t("ex.none_found"))}</p>`;
+  return `<div class="ex-chips">${list.map(x=>`<span class="ex-tic ${cls||""}">${esc(x.w)} <b>×${x.n}</b></span>`).join("")}</div>`;
+}
 function exActs(s,lead){return `<div class="ex-acts">
   <button class="btn ${lead?"ex-copy":"btn-g"}" onclick="navigator.clipboard.writeText(${jarg(s)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
   <button class="btn btn-g" onclick="fbSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
   <button class="btn btn-g" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button></div>`}
-/* offline / fallback: the local rule-based single clean-up */
-function exRenderOffline(inp,note){
-  const{out,changes}=execPolish(inp);
-  document.getElementById("exOut").innerHTML=`
-    <div class="hr"></div>
-    ${note?`<p class="ex-note">${note}</p>`:""}
-    <h3 class="ex-h">${tIc("ex.exec_version","briefcase")}</h3>
-    <div class="ex-best">
-      <p class="ex-best-t">${esc(out)}</p>
-      ${changes.length?`<div class="ex-why"><b>${t("ex.what_changed")}</b>
-        <div class="ex-changes">${changes.map(c=>`<span class="chip">${esc(c)}</span>`).join("")}</div></div>`
-      :`<p class="ex-clean">${t("ex.already_clean")}</p>`}
-      ${exActs(out,true)}
+function exSec(icon,eyebrow,sub){return `<div class="ex-sechead"><span class="ex-sec-ic">${ic(icon)}</span><div><div class="ex-eyebrow">${esc(eyebrow)}</div>${sub?`<div class="ex-sec-sub">${esc(sub)}</div>`:""}</div></div>`}
+function exQuote(label,body,cls){return `<div class="ex-q ${cls||""}">${label?`<span class="ex-q-l">${esc(label)}</span>`:""}<p>${esc(body)}</p></div>`}
+function exRenderReport(rep){
+  const m=rep.m,ai=rep.ai,prev=exReps().find(r=>r!==rep&&r.at<rep.at)||null;
+  const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
+  const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
+  const cp=(ai&&ai.concept_title)?{title:ai.concept_title,body:ai.concept_body}:exConcept(m);
+  const html=`<div class="ex-report">
+    <div class="ex-rep-top">
+      <div class="ex-eyebrow">${esc(t("ex.report_eyebrow"))}</div>
+      <h3 class="ex-rep-h">${esc(t("ex.report_h"))}</h3>
+      <p class="ex-rep-meta">${esc(m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words}))}</p>
     </div>
-    <button class="btn btn-g ex-aiprompt" onclick="exAIPrompt()" title="${esc(t("ex.ai_prompt_title"))}">${t("ex.ai_prompt_btn")}</button>
-    ${exFramesHTML()}`;
-}
-/* A coach recommends a line; it does not hand over a menu. The first version is
-   presented as the phrasing to use, with the reason it is stronger given its own
-   label. Any further versions sit behind a disclosure, so the screen answers
-   "what should I say?" rather than "which of these do you prefer?". */
-function exRenderVersions(list){
-  const best=list[0],rest=list.slice(1);
-  document.getElementById("exOut").innerHTML=`
-    <div class="hr"></div>
-    <h3 class="ex-h">${tIc("ex.exec_version","briefcase")}</h3>
-    <div class="ex-best">
-      <p class="ex-best-t">${esc(best.text)}</p>
-      ${best.learn?`<div class="ex-why"><b>${t("ex.key_phrase")}</b><p>${esc(best.learn)}</p></div>`:""}
-      ${exActs(best.text,true)}
+    ${rep.sttFailed?`<p class="ex-note">${esc(t("ex.stt_off"))}</p>`:""}
+
+    <section class="ex-block">
+      ${exSec("gauge",t("ex.delivery_h"),t("ex.delivery_sub"))}
+      <div class="ex-stats">
+        ${exStatHTML("wpm",m.wpm,"ex.wpm")}
+        ${exStatHTML("semis",m.semis,"ex.semis",v=>v.toFixed(1))}
+        ${exStatHTML("hes",m.hes,"ex.hes")}
+      </div>
+      ${delta("wpm")?`<p class="ex-fine">${delta("wpm")}</p>`:""}
+      ${exPitchSVG(m)}
+      ${exQuote("",exDeliveryNote(m))}
+    </section>
+
+    <section class="ex-block">
+      ${exSec("list",t("ex.texture_h"))}
+      <div class="ex-stats ex-stats-2">
+        ${exStatHTML("ttr",m.ttr,"ex.vocab",v=>v+"<small>%</small>")}
+        ${exStatHTML("wps",m.wps,"ex.wps")}
+      </div>
+      ${exQuote("",exTextureNote(m))}
+    </section>
+
+    ${ai?`<section class="ex-block">
+      ${exSec("target",t("ex.msg_h"))}
+      <div class="ex-k">${esc(t("ex.key_msg"))}</div>
+      <p class="ex-keymsg">“${esc(ai.key_message)}”</p>
+      <div class="ex-clar"><span class="${ai.clarity==="clear"?"on":""}">${esc(t("ex.clear"))}</span><span class="${ai.clarity==="fuzzy"?"on warn":""}">${esc(t("ex.fuzzy"))}</span></div>
+      ${ai.sharper?`<div class="ex-k">${esc(t("ex.sharper"))}</div>
+      <div class="ex-best"><p class="ex-best-t">${esc(ai.sharper)}</p>${exActs(ai.sharper,true)}</div>`:""}
+      ${ai.structure&&ai.structure.length?`<div class="ex-k">${esc(t("ex.structure"))}</div>
+      <ol class="ex-struct">${ai.structure.map((s,i)=>`<li><span>${String(i+1).padStart(2,"0")}</span>${esc(s)}</li>`).join("")}</ol>
+      ${ai.structure_note?exQuote("",ai.structure_note):""}`:""}
+      ${ai.answer_directly?`<div class="ex-k">${esc(t("ex.answer"))}</div><p class="ex-p">${esc(ai.answer_directly)}</p>`:""}
+      ${ai.example?`<div class="ex-k">${esc(t("ex.example"))}</div><p class="ex-p ex-ex">${esc(ai.example)}</p>${exActs(ai.example)}`:""}
+      ${ai.evidence?`<div class="ex-k">${esc(t("ex.evidence"))}</div>${exQuote("",ai.evidence)}`:""}
+    </section>`:""}
+
+    <section class="ex-block">
+      ${exSec("shield",t("ex.cred_h"))}
+      ${ai&&ai.credibility?`<div class="ex-k">${esc(t("ex.cred_signals"))}</div>${exQuote("",ai.credibility)}`:""}
+      <div class="ex-k">${esc(t("ex.tics"))}</div>
+      <div class="ex-tic-k">${esc(t("ex.fillers"))}</div>${exChips(m.fillers)}
+      <div class="ex-tic-k">${esc(t("ex.hedges"))}</div>${exChips(m.hedges,"warn")}
+      ${ai&&ai.hedges&&ai.hedges.length?`<div class="ex-fixes">${ai.hedges.map(h=>`<div class="ex-fix"><s>${esc(h.said)}</s><span>→</span><b>${esc(h.better)}</b></div>`).join("")}</div>`:""}
+    </section>
+
+    <section class="ex-block">
+      ${exSec("rocket",t("ex.plan_h"))}
+      ${ai&&ai.remember_title?`<div class="ex-k">${esc(t("ex.remember"))}</div><h4 class="ex-h4">${esc(ai.remember_title)}</h4><p class="ex-p">${esc(ai.remember_body)}</p>`:""}
+      ${ai&&ai.next_recording?`<div class="ex-next"><div class="ex-k">${esc(t("ex.next_rec"))}</div><p>${esc(ai.next_recording)}</p></div>`:""}
+      <div class="ex-k">${esc(t("ex.quick_win"))}</div>
+      <h4 class="ex-h4">${esc(qw.title)}</h4>
+      ${exQuote(t("ex.goal"),qw.goal,"gold")}
+      ${!ai?`<p class="ex-note">${esc(t("ex.ai_off"))}</p>`:""}
+    </section>
+
+    <section class="ex-block ex-concept">
+      ${exSec("trophy",t("ex.concept_h"))}
+      <h4 class="ex-h4 ex-concept-t">${esc(cp.title)}</h4>
+      ${exQuote(t("ex.concept_did"),cp.body,"gold")}
+    </section>
+
+    <div class="ex-again">
+      <button class="btn-primary ex-againbtn" onclick="exAgain()">${tIc("ex.again_btn","mic")}</button>
+      ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}
     </div>
-    ${rest.length?`<details class="home-more ex-sec">
-      <summary><span class="btn-ic">${ic("chat")}</span>${t("ex.another_way")}<span class="hm-chev">▶</span></summary>
-      <div class="home-more-body">${rest.map(v=>`<div class="ex-alt">
-        <p class="ex-alt-t">${esc(v.text)}</p>
-        ${v.learn?`<p class="ex-alt-why">${esc(v.learn)}</p>`:""}
-        ${exActs(v.text)}
-      </div>`).join("")}</div>
-    </details>`:""}
-    <p class="ex-more-hint">${t("ex.more_hint")}</p>
-    ${exFramesHTML()}`;
+    <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">▶</span></summary>
+      <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
+  </div>`;
+  exStage(html);
+  const top=document.getElementById("exCard");
+  if(top){try{top.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}
 }
-let exBusy=false,exLastInput="",exPrev=[],exQueue=[];
-window.exGo=async()=>{
-  const inp=document.getElementById("exIn").value.trim();
-  if(!inp)return toast(t("ex.type_first_toast"));
-  if(exBusy)return;
-  if(inp!==exLastInput){exLastInput=inp;exPrev=[];exQueue=[]}   // new sentence → start fresh
-  const st=document.getElementById("exSt");
-  if(!POLISH_API||!navigator.onLine){exRenderOffline(inp,POLISH_API?t("ex.offline_note"):"");markPracticed();save();return}
-  if(exQueue.length<2){                                         // need 2 to show — fetch more (returns ~3, leftover is reused next click)
-    exBusy=true;if(st)st.textContent=t("ex.polishing");
-    try{
-      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:inp,avoid:exPrev})});
-      if(!r.ok)throw new Error("HTTP "+r.status);
-      const j=await r.json();
-      (j.versions||[]).filter(v=>v&&v.text).forEach(v=>exQueue.push(v));
-    }catch(e){
-      if(!exQueue.length){exRenderOffline(inp,t("ex.ai_err"));if(st)st.textContent="";exBusy=false;markPracticed();save();return}
-    }
-    if(st)st.textContent="";exBusy=false;
-  }
-  const show=exQueue.splice(0,2);
-  if(!show.length){exRenderOffline(inp,t("ex.ai_err"));markPracticed();save();return}
-  show.forEach(v=>exPrev.push(v.text));if(exPrev.length>6)exPrev=exPrev.slice(-6);   // only avoid the last few → keeps request tokens small
-  exRenderVersions(show);
-  markPracticed();save();
-};
-window.exClear=()=>{
-  if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}}   // stop the mic if it's recording
-  exLastInput="";exPrev=[];exQueue=[];exBusy=false;
-  const i=document.getElementById("exIn");if(i){i.value="";i.focus()}
-  const o=document.getElementById("exOut");if(o)o.innerHTML="";
-  const st=document.getElementById("exSt");if(st)st.textContent="";
-  exHint();
-};
-window.exAIPrompt=()=>{
-  const inp=document.getElementById("exIn").value.trim()||"[paste what you said here]";
-  const p=`### SYSTEM ROLE
-You are an elite Executive Communication Coach. Your task is to transform casual, unstructured, or blunt conversational English into polished, authoritative, and strategic executive communication.
-
-### RULES
-1. Maintain the user's core intent but upgrade the vocabulary to "enterprise-value" terms.
-2. Remove "hedging" (e.g., "I think," "maybe," "just").
-3. Ensure the output is optimized for spoken delivery (natural breathing pauses).
-4. Keep it concise enough to say in one breath sequence — this will be spoken, not written.
-
-### FEW-SHOT EXAMPLES
-Input: "The project is going to be late because the devs found some bugs. Sorry about that."
-Output: "We are currently navigating unforeseen technical complexities, which necessitates an adjustment to our delivery timeline. We are reallocating resources to ensure a stable release."
-
-Input: "I don't really like this idea, let's try to do something else instead."
-Output: "I have concerns regarding the current strategic alignment of this proposal. I recommend we explore alternative frameworks that more closely support our objectives."
-
-### TARGET INPUT
-Input: "${inp}"
-Context: business meeting with stakeholders
-Output:`;
-  navigator.clipboard.writeText(p).then(()=>toast(t("ex.ai_copied_toast")));
-};
-/* User-controlled dictation: tap the mic to start, speak as long as you like
-   (whole sentences or a paragraph, through pauses), tap again to stop. */
-/* exBase  – text already in the box before dictation started
-   exDone   – finalised text from earlier recognition sessions (the recogniser is
-              restarted whenever the browser stops it on a silence)
-   exFinal  – finalised text of the CURRENT session, rebuilt from scratch on every
-              result event rather than appended to. Android Chrome reports
-              resultIndex 0 with the whole accumulated result list each time, so
-              appending duplicates every word ("thank thank thank you you you"). */
-let exRec=null,exListening=false,exBase="",exFinal="",exDone="";
-function exSetMic(on){
-  exListening=on;
-  const b=document.getElementById("exMic"),st=document.getElementById("exSt");
-  if(b)b.classList.toggle("ex-mic-live",on);
-  if(on)exHint();                       // dictating IS the answer to "where do I start"
-  if(st)st.textContent=on?t("ex.dictate_listening_hold"):"";
-}
-/* Show the "start here" ring only while there is nothing to polish. Called with
-   no argument from every place that changes the box, so it reads the box rather
-   than trying to remember a state — which is why Clear restores it for free. */
-window.exHint=()=>{
-  const b=document.getElementById("exMic"),i=document.getElementById("exIn");
-  if(!b)return;
-  b.classList.toggle("ex-mic-hint",!exListening&&!(i&&i.value.trim()));
-};
-window.exDictate=()=>{
-  if(!SR)return toast(t("ex.dictate_sr_unavailable"));
-  if(exListening){exListening=false;if(exRec){try{exRec.stop()}catch(_){}}return}   // second tap → stop
-  const inp=document.getElementById("exIn");
-  exBase=inp.value.trim();exFinal="";exDone="";               // keep any text already typed
-  exRec=new SR();exRec.lang="en-US";exRec.continuous=true;exRec.interimResults=true;
-  exRec.onresult=e=>{
-    /* Rebuild this session's transcript from the whole list every time — never
-       append. srText() also collapses Android's cumulative partials. */
-    exFinal=srText(e.results);
-    inp.value=((exBase?exBase+" ":"")+(exDone?exDone+" ":"")+exFinal).replace(/\s+/g," ").trimStart();
-  };
-  exRec.onerror=ev=>{if(ev.error!=="no-speech"&&ev.error!=="aborted"){const st=document.getElementById("exSt");if(st)st.textContent=t("ex.dictate_mic_error")}};
-  exRec.onend=()=>{
-    /* Browser stopped on a silence but the user hasn't tapped stop → keep going.
-       Bank this session's text first: the restarted recogniser begins a fresh
-       result list, so exFinal is about to be rebuilt from empty. */
-    if(exListening){exDone=(exDone?exDone+" ":"")+exFinal;exFinal="";try{exRec.start();return}catch(_){}}
-    exSetMic(false);inp.value=inp.value.trim();
-    if(inp.value)window.exGo();                               // finished dictating → produce the professional version straight away
-  };
-  try{exRec.start();exSetMic(true);}catch(e){exSetMic(false);toast(t("ex.dictate_mic_error"))}
-};
+window.exAgain=()=>{exSetUrl(null);ex.blob=null;exStage(exIdleHTML());const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
+/* Kept for the smoke test and any old bookmark of the walkthrough. */
+window.exHow=()=>howOpen("polish");
 
 /* ================= PHRASES ================= */
 /* Phrase Lab is split in two: professional phrases and business idioms.
@@ -13433,140 +13857,6 @@ function phWeekBarHTML(w){
     <span class="ph-wk-lbl">${t("ph.week_label",{w,theme:esc(wk.theme)})}</span>
   </button>`;
 }
-/* ===== EXECUTIVE POLISH — "HOW IT WORKS" =====
-   The feature is the least self-explanatory thing in the app: a box, a mic and
-   a button, with nothing on screen saying what it is for. People were meeting
-   it cold. So it gets the same treatment as the iOS install — a short stepped
-   walkthrough — but built from live HTML rather than SVG, because here the
-   thing worth showing is a real sentence being rewritten, and only real text
-   in the real layout makes it recognisable as the screen in front of them.
-   It types, it pulses, it reveals: closer to a ten-second video than a diagram.
-   The last step hands them straight into the box with the mic ready, because a
-   walkthrough that ends in admiration rather than a first attempt has failed.
-
-   The example sentences stay in English in every language. They are the thing
-   being taught — the same reason the phrase bank is not translated. Only the
-   captions around them follow the user's language. */
-const EX_ROUGH="um I think maybe we need to fix the problem with the informations";
-const EX_V1="I'd suggest we address the data issue before it affects the timeline.";
-const EX_V2="We should resolve the reporting error now, so it doesn't hold up delivery.";
-const EX_HOW_KEY="be_ex_how";
-function exHowSeen(){try{return !!localStorage.getItem(EX_HOW_KEY)}catch(e){return false}}
-let EX_HOW_STEP=0, EX_TYPER=null;
-const EX_HOW_LAST=3;
-/* Labels are borrowed from the real buttons so the mock cannot drift from the
-   screen it is describing; the leading emoji is stripped the way tIc does. */
-function exdLbl(k){return t(k).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}
-function exdCard(boxHTML,ringGo){
-  return `<div class="exd">
-    <div class="exd-head"><b>${esc(exdLbl("ph.exec_title"))}</b><span class="exd-chip">${esc(t("ph.exec_tag"))}</span></div>
-    <div class="exd-row">
-      <div class="exd-box">${boxHTML}</div>
-      <div class="exd-btns">
-        <span class="exd-b${ringGo?"":" exd-ring"}">${ic("mic")}</span>
-        <span class="exd-b">${ic("trash")}</span>
-        <span class="exd-b exd-go${ringGo?" exd-ring":""}">${ic("sparkle")}${esc(exdLbl("ph.exec_polish_btn"))}</span>
-      </div>
-    </div>
-  </div>`;
-}
-function exHowArt(step){
-  if(step===0)return exdCard(`<span id="exdType"></span><i class="exd-caret"></i>`,false);
-  if(step===1)return exdCard(esc(EX_ROUGH),true);
-  if(step===2)return `<div class="exd">
-    <div class="exd-box" style="min-height:0;font-size:10px;opacity:.6">${esc(EX_ROUGH)}</div>
-    <div class="exd-res on exd-fade">
-      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 1</div>
-      <p>${esc(EX_V1)}</p>
-      <div class="exd-pills"><span class="exd-b">${ic("sound")}${esc(exdLbl("ex.hear_btn"))}</span><span class="exd-b">${ic("doc")}${esc(exdLbl("ex.copy_btn"))}</span></div>
-    </div>
-    <div class="exd-res exd-fade" style="animation-delay:.18s">
-      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 2</div>
-      <p>${esc(EX_V2)}</p>
-    </div>
-    <div class="exd-chg">${esc(exdLbl("ex.what_changed"))} informations → <b>data</b> · fix → <b>address</b> · maybe → <b>I'd suggest</b></div>
-  </div>`;
-  return `<div class="exd">
-    <div class="exd-res on">
-      <div class="exd-res-lbl">${esc(exdLbl("ex.exec_version"))} 1</div>
-      <p>${esc(EX_V1)}</p>
-      <div class="exd-pills"><span class="exd-b exd-ring">${ic("sound")}${esc(exdLbl("ex.hear_btn"))}</span><span class="exd-b">${ic("gauge")}${esc(exdLbl("ex.slow_btn"))}</span><span class="exd-b">${ic("doc")}${esc(exdLbl("ex.copy_btn"))}</span></div>
-      <div class="exd-wave">${[6,11,4,14,8,13,5,10,7,12,4,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
-    </div>
-  </div>`;
-}
-/* The typing is the whole point of step one: it shows that what goes in is
-   allowed to be a mess. Cleared on every repaint so two timers can never run. */
-function exHowType(ov){
-  clearInterval(EX_TYPER);EX_TYPER=null;
-  const el=ov.querySelector("#exdType");if(!el)return;
-  let i=0;
-  EX_TYPER=setInterval(()=>{
-    if(!document.body.contains(el)){clearInterval(EX_TYPER);EX_TYPER=null;return}
-    el.textContent=EX_ROUGH.slice(0,++i);
-    if(i>=EX_ROUGH.length){clearInterval(EX_TYPER);EX_TYPER=null;setTimeout(()=>{i=0;exHowType(ov)},1800)}
-  },38);
-}
-function exHowPaint(ov){
-  ov.querySelector(".exd-art").innerHTML=exHowArt(EX_HOW_STEP);
-  ov.querySelector(".ios-step").textContent=t("ios.step_of",{n:EX_HOW_STEP+1,t:EX_HOW_LAST+1});
-  ov.querySelector(".ios-cap").textContent=t("ex.how_"+(EX_HOW_STEP+1));
-  ov.querySelectorAll(".ios-dot").forEach((d,i)=>d.classList.toggle("on",i===EX_HOW_STEP));
-  ov.querySelector("[data-ex='back']").textContent=t("ios.back");
-  ov.querySelector("[data-ex='next']").textContent=EX_HOW_STEP===EX_HOW_LAST?t("ex.how_try"):t("ios.next");
-  if(EX_HOW_STEP===0)exHowType(ov); else {clearInterval(EX_TYPER);EX_TYPER=null;}
-}
-window.exHow=()=>{
-  if(document.querySelector(".exd-ov"))return;
-  EX_HOW_STEP=0;
-  try{localStorage.setItem(EX_HOW_KEY,"1")}catch(e){}
-  const ov=document.createElement("div");
-  ov.className="cf-ov ios-ov exd-ov";
-  ov.innerHTML=`<div class="cf-card" role="dialog" aria-modal="true" aria-labelledby="exhT">
-    <h3 id="exhT">${esc(t("ex.how_title"))}</h3>
-    <p class="ios-lead">${esc(t("ex.how_lead"))}</p>
-    <div class="ios-art exd-art"></div>
-    <div class="ios-dots">${[0,1,2,3].map(i=>`<span class="ios-dot${i?"":" on"}"></span>`).join("")}</div>
-    <div class="ios-step"></div>
-    <p class="ios-cap"></p>
-    <div class="cf-actions">
-      <button class="btn btn-g" data-ex="back"></button>
-      <button class="btn btn-p" data-ex="next"></button>
-    </div></div>`;
-  document.body.appendChild(ov);
-  exHowPaint(ov);
-  requestAnimationFrame(()=>ov.classList.add("show"));
-  const close=()=>{clearInterval(EX_TYPER);EX_TYPER=null;document.removeEventListener("keydown",key);
-    ov.classList.remove("show");setTimeout(()=>ov.remove(),180)};
-  function key(e){if(e.key==="Escape")close()}
-  ov.addEventListener("click",e=>{
-    const b=e.target.closest("[data-ex]");
-    if(b){
-      if(b.dataset.ex==="next"){
-        if(EX_HOW_STEP<EX_HOW_LAST){EX_HOW_STEP++;return exHowPaint(ov)}
-        close();return exTry();                       // straight into the box
-      }
-      if(EX_HOW_STEP>0){EX_HOW_STEP--;return exHowPaint(ov)}
-      return close();
-    }
-    if(e.target===ov)close();
-  });
-  document.addEventListener("keydown",key);
-};
-/* Ends the walkthrough where it should: the real box, focused, scrolled to,
-   briefly ringed so the eye finds it. Empty on purpose — the sentence they need
-   is their own, not the demo's. */
-window.exTry=()=>{
-  const go1=()=>{
-    const box=document.getElementById("exIn");
-    if(!box)return;
-    try{box.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){box.scrollIntoView()}
-    box.focus({preventScroll:true});
-    box.classList.add("exd-ring");setTimeout(()=>box.classList.remove("exd-ring"),2600);
-  };
-  if(cur&&cur.v==="phrases")setTimeout(go1,220);
-  else{go("phrases");setTimeout(go1,360)}
-};
 /* ===== "HOW IT WORKS" — the general engine =====
    Executive Polish got a walkthrough because nobody could tell what it was for
    on sight. The interviews and the workplace workshops have exactly the same
@@ -13580,6 +13870,10 @@ window.exTry=()=>{
    Every walkthrough ends on "Try it now" and hands the learner to the thing
    itself: a walkthrough that ends in admiration rather than a first attempt has
    failed. */
+/* Labels are borrowed from the real buttons so the mock cannot drift from the
+   screen it is describing; the leading emoji is stripped the way tIc does. */
+function exdLbl(k){return t(k).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"")}
+const EX_SHARPER="I lead the night shift, and my team has cut rework by a third this year.";
 const HOW_SEEN="be_how_";
 function howSeen(id){try{return !!localStorage.getItem(HOW_SEEN+id)}catch(e){return false}}
 function howMark(id){try{localStorage.setItem(HOW_SEEN+id,"1")}catch(e){}}
@@ -13596,6 +13890,24 @@ function howPoint(sel){
   el.classList.add("exd-ring");setTimeout(()=>el.classList.remove("exd-ring"),2600);
 }
 const HOW={
+  polish:{
+    title:"ex.how_title", lead:"ex.how_lead",
+    view:"phrases", point:"#exRecBtn",
+    art:[
+      ()=>`<div class="exd"><div class="exd-head"><b>${esc(exdLbl("ph.exec_title"))}</b><span class="exd-chip">${esc(t("ph.exec_tag"))}</span></div>
+        <div class="exd-box" style="min-height:0"><span class="exd-res-lbl">${esc(t("ex.prompt_h"))}</span>${esc(t("ex.prompt_1"))}</div>
+        <span class="exd-b exd-go exd-rec exd-ring">${ic("mic")}${esc(exdLbl("ex.rec_btn"))}</span></div>`,
+      ()=>`<div class="exd exd-center"><div class="exd-res-lbl">${esc(t("ex.report_eyebrow"))}</div><b class="exd-big">${esc(t("ex.listening_h"))}</b>
+        <div class="exd-wave">${[6,11,4,14,8,13,5,10,7,12,4,9].map((h,i)=>`<i style="height:${h}px;animation-delay:${i*70}ms"></i>`).join("")}</div>
+        <small>${esc(t("ex.step_measure"))}</small></div>`,
+      ()=>`<div class="exd"><div class="exd-res-lbl">${esc(t("ex.delivery_h"))} · ${esc(t("ex.delivery_sub"))}</div>
+        <div class="exd-stats"><span><b>128</b>${esc(t("ex.wpm"))}<i>${esc(t("ex.b_pace_ok"))}</i></span><span><b>2.7</b>${esc(t("ex.semis"))}<i>${esc(t("ex.b_expressive"))}</i></span><span><b>3</b>${esc(t("ex.hes"))}<i>${esc(t("ex.b_few"))}</i></span></div>
+        <div class="exd-res on exd-fade"><div class="exd-res-lbl">${esc(t("ex.sharper"))}</div><p>${esc(EX_SHARPER)}</p></div>
+        <div class="exd-chg">${esc(t("ex.fillers"))}: um <b>×3</b> · ${esc(t("ex.hedges"))}: I think <b>×2</b></div></div>`,
+      ()=>`<div class="exd"><div class="exd-res on"><div class="exd-res-lbl">${esc(t("ex.next_rec"))}</div><p>${esc(t("ex.how_demo_next"))}</p></div>
+        <span class="exd-b exd-go exd-rec exd-ring" style="margin-top:8px">${ic("mic")}${esc(exdLbl("ex.again_btn"))}</span></div>`
+    ]
+  },
   interview:{
     title:"how.iv_title", lead:"how.iv_lead",
     view:"roleplay", point:".rp-hero",
@@ -13851,44 +14163,17 @@ window.howOpen=id=>{
   document.addEventListener("keydown",key);
 };
 function rPhrases(el,wFilter){
-  /* Shown once, on the first visit to this page. Executive Polish is a box, a
-     mic and a button with nothing explaining itself, and people were meeting it
-     cold; after that it lives behind the "How it works" button in the header. */
-  try{if(!localStorage.getItem(EX_HOW_KEY))setTimeout(()=>whenIdle(()=>{if(cur&&cur.v==="phrases")exHow()}),700)}catch(e){}
+  /* The Polish walkthrough opens itself once, on the first visit: a record
+     button with nothing explaining what comes back was meeting people cold.
+     After that it lives behind the "How it works" button in the card header. */
+  if(!howSeen("polish"))setTimeout(()=>whenIdle(()=>{if(cur&&cur.v==="phrases")howOpen("polish")}),700);
+  if(ex.phase==="rec")exReset();               /* a re-render mid-recording drops the take rather than leaving the mic open */
   const w=wFilter||currentPos().w;
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
   <h1 class="big">${t("ph.title")}</h1>
   <p class="sub">${t("ph.sub")}</p>
-  <div class="card" style="margin:18px 0;background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.06));border-color:rgba(251,191,36,.3)">
-    <div class="ex-head">
-      <div class="ex-head-t">
-        <b>${tIc("ph.exec_title","briefcase")}</b>
-        <span class="chip p3">${t("ph.exec_tag")}</span>
-      </div>
-      <button class="ex-howbtn${exHowSeen()?"":" is-new"}" onclick="exHow()">${ic("idea")}<span>${esc(t("ex.how_btn"))}</span></button>
-    </div>
-    <p class="ex-desc">${t("ph.exec_desc")}</p>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
-      <textarea id="exIn" rows="3" oninput="exHint()" placeholder="${esc(t("ph.exec_ph"))}" style="flex:1;min-width:200px;resize:vertical;min-height:64px;font-family:inherit;line-height:1.5"></textarea>
-      <div class="ex-btns">
-        <button class="btn btn-g ex-micbtn ex-mic-hint" id="exMic" onclick="exDictate()" aria-label="Dictate" title="${esc(t("ex.dictate_title"))}">${ic("mic")}</button>
-        <button class="btn btn-g ex-icobtn" onclick="exClear()" aria-label="Clear" title="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
-        <button class="btn-primary ex-polishbtn" onclick="exGo()">${tIc("ph.exec_polish_btn","sparkle")}</button>
-      </div>
-    </div>
-    <span id="exSt" class="ex-status"></span>
-    <div id="exOut"></div>
-    <details class="home-more ex-sec ex-flow">
-      <summary><span class="btn-ic">${ic("idea")}</span>${t("ph.exec_flow_h")}<span class="hm-chev">▶</span></summary>
-      <div class="home-more-body">
-        <p class="ex-flow-lead">${t("ph.exec_flow_lead")}</p>
-        <ol>${[1,2,3,4].map(i=>`<li>${t("ph.exec_flow_"+i)}</li>`).join("")}</ol>
-      </div>
-    </details>
-  </div>
-  <div class="cat-tabs">${trackWeeks().map(x=>`<button class="cat-tab ${x.n===w?'on':''}" onclick="go('phrases',${x.n})">${t("week.tab",{n:x.n})}</button>`).join("")}
-   <button class="cat-tab ${w==='all'?'on':''}" onclick="go('phrases','all')">${t("ph.all_mastered_tab")}</button></div>
+  ${exCardHTML()}
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
     <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
@@ -13934,6 +14219,7 @@ function rPhrases(el,wFilter){
   taGrow(document.getElementById("phSpTa"));
   renderSpeechRecs();
   manIconizeInline(el);segSync(el);
+  if(ex.phase==="busy")exStage(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a list re-render */
 }
 /* ---- Your full speech: every example sentence of this week, in order ---- */
 let _phItems=[],_phWeek=1;
@@ -16284,7 +16570,7 @@ function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.
    waits for both, so it never nags someone who has not opted in. ---- */
 const PP_FAB_VIEWS=new Set(["journey","shadow","phrases"]);   // owner, 2026-09-19: "map, shadow and lab only" — not Home, not Practice
 const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
-const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-micbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
+const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-recbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
 function ppRecordingNow(){
   try{
     if(rec&&rec.mr&&rec.mr.state==="recording")return true;         /* MediaRecorder: session, shadow, phrases, foundations */
@@ -19845,6 +20131,8 @@ function fbMerge(local,cloud){
     });return o};
   m.clipsA=byAreaList(c=>c&&(c.vid+"_"+c.start))(local.clipsA,cloud.clipsA);
   m.quizHistA=byAreaList(q=>q&&q.t)(local.quizHistA,cloud.quizHistA);
+  m.exRepA=byAreaList(r=>r&&r.at)(local.exRepA,cloud.exRepA);
+  Object.keys(m.exRepA||{}).forEach(a=>{m.exRepA[a].sort((x,y)=>(y.at||0)-(x.at||0));m.exRepA[a].length=Math.min(m.exRepA[a].length,EX_REP_MAX)});
   /* Both sides must have split before the merged copy counts as split. If either
      device still holds untagged records, the next boot re-runs areaSplit() to
      stamp them — and because the fold above is additive, re-running it cannot
@@ -20044,6 +20332,12 @@ function fbSyncPayload(s){
   if(out.careerCenter){
     out.careerCenter=Object.assign({},out.careerCenter);
     delete out.careerCenter.resume;       /* employers, roles, years */
+  }
+  if(out.exRepA&&typeof out.exRepA==="object"){
+    /* Executive Polish: the numbers and the coach's notes travel; the minute of
+       speech they were measured on stays on this device */
+    const o={};Object.keys(out.exRepA).forEach(a=>{o[a]=(out.exRepA[a]||[]).map(r=>{if(!r)return r;const y=Object.assign({},r);delete y.tx;return y})});
+    out.exRepA=o;
   }
   if(Array.isArray(out.ppHist)){
     /* Practice Partner history: scores, weak words, outcomes and the coach's
