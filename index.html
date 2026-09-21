@@ -2104,7 +2104,6 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:20px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
 .ex-rep-chev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:transform .2s}.ex-rep-chev svg{width:18px;height:18px}.ex-rep-card[open]>summary .ex-rep-chev{transform:rotate(180deg)}
 .ex-rep-card>.ex-report{padding:0 18px 18px}.ex-rep-card>.ex-report .ex-rep-top{display:none}
-.ex-bank-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin-top:14px;cursor:pointer;font:inherit;color:inherit}.ex-bank-link b{display:block;font-size:14.5px}.ex-bank-link small{display:block;color:var(--mut);font-size:12.5px;margin-top:2px}.ex-bank-link .btn-ic{color:var(--acc)}
 .ex-version{padding:14px 0;border-top:1px solid var(--line)}.ex-version:first-of-type{border-top:0;padding-top:6px}
 .ex-ver-k{display:flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:6px}.ex-ver-n{width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
 .ex-ver-t{font-size:15.5px;line-height:1.6;margin:0 0 8px}.ex-mark{background:color-mix(in srgb,var(--acc) 22%,transparent);color:inherit;border-radius:4px;padding:0 3px;font-weight:600}
@@ -6152,8 +6151,6 @@ const I18N_EN={
  "ex.idiom_when":"When to use it:",
  "ex.save_btn":"Save to my words",
  "ex.saved_toast":"“{{w}}” saved to your words",
- "ex.bank_link":"This week's phrases & idioms",
- "ex.bank_sub":"The programme's professional phrases and business idioms, week by week — record and master them.",
  "ex.prompt_h":"Today's prompt",
  "ex.prompt_1":"Introduce yourself to a new client: your role, one strength, one detail about you.",
  "ex.prompt_2":"Give an update on the project you are working on now: where it stands, what is blocked, what happens next.",
@@ -14287,8 +14284,7 @@ function rPhrases(el){
   <h1 class="big">${t("ex.page_title")}</h1>
   <p class="sub">${t("ex.page_sub")}</p>
   ${exCardHTML()}
-  <div id="exReportWrap"></div>
-  <button class="card ex-bank-link" onclick="go('phrasebank')"><span class="btn-ic">${ic("chat")}</span><span><b>${esc(t("ex.bank_link"))}</b><small>${esc(t("ex.bank_sub"))}</small></span><span class="ex-last-go">›</span></button>`;
+  <div id="exReportWrap"></div>`;
   manIconizeInline(el);
   if(ex.phase==="busy")exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
   else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}

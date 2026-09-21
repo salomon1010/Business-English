@@ -497,8 +497,9 @@ Features
   `exSaveTerm` puts either into `vocPut` + the dictionary seed. **The
   professional-phrase and business-idiom lists left the page**: they are the
   phrase bank, `rPhraseBank` / `go('phrasebank', w)` (`#v-phrasebank`, lit
-  under the Phrase Lab tab), linked from the bottom of the Polish page, the
-  week cards and the Home stat; `phKind` / `phMaster` re-render the bank;
+  under the Phrase Lab tab), reached from the week cards, the Home stat and
+  the Library only — **no link from the Polish page** (owner: Phrase Lab is
+  the speech you provide, the analysis and the idioms for it, nothing else); `phKind` / `phMaster` re-render the bank;
   `go('phrasebank','all')` = mastered only. The old sentence rewrite route
   (`body.text`) stays in the Worker but nothing calls it. The Polish Worker
   (`backend/`, `be-polish`) must be redeployed for versions/idioms — the
