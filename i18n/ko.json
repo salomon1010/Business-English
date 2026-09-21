@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "이 단어들을 끊지 말고 한 덩어리로 말하세요: “{{phrase}}”.",
  "sv.ch_fix_order": "한 번 더 듣고, 화자의 순서대로 문장을 한 번에 말하세요.",
  "sv.ch_stress_h": "강세",
- "sv.ch_orig_h": "원본",
- "sv.ch_orig_play": "문장 재생",
  "sv.ch_orig_loop": "반복",
  "sv.ch_orig_speed": "속도",
- "sv.ch_cmp_h": "비교",
  "sv.ch_cmp_target": "목표",
  "sv.ch_cmp_you": "당신의 말",
- "sv.ch_cmp_key": "초록: 말함 · 노랑: 발음 · 빨강: 빠짐 · 취소선: 다른 단어 · | 머뭇거림",
  "sv.ch_weak_h": "가장 약한 단어 연습하기",
  "sv.ch_save_vocab": "단어장에 저장",
  "sv.ch_saved_vocab": "단어장에 있음",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "또렷하게 들림",
  "sv.ch_drill_state_notheard": "인식되지 않음 — 조금 더 천천히 한 번 더",
  "sv.ch_drill_done": "리포트로 돌아가기",
- "sv.ch_no_take": "그 녹음은 더 이상 이 기기에 없습니다."
+ "sv.ch_no_take": "그 녹음은 더 이상 이 기기에 없습니다.",
+ "sv.ch_key_ok": "초록: 말함",
+ "sv.ch_key_pron": "노랑: 발음",
+ "sv.ch_key_miss": "빨강: 빠짐",
+ "sv.ch_key_sub": "취소선: 다른 단어",
+ "sv.ch_key_gap": "| 머뭇거림"
 }

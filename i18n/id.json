@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Ucapkan kata-kata ini sebagai satu kesatuan, tanpa jeda: “{{phrase}}”.",
  "sv.ch_fix_order": "Dengarkan sekali lagi, lalu ucapkan kalimat sekaligus, sesuai urutan penutur.",
  "sv.ch_stress_h": "Tekanan",
- "sv.ch_orig_h": "Asli",
- "sv.ch_orig_play": "Putar kalimat",
  "sv.ch_orig_loop": "Ulang",
  "sv.ch_orig_speed": "Kecepatan",
- "sv.ch_cmp_h": "Bandingkan",
  "sv.ch_cmp_target": "Target",
  "sv.ch_cmp_you": "Anda mengucapkan",
- "sv.ch_cmp_key": "Hijau: diucapkan · kuning: pelafalan · merah: terlewat · dicoret: kata berbeda · | ragu-ragu",
  "sv.ch_weak_h": "Latih kata-kata terlemah Anda",
  "sv.ch_save_vocab": "Simpan ke kosakata",
  "sv.ch_saved_vocab": "Ada di kosakata Anda",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Terdengar jelas",
  "sv.ch_drill_state_notheard": "Tidak dikenali — sekali lagi, sedikit lebih lambat",
  "sv.ch_drill_done": "Kembali ke laporan",
- "sv.ch_no_take": "Rekaman itu sudah tidak ada di perangkat ini."
+ "sv.ch_no_take": "Rekaman itu sudah tidak ada di perangkat ini.",
+ "sv.ch_key_ok": "hijau: diucapkan",
+ "sv.ch_key_pron": "kuning: pelafalan",
+ "sv.ch_key_miss": "merah: terlewat",
+ "sv.ch_key_sub": "dicoret: kata berbeda",
+ "sv.ch_key_gap": "| ragu-ragu"
 }

@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Di estas palabras como un solo bloque, sin pausa: «{{phrase}}».",
  "sv.ch_fix_order": "Escucha una vez más y di la frase de un tirón, en el orden del hablante.",
  "sv.ch_stress_h": "Acento",
- "sv.ch_orig_h": "Original",
- "sv.ch_orig_play": "Reproducir frase",
  "sv.ch_orig_loop": "Bucle",
  "sv.ch_orig_speed": "Velocidad",
- "sv.ch_cmp_h": "Comparar",
  "sv.ch_cmp_target": "Objetivo",
  "sv.ch_cmp_you": "Dijiste",
- "sv.ch_cmp_key": "Verde: dicho · ámbar: pronunciación · rojo: omitido · tachado: palabra distinta · | vacilación",
  "sv.ch_weak_h": "Practica tus palabras más débiles",
  "sv.ch_save_vocab": "Guardar en vocabulario",
  "sv.ch_saved_vocab": "En tu vocabulario",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Se oyó con claridad",
  "sv.ch_drill_state_notheard": "No reconocida: una vez más, un poco más despacio",
  "sv.ch_drill_done": "Volver al informe",
- "sv.ch_no_take": "Esa grabación ya no está en este dispositivo."
+ "sv.ch_no_take": "Esa grabación ya no está en este dispositivo.",
+ "sv.ch_key_ok": "verde: dicho",
+ "sv.ch_key_pron": "ámbar: pronunciación",
+ "sv.ch_key_miss": "rojo: omitido",
+ "sv.ch_key_sub": "tachado: palabra distinta",
+ "sv.ch_key_gap": "| vacilación"
 }

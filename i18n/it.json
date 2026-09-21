@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Di' queste parole come un unico blocco, senza pause: “{{phrase}}”.",
  "sv.ch_fix_order": "Ascolta ancora una volta, poi di' la frase tutta d'un fiato, nell'ordine del parlante.",
  "sv.ch_stress_h": "Accento",
- "sv.ch_orig_h": "Originale",
- "sv.ch_orig_play": "Riproduci frase",
  "sv.ch_orig_loop": "Loop",
  "sv.ch_orig_speed": "Velocità",
- "sv.ch_cmp_h": "Confronta",
  "sv.ch_cmp_target": "Obiettivo",
  "sv.ch_cmp_you": "Hai detto",
- "sv.ch_cmp_key": "Verde: detto · ambra: pronuncia · rosso: mancante · barrato: parola diversa · | esitazione",
  "sv.ch_weak_h": "Esercita le tue parole più deboli",
  "sv.ch_save_vocab": "Salva nel vocabolario",
  "sv.ch_saved_vocab": "Nel tuo vocabolario",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Sentita chiaramente",
  "sv.ch_drill_state_notheard": "Non riconosciuta — ancora una volta, un po' più lentamente",
  "sv.ch_drill_done": "Torna al report",
- "sv.ch_no_take": "Quella registrazione non è più su questo dispositivo."
+ "sv.ch_no_take": "Quella registrazione non è più su questo dispositivo.",
+ "sv.ch_key_ok": "verde: detto",
+ "sv.ch_key_pron": "ambra: pronuncia",
+ "sv.ch_key_miss": "rosso: mancante",
+ "sv.ch_key_sub": "barrato: parola diversa",
+ "sv.ch_key_gap": "| esitazione"
 }

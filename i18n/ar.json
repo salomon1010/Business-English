@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "قل هذه الكلمات كقطعة واحدة دون فاصل: «{{phrase}}».",
  "sv.ch_fix_order": "استمع مرة أخرى ثم قل الجملة دفعة واحدة بترتيب المتحدث.",
  "sv.ch_stress_h": "النبر",
- "sv.ch_orig_h": "الأصل",
- "sv.ch_orig_play": "تشغيل الجملة",
  "sv.ch_orig_loop": "تكرار",
  "sv.ch_orig_speed": "السرعة",
- "sv.ch_cmp_h": "قارن",
  "sv.ch_cmp_target": "الهدف",
  "sv.ch_cmp_you": "أنت قلت",
- "sv.ch_cmp_key": "أخضر: قيل · كهرماني: النطق · أحمر: ناقص · مشطوب: كلمة مختلفة · | تردد",
  "sv.ch_weak_h": "تدرّب على أضعف كلماتك",
  "sv.ch_save_vocab": "حفظ في المفردات",
  "sv.ch_saved_vocab": "في مفرداتك",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "سُمعت بوضوح",
  "sv.ch_drill_state_notheard": "لم تُتعرَّف — مرة أخرى، أبطأ قليلًا",
  "sv.ch_drill_done": "العودة إلى التقرير",
- "sv.ch_no_take": "لم يعد هذا التسجيل موجودًا على هذا الجهاز."
+ "sv.ch_no_take": "لم يعد هذا التسجيل موجودًا على هذا الجهاز.",
+ "sv.ch_key_ok": "أخضر: قيل",
+ "sv.ch_key_pron": "كهرماني: النطق",
+ "sv.ch_key_miss": "أحمر: ناقص",
+ "sv.ch_key_sub": "مشطوب: كلمة مختلفة",
+ "sv.ch_key_gap": "| تردد"
 }

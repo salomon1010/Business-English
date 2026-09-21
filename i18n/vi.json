@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Nói những từ này liền một mạch, không ngắt: “{{phrase}}”.",
  "sv.ch_fix_order": "Nghe thêm một lần, rồi nói cả câu một mạch theo đúng trật tự của người nói.",
  "sv.ch_stress_h": "Trọng âm",
- "sv.ch_orig_h": "Bản gốc",
- "sv.ch_orig_play": "Phát câu",
  "sv.ch_orig_loop": "Lặp",
  "sv.ch_orig_speed": "Tốc độ",
- "sv.ch_cmp_h": "So sánh",
  "sv.ch_cmp_target": "Mục tiêu",
  "sv.ch_cmp_you": "Bạn đã nói",
- "sv.ch_cmp_key": "Xanh: đã nói · vàng: phát âm · đỏ: thiếu · gạch ngang: từ khác · | ngập ngừng",
  "sv.ch_weak_h": "Luyện những từ yếu nhất",
  "sv.ch_save_vocab": "Lưu vào từ vựng",
  "sv.ch_saved_vocab": "Đã có trong từ vựng",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Nghe rõ",
  "sv.ch_drill_state_notheard": "Không nhận ra — thử lại, chậm hơn một chút",
  "sv.ch_drill_done": "Về báo cáo",
- "sv.ch_no_take": "Bản ghi đó không còn trên thiết bị này."
+ "sv.ch_no_take": "Bản ghi đó không còn trên thiết bị này.",
+ "sv.ch_key_ok": "xanh: đã nói",
+ "sv.ch_key_pron": "vàng: phát âm",
+ "sv.ch_key_miss": "đỏ: thiếu",
+ "sv.ch_key_sub": "gạch ngang: từ khác",
+ "sv.ch_key_gap": "| ngập ngừng"
 }

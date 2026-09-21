@@ -341,16 +341,20 @@ not JS, and `new Function` chokes on it. Check it separately with
   intonation are NOT measured (the speaker's audio is inside the YouTube frame)
   and get no dimension. UI (`svChReportHTML` + `svChIssueHTML` / `svChDrill*` /
   `svChPlayOrig` / `svChPlayMe` / `svChAB` / `svChLoop` / `svChSpeed`): snapshot
-  → Your focus (expand → what to improve, Speaker (clip seek, "approx." when
-  estimated) / Me (Whisper span of the take) / Model voice (TTS) / Practise) →
-  word drill (`phRecInto` ctx `shadow-chw…`, `fbAssess(word)` per attempt, no
-  analytics event) → Original (play / loop = `svRepeat` / 0.75-1-1.25×) →
-  Compare (A/B via `svChOnStop` from the tick; coloured target) → weakest words
-  (⭐ `vocPut`, content words only) → attempts (`svCh.hist`, in memory) → Next
-  attempt → Try again. The report draws on the transcript and re-scores in
-  place when the grade lands (`svCh.pending`). No Worker change; audio stays on
-  the device. Tests: `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs`
-  (75, `BASE=` a port that serves THIS tree).
+  → Listen block (the target in the speaker's own words, coloured per word;
+  You said; Speaker / Me / A/B via `svChOnStop` from the tick; Loop =
+  `svRepeat`; 0.75-1-1.25×) → Your focus (expand → what to improve, Speaker
+  (clip seek, "approx." when estimated) / Me (Whisper span of the take) /
+  Practise) → word drill (`phRecInto` ctx `shadow-chw…`, `fbAssess(word)` per
+  attempt, Model voice + Slow = TTS, ⭐ `vocPut` for content words, no analytics
+  event) → weakest-words chips only for words the focus does not already offer
+  → attempts (`svCh.hist`, in memory, playable) → Next attempt → Try again.
+  `svChReveal()` scrolls the workspace so the report / drill / recorder sits
+  under the sticky player (on a phone the pinned block hides >half the screen).
+  The report draws on the transcript and re-scores in place when the grade
+  lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
+  `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
+  `BASE=` a port that serves THIS tree).
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is

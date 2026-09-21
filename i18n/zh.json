@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "把这几个词连成一体，不要停顿：“{{phrase}}”。",
  "sv.ch_fix_order": "再听一遍，然后按讲者的顺序一口气说出整句。",
  "sv.ch_stress_h": "重音",
- "sv.ch_orig_h": "原声",
- "sv.ch_orig_play": "播放整句",
  "sv.ch_orig_loop": "循环",
  "sv.ch_orig_speed": "速度",
- "sv.ch_cmp_h": "对比",
  "sv.ch_cmp_target": "目标",
  "sv.ch_cmp_you": "你说的是",
- "sv.ch_cmp_key": "绿色：已说出 · 琥珀色：发音 · 红色：缺少 · 删除线：用词不同 · | 停顿",
  "sv.ch_weak_h": "练习你最薄弱的词",
  "sv.ch_save_vocab": "保存到词汇本",
  "sv.ch_saved_vocab": "已在词汇本中",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "听得清楚",
  "sv.ch_drill_state_notheard": "未能识别——再来一次，稍慢一些",
  "sv.ch_drill_done": "返回报告",
- "sv.ch_no_take": "该录音已不在此设备上。"
+ "sv.ch_no_take": "该录音已不在此设备上。",
+ "sv.ch_key_ok": "绿色：已说出",
+ "sv.ch_key_pron": "琥珀色：发音",
+ "sv.ch_key_miss": "红色：缺少",
+ "sv.ch_key_sub": "删除线：用词不同",
+ "sv.ch_key_gap": "| 停顿"
 }

@@ -1352,7 +1352,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-ch-weak{display:flex;gap:8px;flex-wrap:wrap}.sv-ch-wk{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--card2)}
 .sv-ch-wk-w{min-height:40px;padding:0 12px;border:0;background:none;color:var(--txt);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.sv-ch-wk-w small{font-size:11px;color:var(--mut2);font-weight:600}
 .sv-ch-wk-star{min-width:40px;border:0;border-left:1px solid var(--line2);background:none;color:var(--mut2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.sv-ch-wk-star svg{width:16px;height:16px}.sv-ch-wk-star.on{color:var(--gold)}
-.sv-ch-hist{display:flex;gap:6px;flex-wrap:wrap}.sv-ch-hist-a{display:inline-flex;flex-direction:column;gap:1px;min-height:44px;padding:5px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--mut2);font:inherit;font-size:11px;cursor:pointer;text-align:left}.sv-ch-hist-a b{font-size:12.5px;color:var(--txt)}.sv-ch-hist-a:disabled{opacity:.5}
+.sv-ch-hist{display:flex;gap:6px;flex-wrap:wrap}.sv-ch-hist-a{display:inline-flex;flex-direction:column;gap:1px;min-height:44px;padding:5px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--mut2);font:inherit;font-size:11px;cursor:pointer;text-align:left}.sv-ch-hist-a b{font-size:12.5px;color:var(--txt)}.sv-ch-hist-a span{display:inline-flex;align-items:center;gap:4px}.sv-ch-hist-a svg{width:11px;height:11px}.sv-ch-hist-a:disabled{opacity:.5}
 .sv-ch-next{margin-top:12px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent);border:1px solid color-mix(in srgb,var(--acc) 35%,transparent)}.sv-ch-next p{margin:0;font-size:14px;line-height:1.5}
 .sv-ch-cta .btn-primary{width:100%;justify-content:center}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
@@ -5135,14 +5135,11 @@ const I18N_EN={
  "sv.ch_fix_pause":"Say these words as one piece, with no gap: “{{phrase}}”.",
  "sv.ch_fix_order":"Listen once more, then say the line in one go, in the speaker's order.",
  "sv.ch_stress_h":"Stress",
- "sv.ch_orig_h":"Original",
- "sv.ch_orig_play":"Play line",
  "sv.ch_orig_loop":"Loop",
  "sv.ch_orig_speed":"Speed",
- "sv.ch_cmp_h":"Compare",
  "sv.ch_cmp_target":"Target",
  "sv.ch_cmp_you":"You said",
- "sv.ch_cmp_key":"Green: said · amber: pronunciation · red: missing · struck through: a different word · | hesitation",
+ "sv.ch_key_ok":"green: said","sv.ch_key_pron":"amber: pronunciation","sv.ch_key_miss":"red: missing","sv.ch_key_sub":"struck through: a different word","sv.ch_key_gap":"| hesitation",
  "sv.ch_weak_h":"Practise your weakest words",
  "sv.ch_save_vocab":"Save to vocabulary",
  "sv.ch_saved_vocab":"In your vocabulary",
@@ -14888,7 +14885,8 @@ function svChHTML(){
   const meta=L==="independent"?(ex?t("sv.ch_expr_hint",{phrase:ex.phrase}):esc(s.text.split(/\s+/)[0]||"")+"…")
     :t("sv.ch_words",{n:nWords})+(ex?" · "+t("sv.ch_expr_hint",{phrase:ex.phrase}):"");
   const target=(showTarget||blurTarget)?`<p class="sv-ch-target ${blurTarget?"blur":""}" ${blurTarget?'aria-hidden="true"':""}>“${esc(s.text)}”</p>`
-    :(c.phase==="feedback"||c.phase==="done"||c.phase==="error")?`<p class="sv-ch-target small">${t("sv.ch_target_was",{text:s.text})}</p>`
+    :c.phase==="error"?`<p class="sv-ch-target small">${t("sv.ch_target_was",{text:s.text})}</p>`
+    :(c.phase==="feedback"||c.phase==="done")?""
     :`<p class="sv-ch-target hidden-note">${ic("eye")}<span>${t("sv.ch_target_hidden")}<span class="sv-ch-meta">${meta}</span></span></p>`;
   const canListen=L!=="independent"||c.attempt>0||c.phase==="feedback"||c.phase==="done";
   const busy=c.phase==="grading";
@@ -14906,11 +14904,13 @@ function svChHTML(){
     body=svChReportHTML(c,s);
     if(c.phase==="done"){
       const nextLv=SV_CH_LEVELS[SV_CH_LEVELS.indexOf(L)+1];
+      const left=c.fb.issues.some(x=>x.type!=="levelup")&&!(ex&&!c.use);   /* passed, but the report still names something: another go is the main action */
       body+=`<div class="sv-ch-done">${ic("check")}<span>${t("sv.ch_pass_title")}<br><span class="sv-ch-meta">${t("sv.ch_pass_sub")}</span></span></div>
       <div class="sv-ch-row">
         ${ex&&!c.use?`<button class="btn-primary" onclick="svChUse()">${ic("sparkle")} ${t("sv.ch_use_btn")}</button>`:""}
+        ${left?`<button class="btn-primary" onclick="svChRetry()">${ic("mic")} ${t("sv.ch_try_again")}</button>`:""}
         <button class="btn btn-g btn-sm" onclick="svChNext()">${ic("forward")} ${t("sv.ch_next")}</button>
-        <button class="btn btn-g btn-sm" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
+        ${left?"":`<button class="btn btn-g btn-sm" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>`}
         ${nextLv?`<button class="btn btn-g btn-sm" onclick="svChLevel('${nextLv}')">${t("sv.ch_level_up",{level:t("sv.ch_lv_"+nextLv)})}</button>`:""}
       </div>${c.use?svChUseHTML(c.use):""}`;
     }else{
@@ -14922,7 +14922,7 @@ function svChHTML(){
   return `<div class="sv-ch" id="svCh">
     <div class="sv-ch-head"><span class="eyebrow">${t("sv.ch_eyebrow")}</span>
       <div class="seg-tabs seg-fit sv-ch-lv" role="tablist" aria-label="${esc(t("sv.ch_levels"))}">${lv}</div></div>
-    <p class="sv-ch-hint">${t("sv.ch_hint_"+L)}</p>
+    ${c.phase==="feedback"||c.phase==="done"?"":`<p class="sv-ch-hint">${t("sv.ch_hint_"+L)}</p>`}
     ${target}${body}
     <p class="pp-fine">${t("sv.ch_pick_note")}</p>
   </div>`;
@@ -15008,10 +15008,10 @@ async function svChGrade(blob){
     try{track("shadow_challenge_feedback_received",{level:c.level,result:fb.pass?"pass":"retry"})}catch(e){}
     if(fb.pass)try{track("shadow_challenge_completed",{level:c.level})}catch(e){}
   }catch(e){c.phase="error";c.err=navigator.onLine?"ai":"net"}
-  if(svCh===c)svChDraw();
+  if(svCh===c){svChDraw();if(c.fb)requestAnimationFrame(()=>svChReveal("#svCh .sv-ch-rep"))}
 }
 window.svChRegrade=()=>{if(svCh&&svCh.blob&&svCh.phase!=="grading")svChGrade(svCh.blob)};
-window.svChRetry=()=>{if(!svChOn()||!svCh)return;svChStopAll();svRepeat=null;svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;svCh.open=null;svCh.drill=null;svCh.pending=false;svCh.assessTried=false;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw()};
+window.svChRetry=()=>{if(!svChOn()||!svCh)return;svChStopAll();svRepeat=null;svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;svCh.open=null;svCh.drill=null;svCh.pending=false;svCh.assessTried=false;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"))};
 window.svChNext=()=>{if(!svChOn()||!svAsset)return;const n=ShadowSync.neighbour(svAsset,svChSegIndex(),1);if(!n)return;svPick=n.index;svChReset();svRender()};
 window.svChReplay=async()=>{
   if(!svChOn())return;const recs=await getRecs(svChCtx());if(!recs||!recs[0])return;
@@ -15028,6 +15028,14 @@ window.svChReplay=async()=>{
    voice — never a claim without audio. Nothing here is drawn for a dimension
    the engine reported as na. */
 const SV_CH_SPEEDS=[0.75,1,1.25];
+/* bring an element of the panel up under the pinned player: the workspace
+   scrolls, and on a phone the sticky block hides more than half the screen */
+function svChReveal(sel){
+  const el=typeof sel==="string"?document.querySelector(sel):sel,body=document.querySelector(".sh-work-body");if(!el||!body)return;
+  const pin=body.querySelector(".sh-stick"),pinB=pin&&getComputedStyle(pin).position==="sticky"?pin.getBoundingClientRect().bottom:body.getBoundingClientRect().top;
+  const d=el.getBoundingClientRect().top-pinB-8;
+  if(Math.abs(d)>4){try{body.scrollBy({top:d,behavior:"smooth"})}catch(e){body.scrollTop+=d}}
+}
 let svChOnStop=null;                                   /* what to do when the clip reaches the stop mark (A/B) */
 function svChHasBlob(){return !!(svCh&&svCh.blob)}
 function svChSpeakerOK(){const s=svChSegObj();return !!(s&&s.startMs>=0&&ytPlayer&&ytPlayer.seekTo)}
@@ -15066,7 +15074,7 @@ function svChIssueHTML(it,idx,open){
       <span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></button>`;
   const body=open?`<div class="sv-ch-issue-body">
       <p class="sv-ch-fix">${svChFixText(it)}</p>
-      <div class="sv-ch-row tight">${svChSpanBtns(it,idx)}${it.text&&it.text.split(" ").length<=3?`<button class="sv-ch-play" onclick="svChVoice(${idx},0.7)">${ic("sound")}<span>${t("sv.ch_btn_slow")}</span></button>`:""}${practise}</div>
+      <div class="sv-ch-row tight">${svChSpanBtns(it,idx)}${practise}</div>
       ${svChStressHTML(it.text)}</div>`:"";
   return `<div class="sv-ch-issue ${open?"open":""} k-${it.dim}">${head}${body}</div>`;
 }
@@ -15090,39 +15098,51 @@ function svChFocusLine(fb){
   if(!dims.length)return t("sv.ch_focus_none");
   return t("sv.ch_focus_on",{dims:dims.slice(0,2).map(d=>t("sv.ch_dim_"+d).toLowerCase()).join(" + ")});
 }
-function svChCompareHTML(fb,s){
-  const tk=fb.tokens.map(x=>`<span class="sv-ch-tk ${x.state}${x.pauseAfter?" gap":""}" ${x.h&&x.state==="sub"?`title="${esc(x.h)}"`:""}>${esc(x.text)}</span>`).join(" ");
-  const heard=svCh.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(svCh.heard)}</p>`:"";
-  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("repeat")} ${t("sv.ch_cmp_h")}</div>
-    <div class="sv-ch-row tight">
-      ${svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig()">${ic("play")}<span>${t("sv.ch_btn_speaker")}</span></button>`:`<button class="sv-ch-play" onclick="fbSay(svChSegObj().text,1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`}
-      <button class="sv-ch-play" onclick="svChPlayMe()" ${svChHasBlob()?"":"disabled"}>${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>
-      ${svChSpeakerOK()&&svChHasBlob()?`<button class="sv-ch-play acc" id="svChAbBtn" onclick="svChAB()">${ic("repeat")}<span>${svCh.ab?t("sv.ch_btn_stop"):t("sv.ch_btn_ab")}</span></button>`:""}
-    </div>
-    <p class="sv-ch-cmp-t"><span class="sv-ch-lbl">${t("sv.ch_cmp_target")}</span>${tk}</p>${heard}
-    <p class="pp-fine">${t("sv.ch_cmp_key")}</p></div>`;
+/* the sentence as the speaker wrote it, each word coloured by what happened to
+   it (a word that became two tokens — "I'm" — takes the worse of the two), the
+   take's transcript, a legend of only what is on screen, and every way to hear
+   the two: the speaker (clip), me (the take), A/B, loop, speed */
+const SV_CH_RANK={miss:3,sub:2,pron:1,ok:0};
+function svChTargetHTML(fb,s){
+  const words=String(s.text||"").split(/\s+/).filter(Boolean),by={};
+  fb.tokens.forEach(x=>{const w=by[x.wi]||(by[x.wi]={state:"ok",gap:false,h:null});if(SV_CH_RANK[x.state]>SV_CH_RANK[w.state])w.state=x.state;if(x.pauseAfter)w.gap=true;if(x.h&&x.state==="sub")w.h=x.h});
+  return words.map((w,i)=>{const x=by[i]||{state:"ok"};return `<span class="sv-ch-tk ${x.state}${x.gap?" gap":""}" ${x.h?`title="${esc(x.h)}"`:""}>${esc(w)}</span>`}).join(" ");
 }
-function svChOrigHTML(s){
-  if(!svChSpeakerOK())return "";
-  const rate=svCh.speed||1;
-  return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("video")} ${t("sv.ch_orig_h")}</div>
+function svChLegend(fb){
+  const has=st=>fb.tokens.some(x=>x.state===st),parts=[];
+  if(has("ok"))parts.push(t("sv.ch_key_ok"));if(has("pron"))parts.push(t("sv.ch_key_pron"));if(has("miss"))parts.push(t("sv.ch_key_miss"));if(has("sub"))parts.push(t("sv.ch_key_sub"));if(fb.tokens.some(x=>x.pauseAfter))parts.push(t("sv.ch_key_gap"));
+  return parts.join(" · ");
+}
+function svChListenHTML(fb,s){
+  const heard=svCh.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(svCh.heard)}</p>`:"";
+  const rate=svCh.speed||1,sp=svChSpeakerOK();
+  return `<div class="sv-ch-sec">
+    <p class="sv-ch-cmp-t"><span class="sv-ch-lbl">${t("sv.ch_cmp_target")}</span>${svChTargetHTML(fb,s)}</p>${heard}
+    <p class="pp-fine">${svChLegend(fb)}</p>
     <div class="sv-ch-row tight">
-      <button class="sv-ch-play" onclick="svChPlayOrig()">${ic("play")}<span>${t("sv.ch_orig_play")}</span></button>
+      ${sp?`<button class="sv-ch-play" onclick="svChPlayOrig()">${ic("play")}<span>${t("sv.ch_btn_speaker")}</span></button>`:`<button class="sv-ch-play" onclick="fbSay(svChSegObj().text,1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`}
+      <button class="sv-ch-play" onclick="svChPlayMe()" ${svChHasBlob()?"":"disabled"}>${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>
+      ${sp&&svChHasBlob()?`<button class="sv-ch-play acc" id="svChAbBtn" onclick="svChAB()">${ic("repeat")}<span>${svCh.ab?t("sv.ch_btn_stop"):t("sv.ch_btn_ab")}</span></button>`:""}
+    </div>
+    ${sp?`<div class="sv-ch-row tight">
       <button class="sv-ch-play ${svRepeat&&svRepeat.i===svCh.seg?"on":""}" id="svChLoopBtn" onclick="svChLoop()" aria-pressed="${!!(svRepeat&&svRepeat.i===svCh.seg)}">${ic("repeat")}<span>${t("sv.ch_orig_loop")}</span></button>
       <span class="sv-ch-speed" role="group" aria-label="${esc(t("sv.ch_orig_speed"))}">${SV_CH_SPEEDS.map(r=>`<button class="${rate===r?"on":""}" onclick="svChSpeed(${r})" aria-pressed="${rate===r}">${String(r).replace(/^0/,"")}×</button>`).join("")}</span>
-    </div></div>`;
+    </div>`:""}</div>`;
 }
 function svChWeakHTML(fb){
-  const ws=fb.weakWords.slice(0,6);if(!ws.length)return "";
+  /* only the words the focus list does not already offer to practise —
+     otherwise the section would repeat the three rows above it */
+  const covered=new Set();fb.issues.forEach(it=>{if(it.tSpan)for(let i=it.tSpan[0];i<=it.tSpan[1];i++)covered.add(fb.tokens[i]&&fb.tokens[i].k)});
+  const ws=fb.weakWords.filter(w=>!covered.has(w.k)).slice(0,6);if(!ws.length)return "";
   return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_weak_h")}</div>
     <div class="sv-ch-weak">${ws.map((w,i)=>`<span class="sv-ch-wk">
-      <button class="sv-ch-wk-w" onclick="svChDrillWord(${i})">${esc(w.text)}${w.score!=null?`<small>${w.score}%</small>`:""}</button>
+      <button class="sv-ch-wk-w" onclick="svChDrillWord(${fb.weakWords.indexOf(w)})">${esc(w.text)}${w.score!=null?`<small>${w.score}%</small>`:""}</button>
       ${w.vocab?`<button class="sv-ch-wk-star ${vocHas(w.k)?"on":""}" onclick="svChSaveVocab('${esc(w.k)}')" aria-label="${esc(t(vocHas(w.k)?"sv.ch_saved_vocab":"sv.ch_save_vocab"))}" aria-pressed="${vocHas(w.k)}">${ic("star")}</button>`:""}</span>`).join("")}</div></div>`;
 }
 function svChHistHTML(){
   const h=svCh.hist||[];if(h.length<2)return "";
   return `<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("chart")} ${t("sv.ch_hist_h")}</div>
-    <div class="sv-ch-hist">${h.map((a,i)=>`<button class="sv-ch-hist-a d-${a.fb.verdict}" onclick="svChPlayAttempt(${i})" ${a.blob?"":"disabled"}><span>${t("sv.ch_attempt",{n:a.n})}</span><b>${t("sv.ch_st_"+a.fb.verdict)}</b></button>`).join("")}</div></div>`;
+    <div class="sv-ch-hist">${h.map((a,i)=>`<button class="sv-ch-hist-a d-${a.fb.verdict}" onclick="svChPlayAttempt(${i})" ${a.blob?"":"disabled"} aria-label="${esc(t("sv.ch_attempt",{n:a.n}))}"><span>${ic("play")}${t("sv.ch_attempt",{n:a.n})}</span><b>${t("sv.ch_st_"+a.fb.verdict)}</b></button>`).join("")}</div></div>`;
 }
 function svChNextHTML(fb){
   const items=fb.issues.filter(it=>it.type!=="levelup").map(it=>it.text?`“${esc(it.text)}”`:svChKind(it).toLowerCase());
@@ -15138,10 +15158,9 @@ function svChReportHTML(c,s){
     <h4 class="sv-ch-hd">${t("sv.ch_v_"+fb.verdict)} <span>${svChFocusLine(fb)}</span></h4>
     ${svChDimsHTML(fb)}
     <p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t(fb.good.k,fb.good.v||{})}</span></p>
+    ${svChListenHTML(fb,s)}
     ${issues.length?`<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_focus_h")}</div>${issues.map((it,i)=>svChIssueHTML(it,i,c.open===i)).join("")}</div>`:""}
     ${c.drill?svChDrillHTML(c.drill):""}
-    ${svChOrigHTML(s)}
-    ${svChCompareHTML(fb,s)}
     ${svChWeakHTML(fb)}
     ${svChHistHTML()}
     ${svChNextHTML(fb)}
@@ -15228,7 +15247,7 @@ function svChDrillHTML(d){
   const errTxt=d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
   const sp=d.ms&&svChSpeakerOK()?`<button class="sv-ch-play" onclick="svChPlayOrig(${d.ms[0]},${d.ms[1]})">${ic("play")}<span>${t("sv.ch_btn_speaker")}${d.est?` <i>${t("sv.ch_approx")}</i>`:""}</span></button>`:"";
   const me=d.s&&svChHasBlob()?`<button class="sv-ch-play" onclick="svChPlayMe(${d.s[0]},${d.s[1]})">${ic("mic")}<span>${t("sv.ch_btn_me")}</span></button>`:"";
-  const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="svChDrillPlay(${i})"><span>${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
+  const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="svChDrillPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
   const last=d.attempts[d.attempts.length-1];
   return `<div class="sv-ch-drill" id="svChDrill">
     <div class="sv-ch-sec-h">${ic("mic")} ${t("sv.ch_drill_h")}</div>
@@ -15247,7 +15266,7 @@ function svChDrillStart(w){
   svChStopAll();
   svCh.drill={k:w.k,text:w.text,i:w.i,ms:w.ms||null,est:!!w.est,s:w.s||null,note:w.note||"",vocab:!!w.vocab,phase:"ready",attempts:[],err:null,busy:false,blob:null};
   svChDraw();
-  setTimeout(()=>{const el=document.getElementById("svChDrill");if(el&&el.scrollIntoView)try{el.scrollIntoView({block:"nearest",behavior:"smooth"})}catch(e){}},50);
+  requestAnimationFrame(()=>svChReveal("#svChDrill"));
 }
 window.svChDrillOpen=idx=>{
   const it=svCh&&svCh.fb&&svCh.fb.issues.filter(x=>x.type!=="levelup")[idx];if(!it)return;

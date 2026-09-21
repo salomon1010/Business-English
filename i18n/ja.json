@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "この語をひとまとまりに、間を空けずに言いましょう：「{{phrase}}」。",
  "sv.ch_fix_order": "もう一度聞いてから、話者の順序どおりに文を一気に言いましょう。",
  "sv.ch_stress_h": "強勢",
- "sv.ch_orig_h": "オリジナル",
- "sv.ch_orig_play": "文を再生",
  "sv.ch_orig_loop": "ループ",
  "sv.ch_orig_speed": "速度",
- "sv.ch_cmp_h": "比較",
  "sv.ch_cmp_target": "目標",
  "sv.ch_cmp_you": "あなたの発話",
- "sv.ch_cmp_key": "緑：言えた · 黄：発音 · 赤：抜け · 取り消し線：違う単語 · | ためらい",
  "sv.ch_weak_h": "いちばん弱い単語を練習",
  "sv.ch_save_vocab": "単語帳に保存",
  "sv.ch_saved_vocab": "単語帳にあります",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "はっきり聞こえました",
  "sv.ch_drill_state_notheard": "認識できませんでした。もう一度、少しゆっくり",
  "sv.ch_drill_done": "レポートに戻る",
- "sv.ch_no_take": "その録音はこの端末にもうありません。"
+ "sv.ch_no_take": "その録音はこの端末にもうありません。",
+ "sv.ch_key_ok": "緑：言えた",
+ "sv.ch_key_pron": "黄：発音",
+ "sv.ch_key_miss": "赤：抜け",
+ "sv.ch_key_sub": "取り消し線：違う単語",
+ "sv.ch_key_gap": "| ためらい"
 }

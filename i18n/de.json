@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Sag diese Wörter als ein Stück, ohne Lücke: „{{phrase}}“.",
  "sv.ch_fix_order": "Hör noch einmal zu und sag den Satz in einem Zug, in der Reihenfolge des Sprechers.",
  "sv.ch_stress_h": "Betonung",
- "sv.ch_orig_h": "Original",
- "sv.ch_orig_play": "Satz abspielen",
  "sv.ch_orig_loop": "Schleife",
  "sv.ch_orig_speed": "Tempo",
- "sv.ch_cmp_h": "Vergleichen",
  "sv.ch_cmp_target": "Ziel",
  "sv.ch_cmp_you": "Du hast gesagt",
- "sv.ch_cmp_key": "Grün: gesagt · Gelb: Aussprache · Rot: fehlt · durchgestrichen: anderes Wort · | Zögern",
  "sv.ch_weak_h": "Übe deine schwächsten Wörter",
  "sv.ch_save_vocab": "Ins Vokabular speichern",
  "sv.ch_saved_vocab": "In deinem Vokabular",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Klar gehört",
  "sv.ch_drill_state_notheard": "Nicht erkannt — noch einmal, etwas langsamer",
  "sv.ch_drill_done": "Zurück zum Bericht",
- "sv.ch_no_take": "Diese Aufnahme ist nicht mehr auf diesem Gerät."
+ "sv.ch_no_take": "Diese Aufnahme ist nicht mehr auf diesem Gerät.",
+ "sv.ch_key_ok": "Grün: gesagt",
+ "sv.ch_key_pron": "Gelb: Aussprache",
+ "sv.ch_key_miss": "Rot: fehlt",
+ "sv.ch_key_sub": "durchgestrichen: anderes Wort",
+ "sv.ch_key_gap": "| Zögern"
 }

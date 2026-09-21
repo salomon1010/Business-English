@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Diga estas palavras como um só bloco, sem pausa: “{{phrase}}”.",
  "sv.ch_fix_order": "Ouça mais uma vez e diga a frase de uma só vez, na ordem do orador.",
  "sv.ch_stress_h": "Acento",
- "sv.ch_orig_h": "Original",
- "sv.ch_orig_play": "Reproduzir frase",
  "sv.ch_orig_loop": "Repetir",
  "sv.ch_orig_speed": "Velocidade",
- "sv.ch_cmp_h": "Comparar",
  "sv.ch_cmp_target": "Alvo",
  "sv.ch_cmp_you": "Você disse",
- "sv.ch_cmp_key": "Verde: dito · âmbar: pronúncia · vermelho: em falta · riscado: palavra diferente · | hesitação",
  "sv.ch_weak_h": "Pratique as suas palavras mais fracas",
  "sv.ch_save_vocab": "Guardar no vocabulário",
  "sv.ch_saved_vocab": "No seu vocabulário",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Ouvida com clareza",
  "sv.ch_drill_state_notheard": "Não reconhecida — mais uma vez, um pouco mais devagar",
  "sv.ch_drill_done": "Voltar ao relatório",
- "sv.ch_no_take": "Essa gravação já não está neste dispositivo."
+ "sv.ch_no_take": "Essa gravação já não está neste dispositivo.",
+ "sv.ch_key_ok": "verde: dito",
+ "sv.ch_key_pron": "âmbar: pronúncia",
+ "sv.ch_key_miss": "vermelho: em falta",
+ "sv.ch_key_sub": "riscado: palavra diferente",
+ "sv.ch_key_gap": "| hesitação"
 }

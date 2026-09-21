@@ -2369,14 +2369,10 @@
  "sv.ch_fix_pause": "Dites ces mots d'un seul bloc, sans coupure : « {{phrase}} ».",
  "sv.ch_fix_order": "Réécoutez, puis dites la phrase d'un trait, dans l'ordre de l'orateur.",
  "sv.ch_stress_h": "Accent",
- "sv.ch_orig_h": "Original",
- "sv.ch_orig_play": "Lire la phrase",
  "sv.ch_orig_loop": "Boucle",
  "sv.ch_orig_speed": "Vitesse",
- "sv.ch_cmp_h": "Comparer",
  "sv.ch_cmp_target": "Cible",
  "sv.ch_cmp_you": "Vous avez dit",
- "sv.ch_cmp_key": "Vert : dit · orange : prononciation · rouge : manquant · barré : mot différent · | hésitation",
  "sv.ch_weak_h": "Travaillez vos mots les plus faibles",
  "sv.ch_save_vocab": "Ajouter au vocabulaire",
  "sv.ch_saved_vocab": "Dans votre vocabulaire",
@@ -2395,5 +2391,10 @@
  "sv.ch_drill_state_heard": "Bien entendu",
  "sv.ch_drill_state_notheard": "Non reconnu — encore une fois, un peu plus lentement",
  "sv.ch_drill_done": "Retour au rapport",
- "sv.ch_no_take": "Cet enregistrement n'est plus sur cet appareil."
+ "sv.ch_no_take": "Cet enregistrement n'est plus sur cet appareil.",
+ "sv.ch_key_ok": "vert : dit",
+ "sv.ch_key_pron": "orange : prononciation",
+ "sv.ch_key_miss": "rouge : manquant",
+ "sv.ch_key_sub": "barré : mot différent",
+ "sv.ch_key_gap": "| hésitation"
 }
