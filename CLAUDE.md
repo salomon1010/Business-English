@@ -290,6 +290,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   name. `be-events` has `[env.staging]` (`be-events-staging`, own
   dataset, `EXTRA_ORIGINS`); phones use `localStorage.be_events_api`. Tests:
   Worker 80, e2e 78 (two contexts connect over real WebRTC).
+- **Shadow Studio pages (be12-v410, General English / V2 on).** `#shWork`
+  carries `data-svmode` (set in `svRender` / `svLayoutSync`, removed when V2
+  is off) and the CSS does the hiding: **Watch** = the transcript — the
+  `.yt-shell` folds to 1 px (sound keeps playing), no clip tools, no cards,
+  the list always open (no Watch fold any more); **Shadow** = the clip and the
+  mic — video, transport, Start/End + hint, line nav + Shadow this sentence,
+  the recorder card and its report; `#svTx`, the fold button and the notes
+  card hidden; **Challenge** = its own panel only (`shLowerShow(false)`).
+  Welding never carries the attribute and keeps the classic workspace.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**
   **Challenge (branch `feature/shadow-challenge`, 2026-09-19, NOT merged).** The
   Challenge tab records and grades: `svCh` state machine + `svChHTML()` panel in

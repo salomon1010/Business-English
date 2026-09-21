@@ -1357,6 +1357,13 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-ch-cta .btn-primary{width:100%;justify-content:center}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
 .sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
+/* the three pages of the studio (General English, V2 on): what each one hides */
+#shWork[data-svmode="watch"] .yt-shell{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;margin:0}   /* sound only: the frame stays alive, the picture goes */
+#shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 330px)}   /* the page is the transcript: give it the room the video left */
+#shWork[data-svmode="watch"] #shSeg,#shWork[data-svmode="watch"] #shMarkHint,#shWork[data-svmode="watch"] .sv-shadow-this{display:none!important}
+#shWork[data-svmode="shadow"] #svTx,#shWork[data-svmode="shadow"] .sv-tx-btn,#shWork[data-svmode="shadow"] .sv-note{display:none!important}
+#shWork[data-svmode="shadow"] #shLower>.card:first-child{display:none!important}
+#shWork[data-svmode="shadow"] #shLower{grid-template-columns:1fr}
 /* Shadow history: one card per Challenge attempt, grouped by day */
 .sh-hist-day{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:14px 0 6px}.sh-hist-day:first-child{margin-top:4px}
 .sh-hist-item{border:1px solid var(--line2);border-radius:12px;background:var(--card2);margin:0 0 8px;overflow:hidden;border-left-width:3px}
@@ -14680,7 +14687,7 @@ function svBox(){return document.getElementById("shV2")}
    transcript box, else none */
 async function shV2Load(){
   const box=svBox();if(!box)return;
-  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);return}
+  if(!svOn()){box.style.display="none";svAsset=null;svStop();svNowDraw(-1);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);const wk=document.getElementById("shWork");if(wk)delete wk.dataset.svmode;return}
   const vid=shClip.vid;
   let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
   if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
@@ -14707,12 +14714,12 @@ async function shV2Load(){
 function svRender(){
   const box=svBox();if(!box)return;
   const a=svAsset;
-  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);return}
+  if(!a||a.level==="none"){box.style.display="";box.innerHTML=`<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;manIconizeInline(box);const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}svPlace(false);shClipToolsShow(true);shLowerShow(true);const wk=document.getElementById("shWork");if(wk)delete wk.dataset.svmode;return}
   box.style.display="";
   const timed=a.level==="word"||a.level==="sentence";
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
     .filter(([m])=>m!=="apply"||flag("shadow_apply_phrase_enabled"))
-    .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" ${m==="watch"?`aria-expanded="${svMode==="watch"&&svWatchOpen}"`:""} onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}${m==="watch"?`<span class="sv-chev ${svMode==="watch"&&svWatchOpen?"open":""}" aria-hidden="true">▾</span>`:""}</span></button>`).join("");
+    .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
   const segs=a.segments.map((s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`).join("");
@@ -14737,9 +14744,16 @@ function svRender(){
   const tabsEl=document.getElementById("svTabs");
   if(tabsEl){tabsEl.innerHTML=tabs;tabsEl.hidden=false}
   const folded=svMode==="shadow"&&!svTxOpen;
-  const watchFolded=svMode==="watch"&&!svWatchOpen;
-  shClipToolsShow(svMode!=="challenge");
-  shLowerShow(svMode!=="challenge");                               /* Challenge is its own page: the notes, the recordings and the Shadow report stay with Watch / Shadow */
+  const watchFolded=false;                                        /* Watch IS the transcript now: never folded */
+  /* Three pages, three jobs. WATCH: the transcript — the video folds to sound
+     only, no clip tools, no cards. SHADOW: the clip and the microphone — video,
+     transport, Start/End, the recorder and its report; no transcript list, no
+     notes card. CHALLENGE: its own panel and nothing else. The mode rides on
+     #shWork as data-svmode so the CSS does the hiding; Welding (V2 off) never
+     carries the attribute and keeps the classic workspace. */
+  const work=document.getElementById("shWork");if(work)work.dataset.svmode=svMode;
+  shClipToolsShow(svMode==="shadow");
+  shLowerShow(svMode==="shadow");
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
   svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
@@ -14785,7 +14799,8 @@ window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen
    clip tools. (The Watch fold only concerns the transcript panel itself.) */
 function svLayoutSync(){
   const on=!!(svAsset&&svOn());
-  shClipToolsShow(!on||svMode!=="challenge");shLowerShow(!on||svMode!=="challenge");
+  shClipToolsShow(!on||svMode==="shadow");shLowerShow(!on||svMode==="shadow");
+  const work=document.getElementById("shWork");if(work){if(on)work.dataset.svmode=svMode;else delete work.dataset.svmode}
 }
 function shLowerShow(on){
   const box=document.getElementById("shV2");if(!box)return;
@@ -14831,7 +14846,6 @@ function svApplyHTML(){
    spoken and moving with the video. Shadow and Challenge have their own. */
 let svWatchOpen=false;try{svWatchOpen=localStorage.getItem("be_sv_watchopen")==="1"}catch(e){}   // remembered: a learner who released the tools keeps them
 window.svSetMode=m=>{
-  if(m==="watch"&&svMode==="watch"){svWatchOpen=!svWatchOpen;try{localStorage.setItem("be_sv_watchopen",svWatchOpen?"1":"0")}catch(e){}}
   svMode=m;svRevealed=false;if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();svRender();try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
 window.svTapSeg=i=>{
   svPick=i;const s=svAsset&&svAsset.segments[i];
