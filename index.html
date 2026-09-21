@@ -1372,6 +1372,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-shbar[hidden]{display:none}
 .sv-shbar-side{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;color:var(--mut);font:inherit;font-size:12px;cursor:pointer;min-width:64px}.sv-shbar-side small{font-size:12px;color:var(--mut)}
 .sv-shbar-ic{width:48px;height:48px;border-radius:50%;background:color-mix(in srgb,var(--acc) 22%,var(--card2));color:var(--acc);display:inline-flex;align-items:center;justify-content:center}.sv-shbar-ic svg{width:22px;height:22px}
+.sv-shbar-rate{font-size:15px;font-weight:800;letter-spacing:.2px}
 .sv-shbar-rec{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;color:var(--txt);font:inherit;font-weight:700;font-size:13px;cursor:pointer}
 .sv-shbar-mic{width:84px;height:84px;border-radius:50%;background:var(--acc);color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 8px 24px -8px color-mix(in srgb,var(--acc) 70%,transparent);transition:background .15s}.sv-shbar-mic svg{width:34px;height:34px}
 .sv-shbar-rec.on .sv-shbar-mic{background:var(--red);animation:svchpulse 1.2s infinite}.sv-shbar-time{font-family:ui-monospace,monospace;font-size:12px;color:var(--red)}
@@ -8785,7 +8786,7 @@ ${(()=>{
   </div>
   <div class="sh-work" id="shWork" style="display:none" role="dialog" aria-modal="true" aria-labelledby="shWorkTitle">
     <div class="sv-shbar" id="svShBar" hidden>
-      <button class="sv-shbar-side" onclick="svShSpeed()" aria-label="${esc(t("sh.rate_title"))}"><span class="sv-shbar-ic">${ic("gauge")}</span><span id="svShSpeedLbl">1×</span><small>${t("sv.sh_speed")}</small></button>
+      <button class="sv-shbar-side" onclick="svShSpeed()" aria-label="${esc(t("sh.rate_title"))}"><span class="sv-shbar-ic sv-shbar-rate" id="svShSpeedLbl">1×</span><small>${t("sv.sh_speed")}</small></button>
       <button class="sv-shbar-rec" id="svShRec" onclick="shRec()" aria-label="${esc(t("sv.sh_record"))}"><span class="sv-shbar-mic">${ic("mic")}</span><span id="svShRecLbl">${t("sv.sh_record")}</span><span class="sv-shbar-time" id="svShTime" hidden></span></button>
       <button class="sv-shbar-side" onclick="svShReplay()" aria-label="${esc(t("sv.sh_replay"))}"><span class="sv-shbar-ic">${ic("skipstart")}</span><small>${t("sv.sh_replay")}</small></button>
     </div>
