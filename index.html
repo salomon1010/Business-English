@@ -14806,7 +14806,9 @@ async function ppRevRequest(pair,quiet){
   try{r=await ppApi("POST","/pairs/"+pair.id+"/review",body)}
   catch(e){
     if(e.code==="network"){ppState().revPending={pairId:pair.id,partner:pair.partner?pair.partner.name:"?",pair:{id:pair.id,promptWeek:pair.promptWeek,fndDay:pair.fndDay,prompt:pair.prompt,partner:pair.partner}};save();if(!quiet)toast(t("pp.rv_offline_toast"));return null}
-    if(e.code==="review_off"){if(!quiet)toast(t("pp.rv_off_toast"));return null}
+    /* review_off = the Worker has no model key; not_found = a Worker older than
+       this client (the route is not there yet). Same honest message. */
+    if(e.code==="review_off"||(e.code==="not_found"&&e.status===404)){if(!quiet)toast(t("pp.rv_off_toast"));return null}
     if(e.code==="not_complete"){return null}
     if(e.code==="limit"){if(!quiet)toast(t("pp.err_limit"));return null}
     if(!quiet)toast(t("pp.rv_fail_toast"));return null;
