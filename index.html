@@ -1358,8 +1358,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
 .sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
 /* the three pages of the studio (General English, V2 on): what each one hides */
-#shWork[data-svmode="watch"] .yt-shell{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;margin:0}   /* sound only: the frame stays alive, the picture goes */
-#shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 330px)}   /* the page is the transcript: give it the room the video left */
+#shWork[data-svmode="watch"] #svNow{display:none!important}   /* the list itself lights the paragraph and the word */
+#shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 420px);min-height:180px}
+#shWork[data-svmode="watch"] .sv-tx .sv-seg{margin:0 0 14px;padding:10px 12px;border-radius:12px;font-size:16px;line-height:1.6;border:1px solid transparent}
 #shWork[data-svmode="watch"] #shSeg,#shWork[data-svmode="watch"] #shMarkHint,#shWork[data-svmode="watch"] .sv-shadow-this{display:none!important}
 #shWork[data-svmode="shadow"] #svTx,#shWork[data-svmode="shadow"] .sv-tx-btn,#shWork[data-svmode="shadow"] #svNow,#shWork[data-svmode="shadow"] .sh-ctl,#shWork[data-svmode="shadow"] #shSeg,#shWork[data-svmode="shadow"] #shMarkHint,#shWork[data-svmode="shadow"] #shLower{display:none!important}
 #shWork[data-svmode="shadow"] .sh-work-body{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
@@ -1379,7 +1380,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sv-sh-tr{font-size:14.5px;line-height:1.6;color:var(--txt);margin:10px 0 0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent)}.sv-sh-tr.empty{display:none}.sv-sh-tr.wait{color:var(--mut)}.sv-sh-tr.err{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
 .sv-sh-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
 /* Watch: the paragraph being spoken is lit as a whole, its word marked */
-#shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+#shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt);background:color-mix(in srgb,var(--acc) 10%,transparent);border-color:color-mix(in srgb,var(--acc) 35%,transparent)}
 #shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w{color:var(--txt)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w.now{background:var(--acc);color:#fff;border-radius:5px;box-shadow:none}
 /* Shadow history: one card per Challenge attempt, grouped by day */
 .sh-hist-day{font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:14px 0 6px}.sh-hist-day:first-child{margin-top:4px}
@@ -8781,9 +8782,9 @@ ${(()=>{
   </div>
   <div class="sh-work" id="shWork" style="display:none" role="dialog" aria-modal="true" aria-labelledby="shWorkTitle">
     <div class="sv-shbar" id="svShBar" hidden>
-      <button class="sv-shbar-side" onclick="svShSpeed()" aria-label="${esc(t("sh.rate_title"))}"><span class="sv-shbar-ic">${ic("bolt")}</span><span id="svShSpeedLbl">1×</span><small>${t("sv.sh_speed")}</small></button>
+      <button class="sv-shbar-side" onclick="svShSpeed()" aria-label="${esc(t("sh.rate_title"))}"><span class="sv-shbar-ic">${ic("gauge")}</span><span id="svShSpeedLbl">1×</span><small>${t("sv.sh_speed")}</small></button>
       <button class="sv-shbar-rec" id="svShRec" onclick="shRec()" aria-label="${esc(t("sv.sh_record"))}"><span class="sv-shbar-mic">${ic("mic")}</span><span id="svShRecLbl">${t("sv.sh_record")}</span><span class="sv-shbar-time" id="svShTime" hidden></span></button>
-      <button class="sv-shbar-side" onclick="svShReplay()" aria-label="${esc(t("sv.sh_replay"))}"><span class="sv-shbar-ic">${ic("sound")}</span><small>${t("sv.sh_replay")}</small></button>
+      <button class="sv-shbar-side" onclick="svShReplay()" aria-label="${esc(t("sv.sh_replay"))}"><span class="sv-shbar-ic">${ic("skipstart")}</span><small>${t("sv.sh_replay")}</small></button>
     </div>
     <div class="sh-work-bar">
       <h2 class="sh-work-title" id="shWorkTitle">${t("sh.eyebrow")}</h2>
@@ -14779,7 +14780,8 @@ function svRender(){
   shLowerShow(svMode==="shadow");
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
-  if(svMode==="shadow"){box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
+  if(svMode==="shadow"){if(!svShPinned)svPick=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
+  svShPinned=false;
   svShBarSync();
   svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
   box.innerHTML=`
@@ -14895,9 +14897,13 @@ window.svRepeatToggle=()=>{
    cached per paragraph), one tap says it in the natural voice. The bar at the
    foot of the workspace holds Speed / Record / Replay; the recording is the
    studio's own recorder and its report follows below. */
-function svShSeg(){const i=svPick>=0?svPick:(svLast.seg>=0?svLast.seg:0);return svAsset&&svAsset.segments[i]||null}
-function svShIndex(){return svPick>=0?svPick:(svLast.seg>=0?svLast.seg:0)}
+/* the paragraph the video has reached wins; a tapped one when nothing has
+   played yet; the first otherwise. Once on the page it is pinned (svPick) so
+   the loop cannot swap the card as it wraps. */
+function svShIndex(){if(svShPinned&&svPick>=0)return svPick;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
+function svShSeg(){return svAsset&&svAsset.segments[svShIndex()]||null}
 function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:""}}
+let svShPinned=false;   /* the paragraph on the Shadow page stays put until the learner moves it or leaves */
 let _svTr={};try{_svTr=JSON.parse(localStorage.getItem("be_sv_tr")||"{}")||{}}catch(e){_svTr={}}
 function svShTrKey(sg){const l=svShLang();return shClip.vid+":"+sg.id+":"+l.code}
 function svShHTML(){

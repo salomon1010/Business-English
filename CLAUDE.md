@@ -292,10 +292,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   Worker 80, e2e 78 (two contexts connect over real WebRTC).
 - **Shadow Studio pages (be12-v410, General English / V2 on).** `#shWork`
   carries `data-svmode` (set in `svRender` / `svLayoutSync`, removed when V2
-  is off) and the CSS does the hiding: **Watch** = the transcript — the
-  `.yt-shell` folds to 1 px (sound keeps playing), no clip tools, no cards,
-  the list always open (no Watch fold any more), the spoken paragraph lit as a
-  whole with its word marked; **Shadow (v411)** = ONE paragraph: `svShHTML()`
+  is off) and the CSS does the hiding: **Watch (v412)** = the video plus the
+  transcript in paragraph blocks — no clip tools, no cards, no follow-along
+  card (`#svNow` hidden; the list itself lights the spoken paragraph and its
+  word), the list always open (no Watch fold any more); tapping Shadow sends
+  the paragraph the video has reached (`svShIndex()`: `svLast.seg` first, a
+  tapped one only when nothing has played) and pins it (`svShPinned`) until
+  the learner moves it or leaves; **Shadow (v411)** = ONE paragraph: `svShHTML()`
   renders the "Original transcript" card (word chips → `fbSay`, plain text,
   the translation box, prev/next paragraph, ⭐ save clip, Translate (only when
   the app language is not English; the Worker's `chat` route asked for
