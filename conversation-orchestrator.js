@@ -85,19 +85,22 @@ ${SPOKEN_RULE}
 WHAT YOU ARE STEERING TOWARDS (do not read these out, do not tick them off aloud)
 ${remaining}
 
-Return JSON only:
-{"reply":"what you say next, spoken aloud","characterId":"one id from the team above","covered":["objective ids the LEARNER has genuinely addressed in their own words so far"],"complete":false}
+Return JSON only, with "characterId" as the FIRST field — it is read before the reply so the right voice speaks:
+{"characterId":"one id from the team above","reply":"what you say next, spoken aloud","covered":["objective ids the LEARNER has genuinely addressed in their own words so far"],"complete":false}
 Set complete true only when the conversation has reached a natural end and the remaining objectives have been covered.`;
   }
   /* Exactly what would be sent. Named and exported so the adversarial fixtures
      in scripts/prompt-fixtures.mjs can assert the boundary holds without a key,
      a network call, or a second copy of this assembly drifting out of step. */
   function buildRequest(sc,sim){return {system:prompt(sc,sim),messages:transcript(sim)};}
-  /* Streaming: the Worker sends one JSON object per line — {s:"sentence"} as
-     each sentence of the reply is finished, then {done:true, reply, covered,
-     characterId}. hooks.onSentence hears the sentences as they land so speech
-     can start before the reply is complete. Resolves to the same shape the
-     plain call returns, or null if the stream failed before it finished. */
+  /* Streaming: the Worker sends one JSON object per line — {c:"characterId"}
+     as soon as the model has named who is speaking, {s:"sentence"} as each
+     sentence of the reply is finished, then {done:true, reply, covered,
+     characterId}. hooks.onCharacter hears the speaker first, so the voice that
+     starts is that person's; hooks.onSentence hears the sentences as they land
+     so speech can start before the reply is complete. Resolves to the same
+     shape the plain call returns, or null if the stream failed before it
+     finished. */
   async function fetchStreamed(api,req,hooks){
     const res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:Object.assign({stream:true},req)})});
     if(!res.ok||!res.body)return {ok:false,status:res.status};
@@ -106,6 +109,7 @@ Set complete true only when the conversation has reached a natural end and the r
       let nl;while((nl=buf.indexOf("\n"))>=0){const l=buf.slice(0,nl).trim();buf=buf.slice(nl+1);if(!l)continue;
         let o;try{o=JSON.parse(l)}catch(e){continue}
         if(o.s){heard.push(o.s);try{hooks.onSentence(o.s)}catch(e){}}
+        else if(o.c){if(typeof hooks.onCharacter==="function"){try{hooks.onCharacter(String(o.c))}catch(e){}}}
         else if(o.done){data=o}
         else if(o.error){break}}}
     if(!data&&heard.length)data={reply:heard.join(" "),covered:[],partial:true};   /* what was said stands */

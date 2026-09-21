@@ -406,11 +406,14 @@ function shapeChat(raw) {
   return out;
 }
 
-/* Walks the model's JSON as it is typed, finds the "reply" string, decodes
-   it (escapes included) and calls emit({s}) for each finished sentence; end()
+/* Walks the model's JSON as it is typed. The moment a "characterId" string is
+   complete it calls emit({c}) — once, and only if it arrives before the reply
+   does, because a speaker named afterwards is too late to change the voice
+   that is already talking. Then it finds the "reply" string, decodes it
+   (escapes included) and calls emit({s}) for each finished sentence; end()
    emits whatever is left. Pure, so it is unit-tested in Node. */
 export function replyWalker(emit) {
-  let head = "", inReply = false, done = false, esc = false, uni = null, reply = "", sentAt = 0;
+  let head = "", inReply = false, done = false, esc = false, uni = null, reply = "", sentAt = 0, named = false;
   const flush = final => {
     const pending = reply.slice(sentAt);
     const parts = final ? [pending] : (pending.match(/[^.!?…]+[.!?…]+["')\]]*\s+/g) || []);
@@ -432,6 +435,10 @@ export function replyWalker(emit) {
       for (const ch of delta) {
         if (inReply) { feedChar(ch); continue; }
         head += ch;
+        if (!named) {
+          const c = /"characterId"\s*:\s*"([^"\\]{1,64})"/.exec(head);
+          if (c) { named = true; emit({ c: c[1] }); }
+        }
         const m = /"reply"\s*:\s*"$/.test(head);
         if (m) { inReply = true; head = ""; }
       }
@@ -442,12 +449,13 @@ export function replyWalker(emit) {
 }
 
 /* ---- Streaming chat: the same call with stream:true, read token by token.
-   The model answers as a JSON object whose first field is "reply"; this walks
-   that string as it is typed and emits each finished sentence at once, so the
-   app can start speaking while the rest is still being written. The last
-   line carries the full, validated object exactly as the non-streaming path
-   would have returned it. NDJSON, one object per line:
-     {"s":"First sentence."}   … {"done":true,"reply":…,"covered":[…],"characterId":…}
+   The model answers as a JSON object whose first field is "characterId" and
+   whose second is "reply"; this names the speaker as soon as the id is typed,
+   then walks the reply string and emits each finished sentence at once, so
+   the app can start speaking — in the right voice — while the rest is still
+   being written. The last line carries the full, validated object exactly as
+   the non-streaming path would have returned it. NDJSON, one object per line:
+     {"c":"supervisor"}  {"s":"First sentence."}   … {"done":true,"reply":…,"covered":[…],"characterId":…}
    Anything that goes wrong mid-stream ends with {"error":…}; the client then
    falls back to what it already has. */
 async function streamChat(env, system, messages, cors) {

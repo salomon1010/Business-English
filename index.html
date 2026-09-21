@@ -64,7 +64,7 @@
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=84"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
-<script src="conversation-orchestrator.js?v=80"></script>
+<script src="conversation-orchestrator.js?v=81"></script>
 <script src="shadow-sync.js?v=5"></script>
 <script src="adaptive-learning-engine.js?v=83"></script>
 <script src="career-center.js?v=79"></script>
@@ -12346,16 +12346,39 @@ function simSetStatus(status){if(!simRun)return;simRun.voiceStatus=status;simSav
      — otherwise it would only ever appear on the turn that redrew the bar. */
   const bar=document.querySelector('.sim-work .rp-work-bar');
   if(bar){if(/ is speaking/i.test(status))bar.setAttribute('data-speaking','1');else bar.removeAttribute('data-speaking')}}
+/* Redraw the speaker bar for one person without re-rendering the thread. */
+function simShowSpeaker(c,sc){
+  const bar=document.querySelector('.sim-work .rp-work-bar');if(!bar||!c)return;
+  const face=bar.querySelector('.sim-work-avatar');if(face)face.outerHTML=simFaceHTML(c);
+  const who=bar.querySelector('#simSpeaker');if(who)who.textContent=c.name||'';
+  const role=bar.querySelector('.rp-work-who small');if(role)role.textContent=`${c.role||''} · ${simTitle(sc)}`;
+}
 /* The colleague speaks while the model is still writing. Sentences arrive
    through push() as the stream delivers them; each is synthesised at once and
    played in order. finish(message) hands the finished message over so the
    usual "Your turn" hand-off happens when the last sentence ends. If the
    natural voice is not available this returns null and the plain path runs. */
+/* The speaker is presumed to be whoever spoke last, because the voice must
+   start before the model has finished. When the scenario hands over — the
+   supervisor steps in after the recruiter — the Worker names the new person
+   first ({c}), and setCharacter() switches the voice, the name and the face
+   before a word is heard. If the name only arrives with the finished reply,
+   finish() still switches whatever has not played yet: a woman's line was
+   being read in a man's voice, and vice versa, for the whole turn. */
 function simStreamSpeaker(sc,presumedCharacterId){
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
   if(!canNatural)return null;
-  const character=simCharacter(sc,presumedCharacterId)||{},voice=ttsVoice(character.voice,character.g||"f"),style=character.voiceStyle||"";
+  let character=simCharacter(sc,presumedCharacterId)||{},voice=ttsVoice(character.voice,character.g||"f"),style=character.voiceStyle||"";
   const queue=[];let ended=false,message=null,playing=false,cancelled=false,spoken=0;
+  const setCharacter=id=>{
+    const c=id&&simCast(sc).find(x=>x.id===id);
+    if(!c||c.id===character.id)return;
+    character=c;voice=ttsVoice(c.voice,c.g||"f");style=c.voiceStyle||"";
+    queue.forEach(it=>{it.url=fbTtsUrl(it.text,voice,style)});          /* not yet played: re-voice */
+    if(simRun)simRun.lastSpeakerId=c.id;
+    simShowSpeaker(c,sc);
+    if(alive())simSetStatus(`${c.name||'Your colleague'} is speaking`);
+  };
   const token={};simUtterance=token;                              /* anything else that starts speaking cancels this */
   const alive=()=>!cancelled&&(simUtterance===token||simUtterance===message);
   const finishUp=()=>{if(!alive())return;fbReleaseAudio();simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};
@@ -12375,7 +12398,8 @@ function simStreamSpeaker(sc,presumedCharacterId){
   return {
     push(text){const t=String(text||"").trim();if(!t||cancelled)return;simStopListening();simSetStatus(`${character.name||'Your colleague'} is speaking`);
       ttsChunks(t).forEach(c=>queue.push({text:c,url:fbTtsUrl(c,voice,style)}));pump()},
-    finish(msg){message=msg;if(simUtterance===token)simUtterance=msg;ended=true;pump()},
+    finish(msg){message=msg;if(simUtterance===token)simUtterance=msg;if(msg&&msg.characterId)setCharacter(msg.characterId);ended=true;pump()},
+    setCharacter,
     cancel(){cancelled=true},
     spoke(){return spoken},
     started(){return spoken>0||queue.length>0}
@@ -12614,7 +12638,7 @@ async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finishe
      finished. The micro-learning line, if any, is said first. */
   const speaker=simStreamSpeaker(sc,simRun.lastSpeakerId);
   if(speaker&&microLearning)speaker.push(`${microLearning} Great.`);
-  const result=await ConversationOrchestrator.respond(simRun,text,speaker?{onSentence:s=>speaker.push(s)}:undefined);
+  const result=await ConversationOrchestrator.respond(simRun,text,speaker?{onSentence:s=>speaker.push(s),onCharacter:id=>speaker.setCharacter(id)}:undefined);
   simRun=result.simulation;if(microLearning&&result.reply&&result.reply.text)result.reply.text=`${microLearning} Great. ${result.reply.text}`;simSave();
   if(result.complete){if(speaker)speaker.cancel();return simComplete(true)}
   simRefresh();
