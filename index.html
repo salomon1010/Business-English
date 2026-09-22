@@ -2568,7 +2568,14 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .home-ring{margin-bottom:22px;box-shadow:var(--sh-1)}
 /* Hero context: role / goal / daily-slot as quiet pills, replacing the old
    run-on sentence. Values are the same translated labels used elsewhere. */
-.home-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+/* Home hero (owner, 2026-09-22): one small line for the greeting, one tiny
+   line for role · goal · slot — no wrapping, no rule, the cards come first. */
+.home-meta{display:flex;flex-wrap:nowrap;gap:6px;margin:4px 0 12px;overflow:hidden}
+.home-meta .chip{font-size:10.5px;padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+h1.big.home-hero-h{font-size:17px;margin-bottom:4px;letter-spacing:-.2px}
+h1.big.home-hero-h>.h-info-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h1.big.home-hero-h>.sub-info{margin-top:0}
+@media (max-width:600px){h1.big.home-hero-h>.h-info-t>em{display:inline}}
 
 /* Momentum strip — the evidence a returning user came back for. It replaces the
    marketing hero once there is any history to show (the hero is the empty
@@ -7722,14 +7729,13 @@ function rHomeGeneral(el){
   const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=(wk.days||{})[pos.d]||{};
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   el.innerHTML=`
-  <h1 class="big">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
+  <h1 class="big home-hero-h">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
   ${subInfo(t("home.sub_base")+".")}
   ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
     if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
     if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
     return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
-  <div class="hr"></div>
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
@@ -13575,7 +13581,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v426";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v427";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
