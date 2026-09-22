@@ -443,7 +443,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   open only their own setting: `openLangPicker()`, `pfThemeSheet()` (Light /
   Dark, saves on tap), `pfSetupSheet(anchor, title)` renders `rData` off-screen
   and lifts the `#setRem` / `#setAcc` / `#setData` section into a sheet over
-  Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `tracks`; the
+  Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `go("tracks","profile")` (its back button then reads "‹ Profile"); Help → `openManual()` (records the return page); every sheet has a close; the
   identity row and "App Setup" → `setupOpen('setProfile')`. The header streak pill is gone (v420; `streakPillSync()` is a null-safe no-op now, the streak lives on Progress). Play glyphs: `"▶"`
   / `"⏸"` are in `EMOJI_ICON`, so the sweep draws line icons, never OS emoji.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).

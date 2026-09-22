@@ -7971,11 +7971,11 @@ function trackPlaceholderCard(key){
     <span class="rp-entry-t"><b>${t(key)}</b><small>${t("tracks.coming_soon")}</small></span>
   </div>`;
 }
-function rTracks(el){
+function rTracks(el,from){
   const tracks=ProfessionalTrackContext.all();
   const comingSoon=["tracks.electrician","tracks.construction","tracks.healthcare","tracks.manufacturing","tracks.customer_service","tracks.hvac","tracks.plumbing","tracks.mechanical"];
   el.innerHTML=`
-    <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('home')">${t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
+    <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('${from==="profile"?"profile":"home"}')">${from==="profile"?t("profile.back"):t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
     <h1 class="big">${t("tracks.title")}</h1>
     ${subInfo(t("tracks.sub"))}
     ${tracks.map(track=>trackSelectionCard(track)).join("")}
@@ -13566,7 +13566,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v421";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v422";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -18743,7 +18743,7 @@ window.pfSetupSheet=async(anchor,title)=>{const old=document.getElementById("pfS
 window.pfSetupSheetSync=()=>{const ov=document.getElementById("pfSetupOv");if(ov)pfSetupSheet(ov.dataset.anchor,ov.dataset.title)};
 window.pfThemeSheet=()=>{const old=document.getElementById("pfThemeOv");if(old)old.remove();const ov=document.createElement("div");ov.id="pfThemeOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
   const cur=document.documentElement.getAttribute("data-theme")||"dark";
-  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><h2 style="font-size:17px;margin:0 0 12px">${t("acc.theme_label")}</h2><div class="theme-seg">
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><div class="pf-sheet-head"><h2 style="font-size:17px;margin:0">${t("acc.theme_label")}</h2><button class="ex-howbtn sub-info" aria-label="${esc(t("wc.close"))}" onclick="document.getElementById('pfThemeOv').remove()">${ic("close")}</button></div><div class="theme-seg">
     <button type="button" class="theme-opt ${cur==='light'?'on':''}" data-theme="light" onclick="setTheme('light');pfThemeDone()">${ic("sun")}<span>${t("acc.theme_light")}</span></button>
     <button type="button" class="theme-opt ${cur==='dark'?'on':''}" data-theme="dark" onclick="setTheme('dark');pfThemeDone()">${ic("moon")}<span>${t("acc.theme_dark")}</span></button></div></div>`;
   document.body.appendChild(ov)};
@@ -18819,7 +18819,7 @@ function rProfile(el){
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
-    ${pfRow("map",t("pf.area"),"go('tracks')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
+    ${pfRow("map",t("pf.area"),"go('tracks','profile')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
     ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"pfThemeSheet()",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
     ${pfRow("clock",t("rem.label"),"pfSetupSheet('setRem',this.dataset.l)",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}
     ${pfRow("gear",t("setup.title"),"setupOpen('setProfile')")}
@@ -18833,7 +18833,7 @@ function rProfile(el){
   <div class="pf-group">
     ${pfRow("sparkle",t("profile.about"),"openAbout()")}
     ${pfRow("lock",t("acc.privacy_link").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),"openPrivacy()")}
-    ${pfRow("help",t("profile.help"),"go('manual')")}
+    ${pfRow("help",t("profile.help"),"openManual()")}
   </div>
   <div class="pf-group-h">${t("pf.g_others")}</div>
   <div class="pf-group">
