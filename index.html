@@ -992,7 +992,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info-t{flex:1 1 auto;min-width:0}
 /* Phones: the white line, then the blue line (owner, 2026-09-22). Wider screens flow on one line. */
 @media (max-width:600px){h1.big.h-info>.h-info-t>em{display:block}}
-.pf-sheet{max-height:86vh;overflow:auto}.pf-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.pf-sheet-body .set-h{margin-top:4px}.pf-sheet-body>h3:first-child{display:none}h1.big.h-info>.sub-info{margin-left:auto;margin-top:.35em;flex:0 0 auto}
+.pf-sheet{max-height:86vh;overflow:auto}.pf-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.pf-sheet-body .set-h{margin-top:4px}.pf-sheet-body>h3:first-child{display:none}h1.big.h-info>.sub-info{margin-left:auto;margin-top:.28em;flex:0 0 auto}
 .pf-menu .pf-row{margin:0}
 .psp-ev{margin:14px 0 4px;padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
 .psp-ev-n{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
@@ -8748,7 +8748,6 @@ function rShadow(el){
   <div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
   ${subInfo(isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub"))}
-  <div class="hr"></div>
 ${(()=>{
     /* Clips are a General English idea. On a Professional Track the lines come
        from the learner's own workshops, so "Create clip" and "My clips 0" were
@@ -13568,7 +13567,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v423";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v424";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
