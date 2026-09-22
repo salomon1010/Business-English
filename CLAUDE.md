@@ -436,8 +436,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   (`#setLang #setTheme #setRem #setData #setAcc #setProfile`). Everything that is
   a report — stats, `#pfCal`, `perfOverviewHTML`, the professional-track
   panels, share card, certificate — is `pfRecordHTML()` and renders at the end
-  of **Progress** (`rReview`), not on Profile. `subInfo(html)` folds a page's
-  intro paragraph into an "i" bubble in the corner (Road map uses it).
+  of **Progress** (`rReview`), not on Profile. `subInfo(html, bare)` folds a page's
+  intro paragraph into a small grey "i" (v419: every page — `subInfoMount(el)`
+  in `go()` lifts it onto the `h1.big` title line when a title precedes it;
+  the "How it works" bulbs (`howBtn`) are gone from the UI). Profile rows
+  open only their own setting: `openLangPicker()`, `pfThemeSheet()` (Light /
+  Dark, saves on tap), `pfSetupSheet(anchor, title)` renders `rData` off-screen
+  and lifts the `#setRem` / `#setAcc` / `#setData` section into a sheet over
+  Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `tracks`; the
+  identity row and "App Setup" → `setupOpen('setProfile')`. Play glyphs: `"▶"`
+  / `"⏸"` are in `EMOJI_ICON`, so the sweep draws line icons, never OS emoji.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

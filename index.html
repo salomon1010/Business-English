@@ -762,8 +762,9 @@ body.sh-work-open{overflow:hidden}
 /* white on YouTube red is 4.0:1 — at 19px/700 the AA threshold is 3:1 */
 .sh-yt{background:#f00;color:#fff;font-weight:700;text-decoration:none;font-size:19px}
 .sh-more{margin:16px 0 0}
-.sh-resume{margin-top:12px}
-.sh-resume-t{font-weight:600;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sh-resume{margin-top:12px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;padding:10px 14px;font-size:14px;width:100%;text-align:left}
+.sh-resume-l{flex:0 0 auto;display:inline-flex;align-items:center}.sh-resume-l .btn-ic svg{width:14px;height:14px}
+.sh-resume-t{flex:1 1 auto;font-weight:600;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
 .sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
 .sh-clear svg{width:16px;height:16px;display:block}
@@ -985,7 +986,11 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pf-hero-row{display:flex;align-items:center;gap:14px;text-align:left;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:12px 16px;cursor:pointer;font-family:inherit;color:var(--txt)}
 .pf-hero-row .pf-av-sm{width:52px;height:52px;border-radius:16px;font-size:22px;margin:0;box-shadow:none}.pf-hero-t{flex:1;min-width:0}.pf-hero-row .pf-name{font-size:17px;margin:0}.pf-hero-row .pf-sub{margin:2px 0 0;font-size:12.5px}.pf-hero-row .pf-chev{color:var(--mut2);font-size:22px}
 .pf-version{text-align:center;font-size:12px;color:var(--mut2);margin:22px 0 8px}
-.sub-info-row{display:flex;justify-content:flex-end;margin:-8px 0 12px}
+.sub-info-row{display:flex;justify-content:flex-end;margin:-6px 0 6px}
+.ex-howbtn.sub-info{width:26px!important;height:26px!important;min-height:0;color:var(--mut);background:transparent;border:1px solid var(--line2);box-shadow:none}
+.ex-howbtn.sub-info svg{width:14px;height:14px}.ex-howbtn.sub-info:hover{background:var(--card2);transform:none}
+h1.big.h-info{display:flex;align-items:center;gap:10px}
+.pf-sheet{max-height:86vh;overflow:auto}.pf-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.pf-sheet-body .set-h{margin-top:4px}.pf-sheet-body>h3:first-child{display:none}h1.big.h-info>.sub-info{margin-left:auto;flex:0 0 auto}
 .pf-menu .pf-row{margin:0}
 .psp-ev{margin:14px 0 4px;padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
 .psp-ev-n{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
@@ -2581,8 +2586,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .home-more>summary:hover{background:var(--hover)}
 .home-more>summary:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
 .home-more>summary .btn-ic{color:var(--gold);line-height:0;flex:none}
-.home-more>summary .hm-chev{margin-left:auto;color:var(--mut);font-size:13px;transition:transform .15s}
-.home-more[open]>summary .hm-chev{transform:rotate(90deg)}
+.home-more>summary .hm-chev{margin-left:auto;color:var(--mut);font-size:13px;display:inline-flex;transition:transform .15s;transform:rotate(-90deg)}.home-more>summary .hm-chev svg{width:15px;height:15px}
+.home-more[open]>summary .hm-chev{transform:rotate(0)}
 .home-more[open]>summary{border-bottom:1px solid var(--line)}
 .home-more-body{padding:4px 16px 18px}
 
@@ -4480,7 +4485,7 @@ const ICON={
 };
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Emoji → line-icon name, used to iconize the manual headings at runtime (all languages). */
-const EMOJI_ICON={"🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun","🎉":"party","🎊":"party","👀":"eye","👁️":"eye","👁":"eye","😊":"star","🙂":"star","📦":"box","📮":"box","🗃️":"box","🗂️":"doc","📎":"link","🔑":"lock","🎥":"film","📆":"calendar","⏳":"clock","⌛":"clock"};
+const EMOJI_ICON={"▶":"play","▶️":"play","⏸":"pause","⏸️":"pause","🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun","🎉":"party","🎊":"party","👀":"eye","👁️":"eye","👁":"eye","😊":"star","🙂":"star","📦":"box","📮":"box","🗃️":"box","🗂️":"doc","📎":"link","🔑":"lock","🎥":"film","📆":"calendar","⏳":"clock","⌛":"clock"};
 /* Replace a leading emoji in manual headings/callouts with a matching line icon (works for every language). */
 function manIconize(root){
   const re=/^\s*([\p{Extended_Pictographic}️‍]+)\s*/u;
@@ -7411,6 +7416,7 @@ function go(v,arg1,arg2){
     el.innerHTML=`<div class="card" style="margin:24px 0;text-align:center"><p style="color:var(--mut);margin-bottom:12px">${esc(t("nav.render_failed"))}</p><button class="btn btn-p" onclick="go(${jarg(v)},${jarg(arg1)},${jarg(arg2)})">${esc(t("nav.retry"))}</button></div>`;
   }
   perfMark("render",performance.now()-_t0,v);
+  try{subInfoMount(el)}catch(e){}setTimeout(()=>{try{subInfoMount(el)}catch(e){}},450);   // async renderers (setup, partner)
   /* "Back to your session" breadcrumb when a day session sent you to this tab */
   if(SESS_RETURN){
     if(v===SESS_RETURN.v){
@@ -7706,7 +7712,7 @@ function rHomeGeneral(el){
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   el.innerHTML=`
   <h1 class="big">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
-  <p class="sub">${t("home.sub_base")}.</p>
+  ${subInfo(t("home.sub_base")+".")}
   ${(()=>{const P=S.profile||{},E=/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,pills=[];
     if(P.role)pills.push(esc(optLabel(P.role,OB_ROLES,"role.").replace(E,"")));
     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
@@ -7753,7 +7759,7 @@ function rHome(el){
      into a fully contextual mission flow. */
   el.innerHTML=`
   <h1 class="big">What should I do today?</h1>
-  <p class="sub">One focused mission for your professional journey.</p>
+  ${subInfo("One focused mission for your professional journey.")}
   ${fndHomeCardHTML()}
   ${ppHomeCardHTML()}
   ${homeNudgeHTML()}
@@ -7970,7 +7976,7 @@ function rTracks(el){
   el.innerHTML=`
     <div class="eyebrow pg-eyebrow"><button class="back" onclick="go('home')">${t("tracks.back")}</button><span>${t("tracks.eyebrow")}</span></div>
     <h1 class="big">${t("tracks.title")}</h1>
-    <p class="sub" style="margin-bottom:18px">${t("tracks.sub")}</p>
+    ${subInfo(t("tracks.sub"))}
     ${tracks.map(track=>trackSelectionCard(track)).join("")}
     ${/* Eight unbuilt tracks listed to a paying learner is a promise with no date
           on it, and the first question it raises — "when?" — has no answer. It is
@@ -8376,21 +8382,20 @@ function rSession(el,w,d){
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  <div class="how-row">${howBtn("session")}</div>
   ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
         <div class="eyebrow">${t("sess.timer_eyebrow")}</div>
         <div class="timer-digits" id="tDig" role="timer" aria-live="off">25:00</div>
-        <button class="btn-primary" id="tBtn" onclick="tToggle()">${t("sess.timer_start")}</button>
+        <button class="btn-primary" id="tBtn" onclick="tToggle()">${tIc("sess.timer_start","play")}</button>
       </div>
       <div class="sess-timer-foot">
         <p class="sess-timer-hint">${t("sess.timer_hint")}</p>
         <button class="sess-reset" onclick="tReset()">${t("sess.timer_reset")}</button>
       </div>
       <details class="home-more sess-plan">
-        <summary>${tIc(d==="Sun"?"sess.review_steps_h":"sess.template_h","list")}<span class="hm-chev">▶</span></summary>
+        <summary>${tIc(d==="Sun"?"sess.review_steps_h":"sess.template_h","list")}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">
           <p class="sess-plan-sub">${t("sess.template_sub")}</p>
           ${tpl.map((s,i)=>`<div class="step ${stepsDone.includes(i)?'done':''}" id="stp${i}" onclick="toggleStep('${key}',${i})"
@@ -8498,7 +8503,7 @@ window.toggleDay=(key,w,d)=>{
 function tRender(){
   const m=String(Math.floor(timer.left/60)).padStart(2,"0"),s=String(timer.left%60).padStart(2,"0"),txt=`${m}:${s}`;
   const d=document.getElementById("tDig");if(d)d.textContent=txt;
-  const b=document.getElementById("tBtn");if(b)b.textContent=timer.run?t("sess.timer_pause"):t("sess.timer_start");
+  const b=document.getElementById("tBtn");if(b){b.innerHTML=timer.run?tIc("sess.timer_pause","pause"):tIc("sess.timer_start","play")}
   const box=document.getElementById("tBox");if(box)box.classList.toggle("running",timer.run);   // colours the digits while the block is live
   const hd=document.getElementById("hdrTimerDig");if(hd)hd.textContent=txt;
   const pill=document.getElementById("hdrTimer");
@@ -8729,7 +8734,7 @@ function shStarterCard(s,i){
     ${s.cap===false?`<span class="chip sh-starter-cap">${tIc("sh.captions_none","pencil")}</span>`:""}
     <p>${activeProfessionalTrack().id==="general-english"&&I18N_EN["starter."+i+".why"]?t("starter."+i+".why"):esc(s.why)}</p>
     <div class="sh-starter-acts">
-      <button class="btn btn-g ${i===0&&!aList("clips").length?"cta-lead":""}" onclick="shUseStarter(${i})">${t("sh.shadow_this_btn")}</button>
+      <button class="btn btn-g ${i===0&&!aList("clips").length?"cta-lead":""}" onclick="shUseStarter(${i})">${tIc("sh.shadow_this_btn","play")}</button>
       <button class="btn btn-g sh-starter-copy" onclick="shCopyLink(${i})" title="${esc(t("sh.copy_title"))}" aria-label="${esc(t("sh.copy_title"))}">${ic("clipboard")}</button>
     </div>
   </div>`;
@@ -8739,8 +8744,7 @@ function rShadow(el){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("sh.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?t("sh.title_pro"):t("sh.title")}</h1>
-  <p class="sub">${isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub")}</p>
-  <div class="how-row">${howBtn("shadow")}</div>
+  ${subInfo(isProfessionalJourney()?t("sh.sub_pro"):t("sh.sub"))}
   <div class="hr"></div>
 ${(()=>{
     /* Clips are a General English idea. On a Professional Track the lines come
@@ -8773,13 +8777,13 @@ ${(()=>{
     </div>
     <div class="hr"></div>
     </div>
-    ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
+    ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()"><span class="sh-resume-l">${tIc("sh.resume_btn","play")}</span>${S.lastClip.title?`<span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div id="shOwnTop">${isProfessionalJourney()?"":shOwnHTML(true)}</div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
     <div class="grid g3">${trackShadowStarters().slice(0,SH_STARTERS_SHOWN).map(shStarterCard).join("")}</div>
     ${trackShadowStarters().length>SH_STARTERS_SHOWN?`<details class="home-more sh-more">
-      <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">▶</span></summary>
+      <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">${ic("chevron")}</span></summary>
       <div class="home-more-body"><div class="grid g3">${trackShadowStarters().slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
     </details>`:""}
     <div id="shOwn">${shOwnHTML(false)}</div>
@@ -9031,7 +9035,7 @@ function shOwnCard(o,i){
     <b>${esc(shOwnTitle(o))}</b>
     <div class="sh-own-chips"><span class="chip sh-own-badge">${ic("user")} ${t("sh.own_badge")}</span><span class="chip ${tx?"sh-own-tx":"sh-own-notx"}">${ic(tx?"check":"pencil")} ${t(tx?"sh.own_tx":"sh.own_notx")}</span></div>
     <div class="sh-starter-acts">
-      <button class="btn btn-g" onclick="shOwnOpen(${i})">${t("sh.shadow_this_btn")}</button>
+      <button class="btn btn-g" onclick="shOwnOpen(${i})">${tIc("sh.shadow_this_btn","play")}</button>
       <button class="btn btn-g sh-starter-copy sh-own-del" onclick="shOwnDel(${i},event)" title="${esc(t("sh.own_remove"))}" aria-label="${esc(t("sh.own_remove"))}">${ic("trash")}</button>
     </div>
   </div>`;
@@ -11309,7 +11313,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   ${!hasTarget?"":problems.length?`<h3 class="fb-h">${t("fb.practice_pron")}</h3>`
     +fbRanked(problems).slice(0,FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")
     +(fbRanked(problems).length>FB_TOP_FIXES?`<details class="home-more fb-more">
-        <summary><span class="btn-ic">${ic("mic")}</span>${t("fb.more_fixes",{n:fbRanked(problems).length-FB_TOP_FIXES})}<span class="hm-chev">▶</span></summary>
+        <summary><span class="btn-ic">${ic("mic")}</span>${t("fb.more_fixes",{n:fbRanked(problems).length-FB_TOP_FIXES})}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">${fbRanked(problems).slice(FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")}</div>
       </details>`:"")
     /* The words that went wrong were a list you could listen to and nothing
@@ -11320,14 +11324,14 @@ function fbShowResults(targetText,heardText,fromRec,outId){
     +`<div class="fb-fix-save">${vocPickChips(fbFixWords(problems),"Shadowing")}</div>`
   :`<p style="font-size:13.5px;color:var(--green);font-weight:600">${t("fb.all_recognized")}</p>`}
   ${hasTarget?`<details class="home-more fb-sec">
-    <summary><span class="btn-ic">${ic("doc")}</span>${t("fb.section_words")}<span class="hm-chev">▶</span></summary>
+    <summary><span class="btn-ic">${ic("doc")}</span>${t("fb.section_words")}<span class="hm-chev">${ic("chevron")}</span></summary>
     <div class="home-more-body"><div class="fb-chips">${ops.map(o=>
       o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
       :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
       :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div></div>
   </details>`:""}
   <details class="home-more fb-sec">
-    <summary><span class="btn-ic">${ic("gauge")}</span>${t("fb.section_stats")}<span class="hm-chev">▶</span></summary>
+    <summary><span class="btn-ic">${ic("gauge")}</span>${t("fb.section_stats")}<span class="hm-chev">${ic("chevron")}</span></summary>
     <div class="home-more-body"><div class="grid g3">
       <div class="stat"><div class="fb-stat-v">${paceMsg}</div><div class="l">${t("fb.pace_label")}</div></div>
       <div class="stat"><div class="fb-stat-v">${fillerN===0?t("fb.fillers_zero"):t(fillerN>1?"fb.fillers_many":"fb.fillers_one",{n:fillerN})}</div><div class="l">${t("fb.fillers_label")}</div></div>
@@ -11336,7 +11340,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   </details>
   ${(()=>{const g=gramAnalyze(heardText);if(!g.good.length&&!g.fix.length)return"";
     return`<details class="home-more fb-sec">
-    <summary>${tIc("fb.grammar_h","pencil")}<span class="hm-chev">▶</span></summary>
+    <summary>${tIc("fb.grammar_h","pencil")}<span class="hm-chev">${ic("chevron")}</span></summary>
     <div class="home-more-body">
     <p class="fb-sec-sub">${t("fb.grammar_sub")}</p>
     <div class="grid g2">
@@ -11361,7 +11365,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
     </div></div></details>`})()}
   ${(()=>{const vl=vocabExtract(heardText+" "+targetText);if(!vl.length)return"";
     return`<details class="home-more fb-sec">
-    <summary>${tIc("fb.vocab_key_h","book")}<span class="hm-chev">▶</span></summary>
+    <summary>${tIc("fb.vocab_key_h","book")}<span class="hm-chev">${ic("chevron")}</span></summary>
     <div class="home-more-body">
     <div class="fb-vocab-head">
       <p class="fb-sec-sub">${t("fb.vocab_from_speech")}</p>
@@ -11997,14 +12001,13 @@ function rPractice(el){
   ${_vocReturn?`<button class="back" onclick="vocBack()">${t("voc.back")}</button>`:""}
   <div class="eyebrow pg-eyebrow">${t("prac.eyebrow")}</div>
   <h1 class="big">${t("prac.title")}</h1>
-  <p class="sub">${t("prac.sub")}</p>
-  <div class="how-row">${howBtn("practice")}</div>
+  ${subInfo(t("prac.sub"))}
   ${pathToolsHTML()}
 
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
     <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
-    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small><span class="pp-how-link ex-howbtn" role="button" tabindex="0" aria-label="${esc(t("pp.how_btn"))}" title="${esc(t("pp.how_btn"))}" onclick="event.stopPropagation();ppHowSheet()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();ppHowSheet()}">${ic("idea")}</span></span>
+    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small></span>
     <span class="rp-entry-go">→</span>
     <span class="pp-online-pill" id="ppEntryOnline" style="display:none"></span>
   </button>`:""}
@@ -12385,7 +12388,7 @@ function simStopFeedback(){
   try{fbStopAudio()}catch(e){}
   if(_simFbSpeaking!=null){
     const b=document.getElementById("simFb"+_simFbSpeaking);
-    if(b){b.classList.remove("on");b.textContent="▶ Hear the feedback"}
+    if(b){b.classList.remove("on");b.innerHTML=`<span class="btn-ic">${ic("play")}</span>Hear the feedback`}
     const s=document.getElementById("simSpk"+_simFbSpeaking);
     if(s)s.classList.remove("speaking");
   }
@@ -12580,7 +12583,7 @@ function rSimulation(el,id,characterId){
     manIconizeInline(el);return;
   }
   if(!selected){
-    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1><p class="sub">Practice real workplace situations you will experience on the job.</p><p class="sub">Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.</p><div class="how-row">${howBtn("workshop")}</div>${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body">${(()=>{/* WELDING ONLY. The cast row is the only thing on this screen a learner can    act on, and it was drawn exactly like the three read-only panels beneath    it — same border, same background, same weight — with a caption doing all    the work. On a trade track it is now a panel that reads as the action, and    the first person carries a live cue so there is no decision to make before    the first tap. General English keeps the plain row it already had. */const pro=(typeof areaIsPro==="function")&&areaIsPro();/* Once the workshop has been attempted, "Start here" is no longer true — the    learner has been here and can pick for themselves. */const started=simAttempts(s.id).length>0;const cast=simCast(s).map((c,ci)=>{const lead=pro&&!started&&ci===0;return `<button class="${lead?"is-start":""}" onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')">${lead?`<span class="sim-start-badge">Start here</span>`:""}<b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`;}).join("");const label=`<span class="sim-card-label">Choose who to speak with first</span>`;if(!pro)return `${label}<div class="sim-cast">${cast}</div>`;return `<div class="sim-pick">${label}<p class="sim-pick-hint">Tap a name to open that conversation. You can speak to the others afterwards.</p><div class="sim-cast">${cast}</div></div>`;})()}<div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
+    el.innerHTML=`<img class="sim-hero" src="workshop-team.jpg" alt="" onerror="this.remove()"><div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="go('practice')">‹ Practice</button><span>Workplace communication</span></div><h1 class="big">Professional Workplace Scenarios</h1>${subInfo("Practice real workplace situations you will experience on the job. Choose a scenario and decide who you want to speak with first. Each conversation develops communication, technical vocabulary, confidence, and workplace decision-making skills.")}${items.map((s,index)=>{const p=simCardProfile(s,index);return `<details class="card sim-stage sim-scenario-card" style="margin-top:16px" ontoggle="simCardToggle(this)"><summary><span class="sim-ic sim-ic-${esc(s.tone||"blue")}">${ic(s.ic||"briefcase")}</span><span class="sim-sum-t"><h2>${esc(simTitle(s))}</h2><p class="sub">${esc(simScenario(s))}</p></span></summary><div class="sim-scenario-body">${(()=>{/* WELDING ONLY. The cast row is the only thing on this screen a learner can    act on, and it was drawn exactly like the three read-only panels beneath    it — same border, same background, same weight — with a caption doing all    the work. On a trade track it is now a panel that reads as the action, and    the first person carries a live cue so there is no decision to make before    the first tap. General English keeps the plain row it already had. */const pro=(typeof areaIsPro==="function")&&areaIsPro();/* Once the workshop has been attempted, "Start here" is no longer true — the    learner has been here and can pick for themselves. */const started=simAttempts(s.id).length>0;const cast=simCast(s).map((c,ci)=>{const lead=pro&&!started&&ci===0;return `<button class="${lead?"is-start":""}" onclick="simInterviewStart('${esc(s.id)}','${esc(c.id)}')">${lead?`<span class="sim-start-badge">Start here</span>`:""}<b>Talk to ${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.personality||"professional colleague")}</small><small>Open conversation →</small></button>`;}).join("");const label=`<span class="sim-card-label">Choose who to speak with first</span>`;if(!pro)return `${label}<div class="sim-cast">${cast}</div>`;return `<div class="sim-pick">${label}<p class="sim-pick-hint">Tap a name to open that conversation. You can speak to the others afterwards.</p><div class="sim-cast">${cast}</div></div>`;})()}<div class="sim-card-meta"><span><b>${esc(p.duration)}</b>Estimated duration</span><span><b>${esc(p.difficulty)}</b>Difficulty</span><span><b>${esc(p.stage)}</b>Recommended stage</span></div><span class="sim-card-label">Skills developed</span><div class="sim-skill-chips">${p.skills.map(skill=>`<span>✓ ${esc(skill)}</span>`).join("")}</div><span class="sim-card-label">Today's objectives</span><div class="sim-objectives-preview">${(s.objectives||[]).map(o=>`<div><i>□</i><span>${esc(o.label)}</span></div>`).join("")}</div><span class="sim-card-label">Workplace story</span><div class="sim-story"><span>${esc(simStory(s))}</span></div>${(()=>{const at=simAttempts(s.id);if(!at.length)return "";const last=at[at.length-1];
       return `<span class="sim-card-label">Your previous reports</span><div class="sim-past">${at.map((a,n)=>`<button onclick="event.stopPropagation();simOpenAttempt('${esc(s.id)}',${a.startedAt})"><span>Attempt ${n+1}</span><span>${new Date(a.at).toLocaleDateString()}</span><b>${Math.round(a.coverage*100)}%</b></button>`).join("")}</div>`})()}</div></details>`}).join("")}`;return;
   }
   if(isFirstDayMission(selected)&&characterId&&(!simRun||simRun.id!==selected.id)){simMissionBriefing(el,selected,characterId);return}
@@ -13141,7 +13144,7 @@ function rLibGrammar(el){
   trackGrammarFix().forEach(g=>{const c=g[4];(cats[c]=cats[c]||[]).push({bad:g[1],good:g[2],why:g[3]})});
   const hits=(S.fbV&&S.fbV.gram)||{};
   el.innerHTML=`
-  <p class="sub" style="margin:16px 0 14px">${t("lib.grammar_sub")}</p>
+  ${subInfo(t("lib.grammar_sub"))}
   ${Object.keys(cats).map(c=>`
     <div class="card" style="margin-bottom:12px;padding:16px 18px">
       <b style="font-size:14.5px">${esc(c)}</b>
@@ -13162,7 +13165,7 @@ function rLibGrammar(el){
 /* ---- Library › Grammar exercises ---- */
 function rLibExercises(el){
   el.innerHTML=`
-  <p class="sub" style="margin:16px 0 14px">${t("lib.ex_sub")}</p>
+  ${subInfo(t("lib.ex_sub"))}
   <div class="grid gx-grid">
     ${trackGrammarCategories().map(c=>{const st=gxStats(c.k),n=c.k==="weekly"?10:(trackGrammarExercises()[c.k]||[]).length;
       return `<button class="gx-card" onclick="gxStart('${c.k}')">
@@ -13179,7 +13182,7 @@ function rLibSaved(el){
   const PM=aMap("phMaster"),PX=aMap("phExample");
   const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>PM["p"+p.ix]||PX["p"+p.ix]);
   el.innerHTML=`
-  <p class="sub" style="margin:16px 0 14px">${t("lib.saved_sub")}</p>
+  ${subInfo(t("lib.saved_sub"))}
   ${items.length?items.map(p=>`
     <div class="card" style="margin-bottom:10px;padding:15px 17px">
       <div style="display:flex;gap:10px;align-items:flex-start">
@@ -13198,7 +13201,7 @@ function rLibSaved(el){
 function rLibIdioms(el){
   const items=trackPhrases().map((p,ix)=>({...p,ix})).filter(p=>p.i);
   el.innerHTML=`
-  <p class="sub" style="margin:16px 0 14px">${t("lib.idioms_sub")}</p>
+  ${subInfo(t("lib.idioms_sub"))}
   ${items.length?items.map(p=>`
     <div class="card" style="margin-bottom:10px;padding:15px 17px">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -13562,7 +13565,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v418";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v419";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -13648,9 +13651,8 @@ function exCardHTML(){
         <b>${tIc("ph.exec_title","briefcase")}</b>
         <span class="chip p3">${t("ph.exec_tag")}</span>
       </div>
-      ${howBtn("polish")}
+      ${subInfo(t("ph.exec_desc"),true)}
     </div>
-    <p class="ex-desc">${t("ph.exec_desc")}</p>
     <div id="exStage">${exIdleHTML()}</div>
   </div>`;
 }
@@ -14108,7 +14110,7 @@ function exRenderReport(rep,quiet){
       <button class="btn-primary ex-againbtn" onclick="exStartAgain()">${tIc("ex.again_btn","mic")}</button>
       ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}
     </div>
-    <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">▶</span></summary>
+    <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
       <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
     </div>
   </details>`;
@@ -14459,7 +14461,7 @@ function rPhrases(el){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ex.page_eyebrow")}</div>
   <h1 class="big">${t("ex.page_title")}</h1>
-  <p class="sub">${t("ex.page_sub")}</p>
+  ${subInfo(t("ex.page_sub"))}
   ${exCardHTML()}
   <div id="exReportWrap"></div>`;
   manIconizeInline(el);
@@ -14484,7 +14486,7 @@ function rPhraseBank(el,wFilter){
   <button class="back stick-back" onclick="go('phrases')">‹ ${esc(t("ph.exec_title").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</button>
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
   <h1 class="big">${t("ph.title")}</h1>
-  <p class="sub">${t("ph.sub")}</p>
+  ${subInfo(t("ph.sub"))}
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
     <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
@@ -16635,7 +16637,7 @@ function rPartner(el,arg1){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub pp-tagline">${ppTaglineHTML()}</p>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1>${subInfo(ppTaglineHTML())}`;
   const shell=inner=>{el.innerHTML=head+ppPresenceHTML()+ppTabsHTML()+inner;manIconizeInline(el)};
   /* not a General English learner (a typed or restored #partner hash on
      Welding): nothing partner-branded is rendered at all — straight back to
@@ -16709,7 +16711,7 @@ function ppRender(el){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1><p class="sub pp-tagline">${ppTaglineHTML()}</p>`;
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1>${subInfo(ppTaglineHTML())}`;
   /* one line, once: the phone can be told when learners are online even with
      the app closed — only while permission has never been asked */
   const nudge=(()=>{try{return !ppLive&&ppAlertsOn()&&window.Notification&&Notification.permission==="default"&&("PushManager" in window)&&!ppState().nudgeDone}catch(e){return false}})()
@@ -18169,7 +18171,7 @@ function rFoundations(el,dayArg){
   <h1 class="big">${esc(d.theme)}</h1>
   <p class="sub fnd-theme-fr">${esc(theme)}</p>
   <div class="fnd-dots" aria-hidden="true">${Array.from({length:FND_TOTAL_DAYS},(_,i)=>(i+1<=fndDayOf()?`<span class="${f.done["d"+(i+1)]?"done":(i===day-1?"now":"")}" onclick="go('foundations',${i+1})"></span>`:`<span class="locked"></span>`)).join("")}</div>
-  <p class="sub fnd-how">${t("fnd.how")}</p>
+  ${subInfo(t("fnd.how"))}
   ${d.items.map((it,i)=>{
     const en=fndFill(it.en,"en"),fr=fndFill(gloss(it),gl);
     const q=it.q?fndFill(it.q,"en"):"",qfr=it.q?fndFill(qgloss(it),gl):"";
@@ -18486,7 +18488,6 @@ function rReview(el,wArg){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${esc(areaIsPro()?t("area.eyebrow_pro",{trade:areaLabel()}):t("area.eyebrow_gen"))}</div>
   <h1 class="big">${t("rev.title")}</h1>
-  <div class="how-row">${howBtn("review")}</div>
   ${areaScopeHTML()}
   ${progressHTML()}
   ${/* The weekly AI review and the growth dashboard both reprinted the same
@@ -18712,8 +18713,42 @@ window.calDay=(ds)=>{
 };
 /* A page's introduction folded into a small "i" bubble in the corner: the
    learner opens it when they want to read it; the page keeps its space. */
-function subInfo(html){window._subInfoText=html;return `<div class="sub-info-row"><button class="ex-howbtn sub-info" onclick="subInfoOpen()" aria-label="${esc(t("pf.about_page"))}" title="${esc(t("pf.about_page"))}">${ic("info")}</button></div>`}
-window.subInfoOpen=()=>{const old=document.getElementById("subInfoOv");if(old)old.remove();const ov=document.createElement("div");ov.id="subInfoOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+/* A page's introduction folded into a small "i" in the corner (owner, 2026-09-22:
+   the paragraphs cost a screen of space on a phone; the text stays, on demand).
+   `bare` returns only the button, for a header that lays it out itself. */
+window._subInfoStore=[];
+/* After a render: a bubble that directly follows the page title moves onto the
+   title line (owner, 2026-09-22: "same level as the sentence, small, grey").
+   Idempotent; pages without an h1 keep the corner row. */
+window.subInfoMount=root=>{(root||document).querySelectorAll(".sub-info-row").forEach(row=>{const h=row.previousElementSibling;if(!h||!(h.tagName==="H1"&&h.classList.contains("big")))return;const b=row.querySelector(".sub-info");if(!b)return;h.classList.add("h-info");h.appendChild(b);row.remove()})};
+/* Profile → Appearance: only the Light / Dark choice, in a sheet over Profile.
+   setTheme() saves on tap, so the sheet closes itself and the row's caption
+   follows (owner, 2026-09-22: "open only this … and go back to the profile"). */
+/* Profile → a setting: App Setup is rendered off-screen and just that section
+   is lifted into a sheet over Profile — one source of truth, no page change.
+   setAcc lifts the account card only; the others run to the next anchored h3. */
+window.pfSetupSheet=async(anchor,title)=>{const old=document.getElementById("pfSetupOv");if(old)old.remove();
+  const tmp=document.createElement("div");try{await rData(tmp,true)}catch(e){setupOpen(anchor);return}
+  const a=tmp.querySelector("#"+anchor);if(!a){setupOpen(anchor);return}
+  const box=document.createElement("div");box.className="pf-sheet-body";
+  let n=a.nextElementSibling;
+  if(anchor==="setAcc"){if(n)box.appendChild(n)}
+  else{while(n&&!(n.tagName==="H3"&&n.id&&/^set/.test(n.id))){const nx=n.nextElementSibling;box.appendChild(n);n=nx}}
+  const ov=document.createElement("div");ov.id="pfSetupOv";ov.dataset.anchor=anchor;ov.dataset.title=title||"";ov.className="lang-modal-ov pp-sheet-ov pp-how-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const sh=document.createElement("div");sh.className="lang-modal pp-sheet pf-sheet";sh.setAttribute("role","dialog");sh.setAttribute("aria-modal","true");
+  sh.innerHTML=`<div class="pf-sheet-head"><h2 style="font-size:17px;margin:0">${esc(title||"")}</h2><button class="ex-howbtn sub-info" aria-label="${esc(t("wc.close"))}" onclick="document.getElementById('pfSetupOv').remove()">${ic("close")}</button></div>`;
+  sh.appendChild(box);ov.appendChild(sh);document.body.appendChild(ov);try{manIconizeInline(sh)}catch(e){}};
+/* A sign-in / sign-out while the Backup sheet is open redraws that sheet. */
+window.pfSetupSheetSync=()=>{const ov=document.getElementById("pfSetupOv");if(ov)pfSetupSheet(ov.dataset.anchor,ov.dataset.title)};
+window.pfThemeSheet=()=>{const old=document.getElementById("pfThemeOv");if(old)old.remove();const ov=document.createElement("div");ov.id="pfThemeOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const cur=document.documentElement.getAttribute("data-theme")||"dark";
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><h2 style="font-size:17px;margin:0 0 12px">${t("acc.theme_label")}</h2><div class="theme-seg">
+    <button type="button" class="theme-opt ${cur==='light'?'on':''}" data-theme="light" onclick="setTheme('light');pfThemeDone()">${ic("sun")}<span>${t("acc.theme_light")}</span></button>
+    <button type="button" class="theme-opt ${cur==='dark'?'on':''}" data-theme="dark" onclick="setTheme('dark');pfThemeDone()">${ic("moon")}<span>${t("acc.theme_dark")}</span></button></div></div>`;
+  document.body.appendChild(ov)};
+window.pfThemeDone=()=>{const ov=document.getElementById("pfThemeOv");if(ov)ov.remove();const el=document.getElementById("v-profile");if(el&&el.classList.contains("on"))rProfile(el)};
+function subInfo(html,bare){const i=window._subInfoStore.push(html)-1;const b=`<button class="ex-howbtn sub-info" onclick="subInfoOpen(${i})" aria-label="${esc(t("pf.about_page"))}" title="${esc(t("pf.about_page"))}">${ic("info")}</button>`;return bare?b:`<div class="sub-info-row">${b}</div>`}
+window.subInfoOpen=(i)=>{window._subInfoText=window._subInfoStore[i]||"";const old=document.getElementById("subInfoOv");if(old)old.remove();const ov=document.createElement("div");ov.id="subInfoOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
   ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><p class="sub" style="margin:0 0 14px">${window._subInfoText||""}</p><button class="btn btn-g btn-sm" onclick="document.getElementById('subInfoOv').remove()">${t("wc.close")}</button></div>`;document.body.appendChild(ov)};
 /* The learner's record — the stats, the Progress Calendar, the performance
    overview, the professional-track panels, the share card and the certificate.
@@ -18759,7 +18794,7 @@ function pfRecordHTML(){
   </div>`;
 }
 /* a settings row: icon, label, chevron — the shape of every group on Profile */
-function pfRow(ic_,label,onclick,extra){return `<button class="pf-row pf-line" onclick="${onclick}"><span class="pf-ic">${ic(ic_)}</span><span class="pf-txt"><b>${esc(label)}</b>${extra?`<small>${esc(extra)}</small>`:""}</span><span class="pf-chev" aria-hidden="true">›</span></button>`}
+function pfRow(ic_,label,onclick,extra){return `<button class="pf-row pf-line" data-l="${esc(label)}" onclick="${onclick}"><span class="pf-ic">${ic(ic_)}</span><span class="pf-txt"><b>${esc(label)}</b>${extra?`<small>${esc(extra)}</small>`:""}</span><span class="pf-chev" aria-hidden="true">›</span></button>`}
 /* open App Setup on one of its settings */
 window.setupOpen=anchor=>{_setupTab="settings";go("setup");setTimeout(()=>{const el=document.getElementById(anchor);if(el){try{el.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){el.scrollIntoView()}}},350)};
 window.pfFeedback=()=>{location.href="mailto:contact@lomonec.com?subject="+encodeURIComponent("BE Mastery feedback")};
@@ -18782,16 +18817,16 @@ function rProfile(el){
   </button>
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
-    ${pfRow("globe",t("lang.app_language"),"setupOpen('setLang')")}
-    ${pfRow("map",t("pf.area"),"go('journey')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
-    ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"setupOpen('setTheme')",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
-    ${pfRow("clock",t("rem.label"),"setupOpen('setRem')",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}
+    ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
+    ${pfRow("map",t("pf.area"),"go('tracks')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
+    ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"pfThemeSheet()",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
+    ${pfRow("clock",t("rem.label"),"pfSetupSheet('setRem',this.dataset.l)",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}
     ${pfRow("gear",t("setup.title"),"setupOpen('setProfile')")}
   </div>
   <div class="pf-group-h">${t("pf.g_data")}</div>
   <div class="pf-group">
-    ${pfRow("cloud",t("pf.backup"),"setupOpen('setAcc')",signed?(FBUser.email||""):t("pf.backup_sub"))}
-    ${pfRow("lock",t("acc.data_privacy_h").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),"setupOpen('setData')")}
+    ${pfRow("cloud",t("pf.backup"),"pfSetupSheet('setAcc',this.dataset.l)",signed?(FBUser.email||""):t("pf.backup_sub"))}
+    ${pfRow("lock",t("acc.data_privacy_h").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),"pfSetupSheet('setData',this.dataset.l)")}
   </div>
   <div class="pf-group-h">${t("pf.g_about")}</div>
   <div class="pf-group">
@@ -18831,7 +18866,7 @@ async function rSetup(el){
     <span>${t("setup.title")}</span>
   </div>
   <h1 class="big">${t("setup.title")}</h1>
-  <p class="sub">${t("setup.sub")}</p>
+  ${subInfo(t("setup.sub"))}
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("setup.title"))}" style="margin-top:16px">
     ${SETUP_TABS.map(c=>`<button class="seg-tab ${_setupTab===c.k?"on":""}" role="tab" aria-selected="${_setupTab===c.k}" onclick="setupTab('${c.k}')"><span class="btn-ic">${ic(c.ic)}</span><span class="seg-lbl">${t(c.n)}</span></button>`).join("")}
   </div>
@@ -18879,7 +18914,7 @@ async function rData(el,embedded){
     <div class="card">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
         <div class="set-avatar">${esc((p.name||"?")[0].toUpperCase())}</div>
-        <div><h2 class="set-card-h">${t("acc.profile_title")}</h2><p class="set-card-sub">${t("acc.profile_sub")}</p></div>
+        <div><h2 class="set-card-h" id="setProfile">${t("acc.profile_title")}</h2><p class="set-card-sub">${t("acc.profile_sub")}</p></div>
       </div>
       <label class="set-lbl" for="acName">${t("acc.first_name")}</label>
       <input id="acName" value="${esc(p.name||"")}" placeholder="${esc(t("acc.first_name_ph"))}">
@@ -18935,7 +18970,7 @@ async function rData(el,embedded){
     <div>
       <div id="setAcc"></div>${fbAuthCard()}
       <details class="home-more set-plan">
-        <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">▶</span></summary>
+        <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">
 <div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -19418,8 +19453,7 @@ function rpLibrary(el){
      <span>${professional?"Professional coaches":t("rp.eyebrow")}</span>
    </div>
    <h1 class="big">${professional?"Talk it out — professional interviews":t("rp.title")}</h1>
-   <p class="sub" style="margin-bottom:12px">${professional?"Choose a coach and practise the interview conversation for each professional skill.":t("rp.sub")}</p>
-   <div class="how-row">${howBtn("interview")}</div>
+   ${subInfo(professional?"Choose a coach and practise the interview conversation for each professional skill.":t("rp.sub"))}
    <!-- key box removed: the Worker holds the key now -->
    <!-- ElevenLabs key box removed: the Worker already serves natural TTS -->
    <button class="rp-hero" onclick="go('roleplay','${feat.id}')">${rpAvatar(feat,72)}<span class="rp-hero-t"><small>${t("rp.featured")}</small><b>${esc(feat.title)}</b><span class="rp-hero-go">${t("rp.start")} →</span></span></button>
@@ -20398,7 +20432,7 @@ function rPron(el,word){
   el.innerHTML=`
    <div class="eyebrow">${t("pron.eyebrow")}</div>
    <h1 class="big">${t("pron.title")}</h1>
-   <p class="sub" style="margin-bottom:16px">${t("pron.sub")}</p>
+   ${subInfo(t("pron.sub"))}
    <div class="pron-input">
      <input id="pronIn" value="${esc(w)}" placeholder="${esc(t("pron.type_ph"))}" onkeydown="if(event.key==='Enter')pronSet(this.value)">
      <button class="btn btn-p btn-sm" onclick="pronSet(document.getElementById('pronIn').value)">${t("pron.practice")}</button>
@@ -20915,6 +20949,7 @@ function fbOnAuth(u){
   FBUser=u;
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
+  try{pfSetupSheetSync()}catch(e){}
   fbUpdateNudge();
 }
 /* --- merge helpers: union completed work, keep the best scores --- */
