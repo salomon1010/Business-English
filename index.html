@@ -989,8 +989,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sub-info-row{display:flex;justify-content:flex-end;margin:-6px 0 6px}
 .ex-howbtn.sub-info{width:26px!important;height:26px!important;min-height:0;color:var(--mut);background:transparent;border:1px solid var(--line2);box-shadow:none}
 .ex-howbtn.sub-info svg{width:14px;height:14px}.ex-howbtn.sub-info:hover{background:var(--card2);transform:none}
-h1.big.h-info{display:flex;align-items:center;gap:10px}
-.pf-sheet{max-height:86vh;overflow:auto}.pf-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.pf-sheet-body .set-h{margin-top:4px}.pf-sheet-body>h3:first-child{display:none}h1.big.h-info>.sub-info{margin-left:auto;flex:0 0 auto}
+h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info-t{flex:1 1 auto;min-width:0}
+/* Phones: the white line, then the blue line (owner, 2026-09-22). Wider screens flow on one line. */
+@media (max-width:600px){h1.big.h-info>.h-info-t>em{display:block}}
+.pf-sheet{max-height:86vh;overflow:auto}.pf-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}.pf-sheet-body .set-h{margin-top:4px}.pf-sheet-body>h3:first-child{display:none}h1.big.h-info>.sub-info{margin-left:auto;margin-top:.35em;flex:0 0 auto}
 .pf-menu .pf-row{margin:0}
 .psp-ev{margin:14px 0 4px;padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
 .psp-ev-n{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
@@ -13566,7 +13568,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v422";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v423";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -18551,6 +18553,9 @@ function drawTrend(){
 }
 
 /* ================= DATA ================= */
+/* The voice choice saves on change, so the Profile → App voice sheet needs no
+   Save button (App Setup's Save still writes it too). */
+window.acVoiceKeep=v=>{S.profile=S.profile||{};S.profile.voice=v;save()};
 window.acctSave=()=>{
   const p=S.profile||{};
   p.name=(document.getElementById("acName").value||"").trim()||p.name||"there";
@@ -18558,7 +18563,9 @@ window.acctSave=()=>{
   p.goal=document.getElementById("acGoal").value;
   p.slot=document.getElementById("acSlot").value;
   const av=document.getElementById("acVoice");if(av)p.voice=av.value;
-  S.profile=p;save();toast(t("acc.profile_saved_toast"));go("data");
+  S.profile=p;save();toast(t("acc.profile_saved_toast"));
+  const ov=document.getElementById("pfSetupOv");if(ov){ov.remove();go("profile");return}
+  go("data");
 };
 /* audition the chosen voice — commit it so the sample plays in that voice, then speak a sample line */
 window.acVoicePreview=()=>{
@@ -18721,7 +18728,7 @@ window._subInfoStore=[];
 /* After a render: a bubble that directly follows the page title moves onto the
    title line (owner, 2026-09-22: "same level as the sentence, small, grey").
    Idempotent; pages without an h1 keep the corner row. */
-window.subInfoMount=root=>{(root||document).querySelectorAll(".sub-info-row").forEach(row=>{const h=row.previousElementSibling;if(!h||!(h.tagName==="H1"&&h.classList.contains("big")))return;const b=row.querySelector(".sub-info");if(!b)return;h.classList.add("h-info");h.appendChild(b);row.remove()})};
+window.subInfoMount=root=>{(root||document).querySelectorAll(".sub-info-row").forEach(row=>{const h=row.previousElementSibling;if(!h||!(h.tagName==="H1"&&h.classList.contains("big")))return;const b=row.querySelector(".sub-info");if(!b)return;const tx=document.createElement("span");tx.className="h-info-t";while(h.firstChild)tx.appendChild(h.firstChild);h.classList.add("h-info");h.appendChild(tx);h.appendChild(b);row.remove()})};
 /* Profile → Appearance: only the Light / Dark choice, in a sheet over Profile.
    setTheme() saves on tap, so the sheet closes itself and the row's caption
    follows (owner, 2026-09-22: "open only this … and go back to the profile"). */
@@ -18741,6 +18748,20 @@ window.pfSetupSheet=async(anchor,title)=>{const old=document.getElementById("pfS
   sh.appendChild(box);ov.appendChild(sh);document.body.appendChild(ov);try{manIconizeInline(sh)}catch(e){}};
 /* A sign-in / sign-out while the Backup sheet is open redraws that sheet. */
 window.pfSetupSheetSync=()=>{const ov=document.getElementById("pfSetupOv");if(ov)pfSetupSheet(ov.dataset.anchor,ov.dataset.title)};
+/* Profile → identity row: only the fields that belong to the person — name,
+   role, goal, practice slot — lifted from App Setup (one source of truth).
+   Language, appearance, reminder, account and data have their own rows. */
+window.pfProfileSheet=async()=>{const old=document.getElementById("pfSetupOv");if(old)old.remove();
+  const tmp=document.createElement("div");try{await rData(tmp,true)}catch(e){setupOpen("setProfile");return}
+  const name=tmp.querySelector("#acName");if(!name){setupOpen("setProfile");return}
+  const box=document.createElement("div");box.className="pf-sheet-body";
+  let n=name.previousElementSibling;   // the "First name" label
+  while(n&&!(n.tagName==="H3"&&n.id)){const nx=n.nextElementSibling;box.appendChild(n);n=nx}
+  const save=document.createElement("button");save.className="btn-primary set-save";save.style.marginTop="16px";save.textContent=t("acc.save");save.onclick=()=>acctSave();box.appendChild(save);
+  const ov=document.createElement("div");ov.id="pfSetupOv";ov.dataset.anchor="setProfile";ov.className="lang-modal-ov pp-sheet-ov pp-how-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const sh=document.createElement("div");sh.className="lang-modal pp-sheet pf-sheet";sh.setAttribute("role","dialog");sh.setAttribute("aria-modal","true");
+  sh.innerHTML=`<div class="pf-sheet-head"><h2 style="font-size:17px;margin:0">${esc(t("acc.profile_title"))}</h2><button class="ex-howbtn sub-info" aria-label="${esc(t("wc.close"))}" onclick="document.getElementById('pfSetupOv').remove()">${ic("close")}</button></div><p class="sub" style="margin:0 0 12px">${t("acc.profile_sub")}</p>`;
+  sh.appendChild(box);ov.appendChild(sh);document.body.appendChild(ov)};
 window.pfThemeSheet=()=>{const old=document.getElementById("pfThemeOv");if(old)old.remove();const ov=document.createElement("div");ov.id="pfThemeOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
   const cur=document.documentElement.getAttribute("data-theme")||"dark";
   ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><div class="pf-sheet-head"><h2 style="font-size:17px;margin:0">${t("acc.theme_label")}</h2><button class="ex-howbtn sub-info" aria-label="${esc(t("wc.close"))}" onclick="document.getElementById('pfThemeOv').remove()">${ic("close")}</button></div><div class="theme-seg">
@@ -18811,7 +18832,7 @@ function rProfile(el){
   const signed=!!(typeof FBUser!=="undefined"&&FBUser);
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
-  <button class="pf-hero pf-hero-row" onclick="setupOpen('setProfile')" aria-label="${esc(t("acc.profile_title"))}">
+  <button class="pf-hero pf-hero-row" onclick="pfProfileSheet()" aria-label="${esc(t("acc.profile_title"))}">
     <div class="pf-av pf-av-sm">${initial}</div>
     <div class="pf-hero-t"><h1 class="pf-name">${nm}</h1><p class="pf-sub">${sub}</p></div>
     <span class="pf-chev" aria-hidden="true">›</span>
@@ -18820,9 +18841,9 @@ function rProfile(el){
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
     ${pfRow("map",t("pf.area"),"go('tracks','profile')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
+    ${pfRow("sound",t("acc.voice_label"),"pfSetupSheet('setVoice',this.dataset.l)",(TTS_VOICE_OPTS.find(v=>v[0]===(p.voice||"alloy"))||[])[1]||"")}
     ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"pfThemeSheet()",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
     ${pfRow("clock",t("rem.label"),"pfSetupSheet('setRem',this.dataset.l)",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}
-    ${pfRow("gear",t("setup.title"),"setupOpen('setProfile')")}
   </div>
   <div class="pf-group-h">${t("pf.g_data")}</div>
   <div class="pf-group">
@@ -18955,9 +18976,9 @@ async function rData(el,embedded){
         </span>
         <button class="btn btn-g set-act" onclick="openLangPicker()">${esc(t("lang.change"))}</button>
       </div>
-      <label class="set-lbl" for="acVoice">${t("acc.voice_label")}</label>
+      <div id="setVoice"></div><label class="set-lbl" for="acVoice">${t("acc.voice_label")}</label>
       <div style="display:flex;align-items:center;gap:8px">
-        <select id="acVoice" style="flex:1" onchange="acVoicePreview()">${TTS_VOICE_OPTS.map(v=>`<option value="${v[0]}" ${(p.voice||"alloy")===v[0]?"selected":""}>${esc(v[1])}</option>`).join("")}</select>
+        <select id="acVoice" style="flex:1" onchange="acVoicePreview();acVoiceKeep(this.value)">${TTS_VOICE_OPTS.map(v=>`<option value="${v[0]}" ${(p.voice||"alloy")===v[0]?"selected":""}>${esc(v[1])}</option>`).join("")}</select>
         <button class="btn btn-g set-act" onclick="acVoicePreview()" aria-label="${esc(t("acc.voice_sample"))}" title="${esc(t("acc.voice_sample"))}">${ic("sound")}</button>
       </div>
       <p class="set-hint">${t("acc.voice_hint")}</p>
