@@ -58,6 +58,20 @@ const sttHits = new Map();
 const CAP_PER_MIN = 12;
 const CAP_PER_DAY = 400;
 const capHits = new Map();
+/* The Gemini transcript route is the only one here that costs money per call,
+   and the bill scales with the LENGTH of whatever the learner pasted: roughly
+   $0.08 for 15 minutes, so an unattended three-hour podcast is about $1.
+   Three separate brakes, because one is not enough:
+     1. YTAI_MAX_SEC caps what is transcribed, not what is accepted — Gemini is
+        told to read only the first half hour, so the cost of any single call is
+        bounded no matter how long the video is.
+     2. its own per-IP counters, far tighter than the free caption route's.
+     3. the answer is cached for a month, so a popular video is paid for once.
+   Raise these deliberately, knowing what each one costs. */
+const YTAI_MAX_SEC = 1800;       // 30 minutes ≈ $0.16 worst case per video
+const YTAI_PER_MIN = 2;
+const YTAI_PER_DAY = 25;
+const ytaiHits = new Map();
 
 // ---- Pronunciation coach (audio-in language model) ----
 // gpt-4o-audio-preview actually LISTENS to the learner's recording and grades
@@ -82,7 +96,15 @@ const hits = new Map();        // ip -> {min:[ts...], day:[ts...]}  (Polish)
 const ttsHits = new Map();     // ip -> {min:[ts...], day:[ts...]}  (TTS)
 
 function corsHeaders(origin) {
-  const allow = ALLOWED_ORIGINS.includes(origin) ? origin : "";
+  /* Device testing happens over the LAN — a phone loads the dev server by the
+     Mac's address, so the origin is http://192.168.x.x:PORT and no fixed list
+     can name it in advance. Private ranges are admitted for that reason.
+     This is not a hole: CORS only governs browsers, and anything that wanted to
+     call this Worker directly could always do so with curl. What actually
+     protects the key and the bill are the per-IP rate limits and the length cap
+     above, none of which depend on the origin. */
+  const lan = /^http:\/\/(?:10\.\d{1,3}|192\.168|172\.(?:1[6-9]|2\d|3[01]))\.\d{1,3}\.\d{1,3}(?::\d+)?$/.test(origin);
+  const allow = (ALLOWED_ORIGINS.includes(origin) || lan) ? origin : "";
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -302,6 +324,68 @@ async function callAI(env, sentence, avoid) {
    { vid, source, lang, cues:[{t,txt}], words:[{t,w}] }
 --------------------------------------------------------------- */
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
+
+const GEMINI_MODEL = "gemini-3.6-flash";
+const YTAI_PROMPT =
+  "Transcribe the spoken English in this video. For every sentence give the MM:SS timestamp at which it begins. " +
+  "Return ONLY minified JSON: {\"cues\":[{\"ts\":\"MM:SS\",\"txt\":\"<sentence>\"}]}. " +
+  "Cover the whole video from 00:00 to the end. No commentary.";
+
+async function geminiCaptions(env, vid) {
+  /* the key goes in the header, not the query string: a secret that picked up a
+     stray newline or space silently breaks a URL parameter (that is a 401 with
+     no explanation), and Google documents the header as the supported form */
+  const key = String(env.GEMINI_KEY || "").trim();
+  const r = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent",
+    { method: "POST", headers: { "content-type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify({
+        contents: [{ parts: [
+          { fileData: { fileUri: "https://www.youtube.com/watch?v=" + vid },
+            /* the hard cost brake: Gemini reads at most YTAI_MAX_SEC of the
+               video, so a three-hour upload costs the same as a half-hour one */
+            videoMetadata: { startOffset: "0s", endOffset: YTAI_MAX_SEC + "s" } },
+          { text: YTAI_PROMPT },
+        ] }],
+        /* low media resolution: we are after the words, not the picture, and it
+           is roughly a third of the tokens */
+        generationConfig: { temperature: 0, responseMimeType: "application/json",
+          maxOutputTokens: 60000, mediaResolution: "MEDIA_RESOLUTION_LOW" },
+      }) });
+  if (!r.ok) {
+    let detail = ""; try { detail = JSON.stringify(await r.json()).slice(0, 200) } catch {}
+    /* 401/403 is our key, not the learner's video. The fingerprint is the first
+       8 hex of SHA-256 — enough to tell whether the secret is the key you meant
+       to store, and useless to anyone who sees it. */
+    let fp = "";
+    try {
+      const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(key));
+      fp = [...new Uint8Array(h)].slice(0, 4).map(b => b.toString(16).padStart(2, "0")).join("");
+    } catch {}
+    return { error: "gemini_" + r.status, detail, keyLen: key.length, keyFp: fp };
+  }
+  const j = await r.json();
+  const txt = j?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  let parsed; try { parsed = JSON.parse(txt) } catch { return { error: "gemini_parse" } }
+  const toSec = ts => { const m = String(ts || "").match(/(\d+):(\d{1,2})(?::(\d{1,2}))?/);
+    if (!m) return null;
+    return m[3] ? (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) : (+m[1]) * 60 + (+m[2]); };
+  const cues = [];
+  for (const c of (parsed.cues || [])) {
+    const t = toSec(c.ts), s = String(c.txt || "").replace(/\s+/g, " ").trim();
+    if (t == null || !s) continue;
+    if (cues.length && t < cues[cues.length - 1].t) continue;   // never let it go backwards
+    cues.push({ t, txt: s });
+  }
+  if (!cues.length) return { error: "gemini_empty" };
+  /* no `words`: the model's timings are line-level, and inventing word times
+     from them would be a lie the highlighter would act on */
+  const out = { vid, source: "gemini", lang: "en", cues, maxSec: YTAI_MAX_SEC };
+  /* if the last line lands near the cap the video was almost certainly longer,
+     and the app should say so rather than let the words run out mid-talk */
+  if (cues[cues.length - 1].t >= YTAI_MAX_SEC - 90) out.truncated = true;
+  return out;
+}
 
 async function fetchYouTubeCaptions(vid) {
   if (!/^[A-Za-z0-9_-]{11}$/.test(vid)) return { error: "bad_id" };
@@ -640,6 +724,31 @@ export default {
         return json(out, out.error ? 404 : 200, headers);
       } catch (e) {
         return json({ error: "captions_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
+
+    /* ---- Gemini transcript: the only route that works for a video the learner
+       pasted. YouTube refuses this Worker's datacentre IP for its own caption
+       track (measured 22 Sep 2026: track_parse / page_429 on every video), but
+       Google's own model accepts a public YouTube URL as input and transcribes
+       it. Two things learned by measurement and encoded here:
+         · ask for MM:SS, never raw seconds. With seconds the model invents
+           times past the end of the video — median error 280 s on a 15-minute
+           talk. With MM:SS the median error is 1 s, the 90th percentile 5 s.
+         · that is line-level accuracy, not word-level, so the app must mark
+           word timing as estimated for these. It already does.
+       ~$0.08 for a 15-minute video, so the answer is cached hard: a video's
+       words do not change. Without GEMINI_KEY set this route simply says so. */
+    if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
+      if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
+      if (rateLimited(ip, ytaiHits, YTAI_PER_MIN, YTAI_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const vid = body.ytai.trim();
+      try {
+        const out = await geminiCaptions(env, vid);
+        const headers = out.error ? cors : { "cache-control": "public, max-age=2592000", ...cors };
+        return json(out, out.error ? 502 : 200, headers);
+      } catch (e) {
+        return json({ error: "ytai_failed", detail: String(e.message || e) }, 502, cors);
       }
     }
 

@@ -1,0 +1,155 @@
+{
+  "rules": {
+    "minSec": 60,
+    "maxSec": 1800
+  },
+  "categories": [
+    {
+      "id": "meetings",
+      "label": "Meetings",
+      "sources": [
+        {
+          "channel": "@BusinessEnglishPod",
+          "limit": 30,
+          "match": "meeting|call|negotiat|disagree|opinion|support|update|discuss|presentation|email|phone"
+        },
+        {
+          "channel": "@SpeakConfidentEnglish",
+          "limit": 30,
+          "match": "meeting|work|business|professional|disagree|opinion|interrupt|small talk|colleague|boss|office|email|phone|call"
+        },
+        {
+          "channel": "@EnglishSpeakingSuccess",
+          "limit": 20,
+          "match": "meeting|work|business|professional|office"
+        }
+      ]
+    },
+    {
+      "id": "presentations",
+      "label": "Presentations",
+      "sources": [
+        {
+          "channel": "@harvardbusinessreview",
+          "limit": 30,
+          "match": "present|speak|talk|pitch|persua|communicat|confident|story|leader|feedback"
+        },
+        {
+          "channel": "@stanfordgsb",
+          "limit": 30,
+          "match": "communicat|speak|present|confiden|persua|think fast|talk|voice"
+        },
+        {
+          "channel": "@TED",
+          "limit": 20,
+          "bundle": false,
+          "match": "speak|talk|communicat|confiden|leader|work|career|listen|body language"
+        }
+      ]
+    },
+    {
+      "id": "interviews",
+      "label": "Interviews",
+      "sources": [
+        {
+          "channel": "@Indeed",
+          "limit": 30,
+          "match": "interview|question|answer|tell me|strength|weakness|salary|resume|cv|hire"
+        },
+        {
+          "channel": "@LindaRaynier",
+          "limit": 20,
+          "match": "interview|question|answer|tell me|strength|weakness|salary"
+        },
+        {
+          "channel": "@EnglishwithLucy",
+          "limit": 30,
+          "match": "interview|job|work|business|professional|email|phone"
+        }
+      ]
+    },
+    {
+      "id": "everyday",
+      "label": "Everyday",
+      "sources": [
+        {
+          "channel": "@EasyEnglishVideos",
+          "limit": 25
+        },
+        {
+          "channel": "@EnglishwithLucy",
+          "limit": 30,
+          "match": "conversation|small talk|phrases|polite|british|daily|everyday|speak"
+        },
+        {
+          "channel": "@LearnEnglishWithTVSeries",
+          "limit": 15
+        }
+      ]
+    },
+    {
+      "id": "skills",
+      "label": "Learning skills",
+      "sources": [
+        {
+          "channel": "@bbclearningenglish",
+          "limit": 30
+        },
+        {
+          "channel": "@RachelsEnglish",
+          "limit": 25
+        },
+        {
+          "channel": "@EnglishSpeakingSuccess",
+          "limit": 15
+        }
+      ]
+    }
+  ],
+  "channels": [
+    "@BusinessEnglishPod",
+    "@SpeakConfidentEnglish",
+    "@bbclearningenglish",
+    "@EnglishwithLucy",
+    "@harvardbusinessreview",
+    "@stanfordgsb",
+    "@Indeed",
+    "@RachelsEnglish",
+    "@EasyEnglishVideos",
+    "@TED"
+  ],
+  "hero": {},
+  "probe": [
+    "@ThinkFastTalkSmart",
+    "@EnglishSpeakingSuccess",
+    "@OxfordOnlineEnglish",
+    "@mmmenglish_Emma",
+    "@DerekCallanEnglish",
+    "@PocketPassport",
+    "@CNBCMakeIt",
+    "@BigThink",
+    "@GoogleTalksArchive",
+    "@McKinsey",
+    "@engvidEnglish",
+    "@LearnEnglishwithEmmaEngVid",
+    "@EnglishwithRonnie",
+    "@LinkedIn",
+    "@SpeakEnglishWithTiffani",
+    "@EnglishFluencyJourney",
+    "@ShawEnglish",
+    "@AccentsWay",
+    "@EnglishLessons4U",
+    "@JenniferESL",
+    "@bbclearningenglish",
+    "@SpeakConfidentEnglish",
+    "@Indeed",
+    "@harvardbusinessreview",
+    "@EnglishwithLucy",
+    "@RachelsEnglish",
+    "@BusinessEnglishPod",
+    "@EasyEnglishVideos",
+    "@LearnEnglishWithTVSeries",
+    "@LindaRaynier",
+    "@EnglishClass101"
+  ]
+}

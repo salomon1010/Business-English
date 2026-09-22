@@ -208,7 +208,7 @@ if (!process.env.BASE) {
     await p.goto(scheme + "/index.html?env=" + Date.now(), { waitUntil: "load" }); await p.waitForTimeout(300);
     const r = await p.evaluate(() => {
       const env = beEnv();
-      const flagsOff = ["practice_partner_enabled", "practice_partner_matching_enabled", "practice_partner_voice_enabled", "practice_partner_notifications_enabled", "practice_partner_live_enabled", "shadow_studio_v2_enabled", "shadow_apply_phrase_enabled", "shadow_challenge_enabled"];
+      const flagsOff = ["practice_partner_enabled", "practice_partner_matching_enabled", "practice_partner_voice_enabled", "practice_partner_notifications_enabled", "practice_partner_live_enabled", "shadow_studio_v2_enabled", "shadow_apply_phrase_enabled", "shadow_challenge_enabled", "shadow_library_enabled"];
       const base = { env, partner: ppApiBase(), flags: Object.fromEntries(flagsOff.map(f => [f, flag(f)])), aiFallback: flag("practice_partner_ai_fallback_enabled"), wordTiming: flag("shadow_word_timing_enabled") };
       /* overrides must still win everywhere */
       localStorage.setItem("be_partner_api", "http://127.0.0.1:1"); localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: !flag("practice_partner_enabled") }));
@@ -225,11 +225,30 @@ if (!process.env.BASE) {
   /* the released production set (RELEASE_PLAN §5.3, 2026-09-19): the four practice_partner_*
      flags are ON; live calls, Shadow Studio V2 and Apply-It phrase stay OFF until their own release */
   /* Practice Partner released 2026-09-20 (owner decision, DEVICE_CHECKLIST.md 24/66 rows certified on staging); live stays off; Shadow V2 / Challenge as released */
-  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: false, shadow_challenge_enabled: true };
+  const PROD_FLAGS = { practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true, practice_partner_live_enabled: false, shadow_studio_v2_enabled: true, shadow_apply_phrase_enabled: false, shadow_challenge_enabled: true, shadow_library_enabled: false };
   const sameFlags = (got) => JSON.stringify(got) === JSON.stringify(PROD_FLAGS);
   ok("app.lomonec.com → production Events Worker, production Partner API constant, partner flags ON (live off), Shadow flags as released", !pr.env && pr.beacon === "https://be-events.nore-ngou.workers.dev/e" && pr.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(pr.flags) && pr.aiFallback && pr.wordTiming, JSON.stringify(pr));
   ok("localhost → exactly the production defaults (development/test behaviour unchanged)", !lo.env && lo.beacon === "https://be-events.nore-ngou.workers.dev/e" && lo.partner === "https://be-partner.nore-ngou.workers.dev" && sameFlags(lo.flags), JSON.stringify(lo));
   ok("localStorage.be_partner_api and be_flags still override the defaults on every hostname", [st, pr, lo].every(x => x.over.partner === "http://127.0.0.1:1" && x.over.flag === !x.flags.practice_partner_enabled), JSON.stringify({ st: st.over, pr: pr.over, lo: lo.over }));
+}
+
+/* ── Shadow library (flag shadow_library_enabled, General English): search → chips → tap → workspace ── */
+{
+  /* the previous check left the app on Welding, where the library is deliberately absent */
+  await page.evaluate(() => { localStorage.setItem("be_flags", JSON.stringify({ shadow_library_enabled: true })); document.querySelectorAll(".cf-ov,.wc-ov,.lang-modal-ov").forEach(e => e.remove()); areaSwitch(AREA_GEN, "home"); });
+  await wait(300); await page.evaluate(() => go("shadow"));
+  const drawn = await page.waitForFunction(() => document.querySelector("#shLib .shl-row"), null, { timeout: 8000 }).then(() => true).catch(() => false);
+  ok("Library draws from catalogue/general.json: rows, chips, the Your-videos chip, the add-link button, no starters grid", drawn && await page.evaluate(() => document.querySelectorAll("#shLib .shl-chip").length >= 2 && !!document.querySelector("#shLib .shl-chip.mine") && !!document.querySelector("#shLibDock .shl-fab") && !document.querySelector("#v-shadow .sh-starter")));
+  const q = await page.evaluate(() => { const first = document.querySelector("#shLibFeed .shl-row b").textContent.split(" ")[0]; const i = document.getElementById("shLibIn"); i.value = first; shLibQ(first); return { n: document.querySelectorAll("#shLibFeed .shl-row").length, hid: document.getElementById("shLibStatic").style.display === "none", first }; });
+  ok("Typing filters the feed and hides chips / hero while searching", q.n >= 1 && q.hid, JSON.stringify(q));
+  await page.evaluate(() => shLibClear());
+  const ch = await page.evaluate(() => { const cs = [...document.querySelectorAll("#shLib .shl-chip")]; const b = cs.find(x => !x.classList.contains("mine") && !x.classList.contains("on")); b.click(); return document.querySelectorAll("#shLib .shl-chip.on").length === 1 && b.classList.contains("on") && document.querySelectorAll("#shLibFeed .shl-row").length >= 1; });
+  ok("A category chip lights alone and fills the feed", ch);
+  await page.evaluate(() => document.querySelector("#shLibFeed .shl-row").click()); await wait(1200);
+  ok("Tapping a row opens the workspace on that video", await page.evaluate(() => getComputedStyle(document.getElementById("shWork")).display !== "none" && !!shClip.vid && (document.getElementById("shUrl") || {}).value.includes(shClip.vid)));
+  await page.evaluate(() => { try { shCloseWork() } catch (e) {} localStorage.removeItem("be_flags"); });
+  await wait(200);
+  ok("Flag off → the classic picker with starters is back (production default)", await page.evaluate(() => { go("home"); go("shadow"); return !document.getElementById("shLib") && !!document.querySelector("#v-shadow .sh-starter"); }));
 }
 
 /* ── no JavaScript errors anywhere above ── */

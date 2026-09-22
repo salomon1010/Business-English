@@ -29,8 +29,63 @@
       .split(/(?<=[.!?…])\s+(?=[A-Z0-9"“(])/).map(s => s.trim()).filter(Boolean);
   }
 
+  /* Each cue's start, corrected against the word stream.
+     Cue times come back rounded — YouTube gives 11.6 for a line whose first
+     word is stamped 11.553 — so a [cueStart, nextCueStart) window put that
+     line's words in the PREVIOUS cue: the card showed one sentence while the
+     words of the next one scrolled through it, and a cue that lost every word
+     to its neighbour printed its own text again a line later. Snap each cue
+     to the nearest word timestamp within SNAP_MS (in the library that is
+     100,251 cues out of 100,253), monotonically so two cues never take the
+     same one; a cue with no timestamp near it keeps its own time and the old
+     window, so a stray word far outside every cue is still dropped. */
+  const SNAP_MS = 500;
+  function cueStarts(cues, words) {
+    const raw = cues.map(c => Math.round(c.t * 1000));
+    if (!words.length) return raw;
+    const times = [];                                     // distinct word starts, ms, ascending
+    for (const w of words) { const ms = Math.round(w.t * 1000); if (!times.length || ms !== times[times.length - 1]) times.push(ms); }
+    const out = []; let prev = -Infinity, prevG = -1;
+    for (let i = 0; i < cues.length; i++) {
+      let lo = 0, hi = times.length - 1, j = times.length;
+      while (lo <= hi) { const m = (lo + hi) >> 1; if (times[m] >= raw[i]) { j = m; hi = m - 1 } else lo = m + 1 }
+      let g = -1;
+      for (const k of [j - 1, j]) if (k >= 0 && k < times.length && (g < 0 || Math.abs(times[k] - raw[i]) < Math.abs(times[g] - raw[i]))) g = k;
+      let ms = raw[i];
+      if (g > prevG && Math.abs(times[g] - raw[i]) <= SNAP_MS) { ms = times[g]; prevG = g; }
+      out.push(Math.max(ms, prev)); prev = out[i];
+    }
+    return out;
+  }
+
+  /* One timestamp per caption SEGMENT, repeated on every word in it, is what
+     the caption files actually carry for most lines. Read literally that lit
+     the LAST word of a line the moment the line began and left it there — the
+     highlight never moved. Words sharing a timestamp get an estimated moment
+     inside their run, shared out by letter count exactly as estimateWords()
+     does, and marked `estimated` so the panel says so. */
+  function timeWords(id, ws, endMs) {
+    const out = [];
+    for (let k = 0; k < ws.length;) {
+      let j = k; while (j + 1 < ws.length && ws[j + 1].t === ws[k].t) j++;
+      const runStart = Math.round(ws[k].t * 1000);
+      const runEnd = Math.max(runStart + 80, j + 1 < ws.length ? Math.round(ws[j + 1].t * 1000) : endMs);
+      if (j === k) { out.push({ id: id + "w" + k, text: ws[k].w, startMs: runStart, endMs: runEnd }); k++; continue; }
+      const weights = [];
+      for (let q = k; q <= j; q++) weights.push(Math.max(1, String(ws[q].w).replace(/[^\p{L}\p{N}']/gu, "").length) + 1);
+      const total = weights.reduce((x, y) => x + y, 0), span = runEnd - runStart;
+      let at = runStart;
+      for (let q = k; q <= j; q++) {
+        const st = Math.round(at); at += span * weights[q - k] / total;
+        out.push({ id: id + "w" + q, text: ws[q].w, startMs: st, endMs: Math.max(st + 80, Math.round(at)), estimated: true });
+      }
+      k = j + 1;
+    }
+    return out;
+  }
+
   /* Caption cues carry only a start; a cue ends where the next begins. Words
-     are attached to the cue whose window they fall in. */
+     are attached to the cue whose (corrected) window they fall in. */
   function normalizeCaptions(cap, clipStartS, clipEndS) {
     /* defensive: a caption file is data from outside — drop cues and words
        whose time is not a finite number, and sort both, because locate()
@@ -40,26 +95,25 @@
     if (!cues.length) return { segments: [], level: "none" };
     const words = Array.isArray(cap.words) ? cap.words.filter(w => w && fin(w.t) && w.w).slice().sort((a, b) => a.t - b.t) : [];
     const s0 = Math.max(0, Number(clipStartS) || 0), s1 = Number(clipEndS) > s0 ? Number(clipEndS) : Infinity;
-    const segs = [];
+    const begins = cueStarts(cues, words);
+    const segs = []; let wi = 0;                                  // words are sorted: one pass, not a filter per cue
     for (let i = 0; i < cues.length; i++) {
-      const startMs = Math.round(cues[i].t * 1000);
-      const nextMs = i + 1 < cues.length ? Math.round(cues[i + 1].t * 1000) : startMs + TAIL_MS;
+      const startMs = begins[i];
+      const nextMs = i + 1 < cues.length ? begins[i + 1] : startMs + TAIL_MS;
       const endMs = Math.max(startMs + MIN_SEG_MS, Math.min(nextMs, startMs + MAX_SEG_MS));
+      while (wi < words.length && Math.round(words[wi].t * 1000) < startMs) wi++;
+      let wj = wi; while (wj < words.length && Math.round(words[wj].t * 1000) < nextMs) wj++;
+      const ws = words.slice(wi, wj); wi = wj;
       if (endMs / 1000 <= s0 || startMs / 1000 >= s1) continue;              // outside the clip marks
-      const ws = words.filter(w => w.t * 1000 >= startMs && w.t * 1000 < nextMs);
       const seg = { id: "s" + i, text: String(cues[i].txt).replace(/\s+/g, " ").trim(), startMs, endMs };
-      if (ws.length) {
-        seg.words = ws.map((w, k) => {
-          const wStart = Math.round(w.t * 1000);
-          const wEnd = k + 1 < ws.length ? Math.round(ws[k + 1].t * 1000) : endMs;
-          return { id: seg.id + "w" + k, text: w.w, startMs: wStart, endMs: Math.max(wStart + 80, wEnd) };
-        });
-      }
+      if (ws.length) seg.words = timeWords(seg.id, ws, endMs);
       segs.push(seg);
     }
     if (!segs.length) return { segments: [], level: "none" };
     const anyWords = segs.some(s => s.words && s.words.length);
-    return { segments: segs, level: anyWords ? "word" : "sentence" };
+    const out = { segments: segs, level: anyWords ? "word" : "sentence" };
+    if (segs.some(s => s.words && s.words.some(w => w.estimated))) out.estimated = true;
+    return out;
   }
 
   /* Sentence-only captions (13 of the 18 library clips have word times; the

@@ -7,9 +7,9 @@ const CACHE = "be12-v428";
    than visibly. */
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
   "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=79", "competency-engine.js?v=83", "learning-coach.js?v=84",
-  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=81", "shadow-sync.js?v=6", "adaptive-learning-engine.js?v=83",
+  "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=81", "shadow-sync.js?v=7", "adaptive-learning-engine.js?v=83",
   "career-center.js?v=79", "professional-skills-passport.js?v=83", "answer-evaluator.js?v=83", "shadow-lines.js?v=84",
-  "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json",
+  "catalogue/general.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json",
   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json", "tracks/welding/foundations.json"];
 
 /* Reminder text lives in its own cache, NOT in CACHE, because CACHE is wiped on
@@ -22,6 +22,18 @@ const REM_KEY = "./__reminder__";
    lives only in REM_CACHE — there is no such file on the server — so the fetch
    handler below answers for it before the network is ever asked. */
 const REM_MAP_KEY = "./__reminder_map__.png";
+/* Shadow-library transcripts live in their own cache, filled on first open
+   rather than at install. There are hundreds of them and they are the biggest
+   thing the app ships, so precaching would put tens of megabytes between a new
+   learner and their first session — on Orange/MTN mobile data that is the whole
+   difference between installing and giving up. A caption file for a given video
+   never changes, so this cache is served BEFORE the network (no revalidation at
+   all) and, like REM_CACHE, is deliberately kept out of the activate sweep: a
+   version bump must not make a learner re-download the transcripts they already
+   have. catalogue/general.json is precached with the shell — it is the index,
+   it is small, and the library must open offline. */
+const CAP_CACHE = "be-captions";
+const isCaption = u => /\/captions\/[A-Za-z0-9_-]{6,20}\.json$/.test(u.pathname);
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -29,7 +41,7 @@ self.addEventListener("install", e => {
 self.addEventListener("activate", e => {
   e.waitUntil(
     caches.keys()
-      .then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== REM_CACHE).map(k => caches.delete(k))))
+      .then(ks => Promise.all(ks.filter(k => k !== CACHE && k !== REM_CACHE && k !== CAP_CACHE).map(k => caches.delete(k))))
       .then(() => self.clients.claim())
   );
 });
@@ -52,6 +64,23 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET" || !req.url.startsWith(self.location.origin)) return;
   if (new URL(req.url).pathname.endsWith(REM_MAP_KEY.slice(1))) {
     e.respondWith(caches.open(REM_CACHE).then(c => c.match(REM_MAP_KEY)).then(r => r || new Response("", { status: 404 })));
+    return;
+  }
+
+  /* Transcripts: cache-first, and once cached the network is never asked again. */
+  if (isCaption(new URL(req.url))) {
+    e.respondWith((async () => {
+      const c = await caches.open(CAP_CACHE);
+      const hit = await c.match(req);
+      if (hit) return hit;
+      try {
+        const r = await fetch(req);
+        if (r && r.ok) { const clone = r.clone(); c.put(req, clone).catch(() => {}); }
+        return r;
+      } catch (err) {
+        return new Response('{"cues":[]}', { status: 504, headers: { "content-type": "application/json" } });
+      }
+    })());
     return;
   }
 
