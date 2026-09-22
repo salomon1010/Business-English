@@ -2174,10 +2174,10 @@
  "ex.clear_btn": "Effacer",
  "ex.busy_status": "Polissage… votre rapport s'ouvre en dessous.",
  "ex.polish_btn": "Polir",
- "ex.versions_h": "Deux autres façons de le dire",
- "ex.versions_sub": "Le même message, vos faits, dit de deux façons dont un leader le dirait — les nouveaux idiomes et expressions professionnelles sont surlignés. Dites chacune à voix haute jusqu'à ce qu'elle soit à vous.",
+ "ex.versions_h": "Ce que vous auriez dû dire",
+ "ex.versions_sub": "Votre minute, vos faits — dits comme un professionnel les dirait. Les nouveaux idiomes et expressions sont surlignés. Dites chaque version à voix haute jusqu'à ce qu'elle soit la vôtre.",
  "ex.version_new": "Nouveau dans cette version — touchez pour enregistrer",
- "ex.idioms_h": "Nouveaux idiomes à apprendre",
+ "ex.idioms_h": "À mémoriser pour votre métier",
  "ex.idioms_sub": "Des idiomes professionnels que vous n'avez pas utilisés, choisis pour votre sujet — commencez à les utiliser dans votre prochaine conversation.",
  "ex.idiom_new": "Un nouvel idiome à apprendre",
  "ex.idiom_meaning": "Sens :",
@@ -2623,5 +2623,11 @@
  "ex.carry_hedge_up": "{{n}} formules qui minimisent en plus.",
  "ex.carry_hedge_same": "Autant de formules qui minimisent que la dernière fois.",
  "ex.assign_open": "Commencez par ceci",
- "ex.assign_use": "Utilisez-les dans la prochaine minute"
+ "ex.assign_use": "Utilisez-les dans la prochaine minute",
+ "ex.repolish_btn": "Repolir — une autre version",
+ "ex.repolish_note": "Chaque version change de registre, avec plus d'expressions professionnelles et deux idiomes de plus en dessous.",
+ "ex.repolish_busy": "Rédaction d'une autre version…",
+ "ex.repolish_err": "Impossible de rédiger une autre version. Réessayez dans un instant.",
+ "ex.repolish_off": "Une autre version nécessite Internet.",
+ "ex.repolish_max": "Cinq versions suffisent. Dites-les à voix haute — c'est ainsi que l'une d'elles devient la vôtre."
 }

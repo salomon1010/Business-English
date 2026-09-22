@@ -2174,10 +2174,10 @@
  "ex.clear_btn": "Clear",
  "ex.busy_status": "Polishing… your report opens below.",
  "ex.polish_btn": "Polish it",
- "ex.versions_h": "Two other ways to say it",
- "ex.versions_sub": "The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
+ "ex.versions_h": "O que você deveria ter dito",
+ "ex.versions_sub": "O seu minuto, os seus fatos — ditos como um profissional diria. Os novos idiomatismos e frases estão marcados. Diga cada versão em voz alta até ser sua.",
  "ex.version_new": "New in this version — tap to save",
- "ex.idioms_h": "New idioms to learn",
+ "ex.idioms_h": "Memorize estas para o seu mundo",
  "ex.idioms_sub": "Idiomatismos profissionais que você não usou, escolhidos para o seu tema — comece a usá-los na próxima conversa.",
  "ex.idiom_new": "A new idiom for you to learn",
  "ex.idiom_meaning": "Meaning:",
@@ -2623,5 +2623,11 @@
  "ex.carry_hedge_up": "{{n}} frases que minimizam a mais.",
  "ex.carry_hedge_same": "A mesma quantidade de frases que minimizam da última vez.",
  "ex.assign_open": "Comece com isto",
- "ex.assign_use": "Use estas no próximo minuto"
+ "ex.assign_use": "Use estas no próximo minuto",
+ "ex.repolish_btn": "Polir de novo — outra versão",
+ "ex.repolish_note": "Cada versão muda de registro, com mais frases profissionais e mais dois idiomatismos abaixo.",
+ "ex.repolish_busy": "Escrevendo outra versão…",
+ "ex.repolish_err": "Não foi possível escrever outra versão. Tente de novo em instantes.",
+ "ex.repolish_off": "Outra versão precisa de internet.",
+ "ex.repolish_max": "Cinco versões bastam. Diga-as em voz alta — é assim que uma delas se torna sua."
 }
