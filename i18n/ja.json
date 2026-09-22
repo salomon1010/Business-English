@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "マイクリップに保存",
  "sv.sh_unfav": "マイクリップから削除",
  "sv.sh_unfav_toast": "マイクリップから削除しました。",
- "sh.tab_addlink": "リンクを追加"
+ "sh.tab_addlink": "リンクを追加",
+ "pf.g_general": "一般",
+ "pf.g_data": "データ管理",
+ "pf.g_about": "情報",
+ "pf.g_others": "その他",
+ "pf.area": "プログラム",
+ "pf.theme_light": "ライト",
+ "pf.theme_dark": "ダーク",
+ "pf.off": "オフ",
+ "pf.backup": "バックアップと同期",
+ "pf.backup_sub": "ログインすると進捗をすべての端末で保持できます",
+ "pf.feedback": "フィードバック",
+ "pf.rate": "アプリを評価",
+ "pf.version": "バージョン {{v}}",
+ "pf.record_h": "あなたの記録",
+ "pf.about_page": "このページについて"
 }

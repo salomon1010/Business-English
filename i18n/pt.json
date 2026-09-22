@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "Guardar em Os meus clipes",
  "sv.sh_unfav": "Remover de Os meus clipes",
  "sv.sh_unfav_toast": "Removido de Os meus clipes.",
- "sh.tab_addlink": "Adicionar link"
+ "sh.tab_addlink": "Adicionar link",
+ "pf.g_general": "Geral",
+ "pf.g_data": "Gestão de dados",
+ "pf.g_about": "Sobre",
+ "pf.g_others": "Outros",
+ "pf.area": "Programa",
+ "pf.theme_light": "Claro",
+ "pf.theme_dark": "Escuro",
+ "pf.off": "Desligado",
+ "pf.backup": "Cópia de segurança e sincronização",
+ "pf.backup_sub": "Inicie sessão para manter o seu progresso em todos os dispositivos",
+ "pf.feedback": "Comentários",
+ "pf.rate": "Avaliar a app",
+ "pf.version": "Versão {{v}}",
+ "pf.record_h": "O seu registo",
+ "pf.about_page": "Sobre esta página"
 }

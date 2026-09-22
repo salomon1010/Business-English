@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "In Meine Clips speichern",
  "sv.sh_unfav": "Aus Meine Clips entfernen",
  "sv.sh_unfav_toast": "Aus Meine Clips entfernt.",
- "sh.tab_addlink": "Link hinzufügen"
+ "sh.tab_addlink": "Link hinzufügen",
+ "pf.g_general": "Allgemein",
+ "pf.g_data": "Datenverwaltung",
+ "pf.g_about": "Über",
+ "pf.g_others": "Sonstiges",
+ "pf.area": "Programm",
+ "pf.theme_light": "Hell",
+ "pf.theme_dark": "Dunkel",
+ "pf.off": "Aus",
+ "pf.backup": "Sicherung & Synchronisierung",
+ "pf.backup_sub": "Melde dich an, um deinen Fortschritt auf allen Geräten zu behalten",
+ "pf.feedback": "Feedback",
+ "pf.rate": "App bewerten",
+ "pf.version": "Version {{v}}",
+ "pf.record_h": "Dein Verlauf",
+ "pf.about_page": "Über diese Seite"
 }

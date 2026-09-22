@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "Ajouter à Mes clips",
  "sv.sh_unfav": "Retirer de Mes clips",
  "sv.sh_unfav_toast": "Retiré de Mes clips.",
- "sh.tab_addlink": "Ajouter un lien"
+ "sh.tab_addlink": "Ajouter un lien",
+ "pf.g_general": "Général",
+ "pf.g_data": "Gestion des données",
+ "pf.g_about": "À propos",
+ "pf.g_others": "Autres",
+ "pf.area": "Programme",
+ "pf.theme_light": "Clair",
+ "pf.theme_dark": "Sombre",
+ "pf.off": "Désactivé",
+ "pf.backup": "Sauvegarde et synchronisation",
+ "pf.backup_sub": "Connectez-vous pour garder vos progrès sur tous vos appareils",
+ "pf.feedback": "Commentaires",
+ "pf.rate": "Noter l'application",
+ "pf.version": "Version {{v}}",
+ "pf.record_h": "Votre parcours",
+ "pf.about_page": "À propos de cette page"
 }

@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "میرے کلپس میں محفوظ کریں",
  "sv.sh_unfav": "میرے کلپس سے ہٹائیں",
  "sv.sh_unfav_toast": "میرے کلپس سے ہٹا دیا گیا۔",
- "sh.tab_addlink": "لنک شامل کریں"
+ "sh.tab_addlink": "لنک شامل کریں",
+ "pf.g_general": "عمومی",
+ "pf.g_data": "ڈیٹا کا انتظام",
+ "pf.g_about": "تعارف",
+ "pf.g_others": "دیگر",
+ "pf.area": "پروگرام",
+ "pf.theme_light": "روشن",
+ "pf.theme_dark": "تاریک",
+ "pf.off": "بند",
+ "pf.backup": "بیک اپ اور ہم آہنگی",
+ "pf.backup_sub": "اپنی پیش رفت ہر ڈیوائس پر رکھنے کے لیے سائن ان کریں",
+ "pf.feedback": "رائے",
+ "pf.rate": "ایپ کی درجہ بندی کریں",
+ "pf.version": "ورژن {{v}}",
+ "pf.record_h": "آپ کا ریکارڈ",
+ "pf.about_page": "اس صفحے کے بارے میں"
 }

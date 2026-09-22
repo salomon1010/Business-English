@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "मेरे क्लिप में सहेजें",
  "sv.sh_unfav": "मेरे क्लिप से हटाएँ",
  "sv.sh_unfav_toast": "मेरे क्लिप से हटाया गया।",
- "sh.tab_addlink": "लिंक जोड़ें"
+ "sh.tab_addlink": "लिंक जोड़ें",
+ "pf.g_general": "सामान्य",
+ "pf.g_data": "डेटा प्रबंधन",
+ "pf.g_about": "परिचय",
+ "pf.g_others": "अन्य",
+ "pf.area": "प्रोग्राम",
+ "pf.theme_light": "हल्का",
+ "pf.theme_dark": "गहरा",
+ "pf.off": "बंद",
+ "pf.backup": "बैकअप और सिंक",
+ "pf.backup_sub": "हर डिवाइस पर अपनी प्रगति रखने के लिए साइन इन करें",
+ "pf.feedback": "प्रतिक्रिया",
+ "pf.rate": "ऐप को रेट करें",
+ "pf.version": "संस्करण {{v}}",
+ "pf.record_h": "आपका रिकॉर्ड",
+ "pf.about_page": "इस पेज के बारे में"
 }

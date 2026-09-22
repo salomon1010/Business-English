@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "Simpan ke Klip saya",
  "sv.sh_unfav": "Hapus dari Klip saya",
  "sv.sh_unfav_toast": "Dihapus dari Klip saya.",
- "sh.tab_addlink": "Tambah tautan"
+ "sh.tab_addlink": "Tambah tautan",
+ "pf.g_general": "Umum",
+ "pf.g_data": "Pengelolaan data",
+ "pf.g_about": "Tentang",
+ "pf.g_others": "Lainnya",
+ "pf.area": "Program",
+ "pf.theme_light": "Terang",
+ "pf.theme_dark": "Gelap",
+ "pf.off": "Nonaktif",
+ "pf.backup": "Cadangan & sinkronisasi",
+ "pf.backup_sub": "Masuk untuk menyimpan kemajuan di semua perangkat",
+ "pf.feedback": "Masukan",
+ "pf.rate": "Nilai aplikasi",
+ "pf.version": "Versi {{v}}",
+ "pf.record_h": "Catatan Anda",
+ "pf.about_page": "Tentang halaman ini"
 }

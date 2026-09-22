@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "حفظ في مقاطعي",
  "sv.sh_unfav": "إزالة من مقاطعي",
  "sv.sh_unfav_toast": "تمت الإزالة من مقاطعي.",
- "sh.tab_addlink": "إضافة رابط"
+ "sh.tab_addlink": "إضافة رابط",
+ "pf.g_general": "عام",
+ "pf.g_data": "إدارة البيانات",
+ "pf.g_about": "حول",
+ "pf.g_others": "أخرى",
+ "pf.area": "البرنامج",
+ "pf.theme_light": "فاتح",
+ "pf.theme_dark": "داكن",
+ "pf.off": "إيقاف",
+ "pf.backup": "النسخ الاحتياطي والمزامنة",
+ "pf.backup_sub": "سجّل الدخول للاحتفاظ بتقدمك على كل أجهزتك",
+ "pf.feedback": "ملاحظات",
+ "pf.rate": "قيّم التطبيق",
+ "pf.version": "الإصدار {{v}}",
+ "pf.record_h": "سجلك",
+ "pf.about_page": "حول هذه الصفحة"
 }

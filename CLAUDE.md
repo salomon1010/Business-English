@@ -31,6 +31,9 @@ pronunciation feedback, phrase bank, Executive Polish, progress calendar).
   holds the OpenAI key for **Executive Polish** (`POLISH_API` const in index.html).
 
 ## Deploy workflow — READ THIS
+- **Two version strings move together on every deploy:** `sw.js` `be12-vNN`
+  and `const APP_VERSION="be12-vNN"` in index.html (shown at the foot of
+  Profile). Bump both.
 - **Deploy after every change (owner's standing instruction, 14 Sep 2026:
   "always deploy").** Verify locally first (`python3 -m http.server 8000` and
   the browser checks below), then commit, bump the cache and push — pushing to
@@ -427,6 +430,14 @@ not JS, and `new Function` chokes on it. Check it separately with
   answers error 153, so the studio frames `yt-embed.html` on app.lomonec.com
   and `RemoteYT` stands in for `YT.Player` (test `tests/ios-yt-relay.mjs`).
   `yt-embed.html` must be live on `main` before Shadow is tested in TestFlight.
+- **Profile = Settings (v418).** `rProfile` is the grouped settings list
+  (`pfRow` rows: General / Data management / About / Others / version) with a
+  slim identity row; rows deep-link into App Setup with `setupOpen(anchor)`
+  (`#setLang #setTheme #setRem #setData #setAcc #setProfile`). Everything that is
+  a report — stats, `#pfCal`, `perfOverviewHTML`, the professional-track
+  panels, share card, certificate — is `pfRecordHTML()` and renders at the end
+  of **Progress** (`rReview`), not on Profile. `subInfo(html)` folds a page's
+  intro paragraph into an "i" bubble in the corner (Road map uses it).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

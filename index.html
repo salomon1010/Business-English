@@ -977,6 +977,15 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sim-fb-play.on.q-poor{background:var(--red);color:#1f0705}
 .sim-fb-play.on.q-none{background:var(--acc);color:var(--on-accent)}
 .pf-menu{display:flex;flex-direction:column;gap:10px;margin:18px 0 20px}
+.pf-group-h{font-size:15px;font-weight:800;margin:18px 0 8px;color:var(--txt)}
+.pf-group{background:var(--card);border:1px solid var(--line2);border-radius:16px;overflow:hidden}
+.pf-group .pf-line{border:0;border-radius:0;background:transparent;min-height:56px;padding:12px 16px}.pf-group .pf-line+.pf-line{border-top:1px solid var(--line)}
+.pf-group .pf-line .pf-ic{width:34px;height:34px;flex:none;display:grid;place-items:center;color:var(--txt)}.pf-group .pf-line .pf-ic svg{width:22px;height:22px}
+.pf-group .pf-line .pf-txt b{font-size:15px;font-weight:600}.pf-group .pf-line .pf-txt small{font-size:12px}.pf-group .pf-line .pf-chev{margin-left:auto;color:var(--mut2);font-size:22px}
+.pf-hero-row{display:flex;align-items:center;gap:14px;text-align:left;width:100%;background:var(--card);border:1px solid var(--line2);border-radius:16px;padding:12px 16px;cursor:pointer;font-family:inherit;color:var(--txt)}
+.pf-hero-row .pf-av-sm{width:52px;height:52px;border-radius:16px;font-size:22px;margin:0;box-shadow:none}.pf-hero-t{flex:1;min-width:0}.pf-hero-row .pf-name{font-size:17px;margin:0}.pf-hero-row .pf-sub{margin:2px 0 0;font-size:12.5px}.pf-hero-row .pf-chev{color:var(--mut2);font-size:22px}
+.pf-version{text-align:center;font-size:12px;color:var(--mut2);margin:22px 0 8px}
+.sub-info-row{display:flex;justify-content:flex-end;margin:-8px 0 12px}
 .pf-menu .pf-row{margin:0}
 .psp-ev{margin:14px 0 4px;padding:14px;border-radius:14px;background:var(--bg2);border:1px solid var(--line)}
 .psp-ev-n{display:flex;align-items:baseline;gap:9px;margin-bottom:12px}
@@ -4600,7 +4609,7 @@ const I18N_EN={
  "setup.about_sub":"A quick tour of what the app does and who it is for.",
  "profile.settings":"Settings",
  "profile.settings_sub":"Profile, language, sync & privacy",
- "profile.help":"Help & guide",
+ "profile.help":"Help & guide","pf.g_general":"General","pf.g_data":"Data management","pf.g_about":"About","pf.g_others":"Others","pf.area":"Programme","pf.theme_light":"Light","pf.theme_dark":"Dark","pf.off":"Off","pf.backup":"Backup & sync","pf.backup_sub":"Sign in to keep your progress on every device","pf.feedback":"Feedback","pf.rate":"Rate the app","pf.version":"Version {{v}}","pf.record_h":"Your record","pf.about_page":"About this page",
  "profile.help_sub":"How to use every feature",
  "profile.about":"About the app",
  "profile.about_sub":"What BE Mastery does",
@@ -8281,7 +8290,7 @@ function rJourney(el,wArg){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("journey.eyebrow")}</div>
   <h1 class="big">${isProfessionalJourney()?"Professional Journey":t("journey.title")}</h1>
-  <p class="sub" style="margin-bottom:18px">${isProfessionalJourney()?`Build the communication, technical language, and professional readiness to progress through your ${esc((window.Trades&&Trades.active(S).career)||"welding")} career.`:t("journey.sub")}</p>
+  ${subInfo(isProfessionalJourney()?`Build the communication, technical language, and professional readiness to progress through your ${esc((window.Trades&&Trades.active(S).career)||"welding")} career.`:t("journey.sub"))}
   ${rmHTML()}
   <h2 class="rm-sub-h" id="rmDetail">${esc(t("rm.detail"))}</h2>
   ${isProfessionalJourney()
@@ -13553,6 +13562,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
+const APP_VERSION="be12-v418";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -18490,7 +18500,9 @@ function rReview(el,wArg){
     <button class="seg-tab ${_revTab==='written'?'on':''}" role="tab" aria-selected="${_revTab==='written'}" onclick="revTab('written',${w})"><span class="btn-ic">${ic("book")}</span><span class="seg-lbl">${t("rev.tab_written")}</span></button>
   </div>
   ${_revTab==='scores'?scores:written}
-  ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}`;
+  ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}
+  <div class="pf-group-h" style="margin-top:26px">${t("pf.record_h")}</div>
+  ${pfRecordHTML()}`;
   manIconizeInline(el);
   drawTrend();
 }
@@ -18698,69 +18710,28 @@ window.calDay=(ds)=>{
   el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),320);
   manIconizeInline(el);
 };
-function rProfile(el){
-  const p=S.profile||{name:"",role:"",goal:"",slot:""};
-  const initial=esc((p.name||"?")[0].toUpperCase());
-  const nm=p.name?esc(p.name):t("profile.guest");
-  const bits=[];
-  if(p.role)bits.push(esc(optLabel(p.role,OB_ROLES,"role.")));
-  if(p.goal)bits.push(esc(optLabel(p.goal,OB_GOALS,"goal.")));
-  const sub=bits.length?bits.join(" · "):t("profile.sub_default");
-  el.innerHTML=`
-  <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
-  <div class="pf-hero">
-    <div class="pf-av">${initial}</div>
-    <h1 class="pf-name">${nm}</h1>
-    <p class="pf-sub">${sub}</p>
-    <div class="pf-streak">${ic("flame")}<b>${streak()}</b> ${t("profile.day_streak")}</div>
-  </div>
-  <div class="pf-stats stats-center">
+/* A page's introduction folded into a small "i" bubble in the corner: the
+   learner opens it when they want to read it; the page keeps its space. */
+function subInfo(html){window._subInfoText=html;return `<div class="sub-info-row"><button class="ex-howbtn sub-info" onclick="subInfoOpen()" aria-label="${esc(t("pf.about_page"))}" title="${esc(t("pf.about_page"))}">${ic("info")}</button></div>`}
+window.subInfoOpen=()=>{const old=document.getElementById("subInfoOv");if(old)old.remove();const ov=document.createElement("div");ov.id="subInfoOv";ov.className="lang-modal-ov pp-sheet-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  ov.innerHTML=`<div class="lang-modal pp-sheet" role="dialog" aria-modal="true"><p class="sub" style="margin:0 0 14px">${window._subInfoText||""}</p><button class="btn btn-g btn-sm" onclick="document.getElementById('subInfoOv').remove()">${t("wc.close")}</button></div>`;document.body.appendChild(ov)};
+/* The learner's record — the stats, the Progress Calendar, the performance
+   overview, the professional-track panels, the share card and the certificate.
+   It used to sit under the settings rows on Profile; it is a report, so it
+   lives on the Progress page now (owner, 2026-09-22). */
+function pfRecordHTML(){
+  return `
+  <div class="pf-stats stats-center" style="margin-top:6px">
     <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}</div><div class="l">${t("home.stat_sessions")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${aList("clips").length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
-  ${/* Everything from here down is a record of what this learner DID, so it is
-        scoped to the programme they are in. One line saying so, rather than the
-        full banner the review carries — Profile is already a long page, and the
-        header chip and the theme have said which area this is twice already. */""}
   ${areaNoteHTML()}
-  ${/* Where the learner is trying to GO belongs above the record of where they
-        have been. These three were scattered down the page behind the Passport,
-        the roadmap, two calendars and a wall of bars — the routes out of Profile
-        were the hardest thing on it to find. Career Center stays
-        professional-track only; the other two are for everybody. */""}
-  <div class="pf-menu">
-  <button class="pf-row pf-setup" onclick="go('setup')">
-    <span class="pf-ic">${ic("gear")}</span>
-    <span class="pf-txt"><b>${t("setup.title")}</b><small>${t("setup.row_sub")}</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>
-  <button class="pf-row pf-setup" onclick="go('manual')">
-    <span class="pf-ic">${ic("help")}</span>
-    <span class="pf-txt"><b>${t("profile.help")}</b><small>${t("help.row_sub")}</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>
-  ${/* Android has Chrome's own install path; on iOS this walkthrough is the only
-        route there is, so it earns a permanent row — someone who tapped "Not now"
-        a fortnight ago still has to be able to find it. */
-    iosIs()&&!iosStandalone()?`
-  <button class="pf-row pf-setup" onclick="iosAsk(true)">
-    <span class="pf-ic">${ic("phone")}</span>
-    <span class="pf-txt"><b>${t("ios.row")}</b><small>${t("ios.row_sub")}</small></span>
-    <span class="pf-chev" aria-hidden="true">›</span>
-  </button>`:""}
-  </div>
   ${/* General English and a Professional Track are different products on this
-        screen. A General English learner is building confidence in meetings and
-        presentations; the Skills Passport, the career-readiness roadmap, the
-        professional activity heat-map and the Career Center all belong to a
-        trade journey and mean nothing to them. Worse, the Passport put a
-        "Career readiness %" on a screen where it is a participation counter
-        wearing a job word. They render for Professional Tracks only.
-
-        Everything the English profile does show — the hero, the three stats, the
-        Progress Calendar and the speaking/grammar/vocabulary progress card —
-        stays exactly as it is for both tracks. */
+        screen: the Skills Passport, the career-readiness roadmap, the
+        professional activity heat-map belong to a trade journey and mean
+        nothing to a General English learner. They render for Professional
+        Tracks only. */
     isProfessionalJourney()?`
   ${ProfessionalSkillsPassport.render()}
   ${window.LearningCoach?LearningCoach.narrativeCard(S):""}
@@ -18774,14 +18745,6 @@ function rProfile(el){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
     <button class="btn btn-g pf-act" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
   </div>
-  <div class="card" style="margin-top:12px">
-    <h2 class="pf-card-h">${hIcon("link",t("invite.title"))}</h2>
-    <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("invite.sub")}</p>
-    <div class="btn-row">
-      <button class="btn btn-g pf-act" onclick="shApp()">${tIc("invite.btn","link")}</button>
-      ${IS_IOS_APP?"":`<a class="btn btn-g pf-act" href="${PLAY_URL}" target="_blank" rel="noopener" style="text-decoration:none" onclick="track('play_click')">${tIc("invite.play","star")}</a>`}
-    </div>
-  </div>
   <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),rgba(99,102,241,.05))":""}">
     <h2 class="pf-card-h">${hIcon("trophy",t("share.cert_title"))}</h2>
     ${totalDone()>=trackSessionCount()
@@ -18793,11 +18756,58 @@ function rProfile(el){
          <p class="pf-note">${t("share.cert_li_note")}</p>`
       : `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 0">${t("share.cert_locked",{n:totalDone()})}</p>
          <div class="bar" style="margin-top:10px"><i style="width:${Math.round(totalDone()/trackSessionCount()*100)}%"></i></div>`}
+  </div>`;
+}
+/* a settings row: icon, label, chevron — the shape of every group on Profile */
+function pfRow(ic_,label,onclick,extra){return `<button class="pf-row pf-line" onclick="${onclick}"><span class="pf-ic">${ic(ic_)}</span><span class="pf-txt"><b>${esc(label)}</b>${extra?`<small>${esc(extra)}</small>`:""}</span><span class="pf-chev" aria-hidden="true">›</span></button>`}
+/* open App Setup on one of its settings */
+window.setupOpen=anchor=>{_setupTab="settings";go("setup");setTimeout(()=>{const el=document.getElementById(anchor);if(el){try{el.scrollIntoView({block:"start",behavior:"smooth"})}catch(e){el.scrollIntoView()}}},350)};
+window.pfFeedback=()=>{location.href="mailto:contact@lomonec.com?subject="+encodeURIComponent("BE Mastery feedback")};
+function rProfile(el){
+  const p=S.profile||{name:"",role:"",goal:"",slot:""};
+  const initial=esc((p.name||"?")[0].toUpperCase());
+  const nm=p.name?esc(p.name):t("profile.guest");
+  const bits=[];
+  if(p.role)bits.push(esc(optLabel(p.role,OB_ROLES,"role.")));
+  if(p.goal)bits.push(esc(optLabel(p.goal,OB_GOALS,"goal.")));
+  const sub=bits.length?bits.join(" · "):t("profile.sub_default");
+  const theme=document.documentElement.getAttribute("data-theme")||"dark";
+  const signed=!!(typeof FBUser!=="undefined"&&FBUser);
+  el.innerHTML=`
+  <div class="eyebrow pg-eyebrow">${t("profile.eyebrow")}</div>
+  <button class="pf-hero pf-hero-row" onclick="setupOpen('setProfile')" aria-label="${esc(t("acc.profile_title"))}">
+    <div class="pf-av pf-av-sm">${initial}</div>
+    <div class="pf-hero-t"><h1 class="pf-name">${nm}</h1><p class="pf-sub">${sub}</p></div>
+    <span class="pf-chev" aria-hidden="true">›</span>
+  </button>
+  <div class="pf-group-h">${t("pf.g_general")}</div>
+  <div class="pf-group">
+    ${pfRow("globe",t("lang.app_language"),"setupOpen('setLang')")}
+    ${pfRow("map",t("pf.area"),"go('journey')",t(isGeneralEnglish()?"area.name_gen":"area.name_pro"))}
+    ${pfRow(theme==="light"?"sun":"moon",t("acc.theme_label"),"setupOpen('setTheme')",t(theme==="light"?"pf.theme_light":"pf.theme_dark"))}
+    ${pfRow("clock",t("rem.label"),"setupOpen('setRem')",S.reminder&&S.reminder.on?(S.reminder.time||"19:00"):t("pf.off"))}
+    ${pfRow("gear",t("setup.title"),"setupOpen('setProfile')")}
   </div>
-  <!-- One door to App Setup: the .pf-row above. The 28px unlabelled gear that
-       used to live in the sticky eyebrow was the only route to settings,
-       language, account and reminders — 40% under the touch-target floor and
-       carrying no visible word. -->`;
+  <div class="pf-group-h">${t("pf.g_data")}</div>
+  <div class="pf-group">
+    ${pfRow("cloud",t("pf.backup"),"setupOpen('setAcc')",signed?(FBUser.email||""):t("pf.backup_sub"))}
+    ${pfRow("lock",t("acc.data_privacy_h").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),"setupOpen('setData')")}
+  </div>
+  <div class="pf-group-h">${t("pf.g_about")}</div>
+  <div class="pf-group">
+    ${pfRow("sparkle",t("profile.about"),"openAbout()")}
+    ${pfRow("lock",t("acc.privacy_link").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""),"openPrivacy()")}
+    ${pfRow("help",t("profile.help"),"go('manual')")}
+  </div>
+  <div class="pf-group-h">${t("pf.g_others")}</div>
+  <div class="pf-group">
+    ${pfRow("mail",t("pf.feedback"),"pfFeedback()")}
+    ${pfRow("link",t("invite.btn"),"shApp()")}
+    ${IS_IOS_APP?"":pfRow("star",t("pf.rate"),"rateGo()")}
+    ${iosIs()&&!iosStandalone()?pfRow("phone",t("ios.row"),"iosAsk(true)",t("ios.row_sub")):""}
+  </div>
+  <p class="pf-version">${t("pf.version",{v:APP_VERSION})}</p>
+`;
   manIconizeInline(el);
   calScrollYearRight();   // show recent activity on the year heatmap, not the empty start of the year
 }
@@ -18879,7 +18889,7 @@ async function rData(el,embedded){
       ${sel("acGoal",OB_GOALS,p.goal,"goal.")}
       <label class="set-lbl" for="acSlot">${t("acc.slot_label")}</label>
       ${sel("acSlot",OB_SLOTS,p.slot,"slot.")}
-      <h3 class="set-h">${t("rem.label")}</h3>
+      <h3 class="set-h" id="setRem">${t("rem.label")}</h3>
       <div class="rem-box">
         <label class="rem-row">
           <input type="checkbox" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
@@ -18901,7 +18911,7 @@ async function rData(el,embedded){
         <button class="btn btn-g set-act" onclick="calDownload()">${tIc("cal.add_ics","download")}</button>
       </div>
       <p class="rem-note">${t("cal.note")}</p>
-      <h3 class="set-h">${esc(t("lang.app_language"))}</h3>
+      <h3 class="set-h" id="setLang">${esc(t("lang.app_language"))}</h3>
       <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--bg2);border:1px solid var(--line2);border-radius:10px;padding:9px 12px">
         <span style="display:flex;align-items:center;gap:10px">
           <span class="lang-ic" style="width:26px;height:26px;font-size:10px;background:${langColor(p.lang||"en")}">${p.lang&&p.lang!=="en"?langInitials(langByCode(p.lang)||{code:p.lang}):"EN"}</span>
@@ -18915,7 +18925,7 @@ async function rData(el,embedded){
         <button class="btn btn-g set-act" onclick="acVoicePreview()" aria-label="${esc(t("acc.voice_sample"))}" title="${esc(t("acc.voice_sample"))}">${ic("sound")}</button>
       </div>
       <p class="set-hint">${t("acc.voice_hint")}</p>
-      <h3 class="set-h">${t("acc.theme_label")}</h3>
+      <h3 class="set-h" id="setTheme">${t("acc.theme_label")}</h3>
       ${(()=>{const cur=document.documentElement.getAttribute("data-theme")||"dark";return`<div class="theme-seg">
         <button type="button" class="theme-opt ${cur==='light'?'on':''}" data-theme="light" onclick="setTheme('light')">${ic("sun")}<span>${t("acc.theme_light")}</span></button>
         <button type="button" class="theme-opt ${cur==='dark'?'on':''}" data-theme="dark" onclick="setTheme('dark')">${ic("moon")}<span>${t("acc.theme_dark")}</span></button>
@@ -18923,7 +18933,7 @@ async function rData(el,embedded){
       <button class="btn-primary set-save" onclick="acctSave()">${t("acc.save")}</button>
     </div>
     <div>
-      ${fbAuthCard()}
+      <div id="setAcc"></div>${fbAuthCard()}
       <details class="home-more set-plan">
         <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">▶</span></summary>
         <div class="home-more-body">
@@ -18946,7 +18956,7 @@ async function rData(el,embedded){
   </div>
           </div>
       </details>
-      <h3 style="margin:26px 0 10px">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
+      <h3 style="margin:26px 0 10px" id="setData">${hIcon("lock",t("acc.data_privacy_h"))}</h3>
   <p class="sub" style="margin-bottom:10px">${t("acc.data_sub")}</p>
   <p class="sub" style="margin-bottom:16px">${t("acc.camera_privacy")} <a href="privacy.html" onclick="event.preventDefault();openPrivacy()">${t("acc.camera_privacy_link")}</a></p>
   <div class="grid g3">

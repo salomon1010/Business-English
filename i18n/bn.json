@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "আমার ক্লিপে সংরক্ষণ",
  "sv.sh_unfav": "আমার ক্লিপ থেকে সরান",
  "sv.sh_unfav_toast": "আমার ক্লিপ থেকে সরানো হয়েছে।",
- "sh.tab_addlink": "লিঙ্ক যোগ করুন"
+ "sh.tab_addlink": "লিঙ্ক যোগ করুন",
+ "pf.g_general": "সাধারণ",
+ "pf.g_data": "ডেটা ব্যবস্থাপনা",
+ "pf.g_about": "পরিচিতি",
+ "pf.g_others": "অন্যান্য",
+ "pf.area": "প্রোগ্রাম",
+ "pf.theme_light": "হালকা",
+ "pf.theme_dark": "গাঢ়",
+ "pf.off": "বন্ধ",
+ "pf.backup": "ব্যাকআপ ও সিঙ্ক",
+ "pf.backup_sub": "প্রতিটি ডিভাইসে অগ্রগতি রাখতে সাইন ইন করুন",
+ "pf.feedback": "মতামত",
+ "pf.rate": "অ্যাপ রেট করুন",
+ "pf.version": "সংস্করণ {{v}}",
+ "pf.record_h": "আপনার রেকর্ড",
+ "pf.about_page": "এই পৃষ্ঠা সম্পর্কে"
 }

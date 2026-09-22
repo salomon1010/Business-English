@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "保存到我的片段",
  "sv.sh_unfav": "从我的片段移除",
  "sv.sh_unfav_toast": "已从我的片段移除。",
- "sh.tab_addlink": "添加链接"
+ "sh.tab_addlink": "添加链接",
+ "pf.g_general": "通用",
+ "pf.g_data": "数据管理",
+ "pf.g_about": "关于",
+ "pf.g_others": "其他",
+ "pf.area": "课程",
+ "pf.theme_light": "浅色",
+ "pf.theme_dark": "深色",
+ "pf.off": "关闭",
+ "pf.backup": "备份与同步",
+ "pf.backup_sub": "登录后可在所有设备上保留进度",
+ "pf.feedback": "反馈",
+ "pf.rate": "评价应用",
+ "pf.version": "版本 {{v}}",
+ "pf.record_h": "你的记录",
+ "pf.about_page": "关于此页面"
 }

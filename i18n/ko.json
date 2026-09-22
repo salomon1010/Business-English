@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "내 클립에 저장",
  "sv.sh_unfav": "내 클립에서 제거",
  "sv.sh_unfav_toast": "내 클립에서 제거했습니다.",
- "sh.tab_addlink": "링크 추가"
+ "sh.tab_addlink": "링크 추가",
+ "pf.g_general": "일반",
+ "pf.g_data": "데이터 관리",
+ "pf.g_about": "정보",
+ "pf.g_others": "기타",
+ "pf.area": "프로그램",
+ "pf.theme_light": "라이트",
+ "pf.theme_dark": "다크",
+ "pf.off": "꺼짐",
+ "pf.backup": "백업 및 동기화",
+ "pf.backup_sub": "로그인하면 모든 기기에서 진행 상황이 유지됩니다",
+ "pf.feedback": "의견 보내기",
+ "pf.rate": "앱 평가",
+ "pf.version": "버전 {{v}}",
+ "pf.record_h": "나의 기록",
+ "pf.about_page": "이 페이지 정보"
 }

@@ -2426,5 +2426,20 @@
  "sv.sh_fav": "Lưu vào Clip của tôi",
  "sv.sh_unfav": "Bỏ khỏi Clip của tôi",
  "sv.sh_unfav_toast": "Đã bỏ khỏi Clip của tôi.",
- "sh.tab_addlink": "Thêm liên kết"
+ "sh.tab_addlink": "Thêm liên kết",
+ "pf.g_general": "Chung",
+ "pf.g_data": "Quản lý dữ liệu",
+ "pf.g_about": "Giới thiệu",
+ "pf.g_others": "Khác",
+ "pf.area": "Chương trình",
+ "pf.theme_light": "Sáng",
+ "pf.theme_dark": "Tối",
+ "pf.off": "Tắt",
+ "pf.backup": "Sao lưu & đồng bộ",
+ "pf.backup_sub": "Đăng nhập để giữ tiến độ trên mọi thiết bị",
+ "pf.feedback": "Góp ý",
+ "pf.rate": "Đánh giá ứng dụng",
+ "pf.version": "Phiên bản {{v}}",
+ "pf.record_h": "Hồ sơ của bạn",
+ "pf.about_page": "Về trang này"
 }
