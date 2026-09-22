@@ -486,6 +486,8 @@ const AN_FIELDS = {            // field -> max chars
   level: 4, level_note: 240, coach_script: 900,
 };
 const AN_LEVELS = ["A2","B1","B1+","B2","B2+","C1"];
+/* Words to DROP, never to upgrade: an upgrade for "just" teaches the learner to keep saying it. */
+const AN_NOISE = new Set(["just","really","very","maybe","actually","basically","like","so","well","kind of","sort of","a bit","you know","i mean","stuff","things"]);
 const AN_LANGS = { en:"English", es:"Spanish", fr:"French", pt:"Portuguese", it:"Italian", de:"German", ru:"Russian", ar:"Arabic", ur:"Urdu", hi:"Hindi", bn:"Bengali", id:"Indonesian", vi:"Vietnamese", zh:"Chinese", ja:"Japanese", ko:"Korean" };
 function anStr(v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
 async function callAnalyse(env, transcript, metrics, lang) {
@@ -502,29 +504,29 @@ async function callAnalyse(env, transcript, metrics, lang) {
     '"clarity":"clear"|"fuzzy",' +
     '"sharper":"<the key message said better: one plain sentence, max 22 words>",' +
     '"level":"A2"|"B1"|"B1+"|"B2"|"B2+"|"C1",' +
-    '"level_note":"<one sentence: the single thing holding them at this level, from this transcript>",' +
+    '"level_note":"<<L>><one sentence: the single thing holding them at this level, from this transcript>",' +
     '"structure":["<part 1>","<part 2>",...],' +
-    '"structure_note":"<one sentence: what the order did for the listener>",' +
-    '"answer_directly":"<one sentence: the first change to make to the opening>",' +
+    '"structure_note":"<<L>><one sentence: what the order did for the listener>",' +
+    '"answer_directly":"<<L>><one sentence: the first change to make to the opening>",' +
     '"example":"<one English sentence they could open with>",' +
-    '"evidence":"<one sentence on the proof they gave or did not give>",' +
-    '"credibility":"<one sentence on hedges and certainty, quoting them>",' +
+    '"evidence":"<<L>><one sentence on the proof they gave or did not give>",' +
+    '"credibility":"<<L>><one sentence on hedges and certainty, quoting them>",' +
     '"hedges":[{"said":"<phrase they used>","better":"<the same idea stated plainly>"}],' +
-    '"corrections":[{"said":"<the exact words they got wrong, copied from the transcript>","fix":"<the same words, correct>","why":"<one short line: the rule, so they can apply it again>","kind":"tense"|"article"|"plural"|"preposition"|"word form"|"word choice"|"agreement"|"word order"}],' +
-    '"sentences":[{"said":"<one whole sentence of theirs, copied>","rebuilt":"<the same idea, same facts, on a stronger structure, spoken English>","pattern":"<the reusable frame with square-bracket slots, e.g. Because [problem], we [action] so that [result]>","pattern_use":"<one line: the situation this frame is for>"}],' +
-    '"words":[{"said":"<the plain or vague word they used, copied>","better":"<the precise professional word or phrase>","meaning":"<one line, plain>","example":"<their own sentence rewritten with it, English>"}],' +
-    '"collocations":[{"said":"<the awkward word pairing they used, copied>","better":"<what a native speaker pairs those words with>","why":"<one short line>"}],' +
-    '"remember_title":"<3-8 words>","remember_body":"<two sentences>",' +
-    '"next_recording":"<the exact task for the next 60-second recording>",' +
-    '"quick_win_title":"<3-8 words>","quick_win_goal":"<one measurable goal>",' +
-    '"concept_title":"<a speaking principle they just used or need, 2-5 words>","concept_body":"<one sentence tying it to their speech>",' +
+    '"corrections":[{"said":"<the exact words they got wrong, copied from the transcript>","fix":"<the same words, correct>","why":"<<L>><one short line: the rule, so they can apply it again>","kind":"tense"|"article"|"plural"|"preposition"|"word form"|"word choice"|"agreement"|"word order"}],' +
+    '"sentences":[{"said":"<one whole sentence of theirs, copied>","rebuilt":"<the same idea, same facts, on a stronger structure, spoken English>","pattern":"<the reusable frame with square-bracket slots, e.g. Because [problem], we [action] so that [result]>","pattern_use":"<<L>><one line: the situation this frame is for>"}],' +
+    '"words":[{"said":"<the plain or vague word they used, copied>","better":"<the precise professional word or phrase>","meaning":"<<L>><one line, plain>","example":"<their own sentence rewritten with it, English>"}],' +
+    '"collocations":[{"said":"<the awkward word pairing they used, copied>","better":"<what a native speaker pairs those words with>","why":"<<L>><one short line>"}],' +
+    '"remember_title":"<<L>><3-8 words>","remember_body":"<<L>><two sentences>",' +
+    '"next_recording":"<<L>><the exact task for the next 60-second recording>",' +
+    '"quick_win_title":"<<L>><3-8 words>","quick_win_goal":"<<L>><one measurable goal>",' +
+    '"concept_title":"<<L>><a speaking principle they just used or need, 2-5 words>","concept_body":"<<L>><one sentence tying it to their speech>",' +
     '"coach_script":"<what the coach SAYS to them, 75-95 words of plain spoken English (B1), second person, in this order: how they came across, the one mistake and its rule, the one sentence to copy, and the task for the next recording. Sentences only, no lists, no markdown, no headings.>",' +
-    '"versions":[{"style":"<2-4 words naming the register, e.g. Clear and direct / Executive polish>","text":"<the WHOLE speech said again in that register>","learn":["<each professional phrase or business idiom this version introduced, exact words as they appear in text>"]}],' +
-    '"idioms":[{"idiom":"<a professional idiom or executive phrase the learner did NOT use>","meaning":"<plain meaning, one line>","when":"<the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
+    '"versions":[{"style":"<<L>><2-4 words naming the register, e.g. Clear and direct / Executive polish>","text":"<the WHOLE speech said again in that register>","learn":["<each professional phrase or business idiom this version introduced, exact words as they appear in text>"]}],' +
+    '"idioms":[{"idiom":"<a professional idiom or executive phrase the learner did NOT use>","meaning":"<<L>><plain meaning, one line>","when":"<<L>><the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
     "structure has 3 to 5 items of at most 6 words each; hedges has 0 to 3 items. " +
     "corrections: only real mistakes actually present in the transcript, at most 5, most damaging first, never the same rule twice; said must appear in the transcript word for word; if the English is already correct, return an empty array rather than inventing one. Ignore missing punctuation and capitalisation — this was speech. " +
     "sentences: EXACTLY 3 (or one per sentence they said, if they said fewer). said must be copied from the transcript. Three DIFFERENT patterns. A pattern is a content-free frame: every noun, number, month, job title and topic word of theirs becomes a [slot], and only the connective skeleton survives, so the frame still works tomorrow on a completely different subject. 2 or 3 slots, never more. \"so I suggest we [action] next month\" is wrong — the month is content; \"I am asking for [what] by [when]\" is right. " +
-    "words: 4 to 6 upgrades of words they actually used; said must appear in the transcript. An upgrade is a MORE PRECISE word, not a bigger one: never a plural or tense fix (that is a correction), never the same word with an adjective bolted on, never a bookish synonym nobody says out loud, and never a word already handled in corrections. If you cannot find 4 honest upgrades, return fewer. " +
+    "words: 4 to 6 upgrades of words they actually used; said must appear in the transcript. An upgrade is a MORE PRECISE word, not a bigger one: never a filler or hedge they should simply drop (just, really, very, maybe, actually, basically, like), never an idiom of theirs swapped for a plainer word (\"touch base\" -> \"connect\" is a downgrade, not an upgrade), never a plural or tense fix (that is a correction), never the same word with an adjective bolted on, never a bookish synonym nobody says out loud, and never a word already handled in corrections. If you cannot find 4 honest upgrades, return fewer. " +
     "collocations: 0 to 3, only genuinely unnatural pairings they used (e.g. 'do a training' -> 'run a training session'); an empty array is the right answer when everything sounded natural. " +
     "versions has EXACTLY 2 items: two different ways the learner could have said the same thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler, no hedging; version 1 plain and direct (B1), version 2 polished executive English (B2-C1). Each version must weave in 2 or 3 professional phrases or business idioms naturally and list them in learn, and versions and their learn items are always in English. " +
     "idioms has EXACTLY 4 items: NEW professional idioms or executive phrases (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation. " +
@@ -536,6 +538,10 @@ async function callAnalyse(env, transcript, metrics, lang) {
     "ENGLISH (what the learner will SAY OUT LOUD, so it must be plain spoken English): key_message, sharper, example, coach_script, every versions[].text and versions[].learn, every idioms[].idiom and idioms[].example, every hedges[].better, every corrections[].said and corrections[].fix, every sentences[].said, sentences[].rebuilt and sentences[].pattern, every words[].said, words[].better and words[].example, every collocations[].said and collocations[].better. " +
     (lang === "en" ? "Everything else is in English too. " :
       "EVERY OTHER FIELD (what the learner READS to understand — level_note, structure, structure_note, answer_directly, evidence, credibility, remember_title, remember_body, next_recording, quick_win_title, quick_win_goal, concept_title, concept_body, every corrections[].why and corrections[].kind, every sentences[].pattern_use, every words[].meaning, every collocations[].why, every idioms[].meaning and idioms[].when, and every versions[].style) MUST be written in " + language + ". Not English. A learner who reads " + language + " is reading these to understand the English ones. ");
+  /* <<L>> sits inside the schema next to every field the learner READS, because
+     one instruction at the end of a prompt this long is not enough: measured on
+     the live Worker, a French learner's whole report came back in English. */
+  const system2 = system.replace(/<<L>>/g, lang === "en" ? "" : "IN " + language.toUpperCase() + ": ");
   const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics);
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -543,7 +549,7 @@ async function callAnalyse(env, transcript, metrics, lang) {
     body: JSON.stringify({
       model: AN_MODEL, max_tokens: 4200, temperature: 0.5,
       response_format: { type: "json_object" },
-      messages: [{ role: "system", content: system }, { role: "user", content: user }],
+      messages: [{ role: "system", content: system2 }, { role: "user", content: user }],
     }),
   });
   if (!r.ok) throw new Error("provider " + r.status);
@@ -558,21 +564,22 @@ async function callAnalyse(env, transcript, metrics, lang) {
   out.hedges = (Array.isArray(p.hedges) ? p.hedges : [])
     .map(h => h && typeof h === "object" ? { said: anStr(h.said, 60), better: anStr(h.better, 160) } : null)
     .filter(h => h && h.said && h.better).slice(0, 3);
-  /* two full versions of what they said (owner, 2026-09-21) + three idioms to learn */
+  /* two full versions of what they said (owner, 2026-09-21) + four idioms to learn */
+  const said = " " + transcript.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ") + " ";
+  const quoted = v => { const q = String(v || "").toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim(); return q.length > 1 && said.includes(" " + q + " "); };
   out.versions = (Array.isArray(p.versions) ? p.versions : [])
     .map(v => v && typeof v === "object" ? { style: anStr(v.style, 40), text: anStr(v.text, 1600), learn: (Array.isArray(v.learn) ? v.learn : []).map(x => anStr(x, 60)).filter(Boolean).slice(0, 4) } : null)
     .filter(v => v && v.text.split(" ").length >= 8).slice(0, 2);
   out.idioms = (Array.isArray(p.idioms) ? p.idioms : [])
     .map(x => x && typeof x === "object" ? { idiom: anStr(x.idiom, 60), meaning: anStr(x.meaning, 160), when: anStr(x.when, 160), example: anStr(x.example, 220) } : null)
-    .filter(x => x && x.idiom && x.meaning).slice(0, 4);
+    .filter(x => x && x.idiom && x.meaning && !quoted(x.idiom))    /* they already said it — not one to learn */
+    .slice(0, 4);
   /* ---- the teaching half (owner, 22 Sep 2026): the mistakes with their rule,
      their own sentences rebuilt on a reusable pattern, and the words. Each one
      is checked against the transcript before it is sent: a "correction" of
      something the learner never said is worse than no correction at all, and
      the model does occasionally produce one. Anything unverifiable is dropped
      rather than shown — an empty section is honest, a fabricated one is not. */
-  const said = " " + transcript.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ") + " ";
-  const quoted = v => { const q = String(v || "").toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim(); return q.length > 1 && said.includes(" " + q + " "); };
   const seen = new Set();
   out.corrections = (Array.isArray(p.corrections) ? p.corrections : [])
     .map(c => c && typeof c === "object" ? { said: anStr(c.said, 90), fix: anStr(c.fix, 120), why: anStr(c.why, 160), kind: anStr(c.kind, 20).toLowerCase() } : null)
@@ -593,6 +600,7 @@ async function callAnalyse(env, transcript, metrics, lang) {
     .map(w => w && typeof w === "object" ? { said: anStr(w.said, 60), better: anStr(w.better, 80), meaning: anStr(w.meaning, 160), example: anStr(w.example, 220) } : null)
     .filter(w => w && w.said && w.better && quoted(w.said) && w.said.toLowerCase() !== w.better.toLowerCase())
     .filter(w => !corrected.has(w.said.toLowerCase()) && !corrected.has(w.better.toLowerCase()))
+    .filter(w => !AN_NOISE.has(w.said.toLowerCase().replace(/[^a-z' ]+/g, "").trim()))
     .filter(w => {                                   // same word, plural or with a word glued on
       const a = bare(w.said), b = bare(w.better);
       if (a.replace(/s$/, "") === b.replace(/s$/, "")) return false;
