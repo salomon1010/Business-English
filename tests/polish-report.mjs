@@ -149,6 +149,38 @@ const row=await page.evaluate(async()=>{
 });
 ok("The running timer fits on one line in the mic button",row.timerH<26&&row.micH<=64&&row.micW+row.polW<row.rowW,JSON.stringify(row));
 
+/* "Say it better" on the card itself: a whole better version of the box text,
+   with Hear it, pressable again for another register — and the avoid list must
+   grow, or press two is press one. */
+const quick=await page.evaluate(async()=>{
+  exClear();
+  const ta=document.getElementById("exIn");
+  ta.value="hello everyone um this is Sal I started yesterday in this area and I just wanted to touch base with everyone about what I am seeing so far";
+  exDraft(ta);
+  const sent=[];const realFetch=window.fetch;
+  window.fetch=async(url,opt)=>{
+    const body=JSON.parse(opt.body);sent.push(body.repolish);
+    return {ok:true,json:async()=>({version:{style:"Version "+sent.length,text:"Good morning. I joined this team yesterday, and I want to share my first read of what I am seeing — call it "+sent.length+".",learn:["share my first read"]},
+      idioms:[{idiom:"hit the ground running",meaning:"m",when:"w",example:"e"}]})};
+  };
+  const btn=document.querySelector(".ex-quickbtn");
+  await exQuick(btn);await new Promise(r=>setTimeout(r,120));
+  const after1={cards:document.querySelectorAll(".ex-qv").length,btn:btn.innerText.trim()};
+  await exQuick(document.querySelector(".ex-quickbtn"));await new Promise(r=>setTimeout(r,120));
+  window.fetch=realFetch;
+  const cards=[...document.querySelectorAll(".ex-qv")];
+  return {after1,cards:cards.length,newestFirst:/call it 2/.test(cards[0].innerText),
+    avoidGrew:sent[1].avoid.length===1&&/call it 1/.test(sent[1].avoid[0]),
+    hear:!!cards[0].querySelector(".ex-acts .btn"),
+    idiom:/hit the ground running/.test(cards[0].innerText),
+    transcriptSent:/touch base/.test(sent[0].transcript)};
+});
+ok("Say it better writes a version, then another, newest first",
+  quick.after1.cards===1&&quick.cards===2&&quick.newestFirst&&quick.transcriptSent,JSON.stringify(quick));
+ok("The second press avoids the first version and brings its own idiom",quick.avoidGrew&&quick.idiom&&quick.hear,JSON.stringify(quick));
+const cleared=await page.evaluate(()=>{exClear();return {q:ex.quick.length,dom:document.querySelectorAll(".ex-qv").length}});
+ok("Clear takes the versions with the text",cleared.q===0&&cleared.dom===0,JSON.stringify(cleared));
+
 ok("No page errors",errors.length===0,errors.join(" | "));
 /* French is the first language of most of the people using this app, so the
    report is checked in French too: the station names must not fall back to

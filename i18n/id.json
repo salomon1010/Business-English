@@ -2629,5 +2629,12 @@
  "ex.repolish_busy": "Writing another version…",
  "ex.repolish_err": "Could not write another version. Try again in a moment.",
  "ex.repolish_off": "Another version needs the internet.",
- "ex.repolish_max": "Five versions is plenty. Say them out loud — that is what makes one of them yours."
+ "ex.repolish_max": "Five versions is plenty. Say them out loud — that is what makes one of them yours.",
+ "ex.quick_btn": "Say it better — polish what is in the box",
+ "ex.quick_again": "Another version",
+ "ex.quick_busy": "Writing a better version…",
+ "ex.quick_h": "A better way to say it",
+ "ex.quick_note": "Press again for another version — a different register, new verbs, new idioms. Hear each one and copy the one that sounds like you.",
+ "ex.quick_max": "Six versions. Stop collecting and say one out loud.",
+ "ex.quick_idioms": "Idioms to memorise"
 }

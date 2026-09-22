@@ -2629,5 +2629,12 @@
  "ex.repolish_busy": "Rédaction d'une autre version…",
  "ex.repolish_err": "Impossible de rédiger une autre version. Réessayez dans un instant.",
  "ex.repolish_off": "Une autre version nécessite Internet.",
- "ex.repolish_max": "Cinq versions suffisent. Dites-les à voix haute — c'est ainsi que l'une d'elles devient la vôtre."
+ "ex.repolish_max": "Cinq versions suffisent. Dites-les à voix haute — c'est ainsi que l'une d'elles devient la vôtre.",
+ "ex.quick_btn": "Dites-le mieux — polir ce qui est dans la boîte",
+ "ex.quick_again": "Une autre version",
+ "ex.quick_busy": "Rédaction d'une meilleure version…",
+ "ex.quick_h": "Une meilleure façon de le dire",
+ "ex.quick_note": "Appuyez encore pour une autre version — un autre registre, de nouveaux verbes, de nouveaux idiomes. Écoutez-les et copiez celle qui vous ressemble.",
+ "ex.quick_max": "Six versions. Arrêtez de collectionner et dites-en une à voix haute.",
+ "ex.quick_idioms": "Idiomes à mémoriser"
 }

@@ -2731,6 +2731,18 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-pat-use{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--mut)}
 .ex-saveall{width:100%;min-height:46px;margin-top:16px}
 .ex-repolish{width:100%;min-height:46px;margin-top:14px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc)}
+.ex-quickbtn{width:100%;min-height:46px;margin:0 0 10px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc);font-weight:700}
+.ex-quickbtn:disabled{opacity:.7}
+.ex-quickwrap{margin:2px 0 10px}
+.ex-qv{padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--bg2);margin-bottom:10px}
+.ex-qv.is-new{border-color:color-mix(in srgb,var(--acc) 50%,transparent);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.ex-qv-k{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+.ex-qv-t{margin:0 0 10px;font-size:16px;line-height:1.6}
+.ex-qv-id{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.ex-qv-id .ex-k{margin:0 0 6px}
+.ex-qv-idiom{margin-bottom:8px}
+.ex-qv-idiom b{display:block;font-size:15px;color:var(--acc)}
+.ex-qv-idiom span{display:block;font-size:13px;color:var(--mut);margin-top:2px}
 .ex-repolish:disabled{opacity:.7}
 .ex-version.ex-flash{background:color-mix(in srgb,var(--acc) 9%,transparent);border-radius:12px}
 .ex-carry{margin-bottom:6px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid var(--line2);background:var(--bg2)}
@@ -7061,6 +7073,14 @@ const I18N_EN={
  "ex.repolish_err":"Could not write another version. Try again in a moment.",
  "ex.repolish_off":"Another version needs the internet.",
  "ex.repolish_max":"Five versions is plenty. Say them out loud — that is what makes one of them yours.",
+ /* "Say it better" — the quick version, on the card itself, without the report. */
+ "ex.quick_btn":"Say it better — polish what is in the box",
+ "ex.quick_again":"Another version",
+ "ex.quick_busy":"Writing a better version…",
+ "ex.quick_h":"A better way to say it",
+ "ex.quick_note":"Press again for another version — a different register, new verbs, new idioms. Hear each one and copy the one that sounds like you.",
+ "ex.quick_max":"Six versions. Stop collecting and say one out loud.",
+ "ex.quick_idioms":"Idioms to memorise",
  "ex.last_h":"Last time",
  "ex.last_wpm":"{{n}} words/min",
  "ex.last_hes":"{{n}} hesitations",
@@ -14809,7 +14829,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v434";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v435";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -14860,7 +14880,7 @@ const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
 const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
-let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false,repOpen:true};
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false,repOpen:true,quick:[],quickFor:""};
 let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
 function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function exLang(){return (S.profile&&S.profile.lang)||"en"}
@@ -14912,9 +14932,72 @@ function exIdleHTML(){
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
+    <button class="btn btn-g ex-quickbtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
+    <div id="exQuick">${exQuickHTML()}</div>
     <p class="ex-status" id="exSt"></p>
     ${exLastHTML()}`;
 }
+/* ---------- Say it better ----------
+   The report is five minutes of work; sometimes the learner only wants the
+   sentence. This button takes whatever is in the box and hands back one whole
+   better version of it — new verbs, professional phrases, an idiom or two —
+   with Hear it beside it, and it can be pressed again and again: each press
+   asks for a register the earlier ones did not use, so the learner collects
+   several ways to say their own minute and can hear every one. Same Worker
+   route as Polish it again inside the report (`repolish`), so there is one
+   thing to maintain and one thing to pay for. The versions are not saved to
+   the report: they belong to the text in the box, and Clear takes them away. */
+const EX_QUICK_MAX=6;
+function exQuickHTML(){
+  if(!ex.quick||!ex.quick.length)return "";
+  return `<div class="ex-quickwrap">
+    <div class="ex-k">${esc(t("ex.quick_h"))}</div>
+    ${ex.quick.map((v,i)=>`<div class="ex-qv${i?"":" is-new"}">
+      <div class="ex-qv-k"><span class="ex-ver-n">${ex.quick.length-i}</span>${esc(v.style||"")}</div>
+      <p class="ex-qv-t">${exMark(v.text,v.learn)}</p>
+      ${(v.learn&&v.learn.length)?`<div class="ex-learn">${v.learn.map(l=>`<button class="ex-learn-chip" onclick="exSaveTerm(${jarg(l)},'',${jarg(v.text)},this)">${ic("bookmark")} ${esc(l)}</button>`).join("")}</div>`:""}
+      <div class="ex-acts ex-acts-sm">
+        <button class="btn ex-copy" onclick="exCoachStop();fbSay(${jarg(v.text)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(v.text)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+        <button class="btn btn-g" onclick="navigator.clipboard.writeText(${jarg(v.text)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
+      </div>
+      ${(v.idioms&&v.idioms.length)?`<div class="ex-qv-id"><span class="ex-k">${esc(t("ex.quick_idioms"))}</span>
+        ${v.idioms.map(x=>`<div class="ex-qv-idiom">
+          <b>“${esc(x.idiom)}”</b><span>${esc(x.meaning||"")}</span>
+          <div class="ex-acts ex-acts-sm">
+            <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(x.example||x.idiom)},1)">${tIc("ex.hear_btn","sound")}</button>
+            <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(x.idiom)},${jarg(x.meaning||"")},${jarg(x.example||"")},this)">${tIc("ex.save_btn","bookmark")}</button>
+          </div></div>`).join("")}</div>`:""}
+    </div>`).join("")}
+    <p class="ex-fine">${esc(ex.quick.length>=EX_QUICK_MAX?t("ex.quick_max"):t("ex.quick_note"))}</p>
+  </div>`;
+}
+function exQuickPaint(){const el=document.getElementById("exQuick");if(el){el.innerHTML=exQuickHTML();manIconizeInline(el)}}
+let exQuicking=false;
+window.exQuick=async btn=>{
+  const ta=document.getElementById("exIn"),text=ta?ta.value.replace(/\s+/g," ").trim():"";
+  if(!text||text.split(" ").length<5)return toast(t("ex.type_first_toast"));
+  if(exQuicking)return;
+  if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
+  if(text!==ex.quickFor){ex.quick=[];ex.quickFor=text}     /* new text in the box → a fresh set */
+  if(ex.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
+  exQuicking=true;
+  const label=btn.innerHTML;
+  btn.disabled=true;btn.innerHTML=ic("sparkle")+" "+esc(t("ex.quick_busy"));manIconizeInline(btn);
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({repolish:{transcript:text,avoid:ex.quick.map(v=>v.text),lang:exLang()}})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    if(!j||!j.version||!j.version.text)throw new Error("empty");
+    ex.quick.unshift({...j.version,idioms:(j.idioms||[]).slice(0,2)});   /* newest first */
+    exQuickPaint();
+    const first=document.querySelector(".ex-qv");
+    if(first){try{first.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+  }catch(e){toast(t("ex.repolish_err"))}
+  btn.disabled=false;btn.innerHTML=ex.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
+  exQuicking=false;
+};
 window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
 /* Drag the corner: the box follows the finger; from then on the learner's
    height wins over taGrow (dataset.userSized), never below 120 px. */
@@ -14922,7 +15005,7 @@ window.exGripStart=e=>{const ta=document.getElementById("exIn");if(!ta)return;e.
   const move=ev=>{const h=Math.max(120,Math.round(h0+ev.clientY-y0));ta.style.height=h+"px";ta.dataset.userSized="1";ta.style.overflowY=ta.scrollHeight>h+2?"auto":"hidden"};
   const up=()=>{g.removeEventListener("pointermove",move);g.removeEventListener("pointerup",up);g.removeEventListener("pointercancel",up)};
   g.addEventListener("pointermove",move);g.addEventListener("pointerup",up);g.addEventListener("pointercancel",up)};
-window.exClear=()=>{if(ex.phase==="rec")return;ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exStatus("")};
+window.exClear=()=>{if(ex.phase==="rec")return;ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);ex.quick=[];ex.quickFor="";const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exQuickPaint();exStatus("")};
 /* Polish it: the recording's audio goes with its own transcript; edited or
    typed text is measured as text only. */
 window.exPolish=()=>{
