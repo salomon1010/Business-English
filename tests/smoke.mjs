@@ -246,9 +246,13 @@ if (!process.env.BASE) {
   ok("A category chip lights alone and fills the feed", ch);
   await page.evaluate(() => document.querySelector("#shLibFeed .shl-row").click()); await wait(1200);
   ok("Tapping a row opens the workspace on that video", await page.evaluate(() => getComputedStyle(document.getElementById("shWork")).display !== "none" && !!shClip.vid && (document.getElementById("shUrl") || {}).value.includes(shClip.vid)));
-  await page.evaluate(() => { try { shCloseWork() } catch (e) {} localStorage.removeItem("be_flags"); });
+  /* The library is the production default since be12-v431, so CLEARING the
+     override no longer turns it off. Force it off instead: the classic picker
+     is still a live path (Welding, and any rollback) and must keep working. */
+  await page.evaluate(() => { try { shCloseWork() } catch (e) {} localStorage.setItem("be_flags", JSON.stringify({ shadow_library_enabled: false })); });
   await wait(200);
-  ok("Flag off → the classic picker with starters is back (production default)", await page.evaluate(() => { go("home"); go("shadow"); return !document.getElementById("shLib") && !!document.querySelector("#v-shadow .sh-starter"); }));
+  ok("Flag forced off → the classic picker with starters still works (the rollback path)", await page.evaluate(() => { go("home"); go("shadow"); return !document.getElementById("shLib") && !!document.querySelector("#v-shadow .sh-starter"); }));
+  await page.evaluate(() => localStorage.removeItem("be_flags"));
 }
 
 /* ── no JavaScript errors anywhere above ── */
