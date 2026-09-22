@@ -1447,7 +1447,7 @@
  "wc.env_line": "{{env}}で学んでいます。次はここから始める — 最初のステップを決める1分チェックです。",
  "wc.cta_start": "ここから始める →",
  "rm.label": "プログラムマップ",
- "rm.eyebrow": "あなたのロードマップ",
+ "rm.eyebrow": "あなたの12週間ロードマップ",
  "rm.complete": "達成",
  "rm.sessions": "{{total}}回中{{done}}回のセッションを完了",
  "rm.here": "現在地",

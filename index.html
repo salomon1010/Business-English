@@ -989,6 +989,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sub-info-row{display:flex;justify-content:flex-end;margin:-6px 0 6px}
 .ex-howbtn.sub-info{width:26px!important;height:26px!important;min-height:0;color:var(--mut);background:transparent;border:1px solid var(--line2);box-shadow:none}
 .ex-howbtn.sub-info svg{width:14px;height:14px}.ex-howbtn.sub-info:hover{background:var(--card2);transform:none}
+.pg-eyebrow.eb-info{display:flex;align-items:center;gap:10px}.pg-eyebrow.eb-info>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-eyebrow .ex-howbtn.sub-info{width:22px!important;height:22px!important;margin:-4px 0 -4px auto;flex:0 0 auto}.pg-eyebrow .ex-howbtn.sub-info svg{width:13px;height:13px}
 h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info-t{flex:1 1 auto;min-width:0}
 /* Phones: the white line, then the blue line (owner, 2026-09-22). Wider screens flow on one line. */
 @media (max-width:600px){h1.big.h-info>.h-info-t>em{display:block}}
@@ -5019,7 +5021,7 @@ const I18N_EN={
  "journey.phase_tabs_label":"Learning track",
  "rm.label":"Programme road map",
  "rm.btn":"Road map",
- "rm.eyebrow":"Your road map",
+ "rm.eyebrow":"Your 12-week road map",
  "rm.complete":"complete",
  "rm.sessions":"{{done}} of {{total}} sessions done",
  "rm.here":"You are here",
@@ -13567,7 +13569,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v424";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v425";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -18727,7 +18729,16 @@ window._subInfoStore=[];
 /* After a render: a bubble that directly follows the page title moves onto the
    title line (owner, 2026-09-22: "same level as the sentence, small, grey").
    Idempotent; pages without an h1 keep the corner row. */
-window.subInfoMount=root=>{(root||document).querySelectorAll(".sub-info-row").forEach(row=>{const h=row.previousElementSibling;if(!h||!(h.tagName==="H1"&&h.classList.contains("big")))return;const b=row.querySelector(".sub-info");if(!b)return;const tx=document.createElement("span");tx.className="h-info-t";while(h.firstChild)tx.appendChild(h.firstChild);h.classList.add("h-info");h.appendChild(tx);h.appendChild(b);row.remove()})};
+window.subInfoMount=root=>{const R=root||document;
+  /* Under the sticky page bar (.pg-eyebrow) the big title is gone and the "i"
+     sits at the bar's right end (owner, 2026-09-22: "remove that sentence,
+     the icon goes to the bar, all pages"). Content titles — week theme, day
+     focus, Foundations day, scenario — have no page bar and stay. */
+  const barOf=h=>{let e=h.previousElementSibling;while(e&&e.classList.contains("back"))e=e.previousElementSibling;return e&&e.classList.contains("pg-eyebrow")?e:null};
+  R.querySelectorAll(".sub-info-row").forEach(row=>{const h=row.previousElementSibling;if(!h||!(h.tagName==="H1"&&h.classList.contains("big")))return;const b=row.querySelector(".sub-info");if(!b)return;
+    const bar=barOf(h);if(bar){bar.classList.add("eb-info");bar.appendChild(b);h.remove();row.remove();return}
+    const tx=document.createElement("span");tx.className="h-info-t";while(h.firstChild)tx.appendChild(h.firstChild);h.classList.add("h-info");h.appendChild(tx);h.appendChild(b);row.remove()});
+  R.querySelectorAll("h1.big").forEach(h=>{if(!h.classList.contains("h-info")&&barOf(h))h.remove()})};
 /* Profile → Appearance: only the Light / Dark choice, in a sheet over Profile.
    setTheme() saves on tap, so the sheet closes itself and the row's caption
    follows (owner, 2026-09-22: "open only this … and go back to the profile"). */

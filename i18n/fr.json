@@ -1447,7 +1447,7 @@
  "wc.env_line": "Vous apprenez dans {{env}}. Ensuite vient Commencer ici — un test d'une minute qui décide de votre première étape.",
  "wc.cta_start": "Commencer ici →",
  "rm.label": "Carte du programme",
- "rm.eyebrow": "Votre feuille de route",
+ "rm.eyebrow": "Votre feuille de route en 12 semaines",
  "rm.complete": "accompli",
  "rm.sessions": "{{done}} séances sur {{total}} terminées",
  "rm.here": "Vous êtes ici",

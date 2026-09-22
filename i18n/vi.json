@@ -1447,7 +1447,7 @@
  "wc.env_line": "Bạn đang học trong {{env}}. Tiếp theo là Bắt đầu tại đây — bài kiểm tra một phút quyết định bước đầu tiên của bạn.",
  "wc.cta_start": "Bắt đầu tại đây →",
  "rm.label": "Bản đồ chương trình",
- "rm.eyebrow": "Lộ trình của bạn",
+ "rm.eyebrow": "Lộ trình 12 tuần của bạn",
  "rm.complete": "hoàn thành",
  "rm.sessions": "Đã xong {{done}}/{{total}} buổi",
  "rm.here": "Bạn đang ở đây",

@@ -1447,7 +1447,7 @@
  "wc.env_line": "Du lernst in {{env}}. Als Nächstes kommt Hier starten — ein Ein-Minuten-Check, der deinen ersten Schritt bestimmt.",
  "wc.cta_start": "Hier starten →",
  "rm.label": "Programmkarte",
- "rm.eyebrow": "Deine Roadmap",
+ "rm.eyebrow": "Deine 12-Wochen-Roadmap",
  "rm.complete": "geschafft",
  "rm.sessions": "{{done}} von {{total}} Einheiten erledigt",
  "rm.here": "Du bist hier",

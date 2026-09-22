@@ -1447,7 +1447,7 @@
  "wc.env_line": "你正在{{env}}中学习。接下来是从这里开始 — 一分钟测试，决定你的第一步。",
  "wc.cta_start": "从这里开始 →",
  "rm.label": "课程地图",
- "rm.eyebrow": "你的路线图",
+ "rm.eyebrow": "你的 12 周路线图",
  "rm.complete": "已完成",
  "rm.sessions": "已完成 {{done}}/{{total}} 节课",
  "rm.here": "你在这里",

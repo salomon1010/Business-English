@@ -1447,7 +1447,7 @@
  "wc.env_line": "{{env}}에서 배우고 있습니다. 다음은 여기서 시작 — 첫 단계를 정하는 1분 점검입니다.",
  "wc.cta_start": "여기서 시작 →",
  "rm.label": "프로그램 지도",
- "rm.eyebrow": "나의 로드맵",
+ "rm.eyebrow": "나의 12주 로드맵",
  "rm.complete": "완료",
  "rm.sessions": "{{total}}회 중 {{done}}회 세션 완료",
  "rm.here": "현재 위치",
