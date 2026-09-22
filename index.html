@@ -334,7 +334,7 @@ a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 /* min-height keeps every text control at the 44px floor. Without it they were
    38-40px wherever the mobile font-size bump did not apply. */
-input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%;min-height:48px}
+input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%;min-height:44px}
 input[type=checkbox],input[type=radio]{min-height:0;width:auto}
 /* Auto-sizing textarea (clip transcript). Grows with its content up to 60vh,
    then scrolls; still draggable on platforms that support the resize handle. */
@@ -421,17 +421,17 @@ html.timer-on:not([data-track="general"]) .streak-pill{display:none}
 .set-card-h{font-size:16px;font-weight:800}
 .set-card-sub{font-size:12.5px;color:var(--mut);line-height:1.5}
 .set-hint{font-size:11.5px;color:var(--mut);margin:6px 0 0;line-height:1.5}
-.set-act{min-height:48px}
+.set-act{min-height:44px}
 .set-save{margin-top:18px}
 .set-plan{margin:0 0 16px}
 /* the reminder switch was an 18px checkbox in an 18px row */
-.rem-row{min-height:48px}
-.rem-box input[type=time]{min-height:48px}
-#v-setup a{min-height:48px;display:inline-flex;align-items:center}
+.rem-row{min-height:44px}
+.rem-box input[type=time]{min-height:44px}
+#v-setup a{min-height:44px;display:inline-flex;align-items:center}
 /* min-height belongs on the component, not on "#v-setup .theme-opt": rSetup
    renders this same markup into #v-data when Settings is reached from Profile,
    where a #v-setup-scoped rule does not match and the control stayed at 42px. */
-.theme-opt{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;min-height:48px;border-radius:11px;border:1px solid var(--line2);background:var(--card2);color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
+.theme-opt{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px;min-height:44px;border-radius:11px;border:1px solid var(--line2);background:var(--card2);color:var(--mut);font-size:14px;font-weight:600;cursor:pointer;transition:.15s}
 .theme-opt:hover{border-color:var(--acc)}
 .theme-opt svg{width:17px;height:17px}
 .theme-opt.on{background:var(--accent-fill);border-color:transparent;color:var(--on-accent)}
@@ -542,7 +542,7 @@ button.ph-wk-bar:focus-visible{outline:2px solid var(--focus);outline-offset:2px
 /* Help & Guide closes with the same control as every other in-app document, so
    "close" looks identical wherever the user meets it. Sits in the sticky
    eyebrow, so it cannot scroll away. */
-.man-x{flex:none;width:44px;height:44px;min-height:48px;margin-left:-10px;padding:0;
+.man-x{flex:none;width:44px;height:44px;min-height:44px;margin-left:-10px;padding:0;
   display:grid;place-items:center;border:none;background:none;color:var(--acc2);cursor:pointer;border-radius:50%}
 .man-x:hover{background:var(--hover)}
 .man-x:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
@@ -727,22 +727,93 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 /* the only way out of the workspace, so it is not a bare grey glyph: an
    accent-tinted disc, the accent colour and a wider stroke. Learners were
    missing it and did not know how to get back to the clip list. */
-.shv3-back{width:46px;height:46px;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)}
+/* glyph only — no disc behind it (owner, 22 Sep 2026). The 44px tap target
+   stays; it is simply not painted. */
+.shv3-back{width:44px;height:44px;color:var(--txt);background:none;border:0}
 .shv3-back:active{background:color-mix(in srgb,var(--acc) 28%,transparent)}
 .shv3-back svg{width:26px;height:26px;stroke-width:2.6;transform:rotate(90deg)}   /* the shared chevron points down; here it means "back" */
+.shv3-back.is-x svg{transform:none;stroke-width:2.2}   /* the cross is not a chevron and must not be turned */
 /* the mode pills are gone: the bar says Shadow, offers Challenge the moment
    Shadow is on, and More lists all three with the current one marked */
 #shWork[data-v3] #svTabs{display:none!important}
 #shWork[data-v3] .sv-ctl-row{justify-content:center;margin:10px 0 4px}
 #shWork[data-v3] .sv-now{margin:0 16px}
-#shWork[data-v3] .sh-work-body{padding-left:0;padding-right:0;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
-#shWork[data-v3] .sh-stick{padding:0;position:static;box-shadow:none;background:none}
+/* while the words are being fetched there is nothing to mark and nothing to
+   write in, so the page is the video and one line. A state, not a one-off hide:
+   the player's onReady fires later and sets display="" on these, which an
+   imperative hide loses to (owner, 22 Sep 2026). */
+#shWork[data-cap="wait"] #shSeg,
+#shWork[data-cap="wait"] #shMarkHint,
+#shWork[data-cap="wait"] #svTabs,
+#shWork[data-cap="wait"] #shV2 ~ *{display:none!important}
+/* nothing in the workspace may push the page sideways */
+#shWork[data-v3] .sh-work-body{overflow-x:hidden}
+#shWork[data-v3] .sh-work-body>*{max-width:100%}
+#shWork[data-v3] .sv-seg,#shWork[data-v3] .sv-now{overflow-wrap:anywhere}
+/* ONE scroller. The transcript used to be a 38vh box with its own scrollbar
+   inside a page that also scrolled, so the two fought: the spoken line was
+   pushed to the foot of the screen and then off it (owner, 22 Sep 2026 —
+   "it's going past the screen, it has to freeze up there and the other
+   transcript message should come up"). In the redressed workspace the page is
+   the only thing that scrolls, the video is pinned above, and the spoken line
+   is held just under it while the rest of the talk comes up from below. */
+/* !important because the old layout caps this with a two-id selector
+   (#shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 420px)}) that
+   outranks anything reasonable written here. */
+#shWork[data-v3] #svTx{max-height:none!important;overflow:visible!important}
+/* Challenge shows the paragraph being worked on and nothing else. The scrolling
+   transcript underneath it is the answer sheet — it defeats the exercise, and
+   it is the one thing a learner must not be reading while they record (owner,
+   22 Sep 2026). Watch and Shadow keep it. */
+#shWork[data-svmode="challenge"] #svTx{display:none!important}
+#shWork[data-v3] .sh-work-body{padding-left:0;padding-right:0;
+  /* the tail of the last line must be able to reach the top of the reading
+     area, so the page can scroll a screen further than its content */
+  padding-bottom:calc(72vh + env(safe-area-inset-bottom))}
+/* the speaker stays in view while the words scroll under — shadowing needs the
+   face and the line at the same time */
+#shWork[data-v3] .sh-stick{padding:0;position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 10px 18px -14px rgba(0,0,0,.6)}
 #shWork[data-v3] .yt-shell{border-radius:0;margin:0}
 #shWork[data-v3] .sh-ctl,#shWork[data-v3] .sv-shbar{display:none!important}
+/* The clip-marking tools and the notes card are the old workspace. They are
+   not deleted — a learner who wants to mark 20 seconds by hand still can,
+   through More — but they are no longer what the page opens with (owner,
+   22 Sep 2026: "remove all these interfaces, this is the old one"). No
+   !important: shv3Jump() sets display inline when More asks for one. */
+#shWork[data-v3] #shSeg,#shWork[data-v3] #shMarkHint{display:none}
 #shWork[data-v3] .sv{margin:0;padding:14px 16px 4px;border:0;background:none;border-radius:0}
-#shWork[data-v3] .sv-seg{font-size:17px;line-height:1.5;margin:0 0 14px;color:var(--mut2);transition:color .2s}
+#shWork[data-v3] .sv-seg{font-size:17px;line-height:1.5;margin:0 0 14px;color:var(--mut2);transition:color .2s,background .2s}
+/* The line being spoken is marked in the accent, not merely brightened. A
+   transcript with word timings lights the word inside it; one with only line
+   timings — anything a model wrote — has nothing finer to light, so the line
+   itself must carry the accent or nothing appears to follow the voice at all
+   (owner, 22 Sep 2026: "the purple highlight just disappeared"). */
 #shWork[data-v3] .sv-seg.now{color:var(--txt);font-weight:600}
-#shWork[data-v3] .sv-w.now{background:var(--accent);color:var(--on-accent);border-radius:5px;padding:0 2px}
+/* !important, and with the mode in the selector, because Watch carries
+   `.sv-tx .sv-seg{background:transparent!important}` from the old layout —
+   without matching that weight the highlight silently does nothing. */
+#shWork[data-v3][data-svmode="watch"] .sv-tx .sv-seg.now,
+#shWork[data-v3] .sv-tx .sv-seg.now{
+  background:color-mix(in srgb,var(--accent) 26%,transparent)!important;
+  box-shadow:-8px 0 0 color-mix(in srgb,var(--accent) 26%,transparent),8px 0 0 color-mix(in srgb,var(--accent) 26%,transparent);
+  border-radius:3px}
+/* where the words are individually timed the WORD carries the solid accent, so
+   the line behind it only needs a whisper */
+#shWork[data-v3][data-svmode="watch"] .sv-tx.has-words .sv-seg.now,
+#shWork[data-v3] .sv-tx.has-words .sv-seg.now{
+  background:color-mix(in srgb,var(--accent) 12%,transparent)!important;
+  box-shadow:-8px 0 0 color-mix(in srgb,var(--accent) 12%,transparent),8px 0 0 color-mix(in srgb,var(--accent) 12%,transparent)}
+/* The word being spoken: a filled pill, the same accent the line carries as a
+   band. The padding is cancelled by an equal negative margin so lighting a
+   word never nudges the rest of the line sideways. The mode is in the second
+   selector for the same reason the line highlight needs it — Watch's own
+   `.sv-tx .sv-seg.now .sv-w.now` from the old layout outranks anything
+   shorter. */
+#shWork[data-v3] .sv-w.now,
+#shWork[data-v3][data-svmode="watch"] .sv-tx .sv-seg.now .sv-w.now,
+#shWork[data-v3][data-svmode="shadow"] .sv-tx .sv-seg.now .sv-w.now{
+  background:var(--accent);color:var(--on-accent);font-weight:700;
+  border-radius:7px;padding:1px 4px;margin:0 -3px;box-shadow:none}
 #shWork[data-v3] .sh-work-body>*:not(#shPlayerWrap):not(#shV2){padding-left:16px;padding-right:16px}
 #shv3Bar{position:absolute;left:0;right:0;bottom:0;z-index:9;display:flex;align-items:center;justify-content:center;gap:10px;
   padding:10px 14px calc(12px + env(safe-area-inset-bottom));
@@ -769,7 +840,7 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .sh-hint b{color:var(--txt)}
 .sh-hint .sh-hint-ic{flex:none;color:var(--acc);display:inline-flex;line-height:0;margin-top:1px}
 .sh-hint .sh-hint-ic svg{width:17px;height:17px}
-.sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(6px,env(safe-area-inset-top)) 14px 6px;min-height:48px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
+.sh-work-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:max(6px,env(safe-area-inset-top)) 14px 6px;min-height:44px;border-bottom:1px solid var(--line2);background:var(--card);flex:none}
 .sh-work-title{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:8px;min-width:0}
 .sh-work-title::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--acc2);flex:none}
 .sh-work-x{width:32px;height:32px;flex:none;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer;transition:.12s}
@@ -793,11 +864,11 @@ body.sh-work-open{overflow:hidden}
 /* Every control in the studio is a 44px target. The workspace shipped eight
    under that (34-38px) and the picker forty-five of forty-seven. Scoped to this
    screen: .btn-sm has 98 uses across screens not yet passed. */
-#v-shadow .btn-sm,.sh-work .btn-sm,#v-shadow .btn,.sh-work .btn{min-height:48px}
+#v-shadow .btn-sm,.sh-work .btn-sm,#v-shadow .btn,.sh-work .btn{min-height:44px}
 /* the "best channels" row is links, not decoration — .chip is 32px app-wide */
-#v-shadow a.chip{min-height:48px}
+#v-shadow a.chip{min-height:44px}
 #v-shadow a.chip:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.sh-seg .btn{min-height:48px;padding:8px 11px}
+.sh-seg .btn{min-height:44px;padding:8px 11px}
 .sh-work-x{width:44px;height:44px}
 
 /* Starter clips: one card shape instead of six inline styles apiece. */
@@ -806,10 +877,11 @@ body.sh-work-open{overflow:hidden}
    would not reach it; zoom does, and it keeps every proportion — padding, icons,
    the nav, the safe-area insets — in step, which a per-rule shrink would not
    (owner, 22 Sep 2026: "make all my policy to be like this one"). */
-/* Every tap target is declared at 48px, not 44px, because the app-wide zoom
-   below multiplies it: 48 × .92 = 44.2 rendered px, which is the minimum a
-   thumb needs. Change one and you must change the other. */
-body{zoom:var(--app-zoom,.92)}
+/* NO app-wide zoom. It was tried on 22 Sep 2026 to make the type smaller
+   everywhere and withdrawn the same day: on a real iPhone it did the opposite —
+   the page rendered larger and scrolled sideways — and it quietly shrank every
+   44px tap target to 40px. If the type should be smaller, change the type, not
+   the page scale. */
 /* ONE SURFACE (owner, 22 Sep 2026: "the application should have just one
    colour, uniform").
    The seam under the header was three different surfaces stacked: a purple
@@ -826,7 +898,7 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-stick{position:sticky;top:62px;z-index:39;display:flex;flex-direction:column;gap:10px;
   background:var(--bg);margin:0 -16px;padding:4px 16px 10px}
 .shl-quick{display:flex;gap:8px}
-.shl-search{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:0 12px;min-height:48px}
+.shl-search{display:flex;align-items:center;gap:9px;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:0 12px;min-height:44px}
 .shl-search svg{width:18px;height:18px;flex:none;color:var(--mut)}
 .shl-search input{flex:1;min-width:0;background:none;border:0;padding:12px 0;font-size:14px;color:var(--txt);outline:none;text-overflow:ellipsis}
 @media(max-width:420px){.shl-search input{font-size:13.5px}}
@@ -884,7 +956,7 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
    the height of a video row (owner, 22 Sep 2026). The full sentence each used
    to show survives as the title and the accessible name. */
 .shl-q{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;
-  min-height:48px;padding:0 12px;border:1px dashed var(--line2);border-radius:var(--r-md);
+  min-height:44px;padding:0 12px;border:1px dashed var(--line2);border-radius:var(--r-md);
   background:var(--card);color:var(--txt);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .shl-q svg{width:17px;height:17px;flex:none;color:var(--acc2)}
 .shl-q span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -909,10 +981,22 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .sv-wait{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--mut);padding:14px 16px}
 .sv-wait svg{flex:none;animation:svWait 1.6s linear infinite}
 @keyframes svWait{to{transform:rotate(360deg)}}
-.sv-nocap{display:grid;grid-template-columns:auto 1fr;gap:10px 11px;align-items:start;text-align:left}
-.sv-nocap .sv-nocap-t b{display:block;font-size:14px;margin-bottom:3px}
-.sv-nocap .sv-nocap-t small{color:var(--mut);font-size:12.5px;line-height:1.55;display:block}
-.sv-nocap .sv-nocap-acts{grid-column:2;display:flex;gap:8px;flex-wrap:wrap}
+/* A card, not a stranded grid: the icon, the sentence and the ways on, stacked
+   in that order and full width, in the same surface, radius, border and spacing
+   as every other card in the app (owner, 22 Sep 2026). .sv-empty is a one-line
+   flex note and is defined later in the file, so the display and the type size
+   have to be reclaimed here. */
+.sv-empty.sv-nocap{display:block;text-align:left;font-size:inherit;color:var(--txt);
+  background:var(--card);border:1px solid var(--line2);border-radius:var(--r-lg);padding:16px;margin:0 16px}
+.sv-empty.sv-nocap>svg{width:22px;height:22px;color:var(--acc2);margin-bottom:10px}
+.sv-nocap .sv-nocap-t b{display:block;font-size:15px;margin-bottom:5px;line-height:1.3}
+.sv-nocap .sv-nocap-t small{color:var(--mut);font-size:13px;line-height:1.55;display:block;max-width:46ch}
+.sv-nocap .sv-nocap-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+/* three equal buttons on one line, even on a 390px phone: the labels are the
+   short form, the full sentence stays as the title and the accessible name */
+.sv-nocap .sv-nocap-acts button{flex:1 1 0;min-width:0;justify-content:center;min-height:44px;padding-inline:10px}
+.sv-nocap .sv-nocap-acts button .btn-ic{flex:none}
+.sv-nocap .sv-nocap-acts button span:not(.btn-ic){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #shLibDock{position:fixed;left:0;right:0;z-index:59;display:flex;align-items:center;gap:10px;
   bottom:calc(env(safe-area-inset-bottom,0px) + 78px);padding:0 12px;pointer-events:none}
 #shLibDock>*{pointer-events:auto}
@@ -979,7 +1063,7 @@ html.has-shdock #ppFab{bottom:calc(env(safe-area-inset-bottom,0px) + 148px)}
 .sh-clear{color:var(--red);border-color:rgba(239,68,68,.35)!important;padding:7px 10px}
 .sh-clear:hover{background:rgba(239,68,68,.12);border-color:var(--red)!important;color:var(--red)}
 .sh-clear svg{width:16px;height:16px;display:block}
-.sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:48px}
+.sess-ex summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:44px}
 .sess-ex summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:var(--r-md)}
 .sess-ex summary::-webkit-details-marker{display:none}
 .sess-ex .sess-ex-title{font-weight:700;font-size:15px}
@@ -1010,7 +1094,7 @@ html.has-shdock #ppFab{bottom:calc(env(safe-area-inset-bottom,0px) + 148px)}
 .pf-row:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .pf-setup{margin:0 auto 16px;max-width:560px}
 .pf-card-h{font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
-.pf-act{min-height:48px}
+.pf-act{min-height:44px}
 /* --mut2 measures ~2.9:1 on --card — see DESIGN_SYSTEM 1 */
 .pf-note{font-size:11.5px;color:var(--mut);margin-top:10px;line-height:1.5}
 /* Professional Skills Passport — shared Profile / Progress competency view. */
@@ -1382,7 +1466,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .ob-goals{display:flex;flex-direction:column;gap:10px;max-width:420px;margin:0 auto}
 .ob-goal{width:100%;padding:14px 16px;border-radius:14px;border:1px solid var(--line2);
   background:var(--card2);color:var(--txt);font-family:inherit;text-align:left;cursor:pointer;
-  transition:.15s;min-height:48px}
+  transition:.15s;min-height:44px}
 .ob-goal:hover,.ob-goal:focus-visible{border-color:var(--acc);transform:translateY(-1px)}
 .ob-goal b{display:block;font-size:15px;margin-bottom:3px}
 .ob-goal small{display:block;color:var(--mut);font-size:12.5px;line-height:1.45}
@@ -1391,7 +1475,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .ob-tracks{display:flex;flex-direction:column;gap:12px;max-width:420px;margin:0 auto}
 .ob-track{display:flex;align-items:center;gap:14px;width:100%;padding:16px;border-radius:16px;
   border:1px solid var(--line2);background:var(--card2);color:var(--txt);font-family:inherit;
-  text-align:left;cursor:pointer;transition:.15s;min-height:48px}
+  text-align:left;cursor:pointer;transition:.15s;min-height:44px}
 .ob-track:hover,.ob-track:focus-visible{border-color:var(--acc);transform:translateY(-1px)}
 .ob-track-ic{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;
   background:linear-gradient(145deg,#6366f1,#22d3ee);color:#fff}
@@ -1406,7 +1490,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sh-line-report-flash{outline:2px solid var(--acc);outline-offset:3px;border-radius:12px;transition:outline-color .5s}
 .sh-line-report{margin-top:10px;border:1px solid var(--line);border-radius:12px;background:var(--bg2);overflow:hidden}
 .sh-line-report>summary{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;
-  list-style:none;min-height:48px;font-size:13.5px;font-weight:700}
+  list-style:none;min-height:44px;font-size:13.5px;font-weight:700}
 .sh-line-report>summary::-webkit-details-marker{display:none}
 .sh-line-report-h{flex:1;min-width:0}
 .sh-line-chev{flex:none;color:var(--mut);transition:transform .18s;font-size:17px}
@@ -1472,7 +1556,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sim-prog-axis{fill:var(--mut2);font-size:10.5px;text-anchor:middle}
 .sim-prog-trend{margin:14px 0 12px;font-size:13px;color:var(--mut);line-height:1.6}
 .sim-prog-list,.sim-past{display:flex;flex-direction:column;gap:6px}
-.sim-prog-row,.sim-past button{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:9px 12px;
+.sim-prog-row,.sim-past button{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:9px 12px;
   border:1px solid var(--line);border-radius:10px;background:var(--bg2);color:var(--txt);
   font-family:inherit;font-size:13px;cursor:pointer;text-align:left}
 .sim-prog-row:hover,.sim-past button:hover{border-color:var(--acc)}
@@ -1541,8 +1625,12 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-ch-head{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:6px}
 .sv-ch-hd1{display:flex;align-items:center;gap:8px;width:100%}.sv-ch-hd1 .eyebrow{flex:1;min-width:0}.sv-ch-head .seg-tabs{margin:0;width:100%;display:flex}.sv-ch-lv .seg-tab{flex:1;min-width:0}
 .sv-ch-hint{font-size:12px;color:var(--mut2);margin:0 0 8px}
-.sv-ch-target{font-size:16px;font-weight:700;margin:6px 0 10px;line-height:1.45}.sv-ch-target.small{font-size:13px;font-weight:500;color:var(--mut)}
-.sv-ch-target.blur{filter:blur(7px);user-select:none;pointer-events:none}
+/* the same card as the Shadow paragraph, so Challenge reads as the same screen
+   with the recording tools in place of the translation (owner, 22 Sep 2026) */
+.sv-ch-target{font-size:16px;font-weight:700;margin:6px 0 10px;line-height:1.45;
+  padding:14px 14px 12px;border-radius:14px;background:var(--card2);border:1px solid var(--line2)}
+.sv-ch-target.small,.sv-ch-target.hidden-note{padding:0;background:none;border:0}.sv-ch-target.small{font-size:13px;font-weight:500;color:var(--mut)}
+.sv-ch-target.blur{filter:blur(9px);user-select:none;pointer-events:none;transition:filter .25s}
 .sv-ch-target.hidden-note{display:flex;gap:8px;align-items:flex-start;font-weight:600;font-size:14px}.sv-ch-target.hidden-note svg{width:16px;height:16px;flex:none;margin-top:3px}
 .sv-ch-meta{font-weight:500;color:var(--mut);font-size:12.5px}.sv-ch-target.hidden-note .sv-ch-meta{display:block;margin-top:2px}
 .sv-ch-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}.sv-ch-row .btn,.sv-ch-row .btn-primary{display:inline-flex;align-items:center;gap:6px}.sv-ch-row svg{width:16px;height:16px}
@@ -1567,7 +1655,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-ch-sec{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .sv-ch-sec-h{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:6px}.sv-ch-sec-h svg{width:14px;height:14px}
 .sv-ch-issue{border:1px solid var(--line2);border-radius:10px;background:var(--card2);margin:6px 0;overflow:hidden}.sv-ch-issue.open{border-color:color-mix(in srgb,var(--acc) 45%,transparent)}
-.sv-ch-issue-hd{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:8px 10px;background:none;border:0;color:var(--txt);text-align:left;font:inherit;cursor:pointer}
+.sv-ch-issue-hd{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:8px 10px;background:none;border:0;color:var(--txt);text-align:left;font:inherit;cursor:pointer}
 .sv-ch-issue-n{flex:none;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-weight:800;font-size:12px;display:inline-flex;align-items:center;justify-content:center}
 .sv-ch-issue-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.sv-ch-issue-t b{font-size:15px}.sv-ch-issue-t small{font-size:12px;color:var(--mut2)}
 .sv-ch-issue-body{padding:0 10px 10px 44px}
@@ -1583,11 +1671,54 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-ch-weak{display:flex;gap:8px;flex-wrap:wrap}.sv-ch-wk{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--card2)}
 .sv-ch-wk-w{min-height:40px;padding:0 12px;border:0;background:none;color:var(--txt);font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px}.sv-ch-wk-w small{font-size:11px;color:var(--mut2);font-weight:600}
 .sv-ch-wk-star{min-width:40px;border:0;border-left:1px solid var(--line2);background:none;color:var(--mut2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.sv-ch-wk-star svg{width:16px;height:16px}.sv-ch-wk-star.on{color:var(--gold)}
-.sv-ch-hist{display:flex;gap:6px;flex-wrap:wrap}.sv-ch-hist-a{display:inline-flex;flex-direction:column;gap:1px;min-height:48px;padding:5px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--mut2);font:inherit;font-size:11px;cursor:pointer;text-align:left}.sv-ch-hist-a b{font-size:12.5px;color:var(--txt)}.sv-ch-hist-a span{display:inline-flex;align-items:center;gap:4px}.sv-ch-hist-a svg{width:11px;height:11px}.sv-ch-hist-a:disabled{opacity:.5}
+.sv-ch-hist{display:flex;gap:6px;flex-wrap:wrap}.sv-ch-hist-a{display:inline-flex;flex-direction:column;gap:1px;min-height:44px;padding:5px 10px;border-radius:9px;border:1px solid var(--line2);background:var(--card2);color:var(--mut2);font:inherit;font-size:11px;cursor:pointer;text-align:left}.sv-ch-hist-a b{font-size:12.5px;color:var(--txt)}.sv-ch-hist-a span{display:inline-flex;align-items:center;gap:4px}.sv-ch-hist-a svg{width:11px;height:11px}.sv-ch-hist-a:disabled{opacity:.5}
 .sv-ch-next{margin-top:12px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent);border:1px solid color-mix(in srgb,var(--acc) 35%,transparent)}.sv-ch-next p{margin:0;font-size:14px;line-height:1.5}
 .sv-ch-cta .btn-primary{width:100%;justify-content:center}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
 .sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
+/* the ladder: a map of the five rungs, not a menu — the app chooses */
+.sv-ch-ladder{display:flex;align-items:center;gap:4px;width:100%;flex-wrap:wrap}
+.sv-ch-rung{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--mut2);font-weight:700;letter-spacing:.3px}
+.sv-ch-rung i{width:7px;height:7px;border-radius:50%;border:1.5px solid var(--line2);flex:none}
+.sv-ch-rung b{font-weight:700;opacity:.55}
+.sv-ch-rung.done i{background:var(--green);border-color:var(--green)}
+.sv-ch-rung.now i{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.sv-ch-rung.now b{opacity:1;color:var(--acc)}
+.sv-ch-rung+.sv-ch-rung{margin-left:2px}.sv-ch-rung+.sv-ch-rung::before{content:"";width:8px;height:1px;background:var(--line2);margin-right:4px}
+.sv-ch-rung-sp{margin-left:auto;font-size:11px;font-weight:800;color:var(--acc);padding:1px 6px;border-radius:6px;background:color-mix(in srgb,var(--acc) 14%,transparent)}
+/* between two rungs */
+.sv-ch-move{display:flex;gap:10px;align-items:flex-start;margin:10px 0;padding:12px;border-radius:12px;line-height:1.45;
+  background:color-mix(in srgb,var(--acc) 10%,transparent);border:1px solid color-mix(in srgb,var(--acc) 35%,transparent)}
+.sv-ch-move.up{background:color-mix(in srgb,var(--green) 10%,transparent);border-color:color-mix(in srgb,var(--green) 35%,transparent)}
+.sv-ch-move svg{width:22px;height:22px;flex:none;margin-top:1px;color:var(--acc)}.sv-ch-move.up svg{color:var(--green)}
+.sv-ch-move b{display:block;font-size:15.5px}.sv-ch-move small{display:block;font-size:13px;color:var(--mut);margin-top:2px}
+/* the listening gate */
+.sv-ch-gapline{line-height:2.1}
+.sv-ch-blank{display:inline-block;min-width:54px;border-bottom:2px solid var(--acc);text-align:center;padding:0 4px;font-weight:800}
+.sv-ch-blank.filled{border-bottom-color:var(--mut2)}
+.sv-ch-blank.ok{border-bottom-color:var(--green);color:var(--green)}
+.sv-ch-blank.bad{border-bottom-color:var(--red);color:var(--red);text-decoration:line-through}
+.sv-ch-gap{display:flex;align-items:center;gap:8px;margin:6px 0}
+.sv-ch-gap-n{flex:none;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);font-weight:800;font-size:11.5px;display:inline-flex;align-items:center;justify-content:center}
+.sv-ch-gap-opts{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+.sv-ch-chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.sv-ch-chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sv-ch-chip.ans{border-color:var(--green);color:var(--green)}.sv-ch-chip.on.ans{background:var(--green);color:#fff}
+.sv-ch-chip:disabled{cursor:default;opacity:.85}
+/* speaking with the speaker */
+.sv-ch-syncline{line-height:1.9;font-weight:600;font-size:15px}
+.sv-ch-sw{border-radius:4px;padding:0 2px;transition:background .12s,color .12s}
+.sv-ch-sw.was{color:var(--mut2)}
+.sv-ch-sw.on{background:var(--acc);color:#fff}
+.sv-ch-count{font-size:46px;font-weight:800;text-align:center;color:var(--acc);line-height:1.1;margin:8px 0}
+.sv-ch-meter{height:8px;border-radius:4px;background:var(--line2);overflow:hidden;margin:10px 0 4px}
+.sv-ch-meter i{display:block;height:100%;background:var(--acc);border-radius:4px;transition:width .08s linear}
+/* the chorus and the build-up */
+.sv-ch-reps{display:flex;gap:5px;margin:2px 0 8px}
+.sv-ch-reps i{width:14px;height:5px;border-radius:3px;background:var(--line2)}
+.sv-ch-reps i.done{background:var(--green)}.sv-ch-reps i.now{background:var(--acc)}
+.sv-ch-build-w{font-size:17px;line-height:1.45;font-weight:700}
+.k-rg{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
 /* the three pages of the studio (General English, V2 on): what each one hides */
 #shWork[data-svmode="watch"] #svNow{display:none!important}   /* the list itself lights the paragraph and the word */
 #shWork[data-svmode="watch"] #svTx{max-height:calc(100vh - 420px);min-height:180px}
@@ -1929,7 +2060,7 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .fnd-en{font-size:clamp(19px,4.6vw,24px);font-weight:800;line-height:1.3;color:var(--txt)}
 .fnd-fr{font-size:14px;color:var(--mut);line-height:1.4;margin-top:4px}
 .fnd-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.fnd-acts .btn{min-height:48px}.fnd-rec{flex:1 1 140px;justify-content:center}
+.fnd-acts .btn{min-height:44px}.fnd-rec{flex:1 1 140px;justify-content:center}
 .fnd-result{margin-top:10px;min-height:4px}
 .fnd-tick{display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:700;font-size:13px}
 .fnd-tick svg{width:16px;height:16px}
@@ -2065,7 +2196,7 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
    secondary by construction. No infinite animation: motion here confirms a
    press, it does not decorate. */
 .btn-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  min-height:48px;padding:10px 16px;border:none;border-radius:var(--r-md);
+  min-height:44px;padding:10px 16px;border:none;border-radius:var(--r-md);
   /* Deepened a notch from --accent so white text clears 4.5:1 in BOTH themes.
      Raw --acc in dark (#6366f1) measures 4.47:1 — a hair under AA. */
   background:var(--accent-fill);color:var(--on-accent);font-family:inherit;
@@ -2267,7 +2398,7 @@ textarea.ex-speech{padding-right:34px}
    dragged taller on desktop). The pencil sits on the first line, not centred. */
 .ex-field textarea{padding-left:38px;width:100%;display:block}
 .ex-field-ta .ex-field-ic{top:15px;transform:none}
-textarea.ex-ta{min-height:48px;padding-top:11px;padding-bottom:11px}
+textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of speech stays in view; taGrow stretches it, the drag handle too */
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 /* "listening" is live state, so the pulse is motivated — but the red fill
@@ -2279,7 +2410,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 /* Was an 18px-tall text link — the smallest target in the app. Same look, a
    real 44px hit area, pulled left so the label still aligns with the content. */
 .back{background:none;border:none;color:var(--acc2);font-size:14px;font-weight:600;
-  margin:0 0 6px -10px;padding:0 10px;min-height:48px;cursor:pointer;
+  margin:0 0 6px -10px;padding:0 10px;min-height:44px;cursor:pointer;
   display:inline-flex;gap:6px;align-items:center;border-radius:var(--r-md)}
 .back:hover{background:var(--hover)}
 .back:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
@@ -2299,7 +2430,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
    box nested in a bordered box is banned by the design system, and six of them
    read as six separate objects rather than one plan. */
 .step{display:flex;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);
-  align-items:flex-start;cursor:pointer;transition:background .15s;min-height:48px}
+  align-items:flex-start;cursor:pointer;transition:background .15s;min-height:44px}
 .step:last-child{border-bottom:none}
 .step:hover{background:var(--hover)}
 .step:focus-visible{outline:2px solid var(--focus);outline-offset:-2px;border-radius:var(--r-md)}
@@ -2348,7 +2479,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 /* The day's tool (Shadow Studio, Phrase Lab…) — prominent, but secondary to
    starting the block. Was a .glow-cta, which carried an infinite animation and
    competed with the clock for primacy. */
-.sess-jump{width:100%;justify-content:flex-start;min-height:48px;padding:12px 16px;border-radius:var(--r-md)}
+.sess-jump{width:100%;justify-content:flex-start;min-height:44px;padding:12px 16px;border-radius:var(--r-md)}
 .sess-jump-go{margin-left:auto;color:var(--acc2);font-size:18px}
 .sess-jump-why{font-size:12.5px;color:var(--mut);line-height:1.5;margin:8px 0 18px}
 /* Supporting text and the rare Reset sit outside the hero card, so the card
@@ -2358,10 +2489,10 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 /* Reset is a rare, mildly destructive action, so it is a quiet text control
    rather than a second stacked button competing with Start. */
 .sess-reset{background:none;border:none;font-family:inherit;font-size:12.5px;font-weight:600;
-  color:var(--mut);cursor:pointer;min-height:48px;padding:0 12px;border-radius:var(--r-md);transition:.14s}
+  color:var(--mut);cursor:pointer;min-height:44px;padding:0 12px;border-radius:var(--r-md);transition:.14s}
 .sess-reset:hover{color:var(--txt);background:var(--hover)}
 .sess-reset:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.sess-act,.sess-done{min-height:48px;justify-content:center}
+.sess-act,.sess-done{min-height:44px;justify-content:center}
 .sess-act{margin-top:10px}
 .sess-done{width:100%}
 .sess-plan{margin:0}
@@ -2371,7 +2502,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .sess-aloud li{font-size:13.5px;color:var(--mut);padding:3px 0;line-height:1.5}
 /* --mut2 on --bg2 measured 3.14:1 dark / 2.58:1 light. */
 .sess-heard{background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r-md);
-  padding:10px 14px;font-size:14px;line-height:1.6;min-height:48px;font-style:italic}
+  padding:10px 14px;font-size:14px;line-height:1.6;min-height:44px;font-style:italic}
 .sess-heard-empty{color:var(--mut);font-style:normal;font-size:12.5px}
 
 /* RECORDER */
@@ -2412,7 +2543,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
 .ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
-.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:1 1 0;min-width:0;justify-content:center;min-height:48px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:0 0 50%;width:auto;min-height:48px;font-size:15px;margin:0}
+.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:1 1 0;min-width:0;justify-content:center;min-height:44px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:0 0 50%;width:auto;min-height:44px;font-size:15px;margin:0}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}.ex-timer:empty{display:none}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
@@ -2508,7 +2639,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
   border-radius:var(--r-lg);padding:16px 18px}
 .ex-best-t{font-size:17px;font-weight:600;line-height:1.5;letter-spacing:-.1px;margin:0}
 .ex-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
-.ex-acts>.btn{flex:1 1 auto;min-height:48px;justify-content:center;white-space:nowrap}
+.ex-acts>.btn{flex:1 1 auto;min-height:44px;justify-content:center;white-space:nowrap}
 .ex-copy{background:color-mix(in srgb,var(--green) 16%,transparent);
   border:1px solid color-mix(in srgb,var(--green) 45%,transparent);color:var(--txt);font-weight:700}
 .ex-copy:hover{background:color-mix(in srgb,var(--green) 26%,transparent)}
@@ -2539,19 +2670,19 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-tx{font-size:13.5px;line-height:1.65;color:var(--mut);margin:0}
 .ex-sec{margin:12px 0 0}
 .ex-note{font-size:12.5px;color:var(--gold);margin-bottom:10px;line-height:1.5}
-.ex-aiprompt{min-height:48px;margin-top:12px}
+.ex-aiprompt{min-height:44px;margin-top:12px}
 .ph-score{font-weight:800;opacity:.8;margin-left:2px}
 .ph-mastered{background:var(--green);border:1px solid transparent;color:#04231a;font-weight:800}
 .ph-mastered:hover{filter:brightness(1.06)}
 .ph-mastered .btn-ic{color:#04231a}
-.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center;min-width:44px;min-height:48px}
+.ph-icobtn{padding:8px 12px;display:inline-grid;place-items:center;min-width:44px;min-height:44px}
 .ph-icobtn svg{width:18px;height:18px;display:block}
 .ph-card .phrase{font-size:16.5px;font-weight:600;margin-bottom:4px}
 .ph-card .use{font-size:13px;color:var(--mut);margin-bottom:10px}
 .ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .idiom-tag{font-size:11px;font-weight:700;color:var(--pink);letter-spacing:1px}
 .cat-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}
-.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:clamp(12px,3.2vw,13px);font-weight:600;min-height:48px;display:inline-flex;align-items:center;cursor:pointer}
+.cat-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:7px 14px;border-radius:99px;font-size:clamp(12px,3.2vw,13px);font-weight:600;min-height:44px;display:inline-flex;align-items:center;cursor:pointer}
 .cat-tab.on{background:var(--accent-fill);color:var(--on-accent);border-color:transparent}
 
 /* SHADOW (YouGlish-style clip looper) */
@@ -2685,7 +2816,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
      overflow-x:auto at <=820px. */
   flex:1 1 auto;min-width:max-content;justify-content:center;
   background:none;border:0;border-radius:0;box-shadow:none;
-  min-height:48px;padding:11px 4px;font-size:13px;font-weight:600;
+  min-height:44px;padding:11px 4px;font-size:13px;font-weight:600;
   color:var(--mut);position:relative}
 #v-practice .prac-subgroup .seg-tab .btn-ic{display:none}
 #v-practice .prac-subgroup .seg-tab .seg-lbl{
@@ -2722,7 +2853,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 /* Level 3: the smallest step — compact uppercase chips. */
 #v-practice .prac-subtabs{gap:6px}
 #v-practice .prac-subtabs .prac-subtab{
-  min-height:48px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:var(--r-md);
+  min-height:44px;font-size:11.5px;font-weight:600;padding:8px 10px;border-radius:var(--r-md);
   letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
 #v-practice .prac-subtabs .prac-subtab b{margin-left:4px;font-size:12px}
 
@@ -2838,7 +2969,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 /* The one next step, stated once under the panel instead of nine times inside
    it. It is a real button and goes to the screen that changes the number. */
 .home-step{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
-  min-height:48px;margin:10px 0 22px;padding:12px 16px;cursor:pointer;
+  min-height:44px;margin:10px 0 22px;padding:12px 16px;cursor:pointer;
   font-family:inherit;font-size:13.5px;line-height:1.5;font-weight:600;
   color:var(--txt);background:var(--card);border:1px solid var(--line);
   border-radius:var(--r-md);box-shadow:var(--sh-1);transition:.15s}
@@ -2914,7 +3045,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .cf-check{display:flex;gap:10px;align-items:flex-start;text-align:left;font-size:13px;color:var(--mut);line-height:1.45;margin:-8px 0 18px;cursor:pointer}
 .cf-check input{width:18px;height:18px;flex:none;margin:1px 0 0;accent-color:var(--acc)}
 .cf-actions{display:flex;gap:10px}
-.cf-actions .btn{flex:1;justify-content:center;min-height:48px}
+.cf-actions .btn{flex:1;justify-content:center;min-height:44px}
 .pi-ov .cf-card{max-width:340px}
 .pi-logo{width:64px;height:64px;border-radius:18px;margin:0 auto 14px;display:block}
 .pi-ov .cf-actions{flex-direction:column;gap:8px}
@@ -3194,9 +3325,9 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .fb-nothing{font-size:13.5px;color:var(--mut);margin-top:8px;line-height:1.55}
 /* 42 of the panel's 52 controls were 38px or less. .btn-sm and .voc-mini are
    shared with screens not yet passed, so the floor is scoped to #fbOut. */
-#fbOut .btn,#fbOut .btn-sm,#fbOut .voc-mini{min-height:48px}
+#fbOut .btn,#fbOut .btn-sm,#fbOut .voc-mini{min-height:44px}
 #fbOut .voc-mini{min-width:44px;justify-content:center}
-#fbOut .voc-goto{display:inline-flex;align-items:center;min-height:48px;cursor:pointer}
+#fbOut .voc-goto{display:inline-flex;align-items:center;min-height:44px;cursor:pointer}
 #fbOut .voc-goto:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* POSTURE COACH */
 .pc-wrap{display:none;position:relative;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
@@ -3215,7 +3346,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .voc-head{display:flex;align-items:center;gap:8px;padding:9px 12px;cursor:pointer}
 .voc-head:hover{background:rgba(255,255,255,.03)}
 .voc-head .wd{font-weight:700;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.voc-mini{padding:0;width:44px;height:44px;min-height:48px;flex:none;justify-content:center}
+.voc-mini{padding:0;width:44px;height:44px;min-height:44px;flex:none;justify-content:center}
 .voc-mini svg{width:18px;height:18px}
 .voc-mini:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Saved is a STATE, not the row's primary action. It used to be a filled --grad
@@ -3239,8 +3370,8 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 /* Segmented pill tabs — the one tab component used across the app
    (Library buckets, Journey phases, Shadow Studio, Phrase Lab). */
 .prac-subtabs,.seg-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-#v-practice .prac-add-btn{min-height:48px}
-#v-practice .prac-add input{min-height:48px}
+#v-practice .prac-add-btn{min-height:44px}
+#v-practice .prac-add input{min-height:44px}
 /* the three vocabulary buckets are one control — equal widths read as a
    segmented switch rather than three loose pills of random length */
 .prac-subtabs{flex-wrap:nowrap}
@@ -3435,12 +3566,12 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .ob-card .sub{margin:0 auto 26px}
 .ob-em{font-style:italic;color:var(--accent)}
 .ob-go{width:auto;min-width:180px;margin:0 auto;font-size:16px;padding:14px 34px}
-.ob-skip{min-height:48px}
-.ob-hear{min-height:48px}
+.ob-skip{min-height:44px}
+.ob-hear{min-height:44px}
 #obWrap h1{font-size:clamp(22px,5.6vw,27px);font-weight:800;line-height:1.25;letter-spacing:-.4px}
-#obWrap .auth-alt a{min-height:48px;display:inline-flex;align-items:center}
+#obWrap .auth-alt a{min-height:44px;display:inline-flex;align-items:center}
 .ob-chips{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
-.ob-chip{border:1px solid var(--line2);background:var(--card);color:var(--txt);padding:12px 20px;border-radius:14px;font-size:14.5px;font-weight:600;transition:.15s;min-height:48px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+.ob-chip{border:1px solid var(--line2);background:var(--card);color:var(--txt);padding:12px 20px;border-radius:14px;font-size:14.5px;font-weight:600;transition:.15s;min-height:44px;display:inline-flex;align-items:center;gap:7px;cursor:pointer}
 .ob-chip:hover,.ob-chip.on{border-color:var(--acc);background:rgba(99,102,241,.14)}
 .ob-dots{display:flex;gap:7px;justify-content:center;margin-top:26px}
 .ob-dot{width:8px;height:8px;border-radius:50%;background:var(--line2)}
@@ -3464,7 +3595,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
    one would collide with a nearby primary. Same recipe as .fb-again, which
    should fold into this class in a later cleanup (COMPONENT_LIBRARY). */
 .btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  min-height:48px;padding:11px 18px;border-radius:var(--r-md);
+  min-height:44px;padding:11px 18px;border-radius:var(--r-md);
   background:transparent;border:1.5px solid var(--accent);
   color:color-mix(in srgb,var(--accent) 58%,#fff);
   font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
@@ -3476,13 +3607,13 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 @media (prefers-reduced-motion:reduce){.btn-outline{transition:none}.btn-outline:active{transform:none}}
 /* .btn-outline at full width — the only difference is size, so it is a
    modifier rather than a second copy of the recipe. */
-.fb-again{width:100%;min-height:48px;margin:14px 0 4px;padding:12px 18px;font-size:15px}
+.fb-again{width:100%;min-height:44px;margin:14px 0 4px;padding:12px 18px;font-size:15px}
 .auth-go{width:auto;min-width:140px}
 /* "Register" / "Log in" and "Forgotten your password?" are actions, not prose,
    so they get a real hit area. The Privacy Policy link inside .auth-terms is
    deliberately left inline — it sits mid-sentence, where WCAG 2.5.8 exempts it
    and padding would break the line. */
-.auth-alt a,.auth-forgot{color:var(--acc2);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;min-height:48px;padding:0 6px;margin:-13px 0}
+.auth-alt a,.auth-forgot{color:var(--acc2);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;min-height:44px;padding:0 6px;margin:-13px 0}
 .auth-forgot{color:var(--mut);font-weight:400;font-size:12.5px}
 /* --mut2 is a border/divider token and must never carry text (DESIGN_SYSTEM).
    At 11px on the auth sheet it measured 2.95:1, well under AA. */
@@ -3564,7 +3695,7 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 /* Chrome is absolutely positioned inside a FIXED overlay, so it cannot scroll
    away — the iframe scrolls, the buttons do not. 44px, safe-area aware. */
 .doc-close,.doc-theme{position:absolute;top:max(14px,calc(env(safe-area-inset-top) + 8px));z-index:3;
-  width:44px;height:44px;min-height:48px;border-radius:50%;border:1px solid var(--line2);
+  width:44px;height:44px;min-height:44px;border-radius:50%;border:1px solid var(--line2);
   background:rgba(8,12,22,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   color:#fff;display:grid;place-items:center;cursor:pointer;padding:0}
 .doc-close{left:max(14px,calc(env(safe-area-inset-left) + 8px))}
@@ -3697,8 +3828,8 @@ html[dir="rtl"] .home-due-go,html[dir="rtl"] .home-step-go{margin-left:0;margin-
 html[dir="rtl"] .help-sec>summary::after{transform:scaleX(-1)}
 html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90deg)}
 /* the search prev/next arrows were 26px */
-.help-arrow{min-width:44px;min-height:48px}
-#v-manual .manual-doc a{min-height:48px;display:inline-flex;align-items:center;color:var(--acc2)}
+.help-arrow{min-width:44px;min-height:44px}
+#v-manual .manual-doc a{min-height:44px;display:inline-flex;align-items:center;color:var(--acc2)}
 .help-no-results{text-align:center;color:var(--mut);padding:30px 0}
 .help-hl{background:#fde047;color:#1a1205;border-radius:3px;padding:0 2px;font-weight:700;box-shadow:0 0 0 1px rgba(253,224,71,.5)}
 /* --acc measures 3.82:1 on --card in dark; --acc2 is the app's link colour
@@ -4008,7 +4139,7 @@ html,body{max-width:100%;overflow-x:clip}
 .ob-card .sub{margin-bottom:clamp(9px,2.6vh,26px);font-size:clamp(12.5px,1.85vh,15.5px)}
 .ob-dots{margin-top:clamp(9px,2.6vh,26px)}
 .ob-chips{margin-bottom:clamp(10px,2.6vh,24px)}
-.ob-chip{padding:clamp(7px,1.4vh,12px) clamp(13px,2.4vw,20px);font-size:clamp(13px,1.9vh,14.5px);min-height:48px}
+.ob-chip{padding:clamp(7px,1.4vh,12px) clamp(13px,2.4vw,20px);font-size:clamp(13px,1.9vh,14.5px);min-height:44px}
 /* result step */
 .ob-ring{width:clamp(86px,15.5vh,130px);height:clamp(86px,15.5vh,130px);margin:2px auto clamp(6px,1.4vh,12px)}
 .ob-ring-in{width:80%;height:80%}
@@ -4062,12 +4193,12 @@ pre,code{overflow-wrap:anywhere}
 
 /* 3 — Comfortable touch targets on phones (44px is the accessible minimum). */
 @media(max-width:820px){
-  .btn{min-height:48px}
-  .btn-sm{min-height:48px}
-  input,select,textarea,[contenteditable="true"]{min-height:48px;font-size:max(16px,1em)!important}  /* 16px stops iOS zoom-on-focus; !important so no class rule (.sh-paste, input[type=time]) can undercut it */
+  .btn{min-height:44px}
+  .btn-sm{min-height:44px}
+  input,select,textarea,[contenteditable="true"]{min-height:44px;font-size:max(16px,1em)!important}  /* 16px stops iOS zoom-on-focus; !important so no class rule (.sh-paste, input[type=time]) can undercut it */
   textarea{min-height:88px}
-  .seg-tab,.prac-subtab{min-height:48px}
-  .voc-mini,.ph-icobtn,.ex-icobtn{min-width:44px;min-height:48px}
+  .seg-tab,.prac-subtab{min-height:44px}
+  .voc-mini,.ph-icobtn,.ex-icobtn{min-width:44px;min-height:44px}
   .bnav-item{min-height:52px}
 }
 
@@ -5362,7 +5493,7 @@ const I18N_EN={
  "sv.cur_expr":"Current expression",
  "sv.ch_last_words":"last time {{ok}} of {{total}} words",
  "sv.ch_eyebrow":"Your turn.",
- "sv.ch_hint_guided":"Read the paragraph once, then say it without looking — it disappears when you record.",
+ "sv.ch_hint_guided":"Read it two or three times until you can hear it in your head. The moment you record, the words blur — that is the point.",
  
  
  "sv.ch_target_hidden":"Say it without reading the transcript.","sv.ch_words":"{{n}} words","sv.ch_expr_hint":"Expression: “{{phrase}}”",
@@ -5386,6 +5517,105 @@ const I18N_EN={
  "sv.ch_imp_levelup":"Nothing to fix here. Take the next paragraph.",
  "sv.ch_imp_missing_phrase":"Missing: “{{phrase}}”. Say the whole line.",
  "sv.ch_imp_rhythm":"Your words were more evenly timed than the speaker's. Stretch the important words, shorten the small ones.",
+ /* The ladder: the five rungs, the cards between them, and the two drills
+    that come out of a miss. Plain words on the buttons, the narrative voice
+    in the lines that carry the learner forward. */
+ "sv.ch_rung_gate":"Listen",
+ "sv.ch_rung_sync":"Together",
+ "sv.ch_rung_recall":"From memory",
+ "sv.ch_rung_blind":"Unseen",
+ "sv.ch_rung_retell":"In your words",
+ "sv.ch_rung_gate_eyebrow":"Did you hear it?",
+ "sv.ch_rung_sync_eyebrow":"Speak with them.",
+ "sv.ch_rung_recall_eyebrow":"Your turn.",
+ "sv.ch_rung_blind_eyebrow":"No script now.",
+ "sv.ch_rung_retell_eyebrow":"Say what it meant.",
+ "sv.ch_rung_aria":"{{rung}} — step {{n}} of {{total}}",
+ "sv.ch_hint_gate":"Play it once. Then tap the words you actually heard — not the ones you expect.",
+ "sv.ch_hint_sync":"The clip keeps running and you speak over it, eyes on the words. This is the one that builds the rhythm you hear in people who sound fluent.",
+ "sv.ch_hint_blind":"You will not see this one. Hear it once, hold it, say it — the way you will have to at work.",
+ "sv.ch_hint_retell":"Not the words. The meaning. Say it the way you would tell a colleague who missed the meeting.",
+ "sv.ch_blind_hidden":"Nothing on screen this time. Listen, then say it.",
+ "sv.ch_blind_listen_first":"Listen once before you record.",
+ "sv.ch_gate_skip":"This paragraph is too short to hide words in. Straight on to speaking.",
+ "sv.ch_gate_on":"Start speaking",
+ "sv.ch_gate_check":"Check",
+ "sv.ch_gate_pick":"Fill all {{n}} blanks.",
+ "sv.ch_gate_ready":"Check when you are ready.",
+ "sv.ch_gate_all":"Every word. Your ear is working.",
+ "sv.ch_gate_some":"{{ok}} of {{total}}. The right words are marked — listen once more for the ones you missed.",
+ "sv.ch_sync_start":"Start together",
+ "sv.ch_sync_ready":"Tap start, wait for three, then talk over the speaker the whole way.",
+ "sv.ch_sync_cancel":"Stop",
+ "sv.ch_sync_live":"Keep going — stay with them.",
+ "sv.ch_sync_privacy":"Nothing is recorded in this round. Only how loud you are, and only until the round ends.",
+ "sv.ch_sync_quiet":"I heard almost nothing. Speak out loud — under your breath is not enough here.",
+ "sv.ch_sync_short":"That was too short to measure. Let the whole paragraph play.",
+ "sv.ch_sync_flat_err":"Your microphone sent one unbroken level, with no words in it. Check it is the right microphone, then say the paragraph out loud.",
+ "sv.ch_sync_rep":"Together report",
+ "sv.ch_sync_on":"Carry on",
+ "sv.ch_sync_lag_h":"Behind by",
+ "sv.ch_sync_lag_none":"Right with them",
+ "sv.ch_sync_lag_v":"{{s}}s",
+ "sv.ch_sync_lag_note":"Measured from when you made sound against when the speaker did — not from your words.",
+ "sv.ch_sync_with_h":"Speaking with them",
+ "sv.ch_sync_hold_h":"Held it",
+ "sv.ch_sync_hold_yes":"All the way",
+ "sv.ch_sync_hold_no":"Slipped at the end",
+ "sv.ch_sync_good_all":"You were speaking almost every moment they were.",
+ "sv.ch_sync_good_close":"You stayed close behind them.",
+ "sv.ch_sync_good_tried":"You spoke over a native speaker without stopping. That is the hard part.",
+ "sv.ch_sync_bleed":"Your microphone is picking up the video itself, so I cannot tell your voice from the speaker's. Use headphones and this round will measure you properly.",
+ "sv.ch_sync_behind":"You are about {{s}} seconds behind. Start the moment they start — do not wait to understand.",
+ "sv.ch_sync_ahead":"You are running ahead of the speaker. Follow them; do not recite.",
+ "sv.ch_sync_dropped":"You went quiet for {{n}} of their words. Keep making sound even where you are unsure.",
+ "sv.ch_sync_flat":"Your voice stayed level while theirs rose and fell. Follow the shape, not just the words.",
+ "sv.ch_sync_drift":"You started with them and fell about {{s}} seconds behind. Breathe where they breathe.",
+ "sv.ch_retell_prompt":"In your own words: what was that about?",
+ "sv.ch_retell_recording":"Recording… say it your way, then tap to stop.",
+ "sv.ch_retell_good":"You carried the meaning across in your own words. That is the whole point of this.",
+ "sv.ch_retell_echo":"That was the line again, not your version of it. Close your eyes and tell me what it was about.",
+ "sv.ch_retell_thin":"Too short to hold a thought. Give me a sentence or two.",
+ "sv.ch_retell_missed":"The part that did not come across: {{missed}}.",
+ "sv.ch_retell_missed_x":"the main point",
+ "sv.ch_retell_on":"Take the next paragraph",
+ "sv.ch_chorus_h":"Chorus drill",
+ "sv.ch_chorus_how":"Say it with the speaker every time it plays. Out loud, same volume as them. You are training your mouth, not your memory.",
+ "sv.ch_chorus_start":"Start — {{n}} times",
+ "sv.ch_chorus_ready":"Six passes, no stopping between them.",
+ "sv.ch_chorus_live":"Pass {{n}} of {{total}} — speak with them.",
+ "sv.ch_chorus_done":"Now say it alone.",
+ "sv.ch_chorus_alone":"Say it alone",
+ "sv.ch_chorus_again":"Chorus again",
+ "sv.ch_btn_chorus":"Chorus",
+ "sv.ch_build_h":"Break it down",
+ "sv.ch_build_btn":"Break it down",
+ "sv.ch_build_step":"Step {{n}} of {{total}}",
+ "sv.ch_build_how":"Start at the end. Hear it, say it, then take a little more.",
+ "sv.ch_build_ok":"{{ok}} of {{total}} words. Take more.",
+ "sv.ch_build_miss":"{{ok}} of {{total}} words. Hear it once more and say this piece again.",
+ "sv.ch_build_next":"A little more",
+ "sv.ch_build_finish":"Say the whole thing",
+ "sv.ch_build_close":"Close",
+ "sv.ch_easier":"Make it easier",
+ "sv.ch_move_on":"Carry on",
+ "sv.ch_move_go":"{{rung}}",
+ "sv.ch_move_stay":"Same one again",
+ "sv.ch_move_up_h":"That one is yours.",
+ "sv.ch_move_up_b":"Next: {{rung}}. Same paragraph, less help.",
+ "sv.ch_move_faster_h":"Clean at that speed.",
+ "sv.ch_move_faster_b":"Same paragraph at {{speed}}×. Real people do not slow down for you.",
+ "sv.ch_move_again_h":"Not yet.",
+ "sv.ch_move_again_b":"One more go at {{rung}}. This is where it actually changes.",
+ "sv.ch_move_down_h":"Let us build it back up.",
+ "sv.ch_move_down_b":"Back to {{rung}} for one round. Dropping a step now is how you keep the next one.",
+ "sv.ch_move_slower_h":"Let us take the speed off.",
+ "sv.ch_move_slower_b":"Same paragraph at {{speed}}×. Get it right slowly, then earn the speed back.",
+ "sv.ch_move_past_h":"Enough listening.",
+ "sv.ch_move_past_b":"On to {{rung}} — your ear will catch up while your mouth works.",
+ "sv.ch_move_done_h":"This paragraph is finished.",
+ "sv.ch_move_done_b":"Every step, start to end. {{n}} paragraphs in this clip — take another.",
+ "sv.ch_err_quiet":"I could not hear you. Move closer to the microphone and speak up.",
  "sv.ch_rep_eyebrow":"Shadow report",
  "sv.ch_v_strong":"Strong attempt.",
  "sv.ch_v_good":"Good attempt.",
@@ -6263,7 +6493,16 @@ const I18N_EN={
  "sh.q_paste":"Paste a link",
  "sh.cont_label":"Continue watching",
  "sh.more_label":"More",
+ "sh.cap_retry":"Try again",
+ "sh.cap_retry_s":"Retry",
+ "sh.nocap_paste_s":"Paste",
+ "sh.nocap_ear_s":"By ear",
+ "sh.cap_busy_t":"Busy just now",
+ "sh.cap_busy_b":"Too many transcripts at once. Wait a few seconds and try again — this video is fine.",
+ "sh.cap_refused_t":"This video can't be transcribed",
+ "sh.cap_refused_b":"Google declines to write out the words for this one. Paste them yourself, or shadow by ear.",
  "sh.cap_partial":"Long video — the first {{n}} minutes have words. Shadow within that stretch.",
+ "sv.level_line":"Line-by-line highlighting — this transcript has line timings, not word timings.",
  "sh.cap_fetching":"Getting the words for this video… this takes up to a minute, and only happens once.",
  "sh.own_row_t":"Your videos",
  "sh.own_row_sub":"The links you added yourself — reopen one any day.",
@@ -9090,7 +9329,7 @@ ${(()=>{
       <button class="sv-shbar-side" onclick="svShReplay()" aria-label="${esc(t("sv.sh_replay"))}"><span class="sv-shbar-ic">${ic("skipstart")}</span><small>${t("sv.sh_replay")}</small></button>
     </div>
     <div class="sh-work-bar">
-      <button class="shv3-back" onclick="shCloseWork()" aria-label="${esc(t("sh.close_workspace"))}">${ic("chevron")}</button>
+      <button class="shv3-back" id="shv3Back" onclick="shv3Back()" aria-label="${esc(t("sh.close_workspace"))}">${ic("chevron")}</button>
       <h2 class="sh-work-title" id="shWorkTitle"><span id="shv3Title">${t("sh.eyebrow")}</span></h2>
       <button class="shv3-star" onclick="shSaveClip()" aria-label="${esc(t("sh.save_clip_btn"))}" title="${esc(t("sh.save_clip_btn"))}">${ic("star")}</button>
       <button class="sh-work-x" onclick="shCloseWork()" aria-label="${esc(t("sh.close_workspace"))}">${ic("close")}</button>
@@ -9345,12 +9584,27 @@ function shv3Sync(){
   }catch(e){}
   const t2=document.getElementById("shv3Title");
   if(t2)t2.textContent=(shClip&&shClip.title)||t("sh.eyebrow");
+  /* The top-left button says what "back" means from where the learner is
+     standing: in Watch it leaves the video and returns to the library; in
+     Shadow or Challenge it is a cross that drops them back to Watch, because
+     that is one step back, not all the way out (owner, 22 Sep 2026). */
+  const bk=document.getElementById("shv3Back");
+  if(bk){
+    const inner=svMode==="shadow"||svMode==="challenge";
+    bk.innerHTML=ic(inner?"close":"chevron");
+    bk.classList.toggle("is-x",inner);
+    bk.setAttribute("aria-label",inner?t("sv.mode_watch"):t("sh.close_workspace"));
+  }
 }
 /* Shadow is one button with two jobs: get me into Shadow, then record me. */
 window.shv3Shadow=()=>{
   if(svMode!=="shadow"){svSetMode("shadow");shv3Sync();return}
   try{shRec()}catch(e){}
   setTimeout(shv3Sync,120);
+};
+window.shv3Back=()=>{
+  if(svMode==="shadow"||svMode==="challenge"){svSetMode("watch");shv3Sync();return}
+  shCloseWork();
 };
 window.shv3More=()=>{
   const old=document.getElementById("shv3MoreOv");if(old)old.remove();
@@ -9738,6 +9992,11 @@ async function shLoad(c,quiet){
   /* library clips ship a human-marked transcript (correct lexical stress);
      load it as-is. A saved user edit always wins. Arbitrary pasted clips have
      no txt — the ✨ Mark stress button gives them best-effort algorithmic marks. */
+  /* Kick the transcript off now, not after the player has finished loading —
+     the two then overlap instead of queueing (owner, 22 Sep 2026: "reduce the
+     latency to the maximum"). A catalogue clip already knows its length; a
+     pasted one does not, and the Worker copes either way. */
+  if(shLibOn())try{loadCaptions(shClip.vid,(_shCat&&_shCat.videos[shClip.vid]&&_shCat.videos[shClip.vid].dur)||0)}catch(e){}
   const _nb=document.getElementById("shNote");_nb.value=S.notes["sh:"+shClip.vid]||c.txt||(shPasted(shClip.vid)?ShadowSync.normalizePasted(shPasted(shClip.vid)).text:"")||"";taGrow(_nb);
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
@@ -10119,8 +10378,58 @@ async function ytCaptionsNative(vid){
   return {vid,source:"youtube-native",lang:"en",cues,words};
 }
 const _capCache={};
-async function loadCaptions(vid){
-  if(vid in _capCache)return _capCache[vid];
+const _capErr={};   // vid → why the last transcript attempt failed, for the card below
+/* ---- transcripts kept on the device ------------------------------------
+   A model-written transcript costs real money and ~7 s a window to produce,
+   and the Worker does NOT cache it: `cache-control` on a POST is ignored by
+   the edge and by the browser, so every reload used to re-transcribe and
+   re-bill the same video. _capCache is memory only and dies with the page.
+   So the answer is written to localStorage instead — its own key, not S,
+   because S is pushed to Firestore whole and a transcript has no business
+   in the cloud document. Newest eight videos; a write that cannot fit is
+   dropped, never thrown. */
+const CAP_KEEP=8, CAP_LS="be_caps";
+function shCapAll(){try{return JSON.parse(localStorage.getItem(CAP_LS)||"{}")||{}}catch(e){return {}}}
+function shCapGet(vid){const r=shCapAll()[vid];return r&&r.cues&&r.cues.length?r:null}
+function shCapPut(vid,data,full){
+  if(!data||!data.cues||!data.cues.length)return;
+  try{
+    const all=shCapAll();
+    all[vid]={ts:Date.now(),full:!!full,source:data.source,lang:data.lang,cues:data.cues,
+      words:data.words,truncated:data.truncated,maxSec:data.maxSec,partial:data.partial};
+    const keys=Object.keys(all);
+    if(keys.length>CAP_KEEP)keys.sort((a,b)=>(all[a].ts||0)-(all[b].ts||0)).slice(0,keys.length-CAP_KEEP).forEach(k=>delete all[k]);
+    localStorage.setItem(CAP_LS,JSON.stringify(all));
+  }catch(e){}   /* quota, private mode: the session cache still holds it */
+}
+/* The player knows how long the video is about a second after it is created.
+   Asking the Worker before then means asking for 30 minutes of windows for a
+   four-minute clip — the whole of the wait a learner feels after pasting a
+   link. Worth waiting a moment for. */
+async function shDurSoon(ms){
+  const until=Date.now()+(ms||2500);
+  for(;;){
+    let d=0;try{d=ytPlayer&&ytPlayer.getDuration?ytPlayer.getDuration():0}catch(e){}
+    if(d>0)return d;
+    if(Date.now()>=until)return 0;
+    await new Promise(r=>setTimeout(r,120));
+  }
+}
+/* One request per video, however many callers ask. shLoad starts the fetch as
+   soon as the clip is chosen and shV2Load asks again a second later when the
+   player is up; without this they would both go to the Worker and the learner
+   would pay twice for the same words. */
+const _capFlight={};
+function loadCaptions(vid,durHint){
+  if(vid in _capCache)return Promise.resolve(_capCache[vid]);
+  /* kept from a previous session: instant, free, and works with no signal */
+  const kept=shCapGet(vid);
+  if(kept){_capCache[vid]=kept;if(!kept.full)shCapFillRest(vid,durHint);return Promise.resolve(kept)}
+  if(_capFlight[vid])return _capFlight[vid];
+  const pr=_loadCaptions(vid,durHint).finally(()=>{delete _capFlight[vid]});
+  _capFlight[vid]=pr;return pr;
+}
+async function _loadCaptions(vid,durHint){
   let data=null;
   /* 1. a bundled file — the curated library clips, works offline */
   try{const r=await fetch("captions/"+vid+".json");if(r.ok)data=await r.json();}catch(e){}
@@ -10151,23 +10460,88 @@ async function loadCaptions(vid){
   }
   /* 4. last, and the one that actually answers for a pasted video: the Worker
         asks Google's own model to transcribe the YouTube URL. Costs real money
-        per video (~$0.08 for 15 minutes), so it runs only when everything above
-        has failed, and the Worker caches the answer for a month. Line-level
-        timings, not word-level — svRender marks the difference. */
+        per video (~$0.08 for 15 minutes) and ~7 s per two-minute window
+        (measured 22 Sep 2026), so it runs only when everything above has
+        failed. Line-level timings, not word-level — svRender marks that.
+
+        The wait after pasting a link is what this ordering is about. The
+        Worker transcribes every window of `dur` before it answers anything,
+        and a pasted clip has no duration yet, so it used to be asked for the
+        whole 30-minute cap — fifteen windows, two waves — before a single
+        word reached the screen. Now: wait a moment for the player to say how
+        long the video really is, ask for the FIRST TWO MINUTES, and show
+        those; the rest is fetched behind the learner's back and folded in
+        when it lands. A clip shorter than the opening window is asked for
+        once, whole. */
   if(!data&&POLISH_API&&navigator.onLine){
-    try{
-      const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-        body:JSON.stringify({ytai:vid})});
-      const j=await r.json();
-      if(r.ok&&j&&j.cues&&j.cues.length){
-        data=j;
-        /* a long video is transcribed only up to the Worker's cap; say so once,
-           rather than letting the words simply stop mid-talk */
-        if(j.truncated)try{toast(t("sh.cap_partial",{n:Math.round((j.maxSec||1800)/60)}))}catch(e){}
-      }
-    }catch(e){}
+    /* the opening window goes out at once — waiting for the player to report a
+       duration first would add its own seconds to the very wait this is here
+       to remove. Only a clip already known to be shorter than the window is
+       asked for whole, and that is the catalogue, which ships its length. */
+    const known=durHint>0?Math.round(durHint):0;
+    const head=!known||known>CAP_HEAD_SEC+30;
+    const j=await shCapAsk(vid,head?CAP_HEAD_SEC:known);
+    if(j&&j.cues&&j.cues.length){
+      data=j;
+      shCapPut(vid,j,!head);
+      if(head)shCapFillRest(vid,known);
+      /* a long video is transcribed only up to the Worker's cap; say so once,
+         rather than letting the words simply stop mid-talk */
+      if(j.truncated)try{toast(t("sh.cap_partial",{n:Math.round((j.maxSec||1800)/60)}))}catch(e){}
+    }
   }
-  _capCache[vid]=data;return data;
+  /* Only a real answer is remembered. Caching a null would mean one flaky
+     minute — a dropped connection, a rate limit, the Worker mid-deploy — turned
+     into "this video has no transcript" for the rest of the session, with no
+     way for the learner to ask again. */
+  if(data)_capCache[vid]=data;
+  return data;
+}
+const CAP_HEAD_SEC=120;            /* the opening window: one Worker window, ~7 s */
+/* One ask, with the reason for a refusal remembered so the card can tell the
+   learner something true: "wait a moment" and "this video cannot be
+   transcribed" are not the same thing and must not look the same (owner,
+   22 Sep 2026). */
+async function shCapAsk(vid,dur){
+  try{
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({ytai:vid,dur:dur>0?Math.round(dur):0})});
+    const j=await r.json();
+    _capErr[vid]=(r.ok&&j&&j.cues&&j.cues.length)?null:((j&&j.error)||("http_"+r.status));
+    return r.ok?j:null;
+  }catch(e){_capErr[vid]="offline";return null}
+}
+/* The rest of the video, fetched while the learner is already watching the
+   first two minutes. When it lands the panel is rebuilt — but only where that
+   cannot interrupt anything: not while the Challenge recorder is up, and not
+   for a clip the learner has since left. */
+const _capRest={};
+/* Rebuilding the panel under a learner who is mid-take would throw the take
+   away. Anything with a microphone open, or a grade coming back, holds the
+   refresh off; the words are already on screen either way, and the next clip
+   load picks the fuller transcript up from the kept copy. */
+function shCapCanRefresh(){
+  if(typeof shV2Load!=="function")return false;
+  try{if(typeof svCh!=="undefined"&&svCh&&(svCh.busy||svCh.phase==="recording"||svCh.phase==="grading"))return false}catch(e){}
+  try{if(typeof svCh!=="undefined"&&svCh&&((svCh.drill&&svCh.drill.busy)||(svCh.use&&svCh.use.busy)))return false}catch(e){}
+  try{if(typeof recBusy!=="undefined"&&recBusy)return false}catch(e){}
+  return true;
+}
+function shCapFillRest(vid,durHint){
+  if(_capRest[vid])return;_capRest[vid]=true;
+  (async()=>{
+    try{
+      const dur=durHint>0?Math.round(durHint):Math.round(await shDurSoon(4000));
+      if(dur>0&&dur<=CAP_HEAD_SEC+30)return;                       /* the head already is the whole video */
+      const j=await shCapAsk(vid,dur);
+      if(!j||!j.cues||!j.cues.length)return;
+      const head=_capCache[vid];
+      if(head&&head.cues&&head.cues.length>j.cues.length)return;   /* never trade a fuller transcript for a thinner one */
+      _capCache[vid]=j;shCapPut(vid,j,true);
+      if(shClip&&shClip.vid===vid&&shCapCanRefresh())shV2Load();
+    }catch(e){}
+    finally{delete _capRest[vid]}
+  })();
 }
 /* Exact clip transcript: caption files with a per-word `words:[{t,w}]` track let us
    take precisely the words spoken between the marks — no time-proportional estimate. */
@@ -15478,13 +15852,29 @@ async function shV2Load(){
     box.style.display="";
     box.innerHTML=`<div class="sv-empty sv-wait">${ic("clock")} <span>${esc(t("sh.cap_fetching"))}</span></div>`;
     manIconizeInline(box);
+    /* and it REPLACES the page, rather than appearing under the clip tools:
+       while we are fetching there is nothing to mark and nothing to write in
+       (owner, 22 Sep 2026 — the tools were showing above the waiting line) */
+    const tb=document.getElementById("svTabs");if(tb){tb.hidden=true;tb.innerHTML=""}
+    const wk0=document.getElementById("shWork");if(wk0)wk0.dataset.cap="wait";
   }
-  let cap=null;try{cap=await loadCaptions(vid)}catch(e){}
+  let cap=null;try{cap=await loadCaptions(vid,(_shCat&&_shCat.videos[vid]&&_shCat.videos[vid].dur)||0)}catch(e){}
   if(shClip.vid!==vid)return;   // another clip was loaded meanwhile
   let asset=null;
   if(cap&&cap.cues&&cap.cues.length){
     asset=ShadowSync.normalizeCaptions(cap,shClip.start,shClip.end);
+    if(cap.source)asset.source=cap.source;   // so the note can say where the timings came from
     if(asset.level==="word"&&!flag("shadow_word_timing_enabled")){asset.segments.forEach(s=>{delete s.words});asset.level="sentence"}
+    /* A model-written transcript has line times and nothing finer. Measured
+       22 Sep 2026 against a real word-timed caption track: the LINE starts are
+       good (median 0.11 s out), but there is no word timing to be had. An even
+       share of the line ran ahead of the speaker ("the highlight is faster than
+       the voice", owner, same day), so it was dropped to a line at a time —
+       and the owner asked for the word back the same evening. It is here
+       instead on the paced estimate (syllables at speaking rate from the line's
+       start, the leftover held on the last word: see estimateWords), which
+       cannot outrun its own line. Word AND line are lit, so a mid-line pause
+       leaves the learner with the line, never with nothing. */
     else if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);   // marked estimated; the note says so
   }
   if(!asset||asset.level==="none"){
@@ -15496,6 +15886,7 @@ async function shV2Load(){
     asset=ShadowSync.normalizePasted(raw,{startS:0,durationS:dur});
     if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);
   }
+  const wk1=document.getElementById("shWork");if(wk1)delete wk1.dataset.cap;   // the wait is over, whatever the answer
   svAsset=asset;svLast={seg:-1,word:-1};svRepeat=null;svPick=-1;svRevealed=false;svChPara=-1;svChReset();
   svPrevClip=null;svAutoPaused=false;svNoCap=null;
   svRender();
@@ -15513,10 +15904,11 @@ function svRender(){
        offered explicitly, and the tools appear only when one is chosen. */
     box.innerHTML=shLibOn()
       ? `<div class="sv-empty sv-nocap">${ic("info")}
-          <div class="sv-nocap-t"><b>${esc(t("sh.nocap_title"))}</b><small>${esc(t("sh.nocap_body"))}</small></div>
+          <div class="sv-nocap-t"><b>${esc(svNoCapTitle())}</b><small>${esc(svNoCapBody())}</small></div>
           <div class="sv-nocap-acts">
-            <button class="btn btn-g btn-sm" onclick="svNoCapPaste()">${tIc("sh.nocap_paste","doc")}</button>
-            <button class="btn btn-g btn-sm" onclick="svNoCapEar()">${tIc("sh.nocap_ear","mic")}</button>
+            ${svNoCapRetryable()?`<button class="btn-primary btn-sm" onclick="svNoCapRetry()" title="${esc(t("sh.cap_retry"))}" aria-label="${esc(t("sh.cap_retry"))}">${tIc("sh.cap_retry_s","repeat")}</button>`:""}
+            <button class="btn btn-g btn-sm" onclick="svNoCapPaste()" title="${esc(t("sh.nocap_paste"))}" aria-label="${esc(t("sh.nocap_paste"))}">${tIc("sh.nocap_paste_s","doc")}</button>
+            <button class="btn btn-g btn-sm" onclick="svNoCapEar()" title="${esc(t("sh.nocap_ear"))}" aria-label="${esc(t("sh.nocap_ear"))}">${tIc("sh.nocap_ear_s","mic")}</button>
           </div></div>`
       : `<div class="sv-empty">${ic("info")} ${t("sv.none")}</div>`;
     manIconizeInline(box);
@@ -15538,7 +15930,9 @@ function svRender(){
     :esc(s.text)}</p>`;
   const segs=svMode==="watch"?svParas(a).map((p,k)=>`<div class="sv-para" data-p="${k}">${a.segments.slice(p.from,p.to+1).map((s,j)=>segHTML(s,p.from+j)).join("")}</div>`).join("")
     :a.segments.map(segHTML).join("");
-  const levelNote=a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  /* a model-written transcript is line-timed by nature; say that, rather than
+     the generic sentence-level wording which implies a limitation of the clip */
+  const levelNote=a.source==="gemini"?(a.estimated?t("sv.level_word_est"):t("sv.level_line")):a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
   /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
      collapsed while the learner is meant to produce from memory (ready /
      recording / grading at recall or independent, recording at guided) and
@@ -15574,13 +15968,13 @@ function svRender(){
   if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
   svShPinned=false;
   svShBarSync();
-  svTxFresh=true;   // a list that has just appeared starts at the line being spoken, not at the top
+  svTxFresh=true;svScrollKey=null;   // a list that has just appeared starts at the line being spoken, not at the top
   box.innerHTML=`
     ${tabsEl?"":`<div class="seg-tabs seg-fit sv-tabs" role="tablist" aria-label="${esc(t("sv.modes"))}">${tabs}</div>`}
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
-    <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
+    <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""} ${(a.segments[0]&&a.segments[0].words&&a.segments[0].words.length)?"has-words":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     ${svMode==="challenge"?"":`<div class="sv-ctl sv-ctl-row">
       ${svMode==="shadow"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
       ${timed?`<button class="btn btn-g btn-sm sv-ic" onclick="${svMode==="challenge"?"svChStep(-1)":"svStep(-1)"}" aria-label="${esc(t("sv.prev"))}" title="${esc(t("sv.prev"))}">${ic("rewind")}</button>
@@ -15610,6 +16004,7 @@ function svPlace(first){
 /* the full list, folded or open; remembered on this device */
 let svTxOpen=false;try{svTxOpen=localStorage.getItem("be_sv_txopen")==="1"}catch(e){}
 let svTxFresh=false;   // set by svRender, cleared by the first tick that can scroll the new list to the spoken line
+let svScrollKey=null;  // the paragraph (or line) the page was last moved to — it does not move again until this changes
 window.svTxToggle=()=>{svTxOpen=!svTxOpen;try{localStorage.setItem("be_sv_txopen",svTxOpen?"1":"0")}catch(e){}svRender()};
 /* the layout applied to the clip tools and the lower cards: everything
    shown when the V2 panel is off (Welding, no text); Challenge hides the
@@ -15852,6 +16247,18 @@ let svCh=null,svChStopAt=null;
    From the learner's side that is simply "the video freezes" (owner, 22 Sep
    2026). svModeRelease() is now the single place that hands the player back. */
 let svNoCap=null;         // "paste" | "ear" — which way on the learner chose for a video with no transcript
+/* Which of the three things went wrong, in the learner's words. */
+function svNoCapWhy(){return _capErr[shClip&&shClip.vid]||null}
+function svNoCapRetryable(){const w=svNoCapWhy();return !!w&&!/recitation|refused/.test(w)}
+function svNoCapTitle(){const w=svNoCapWhy();
+  return /rate_limited/.test(w||"")?t("sh.cap_busy_t"):/recitation|refused/.test(w||"")?t("sh.cap_refused_t"):t("sh.nocap_title")}
+function svNoCapBody(){const w=svNoCapWhy();
+  return /rate_limited/.test(w||"")?t("sh.cap_busy_b"):/recitation|refused/.test(w||"")?t("sh.cap_refused_b"):t("sh.nocap_body")}
+window.svNoCapRetry=()=>{
+  const vid=shClip&&shClip.vid;if(!vid)return;
+  delete _capCache[vid];delete _capErr[vid];
+  shV2Load();
+};
 window.svNoCapPaste=()=>{
   svNoCap="paste";svRender();
   const nb=document.getElementById("shNote");
@@ -15862,6 +16269,7 @@ let svPrevClip=null;      // the learner's own marks, parked while Shadow borrow
 let svAutoPaused=false;   // WE paused (a stop point), not the learner
 function svModeRelease(to){
   svRepeat=null;
+  try{svChSyncStop()}catch(e){}try{svChSyncTeardown()}catch(e){}
   svChStopAt=null;svChOnStop=null;
   try{svChStopAll()}catch(e){}
   if(svMode==="shadow"&&to!=="shadow"){
@@ -15905,14 +16313,81 @@ function svChSegObj(){
 function svChSegIndex(){const ps=svParas(svAsset),k=svChParaK();return k>=0&&ps[k]?ps[k].from:0}
 function svChCtx(kind){return recCtx("shadow-ch"+(kind||"")+"-"+shClip.vid+"-"+svChSegIndex())}
 function svChReset(){if(svCh){try{svChStopAll()}catch(e){}}svCh=null;svChStopAt=null;svChOnStop=null}
-/* explicit state: which line, which level, where in the loop, what came back */
+/* ---------- THE LADDER ----------
+   Five rungs on one paragraph — gate, sync, recall, blind, retell — and the
+   app, never the learner, choosing which one is in front of them. See
+   shadow-sync.js for the rules; this is where a rung meets the player, the
+   microphone and the clip's own word times.
+
+   The rung a paragraph reached is remembered in aMap("svCh") beside its best
+   score, so coming back to a clip tomorrow does not start again at the
+   listening gate. A paragraph the clip cannot carry a rung for — sync needs
+   REAL word times, the gate needs content words to blank — simply has a
+   shorter ladder; nothing is faked to keep all five. */
+function svChRungs(){
+  const s=svChSegObj();if(!s)return ShadowSync.RUNGS.slice();
+  const real=!!(s.words&&s.words.length)&&!(svAsset&&svAsset.estimated)&&!s.words.some(w=>w.estimated);
+  const content=ShadowSync.tokens(s.text).filter(w=>!ShadowSync.isFunction(w)&&w.length>=4).length;
+  return ShadowSync.rungsFor({words:real,clip:svChSpeakerOK(),contentWords:content});
+}
+function svChMem(){const s=svChSegObj();return s?(aMap("svCh")[shClip.vid+":"+s.id]||null):null}
+/* Where to open. A paragraph already attempted resumes on its own rung. A
+   paragraph not seen before resumes where this learner got to ON THIS CLIP —
+   the ladder belongs to the speaker, not to the paragraph. Proving you can
+   hear someone is worth doing once per clip; doing it again for every
+   paragraph of the same talk is a toll booth, and the learner who has just
+   spoken a paragraph from memory would be sent back to tapping words. */
+function svChClipKey(){return "clip:"+shClip.vid}
+function svChResume(list){
+  const m=svChMem();
+  if(m&&m.rung&&list.includes(m.rung))return m.rung;
+  const clip=aMap("svCh")[svChClipKey()];
+  if(clip&&clip.rung&&list.includes(clip.rung))return clip.rung;
+  return list[0];
+}
+const SV_CH_SPOKEN=["sync","recall","blind"];
+function svChIsSpoken(r){return SV_CH_SPOKEN.includes(r||(svCh&&svCh.rung))}
+/* explicit state: which line, which rung, where in the loop, what came back */
 function svChStart(){
   if(!svChOn()||!svAsset||!svAsset.segments.length)return;
   const i=svChSegIndex();
   if(svCh&&svCh.seg===i)return;
-  svCh={seg:i,level:SV_CH_LEVEL,phase:"ready",attempt:0,fb:null,heard:"",err:null,busy:false,blob:null,listened:false,use:null,play:null,
-    hist:[],open:null,drill:null,speed:1,ab:null,pending:false,assessTried:false};   /* the report: attempts this session, the open issue, the word drill, the clip speed */
+  const rungs=svChRungs(),rung=svChResume(rungs),m=svChMem();
+  svCh={seg:i,level:SV_CH_LEVEL,rung,rungs,fails:0,move:null,phase:"ready",attempt:0,fb:null,heard:"",err:null,busy:false,blob:null,listened:false,use:null,play:null,
+    hist:[],open:null,drill:null,chorus:null,build:null,gate:null,sync:null,retell:null,
+    speed:(m&&m.speed)||1,ab:null,pending:false,assessTried:false};   /* the report: attempts this session, the open issue, the word drill, the clip speed */
   try{track("shadow_challenge_started",{level:svCh.level})}catch(e){}
+  try{track("shadow_challenge_rung",{rung:svCh.rung,reason:"open"})}catch(e){}
+}
+/* what the last attempt earned. The one place a rung changes: everything else
+   asks for this and then draws what it is given. */
+function svChAdvance(pass){
+  const c=svCh;if(!c)return null;
+  const nx=ShadowSync.nextRung({rung:c.rung,rungs:c.rungs,pass:!!pass,speed:c.speed,fails:c.fails});
+  c.next=nx;return nx;
+}
+function svChGoRung(nx){
+  const c=svCh;if(!c||!nx)return;
+  const changed=nx.rung!==c.rung;
+  c.rung=nx.rung;c.speed=nx.speed;c.fails=nx.fails;c.move=nx.move;c.next=null;
+  /* a new rung is a clean sheet: the old report belonged to the old exercise */
+  c.phase="ready";c.fb=null;c.err=null;c.heard="";c.blob=null;c.open=null;c.drill=null;
+  c.chorus=null;c.build=null;c.use=null;c.pending=false;c.assessTried=false;
+  if(changed){c.attempt=0;c.hist=[];c.gate=null;c.sync=null;c.retell=null}
+  svChStopAll();svChRemember();
+  try{track("shadow_challenge_rung",{rung:c.rung,reason:nx.move})}catch(e){}
+  svRender();requestAnimationFrame(()=>svChReveal("#svCh"));
+}
+/* where this paragraph got to, kept with its best score so tomorrow resumes */
+function svChRemember(extra){
+  const c=svCh,s=svChSegObj();if(!c||!s)return;
+  const m=aMap("svCh"),key=shClip.vid+":"+s.id,prev=m[key]||{};
+  m[key]=Object.assign({},prev,{rung:c.rung,speed:c.speed,level:c.level,ts:Date.now()},extra||{});
+  /* and the clip's own high-water mark, so the next paragraph of this talk
+     opens where this one got to rather than back at the bottom */
+  const ck=svChClipKey(),cl=m[ck]||{},at=c.rungs.indexOf(c.rung),was=c.rungs.indexOf(cl.rung);
+  if(at>was)m[ck]={rung:c.rung,ts:Date.now()};
+  save();
 }
 function svChDraw(){
   const el=document.getElementById("svCh");if(!el)return;
@@ -15923,10 +16398,82 @@ function svChDraw(){
   if(tx&&tx.classList.contains("hidden")!==hide){svRender();return}
   el.outerHTML=svChHTML();try{manIconizeInline(svBox())}catch(e){}
 }
+/* The panel is a shell — the eyebrow, the rung strip, which paragraph of how
+   many — around one of five bodies. Nothing below draws a rung the clip cannot
+   carry, because svChRungs() never offered it. */
 function svChHTML(){
   svChStart();const s=svChSegObj();if(!svCh||!s)return "";
-  const c=svCh,L=c.level,ex=ShadowSync.findExpression(s.text,trackPhrases()),nWords=ShadowSync.tokens(s.text).length;
-  const showTarget=c.phase==="ready",blurTarget=c.phase==="recording";
+  const c=svCh;
+  const body=c.next?svChNextRungHTML(c,s)
+    :c.rung==="gate"?svChGateHTML(c,s)
+    :c.rung==="sync"?svChSyncHTML(c,s)
+    :c.rung==="retell"?svChRetellHTML(c,s)
+    :svChSpeakHTML(c,s);
+  /* which paragraph of how many, and the way to the next one — the same
+     control Shadow has, so skipping to the stretch you want to attempt is one
+     tap from here and does not mean going back to another page */
+  const nav=s.n>1?`<span class="sv-sh-nav">
+      <button class="sv-ch-play" onclick="svChStep(-1)" aria-label="${esc(t("sv.prev"))}" ${s.k>0?"":"disabled"}>${ic("rewind")}</button>
+      <span>${s.k+1} / ${s.n}</span>
+      <button class="sv-ch-play" onclick="svChStep(1)" aria-label="${esc(t("sv.next"))}" ${s.k<s.n-1?"":"disabled"}>${ic("forward")}</button></span>`:"";
+  return `<div class="sv-ch" id="svCh">
+    <div class="sv-ch-head"><div class="sv-ch-hd1"><span class="eyebrow">${t("sv.ch_rung_"+c.rung+"_eyebrow")}</span>${nav}</div>
+      ${svChRungStripHTML(c)}</div>
+    ${body}
+    <p class="pp-fine">${t("sv.ch_pick_note")}</p>
+  </div>`;
+}
+/* The ladder, drawn. It is a map, not a menu: the rungs are not buttons,
+   because the whole point is that the app chooses. A rung already cleared is
+   filled, the current one is lit, the rest are outlines. */
+function svChRungStripHTML(c){
+  const at=c.rungs.indexOf(c.rung);
+  const dots=c.rungs.map((r,i)=>`<span class="sv-ch-rung ${i<at?"done":i===at?"now":""}" title="${esc(t("sv.ch_rung_"+r))}"><i></i><b>${t("sv.ch_rung_"+r)}</b></span>`).join("");
+  const speed=svChIsSpoken(c.rung)&&c.speed!==1?`<span class="sv-ch-rung-sp">${String(c.speed).replace(/^0/,"")}×</span>`:"";
+  return `<div class="sv-ch-ladder" role="img" aria-label="${esc(t("sv.ch_rung_aria",{rung:t("sv.ch_rung_"+c.rung),n:at+1,total:c.rungs.length}))}">${dots}${speed}</div>`;
+}
+/* Between two rungs: what just happened, and the one button onward. The
+   learner is told WHY they are moving, which is the only thing that makes an
+   app deciding for them feel like coaching rather than a locked door. */
+function svChNextRungHTML(c,s){
+  const nx=c.next,up=nx.move==="up"||nx.move==="faster"||nx.move==="done";
+  const head=t("sv.ch_move_"+nx.move+"_h"),sub=nx.move==="done"?t("sv.ch_move_done_b",{n:s.n})
+    :t("sv.ch_move_"+nx.move+"_b",{rung:t("sv.ch_rung_"+nx.rung),speed:String(nx.speed).replace(/^0/,"")});
+  const done=nx.move==="done";
+  return `<div class="sv-ch-move ${up?"up":"down"}">
+      ${ic(up?"check":"repeat")}<span><b>${head}</b><small>${sub}</small></span></div>
+    <div class="sv-ch-row">
+      ${done?`<button class="btn-primary" onclick="svChStep(1)" ${s.k<s.n-1?"":"disabled"}>${ic("forward")} ${t("sv.ch_next")}</button>`
+        :`<button class="btn-primary" onclick="svChTakeNext()">${ic(up?"forward":"mic")} ${t("sv.ch_move_go",{rung:t("sv.ch_rung_"+nx.rung)})}</button>`}
+      <button class="btn btn-g btn-sm" onclick="svChStay()">${ic("repeat")} ${t("sv.ch_move_stay")}</button>
+    </div>`;
+}
+window.svChTakeNext=()=>{if(svCh&&svCh.next)svChGoRung(svCh.next)};
+/* the report has been read; ask the ladder what comes next and show its card */
+window.svChShowNext=()=>{
+  const c=svCh;if(!c)return;
+  svChStopAll();svChAdvance(c.lastPass===true);
+  svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+/* "Same one again" is not a way round the ladder — it repeats the rung just
+   attempted, at the same speed, and the count of consecutive misses is kept,
+   so two more misses still drop the learner down. */
+window.svChStay=()=>{
+  const c=svCh;if(!c)return;
+  c.next=null;c.phase="ready";c.fb=null;c.err=null;c.blob=null;c.open=null;c.drill=null;
+  c.chorus=null;c.build=null;c.use=null;c.pending=false;c.assessTried=false;
+  if(c.rung==="gate")c.gate=null;if(c.rung==="sync")c.sync=null;if(c.rung==="retell")c.retell=null;
+  svChStopAll();try{track("shadow_challenge_retry",{level:c.level})}catch(e){}
+  svRender();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+/* ---------- rungs 3 and 4: recall and blind ----------
+   The body that was the whole Challenge. Recall shows the paragraph and blurs
+   it the moment the microphone opens; blind never shows it at all before the
+   take — the difference is one flag, because that IS the difference between
+   the two stages. */
+function svChSpeakHTML(c,s){
+  const blind=c.rung==="blind",ex=ShadowSync.findExpression(s.text,trackPhrases()),nWords=ShadowSync.tokens(s.text).length;
+  const showTarget=c.phase==="ready"&&!blind,blurTarget=c.phase==="recording"&&!blind;
   const meta=t("sv.ch_words",{n:nWords})+(ex?" · "+t("sv.ch_expr_hint",{phrase:ex.phrase}):"");
   /* the word count and the curriculum expression used to ride on the
      "transcript hidden" note, which no longer appears now the paragraph is
@@ -15934,17 +16481,16 @@ function svChHTML(){
   const target=(showTarget||blurTarget)?`<p class="sv-ch-target ${blurTarget?"blur":""}" ${blurTarget?'aria-hidden="true"':""}>“${esc(s.text)}”</p>${showTarget?`<p class="sv-ch-meta">${meta}</p>`:""}`
     :c.phase==="error"?`<p class="sv-ch-target small">${t("sv.ch_target_was",{text:s.text})}</p>`
     :(c.phase==="feedback"||c.phase==="done")?""
-    :`<p class="sv-ch-target hidden-note">${ic("eye")}<span>${t("sv.ch_target_hidden")}<span class="sv-ch-meta">${meta}</span></span></p>`;
-  const canListen=true;
+    :`<p class="sv-ch-target hidden-note">${ic("eye")}<span>${t(blind?"sv.ch_blind_hidden":"sv.ch_target_hidden")}<span class="sv-ch-meta">${meta}</span></span></p>`;
   const busy=c.phase==="grading";
   const playing=c.play==="on";
-  const listenBtn=canListen?`<button class="btn btn-g btn-sm ${playing?"on":""}" onclick="svChListen()" ${busy?"disabled":""} aria-pressed="${playing}">${ic(playing?"pause":"play")} ${t(playing?"sv.ch_pause":"sv.ch_listen")}</button>`:"";
-  const recBtn=`<span class="sv-ch-rec"><button class="rec-btn ${c.phase==="recording"?"on":""}" id="svChRecBtn" onclick="svChRecord()" ${busy?"disabled":""} aria-pressed="${c.phase==="recording"}" aria-label="${esc(t(c.phase==="recording"?"sv.ch_stop":"sv.ch_record"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(c.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>`;
-  const errTxt=c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):"";
+  const listenBtn=`<button class="btn btn-g btn-sm ${playing?"on":""}" onclick="svChListen()" ${busy?"disabled":""} aria-pressed="${playing}">${ic(playing?"pause":"play")} ${t(playing?"sv.ch_pause":"sv.ch_listen")}</button>`;
+  const recBtn=`<span class="sv-ch-rec"><button class="rec-btn ${c.phase==="recording"?"on":""}" id="svChRecBtn" onclick="svChRecord()" ${busy||(blind&&!c.listened)?"disabled":""} aria-pressed="${c.phase==="recording"}" aria-label="${esc(t(c.phase==="recording"?"sv.ch_stop":"sv.ch_record"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(c.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>`;
+  const errTxt=svChErr(c);
   let body="";
   if(c.phase==="ready"||c.phase==="recording"||c.phase==="grading"){
-    body=`<div class="sv-ch-row">${listenBtn}${recBtn}</div>
-      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?t("sv.ch_grading"):errTxt||(c.attempt?t("sv.ch_attempt",{n:c.attempt+1})+(c.last&&c.last.total?" · "+t("sv.ch_last_words",{ok:c.last.ok,total:c.last.total}):""):"")}</p>`;
+    body=`<div class="sv-ch-row">${listenBtn}${recBtn}${svChSpeedHTML(c)}</div>
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?t("sv.ch_grading"):errTxt||(blind&&!c.listened?t("sv.ch_blind_listen_first"):c.attempt?t("sv.ch_attempt",{n:c.attempt+1})+(c.last&&c.last.total?" · "+t("sv.ch_last_words",{ok:c.last.ok,total:c.last.total}):""):"")}</p>`;
   }else if(c.phase==="error"){
     body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p>
       <div class="sv-ch-row"><button class="btn-primary" onclick="svChRegrade()">${t("sv.ch_err_retry")}</button><button class="btn btn-g" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
@@ -15954,31 +16500,542 @@ function svChHTML(){
       const nLeft=c.fb.issues.filter(x=>x.type!=="levelup").length,left=nLeft>0&&!(ex&&!c.use);   /* passed, but the report still names something: another go is the main action */
       body+=`<div class="sv-ch-done">${ic("check")}<span>${t("sv.ch_pass_title")}<br><span class="sv-ch-meta">${nLeft===0?t("sv.ch_pass_sub"):nLeft===1?t("sv.ch_pass_left1"):t("sv.ch_pass_leftn",{n:nLeft})}</span></span></div>
       <div class="sv-ch-row">
-        ${ex&&!c.use?`<button class="btn-primary" onclick="svChUse()">${ic("sparkle")} ${t("sv.ch_use_btn")}</button>`:""}
-        ${left?`<button class="btn-primary" onclick="svChRetry()">${ic("mic")} ${t("sv.ch_try_again")}</button>`:""}
+        <button class="btn-primary" onclick="svChShowNext()">${ic("forward")} ${t("sv.ch_move_on")}</button>
+        ${ex&&!c.use?`<button class="btn btn-g btn-sm" onclick="svChUse()">${ic("sparkle")} ${t("sv.ch_use_btn")}</button>`:""}
+        <button class="btn btn-g btn-sm" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
         <button class="btn btn-g btn-sm" onclick="svChNext()">${ic("forward")} ${t("sv.ch_next")}</button>
-        ${left?"":`<button class="btn btn-g btn-sm" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>`}
       </div>${c.use?svChUseHTML(c.use):""}`;
     }else{
+      /* A second miss on the same rung is where a learner gives up, so that
+         is where the ways out appear: break the paragraph down from its end,
+         or let the ladder make it easier. Neither is offered on the first
+         miss — one more go is usually the right answer. */
+      const stuck=c.fails>=1,canBuild=ShadowSync.buildup(s.text).length>=2;
       body+=`<div class="sv-ch-row sv-ch-cta">
         <button class="btn-primary" onclick="svChRetry()">${ic("mic")} ${t("sv.ch_try_again")}</button>
-      </div>`;
+      </div>
+      ${stuck?`<div class="sv-ch-row tight">
+        ${canBuild?`<button class="sv-ch-play acc" onclick="svChBuildOpen()">${ic("target")}<span>${t("sv.ch_build_btn")}</span></button>`:""}
+        <button class="sv-ch-play" onclick="svChShowNext()">${ic("repeat")}<span>${t("sv.ch_easier")}</span></button>
+      </div>`:""}`;
     }
   }
-  /* which paragraph of how many, and the way to the next one — the same
-     control Shadow has, so skipping to the stretch you want to attempt is one
-     tap from here and does not mean going back to another page */
-  const nav=s.n>1?`<span class="sv-sh-nav">
-      <button class="sv-ch-play" onclick="svChStep(-1)" aria-label="${esc(t("sv.prev"))}" ${s.k>0?"":"disabled"}>${ic("rewind")}</button>
-      <span>${s.k+1} / ${s.n}</span>
-      <button class="sv-ch-play" onclick="svChStep(1)" aria-label="${esc(t("sv.next"))}" ${s.k<s.n-1?"":"disabled"}>${ic("forward")}</button></span>`:"";
-  return `<div class="sv-ch" id="svCh">
-    <div class="sv-ch-head"><div class="sv-ch-hd1"><span class="eyebrow">${t("sv.ch_eyebrow")}</span>${nav}</div>
+  const hint=c.phase==="feedback"||c.phase==="done"?"":`<p class="sv-ch-hint">${t(blind?"sv.ch_hint_blind":"sv.ch_hint_guided")}</p>`;
+  return hint+target+body;
+}
+function svChErr(c){
+  return c.err==="mic"?t("sv.ch_err_mic"):c.err==="short"?t("sv.ch_err_short"):c.err==="net"?t("sv.ch_err_net"):c.err==="ai"?t("sv.ch_err_ai"):c.err==="quiet"?t("sv.ch_err_quiet"):"";
+}
+/* the speed control, on the spoken rungs only — the ladder sets it, and this
+   lets the learner disagree with the ladder for one attempt */
+function svChSpeedHTML(c){
+  if(!svChIsSpoken(c.rung)||!svChSpeakerOK())return "";
+  return `<span class="sv-ch-speed" role="group" aria-label="${esc(t("sv.ch_orig_speed"))}">${SV_CH_SPEEDS.map(r=>`<button class="${c.speed===r?"on":""}" onclick="svChSpeed(${r})" aria-pressed="${c.speed===r}">${String(r).replace(/^0/,"")}×</button>`).join("")}</span>`;
+}
+
+/* ---------- rung 1: the listening gate ----------
+   No microphone. Content words are cut out of the paragraph and offered back
+   with two decoys taken from the same paragraph, so the only way through is
+   to have listened rather than to have read. It is a gate in name only: a
+   miss shows the answers and the ladder moves on anyway after two goes,
+   because a gate that can trap a learner is worse than no gate — the same
+   rule the Foundations check follows. */
+function svChGateHTML(c,s){
+  if(!c.gate)c.gate={items:ShadowSync.gapItems(s.text,3,(s.startMs||0)+s.text.length),picked:{},checked:false,tries:0};
+  const g=c.gate;
+  if(!g.items.length){/* nothing worth blanking: this clip skips the gate */
+    return `<p class="sv-ch-hint">${t("sv.ch_gate_skip")}</p><div class="sv-ch-row"><button class="btn-primary" onclick="svChGateSkip()">${ic("forward")} ${t("sv.ch_gate_on")}</button></div>`;
+  }
+  const raw=s.text.split(/\s+/);
+  const line=raw.map((w,i)=>{
+    const it=g.items.find(x=>x.wi===i);if(!it)return esc(w);
+    const p=g.picked[i];
+    const ok=g.checked?(p===it.answer):null;
+    return `<span class="sv-ch-blank ${p?"filled":""} ${ok===true?"ok":ok===false?"bad":""}">${p?esc(p):"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"}</span>`;
+  }).join(" ");
+  const rows=g.items.map((it,n)=>`<div class="sv-ch-gap">
+      <span class="sv-ch-gap-n">${n+1}</span>
+      <span class="sv-ch-gap-opts">${it.options.map(o=>`<button class="sv-ch-chip ${g.picked[it.wi]===o?"on":""} ${g.checked&&o===it.answer?"ans":""}" onclick="svChGatePick(${it.wi},'${esc(o).replace(/'/g,"\\'")}')" ${g.checked?"disabled":""}>${esc(o)}</button>`).join("")}</span>
+    </div>`).join("");
+  const all=g.items.every(it=>g.picked[it.wi]);
+  const right=g.items.filter(it=>g.picked[it.wi]===it.answer).length;
+  const playing=c.play==="on";
+  let foot;
+  if(g.checked){
+    foot=`<p class="sv-ch-state ${right===g.items.length?"":"err"}" aria-live="polite">${right===g.items.length?ic("check")+" "+t("sv.ch_gate_all"):ic("alert")+" "+t("sv.ch_gate_some",{ok:right,total:g.items.length})}</p>`;
+  }else{
+    foot=`<p class="sv-ch-state" aria-live="polite">${all?t("sv.ch_gate_ready"):t("sv.ch_gate_pick",{n:g.items.length})}</p>`;
+  }
+  return `<p class="sv-ch-hint">${t("sv.ch_hint_gate")}</p>
+    <p class="sv-ch-target sv-ch-gapline">${line}</p>
+    <div class="sv-ch-row">
+      <button class="btn btn-g btn-sm ${playing?"on":""}" onclick="svChListen()" aria-pressed="${playing}">${ic(playing?"pause":"play")} ${t(playing?"sv.ch_pause":"sv.ch_listen")}</button>
+      ${svChSpeedHTML(Object.assign({},c,{rung:"sync"}))}
+    </div>
+    ${rows}${foot}
+    <div class="sv-ch-row">${g.checked
+      ?`<button class="btn-primary" onclick="svChGateDone()">${ic("forward")} ${t("sv.ch_gate_on")}</button>`
+      :`<button class="btn-primary" onclick="svChGateCheck()" ${all?"":"disabled"}>${ic("check")} ${t("sv.ch_gate_check")}</button>`}</div>`;
+}
+window.svChGatePick=(wi,word)=>{const g=svCh&&svCh.gate;if(!g||g.checked)return;g.picked[wi]=word;svChDraw()};
+window.svChGateCheck=()=>{
+  const c=svCh,g=c&&c.gate;if(!g||g.checked)return;
+  g.checked=true;g.tries++;svChStopAll();
+  const right=g.items.filter(it=>g.picked[it.wi]===it.answer).length;
+  g.pass=right===g.items.length;
+  try{track("shadow_challenge_feedback_received",{level:c.level,rung:"gate",result:g.pass?"pass":"retry"})}catch(e){}
+  svChDraw();
+};
+window.svChGateDone=()=>{
+  const c=svCh,g=c&&c.gate;if(!c||!g)return;
+  svChAdvance(!!g.pass);svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+window.svChGateSkip=()=>{if(!svCh)return;svChAdvance(true);svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"))};
+/* ---------- rung 2: speaking WITH the speaker ----------
+   Kadota's synchronised reading: the paragraph stays on screen and the clip
+   keeps playing while the learner talks over it. That rules out every kind of
+   grading the rest of the Challenge uses — a microphone in a room with the
+   video in it hears both of them, so a transcript would be the speaker's as
+   much as the learner's.
+
+   So nothing is transcribed and NOTHING IS RECORDED. The only thing taken
+   from the microphone is how loud it is, sampled ~25 times a second and
+   thrown away when the round ends. That is enough to answer the question this
+   rung is actually about: were you with the speaker, how far behind, and did
+   you stay there — which is the one thing a learner feels and no transcript
+   can show. ShadowSync.syncReport does the arithmetic.
+
+   Headphones are asked for, not required: the engine can see a microphone
+   that is hearing the video rather than the learner (a near-perfect match at
+   almost no lag, which no human achieves) and says so instead of awarding a
+   top mark for it. */
+let svChMic=null;      /* {ctx, stream, analyser, buf, iv} — torn down on every exit */
+function svChSyncHTML(c,s){
+  const y=c.sync||{};
+  const live=y.phase==="live"||y.phase==="count";
+  const words=s.text.split(/\s+/);
+  const at=live&&y.wordAt>=0?y.wordAt:-1;
+  const line=words.map((w,i)=>`<span class="sv-ch-sw ${i===at?"on":i<at?"was":""}">${esc(w)}</span>`).join(" ");
+  const errTxt=svChErr(c);
+  let body;
+  if(y.phase==="count"){
+    body=`<div class="sv-ch-count" aria-live="assertive">${y.count}</div>
+      <div class="sv-ch-row"><button class="btn btn-g btn-sm" onclick="svChSyncStop()">${t("sv.ch_sync_cancel")}</button></div>`;
+  }else if(y.phase==="live"){
+    body=`<div class="sv-ch-meter" aria-hidden="true"><i style="width:${Math.round((y.level||0)*100)}%"></i></div>
+      <p class="sv-ch-state" aria-live="polite">${ic("mic")} ${t("sv.ch_sync_live")}</p>
+      <div class="sv-ch-row"><button class="btn btn-g btn-sm" onclick="svChSyncStop()">${t("sv.ch_sync_cancel")}</button></div>`;
+  }else if(y.phase==="report"&&y.rep){
+    body=svChSyncReportHTML(c,y.rep);
+  }else{
+    body=`<div class="sv-ch-row">
+        <button class="btn-primary" onclick="svChSyncGo()">${ic("mic")} ${t("sv.ch_sync_start")}</button>
+        ${svChSpeedHTML(c)}
       </div>
-    ${c.phase==="feedback"||c.phase==="done"?"":`<p class="sv-ch-hint">${t("sv.ch_hint_guided")}</p>`}
-    ${target}${body}
-    <p class="pp-fine">${t("sv.ch_pick_note")}</p>
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${errTxt||t("sv.ch_sync_ready")}</p>`;
+  }
+  return `<p class="sv-ch-hint">${t("sv.ch_hint_sync")}</p>
+    <p class="sv-ch-target sv-ch-syncline">${line}</p>
+    ${y.phase==="report"?"":`<p class="pp-fine">${ic("shield")} ${t("sv.ch_sync_privacy")}</p>`}
+    ${body}`;
+}
+function svChSyncReportHTML(c,rep){
+  if(rep.state==="na"&&rep.reason==="quiet")
+    return `<p class="sv-ch-state err">${ic("alert")} ${t("sv.ch_sync_quiet")}</p>
+      <div class="sv-ch-row"><button class="btn-primary" onclick="svChSyncGo()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
+  if(rep.state==="na"&&(rep.reason==="short"||rep.reason==="flat"))
+    return `<p class="sv-ch-state err">${ic("alert")} ${t(rep.reason==="flat"?"sv.ch_sync_flat_err":"sv.ch_sync_short")}</p>
+      <div class="sv-ch-row"><button class="btn-primary" onclick="svChSyncGo()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
+  const chips=[
+    rep.lag!=null?`<span class="sv-ch-dim d-${rep.lag<=0.45?"strong":rep.lag<=0.8?"good":"practice"}"><span>${t("sv.ch_sync_lag_h")}</span><b>${rep.lag<=0.05?t("sv.ch_sync_lag_none"):t("sv.ch_sync_lag_v",{s:Math.abs(rep.lag).toFixed(1)})}</b></span>`:"",
+    `<span class="sv-ch-dim d-${rep.cover>=0.78?"strong":rep.cover>=0.62?"good":rep.cover>=0.45?"practice":"attention"}"><span>${t("sv.ch_sync_with_h")}</span><b>${Math.round(rep.cover*100)}%</b></span>`,
+    rep.drift!=null?`<span class="sv-ch-dim d-${rep.drift<0.22?"strong":"practice"}"><span>${t("sv.ch_sync_hold_h")}</span><b>${t(rep.drift<0.22?"sv.ch_sync_hold_yes":"sv.ch_sync_hold_no")}</b></span>`:"",
+  ].join("");
+  const issues=(rep.issues||[]).map(it=>`<p class="sv-ch-line imp"><b>${t("sv.ch_improve")}</b><span>${t(it.k,it.v||{})}</span></p>`).join("");
+  const good=rep.bleed?"":`<p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t(rep.cover>=0.78?"sv.ch_sync_good_all":rep.lag!=null&&rep.lag<=0.5?"sv.ch_sync_good_close":"sv.ch_sync_good_tried")}</span></p>`;
+  return `<div class="sv-ch-rep" aria-live="polite">
+      <div class="eyebrow">${ic("sparkle")} ${t("sv.ch_sync_rep")} · ${t("sv.ch_attempt",{n:c.attempt})}</div>
+      <h4 class="sv-ch-hd">${t("sv.ch_v_"+(rep.state==="na"?"practice":rep.state==="strong"?"strong":rep.state==="good"?"good":rep.state))}</h4>
+      <div class="sv-ch-dims">${chips}</div>
+      ${good}${issues}
+      ${rep.lag!=null&&!rep.bleed?`<p class="pp-fine">${t("sv.ch_sync_lag_note")}</p>`:""}
+    </div>
+    <div class="sv-ch-row">
+      <button class="btn-primary" onclick="svChSyncDone()">${ic("forward")} ${t("sv.ch_sync_on")}</button>
+      <button class="btn btn-g btn-sm" onclick="svChSyncGo()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
+    </div>`;
+}
+window.svChSyncDone=()=>{
+  const c=svCh,y=c&&c.sync;if(!c||!y||!y.rep)return;
+  svChAdvance(!!y.rep.pass);svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+window.svChSyncGo=async()=>{
+  const c=svCh,s=svChSegObj();if(!svChOn()||!c||!s||!s.words||!svChSpeakerOK())return;
+  svChStopAll();svChSyncTeardown();
+  c.err=null;c.sync={phase:"count",count:3,level:0,wordAt:-1,samples:[],rep:null};
+  svChDraw();
+  /* the microphone first: a learner who is going to be refused should find out
+     before the clip starts running */
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:false,autoGainControl:false}});
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    const ctx=new Ctx();if(ctx.state==="suspended")try{await ctx.resume()}catch(e){}
+    const src=ctx.createMediaStreamSource(stream),an=ctx.createAnalyser();
+    an.fftSize=1024;src.connect(an);
+    svChMic={ctx,stream,analyser:an,buf:new Float32Array(an.fftSize),iv:null};
+  }catch(e){
+    if(svCh===c){c.sync=null;c.err="mic";svChDraw()}
+    return;
+  }
+  if(svCh!==c||!c.sync){svChSyncTeardown();return}
+  for(let n=3;n>=1;n--){
+    if(svCh!==c||!c.sync||c.sync.phase!=="count"){svChSyncTeardown();return}
+    c.sync.count=n;svChDraw();
+    await new Promise(r=>setTimeout(r,700));
+  }
+  if(svCh!==c||!c.sync||c.sync.phase!=="count"){svChSyncTeardown();return}
+  svChSyncRun(c,s);
+};
+function svChSyncRun(c,s){
+  const y=c.sync,rate=c.speed||1;
+  y.phase="live";y.samples=[];y.t0=null;
+  try{ytPlayer.setPlaybackRate(rate)}catch(e){}
+  shSeekTo(Math.max(0,s.startMs/1000-0.15));
+  svChStopAt=s.endMs;
+  svChOnStop=()=>{if(svCh===c&&c.sync===y&&y.phase==="live")svChSyncFinish(c,s)};
+  try{ytPlayer.playVideo()}catch(e){}
+  const step=ShadowSync.SYNC_STEP*1000;
+  const wall0=performance.now();
+  let media0=null;
+  y.iv=setInterval(()=>{
+    if(svCh!==c||c.sync!==y||y.phase!=="live"){clearInterval(y.iv);y.iv=null;return}
+    const mic=svChMic;if(!mic)return;
+    mic.analyser.getFloatTimeDomainData(mic.buf);
+    let sum=0;for(let i=0;i<mic.buf.length;i++)sum+=mic.buf[i]*mic.buf[i];
+    const rms=Math.sqrt(sum/mic.buf.length);
+    /* the sample's place in the CLIP, not on the wall: at 1.25× a second of
+       room time is a second and a quarter of the speaker */
+    if(media0==null){let ct=0;try{ct=ytPlayer.getCurrentTime()}catch(e){}
+      if(ct>0){media0=ct;y.t0=ct;y.wall0=performance.now()}}
+    if(media0!=null){
+      y.samples.push(rms);
+      const mt=media0+(performance.now()-y.wall0)/1000*rate;
+      y.wordAt=svChWordAt(s,mt);
+      if(mt>=s.endMs/1000+0.25){svChSyncFinish(c,s);return}
+    }
+    y.level=Math.min(1,rms*12);
+    svChSyncPaint(y);
+  },step);
+  svChDraw();
+}
+/* which word of the paragraph the clip is on, for the moving highlight */
+function svChWordAt(s,mt){
+  const ws=s.words;if(!ws||!ws.length)return -1;
+  const ms=mt*1000;let k=-1;
+  for(let i=0;i<ws.length;i++){if(ws[i].startMs<=ms)k=i;else break}
+  /* the word array and the on-screen split can differ (contractions), so the
+     highlight is proportional rather than indexed — it never claims more
+     precision than it has */
+  const n=s.text.split(/\s+/).length;
+  return k<0?-1:Math.min(n-1,Math.round(k/ws.length*n));
+}
+/* the live bits repaint in place: redrawing the whole panel 25 times a second
+   would fight the learner's scroll and blink the buttons */
+function svChSyncPaint(y){
+  const m=document.querySelector("#svCh .sv-ch-meter i");if(m)m.style.width=Math.round((y.level||0)*100)+"%";
+  const box=document.querySelector("#svCh .sv-ch-syncline");
+  if(box&&y.wordAt!==y._painted){
+    y._painted=y.wordAt;
+    box.querySelectorAll(".sv-ch-sw").forEach((el,i)=>{el.classList.toggle("on",i===y.wordAt);el.classList.toggle("was",i<y.wordAt)});
+  }
+}
+function svChSyncFinish(c,s){
+  const y=c.sync;if(!y||y.phase!=="live")return;
+  if(y.iv){clearInterval(y.iv);y.iv=null}
+  svChStopAt=null;svChOnStop=null;
+  try{ytPlayer.pauseVideo()}catch(e){}
+  svChSyncTeardown();
+  y.phase="report";
+  const rep=ShadowSync.syncReport({v:y.samples,t0:y.t0||0},s.words,{step:ShadowSync.SYNC_STEP});
+  y.rep=rep;y.samples=[];                       /* the loudness trace has done its job; it does not outlive the round */
+  c.attempt++;
+  if(rep.state!=="na"||rep.bleed){
+    c.hist.push({n:c.attempt,sync:rep,ts:Date.now()});if(c.hist.length>10)c.hist.shift();
+    svChHistSync(c,s,rep);svChRemember();save();
+    try{track("shadow_challenge_feedback_received",{level:c.level,rung:"sync",result:rep.pass?"pass":"retry"})}catch(e){}
+    if(rep.pass)try{track("shadow_challenge_completed",{level:c.level,rung:"sync"})}catch(e){}
+  }
+  svRender();requestAnimationFrame(()=>svChReveal("#svCh"));
+}
+window.svChSyncStop=()=>{
+  const c=svCh,y=c&&c.sync;if(!y)return;
+  if(y.iv){clearInterval(y.iv);y.iv=null}
+  svChStopAt=null;svChOnStop=null;
+  try{ytPlayer.pauseVideo()}catch(e){}
+  svChSyncTeardown();c.sync=null;svChDraw();
+};
+/* the microphone is let go the moment the round ends — an open stream is a
+   recording light on a phone, and this round keeps nothing anyway */
+function svChSyncTeardown(){
+  const m=svChMic;if(!m)return;svChMic=null;
+  try{if(m.iv)clearInterval(m.iv)}catch(e){}
+  try{m.stream.getTracks().forEach(t=>t.stop())}catch(e){}
+  try{m.ctx.close()}catch(e){}
+}
+/* ---------- rung 5: say what it MEANT ----------
+   Kadota's content shadowing, and the answer to the honest criticism of
+   shadowing as a method: it trains delivery and not retrieval — a learner can
+   reproduce a sentence perfectly and still not be able to make one. Here the
+   paragraph stays on screen (nothing is being memorised) and the learner says
+   the same thing in their own words.
+
+   Saying the line again instead of retelling it is the usual way out, and it
+   is caught locally by ShadowSync.retellCheck before an API call is spent on
+   it. The verdict on meaning is the AI's, and is labelled as such. */
+function svChRetellHTML(c,s){
+  const r=c.retell||{};
+  const busy=r.phase==="grading";
+  const errTxt=svChErr(c);
+  const rec=`<span class="sv-ch-rec"><button class="rec-btn ${r.phase==="recording"?"on":""}" id="svChRetellRecBtn" onclick="svChRetellRecord()" ${busy?"disabled":""} aria-pressed="${r.phase==="recording"}" aria-label="${esc(t(r.phase==="recording"?"sv.ch_stop":"sv.ch_record"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(r.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>`;
+  let body;
+  if(r.res){
+    const ok=r.res.ok;
+    body=`<div class="sv-ch-fb" aria-live="polite"><div class="eyebrow">${ic("sparkle")} ${t("sv.ch_fb_eyebrow")}</div>
+      ${ok?`<p class="sv-ch-line good"><b>${t("sv.ch_good")}</b><span>${t("sv.ch_retell_good")}</span></p>`
+        :`<p class="sv-ch-line imp"><b>${t("sv.ch_improve")}</b><span>${r.res.why==="echo"?t("sv.ch_retell_echo"):r.res.why==="thin"?t("sv.ch_retell_thin"):t("sv.ch_retell_missed",{missed:r.res.missed||t("sv.ch_retell_missed_x")})}</span></p>`}
+      ${r.res.tip?`<p class="sv-ch-fix">${esc(r.res.tip)}</p>`:""}
+      ${r.heard?`<p class="sv-ch-heard">${t("sv.ch_you_said",{text:r.heard})}</p>`:""}
+      <p class="pp-fine">${t("sv.ch_ai_note")}</p></div>
+      <div class="sv-ch-row">
+        <button class="btn-primary" onclick="svChRetellDone()">${ic("forward")} ${t(ok?"sv.ch_retell_on":"sv.ch_sync_on")}</button>
+        <button class="btn btn-g btn-sm" onclick="svChRetellRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button>
+      </div>`;
+  }else if(r.phase==="error"){
+    body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p>
+      <div class="sv-ch-row"><button class="btn-primary" onclick="svChRetellRetry()">${t("sv.ch_try_again")}</button></div>`;
+  }else{
+    body=`<div class="sv-ch-row">${rec}</div>
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${r.phase==="recording"?t("sv.ch_retell_recording"):r.phase==="grading"?t("sv.ch_grading"):errTxt}</p>`;
+  }
+  return `<p class="sv-ch-hint">${t("sv.ch_hint_retell")}</p>
+    <p class="sv-ch-target small">“${esc(s.text)}”</p>
+    <p class="sv-ch-fix">${t("sv.ch_retell_prompt")}</p>
+    ${body}`;
+}
+window.svChRetellRetry=()=>{const c=svCh;if(!c)return;c.retell={phase:"ready"};c.err=null;svChStopAll();svChDraw()};
+window.svChRetellDone=()=>{
+  const c=svCh,r=c&&c.retell;if(!c||!r||!r.res)return;
+  svChAdvance(!!r.res.ok);svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+window.svChRetellRecord=()=>{
+  const c=svCh;if(!svChOn()||!c)return;
+  if(!c.retell)c.retell={phase:"ready"};
+  svChRec("rt",("Retell — "+svChSegObj().text).slice(0,60),
+    blob=>{if(svCh===c&&c.retell)svChRetellGrade(c,blob)},
+    ()=>svCh&&svCh.retell,f=>{if(svCh&&svCh.retell)f(svCh.retell)});
+};
+async function svChRetellGrade(c,blob){
+  const r=c.retell,s=svChSegObj();if(!r||!s)return;
+  r.phase="grading";r.err=null;c.err=null;svChDraw();
+  if(!POLISH_API||!navigator.onLine){r.phase="error";c.err="net";svChDraw();return}
+  try{
+    const heard=await fbTranscribe(blob).catch(()=>"");
+    if(svCh!==c||c.retell!==r)return;
+    if(!heard){r.phase="error";c.err=navigator.onLine?"ai":"net";svChDraw();return}
+    r.heard=heard;
+    /* the two ways out of the exercise, caught here rather than paid for */
+    const guard=ShadowSync.retellCheck(heard,s.text);
+    if(guard.echo){r.phase="ready";r.res={ok:false,why:"echo",tip:"",missed:""};svChRetellAfter(c,s,r);return}
+    if(guard.thin){r.phase="ready";r.res={ok:false,why:"thin",tip:"",missed:""};svChRetellAfter(c,s,r);return}
+    const sys=`You are an English speaking coach. A learner heard a short passage and has just said, in their OWN words, what it meant. Judge MEANING ONLY — never wording, grammar or accent, and never ask them to use the passage's own words.
+Reply with JSON only: {"ok":true|false,"missed":"<the one idea they left out, max 8 words, empty when ok>","tip":"<one short sentence of advice, British English, max 20 words>"}
+"ok" is true when the main point of the passage is there, even roughly, even in simple words. Be generous: this is a speaking exercise, not a comprehension test. Set "ok" false only when the main point is missing or wrong.`;
+    const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:JSON.stringify({passage:s.text.slice(0,900),learner:heard.slice(0,900)})}]}})});
+    if(svCh!==c||c.retell!==r)return;
+    if(!res.ok){r.phase="error";c.err="ai";svChDraw();return}
+    const j=await res.json().catch(()=>null);
+    if(!j||typeof j.ok!=="boolean"){r.phase="error";c.err="ai";svChDraw();return}
+    r.phase="ready";r.res={ok:!!j.ok,why:j.ok?"":"missed",missed:String(j.missed||"").slice(0,80),tip:String(j.tip||"").slice(0,160)};
+    svChRetellAfter(c,s,r);
+  }catch(e){if(svCh===c&&c.retell===r){r.phase="error";c.err=navigator.onLine?"ai":"net";svChDraw()}}
+}
+function svChRetellAfter(c,s,r){
+  c.attempt++;
+  svChHistRetell(c,s,r);svChRemember();save();
+  try{track("shadow_challenge_feedback_received",{level:c.level,rung:"retell",result:r.res.ok?"pass":"retry"})}catch(e){}
+  if(r.res.ok)try{track("shadow_challenge_completed",{level:c.level,rung:"retell"})}catch(e){}
+  svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"));
+}
+/* ---------- the chorus drill (Kjellin) ----------
+   A pronunciation problem is a motor problem, and motor problems are fixed by
+   many repetitions of the same small movement, not by one more careful go at
+   the whole paragraph. Six passes of a three-second chunk, played from the
+   clip so the model is the speaker and not a synthetic voice, the learner
+   speaking along each time.
+
+   The chorus itself is not graded and cannot honestly be: the learner is
+   speaking over the audio. The check is the take AFTER it, said alone — which
+   is graded exactly like any other take. */
+function svChChorusHTML(ch){
+  const busy=ch.phase==="grading";
+  const errTxt=ch.err==="mic"?t("sv.ch_err_mic"):ch.err==="short"?t("sv.ch_err_short"):ch.err==="net"?t("sv.ch_err_net"):ch.err==="ai"?t("sv.ch_err_ai"):"";
+  const dots=Array.from({length:ch.reps},(_,i)=>`<i class="${i<ch.at?"done":i===ch.at&&ch.phase==="chorus"?"now":""}"></i>`).join("");
+  const last=ch.attempts&&ch.attempts[ch.attempts.length-1];
+  let body;
+  if(ch.phase==="chorus"){
+    body=`<p class="sv-ch-state" aria-live="polite">${ic("sound")} ${t("sv.ch_chorus_live",{n:ch.at+1,total:ch.reps})}</p>
+      <div class="sv-ch-row"><button class="btn btn-g btn-sm" onclick="svChChorusStop()">${t("sv.ch_sync_cancel")}</button></div>`;
+  }else if(ch.at>=ch.reps){
+    body=`<p class="sv-ch-state">${ic("check")} ${t("sv.ch_chorus_done")}</p>
+      <div class="sv-ch-row"><span class="sv-ch-rec"><button class="rec-btn ${ch.phase==="recording"?"on":""}" id="svChChorusRecBtn" onclick="svChChorusRecord()" ${busy?"disabled":""} aria-pressed="${ch.phase==="recording"}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(ch.phase==="recording"?"sv.ch_stop":"sv.ch_chorus_alone")}</span></span>
+        <button class="btn btn-g btn-sm" onclick="svChChorusGo()">${ic("repeat")} ${t("sv.ch_chorus_again")}</button></div>
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${ch.phase==="recording"?t("sv.ch_drill_hint"):ch.phase==="grading"?t("sv.ch_drill_grading"):errTxt||(last?t("sv.ch_st_"+last.state)+(last.score!=null?" · "+last.score+"%":""):"")}</p>`;
+  }else{
+    body=`<div class="sv-ch-row"><button class="btn-primary" onclick="svChChorusGo()">${ic("sound")} ${t("sv.ch_chorus_start",{n:ch.reps})}</button></div>
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${errTxt||t("sv.ch_chorus_ready")}</p>`;
+  }
+  return `<div class="sv-ch-drill" id="svChChorus">
+    <div class="sv-ch-sec-h">${ic("repeat")} ${t("sv.ch_chorus_h")}</div>
+    <p class="sv-ch-drill-w">${esc(ch.text)}</p>
+    <div class="sv-ch-reps" aria-hidden="true">${dots}</div>
+    <p class="sv-ch-fix">${t("sv.ch_chorus_how")}</p>
+    ${body}
+    <div class="sv-ch-row tight"><button class="btn btn-g btn-sm" onclick="svChChorusClose()">${ic("check")} ${t("sv.ch_drill_done")}</button></div>
   </div>`;
+}
+window.svChChorusOpen=idx=>{
+  const c=svCh;if(!c||!c.fb)return;
+  const it=c.fb.issues.filter(x=>x.type!=="levelup")[idx];if(!it)return;
+  const chunk=ShadowSync.chunkAround(c.fb.tokens,it.tSpan,2)||{text:it.text,ms:it.ms,est:it.est,reps:ShadowSync.CHORUS_REPS};
+  svChStopAll();c.drill=null;
+  c.chorus={text:chunk.text,ms:chunk.ms,est:!!chunk.est,reps:chunk.reps||ShadowSync.CHORUS_REPS,at:0,phase:"ready",err:null,attempts:[],blob:null};
+  try{track("shadow_challenge_drill",{kind:"chorus"})}catch(e){}
+  svChDraw();requestAnimationFrame(()=>svChReveal("#svChChorus"));
+};
+window.svChChorusClose=()=>{if(!svCh)return;svChStopAll();svCh.chorus=null;svChDraw()};
+window.svChChorusStop=()=>{const ch=svCh&&svCh.chorus;if(!ch)return;ch.phase="ready";svChStopAll();try{ytPlayer.pauseVideo()}catch(e){}svChDraw()};
+window.svChChorusGo=async()=>{
+  const c=svCh,ch=c&&c.chorus;if(!ch)return;
+  svChStopAll();ch.at=0;ch.phase="chorus";ch.err=null;svChDraw();
+  for(let i=0;i<ch.reps;i++){
+    if(svCh!==c||c.chorus!==ch||ch.phase!=="chorus")return;
+    ch.at=i;svChDraw();
+    await svChChorusPlayOnce(c,ch);
+    if(svCh!==c||c.chorus!==ch||ch.phase!=="chorus")return;
+    await new Promise(r=>setTimeout(r,420));          /* Kjellin's gap: long enough to breathe, short enough to stay in the rhythm */
+  }
+  if(svCh===c&&c.chorus===ch){ch.at=ch.reps;ch.phase="ready";svChDraw();requestAnimationFrame(()=>svChReveal("#svChChorus"))}
+};
+function svChChorusPlayOnce(c,ch){
+  return new Promise(res=>{
+    if(ch.ms&&svChSpeakerOK()){
+      let done=false;const fin=()=>{if(!done){done=true;res()}};
+      try{ytPlayer.setPlaybackRate(c.speed||1)}catch(e){}
+      shSeekTo(Math.max(0,ch.ms[0]/1000-0.05));svChStopAt=ch.ms[1]+60;svChOnStop=fin;
+      try{ytPlayer.playVideo()}catch(e){}
+      setTimeout(fin,(ch.ms[1]-ch.ms[0])/(c.speed||1)+2200);
+    }else{fbSay(ch.text,c.speed||1);setTimeout(res,Math.max(1200,ch.text.length*75))}
+  });
+}
+window.svChChorusRecord=()=>{
+  const c=svCh,ch=c&&c.chorus;if(!ch)return;
+  svChStopAll();
+  svChRec("ch",("Chorus — "+ch.text).slice(0,60),blob=>{if(svCh===c&&c.chorus===ch)svChChorusGrade(c,ch,blob)},
+    ()=>svCh&&svCh.chorus,f=>{if(svCh&&svCh.chorus)f(svCh.chorus)});
+};
+async function svChChorusGrade(c,ch,blob){
+  ch.phase="grading";ch.err=null;svChDraw();
+  if(!POLISH_API||!navigator.onLine){ch.phase="ready";ch.err="net";svChDraw();return}
+  try{
+    const res=await Promise.race([Promise.all([fbAssess(blob,ch.text).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
+    if(res==="timeout")throw new Error("timeout");
+    const [assess,words]=res;
+    const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
+    if(svCh!==c||c.chorus!==ch)return;
+    if(!assess&&!heard){ch.phase="ready";ch.err=navigator.onLine?"ai":"net";svChDraw();return}
+    const st=ShadowSync.drillState(assess,heard,ch.text);
+    ch.attempts.push({state:st.state,score:st.score,mode:st.mode,heard:st.heard,note:st.note,blob});
+    ch.phase="ready";
+  }catch(e){ch.phase="ready";ch.err=navigator.onLine?"ai":"net"}
+  if(svCh===c&&c.chorus===ch)svChDraw();
+}
+/* ---------- backward build-up ----------
+   For the paragraph that falls apart at the end, which is what "I can't hold
+   it in my head" actually looks like. Say the last few words; then a few more
+   in front of them; then the whole thing. Growing from the END is the point —
+   every step finishes on words the mouth has already made, so the hard part
+   is never the part you are tired by the time you reach. */
+function svChBuildHTML(b){
+  const step=b.steps[b.at]||"",busy=b.phase==="grading";
+  const errTxt=b.err==="mic"?t("sv.ch_err_mic"):b.err==="short"?t("sv.ch_err_short"):b.err==="net"?t("sv.ch_err_net"):b.err==="ai"?t("sv.ch_err_ai"):"";
+  const last=b.last;
+  const canPlay=!!(b.ms&&b.ms[b.at]&&svChSpeakerOK());
+  return `<div class="sv-ch-drill" id="svChBuild">
+    <div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_build_h")}</div>
+    <p class="sv-ch-state">${t("sv.ch_build_step",{n:b.at+1,total:b.steps.length})}</p>
+    <p class="sv-ch-drill-w sv-ch-build-w">${esc(step)}</p>
+    <div class="sv-ch-row tight">
+      ${canPlay?`<button class="sv-ch-play" onclick="svChBuildListen()">${ic("play")}<span>${t("sv.ch_btn_speaker")}</span></button>`
+        :`<button class="sv-ch-play" onclick="svChStopAll();fbSay(svCh.build.steps[svCh.build.at],1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`}
+      <span class="sv-ch-rec"><button class="rec-btn ${b.phase==="recording"?"on":""}" id="svChBuildRecBtn" onclick="svChBuildRecord()" ${busy?"disabled":""} aria-pressed="${b.phase==="recording"}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(b.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>
+    </div>
+    <p class="sv-ch-state ${errTxt||(last&&!last.ok)?"err":""}" aria-live="polite">${b.phase==="recording"?t("sv.ch_recording"):b.phase==="grading"?t("sv.ch_grading"):errTxt||(last?(last.ok?ic("check")+" "+t("sv.ch_build_ok",{ok:last.ok_n,total:last.total}):t("sv.ch_build_miss",{ok:last.ok_n,total:last.total})):t("sv.ch_build_how"))}</p>
+    <div class="sv-ch-row tight">
+      ${last&&last.ok&&b.at<b.steps.length-1?`<button class="btn-primary" onclick="svChBuildNext()">${ic("forward")} ${t("sv.ch_build_next")}</button>`:""}
+      ${last&&last.ok&&b.at>=b.steps.length-1?`<button class="btn-primary" onclick="svChBuildFinish()">${ic("check")} ${t("sv.ch_build_finish")}</button>`:""}
+      <button class="btn btn-g btn-sm" onclick="svChBuildClose()">${t("sv.ch_build_close")}</button>
+    </div>
+  </div>`;
+}
+window.svChBuildOpen=()=>{
+  const c=svCh,s=svChSegObj();if(!c||!s)return;
+  const steps=ShadowSync.buildup(s.text);if(steps.length<2)return;
+  /* each step's span in the clip, when the word times line up with the words
+     on screen; when they do not, the model voice says it instead */
+  const raw=s.text.split(/\s+/),ws=s.words;
+  const ms=steps.map(st=>{
+    if(!ws||ws.length!==raw.length)return null;
+    const take=st.split(/\s+/).length,i0=raw.length-take;
+    return i0>=0&&ws[i0]?[ws[i0].startMs,ws[ws.length-1].endMs]:null;
+  });
+  svChStopAll();c.drill=null;c.chorus=null;
+  c.build={steps,ms,at:0,phase:"ready",err:null,last:null,blob:null};
+  try{track("shadow_challenge_drill",{kind:"buildup"})}catch(e){}
+  svChDraw();requestAnimationFrame(()=>svChReveal("#svChBuild"));
+};
+window.svChBuildClose=()=>{if(!svCh)return;svChStopAll();svCh.build=null;svChDraw()};
+window.svChBuildNext=()=>{const b=svCh&&svCh.build;if(!b)return;b.at=Math.min(b.steps.length-1,b.at+1);b.last=null;b.err=null;svChStopAll();svChDraw();requestAnimationFrame(()=>svChReveal("#svChBuild"))};
+window.svChBuildFinish=()=>{
+  const c=svCh;if(!c)return;svChStopAll();c.build=null;
+  /* the whole paragraph has just been said in one piece — the rung it was
+     blocking is the right place to land */
+  c.phase="ready";c.fb=null;c.err=null;c.open=null;svRender();requestAnimationFrame(()=>svChReveal("#svCh"));
+};
+window.svChBuildListen=()=>{
+  const c=svCh,b=c&&c.build;if(!b)return;const sp=b.ms&&b.ms[b.at];if(!sp)return;
+  svChStopAll();svChSeekPlay(sp[0],sp[1]);
+};
+window.svChBuildRecord=()=>{
+  const c=svCh,b=c&&c.build;if(!b)return;
+  svChStopAll();
+  svChRec("bu"+b.at,("Build-up — "+b.steps[b.at]).slice(0,60),blob=>{if(svCh===c&&c.build===b)svChBuildGrade(c,b,blob)},
+    ()=>svCh&&svCh.build,f=>{if(svCh&&svCh.build)f(svCh.build)});
+};
+async function svChBuildGrade(c,b,blob){
+  b.phase="grading";b.err=null;svChDraw();
+  if(!POLISH_API||!navigator.onLine){b.phase="ready";b.err="net";svChDraw();return}
+  try{
+    const words=await Promise.race([fbWords(blob).catch(()=>null),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
+    if(words==="timeout")throw new Error("timeout");
+    const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
+    if(svCh!==c||c.build!==b)return;
+    if(!heard){b.phase="ready";b.err=navigator.onLine?"ai":"net";svChDraw();return}
+    const fb=ShadowSync.challenge(b.steps[b.at],heard,{});
+    b.last={ok:fb.pass,ok_n:fb.ok,total:fb.total};
+    b.phase="ready";
+  }catch(e){b.phase="ready";b.err=navigator.onLine?"ai":"net"}
+  if(svCh===c&&c.build===b)svChDraw();
 }
 /* "Use it yourself": one sentence of your own with the curriculum expression.
    Not a chat — the only question asked is whether the expression was used. */
@@ -16076,28 +17133,36 @@ async function svChGrade(blob){
     if(svCh!==c)return;
     const fb=build(words,heard,assess);
     c.attempt++;c.fb=fb;c.heard=heard;c.blob=blob;c.phase=fb.pass?"done":"feedback";c.last={ok:fb.ok,total:fb.total};
+    c.lastPass=!!fb.pass;                       /* what the ladder will be asked about when the learner taps on */
     c.hist.push({n:c.attempt,fb,heard,blob,ts:Date.now()});if(c.hist.length>10)c.hist.shift();
     c.open=fb.issues.some(x=>x.type!=="levelup")?0:null;c.drill=null;c.ab=null;
     const n=c.attempt;
     if(!c.assessTried){c.pending=true;assessP.then(a=>{if(svCh!==c||c.attempt!==n||!c.fb)return;c.pending=false;c.assessTried=true;
       if(a){c.fb=build(words,heard,a);const h=c.hist[c.hist.length-1];if(h&&h.n===n)h.fb=c.fb}svChDraw()})}
     const m=aMap("svCh"),key=shClip.vid+":"+s.id,prev=m[key]||{};
-    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:c.level,ts:Date.now(),done:!!(prev.done||fb.pass)};
+    m[key]={best:Math.max(prev.best||0,Math.round(fb.coverage*100)),n:(prev.n||0)+1,level:c.level,ts:Date.now(),done:!!(prev.done||fb.pass),
+      rung:c.rung,speed:c.speed};
+    svChRemember();
     svChHistPut(c,s,fb,heard);save();
-    try{track("shadow_challenge_feedback_received",{level:c.level,result:fb.pass?"pass":"retry"})}catch(e){}
-    if(fb.pass)try{track("shadow_challenge_completed",{level:c.level})}catch(e){}
+    try{track("shadow_challenge_feedback_received",{level:c.level,rung:c.rung,result:fb.pass?"pass":"retry"})}catch(e){}
+    if(fb.pass)try{track("shadow_challenge_completed",{level:c.level,rung:c.rung})}catch(e){}
   }catch(e){c.phase="error";c.err=navigator.onLine?"ai":"net"}
   if(svCh===c){svChDraw();if(c.fb)requestAnimationFrame(()=>svChReveal("#svCh .sv-ch-rep"))}
 }
 window.svChRegrade=()=>{if(svCh&&svCh.blob&&svCh.phase!=="grading")svChGrade(svCh.blob)};
-window.svChRetry=()=>{if(!svChOn()||!svCh)return;svChStopAll();svRepeat=null;svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;svCh.open=null;svCh.drill=null;svCh.pending=false;svCh.assessTried=false;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"))};
+window.svChRetry=()=>{if(!svChOn()||!svCh)return;svChStopAll();svRepeat=null;
+  /* Another go at the same rung IS the ladder's "again" move, so a miss here
+     counts: two of them and the panel starts offering the way down instead. */
+  if(svCh.lastPass===false)svCh.fails++;else if(svCh.lastPass===true)svCh.fails=0;
+  svCh.lastPass=null;
+  svCh.phase="ready";svCh.fb=null;svCh.err=null;svCh.use=null;svCh.open=null;svCh.drill=null;svCh.chorus=null;svCh.build=null;svCh.pending=false;svCh.assessTried=false;try{track("shadow_challenge_retry",{level:svCh.level})}catch(e){}svChDraw();requestAnimationFrame(()=>svChReveal("#svCh"))};
 /* one paragraph forward or back: a fresh attempt on the new one, the clip
    parked at its first word. It does NOT start playing — the learner is about
    to speak, and Listen is right there when they want to hear it first. */
 window.svChStep=d=>{
   if(!svChOn()||!svAsset)return;
   const ps=svParas(svAsset),k=svChParaK()+d;if(k<0||k>=ps.length)return;
-  svChStopAll();svRepeat=null;svChPara=ps[k].from;svPick=ps[k].from;svChReset();svRender();
+  svChStopAll();svChSyncTeardown();svRepeat=null;svChPara=ps[k].from;svPick=ps[k].from;svChReset();svRender();
   const s=svChSegObj();if(s&&s.startMs>=0&&ytPlayer&&ytPlayer.seekTo)shSeekTo(s.startMs/1000);
 };
 window.svChNext=()=>svChStep(1);
@@ -16159,13 +17224,16 @@ function svChSpanBtns(it,idx){
 function svChIssueHTML(it,idx,open){
   const drillable=it.type==="pron"||it.type==="wrong"||(it.type==="missing"&&it.tSpan&&it.tSpan[1]===it.tSpan[0]);
   const practise=drillable||it.type==="missing"?`<button class="sv-ch-play acc" onclick="event.stopPropagation();svChDrillOpen(${idx})" aria-label="${esc(t("sv.ch_btn_practise"))}">${ic("mic")}<span>${t("sv.ch_btn_practise")}</span></button>`:"";
+  /* the same trouble spot, drilled the other way: six passes with the speaker
+     rather than one careful go on your own */
+  const chorus=it.tSpan?`<button class="sv-ch-play" onclick="event.stopPropagation();svChChorusOpen(${idx})" aria-label="${esc(t("sv.ch_btn_chorus"))}">${ic("repeat")}<span>${t("sv.ch_btn_chorus")}</span></button>`:"";
   const head=`<button class="sv-ch-issue-hd" onclick="svChOpen(${idx})" aria-expanded="${open}">
       <span class="sv-ch-issue-n">${idx+1}</span>
       <span class="sv-ch-issue-t"><b>${svChIssueTitle(it)}</b><small>${svChWhole(it)?"":svChKind(it)}${it.score!=null?` · ${it.score}%`:""}${it.gapS?` · ${it.gapS}s`:""}</small></span>
       <span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></button>`;
   const body=open?`<div class="sv-ch-issue-body">
       <p class="sv-ch-fix">${svChFixText(it)}</p>
-      <div class="sv-ch-row tight">${svChSpanBtns(it,idx)}${practise}</div>
+      <div class="sv-ch-row tight">${svChSpanBtns(it,idx)}${practise}${chorus}</div>
       ${svChStressHTML(it.text)}</div>`:"";
   return `<div class="sv-ch-issue ${open?"open":""} k-${it.dim}">${head}${body}</div>`;
 }
@@ -16252,6 +17320,8 @@ function svChReportHTML(c,s){
     ${svChListenHTML(fb,s)}
     ${issues.length?`<div class="sv-ch-sec"><div class="sv-ch-sec-h">${ic("target")} ${t("sv.ch_focus_h")}</div>${issues.map((it,i)=>svChIssueHTML(it,i,c.open===i)).join("")}</div>`:""}
     ${c.drill?svChDrillHTML(c.drill):""}
+    ${c.chorus?svChChorusHTML(c.chorus):""}
+    ${c.build?svChBuildHTML(c.build):""}
     ${svChWeakHTML(fb)}
     ${svChHistHTML()}
     ${svChNextHTML(fb)}
@@ -16260,7 +17330,8 @@ function svChReportHTML(c,s){
 }
 /* ---------- playback ---------- */
 function svChStopAll(){
-  svChOnStop=null;if(svCh){svCh.ab=null;svCh.play=null}
+  svChOnStop=null;if(svCh){svCh.ab=null;svCh.play=null;
+    if(svCh.chorus&&svCh.chorus.phase==="chorus")svCh.chorus.phase="ready";}
   if(_svChSayIv){clearInterval(_svChSayIv);_svChSayIv=null}
   if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}
   fbStopAudio();
@@ -16406,6 +17477,24 @@ function svChHistPut(c,s,fb,heard){
   L.unshift(e);if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
   c.histRef=e.ts;
 }
+/* A sync round leaves no recording — the round keeps none — so its entry
+   carries the numbers and says so. Retell keeps the learner's own words, like
+   every other take. Both are their own kind: a challenge card reads coverage
+   and issues, which neither of these has. */
+function svChHistSync(c,s,rep){
+  const L=aList("chHist");
+  L.unshift({kind:"chsync",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,
+    rung:"sync",speed:c.speed,state:rep.state,lag:rep.lag,cover:rep.cover,drift:rep.drift,bleed:!!rep.bleed,
+    issues:(rep.issues||[]).map(x=>({type:x.type,k:x.k,v:x.v||null})),pass:!!rep.pass});
+  if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
+}
+function svChHistRetell(c,s,r){
+  const L=aList("chHist");
+  L.unshift({kind:"chretell",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,
+    rung:"retell",ok:!!r.res.ok,why:r.res.why||"",missed:String(r.res.missed||"").slice(0,80),tip:String(r.res.tip||"").slice(0,160),
+    heard:String(r.heard||"").slice(0,400),ctx:svChCtx("rt"),pass:!!r.res.ok});
+  if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
+}
 /* a drill's attempts are filed under the line attempt they followed */
 function svChHistDrill(d){
   const c=svCh;if(!c||!c.histRef)return;const e=aList("chHist").find(x=>x.ts===c.histRef);if(!e)return;
@@ -16434,7 +17523,7 @@ function shHistRender(){
   if(!L.length){box.innerHTML=emptyState("clock",t("sh.hist_empty_title"),t("sh.hist_empty_body"),isProfessionalJourney()?t("sh.back_to_lines"):t("sh.tab_create"),"shTab('create')");manIconizeInline(box);return}
   const groups=[];L.forEach(e=>{const lbl=shHistDayLabel(e.ts);const g=groups[groups.length-1];if(g&&g.lbl===lbl)g.items.push(e);else groups.push({lbl,items:[e]})});
   const time=ts=>{try{return new Date(ts).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})}catch(e){return ""}};
-  box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>e.kind==="shadow"?shHistShadowCard(e,time):shHistChallengeCard(e,time)).join("")).join("");
+  box.innerHTML=groups.map(g=>`<div class="sh-hist-day">${esc(g.lbl)}</div>`+g.items.map(e=>e.kind==="shadow"?shHistShadowCard(e,time):(e.kind==="chsync"||e.kind==="chretell")?shHistRungCard(e,time):shHistChallengeCard(e,time)).join("")).join("");
   manIconizeInline(box);
 }
 function shHistChallengeCard(e,time){
@@ -16455,6 +17544,29 @@ function shHistChallengeCard(e,time){
         <span class="sh-hist-line">“${esc(e.text)}”</span>
         <span class="sh-hist-sum"><b class="sh-hist-v">${t("sv.ch_st_"+e.verdict)}</b><span>${e.issues.length?`${t("sh.hist_focus")}: ${focus}`:t("sh.hist_none")}</span><span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></span>
       </button>${body}</div>`;
+}
+/* one card for both new rungs: what the round asked, and what it found */
+function shHistRungCard(e,time){
+  const open=_shHistOpen===e.ts;
+  const v=e.kind==="chretell"?(e.ok?"strong":"practice"):(e.state==="na"?"practice":e.state||"practice");
+  const sum=e.kind==="chretell"?t(e.ok?"sv.ch_retell_good":e.why==="echo"?"sv.ch_retell_echo":e.why==="thin"?"sv.ch_retell_thin":"sv.ch_retell_missed",{missed:e.missed||t("sv.ch_retell_missed_x")})
+    :e.bleed?t("sv.ch_sync_bleed")
+    :[e.lag!=null?t("sv.ch_sync_lag_v",{s:Math.abs(e.lag).toFixed(1)}):"",t("sv.ch_sync_with_h")+" "+Math.round((e.cover||0)*100)+"%"].filter(Boolean).join(" · ");
+  const body=open?`<div class="sh-hist-body">
+      ${e.heard?`<p class="sv-ch-cmp-you"><span class="sv-ch-lbl">${t("sv.ch_cmp_you")}</span>${esc(e.heard)}</p>`:""}
+      ${e.tip?`<p class="sv-ch-fix">${esc(e.tip)}</p>`:""}
+      ${(e.issues||[]).length?`<div class="sh-hist-issues">${e.issues.map((x,i)=>`<div class="sh-hist-issue"><b>${i+1}</b><span>${t(x.k,x.v||{})}</span></div>`).join("")}</div>`:""}
+      ${e.kind==="chsync"?`<p class="pp-fine">${t("sv.ch_sync_privacy")}</p>`:""}
+      <div class="sv-ch-row tight">
+        ${e.ctx?`<button class="sv-ch-play" onclick="shHistPlay(${e.ts})">${ic("mic")}<span>${t("sh.hist_play")}</span></button>`:""}
+        <button class="sv-ch-play acc" onclick="shHistOpen(${e.ts})">${ic("play")}<span>${t("sh.hist_open")}</span></button>
+      </div></div>`:"";
+  return `<div class="sh-hist-item d-${v} ${open?"open":""}">
+    <button class="sh-hist-hd" onclick="shHistToggle(${e.ts})" aria-expanded="${open}">
+      <span class="sh-hist-top"><span class="sh-hist-kind k-rg">${t("sv.ch_rung_"+e.rung)}</span><span class="sh-hist-title">${esc(e.title)}</span><span class="sh-hist-time">${time(e.ts)} · ${t("sv.ch_attempt",{n:e.n})}</span></span>
+      <span class="sh-hist-line">“${esc(e.text)}”</span>
+      <span class="sh-hist-sum"><b class="sh-hist-v">${t("sv.ch_st_"+v)}</b><span>${sum}</span><span class="sv-chev ${open?"open":""}" aria-hidden="true">▾</span></span>
+    </button>${body}</div>`;
 }
 function shHistShadowCard(e,time){
     const open=_shHistOpen===e.ts,sc=e.score,v=sc==null?"good":sc>=80?"strong":sc>=55?"practice":"attention";
@@ -16506,6 +17618,11 @@ window.shHistOpen=async ts=>{
   else{const idx=segs.findIndex(x=>x.id===e.seg||x.text===e.text);if(idx>=0){const g=svParaOf(idx);from=g?g.from:idx}}
   if(from>=0){svChPara=from;svPick=from}
   svChReset();svSetMode("challenge");
+  /* an entry from one of the newer rungs reopens ON that rung — landing on
+     whatever rung the ladder had reached would not be the thing they tapped */
+  if((e.kind==="chsync"||e.kind==="chretell")&&svCh&&svCh.rungs.includes(e.rung)&&svCh.rung!==e.rung){
+    svCh.rung=e.rung;svCh.fails=0;svCh.move=null;svCh.next=null;svRender();
+  }
 };
 window.svChSaveVocab=k=>{
   if(!svChOn()||!k)return;
@@ -16564,15 +17681,34 @@ let svAutoUntil=0;
 /* a scroll the code started must not count as the learner scrolling — that
    would silence the follow-along for 3 s after every line */
 function svOnTxScroll(){if(Date.now()>svAutoUntil)svUserScrollAt=Date.now()}
+/* Called whenever the spoken LINE changes. It used to be called only when the
+   follow-along card's window moved; that card is gone, so svNowWin never
+   changes and the page stopped following the voice entirely — the spoken line
+   walked off the bottom of the screen (owner, 22 Sep 2026). A learner who has
+   scrolled by hand is still left alone for three seconds. */
 function svScrollTo(tx,el){
   svAutoUntil=Date.now()+800;
   /* the line being spoken sits at the top of the box, its word lit, the
      road ahead under it — so the list visibly moves with the voice. (It used
      to start at the line AFTER the card's window; with the spoken line out
      of sight the list looked frozen.) */
-  const r=el.getBoundingClientRect(),box=tx.getBoundingClientRect();
-  const top=tx.scrollTop+(r.top-box.top)-4;
-  try{tx.scrollTo({top:Math.max(0,top),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){tx.scrollTop=Math.max(0,top)}
+  /* Which box actually scrolls. In the redressed workspace the transcript is
+     not a scrolling list — it runs down the page, and the page is what moves.
+     Scrolling #svTx there did nothing, so the spoken line walked off the bottom
+     of the screen and stayed there (owner, 22 Sep 2026). Fall back to the
+     nearest ancestor that can scroll, and clear the pinned video. */
+  let box2=tx, pad=4;
+  if(tx.scrollHeight<=tx.clientHeight+2){
+    let a=tx.parentElement;
+    while(a&&a.scrollHeight<=a.clientHeight+2)a=a.parentElement;
+    if(!a)return;
+    box2=a;
+    const st=document.querySelector("#shWork[data-v3] .sh-stick");
+    pad=(st?Math.ceil(st.getBoundingClientRect().height):0)+10;
+  }
+  const r=el.getBoundingClientRect(),box=box2.getBoundingClientRect();
+  const top=box2.scrollTop+(r.top-box.top)-pad;
+  try{box2.scrollTo({top:Math.max(0,top),behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){box2.scrollTop=Math.max(0,top)}
 }
 /* the pinned card under the video: the sentence being spoken, one span per
    word so the tick can light the word without touching the rest */
@@ -16598,7 +17734,12 @@ function svFlatIndex(seg,word){
 function svNowDraw(i,force,word){
   const nw=document.getElementById("svNow");if(!nw)return;
   const a=svAsset,tx=document.getElementById("svTx");
-  const hidden=!(a&&i>=0&&a.segments[i])||!svOn()||(tx&&tx.classList.contains("hidden"));
+  /* Never in Challenge. The card exists to show the line being spoken, which is
+     precisely what Challenge is asking the learner to produce from memory — and
+     the paragraph panel below already shows the text when it is meant to be
+     seen. Two copies of the same words, one of which survives into the
+     recording, is a prompt, not a test (owner, 22 Sep 2026). */
+  const hidden=!(a&&i>=0&&a.segments[i])||!svOn()||svMode==="challenge"||(tx&&tx.classList.contains("hidden"));
   if(hidden){nw.hidden=true;nw.innerHTML="";svNowBase=-1;svNowWin=null;return}
   if(svFlatOf!==a)svFlatBuild();
   if(!svFlat.length){nw.hidden=true;return}
@@ -16640,7 +17781,18 @@ function svTick(){
     const wasWin=svNowWin;svNowDraw(loc.seg,false,loc.word);
     if(svPick<0&&loc.seg>=0)svExprDraw(loc.seg);   // never touch svLast here: the word block below compares against it
     tx.querySelectorAll(".sv-seg.now").forEach(e=>e.classList.remove("now"));
-    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");if((svTxFresh||(svNowWin!==wasWin&&Date.now()-svUserScrollAt>3000))&&el.offsetParent){svScrollTo(tx,el);svTxFresh=false}}}
+    if(loc.seg>=0){const el=tx.querySelector(`.sv-seg[data-i="${loc.seg}"]`);if(el){el.classList.add("now");
+      /* Move by PARAGRAPH, not by line. Scrolling on every sentence dragged the
+         text under the learner's eyes while they were still reading the
+         paragraph they were in. The page now holds still until the highlight
+         crosses into the next paragraph, and then brings that one up (owner,
+         22 Sep 2026). Where the list is not grouped into paragraphs — Shadow
+         and Challenge — the line itself is the unit, as before. */
+      const para=el.closest(".sv-para");
+      const key=para?("p"+para.dataset.p):("s"+loc.seg);
+      if((svTxFresh||Date.now()-svUserScrollAt>3000)&&el.offsetParent&&key!==svScrollKey){
+        svScrollTo(tx,para||el);svTxFresh=false;svScrollKey=key;
+      }}}
   }
   if(loc.word!==svLast.word||loc.seg!==svLast.seg){
     tx.querySelectorAll(".sv-w.now").forEach(e=>e.classList.remove("now"));

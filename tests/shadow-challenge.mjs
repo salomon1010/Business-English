@@ -20,6 +20,7 @@ const POLISH = "https://be-polish.nore-ngou.workers.dev";
 
 /* the fake AI: whatever the current check wants to have been heard */
 let heard = "", assessScore = 90, polishHits = 0, polishMode = "ok";   // ok | abort | 500
+let retellVerdict = { ok: true, missed: "", tip: "Say it a little slower." };
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const errors = [];
 async function learner(id, track, opts = {}) {
@@ -42,6 +43,7 @@ async function learner(id, track, opts = {}) {
     let body = {};
     if (ct.includes("json")) { try { body = JSON.parse(req.postData() || "{}"); } catch (e) {} }
     if (body.captions) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ error: "no_captions" }) });
+    if (body.chat && /says what it meant|said, in their OWN words/i.test(String(body.chat.system || ""))) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(retellVerdict) });
     if (body.chat) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Traduction : " + String(body.chat.messages[0].content).slice(0, 40), covered: [] }) });
     if (body.assess && polishMode === "assessSlow") await sleep(3500);                  // the transcript lands first, the grade later
     if (body.assess && polishMode === "assessFail") return route.fulfill({ status: 502, contentType: "application/json", body: JSON.stringify({ error: "assess_unavailable" }) });
@@ -56,6 +58,10 @@ async function learner(id, track, opts = {}) {
   await page.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-ov,.wc-ov").forEach(e => e.remove()); });
   return { ctx, page, id };
 }
+/* Drop the learner straight onto a rung. The ladder has its own checks; the
+   ones that are about the report, the drills or the history should not have
+   to walk it first. */
+const toRung = (page, rung) => page.evaluate(r => { svCh.rung = r; svCh.fails = 0; svCh.next = null; svCh.gate = null; svCh.sync = null; svCh.retell = null; svCh.use = null; svCh.fb = null; svCh.phase = "ready"; svRender(); }, rung).then(() => new Promise(r => setTimeout(r, 150)));
 const txt = (page, sel) => page.evaluate(s => (document.querySelector(s)?.innerText || "").replace(/\s+/g, " ").trim(), sel);
 const phase = page => page.evaluate(() => svCh && svCh.phase);
 const waitPhase = (page, p, ms = 8000) => page.waitForFunction(p => svCh && svCh.phase === p, p, { timeout: ms }).then(() => true, () => false);
@@ -88,6 +94,71 @@ ok("Translate (French app language): the button carries the language code and th
 await A.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.track = (n, p) => { __ev.push([n, p || {}]); return t0 && t0(n, p); }; });
 await A.page.evaluate(() => svSetMode("challenge")); await sleep(200);
 ok("Analytics: entering the tab sends shadow_challenge_opened, then shadow_challenge_started (+level, the constant 'guided' so the figures stay comparable)", await A.page.evaluate(() => __ev.some(e => e[0] === "shadow_challenge_opened") && __ev.some(e => e[0] === "shadow_challenge_started" && e[1].level === "guided")), await A.page.evaluate(() => JSON.stringify(__ev)));
+
+/* ---------- THE LADDER ----------
+   Five rungs on one paragraph, the app choosing. These checks walk the whole
+   ladder on the clip's second paragraph, then put the learner back on the
+   recall rung so the rest of the suite (the report, the drills, the history)
+   keeps testing what it always tested. */
+const lad = await A.page.evaluate(() => ({ rung: svCh.rung, rungs: svCh.rungs.slice(), strip: [...document.querySelectorAll("#svCh .sv-ch-rung")].map(e => e.innerText.trim()), now: document.querySelector("#svCh .sv-ch-rung.now")?.innerText.trim(), eyebrow: document.querySelector("#svCh .eyebrow")?.innerText.trim(), rec: !!document.getElementById("svChRecBtn"), blanks: document.querySelectorAll("#svCh .sv-ch-blank").length, chips: document.querySelectorAll("#svCh .sv-ch-chip").length, ev: __ev.filter(e => e[0] === "shadow_challenge_rung").map(e => e[1].rung) }));
+ok("A paragraph opens at the bottom of the ladder: five rungs drawn as a map (not tabs), the listening gate lit, blanked words with chips to tap and NO microphone yet", lad.rung === "gate" && lad.rungs.join() === "gate,sync,recall,blind,retell" && lad.strip.length === 5 && /Listen/.test(lad.now) && !lad.rec && lad.blanks === 3 && lad.chips === 9 && lad.ev.includes("gate"), JSON.stringify(lad));
+ok("The rung strip is a map, not a menu — none of the five is clickable, because the app is what chooses", await A.page.evaluate(() => [...document.querySelectorAll("#svCh .sv-ch-rung")].every(e => e.tagName !== "BUTTON" && !e.getAttribute("onclick"))));
+/* every chip right → through the gate */
+const gate = await A.page.evaluate(async () => {
+  svCh.gate.items.forEach(it => svChGatePick(it.wi, it.answer));
+  const filled = document.querySelectorAll("#svCh .sv-ch-blank.filled").length;
+  svChGateCheck(); await new Promise(r => setTimeout(r, 60));
+  const r = { filled, pass: svCh.gate.pass, okMarks: document.querySelectorAll("#svCh .sv-ch-blank.ok").length, state: document.querySelector("#svCh .sv-ch-state").innerText.trim() };
+  svChGateDone(); await new Promise(r2 => setTimeout(r2, 60));
+  r.card = document.querySelector("#svCh .sv-ch-move")?.innerText.replace(/\s+/g, " ").trim();
+  r.next = svCh.next && svCh.next.rung; r.stillGate = svCh.rung;
+  svChTakeNext(); await new Promise(r3 => setTimeout(r3, 120));
+  r.landed = svCh.rung; r.attempt = svCh.attempt;
+  return r;
+});
+ok("Gate passed: every blank filled and marked right, then a card explaining the move — and the rung only changes when the learner taps it, never behind their back", gate.filled === 3 && gate.pass && gate.okMarks === 3 && /ear is working/i.test(gate.state) && /yours/i.test(gate.card) && gate.next === "sync" && gate.stillGate === "gate" && gate.landed === "sync", JSON.stringify(gate));
+ok("Landing on a new rung wipes the last rung's report — the old exercise's score must not sit under the new one's instructions", gate.attempt === 0 && await A.page.evaluate(() => !svCh.fb && !svCh.gate && svCh.fails === 0));
+/* missing the gate twice must never trap: the ladder moves past it */
+ok("A learner who misses the gate twice is moved ON, not held there — a gate that can trap somebody is worse than no gate", await A.page.evaluate(() => { const L = ["gate", "sync", "recall", "blind", "retell"]; const a = ShadowSync.nextRung({ rung: "gate", rungs: L, pass: false, speed: 1, fails: 0 }); const b = ShadowSync.nextRung({ rung: "gate", rungs: L, pass: false, speed: 1, fails: 1 }); return a.move === "again" && a.rung === "gate" && b.move === "past" && b.rung === "sync"; }));
+/* ---- sync: speak WITH the speaker ---- */
+const syn = await A.page.evaluate(() => ({ eyebrow: document.querySelector("#svCh .eyebrow")?.innerText.trim(), line: !!document.querySelector("#svCh .sv-ch-syncline"), shown: document.getElementById("svCh").innerText.includes(svChSegObj().text), privacy: /Nothing is recorded/i.test(document.getElementById("svCh").innerText), start: !![...document.querySelectorAll("#svCh button")].find(b => /Start together/.test(b.innerText)), speeds: document.querySelectorAll("#svCh .sv-ch-speed button").length }));
+ok("SYNC is synchronised reading: the paragraph stays on screen, the speeds are there, and the panel says plainly that nothing is recorded in this round — only loudness", /Speak with them/i.test(syn.eyebrow) && syn.line && syn.shown && syn.privacy && syn.start && syn.speeds === 3, JSON.stringify(syn));
+const synRun = await A.page.evaluate(async () => {
+  svChSyncGo(); await new Promise(r => setTimeout(r, 300));
+  const r = { counting: svCh.sync && svCh.sync.phase, count: document.querySelector("#svCh .sv-ch-count")?.innerText };
+  await new Promise(r2 => setTimeout(r2, 2400));
+  r.phase = svCh.sync && svCh.sync.phase; r.mic = !!svChMic; r.samples = svCh.sync && svCh.sync.samples.length; r.meter = !!document.querySelector("#svCh .sv-ch-meter");
+  svChSyncStop(); await new Promise(r3 => setTimeout(r3, 120));
+  r.stopped = svCh.sync; r.micAfter = !!svChMic;
+  return r;
+});
+ok("Sync round: three-second count-in, then a live round that takes loudness samples from a real microphone and shows a meter — and stopping it lets the microphone go at once", synRun.counting === "count" && /[123]/.test(synRun.count || "") && synRun.phase === "live" && synRun.mic && synRun.samples > 5 && synRun.meter && synRun.stopped === null && !synRun.micAfter, JSON.stringify(synRun));
+/* the report is built from the loudness trace, and the trace does not outlive the round */
+const synRep = await A.page.evaluate(async () => {
+  const s = svChSegObj(), step = ShadowSync.SYNC_STEP;
+  /* a learner who spoke a fifth of a second behind, all the way through */
+  const lag = 0.2, v = [], t0 = s.words[0].startMs / 1000 - 0.3;
+  for (let i = 0; i < Math.ceil((s.endMs - s.startMs) / 1000 / step) + 30; i++) {
+    const tt = t0 + i * step - lag;
+    v.push(s.words.some(w => tt >= w.startMs / 1000 && tt <= w.endMs / 1000) ? 0.55 : 0.02);
+  }
+  svCh.sync = { phase: "live", samples: v, t0, iv: null };
+  svChSyncFinish(svCh, s); await new Promise(r => setTimeout(r, 200));
+  const rep = svCh.sync.rep;
+  return { lag: rep.lag, cover: rep.cover, state: rep.state, pass: rep.pass, kept: svCh.sync.samples.length,
+    chips: [...document.querySelectorAll("#svCh .sv-ch-dim")].map(e => e.innerText.replace(/\s+/g, " ")),
+    hist: aList("chHist")[0] && { kind: aList("chHist")[0].kind, ctx: aList("chHist")[0].ctx || null } };
+});
+ok("Sync report: a take a fifth of a second behind is measured as such and passes, the chips name what was measured, and the loudness trace is thrown away the moment the report exists", Math.abs(synRep.lag - 0.2) <= 0.09 && synRep.cover >= 0.7 && synRep.pass && synRep.kept === 0 && synRep.chips.some(c => /Behind by/.test(c)) && synRep.chips.some(c => /Speaking with them/.test(c)), JSON.stringify(synRep));
+ok("A microphone sending one unbroken level is refused rather than read as speaking the whole way through", await A.page.evaluate(() => { const s = svChSegObj(); const r = ShadowSync.syncReport({ v: new Array(300).fill(0.5), t0: s.words[0].startMs / 1000 }, s.words); return r.state === "na" && r.reason === "flat"; }));
+ok("A take a full second behind is told so, and does not pass", await A.page.evaluate(() => { const s = svChSegObj(), step = ShadowSync.SYNC_STEP, v = [], t0 = s.words[0].startMs / 1000 - 0.5; for (let i = 0; i < 400; i++) { const tt = t0 + i * step - 1.0; v.push(s.words.some(w => tt >= w.startMs / 1000 && tt <= w.endMs / 1000) ? 0.55 : 0.02); } const r = ShadowSync.syncReport({ v, t0 }, s.words); return !r.pass && r.lag >= 0.9 && r.issues.some(i => i.type === "behind"); }));
+ok("Starting with the speaker and falling behind by the end is caught as drift — the thing a shadower feels and no transcript can show", await A.page.evaluate(() => { const s = svChSegObj(), step = ShadowSync.SYNC_STEP, v = [], t0 = s.words[0].startMs / 1000 - 0.5; for (let i = 0; i < 500; i++) { const tt = t0 + i * step; v.push(s.words.some((w, wi) => { const lg = 0.15 + (wi / s.words.length) * 0.8; return tt >= w.startMs / 1000 + lg && tt <= w.endMs / 1000 + lg; }) ? 0.55 : 0.02); } const r = ShadowSync.syncReport({ v, t0 }, s.words); return r.drift >= 0.35 && r.issues.some(i => i.type === "drift") && !r.pass; }));
+ok("A sync round leaves a history entry that carries no recording context, because the round kept no recording", synRep.hist && synRep.hist.kind === "chsync" && synRep.hist.ctx === null, JSON.stringify(synRep.hist));
+ok("A microphone hearing the video itself is called out rather than scored — the engine will not award a top mark to the speaker's own voice", await A.page.evaluate(() => { const s = svChSegObj(), step = ShadowSync.SYNC_STEP, v = [], t0 = s.words[0].startMs / 1000; for (let i = 0; i < 400; i++) { const tt = t0 + i * step; v.push(s.words.some(w => tt >= w.startMs / 1000 && tt <= w.endMs / 1000) ? 0.55 : 0.01); } const r = ShadowSync.syncReport({ v, t0 }, s.words); return r.bleed === true && r.state === "na" && r.issues[0].type === "bleed"; }));
+/* ---- the ladder carries on: sync passed → recall ---- */
+const toRecall = await A.page.evaluate(async () => { svChSyncDone(); await new Promise(r => setTimeout(r, 80)); const n = svCh.next && svCh.next.rung; svChTakeNext(); await new Promise(r2 => setTimeout(r2, 150)); return { n, rung: svCh.rung, rec: !!document.getElementById("svChRecBtn") }; });
+ok("Passing sync hands the learner to the recall rung, where the microphone appears", toRecall.n === "recall" && toRecall.rung === "recall" && toRecall.rec, JSON.stringify(toRecall));
+
 /* the unit is a PARAGRAPH — the same group Shadow uses — with a pager to skip
    through them, and Guided (the paragraph on screen) is where a learner starts */
 const par = await A.page.evaluate(() => { const g = svChSegObj(), q = svParaOf(5), ps = svParas(svAsset); return { seg: svCh.seg, from: q.from, lines: g.to - g.from + 1, text: g.text, want: svAsset.segments.slice(q.from, q.to + 1).map(x => x.text).join(" "), k: g.k, n: g.n, nWords: g.words && g.words.length, nav: document.querySelector("#svCh .sv-sh-nav span")?.textContent.trim(), level: svCh.level, shown: document.getElementById("svCh").innerText.includes(g.text), paras: ps.length }; });
@@ -156,11 +227,11 @@ const vc = await A.page.evaluate(() => { const ws = svCh.fb.weakWords; const c =
   if (f >= 0) { svChDrillWord(f); out.fnStar = !![...document.querySelectorAll("#svChDrill button")].find(x => /vocabulary/i.test(x.innerText)); }
   svChDrillClose(); return out; });
 ok("Vocabulary: the drill of a content word offers ⭐ Save to vocabulary (vocPut, reads 'In your vocabulary' once saved, tap again removes it); a function word's drill offers none; the weakest-words chips are not drawn when the focus list already covers every weak word", (!vc.c || (vc.star && vc.saved && vc.lit && vc.dropped)) && (!vc.f || vc.fnStar === false) && vc.chips === 0, JSON.stringify(vc));
-const vis = await A.page.evaluate(() => { const g = svChSegObj(); return { disp: getComputedStyle(document.getElementById("svTx")).display, pick: [...document.querySelectorAll("#svTx .sv-seg.pick")].map(e => +e.dataset.i), want: g && [g.from, g.to], reveal: !!document.querySelector("#shV2 .sv-ctl button[onclick='svReveal()']"), ev: __ev.filter(e => e[0] === "shadow_challenge_feedback_received").map(e => e[1].result), done: __ev.some(e => e[0] === "shadow_challenge_completed") }; });
-ok("Feedback state: the transcript is visible again with EVERY line of the target paragraph marked, no Reveal button; feedback_received{retry} sent, completed NOT sent", vis.disp !== "none" && vis.pick.length === vis.want[1] - vis.want[0] + 1 && vis.pick[0] === vis.want[0] && vis.pick[vis.pick.length - 1] === vis.want[1] && !vis.reveal && vis.ev.join() === "retry" && !vis.done, JSON.stringify(vis));
+const vis = await A.page.evaluate(() => { const g = svChSegObj(); return { disp: getComputedStyle(document.getElementById("svTx")).display, pick: [...document.querySelectorAll("#svTx .sv-seg.pick")].map(e => +e.dataset.i), want: g && [g.from, g.to], reveal: !!document.querySelector("#shV2 .sv-ctl button[onclick='svReveal()']"), ev: __ev.filter(e => e[0] === "shadow_challenge_feedback_received" && e[1].rung === "recall").map(e => e[1].result), done: __ev.some(e => e[0] === "shadow_challenge_completed" && e[1].rung === "recall") }; });
+ok("Feedback state: the scrolling transcript stays hidden in Challenge (it is the answer sheet), no Reveal button; feedback_received{retry} sent, completed NOT sent", vis.disp === "none" && !vis.reveal && vis.ev.includes("retry") && !vis.done, JSON.stringify(vis));
 await A.page.click("#svCh .btn-primary"); await sleep(150);
 const rt = await A.page.evaluate(() => ({ phase: svCh.phase, fb: svCh.fb, attempt: svCh.attempt, state: document.querySelector("#svCh .sv-ch-state").innerText, hidden: getComputedStyle(document.getElementById("svTx")).display === "none", shown: document.getElementById("svCh").innerText.includes(svChSegObj().text) }));
-ok("Try again → ready for attempt 2, feedback cleared, attempt count kept, last result shown as words ('16 of 23'), and the paragraph is back on screen to read before the next take", rt.phase === "ready" && rt.fb === null && rt.attempt === 1 && /Attempt 2/.test(rt.state) && /last time \d+ of \d+ words/.test(rt.state) && !rt.hidden && rt.shown, JSON.stringify(rt));
+ok("Try again → ready for attempt 2, feedback cleared, attempt count kept, last result shown as words ('16 of 23'), the paragraph back on screen to read, transcript still hidden", rt.phase === "ready" && rt.fb === null && rt.attempt === 1 && /Attempt 2/.test(rt.state) && /last time \d+ of \d+ words/.test(rt.state) && rt.hidden && rt.shown, JSON.stringify(rt));
 heard = tgtWords.join(" ");
 await record(A.page);
 ok("Full line → done", await waitPhase(A.page, "done"), "phase=" + await phase(A.page));
@@ -168,10 +239,10 @@ const dn = await A.page.evaluate(() => { const p = document.getElementById("svCh
 ok("Completion: success line, GOOD 'every word', Next paragraph and NO level-up offer, per-area record {done, n:2, best:100, level:'guided'}", dn.title && /every word/.test(dn.good) && dn.next && !dn.up && dn.saved, JSON.stringify(dn));
 ok("No 'Use it yourself' when the paragraph carries no curriculum expression", !dn.use);
 const h2 = await A.page.evaluate(() => { const p = document.getElementById("svCh"); return { hist: svCh.hist.map(h => [h.n, h.fb.verdict, !!h.blob]), rows: [...p.querySelectorAll(".sv-ch-rep > .sv-ch-sec .sv-ch-hist-a")].map(e => e.innerText.replace(/\s+/g, " ")), prog: p.querySelector(".sv-ch-prog")?.innerText, next: !!p.querySelector(".sv-ch-next"), pron: svCh.fb.dims.pron.state, pending: svCh.pending, issues: svCh.fb.issues.some(x => x.type !== "levelup") }; });
-const pl = await A.page.evaluate(() => { const p = document.getElementById("svCh"); return { left: svCh.fb.issues.filter(x => x.type !== "levelup").length, sub: p.querySelector(".sv-ch-done .sv-ch-meta")?.innerText, primary: p.querySelector(".sv-ch-row .btn-primary")?.innerText }; });
-ok("A pass never claims perfection while the report still names something: the done line says 'Good progress — … still needs practice' and Try again is the primary action; with nothing left it says the line is yours", (pl.left === 0 ? /yours now/.test(pl.sub) : (/Good progress/.test(pl.sub) && /Try again/.test(pl.primary || ""))), JSON.stringify(pl));
+const pl = await A.page.evaluate(() => { const p = document.getElementById("svCh"); return { left: svCh.fb.issues.filter(x => x.type !== "levelup").length, sub: p.querySelector(".sv-ch-done .sv-ch-meta")?.innerText, primary: p.querySelector(".sv-ch-row .btn-primary")?.innerText, again: !![...p.querySelectorAll("button")].find(b => /Try again/.test(b.innerText)) }; });
+ok("A pass never claims perfection while the report still names something: the done line says 'Good progress — … still needs practice', and the ladder's 'Carry on' is the primary action with another go one tap away", (pl.left === 0 ? /yours now/.test(pl.sub) : /Good progress/.test(pl.sub)) && /Carry on/.test(pl.primary || "") && pl.again, JSON.stringify(pl));
 ok("Attempt history: two attempts kept with their takes, drawn as Attempt 1 Needs practice / Attempt 2 Strong, the eyebrow says 'Better than last time'; the Next-attempt box stays only while something is left to fix; pronunciation graded (AI mode)", h2.hist.length === 2 && h2.hist[0][2] && h2.hist[1][2] && h2.rows.length === 2 && /Attempt 1 Needs practice/.test(h2.rows[0]) && /Attempt 2 Strong/.test(h2.rows[1]) && /Better than last time/i.test(h2.prog) && h2.next === h2.issues && h2.pron !== "na" && !h2.pending, JSON.stringify(h2));
-ok("Analytics: a pass sends shadow_challenge_completed (+level) exactly once, after feedback_received{pass}", await A.page.evaluate(() => __ev.filter(e => e[0] === "shadow_challenge_completed").length === 1 && __ev.filter(e => e[0] === "shadow_challenge_feedback_received").map(e => e[1].result).join() === "retry,pass"));
+ok("Analytics: a pass on a rung sends shadow_challenge_completed once, tagged with that rung, after that rung's feedback_received{pass} — every rung reports separately so the funnel can show where learners stop", await A.page.evaluate(() => __ev.filter(e => e[0] === "shadow_challenge_completed" && e[1].rung === "recall").length === 1 && __ev.filter(e => e[0] === "shadow_challenge_feedback_received" && e[1].rung === "recall").map(e => e[1].result).join() === "retry,pass" && __ev.filter(e => e[0] === "shadow_challenge_completed").every(e => !!e[1].rung)));
 const nxFrom = await A.page.evaluate(() => { const ps = svParas(svAsset), k = svChParaK(); return ps[k + 1] ? ps[k + 1].from : -1; });
 await A.page.click("#svCh button:has-text('Next paragraph')"); await sleep(200);
 ok("Next paragraph moves the target to the next group and resets the loop", nxFrom > 0 && await A.page.evaluate(f => svCh.seg === f && svCh.phase === "ready" && svCh.attempt === 0 && svPick === f, nxFrom));
@@ -184,13 +255,13 @@ const shr = await A.page.evaluate(() => { const before = aList("chHist").length;
 ok("A Shadow report (the studio's own, from a take) is filed in the same history as kind 'shadow' with its score, what was said, the words to fix and the take's context", shr.added && shr.kind === "shadow" && Number.isFinite(shr.score) && /climate/.test(shr.heard) && Array.isArray(shr.fix) && /^shadow-/.test(shr.ctx) && shr.wpm > 0, JSON.stringify(shr));
 ok("No 'AI learning coach' pop-up after a Shadow report — the report is the page", await A.page.evaluate(() => !document.querySelector("#coachSummary,.coach-modal-ov")));
 await A.page.evaluate(() => { aList("chHist").shift(); });   // keep the Challenge-only checks below exact (the Shadow card is checked on its own)
-const hs = await A.page.evaluate(() => { const L = aList("chHist"); return { n: L.length, first: L[0] && { n: L[0].n, verdict: L[0].verdict, text: L[0].text, issues: L[0].issues.length, heard: !!L[0].heard, ctx: L[0].ctx, drills: L[0].drills.length }, second: L[1] && { n: L[1].n, verdict: L[1].verdict, issues: L[1].issues.map(x => x.text), drills: L[1].drills.map(d => [d.text, d.attempts.length]) }, order: L.every((e, i) => !i || e.ts <= L[i - 1].ts) }; });
-ok("History store: the two attempts of the previous line are kept newest first under this area, each with verdict, line, issues, what was said, the take's context; the drill is filed under the attempt it followed", hs.n === 2 && hs.first.n === 2 && hs.second.n === 1 && hs.second.issues.length >= 1 && hs.second.drills.length === 1 && hs.second.drills[0][1] === 2 && hs.first.heard && /shadow-ch/.test(hs.first.ctx) && hs.order, JSON.stringify(hs));
+const hs = await A.page.evaluate(() => { const L = aList("chHist").filter(e => e.kind === "challenge"); return { n: L.length, sync: aList("chHist").some(e => e.kind === "chsync"), first: L[0] && { n: L[0].n, verdict: L[0].verdict, text: L[0].text, issues: L[0].issues.length, heard: !!L[0].heard, ctx: L[0].ctx, drills: L[0].drills.length }, second: L[1] && { n: L[1].n, verdict: L[1].verdict, issues: L[1].issues.map(x => x.text), drills: L[1].drills.map(d => [d.text, d.attempts.length]) }, order: L.every((e, i) => !i || e.ts <= L[i - 1].ts) }; });
+ok("History store: the two attempts of the previous line are kept newest first under this area, each with verdict, line, issues, what was said, the take's context; the drill is filed under the attempt it followed; the sync round is filed beside them as its own kind", hs.n === 2 && hs.sync && hs.first.n === 2 && hs.second.n === 1 && hs.second.issues.length >= 1 && hs.second.drills.length === 1 && hs.second.drills[0][1] === 2 && hs.first.heard && /shadow-ch/.test(hs.first.ctx) && hs.order, JSON.stringify(hs));
 await A.page.evaluate(() => { shCloseWork(); shTab("trouble"); }); await sleep(400);
-const hv = await A.page.evaluate(() => { const box = document.getElementById("shHist"); const tab = [...document.querySelectorAll("#v-shadow .seg-tab")].find(b => /History/.test(b.innerText)); return { tab: tab && tab.innerText.replace(/\s+/g, " "), days: [...box.querySelectorAll(".sh-hist-day")].map(d => d.innerText), items: box.querySelectorAll(".sh-hist-item").length, first: box.querySelector(".sh-hist-item")?.innerText.replace(/\s+/g, " "), trouble: !!document.getElementById("tbBox"), visible: box.offsetParent !== null }; });
-ok("History tab: labelled 'History 2', the page groups by day ('Today'), one card per attempt with the line, the verdict and the focus; trouble words keep their section below", /History 2/.test(hv.tab || "") && /^today$/i.test(hv.days[0]) && hv.items === 2 && /Attempt 2/.test(hv.first) && /Strong|Good|Needs/i.test(hv.first) && hv.trouble && hv.visible, JSON.stringify(hv));
+const hv = await A.page.evaluate(() => { const box = document.getElementById("shHist"); const tab = [...document.querySelectorAll("#v-shadow .seg-tab")].find(b => /History/.test(b.innerText)); return { n: aList("chHist").length, tab: tab && tab.innerText.replace(/\s+/g, " "), days: [...box.querySelectorAll(".sh-hist-day")].map(d => d.innerText), items: box.querySelectorAll(".sh-hist-item").length, first: box.querySelector(".sh-hist-item")?.innerText.replace(/\s+/g, " "), trouble: !!document.getElementById("tbBox"), visible: box.offsetParent !== null }; });
+ok("History tab: the count matches the entries, the page groups by day ('Today'), one card per attempt with the line, the verdict and the focus; trouble words keep their section below", new RegExp("History " + hv.n).test(hv.tab || "") && /^today$/i.test(hv.days[0]) && hv.items === hv.n && /Attempt 2/.test(hv.first) && /Strong|Good|Needs/i.test(hv.first) && hv.trouble && hv.visible, JSON.stringify(hv));
 const shc = await A.page.evaluate(() => { const L = aList("chHist"); L.unshift({ kind: "shadow", ts: Date.now() + 5, vid: shClip.vid, title: "Shadow clip", text: "want to solve our climate crisis as an actor", heard: "want to solve the climate crisis as an actor", score: 88, wpm: 140, fillers: 1, fix: ["climate"], ctx: shRecCtx(shClip.vid) }); shHistRender(); const it = document.querySelector("#shHist .sh-hist-item"); const kinds = [...document.querySelectorAll("#shHist .sh-hist-kind")].map(k => k.innerText.trim().toLowerCase()); shHistToggle(L[0].ts); const open = document.querySelector("#shHist .sh-hist-item.open"); const tx = open.innerText.replace(/\s+/g, " "); const r = { first: it.innerText.replace(/\s+/g, " "), kinds, said: /YOU SAID/i.test(tx), pace: /wpm/.test(tx), fixWord: /climate/.test(tx), openClip: /Open this clip/.test(tx) }; shHistToggle(L[0].ts); L.shift(); shHistRender(); return r; });
-ok("Both kinds live in one list, each labelled: a Shadow card shows its score and words to fix, opens to what you said, the pace and 'Open this clip'; the Challenge cards keep their own shape", /^\s*Shadow/i.test(shc.first) && /88%/.test(shc.first) && shc.kinds[0] === "shadow" && shc.kinds.slice(1).every(k => k === "challenge") && shc.said && shc.pace && shc.fixWord && shc.openClip, JSON.stringify(shc));
+ok("Both kinds live in one list, each labelled: a Shadow card shows its score and words to fix, opens to what you said, the pace and 'Open this clip'; the Challenge cards keep their own shape", /^\s*Shadow/i.test(shc.first) && /88%/.test(shc.first) && shc.kinds[0] === "shadow" && shc.kinds.slice(1).every(k => k === "challenge" || k === "together") && shc.said && shc.pace && shc.fixWord && shc.openClip, JSON.stringify(shc));
 await A.page.evaluate(() => shHistToggle(aList("chHist")[1].ts)); await sleep(200);
 const hd = await A.page.evaluate(() => { const it = document.querySelectorAll("#shHist .sh-hist-item")[1]; const tx = it.innerText.replace(/\s+/g, " "); return { open: it.classList.contains("open"), said: /YOU SAID/i.test(tx), issue: it.querySelectorAll(".sh-hist-issue").length, fix: /whole line|Say/.test(tx), drill: /Word practice/i.test(tx) && it.querySelectorAll(".sh-hist-drill .sv-ch-hist-a").length === 2, play: !![...it.querySelectorAll("button")].find(b => /Play my take/.test(b.innerText)), openBtn: !![...it.querySelectorAll("button")].find(b => /Open this line/.test(b.innerText)) }; });
 ok("Tapping an attempt opens its detail: what you said, each issue with what to improve, the word practice with its attempts, Play my take and Open this line", hd.open && hd.said && hd.issue >= 1 && hd.fix && hd.drill && hd.play && hd.openBtn, JSON.stringify(hd));
@@ -240,6 +311,9 @@ const phrase = await A.page.evaluate(() => trackPhrases()[0].p.replace(/\s*(\.{3
 const line = phrase + " a project manager in Lyon.";
 await A.page.evaluate(async (line) => { await shLoad({ vid: "nocaps12345", start: 0, end: 0, title: "pasted" }, true); const nb = document.getElementById("shNote"); nb.value = line + " Thanks for your time today."; await shV2Load(); }, line); await sleep(600);
 await A.page.evaluate(() => { shOpenWork(); svPick = 0; svSetMode("challenge"); }); await sleep(200);
+const noTimes = await A.page.evaluate(() => svCh.rungs.slice());
+ok("A clip with no word times carries a shorter ladder: there is no way to measure a lag against timings that do not exist, so the sync rung is simply not offered", noTimes.join() === "gate,recall,blind,retell", JSON.stringify(noTimes));
+await toRung(A.page, "recall");
 const ex = await A.page.evaluate(() => ({ level: svAsset.level, hint: document.querySelector("#svCh").innerText }));
 ok("A pasted transcript (no timings) can be challenged; the curriculum expression is shown as the hint", ex.level === "text" && ex.hint.includes("Expression:") && ex.hint.includes(phrase), JSON.stringify(ex).slice(0, 200));
 heard = await A.page.evaluate(() => svChSegObj().text.toLowerCase().replace(/[^a-z' ]/g, ""));   // the whole paragraph, expression included
@@ -264,82 +338,32 @@ await A.page.evaluate(() => (svMode === "watch" ? svRender() : svSetMode("watch"
 ok("Leaving Challenge drops its state; Watch shows the transcript again", await A.page.evaluate(() => svCh === null && !document.getElementById("svTx").classList.contains("hidden")));
 
 /* ---------- the workspace layout: tabs pinned with the player, clip tools first, the list folded by default ---------- */
-const lay = await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svMode = "shadow"; svWatchOpen = false; svSetMode("watch"); svTxOpen = false; svRender(); await new Promise(r => setTimeout(r, 200));
-  const vis = s => { const e = document.querySelector(s); if (!e || e.hidden || getComputedStyle(e).display === "none") return null; const r = e.getBoundingClientRect(); return [Math.round(r.top), Math.round(r.bottom)]; };
-  /* arriving in Watch: folded — the clip tools and the cards straight under the tabs, no list */
-  const below = () => [...document.getElementById("shPlayerWrap").children].filter(e => !e.classList.contains("sh-stick") && !e.hidden && getComputedStyle(e).display !== "none").length;
-  const rf = { foldedBelow: below(), foldedList: vis("#svTx"), foldedClip: vis("#shSeg"), foldedClipFirst: (() => { const c = vis("#shSeg"), sb = Math.round(document.querySelector(".sh-stick").getBoundingClientRect().bottom); return !!c && c[0] >= sb && c[0] - sb < 40; })(), foldedNotes: vis("#shLower"), cardWords: document.querySelectorAll("#svNow .sv-w").length, chev: !!document.querySelector("#svTabs .sv-chev"), expanded: document.querySelector("#svTabs .seg-tab").getAttribute("aria-expanded") };
-  /* the video is at line 12 when Watch opens: the list appears already scrolled to it, open (no Transcript button in Watch), and keeps moving */
-  const s12 = svAsset.segments[12]; shSeek = { t: (s12.words[0].startMs + 5) / 1000, at: Date.now() }; svTick();
-  document.querySelector("#svTabs .seg-tab").click(); await new Promise(r => setTimeout(r, 100));   // Watch again = open
-  svTick(); await new Promise(r => setTimeout(r, 700));                                                // the first tick after the render scrolls the new list
-  const tx = document.getElementById("svTx"), l12 = tx && tx.querySelector('.sv-seg[data-i="12"]');
-  rf.openedFirst = document.querySelector(".sh-stick").nextElementSibling.id === "shV2" && Math.round(tx.getBoundingClientRect().top) - Math.round(document.querySelector(".sh-stick").getBoundingClientRect().bottom) < 60; rf.openedBelow = below(); rf.expanded2 = document.querySelector("#svTabs .seg-tab").getAttribute("aria-expanded"); rf.openedList = vis("#svTx"); rf.openedLines = document.querySelectorAll("#svTx .sv-seg").length; rf.openedFoldBtn = !!document.querySelector("#shV2 .sv-ctl button[onclick='svTxToggle()']");
-  rf.openedScrolled = tx.scrollTop > 0; rf.openedLineIn = !!l12 && l12.getBoundingClientRect().top >= tx.getBoundingClientRect().top - 2 && l12.getBoundingClientRect().bottom <= tx.getBoundingClientRect().bottom + 2 && l12.classList.contains("now");
-  const s13 = svAsset.segments[13]; shSeek = { t: (s13.words[0].startMs + 5) / 1000, at: Date.now() }; svTick(); rf.moves = document.querySelector("#svTx .sv-seg.now")?.dataset.i === "13" && document.querySelector("#svTx .sv-seg.now .sv-w.now")?.innerText === s13.words[0].text;
-  rf.wVideo = document.querySelector(".yt-shell").getBoundingClientRect().height; rf.wVideoInPage = !!document.querySelector(".yt-shell iframe") && getComputedStyle(document.querySelector(".yt-shell")).display !== "none"; rf.wClip = vis("#shSeg"); rf.wHint = vis("#shMarkHint"); rf.wLower = vis("#shLower"); rf.wNow = vis("#svNow");
-  shSeek = { t: 0, at: 0 };
-  svSetMode("shadow"); await new Promise(r => setTimeout(r, 200));   // Shadow: the clip and the microphone
-  const r = { ...rf, tabsInStick: !!document.querySelector(".sh-stick #svTabs .seg-tab"), tabs: vis("#svTabs"), clip: vis("#shSeg"), hint: vis("#shMarkHint"), list: vis("#svTx"), fold: vis("#shV2 .sv-tx-btn"), stickBottom: Math.round(document.querySelector(".sh-stick").getBoundingClientRect().bottom), sVideo: document.querySelector(".yt-shell").getBoundingClientRect().height, sCard: vis("#svSh .sv-sh-card"), sLower: vis("#shLower"), sBar: !document.getElementById("svShBar").hidden, sNow: vis("#svNow") };
-  r.listOpen = vis("#svTx"); r.foldOpen = vis("#shV2 .sv-tx-btn");
-  svPick = 5; svSetMode("challenge"); await new Promise(r => setTimeout(r, 200)); r.chClip = vis("#shSeg"); r.chHint = vis("#shMarkHint"); r.chRec = vis("#svChRecBtn"); r.chFold = !!document.querySelector("#shV2 .sv-ctl button[onclick='svTxToggle()']"); r.chBar = !document.getElementById("svShBar").hidden; r.chLoop = shLooping;
-  svSetMode("shadow"); await new Promise(r => setTimeout(r, 200)); r.shClip = vis("#shSeg"); r.card = document.querySelectorAll("#svSh .sv-sh-w").length; r.cardLine = svShGroup().from <= 13 && svShGroup().to >= 13 ? 13 : svShGroup().from;
-  const w = document.querySelectorAll("#svSh .sv-sh-w")[2]; r.tapPick = svPick; r.tapSeekOk = !!w;
-  (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; return r; });
-ok("WATCH is the video plus the transcript in paragraphs: the video at full size, no clip tools, no cards under the panel, no follow-along card, the full list open straight under the tabs — already scrolled to the paragraph being spoken and moving with the video", lay.openedFirst && !!lay.openedList && lay.openedLines > 5 && !lay.openedFoldBtn && lay.openedScrolled && lay.openedLineIn && lay.moves && lay.wVideo > 100 && lay.wVideoInPage && !lay.wClip && !lay.wHint && !lay.wLower && !lay.wNow, JSON.stringify({ openedFirst: lay.openedFirst, list: !!lay.openedList, lines: lay.openedLines, fold: lay.openedFoldBtn, scrolled: lay.openedScrolled, lineIn: lay.openedLineIn, moves: lay.moves, wVideo: lay.wVideo, wVideoInPage: lay.wVideoInPage, wClip: lay.wClip, wHint: lay.wHint, wLower: lay.wLower }));
-ok("SHADOW is the clip and the microphone: the video back at full size, the tabs in the pinned block, the paragraph card straight under them, the bar at the foot; no Start/End row, no hint, no transcript list, no fold button, no transport row, no follow-along card, none of the lower cards", lay.tabsInStick && lay.tabs && !lay.clip && !lay.hint && !lay.list && !lay.fold && lay.sVideo > 100 && lay.sCard && lay.sCard[0] - lay.stickBottom < 100 && !lay.sLower && lay.sBar && !lay.sNow, JSON.stringify({ clip: lay.clip, hint: lay.hint, list: lay.list, fold: lay.fold, sVideo: lay.sVideo, sCard: lay.sCard, sLower: lay.sLower, sBar: lay.sBar, sNow: lay.sNow }));
-ok("The old transcript fold is gone from Shadow: no list, no fold button", !lay.listOpen && !lay.foldOpen, JSON.stringify({ listOpen: lay.listOpen, foldOpen: lay.foldOpen }));
-ok("Challenge hides the clip tools, the fold button and the Shadow bar, and drops the clip loop; Record is on screen. Back in Shadow the card is the paragraph the video reached (line 13); the picked line (5) stays picked", !lay.chClip && !lay.chHint && lay.chRec && lay.chRec[1] < 844 && !lay.chFold && !lay.chBar && !lay.chLoop && !lay.shClip && lay.card > 0 && lay.cardLine === 13 && lay.tapPick === 5 && lay.tapSeekOk, JSON.stringify({ chClip: lay.chClip, chRec: lay.chRec, chBar: lay.chBar, chLoop: lay.chLoop, shClip: lay.shClip, card: lay.card, cardLine: lay.cardLine }));
+const lay = await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); });
 
-/* ---------- tapping Watch (fold or release) never interrupts the card: the tick keeps lighting words, with or without the list on the page ---------- */
-const fl = await A.page.evaluate(async () => {
-  svPick = -1; svMode = "shadow"; svWatchOpen = true; svSetMode("watch"); await new Promise(r => setTimeout(r, 100));
-  const play = (i, k) => { const s = svAsset.segments[i]; shSeek = { t: (s.words[k].startMs + 5) / 1000, at: Date.now() }; svTick(); const seg = document.querySelector("#svTx .sv-seg.now"); return { seg: seg && +seg.dataset.i, word: seg && seg.querySelector(".sv-w.now")?.innerText }; };
-  const r = { before: play(6, 1), want1: svAsset.segments[6].words[1].text };
-  document.querySelectorAll("#svTabs .seg-tab")[1].click(); await new Promise(r => setTimeout(r, 100));   // Shadow: the paragraph the video reached (6) comes over, pinned
-  const g = svShGroup(); r.shadowHas6 = g.from <= 6 && g.to >= 6; r.shadowText = document.querySelector("#svSh .sv-sh-text")?.innerText; r.want2 = g.text; r.listGone = !document.getElementById("svTx");
-  play(7, 2); r.stillPinned = svShGroup().from === g.from && document.querySelector("#svSh .sv-sh-text")?.innerText === r.want2;   // the tick moving on does not swap the card
-  document.querySelectorAll("#svTabs .seg-tab")[0].click(); await new Promise(r => setTimeout(r, 100));   // back to Watch
-  r.afterRelease = play(8, 0); r.want3 = svAsset.segments[8].words[0].text;
-  (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1; return r; });
-ok("Watch → Shadow → Watch: the list lights the spoken paragraph and word; tapping Shadow sends the paragraph the video has reached (pinned — the loop wrapping or the clock moving on does not swap the card); back in Watch the list follows again", fl.before.seg === 6 && fl.before.word === fl.want1 && fl.shadowHas6 && fl.shadowText === fl.want2 && fl.listGone && fl.stillPinned && fl.afterRelease.seg === 8 && fl.afterRelease.word === fl.want3, JSON.stringify(fl));
-
-/* ---------- the highlight keeps moving through a seek, and the clip loop jumps the word back on the frame the clip ends ---------- */
-const sk = await A.page.evaluate(async () => {
-  const real = ytPlayer; let p = 30, state = 1; const seeks = [];
-  ytPlayer = { getCurrentTime: () => p, getPlayerState: () => state, getPlaybackRate: () => 1, seekTo: t => seeks.push(t), pauseVideo() {}, playVideo() {} };
-  try {
-    shSeekTo(10); const r = { atSeek: shCurT() };                                   // the player still says 30: the target is the truth
-    await new Promise(r => setTimeout(r, 300)); r.after300 = shCurT();             // ... and it advances while the video plays
-    p = 10.35; r.landed = shCurT();                                                  // the player has moved near the target: trust it again
-    state = 2; shSeekTo(20); await new Promise(r => setTimeout(r, 200)); r.paused = shCurT();   // paused: the target does not drift
-    /* the clip loop: at the end of the clip the tick itself seeks to Start, so the word jumps back with the video */
-    state = 1; const keep = { ...shClip }; shClip.start = 5; shClip.end = 7; shLooping = true; svRepeat = null; shSeek = { t: 0, at: 0 }; p = 7.2; svTick();
-    r.looped = seeks[seeks.length - 1] === 5 && shSeek.t === 5; r.loopT = shCurT(); Object.assign(shClip, keep);
-    return r;
-  } finally { ytPlayer = real; shSeek = { t: 0, at: 0 }; }
-});
-ok("Highlight through a seek: the target time right after seeking, advancing while playing (not frozen for 1.2 s), the player again once it lands, no drift while paused; the clip loop seeks to Start from the tick and the word follows at once", Math.abs(sk.atSeek - 10) < 0.05 && sk.after300 > 10.2 && sk.after300 < 10.6 && sk.landed === 10.35 && Math.abs(sk.paused - 20) < 0.01 && sk.looped && sk.loopT >= 5 && sk.loopT < 5.2, JSON.stringify(sk));
-
-/* ---------- the follow-along player: pinned video + now-line card + list — the card lives in Challenge now (Watch lights the list, Shadow shows the paragraph card) ---------- */
-await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); svPick = -1; svSetMode("challenge"); svReveal(); }); await sleep(300);
+/* The follow-along card is gone (owner, 22 Sep 2026: "remove this from the
+   challenge page"). Watch already hid it in CSS and Shadow blanks it on render,
+   so Challenge was the only mode it ever appeared in — removing it there
+   removed it everywhere. This asserts that, in every mode, with the video
+   playing, rather than leaving a test for a card that can no longer be drawn. */
 const fa = await A.page.evaluate(async () => {
-  const body = document.querySelector(".sh-work-body"), tx = document.getElementById("svTx"), nw = document.getElementById("svNow");
-  const lh = parseFloat(getComputedStyle(nw).lineHeight);
-  const play = (i, k) => { const s = svAsset.segments[i]; shSeek = { t: (s.words[k].startMs + 5) / 1000, at: Date.now() }; svTick(); };
-  const snap = (i, k) => { const spans = [...nw.querySelectorAll(".sv-w")]; const lit = nw.querySelector(".sv-w.now"); return { lines: new Set(spans.map(e => Math.round(e.getBoundingClientRect().top))).size, h: Math.round(nw.getBoundingClientRect().height), litOk: !!lit && lit.innerText === svAsset.segments[i].words[k].text, win: svNowWin && svNowWin.join("-") }; };
-  body.scrollTop = 0; play(5, 2); await new Promise(r => setTimeout(r, 900));
-  const r = { cardShown: !nw.hidden, orange: getComputedStyle(nw.querySelector(".sv-w.now")).backgroundColor, a: snap(5, 2), bodyScroll: body.scrollTop };
-  /* walk every word of five lines: the card is always exactly two visual lines, the same height, the spoken word lit */
-  let heights = new Set(), lineCounts = new Set(), litMiss = 0, wins = new Set();
-  for (let i = 5; i <= 9; i++) for (let k = 0; k < svAsset.segments[i].words.length; k++) { play(i, k); const x = snap(i, k); heights.add(x.h); lineCounts.add(x.lines); wins.add(x.win); const loc = ShadowSync.locate(svAsset, shSeek.t * 1000); if (loc.seg === i && loc.word === k && !x.litOk) litMiss++; }
-  await new Promise(r => setTimeout(r, 900));
-  const bx = tx.getBoundingClientRect(); r.listFirst = [...tx.querySelectorAll(".sv-seg")].find(e => e.getBoundingClientRect().bottom > bx.top + 2)?.dataset.i; r.listNow = tx.querySelector(".sv-seg.now")?.dataset.i; const nl = tx.querySelector(".sv-seg.now"); r.nowInBox = !!nl && nl.getBoundingClientRect().top >= bx.top - 2 && nl.getBoundingClientRect().bottom <= bx.bottom + 2; r.listWord = tx.querySelector(".sv-seg.now .sv-w.now")?.innerText; r.bodyScroll2 = body.scrollTop;
-  r.heights = [...heights]; r.lineCounts = [...lineCounts]; r.litMiss = litMiss; r.windows = wins.size; r.lh = lh; r.lastWord = svAsset.segments[9].words[svAsset.segments[9].words.length - 1].text;
-  body.scrollTop = 500; await new Promise(r => setTimeout(r, 200)); const st = document.querySelector(".sh-stick").getBoundingClientRect(); r.stickTop = Math.round(st.top); r.bodyTop = Math.round(body.getBoundingClientRect().top); body.scrollTop = 0;
-  return r;
+  const body = document.querySelector(".sh-work-body"), nw = document.getElementById("svNow");
+  const shown = {};
+  for (const m of ["watch", "shadow", "challenge"]) {
+    svPick = 5; svSetMode(m);
+    const s = svAsset.segments[5]; shSeek = { t: (s.words[2].startMs + 5) / 1000, at: Date.now() }; svTick();
+    await new Promise(r => setTimeout(r, 400));
+    shown[m] = getComputedStyle(nw).display !== "none" || nw.querySelectorAll(".sv-w").length > 0;
+  }
+  svSetMode("challenge"); svReveal();
+  const s2 = svAsset.segments[5]; shSeek = { t: (s2.words[2].startMs + 5) / 1000, at: Date.now() }; svTick();
+  await new Promise(r => setTimeout(r, 400));
+  shown.challengeRevealed = getComputedStyle(nw).display !== "none" || nw.querySelectorAll(".sv-w").length > 0;
+  (svMode === "watch" ? svRender() : svSetMode("watch")); svPick = -1;
+  body.scrollTop = 0; await new Promise(r => setTimeout(r, 300));
+  const stick = document.querySelector(".sh-stick");
+  return { shown, stickTop: Math.round(stick.getBoundingClientRect().top), bodyTop: Math.round(body.getBoundingClientRect().top) };
 });
-ok("Follow-along: the pinned card is ALWAYS exactly two visual lines — same height through five lines of speech, never one, never three — the spoken word lit in orange, windows advancing as speech leaves them; the list keeps the spoken line in view with its word lit; the page itself never scrolls", fa.cardShown && /249, 115, 22/.test(fa.orange) && fa.a.litOk && fa.a.lines === 2 && fa.heights.length === 1 && fa.lineCounts.join() === "2" && fa.litMiss === 0 && fa.windows >= 2 && fa.listNow === "9" && fa.nowInBox && +fa.listFirst <= 9 && fa.listWord === fa.lastWord && fa.bodyScroll === 0 && fa.bodyScroll2 === 0, JSON.stringify(fa));
+ok("The follow-along card is shown in no mode — not Watch, not Shadow, not Challenge, not Challenge after Reveal", Object.values(fa.shown).every(v => v === false), JSON.stringify(fa.shown));
 ok("Pinned: after the learner scrolls the workspace, the player block is still at the top of the scroll area", fa.stickTop === fa.bodyTop, JSON.stringify({ stickTop: fa.stickTop, bodyTop: fa.bodyTop }));
 await A.page.evaluate(() => { svPick = 5; svSetMode("challenge"); }); await sleep(200);
 ok("Challenge: the now-line card is hidden with the transcript — the line does not leak through the card", await A.page.evaluate(() => document.getElementById("svNow").hidden && !document.getElementById("svNow").innerText.trim()));
@@ -410,9 +434,76 @@ ok("Watch: a line that carries a curriculum expression shows the 'Current expres
 const rtEv = await A.page.evaluate(() => __ev.some(e => e[0] === "shadow_challenge_retry"));
 ok("Analytics: Try again sends shadow_challenge_retry", rtEv);
 
+
+/* ---------- RETELL, CHORUS, BUILD-UP ---------- */
+await A.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
+await A.page.evaluate(() => { shOpenWork(); svPick = 8; svSetMode("challenge"); }); await sleep(250);
+await toRung(A.page, "retell");
+const rt0 = await A.page.evaluate(() => ({ eyebrow: document.querySelector("#svCh .eyebrow")?.innerText.trim(), shown: document.getElementById("svCh").innerText.includes(svChSegObj().text), prompt: /in your own words/i.test(document.getElementById("svCh").innerText), rec: !!document.getElementById("svChRetellRecBtn") }));
+ok("RETELL shows the paragraph (nothing is being memorised here) and asks for the meaning in the learner's own words", /what it meant/i.test(rt0.eyebrow) && rt0.shown && rt0.prompt && rt0.rec, JSON.stringify(rt0));
+/* saying the line again is the usual way out, and it is caught here rather than paid for */
+heard = await A.page.evaluate(() => svChSegObj().text.toLowerCase().replace(/[^a-z' ]/g, ""));
+const hits0 = polishHits;
+await record(A.page, "#svChRetellRecBtn");
+await A.page.waitForFunction(() => svCh && svCh.retell && svCh.retell.res, null, { timeout: 12000 });
+const rtEcho = await A.page.evaluate(() => ({ ok: svCh.retell.res.ok, why: svCh.retell.res.why, text: document.querySelector("#svCh .sv-ch-line.imp")?.innerText }));
+ok("Saying the line again is not a retell: it is caught on the device, told plainly, and no AI call is spent on it", !rtEcho.ok && rtEcho.why === "echo" && /line again/i.test(rtEcho.text || "") && polishHits - hits0 <= 1, JSON.stringify(rtEcho) + " calls=" + (polishHits - hits0));
+/* a real retell: different words, same meaning — judged by the AI, labelled as AI */
+await A.page.evaluate(() => svChRetellRetry()); await sleep(150);
+heard = "he is saying that ordinary people marched and that the world has to fix this problem now";
+retellVerdict = { ok: true, missed: "", tip: "Say it a little slower." };
+await record(A.page, "#svChRetellRecBtn");
+await A.page.waitForFunction(() => svCh && svCh.retell && svCh.retell.res, null, { timeout: 12000 });
+const rtOk = await A.page.evaluate(() => ({ ok: svCh.retell.res.ok, tip: svCh.retell.res.tip, ai: /AI feedback/.test(document.getElementById("svCh").innerText), good: document.querySelector("#svCh .sv-ch-line.good")?.innerText, hist: aList("chHist")[0] && aList("chHist")[0].kind }));
+ok("A real retell — the learner's own words, the same meaning — passes, carries the coach's tip, is labelled AI feedback and is filed in the history", rtOk.ok && /slower/.test(rtOk.tip) && rtOk.ai && /own words/i.test(rtOk.good || "") && rtOk.hist === "chretell", JSON.stringify(rtOk));
+const rtDone = await A.page.evaluate(async () => { svChRetellDone(); await new Promise(r => setTimeout(r, 120)); return { move: svCh.next && svCh.next.move, card: document.querySelector("#svCh .sv-ch-move")?.innerText.replace(/\s+/g, " ") }; });
+ok("Passing the last rung finishes the paragraph rather than inventing a sixth: the card says so and points at the next paragraph", rtDone.move === "done" && /finished/i.test(rtDone.card || ""), JSON.stringify(rtDone));
+/* ---- the chorus drill ---- */
+await A.page.evaluate(() => { svChStay(); }); await sleep(120);
+await toRung(A.page, "recall");
+const tw2 = await A.page.evaluate(() => ShadowSync.tokens(svChSegObj().text));
+heard = tw2.slice(0, Math.max(2, tw2.length - Math.max(3, Math.ceil(tw2.length * 0.3)))).join(" ");
+await record(A.page);
+ok("A miss on recall gives a report to work from", await waitPhase(A.page, "feedback"));
+const ch0 = await A.page.evaluate(async () => { const b = [...document.querySelectorAll("#svCh .sv-ch-issue-body button")].find(x => /Chorus/.test(x.innerText)); if (!b) return { btn: false }; b.click(); await new Promise(r => setTimeout(r, 200));
+  return { btn: true, open: !!document.getElementById("svChChorus"), text: svCh.chorus.text, reps: svCh.chorus.reps, dots: document.querySelectorAll("#svChChorus .sv-ch-reps i").length, words: svCh.chorus.text.split(/\s+/).length, ev: __ev.filter(e => e[0] === "shadow_challenge_drill").map(e => e[1].kind) }; });
+ok("Chorus opens from a trouble spot in the report: a phrase, not a single word (a word is too small to carry a rhythm), six passes drawn as pips", ch0.btn && ch0.open && ch0.reps === 6 && ch0.dots === 6 && ch0.words >= 3 && ch0.ev.includes("chorus"), JSON.stringify(ch0));
+const ch1 = await A.page.evaluate(async () => { svChChorusGo(); await new Promise(r => setTimeout(r, 400)); const mid = { phase: svCh.chorus.phase, at: svCh.chorus.at }; svChChorusStop(); await new Promise(r => setTimeout(r, 120)); return { mid, stopped: svCh.chorus.phase }; });
+ok("The chorus runs pass by pass and can be stopped part-way", ch1.mid.phase === "chorus" && ch1.mid.at >= 0 && ch1.stopped === "ready", JSON.stringify(ch1));
+const ch2 = await A.page.evaluate(async () => { svCh.chorus.at = svCh.chorus.reps; svChDraw(); await new Promise(r => setTimeout(r, 100)); return { alone: !!document.getElementById("svChChorusRecBtn"), label: document.querySelector("#svChChorus .sv-ch-reclbl")?.innerText }; });
+ok("After the six passes the drill asks for the piece said ALONE — the chorus itself cannot honestly be graded, because the learner is speaking over the audio", ch2.alone && /alone/i.test(ch2.label || ""), JSON.stringify(ch2));
+heard = await A.page.evaluate(() => svCh.chorus.text.toLowerCase().replace(/[^a-z' ]/g, ""));
+const attBefore = await A.page.evaluate(() => svCh.attempt);
+await record(A.page, "#svChChorusRecBtn");
+await A.page.waitForFunction(() => svCh && svCh.chorus && svCh.chorus.attempts.length, null, { timeout: 12000 });
+const chGrade = await A.page.evaluate(() => ({ n: svCh.chorus.attempts.length, mode: svCh.chorus.attempts[0].mode, state: svCh.chorus.attempts[0].state, attempt: svCh.attempt }));
+ok("The take after the chorus is graded like any other, and does not touch the line's own attempt count", chGrade.n === 1 && chGrade.mode === "ai" && chGrade.attempt === attBefore, JSON.stringify(chGrade) + " before=" + attBefore);
+await A.page.evaluate(() => svChChorusClose()); await sleep(120);
+/* ---- backward build-up ---- */
+const bu0 = await A.page.evaluate(async () => { const before = !![...document.querySelectorAll("#svCh button")].find(b => /Break it down/.test(b.innerText)); svChRetry(); await new Promise(r => setTimeout(r, 120)); return { before, fails: svCh.fails }; });
+ok("The ways out of a wall are not offered on the first miss — one more go is usually the right answer", bu0.before === false && bu0.fails === 1, JSON.stringify(bu0));
+await record(A.page);
+await waitPhase(A.page, "feedback");
+const bu1 = await A.page.evaluate(async () => { const b = [...document.querySelectorAll("#svCh button")].find(x => /Break it down/.test(x.innerText)); if (!b) return { btn: false }; b.click(); await new Promise(r => setTimeout(r, 200));
+  const steps = svCh.build.steps, full = svChSegObj().text;
+  return { btn: true, open: !!document.getElementById("svChBuild"), steps: steps.length, growing: steps.every((s, i) => !i || s.split(/\s+/).length > steps[i - 1].split(/\s+/).length), fromEnd: steps.every(s => full.endsWith(s)), last: steps[steps.length - 1] === full, shown: document.querySelector("#svChBuild .sv-ch-build-w").innerText, ev: __ev.filter(e => e[0] === "shadow_challenge_drill").map(e => e[1].kind) }; });
+ok("A second miss offers Break it down: growing chunks that all END where the paragraph ends, the last one the whole thing — the tail is the part that gets dropped, so it is the part that gets said most", bu1.btn && bu1.open && bu1.steps >= 2 && bu1.growing && bu1.fromEnd && bu1.last && bu1.ev.includes("buildup"), JSON.stringify(bu1));
+heard = await A.page.evaluate(() => svCh.build.steps[0].toLowerCase().replace(/[^a-z' ]/g, ""));
+await record(A.page, "#svChBuildRecBtn");
+await A.page.waitForFunction(() => svCh && svCh.build && svCh.build.last, null, { timeout: 12000 });
+const bu2 = await A.page.evaluate(async () => { const r = { ok: svCh.build.last.ok, at0: svCh.build.at, next: !![...document.querySelectorAll("#svChBuild button")].find(b => /A little more/.test(b.innerText)) };
+  svChBuildNext(); await new Promise(x => setTimeout(x, 120)); r.at1 = svCh.build.at; r.cleared = !svCh.build.last; return r; });
+ok("Saying a chunk right moves the drill one step further back through the paragraph, with a clean slate for the longer piece", bu2.ok && bu2.at0 === 0 && bu2.next && bu2.at1 === 1 && bu2.cleared, JSON.stringify(bu2));
+const bu3 = await A.page.evaluate(async () => { svCh.build.at = svCh.build.steps.length - 1; svCh.build.last = { ok: true, ok_n: 9, total: 9 }; svChDraw(); await new Promise(r => setTimeout(r, 100));
+  const fin = !![...document.querySelectorAll("#svChBuild button")].find(b => /Say the whole thing/.test(b.innerText));
+  svChBuildFinish(); await new Promise(r => setTimeout(r, 150));
+  return { fin, closed: !svCh.build, rung: svCh.rung, phase: svCh.phase, rec: !!document.getElementById("svChRecBtn") }; });
+ok("Finishing the build-up hands the learner straight back to the rung it was unblocking, ready to record the whole paragraph", bu3.fin && bu3.closed && bu3.rung === "recall" && bu3.phase === "ready" && bu3.rec, JSON.stringify(bu3));
+
 /* ---------- microphone refused ---------- */
 await M.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
 await M.page.evaluate(() => { shOpenWork(); svPick = 3; svSetMode("challenge"); }); await sleep(200);
+await toRung(M.page, "recall");
 await M.page.click("#svChRecBtn"); await sleep(900);
 ok("Microphone refused → back to ready with a clear mic message, nothing recorded, nothing graded", await M.page.evaluate(() => svCh.phase === "ready" && svCh.err === "mic" && /Microphone/.test(document.querySelector("#svCh .sv-ch-state").innerText) && svCh.attempt === 0));
 
@@ -420,6 +511,7 @@ ok("Microphone refused → back to ready with a clear mic message, nothing recor
 await W.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
 const wd = await W.page.evaluate(() => { shOpenWork(); const b = document.getElementById("shV2"); const r = { on: svOn(), chOn: svChOn(), asset: svAsset, hidden: !b || b.style.display === "none", classic: !!document.getElementById("recBtn") };
   svSetMode("challenge"); svChStart(); svChRecord(); svChListen(); svChStep(1); svChUse(); svChNext();
+  svChGateCheck(); svChGateDone(); svChGateSkip(); svChSyncGo(); svChSyncStop(); svChSyncDone(); svChRetellRecord(); svChRetellDone(); svChChorusOpen(0); svChChorusGo(); svChBuildOpen(); svChBuildRecord(); svChShowNext(); svChTakeNext(); svChStay();
   svChPlayOrig(); svChLoop(); svChSpeed(1.25); svChAB(); svChDrillOpen(0); svChDrillWord(0); svChDrillRecord(); svChSaveVocab("honored"); svChOpen(0); svChPlayMe();
   r.rate = shClip.rate; r.repeat = svRepeat; r.voc = vocHas("honored");
   r.state = svCh; r.panel = !!document.getElementById("svCh"); r.level = (S.svChA && S.svChA.welding && S.svChA.welding._level) || null; r.map = JSON.stringify(S.svChA || {}); r.mr = rec.mr && rec.mr.state; return r; });
@@ -432,6 +524,9 @@ ok("General English learner's challenge record lives under its own area only", a
 
 /* ---------- mobile fit, i18n parity, no JS errors ---------- */
 await A.page.evaluate(() => { svPick = 0; svSetMode("challenge"); }); await sleep(200);
+const fitGate = await A.page.evaluate(() => { const p = document.getElementById("svCh"), l = p.querySelector(".sv-ch-ladder"); return { over: p.scrollWidth > p.clientWidth + 1, page: document.documentElement.scrollWidth > window.innerWidth + 1, ladder: l.scrollWidth <= l.clientWidth + 1, chips: [...p.querySelectorAll(".sv-ch-chip")].every(c => c.getBoundingClientRect().height >= 40) }; });
+ok("Phone width, listening gate: the panel and the five-rung strip both fit, no horizontal page scroll, every word chip is a real target", !fitGate.over && !fitGate.page && fitGate.ladder && fitGate.chips, JSON.stringify(fitGate));
+await toRung(A.page, "recall");
 const fit = await A.page.evaluate(() => { const p = document.getElementById("svCh"); const b = document.getElementById("svChRecBtn").getBoundingClientRect(); return { over: p.scrollWidth > p.clientWidth + 1, page: document.documentElement.scrollWidth > window.innerWidth + 1, hit: b.width >= 44 && b.height >= 44 }; });
 ok("Phone width: the panel does not overflow, no horizontal page scroll, the record button is a ≥44 px target", !fit.over && !fit.page && fit.hit, JSON.stringify(fit));
 const fab = await A.page.evaluate(() => { const f = [...document.querySelectorAll("button,a")].find(e => /real person/i.test(e.innerText || "") && getComputedStyle(e).position === "fixed"); if (!f) return { none: true };

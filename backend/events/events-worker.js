@@ -91,6 +91,11 @@ const EVENTS = new Set([
   // retry, "use it yourself" (+result used|missed)
   "shadow_challenge_opened", "shadow_challenge_started", "shadow_challenge_recorded", "shadow_challenge_feedback_received",
   "shadow_challenge_completed", "shadow_challenge_retry", "shadow_challenge_apply_it",
+  // The Challenge ladder (General English only): which rung the learner is on
+  // (+rung, +reason open|up|down|again|faster|slower|past|done) and a drill
+  // opened out of a miss (+kind chorus|buildup). Counts only — the rung name
+  // is a fixed enum, never the clip, the line or anything spoken.
+  "shadow_challenge_rung", "shadow_challenge_drill",
   // Round Review (Practice Partner, General English only): a review landed
   // (+evidence audio|asr|none), the voice coach was played, a pronunciation or
   // sentence practice attempt was graded (+result pass|retry), an item was
@@ -118,7 +123,11 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // reason: mic | (why an AI/live path was taken: waiting | nocand | silent | choice | again). Appended, as above.
   "reason",
   // evidence: audio | asr | none — how much the Round Review could say about pronunciation. Appended, as above.
-  "evidence"]);
+  "evidence",
+  // rung: gate | sync | recall | blind | retell — which step of the Challenge
+  // ladder an event belongs to. Appended, as above: PROP_KEYS iteration order
+  // is the blob column order, so this must stay last.
+  "rung"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

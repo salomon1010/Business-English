@@ -117,23 +117,42 @@
   }
 
   /* Sentence-only captions (13 of the 18 library clips have word times; the
-     rest, and every Worker-fetched caption file, carry cue times only): give
-     each word an ESTIMATED moment by sharing the cue's span out by letter
-     count. Steady speech tracks well; a long pause inside a cue drifts. The
-     result is marked `estimated` so the panel can say so — this is not word
-     timing from the captions, and nothing else should treat it as such. */
+     rest, every Worker-fetched caption file and every model-written transcript
+     carry line times only): give each word an ESTIMATED moment. The result is
+     marked `estimated` so the panel can say so — this is not word timing from
+     the captions, and nothing else should treat it as such.
+
+     Pacing, and why it is not an even share of the line. A line runs to the
+     start of the next one, pauses and breath included, so spreading its words
+     evenly over that span stretches every one of them and the mark slides off
+     the voice. Words are paced by SYLLABLES at an ordinary speaking rate
+     instead, from the line's start — which is the part a model gets right —
+     and whatever time the line has left over is held by the last word while
+     the speaker pauses. A line said faster than that rate is compressed to
+     fit, so the mark can never run past its own line. Mid-line pauses still
+     drift; the line itself stays lit underneath, which is the honest part. */
+  const SYLL_MS = 235;                   /* ~4.2 syllables a second, unhurried speech */
+  function syllables(word) {
+    const s = String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+    if (!s) return 1;
+    const g = s.replace(/e$/, "").match(/[aeiouy]+/g);
+    return Math.max(1, g ? g.length : 1);
+  }
   function estimateWords(asset) {
     if (!asset || !asset.segments || !asset.segments.length) return asset;
     const segs = asset.segments.map(seg => {
       if ((seg.words && seg.words.length) || !(seg.endMs > seg.startMs)) return seg;
       const parts = String(seg.text || "").split(/\s+/).filter(Boolean);
       if (!parts.length) return seg;
-      const weights = parts.map(w => Math.max(1, w.replace(/[^\p{L}\p{N}']/gu, "").length) + 1);
+      const weights = parts.map(syllables);
       const total = weights.reduce((a, b) => a + b, 0), span = seg.endMs - seg.startMs;
+      const per = Math.min(SYLL_MS, span / total);     /* natural pace, compressed if the line is tight */
       let at = seg.startMs;
       const words = parts.map((w, k) => {
-        const start = Math.round(at); at += span * weights[k] / total;
-        return { id: seg.id + "w" + k, text: w, startMs: start, endMs: Math.max(start + 80, Math.round(at)), estimated: true };
+        const start = Math.round(at); at += per * weights[k];
+        const last = k === parts.length - 1;
+        return { id: seg.id + "w" + k, text: w, startMs: start, estimated: true,
+                 endMs: last ? Math.max(start + 80, seg.endMs) : Math.max(start + 80, Math.round(at)) };
       });
       return Object.assign({}, seg, { words });
     });
@@ -537,7 +556,357 @@
     }
     return { mode: "asr", score: null, heard, note: "", state: heard ? "good" : "practice" };
   }
-  const api = { normalizeCaptions, normalizeText, normalizePasted, estimateWords, locate, neighbour, levelOf, splitSentences, tokens, norm, fold, align, findExpression, usedExpression, challenge, verdict, progress, drillState, isFunction, FILLERS, PASS, WEAK, STRONG };
+
+  /* ==========================================================================
+     THE LADDER — one paragraph, five rungs, the app choosing which one
+     --------------------------------------------------------------------------
+     Kadota & Tamai's four shadowing stages (mumbling → synchronised reading →
+     prosody shadowing → content shadowing) folded into a single tab, with a
+     listening gate in front of them. The learner never picks a level: the rung
+     comes out of what the last attempt actually scored, which is the one thing
+     a picker could never get right (owner, 22 Sep 2026: one way to challenge a
+     paragraph, no row of tabs).
+
+       gate    tap the words you heard — no microphone, proves you listened
+       sync    speak WITH the clip, reading it: scored on lag, not on words
+       recall  read it, it blurs, say it from memory  (the old Challenge)
+       blind   never shown: hear it once, then say it
+       retell  say what it meant, in your own words
+
+     Every rung is skipped when the clip cannot support it honestly — sync
+     needs real word times, gate needs enough content words — so a clip with a
+     pasted transcript still has a Challenge, just a shorter ladder.
+     ========================================================================== */
+  const RUNGS = ["gate", "sync", "recall", "blind", "retell"];
+  const SPEEDS = [0.75, 1, 1.25];
+
+  /* Which rungs this clip can actually carry. `words` is true only when the
+     paragraph has REAL (not estimated) word times, because sync measures a lag
+     against them and an estimate would invent one. */
+  function rungsFor(o) {
+    const c = o || {};
+    return RUNGS.filter(r => {
+      if (r === "sync") return !!c.words && !!c.clip;
+      if (r === "gate") return (c.contentWords || 0) >= 4;
+      if (r === "retell") return (c.contentWords || 0) >= 6;
+      return true;
+    });
+  }
+
+  /* The next rung after an attempt. Pass → up. One miss → the same rung again.
+     Two misses in a row → down one, and a notch slower, because repeating a
+     rung you cannot do is how a learner decides the app is broken.
+     Speed only ever changes on the spoken rungs; gate and retell ignore it. */
+  function nextRung(st) {
+    const s = st || {}, list = s.rungs && s.rungs.length ? s.rungs : RUNGS;
+    const spoken = s.rung === "recall" || s.rung === "blind" || s.rung === "sync";
+    const at = Math.max(0, list.indexOf(s.rung));
+    const si = Math.max(0, SPEEDS.indexOf(s.speed == null ? 1 : s.speed));
+    const fails = +s.fails || 0;
+    if (s.pass) {
+      /* passing below full speed earns the speed, not the next rung: the same
+         words at 1.25× is a different exercise from the next rung down */
+      if (spoken && si < SPEEDS.length - 1 && s.speed < 1) return { rung: s.rung, speed: SPEEDS[si + 1], move: "faster", fails: 0 };
+      if (at >= list.length - 1) return { rung: s.rung, speed: SPEEDS[si], move: "done", fails: 0 };
+      return { rung: list[at + 1], speed: spoken && si > 1 ? 1 : SPEEDS[si], move: "up", fails: 0 };
+    }
+    if (fails + 1 >= 2 && at > 0) return { rung: list[at - 1], speed: spoken && si > 0 ? SPEEDS[si - 1] : SPEEDS[si], move: "down", fails: 0 };
+    /* Nothing below the first rung to drop to. Missing it twice must still
+       move the learner ON rather than hold them there: a gate that can trap
+       somebody is worse than no gate, and the rung above is where the actual
+       practice is. */
+    if (fails + 1 >= 2 && at === 0 && list.length > 1) return { rung: list[1], speed: SPEEDS[si], move: "past", fails: 0 };
+    if (fails + 1 >= 2 && spoken && si > 0) return { rung: s.rung, speed: SPEEDS[si - 1], move: "slower", fails: 0 };
+    return { rung: s.rung, speed: SPEEDS[si], move: "again", fails: fails + 1 };
+  }
+
+  /* ---- gate: the words you heard ----
+     Content words blanked out of the line, each with two decoys taken from the
+     SAME paragraph. Decoys from elsewhere would be guessable by topic alone;
+     decoys from inside it mean the only way through is to have listened. A
+     paragraph with too few content words makes fewer blanks rather than
+     borrowing words it does not have. */
+  function gapItems(text, n, seed) {
+    /* the raw words, so a chip reads "PayPal" and not the folded "paypal" */
+    const raw = String(text || "").split(/\s+/);
+    const show = i => String(raw[i] == null ? "" : raw[i]).replace(/^[^\w'’-]+|[^\w'’-]+$/g, "") || String(raw[i] || "");
+    const ws = norm(raw).filter(x => x.k);
+    const content = ws.filter(x => !isFunction(x.k) && x.k.length >= 4);
+    const seen = new Set(), pool = content.filter(x => !seen.has(x.k) && seen.add(x.k));
+    const want = Math.min(n || 3, pool.length, Math.max(0, pool.length - 2));   // always leave two words to be decoys
+    if (want < 1) return [];
+    const rnd = mulberry(seed == null ? pool.length * 7919 : seed);
+    const pick = [], taken = new Set();
+    /* spread the blanks across the line rather than clustering at the front */
+    const step = pool.length / want;
+    for (let i = 0; i < want; i++) {
+      let j = Math.min(pool.length - 1, Math.floor(i * step + rnd() * step));
+      while (taken.has(j)) j = (j + 1) % pool.length;
+      taken.add(j); pick.push(pool[j]);
+    }
+    pick.sort((a, b) => a.wi - b.wi);
+    return pick.map(x => {
+      const others = pool.filter(y => y.k !== x.k);
+      const decoys = [];
+      while (decoys.length < 2 && others.length) decoys.push(show(others.splice(Math.floor(rnd() * others.length), 1)[0].wi));
+      const opts = [show(x.wi)].concat(decoys);
+      for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+      return { wi: x.wi, k: x.k, answer: show(x.wi), options: opts };
+    });
+  }
+  function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+  /* ---- sync: speaking WITH the speaker ----
+     No transcript is involved, and none could be: the clip is playing into the
+     room while the learner talks, so an ASR pass would hear both of them. What
+     CAN be measured is when the learner made sound against when the speaker
+     did. `mine` is the microphone's loudness sampled at a fixed step
+     (SYNC_STEP seconds), `target` is the clip's real word spans in ms. The
+     report is a lag in seconds, how tightly the two rise and fall together,
+     and how many of the speaker's words the learner was actually speaking
+     over.
+
+     `bleed` is the honest escape hatch: a microphone that is hearing the video
+     rather than the learner produces a near-perfect correlation at almost zero
+     lag, which no human achieves. We say so instead of awarding a top score. */
+  /* SYNC_DRIFT is deliberately low: smoothing attenuates a growing lag, so a
+     measured quarter-second of drift is already more than that in the room. */
+  const SYNC_STEP = 0.04, SYNC_MAX_LAG = 1.6, SYNC_MIN_LAG = -0.4, SYNC_SMOOTH = 0.28, SYNC_ON = 0.18, SYNC_DRIFT = 0.22, SYNC_QUIET = 0.012;
+  const smooth = (xs, win) => {
+    const w = Math.max(1, Math.round(win));
+    const out = new Array(xs.length).fill(0);
+    let sum = 0;
+    for (let i = 0; i < xs.length + w; i++) {
+      if (i < xs.length) sum += xs[i];
+      if (i - w >= 0) sum -= xs[i - w];
+      const c = i - (w >> 1);
+      if (c >= 0 && c < xs.length) out[c] = sum / Math.min(w, i + 1);
+    }
+    return out;
+  };
+  const variance = xs => { const m = xs.reduce((a, b) => a + b, 0) / xs.length; return xs.reduce((a, b) => a + (b - m) ** 2, 0) / xs.length; };
+
+  function syncReport(mine, target, opts) {
+    const o = opts || {}, step = o.step || SYNC_STEP;
+    const v = (mine && mine.v) || [], t0 = (mine && mine.t0) || 0;
+    const words = (target || []).filter(w => w && w.endMs > w.startMs);
+    if (v.length < 8 || !words.length) return { state: "na", reason: "short" };
+    /* the learner's envelope, normalised against its own loudest moment, with
+       the quiet 20% treated as the room rather than as speech */
+    const sorted = v.slice().sort((a, b) => a - b);
+    const peak = sorted[sorted.length - 1];
+    /* The room's level, not the learner's. A plain low percentile fails on the
+       very takes this rung is for: someone shadowing well is making sound most
+       of the time, so the tenth percentile lands INSIDE their speech, the
+       floor comes out at the peak and the whole take reads as silence. Capping
+       the floor well below the peak keeps a usable range whether the paragraph
+       is full of pauses or barely has any. */
+    const floor = Math.min(sorted[Math.floor(sorted.length * 0.1)], peak * 0.35);
+    const span = Math.max(1e-6, peak - floor);
+    const mn = v.map(x => Math.max(0, Math.min(1, (x - floor) / span)));
+    const voiced = mn.filter(x => x > SYNC_ON).length / mn.length;
+    /* Silence has to be judged on the ABSOLUTE level, not the normalised one:
+       normalising always stretches the loudest sample to 1, so a room recorded
+       in silence comes back looking like continuous speech. Automatic gain is
+       switched off at the microphone, so a whole paragraph whose loudest
+       moment is this quiet really is nobody speaking. */
+    if (peak < SYNC_QUIET) return { state: "na", reason: "quiet", voiced: 0 };
+    if (voiced < 0.06) return { state: "na", reason: "quiet", voiced: +voiced.toFixed(2) };
+    /* A microphone delivering one unchanging level — a drone, a fan, a dead
+       line — has no words in it to place against anything. Coverage alone
+       would read it as "speaking the whole way through", so it is refused
+       here rather than flattered by the report. */
+    if (variance(mn) < 0.02) return { state: "na", reason: "flat", voiced: +voiced.toFixed(2) };
+    /* the speaker's envelope on the same grid, from the word spans */
+    const a0 = words[0].startMs / 1000, a1 = words[words.length - 1].endMs / 1000;
+    const n = Math.ceil((a1 - a0) / step);
+    if (n < 12) return { state: "na", reason: "short" };
+    const tg = new Array(n).fill(0);
+    words.forEach(w => {
+      const i0 = Math.max(0, Math.floor((w.startMs / 1000 - a0) / step)), i1 = Math.min(n - 1, Math.ceil((w.endMs / 1000 - a0) / step));
+      for (let i = i0; i <= i1; i++) tg[i] = 1;
+    });
+    /* Where the learner's voice starts and stops. This is what carries the
+       measurement on dense speech: a paragraph read straight through has
+       almost no phrase shape to correlate against, and the correlation then
+       has nothing to lock on to — while "how long after they started did you
+       start" is exactly the question this rung asks, and is answerable from
+       the edges alone. Three samples in a row keeps a cough or a click from
+       counting as the start. */
+    const RUN = 3;
+    const edge = back => {
+      const n2 = mn.length;
+      for (let i = 0; i < n2; i++) {
+        const j = back ? n2 - 1 - i : i;
+        let okRun = true;
+        for (let k = 0; k < RUN; k++) { const q = back ? j - k : j + k; if (q < 0 || q >= n2 || mn[q] <= SYNC_ON) { okRun = false; break; } }
+        if (okRun) return t0 + j * step;
+      }
+      return null;
+    };
+    const inS = edge(false), outS = edge(true);
+    const lag0 = inS == null ? null : +(inS - a0).toFixed(2);
+    const lagEnd = outS == null ? null : +(outS - a1).toFixed(2);
+    /* Keeping up at the start and falling behind by the end is the thing
+       shadowers actually feel and no transcript can show. */
+    const drift = lag0 != null && lagEnd != null ? +(lagEnd - lag0).toFixed(2) : null;
+    /* Correlating the raw envelopes aliases: words come at a steady rate, so a
+       shift of one whole word scores as well as no shift at all, and the
+       search happily reports a lag that is really a word out. Smoothing both
+       sides to about a quarter of a second throws the word-rate ripple away
+       and leaves the PHRASE shape — where the speaker breathes — which repeats
+       far too slowly to alias inside the search window. A paragraph said
+       straight through has no such shape, and then there is simply no shape
+       score to give. */
+    const win = Math.round(SYNC_SMOOTH / step);
+    const tgS = smooth(tg, win), mnS = smooth(mn, win);
+    const shaped = variance(tgS) >= 0.01;
+    /* the search is kept near the lag the edges already found, so it refines
+       that answer rather than wandering off onto a neighbouring word */
+    const centre = lag0 == null ? 0.2 : Math.max(SYNC_MIN_LAG, Math.min(SYNC_MAX_LAG, lag0));
+    let best = null;
+    if (shaped) {
+      best = { r: -2, lag: centre };
+      for (let L = Math.round((centre - 0.3) / step); L <= Math.round((centre + 0.3) / step); L++) {
+        const xs = [], ys = [];
+        for (let i = 0; i < n; i++) {
+          const j = Math.round(i + (a0 - t0) / step) + L;
+          if (j < 0 || j >= mnS.length) continue;
+          xs.push(tgS[i]); ys.push(mnS[j]);
+        }
+        if (xs.length < 12) continue;
+        const r2 = pearson(xs, ys);
+        if (r2 != null && r2 > best.r) best = { r: r2, lag: +(L * step).toFixed(2) };
+      }
+      if (best.r < -1) best = null;
+    }
+    /* the edges give the lag; the correlation, when there is a shape to
+       correlate, gives how closely the rise and fall were followed */
+    const lag = lag0 != null ? lag0 : (best ? best.lag : null);
+    const r = best ? best.r : null;
+    /* A microphone hearing the VIDEO rather than the learner starts exactly
+       when the speaker starts, stops exactly when they stop and never misses a
+       word — which no human does, because nobody predicts speech. We say so
+       rather than award a top score for it. */
+    const bleed = lag != null && Math.abs(lag) <= 0.06 && (drift == null || Math.abs(drift) <= 0.08) && (r == null || r >= 0.7);
+    /* Coverage is measured on samples, not on word windows: with words a third
+       of a second apart, a window wide enough to be fair to one word reaches
+       into its neighbours and every word comes back "said". The question is
+       simply how much of the time the speaker was speaking the learner was
+       speaking too, with the lag taken out. */
+    const shift = Math.round((lag || 0) / step);
+    let on = 0, both = 0;
+    const wordHit = words.map(() => 0), wordN = words.map(() => 0);
+    words.forEach((w, wi) => {
+      const i0 = Math.max(0, Math.floor((w.startMs / 1000 - a0) / step)), i1 = Math.min(n - 1, Math.ceil((w.endMs / 1000 - a0) / step));
+      for (let i = i0; i <= i1; i++) {
+        const j = Math.round(i + (a0 - t0) / step) + shift;
+        wordN[wi]++;
+        if (j >= 0 && j < mn.length && mn[j] > SYNC_ON) wordHit[wi]++;
+      }
+    });
+    for (let i = 0; i < n; i++) {
+      if (!tg[i]) continue;
+      on++;
+      const j = Math.round(i + (a0 - t0) / step) + shift;
+      if (j >= 0 && j < mn.length && mn[j] > SYNC_ON) both++;
+    }
+    const hits = wordHit.filter((h, i) => wordN[i] && h / wordN[i] >= 0.5).length;
+    const cover = on ? both / on : 0;
+    const issues = [];
+    if (bleed) issues.push({ type: "bleed", dim: "sync", k: "sv.ch_sync_bleed" });
+    else {
+      if (drift != null && drift >= SYNC_DRIFT) issues.push({ type: "drift", dim: "sync", k: "sv.ch_sync_drift", v: { s: drift.toFixed(1) } });
+      else if (lag != null && lag > 0.7) issues.push({ type: "behind", dim: "sync", k: "sv.ch_sync_behind", v: { s: lag.toFixed(1) } });
+      else if (lag != null && lag < -0.15) issues.push({ type: "ahead", dim: "sync", k: "sv.ch_sync_ahead" });
+      if (cover < 0.72) issues.push({ type: "dropped", dim: "sync", k: "sv.ch_sync_dropped", v: { n: words.length - hits } });
+      if (r != null && r < 0.35) issues.push({ type: "flat", dim: "sync", k: "sv.ch_sync_flat" });
+    }
+    /* With no lag to judge, coverage alone decides — and it cannot earn the
+       top state, because staying with the speaker is what the top state means. */
+    /* A take that says every word in step still only covers about 0.85 of the
+       speaker's voiced time: words here are a quarter of a second long with
+       gaps barely shorter, so half a sample of lag error costs both edges.
+       The bands are set against that ceiling, not against a theoretical 1.0. */
+    const late = lag == null ? false : lag > 0.45, drifting = drift != null && drift >= SYNC_DRIFT;
+    const state = bleed ? "na"
+      : (cover >= 0.78 && (r == null || r >= 0.6) && !late && !drifting) ? (lag == null ? "good" : "strong")
+        : (cover >= 0.62 && (r == null || r >= 0.4) && (lag == null || lag <= 0.8) && !drifting) ? "good"
+          : (cover >= 0.45) ? "practice" : "attention";
+    return { state, reason: bleed ? "bleed" : null, lag, r, hits, total: words.length,
+      cover: +cover.toFixed(2), voiced: +voiced.toFixed(2), bleed, drift, shaped, issues,
+      pass: state === "strong" || state === "good" };
+  }
+
+  /* ---- backward build-up ----
+     The classic fix for a line that falls apart at the end: say the last few
+     words, then a few more in front of them, until the whole thing is one
+     breath. Growing from the END is the point — the tail is the part that is
+     dropped, and each step ends on words the mouth has already made. */
+  function buildup(text, steps) {
+    const ws = String(text || "").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+    if (ws.length < 6) return ws.length ? [ws.join(" ")] : [];
+    const n = Math.max(2, Math.min(steps || 4, Math.floor(ws.length / 3)));
+    const out = [];
+    for (let i = 1; i <= n; i++) {
+      const take = i === n ? ws.length : Math.max(3, Math.round(ws.length * i / n));
+      const chunk = ws.slice(ws.length - take).join(" ");
+      if (!out.includes(chunk)) out.push(chunk);
+    }
+    return out;
+  }
+
+  /* ---- chorus ----
+     Kjellin's repetition drill: the same short piece, many times, at a speed
+     you can actually hit. A single word is too small to carry rhythm, so the
+     chunk is the word plus its neighbours — and it comes back with the clip
+     span, so the repetitions play the speaker, not a synthetic voice. */
+  const CHORUS_REPS = 6;
+  function chunkAround(tokensOut, tSpan, width) {
+    const toks = tokensOut || [];
+    if (!toks.length || !tSpan) return null;
+    const w = width || 2;
+    const i0 = Math.max(0, tSpan[0] - w), i1 = Math.min(toks.length - 1, tSpan[1] + w);
+    const slice = toks.slice(i0, i1 + 1);
+    const ms = slice.filter(x => x.ms), est = slice.some(x => x.est);
+    /* challenge()'s tokens carry `text`, not the `disp` that uniqDisp reads,
+       and two tokens can share one source word ("I'm"), so the chunk is built
+       here from one entry per source word */
+    const seen = new Set();
+    const text = slice.filter(x => !seen.has(x.wi) && seen.add(x.wi)).map(x => x.text).join(" ");
+    return { text, tSpan: [i0, i1],
+      ms: ms.length ? [ms[0].ms[0], ms[ms.length - 1].ms[1]] : null, est,
+      reps: CHORUS_REPS };
+  }
+
+  /* ---- retell: did they say what it MEANT? ----
+     The verdict is the AI's; this is the guard in front of it. A retell that
+     is really the line said again is the commonest way the exercise is dodged,
+     and it is cheap to spot locally: a long run of the original's own content
+     words, in order. `overlap` is the opposite check — a retell that shares
+     almost nothing with the line is about something else. */
+  function retellCheck(heard, text) {
+    const h = norm(String(heard || "").split(/\s+/)).filter(x => x.k).map(x => x.k);
+    const t = norm(String(text || "").split(/\s+/)).filter(x => x.k).map(x => x.k);
+    const key = t.filter(k => !isFunction(k) && k.length >= 3), seen = new Set();
+    const uniq = key.filter(k => !seen.has(k) && seen.add(k));
+    if (!h.length) return { words: 0, echo: false, overlap: 0, run: 0 };
+    let run = 0, best = 0;                       // longest stretch copied verbatim
+    for (let i = 0; i < h.length; i++) {
+      const j = t.indexOf(h[i]);
+      if (j >= 0 && i > 0 && t[j - 1] === h[i - 1]) { run++; best = Math.max(best, run + 1); } else run = 0;
+    }
+    const hit = uniq.filter(k => h.includes(k)).length;
+    const overlap = uniq.length ? hit / uniq.length : 0;
+    return { words: h.length, run: best, overlap: +overlap.toFixed(2),
+      echo: best >= 6 || (overlap >= 0.8 && h.length >= t.length * 0.7),
+      /* a good retell reuses FEW of the original's words, so a low overlap is
+         not a fault — only a retell too short to carry a thought is */
+      thin: h.length < 5 };
+  }
+
+  const api = { normalizeCaptions, normalizeText, normalizePasted, estimateWords, locate, neighbour, levelOf, splitSentences, tokens, norm, fold, align, findExpression, usedExpression, challenge, verdict, progress, drillState, isFunction, FILLERS, PASS, WEAK, STRONG,
+    RUNGS, SPEEDS, rungsFor, nextRung, gapItems, syncReport, buildup, chunkAround, retellCheck, SYNC_STEP, CHORUS_REPS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.ShadowSync = api;
 })(typeof window !== "undefined" ? window : globalThis);
