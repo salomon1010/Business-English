@@ -2425,5 +2425,6 @@
  "sv.sh_tr_err": "Die Übersetzung braucht eine Verbindung. Versuche es gleich noch einmal.",
  "sv.sh_fav": "In Meine Clips speichern",
  "sv.sh_unfav": "Aus Meine Clips entfernen",
- "sv.sh_unfav_toast": "Aus Meine Clips entfernt."
+ "sv.sh_unfav_toast": "Aus Meine Clips entfernt.",
+ "sh.tab_addlink": "Link hinzufügen"
 }

@@ -2425,5 +2425,6 @@
  "sv.sh_tr_err": "번역에는 연결이 필요합니다. 잠시 후 다시 시도하세요.",
  "sv.sh_fav": "내 클립에 저장",
  "sv.sh_unfav": "내 클립에서 제거",
- "sv.sh_unfav_toast": "내 클립에서 제거했습니다."
+ "sv.sh_unfav_toast": "내 클립에서 제거했습니다.",
+ "sh.tab_addlink": "링크 추가"
 }

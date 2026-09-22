@@ -2425,5 +2425,6 @@
  "sv.sh_tr_err": "Dịch cần kết nối mạng. Thử lại sau giây lát.",
  "sv.sh_fav": "Lưu vào Clip của tôi",
  "sv.sh_unfav": "Bỏ khỏi Clip của tôi",
- "sv.sh_unfav_toast": "Đã bỏ khỏi Clip của tôi."
+ "sv.sh_unfav_toast": "Đã bỏ khỏi Clip của tôi.",
+ "sh.tab_addlink": "Thêm liên kết"
 }

@@ -2425,5 +2425,6 @@
  "sv.sh_tr_err": "翻译需要网络连接。请稍后再试。",
  "sv.sh_fav": "保存到我的片段",
  "sv.sh_unfav": "从我的片段移除",
- "sv.sh_unfav_toast": "已从我的片段移除。"
+ "sv.sh_unfav_toast": "已从我的片段移除。",
+ "sh.tab_addlink": "添加链接"
 }

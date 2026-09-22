@@ -2174,7 +2174,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-prompt{position:relative;border:1px solid var(--line2);border-radius:var(--r-md,12px);padding:12px 14px;margin:0 0 12px;background:color-mix(in srgb,var(--card) 70%,transparent)}
 .ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
-.ex-prompt-btn{min-height:36px}
+.ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
 .ex-btnrow{display:flex;gap:10px;margin:10px 0}.ex-btnrow .btn{flex:1;justify-content:center;min-height:52px;font-size:20px}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
@@ -2742,9 +2742,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* The header used to float the button out of the flow, which dropped it on top
    of the description underneath. A flex row keeps the three pieces on one line
    and lets the button fall cleanly onto its own line when there is no room. */
-.how-row{display:flex;margin:0 0 18px}
-@media (max-width:420px){.how-row .ex-howbtn{flex:1 1 auto}}
-.ex-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:7px}
+.how-row{display:flex;justify-content:flex-end;margin:-10px 0 10px}   /* the bubble sits in the corner under the title */
+.ex-head{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;margin-bottom:7px}.ex-head .ex-howbtn{margin-left:auto}
 .ex-head-t{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;flex:1 1 auto}
 .ex-head-t b{font-size:15px;display:inline-flex;align-items:center;gap:6px}
 .ex-desc{font-size:12.5px;color:var(--mut);margin:0 0 12px;line-height:1.55}
@@ -2759,7 +2758,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-howbtn{position:relative}
 .ex-howbtn.is-new::after{content:"";position:absolute;inset:-2px;border-radius:inherit;pointer-events:none;
   border:2px solid color-mix(in srgb,var(--gold) 55%,transparent);animation:exRingOut 2.4s ease-out infinite}
-@media (max-width:420px){.ex-howbtn{flex:1 1 100%;justify-content:center}}
+.ex-howbtn{width:40px;height:40px;padding:0!important;border-radius:50%!important;justify-content:center;flex:0 0 auto!important}.ex-howbtn svg{width:18px;height:18px}
 @media (prefers-reduced-motion:reduce){.ex-howbtn.is-new::after{animation:none;opacity:.6;transform:none}}
 /* The demo mock must fill its slot. .ios-art centres its child with place-items,
    which shrank it to its content width and left it floating off the axis every
@@ -6078,7 +6077,7 @@ const I18N_EN={
  "sh.empty_clips_body":"Create your first clip to begin building your speaking library — pick a video, mark 20–30 seconds, and save it.",
  "sh.empty_trouble_title":"No trouble words yet",
  "sh.empty_trouble_body":"Words you mispronounce are collected here automatically. Record a shadow session and your speaking feedback will fill this list.",
- "sh.tab_create":"Create clip",
+ "sh.tab_create":"Create clip","sh.tab_addlink":"Add link",
  "sh.tab_clips":"My clips",
  "sh.clear_inputs":"Clear the link and the transcript",
  "sh.own_title":"🎬 Your videos",
@@ -8709,8 +8708,9 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    model should be — a sentence you will actually need, said the way a competent
    person says it. It needs no video, no captions, works offline for the text,
    and is tied to the stage the learner is on. */
-let _shTab="create";
+let _shTab="create",_shAdd=false;   /* the link box is folded behind the Add link tab: the page opens on the videos */
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}};
+window.shAddToggle=()=>{_shAdd=!(_shTab==="create"&&_shAdd);_shTab="create";const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}if(_shAdd)setTimeout(()=>{const u=document.getElementById("shUrl");if(u){try{u.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}u.focus()}},60)};
 const SH_STARTERS_SHOWN=3;
 function shStarterCard(s,i){
   return `<div class="card sh-starter">
@@ -8739,7 +8739,7 @@ ${(()=>{
        thing on this page the learner can act on. */
     const tb=Object.keys(troubleMap()).length;
     if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
-    <button class="seg-tab ${_shTab==='create'?'on':''}" role="tab" aria-selected="${_shTab==='create'}" onclick="shTab('create')"><span class="btn-ic">${ic("film")}</span><span class="seg-lbl">${t("sh.tab_create")}</span></button>
+    <button class="seg-tab ${_shTab==='create'&&_shAdd?'on':''}" role="tab" aria-selected="${_shTab==='create'&&_shAdd}" aria-expanded="${_shTab==='create'&&_shAdd}" onclick="shAddToggle()"><span class="btn-ic">${ic("link")}</span><span class="seg-lbl">${t("sh.tab_addlink")}</span></button>
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("clock")}</span><span class="seg-lbl">${t("sh.tab_history")}</span> <b>${aList("chHist").length}</b></button>
   </div>`;
@@ -8753,6 +8753,7 @@ ${(()=>{
   })()}
   ${_shTab==='create'&&isProfessionalJourney()?shWorkplaceLinesHTML():""}
   <div class="card" style="margin-bottom:16px;${_shTab==='create'&&!isProfessionalJourney()?'':'display:none'}">
+    <div id="shAddBox" ${_shAdd?'':'style="display:none"'}>
     <input id="shUrl" placeholder="${esc(t("sh.url_ph"))}" style="width:100%" onkeydown="if(event.key==='Enter')shLoadFromInput()">
     <textarea id="shPaste" class="grow-ta sh-paste" rows="3" placeholder="${esc(t("sh.paste_ph"))}" oninput="taGrow(this)"></textarea>
     <p class="sh-paste-hint">${tInl("sh.paste_hint","doc")}</p>
@@ -8760,8 +8761,9 @@ ${(()=>{
       <button class="btn-primary" onclick="shLoadFromInput()">${tIc("sh.load_btn","play")}</button>
       <button class="btn btn-g sh-in-clear" onclick="shClearInputs()" title="${esc(t("sh.clear_inputs"))}" aria-label="${esc(t("sh.clear_inputs"))}">${ic("trash")}</button>
     </div>
-    ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div class="hr"></div>
+    </div>
+    ${S.lastClip&&S.lastClip.vid?`<button class="btn-primary sh-resume" onclick="shOpenWork()">${t("sh.resume_btn")}${S.lastClip.title?` <span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`:""}
     <div id="shOwnTop">${isProfessionalJourney()?"":shOwnHTML(true)}</div>
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
@@ -11992,7 +11994,7 @@ function rPractice(el){
   <h2 class="prac-sec">${t("prac.sim_h")}</h2>
   ${ppAvailable()?`<button class="card rp-entry pp-entry" onclick="go('partner')">
     <span class="rp-entry-ic pp-entry-ic"><img src="rp-photos/partner.jpg" alt="" loading="lazy" onerror="this.remove()">${ic("user")}${ppUnread()?`<i class="pp-dot">${ppUnread()}</i>`:""}</span>
-    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small><span class="pp-how-link" role="button" tabindex="0" onclick="event.stopPropagation();ppHowSheet()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();ppHowSheet()}">${ic("info")} ${t("pp.how_btn")}</span></span>
+    <span class="rp-entry-t"><b>${t("pp.title")}</b><small>${t("pp.card_sub")}</small><span class="pp-how-link ex-howbtn" role="button" tabindex="0" aria-label="${esc(t("pp.how_btn"))}" title="${esc(t("pp.how_btn"))}" onclick="event.stopPropagation();ppHowSheet()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();ppHowSheet()}">${ic("idea")}</span></span>
     <span class="rp-entry-go">→</span>
     <span class="pp-online-pill" id="ppEntryOnline" style="display:none"></span>
   </button>`:""}
@@ -13611,7 +13613,7 @@ function exPromptHTML(){
   return `<div class="ex-prompt" id="exPrompt">
     <span class="ex-prompt-k">${t("ex.prompt_h")}</span>
     <p class="ex-prompt-t">${esc(t("ex.prompt_"+(ex.prompt+1)))}</p>
-    <button class="btn btn-g btn-sm ex-prompt-btn" onclick="exShuffle()">${tIc("ex.prompt_shuffle","repeat")}</button>
+    <button class="ex-prompt-btn" onclick="exShuffle()" aria-label="${esc(t("ex.prompt_shuffle"))}" title="${esc(t("ex.prompt_shuffle"))}">${ic("repeat")}</button>
   </div>`;
 }
 window.exShuffle=()=>{
@@ -14148,7 +14150,7 @@ function howMark(id){try{localStorage.setItem(HOW_SEEN+id,"1")}catch(e){}}
 /* The button that opens one. It breathes until it has been opened once, then
    stops asking — the feature behind it is the one nobody understands on sight. */
 function howBtn(id){
-  return `<button class="ex-howbtn${howSeen(id)?"":" is-new"}" onclick="howOpen('${esc(id)}')">${ic("idea")}<span>${esc(t("ex.how_btn"))}</span></button>`;
+  return `<button class="ex-howbtn${howSeen(id)?"":" is-new"}" onclick="howOpen('${esc(id)}')" aria-label="${esc(t("ex.how_btn"))}" title="${esc(t("ex.how_btn"))}">${ic("idea")}</button>`;
 }
 /* Scrolls to the real thing and rings it, so the walkthrough ends in the app
    rather than in the dialog. */
