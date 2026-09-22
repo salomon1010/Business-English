@@ -1,0 +1,46 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Design tokens. Every colour, radius, shadow and timing on the page resolves
+   to one of these. Components never hard-code a hex value.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root{
+  /* surfaces */
+  --color-bg:#080b16;
+  --color-bg-deep:#05070f;
+  --color-surface:rgba(255,255,255,.042);
+  --color-surface-2:rgba(255,255,255,.025);
+  --color-border:rgba(255,255,255,.085);
+  --color-border-strong:rgba(255,255,255,.17);
+
+  /* brand */
+  --color-primary:#6366f1;      /* indigo  */
+  --color-primary-bright:#818cf8;
+  --color-secondary:#a855f7;    /* violet  */
+  --color-accent:#22d3ee;       /* cyan    */
+  --color-positive:#34d399;
+
+  /* text */
+  --color-text:#eef1fb;
+  --color-muted:#a2a7c4;
+  --color-muted-2:#767c9d;
+
+  /* atmosphere — used sparingly, as light, not as paint */
+  --color-glow:rgba(99,102,241,.45);
+  --glow-soft:0 0 60px rgba(99,102,241,.28);
+  --grad-text:linear-gradient(103deg,#a5b4fc,#22d3ee 58%,#c084fc);
+  --grad-cta:linear-gradient(103deg,#5b5bf0,#3b82f6);
+
+  /* structure */
+  --radius-sm:10px; --radius:16px; --radius-lg:24px; --radius-pill:999px;
+  --shadow-card:0 18px 46px rgba(0,0,0,.42);
+  --shadow-float:0 22px 50px rgba(0,0,0,.5);
+  --maxw:1160px;
+  --gutter:20px;
+
+  /* motion */
+  --ease-out:cubic-bezier(.16,.84,.44,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  --dur-fast:.18s; --dur:.35s; --dur-reveal:.7s;
+
+  /* driven by MotionSystem (0 → 1 during an intelligence pulse) */
+  --pulse:0;
+}

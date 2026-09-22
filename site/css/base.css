@@ -1,0 +1,33 @@
+/* reset + typography + layout primitives */
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;overflow-x:clip;scroll-behavior:smooth;scroll-padding-top:92px}
+body{
+  font-family:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--color-bg);color:var(--color-text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:clip;position:relative
+}
+img,svg,canvas{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--color-accent);outline-offset:3px;border-radius:6px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:-9999px;top:10px;z-index:100;background:var(--color-primary);color:#fff;padding:12px 20px;border-radius:var(--radius-sm)}
+.skip:focus{left:20px}
+
+/* type scale */
+h1,h2,h3,h4{line-height:1.12;letter-spacing:-.02em;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(40px,5.6vw,68px);font-weight:800;letter-spacing:-.03em}
+h2{font-size:clamp(29px,3.8vw,46px);font-weight:800}
+h3{font-size:clamp(19px,1.5vw,21px)}
+p{text-wrap:pretty}
+.lede{color:var(--color-muted);font-size:clamp(16.5px,1.25vw,18.5px);max-width:58ch}
+.muted{color:var(--color-muted)}
+.grad{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* layout */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--gutter)}
+.section{padding:clamp(72px,9vw,124px) 0;position:relative;overflow:hidden}
+.section-head{max-width:62ch}
+.section-head.center{margin:0 auto;text-align:center}
+.stack-sm>*+*{margin-top:12px}
+.stack>*+*{margin-top:20px}
