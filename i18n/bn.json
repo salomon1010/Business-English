@@ -2174,10 +2174,10 @@
  "ex.clear_btn": "Clear",
  "ex.busy_status": "Polishing… your report opens below.",
  "ex.polish_btn": "Polish it",
- "ex.versions_h": "Two other ways to say it",
- "ex.versions_sub": "The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
+ "ex.versions_h": "What you should have said",
+ "ex.versions_sub": "Your minute, your facts — said the way a professional would. The new idioms and phrases are marked. Say each one aloud until it is yours.",
  "ex.version_new": "New in this version — tap to save",
- "ex.idioms_h": "New idioms to learn",
+ "ex.idioms_h": "Memorise these for your world",
  "ex.idioms_sub": "Professional idioms you did not use, chosen for your topic — start using them in your next conversation.",
  "ex.idiom_new": "A new idiom for you to learn",
  "ex.idiom_meaning": "Meaning:",
@@ -2623,5 +2623,11 @@
  "ex.carry_hedge_up": "{{n}} more hedges.",
  "ex.carry_hedge_same": "The same number of hedges.",
  "ex.assign_open": "Open with this",
- "ex.assign_use": "Use these in the next minute"
+ "ex.assign_use": "Use these in the next minute",
+ "ex.repolish_btn": "Polish it again — another version",
+ "ex.repolish_note": "Each version is a different register, with more professional phrases and two more idioms below.",
+ "ex.repolish_busy": "Writing another version…",
+ "ex.repolish_err": "Could not write another version. Try again in a moment.",
+ "ex.repolish_off": "Another version needs the internet.",
+ "ex.repolish_max": "Five versions is plenty. Say them out loud — that is what makes one of them yours."
 }

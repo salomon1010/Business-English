@@ -2174,10 +2174,10 @@
  "ex.clear_btn": "Clear",
  "ex.busy_status": "Polishing… your report opens below.",
  "ex.polish_btn": "Polish it",
- "ex.versions_h": "Two other ways to say it",
- "ex.versions_sub": "The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
+ "ex.versions_h": "ما كان ينبغي أن تقوله",
+ "ex.versions_sub": "دقيقتك، ووقائعك — مقولة كما يقولها محترف. التعابير والعبارات الجديدة مميّزة. قل كل صيغة بصوت عالٍ حتى تصبح لك.",
  "ex.version_new": "New in this version — tap to save",
- "ex.idioms_h": "New idioms to learn",
+ "ex.idioms_h": "احفظ هذه لمجال عملك",
  "ex.idioms_sub": "تعابير مهنية لم تستخدمها، مختارة لموضوعك — ابدأ باستخدامها في محادثتك القادمة.",
  "ex.idiom_new": "A new idiom for you to learn",
  "ex.idiom_meaning": "Meaning:",
@@ -2623,5 +2623,11 @@
  "ex.carry_hedge_up": "عبارات تخفيف أكثر بـ {{n}}.",
  "ex.carry_hedge_same": "العدد نفسه من عبارات التخفيف كالمرة السابقة.",
  "ex.assign_open": "ابدأ بهذه",
- "ex.assign_use": "استخدمها في الدقيقة القادمة"
+ "ex.assign_use": "استخدمها في الدقيقة القادمة",
+ "ex.repolish_btn": "لمّعها مجدداً — صيغة أخرى",
+ "ex.repolish_note": "كل صيغة بأسلوب مختلف، مع عبارات مهنية أكثر وتعبيرين إضافيين في الأسفل.",
+ "ex.repolish_busy": "جارٍ كتابة صيغة أخرى…",
+ "ex.repolish_err": "تعذّرت كتابة صيغة أخرى. حاول بعد قليل.",
+ "ex.repolish_off": "الصيغة الأخرى تحتاج إلى الإنترنت.",
+ "ex.repolish_max": "خمس صيغ تكفي. قلها بصوت عالٍ — هكذا تصبح إحداها لك."
 }

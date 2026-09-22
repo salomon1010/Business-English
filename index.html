@@ -2543,8 +2543,16 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
 .ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
-.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:1 1 0;min-width:0;justify-content:center;min-height:44px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:0 0 50%;width:auto;min-height:44px;font-size:15px;margin:0}
-.ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}.ex-timer:empty{display:none}
+/* Polish it had half the row and the mic had whatever was left, so the running
+   timer — "0:02 / 1:30" — wrapped onto three lines inside a 44 px button while
+   the learner was recording (owner, 22 Sep 2026, on an iPhone). The recording
+   button is the one that has to hold text, so it gets the room: Polish it
+   shrinks to its label, the mic takes what it needs and keeps the timer on one
+   line, the bin stays square. */
+.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:0 1 auto;min-width:0;justify-content:center;min-height:48px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:1 1 auto;width:auto;min-height:48px;font-size:15px;margin:0;padding:0 10px}
+.ex-btnrow .ex-mic{flex:0 0 auto;padding:0 14px;white-space:nowrap}
+.ex-btnrow .ex-clear{flex:0 0 52px;padding:0}
+.ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px;white-space:nowrap;font-variant-numeric:tabular-nums}.ex-timer:empty{display:none}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
 .ex-polish{justify-content:center}.ex-polish:disabled{opacity:.6}
@@ -2722,6 +2730,9 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-slot{display:inline-block;padding:1px 8px;margin:0 2px;border-radius:7px;font-size:13px;font-weight:700;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent)}
 .ex-pat-use{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--mut)}
 .ex-saveall{width:100%;min-height:46px;margin-top:16px}
+.ex-repolish{width:100%;min-height:46px;margin-top:14px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc)}
+.ex-repolish:disabled{opacity:.7}
+.ex-version.ex-flash{background:color-mix(in srgb,var(--acc) 9%,transparent);border-radius:12px}
 .ex-carry{margin-bottom:6px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid var(--line2);background:var(--bg2)}
 .ex-carry .ex-k{margin-top:0}
 .ex-carry-score{margin:0 0 8px;font-size:14px;color:var(--mut)}
@@ -6885,10 +6896,10 @@ const I18N_EN={
  "ex.clear_btn":"Clear",
  "ex.busy_status":"Polishing… your report opens below.",
  "ex.polish_btn":"Polish it",
- "ex.versions_h":"Two other ways to say it",
- "ex.versions_sub":"The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
+ "ex.versions_h":"What you should have said",
+ "ex.versions_sub":"Your minute, your facts — said the way a professional would. The new idioms and phrases are marked. Say each one aloud until it is yours.",
  "ex.version_new":"New in this version — tap to save",
- "ex.idioms_h":"New idioms to learn",
+ "ex.idioms_h":"Memorise these for your world",
  "ex.idioms_sub":"Professional idioms you did not use, chosen for your topic — start using them in your next conversation.",
  "ex.idiom_new":"A new idiom for you to learn",
  "ex.idiom_meaning":"Meaning:",
@@ -7044,6 +7055,12 @@ const I18N_EN={
  "ex.carry_hedge_same":"The same number of hedges.",
  "ex.assign_open":"Open with this",
  "ex.assign_use":"Use these in the next minute",
+ "ex.repolish_btn":"Polish it again — another version",
+ "ex.repolish_note":"Each version is a different register, with more professional phrases and two more idioms below.",
+ "ex.repolish_busy":"Writing another version…",
+ "ex.repolish_err":"Could not write another version. Try again in a moment.",
+ "ex.repolish_off":"Another version needs the internet.",
+ "ex.repolish_max":"Five versions is plenty. Say them out loud — that is what makes one of them yours.",
  "ex.last_h":"Last time",
  "ex.last_wpm":"{{n}} words/min",
  "ex.last_hes":"{{n}} hesitations",
@@ -14792,7 +14809,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v433";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v434";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -15220,10 +15237,17 @@ function exMark(text,learn){
   (learn||[]).forEach(l=>{const e=esc(l).replace(/[.*+?^${}()|[\]\\]/g,"\\$&");h=h.replace(new RegExp(e,"i"),m=>`<mark class="ex-mark">${m}</mark>`)});
   return h;
 }
+/* The finale the owner asked for (22 Sep 2026): "this is what you should have
+   said". Two versions arrive with the report; Polish it again writes another
+   one — a register the earlier ones did not use, carrying more professional
+   phrases — and two more idioms for the memorise list below it. Five is the
+   ceiling: past that the learner is collecting versions instead of saying
+   them. */
+const EX_VER_MAX=5;
 function exVersionsHTML(ai){
   const vs=(ai&&Array.isArray(ai.versions))?ai.versions.filter(v=>v&&v.text):[];
   if(!vs.length)return "";
-  return `<section class="ex-block ex-versions">
+  return `<section class="ex-block ex-versions" id="exVersions">
     ${exSec("sparkle",t("ex.versions_h"),t("ex.versions_sub"))}
     ${vs.map((v,i)=>`<div class="ex-version">
       <div class="ex-ver-k"><span class="ex-ver-n">${i+1}</span>${esc(v.style||"")}</div>
@@ -15231,8 +15255,49 @@ function exVersionsHTML(ai){
       ${v.learn&&v.learn.length?`<div class="ex-k">${esc(t("ex.version_new"))}</div><div class="ex-learn">${v.learn.map(l=>`<button class="ex-learn-chip" onclick="exSaveTerm(${jarg(l)},'',${jarg(v.text)},this)">${ic("bookmark")} ${esc(l)}</button>`).join("")}</div>`:""}
       ${exActs(v.text,i===0)}
     </div>`).join("")}
+    ${vs.length<EX_VER_MAX
+      ? `<button class="btn btn-g ex-repolish" onclick="exRepolish(this)">${ic("repeat")} ${esc(t("ex.repolish_btn"))}</button>
+         <p class="ex-fine">${esc(t("ex.repolish_note"))}</p>`
+      : `<p class="ex-fine">${esc(t("ex.repolish_max"))}</p>`}
   </section>`;
 }
+/* One more version of the same minute, without re-running the analysis: the
+   Worker gets the transcript and the versions already shown, and answers with
+   one more plus two idioms. Both are appended to the report that is already
+   saved, so they survive a reload and count towards the next recording's
+   targets. */
+let exRepolishing=false;
+window.exRepolish=async btn=>{
+  const rep=ex.report;
+  if(!rep||!rep.ai||exRepolishing)return;
+  if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
+  exRepolishing=true;
+  btn.disabled=true;btn.innerHTML=ic("sparkle")+" "+esc(t("ex.repolish_busy"));manIconizeInline(btn);
+  try{
+    const avoid=(rep.ai.versions||[]).map(v=>v.text);
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({repolish:{transcript:rep.tx||"",avoid,lang:exLang()}})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    if(!j||!j.version||!j.version.text)throw new Error("empty");
+    rep.ai.versions=(rep.ai.versions||[]).concat([j.version]);
+    const seen=new Set((rep.ai.idioms||[]).map(x=>String(x.idiom||"").toLowerCase()));
+    (j.idioms||[]).forEach(x=>{
+      if(x&&x.idiom&&!seen.has(x.idiom.toLowerCase())){rep.ai.idioms=(rep.ai.idioms||[]).concat([x]);seen.add(x.idiom.toLowerCase())}
+    });
+    rep.targets=exTargets(rep.ai);                 /* the newest phrases are what the next minute is marked on */
+    save();
+    exRenderReport(rep,true);
+    setTimeout(()=>{
+      const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
+      if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
+    },60);
+  }catch(e){
+    toast(t("ex.repolish_err"));
+    btn.disabled=false;btn.innerHTML=ic("repeat")+" "+esc(t("ex.repolish_btn"));manIconizeInline(btn);
+  }
+  exRepolishing=false;
+};
 /* "This is a new idiom you should be learning" — three the learner did not use,
    each with its meaning, when it fits, and a sentence on their own topic. */
 function exIdiomsHTML(ai){
@@ -15573,8 +15638,8 @@ function exRenderReport(rep,quiet){
     ${exStation("upgrade",4,"sparkle",t("ex.st_upgrade"),t("ex.st_upgrade_sub"),`
       ${exWordsHTML(ai)}
       ${exCollHTML(ai)}
-      ${exIdiomsHTML(ai)}
       ${exVersionsHTML(ai)}
+      ${exIdiomsHTML(ai)}
       ${(ai&&((ai.words||[]).length||(ai.idioms||[]).length||(ai.collocations||[]).length))?`<button class="btn-primary ex-saveall" onclick="exSaveAll(this)">${tIc("ex.save_all_btn","bookmark")}</button><p class="ex-fine">${esc(t("ex.save_all_note"))}</p>`:""}`)}
 
     ${exStation("again",5,"mic",t("ex.st_again"),t("ex.st_again_sub"),`

@@ -112,6 +112,43 @@ ok("Save all puts every item in the word bank",saved.added>=7,JSON.stringify(sav
 await page.evaluate(()=>exJump("upgrade"));await sleep(1500);
 ok("Nav jumps to a station",await page.evaluate(()=>document.getElementById("exSt-upgrade").getBoundingClientRect().top<400));
 
+/* Polish it again: one more whole version and two more idioms, appended to the
+   report that is already saved — the owner's finale, "this is what you should
+   have said", with a button that keeps going. */
+const again=await page.evaluate(async()=>{
+  const before={v:document.querySelectorAll(".ex-version").length,i:document.querySelectorAll(".ex-idiom").length};
+  const realFetch=window.fetch;
+  window.fetch=async(url,opt)=>{
+    const body=JSON.parse(opt.body);
+    if(!body.repolish)throw new Error("wrong route: "+Object.keys(body));
+    return {ok:true,json:async()=>({version:{style:"Decisive",text:"Two safety incidents last week put us one step from an injury. I am asking for a half-day training in October.",learn:["one step from","half-day training"]},
+      idioms:[{idiom:"draw a line under it",meaning:"m",when:"w",example:"e"},{idiom:"put it on the record",meaning:"m",when:"w",example:"e"}]})};
+  };
+  const btn=document.querySelector(".ex-repolish");
+  await exRepolish(btn);
+  await new Promise(r=>setTimeout(r,250));
+  window.fetch=realFetch;                       /* setLang() below fetches its own file */
+  return {before,after:{v:document.querySelectorAll(".ex-version").length,i:document.querySelectorAll(".ex-idiom").length},
+    stored:(ex.report.ai.versions||[]).length,targets:ex.report.targets,
+    persisted:(aList("exRep")[0].ai.versions||[]).length};
+});
+ok("Polish it again appends a version and two idioms, and persists them",
+  again.after.v===again.before.v+1&&again.after.i===again.before.i+2&&again.persisted===again.stored,JSON.stringify(again));
+
+/* The recording button has to hold "0:02 / 1:30" on one line while the timer
+   runs — it wrapped onto three inside a 44 px button on a real iPhone. */
+const row=await page.evaluate(async()=>{
+  exStartAgain();await new Promise(r=>setTimeout(r,200));
+  const mic=document.getElementById("exRecBtn");const tm=document.getElementById("exTimer");
+  tm.textContent="0:02 / 1:30";
+  await new Promise(r=>setTimeout(r,60));
+  const r=mic.getBoundingClientRect(),t=tm.getBoundingClientRect();
+  const pol=document.querySelector(".ex-polish").getBoundingClientRect();
+  return {micH:Math.round(r.height),timerH:Math.round(t.height),micW:Math.round(r.width),polW:Math.round(pol.width),
+    rowW:Math.round(document.querySelector(".ex-btnrow").getBoundingClientRect().width)};
+});
+ok("The running timer fits on one line in the mic button",row.timerH<26&&row.micH<=64&&row.micW+row.polW<row.rowW,JSON.stringify(row));
+
 ok("No page errors",errors.length===0,errors.join(" | "));
 /* French is the first language of most of the people using this app, so the
    report is checked in French too: the station names must not fall back to

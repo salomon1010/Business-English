@@ -606,6 +606,55 @@ async function callAnalyse(env, transcript, metrics, lang) {
   return out;
 }
 
+/* ---- Polish again ------------------------------------------------------
+   The report ends on "this is what you should have said". One version is a
+   verdict; three are a choice, and the learner asked for the choice — each
+   press writes another whole version of their minute, in a register the
+   earlier ones did not use, carrying MORE professional phrases than the last,
+   plus two more idioms for their own topic to memorise. Far cheaper than
+   re-running the analysis: same transcript, one short answer. The avoid list
+   is what they have already been shown, capped so the request cannot grow
+   without limit. */
+const RP_PER_MIN = 8;
+const RP_PER_DAY = 200;
+const rpHits = new Map();
+async function callRepolish(env, transcript, avoid, lang, n) {
+  const language = AN_LANGS[lang] || "English";
+  const system =
+    "You are an executive speaking coach. The learner spoke for about a minute; the transcript is below. " +
+    "Write ONE more way they could have said the WHOLE thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler and no hedging. " +
+    "It must be clearly different from the versions already shown (listed below): a different register and different phrasing, not a reshuffle. " +
+    "Carry " + (n >= 3 ? "four" : "three") + " professional phrases or business idioms inside it, woven in naturally, and list them in learn exactly as they appear in text. " +
+    "Then give 2 MORE professional idioms the learner has not been shown, chosen for their topic, for them to memorise. " +
+    "Respond with ONLY minified JSON: " +
+    '{"version":{"style":"<2-4 words naming the register>","text":"<the whole speech, said that way>","learn":["<each phrase or idiom it introduced>"]},' +
+    '"idioms":[{"idiom":"<an idiom they have not been shown>","meaning":"<plain meaning, one line>","when":"<the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
+    "LANGUAGE: version.text, version.learn, every idiom and every example are lines the learner will SAY, so they are in plain spoken English. " +
+    (lang === "en" ? "So is everything else. " :
+      "version.style, and every meaning and when, are what the learner READS to understand, so they MUST be written in " + language + " — not English.");
+  const user = "Transcript:\n" + transcript + "\n\nAlready shown, do not repeat:\n" + (avoid.join("\n---\n") || "(nothing yet)");
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({
+      model: AN_MODEL, max_tokens: 1200, temperature: 0.8,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, { role: "user", content: user }],
+    }),
+  });
+  if (!r.ok) throw new Error("provider " + r.status);
+  const j = await r.json();
+  let p; try { p = JSON.parse(((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "{}").trim()); } catch { p = {}; }
+  const v = p.version && typeof p.version === "object" ? p.version : {};
+  const out = { version: null, idioms: [] };
+  const text = anStr(v.text, 1600);
+  if (text.split(" ").length >= 8) out.version = { style: anStr(v.style, 40), text, learn: (Array.isArray(v.learn) ? v.learn : []).map(x => anStr(x, 60)).filter(Boolean).slice(0, 5) };
+  out.idioms = (Array.isArray(p.idioms) ? p.idioms : [])
+    .map(x => x && typeof x === "object" ? { idiom: anStr(x.idiom, 60), meaning: anStr(x.meaning, 160), when: anStr(x.when, 160), example: anStr(x.example, 220) } : null)
+    .filter(x => x && x.idiom && x.meaning).slice(0, 2);
+  return out;
+}
+
 async function callChat(env, system, messages) {
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -868,6 +917,21 @@ export default {
         return json(await callAnalyse(env, transcript, m, lang), 200, cors);
       } catch (e) {
         return json({ error: "analyse_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
+
+    // ---- Polish again: one more whole version of the same minute ----
+    if (body.repolish && typeof body.repolish === "object") {
+      if (rateLimited(ip, rpHits, RP_PER_MIN, RP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const transcript = String(body.repolish.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
+      if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
+      const avoid = (Array.isArray(body.repolish.avoid) ? body.repolish.avoid : [])
+        .map(x => String(x || "").replace(/\s+/g, " ").trim().slice(0, 1600)).filter(Boolean).slice(-4);
+      const lang = String(body.repolish.lang || "en").slice(0, 5).toLowerCase();
+      try {
+        return json(await callRepolish(env, transcript, avoid, lang, avoid.length + 1), 200, cors);
+      } catch (e) {
+        return json({ error: "repolish_unavailable", detail: String(e.message || e) }, 502, cors);
       }
     }
 
