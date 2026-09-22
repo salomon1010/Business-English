@@ -2042,6 +2042,11 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 .btn-ic{display:inline-flex;vertical-align:-3px;margin-right:5px;line-height:0}
 .btn-ic svg{width:15px;height:15px}
 .ex-field{position:relative;margin-bottom:10px}
+/* The stretch corner of the speech box: phones show no textarea handle, so
+   this one is drawn and dragged with pointer events (owner, 2026-09-22). */
+.ex-grip{position:absolute;right:4px;bottom:4px;width:32px;height:32px;display:grid;place-items:center;color:var(--acc);cursor:ns-resize;touch-action:none;border-radius:8px;border:1px solid var(--line2);background:var(--card2)}
+.ex-grip svg{width:17px;height:17px}.ex-grip:active{background:var(--card2);color:var(--txt)}
+textarea.ex-speech{padding-right:34px}
 .ex-field-ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--mut);line-height:0}
 .ex-field-ic svg{width:16px;height:16px}
 .ex-field input{padding-left:38px}
@@ -6309,6 +6314,7 @@ const I18N_EN={
  "ex.page_eyebrow":"Executive Polish — say it like a leader",
  "ex.page_title":"Speak. Polish. <em>Own it.</em>",
  "ex.page_sub":"Say it the way you always have — and hear it come back two ways a leader would say it, with the idioms and professional phrases that get you there. Speak them a few times, and that voice becomes yours.",
+ "ex.grip":"Drag to make the box taller",
  "ex.in_ph":"Tap the mic and speak for about a minute — or type what you said here.",
  "ex.clear_btn":"Clear",
  "ex.busy_status":"Polishing… your report opens below.",
@@ -13569,7 +13575,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v425";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v426";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -13666,7 +13672,7 @@ function exCardHTML(){
 function exIdleHTML(){
   const txt=ex.draft||"";
   return `${exPromptHTML()}
-    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea></div>
+    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea><span class="ex-grip" role="separator" aria-orientation="horizontal" aria-label="${esc(t("ex.grip"))}" title="${esc(t("ex.grip"))}" onpointerdown="exGripStart(event)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 12 12 20M20 17l-3 3"/></svg></span></div>
     <div class="ex-btnrow">
       <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
@@ -13676,6 +13682,12 @@ function exIdleHTML(){
     ${exLastHTML()}`;
 }
 window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
+/* Drag the corner: the box follows the finger; from then on the learner's
+   height wins over taGrow (dataset.userSized), never below 120 px. */
+window.exGripStart=e=>{const ta=document.getElementById("exIn");if(!ta)return;e.preventDefault();const g=e.currentTarget;const y0=e.clientY,h0=ta.getBoundingClientRect().height;try{g.setPointerCapture(e.pointerId)}catch(x){}
+  const move=ev=>{const h=Math.max(120,Math.round(h0+ev.clientY-y0));ta.style.height=h+"px";ta.dataset.userSized="1";ta.style.overflowY=ta.scrollHeight>h+2?"auto":"hidden"};
+  const up=()=>{g.removeEventListener("pointermove",move);g.removeEventListener("pointerup",up);g.removeEventListener("pointercancel",up)};
+  g.addEventListener("pointermove",move);g.addEventListener("pointerup",up);g.addEventListener("pointercancel",up)};
 window.exClear=()=>{if(ex.phase==="rec")return;ex.draft="";ex.take=null;ex.blob=null;exSetUrl(null);const ta=document.getElementById("exIn");if(ta){ta.value="";taGrow(ta)}exStatus("")};
 /* Polish it: the recording's audio goes with its own transcript; edited or
    typed text is measured as text only. */
@@ -17422,8 +17434,8 @@ function ppLiveDotSync(){const el=document.getElementById("ppLiveDot");if(el)el.
    General English only — ppAvailable() already carries that. On the Practice
    tab it needs no sign-in or consent (discovery); on every other screen it
    waits for both, so it never nags someone who has not opted in. ---- */
-const PP_FAB_VIEWS=new Set(["journey","shadow","phrases"]);   // owner, 2026-09-19: "map, shadow and lab only" — not Home, not Practice
-const PP_FAB_REC_VIEWS=new Set(["session","foundations","roleplay","simulation","pron"]);
+const PP_FAB_VIEWS=new Set(["journey"]);   // owner, 2026-09-22: "only on the Road map page — remove it everywhere else" (was map + shadow + lab, 2026-09-19)
+const PP_FAB_REC_VIEWS=new Set();          // no recording screen shows it any more, same instruction
 const PP_FAB_CONTROLS=".rec-btn,.rec-panel button,.ex-recbtn,.btn-primary,.btn-secondary,.btn,.pp-recbtn,.fnd-item button,audio";
 function ppRecordingNow(){
   try{
