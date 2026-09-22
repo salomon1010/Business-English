@@ -1692,7 +1692,7 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .path-locked svg{width:16px;height:16px}
 .day-row.locked{opacity:.55;cursor:not-allowed}.day-row.locked:hover{transform:none;border-color:var(--line)}
 .day-row.here{border-color:var(--acc)}
-.path-tools h2{font-size:18px;margin:4px 0 6px}.path-tools>.sub{margin:0 0 12px}
+.path-tools h2{font-size:15px;margin:2px 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.path-tools>.sub{margin:0 0 10px;font-size:13px}   /* owner, 2026-09-22: the step name on one line */
 .path-tool-list{display:grid;gap:8px}
 .path-tool{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 14px;border-radius:13px;border:1px solid var(--line);background:var(--card2);color:var(--txt);cursor:pointer;transition:.15s;font:inherit}
 .path-tool:hover{border-color:var(--acc)}
@@ -13581,7 +13581,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v427";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v428";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
