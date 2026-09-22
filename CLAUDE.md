@@ -444,7 +444,7 @@ not JS, and `new Function` chokes on it. Check it separately with
   Dark, saves on tap), `pfSetupSheet(anchor, title)` renders `rData` off-screen
   and lifts the `#setRem` / `#setAcc` / `#setData` section into a sheet over
   Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `tracks`; the
-  identity row and "App Setup" → `setupOpen('setProfile')`. Play glyphs: `"▶"`
+  identity row and "App Setup" → `setupOpen('setProfile')`. The header streak pill is gone (v420; `streakPillSync()` is a null-safe no-op now, the streak lives on Progress). Play glyphs: `"▶"`
   / `"⏸"` are in `EMOJI_ICON`, so the sweep draws line icons, never OS emoji.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).

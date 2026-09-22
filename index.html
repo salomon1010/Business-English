@@ -3885,7 +3885,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
     <span class="ht-x" onclick="event.stopPropagation();tReset()" role="button" aria-label="Cancel timer" title="Cancel timer">×</span>
   </button>
   <!-- the header's Road map button was removed on 14 Sep 2026: the road map has its own tab in the bar -->
-  <div class="streak-pill"><span class="pill-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c.6 2.5 2 3.5 3.2 5A6 6 0 1 1 6 13.2c0-1.3.4-2.5 1.1-3.5.3 1.2 1.1 2 2.2 2.4-.9-2.8.3-5.8 2.7-8.7Z"/></svg></span> <span id="streakN">0</span></div>
+  <!-- the header streak pill was removed on 22 Sep 2026 (owner: a simpler header); the streak lives on Progress -->
 </div></nav>
 
 <main>
@@ -7433,7 +7433,7 @@ function go(v,arg1,arg2){
       if(head)head.insertBefore(b,head.firstChild); else el.insertBefore(b,el.firstChild);
     }else if(v!=="session"){SESS_RETURN=null;}
   }
-  document.getElementById("streakN").textContent=streak();
+  streakPillSync();
   try{navBadges()}catch(e){}
   jumpTop();
   if(v==="home")setTimeout(()=>whenIdle(backupNudge),1200);   // only on the dashboard, never mid-task, never under a thumb
@@ -8582,7 +8582,7 @@ window.recToggle=async(ctx,label)=>{
       if(st)st.textContent=t("rec.saved_state");
       toast(t("rec.saved_toast"));
       renderRecs(rec.ctx);
-      document.getElementById("streakN").textContent=streak();
+      streakPillSync();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
       }finally{const f=rec.filed;rec.filed=null;if(f)f()}
     };
@@ -11377,7 +11377,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   <p class="fb-disclaimer">${t("fb.disclaimer")}</p>`;
   manIconizeInline(out);
   markPracticed();awardCompetency({activityType:"pronunciation_feedback",lesson:"Speaking feedback",score:hasTarget?score:null,duration:Math.round(mins*60)});save();tbRender();
-  document.getElementById("streakN").textContent=streak();
+  streakPillSync();
   if(hasTarget&&fromRec)fbRenderPron(targetText);   // honest AI pronunciation pass (async)
 }
 /* ===== POSTURE COACH — on-device MediaPipe pose tracking =====
@@ -13565,7 +13565,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v419";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v420";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -18716,6 +18716,7 @@ window.calDay=(ds)=>{
 /* A page's introduction folded into a small "i" in the corner (owner, 2026-09-22:
    the paragraphs cost a screen of space on a phone; the text stays, on demand).
    `bare` returns only the button, for a header that lays it out itself. */
+window.streakPillSync=()=>{const n=document.getElementById("streakN");if(n)n.textContent=streak()};
 window._subInfoStore=[];
 /* After a render: a bubble that directly follows the page title moves onto the
    title line (owner, 2026-09-22: "same level as the sentence, small, grey").
@@ -19126,7 +19127,7 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
       bnavSync("session");
       document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});
       const el=document.getElementById("v-journey");el.classList.add("on");
-      rSession(el,a1,a2);document.getElementById("streakN").textContent=streak();jumpTop();
+      rSession(el,a1,a2);streakPillSync();jumpTop();
       return;
     }
     _go(v,a1,a2);
