@@ -600,6 +600,40 @@ Features
   (`body.text`) stays in the Worker but nothing calls it. The Polish Worker
   (`backend/`, `be-polish`) must be redeployed for versions/idioms — the
   client renders nothing for them until then.
+  **Rebuilt again 2026-09-22 as a five-station study session (owner: one
+  minute spoken, five minutes of work).** `exRenderReport` now draws, in
+  order: the CEFR `level` badge, the **coach's voice** (`exCoachHTML` /
+  `exCoach` / `exCoachStop`, the model's `coach_script` spoken sentence by
+  sentence through `fbSayLine` with the line highlighted — the Practice
+  Partner coach's shape, one Stop; without the AI the briefing is assembled
+  from the measured half), the jump chips (`exNavHTML` / `exJump`, short
+  `ex.nav_*` labels) and five `exStation()` blocks:
+  **1 Listen** (the old Delivery + Texture + pitch + your audio),
+  **2 Fix** (`exCorrHTML`: `corrections[]` — `said → fix → why`, tagged
+  tense/article/plural/preposition/word form/word choice/agreement/word order —
+  then credibility, the hedge rewrites and the filler/hedge chips),
+  **3 Build** (key message / sharper / structure, then `exSentHTML`:
+  `sentences[]`, three of the learner's OWN sentences rebuilt with the
+  reusable `pattern` drawn as fillable `[slot]` pills, `exSlots`),
+  **4 Upgrade** (`exWordsHTML` `words[]` their word → the professional word,
+  `exCollHTML` `collocations[]` the awkward pairings, idioms now **4**, the
+  two full versions, and **Save everything** `exSaveAll` → `vocPut` +
+  the dictionary seed),
+  **5 Say it again** (`exCarryHTML`: the previous report's `rep.targets`
+  scored against THIS transcript by `exHit` — loose enough for inflection,
+  strict enough to be a fact — then quick win, remember, the assignment
+  `exAssignHTML` and Record again).
+  `rep.targets` (`exTargets`: 2 idioms + 2 word upgrades) is stored on the
+  report because the next one is marked against it. Worker: `AN_MODEL` is
+  **gpt-4.1-mini** (4o-mini invented corrections the learner never said),
+  `max_tokens` 4200, and `callAnalyse` **verifies every new item against the
+  transcript** before returning it — an item whose `said` is not in the
+  transcript is dropped, and an ABSENT `corrections` field (an older Worker)
+  renders nothing while an EMPTY one says the English held up. Test:
+  `tests/polish-report.mjs` (20 checks incl. French). i18n: the new `ex.*`
+  keys are translated in fr / es / pt / ar and carry the English text in the
+  other 11 (same as the rest of the Polish keys) — parity is 2,625 keys in
+  every file.
 - **Shadowing Studio**: pick/paste a YouTube clip → a **focused full-screen
   workspace** (`.sh-work`, opened by `shLoad`→`shOpenWork`, closed by
   `shCloseWork`) with player, clip marking, transcript, record, waveform, posture

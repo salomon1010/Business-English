@@ -2668,6 +2668,73 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-again{display:flex;flex-direction:column;gap:10px;margin-top:18px}
 .ex-audio{width:100%;height:40px}
 .ex-tx{font-size:13.5px;line-height:1.65;color:var(--mut);margin:0}
+/* ---- the five-station report ---- */
+.ex-plan-lead{font-size:14.5px;line-height:1.55;color:var(--mut);margin:12px 0 10px}
+.ex-level{display:flex;align-items:center;gap:12px;margin:10px 0 2px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid var(--line2);background:var(--bg2)}
+.ex-level-b{flex:none;min-width:52px;text-align:center;font-size:18px;font-weight:800;letter-spacing:-.4px;padding:8px 10px;border-radius:10px;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.ex-level .ex-k{margin:0 0 2px}
+.ex-level p{margin:0;font-size:13.5px;line-height:1.5;color:var(--txt)}
+.ex-coach{margin:12px 0 4px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.ex-coach-btn{min-height:44px;width:100%}
+.ex-coach-btn.on{background:var(--red);border-color:transparent}
+.ex-coach-live{display:none;align-items:center;gap:8px;margin-top:10px;font-size:12.5px;color:var(--mut)}
+.ex-coach-live.on,.ex-coach-live.done,.ex-coach-live.stopped{display:flex}
+.ex-coach-bars{display:none;align-items:flex-end;gap:3px;height:16px}
+.ex-coach-live.on .ex-coach-bars{display:flex}
+.ex-coach-bars i{width:3px;height:6px;border-radius:2px;background:var(--acc);animation:exbar 900ms ease-in-out infinite}
+@keyframes exbar{0%,100%{height:5px}50%{height:16px}}
+.ex-coach-script{margin-top:10px;max-height:190px;overflow:auto}
+.ex-coach-script p{margin:0 0 7px;font-size:14px;line-height:1.6;color:var(--mut);transition:color .2s}
+.ex-coach-script p.now{color:var(--txt);font-weight:600}
+.ex-nav{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.ex-nav::-webkit-scrollbar{display:none}
+.ex-navb{flex:none;display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;border:1px solid var(--line2);background:var(--card);color:var(--txt);font-size:12.5px;font-weight:600;cursor:pointer;min-height:38px}
+.ex-navb:hover{border-color:var(--acc)}
+.ex-navn{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);font-size:11.5px;font-weight:800}
+.ex-navl{white-space:nowrap}
+.ex-station{scroll-margin-top:72px;border-radius:14px;transition:background .5s}
+.ex-station.ex-flash{background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.ex-st-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ex-st-head .ex-sechead{flex:1 1 180px;margin-bottom:0}
+.ex-st-n{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-size:13px;font-weight:800}
+.ex-st-min{flex:none;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2)}
+.ex-corrs,.ex-words,.ex-colls,.ex-sents{display:flex;flex-direction:column;gap:10px}
+.ex-corr,.ex-word,.ex-coll{padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--bg2)}
+.ex-corr-kind{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.ex-corr-kind svg{width:14px;height:14px}
+.ex-corr-line{display:grid;grid-template-columns:auto 1fr;gap:4px 8px;align-items:baseline;font-size:15px;line-height:1.5}
+.ex-corr-line s{grid-column:1/-1;color:var(--mut)}
+.ex-corr-arrow{grid-column:1;color:var(--mut2)}
+.ex-corr-line b{grid-column:2;font-weight:700;color:var(--green)}
+.ex-corr-why{margin:7px 0 0;font-size:13.5px;line-height:1.55;color:var(--mut)}
+.ex-acts-sm{margin-top:10px}
+.ex-acts-sm .btn{padding:7px 11px;font-size:13px;min-height:38px}
+.ex-sent{padding:14px;border-radius:14px;border:1px solid var(--line2);background:var(--bg2);position:relative}
+.ex-sent-n{position:absolute;top:12px;right:14px;font-size:12px;font-weight:800;color:var(--mut2)}
+.ex-sent-said p,.ex-sent-new p{margin:2px 0 0;font-size:15px;line-height:1.55}
+.ex-sent-said p{color:var(--mut);font-style:italic}
+.ex-sent-new{margin-top:10px}
+.ex-sent-new p{font-weight:600}
+.ex-pattern{margin-top:12px;padding:11px 12px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--acc) 50%,transparent);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.ex-pat-l{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc)}
+.ex-pat-l svg{width:14px;height:14px}
+.ex-pat-t{margin:6px 0 0;font-size:15px;line-height:1.7;font-weight:600}
+.ex-slot{display:inline-block;padding:1px 8px;margin:0 2px;border-radius:7px;font-size:13px;font-weight:700;color:var(--acc);background:color-mix(in srgb,var(--acc) 15%,transparent)}
+.ex-pat-use{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--mut)}
+.ex-saveall{width:100%;min-height:46px;margin-top:16px}
+.ex-carry{margin-bottom:6px;padding:12px 14px;border-radius:var(--r-md,12px);border:1px solid var(--line2);background:var(--bg2)}
+.ex-carry .ex-k{margin-top:0}
+.ex-carry-score{margin:0 0 8px;font-size:14px;color:var(--mut)}
+.ex-carry-score b{font-size:22px;font-weight:800;color:var(--green);margin-right:2px}
+.ex-tic.ok{border-color:var(--green);color:var(--green)}
+.ex-tic.miss{color:var(--mut)}
+.ex-tic.goal{border-color:color-mix(in srgb,var(--gold) 55%,transparent);color:var(--gold)}
+.ex-tic.ok svg,.ex-tic.miss svg{width:14px;height:14px}
+.ex-assign{margin-top:14px}
+.ex-assign-task{margin:0 0 4px;font-size:15.5px;line-height:1.55;font-weight:600}
+.ex-concept-in{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.ex-concept-in .ex-concept-t{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:700}
+@media(max-width:420px){.ex-st-head .ex-sechead{flex-basis:100%}}
 .ex-sec{margin:12px 0 0}
 .ex-note{font-size:12.5px;color:var(--gold);margin-bottom:10px;line-height:1.5}
 .ex-aiprompt{min-height:44px;margin-top:12px}
@@ -6806,13 +6873,13 @@ const I18N_EN={
  "ex.how_lead":"Before the meeting, say the thing you are going to say anyway — and find out how it lands before anyone else does.",
  "ex.how_1":"Tap the mic and talk for about a minute — your project, your role, the update you owe someone — or type it. Say it the way it comes out; rough is fine. Then Polish it.",
  "ex.how_2":"The app writes down what you said and measures how you said it: pace, pauses, how much your voice moves, filler words, hedges.",
- "ex.how_3":"You get the same thing said two other ways a leader would say it — your facts, with the new idioms and professional phrases marked — plus your speech in numbers, your key message and the one thing to work on next.",
- "ex.how_4":"And three new idioms chosen for your topic, to start using in your next conversation. Save them, say the versions aloud, record again — and hear the difference.",
+ "ex.how_3":"The report comes back in five steps: how you came across, your mistakes corrected with the rule behind each, your own sentences rebuilt on patterns you can reuse, your words upgraded — and the minute to record again.",
+ "ex.how_4":"Save the new words and idioms, say the rebuilt sentences aloud, then record the same minute again. The next report counts how many of them you actually used.",
  "ex.how_demo_idiom":"To finish something that was hard to complete. “Two more days and we get it over the line.”",
  "ex.how_try":"Try it now",
  "ex.page_eyebrow":"Executive Polish — say it like a leader",
  "ex.page_title":"Speak. Polish. <em>Own it.</em>",
- "ex.page_sub":"Say it the way you always have — and hear it come back two ways a leader would say it, with the idioms and professional phrases that get you there. Speak them a few times, and that voice becomes yours.",
+ "ex.page_sub":"Speak for one minute. Spend five on what comes back — the way you sounded, the mistakes with their rule, your sentences rebuilt, your words upgraded — then say it again and hear the difference.",
  "ex.grip":"Drag to make the box taller",
  "ex.in_ph":"Tap the mic and speak for about a minute — or type what you said here.",
  "ex.clear_btn":"Clear",
@@ -6822,7 +6889,7 @@ const I18N_EN={
  "ex.versions_sub":"The same message, your facts, said two ways a leader would — the new idioms and professional phrases are marked. Say each one aloud until it is yours.",
  "ex.version_new":"New in this version — tap to save",
  "ex.idioms_h":"New idioms to learn",
- "ex.idioms_sub":"Three professional idioms you did not use, chosen for your topic — start using them in your next conversation.",
+ "ex.idioms_sub":"Professional idioms you did not use, chosen for your topic — start using them in your next conversation.",
  "ex.idiom_new":"A new idiom for you to learn",
  "ex.idiom_meaning":"Meaning:",
  "ex.idiom_when":"When to use it:",
@@ -6922,6 +6989,61 @@ const I18N_EN={
  "ex.again_btn":"Record again",
  "ex.hear_me":"Hear yourself",
  "ex.transcript_h":"What you said",
+ /* --- the five-station report (22 Sep 2026): the coach's voice, the
+    corrections, the sentence patterns, the word upgrades and the carry-over
+    from the last take. Functional labels stay plain; the station names and
+    leads carry the transformation voice, because they are what makes someone
+    spend five minutes on one minute of speech. --- */
+ "ex.five_lead":"One minute spoken. Five minutes to make it yours — work down the five steps.",
+ "ex.st_min":"1 min",
+ /* Short labels for the jump chips; the stations keep the long titles. */
+ "ex.nav_listen":"Listen",
+ "ex.nav_fix":"Fix",
+ "ex.nav_build":"Build",
+ "ex.nav_upgrade":"Upgrade",
+ "ex.nav_again":"Say it again",
+ "ex.st_listen":"Hear how you came across",
+ "ex.st_listen_sub":"The things a listener feels but could never name.",
+ "ex.st_fix":"Fix what went wrong",
+ "ex.st_fix_sub":"Your own words, corrected — with the rule, so it holds next time.",
+ "ex.st_build":"Build the stronger sentence",
+ "ex.st_build_sub":"Your message, your structure, and patterns you can fill with anything.",
+ "ex.st_upgrade":"Upgrade your words",
+ "ex.st_upgrade_sub":"Sharper words, natural pairings, new idioms — every one of them yours to keep.",
+ "ex.st_again":"Say it again",
+ "ex.st_again_sub":"This is the minute that changes you. Record it before you leave.",
+ "ex.coach_play":"Play coach feedback",
+ "ex.coach_stop":"Stop",
+ "ex.coach_speaking":"The coach is speaking…",
+ "ex.coach_done":"That is the briefing. Now work down the five steps.",
+ "ex.coach_stopped":"Stopped.",
+ "ex.level_h":"Where this minute sits",
+ "ex.corr_none":"Nothing to correct in this minute — the English held up.",
+ "ex.corr_kind_other":"Wording",
+ "ex.hedge_fix_h":"Said with authority",
+ "ex.sent_h":"Your sentences, rebuilt",
+ "ex.sent_sub":"The same idea on a structure you can reuse tomorrow with different words.",
+ "ex.sent_said":"You said",
+ "ex.sent_built":"Built better",
+ "ex.sent_pattern":"The pattern to keep",
+ "ex.words_h":"Your word → the professional word",
+ "ex.words_sub":"Same meaning, more precision. This is what makes a room listen.",
+ "ex.coll_h":"Words that belong together",
+ "ex.coll_sub":"You were close. This is how it is actually said at work.",
+ "ex.save_all_btn":"Save everything to my words",
+ "ex.save_all_note":"Saved words come back in Practice until they are yours.",
+ "ex.saved_all_toast":"{{n}} saved to your words",
+ "ex.saved_all_btn":"Saved",
+ "ex.carry_h":"What you carried over",
+ "ex.carry_of":"phrases from the last report, used",
+ "ex.carry_fill_down":"{{n}} fewer filler words than last time.",
+ "ex.carry_fill_up":"{{n}} more filler words than last time.",
+ "ex.carry_fill_same":"The same number of filler words as last time.",
+ "ex.carry_hedge_down":"{{n}} fewer hedges.",
+ "ex.carry_hedge_up":"{{n}} more hedges.",
+ "ex.carry_hedge_same":"The same number of hedges.",
+ "ex.assign_open":"Open with this",
+ "ex.assign_use":"Use these in the next minute",
  "ex.last_h":"Last time",
  "ex.last_wpm":"{{n}} words/min",
  "ex.last_hes":"{{n}} hesitations",
@@ -14803,7 +14925,7 @@ function exReset(){
   ex.mr=null;ex.stream=null;ex.chunks=[];exListening=false;ex.phase="idle";
 }
 /* Leaving the page mid-recording must not leave the mic open. */
-function exLeave(){if(ex.phase==="rec"){exReset()}}
+function exLeave(){exCoachStop();if(ex.phase==="rec"){exReset()}}
 
 /* ---------- recording ---------- */
 window.exRecord=async()=>{
@@ -14851,6 +14973,7 @@ function exWaitHTML(step){
 }
 function exStep(msg){const s=document.getElementById("exStep");if(s)s.textContent=msg}
 async function exRun(src){
+  exCoachStop();
   ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
   exReportShow(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));exStatus(t("ex.busy_status"));
   let text=src.text||"",words=null,audio=null,sttFailed=false;
@@ -14874,7 +14997,10 @@ async function exRun(src){
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
   const ai=await exAI(text,m);
-  const rep={at:Date.now(),tk:areaId(),m,ai:ai||null,tx:text,sttFailed};
+  /* targets = the phrases this report hands over. The next recording is marked
+     against them (exCarryHTML), so the assignment has to be stored, not
+     recomputed from an AI answer that will be different next time. */
+  const rep={at:Date.now(),tk:areaId(),m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
   ex.report=rep;
   const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
@@ -15138,6 +15264,251 @@ window.exSaveTerm=(term,meaning,example,btn)=>{
   save();toast(t("ex.saved_toast",{w:term}));
   if(btn){btn.disabled=true;btn.innerHTML=ic("check")+" "+esc(term);manIconizeInline(btn)}
 };
+/* ---------- the coach's voice ----------
+   The report is heard as well as read. The model writes an 80-word briefing
+   (coach_script); the app speaks it in the natural voice one sentence at a
+   time and highlights the sentence being said, so a learner who reads English
+   slowly still gets the verdict. Without the AI the briefing is assembled from
+   the measured half in the app's language, so the button is never dead. Same
+   shape as the Practice Partner coach — one behaviour to learn, one Stop. */
+let exCoachOn=false;
+function exCoachLines(rep){
+  const ai=rep.ai,m=rep.m;
+  const split=x=>(String(x).match(/[^.!?]+[.!?]+["”']?/g)||[String(x)]).map(y=>y.trim()).filter(Boolean);
+  if(ai&&ai.coach_script)return split(ai.coach_script).slice(0,10);
+  const out=[];
+  const d=exDeliveryNote(m);if(d)out.push(d);
+  const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
+  out.push(qw.title+". "+qw.goal);
+  if(ai&&ai.sharper)out.push(ai.sharper);
+  if(ai&&ai.next_recording)out.push(ai.next_recording);
+  return out;
+}
+function exCoachHTML(rep){
+  const lines=exCoachLines(rep);if(!lines.length)return "";
+  return `<div class="ex-coach" id="exCoach">
+    <button class="btn btn-p ex-coach-btn" id="exCoachBtn" onclick="exCoach()">${ic("play")} ${esc(t("ex.coach_play"))}</button>
+    <div class="ex-coach-live" id="exCoachLive"><span class="ex-coach-bars" aria-hidden="true">${[0,1,2,3].map(i=>`<i style="animation-delay:${i*130}ms"></i>`).join("")}</span><span id="exCoachState"></span></div>
+    <div class="ex-coach-script" id="exCoachScript">${lines.map((l,i)=>`<p data-i="${i}">${esc(l)}</p>`).join("")}</div>
+  </div>`;
+}
+window.exCoach=async()=>{
+  if(exCoachOn){exCoachStop();return}
+  const rep=ex.report;if(!rep)return;
+  const lines=exCoachLines(rep);if(!lines.length)return;
+  exCoachOn=true;exCoachPaint(true);
+  const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
+  const speakBrowser=s2=>new Promise(res=>{try{fbStopAudio();fbSayBrowser(s2,1)}catch(e){return res()}const t0=Date.now();const chk=setInterval(()=>{if(!exCoachOn||!speechSynthesis.speaking||Date.now()-t0>15000){clearInterval(chk);res()}},250)});
+  try{
+    for(let i=0;i<lines.length;i++){
+      if(!exCoachOn)break;
+      exCoachLine(i);
+      if(canApi){try{await fbSayLine(lines[i],ttsVoice(fbVoicePref(),"f"),"a warm, unhurried English coach explaining one point at a time",()=>exCoachOn)}catch(e){if(exCoachOn)await speakBrowser(lines[i])}}
+      else await speakBrowser(lines[i]);
+      if(exCoachOn)await new Promise(res=>setTimeout(res,320));
+    }
+  }finally{
+    const reachedEnd=exCoachOn;exCoachOn=false;
+    if(reachedEnd)exCoachPaint(false,"done");
+  }
+};
+window.exCoachStop=()=>{if(!exCoachOn)return;exCoachOn=false;fbStopAudio();try{speechSynthesis.cancel()}catch(e){}exCoachPaint(false,"stopped")};
+function exCoachPaint(on,end){
+  const b=document.getElementById("exCoachBtn");if(!b)return;
+  b.innerHTML=(on?ic("stop"):ic("play"))+" "+esc(on?t("ex.coach_stop"):t("ex.coach_play"));b.classList.toggle("on",!!on);
+  manIconizeInline(b);
+  const live=document.getElementById("exCoachLive"),st=document.getElementById("exCoachState");
+  if(!live)return;
+  live.classList.remove("on","done","stopped");
+  if(on){live.classList.add("on");if(st)st.textContent=t("ex.coach_speaking")}
+  else{
+    document.querySelectorAll("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
+    if(end){live.classList.add(end);if(st)st.textContent=t(end==="done"?"ex.coach_done":"ex.coach_stopped")}
+    else if(st)st.textContent="";
+  }
+}
+function exCoachLine(i){
+  document.querySelectorAll("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
+  const el=document.querySelector(`#exCoachScript p[data-i="${i}"]`);
+  if(el){el.classList.add("now");try{el.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(e){}}
+}
+
+/* ---------- five stations ----------
+   A minute of speech is worth five minutes of work only if the work has an
+   order. Listen, Fix, Build, Upgrade, Say it again — about a minute each, with
+   a chip row that jumps between them. The last one is the point: the research
+   on second-language speaking is blunt that the gain comes from being made to
+   say it again, not from reading a rewrite, so the report ends at the
+   microphone and the NEXT report scores what was carried over. */
+const EX_STATIONS=[["listen","sound"],["fix","pencil"],["build","list"],["upgrade","sparkle"],["again","mic"]];
+function exNavHTML(){
+  return `<div class="ex-nav" role="navigation">${EX_STATIONS.map((s,i)=>
+    `<button class="ex-navb" onclick="exJump('${s[0]}')"><span class="ex-navn">${i+1}</span><span class="ex-navl">${esc(t("ex.nav_"+s[0]))}</span></button>`).join("")}</div>`;
+}
+window.exJump=id=>{
+  const el=document.getElementById("exSt-"+id);if(!el)return;
+  try{el.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){el.scrollIntoView()}
+  el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1400);
+};
+function exStation(id,n,icon,title,sub,body){
+  return `<section class="ex-block ex-station" id="exSt-${id}">
+    <div class="ex-st-head"><span class="ex-st-n">${n}</span>${exSec(icon,title,sub)}<span class="ex-st-min">${esc(t("ex.st_min"))}</span></div>
+    ${body}
+  </section>`;
+}
+/* ---- 2 · Fix: the real mistakes, each with the rule behind it ----
+   A rewrite teaches nothing on its own; the rule is what transfers to the next
+   sentence. Every correction quotes the learner (the Worker drops any that
+   does not appear in the transcript), names the kind, and can be heard. */
+const EX_KIND_IC={tense:"clock",article:"doc",plural:"list",preposition:"link",
+  "word form":"pencil","word choice":"sparkle",agreement:"check","word order":"repeat"};
+function exCorrHTML(ai){
+  /* An absent field is an older Worker that never looked for mistakes; an empty
+     array is a Worker that looked and found none. Only the second one is
+     allowed to tell the learner their English held up. */
+  if(!ai||!Array.isArray(ai.corrections))return "";
+  const cs=ai.corrections;
+  if(!cs.length)return `<p class="ex-none">${esc(t("ex.corr_none"))}</p>`;
+  return `<div class="ex-corrs">${cs.map((c,i)=>`<div class="ex-corr">
+    <span class="ex-corr-kind">${ic(EX_KIND_IC[c.kind]||"pencil")} ${esc(c.kind||t("ex.corr_kind_other"))}</span>
+    <div class="ex-corr-line"><s>${esc(c.said)}</s><span class="ex-corr-arrow">&rarr;</span><b>${esc(c.fix)}</b></div>
+    <p class="ex-corr-why">${esc(c.why)}</p>
+    <div class="ex-acts ex-acts-sm">
+      <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.fix)},1)">${tIc("ex.hear_btn","sound")}</button>
+      <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.fix)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+      <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(c.fix)},${jarg(c.why)},${jarg(c.fix)},this)">${tIc("ex.save_btn","bookmark")}</button>
+    </div></div>`).join("")}</div>`;
+}
+/* ---- 3 · Build: their own sentences, rebuilt on a pattern they can reuse ----
+   The rebuild alone is a fish; the pattern is the net. Each card shows the
+   sentence they said, the same idea on a stronger structure, and the frame
+   with its slots — the thing they can fill with tomorrow's content. */
+function exSentHTML(ai){
+  const ss=(ai&&Array.isArray(ai.sentences))?ai.sentences:[];
+  if(!ss.length)return "";
+  return `<div class="ex-sents">
+    <div class="ex-k">${esc(t("ex.sent_h"))}</div>
+    <p class="ex-sec-sub">${esc(t("ex.sent_sub"))}</p>
+    ${ss.map((x,i)=>`<div class="ex-sent">
+      <div class="ex-sent-n">${i+1}</div>
+      <div class="ex-sent-said"><span class="ex-q-l">${esc(t("ex.sent_said"))}</span><p>${esc(x.said)}</p></div>
+      <div class="ex-sent-new"><span class="ex-q-l">${esc(t("ex.sent_built"))}</span><p>${esc(x.rebuilt)}</p></div>
+      <div class="ex-pattern"><span class="ex-pat-l">${ic("blueprint")} ${esc(t("ex.sent_pattern"))}</span>
+        <p class="ex-pat-t">${exSlots(x.pattern)}</p>
+        ${x.pattern_use?`<p class="ex-pat-use">${esc(x.pattern_use)}</p>`:""}</div>
+      <div class="ex-acts ex-acts-sm">
+        <button class="btn ex-copy" onclick="navigator.clipboard.writeText(${jarg(x.rebuilt)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(x.rebuilt)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(x.rebuilt)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+/* [slot] markers in a pattern are the part the learner replaces — shown as
+   fillable blanks rather than punctuation they might read out loud. */
+function exSlots(pattern){
+  return esc(String(pattern||"")).replace(/\[([^\]]{1,40})\]/g,(m,w)=>`<span class="ex-slot">${w}</span>`);
+}
+/* ---- 4 · Upgrade: the words, the pairings, the idioms ----
+   Collocation is where a B1 speaker actually loses the room — "do a training"
+   for "run a training session" — so awkward pairings get their own lane next
+   to single-word upgrades. Everything here saves into the word bank, which is
+   what brings it back tomorrow in the games. */
+function exWordsHTML(ai){
+  const ws=(ai&&Array.isArray(ai.words))?ai.words:[];
+  if(!ws.length)return "";
+  return `<div class="ex-words">
+    <div class="ex-k">${esc(t("ex.words_h"))}</div>
+    <p class="ex-sec-sub">${esc(t("ex.words_sub"))}</p>
+    ${ws.map(w=>`<div class="ex-word">
+      <div class="ex-corr-line"><s>${esc(w.said)}</s><span class="ex-corr-arrow">&rarr;</span><b>${esc(w.better)}</b></div>
+      ${w.meaning?`<p class="ex-corr-why">${esc(w.meaning)}</p>`:""}
+      ${w.example?`<p class="ex-p ex-ex">${esc(w.example)}</p>`:""}
+      <div class="ex-acts ex-acts-sm">
+        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(w.example||w.better)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(w.better)},${jarg(w.meaning||"")},${jarg(w.example||"")},this)">${tIc("ex.save_btn","bookmark")}</button>
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+function exCollHTML(ai){
+  const cs=(ai&&Array.isArray(ai.collocations))?ai.collocations:[];
+  if(!cs.length)return "";
+  return `<div class="ex-colls">
+    <div class="ex-k">${esc(t("ex.coll_h"))}</div>
+    <p class="ex-sec-sub">${esc(t("ex.coll_sub"))}</p>
+    ${cs.map(c=>`<div class="ex-coll">
+      <div class="ex-corr-line"><s>${esc(c.said)}</s><span class="ex-corr-arrow">&rarr;</span><b>${esc(c.better)}</b></div>
+      ${c.why?`<p class="ex-corr-why">${esc(c.why)}</p>`:""}
+      <div class="ex-acts ex-acts-sm">
+        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.better)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(c.better)},${jarg(c.why||"")},'',this)">${tIc("ex.save_btn","bookmark")}</button>
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+/* One press puts every new word, pairing and idiom in this report into the
+   word bank with its meaning and example, so the five minutes end with a
+   deck rather than a decision about each chip. */
+window.exSaveAll=btn=>{
+  const ai=ex.report&&ex.report.ai;if(!ai)return;
+  let n=0;
+  (ai.words||[]).forEach(w=>{if(w.better){exSaveQuiet(w.better,w.meaning,w.example);n++}});
+  (ai.collocations||[]).forEach(c=>{if(c.better){exSaveQuiet(c.better,c.why,"");n++}});
+  (ai.idioms||[]).forEach(x=>{if(x.idiom){exSaveQuiet(x.idiom,x.meaning,x.example);n++}});
+  save();toast(t("ex.saved_all_toast",{n}));
+  if(btn){btn.disabled=true;btn.innerHTML=ic("check")+" "+esc(t("ex.saved_all_btn"));manIconizeInline(btn)}
+  document.querySelectorAll(".ex-report .ex-save").forEach(b=>{if(!b.disabled){b.disabled=true;b.innerHTML=ic("check");manIconizeInline(b)}});
+};
+function exSaveQuiet(term,meaning,example){
+  term=String(term||"").replace(/…/g,"").trim().replace(/\s+/g," ");if(!term)return;
+  const e=vocPut(term,cefr(term)||"B2");
+  Object.assign(e,{meaning:meaning||e.meaning||"",example:example||e.example||"",ctx:t("ex.report_eyebrow"),src:{ex:true,at:Date.now()}});
+  try{const store=vocDefStore();store[term]={def:meaning||"",example:example||"",pos:t("ex.report_eyebrow"),ts:Date.now()};vocDefSave()}catch(x){}
+}
+/* ---- 5 · Say it again ----
+   The assignment is the phrases this report handed over; the next recording is
+   marked against them. exHit is deliberately loose — an idiom comes back
+   inflected ("got the ball rolling") — but it only ever counts words the
+   learner really said, so "2 of 4" is a fact, not encouragement. */
+function exTargets(ai){
+  if(!ai)return [];
+  const out=[];
+  (ai.idioms||[]).slice(0,2).forEach(x=>{if(x.idiom)out.push(x.idiom)});
+  (ai.words||[]).slice(0,2).forEach(w=>{if(w.better)out.push(w.better)});
+  return out.slice(0,4);
+}
+function exHit(tx,phrase){
+  const norm=x=>String(x||"").toLowerCase().replace(/[^a-z' ]+/g," ").replace(/\s+/g," ").trim();
+  const T=" "+norm(tx)+" ",words=norm(phrase).split(" ").filter(w=>w.length>2);
+  if(!words.length)return false;
+  if(T.includes(" "+norm(phrase)+" "))return true;
+  const stem=w=>w.replace(/(ing|ed|es|s)$/,"");
+  const hit=words.filter(w=>T.includes(" "+w+" ")||T.includes(" "+stem(w))).length;
+  return words.length===1?hit===1:hit/words.length>=0.7;
+}
+function exCarryHTML(rep,prev){
+  if(!prev||!prev.targets||!prev.targets.length)return "";
+  const used=prev.targets.map(p=>({p,ok:exHit(rep.tx||"",p)})),n=used.filter(u=>u.ok).length;
+  const d=(k,better)=>{if(!prev.m||prev.m[k]==null||rep.m[k]==null)return null;const x=rep.m[k]-prev.m[k];return {x,good:better==="down"?x<0:x>0}};
+  const fill=d("fillerN","down"),hedge=d("hedgeN","down");
+  return `<div class="ex-carry">
+    <div class="ex-k">${esc(t("ex.carry_h"))}</div>
+    <p class="ex-carry-score"><b>${n}</b>/${used.length} ${esc(t("ex.carry_of"))}</p>
+    <div class="ex-chips">${used.map(u=>`<span class="ex-tic ${u.ok?"ok":"miss"}">${ic(u.ok?"check":"close")} ${esc(u.p)}</span>`).join("")}</div>
+    ${(fill||hedge)?`<p class="ex-fine">${[fill?t(fill.x===0?"ex.carry_fill_same":fill.good?"ex.carry_fill_down":"ex.carry_fill_up",{n:Math.abs(fill.x)}):"",
+       hedge?t(hedge.x===0?"ex.carry_hedge_same":hedge.good?"ex.carry_hedge_down":"ex.carry_hedge_up",{n:Math.abs(hedge.x)}):""].filter(Boolean).join(" ")}</p>`:""}
+  </div>`;
+}
+function exAssignHTML(rep){
+  const ai=rep.ai,tg=rep.targets||[];
+  const script=(ai&&(ai.sharper||((ai.versions||[])[0]||{}).text))||"";
+  return `<div class="ex-assign">
+    ${ai&&ai.next_recording?`<div class="ex-k">${esc(t("ex.next_rec"))}</div><p class="ex-assign-task">${esc(ai.next_recording)}</p>`:""}
+    ${script?`<div class="ex-k">${esc(t("ex.assign_open"))}</div><div class="ex-best"><p class="ex-best-t">${esc(script)}</p>${exActs(script,true)}</div>`:""}
+    ${tg.length?`<div class="ex-k">${esc(t("ex.assign_use"))}</div><div class="ex-chips">${tg.map(x=>`<span class="ex-tic goal">${esc(x)}</span>`).join("")}</div>`:""}
+  </div>`;
+}
 function exRenderReport(rep,quiet){
   const m=rep.m,ai=rep.ai,prev=exReps().find(r=>r!==rep&&r.at<rep.at)||null;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
@@ -15152,11 +15523,12 @@ function exRenderReport(rep,quiet){
     <div class="ex-report">
     ${rep.sttFailed?`<p class="ex-note">${esc(t("ex.stt_off"))}</p>`:""}
 
-    ${exVersionsHTML(ai)}
-    ${exIdiomsHTML(ai)}
+    ${ai&&ai.level?`<div class="ex-level"><span class="ex-level-b">${esc(ai.level)}</span><div><div class="ex-k">${esc(t("ex.level_h"))}</div>${ai.level_note?`<p>${esc(ai.level_note)}</p>`:""}</div></div>`:""}
+    ${exCoachHTML(rep)}
+    <p class="ex-plan-lead">${esc(t("ex.five_lead"))}</p>
+    ${exNavHTML()}
 
-    <section class="ex-block">
-      ${exSec("gauge",t("ex.delivery_h"),t("ex.delivery_sub"))}
+    ${exStation("listen",1,"sound",t("ex.st_listen"),t("ex.st_listen_sub"),`
       <div class="ex-stats">
         ${exStatHTML("wpm",m.wpm,"ex.wpm")}
         ${exStatHTML("semis",m.semis,"ex.semis",v=>v.toFixed(1))}
@@ -15165,61 +15537,62 @@ function exRenderReport(rep,quiet){
       ${delta("wpm")?`<p class="ex-fine">${delta("wpm")}</p>`:""}
       ${exPitchSVG(m)}
       ${exQuote("",exDeliveryNote(m))}
-    </section>
-
-    <section class="ex-block">
-      ${exSec("list",t("ex.texture_h"))}
+      <div class="ex-k">${esc(t("ex.texture_h"))}</div>
       <div class="ex-stats ex-stats-2">
         ${exStatHTML("ttr",m.ttr,"ex.vocab",v=>v+"<small>%</small>")}
         ${exStatHTML("wps",m.wps,"ex.wps")}
       </div>
       ${exQuote("",exTextureNote(m))}
-    </section>
+      ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}`)}
 
-    ${ai?`<section class="ex-block">
-      ${exSec("target",t("ex.msg_h"))}
-      <div class="ex-k">${esc(t("ex.key_msg"))}</div>
-      <p class="ex-keymsg">“${esc(ai.key_message)}”</p>
+    ${exStation("fix",2,"pencil",t("ex.st_fix"),t("ex.st_fix_sub"),`
+      ${exCorrHTML(ai)}
+      ${ai&&ai.credibility?`<div class="ex-k">${esc(t("ex.cred_signals"))}</div>${exQuote("",ai.credibility)}`:""}
+      ${ai&&ai.hedges&&ai.hedges.length?`<div class="ex-k">${esc(t("ex.hedge_fix_h"))}</div>
+        <div class="ex-fixes">${ai.hedges.map(h=>`<div class="ex-fix"><s>${esc(h.said)}</s><span>&rarr;</span><b>${esc(h.better)}</b></div>`).join("")}</div>`:""}
+      <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("chart")}</span>${t("ex.tics")}<span class="hm-chev">${ic("chevron")}</span></summary>
+        <div class="home-more-body">
+          <div class="ex-tic-k">${esc(t("ex.fillers"))}</div>${exChips(m.fillers)}
+          <div class="ex-tic-k">${esc(t("ex.hedges"))}</div>${exChips(m.hedges,"warn")}
+        </div></details>`)}
+
+    ${exStation("build",3,"list",t("ex.st_build"),t("ex.st_build_sub"),`
+      ${ai?`<div class="ex-k">${esc(t("ex.key_msg"))}</div>
+      <p class="ex-keymsg">&ldquo;${esc(ai.key_message)}&rdquo;</p>
       <div class="ex-clar"><span class="${ai.clarity==="clear"?"on":""}">${esc(t("ex.clear"))}</span><span class="${ai.clarity==="fuzzy"?"on warn":""}">${esc(t("ex.fuzzy"))}</span></div>
       ${ai.sharper?`<div class="ex-k">${esc(t("ex.sharper"))}</div>
       <div class="ex-best"><p class="ex-best-t">${esc(ai.sharper)}</p>${exActs(ai.sharper,true)}</div>`:""}
       ${ai.structure&&ai.structure.length?`<div class="ex-k">${esc(t("ex.structure"))}</div>
-      <ol class="ex-struct">${ai.structure.map((s,i)=>`<li><span>${String(i+1).padStart(2,"0")}</span>${esc(s)}</li>`).join("")}</ol>
+      <ol class="ex-struct">${ai.structure.map((x,i)=>`<li><span>${String(i+1).padStart(2,"0")}</span>${esc(x)}</li>`).join("")}</ol>
       ${ai.structure_note?exQuote("",ai.structure_note):""}`:""}
       ${ai.answer_directly?`<div class="ex-k">${esc(t("ex.answer"))}</div><p class="ex-p">${esc(ai.answer_directly)}</p>`:""}
       ${ai.example?`<div class="ex-k">${esc(t("ex.example"))}</div><p class="ex-p ex-ex">${esc(ai.example)}</p>${exActs(ai.example)}`:""}
-      ${ai.evidence?`<div class="ex-k">${esc(t("ex.evidence"))}</div>${exQuote("",ai.evidence)}`:""}
-    </section>`:""}
+      ${ai.evidence?`<div class="ex-k">${esc(t("ex.evidence"))}</div>${exQuote("",ai.evidence)}`:""}`:`<p class="ex-note">${esc(t("ex.ai_off"))}</p>`}
+      ${exSentHTML(ai)}`)}
 
-    <section class="ex-block">
-      ${exSec("shield",t("ex.cred_h"))}
-      ${ai&&ai.credibility?`<div class="ex-k">${esc(t("ex.cred_signals"))}</div>${exQuote("",ai.credibility)}`:""}
-      <div class="ex-k">${esc(t("ex.tics"))}</div>
-      <div class="ex-tic-k">${esc(t("ex.fillers"))}</div>${exChips(m.fillers)}
-      <div class="ex-tic-k">${esc(t("ex.hedges"))}</div>${exChips(m.hedges,"warn")}
-      ${ai&&ai.hedges&&ai.hedges.length?`<div class="ex-fixes">${ai.hedges.map(h=>`<div class="ex-fix"><s>${esc(h.said)}</s><span>→</span><b>${esc(h.better)}</b></div>`).join("")}</div>`:""}
-    </section>
+    ${exStation("upgrade",4,"sparkle",t("ex.st_upgrade"),t("ex.st_upgrade_sub"),`
+      ${exWordsHTML(ai)}
+      ${exCollHTML(ai)}
+      ${exIdiomsHTML(ai)}
+      ${exVersionsHTML(ai)}
+      ${(ai&&((ai.words||[]).length||(ai.idioms||[]).length||(ai.collocations||[]).length))?`<button class="btn-primary ex-saveall" onclick="exSaveAll(this)">${tIc("ex.save_all_btn","bookmark")}</button><p class="ex-fine">${esc(t("ex.save_all_note"))}</p>`:""}`)}
 
-    <section class="ex-block">
-      ${exSec("rocket",t("ex.plan_h"))}
-      ${ai&&ai.remember_title?`<div class="ex-k">${esc(t("ex.remember"))}</div><h4 class="ex-h4">${esc(ai.remember_title)}</h4><p class="ex-p">${esc(ai.remember_body)}</p>`:""}
-      ${ai&&ai.next_recording?`<div class="ex-next"><div class="ex-k">${esc(t("ex.next_rec"))}</div><p>${esc(ai.next_recording)}</p></div>`:""}
+    ${exStation("again",5,"mic",t("ex.st_again"),t("ex.st_again_sub"),`
+      ${exCarryHTML(rep,prev)}
       <div class="ex-k">${esc(t("ex.quick_win"))}</div>
       <h4 class="ex-h4">${esc(qw.title)}</h4>
       ${exQuote(t("ex.goal"),qw.goal,"gold")}
-      ${!ai?`<p class="ex-note">${esc(t("ex.ai_off"))}</p>`:""}
-    </section>
+      ${ai&&ai.remember_title?`<div class="ex-k">${esc(t("ex.remember"))}</div><h4 class="ex-h4">${esc(ai.remember_title)}</h4><p class="ex-p">${esc(ai.remember_body)}</p>`:""}
+      ${exAssignHTML(rep)}
+      <div class="ex-concept-in">
+        <div class="ex-k">${esc(t("ex.concept_h"))}</div>
+        <h4 class="ex-h4 ex-concept-t">${esc(cp.title)}</h4>
+        ${exQuote(t("ex.concept_did"),cp.body,"gold")}
+      </div>
+      <div class="ex-again">
+        <button class="btn-primary ex-againbtn" onclick="exCoachStop();exStartAgain()">${tIc("ex.again_btn","mic")}</button>
+      </div>`)}
 
-    <section class="ex-block ex-concept">
-      ${exSec("trophy",t("ex.concept_h"))}
-      <h4 class="ex-h4 ex-concept-t">${esc(cp.title)}</h4>
-      ${exQuote(t("ex.concept_did"),cp.body,"gold")}
-    </section>
-
-    <div class="ex-again">
-      <button class="btn-primary ex-againbtn" onclick="exStartAgain()">${tIc("ex.again_btn","mic")}</button>
-      ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}
-    </div>
     <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
       <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
     </div>
