@@ -2047,6 +2047,7 @@ html[dir="rtl"] .rm-cel-x{right:auto;left:8px}
 .ex-field textarea{padding-left:38px;width:100%;display:block}
 .ex-field-ta .ex-field-ic{top:15px;transform:none}
 textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
+textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of speech stays in view; taGrow stretches it, the drag handle too */
 @keyframes exPulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 9px rgba(239,68,68,0)}}
 /* "listening" is live state, so the pulse is motivated — but the red fill
    already carries the meaning without it. */
@@ -2191,7 +2192,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
 .ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
 .ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:1 1 0;min-width:0;justify-content:center;min-height:44px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:0 0 50%;width:auto;min-height:44px;font-size:15px;margin:0}
-.ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}
+.ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}.ex-timer:empty{display:none}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
 .ex-polish{justify-content:center}.ex-polish:disabled{opacity:.6}
@@ -9548,7 +9549,7 @@ addEventListener("resize",()=>{if(document.getElementById("obWrap"))obFit()});
 function taGrow(el){
   if(!el)return;
   if(el.dataset.userSized)return;                 // manual drag wins
-  const max=Math.round(Math.max(220,window.innerHeight*0.6));
+  const max=el.classList.contains("ex-speech")?1e6:Math.round(Math.max(220,window.innerHeight*0.6));   // the speech box never clips: the whole transcript stays in view (owner, 2026-09-22)
   el.style.height="auto";
   el.style.height=Math.min(el.scrollHeight+2,max)+"px";
   el.style.overflowY=el.scrollHeight>max?"auto":"hidden";
@@ -13565,7 +13566,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v420";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v421";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -13651,7 +13652,6 @@ function exCardHTML(){
         <b>${tIc("ph.exec_title","briefcase")}</b>
         <span class="chip p3">${t("ph.exec_tag")}</span>
       </div>
-      ${subInfo(t("ph.exec_desc"),true)}
     </div>
     <div id="exStage">${exIdleHTML()}</div>
   </div>`;
@@ -13663,7 +13663,7 @@ function exCardHTML(){
 function exIdleHTML(){
   const txt=ex.draft||"";
   return `${exPromptHTML()}
-    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="4" class="grow-ta ex-ta" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea></div>
+    <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="8" class="grow-ta ex-ta ex-speech" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea></div>
     <div class="ex-btnrow">
       <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
@@ -14461,7 +14461,7 @@ function rPhrases(el){
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ex.page_eyebrow")}</div>
   <h1 class="big">${t("ex.page_title")}</h1>
-  ${subInfo(t("ex.page_sub"))}
+  ${subInfo(t("ex.page_sub")+"<br><br>"+t("ph.exec_desc"))}
   ${exCardHTML()}
   <div id="exReportWrap"></div>`;
   manIconizeInline(el);
@@ -14486,7 +14486,7 @@ function rPhraseBank(el,wFilter){
   <button class="back stick-back" onclick="go('phrases')">‹ ${esc(t("ph.exec_title").replace(/^[\p{Extended_Pictographic}️‍\s]+/u,""))}</button>
   <div class="eyebrow pg-eyebrow">${t("ph.eyebrow")}</div>
   <h1 class="big">${t("ph.title")}</h1>
-  ${subInfo(t("ph.sub"))}
+  ${subInfo(t("ph.sub")+"<br><br>"+t("ph.exec_desc"))}
   <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("ph.kind_tabs_label"))}">
     <button class="seg-tab ${_phKind==='phrases'?'on':''}" role="tab" aria-selected="${_phKind==='phrases'}" onclick="phKind('phrases')"><span class="btn-ic">${ic("chat")}</span><span class="seg-lbl">${t("ph.tab_phrases")}</span></button>
     <button class="seg-tab ${_phKind==='idioms'?'on':''}" role="tab" aria-selected="${_phKind==='idioms'}" onclick="phKind('idioms')"><span class="btn-ic">${ic("briefcase")}</span><span class="seg-lbl">${t("ph.tab_idioms")}</span></button>
