@@ -496,7 +496,7 @@ async function callAnalyse(env, transcript, metrics, lang) {
     "Judge what a listener judges: the key message, the structure, what makes the speaker credible, and the one change that matters most. " +
     "Then teach: correct the real mistakes with the rule behind each, rebuild their own sentences on patterns they can reuse, and upgrade their words. " +
     "Be concrete and specific: every item must quote the learner's own words. Never invent a sentence they did not say, and never invent facts. " +
-    "Write in " + language + ", EXCEPT key_message, sharper, example, the hedges' better versions, versions, idioms, coach_script and every said/fix/rebuilt/pattern/better field, which are lines the learner will SAY or READ ALOUD and must be in plain spoken English. " +
+    "Two languages are in play and mixing them up ruins the report; the rule is at the end of this prompt and it is not optional. " +
     "Respond with ONLY minified JSON, no code fences, exactly these keys: " +
     '{"key_message":"<the one thing they were saying, one sentence, English, in their words>",' +
     '"clarity":"clear"|"fuzzy",' +
@@ -523,11 +523,19 @@ async function callAnalyse(env, transcript, metrics, lang) {
     '"idioms":[{"idiom":"<a professional idiom or executive phrase the learner did NOT use>","meaning":"<plain meaning, one line>","when":"<the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
     "structure has 3 to 5 items of at most 6 words each; hedges has 0 to 3 items. " +
     "corrections: only real mistakes actually present in the transcript, at most 5, most damaging first, never the same rule twice; said must appear in the transcript word for word; if the English is already correct, return an empty array rather than inventing one. Ignore missing punctuation and capitalisation — this was speech. " +
-    "sentences: EXACTLY 3 (or one per sentence they said, if they said fewer). said must be copied from the transcript. Three different patterns, each a frame with slots they can fill with any content tomorrow. " +
-    "words: 4 to 6 upgrades of words they actually used; said must appear in the transcript; never upgrade a word into something a professional would not say out loud. " +
+    "sentences: EXACTLY 3 (or one per sentence they said, if they said fewer). said must be copied from the transcript. Three DIFFERENT patterns. A pattern is a content-free frame: every noun, number, month, job title and topic word of theirs becomes a [slot], and only the connective skeleton survives, so the frame still works tomorrow on a completely different subject. 2 or 3 slots, never more. \"so I suggest we [action] next month\" is wrong — the month is content; \"I am asking for [what] by [when]\" is right. " +
+    "words: 4 to 6 upgrades of words they actually used; said must appear in the transcript. An upgrade is a MORE PRECISE word, not a bigger one: never a plural or tense fix (that is a correction), never the same word with an adjective bolted on, never a bookish synonym nobody says out loud, and never a word already handled in corrections. If you cannot find 4 honest upgrades, return fewer. " +
     "collocations: 0 to 3, only genuinely unnatural pairings they used (e.g. 'do a training' -> 'run a training session'); an empty array is the right answer when everything sounded natural. " +
     "versions has EXACTLY 2 items: two different ways the learner could have said the same thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler, no hedging; version 1 plain and direct (B1), version 2 polished executive English (B2-C1). Each version must weave in 2 or 3 professional phrases or business idioms naturally and list them in learn, and versions and their learn items are always in English. " +
-    "idioms has EXACTLY 4 items: NEW professional idioms or executive phrases (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation; idiom and example in English, meaning and when in " + language + ".";
+    "idioms has EXACTLY 4 items: NEW professional idioms or executive phrases (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation. " +
+    /* Measured on the live Worker, 22 Sep 2026: with the language rule stated once,
+       mid-prompt, as a list of exceptions, a French learner got a report written
+       entirely in English. Most of this app's learners are francophone. So the rule
+       is last, it names both sets of fields, and it says what each set is FOR. */
+    "LANGUAGE — the report is bilingual and this is the most important instruction here. " +
+    "ENGLISH (what the learner will SAY OUT LOUD, so it must be plain spoken English): key_message, sharper, example, coach_script, every versions[].text and versions[].learn, every idioms[].idiom and idioms[].example, every hedges[].better, every corrections[].said and corrections[].fix, every sentences[].said, sentences[].rebuilt and sentences[].pattern, every words[].said, words[].better and words[].example, every collocations[].said and collocations[].better. " +
+    (lang === "en" ? "Everything else is in English too. " :
+      "EVERY OTHER FIELD (what the learner READS to understand — level_note, structure, structure_note, answer_directly, evidence, credibility, remember_title, remember_body, next_recording, quick_win_title, quick_win_goal, concept_title, concept_body, every corrections[].why and corrections[].kind, every sentences[].pattern_use, every words[].meaning, every collocations[].why, every idioms[].meaning and idioms[].when, and every versions[].style) MUST be written in " + language + ". Not English. A learner who reads " + language + " is reading these to understand the English ones. ");
   const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics);
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -575,9 +583,21 @@ async function callAnalyse(env, transcript, metrics, lang) {
     .map(x => x && typeof x === "object" ? { said: anStr(x.said, 300), rebuilt: anStr(x.rebuilt, 320), pattern: anStr(x.pattern, 160), pattern_use: anStr(x.pattern_use, 180) } : null)
     .filter(x => x && x.said && x.rebuilt && x.pattern && quoted(x.said))
     .slice(0, 3);
+  /* A "vocabulary upgrade" that is really the plural fix from two sections up
+     teaches nothing twice. Anything already corrected, and anything whose whole
+     upgrade is an -s or a bolted-on adjective, is dropped here rather than
+     trusted to the prompt. */
+  const corrected = new Set(out.corrections.flatMap(c => [c.said.toLowerCase(), c.fix.toLowerCase()]));
+  const bare = x => x.toLowerCase().replace(/[^a-z ]+/g, "").replace(/\s+/g, " ").trim();
   out.words = (Array.isArray(p.words) ? p.words : [])
     .map(w => w && typeof w === "object" ? { said: anStr(w.said, 60), better: anStr(w.better, 80), meaning: anStr(w.meaning, 160), example: anStr(w.example, 220) } : null)
     .filter(w => w && w.said && w.better && quoted(w.said) && w.said.toLowerCase() !== w.better.toLowerCase())
+    .filter(w => !corrected.has(w.said.toLowerCase()) && !corrected.has(w.better.toLowerCase()))
+    .filter(w => {                                   // same word, plural or with a word glued on
+      const a = bare(w.said), b = bare(w.better);
+      if (a.replace(/s$/, "") === b.replace(/s$/, "")) return false;
+      return !(b.endsWith(" " + a) || b.startsWith(a + " "));
+    })
     .slice(0, 6);
   out.collocations = (Array.isArray(p.collocations) ? p.collocations : [])
     .map(c => c && typeof c === "object" ? { said: anStr(c.said, 80), better: anStr(c.better, 100), why: anStr(c.why, 160) } : null)
