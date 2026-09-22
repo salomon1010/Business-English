@@ -9273,7 +9273,7 @@ ${(()=>{
        them rather than for something to practise. */
     if(shLibOn()&&_shTab==='create')return "";
     if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
-    <button class="seg-tab ${_shTab==='create'&&_shAdd?'on':''}" role="tab" aria-selected="${_shTab==='create'&&_shAdd}" aria-expanded="${_shTab==='create'&&_shAdd}" onclick="shAddToggle()"><span class="btn-ic">${ic("link")}</span><span class="seg-lbl">${t("sh.tab_addlink")}</span></button>
+    ${shLibOn()?"":`<button class="seg-tab ${_shTab==='create'&&_shAdd?'on':''}" role="tab" aria-selected="${_shTab==='create'&&_shAdd}" aria-expanded="${_shTab==='create'&&_shAdd}" onclick="shAddToggle()"><span class="btn-ic">${ic("link")}</span><span class="seg-lbl">${t("sh.tab_addlink")}</span></button>`}
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("clock")}</span><span class="seg-lbl">${t("sh.tab_history")}</span> <b>${aList("chHist").length}</b></button>
   </div>`;
@@ -14670,7 +14670,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v431";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v432";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
