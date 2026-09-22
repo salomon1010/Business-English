@@ -546,7 +546,7 @@ h1.big em{font-style:italic;color:var(--accent)}
    the practice viewers, the language sheet, and the same Settings markup when
    it renders into #v-data instead of #v-setup — kept a ~42px control with no
    visible focus. One rule here covers all of them. */
-.btn{border:none;border-radius:12px;padding:11px 20px;font-weight:600;font-size:14.5px;transition:.2s;display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.btn{border:none;border-radius:11px;padding:8px 14px;font-weight:600;font-size:13.5px;transition:.2s;display:inline-flex;align-items:center;gap:7px;min-height:40px}
 .btn:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
 .btn>svg{width:18px;height:18px;flex:none}
 .btn-p{background:var(--accent-fill);color:var(--on-accent)}.btn-p:hover{filter:brightness(1.15);transform:translateY(-1px)}
@@ -569,7 +569,7 @@ h1.big em{font-style:italic;color:var(--accent)}
 .btn-gold:hover{filter:brightness(1.08);transform:translateY(-1px)}
 @media (prefers-reduced-motion:reduce){.btn-gold:hover{transform:none}}
 .btn-danger{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.3)}
-.btn-sm{padding:7px 13px;font-size:13px;border-radius:9px}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:9px;min-height:36px}
 .chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 11px;border-radius:99px;border:1px solid var(--line2);color:var(--mut)}
 .chip.p1{color:#a5b4fc;border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.1)}
 .chip.p2{color:#67e8f9;border-color:rgba(34,211,238,.4);background:rgba(34,211,238,.08)}
@@ -630,12 +630,13 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 .pcal-title{font-size:16px;font-weight:800}
 .pcal-nav{width:44px;height:44px;border-radius:10px;border:1px solid var(--line2);background:var(--card2);color:var(--txt);cursor:pointer;font-size:19px;line-height:1;display:grid;place-items:center;transition:.12s}
 .pcal-nav:hover{border-color:var(--acc);color:var(--acc)}
-.pcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.pcal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%;min-width:0}
+@media(max-width:400px){.pcal{padding:14px 10px}.pcal-grid{gap:4px}.pcal-day{border-radius:8px;font-size:12px}}
 .pcal-dow{text-align:center;font-size:11px;color:var(--mut);font-weight:700;padding-bottom:4px}
 /* aspect-ratio:1 gave 40px cells at 390px — below the 44px floor, on the
    most-tapped grid in the app. A min-height keeps them square where there is
    room and square-ish, but reachable, where there is not. */
-.pcal-day{position:relative;aspect-ratio:1;min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s;padding:0}
+.pcal-day{position:relative;aspect-ratio:1;min-height:0;min-width:0;border-radius:10px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font-size:13px;font-weight:600;cursor:pointer;display:grid;place-items:center;transition:transform .12s,border-color .12s;padding:0}
 .pcal-day.blank{background:transparent;border:none;cursor:default}
 .pcal-day[data-lvl="1"]{background:rgba(52,211,153,.22)}
 .pcal-day[data-lvl="2"]{background:rgba(52,211,153,.42)}
@@ -1834,7 +1835,7 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
    secondary by construction. No infinite animation: motion here confirms a
    press, it does not decorate. */
 .btn-primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  min-height:52px;padding:14px 18px;border:none;border-radius:var(--r-md);
+  min-height:44px;padding:10px 16px;border:none;border-radius:var(--r-md);
   /* Deepened a notch from --accent so white text clears 4.5:1 in BOTH themes.
      Raw --acc in dark (#6366f1) measures 4.47:1 — a hair under AA. */
   background:var(--accent-fill);color:var(--on-accent);font-family:inherit;
@@ -2175,11 +2176,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .ex-prompt-k{display:block;font-size:10.5px;font-weight:800;letter-spacing:1.4px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
 .ex-prompt-t{margin:0 0 10px;font-size:14.5px;line-height:1.5;color:var(--txt)}
 .ex-prompt-btn{position:absolute;top:8px;right:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.ex-prompt-btn svg{width:16px;height:16px}.ex-prompt .ex-prompt-t{padding-right:40px}
-.ex-btnrow{display:flex;gap:10px;margin:10px 0}.ex-btnrow .btn{flex:1;justify-content:center;min-height:52px;font-size:20px}
+.ex-btnrow{display:flex;gap:8px;margin:10px 0;align-items:stretch}.ex-btnrow .btn{flex:1 1 0;min-width:0;justify-content:center;min-height:44px;font-size:17px;padding:0 8px}.ex-btnrow .ex-polish{flex:0 0 50%;width:auto;min-height:44px;font-size:15px;margin:0}
 .ex-mic{border-color:var(--acc)!important;color:var(--acc)}.ex-mic.is-live{background:var(--red)!important;border-color:var(--red)!important;color:#fff;animation:exLive 1.2s ease-in-out infinite}.ex-timer{font-size:14px;font-weight:700;margin-left:8px}
 @keyframes exLive{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--red) 55%,transparent)}50%{box-shadow:0 0 0 8px transparent}}
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
-.ex-polish{width:100%;justify-content:center;min-height:54px;font-size:16.5px}.ex-polish:disabled{opacity:.6}
+.ex-polish{justify-content:center}.ex-polish:disabled{opacity:.6}
 .ex-rep-card{margin-top:14px;padding:0}.ex-rep-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}.ex-rep-card>summary::-webkit-details-marker{display:none}
 .ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:20px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
 .ex-rep-chev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:transform .2s}.ex-rep-chev svg{width:18px;height:18px}.ex-rep-card[open]>summary .ex-rep-chev{transform:rotate(180deg)}
@@ -2986,7 +2987,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 /* ===== PRACTICE TAB ===== */
 /* Segmented pill tabs — the one tab component used across the app
    (Library buckets, Journey phases, Shadow Studio, Phrase Lab). */
-.prac-subtabs,.seg-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.prac-subtabs,.seg-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
 #v-practice .prac-add-btn{min-height:44px}
 #v-practice .prac-add input{min-height:44px}
 /* the three vocabulary buckets are one control — equal widths read as a
@@ -2994,7 +2995,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-subtabs{flex-wrap:nowrap}
 .prac-subtabs .prac-subtab{flex:1 1 0;min-width:0;justify-content:center;text-align:center;padding:8px 6px}
 .prac-subtabs .prac-subtab b{margin-left:4px}
-.prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:8px 14px;border-radius:99px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s;min-height:44px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
+.prac-subtab,.seg-tab{border:1px solid var(--line2);background:var(--card);color:var(--mut);padding:6px 12px;border-radius:99px;font-size:12.5px;font-weight:600;cursor:pointer;transition:.15s;min-height:38px;display:inline-flex;align-items:center;gap:6px;font-family:inherit}
 .prac-subtab b,.seg-tab b{margin-left:5px;color:var(--mut)}
 /* was background:var(--grad) with white text — ~1.9:1 at the gradient's cyan
    end. Shared by every tab row, so it is fixed here rather than per screen. */
@@ -3019,11 +3020,11 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
   .seg-fit .seg-tab .btn-ic{display:none}
   .seg-fit .seg-tab b{margin-left:0}
 }
-.prac-ex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.prac-ex{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
 /* Neutral launchers. The green on the Vocabulary tab above already says which
    section these belong to; repeating it on the cards, their icons and the
    heading turned one signal into four. Green is reserved for earned state. */
-.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:13px 8px;cursor:pointer;color:var(--txt);transition:.15s}
+.prac-ex-card{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;background:var(--card);border:1px solid var(--line2);border-radius:12px;padding:10px 4px;cursor:pointer;color:var(--txt);transition:.15s;min-width:0}
 .prac-ex-card:hover{border-color:var(--acc);transform:translateY(-2px);box-shadow:0 10px 26px rgba(0,0,0,.25)}
 .prac-ex-card .pex-ic{width:36px;height:36px;border-radius:10px;background:var(--bg2);display:grid;place-items:center;color:var(--mut);margin-bottom:4px}
 /* .ready = there are enough words in the bucket for this drill to run, so the
@@ -3032,8 +3033,8 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .prac-ex-card.ready:hover{border-color:var(--green);box-shadow:0 10px 26px rgba(52,211,153,.22)}
 .prac-ex-card.ready .pex-ic{background:rgba(52,211,153,.20);color:var(--green)}
 .prac-ex-card .pex-ic svg{width:20px;height:20px}
-.prac-ex-card b{font-size:14px}
-.prac-ex-card small{font-size:11.5px;color:var(--mut)}
+.prac-ex-card b{font-size:12px;line-height:1.2}
+.prac-ex-card small{font-size:10.5px;color:var(--mut);line-height:1.25}
 .prac-stats{text-align:center}
 /* was gradient-clipped text at 1.23:1 in dark — see the session timer digits */
 .prac-total{font-size:40px;font-weight:800;line-height:1;color:var(--txt);font-variant-numeric:tabular-nums}
@@ -3045,7 +3046,7 @@ textarea.ex-ta{min-height:44px;padding-top:11px;padding-bottom:11px}
 .pdot.ready{background:var(--acc)}.pdot.upnext{background:var(--mut2)}.pdot.learned{background:var(--green)}
 .prac-add{display:flex;gap:8px;margin-top:16px}
 .prac-add input{flex:1;min-width:0}
-@media(max-width:520px){.prac-ex{gap:7px}.prac-ex-card{padding:11px 5px;border-radius:12px}.prac-ex-card .pex-ic{width:30px;height:30px;margin-bottom:2px}.prac-ex-card .pex-ic svg{width:17px;height:17px}.prac-ex-card b{font-size:12px}.prac-ex-card small{font-size:9.5px;line-height:1.2}}
+@media(max-width:520px){.prac-ex{gap:7px}.prac-ex-card{padding:11px 5px;border-radius:12px}.prac-ex-card .pex-ic{width:30px;height:30px;margin-bottom:2px}.prac-ex-card .pex-ic svg{width:17px;height:17px}.prac-ex-card b{font-size:11px}.prac-ex-card small{font-size:9px;line-height:1.2}}
 /* ===== PRACTICE GAMES OVERLAY ===== */
 .pv-game{position:fixed;inset:0;z-index:140;background:var(--bg);display:none;overflow-y:auto;padding:max(16px,env(safe-area-inset-top)) 18px 28px;
   background-image:radial-gradient(ellipse 80% 55% at 50% -10%,var(--wash1),transparent)}
@@ -13652,10 +13653,10 @@ function exIdleHTML(){
   return `${exPromptHTML()}
     <div class="ex-field ex-field-ta"><span class="ex-field-ic">${ic("doc")}</span><textarea id="exIn" rows="4" class="grow-ta ex-ta" placeholder="${esc(t("ex.in_ph"))}" oninput="exDraft(this)">${esc(txt)}</textarea></div>
     <div class="ex-btnrow">
+      <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
       <button class="btn btn-g ex-mic" id="exRecBtn" onclick="exRecord()" title="${esc(t("ex.rec_btn"))}" aria-label="${esc(t("ex.rec_btn"))}">${ic("mic")}<span id="exTimer" class="ex-timer"></span></button>
       <button class="btn btn-g ex-clear" onclick="exClear()" title="${esc(t("ex.clear_btn"))}" aria-label="${esc(t("ex.clear_btn"))}">${ic("trash")}</button>
     </div>
-    <button class="btn-primary ex-polish" onclick="exPolish()">${tIc("ex.polish_btn","sparkle")}</button>
     <p class="ex-status" id="exSt"></p>
     ${exLastHTML()}`;
 }
