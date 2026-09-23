@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs && node shadow-sync.test.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node mission-week3.mjs && node mission-integration.mjs && node partner.mjs",
+    "test": "node smoke.mjs && node shadow-sync.test.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-integration.mjs && node partner.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
     "test:partner": "node partner.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
@@ -16,7 +16,7 @@
     "test:zoom": "node zoom.mjs",
     "test:ios-relay": "node ios-yt-relay.mjs",
     "test:polish": "node polish-report.mjs",
-    "test:mission": "node mission-week3.mjs && node mission-integration.mjs"
+    "test:mission": "node mission-week2.mjs && node mission-week3.mjs && node mission-integration.mjs"
   },
   "devDependencies": {
     "playwright": "1.56.1"

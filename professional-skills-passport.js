@@ -74,6 +74,8 @@
   function v2Panel(d){
     const pct=v=>v==null?"\u2014":Math.round(v*100)+"%";
     const T=global.t;
+    /* However many moves the competency declares — four for Week 3, five for
+       Week 2. The row wraps; nothing here counts them. */
     const moves=(d.byMove||[]).map(m=>
       `<span class="${m.made?"ok":""}">${m.made?"\u2713 ":""}${global.esc(m.label)} ${m.made}/${m.of}</span>`).join("");
     const sh=d.shadow||{};
@@ -134,7 +136,11 @@
     let v2="";
     if(typeof global.v2Evidence==="function"){
       let d=null;try{d=global.v2Evidence()}catch(e){d=null}
-      if(d)v2=v2Panel(d);
+      /* An array of competency summaries, oldest week first. One panel each,
+         so the number of competencies is data and this file never counts
+         them. A single object is still accepted, so the hook's shape can
+         change again without breaking the page. */
+      if(d)v2=(Array.isArray(d)?d:[d]).map(v2Panel).join("");
     }
 
     return `<section class="card pg-growth">

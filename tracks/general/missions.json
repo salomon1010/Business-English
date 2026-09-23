@@ -1,8 +1,272 @@
 {
   "schemaVersion": "1",
   "trackId": "general",
-  "_note": "BE Mastery V2 — competency missions. OPTIONAL curriculum section, General English only. A track without its own missions.json gets null, NOT the parent's: professional-tracks.js lists 'missions' in NEVER_INHERIT precisely so this content can never reach Welding through the curriculum merge. Content is written in English like every other pack (weeks.json, phrases.json); only the surrounding chrome is translated through t().",
+  "_note": "BE Mastery V2 — competency missions (Week 2 'Explain what you do' — 5 moves; Week 3 'Give a clear update' — 4 moves). OPTIONAL curriculum section, General English only. A track without its own missions.json gets null, NOT the parent's: professional-tracks.js lists 'missions' in NEVER_INHERIT precisely so this content can never reach Welding through the curriculum merge. Content is written in English like every other pack (weeks.json, phrases.json); only the surrounding chrome is translated through t().",
   "competencies": [
+    {
+      "id": "explain-work",
+      "week": 2,
+      "title": "Explain what you do",
+      "objective": "Explain your role and your current work so that someone who has never met your team understands it.",
+      "pattern": "ROLE → RESPONSIBILITY → RIGHT NOW → WHO IT'S FOR → WHY IT MATTERS",
+      "_shadow_note": "No shadow block on purpose. The 301-clip General English library has nothing about describing your own role — the nearest match is about expressing opinions — and inventing a link would produce supporting evidence that is not about this competency. The NOTICE step simply omits the Shadow row, and fromShadow() never links a clip to a competency that names none. Add a \"shadow\" block here the day a fitting clip exists.",
+      "moves": [
+        {
+          "id": "role",
+          "label": "Role",
+          "hint": "What you are and where you sit. Name it in one short sentence.",
+          "patterns": [
+            "I work as a logistics analyst.",
+            "My role sits between operations and finance.",
+            "I'm the person who looks after the supplier data."
+          ],
+          "retry": "Say it again and open by naming your job and the team you sit in.",
+          "cues": [
+            "i work as",
+            "my role is",
+            "my role sits",
+            "my job is",
+            "my title",
+            "i work in",
+            "i work on the",
+            "part of the team",
+            "member of the",
+            "analyst",
+            "engineer",
+            "developer",
+            "designer",
+            "manager",
+            "accountant",
+            "consultant",
+            "coordinator",
+            "technician",
+            "supervisor",
+            "assistant",
+            "officer",
+            "specialist",
+            "administrator",
+            "director",
+            "teacher",
+            "nurse",
+            "operator",
+            "planner",
+            "buyer",
+            "auditor"
+          ]
+        },
+        {
+          "id": "own",
+          "label": "Responsibility",
+          "hint": "What is actually yours — the part that would go wrong without you.",
+          "patterns": [
+            "I'm responsible for the weekly reports.",
+            "A big part of my role is checking supplier data.",
+            "I look after everything that leaves the warehouse."
+          ],
+          "retry": "Say it again and name one thing you are responsible for — the part that is yours.",
+          "cues": [
+            "responsible for",
+            "i'm responsible",
+            "i am responsible",
+            "in charge of",
+            "i'm in charge",
+            "i look after",
+            "i take care of",
+            "a big part of my role",
+            "my main duties",
+            "my responsibilities",
+            "i own",
+            "i handle",
+            "i manage",
+            "i maintain",
+            "i prepare",
+            "my job is to",
+            "day to day i",
+            "my day to day",
+            "it's my job"
+          ]
+        },
+        {
+          "id": "now",
+          "label": "Right now",
+          "hint": "What is on your desk this week, not what you did last year.",
+          "patterns": [
+            "At the moment I'm rebuilding the tracking sheet.",
+            "This week I'm focused on the supplier audit.",
+            "Right now we're moving everything onto the new system."
+          ],
+          "retry": "Say it again and add what you are working on at the moment.",
+          "cues": [
+            "at the moment",
+            "right now",
+            "currently",
+            "at present",
+            "this week",
+            "this month",
+            "these days",
+            "just now",
+            "i'm working on",
+            "i am working on",
+            "we're working on",
+            "we are working on",
+            "i'm focused on",
+            "currently focused",
+            "lately"
+          ]
+        },
+        {
+          "id": "who",
+          "label": "Who it's for",
+          "hint": "Who you work with, or who receives what you produce.",
+          "patterns": [
+            "I work closely with the warehouse managers.",
+            "It goes to the finance team every Monday.",
+            "My main users are the people on the shop floor."
+          ],
+          "retry": "Say it again and say who you work with, or who your work is for.",
+          "cues": [
+            "work closely with",
+            "i work alongside",
+            "alongside",
+            "my team",
+            "our team",
+            "the team",
+            "stakeholders",
+            "clients",
+            "customers",
+            "colleagues",
+            "i report to",
+            "report to",
+            "other departments",
+            "other teams",
+            "cross-functional",
+            "with engineering",
+            "with product",
+            "with sales",
+            "with marketing",
+            "with finance",
+            "the business",
+            "end users",
+            "my users"
+          ]
+        },
+        {
+          "id": "why",
+          "label": "Why it matters",
+          "hint": "What it is for. The result, not the task.",
+          "patterns": [
+            "…so the team can see a problem before the customer does.",
+            "It means nothing leaves the site unchecked.",
+            "The point is that nobody has to chase it by hand."
+          ],
+          "retry": "Say it again and finish with what your work is actually for — what it makes possible.",
+          "cues": [
+            "so that",
+            "so the",
+            "so we can",
+            "so they can",
+            "so people can",
+            "which means",
+            "that means",
+            "which lets",
+            "the point is",
+            "the goal is",
+            "the idea is",
+            "in order to",
+            "this helps",
+            "it helps",
+            "to make sure",
+            "makes sure",
+            "ensures",
+            "the result is",
+            "otherwise",
+            "ends up",
+            "which saves",
+            "so nobody"
+          ]
+        }
+      ],
+      "expressions": [
+        {
+          "w": "I currently work as",
+          "l": "B1",
+          "move": "role",
+          "def": "the plain way to open with your job title"
+        },
+        {
+          "w": "my role sits at the intersection of",
+          "l": "C1",
+          "move": "role",
+          "def": "for a job that spans two teams"
+        },
+        {
+          "w": "I'm responsible for",
+          "l": "B1",
+          "move": "own",
+          "def": "names what you own"
+        },
+        {
+          "w": "a big part of my role is",
+          "l": "B2",
+          "move": "own",
+          "def": "introduces your main responsibility"
+        },
+        {
+          "w": "I'm currently focused on",
+          "l": "B1",
+          "move": "now",
+          "def": "what is on your desk at the moment"
+        },
+        {
+          "w": "I work closely with",
+          "l": "B1",
+          "move": "who",
+          "def": "names the people you depend on"
+        },
+        {
+          "w": "get up to speed",
+          "l": "B2",
+          "move": "now",
+          "def": "learn what you need to know about something new"
+        },
+        {
+          "w": "on the same page",
+          "l": "B2",
+          "move": "who",
+          "def": "in agreement, sharing the same understanding"
+        }
+      ],
+      "missions": [
+        {
+          "id": "explain-work-guided",
+          "kind": "guided",
+          "see": {
+            "where": "It is your first week. You are at lunch with someone from another department.",
+            "who": "A new colleague",
+            "asks": "So what do you actually do here?",
+            "goal": "Answer in about 30 seconds so that someone outside your team understands your job and why it exists."
+          },
+          "hear": {
+            "model": "I work as an operations analyst in the logistics team. I'm responsible for the weekly delivery reports and the supplier data. At the moment I'm rebuilding how we track late shipments. I work closely with the warehouse managers, so the team can see a problem before it reaches the customer.",
+            "note": "Five short sentences. One move each. No job title jargon."
+          },
+          "prompt": "So what do you actually do here?",
+          "context": "They do not know your team, your tools or your acronyms. Assume they know nothing about your work except that it happens in this building."
+        },
+        {
+          "id": "explain-work-transfer",
+          "kind": "transfer",
+          "see": {
+            "where": "A video call is starting with a client who has never met your team.",
+            "who": "The client",
+            "asks": "Before we start — can you tell us a bit about your role?",
+            "goal": "Nobody is prompting you this time, and this is a first impression with someone outside the company."
+          },
+          "prompt": "Before we start — can you tell us a bit about your role?",
+          "context": "They are paying for the work. They want to know who they are talking to and why you are the right person to be on this call."
+        }
+      ]
+    },
     {
       "id": "clear-update",
       "week": 3,

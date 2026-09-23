@@ -306,11 +306,14 @@ ok("LearningCoach passes the mission and step through so the card opens the righ
 
 /* --- the Progress page shows real evidence, not an empty workshop list --- */
 const prog = await L.page.evaluate(() => {
-  go("review"); const p = document.querySelector(".pg-v2");
-  return { panel: !!p, txt: p ? p.innerText.replace(/\s+/g, " ") : "", hook: !!window.v2Evidence(), state: window.v2Evidence().state };
+  go("review"); const ps = [...document.querySelectorAll(".pg-v2")];
+  const d = window.v2Evidence();
+  return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "),
+    isArray: Array.isArray(d), states: (d || []).map(x => x.competency + ":" + x.state) };
 });
-ok("The Progress page renders the V2 evidence panel for a General English learner",
-  prog.panel && /Practising/i.test(prog.txt) && prog.state === "PRACTICING", prog.txt.slice(0, 120));
+ok("The Progress page renders a V2 evidence panel per competency with evidence",
+  prog.panels === 1 && prog.isArray && prog.states.join() === "clear-update:PRACTICING",
+  JSON.stringify({ n: prog.panels, s: prog.states }));
 ok("…and it reports the move that is missing rather than a participation score",
   /Impact 0\/1/.test(prog.txt), prog.txt.slice(0, 200));
 
@@ -333,7 +336,9 @@ const sh = await L.page.evaluate((vid) => {
   save();
   const n = mvHarvestShadow();
   const again = mvHarvestShadow();
-  const d = window.v2Evidence();
+  /* v2Evidence() is a list now; this check is about the competency that owns
+     the clip, so find it rather than assuming it is the only one. */
+  const d = (window.v2Evidence() || []).find(x => x.competency === "clear-update");
   return { n, again, linked: d.shadow.linked, rung: d.shadow.rungName, pron: d.pron, src: d.pronSource, state: d.state };
 }, comp.shadow.vid);
 ok("Shadow work on the competency's clip is harvested into V2 evidence",
@@ -388,7 +393,7 @@ const w = await W.page.evaluate((vid) => {
   save();
   const harvested = (typeof mvHarvestShadow === "function") ? mvHarvestShadow() : "nofn";
   const before = JSON.stringify(S.v2A || {});
-  const ev = window.v2Evidence();
+  const ev = window.v2Evidence();          /* null off General English */
   const rec = window.v2Recommendation();
   go("review");
   const panel = !!document.querySelector(".pg-v2");

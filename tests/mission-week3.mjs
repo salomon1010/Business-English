@@ -183,8 +183,12 @@ const A = await learner("alice", "general-english");
 await spyOn(A.page);
 
 /* ── the mission is on Home, and it is the only way in ── */
-const home = await A.page.evaluate(() => { go("home"); return { card: !!document.querySelector(".mv-home"), title: (document.querySelector(".mv-home h2") || {}).innerText, state: (document.querySelector(".mv-home .chip") || {}).innerText }; });
-ok("Home leads with the Week 3 mission card", home.card && /clear update/i.test(home.title || "") && /Not started/i.test(home.state || ""), JSON.stringify(home));
+/* Home shows ONE V2 card, chosen by the engine. For a learner who has spoken
+   for nothing yet that is the earliest competency, which is Week 2 — so this
+   suite asserts the card exists and then navigates to Week 3 explicitly.
+   Which competency leads is the Week 2 suite's business. */
+const home = await A.page.evaluate(() => { go("home"); return { card: !!document.querySelector(".mv-home"), cards: document.querySelectorAll(".mv-home").length, title: (document.querySelector(".mv-home h2") || {}).innerText, state: (document.querySelector(".mv-home .chip") || {}).innerText }; });
+ok("Home leads with exactly one V2 mission card", home.card && home.cards === 1 && /Not started/i.test(home.state || ""), JSON.stringify(home));
 
 /* ── SEE → HEAR → NOTICE ── */
 await A.page.evaluate(() => mvGo("clear-update-guided", "see")); await sleep(300);
@@ -259,7 +263,7 @@ ok("C3 · failing the transfer does NOT award mastery — the learner stays DEMO
   c3.state === "DEMONSTRATED" && c3.tf === 1 && c3.tp === 0, JSON.stringify(c3));
 ok("C4 · and the system asks for more guided retrieval on the weak move, not for the transfer again",
   c3.rec.action === "retry" && c3.rec.reason === "transfer_failed" && c3.rec.move === "impact", JSON.stringify(c3.rec));
-const c5 = await C.page.evaluate(() => { go("mission"); mvStep("done"); return (document.querySelector(".mv-next") || {}).innerText; });
+const c5 = await C.page.evaluate(() => { go("mission", "clear-update-transfer", "done"); return (document.querySelector(".mv-next") || {}).innerText; });
 ok("C5 · the evidence page says so in words the learner can act on", /guided round on Impact|one more guided/i.test(c5 || ""), c5);
 
 /* ════════════════ SCENARIO A — success end to end ════════════════════════ */
@@ -279,7 +283,9 @@ const aVoc = await AA.page.evaluate(() => Object.keys(areaVocab()));
 ok("A4 · the expressions the learner used are acquired automatically — no Save button was pressed",
   aVoc.length > 0 && aVoc.some(w => /on track|at risk|come back to you|chase it up/.test(w)), JSON.stringify(aVoc));
 const aState = await AA.page.evaluate(() => { const e = (window.__ev || []).map(x => x[0]); return { prog: e.includes("v2_competency_progressed"), sched: e.includes("v2_retrieval_scheduled"), tc: e.includes("v2_transfer_completed") }; });
-await AA.page.evaluate(() => { go("mission"); mvStep("done"); }); await sleep(250);
+/* Name the mission: go("mission") with no id now asks the engine which
+   competency to open, and that is not necessarily this one. */
+await AA.page.evaluate(() => { go("mission", "clear-update-transfer", "done"); }); await sleep(300);
 const aDone = await AA.page.evaluate(() => ({ state: (document.querySelector(".mv-state b") || {}).innerText, bars: [...document.querySelectorAll(".mv-bar span")].map(x => x.innerText), pron: !!document.querySelector(".mv-bar small") }));
 ok("A5 · the evidence page reports the six dimensions, pronunciation as comprehensibility only",
   /Transfer ready/i.test(aDone.state || "") && aDone.bars.join().includes("Clarity") && aDone.bars.join().includes("Comprehensibility") && aDone.pron, JSON.stringify(aDone));

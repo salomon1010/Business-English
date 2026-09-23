@@ -50,12 +50,16 @@
   const STRONG_COV  = 0.75;  // AnswerEvaluator's "strong" band, used for the label only
   const PASS_COV    = 0.5;   // below this the attempt is a retry, not a result
   /* What DEMONSTRATED actually requires: every move, not most of them.
-     The competency is "give a CLEAR update" and its shape is four parts. An
+     A competency's shape is its OWN move list, however long that is — four for
+     Week 3, five for Week 2, and whatever a future week declares. An
      answer that states the status, names the issue and promises to follow up
      but never says what it means for Friday is the exact answer this whole
      mission exists to fix — and at three moves out of four it would have
      scored 0.75 and been called demonstrated. Coverage bands describe an
-     answer; they do not decide whether someone can do the job. */
+     answer; they do not decide whether someone can do the job.
+
+     Expressed as coverage >= 1 rather than as a count, so it is the same rule
+     whatever number of moves a competency declares. */
   const DEMONSTRATE_ALL = true;
   const FLUENT_WPM  = [70, 180];   // outside this band, delivery is what to fix
   const MAX_ATTEMPTS = 60;   // per competency, newest kept
@@ -575,6 +579,49 @@
     return { action: "rest", missionId: null, move: weak, reason: "scheduled", due, label: wl };
   }
 
+  /* ==========================================================================
+     WHICH COMPETENCY IS TODAY'S?
+
+     The moment there is more than one competency, something has to choose
+     which one Home offers and which one the coach speaks for. This is that
+     something, and it is the only concept the engine gained when the second
+     competency arrived.
+
+     It invents no new ranking. recommend() already expresses the engine's
+     priority for a single competency -- unresolved coaching first, then the
+     weak move, then a failed transfer, then a competency nobody has spoken
+     for, then a due retrieval -- and this applies that SAME order across
+     competencies. A competency with nothing to ask for ("rest") is never
+     chosen.
+
+     The tie-break, and only the tie-break, is the week number ascending: when
+     two competencies are equally urgent the earlier one comes first, because a
+     learner working through a programme should not be bounced backwards. No
+     week is hardcoded as the winner; week 2 beats week 3 only when their
+     evidence has made them equal. */
+  const ACTION_PRIORITY = ["coach", "retry", "transfer", "speak", "retrieval", "rest"];
+  const actionRank = a => { const i = ACTION_PRIORITY.indexOf(a); return i < 0 ? ACTION_PRIORITY.length : i; };
+
+  /* comps: the competency list. get(id) returns that competency's record (or
+     undefined). Returns {comp, record, rec} for the one to put in front of the
+     learner, or null when every competency is resting. */
+  function pickNext(comps, get, now) {
+    const t0 = now || Date.now();
+    let best = null;
+    (comps || []).forEach(c => {
+      if (!c || !c.id) return;
+      const r = (get && get(c.id)) || blank(c.id);
+      const rec = recommend(r, c, t0);
+      if (!rec || rec.action === "rest") return;
+      const rank = actionRank(rec.action);
+      const week = Number(c.week) || 0;
+      if (!best || rank < best.rank || (rank === best.rank && week < best.week)) {
+        best = { comp: c, record: r, rec, rank, week };
+      }
+    });
+    return best ? { comp: best.comp, record: best.record, rec: best.rec } : null;
+  }
+
   /* ------------------------------------------------------- AI learner context
      Small on purpose. The AI gets the task, the moves, one summary line about
      the last attempt and the current weakness — never the attempt history,
@@ -620,14 +667,14 @@
 
 THE TASK
 ${ctx.prompt}
-A good answer makes four communication moves, in this shape: ${ctx.pattern}
+A good answer makes ${ctx.targetMoves.length} communication moves, in this shape: ${ctx.pattern}
 
 THE MOVES
 ${moves}
 ${prev}${weak}
 
 WHAT TO DO
-Read the transcript of what they said. Decide which of the four moves they
+Read the transcript of what they said. Decide which of the ${ctx.targetMoves.length} moves they
 GENUINELY made — in their own words, not by using a particular phrase. Then
 write ONE sentence of coaching naming the single highest-value thing to fix.
 
@@ -660,7 +707,10 @@ Return JSON only:
       : "You spoke a full turn without stopping — that is the hard part.";
     out.move = weak;
     out.improve = wm ? `${wm.label} is the move to add: ${wm.hint}` : "Say the same update again, a little shorter.";
-    out.retry = wm ? wm.retry : "Give the update again, keeping it under four sentences.";
+    /* One sentence per move, plus nothing else — stated from the rubric rather
+       than from a number typed into this file, which was "four" and therefore
+       wrong for any competency that is not Week 3's. */
+    out.retry = wm ? wm.retry : `Say it again, one short sentence for each of the ${moveIds(comp).length} moves.`;
 
     if (raw && typeof raw.reply === "string" && raw.reply.trim()) {
       out.improve = raw.reply.trim().slice(0, 240);
@@ -690,7 +740,7 @@ Return JSON only:
     blank, record, introduce, stateFrom, addAttempt, scheduleRetrieval, recommend,
     aiContext, coachPrompt, shapeCoach, expressionsToLearn, guard,
     EVIDENCE_VERSION, contract, fromShadow, addSupport, supportSummary, progressSummary,
-    SHADOW_RUNGS, MAX_SUPPORT,
+    SHADOW_RUNGS, MAX_SUPPORT, ACTION_PRIORITY, pickNext,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.MissionEngine = api;

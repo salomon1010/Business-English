@@ -68,11 +68,11 @@
 <script src="shadow-sync.js?v=7"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
 <script src="career-center.js?v=79"></script>
-<script src="professional-skills-passport.js?v=84"></script>
+<script src="professional-skills-passport.js?v=85"></script>
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=84"></script>
-<script src="mission-engine.js?v=2"></script>
+<script src="mission-engine.js?v=3"></script>
 <script src="shadow-lines.js?v=84"></script>
 <script>
 window.FB_CONFIG={
@@ -6975,7 +6975,7 @@ const I18N_EN={
  "mv.continue":"Continue the mission",
  "mv.step_see":"The situation",
  "mv.step_hear":"How it sounds",
- "mv.step_notice":"The four moves",
+ "mv.step_notice":"The {{n}} moves",
  "mv.step_speak":"Your turn",
  "mv.step_coach":"Your coach",
  "mv.step_retry":"One more time",
@@ -6990,7 +6990,7 @@ const I18N_EN={
  "mv.model_note":"Listen twice before you read it.",
  "mv.show_text":"Show the words",
  "mv.hide_text":"Hide the words",
- "mv.notice_sub":"Four moves, in this order. That is the whole pattern.",
+ "mv.notice_sub":"{{n}} moves, in this order. That is the whole pattern.",
  "mv.speak_sub":"Answer out loud. No script, no typing — just say it the way you would in the room.",
  "mv.speak_btn":"Record your answer",
  "mv.speak_stop":"Stop and get feedback",
@@ -7021,9 +7021,9 @@ const I18N_EN={
  "mv.state_TRANSFER_READY":"Transfer ready",
  "mv.state_STRONG":"Strong",
  "mv.next":"What comes next",
- "mv.next_not_spoken_yet":"Give the update out loud once. Nothing counts until you have said it.",
+ "mv.next_not_spoken_yet":"Say it out loud once. Nothing counts until you have said it.",
  "mv.next_weak_move":"{{move}} is the move to fix. Same situation, one change.",
- "mv.next_coverage_low":"Give the update again and make all four moves.",
+ "mv.next_coverage_low":"Say it again and make all {{n}} moves.",
  "mv.next_transfer_failed":"You can do this with the prompt in front of you. One more guided round on {{move}}, then try cold again.",
  "mv.next_ready_for_transfer":"Now do it without help, in a situation you have not rehearsed.",
  "mv.next_retrieval_due":"Come back to this one — it is due for a run-through.",
@@ -7032,18 +7032,17 @@ const I18N_EN={
  "mv.next_coach_pending":"{{n}} answer(s) still waiting for coaching. Tap to finish them.",
  "mv.go":"Go",
  "mv.shadow_btn":"Hear a professional do it",
- "mv.shadow_sub":"Same four-part shape, at full speed.",
+ "mv.shadow_sub":"The same shape, at full speed.",
  "mv.offline_saved":"Saved. Your answer is safe — coaching will finish when you are back online.",
  "mv.coach_pending_badge":"Coaching pending",
  "mv.coach_retry":"Finish coaching",
  "mv.coach_offline":"You are offline, so this was scored on your device. The moves below are real; only the written coaching is waiting.",
- "mv.too_short":"That was too short to read. Give it another go — aim for three or four sentences.",
+ "mv.too_short":"That was too short to read. Give it another go — aim for a few full sentences.",
  "mv.no_speech":"We could not hear any words. Your recording is saved — try again when it is quieter.",
  "mv.saved_words":"Added to your words: {{list}}",
  "mv.done_title":"Update delivered",
  "mv.attempts":"{{n}} recorded answer(s)",
  "mv.restart":"Do it again",
- "mv.home_card":"Week 3 · Give a clear update",
  "mv.mic_denied":"BE Mastery needs the microphone to hear your answer.",
  "mv.week_n":"Week {{n}}",
  "mv.ev_spoken":"answers spoken",
@@ -8564,20 +8563,43 @@ function careerDashboardContext(){
      6. mvTrack() refuses to emit an event off General English.
    ================================================================================= */
 
-/* The competency this slice ships. Week 3 is data, not code: adding week 4 is a
-   second entry in missions.json and one more line in this list. */
-const MV_WEEK = 3, MV_COMP = "clear-update";
+/* Competencies are DATA. There is no list of week numbers or competency ids in
+   this file: everything below reads tracks/general/missions.json, so a new week
+   is a new entry in that file and nothing here changes.
 
+   Week 2 ("Explain what you do", five moves) and Week 3 ("Give a clear update",
+   four moves) prove that, and the move count is read from the competency every
+   time it is needed rather than assumed anywhere. */
 function mvPack(){
   if(!isGeneralEnglish())return null;                 /* gate 3 */
   const c=activeCurriculum();
   return (c&&c.missions)||null;
 }
-function mvComp(){
+function mvComps(){
   const p=mvPack();
-  return p&&window.MissionEngine?MissionEngine.competencyOf(p,MV_COMP):null;
+  return (p&&Array.isArray(p.competencies))?p.competencies:[];
 }
-function mvAvailable(){return !!mvComp()}
+/* A competency by id, by mission id, or — with nothing at all — whichever one
+   the engine says the learner should be doing now. */
+function mvComp(id){
+  const list=mvComps();if(!list.length||!window.MissionEngine)return null;
+  if(id){
+    const byId=list.find(c=>c.id===id);
+    if(byId)return byId;
+    const byMission=list.find(c=>(c.missions||[]).some(m=>m.id===id));
+    if(byMission)return byMission;
+    return null;
+  }
+  const pick=mvPick();
+  return pick?pick.comp:list[0];
+}
+/* The engine chooses; this only supplies the competencies and their records. */
+function mvPick(){
+  const list=mvComps();if(!list.length||!window.MissionEngine)return null;
+  const store=mvStore();
+  return MissionEngine.pickNext(list,cid=>store[cid],Date.now());
+}
+function mvAvailable(){return mvComps().length>0}
 
 /* S.v2A[area][competencyId]. Same per-area shape as every other V2-era store
    (troubleA, svChA, chHistA …) so the cloud merge can treat it the same way.
@@ -8585,8 +8607,8 @@ function mvAvailable(){return !!mvComp()}
    write is guarded — but the store is keyed by area anyway, so that a future
    track with its own missions.json cannot collide with this one. */
 function mvStore(){return areaBucket("v2A")}
-function mvRec(){
-  const c=mvComp();if(!c)return null;
+function mvRec(comp){
+  const c=comp||mvComp();if(!c)return null;
   return MissionEngine.record(mvStore(),c.id);
 }
 
@@ -8594,9 +8616,11 @@ function mvRec(){
    carries the track, the week and the competency, and mvTrack refuses to fire
    at all off General English — so a welding learner cannot emit a General
    English learning event even if some future caller forgets to check. */
-function mvTrack(name,props){
+function mvTrack(name,props,comp){
   if(!isGeneralEnglish())return;
-  try{track(name,Object.assign({track:AREA_GEN,week:String(MV_WEEK),competency:MV_COMP},props||{}))}catch(e){}
+  const c=comp||(_mv&&_mv.compId?mvComp(_mv.compId):null)||mvComp();
+  if(!c)return;
+  try{track(name,Object.assign({track:AREA_GEN,week:String(c.week||""),competency:c.id},props||{}))}catch(e){}
 }
 
 /* ---------------------------------------------------------------- view state
@@ -8607,9 +8631,12 @@ let _mv=null;
 const MV_STEPS=["see","hear","notice","speak","coach","transfer","done"];
 
 function mvOpen(missionId,step){
-  const c=mvComp();if(!c)return go("home");
+  /* The mission id decides which competency this is — not a constant, and not
+     whatever was open last. mvComp(id) resolves a competency by its own id or
+     by any of its missions' ids, so one entry point serves every week. */
+  const c=mvComp(missionId);if(!c)return go("home");
   const m=MissionEngine.missionOf(c,missionId)||(c.missions||[])[0];
-  _mv={missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
+  _mv={compId:c.id,missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
   /* Opening the mission is worth INTRODUCED and not one step more. This is the
      line the whole V2 evidence model rests on: a screen that has been looked
      at is not a skill that has been shown. */
@@ -8641,11 +8668,11 @@ window.mvRecord=()=>{
      (already-resolved) promise — so the take is graded against a recording
      that has not been written yet. */
   const wasRecording=rec.mr&&rec.mr.state==="recording";
-  const ctx=wasRecording?_mv.recCtx:recCtx("v2-"+MV_COMP+"-"+_mv.missionId+"-"+Date.now());
+  const ctx=wasRecording?_mv.recCtx:recCtx("v2-"+_mv.compId+"-"+_mv.missionId+"-"+Date.now());
   if(!wasRecording){
     _mv.err=null;_mv.heard="";_mv.coach=null;_mv.ev=null;_mv.recCtx=ctx;
   }
-  recToggle(ctx,"V2 · "+MV_COMP+" · "+_mv.kind);
+  recToggle(ctx,"V2 · "+_mv.compId+" · "+_mv.kind);
   if(!wasRecording){
     fbRecStart({vid:"v2-"+_mv.missionId,recCtx:ctx,onDone:mvOnSpeech});
     _mv.recording=true;mvDraw();
@@ -8662,7 +8689,7 @@ window.mvRecord=()=>{
 async function mvOnSpeech(heard,meta){
   if(!_mv)return;
   _mv.recording=false;
-  const c=mvComp();if(!c)return;
+  const c=mvComp(_mv.compId);if(!c)return;
   const m=MissionEngine.missionOf(c,_mv.missionId);
   const said=String(heard||"").trim();
   _mv.heard=said;
@@ -8835,7 +8862,7 @@ function mvAcquire(comp,ev,weak){
    its evidence and is re-offered; running it again reuses the same idempotency
    key, so the recovered coaching updates the row instead of adding a new one. */
 window.mvFinishCoaching=async()=>{
-  const c=mvComp(),r=mvRec();if(!c||!r||!_mv)return;
+  const c=mvComp(_mv&&_mv.compId),r=mvRec(c);if(!c||!r||!_mv)return;
   const pending=(r.attempts||[]).filter(a=>a&&a.coachPending);
   const row=pending[pending.length-1];if(!row)return;
   _mv.busy=true;_mv.step="coach";_mv.ev=row;mvDraw();
@@ -8862,8 +8889,13 @@ window.mvFinishCoaching=async()=>{
    Shadow is not touched. It keeps writing exactly what it wrote before, and it
    has no idea a mission exists. */
 function mvHarvestShadow(){
-  const comp=mvComp();if(!comp||!window.MissionEngine)return 0;
+  if(!window.MissionEngine)return 0;
   const store=mvStore();let added=0;
+  /* Every competency that names a clip, not just the open one. A competency
+     with no shadow block — Week 2 has none, because the library has nothing
+     about describing your own role — simply never links anything, because
+     fromShadow() needs comp.shadow.vid to call a row linked. */
+  mvComps().forEach(comp=>{
   (aList("chHist")||[]).forEach(entry=>{
     const item=MissionEngine.fromShadow(entry,comp);
     if(!item)return;
@@ -8877,8 +8909,9 @@ function mvHarvestShadow(){
       /* Reuses the evidence event with kind "shadow" — no new event name, so
          nothing here waits on a Worker deploy. */
       mvTrack("v2_evidence_recorded",{mission:"shadow",kind:"shadow",
-        result:item.passed?"pass":"fail",move:item.rung||"none"});
+        result:item.passed?"pass":"fail",move:item.rung||"none"},comp);
     }
+  });
   });
   if(added)save();
   return added;
@@ -8890,21 +8923,29 @@ function mvHarvestShadow(){
    evidence WITHOUT either of them learning what a mission is: they ask for a
    plain summary object and render/act on it. If this file never loads, both
    callers see undefined and behave exactly as they did before. */
+/* Every competency with something to show, oldest week first. An array rather
+   than one summary, because Progress reports a learner's whole record and the
+   number of competencies is data. Empty array -> the caller renders nothing. */
 window.v2Evidence=function(){
-  const comp=mvComp();if(!comp||!window.MissionEngine)return null;
+  if(!window.MissionEngine)return null;
+  const list=mvComps();if(!list.length)return null;
   mvHarvestShadow();
-  const r=MissionEngine.record(mvStore(),comp.id);
-  if(!(r.attempts||[]).length&&!(r.support||[]).length)return null;   /* nothing shown yet */
-  return MissionEngine.progressSummary(r,comp);
+  const store=mvStore();
+  const out=list.slice().sort((a,b)=>(a.week||0)-(b.week||0)).map(c=>{
+    const r=MissionEngine.record(store,c.id);
+    if(!(r.attempts||[]).length&&!(r.support||[]).length)return null;
+    return MissionEngine.progressSummary(r,c);
+  }).filter(Boolean);
+  return out.length?out:null;
 };
 window.v2Recommendation=function(){
-  const comp=mvComp();if(!comp||!window.MissionEngine)return null;
-  const r=MissionEngine.record(mvStore(),comp.id);
-  const rec=MissionEngine.recommend(r,comp,Date.now());
-  /* "rest" means this competency has nothing to ask for today, so the old
-      engine's own advice should stand rather than being overridden by a card
-      that says nothing. */
-  if(!rec||rec.action==="rest")return null;
+  if(!window.MissionEngine)return null;
+  /* pickNext applies the engine's own priority across every competency and
+     returns null when they are all resting — at which point the old advice
+     should stand rather than being overridden by a card that says nothing. */
+  const pick=mvPick();
+  if(!pick)return null;
+  const comp=pick.comp,r=pick.record,rec=pick.rec;
   const mv=rec.move?(MissionEngine.moveOf(comp,rec.move)||{}).label||rec.move:"";
   const due=r.retrieval&&r.retrieval.due?new Date(r.retrieval.due).toLocaleDateString():"";
   const pend=(r.attempts||[]).filter(a=>a&&a.coachPending).length;
@@ -8931,7 +8972,7 @@ function mvBar(label,v,note){
 }
 function mvHead(step){
   const n=MV_STEPS.indexOf(step)+1;
-  const c=mvComp();
+  const c=mvComp(_mv&&_mv.compId);
   return `<div class="mv-head"><span class="eyebrow">${t("mv.mission")}</span>
     <span class="mv-prog">${t("mv.of",{n:Math.max(1,n),total:MV_STEPS.length})}</span></div>
     <h1 class="big mv-title">${esc((c&&c.title)||"")}</h1>`;
@@ -8941,7 +8982,7 @@ function rMission(el,missionId,step){
   /* Gate 5: a track without missions never renders this page at all — it is
      sent back to Home, the same way the partner page turns a welding learner
      around. Hiding the entry point is not a boundary; this is. */
-  const comp=mvComp();
+  const comp=mvComp(missionId);
   if(!comp){el.innerHTML="";setTimeout(()=>go("home"),0);return}
   /* Foundations comes first, for the mission exactly as for the daily session.
      A learner who has not taken the placement check, or who was placed in
@@ -8951,7 +8992,7 @@ function rMission(el,missionId,step){
   if(typeof fndBlocks==="function"&&fndBlocks()){fndGateHTML(el);return}
   if(!_mv||_mv.missionId!==missionId){
     const m=MissionEngine.missionOf(comp,missionId)||(comp.missions||[])[0];
-    _mv={missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
+    _mv={compId:comp.id,missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
   }
   if(step&&step!==_mv.step)_mv.step=step;
   const m=MissionEngine.missionOf(comp,_mv.missionId);
@@ -8999,8 +9040,8 @@ function rMission(el,missionId,step){
   /* ---- NOTICE: the four moves. Communication awareness, not grammar. ---- */
   else if(S1==="notice"){
     body=`<section class="card mv-notice">
-      <div class="eyebrow">${t("mv.step_notice")}</div>
-      <p class="sub">${esc(t("mv.notice_sub"))}</p>
+      <div class="eyebrow">${t("mv.step_notice",{n:(comp.moves||[]).length})}</div>
+      <p class="sub">${esc(t("mv.notice_sub",{n:(comp.moves||[]).length}))}</p>
       <ol class="mv-list">${(comp.moves||[]).map(x=>`<li>
         <b>${esc(x.label)}</b><span>${esc(x.hint)}</span>
         <em>${(x.patterns||[]).map(p=>`“${esc(p)}”`).join(" · ")}</em></li>`).join("")}</ol>
@@ -9069,7 +9110,11 @@ function rMission(el,missionId,step){
     const pend=spoken.filter(a=>a.coachPending).length;
     const mv=rec2.move?(MissionEngine.moveOf(comp,rec2.move)||{}).label||rec2.move:"";
     const due=r.retrieval&&r.retrieval.due?new Date(r.retrieval.due).toLocaleDateString():"";
-    const reason=t("mv.next_"+rec2.reason,{move:mv,date:due,n:String(pend)});
+    /* `n` does double duty by reason: the pending-coaching line counts answers,
+       the coverage line counts the competency's moves. Passed per reason rather
+       than assuming one meaning for the variable. */
+    const reason=t("mv.next_"+rec2.reason,{move:mv,date:due,
+      n:String(rec2.reason==="coverage_low"?(comp.moves||[]).length:pend)});
     /* The mission's own comprehensibility when it has one, otherwise the
        figure Shadow measured on this competency's clip, otherwise nothing at
        all. progressSummary already decides which, and says which it used. */
@@ -9113,7 +9158,7 @@ function rMission(el,missionId,step){
 /* RETRY: the same situation with the previous attempt's weakness named. Never
    the generic prompt again — that is the whole point of the step. */
 window.mvRetry=()=>{
-  const comp=mvComp();if(!comp||!_mv)return;
+  const comp=mvComp(_mv&&_mv.compId);if(!comp||!_mv)return;
   const r=MissionEngine.record(mvStore(),comp.id);
   const weak=(_mv.coach&&_mv.coach.move)||r.weakness;
   const mm=weak?MissionEngine.moveOf(comp,weak):null;
@@ -9128,7 +9173,7 @@ window.mvRetry=()=>{
    behaves for anyone, and nothing at all for Welding, whose pack has no
    missions and therefore never reaches this function. */
 window.mvShadow=()=>{
-  const comp=mvComp();if(!comp||!comp.shadow)return;
+  const comp=mvComp(_mv&&_mv.compId);if(!comp||!comp.shadow)return;
   SESS_RETURN=null;
   try{shLoad({vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title},true)}catch(e){}
   go("shadow");
@@ -9137,21 +9182,25 @@ window.mvShadow=()=>{
 /* The Home card. It is the only entry point, and it says what the learner is
    being asked to do today rather than how far through a grid they are. */
 function mvHomeCardHTML(){
-  const comp=mvComp();if(!comp)return "";
+  if(!window.MissionEngine||!mvComps().length)return "";
   /* Same gate, on the card. The placement check must be the first thing a new
-     learner sees on Home; offering a Week 3 mission above it both buried the
-     check and invited someone past it. */
+     learner sees on Home; offering a mission above it both buried the check
+     and invited someone past it. */
   if(typeof fndBlocks==="function"&&fndBlocks())return "";
-  const r=MissionEngine.record(mvStore(),comp.id);
-  const rec3=MissionEngine.recommend(r,comp,Date.now());
-  if(rec3.action==="rest")return "";
+  /* ONE card, whichever competency the engine says is today's. Two cards would
+     be two "todays", which is the thing the V2.1 coexistence decision exists to
+     avoid — and it would get worse with every week added. */
+  const pick=mvPick();
+  if(!pick)return "";
+  const comp=pick.comp,r=pick.record,rec3=pick.rec;
   const first=(comp.missions||[])[0]||{};
   const mid=rec3.missionId||first.id;
   const mvv=rec3.move?(MissionEngine.moveOf(comp,rec3.move)||{}).label||rec3.move:"";
   const pend=(r.attempts||[]).filter(a=>a&&a.coachPending).length;
-  const line=t("mv.next_"+rec3.reason,{move:mvv,date:"",n:String(pend)});
+  const line=t("mv.next_"+rec3.reason,{move:mvv,date:"",
+    n:String(rec3.reason==="coverage_low"?(comp.moves||[]).length:pend)});
   return `<section class="card mv-home">
-    <div class="eyebrow">${t("mv.home_card")}</div>
+    <div class="eyebrow">${comp.week?t("mv.week_n",{n:comp.week})+" · ":""}${esc(comp.title)}</div>
     <h2>${esc(comp.title)}</h2>
     <p>${esc(line)}</p>
     <div class="mv-home-foot">
