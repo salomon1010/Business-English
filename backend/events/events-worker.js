@@ -129,6 +129,7 @@ const EVENTS = new Set([
   "v2_retry_attempt", "v2_transfer_started", "v2_transfer_completed",
   "v2_evidence_recorded", "v2_competency_progressed", "v2_retrieval_scheduled",
   "v2_recommendation_generated",
+  "v2_speaking_feedback_generated",   // a conversation's speaking report was written (roleplay; missions use v2_coach_generated)
   // The speaking report (2026-09-23): the better version was listened to, the
   // history page was opened (+attempt = how many rows it held), an old
   // attempt was replayed (+kind own|better). Counts and enums only — the

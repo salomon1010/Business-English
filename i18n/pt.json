@@ -2799,5 +2799,8 @@
  "fb.c_details_h": "Detalhes",
  "fb.c_sec_vocab": "Vocabulário deste clipe",
  "fb.c_pron_sub_tx": "verificado com a transcrição da sua gravação",
- "fb.c_pron_norec": "Nenhuma gravação salva para este relatório — grave de novo para obter a análise de pronúncia."
+ "fb.c_pron_norec": "Nenhuma gravação salva para este relatório — grave de novo para obter a análise de pronúncia.",
+ "mv.hist_convos": "Conversas",
+ "mv.hist_partner": "Relatórios com parceiro de prática",
+ "rp.rep_btn": "Relatório de expressão oral"
 }

@@ -1739,6 +1739,10 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-one{margin:14px 0 2px;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)}
 .mv-hist-week{font-size:13px;color:var(--mut);margin:18px 0 8px}
 .mv-hist-row{margin-bottom:10px}
+/* a history row that is a link (a Practice Partner review) keeps the same
+   row anatomy without the details/summary machinery */
+.mv-hist-link{display:flex;align-items:center;gap:10px;width:100%;text-align:left;font:inherit;font-size:13.5px;color:var(--txt);cursor:pointer}
+.mv-hist-link b{flex:1}
 .mv-hist-row summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-size:13.5px}
 .mv-hist-row summary::-webkit-details-marker{display:none}
 .mv-hist-date{color:var(--mut2);font-size:12.5px}
@@ -7146,6 +7150,9 @@ const I18N_EN={
  "mv.rep_better_off":"The better version needs a connection. Your answer and its result are already saved — the language coaching will be here when you are back online.",
  "mv.rep_expr_h":"Expressions worth keeping",
  "mv.rep_one_h":"One thing to improve",
+ "mv.hist_convos":"Conversations",
+ "mv.hist_partner":"Practice Partner reviews",
+ "rp.rep_btn":"Speaking report",
  "mv.hist":"Speaking history",
  "mv.hist_sub":"Every answer you have spoken, what it showed, and what to work on next.",
  "mv.hist_back":"Progress",
@@ -9459,10 +9466,56 @@ function rMvHist(el){
       </div>
     </details>`;
   });
+  /* The other places a General English learner speaks, in the same history:
+     conversations (roleplay — interview, negotiation, life simulations) with
+     their reports, and the Practice Partner reviews, read-only. Both are
+     already area-scoped stores; nothing here writes. */
+  const convos=(S.convos||[]).filter(c=>c&&c.tk===areaId()&&c.rep).sort((a,b)=>b.ts-a.ts).slice(0,20);
+  if(convos.length){
+    html+=`<h3 class="mv-hist-week">${esc(t("mv.hist_convos"))}</h3>`;
+    convos.forEach(c=>{
+      const sc=(typeof SCENARIOS!=="undefined"?SCENARIOS:[]).find(s=>s.id===c.id)||{id:c.id,title:c.title,points:[]};
+      const rep=c.rep;
+      html+=`<details class="card mv-hist-row"><summary>
+          <span class="mv-hist-date">${esc(new Date(c.ts).toLocaleDateString())}</span>
+          <b>${esc(c.title)}</b>
+          <span class="mv-hist-res ${c.covered>=c.total?"ok":""}">${esc(c.covered+"/"+c.total)}</span>
+        </summary>
+        ${rep.well&&rep.well.length?`<h4>${t("mv.rep_well_h")}</h4>${rpRepListHTML(sc,rep.well,"ok")}`:""}
+        ${rep.fix&&rep.fix.length?`<h4>${t("mv.rep_fix_h")}</h4>${rpRepListHTML(sc,rep.fix,"fix")}`:""}
+        ${rep.better?`<p class="mv-better-t">“${esc(rep.better)}”</p>`:""}
+        ${rep.expr&&rep.expr.length?`<h4>${t("mv.rep_expr_h")}</h4><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+        ${rep.one?`<p class="mv-improve">${esc(rep.one)}</p>`:""}
+        <div class="mv-acts">
+          ${rep.better?`<button class="btn btn-g" onclick="rpHistHear(${c.ts})">${ic("play")} ${t("mv.rep_better_play")}</button>`:""}
+          <button class="btn-primary" onclick="rpStart('${esc(c.id)}')">${t("mv.hist_practice")}</button>
+        </div>
+      </details>`;
+    });
+  }
+  const ppRows=(typeof ppRevList==="function"?ppRevList():[]).slice().sort((a,b)=>b.at-a.at).slice(0,10);
+  if(ppRows.length){
+    html+=`<h3 class="mv-hist-week">${esc(t("mv.hist_partner"))}</h3>`;
+    ppRows.forEach(r=>{
+      html+=`<button class="card mv-hist-row mv-hist-link" onclick="ppRevOpenId='${esc(r.id)}';go('partner')">
+          <span class="mv-hist-date">${esc(new Date(r.at).toLocaleDateString())}</span>
+          <b>${esc(r.topic||t("mv.hist_partner"))}</b>
+          <span class="mv-hist-res ok">›</span>
+        </button>`;
+    });
+  }
   el.innerHTML=`${back}<div class="mv-head"><span class="eyebrow">${t("mv.hist")}</span></div>
     <h1 class="big mv-title">${t("mv.hist")}</h1><p class="sub">${t("mv.hist_sub")}</p>${html}`;
   manIconizeInline(el);
 }
+/* hear a conversation report's better version from the history — the entry
+   is found by its own timestamp, nothing else is touched */
+window.rpHistHear=ts=>{
+  const c=(S.convos||[]).find(x=>x&&x.ts===ts);
+  if(!c||!c.rep||!c.rep.better)return;
+  try{fbSay(c.rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
+  try{track("v2_speaking_history_replayed",{track:AREA_GEN,competency:"conversation",mission:c.id||"",kind:"conversation"})}catch(_){}
+};
 window.mvHistHear=i=>{
   const h=_mvHist[i];if(!h||!h.report||!h.report.better)return;
   try{fbSay(h.report.better)}catch(e){}
@@ -23791,6 +23844,148 @@ async function rpVoice(text){
 }
 
 const RP_CATS=[["interview","Interview practice"],["daily","Daily life"],["work","At work"],["travel","Travelling"]];
+/* ============================== ROLEPLAY SPEAKING REPORT ==============================
+   The conversation summary can open the same speaking report a V2 mission
+   writes — for the interview, salary-negotiation, tell-me-about-yourself and
+   life-simulation conversations. Nothing new was invented for it: the
+   scenario's talking points are the moves (p1..pn), the app's own covered
+   set is the scorer's verdict, the learner's turns are the answer, and the
+   report travels the existing `mvreport` route, is validated by the existing
+   MissionEngine.shapeReport (which drops praise for an uncovered point and a
+   correction for a covered one, and always leaves the honest deterministic
+   floor), renders with the existing mv.rep_* language and is spoken by the
+   existing voice. Stored compactly on the conversation's own S.convos entry
+   (`rep`, attachReport's shape) — idempotent per conversation, and the
+   covered count the app scored is never rewritten. The better version is the
+   learner's own answer reworded, so the sync payload strips it exactly as
+   v2A strips its own. General English only. */
+/* each point carries a retry line because shapeReport's one-thing fallback
+   reads it — a scenario point without one would leave the floor's focus empty */
+function rpRepComp(sc){return {moves:(sc.points||[]).map((p,i)=>({id:"p"+(i+1),label:p,hint:"",retry:'Next time, work "'+p+'" into the conversation.'})),expressions:[]}}
+function rpRepEv(sc,covered){
+  const m={},cov=[],miss=[];
+  (sc.points||[]).forEach((p,i)=>{const id="p"+(i+1),on=!!(covered&&covered.has(i+1));m[id]=on;(on?cov:miss).push(id)});
+  return {moves:m,covered:cov,missed:miss};
+}
+function rpRepPrompt(sc,comp,ev){
+  const made=(sc.points||[]).map((p,i)=>"p"+(i+1)).filter(id=>ev.moves[id]);
+  const missed=(sc.points||[]).map((p,i)=>"p"+(i+1)).filter(id=>!ev.moves[id]);
+  const lbl=id=>(MissionEngine.moveOf(comp,id)||{}).label||id;
+  const pts=comp.moves.map(m=>`${m.id} (${m.label})`).join("\n");
+  const C=MissionEngine.REPORT_CAPS;
+  return `You are a speaking coach reviewing ONE short conversation in English. The learner practised "${sc.title}" and you receive only THEIR side — their turns, joined in order.
+
+THE TALKING POINTS a good conversation covers
+${pts}
+
+THE SCORER'S VERDICT (deterministic, from the transcript — this is the truth you work from)
+Covered: ${made.length?made.map(id=>`${id} (${lbl(id)})`).join(", "):"none"}
+Not heard: ${missed.length?missed.map(id=>`${id} (${lbl(id)})`).join(", "):"none"}
+
+WHAT TO DO
+Read the learner's turns. Write a short report as JSON:
+- "covered": point ids the learner GENUINELY covered in their own words that the scorer did not credit. Only additions; never remove a credited point.
+- "well": up to ${C.well} entries {"move": id, "note": one sentence}. Each note explains why that COVERED point worked, quoting their words where useful. Never praise a point from the "Not heard" list.
+- "improve": up to ${C.improve} entries {"move": id, "note": one sentence}. Only points from the "Not heard" list; say what was missing and a natural way to bring it up.
+- "better": the strongest of the learner's own turns, improved. Keep their meaning, their facts and their level; at most 70 words; natural spoken English. Never add facts they did not say.
+- "expressions": up to ${C.expr} entries {"e": expression, "why": when it helps in this conversation, under 15 words}.
+- "one": ONE actionable focus for their next conversation, under 25 words, imperative.
+
+RULES
+- The scorer's verdict is final. Explain it; never contradict it.
+- Never comment on accent, and never compare them to a native speaker.
+- Never correct grammar unless it stopped you understanding the message.
+- No scores, no percentages, no letter grades.
+- Plain British English, spoken register.
+
+Return JSON only:
+{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":""}`;
+}
+function rpRepBtnHTML(){
+  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return "";
+  return `<button class="btn btn-g" onclick="rpReport()">${ic("chart")} ${t("rp.rep_btn")}</button>`;
+}
+function rpRepConvo(){return _rpLastTs?(S.convos||[]).find(x=>x&&x.ts===_rpLastTs):null}
+/* attachReport's compact shape, on the conversation entry */
+function rpRepStore(c,rep){
+  const C=MissionEngine.REPORT_CAPS;
+  c.rep={well:(rep.well||[]).slice(0,C.well).map(x=>({m:x.move,n:String(x.note||"").slice(0,C.note)})),
+    fix:(rep.improve||[]).slice(0,C.improve).map(x=>({m:x.move,n:String(x.note||"").slice(0,C.note)})),
+    better:rep.better?String(rep.better).slice(0,C.better):null,
+    expr:(rep.expr||[]).slice(0,C.expr).map(x=>({e:String(x.e||"").slice(0,60),why:String(x.why||"").slice(0,140)})),
+    one:String(rep.one||"").slice(0,C.one),ai:!!rep.ai,at:Date.now()};
+  save();return c.rep;
+}
+window.rpReport=async()=>{
+  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return;
+  const sc=_rpLast.sc,c=rpRepConvo();
+  const comp=rpRepComp(sc),ev=rpRepEv(sc,_rpLast.covered);
+  /* an AI report is final for this conversation; a deterministic floor can be
+     finished later — same recovery bargain as the mission's */
+  if(c&&c.rep&&c.rep.ai)return rpRepShow(sc,c.rep);
+  const offline=!POLISH_API||!navigator.onLine;
+  let rep;
+  if(offline){
+    rep=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
+  }else{
+    rpRepShow(sc,null);                                  /* the thinking screen */
+    try{
+      const F=window.ConversationOrchestrator;
+      const said=(_rpLast.turns||[]).map(x=>x.text).join(" ").slice(0,2400);
+      const sys=rpRepPrompt(sc,comp,ev);
+      const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+        body:JSON.stringify({mvreport:{system:sys,said:F&&F.fence?F.fence(said):said}})});
+      if(!res.ok)throw new Error("report "+res.status);
+      const data=await res.json();
+      MissionEngine.applyCoachMoves(ev,comp,data&&data.covered);   /* additions only, never the stored count */
+      rep=MissionEngine.shapeReport(data,comp,ev);
+    }catch(e){
+      try{console.warn("[roleplay] report unavailable",e)}catch(_){}
+      rep=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
+    }
+  }
+  const stored=c?rpRepStore(c,rep):null;
+  try{track("v2_speaking_feedback_generated",{track:AREA_GEN,competency:"conversation",mission:sc.id,kind:"conversation",ai:rep.ai?"1":"0"})}catch(_){}
+  rpRepShow(sc,stored||Object.assign({},rep,{well:(rep.well||[]).map(x=>({m:x.move,n:x.note})),fix:(rep.improve||[]).map(x=>({m:x.move,n:x.note}))}));
+};
+function rpRepListHTML(sc,rows,cls){
+  const lbl=id=>{const i=parseInt(String(id).slice(1),10);return (sc&&sc.points&&sc.points[i-1])||id};
+  return rows&&rows.length?`<ul class="mv-rep-list ${cls}">${rows.map(x=>`<li><b>${esc(lbl(x.m))}</b>${x.n?` — ${esc(x.n)}`:""}</li>`).join("")}</ul>`:"";
+}
+function rpRepShow(sc,rep){
+  const el=document.getElementById("v-roleplay");if(!el)return;
+  const body=!rep
+    ?`<p class="sub">${esc(t("mv.thinking"))}</p>`
+    :`${rep.well&&rep.well.length?`<h3>${t("mv.rep_well_h")}</h3>${rpRepListHTML(sc,rep.well,"ok")}`:""}
+      ${rep.fix&&rep.fix.length?`<h3>${t("mv.rep_fix_h")}</h3>${rpRepListHTML(sc,rep.fix,"fix")}`:""}
+      ${rep.better?`<div class="mv-better">
+          <div class="eyebrow">${t("mv.rep_better_h")}</div>
+          <p class="mv-better-t">“${esc(rep.better)}”</p>
+          <button class="btn btn-g" onclick="rpRepHear()">${ic("play")} ${t("mv.rep_better_play")}</button>
+        </div>`
+       :(rep.ai?"":`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`)}
+      ${rep.expr&&rep.expr.length?`<h3>${t("mv.rep_expr_h")}</h3><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+      ${rep.one?`<div class="mv-one"><div class="eyebrow">${t("mv.rep_one_h")}</div><p class="mv-improve">${esc(rep.one)}</p></div>`:""}
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+        ${rep.ai?"":`<button class="btn btn-g" onclick="rpReport()">${t("mv.coach_retry")}</button>`}
+        <button class="btn btn-p" onclick="rpStart('${esc(sc.id)}')">${t("rp.again")}</button>
+      </div>`;
+  el.innerHTML=`
+   ${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button></div>`:`<button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>`}
+   <div class="eyebrow">${t("rp.rep_btn")}</div>
+   <h1 class="big" style="margin:2px 0 4px">${esc(sc.title)}</h1>
+   <p class="sub" style="margin-bottom:14px">${t("rp.eval_sub",{title:esc(sc.title)})}</p>
+   ${body}`;
+  manIconizeInline(el);
+  try{window.scrollTo(0,0)}catch(_){}
+}
+window.rpRepHear=()=>{
+  const c=rpRepConvo(),rep=c&&c.rep;
+  if(!rep||!rep.better)return;
+  try{fbSay(rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
+  try{track("v2_better_version_played",{track:AREA_GEN,competency:"conversation",mission:(c&&c.id)||"",kind:"conversation"})}catch(_){}
+};
+
 const SCENARIOS=[
  {id:"iv-tellme",cat:"interview",persona:"Rachel",g:"f",role:"hiring manager",ic:"user",title:"Tell me about yourself",scenario:"The opening question of a real interview. Rachel is friendly but time-pressed and will probe anything vague.",points:["Give a 60-second summary: role, responsibilities, focus","Name one concrete achievement with a result","Say why this role interests you"],greet:"Thanks for making the time. So — tell me about yourself."},
  {id:"iv-weakness",cat:"interview",persona:"Daniel",g:"m",role:"engineering director",ic:"user",title:"Your biggest weakness",scenario:"Daniel asks the hard behavioural questions and follows up when an answer sounds rehearsed.",points:["Name a real weakness, not a disguised strength","Explain what you have done about it","Give evidence that it has improved"],greet:"Let's get into it. What would you say is your biggest weakness?"},
@@ -24677,6 +24872,7 @@ function rpReplaySummary(){
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
        <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
        ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
+       ${rpRepBtnHTML()}
      </div>
    </div>`;
   manIconizeInline(el);
@@ -24707,8 +24903,9 @@ function rpSummary(){
     save();
   }
   /* Hold on to the turns (text + audio) so the review can run after the
-     conversation object is torn down. */
-  _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text)};
+     conversation object is torn down — and which points were covered, so the
+     speaking report carries the app's own judgement, never the model's. */
+  _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text),covered:new Set(covered)};
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
    ${rpBackBar()}
@@ -24722,6 +24919,7 @@ function rpSummary(){
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
        <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
        ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
+       ${rpRepBtnHTML()}
      </div>
    </div>`;
   manIconizeInline(el); rpConv=null;
@@ -25723,6 +25921,14 @@ function fbSyncPayload(s){
        speech they were measured on stays on this device */
     const o={};Object.keys(out.exRepA).forEach(a=>{o[a]=(out.exRepA[a]||[]).map(r=>{if(!r)return r;const y=Object.assign({},r);delete y.tx;return y})});
     out.exRepA=o;
+  }
+  if(Array.isArray(out.convos)){
+    /* a conversation report's better version is the learner's own turn,
+       reworded — the same rule v2A applies to its attempts */
+    out.convos=out.convos.map(c=>{
+      if(!c||!c.rep||!c.rep.better)return c;
+      return Object.assign({},c,{rep:Object.assign({},c.rep,{better:null})});
+    });
   }
   if(Array.isArray(out.ppHist)){
     /* Practice Partner history: scores, weak words, outcomes and the coach's

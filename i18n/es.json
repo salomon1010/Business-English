@@ -2799,5 +2799,8 @@
  "fb.c_details_h": "Detalles",
  "fb.c_sec_vocab": "Vocabulario de este clip",
  "fb.c_pron_sub_tx": "comprobado con la transcripción de tu toma",
- "fb.c_pron_norec": "No hay toma guardada para este informe — graba de nuevo para obtener el análisis de pronunciación."
+ "fb.c_pron_norec": "No hay toma guardada para este informe — graba de nuevo para obtener el análisis de pronunciación.",
+ "mv.hist_convos": "Conversaciones",
+ "mv.hist_partner": "Informes con compañero de práctica",
+ "rp.rep_btn": "Informe de expresión oral"
 }

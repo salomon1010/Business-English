@@ -2799,5 +2799,8 @@
  "fb.c_details_h": "Détails",
  "fb.c_sec_vocab": "Vocabulaire de cet extrait",
  "fb.c_pron_sub_tx": "vérifié d'après la transcription de votre prise",
- "fb.c_pron_norec": "Aucune prise enregistrée pour ce rapport — réenregistrez pour obtenir l'analyse de prononciation."
+ "fb.c_pron_norec": "Aucune prise enregistrée pour ce rapport — réenregistrez pour obtenir l'analyse de prononciation.",
+ "mv.hist_convos": "Conversations",
+ "mv.hist_partner": "Bilans avec un partenaire",
+ "rp.rep_btn": "Rapport d'expression orale"
 }

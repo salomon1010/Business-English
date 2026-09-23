@@ -194,7 +194,7 @@ console.log("\n2c · FAILURE HANDLING — the client keeps its 204; the operator
 /* ── 3 · the V2 contract, from the client's actual call sites ──────────── */
 console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
-ok("the allow-list carries fourteen v2_* names (eleven missions + three speaking-report)", V2.length === 14, V2.join());
+ok("the allow-list carries fifteen v2_* names (eleven missions + four speaking-report)", V2.length === 15, V2.join());
 ok("the six V2 prop keys are allow-listed (appended last on PROP_KEYS)", KEYS.slice(-6).join() === "competency,mission,move,attempt,ai,from");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));
@@ -215,7 +215,24 @@ function calls(src) {
   }
   return out.filter(c => c.names.length);
 }
-const SITES = calls(APP);
+/* …and every plain track("v2_…") call site (the roleplay speaking report
+   stamps its own track/competency instead of going through mvTrack) */
+function plainCalls(src) {
+  const out = []; let i = 0;
+  while ((i = src.indexOf('track("v2_', i)) >= 0) {
+    if (/[A-Za-z]/.test(src[i - 1] || "")) { i += 10; continue; }           // mvTrack(...) — already counted
+    let j = i + 6, d = 1; while (j < src.length && d > 0) { const c = src[j]; if (c === "(") d++; else if (c === ")") d--; j++; }
+    const args = src.slice(i + 6, j - 1);
+    const names = [...args.matchAll(/"(v2_[a-z_]+)"/g)].map(m => m[1]);
+    const o = args.indexOf("{"); let k = o, dd = 0; if (o >= 0) { do { if (args[k] === "{") dd++; else if (args[k] === "}") dd--; k++; } while (k < args.length && dd > 0); }
+    const obj = o >= 0 ? args.slice(o, k) : "";
+    const keys = [...obj.matchAll(/([a-zA-Z_]+) *:/g)].map(m => m[1]);
+    out.push({ names, keys, args });
+    i = j;
+  }
+  return out.filter(c => c.names.length);
+}
+const SITES = calls(APP).concat(plainCalls(APP));
 const usedNames = [...new Set(SITES.flatMap(s => s.names))];
 const usedKeys = [...new Set(SITES.flatMap(s => s.keys))];
 const IMPLICIT = ["track", "week", "competency"];                          // added by mvTrack itself

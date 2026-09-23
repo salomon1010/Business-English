@@ -2799,5 +2799,8 @@
  "fb.c_details_h": "Details",
  "fb.c_sec_vocab": "Vocabulary from this clip",
  "fb.c_pron_sub_tx": "checked against the transcript of your take",
- "fb.c_pron_norec": "No saved take for this report — record again to get the pronunciation pass."
+ "fb.c_pron_norec": "No saved take for this report — record again to get the pronunciation pass.",
+ "mv.hist_convos": "Conversations",
+ "mv.hist_partner": "Practice Partner reviews",
+ "rp.rep_btn": "Speaking report"
 }
