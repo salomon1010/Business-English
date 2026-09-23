@@ -215,7 +215,14 @@ ok("All three transfer-ready → the fourth competency is offered to speak, not 
   W4c && pick(H) && pick(H).comp.id === "clarify-confirm" && pick(H).rec.action === "speak", show(pick(H)));
 put(H, W4c, ME.missionOf(W4c, "clarify-confirm-guided"), ME.missionOf(W4c, "clarify-confirm-guided").hear.model, "guided", "h7");
 put(H, W4c, ME.missionOf(W4c, "clarify-confirm-transfer"), "Sorry, I'm not sure I follow — the client thing could be two things. Are you asking about the revised quote or the delivery date they wanted? So you're saying it's the quote they're expecting before Wednesday's review. Then I'll send the quote today and come back to you tomorrow on the delivery date — does that work?", "transfer", "h8");
-ok("All four transfer-ready → nothing is pushed; the old advice stands", pick(H) === null, show(pick(H)));
+/* V2.5: a fifth competency ("Explaining technical work to non-technical
+   stakeholders", Week 5). Same rule, one more entry. */
+const W5c = ME.competencyOf(PACK, "explain-tech");
+ok("All four transfer-ready → the fifth competency is offered to speak, not skipped",
+  W5c && pick(H) && pick(H).comp.id === "explain-tech" && pick(H).rec.action === "speak", show(pick(H)));
+put(H, W5c, ME.missionOf(W5c, "explain-tech-guided"), ME.missionOf(W5c, "explain-tech-guided").hear.model, "guided", "h9");
+put(H, W5c, ME.missionOf(W5c, "explain-tech-transfer"), "In plain terms, the integration is a link between their shop and our warehouse. The way it works is that every time a customer places an order, it goes straight to the warehouse system automatically, instead of someone typing it in each morning. What this means for the client is that orders ship the same day and the typing mistakes stop. The one thing to remember is that returns aren't included yet — those are still done by hand. Does that make sense?", "transfer", "h10");
+ok("All five transfer-ready → nothing is pushed; the old advice stands", pick(H) === null, show(pick(H)));
 ok("Pending coaching on Week 3 outranks everything, including a Week 1 retry",
   (() => { const s = {}; put(s, W1, G1, SAY.w1noWhy, "guided", "i1"); const r = put(s, W3, G3, SAY.noAsk, "guided", "i2"); r.attempt.coachPending = true; return show(pick(s)) === "raise-problem:coach:ask"; })());
 

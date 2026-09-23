@@ -76,6 +76,8 @@ const SAY = {
   w2transfer: "Installation is due to start on Monday and everything else is ready. The materials from the supplier arrived three days late. That means we will push back the handover and the end of month promise is at risk. I will confirm a new date with the customer and come back to you this afternoon.",
   w3strong: G3.hear.model,
   w3transfer: "There is a problem with the monthly figures. It started when the old report was switched off in August, so two months of numbers may be wrong. This means the Thursday board pack is at risk. I have spoken to finance and asked them to rerun the numbers. Could you sign off on a one-day delay so we can check them?",
+  /* V2.5: Week 5's cold transfer, to put it to rest when the question is whether Home falls silent once EVERY competency rests */
+  w5transfer: "In plain terms, the integration is a link between their shop and our warehouse. The way it works is that every time a customer places an order, it goes straight to the warehouse system automatically, instead of someone typing it in each morning. What this means for the client is that orders ship the same day and the typing mistakes stop. The one thing to remember is that returns aren't included yet — those are still done by hand. Does that make sense?",
 };
 
 /* ═══════════ A–D · THE CONTENT ITSELF ═══════════════════════════════════ */
@@ -83,8 +85,10 @@ console.log("\nWEEK 4 · THE COMPETENCY");
 ok("A · Week 4 exists, is numbered 4, is 'Clarifying, asking questions & confirming' with four moves and two missions",
   W4 && W4.week === 4 && /clarifying, asking questions & confirming/i.test(W4.title) && ME.moveIds(W4).join() === MOVES && W4.missions.length === 2,
   W4 && ME.moveIds(W4).join());
-ok("A · The canonical numbering holds: 1, 2, 3, 4 — no gaps, no duplicates; the pack's week matches weeks.json's Week 4 theme",
-  PACK.competencies.map(c => c.week).join() === "1,2,3,4" && WEEKS.find(w => w.n === 4).theme === W4.title, WEEKS.find(w => w.n === 4).theme);
+/* V2.5: the numbering claim is consecutive from 1, whatever the count — the
+   raise-problem suite already states it that way. */
+ok("A · The canonical numbering holds: 1, 2, 3, 4, then consecutive — no gaps, no duplicates; the pack's week matches weeks.json's Week 4 theme",
+  PACK.competencies.map(c => c.week).join() === PACK.competencies.map((_, i) => i + 1).join() && PACK.competencies[3].id === "clarify-confirm" && WEEKS.find(w => w.n === 4).theme === W4.title, WEEKS.find(w => w.n === 4).theme);
 ok("A · The pack note records Week 4 and its move count", /Week 4/.test(PACK._note) && /4 moves/.test(PACK._note));
 ok("B · The guided mission loads with the situation, the model, the prompt and the context",
   G4 && G4.kind === "guided" && G4.see && G4.see.where && G4.see.who && G4.see.asks && G4.see.goal && G4.hear && G4.hear.model && G4.hear.note && G4.prompt === G4.see.asks && G4.context);
@@ -250,7 +254,13 @@ ok("S · A Week 1 weakness is fixed before Week 4 is even mentioned", show(pick(
 let B = {}; rest(B, W1, G1, T1, SAY.w1strong, SAY.w1transfer, "b1"); rest(B, W2, G2, T2, SAY.w2strong, SAY.w2transfer, "b2"); rest(B, W3, G3, T3, SAY.w3strong, SAY.w3transfer, "b3");
 ok("S · With Weeks 1–3 resting, Week 4 is offered to speak — a competency nobody has spoken for is never skipped", show(pick(B)) === "clarify-confirm:speak:-", show(pick(B)));
 rest(B, W4, G4, T4, SAY.strong, SAY.transfer, "b4");
-ok("S · With all four resting, nothing is pushed and the old advice stands", pick(B) === null, show(pick(B)));
+/* V2.5: a fifth competency ("Explaining technical work to non-technical
+   stakeholders", Week 5). Same rule, one more entry. */
+const W5 = ME.competencyOf(PACK, "explain-tech");
+const G5 = W5 && ME.missionOf(W5, "explain-tech-guided"), T5 = W5 && ME.missionOf(W5, "explain-tech-transfer");
+ok("S · With Weeks 1–4 resting, the fifth competency is offered to speak — it is not skipped", show(pick(B)) === "explain-tech:speak:-", show(pick(B)));
+rest(B, W5, G5, T5, G5.hear.model, SAY.w5transfer, "b5");
+ok("S · With all five resting, nothing is pushed and the old advice stands", pick(B) === null, show(pick(B)));
 let C = {}; put(C, W1, G1, SAY.w1strong, "guided", "c1"); put(C, W4, G4, SAY.noConfirm, "guided", "c2");
 ok("S · A Week 4 weak move outranks a Week 1 pending transfer — evidence priority, not week order", show(pick(C)) === "clarify-confirm:retry:confirm", show(pick(C)));
 let Dd = {}; put(Dd, W1, G1, SAY.w1noWhy, "guided", "d1"); put(Dd, W4, G4, SAY.noConfirm, "guided", "d2");
@@ -507,8 +517,19 @@ ok("Y2 · The Week 4 panel names its week, its state and its own moves through t
   /Week 4/.test(prog.txt) && /Confirm the next step/.test(prog.txt) && /Flag the gap/.test(prog.txt) && prog.last.week === 4 && prog.last.attempts === 3 && prog.last.passed === 2 && prog.last.transferPassed === 1 && prog.last.pron === 84 && prog.last.pronSource === "audio", JSON.stringify({ w: prog.last.week, a: prog.last.attempts, p: prog.last.passed }));
 const ovp = await overflow(L.page); ok("Progress has no horizontal overflow at 390px with four panels", ovp.sw <= ovp.cw, JSON.stringify(ovp));
 await shot(L.page, "390-progress");
-const afterAll = await L.page.evaluate(() => { go("home"); return { n: document.querySelectorAll(".mv-home").length, card: !!document.querySelector(".mv-home") }; });
-ok("Y3 · With all four competencies resting, Home shows no V2 card and looks as it did before V2 — the old advice stands", afterAll.n === 0 && afterAll.card === false, JSON.stringify(afterAll));
+/* V2.5: with Weeks 1–4 resting the engine offers Week 5 — a competency nobody
+   has spoken for is never skipped — and only once that rests too is Home silent. */
+const afterAll = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home"); return { n: document.querySelectorAll(".mv-home").length, eyebrow: c && c.querySelector(".eyebrow").innerText }; });
+ok("Y3 · With all four competencies resting, Home's one card is the next competency (Week 5), not nothing", afterAll.n === 1 && /Week 5/i.test(afterAll.eyebrow || ""), JSON.stringify(afterAll));
+const afterW5 = await L.page.evaluate(({ t5 }) => {
+  const c = mvComp("explain-tech"), st = mvStore(), IV = trackVocabularyIntervals();
+  const meta = { competency: c.id, week: c.week, moveIds: MissionEngine.moveIds(c) };
+  const one = (m, text, kind, key) => { MissionEngine.introduce(st, c.id, areaId()); const ev = Object.assign(MissionEngine.grade(c, m, text, { seconds: 27 }), { key, kind, missionId: m.id, at: Date.now() - 60000 }); MissionEngine.addAttempt(st, c.id, ev, areaId(), IV, meta); };
+  one(MissionEngine.missionOf(c, "explain-tech-guided"), MissionEngine.missionOf(c, "explain-tech-guided").hear.model, "guided", "z7");
+  one(MissionEngine.missionOf(c, "explain-tech-transfer"), t5, "transfer", "z8");
+  save(); go("home"); return { n: document.querySelectorAll(".mv-home").length, card: !!document.querySelector(".mv-home"), state: st[c.id].state };
+}, { t5: SAY.w5transfer });
+ok("Y3b · With every competency resting, Home shows no V2 card and looks as it did before V2 — the old advice stands", afterW5.n === 0 && afterW5.card === false && afterW5.state === "TRANSFER_READY", JSON.stringify(afterW5));
 const voc = await L.page.evaluate(() => Object.entries(areaVocab()).filter(([, v]) => v.src && v.src.v2 === "clarify-confirm").map(([w]) => w));
 ok("Y4 · Week 4 expressions were acquired automatically, tagged to Week 4", voc.length > 0 && voc.every(w => W4.expressions.some(e => e.w === w)), JSON.stringify(voc));
 

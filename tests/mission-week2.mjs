@@ -154,6 +154,13 @@ ok("With the first three resting, the engine offers the fourth competency to spe
   W5 && pick(F) && pick(F).comp.id === "clarify-confirm" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 put(F, W5, ME.missionOf(W5, "clarify-confirm-guided"), ME.missionOf(W5, "clarify-confirm-guided").hear.model, "guided", "f7");
 put(F, W5, ME.missionOf(W5, "clarify-confirm-transfer"), "Sorry, I'm not sure I follow — the client thing could be two things. Are you asking about the revised quote or the delivery date they wanted? So you're saying it's the quote they're expecting before Wednesday's review. Then I'll send the quote today and come back to you tomorrow on the delivery date — does that work?", "transfer", "f8");
+/* V2.5: a fifth competency ("Explaining technical work to non-technical
+   stakeholders", Week 5). Same rule, one more entry. */
+const W6 = ME.competencyOf(PACK, "explain-tech");
+ok("With the first four resting, the engine offers the fifth competency to speak — it is not skipped",
+  W6 && pick(F) && pick(F).comp.id === "explain-tech" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
+put(F, W6, ME.missionOf(W6, "explain-tech-guided"), ME.missionOf(W6, "explain-tech-guided").hear.model, "guided", "f9");
+put(F, W6, ME.missionOf(W6, "explain-tech-transfer"), "In plain terms, the integration is a link between their shop and our warehouse. The way it works is that every time a customer places an order, it goes straight to the warehouse system automatically, instead of someone typing it in each morning. What this means for the client is that orders ship the same day and the typing mistakes stop. The one thing to remember is that returns aren't included yet — those are still done by hand. Does that make sense?", "transfer", "f10");
 ok("With every competency transfer-ready, nothing is pushed and the old advice stands", pick(F) === null, JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 
 /* ═══════════ BROWSER ════════════════════════════════════════════════════ */
