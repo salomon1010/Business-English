@@ -94,7 +94,9 @@ const REST = {
 const W1_NO_WHY = "I work as an operations analyst in the logistics team. I'm responsible for the weekly delivery reports. At the moment I'm rebuilding how we track late shipments. I work closely with the warehouse managers.";
 const W3_NO_ASK = "We have got a problem with the delivery. It started when the supplier changed the order number. This means we would finish three days late. I have already spoken to their office.";
 /* cold transfers for any competency after Week 8, keyed by id — a new week adds one entry */
-SAY.transfers = {};
+SAY.transfers = {
+  "exec-summary": "The short version: the savings programme reaches its 400 thousand target this year only if we close the third supplier, and that needs a decision from you before Friday. At a high level, two of the four contracts are signed, worth 260 thousand, and the fourth signs next month for another 60. The biggest risk is the third supplier \u2014 110 thousand of the target \u2014 where the negotiation has stalled for three weeks on payment terms: they want 60 days, our standard is 45. Finance can live with 60 days if you agree, and their offer lapses on Friday. The decision I need from you is whether we accept 60-day terms to close it this week. The key takeaway: without the third contract we land at 320, short of target; with it, we're over.",
+};
 const EARLIER = PACK.competencies.filter(c => c.week < WEEK).sort((a, b) => a.week - b.week);
 const LATER = PACK.competencies.filter(c => c.week > WEEK).sort((a, b) => a.week - b.week);
 
