@@ -16,6 +16,8 @@
 #   ./query.sh countries       which markets to translate for next
 #   ./query.sh returns         who comes back, and after how long away
 #   ./query.sh partner         how many want a practice partner, by track
+#   ./query.sh v2              V2 missions: events by week and competency, last 7 days
+#   ./query.sh v2moves         V2 missions: which move is weak, by competency, last 30 days
 #   ./query.sh raw "SELECT …"  anything else
 #
 # Needs a Cloudflare API token with Account -> Account Analytics -> Read.
@@ -38,7 +40,7 @@ ACCOUNT="${CF_ACCOUNT:-8d3cd584749c92c7076d30688dde2a1d}"
 DATASET="be_events"
 TOKEN_FILE="${CF_TOKEN_FILE:-$HOME/.config/be-mastery/events.env}"
 
-usage(){ sed -n '3,17p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
+usage(){ sed -n '3,21p' "$0" | sed 's/^# \{0,1\}//'; exit "${1:-0}"; }
 
 ask_token(){
   # Under launchd there is no terminal to ask at. Reading /dev/tty would fail
@@ -155,6 +157,17 @@ case "$WHAT" in
                  FROM $DATASET WHERE blob1 = 'app_open'
                    AND timestamp > now() - INTERVAL '30' DAY
                  GROUP BY country ORDER BY n DESC LIMIT 20" ;;
+  # V2 missions use their own column map (README § Row layouts): blob3 track,
+  # blob4 week, blob5 competency, blob6 mission, blob7 kind, blob8 move,
+  # blob9 result, blob10 band, blob11 state, blob12 from, blob13 attempt, blob14 ai.
+  v2)        SQL="SELECT blob1 AS event, blob4 AS week, blob5 AS competency, sum(_sample_interval) AS n
+                 FROM $DATASET WHERE startsWith(blob1, 'v2_')
+                   AND timestamp > now() - INTERVAL '7' DAY
+                 GROUP BY event, week, competency ORDER BY week, competency, n DESC" ;;
+  v2moves)   SQL="SELECT blob5 AS competency, blob8 AS move, blob9 AS result, sum(_sample_interval) AS n
+                 FROM $DATASET WHERE blob1 = 'v2_evidence_recorded'
+                   AND timestamp > now() - INTERVAL '30' DAY
+                 GROUP BY competency, move, result ORDER BY competency, n DESC" ;;
   raw)       SQL="${2:-}"; [ -z "$SQL" ] && { echo "raw needs a SQL string." >&2; exit 1; } ;;
   dashboard|snapshot) SQL="" ;;   # handled below — several queries, not one
   *)         echo "Don't know '$WHAT'." >&2; usage 1 ;;

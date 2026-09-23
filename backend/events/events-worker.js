@@ -149,6 +149,38 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;
 
+/* ROW LAYOUT — Analytics Engine takes at most 20 blobs per data point
+   (workerd analytics-engine.h: "20 text fields (blobs)"; docs → limits).
+   blob1 is the name and blob2 the country, so a row has room for 18 prop
+   columns. PROP_KEYS is an allow-list of what may be READ from a beacon; it
+   stopped being a safe row layout the moment it passed 18 keys (a420846,
+   18 Sept 2026). From the 19 Sept 22:46 UTC deploy every write carried 25+
+   blobs and was refused — the catch below swallows the error and the client
+   gets its 204, so nothing looked wrong and the dataset simply went quiet
+   (last row 2026-09-19, found 22 Sept while preparing the V2 deploy).
+
+   LEGACY is the first 18 keys in their original order: exactly the columns
+   blob3..blob20 that ever existed, so every query in README.md and query.sh
+   keeps meaning what it meant. Keys after `now` were never readable (there
+   is no blob21) and are dropped for legacy events, as they always were.
+
+   An event family may declare its own map. Every query filters on blob1
+   first, so a column can carry different keys for different names; each map
+   is written down in README.md. V2 missions are the first family: the
+   questions they exist to answer — which competency, which move, which
+   state — need columns the legacy row never had room for. */
+const AE_MAX_BLOBS = 20;
+const LEGACY = [...PROP_KEYS].slice(0, AE_MAX_BLOBS - 2);
+const LAYOUTS = [
+  // v2_* → blob3 track, 4 week, 5 competency, 6 mission, 7 kind, 8 move,
+  // 9 result, 10 band, 11 state, 12 from, 13 attempt, 14 ai
+  [/^v2_/, ["track", "week", "competency", "mission", "kind", "move", "result", "band", "state", "from", "attempt", "ai"]],
+];
+function layoutFor(name){
+  const m = LAYOUTS.find(([re]) => re.test(name));
+  return m ? m[1] : LEGACY;
+}
+
 function cors(origin, extra = []){
   const ok = ALLOWED_ORIGINS.includes(origin) || extra.includes(origin) ? origin : ALLOWED_ORIGINS[0];
   return {
@@ -195,7 +227,7 @@ export default {
 
     const blobs = [b.name, req.cf && req.cf.country ? req.cf.country : "??"];
     const props = b.props && typeof b.props === "object" ? b.props : {};
-    for (const k of PROP_KEYS) blobs.push(props[k] != null ? clean(props[k]) : "");
+    for (const k of layoutFor(b.name)) blobs.push(props[k] != null ? clean(props[k]) : "");
 
     try {
       env.AE.writeDataPoint({

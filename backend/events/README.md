@@ -62,11 +62,43 @@ Column mapping, fixed by the Worker — `blob1` … `blob8` in this order:
 | `blob13` | `onboarded` |
 | `blob14` | `stage` |
 | `blob15` | `kind` |
+| `blob16` | `gap` |
+| `blob17` | `track` |
+| `blob18` | `n` |
+| `blob19` | `round` |
+| `blob20` | `now` |
 
-The order is `PROP_KEYS` insertion order — a `Set`, iterated in the order the
-keys were written — so **append new keys, never insert**. Putting one in the
-middle silently shifts every column after it, and old rows keep the old layout,
-so every historical query goes quietly wrong.
+That is the whole row. **Analytics Engine takes at most 20 blobs per data
+point** (workerd `analytics-engine.h`; docs → limits), and there is no
+`blob21`. `PROP_KEYS` is the allow-list of keys the Worker may *read* from a
+beacon; the row is built from a *layout* (`LEGACY`, the first 18 keys, in
+their original order — so **never insert, never reorder** those 18; a key
+after `now` gets no column of its own for legacy events).
+
+## Row layouts
+
+An event family can declare its own column map (`LAYOUTS` in the Worker).
+Every query filters on `blob1` first, so a column may carry different keys for
+different names. Maps so far:
+
+| family | blob3 | blob4 | blob5 | blob6 | blob7 | blob8 | blob9 | blob10 | blob11 | blob12 | blob13 | blob14 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| everything else (`LEGACY`) | streak | week | day | source | lang | result | module | trade | band | installed | onboarded | stage … `now` at blob20 |
+| `v2_*` | track | week | competency | mission | kind | move | result | band | state | from | attempt | ai |
+
+`partner_*` and `shadow_*` events use the legacy map: `n`, `round`, `now` land
+(blob18–20); `regular`, `state`, `level`, `mode`, `to`, `reason`, `evidence`,
+`rung` never had a column and are still dropped. Give them a family map the
+day those questions matter — a wider row is not an option.
+
+### Incident — no rows from 19 to 22 September 2026
+
+`PROP_KEYS` passed 18 keys on 18 Sept (`a420846`). From the first deploy that
+carried it (19 Sept 22:46 UTC) every data point had 25+ blobs, workerd threw
+`TypeError: Maximum of 20 blobs supported`, the Worker's `catch` swallowed it
+and answered 204, and the dataset went quiet — last row 19 Sept 18:43 UTC,
+found on 22 Sept while preparing the V2 deploy. The layouts above are the fix.
+Nothing from those days can be recovered: the beacons were dropped at write.
 
 **Which events fire at all, last 7 days**
 
@@ -223,10 +255,32 @@ has no `EXTRA_ORIGINS`, so its behaviour is unchanged. Test phones point at
 it with `localStorage.be_events_api`. Query with the same SQL against
 `be_events_staging`.
 
+## BE Mastery V2 missions (General English only)
+
+Eleven events, all emitted through `mvTrack()` in index.html, which refuses to
+fire off General English and stamps `track`, `week` and `competency` on every
+one. `week` is the General English programme week the competency teaches
+(1 Explain what you do, 2 Give a clear update, 3 Raise a problem …).
+
+`v2_mission_started` (+`mission`, `kind` guided|transfer) → `v2_mission_heard`
+→ `v2_speak_attempt` | `v2_transfer_started` → `v2_coach_generated` (+`move`,
+`ai` 1|0) → `v2_evidence_recorded` (+`result` pass|fail, `band` strong|partial|
+thin, `move` the weakest, `attempt` count; also `kind` shadow for supporting
+rows) → `v2_retry_attempt` (+`move`) → `v2_transfer_completed` (+`result`) →
+`v2_competency_progressed` (+`state`, `from`) → `v2_retrieval_scheduled`
+(+`state`) → `v2_recommendation_generated` (+`result` the action, `move`,
+`state`). Counts and fixed enums only — nothing spoken, transcribed or from the
+profile. `move` and `state` values are competency-move ids and state names.
+
+Read them with `./query.sh v2` (events by week and competency) and
+`./query.sh v2moves` (which move is weak, by competency). **Deploy this Worker
+before the V2 client ships**, or every one of these is dropped with 204.
+
 ## Adding an event
 
 1. Add the name to `EVENTS` in `events-worker.js`, and any new prop key to
-   `PROP_KEYS`.
+   `PROP_KEYS` (appended). A new key only gets a column through a family map
+   in `LAYOUTS` — a row can never be wider than 20 blobs.
 2. Call `track("name", {prop:"value"})` in index.html.
 3. Redeploy the Worker *before* the site, or the event is dropped with 204.
 
