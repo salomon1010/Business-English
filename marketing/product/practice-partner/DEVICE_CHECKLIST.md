@@ -83,7 +83,7 @@ production first.
 | I-28 AI turns | record → Send to the AI coach ×2 | | each reply tagged AI and spoken; "AI practice complete" with one AI-tagged tip; Practise again / Back | P | 2 sends → complete → 'Practise again' (`ai_started reason=again` 04:46:10) |
 | I-29 AI failure | airplane mode after recording, Send | | "did not answer… try again" card, take kept; retry sends once | | |
 | I-30 Human thread untouched | after I-28 | Back → Stop looking | no AI turn anywhere in a human thread; connection card unchanged | P | `turns` unchanged, connection `mutual`; both phones also opened the coach from More options (`reason=session`, 04:54) with no turn in the human thread |
-| I-31 Daily cap | (API) 13th new session | | 429 → "That is enough AI practice for today…" | | |
+| I-31 No daily cap | (API) 13th new session on the same day | | 200 — AI practice is not rationed; only a burst (many calls in one minute) is refused, with "Too many requests just now" | | |
 
 ### 4. Level 3 — live human practice (2)
 | ID | Precondition | Action | Expected | P/F | Notes |

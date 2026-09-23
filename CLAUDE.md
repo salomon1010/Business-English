@@ -248,8 +248,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rmRing`/`rmSpin`, not a box-shadow throb; the partner-left dialog is
   Close / Find another partner and either clears the partner from the screen
   at once (`dismissedClosed`); the Practice-tab card has **How it works**
-  (`ppHowSheet`). Dev-only `POST /__uncap {uid}` resets one learner's daily
-  caps for the long browser run. **Account deletion:** `DELETE /me` (above the
+  (`ppHowSheet`). Dev-only `POST /__uncap {uid}` clears one
+  learner's report/block counters and burst rows. **There is NO daily practice
+  quota** (owner, 2026-09-23): the queue, matching, invites, sessions, reviews,
+  decisions, rematches, live and the AI coach are unrationed, and "You've
+  reached today's limit" must never appear for practising. Abuse of those
+  routes is held per MINUTE by `burstLimited` (`BURST_PER_MIN`, 60/learner, a
+  D1 counter keyed by the minute, `429 rate`) and `ipLimited` (`IP_PER_MIN`,
+  300/IP); only `report 5` / `block 20` keep a day boundary (`SAFETY_LIMITS`),
+  and `pp.err_limit` is worded for those two alone; the client tells the two
+  429s apart with `ppIsRate(e)` (`rate` / `ip_limit` → `pp.err_rate`). Do not
+  reintroduce a daily counter on a practice route. **Account deletion:** `DELETE /me` (above the
   kill switch) erases the learner's partner data; `fbDeleteAccount` calls
   `ppEraseMe()` first (flag-independent, 404 = nothing held) — Apple 5.1.1(v)
   / Play account-deletion. Release audit: `docs/release/FINAL_RELEASE_AUDIT.md`

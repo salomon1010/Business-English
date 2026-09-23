@@ -167,7 +167,6 @@ ok("Hang up while waiting → the invitation is cancelled, the room is gone, the
 { const am = await (await api("alice", "GET", "/me")).json(); await api("alice", "POST", `/pairs/${am.pair.id}/leave`); }
 await api("eve", "DELETE", "/interest"); await hide("eve"); await A.page.evaluate(async () => { ppCands = null; ppAutoAvail = 99; ppLiveWant = false; await ppRefresh(); await ppMatch(); ppCands = null; ppState().dismissedClosed = ppMe.lastClosed && ppMe.lastClosed.id; ppRender(document.getElementById("v-partner")); });
 await A.page.evaluate(() => { ppAutoAvail = 99; });   /* auto-discovery is proven above; from here every "someone came online" would re-open the cards mid-step and make the rest timing-dependent */
-await fetch(WORKER + "/__uncap", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:alice" }) }).catch(() => {});
 ok("Back in line after leaving (cooldown with Eve), waiting card shown", (await (await api("alice", "GET", "/me")).json()).waiting != null && (await txt(A.page, ".pp-wait")).includes("waiting list"));
 
 /* ---------- Level 2: the AI coach session (Polish Worker intercepted — no live AI call) ---------- */
@@ -467,7 +466,8 @@ ok("Use it with a partner → Practice Partner with the phrase queued for the ne
 /* Alice ended her partnership with Carla above and rematched Bob, so both are in cooldown; a fresh learner takes the pairing */
 await api("dina", "POST", "/consent", { name: "Dina", lang: "fr", adult: true, gender: "f", goals: ["workplace"], avail: ["evening"], tz: 0 });
 await api("dina", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
-await fetch(WORKER + "/__uncap", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:alice" }) }).catch(() => {});   /* a long run: reset Alice's daily caps (dev-only route) */
+/* no uncapping: there is no daily practice quota to work around any more —
+   a long run of the whole loop has to survive on its own (owner, 2026-09-23) */
 /* with no compatibility gate, anyone in line may be the best pick — clear the others so the pick is Dina */
 for (const u of ["bob", "zoe", "eve", "carla"]) { await api(u, "DELETE", "/interest"); await hide(u); }
 await A.page.click('button:has-text("Practise now")'); await sleep(1500);

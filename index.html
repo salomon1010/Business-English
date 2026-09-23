@@ -6145,7 +6145,6 @@ const I18N_EN={
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
- "pp.ai_limit":"That is enough AI practice for today — twelve sessions. Your human partner and tomorrow's practice are waiting.",
  "pp.live_eyebrow":"Live practice — human partner",
  "pp.live_btn":"Practise live",
  "pp.live_with":"Live with {{name}}",
@@ -6199,8 +6198,6 @@ const I18N_EN={
  "pp.play":"Play",
  "pp.no_transcript":"(no transcript)",
  "pp.play_failed":"Couldn't play that turn. Check your connection.",
- "pp.limit_h":"That's your three turns for today",
- "pp.limit_sub":"Come back tomorrow for the next task, or listen to your partner's turns again. ({{max}} per day keeps this practice, not chat.)",
  "pp.week_over":"Your week with this partner is complete.",
  "pp.rec_h":"Your turn",
  "pp.rec_sub":"Up to 60 seconds. You will hear it back and see the coach's score before anything is sent.",
@@ -6216,7 +6213,10 @@ const I18N_EN={
  "pp.send_fine":"Sending shares this recording and its transcript with your partner only.",
  "pp.sent_toast":"Sent. Your partner will hear it when they open the app.",
  "pp.err_moderation":"Not sent: the transcript contains a phone number, link, e-mail or social handle. Contact details aren't allowed here — record again without them.",
- "pp.err_limit":"You've reached today's limit.",
+ /* safety actions only (reporting, blocking): those do keep a daily cap.
+    Practising is never rationed — a busy moment says pp.err_rate instead. */
+ "pp.err_limit":"That's as many reports and blocks as we can take from one account today. If you need help now, e-mail contact@lomonec.com.",
+ "pp.err_rate":"Too many requests just now. Please try again in a moment.",
  "pp.err_day":"A new day started — the task changed. Please record again.",
  "pp.err_nopair":"This pair has ended.",
  "pp.err_generic":"Something went wrong. Please try again.",
@@ -19134,6 +19134,11 @@ async function ppEraseMe(){
   try{r=await fetch(ppApiBase()+"/me",{method:"DELETE",headers:h})}catch(e){throw Object.assign(new Error("network"),{code:"network"})}
   if(!r.ok&&r.status!==404)throw Object.assign(new Error("server"),{code:"server",status:r.status});   /* 404 = no Worker at that address = nothing held */
 }
+/* a 429 is two different things: "limit" is a safety cap with a day
+   boundary (reports, blocks), "rate"/"ip_limit" is a busy minute.
+   Practising is never rationed, so on a practice route it can only mean
+   the second — "try again in a moment", never "today's limit". */
+const ppIsRate=e=>!!e&&(e.code==="rate"||e.code==="ip_limit");
 async function ppApi(method,path,body){
   if(!ppAvailable())throw Object.assign(new Error("off"),{code:"off"});
   const h=await ppHeaders();let b=body;
@@ -19368,7 +19373,7 @@ async function ppRevRequest(pair,quiet){
        this client (the route is not there yet). Same honest message. */
     if(e.code==="review_off"||(e.code==="not_found"&&e.status===404)){if(!quiet)toast(t("pp.rv_off_toast"));return null}
     if(e.code==="not_complete"){return null}
-    if(e.code==="limit"){if(!quiet)toast(t("pp.err_limit"));return null}
+    if(ppIsRate(e)){if(!quiet)toast(t("pp.err_rate"));return null}
     if(!quiet)toast(t("pp.rv_fail_toast"));return null;
   }
   if(r&&r.pending){   /* another request is writing it: come back in a moment */
@@ -20280,7 +20285,7 @@ window.ppSend=async()=>{
     if(res&&res.complete&&ppMe&&ppMe.pair&&ppMe.pair.id===p.id){
       ppRevRequest(ppMe.pair,false).then(rv=>{if(rv&&cur.v==="partner"&&!ppLive&&!ppAiOpen)ppRevOpen(rv.id);else if(rv)toast(t("pp.rv_ready_toast"))}).catch(()=>{})}
   }catch(e){
-    const msg=e.code==="moderation"?t("pp.err_moderation"):e.code==="limit"?t("pp.err_limit"):e.code==="not_your_turn"?t("pp.err_turn"):e.code==="complete"?t("pp.err_complete"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
+    const msg=e.code==="moderation"?t("pp.err_moderation"):ppIsRate(e)?t("pp.err_rate"):e.code==="not_your_turn"?t("pp.err_turn"):e.code==="complete"?t("pp.err_complete"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
     toast(msg);
     if(e.code==="moderation"){r.transcript="";r.score=null;r.words=null;ppRec=null;ppRenderRecorder()}
     if(e.code==="not_your_turn"||e.code==="complete"||e.code==="no_pair"){await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
@@ -20324,7 +20329,7 @@ window.ppMatch=async()=>{
     if(e.code==="paired"){await ppRefresh(true);return}   /* the cached /me was stale: a session is already open — the re-read draws it */
     if(e.code==="consent"||e.code==="age"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{ppOpenConsent()}catch(_){}return}
     if(e.code==="auth"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{fbOpenModal("in")}catch(_){}return}
-    toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+    toast(ppIsRate(e)?t("pp.err_rate"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 /* Practice now: take the best candidate immediately, or stay in line with the AI coach offered */
@@ -20338,7 +20343,7 @@ window.ppNow=async()=>{
     try{track("partner_match_requested",{now:"1"});if(r.status==="invited")track("partner_trial_invited",{})}catch(e){}
     if(r.status==="invited"){toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}))}
     else{toast(t("pp.nohuman_h"));try{track("partner_ai_fallback",{})}catch(e){}}
-  }catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  }catch(e){toast(ppIsRate(e)?t("pp.err_rate"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppInvite=async(offer,live)=>{
@@ -20352,7 +20357,7 @@ window.ppInvite=async(offer,live)=>{
     toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}));
   }catch(e){
     if(e.code==="offer"||e.code==="gone"){toast(t("pp.err_gone"));ppCands=null;await ppMatch();return}
-    toast(e.code==="limit"?t("pp.err_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
+    toast(ppIsRate(e)?t("pp.err_rate"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
   }finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppNext=async()=>{
@@ -20399,7 +20404,7 @@ window.ppLiveInvite=async()=>{
     const r=await ppApi("POST","/live",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
     ppMe=r;st.lastMe=r;st.partnersFresh=null;save();try{track("partner_live_invited",{})}catch(e){}
     ppLiveOpen(r.live,null);
-  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppLiveAccept=async()=>{
@@ -20924,7 +20929,7 @@ window.ppAiStart=async(reason)=>{
     const id=[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("");
     /* the Worker counts new AI sessions per learner (12/day) and refuses the wrong track */
     try{await ppApi("POST","/ai/session",{id,track:areaId(),reason:reason||"choice"})}
-    catch(e){ppBusy=false;return toast(e.code==="limit"?t("pp.ai_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+    catch(e){ppBusy=false;return toast(ppIsRate(e)?t("pp.err_rate"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
     ppBusy=false;
     a={id,reason:reason||"choice",
        seed:{promptWeek:p?p.promptWeek:pos.promptWeek,fndDay:p?p.fndDay:pos.fndDay,band:p?p.band:ppBand(),phrase:(p&&p.prompt&&p.prompt.phrase)||(st.applyPhrase&&st.applyPhrase.text)||null,pairId:p?p.id:null},
@@ -21084,7 +21089,7 @@ window.ppConnEnd=async(findElse)=>{
   if(!ok)return;
   ppBusy=true;
   try{const r=await ppApi("POST","/connection/end",{cid:c.cid});ppMe=r;ppState().lastMe=r;save();ppHistSafety(findElse?"rematch":"end",c.name);try{track("partner_connection_ended",{})}catch(e){}toast(t("pp.end_done"))}
-  catch(e){ppBusy=false;toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"));return}
+  catch(e){ppBusy=false;toast(ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"));return}
   ppBusy=false;
   if(findElse)ppMatch();else{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };

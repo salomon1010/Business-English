@@ -58,7 +58,8 @@ unless marked *(documented, not automated)*.
   ends the session for both sides and blocks both directions; the other side
   sees only "left".
 - Invitations expire in 10 minutes, sessions 45 minutes after their last
-  transition; the daily cron closes the rest. Daily limit: 20 live sessions.
+  transition; the daily cron closes the rest. No daily limit on live sessions —
+  only the per-minute burst control above.
 - TURN credentials, when configured, are short-lived and minted per request;
   no permanent secret reaches the client.
 
@@ -89,8 +90,25 @@ unless marked *(documented, not automated)*.
   `cooldowns` row, connection `disconnected`. The partner sees "this session
   has ended", never the reason. Neither decision is shown to the other.
 
-## Abuse prevention and rate limits (Worker, per uid per UTC day)
-`interest 10 · match 30 · invite 10 · report 5 · block 20 · decide 40`;
+## Abuse prevention and rate limits (Worker)
+**There is no daily practice quota.** Joining the queue, matching, inviting,
+running a session, getting its review, deciding, rematching, live calls and AI
+coach sessions are unrationed: a learner may go round the loop as often as they
+like (owner, 2026-09-23 — an earlier build counted these per UTC day and told
+the learner "You've reached today's limit", which was never a BE Mastery
+product rule).
+
+- **Per UTC day**, two safety actions only: `report 5 · block 20`
+  (`SAFETY_LIMITS`). Firing dozens of these in a day is the abuse.
+- **Per minute**, everything else: `BURST_PER_MIN` (60 per authenticated
+  learner, a D1 counter keyed by the minute, exact across isolates) and
+  `IP_PER_MIN` (300, per IP, in memory). They answer `429 rate` /
+  `429 ip_limit` — "try again shortly", and nothing accumulates.
+- Cost-bearing routes are bounded by structure, not by a ration: `/review`
+  needs a COMPLETED four-turn session and is served from the stored row on
+  every repeat, so it cannot be farmed.
+
+Older, non-rate limits that stay:
 turns: one per round, alternating, four per session; audio ≥ 1.2 KB, ≤ 1.5
 MB, ≤ 75 s; all routes 120 requests/min per IP (`IP_PER_MIN` env; tests
 raise it). Duplicate sends are idempotent on the client-generated `turn_id`.

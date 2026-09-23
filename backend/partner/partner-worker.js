@@ -70,12 +70,31 @@ const GOALS = new Set(["casual", "workplace", "interview", "pronunciation", "dai
 const MODES = new Set(["voice", "live", "either"]);
 const AVAIL = new Set(["morning", "afternoon", "evening", "weekends"]);
 const REASONS = new Set(["harassment", "contact_info", "not_english", "abuse", "other"]);
-const DAILY_LIMITS_DEFAULT = { interest: 10, match: 30, invite: 10, report: 5, block: 20, decide: 40, live: 20, ai: 12, end: 10, review: 20 };
-/* per-environment overrides through the DAILY_LIMITS var (JSON) — staging
-   raises them so a day of device testing on one account does not hit the
-   anti-abuse caps; production keeps the defaults */
-let _limitsEnv = null, DAILY_LIMITS = { ...DAILY_LIMITS_DEFAULT };
-function applyLimits(env) { if (_limitsEnv === env) return; _limitsEnv = env; DAILY_LIMITS = { ...DAILY_LIMITS_DEFAULT }; try { const o = JSON.parse(env.DAILY_LIMITS || "{}"); for (const k of Object.keys(DAILY_LIMITS_DEFAULT)) if (Number.isFinite(o[k]) && o[k] > 0) DAILY_LIMITS[k] = o[k]; } catch (e) {} }
+/* ---- limits. Two different things, deliberately kept apart:
+
+   SAFETY_LIMITS are a PRODUCT rule with a day boundary: reporting and
+   blocking are safety actions, and an account that fires dozens of them a day
+   is the abuse, not the victim of one. These are the only caps a learner may
+   be told about in terms of "today".
+
+   There is NO daily cap on practising. A learner may join the queue, match,
+   invite, run a session, get its review, decide, rematch and practise again
+   as often as they like, with a human or with the AI coach (owner,
+   2026-09-23 — an earlier build counted those routes per UTC day and surfaced
+   the 429 as "You've reached today's limit", which was never a BE Mastery
+   product rule). Abuse of the practice routes is held per MINUTE by
+   burstLimited() and ipLimited(): nothing accumulates, and the honest answer
+   is "try again shortly". Cost-bearing routes are additionally bounded by
+   structure — /review needs a COMPLETED four-turn session and is served from
+   the stored row on every repeat, so it cannot be farmed.  */
+const SAFETY_LIMITS_DEFAULT = { report: 5, block: 20 };
+/* per-environment overrides through the SAFETY_LIMITS var (JSON) — staging
+   raises them so a day of device testing on one account can exercise the
+   report and block paths repeatedly */
+let _limitsEnv = null, SAFETY_LIMITS = { ...SAFETY_LIMITS_DEFAULT };
+function applyLimits(env) { if (_limitsEnv === env) return; _limitsEnv = env; SAFETY_LIMITS = { ...SAFETY_LIMITS_DEFAULT }; try { const o = JSON.parse(env.SAFETY_LIMITS || "{}"); for (const k of Object.keys(SAFETY_LIMITS_DEFAULT)) if (Number.isFinite(o[k]) && o[k] > 0) SAFETY_LIMITS[k] = o[k]; } catch (e) {} }
+const BURST_PER_MIN_DEFAULT = 60;   // per authenticated learner, per minute, on the action routes
+
 /* live practice: an invitation waits 10 min, an accepted/active session may last 45 min from its last transition */
 const LIVE_INVITE_MS = 10 * 60_000, LIVE_SESSION_MS = 45 * 60_000, LIVE_MAX_SIGNALS = 400;
 const LIVE_OPEN = new Set(["invited", "accepted", "connecting", "active", "reconnecting"]);
@@ -121,6 +140,24 @@ function ipLimited(ip, env) {
   const n = (ipHits.get(k) || 0) + 1; ipHits.set(k, n);
   if (ipHits.size > 5000) for (const key of ipHits.keys()) { if (!key.endsWith(":" + m)) ipHits.delete(key); }
   return n > limit;
+}
+/* ---- per-LEARNER burst limiter: an abuse control, never a practice quota.
+   It counts the action routes per MINUTE for one authenticated uid, so a
+   script holding a valid token cannot hammer the Worker by rotating IPs past
+   ipLimited(). It shares the `counters` table with the safety caps, which
+   makes it exact across isolates and colos (the per-IP limiter above is
+   in-memory and best effort; this one is not). Nothing carries over: the key
+   changes every minute, the cron sweeps the old rows, and a learner who sees
+   it is told to try again shortly, because that is the truth. The ceiling is
+   far above any human — tapping Match me, inviting, deciding and starting
+   sessions comes nowhere near it. */
+const minKey = ms => new Date(ms).toISOString().slice(0, 16).replace(/[-:T]/g, "");
+async function burstLimited(env, uid, ms) {
+  const limit = Number(env && env.BURST_PER_MIN) || BURST_PER_MIN_DEFAULT;
+  const key = `${uid}:burst:${minKey(ms)}`;
+  await env.DB.prepare("INSERT INTO counters(key,n) VALUES(?,1) ON CONFLICT(key) DO UPDATE SET n=n+1").bind(key).run();
+  const r = await env.DB.prepare("SELECT n FROM counters WHERE key=?").bind(key).first();
+  return (r ? r.n : 1) > limit;
 }
 async function bump(env, uid, route, ms) {
   const key = `${uid}:${route}:${dayKey(ms)}`;
@@ -247,7 +284,7 @@ async function eraseMember(env, uid, ms) {
 }
 /* report and block are shared by the async thread and live practice */
 async function doReport(env, uid, other, ctxId, reason, ms) {
-  if (await bump(env, uid, "report", ms) > DAILY_LIMITS.report) return err(429, "limit");
+  if (await bump(env, uid, "report", ms) > SAFETY_LIMITS.report) return err(429, "limit");
   await q(env, "INSERT OR IGNORE INTO reports(id,pair_id,by_uid,about_uid,reason,created_at) VALUES(?,?,?,?,?,?)", rid(), ctxId, uid, other, reason, ms).run();
   const n = (await q(env, "SELECT COUNT(DISTINCT by_uid) AS n FROM reports WHERE about_uid=?", other).first()).n;
   await q(env, "UPDATE members SET strikes=? WHERE uid=?", n, other).run();
@@ -262,7 +299,7 @@ async function doReport(env, uid, other, ctxId, reason, ms) {
   return null;
 }
 async function doBlock(env, uid, other, ms) {
-  if (await bump(env, uid, "block", ms) > DAILY_LIMITS.block) return err(429, "limit");
+  if (await bump(env, uid, "block", ms) > SAFETY_LIMITS.block) return err(429, "limit");
   const [x, y] = pairKey(uid, other);
   await env.DB.batch([
     q(env, "INSERT OR IGNORE INTO blocks(by_uid,about_uid,created_at) VALUES(?,?,?)", uid, other, ms),
@@ -637,7 +674,7 @@ async function handle(req, env, ctx) {
     const b = await req.json().catch(() => ({}));
     if (!TRACKS.has(b.track)) return err(403, "track");
     if (!BANDS.includes(b.band)) return err(400, "bad_request");
-    if (await bump(env, uid, "interest", ms) > DAILY_LIMITS.interest) return err(429, "limit");
+    if (await burstLimited(env, uid, ms)) return err(429, "rate");
     const lang = /^[a-z]{2}$/.test(b.lang || "") ? b.lang : m.lang;
     const pw = Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), fd = Math.max(0, Math.min(15, Number(b.fndDay) || 0));
     const mode = b.mode === "now" ? "now" : "later", topic = clean(b.topic, 60);
@@ -662,7 +699,7 @@ async function handle(req, env, ctx) {
     if (suspended) return err(403, "suspended", m.suspended_until);
     if (await activePair(env, uid)) return err(409, "paired");
     if (!(await q(env, "SELECT 1 AS x FROM interest WHERE uid=?", uid).first())) return err(409, "not_waiting");
-    if (await bump(env, uid, "match", ms) > DAILY_LIMITS.match) return err(429, "limit");
+    if (await burstLimited(env, uid, ms)) return err(429, "rate");
     const cards = await offerCards(env, uid, ms, await candidates(env, uid, ms, 3));
     return json({ candidates: cards, ...(await meView(env, uid, ms)) });
   }
@@ -673,7 +710,7 @@ async function handle(req, env, ctx) {
     const b = await req.json().catch(() => ({}));
     const off = /^[a-f0-9]{16}$/.test(b.offer || "") ? await q(env, "SELECT * FROM offers WHERE id=? AND for_uid=?", b.offer, uid).first() : null;
     if (!off || off.expires_at < ms) return err(404, "offer");
-    if (await bump(env, uid, "invite", ms) > DAILY_LIMITS.invite) return err(429, "limit");
+    if (await burstLimited(env, uid, ms)) return err(429, "rate");
     if (await activePair(env, uid)) return err(409, "paired");
     const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first();
     let theirs = await q(env, "SELECT * FROM interest WHERE uid=?", off.cand_uid).first();
@@ -741,7 +778,7 @@ async function handle(req, env, ctx) {
          record, no connection, no cooldown, both are free to come back) */
       if (!["continue", "rematch", "later"].includes(b.choice)) return err(400, "bad_request");
       if (pair.status !== "active") return err(409, "closed");
-      if (await bump(env, uid, "decide", ms) > DAILY_LIMITS.decide) return err(429, "limit");
+      if (await burstLimited(env, uid, ms)) return err(429, "rate");
       const turns = (await q(env, "SELECT from_uid, created_at FROM turns WHERE pair_id=?", pair.id).all()).results || [];
       const rv = roundsView(pair, turns, uid);
       const myLast = [...turns].reverse().find(t => t.from_uid === uid);
@@ -798,7 +835,7 @@ async function handle(req, env, ctx) {
       const other = c.a === uid ? c.b : c.a;
       if (cm[1] === "end") {
         if (c.state === "ended" || c.state === "blocked") return json({ ok: true, already: true, ...(await meView(env, uid, ms)) });
-        if (await bump(env, uid, "end", ms) > DAILY_LIMITS.end) return err(429, "limit");
+        if (await burstLimited(env, uid, ms)) return err(429, "rate");
         await env.DB.batch([
           q(env, "UPDATE connections SET state='ended', updated_at=? WHERE a=? AND b=? AND state NOT IN ('blocked')", ms, c.a, c.b),
           q(env, "INSERT INTO cooldowns(a,b,until,reason) VALUES(?,?,?,'ended') ON CONFLICT(a,b) DO UPDATE SET until=excluded.until, reason='ended'", c.a, c.b, ms + COOLDOWN_MS),
@@ -822,7 +859,7 @@ async function handle(req, env, ctx) {
       if (cm[1] === "unblock") {
         const mine = await q(env, "SELECT 1 AS x FROM blocks WHERE by_uid=? AND about_uid=?", uid, other).first();
         if (!mine) return json({ ok: true, already: true, ...(await meView(env, uid, ms)) });
-        if (await bump(env, uid, "block", ms) > DAILY_LIMITS.block) return err(429, "limit");
+        if (await bump(env, uid, "block", ms) > SAFETY_LIMITS.block) return err(429, "limit");
         await q(env, "DELETE FROM blocks WHERE by_uid=? AND about_uid=?", uid, other).run();
         const theirs = await q(env, "SELECT 1 AS x FROM blocks WHERE by_uid=? AND about_uid=?", other, uid).first();
         if (!theirs) await q(env, "UPDATE connections SET state='ended', updated_at=? WHERE a=? AND b=? AND state='blocked'", ms, c.a, c.b).run();
@@ -857,7 +894,7 @@ async function handle(req, env, ctx) {
     const id = /^[a-f0-9]{16}$/.test(b.id || "") ? b.id : null; if (!id) return err(400, "bad_request");
     const seen = await q(env, "SELECT 1 AS x FROM audit WHERE actor=? AND action='ai_started' AND pair_id=? LIMIT 1", uid, id).first();
     if (seen) return json({ ok: true, id, repeat: true });
-    if (await bump(env, uid, "ai", ms) > DAILY_LIMITS.ai) return err(429, "limit");
+    if (await burstLimited(env, uid, ms)) return err(429, "rate");
     await audit(env, ms, uid, "ai_started", null, id, { reason: clean(b.reason, 16) });
     return json({ ok: true, id, repeat: false }, 201);
   }
@@ -890,7 +927,7 @@ async function handle(req, env, ctx) {
       if (await blockedEither(env, uid, other)) return err(403, "forbidden");
       const mine = await openLive(env, uid); if (mine) return json({ live: await withName(view(mine, uid)), ...(await meView(env, uid, ms)) });   // idempotent
       if (await openLive(env, other)) return err(409, "busy");
-      if (await bump(env, uid, "live", ms) > DAILY_LIMITS.live) return err(429, "limit");
+      if (await burstLimited(env, uid, ms)) return err(429, "rate");
       const id = rid();
       await q(env, "INSERT INTO live_sessions(id,host,guest,state,band,prompt_week,fnd_day,prompt_json,created_at,updated_at,expires_at) VALUES(?,?,?,'invited',?,?,?,?,?,?,?)",
         id, uid, other, BANDS.includes(b.band) ? b.band : null, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), b.phrase ? JSON.stringify({ phrase: clean(b.phrase, 160) }) : null, ms, ms, ms + LIVE_INVITE_MS).run();
@@ -1070,7 +1107,7 @@ async function handle(req, env, ctx) {
     if (have && have.status === "pending" && ms - have.created_at < 90_000) return json({ pending: true }, 202);
     if (have) await q(env, "DELETE FROM reviews WHERE id=?", have.id).run();   /* a stale pending row (the first attempt died) */
     if (env.REVIEW_STUB !== "1" && !env.OPENAI_KEY) return err(503, "review_off");   /* not configured here: say so, never serve heuristics as a model's reading */
-    if (await bump(env, uid, "review", ms) > DAILY_LIMITS.review) return err(429, "limit");
+    if (await burstLimited(env, uid, ms)) return err(429, "rate");
     const n = ((await q(env, "SELECT COUNT(*) AS n FROM reviews WHERE uid=? AND status='ready'", uid).first()) || {}).n || 0;
     const id = rid();
     try { await q(env, "INSERT INTO reviews(id,pair_id,uid,round,status,json,created_at) VALUES(?,?,?,?,'pending','{}',?)", id, pair.id, uid, n + 1, ms).run(); }
@@ -1363,7 +1400,9 @@ async function maintenance(env, ms) {
   await q(env, "DELETE FROM interest WHERE created_at < ?", ms - 7 * DAY).run();
   await q(env, "DELETE FROM offers WHERE expires_at < ?", ms).run();
   await q(env, "DELETE FROM cooldowns WHERE until < ?", ms).run();
-  await q(env, "DELETE FROM counters WHERE key NOT LIKE ?", "%:" + dayKey(ms)).run();
+  await q(env, "DELETE FROM counters WHERE key NOT LIKE ? AND key NOT LIKE ?", "%:" + dayKey(ms), "%:burst:%").run();
+  /* burst rows are per minute: anything not from this minute is already spent */
+  await q(env, "DELETE FROM counters WHERE key LIKE ? AND key NOT LIKE ?", "%:burst:%", "%:burst:" + minKey(ms)).run();
   await q(env, "DELETE FROM audit WHERE ts < ?", ms - 90 * DAY).run();
   return { expired: expired.length, abandoned, purgedTurns: purged };
 }
@@ -1380,4 +1419,4 @@ export default {
   },
   async scheduled(event, env, ctx) { ctx.waitUntil(maintenance(env, Date.now())); },
 };
-export { screenTranscript, maintenance, score, WEIGHTS_DEFAULT };
+export { screenTranscript, maintenance, score, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey };
