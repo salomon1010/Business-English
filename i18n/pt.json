@@ -2712,5 +2712,15 @@
  "mv.attempts": "{{n}} resposta(s) gravada(s)",
  "mv.restart": "Fazer de novo",
  "mv.home_card": "Semana 3 · Dar um retorno claro",
- "mv.mic_denied": "O BE Mastery precisa do microfone para ouvir a sua resposta."
+ "mv.mic_denied": "O BE Mastery precisa do microfone para ouvir a sua resposta.",
+ "mv.week_n": "Semana {{n}}",
+ "mv.ev_spoken": "respostas ditas",
+ "mv.ev_met": "no nível exigido",
+ "mv.ev_transfer": "acertos sem ajuda",
+ "mv.ev_shadow": "Você trabalhou este clipe {{n}}× — passo mais avançado alcançado: {{rung}}.",
+ "mv.ev_rung_unknown": "não registrado",
+ "mv.ev_pron_shadow": "Inteligibilidade medida durante o shadowing do clipe desta competência, não na missão.",
+ "mv.ev_basis": "Calculado a partir do que você falou. Nada aqui se ganha abrindo uma tela ou se marcando como pronto.",
+ "mv.shadow_done": "Trabalho de shadowing",
+ "mv.v1_note": "O programa de 12 semanas continua abaixo."
 }

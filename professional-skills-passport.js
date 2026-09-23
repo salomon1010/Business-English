@@ -67,6 +67,37 @@
      trade's vocabulary, and the standards they are being held to. Everything on
      it is derived from recorded speech, so an empty state is honest rather than
      a manufactured percentage. */
+  /* A plain renderer over the summary object. Every number may be null, and a
+     null prints as "\u2014" rather than 0 \u2014 the whole point of the evidence
+     contract is that "not measured" and "measured as zero" are different
+     things and the learner must be able to tell them apart. */
+  function v2Panel(d){
+    const pct=v=>v==null?"\u2014":Math.round(v*100)+"%";
+    const T=global.t;
+    const moves=(d.byMove||[]).map(m=>
+      `<span class="${m.made?"ok":""}">${m.made?"\u2713 ":""}${global.esc(m.label)} ${m.made}/${m.of}</span>`).join("");
+    const sh=d.shadow||{};
+    return `<div class="pg-v2">
+      <h3 class="pg-h">${global.esc(d.title)}${d.week?` \u00b7 ${T("mv.week_n",{n:d.week})}`:""}</h3>
+      <div class="pg-ev">
+        <div><b>${T("mv.state_"+d.state)}</b><span>${T("mv.state")}</span></div>
+        <div><b>${d.attempts}</b><span>${T("mv.ev_spoken")}</span></div>
+        <div><b>${d.passed}</b><span>${T("mv.ev_met")}</span></div>
+        <div><b>${d.transferPassed}</b><span>${T("mv.ev_transfer")}</span></div>
+      </div>
+      <div class="sim-skill-chips pg-v2-moves">${moves}</div>
+      <div class="pg-ev pg-v2-dims">
+        <div><b>${pct(d.bestTask)}</b><span>${T("mv.task")}</span></div>
+        <div><b>${pct(d.clarity)}</b><span>${T("mv.clarity")}</span></div>
+        <div><b>${pct(d.fluency)}</b><span>${T("mv.fluency")}</span></div>
+        <div><b>${d.pron==null?"\u2014":d.pron+"%"}</b><span>${T("mv.pron")}</span></div>
+      </div>
+      ${d.pron!=null&&d.pronSource==="shadow"?`<p class="pg-note">${T("mv.ev_pron_shadow")}</p>`:""}
+      ${sh.total?`<p class="pg-note">${T("mv.ev_shadow",{n:String(sh.linked),rung:sh.rungName?T("sv.ch_rung_"+sh.rungName):T("mv.ev_rung_unknown")})}</p>`:""}
+      <p class="pg-note pg-v2-basis">${T("mv.ev_basis")}</p>
+    </div>`;
+  }
+
   function growth(){
     const s=global.appState(),t=track();
     const tr=global.Trades&&global.isProfessionalJourney&&global.isProfessionalJourney()?global.Trades.active(s):null;
@@ -91,9 +122,25 @@
       (a.answers||[]).forEach(q=>(q.vocabUsed||[]).forEach(v=>used.add(v)))));
     const vocabUsed=vocab.filter(v=>used.has(v));
 
+    /* V2 competency evidence, when the mission layer has any. Asked for through
+       a global hook that returns null off General English, with no mission
+       pack, or before the learner has shown anything — so this file never
+       learns what a mission, a move or a rung is, and a build without
+       mission-engine.js renders exactly what it rendered before.
+
+       It goes ABOVE the workshop panel because on General English that panel
+       has nothing in it: the track ships no simulations, so "No workshop
+       answers yet" was the whole of a learner's progress page. */
+    let v2="";
+    if(typeof global.v2Evidence==="function"){
+      let d=null;try{d=global.v2Evidence()}catch(e){d=null}
+      if(d)v2=v2Panel(d);
+    }
+
     return `<section class="card pg-growth">
       <div class="eyebrow">${global.esc(tr?tr.name:(cfg().trackLabel||t.id))}</div>
       <h2>${global.t("pro.your_professional_evidence")}</h2>
+      ${v2}
       ${tr?`<div class="sim-skill-chips pg-codes">${tr.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>`:""}
       ${P&&P.hasWorkshopEvidence?`
         <div class="pg-ev">

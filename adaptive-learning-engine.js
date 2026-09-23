@@ -60,6 +60,25 @@
       :{title:"Shadow Session",body:"Record a line and see every word scored for clarity.",go:"shadow"};
   }
   function recommendation(s,t){
+    /* V2 competency evidence comes first when there is any.
+
+       Everything below this line reasons about counters — words due, activity
+       points, an average of recent clarity scores. A V2 competency record
+       knows something none of those do: whether this learner has actually
+       given a clear update out loud, and which of the four moves they keep
+       missing. When that record has an open question, it is a better answer
+       than any of the branches underneath.
+
+       The hook is a global supplied by the mission layer, returning null off
+       General English, with no mission pack, or when the competency has
+       nothing to ask for today. This engine therefore never learns what a
+       mission is, and if mission-engine.js is not loaded at all nothing here
+       changes. */
+    if(typeof global.v2Recommendation==="function"){
+      let v=null;try{v=global.v2Recommendation()}catch(e){v=null}
+      if(v&&v.body)return {title:v.title,body:v.body,reason:v.body,go:v.go,
+        arg1:v.arg1,arg2:v.arg2,skill:v.focus,v2:true};
+    }
     const r=retention(s),p=pronunciation(s),ss=skills(s,t),history=(s.simulations&&s.simulations.history||[]).filter(x=>x.id&&global.trackSimulations&&global.trackSimulations().some(q=>q.id===x.id));
     if(r.due)return Object.assign({reason:`${r.due} saved word${r.due===1?" is":"s are"} ready for review.`},resolve(ACTIONS.vocabulary));
     if(global.trackSimulations&&global.trackSimulations().length&&!history.length)return Object.assign({reason:"A first workplace simulation will add evidence across several professional skills."},resolve(ACTIONS.safety));
@@ -109,6 +128,9 @@
      handed the workshop route a week number where it expects a workshop id. */
   function openRecommended(){
     const r=recommendation(global.appState(),track()),pos=global.currentPos();
+    /* A V2 recommendation names the mission and the step to open at; without
+       passing them the card would land on whichever mission was last opened. */
+    if(r.v2)return global.go(r.go,r.arg1,r.arg2);
     return r.go==="session"?global.go(r.go,pos.w,pos.d):global.go(r.go);
   }
   global.AdaptiveLearningEngine=Object.freeze({retention,skills,milestone,recommendation,weekly,prediction,heatmap,roadmapCard,growthCard,heatmapCard,openRecommended});

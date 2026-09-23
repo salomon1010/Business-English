@@ -39,7 +39,12 @@
   function mission(s,t){
     if(global.AdaptiveLearningEngine){
       const adaptive=global.AdaptiveLearningEngine.recommendation(s,t);
-      return {title:adaptive.title,body:adaptive.reason||adaptive.body,go:adaptive.go,focus:adaptive.skill||"Professional growth"};
+      /* arg1/arg2 ride along so a V2 competency recommendation opens the right
+         mission at the right step; they are undefined for every other kind,
+         where openMission's currentPos() fallback still applies. */
+      return {title:adaptive.title,body:adaptive.reason||adaptive.body,go:adaptive.go,
+        arg1:adaptive.arg1,arg2:adaptive.arg2,v2:!!adaptive.v2,
+        focus:adaptive.skill||"Professional growth"};
     }
     const logs=global.CompetencyEngine.recent(s,t,1),focus=weakest(s,t),a=ACTIONS[focus]||ACTIONS.communication;
     if(!logs.length){
@@ -126,6 +131,10 @@
       global.go("review");
     };const returnButton=el.querySelector("#coachScenarioReturn");if(returnButton)returnButton.onclick=()=>{close();if(typeof global.simChooseAnother==="function")global.simChooseAnother();else global.go("simulation")};
   }
-  function openMission(m){const next=m||mission(global.appState(),track()),pos=global.currentPos();global.go(next.go,pos.w,pos.d)}
+  function openMission(m){
+    const next=m||mission(global.appState(),track()),pos=global.currentPos();
+    if(next.v2)return global.go(next.go,next.arg1,next.arg2);
+    global.go(next.go,pos.w,pos.d);
+  }
   global.LearningCoach=Object.freeze({state,summary,recentSummary,mission,narrative,weeklyReview,coachCard,weeklyCard,narrativeCard,present,openMission});
 })(window);

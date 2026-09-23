@@ -62,17 +62,17 @@
 <script src="curriculum-provider.js?v=86"></script>
 <script src="professional-tracks.js?v=79"></script>
 <script src="competency-engine.js?v=83"></script>
-<script src="learning-coach.js?v=84"></script>
+<script src="learning-coach.js?v=85"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=81"></script>
 <script src="shadow-sync.js?v=7"></script>
-<script src="adaptive-learning-engine.js?v=83"></script>
+<script src="adaptive-learning-engine.js?v=84"></script>
 <script src="career-center.js?v=79"></script>
-<script src="professional-skills-passport.js?v=83"></script>
+<script src="professional-skills-passport.js?v=84"></script>
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=84"></script>
-<script src="mission-engine.js?v=1"></script>
+<script src="mission-engine.js?v=2"></script>
 <script src="shadow-lines.js?v=84"></script>
 <script>
 window.FB_CONFIG={
@@ -1725,6 +1725,12 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-bar small{grid-column:1/-1;font-size:11px;color:var(--mut2)}
 .mv-next{font-size:14.5px;line-height:1.6}
 .mv-home-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.mv-shadow-note{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mut);margin:2px 0 10px}
+.mv-shadow-note svg{width:15px;height:15px;flex:none}
+.pg-v2{margin:4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.pg-v2-moves{margin:10px 0}
+.pg-v2-dims{margin-top:10px}
+.pg-v2-basis{margin-top:8px;font-size:11.5px;color:var(--mut2)}
 /* the ladder: a map of the five rungs, not a menu — the app chooses */
 .sv-ch-ladder{display:flex;align-items:center;gap:4px;width:100%;flex-wrap:wrap}
 .sv-ch-rung{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--mut2);font-weight:700;letter-spacing:.3px}
@@ -7039,6 +7045,16 @@ const I18N_EN={
  "mv.restart":"Do it again",
  "mv.home_card":"Week 3 · Give a clear update",
  "mv.mic_denied":"BE Mastery needs the microphone to hear your answer.",
+ "mv.week_n":"Week {{n}}",
+ "mv.ev_spoken":"answers spoken",
+ "mv.ev_met":"met the bar",
+ "mv.ev_transfer":"cold successes",
+ "mv.ev_shadow":"Shadowed this clip {{n}}× — furthest step reached: {{rung}}.",
+ "mv.ev_rung_unknown":"not recorded",
+ "mv.ev_pron_shadow":"Comprehensibility measured while shadowing this competency's clip, not in the mission itself.",
+ "mv.ev_basis":"Counted from answers you spoke. Nothing here is earned by opening a screen or marking yourself complete.",
+ "mv.shadow_done":"Shadow practice",
+ "mv.v1_note":"The 12-week programme continues below.",
  "nav.render_failed":"This page could not be drawn.",
  "nav.curriculum_failed":"The lessons could not be downloaded. Check your connection and try again.",
  "nav.retry":"Try again",
@@ -8749,7 +8765,8 @@ async function mvCoach(comp,mission,ev){
 function mvCommit(comp,ev,coach){
   if(!isGeneralEnglish())return;                       /* gate 4 (belt) */
   const store=mvStore();
-  const res=MissionEngine.addAttempt(store,comp.id,ev,areaId(),trackVocabularyIntervals());
+  const res=MissionEngine.addAttempt(store,comp.id,ev,areaId(),trackVocabularyIntervals(),
+    {competency:comp.id,week:comp.week,moveIds:MissionEngine.moveIds(comp)});
   if(!res)return;                                      /* gate 4 (braces) */
   const r=res.record;
   const before=_mv&&_mv.stateBefore;
@@ -8760,13 +8777,27 @@ function mvCommit(comp,ev,coach){
   if(res.duplicate)return;                             /* never count a turn twice */
 
   markPracticed();
-  /* The existing competency log, unchanged — its storage is sound, it is what
-     the Passport and the coach already read, and the V2 evidence sits beside
-     it rather than replacing it. The modal is suppressed: this mission has its
-     own coach on screen and a second one over the top would be noise. */
-  awardCompetency({activityType:"professional_coach",lesson:"V2 · "+comp.title+" · "+ev.kind,
-    score:Math.round(ev.coverage*100),duration:Math.max(1,Math.round((ev.seconds||60)/60)),
-    dedupeKey:"v2:"+ev.key,quiet:true});
+  /* The existing competency log is kept — its storage is sound and the Passport
+     and coach already read it — but two things changed so that it stops being
+     a participation counter for V2 work.
+
+     It logs under its OWN activity type (v2_mission) rather than borrowing
+     professional_coach, which is the 25-minute daily session's type: a two
+     minute mission was quietly claiming a session's worth of credit, and the
+     two are now told apart in the log.
+
+     And it only logs an attempt that actually PASSED. An attempt that missed a
+     move is still written in full to the V2 evidence record, which is the
+     authoritative one; what it no longer does is add points to a counter for
+     having happened. The V2 state machine remains the only thing that decides
+     what the learner has shown.
+
+     The modal is suppressed: this mission has its own coach on screen. */
+  if(MissionEngine.passes(ev)){
+    awardCompetency({activityType:"v2_mission",lesson:"V2 · "+comp.title+" · "+ev.kind,
+      score:Math.round(ev.coverage*100),duration:Math.max(1,Math.round((ev.seconds||60)/60)),
+      dedupeKey:"v2:"+ev.key,quiet:true});
+  }
 
   mvTrack("v2_evidence_recorded",{mission:ev.missionId,kind:ev.kind,
     result:MissionEngine.passes(ev)?"pass":"fail",band:ev.verdict,move:r.weakness||"none",
@@ -8820,6 +8851,72 @@ window.mvFinishCoaching=async()=>{
   mvDraw();
 };
 
+/* ---------------------------------------------------- SHADOW → V2 EVIDENCE
+   One harvest point instead of four. The Challenge ladder, the sync round, the
+   retell round and the Shadow report each write their own row into
+   aList("chHist"); rather than reaching into all four writers, this reads that
+   list and ingests anything it has not seen. It is idempotent on the row's
+   timestamp, bounded by chHist's own 20-row cap, and costs one pass over at
+   most twenty objects.
+
+   Shadow is not touched. It keeps writing exactly what it wrote before, and it
+   has no idea a mission exists. */
+function mvHarvestShadow(){
+  const comp=mvComp();if(!comp||!window.MissionEngine)return 0;
+  const store=mvStore();let added=0;
+  (aList("chHist")||[]).forEach(entry=>{
+    const item=MissionEngine.fromShadow(entry,comp);
+    if(!item)return;
+    /* Only this competency's clip becomes its evidence. Other Shadow work is
+       real work, but it is not evidence about giving a clear update, and
+       counting it as such would be the invented-evidence failure again. */
+    if(!item.linked)return;
+    const res=MissionEngine.addSupport(store,comp.id,item,areaId());
+    if(res&&!res.duplicate){
+      added++;
+      /* Reuses the evidence event with kind "shadow" — no new event name, so
+         nothing here waits on a Worker deploy. */
+      mvTrack("v2_evidence_recorded",{mission:"shadow",kind:"shadow",
+        result:item.passed?"pass":"fail",move:item.rung||"none"});
+    }
+  });
+  if(added)save();
+  return added;
+}
+
+/* ------------------------------------------------- HOOKS THE REST OF THE APP
+   Two globals, both returning null off General English or when there is no
+   mission pack. They are how the Passport and the Adaptive engine reach V2
+   evidence WITHOUT either of them learning what a mission is: they ask for a
+   plain summary object and render/act on it. If this file never loads, both
+   callers see undefined and behave exactly as they did before. */
+window.v2Evidence=function(){
+  const comp=mvComp();if(!comp||!window.MissionEngine)return null;
+  mvHarvestShadow();
+  const r=MissionEngine.record(mvStore(),comp.id);
+  if(!(r.attempts||[]).length&&!(r.support||[]).length)return null;   /* nothing shown yet */
+  return MissionEngine.progressSummary(r,comp);
+};
+window.v2Recommendation=function(){
+  const comp=mvComp();if(!comp||!window.MissionEngine)return null;
+  const r=MissionEngine.record(mvStore(),comp.id);
+  const rec=MissionEngine.recommend(r,comp,Date.now());
+  /* "rest" means this competency has nothing to ask for today, so the old
+      engine's own advice should stand rather than being overridden by a card
+      that says nothing. */
+  if(!rec||rec.action==="rest")return null;
+  const mv=rec.move?(MissionEngine.moveOf(comp,rec.move)||{}).label||rec.move:"";
+  const due=r.retrieval&&r.retrieval.due?new Date(r.retrieval.due).toLocaleDateString():"";
+  const pend=(r.attempts||[]).filter(a=>a&&a.coachPending).length;
+  return {
+    title:comp.title,
+    body:t("mv.next_"+rec.reason,{move:mv,date:due,n:String(pend)}),
+    go:"mission",arg1:rec.missionId,arg2:rec.action==="coach"?"coach":"speak",
+    focus:mv||comp.title,
+    action:rec.action,reason:rec.reason,state:r.state
+  };
+};
+
 /* ------------------------------------------------------------------ rendering */
 function mvMoveChipsHTML(comp,ev){
   return `<div class="mv-moves">${(comp.moves||[]).map(m=>{
@@ -8846,6 +8943,12 @@ function rMission(el,missionId,step){
      around. Hiding the entry point is not a boundary; this is. */
   const comp=mvComp();
   if(!comp){el.innerHTML="";setTimeout(()=>go("home"),0);return}
+  /* Foundations comes first, for the mission exactly as for the daily session.
+     A learner who has not taken the placement check, or who was placed in
+     Stage 0 and has not finished it, is not ready to be asked for a project
+     update in a meeting — and rSession has guarded this since Foundations
+     shipped. Without this the mission was a way round the gate. */
+  if(typeof fndBlocks==="function"&&fndBlocks()){fndGateHTML(el);return}
   if(!_mv||_mv.missionId!==missionId){
     const m=MissionEngine.missionOf(comp,missionId)||(comp.missions||[])[0];
     _mv={missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
@@ -8958,6 +9061,8 @@ function rMission(el,missionId,step){
 
   /* ---- EVIDENCE: what was actually shown, and what happens next ---- */
   else{
+    mvHarvestShadow();                 /* pick up anything done in the studio */
+    const sum=MissionEngine.progressSummary(r,comp);
     const spoken=(r.attempts||[]).filter(a=>a&&a.answered);
     const best=spoken.slice().sort((a,b)=>(b.coverage||0)-(a.coverage||0))[0]||null;
     const rec2=MissionEngine.recommend(r,comp,Date.now());
@@ -8965,7 +9070,11 @@ function rMission(el,missionId,step){
     const mv=rec2.move?(MissionEngine.moveOf(comp,rec2.move)||{}).label||rec2.move:"";
     const due=r.retrieval&&r.retrieval.due?new Date(r.retrieval.due).toLocaleDateString():"";
     const reason=t("mv.next_"+rec2.reason,{move:mv,date:due,n:String(pend)});
-    const pron=best&&best.pron!=null?best.pron/100:null;
+    /* The mission's own comprehensibility when it has one, otherwise the
+       figure Shadow measured on this competency's clip, otherwise nothing at
+       all. progressSummary already decides which, and says which it used. */
+    const pron=sum.pron==null?null:sum.pron/100;
+    const sh=sum.shadow||{};
     body=`<section class="card mv-done">
       <div class="eyebrow">${t("mv.step_done")}</div>
       <h2>${esc(comp.title)}</h2>
@@ -8977,8 +9086,9 @@ function rMission(el,missionId,step){
         ${mvBar(t("mv.clarity"),best?best.clarity:null,best&&best.clarityBasis==="order"?"":"")}
         ${mvBar(t("mv.fluency"),best?best.fluency:null)}
         ${mvBar(t("mv.vocab"),best?best.vocab:null)}
-        ${mvBar(t("mv.pron"),pron,t("mv.pron_note"))}
+        ${mvBar(t("mv.pron"),pron,sum.pronSource==="shadow"?t("mv.ev_pron_shadow"):t("mv.pron_note"))}
       </div>
+      ${sh.total?`<p class="mv-shadow-note">${ic("headphones")} ${esc(t("mv.ev_shadow",{n:String(sh.linked),rung:sh.rungName?t("sv.ch_rung_"+sh.rungName):t("mv.ev_rung_unknown")}))}</p>`:""}
       <h3>${t("mv.next")}</h3>
       <p class="mv-next">${esc(reason)}</p>
       <div class="mv-acts">
@@ -8988,7 +9098,6 @@ function rMission(el,missionId,step){
             rec2.action==="transfer"?t("mv.transfer_btn"):rec2.action==="retry"?t("mv.retry_btn"):t("mv.continue")}</button>`}
         <button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>
       </div>
-      <p class="pp-fine">${esc(t("mv.pron_note"))}</p>
     </section>`;
     mvTrack("v2_recommendation_generated",{result:rec2.action,move:rec2.move||"none",state:r.state});
   }
@@ -9029,6 +9138,10 @@ window.mvShadow=()=>{
    being asked to do today rather than how far through a grid they are. */
 function mvHomeCardHTML(){
   const comp=mvComp();if(!comp)return "";
+  /* Same gate, on the card. The placement check must be the first thing a new
+     learner sees on Home; offering a Week 3 mission above it both buried the
+     check and invited someone past it. */
+  if(typeof fndBlocks==="function"&&fndBlocks())return "";
   const r=MissionEngine.record(mvStore(),comp.id);
   const rec3=MissionEngine.recommend(r,comp,Date.now());
   if(rec3.action==="rest")return "";
@@ -9060,6 +9173,17 @@ function rHomeGeneral(el){
     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
     if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
     return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
+  ${/* V1 and V2 coexist on this screen, and the order is the decision.
+
+        They are not duplicates: the V2 mission is one competency with its own
+        authoritative state, and the V1 card is the 12-week programme. Neither
+        writes the other's store, so neither can corrupt the other. What they
+        CAN do is both look like "today", which is the actual risk — so when
+        the mission has an open question it goes first and the programme card
+        is captioned as the thing underneath it. When the mission is resting
+        (mvHomeCardHTML returns ""), the programme card is the only card and
+        Home looks exactly as it did before V2. */""}
+  ${mvHomeCardHTML()}
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
@@ -9070,7 +9194,6 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${fndHomeCardHTML()}
-  ${mvHomeCardHTML()}
   ${ppHomeCardHTML()}
   ${homeNudgeHTML()}
   ${/* The track you are NOT on. Its own card told the learner what they already
@@ -18680,7 +18803,12 @@ function svChHistPut(c,s,fb,heard){
   const L=aList("chHist");
   const issues=fb.issues.filter(x=>x.type!=="levelup").map(x=>({type:x.type,text:x.text||"",k:x.k,v:x.v||null,score:x.score==null?null:x.score,note:x.note||"",gapS:x.gapS||null}));
   const dims={};Object.keys(fb.dims).forEach(k=>{dims[k]=fb.dims[k].state});
-  const e={kind:"challenge",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,level:c.level,verdict:fb.verdict,coverage:fb.coverage,ok:fb.ok,total:fb.total,pass:!!fb.pass,heard:String(heard||"").slice(0,400),issues,dims,pronMode:fb.pronMode||null,ctx:svChCtx(),drills:[]};
+  /* `rung` is additive (2026-09-22). The entry recorded the level but never
+     which rung the attempt was on, so a reader could not tell a listening gate
+     from a from-memory round — chsync and chretell named theirs, challenge did
+     not. Rows written before this carry undefined and are reported as unknown
+     rather than guessed. */
+  const e={kind:"challenge",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,seg:s.id,text:s.text,n:c.attempt,level:c.level,rung:c.rung||null,verdict:fb.verdict,coverage:fb.coverage,ok:fb.ok,total:fb.total,pass:!!fb.pass,heard:String(heard||"").slice(0,400),issues,dims,pronMode:fb.pronMode||null,ctx:svChCtx(),drills:[]};
   L.unshift(e);if(L.length>SV_CH_HIST_MAX)L.length=SV_CH_HIST_MAX;
   c.histRef=e.ts;
 }
@@ -24334,7 +24462,15 @@ function fbMerge(local,cloud){
           const k=x&&(x.key||x.at);if(!k||seen[k])return;seen[k]=1;att.push(x);
         });
         att.sort((x,y)=>(x.at||0)-(y.at||0));
-        const rec=Object.assign({},c,l,{id,attempts:att.slice(-60),
+        /* Supporting evidence (Shadow) unions on its own key for the same
+           reason attempts do: both devices append, and Object.assign would
+           have handed whichever saved last the whole of the other's. */
+        const sseen={},sup=[];
+        [].concat(c.support||[],l.support||[]).forEach(x=>{
+          const k=x&&x.key;if(!k||sseen[k])return;sseen[k]=1;sup.push(x);
+        });
+        sup.sort((x,y)=>(x.at||0)-(y.at||0));
+        const rec=Object.assign({},c,l,{id,attempts:att.slice(-60),support:sup.slice(-20),
           introducedAt:Math.min(l.introducedAt||Infinity,c.introducedAt||Infinity)||0});
         rec.transfer={passed:0,failed:0};
         if(window.MissionEngine){

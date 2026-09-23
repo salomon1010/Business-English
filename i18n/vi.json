@@ -2712,5 +2712,15 @@
  "mv.attempts": "{{n}} recorded answer(s)",
  "mv.restart": "Do it again",
  "mv.home_card": "Week 3 · Give a clear update",
- "mv.mic_denied": "BE Mastery needs the microphone to hear your answer."
+ "mv.mic_denied": "BE Mastery needs the microphone to hear your answer.",
+ "mv.week_n": "Week {{n}}",
+ "mv.ev_spoken": "answers spoken",
+ "mv.ev_met": "met the bar",
+ "mv.ev_transfer": "cold successes",
+ "mv.ev_shadow": "Shadowed this clip {{n}}× — furthest step reached: {{rung}}.",
+ "mv.ev_rung_unknown": "not recorded",
+ "mv.ev_pron_shadow": "Comprehensibility measured while shadowing this competency's clip, not in the mission itself.",
+ "mv.ev_basis": "Counted from answers you spoke. Nothing here is earned by opening a screen or marking yourself complete.",
+ "mv.shadow_done": "Shadow practice",
+ "mv.v1_note": "The 12-week programme continues below."
 }

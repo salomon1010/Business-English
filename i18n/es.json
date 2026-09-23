@@ -2712,5 +2712,15 @@
  "mv.attempts": "{{n}} respuesta(s) grabada(s)",
  "mv.restart": "Hazlo otra vez",
  "mv.home_card": "Semana 3 · Dar un parte claro",
- "mv.mic_denied": "BE Mastery necesita el micrófono para oír tu respuesta."
+ "mv.mic_denied": "BE Mastery necesita el micrófono para oír tu respuesta.",
+ "mv.week_n": "Semana {{n}}",
+ "mv.ev_spoken": "respuestas dichas",
+ "mv.ev_met": "al nivel pedido",
+ "mv.ev_transfer": "aciertos sin ayuda",
+ "mv.ev_shadow": "Has trabajado este clip {{n}}× — paso más avanzado alcanzado: {{rung}}.",
+ "mv.ev_rung_unknown": "no registrado",
+ "mv.ev_pron_shadow": "Inteligibilidad medida mientras trabajabas el clip de esta competencia, no en la misión.",
+ "mv.ev_basis": "Calculado a partir de lo que has dicho. Nada de esto se consigue abriendo una pantalla ni marcándote como listo.",
+ "mv.shadow_done": "Trabajo de shadowing",
+ "mv.v1_note": "El programa de 12 semanas sigue debajo."
 }

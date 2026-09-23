@@ -59,6 +59,76 @@
   const DEMONSTRATE_ALL = true;
   const FLUENT_WPM  = [70, 180];   // outside this band, delivery is what to fix
   const MAX_ATTEMPTS = 60;   // per competency, newest kept
+  const MAX_SUPPORT  = 20;   // supporting evidence from other surfaces (Shadow)
+
+  /* ==========================================================================
+     THE V2 EVIDENCE CONTRACT  (v1)
+
+     One shape, produced in one place, consumed by progress, retrieval, the AI
+     coach, analytics and any future mission. Everything downstream reads THIS
+     and nothing else, which is what keeps those systems from growing knowledge
+     of each other.
+
+     The rule that matters most: a dimension the product cannot actually
+     measure is `null`, and null is not zero. `pron` is null on a device where
+     the audio grader is unavailable or fell back to whisper; `seconds`/`wpm`
+     are null when the recorder could not report a duration; `clarityBasis`
+     says which question clarity was able to ask. A consumer that shows a
+     number must first check for null, and the UI shows "—".
+     ========================================================================== */
+  const EVIDENCE_VERSION = 1;
+  /* null in, null out. `+null` is 0 and `+""` is 0, both of which are finite,
+     so the obvious one-liner silently turned "we could not measure this" into
+     "we measured it and it was zero" — the precise failure this contract
+     exists to stop. Booleans are rejected for the same reason. */
+  const num = (v, lo, hi) => {
+    if (v == null || v === "" || typeof v === "boolean") return null;
+    const n = +v;
+    return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : null;
+  };
+
+  function contract(ev, meta) {
+    const m = meta || {};
+    const moves = {};
+    (m.moveIds || Object.keys(ev.moves || {})).forEach(id => { moves[id] = !!(ev.moves || {})[id]; });
+    return {
+      v: EVIDENCE_VERSION,
+      /* identity */
+      tk: TRACK,
+      week: m.week == null ? null : +m.week,
+      competency: m.competency || null,
+      missionId: ev.missionId || m.missionId || null,
+      kind: ev.kind || "guided",                 // guided | retry | transfer
+      key: ev.key || null,                       // idempotency key — one spoken turn, one row
+      at: ev.at || Date.now(),
+      /* what was said */
+      said: ev.said || "",
+      words: num(ev.words, 0, 5000),
+      seconds: num(ev.seconds, 0, 3600),
+      wpm: num(ev.wpm, 0, 600),
+      answered: !!ev.answered,
+      /* the six dimensions — null where unmeasurable, never invented */
+      task: num(ev.coverage, 0, 1),
+      moves,
+      clarity: num(ev.clarity, 0, 1),
+      clarityBasis: ev.clarityBasis || null,
+      fluency: num(ev.fluency, 0, 1),
+      vocab: num(ev.vocab, 0, 1),
+      vocabUsed: Array.isArray(ev.vocabUsed) ? ev.vocabUsed.slice(0, 16) : [],
+      pron: num(ev.pron, 0, 100),                // comprehensibility; null = not measured
+      pronSource: ev.pronSource || null,         // "audio" | "shadow" | null
+      /* verdicts */
+      coverage: num(ev.coverage, 0, 1),
+      verdict: ev.verdict || "thin",
+      passed: passes(ev),
+      transfer: (ev.kind === "transfer") ? passes(ev) : null,
+      assisted: !!ev.assisted,
+      /* coaching */
+      coachPending: !!ev.coachPending,
+      coachMove: ev.coachMove || null,
+      coachAi: ev.coachAi == null ? null : !!ev.coachAi,
+    };
+  }
 
   /* ---------------------------------------------------------------- helpers */
   const clamp01 = n => Math.max(0, Math.min(1, Number(n) || 0));
@@ -280,7 +350,7 @@
   /* Record one graded attempt. Idempotent on `key`: a retried network call, a
      double tap or a replayed queue cannot write the same speaking turn twice,
      which would otherwise inflate every number built on top of it. */
-  function addAttempt(store, id, attempt, area, intervals) {
+  function addAttempt(store, id, attempt, area, intervals, meta) {
     if (!guard(area)) return null;
     const r = record(store, id);
     const key = attempt && attempt.key;
@@ -288,7 +358,11 @@
       return { record: r, duplicate: true, attempt: r.attempts.find(x => x.key === key) };
     }
     const at = attempt.at || Date.now();
-    const row = Object.assign({}, attempt, { at, tk: TRACK });
+    /* Everything stored goes through the contract, so no caller can smuggle an
+       undocumented field into the learner record or leave a dimension as an
+       accidental 0 when it was never measured. */
+    const row = contract(Object.assign({}, attempt, { at }),
+      { competency: id, week: (meta && meta.week) || null, moveIds: (meta && meta.moveIds) || null, missionId: attempt.missionId });
     r.attempts.push(row);
     if (r.attempts.length > MAX_ATTEMPTS) r.attempts = r.attempts.slice(-MAX_ATTEMPTS);
     if (row.kind === "transfer" && row.answered) {
@@ -314,6 +388,147 @@
     if (rank(st) === rank("DEMONSTRATED")) return { due: t0, reps, reason: "transfer" };
     const days = list[Math.min(Math.max(0, reps - 1), list.length - 1)];
     return { due: t0 + days * 86400000, reps, reason: "retrieval" };
+  }
+
+  /* ==========================================================================
+     SHADOW → V2 SUPPORTING EVIDENCE
+
+     The Challenge ladder is the strongest learning loop in the product and it
+     already writes a rich, track-scoped record (aList("chHist")). This turns
+     one of those entries into V2 evidence WITHOUT either side learning about
+     the other: Shadow keeps writing exactly what it wrote before, and this
+     reads it.
+
+     It is deliberately SUPPORTING evidence, not a mission attempt. Shadowing a
+     paragraph of a talk is practice of rhythm and phrasing; it is not the
+     learner giving a clear update in their own words, and folding the two
+     together would be precisely the kind of invented evidence this engine
+     exists to avoid. So support never moves the competency state.
+
+     What it IS good for, and what it is used for below: it shows the learner
+     that the practice counted, and it can supply a real comprehensibility
+     number for a competency whose own attempts could not measure one (the
+     production audio grader usually falls back to whisper, which cannot).
+
+     KNOWN LIMITATION, adapted around rather than papered over: a `challenge`
+     history entry does not record which rung it was on (only chsync/chretell
+     name theirs). svChHistPut now writes `rung`, so entries from this version
+     forward carry it; older rows come back rung:null and are reported as
+     unknown rather than guessed. */
+  const SHADOW_RUNGS = ["gate", "sync", "recall", "blind", "retell"];
+
+  function fromShadow(entry, comp) {
+    const e = entry || {};
+    if (!e.ts || !e.vid) return null;
+    const kind = e.kind || "challenge";
+    if (!["challenge", "chsync", "chretell", "shadow"].includes(kind)) return null;
+    /* Linked only when it is THIS competency's clip. Anything else is still
+       real Shadow work, but it is not evidence about this competency, and the
+       caller is told which it is rather than being left to assume. */
+    const clip = comp && comp.shadow && comp.shadow.vid;
+    const linked = !!clip && e.vid === clip;
+    const rung = e.rung && SHADOW_RUNGS.includes(e.rung) ? e.rung
+      : (kind === "chsync" ? "sync" : kind === "chretell" ? "retell" : null);
+    /* One honest number per kind. A challenge round reports coverage of the
+       line; a shadow report reports its own score out of 100; sync and retell
+       are pass/fail and say so by leaving score null. */
+    const score = kind === "shadow" ? num(e.score, 0, 100)
+      : kind === "challenge" ? (num(e.coverage, 0, 1) == null ? null : Math.round(num(e.coverage, 0, 1) * 100))
+      : null;
+    /* Comprehensibility only when the entry actually measured it. A challenge
+       round in whisper mode says so in pronMode, exactly as the mission's own
+       attempts do, and a whisper number is not a pronunciation judgement. */
+    const pron = (kind === "challenge" && e.pronMode && e.pronMode !== "whisper" && e.dims && e.dims.pron && e.dims.pron !== "na")
+      ? score
+      : (kind === "shadow" ? num(e.score, 0, 100) : null);
+    return {
+      v: EVIDENCE_VERSION, src: "shadow", tk: TRACK,
+      key: "sh:" + e.ts,                       // idempotent: one history row, one support row
+      at: e.ts, kind, rung, linked,
+      vid: e.vid, seg: e.seg == null ? null : e.seg,
+      title: String(e.title || "").slice(0, 120),
+      passed: !!e.pass,
+      score, pron,
+      words: e.heard ? String(e.heard).trim().split(/\s+/).filter(Boolean).length : null,
+      competency: (comp && comp.id) || null,
+    };
+  }
+
+  /* Support is bounded and idempotent, like attempts. It never touches state. */
+  function addSupport(store, id, item, area) {
+    if (!guard(area) || !item || !item.key) return null;
+    const r = record(store, id);
+    r.support = Array.isArray(r.support) ? r.support : [];
+    if (r.support.some(x => x && x.key === item.key)) return { record: r, duplicate: true };
+    r.support.push(item);
+    r.support.sort((a, b) => (a.at || 0) - (b.at || 0));
+    if (r.support.length > MAX_SUPPORT) r.support = r.support.slice(-MAX_SUPPORT);
+    return { record: r, duplicate: false };
+  }
+
+  function supportSummary(r) {
+    const list = ((r && r.support) || []).filter(Boolean);
+    const linked = list.filter(x => x.linked);
+    const withPron = list.filter(x => x.pron != null);
+    return {
+      total: list.length,
+      linked: linked.length,
+      passed: linked.filter(x => x.passed).length,
+      /* how far up the ladder this learner has got on the competency's clip */
+      bestRung: linked.reduce((best, x) => {
+        const i = SHADOW_RUNGS.indexOf(x.rung);
+        return i > best ? i : best;
+      }, -1),
+      rungName: (() => {
+        const i = linked.reduce((b, x) => Math.max(b, SHADOW_RUNGS.indexOf(x.rung)), -1);
+        return i >= 0 ? SHADOW_RUNGS[i] : null;
+      })(),
+      /* the comprehensibility the mission's own attempts usually cannot get */
+      pron: withPron.length ? Math.round(withPron.reduce((n, x) => n + x.pron, 0) / withPron.length) : null,
+      lastAt: list.length ? list[list.length - 1].at : null,
+    };
+  }
+
+  /* ==========================================================================
+     PROGRESS SUMMARY — the one shape the progress surfaces render.
+
+     Deliberately a plain object of numbers and labels: the Passport asks for
+     it through a global hook and renders it, and therefore never learns what a
+     mission, a move or a rung is. */
+  function progressSummary(r, comp) {
+    const spoken = ((r && r.attempts) || []).filter(x => x && x.answered);
+    const best = spoken.slice().sort((a, b) => (b.coverage || 0) - (a.coverage || 0))[0] || null;
+    const sup = supportSummary(r);
+    const ids = moveIds(comp);
+    /* per move: how many spoken answers actually made it */
+    const byMove = ids.map(id => ({
+      id, label: (moveOf(comp, id) || {}).label || id,
+      made: spoken.filter(a => a.moves && a.moves[id]).length,
+      of: spoken.length,
+    }));
+    const avg = k => { const v = spoken.map(a => a[k]).filter(x => x != null); return v.length ? v.reduce((n, x) => n + x, 0) / v.length : null; };
+    return {
+      competency: (comp && comp.id) || null,
+      title: (comp && comp.title) || "",
+      week: (comp && comp.week) || null,
+      state: (r && r.state) || "NOT_STARTED",
+      attempts: spoken.length,
+      passed: spoken.filter(a => a.passed).length,
+      transferPassed: (r && r.transfer && r.transfer.passed) || 0,
+      transferFailed: (r && r.transfer && r.transfer.failed) || 0,
+      bestTask: best ? best.task : null,
+      clarity: avg("clarity"),
+      fluency: avg("fluency"),
+      vocab: avg("vocab"),
+      /* the mission's own measured comprehensibility, else Shadow's, else null */
+      pron: (() => { const own = spoken.map(a => a.pron).filter(x => x != null); return own.length ? Math.round(own.reduce((n, x) => n + x, 0) / own.length) : sup.pron; })(),
+      pronSource: (() => { const own = spoken.some(a => a.pron != null); return own ? "audio" : (sup.pron != null ? "shadow" : null); })(),
+      byMove,
+      weakness: (r && r.weakness) || null,
+      shadow: sup,
+      retrieval: (r && r.retrieval) || null,
+      coachPending: spoken.filter(a => a.coachPending).length,
+    };
   }
 
   /* ---------------------------------------------------------- recommendation
@@ -474,6 +689,8 @@ Return JSON only:
     grade, applyCoachMoves, weakestMove, passes,
     blank, record, introduce, stateFrom, addAttempt, scheduleRetrieval, recommend,
     aiContext, coachPrompt, shapeCoach, expressionsToLearn, guard,
+    EVIDENCE_VERSION, contract, fromShadow, addSupport, supportSummary, progressSummary,
+    SHADOW_RUNGS, MAX_SUPPORT,
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.MissionEngine = api;

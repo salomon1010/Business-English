@@ -2712,5 +2712,15 @@
  "mv.attempts": "{{n}} réponse(s) enregistrée(s)",
  "mv.restart": "Recommencer",
  "mv.home_card": "Semaine 3 · Faire un point clair",
- "mv.mic_denied": "BE Mastery a besoin du micro pour entendre votre réponse."
+ "mv.mic_denied": "BE Mastery a besoin du micro pour entendre votre réponse.",
+ "mv.week_n": "Semaine {{n}}",
+ "mv.ev_spoken": "réponses dites",
+ "mv.ev_met": "au niveau attendu",
+ "mv.ev_transfer": "réussites sans aide",
+ "mv.ev_shadow": "Clip travaillé en shadowing {{n}}× — étape la plus avancée atteinte : {{rung}}.",
+ "mv.ev_rung_unknown": "non enregistrée",
+ "mv.ev_pron_shadow": "Intelligibilité mesurée pendant le shadowing du clip de cette compétence, pas dans la mission elle-même.",
+ "mv.ev_basis": "Calculé à partir des réponses que vous avez dites. Rien ici ne s'obtient en ouvrant un écran ou en se déclarant prêt.",
+ "mv.shadow_done": "Travail de shadowing",
+ "mv.v1_note": "Le programme de 12 semaines continue en dessous."
 }
