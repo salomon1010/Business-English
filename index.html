@@ -4753,7 +4753,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA"};
 const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
 function aMap(f){return areaBucket(AREA_MAPS[f])}
-function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
+function aList(f,area){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area||areaId();return box[a]||(box[a]=[])}   /* area: name one explicitly when the write must land where the work STARTED (a Polish minute analysed after the learner switched programme) */
 /* Across every area at once. For questions about the ACCOUNT rather than about
    one programme — "is there enough work here to be worth backing up?" — where
    counting only the open area would nag someone who has plenty of work, just
@@ -14880,11 +14880,37 @@ const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
 const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
-let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false,repOpen:true,quick:[],quickFor:""};
+/* Everything on this page that is the LEARNER'S CONTENT — the text in the
+   box, the recording behind it, the "Say it better" versions, the report that
+   is open, the prompt on show — is kept PER AREA, the way the saved reports
+   already are (aList("exRep")). One shared object used to hold it all, so a
+   minute spoken in General English sat in the box, with its versions and its
+   report, when the learner opened Executive Polish in Welding (seen on a
+   phone, 23 Sep 2026). `ex` keeps its name and its field names: the content
+   fields are accessors that read and write the bucket of the OPEN area
+   (areaId()), so every call site — and every way of switching area, present
+   or future — sees that area and nothing else. The recorder (phase, mic,
+   timer) stays the device's, not an area's: there is one microphone.
+   Transient on purpose: a refresh empties it, as before. Nothing here is
+   persisted or synced — the saved reports are, per area, in exRepA. */
+const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:true,quick:[],quickFor:""};
+const _exArea={};                                   /* areaId → that programme's Polish content */
+function exAreaFresh(){const o={};Object.keys(EX_AREA_FIELDS).forEach(k=>{const v=EX_AREA_FIELDS[k];o[k]=Array.isArray(v)?[]:v});return o}
+function exAreaKey(){try{return areaId()}catch(e){return AREA_GEN}}   /* areaId() needs S; nothing reads ex before boot, but a throw here would take the page down */
+function exAreaState(area){const a=area||exAreaKey();return _exArea[a]||(_exArea[a]=exAreaFresh())}
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,busyFor:null};   /* busyFor: the area whose minute is being analysed */
+Object.keys(EX_AREA_FIELDS).forEach(k=>Object.defineProperty(ex,k,{enumerable:true,get(){return exAreaState()[k]},set(v){exAreaState()[k]=v}}));
+/* Sign-out and account deletion wipe the device (fbWipeDevice); the box must
+   go with it, or the next person to sign in on this phone finds the last
+   one's minute. Also run when sign-in finds another account's data here. */
+function exWipe(){
+  Object.keys(_exArea).forEach(a=>{const st=_exArea[a];if(st&&st.url){try{URL.revokeObjectURL(st.url)}catch(e){}}delete _exArea[a]});
+  if(ex.phase!=="rec")ex.busyFor=null;
+}
 let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
 function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function exLang(){return (S.profile&&S.profile.lang)||"en"}
-function exReps(){return aList("exRep")}
+function exReps(area){return aList("exRep",area)}
 
 /* ---------- the card ---------- */
 function exPromptHTML(){
@@ -14979,23 +15005,26 @@ window.exQuick=async btn=>{
   if(!text||text.split(" ").length<5)return toast(t("ex.type_first_toast"));
   if(exQuicking)return;
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
-  if(text!==ex.quickFor){ex.quick=[];ex.quickFor=text}     /* new text in the box → a fresh set */
-  if(ex.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
+  const area=areaId(),st=exAreaState(area);                /* the versions belong to the text, and the text to this area — fixed before the await */
+  if(text!==st.quickFor){st.quick=[];st.quickFor=text}     /* new text in the box → a fresh set */
+  if(st.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
   exQuicking=true;
   const label=btn.innerHTML;
   btn.disabled=true;btn.innerHTML=ic("sparkle")+" "+esc(t("ex.quick_busy"));manIconizeInline(btn);
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({repolish:{transcript:text,avoid:ex.quick.map(v=>v.text),lang:exLang()}})});
+      body:JSON.stringify({repolish:{transcript:text,avoid:st.quick.map(v=>v.text),lang:exLang()}})});
     if(!r.ok)throw new Error("HTTP "+r.status);
     const j=await r.json();
     if(!j||!j.version||!j.version.text)throw new Error("empty");
-    ex.quick.unshift({...j.version,idioms:(j.idioms||[]).slice(0,2)});   /* newest first */
-    exQuickPaint();
-    const first=document.querySelector(".ex-qv");
-    if(first){try{first.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+    st.quick.unshift({...j.version,idioms:(j.idioms||[]).slice(0,2)});   /* newest first */
+    if(areaId()===area){
+      exQuickPaint();
+      const first=document.querySelector(".ex-qv");
+      if(first){try{first.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+    }
   }catch(e){toast(t("ex.repolish_err"))}
-  btn.disabled=false;btn.innerHTML=ex.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
+  btn.disabled=false;btn.innerHTML=st.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
   exQuicking=false;
 };
 window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
@@ -15018,7 +15047,7 @@ window.exPolish=()=>{
 };
 function exStage(html){const s=document.getElementById("exStage");if(s){s.innerHTML=html;manIconizeInline(s)}}
 function exStatus(msg){const st=document.getElementById("exSt");if(st)st.textContent=msg||""}
-function exSetUrl(u){if(ex.url){try{URL.revokeObjectURL(ex.url)}catch(e){}}ex.url=u}
+function exSetUrl(u,st){st=st||exAreaState();if(st.url){try{URL.revokeObjectURL(st.url)}catch(e){}}st.url=u}
 function exReset(){
   clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
   if(ex.stream){try{ex.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}}
@@ -15074,7 +15103,13 @@ function exWaitHTML(step){
 function exStep(msg){const s=document.getElementById("exStep");if(s)s.textContent=msg}
 async function exRun(src){
   exCoachStop();
-  ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
+  /* The area this minute belongs to is fixed HERE, before the first await. The
+     transcript, the take and the report are written into THAT area's bucket
+     and list even if the learner has switched programme by the time the
+     Worker answers — a General English minute is never filed under Welding,
+     and nothing of it is drawn on the other programme's page. */
+  const area=areaId(),st=exAreaState(area),here=()=>areaId()===area;
+  ex.phase="busy";ex.busyFor=area;st.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null,st);
   exReportShow(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));exStatus(t("ex.busy_status"));
   let text=src.text||"",words=null,audio=null,sttFailed=false;
   if(src.pre){text=src.pre.text;words=src.pre.words;audio=src.pre.audio}   /* Polish it on the box that still holds this recording's transcript */
@@ -15085,14 +15120,14 @@ async function exRun(src){
     if(tx&&tx.text){text=tx.text;words=tx.words}else sttFailed=true;
     if(!audio)audio={dur:src.secs||0,pitch:null,pauses:[]};
     if(!audio.dur)audio.dur=src.secs||0;
-    if(text)ex.take={blob:src.blob,secs:src.secs,text,words,audio};
+    if(text)st.take={blob:src.blob,secs:src.secs,text,words,audio};
   }
   if(!text){
-    ex.phase="idle";exReportShow("",true);exStatus(t("ex.stt_off"));
-    const ta=document.getElementById("exIn");if(ta)ta.focus();
+    ex.phase="idle";ex.busyFor=null;
+    if(here()){exReportShow("",true);exStatus(t("ex.stt_off"));const ta=document.getElementById("exIn");if(ta)ta.focus()}
     return;
   }
-  ex.draft=text;const _ta=document.getElementById("exIn");if(_ta){_ta.value=text;taGrow(_ta)}   /* the transcript lands in the box */
+  st.draft=text;if(here()){const _ta=document.getElementById("exIn");if(_ta){_ta.value=text;taGrow(_ta)}}   /* the transcript lands in the box */
   exStep(t("ex.step_measure"));
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
@@ -15100,12 +15135,12 @@ async function exRun(src){
   /* targets = the phrases this report hands over. The next recording is marked
      against them (exCarryHTML), so the assignment has to be stored, not
      recomputed from an AI answer that will be different next time. */
-  const rep={at:Date.now(),tk:areaId(),m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
-  ex.report=rep;
-  const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
+  const rep={at:Date.now(),tk:area,m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
+  st.report=rep;
+  const reps=exReps(area);reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
-  ex.phase="idle";ex.showReport=true;ex.repOpen=true;exStatus("");
-  exRenderReport(rep);
+  ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=true;
+  if(here()){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
   if(!POLISH_API||!navigator.onLine)return null;
@@ -15351,7 +15386,7 @@ function exVersionsHTML(ai){
    targets. */
 let exRepolishing=false;
 window.exRepolish=async btn=>{
-  const rep=ex.report;
+  const rep=ex.report,area=areaId();                /* rep sits in its own area's exRep list: the append lands there whatever is open when the Worker answers */
   if(!rep||!rep.ai||exRepolishing)return;
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
   exRepolishing=true;
@@ -15370,11 +15405,13 @@ window.exRepolish=async btn=>{
     });
     rep.targets=exTargets(rep.ai);                 /* the newest phrases are what the next minute is marked on */
     save();
-    exRenderReport(rep,true);
-    setTimeout(()=>{
-      const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
-      if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
-    },60);
+    if(areaId()===area){
+      exRenderReport(rep,true);
+      setTimeout(()=>{
+        const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
+        if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
+      },60);
+    }
   }catch(e){
     toast(t("ex.repolish_err"));
     btn.disabled=false;btn.innerHTML=ic("repeat")+" "+esc(t("ex.repolish_btn"));manIconizeInline(btn);
@@ -16096,8 +16133,8 @@ function rPhrases(el){
   ${exCardHTML()}
   <div id="exReportWrap"></div>`;
   manIconizeInline(el);
-  if(ex.phase==="busy")exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
-  else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}
+  if(ex.phase==="busy"&&ex.busyFor===areaId())exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render — shown only on the programme it belongs to */
+  else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}   /* ex.report is the OPEN area's (accessor) */
 }
 /* The report lives BELOW the input card (owner, 2026-09-21): the box, mic,
    bin and Polish it stay on top after every run, so the next take is one tap
@@ -23686,6 +23723,7 @@ async function fbFirstSync(u){
          Drop it and start from the account (or from empty, for a new account). */
       localStorage.removeItem(LS_KEY);
       try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
+      try{exWipe()}catch(e){}     // and whatever they left in the Polish box
       S=cloud||load();
     }else if(cloud){
       const merged=fbMerge(S,cloud);
@@ -24014,6 +24052,7 @@ window.fbReset=async function(){
    they were never in the account, so leaving them would strand one person's
    audio inside another person's session pages. */
 function fbWipeDevice(){
+  try{exWipe()}catch(e){}         // the Polish box, versions and open report are in memory only — they must not outlive the account
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(FB_OWNER_KEY);
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}

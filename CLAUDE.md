@@ -99,6 +99,20 @@ not JS, and `new Function` chokes on it. Check it separately with
   belong to both: use `areaVocab()` / `vocHas()` / `vocPut()` / `vocDrop()`, not
   `S.vocab[w]=…`. `AnswerEvaluator.portfolio(s, area)` and `readiness(s, sims, area)`
   take the area as an optional 2nd/3rd argument; omitting it counts everything.
+  **Executive Polish's in-memory state is per area too (2026-09-23).** The page
+  used to draw from one module-level `ex` object with no area key, so a General
+  English minute — box text, "Say it better" versions, open report — sat on the
+  Welding Polish page. Now `ex.draft / take / blob / url / prompt / report /
+  showReport / repOpen / quick / quickFor` are accessors over `exAreaState(area)`
+  buckets (`_exArea`, transient — a refresh empties it, as before); only the
+  recorder (`phase`, mic, timer, `busyFor`) stays device-level. `aList(f, area)`
+  and `exReps(area)` take an explicit area so `exRun` / `exQuick` file a minute
+  under the area it STARTED in even if the learner switched before the Worker
+  answered, and `rPhrases` shows the wait card only when `ex.busyFor` is the open
+  area. `exWipe()` empties every bucket from `fbWipeDevice` (sign-out, account
+  deletion) and from the foreign-account branch of `fbFirstSync`. The Worker is
+  stateless (no KV/D1/R2/Cache), so the boundary is client-side by construction.
+  Test: `tests/polish-track.mjs` (15 checks, in `npm test`).
   `areaSplit()` is the one-time migration — it stamps legacy records with whatever
   area was open at the time (nothing can know better) and is additive, so it is safe
   after a cloud merge. Also per-area, via `aMap(f)` / `aList(f)`: `phMaster`,
