@@ -86,7 +86,7 @@ different names. Maps so far:
 | everything else (`LEGACY`) | streak | week | day | source | lang | result | module | trade | band | installed | onboarded | stage (… gap 16, track 17, n 18, round 19, now 20) |
 | `v2_*` | track | week | competency | mission | kind | move | result | band | state | from | attempt | ai |
 | `partner_*` (not `partner_interest`) | kind | round | n | now | regular | state | reason | evidence | result | day | | |
-| `shadow_*` | level | mode | to | rung | reason | result | kind | | | | | |
+| `shadow_*` | level | mode | to | rung | reason | result | kind | state | lang | band | source | |
 
 `partner_interest` stays on the legacy map because `./query.sh partner` reads
 it at blob14 (`stage`) and blob17 (`track`). No `partner_*` or `shadow_*` row
@@ -244,7 +244,14 @@ Shadow Studio Challenge (2.1): `shadow_challenge_opened` (the tab), `shadow_chal
 (+`level` guided|recall|independent), `shadow_challenge_recorded`,
 `shadow_challenge_feedback_received` (+`level`, `result` pass|retry — one per graded take),
 `shadow_challenge_completed` (+`level` — a pass only), `shadow_challenge_retry`,
-`shadow_challenge_apply_it` (+`result` used|missed). Not deployed with the branch — deploy the
+`shadow_challenge_apply_it` (+`result` used|missed).
+The post-shadow coach report (23 Sept 2026): `shadow_report_viewed` (+`band`
+good|fair|poor, +`source` new|stored|line), `shadow_focus_practiced`,
+`shadow_micro_completed` (+`result` pass|retry), `shadow_again_clicked`,
+`shadow_details_opened` (+`kind` pron|words|practice|vocab|history|grammar),
+`shadow_vocab_saved` (+`kind` one|all), `shadow_second_completed`. The product
+question is REPORT → NEXT PRACTICE: `shadow_again_clicked` +
+`shadow_second_completed` over `shadow_report_viewed`. Not deployed with the branch — deploy the
 Worker before the flag goes on, or these are dropped with 204.
 
 Prop keys added: `n`, `round`, `now`, `regular`, `state`, `level`, `mode`, `to` —

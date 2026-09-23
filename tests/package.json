@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node partner.mjs",
+    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node partner.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
     "test:partner": "node partner.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
@@ -12,6 +12,7 @@
     "test:presence": "node online-presence.mjs",
     "test:push": "node push-presence.mjs",
     "test:challenge": "node shadow-challenge.mjs",
+    "test:coach": "node shadow-coach.mjs",
     "test:mail": "node mail-welcome.mjs",
     "test:zoom": "node zoom.mjs",
     "test:ios-relay": "node ios-yt-relay.mjs",

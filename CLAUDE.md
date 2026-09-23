@@ -176,6 +176,31 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
+- **Post-shadow coach report (branch `feature/shadow-coach-report`, 2026-09-23,
+  NOT on main yet).** `fbShowResults` (Shadow Studio, the Session page and the
+  Welding workplace lines all share it) draws three levels on the SAME data:
+  Level 1 — coach: score + verdict (`fbVerdictKey`), a 2×2 summary (words %,
+  pronunciation, pace, fillers — nothing new is scored), 2–3 evidence-based
+  strengths (`fbStrengths`), ONE focus word (`fbFocusPick`: severity ×
+  confidence + recurrence on the trouble list *as it stood before the take* +
+  learning value; deterministic), a one-line progress read, one primary
+  action **Shadow again** (`fbShadowAgain`: in V2 Shadow mode restarts the clip
+  and opens the mic; elsewhere brings the record button back), three
+  vocabulary rows. Level 2 — micro-practice on that word (`fbFixOpen` /
+  `fbFixRecord` / `fbFixGrade`): a real take filed under
+  `recCtx("shadow-fix-…")`, graded by `fbAssess` + `fbWords` through
+  `ShadowSync.drillState` like the Challenge drills; a clear attempt marks the
+  word improved and takes one off `troubleMap()`. Level 3 — `details.fb-sec`
+  folds (pron / words / practice / vocab / history / grammar), all closed, holding
+  exactly the analysis the old report showed. `fbRenderPron(target, out)` is
+  scoped to the report it belongs to and fills the summary cell: a percentage
+  only in mode `ai`; the Whisper cross-check shows a state + "approx." and
+  the `sv.ch_pron_na` note (production is whisper-mode — see memory). Seven
+  events (`shadow_report_viewed` … `shadow_second_completed`) are on the
+  be-events allow-list on the branch only — deploy that Worker before the
+  report ships or they are dropped with 204. Tests: `tests/shadow-coach.mjs`
+  (`npm run test:coach`). i18n keys `fb.c_*` (fr/es/pt/ar translated, English
+  elsewhere). Help-centre pages do not describe the new layout yet.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
