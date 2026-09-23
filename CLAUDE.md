@@ -359,7 +359,20 @@ not JS, and `new Function` chokes on it. Check it separately with
   `shadow_pronunciation_toggled` (+state) / `shadow_word_played` /
   `shadow_translation_viewed` (+lang) are on the be-events allow-list on the
   branch only — deploy that Worker (from a checkout that has the 20-blob fix)
-  before expecting rows. Tests: `tests/shadow-helpers.mjs` (28).
+  before expecting rows. Tests: `tests/shadow-helpers.mjs` (32).
+  **Follow-ups (same day, deployed be12-v439):** homographs (`SV_IPA_HOMOGRAPHS`)
+  are cached per `word@vid:para`, so a paragraph shows the reading the model
+  gave for THAT sentence; **Watch** carries the same two switches above the
+  list (`svWtTogglesHTML`, same preference) and `svWatchDraw(k)` puts the
+  translation under the paragraph being spoken and IPA under its `.sv-w` spans
+  (that paragraph only; `svTick` moves it when the lit paragraph changes; a
+  sentence-level asset has no word spans, so only the translation shows); the
+  helpers pace themselves (`svAiChat`: `SV_AI_PER_MIN`=10 rolling, a 429
+  retried once after `SV_AI_RETRY_MS`); the help centre has a
+  `.man-sh-helpers` tip after the Shadow figure in all 15 manuals;
+  `backend/events/` on main now carries the 20-blob row-layout fix from
+  86e6266 (the shadow_* map gained `state` + `lang` as blob10/11) — safe to
+  deploy from main again.
   **v3 foot bar:** `shv3RecSync()` keeps the Shadow button red / "Stop"
   exactly while `rec.mr` is recording — called by `recToggle` on start and
   stop and by the 300 ms `svShBarSync` tick (a one-off redraw 120 ms after

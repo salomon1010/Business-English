@@ -1752,6 +1752,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-sh-acts{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px}.sv-sh-tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
 .sv-sh-t{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-sh-t svg{width:15px;height:15px;flex:none}.sv-sh-t small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}
 .sv-sh-t.on{border-color:var(--acc);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-sh-t.on small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-sh-t.na{opacity:.55}.sv-sh-t:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:6px 0 10px}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
 .fb-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.fb-fold{flex:none}.fb-fold svg{transition:transform .2s}.fb-fold[aria-expanded="false"] svg{transform:rotate(-90deg)}.fb-fold[hidden]{display:none}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
 /* Watch: the paragraph being spoken is lit as a whole, its word marked */
 #shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt)}
@@ -16588,6 +16589,7 @@ function svRender(){
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
+    ${svMode==="watch"?svWtTogglesHTML():""}
     <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""} ${(a.segments[0]&&a.segments[0].words&&a.segments[0].words.length)?"has-words":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     ${svMode==="challenge"?"":`<div class="sv-ctl sv-ctl-row">
       ${svMode==="shadow"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
@@ -16600,6 +16602,7 @@ function svRender(){
   manIconizeInline(box);
   const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first
   svNowDraw(keep,true,-1);
+  if(svMode==="watch"){svWtCur=-1;const p=svParaOf(keep);svWatchDraw(p?svParas(a).indexOf(p):0)}
   if(svMode==="challenge"&&!txHidden){const g=svChSegObj();if(g)for(let i=g.from;i<=g.to;i++){const el=box.querySelector(`.sv-seg[data-i="${i}"]`);if(el)el.classList.add("pick")}}
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
@@ -16731,11 +16734,12 @@ function svParas(a){
 }
 function svParaOf(i){const ps=svParas(svAsset);return ps.find(p=>i>=p.from&&i<=p.to)||ps[0]||null}
 /* the paragraph as one piece: its lines, text and time span */
-function svShGroup(){
-  const p=svParaOf(svShIndex());if(!p||!svAsset)return null;
+function svParaGroup(p){
+  if(!p||!svAsset)return null;
   const segs=svAsset.segments.slice(p.from,p.to+1),first=segs[0],last=segs[segs.length-1];
   return {from:p.from,to:p.to,segs,vid:shClip.vid,id:first.id+(segs.length>1?"-"+last.id:""),text:segs.map(x=>x.text).join(" "),startMs:first.startMs,endMs:last.endMs};
 }
+function svShGroup(){return svParaGroup(svParaOf(svShIndex()))}
 function svShIndex(){if(svShPinned&&svShPara>=0)return svShPara;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
 function svShSeg(){return svShGroup()}
 function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:"",ok:c!=="en"&&!!L,rtl:RTL_LANGS.has(c)}}
@@ -16756,6 +16760,20 @@ function svShTrOn(){return svOn()&&svShLang().ok&&!!svShPref().tr}
 function svShIpaOn(){return svOn()&&!!svShPref().ipa}
 /* --- translation: the Worker's chat route, one paragraph at a time, cached per
    video + paragraph + language (≤200 on this device), one request in flight per key --- */
+/* The chat route allows 20 calls a minute per address and the helpers share
+   it with role-play and the coach. They pace themselves to SV_AI_PER_MIN —
+   a call past the budget waits for a slot instead of being refused — and a
+   429 that still gets through is retried once after SV_AI_RETRY_MS while
+   the block shows "wait". The learner sees the busy message only after that. */
+let SV_AI_PER_MIN=10,SV_AI_RETRY_MS=20000;const _svAiTimes=[];   /* let: the browser suite shortens them */
+function svAiSlot(){return new Promise(res=>{const go=()=>{const now=Date.now();while(_svAiTimes.length&&now-_svAiTimes[0]>60000)_svAiTimes.shift();
+  if(_svAiTimes.length<SV_AI_PER_MIN){_svAiTimes.push(now);res()}else setTimeout(go,60000-(now-_svAiTimes[0])+50)};go()})}
+async function svAiChat(system,content){
+  const call=async()=>{await svAiSlot();return fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{system,messages:[{role:"user",content}]}})})};
+  let r=await call();
+  if(r.status===429){await new Promise(x=>setTimeout(x,SV_AI_RETRY_MS));r=await call()}
+  return r;
+}
 let _svTr={};try{_svTr=JSON.parse(localStorage.getItem("be_sv_tr")||"{}")||{}}catch(e){_svTr={}}
 const _svTrBusy=new Map(),_svTrSeen=new Set();
 function svShTrKey(sg){const l=svShLang();return shClip.vid+":"+sg.id+":"+l.code}
@@ -16768,9 +16786,7 @@ async function svShTrFetch(sg){
   if(!POLISH_API||!navigator.onLine)throw new Error("offline");
   if(_svTrBusy.has(key))return _svTrBusy.get(key);
   const p=(async()=>{
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{
-      system:`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,
-      messages:[{role:"user",content:sg.text.slice(0,600)}]}})});
+    const r=await svAiChat(`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,sg.text.slice(0,600));
     if(!r.ok)throw new Error("tr "+r.status);
     const j=await r.json();const tx=String((j&&j.reply)||"").trim();
     if(!tx||/could you say that again/i.test(tx))throw new Error("empty");
@@ -16814,13 +16830,20 @@ function svShTrViewed(sg){const key=svShTrKey(sg);if(_svTrSeen.has(key))return;_
 const SV_IPA_BATCH=25;   /* words per request: the route's reply is capped at 800 characters */
 const SV_IPA_SYSTEM=`You are an American English pronunciation dictionary. The user gives one English sentence for context and a list of words taken from it. For EACH listed word give its General American pronunciation in IPA: use ˈ and ˌ for stress, a plain r, no slashes or brackets, exactly one pronunciation per word, matching how the word is used in the sentence. Respond with ONLY minified JSON: {"reply":"word=ipa|word=ipa|..."} listing every word exactly as given, in the same order, nothing else.`;
 const SV_IPA_SEED={a:"ə",an:"ən",the:"ðə",and:"ænd",of:"ʌv",to:"tu",in:"ɪn",is:"ɪz",it:"ɪt",you:"ju",that:"ðæt",he:"hi",was:"wʌz",for:"fɔr",on:"ɑn",are:"ɑr",as:"æz",with:"wɪð",his:"hɪz",they:"ðeɪ",i:"aɪ",at:"æt",be:"bi",this:"ðɪs",have:"hæv",from:"frʌm",or:"ɔr",one:"wʌn",had:"hæd",by:"baɪ",not:"nɑt",but:"bʌt",what:"wʌt",all:"ɔl",were:"wɜr",we:"wi",when:"wɛn",your:"jʊr",can:"kæn",said:"sɛd",there:"ðɛr",each:"itʃ",which:"wɪtʃ",she:"ʃi",do:"du",how:"haʊ",their:"ðɛr",if:"ɪf",will:"wɪl",up:"ʌp",other:"ˈʌðər",about:"əˈbaʊt",out:"aʊt",many:"ˈmɛni",then:"ðɛn",them:"ðɛm",these:"ðiz",so:"soʊ",some:"sʌm",her:"hɜr",would:"wʊd",make:"meɪk",like:"laɪk",him:"hɪm",into:"ˈɪntu",time:"taɪm",has:"hæz",look:"lʊk",two:"tu",more:"mɔr",go:"goʊ",see:"si",no:"noʊ",way:"weɪ",could:"kʊd",my:"maɪ",than:"ðæn",been:"bɪn",who:"hu",now:"naʊ",people:"ˈpipəl",over:"ˈoʊvər",did:"dɪd",get:"gɛt",come:"kʌm",made:"meɪd",may:"meɪ",after:"ˈæftər",also:"ˈɔlsoʊ",back:"bæk",because:"bɪˈkʌz",very:"ˈvɛri",where:"wɛr",just:"dʒʌst",should:"ʃʊd",those:"ðoʊz",our:"ˈaʊər",me:"mi",first:"fɜrst",new:"nu",work:"wɜrk",know:"noʊ",think:"θɪŋk",say:"seɪ",want:"wɑnt",need:"nid",here:"hɪr",well:"wɛl",good:"gʊd",right:"raɪt",really:"ˈrili",going:"ˈgoʊɪŋ","don't":"doʊnt","it's":"ɪts","that's":"ðæts","i'm":"aɪm","we're":"wɪr","you're":"jʊr","they're":"ðɛr","can't":"kænt","isn't":"ˈɪzənt","doesn't":"ˈdʌzənt","didn't":"ˈdɪdənt","won't":"woʊnt","i've":"aɪv","we've":"wiv","there's":"ðɛrz","he's":"hiz","she's":"ʃiz","let's":"lɛts",thing:"θɪŋ",things:"θɪŋz",something:"ˈsʌmθɪŋ",every:"ˈɛvri",day:"deɪ",year:"jɪr",years:"jɪrz",much:"mʌtʃ",even:"ˈivən",most:"moʊst",through:"θru",between:"bɪˈtwin",never:"ˈnɛvər",always:"ˈɔlweɪz",being:"ˈbiɪŋ",does:"dʌz",give:"gɪv",take:"teɪk",own:"oʊn",only:"ˈoʊnli",still:"stɪl",around:"əˈraʊnd",before:"bɪˈfɔr",another:"əˈnʌðər",why:"waɪ",any:"ˈɛni",too:"tu",again:"əˈgɛn",off:"ɔf",down:"daʊn",last:"læst",long:"lɔŋ",little:"ˈlɪtəl",world:"wɜrld",great:"greɪt",tell:"tɛl",help:"hɛlp",part:"pɑrt",important:"ɪmˈpɔrtənt",different:"ˈdɪfərənt",business:"ˈbɪznəs",skills:"skɪlz",human:"ˈhjumən",job:"dʒɑb",jobs:"dʒɑbz",yes:"jɛs",okay:"oʊˈkeɪ",ok:"oʊˈkeɪ",yeah:"jɛə",mean:"min",kind:"kaɪnd",lot:"lɑt",got:"gɑt",put:"pʊt",big:"bɪg",same:"seɪm",best:"bɛst",better:"ˈbɛtər",done:"dʌn",maybe:"ˈmeɪbi",actually:"ˈæktʃuəli",question:"ˈkwɛstʃən",talk:"tɔk",talking:"ˈtɔkɪŋ",today:"təˈdeɪ",next:"nɛkst",ever:"ˈɛvər",together:"təˈgɛðər"};
+/* A homograph (read, live, record, present…) is said differently by sense,
+   and the sentence decides. These are cached under word@video:paragraph, so a
+   paragraph is only ever shown the reading the model gave for THAT sentence;
+   every other word is a fact about the word and is cached once. */
+const SV_IPA_HOMOGRAPHS=new Set(["read","reads","lead","leads","live","lives","record","records","present","presents","object","objects","wind","winds","tear","tears","close","closes","use","uses","bow","bows","minute","minutes","produce","produces","content","contents","permit","permits","conduct","conducts","contract","contracts","desert","deserts","refuse","refuses","subject","subjects","project","projects","progress","increase","increases","decrease","decreases","export","exports","import","imports","insult","insults","suspect","suspects","rebel","rebels","separate","estimate","estimates","graduate","graduates","moderate","alternate","associate","associates","delegate","delegates","duplicate","house","excuse","excuses","abuse","abuses","dove","sow","row","rows","wound","wounds","bass","polish","resume","address","addresses","attribute","attributes","combat","compound","compounds","conflict","conflicts","console","convert","converts","convict","convicts","digest","escort","exploit","exploits","extract","extracts","impact","impacts","invite","perfect","protest","protests","survey","surveys","transfer","transfers","transport","upset","update","updates","affect","entrance","invalid","axes","number","learned","sewer","proceeds","attributes"]);
 let _svIpa={};try{_svIpa=JSON.parse(localStorage.getItem("be_sv_ipa")||"{}")||{}}catch(e){_svIpa={}}
+function svIpaCtx(sg){return shClip.vid+":"+sg.id}
+function svIpaKey(n,ctx){return SV_IPA_HOMOGRAPHS.has(n)?n+"@"+(ctx||""):n}
 const _svIpaBusy=new Map();
 let _svIpaPeek=null;   /* {key,k}: the one word whose IPA is shown after a tap while Pronunciation is off */
 function svIpaNorm(w){return String(w||"").toLowerCase().replace(/’/g,"'").replace(/[^a-z'-]/g,"").replace(/^[-']+|[-']+$/g,"")}
-function svIpaGet(w){const n=svIpaNorm(w);if(!n)return "";return _svIpa[n]||SV_IPA_SEED[n]||""}
+function svIpaGet(w,ctx){const n=svIpaNorm(w);if(!n)return "";return _svIpa[svIpaKey(n,ctx)]||(SV_IPA_HOMOGRAPHS.has(n)?"":(_svIpa[n]||SV_IPA_SEED[n]))||""}
 function svIpaSave(){const ks=Object.keys(_svIpa);while(ks.length>3000)delete _svIpa[ks.shift()];try{localStorage.setItem("be_sv_ipa",JSON.stringify(_svIpa))}catch(e){}}
-function svIpaMissing(sg){const seen=new Set();String(sg.text||"").split(/\s+/).forEach(w=>{const n=svIpaNorm(w);if(n&&!svIpaGet(n))seen.add(n)});return [...seen]}
+function svIpaMissing(sg){const seen=new Set(),ctx=svIpaCtx(sg);String(sg.text||"").split(/\s+/).forEach(w=>{const n=svIpaNorm(w);if(n&&!svIpaGet(n,ctx))seen.add(n)});return [...seen]}
 function svIpaParse(reply,words){
   let s=String(reply||"").trim();
   const m=s.match(/"reply"\s*:\s*"([^]*)/);if(m)s=m[1];   /* a reply the Worker could not parse as JSON (cut short) comes back raw: salvage the pairs that are whole */
@@ -16834,8 +16857,7 @@ function svIpaParse(reply,words){
   return out;
 }
 async function svIpaAsk(sentence,words){
-  const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{
-    system:SV_IPA_SYSTEM,messages:[{role:"user",content:`Sentence: "${String(sentence).slice(0,600)}"\nWords: ${words.join(", ")}`}]}})});
+  const r=await svAiChat(SV_IPA_SYSTEM,`Sentence: "${String(sentence).slice(0,600)}"\nWords: ${words.join(", ")}`);
   if(!r.ok)throw new Error("ipa "+r.status);
   const j=await r.json();return svIpaParse((j&&j.reply)||"",words);
 }
@@ -16848,7 +16870,7 @@ async function svShIpaFetch(sg){
   const p=(async()=>{
     const batches=[];for(let i=0;i<miss.length;i+=SV_IPA_BATCH)batches.push(miss.slice(i,i+SV_IPA_BATCH));
     const outs=await Promise.all(batches.map(b=>svIpaAsk(sg.text,b)));
-    let n=0;outs.forEach(o=>Object.keys(o).forEach(w=>{_svIpa[w]=o[w];n++}));
+    let n=0;const ctx=svIpaCtx(sg);outs.forEach(o=>Object.keys(o).forEach(w=>{_svIpa[svIpaKey(w,ctx)]=o[w];n++}));
     if(!n)throw new Error("empty");
     svIpaSave();return n;
   })().finally(()=>_svIpaBusy.delete(key));
@@ -16859,8 +16881,8 @@ async function svShIpaFetch(sg){
    aria-hidden, so a screen reader hears the word once, not the symbols. */
 function svShWordHTML(w,k){
   const show=svShIpaOn()||(!!_svIpaPeek&&_svIpaPeek.k===k);
-  const clean=w.replace(/[^A-Za-z0-9'’-]/g,"");
-  return `<button class="sv-sh-w" data-k="${k}" data-w="${esc(clean)}" onclick="svShWordTap(this)"><span class="sv-sh-wt">${esc(w)}</span>${show?`<span class="sv-sh-ipa" aria-hidden="true">${esc(svIpaGet(clean))}</span>`:""}</button>`;
+  const clean=w.replace(/[^A-Za-z0-9'’-]/g,""),sg=svShSeg();
+  return `<button class="sv-sh-w" data-k="${k}" data-w="${esc(clean)}" onclick="svShWordTap(this)"><span class="sv-sh-wt">${esc(w)}</span>${show?`<span class="sv-sh-ipa" aria-hidden="true">${esc(svIpaGet(clean,sg?svIpaCtx(sg):""))}</span>`:""}</button>`;
 }
 function svShIpaStatusHTML(sg){
   const on=svShIpaOn();
@@ -16883,7 +16905,7 @@ function svShIpaDraw(){
     if(!show){if(sp)sp.remove();return}
     any=true;
     if(!sp){sp=document.createElement("span");sp.className="sv-sh-ipa";sp.setAttribute("aria-hidden","true");b.appendChild(sp)}
-    sp.textContent=svIpaGet(b.dataset.w);
+    sp.textContent=svIpaGet(b.dataset.w,svIpaCtx(svShSeg()||{id:""}));
   });
   const wrap=card.querySelector(".sv-sh-words");if(wrap)wrap.classList.toggle("ipa",any);
 }
@@ -16893,6 +16915,46 @@ function svShIpaGo(sg){
   svShIpaFetch(sg).then(()=>{if(svShSameCard(sg)){svShIpaDraw();svShIpaStatus("ok")}})
     .catch(e=>{if(!svShSameCard(sg))return;const m=String(e&&e.message||"");if(m==="off")return;svShIpaDraw();svShIpaStatus("err",/ 429$/.test(m)?"rate_limited":"")});
 }
+/* ---- WATCH: the helpers follow the paragraph being spoken. The same two
+   switches (same preference) sit above the list; the translation goes under
+   the current paragraph, the IPA under its words — only that paragraph, so a
+   whole talk is never translated or transcribed for nothing. Sentence-level
+   captions have no word spans, so IPA has nothing to sit under there and the
+   translation alone is shown. ---- */
+let svWtCur=-1;
+function svWtTogglesHTML(){
+  if(!svOn())return "";
+  const lang=svShLang(),trOn=svShTrOn(),ipaOn=svShIpaOn();
+  const trLbl=lang.ok?t("sv.sh_tr_a11y",{lang:lang.native||lang.name}):t("sv.sh_tr_none");
+  return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
+    <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svWtTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
+    <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
+  </div>`;
+}
+function svWtGroup(k){const ps=svParas(svAsset);return svParaGroup(ps[k])}
+function svWtSame(k,g){return svMode==="watch"&&svWtCur===k&&shClip.vid===g.vid&&!!document.querySelector(`#svTx .sv-para[data-p="${k}"]`)}
+function svWatchDraw(k){
+  const tx=document.getElementById("svTx");if(!tx)return;
+  tx.querySelectorAll(".sv-para-tr,.sv-w-ipa").forEach(e=>e.remove());
+  tx.querySelectorAll(".sv-para.has-ipa").forEach(e=>e.classList.remove("has-ipa"));
+  svWtCur=k;
+  if(!svOn()||!(svShTrOn()||svShIpaOn()))return;
+  const para=tx.querySelector(`.sv-para[data-p="${k}"]`),g=svWtGroup(k);if(!para||!g)return;
+  if(svShTrOn()){
+    const lang=svShLang(),tx0=_svTr[svShTrKey(g)];
+    const box=document.createElement("div");box.className="sv-sh-tr sv-para-tr "+(tx0?"":"wait");box.setAttribute("lang",lang.code);box.setAttribute("dir",lang.rtl?"rtl":"ltr");box.setAttribute("aria-live","polite");
+    box.innerHTML=svShTrInner(tx0?"ok":"wait",tx0);para.appendChild(box);
+    if(tx0)svShTrViewed(g);
+    else svShTrFetch(g).then(txt=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr";box.innerHTML=svShTrInner("ok",txt);svShTrViewed(g)}})
+      .catch(e=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr err";box.innerHTML=svShTrInner("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"").replace("svShTrRetry()","svWtRetry()")}});
+  }
+  if(svShIpaOn()&&para.querySelector(".sv-w")){
+    const paint=()=>{const ctx=svIpaCtx(g);para.classList.add("has-ipa");para.querySelectorAll(".sv-w").forEach(w=>{let sp=w.querySelector(".sv-w-ipa");if(!sp){sp=document.createElement("span");sp.className="sv-w-ipa";sp.setAttribute("aria-hidden","true");w.appendChild(sp)}sp.textContent=svIpaGet(w.firstChild&&w.firstChild.textContent||"",ctx)})};
+    paint();
+    if(svIpaMissing(g).length)svShIpaFetch(g).then(()=>{if(svWtSame(k,g)&&svShIpaOn())paint()}).catch(()=>{});
+  }
+}
+window.svWtRetry=()=>{const k=svWtCur;svWtCur=-1;svWatchDraw(k)};
 /* after the card is on the page: fetch what the helpers that are on still lack */
 function svShAfterDraw(){
   const sg=svShSeg();if(!sg||!svOn())return;
@@ -16927,7 +16989,7 @@ window.svShWordTap=b=>{
   const sg=svShSeg();if(!sg||!svIpaNorm(w))return;
   _svIpaPeek={key:shClip.vid+":"+sg.id,k};
   svShIpaDraw();
-  if(!svIpaGet(w))svShIpaGo(sg);
+  if(!svIpaGet(w,svIpaCtx(sg)))svShIpaGo(sg);
 };
 function svShHTML(){
   const sg=svShSeg();if(!sg)return "";
@@ -18580,6 +18642,7 @@ function svTick(){
          and Challenge — the line itself is the unit, as before. */
       const para=el.closest(".sv-para");
       const key=para?("p"+para.dataset.p):("s"+loc.seg);
+      if(para&&svMode==="watch"&&svPick<0&&+para.dataset.p!==svWtCur)svWatchDraw(+para.dataset.p);   // the helpers follow the speech, paragraph by paragraph
       if((svTxFresh||Date.now()-svUserScrollAt>3000)&&el.offsetParent&&key!==svScrollKey){
         svScrollTo(tx,para||el);svTxFresh=false;svScrollKey=key;
       }}}

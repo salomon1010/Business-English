@@ -217,8 +217,15 @@ fetches, never writes the preference.
 - **Also on the branch (owner, 23 Sep 2026):** the v3 foot-bar Shadow button
   is red / "Stop" exactly while the recorder runs (`shv3RecSync`); the
   report under "Analyze my last shadowing recording" folds (`#fbFold`).
-- **Known limits:** IPA is written by the model (gpt-4o-mini via the chat
-  route) — accurate for common words, not a dictionary; a homograph is cached
-  in the reading the first sentence gave it; Watch mode's full list has neither
-  helper (the card is the one-paragraph view); the help centre has no line
-  about the two switches yet.
+- **Follow-ups (2026-09-23, be12-v439):** homographs (`SV_IPA_HOMOGRAPHS`) are
+  cached per `word@video:paragraph`, so each paragraph shows the reading the
+  model gave for its own sentence; Watch carries the same two switches above
+  the list and applies them to the paragraph being spoken only
+  (`svWatchDraw`), moving with the speech; the helpers pace themselves to 10
+  chat calls a rolling minute and retry a 429 once after 20 s before showing
+  the busy message; the help centre has a tip after the Shadow figure in all
+  15 manuals; `backend/events/` carries the 20-blob row-layout fix, with
+  `state` + `lang` added to the shadow_* column map.
+- **Known limits:** IPA is still written by the model (gpt-4o-mini via the
+  chat route) — good for common words, not a dictionary; a real lexicon would
+  need a Worker-side dictionary, which is a separate decision.

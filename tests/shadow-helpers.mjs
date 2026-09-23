@@ -21,7 +21,8 @@ const POLISH = "https://be-polish.nore-ngou.workers.dev";
 const VID = "MZAjfsyJa1U";
 
 /* the fake Worker */
-let polishMode = "ok";                 // ok | 500 | 429 | abort
+let polishMode = "ok";                 // ok | 500 | 429 | 429once | abort
+let once429 = 0;
 const chat = [];                       // every chat request: {kind, lang, words, text}
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const errors = [];
@@ -38,6 +39,7 @@ async function learner(id, track, lang) {
   await ctx.route(u => u.href.startsWith(POLISH), async route => {
     if (polishMode === "abort") return route.abort("failed");
     if (polishMode === "500") return route.fulfill({ status: 500, contentType: "application/json", body: "{}" });
+    if (polishMode === "429once" && once429++ === 0) return route.fulfill({ status: 429, contentType: "application/json", body: JSON.stringify({ error: "rate_limited" }) });
     if (polishMode === "429") return route.fulfill({ status: 429, contentType: "application/json", body: JSON.stringify({ error: "rate_limited" }) });
     const req = route.request(); const ct = req.headers()["content-type"] || "";
     let body = {};
@@ -49,7 +51,7 @@ async function learner(id, track, lang) {
       if (/pronunciation dictionary/i.test(sys)) {
         const words = (content.match(/Words: (.*)$/m) || [, ""])[1].split(",").map(w => w.trim()).filter(Boolean);
         chat.push({ kind: "ipa", words, text: content });
-        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: words.map(w => w + "=ˈ" + w).join("|"), covered: [] }) });
+        return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: words.map(w => w + "=" + (w === "record" ? (/Sentence: "I will record/.test(content) ? "rɪˈkɔrd" : "ˈrɛkərd") : "ˈ" + w)).join("|"), covered: [] }) });
       }
       const lang = (sys.match(/into (\w+)/) || [, "?"])[1];
       chat.push({ kind: "tr", lang, text: content });
@@ -155,9 +157,10 @@ await A.page.evaluate(() => { svShTrRetry(); svShIpaRetry(); }); await sleep(600
 c = await card(A.page);
 ok("Try again after the Worker is back: the translation and the IPA both arrive", c.trShown && /Traduction/.test(c.trText) && !/err|wait/.test(c.trCls) && c.nIpa === c.nWords && (await ipaRight(A.page, c)) === "" && !/err/.test(c.stCls), JSON.stringify(c));
 polishMode = "429";
-await A.page.evaluate(() => svShStep(1)); await sleep(500);
+await A.page.evaluate(() => { SV_AI_RETRY_MS = 300; _svAiTimes.length = 0; svShStep(1); }); await sleep(1500);   // the budget is cleared: the suite itself has spent it
 c = await card(A.page);
-ok("Rate-limited (429): the message says too many requests, not a generic failure", /Too many requests|Trop de demandes/.test(c.trText) && /Too many requests|Trop de demandes/.test(c.stText), JSON.stringify({ tr: c.trText, st: c.stText }));
+await A.page.evaluate(() => { SV_AI_RETRY_MS = 20000; });
+ok("Rate-limited (429) twice running: after the quiet retry the message says too many requests, not a generic failure", /Too many requests|Trop de demandes/.test(c.trText) && /Too many requests|Trop de demandes/.test(c.stText), JSON.stringify({ tr: c.trText, st: c.stText }));
 polishMode = "ok";
 const n3 = chat.length;
 await A.ctx.setOffline(true);
@@ -179,7 +182,7 @@ await A.page.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.c
 await A.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.track = (n, p) => { __ev.push([n, p || {}]); return t0 && t0(n, p); }; });
 await openShadow(A.page);
 c = await card(A.page);
-ok("After a refresh both switches are still on (the preference is in S), and the paragraph's translation and IPA come from the device caches — no new request", c.gid === gidBefore && c.trOn === "true" && c.ipaOn === "true" && c.trShown && /Traduction \[French\]/.test(c.trText) && c.nIpa === c.nWords && (await ipaRight(A.page, c)) === "" && chat.length === n4, JSON.stringify({ c, hits: chat.length - n4 }));
+ok("After a refresh both switches are still on (the preference is in S), and the paragraph's translation and IPA come from the device caches — no new request", c.gid === gidBefore && c.trOn === "true" && c.ipaOn === "true" && c.trShown && /Traduction \[French\]/.test(c.trText) && c.nIpa === c.nWords && (await ipaRight(A.page, c)) === "" && !chat.slice(n4).some(x => x.text === c.want || x.text.includes(c.want.slice(0, 40))), JSON.stringify({ c, hits: chat.slice(n4) }));
 
 /* ---------- the v3 Shadow button while recording ---------- */
 const recBtn = await A.page.evaluate(async () => {
@@ -214,8 +217,44 @@ ok("The report card folds: the chevron appears only once there is a report, hide
 
 /* ---------- Watch still lights the word ---------- */
 await A.page.evaluate(() => svSetMode("watch")); await sleep(200);
-const lit = await A.page.evaluate(() => { const s = svAsset.segments[5]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); return { seg: document.querySelector(".sv-seg.now")?.dataset.i, word: document.querySelector(".sv-w.now")?.innerText, expect: s.words[2].text }; });
+const lit = await A.page.evaluate(() => { const s = svAsset.segments[5]; shSeek = { t: (s.words[2].startMs + 10) / 1000, at: Date.now() }; svTick(); return { seg: document.querySelector(".sv-seg.now")?.dataset.i, word: document.querySelector(".sv-w.now")?.firstChild?.textContent, expect: s.words[2].text }; });
 ok("WATCH still works: playback time lights the current sentence and word", lit.seg === "5" && lit.word === lit.expect, JSON.stringify(lit));
+
+/* ---------- WATCH: the same switches, the paragraph being spoken ---------- */
+const wt = await A.page.evaluate(async () => {
+  const r = { tr: document.getElementById("svWtTrBtn")?.getAttribute("aria-pressed"), ipa: document.getElementById("svWtIpaBtn")?.getAttribute("aria-pressed") };
+  await new Promise(x => setTimeout(x, 500));
+  const para = document.querySelector("#svTx .sv-para[data-p='" + svWtCur + "']");
+  r.cur = svWtCur; r.trBox = para && para.querySelector(".sv-para-tr")?.innerText; r.trOnly = document.querySelectorAll("#svTx .sv-para-tr").length;
+  r.ipaIn = para ? para.querySelectorAll(".sv-w-ipa").length : 0; r.wIn = para ? para.querySelectorAll(".sv-w").length : 0; r.ipaElsewhere = document.querySelectorAll("#svTx .sv-para:not([data-p='" + svWtCur + "']) .sv-w-ipa").length;
+  r.first = para && para.querySelector(".sv-w-ipa")?.textContent; r.firstWord = para && para.querySelector(".sv-w")?.firstChild.textContent;
+  /* the speech moves to the next paragraph */
+  const nx = svParas(svAsset)[svWtCur + 1]; const sg = svAsset.segments[nx.from]; svPick = -1; shSeek = { t: (sg.startMs + 10) / 1000, at: Date.now() }; svTick(); await new Promise(x => setTimeout(x, 600));
+  r.moved = svWtCur === r.cur + 1; r.trMoved = document.querySelectorAll("#svTx .sv-para-tr").length === 1 && !!document.querySelector("#svTx .sv-para[data-p='" + svWtCur + "'] .sv-para-tr"); r.ipaMoved = document.querySelectorAll("#svTx .sv-para:not([data-p='" + svWtCur + "']) .sv-w-ipa").length === 0 && document.querySelectorAll("#svTx .sv-para[data-p='" + svWtCur + "'] .sv-w-ipa").length > 0;
+  return r;
+});
+ok("WATCH carries the same two switches (same preference, both on) and applies them to the paragraph being spoken only: its translation under it, IPA under each of its words, nothing on the other paragraphs — and they move with the speech", wt.tr === "true" && wt.ipa === "true" && /Traduction \[French\]/.test(wt.trBox || "") && wt.trOnly === 1 && wt.ipaIn === wt.wIn && wt.wIn > 0 && wt.ipaElsewhere === 0 && wt.first === await expIpa(A.page, wt.firstWord) && wt.moved && wt.trMoved && wt.ipaMoved, JSON.stringify(wt));
+
+/* ---------- homographs: the reading THIS sentence gave, kept apart ---------- */
+const hg = await A.page.evaluate(async () => {
+  const r = {};
+  const g1 = { id: "x1", text: "I will record the meeting.", vid: shClip.vid }, g2 = { id: "x2", text: "The record shows it.", vid: shClip.vid };
+  await svShIpaFetch(g1); await svShIpaFetch(g2);
+  r.v1 = svIpaGet("record", svIpaCtx(g1)); r.v2 = svIpaGet("record", svIpaCtx(g2)); r.plain = svIpaGet("record"); r.meeting = svIpaGet("meeting"); r.keys = Object.keys(JSON.parse(localStorage.getItem("be_sv_ipa"))).filter(k => k.startsWith("record")).sort();
+  return r;
+});
+ok("A homograph is cached per paragraph: 'record' reads rɪˈkɔrd in one sentence and ˈrɛkərd in the other, never one for both; ordinary words stay cached once", hg.v1 === "rɪˈkɔrd" && hg.v2 === "ˈrɛkərd" && hg.plain === "" && hg.meeting === "ˈmeeting" && hg.keys.length === 2 && hg.keys.every(k => k.includes("@")), JSON.stringify(hg));
+
+/* ---------- pacing: a 429 is retried once, quietly ---------- */
+polishMode = "429once"; once429 = 0;
+const pace = await A.page.evaluate(async () => {
+  SV_AI_RETRY_MS = 300; const g = { id: "x3", text: "Nobody expected the verdict.", vid: shClip.vid };
+  const t0 = Date.now(); const n = await svShIpaFetch(g); return { n, ms: Date.now() - t0, v: svIpaGet("verdict") };
+});
+ok("Pacing: a 429 from the route is retried once after the back-off instead of being shown — the IPA still arrives", pace.n >= 1 && pace.ms >= 280 && pace.v === "ˈverdict" && once429 === 2, JSON.stringify({ pace, once429 }));
+polishMode = "ok";
+const budget = await A.page.evaluate(async () => { SV_AI_PER_MIN = 2; _svAiTimes.length = 0; let third = false; [1, 2].forEach(i => svShIpaFetch({ id: "b" + i, text: "Word" + i + " alpha" + i, vid: shClip.vid }).catch(() => {})); svShIpaFetch({ id: "b3", text: "Word3 alpha3", vid: shClip.vid }).then(() => { third = true; }).catch(() => {}); await new Promise(x => setTimeout(x, 900)); const r = { sent: _svAiTimes.length, third }; SV_AI_PER_MIN = 10; return r; });
+ok("Pacing: past the per-minute budget a call waits for a slot rather than being refused — two go out at once, the third is still waiting a second later", budget.sent === 2 && budget.third === false, JSON.stringify(budget));
 
 /* ---------- track isolation on the same account ---------- */
 const iso = await A.page.evaluate(() => {

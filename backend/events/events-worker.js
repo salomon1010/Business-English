@@ -106,6 +106,17 @@ const EVENTS = new Set([
   // sentence practice attempt was graded (+result pass|retry), an item was
   // saved to vocabulary, the conversation booster game was played. Counts only.
   "partner_review_ready", "partner_review_coach", "partner_review_practice", "partner_review_saved", "partner_review_game",
+  // BE Mastery V2 competency missions (General English only, Week 3 slice).
+  // Every one of these carries track + week + competency, because the audit
+  // found the older learning events could not be split by programme at all and
+  // the dataset cannot be backfilled. Counts and fixed enums only: `move` is
+  // one of the four communication-move ids, `state` is a competency state,
+  // `result` is pass|fail or the recommended action. Nothing spoken, nothing
+  // transcribed and nothing from the profile ever rides on these.
+  "v2_mission_started", "v2_mission_heard", "v2_speak_attempt", "v2_coach_generated",
+  "v2_retry_attempt", "v2_transfer_started", "v2_transfer_completed",
+  "v2_evidence_recorded", "v2_competency_progressed", "v2_retrieval_scheduled",
+  "v2_recommendation_generated",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -132,10 +143,65 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // rung: gate | sync | recall | blind | retell — which step of the Challenge
   // ladder an event belongs to. Appended, as above: PROP_KEYS iteration order
   // is the blob column order, so this must stay last.
-  "rung"]);
+  "rung",
+  // V2 missions: competency (clear-update), mission (its id), move (status |
+  // issue | impact | next | none), attempt (a count), ai (1|0 — whether the
+  // written coaching came from the model or the device). Appended last, as
+  // every addition to this list must be. `state`, `week`, `track`, `kind`,
+  // `result`, `band` and `n` are reused from above rather than duplicated.
+  "competency", "mission", "move", "attempt", "ai", "from"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;
+
+/* ROW LAYOUT — Analytics Engine takes at most 20 blobs per data point
+   (workerd analytics-engine.h: "20 text fields (blobs)"; docs → limits).
+   blob1 is the name and blob2 the country, so a row has room for 18 prop
+   columns. PROP_KEYS is an allow-list of what may be READ from a beacon; it
+   stopped being a safe row layout the moment it passed 18 keys (a420846,
+   18 Sept 2026). From the 19 Sept 22:46 UTC deploy every write carried 25+
+   blobs and was refused — the catch below swallows the error and the client
+   gets its 204, so nothing looked wrong and the dataset simply went quiet
+   (last row 2026-09-19, found 22 Sept while preparing the V2 deploy).
+
+   LEGACY is the first 18 keys in their original order: exactly the columns
+   blob3..blob20 that ever existed, so every query in README.md and query.sh
+   keeps meaning what it meant. Keys after `now` were never readable (there
+   is no blob21) and are dropped for legacy events, as they always were.
+
+   An event family may declare its own map. Every query filters on blob1
+   first, so a column can carry different keys for different names; each map
+   is written down in README.md. V2 missions are the first family: the
+   questions they exist to answer — which competency, which move, which
+   state — need columns the legacy row never had room for. */
+const AE_MAX_BLOBS = 20;
+const MAX_COLS = AE_MAX_BLOBS - 2;                 // blob1 is the name, blob2 the country
+const LEGACY = [...PROP_KEYS].slice(0, MAX_COLS);
+const LAYOUTS = [
+  // v2_* → blob3 track, 4 week, 5 competency, 6 mission, 7 kind, 8 move,
+  // 9 result, 10 band, 11 state, 12 from, 13 attempt, 14 ai
+  [/^v2_/, ["track", "week", "competency", "mission", "kind", "move", "result", "band", "state", "from", "attempt", "ai"]],
+  // partner_* → blob3 kind, 4 round, 5 n, 6 now, 7 regular, 8 state, 9 reason,
+  // 10 evidence, 11 result, 12 day. Not partner_interest: that is a legacy-era
+  // event ./query.sh partner reads at blob14 (stage) and blob17 (track).
+  // No partner row was ever recorded before this map existed (the names
+  // arrived 18 Sept 2026, the day the row went over the limit), so nothing
+  // historical is re-read through it.
+  [/^partner_(?!interest$)/, ["kind", "round", "n", "now", "regular", "state", "reason", "evidence", "result", "day"]],
+  // shadow_* → blob3 level, 4 mode, 5 to, 6 rung, 7 reason, 8 result, 9 kind.
+  // Same history: no shadow row was ever recorded.
+  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches, appended so the earlier columns keep their place
+];
+/* The invariant lives where the row is built, not only in a test: whatever a
+   future edit declares, a layout can never put more than MAX_COLS keys into a
+   row. test/run.mjs asserts that no layout actually needs the cut, so this
+   slice is a guard, never a behaviour. */
+function layoutFor(name){
+  const m = LAYOUTS.find(([re]) => re.test(name));
+  return (m ? m[1] : LEGACY).slice(0, MAX_COLS);
+}
+/* Named exports for test/run.mjs only; the runtime reads the default export. */
+export { AE_MAX_BLOBS, MAX_COLS, LEGACY, LAYOUTS, layoutFor };
 
 function cors(origin, extra = []){
   const ok = ALLOWED_ORIGINS.includes(origin) || extra.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -183,7 +249,7 @@ export default {
 
     const blobs = [b.name, req.cf && req.cf.country ? req.cf.country : "??"];
     const props = b.props && typeof b.props === "object" ? b.props : {};
-    for (const k of PROP_KEYS) blobs.push(props[k] != null ? clean(props[k]) : "");
+    for (const k of layoutFor(b.name)) blobs.push(props[k] != null ? clean(props[k]) : "");
 
     try {
       env.AE.writeDataPoint({
@@ -191,7 +257,14 @@ export default {
         blobs,
         doubles: [1],
       });
-    } catch (e) { /* never let analytics break the app */ }
+    } catch (e) {
+      /* Never let analytics break the app — the client keeps its 204. But say
+         so where an operator can see it: `wrangler tail` live, and Workers Logs
+         if observability is switched on. The 19–22 Sept 2026 outage was
+         invisible precisely because this block was silent. Nothing from the
+         beacon is logged: the name is allow-listed, the message is workerd's. */
+      console.error("be-events: writeDataPoint failed for", b.name, "-", e && e.name, e && e.message, "- blobs:", blobs.length);
+    }
 
     return new Response(null, { status: 204, headers: cors(origin, extra) });
   },
