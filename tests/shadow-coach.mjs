@@ -37,7 +37,8 @@ let heard = "", assessMode = "ai", assessScores = {}, assessDefault = 92, polish
 const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"] });
 const errors = [];
 async function learner(id, track) {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
+  /* against the live site the service worker would answer the Worker fetches the route below is meant to fake — block it there */
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"], serviceWorkers: /^https:/.test(BASE) ? "block" : "allow" });
   await ctx.addInitScript(({ track, FLAGS }) => {
     localStorage.setItem("be_flags", JSON.stringify(FLAGS));
     localStorage.setItem("be_events_api", "");          // no beacon leaves the test; track() is captured after load
