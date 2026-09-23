@@ -239,6 +239,16 @@ if (!process.env.BASE) {
   await wait(300); await page.evaluate(() => go("shadow"));
   const drawn = await page.waitForFunction(() => document.querySelector("#shLib .shl-row"), null, { timeout: 8000 }).then(() => true).catch(() => false);
   ok("Library draws from catalogue/general.json: rows, chips, the Your-videos chip, the add-link button, no starters grid", drawn && await page.evaluate(() => document.querySelectorAll("#shLib .shl-chip").length >= 2 && !!document.querySelector("#shLib .shl-chip.mine") && !!document.querySelector("#shLibDock .shl-fab") && !document.querySelector("#v-shadow .sh-starter")));
+  /* The hero slides are the first thing on the page and were soft: 480×360 stretched over ~1,070 device px.
+     They now load YouTube's 1280×720 file; a video without one (YouTube answers a 120×90 placeholder) falls back to hqdefault. */
+  const hero = await page.evaluate(async () => {
+    const img = document.querySelector("#shlHeroTrack .shl-hero img"); if (!img) return { none: true };
+    for (let i = 0; i < 40 && !(img.complete && img.naturalWidth); i++) await new Promise(r => setTimeout(r, 250));
+    const fb = new Image(); fb.onload = () => shlHeroImg(fb); fb.onerror = () => shlHeroImg(fb, 1); fb.src = "https://i.ytimg.com/vi/P4Ph0Ct5HXc/maxresdefault.jpg";
+    for (let i = 0; i < 40 && !(fb.complete && fb.naturalWidth > 120); i++) await new Promise(r => setTimeout(r, 250));
+    return { src: img.currentSrc || img.src, w: img.naturalWidth, eager: img.loading === "eager", fbSrc: fb.src, fbW: fb.naturalWidth };
+  });
+  ok("Hero slide is the 1280×720 thumbnail, loaded eagerly; a video without one falls back to hqdefault", /maxresdefault\.jpg$/.test(hero.src) && hero.w === 1280 && hero.eager && /hqdefault\.jpg$/.test(hero.fbSrc) && hero.fbW === 480, JSON.stringify(hero));
   const q = await page.evaluate(() => { const first = document.querySelector("#shLibFeed .shl-row b").textContent.split(" ")[0]; const i = document.getElementById("shLibIn"); i.value = first; shLibQ(first); return { n: document.querySelectorAll("#shLibFeed .shl-row").length, hid: document.getElementById("shLibStatic").style.display === "none", first }; });
   ok("Typing filters the feed and hides chips / hero while searching", q.n >= 1 && q.hid, JSON.stringify(q));
   await page.evaluate(() => shLibClear());

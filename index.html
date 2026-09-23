@@ -9902,6 +9902,21 @@ function shLibCatLabel(c){const k="sh.cat_"+c.id;return I18N_EN[k]?t(k):c.label}
    the catalogue names one; the rest are the opening video of each other
    category, so the three slides are never all from one channel. */
 const SHL_HERO_N=3, SHL_HERO_MS=4500;
+/* The slides are the first thing on the Shadow page, and they were soft: the
+   card is about 1,070 device pixels wide on a phone and hqdefault is 480×360,
+   so the browser was scaling it up more than twice. maxresdefault is
+   1280×720 — the largest thumbnail YouTube publishes, more than the card can
+   show, so the slide is as sharp as the screen (owner, 23 Sep 2026). A few
+   videos have no such file (2 of the 301 in the catalogue that day): YouTube
+   then answers 404 with a 120×90 grey placeholder that browsers still render,
+   so the load handler checks the size and falls back to hqdefault, once. The
+   first slide loads eagerly at high priority — it is above the fold; the
+   others stay lazy. */
+function shlHeroImg(img,failed){
+  if(img.dataset.fb)return;
+  if(!failed&&img.naturalWidth>120)return;
+  img.dataset.fb="1";img.src=img.src.replace("/maxresdefault.jpg","/hqdefault.jpg");
+}
 function shLibHeroes(){
   const c=_shCat;if(!c)return [];
   const w=(currentPos()||{}).w||1,h=c.hero||{};
@@ -10031,7 +10046,7 @@ function shLibHTML(){
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
-      <button class="shl-hero" onclick="shLibOpen('${h.vid}')" aria-hidden="${i!==0}" aria-label="${esc(c.videos[h.vid].title)}"><img src="https://i.ytimg.com/vi/${h.vid}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360"><span class="shl-hero-tag">${t("sh.lib_fits_plan")}</span><span class="shl-play">${ic("play")}</span><span class="shl-hero-cap">${esc(c.videos[h.vid].title)}</span></button>`).join("")}</div>
+      <button class="shl-hero" onclick="shLibOpen('${h.vid}')" aria-hidden="${i!==0}" aria-label="${esc(c.videos[h.vid].title)}"><img src="https://i.ytimg.com/vi/${h.vid}/maxresdefault.jpg" alt="" loading="${i?"lazy":"eager"}"${i?"":' fetchpriority="high"'} decoding="async" width="1280" height="720" onload="shlHeroImg(this)" onerror="shlHeroImg(this,1)"><span class="shl-hero-tag">${t("sh.lib_fits_plan")}</span><span class="shl-play">${ic("play")}</span><span class="shl-hero-cap">${esc(c.videos[h.vid].title)}</span></button>`).join("")}</div>
     ${heroes.length>1?`<div class="shl-dots" id="shlHeroDots" role="tablist" aria-label="${esc(t("sh.lib_week_pick",{n:heroes[0].w}))}">${heroes.map((h,i)=>`<button class="shl-dot ${i===0?"on":""}" role="tab" aria-selected="${i===0}" onclick="shlHeroDot(${i})" aria-label="${i+1}"></button>`).join("")}</div>`:""}
   </div></div>`:""}
 
@@ -14829,7 +14844,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v436";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v437";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
