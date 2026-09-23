@@ -1,4 +1,8 @@
 /* BE Mastery V2.2 — General English Week 2 "Explain what you do", end to end,
+   NUMBERING: this file is named for the prototype order. Canonically (V2.3)
+   "Explain what you do" is General English WEEK 1 and "Give a clear update"
+   is WEEK 2 — see the _note in tracks/general/missions.json. The W2/W3
+   variables below are competency handles, not week numbers.
    and the architecture-scaling proof.
 
    Week 2 declares FIVE communication moves. Week 3 declares four. The point of
@@ -93,8 +97,8 @@ ok("A Week 3 attempt does not alter Week 2 state",
 ok("A Week 2 attempt does not alter Week 3 state",
   st[W3.id].state === "DEMONSTRATED" && st[W3.id].attempts.length === 1 && w3Before === "null");
 ok("Each attempt is stamped with its own competency and week",
-  st[W2.id].attempts[0].competency === "explain-work" && st[W2.id].attempts[0].week === 2
-  && st[W3.id].attempts[0].competency === "clear-update" && st[W3.id].attempts[0].week === 3);
+  st[W2.id].attempts[0].competency === "explain-work" && st[W2.id].attempts[0].week === 1
+  && st[W3.id].attempts[0].competency === "clear-update" && st[W3.id].attempts[0].week === 2);
 ok("A Week 2 key and a Week 3 key never collide — idempotency is per competency",
   (() => { const s2 = {}; ME.addAttempt(s2, W2.id, mk(W2, G2, SAY.strong, "guided", "same"), "general-english", IV, meta(W2));
     const r = ME.addAttempt(s2, W3.id, mk(W3, ME.missionOf(W3, "clear-update-guided"), SAY.w3strong, "guided", "same"), "general-english", IV, meta(W3));
@@ -121,7 +125,7 @@ ok("Learner C (weak Week 3) is sent to Week 3 — the earlier week does not win 
 
 let D = store(); put(D, W2, G2, SAY.strong, "guided", "d1"); put(D, W3, G3, "The project is on track. We have run into a supplier issue. I will chase it up.", "guided", "d2");
 const pD = pick(D);
-ok("Week 3's weak move outranks Week 2's transfer — the engine's own priority, not the week number",
+ok("clear-update's weak move outranks explain-work's transfer — the engine's own priority, not the week number",
   pD.comp.id === "clear-update" && pD.rec.action === "retry",
   JSON.stringify({ c: pD.comp.id, a: pD.rec.action }));
 let E = store(); put(E, W2, G2, SAY.noWhy, "guided", "e1"); put(E, W3, G3, "The project is on track. We have run into a supplier issue. I will chase it up.", "guided", "e2");
@@ -134,7 +138,15 @@ put(F, W2, G2, SAY.strong, "guided", "f1"); put(F, W2, T2, SAY.transfer, "transf
    the rubric reads as impact and not as naming the problem, so Week 3 stayed
    DEMONSTRATED and the case failed for the right reason. */
 put(F, W3, G3, SAY.w3strong, "guided", "f3"); put(F, W3, T3, SAY.w3transfer, "transfer", "f4");
-ok("With both competencies transfer-ready, nothing is pushed and the old advice stands", pick(F) === null);
+/* V2.3: a third competency ("Raise a problem", Week 3) now sits in the pack.
+   With the first two resting, the engine offers it — a competency nobody has
+   spoken for is never skipped. Only when EVERY competency rests is nothing pushed. */
+const W4 = ME.competencyOf(PACK, "raise-problem");
+ok("With the first two resting, the engine offers the third competency to speak — it is not skipped",
+  W4 && pick(F) && pick(F).comp.id === "raise-problem" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
+put(F, W4, ME.missionOf(W4, "raise-problem-guided"), ME.missionOf(W4, "raise-problem-guided").hear.model, "guided", "f5");
+put(F, W4, ME.missionOf(W4, "raise-problem-transfer"), "There is a problem with the monthly figures. It started when the old report was switched off in August. This means the Thursday board pack is at risk. I have spoken to finance and asked them to rerun the numbers. Could you sign off on a one-day delay so we can check them?", "transfer", "f6");
+ok("With every competency transfer-ready, nothing is pushed and the old advice stands", pick(F) === null, JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 
 /* ═══════════ BROWSER ════════════════════════════════════════════════════ */
 let BASE = process.env.BASE, server = null;
@@ -206,7 +218,7 @@ await L.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.
 /* Home leads with Week 2 for a learner who has spoken for nothing */
 const home = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home"); return { n: document.querySelectorAll(".mv-home").length, eyebrow: c && c.querySelector(".eyebrow").innerText, title: c && c.querySelector("h2").innerText }; });
 ok("Home offers ONE mission card, and for a fresh learner it is Week 2",
-  home.n === 1 && /Week 2/i.test(home.eyebrow || "") && /Explain what you do/i.test(home.title || ""), JSON.stringify(home));
+  home.n === 1 && /Week 1/i.test(home.eyebrow || "") && /Explain what you do/i.test(home.title || ""), JSON.stringify(home));
 
 /* SEE / HEAR / NOTICE render the five moves with no Shadow row */
 await L.page.evaluate(() => mvGo("explain-work-guided", "notice")); await sleep(350);
@@ -232,7 +244,7 @@ const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.cover
 ok("B1 · the missing move is identified from what was said, and five chips render",
   b1.moves.why === false && b1.cov === 0.8 && b1.move === "why" && b1.chips === 5 && b1.off === 1, JSON.stringify({ c: b1.cov, m: b1.move, chips: b1.chips }));
 ok("B2 · four of five does not advance the learner", (await rec2(L.page, "explain-work")).state === "PRACTICING");
-ok("B3 · the coach's system prompt carried Week 2's five moves, not Week 3's four",
+ok("B3 · the coach's system prompt carried explain-work's five moves, not clear-update's four",
   /makes 5 communication/.test(lastSystem) && /why \(Why it matters\)/.test(lastSystem) && !/impact/.test(lastSystem),
   lastSystem.slice(0, 90));
 
@@ -267,7 +279,7 @@ const prog = await L.page.evaluate(() => { go("review"); const ps = [...document
   return { panels: ps.length, txt: ps.map(p => p.innerText.replace(/\s+/g, " ")).join(" || "), comps: d.map(x => x.competency + ":" + x.state), moves: (d[0].byMove || []).length }; });
 ok("A1 · Progress renders Week 2 with its five moves and its state",
   prog.panels === 1 && prog.comps.join() === "explain-work:TRANSFER_READY" && prog.moves === 5
-  && /Week 2/.test(prog.txt) && /Why it matters/.test(prog.txt), JSON.stringify({ p: prog.panels, c: prog.comps, m: prog.moves }));
+  && /Week 1/.test(prog.txt) && /Why it matters/.test(prog.txt), JSON.stringify({ p: prog.panels, c: prog.comps, m: prog.moves }));
 const rec = await L.page.evaluate(() => ({ a: AdaptiveLearningEngine.recommendation(S, ProfessionalTrackContext.active()), m: LearningCoach.mission(S, ProfessionalTrackContext.active()) }));
 ok("A2 · with Week 2 complete the engine moves the learner on to Week 3",
   rec.a.v2 === true && rec.m.arg1 === "clear-update-guided", JSON.stringify({ t: rec.a.title, arg: rec.m.arg1 }));
@@ -275,7 +287,7 @@ const voc = await L.page.evaluate(() => Object.entries(areaVocab()).filter(([, v
 ok("A3 · Week 2 expressions were acquired automatically, tagged to Week 2", voc.length > 0, JSON.stringify(voc));
 const ev = await L.page.evaluate(() => (window.__ev || []).filter(e => e[0].startsWith("v2_")).map(e => [e[0], e[1].week, e[1].competency]));
 ok("A4 · every Week 2 analytics event carries week 2 and the Week 2 competency",
-  ev.length > 0 && ev.every(e => e[1] === "2" && e[2] === "explain-work"), JSON.stringify(ev.slice(0, 4)));
+  ev.length > 0 && ev.every(e => e[1] === "1" && e[2] === "explain-work"), JSON.stringify(ev.slice(0, 4)));
 
 /* ── F · BOTH WEEKS IN ONE LEARNER, IN THE APP ── */
 console.log("\nF · BOTH WEEKS, ONE LEARNER");

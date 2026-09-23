@@ -1,11 +1,11 @@
 {
   "schemaVersion": "1",
   "trackId": "general",
-  "_note": "BE Mastery V2 — competency missions (Week 2 'Explain what you do' — 5 moves; Week 3 'Give a clear update' — 4 moves). OPTIONAL curriculum section, General English only. A track without its own missions.json gets null, NOT the parent's: professional-tracks.js lists 'missions' in NEVER_INHERIT precisely so this content can never reach Welding through the curriculum merge. Content is written in English like every other pack (weeks.json, phrases.json); only the surrounding chrome is translated through t().",
+  "_note": "BE Mastery V2 — competency missions. The `week` of a competency is the General English programme week it teaches (weeks.json), NOT the order these were built: Week 1 'Explain what you do' — 5 moves; Week 2 'Give a clear update' — 4 moves; Week 3 'Raise a problem' — 5 moves. The first two were prototyped as 2 and 3 and were renumbered once the third arrived; `week` is display, analytics and the pickNext tie-break only — every store, route and record is keyed by competency id, so nothing had to be migrated. OPTIONAL curriculum section, General English only. A track without its own missions.json gets null, NOT the parent's: professional-tracks.js lists 'missions' in NEVER_INHERIT precisely so this content can never reach Welding through the curriculum merge. Content is written in English like every other pack (weeks.json, phrases.json); only the surrounding chrome is translated through t().",
   "competencies": [
     {
       "id": "explain-work",
-      "week": 2,
+      "week": 1,
       "title": "Explain what you do",
       "objective": "Explain your role and your current work so that someone who has never met your team understands it.",
       "pattern": "ROLE → RESPONSIBILITY → RIGHT NOW → WHO IT'S FOR → WHY IT MATTERS",
@@ -269,7 +269,7 @@
     },
     {
       "id": "clear-update",
-      "week": 3,
+      "week": 2,
       "title": "Give a clear update",
       "objective": "Give a concise professional project update that a busy colleague can act on.",
       "pattern": "STATUS → ISSUE → IMPACT → NEXT STEP",
@@ -519,6 +519,316 @@
           },
           "prompt": "The supplier delivered the materials late. What does this mean for the project?",
           "context": "The materials arrived three days late. Installation was due to start on Monday. The customer has been promised the site by the end of the month."
+        }
+      ]
+    },
+    {
+      "id": "raise-problem",
+      "week": 3,
+      "title": "Raise a problem",
+      "objective": "Explain a problem, what caused it and what it costs, then ask for the decision or the help you actually need.",
+      "pattern": "ISSUE → CAUSE → IMPACT → WHAT I'VE DONE → WHAT I NEED",
+      "shadow": {
+        "vid": "9FvQ9125Hjs",
+        "title": "Business English - 925 English Lesson 33 - How to Explain a Problem in English",
+        "why": "A lesson on this exact job: state the problem generally, tell the story of what caused it, and ask for help politely. It models three of the five moves — issue, cause and ask — and not impact or what you have already done, so it supports this competency without standing in for it."
+      },
+      "moves": [
+        {
+          "id": "issue",
+          "label": "The problem",
+          "hint": "Name it in one sentence, before any of the story. A listener who does not know what is wrong cannot follow what happened.",
+          "patterns": [
+            "We've got a problem with the delivery.",
+            "There's an issue with the monthly figures.",
+            "The machine on line two has stopped."
+          ],
+          "retry": "Say it again and open with one short sentence naming what is wrong — before you explain how it happened.",
+          "cues": [
+            "there's an issue",
+            "there is an issue",
+            "there's a problem",
+            "there is a problem",
+            "we have a problem",
+            "we've got a problem",
+            "we have got an issue",
+            "we have got a problem",
+            "we have an issue",
+            "we've got an issue",
+            "i've run into",
+            "we've run into",
+            "i have run into",
+            "we have run into",
+            "it looks like there",
+            "we've hit",
+            "we have hit",
+            "has broken",
+            "has stopped",
+            "isn't working",
+            "is not working",
+            "won't work",
+            "will not work",
+            "has gone wrong",
+            "gone wrong",
+            "has failed",
+            "is down",
+            "the problem is",
+            "the issue is",
+            "i need to flag",
+            "i want to flag",
+            "i'm flagging",
+            "a safety issue",
+            "a technical issue",
+            "a staffing issue",
+            "a quality issue"
+          ]
+        },
+        {
+          "id": "cause",
+          "label": "Cause",
+          "hint": "What actually happened, in the past tense. Be specific about the event, not about whose fault it was.",
+          "patterns": [
+            "It started when the supplier changed our order number.",
+            "What happened was the report got switched off in August.",
+            "The delay was caused by a late delivery."
+          ],
+          "retry": "Say it again and add what actually happened — one sentence in the past tense, naming the event that started it.",
+          "cues": [
+            "it started when",
+            "this started when",
+            "started when",
+            "it began when",
+            "what happened was",
+            "what happened is",
+            "the cause",
+            "the root cause",
+            "caused by",
+            "because of the",
+            "due to the",
+            "due to a",
+            "after we changed",
+            "when we changed",
+            "when i tried",
+            "when we tried",
+            "when i turned",
+            "it turned out",
+            "turns out",
+            "we didn't get",
+            "they didn't send",
+            "never arrived",
+            "went to the wrong"
+          ],
+          "_cue_note": "Deliberately no bare \"because\". \"I'm raising it because it affects Friday\" is an impact sentence, and crediting it as a cause would tell a learner they had explained what happened when they had not."
+        },
+        {
+          "id": "impact",
+          "label": "Impact",
+          "hint": "What it costs: the date, the money or the customer. Without this nobody knows how hard to work on it.",
+          "patterns": [
+            "This means installation cannot start on Monday.",
+            "We would finish three days late.",
+            "It puts the Thursday board pack at risk."
+          ],
+          "retry": "Say it again and say what the problem costs — name the date, the days or the person who feels it.",
+          "cues": [
+            "this means",
+            "that means",
+            "which means",
+            "at risk",
+            "puts the",
+            "push the deadline",
+            "pushed back",
+            "behind schedule",
+            "days late",
+            "a week late",
+            "miss the deadline",
+            "won't make the",
+            "will not make the",
+            "we'll miss",
+            "we will miss",
+            "cost us",
+            "the customer will",
+            "affects the",
+            "affect the",
+            "knock-on",
+            "delay the",
+            "delays the",
+            "impact on",
+            "the delivery date",
+            "cannot start",
+            "can't start",
+            "cannot begin",
+            "can't begin"
+          ]
+        },
+        {
+          "id": "mitigate",
+          "label": "What I've done",
+          "hint": "The step you have already taken. It is what stops a problem sounding like a complaint.",
+          "patterns": [
+            "I've already spoken to their office.",
+            "In the meantime we're using the old report.",
+            "We've put a temporary fix in place."
+          ],
+          "retry": "Say it again and add the one thing you have already done about it, before you say what you need.",
+          "cues": [
+            "i've already spoken",
+            "i have already spoken",
+            "i've already contacted",
+            "we have already contacted",
+            "i have already contacted",
+            "we've already started",
+            "we've already ordered",
+            "we've already put",
+            "in the meantime",
+            "as a workaround",
+            "a workaround",
+            "as a stopgap",
+            "for now we",
+            "for now i",
+            "a temporary fix",
+            "temporary fix",
+            "we've put a",
+            "we have put a",
+            "i've spoken to",
+            "i have spoken to",
+            "we've contacted",
+            "we have contacted",
+            "i've contacted",
+            "i've asked them",
+            "to limit the",
+            "to stop it happening",
+            "we're covering",
+            "we are covering",
+            "until it's fixed",
+            "until it is fixed",
+            "so far i've"
+          ],
+          "_cue_note": "Narrow on purpose, and narrower than it looks. A bare \"we've already\" fires inside \"we've already lost two days\", which is an impact statement — it would credit the learner with handling a problem they had only described. Under-crediting is the safe direction: the AI pass may ADD a move the cues missed and can never remove one, so a strict floor costs an online learner nothing and an offline learner one retry."
+        },
+        {
+          "id": "ask",
+          "label": "What I need",
+          "hint": "The decision, the person or the permission you want. This is the move almost everyone leaves out, and it is the reason for speaking at all.",
+          "patterns": [
+            "Could you approve the courier cost?",
+            "Would you mind chasing them at your level?",
+            "What I need from you is a decision on the date."
+          ],
+          "retry": "Say it again and finish with a plain question — what do you need this person to decide, approve or do?",
+          "cues": [
+            "could you",
+            "would you",
+            "can you",
+            "i need you to",
+            "i'd like you to",
+            "i would like you to",
+            "what i need from you",
+            "what i need is",
+            "i need your",
+            "can we agree",
+            "could we agree",
+            "do you think you could",
+            "would you mind",
+            "i'd appreciate",
+            "i would appreciate",
+            "give us a hand",
+            "help me with",
+            "your approval",
+            "approve the",
+            "sign off",
+            "sign-off",
+            "can i get",
+            "could i get",
+            "who should i",
+            "what would you like me to",
+            "shall i",
+            "should i",
+            "let me know which",
+            "your decision",
+            "i'm asking for",
+            "i am asking for"
+          ]
+        }
+      ],
+      "expressions": [
+        {
+          "w": "flag an issue",
+          "l": "B2",
+          "move": "issue",
+          "def": "raise something early, before it becomes a surprise"
+        },
+        {
+          "w": "the root cause",
+          "l": "B2",
+          "move": "cause",
+          "def": "the thing that actually started it, not what you noticed first"
+        },
+        {
+          "w": "set us back",
+          "l": "B2",
+          "move": "impact",
+          "def": "cost us time we had already planned to use"
+        },
+        {
+          "w": "miss the deadline",
+          "l": "B1",
+          "move": "impact",
+          "def": "fail to finish by the agreed date"
+        },
+        {
+          "w": "a workaround",
+          "l": "B2",
+          "move": "mitigate",
+          "def": "a temporary way round a problem while it is being fixed"
+        },
+        {
+          "w": "in the meantime",
+          "l": "B1",
+          "move": "mitigate",
+          "def": "in the time before it is properly fixed"
+        },
+        {
+          "w": "sign off on",
+          "l": "B2",
+          "move": "ask",
+          "def": "formally approve something so the work can go ahead"
+        },
+        {
+          "w": "would you mind",
+          "l": "B1",
+          "move": "ask",
+          "def": "a polite way to ask someone to do something"
+        }
+      ],
+      "missions": [
+        {
+          "id": "raise-problem-guided",
+          "kind": "guided",
+          "see": {
+            "where": "You are at your desk. The work has stopped, and your manager is walking past.",
+            "who": "Your manager",
+            "asks": "You look worried — what's going on?",
+            "goal": "Explain it in about 30 seconds, so your manager knows what is wrong, what it costs, and what you need from them."
+          },
+          "hear": {
+            "model": "We've got a problem with the delivery. It started when the supplier changed our order number. This means installation cannot start on Monday, so we would finish three days late. I've already spoken to their office and asked them for a new date. Could you approve the courier cost if they can get the parts here on Saturday?",
+            "note": "Five short sentences. One move each. The ask comes last, and it is a real question."
+          },
+          "prompt": "You look worried — what's going on?",
+          "context": "The parts for Monday's installation have not arrived. The supplier changed the order number and the shipment went to the wrong depot. The customer has been promised the site by the end of the month. A Saturday courier would cost extra."
+        },
+        {
+          "id": "raise-problem-transfer",
+          "kind": "transfer",
+          "see": {
+            "where": "You are in Monday's team meeting. The problem is not yours — you are just the one who found it.",
+            "who": "The project lead, in front of the team",
+            "asks": "Anything anyone wants to raise before we finish?",
+            "goal": "Nobody is prompting you this time, and the whole team is listening. Use the same five moves on a problem you have not rehearsed."
+          },
+          "prompt": "Anything anyone wants to raise before we finish?",
+          "context": "On Friday you noticed the monthly figures are coming from a report that was switched off in August. Two months of numbers may be wrong. The board pack goes out on Thursday."
         }
       ]
     }

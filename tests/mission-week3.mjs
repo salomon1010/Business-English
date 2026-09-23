@@ -1,4 +1,6 @@
 /* BE Mastery V2 — General English Week 3 "Give a clear update", end to end.
+   NUMBERING: named for the prototype order. Canonically (V2.3) "Give a clear
+   update" is General English WEEK 2 — see the _note in missions.json.
 
    Run:  cd tests && node mission-week3.mjs
          BASE=http://localhost:8011 node mission-week3.mjs
@@ -37,8 +39,8 @@ console.log("\nENGINE");
 const comp = ME.competencyOf(PACK, "clear-update");
 const G = ME.missionOf(comp, "clear-update-guided");
 const T = ME.missionOf(comp, "clear-update-transfer");
-ok("Week 3 competency loads with four moves and two missions",
-  comp && comp.week === 3 && ME.moveIds(comp).join() === "status,issue,impact,next" && comp.missions.length === 2);
+ok("'Give a clear update' (Week 2) loads with four moves and two missions",
+  comp && comp.week === 2 && ME.moveIds(comp).join() === "status,issue,impact,next" && comp.missions.length === 2);
 
 const gStrong = ME.grade(comp, G, SAY.strong, { seconds: 26 });
 ok("A strong update covers all four moves and passes", gStrong.coverage === 1 && ME.passes(gStrong));
@@ -242,7 +244,7 @@ const bEv = (await evs(A.page)).map(e => e[0]);
 const bProps = (await evs(A.page)).find(e => e[0] === "v2_evidence_recorded");
 ok("B6 · V2 analytics fire with the track, week and competency on every event",
   bEv.includes("v2_mission_started") && bEv.includes("v2_speak_attempt") && bEv.includes("v2_evidence_recorded") && bEv.includes("v2_retry_attempt")
-  && bProps[1].track === "general-english" && bProps[1].week === "3" && bProps[1].competency === "clear-update",
+  && bProps[1].track === "general-english" && bProps[1].week === "2" && bProps[1].competency === "clear-update",
   JSON.stringify(bProps));
 
 /* ════════════════ SCENARIO C — guided success, transfer failure ══════════ */

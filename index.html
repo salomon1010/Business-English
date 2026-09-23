@@ -8567,9 +8567,11 @@ function careerDashboardContext(){
    this file: everything below reads tracks/general/missions.json, so a new week
    is a new entry in that file and nothing here changes.
 
-   Week 2 ("Explain what you do", five moves) and Week 3 ("Give a clear update",
-   four moves) prove that, and the move count is read from the competency every
-   time it is needed rather than assumed anywhere. */
+   Week 1 ("Explain what you do", five moves), Week 2 ("Give a clear update",
+   four moves) and Week 3 ("Raise a problem", five moves, with a Shadow clip)
+   prove that, and the move count is read from the competency every time it is
+   needed rather than assumed anywhere. The week number is the General English
+   programme week the competency teaches (weeks.json), not the build order. */
 function mvPack(){
   if(!isGeneralEnglish())return null;                 /* gate 3 */
   const c=activeCurriculum();
@@ -9037,7 +9039,7 @@ function rMission(el,missionId,step){
     </section>`;
   }
 
-  /* ---- NOTICE: the four moves. Communication awareness, not grammar. ---- */
+  /* ---- NOTICE: the competency's moves. Communication awareness, not grammar. ---- */
   else if(S1==="notice"){
     body=`<section class="card mv-notice">
       <div class="eyebrow">${t("mv.step_notice",{n:(comp.moves||[]).length})}</div>

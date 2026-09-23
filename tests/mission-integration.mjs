@@ -1,4 +1,6 @@
 /* BE Mastery V2.1 — Week 3 integration hardening.
+   NUMBERING: "Week 3" here is the prototype name for "Give a clear update",
+   canonically General English WEEK 2 since V2.3 — see missions.json _note.
 
    The Week 3 loop itself is covered by mission-week3.mjs. This suite covers
    the seams V2.1 added: the evidence contract, Shadow → V2 evidence, progress
@@ -44,7 +46,7 @@ const WANT = ["v", "tk", "week", "competency", "missionId", "kind", "key", "at",
   "pron", "pronSource", "coverage", "verdict", "passed", "transfer", "assisted", "coachPending", "coachMove", "coachAi"];
 ok("The contract carries every documented field and nothing else",
   WANT.every(k => k in c1) && Object.keys(c1).length === WANT.length, Object.keys(c1).join(","));
-ok("It is versioned and track-stamped", c1.v === ME.EVIDENCE_VERSION && c1.tk === "general-english" && c1.week === 3);
+ok("It is versioned and track-stamped", c1.v === ME.EVIDENCE_VERSION && c1.tk === "general-english" && c1.week === 2);
 ok("An unmeasurable dimension is null, NOT zero — the whole point of the contract",
   c1.pron === null && c1.pronSource === null, `pron=${c1.pron}`);
 const c2 = ME.contract(Object.assign(mk(STRONG, "guided", "k2"), { seconds: null, wpm: null }), META);
@@ -381,7 +383,7 @@ const gate = await L.page.evaluate(async () => {
   Object.assign(fndState(), keep); save();
   return { first: cards[0] || "", card, gated };
 });
-ok("An unplaced learner is not offered the Week 3 mission — the placement check stays the first card",
+ok("An unplaced learner is not offered the 'Give a clear update' mission — the placement check stays the first card",
   /fnd-home/.test(gate.first) && gate.card === false, JSON.stringify(gate));
 ok("…and cannot reach it by route either: the mission renders the Foundations gate, like the daily session",
   gate.gated === true, JSON.stringify(gate));

@@ -50,8 +50,8 @@
   const STRONG_COV  = 0.75;  // AnswerEvaluator's "strong" band, used for the label only
   const PASS_COV    = 0.5;   // below this the attempt is a retry, not a result
   /* What DEMONSTRATED actually requires: every move, not most of them.
-     A competency's shape is its OWN move list, however long that is — four for
-     Week 3, five for Week 2, and whatever a future week declares. An
+     A competency's shape is its OWN move list, however long that is — five for
+     Week 1, four for Week 2, five for Week 3, and whatever a future week declares. An
      answer that states the status, names the issue and promises to follow up
      but never says what it means for Friday is the exact answer this whole
      mission exists to fix — and at three moves out of four it would have
@@ -709,7 +709,7 @@ Return JSON only:
     out.improve = wm ? `${wm.label} is the move to add: ${wm.hint}` : "Say the same update again, a little shorter.";
     /* One sentence per move, plus nothing else — stated from the rubric rather
        than from a number typed into this file, which was "four" and therefore
-       wrong for any competency that is not Week 3's. */
+       wrong for any competency that is not "Give a clear update"'s. */
     out.retry = wm ? wm.retry : `Say it again, one short sentence for each of the ${moveIds(comp).length} moves.`;
 
     if (raw && typeof raw.reply === "string" && raw.reply.trim()) {
