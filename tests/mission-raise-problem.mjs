@@ -222,7 +222,13 @@ ok("All four transfer-ready → the fifth competency is offered to speak, not sk
   W5c && pick(H) && pick(H).comp.id === "explain-tech" && pick(H).rec.action === "speak", show(pick(H)));
 put(H, W5c, ME.missionOf(W5c, "explain-tech-guided"), ME.missionOf(W5c, "explain-tech-guided").hear.model, "guided", "h9");
 put(H, W5c, ME.missionOf(W5c, "explain-tech-transfer"), "In plain terms, the integration is a link between their shop and our warehouse. The way it works is that every time a customer places an order, it goes straight to the warehouse system automatically, instead of someone typing it in each morning. What this means for the client is that orders ship the same day and the typing mistakes stop. The one thing to remember is that returns aren't included yet — those are still done by hand. Does that make sense?", "transfer", "h10");
-ok("All five transfer-ready → nothing is pushed; the old advice stands", pick(H) === null, show(pick(H)));
+/* V2.6: a sixth competency ("Recommendations & decision language", Week 6). */
+const W6c = ME.competencyOf(PACK, "recommend-decide");
+ok("All five transfer-ready → the sixth competency is offered to speak, not skipped",
+  W6c && pick(H) && pick(H).comp.id === "recommend-decide" && pick(H).rec.action === "speak", show(pick(H)));
+put(H, W6c, ME.missionOf(W6c, "recommend-decide-guided"), ME.missionOf(W6c, "recommend-decide-guided").hear.model, "guided", "h11");
+put(H, W6c, ME.missionOf(W6c, "recommend-decide-transfer"), "There are two options here. One option is to send it tomorrow with the numbers corrected by hand, and the other option is to hold it for two days and rerun everything from the fixed source. My recommendation is to hold it. The reason is that last quarter they complained about a wrong figure, and two of the twelve charts can't be checked in time if we send tomorrow. The downside is that it's the first late report we've ever sent them. So the next step is that you tell the client today that it's coming on Thursday, and I'll rerun it as soon as the source is fixed.", "transfer", "h12");
+ok("All six transfer-ready → nothing is pushed; the old advice stands", pick(H) === null, show(pick(H)));
 ok("Pending coaching on Week 3 outranks everything, including a Week 1 retry",
   (() => { const s = {}; put(s, W1, G1, SAY.w1noWhy, "guided", "i1"); const r = put(s, W3, G3, SAY.noAsk, "guided", "i2"); r.attempt.coachPending = true; return show(pick(s)) === "raise-problem:coach:ask"; })());
 

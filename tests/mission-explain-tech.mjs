@@ -84,6 +84,11 @@ const SAY = {
   w3transfer: "There is a problem with the monthly figures. It started when the old report was switched off in August, so two months of numbers may be wrong. This means the Thursday board pack is at risk. I have spoken to finance and asked them to rerun the numbers. Could you sign off on a one-day delay so we can check them?",
   w4strong: G4.hear.model,
   w4transfer: "Sorry, I'm not sure I follow — the client thing could be two things. Are you asking about the revised quote or the delivery date they wanted? So you're saying it's the quote they're expecting before Wednesday's review. Then I'll send the quote today and come back to you tomorrow on the delivery date — does that work?",
+  /* V2.6: cold transfers for every competency after Week 5, keyed by id, so the
+     all-resting cases can walk the pack in week order. A new week adds one entry. */
+  transfers: {
+    "recommend-decide": "There are two options here. One option is to send it tomorrow with the numbers corrected by hand, and the other option is to hold it for two days and rerun everything from the fixed source. My recommendation is to hold it. The reason is that last quarter they complained about a wrong figure, and two of the twelve charts can't be checked in time if we send tomorrow. The downside is that it's the first late report we've ever sent them. So the next step is that you tell the client today that it's coming on Thursday, and I'll rerun it as soon as the source is fixed.",
+  },
 };
 
 /* ═══════════ A · PACK ═══════════════════════════════════════════════════ */
@@ -235,7 +240,16 @@ ok("F · A fresh learner is offered Week 1 — Week 5 is not pushed forward by b
 let B = {}; rest1to4(B, "b");
 ok("F · With Weeks 1–4 resting, Week 5 is offered to speak — a competency nobody has spoken for is never skipped", show(pick(B)) === "explain-tech:speak:-", show(pick(B)));
 rest(B, W5, G5, T5, SAY.strong, SAY.transfer, "b5");
-ok("F · With all five resting, nothing is pushed and the old advice stands", pick(B) === null, show(pick(B)));
+/* V2.6: every competency after Week 5, in week order — offered when everything
+   before it rests, and only when the last one rests too is nothing pushed. */
+const LATER = PACK.competencies.filter(c => c.week > 5).sort((a, b) => a.week - b.week);
+ok("F · Every competency after Week 5 has a cold-transfer fixture in this suite", LATER.every(c => typeof SAY.transfers[c.id] === "string"), LATER.map(c => c.id).join());
+LATER.forEach(c => {
+  ok(`F · With everything before it resting, ${c.id} (Week ${c.week}) is offered to speak — it is not skipped`, show(pick(B)) === `${c.id}:speak:-`, show(pick(B)));
+  const g = c.missions.find(m => m.kind === "guided"), t = c.missions.find(m => m.kind === "transfer");
+  rest(B, c, g, t, g.hear.model, SAY.transfers[c.id], "b" + c.week);
+});
+ok("F · With every competency resting, nothing is pushed and the old advice stands", pick(B) === null, show(pick(B)));
 let C = {}; put(C, W1, G1, SAY.w1strong, "guided", "c1"); put(C, W5, G5, SAY.noCheck, "guided", "c2");
 ok("F · A Week 5 weak move outranks a Week 1 pending transfer — evidence priority, not week order", show(pick(C)) === "explain-tech:retry:check", show(pick(C)));
 let Dd = {}; put(Dd, W1, G1, SAY.w1noWhy, "guided", "d1"); put(Dd, W5, G5, SAY.noCheck, "guided", "d2");
@@ -246,7 +260,7 @@ let Fx = {}; rest1to4(Fx, "f"); put(Fx, W5, G5, SAY.noFrame, "guided", "f5");
 ok("F · A learner with different evidence gets a different next mission: Weeks 1–4 resting and Week 5 weak → Week 5 retry on 'frame'", show(pick(Fx)) === "explain-tech:retry:frame", show(pick(Fx)));
 ok("F · Pending coaching on Week 5 outranks a Week 1 retry",
   (() => { const s = {}; put(s, W1, G1, SAY.w1noWhy, "guided", "i1"); const r = put(s, W5, G5, SAY.noFrame, "guided", "i2"); r.attempt.coachPending = true; return show(pick(s)) === "explain-tech:coach:frame"; })());
-ok("F · Five records, keyed by competency id — never by week", (() => { const s = {}; [W1, W2, W3, W4].forEach((c, i) => put(s, c, c.missions[0], "x", "guided", "k" + i)); put(s, W5, G5, "x", "guided", "k5"); return Object.keys(s).sort().join() === "clarify-confirm,clear-update,explain-tech,explain-work,raise-problem"; })());
+ok("F · One record per competency, keyed by competency id — never by week", (() => { const s = {}; PACK.competencies.forEach((c, i) => put(s, c, c.missions[0], "x", "guided", "k" + i)); return Object.keys(s).sort().join() === PACK.competencies.map(c => c.id).sort().join() && Object.keys(s).length === PACK.competencies.length; })());
 
 /* ═══════════ G · MEMORY ═════════════════════════════════════════════════ */
 console.log("\nG · MEMORY");
@@ -501,8 +515,23 @@ ok("K7 · The Week 5 panel names its week, its state and its own moves through t
   /Week 5/.test(prog.txt) && /Land the takeaway/.test(prog.txt) && /Frame it simply/.test(prog.txt) && prog.last.week === 5 && prog.last.attempts === 3 && prog.last.passed === 2 && prog.last.transferPassed === 1 && prog.last.pron === 81 && prog.last.pronSource === "audio", JSON.stringify({ w: prog.last.week, a: prog.last.attempts, p: prog.last.passed }));
 const ovp = await overflow(L.page); ok("Progress has no horizontal overflow at 390px with five panels", ovp.sw <= ovp.cw, JSON.stringify(ovp));
 await shot(L.page, "390-progress");
+/* V2.6: each later competency in turn — offered on Home, rested through the
+   engine — until the last one rests and Home is silent. Walks the pack. */
+for (const c of LATER) {
+  const step = await L.page.evaluate(({ id, transfer }) => {
+    go("home"); const before = document.querySelector(".mv-home");
+    const offered = before ? before.querySelector(".eyebrow").innerText : "";
+    const comp = mvComp(id), st = mvStore(), IV = trackVocabularyIntervals();
+    const meta = { competency: comp.id, week: comp.week, moveIds: MissionEngine.moveIds(comp) };
+    const one = (m, text, kind, key) => { MissionEngine.introduce(st, comp.id, areaId()); const ev = Object.assign(MissionEngine.grade(comp, m, text, { seconds: 27 }), { key, kind, missionId: m.id, at: Date.now() - 60000 }); MissionEngine.addAttempt(st, comp.id, ev, areaId(), IV, meta); };
+    const g = comp.missions.find(m => m.kind === "guided"), t = comp.missions.find(m => m.kind === "transfer");
+    one(g, g.hear.model, "guided", "zg" + comp.week); one(t, transfer, "transfer", "zt" + comp.week);
+    save(); go("home"); return { offered, state: st[comp.id].state };
+  }, { id: c.id, transfer: SAY.transfers[c.id] });
+  ok(`K8 · With everything before it resting, Home's one card is ${c.id} (Week ${c.week}); resting it makes it transfer-ready`, new RegExp("Week " + c.week, "i").test(step.offered) && step.state === "TRANSFER_READY", JSON.stringify(step));
+}
 const afterAll = await L.page.evaluate(() => { go("home"); return { n: document.querySelectorAll(".mv-home").length, card: !!document.querySelector(".mv-home") }; });
-ok("K8 · With all five competencies resting, Home shows no V2 card and looks as it did before V2 — the old advice stands", afterAll.n === 0 && afterAll.card === false, JSON.stringify(afterAll));
+ok("K8 · With every competency resting, Home shows no V2 card and looks as it did before V2 — the old advice stands", afterAll.n === 0 && afterAll.card === false, JSON.stringify(afterAll));
 const voc = await L.page.evaluate(() => Object.entries(areaVocab()).filter(([, v]) => v.src && v.src.v2 === "explain-tech").map(([w]) => w));
 ok("K9 · Week 5 expressions were acquired automatically, tagged to Week 5", voc.length > 0 && voc.every(w => W5.expressions.some(e => e.w === w)), JSON.stringify(voc));
 

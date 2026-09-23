@@ -161,6 +161,12 @@ ok("With the first four resting, the engine offers the fifth competency to speak
   W6 && pick(F) && pick(F).comp.id === "explain-tech" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 put(F, W6, ME.missionOf(W6, "explain-tech-guided"), ME.missionOf(W6, "explain-tech-guided").hear.model, "guided", "f9");
 put(F, W6, ME.missionOf(W6, "explain-tech-transfer"), "In plain terms, the integration is a link between their shop and our warehouse. The way it works is that every time a customer places an order, it goes straight to the warehouse system automatically, instead of someone typing it in each morning. What this means for the client is that orders ship the same day and the typing mistakes stop. The one thing to remember is that returns aren't included yet — those are still done by hand. Does that make sense?", "transfer", "f10");
+/* V2.6: a sixth competency ("Recommendations & decision language", Week 6). */
+const W7 = ME.competencyOf(PACK, "recommend-decide");
+ok("With the first five resting, the engine offers the sixth competency to speak — it is not skipped",
+  W7 && pick(F) && pick(F).comp.id === "recommend-decide" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
+put(F, W7, ME.missionOf(W7, "recommend-decide-guided"), ME.missionOf(W7, "recommend-decide-guided").hear.model, "guided", "f11");
+put(F, W7, ME.missionOf(W7, "recommend-decide-transfer"), "There are two options here. One option is to send it tomorrow with the numbers corrected by hand, and the other option is to hold it for two days and rerun everything from the fixed source. My recommendation is to hold it. The reason is that last quarter they complained about a wrong figure, and two of the twelve charts can't be checked in time if we send tomorrow. The downside is that it's the first late report we've ever sent them. So the next step is that you tell the client today that it's coming on Thursday, and I'll rerun it as soon as the source is fixed.", "transfer", "f12");
 ok("With every competency transfer-ready, nothing is pushed and the old advice stands", pick(F) === null, JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 
 /* ═══════════ BROWSER ════════════════════════════════════════════════════ */
