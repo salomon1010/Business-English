@@ -104,7 +104,9 @@ const REST = {
 };
 const W1_NO_WHY = "I work as an operations analyst in the logistics team. I'm responsible for the weekly delivery reports. At the moment I'm rebuilding how we track late shipments. I work closely with the warehouse managers.";
 /* cold transfers for any competency after Week 11, keyed by id — a new week adds one entry */
-SAY.transfers = {};
+SAY.transfers = {
+  "final-integration": "Quick status: the routing has been running correctly in four of the five queues on the bench for three weeks. Just to make sure I understand — when you say all queues, does that include the vulnerable-customer queue? Because the lab test never covered it. I have one concern about switching that queue without a parallel run. Last year a routing change dropped about one in twelve vulnerable call-backs for a day, and we had to tell the regulator. What I'd recommend is switching the four proven queues on Friday and holding the fifth for a two-day parallel run the week after. Bottom line: you get Friday on four queues, and the one with the legal duty gets checked first.",
+};
 const EARLIER = PACK.competencies.filter(c => c.week < WEEK).sort((a, b) => a.week - b.week);
 const LATER = PACK.competencies.filter(c => c.week > WEEK).sort((a, b) => a.week - b.week);
 
