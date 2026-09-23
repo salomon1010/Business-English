@@ -1727,6 +1727,26 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-home-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
 .mv-shadow-note{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mut);margin:2px 0 10px}
 .mv-shadow-note svg{width:15px;height:15px;flex:none}
+/* the speaking report + its history: lists anchored to moves, one accent (the
+   one-thing card), everything else quiet */
+.mv-rep-list{list-style:none;margin:4px 0 10px;padding:0}
+.mv-rep-list li{position:relative;font-size:14px;line-height:1.55;padding:3px 0 3px 22px}
+.mv-rep-list li::before{content:"→";position:absolute;left:0;font-weight:800;color:var(--mut2)}
+.mv-rep-list.ok li::before{content:"✓";color:var(--green)}
+.mv-rep-list.expr li::before{content:"•";color:var(--acc)}
+.mv-better{margin:12px 0;padding:12px 14px;border-radius:12px;border:1px solid var(--line2);background:color-mix(in srgb,var(--acc) 6%,transparent)}
+.mv-better-t{font-size:14.5px;line-height:1.65;margin:6px 0 10px}
+.mv-one{margin:14px 0 2px;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)}
+.mv-hist-week{font-size:13px;color:var(--mut);margin:18px 0 8px}
+.mv-hist-row{margin-bottom:10px}
+.mv-hist-row summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;font-size:13.5px}
+.mv-hist-row summary::-webkit-details-marker{display:none}
+.mv-hist-date{color:var(--mut2);font-size:12.5px}
+.mv-hist-res{margin-left:auto;font-size:12px;font-weight:700;color:var(--mut2)}
+.mv-hist-res.ok{color:var(--green)}
+.mv-hist-row[open] summary{margin-bottom:8px}
+.mv-hist-row h4{font-size:12.5px;margin:8px 0 2px;color:var(--mut)}
+.pg-hist{margin:2px 0 14px}
 .pg-v2{margin:4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .pg-v2-moves{margin:10px 0}
 .pg-v2-dims{margin-top:10px}
@@ -4511,6 +4531,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-foundations" class="view"></div>
   <div id="v-partner" class="view"></div>
   <div id="v-mission" class="view"></div>
+  <div id="v-mvhist" class="view"></div>
   <div id="ppBg" aria-hidden="true"><svg class="pp-bg-art" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="ppBgBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter><g id="ppBgPerson"><circle cx="0" cy="0" r="28"/><path d="M-56 84a56 56 0 0 1 112 0"/></g></defs><circle class="pp-bg-ring" cx="300" cy="300" r="238" stroke-width="30" opacity=".16" filter="url(#ppBgBlur)"/><circle cx="300" cy="300" r="238" opacity=".32"/><circle cx="300" cy="300" r="196" opacity=".14"/><path class="pp-bg-flow" d="M192 302a126 126 0 0 1 66-96" stroke-dasharray="7 9" opacity=".8"/><path class="pp-bg-flow" d="M408 302a126 126 0 0 0-66-96" stroke-dasharray="7 9" opacity=".8"/><path d="M244 178h112a12 12 0 0 1 12 12v62a12 12 0 0 1-12 12h-70l-30 26v-26h-12a12 12 0 0 1-12-12v-62a12 12 0 0 1 12-12Z"/><g fill="currentColor" stroke="none"><circle class="pp-bg-typ" cx="280" cy="221" r="5"/><circle class="pp-bg-typ b" cx="300" cy="221" r="5"/><circle class="pp-bg-typ c" cx="320" cy="221" r="5"/></g><use href="#ppBgPerson" x="182" y="320"/><use href="#ppBgPerson" x="418" y="320"/><g class="pp-bg-wave"><path d="M226 308a16 16 0 0 1 0 24"/><path d="M238 300a28 28 0 0 1 0 40"/></g><g class="pp-bg-wave b"><path d="M374 308a16 16 0 0 0 0 24"/><path d="M362 300a28 28 0 0 0 0 40"/></g><path d="M62 96h58a8 8 0 0 1 8 8v30a8 8 0 0 1-8 8H84l-14 13v-13h-8a8 8 0 0 1-8-8v-30a8 8 0 0 1 8-8Z" opacity=".45"/><g class="pp-bg-spin" stroke="none"><circle cx="300" cy="106" r="5" fill="currentColor" opacity=".75"/><circle cx="96" cy="270" r="5" fill="currentColor" opacity=".6"/><circle cx="176" cy="478" r="5" fill="currentColor" opacity=".55"/><circle cx="556" cy="104" r="4.5" fill="currentColor" opacity=".6"/><circle cx="522" cy="208" r="7" class="pp-bg-acc"/><circle cx="510" cy="458" r="6" class="pp-bg-acc"/></g></svg><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
@@ -7118,6 +7139,26 @@ const I18N_EN={
     in English, exactly like weeks.json and phrases.json. ---- */
  "mv.today":"Today",
  "mv.mission":"Today's mission",
+ "mv.rep_well_h":"What you did well",
+ "mv.rep_fix_h":"What to improve",
+ "mv.rep_better_h":"A better version",
+ "mv.rep_better_play":"Hear it",
+ "mv.rep_better_off":"The better version needs a connection. Your answer and its result are already saved — the language coaching will be here when you are back online.",
+ "mv.rep_expr_h":"Expressions worth keeping",
+ "mv.rep_one_h":"One thing to improve",
+ "mv.hist":"Speaking history",
+ "mv.hist_sub":"Every answer you have spoken, what it showed, and what to work on next.",
+ "mv.hist_back":"Progress",
+ "mv.hist_open":"Speaking history",
+ "mv.hist_empty":"Nothing here yet. Your first spoken mission answer will appear here, with its feedback kept for you to come back to.",
+ "mv.hist_practice":"Practise again",
+ "mv.hist_mytake":"My take",
+ "mv.hist_norec":"That recording is no longer on this device.",
+ "mv.hist_met":"Met the shape",
+ "mv.hist_notyet":"Not yet",
+ "mv.kind_guided":"Guided",
+ "mv.kind_transfer":"No help",
+ "mv.kind_retry":"Retry",
  "mv.start":"Start the mission",
  "mv.continue":"Continue the mission",
  "mv.step_see":"The situation",
@@ -8365,7 +8406,7 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -8391,7 +8432,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission,mvhist:rMvHist})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -8902,28 +8943,40 @@ async function mvPron(comp,ev){
 }
 
 /* ---------------------------------------------------------------- the AI pass
-   Existing Worker, existing chat route, existing shape: {reply, covered}. No
-   new endpoint and nothing to deploy before this works. `covered` is the move
-   ids the model believes were genuinely made; applyCoachMoves validates every
-   one of them against the rubric and can only ADD. The model cannot invent a
-   score, cannot remove a move the learner made, and cannot move the state. */
+   Existing Worker, one dedicated route: the chat route deliberately strips a
+   reply to {reply, covered}, so the report goes through `mvreport`, which
+   returns the fixed shape mission-engine's shapeReport then re-validates
+   against the deterministic evidence. `covered` is still the only way the
+   model can touch the move record, and applyCoachMoves still only ADDs. The
+   model cannot invent a score, cannot remove a move the learner made, cannot
+   praise a move the scorer refused, and cannot move the state. */
 async function mvCoach(comp,mission,ev){
   const r=mvRec();
   const weak=MissionEngine.weakestMove(comp,ev,(r&&r.attempts)||[]);
   const ctx=MissionEngine.aiContext(r,comp,mission,{weakness:weak});
-  const F=window.ConversationOrchestrator;
   const offline=!POLISH_API||!navigator.onLine;
-  if(offline)return Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+  if(offline){
+    const out=Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+    out.report=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
+    return out;
+  }
   try{
-    const sys=MissionEngine.coachPrompt(ctx,(F&&F.SPOKEN_RULE)||"");
-    const body={chat:{system:sys,messages:[{role:"user",content:F&&F.fence?F.fence(ev.said):ev.said}]}};
-    const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
-    if(!res.ok)throw new Error("coach "+res.status);
+    const F=window.ConversationOrchestrator;
+    const sys=MissionEngine.reportPrompt(ctx,ev,comp);
+    const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({mvreport:{system:sys,said:F&&F.fence?F.fence(ev.said):ev.said}})});
+    if(!res.ok)throw new Error("report "+res.status);
     const data=await res.json();
     MissionEngine.applyCoachMoves(ev,comp,data&&data.covered);
-    const out=MissionEngine.shapeCoach(data,comp,ev);
+    /* shapeReport runs AFTER applyCoachMoves, so a move the model both
+       covered and praised stays; praise for a move still uncredited is
+       dropped. shapeCoach keeps the old worked/improve lines the rest of the
+       flow (weakness, retry text) is built on. */
+    const report=MissionEngine.shapeReport(data,comp,ev);
+    const out=MissionEngine.shapeCoach({reply:report.one,covered:[]},comp,ev);
+    out.report=report;
     ev.coachPending=false;
-    mvTrack("v2_coach_generated",{mission:mission.id,kind:ev.kind,move:out.move||"none",ai:"1"});
+    mvTrack("v2_coach_generated",{mission:mission.id,kind:ev.kind,move:out.move||"none",ai:report.ai?"1":"0"});
     return out;
   }catch(e){
     /* Left pending on purpose. The evidence below is already written and
@@ -8931,7 +8984,9 @@ async function mvCoach(comp,mission,ev){
        is told exactly that rather than being shown a failure. */
     try{console.warn("[mission] coach unavailable",e)}catch(_){}
     mvTrack("v2_coach_generated",{mission:mission.id,kind:ev.kind,move:"none",ai:"0"});
-    return Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+    const out=Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+    out.report=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
+    return out;
   }
 }
 
@@ -8948,6 +9003,10 @@ function mvCommit(comp,ev,coach){
   const before=_mv&&_mv.stateBefore;
   r.weakness=MissionEngine.weakestMove(comp,ev,r.attempts);
   if(coach&&coach.move)r.weakness=coach.move;
+  /* The speaking report rides on the attempt row it is about, found by the
+     same idempotency key — so the offline-recovery pass UPDATES the row, and
+     a duplicate submission cannot grow a second report either. */
+  if(coach&&coach.report)MissionEngine.attachReport(store,comp.id,ev.key,coach.report,areaId());
   save();
 
   if(res.duplicate)return;                             /* never count a turn twice */
@@ -9022,6 +9081,7 @@ window.mvFinishCoaching=async()=>{
     r.weakness=coach.move||r.weakness;
     r.state=MissionEngine.stateFrom(r);
     r.retrieval=MissionEngine.scheduleRetrieval(r,trackVocabularyIntervals(),Date.now());
+    if(coach.report)MissionEngine.attachReport(mvStore(),c.id,row.key,coach.report,areaId());
     save();
   }
   mvDraw();
@@ -9108,6 +9168,42 @@ window.v2Recommendation=function(){
 };
 
 /* ------------------------------------------------------------------ rendering */
+/* THE SPEAKING REPORT — evidence first, prose second. The ✓ and → lists are
+   anchored to move ids the deterministic scorer decided; the AI's sentences
+   only ever sit under an anchor that agrees with the evidence (shapeReport
+   dropped the rest). No numbers are shown that were not measured, and a
+   report with no better version (offline, or a refusal) says so instead of
+   inventing one. */
+function mvReportHTML(comp,co){
+  const rep=co&&co.report;
+  if(!rep)return `<h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
+    <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p>`;
+  const well=rep.well&&rep.well.length
+    ?rep.well.map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("")
+    :`<li>${esc(co.worked)}</li>`;
+  const fix=(rep.improve||[]).map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("");
+  return `
+    <h3>${t("mv.rep_well_h")}</h3><ul class="mv-rep-list ok">${well}</ul>
+    ${fix?`<h3>${t("mv.rep_fix_h")}</h3><ul class="mv-rep-list fix">${fix}</ul>`:""}
+    ${rep.better?`<div class="mv-better">
+        <div class="eyebrow">${t("mv.rep_better_h")}</div>
+        <p class="mv-better-t">“${esc(rep.better)}”</p>
+        <button class="btn btn-g" onclick="mvHearBetter()">${ic("play")} ${t("mv.rep_better_play")}</button>
+      </div>`
+     :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
+    ${rep.expr&&rep.expr.length?`<h3>${t("mv.rep_expr_h")}</h3>
+      <ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+    <div class="mv-one"><div class="eyebrow">${t("mv.rep_one_h")}</div><p class="mv-improve">${esc(rep.one||co.improve)}</p></div>`;
+}
+/* Hear the better version through the voice the app already speaks with —
+   the Worker's natural voice when it is reachable, the device voice when
+   not, a toast when neither can speak. Nothing here touches the evidence. */
+window.mvHearBetter=()=>{
+  const rep=_mv&&_mv.coach&&_mv.coach.report;
+  if(!rep||!rep.better)return;
+  try{fbSay(rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
+  mvTrack("v2_better_version_played",{mission:_mv.missionId,kind:_mv.kind});
+};
 function mvMoveChipsHTML(comp,ev){
   return `<div class="mv-moves">${(comp.moves||[]).map(m=>{
     const on=ev&&ev.moves&&ev.moves[m.id];
@@ -9237,8 +9333,7 @@ function rMission(el,missionId,step){
         ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
         <p class="mv-heard"><b>${t("mv.heard")}</b> “${esc(ev.said)}”</p>
         ${mvMoveChipsHTML(comp,ev)}
-        <h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
-        <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p>
+        ${mvReportHTML(comp,co)}
         <div class="mv-acts">
           <button class="btn-primary" onclick="mvRetry()">${t("mv.retry_btn")}</button>
           ${nextIsTransfer&&tm?`<button class="btn btn-g" onclick="mvGo('${esc(tm.id)}','speak')">${t("mv.transfer_btn")}</button>`:""}
@@ -9291,6 +9386,7 @@ function rMission(el,missionId,step){
          :`<button class="btn-primary" onclick="mvGo('${esc(rec2.missionId||m.id)}','speak')">${
             rec2.action==="transfer"?t("mv.transfer_btn"):rec2.action==="retry"?t("mv.retry_btn"):t("mv.continue")}</button>`}
         <button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>
+        <button class="btn btn-g" onclick="go('mvhist')">${t("mv.hist_open")}</button>
       </div>
     </section>`;
     mvTrack("v2_recommendation_generated",{result:rec2.action,move:rec2.move||"none",state:r.state});
@@ -9315,6 +9411,76 @@ window.mvRetry=()=>{
   _mv.retryText=mm?mm.retry:t("mv.next_coverage_low");
   _mv.step="speak";_mv.err=null;_mv.ev=null;_mv.coach=null;
   mvDraw();
+};
+
+/* ============================== SPEAKING HISTORY ==============================
+   A learning history, not a transcript archive: every spoken attempt with the
+   evidence it produced and the report that was written about it, grouped by
+   week, newest first. Reads through MissionEngine.history(), renders plain
+   objects, and changes NOTHING — opening an old report never touches the
+   record, and practising again goes through the same mvOpen every other door
+   uses. General English only, by the same gate as the mission page: a track
+   with no mission pack is sent straight back to Home, so Welding can neither
+   see nor create a history. Audio replay stays on the device — recordings
+   live in the app's own IndexedDB under the attempt's recording context, and
+   no URL leaves the page. */
+let _mvHist=[];
+function rMvHist(el){
+  if(!mvAvailable()||!window.MissionEngine){el.innerHTML="";setTimeout(()=>go("home"),0);return}
+  const store=mvStore();
+  _mvHist=MissionEngine.history(id=>store[id],mvComps());
+  mvTrack("v2_speaking_history_opened",{attempt:String(_mvHist.length)});
+  const back=`<button class="back mv-back" onclick="go('review')">‹ ${esc(t("mv.hist_back"))}</button>`;
+  let lastWeek=null,html="";
+  if(!_mvHist.length)html=`<p class="pg-empty">${esc(t("mv.hist_empty"))}</p>`;
+  _mvHist.forEach((h,i)=>{
+    if(h.week!==lastWeek){lastWeek=h.week;
+      html+=`<h3 class="mv-hist-week">${esc(t("mv.week_n",{n:String(h.week||"")}))} · ${esc(h.title)}</h3>`;}
+    const comp=mvComp(h.competency);
+    const rep=h.report;
+    const lbl=id=>comp?((MissionEngine.moveOf(comp,id)||{}).label||id):id;
+    const list=(rows,cls)=>rows&&rows.length?`<ul class="mv-rep-list ${cls}">${rows.map(x=>`<li><b>${esc(lbl(x.m))}</b>${x.n?` — ${esc(x.n)}`:""}</li>`).join("")}</ul>`:"";
+    html+=`<details class="card mv-hist-row"><summary>
+        <span class="mv-hist-date">${esc(new Date(h.at).toLocaleDateString())}</span>
+        <b>${esc(t("mv.kind_"+(h.kind==="transfer"?"transfer":h.kind==="retry"?"retry":"guided")))}</b>
+        <span class="mv-hist-res ${h.passed?"ok":""}">${esc(h.passed?t("mv.hist_met"):t("mv.hist_notyet"))}</span>
+      </summary>
+      ${comp?mvMoveChipsHTML(comp,{moves:h.moves}):""}
+      ${rep?`
+        ${rep.well&&rep.well.length?`<h4>${t("mv.rep_well_h")}</h4>${list(rep.well,"ok")}`:""}
+        ${rep.fix&&rep.fix.length?`<h4>${t("mv.rep_fix_h")}</h4>${list(rep.fix,"fix")}`:""}
+        ${rep.better?`<p class="mv-better-t">“${esc(rep.better)}”</p>`:""}
+        ${rep.expr&&rep.expr.length?`<h4>${t("mv.rep_expr_h")}</h4><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+        ${rep.one?`<p class="mv-improve">${esc(rep.one)}</p>`:""}`:""}
+      <div class="mv-acts">
+        ${rep&&rep.better?`<button class="btn btn-g" onclick="mvHistHear(${i})">${ic("play")} ${t("mv.rep_better_play")}</button>`:""}
+        <button class="btn btn-g" onclick="mvHistPlay(${i})">${ic("mic")} ${t("mv.hist_mytake")}</button>
+        <button class="btn-primary" onclick="mvGo('${esc(h.missionId||"")}','speak')">${t("mv.hist_practice")}</button>
+      </div>
+    </details>`;
+  });
+  el.innerHTML=`${back}<div class="mv-head"><span class="eyebrow">${t("mv.hist")}</span></div>
+    <h1 class="big mv-title">${t("mv.hist")}</h1><p class="sub">${t("mv.hist_sub")}</p>${html}`;
+  manIconizeInline(el);
+}
+window.mvHistHear=i=>{
+  const h=_mvHist[i];if(!h||!h.report||!h.report.better)return;
+  try{fbSay(h.report.better)}catch(e){}
+  mvTrack("v2_speaking_history_replayed",{kind:"better",mission:h.missionId},mvComp(h.competency));
+};
+/* The learner's own take, replayed from the device's recording store — the
+   same protected place every recorder in the app files into. Nothing is
+   uploaded and no URL exists outside this tab. */
+window.mvHistPlay=async i=>{
+  const h=_mvHist[i];if(!h||!h.key)return;
+  const recs=await getRecs(h.key);
+  const blob=recs&&recs[0]&&recs[0].blob;
+  if(!blob){toast(t("mv.hist_norec"));return}
+  try{fbStopAudio()}catch(e){}
+  const a=new Audio(URL.createObjectURL(blob));
+  a.onended=()=>{try{URL.revokeObjectURL(a.src)}catch(e){}};
+  a.play().catch(()=>toast(t("mv.hist_norec")));
+  mvTrack("v2_speaking_history_replayed",{kind:"own",mission:h.missionId},mvComp(h.competency));
 };
 
 /* Shadow, reused exactly as it is. The mission hands the existing studio a
@@ -24786,7 +24952,7 @@ window.bootRetry=async()=>{
 })();
 async function bootMain(){
   if(_booted)return;_booted=true;
-  const valid=["home","journey","phrases","phrasebank","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner"];
+  const valid=["home","journey","phrases","phrasebank","shadow","practice","review","profile","roleplay","simulation","career","pron","data","session","manual","tracks","partner","mvhist"];
   let _hs=location.hash.replace(/^#\/?/,"");
   if(!_hs){try{const _sv=sessionStorage.getItem("be_view");if(_sv)_hs=_sv.replace(/^#\/?/,"")}catch(e){}}   // restore last view when the hash was dropped on refresh/relaunch
   const p=_hs.split("/").filter(Boolean);
@@ -25542,7 +25708,11 @@ function fbSyncPayload(s){
       Object.keys(out.v2A[a]||{}).forEach(id=>{
         const r=out.v2A[a][id]||{};
         box[id]=Object.assign({},r,{attempts:(r.attempts||[]).map(x=>{
-          const y=Object.assign({},x);delete y.said;return y;})});
+          const y=Object.assign({},x);delete y.said;
+          /* the report's better version is the learner's own answer, reworded
+             — same rule as `said`: the evidence travels, the speech does not */
+          if(y.report&&y.report.better)y.report=Object.assign({},y.report,{better:null});
+          return y;})});
       });
       o[a]=box;
     });

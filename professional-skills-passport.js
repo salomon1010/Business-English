@@ -141,6 +141,11 @@
          them. A single object is still accepted, so the hook's shape can
          change again without breaking the page. */
       if(d)v2=(Array.isArray(d)?d:[d]).map(v2Panel).join("");
+      /* The way back to previous spoken work. Rendered only when there is V2
+         evidence to look back at (d is null off General English or before the
+         first attempt), and it only navigates — this file still never learns
+         what a mission or a report is. */
+      if(v2&&typeof global.go==="function")v2+=`<button class="btn btn-g pg-hist" onclick="go('mvhist')">${global.t("mv.hist_open")}</button>`;
     }
 
     return `<section class="card pg-growth">

@@ -268,7 +268,7 @@ it with `localStorage.be_events_api`. Query with the same SQL against
 
 ## BE Mastery V2 missions (General English only)
 
-Eleven events, all emitted through `mvTrack()` in index.html, which refuses to
+Fourteen events, all emitted through `mvTrack()` in index.html, which refuses to
 fire off General English and stamps `track`, `week` and `competency` on every
 one. `week` is the General English programme week the competency teaches
 (1 Explain what you do, 2 Give a clear update, 3 Raise a problem …).
@@ -280,8 +280,12 @@ thin, `move` the weakest, `attempt` count; also `kind` shadow for supporting
 rows) → `v2_retry_attempt` (+`move`) → `v2_transfer_completed` (+`result`) →
 `v2_competency_progressed` (+`state`, `from`) → `v2_retrieval_scheduled`
 (+`state`) → `v2_recommendation_generated` (+`result` the action, `move`,
-`state`). Counts and fixed enums only — nothing spoken, transcribed or from the
-profile. `move` and `state` values are competency-move ids and state names.
+`state`). The speaking report (2026-09-23) adds `v2_better_version_played`
+(+`mission`, `kind`), `v2_speaking_history_opened` (+`attempt` = rows shown)
+and `v2_speaking_history_replayed` (+`kind` own|better, `mission`). Counts and
+fixed enums only — nothing spoken, transcribed or from the profile; the
+report's text, the better version and the audio never leave the device.
+`move` and `state` values are competency-move ids and state names.
 
 Read them with `./query.sh v2` (events by week and competency) and
 `./query.sh v2moves` (which move is weak, by competency). **Deploy this Worker

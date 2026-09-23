@@ -194,7 +194,7 @@ console.log("\n2c · FAILURE HANDLING — the client keeps its 204; the operator
 /* ── 3 · the V2 contract, from the client's actual call sites ──────────── */
 console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
-ok("the allow-list carries eleven v2_* names", V2.length === 11, V2.join());
+ok("the allow-list carries fourteen v2_* names (eleven missions + three speaking-report)", V2.length === 14, V2.join());
 ok("the six V2 prop keys are allow-listed (appended last on PROP_KEYS)", KEYS.slice(-6).join() === "competency,mission,move,attempt,ai,from");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));

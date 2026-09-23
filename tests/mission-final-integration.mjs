@@ -467,7 +467,8 @@ async function learner(id, track, viewport) {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 83, mode: "ai", words: [{ word: "a", score: 83 }] }) });
     if (b.chat) lastSystem = String(b.chat.system || "");
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say where you differ out loud — one concern, before the recommendation.", covered: coachCovered }) });
+    if (b.mvreport) lastSystem = String(b.mvreport.system || "");
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say where you differ out loud — one concern, before the recommendation.", one: "Say where you differ out loud — one concern, before the recommendation.", covered: coachCovered }) });
   });
   await ctx.route(u => /youtube\.com|youtube-nocookie\.com|ytimg\.com|googlevideo\.com/.test(u.href), route => route.abort());
   const page = await ctx.newPage();

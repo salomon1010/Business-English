@@ -356,7 +356,8 @@ async function learner(id, track, viewport) {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 83, mode: "ai", words: [{ word: "a", score: 83 }] }) });
     if (b.chat) lastSystem = String(b.chat.system || "");
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Commit to one option in your own name before you give the reason.", covered: coachCovered }) });
+    if (b.mvreport) lastSystem = String(b.mvreport.system || "");
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Commit to one option in your own name before you give the reason.", one: "Commit to one option in your own name before you give the reason.", covered: coachCovered }) });
   });
   const page = await ctx.newPage();
   page.on("pageerror", e => errors.push(id + ": " + e.message));

@@ -694,6 +694,51 @@ function shapeChat(raw) {
   return out;
 }
 
+/* ---- V2 mission speaking report ------------------------------------------
+   The chat route deliberately strips a reply down to {reply, covered}; the
+   speaking report needs a richer, fixed shape, so it gets its own door rather
+   than a loophole in that one. The SYSTEM prompt comes from the client
+   (mission-engine.js builds it from the curriculum, exactly as the coach's
+   does), so a new week never needs a Worker deploy; this side only bounds the
+   inputs and validates the output shape. The client re-validates every claim
+   against its own deterministic evidence — this shape check is the transport
+   contract, not the truth check. */
+export function shapeMvReport(raw) {
+  let p; try { p = JSON.parse(raw); } catch { p = {}; }
+  const str = (v, n) => (typeof v === "string" && v.trim()) ? v.replace(/\s+/g, " ").trim().slice(0, n) : "";
+  const anchored = (v, cap) => (Array.isArray(v) ? v : [])
+    .map(x => x && typeof x === "object" ? { move: str(x.move, 64), note: str(x.note, 200) } : null)
+    .filter(x => x && x.move && x.note).slice(0, cap);
+  return {
+    covered: (Array.isArray(p.covered) ? p.covered : [])
+      .filter(v => typeof v === "string" && v.length > 0 && v.length <= 64).slice(0, 16),
+    well: anchored(p.well, 3),
+    improve: anchored(p.improve, 2),
+    better: str(p.better, 800),
+    expressions: (Array.isArray(p.expressions) ? p.expressions : [])
+      .map(x => x && typeof x === "object" ? { e: str(x.e, 80), why: str(x.why, 160) } : null)
+      .filter(x => x && x.e).slice(0, 3),
+    one: str(p.one, 200),
+  };
+}
+
+async function callMvReport(env, system, said) {
+  const r = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
+    body: JSON.stringify({
+      model: CHAT_MODEL,
+      max_tokens: 700,
+      temperature: 0.4,                       // a report, not a character — steadier is better
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: system }, { role: "user", content: said }],
+    }),
+  });
+  if (!r.ok) throw new Error("provider " + r.status);
+  const j = await r.json();
+  return shapeMvReport(((j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || "").trim());
+}
+
 /* Walks the model's JSON as it is typed. The moment a "characterId" string is
    complete it calls emit({c}) — once, and only if it arrives before the reply
    does, because a speaker named afterwards is too late to change the voice
@@ -828,6 +873,19 @@ export default {
         return json(await callChat(env, system, messages), 200, cors);
       } catch (e) {
         return json({ error: "chat_unavailable", detail: String(e.message || e) }, 502, cors);
+      }
+    }
+
+    // ---- V2 speaking report: mission context + one answer in → validated report out ----
+    if (body.mvreport && typeof body.mvreport === "object") {
+      if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      const system = String(body.mvreport.system || "").slice(0, 6000);
+      const said = String(body.mvreport.said || "").replace(/\s+/g, " ").trim().slice(0, 2400);
+      if (!system || said.split(" ").length < 5) return json({ error: "bad_request" }, 400, cors);
+      try {
+        return json(await callMvReport(env, system, said), 200, cors);
+      } catch (e) {
+        return json({ error: "report_unavailable", detail: String(e.message || e) }, 502, cors);
       }
     }
 

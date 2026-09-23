@@ -148,10 +148,10 @@ async function learner(id, track) {
     let body = {};
     try { body = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (body.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 88, mode: "ai", words: [{ word: "the", score: 88 }] }) });
-    if (body.chat) {
-      const sys = String(body.chat.system || "");
+    if (body.chat || body.mvreport) {
+      const sys = String((body.chat ? body.chat.system : body.mvreport.system) || "");
       const covered = coachCovered || (/status/.test(sys) ? [] : []);
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say what the delay means for Friday, in one sentence.", covered }) });
+      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say what the delay means for Friday, in one sentence.", one: "Say what the delay means for Friday, in one sentence.", covered }) });
     }
     return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
   });

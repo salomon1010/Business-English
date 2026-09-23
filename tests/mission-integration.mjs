@@ -270,7 +270,7 @@ async function learner(id, track) {
   await ctx2.route(u => u.href.startsWith(POLISH), async route => {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 84, mode: "ai", words: [{ word: "a", score: 84 }] }) });
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say what the delay means for Friday.", covered: coachCovered }) });
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Say what the delay means for Friday.", one: "Say what the delay means for Friday.", covered: coachCovered }) });
   });
   const page = await ctx2.newPage();
   page.on("pageerror", e => errors.push(id + ": " + e.message));

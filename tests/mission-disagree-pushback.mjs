@@ -419,7 +419,8 @@ async function learner(id, track, viewport) {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 83, mode: "ai", words: [{ word: "a", score: 83 }] }) });
     if (b.chat) lastSystem = String(b.chat.system || "");
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "State your position in one plain sentence before you give the reason.", covered: coachCovered }) });
+    if (b.mvreport) lastSystem = String(b.mvreport.system || "");
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "State your position in one plain sentence before you give the reason.", one: "State your position in one plain sentence before you give the reason.", covered: coachCovered }) });
   });
   /* The Shadow row hands the studio a YouTube clip; the player API is kept off
      the network here, so the check is about the hand-over, not about YouTube. */

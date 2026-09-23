@@ -227,7 +227,8 @@ async function learner(id, track) {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 86, mode: "ai", words: [{ word: "a", score: 86 }] }) });
     if (b.chat) lastSystem = String(b.chat.system || "");
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Finish by saying what your work is for.", covered: coachCovered }) });
+    if (b.mvreport) lastSystem = String(b.mvreport.system || "");
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Finish by saying what your work is for.", one: "Finish by saying what your work is for.", covered: coachCovered }) });
   });
   const page = await ctx.newPage();
   page.on("pageerror", e => errors.push(id + ": " + e.message));

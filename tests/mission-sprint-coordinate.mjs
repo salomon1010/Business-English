@@ -407,7 +407,8 @@ async function learner(id, track, viewport) {
     let b = {}; try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
     if (b.assess) return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ overall: 83, mode: "ai", words: [{ word: "a", score: 83 }] }) });
     if (b.chat) lastSystem = String(b.chat.system || "");
-    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Name what you are waiting on and who has it before the plan.", covered: coachCovered }) });
+    if (b.mvreport) lastSystem = String(b.mvreport.system || "");
+    return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ reply: "Name what you are waiting on and who has it before the plan.", one: "Name what you are waiting on and who has it before the plan.", covered: coachCovered }) });
   });
   /* The Shadow row hands the studio a YouTube clip; the player API is kept off
      the network here, so the check is about the hand-over, not about YouTube. */

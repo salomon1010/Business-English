@@ -719,6 +719,173 @@ Return JSON only:
     return out;
   }
 
+  /* ==========================================================================
+     SPEAKING REPORT — the richer feedback loop the pilot asked for.
+
+     Three functions, same philosophy as the coach: the DETERMINISTIC evidence
+     decides what was shown; the model only explains it and offers language.
+     Every claim in the report is anchored to a move id, and shapeReport drops
+     any AI sentence whose anchor disagrees with the evidence — praise for a
+     move the scorer did not credit, or a correction for one it did. The model
+     cannot create mastery, remove mastery, move a state or invent a score;
+     it can only say WHY a move landed, WHY one is missing, and HOW the same
+     message could be said better.
+
+     The better version is language coaching, not a model answer to copy: the
+     prompt pins it to the learner's own meaning and level, and a report that
+     comes back without one (offline, or a refusal) simply shows no better
+     version rather than inventing one deterministically — we cannot write the
+     learner's answer for them without the model, and pretending otherwise is
+     the invented-performance failure this file exists to stop. */
+  const REPORT_CAPS = { well: 3, improve: 2, note: 160, better: 700, expr: 3, one: 180 };
+
+  function reportPrompt(ctx, ev, comp) {
+    const made = moveIds(comp).filter(id => ev.moves[id]);
+    const missed = moveIds(comp).filter(id => !ev.moves[id]);
+    const lbl = id => (moveOf(comp, id) || {}).label || id;
+    const moves = ctx.targetMoves.map(m => `${m.id} (${m.label}) — ${m.hint}`).join("\n");
+    const bank = ((comp && comp.expressions) || []).slice(0, 8).map(e => `"${e.w}" — ${e.def || e.move || ""}`).join("\n");
+    return `You are a speaking coach reviewing ONE short workplace answer in English.
+
+THE TASK
+${ctx.prompt}
+A good answer makes ${ctx.targetMoves.length} communication moves, in this shape: ${ctx.pattern}
+
+THE MOVES
+${moves}
+
+THE SCORER'S VERDICT (deterministic, from the transcript — this is the truth you work from)
+Credited: ${made.length ? made.map(id => `${id} (${lbl(id)})`).join(", ") : "none"}
+Not heard: ${missed.length ? missed.map(id => `${id} (${lbl(id)})`).join(", ") : "none"}
+${ctx.currentWeakness ? `Recurring weak move: ${ctx.currentWeakness}` : ""}
+
+USEFUL EXPRESSIONS FOR THIS TASK (pick from these, or from words the learner used)
+${bank}
+
+WHAT TO DO
+Read the transcript. Write a short report as JSON:
+- "covered": move ids the learner GENUINELY made in their own words that the
+  scorer did not credit. Only additions; never remove a credited move.
+- "well": up to ${REPORT_CAPS.well} entries {"move": id, "note": one sentence}.
+  Each note explains why that CREDITED move worked. Never praise a move from
+  the "Not heard" list.
+- "improve": up to ${REPORT_CAPS.improve} entries {"move": id, "note": one
+  sentence}. Only moves from the "Not heard" list; say what was missing and
+  how to add it. If everything was credited, coach the weak move or delivery.
+- "better": the learner's SAME answer, improved. Keep their meaning, their
+  facts and their level; at most 70 words; natural spoken English, not an
+  essay. Never add facts they did not say.
+- "expressions": up to ${REPORT_CAPS.expr} entries {"e": expression, "why":
+  when it helps here, under 15 words}.
+- "one": ONE actionable focus for next time, under 25 words, imperative.
+
+RULES
+- The scorer's verdict is final. Explain it; never contradict it.
+- Never comment on accent, and never compare them to a native speaker.
+- Never correct grammar unless it stopped you understanding the message.
+- No scores, no percentages, no letter grades.
+- Plain British English, spoken register.
+
+Return JSON only:
+{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":""}`;
+  }
+
+  /* Validate the model's report against the evidence. Called AFTER
+     applyCoachMoves, so "credited" already includes anything the model added
+     through `covered` — an entry it praised and covered in the same reply
+     stays, one it praised without covering is dropped. Null raw (offline, a
+     refusal, bad JSON) produces the honest deterministic report. */
+  function shapeReport(raw, comp, ev) {
+    const made = moveIds(comp).filter(id => ev.moves[id]);
+    const missed = moveIds(comp).filter(id => !ev.moves[id]);
+    const lbl = id => (moveOf(comp, id) || {}).label || id;
+    const str = (v, n) => (typeof v === "string" && v.trim()) ? v.replace(/\s+/g, " ").trim().slice(0, n) : "";
+    const weak = weakestMove(comp, ev, []);
+    const wm = weak ? moveOf(comp, weak) : null;
+
+    const out = { well: [], improve: [], better: null, expr: [], one: "", ai: false };
+
+    if (raw && typeof raw === "object") {
+      (Array.isArray(raw.well) ? raw.well : []).forEach(x => {
+        if (!x || out.well.length >= REPORT_CAPS.well) return;
+        const id = str(x.move, 64), note = str(x.note, REPORT_CAPS.note);
+        if (id && note && made.includes(id) && !out.well.some(y => y.move === id)) out.well.push({ move: id, label: lbl(id), note });
+      });
+      (Array.isArray(raw.improve) ? raw.improve : []).forEach(x => {
+        if (!x || out.improve.length >= REPORT_CAPS.improve) return;
+        const id = str(x.move, 64), note = str(x.note, REPORT_CAPS.note);
+        /* a missed move, or — when everything landed — the recurring weakness */
+        if (id && note && (missed.includes(id) || (!missed.length && id === weak)) && !out.improve.some(y => y.move === id)) out.improve.push({ move: id, label: lbl(id), note });
+      });
+      const b = str(raw.better, REPORT_CAPS.better);
+      out.better = b.split(/\s+/).length >= 5 ? b : null;
+      (Array.isArray(raw.expressions) ? raw.expressions : []).forEach(x => {
+        if (!x || out.expr.length >= REPORT_CAPS.expr) return;
+        const e = str(x.e, 60), why = str(x.why, 140);
+        if (e) out.expr.push({ e, why });
+      });
+      out.one = str(raw.one, REPORT_CAPS.one);
+      out.ai = !!(out.well.length || out.improve.length || out.better || out.one);
+    }
+
+    /* Deterministic floor: the report is never empty. Missing moves are named
+       from the rubric, expressions come from the same picker the vocabulary
+       store uses, and the focus is the weak move's own retry line. */
+    if (!out.improve.length) {
+      (missed.length ? (weak && missed.includes(weak) ? [weak].concat(missed.filter(id => id !== weak)) : missed) : [])
+        .slice(0, REPORT_CAPS.improve)
+        .forEach(id => { const m = moveOf(comp, id); out.improve.push({ move: id, label: lbl(id), note: (m && m.hint) || "" }); });
+    }
+    if (!out.expr.length) {
+      expressionsToLearn(comp, ev, weak).slice(0, REPORT_CAPS.expr).forEach(e => out.expr.push({ e: e.w, why: e.def || "" }));
+    }
+    if (!out.one) out.one = wm ? wm.retry : `Say it again, one short sentence for each of the ${moveIds(comp).length} moves.`;
+    return out;
+  }
+
+  /* Persist the report onto the attempt row it belongs to — found by the same
+     idempotency key the attempt was written under, so the offline-recovery
+     path UPDATES the row instead of duplicating anything, and a report can
+     never attach to speech it was not about. Compact on purpose: anchors and
+     short strings, never the transcript, never the raw model output. */
+  function attachReport(store, id, key, report, area) {
+    if (!guard(area) || !key || !report) return null;
+    const r = (store || {})[id];
+    const row = r && (r.attempts || []).find(x => x && x.key === key);
+    if (!row) return null;
+    row.report = {
+      well: (report.well || []).slice(0, REPORT_CAPS.well).map(x => ({ m: x.move, n: String(x.note || "").slice(0, REPORT_CAPS.note) })),
+      fix: (report.improve || []).slice(0, REPORT_CAPS.improve).map(x => ({ m: x.move, n: String(x.note || "").slice(0, REPORT_CAPS.note) })),
+      better: report.better ? String(report.better).slice(0, REPORT_CAPS.better) : null,
+      expr: (report.expr || []).slice(0, REPORT_CAPS.expr).map(x => ({ e: String(x.e || "").slice(0, 60), why: String(x.why || "").slice(0, 140) })),
+      one: String(report.one || "").slice(0, REPORT_CAPS.one),
+      ai: !!report.ai,
+      at: Date.now(),
+    };
+    return row;
+  }
+
+  /* The learning history, oldest week first, newest attempt first inside a
+     week: every spoken attempt with its evidence and (when one was written)
+     its report. A flat list of plain objects so the history screen renders it
+     without learning what a mission is — the same bargain progressSummary
+     already makes with the Passport. */
+  function history(get, comps) {
+    const out = [];
+    (comps || []).slice().sort((a, b) => (a.week || 0) - (b.week || 0)).forEach(c => {
+      const r = (get && get(c.id)) || null;
+      ((r && r.attempts) || []).filter(a => a && a.answered).forEach(a => {
+        out.push({
+          competency: c.id, week: c.week || null, title: c.title || "",
+          missionId: a.missionId, kind: a.kind, key: a.key, at: a.at,
+          passed: !!a.passed, moves: a.moves || {}, state: (r && r.state) || "NOT_STARTED",
+          report: a.report || null,
+        });
+      });
+    });
+    return out.sort((a, b) => (a.week || 0) - (b.week || 0) || (b.at || 0) - (a.at || 0));
+  }
+
   /* ------------------------------------------------- automatic word handling
      The audit's finding was that a learner taps Save on every word. Here the
      system decides: expressions they USED are worth spacing so they stick, and
@@ -739,6 +906,7 @@ Return JSON only:
     grade, applyCoachMoves, weakestMove, passes,
     blank, record, introduce, stateFrom, addAttempt, scheduleRetrieval, recommend,
     aiContext, coachPrompt, shapeCoach, expressionsToLearn, guard,
+    reportPrompt, shapeReport, attachReport, history, REPORT_CAPS,
     EVIDENCE_VERSION, contract, fromShadow, addSupport, supportSummary, progressSummary,
     SHADOW_RUNGS, MAX_SUPPORT, ACTION_PRIORITY, pickNext,
   };
