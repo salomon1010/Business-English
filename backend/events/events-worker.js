@@ -170,16 +170,23 @@ const MAX_BODY = 512;
    questions they exist to answer — which competency, which move, which
    state — need columns the legacy row never had room for. */
 const AE_MAX_BLOBS = 20;
-const LEGACY = [...PROP_KEYS].slice(0, AE_MAX_BLOBS - 2);
+const MAX_COLS = AE_MAX_BLOBS - 2;                 // blob1 is the name, blob2 the country
+const LEGACY = [...PROP_KEYS].slice(0, MAX_COLS);
 const LAYOUTS = [
   // v2_* → blob3 track, 4 week, 5 competency, 6 mission, 7 kind, 8 move,
   // 9 result, 10 band, 11 state, 12 from, 13 attempt, 14 ai
   [/^v2_/, ["track", "week", "competency", "mission", "kind", "move", "result", "band", "state", "from", "attempt", "ai"]],
 ];
+/* The invariant lives where the row is built, not only in a test: whatever a
+   future edit declares, a layout can never put more than MAX_COLS keys into a
+   row. test/run.mjs asserts that no layout actually needs the cut, so this
+   slice is a guard, never a behaviour. */
 function layoutFor(name){
   const m = LAYOUTS.find(([re]) => re.test(name));
-  return m ? m[1] : LEGACY;
+  return (m ? m[1] : LEGACY).slice(0, MAX_COLS);
 }
+/* Named exports for test/run.mjs only; the runtime reads the default export. */
+export { AE_MAX_BLOBS, MAX_COLS, LEGACY, LAYOUTS, layoutFor };
 
 function cors(origin, extra = []){
   const ok = ALLOWED_ORIGINS.includes(origin) || extra.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -235,7 +242,14 @@ export default {
         blobs,
         doubles: [1],
       });
-    } catch (e) { /* never let analytics break the app */ }
+    } catch (e) {
+      /* Never let analytics break the app — the client keeps its 204. But say
+         so where an operator can see it: `wrangler tail` live, and Workers Logs
+         if observability is switched on. The 19–22 Sept 2026 outage was
+         invisible precisely because this block was silent. Nothing from the
+         beacon is logged: the name is allow-listed, the message is workerd's. */
+      console.error("be-events: writeDataPoint failed for", b.name, "-", e && e.name, e && e.message, "- blobs:", blobs.length);
+    }
 
     return new Response(null, { status: 204, headers: cors(origin, extra) });
   },

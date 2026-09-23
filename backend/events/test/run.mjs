@@ -21,7 +21,7 @@
    every mvTrack() call site is parsed, so a v2_* name or a prop key added
    in the app without being allow-listed here fails this file, not silently
    in production. */
-import worker from "../events-worker.js";
+import worker, { AE_MAX_BLOBS, MAX_COLS, LEGACY as LEGACY_X, LAYOUTS, layoutFor } from "../events-worker.js";
 import { readFileSync } from "node:fs";
 
 const SRC = readFileSync(new URL("../events-worker.js", import.meta.url), "utf8");
@@ -41,7 +41,17 @@ const URL_ = "https://be-events.nore-ngou.workers.dev/e";
 const res = [];
 const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond }); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 
-function env(vars) { const writes = []; return { env: { AE: { writeDataPoint(p) { writes.push(p); } }, ...(vars || {}) }, writes }; }
+/* The fake binding applies workerd's own rule (analytics-engine-impl.h:
+   JSG_REQUIRE(arr.size() <= 20, TypeError, "Maximum of 20 blobs supported."),
+   and one index only), so every check in this file runs against the limit
+   that took production down — a row over 20 blobs is refused here exactly as
+   it is at the edge, instead of being quietly recorded by a permissive stub.
+   (wrangler dev's local Analytics Engine does NOT enforce it — verified
+   2026-09-23 — which is why this file, and staging, are the tests.) */
+function env(vars) { const writes = [], refused = []; return { env: { AE: { writeDataPoint(p) {
+  if ((p.blobs || []).length > 20) { refused.push(p); throw new TypeError("Maximum of 20 blobs supported."); }
+  if ((p.indexes || []).length > 1) { refused.push(p); throw new TypeError("Maximum of 1 index supported."); }
+  writes.push(p); } }, ...(vars || {}) }, writes, refused }; }
 async function send(e, body, o = {}) {
   const req = new Request(URL_, { method: o.method || "POST", headers: { Origin: o.origin === null ? undefined : (o.origin || ORIGIN), "Content-Type": "text/plain" },
     body: (o.method || "POST") === "POST" ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined });
@@ -100,6 +110,54 @@ ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exac
 { const e = env(); await send(e, { name: "shadow_challenge_rung", props: { rung: "blind", reason: "up" } });
   const b = row(e).blobs; ok("shadow_challenge_rung is counted, but rung/reason sit past blob20 and are dropped — exactly as they were (a column that never existed); a family map is the fix, not a wider row",
     e.writes.length === 1 && b.length === 20 && !b.includes("blind") && !b.includes("up")); }
+
+/* ── 2b · THE INVARIANT, as architecture ───────────────────────────────── */
+console.log("\n2b · THE 20-BLOB INVARIANT — every family's maximum payload, and the guard itself");
+ok("exports agree with the source: AE_MAX_BLOBS 20, MAX_COLS 18, LEGACY is exactly the first 18 keys", AE_MAX_BLOBS === 20 && MAX_COLS === 18 && LEGACY_X.join() === LEGACY.join());
+ok("every declared layout fits without the guard ever cutting it (so the guard is a guard, not a behaviour)",
+  LAYOUTS.every(([, keys]) => keys.length <= MAX_COLS) && LEGACY_X.length === MAX_COLS, LAYOUTS.map(([re, k]) => re + ":" + k.length).join());
+ok("layoutFor() is deterministic and total: a v2_* name → the V2 map, anything else → LEGACY",
+  layoutFor("v2_mission_started").join() === V2MAP.join() && layoutFor("app_open").join() === LEGACY.join() && layoutFor("partner_turn_sent").join() === LEGACY.join() && layoutFor("").join() === LEGACY.join());
+{ LAYOUTS.push([/^zz_review_/, Array.from({ length: 30 }, (_, i) => "k" + i)]);
+  const cut = layoutFor("zz_review_probe").length; LAYOUTS.pop();
+  ok("a hypothetical 30-key layout is capped at 18 columns by the code itself — the row can never exceed 20 blobs", cut === MAX_COLS && layoutFor("zz_review_probe").join() === LEGACY.join(), String(cut)); }
+/* Every allow-listed key at once, plus junk. Values are single characters on
+   purpose: the body cap is 512 bytes and a 40-key beacon with real values is
+   over it — which is the cap working, not the layout. Each payload's size is
+   asserted, so this section measures the row and never the cap. */
+const ALLK = Object.fromEntries(KEYS.map(k => [k, "x"]));
+const JUNK = { junk1: "y", junk2: "y", said: "z" };
+const MAXP = {
+  "legacy  ": ["app_open", { ...ALLK, ...JUNK }],
+  "partner ": ["partner_trial_started", { ...ALLK, kind: "waiting", round: "4", n: "3", now: "1", regular: "1", state: "mutual", reason: "mic", evidence: "asr", result: "pass", ...JUNK }],
+  "shadow  ": ["shadow_challenge_feedback_received", { ...ALLK, level: "guided", mode: "apply", to: "ai", result: "retry", kind: "chorus", rung: "retell", reason: "again", ...JUNK }],
+  "V2, every key": ["v2_evidence_recorded", { ...ALLK, ...JUNK }],
+  "V2, worst-case values": ["v2_evidence_recorded", { track: GE, week: "12", competency: "c".repeat(MAX_VAL), mission: "m".repeat(MAX_VAL), kind: "transfer", move: "mitigate", result: "fail", band: "partial", state: "TRANSFER_READY", from: "DEMONSTRATED", attempt: "60", ai: "1", ...JUNK }],
+  "combined": ["session_complete", { ...ALLK, week: "12", day: "Sun", ...JUNK }],
+};
+for (const [fam, [name, props]] of Object.entries(MAXP)) {
+  const bytes = JSON.stringify({ name, props }).length;
+  const e = env(); const r = await send(e, { name, props });
+  const len = e.writes.length ? row(e).blobs.length : -1;
+  const expect = 2 + layoutFor(name).length;
+  ok(`maximum ${fam.trim()} payload (${Object.keys(props).length} keys incl. junk, ${bytes} B ≤ ${MAX_BODY}) → written, ${len} blobs (≤ ${AE_MAX_BLOBS}), nothing refused`,
+    bytes <= MAX_BODY && r.status === 204 && e.writes.length === 1 && e.refused.length === 0 && len === expect && len <= AE_MAX_BLOBS, `bytes=${bytes} len=${len} refused=${e.refused.length}`);
+}
+{ const e = env(); const oldRow = ["app_open", "??", ...KEYS.map(() => "")];
+  let threw = null; try { e.env.AE.writeDataPoint({ indexes: ["app_open"], blobs: oldRow, doubles: [1] }); } catch (x) { threw = x; }
+  ok(`the row the OLD Worker built — 2 + ${KEYS.length} = ${oldRow.length} blobs — is refused by the same rule (the root cause, reproduced)`, threw instanceof TypeError && /20 blobs/.test(threw.message) && e.writes.length === 0, String(threw)); }
+
+/* ── 2c · FAILURE HANDLING ─────────────────────────────────────────────── */
+console.log("\n2c · FAILURE HANDLING — the client keeps its 204; the operator now hears about it");
+{ const e = env(); e.env.AE = { writeDataPoint() { throw new TypeError("Maximum of 20 blobs supported."); } };
+  const orig = console.error; const logged = []; console.error = (...a) => logged.push(a.map(String).join(" "));
+  const r = await send(e, { name: "app_open", props: { installed: "yes" } }); console.error = orig;
+  ok("when the binding throws, the response is still 204 and nothing else changes for the client", r.status === 204 && r.h["access-control-allow-origin"] === ORIGIN);
+  ok("…and the failure is logged once, with the event name, the error and the blob count — never a prop value",
+    logged.length === 1 && /writeDataPoint failed for app_open/.test(logged[0]) && /TypeError/.test(logged[0]) && /Maximum of 20 blobs/.test(logged[0]) && /blobs: 20/.test(logged[0]) && !/yes/.test(logged[0]), logged.join(" | ")); }
+{ const e = env(); const orig = console.error; let n = 0; console.error = () => { n++; };
+  await send(e, { name: "app_open", props: { installed: "yes" } }); console.error = orig;
+  ok("a successful write logs nothing — no noise on the happy path", n === 0 && e.writes.length === 1); }
 
 /* ── 3 · the V2 contract, from the client's actual call sites ──────────── */
 console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
