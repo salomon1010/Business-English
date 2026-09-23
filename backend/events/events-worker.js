@@ -96,6 +96,23 @@ const EVENTS = new Set([
   // opened out of a miss (+kind chorus|buildup). Counts only — the rung name
   // is a fixed enum, never the clip, the line or anything spoken.
   "shadow_challenge_rung", "shadow_challenge_drill",
+  // The Shadow card's two helpers (General English only): Translate switched
+  // (+state on|off, +lang — the native language code), Pronunciation switched
+  // (+state on|off), a word tapped to hear it, a paragraph's translation shown
+  // (+lang). Counts only — never the words, the paragraph or the translation.
+  "shadow_translation_toggled", "shadow_pronunciation_toggled", "shadow_word_played", "shadow_translation_viewed",
+  // The post-shadow coach report (2026-09-23), General English and the shared
+  // Session/Welding-line report alike: viewed (+band good|fair|poor, +source
+  // new|stored|line), the focus word practised, a micro-practice attempt graded
+  // (+result pass|retry), "Shadow again" tapped, a detail fold opened (+kind
+  // pron|words|practice|vocab|history|grammar), a word saved from the report
+  // (+kind one|all), a second take on the same clip in one sitting. The key
+  // product question is REPORT → NEXT PRACTICE: shadow_again_clicked and
+  // shadow_second_completed over shadow_report_viewed. Counts only — never the
+  // word, the clip or anything spoken. band and source get shadow_* columns
+  // 12 and 13 (LAYOUTS below); result and kind already had theirs.
+  "shadow_report_viewed", "shadow_focus_practiced", "shadow_micro_completed", "shadow_again_clicked",
+  "shadow_details_opened", "shadow_vocab_saved", "shadow_second_completed",
   // Round Review (Practice Partner, General English only): a review landed
   // (+evidence audio|asr|none), the voice coach was played, a pronunciation or
   // sentence practice attempt was graded (+result pass|retry), an item was
@@ -185,7 +202,7 @@ const LAYOUTS = [
   [/^partner_(?!interest$)/, ["kind", "round", "n", "now", "regular", "state", "reason", "evidence", "result", "day"]],
   // shadow_* → blob3 level, 4 mode, 5 to, 6 rung, 7 reason, 8 result, 9 kind.
   // Same history: no shadow row was ever recorded.
-  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind"]],
+  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];
 /* The invariant lives where the row is built, not only in a test: whatever a
    future edit declares, a layout can never put more than MAX_COLS keys into a

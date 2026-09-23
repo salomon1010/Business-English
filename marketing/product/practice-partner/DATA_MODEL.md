@@ -127,8 +127,13 @@ Deleted as soon as the session closes. **No audio is ever stored for live practi
 ## `reports`, `blocks`, `counters`
 Unchanged from the MVP: one counted report per reporter per person (unique on
 `by_uid, about_uid`), blocks are a composite-PK row both directions are
-checked against, `counters.key = uid:route:yyyymmdd` for the daily limits
-(`interest 10, match 30, invite 10, report 5, block 20, decide 40, live 20`).
+checked against. `counters` now holds two different keys: `uid:route:yyyymmdd`
+for the safety caps, which are the only ones with a day boundary
+(`report 5, block 20`), and `uid:burst:yyyymmddhhmm` for the per-minute burst
+limiter on the practice routes (`BURST_PER_MIN`, 60 per learner). **There is
+no daily practice quota** — queueing, matching, inviting, deciding, live and
+the AI coach are unrationed; a 429 on any of them is `rate` / `ip_limit`
+("try again shortly"), never `limit`.
 A block is no longer permanent: `POST /connection/unblock {cid}` deletes the
 blocker's own row (the other side's block, if any, stands), moves the
 connection `blocked → ended` (a fresh start, no cooldown, nothing restored)

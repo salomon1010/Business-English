@@ -99,6 +99,20 @@ not JS, and `new Function` chokes on it. Check it separately with
   belong to both: use `areaVocab()` / `vocHas()` / `vocPut()` / `vocDrop()`, not
   `S.vocab[w]=…`. `AnswerEvaluator.portfolio(s, area)` and `readiness(s, sims, area)`
   take the area as an optional 2nd/3rd argument; omitting it counts everything.
+  **Executive Polish's in-memory state is per area too (2026-09-23).** The page
+  used to draw from one module-level `ex` object with no area key, so a General
+  English minute — box text, "Say it better" versions, open report — sat on the
+  Welding Polish page. Now `ex.draft / take / blob / url / prompt / report /
+  showReport / repOpen / quick / quickFor` are accessors over `exAreaState(area)`
+  buckets (`_exArea`, transient — a refresh empties it, as before); only the
+  recorder (`phase`, mic, timer, `busyFor`) stays device-level. `aList(f, area)`
+  and `exReps(area)` take an explicit area so `exRun` / `exQuick` file a minute
+  under the area it STARTED in even if the learner switched before the Worker
+  answered, and `rPhrases` shows the wait card only when `ex.busyFor` is the open
+  area. `exWipe()` empties every bucket from `fbWipeDevice` (sign-out, account
+  deletion) and from the foreign-account branch of `fbFirstSync`. The Worker is
+  stateless (no KV/D1/R2/Cache), so the boundary is client-side by construction.
+  Test: `tests/polish-track.mjs` (15 checks, in `npm test`).
   `areaSplit()` is the one-time migration — it stamps legacy records with whatever
   area was open at the time (nothing can know better) and is additive, so it is safe
   after a cloud merge. Also per-area, via `aMap(f)` / `aList(f)`: `phMaster`,
@@ -162,6 +176,31 @@ not JS, and `new Function` chokes on it. Check it separately with
   waits for `#coachSummary` / dialogs to close, auto-dismisses in 7 s. There
   is deliberately NO permanent floating button (it would cover the action
   buttons and break the one-accent-per-screen rule).
+- **Post-shadow coach report (live since be12-v440, 2026-09-23).** `fbShowResults` (Shadow Studio, the Session page and the
+  Welding workplace lines all share it) draws three levels on the SAME data:
+  Level 1 — coach: score + verdict (`fbVerdictKey`), a 2×2 summary (words %,
+  pronunciation, pace, fillers — nothing new is scored), 2–3 evidence-based
+  strengths (`fbStrengths`), ONE focus word (`fbFocusPick`: severity ×
+  confidence + recurrence on the trouble list *as it stood before the take* +
+  learning value; deterministic), a one-line progress read, one primary
+  action **Shadow again** (`fbShadowAgain`: in V2 Shadow mode restarts the clip
+  and opens the mic; elsewhere brings the record button back), three
+  vocabulary rows. Level 2 — micro-practice on that word (`fbFixOpen` /
+  `fbFixRecord` / `fbFixGrade`): a real take filed under
+  `recCtx("shadow-fix-…")`, graded by `fbAssess` + `fbWords` through
+  `ShadowSync.drillState` like the Challenge drills; a clear attempt marks the
+  word improved and takes one off `troubleMap()`. Level 3 — `details.fb-sec`
+  folds (pron / words / practice / vocab / history / grammar), all closed, holding
+  exactly the analysis the old report showed. `fbRenderPron(target, out)` is
+  scoped to the report it belongs to and fills the summary cell: a percentage
+  only in mode `ai`; the Whisper cross-check shows a state + "approx." and
+  the `sv.ch_pron_na` note (production is whisper-mode — see memory). Seven
+  events (`shadow_report_viewed` … `shadow_second_completed`) are on the
+  be-events allow-list on main with `band` + `source` as shadow_* blob12/13 —
+  the Worker must be redeployed from main for them to land; until then they
+  are dropped with 204. Tests: `tests/shadow-coach.mjs`
+  (`npm run test:coach`). i18n keys `fb.c_*` (fr/es/pt/ar translated, English
+  elsewhere). Help-centre pages do not describe the new layout yet.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
@@ -195,7 +234,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
   never hides — Block hides; `presence.waiting` === `waiting.available`, one
-  filter; the AI coach card is absent while anyone is in line); live is for whoever you
+  filter; the AI coach card is on every start screen — owner, 2026-09-23,
+  reversing the 2026-09-19 "absent while anyone is in line" rule: human first in
+  order and accent, AI always reachable, "Or practise with the AI coach" beside a
+  real learner and the accented "No partner available yet" card when there is
+  none; starting AI never leaves the queue); live is for whoever you
   practise with (`POST /live` → open pair first, a trial with a stranger
   included; candidate cards carry **Practise live** = `/invite {live:true}`,
   migration 0007 `pairs.live_wanted`, the guest's accept opens the room for
@@ -205,8 +248,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   `rmRing`/`rmSpin`, not a box-shadow throb; the partner-left dialog is
   Close / Find another partner and either clears the partner from the screen
   at once (`dismissedClosed`); the Practice-tab card has **How it works**
-  (`ppHowSheet`). Dev-only `POST /__uncap {uid}` resets one learner's daily
-  caps for the long browser run. **Account deletion:** `DELETE /me` (above the
+  (`ppHowSheet`). Dev-only `POST /__uncap {uid}` clears one
+  learner's report/block counters and burst rows. **There is NO daily practice
+  quota** (owner, 2026-09-23): the queue, matching, invites, sessions, reviews,
+  decisions, rematches, live and the AI coach are unrationed, and "You've
+  reached today's limit" must never appear for practising. Abuse of those
+  routes is held per MINUTE by `burstLimited` (`BURST_PER_MIN`, 60/learner, a
+  D1 counter keyed by the minute, `429 rate`) and `ipLimited` (`IP_PER_MIN`,
+  300/IP); only `report 5` / `block 20` keep a day boundary (`SAFETY_LIMITS`),
+  and `pp.err_limit` is worded for those two alone; the client tells the two
+  429s apart with `ppIsRate(e)` (`rate` / `ip_limit` → `pp.err_rate`). Do not
+  reintroduce a daily counter on a practice route. **Account deletion:** `DELETE /me` (above the
   kill switch) erases the learner's partner data; `fbDeleteAccount` calls
   `ppEraseMe()` first (flag-independent, 404 = nothing held) — Apple 5.1.1(v)
   / Play account-deletion. Release audit: `docs/release/FINAL_RELEASE_AUDIT.md`
@@ -311,15 +363,61 @@ not JS, and `new Function` chokes on it. Check it separately with
   plays on. `pronunciation_feedback` is in `COACH_MODAL_SKIP`: no coach
   pop-up after a Shadow report; **Shadow (v411)** = ONE paragraph: `svShHTML()`
   renders the "Original transcript" card (word chips → `fbSay`, plain text,
-  the translation box, prev/next paragraph, ⭐ save clip, Translate (only when
-  the app language is not English; the Worker's `chat` route asked for
-  `{"reply"}`, cached in `localStorage.be_sv_tr` ≤200) and Hear it); on entry
+  the translation box, prev/next paragraph, ⭐ save clip, two compact switches
+  **Translate** / **Pronunciation** and Hear it; on entry
   `svShEnter()` snaps `shClip` Start/End to the paragraph, turns the clip loop
   on and puts its text in `#shNote` so the studio report grades it; the foot
   bar `#svShBar` (Speed = `shRate`, Record = `shRec`, Replay) is mirrored from
   the hidden `.rec-panel` by `svShBarSync()`; transport, follow-along card,
   Start/End tools and the whole `#shLower` grid are hidden there, the report
   card after it is not. Entering Watch or Challenge turns the clip loop off.
+  **Translate + Pronunciation (2026-09-23, branch `feature/shadow-translate-ipa`,
+  not merged).** Both OFF by default; the choice is per area in
+  `aMap("svPref")` = `{tr,ipa}` (rides in S, survives refresh + cloud merge).
+  Translate → the learner's **native language = `S.profile.lang`** (the
+  onboarding answer; there is no second language setting) under the English:
+  `#svShTr` names the language, carries `lang`/`dir` (RTL for ar/ur/fa/he),
+  wait / error-with-Try-again states; when the app is in English the switch is
+  `aria-disabled` and a tap toasts `sv.sh_tr_none`. The Worker's `chat`
+  route asked for `{"reply"}`, cached in `localStorage.be_sv_tr` ≤200 keyed
+  `vid:para:lang`, one request in flight per key. Pronunciation → General
+  American IPA under each word chip (`.sv-sh-w` = `.sv-sh-wt` word over
+  `.sv-sh-ipa`, aria-hidden so a screen reader hears the word once): a
+  **per-word** cache `localStorage.be_sv_ipa` ≤3000 + `SV_IPA_SEED` (~200
+  common words on the device); the chat route is asked only for the words the
+  device has not met, ≤25 per call (`SV_IPA_BATCH` — the route caps a reply
+  at 800 chars), with the sentence as context; `svIpaParse` validates every
+  pair (`word=ipa|…`, no capitals/digits, not an echo). A word tap with
+  Pronunciation off *peeks* that one word's IPA (`_svIpaPeek`). Every entry
+  point (`svShTrOn/svShIpaOn/svShTrToggle/svShIpaToggle/svShTrFetch/
+  svShIpaFetch/svShWordTap`) checks `svOn()`, so Welding never renders,
+  fetches or writes — the Polish Worker itself is stateless (no identity, no
+  track), so the boundary is the client's, like every other GE-only feature.
+  Events `shadow_translation_toggled` (+state, +lang) /
+  `shadow_pronunciation_toggled` (+state) / `shadow_word_played` /
+  `shadow_translation_viewed` (+lang) are on the be-events allow-list on the
+  branch only — deploy that Worker (from a checkout that has the 20-blob fix)
+  before expecting rows. Tests: `tests/shadow-helpers.mjs` (32).
+  **Follow-ups (same day, deployed be12-v439):** homographs (`SV_IPA_HOMOGRAPHS`)
+  are cached per `word@vid:para`, so a paragraph shows the reading the model
+  gave for THAT sentence; **Watch** carries the same two switches above the
+  list (`svWtTogglesHTML`, same preference) and `svWatchDraw(k)` puts the
+  translation under the paragraph being spoken and IPA under its `.sv-w` spans
+  (that paragraph only; `svTick` moves it when the lit paragraph changes; a
+  sentence-level asset has no word spans, so only the translation shows); the
+  helpers pace themselves (`svAiChat`: `SV_AI_PER_MIN`=10 rolling, a 429
+  retried once after `SV_AI_RETRY_MS`); the help centre has a
+  `.man-sh-helpers` tip after the Shadow figure in all 15 manuals;
+  `backend/events/` on main now carries the 20-blob row-layout fix from
+  86e6266 (the shadow_* map gained `state` + `lang` as blob10/11) — safe to
+  deploy from main again.
+  **v3 foot bar:** `shv3RecSync()` keeps the Shadow button red / "Stop"
+  exactly while `rec.mr` is recording — called by `recToggle` on start and
+  stop and by the 300 ms `svShBarSync` tick (a one-off redraw 120 ms after
+  the tap ran before getUserMedia answered, so it stayed blue). **Report
+  fold:** `#fbFold` chevron beside "Analyze my last shadowing recording"
+  hides `#fbOut`; `fbFoldSync(fresh)` — the button exists only once there
+  is a report, and a new report always opens.
   **Challenge** = its own panel only (`shLowerShow(false)`).
   Welding never carries the attribute and keeps the classic workspace.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**

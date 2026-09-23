@@ -113,8 +113,8 @@ console.log("\n2a · PARTNER AND SHADOW MAPS — every prop the client sends has
 const MAPS = Object.fromEntries([...SRC.matchAll(/\[\/(\^[^\/]+)\/, \[([^\]]*)\]\]/g)].map(m => [m[1], [...m[2].matchAll(/"([a-z_]+)"/g)].map(x => x[1])]));
 const PMAP = MAPS["^partner_(?!interest$)"], SMAP = MAPS["^shadow_"];
 const pcol = k => PMAP.indexOf(k) + 2, scol = k => SMAP.indexOf(k) + 2;
-ok("the partner map is 10 allow-listed keys and the shadow map 7 — both under 18",
-  PMAP && SMAP && PMAP.length === 10 && SMAP.length === 7 && [...PMAP, ...SMAP].every(k => KEYS.includes(k)), JSON.stringify([PMAP, SMAP]));
+ok("the partner map is 10 allow-listed keys and the shadow map 11 (state + lang appended for the Translate / Pronunciation switches) — both under 18",
+  PMAP && SMAP && PMAP.length === 10 && SMAP.length === 11 && [...PMAP, ...SMAP].every(k => KEYS.includes(k)), JSON.stringify([PMAP, SMAP]));
 /* every track("partner_…"/"shadow_…", {literal}) call site in the app */
 function siteKeys(prefix) {
   const out = {}; const re = new RegExp('track\\(\\s*"(' + prefix + '[a-z0-9_]*)"\\s*,\\s*\\{', "g"); let m;

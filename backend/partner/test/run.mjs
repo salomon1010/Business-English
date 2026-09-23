@@ -5,7 +5,7 @@
    Every request goes to the LOCAL worker with emulated D1/R2. Nothing here
    touches Cloudflare or Firebase. Users are dev ids via X-Dev-User; the
    clock is moved with X-Dev-Now. The database is reset at the start. */
-import { verifyIdToken, screenTranscript, score, WEIGHTS_DEFAULT } from "../partner-worker.js";
+import { verifyIdToken, screenTranscript, score, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey } from "../partner-worker.js";
 import { generateKeyPairSync, createSign } from "node:crypto";
 
 const BASE = process.env.PARTNER_API || "http://127.0.0.1:8787";
@@ -241,8 +241,8 @@ const CTX = { week: 1, day: "Tue", topic: "“Tell me about yourself”", object
   const first = await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english", reason: "waiting" });
   const again = await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" });
   ok("ai: a new session opens (201); reopening the same id is a no-op (200, repeat) and does not count", first.status === 201 && first.json.repeat === false && again.status === 200 && again.json.repeat === true);
-  let last = 0; for (let i = 1; i < 13; i++) { last = (await call("bob", "POST", "/ai/session", { id: ids[i], track: "general-english" })).status; if (last === 429) break; }
-  ok("ai: the 13th new session in a day → 429 limit; a repeat of an earlier id still succeeds", last === 429 && (await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 200);
+  let worst = 201; for (let i = 1; i < 13; i++) { const st = (await call("bob", "POST", "/ai/session", { id: ids[i], track: "general-english" })).status; if (st !== 201) worst = st; }
+  ok("ai: NO daily ration — a 13th new AI session on the same day still opens (201), and a repeat of an earlier id is still a no-op", worst === 201 && (await call("bob", "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 200, String(worst));
   ok("ai: malformed id → 400; no auth → 401", (await call("bob", "POST", "/ai/session", { id: "x", track: "general-english" })).status === 400 && (await call(null, "POST", "/ai/session", { id: ids[0], track: "general-english" })).status === 401); }
 
 /* ---------------- online, not in line: still a candidate (owner, 2026-09-19); Welding never ---------------- */
@@ -422,7 +422,8 @@ await consent("olu", "Olu"); await consent("pia", "Pia"); await join("olu", { ba
   await call("olu", "DELETE", "/interest"); await call("pia", "DELETE", "/interest"); }
 { await join("carol"); const out = await call("carol", "POST", "/prefs", { optedOut: true }); const j = await join("carol");
   ok("opt-out leaves the queue and refuses joining", !out.json.waiting && j.json.error === "opted_out"); await call("carol", "POST", "/prefs", { optedOut: false }); }
-{ await consent("quin", "Quin"); let last = 0; for (let i = 0; i < 11; i++) { last = (await join("quin", { band: "w9-12" })).status; if (last === 429) break; } ok("11th queue join in a day → 429", last === 429); await call("quin", "DELETE", "/interest"); }
+{ await consent("quin", "Quin"); let worst = 200; for (let i = 0; i < 25; i++) { const st = (await join("quin", { band: "w9-12" })).status; if (st !== 200) worst = st; }
+  ok("NO daily practice quota: a 25th queue join on the same day is still accepted (200), never 429 'limit'", worst === 200, String(worst)); await call("quin", "DELETE", "/interest"); }
 { const dup = "abcdefabcdef0123"; await consent("rex", "Rex"); await consent("sam", "Sam"); await join("rex", { band: "w5-8" }); const o = (await join("sam", { band: "w5-8" })).json.candidates[0].offer; await tryPair("sam", "rex", o);
   const a = await turn("sam", "first", { turnId: dup }); const b = await turn("sam", "first", { turnId: dup });
   ok("duplicate turn_id is idempotent", a.status === 201 && b.status === 200 && b.json.duplicate === true);
@@ -473,6 +474,87 @@ ok("kill switch is a Worker setting, reported by /health", "enabled" in H);
     const wrongAlg = await verifyIdToken(hs, "be-mastery", deps).catch(e => e.message);
     const ec = await verifyIdToken(mk(good), "be-mastery", { keys: [{ ...jwk, kty: "EC" }] }).catch(e => e.message);
     ok("ID-token verifier: JWKS fetched once, cached; unknown kid → one rate-limited refetch finds the rotated key; malformed/HS256/non-RSA rejected", viaFetch === "uid123" && rotated === "kid" && afterRotation === "uid123" && fetches === 2 && malformed === "malformed" && wrongAlg === "alg" && ec === "alg", JSON.stringify({ viaFetch, rotated, afterRotation, fetches, malformed, wrongAlg, ec })); } }
+/* ---------------- the learning loop repeats: no daily practice quota (owner, 2026-09-23) ----------------
+   Match → practise → review → continue together / rematch → practise again,
+   over and over on the SAME day. Nothing here may ever answer 429 `limit`. */
+{ await consent("loopa", "Loopa"); await consent("loopb", "Loopb");
+  /* one complete four-round session, started either from the queue or — once the
+     two are connected — straight from the connection, and closed by `decision`.
+     "later" and "rematch" close the pair on the FIRST decision, so only that one
+     is required to succeed; what matters here is that nothing is ever rationed. */
+  async function session(start, decision) {
+    const seen = []; let pid = null;
+    if (start === "queue") {
+      seen.push((await join("loopa", { band: "w5-8" })).status);
+      const j = await join("loopb", { band: "w5-8" }); seen.push(j.status);
+      const offer = (j.json.candidates || []).find(c => c.name === "Loopa");
+      if (!offer) return { ok: false, why: "no candidate", seen };
+      const inv = await call("loopb", "POST", "/invite", { offer: offer.offer }); seen.push(inv.status);
+      if (!inv.json.pairInvite) return { ok: false, why: "no invite", seen, body: inv.json };
+      const acc = await call("loopa", "POST", `/pairs/${inv.json.pairInvite.id}/accept`); seen.push(acc.status);
+      pid = acc.json.pair && acc.json.pair.id;
+    } else {
+      const nx = await call("loopb", "POST", "/next", { band: "w5-8", promptWeek: 3 }); seen.push(nx.status);
+      pid = nx.json.pair && nx.json.pair.id;
+    }
+    if (!pid) return { ok: false, why: "no pair", seen };
+    let who = "loopb";
+    for (let n = 0; n < 4; n++) {
+      let r = await turn(who, "Turn " + n + " of our practice session");
+      if (r.json && r.json.error === "not_your_turn") { who = who === "loopa" ? "loopb" : "loopa"; r = await turn(who, "Turn " + n + " of our practice session"); }
+      seen.push(r.status);
+      if (r.status !== 201) return { ok: false, why: "turn " + n, seen, body: r.json };
+      who = who === "loopa" ? "loopb" : "loopa";
+    }
+    /* the feedback step of the loop, on every session */
+    const rv = await call("loopb", "POST", `/pairs/${pid}/review`, {}); seen.push(rv.status);
+    const d1 = await call("loopb", "POST", `/pairs/${pid}/decide`, { choice: decision }); seen.push(d1.status);
+    const d2 = await call("loopa", "POST", `/pairs/${pid}/decide`, { choice: decision }); seen.push(d2.status);
+    if (d1.status !== 200) return { ok: false, why: "decide", seen, body: d1.json };
+    if (d2.status !== 200 && !(d2.status === 409 && d2.json.error === "closed")) return { ok: false, why: "decide2", seen, body: d2.json };
+    return { ok: true, seen };
+  }
+  /* five sessions back to back on one day: the first from the queue, then four
+     straight from the connection. The old build stopped this at the tenth
+     queue join with "You've reached today's limit". */
+  const runs = [await session("queue", "continue")];
+  for (let i = 0; i < 4; i++) runs.push(await session("next", "continue"));
+  ok("five complete sessions on the same day — matched, practised, reviewed, decided, practised again: no 429 anywhere",
+    runs.every(r => r.ok && r.seen.every(st => st !== 429)), JSON.stringify(runs.filter(r => !r.ok)));
+  const rm = await session("next", "rematch");
+  ok("rematch after a completed session is accepted, and its cooldown is a sort order, not a quota",
+    rm.ok && rm.seen.every(st => st !== 429), JSON.stringify(rm));
+  const back = await join("loopa", { band: "w5-8" });
+  ok("back in the queue immediately after a rematch on the same day", back.status === 200, JSON.stringify(back.json && back.json.error));
+  await call("loopa", "DELETE", "/interest"); await call("loopb", "DELETE", "/interest");
+  /* AI practice is a separate mode and inherits nothing from the human loop */
+  const aiIds = Array.from({ length: 4 }, (_, i) => "ee" + (i + 1).toString(16).padStart(14, "0"));
+  const ai = []; for (const id of aiIds) ai.push((await call("loopa", "POST", "/ai/session", { id, track: "general-english" })).status);
+  ok("AI practice stays open for a learner who just ran six human sessions", ai.every(st => st === 201), JSON.stringify(ai)); }
+
+/* ---------------- what is still enforced ---------------- */
+{ /* the per-learner burst control is a D1 counter keyed by the MINUTE, so it is
+     exact across isolates and nothing carries into the next minute */
+  const a = minKey(Date.UTC(2026, 8, 23, 11, 47, 0)), b = minKey(Date.UTC(2026, 8, 23, 11, 48, 0));
+  ok("burst keys are per minute and roll over: no day boundary, nothing accumulates",
+    a === "202609231147" && b === "202609231148" && a !== b, JSON.stringify([a, b]));
+  ok("only report and block keep a day boundary",
+    JSON.stringify(SAFETY_LIMITS_DEFAULT) === JSON.stringify({ report: 5, block: 20 }), JSON.stringify(SAFETY_LIMITS_DEFAULT)); }
+{ /* the safety caps are a product rule and still bite */
+  await consent("spam", "Spam");
+  const targets = ["t1", "t2", "t3", "t4", "t5", "t6"];
+  for (const tt of targets) await consent(tt, "T" + tt);
+  const codes = [];
+  for (const tt of targets) { await join(tt, { band: "fnd-8-15" }); const j = await join("spam", { band: "fnd-8-15" });
+    const o = (j.json.candidates || []).find(c => c.name === "T" + tt); if (!o) { codes.push("nocand"); await call("spam", "DELETE", "/interest"); continue; }
+    const inv = await call("spam", "POST", "/invite", { offer: o.offer });
+    const pid = inv.json.pairInvite ? (await call(tt, "POST", `/pairs/${inv.json.pairInvite.id}/accept`)).json.pair.id : null;
+    if (!pid) { codes.push("nopair"); continue; }
+    const rep = await call("spam", "POST", `/pairs/${pid}/report`, { reason: "abuse" });
+    codes.push(rep.status === 429 ? rep.json.error : rep.status);
+    await call("spam", "POST", `/pairs/${pid}/leave`); }
+  ok("reporting still has a daily cap — it is a safety rule, not practice: the 6th report in a day is refused", codes[5] === "limit", JSON.stringify(codes)); }
+
 ok("screenTranscript: clean text passes, handle rejected", screenTranscript("I work on the second shift") && !screenTranscript("find me at @alice_d"));
 
 const pass = res.filter(r => r.pass).length;

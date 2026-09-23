@@ -1797,10 +1797,18 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-sh-hd{display:flex;align-items:center;gap:8px;margin:2px 0 8px}.sv-sh-title{flex:1;font-weight:700;font-size:14px}.sv-sh-nav{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut2)}.sv-sh-nav .sv-ch-play,.sv-sh-hd>.sv-ch-play{min-height:36px;padding:0 10px}
 .sv-sh-fav.on{background:var(--bg2);color:var(--gold);border-color:color-mix(in srgb,var(--gold) 55%,transparent)}.sv-sh-fav.on svg{fill:var(--gold)}
 .sv-sh-card{padding:14px 14px 12px;border-radius:14px;background:var(--card2);border:1px solid var(--line2)}
-.sv-sh-words{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:12px}.sv-sh-w{background:none;border:0;padding:0 0 3px;font:inherit;font-size:19px;font-weight:700;color:var(--txt);border-bottom:2px solid color-mix(in srgb,var(--txt) 35%,transparent);cursor:pointer}.sv-sh-w:active{color:var(--acc);border-bottom-color:var(--acc)}
+.sv-sh-words{display:flex;flex-wrap:wrap;gap:6px 12px;margin-bottom:12px}.sv-sh-w{display:inline-flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;padding:0;font:inherit;color:var(--txt);cursor:pointer}.sv-sh-wt{font-size:19px;font-weight:700;padding:0 0 3px;border-bottom:2px solid color-mix(in srgb,var(--txt) 35%,transparent)}.sv-sh-w:active .sv-sh-wt,.sv-sh-w.said .sv-sh-wt{color:var(--acc);border-bottom-color:var(--acc)}
+.sv-sh-ipa{font-size:12.5px;line-height:1.2;color:var(--mut2);letter-spacing:.2px;min-height:15px;white-space:nowrap}.sv-sh-words.ipa{gap:8px 14px;align-items:flex-start}
+.sv-sh-st{font-size:12px;color:var(--mut2);margin:-4px 0 10px}.sv-sh-st.err{color:var(--red)}.sv-sh-st[hidden]{display:none}
+.sv-sh-retry{background:none;border:1px solid currentColor;border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;font-weight:700;color:inherit;cursor:pointer;min-height:28px}
 .sv-sh-text{font-size:14px;line-height:1.6;color:var(--mut);margin:0}
 .sv-sh-tr{font-size:14.5px;line-height:1.6;color:var(--txt);margin:10px 0 0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent)}.sv-sh-tr.empty{display:none}.sv-sh-tr.wait{color:var(--mut)}.sv-sh-tr.err{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
-.sv-sh-acts{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
+.sv-sh-tr[hidden]{display:none}.sv-sh-tr-l{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);margin-bottom:3px}.sv-sh-tr[dir="rtl"]{text-align:right}.sv-sh-tr.err .sv-sh-tr-l{color:var(--red)}
+.sv-sh-acts{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px}.sv-sh-tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
+.sv-sh-t{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-sh-t svg{width:15px;height:15px;flex:none}.sv-sh-t small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}
+.sv-sh-t.on{border-color:var(--acc);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-sh-t.on small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-sh-t.na{opacity:.55}.sv-sh-t:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:6px 0 10px}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
+.fb-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.fb-fold{flex:none}.fb-fold svg{transition:transform .2s}.fb-fold[aria-expanded="false"] svg{transform:rotate(-90deg)}.fb-fold[hidden]{display:none}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
 /* Watch: the paragraph being spoken is lit as a whole, its word marked */
 #shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt)}
 #shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w{color:var(--txt)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now .sv-w.now{background:var(--acc);color:#fff;border-radius:5px;box-shadow:none}
@@ -1834,6 +1842,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .pp-n{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-weight:800;font-size:13px;display:grid;place-items:center}
 .pp-rules{margin:14px 0 0;font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:flex-start;line-height:1.45}.pp-rules svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
 .pp-cta{margin-top:12px}.pp-cta b{font-size:16px;display:block;margin-bottom:4px}.pp-cta .btn-primary{margin-top:10px}
+.pp-wait-stop{justify-content:center}.pp-wait-note{text-align:center;padding:0 6px}
 .pp-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pp-row>.btn-primary{flex:1 1 100%;justify-content:center}.pp-row>.btn{flex:1 1 0;justify-content:center;min-width:0}.pp-fine{font-size:12px;color:var(--mut2);margin-top:10px;line-height:1.45}
 .pp-wait{text-align:center}.pp-wait-ring{width:56px;height:56px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;background:var(--bg2);color:var(--acc);animation:ppPulse 1.6s ease-in-out infinite}
 @keyframes ppPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
@@ -3474,6 +3483,93 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 #fbOut .voc-mini{min-width:44px;justify-content:center}
 #fbOut .voc-goto{display:inline-flex;align-items:center;min-height:44px;cursor:pointer}
 #fbOut .voc-goto:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* ===== POST-SHADOW COACH REPORT (2026-09-23) =====
+   The report used to open as a dashboard: score, AI coach, every missed word,
+   chips, stats, grammar, vocabulary — one long scroll before a learner knew
+   what to do next. It now answers four questions in the first screen (how did
+   I do, what went well, the ONE thing to fix, what next) and keeps every
+   analysis it had behind the folds below. Nothing was dropped; it was
+   re-ordered. Colours are the existing tokens; no new accent. */
+.fbc{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.fbc-eyebrow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:0 0 4px;min-height:32px}
+.fbc-eyebrow>svg{width:14px;height:14px;color:var(--green)}
+.fbc-listen{margin-left:auto;display:inline-flex;gap:6px}.fbc-listen .sv-ch-play{min-height:32px;min-width:38px;padding:0 9px;justify-content:center}.fbc-listen .sv-ch-play svg{width:16px;height:16px}
+[dir="rtl"] .fbc-listen{margin-left:0;margin-right:auto}
+.fbc-eyebrow .fbc-att{color:var(--mut2);font-weight:600;letter-spacing:.6px;text-transform:none}
+.fbc-head{display:flex;align-items:center;gap:14px}
+.fbc-score{font-family:'JetBrains Mono',monospace;font-size:38px;font-weight:700;line-height:1;flex:none;letter-spacing:-1px}
+.fbc-head-t{flex:1;min-width:0}
+.fbc-verdict{font-size:15px;font-weight:700;line-height:1.35;margin:0}
+/* the summary is a row of chips that wraps — one line in English, two in a
+   longer language — never a grid that reserves two rows */
+.fbc-sum{display:flex;flex-wrap:wrap;gap:5px 6px;margin:8px 0 0}
+.fbc-sum-c{display:inline-flex;align-items:baseline;gap:5px;padding:4px 9px;border-radius:8px;background:var(--card2);border:1px solid var(--line2);min-height:28px}
+.fbc-sum-c small{font-size:10.5px;letter-spacing:.4px;text-transform:uppercase;color:var(--mut2);font-weight:700;line-height:1.2}
+.fbc-sum-c b{font-size:13px;color:var(--txt);font-variant-numeric:tabular-nums;white-space:nowrap}
+.fbc-sum-c b i{font-style:normal;font-size:10px;font-weight:600;color:var(--mut2);margin-left:2px}
+.fbc-sum-c.pend b{color:var(--mut2);font-weight:600}
+.fbc-sec{margin-top:8px}
+.fbc-sec-h{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1.2px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin-bottom:5px}
+.fbc-sec-h svg{width:14px;height:14px}
+.fbc-good{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px}
+.fbc-good li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.4}
+.fbc-good li svg{width:16px;height:16px;flex:none;color:var(--green);margin-top:2px}
+.fbc-good li b{font-weight:700}
+.fbc-none{font-size:13.5px;color:var(--mut);line-height:1.5;margin:0}
+/* the one thing to fix: the report's only accent-bordered block */
+.fbc-focus{margin-top:2px;padding:10px 12px 10px;border-radius:14px;border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 8%,transparent)}
+.fbc-focus.fixed{border-color:color-mix(in srgb,var(--green) 55%,transparent);background:color-mix(in srgb,var(--green) 8%,transparent)}
+.fbc-focus-w{font-size:24px;font-weight:800;letter-spacing:.2px;line-height:1.15;margin:0 0 4px;text-decoration:underline wavy var(--gold) 2px;text-underline-offset:5px}
+.fbc-focus.fixed .fbc-focus-w{text-decoration-color:var(--green)}
+.fbc-focus-why{font-size:13.5px;color:var(--mut);line-height:1.4;margin:0 0 8px}
+.fbc-focus-why b{color:var(--txt)}
+.fbc-focus-row{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 4px}
+.fbc-focus-row .fbc-focus-w{margin:0}
+.fbc-stress{display:inline-flex;align-items:baseline;gap:6px;font-size:12px;color:var(--mut2);margin:0}.fbc-stress b{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--acc2);letter-spacing:.3px}
+.fbc-focus .fbc-cta{width:100%;justify-content:center;min-height:42px;font-size:14.5px;border-radius:12px;border:1.5px solid var(--acc);background:transparent;color:var(--accent-text);font-weight:700;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit}
+.fbc-focus .fbc-cta svg{width:18px;height:18px}
+.fbc-focus .fbc-cta:hover{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+.fbc-focus .fbc-cta:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.fbc-focus .fbc-cta:disabled{opacity:.5;cursor:default}
+.fbc-focus .fbc-cta[hidden]{display:none}   /* the class rule would otherwise beat the attribute */
+/* the micro-practice: listen → say it → compare → again, inside the focus card */
+.fbc-fix{margin-top:12px;padding-top:12px;border-top:1px solid color-mix(in srgb,var(--acc) 30%,transparent)}
+.fbc-step{display:flex;gap:10px;align-items:flex-start;margin:0 0 10px}
+.fbc-step-n{flex:none;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--accent-text);font-weight:800;font-size:11.5px;display:inline-flex;align-items:center;justify-content:center;margin-top:9px}
+.fbc-step-b{flex:1;min-width:0}
+.fbc-step-b>small{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut2);font-weight:700;margin:0 0 4px;line-height:1.4}
+.fbc-fix .sv-ch-row{margin:0}
+.fbc-fix .sv-ch-rec .rec-btn{width:52px;height:52px}
+.fbc-fix-att{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.fbc-better{display:flex;align-items:center;gap:8px;margin:8px 0 10px;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green);font-weight:700;font-size:14px}
+.fbc-better svg{width:18px;height:18px;flex:none}
+.fbc-better span{font-weight:500;color:var(--txt);font-size:13px}
+.fbc-fix-acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+/* progress: one line, not a chart */
+.fbc-prog{display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;margin-top:12px;font-size:13px}
+.fbc-prog-seq{font-family:'JetBrains Mono',monospace;color:var(--acc2);font-size:14px}.fbc-prog-seq b{color:var(--txt)}
+.fbc-prog-d{font-weight:800;font-size:13px}.fbc-prog-d.up{color:var(--green)}.fbc-prog-d.down{color:var(--gold)}.fbc-prog-d.same,.fbc-prog-d.base{color:var(--mut)}
+/* next: one primary, two quiet options */
+.fbc-next{margin-top:8px}
+.fbc-next .btn-primary,.fbc-fix-acts .btn-primary{width:100%;justify-content:center;min-height:46px;font-size:15px}
+.fbc-next .btn-primary>svg,.fbc-fix-acts .btn-primary>svg{width:18px;height:18px;flex:none}
+.fbc-fix-acts .btn-primary{flex:1 1 100%}
+.fbc-next-row{display:flex;gap:8px;margin-top:8px}
+.fbc-next-row .btn{flex:1 1 0;min-width:0;justify-content:center;text-align:center;font-size:13px;padding:8px 6px}
+.fbc-next-row .btn>svg{width:16px;height:16px}
+/* vocabulary, secondary: three rows and a way to the rest */
+.fbc-voc{margin-top:16px}
+.fbc-voc .voc-row{margin-top:6px}
+.fbc-voc-acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.fbc-voc-acts .btn{min-height:40px}
+.fbc-more{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--accent-text);background:none;border:0;padding:8px 2px;cursor:pointer;font-family:inherit;min-height:40px}
+.fbc-more svg{width:14px;height:14px}
+/* the depth: every fold closed, opened by the learner */
+.fbc-details{margin-top:18px}
+.fbc-details>.fbc-sec-h{margin-bottom:2px}
+.fbc-details .fb-sec{margin-top:8px}
+.fbc-details .fb-sec .home-more-body>.fb-h:first-child{margin-top:8px}
+.fbc-pron-note{font-size:12px;color:var(--mut2);margin:0 0 8px;line-height:1.45}
 /* POSTURE COACH */
 .pc-wrap{display:none;position:relative;margin-top:14px;background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:12px}
 /* dismiss the whole panel — stopping the coach is not the same as closing it */
@@ -4813,10 +4909,10 @@ function areaDayLog(){return areaBucket("dayLogA")}
      clips  — a clip saved for shop-floor listening is not general-English work;
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
-const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA"};
+const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA",svPref:"svPrefA"};   // svPref: the Shadow card's Translate / Pronunciation switches ({tr,ipa}), General English only in practice — Welding never renders the card
 const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
 function aMap(f){return areaBucket(AREA_MAPS[f])}
-function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=areaId();return box[a]||(box[a]=[])}
+function aList(f,area){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area||areaId();return box[a]||(box[a]=[])}   /* area: name one explicitly when the write must land where the work STARTED (a Polish minute analysed after the learner switched programme) */
 /* Across every area at once. For questions about the ACCOUNT rather than about
    one programme — "is there enough work here to be worth backing up?" — where
    counting only the open area would nag someone who has plenty of work, just
@@ -5653,6 +5749,7 @@ const I18N_EN={
  "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
  "sv.challenge_note":"Listen and say it before you look.",
  "sv.sh_original":"Original transcript","sv.sh_fav":"Save to My clips","sv.sh_unfav":"Remove from My clips","sv.sh_unfav_toast":"Removed from My clips.","sv.sh_hint":"The clip loops on this paragraph. Tap a word to hear it, translate it, then record.","sv.sh_translate":"Translate","sv.sh_hear":"Hear it","sv.sh_speed":"Speed","sv.sh_record":"Record","sv.sh_stop":"Stop","sv.sh_replay":"Replay","sv.sh_tr_wait":"Translating…","sv.sh_tr_err":"Translation needs a connection. Try again in a moment.",
+ "sv.sh_ipa_btn":"Pronunciation","sv.sh_ipa_wait":"Loading pronunciation…","sv.sh_ipa_err":"Pronunciation needs a connection. Try again in a moment.","sv.sh_ipa_note":"Pronunciation in IPA (American English), written by AI — a guide, not a verdict.","sv.sh_tr_none":"Translation needs your native language. Choose it in Settings — the app is in English now.","sv.sh_tr_a11y":"Translation ({{lang}})","sv.sh_helpers":"Transcript helpers","sv.sh_busy":"Too many requests at once. Wait a few seconds and try again.","sh.report_fold":"Hide the report","sh.report_unfold":"Show the report",
  "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
  "sv.reveal":"Reveal","sv.hide":"Hide again",
  "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript","sv.tx_btn":"Transcript",
@@ -5924,6 +6021,7 @@ const I18N_EN={
  "pp.closed_rematch":"Your last session ended. You can find a new partner.",
  "pp.nohuman_sub":"Start AI practice while we look for your next human session. The coach is AI, never a person.",
  "pp.nohuman_h":"No partner available yet",
+ "pp.choose_h":"Choose how you want to practise",
  "pp.ai_choice_h":"Or practise with the AI coach",
  "pp.ai_choice_sub":"Your choice: a real learner, or the AI coach right now. The coach is AI, never a person.",
  "pp.keep_looking":"Keep looking",
@@ -6125,7 +6223,6 @@ const I18N_EN={
  "pp.more_eyebrow":"More options",
  "pp.more_ai_sub":"Same task, with the AI coach. {{name}} is not involved and this session stays open for when you come back.",
  "pp.more_leave_sub":"Ends today's session only. If you are practice partners, you stay partners.",
- "pp.ai_limit":"That is enough AI practice for today — twelve sessions. Your human partner and tomorrow's practice are waiting.",
  "pp.live_eyebrow":"Live practice — human partner",
  "pp.live_btn":"Practise live",
  "pp.live_with":"Live with {{name}}",
@@ -6179,8 +6276,6 @@ const I18N_EN={
  "pp.play":"Play",
  "pp.no_transcript":"(no transcript)",
  "pp.play_failed":"Couldn't play that turn. Check your connection.",
- "pp.limit_h":"That's your three turns for today",
- "pp.limit_sub":"Come back tomorrow for the next task, or listen to your partner's turns again. ({{max}} per day keeps this practice, not chat.)",
  "pp.week_over":"Your week with this partner is complete.",
  "pp.rec_h":"Your turn",
  "pp.rec_sub":"Up to 60 seconds. You will hear it back and see the coach's score before anything is sent.",
@@ -6196,7 +6291,10 @@ const I18N_EN={
  "pp.send_fine":"Sending shares this recording and its transcript with your partner only.",
  "pp.sent_toast":"Sent. Your partner will hear it when they open the app.",
  "pp.err_moderation":"Not sent: the transcript contains a phone number, link, e-mail or social handle. Contact details aren't allowed here — record again without them.",
- "pp.err_limit":"You've reached today's limit.",
+ /* safety actions only (reporting, blocking): those do keep a daily cap.
+    Practising is never rationed — a busy moment says pp.err_rate instead. */
+ "pp.err_limit":"That's as many reports and blocks as we can take from one account today. If you need help now, e-mail contact@lomonec.com.",
+ "pp.err_rate":"Too many requests just now. Please try again in a moment.",
  "pp.err_day":"A new day started — the task changed. Please record again.",
  "pp.err_nopair":"This pair has ended.",
  "pp.err_generic":"Something went wrong. Please try again.",
@@ -6885,6 +6983,55 @@ const I18N_EN={
  "fb.more_fixes":"Show {{n}} more words to practise",
  "fb.section_words":"Word by word",
  "fb.section_stats":"Pace, fillers and history",
+ "fb.c_done":"Shadow complete",
+ "fb.c_v_high":"Nice work — clear and consistent.",
+ "fb.c_v_good":"Good take — most of it landed.",
+ "fb.c_v_mid":"A solid start — let's fix one word.",
+ "fb.c_v_low":"Keep going — every rep rewrites the habit.",
+ "fb.c_sum_words":"Words clear",
+ "fb.c_sum_pace":"Pace",
+ "fb.c_na":"Not available",
+ "fb.c_good_h":"What you did well",
+ "fb.c_good_none":"You finished the take — that is the rep that counts. Strengths appear here as the words land.",
+ "fb.c_str_all":"Every word landed clearly.",
+ "fb.c_str_fixed":"“{{word}}” was on your trouble list — clear this time.",
+ "fb.c_str_clear1":"Clear pronunciation of “{{a}}”.",
+ "fb.c_str_clear2":"Clear pronunciation of “{{a}}” and “{{b}}”.",
+ "fb.c_str_pace":"Natural pace ({{wpm}} wpm).",
+ "fb.c_str_nofill":"No fillers — clean delivery.",
+ "fb.c_str_up":"+{{delta}} on your last attempt at this clip.",
+ "fb.c_str_gram":"{{cat}} — used correctly.",
+ "fb.c_focus_h":"Today's focus",
+ "fb.c_focus_lead_good":"Strong overall — this one word gives you the biggest gain.",
+ "fb.c_focus_lead_fair":"Most words landed — the biggest opportunity is this one.",
+ "fb.c_focus_lead_poor":"Start with the word that makes the biggest difference.",
+ "fb.c_focus_ai":"The listener heard it as unclear: {{note}}.",
+ "fb.c_focus_ai_plain":"The listener heard this word as unclear.",
+ "fb.c_focus_none":"Nothing to fix on this take. Try a harder clip, or the next paragraph.",
+ "fb.c_focus_noise":"No clear pronunciation issue — the words that slipped were short ones, which is usually noise, not you.",
+ "fb.c_practise":"Practise it",
+ "fb.c_practise_again":"Practise it again",
+ "fb.c_step_listen":"Listen",
+ "fb.c_step_say":"Say it",
+ "fb.c_step_compare":"Compare",
+ "fb.c_example":"Example",
+ "fb.c_you":"You",
+ "fb.c_better":"Better",
+ "fb.c_better_sub":"You improved this word.",
+ "fb.c_prog_clip":"This clip",
+ "fb.c_prog_recent":"Your recent shadow scores",
+ "fb.c_prog_up":"+{{delta}} from your previous attempt",
+ "fb.c_prog_down":"−{{delta}} from your previous attempt",
+ "fb.c_prog_same":"Same as your previous attempt",
+ "fb.c_again":"Shadow again",
+ "fb.c_next_vocab":"Practise vocabulary",
+ "fb.c_next_details":"See detailed feedback",
+ "fb.c_voc_h":"{{n}} useful words from this clip",
+ "fb.c_voc_more":"See {{n}} more",
+ "fb.c_details_h":"Details",
+ "fb.c_sec_vocab":"Vocabulary from this clip",
+ "fb.c_pron_sub_tx":"checked against the transcript of your take",
+ "fb.c_pron_norec":"No saved take for this report — record again to get the pronunciation pass.",
  "fb.disclaimer":"Speech recognition is an approximation — a “missed” word usually means unclear pronunciation, but background noise can also affect it. Grammar checks cover common patterns, not everything.",
  "fb.try_listening":"Listening… say “{{word}}”",
  "fb.try_sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
@@ -10109,10 +10256,11 @@ window.recToggle=async(ctx,label)=>{
       renderRecs(rec.ctx);
       streakPillSync();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
-      }finally{const f=rec.filed;rec.filed=null;if(f)f()}
+      }finally{const f=rec.filed;rec.filed=null;if(f)f();try{shv3RecSync()}catch(e){}}
     };
     rec.mr.start();
     btn.classList.add("recording");st.textContent=t("rec.recording_state");
+    try{shv3RecSync()}catch(e){}
     rec.h=setInterval(()=>{
       const s=Math.floor((Date.now()-rec.t0)/1000);
       const el=document.getElementById("recTime");
@@ -10446,7 +10594,10 @@ ${(()=>{
          only control left is the fallback for a clip you recorded earlier —
          re-analysing a stored take. */""}
     <div class="card" style="margin-top:16px">
-      <button class="btn btn-g btn-sm" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
+      <div class="fb-head">
+        <button class="btn btn-g btn-sm" onclick="fbFromRec()">${tIc("sh.analyze_last_btn","mic")}</button>
+        <button class="btn btn-g btn-sm sv-ic fb-fold" id="fbFold" onclick="fbFoldToggle()" aria-expanded="true" aria-controls="fbOut" aria-label="${esc(t("sh.report_fold"))}" title="${esc(t("sh.report_fold"))}" hidden>${ic("chevron")}</button>
+      </div>
       <div id="fbOut" style="margin-top:6px"></div>
     </div>
   </div>
@@ -10584,6 +10735,19 @@ function shv3BarHTML(){
   <button class="shv3-b" onclick="shv3More()" aria-label="${esc(t("sh.more_label"))}" title="${esc(t("sh.more_label"))}">${ic("more")}</button>`;
 }
 function rec_live(){try{return rec&&rec.mr&&rec.mr.state==="recording"}catch(e){return false}}
+/* The Shadow button turns red the moment the recorder is actually running and
+   back the moment it stops — on the recorder's own word (recToggle), and on a
+   300 ms tick from svShBarSync in case a stop came from anywhere else. A
+   one-off redraw 120 ms after the tap used to run before getUserMedia had
+   answered, so the button stayed blue through the whole take. */
+function shv3RecSync(){
+  const b=document.querySelector("#shv3Bar .shv3-rec");if(!b)return;
+  const live=rec_live();
+  b.classList.toggle("on",live);b.setAttribute("aria-pressed",String(live));
+  const lbl=live?t("sv.sh_stop"):t("sv.mode_shadow");
+  const s=b.querySelector("span");if(s&&s.textContent!==lbl)s.textContent=lbl;
+  b.setAttribute("aria-label",lbl);
+}
 function shv3Sync(){
   const w=document.getElementById("shWork");if(!w)return;
   if(!shWorkV3()){delete w.dataset.v3;const b=document.getElementById("shv3Bar");if(b)b.remove();return}
@@ -10759,6 +10923,21 @@ function shLibCatLabel(c){const k="sh.cat_"+c.id;return I18N_EN[k]?t(k):c.label}
    the catalogue names one; the rest are the opening video of each other
    category, so the three slides are never all from one channel. */
 const SHL_HERO_N=3, SHL_HERO_MS=4500;
+/* The slides are the first thing on the Shadow page, and they were soft: the
+   card is about 1,070 device pixels wide on a phone and hqdefault is 480×360,
+   so the browser was scaling it up more than twice. maxresdefault is
+   1280×720 — the largest thumbnail YouTube publishes, more than the card can
+   show, so the slide is as sharp as the screen (owner, 23 Sep 2026). A few
+   videos have no such file (2 of the 301 in the catalogue that day): YouTube
+   then answers 404 with a 120×90 grey placeholder that browsers still render,
+   so the load handler checks the size and falls back to hqdefault, once. The
+   first slide loads eagerly at high priority — it is above the fold; the
+   others stay lazy. */
+function shlHeroImg(img,failed){
+  if(img.dataset.fb)return;
+  if(!failed&&img.naturalWidth>120)return;
+  img.dataset.fb="1";img.src=img.src.replace("/maxresdefault.jpg","/hqdefault.jpg");
+}
 function shLibHeroes(){
   const c=_shCat;if(!c)return [];
   const w=(currentPos()||{}).w||1,h=c.hero||{};
@@ -10888,7 +11067,7 @@ function shLibHTML(){
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
-      <button class="shl-hero" onclick="shLibOpen('${h.vid}')" aria-hidden="${i!==0}" aria-label="${esc(c.videos[h.vid].title)}"><img src="https://i.ytimg.com/vi/${h.vid}/hqdefault.jpg" alt="" loading="lazy" decoding="async" width="480" height="360"><span class="shl-hero-tag">${t("sh.lib_fits_plan")}</span><span class="shl-play">${ic("play")}</span><span class="shl-hero-cap">${esc(c.videos[h.vid].title)}</span></button>`).join("")}</div>
+      <button class="shl-hero" onclick="shLibOpen('${h.vid}')" aria-hidden="${i!==0}" aria-label="${esc(c.videos[h.vid].title)}"><img src="https://i.ytimg.com/vi/${h.vid}/maxresdefault.jpg" alt="" loading="${i?"lazy":"eager"}"${i?"":' fetchpriority="high"'} decoding="async" width="1280" height="720" onload="shlHeroImg(this)" onerror="shlHeroImg(this,1)"><span class="shl-hero-tag">${t("sh.lib_fits_plan")}</span><span class="shl-play">${ic("play")}</span><span class="shl-hero-cap">${esc(c.videos[h.vid].title)}</span></button>`).join("")}</div>
     ${heroes.length>1?`<div class="shl-dots" id="shlHeroDots" role="tablist" aria-label="${esc(t("sh.lib_week_pick",{n:heroes[0].w}))}">${heroes.map((h,i)=>`<button class="shl-dot ${i===0?"on":""}" role="tab" aria-selected="${i===0}" onclick="shlHeroDot(${i})" aria-label="${i+1}"></button>`).join("")}</div>`:""}
   </div></div>`:""}
 
@@ -12905,15 +13084,33 @@ async function shFBDone(){
     target=tEl?tEl.value.trim():"";
   }
   fbShowResults(target,heard,"new");
+  try{fbFoldSync(true)}catch(e){}
   toast(t("sh.fb_generated_toast"));
-  const out=document.getElementById("fbOut");if(out)out.scrollIntoView({behavior:"smooth",block:"center"});
+  /* Land on the report's first screen — under the pinned player in the
+     studio, at the top of the card elsewhere — not on its middle. */
+  const out=document.getElementById("fbOut");
+  if(out){if(document.body.classList.contains("sh-work-open")&&typeof svChReveal==="function")svChReveal(out);else out.scrollIntoView({behavior:"smooth",block:"start"})}
 }
+/* The report under "Analyze my last shadowing recording" can be folded away
+   (owner, 23 Sep 2026): the chevron appears once there is a report, hides the
+   report body and remembers nothing — a NEW report always opens. */
+let _fbFold=false;
+function fbFoldSync(fresh){
+  const b=document.getElementById("fbFold"),out=document.getElementById("fbOut");if(!b||!out)return;
+  if(fresh)_fbFold=false;
+  const has=!!out.innerHTML.trim();
+  b.hidden=!has;out.hidden=has&&_fbFold;
+  b.setAttribute("aria-expanded",String(!_fbFold));
+  const l=t(_fbFold?"sh.report_unfold":"sh.report_fold");b.setAttribute("aria-label",l);b.title=l;
+}
+window.fbFoldToggle=()=>{_fbFold=!_fbFold;fbFoldSync()};
 window.fbFromRec=()=>{
   const heard=S.notes["shheard:"+shClip.vid];
   if(!heard)return toast(t("sh.no_shadow_rec_toast"));
   fbCtx={vid:shClip.vid,recCtx:shRecCtx(shClip.vid)};
   fbT0=Date.now()-(S.notes["shheardDur:"+shClip.vid]||30000);
   fbShowResults(document.getElementById("shNote").value.trim(),heard,true);
+  try{fbFoldSync(true)}catch(e){}
   toast(t("sh.fb_from_last_toast"));
 };
 window.sessAnalyze=key=>{
@@ -13373,6 +13570,254 @@ window.fbAgain=()=>{
   b.scrollIntoView({behavior:still?"auto":"smooth",block:"center"});
   setTimeout(()=>{try{b.focus()}catch(e){}},still?0:340);
 };
+/* ===== POST-SHADOW COACH REPORT (2026-09-23) — the helpers =====
+   fbShowResults used to open as an analytics dashboard: the score, the AI
+   coach, every missed word with four buttons each, the chips, pace, grammar
+   and ten vocabulary rows in one scroll. Learners read the number and left.
+   The report is now three levels on the same data:
+     1  COACH    — how did I do, what went well, the ONE word to fix, what next
+     2  PRACTICE — that word: listen → say it → compare → again, in place
+     3  DETAILS  — everything the report had, one fold each, closed by default
+   Nothing here scores anything new. The alignment (fbAlign), the pronunciation
+   pass (fbAssess), the grammar rules (gramAnalyze), the vocabulary extractor
+   and the histories are the same functions; this block only chooses what to
+   put first. Every read is area-scoped through troubleMap() / areaFbHist() /
+   aList(); every write was already there. */
+const FB_BAND=s=>s>=80?"good":s>=55?"fair":"poor";
+let fbFix=null;                    /* the micro-practice open right now — one at a time */
+let _fbRep=null;                   /* what the last report was built from, for the practice panel */
+/* Words worth a learner's attention: long enough to be a real pronunciation
+   problem rather than alignment noise, not a function word, not a filler —
+   the same test the trouble list applies. */
+function fbRealWord(w){w=String(w||"").toLowerCase();return w.length>=4&&!isTrackStopWord(w)&&!FILLERS.includes(w)}
+/* The ONE word to fix. Not simply the lowest score: the best use of the next
+   two minutes. Severity (a word not caught at all above a near-miss), the
+   confidence of the evidence (a substitution that still resembles the target
+   is a real mispronunciation; a word the recogniser dropped outright may be
+   noise), recurrence (on the trouble list from earlier takes) and learning
+   value (a stress-pattern word, a curriculum word, a longer word). Deterministic:
+   the same take always names the same word, so a retry can be compared. */
+function fbFocusPick(problems,prior){
+  const tb=prior||{},cefr=trackCefrMap();
+  const cands=(problems||[]).filter(o=>fbRealWord(o.t));
+  if(!cands.length)return null;
+  const val=o=>{
+    const w=String(o.t).toLowerCase();
+    const sim=o.op==="sub"?wsim(w,String(o.h||"").toLowerCase()):0;
+    const severity=o.op==="sub"?(100-sim)/100:0.9;
+    const confidence=o.op==="sub"?(sim>=35?1:0.75):0.6;
+    const recurrence=Math.min(3,tb[w]||0)/3;              /* earlier takes only: the caller passes the list as it stood */
+    const learn=(STRESS_MAP[w]?0.5:0)+(cefr[w]?0.5:0)+Math.min(1,(w.length-3)/6)*0.5;
+    return severity*confidence*1.6+recurrence+learn*0.8;
+  };
+  return cands.map(o=>({o,v:val(o)})).sort((a,b)=>b.v-a.v||a.o.i-b.o.i)[0].o;
+}
+/* Two or three things that went well — each one a fact from this take. When
+   the take gives no such fact the list says so rather than inventing one. */
+function fbStrengths(x){
+  const out=[],tb=x.prior||{};
+  if(x.hasTarget){
+    /* a word that also went wrong somewhere in this take is not "clear" */
+    const bad=new Set((x.problems||[]).map(o=>String(o.t).toLowerCase()));
+    const okW=[...new Set(x.ops.filter(o=>o.op==="ok").map(o=>String(o.t).toLowerCase()).filter(w=>w.length>=5&&!isTrackStopWord(w)&&!bad.has(w)))];
+    if(x.total>0&&x.okN===x.total)out.push({k:"fb.c_str_all"});
+    else{
+      const was=okW.filter(w=>tb[w]);                                   /* on the trouble list from an earlier take, clear this time */
+      if(was.length)out.push({k:"fb.c_str_fixed",v:{word:esc(was[0])}});
+      const clear=okW.filter(w=>!tb[w]).sort((a,b)=>b.length-a.length).slice(0,2);
+      if(clear.length)out.push({k:clear.length>1?"fb.c_str_clear2":"fb.c_str_clear1",v:{a:esc(clear[0]),b:esc(clear[1]||"")}});
+    }
+  }
+  if(x.n>=6&&x.wpm>=95&&x.wpm<=185)out.push({k:"fb.c_str_pace",v:{wpm:x.wpm}});
+  if(x.n>=8&&x.fillerN===0)out.push({k:"fb.c_str_nofill"});
+  if(x.delta!=null&&x.delta>0)out.push({k:"fb.c_str_up",v:{delta:x.delta}});
+  if(x.gram&&x.gram.good&&x.gram.good[0])out.push({k:"fb.c_str_gram",v:{cat:esc(x.gram.good[0].cat)}});
+  return out.slice(0,3);
+}
+function fbVerdictKey(score){return score>=85?"fb.c_v_high":score>=70?"fb.c_v_good":score>=50?"fb.c_v_mid":"fb.c_v_low"}
+function fbSumCell(id,lbl,val,cls){return `<div class="fbc-sum-c${cls?" "+cls:""}"${id?` id="${id}"`:""} role="listitem"><small>${lbl}</small><b>${val}</b></div>`}
+/* the progress line: this clip's attempts when it has been repeated, else the
+   area's recent scored takes — one line of numbers, the chart stays in Details */
+function fbProgHTML(x){
+  if(!x.hasTarget)return "";
+  let seq=[],d="",lbl="";
+  if(x.attempts.length){seq=x.attempts.slice(-5);lbl=t("fb.c_prog_clip")}
+  else{seq=x.scored.slice(-5).map(h=>h.score);lbl=t("fb.c_prog_recent")}
+  if(x.attempts.length===1)d=`<span class="fbc-prog-d base">${t("fb.attempt_baseline")}</span>`;
+  else if(x.delta!=null)d=`<span class="fbc-prog-d ${x.delta>0?"up":x.delta<0?"down":"same"}">${x.delta>0?t("fb.c_prog_up",{delta:x.delta}):x.delta<0?t("fb.c_prog_down",{delta:Math.abs(x.delta)}):t("fb.c_prog_same")}</span>`;
+  else if(seq.length>=2){const tr=seq[seq.length-1]-seq[seq.length-2];d=`<span class="fbc-prog-d ${tr>0?"up":tr<0?"down":"same"}">${tr>0?t("fb.c_prog_up",{delta:tr}):tr<0?t("fb.c_prog_down",{delta:Math.abs(tr)}):t("fb.c_prog_same")}</span>`}
+  if(seq.length<2&&!d)return "";
+  const s=seq.map((v,i)=>i===seq.length-1?`<b>${v}%</b>`:v+"%").join(" → ");
+  return `<div class="fbc-prog"><span class="fbc-prog-l">${lbl}</span><span class="fbc-prog-seq">${s}</span>${d}</div>`;
+}
+function fbFoldHTML(kind,icon,label,body,open){
+  return `<details class="home-more fb-sec" data-kind="${kind}" ${open?"open":""} ontoggle="fbSecToggle(this)">
+    <summary><span class="btn-ic">${ic(icon)}</span>${label}<span class="hm-chev">${ic("chevron")}</span></summary>
+    <div class="home-more-body">${body}</div></details>`;
+}
+window.fbSecToggle=el=>{if(el&&el.open&&!el.dataset.seen){el.dataset.seen="1";try{track("shadow_details_opened",{kind:el.dataset.kind||"one"})}catch(e){}}};
+/* the two quiet options under the primary action */
+window.fbDetailsGo=(btn,kind)=>{
+  const root=btn&&btn.closest?btn.closest(".fbc"):null;if(!root)return;
+  const d=(kind&&root.querySelector(`.fb-sec[data-kind="${kind}"]`))||root.querySelector(".fb-sec");
+  if(!d)return;d.open=true;
+  d.scrollIntoView({behavior:window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+};
+window.fbVocGo=btn=>{
+  const root=btn&&btn.closest?btn.closest(".fbc"):null;if(!root)return;
+  const v=root.querySelector(".fbc-voc");
+  if(v)v.scrollIntoView({behavior:"smooth",block:"start"});else fbDetailsGo(btn,"vocab");
+};
+window.fbVocSaveAll=list=>{vocSaveAll(list);try{track("shadow_vocab_saved",{kind:"all"})}catch(e){}};
+/* "Shadow again" — the report's one primary action. In Shadow Studio V2 the
+   clip restarts from the top of the paragraph and the microphone opens, so the
+   next take is one tap away from the verdict; on the classic workspace, the
+   Session page and a Welding workplace line it brings the record button back
+   into view, which is what the retry affordance already was. */
+window.fbShadowAgain=btn=>{
+  try{track("shadow_again_clicked")}catch(e){}
+  fbStopAudio();if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}
+  const slot=btn&&btn.closest?btn.closest("[id^='shfbx-']"):null;
+  if(slot){const b=document.getElementById("shr-"+slot.id.slice(6));if(b){b.scrollIntoView({behavior:"smooth",block:"center"});setTimeout(()=>{try{b.focus()}catch(e){}},300);return}}
+  const bar=document.getElementById("svShBar");
+  if(bar&&!bar.hidden&&typeof svShReplay==="function"&&shClip&&shClip.vid){
+    const body=document.querySelector(".sh-work-body");if(body){try{body.scrollTo({top:0,behavior:"smooth"})}catch(e){body.scrollTop=0}}
+    try{svShReplay()}catch(e){}
+    if(!(rec.mr&&rec.mr.state==="recording")){try{shRec()}catch(e){}}
+    const b=document.getElementById("svShRec");if(b){try{b.focus({preventScroll:true})}catch(e){}}
+    return;
+  }
+  fbAgain();
+};
+/* ---- LEVEL 2: the micro-practice on the focus word ----
+   Listen (model voice, slow, your own word from the take) → say it (a real
+   take, filed under a track-scoped context like every recording) → compare
+   (graded by the same pronunciation pass and transcript the Challenge drills
+   use, through ShadowSync.drillState) → again. A clear attempt marks the word
+   improved, takes one count off the trouble list, and offers "Shadow again". */
+window.fbFixOpen=btn=>{
+  const card=btn&&btn.closest?btn.closest(".fbc-focus"):null;if(!card)return;
+  let o={};try{o=JSON.parse(card.dataset.fix||"{}")}catch(e){}
+  if(!o.t)return;
+  if(fbFix)fbFixClose();
+  const rootEl=card.closest(".fbc");
+  const R=(rootEl&&rootEl._fbRep)||_fbRep||{};
+  if(R.recCtx)fbCtx={vid:R.vid,recCtx:R.recCtx};          /* "You" and the take belong to THIS report's recording */
+  const word=String(o.t).toLowerCase();
+  fbFix={word,i:o.i,op:o.op||"miss",h:o.h||"",hIdx:o.hIdx||0,note:o.note||"",hF:R.hF||[],fromRec:!!R.fromRec,card,phase:"ready",attempts:[],err:null,improved:false,blob:null,
+    ctx:recCtx("shadow-fix-"+String(R.vid||"x").replace(/[^A-Za-z0-9_-]/g,"").slice(0,40)+"-"+word.replace(/[^a-z0-9]/g,"")),label:("Word — "+word).slice(0,60)};
+  const cta=card.querySelector(".fbc-cta");if(cta)cta.hidden=true;
+  fbFixDraw();
+  try{track("shadow_focus_practiced")}catch(e){}
+  const el=card.querySelector("#fbFix");if(el)el.scrollIntoView({behavior:"smooth",block:"nearest"});
+};
+function fbFixHTML(d){
+  const busy=d.phase==="grading";
+  const err=d.err==="mic"?t("sv.ch_err_mic"):d.err==="short"?t("sv.ch_err_short"):d.err==="net"?t("sv.ch_err_net"):d.err==="ai"?t("sv.ch_err_ai"):"";
+  const you=d.op==="sub"&&d.fromRec&&d.hF.length?`<button class="sv-ch-play" onclick="fbYou(${fbWordFrac(d.hF,d.hIdx).join(",")},${d.hIdx},${d.hF.length},${jarg(d.h||"")})">${ic("mic")}<span>${t("fb.c_you")}</span></button>`:"";
+  const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="fbFixPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
+  const last=d.attempts[d.attempts.length-1];
+  const state=d.phase==="recording"?t("sv.ch_drill_hint"):busy?t("sv.ch_drill_grading"):err||(last&&last.note?esc(last.note):"");
+  return `<div class="fbc-fix" id="fbFix">
+    <div class="fbc-step"><span class="fbc-step-n">1</span><div class="fbc-step-b"><small>${t("fb.c_step_listen")}</small>
+      <div class="sv-ch-row tight"><button class="sv-ch-play" onclick="fbFixSay(1)">${ic("sound")}<span>${t("fb.c_example")}</span></button><button class="sv-ch-play" onclick="fbFixSay(0.55)">${ic("gauge")}<span>${t("sv.ch_btn_slow")}</span></button>${you}</div></div></div>
+    <div class="fbc-step"><span class="fbc-step-n">2</span><div class="fbc-step-b"><small>${t("fb.c_step_say")}</small>
+      <div class="sv-ch-row"><span class="sv-ch-rec"><button class="rec-btn ${d.phase==="recording"?"on":""}" id="fbFixRecBtn" onclick="fbFixRecord()" ${busy?"disabled":""} aria-pressed="${d.phase==="recording"}" aria-label="${esc(t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec")}</span></span></div>
+      <p class="sv-ch-state ${err?"err":""}" aria-live="polite">${state}</p></div></div>
+    ${d.attempts.length?`<div class="fbc-step"><span class="fbc-step-n">3</span><div class="fbc-step-b"><small>${t("fb.c_step_compare")}</small><div class="fbc-fix-att">${att}</div></div></div>`:""}
+    ${d.improved?`<div class="fbc-better">${ic("check")}${t("fb.c_better")}<span>${t("fb.c_better_sub")}</span></div>
+      <div class="fbc-fix-acts"><button class="btn-primary" onclick="fbShadowAgain(this)">${ic("mic")} ${t("fb.c_again")}</button><button class="btn btn-g" onclick="fbFixClose()">${t("sv.ch_drill_done")}</button></div>`
+    :`<div class="fbc-fix-acts"><button class="btn btn-g" onclick="fbFixClose()">${t("sv.ch_drill_done")}</button></div>`}
+  </div>`;
+}
+function fbFixDraw(){
+  const d=fbFix;if(!d||!d.card||!d.card.isConnected){fbFix=null;return}
+  const el=d.card.querySelector("#fbFix"),html=fbFixHTML(d);
+  if(el)el.outerHTML=html;else d.card.insertAdjacentHTML("beforeend",html);
+  manIconizeInline(d.card);
+}
+window.fbFixSay=rate=>{const d=fbFix;if(!d)return;if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}fbStopAudio();fbSay(d.word,rate)};
+window.fbFixPlay=async i=>{const a=fbFix&&fbFix.attempts[i];if(!a)return;fbStopAudio();await svChPlayBlob(a.blob)};
+window.fbFixClose=()=>{
+  const d=fbFix;if(!d)return;
+  if(rec.mr&&rec.mr.state==="recording"&&rec.ctx===d.ctx){try{rec.mr.stop()}catch(e){}}
+  fbFix=null;
+  if(!d.card||!d.card.isConnected)return;
+  const el=d.card.querySelector("#fbFix");if(el)el.remove();
+  const cta=d.card.querySelector(".fbc-cta");
+  if(cta){cta.hidden=false;if(d.improved){cta.innerHTML=`${ic("repeat")} ${t("fb.c_practise_again")}`;manIconizeInline(cta)}}
+};
+window.fbFixRecord=async()=>{
+  const d=fbFix;if(!d)return;
+  if(d.phase==="grading")return;
+  if(d.phase==="recording"){phRecInto(d.ctx,d.label,null);return}          /* tap again: stop */
+  if(rec.mr&&rec.mr.state==="recording")return;                             /* another recorder (the take) is live */
+  if(fbAud){try{fbAud.pause()}catch(e){}fbAud=null}fbStopAudio();
+  try{if(ytPlayer&&ytPlayer.pauseVideo)ytPlayer.pauseVideo()}catch(e){}
+  d.phase="recording";d.err=null;d.blob=null;fbFixDraw();
+  await phRecInto(d.ctx,d.label,null,null,blob=>{if(fbFix===d){if(d.shortT){clearTimeout(d.shortT);d.shortT=null}d.blob=blob;fbFixGrade(d,blob)}});
+  if(!(rec.mr&&rec.mr.state==="recording")){d.phase="ready";d.err="mic";fbFixDraw();return}
+  fbFixDraw();
+  /* A take under the size floor is discarded by the recorder and never reaches
+     onBlob, so "too short" is inferred from silence after the stop. The grace
+     is generous: the recorder writes the take and saves the state first, and
+     a slow phone must not be told its take was short while it is still being
+     filed — onBlob cancels the timer. */
+  const iv=setInterval(()=>{if(fbFix!==d||d.phase!=="recording"){clearInterval(iv);return}
+    if(!(rec.mr&&rec.mr.state==="recording")){clearInterval(iv);d.shortT=setTimeout(()=>{d.shortT=null;if(fbFix===d&&d.phase==="recording"){d.phase="ready";d.err="short";fbFixDraw()}},3000)}},250);
+};
+async function fbFixGrade(d,blob){
+  if(fbFix!==d)return;
+  if(d.shortT){clearTimeout(d.shortT);d.shortT=null}
+  d.phase="grading";d.err=null;fbFixDraw();
+  if(!POLISH_API||!navigator.onLine){d.phase="ready";d.err="net";fbFixDraw();return}
+  try{
+    const res=await Promise.race([Promise.all([fbAssess(blob,d.word).catch(()=>null),fbWords(blob).catch(()=>null)]),new Promise(r=>setTimeout(()=>r("timeout"),20000))]);
+    if(res==="timeout")throw new Error("timeout");
+    const [assess,words]=res;
+    const heard=words?words.map(w=>w.w).join(" "):await fbTranscribe(blob).catch(()=>"");
+    if(!assess&&!heard){d.phase="ready";d.err=navigator.onLine?"ai":"net";fbFixDraw();return}
+    const st=ShadowSync.drillState(assess,heard,d.word);
+    d.attempts.push({state:st.state,score:st.score,mode:st.mode,heard:st.heard,note:st.note,blob});
+    const pass=st.state==="strong"||st.state==="good";
+    if(pass&&!d.improved){
+      d.improved=true;d.card.classList.add("fixed");
+      const tb=troubleMap();if(tb[d.word]){tb[d.word]--;if(tb[d.word]<=0)delete tb[d.word]}
+      /* the same word's card in the full list, if the fold is open later */
+      if(d.i!=null){const it=document.getElementById("fbi"+d.i);if(it)it.classList.add("fixed");const p=document.getElementById("fbp"+d.i);if(p)p.textContent=(st.score!=null?st.score:100)+"%"}
+      save();try{tbRender()}catch(e){}
+    }
+    try{track("shadow_micro_completed",{result:pass?"pass":"retry"})}catch(e){}
+    d.phase="ready";
+  }catch(e){d.phase="ready";d.err=navigator.onLine?"ai":"net"}
+  if(fbFix===d)fbFixDraw();
+}
+/* the pronunciation cell of the summary strip, filled when the AI pass lands.
+   A percentage only when an audio model listened (mode "ai"); the transcript
+   cross-check (mode "whisper") is coarse, so it shows a state and says
+   "approx." rather than a number it cannot back. */
+function fbPronSum(root,res){
+  const c=root&&root.querySelector?root.querySelector("#fbSumPron"):null;if(!c)return;
+  const b=c.querySelector("b");
+  if(!res){c.classList.add("pend");if(b)b.textContent=t("fb.c_na");c.title=t("sv.ch_pron_na");return}
+  c.classList.remove("pend");
+  const col=res.overall>=80?"var(--green)":res.overall>=55?"var(--gold)":"var(--red)";
+  if(res.mode==="ai"){if(b){b.textContent=res.overall+"%";b.style.color=col}c.title=t("fb.pron_sub")}
+  else{const st=res.overall>=80?"strong":res.overall>=55?"good":"practice";if(b){b.innerHTML=esc(t("sv.ch_st_"+st))+"<i>"+esc(t("sv.ch_approx"))+"</i>";b.style.color=col}c.title=t("sv.ch_pron_na")}
+  /* a take the transcript could not fault may still carry a word the listener
+     heard as weak: only then does the AI name the focus */
+  const f=root.querySelector(".fbc-focus.empty");
+  if(f&&res.mode==="ai"){
+    const bad=(res.words||[]).filter(w=>w.score<80&&fbRealWord(w.word)).sort((a,b)=>a.score-b.score)[0];
+    if(bad){const w=String(bad.word).toLowerCase();
+      f.classList.remove("empty");f.dataset.fix=esc(JSON.stringify({t:w,op:"ai",note:bad.note||""}));
+      f.innerHTML=`<div class="fbc-sec-h">${ic("target")} ${t("fb.c_focus_h")}</div>
+        <div class="fbc-focus-row"><div class="fbc-focus-w">${esc(w)}</div>${STRESS_MAP[w]?`<p class="fbc-stress"><span>${t("sv.ch_stress_h")}</span><b>${esc(STRESS_MAP[w])}</b></p>`:""}</div>
+        <p class="fbc-focus-why">${t("fb.c_focus_lead_good")} ${bad.note?t("fb.c_focus_ai",{note:esc(bad.note)}):t("fb.c_focus_ai_plain")}</p>
+        <button class="fbc-cta" onclick="fbFixOpen(this)">${ic("mic")} ${t("fb.c_practise")}</button>`;
+      manIconizeInline(f);}
+  }
+}
 /* outId lets a caller render this panel somewhere other than the one shared
    #fbOut — the workplace lines each have their own slot and there can be several
    on screen at once. Defaults to the original element, so every existing caller
@@ -13403,7 +13848,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
   /* the studio's own Shadow report joins its History (a Challenge keeps its own shape there) */
   if(fromRec&&!outId&&shClip&&shClip.vid&&fbCtx.vid===shClip.vid)try{shHistShadowPut({text:targetText,heard:heardText,score:hasTarget?score:null,wpm,fillers:fillerN,fix:fbFixWords(problems).slice(0,6)})}catch(e){}
   /* collect only meaningful words — short/common words are usually alignment noise, not pronunciation problems */
-  const _tb=troubleMap();
+  const _tb=troubleMap(),_tbPrior=Object.assign({},_tb);   /* the list as it stood before this take — what "recurring" and "was on your list" mean */
   problems.forEach(o=>{if(o.t.length>=4&&!isTrackStopWord(o.t))_tb[o.t]=(_tb[o.t]||0)+1});
   const scored=areaFbHist().filter(x=>x.score!=null);
   const hist=scored.slice(-5).map(x=>x.score+"%").join(" → ")||"—";
@@ -13416,70 +13861,78 @@ function fbShowResults(targetText,heardText,fromRec,outId){
     attempts.push(score);if(attempts.length>20)S.fbV[fbCtx.vid]=attempts=attempts.slice(-20);
     try{shTrendRender()}catch(e){}   // keep the Shadowing panel's trend in step
   }else if(hasTarget&&fbCtx.vid){attempts=S.fbV[fbCtx.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
-  out.innerHTML=`
-  <div class="hr"></div>
-  ${hasTarget?`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-    <span class="fb-score-ring" style="color:${col}">${score}%</span>
-    <div style="flex:1;min-width:200px">
-      <b style="font-size:14px">${score>=80?t("fb.verdict_excellent"):score>=55?t("fb.verdict_good"):t("fb.verdict_keepgoing")}</b>
-      <p style="font-size:12.5px;color:var(--mut)">${t("fb.words_recognized",{ok:okN,total:ops.filter(o=>o.op!=="extra").length})}</p>
-    </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},0.9)">${t("fb.hear_whole_text")}</button>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(targetText).replace(/[‿/]/g," "))},0.62)">${tIc("fb.slow_btn","gauge")}</button>
-  </div>`
-  :`<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-    <div style="flex:1;min-width:220px">
-      <b style="font-size:14px">${t("fb.norec_title")}</b>
-      <p style="font-size:12.5px;color:var(--mut)">${t("fb.norec_desc")}</p>
-    </div>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},0.9)">${t("fb.hear_correctly")}</button>
-    <button class="btn btn-g btn-sm" onclick="fbSay(${jarg(String(heardText))},0.62)">${tIc("fb.slow_btn","gauge")}</button>
-  </div>`}
-  ${attempts.length?`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;background:var(--card2);border:1px solid var(--line2);border-radius:12px;padding:10px 16px">
-    <span style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)">${t("fb.attempt_label",{n:attempts.length})}</span>
-    <span style="font-family:'JetBrains Mono',monospace;font-size:13.5px;color:var(--acc2)">${attempts.map((s,i)=>(i===attempts.length-1?"<b style='color:var(--txt)'>"+s+"%</b>":s+"%")).join(" → ")}</span>
-    ${delta!==null?`<span style="font-weight:800;font-size:13.5px;color:${delta>0?"var(--green)":delta<0?"var(--red)":"var(--mut)"}">${delta>0?t("fb.attempt_up",{delta}):delta<0?t("fb.attempt_down",{delta}):t("fb.attempt_same")}</span>`
-    :`<span style="font-size:13px;color:var(--mut)">${t("fb.attempt_baseline")}</span>`}
-  </div>`:""}
-  ${hasTarget&&fromRec?`<div id="fbPron"></div>`:""}
-  ${document.getElementById("recBtn")?`<button class="btn-outline fb-again" onclick="fbAgain()">${t("fb.again_btn")}</button>`:""}
-  ${!hasTarget?"":problems.length?`<h3 class="fb-h">${t("fb.practice_pron")}</h3>`
-    +fbRanked(problems).slice(0,FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")
-    +(fbRanked(problems).length>FB_TOP_FIXES?`<details class="home-more fb-more">
-        <summary><span class="btn-ic">${ic("mic")}</span>${t("fb.more_fixes",{n:fbRanked(problems).length-FB_TOP_FIXES})}<span class="hm-chev">${ic("chevron")}</span></summary>
-        <div class="home-more-body">${fbRanked(problems).slice(FB_TOP_FIXES).map(o=>fbFixCard(o,fromRec,hF)).join("")}</div>
-      </details>`:"")
+  /* ---------- LEVEL 1: the coach ----------
+     Everything below is drawn from values this function already computed;
+     the helpers (fbStrengths, fbFocusPick, fbProgHTML …) only choose what
+     comes first. The detailed sections follow, one fold each, closed. */
+  const gram=gramAnalyze(heardText);
+  const vl=vocabExtract(heardText+" "+targetText);
+  const total=ops.filter(o=>o.op!=="extra").length;
+  const focus=hasTarget?fbFocusPick(problems,_tbPrior):null;
+  const strengths=fbStrengths({hasTarget,ops,problems,okN,total,n:h.length,wpm,fillerN,delta,gram,prior:_tbPrior});
+  const band=hasTarget?FB_BAND(score):null;
+  _fbRep={hF,fromRec:!!fromRec,vid:fbCtx.vid,recCtx:fbCtx.recCtx,outId:outId||"fbOut"};
+  const _rep=_fbRep;
+  if(fbFix)fbFixClose();
+  const plain=k=>t(k).replace(/^[\p{Extended_Pictographic}️‍\s]+/u,"");
+  const say=(txt,rate)=>`fbSay(${jarg(String(txt).replace(/[‿/]/g," "))},${rate})`;
+  const fw=focus?String(focus.t).toLowerCase():"";
+  /* the two ways to hear the model sit on the eyebrow row: no row of their own on a phone */
+  const listenHTML=`<span class="fbc-listen"><button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.9):say(heardText,0.9)}" aria-label="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}" title="${esc(plain(hasTarget?"fb.hear_whole_text":"fb.hear_correctly"))}">${ic("sound")}</button><button class="sv-ch-play" onclick="${hasTarget?say(targetText,0.62):say(heardText,0.62)}" aria-label="${esc(plain("fb.slow_btn"))}" title="${esc(plain("fb.slow_btn"))}">${ic("gauge")}</button></span>`;
+  const headHTML=hasTarget?`<div class="fbc-eyebrow">${ic("check")}<span>${t("fb.c_done")}</span>${attempts.length?`<span class="fbc-att">· ${t("fb.attempt_label",{n:attempts.length})}</span>`:""}${listenHTML}</div>
+    <div class="fbc-head"><span class="fbc-score" style="color:${col}">${score}%</span>
+      <div class="fbc-head-t"><p class="fbc-verdict">${t(fbVerdictKey(score))}</p></div></div>`
+  :`<div class="fbc-eyebrow">${ic("check")}<span>${t("fb.c_done")}</span>${listenHTML}</div>
+    <div class="fbc-head"><div class="fbc-head-t"><p class="fbc-verdict">${plain("fb.norec_title")}</p><p class="fbc-sub">${t("fb.norec_desc")}</p></div></div>`;
+  const sumHTML=`<div class="fbc-sum" role="list">
+    ${hasTarget?fbSumCell("",t("fb.c_sum_words"),score+"%"):""}
+    ${hasTarget&&fromRec?fbSumCell("fbSumPron",t("sv.ch_dim_pron"),t("sv.ch_st_pending"),"pend"):""}
+    ${fbSumCell("",t("fb.c_sum_pace"),`${wpm}<i>wpm</i>`)}
+    ${fbSumCell("",t("fb.fillers_label"),String(fillerN))}
+  </div>`;
+  const goodHTML=`<div class="fbc-sec"><div class="fbc-sec-h">${ic("check")} ${t("fb.c_good_h")}</div>${strengths.length
+    ?`<ul class="fbc-good">${strengths.map(s=>`<li>${ic("check")}<span>${t(s.k,s.v||{})}</span></li>`).join("")}</ul>`
+    :`<p class="fbc-none">${t("fb.c_good_none")}</p>`}</div>`;
+  const focusHTML=!hasTarget?"":focus
+    ?`<div class="fbc-sec"><div class="fbc-focus" data-fix="${esc(JSON.stringify({t:fw,op:focus.op,h:focus.h||"",i:focus.i,hIdx:focus.hIdx||0}))}">
+        <div class="fbc-sec-h">${ic("target")} ${t("fb.c_focus_h")}</div>
+        <div class="fbc-focus-row"><div class="fbc-focus-w">${esc(focus.t)}</div>${STRESS_MAP[fw]?`<p class="fbc-stress"><span>${t("sv.ch_stress_h")}</span><b>${esc(STRESS_MAP[fw])}</b></p>`:""}</div>
+        <p class="fbc-focus-why">${t("fb.c_focus_lead_"+band)} ${focus.op==="sub"?t("fb.heard_instead",{heard:esc(focus.h)}):t("fb.didnt_catch")}</p>
+        <button class="fbc-cta" onclick="fbFixOpen(this)">${ic("mic")} ${t("fb.c_practise")}</button>
+      </div></div>`
+    :`<div class="fbc-sec"><div class="fbc-focus empty"><div class="fbc-sec-h">${ic("target")} ${t("fb.c_focus_h")}</div><p class="fbc-none">${t(problems.length?"fb.c_focus_noise":"fb.c_focus_none")}</p></div></div>`;
+  const nextHTML=`<div class="fbc-next"><button class="btn-primary" onclick="fbShadowAgain(this)">${ic("mic")} ${t("fb.c_again")}</button>
+    <div class="fbc-next-row">${vl.length?`<button class="btn btn-g" onclick="fbVocGo(this)">${ic("book")} ${t("fb.c_next_vocab")}</button>`:""}<button class="btn btn-g" onclick="fbDetailsGo(this)">${ic("doc")} ${t("fb.c_next_details")}</button></div></div>`;
+  /* vocabulary, secondary: three rows here, the rest one fold away (no row is
+     drawn twice — vocRow ids are per word) */
+  const vocTop=vl.slice(0,3),vocRest=vl.slice(3),syn=vocSynHTML(heardText);
+  const vocHTML=vocTop.length?`<div class="fbc-voc"><div class="fbc-sec-h">${ic("book")} ${t("fb.c_voc_h",{n:vocTop.length})}</div>
+    ${vocTop.map(x=>vocRow(x.w,x.l)).join("")}
+    <div class="fbc-voc-acts"><button class="btn btn-g btn-sm" onclick='fbVocSaveAll(${JSON.stringify(vocTop)})'><span class="btn-ic">${ic("bookmark")}</span>${plain("fb.vocab_save_all").replace("{{n}}",vocTop.length)}</button>${vocRest.length?`<button class="fbc-more" onclick="fbDetailsGo(this,'vocab')">${t("fb.c_voc_more",{n:vocRest.length})} ${ic("chevron")}</button>`:""}</div></div>`:"";
+  /* ---------- LEVEL 3: the details, exactly the analysis the report had ---------- */
+  const chipsHTML=`<p class="fb-sec-sub">${t("fb.words_recognized",{ok:okN,total})}</p><div class="fb-chips">${ops.map(o=>
+      o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
+      :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
+      :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div>`;
+  const ranked=fbRanked(problems);
+  const practiceHTML=ranked.length?ranked.map(o=>fbFixCard(o,fromRec,hF)).join("")
     /* The words that went wrong were a list you could listen to and nothing
        else — the report ended and the work ended with it. Tapping a chip puts
        the word into S.vocab, which is what the study cards, the pop quiz and
        the word puzzles in Practice already run off, so a bad take turns into
        something to drill. Same control the workshop reports use. */
     +`<div class="fb-fix-save">${vocPickChips(fbFixWords(problems),"Shadowing")}</div>`
-  :`<p style="font-size:13.5px;color:var(--green);font-weight:600">${t("fb.all_recognized")}</p>`}
-  ${hasTarget?`<details class="home-more fb-sec">
-    <summary><span class="btn-ic">${ic("doc")}</span>${t("fb.section_words")}<span class="hm-chev">${ic("chevron")}</span></summary>
-    <div class="home-more-body"><div class="fb-chips">${ops.map(o=>
-      o.op==="ok"?`<span class="fb-chip ok">${esc(o.t)}</span>`
-      :o.op==="sub"?`<span class="fb-chip bad" title="heard: ${esc(o.h)}">${esc(o.t)}</span>`
-      :`<span class="fb-chip miss">${esc(o.t)}</span>`).join("")}</div></div>
-  </details>`:""}
-  <details class="home-more fb-sec">
-    <summary><span class="btn-ic">${ic("gauge")}</span>${t("fb.section_stats")}<span class="hm-chev">${ic("chevron")}</span></summary>
-    <div class="home-more-body"><div class="grid g3">
+    :`<p style="font-size:13.5px;color:var(--green);font-weight:600">${t("fb.all_recognized")}</p>`;
+  const statsHTML=`<div class="grid g3">
       <div class="stat"><div class="fb-stat-v">${paceMsg}</div><div class="l">${t("fb.pace_label")}</div></div>
       <div class="stat"><div class="fb-stat-v">${fillerN===0?t("fb.fillers_zero"):t(fillerN>1?"fb.fillers_many":"fb.fillers_one",{n:fillerN})}</div><div class="l">${t("fb.fillers_label")}</div></div>
       <div class="stat"><div class="fb-stat-v">${hist}${trend>0?" ↑":trend<0?" ↓":""}</div><div class="l">${t("fb.last_scores_label")}</div></div>
-    </div>${fbTrendSVG(scored)}</div>
-  </details>
-  ${(()=>{const g=gramAnalyze(heardText);if(!g.good.length&&!g.fix.length)return"";
-    return`<details class="home-more fb-sec">
-    <summary>${tIc("fb.grammar_h","pencil")}<span class="hm-chev">${ic("chevron")}</span></summary>
-    <div class="home-more-body">
-    <p class="fb-sec-sub">${t("fb.grammar_sub")}</p>
+    </div>${fbTrendSVG(scored)}`;
+  const gramHTML=(!gram.good.length&&!gram.fix.length)?"":`<p class="fb-sec-sub">${t("fb.grammar_sub")}</p>
     <div class="grid g2">
       <div>
         <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:8px">${t("fb.grammar_good_h")}</div>
-        ${g.good.length?g.good.map(x=>`<div class="fb-item fixed" style="margin-bottom:8px">
+        ${gram.good.length?gram.good.map(x=>`<div class="fb-item fixed" style="margin-bottom:8px">
           <span style="font-size:11.5px;font-weight:700;color:var(--green)">● ${esc(x.cat)}</span>
           <div style="font-size:14px;margin:5px 0"><b>…${esc(x.quote)}</b></div>
           <p style="font-size:12.5px;color:var(--mut)">${esc(x.note)}</p></div>`).join("")
@@ -13487,7 +13940,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
       </div>
       <div>
         <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">${t("fb.grammar_improve_h")}</div>
-        ${g.fix.length?g.fix.map(x=>`<div class="fb-item" style="margin-bottom:8px">
+        ${gram.fix.length?gram.fix.map(x=>`<div class="fb-item" style="margin-bottom:8px">
           <span style="font-size:11.5px;font-weight:700;color:var(--gold)">● ${esc(x.cat)}</span>
           <div style="font-size:14px;margin:5px 0">…<b style="background:rgba(251,191,36,.15);padding:1px 5px;border-radius:5px">${esc(x.quote)}</b></div>
           <div style="font-size:13px;color:var(--acc2);margin-bottom:5px">→ ${esc(x.corr)}</div>
@@ -13495,23 +13948,46 @@ function fbShowResults(targetText,heardText,fromRec,outId){
           <button class="btn btn-g fb-sec-act" onclick="fbSay('${esc(x.corr)}',0.9)">${t("fb.hear_correct_version")}</button></div>`).join("")
         :`<p style="font-size:12.5px;color:var(--green);font-weight:600">${t("fb.grammar_clean")}</p>`}
       </div>
-    </div></div></details>`})()}
-  ${(()=>{const vl=vocabExtract(heardText+" "+targetText);if(!vl.length)return"";
-    return`<details class="home-more fb-sec">
-    <summary>${tIc("fb.vocab_key_h","book")}<span class="hm-chev">${ic("chevron")}</span></summary>
-    <div class="home-more-body">
-    <div class="fb-vocab-head">
+    </div>`;
+  const vocMoreHTML=vl.length?`${vocRest.length?`<div class="fb-vocab-head">
       <p class="fb-sec-sub">${t("fb.vocab_from_speech")}</p>
-      <button class="btn btn-g" onclick='vocSaveAll(${JSON.stringify(vl)})'>${t("fb.vocab_save_all",{n:vl.length})}</button>
-    </div>
-    ${vl.map(x=>vocRow(x.w,x.l)).join("")}
+      <button class="btn btn-g" onclick='fbVocSaveAll(${JSON.stringify(vl)})'>${t("fb.vocab_save_all",{n:vl.length})}</button>
+    </div>${vocRest.map(x=>vocRow(x.w,x.l)).join("")}`:""}
     <p style="margin-top:12px"><a class="voc-goto" onclick="gotoVocab()">${tIc("voc.goto_link","book")} →</a></p>
-    ${vocSynHTML(heardText)}</div></details>`})()}
-  <p class="fb-disclaimer">${t("fb.disclaimer")}</p>`;
+    ${syn}`:"";
+  out.innerHTML=`<div class="fbc">
+  ${headHTML}${sumHTML}
+  ${goodHTML}
+  ${focusHTML}
+  ${nextHTML}
+  ${fbProgHTML({hasTarget,attempts,delta,scored})}
+  ${vocHTML}
+  <div class="fbc-details"><div class="fbc-sec-h">${ic("doc")} ${t("fb.c_details_h")}</div>
+    ${hasTarget&&fromRec?fbFoldHTML("pron","mic",plain("fb.pron_h"),`<div id="fbPron"></div>`):""}
+    ${hasTarget?fbFoldHTML("words","doc",t("fb.section_words"),chipsHTML):""}
+    ${hasTarget?fbFoldHTML("practice","target",plain("fb.practice_pron"),practiceHTML):""}
+    ${vocMoreHTML?fbFoldHTML("vocab","book",t("fb.c_sec_vocab"),vocMoreHTML):""}
+    ${fbFoldHTML("history","gauge",t("fb.section_stats"),statsHTML)}
+    ${gramHTML?fbFoldHTML("grammar","pencil",plain("fb.grammar_h"),gramHTML):""}
+    <p class="fb-disclaimer">${t("fb.disclaimer")}</p></div>
+  </div>`;
+  const _root=out.querySelector(".fbc");if(_root)_root._fbRep=_rep;   /* several reports on one page (Welding lines): each keeps its own take */
+  /* a word saved from anywhere in this report counts once, whichever control did it */
+  if(!out.dataset.fbcWired){out.dataset.fbcWired="1";out.addEventListener("click",e=>{
+    const b=e.target&&e.target.closest?e.target.closest(".voc-save,.voc-chip,.voc-pick-all"):null;if(!b)return;
+    setTimeout(()=>{let w=b.dataset.w||"";
+      if(!w&&b.classList.contains("voc-save")){const r=b.closest(".voc-row"),wd=r&&r.querySelector(".wd");w=wd?String(wd.textContent||"").trim():""}
+      const on=b.classList.contains("voc-pick-all")||(w&&vocHas(w));
+      if(on)try{track("shadow_vocab_saved",{kind:b.classList.contains("voc-pick-all")?"all":"one"})}catch(e){}},0);
+  })}
   manIconizeInline(out);
+  if(hasTarget){
+    try{track("shadow_report_viewed",{band:band,source:fromRec==="new"?"new":fromRec==="line"?"line":"stored"})}catch(e){}
+    if(fromRec==="new"&&attempts.length>=2)try{track("shadow_second_completed")}catch(e){}
+  }
   markPracticed();awardCompetency({activityType:"pronunciation_feedback",lesson:"Speaking feedback",score:hasTarget?score:null,duration:Math.round(mins*60)});save();tbRender();
   streakPillSync();
-  if(hasTarget&&fromRec)fbRenderPron(targetText);   // honest AI pronunciation pass (async)
+  if(hasTarget&&fromRec)fbRenderPron(targetText,out);   // honest AI pronunciation pass (async)
 }
 /* ===== POSTURE COACH — on-device MediaPipe pose tracking =====
    Zero-capture: frames are analyzed in memory and discarded; only numeric
@@ -15645,28 +16121,41 @@ function fbAssess(blob,target){
   _fbAssessCache.set(key,p);
   return p;
 }
-async function fbRenderPron(target){
-  const box=document.getElementById("fbPron");if(!box)return;
+async function fbRenderPron(target,out){
+  /* Scoped to the report that asked (a Welding page can hold several line
+     reports at once); the shared #fbOut when called the old way. */
+  const root=out&&out.querySelector?out:document;
+  const box=root.querySelector("#fbPron");if(!box)return;
+  const ctx=fbCtx.recCtx||shRecCtx(shClip&&shClip.vid);   /* read now: a Welding page draws several reports in a row */
   /* The take this grades is still being written when the report is drawn. */
   try{await recFiled}catch(e){}
-  const recs=await getRecs(fbCtx.recCtx||shRecCtx(shClip&&shClip.vid));
-  if(!recs||!recs[0]){box.innerHTML="";return;}
+  const recs=await getRecs(ctx);
+  if(!box.isConnected)return;
+  if(!recs||!recs[0]){box.innerHTML=`<p class="fbc-pron-note">${t("fb.c_pron_norec")}</p>`;fbPronSum(root,null);return;}
   box.innerHTML=`<div class="fb-pron"><span class="fb-pron-spin">${ic("mic")}</span> ${t("fb.pron_analyzing")}</div>`;
   const res=await fbAssess(recs[0].blob,target);
-  if(!res||!res.words||!res.words.length){box.innerHTML="";return;}
+  if(!box.isConnected)return;                                     /* a newer report replaced this one meanwhile */
+  if(!res||!res.words||!res.words.length){box.innerHTML=`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`;fbPronSum(root,null);return;}
   const col=s=>s>=80?"var(--green)":s>=55?"var(--gold)":"var(--red)";
+  /* "ai": an audio model listened and scored each word. "whisper": the
+     Worker had no audio model and cross-checked the words against a
+     transcript — coarse, so the header says so and the number is marked
+     approximate rather than presented as a measurement. */
+  const ai=res.mode==="ai";
   const bad=res.words.filter(w=>w.score<80&&w.note);
   box.innerHTML=`<div class="fb-pron">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px">
       <b style="font-size:15px">${tIc("fb.pron_h","mic")}</b>
-      <span style="font-size:11.5px;color:var(--mut2)">${t("fb.pron_sub")}</span>
+      <span style="font-size:11.5px;color:var(--mut2)">${ai?t("fb.pron_sub"):t("fb.c_pron_sub_tx")}</span>
       <span style="flex:1"></span>
-      <span class="fb-pron-score" style="color:${col(res.overall)}">${res.overall}%</span>
+      <span class="fb-pron-score" style="color:${col(res.overall)}">${ai?"":"~"}${res.overall}%</span>
     </div>
+    ${ai?"":`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`}
     <div class="fb-pw-wrap">${res.words.map(w=>`<span class="fb-pw" style="--c:${col(w.score)}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>
     ${bad.length?`<div class="fb-pron-tips">${bad.map(w=>`<div><span class="fb-pron-dot" style="background:${col(w.score)}"></span><b>${esc(w.word)}</b> — ${esc(w.note)}</div>`).join("")}</div>`:`<p class="fb-pron-good">${tIc("fb.pron_all_good","check")}</p>`}
   </div>`;
   manIconizeInline(box);
+  fbPronSum(root,res);
 }
 window.fbTry=(word,i)=>{
   if(!SR)return;
@@ -15698,7 +16187,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v435";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v441";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -15749,11 +16238,37 @@ const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
 const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","maybe","perhaps","probably","just","a bit","a little bit","a little","kind of","sort of","so far","i hope","hopefully","not sure","to be honest"];
-let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,blob:null,url:null,prompt:0,report:null,draft:"",take:null,showReport:false,repOpen:true,quick:[],quickFor:""};
+/* Everything on this page that is the LEARNER'S CONTENT — the text in the
+   box, the recording behind it, the "Say it better" versions, the report that
+   is open, the prompt on show — is kept PER AREA, the way the saved reports
+   already are (aList("exRep")). One shared object used to hold it all, so a
+   minute spoken in General English sat in the box, with its versions and its
+   report, when the learner opened Executive Polish in Welding (seen on a
+   phone, 23 Sep 2026). `ex` keeps its name and its field names: the content
+   fields are accessors that read and write the bucket of the OPEN area
+   (areaId()), so every call site — and every way of switching area, present
+   or future — sees that area and nothing else. The recorder (phase, mic,
+   timer) stays the device's, not an area's: there is one microphone.
+   Transient on purpose: a refresh empties it, as before. Nothing here is
+   persisted or synced — the saved reports are, per area, in exRepA. */
+const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:true,quick:[],quickFor:""};
+const _exArea={};                                   /* areaId → that programme's Polish content */
+function exAreaFresh(){const o={};Object.keys(EX_AREA_FIELDS).forEach(k=>{const v=EX_AREA_FIELDS[k];o[k]=Array.isArray(v)?[]:v});return o}
+function exAreaKey(){try{return areaId()}catch(e){return AREA_GEN}}   /* areaId() needs S; nothing reads ex before boot, but a throw here would take the page down */
+function exAreaState(area){const a=area||exAreaKey();return _exArea[a]||(_exArea[a]=exAreaFresh())}
+let ex={phase:"idle",mr:null,stream:null,chunks:[],t0:0,tick:null,stopT:null,busyFor:null};   /* busyFor: the area whose minute is being analysed */
+Object.keys(EX_AREA_FIELDS).forEach(k=>Object.defineProperty(ex,k,{enumerable:true,get(){return exAreaState()[k]},set(v){exAreaState()[k]=v}}));
+/* Sign-out and account deletion wipe the device (fbWipeDevice); the box must
+   go with it, or the next person to sign in on this phone finds the last
+   one's minute. Also run when sign-in finds another account's data here. */
+function exWipe(){
+  Object.keys(_exArea).forEach(a=>{const st=_exArea[a];if(st&&st.url){try{URL.revokeObjectURL(st.url)}catch(e){}}delete _exArea[a]});
+  if(ex.phase!=="rec")ex.busyFor=null;
+}
 let exListening=false;                 /* read by ppRecordingNow(): the Polish mic is open */
 function exFmtS(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 function exLang(){return (S.profile&&S.profile.lang)||"en"}
-function exReps(){return aList("exRep")}
+function exReps(area){return aList("exRep",area)}
 
 /* ---------- the card ---------- */
 function exPromptHTML(){
@@ -15848,23 +16363,26 @@ window.exQuick=async btn=>{
   if(!text||text.split(" ").length<5)return toast(t("ex.type_first_toast"));
   if(exQuicking)return;
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
-  if(text!==ex.quickFor){ex.quick=[];ex.quickFor=text}     /* new text in the box → a fresh set */
-  if(ex.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
+  const area=areaId(),st=exAreaState(area);                /* the versions belong to the text, and the text to this area — fixed before the await */
+  if(text!==st.quickFor){st.quick=[];st.quickFor=text}     /* new text in the box → a fresh set */
+  if(st.quick.length>=EX_QUICK_MAX)return toast(t("ex.quick_max"));
   exQuicking=true;
   const label=btn.innerHTML;
   btn.disabled=true;btn.innerHTML=ic("sparkle")+" "+esc(t("ex.quick_busy"));manIconizeInline(btn);
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({repolish:{transcript:text,avoid:ex.quick.map(v=>v.text),lang:exLang()}})});
+      body:JSON.stringify({repolish:{transcript:text,avoid:st.quick.map(v=>v.text),lang:exLang()}})});
     if(!r.ok)throw new Error("HTTP "+r.status);
     const j=await r.json();
     if(!j||!j.version||!j.version.text)throw new Error("empty");
-    ex.quick.unshift({...j.version,idioms:(j.idioms||[]).slice(0,2)});   /* newest first */
-    exQuickPaint();
-    const first=document.querySelector(".ex-qv");
-    if(first){try{first.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+    st.quick.unshift({...j.version,idioms:(j.idioms||[]).slice(0,2)});   /* newest first */
+    if(areaId()===area){
+      exQuickPaint();
+      const first=document.querySelector(".ex-qv");
+      if(first){try{first.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}}
+    }
   }catch(e){toast(t("ex.repolish_err"))}
-  btn.disabled=false;btn.innerHTML=ex.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
+  btn.disabled=false;btn.innerHTML=st.quick.length?ic("repeat")+" "+esc(t("ex.quick_again")):label;manIconizeInline(btn);
   exQuicking=false;
 };
 window.exDraft=ta=>{ex.draft=ta.value;taGrow(ta)};
@@ -15887,7 +16405,7 @@ window.exPolish=()=>{
 };
 function exStage(html){const s=document.getElementById("exStage");if(s){s.innerHTML=html;manIconizeInline(s)}}
 function exStatus(msg){const st=document.getElementById("exSt");if(st)st.textContent=msg||""}
-function exSetUrl(u){if(ex.url){try{URL.revokeObjectURL(ex.url)}catch(e){}}ex.url=u}
+function exSetUrl(u,st){st=st||exAreaState();if(st.url){try{URL.revokeObjectURL(st.url)}catch(e){}}st.url=u}
 function exReset(){
   clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
   if(ex.stream){try{ex.stream.getTracks().forEach(tr=>tr.stop())}catch(e){}}
@@ -15943,7 +16461,13 @@ function exWaitHTML(step){
 function exStep(msg){const s=document.getElementById("exStep");if(s)s.textContent=msg}
 async function exRun(src){
   exCoachStop();
-  ex.phase="busy";ex.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null);
+  /* The area this minute belongs to is fixed HERE, before the first await. The
+     transcript, the take and the report are written into THAT area's bucket
+     and list even if the learner has switched programme by the time the
+     Worker answers — a General English minute is never filed under Welding,
+     and nothing of it is drawn on the other programme's page. */
+  const area=areaId(),st=exAreaState(area),here=()=>areaId()===area;
+  ex.phase="busy";ex.busyFor=area;st.blob=src.blob||null;exSetUrl(src.blob?URL.createObjectURL(src.blob):null,st);
   exReportShow(exWaitHTML(src.blob?t("ex.step_stt"):t("ex.step_measure")));exStatus(t("ex.busy_status"));
   let text=src.text||"",words=null,audio=null,sttFailed=false;
   if(src.pre){text=src.pre.text;words=src.pre.words;audio=src.pre.audio}   /* Polish it on the box that still holds this recording's transcript */
@@ -15954,14 +16478,14 @@ async function exRun(src){
     if(tx&&tx.text){text=tx.text;words=tx.words}else sttFailed=true;
     if(!audio)audio={dur:src.secs||0,pitch:null,pauses:[]};
     if(!audio.dur)audio.dur=src.secs||0;
-    if(text)ex.take={blob:src.blob,secs:src.secs,text,words,audio};
+    if(text)st.take={blob:src.blob,secs:src.secs,text,words,audio};
   }
   if(!text){
-    ex.phase="idle";exReportShow("",true);exStatus(t("ex.stt_off"));
-    const ta=document.getElementById("exIn");if(ta)ta.focus();
+    ex.phase="idle";ex.busyFor=null;
+    if(here()){exReportShow("",true);exStatus(t("ex.stt_off"));const ta=document.getElementById("exIn");if(ta)ta.focus()}
     return;
   }
-  ex.draft=text;const _ta=document.getElementById("exIn");if(_ta){_ta.value=text;taGrow(_ta)}   /* the transcript lands in the box */
+  st.draft=text;if(here()){const _ta=document.getElementById("exIn");if(_ta){_ta.value=text;taGrow(_ta)}}   /* the transcript lands in the box */
   exStep(t("ex.step_measure"));
   const m=exTextStats(text,words,audio);
   exStep(t("ex.step_plan"));
@@ -15969,12 +16493,12 @@ async function exRun(src){
   /* targets = the phrases this report hands over. The next recording is marked
      against them (exCarryHTML), so the assignment has to be stored, not
      recomputed from an AI answer that will be different next time. */
-  const rep={at:Date.now(),tk:areaId(),m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
-  ex.report=rep;
-  const reps=exReps();reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
+  const rep={at:Date.now(),tk:area,m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
+  st.report=rep;
+  const reps=exReps(area);reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
-  ex.phase="idle";ex.showReport=true;ex.repOpen=true;exStatus("");
-  exRenderReport(rep);
+  ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=true;
+  if(here()){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
   if(!POLISH_API||!navigator.onLine)return null;
@@ -16220,7 +16744,7 @@ function exVersionsHTML(ai){
    targets. */
 let exRepolishing=false;
 window.exRepolish=async btn=>{
-  const rep=ex.report;
+  const rep=ex.report,area=areaId();                /* rep sits in its own area's exRep list: the append lands there whatever is open when the Worker answers */
   if(!rep||!rep.ai||exRepolishing)return;
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
   exRepolishing=true;
@@ -16239,11 +16763,13 @@ window.exRepolish=async btn=>{
     });
     rep.targets=exTargets(rep.ai);                 /* the newest phrases are what the next minute is marked on */
     save();
-    exRenderReport(rep,true);
-    setTimeout(()=>{
-      const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
-      if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
-    },60);
+    if(areaId()===area){
+      exRenderReport(rep,true);
+      setTimeout(()=>{
+        const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
+        if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
+      },60);
+    }
   }catch(e){
     toast(t("ex.repolish_err"));
     btn.disabled=false;btn.innerHTML=ic("repeat")+" "+esc(t("ex.repolish_btn"));manIconizeInline(btn);
@@ -16965,8 +17491,8 @@ function rPhrases(el){
   ${exCardHTML()}
   <div id="exReportWrap"></div>`;
   manIconizeInline(el);
-  if(ex.phase==="busy")exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render */
-  else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}
+  if(ex.phase==="busy"&&ex.busyFor===areaId())exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render — shown only on the programme it belongs to */
+  else if(ex.report&&ex.showReport){exRenderReport(ex.report,true)}   /* ex.report is the OPEN area's (accessor) */
 }
 /* The report lives BELOW the input card (owner, 2026-09-21): the box, mic,
    bin and Polish it stay on top after every run, so the next take is one tap
@@ -17124,6 +17650,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
     rec.mr.ondataavailable=e=>rec.chunks.push(e.data);
     rec.mr.onstop=async()=>{
       stream.getTracks().forEach(t=>t.stop());
+      try{shv3RecSync()}catch(e){}   /* the foot-bar Shadow button follows this recorder too */
       const phBlob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
       if(btn){btn.style.borderColor="";btn.style.color=""}
       if(phBlob.size<1200||(Date.now()-rec.t0)<400){toast(t("ph.too_short_toast"));return}
@@ -17154,7 +17681,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
       if(onBlob){try{onBlob(phBlob)}catch(e){}}
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
-    rec.mr.start();if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
+    rec.mr.start();try{shv3RecSync()}catch(e){}if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
   }catch(e){toast(t("ph.mic_denied_toast"))}
 }
 /* ================= FEATURE FLAGS =================
@@ -17355,7 +17882,7 @@ function svRender(){
   shLowerShow(svMode==="shadow");
   svPlace(svMode==="watch");
   if(watchFolded){box.innerHTML="";box.style.display="none";const keepW=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};svNowDraw(keepW,true,-1);return}
-  if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
+  if(svMode==="shadow"){if(!svShPinned){const p=svParaOf(svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0));svShPara=p?p.from:0}svShPinned=true;box.innerHTML=svShHTML();manIconizeInline(box);svShEnter();svShAfterDraw();svLast={seg:-1,word:-1};svNowDraw(-1);svShBarSync();return}
   svShPinned=false;
   svShBarSync();
   svTxFresh=true;svScrollKey=null;   // a list that has just appeared starts at the line being spoken, not at the top
@@ -17364,6 +17891,7 @@ function svRender(){
     <p class="sv-note">${levelNote}${svMode==="challenge"?" · "+t("sv.challenge_note"):""}</p>
     <p class="sv-expr" id="svExpr" ${svExprText()?"":"hidden"}>${ic("sparkle")} <span class="sv-expr-lbl">${t("sv.cur_expr")}</span> <b>${esc(svExprText())}</b></p>
     ${chPanel}
+    ${svMode==="watch"?svWtTogglesHTML():""}
     <div class="sv-tx ${txHidden?"hidden":""} ${folded?"folded":""} ${(a.segments[0]&&a.segments[0].words&&a.segments[0].words.length)?"has-words":""}" id="svTx" onscroll="svOnTxScroll()">${segs}</div>
     ${svMode==="challenge"?"":`<div class="sv-ctl sv-ctl-row">
       ${svMode==="shadow"?`<button class="btn btn-g btn-sm sv-tx-btn ${svTxOpen?"on":""}" onclick="svTxToggle()" aria-expanded="${svTxOpen}" title="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}" aria-label="${esc(svTxOpen?t("sv.tx_fold"):t("sv.tx_unfold",{n:a.segments.length}))}">${ic("doc")} ${t("sv.tx_btn")}<span class="sv-tx-n">${a.segments.length}</span></button>`:""}
@@ -17376,6 +17904,7 @@ function svRender(){
   manIconizeInline(box);
   const keep=svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0);svLast={seg:-1,word:-1};   // paused with no position: the picked line, else the first
   svNowDraw(keep,true,-1);
+  if(svMode==="watch"){svWtCur=-1;const p=svParaOf(keep);svWatchDraw(p?svParas(a).indexOf(p):0)}
   if(svMode==="challenge"&&!txHidden){const g=svChSegObj();if(g)for(let i=g.from;i<=g.to;i++){const el=box.querySelector(`.sv-seg[data-i="${i}"]`);if(el)el.classList.add("pick")}}
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
@@ -17507,31 +18036,282 @@ function svParas(a){
 }
 function svParaOf(i){const ps=svParas(svAsset);return ps.find(p=>i>=p.from&&i<=p.to)||ps[0]||null}
 /* the paragraph as one piece: its lines, text and time span */
-function svShGroup(){
-  const p=svParaOf(svShIndex());if(!p||!svAsset)return null;
+function svParaGroup(p){
+  if(!p||!svAsset)return null;
   const segs=svAsset.segments.slice(p.from,p.to+1),first=segs[0],last=segs[segs.length-1];
-  return {from:p.from,to:p.to,segs,id:first.id+(segs.length>1?"-"+last.id:""),text:segs.map(x=>x.text).join(" "),startMs:first.startMs,endMs:last.endMs};
+  return {from:p.from,to:p.to,segs,vid:shClip.vid,id:first.id+(segs.length>1?"-"+last.id:""),text:segs.map(x=>x.text).join(" "),startMs:first.startMs,endMs:last.endMs};
 }
+function svShGroup(){return svParaGroup(svParaOf(svShIndex()))}
 function svShIndex(){if(svShPinned&&svShPara>=0)return svShPara;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
 function svShSeg(){return svShGroup()}
-function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:""}}
+function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:"",ok:c!=="en"&&!!L,rtl:RTL_LANGS.has(c)}}
 let svShPinned=false,svShPara=-1;   /* the paragraph on the Shadow page (its first line) stays put until the learner moves it or leaves; svPick is not touched */
+/* ---------- the card's two optional helpers: Translate and Pronunciation ----------
+   Both OFF until the learner turns them on. The choice is kept per area in
+   aMap("svPref") — it rides in S, so it survives a refresh and a cloud merge,
+   and Welding has its own (always empty) bucket. The English is the primary
+   text whatever is on: the translation sits UNDER it in the learner's native
+   language (S.profile.lang, the onboarding answer — one setting, not a second
+   one), the pronunciation sits under each WORD. Nothing here runs unless
+   svOn(): Welding never renders the card, never fetches, never writes the
+   preference, and the caches below are only ever reached through it.
+   Caches hold public captions' translations and dictionary IPA — content, not
+   the learner's work — so they are not evidence and are not per area. */
+function svShPref(){return aMap("svPref")}
+function svShTrOn(){return svOn()&&svShLang().ok&&!!svShPref().tr}
+function svShIpaOn(){return svOn()&&!!svShPref().ipa}
+/* --- translation: the Worker's chat route, one paragraph at a time, cached per
+   video + paragraph + language (≤200 on this device), one request in flight per key --- */
+/* The chat route allows 20 calls a minute per address and the helpers share
+   it with role-play and the coach. They pace themselves to SV_AI_PER_MIN —
+   a call past the budget waits for a slot instead of being refused — and a
+   429 that still gets through is retried once after SV_AI_RETRY_MS while
+   the block shows "wait". The learner sees the busy message only after that. */
+let SV_AI_PER_MIN=10,SV_AI_RETRY_MS=20000;const _svAiTimes=[];   /* let: the browser suite shortens them */
+function svAiSlot(){return new Promise(res=>{const go=()=>{const now=Date.now();while(_svAiTimes.length&&now-_svAiTimes[0]>60000)_svAiTimes.shift();
+  if(_svAiTimes.length<SV_AI_PER_MIN){_svAiTimes.push(now);res()}else setTimeout(go,60000-(now-_svAiTimes[0])+50)};go()})}
+async function svAiChat(system,content){
+  const call=async()=>{await svAiSlot();return fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{system,messages:[{role:"user",content}]}})})};
+  let r=await call();
+  if(r.status===429){await new Promise(x=>setTimeout(x,SV_AI_RETRY_MS));r=await call()}
+  return r;
+}
 let _svTr={};try{_svTr=JSON.parse(localStorage.getItem("be_sv_tr")||"{}")||{}}catch(e){_svTr={}}
+const _svTrBusy=new Map(),_svTrSeen=new Set();
 function svShTrKey(sg){const l=svShLang();return shClip.vid+":"+sg.id+":"+l.code}
+function svShTrSave(){const ks=Object.keys(_svTr);while(ks.length>200)delete _svTr[ks.shift()];try{localStorage.setItem("be_sv_tr",JSON.stringify(_svTr))}catch(e){}}
+async function svShTrFetch(sg){
+  if(!svOn())throw new Error("off");
+  const key=svShTrKey(sg),lang=svShLang();
+  if(_svTr[key])return _svTr[key];
+  if(!lang.ok)throw new Error("nolang");
+  if(!POLISH_API||!navigator.onLine)throw new Error("offline");
+  if(_svTrBusy.has(key))return _svTrBusy.get(key);
+  const p=(async()=>{
+    const r=await svAiChat(`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,sg.text.slice(0,600));
+    if(!r.ok)throw new Error("tr "+r.status);
+    const j=await r.json();const tx=String((j&&j.reply)||"").trim();
+    if(!tx||/could you say that again/i.test(tx))throw new Error("empty");
+    _svTr[key]=tx;svShTrSave();return tx;
+  })().finally(()=>_svTrBusy.delete(key));
+  _svTrBusy.set(key,p);return p;
+}
+/* the translation block: hidden while the helper is off; else the language
+   named above the text (so the reader knows what they are looking at), the
+   text in that language's direction, and wait / error states in its place */
+function svShTrHTML(sg){
+  if(!svShTrOn())return `<div class="sv-sh-tr empty" id="svShTr" hidden></div>`;
+  const lang=svShLang(),tx=_svTr[svShTrKey(sg)];
+  return `<div class="sv-sh-tr ${tx?"":"wait"}" id="svShTr" lang="${esc(lang.code)}" dir="${lang.rtl?"rtl":"ltr"}" role="region" aria-label="${esc(t("sv.sh_tr_a11y",{lang:lang.native||lang.name}))}" aria-live="polite">${svShTrInner(tx?"ok":"wait",tx)}</div>`;
+}
+function svShTrInner(state,tx){
+  const lang=svShLang();
+  return `<small class="sv-sh-tr-l">${esc(lang.native||lang.name)}</small>`+(state==="ok"?`<span class="sv-sh-tr-x">${esc(tx)}</span>`
+    :state==="wait"?`<span class="sv-sh-tr-x sv-sh-wait">${esc(t("sv.sh_tr_wait"))}</span>`
+    :`<span class="sv-sh-tr-x">${esc(t(tx==="rate_limited"?"sv.sh_busy":"sv.sh_tr_err"))}</span> <button class="sv-sh-retry" onclick="svShTrRetry()">${esc(t("sh.cap_retry"))}</button>`);
+}
+function svShTrDraw(state,tx){
+  const box=document.getElementById("svShTr");if(!box)return;
+  box.hidden=false;box.className="sv-sh-tr "+(state==="ok"?"":state);box.innerHTML=svShTrInner(state,tx);
+}
+/* still the same card on screen as when the request left? (the learner may
+   have moved a paragraph, left Shadow or loaded another video meanwhile) */
+function svShSameCard(sg){const g=svShSeg();return !!(g&&sg&&svMode==="shadow"&&document.getElementById("svSh")&&g.id===sg.id&&shClip.vid===sg.vid)}
+function svShTrGo(sg){
+  svShTrFetch(sg).then(tx=>{if(svShSameCard(sg)&&svShTrOn()){svShTrDraw("ok",tx);svShTrViewed(sg)}})
+    .catch(e=>{if(svShSameCard(sg)&&svShTrOn())svShTrDraw("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"")});
+}
+function svShTrViewed(sg){const key=svShTrKey(sg);if(_svTrSeen.has(key))return;_svTrSeen.add(key);try{track("shadow_translation_viewed",{lang:svShLang().code})}catch(e){}}
+/* --- pronunciation: General American IPA under each word. A word's IPA is a
+   fact about the word, so it is cached PER WORD (be_sv_ipa, ≤3000 on this
+   device) — a paragraph only ever asks the Worker for the words it has not
+   met before, and the most common words never leave the device (SV_IPA_SEED).
+   The request goes through the same chat route as the translation, with the
+   sentence as context so a homograph is read the way it is used here.
+   Honest label: it is an AI-written guide, not a verdict. --- */
+const SV_IPA_BATCH=25;   /* words per request: the route's reply is capped at 800 characters */
+const SV_IPA_SYSTEM=`You are an American English pronunciation dictionary. The user gives one English sentence for context and a list of words taken from it. For EACH listed word give its General American pronunciation in IPA: use ˈ and ˌ for stress, a plain r, no slashes or brackets, exactly one pronunciation per word, matching how the word is used in the sentence. Respond with ONLY minified JSON: {"reply":"word=ipa|word=ipa|..."} listing every word exactly as given, in the same order, nothing else.`;
+const SV_IPA_SEED={a:"ə",an:"ən",the:"ðə",and:"ænd",of:"ʌv",to:"tu",in:"ɪn",is:"ɪz",it:"ɪt",you:"ju",that:"ðæt",he:"hi",was:"wʌz",for:"fɔr",on:"ɑn",are:"ɑr",as:"æz",with:"wɪð",his:"hɪz",they:"ðeɪ",i:"aɪ",at:"æt",be:"bi",this:"ðɪs",have:"hæv",from:"frʌm",or:"ɔr",one:"wʌn",had:"hæd",by:"baɪ",not:"nɑt",but:"bʌt",what:"wʌt",all:"ɔl",were:"wɜr",we:"wi",when:"wɛn",your:"jʊr",can:"kæn",said:"sɛd",there:"ðɛr",each:"itʃ",which:"wɪtʃ",she:"ʃi",do:"du",how:"haʊ",their:"ðɛr",if:"ɪf",will:"wɪl",up:"ʌp",other:"ˈʌðər",about:"əˈbaʊt",out:"aʊt",many:"ˈmɛni",then:"ðɛn",them:"ðɛm",these:"ðiz",so:"soʊ",some:"sʌm",her:"hɜr",would:"wʊd",make:"meɪk",like:"laɪk",him:"hɪm",into:"ˈɪntu",time:"taɪm",has:"hæz",look:"lʊk",two:"tu",more:"mɔr",go:"goʊ",see:"si",no:"noʊ",way:"weɪ",could:"kʊd",my:"maɪ",than:"ðæn",been:"bɪn",who:"hu",now:"naʊ",people:"ˈpipəl",over:"ˈoʊvər",did:"dɪd",get:"gɛt",come:"kʌm",made:"meɪd",may:"meɪ",after:"ˈæftər",also:"ˈɔlsoʊ",back:"bæk",because:"bɪˈkʌz",very:"ˈvɛri",where:"wɛr",just:"dʒʌst",should:"ʃʊd",those:"ðoʊz",our:"ˈaʊər",me:"mi",first:"fɜrst",new:"nu",work:"wɜrk",know:"noʊ",think:"θɪŋk",say:"seɪ",want:"wɑnt",need:"nid",here:"hɪr",well:"wɛl",good:"gʊd",right:"raɪt",really:"ˈrili",going:"ˈgoʊɪŋ","don't":"doʊnt","it's":"ɪts","that's":"ðæts","i'm":"aɪm","we're":"wɪr","you're":"jʊr","they're":"ðɛr","can't":"kænt","isn't":"ˈɪzənt","doesn't":"ˈdʌzənt","didn't":"ˈdɪdənt","won't":"woʊnt","i've":"aɪv","we've":"wiv","there's":"ðɛrz","he's":"hiz","she's":"ʃiz","let's":"lɛts",thing:"θɪŋ",things:"θɪŋz",something:"ˈsʌmθɪŋ",every:"ˈɛvri",day:"deɪ",year:"jɪr",years:"jɪrz",much:"mʌtʃ",even:"ˈivən",most:"moʊst",through:"θru",between:"bɪˈtwin",never:"ˈnɛvər",always:"ˈɔlweɪz",being:"ˈbiɪŋ",does:"dʌz",give:"gɪv",take:"teɪk",own:"oʊn",only:"ˈoʊnli",still:"stɪl",around:"əˈraʊnd",before:"bɪˈfɔr",another:"əˈnʌðər",why:"waɪ",any:"ˈɛni",too:"tu",again:"əˈgɛn",off:"ɔf",down:"daʊn",last:"læst",long:"lɔŋ",little:"ˈlɪtəl",world:"wɜrld",great:"greɪt",tell:"tɛl",help:"hɛlp",part:"pɑrt",important:"ɪmˈpɔrtənt",different:"ˈdɪfərənt",business:"ˈbɪznəs",skills:"skɪlz",human:"ˈhjumən",job:"dʒɑb",jobs:"dʒɑbz",yes:"jɛs",okay:"oʊˈkeɪ",ok:"oʊˈkeɪ",yeah:"jɛə",mean:"min",kind:"kaɪnd",lot:"lɑt",got:"gɑt",put:"pʊt",big:"bɪg",same:"seɪm",best:"bɛst",better:"ˈbɛtər",done:"dʌn",maybe:"ˈmeɪbi",actually:"ˈæktʃuəli",question:"ˈkwɛstʃən",talk:"tɔk",talking:"ˈtɔkɪŋ",today:"təˈdeɪ",next:"nɛkst",ever:"ˈɛvər",together:"təˈgɛðər"};
+/* A homograph (read, live, record, present…) is said differently by sense,
+   and the sentence decides. These are cached under word@video:paragraph, so a
+   paragraph is only ever shown the reading the model gave for THAT sentence;
+   every other word is a fact about the word and is cached once. */
+const SV_IPA_HOMOGRAPHS=new Set(["read","reads","lead","leads","live","lives","record","records","present","presents","object","objects","wind","winds","tear","tears","close","closes","use","uses","bow","bows","minute","minutes","produce","produces","content","contents","permit","permits","conduct","conducts","contract","contracts","desert","deserts","refuse","refuses","subject","subjects","project","projects","progress","increase","increases","decrease","decreases","export","exports","import","imports","insult","insults","suspect","suspects","rebel","rebels","separate","estimate","estimates","graduate","graduates","moderate","alternate","associate","associates","delegate","delegates","duplicate","house","excuse","excuses","abuse","abuses","dove","sow","row","rows","wound","wounds","bass","polish","resume","address","addresses","attribute","attributes","combat","compound","compounds","conflict","conflicts","console","convert","converts","convict","convicts","digest","escort","exploit","exploits","extract","extracts","impact","impacts","invite","perfect","protest","protests","survey","surveys","transfer","transfers","transport","upset","update","updates","affect","entrance","invalid","axes","number","learned","sewer","proceeds","attributes"]);
+let _svIpa={};try{_svIpa=JSON.parse(localStorage.getItem("be_sv_ipa")||"{}")||{}}catch(e){_svIpa={}}
+function svIpaCtx(sg){return shClip.vid+":"+sg.id}
+function svIpaKey(n,ctx){return SV_IPA_HOMOGRAPHS.has(n)?n+"@"+(ctx||""):n}
+const _svIpaBusy=new Map();
+let _svIpaPeek=null;   /* {key,k}: the one word whose IPA is shown after a tap while Pronunciation is off */
+function svIpaNorm(w){return String(w||"").toLowerCase().replace(/’/g,"'").replace(/[^a-z'-]/g,"").replace(/^[-']+|[-']+$/g,"")}
+function svIpaGet(w,ctx){const n=svIpaNorm(w);if(!n)return "";return _svIpa[svIpaKey(n,ctx)]||(SV_IPA_HOMOGRAPHS.has(n)?"":(_svIpa[n]||SV_IPA_SEED[n]))||""}
+function svIpaSave(){const ks=Object.keys(_svIpa);while(ks.length>3000)delete _svIpa[ks.shift()];try{localStorage.setItem("be_sv_ipa",JSON.stringify(_svIpa))}catch(e){}}
+function svIpaMissing(sg){const seen=new Set(),ctx=svIpaCtx(sg);String(sg.text||"").split(/\s+/).forEach(w=>{const n=svIpaNorm(w);if(n&&!svIpaGet(n,ctx))seen.add(n)});return [...seen]}
+function svIpaParse(reply,words){
+  let s=String(reply||"").trim();
+  const m=s.match(/"reply"\s*:\s*"([^]*)/);if(m)s=m[1];   /* a reply the Worker could not parse as JSON (cut short) comes back raw: salvage the pairs that are whole */
+  const want=new Set(words),out={};
+  s.split("|").forEach(pair=>{
+    const i=pair.indexOf("=");if(i<1)return;
+    const w=svIpaNorm(pair.slice(0,i)),v=pair.slice(i+1).replace(/[\/\[\]"{}\\]/g,"").trim();
+    if(!w||!want.has(w)||!v||v.length>40||v===w||/[A-Z0-9]/.test(v))return;   /* an echo of the word, a number or a capital is not IPA */
+    out[w]=v;
+  });
+  return out;
+}
+async function svIpaAsk(sentence,words){
+  const r=await svAiChat(SV_IPA_SYSTEM,`Sentence: "${String(sentence).slice(0,600)}"\nWords: ${words.join(", ")}`);
+  if(!r.ok)throw new Error("ipa "+r.status);
+  const j=await r.json();return svIpaParse((j&&j.reply)||"",words);
+}
+async function svShIpaFetch(sg){
+  if(!svOn())throw new Error("off");
+  const miss=svIpaMissing(sg);if(!miss.length)return 0;
+  if(!POLISH_API||!navigator.onLine)throw new Error("offline");
+  const key=shClip.vid+":"+sg.id;
+  if(_svIpaBusy.has(key))return _svIpaBusy.get(key);
+  const p=(async()=>{
+    const batches=[];for(let i=0;i<miss.length;i+=SV_IPA_BATCH)batches.push(miss.slice(i,i+SV_IPA_BATCH));
+    const outs=await Promise.all(batches.map(b=>svIpaAsk(sg.text,b)));
+    let n=0;const ctx=svIpaCtx(sg);outs.forEach(o=>Object.keys(o).forEach(w=>{_svIpa[svIpaKey(w,ctx)]=o[w];n++}));
+    if(!n)throw new Error("empty");
+    svIpaSave();return n;
+  })().finally(()=>_svIpaBusy.delete(key));
+  _svIpaBusy.set(key,p);return p;
+}
+/* one word chip: the word, and under it its IPA when the helper is on (or
+   this is the word just tapped). The IPA line is decoration for the eye —
+   aria-hidden, so a screen reader hears the word once, not the symbols. */
+function svShWordHTML(w,k){
+  const show=svShIpaOn()||(!!_svIpaPeek&&_svIpaPeek.k===k);
+  const clean=w.replace(/[^A-Za-z0-9'’-]/g,""),sg=svShSeg();
+  return `<button class="sv-sh-w" data-k="${k}" data-w="${esc(clean)}" onclick="svShWordTap(this)"><span class="sv-sh-wt">${esc(w)}</span>${show?`<span class="sv-sh-ipa" aria-hidden="true">${esc(svIpaGet(clean,sg?svIpaCtx(sg):""))}</span>`:""}</button>`;
+}
+function svShIpaStatusHTML(sg){
+  const on=svShIpaOn();
+  if(!on)return `<p class="sv-sh-st" id="svShIpaSt" aria-live="polite" hidden></p>`;
+  return `<p class="sv-sh-st ${svIpaMissing(sg).length?"wait":""}" id="svShIpaSt" aria-live="polite">${esc(t(svIpaMissing(sg).length?"sv.sh_ipa_wait":"sv.sh_ipa_note"))}</p>`;
+}
+function svShIpaStatus(state,detail){
+  const el=document.getElementById("svShIpaSt");if(!el)return;
+  const on=svShIpaOn();
+  el.hidden=!(on||state==="wait"||state==="err");
+  el.className="sv-sh-st "+(state==="err"?"err":state==="wait"?"wait":"");
+  el.innerHTML=state==="wait"?esc(t("sv.sh_ipa_wait")):state==="err"?`${esc(t(detail==="rate_limited"?"sv.sh_busy":"sv.sh_ipa_err"))} <button class="sv-sh-retry" onclick="svShIpaRetry()">${esc(t("sh.cap_retry"))}</button>`:on?esc(t("sv.sh_ipa_note")):"";
+}
+function svShIpaDraw(){
+  const card=document.getElementById("svSh");if(!card)return;
+  const on=svShIpaOn();let any=false;
+  card.querySelectorAll(".sv-sh-w").forEach(b=>{
+    const k=+b.dataset.k,show=on||(!!_svIpaPeek&&_svIpaPeek.k===k);
+    let sp=b.querySelector(".sv-sh-ipa");
+    if(!show){if(sp)sp.remove();return}
+    any=true;
+    if(!sp){sp=document.createElement("span");sp.className="sv-sh-ipa";sp.setAttribute("aria-hidden","true");b.appendChild(sp)}
+    sp.textContent=svIpaGet(b.dataset.w,svIpaCtx(svShSeg()||{id:""}));
+  });
+  const wrap=card.querySelector(".sv-sh-words");if(wrap)wrap.classList.toggle("ipa",any);
+}
+function svShIpaGo(sg){
+  if(!svIpaMissing(sg).length){svShIpaDraw();svShIpaStatus("ok");return}
+  svShIpaStatus("wait");
+  svShIpaFetch(sg).then(()=>{if(svShSameCard(sg)){svShIpaDraw();svShIpaStatus("ok")}})
+    .catch(e=>{if(!svShSameCard(sg))return;const m=String(e&&e.message||"");if(m==="off")return;svShIpaDraw();svShIpaStatus("err",/ 429$/.test(m)?"rate_limited":"")});
+}
+/* ---- WATCH: the helpers follow the paragraph being spoken. The same two
+   switches (same preference) sit above the list; the translation goes under
+   the current paragraph, the IPA under its words — only that paragraph, so a
+   whole talk is never translated or transcribed for nothing. Sentence-level
+   captions have no word spans, so IPA has nothing to sit under there and the
+   translation alone is shown. ---- */
+let svWtCur=-1;
+function svWtTogglesHTML(){
+  if(!svOn())return "";
+  const lang=svShLang(),trOn=svShTrOn(),ipaOn=svShIpaOn();
+  const trLbl=lang.ok?t("sv.sh_tr_a11y",{lang:lang.native||lang.name}):t("sv.sh_tr_none");
+  return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
+    <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svWtTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
+    <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
+  </div>`;
+}
+function svWtGroup(k){const ps=svParas(svAsset);return svParaGroup(ps[k])}
+function svWtSame(k,g){return svMode==="watch"&&svWtCur===k&&shClip.vid===g.vid&&!!document.querySelector(`#svTx .sv-para[data-p="${k}"]`)}
+function svWatchDraw(k){
+  const tx=document.getElementById("svTx");if(!tx)return;
+  tx.querySelectorAll(".sv-para-tr,.sv-w-ipa").forEach(e=>e.remove());
+  tx.querySelectorAll(".sv-para.has-ipa").forEach(e=>e.classList.remove("has-ipa"));
+  svWtCur=k;
+  if(!svOn()||!(svShTrOn()||svShIpaOn()))return;
+  const para=tx.querySelector(`.sv-para[data-p="${k}"]`),g=svWtGroup(k);if(!para||!g)return;
+  if(svShTrOn()){
+    const lang=svShLang(),tx0=_svTr[svShTrKey(g)];
+    const box=document.createElement("div");box.className="sv-sh-tr sv-para-tr "+(tx0?"":"wait");box.setAttribute("lang",lang.code);box.setAttribute("dir",lang.rtl?"rtl":"ltr");box.setAttribute("aria-live","polite");
+    box.innerHTML=svShTrInner(tx0?"ok":"wait",tx0);para.appendChild(box);
+    if(tx0)svShTrViewed(g);
+    else svShTrFetch(g).then(txt=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr";box.innerHTML=svShTrInner("ok",txt);svShTrViewed(g)}})
+      .catch(e=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr err";box.innerHTML=svShTrInner("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"").replace("svShTrRetry()","svWtRetry()")}});
+  }
+  if(svShIpaOn()&&para.querySelector(".sv-w")){
+    const paint=()=>{const ctx=svIpaCtx(g);para.classList.add("has-ipa");para.querySelectorAll(".sv-w").forEach(w=>{let sp=w.querySelector(".sv-w-ipa");if(!sp){sp=document.createElement("span");sp.className="sv-w-ipa";sp.setAttribute("aria-hidden","true");w.appendChild(sp)}sp.textContent=svIpaGet(w.firstChild&&w.firstChild.textContent||"",ctx)})};
+    paint();
+    if(svIpaMissing(g).length)svShIpaFetch(g).then(()=>{if(svWtSame(k,g)&&svShIpaOn())paint()}).catch(()=>{});
+  }
+}
+window.svWtRetry=()=>{const k=svWtCur;svWtCur=-1;svWatchDraw(k)};
+/* after the card is on the page: fetch what the helpers that are on still lack */
+function svShAfterDraw(){
+  const sg=svShSeg();if(!sg||!svOn())return;
+  if(svShTrOn()){if(_svTr[svShTrKey(sg)])svShTrViewed(sg);else svShTrGo(sg)}
+  if(svShIpaOn()){_svIpaPeek=null;svShIpaGo(sg)}
+}
+window.svShTrToggle=()=>{
+  if(!svOn())return false;
+  const lang=svShLang();
+  if(!lang.ok){toast(t("sv.sh_tr_none"));return false}
+  const p=svShPref();p.tr=!p.tr;save();
+  try{track("shadow_translation_toggled",{state:p.tr?"on":"off",lang:lang.code})}catch(e){}
+  svRender();return !!p.tr;
+};
+window.svShIpaToggle=()=>{
+  if(!svOn())return false;
+  const p=svShPref();p.ipa=!p.ipa;_svIpaPeek=null;save();
+  try{track("shadow_pronunciation_toggled",{state:p.ipa?"on":"off"})}catch(e){}
+  svRender();return !!p.ipa;
+};
+window.svShTrRetry=()=>{const sg=svShSeg();if(!sg||!svShTrOn())return;svShTrDraw("wait");svShTrGo(sg)};
+window.svShIpaRetry=()=>{const sg=svShSeg();if(!sg||!svOn())return;svShIpaGo(sg)};
+/* a tap on a word: hear it (the natural voice, else the device's) and see it.
+   With Pronunciation off the tap shows this one word's IPA under it — a peek,
+   not a switch — fetching the paragraph's unknown words once if it has to. */
+window.svShWordTap=b=>{
+  const w=b.dataset.w||"",k=+b.dataset.k;
+  if(w){try{svChStopAll()}catch(e){}fbSay(w,1)}
+  b.classList.add("said");setTimeout(()=>b.classList.remove("said"),900);
+  try{track("shadow_word_played")}catch(e){}
+  if(!svOn()||svShIpaOn())return;
+  const sg=svShSeg();if(!sg||!svIpaNorm(w))return;
+  _svIpaPeek={key:shClip.vid+":"+sg.id,k};
+  svShIpaDraw();
+  if(!svIpaGet(w,svIpaCtx(sg)))svShIpaGo(sg);
+};
 function svShHTML(){
   const sg=svShSeg();if(!sg)return "";
-  const a=svAsset,lang=svShLang(),tr=_svTr[svShTrKey(sg)],ps=svParas(a),i=ps.findIndex(p=>p.from===sg.from);
-  const words=sg.text.split(/\s+/).filter(Boolean).map(w=>`<button class="sv-sh-w" onclick="fbSay('${esc(w.replace(/[^A-Za-z0-9'’-]/g,"")).replace(/'/g,"\\'")}',1)">${esc(w)}</button>`).join(" ");
+  const a=svAsset,lang=svShLang(),ps=svParas(a),i=ps.findIndex(p=>p.from===sg.from),trOn=svShTrOn(),ipaOn=svShIpaOn();
+  const words=sg.text.split(/\s+/).filter(Boolean).map(svShWordHTML).join(" ");
   const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
+  const trLbl=lang.ok?t("sv.sh_tr_a11y",{lang:lang.native||lang.name}):t("sv.sh_tr_none");
   return `<div class="sv-sh" id="svSh">
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
-      <div class="sv-sh-words">${words}</div>
-      <p class="sv-sh-text">${esc(sg.text)}</p>
-      <div class="sv-sh-tr ${tr?"":"empty"}" id="svShTr">${tr?esc(tr):""}</div>
+      <div class="sv-sh-words ${ipaOn?"ipa":""}" lang="en">${words}</div>
+      ${svShIpaStatusHTML(sg)}
+      <p class="sv-sh-text" lang="en">${esc(sg.text)}</p>
+      ${svShTrHTML(sg)}
       <div class="sv-sh-acts">
-        ${lang.code!=="en"?`<button class="sv-sh-rb ${tr?"on":""}" onclick="svShTranslate()" aria-label="${esc(t("sv.sh_translate"))}" title="${esc(lang.native||lang.name)}">${ic("globe")}<small>${esc(lang.code.toUpperCase())}</small></button>`:""}
-        <button class="sv-sh-rb" onclick="svChStopAll();fbSay(svShSeg().text,1)" aria-label="${esc(t("sv.sh_hear"))}">${ic("sound")}</button>
+        <div class="sv-sh-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
+          <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svShTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
+          <button class="sv-sh-t ${ipaOn?"on":""}" id="svShIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
+        </div>
+        <button class="sv-sh-rb" onclick="svChStopAll();fbSay(svShSeg().text,1)" aria-label="${esc(t("sv.sh_hear"))}" title="${esc(t("sv.sh_hear"))}">${ic("sound")}</button>
       </div>
     </div>
     <p class="sv-note">${t("sv.sh_hint")}</p>
@@ -17562,23 +18342,6 @@ window.svShFav=()=>{
 window.svShStep=d=>{const ps=svParas(svAsset),k=ps.findIndex(p=>p.from===svShGroup().from)+d;if(k<0||k>=ps.length)return;svShPara=ps[k].from;svRender();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShReplay=()=>{if(!svAsset)return;svChStopAll();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShSpeed=()=>{shRate();svShBarSync()};
-window.svShTranslate=async()=>{
-  const sg=svShSeg(),box=document.getElementById("svShTr");if(!sg||!box)return;
-  const key=svShTrKey(sg),lang=svShLang();
-  if(_svTr[key]){delete _svTr[key];try{localStorage.setItem("be_sv_tr",JSON.stringify(_svTr))}catch(e){}svRender();return}   /* tap again: hide */
-  if(!POLISH_API||!navigator.onLine){box.className="sv-sh-tr err";box.textContent=t("sv.sh_tr_err");return}
-  box.className="sv-sh-tr wait";box.textContent=t("sv.sh_tr_wait");
-  try{
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{
-      system:`You are a translator. Translate the user's English text into ${lang.name} (${lang.native}). Keep the meaning and register, no explanations. Respond with ONLY minified JSON: {"reply":"<the translation>"}`,
-      messages:[{role:"user",content:sg.text.slice(0,600)}]}})});
-    if(!r.ok)throw new Error("tr "+r.status);
-    const j=await r.json();const tx=String((j&&j.reply)||"").trim();
-    if(!tx||/could you say that again/i.test(tx))throw new Error("empty");
-    _svTr[key]=tx;const ks=Object.keys(_svTr);if(ks.length>200)delete _svTr[ks[0]];try{localStorage.setItem("be_sv_tr",JSON.stringify(_svTr))}catch(e){}
-    if(svMode==="shadow")svRender();
-  }catch(e){box.className="sv-sh-tr err";box.textContent=t("sv.sh_tr_err")}
-};
 /* the bar at the foot of the workspace: shown in Shadow only, mirrors the recorder */
 let _svShBarIv=null;
 function svShBarSync(){
@@ -17589,7 +18352,8 @@ function svShBarSync(){
   const tick=()=>{const live=!!(rec.mr&&rec.mr.state==="recording");const b=document.getElementById("svShRec"),l=document.getElementById("svShRecLbl"),tm=document.getElementById("svShTime"),sp=document.getElementById("svShSpeedLbl");
     if(b)b.classList.toggle("on",live);if(l)l.textContent=t(live?"sv.sh_stop":"sv.sh_record");
     if(tm){const src=document.getElementById("recTime");tm.textContent=live&&src?src.textContent:"";tm.hidden=!live}
-    if(sp)sp.textContent=(shClip.rate+"×").replace("0.",".")};
+    if(sp)sp.textContent=(shClip.rate+"×").replace("0.",".");
+    try{shv3RecSync()}catch(e){}};
   tick();if(!_svShBarIv)_svShBarIv=setInterval(tick,300);
 }
 window.svShadowThis=()=>{
@@ -19185,6 +19949,7 @@ function svTick(){
          and Challenge — the line itself is the unit, as before. */
       const para=el.closest(".sv-para");
       const key=para?("p"+para.dataset.p):("s"+loc.seg);
+      if(para&&svMode==="watch"&&svPick<0&&+para.dataset.p!==svWtCur)svWatchDraw(+para.dataset.p);   // the helpers follow the speech, paragraph by paragraph
       if((svTxFresh||Date.now()-svUserScrollAt>3000)&&el.offsetParent&&key!==svScrollKey){
         svScrollTo(tx,para||el);svTxFresh=false;svScrollKey=key;
       }}}
@@ -19243,6 +20008,11 @@ async function ppEraseMe(){
   try{r=await fetch(ppApiBase()+"/me",{method:"DELETE",headers:h})}catch(e){throw Object.assign(new Error("network"),{code:"network"})}
   if(!r.ok&&r.status!==404)throw Object.assign(new Error("server"),{code:"server",status:r.status});   /* 404 = no Worker at that address = nothing held */
 }
+/* a 429 is two different things: "limit" is a safety cap with a day
+   boundary (reports, blocks), "rate"/"ip_limit" is a busy minute.
+   Practising is never rationed, so on a practice route it can only mean
+   the second — "try again in a moment", never "today's limit". */
+const ppIsRate=e=>!!e&&(e.code==="rate"||e.code==="ip_limit");
 async function ppApi(method,path,body){
   if(!ppAvailable())throw Object.assign(new Error("off"),{code:"off"});
   const h=await ppHeaders();let b=body;
@@ -19477,7 +20247,7 @@ async function ppRevRequest(pair,quiet){
        this client (the route is not there yet). Same honest message. */
     if(e.code==="review_off"||(e.code==="not_found"&&e.status===404)){if(!quiet)toast(t("pp.rv_off_toast"));return null}
     if(e.code==="not_complete"){return null}
-    if(e.code==="limit"){if(!quiet)toast(t("pp.err_limit"));return null}
+    if(ppIsRate(e)){if(!quiet)toast(t("pp.err_rate"));return null}
     if(!quiet)toast(t("pp.rv_fail_toast"));return null;
   }
   if(r&&r.pending){   /* another request is writing it: come back in a moment */
@@ -20132,18 +20902,25 @@ function ppPresenceHTML(){
   return `<button type="button" class="pp-presence ${none?"none":"some"}" onclick="ppPresenceTap()" aria-live="polite"><span class="pp-presence-dot"></span><span>${label}</span><span class="pp-pill-go">›</span></button>`;
 }
 window.ppPresenceTap=()=>{const m=ppMe;try{track("partner_availability_viewed",{})}catch(e){}if(m&&m.pair){const el=document.getElementById("v-partner");if(el)el.querySelector(".pp-thread")?.scrollIntoView({behavior:"smooth"});return}if(m&&m.invite){return}ppMatch()};
-/* Human first (owner, 2026-09-19, final): the AI coach card appears only when
-   no askable human is available — nobody in line or online (idle page,
-   waiting card, an empty candidate list) — or through the existing fallback
+/* Human first, but the coach is always reachable (owner, 2026-09-23 — this
+   replaces the 2026-09-19 "absent while anyone is in line" rule): the card is
+   on every Practice Partner screen the learner can start from (idle page,
+   waiting card, candidate list) as well as through the existing fallback
    conditions (a silent partner, the More-options choice inside a session).
-   It never sits next to a real learner's card. Always labelled AI. */
+   While a real learner is askable it reads "Or practise with the AI coach"
+   and keeps the secondary button, so the human path keeps the one accent;
+   with nobody available it takes the accent and the fallback wording.
+   Always labelled AI. */
 function ppHumanAvailable(){const m=ppMe;if(!m)return false;if(m.waiting&&m.waiting.available>0)return true;if(Array.isArray(ppCands)&&ppCands.length>0)return true;return !!(m.presence&&m.presence.waiting>0)}
-function ppAiChoiceHTML(reason,noHuman){
+function ppAiChoiceHTML(reason){
   if(!flag("practice_partner_ai_fallback_enabled"))return "";
-  if(ppHumanAvailable())return "";
-  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('${reason}')">${t("pp.fallback_btn")}</button></div></section>`;
+  const human=ppHumanAvailable();
+  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t(human?"pp.ai_choice_h":"pp.nohuman_h")}</b><p class="sub">${t(human?"pp.ai_choice_sub":"pp.nohuman_sub")}</p>
+    <div class="pp-row"><button class="${human?"btn btn-g":"btn-primary"}" onclick="ppAiPractice('${reason}')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button></div></section>`;
 }
+/* the "Choose how you want to practise" line: only where the AI card renders
+   next to the human one, so it never announces a choice that is not there */
+function ppChooseEyebrow(){return flag("practice_partner_ai_fallback_enabled")?`<div class="eyebrow">${t("pp.choose_h")}</div>`:""}
 function ppIntroHTML(){
   return `<section class="card pp-intro">
     <div class="pp-steps">
@@ -20189,21 +20966,22 @@ function ppRender(el){
     </section>`:"";
   if(m.waiting){
     shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-wait">
-      <div class="pp-wait-ring">${ic("clock")}</div>
+      ${m.waiting.available>0?"":`<div class="pp-wait-ring">${ic("clock")}</div>`}
+      ${ppChooseEyebrow()}
       <b class="${m.waiting.available>0?"pp-green":""}">${m.waiting.available>0?t("pp.waiting_avail_h",{n:m.waiting.available}):t("pp.waiting_h")}</b>
       <p class="sub ${m.waiting.available>0||m.waiting.count>1?"pp-green":""}">${m.waiting.available>0?t("pp.waiting_avail_sub"):(m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone"))}</p>
-      <p class="pp-fine">${t("pp.waiting_since",{time:new Date(m.waiting.since).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})})}</p>
-      <p class="sub">${t("pp.waiting_sub")}</p>
-      <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
+      <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button></div>
     </section>
-    ${ppAiChoiceHTML("waiting",!(m.waiting.available>0))}`);return;
+    ${ppAiChoiceHTML("waiting")}
+    <div class="pp-row pp-wait-stop"><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
+    <p class="pp-fine pp-wait-note">${t("pp.waiting_since",{time:new Date(m.waiting.since).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})})} ${t("pp.waiting_sub")}</p>`);return;
   }
   const closed=m.lastClosed&&ppState().dismissedClosed!==m.lastClosed.id?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed","declined","cancelled"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"),{name:esc(m.lastClosed.name||"")})}</p>`:"";
   shell(`${aiResume}${applyCard}${conn}${ppIntroHTML()}<section class="card pp-cta">${closed}
-    <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
+    ${ppChooseEyebrow()}<b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
     <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppMatch()">${t("pp.match_btn")}</button><button class="btn btn-g" ${ppBusy?"disabled":""} onclick="ppNow()">${t("pp.now_btn")}</button></div>
     <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
-  </section>${ppAiChoiceHTML("choice",false)}`);
+  </section>${ppAiChoiceHTML("choice")}`);
 }
 const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar",in_line:"pp.why_line",online_now:"pp.why_online"};
 function ppReasonText(r){
@@ -20227,7 +21005,7 @@ function ppCandidatesHTML(cards){
     <p class="pp-fine">${t("pp.cand_live_note")}</p>
   </section>`).join("")}
   <div class="pp-row"><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.cands_back")}</button></div>
-  ${ppAiChoiceHTML("cands",false)}`;
+  ${ppAiChoiceHTML("cands")}`;
 }
 function ppThreadHTML(p){
   const pr=ppPrompt(p);
@@ -20381,7 +21159,7 @@ window.ppSend=async()=>{
     if(res&&res.complete&&ppMe&&ppMe.pair&&ppMe.pair.id===p.id){
       ppRevRequest(ppMe.pair,false).then(rv=>{if(rv&&cur.v==="partner"&&!ppLive&&!ppAiOpen)ppRevOpen(rv.id);else if(rv)toast(t("pp.rv_ready_toast"))}).catch(()=>{})}
   }catch(e){
-    const msg=e.code==="moderation"?t("pp.err_moderation"):e.code==="limit"?t("pp.err_limit"):e.code==="not_your_turn"?t("pp.err_turn"):e.code==="complete"?t("pp.err_complete"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
+    const msg=e.code==="moderation"?t("pp.err_moderation"):ppIsRate(e)?t("pp.err_rate"):e.code==="not_your_turn"?t("pp.err_turn"):e.code==="complete"?t("pp.err_complete"):e.code==="network"?t("pp.offline_sub"):e.code==="no_pair"?t("pp.err_nopair"):t("pp.err_generic");
     toast(msg);
     if(e.code==="moderation"){r.transcript="";r.score=null;r.words=null;ppRec=null;ppRenderRecorder()}
     if(e.code==="not_your_turn"||e.code==="complete"||e.code==="no_pair"){await ppRefresh();const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
@@ -20425,7 +21203,7 @@ window.ppMatch=async()=>{
     if(e.code==="paired"){await ppRefresh(true);return}   /* the cached /me was stale: a session is already open — the re-read draws it */
     if(e.code==="consent"||e.code==="age"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{ppOpenConsent()}catch(_){}return}
     if(e.code==="auth"){ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{fbOpenModal("in")}catch(_){}return}
-    toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+    toast(ppIsRate(e)?t("pp.err_rate"):e.code==="suspended"?t("pp.suspended_h"):e.code==="track"?t("pp.ge_only_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 /* Practice now: take the best candidate immediately, or stay in line with the AI coach offered */
@@ -20439,7 +21217,7 @@ window.ppNow=async()=>{
     try{track("partner_match_requested",{now:"1"});if(r.status==="invited")track("partner_trial_invited",{})}catch(e){}
     if(r.status==="invited"){toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}))}
     else{toast(t("pp.nohuman_h"));try{track("partner_ai_fallback",{})}catch(e){}}
-  }catch(e){toast(e.code==="limit"?t("pp.err_limit"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  }catch(e){toast(ppIsRate(e)?t("pp.err_rate"):e.code==="suspended"?t("pp.suspended_h"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppInvite=async(offer,live)=>{
@@ -20453,7 +21231,7 @@ window.ppInvite=async(offer,live)=>{
     toast(t("pp.tinv_sent",{name:r.pairInvite?r.pairInvite.partner.name:"?"}));
   }catch(e){
     if(e.code==="offer"||e.code==="gone"){toast(t("pp.err_gone"));ppCands=null;await ppMatch();return}
-    toast(e.code==="limit"?t("pp.err_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
+    toast(ppIsRate(e)?t("pp.err_rate"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"));
   }finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppNext=async()=>{
@@ -20500,7 +21278,7 @@ window.ppLiveInvite=async()=>{
     const r=await ppApi("POST","/live",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
     ppMe=r;st.lastMe=r;st.partnersFresh=null;save();try{track("partner_live_invited",{})}catch(e){}
     ppLiveOpen(r.live,null);
-  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"))}
+  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppLiveAccept=async()=>{
@@ -21025,7 +21803,7 @@ window.ppAiStart=async(reason)=>{
     const id=[...crypto.getRandomValues(new Uint8Array(8))].map(x=>x.toString(16).padStart(2,"0")).join("");
     /* the Worker counts new AI sessions per learner (12/day) and refuses the wrong track */
     try{await ppApi("POST","/ai/session",{id,track:areaId(),reason:reason||"choice"})}
-    catch(e){ppBusy=false;return toast(e.code==="limit"?t("pp.ai_limit"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+    catch(e){ppBusy=false;return toast(ppIsRate(e)?t("pp.err_rate"):e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
     ppBusy=false;
     a={id,reason:reason||"choice",
        seed:{promptWeek:p?p.promptWeek:pos.promptWeek,fndDay:p?p.fndDay:pos.fndDay,band:p?p.band:ppBand(),phrase:(p&&p.prompt&&p.prompt.phrase)||(st.applyPhrase&&st.applyPhrase.text)||null,pairId:p?p.id:null},
@@ -21185,7 +21963,7 @@ window.ppConnEnd=async(findElse)=>{
   if(!ok)return;
   ppBusy=true;
   try{const r=await ppApi("POST","/connection/end",{cid:c.cid});ppMe=r;ppState().lastMe=r;save();ppHistSafety(findElse?"rematch":"end",c.name);try{track("partner_connection_ended",{})}catch(e){}toast(t("pp.end_done"))}
-  catch(e){ppBusy=false;toast(e.code==="limit"?t("pp.err_limit"):t("pp.err_generic"));return}
+  catch(e){ppBusy=false;toast(ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"));return}
   ppBusy=false;
   if(findElse)ppMatch();else{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
@@ -24598,6 +25376,7 @@ async function fbFirstSync(u){
          Drop it and start from the account (or from empty, for a new account). */
       localStorage.removeItem(LS_KEY);
       try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
+      try{exWipe()}catch(e){}     // and whatever they left in the Polish box
       S=cloud||load();
     }else if(cloud){
       const merged=fbMerge(S,cloud);
@@ -24942,6 +25721,7 @@ window.fbReset=async function(){
    they were never in the account, so leaving them would strand one person's
    audio inside another person's session pages. */
 function fbWipeDevice(){
+  try{exWipe()}catch(e){}         // the Polish box, versions and open report are in memory only — they must not outlive the account
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(FB_OWNER_KEY);
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}

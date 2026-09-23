@@ -95,13 +95,14 @@ await A.page.click("#v-partner .pp-cta .btn-primary"); await sleep(1200);
 ok("No candidates → honest message, AI coach offered, stays in line", (await txt(A.page, "#v-partner")).includes("No one is available right now") && (await txt(A.page, "#v-partner")).includes("AI coach") && (await (await api("alice", "GET", "/me")).json()).waiting);
 await A.page.click('button:has-text("Keep looking")'); await sleep(900);
 ok("Waiting list: the card says since when, and a newcomer raises 'N learner(s) available' + a banner on the waiter's side", await (async () => {
-  const before = await txt(A.page, ".pp-wait"); await api("zoe", "POST", "/consent", { name: "Zoe", lang: "fr", adult: true }); await api("zoe", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
+  const before = await txt(A.page, "#v-partner"); await api("zoe", "POST", "/consent", { name: "Zoe", lang: "fr", adult: true }); await api("zoe", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
   await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); ppCallSync(); }); await sleep(400);
-  const after = await txt(A.page, ".pp-wait"), banner = await txt(A.page, "#ppCall.on");
+  const after = await txt(A.page, "#v-partner"), banner = await txt(A.page, "#ppCall.on");
   await A.page.evaluate(() => ppCallHide()); await api("zoe", "DELETE", "/interest"); await hide("zoe");
   await A.page.evaluate(async () => { await ppRefresh(); ppRender(document.getElementById("v-partner")); });
   return before.includes("In line since") && after.includes("1 learner(s) available to practise") && banner.includes("available to practise with you") && banner.includes("Show me candidates"); })());
-ok("Waiting state (nobody in line) shows the AI fallback card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
+ok("Waiting state (nobody in line) shows the AI coach card, labelled AI", (await txt(A.page, ".pp-fallback")).includes("AI COACH — NOT YOUR PARTNER"));
+ok("Nobody in line: the AI card takes the accent and says so honestly — 'No partner available yet', not an error", await A.page.evaluate(() => { const c = document.querySelector(".pp-fallback"); return !!c && !!c.querySelector(".btn-primary") && /No partner available yet/i.test(c.innerText); }));
 
 /* ---------- live availability UX: presence strip, auto-discovery, FAB, newcomer toast ---------- */
 ok("Waiting card: 'You're on the waiting list — looking for your partner…'", (await txt(A.page, ".pp-wait")).includes("You're on the waiting list"));
@@ -112,9 +113,24 @@ await A.page.evaluate(() => { ppCallHide(); ppCandsToasted = null; ppAutoAvail =
 const auto = await A.page.evaluate(() => ({ cands: Array.isArray(ppCands) ? ppCands.map(c => c.name) : null, avail: ppAutoAvail, strip: (document.querySelector("#v-partner .pp-presence")?.innerText || "").replace(/\s+/g, " "), toast: document.getElementById("toast")?.innerText || "", note: (document.querySelector(".pp-cand")?.innerText || "").replace(/\s+/g, " ") }));
 ok("Auto-discovery: someone arrives while I wait → the candidate cards open without a tap (once per rise)", auto.cands && auto.cands.includes("Eve") && auto.avail === 1, JSON.stringify(auto));
 ok("Presence strip counts the newcomer as ready to practise", auto.strip.includes("ready to practise"), auto.strip);
-ok("Human first: while a learner is askable the AI coach card is absent — on the candidate list and on the waiting card", await A.page.evaluate(() => { const onCards = !document.querySelector(".pp-fallback"); ppCands = null; ppRender(document.getElementById("v-partner")); const onWait = !document.querySelector(".pp-fallback") && !!document.querySelector(".pp-wait"); ppMatch(); return onCards && onWait; }));
+ok("A choice, not a fallback: while a learner is askable the AI coach card is on both the candidate list and the waiting card, reads 'Or practise with the AI coach' and keeps the secondary button", await A.page.evaluate(() => {
+  const read = () => { const c = document.querySelector(".pp-fallback"); return c ? { txt: c.innerText.replace(/\s+/g, " "), primary: !!c.querySelector(".btn-primary") } : null; };
+  const onCards = read(); ppCands = null; ppRender(document.getElementById("v-partner"));
+  const onWait = read(), root = document.getElementById("v-partner");
+  const eyebrow = root.querySelector(".pp-wait .eyebrow")?.innerText || "", waitCard = !!document.querySelector(".pp-wait");
+  const ai = root.querySelector(".pp-fallback"), stop = [...root.querySelectorAll("button")].find(b => (b.getAttribute("onclick") || "").includes("ppWithdraw"));
+  const order = !!ai && !!stop && (ai.compareDocumentPosition(stop) & Node.DOCUMENT_POSITION_FOLLOWING) > 0;
+  ppMatch();
+  return !!onCards && !!onWait && waitCard && order && /Or practise with the AI coach/i.test(onWait.txt) && /Or practise with the AI coach/i.test(onCards.txt) && !onWait.primary && !onCards.primary && /choose how you want to practise/i.test(eyebrow);
+}));
 await A.page.waitForFunction(() => Array.isArray(ppCands) && ppCands.length > 0, null, { timeout: 8000 }).catch(() => {});
-ok("Human first: while a learner is in line the AI coach card is NOT under the list, and no 'No one is available' card", await A.page.evaluate(() => { ppRender(document.getElementById("v-partner")); const t = document.getElementById("v-partner").innerText; return !document.querySelector(".pp-fallback") && !/No one is available/.test(t) && document.querySelectorAll(".pp-cand").length > 0; }), await A.page.evaluate(() => JSON.stringify({ avail: ppMe.waiting && ppMe.waiting.available, cands: Array.isArray(ppCands) ? ppCands.map(c => c.name) : ppCands })));
+ok("Human first in the order: the candidate cards come before the AI coach card, only the human cards carry the accent button, and nothing reads like an error", await A.page.evaluate(() => {
+  ppRender(document.getElementById("v-partner"));
+  const root = document.getElementById("v-partner"), cands = [...root.querySelectorAll(".pp-cand")], ai = root.querySelector(".pp-fallback");
+  return cands.length > 0 && !!ai && (cands[cands.length - 1].compareDocumentPosition(ai) & Node.DOCUMENT_POSITION_FOLLOWING) > 0
+    && !!cands[0].querySelector(".btn-primary") && !ai.querySelector(".btn-primary")
+    && !/No one is available|No partner available yet/.test(root.innerText);
+}), await A.page.evaluate(() => JSON.stringify({ avail: ppMe.waiting && ppMe.waiting.available, cands: Array.isArray(ppCands) ? ppCands.map(c => c.name) : ppCands })));
 ok("Newcomer toast '1 learner(s) waiting — pick one', shown once for the same set", auto.toast.includes("1 learner(s) waiting") && (await A.page.evaluate(() => { const before = document.getElementById("toast").innerText; document.getElementById("toast").innerText = ""; return ppMatch().then(() => document.getElementById("toast").innerText === ""); })), auto.toast);
 ok("Candidate card: 'Practise live' first and 'Try a practice' second — live is open to anyone in line; the note says either can leave", auto.note.includes("Practise live") && auto.note.includes("Try a practice") && auto.note.includes("either of you can leave") && auto.note.indexOf("Practise live") < auto.note.indexOf("Try a practice"), auto.note);
 ok("No second auto-discovery while the count does not rise (cards closed, next poll leaves them closed)", await (async () => { await A.page.evaluate(() => { ppCands = null; ppRender(document.getElementById("v-partner")); }); await sleep(9000); const st = await A.page.evaluate(() => JSON.stringify({ cands: ppCands && ppCands.map(c => c.name), auto: ppAutoAvail, avail: ppMe.waiting && ppMe.waiting.available, seen: ppState().availSeen, call: !!document.querySelector("#ppCall.on"), shown: ppCallShown })); console.log("  .. auto state:", st); return await A.page.evaluate(() => ppCands === null && ppAutoAvail === 1); })());
@@ -151,7 +167,6 @@ ok("Hang up while waiting → the invitation is cancelled, the room is gone, the
 { const am = await (await api("alice", "GET", "/me")).json(); await api("alice", "POST", `/pairs/${am.pair.id}/leave`); }
 await api("eve", "DELETE", "/interest"); await hide("eve"); await A.page.evaluate(async () => { ppCands = null; ppAutoAvail = 99; ppLiveWant = false; await ppRefresh(); await ppMatch(); ppCands = null; ppState().dismissedClosed = ppMe.lastClosed && ppMe.lastClosed.id; ppRender(document.getElementById("v-partner")); });
 await A.page.evaluate(() => { ppAutoAvail = 99; });   /* auto-discovery is proven above; from here every "someone came online" would re-open the cards mid-step and make the rest timing-dependent */
-await fetch(WORKER + "/__uncap", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:alice" }) }).catch(() => {});
 ok("Back in line after leaving (cooldown with Eve), waiting card shown", (await (await api("alice", "GET", "/me")).json()).waiting != null && (await txt(A.page, ".pp-wait")).includes("waiting list"));
 
 /* ---------- Level 2: the AI coach session (Polish Worker intercepted — no live AI call) ---------- */
@@ -168,6 +183,10 @@ const aiHead = await txt(A.page, ".pp-ai-head"), aiPrompt = await txt(A.page, ".
 const curTask = await A.page.evaluate(() => ppPrompt({ rounds: 4, round: 1, promptWeek: ppPosition().promptWeek, fndDay: ppPosition().fndDay }).task);
 ok("AI coach session opens on the partner page, labelled AI, not a person", /\bAI\b/.test(aiHead) && aiHead.includes("not a person") && (await txt(A.page, "#v-partner")).includes("Round 1 of 4"), aiHead);
 ok("AI session uses the learner's General English curriculum task for round 1", curTask.length > 10 && aiPrompt.includes(curTask.slice(0, 40)), aiPrompt);
+ok("Choosing AI does not cost the learner their place: still in the human queue server-side, no pair invented, one AI session open", await (async () => {
+  const am = await (await api("alice", "GET", "/me")).json();
+  return am.waiting != null && !am.pair && await A.page.evaluate(() => !!(ppMe && ppMe.waiting) && !!ppAiActive());
+})());
 const aiId = await A.page.evaluate(() => ppState().ai.id);
 await A.page.evaluate(() => ppAiStart("choice")); await sleep(200);
 ok("Starting the AI practice again returns the same open session (no duplicate)", await A.page.evaluate(id => ppState().ai.id === id, aiId));
@@ -366,7 +385,7 @@ await api("bob", "DELETE", "/interest");   /* nobody else waiting → the honest
 /* Match me (Practise now would propose to the best ONLINE learner at once — the connected partner, Carla, is online) */
 await A.page.click('#v-partner .pp-cta button:has-text("Match me")'); await sleep(1300); await A.page.evaluate(() => { ppCands = null; ppRender(document.getElementById("v-partner")); }); await sleep(300);
 const waitingConn = await txt(A.page, "#v-partner");
-ok("A connected learner can look for someone new without ending the partnership: waiting card + connection card still shown; AI coach card only when nobody is askable (human first)", /looking for your partner|available to practise/i.test(waitingConn) && waitingConn.includes("Your practice partner: Carla") && waitingConn.includes("Stop looking") && (waitingConn.includes("AI COACH — NOT YOUR PARTNER") === !(await A.page.evaluate(() => ppHumanAvailable()))), waitingConn.slice(0, 400));
+ok("A connected learner can look for someone new without ending the partnership: waiting card + connection card still shown, and the AI coach is offered whether or not a human is askable", /looking for your partner|available to practise/i.test(waitingConn) && waitingConn.includes("Your practice partner: Carla") && waitingConn.includes("Stop looking") && waitingConn.includes("AI COACH — NOT YOUR PARTNER"), waitingConn.slice(0, 400));
 await A.page.click('button:has-text("Stop looking")'); await sleep(900);
 await api("bob", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });   /* Bob back in line for the rematch section */
 await A.page.click(".pp-conn .pp-menu"); await sleep(200);
@@ -447,7 +466,8 @@ ok("Use it with a partner → Practice Partner with the phrase queued for the ne
 /* Alice ended her partnership with Carla above and rematched Bob, so both are in cooldown; a fresh learner takes the pairing */
 await api("dina", "POST", "/consent", { name: "Dina", lang: "fr", adult: true, gender: "f", goals: ["workplace"], avail: ["evening"], tz: 0 });
 await api("dina", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "fr", promptWeek: 1 });
-await fetch(WORKER + "/__uncap", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ uid: "dev:alice" }) }).catch(() => {});   /* a long run: reset Alice's daily caps (dev-only route) */
+/* no uncapping: there is no daily practice quota to work around any more —
+   a long run of the whole loop has to survive on its own (owner, 2026-09-23) */
 /* with no compatibility gate, anyone in line may be the best pick — clear the others so the pick is Dina */
 for (const u of ["bob", "zoe", "eve", "carla"]) { await api(u, "DELETE", "/interest"); await hide(u); }
 await A.page.click('button:has-text("Practise now")'); await sleep(1500);

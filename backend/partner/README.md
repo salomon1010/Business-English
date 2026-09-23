@@ -54,7 +54,7 @@ Staging is `--env staging`. Check what is live with `curl …/health` and
 | POST | `/turns` | multipart `audio, transcript, score, duration_ms, turn_id` — turn-order enforced, screened, stored; idempotent on `turn_id`; the 4th turn completes the session |
 | GET | `/turns/:id/audio` | streams audio to pair members only |
 | POST | `/connection/end` · `/connection/report {reason}` · `/connection/block` | `{cid}` — partner management from the connection card; `cid` is an opaque hash resolved only against the caller's own connections (anyone else's → 404). End = state `ended` + 14-day cooldown + any open session/call with that partner closed as `left`; idempotent; not a block, not a report; 10/day |
-| POST | `/ai/session` | `{id, track, reason?}` — opens an AI coach session for the count: 12 new per learner per day, idempotent on `id`, `403 track` for any other track |
+| POST | `/ai/session` | `{id, track, reason?}` — records an AI coach session per learner (never per IP). **No daily ration**; idempotent on `id`, `403 track` for any other track |
 | POST | `/pairs/:id/review` | **four-round review** (migration 0009). `{context?, learned?}` — once the session is complete (409 `not_complete` before), the caller's OWN rounds become one private, topic-aware lesson: what went well / to improve with round evidence, task mastery per component of the day's task, pronunciation targets (evidence-labelled: `audio` when an audio-in model scored the turn's words, `asr` when only a recogniser heard them, `none`), recurring sentence patterns (kind `error|awkward|unnatural|self_correction|hesitation`), natural English, topic vocabulary (`used_well / misused / must / upgrade / next / patterns`), a coach script, a polished answer with the learner's facts, five indicators (`pron grammar vocab fluency task`) with per-round evidence, the next practice plan, reuse of `learned`, the previous plan judged. `context` = the day's curriculum the app sends (week, day, topic, objective, task, phrase bank — clamped by `reviewContext`); `learned` ≤ 20 strings. Member only; `403 track` if the pair is not on an allowed track; idempotent per (pair, uid): repeat → 200 the stored row, concurrent → 202 `{pending:true}`; 20/day. The partner's turns reach the model only as the questions that were answered and are not stored in the review. Every field is clamped by `reviewShape` before storage |
 | GET | `/reviews` | the caller's own reviews, newest first (≤ 40): `{id, pairId, round (session number), evidence, at, review}`. Nobody else's — there is no route to another learner's review |
 | POST | `/live` | `{band, promptWeek, fndDay, phrase?}` — invite whoever you practise with: the **open session's partner first** (a trial with a stranger included — "if it does not click, leave"), else the connected partner; 404 `no_connection` when neither (idempotent per open session; 20/day) |
@@ -63,7 +63,7 @@ Staging is `--env staging`. Check what is live with `curl …/health` and
 | POST | `/live/:id/signal` | `{kind: offer\|answer\|ice\|state\|round\|bye, payload ≤ 8 KB}`; drives `connecting` / `active` / `reconnecting` |
 | GET | `/live/:id/signals?after=N` | the other member's signals after N, plus state |
 | POST | `/live/:id/end` `{reason: left\|completed\|failed}` · `/report {reason}` · `/block` | end (idempotent); report/block end the call for both |
-Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`, `POST /__uncap {uid}` (clears one learner's daily counters so the long browser run keeps its production-default caps).
+Dev only (`DEV_AUTH=1`): `X-Dev-User`, `X-Dev-Now`, `POST /__reset`, `POST /__cron`, `POST /__uncap {uid}` (clears one learner's report/block counters and burst rows; there is no practice quota to clear).
 
 `/me` also carries `liveEnabled` (the Worker's `LIVE_ENABLED`, which the client's `ppLiveOn()` follows so every device shows the same live buttons — the per-device flag is only a fallback before the first `/me`) and `presence: {online, waiting}` — counts only (members seen in the last 5 min, and queue rows younger than 7 days), never ids or names, excluding the caller and anyone either side has blocked. **No compatibility gate (owner, 2026-09-19):** `candidates()` offers anyone in line on the track; band, goals, lesson, availability and time zone only *order* the cards (`MIN_MATCH_SCORE` is no longer a filter). What still excludes: suspension, opt-out, the same-gender preference, blocks, and "already in a session"; a cooldown or an `ended`/`disconnected` connection only sorts that learner last. `presence.waiting` and `waiting.available` are the same number from the same filter (`candidates()` scores against a neutral row when the caller is not in line). A card with no other true fact carries the reason `in_line`. Queue rows older than 7 days are neither offered nor counted; the daily cron deletes them. **Online counts too (owner, 2026-09-19):** a consented member on this track (`members.track`, migration 0008, set by `/consent {track}` and `/interest`) who was seen in the last 5 minutes and is not in a session is offered even without a queue row (card `inLine:false`, reason `online_now`, `band:null`, ranked after everyone in line) and can be invited; a member with no track is never offered. The per-candidate lookups are batched into five set queries per call.
 
@@ -89,15 +89,20 @@ The client sends `X-Dev-User` instead of a Firebase token only for localhost/127
 ## Errors the client handles
 `auth` 401 · `disabled` 503 · `review_off` 503 · `review_unavailable` 502 · `not_complete` 409 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` 403 ·
 `paired` / `not_waiting` / `gone` / `busy` / `closed` / `complete` / `not_your_turn` / `not_complete` / `no_pair` 409 ·
-`offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `limit` / `ip_limit` 429 · `live_off` 403 · `closed` 409 (live).
+`offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `rate` / `ip_limit` 429 (busy — try again shortly) · `limit` 429 (**report and block only**, a daily safety cap) · `live_off` 403 · `closed` 409 (live).
 
 ## Safety rules implemented here
 Transcript screen (phones, e-mails, links, handles, messenger names, "call
 me / add me" EN+FR); audio only via membership-checked route; block = pair
 closed + never re-paired; rematch = 14-day cooldown (sorts that learner last — it no longer hides them); two distinct reporters =
-30-day suspension; daily limits (interest 10, match 30, invite 10, report 5,
-block 20, decide 40, live 20, AI sessions 12, end partnership 10, reviews 20); turns alternate, four per session, audio ≤ 1.5 MB /
-≤ 75 s; per-IP limit; `audit` table (90 days); audio of closed pairs purged
+30-day suspension; **daily** caps on the two safety actions only (report 5,
+block 20 — `SAFETY_LIMITS`). **There is no daily practice quota**: the queue,
+matching, invites, sessions, reviews, decisions, rematches, live and the AI
+coach are unrationed, and abuse of them is held per minute by `BURST_PER_MIN`
+(per learner, a D1 counter keyed by the minute, so exact across isolates) and
+`IP_PER_MIN` (per IP, in memory), which answer `rate` / `ip_limit`, never
+"today's limit". Turns alternate, four per session, audio ≤ 1.5 MB /
+≤ 75 s; `audit` table (90 days); audio of closed pairs purged
 14 days after close by the daily cron, which also stamps abandoned sessions
 on the side whose turn it was (only if they had a full `PARTNER_TIMEOUT_H`
 to reply) and sweeps offers, cooldowns, counters. Error bodies carry a
