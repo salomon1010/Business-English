@@ -97,7 +97,9 @@ const REST = {
 const W1_NO_WHY = "I work as an operations analyst in the logistics team. I'm responsible for the weekly delivery reports. At the moment I'm rebuilding how we track late shipments. I work closely with the warehouse managers.";
 const W3_NO_ASK = "We have got a problem with the delivery. It started when the supplier changed the order number. This means we would finish three days late. I have already spoken to their office.";
 /* cold transfers for any competency after Week 7, keyed by id — a new week adds one entry */
-SAY.transfers = {};
+SAY.transfers = {
+  "sprint-coordinate": "The landing page is built and both banner variants are ready to test. The sign-up form is blocked: the dependency is legal's review of the prize-draw terms \u2014 they've had them since Monday and said end of week. Without approved terms the form can't go live, so the first is at risk for sign-ups. To keep the launch on track, I'd go out on the first with the newsletter and no prize draw, and add the draw the week after when legal comes back. Could you ping the head of legal today and let me know by Thursday? If the terms land by Thursday, the form is live for the first; either way the newsletter goes out on the first.",
+};
 const EARLIER = PACK.competencies.filter(c => c.week < WEEK).sort((a, b) => a.week - b.week);
 const LATER = PACK.competencies.filter(c => c.week > WEEK).sort((a, b) => a.week - b.week);
 
@@ -503,16 +505,14 @@ const shRow = await L.page.evaluate(async id => { mvShadow(); await new Promise(
   mvGo(id + "-guided", "notice"); await new Promise(r => setTimeout(r, 300)); return r; }, ID);
 ok("The Shadow row hands the existing studio Week 7's clip — the same shLoad, no new Shadow code — and opening it is worth no evidence",
   shRow.v === "shadow" && shRow.vid === CLIP && /How to Disagree/i.test(shRow.title || "") && shRow.last === CLIP && shRow.state === "INTRODUCED", JSON.stringify(shRow));
-/* EXISTING / NON-REGRESSION, not caused by Week 7 and not fixed here (data-only
-   slice): mvShadow() calls shLoad() BEFORE go("shadow"), and the studio's DOM
-   is built by rShadow(), so the first tap on the row in a session that has
-   never opened the Shadow tab rejects inside shLoad on a null element; the
-   view then restores the clip from S.lastClip, which is why the check above
-   passes. Weeks 2 and 3 behave the same. Recorded here so that exactly this
-   one rejection — and nothing else — is tolerated by the final check. */
+/* Fixed in V2.8: mvShadow() used to call shLoad() BEFORE go("shadow"), and the
+   studio's DOM is built by rShadow(), so the first tap in a session that had
+   never opened Shadow rejected on a null element. It now parks the clip as
+   S.lastClip and lets the view load it once its DOM exists — so this tap must
+   be silent. tests/shadow-first-tap.mjs walks every linked competency. */
 const KNOWN_SHADOW_ERRS = errors.slice(errsBeforeShadow);
-ok("EXISTING / NON-REGRESSION · tapping the Shadow row before the Shadow tab has ever rendered raises at most one pre-existing TypeError inside shLoad (mvShadow orders shLoad before go('shadow')) — the clip still loads; nothing else is thrown",
-  KNOWN_SHADOW_ERRS.length <= 1 && KNOWN_SHADOW_ERRS.every(e => /^ge: Cannot read properties of null \(reading 'style'\)$/.test(e)), KNOWN_SHADOW_ERRS.join(" | "));
+ok("Tapping the Shadow row before the Shadow tab has ever rendered raises NO page error (V2.8 fix: the clip is parked as the last clip and the view loads it once its DOM exists)",
+  KNOWN_SHADOW_ERRS.length === 0, KNOWN_SHADOW_ERRS.join(" | "));
 const noType = await L.page.evaluate(() => ({ ta: document.querySelectorAll("#v-mission textarea").length, inp: document.querySelectorAll("#v-mission input[type=text]").length, sc: document.querySelectorAll("#v-mission .score-b").length }));
 ok("Week 7 is voice-first — no script box, no text input, no self-score", noType.ta === 0 && noType.inp === 0 && noType.sc === 0, JSON.stringify(noType));
 
@@ -767,7 +767,7 @@ ok("J6 · both hooks return null and the Welding Progress page shows no V2 panel
 ok("J7 · a Welding learner shadowing Week 7's clip harvests nothing — no support row, no record", w.harvested === 0 && w.weldRowsAfter === 0, JSON.stringify({ h: w.harvested, rows: w.weldRowsAfter }));
 ok("J8 · existing Welding curriculum is unchanged: 12 stages, 12 simulations", w.weeks === 12 && w.sims === 12 && /Stage 1/.test(w.stage || ""), JSON.stringify({ w: w.weeks, s: w.sims }));
 
-ok("No uncaught page errors in any context, beyond the one pre-existing Shadow-row rejection recorded above", errors.filter(e => !KNOWN_SHADOW_ERRS.includes(e)).length === 0, errors.filter(e => !KNOWN_SHADOW_ERRS.includes(e)).slice(0, 3).join(" | "));
+ok("No uncaught page errors in any context", errors.length === 0, errors.slice(0, 3).join(" | "));
 
 await browser.close(); if (server) server.kill();
 const bad = res.filter(r => !r.pass);

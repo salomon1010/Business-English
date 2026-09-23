@@ -9173,11 +9173,20 @@ window.mvRetry=()=>{
 /* Shadow, reused exactly as it is. The mission hands the existing studio a
    clip and steps out of the way — no new Shadow code, no change to how Shadow
    behaves for anyone, and nothing at all for Welding, whose pack has no
-   missions and therefore never reaches this function. */
+   missions and therefore never reaches this function.
+
+   The hand-over is the one a page refresh already makes: the clip is parked
+   as the last clip and the view is opened; rShadow() builds the studio's DOM
+   and ends by loading S.lastClip into it, once. It used to call shLoad()
+   first and navigate second — but shLoad() writes into #shPlayerWrap, which
+   only exists after rShadow() has run, so the first tap in a session that had
+   never opened Shadow rejected on a null element (the clip still appeared,
+   through that same restore), and every later tap loaded the clip twice.
+   Fixed in V2.8; tests/shadow-first-tap.mjs is the proof. */
 window.mvShadow=()=>{
   const comp=mvComp(_mv&&_mv.compId);if(!comp||!comp.shadow)return;
   SESS_RETURN=null;
-  try{shLoad({vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title},true)}catch(e){}
+  S.lastClip={vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title};save();
   go("shadow");
 };
 
