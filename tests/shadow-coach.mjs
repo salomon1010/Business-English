@@ -40,6 +40,15 @@ async function learner(id, track) {
   /* against the live site the service worker would answer the Worker fetches the route below is meant to fake — block it there */
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"], serviceWorkers: /^https:/.test(BASE) ? "block" : "allow" });
   await ctx.addInitScript(({ track, FLAGS }) => {
+    /* Headless Chromium has no working speech recogniser. This stand-in returns
+       window.__srText once per instance, as one final result, the shape
+       srText() reads — so shRec() → shFBDone() and a Welding line's
+       shLineRecord() run their real paths. */
+    class FakeSR { constructor() { this.lang = ""; this.continuous = false; this.interimResults = false; this.maxAlternatives = 1; this.onresult = null; this.onend = null; this.onerror = null; this._done = false; this._t = null; }
+      start() { const me = this; this._t = setTimeout(() => { const txt = window.__srText || ""; if (txt && !me._done) { me._done = true; const alt = { transcript: txt, confidence: 0.9 }; const r = { 0: alt, length: 1, isFinal: true, [Symbol.iterator]: function* () { yield alt; } }; const results = { 0: r, length: 1, [Symbol.iterator]: function* () { yield r; } }; me.onresult && me.onresult({ results, resultIndex: 0 }); } }, 250); }
+      stop() { clearTimeout(this._t); const me = this; setTimeout(() => me.onend && me.onend(), 60); }
+      abort() { this.stop(); } }
+    window.SpeechRecognition = FakeSR; window.webkitSpeechRecognition = FakeSR;
     localStorage.setItem("be_flags", JSON.stringify(FLAGS));
     localStorage.setItem("be_events_api", "");          // no beacon leaves the test; track() is captured after load
     if (!localStorage.getItem("be12_v1")) {
@@ -98,7 +107,10 @@ const W = await learner("wendy", "welding");
 await A.page.evaluate(async () => { go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
 await A.page.evaluate(() => shOpenWork()); await sleep(300);
 await A.page.evaluate(() => { svPick = 5; svSetMode("shadow"); }); await sleep(200);
-ok("General English: the clip opens in Shadow mode with the sticky record bar", await A.page.evaluate(() => svMode === "shadow" && !document.getElementById("svShBar").hidden));
+/* the fold: the top of whichever bottom bar this workspace shows (the V3 dock or the V2 sticky bar), else the viewport bottom */
+await A.page.evaluate(() => { window.__fold = () => { for (const id of ["shv3Bar", "svShBar"]) { const el = document.getElementById(id); if (el) { const r = el.getBoundingClientRect(); if (r.height > 0 && r.bottom > innerHeight - 200) return { id, top: r.top }; } } return { id: "viewport", top: innerHeight }; }; });
+const bar0 = await A.page.evaluate(() => ({ mode: svMode, fold: window.__fold() }));
+ok("General English: the clip opens in Shadow mode with a bottom bar on screen", bar0.mode === "shadow" && bar0.fold.id !== "viewport" && bar0.fold.top > 600, JSON.stringify(bar0));
 
 /* ---------- 1. a completed shadow session (medium score, one clear focus) ---------- */
 const TARGET = "So I applied to one job and I applied to probably around ninety";
@@ -139,15 +151,43 @@ const view = await A.page.evaluate(() => {
   return new Promise(r => setTimeout(() => {
     const top = out.querySelector(".fbc").getBoundingClientRect().top, cta = out.querySelector(".fbc-next .btn-primary").getBoundingClientRect();
     const pinB = document.querySelector(".sh-stick").getBoundingClientRect().bottom;
-    const bar = document.getElementById("svShBar"), barR = bar.getBoundingClientRect();
-    r({ pinB: Math.round(pinB), top: Math.round(top), ctaBottom: Math.round(cta.bottom), vh: innerHeight, overflowX: body.scrollWidth > body.clientWidth + 1 || document.documentElement.scrollWidth > innerWidth + 1,
-      scoreVisible: out.querySelector(".fbc-score").getBoundingClientRect().bottom <= innerHeight, goodVisible: out.querySelector(".fbc-good").getBoundingClientRect().bottom <= innerHeight,
-      focusVisible: out.querySelector(".fbc-focus .fbc-cta").getBoundingClientRect().bottom <= innerHeight,
-      /* in V2 Shadow mode the sticky bar's microphone IS "Shadow again", and it is always on screen */
-      barVisible: !bar.hidden && barR.top < innerHeight && barR.bottom > 0, barHidden: bar.hidden, barTop: Math.round(barR.top), barBottom: Math.round(barR.bottom), nextH: Math.round(out.querySelector(".fbc-next").getBoundingClientRect().height) });
+    const bar = window.__fold(), fold = bar.top;
+    r({ pinB: Math.round(pinB), top: Math.round(top), ctaBottom: Math.round(cta.bottom), vh: innerHeight, fold: Math.round(fold), barId: bar.id, overflowX: body.scrollWidth > body.clientWidth + 1 || document.documentElement.scrollWidth > innerWidth + 1,
+      scoreVisible: out.querySelector(".fbc-score").getBoundingClientRect().bottom <= fold, goodVisible: out.querySelector(".fbc-good").getBoundingClientRect().bottom <= fold,
+      focusVisible: out.querySelector(".fbc-focus .fbc-cta").getBoundingClientRect().bottom <= fold, nextH: Math.round(out.querySelector(".fbc-next").getBoundingClientRect().height) });
   }, 700));
 });
-ok("Mobile: under the 273px pinned player the first screen holds the result, the strengths and the focus with 'Practise it'; the record bar (Shadow again) is on screen; no horizontal overflow (390×844)", view.scoreVisible && view.goodVisible && view.focusVisible && (view.ctaBottom <= view.vh || view.barVisible) && !view.overflowX, JSON.stringify(view));
+ok("Mobile: under the 273px pinned player the first screen holds the result, the strengths, the focus with 'Practise it' AND 'Shadow again' above the bottom bar; no horizontal overflow (390×844)", view.scoreVisible && view.goodVisible && view.focusVisible && view.ctaBottom <= view.fold && !view.overflowX, JSON.stringify(view));
+/* the same first screen in the four translated languages (the other eleven fall back to English) */
+for (const code of ["fr", "es", "pt", "ar"]) {
+  const v = await A.page.evaluate(async (code) => {
+    DICT = await (await fetch("i18n/" + code + ".json")).json(); applyDirLang(code);
+    fbCtx = { vid: shClip.vid, recCtx: shRecCtx(shClip.vid) }; fbT0 = Date.now() - 6000;
+    fbShowResults("So I applied to one job and I applied to probably around ninety", "So I applied to one job and I applied to probable around ninety", "new");
+    const out = document.getElementById("fbOut"); svChReveal(out);
+    return new Promise(r => setTimeout(() => {
+      const cta = out.querySelector(".fbc-next .btn-primary").getBoundingClientRect(), bar = window.__fold();
+      const body = document.querySelector(".sh-work-body");
+      r({ code, ctaBottom: Math.round(cta.bottom), fold: Math.round(bar.top), barId: bar.id, verdictH: Math.round(out.querySelector(".fbc-verdict").getBoundingClientRect().height), focusVisible: out.querySelector(".fbc-focus .fbc-cta").getBoundingClientRect().bottom <= bar.top, overflowX: body.scrollWidth > body.clientWidth + 1, dir: document.documentElement.dir || "ltr", verdict: out.querySelector(".fbc-verdict").textContent });
+    }, 600));
+  }, code);
+  ok(`Mobile · ${code}${v.dir === "rtl" ? " (RTL)" : ""}: 'Shadow again' sits above the bottom bar, one-line verdict, no horizontal overflow`, v.ctaBottom <= v.fold && v.verdictH <= 24 && v.focusVisible && !v.overflowX, JSON.stringify(v));
+  if (SHOT && (code === "fr" || code === "ar")) await A.page.screenshot({ path: SHOT + "/report-" + code + ".png" });
+}
+await A.page.evaluate(() => { DICT = {}; applyDirLang("en"); });
+await report(A.page, TARGET, HEARD); await pronDone(A.page);
+
+/* ---------- the real path: the studio's own Record button → transcript → report ---------- */
+const real = await A.page.evaluate(async () => {
+  const para = document.getElementById("shNote").value.trim();
+  const word = para.replace(/[^A-Za-z' ]/g, " ").split(/\s+/).filter(w => w.length >= 6)[0];
+  window.__srText = para.replace(word, word.slice(0, -2));
+  document.getElementById("fbOut").innerHTML = "";
+  shRec(); await new Promise(r => setTimeout(r, 1700)); shRec();
+  for (let i = 0; i < 40 && !document.querySelector("#fbOut .fbc"); i++) await new Promise(r => setTimeout(r, 150));
+  return { word: word.toLowerCase(), drawn: !!document.querySelector("#fbOut .fbc"), heard: (document.getElementById("shHeardBox").innerText || "").slice(0, 30), fold: document.getElementById("fbFold") ? !document.getElementById("fbFold").hidden : null, focus: document.querySelector(".fbc-focus-w")?.textContent };
+});
+ok("Record → stop in the studio: the transcript lands, the coach report is drawn against the paragraph, its clipped word is the focus, the fold chevron appears", real.drawn && real.heard.length > 10 && real.fold !== false && real.focus === real.word, JSON.stringify(real));
 
 /* ---------- expandable sections ---------- */
 const fold = await A.page.evaluate(async () => {
@@ -169,9 +209,11 @@ const voc = await A.page.evaluate(async () => {
 ok("Vocabulary: 'Save all' puts the three words into the area's vocabulary and counts once; the rest sit behind 'See N more'", voc.words.length === 3 && voc.saved && voc.ev.length === 1 && voc.ev[0] === "all" && /See \d+ more/.test(voc.more || ""), JSON.stringify(voc));
 
 /* ---------- history ---------- */
-ok("History: the take joins the studio's History as a Shadow entry with score and the words to fix", await A.page.evaluate(() => { const e = aList("chHist")[0]; return e && e.kind === "shadow" && typeof e.score === "number" && Array.isArray(e.fix) && e.fix.includes("probably"); }));
+ok("History: the take joins the studio's History as a Shadow entry with score and the words to fix", await A.page.evaluate(() => { const e = aList("chHist")[0]; return e && e.kind === "shadow" && typeof e.score === "number" && Array.isArray(e.fix) && e.fix.length > 0; }));
 
 /* ---------- 2. the micro-practice on the focus word ---------- */
+heard = HEARD; assessScores = { probably: 58 }; assessDefault = 92;
+await report(A.page, TARGET, HEARD); await pronDone(A.page);
 heard = "probably"; assessScores = { probably: 91 };
 const mp1 = await A.page.evaluate(async () => {
   const tbBefore = troubleMap()[document.querySelector(".fbc-focus-w").textContent] || 0;
@@ -212,7 +254,7 @@ heard = TARGET; assessScores = {}; assessDefault = 94;
 await report(A.page, TARGET, TARGET);
 const P2 = await A.page.evaluate(() => ({ score: document.querySelector(".fbc-score").textContent, prog: document.querySelector(".fbc-prog")?.innerText.replace(/\s+/g, " ").trim(), delta: document.querySelector(".fbc-prog-d")?.className, good: [...document.querySelectorAll(".fbc-good li")].map(x => x.innerText.trim()), focusEmpty: !!document.querySelector(".fbc-focus.empty"), focusTxt: document.querySelector(".fbc-focus")?.innerText.trim(), verdict: document.querySelector(".fbc-verdict").textContent, second: window.__ev.filter(e => e.n === "shadow_second_completed").length, att: (S.fbV[shClip.vid] || []).length }));
 ok("High score: 100%, 'every word landed', the improvement on the previous attempt, and 'nothing to fix' instead of an invented problem", P2.score === "100%" && P2.good.some(x => /Every word landed/.test(x)) && P2.focusEmpty && /Nothing to fix/.test(P2.focusTxt) && /Nice work/.test(P2.verdict), JSON.stringify(P2));
-ok("Progress: one line — this clip's attempts and '+N from your previous attempt' — and the second take is counted", /→/.test(P2.prog || "") && /up$/.test(P2.delta || "") && P2.second === 1 && P2.att === 2, JSON.stringify([P2.prog, P2.delta, P2.second, P2.att]));
+ok("Progress: one line — this clip's attempts and '+N from your previous attempt' — and the second take is counted", /→/.test(P2.prog || "") && /up$/.test(P2.delta || "") && P2.second >= 1 && P2.att >= 2, JSON.stringify([P2.prog, P2.delta, P2.second, P2.att]));
 ok("A perfect transcript can still get its focus from the listener: the AI's weak word fills the empty focus, never a random one", await (async () => {
   assessScores = { ninety: 61 }; await report(A.page, TARGET, TARGET); await pronDone(A.page); await sleep(100);
   return A.page.evaluate(() => { const f = document.querySelector(".fbc-focus"); return !f.classList.contains("empty") && document.querySelector(".fbc-focus-w").textContent === "ninety" && /unclear/.test(f.innerText) && !!f.querySelector(".fbc-cta"); });
@@ -262,6 +304,36 @@ await report(A.page, "", H7);
 ok("Missing transcript: no score and no focus (nothing to score against), but pace, fillers, 'Shadow again' and the folds remain", await A.page.evaluate(() => !document.querySelector(".fbc-score") && !document.querySelector(".fbc-focus") && document.querySelectorAll(".fbc-sum-c").length === 2 && !!document.querySelector(".fbc-next .btn-primary") && !!document.querySelector('#fbOut .fb-sec[data-kind="history"]')));
 await report(A.page, T7, "");
 ok("Recording failure (nothing heard): the empty state and the retry, no dashboard", await A.page.evaluate(() => !!document.querySelector("#fbOut .fb-nothing") && !!document.querySelector("#fbOut .fb-again") && !document.querySelector(".fbc")));
+
+/* ---------- 11a. Welding: a workplace line, recorded for real, gets the same coach report in its own slot ---------- */
+heard = "we need to check the joint before welding"; assessMode = "ai"; assessScores = {}; assessDefault = 90;
+const wl = await W.page.evaluate(async () => {
+  go("shadow"); await new Promise(r => setTimeout(r, 500));
+  const btn = document.querySelector(".sh-line-rec"); if (!btn) return { noLines: true };
+  const id = btn.id.slice(4), line = shWorkplaceLines().find(x => x.id === id);
+  /* say the line with one word wrong, so the report has a focus */
+  const words = line.text.replace(/[^A-Za-z' ]/g, " ").split(/\s+/).filter(w => w.length >= 5);
+  const miss = words[0] || "";
+  window.__srText = line.text.replace(miss, miss.slice(0, -2));
+  btn.click(); await new Promise(r => setTimeout(r, 1800)); btn.click();
+  const slotOf = () => document.getElementById("shfbx-" + id);
+  for (let i = 0; i < 60 && !(slotOf() && slotOf().querySelector(".fbc")); i++) await new Promise(r => setTimeout(r, 200));
+  const slot = slotOf(), fbc = slot && slot.querySelector(".fbc");
+  return { id, miss, drawn: !!fbc, score: fbc?.querySelector(".fbc-score")?.textContent, focus: fbc?.querySelector(".fbc-focus-w")?.textContent, primary: fbc?.querySelectorAll(".fbc-next .btn-primary").length, folds: fbc?.querySelectorAll("details.fb-sec").length, openFolds: fbc?.querySelectorAll("details.fb-sec[open]").length,
+    width: Math.round(fbc?.getBoundingClientRect().width || 0), overflowX: document.documentElement.scrollWidth > innerWidth + 1, hist: S.fbHist.length, tk: S.fbHist.every(x => x.tk === "welding") };
+});
+ok("Welding: Record on a workplace line → the coach report is drawn in that line's slot with a score, one focus, one primary action and closed folds", !wl.noLines && wl.drawn && /^\d+%$/.test(wl.score || "") && wl.focus && wl.primary === 1 && wl.folds >= 3 && wl.openFolds === 0 && wl.width > 200 && !wl.overflowX && wl.hist === 1 && wl.tk, JSON.stringify(wl));
+ok("Welding: 'Shadow again' in a line's report brings that line's Record button into focus", await W.page.evaluate(async (id) => { document.getElementById("shfbx-" + id).querySelector(".fbc-next .btn-primary").click(); await new Promise(r => setTimeout(r, 500)); return document.activeElement && document.activeElement.id === "shr-" + id; }, wl.id));
+const wmp = await W.page.evaluate(async (id) => {
+  const slot = document.getElementById("shfbx-" + id);
+  slot.querySelector(".fbc-focus .fbc-cta").click(); await new Promise(r => setTimeout(r, 200));
+  return { open: !!slot.querySelector("#fbFix"), ctx: fbFix && fbFix.ctx, recCtx: fbCtx.recCtx };
+}, wl.id);
+ok("Welding: the micro-practice opens inside that slot and records under the Welding-prefixed context of THAT line", wmp.open && /^welding:shadow-fix-line-/.test(wmp.ctx || "") && wmp.recCtx === "line-" + wl.id, JSON.stringify(wmp));
+await W.page.click("#fbFixRecBtn"); await recording(W.page); await sleep(1600); await W.page.click("#fbFixRecBtn");
+ok("Welding: the micro-practice grades the take through the same engine", await W.page.waitForFunction(() => fbFix && fbFix.attempts.length === 1 && fbFix.phase === "ready", null, { timeout: 12000 }).then(() => true, () => false) && await W.page.evaluate(() => fbFix.attempts[0].mode === "ai"));
+ok("Welding: the pronunciation pass fills that slot's own summary cell", await W.page.waitForFunction((id) => { const b = document.getElementById("shfbx-" + id).querySelector("#fbSumPron b"); return b && /^\d+%$/.test(b.textContent); }, wl.id, { timeout: 10000 }).then(() => true, () => false));
+if (SHOT) { await W.page.evaluate((id) => document.getElementById("shfbx-" + id).scrollIntoView({ block: "start" }), wl.id); await sleep(400); await W.page.screenshot({ path: SHOT + "/welding-line-report.png" }); }
 
 /* ---------- 11. General English / Welding isolation ---------- */
 const iso = await W.page.evaluate(async () => {

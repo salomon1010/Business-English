@@ -2648,10 +2648,10 @@
  "sh.report_fold": "Ocultar el informe",
  "sh.report_unfold": "Mostrar el informe",
  "fb.c_done": "Shadowing completado",
- "fb.c_v_high": "Buen trabajo — claro y constante. Este es el hablante en que te conviertes.",
- "fb.c_v_good": "Buena toma — casi todo llegó. Una palabra levantará toda la frase.",
- "fb.c_v_mid": "Un buen comienzo — más cerca de lo que dice el número. Arreglemos una palabra.",
- "fb.c_v_low": "Sigue — cada repetición reescribe el hábito. Empecemos por una palabra.",
+ "fb.c_v_high": "Buen trabajo — claro y constante.",
+ "fb.c_v_good": "Buena toma — casi todo llegó.",
+ "fb.c_v_mid": "Un buen comienzo — arreglemos una palabra.",
+ "fb.c_v_low": "Sigue — cada repetición cuenta.",
  "fb.c_sum_words": "Palabras claras",
  "fb.c_sum_pace": "Ritmo",
  "fb.c_na": "No disponible",
@@ -2695,6 +2695,5 @@
  "fb.c_details_h": "Detalles",
  "fb.c_sec_vocab": "Vocabulario de este clip",
  "fb.c_pron_sub_tx": "comprobado con la transcripción de tu toma",
- "fb.c_pron_norec": "No hay toma guardada para este informe — graba de nuevo para obtener el análisis de pronunciación.",
- "fb.c_words_n": "{{ok}} de {{total}} palabras claras"
+ "fb.c_pron_norec": "No hay toma guardada para este informe — graba de nuevo para obtener el análisis de pronunciación."
 }

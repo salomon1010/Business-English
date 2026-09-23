@@ -2648,10 +2648,10 @@
  "sh.report_fold": "Masquer le rapport",
  "sh.report_unfold": "Afficher le rapport",
  "fb.c_done": "Shadowing terminé",
- "fb.c_v_high": "Beau travail — clair et régulier. Voilà l'orateur que vous devenez.",
- "fb.c_v_good": "Bonne prise — l'essentiel est passé. Un mot fera monter toute la phrase.",
- "fb.c_v_mid": "Un bon départ — plus proche que le chiffre ne le dit. Corrigeons un mot.",
- "fb.c_v_low": "Continuez — chaque répétition réécrit l'habitude. Commençons par un mot.",
+ "fb.c_v_high": "Beau travail — clair et régulier.",
+ "fb.c_v_good": "Bonne prise — l'essentiel est passé.",
+ "fb.c_v_mid": "Un bon départ — corrigeons un mot.",
+ "fb.c_v_low": "Continuez — chaque répétition compte.",
  "fb.c_sum_words": "Mots clairs",
  "fb.c_sum_pace": "Débit",
  "fb.c_na": "Indisponible",
@@ -2695,6 +2695,5 @@
  "fb.c_details_h": "Détails",
  "fb.c_sec_vocab": "Vocabulaire de cet extrait",
  "fb.c_pron_sub_tx": "vérifié d'après la transcription de votre prise",
- "fb.c_pron_norec": "Aucune prise enregistrée pour ce rapport — réenregistrez pour obtenir l'analyse de prononciation.",
- "fb.c_words_n": "{{ok}} mots clairs sur {{total}}"
+ "fb.c_pron_norec": "Aucune prise enregistrée pour ce rapport — réenregistrez pour obtenir l'analyse de prononciation."
 }

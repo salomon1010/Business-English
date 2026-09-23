@@ -2648,10 +2648,10 @@
  "sh.report_fold": "Ocultar o relatório",
  "sh.report_unfold": "Mostrar o relatório",
  "fb.c_done": "Shadowing concluído",
- "fb.c_v_high": "Bom trabalho — claro e consistente. É o falante em que você está se tornando.",
- "fb.c_v_good": "Boa gravação — quase tudo saiu claro. Uma palavra vai elevar a frase.",
- "fb.c_v_mid": "Um bom começo — mais perto do que o número diz. Vamos corrigir uma palavra.",
- "fb.c_v_low": "Continue — cada repetição reescreve o hábito. Vamos começar por uma palavra.",
+ "fb.c_v_high": "Bom trabalho — claro e consistente.",
+ "fb.c_v_good": "Boa gravação — quase tudo saiu claro.",
+ "fb.c_v_mid": "Um bom começo — vamos corrigir uma palavra.",
+ "fb.c_v_low": "Continue — cada repetição conta.",
  "fb.c_sum_words": "Palavras claras",
  "fb.c_sum_pace": "Ritmo",
  "fb.c_na": "Indisponível",
@@ -2695,6 +2695,5 @@
  "fb.c_details_h": "Detalhes",
  "fb.c_sec_vocab": "Vocabulário deste clipe",
  "fb.c_pron_sub_tx": "verificado com a transcrição da sua gravação",
- "fb.c_pron_norec": "Nenhuma gravação salva para este relatório — grave de novo para obter a análise de pronúncia.",
- "fb.c_words_n": "{{ok}} de {{total}} palavras claras"
+ "fb.c_pron_norec": "Nenhuma gravação salva para este relatório — grave de novo para obter a análise de pronúncia."
 }
