@@ -1743,6 +1743,7 @@
  "pp.nocand_sub": "Du bist in der Reihe — wer als Nächstes kommt, sieht dich zuerst. Übe mit dem KI-Coach, während wir weitersuchen.",
  "pp.keep_looking": "Weitersuchen",
  "pp.nohuman_h": "Noch kein Partner verfügbar",
+ "pp.choose_h": "Choose how you want to practise",
  "pp.ai_choice_h": "Oder übe mit dem KI-Coach",
  "pp.ai_choice_sub": "Deine Wahl: ein echter Lernender oder sofort der KI-Coach. Der Coach ist eine KI, nie ein Mensch.",
  "pp.nohuman_sub": "Fang mit der KI an, während wir deine nächste menschliche Sitzung suchen. Der Coach ist KI, nie eine Person.",

@@ -1743,6 +1743,7 @@
  "pp.nocand_sub": "Bạn đang trong hàng chờ — người học tiếp theo tham gia sẽ thấy bạn trước. Hãy luyện với huấn luyện viên AI trong lúc chúng tôi tiếp tục tìm.",
  "pp.keep_looking": "Tiếp tục tìm",
  "pp.nohuman_h": "Chưa có bạn luyện",
+ "pp.choose_h": "Choose how you want to practise",
  "pp.ai_choice_h": "Hoặc luyện tập với huấn luyện viên AI",
  "pp.ai_choice_sub": "Bạn chọn: một người học thật, hoặc huấn luyện viên AI ngay bây giờ. Huấn luyện viên là AI, không bao giờ là người.",
  "pp.nohuman_sub": "Bắt đầu với AI trong lúc chúng tôi tìm buổi luyện với người tiếp theo. Huấn luyện viên là AI, không bao giờ là người.",

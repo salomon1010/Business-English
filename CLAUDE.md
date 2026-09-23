@@ -234,7 +234,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   not reintroduce:** no compatibility gate (`candidates()` offers anyone in
   line; band/goals only rank; a cooldown or ended connection sorts last but
   never hides — Block hides; `presence.waiting` === `waiting.available`, one
-  filter; the AI coach card is absent while anyone is in line); live is for whoever you
+  filter; the AI coach card is on every start screen — owner, 2026-09-23,
+  reversing the 2026-09-19 "absent while anyone is in line" rule: human first in
+  order and accent, AI always reachable, "Or practise with the AI coach" beside a
+  real learner and the accented "No partner available yet" card when there is
+  none; starting AI never leaves the queue); live is for whoever you
   practise with (`POST /live` → open pair first, a trial with a stranger
   included; candidate cards carry **Practise live** = `/invite {live:true}`,
   migration 0007 `pairs.live_wanted`, the guest's accept opens the room for

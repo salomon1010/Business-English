@@ -1743,6 +1743,7 @@
  "pp.nocand_sub": "Estás en la fila — el próximo aprendiz que llegue te verá primero. Practica con el coach de IA mientras seguimos buscando.",
  "pp.keep_looking": "Seguir buscando",
  "pp.nohuman_h": "Aún no hay compañero disponible",
+ "pp.choose_h": "Elige cómo quieres practicar",
  "pp.ai_choice_h": "O practica con el coach de IA",
  "pp.ai_choice_sub": "Tú eliges: un estudiante real, o el coach de IA ahora mismo. El coach es una IA, nunca una persona.",
  "pp.nohuman_sub": "Empieza con la IA mientras buscamos tu próxima sesión humana. El coach es una IA, nunca una persona.",

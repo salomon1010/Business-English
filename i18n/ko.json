@@ -1743,6 +1743,7 @@
  "pp.nocand_sub": "줄에 서 있어요 — 다음에 오는 학습자가 먼저 당신을 봅니다. 찾는 동안 AI 코치와 연습하세요.",
  "pp.keep_looking": "계속 찾기",
  "pp.nohuman_h": "아직 파트너가 없습니다",
+ "pp.choose_h": "Choose how you want to practise",
  "pp.ai_choice_h": "또는 AI 코치와 연습하기",
  "pp.ai_choice_sub": "선택은 당신의 몫: 실제 학습자, 또는 지금 바로 AI 코치. 코치는 AI이며 사람이 아닙니다.",
  "pp.nohuman_sub": "다음 사람과의 세션을 찾는 동안 AI로 시작하세요. 코치는 AI이며 사람이 아닙니다.",

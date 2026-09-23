@@ -1787,6 +1787,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .pp-n{grid-row:1/3;width:28px;height:28px;border-radius:50%;background:var(--accent-fill);color:var(--on-accent);font-weight:800;font-size:13px;display:grid;place-items:center}
 .pp-rules{margin:14px 0 0;font-size:12.5px;color:var(--mut);display:flex;gap:8px;align-items:flex-start;line-height:1.45}.pp-rules svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
 .pp-cta{margin-top:12px}.pp-cta b{font-size:16px;display:block;margin-bottom:4px}.pp-cta .btn-primary{margin-top:10px}
+.pp-wait-stop{justify-content:center}.pp-wait-note{text-align:center;padding:0 6px}
 .pp-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.pp-row>.btn-primary{flex:1 1 100%;justify-content:center}.pp-row>.btn{flex:1 1 0;justify-content:center;min-width:0}.pp-fine{font-size:12px;color:var(--mut2);margin-top:10px;line-height:1.45}
 .pp-wait{text-align:center}.pp-wait-ring{width:56px;height:56px;border-radius:50%;margin:4px auto 10px;display:grid;place-items:center;background:var(--bg2);color:var(--acc);animation:ppPulse 1.6s ease-in-out infinite}
 @keyframes ppPulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 35%,transparent)}50%{box-shadow:0 0 0 10px transparent}}
@@ -5942,6 +5943,7 @@ const I18N_EN={
  "pp.closed_rematch":"Your last session ended. You can find a new partner.",
  "pp.nohuman_sub":"Start AI practice while we look for your next human session. The coach is AI, never a person.",
  "pp.nohuman_h":"No partner available yet",
+ "pp.choose_h":"Choose how you want to practise",
  "pp.ai_choice_h":"Or practise with the AI coach",
  "pp.ai_choice_sub":"Your choice: a real learner, or the AI coach right now. The coach is AI, never a person.",
  "pp.keep_looking":"Keep looking",
@@ -20021,18 +20023,25 @@ function ppPresenceHTML(){
   return `<button type="button" class="pp-presence ${none?"none":"some"}" onclick="ppPresenceTap()" aria-live="polite"><span class="pp-presence-dot"></span><span>${label}</span><span class="pp-pill-go">›</span></button>`;
 }
 window.ppPresenceTap=()=>{const m=ppMe;try{track("partner_availability_viewed",{})}catch(e){}if(m&&m.pair){const el=document.getElementById("v-partner");if(el)el.querySelector(".pp-thread")?.scrollIntoView({behavior:"smooth"});return}if(m&&m.invite){return}ppMatch()};
-/* Human first (owner, 2026-09-19, final): the AI coach card appears only when
-   no askable human is available — nobody in line or online (idle page,
-   waiting card, an empty candidate list) — or through the existing fallback
+/* Human first, but the coach is always reachable (owner, 2026-09-23 — this
+   replaces the 2026-09-19 "absent while anyone is in line" rule): the card is
+   on every Practice Partner screen the learner can start from (idle page,
+   waiting card, candidate list) as well as through the existing fallback
    conditions (a silent partner, the More-options choice inside a session).
-   It never sits next to a real learner's card. Always labelled AI. */
+   While a real learner is askable it reads "Or practise with the AI coach"
+   and keeps the secondary button, so the human path keeps the one accent;
+   with nobody available it takes the accent and the fallback wording.
+   Always labelled AI. */
 function ppHumanAvailable(){const m=ppMe;if(!m)return false;if(m.waiting&&m.waiting.available>0)return true;if(Array.isArray(ppCands)&&ppCands.length>0)return true;return !!(m.presence&&m.presence.waiting>0)}
-function ppAiChoiceHTML(reason,noHuman){
+function ppAiChoiceHTML(reason){
   if(!flag("practice_partner_ai_fallback_enabled"))return "";
-  if(ppHumanAvailable())return "";
-  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t("pp.nohuman_h")}</b><p class="sub">${t("pp.nohuman_sub")}</p>
-    <div class="pp-row"><button class="btn-primary" onclick="ppAiPractice('${reason}')">${t("pp.fallback_btn")}</button></div></section>`;
+  const human=ppHumanAvailable();
+  return `<section class="card pp-fallback"><div class="eyebrow">${t("pp.ai_eyebrow")}</div><b>${t(human?"pp.ai_choice_h":"pp.nohuman_h")}</b><p class="sub">${t(human?"pp.ai_choice_sub":"pp.nohuman_sub")}</p>
+    <div class="pp-row"><button class="${human?"btn btn-g":"btn-primary"}" onclick="ppAiPractice('${reason}')"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.fallback_btn")}</button></div></section>`;
 }
+/* the "Choose how you want to practise" line: only where the AI card renders
+   next to the human one, so it never announces a choice that is not there */
+function ppChooseEyebrow(){return flag("practice_partner_ai_fallback_enabled")?`<div class="eyebrow">${t("pp.choose_h")}</div>`:""}
 function ppIntroHTML(){
   return `<section class="card pp-intro">
     <div class="pp-steps">
@@ -20078,21 +20087,22 @@ function ppRender(el){
     </section>`:"";
   if(m.waiting){
     shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-wait">
-      <div class="pp-wait-ring">${ic("clock")}</div>
+      ${m.waiting.available>0?"":`<div class="pp-wait-ring">${ic("clock")}</div>`}
+      ${ppChooseEyebrow()}
       <b class="${m.waiting.available>0?"pp-green":""}">${m.waiting.available>0?t("pp.waiting_avail_h",{n:m.waiting.available}):t("pp.waiting_h")}</b>
       <p class="sub ${m.waiting.available>0||m.waiting.count>1?"pp-green":""}">${m.waiting.available>0?t("pp.waiting_avail_sub"):(m.waiting.count>1?t("pp.waiting_count",{n:m.waiting.count-1}):t("pp.waiting_alone"))}</p>
-      <p class="pp-fine">${t("pp.waiting_since",{time:new Date(m.waiting.since).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})})}</p>
-      <p class="sub">${t("pp.waiting_sub")}</p>
-      <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
+      <div class="pp-row"><button class="btn-primary" onclick="ppMatch()">${t("pp.match_again")}</button><button class="btn btn-g" onclick="ppNow()">${t("pp.now_btn")}</button></div>
     </section>
-    ${ppAiChoiceHTML("waiting",!(m.waiting.available>0))}`);return;
+    ${ppAiChoiceHTML("waiting")}
+    <div class="pp-row pp-wait-stop"><button class="btn btn-g" onclick="ppWithdraw()">${t("pp.withdraw")}</button></div>
+    <p class="pp-fine pp-wait-note">${t("pp.waiting_since",{time:new Date(m.waiting.since).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})})} ${t("pp.waiting_sub")}</p>`);return;
   }
   const closed=m.lastClosed&&ppState().dismissedClosed!==m.lastClosed.id?`<p class="pp-closed">${ic("info")} ${t("pp.closed_"+(["left","blocked","expired","suspended","rematch","completed","declined","cancelled"].includes(m.lastClosed.reason)?m.lastClosed.reason:"left"),{name:esc(m.lastClosed.name||"")})}</p>`:"";
   shell(`${aiResume}${applyCard}${conn}${ppIntroHTML()}<section class="card pp-cta">${closed}
-    <b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
+    ${ppChooseEyebrow()}<b>${t("pp.get_h")}</b><p class="sub">${t("pp.get_sub",{band:t("pp.band_"+ppBand())})}</p>
     <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppMatch()">${t("pp.match_btn")}</button><button class="btn btn-g" ${ppBusy?"disabled":""} onclick="ppNow()">${t("pp.now_btn")}</button></div>
     <p class="pp-fine">${t("pp.get_fine")} <a href="#" onclick="ppOpenConsent(true);return false">${t("pp.prefs")}</a></p>
-  </section>${ppAiChoiceHTML("choice",false)}`);
+  </section>${ppAiChoiceHTML("choice")}`);
 }
 const PP_REASON_KEY={same_level:"pp.why_level",same_lesson:"pp.why_lesson",same_stage:"pp.why_stage",available_now:"pp.why_now",practised_before:"pp.why_before",similar_level:"pp.why_similar",in_line:"pp.why_line",online_now:"pp.why_online"};
 function ppReasonText(r){
@@ -20116,7 +20126,7 @@ function ppCandidatesHTML(cards){
     <p class="pp-fine">${t("pp.cand_live_note")}</p>
   </section>`).join("")}
   <div class="pp-row"><button class="btn btn-g" onclick="ppCands=null;go('partner')">${t("pp.cands_back")}</button></div>
-  ${ppAiChoiceHTML("cands",false)}`;
+  ${ppAiChoiceHTML("cands")}`;
 }
 function ppThreadHTML(p){
   const pr=ppPrompt(p);

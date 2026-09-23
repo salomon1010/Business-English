@@ -1743,6 +1743,7 @@
  "pp.nocand_sub": "你在队列中 —— 下一位加入的学习者会先看到你。在我们继续寻找时，先和 AI 教练练习吧。",
  "pp.keep_looking": "继续寻找",
  "pp.nohuman_h": "暂时没有伙伴",
+ "pp.choose_h": "Choose how you want to practise",
  "pp.ai_choice_h": "或者与 AI 教练练习",
  "pp.ai_choice_sub": "由你决定：真人学习者，或立即与 AI 教练练习。教练是 AI，绝不是真人。",
  "pp.nohuman_sub": "在我们寻找下一次真人练习时，先和 AI 开始。教练是 AI，绝不是真人。",
