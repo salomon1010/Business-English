@@ -146,6 +146,14 @@ ok("With the first two resting, the engine offers the third competency to speak 
   W4 && pick(F) && pick(F).comp.id === "raise-problem" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 put(F, W4, ME.missionOf(W4, "raise-problem-guided"), ME.missionOf(W4, "raise-problem-guided").hear.model, "guided", "f5");
 put(F, W4, ME.missionOf(W4, "raise-problem-transfer"), "There is a problem with the monthly figures. It started when the old report was switched off in August. This means the Thursday board pack is at risk. I have spoken to finance and asked them to rerun the numbers. Could you sign off on a one-day delay so we can check them?", "transfer", "f6");
+/* V2.4: a fourth competency ("Clarifying, asking questions & confirming",
+   Week 4) sits in the pack. Same rule, one more entry: offered when the first
+   three rest, and nothing is pushed only once it rests too. */
+const W5 = ME.competencyOf(PACK, "clarify-confirm");
+ok("With the first three resting, the engine offers the fourth competency to speak — it is not skipped",
+  W5 && pick(F) && pick(F).comp.id === "clarify-confirm" && pick(F).rec.action === "speak", JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
+put(F, W5, ME.missionOf(W5, "clarify-confirm-guided"), ME.missionOf(W5, "clarify-confirm-guided").hear.model, "guided", "f7");
+put(F, W5, ME.missionOf(W5, "clarify-confirm-transfer"), "Sorry, I'm not sure I follow — the client thing could be two things. Are you asking about the revised quote or the delivery date they wanted? So you're saying it's the quote they're expecting before Wednesday's review. Then I'll send the quote today and come back to you tomorrow on the delivery date — does that work?", "transfer", "f8");
 ok("With every competency transfer-ready, nothing is pushed and the old advice stands", pick(F) === null, JSON.stringify(pick(F) && { c: pick(F).comp.id, a: pick(F).rec.action }));
 
 /* ═══════════ BROWSER ════════════════════════════════════════════════════ */

@@ -61,8 +61,11 @@ console.log("\nWEEK 3 · THE COMPETENCY");
 ok("Week 3 exists, is numbered 3, and is 'Raise a problem' with five moves and two missions",
   W3 && W3.week === 3 && /raise a problem/i.test(W3.title) && ME.moveIds(W3).join() === "issue,cause,impact,mitigate,ask" && W3.missions.length === 2,
   W3 && ME.moveIds(W3).join());
-ok("The canonical numbering holds: explain-work=1, clear-update=2, raise-problem=3, no gaps, no duplicates",
-  PACK.competencies.map(c => c.week).join() === "1,2,3" && W1.week === 1 && W2.week === 2);
+/* V2.4 added Week 4 ("Clarifying, asking questions & confirming") as one more
+   entry. The numbering claim is unchanged: consecutive from 1, no gaps, no
+   duplicates — whatever the count. */
+ok("The canonical numbering holds: explain-work=1, clear-update=2, raise-problem=3, then consecutive — no gaps, no duplicates",
+  PACK.competencies.map(c => c.week).join() === PACK.competencies.map((_, i) => i + 1).join() && W1.week === 1 && W2.week === 2 && W3.week === 3);
 ok("Every Week 3 move has an id, a label, a hint, phrase cues, a retry and patterns",
   W3.moves.every(m => m.id && m.label && m.hint && Array.isArray(m.cues) && m.cues.length && m.retry && Array.isArray(m.patterns) && m.patterns.length));
 ok("Every Week 3 expression is tagged to a move that exists",
@@ -203,7 +206,16 @@ let H = {};
 put(H, W1, G1, SAY.w1strong, "guided", "h1"); put(H, W1, T1, SAY.w1transfer, "transfer", "h2");
 put(H, W2, G2, SAY.w2strong, "guided", "h3"); put(H, W2, T2, SAY.w2transfer, "transfer", "h4");
 put(H, W3, G3, SAY.strong, "guided", "h5"); put(H, W3, T3, SAY.transfer, "transfer", "h6");
-ok("All three transfer-ready → nothing is pushed; the old advice stands", pick(H) === null);
+/* V2.4: a fourth competency ("Clarifying, asking questions & confirming",
+   Week 4) now sits in the pack. With the first three resting the engine offers
+   it — a competency nobody has spoken for is never skipped — and only when
+   EVERY competency rests is nothing pushed. Same shape as the Week 2 suite. */
+const W4c = ME.competencyOf(PACK, "clarify-confirm");
+ok("All three transfer-ready → the fourth competency is offered to speak, not skipped",
+  W4c && pick(H) && pick(H).comp.id === "clarify-confirm" && pick(H).rec.action === "speak", show(pick(H)));
+put(H, W4c, ME.missionOf(W4c, "clarify-confirm-guided"), ME.missionOf(W4c, "clarify-confirm-guided").hear.model, "guided", "h7");
+put(H, W4c, ME.missionOf(W4c, "clarify-confirm-transfer"), "Sorry, I'm not sure I follow — the client thing could be two things. Are you asking about the revised quote or the delivery date they wanted? So you're saying it's the quote they're expecting before Wednesday's review. Then I'll send the quote today and come back to you tomorrow on the delivery date — does that work?", "transfer", "h8");
+ok("All four transfer-ready → nothing is pushed; the old advice stands", pick(H) === null, show(pick(H)));
 ok("Pending coaching on Week 3 outranks everything, including a Week 1 retry",
   (() => { const s = {}; put(s, W1, G1, SAY.w1noWhy, "guided", "i1"); const r = put(s, W3, G3, SAY.noAsk, "guided", "i2"); r.attempt.coachPending = true; return show(pick(s)) === "raise-problem:coach:ask"; })());
 
