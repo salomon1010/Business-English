@@ -325,15 +325,48 @@ not JS, and `new Function` chokes on it. Check it separately with
   plays on. `pronunciation_feedback` is in `COACH_MODAL_SKIP`: no coach
   pop-up after a Shadow report; **Shadow (v411)** = ONE paragraph: `svShHTML()`
   renders the "Original transcript" card (word chips → `fbSay`, plain text,
-  the translation box, prev/next paragraph, ⭐ save clip, Translate (only when
-  the app language is not English; the Worker's `chat` route asked for
-  `{"reply"}`, cached in `localStorage.be_sv_tr` ≤200) and Hear it); on entry
+  the translation box, prev/next paragraph, ⭐ save clip, two compact switches
+  **Translate** / **Pronunciation** and Hear it; on entry
   `svShEnter()` snaps `shClip` Start/End to the paragraph, turns the clip loop
   on and puts its text in `#shNote` so the studio report grades it; the foot
   bar `#svShBar` (Speed = `shRate`, Record = `shRec`, Replay) is mirrored from
   the hidden `.rec-panel` by `svShBarSync()`; transport, follow-along card,
   Start/End tools and the whole `#shLower` grid are hidden there, the report
   card after it is not. Entering Watch or Challenge turns the clip loop off.
+  **Translate + Pronunciation (2026-09-23, branch `feature/shadow-translate-ipa`,
+  not merged).** Both OFF by default; the choice is per area in
+  `aMap("svPref")` = `{tr,ipa}` (rides in S, survives refresh + cloud merge).
+  Translate → the learner's **native language = `S.profile.lang`** (the
+  onboarding answer; there is no second language setting) under the English:
+  `#svShTr` names the language, carries `lang`/`dir` (RTL for ar/ur/fa/he),
+  wait / error-with-Try-again states; when the app is in English the switch is
+  `aria-disabled` and a tap toasts `sv.sh_tr_none`. The Worker's `chat`
+  route asked for `{"reply"}`, cached in `localStorage.be_sv_tr` ≤200 keyed
+  `vid:para:lang`, one request in flight per key. Pronunciation → General
+  American IPA under each word chip (`.sv-sh-w` = `.sv-sh-wt` word over
+  `.sv-sh-ipa`, aria-hidden so a screen reader hears the word once): a
+  **per-word** cache `localStorage.be_sv_ipa` ≤3000 + `SV_IPA_SEED` (~200
+  common words on the device); the chat route is asked only for the words the
+  device has not met, ≤25 per call (`SV_IPA_BATCH` — the route caps a reply
+  at 800 chars), with the sentence as context; `svIpaParse` validates every
+  pair (`word=ipa|…`, no capitals/digits, not an echo). A word tap with
+  Pronunciation off *peeks* that one word's IPA (`_svIpaPeek`). Every entry
+  point (`svShTrOn/svShIpaOn/svShTrToggle/svShIpaToggle/svShTrFetch/
+  svShIpaFetch/svShWordTap`) checks `svOn()`, so Welding never renders,
+  fetches or writes — the Polish Worker itself is stateless (no identity, no
+  track), so the boundary is the client's, like every other GE-only feature.
+  Events `shadow_translation_toggled` (+state, +lang) /
+  `shadow_pronunciation_toggled` (+state) / `shadow_word_played` /
+  `shadow_translation_viewed` (+lang) are on the be-events allow-list on the
+  branch only — deploy that Worker (from a checkout that has the 20-blob fix)
+  before expecting rows. Tests: `tests/shadow-helpers.mjs` (28).
+  **v3 foot bar:** `shv3RecSync()` keeps the Shadow button red / "Stop"
+  exactly while `rec.mr` is recording — called by `recToggle` on start and
+  stop and by the 300 ms `svShBarSync` tick (a one-off redraw 120 ms after
+  the tap ran before getUserMedia answered, so it stayed blue). **Report
+  fold:** `#fbFold` chevron beside "Analyze my last shadowing recording"
+  hides `#fbOut`; `fbFoldSync(fresh)` — the button exists only once there
+  is a report, and a new report always opens.
   **Challenge** = its own panel only (`shLowerShow(false)`).
   Welding never carries the attribute and keeps the classic workspace.
 - **Shadow Studio V2 (same branch, General English only, `shadow_studio_v2_enabled`).**

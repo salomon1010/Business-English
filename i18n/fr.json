@@ -2636,5 +2636,15 @@
  "ex.quick_h": "Une meilleure façon de le dire",
  "ex.quick_note": "Appuyez encore pour une autre version — un autre registre, de nouveaux verbes, de nouveaux idiomes. Écoutez-les et copiez celle qui vous ressemble.",
  "ex.quick_max": "Six versions. Arrêtez de collectionner et dites-en une à voix haute.",
- "ex.quick_idioms": "Idiomes à mémoriser"
+ "ex.quick_idioms": "Idiomes à mémoriser",
+ "sv.sh_ipa_btn": "Prononciation",
+ "sv.sh_ipa_wait": "Chargement de la prononciation…",
+ "sv.sh_ipa_err": "La prononciation a besoin d'une connexion. Réessayez dans un instant.",
+ "sv.sh_ipa_note": "Prononciation en API (anglais américain), écrite par l'IA — un guide, pas un verdict.",
+ "sv.sh_tr_none": "La traduction a besoin de votre langue maternelle. Choisissez-la dans les Réglages — l'application est en anglais pour l'instant.",
+ "sv.sh_tr_a11y": "Traduction ({{lang}})",
+ "sv.sh_helpers": "Aides à la transcription",
+ "sv.sh_busy": "Trop de demandes à la fois. Attendez quelques secondes et réessayez.",
+ "sh.report_fold": "Masquer le rapport",
+ "sh.report_unfold": "Afficher le rapport"
 }

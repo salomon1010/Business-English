@@ -96,6 +96,11 @@ const EVENTS = new Set([
   // opened out of a miss (+kind chorus|buildup). Counts only — the rung name
   // is a fixed enum, never the clip, the line or anything spoken.
   "shadow_challenge_rung", "shadow_challenge_drill",
+  // The Shadow card's two helpers (General English only): Translate switched
+  // (+state on|off, +lang — the native language code), Pronunciation switched
+  // (+state on|off), a word tapped to hear it, a paragraph's translation shown
+  // (+lang). Counts only — never the words, the paragraph or the translation.
+  "shadow_translation_toggled", "shadow_pronunciation_toggled", "shadow_word_played", "shadow_translation_viewed",
   // Round Review (Practice Partner, General English only): a review landed
   // (+evidence audio|asr|none), the voice coach was played, a pronunciation or
   // sentence practice attempt was graded (+result pass|retry), an item was

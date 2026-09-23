@@ -172,3 +172,53 @@ no JS errors). Not yet done on real phones (iOS Safari, Android Chrome).
 
 **Known gap (pre-existing, untouched):** `svApplyAI` writes `S.applyPhrase`
 but the role-play never reads it, so Apply It → AI opens a plain role-play.
+
+## Translate + Pronunciation on the Shadow card (2026-09-23, branch `feature/shadow-translate-ipa`, not merged)
+
+Two compact switches at the foot of the "Original transcript" card, both OFF
+by default, the English always the primary text. General English only —
+everything runs behind `svOn()`; Welding never renders the card, never
+fetches, never writes the preference.
+
+- **Native language = `S.profile.lang`** (the onboarding answer "What's your
+  native language?"). Reused as is; no second setting. `svShLang()` adds
+  `ok` (not English and known in `LANGS`) and `rtl`.
+- **Preference:** `aMap("svPref")` = `{tr, ipa}` per area, in S (refresh-
+  and merge-safe). Welding's bucket is never created.
+- **Translate:** `svShTrFetch` → Polish Worker `chat` route (`{"reply"}`),
+  cached in `localStorage.be_sv_tr` ≤200 keyed `vid:paragraph:lang`, one
+  request in flight per key. Block `#svShTr`: the language named above the
+  text, `lang` + `dir` (RTL for ar/ur/fa/he), `aria-live`, wait / error
+  (Try again) states; 429 says "too many requests". App in English → the switch
+  is `aria-disabled` and a tap explains (`sv.sh_tr_none`).
+- **Pronunciation:** General American IPA under each word chip. Per-WORD cache
+  `localStorage.be_sv_ipa` ≤3000 + `SV_IPA_SEED` (~200 common words). Only
+  the unknown words of the paragraph are requested, ≤25 per call
+  (`SV_IPA_BATCH`), the sentence as context, `svIpaParse` validates every
+  `word=ipa` pair. Status line `#svShIpaSt` (wait / error / the honest note:
+  AI-written, a guide). IPA spans are `aria-hidden`. A word tap plays the word
+  (existing `fbSay`) and, with the switch off, peeks that word's IPA.
+- **Server side:** unchanged. The Polish Worker is stateless (origin
+  allow-list + IP rate limit, no identity, no track), so there is no track
+  claim to authorise; the be-partner Worker (which does authorise tracks) is
+  untouched.
+- **Analytics** (be-events allow-list on the branch, NOT deployed):
+  `shadow_translation_toggled` (+state on|off, +lang), `shadow_pronunciation_toggled`
+  (+state), `shadow_word_played`, `shadow_translation_viewed` (+lang, once
+  per paragraph per session).
+- **Strings:** `sv.sh_ipa_btn/_wait/_err/_note`, `sv.sh_tr_none/_a11y`,
+  `sv.sh_helpers`, `sv.sh_busy`, `sh.report_fold/_unfold` — in all 15
+  files, translated for fr/es/pt/ar, English elsewhere.
+- **Tests:** `tests/shadow-helpers.mjs` (28 checks: defaults, toggles, cache
+  reuse, per-word IPA correspondence, tap + peek, next paragraph, Worker down /
+  429 / offline, away-and-back, refresh, the v3 Shadow button while recording,
+  the report fold, Watch sync, same-account track switch, a Welding learner, an
+  English-app learner, Spanish and Arabic targets, no JS errors).
+- **Also on the branch (owner, 23 Sep 2026):** the v3 foot-bar Shadow button
+  is red / "Stop" exactly while the recorder runs (`shv3RecSync`); the
+  report under "Analyze my last shadowing recording" folds (`#fbFold`).
+- **Known limits:** IPA is written by the model (gpt-4o-mini via the chat
+  route) — accurate for common words, not a dictionary; a homograph is cached
+  in the reading the first sentence gave it; Watch mode's full list has neither
+  helper (the card is the one-paragraph view); the help centre has no line
+  about the two switches yet.

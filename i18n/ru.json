@@ -2636,5 +2636,15 @@
  "ex.quick_h": "A better way to say it",
  "ex.quick_note": "Press again for another version — a different register, new verbs, new idioms. Hear each one and copy the one that sounds like you.",
  "ex.quick_max": "Six versions. Stop collecting and say one out loud.",
- "ex.quick_idioms": "Idioms to memorise"
+ "ex.quick_idioms": "Idioms to memorise",
+ "sv.sh_ipa_btn": "Pronunciation",
+ "sv.sh_ipa_wait": "Loading pronunciation…",
+ "sv.sh_ipa_err": "Pronunciation needs a connection. Try again in a moment.",
+ "sv.sh_ipa_note": "Pronunciation in IPA (American English), written by AI — a guide, not a verdict.",
+ "sv.sh_tr_none": "Translation needs your native language. Choose it in Settings — the app is in English now.",
+ "sv.sh_tr_a11y": "Translation ({{lang}})",
+ "sv.sh_helpers": "Transcript helpers",
+ "sv.sh_busy": "Too many requests at once. Wait a few seconds and try again.",
+ "sh.report_fold": "Hide the report",
+ "sh.report_unfold": "Show the report"
 }

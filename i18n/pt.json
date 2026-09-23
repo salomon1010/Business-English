@@ -2636,5 +2636,15 @@
  "ex.quick_h": "Uma forma melhor de dizer",
  "ex.quick_note": "Toque de novo para outra versão — outro registro, novos verbos, novos idiomatismos. Ouça cada uma e copie a que soa como você.",
  "ex.quick_max": "Seis versões. Pare de colecionar e diga uma em voz alta.",
- "ex.quick_idioms": "Idiomatismos para memorizar"
+ "ex.quick_idioms": "Idiomatismos para memorizar",
+ "sv.sh_ipa_btn": "Pronúncia",
+ "sv.sh_ipa_wait": "Carregando a pronúncia…",
+ "sv.sh_ipa_err": "A pronúncia precisa de conexão. Tente de novo em instantes.",
+ "sv.sh_ipa_note": "Pronúncia em AFI (inglês americano), escrita por IA — um guia, não um veredito.",
+ "sv.sh_tr_none": "A tradução precisa da sua língua materna. Escolha-a em Configurações — o app está em inglês agora.",
+ "sv.sh_tr_a11y": "Tradução ({{lang}})",
+ "sv.sh_helpers": "Ajudas de transcrição",
+ "sv.sh_busy": "Muitos pedidos ao mesmo tempo. Aguarde alguns segundos e tente de novo.",
+ "sh.report_fold": "Ocultar o relatório",
+ "sh.report_unfold": "Mostrar o relatório"
 }
