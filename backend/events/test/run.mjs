@@ -105,19 +105,51 @@ ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exac
 { const e = env(); await send(e, { name: "return_open", props: { gap: "1-3d" } }); ok("return_open: gap=blob16 (./query.sh returns)", row(e).blobs[15] === "1-3d"); }
 { const e = env(); await send(e, { name: "partner_interest", props: { track: "welding", stage: "w1-4" } });
   ok("partner_interest: track=blob17, stage=blob14 (./query.sh partner) — Welding may say welding here; this event is not V2", row(e).blobs[16] === "welding" && row(e).blobs[13] === "w1-4"); }
-{ const e = env(); await send(e, { name: "partner_candidate_shown", props: { n: "3", round: "2", now: "1" } });
-  const b = row(e).blobs; ok("partner phase-2: n=blob18, round=blob19, now=blob20 — the last three columns that fit", b[17] === "3" && b[18] === "2" && b[19] === "1"); }
-{ const e = env(); await send(e, { name: "shadow_challenge_rung", props: { rung: "blind", reason: "up" } });
-  const b = row(e).blobs; ok("shadow_challenge_rung is counted, but rung/reason sit past blob20 and are dropped — exactly as they were (a column that never existed); a family map is the fix, not a wider row",
-    e.writes.length === 1 && b.length === 20 && !b.includes("blind") && !b.includes("up")); }
+{ const e = env(); await send(e, { name: "partner_interest", props: { track: "welding", stage: "w1-4", n: "9" } });
+  const b = row(e).blobs; ok("partner_interest stays on the legacy map (blob17 track, blob14 stage) — it is the one partner name a query already reads", b[16] === "welding" && b[13] === "w1-4" && b[17] === "9" && b.length === 20); }
+
+/* ── 2a · partner_* and shadow_* family maps ───────────────────────────── */
+console.log("\n2a · PARTNER AND SHADOW MAPS — every prop the client sends has a column; nothing historical is re-read");
+const MAPS = Object.fromEntries([...SRC.matchAll(/\[\/(\^[^\/]+)\/, \[([^\]]*)\]\]/g)].map(m => [m[1], [...m[2].matchAll(/"([a-z_]+)"/g)].map(x => x[1])]));
+const PMAP = MAPS["^partner_(?!interest$)"], SMAP = MAPS["^shadow_"];
+const pcol = k => PMAP.indexOf(k) + 2, scol = k => SMAP.indexOf(k) + 2;
+ok("the partner map is 10 allow-listed keys and the shadow map 7 — both under 18",
+  PMAP && SMAP && PMAP.length === 10 && SMAP.length === 7 && [...PMAP, ...SMAP].every(k => KEYS.includes(k)), JSON.stringify([PMAP, SMAP]));
+/* every track("partner_…"/"shadow_…", {literal}) call site in the app */
+function siteKeys(prefix) {
+  const out = {}; const re = new RegExp('track\\(\\s*"(' + prefix + '[a-z0-9_]*)"\\s*,\\s*\\{', "g"); let m;
+  while ((m = re.exec(APP))) { let k = m.index + m[0].length - 1, d = 0, j = k; do { if (APP[j] === "{") d++; else if (APP[j] === "}") d--; j++; } while (j < APP.length && d > 0);
+    const keys = [...APP.slice(k, j).matchAll(/(?:^|[{,])\s*([a-z]+)\s*:/g)].map(x => x[1]); (out[m[1]] = out[m[1]] || new Set()); keys.forEach(x => out[m[1]].add(x)); }
+  return out;
+}
+const PS = siteKeys("partner_"), SS = siteKeys("shadow_");
+const pk = [...new Set(Object.entries(PS).filter(([n]) => n !== "partner_interest").flatMap(([, s]) => [...s]))];
+const sk = [...new Set(Object.values(SS).flatMap(s => [...s]))];
+ok(`every prop any partner_* call site sends (${pk.join(", ")}) has a column in the partner map`, pk.length > 0 && pk.every(k => PMAP.includes(k)), pk.filter(k => !PMAP.includes(k)).join());
+ok(`every prop any shadow_* call site sends (${sk.join(", ")}) has a column in the shadow map`, sk.length > 0 && sk.every(k => SMAP.includes(k)), sk.filter(k => !SMAP.includes(k)).join());
+{ const e = env(); await send(e, { name: "partner_connection_created", props: { state: "mutual" } }); const b = row(e).blobs;
+  ok("partner_connection_created: state → blob8 (it had no column at all before)", b[pcol("state")] === "mutual" && b.length === 2 + PMAP.length); }
+{ const e = env(); await send(e, { name: "partner_trial_started", props: { regular: "1" } }); ok("partner_trial_started: regular → blob7", row(e).blobs[pcol("regular")] === "1"); }
+{ const e = env(); await send(e, { name: "partner_review_ready", props: { evidence: "asr" } }); ok("partner_review_ready: evidence → blob10", row(e).blobs[pcol("evidence")] === "asr"); }
+{ const e = env(); await send(e, { name: "partner_live_failed", props: { reason: "mic" } }); ok("partner_live_failed: reason → blob9", row(e).blobs[pcol("reason")] === "mic"); }
+{ const e = env(); await send(e, { name: "partner_candidate_shown", props: { n: "3", round: "2", now: "1", kind: "waiting" } }); const b = row(e).blobs;
+  ok("partner phase-2: kind → blob3, round → blob4, n → blob5, now → blob6", b[pcol("kind")] === "waiting" && b[pcol("round")] === "2" && b[pcol("n")] === "3" && b[pcol("now")] === "1"); }
+{ const e = env(); await send(e, { name: "shadow_challenge_rung", props: { rung: "blind", reason: "up" } }); const b = row(e).blobs;
+  ok("shadow_challenge_rung: rung → blob6, reason → blob7 (both had no column before)", b[scol("rung")] === "blind" && b[scol("reason")] === "up" && b.length === 2 + SMAP.length); }
+{ const e = env(); await send(e, { name: "shadow_challenge_feedback_received", props: { level: "guided", rung: "gate", result: "pass" } }); const b = row(e).blobs;
+  ok("shadow_challenge_feedback_received: level → blob3, rung → blob6, result → blob8", b[scol("level")] === "guided" && b[scol("rung")] === "gate" && b[scol("result")] === "pass"); }
+{ const e = env(); await send(e, { name: "shadow_apply_phrase", props: { to: "partner" } }); ok("shadow_apply_phrase: to → blob5", row(e).blobs[scol("to")] === "partner"); }
+{ const e = env(); await send(e, { name: "shadow_challenge_drill", props: { kind: "chorus", installed: "yes" } }); const b = row(e).blobs;
+  ok("shadow_challenge_drill: kind → blob9; a legacy-only key (installed) is dropped from a shadow row", b[scol("kind")] === "chorus" && !b.includes("yes")); }
 
 /* ── 2b · THE INVARIANT, as architecture ───────────────────────────────── */
 console.log("\n2b · THE 20-BLOB INVARIANT — every family's maximum payload, and the guard itself");
 ok("exports agree with the source: AE_MAX_BLOBS 20, MAX_COLS 18, LEGACY is exactly the first 18 keys", AE_MAX_BLOBS === 20 && MAX_COLS === 18 && LEGACY_X.join() === LEGACY.join());
 ok("every declared layout fits without the guard ever cutting it (so the guard is a guard, not a behaviour)",
   LAYOUTS.every(([, keys]) => keys.length <= MAX_COLS) && LEGACY_X.length === MAX_COLS, LAYOUTS.map(([re, k]) => re + ":" + k.length).join());
-ok("layoutFor() is deterministic and total: a v2_* name → the V2 map, anything else → LEGACY",
-  layoutFor("v2_mission_started").join() === V2MAP.join() && layoutFor("app_open").join() === LEGACY.join() && layoutFor("partner_turn_sent").join() === LEGACY.join() && layoutFor("").join() === LEGACY.join());
+ok("layoutFor() is deterministic and total: v2_* → V2 map, partner_* → partner map (partner_interest excepted), shadow_* → shadow map, anything else → LEGACY",
+  layoutFor("v2_mission_started").join() === V2MAP.join() && layoutFor("partner_turn_sent").join() === PMAP.join() && layoutFor("partner_interest").join() === LEGACY.join()
+  && layoutFor("shadow_challenge_rung").join() === SMAP.join() && layoutFor("app_open").join() === LEGACY.join() && layoutFor("").join() === LEGACY.join());
 { LAYOUTS.push([/^zz_review_/, Array.from({ length: 30 }, (_, i) => "k" + i)]);
   const cut = layoutFor("zz_review_probe").length; LAYOUTS.pop();
   ok("a hypothetical 30-key layout is capped at 18 columns by the code itself — the row can never exceed 20 blobs", cut === MAX_COLS && layoutFor("zz_review_probe").join() === LEGACY.join(), String(cut)); }

@@ -176,6 +176,16 @@ const LAYOUTS = [
   // v2_* → blob3 track, 4 week, 5 competency, 6 mission, 7 kind, 8 move,
   // 9 result, 10 band, 11 state, 12 from, 13 attempt, 14 ai
   [/^v2_/, ["track", "week", "competency", "mission", "kind", "move", "result", "band", "state", "from", "attempt", "ai"]],
+  // partner_* → blob3 kind, 4 round, 5 n, 6 now, 7 regular, 8 state, 9 reason,
+  // 10 evidence, 11 result, 12 day. Not partner_interest: that is a legacy-era
+  // event ./query.sh partner reads at blob14 (stage) and blob17 (track).
+  // No partner row was ever recorded before this map existed (the names
+  // arrived 18 Sept 2026, the day the row went over the limit), so nothing
+  // historical is re-read through it.
+  [/^partner_(?!interest$)/, ["kind", "round", "n", "now", "regular", "state", "reason", "evidence", "result", "day"]],
+  // shadow_* → blob3 level, 4 mode, 5 to, 6 rung, 7 reason, 8 result, 9 kind.
+  // Same history: no shadow row was ever recorded.
+  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind"]],
 ];
 /* The invariant lives where the row is built, not only in a test: whatever a
    future edit declares, a layout can never put more than MAX_COLS keys into a

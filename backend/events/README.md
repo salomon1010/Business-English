@@ -83,13 +83,17 @@ different names. Maps so far:
 
 | family | blob3 | blob4 | blob5 | blob6 | blob7 | blob8 | blob9 | blob10 | blob11 | blob12 | blob13 | blob14 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| everything else (`LEGACY`) | streak | week | day | source | lang | result | module | trade | band | installed | onboarded | stage … `now` at blob20 |
+| everything else (`LEGACY`) | streak | week | day | source | lang | result | module | trade | band | installed | onboarded | stage (… gap 16, track 17, n 18, round 19, now 20) |
 | `v2_*` | track | week | competency | mission | kind | move | result | band | state | from | attempt | ai |
+| `partner_*` (not `partner_interest`) | kind | round | n | now | regular | state | reason | evidence | result | day | | |
+| `shadow_*` | level | mode | to | rung | reason | result | kind | | | | | |
 
-`partner_*` and `shadow_*` events use the legacy map: `n`, `round`, `now` land
-(blob18–20); `regular`, `state`, `level`, `mode`, `to`, `reason`, `evidence`,
-`rung` never had a column and are still dropped. Give them a family map the
-day those questions matter — a wider row is not an option.
+`partner_interest` stays on the legacy map because `./query.sh partner` reads
+it at blob14 (`stage`) and blob17 (`track`). No `partner_*` or `shadow_*` row
+was ever recorded before these maps existed — those names arrived on 18–19
+September 2026, the days the row went over the limit — so no historical row
+is re-read through them. First match in `LAYOUTS` wins; a new family's regex
+must not swallow a legacy-era name that a query already reads.
 
 ### Incident — no rows from 19 to 22 September 2026
 
