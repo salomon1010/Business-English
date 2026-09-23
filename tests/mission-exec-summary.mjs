@@ -529,7 +529,7 @@ await sleep(1200);
 await L.page.evaluate(() => mvRecord());
 await L.page.waitForFunction(() => _mv && !_mv.busy && (_mv.ev || _mv.err), null, { timeout: 15000 }).catch(() => {});
 await sleep(250);
-const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, offTxt: (document.querySelector(".mv-move.off") || {}).innerText, improve: (document.querySelector(".mv-improve") || {}).innerText, step: _mv.step }));
+const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, offTxt: (document.querySelector(".mv-move.off") || {}).textContent, improve: (document.querySelector(".mv-improve") || {}).innerText, step: _mv.step }));
 ok("B1 · the missing decision is identified from what was said; five chips render, one off — the decision chip",
   b1.moves.decision === false && b1.cov === 0.8 && b1.move === "decision" && b1.chips === 5 && b1.off === 1 && /Say the decision you need/i.test(b1.offTxt || "") && b1.step === "coach", JSON.stringify({ c: b1.cov, m: b1.move, chips: b1.chips, off: b1.off, offTxt: b1.offTxt }));
 ok("B2 · four of five does not advance the learner", (await rec9(L.page, ID)).state === "PRACTICING");

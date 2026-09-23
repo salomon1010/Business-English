@@ -1754,6 +1754,12 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-fold[open]>summary::after{transform:rotate(-90deg)}
 .mv-fold-b{padding:0 13px 12px}
 .mv-fold-b .mv-bars{margin:6px 0 2px}
+.mv-pol{margin:0 0 10px;padding:10px 12px;border-radius:10px;background:var(--card2,rgba(127,127,127,.08))}
+.mv-pol small{display:block;font-size:10.5px;font-weight:700;color:var(--mut2);text-transform:uppercase;letter-spacing:.05em;margin:5px 0 1px}
+.mv-pol small:first-child{margin-top:0}
+.mv-pol p{margin:0;font-size:13.5px;line-height:1.55}
+.mv-pol .mv-pol-s{color:var(--mut)}
+.mv-pol .mv-pol-w{font-size:12.5px;color:var(--mut)}
 .mv-prevlink{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 13px;border:1px dashed var(--line2);border-radius:12px;background:none;font:inherit;font-size:13.5px;color:var(--mut);cursor:pointer;text-align:left}
 .mv-prevlink b{color:var(--txt)}
 .mv-prevlink span{margin-left:auto;color:var(--mut2);font-weight:800}
@@ -7181,6 +7187,8 @@ const I18N_EN={
  "mv.sec_flu":"Fluency & clarity",
  "mv.sec_pron":"Pronunciation",
  "mv.sec_detail":"Detailed analysis",
+ "mv.sec_polish":"Language polish",
+ "mv.rep_why":"Why",
  "mv.hist_convos":"Conversations",
  "mv.hist_partner":"Practice Partner reviews",
  "rp.rep_btn":"Speaking report",
@@ -9259,6 +9267,17 @@ function mvFold(k,label,inner){
   return `<details class="mv-fold"${open?" open":""} ontoggle="if(typeof _mv!=='undefined'&&_mv){(_mv.secOpen=_mv.secOpen||{})['${k}']=this.open}">
     <summary>${esc(label)}</summary><div class="mv-fold-b">${inner}</div></details>`;
 }
+/* One language-polish entry: you said → try → why. Reads both the live
+   shape ({said,better,why}, from shapeReport) and the stored one
+   ({s,b,w}, from attachReport / rpRepStore), so the coach step, the
+   conversation sheet and the history all draw the same block. */
+function mvPolHTML(rows){
+  const g=(x,a,b)=>x[a]!=null&&x[a]!==""?x[a]:x[b];
+  return rows&&rows.length?`<div class="mv-pols">${rows.map(x=>`<div class="mv-pol">
+    <small>${t("mv.rep_you")}</small><p class="mv-pol-s">“${esc(g(x,"said","s")||"")}”</p>
+    <small>${t("mv.rep_try")}</small><p>“${esc(g(x,"better","b")||"")}”</p>
+    ${g(x,"why","w")?`<small>${t("mv.rep_why")}</small><p class="mv-pol-w">${esc(g(x,"why","w"))}</p>`:""}</div>`).join("")}</div>`:"";
+}
 function mvRepFoldsHTML(comp,co,ev){
   const rep=co&&co.report;
   if(!rep||!ev)return "";
@@ -9266,6 +9285,7 @@ function mvRepFoldsHTML(comp,co,ev){
   const big=mvRepPick(rep,co);
   const wellRest=(rep.well||[]).slice(2),fixRest=(rep.improve||[]).filter(x=>x!==big);
   const folds=[];
+  if(rep.polish&&rep.polish.length)folds.push(mvFold("polish",t("mv.sec_polish"),mvPolHTML(rep.polish)));
   if(rep.expr&&rep.expr.length)folds.push(mvFold("vocab",t("mv.sec_vocab"),
     `<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}
      </ul>${ev.vocab!=null?`<div class="mv-bars">${mvBar(t("mv.vocab"),ev.vocab)}</div>`:""}`));
@@ -9539,6 +9559,7 @@ function rMvHist(el){
         ${rep.fix&&rep.fix.length?`<h4>${t("mv.rep_fix_h")}</h4>${list(rep.fix,"fix")}`:""}
         ${rep.better?`<p class="mv-better-t">“${esc(rep.better)}”</p>`:""}
         ${rep.expr&&rep.expr.length?`<h4>${t("mv.rep_expr_h")}</h4><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+        ${rep.pol&&rep.pol.length?`<h4>${t("mv.sec_polish")}</h4>${mvPolHTML(rep.pol)}`:""}
         ${rep.one?`<p class="mv-improve">${esc(rep.one)}</p>`:""}`:""}
       <div class="mv-acts">
         ${rep&&rep.better?`<button class="btn btn-g" onclick="mvHistHear(${i})">${ic("play")} ${t("mv.rep_better_play")}</button>`:""}
@@ -9566,6 +9587,7 @@ function rMvHist(el){
         ${rep.fix&&rep.fix.length?`<h4>${t("mv.rep_fix_h")}</h4>${rpRepListHTML(sc,rep.fix,"fix")}`:""}
         ${rep.better?`<p class="mv-better-t">“${esc(rep.better)}”</p>`:""}
         ${rep.expr&&rep.expr.length?`<h4>${t("mv.rep_expr_h")}</h4><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
+        ${rep.pol&&rep.pol.length?`<h4>${t("mv.sec_polish")}</h4>${mvPolHTML(rep.pol)}`:""}
         ${rep.one?`<p class="mv-improve">${esc(rep.one)}</p>`:""}
         <div class="mv-acts">
           ${rep.better?`<button class="btn btn-g" onclick="rpHistHear(${c.ts})">${ic("play")} ${t("mv.rep_better_play")}</button>`:""}
@@ -23987,6 +24009,7 @@ Read the learner's turns. Write a short report as JSON:
 - "better": the strongest of the learner's own turns, improved. Keep their meaning, their facts and their level; at most 70 words; natural spoken English. Never add facts they did not say.
 - "expressions": up to ${C.expr} entries {"e": expression, "why": when it helps in this conversation, under 15 words}.
 - "one": ONE actionable focus for their next conversation, under 25 words, imperative.
+- "polish": up to ${C.polish} entries {"said": the learner's EXACT words quoted from their turns, "better": a more natural, professional way to say the same thing in THIS conversation ("${sc.title}"), "why": one plain sentence}. Only where the rewording MATERIALLY improves clarity, naturalness, professional register, sentence structure or word choice for this situation. Keep their meaning and facts. If their language is already natural, return an empty list — never correct a minor slip for its own sake, and never call awkward but clear English "wrong".
 
 RULES
 - The scorer's verdict is final. Explain it; never contradict it.
@@ -23996,7 +24019,7 @@ RULES
 - Plain British English, spoken register.
 
 Return JSON only:
-{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":""}`;
+{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":"","polish":[{"said":"","better":"","why":""}]}`;
 }
 function rpRepBtnHTML(){
   if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return "";
@@ -24011,6 +24034,8 @@ function rpRepStore(c,rep){
     better:rep.better?String(rep.better).slice(0,C.better):null,
     expr:(rep.expr||[]).slice(0,C.expr).map(x=>({e:String(x.e||"").slice(0,60),why:String(x.why||"").slice(0,140)})),
     one:String(rep.one||"").slice(0,C.one),ai:!!rep.ai,at:Date.now()};
+  if(rep.polish&&rep.polish.length)c.rep.pol=rep.polish.slice(0,C.polish)
+    .map(x=>({s:String(x.said||"").slice(0,C.psaid),b:String(x.better||"").slice(0,C.pbetter),w:String(x.why||"").slice(0,C.pwhy)}));
   save();return c.rep;
 }
 window.rpReport=async()=>{
@@ -24029,6 +24054,10 @@ window.rpReport=async()=>{
     try{
       const F=window.ConversationOrchestrator;
       const said=(_rpLast.turns||[]).map(x=>x.text).join(" ").slice(0,2400);
+      /* the transcript rides on the ephemeral ev so shapeReport can verify
+         every polish "said" against words the learner actually spoke —
+         nothing here touches the stored conversation or its covered count */
+      ev.said=said;
       const sys=rpRepPrompt(sc,comp,ev);
       const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
         body:JSON.stringify({mvreport:{system:sys,said:F&&F.fence?F.fence(said):said}})});
@@ -24043,7 +24072,7 @@ window.rpReport=async()=>{
   }
   const stored=c?rpRepStore(c,rep):null;
   try{track("v2_speaking_feedback_generated",{track:AREA_GEN,competency:"conversation",mission:sc.id,kind:"conversation",ai:rep.ai?"1":"0"})}catch(_){}
-  rpRepShow(sc,stored||Object.assign({},rep,{well:(rep.well||[]).map(x=>({m:x.move,n:x.note})),fix:(rep.improve||[]).map(x=>({m:x.move,n:x.note}))}));
+  rpRepShow(sc,stored||Object.assign({},rep,{well:(rep.well||[]).map(x=>({m:x.move,n:x.note})),fix:(rep.improve||[]).map(x=>({m:x.move,n:x.note})),pol:rep.polish||[]}));
 };
 function rpRepListHTML(sc,rows,cls){
   const lbl=id=>{const i=parseInt(String(id).slice(1),10);return (sc&&sc.points&&sc.points[i-1])||id};
@@ -24063,6 +24092,7 @@ function rpRepShow(sc,rep){
     :(()=>{
       const big=(rep.fix||[])[0]||null,fixRest=(rep.fix||[]).slice(1),wellRest=(rep.well||[]).slice(2);
       const folds=[];
+      if(rep.pol&&rep.pol.length)folds.push(fold(t("mv.sec_polish"),mvPolHTML(rep.pol)));
       if(rep.expr&&rep.expr.length)folds.push(fold(t("mv.sec_vocab"),`<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`));
       if(wellRest.length||fixRest.length)folds.push(fold(t("mv.sec_detail"),
         `${wellRest.length?rpRepListHTML(sc,wellRest,"ok"):""}${fixRest.length?rpRepListHTML(sc,fixRest,"fix"):""}`));
@@ -26023,6 +26053,8 @@ function fbSyncPayload(s){
           /* the report's better version is the learner's own answer, reworded
              — same rule as `said`: the evidence travels, the speech does not */
           if(y.report&&y.report.better)y.report=Object.assign({},y.report,{better:null});
+          /* language polish quotes the learner's own words: same rule */
+          if(y.report&&y.report.pol){y.report=Object.assign({},y.report);delete y.report.pol}
           return y;})});
       });
       o[a]=box;
@@ -26039,8 +26071,9 @@ function fbSyncPayload(s){
     /* a conversation report's better version is the learner's own turn,
        reworded — the same rule v2A applies to its attempts */
     out.convos=out.convos.map(c=>{
-      if(!c||!c.rep||!c.rep.better)return c;
-      return Object.assign({},c,{rep:Object.assign({},c.rep,{better:null})});
+      if(!c||!c.rep||(!c.rep.better&&!c.rep.pol))return c;
+      const r=Object.assign({},c.rep,{better:null});delete r.pol;
+      return Object.assign({},c,{rep:r});
     });
   }
   if(Array.isArray(out.ppHist)){

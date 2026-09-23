@@ -737,7 +737,7 @@ Return JSON only:
      version rather than inventing one deterministically — we cannot write the
      learner's answer for them without the model, and pretending otherwise is
      the invented-performance failure this file exists to stop. */
-  const REPORT_CAPS = { well: 3, improve: 2, note: 160, better: 700, expr: 3, one: 180 };
+  const REPORT_CAPS = { well: 3, improve: 2, note: 160, better: 700, expr: 3, one: 180, polish: 2, psaid: 160, pbetter: 220, pwhy: 160 };
 
   function reportPrompt(ctx, ev, comp) {
     const made = moveIds(comp).filter(id => ev.moves[id]);
@@ -778,6 +778,14 @@ Read the transcript. Write a short report as JSON:
 - "expressions": up to ${REPORT_CAPS.expr} entries {"e": expression, "why":
   when it helps here, under 15 words}.
 - "one": ONE actionable focus for next time, under 25 words, imperative.
+- "polish": up to ${REPORT_CAPS.polish} entries {"said": the learner's EXACT
+  words quoted from the transcript, "better": a more natural, professional
+  way to say the same thing in THIS situation, "why": one plain sentence}.
+  Only where the rewording MATERIALLY improves clarity, naturalness,
+  professional register, sentence structure or word choice for this task.
+  Keep the learner's meaning and facts. If their language is already
+  natural and professional, return an empty list — never correct a minor
+  slip for its own sake, and never call awkward but clear English "wrong".
 
 RULES
 - The scorer's verdict is final. Explain it; never contradict it.
@@ -787,7 +795,7 @@ RULES
 - Plain British English, spoken register.
 
 Return JSON only:
-{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":""}`;
+{"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":"","polish":[{"said":"","better":"","why":""}]}`;
   }
 
   /* Validate the model's report against the evidence. Called AFTER
@@ -803,7 +811,7 @@ Return JSON only:
     const weak = weakestMove(comp, ev, []);
     const wm = weak ? moveOf(comp, weak) : null;
 
-    const out = { well: [], improve: [], better: null, expr: [], one: "", ai: false };
+    const out = { well: [], improve: [], better: null, expr: [], one: "", polish: [], ai: false };
 
     if (raw && typeof raw === "object") {
       (Array.isArray(raw.well) ? raw.well : []).forEach(x => {
@@ -825,7 +833,26 @@ Return JSON only:
         if (e) out.expr.push({ e, why });
       });
       out.one = str(raw.one, REPORT_CAPS.one);
-      out.ai = !!(out.well.length || out.improve.length || out.better || out.one);
+      /* LANGUAGE POLISH — coaching only, and only on words the learner
+         actually spoke: an entry whose "said" is not found in the transcript
+         is dropped (the model may not put words in the learner's mouth), and
+         a rewrite that changes nothing is dropped (no correction for its own
+         sake). The transcript is ev.said; a caller with no transcript gets
+         no polish rather than unverifiable polish. Deliberately NO
+         deterministic floor here — like the better version, polish cannot be
+         written without the model, so an empty list means "nothing worth
+         changing", never "we made something up". */
+      const norm = s => String(s || "").toLowerCase().replace(/[^a-z0-9À-ɏ']+/gi, " ").trim();
+      const spoken = norm(ev.said);
+      (Array.isArray(raw.polish) ? raw.polish : []).forEach(x => {
+        if (!x || out.polish.length >= REPORT_CAPS.polish) return;
+        const said = str(x.said, REPORT_CAPS.psaid), better = str(x.better, REPORT_CAPS.pbetter), why = str(x.why, REPORT_CAPS.pwhy);
+        if (!said || !better) return;
+        if (!spoken || spoken.indexOf(norm(said)) < 0) return;
+        if (norm(better) === norm(said)) return;
+        out.polish.push({ said, better, why });
+      });
+      out.ai = !!(out.well.length || out.improve.length || out.better || out.one || out.polish.length);
     }
 
     /* Deterministic floor: the report is never empty. Missing moves are named
@@ -862,6 +889,11 @@ Return JSON only:
       ai: !!report.ai,
       at: Date.now(),
     };
+    /* language polish rides only when the model found something worth
+       changing — it is the learner's own words, so the sync payload strips
+       it exactly as it strips `better` */
+    if (report.polish && report.polish.length) row.report.pol = report.polish.slice(0, REPORT_CAPS.polish)
+      .map(x => ({ s: String(x.said || "").slice(0, REPORT_CAPS.psaid), b: String(x.better || "").slice(0, REPORT_CAPS.pbetter), w: String(x.why || "").slice(0, REPORT_CAPS.pwhy) }));
     return row;
   }
 

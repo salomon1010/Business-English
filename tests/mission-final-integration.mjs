@@ -566,7 +566,7 @@ await sleep(1200);
 await L.page.evaluate(() => mvRecord());
 await L.page.waitForFunction(() => _mv && !_mv.busy && (_mv.ev || _mv.err), null, { timeout: 15000 }).catch(() => {});
 await sleep(250);
-const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, offTxt: (document.querySelector(".mv-move.off") || {}).innerText, step: _mv.step }));
+const b1 = await L.page.evaluate(() => ({ moves: _mv.ev.moves, cov: _mv.ev.coverage, move: _mv.coach.move, ai: _mv.coach.ai, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, offTxt: (document.querySelector(".mv-move.off") || {}).textContent, step: _mv.step }));
 ok("O1 · the missing pushback is identified; five chips render, one off — the pushback chip",
   b1.moves.pushback === false && b1.cov === 0.8 && b1.move === "pushback" && b1.chips === 5 && b1.off === 1 && /Push back where you differ/i.test(b1.offTxt || "") && b1.step === "coach", JSON.stringify({ c: b1.cov, m: b1.move, off: b1.offTxt }));
 ok("O2 · four of five does not advance the learner", (await recW(L.page, ID)).state === "PRACTICING");

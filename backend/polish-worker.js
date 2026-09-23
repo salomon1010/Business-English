@@ -719,6 +719,13 @@ export function shapeMvReport(raw) {
       .map(x => x && typeof x === "object" ? { e: str(x.e, 80), why: str(x.why, 160) } : null)
       .filter(x => x && x.e).slice(0, 3),
     one: str(p.one, 200),
+    /* language polish (23 Sep 2026): you-said → better → why, at most two.
+       Transport shape only — the client drops any entry whose "said" is not
+       found in the learner's own transcript, so the model cannot put words
+       in the learner's mouth. */
+    polish: (Array.isArray(p.polish) ? p.polish : [])
+      .map(x => x && typeof x === "object" ? { said: str(x.said, 200), better: str(x.better, 260), why: str(x.why, 200) } : null)
+      .filter(x => x && x.said && x.better).slice(0, 2),
   };
 }
 
