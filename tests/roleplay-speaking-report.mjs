@@ -136,7 +136,7 @@ await sleep(600);
 let st = await A.page.evaluate(ts => { const c = S.convos.find(x => x.ts === ts); return { rep: c && c.rep, html: document.getElementById("v-roleplay").textContent }; }, T1);
 ok("one call writes the report onto the conversation's own entry, AI-flagged", st.rep && st.rep.ai === true && repHits === 1);
 ok("the invented praise for the uncovered point was dropped; the true praise stays", st.rep.well.length === 1 && st.rep.well[0].m === "p1");
-ok("the screen speaks the mission report's language: well, improve, better, one thing", /What you did well/.test(st.html) && /What to improve/.test(st.html) && /logistics analyst/.test(st.html) && /one question of your own/i.test(st.html));
+ok("the screen speaks the mission report's language: well, biggest improvement, say it better, focus", /What you did well/.test(st.html) && /Biggest improvement/.test(st.html) && /Say it better/.test(st.html) && /logistics analyst/.test(st.html) && /one question of your own/i.test(st.html));
 ok("the missed point is shown by its own words, not its id", /Ask/.test(st.html) && !/\bp3\b/.test(st.html));
 ok("the learner's turns were sent, nothing else was", lastReportBody && /logistics analyst/.test(lastReportBody.said) && !/localStorage|profile/.test(lastReportBody.said));
 

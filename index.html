@@ -1737,6 +1737,26 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-better{margin:12px 0;padding:12px 14px;border-radius:12px;border:1px solid var(--line2);background:color-mix(in srgb,var(--acc) 6%,transparent)}
 .mv-better-t{font-size:14.5px;line-height:1.65;margin:6px 0 10px}
 .mv-one{margin:14px 0 2px;padding:12px 14px;border-radius:12px;border:1px solid color-mix(in srgb,var(--acc) 40%,transparent)}
+/* the consolidated report (owner spec 23 Sep 2026): the coaching answer on
+   top — well, ONE improvement, say-it-better, focus, Try again — and every
+   further section a closed fold. The folds keep the full analysis in the DOM;
+   nothing was removed to make the page short. */
+.mv-rep h3{font-size:13px;margin:14px 0 2px}
+.mv-said{margin:0 0 8px}
+.mv-said small,.mv-better small{display:block;font-size:11.5px;font-weight:700;color:var(--mut2);text-transform:uppercase;letter-spacing:.04em;margin:6px 0 1px}
+.mv-said p{font-size:13.5px;color:var(--mut);line-height:1.6;margin:2px 0 4px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.mv-said.open p{display:block;-webkit-line-clamp:none}
+.mv-folds{margin:16px 0 2px}
+.mv-fold{margin:0 0 8px;border:1px solid var(--line2);border-radius:12px}
+.mv-fold>summary{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;list-style:none;font-size:13.5px;font-weight:700}
+.mv-fold>summary::-webkit-details-marker{display:none}
+.mv-fold>summary::after{content:"›";margin-left:auto;color:var(--mut2);font-weight:800;transform:rotate(90deg);transition:transform .15s}
+.mv-fold[open]>summary::after{transform:rotate(-90deg)}
+.mv-fold-b{padding:0 13px 12px}
+.mv-fold-b .mv-bars{margin:6px 0 2px}
+.mv-prevlink{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:11px 13px;border:1px dashed var(--line2);border-radius:12px;background:none;font:inherit;font-size:13.5px;color:var(--mut);cursor:pointer;text-align:left}
+.mv-prevlink b{color:var(--txt)}
+.mv-prevlink span{margin-left:auto;color:var(--mut2);font-weight:800}
 .mv-hist-week{font-size:13px;color:var(--mut);margin:18px 0 8px}
 .mv-hist-row{margin-bottom:10px}
 /* a history row that is a link (a Practice Partner review) keeps the same
@@ -7150,6 +7170,17 @@ const I18N_EN={
  "mv.rep_better_off":"The better version needs a connection. Your answer and its result are already saved — the language coaching will be here when you are back online.",
  "mv.rep_expr_h":"Expressions worth keeping",
  "mv.rep_one_h":"One thing to improve",
+ "mv.rep_title":"Your speaking report",
+ "mv.rep_big_h":"Biggest improvement",
+ "mv.rep_say_h":"Say it better",
+ "mv.rep_you":"You said",
+ "mv.rep_try":"Try",
+ "mv.rep_focus_h":"Your focus",
+ "mv.rep_prev":"Previous attempts",
+ "mv.sec_vocab":"Vocabulary & expressions",
+ "mv.sec_flu":"Fluency & clarity",
+ "mv.sec_pron":"Pronunciation",
+ "mv.sec_detail":"Detailed analysis",
  "mv.hist_convos":"Conversations",
  "mv.hist_partner":"Practice Partner reviews",
  "rp.rep_btn":"Speaking report",
@@ -9180,27 +9211,74 @@ window.v2Recommendation=function(){
    only ever sit under an anchor that agrees with the evidence (shapeReport
    dropped the rest). No numbers are shown that were not measured, and a
    report with no better version (offline, or a refusal) says so instead of
-   inventing one. */
-function mvReportHTML(comp,co){
+   inventing one.
+
+   Consolidated 23 Sep 2026 (owner spec): the learner sees the coaching
+   answer in the first screenful — 1–2 things that worked, ONE improvement,
+   the better version with their own words above it, one focus, Try again.
+   Everything else the analysis produced still renders, in closed folds
+   below (mvRepFoldsHTML). Nothing about the engine or the evidence moved. */
+/* ONE improvement out of the (max two) evidence-anchored entries: the
+   recurring weakness wins when it is among them, because a move that keeps
+   failing outranks one that failed once; otherwise the model's own first
+   pick. Both are anchored to missed moves, so mission objective and move
+   status — the deterministic evidence — already led the ordering. */
+function mvRepPick(rep,co){
+  const list=(rep&&rep.improve)||[];
+  const weak=co&&co.move;
+  return list.find(x=>weak&&x.move===weak)||list[0]||null;
+}
+function mvReportHTML(comp,co,ev){
   const rep=co&&co.report;
   if(!rep)return `<h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
     <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p>`;
   const well=rep.well&&rep.well.length
-    ?rep.well.map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("")
+    ?rep.well.slice(0,2).map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("")
     :`<li>${esc(co.worked)}</li>`;
-  const fix=(rep.improve||[]).map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("");
-  return `
+  const big=mvRepPick(rep,co);
+  return `<div class="mv-rep">
     <h3>${t("mv.rep_well_h")}</h3><ul class="mv-rep-list ok">${well}</ul>
-    ${fix?`<h3>${t("mv.rep_fix_h")}</h3><ul class="mv-rep-list fix">${fix}</ul>`:""}
-    ${rep.better?`<div class="mv-better">
-        <div class="eyebrow">${t("mv.rep_better_h")}</div>
+    ${big?`<h3>${t("mv.rep_big_h")}</h3><ul class="mv-rep-list fix"><li><b>${esc(big.label)}</b>${big.note?` — ${esc(big.note)}`:""}</li></ul>`:""}
+    <div class="mv-better">
+      <div class="eyebrow">${t("mv.rep_say_h")}</div>
+      ${ev&&ev.said?`<div class="mv-said" onclick="this.classList.toggle('open')"><small>${t("mv.rep_you")}</small><p>“${esc(ev.said)}”</p></div>`:""}
+      ${rep.better?`<small>${t("mv.rep_try")}</small>
         <p class="mv-better-t">“${esc(rep.better)}”</p>
-        <button class="btn btn-g" onclick="mvHearBetter()">${ic("play")} ${t("mv.rep_better_play")}</button>
-      </div>`
-     :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
-    ${rep.expr&&rep.expr.length?`<h3>${t("mv.rep_expr_h")}</h3>
-      <ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
-    <div class="mv-one"><div class="eyebrow">${t("mv.rep_one_h")}</div><p class="mv-improve">${esc(rep.one||co.improve)}</p></div>`;
+        <button class="btn btn-g" onclick="mvHearBetter()">${ic("play")} ${t("mv.rep_better_play")}</button>`
+       :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
+    </div>
+    <div class="mv-one"><div class="eyebrow">${t("mv.rep_focus_h")}</div><p class="mv-improve">${esc(rep.one||co.improve)}</p></div>
+  </div>`;
+}
+/* The folds under the answer: the expressions, the measured dimensions and
+   the move-by-move detail the long report used to show at full priority.
+   Closed by default, open state kept on _mv so the redraw that delivers the
+   comprehensibility score does not snap them shut. */
+function mvFold(k,label,inner){
+  const open=!!(_mv&&_mv.secOpen&&_mv.secOpen[k]);
+  return `<details class="mv-fold"${open?" open":""} ontoggle="if(typeof _mv!=='undefined'&&_mv){(_mv.secOpen=_mv.secOpen||{})['${k}']=this.open}">
+    <summary>${esc(label)}</summary><div class="mv-fold-b">${inner}</div></details>`;
+}
+function mvRepFoldsHTML(comp,co,ev){
+  const rep=co&&co.report;
+  if(!rep||!ev)return "";
+  const li=x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`;
+  const big=mvRepPick(rep,co);
+  const wellRest=(rep.well||[]).slice(2),fixRest=(rep.improve||[]).filter(x=>x!==big);
+  const folds=[];
+  if(rep.expr&&rep.expr.length)folds.push(mvFold("vocab",t("mv.sec_vocab"),
+    `<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}
+     </ul>${ev.vocab!=null?`<div class="mv-bars">${mvBar(t("mv.vocab"),ev.vocab)}</div>`:""}`));
+  if(ev.clarity!=null||ev.fluency!=null)folds.push(mvFold("flu",t("mv.sec_flu"),
+    `<div class="mv-bars">${mvBar(t("mv.clarity"),ev.clarity)}${mvBar(t("mv.fluency"),ev.fluency)}</div>`));
+  folds.push(mvFold("pron",t("mv.sec_pron"),
+    `<div class="mv-bars">${mvBar(t("mv.pron"),ev.pron!=null?ev.pron/100:null,t("mv.pron_note"))}</div>`));
+  folds.push(mvFold("detail",t("mv.sec_detail"),
+    `${mvMoveChipsHTML(comp,ev)}
+     ${wellRest.length?`<ul class="mv-rep-list ok">${wellRest.map(li).join("")}</ul>`:""}
+     ${fixRest.length?`<ul class="mv-rep-list fix">${fixRest.map(li).join("")}</ul>`:""}
+     <div class="mv-bars">${mvBar(t("mv.task"),ev.coverage!=null?ev.coverage:null)}</div>`));
+  return `<div class="mv-folds">${folds.join("")}</div>`;
 }
 /* Hear the better version through the voice the app already speaks with —
    the Worker's natural voice when it is reachable, the device voice when
@@ -9335,18 +9413,21 @@ function rMission(el,missionId,step){
     }else{
       const nextIsTransfer=MissionEngine.rank(r.state)>=MissionEngine.rank("DEMONSTRATED")&&m.kind!=="transfer";
       const tm=(comp.missions||[]).find(x=>x.kind==="transfer");
+      /* The first screenful is the coaching answer (mvReportHTML) and the
+         Try-again action; the transcript, the move chips and the measured
+         dimensions moved into the folds below the actions. */
       body=`<section class="card mv-coach">
-        <div class="eyebrow">${t("mv.step_coach")}</div>
+        <div class="eyebrow">${t("mv.rep_title")}</div>
         ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
-        <p class="mv-heard"><b>${t("mv.heard")}</b> “${esc(ev.said)}”</p>
-        ${mvMoveChipsHTML(comp,ev)}
-        ${mvReportHTML(comp,co)}
+        ${mvReportHTML(comp,co,ev)}
         <div class="mv-acts">
           <button class="btn-primary" onclick="mvRetry()">${t("mv.retry_btn")}</button>
           ${nextIsTransfer&&tm?`<button class="btn btn-g" onclick="mvGo('${esc(tm.id)}','speak')">${t("mv.transfer_btn")}</button>`:""}
           <button class="btn btn-g" onclick="mvStep('done')">${t("mv.step_done")} →</button>
         </div>
         ${ev.coachPending?`<button class="btn btn-g mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`:""}
+        ${mvRepFoldsHTML(comp,co,ev)}
+        <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>
       </section>`;
     }
   }
@@ -20740,6 +20821,21 @@ function ppRevTermHTML(rev,kind,i,v){
     <div class="pp-rv-voc-acts">${ppRevPracticeBox(rev,kind+":"+i,v.example||v.term.replace(/…/g,""),v.term)}${ppRevSaveBtn(rev,kind,i,v.term)}</div>
   </div>`;
 }
+/* Consolidated presentation (owner spec 23 Sep 2026): the report answers
+   first — what worked, ONE improvement, the rebuilt answer, the next
+   practice — and every deeper section is a closed fold below. The analysis
+   itself (the review object, the practice machinery, the voice coach) is
+   untouched; only the order and the folding changed. Fold state lives
+   outside the render so a repaint cannot snap a section the learner opened
+   shut. The voice coach stays the FIRST fold (owner 2026-09-21: coach
+   first). The numbered section names are reused with their number stripped,
+   so the 15 translations did not have to be re-cut. */
+let _ppRevSecs={};
+function ppRevSecName(key){return String(t(key)).replace(/^\s*\d+\s*·\s*/,"")}
+function ppRevFold(k,label,inner,cls){
+  return `<details class="mv-fold${cls?" "+cls:""}"${_ppRevSecs[k]?" open":""} ontoggle="_ppRevSecs['${k}']=this.open">
+    <summary>${esc(label)}</summary><div class="mv-fold-b">${inner}</div></details>`;
+}
 function ppRevHTML(rev){
   const R=rev.review,p=ppMe&&ppMe.pair,samePair=p&&p.id===rev.pairId;
   const ev=rev.evidence||R.evidence||"none";
@@ -20790,6 +20886,8 @@ function ppRevHTML(rev){
   if(N.answer)nextItems.push({k:t("pp.rv_next_answer"),v:N.answer,say:N.answer});
   if(N.skill)nextItems.push({k:t("pp.rv_next_skill"),v:N.skill});
   const humanBtn=samePair&&!p.myDecision?`<button class="btn btn-g" onclick="ppRevClose();setTimeout(()=>{const d=document.querySelector('.pp-decide');if(d)d.scrollIntoView({behavior:'smooth',block:'center'})},60)">${ic("user")} ${t("pp.rv_next_human")}</button>`:`<button class="btn btn-g" onclick="ppRevClose();ppState().revFromReview=true;go('partner')">${ic("user")} ${t("pp.rv_next_human")}</button>`;
+  const wellLine=x=>`<p class="pp-rv-line ok">${ic("check")} <span>${esc(x.text)}${x.evidence?` <i>${esc(x.evidence)}</i>`:""}</span></p>`;
+  const impLine=x=>`<p class="pp-rv-line">${ic("target")} <span>${esc(x.text)}${x.evidence?` <i>${esc(x.evidence)}</i>`:""}</span></p>`;
   return `<section class="card pp-rv-head">
     <button class="back pp-rv-back" onclick="ppRevClose()">‹ ${t("pp.rv_back")}</button>
     <div class="eyebrow">${t("pp.rv_eyebrow")}</div>
@@ -20799,8 +20897,25 @@ function ppRevHTML(rev){
     <p class="pp-rv-summary"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${esc(R.summary)}</p>
     <p class="pp-fine">${ic("info")} ${evLine}</p>
   </section>
-  <section class="card pp-rv-sec pp-rv-coach"><div class="eyebrow">${t("pp.rv_sec_coach")}</div>
-    <p class="sub">${t("pp.rv_coach_sub")}</p>
+  <section class="card pp-rv-sec"><div class="eyebrow">${ppRevSecName("pp.rv_sec_well")}</div>
+    ${R.well.slice(0,2).map(wellLine).join("")}
+  </section>
+  ${R.improve.length?`<section class="card pp-rv-sec"><div class="eyebrow">${t("mv.rep_big_h")}</div>
+    ${impLine(R.improve[0])}
+  </section>`:""}
+  ${R.answer.polished?`<section class="card pp-rv-sec pp-rv-answer"><div class="eyebrow">${t("mv.rep_say_h")}</div>
+    ${R.answer.original?`<div class="pp-rv-said"><small>${t("pp.rv_answer_original")}</small><p>${esc(R.answer.original)}</p></div>`:""}
+    <div class="pp-rv-better"><small>${t("pp.rv_answer_polished")}</small><p>${esc(R.answer.polished)}</p></div>
+    ${R.answer.changed.length?`<div class="pp-rv-why"><small>${t("pp.rv_answer_changed")}</small><ul class="pp-rv-changed">${R.answer.changed.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>`:""}
+    <div class="pp-rv-voc-acts">${ppRevHear(R.answer.polished)}${ppRevPracticeBox(rev,"answer",R.answer.polished,t("pp.rv_answer_polished"))}</div>
+    <p class="pp-fine">${t("pp.rv_answer_note")}</p></section>`:""}
+  <section class="card pp-rv-sec pp-rv-next"><div class="eyebrow">${t("pp.rv_sec_next")}</div>
+    <ol class="pp-rv-focus">${nextItems.map((it,i)=>`<li><span class="pp-rv-focus-k">${it.k}</span> <b>${esc(it.v)}</b>${it.say?`<div class="pp-rv-voc-acts">${ppRevHear(it.say)}${ppRevPracticeBox(rev,"next:"+i,it.say,it.say)}</div>`:""}</li>`).join("")}</ol>
+    <div class="pp-row"><button class="btn-primary" onclick="ppRevClose();ppAiPractice('review')">${ic("sparkle")} ${t("pp.rv_next_ai")}</button>${humanBtn}</div>
+    <p class="pp-fine">${t("pp.rv_next_note")}</p>
+  </section>
+  <div class="mv-folds">
+  ${ppRevFold("coach",ppRevSecName("pp.rv_sec_coach"),`<p class="sub">${t("pp.rv_coach_sub")}</p>
     <div class="pp-rv-coach-dock" id="ppRevCoachDock"><div class="pp-row"><button class="btn-primary" id="ppRevCoachBtn" onclick="ppRevCoach('${rev.id}')">${ic("play")} ${t("pp.rv_coach_play")}</button></div>
     <div class="pp-rv-live" id="ppRevCoachLive" aria-live="polite"><span class="sim-fb-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><span class="pp-rv-live-t"><b id="ppRevCoachState"></b><span id="ppRevCoachNow"></span></span></div></div>
     <details class="pp-rv-script" id="ppRevScript"><summary>${t("pp.rv_coach_script")}</summary>${R.coach.script.map(s=>`<p>${esc(s)}</p>`).join("")}</details>
@@ -20811,46 +20926,28 @@ function ppRevHTML(rev){
       ${M.moves&&M.moves.length?`<small class="pp-rv-cx-k">${t("pp.rv_coach_model_moves")}</small><ul class="pp-rv-model-moves">${M.moves.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`:""}
       <div class="pp-rv-voc-acts">${ppRevHear(M.answer)}${ppRevPracticeBox(rev,"model",M.answer,t("pp.rv_coach_model_h"))}</div>
       <p class="pp-fine">${t("pp.rv_coach_model_note")}</p></div>`:""}
-    ${coachPractice?`<div class="pp-rv-coach-items"><small class="eyebrow">${t("pp.rv_coach_repeat")}</small>${coachPractice}</div>`:""}
-  </section>
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_well")}</div>
-    ${R.well.map(x=>`<p class="pp-rv-line ok">${ic("check")} <span>${esc(x.text)}${x.evidence?` <i>${esc(x.evidence)}</i>`:""}</span></p>`).join("")}
-  </section>
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_improve")}</div>
-    ${R.improve.map(x=>`<p class="pp-rv-line">${ic("target")} <span>${esc(x.text)}${x.evidence?` <i>${esc(x.evidence)}</i>`:""}</span></p>`).join("")}
-  </section>
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_task")}</div>
-    <p class="pp-rv-obj"><b>${t("pp.rv_topic_label")}:</b> ${esc(R.topic)}</p>
+    ${coachPractice?`<div class="pp-rv-coach-items"><small class="eyebrow">${t("pp.rv_coach_repeat")}</small>${coachPractice}</div>`:""}`,"pp-rv-coach")}
+  ${R.fixes.length?ppRevFold("said",ppRevSecName("pp.rv_sec_said"),`<p class="sub">${t("pp.rv_sec_said_sub")}</p>${fixes}`):""}
+  ${natural?ppRevFold("nat",ppRevSecName("pp.rv_sec_natural"),natural):""}
+  ${ppRevFold("vocab",ppRevSecName("pp.rv_sec_vocab"),`<p class="sub">${t("pp.rv_sec_vocab_sub")}</p>${vocab}
+    <div class="pp-row"><button class="btn btn-g" onclick="ppRevSaveAll('${rev.id}')">${ic("bookmark")} ${t("pp.rv_save_all")}</button></div>
+    <p class="pp-fine">${t("pp.rv_save_note")}</p>`)}
+  ${ppRevFold("pron",ppRevSecName("pp.rv_sec_pron"),R.pron.length?pron:`<p class="sub">${ev==="audio"?t("pp.rv_pron_none_audio"):t("pp.rv_pron_none")}</p>`)}
+  ${ppRevFold("task",ppRevSecName("pp.rv_sec_task"),`<p class="pp-rv-obj"><b>${t("pp.rv_topic_label")}:</b> ${esc(R.topic)}</p>
     ${R.task.objective?`<p class="sub">${esc(R.task.objective)}</p>`:""}
     <div class="pp-rv-comps">${comps}</div>
-    ${R.task.verdict?`<p class="pp-rv-verdict">${esc(R.task.verdict)}</p>`:""}
-  </section>
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_pron")}</div>
-    ${R.pron.length?pron:`<p class="sub">${ev==="audio"?t("pp.rv_pron_none_audio"):t("pp.rv_pron_none")}</p>`}
-  </section>
-  ${R.fixes.length?`<section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_said")}</div><p class="sub">${t("pp.rv_sec_said_sub")}</p>${fixes}</section>`:""}
-  ${natural?`<section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_natural")}</div>${natural}</section>`:""}
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_vocab")}</div><p class="sub">${t("pp.rv_sec_vocab_sub")}</p>${vocab}
-    <div class="pp-row"><button class="btn btn-g" onclick="ppRevSaveAll('${rev.id}')">${ic("bookmark")} ${t("pp.rv_save_all")}</button></div>
-    <p class="pp-fine">${t("pp.rv_save_note")}</p></section>
-  ${R.answer.polished?`<section class="card pp-rv-sec pp-rv-answer"><div class="eyebrow">${t("pp.rv_sec_answer")}</div>
-    ${R.answer.original?`<div class="pp-rv-said"><small>${t("pp.rv_answer_original")}</small><p>${esc(R.answer.original)}</p></div>`:""}
-    <div class="pp-rv-better"><small>${t("pp.rv_answer_polished")}</small><p>${esc(R.answer.polished)}</p></div>
-    ${R.answer.changed.length?`<div class="pp-rv-why"><small>${t("pp.rv_answer_changed")}</small><ul class="pp-rv-changed">${R.answer.changed.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>`:""}
-    <div class="pp-rv-voc-acts">${ppRevHear(R.answer.polished)}${ppRevPracticeBox(rev,"answer",R.answer.polished,t("pp.rv_answer_polished"))}</div>
-    <p class="pp-fine">${t("pp.rv_answer_note")}</p></section>`:""}
-  <section class="card pp-rv-sec"><div class="eyebrow">${t("pp.rv_sec_progress")}</div>
+    ${R.task.verdict?`<p class="pp-rv-verdict">${esc(R.task.verdict)}</p>`:""}`)}
+  ${ppRevFold("detail",t("mv.sec_detail"),`
+    ${R.well.length>2?`<h4 class="pp-rv-h4">${ppRevSecName("pp.rv_sec_well")}</h4>${R.well.slice(2).map(wellLine).join("")}`:""}
+    ${R.improve.length>1?`<h4 class="pp-rv-h4">${ppRevSecName("pp.rv_sec_improve")}</h4>${R.improve.slice(1).map(impLine).join("")}`:""}
+    <h4 class="pp-rv-h4">${ppRevSecName("pp.rv_sec_progress")}</h4>
     ${ppRevIndHTML(rev)}
     ${ppRevRoundsChart(rev)}
     ${insights.length?`<div class="pp-rv-ins">${insights.map(x=>`<div class="pp-rv-in ${x.cls}">${ic(x.ic)}<div><b>${x.h}</b><p>${esc(x.p)}</p></div></div>`).join("")}</div>`:""}
     ${prev}${reused}
-    <p class="pp-fine">${t("pp.rv_ind_note")}</p>
-  </section>
-  <section class="card pp-rv-sec pp-rv-next"><div class="eyebrow">${t("pp.rv_sec_next")}</div>
-    <ol class="pp-rv-focus">${nextItems.map((it,i)=>`<li><span class="pp-rv-focus-k">${it.k}</span> <b>${esc(it.v)}</b>${it.say?`<div class="pp-rv-voc-acts">${ppRevHear(it.say)}${ppRevPracticeBox(rev,"next:"+i,it.say,it.say)}</div>`:""}</li>`).join("")}</ol>
-    <div class="pp-row"><button class="btn-primary" onclick="ppRevClose();ppAiPractice('review')">${ic("sparkle")} ${t("pp.rv_next_ai")}</button>${humanBtn}</div>
-    <p class="pp-fine">${t("pp.rv_next_note")}</p>
-  </section>`;
+    <p class="pp-fine">${t("pp.rv_ind_note")}</p>`)}
+  </div>
+  <button class="mv-prevlink" onclick="ppRevClose();go('partner','history')"><b>${t("mv.rep_prev")}</b> · ${t("pp.rv_hist_h")}<span>›</span></button>`;
 }
 /* the History tab's list of past reviews, newest first, plus the across-sessions line */
 function ppRevHistHTML(){
@@ -23954,22 +24051,38 @@ function rpRepListHTML(sc,rows,cls){
 }
 function rpRepShow(sc,rep){
   const el=document.getElementById("v-roleplay");if(!el)return;
+  /* Same consolidated hierarchy as the mission report (owner spec 23 Sep
+     2026): 1–2 things that worked, ONE improvement (the floor already put
+     the weightiest missed point first), the better version, one focus, the
+     Try-again row — then the rest of the analysis in closed folds. A
+     conversation has no single "you said" turn (the better version rewrites
+     the strongest of several), so the card shows the Try side only. */
+  const fold=(label,inner)=>`<details class="mv-fold"><summary>${esc(label)}</summary><div class="mv-fold-b">${inner}</div></details>`;
   const body=!rep
     ?`<p class="sub">${esc(t("mv.thinking"))}</p>`
-    :`${rep.well&&rep.well.length?`<h3>${t("mv.rep_well_h")}</h3>${rpRepListHTML(sc,rep.well,"ok")}`:""}
-      ${rep.fix&&rep.fix.length?`<h3>${t("mv.rep_fix_h")}</h3>${rpRepListHTML(sc,rep.fix,"fix")}`:""}
+    :(()=>{
+      const big=(rep.fix||[])[0]||null,fixRest=(rep.fix||[]).slice(1),wellRest=(rep.well||[]).slice(2);
+      const folds=[];
+      if(rep.expr&&rep.expr.length)folds.push(fold(t("mv.sec_vocab"),`<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`));
+      if(wellRest.length||fixRest.length)folds.push(fold(t("mv.sec_detail"),
+        `${wellRest.length?rpRepListHTML(sc,wellRest,"ok"):""}${fixRest.length?rpRepListHTML(sc,fixRest,"fix"):""}`));
+      return `${rep.well&&rep.well.length?`<h3>${t("mv.rep_well_h")}</h3>${rpRepListHTML(sc,rep.well.slice(0,2),"ok")}`:""}
+      ${big?`<h3>${t("mv.rep_big_h")}</h3>${rpRepListHTML(sc,[big],"fix")}`:""}
       ${rep.better?`<div class="mv-better">
-          <div class="eyebrow">${t("mv.rep_better_h")}</div>
+          <div class="eyebrow">${t("mv.rep_say_h")}</div>
+          <small>${t("mv.rep_try")}</small>
           <p class="mv-better-t">“${esc(rep.better)}”</p>
           <button class="btn btn-g" onclick="rpRepHear()">${ic("play")} ${t("mv.rep_better_play")}</button>
         </div>`
        :(rep.ai?"":`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`)}
-      ${rep.expr&&rep.expr.length?`<h3>${t("mv.rep_expr_h")}</h3><ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`:""}
-      ${rep.one?`<div class="mv-one"><div class="eyebrow">${t("mv.rep_one_h")}</div><p class="mv-improve">${esc(rep.one)}</p></div>`:""}
+      ${rep.one?`<div class="mv-one"><div class="eyebrow">${t("mv.rep_focus_h")}</div><p class="mv-improve">${esc(rep.one)}</p></div>`:""}
       <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-        ${rep.ai?"":`<button class="btn btn-g" onclick="rpReport()">${t("mv.coach_retry")}</button>`}
         <button class="btn btn-p" onclick="rpStart('${esc(sc.id)}')">${t("rp.again")}</button>
-      </div>`;
+        ${rep.ai?"":`<button class="btn btn-g" onclick="rpReport()">${t("mv.coach_retry")}</button>`}
+      </div>
+      ${folds.length?`<div class="mv-folds">${folds.join("")}</div>`:""}
+      <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>`;
+    })();
   el.innerHTML=`
    ${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button></div>`:`<button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>`}
    <div class="eyebrow">${t("rp.rep_btn")}</div>
