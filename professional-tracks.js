@@ -46,12 +46,27 @@
      goes one level into a section object (vocabulary, practice) and no deeper:
      that is where the gaps are, and a deep merge would start blending week and
      day tables that are meant to belong to one track or the other. */
+  /* Sections that must NEVER cross the inherit boundary.
+
+     "Only an empty field inherits" is right for English-language machinery —
+     the stop-word list, the CEFR map, the grammar rules — which is exactly what
+     the welding pack leaves empty on purpose. It is wrong for CONTENT. A track
+     that ships no missions.json has no missions; it does not silently acquire
+     another programme's. Without this, adding tracks/general/missions.json
+     would have handed every welder the General English Week 3 mission through
+     the curriculum merge, with no UI change anywhere to show it had happened.
+
+     Deliberately narrow. shadow/reviewCheckpoints/monthMetrics inherit today
+     and changing that would alter shipped Welding behaviour, which is a
+     separate decision from this one — see the V2 audit, boundary risks 1 and 2. */
+  const NEVER_INHERIT=new Set(["missions"]);
   const empty=v=>v==null||v===""||(Array.isArray(v)?!v.length:typeof v==="object"?!Object.keys(v).length:false);
   const plain=v=>!!v&&typeof v==="object"&&!Array.isArray(v);
   const fill=(child,parent,depth)=>{
     const out={};
     new Set(Object.keys(parent).concat(Object.keys(child))).forEach(k=>{
       const c=child[k],p=parent[k];
+      if(NEVER_INHERIT.has(k)){out[k]=c==null?null:c;return}
       out[k]=empty(c)?p:(depth&&plain(c)&&plain(p)?fill(c,p,depth-1):c);
     });
     return Object.freeze(out);

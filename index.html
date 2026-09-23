@@ -71,7 +71,8 @@
 <script src="professional-skills-passport.js?v=83"></script>
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
-<script src="answer-evaluator.js?v=83"></script>
+<script src="answer-evaluator.js?v=84"></script>
+<script src="mission-engine.js?v=1"></script>
 <script src="shadow-lines.js?v=84"></script>
 <script>
 window.FB_CONFIG={
@@ -1676,6 +1677,54 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-ch-cta .btn-primary{width:100%;justify-content:center}
 .sv-ch-drill{margin-top:12px;padding:12px;border-radius:12px;border:2px solid color-mix(in srgb,var(--acc) 55%,transparent);background:var(--card2)}
 .sv-ch-drill-w{font-size:22px;font-weight:800;margin:4px 0 8px;letter-spacing:.2px}
+/* ---- BE Mastery V2 missions. Existing tokens and existing card/btn classes;
+   the only new rules are the ones the loop genuinely needs. ---- */
+.mv-back{margin-bottom:10px}
+.mv-title{font-size:24px;margin:0 0 14px}
+.mv-head{display:flex;align-items:center;gap:10px;margin:2px 0 6px}
+.mv-prog{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--mut2)}
+.mv-where{font-size:13.5px;color:var(--mut);margin:0 0 10px}
+.mv-asks{font-size:12.5px;color:var(--mut2);margin:0 0 6px}
+.mv-q{margin:0 0 14px;padding:12px 14px;border-left:3px solid var(--acc);background:color-mix(in srgb,var(--acc) 7%,transparent);border-radius:0 10px 10px 0;font-size:16px;line-height:1.5}
+.mv-ctx{font-size:13px;color:var(--mut);margin:0 0 12px}
+.mv-goal{margin:14px 0 0}.mv-goal b{display:block;font-size:12px;color:var(--mut2);margin-bottom:4px}
+.mv-goal p{margin:0;font-size:14px}
+.mv-cta{width:100%;justify-content:center;margin-top:18px}
+.mv-play{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.mv-reveal{margin-top:2px}
+.mv-model{margin:12px 0 0;padding:12px;border-radius:10px;background:var(--card2,rgba(127,127,127,.08));font-size:15px;line-height:1.6}
+.mv-list{margin:12px 0 0;padding-left:20px}
+.mv-list li{margin-bottom:14px}
+.mv-list b{display:block;font-size:14.5px}
+.mv-list span{display:block;font-size:13px;color:var(--mut);margin:2px 0 4px}
+.mv-list em{display:block;font-size:12.5px;color:var(--mut2);font-style:normal}
+.mv-shadow{margin-top:8px}
+.mv-instruction{font-size:14.5px;line-height:1.6;margin:0 0 16px}
+.mv-err{font-size:13px;color:var(--red);margin:0 0 12px}
+.mv-rec{display:flex;align-items:center;gap:18px;margin:8px 0 12px}
+.mv-moves{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.mv-move{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;border:1px solid var(--line2)}
+.mv-move i{display:inline-flex;width:14px;height:14px}
+.mv-move i svg{width:14px;height:14px}
+.mv-move.on{color:var(--green);border-color:color-mix(in srgb,var(--green) 45%,transparent);background:color-mix(in srgb,var(--green) 10%,transparent)}
+.mv-move.off{color:var(--mut2);opacity:.75}
+.mv-heard{font-size:13.5px;color:var(--mut);line-height:1.6;margin:0 0 4px}
+.mv-improve{font-size:15px;line-height:1.6}
+.mv-note{font-size:12.5px;color:var(--mut2);padding:9px 11px;border-radius:9px;background:color-mix(in srgb,var(--gold) 10%,transparent);margin:0 0 12px}
+.mv-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.mv-pending{margin-top:10px}
+.mv-state{display:flex;align-items:center;gap:10px;margin:8px 0}
+.mv-state span{font-size:12px;color:var(--mut2)}
+.mv-state b{font-size:14px;color:var(--acc)}
+.mv-bars{margin:14px 0}
+.mv-bar{margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
+.mv-bar span{font-size:13px}
+.mv-bar b{font-size:13px;font-weight:800}
+.mv-bar i{grid-column:1/-1;display:block;height:6px;border-radius:99px;background:var(--line2);overflow:hidden}
+.mv-bar i em{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.mv-bar small{grid-column:1/-1;font-size:11px;color:var(--mut2)}
+.mv-next{font-size:14.5px;line-height:1.6}
+.mv-home-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
 /* the ladder: a map of the five rungs, not a menu — the app chooses */
 .sv-ch-ladder{display:flex;align-items:center;gap:4px;width:100%;flex-wrap:wrap}
 .sv-ch-rung{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;color:var(--mut2);font-weight:700;letter-spacing:.3px}
@@ -4359,6 +4408,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   <div id="v-simulation" class="view"></div>
   <div id="v-foundations" class="view"></div>
   <div id="v-partner" class="view"></div>
+  <div id="v-mission" class="view"></div>
   <div id="ppBg" aria-hidden="true"><svg class="pp-bg-art" viewBox="0 0 600 600" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><defs><filter id="ppBgBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter><g id="ppBgPerson"><circle cx="0" cy="0" r="28"/><path d="M-56 84a56 56 0 0 1 112 0"/></g></defs><circle class="pp-bg-ring" cx="300" cy="300" r="238" stroke-width="30" opacity=".16" filter="url(#ppBgBlur)"/><circle cx="300" cy="300" r="238" opacity=".32"/><circle cx="300" cy="300" r="196" opacity=".14"/><path class="pp-bg-flow" d="M192 302a126 126 0 0 1 66-96" stroke-dasharray="7 9" opacity=".8"/><path class="pp-bg-flow" d="M408 302a126 126 0 0 0-66-96" stroke-dasharray="7 9" opacity=".8"/><path d="M244 178h112a12 12 0 0 1 12 12v62a12 12 0 0 1-12 12h-70l-30 26v-26h-12a12 12 0 0 1-12-12v-62a12 12 0 0 1 12-12Z"/><g fill="currentColor" stroke="none"><circle class="pp-bg-typ" cx="280" cy="221" r="5"/><circle class="pp-bg-typ b" cx="300" cy="221" r="5"/><circle class="pp-bg-typ c" cx="320" cy="221" r="5"/></g><use href="#ppBgPerson" x="182" y="320"/><use href="#ppBgPerson" x="418" y="320"/><g class="pp-bg-wave"><path d="M226 308a16 16 0 0 1 0 24"/><path d="M238 300a28 28 0 0 1 0 40"/></g><g class="pp-bg-wave b"><path d="M374 308a16 16 0 0 0 0 24"/><path d="M362 300a28 28 0 0 0 0 40"/></g><path d="M62 96h58a8 8 0 0 1 8 8v30a8 8 0 0 1-8 8H84l-14 13v-13h-8a8 8 0 0 1-8-8v-30a8 8 0 0 1 8-8Z" opacity=".45"/><g class="pp-bg-spin" stroke="none"><circle cx="300" cy="106" r="5" fill="currentColor" opacity=".75"/><circle cx="96" cy="270" r="5" fill="currentColor" opacity=".6"/><circle cx="176" cy="478" r="5" fill="currentColor" opacity=".55"/><circle cx="556" cy="104" r="4.5" fill="currentColor" opacity=".6"/><circle cx="522" cy="208" r="7" class="pp-bg-acc"/><circle cx="510" cy="458" r="6" class="pp-bg-acc"/></g></svg><span class="pp-bg-orb a"></span><span class="pp-bg-orb b"></span><span class="pp-bg-grid"></span></div>
   <div id="v-career" class="view"></div>
   <div id="v-pron" class="view"></div>
@@ -4556,7 +4606,14 @@ function awardCompetency(input){
   if(!window.CompetencyEngine)return;
   const result=CompetencyEngine.logActivity(S,input);
   const coaching=window.LearningCoach&&LearningCoach.summary(S,input,result);
-  if(coaching&&!COACH_MODAL_SKIP.includes(input.activityType))LearningCoach.present(coaching);
+  /* `quiet` suppresses the V1 coaching modal for THIS call only. A V2 mission
+     has its own coach on the page — one thing that worked, one thing to
+     change — and the old modal opened straight over the top of it with a
+     generic five-panel summary and a "Next step: WEEK 1 Mon" button that led
+     out of the mission entirely. Done per call rather than by adding
+     "professional_coach" to COACH_MODAL_SKIP, because that type is also the
+     daily session's, where the modal is still wanted. */
+  if(coaching&&!input.quiet&&!COACH_MODAL_SKIP.includes(input.activityType))LearningCoach.present(coaching);
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
@@ -4608,7 +4665,7 @@ function defState(){
      first screen that ever reads S.vocab. Reading it before Practice had been
      opened threw and took the whole report down with it. load() backfills this
      into any older state. */
-  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},weeklyA:{},monthlyA:{},troubleA:{},dayLogA:{},phMasterA:{},phExampleA:{},gramA:{},clipsA:{},quizHistA:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
+  return {days:{},steps:{},notes:{},scores:{},phMaster:{},phExample:{},weekly:{},monthly:{},weeklyA:{},monthlyA:{},troubleA:{},dayLogA:{},v2A:{},phMasterA:{},phExampleA:{},gramA:{},clipsA:{},quizHistA:{},tutor:{},clips:[],trouble:{},fbHist:[],fbV:{},vocab:{},profile:null,dates:[],startDate:new Date().toISOString().slice(0,10),professionalTracks:{activeId:"general-english"},competency:{logs:[],achievements:{}},coach:{summaries:[],memory:{}},simulations:{history:[]},careerCenter:{destination:"international-contractor",resume:""}};
 }
 function load(){
   const def=defState();
@@ -4761,6 +4818,21 @@ function aList(f){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area
 function aCountAll(field){const box=S[field]||{};
   return Object.values(box).reduce((n,m)=>n+(Array.isArray(m)?m.length:Object.keys(m||{}).length),0)}
 function areaDates(){return Object.keys(areaDayLog()).sort()}
+/* THE ANALYTICS TRACK CONTRACT.
+
+   The V2 audit found that the core learning events — practice_day,
+   session_complete, return_open, app_open — carried no track at all, so the
+   dataset cannot answer "do welders finish more sessions than General English
+   learners?" for any day already recorded. Analytics Engine cannot backfill,
+   so the only fix that is worth anything is to start stamping now and to do it
+   in one place rather than at each call site, where the next event added would
+   forget again.
+
+   `track` is already on the Worker's PROP_KEYS (it was added for
+   partner_interest), so this needs no deploy to take effect. */
+function trackLearning(name,props){
+  try{track(name,Object.assign({track:areaId()},props||{}))}catch(e){}
+}
 function areaFbHist(){const a=areaId();return (S.fbHist||[]).filter(x=>x&&areaOf(x)===a)}
 function areaConvos(){const a=areaId();return (S.convos||[]).filter(c=>c&&areaOf(c)===a)}
 function areaAttempts(list){const a=areaId();return (list||[]).filter(r=>r&&areaOf(r)===a)}
@@ -6888,6 +6960,85 @@ const I18N_EN={
  "ex.slow_btn":"🐢 Slow",
  "ex.copy_btn":"📋 Copy",
  "ex.copied_toast":"Copied 📋",
+/* ---- BE Mastery V2: the Week 3 mission. Chrome only — the situation, the
+    model answer and the coaching prompts live in tracks/general/missions.json,
+    in English, exactly like weeks.json and phrases.json. ---- */
+ "mv.today":"Today",
+ "mv.mission":"Today's mission",
+ "mv.start":"Start the mission",
+ "mv.continue":"Continue the mission",
+ "mv.step_see":"The situation",
+ "mv.step_hear":"How it sounds",
+ "mv.step_notice":"The four moves",
+ "mv.step_speak":"Your turn",
+ "mv.step_coach":"Your coach",
+ "mv.step_retry":"One more time",
+ "mv.step_transfer":"A new situation",
+ "mv.step_done":"What you showed",
+ "mv.of":"Step {{n}} of {{total}}",
+ "mv.asks":"{{who}} asks:",
+ "mv.goal":"What you have to do",
+ "mv.play":"Hear it",
+ "mv.play_slow":"Slower",
+ "mv.stop":"Stop",
+ "mv.model_note":"Listen twice before you read it.",
+ "mv.show_text":"Show the words",
+ "mv.hide_text":"Hide the words",
+ "mv.notice_sub":"Four moves, in this order. That is the whole pattern.",
+ "mv.speak_sub":"Answer out loud. No script, no typing — just say it the way you would in the room.",
+ "mv.speak_btn":"Record your answer",
+ "mv.speak_stop":"Stop and get feedback",
+ "mv.recording":"Listening…",
+ "mv.thinking":"Reading your answer…",
+ "mv.heard":"What we heard",
+ "mv.worked":"What worked",
+ "mv.improve":"One thing to change",
+ "mv.retry_btn":"Try it again",
+ "mv.retry_sub":"Same situation. One change.",
+ "mv.transfer_btn":"Take the new situation",
+ "mv.transfer_sub":"Nobody will prompt you this time.",
+ "mv.moves_made":"Moves you made",
+ "mv.move_yes":"made",
+ "mv.move_no":"missing",
+ "mv.evidence":"Your evidence",
+ "mv.clarity":"Clarity",
+ "mv.fluency":"Fluency",
+ "mv.task":"Task",
+ "mv.vocab":"Expressions",
+ "mv.pron":"Comprehensibility",
+ "mv.pron_note":"How easily the words came through. Your accent is not being marked.",
+ "mv.state":"Where you are",
+ "mv.state_NOT_STARTED":"Not started",
+ "mv.state_INTRODUCED":"Introduced",
+ "mv.state_PRACTICING":"Practising",
+ "mv.state_DEMONSTRATED":"Demonstrated",
+ "mv.state_TRANSFER_READY":"Transfer ready",
+ "mv.state_STRONG":"Strong",
+ "mv.next":"What comes next",
+ "mv.next_not_spoken_yet":"Give the update out loud once. Nothing counts until you have said it.",
+ "mv.next_weak_move":"{{move}} is the move to fix. Same situation, one change.",
+ "mv.next_coverage_low":"Give the update again and make all four moves.",
+ "mv.next_transfer_failed":"You can do this with the prompt in front of you. One more guided round on {{move}}, then try cold again.",
+ "mv.next_ready_for_transfer":"Now do it without help, in a situation you have not rehearsed.",
+ "mv.next_retrieval_due":"Come back to this one — it is due for a run-through.",
+ "mv.next_retrieval_due_strong":"A quick run-through to keep it.",
+ "mv.next_scheduled":"Nothing to do here today. Back on {{date}}.",
+ "mv.next_coach_pending":"{{n}} answer(s) still waiting for coaching. Tap to finish them.",
+ "mv.go":"Go",
+ "mv.shadow_btn":"Hear a professional do it",
+ "mv.shadow_sub":"Same four-part shape, at full speed.",
+ "mv.offline_saved":"Saved. Your answer is safe — coaching will finish when you are back online.",
+ "mv.coach_pending_badge":"Coaching pending",
+ "mv.coach_retry":"Finish coaching",
+ "mv.coach_offline":"You are offline, so this was scored on your device. The moves below are real; only the written coaching is waiting.",
+ "mv.too_short":"That was too short to read. Give it another go — aim for three or four sentences.",
+ "mv.no_speech":"We could not hear any words. Your recording is saved — try again when it is quieter.",
+ "mv.saved_words":"Added to your words: {{list}}",
+ "mv.done_title":"Update delivered",
+ "mv.attempts":"{{n}} recorded answer(s)",
+ "mv.restart":"Do it again",
+ "mv.home_card":"Week 3 · Give a clear update",
+ "mv.mic_denied":"BE Mastery needs the microphone to hear your answer.",
  "nav.render_failed":"This page could not be drawn.",
  "nav.curriculum_failed":"The lessons could not be downloaded. Check your connection and try again.",
  "nav.retry":"Try again",
@@ -7974,7 +8125,7 @@ function markPracticed(){
   if(S.dayLog[today]===1){
     // once per day, not per action. Week alongside streak so retention can be
     // read against how far into the programme someone actually is.
-    track("practice_day",{streak:String(Math.min(streak()+1,30)),week:String((currentPos().w||1))});
+    trackLearning("practice_day",{streak:String(Math.min(streak()+1,30)),week:String((currentPos().w||1))});
     try{pushDone()}catch(e){}   // done for today — call off tonight's push
     try{if(remCfg().on&&window.caches)remCacheText()}catch(e){}   // tomorrow's picture shows today's step lit
   }
@@ -8052,7 +8203,7 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
-  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":(v==="phrasebank"?"phrases":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab */
+  const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
   const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
   bnavSync(v);
@@ -8078,7 +8229,7 @@ function go(v,arg1,arg2){
   try{zoomReset()}catch(e){}
   try{
     if(!activeCurriculum()){el.innerHTML=curriculumCardHTML(t("nav.curriculum_failed"));if(!_bootRetrying){_bootRetrying=true;bootRetry().finally(()=>{_bootRetrying=false})}}
-    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner})[v](el,arg1,arg2);
+    else ({home:rHome,journey:rJourney,phrases:rPhrases,phrasebank:rPhraseBank,shadow:rShadow,practice:rPractice,review:rReview,profile:rProfile,roleplay:rRoleplay,simulation:rSimulation,career:rCareer,pron:rPron,data:rData,manual:rManual,setup:rSetup,tracks:rTracks,foundations:rFoundations,partner:rPartner,mission:rMission})[v](el,arg1,arg2);
   }catch(err){
     try{perfMark("error",0,String(err&&err.message||err).slice(0,80))}catch(e){}
     try{console.error("[go]",v,err)}catch(e){}
@@ -8376,6 +8527,528 @@ function careerDashboardContext(){
 /* General English Home, as it was before the Career Dashboard was built: where
    you are in the twelve weeks, today's task, the coach, and the way across to a
    Professional Track. No profession, no destination, no career milestone. */
+/* ============================ BE MASTERY V2 — MISSIONS ============================
+   One competency, one mission, one loop:
+     SEE → HEAR → NOTICE → SPEAK → COACH → RETRY → TRANSFER → EVIDENCE
+
+   The engine (mission-engine.js) owns every decision about what the learner has
+   shown and what to do next. This half owns the screen, the microphone and the
+   network — and nothing else. Keeping the split that clean is what lets the
+   progression rules be tested in Node without a browser.
+
+   GENERAL ENGLISH ONLY, and not by hiding a button:
+     1. Welding ships no tracks/welding/missions.json.
+     2. professional-tracks.js refuses to inherit the section (NEVER_INHERIT),
+        so a welding learner's curriculum resolves missions to null.
+     3. mvPack() below returns null unless isGeneralEnglish().
+     4. Every write goes through MissionEngine.guard(), which only accepts
+        "general-english" — a constant inside the engine, not a value read
+        from state that a bug elsewhere could move.
+     5. The router sends any other track straight back to Home.
+     6. mvTrack() refuses to emit an event off General English.
+   ================================================================================= */
+
+/* The competency this slice ships. Week 3 is data, not code: adding week 4 is a
+   second entry in missions.json and one more line in this list. */
+const MV_WEEK = 3, MV_COMP = "clear-update";
+
+function mvPack(){
+  if(!isGeneralEnglish())return null;                 /* gate 3 */
+  const c=activeCurriculum();
+  return (c&&c.missions)||null;
+}
+function mvComp(){
+  const p=mvPack();
+  return p&&window.MissionEngine?MissionEngine.competencyOf(p,MV_COMP):null;
+}
+function mvAvailable(){return !!mvComp()}
+
+/* S.v2A[area][competencyId]. Same per-area shape as every other V2-era store
+   (troubleA, svChA, chHistA …) so the cloud merge can treat it the same way.
+   Nothing but General English can ever create a bucket here, because every
+   write is guarded — but the store is keyed by area anyway, so that a future
+   track with its own missions.json cannot collide with this one. */
+function mvStore(){return areaBucket("v2A")}
+function mvRec(){
+  const c=mvComp();if(!c)return null;
+  return MissionEngine.record(mvStore(),c.id);
+}
+
+/* Analytics with the track contract the audit found missing. Every V2 event
+   carries the track, the week and the competency, and mvTrack refuses to fire
+   at all off General English — so a welding learner cannot emit a General
+   English learning event even if some future caller forgets to check. */
+function mvTrack(name,props){
+  if(!isGeneralEnglish())return;
+  try{track(name,Object.assign({track:AREA_GEN,week:String(MV_WEEK),competency:MV_COMP},props||{}))}catch(e){}
+}
+
+/* ---------------------------------------------------------------- view state
+   Deliberately not persisted: which step is on screen is a property of this
+   sitting, not of the learner. Everything that matters — the attempts, the
+   evidence, the state, the weakness — is in S and survives a reload. */
+let _mv=null;
+const MV_STEPS=["see","hear","notice","speak","coach","transfer","done"];
+
+function mvOpen(missionId,step){
+  const c=mvComp();if(!c)return go("home");
+  const m=MissionEngine.missionOf(c,missionId)||(c.missions||[])[0];
+  _mv={missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
+  /* Opening the mission is worth INTRODUCED and not one step more. This is the
+     line the whole V2 evidence model rests on: a screen that has been looked
+     at is not a skill that has been shown. */
+  MissionEngine.introduce(mvStore(),c.id,areaId(),Date.now());save();
+  mvTrack("v2_mission_started",{mission:m.id,kind:m.kind});
+  go("mission",m.id,step||"see");
+}
+window.mvGo=(missionId,step)=>mvOpen(missionId,step);
+window.mvStep=s=>{if(!_mv)return;_mv.step=s;_mv.err=null;mvDraw();
+  if(s==="hear")mvTrack("v2_mission_heard",{mission:_mv.missionId});
+};
+
+function mvDraw(){
+  const el=document.getElementById("v-mission");
+  if(el&&cur.v==="mission")rMission(el,_mv&&_mv.missionId,_mv&&_mv.step);
+}
+
+/* ------------------------------------------------------------------- SPEAKING
+   The app's own recorder and transcriber, through the one seam added to
+   shFBDone. No script box anywhere: the learner is never asked to write what
+   they are about to say, and nothing is ever scored against text they typed. */
+window.mvRecord=()=>{
+  if(!_mv||_mv.busy)return;
+  if(!SR){toast(t("fb.tts_unavailable"));return}
+  /* Exactly the order window.shRec uses, and for the reason it uses it: the
+     recorder has to be told to stop FIRST, because stopping it is what arms
+     recFiled. Ending recognition first means the transcript arrives, the
+     mission goes looking for the audio, and recFiled is still the previous
+     (already-resolved) promise — so the take is graded against a recording
+     that has not been written yet. */
+  const wasRecording=rec.mr&&rec.mr.state==="recording";
+  const ctx=wasRecording?_mv.recCtx:recCtx("v2-"+MV_COMP+"-"+_mv.missionId+"-"+Date.now());
+  if(!wasRecording){
+    _mv.err=null;_mv.heard="";_mv.coach=null;_mv.ev=null;_mv.recCtx=ctx;
+  }
+  recToggle(ctx,"V2 · "+MV_COMP+" · "+_mv.kind);
+  if(!wasRecording){
+    fbRecStart({vid:"v2-"+_mv.missionId,recCtx:ctx,onDone:mvOnSpeech});
+    _mv.recording=true;mvDraw();
+    mvTrack(_mv.kind==="transfer"?"v2_transfer_started":"v2_speak_attempt",{mission:_mv.missionId,kind:_mv.kind});
+  }else{
+    fbRecStop();
+    _mv.recording=false;
+  }
+};
+
+/* Grade first, always, and on the device. The evidence is complete before the
+   network is ever asked, which is what makes scenario D survivable: an AI
+   failure costs the learner a sentence of prose, never the attempt. */
+async function mvOnSpeech(heard,meta){
+  if(!_mv)return;
+  _mv.recording=false;
+  const c=mvComp();if(!c)return;
+  const m=MissionEngine.missionOf(c,_mv.missionId);
+  const said=String(heard||"").trim();
+  _mv.heard=said;
+
+  /* The recording is already filed by recToggle's onstop. Wait for that write
+     so the attempt and its audio can never disagree about whether it exists. */
+  try{await recFiled}catch(e){}
+
+  if(!said){
+    _mv.err=t("mv.no_speech");_mv.busy=false;mvDraw();return;
+  }
+  const ev=MissionEngine.grade(c,m,said,{seconds:(meta&&meta.seconds)||null});
+  if(!ev.answered){
+    _mv.err=t("mv.too_short");_mv.ev=null;_mv.busy=false;mvDraw();return;
+  }
+  /* The idempotency key is the recording context, which carries the timestamp
+     the take was started at. A replayed queue, a double tap or a second
+     coaching pass all resolve to the same key, so one spoken turn can only
+     ever become one piece of evidence. */
+  ev.key=_mv.recCtx;
+  ev.missionId=_mv.missionId;
+  ev.kind=_mv.kind==="transfer"?"transfer":(_mv.retry?"retry":"guided");
+  ev.coachPending=true;                 /* cleared below, or left for recovery */
+  _mv.ev=ev;_mv.busy=true;_mv.step="coach";
+  mvDraw();
+
+  const coached=await mvCoach(c,m,ev);
+  _mv.coach=coached;
+  _mv.busy=false;
+  mvCommit(c,ev,coached);
+  mvDraw();
+  /* Comprehensibility, after the evidence is already safe. It is the LAST
+     thing that happens and it changes no decision: a learner whose accent
+     differs from the model speaker is not worse at giving an update, so this
+     never gates a state, a retry or a recommendation — it is reported and
+     nothing else.
+
+     The audio grader is given the learner's own transcript as its word list.
+     That is not circular while the account has an audio model, because that
+     model LISTENS to the recording and scores each word it hears. It IS
+     circular in the whisper fallback, which only transcribes again — so a
+     whisper-mode result is discarded rather than shown, exactly as the Shadow
+     pronunciation panel already does. */
+  mvPron(c,ev).catch(()=>{});
+}
+
+async function mvPron(comp,ev){
+  if(!POLISH_API||!navigator.onLine||!ev||!ev.said)return;
+  const recs=await getRecs(_mv&&_mv.recCtx?_mv.recCtx:"");
+  const blob=recs&&recs[0]&&recs[0].blob;
+  if(!blob)return;
+  const res=await fbAssess(blob,ev.said);
+  if(!res||res.mode==="whisper"||!Number.isFinite(res.overall))return;
+  const store=mvStore(),r=store[comp.id];
+  const row=r&&(r.attempts||[]).find(a=>a&&a.key===ev.key);
+  if(!row)return;
+  row.pron=Math.round(res.overall);
+  ev.pron=row.pron;
+  save();
+  if(cur.v==="mission")mvDraw();
+}
+
+/* ---------------------------------------------------------------- the AI pass
+   Existing Worker, existing chat route, existing shape: {reply, covered}. No
+   new endpoint and nothing to deploy before this works. `covered` is the move
+   ids the model believes were genuinely made; applyCoachMoves validates every
+   one of them against the rubric and can only ADD. The model cannot invent a
+   score, cannot remove a move the learner made, and cannot move the state. */
+async function mvCoach(comp,mission,ev){
+  const r=mvRec();
+  const weak=MissionEngine.weakestMove(comp,ev,(r&&r.attempts)||[]);
+  const ctx=MissionEngine.aiContext(r,comp,mission,{weakness:weak});
+  const F=window.ConversationOrchestrator;
+  const offline=!POLISH_API||!navigator.onLine;
+  if(offline)return Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+  try{
+    const sys=MissionEngine.coachPrompt(ctx,(F&&F.SPOKEN_RULE)||"");
+    const body={chat:{system:sys,messages:[{role:"user",content:F&&F.fence?F.fence(ev.said):ev.said}]}};
+    const res=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});
+    if(!res.ok)throw new Error("coach "+res.status);
+    const data=await res.json();
+    MissionEngine.applyCoachMoves(ev,comp,data&&data.covered);
+    const out=MissionEngine.shapeCoach(data,comp,ev);
+    ev.coachPending=false;
+    mvTrack("v2_coach_generated",{mission:mission.id,kind:ev.kind,move:out.move||"none",ai:"1"});
+    return out;
+  }catch(e){
+    /* Left pending on purpose. The evidence below is already written and
+       already correct; only the written coaching is missing, and the learner
+       is told exactly that rather than being shown a failure. */
+    try{console.warn("[mission] coach unavailable",e)}catch(_){}
+    mvTrack("v2_coach_generated",{mission:mission.id,kind:ev.kind,move:"none",ai:"0"});
+    return Object.assign(MissionEngine.shapeCoach(null,comp,ev),{offline:true});
+  }
+}
+
+/* Persist: evidence, competency state, learner memory, retrieval, vocabulary.
+   One place, so there is exactly one path by which a spoken turn becomes a
+   claim about the learner. */
+function mvCommit(comp,ev,coach){
+  if(!isGeneralEnglish())return;                       /* gate 4 (belt) */
+  const store=mvStore();
+  const res=MissionEngine.addAttempt(store,comp.id,ev,areaId(),trackVocabularyIntervals());
+  if(!res)return;                                      /* gate 4 (braces) */
+  const r=res.record;
+  const before=_mv&&_mv.stateBefore;
+  r.weakness=MissionEngine.weakestMove(comp,ev,r.attempts);
+  if(coach&&coach.move)r.weakness=coach.move;
+  save();
+
+  if(res.duplicate)return;                             /* never count a turn twice */
+
+  markPracticed();
+  /* The existing competency log, unchanged — its storage is sound, it is what
+     the Passport and the coach already read, and the V2 evidence sits beside
+     it rather than replacing it. The modal is suppressed: this mission has its
+     own coach on screen and a second one over the top would be noise. */
+  awardCompetency({activityType:"professional_coach",lesson:"V2 · "+comp.title+" · "+ev.kind,
+    score:Math.round(ev.coverage*100),duration:Math.max(1,Math.round((ev.seconds||60)/60)),
+    dedupeKey:"v2:"+ev.key,quiet:true});
+
+  mvTrack("v2_evidence_recorded",{mission:ev.missionId,kind:ev.kind,
+    result:MissionEngine.passes(ev)?"pass":"fail",band:ev.verdict,move:r.weakness||"none",
+    attempt:String(r.attempts.length)});
+  if(ev.kind==="retry")mvTrack("v2_retry_attempt",{mission:ev.missionId,move:r.weakness||"none"});
+  if(ev.kind==="transfer")mvTrack("v2_transfer_completed",{mission:ev.missionId,
+    result:MissionEngine.passes(ev)?"pass":"fail"});
+  if(before&&before!==r.state)mvTrack("v2_competency_progressed",{state:r.state,from:before});
+  if(r.retrieval&&r.retrieval.reason==="retrieval")mvTrack("v2_retrieval_scheduled",{state:r.state});
+
+  mvAcquire(comp,ev,r.weakness);
+}
+
+/* Vocabulary without a Save button. The expressions the learner actually used
+   are put into the existing spaced-repetition store so they come back; the
+   ones belonging to the move they missed are put there so they arrive. The
+   learner is told, not asked. */
+function mvAcquire(comp,ev,weak){
+  if(!window.MissionEngine)return;
+  const picks=MissionEngine.expressionsToLearn(comp,ev,weak);
+  const added=[];
+  picks.forEach(e=>{
+    const had=vocHas(e.w);
+    const v=vocPut(e.w,e.l||"B1");
+    if(v){
+      v.meaning=v.meaning||e.def||"";
+      v.src=v.src||{v2:comp.id,move:e.move,why:e.why};
+    }
+    if(!had)added.push(e.w);
+  });
+  if(added.length){save();toast(t("mv.saved_words",{list:added.join(", ")}))}
+}
+
+/* Scenario D's recovery path. An attempt whose coaching never arrived keeps
+   its evidence and is re-offered; running it again reuses the same idempotency
+   key, so the recovered coaching updates the row instead of adding a new one. */
+window.mvFinishCoaching=async()=>{
+  const c=mvComp(),r=mvRec();if(!c||!r||!_mv)return;
+  const pending=(r.attempts||[]).filter(a=>a&&a.coachPending);
+  const row=pending[pending.length-1];if(!row)return;
+  _mv.busy=true;_mv.step="coach";_mv.ev=row;mvDraw();
+  const m=MissionEngine.missionOf(c,row.missionId);
+  const coach=await mvCoach(c,m,row);
+  _mv.coach=coach;_mv.busy=false;
+  if(!row.coachPending){
+    r.weakness=coach.move||r.weakness;
+    r.state=MissionEngine.stateFrom(r);
+    r.retrieval=MissionEngine.scheduleRetrieval(r,trackVocabularyIntervals(),Date.now());
+    save();
+  }
+  mvDraw();
+};
+
+/* ------------------------------------------------------------------ rendering */
+function mvMoveChipsHTML(comp,ev){
+  return `<div class="mv-moves">${(comp.moves||[]).map(m=>{
+    const on=ev&&ev.moves&&ev.moves[m.id];
+    return `<span class="mv-move ${on?"on":"off"}"><i>${on?ic("check"):ic("close")}</i>${esc(m.label)}</span>`;
+  }).join("")}</div>`;
+}
+function mvBar(label,v,note){
+  const pct=v==null?null:Math.round(v*100);
+  return `<div class="mv-bar"><span>${esc(label)}</span><b>${pct==null?"—":pct+"%"}</b>
+    <i><em style="width:${pct==null?0:pct}%"></em></i>${note?`<small>${esc(note)}</small>`:""}</div>`;
+}
+function mvHead(step){
+  const n=MV_STEPS.indexOf(step)+1;
+  const c=mvComp();
+  return `<div class="mv-head"><span class="eyebrow">${t("mv.mission")}</span>
+    <span class="mv-prog">${t("mv.of",{n:Math.max(1,n),total:MV_STEPS.length})}</span></div>
+    <h1 class="big mv-title">${esc((c&&c.title)||"")}</h1>`;
+}
+
+function rMission(el,missionId,step){
+  /* Gate 5: a track without missions never renders this page at all — it is
+     sent back to Home, the same way the partner page turns a welding learner
+     around. Hiding the entry point is not a boundary; this is. */
+  const comp=mvComp();
+  if(!comp){el.innerHTML="";setTimeout(()=>go("home"),0);return}
+  if(!_mv||_mv.missionId!==missionId){
+    const m=MissionEngine.missionOf(comp,missionId)||(comp.missions||[])[0];
+    _mv={missionId:m.id,kind:m.kind,step:step||"see",busy:false,ev:null,coach:null,heard:"",err:null};
+  }
+  if(step&&step!==_mv.step)_mv.step=step;
+  const m=MissionEngine.missionOf(comp,_mv.missionId);
+  const r=MissionEngine.record(mvStore(),comp.id);
+  _mv.kind=m.kind;
+  _mv.stateBefore=r.state;
+  const S1=_mv.step;
+
+  /* The back button is a direct child, NOT inside a .pg-eyebrow: that bar is
+     hidden app-wide (display:none!important, owner 22 Sep 2026), and putting
+     the only way out of the mission inside it left the learner with no way
+     out at all. rSession does the same thing for the same reason. */
+  const back=`<button class="back mv-back" onclick="go('home')">‹ ${esc(t("mv.today"))}</button>`;
+  let body="";
+
+  /* ---- SEE: the situation, and nothing else on screen ---- */
+  if(S1==="see"){
+    body=`<section class="card mv-see">
+      <div class="eyebrow">${t("mv.step_see")}</div>
+      <p class="mv-where">${esc(m.see.where)}</p>
+      <p class="mv-asks">${esc(t("mv.asks",{who:m.see.who}))}</p>
+      <blockquote class="mv-q">“${esc(m.see.asks)}”</blockquote>
+      <div class="mv-goal"><b>${t("mv.goal")}</b><p>${esc(m.see.goal)}</p></div>
+      <button class="btn-primary mv-cta" onclick="mvStep('${m.hear?"hear":"speak"}')">${t("mv.go")} →</button>
+    </section>`;
+  }
+
+  /* ---- HEAR: a model, spoken. The existing TTS, with its browser fallback,
+          so this works offline and costs no new audio architecture. ---- */
+  else if(S1==="hear"){
+    const shown=!!_mv.showModel;
+    body=`<section class="card mv-hear">
+      <div class="eyebrow">${t("mv.step_hear")}</div>
+      <p class="sub">${esc(m.hear.note)}</p>
+      <div class="mv-play">
+        <button class="btn btn-p" onclick="fbSay(${jarg(m.hear.model)},1)">${ic("sound")} ${t("mv.play")}</button>
+        <button class="btn btn-g" onclick="fbSay(${jarg(m.hear.model)},.75)">${ic("gauge")} ${t("mv.play_slow")}</button>
+      </div>
+      <button class="btn btn-g mv-reveal" onclick="_mv.showModel=!_mv.showModel;mvDraw()">${ic("eye")} ${shown?t("mv.hide_text"):t("mv.show_text")}</button>
+      ${shown?`<p class="mv-model">“${esc(m.hear.model)}”</p>`:""}
+      <button class="btn-primary mv-cta" onclick="mvStep('notice')">${t("mv.go")} →</button>
+    </section>`;
+  }
+
+  /* ---- NOTICE: the four moves. Communication awareness, not grammar. ---- */
+  else if(S1==="notice"){
+    body=`<section class="card mv-notice">
+      <div class="eyebrow">${t("mv.step_notice")}</div>
+      <p class="sub">${esc(t("mv.notice_sub"))}</p>
+      <ol class="mv-list">${(comp.moves||[]).map(x=>`<li>
+        <b>${esc(x.label)}</b><span>${esc(x.hint)}</span>
+        <em>${(x.patterns||[]).map(p=>`“${esc(p)}”`).join(" · ")}</em></li>`).join("")}</ol>
+      ${comp.shadow?`<button class="pf-row pf-setup mv-shadow" onclick="mvShadow()">
+        <span class="pf-ic">${ic("headphones")}</span>
+        <span class="pf-txt"><b>${esc(t("mv.shadow_btn"))}</b><small>${esc(t("mv.shadow_sub"))}</small></span>
+        <span class="pf-chev" aria-hidden="true">›</span></button>`:""}
+      <button class="btn-primary mv-cta" onclick="mvStep('speak')">${t("mv.go")} →</button>
+    </section>`;
+  }
+
+  /* ---- SPEAK / RETRY / TRANSFER: one recorder, three framings ---- */
+  else if(S1==="speak"){
+    const retry=!!_mv.retry,transfer=m.kind==="transfer";
+    const rec_=_mv.recording;
+    const instruction=retry&&_mv.retryText?_mv.retryText
+      :transfer?m.see.goal:t("mv.speak_sub");
+    body=`<section class="card mv-speak">
+      <div class="eyebrow">${transfer?t("mv.step_transfer"):retry?t("mv.step_retry"):t("mv.step_speak")}</div>
+      <blockquote class="mv-q">“${esc(m.prompt)}”</blockquote>
+      ${m.context?`<p class="mv-ctx">${esc(m.context)}</p>`:""}
+      <p class="mv-instruction">${esc(instruction)}</p>
+      ${_mv.err?`<p class="mv-err">${esc(_mv.err)}</p>`:""}
+      <div class="mv-rec">
+        <button class="rec-btn ${rec_?"recording":""}" id="recBtn" onclick="mvRecord()" aria-label="${esc(t("mv.speak_btn"))}">${ic("mic")}</button>
+        <div><div class="rec-time" id="recTime">00:00</div>
+        <div class="rec-state" id="recState">${rec_?t("mv.recording"):t("mv.speak_btn")}</div></div>
+      </div>
+      <p class="pp-fine">${esc(t("mv.speak_sub"))}</p>
+    </section>`;
+  }
+
+  /* ---- COACH: what worked, ONE change, and the way to act on it ---- */
+  else if(S1==="coach"){
+    const ev=_mv.ev,co=_mv.coach;
+    if(_mv.busy||!ev){
+      body=`<section class="card mv-coach"><div class="eyebrow">${t("mv.step_coach")}</div>
+        <p class="sub">${t("mv.thinking")}</p></section>`;
+    }else{
+      const nextIsTransfer=MissionEngine.rank(r.state)>=MissionEngine.rank("DEMONSTRATED")&&m.kind!=="transfer";
+      const tm=(comp.missions||[]).find(x=>x.kind==="transfer");
+      body=`<section class="card mv-coach">
+        <div class="eyebrow">${t("mv.step_coach")}</div>
+        ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
+        <p class="mv-heard"><b>${t("mv.heard")}</b> “${esc(ev.said)}”</p>
+        ${mvMoveChipsHTML(comp,ev)}
+        <h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
+        <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p>
+        <div class="mv-acts">
+          <button class="btn-primary" onclick="mvRetry()">${t("mv.retry_btn")}</button>
+          ${nextIsTransfer&&tm?`<button class="btn btn-g" onclick="mvGo('${esc(tm.id)}','speak')">${t("mv.transfer_btn")}</button>`:""}
+          <button class="btn btn-g" onclick="mvStep('done')">${t("mv.step_done")} →</button>
+        </div>
+        ${ev.coachPending?`<button class="btn btn-g mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`:""}
+      </section>`;
+    }
+  }
+
+  /* ---- EVIDENCE: what was actually shown, and what happens next ---- */
+  else{
+    const spoken=(r.attempts||[]).filter(a=>a&&a.answered);
+    const best=spoken.slice().sort((a,b)=>(b.coverage||0)-(a.coverage||0))[0]||null;
+    const rec2=MissionEngine.recommend(r,comp,Date.now());
+    const pend=spoken.filter(a=>a.coachPending).length;
+    const mv=rec2.move?(MissionEngine.moveOf(comp,rec2.move)||{}).label||rec2.move:"";
+    const due=r.retrieval&&r.retrieval.due?new Date(r.retrieval.due).toLocaleDateString():"";
+    const reason=t("mv.next_"+rec2.reason,{move:mv,date:due,n:String(pend)});
+    const pron=best&&best.pron!=null?best.pron/100:null;
+    body=`<section class="card mv-done">
+      <div class="eyebrow">${t("mv.step_done")}</div>
+      <h2>${esc(comp.title)}</h2>
+      <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
+      <p class="sub">${t("mv.attempts",{n:String(spoken.length)})}</p>
+      ${best?mvMoveChipsHTML(comp,best):""}
+      <div class="mv-bars">
+        ${mvBar(t("mv.task"),best?best.coverage:null)}
+        ${mvBar(t("mv.clarity"),best?best.clarity:null,best&&best.clarityBasis==="order"?"":"")}
+        ${mvBar(t("mv.fluency"),best?best.fluency:null)}
+        ${mvBar(t("mv.vocab"),best?best.vocab:null)}
+        ${mvBar(t("mv.pron"),pron,t("mv.pron_note"))}
+      </div>
+      <h3>${t("mv.next")}</h3>
+      <p class="mv-next">${esc(reason)}</p>
+      <div class="mv-acts">
+        ${rec2.action==="coach"?`<button class="btn-primary" onclick="mvFinishCoaching()">${t("mv.coach_retry")}</button>`
+         :rec2.action==="rest"?`<button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>`
+         :`<button class="btn-primary" onclick="mvGo('${esc(rec2.missionId||m.id)}','speak')">${
+            rec2.action==="transfer"?t("mv.transfer_btn"):rec2.action==="retry"?t("mv.retry_btn"):t("mv.continue")}</button>`}
+        <button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>
+      </div>
+      <p class="pp-fine">${esc(t("mv.pron_note"))}</p>
+    </section>`;
+    mvTrack("v2_recommendation_generated",{result:rec2.action,move:rec2.move||"none",state:r.state});
+  }
+
+  el.innerHTML=`${back}${mvHead(S1)}${body}`;
+  manIconizeInline(el);
+  if(S1==="speak"&&_mv.recording){
+    /* the shared recorder writes into #recTime / #recState, which this view
+       provides under the same ids the session and shadow recorders use */
+  }
+}
+
+/* RETRY: the same situation with the previous attempt's weakness named. Never
+   the generic prompt again — that is the whole point of the step. */
+window.mvRetry=()=>{
+  const comp=mvComp();if(!comp||!_mv)return;
+  const r=MissionEngine.record(mvStore(),comp.id);
+  const weak=(_mv.coach&&_mv.coach.move)||r.weakness;
+  const mm=weak?MissionEngine.moveOf(comp,weak):null;
+  _mv.retry=true;
+  _mv.retryText=mm?mm.retry:t("mv.next_coverage_low");
+  _mv.step="speak";_mv.err=null;_mv.ev=null;_mv.coach=null;
+  mvDraw();
+};
+
+/* Shadow, reused exactly as it is. The mission hands the existing studio a
+   clip and steps out of the way — no new Shadow code, no change to how Shadow
+   behaves for anyone, and nothing at all for Welding, whose pack has no
+   missions and therefore never reaches this function. */
+window.mvShadow=()=>{
+  const comp=mvComp();if(!comp||!comp.shadow)return;
+  SESS_RETURN=null;
+  try{shLoad({vid:comp.shadow.vid,start:0,end:0,title:comp.shadow.title},true)}catch(e){}
+  go("shadow");
+};
+
+/* The Home card. It is the only entry point, and it says what the learner is
+   being asked to do today rather than how far through a grid they are. */
+function mvHomeCardHTML(){
+  const comp=mvComp();if(!comp)return "";
+  const r=MissionEngine.record(mvStore(),comp.id);
+  const rec3=MissionEngine.recommend(r,comp,Date.now());
+  if(rec3.action==="rest")return "";
+  const first=(comp.missions||[])[0]||{};
+  const mid=rec3.missionId||first.id;
+  const mvv=rec3.move?(MissionEngine.moveOf(comp,rec3.move)||{}).label||rec3.move:"";
+  const pend=(r.attempts||[]).filter(a=>a&&a.coachPending).length;
+  const line=t("mv.next_"+rec3.reason,{move:mvv,date:"",n:String(pend)});
+  return `<section class="card mv-home">
+    <div class="eyebrow">${t("mv.home_card")}</div>
+    <h2>${esc(comp.title)}</h2>
+    <p>${esc(line)}</p>
+    <div class="mv-home-foot">
+      <span class="chip">${t("mv.state_"+r.state)}</span>
+      <button class="btn-primary" onclick="mvGo('${esc(mid)}','${r.state==="NOT_STARTED"?"see":"speak"}')">${
+        r.state==="NOT_STARTED"?t("mv.start"):t("mv.continue")}</button>
+    </div>
+  </section>`;
+}
+
 function rHomeGeneral(el){
   const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=(wk.days||{})[pos.d]||{};
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
@@ -8397,6 +9070,7 @@ function rHomeGeneral(el){
     </div>
   </div>
   ${fndHomeCardHTML()}
+  ${mvHomeCardHTML()}
   ${ppHomeCardHTML()}
   ${homeNudgeHTML()}
   ${/* The track you are NOT on. Its own card told the learner what they already
@@ -9161,7 +9835,7 @@ window.toggleDay=(key,w,d)=>{
   /* Ticking a day off is the clearest "I did the work" signal in the app, and
      carrying the week is what makes drop-out visible: without it you can see
      that people stop, but not where in the 12 weeks they stop. */
-  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});track("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
+  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});trackLearning("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
     /* Finishing a day is the moment the app has earned an opinion — ask then. */
     setTimeout(()=>whenIdle(rateAsk),1600)}
   save();go("session",w,d);
@@ -12016,6 +12690,18 @@ function shHeardUI(heard){
 }
 async function shFBDone(){
   const heard=shFB.txt.trim();
+  /* One seam, so a V2 mission can use the app's recorder + transcriber without
+     a second copy of either. The mission owns what happens next: it grades the
+     turn against its own rubric instead of the shadow feedback panel, and it
+     needs the empty case too — a recording that transcribed to nothing is
+     still a recording, and the attempt must be preserved rather than dropped
+     with a toast. Everything else below is untouched. */
+  if(typeof shFB.onDone==="function"){
+    const cb=shFB.onDone,ctx=shFB.recCtx,t0=shFB.t0;
+    shFB.onDone=null;
+    try{cb(heard,{seconds:Math.max(1,Math.round((Date.now()-t0)/1000)),recCtx:ctx})}catch(e){try{console.error("[mission] onDone",e)}catch(_){}}
+    return;
+  }
   if(!heard){toast(t("sh.no_words_toast"));return}
   S.notes["shheard:"+shFB.vid]=heard;
   S.notes["shheardDur:"+shFB.vid]=Date.now()-shFB.t0;
@@ -23145,7 +23831,7 @@ async function bootMain(){
      was asked for (no hash, or Home), never for someone who still has the
      one-minute check to take — Home opens that for them. */
   const _prevSeen=S.lastSeen;
-  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true;track("return_open",{gap:gapBand(_prevSeen)})}
+  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
@@ -23163,7 +23849,7 @@ async function bootMain(){
   try{if(ppAvailable()&&ppSignedIn())setTimeout(()=>ppRefresh(true).then(()=>{if(cur&&cur.v==="home")go("home");ppFabSync()}),1500)}catch(e){}
   /* Anonymous counts only — see the ANALYTICS block in <head>. No-op until configured. */
   const done=totalDone();
-  track("app_open",{
+  trackLearning("app_open",{
     installed:window.matchMedia("(display-mode: standalone)").matches||navigator.standalone?"yes":"no",
     onboarded:S.profile&&S.profile.name?"yes":"no",
     /* bucketed, not the raw count — retention shape without a high-cardinality field */
@@ -23464,7 +24150,7 @@ window.obFinish=()=>{
    only — never a profile field. They were being dropped by the Worker anyway;
    not sending them makes the client match the policy instead of relying on the
    server to enforce it. */
-track("onboarding_complete",{lang:OB.lang||"en"});
+trackLearning("onboarding_complete",{lang:OB.lang||"en"});
   /* Both tracks land on the road map: the first thing a new learner sees is
      the whole twelve weeks laid out, with the beacon on day one. Home, and its
      "Start here" placement card, is one tap away. The check must not pop over
@@ -23632,6 +24318,36 @@ function fbMerge(local,cloud){
       const seen={};o[a]=[].concat(C[a]||[],L[a]||[]).filter(x=>{
         const k=key(x);if(!k||seen[k])return false;seen[k]=1;return true});
     });return o};
+  /* V2 mission evidence. Two levels down (area → competency), so it gets its
+     own fold: attempts union on the idempotency key that one spoken turn
+     produces, which is what stops two devices double-counting the same answer.
+     The derived fields — state, weakness, retrieval — are recomputed from the
+     merged attempt list rather than picked from a side, because they are a
+     function of the evidence and must never disagree with it. */
+  m.v2A=(()=>{
+    const L=local.v2A||{},C=cloud.v2A||{},out={};
+    new Set(Object.keys(L).concat(Object.keys(C))).forEach(a=>{
+      const lc=L[a]||{},cc=C[a]||{},box={};
+      new Set(Object.keys(lc).concat(Object.keys(cc))).forEach(id=>{
+        const l=lc[id]||{},c=cc[id]||{},seen={},att=[];
+        [].concat(c.attempts||[],l.attempts||[]).forEach(x=>{
+          const k=x&&(x.key||x.at);if(!k||seen[k])return;seen[k]=1;att.push(x);
+        });
+        att.sort((x,y)=>(x.at||0)-(y.at||0));
+        const rec=Object.assign({},c,l,{id,attempts:att.slice(-60),
+          introducedAt:Math.min(l.introducedAt||Infinity,c.introducedAt||Infinity)||0});
+        rec.transfer={passed:0,failed:0};
+        if(window.MissionEngine){
+          rec.attempts.forEach(x=>{if(x&&x.kind==="transfer"&&x.answered){
+            if(MissionEngine.passes(x))rec.transfer.passed++;else rec.transfer.failed++;}});
+          rec.state=MissionEngine.stateFrom(rec);
+        }
+        box[id]=rec;
+      });
+      out[a]=box;
+    });
+    return out;
+  })();
   m.clipsA=byAreaList(c=>c&&(c.vid+"_"+c.start))(local.clipsA,cloud.clipsA);
   m.quizHistA=byAreaList(q=>q&&q.t)(local.quizHistA,cloud.quizHistA);
   m.exRepA=byAreaList(r=>r&&r.at)(local.exRepA,cloud.exRepA);
@@ -23841,6 +24557,22 @@ function fbSyncPayload(s){
     out.careerCenter=Object.assign({},out.careerCenter);
     delete out.careerCenter.resume;       /* employers, roles, years */
   }
+  if(out.v2A&&typeof out.v2A==="object"){
+    /* Same rule as everywhere else in this app: the evidence travels so a
+       second device knows what has been shown, the speech does not. `said`
+       is the learner talking about their real job. */
+    const o={};
+    Object.keys(out.v2A).forEach(a=>{
+      const box={};
+      Object.keys(out.v2A[a]||{}).forEach(id=>{
+        const r=out.v2A[a][id]||{};
+        box[id]=Object.assign({},r,{attempts:(r.attempts||[]).map(x=>{
+          const y=Object.assign({},x);delete y.said;return y;})});
+      });
+      o[a]=box;
+    });
+    out.v2A=o;
+  }
   if(out.exRepA&&typeof out.exRepA==="object"){
     /* Executive Polish: the numbers and the coach's notes travel; the minute of
        speech they were measured on stays on this device */
@@ -23937,7 +24669,7 @@ document.addEventListener("visibilitychange",()=>{
     if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
     if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
     if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())return;
-    _rmReturn=true;go("journey");track("return_open",{gap:gapBand(away)});
+    _rmReturn=true;go("journey");trackLearning("return_open",{gap:gapBand(away)});
   }catch(e){}
 });
 window.addEventListener("focus",()=>fbSyncPull());

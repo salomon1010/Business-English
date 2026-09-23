@@ -101,6 +101,17 @@ const EVENTS = new Set([
   // sentence practice attempt was graded (+result pass|retry), an item was
   // saved to vocabulary, the conversation booster game was played. Counts only.
   "partner_review_ready", "partner_review_coach", "partner_review_practice", "partner_review_saved", "partner_review_game",
+  // BE Mastery V2 competency missions (General English only, Week 3 slice).
+  // Every one of these carries track + week + competency, because the audit
+  // found the older learning events could not be split by programme at all and
+  // the dataset cannot be backfilled. Counts and fixed enums only: `move` is
+  // one of the four communication-move ids, `state` is a competency state,
+  // `result` is pass|fail or the recommended action. Nothing spoken, nothing
+  // transcribed and nothing from the profile ever rides on these.
+  "v2_mission_started", "v2_mission_heard", "v2_speak_attempt", "v2_coach_generated",
+  "v2_retry_attempt", "v2_transfer_started", "v2_transfer_completed",
+  "v2_evidence_recorded", "v2_competency_progressed", "v2_retrieval_scheduled",
+  "v2_recommendation_generated",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -127,7 +138,13 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // rung: gate | sync | recall | blind | retell — which step of the Challenge
   // ladder an event belongs to. Appended, as above: PROP_KEYS iteration order
   // is the blob column order, so this must stay last.
-  "rung"]);
+  "rung",
+  // V2 missions: competency (clear-update), mission (its id), move (status |
+  // issue | impact | next | none), attempt (a count), ai (1|0 — whether the
+  // written coaching came from the model or the device). Appended last, as
+  // every addition to this list must be. `state`, `week`, `track`, `kind`,
+  // `result`, `band` and `n` are reused from above rather than duplicated.
+  "competency", "mission", "move", "attempt", "ai", "from"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;

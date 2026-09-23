@@ -1,0 +1,262 @@
+{
+  "schemaVersion": "1",
+  "trackId": "general",
+  "_note": "BE Mastery V2 — competency missions. OPTIONAL curriculum section, General English only. A track without its own missions.json gets null, NOT the parent's: professional-tracks.js lists 'missions' in NEVER_INHERIT precisely so this content can never reach Welding through the curriculum merge. Content is written in English like every other pack (weeks.json, phrases.json); only the surrounding chrome is translated through t().",
+  "competencies": [
+    {
+      "id": "clear-update",
+      "week": 3,
+      "title": "Give a clear update",
+      "objective": "Give a concise professional project update that a busy colleague can act on.",
+      "pattern": "STATUS → ISSUE → IMPACT → NEXT STEP",
+      "shadow": {
+        "vid": "-tubDR5XSRw",
+        "title": "How to Organize Your Thoughts When Speaking English (Stop Rambling)",
+        "why": "The same four-part shape, spoken at natural pace by a professional speaker."
+      },
+      "moves": [
+        {
+          "id": "status",
+          "label": "Status",
+          "hint": "Where the work actually is right now.",
+          "patterns": [
+            "The project is on track.",
+            "We've completed the first two stages.",
+            "So far, everything is going to plan."
+          ],
+          "retry": "Give the update again and open with one clear sentence saying where the work is right now.",
+          "cues": [
+            "on track",
+            "on schedule",
+            "progressing",
+            "going well",
+            "going to plan",
+            "so far",
+            "at the moment",
+            "currently",
+            "status",
+            "we have completed",
+            "we've completed",
+            "finished",
+            "underway",
+            "in progress",
+            "halfway",
+            "first stage",
+            "two stages",
+            "update on the",
+            "due to start",
+            "due to begin",
+            "due to finish",
+            "scheduled for",
+            "scheduled to",
+            "everything else",
+            "we are ready",
+            "we're ready",
+            "up to date",
+            "all set",
+            "where we are",
+            "we are at",
+            "we're at",
+            "stands at",
+            "the rest is",
+            "no problems with",
+            "is ready",
+            "are ready",
+            "on plan"
+          ],
+          "_cue_note": "Phrase cues, not bare words. A single cue like \"ready\" or \"done\" would fire inside a next-step sentence (\"we'll be ready tomorrow\") and credit a status the learner never gave. Under-crediting is the safe direction here: the AI pass may ADD a move the cues missed, and can never remove one, so a strict floor costs an online learner nothing and an offline learner only a retry."
+        },
+        {
+          "id": "issue",
+          "label": "Issue",
+          "hint": "The one thing that is not going to plan.",
+          "patterns": [
+            "We've run into a supplier issue.",
+            "We're held up waiting for approval.",
+            "The problem is a delay at the supplier."
+          ],
+          "retry": "Give the update again and name the one problem clearly, in a single sentence.",
+          "cues": [
+            "delay",
+            "delayed",
+            "issue",
+            "problem",
+            "blocker",
+            "blocked",
+            "held up",
+            "hold-up",
+            "waiting on",
+            "waiting for",
+            "ran into",
+            "run into",
+            "shortage",
+            "short of",
+            "supplier",
+            "fault",
+            "breakdown",
+            "unavailable",
+            "off sick",
+            "gone wrong",
+            "setback"
+          ]
+        },
+        {
+          "id": "impact",
+          "label": "Impact",
+          "hint": "What it means for the deadline, the cost or the customer. This is the move most people skip.",
+          "patterns": [
+            "This may affect Friday's delivery.",
+            "It puts the deadline at risk.",
+            "That means we'd be two days late."
+          ],
+          "retry": "Give the update again and say clearly what the delay means for the deadline — name the date or the number of days.",
+          "cues": [
+            "impact",
+            "affect",
+            "affects",
+            "affected",
+            "this means",
+            "that means",
+            "which means",
+            "knock-on",
+            "push back",
+            "pushed back",
+            "at risk",
+            "put back",
+            "slip",
+            "miss the",
+            "won't make",
+            "will not make",
+            "later than",
+            "days late",
+            "week late",
+            "behind schedule",
+            "cost us",
+            "consequence",
+            "delivery date",
+            "the deadline"
+          ]
+        },
+        {
+          "id": "next",
+          "label": "Next step",
+          "hint": "What you are doing about it, and when you will report back.",
+          "patterns": [
+            "We're working with the supplier.",
+            "I'll have an update for you tomorrow.",
+            "The next step is to confirm a new date."
+          ],
+          "retry": "Give the update again and finish by saying what you will do next and when you will report back.",
+          "cues": [
+            "next step",
+            "next steps",
+            "we are working",
+            "we're working",
+            "i am working",
+            "i'm working",
+            "plan to",
+            "planning to",
+            "i will",
+            "i'll",
+            "we will",
+            "we'll",
+            "expect",
+            "escalate",
+            "escalating",
+            "chase",
+            "chasing",
+            "follow up",
+            "following up",
+            "let you know",
+            "update you",
+            "come back to you",
+            "by tomorrow",
+            "aim to",
+            "propose",
+            "confirm a new"
+          ]
+        }
+      ],
+      "expressions": [
+        {
+          "w": "on track",
+          "l": "B1",
+          "move": "status",
+          "def": "going to plan, at the expected point"
+        },
+        {
+          "w": "held up",
+          "l": "B1",
+          "move": "issue",
+          "def": "delayed by something outside your control"
+        },
+        {
+          "w": "run into an issue",
+          "l": "B2",
+          "move": "issue",
+          "def": "meet an unexpected problem"
+        },
+        {
+          "w": "knock-on effect",
+          "l": "B2",
+          "move": "impact",
+          "def": "the further result a delay causes elsewhere"
+        },
+        {
+          "w": "at risk",
+          "l": "B1",
+          "move": "impact",
+          "def": "likely to fail or be missed"
+        },
+        {
+          "w": "push back",
+          "l": "B2",
+          "move": "impact",
+          "def": "move a date later"
+        },
+        {
+          "w": "chase it up",
+          "l": "B2",
+          "move": "next",
+          "def": "contact someone to make something happen"
+        },
+        {
+          "w": "come back to you",
+          "l": "B1",
+          "move": "next",
+          "def": "report again later with an answer"
+        }
+      ],
+      "missions": [
+        {
+          "id": "clear-update-guided",
+          "kind": "guided",
+          "see": {
+            "where": "You are in a project meeting.",
+            "who": "Your manager",
+            "asks": "Can you give us a quick update on the project?",
+            "goal": "Answer in about 30 seconds so that everyone in the room knows where things stand and what happens next."
+          },
+          "hear": {
+            "model": "The project is progressing well. We're currently delayed by a supplier issue. This may affect Friday's delivery. We're working with the supplier and expect an update tomorrow.",
+            "note": "Four short sentences. One move each. No preamble."
+          },
+          "prompt": "Can you give us a quick update on the project?",
+          "context": "Your team is building a new customer portal. Two of the three stages are finished. The design agency has not sent the final logo files, and the launch is planned for Friday."
+        },
+        {
+          "id": "clear-update-transfer",
+          "kind": "transfer",
+          "see": {
+            "where": "You are at your desk. The warehouse has just called.",
+            "who": "Your manager",
+            "asks": "The supplier delivered the materials late. What does this mean for the project?",
+            "goal": "Nobody is going to prompt you this time. Use the same four moves on a situation you have not rehearsed."
+          },
+          "prompt": "The supplier delivered the materials late. What does this mean for the project?",
+          "context": "The materials arrived three days late. Installation was due to start on Monday. The customer has been promised the site by the end of the month."
+        }
+      ]
+    }
+  ]
+}

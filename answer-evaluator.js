@@ -358,5 +358,10 @@
     }};
   }
 
-  global.AnswerEvaluator=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript,portfolio, readiness});
-})(window);
+  const api=Object.freeze({evaluate,applyAssist,review,nextFocus,hits,wordsOf,evaluateModule,gradeTranscript,portfolio, readiness});
+  /* Same footer as shadow-sync.js: the browser gets the global it always had,
+     and Node can require() the module so the cue matching that every V2
+     evidence decision rests on is unit-testable without a browser. */
+  if(typeof module!=="undefined"&&module.exports)module.exports=api;
+  global.AnswerEvaluator=api;
+})(typeof window!=="undefined"?window:globalThis);

@@ -9,8 +9,13 @@
 (function(global){
   const SECTIONS=["weeks","shadow","phrases","vocabulary","practice","progress"];
   /* Sections a track MAY carry. A missing file is not an error — General
-     English has no Foundations stage and must keep loading without one. */
-  const OPTIONAL=["foundations"];
+     English has no Foundations stage and must keep loading without one.
+
+     missions — the V2 competency missions. General English has them; Welding
+     deliberately has no missions.json, and professional-tracks.js lists the
+     section in NEVER_INHERIT so the absent file resolves to null rather than
+     quietly inheriting General English's. */
+  const OPTIONAL=["foundations","missions"];
   const packs=new Map();
   const loading=new Map();
 
@@ -46,7 +51,9 @@
       reviewCheckpoints:sections.progress.reviewCheckpoints||[],
       /* Stage 0: A1-A2 listen-and-repeat with a French gloss, and the
          three-sentence placement check. null when the track has none. */
-      foundations:sections.foundations||null
+      foundations:sections.foundations||null,
+      /* V2 competency missions. null for any track that ships no missions.json. */
+      missions:sections.missions||null
     });
   }
   /* One file, up to three tries. A phone on a flaky connection — or one that
