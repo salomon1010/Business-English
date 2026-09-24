@@ -1152,6 +1152,8 @@
  "rp.hist_confirm_clear": "Supprimer toutes les séances enregistrées de ce scénario ? C'est irréversible.",
  "rp.hist_none": "Pas encore de séance — terminez une conversation et elle apparaîtra ici.",
  "rp.hist_teaser": "{{n}} séances précédentes · dernière le {{date}}",
+ "rp.hist_report_open": "Ouvrir le rapport complet",
+ "rp.hist_noreport": "Aucun rapport pour cette séance",
  "home.stat_pron": "Prononciation",
  "home.next_pron": "Évaluez une conversation pour obtenir un score",
  "rev.pron_h": "Pratique orale",

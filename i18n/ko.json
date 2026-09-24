@@ -1152,6 +1152,8 @@
  "rp.hist_confirm_clear": "이 시나리오의 저장된 세션을 모두 삭제할까요? 되돌릴 수 없어요.",
  "rp.hist_none": "아직 세션이 없어요 — 대화를 마치면 여기에 표시돼요.",
  "rp.hist_teaser": "지난 세션 {{n}}회 · 마지막 {{date}}",
+ "rp.hist_report_open": "Open the full report",
+ "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "발음",
  "home.next_pron": "대화를 평가하면 점수가 나와요",
  "rev.pron_h": "말하기 연습",

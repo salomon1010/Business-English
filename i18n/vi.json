@@ -1152,6 +1152,8 @@
  "rp.hist_confirm_clear": "Xoá mọi buổi đã lưu của tình huống này? Không thể hoàn tác.",
  "rp.hist_none": "Chưa có buổi nào — hoàn thành một cuộc trò chuyện và nó sẽ hiện ở đây.",
  "rp.hist_teaser": "{{n}} buổi trước · gần nhất ngày {{date}}",
+ "rp.hist_report_open": "Open the full report",
+ "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "Phát âm",
  "home.next_pron": "Đánh giá một cuộc trò chuyện để có điểm",
  "rev.pron_h": "Luyện nói",

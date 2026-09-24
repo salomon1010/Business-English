@@ -1152,6 +1152,8 @@
  "rp.hist_confirm_clear": "এই দৃশ্যপটের সব সংরক্ষিত সেশন মুছে ফেলবেন? এটি ফেরানো যাবে না।",
  "rp.hist_none": "এখনো কোনো সেশন নেই — একটি কথোপকথন শেষ করুন, এখানে দেখা যাবে।",
  "rp.hist_teaser": "{{n}}টি আগের সেশন · সর্বশেষ {{date}}",
+ "rp.hist_report_open": "Open the full report",
+ "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "উচ্চারণ",
  "home.next_pron": "স্কোর পেতে একটি কথোপকথন মূল্যায়ন করুন",
  "rev.pron_h": "কথা বলার অনুশীলন",
