@@ -77,147 +77,127 @@
     "Mon": [
       [
         "0:00–3:00",
-        "Choose a 30–60 sec clip on the 🎯 Shadow tab (starter videos & channels)."
+        "Pick a 30–60 sec clip on the 🎯 Shadow tab and listen to it once."
       ],
       [
         "3:00–15:00",
-        "Shadow it 6 times: listen → pause-repeat → speak with the audio → speak alone."
+        "Shadow it 6 times: listen → repeat → speak with the audio → speak alone."
       ],
       [
         "15:00–20:00",
-        "Record yourself imitating the clip in the Record yourself card on this page."
+        "Record yourself saying the clip in the Record yourself card on this page."
       ],
       [
-        "20:00–23:00",
-        "Read your AI speaking report: what to fix and your sentences rebuilt."
-      ],
-      [
-        "23:00–25:00",
-        "Note one sound or stress pattern from the report to fix next time."
+        "20:00–25:00",
+        "Read your AI speaking report and say the corrected sentences aloud."
       ]
     ],
     "Tue": [
       [
-        "0:00–3:00",
-        "Write the prompt and your answer structure."
+        "0:00–5:00",
+        "Read today's task and say the phrases on this page aloud."
       ],
       [
-        "3:00–8:00",
-        "Bullet points only: context → issue → action → result / next step."
+        "5:00–12:00",
+        "Practise your answer aloud 3 times: context → issue → action → next step."
       ],
       [
-        "8:00–13:00",
-        "Record version 1 in the Record yourself card on this page."
+        "12:00–17:00",
+        "Record your best answer in the Record yourself card on this page."
       ],
       [
-        "13:00–17:00",
-        "Read your AI speaking report: filler words, grammar, vague wording, structure."
-      ],
-      [
-        "17:00–22:00",
-        "Record an improved version 2 — you get a new report."
-      ],
-      [
-        "22:00–25:00",
-        "Write your top 3 corrections from the reports in the notes."
+        "17:00–25:00",
+        "Read your AI speaking report, then say the better version aloud twice."
       ]
     ],
     "Wed": [
       [
         "0:00–8:00",
-        "Study the 10–15 phrases + idioms for this week (Phrases tab)."
+        "Listen to this week's phrases (Phrases tab) and repeat each one aloud."
       ],
       [
-        "8:00–16:00",
-        "Write 10 sentences of your own using your real work context."
+        "8:00–15:00",
+        "Say one sentence of your own with 5 of the phrases."
       ],
       [
-        "16:00–21:00",
-        "Say all 10 aloud and record them on this page."
+        "15:00–20:00",
+        "Record your 5 sentences in the Record yourself card on this page."
       ],
       [
-        "21:00–25:00",
-        "Read your AI speaking report, then choose the 5 best phrases to reuse this week."
+        "20:00–25:00",
+        "Read your AI speaking report and repeat the corrected sentences aloud."
       ]
     ],
     "Thu": [
       [
-        "0:00–4:00",
-        "Set the meeting scenario."
+        "0:00–5:00",
+        "Read today's meeting scenario and the phrases on this page."
       ],
       [
-        "4:00–8:00",
-        "List: your role, the problem, what you need to say."
+        "5:00–12:00",
+        "Practise aloud what you would say: your role, the problem, what you need."
       ],
       [
-        "8:00–14:00",
+        "12:00–17:00",
         "Record your answer in the Record yourself card on this page."
       ],
       [
-        "14:00–18:00",
-        "Read your AI speaking report: where you rambled, got unclear or needed stronger phrases."
-      ],
-      [
-        "18:00–25:00",
-        "Record a cleaner version and compare the two reports."
+        "17:00–25:00",
+        "Read your AI speaking report and say the stronger phrases aloud."
       ]
     ],
     "Fri": [
       [
-        "0:00–3:00",
-        "Pick your weakest recording from this week."
-      ],
-      [
-        "3:00–10:00",
-        "Drill the problem sections 6 times: slow down, stress key words, no monotone."
+        "0:00–10:00",
+        "Shadow a clip on the 🎯 Shadow tab: listen for pace, stress and pauses."
       ],
       [
         "10:00–15:00",
-        "Record the improved 'after' version on this page."
+        "Say today's task aloud 3 times: slow down and stress the key words."
       ],
       [
         "15:00–20:00",
-        "Read your AI speaking report and compare it with the weak one."
+        "Record it in the Record yourself card on this page."
       ],
       [
         "20:00–25:00",
-        "Note what improved and one thing still to fix."
+        "Read your AI speaking report and check your pace and clarity."
       ]
     ],
     "Sat": [
       [
         "0:00–5:00",
-        "Outline the talk (bullets, not a script)."
+        "Read today's task and plan three points in your head."
       ],
       [
         "5:00–12:00",
-        "Record the 3–5 minute answer or presentation on this page."
+        "Practise the talk aloud twice, 2–3 minutes each."
       ],
       [
-        "12:00–16:00",
-        "Read your AI speaking report: clarity, structure, filler words, confidence."
+        "12:00–17:00",
+        "Record the talk in the Record yourself card on this page."
       ],
       [
-        "16:00–25:00",
-        "Redo the weakest section only and record it again."
+        "17:00–25:00",
+        "Read your AI speaking report and redo your weakest sentence aloud."
       ]
     ],
     "Sun": [
       [
         "Step 1",
-        "Listen to at least 2 recordings from the week."
+        "Listen to two of your recordings from this week."
       ],
       [
         "Step 2",
-        "Score the week below in the Reviews tab: clarity, fluency, pronunciation, business naturalness, confidence."
+        "Say this week's 5 most useful phrases aloud."
       ],
       [
         "Step 3",
-        "Write 3 wins, 3 weaknesses, 3 corrections for next week."
+        "Record a 1-minute summary of what you can now say at work, on this page."
       ],
       [
         "Step 4",
-        "Review the phrase bank and keep 5 active phrases for next week."
+        "Read your AI speaking report."
       ]
     ]
   },
