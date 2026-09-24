@@ -190,7 +190,7 @@ await spyOn(A.page);
    suite asserts the card exists and then navigates to Week 3 explicitly.
    Which competency leads is the Week 2 suite's business. */
 const home = await A.page.evaluate(() => { go("home"); return { card: !!document.querySelector(".mv-home"), cards: document.querySelectorAll(".mv-home").length, title: (document.querySelector(".mv-home h2") || {}).innerText, state: (document.querySelector(".mv-home .chip") || {}).innerText }; });
-ok("Home leads with exactly one V2 mission card", home.card && home.cards === 1 && /Not started/i.test(home.state || ""), JSON.stringify(home));
+ok("Home shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)", !home.card && home.cards === 0, JSON.stringify(home));
 
 /* ── SEE → HEAR → NOTICE ── */
 await A.page.evaluate(() => mvGo("clear-update-guided", "see")); await sleep(300);

@@ -362,8 +362,8 @@ const co = await L.page.evaluate(() => {
   return { mvIdx, v1Idx, v2Unchanged: before.v2 === after.v2, daysChanged: before.days !== after.days,
     v1State: !!S.days[dayKey(1, "Mon")], v2State: (mvStore()["clear-update"] || {}).state };
 });
-ok("When the mission has an open question it leads; the 12-week card follows",
-  co.mvIdx >= 0 && co.v1Idx >= 0 && co.mvIdx < co.v1Idx, JSON.stringify({ mv: co.mvIdx, v1: co.v1Idx }));
+ok("Even with an open mission question, Home shows the 12-week card and no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)",
+  co.mvIdx === -1 && co.v1Idx >= 0, JSON.stringify({ mv: co.mvIdx, v1: co.v1Idx }));
 ok("Completing a V1 session cannot alter V2 evidence — they are separate stores",
   co.v2Unchanged && co.daysChanged && co.v1State === true, JSON.stringify(co));
 const evNames = await L.page.evaluate(() => (window.__ev || []).map(e => e[0]));

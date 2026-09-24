@@ -370,8 +370,8 @@ const L = await learner("ge", GE);
 /* Home: one V2 card, and it is Week 1 for a fresh learner — not the newest */
 const home = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home");
   return { n: document.querySelectorAll(".mv-home").length, today: document.querySelectorAll(".today-card").length, eyebrow: c && c.querySelector(".eyebrow").innerText, title: c && c.querySelector("h2").innerText }; });
-ok("Home offers ONE V2 card and one V1 Today card; for a fresh learner the V2 card is Week 1, not the newest week",
-  home.n === 1 && home.today <= 1 && /Week 1/i.test(home.eyebrow || "") && /Explain what you do/i.test(home.title || ""), JSON.stringify(home));
+ok("Home shows one programme card and no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)",
+  home.n === 0 && home.today <= 1, JSON.stringify(home));
 const ovh = await overflow(L.page); ok("Home has no horizontal overflow at 390px", ovh.sw <= ovh.cw, JSON.stringify(ovh));
 await shot(L.page, "390-home");
 
@@ -478,8 +478,8 @@ ok("F1 · three competencies render, week 1 → 2 → 3, each with its own move 
   all.panels === 3 && all.comps.map(x => x.c).join() === "explain-work,clear-update,raise-problem" && all.comps.map(x => x.w).join() === "1,2,3" && all.comps.map(x => x.m).join() === "5,4,5", JSON.stringify(all.comps));
 ok("F2 · the Week 1 and Week 2 attempts did not disturb Week 3's record", all.comps[2].s === "TRANSFER_READY" && all.comps[2].a === 3 && all.comps[0].a === 1 && all.comps[1].a === 1, JSON.stringify(all.comps));
 const afterAll = await L.page.evaluate(() => { go("home"); return { n: document.querySelectorAll(".mv-home").length, eyebrow: (document.querySelector(".mv-home .eyebrow") || {}).innerText }; });
-ok("F3 · Home still shows exactly one V2 card, now for the lowest week with an open question (Week 1's transfer)",
-  afterAll.n === 1 && /Week 1/i.test(afterAll.eyebrow || ""), JSON.stringify(afterAll));
+ok("F3 · Home still shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page), even with Week 1's transfer open",
+  afterAll.n === 0, JSON.stringify(afterAll));
 
 /* ── J · V1 / V2 COEXISTENCE ── */
 console.log("\nJ · V1 / V2 COEXISTENCE");
@@ -494,7 +494,7 @@ const co = await L.page.evaluate(() => {
   return { mvIdx, v1Idx, v2Unchanged: before.v2 === after.v2, daysChanged: before.days !== after.days, v1State: !!S.days[dayKey(3, "Mon")],
     v1Week3Done: typeof weekDone === "function" ? weekDone(3) : null, v2State: (mvStore()["raise-problem"] || {}).state };
 });
-ok("J1 · the V2 card leads and the 12-week card follows — one of each", co.mvIdx >= 0 && co.v1Idx >= 0 && co.mvIdx < co.v1Idx, JSON.stringify({ mv: co.mvIdx, v1: co.v1Idx }));
+ok("J1 · the 12-week card is on Home and there is no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)", co.mvIdx === -1 && co.v1Idx >= 0, JSON.stringify({ mv: co.mvIdx, v1: co.v1Idx }));
 ok("J2 · completing a V1 Week 3 session day cannot alter V2 Week 3 evidence — separate stores", co.v2Unchanged && co.daysChanged && co.v1State === true && co.v2State === "TRANSFER_READY", JSON.stringify(co));
 ok("J3 · V2 Week 3 being transfer-ready did not mark V1 Week 3 complete", co.v1Week3Done !== true, String(co.v1Week3Done));
 const evN = await L.page.evaluate(() => (window.__ev || []).map(e => e[0]));

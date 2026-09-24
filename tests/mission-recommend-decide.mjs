@@ -399,14 +399,14 @@ console.log("\nK · HOME / TODAY");
 const L = await learner("ge", GE);
 const home0 = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home");
   return { n: document.querySelectorAll(".mv-home").length, today: document.querySelectorAll(".today-card").length, eyebrow: c && c.querySelector(".eyebrow").innerText, title: c && c.querySelector("h2").innerText }; });
-ok("K1 · A fresh learner's Home offers ONE V2 card and it is Week 1 — Week 6 does not appear prematurely",
-  home0.n === 1 && home0.today <= 1 && /Week 1/i.test(home0.eyebrow || "") && /Explain what you do/i.test(home0.title || ""), JSON.stringify(home0));
+ok("K1 · A fresh learner's Home shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page) — Week 6 does not appear prematurely",
+  home0.n === 0 && home0.today <= 1, JSON.stringify(home0));
 const rested = await restBefore6(L.page);
 ok("K2 · Weeks 1–5 are transfer-ready in this learner's store (seeded through the engine, not by hand)", rested === "TRANSFER_READY,TRANSFER_READY,TRANSFER_READY,TRANSFER_READY,TRANSFER_READY", rested);
 const home1 = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home");
   return { n: document.querySelectorAll(".mv-home").length, eyebrow: c && c.querySelector(".eyebrow").innerText, title: c && c.querySelector("h2").innerText, chip: c && c.querySelector(".chip").innerText, btn: c && c.querySelector("button").innerText, line: c && c.querySelector("p").innerText }; });
-ok("K3 · Now Home's one card is Week 6, 'Not started', with 'Start the mission' — chosen by the engine's own priority, nothing hardcoded",
-  home1.n === 1 && /Week 6/i.test(home1.eyebrow || "") && /Recommendations & decision language/i.test(home1.title || "") && /not started/i.test(home1.chip || "") && /start the mission/i.test(home1.btn || "") && /say it out loud once/i.test(home1.line || ""), JSON.stringify(home1));
+ok("K3 · With the earlier weeks resting, Home still shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)",
+  home1.n === 0, JSON.stringify(home1));
 const ovh = await overflow(L.page); ok("K3 · Home has no horizontal overflow at 390px with the Week 6 card", ovh.sw <= ovh.cw, JSON.stringify(ovh));
 await shot(L.page, "390-home-week6");
 const coachRec = await L.page.evaluate(() => ({ a: AdaptiveLearningEngine.recommendation(S, ProfessionalTrackContext.active()), m: LearningCoach.mission(S, ProfessionalTrackContext.active()) }));
@@ -523,7 +523,7 @@ for (const c of LATER) {
     one(g, g.hear.model, "guided", "zg" + comp.week); one(t, transfer, "transfer", "zt" + comp.week);
     save(); go("home"); return { offered, state: st[comp.id].state };
   }, { id: c.id, transfer: SAY.transfers[c.id] });
-  ok(`K8 · With everything before it resting, Home's one card is ${c.id} (Week ${c.week}); resting it makes it transfer-ready`, new RegExp("Week " + c.week, "i").test(step.offered) && step.state === "TRANSFER_READY", JSON.stringify(step));
+  ok(`K8 · With everything before it resting, ${c.id} (Week ${c.week}) rests through the engine to transfer-ready, and Home still shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)`, step.offered === "" && step.state === "TRANSFER_READY", JSON.stringify(step));
 }
 const afterAll = await L.page.evaluate(() => { go("home"); return { n: document.querySelectorAll(".mv-home").length, card: !!document.querySelector(".mv-home") }; });
 ok("K8 · With every competency resting, Home shows no V2 card and looks as it did before V2 — the old advice stands", afterAll.n === 0 && afterAll.card === false, JSON.stringify(afterAll));
@@ -576,7 +576,7 @@ const Dk = await learner("desk", GE, { viewport: { width: 1280, height: 800 }, i
 await restBefore6(Dk.page);
 const dkHome = await Dk.page.evaluate(async () => { go("home"); await new Promise(r => setTimeout(r, 300)); const c = document.querySelector(".mv-home");
   return { n: document.querySelectorAll(".mv-home").length, eyebrow: c && c.querySelector(".eyebrow").innerText, o: { sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth } }; });
-ok("Desktop: Home offers the Week 6 card with no horizontal overflow", dkHome.n === 1 && /Week 6/i.test(dkHome.eyebrow || "") && dkHome.o.sw <= dkHome.o.cw, JSON.stringify(dkHome));
+ok("Desktop: Home shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page), with no horizontal overflow", dkHome.n === 0 && dkHome.o.sw <= dkHome.o.cw, JSON.stringify(dkHome));
 await shot(Dk.page, "1280-home");
 const dk = await Dk.page.evaluate(async id => {
   const o = () => ({ sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth });

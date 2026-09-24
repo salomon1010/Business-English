@@ -254,8 +254,8 @@ await L.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.
 
 /* Home leads with Week 2 for a learner who has spoken for nothing */
 const home = await L.page.evaluate(() => { go("home"); const c = document.querySelector(".mv-home"); return { n: document.querySelectorAll(".mv-home").length, eyebrow: c && c.querySelector(".eyebrow").innerText, title: c && c.querySelector("h2").innerText }; });
-ok("Home offers ONE mission card, and for a fresh learner it is Week 2",
-  home.n === 1 && /Week 1/i.test(home.eyebrow || "") && /Explain what you do/i.test(home.title || ""), JSON.stringify(home));
+ok("Home shows no V2 card on Home (removed 2026-09-24 — the mission opens from the session page)",
+  home.n === 0, JSON.stringify(home));
 
 /* SEE / HEAR / NOTICE render the five moves with no Shadow row */
 await L.page.evaluate(() => mvGo("explain-work-guided", "notice")); await sleep(350);
