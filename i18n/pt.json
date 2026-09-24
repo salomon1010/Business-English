@@ -2815,5 +2815,20 @@
  "fb.c_pron_norec": "Nenhuma gravação salva para este relatório — grave de novo para obter a análise de pronúncia.",
  "mv.hist_convos": "Conversas",
  "mv.hist_partner": "Relatórios com parceiro de prática",
- "rp.rep_btn": "Relatório de expressão oral"
+ "rp.rep_btn": "Relatório de expressão oral",
+ "mv.st_mission": "Missão",
+ "mv.st_hear": "Ouvir",
+ "mv.st_speak": "Falar",
+ "mv.st_retry": "Repetir",
+ "mv.st_transfer": "Transferir",
+ "mv.st_coach": "Coach",
+ "mv.st_done": "Concluído",
+ "mv.sec_measures": "As suas medições",
+ "mv.st_notice": "Observar",
+ "mv.evidence_h": "O que deve demonstrar",
+ "mv.useful_h": "Expressões úteis",
+ "mv.start_speaking": "Começar a falar",
+ "mv.day_done": "Semana {{w}} · {{d}} concluído",
+ "sess.v2_eyebrow": "Missão oral de hoje",
+ "sess.v2_sub": "Fale, receba orientação, tente de novo. Este dia é marcado automaticamente quando terminar a missão."
 }

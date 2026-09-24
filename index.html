@@ -1712,6 +1712,33 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-improve{font-size:15px;line-height:1.6}
 .mv-note{font-size:12.5px;color:var(--mut2);padding:9px 11px;border-radius:9px;background:color-mix(in srgb,var(--gold) 10%,transparent);margin:0 0 12px}
 .mv-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+/* Mobile mission UX (V2): five stages and ONE action bar. The bar is sticky,
+   so whatever the stage shows above it, the next step is always on screen —
+   above the bottom nav on a phone, at the foot of the viewport on desktop. */
+.mv-stages{display:flex;gap:4px;margin:0 0 14px;padding:0;list-style:none}
+.mv-stages li{flex:1;min-width:0;text-align:center;font-size:10.5px;font-weight:700;color:var(--mut2);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-stages li::before{content:"";display:block;height:4px;border-radius:4px;margin-bottom:5px;background:var(--line2)}
+.mv-stages li.done::before{background:color-mix(in srgb,var(--acc) 55%,transparent)}
+.mv-stages li.now{color:var(--txt,inherit)}
+.mv-stages li.now::before{background:var(--acc)}
+.mv-dock{position:sticky;bottom:12px;z-index:30;display:flex;flex-direction:column;align-items:stretch;gap:6px;margin:14px -4px 0;padding:10px;
+  border-radius:16px;border:1px solid var(--line2);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 -6px 22px rgba(0,0,0,.18)}
+.mv-dock .btn-primary{width:100%;justify-content:center;margin:0}
+.mv-dock .btn-primary{display:flex;align-items:center;gap:8px}.mv-dock .btn-primary svg{width:18px;height:18px;flex:none}
+.mv-evid{margin:14px 0 0}.mv-evid b{display:block;font-size:12px;color:var(--mut2);margin-bottom:6px}
+.mv-evid .mv-moves{margin:0}
+.mv-useful{margin:16px 0 0;padding:12px 13px;border-radius:12px;border:1px solid var(--line2)}
+.mv-useful b.h{display:block;font-size:12px;color:var(--mut2);margin-bottom:8px}
+.mv-useful ul{margin:0;padding:0;list-style:none}.mv-useful li{margin:0 0 8px;font-size:13.5px;line-height:1.45}
+.mv-useful li b{color:var(--acc)}.mv-useful li span{color:var(--mut)}
+.mv-dayhand h2{margin:4px 0 6px;font-size:20px}
+.mv-daydone{font-size:13px;font-weight:700;color:var(--green);margin:4px 0 8px}
+.mv-dock-2{border:none;background:none;color:var(--acc);font:inherit;font-size:13.5px;font-weight:700;padding:6px;cursor:pointer}
+@media(max-width:820px){.mv-dock{bottom:calc(var(--bnav-h,72px) + 8px)}}
+/* a toast ("Added to your words") arrives right after coaching, exactly when
+   the learner reaches for the dock — on the mission it drops from the top */
+html:has(#v-mission.on .mv-dock) body .toast{top:calc(env(safe-area-inset-top,0px) + 14px);bottom:auto;transform:translateX(-50%) translateY(-120px)}
+html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .mv-pending{margin-top:10px}
 .mv-state{display:flex;align-items:center;gap:10px;margin:8px 0}
 .mv-state span{font-size:12px;color:var(--mut2)}
@@ -3911,6 +3938,9 @@ th{color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;lett
 .auth-terms{text-align:center;font-size:11px;color:var(--mut);margin-top:16px;line-height:1.6}
 .sync-nudge{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));z-index:58;background:var(--card2);border:1px solid rgba(34,211,238,.4);border-radius:16px;padding:14px 16px;box-shadow:0 18px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:12px;animation:fade .35s;max-width:520px;margin:0 auto}
 @media(min-width:821px){.sync-nudge{bottom:16px}}
+/* the sign-in nudge floats exactly where the mission's one action sits; while
+   that action bar is on screen the nudge waits for the next page */
+html:has(.view.on .mv-dock) .sync-nudge{display:none}
 .linklike{background:none;border:0;padding:0;font:inherit;color:var(--accent-text);text-decoration:underline;cursor:pointer}
 .rm-notice{border-color:rgba(99,102,241,.5);display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:"ic txt x" "ic go x";column-gap:12px;row-gap:10px;align-items:start}
 .rm-notice .nudge-ic{grid-area:ic;margin-top:2px}.rm-notice .rm-txt{grid-area:txt;font-size:13px;line-height:1.5}
@@ -7216,6 +7246,12 @@ const I18N_EN={
  "mv.step_transfer":"A new situation",
  "mv.step_done":"What you showed",
  "mv.of":"Step {{n}} of {{total}}",
+ "mv.st_mission":"Mission","mv.st_notice":"Notice",
+ "mv.evidence_h":"Evidence to produce","mv.useful_h":"Useful expressions","mv.start_speaking":"Start speaking",
+ "mv.day_done":"Week {{w}} · {{d}} is complete",
+ "sess.v2_eyebrow":"Today's speaking mission",
+ "sess.v2_sub":"Speak, get coached, try again. This day is ticked for you when you finish the mission.","mv.st_hear":"Hear","mv.st_speak":"Speak","mv.st_retry":"Retry","mv.st_transfer":"Transfer","mv.st_coach":"Coach","mv.st_done":"Complete",
+ "mv.sec_measures":"Your measures",
  "mv.asks":"{{who}} asks:",
  "mv.goal":"What you have to do",
  "mv.play":"Hear it",
@@ -9320,12 +9356,26 @@ function mvBar(label,v,note){
   return `<div class="mv-bar"><span>${esc(label)}</span><b>${pct==null?"—":pct+"%"}</b>
     <i><em style="width:${pct==null?0:pct}%"></em></i>${note?`<small>${esc(note)}</small>`:""}</div>`;
 }
+/* The learner's journey in six stages: Mission · Hear · Notice · Speak ·
+   Coach · Complete. Retry and transfer are the Speak stage again, named for
+   what they are; Complete is the evidence screen. Pure presentation — the step
+   state machine (MV_STEPS, _mv.step) is untouched. */
+const MV_STAGES=["see","hear","notice","speak","coach","done"];
+function mvStage(step){return MV_STAGES.indexOf(step)>=0?step:"see"}
 function mvHead(step){
-  const n=MV_STEPS.indexOf(step)+1;
+  const st=mvStage(step),n=MV_STAGES.indexOf(st);
   const c=mvComp(_mv&&_mv.compId);
-  return `<div class="mv-head"><span class="eyebrow">${t("mv.mission")}</span>
-    <span class="mv-prog">${t("mv.of",{n:Math.max(1,n),total:MV_STEPS.length})}</span></div>
-    <h1 class="big mv-title">${esc((c&&c.title)||"")}</h1>`;
+  const speakLbl=_mv&&_mv.kind==="transfer"?t("mv.st_transfer"):_mv&&_mv.retry?t("mv.st_retry"):t("mv.st_speak");
+  const lbl={see:t("mv.st_mission"),hear:t("mv.st_hear"),notice:t("mv.st_notice"),speak:speakLbl,coach:t("mv.st_coach"),done:t("mv.st_done")};
+  return `<div class="mv-head"><span class="eyebrow">${t("mv.mission")}</span></div>
+    <h1 class="big mv-title">${esc((c&&c.title)||"")}</h1>
+    <ol class="mv-stages" aria-label="${esc(t("mv.of",{n:n+1,total:MV_STAGES.length}))}">${MV_STAGES.map((k,i)=>
+      `<li class="${i<n?"done":i===n?"now":""}"${i===n?' aria-current="step"':""}>${esc(lbl[k])}</li>`).join("")}</ol>`;
+}
+/* ONE primary action per stage, always on screen (see .mv-dock). */
+function mvDockHTML(primary,secondary){
+  if(!primary)return "";
+  return `<div class="mv-dock">${primary}${secondary||""}</div>`;
 }
 
 function rMission(el,missionId,step){
@@ -9366,8 +9416,8 @@ function rMission(el,missionId,step){
       <p class="mv-asks">${esc(t("mv.asks",{who:m.see.who}))}</p>
       <blockquote class="mv-q">“${esc(m.see.asks)}”</blockquote>
       <div class="mv-goal"><b>${t("mv.goal")}</b><p>${esc(m.see.goal)}</p></div>
-      <button class="btn-primary mv-cta" onclick="mvStep('${m.hear?"hear":"speak"}')">${t("mv.go")} →</button>
-    </section>`;
+      <div class="mv-evid"><b>${t("mv.evidence_h")}</b><div class="mv-moves">${(comp.moves||[]).map(x=>`<span class="mv-move">${esc(x.label)}</span>`).join("")}</div></div>
+    </section>${mvDockHTML(`<button class="btn-primary mv-cta" onclick="mvStep('${m.hear?"hear":"speak"}')">${t("mv.go")} →</button>`)}`;
   }
 
   /* ---- HEAR: a model, spoken. The existing TTS, with its browser fallback,
@@ -9383,8 +9433,7 @@ function rMission(el,missionId,step){
       </div>
       <button class="btn btn-g mv-reveal" onclick="_mv.showModel=!_mv.showModel;mvDraw()">${ic("eye")} ${shown?t("mv.hide_text"):t("mv.show_text")}</button>
       ${shown?`<p class="mv-model">“${esc(m.hear.model)}”</p>`:""}
-      <button class="btn-primary mv-cta" onclick="mvStep('notice')">${t("mv.go")} →</button>
-    </section>`;
+    </section>${mvDockHTML(`<button class="btn-primary mv-cta" onclick="mvStep('notice')">${t("mv.go")} →</button>`)}`;
   }
 
   /* ---- NOTICE: the competency's moves. Communication awareness, not grammar. ---- */
@@ -9399,8 +9448,9 @@ function rMission(el,missionId,step){
         <span class="pf-ic">${ic("headphones")}</span>
         <span class="pf-txt"><b>${esc(t("mv.shadow_btn"))}</b><small>${esc(t("mv.shadow_sub"))}</small></span>
         <span class="pf-chev" aria-hidden="true">›</span></button>`:""}
-      <button class="btn-primary mv-cta" onclick="mvStep('speak')">${t("mv.go")} →</button>
-    </section>`;
+      ${(comp.expressions||[]).length?`<div class="mv-useful"><b class="h">${t("mv.useful_h")}</b><ul>${(comp.expressions||[]).slice(0,5).map(e=>
+        `<li><b>${esc(e.w)}</b>${e.def?` <span>— ${esc(e.def)}</span>`:""}</li>`).join("")}</ul></div>`:""}
+    </section>${mvDockHTML(`<button class="btn-primary mv-cta" onclick="mvStep('speak')">${ic("mic")} ${t("mv.start_speaking")}</button>`)}`;
   }
 
   /* ---- SPEAK / RETRY / TRANSFER: one recorder, three framings ---- */
@@ -9420,7 +9470,7 @@ function rMission(el,missionId,step){
         <div><div class="rec-time" id="recTime">00:00</div>
         <div class="rec-state" id="recState">${rec_?t("mv.recording"):t("mv.speak_btn")}</div></div>
       </div>
-      <p class="pp-fine">${esc(t("mv.speak_sub"))}</p>
+      ${instruction!==t("mv.speak_sub")?`<p class="pp-fine">${esc(t("mv.speak_sub"))}</p>`:""}
     </section>`;
   }
 
@@ -9431,24 +9481,29 @@ function rMission(el,missionId,step){
       body=`<section class="card mv-coach"><div class="eyebrow">${t("mv.step_coach")}</div>
         <p class="sub">${t("mv.thinking")}</p></section>`;
     }else{
-      const nextIsTransfer=MissionEngine.rank(r.state)>=MissionEngine.rank("DEMONSTRATED")&&m.kind!=="transfer";
-      const tm=(comp.missions||[]).find(x=>x.kind==="transfer");
-      /* The first screenful is the coaching answer (mvReportHTML) and the
-         Try-again action; the transcript, the move chips and the measured
-         dimensions moved into the folds below the actions. */
+      /* The first screenful is the coaching answer (mvReportHTML); everything
+         else is in the folds. The next step is the ENGINE's — recommend(),
+         the same call the evidence screen makes — in the dock, so it is on
+         screen without scrolling the report: finish a pending coaching,
+         try again, take the transfer, or see what was shown. */
+      const nx=MissionEngine.recommend(r,comp,Date.now());
+      const prim=ev.coachPending
+        ?`<button class="btn-primary mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`
+        :nx.action==="retry"
+          ?`<button class="btn-primary" onclick="${nx.missionId&&nx.missionId!==_mv.missionId?`mvGo('${esc(nx.missionId)}','speak')`:"mvRetry()"}">${t("mv.retry_btn")}</button>`
+        :nx.action==="transfer"&&nx.missionId&&nx.missionId!==_mv.missionId
+          ?`<button class="btn-primary" onclick="mvGo('${esc(nx.missionId)}','speak')">${t("mv.transfer_btn")}</button>`
+          :`<button class="btn-primary" onclick="mvStep('done')">${t("mv.step_done")} →</button>`;
+      const sec=/mvStep\('done'\)/.test(prim)
+        ?`<button class="mv-dock-2" onclick="mvRetry()">${t("mv.retry_btn")}</button>`
+        :`<button class="mv-dock-2" onclick="mvStep('done')">${t("mv.step_done")} →</button>`;
       body=`<section class="card mv-coach">
         <div class="eyebrow">${t("mv.rep_title")}</div>
         ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
         ${mvReportHTML(comp,co,ev)}
-        <div class="mv-acts">
-          <button class="btn-primary" onclick="mvRetry()">${t("mv.retry_btn")}</button>
-          ${nextIsTransfer&&tm?`<button class="btn btn-g" onclick="mvGo('${esc(tm.id)}','speak')">${t("mv.transfer_btn")}</button>`:""}
-          <button class="btn btn-g" onclick="mvStep('done')">${t("mv.step_done")} →</button>
-        </div>
-        ${ev.coachPending?`<button class="btn btn-g mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`:""}
         ${mvRepFoldsHTML(comp,co,ev)}
         <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>
-      </section>`;
+      </section>${mvDockHTML(prim,sec)}`;
     }
   }
 
@@ -9472,31 +9527,31 @@ function rMission(el,missionId,step){
        all. progressSummary already decides which, and says which it used. */
     const pron=sum.pron==null?null:sum.pron/100;
     const sh=sum.shadow||{};
+    const dayDone=mvDayAutoComplete(comp,r);
     body=`<section class="card mv-done">
       <div class="eyebrow">${t("mv.step_done")}</div>
       <h2>${esc(comp.title)}</h2>
       <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
+      ${dayDone?`<p class="mv-daydone">${ic("check")} ${esc(t("mv.day_done",{w:String(dayDone.w),d:dayTypeLabel(dayDone.d)}))}</p>`:""}
       <p class="sub">${t("mv.attempts",{n:String(spoken.length)})}</p>
       ${best?mvMoveChipsHTML(comp,best):""}
-      <div class="mv-bars">
+      <h3>${t("mv.next")}</h3>
+      <p class="mv-next">${esc(reason)}</p>
+      ${mvFold("measures",t("mv.sec_measures"),`<div class="mv-bars">
         ${mvBar(t("mv.task"),best?best.coverage:null)}
         ${mvBar(t("mv.clarity"),best?best.clarity:null,best&&best.clarityBasis==="order"?"":"")}
         ${mvBar(t("mv.fluency"),best?best.fluency:null)}
         ${mvBar(t("mv.vocab"),best?best.vocab:null)}
         ${mvBar(t("mv.pron"),pron,sum.pronSource==="shadow"?t("mv.ev_pron_shadow"):t("mv.pron_note"))}
-      </div>
+      </div>`)}
       ${sh.total?`<p class="mv-shadow-note">${ic("headphones")} ${esc(t("mv.ev_shadow",{n:String(sh.linked),rung:sh.rungName?t("sv.ch_rung_"+sh.rungName):t("mv.ev_rung_unknown")}))}</p>`:""}
-      <h3>${t("mv.next")}</h3>
-      <p class="mv-next">${esc(reason)}</p>
-      <div class="mv-acts">
-        ${rec2.action==="coach"?`<button class="btn-primary" onclick="mvFinishCoaching()">${t("mv.coach_retry")}</button>`
-         :rec2.action==="rest"?`<button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>`
-         :`<button class="btn-primary" onclick="mvGo('${esc(rec2.missionId||m.id)}','speak')">${
-            rec2.action==="transfer"?t("mv.transfer_btn"):rec2.action==="retry"?t("mv.retry_btn"):t("mv.continue")}</button>`}
-        <button class="btn btn-g" onclick="go('home')">${t("mv.today")}</button>
-        <button class="btn btn-g" onclick="go('mvhist')">${t("mv.hist_open")}</button>
-      </div>
-    </section>`;
+      <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>
+    </section>${mvDockHTML(
+      rec2.action==="coach"?`<button class="btn-primary" onclick="mvFinishCoaching()">${t("mv.coach_retry")}</button>`
+       :rec2.action==="rest"?`<button class="btn-primary" onclick="go('home')">${t("mv.today")}</button>`
+       :`<button class="btn-primary" onclick="mvGo('${esc(rec2.missionId||m.id)}','speak')">${
+          rec2.action==="transfer"?t("mv.transfer_btn"):rec2.action==="retry"?t("mv.retry_btn"):t("mv.continue")}</button>`,
+      rec2.action==="rest"?"":`<button class="mv-dock-2" onclick="go('home')">${t("mv.today")}</button>`)}`;
     mvTrack("v2_recommendation_generated",{result:rec2.action,move:rec2.move||"none",state:r.state});
   }
 
@@ -9506,6 +9561,32 @@ function rMission(el,missionId,step){
     /* the shared recorder writes into #recTime / #recState, which this view
        provides under the same ids the session and shadow recorders use */
   }
+}
+
+/* ---------------------------------------------- DAY → MISSION (General English)
+   A General English speaking day (Tue / Thu / Sat) no longer asks for a
+   script, a self-score or notes: the Session page hands the learner to this
+   week's V2 mission, and the day is ticked when the mission reaches its
+   Complete screen with at least one answer spoken since the hand-off. The
+   tick goes through sessDayDone — the same path the manual button takes, so
+   streak, calendar, Road map, competency award and session_complete are what
+   they always were. The mission's own evidence and state are untouched. */
+let _mvDay=null;
+window.mvGoFromDay=(w,d)=>{
+  const comp=mvComps().find(c=>c.week===w);if(!comp)return go("session",w,d);
+  const r=MissionEngine.record(mvStore(),comp.id);
+  const rec=MissionEngine.recommend(r,comp,Date.now());
+  const mid=rec.missionId||((comp.missions||[])[0]||{}).id;
+  _mvDay={w,d,key:dayKey(w,d),compId:comp.id,t0:Date.now()};
+  mvOpen(mid,"see");
+};
+function mvDayAutoComplete(comp,r){
+  const x=_mvDay;
+  if(!x||x.compId!==comp.id||!isGeneralEnglish())return null;
+  const spoke=(r.attempts||[]).some(a=>a&&a.answered&&(a.at||0)>=x.t0);
+  if(!spoke)return null;
+  if(!S.days[x.key])sessDayDone(x.key,x.w,x.d,true);
+  return x;
 }
 
 /* RETRY: the same situation with the previous attempt's weakness named. Never
@@ -10367,6 +10448,11 @@ function rSession(el,w,d){
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
+  /* General English V2: no script, no scoring against a script, no self-score,
+     no notes. A speaking day hands over to this week's mission; any other day
+     keeps its activity, recorder and manual tick. Welding never gets here. */
+  const v2=isGeneralEnglish()&&window.MissionEngine?mvComps().find(c=>c.week===w)||null:null;
+  if(v2&&sessIsSpeaking(d)){rSessionV2(el,w,d,wk,dd,key,v2,phases,dayMeta,sessionLinks);return}
   el.innerHTML=`
   <button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
   <div class="sess-head">
@@ -10404,11 +10490,11 @@ function rSession(el,w,d){
         <b>${t("sess.say_aloud")}</b>
         <ul>${weekPhrases.map(p=>`<li>“${esc(p.p)}”</li>`).join("")}</ul>
       </div>`:""}
-      <details class="card sess-ex" ${sessIsSpeaking(d)?"open":""}>
+      ${v2?"":`<details class="card sess-ex" ${sessIsSpeaking(d)?"open":""}>
         <summary><span class="sess-ex-title">${t("sess.example_title")}</span></summary>
         <p style="font-size:12px;color:var(--mut);margin:8px 0">${t("sess.example_desc")}</p>
         <textarea rows="5" id="sessScript" placeholder="${esc(t("sess.example_ph"))}" onchange="S.notes['script:${key}']=this.value;save()">${esc(S.notes["script:"+key]||sessScaffold(dd,weekPhrases))}</textarea>
-      </details>
+      </details>`}
       <div class="rec-panel">
         <b style="display:block;margin-bottom:4px">${hIcon("mic",t("sess.record_title"))}</b>
         <p style="font-size:12.5px;color:var(--mut);margin-bottom:14px">${t("sess.record_desc")}</p>
@@ -10445,15 +10531,15 @@ function rSession(el,w,d){
              were somewhere the learner never scrolled to. */""}
         <div id="fbOut" style="margin-top:12px"></div>
       </div>
-      <div class="card">
+      ${v2?"":`<div class="card">
         <b style="display:block;margin-bottom:10px">${t("sess.notes_title")}</b>
         <textarea rows="4" id="noteBox" placeholder="${esc(t("sess.notes_ph"))}">${esc(S.notes[key]||"")}</textarea>
         <button class="btn btn-g sess-act" onclick="saveNote('${key}')">${t("sess.save_notes_btn")}</button>
-      </div>
+      </div>`}
       <div class="card">
-        <b>${t("sess.selfscore_title")}</b>
+        ${v2?"":`        <b>${t("sess.selfscore_title")}</b>
         <div class="score-row" role="radiogroup" aria-label="${esc(t("sess.selfscore_title"))}">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="score-b ${S.scores[key]===n?'on':''}" role="radio" aria-checked="${S.scores[key]===n}" onclick="setScore('${key}',${n})">${n}</button>`).join("")}</div>
-        <div class="hr"></div>
+        <div class="hr"></div>`}
         ${S.days[key]
           ?`<button class="btn btn-g sess-done" onclick="toggleDay('${key}',${w},'${d}')">${t("sess.mark_done")}</button>
             ${(()=>{if(totalDone()>=trackSessionCount())return `<p class="sub" style="margin-top:10px">${t("path.all_done")}</p>`;
@@ -10470,6 +10556,39 @@ function rSession(el,w,d){
   try{shTrendRender("sess-"+key)}catch(e){}
   tRender();   // reflect current timer state into the session digits + button + header pill
 }
+/* A General English speaking day in a week with a V2 competency: the day's
+   context, then this week's mission as the ONE action. No script, recorder,
+   self-score, notes or manual tick — the mission's Complete ticks the day
+   (mvDayAutoComplete). The day's own link (shadow clip, phrase bank …) stays
+   as the secondary route it always was. */
+function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
+  const done=!!S.days[key];
+  const r=MissionEngine.record(mvStore(),comp.id);
+  const nx=(()=>{if(!done||totalDone()>=trackSessionCount())return null;const p=currentPos();return p.w===w&&p.d===d?null:p})();
+  const prim=done&&nx
+    ?`<button class="btn-primary" onclick="go('session',${nx.w},'${nx.d}')">${t("path.next_btn",{step:esc(pathStepLabel(nx.w,nx.d))})}</button>`
+    :`<button class="btn-primary mv-cta" onclick="mvGoFromDay(${w},'${d}')">${ic("mic")} ${t("mv.start_speaking")}</button>`;
+  const sec=done&&nx?`<button class="mv-dock-2" onclick="mvGoFromDay(${w},'${d}')">${t("mv.retry_btn")}</button>`:"";
+  el.innerHTML=`
+  <button class="back sess-back" onclick="go('journey',${w})">${t("sess.back",{w})}</button>
+  <div class="sess-head">
+    <span class="chip ${phases[wk.phase].cls}">${t("sess.week_day_chip",{w,d})}</span>
+    <span class="chip"><span class="inl-ic">${ic(dayMeta[d].k)}</span>${dayTypeLabel(d)}</span>
+    ${done?`<span class="chip done">${t("sess.completed_chip")}</span>`:""}
+  </div>
+  <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
+  <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
+  <section class="card mv-dayhand">
+    <div class="eyebrow">${t("sess.v2_eyebrow")}</div>
+    <h2>${esc(comp.title)}</h2>
+    <p class="sub">${esc(t("sess.v2_sub"))}</p>
+    <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
+  </section>
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
+  <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
+  ${mvDockHTML(prim,sec)}`;
+  manIconizeInline(el);
+}
 window.toggleStep=(key,i)=>{
   const a=S.steps[key]||[];const ix=a.indexOf(i);
   const on=ix<0;                              // becoming done if it wasn't already
@@ -10483,16 +10602,24 @@ window.toggleStep=(key,i)=>{
 };
 window.saveNote=key=>{S.notes[key]=document.getElementById("noteBox").value;save();toast(t("sess.notes_saved_toast"))};
 window.setScore=(key,n)=>{S.scores[key]=n;save();go("session",cur.arg1,cur.arg2)};
+/* Ticking a day off is the clearest "I did the work" signal in the app, and
+   carrying the week is what makes drop-out visible: without it you can see
+   that people stop, but not where in the 12 weeks they stop. One function for
+   both doors — the manual button and a General English mission's Complete. */
+function sessDayDone(key,w,d,fromMission){
+  S.days[key]=true;
+  /* fromMission: the mission's Complete screen IS the summary and the next
+     step, so the V1 coaching modal (awardCompetency's existing `quiet`) and
+     the floating progress strip stay away from it; the signals are identical */
+  markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key,quiet:!!fromMission});trackLearning("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
+  /* Finishing a day is the moment the app has earned an opinion — ask then. */
+  setTimeout(()=>whenIdle(rateAsk),1600);
+  save();
+  if(!fromMission)setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
+}
 window.toggleDay=(key,w,d)=>{
-  S.days[key]=!S.days[key];
-  /* Ticking a day off is the clearest "I did the work" signal in the app, and
-     carrying the week is what makes drop-out visible: without it you can see
-     that people stop, but not where in the 12 weeks they stop. */
-  if(S.days[key]){markPracticed();awardCompetency({activityType:"professional_coach",lesson:"Week "+w+" · "+d,score:S.scores[key]||null,duration:25,dedupeKey:"session:"+key});trackLearning("session_complete",{week:String(w),day:String(d)});toast(t("sess.day_complete_toast",{w,d}));
-    /* Finishing a day is the moment the app has earned an opinion — ask then. */
-    setTimeout(()=>whenIdle(rateAsk),1600)}
-  save();go("session",w,d);
-  if(S.days[key])setTimeout(rmCelebrate,500);   // the pin lights up after the page has settled
+  if(!S.days[key]){sessDayDone(key,w,d);go("session",w,d);return}
+  S.days[key]=false;save();go("session",w,d);
 };
 /* timer — runs globally; the header pill mirrors it on every page */
 function tRender(){
@@ -13441,7 +13568,8 @@ window.sessAnalyze=key=>{
   if(!heard)return toast(t("sh.no_sess_rec_toast"));
   fbCtx={vid:"sess-"+key,recCtx:key};
   fbT0=Date.now()-(S.notes["shheardDur:sess-"+key]||30000);
-  fbShowResults(document.getElementById("sessScript").value.trim(),heard,true);
+  const scr=document.getElementById("sessScript");   /* no script on a General English V2 day: what was said is graded on its own */
+  fbShowResults(scr?scr.value.trim():"",heard,true);
   toast(t("sh.fb_from_sess_toast"));
   const _o=document.getElementById("fbOut");
   if(_o)_o.scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -16510,7 +16638,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v452";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v453";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];

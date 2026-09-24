@@ -2815,5 +2815,20 @@
  "fb.c_pron_norec": "No saved take for this report — record again to get the pronunciation pass.",
  "mv.hist_convos": "Conversations",
  "mv.hist_partner": "Practice Partner reviews",
- "rp.rep_btn": "Speaking report"
+ "rp.rep_btn": "Speaking report",
+ "mv.st_mission": "Mission",
+ "mv.st_hear": "Hear",
+ "mv.st_speak": "Speak",
+ "mv.st_retry": "Retry",
+ "mv.st_transfer": "Transfer",
+ "mv.st_coach": "Coach",
+ "mv.st_done": "Complete",
+ "mv.sec_measures": "Your measures",
+ "mv.st_notice": "Notice",
+ "mv.evidence_h": "Evidence to produce",
+ "mv.useful_h": "Useful expressions",
+ "mv.start_speaking": "Start speaking",
+ "mv.day_done": "Week {{w}} · {{d}} is complete",
+ "sess.v2_eyebrow": "Today's speaking mission",
+ "sess.v2_sub": "Speak, get coached, try again. This day is ticked for you when you finish the mission."
 }

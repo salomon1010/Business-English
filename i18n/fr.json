@@ -2815,5 +2815,20 @@
  "fb.c_pron_norec": "Aucune prise enregistrée pour ce rapport — réenregistrez pour obtenir l'analyse de prononciation.",
  "mv.hist_convos": "Conversations",
  "mv.hist_partner": "Bilans avec un partenaire",
- "rp.rep_btn": "Rapport d'expression orale"
+ "rp.rep_btn": "Rapport d'expression orale",
+ "mv.st_mission": "Mission",
+ "mv.st_hear": "Écouter",
+ "mv.st_speak": "Parler",
+ "mv.st_retry": "Réessayer",
+ "mv.st_transfer": "Transfert",
+ "mv.st_coach": "Coach",
+ "mv.st_done": "Terminé",
+ "mv.sec_measures": "Vos mesures",
+ "mv.st_notice": "Repérer",
+ "mv.evidence_h": "Ce que vous devez montrer",
+ "mv.useful_h": "Expressions utiles",
+ "mv.start_speaking": "Commencer à parler",
+ "mv.day_done": "Semaine {{w}} · {{d}} est terminé",
+ "sess.v2_eyebrow": "Mission orale du jour",
+ "sess.v2_sub": "Parlez, recevez un retour, réessayez. Cette journée est cochée pour vous quand vous terminez la mission."
 }

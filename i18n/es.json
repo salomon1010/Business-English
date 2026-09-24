@@ -2815,5 +2815,20 @@
  "fb.c_pron_norec": "No hay toma guardada para este informe — graba de nuevo para obtener el análisis de pronunciación.",
  "mv.hist_convos": "Conversaciones",
  "mv.hist_partner": "Informes con compañero de práctica",
- "rp.rep_btn": "Informe de expresión oral"
+ "rp.rep_btn": "Informe de expresión oral",
+ "mv.st_mission": "Misión",
+ "mv.st_hear": "Escuchar",
+ "mv.st_speak": "Hablar",
+ "mv.st_retry": "Repetir",
+ "mv.st_transfer": "Transferir",
+ "mv.st_coach": "Coach",
+ "mv.st_done": "Completo",
+ "mv.sec_measures": "Tus mediciones",
+ "mv.st_notice": "Observar",
+ "mv.evidence_h": "Lo que debes demostrar",
+ "mv.useful_h": "Expresiones útiles",
+ "mv.start_speaking": "Empezar a hablar",
+ "mv.day_done": "Semana {{w}} · {{d}} completado",
+ "sess.v2_eyebrow": "Misión oral de hoy",
+ "sess.v2_sub": "Habla, recibe coaching, vuelve a intentarlo. Este día se marca solo cuando terminas la misión."
 }
