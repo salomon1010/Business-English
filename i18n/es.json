@@ -2836,5 +2836,15 @@
  "mv.start_speaking": "Empezar a hablar",
  "mv.day_done": "Semana {{w}} · {{d}} completado",
  "sess.v2_eyebrow": "Misión oral de hoy",
- "sess.v2_sub": "Habla, recibe coaching, vuelve a intentarlo. Este día se marca solo cuando terminas la misión."
+ "sess.v2_sub": "Habla, recibe coaching, vuelve a intentarlo. Este día se marca solo cuando terminas la misión.",
+ "cert.name_h": "Tu nombre en el certificado",
+ "cert.name_p": "Escríbelo como quieres que lo lean los empleadores. El certificado siempre está en inglés.",
+ "cert.first": "Nombre",
+ "cert.last": "Apellidos",
+ "cert.create": "Crear mi certificado",
+ "cert.need_name": "Escribe tu nombre y tus apellidos.",
+ "cert.ready_h": "Tu certificado está listo",
+ "cert.share": "Compartir",
+ "cert.download": "Descargar",
+ "cert.edit": "Cambiar el nombre"
 }

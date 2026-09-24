@@ -2836,5 +2836,15 @@
  "mv.start_speaking": "Start speaking",
  "mv.day_done": "Week {{w}} · {{d}} is complete",
  "sess.v2_eyebrow": "Today's speaking mission",
- "sess.v2_sub": "Speak, get coached, try again. This day is ticked for you when you finish the mission."
+ "sess.v2_sub": "Speak, get coached, try again. This day is ticked for you when you finish the mission.",
+ "cert.name_h": "Your name on the certificate",
+ "cert.name_p": "Write it as you want employers to read it. The certificate itself is always in English.",
+ "cert.first": "First name",
+ "cert.last": "Last name",
+ "cert.create": "Create my certificate",
+ "cert.need_name": "Please enter your first name and your last name.",
+ "cert.ready_h": "Your certificate is ready",
+ "cert.share": "Share",
+ "cert.download": "Download",
+ "cert.edit": "Change the name"
 }
