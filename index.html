@@ -1917,6 +1917,14 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 /* greyed violet (owner, 2026-09-19: "a little bit grey, not highlighting too much") */
 @keyframes pplivebreathe{0%,100%{box-shadow:0 0 0 0 rgba(140,140,170,0),0 0 10px 0 rgba(140,140,170,.14);border-color:rgba(150,150,180,.38)}50%{box-shadow:0 0 0 3px rgba(125,120,180,.12),0 0 16px 2px rgba(125,120,180,.24);border-color:rgba(150,145,200,.62)}}
 @media (prefers-reduced-motion:reduce){.pp-live-glow{animation:none;box-shadow:0 0 0 2px rgba(150,150,180,.22)}}
+/* the button itself is a little bit green (owner, 2026-09-24) — a soft tint and
+   a green halo; #ppFab keeps the grey pplivebreathe above */
+.pp-live-glow{animation-name:pplivegreen}
+.btn-g.pp-live-glow{background:color-mix(in srgb,var(--green) 13%,var(--card2));border-color:color-mix(in srgb,var(--green) 50%,var(--line2))}
+.btn-g.pp-live-glow svg{color:var(--green)}
+:root[data-theme="light"] .btn-g.pp-live-glow{background:color-mix(in srgb,#34d399 16%,var(--card2))}
+@keyframes pplivegreen{0%,100%{box-shadow:0 0 0 0 rgba(52,211,153,0),0 0 10px 0 rgba(52,211,153,.14)}50%{box-shadow:0 0 0 3px rgba(52,211,153,.14),0 0 16px 2px rgba(52,211,153,.26)}}
+@media (prefers-reduced-motion:reduce){.pp-live-glow{animation:none;box-shadow:0 0 0 2px rgba(52,211,153,.24)}}
 .pp-entry-ic{position:relative}.pp-entry-ic img{z-index:1}.pp-dot{z-index:2;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--green);color:#06121a;font-size:11px;font-weight:800;font-style:normal;display:grid;place-items:center}
 .pp-intro .pp-steps{display:grid;gap:10px}.pp-steps>div{display:grid;grid-template-columns:28px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:start}
 .pp-steps b{font-size:14px}.pp-steps small{grid-column:2;font-size:12.5px;color:var(--mut);line-height:1.45}
