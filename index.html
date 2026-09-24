@@ -4192,6 +4192,20 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .ex-rep-card,.ex-report{min-width:0;max-width:100%;box-sizing:border-box}
 .ex-report{overflow-wrap:anywhere}
 .rp-hist-repwrap .ex-rep-card{margin:0}
+/* Inside the history the report is the third box deep (history card → row →
+   report), so it gives back its padding to the text, and the wrap is
+   size-contained: nothing inside the report — the sideways-scrolling station
+   chips, a long unbroken quote, the pitch chart — can widen the row, in any
+   engine (owner, 24 Sep 2026: the card still ran off the right edge on the
+   phone). The same guard sits on the conversation's report screen. */
+.rp-hist-body{width:100%;box-sizing:border-box}
+.rp-hist-repwrap,#rpRepWrap{contain:inline-size;width:100%;max-width:100%;min-width:0;overflow-x:clip}
+.rp-hist-repwrap .ex-rep-card{width:100%;border-radius:14px}
+.rp-hist-repwrap .ex-rep-card>summary{padding:14px 12px}
+.rp-hist-repwrap .ex-rep-card>.ex-report{padding:0 12px 14px}
+.rp-hist-repwrap .ex-level{padding:10px 12px;gap:10px}
+.rp-hist-repwrap .ex-coach{padding:10px 12px}
+.ex-nav{max-width:100%}
 .rp-hist-lsc{font-weight:800;font-variant-numeric:tabular-nums;flex:none;min-width:38px}
 .rp-hist-teaser{display:flex;align-items:center;gap:12px;width:100%;margin-top:16px;text-align:left;cursor:pointer}
 .rp-sum-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:520px;margin:22px auto 0}
@@ -4262,6 +4276,16 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .rp-card b{font-size:14.5px;line-height:1.3}
 .rp-card small{color:var(--mut);font-size:12px}
 .rp-intro{max-width:600px;margin:10px auto 0;text-align:center}
+/* The ✕ that closes a finished interview (owner, 24 Sep 2026). It takes no
+   height, so the page below it does not move, and it stays pinned under the
+   app header while the summary, the report or the history scrolls. On the
+   professional track it is the only visible exit, because .pg-eyebrow (where
+   rpBackBar puts the back button there) is hidden app-wide. */
+.rp-xbar{position:sticky;top:74px;z-index:45;height:0;display:flex;justify-content:flex-end;pointer-events:none}
+.rp-x{pointer-events:auto;width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);
+  display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.28);transition:transform .15s}
+.rp-x:active{transform:scale(.92)}
+.rp-x svg{width:18px;height:18px}
 .rp-intro .rp-av{margin:0 auto 12px}
 /* When a scenario has a real photograph, it opens on the person rather than on a
    120px tile of them: the learner is about to speak to this face for ten minutes.
@@ -16812,7 +16836,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v467";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v470";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -24503,7 +24527,7 @@ function rpRepScreen(sc,back,backLabel){
   const el=document.getElementById("v-roleplay");if(!el)return null;
   const b=`<button class="back" onclick="${back||"rpBackSummary()"}">${backLabel||t("rp.eval_back")}</button>`;
   el.innerHTML=`
-   ${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub">${b}</div>`:b}
+   ${rpCloseX(back||"rpBackSummary()")}${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub">${b}</div>`:b}
    <div class="eyebrow">${t("rp.rep_btn")}</div>
    <h1 class="big" style="margin:2px 0 4px">${esc(sc.title)}</h1>
    <p class="sub" style="margin-bottom:14px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
@@ -25088,6 +25112,11 @@ function rpMoreLabel(){return rpIsPro()?t("rp.more_coaches"):t("rp.more")}
    Professional track only — General English keeps the plain back button its
    scenario pages have always had, because those screens are short enough that
    it never scrolls out of reach. */
+function rpCloseX(action){
+  return `<div class="rp-xbar"><button class="rp-x" id="rpCloseX" onclick="${action}" aria-label="${esc(t("wc.close"))}" title="${esc(t("wc.close"))}">${ic("close")}</button></div>`;
+}
+/* closing a finished interview: stop anything still speaking, then the list */
+window.rpCloseDone=()=>{try{exCoachStop()}catch(e){}try{fbStopAudio();speechSynthesis.cancel()}catch(e){}exHost=null;rpBackList()};
 function rpBackBar(){
   const b=`<button class="back" onclick="rpBackList()">${rpBackLabel()}</button>`;
   return rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub">${b}</div>`:b;
@@ -25433,7 +25462,7 @@ window.rpHistory=id=>{
   const el=document.getElementById("v-roleplay");
   const body=rpHistSectionHTML(id,null,true);
   el.innerHTML=`
-   <button class="back" onclick="go('roleplay','${esc(id)}')">${t("rp.hist_back")}</button>
+   ${rpCloseX(`go('roleplay','${esc(id)}')`)}<button class="back" onclick="go('roleplay','${esc(id)}')">${t("rp.hist_back")}</button>
    <div class="eyebrow">${esc(sc.title)}</div>
    <h1 class="big" style="margin:2px 0 4px">${t("rp.hist_h")}</h1>
    <p class="sub" style="margin-bottom:4px">${t("rp.hist_sub")}</p>
@@ -25528,7 +25557,7 @@ function rpReplaySummary(){
   if(!_rpLast)return rpBackList();
   const sc=_rpLast.sc,el=document.getElementById("v-roleplay");
   el.innerHTML=`
-   ${rpBackBar()}
+   ${rpCloseX("rpCloseDone()")}${rpBackBar()}
    <div class="rp-intro">
      ${rpAvatar(sc,84)}
      <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
@@ -25571,7 +25600,7 @@ function rpSummary(){
   if(spoke&&_rpLast.turns.length)rpRepRun(sc,rpRepKey(sc),_rpLast.turns,_rpLastTs).then(rpRepBtnSync);
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
-   ${rpBackBar()}
+   ${rpCloseX("rpCloseDone()")}${rpBackBar()}
    <div class="rp-intro">
      ${rpAvatar(sc,84)}
      <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
@@ -25702,7 +25731,7 @@ window.rvToggleMute=()=>{if(!RV)return;RV.muted=!RV.muted;const b=document.getEl
 function rvTeardown(){if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}RV=null}
 window.rvEnd=()=>{if(!RV)return;RV.ended=true;try{RV.proc&&RV.proc.disconnect()}catch(e){}try{RV.stream&&RV.stream.getTracks().forEach(t=>t.stop())}catch(e){}try{RV.ws&&RV.ws.close()}catch(e){}try{RV.ac&&RV.ac.close()}catch(e){}const sc=RV.sc,covered=RV.covered;RV=null;
   const el=document.getElementById("v-roleplay");
-  el.innerHTML=`${rpBackBar()}
+  el.innerHTML=`${rpCloseX("rpCloseDone()")}${rpBackBar()}
    <div class="rp-intro">${rpAvatar(sc,84)}<h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
    <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
    <div class="stat" style="max-width:320px;margin-bottom:16px"><div class="n"><span class="stat-ic">${ic("check")}</span>${covered.size}/${sc.points.length}</div><div class="l">${t("rp.points_covered")}</div></div>

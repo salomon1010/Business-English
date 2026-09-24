@@ -217,6 +217,11 @@ const hs = await A.page.evaluate(ts => {
 ok("the scenario's history draws the real report card under every session — closed, five stations, the coach's words, the sharper version, the level chip — and no host is left dangling",
   hs.linked && hs.rows >= 2 && hs.rowOpen && hs.card && hs.closed && hs.stations === 5 && hs.coach && hs.sharper && hs.level && !hs.unscored && hs.hostBefore === null, JSON.stringify(hs));
 ok("touching a card makes it the current report: its own wrap, the character's voice and gender, its own report", hs.host, JSON.stringify(hs));
+const fit = await A.page.evaluate(ts => { rpHistory("interview"); const c = document.querySelector("#rphrep_" + ts + " .ex-rep-card"); c.open = true; document.querySelectorAll("#v-roleplay details").forEach(d => d.open = true);
+  const box = document.getElementById("rph_" + ts).getBoundingClientRect(), cr = c.getBoundingClientRect();
+  const out = [...c.querySelectorAll("*")].filter(e => !e.closest(".ex-nav")).filter(e => { const r = e.getBoundingClientRect(); return r.width && r.right > cr.right + 1; }).length;
+  return { inBox: cr.right <= box.right + 1 && cr.right <= innerWidth, out, doc: document.documentElement.scrollWidth <= innerWidth + 1, x: !!document.getElementById("rpCloseX") }; }, T1);
+ok("the history's report card stays inside its row and the phone width, nothing inside it runs past the card, and the history has its ✕", fit.inBox && fit.out === 0 && fit.doc && fit.x, JSON.stringify(fit));
 const hd = await A.page.evaluate(ts => { const key = S.convos.find(x => x.ts === ts).exrep; rpHistory("interview"); rpHistDelete(ts, "interview"); return { gone: !S.convos.some(x => x.ts === ts), note: !!S.notes["exrep:" + key], cards: document.querySelectorAll("#v-roleplay .ex-rep-card").length }; }, T2);
 ok("deleting a session from the history deletes its report with it and redraws the remaining cards", hd.gone && !hd.note && hd.cards === 1, JSON.stringify(hd));
 
@@ -245,6 +250,20 @@ const w = await W.page.evaluate(async () => {
 });
 ok("Welding: the button is there, the report is drawn and stored under the Welding track, judged in the workshop register, read by the coach", w.area === "welding" && w.btn !== "" && w.card && w.stored && w.tk === "welding" && w.ctxTrack === "welding" && /^welding:/.test(w.keyPrefix) && w.voice && analyseHits === 1 && analyseCtx && analyseCtx.track === "welding", JSON.stringify({ w, analyseCtx }));
 ok("Welding: no evidence pass, nothing written to the conversations, no V2 state", repHits === 0 && !w.wrote && !w.v2, JSON.stringify(w));
+/* the ✕ after an interview (owner, 24 Sep 2026): the professional track hides .pg-eyebrow, so it is the only exit */
+const wx = await W.page.evaluate(async () => {
+  const xr = !!document.getElementById("rpCloseX");
+  go("roleplay", _rpLast.sc.id); await new Promise(res => setTimeout(res, 200));   /* the summary is drawn on the roleplay page, as after a real interview */
+  rpReplaySummary();
+  const x = document.getElementById("rpCloseX"), r = x && x.getBoundingClientRect(), bar = document.querySelector("#v-roleplay .pg-eyebrow");
+  const seen = { r: r && [Math.round(r.top), Math.round(r.right), Math.round(r.bottom), Math.round(r.width)], sy: scrollY, ih: innerHeight, iw: innerWidth, onReport: xr, onSummary: !!x, inView: !!r && r.width > 30 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight, backHidden: !bar || getComputedStyle(bar).display === "none" };
+  window.scrollTo(0, 400); await new Promise(res => setTimeout(res, 100));
+  const r2 = document.getElementById("rpCloseX").getBoundingClientRect(); seen.pinned = r2.width > 30 && r2.top >= 0 && r2.bottom <= innerHeight;
+  x.click(); await new Promise(res => setTimeout(res, 400));
+  seen.closed = !/Practice summary/.test((document.getElementById("v-roleplay") || {}).textContent || "") || cur.v !== "roleplay";
+  seen.host = exHost; return seen;
+});
+ok("Welding: a ✕ closes the finished interview — on the report and the summary, in view, still pinned after scrolling, and it closes", wx.onReport && wx.onSummary && wx.inView && wx.backHidden && wx.pinned && wx.closed && wx.host === null, JSON.stringify(wx));
 const wh = await W.page.evaluate(async () => { go("mvhist"); await new Promise(r => setTimeout(r, 300)); return cur.v; });
 ok("Welding: the history door itself stays shut (sent home)", wh !== "mvhist");
 await W.ctx.close();
