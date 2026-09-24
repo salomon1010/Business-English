@@ -1,0 +1,32 @@
+# be-entitlements — the server-side source of truth for a learner's plan.
+# NOT DEPLOYED. The D1 database does not exist yet; database_id is a
+# placeholder so an accidental `wrangler deploy` fails instead of binding to
+# something else. Setup (owner, when Phase 9 billing is ready):
+#   npx wrangler d1 create be-entitlements        -> paste the id below
+#   npx wrangler d1 migrations apply be-entitlements --remote
+#   npx wrangler secret put ADMIN_TOKEN           (>= 32 random chars; owner only)
+#   npx wrangler deploy --env ""
+name = "be-entitlements"
+main = "entitlements-worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "be-entitlements"
+database_id = "REPLACE-WITH-D1-ID"
+migrations_dir = "migrations"
+
+# local development: wrangler dev --env dev (X-Dev-User instead of Firebase)
+[env.dev]
+[env.dev.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+DEV_AUTH = "1"
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "be-entitlements"
+database_id = "local-dev"
+migrations_dir = "migrations"

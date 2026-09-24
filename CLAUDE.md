@@ -237,6 +237,21 @@ not JS, and `new Function` chokes on it. Check it separately with
   are dropped with 204. Tests: `tests/shadow-coach.mjs`
   (`npm run test:coach`). i18n keys `fb.c_*` (fr/es/pt/ar translated, English
   elsewhere). Help-centre pages do not describe the new layout yet.
+- **Entitlements + ad eligibility (Phase 7, `feature/phase7-entitlements`, NOT
+  deployed — `docs/ENTITLEMENTS.md`, `backend/entitlements/README.md`).** The
+  plan is decided by the SERVER: `backend/entitlements/` (`be-entitlements`,
+  Worker + D1, Firebase-verified uid, no client write route) →
+  `entitlement-core.resolve()` → `GET /v1/entitlement` VIEW (no provider ids).
+  Client: `ENT_API` (empty = everyone Free, no request), `entRefresh()` on auth
+  change, `entView()` / `entIsPremiumForDisplay()` are DISPLAY ONLY (cache
+  `localStorage.be_ent_view`, uid-bound, 12 h, outside `S` so never synced),
+  `entEraseMe()` on account deletion, `entWipe()` in `fbWipeDevice`. **Never
+  gate a paid capability on the client** — enforce it in the Worker that spends
+  it, against this service. Ads: only `AdEligibility.decide(format, context)`
+  (flag `ads_enabled` off everywhere; plan → format → context → protected
+  state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
+  capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
+  Store adapters (Play / App Store) answer 501 until Phase 9.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

@@ -5919,8 +5919,11 @@ const I18N_EN={
  "acc.free_6":"Vocabulary bank, phrase lab, quizzes and progress charts",
  "acc.free_7":"Optional cloud backup with a free account · works offline without one",
  "acc.free_8":"Interface and glosses in 15 languages",
- "acc.prem_1":"Team & HR progress dashboards",
- "acc.prem_2":"Pronunciation coach with per-sound scoring",
+ "acc.prem_1":"Ad-free learning",
+ "acc.prem_2":"More AI coaching and practice each day",
+ "acc.prem_3":"New Premium features as they arrive",
+ "acc.prem_active":"Active",
+ "acc.prem_until":"Active until {{date}}",
  "acc.premium":"⭐ Premium",
  "acc.coming_soon":"Coming soon",
  "acc.about_title":"About BE Mastery",
@@ -8044,6 +8047,7 @@ const I18N_EN={
  "auth.signed_out_toast":"Signed out",
  "auth.delete_confirm":"Delete your cloud account and all synced data — including everything Practice Partner holds about you (profile, voice turns, sessions, connections)? Your on-device progress stays unless you also reset it. This cannot be undone.",
  "auth.deleted_toast":"Account deleted",
+ "auth.delete_plan_fail":"Could not reach the account service to erase your plan record. Check your connection and try again — nothing was deleted.",
  "auth.delete_partner_fail":"Could not reach the Practice Partner service to erase your partner data. Check your connection and try again — nothing was deleted.",
  "auth.reauth_toast":"For security, sign in again then delete.",
  "auth.not_setup_toast":"⚠️ Cloud sign-in isn't set up yet",
@@ -19052,7 +19056,8 @@ const FLAGS_DEFAULT={
   shadow_word_timing_enabled:true,
   shadow_apply_phrase_enabled:false,   // the Apply It tab stays off: svApplyAI writes S.applyPhrase and nothing reads it
   shadow_challenge_enabled:true,
-  shadow_library_enabled:true          // the searchable video library on the Shadow page (General English only)
+  shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
+  ads_enabled:false                    // Phase 7: the ad policy exists (AdEligibility) but nothing renders an ad; Phase 8 turns this on
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -19067,7 +19072,8 @@ const FLAGS_STAGING={
   shadow_word_timing_enabled:true,
   shadow_apply_phrase_enabled:true,
   shadow_challenge_enabled:true,
-  shadow_library_enabled:true
+  shadow_library_enabled:true,
+  ads_enabled:false
 };
 /* A tester on a phone has no console to set be_flags with, so the URL can:
    ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
@@ -19096,6 +19102,175 @@ function flag(name){
 /* The one boundary every General-English-only feature checks. Welding, and any
    future track, gets exactly the app it has today. */
 function isGeneralEnglish(){return areaId()===AREA_GEN}
+
+/* ================= ENTITLEMENTS + AD ELIGIBILITY (Phase 7) =================
+   The plan is decided by the SERVER (backend/entitlements, be-entitlements:
+   Firebase-verified uid → D1 row → entitlement-core resolve()). This client
+   only asks and remembers the answer for display. Nothing here is a security
+   boundary: a learner who edits localStorage can change what THIS screen
+   draws, never what a Worker grants — every paid capability (AI allowances,
+   later) is enforced where it is spent, on the server, against the same
+   service. The cached view lives in its own key, outside S, so it is never
+   synced to Firestore and a cloud merge can never "restore" a plan.
+   Not deployed: ENT_API is empty, so everyone is FREE and no request is made. */
+const ENT_API="";
+const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
+const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capabilities:Object.freeze({ad_free:false,ai_allowance:"standard",practice_allowance:"standard"}),expiresAt:null,source:null});
+let _entView=null,_entUid=null,_entBusy=null;
+/* the localStorage override is honoured only on localhost (tests, local
+   wrangler dev) — a production page never lets a learner point it elsewhere */
+function entApiBase(){try{if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){const o=localStorage.getItem("be_ent_api");if(o!=null)return o.replace(/\/+$/,"")}}catch(e){}try{const env=beEnv();if(env&&env.entitlements)return env.entitlements}catch(e){}return ENT_API}
+function entUid(){try{return (typeof FBUser!=="undefined"&&FBUser&&FBUser.uid)||null}catch(e){return null}}
+/* accept only the shape the server sends; anything else is FREE */
+function entSanitize(j){
+  if(!j||typeof j!=="object")return ENT_FREE;
+  const plan=j.plan==="premium"?"premium":"free";
+  if(plan==="free")return Object.freeze({...ENT_FREE,state:typeof j.state==="string"?j.state.slice(0,16):"none"});
+  const cap=j.capabilities&&typeof j.capabilities==="object"?j.capabilities:{};
+  return Object.freeze({plan,paid:j.paid===true,state:String(j.state||"active").slice(0,16),ads:j.ads!==false?true:false,
+    capabilities:Object.freeze({ad_free:cap.ad_free===true,ai_allowance:cap.ai_allowance==="enhanced"?"enhanced":"standard",practice_allowance:cap.practice_allowance==="enhanced"?"enhanced":"standard"}),
+    expiresAt:Number.isFinite(j.expiresAt)?j.expiresAt:null,source:typeof j.source==="string"?j.source.slice(0,16):null});
+}
+function entCacheRead(uid){
+  try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");
+    if(!c||c.uid!==uid||!(Date.now()-c.at<ENT_TTL))return null;
+    const v=entSanitize(c.view);
+    if(v.expiresAt!=null&&Date.now()>=v.expiresAt)return null;       /* never display a plan past its own end */
+    return v}catch(e){return null}
+}
+/* the plan as this screen should DRAW it — signed out or unknown = FREE */
+function entView(){
+  const uid=entUid();if(!uid)return ENT_FREE;
+  if(_entView&&_entUid===uid)return _entView;
+  return entCacheRead(uid)||ENT_FREE;
+}
+function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v.paid===true}
+function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
+async function entRefresh(){
+  const uid=entUid(),base=entApiBase();
+  if(!uid){entWipe();entApply();return ENT_FREE}
+  if(!base)return entView();
+  if(_entBusy)return _entBusy;
+  _entBusy=(async()=>{
+    try{
+      const r=await fetch(base+"/v1/entitlement",{headers:{authorization:"Bearer "+await FBUser.getIdToken()}});
+      if(r.status===401){entWipe();return ENT_FREE}
+      if(!r.ok)return entView();                                      /* server trouble: keep what we last knew (display only) */
+      const v=entSanitize(await r.json());
+      _entView=v;_entUid=uid;
+      try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,at:Date.now(),view:v}))}catch(e){}
+      return v;
+    }catch(e){return entView()}
+    finally{_entBusy=null;entApply()}
+  })();
+  return _entBusy;
+}
+/* account deletion: the entitlement row goes with the account (a store
+   subscription itself is cancelled in the store, not here) */
+async function entEraseMe(){
+  const base=entApiBase();if(!base||!FBUser)return;
+  let r;try{r=await fetch(base+"/v1/me",{method:"DELETE",headers:{authorization:"Bearer "+await FBUser.getIdToken()}})}catch(e){throw Object.assign(new Error("network"),{code:"network"})}
+  if(!r.ok&&r.status!==404)throw Object.assign(new Error("server"),{code:"server",status:r.status});
+  entWipe();
+}
+/* a plan change redraws what shows it and withdraws anything an ad would sit in */
+function entApply(){
+  try{if(typeof cur!=="undefined"&&cur&&cur.v==="data")go("data")}catch(e){}
+  try{if(!AdEligibility.planAllowsAds())document.querySelectorAll("[data-ad-slot]").forEach(e=>e.remove())}catch(e){}
+}
+
+/* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
+function entPlanCardHTML(){
+  const prem=entIsPremiumForDisplay(),v=entView();
+  const li=(k,icn,col)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:${col};margin-top:2px">${ic(icn)}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}️‍\s]+/u,"")}</span></li>`;
+  const until=prem&&v.expiresAt?`<p class="sub" style="margin:6px 0 0">${esc(t("acc.prem_until",{date:new Date(v.expiresAt).toLocaleDateString()}))}</p>`:"";
+  return `<div class="card ent-plan${prem?" on":""}" style="margin-bottom:16px${prem?"":";opacity:.75"}">
+        <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip ${prem?"done":"p3"}">${t(prem?"acc.prem_active":"acc.coming_soon")}</span>${until}
+        <ul style="list-style:none;margin-top:10px">
+          ${li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)")}${li("acc.prem_2","sparkle",prem?"var(--green)":"var(--mut)")}${li("acc.prem_3","star",prem?"var(--green)":"var(--mut)")}
+        </ul>
+      </div>`;
+}
+
+/* ---- AD ELIGIBILITY: the one place that decides whether an ad may appear.
+   Phase 8 renders ads; it asks decide() and nothing else. A screen never
+   writes if(!premium) showAd(). Order of the questions:
+     flag → plan (server view) → format → context → protected learning state →
+     frequency cap → { show, reason }
+   Conservative on purpose; tune AD_POLICY after watching real use. */
+const AD_POLICY=Object.freeze({
+  interstitial:Object.freeze({   /* full screen over the dimmed app, clearly labelled, one tap back */
+    contexts:Object.freeze(["lesson_complete","shadow_complete","practice_complete","flow_return","between_activities"]),
+    minGapMs:15*60e3, windowMs:60*60e3, maxPerWindow:2, maxPerSession:3, launchGraceMs:3*60e3,
+  }),
+  native:Object.freeze({           /* in browsing / content areas only */
+    contexts:Object.freeze(["home_feed","library","progress_foot","settings_foot"]),
+    minGapMs:60e3, windowMs:60*60e3, maxPerWindow:12, maxPerSession:20, launchGraceMs:0,
+  }),
+  rewarded:Object.freeze({         /* only ever at the learner's own request */
+    contexts:Object.freeze(["extra_practice","extra_ai"]), userInitiated:true,
+    minGapMs:0, windowMs:24*3600e3, maxPerWindow:5, maxPerSession:5, launchGraceMs:0,
+  }),
+  sponsored:Object.freeze({        /* a sponsored expression / tip card, labelled */
+    contexts:Object.freeze(["tip_card"]),
+    minGapMs:30*60e3, windowMs:24*3600e3, maxPerWindow:3, maxPerSession:2, launchGraceMs:0,
+  }),
+});
+/* views where learning is interactive — an interstitial or native ad never
+   shows while one of these is on screen (natural breaks happen on the way out) */
+const AD_PROTECTED_VIEWS=Object.freeze(["session","shadow","partner","roleplay","simulation","foundations","mission","pron"]);
+const AD_LOG_KEY="be_ad_log", AD_BOOT=Date.now();
+const _adHolds=new Set();let _adSession={};
+const AdEligibility={
+  policy:AD_POLICY,
+  planAllowsAds(){return entView().ads!==false&&!entIsPremiumForDisplay()},
+  /* a flow can hold ads off explicitly for its duration (Phase 8 hook) */
+  protect(key){_adHolds.add(String(key))},
+  release(key){_adHolds.delete(String(key))},
+  /* why an ad must not appear right now, or null */
+  protectedReason(){
+    try{for(const [st] of (DS&&DS.voice&&DS.voice._n)||[])if(st.getAudioTracks().some(t=>t.readyState==="live"))return "microphone"}catch(e){}
+    try{if(rec&&rec.mr&&rec.mr.state==="recording")return "recording"}catch(e){}
+    try{if(window.speechSynthesis&&speechSynthesis.speaking)return "speaking"}catch(e){}
+    try{if(ppLive&&!ppLive.ended)return "live_partner"}catch(e){}
+    try{if(rpRec)return "ai_voice"}catch(e){}
+    try{if(simRun&&simRun.listening)return "simulation_voice"}catch(e){}
+    try{if(ex&&(ex.phase==="rec"||ex.phase==="busy"))return "polish"}catch(e){}
+    if(_adHolds.size)return "hold:"+[..._adHolds][0];
+    try{if(document.querySelector(".cf-ov.show,#authOv,.lang-modal-ov"))return "dialog"}catch(e){}
+    try{if(document.hidden)return "hidden"}catch(e){}
+    try{if(typeof cur!=="undefined"&&cur&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
+    return null;
+  },
+  _log(){try{const a=JSON.parse(localStorage.getItem(AD_LOG_KEY)||"[]");return Array.isArray(a)?a.filter(x=>x&&typeof x.f==="string"&&Number.isFinite(x.t)):[]}catch(e){return []}},
+  /* frequency: gap since the last one, a rolling window, the session, and a quiet start */
+  capReason(format,now){
+    const p=AD_POLICY[format],log=this._log().filter(x=>x.f===format);
+    if(now-AD_BOOT<p.launchGraceMs)return "cap:launch";
+    const last=log.length?Math.max(...log.map(x=>x.t)):0;
+    if(p.minGapMs&&last&&now-last<p.minGapMs)return "cap:gap";
+    if(log.filter(x=>now-x.t<p.windowMs).length>=p.maxPerWindow)return "cap:window";
+    if((_adSession[format]||0)>=p.maxPerSession)return "cap:session";
+    return null;
+  },
+  decide(format,context,opts={}){
+    const now=opts.now??Date.now();
+    if(!flag("ads_enabled"))return {show:false,reason:"flag_off"};
+    const p=AD_POLICY[format];if(!p)return {show:false,reason:"format"};
+    if(!this.planAllowsAds())return {show:false,reason:"premium"};
+    if(!p.contexts.includes(context))return {show:false,reason:"context"};
+    if(p.userInitiated&&opts.userInitiated!==true)return {show:false,reason:"not_user_initiated"};
+    const pr=this.protectedReason();if(pr)return {show:false,reason:"protected:"+pr};
+    const cr=this.capReason(format,now);if(cr)return {show:false,reason:cr};
+    return {show:true,reason:"ok"};
+  },
+  /* call once an ad was actually shown */
+  record(format,now=Date.now()){
+    _adSession[format]=(_adSession[format]||0)+1;
+    try{const a=this._log().filter(x=>now-x.t<24*3600e3);a.push({f:format,t:now});localStorage.setItem(AD_LOG_KEY,JSON.stringify(a.slice(-60)))}catch(e){}
+  },
+  _resetSession(){_adSession={}},
+};
 
 /* ================= SHADOW STUDIO V2 =================
    "Shadow Studio helps you say it." A synchronised transcript beside the
@@ -24618,22 +24793,17 @@ async function rData(el,embedded){
     <div>
       <div id="setAcc"></div>${fbAuthCard()}
       <details class="home-more set-plan">
-        <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">${ic("chevron")}</span></summary>
+        <summary>${entIsPremiumForDisplay()?tIc("acc.premium","star"):tIc("acc.free_plan","gift")}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">
-<div class="card" style="border-color:color-mix(in srgb,var(--green) 40%,transparent);margin-bottom:16px">
+${entIsPremiumForDisplay()?"":`<div class="card" style="border-color:color-mix(in srgb,var(--green) 40%,transparent);margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <b style="font-size:16px">${hIcon("gift",t("acc.free_plan"))}</b><span class="chip done">${t("acc.free_active")}</span>
         </div>
         <ul style="list-style:none;margin-top:12px">
           ${["acc.free_1","acc.free_2","acc.free_3","acc.free_4","acc.free_5","acc.free_6","acc.free_7","acc.free_8"].map(k=>`<li style="font-size:13.5px;color:var(--mut);padding:4px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--green);margin-top:2px">${ic("check")}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
         </ul>
-      </div>
-      <div class="card" style="opacity:.75;margin-bottom:16px">
-        <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip p3">${t("acc.coming_soon")}</span>
-        <ul style="list-style:none;margin-top:10px">
-          ${["acc.prem_1","acc.prem_2"].map((k,i)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:var(--mut);margin-top:2px">${ic(["user","mic"][i])}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`).join("")}
-        </ul>
-      </div>
+      </div>`}
+      ${entPlanCardHTML()}
       <!-- the About card now lives in App Setup → About the app -->
     </div>
   </div>
@@ -26985,6 +27155,7 @@ function fbConfigured(){return !!(window.FB_CONFIG&&FB_CONFIG.apiKey)}
 
 function fbOnAuth(u){
   FBUser=u;
+  try{entRefresh()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
   try{pfSetupSheetSync()}catch(e){}
@@ -27546,7 +27717,8 @@ window.fbReset=async function(){
    they were never in the account, so leaving them would strand one person's
    audio inside another person's session pages. */
 function fbWipeDevice(){
-  try{exWipe()}catch(e){}         // the Polish box, versions and open report are in memory only — they must not outlive the account
+  try{exWipe()}catch(e){}
+  try{entWipe()}catch(e){}         // the Polish box, versions and open report are in memory only — they must not outlive the account
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(FB_OWNER_KEY);
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
@@ -27573,6 +27745,11 @@ window.fbDeleteAccount=async function(){
       catch(e){toast(t("auth.delete_partner_fail"));return}
       try{S.pp={};save()}catch(e){}
     }
+    /* the entitlement row goes with the account too (only when that Worker is
+       deployed; entEraseMe is a no-op without it). A failed erase stops the
+       deletion, like the partner erase above. */
+    try{await entEraseMe()}
+    catch(e){toast(t("auth.delete_plan_fail"));return}
     await FBdb.collection("users").doc(FBUser.uid).delete();
     await FBUser.delete();
     fbWipeDevice();                 // deleting the account must not leave its data on the device
