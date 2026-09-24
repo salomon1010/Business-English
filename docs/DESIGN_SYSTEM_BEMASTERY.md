@@ -215,6 +215,7 @@ tokens.
 | 3 | **Done on `feature/ds-phase3-voice-ai`** — see §13 | both | see §13 |
 | 4 | **Done on `feature/ds-phase4-track-surfaces`** — see §14 | per track | see §14 |
 | 5 | **Done on `feature/ds-phase5-polish`** — see §15 | both | see §15 |
+| 6 | **Done on `feature/ds-phase6-assets`** — see §17 | both | see §17 |
 | 1 | Refactor the proof into the shell/theme split: move every `:root:not([data-track="welding"])` rule into shell rules that read tokens; add the §1.2 tokens to `:root` (Signal) and `[data-track="welding"]` (Forge) | both | contrast sweep in both themes × both tracks; pixel diff shows Welding unchanged except depth |
 | 2 | Shell components: cards, buttons, nav, dock, chips, folds, toast, notes | both | smoke + all suites; 375/390/430/desktop screenshots per track |
 | 3 | Voice and AI states on every recorder and analysis wait: Session, Shadow, Polish, simulations, mentor feedback, PP live | both | live-level probe per track; Welding tap-to-finish behaviour unchanged |
@@ -337,3 +338,32 @@ BE Mastery is dark by default everywhere. This covers both tracks (Signal and Fo
   - `flyer.html` defaults to dark;
   - the manifest and the Capacitor background are dark.
 - **Phase 5 review.** The owner reviewed the Phase 5 preview (`c71cade`, dark first; Light reached through Settings) on an iPhone and moved on to Phase 6.
+
+## 17. Phase 6 — help-centre screenshots, store art, flyer alignment (`feature/ds-phase6-assets`)
+Everything is captured from the current design, dark first (§16), with the neutral demo learner "Alex". It is the app's own render path, with nothing drawn by hand.
+- **Light-mode border system (first commit, `e577043`).** The owner's rule: light surface plus a refined dark-blue border. The two light theme blocks set `--line` / `--line2` to Signal navy `rgba(30,45,120,.20/.34)` and Forge steel blue `rgba(24,54,88,.20/.34)`. Every bordered component already reads those two tokens. Dark is unchanged; contrast is identical to Phase 5.
+- **Help centre.** A new rig, `scripts/store-art/shoot-manual.mjs`, regenerates the 18 referenced figures (`manual/screenshots/m00…m20`):
+  - It reads the General English seed from `shoot.js` and the Welding seed from `shoot-career.js`, so the rigs cannot drift. The career seed predates the area split, so the rig stamps its records as Welding and marks Welding's placement check passed.
+  - Phone figures are 390 CSS px at 2×; the desktop navigation and dashboard figures are 1280 at 2×.
+  - Single cards (interview coaches, Passport evidence, an interview answer, the speaking report) are element shots.
+  - The figures are written as WebP (`cwebp -q 82`). The Help centre loads every figure at once and most learners read it on mobile data. The 18 figures fall from 8.0 MB as PNG to 1.5 MB. A 256-colour PNG was tried and rejected: it bands the dark gradients.
+  - All references were moved to `.webp?v=6`: 272 across the 15 manuals, `manual/index.html` and the flyer.
+  - `m14`, `m18` and `m19` are referenced nowhere and were left alone.
+- **Captions.** Twelve captions described screens that no longer exist: the streak pill, the progress ring on Home, the week cards under the map, the phrase bank under Polish, the share cards on Profile, "5 steps". They were rewritten in English and machine-transcreated into all 15 languages, using each language's own app labels (native review recommended, as for the other transcreated copy). The other four captions (`m09`, `m15`, `m16`, `m20`) still match their images and are unchanged. The body text of the manuals was not revised in this phase and still names some older UI.
+- **Share image.** `og.png` is rebuilt by `scripts/make_og.py` from the new phone Home. The script now reads `m09-mobile.webp`.
+- **Store art.**
+  - `playstore/store-art-2026-09/` holds `phone` (1080×2400), `tablet` (1440×2560) and `iphone-6.9` (1320×2868), seven shots each, from `shoot.js`.
+  - Its Progress shots now read the Progress tab, where the week's story, numbers and charts live since v418. Before, they scrolled Profile, which is Settings now.
+  - The 2026-08 set stays: it is what the Play listing currently shows. Uploading is manual, in Play Console and App Store Connect.
+  - `manifest.json`'s install-prompt screenshots point at the new phone set.
+  - `site/img/phone-*.webp` (lomonec.com) were rebuilt from it, as `site/README.md` asks.
+- **Flyer / About.**
+  - Tokens are aligned with Signal: the same surfaces, the same text greys (AA `--mut2`), and the app's CTA (indigo → blue, white label). It was dark text on the indigo end of the old gradient, under AA.
+  - Light mode uses the same dark-blue borders as the app.
+  - The hero device frame now shows the phone capture (`m09`) instead of a desktop image.
+  - Gallery crops start below the repeated app header.
+  - It stays dark by default; its stale "else the OS preference" comment is corrected.
+- **Left for the owner:**
+  - Every Shadow library figure (`m04`, and the flyer's `m12`) shows YouTube thumbnails, including real presenters' faces. The previous images did the same (Steve Jobs). The repo's rule already keeps these out of store art; whether the public flyer should keep one is the owner's call.
+  - The store Home (`01`) and Phrase Lab (`03`) shots are accurate but sparse, because Home is now the programme card only and Phrase Lab shows its empty input before a recording.
+  - `marketing/render-flyer.js` (print flyers) still reads the 2026-08 set.

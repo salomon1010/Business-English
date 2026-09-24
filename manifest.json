@@ -21,9 +21,9 @@
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
-    { "src": "playstore/screenshots-2026-08/01-dashboard.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Your dashboard — today's session and where you left off" },
-    { "src": "playstore/screenshots-2026-08/06-session.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "A guided 25-minute session with a focus timer" },
-    { "src": "playstore/screenshots-2026-08/04-phrases.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Phrase Lab and Executive Polish" },
-    { "src": "playstore/screenshots-2026-08/05-progress.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Progress calendar, streaks and consistency" }
+    { "src": "playstore/store-art-2026-09/phone/01-dashboard.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Your dashboard — today's session and where you left off" },
+    { "src": "playstore/store-art-2026-09/phone/05-session.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "A guided 25-minute session with a focus timer" },
+    { "src": "playstore/store-art-2026-09/phone/03-phrases.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Phrase Lab and Executive Polish" },
+    { "src": "playstore/store-art-2026-09/phone/04-progress.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Progress: your week's story and key numbers" }
   ]
 }

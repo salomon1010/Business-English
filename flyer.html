@@ -31,21 +31,26 @@
 /* App Store build (index.html opens this with ?ios=1): no Google Play badges (Apple 2.3.10) */
 try{if(/[?&]ios=1\b/.test(location.search)){var _noPlay=function(){document.querySelectorAll('a[href*="play.google.com"]').forEach(function(a){a.remove()})};document.addEventListener("DOMContentLoaded",_noPlay);window.addEventListener("load",_noPlay);setTimeout(_noPlay,600);setTimeout(_noPlay,2000)}}catch(e){}
 </script>
-<script>/* apply theme early (from ?theme= passed by the app, else the OS preference) to avoid a flash */
+<script>/* apply theme early (from ?theme= passed by the app, else dark — never the OS preference, §16) to avoid a flash */
 (function(){try{var p=new URLSearchParams(location.search).get("theme");
 var t=p||"dark";   // default to dark unless the app passed an explicit theme
 document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark")}})();</script>
 <style>
   :root{
-    --bg:#0a0e1a; --bg2:#0d1424; --card:#111a2e; --card2:#0f1728;
-    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
-    --txt:#eef2fb; --mut:#9fb0cc; --mut2:#6c7c9a;
+    /* Signal — the app's General English theme, dark first (design system §16):
+       same surfaces, text greys and CTA as index.html, so the landing page and
+       the app read as one product. */
+    --bg:#080b16; --bg2:#0b1020; --card:#10162b; --card2:#151c35;
+    --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
+    --txt:#eef1fb; --mut:#a2a7c4; --mut2:#848aa8;
     --acc:#6366f1; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399;
-    --grad:linear-gradient(120deg,#6366f1,#22d3ee);
+    --grad:linear-gradient(103deg,#5b5bf0,#3b82f6 55%,#22d3ee);
+    --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb); --cta-tint:rgba(79,70,229,.3);
   }
-  :root[data-theme="light"]{--bg:#f6f8fc;--bg2:#eef2fa;--card:#fff;--card2:#f3f6fc;
-    --line:rgba(15,23,42,.09);--line2:rgba(15,23,42,.16);
-    --txt:#0f172a;--mut:#475569;--mut2:#94a3b8;}
+  /* Light is the opt-in presentation: light surface, refined dark-blue border */
+  :root[data-theme="light"]{--bg:#f5f7fc;--bg2:#eef2fa;--card:#fff;--card2:#eef2fb;
+    --line:rgba(30,45,120,.20);--line2:rgba(30,45,120,.34);
+    --txt:#0f172a;--mut:#586179;--mut2:#606880;--cta-tint:rgba(79,70,229,.18);}
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
@@ -72,9 +77,10 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
   h1{font-size:clamp(30px,6vw,54px);line-height:1.08;letter-spacing:-1px;font-weight:800;max-width:17ch}
   .sub{font-size:clamp(15px,2.3vw,18.5px);color:var(--mut);margin:20px 0 26px;max-width:60ch}
   .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  .cta{display:inline-flex;align-items:center;gap:9px;background:var(--grad);color:#08111f;font-weight:800;
-    font-size:16px;padding:15px 26px;border-radius:14px;box-shadow:0 14px 40px rgba(34,211,238,.28);transition:.16s}
-  .cta:hover{transform:translateY(-2px);box-shadow:0 20px 50px rgba(34,211,238,.4)}
+  /* the app's primary button: indigo → blue with a white label (6.29 / 5.17:1) */
+  .cta{display:inline-flex;align-items:center;gap:9px;background:var(--cta-grad);color:#fff;font-weight:800;
+    font-size:16px;padding:15px 26px;border-radius:14px;box-shadow:0 14px 40px var(--cta-tint);transition:.16s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 20px 50px var(--cta-tint)}
   .cta-ghost{display:inline-flex;align-items:center;gap:8px;color:var(--txt);font-weight:700;font-size:15px;
     padding:15px 22px;border-radius:14px;border:1px solid var(--line2);transition:.16s}
   .cta-ghost:hover{border-color:var(--acc);transform:translateY(-2px)}
@@ -106,7 +112,7 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
   .phone img{width:100%;display:block;border-radius:28px;border:1px solid var(--line2)}
   .shots{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-top:34px}
   .shotc{flex:0 1 320px;border-radius:16px;padding:8px;background:linear-gradient(150deg,rgba(99,102,241,.38),rgba(34,211,238,.3));box-shadow:0 18px 44px rgba(34,211,238,.18)}
-  .shotc img{width:100%;height:210px;object-fit:cover;object-position:top;display:block;border-radius:11px;border:1px solid var(--line2)}
+  .shotc img{width:100%;height:210px;object-fit:cover;object-position:50% -48px;display:block;border-radius:11px;border:1px solid var(--line2)}
   .maker{text-align:center;padding:34px 0 6px}
   .maker .badge2{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:999px;padding:9px 18px;font-size:13.5px;color:var(--mut)}
   .maker .badge2 b{color:var(--txt)}
@@ -166,7 +172,7 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
     <p class="free-line" data-k="free">100% free, in 15 languages. No account needed — install from your browser, use it offline, and your progress saves on your device. Sign in only if you want it on more than one.</p>
   </div>
   <div class="hero-shot">
-    <div class="phone"><img src="manual/screenshots/m01-dashboard.png?v=2" alt="BE Mastery"></div>
+    <div class="phone"><img src="manual/screenshots/m09-mobile.webp?v=6" alt="BE Mastery"></div>
   </div>
 </div></section>
 
@@ -181,10 +187,10 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
   <h2 data-k="why_h">Why professionals love this system</h2>
   <p class="lead" data-k="why_lead">People won't remember your grammar — they'll remember how you made them feel when you spoke. This is where you rehearse that voice: the confident, native-sounding you who makes a room lean in — for standups, escalations, interviews and executive updates.</p>
   <div class="shots">
-    <div class="shotc"><img src="manual/screenshots/m02-journey.png?v=2" alt=""></div>
-    <div class="shotc"><img src="manual/screenshots/m11-phrases.png" alt=""></div>
-    <div class="shotc"><img src="manual/screenshots/m12-shadow.png" alt=""></div>
-    <div class="shotc"><img src="manual/screenshots/m07-progress.png?v=2" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m02-journey.webp?v=6" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m11-phrases.webp?v=6" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m12-shadow.webp?v=6" alt=""></div>
+    <div class="shotc"><img src="manual/screenshots/m07-progress.webp?v=6" alt=""></div>
   </div>
 </div></section>
 
