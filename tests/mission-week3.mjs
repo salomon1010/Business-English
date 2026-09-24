@@ -288,7 +288,7 @@ const aState = await AA.page.evaluate(() => { const e = (window.__ev || []).map(
 /* Name the mission: go("mission") with no id now asks the engine which
    competency to open, and that is not necessarily this one. */
 await AA.page.evaluate(() => { go("mission", "clear-update-transfer", "done"); }); await sleep(300);
-const aDone = await AA.page.evaluate(() => ({ state: (document.querySelector(".mv-state b") || {}).innerText, bars: [...document.querySelectorAll(".mv-bar span")].map(x => x.innerText), pron: !!document.querySelector(".mv-bar small") }));
+const aDone = await AA.page.evaluate(() => (document.querySelectorAll("#v-mission details.mv-fold").forEach(d => { d.open = true; }), { state: (document.querySelector(".mv-state b") || {}).innerText, bars: [...document.querySelectorAll(".mv-bar span")].map(x => x.innerText), pron: !!document.querySelector(".mv-bar small") }));
 ok("A5 · the evidence page reports the six dimensions, pronunciation as comprehensibility only",
   /Transfer ready/i.test(aDone.state || "") && aDone.bars.join().includes("Clarity") && aDone.bars.join().includes("Comprehensibility") && aDone.pron, JSON.stringify(aDone));
 

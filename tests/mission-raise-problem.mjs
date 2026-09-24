@@ -379,7 +379,7 @@ await shot(L.page, "390-home");
 await L.page.evaluate(() => mvGo("raise-problem-guided", "see")); await sleep(350);
 const see = await L.page.evaluate(() => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), state: (mvStore()["raise-problem"] || {}).state, cta: document.querySelectorAll("#v-mission .mv-cta").length }));
 ok("SEE renders Week 3's title and situation with one action, and is worth INTRODUCED only",
-  /Raise a problem/.test(see.txt) && /what's going on/i.test(see.txt) && /Step 1 of 7/i.test(see.txt) && see.cta === 1 && see.state === "INTRODUCED", see.txt.slice(0, 120));
+  /Raise a problem/.test(see.txt) && /what's going on/i.test(see.txt) && /Mission Hear Notice Speak Coach Complete/.test(see.txt) && see.cta === 1 && see.state === "INTRODUCED", see.txt.slice(0, 120));
 await shot(L.page, "390-see");
 await L.page.evaluate(() => mvStep("hear")); await sleep(300);
 const hear = await L.page.evaluate(() => { const vis = () => /supplier changed our order number/i.test(document.getElementById("v-mission").innerText);
@@ -436,7 +436,7 @@ ok("D2 · transfer evidence is stored as its own kind, separate from practice", 
 ok("D3 · one cold success is TRANSFER_READY, not STRONG", d2.state === "TRANSFER_READY" && d2.transfer.passed === 1, d2.state);
 ok("D4 · a retrieval is scheduled from the track's own intervals", d2.retrieval && d2.retrieval.due > Date.now());
 await L.page.evaluate(() => mvStep("done")); await sleep(300);
-const done = await L.page.evaluate(() => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length }));
+const done = await L.page.evaluate(() => (document.querySelectorAll("#v-mission details.mv-fold").forEach(d => { d.open = true; }), { txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length }));
 ok("D5 · the evidence screen shows the state, five chips and the dimension bars — pronunciation as a number here, because the (mocked) audio grader measured it",
   /transfer ready/i.test(done.txt) && done.bars >= 5 && done.chips === 5 && /86%/.test(done.txt), done.txt.slice(0, 160));
 const ovd = await overflow(L.page); ok("Evidence screen has no horizontal overflow at 390px", ovd.sw <= ovd.cw, JSON.stringify(ovd));

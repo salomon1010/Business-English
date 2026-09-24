@@ -1732,7 +1732,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .mv-useful ul{margin:0;padding:0;list-style:none}.mv-useful li{margin:0 0 8px;font-size:13.5px;line-height:1.45}
 .mv-useful li b{color:var(--acc)}.mv-useful li span{color:var(--mut)}
 .mv-dayhand h2{margin:4px 0 6px;font-size:20px}
-.mv-daydone{font-size:13px;font-weight:700;color:var(--green);margin:4px 0 8px}
+.mv-daydone{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--green);margin:4px 0 8px}.mv-daydone svg{width:16px;height:16px;flex:none}
 .mv-dock-2{border:none;background:none;color:var(--acc);font:inherit;font-size:13.5px;font-weight:700;padding:6px;cursor:pointer}
 @media(max-width:820px){.mv-dock{bottom:calc(var(--bnav-h,72px) + 8px)}}
 /* a toast ("Added to your words") arrives right after coaching, exactly when
@@ -9272,26 +9272,62 @@ function mvRepPick(rep,co){
   const weak=co&&co.move;
   return list.find(x=>weak&&x.move===weak)||list[0]||null;
 }
+/* THE UNIVERSAL SPEAKING COACH, for a V2 mission. The hierarchy, the classes,
+   the labels and the Hear / Slow / Say it controls are the Practice Partner
+   review's (ppRevHTML) — the canonical coaching experience — so the learner
+   meets ONE coach across the app:
+     what you did well → biggest improvement → say it better → your next
+     practice → detailed coaching (folds) → previous attempts.
+   The CONTENT stays the mission's: every line is anchored to a move the
+   deterministic scorer credited or missed (shapeReport), the better version
+   is the grounded one (groundCheck), and "Your next practice" is built from
+   the mission's own data — its expressions, the weak move's pattern, the
+   polish rewrite, the one focus — never from anything invented here. */
+let _mvPractice={};
+function mvPracticeHost(id){const k=id||("mv:"+((_mv&&_mv.ev&&_mv.ev.key)||"x"));return _mvPractice[k]||(_mvPractice[k]={id:k,practice:{}})}
+/* Hear / Slow in the review's own look; Hear on the better version goes
+   through mvHearBetter so v2_better_version_played is logged exactly as before */
+function mvHearBtns(text,better){
+  return `<button class="btn btn-g btn-sm pp-rv-hear" onclick="${better?"mvHearBetter()":`fbSay(${jarg(text)},1)`}" aria-label="${esc(t("pp.rv_hear"))}">${ic("sound")} ${t("pp.rv_hear")}</button><button class="btn btn-g btn-sm pp-rv-hear" onclick="fbSay(${jarg(text)},.7)">${ic("gauge")} ${t("pp.rv_slow")}</button>`;
+}
 function mvReportHTML(comp,co,ev){
   const rep=co&&co.report;
-  if(!rep)return `<h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
-    <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p>`;
-  const well=rep.well&&rep.well.length
-    ?rep.well.slice(0,2).map(x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`).join("")
-    :`<li>${esc(co.worked)}</li>`;
+  if(!rep)return `<section class="card pp-rv-sec"><h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
+    <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p></section>`;
+  const host=mvPracticeHost();
   const big=mvRepPick(rep,co);
+  const line=(x,ok)=>`<p class="pp-rv-line${ok?" ok":""}">${ic(ok?"check":"target")} <span>${x.label?`<b>${esc(x.label)}</b>${x.note?" — ":""}`:""}${esc(x.note||"")}</span></p>`;
+  const well=(rep.well&&rep.well.length?rep.well.slice(0,2):[{label:"",note:co.worked}]).map(x=>line(x,true)).join("");
+  const said=ev&&ev.said?String(ev.said):"";
+  const changed=(rep.polish||[]).map(x=>x.why?x.why:`“${x.said}” → “${x.better}”`);
+  /* YOUR NEXT PRACTICE — the review's numbered plan, from the mission's data */
+  const wm=MissionEngine.moveOf(comp,(big&&big.move)||(co&&co.move))||null;
+  const pat=wm&&(wm.patterns||[])[0];
+  const reh=(rep.polish&&rep.polish[0]&&rep.polish[0].better)||"";
+  const items=[];
+  if(rep.expr&&rep.expr.length)items.push({k:t("pp.rv_next_vocab"),v:rep.expr.map(x=>x.e).join(" · ")});
+  if(pat)items.push({k:t("pp.rv_next_pattern"),v:pat,say:pat.replace(/…/g,"").trim()});
+  if(reh)items.push({k:t("pp.rv_next_answer"),v:reh,say:reh});
+  if(rep.one||co.improve)items.push({k:t("pp.rv_next_skill"),v:rep.one||co.improve});
   return `<div class="mv-rep">
-    <h3>${t("mv.rep_well_h")}</h3><ul class="mv-rep-list ok">${well}</ul>
-    ${big?`<h3>${t("mv.rep_big_h")}</h3><ul class="mv-rep-list fix"><li><b>${esc(big.label)}</b>${big.note?` — ${esc(big.note)}`:""}</li></ul>`:""}
-    <div class="mv-better">
-      <div class="eyebrow">${t("mv.rep_say_h")}</div>
-      ${ev&&ev.said?`<div class="mv-said" onclick="this.classList.toggle('open')"><small>${t("mv.rep_you")}</small><p>“${esc(ev.said)}”</p></div>`:""}
-      ${rep.better?`<small>${t("mv.rep_try")}</small>
-        <p class="mv-better-t">“${esc(rep.better)}”</p>
-        <button class="btn btn-g" onclick="mvHearBetter()">${ic("play")} ${t("mv.rep_better_play")}</button>`
-       :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
-    </div>
-    <div class="mv-one"><div class="eyebrow">${t("mv.rep_focus_h")}</div><p class="mv-improve">${esc(rep.one||co.improve)}</p></div>
+  <section class="card pp-rv-head mv-rep-head">
+    <div class="eyebrow">${t("mv.rep_title")}</div>
+    ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
+    ${mvMoveChipsHTML(comp,ev)}
+  </section>
+  <section class="card pp-rv-sec mv-rep-well"><div class="eyebrow">${t("mv.rep_well_h")}</div>${well}</section>
+  ${big?`<section class="card pp-rv-sec mv-rep-big"><div class="eyebrow">${t("mv.rep_big_h")}</div>${line(big,false)}</section>`:""}
+  ${said||rep.better?`<section class="card pp-rv-sec pp-rv-answer mv-better"><div class="eyebrow">${t("mv.rep_say_h")}</div>
+    ${said?`<div class="pp-rv-said mv-said"><small>${t("pp.rv_answer_original")}</small><p>${esc(said)}</p></div>`:""}
+    ${rep.better?`<div class="pp-rv-better"><small>${t("pp.rv_answer_polished")}</small><p class="mv-better-t">${esc(rep.better)}</p></div>
+      ${changed.length?`<div class="pp-rv-why"><small>${t("pp.rv_answer_changed")}</small><ul class="pp-rv-changed">${changed.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>`:""}
+      <div class="pp-rv-voc-acts">${mvHearBtns(rep.better,true)}${ppRevPracticeBox(host,"answer",rep.better,t("pp.rv_answer_polished"))}</div>
+      <p class="pp-fine">${t("pp.rv_answer_note")}</p>`
+     :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
+  </section>`:""}
+  ${items.length?`<section class="card pp-rv-sec pp-rv-next mv-one"><div class="eyebrow">${t("pp.rv_sec_next")}</div>
+    <ol class="pp-rv-focus">${items.map((it,i)=>`<li><span class="pp-rv-focus-k">${it.k}</span> <b class="${i===items.length-1?"mv-improve":""}">${esc(it.v)}</b>${it.say?`<div class="pp-rv-voc-acts">${mvHearBtns(it.say)}${ppRevPracticeBox(host,"next:"+i,it.say,it.say)}</div>`:""}</li>`).join("")}</ol>
+  </section>`:""}
   </div>`;
 }
 /* The folds under the answer: the expressions, the measured dimensions and
@@ -9320,20 +9356,27 @@ function mvRepFoldsHTML(comp,co,ev){
   const li=x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`;
   const big=mvRepPick(rep,co);
   const wellRest=(rep.well||[]).slice(2),fixRest=(rep.improve||[]).filter(x=>x!==big);
+  const missed=(comp.moves||[]).filter(m=>!(ev.moves||{})[m.id]);
   const folds=[];
-  if(rep.polish&&rep.polish.length)folds.push(mvFold("polish",t("mv.sec_polish"),mvPolHTML(rep.polish)));
-  if(rep.expr&&rep.expr.length)folds.push(mvFold("vocab",t("mv.sec_vocab"),
-    `<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}
-     </ul>${ev.vocab!=null?`<div class="mv-bars">${mvBar(t("mv.vocab"),ev.vocab)}</div>`:""}`));
-  if(ev.clarity!=null||ev.fluency!=null)folds.push(mvFold("flu",t("mv.sec_flu"),
-    `<div class="mv-bars">${mvBar(t("mv.clarity"),ev.clarity)}${mvBar(t("mv.fluency"),ev.fluency)}</div>`));
-  folds.push(mvFold("pron",t("mv.sec_pron"),
+  /* Natural English: the language polish — you said / better / why, with Hear */
+  if(rep.polish&&rep.polish.length)folds.push(mvFold("polish",ppRevSecName("pp.rv_sec_natural"),rep.polish.map(x=>`<div class="pp-rv-nat">
+      <div class="pp-rv-said"><small>${t("pp.rv_you_said")}</small><p>“${esc(x.said)}”</p></div>
+      <div class="pp-rv-better"><small>${t("pp.rv_better")}</small><p>“${esc(x.better)}”</p><div class="pp-rv-voc-acts">${mvHearBtns(x.better)}</div></div>
+      ${x.why?`<div class="pp-rv-why"><small>${t("pp.rv_why")}</small><p>${esc(x.why)}</p></div>`:""}</div>`).join("")));
+  if(rep.expr&&rep.expr.length)folds.push(mvFold("vocab",ppRevSecName("pp.rv_sec_vocab"),
+    `${rep.expr.map(x=>`<div class="pp-rv-pat"><p><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</p><div class="pp-rv-voc-acts">${mvHearBtns(x.e)}</div></div>`).join("")}
+     ${ev.vocab!=null?`<div class="mv-bars">${mvBar(t("mv.vocab"),ev.vocab)}</div>`:""}`));
+  folds.push(mvFold("pron",ppRevSecName("pp.rv_sec_pron"),
     `<div class="mv-bars">${mvBar(t("mv.pron"),ev.pron!=null?ev.pron/100:null,t("mv.pron_note"))}</div>`));
+  /* Topic mastery: how much of the task landed, and how to add each move the
+     scorer did not hear (the chips themselves head the report — once) */
+  folds.push(mvFold("task",ppRevSecName("pp.rv_sec_task"),
+    `<div class="mv-bars">${mvBar(t("mv.task"),ev.coverage!=null?ev.coverage:null)}</div>
+     ${missed.length?`<ul class="mv-rep-list miss">${missed.map(m=>`<li><b>${esc(m.label)}</b>${m.hint?` — ${esc(m.hint)}`:""}</li>`).join("")}</ul>`:""}`));
   folds.push(mvFold("detail",t("mv.sec_detail"),
-    `${mvMoveChipsHTML(comp,ev)}
-     ${wellRest.length?`<ul class="mv-rep-list ok">${wellRest.map(li).join("")}</ul>`:""}
+    `${wellRest.length?`<ul class="mv-rep-list ok">${wellRest.map(li).join("")}</ul>`:""}
      ${fixRest.length?`<ul class="mv-rep-list fix">${fixRest.map(li).join("")}</ul>`:""}
-     <div class="mv-bars">${mvBar(t("mv.task"),ev.coverage!=null?ev.coverage:null)}</div>`));
+     ${ev.clarity!=null||ev.fluency!=null?`<div class="mv-bars">${mvBar(t("mv.clarity"),ev.clarity)}${mvBar(t("mv.fluency"),ev.fluency)}</div>`:""}`));
   return `<div class="mv-folds">${folds.join("")}</div>`;
 }
 /* Hear the better version through the voice the app already speaks with —
@@ -9497,13 +9540,11 @@ function rMission(el,missionId,step){
       const sec=/mvStep\('done'\)/.test(prim)
         ?`<button class="mv-dock-2" onclick="mvRetry()">${t("mv.retry_btn")}</button>`
         :`<button class="mv-dock-2" onclick="mvStep('done')">${t("mv.step_done")} →</button>`;
-      body=`<section class="card mv-coach">
-        <div class="eyebrow">${t("mv.rep_title")}</div>
-        ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
+      body=`<div class="mv-coach">
         ${mvReportHTML(comp,co,ev)}
         ${mvRepFoldsHTML(comp,co,ev)}
         <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>
-      </section>${mvDockHTML(prim,sec)}`;
+      </div>${mvDockHTML(prim,sec)}`;
     }
   }
 
@@ -9532,7 +9573,7 @@ function rMission(el,missionId,step){
       <div class="eyebrow">${t("mv.step_done")}</div>
       <h2>${esc(comp.title)}</h2>
       <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
-      ${dayDone?`<p class="mv-daydone">${ic("check")} ${esc(t("mv.day_done",{w:String(dayDone.w),d:dayTypeLabel(dayDone.d)}))}</p>`:""}
+      ${dayDone?`<p class="mv-daydone">${ic("check")} ${esc(t("mv.day_done",{w:String(dayDone.w),d:String(dayDone.d)}))}</p>`:""}
       <p class="sub">${t("mv.attempts",{n:String(spoken.length)})}</p>
       ${best?mvMoveChipsHTML(comp,best):""}
       <h3>${t("mv.next")}</h3>
@@ -20803,8 +20844,12 @@ function ppRevIndHTML(rev){
 }
 /* ---- practice: Hear → Record → Compare → Try again, re-scored each time ---- */
 function ppRevTakeStop(){const tk=ppRevTake;if(tk&&tk.mr&&tk.mr.state==="recording"){try{tk.mr.stop()}catch(e){}}}
+/* Say it is shared: a Practice Partner review keeps its takes on S.ppRev as
+   always; a V2 mission's coach ("mv:<attempt key>") keeps them in memory for
+   the sitting, like a Challenge drill — no new stored field. */
+function ppRevHost(id){return String(id||"").startsWith("mv:")?(typeof mvPracticeHost==="function"?mvPracticeHost(id):null):ppRevGet(id)}
 window.ppRevPractice=async(revId,key,target,label)=>{
-  const rev=ppRevGet(revId);if(!rev)return;
+  const rev=ppRevHost(revId);if(!rev)return;
   if(ppRevTake&&ppRevTake.key===key&&ppRevTake.mr.state==="recording"){ppRevTake.mr.stop();return}
   ppRevTakeStop();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)return toast(t("fb.sr_unavailable"));
@@ -20822,14 +20867,14 @@ window.ppRevPractice=async(revId,key,target,label)=>{
     if(blob.size<1200||Date.now()-tk.t0<500){ppRevPaint(revId,key,{state:"short"});return}
     ppRevPaint(revId,key,{state:"grading"});
     let res=null;try{res=await fbAssess(blob,target)}catch(e){res=null}
-    const R=ppRevGet(revId);if(!R)return;R.practice=R.practice||{};
+    const R=ppRevHost(revId);if(!R)return;R.practice=R.practice||{};
     const rec=R.practice[key]||(R.practice[key]={tries:0,best:null,first:null,label:String(label||target).slice(0,80)});
     rec.tries++;markPracticed();
     if(!res){rec.ungraded=(rec.ungraded||0)+1;save();ppRevPaint(revId,key,{state:"ungraded"});return}
     const score=Number.isFinite(res.overall)?Math.round(res.overall):Math.round(res.words.filter(w=>w&&w.score>=PP_REV_PASS).length/res.words.length*100);
     if(rec.first==null)rec.first=score;rec.last=score;if(rec.best==null||score>rec.best)rec.best=score;rec.mode=res.mode||"";if(score>=PP_REV_PASS)rec.passes=(rec.passes||0)+1;
     rec.words=res.words.slice(0,40).map(w=>({word:String(w.word).slice(0,30),score:Math.round(w.score),note:String(w.note||"").slice(0,60)}));
-    save();try{track("partner_review_practice",{result:score>=PP_REV_PASS?"pass":"retry"})}catch(_){}
+    save();if(!String(revId).startsWith("mv:"))try{track("partner_review_practice",{result:score>=PP_REV_PASS?"pass":"retry"})}catch(_){}
     ppRevPaint(revId,key,{state:"done",score,words:rec.words,mode:rec.mode});
   };
   mr.onerror=()=>{clearTimeout(tk.t);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRevTake===tk)ppRevTake=null;toast(t("rec.mic_denied_toast"));ppRevPaint(revId,key,{state:"idle"})};
@@ -20841,7 +20886,7 @@ window.ppRevPractice=async(revId,key,target,label)=>{
    jumps while the learner is in the middle of a repeat */
 function ppRevPaint(revId,key,st){
   const box=document.querySelector(`[data-rvkey="${CSS.escape(key)}"]`);if(!box)return;
-  const rec=(ppRevGet(revId)||{}).practice||{};const r=rec[key];
+  const rec=(ppRevHost(revId)||{}).practice||{};const r=rec[key];
   box.innerHTML=ppRevResultHTML(revId,key,st,r);manIconizeInline(box);
 }
 function ppRevResultHTML(revId,key,st,r){

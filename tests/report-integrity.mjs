@@ -334,7 +334,7 @@ repMode = "unsafe";
 await A.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(A.page, SAID.noAsk);
 const gb = await A.page.evaluate(() => { const at = S.v2A["general-english"]["raise-problem"].attempts; const a = at[at.length - 1];
-  return { shown: (document.querySelector(".mv-better-t") || {}).innerText || "", stored: a.report && a.report.better, ai: a.report && a.report.ai, well: document.querySelectorAll(".mv-rep-list.ok li").length, page: document.body.innerText.includes("need your help") }; });
+  return { shown: (document.querySelector(".mv-better-t") || {}).innerText || "", stored: a.report && a.report.better, ai: a.report && a.report.ai, well: document.querySelectorAll(".mv-rep-well .pp-rv-line").length, page: document.body.innerText.includes("need your help") }; });
 ok("G15 app: an invented better version is neither shown, stored, nor replaced; the rest of the report renders",
   !gb.shown && gb.stored === null && gb.ai === true && gb.well >= 1 && !gb.page, JSON.stringify(gb));
 repMode = "safe";

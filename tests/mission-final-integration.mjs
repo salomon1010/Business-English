@@ -526,7 +526,7 @@ console.log("\nTHE LOOP · SEE → HEAR → NOTICE");
 await L.page.evaluate(id => mvGo(id + "-guided", "see"), ID); await sleep(350);
 const see = await L.page.evaluate(id => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), state: (mvStore()[id] || {}).state, cta: document.querySelectorAll("#v-mission .mv-cta").length }), ID);
 ok("SEE renders the integration room, both stakeholders and the goal — and is worth INTRODUCED only",
-  /Final integration week/i.test(see.txt) && /react to the saving/i.test(see.txt) && /everything you have learned in twelve weeks/i.test(see.txt) && /Step 1 of 7/i.test(see.txt) && see.cta === 1 && see.state === "INTRODUCED", see.txt.slice(0, 150));
+  /Final integration week/i.test(see.txt) && /react to the saving/i.test(see.txt) && /everything you have learned in twelve weeks/i.test(see.txt) && /Mission Hear Notice Speak Coach Complete/.test(see.txt) && see.cta === 1 && see.state === "INTRODUCED", see.txt.slice(0, 150));
 const ovs = await overflow(L.page); ok("SEE has no horizontal overflow at 390px", ovs.sw <= ovs.cw);
 await shot(L.page, "390-see");
 await L.page.evaluate(() => mvStep("hear")); await sleep(300);
@@ -596,7 +596,7 @@ await speak(L.page, SAY.transfer);
 const d2 = await recW(L.page, ID);
 ok("Q2 · one cold integration is TRANSFER_READY with a retrieval scheduled", d2.attempts.length === 3 && d2.attempts[2].transfer === true && d2.state === "TRANSFER_READY" && d2.retrieval.reason === "retrieval", d2.state);
 await L.page.evaluate(() => mvStep("done")); await sleep(300);
-const done = await L.page.evaluate(() => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length, shadowNote: !!document.querySelector(".mv-shadow-note") }));
+const done = await L.page.evaluate(() => (document.querySelectorAll("#v-mission details.mv-fold").forEach(d => { d.open = true; }), { txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length, shadowNote: !!document.querySelector(".mv-shadow-note") }));
 ok("Q3 · the evidence screen shows the state, five chips, the bars and NO Shadow line",
   /transfer ready/i.test(done.txt) && done.bars >= 5 && done.chips === 5 && /83%/.test(done.txt) && done.shadowNote === false, done.txt.slice(0, 140));
 const ovd = await overflow(L.page); ok("Evidence screen has no horizontal overflow at 390px", ovd.sw <= ovd.cw);

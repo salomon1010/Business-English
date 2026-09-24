@@ -8,7 +8,7 @@
    polish is good English; the live check (language-polish-live.mjs) and a
    human reading its output do that:
 
-   1. mission + a meaningful improvement → a "Language polish" fold appears
+   1. mission + a meaningful improvement → a "Natural English" fold appears (the Practice Partner name; roleplay keeps "Language polish")
    2. mission + already-natural language (model returns nothing) → no fold
    3-5. interview / salary negotiation / simulation → the prompt carries THAT
       scenario, the fold appears, anchored to the learner's own turns
@@ -158,8 +158,8 @@ async function speak(page, text) {
 const MISSION_BASE = { covered: [], well: [{ move: "issue", note: "You named the problem first." }], improve: [{ move: "ask", note: "Close with what you need." }],
   better: "We have a problem with the delivery. The supplier changed the order number, so we would finish three days late. Could you approve two extra days?", expressions: [{ e: "this means", why: "cause to impact" }], one: "End with a clear ask." };
 const foldOf = page => page.evaluate(() => {
-  const d = [...document.querySelectorAll(".mv-fold")].find(x => /Language polish/.test(x.querySelector("summary").textContent));
-  return d ? { open: d.open, first: [...document.querySelectorAll(".mv-fold > summary")].map(s => s.textContent.trim())[0], rows: [...d.querySelectorAll(".mv-pol")].map(p => p.textContent.replace(/\s+/g, " ")) } : null;   /* textContent: a closed fold has no innerText */
+  const d = [...document.querySelectorAll(".mv-fold")].find(x => /Natural English|Language polish/.test(x.querySelector("summary").textContent));   /* mission: "Natural English" (the Practice Partner name); roleplay keeps "Language polish" */
+  return d ? { open: d.open, first: [...document.querySelectorAll(".mv-fold > summary")].map(s => s.textContent.trim())[0], rows: [...d.querySelectorAll(".mv-pol, .pp-rv-nat")].map(p => p.textContent.replace(/\s+/g, " ")) } : null;   /* textContent: a closed fold has no innerText */
 });
 
 console.log("\n2 · MISSION — Week 3 'Raise a problem'");
@@ -169,8 +169,8 @@ await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(
 await speak(L.page, SAID);
 const f1 = await foldOf(L.page);
 const prim = await L.page.evaluate(() => !!document.querySelector(".mv-rep .mv-pol"));
-ok("1 · meaningful improvement → a closed 'Language polish' fold, first of the folds, You said / Try / Why for each entry",
-  f1 && !f1.open && /Language polish/.test(f1.first) && f1.rows.length === 2 && /YOU SAID.*supplier he changed/i.test(f1.rows[0]) && /TRY.*order number/i.test(f1.rows[0]) && /WHY/i.test(f1.rows[0]), JSON.stringify(f1));
+ok("1 · meaningful improvement → a closed 'Natural English' fold (the Practice Partner review's name for it), first of the folds, You said / Better / Why for each entry",
+  f1 && !f1.open && /Natural English/.test(f1.first) && f1.rows.length === 2 && /YOU SAID.*supplier he changed/i.test(f1.rows[0]) && /BETTER.*order number/i.test(f1.rows[0]) && /WHY/i.test(f1.rows[0]), JSON.stringify(f1));
 ok("the primary hierarchy is unchanged — polish is not in the top report", !prim);
 const row = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; return r.attempts[r.attempts.length - 1]; });
 ok("the polish is stored on the attempt row, nothing about the evidence mentions it", row.report.pol.length === 2 && !("polish" in row) && !("pol" in row), JSON.stringify(Object.keys(row)));
@@ -187,7 +187,7 @@ reply = Object.assign({}, MISSION_BASE, { polish: [] });
 await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(200);
 await L.page.evaluate(() => mvRetry()); await sleep(200);
 await speak(L.page, G.hear.model);
-ok("2 · already-natural language (model returns no polish) → no Language polish fold, no stored polish",
+ok("2 · already-natural language (model returns no polish) → no Natural English fold, no stored polish",
   !(await foldOf(L.page)) && await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; return !r.attempts[r.attempts.length - 1].report.pol; }));
 
 /* 8 in the browser: the model quotes words that were never said */

@@ -117,12 +117,12 @@ const shot = async (page, name) => { if (SHOTS) { try { await page.screenshot({ 
 const geometry = page => page.evaluate(() => {
   const top = q => { const e = document.querySelector(q); return e ? Math.round(e.getBoundingClientRect().top + window.scrollY) : null; };
   return {
-    well: top(".mv-rep .mv-rep-list.ok"),
-    big: top(".mv-rep .mv-rep-list.fix"),
+    well: top(".mv-rep-well"),
+    big: top(".mv-rep-big"),
     better: top(".mv-better"),
     hear: top(".mv-better button"),
     focus: top(".mv-one"),
-    tryAgain: top(".mv-acts .btn-primary"),
+    tryAgain: top(".mv-dock .btn-primary"),
     folds: top(".mv-folds"),
     prevlink: top(".mv-prevlink"),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
@@ -138,8 +138,8 @@ await speak(L.page, SAY_WEAK);
 const m1 = await L.page.evaluate(() => ({
   step: _mv.step,
   title: (document.querySelector(".mv-coach .eyebrow") || {}).innerText || "",
-  wellPrim: document.querySelectorAll(".mv-rep .mv-rep-list.ok li").length,
-  fixPrim: document.querySelectorAll(".mv-rep .mv-rep-list.fix li").length,
+  wellPrim: document.querySelectorAll(".mv-rep-well .pp-rv-line").length,
+  fixPrim: document.querySelectorAll(".mv-rep-big .pp-rv-line").length,
   fixFold: document.querySelectorAll(".mv-folds .mv-rep-list.fix li").length,
   wellFold: document.querySelectorAll(".mv-folds .mv-rep-list.ok li").length,
   youSaid: (document.querySelector(".mv-said p") || {}).innerText || "",
@@ -148,7 +148,7 @@ const m1 = await L.page.evaluate(() => ({
   focus: (document.querySelector(".mv-one .mv-improve") || {}).innerText || "",
   folds: [...document.querySelectorAll(".mv-folds .mv-fold > summary")].map(e => e.textContent.trim()),
   foldsClosed: [...document.querySelectorAll(".mv-folds .mv-fold")].every(d => !d.open),
-  expr: document.querySelectorAll(".mv-folds .mv-rep-list.expr li").length,
+  expr: document.querySelectorAll(".mv-folds .pp-rv-pat").length,
   chipsInFold: !!document.querySelector(".mv-folds .mv-moves"),
   chipsPrim: !!document.querySelector(".mv-rep .mv-moves") || !!document.querySelector(".mv-coach > .mv-moves"),
   prevlink: !!document.querySelector(".mv-prevlink"),
@@ -156,10 +156,10 @@ const m1 = await L.page.evaluate(() => ({
 }));
 ok("the primary report is the answer: ≤2 strengths, exactly ONE biggest improvement, you-said + better version + Hear it, one focus",
   m1.step === "coach" && /speaking report/i.test(m1.title) && m1.wellPrim === 2 && m1.fixPrim === 1 && /order number/.test(m1.youSaid) && /spoken to their office/.test(m1.better) && m1.hear && /clear ask/i.test(m1.focus), JSON.stringify(m1).slice(0, 500));
-ok("nothing was thrown away: the 3rd strength and the 2nd improvement live in the folds, expressions and move chips too, all folds closed",
-  m1.wellFold === 1 && m1.fixFold === 1 && m1.expr === 2 && m1.chipsInFold && !m1.chipsPrim && m1.foldsClosed, JSON.stringify(m1).slice(0, 500));
-ok("the folds are the spec's sections: vocabulary & expressions, fluency & clarity, pronunciation, detailed analysis",
-  m1.folds.length === 4 && /Vocabulary/i.test(m1.folds[0]) && /Fluency/i.test(m1.folds[1]) && /Pronunciation/i.test(m1.folds[2]) && /Detailed analysis/i.test(m1.folds[3]), JSON.stringify(m1.folds));
+ok("nothing was thrown away: the 3rd strength and the 2nd improvement live in the folds, expressions too; the move chips head the report once (Practice Partner hierarchy); all folds closed",
+  m1.wellFold === 1 && m1.fixFold === 1 && m1.expr === 2 && !m1.chipsInFold && m1.chipsPrim && m1.foldsClosed, JSON.stringify(m1).slice(0, 500));
+ok("the folds are the Practice Partner review's detailed-coaching sections: vocabulary to master, pronunciation, topic mastery, detailed analysis",
+  m1.folds.length === 4 && /Vocabulary to master/i.test(m1.folds[0]) && /Pronunciation/i.test(m1.folds[1]) && /Topic mastery/i.test(m1.folds[2]) && /Detailed analysis/i.test(m1.folds[3]), JSON.stringify(m1.folds));
 ok("the full report is still on the attempt row — 3 strengths, 2 improvements, the better version (presentation changed, evidence did not)",
   m1.rowReport.well === 3 && m1.rowReport.fix === 2 && m1.rowReport.better, JSON.stringify(m1.rowReport));
 

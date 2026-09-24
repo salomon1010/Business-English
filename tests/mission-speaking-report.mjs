@@ -214,11 +214,11 @@ await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(
 await speak(L.page, SAY.noAsk);
 const coach = await L.page.evaluate(() => ({
   step: _mv.step,
-  well: [...document.querySelectorAll(".mv-rep-list.ok li")].map(x => x.innerText),
-  fix: [...document.querySelectorAll(".mv-rep-list.fix li")].map(x => x.innerText),
+  well: [...document.querySelectorAll(".mv-rep-well .pp-rv-line")].map(x => x.innerText),
+  fix: [...document.querySelectorAll(".mv-rep-big .pp-rv-line")].map(x => x.innerText),
   better: (document.querySelector(".mv-better-t") || {}).innerText || "",
   hearBtn: !!document.querySelector(".mv-better button"),
-  expr: [...document.querySelectorAll(".mv-rep-list.expr li")].map(x => x.innerText),
+  expr: [...document.querySelectorAll(".mv-folds .pp-rv-pat")].map(x => x.innerText),
   one: (document.querySelector(".mv-one .mv-improve") || {}).innerText || "",
   reportOnRow: (() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { has: !!a.report, better: !!(a.report && a.report.better), well: a.report ? a.report.well.map(x => x.m) : [] }; })(),
 }));
@@ -279,7 +279,7 @@ ok("Practise again returns to the speaking step of that mission", nav.v === "mis
 /* ── AI failure, then recovery onto the SAME row ── */
 repMode = "abort";
 await speak(L.page, SAY.noAsk);
-const failed = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { n: r.attempts.length, pending: !!a.coachPending, better: !!(a.report && a.report.better), offNote: !!document.querySelector(".mv-coach .mv-note"), fix: document.querySelectorAll(".mv-rep-list.fix li").length, saved: !!a.passed || a.coverage != null }; });
+const failed = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { n: r.attempts.length, pending: !!a.coachPending, better: !!(a.report && a.report.better), offNote: !!document.querySelector(".mv-coach .mv-note"), fix: document.querySelectorAll(".mv-rep-big .pp-rv-line").length, saved: !!a.passed || a.coverage != null }; });
 ok("with the AI unreachable the attempt is still saved and scored; the report is the honest floor (no better version) and says so",
   failed.n === 3 && failed.pending && !failed.better && failed.offNote && failed.fix >= 1 && failed.saved, JSON.stringify(failed));
 repMode = "ok";

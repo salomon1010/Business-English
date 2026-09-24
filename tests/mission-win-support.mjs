@@ -528,7 +528,7 @@ console.log("\nTHE LOOP · SEE → HEAR → NOTICE");
 await L.page.evaluate(id => mvGo(id + "-guided", "see"), ID); await sleep(350);
 const see = await L.page.evaluate(id => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), state: (mvStore()[id] || {}).state, cta: document.querySelectorAll("#v-mission .mv-cta").length, back: !!document.querySelector("#v-mission > .mv-back") }), ID);
 ok("SEE renders Week 11's title, the director's challenge and the goal, with one action and a way back — and is worth INTRODUCED only",
-  /Persuasion & stakeholder influence/i.test(see.txt) && /Why should I spend the engineers on data/i.test(see.txt) && /Don't list options/i.test(see.txt) && /Step 1 of 7/i.test(see.txt) && see.cta === 1 && see.back && see.state === "INTRODUCED", see.txt.slice(0, 160));
+  /Persuasion & stakeholder influence/i.test(see.txt) && /Why should I spend the engineers on data/i.test(see.txt) && /Don't list options/i.test(see.txt) && /Mission Hear Notice Speak Coach Complete/.test(see.txt) && see.cta === 1 && see.back && see.state === "INTRODUCED", see.txt.slice(0, 160));
 const ovs = await overflow(L.page); ok("SEE has no horizontal overflow at 390px", ovs.sw <= ovs.cw, JSON.stringify(ovs));
 await shot(L.page, "390-see");
 await L.page.evaluate(() => mvStep("hear")); await sleep(300);
@@ -587,7 +587,7 @@ await speak(L.page, SAY.strong);
 const c2 = await recW(L.page, ID);
 ok("P2 · the retry is stored as a retry; both attempts are preserved", c2.attempts.length === 2 && c2.attempts[0].coverage === 0.8 && c2.attempts[1].kind === "retry" && c2.attempts[1].coverage === 1);
 ok("P3 · progression recalculates to DEMONSTRATED", c2.state === "DEMONSTRATED", c2.state);
-const transferBtn = await L.page.evaluate(() => [...document.querySelectorAll(".mv-acts button")].map(b => b.innerText).join("|"));
+const transferBtn = await L.page.evaluate(() => [...document.querySelectorAll(".mv-acts button, .mv-dock button")].map(b => b.innerText).join("|"));
 ok("P4 · once demonstrated, the coach screen offers the new situation", /take the new situation/i.test(transferBtn), transferBtn);
 
 console.log("\nTRANSFER");
@@ -612,7 +612,7 @@ const harvested = await L.page.evaluate(({ vid, id }) => {
 ok("Q5 · Shadow work on another competency's clip is never linked to Week 11, and never touches its state or attempts",
   harvested.linked === 0 && harvested.sameState && harvested.attempts, JSON.stringify(harvested));
 await L.page.evaluate(() => mvStep("done")); await sleep(300);
-const done = await L.page.evaluate(() => ({ txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length, shadowNote: !!document.querySelector(".mv-shadow-note") }));
+const done = await L.page.evaluate(() => (document.querySelectorAll("#v-mission details.mv-fold").forEach(d => { d.open = true; }), { txt: document.getElementById("v-mission").innerText.replace(/\s+/g, " "), bars: document.querySelectorAll(".mv-bars > *").length, chips: document.querySelectorAll(".mv-move").length, shadowNote: !!document.querySelector(".mv-shadow-note") }));
 ok("Q6 · the evidence screen shows the state, five chips and the dimension bars — pronunciation as a number because the (mocked) audio grader measured it — and NO Shadow line, because nothing is linked",
   /transfer ready/i.test(done.txt) && done.bars >= 5 && done.chips === 5 && /83%/.test(done.txt) && done.shadowNote === false, done.txt.slice(0, 160));
 const ovd = await overflow(L.page); ok("Evidence screen has no horizontal overflow at 390px", ovd.sw <= ovd.cw, JSON.stringify(ovd));
@@ -713,7 +713,7 @@ await sleep(1200);
 await Dk.page.evaluate(() => mvRecord());
 await Dk.page.waitForFunction(() => _mv && !_mv.busy && (_mv.ev || _mv.err), null, { timeout: 15000 }).catch(() => {});
 await sleep(250);
-const dkCoach = await Dk.page.evaluate(() => ({ step: _mv.step, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, acts: document.querySelectorAll(".mv-acts button").length }));
+const dkCoach = await Dk.page.evaluate(() => ({ step: _mv.step, chips: document.querySelectorAll(".mv-move").length, off: document.querySelectorAll(".mv-move.off").length, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth, acts: document.querySelectorAll(".mv-acts button, .mv-dock button").length }));
 ok("Desktop: COACH renders five chips (one off) and its actions with no overflow", dkCoach.step === "coach" && dkCoach.chips === 5 && dkCoach.off === 1 && dkCoach.acts >= 2 && dkCoach.sw <= dkCoach.cw, JSON.stringify(dkCoach));
 await shot(Dk.page, "1280-coach");
 const dkRetry = await Dk.page.evaluate(() => { mvRetry(); return { step: _mv.step, text: _mv.retryText, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }; });
