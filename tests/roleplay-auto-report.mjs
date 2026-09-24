@@ -123,6 +123,11 @@ await page.evaluate(T0 => rpHistMake(T0), T0); await sleep(900);
 const made = await page.evaluate(T0 => { const c = S.convos.find(x => x.ts === T0); return { exrep: !!(c && c.exrep), wrap: !!document.getElementById("rphrep_" + T0), card: !!document.querySelector("#rphrep_" + T0 + " .ex-rep-card"), tx: c && c.exrep && (sessRepGet(c.exrep) || {}).tx }; }, T0);
 ok("Get the report builds it from the kept sentences and the row now shows the report card", made.exrep && made.wrap && made.card && /budget/.test(made.tx || "") && analyseHits === 2, JSON.stringify({ made, analyseHits }));
 
+const fit = await page.evaluate(T0 => { const row = document.getElementById("rph_" + T0), card = row.closest(".card"), cr = card.getBoundingClientRect();
+  document.querySelectorAll("#rphrep_" + T0 + " details").forEach(d => d.open = true);
+  const over = [...row.querySelectorAll("*")].filter(e => !e.closest(".ex-nav") && e.getBoundingClientRect().width > 0 && e.getBoundingClientRect().right > cr.right + 1).map(e => e.className && e.className.baseVal === undefined ? e.className : e.tagName);
+  return { over: over.slice(0, 6), n: over.length, sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth }; }, T0);
+ok("the report inside a history row stays inside the card at 390 px (only the station strip scrolls sideways)", fit.n === 0 && fit.sw <= fit.cw, JSON.stringify(fit));
 ok("no uncaught page errors", errs.length === 0, errs.join(" | "));
 await browser.close(); if (server) server.kill();
 const pass = res.filter(Boolean).length;
