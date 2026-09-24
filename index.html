@@ -4655,7 +4655,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 /* ── SIGNAL · light ─────────────────────────────────────────────────────── */
 :root[data-theme="light"]:not([data-track="welding"]){
-  --field-1:rgba(99,102,241,.08); --field-2:rgba(34,211,238,.06); --field-3:rgba(168,85,247,.04);
+  --field-1:rgba(99,102,241,.045); --field-2:rgba(34,211,238,.035); --field-3:rgba(168,85,247,.025);   /* light: faint enough that --mut on translucent cards stays ≥4.5:1 */
   --hair:inset 0 1px 0 rgba(255,255,255,.8);
   --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb); --cta-tint:rgba(79,70,229,.16);
   --live:#0891b2; --live-rgb:8,145,178; --ai:#7c3aed;
@@ -4682,7 +4682,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 /* ── FORGE · light ──────────────────────────────────────────────────────── */
 :root[data-theme="light"][data-track="welding"]{
-  --field-1:rgba(212,151,23,.08); --field-2:rgba(3,105,161,.05); --field-3:rgba(184,115,51,.04);
+  --field-1:rgba(212,151,23,.05); --field-2:rgba(3,105,161,.035); --field-3:rgba(184,115,51,.025);   /* light: kept faint enough that --mut stays ≥4.5:1 where the fields overlap */
   --hair:inset 0 1px 0 rgba(255,255,255,.8);
   --cta-grad:linear-gradient(103deg,#7a4a00,#9a6300); --cta-tint:rgba(139,89,0,.18);   /* light Welding keeps its WHITE label (--on-accent #fff): 7.48 / 5.05:1 */
   --live:#0369a1; --live-rgb:3,105,161; --ai:#b45309;
