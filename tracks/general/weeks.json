@@ -76,28 +76,24 @@
   "templates": {
     "Mon": [
       [
-        "0:00–2:00",
-        "Choose a 30–60 sec clip from a U.S. professional speaker (🎯 Shadow tab → starter videos & channels)."
+        "0:00–3:00",
+        "Choose a 30–60 sec clip on the 🎯 Shadow tab (starter videos & channels)."
       ],
       [
-        "2:00–8:00",
-        "Transcribe it exactly."
+        "3:00–15:00",
+        "Shadow it 6 times: listen → pause-repeat → speak with the audio → speak alone."
       ],
       [
-        "8:00–11:00",
-        "Mark stressed words, pauses, contractions, linked sounds, intonation."
+        "15:00–20:00",
+        "Record yourself imitating the clip in the Record yourself card on this page."
       ],
       [
-        "11:00–18:00",
-        "Shadow 6–8 times: listen → pause-repeat → speak with audio → speak alone."
+        "20:00–23:00",
+        "Read your AI speaking report: what to fix and your sentences rebuilt."
       ],
       [
-        "18:00–22:00",
-        "Record yourself imitating the clip (use the recorder below)."
-      ],
-      [
-        "22:00–25:00",
-        "Log what sounded weak + one sound/stress pattern to fix next time."
+        "23:00–25:00",
+        "Note one sound or stress pattern from the report to fix next time."
       ]
     ],
     "Tue": [
