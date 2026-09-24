@@ -2847,5 +2847,7 @@
  "cert.ready_h": "Votre certificat est prêt",
  "cert.share": "Partager",
  "cert.download": "Télécharger",
+ "cert.pdf": "Télécharger le PDF",
+ "cert.png": "Enregistrer l'image",
  "cert.edit": "Modifier le nom"
 }

@@ -87,6 +87,7 @@ different names. Maps so far:
 | `v2_*` | track | week | competency | mission | kind | move | result | band | state | from | attempt | ai |
 | `partner_*` (not `partner_interest`) | kind | round | n | now | regular | state | reason | evidence | result | day | | |
 | `shadow_*` | level | mode | to | rung | reason | result | kind | state | lang | band | source | |
+| `cert_*` | track | | | | | | | | | | | |
 
 `partner_interest` stays on the legacy map because `./query.sh partner` reads
 it at blob14 (`stage`) and blob17 (`track`). No `partner_*` or `shadow_*` row

@@ -135,6 +135,11 @@ const EVENTS = new Set([
   // attempt was replayed (+kind own|better). Counts and enums only — the
   // report's text, the better version and the audio never leave the device.
   "v2_better_version_played", "v2_speaking_history_opened", "v2_speaking_history_replayed",
+  // The certificate (2026-09-24), both programmes: unlocked (once per area,
+  // the day its date is stamped), downloaded as a PDF, saved as an image.
+  // Sharing it is the existing share event with kind=cert. +track only —
+  // never the name on the certificate, its number or its date.
+  "cert_unlocked", "cert_pdf_downloaded", "cert_image_saved",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -208,7 +213,9 @@ const LAYOUTS = [
   [/^partner_(?!interest$)/, ["kind", "round", "n", "now", "regular", "state", "reason", "evidence", "result", "day"]],
   // shadow_* → blob3 level, 4 mode, 5 to, 6 rung, 7 reason, 8 result, 9 kind.
   // Same history: no shadow row was ever recorded.
-  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
+  [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],
+  // cert_* → blob3 track. No cert_* row existed before this map.
+  [/^cert_/, ["track"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];
 /* The invariant lives where the row is built, not only in a test: whatever a
    future edit declares, a layout can never put more than MAX_COLS keys into a

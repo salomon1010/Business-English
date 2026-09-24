@@ -2847,5 +2847,7 @@
  "cert.ready_h": "شهادتك جاهزة",
  "cert.share": "مشاركة",
  "cert.download": "تنزيل",
+ "cert.pdf": "تنزيل PDF",
+ "cert.png": "حفظ الصورة",
  "cert.edit": "تغيير الاسم"
 }

@@ -3303,6 +3303,7 @@ h1.big.home-hero-h>.sub-info{margin-top:0}
 .cert-wait{background:linear-gradient(100deg,#080b16 30%,#141b36 50%,#080b16 70%);background-size:300% 100%;animation:certShine 1.2s linear infinite}
 @keyframes certShine{to{background-position:-150% 0}}
 .cert-acts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cert-acts .btn-p{grid-column:1/-1}
 .cert-acts .btn{justify-content:center;min-height:44px;white-space:normal;line-height:1.25;text-align:center}
 .cert-edit{margin-top:12px;background:none;border:0;color:var(--accent-text);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:40px}
 .cert-edit .btn-ic,.cert-edit svg{width:16px;height:16px}
@@ -7837,7 +7838,7 @@ const I18N_EN={
  "cert.need_name":"Please enter your first name and your last name.",
  "cert.ready_h":"Your certificate is ready",
  "cert.share":"Share",
- "cert.download":"Download",
+ "cert.download":"Download","cert.pdf":"Download PDF","cert.png":"Save image",
  "cert.edit":"Change the name",
  "invite.title":"Bring someone with you",
  "invite.sub":"Someone you work with is holding the same words back. Send them the door you walked through.",
@@ -12624,8 +12625,10 @@ window.calGoogle=()=>{
   window.open(u,"_blank","noopener");
 };
 /* ===== CERTIFICATE OF COMPLETION =====
-   A landscape A-ratio image (2000×1414) in the marketing site's look: deep
-   navy, indigo/violet/cyan light, a gradient name, glass stat tiles and a seal.
+   A4 landscape (2000×1414 design units): a light "paper" certificate in a navy
+   frame, a faceted hexagon field in the brand's indigo / cyan / violet, a
+   script title, a gradient name, stat tiles, and issuer · seal · date. Saved as
+   a PNG (share, save image) or a one-page PDF (certPdf, written by hand).
    Always in English whatever the app language — the learner earned it in
    English, and the people they show it to (employers, LinkedIn) read English.
    The name comes from the learner (first + last, asked once at the end), the
@@ -12645,6 +12648,7 @@ function certStamp(){
     const today=new Date().toISOString().slice(0,10);
     const days=Object.keys(areaDayLog()||{}).filter(d=>/^\d{4}-\d{2}-\d{2}$/.test(d)&&d<=today).sort();
     S.certAt[a]=days.length?days[days.length-1]:today;save();
+    try{track("cert_unlocked",{track:a})}catch(e){}
   }
   return S.certAt[a];
 }
@@ -12666,134 +12670,243 @@ function certStats(){
   return {sessions:trackSessionCount(),weeks:trackWeeks().length,phrases:masteredCount(),
     words:Object.keys(areaVocab()).length,streak:bestStreak()};
 }
-async function certRender(){
-  const F="Outfit, system-ui, sans-serif",M="'JetBrains Mono', ui-monospace, monospace";
-  try{await Promise.all(["400","500","700","800"].map(w=>document.fonts.load(w+" 40px Outfit")).concat(document.fonts.load("600 20px 'JetBrains Mono'")))}catch(e){}
+const CERT_SCRIPT="Great Vibes";
+const CERT_SCRIPT_URL="https://fonts.gstatic.com/s/greatvibes/v21/RWmMoKWR9v4ksMfaWd_JN9XFiaQoDmlr.woff2";
+async function certFonts(){
+  try{
+    if(![...document.fonts].some(f=>f.family.replace(/["']/g,"")===CERT_SCRIPT)){
+      const ff=new FontFace(CERT_SCRIPT,"url("+CERT_SCRIPT_URL+")");document.fonts.add(await ff.load());
+    }
+  }catch(e){}               // offline: the title falls back to an italic serif
+  try{await Promise.all(["400","500","600","700","800"].map(w=>document.fonts.load(w+" 40px Outfit")).concat(document.fonts.load("600 20px 'JetBrains Mono'")))}catch(e){}
   try{await document.fonts.ready}catch(e){}
-  const W=2000,H=1414,c=document.createElement("canvas");c.width=W;c.height=H;
-  const x=c.getContext("2d");
-  const iso=certStamp()||new Date().toISOString().slice(0,10);
-  const full=certFull(),st=certStats(),weld=areaId()==="welding";
-  const LS=(v)=>{try{x.letterSpacing=v}catch(e){}};
+}
+function certScriptOK(){try{return document.fonts.check("80px '"+CERT_SCRIPT+"'")}catch(e){return false}}
+function certRng(seed){let s=0;for(let i=0;i<seed.length;i++)s=Math.imul(s^seed.charCodeAt(i),2654435761)>>>0;
+  return ()=>{s^=s<<13;s>>>=0;s^=s>>>17;s^=s<<5;s>>>=0;return s/4294967296}}
 
-  /* ground + light */
-  const bg=x.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#070a18");bg.addColorStop(.55,"#080b16");bg.addColorStop(1,"#05070f");
-  x.fillStyle=bg;x.fillRect(0,0,W,H);
-  const glow=(cx,cy,r,col)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.fillRect(0,0,W,H)};
-  glow(W*.5,120,900,"rgba(99,102,241,.34)");
-  glow(260,1250,700,"rgba(34,211,238,.10)");
-  glow(1780,1180,760,"rgba(168,85,247,.20)");
-  /* dot grid */
-  x.fillStyle="rgba(255,255,255,.045)";
-  for(let gy=90;gy<H-60;gy+=34)for(let gx=90;gx<W-60;gx+=34){x.fillRect(gx,gy,2,2)}
-  /* perspective floor behind the stats */
-  x.save();x.beginPath();x.rect(60,930,W-120,H-990);x.clip();
-  const vx=W/2,vy=760;x.lineWidth=1.2;
-  for(let i=-14;i<=14;i++){const fx=W/2+i*150;const g=x.createLinearGradient(0,930,0,H);g.addColorStop(0,"rgba(129,140,248,0)");g.addColorStop(1,"rgba(129,140,248,.16)");x.strokeStyle=g;x.beginPath();x.moveTo(vx,vy);x.lineTo(fx,H);x.stroke()}
-  for(let k=1;k<9;k++){const yy=930+Math.pow(k/8,1.8)*(H-930);x.strokeStyle="rgba(129,140,248,"+(0.03+k*0.012)+")";x.beginPath();x.moveTo(0,yy);x.lineTo(W,yy);x.stroke()}
-  x.restore();
-
-  /* frame: gradient hairline, inner rule, HUD corners */
+/* d = {full, programme, weeks, sessions, tiles:[[value,label]…], date, no, weld} */
+function certDraw(c,d,k){
+  const W=2000,H=1414;k=k||1;c.width=Math.round(W*k);c.height=Math.round(H*k);
+  const x=c.getContext("2d");x.scale(k,k);
+  const F="Outfit, system-ui, sans-serif",M="'JetBrains Mono', ui-monospace, monospace";
+  const LS=v=>{try{x.letterSpacing=v}catch(e){}};
   const rr=(X,Y,w,h,r)=>{x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()};
-  const gt=x.createLinearGradient(0,0,W,H);gt.addColorStop(0,"#a5b4fc");gt.addColorStop(.58,"#22d3ee");gt.addColorStop(1,"#c084fc");
-  x.strokeStyle=gt;x.globalAlpha=.75;x.lineWidth=3;rr(44,44,W-88,H-88,34);x.stroke();x.globalAlpha=1;
-  x.strokeStyle="rgba(255,255,255,.07)";x.lineWidth=1.5;rr(64,64,W-128,H-128,24);x.stroke();
-  x.save();x.strokeStyle="#22d3ee";x.lineWidth=6;x.lineCap="round";x.shadowColor="rgba(34,211,238,.8)";x.shadowBlur=18;
-  [[44,44,1,1],[W-44,44,-1,1],[44,H-44,1,-1],[W-44,H-44,-1,-1]].forEach(([cx,cy,sx,sy])=>{
-    x.beginPath();x.moveTo(cx+sx*92,cy);x.lineTo(cx+sx*34,cy);x.arcTo(cx,cy,cx,cy+sy*34,34);x.lineTo(cx,cy+sy*92);x.stroke()});
+  const brand=(x0,x1,a)=>{const g=x.createLinearGradient(x0,0,x1,0);a=a==null?1:a;
+    g.addColorStop(0,"rgba(99,102,241,"+a+")");g.addColorStop(.58,"rgba(34,211,238,"+a+")");g.addColorStop(1,"rgba(168,85,247,"+a+")");return g};
+  const rnd=certRng(d.no||d.full||"BE");
+
+  /* ── frame: navy band with the brand hairline ─────────────────────────── */
+  const nb=x.createLinearGradient(0,0,W,H);nb.addColorStop(0,"#0a0e27");nb.addColorStop(.5,"#131a4d");nb.addColorStop(1,"#0a0e27");
+  x.fillStyle=nb;x.fillRect(0,0,W,H);
+  const P=38,PW=W-2*P,PH=H-2*P;             // the paper
+  x.save();rr(P,P,PW,PH,10);x.clip();
+  const paper=x.createLinearGradient(0,P,0,H-P);paper.addColorStop(0,"#fdfdff");paper.addColorStop(1,"#f3f5fd");
+  x.fillStyle=paper;x.fillRect(P,P,PW,PH);
+  /* a faint dot grid on the page */
+  x.fillStyle="rgba(79,70,229,.075)";
+  for(let gy=P+40;gy<H-P-20;gy+=30)for(let gx=640;gx<W-P-20;gx+=30)x.fillRect(gx,gy,2,2);
+
+  /* ── the hexagon field ────────────────────────────────────────────────── */
+  const R=62,hw=Math.sqrt(3)*R;             // pointy-top hexes
+  /* each palette: shadow, body, light, highlight */
+  const PAL=[["#1e1b4b","#312e81","#4338ca","#6366f1"],   // deep indigo
+             ["#3730a3","#4f46e5","#6366f1","#a5b4fc"],   // indigo
+             ["#4f46e5","#6366f1","#818cf8","#c7d2fe"],   // light indigo
+             ["#0e7490","#0891b2","#22d3ee","#a5f3fc"],   // cyan
+             ["#155e75","#06b6d4","#67e8f9","#cffafe"],   // bright cyan
+             ["#5b21b6","#7c3aed","#a78bfa","#ddd6fe"],   // violet
+             ["#a5b4fc","#c7d2fe","#e0e7ff","#f5f7ff"],   // pale indigo
+             ["#67e8f9","#a5f3fc","#cffafe","#f0fdff"],   // pale cyan
+             ["#c4b5fd","#ddd6fe","#ede9fe","#faf8ff"]];  // pale violet
+  const hexPts=(cx,cy,r)=>{const p=[];for(let i=0;i<6;i++){const a=Math.PI/180*(60*i-30);p.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}return p};
+  /* light from the top left: each of the six facets takes one of the four tones */
+  const FACET=[[1,0,2,3,2,1],[0,1,1,3,3,2],[1,0,1,2,3,2]];
+  for(let row=-1,cy=P-R*.3;cy<H+R;row++,cy+=R*1.5){
+    for(let col=-1;col<12;col++){
+      const cx=P+col*hw+(row&1?hw/2:0);
+      const t=(cx-P)/720;                   // 0 at the left edge → 1 where the field ends
+      if(t>1.1)continue;
+      const keep=1-Math.pow(Math.max(0,t-.22),1.2)*1.45;
+      if(rnd()>keep+.06)continue;
+      const band=cy/H;                      // indigo high up, cyan through the middle, violet low down
+      let pi;
+      if(t>.5)pi=6+Math.floor(rnd()*3);
+      else if(band<.3)pi=rnd()<.7?1+Math.floor(rnd()*2):3;
+      else if(band<.66)pi=rnd()<.62?3+Math.floor(rnd()*2):1+Math.floor(rnd()*2);
+      else pi=rnd()<.6?5:(rnd()<.5?1:2);
+      if(t<.34&&rnd()<.1)pi=0;
+      if(t>.3&&t<=.5&&rnd()<.35)pi=6+Math.floor(rnd()*3);
+      const pal=PAL[pi],pts=hexPts(cx,cy,R-1),fc=FACET[Math.floor(rnd()*3)];
+      const alpha=Math.max(0,Math.min(1,1.2-t*.85));
+      x.globalAlpha=alpha;
+      for(let i=0;i<6;i++){
+        const a=pts[i],b=pts[(i+1)%6];
+        x.fillStyle=pal[fc[i]];
+        x.beginPath();x.moveTo(cx,cy);x.lineTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.closePath();x.fill();
+      }
+      /* one facet split again, for the crystal look */
+      if(rnd()<.45){const i=Math.floor(rnd()*6),a=pts[i],b=pts[(i+1)%6],m=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+        x.fillStyle=pal[Math.min(3,fc[i]+1)];x.beginPath();x.moveTo(cx,cy);x.lineTo(a[0],a[1]);x.lineTo(m[0],m[1]);x.closePath();x.fill()}
+      /* crisp white seams and an occasional glowing edge */
+      x.globalAlpha=alpha*.7;x.strokeStyle="#ffffff";x.lineWidth=2.2;
+      x.beginPath();pts.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();x.stroke();
+      x.globalAlpha=alpha*.22;x.lineWidth=1;
+      for(let i=0;i<6;i+=2){x.beginPath();x.moveTo(cx,cy);x.lineTo(pts[i][0],pts[i][1]);x.stroke()}
+      if(t<.6&&rnd()<.1){x.globalAlpha=alpha;x.save();x.shadowColor="rgba(34,211,238,.95)";x.shadowBlur=14;
+        x.strokeStyle="#a5f3fc";x.lineWidth=2.5;const e=Math.floor(rnd()*6),p1=pts[e],p2=pts[(e+1)%6];
+        x.beginPath();x.moveTo(p1[0],p1[1]);x.lineTo(p2[0],p2[1]);x.stroke();x.restore()}
+      x.globalAlpha=1;
+    }
+  }
+  /* the fade into the page, like light through glass */
+  const fade=x.createLinearGradient(360,0,840,0);
+  fade.addColorStop(0,"rgba(248,249,255,0)");fade.addColorStop(.6,"rgba(248,249,255,.72)");fade.addColorStop(1,"rgba(247,248,254,1)");
+  x.fillStyle=fade;x.fillRect(360,P,520,PH);
+  /* a circuit trace running out of the field */
+  x.save();x.lineWidth=2;x.strokeStyle=brand(260,900,.55);x.lineCap="round";
+  [[390,300,560,300,610,250,760],[330,980,520,980,570,1030,740]].forEach(([x0,y0,x1,y1,x2,y2,x3])=>{
+    x.beginPath();x.moveTo(x0,y0);x.lineTo(x1,y1);x.lineTo(x2,y2);x.lineTo(x3,y2);x.stroke();
+    x.fillStyle="#22d3ee";x.shadowColor="rgba(34,211,238,.8)";x.shadowBlur=10;x.beginPath();x.arc(x3,y2,5,0,7);x.fill();x.shadowBlur=0});
+  x.restore();
+  x.restore();                               // end of paper clip
+
+  /* inner hairline + HUD corners */
+  x.strokeStyle=brand(0,W,.9);x.lineWidth=2.5;rr(P+16,P+16,PW-32,PH-32,6);x.stroke();
+  x.save();x.strokeStyle="#22d3ee";x.lineWidth=5;x.lineCap="round";x.shadowColor="rgba(34,211,238,.7)";x.shadowBlur=12;
+  const q=P+16;[[q,q,1,1],[W-q,q,-1,1],[q,H-q,1,-1],[W-q,H-q,-1,-1]].forEach(([cx,cy,sx,sy])=>{
+    x.beginPath();x.moveTo(cx+sx*80,cy);x.lineTo(cx,cy);x.lineTo(cx,cy+sy*80);x.stroke()});
   x.restore();
 
-  /* header: logo tile + wordmark (left), certificate number (right) */
-  const lx=128,ly=112,ls=96;
+  /* ── content column ───────────────────────────────────────────────────── */
+  const cx=1300,colW=1060;
+  x.textBaseline="alphabetic";
+  /* logo tile + wordmark, centred */
+  const ls=66;x.font="800 36px "+F;const wm=x.measureText("BE Mastery").width;
+  const lx=cx-(ls+18+wm)/2,ly=118;
   const tg=x.createLinearGradient(lx,ly,lx+ls,ly+ls);tg.addColorStop(0,"#6f7cf6");tg.addColorStop(.55,"#4aa8f0");tg.addColorStop(1,"#22c9ee");
-  x.save();x.shadowColor="rgba(99,102,241,.6)";x.shadowBlur=30;x.fillStyle=tg;rr(lx,ly,ls,ls,24);x.fill();x.restore();
+  x.save();x.shadowColor="rgba(99,102,241,.45)";x.shadowBlur=22;x.fillStyle=tg;rr(lx,ly,ls,ls,17);x.fill();x.restore();
   x.save();x.translate(lx,ly);x.scale(ls/420,ls/420);x.translate(-46,-46);
   x.fillStyle="#fff";x.fill(new Path2D("M170 150 h174 a46 46 0 0 1 46 46 v92 a46 46 0 0 1-46 46 H236 l-40 44 v-44 h-26 a46 46 0 0 1-46-46 V196 a46 46 0 0 1 46-46 Z"));
   const bar=x.createLinearGradient(0,300,0,188);bar.addColorStop(0,"#6366f1");bar.addColorStop(1,"#22d3ee");x.fillStyle=bar;
   [[201,243,55],[242,213,85],[283,188,110]].forEach(([bx,by,bh])=>{rr(bx,by,32,bh,16);x.fill()});
   x.fillStyle="#fbbf24";x.fill(new Path2D("M404 92 l13.5 33 33 13.5 -33 13.5 -13.5 33 -13.5-33 -33-13.5 33-13.5 Z"));
   x.restore();
-  x.textAlign="left";x.textBaseline="alphabetic";
-  x.fillStyle="#eef1fb";x.font="800 40px "+F;x.fillText("BE Mastery",lx+ls+26,ly+50);
-  x.fillStyle="#a2a7c4";x.font="500 22px "+F;x.fillText("by Lomonec LLC",lx+ls+26,ly+84);
-  x.textAlign="right";
-  x.fillStyle="#767c9d";x.font="600 18px "+F;LS("5px");x.fillText("CERTIFICATE NO.",W-128,ly+36);LS("0px");
-  x.fillStyle="#c7d2fe";x.font="600 25px "+M;x.fillText(certNo(full||"-",iso),W-128,ly+76);
+  x.textAlign="left";x.fillStyle="#0f1433";x.font="800 36px "+F;x.fillText("BE",lx+ls+18,ly+45);
+  const beW=x.measureText("BE ").width;x.fillStyle=brand(lx+ls+18+beW,lx+ls+18+wm);x.fillText("Mastery",lx+ls+18+beW,ly+45);
 
-  /* title with flanking rules */
+  /* script title */
   x.textAlign="center";
-  x.fillStyle="#22d3ee";x.font="700 30px "+F;LS("14px");
-  const title="CERTIFICATE OF COMPLETION";x.fillText(title,W/2+7,352);
-  const tw=x.measureText(title).width;LS("0px");
-  [[-1],[1]].forEach(([s])=>{const a=W/2+s*(tw/2+40),b=W/2+s*(tw/2+260);
-    const g=x.createLinearGradient(a,0,b,0);g.addColorStop(0,"rgba(34,211,238,.9)");g.addColorStop(1,"rgba(34,211,238,0)");
-    x.strokeStyle=g;x.lineWidth=2;x.beginPath();x.moveTo(a,341);x.lineTo(b,341);x.stroke();
-    x.fillStyle="#22d3ee";x.beginPath();x.arc(a,341,4,0,7);x.fill()});
+  const script=certScriptOK();
+  x.fillStyle="#141a4a";x.font=script?"400 138px '"+CERT_SCRIPT+"'":"italic 600 104px Georgia, 'Times New Roman', serif";
+  x.fillText("Certificate of Completion",cx,script?348:338);
+  /* eyebrow with flanking rules */
+  x.fillStyle="#0e7490";x.font="700 22px "+F;LS("9px");
+  const eb="THIS CERTIFIES THAT";x.fillText(eb,cx+4.5,428);const ew=x.measureText(eb).width;LS("0px");
+  [-1,1].forEach(s=>{const a=cx+s*(ew/2+30),b=cx+s*(ew/2+210);
+    const g=x.createLinearGradient(a,0,b,0);g.addColorStop(0,"rgba(8,145,178,.85)");g.addColorStop(1,"rgba(8,145,178,0)");
+    x.strokeStyle=g;x.lineWidth=2;x.beginPath();x.moveTo(a,420);x.lineTo(b,420);x.stroke();
+    x.fillStyle="#0891b2";x.beginPath();x.arc(a,420,3.5,0,7);x.fill()});
 
-  x.fillStyle="#a2a7c4";x.font="400 32px "+F;x.fillText("This certifies that",W/2,452);
-
-  /* the name — the largest thing on the page, fitted to the width */
-  const nm=full||"—";let fs=132;x.font="800 "+fs+"px "+F;
-  while(x.measureText(nm).width>1560&&fs>60){fs-=4;x.font="800 "+fs+"px "+F}
+  /* the name — the largest thing on the page */
+  const nm=d.full||"—";let fs=124;x.font="800 "+fs+"px "+F;
+  while(x.measureText(nm).width>colW-60&&fs>56){fs-=4;x.font="800 "+fs+"px "+F}
   const nw=x.measureText(nm).width;
-  const ng=x.createLinearGradient(W/2-nw/2,0,W/2+nw/2,0);ng.addColorStop(0,"#c7d2fe");ng.addColorStop(.5,"#67e8f9");ng.addColorStop(1,"#d8b4fe");
-  x.save();x.shadowColor="rgba(99,102,241,.55)";x.shadowBlur=46;x.fillStyle=ng;x.fillText(nm,W/2,606);x.restore();
-  x.fillStyle=ng;x.fillText(nm,W/2,606);
-  /* underline with a centre diamond */
-  const uw=Math.max(620,Math.min(1200,nw+120)),uy=652;
-  const ug=x.createLinearGradient(W/2-uw/2,0,W/2+uw/2,0);ug.addColorStop(0,"rgba(129,140,248,0)");ug.addColorStop(.5,"rgba(129,140,248,.9)");ug.addColorStop(1,"rgba(129,140,248,0)");
-  x.strokeStyle=ug;x.lineWidth=2;x.beginPath();x.moveTo(W/2-uw/2,uy);x.lineTo(W/2+uw/2,uy);x.stroke();
-  x.save();x.translate(W/2,uy);x.rotate(Math.PI/4);x.fillStyle="#22d3ee";x.shadowColor="#22d3ee";x.shadowBlur=14;x.fillRect(-7,-7,14,14);x.restore();
+  const ng=x.createLinearGradient(cx-nw/2,0,cx+nw/2,0);ng.addColorStop(0,"#4338ca");ng.addColorStop(.52,"#0e7490");ng.addColorStop(1,"#7e22ce");
+  x.save();x.shadowColor="rgba(99,102,241,.28)";x.shadowBlur=30;x.shadowOffsetY=6;x.fillStyle=ng;x.fillText(nm,cx,568);x.restore();
+  const uw=Math.max(560,Math.min(colW-40,nw+140)),uy=612;
+  x.strokeStyle=brand(cx-uw/2,cx+uw/2,.9);x.lineWidth=2.5;x.beginPath();x.moveTo(cx-uw/2,uy);x.lineTo(cx+uw/2,uy);x.stroke();
+  x.save();x.translate(cx,uy);x.rotate(Math.PI/4);x.fillStyle="#22d3ee";x.shadowColor="rgba(34,211,238,.9)";x.shadowBlur=12;x.fillRect(-8,-8,16,16);
+  x.fillStyle="#fff";x.shadowBlur=0;x.fillRect(-3,-3,6,6);x.restore();
 
-  x.fillStyle="#a2a7c4";x.font="400 32px "+F;x.fillText("has successfully completed the "+st.weeks+"-week speaking programme",W/2,730);
-  x.fillStyle="#ffffff";x.font="800 54px "+F;x.fillText(certProgramme(),W/2,806);
-  x.fillStyle="#a2a7c4";x.font="400 28px "+F;
-  x.fillText(st.sessions+" guided sessions of real workplace English, practised aloud and reviewed",W/2,860);
+  x.fillStyle="#4b5173";x.font="400 31px "+F;
+  x.fillText("has successfully completed the "+d.weeks+"-week speaking programme",cx,690);
+  x.fillStyle="#0f1433";x.font="800 58px "+F;x.fillText(d.programme,cx,768);
+  x.fillStyle="#6b7194";x.font="400 26px "+F;
+  x.fillText(d.sessions+" guided sessions of real workplace English, practised aloud and reviewed",cx,822);
 
   /* stat tiles */
+  const tiles=d.tiles.slice(0,4),tW=232,tH=118,gap=24,t0=cx-(tW*tiles.length+gap*(tiles.length-1))/2,ty=878;
+  tiles.forEach(([v,l],i)=>{const X=t0+i*(tW+gap);
+    x.save();x.shadowColor="rgba(30,27,75,.10)";x.shadowBlur=24;x.shadowOffsetY=8;x.fillStyle="#ffffff";rr(X,ty,tW,tH,18);x.fill();x.restore();
+    x.strokeStyle="#dde2f8";x.lineWidth=1.5;rr(X,ty,tW,tH,18);x.stroke();
+    x.strokeStyle=brand(X+26,X+tW-26);x.lineWidth=3;x.lineCap="round";x.beginPath();x.moveTo(X+26,ty+1.5);x.lineTo(X+tW-26,ty+1.5);x.stroke();x.lineCap="butt";
+    x.fillStyle="#141a4a";x.font="800 50px "+F;x.fillText(String(v),X+tW/2,ty+66);
+    x.fillStyle="#6b7194";x.font="700 14.5px "+F;LS("2.5px");x.fillText(l,X+tW/2+1.25,ty+97);LS("0px")});
+
+  /* ── issuer · seal · date ─────────────────────────────────────────────── */
+  const by=1226,sx=cx,sy=1150;
+  const foot=(X0,X1,top,label,sub,scriptTop)=>{
+    const mid=(X0+X1)/2;x.textAlign="center";
+    if(scriptTop&&script){x.fillStyle="#141a4a";x.font="400 64px '"+CERT_SCRIPT+"'";x.fillText(top,mid,by-18)}
+    else{x.fillStyle="#141a4a";x.font="700 32px "+F;x.fillText(top,mid,by-22)}
+    x.strokeStyle=brand(X0,X1,.8);x.lineWidth=2;x.beginPath();x.moveTo(X0,by);x.lineTo(X1,by);x.stroke();
+    x.fillStyle="#6b7194";x.font="700 15px "+F;LS("4px");x.fillText(label,mid+2,by+36);LS("0px");
+    if(sub){x.fillStyle="#8a8fae";x.font="500 19px "+F;x.fillText(sub,mid,by+64)}
+  };
+  foot(850,1150,"BE Mastery","ISSUED BY","Lomonec LLC",true);
+  foot(1450,1750,d.date,"DATE OF COMPLETION","",false);
+
+  /* seal: a glowing ring, a navy hexagon, the gold star */
+  const sr=96;
+  x.save();x.shadowColor="rgba(79,70,229,.45)";x.shadowBlur=36;x.shadowOffsetY=8;
+  const sg=x.createRadialGradient(sx-30,sy-40,8,sx,sy,sr);sg.addColorStop(0,"#4f46e5");sg.addColorStop(1,"#1e1b4b");
+  x.fillStyle=sg;x.beginPath();x.arc(sx,sy,sr,0,7);x.fill();x.restore();
+  x.strokeStyle=brand(sx-sr,sx+sr);x.lineWidth=5;x.beginPath();x.arc(sx,sy,sr,0,7);x.stroke();
+  const hp=hexPts(sx,sy,sr-38);x.strokeStyle="rgba(165,243,252,.7)";x.lineWidth=2;
+  x.beginPath();hp.forEach((p,i)=>i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]));x.closePath();x.stroke();
+  const ring="BE MASTERY • "+d.weeks+" WEEKS • COMPLETED • ",r2=sr-20;
+  x.font="700 15px "+F;x.fillStyle="#c7d2fe";x.textAlign="center";x.textBaseline="middle";
+  const cw=[...ring].map(ch=>x.measureText(ch).width),sum=cw.reduce((a,b)=>a+b,0),extra=(Math.PI*2*r2-sum)/cw.length;let ang=-Math.PI/2;
+  [...ring].forEach((ch,i)=>{const a=ang+(cw[i]/2)/r2;x.save();x.translate(sx+Math.cos(a)*r2,sy+Math.sin(a)*r2);x.rotate(a+Math.PI/2);x.fillText(ch,0,0);x.restore();ang+=(cw[i]+extra)/r2});
+  x.save();x.translate(sx,sy);x.scale(1.05,1.05);x.translate(-404,-138.5);x.shadowColor="rgba(251,191,36,.85)";x.shadowBlur=18;
+  x.fillStyle="#fbbf24";x.fill(new Path2D("M404 92 l13.5 33 33 13.5 -33 13.5 -13.5 33 -13.5-33 -33-13.5 33-13.5 Z"));x.restore();
+  x.textBaseline="alphabetic";
+
+  /* certificate number + address */
+  x.textAlign="center";x.fillStyle="#8a8fae";x.font="500 18px "+F;
+  const foot2="Certificate no. "+d.no+"   ·   app.lomonec.com"+(d.weld?"   ·   An English-language programme. Not a welding qualification.":"");
+  x.fillText(foot2,cx,H-P-44);
+  return c;
+}
+
+/* A one-page PDF around a JPEG of the certificate — A4 landscape, written by
+   hand (≈40 lines) so the app needs no PDF library and it works offline. */
+function certPdf(jpegBytes,pxW,pxH,title){
+  const enc=new TextEncoder(),parts=[],offs=[];let len=0;
+  const push=b=>{if(typeof b==="string")b=enc.encode(b);parts.push(b);len+=b.length};
+  const obj=(n,body)=>{offs[n]=len;push(n+" 0 obj\n");body();push("\nendobj\n")};
+  const utf16=s=>{let h="FEFF";for(const ch of String(s)){const cp=ch.codePointAt(0);
+    if(cp>0xffff){const v=cp-0x10000;h+=(0xd800+(v>>10)).toString(16).padStart(4,"0")+(0xdc00+(v&1023)).toString(16).padStart(4,"0")}
+    else h+=cp.toString(16).padStart(4,"0")}return "<"+h.toUpperCase()+">"};
+  const PW=841.89,PH=595.28,cmd="q "+PW+" 0 0 "+PH+" 0 0 cm /Im0 Do Q";
+  push("%PDF-1.4\n%âãÏÓ\n");
+  obj(1,()=>push("<< /Type /Catalog /Pages 2 0 R >>"));
+  obj(2,()=>push("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"));
+  obj(3,()=>push("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 "+PW+" "+PH+"] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>"));
+  obj(4,()=>{push("<< /Type /XObject /Subtype /Image /Width "+pxW+" /Height "+pxH+" /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length "+jpegBytes.length+" >>\nstream\n");push(jpegBytes);push("\nendstream")});
+  obj(5,()=>push("<< /Length "+cmd.length+" >>\nstream\n"+cmd+"\nendstream"));
+  obj(6,()=>push("<< /Title "+utf16(title)+" /Author (Lomonec LLC) /Creator (BE Mastery) >>"));
+  const xref=len;
+  push("xref\n0 7\n0000000000 65535 f \n"+[1,2,3,4,5,6].map(n=>String(offs[n]).padStart(10,"0")+" 00000 n \n").join(""));
+  push("trailer\n<< /Size 7 /Root 1 0 R /Info 6 0 R >>\nstartxref\n"+xref+"\n%%EOF\n");
+  return new Blob(parts,{type:"application/pdf"});
+}
+
+/* the learner's certificate as a canvas; k scales it (1 = 2000 px wide) */
+async function certCanvas(k){
+  await certFonts();
+  const iso=certStamp()||new Date().toISOString().slice(0,10);
+  const full=certFull(),st=certStats();
   /* a zero is not something to frame: empty counts make way for the weeks */
   const tiles=[[st.sessions,"SESSIONS"],[st.weeks,"WEEKS"],[st.phrases,"PHRASES MASTERED"],[st.words,"WORDS COLLECTED"],[st.streak,"BEST STREAK (DAYS)"]]
     .filter((q,i)=>i===0||q[0]>0);
   if(tiles.length>4)tiles.splice(1,1);
-  const tW=340,tH=150,gap=34,t0=(W-(tW*tiles.length+gap*(tiles.length-1)))/2,ty=928;
-  tiles.forEach(([v,l],i)=>{const X=t0+i*(tW+gap);
-    x.fillStyle="rgba(255,255,255,.045)";rr(X,ty,tW,tH,22);x.fill();
-    x.strokeStyle="rgba(255,255,255,.10)";x.lineWidth=1.5;rr(X,ty,tW,tH,22);x.stroke();
-    const tg2=x.createLinearGradient(X+30,0,X+tW-30,0);tg2.addColorStop(0,"rgba(99,102,241,0)");tg2.addColorStop(.5,"rgba(34,211,238,.85)");tg2.addColorStop(1,"rgba(168,85,247,0)");
-    x.strokeStyle=tg2;x.lineWidth=2.5;x.beginPath();x.moveTo(X+30,ty+1);x.lineTo(X+tW-30,ty+1);x.stroke();
-    x.fillStyle="#ffffff";x.font="800 62px "+F;x.fillText(String(v),X+tW/2,ty+84);
-    x.fillStyle="#a2a7c4";x.font="600 18px "+F;LS("3px");x.fillText(l,X+tW/2+1.5,ty+122);LS("0px")});
-
-  /* bottom: issuer (left), seal (centre), date (right) */
-  const by=1252;
-  const foot=(X,label,val,align)=>{x.textAlign=align;
-    const g=x.createLinearGradient(align==="left"?X:X-420,0,align==="left"?X+420:X,0);
-    g.addColorStop(0,align==="left"?"rgba(129,140,248,.8)":"rgba(129,140,248,0)");g.addColorStop(1,align==="left"?"rgba(129,140,248,0)":"rgba(129,140,248,.8)");
-    x.strokeStyle=g;x.lineWidth=2;x.beginPath();x.moveTo(align==="left"?X:X-420,by-50);x.lineTo(align==="left"?X+420:X,by-50);x.stroke();
-    x.fillStyle="#ffffff";x.font="700 34px "+F;x.fillText(val,X,by);
-    x.fillStyle="#767c9d";x.font="600 18px "+F;LS("5px");x.fillText(label,X+(align==="left"?0:5),by+40);LS("0px")};
-  foot(170,"ISSUED BY","Lomonec LLC","left");
-  foot(W-170,"DATE OF COMPLETION",certDateText(iso),"right");
-
-  const sx=W/2,sy=1192,sr=98;
-  x.save();x.shadowColor="rgba(99,102,241,.7)";x.shadowBlur=50;
-  const sg=x.createRadialGradient(sx-30,sy-40,10,sx,sy,sr);sg.addColorStop(0,"#4f46e5");sg.addColorStop(1,"#1e1b4b");
-  x.fillStyle=sg;x.beginPath();x.arc(sx,sy,sr,0,7);x.fill();x.restore();
-  x.strokeStyle=gt;x.lineWidth=4;x.beginPath();x.arc(sx,sy,sr,0,7);x.stroke();
-  x.strokeStyle="rgba(255,255,255,.25)";x.lineWidth=1.5;x.beginPath();x.arc(sx,sy,sr-40,0,7);x.stroke();
-  /* ring text */
-  const ring="BE MASTERY \u2022 "+st.weeks+" WEEKS \u2022 COMPLETED \u2022 ",rr2=sr-21;
-  x.font="700 16px "+F;x.fillStyle="#c7d2fe";x.textAlign="center";x.textBaseline="middle";
-  const cw=[...ring].map(ch=>x.measureText(ch).width),sum=cw.reduce((a,b)=>a+b,0);
-  const extra=(Math.PI*2*rr2-sum)/cw.length;let ang=-Math.PI/2;
-  [...ring].forEach((ch,i)=>{const a=ang+(cw[i]/2)/rr2;x.save();x.translate(sx+Math.cos(a)*rr2,sy+Math.sin(a)*rr2);x.rotate(a+Math.PI/2);x.fillText(ch,0,0);x.restore();ang+=(cw[i]+extra)/rr2});
-  /* the logo's gold star */
-  x.save();x.translate(sx,sy);x.scale(1.25,1.25);x.translate(-404,-138.5);x.shadowColor="rgba(251,191,36,.8)";x.shadowBlur=20;
-  x.fillStyle="#fbbf24";x.fill(new Path2D("M404 92 l13.5 33 33 13.5 -33 13.5 -13.5 33 -13.5-33 -33-13.5 33-13.5 Z"));x.restore();
-  x.textBaseline="alphabetic";
-
-  x.textAlign="center";x.fillStyle="#767c9d";x.font="500 21px "+F;
-  x.fillText(weld?"app.lomonec.com  ·  An English-language programme. Not a welding qualification.":"app.lomonec.com",W/2,H-84);
+  return certDraw(document.createElement("canvas"),{full,programme:certProgramme(),weeks:st.weeks,sessions:st.sessions,
+    tiles,date:certDateText(iso),no:certNo(full||"-",iso),weld:areaId()==="welding"},k||1);
+}
+async function certRender(){
+  const c=await certCanvas(1);
   return new Promise(res=>c.toBlob(res,"image/png"));
 }
 
@@ -12826,7 +12939,8 @@ async function certPreview(){
     <div class="cert-prev cert-wait" aria-busy="true"></div>
     <div class="cert-acts">
       <button class="btn btn-p" onclick="shShare('cert')">${tIc("cert.share","upload")}</button>
-      <button class="btn btn-g" onclick="certDownload()">${tIc("cert.download","download")}</button>
+      <button class="btn btn-g" onclick="certPdfDownload()">${tIc("cert.pdf","doc")}</button>
+      <button class="btn btn-g" onclick="certDownload()">${tIc("cert.png","download")}</button>
       <button class="btn btn-g" onclick="shLinkedIn()">${esc(t("share.cert_li"))}</button>
     </div>
     <button class="cert-edit" onclick="certEdit()">${tIc("cert.edit","pencil")}</button>`;
@@ -12849,6 +12963,19 @@ window.certDownload=async()=>{
   const url=URL.createObjectURL(blob),a=document.createElement("a");
   a.href=url;a.download="be-mastery-certificate.png";a.click();
   setTimeout(()=>URL.revokeObjectURL(url),4000);toast(t("share.downloaded"));
+  try{track("cert_image_saved",{track:areaId()})}catch(e){}
+};
+/* 3000×2121 JPEG inside an A4 page: about 256 dpi, well under a megabyte */
+window.certPdfDownload=async()=>{
+  try{
+    const c=await certCanvas(1.5);
+    const jpg=await new Promise(res=>c.toBlob(res,"image/jpeg",.92));if(!jpg)return toast(t("share.failed"));
+    const pdf=certPdf(new Uint8Array(await jpg.arrayBuffer()),c.width,c.height,"Certificate of Completion \u2014 "+certFull());
+    const url=URL.createObjectURL(pdf),a=document.createElement("a");
+    a.href=url;a.download="be-mastery-certificate.pdf";a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);toast(t("share.downloaded"));
+    try{track("cert_pdf_downloaded",{track:areaId()})}catch(e){}
+  }catch(e){toast(t("share.failed"))}
 };
 window.certOpen=()=>{
   if(totalDone()<trackSessionCount())return toast(t("share.cert_locked",{n:totalDone()}));
@@ -17144,7 +17271,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v470";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v481";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
