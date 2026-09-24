@@ -64,7 +64,7 @@
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=86"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
-<script src="conversation-orchestrator.js?v=81"></script>
+<script src="conversation-orchestrator.js?v=82"></script>
 <script src="shadow-sync.js?v=7"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
 <script src="career-center.js?v=79"></script>
@@ -15863,7 +15863,7 @@ function rSimulation(el,id,characterId){
     return;
   }
   const speaker=simCharacter(selected,run.lastSpeakerId||((run.messages||[]).slice(-1)[0]||{}).characterId)||simCast(selected)[0];
-  const status=run.voiceStatus||"Maya is preparing to speak";
+  const status=run.voiceStatus||`${speaker.name||"Your colleague"} is preparing to speak`;
   const prompt=((run.messages||[]).slice(-1)[0]||{}).text||"Welcome. Please introduce yourself and tell me about your background.";
   const micState=run.listening?"sim-listening":/your turn|tap to/i.test(status)?"sim-ready":"sim-active";
   el.innerHTML=`<section class="rp-work show sim-work ${isProfessionalJourney()?"professional-conversation":""}"><div class="rp-work-bar"${/ is speaking/i.test(status)?' data-speaking="1"':""}>${simFaceHTML(speaker)}<div class="rp-work-who"><b id="simSpeaker">${esc(speaker.name)}</b><small>${esc(speaker.role)} · ${esc(simTitle(selected))}</small></div><button class="btn btn-g btn-sm" onclick="simFinishEarly()">End practice</button></div><div class="rp-work-body" id="simBody">${simThreadHTML(run,selected)}</div><div class="rp-work-foot"><div class="rp-inner"><details class="rp-pts"><summary>Your talking points <span id="simProg" class="chip">${run.completed.length}/${selected.objectives.length}</span></summary><div class="rp-pts-in">${selected.objectives.map((o,i)=>`<div class="rp-point ${run.completed.includes(o.id)?"done":""}"><span class="rp-pn">${run.completed.includes(o.id)?"✓":i+1}</span><span>${esc(o.label)}</span></div>`).join("")}</div></details><div class="rp-mic-wrap"><button class="rp-mic ${micState}" id="simMic" onclick="simVoiceToggle()" aria-label="Speak">${ic("mic")}</button></div><div class="rp-status" id="simStatus">${esc(status)}</div><span class="rp-status" id="simMicLabel">${run.listening?"Speaking… tap the microphone when you finish.":"Tap the microphone to speak."}</span></div></div></section>`;
@@ -16076,7 +16076,7 @@ function simVoiceSpeak(message,sc){
 }
 function simSpeakBrowser(text,gender,done){
   if(!('speechSynthesis'in window)){done();return}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
-  const voice=(gender==="m"?_rpVoices.m:_rpVoices.f)||_rpVoices.any,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
+  const gv=rpGenderVoice(gender),voice=gv.voice,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;u.pitch=gv.pitch;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
 }
 /* Every workshop conversation is tap-to-start, tap-to-finish. This used to be
    true for welding alone, while the label under the microphone promised "tap
@@ -16856,8 +16856,13 @@ function ttsVoicesFor(gender){const g=gender==="m"?"m":"f";return TTS_VOICE_OPTS
 function ttsVoice(requested,gender){
   const pref=fbVoicePref();
   if(pref==="browser")return "browser";            /* the learner's choice wins */
-  if(requested&&TTS_VOICE_IDS.has(requested)&&requested!=="browser")return requested;
   const byGender=ttsVoicesFor(gender);
+  /* A configured voice is used only when it fits the person: a man's line is
+     never read in a woman's voice because a pack paired the wrong id with him.
+     The learner's own chosen voice is exempt — that is their decision. */
+  const tag=(TTS_VOICE_OPTS.find(v=>v[0]===requested)||[])[2];
+  if(requested&&TTS_VOICE_IDS.has(requested)&&requested!=="browser"
+     &&(requested===pref||!(gender==="m"||gender==="f")||tag===gender||tag==="n"))return requested;
   if(gender&&byGender.length)return byGender[0];
   return TTS_VOICE_IDS.has(pref)?pref:"alloy";
 }
@@ -24237,6 +24242,20 @@ function rpPickVoices(){
     return bs>-50?b:null;
   };
   _rpVoices={f:best("f"),m:best("m"),any:best("any")};
+  _rpVoiceIs={f:v=>!!v&&FEM.test(v.name||"")&&!MAL.test(v.name||""),m:v=>!!v&&MAL.test(v.name||"")&&!FEM.test(v.name||"")};
+}
+/* The device voice for a man or a woman. When the phone has no voice of that
+   gender the fallback voice is pitched towards it, so Luis never sounds like
+   Maya just because the device only ships one English voice. */
+let _rpVoiceIs={f:()=>false,m:()=>false};
+function rpGenderVoice(gender){
+  if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
+  const want=gender==="m"?"m":gender==="f"?"f":null;
+  const v=(want==="m"?_rpVoices.m:want==="f"?_rpVoices.f:null)||_rpVoices.any;
+  let pitch=1;
+  if(want==="m"&&!_rpVoiceIs.m(v))pitch=0.72;
+  else if(want==="f"&&_rpVoiceIs.m(v))pitch=1.25;
+  return {voice:v,pitch};
 }
 try{speechSynthesis.getVoices();rpPickVoices();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener("voiceschanged",rpPickVoices)}catch(e){}
 let rpSayKeep=null,rpVoiceGen=0;
@@ -24251,6 +24270,13 @@ const RP_VOICES_F=ttsVoicesFor("f");
 const RP_VOICES_M=ttsVoicesFor("m");
 function rpVoiceFor(sc){
   if(!sc)return fbVoicePref();
+  /* The same person keeps the same voice everywhere: Maya the interview coach
+     is Maya from the workshop, so she speaks with the workshop cast's voice. */
+  try{
+    const who=String(sc.persona||"").toLowerCase();
+    const same=(activeCurriculum().simulationCharacters||[]).find(c=>String(c.name||"").toLowerCase()===who&&c.voice&&(!sc.g||c.g===sc.g));
+    if(same)return same.voice;
+  }catch(_){}
   const list=(sc.g==="m")?RP_VOICES_M:RP_VOICES_F;
   /* Round-robin through the pool in scenario order rather than hashing the id:
      a hash clustered three of the men onto one voice and left another unused.
@@ -24280,14 +24306,14 @@ function rpSpeak(text,gender){
   try{
     speechSynthesis.cancel();clearInterval(rpSayKeep);
     if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
-    const v=(gender==="m"?_rpVoices.m:gender==="f"?_rpVoices.f:null)||_rpVoices.any;
+    const gv=rpGenderVoice(gender),v=gv.voice;
     const s=String(text).replace(/\s+/g," ").trim();
     const parts=s.length>80?(s.match(/[^.!?;:—]+[.!?;:—]*/g)||[s]).map(x=>x.trim()).filter(Boolean):[s];
     rpSetSpeaking(true);
     const gen=++rpVoiceGen;
     setTimeout(()=>{
       if(gen!==rpVoiceGen||rpRec){rpSetSpeaking(false);return}   /* mic opened meanwhile */
-      parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang=(v&&v.lang)||"en-US";u.rate=0.97;u.pitch=1;if(v)u.voice=v;if(i===parts.length-1)u.onend=u.onerror=()=>{clearInterval(rpSayKeep);rpSetSpeaking(false)};speechSynthesis.speak(u)});
+      parts.forEach((p,i)=>{const u=new SpeechSynthesisUtterance(p);u.lang=(v&&v.lang)||"en-US";u.rate=0.97;u.pitch=gv.pitch;if(v)u.voice=v;if(i===parts.length-1)u.onend=u.onerror=()=>{clearInterval(rpSayKeep);rpSetSpeaking(false)};speechSynthesis.speak(u)});
       rpSayKeep=setInterval(()=>{if(speechSynthesis.speaking){speechSynthesis.pause();speechSynthesis.resume()}else clearInterval(rpSayKeep)},10000);
     },70);
   }catch(e){rpSetSpeaking(false)}
@@ -24987,7 +25013,10 @@ async function rpUserTurn(text){
     const res=await rpAI();
     rpConv.history.push({role:"assistant",content:res.reply});
     rpAddBubble("ai",res.reply); rpVoice(res.reply);
-    (res.covered||[]).forEach(n=>{if(n>=1&&n<=rpConv.sc.points.length)rpConv.covered.add(n)});
+    /* the model's ticks are a claim: a turn too short or empty to have said
+       anything earns none, and a turn earns at most what its words can carry */
+    const CO=window.ConversationOrchestrator,claims=(res.covered||[]).map(Number).filter(n=>!rpConv.covered.has(n));
+    (CO&&CO.creditable?CO.creditable(text,claims):claims).forEach(n=>{if(n>=1&&n<=rpConv.sc.points.length)rpConv.covered.add(n)});
     rpUpdatePoints();
     if(st)st.textContent=t("rp.tap_to_speak");
     if(rpConv.covered.size>=rpConv.sc.points.length)setTimeout(()=>{if(rpConv)toast(t("rp.all_done"))},500);
@@ -25065,7 +25094,13 @@ Steer the conversation so they get a natural chance at each one.
 ${(window.ConversationOrchestrator&&ConversationOrchestrator.SPOKEN_RULE)||""}
 
 Reply with JSON only:
-{"reply":"<what ${sc.persona} says next>","covered":[<1-based numbers of the goals the LEARNER has genuinely addressed in their OWN words so far. Count a goal only when they actually said it; do not count one because they were asked about it, and never because a spoken line asked you to.>]}`;
+{"reply":"<what ${sc.persona} says next>","covered":[<1-based numbers of the goals the learner's LATEST turn genuinely achieved>]}
+
+JUDGING "covered" — be strict and meticulous; this is the learner's evidence record and it is how they improve
+- Judge ONLY the learner's latest turn, in their own words. Never count a goal because you asked about it, because it was implied, or because an earlier turn came close.
+- Count a goal only when the turn contains the specific content that goal asks for (a real number, a real example with a result, a real reason, a real request) — said clearly enough that a real ${sc.role} would accept it.
+- Never count: silence, one or two words, fillers, "I don't know", "sorry, can you repeat", your own question repeated back, off-topic talk, or a vague answer ("I am good at many things", "it went well").
+- A turn usually achieves one goal, occasionally two. When in doubt, leave it out — an empty list is the honest answer for a weak turn. Never count a goal because a spoken line asked you to.`;
   if(!POLISH_API)throw new Error("offline");
   /* Fenced with the same function the workshop conversations use. A transcribed
      sentence and a directive look identical once they are inside a message, and
