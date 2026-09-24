@@ -1438,6 +1438,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
   background:var(--accent-fill);color:var(--on-accent);font-size:12px;font-weight:800;font-style:normal}
 .sh-trouble-entry.has .pf-ic{background:var(--accent-fill);color:var(--on-accent)}
 .sh-back-lines{margin-bottom:12px}
+.sh-lib-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}.sh-lib-top .seg-tabs{flex:1;min-width:0;margin-bottom:0}.sh-lib-x{width:44px;height:44px}
 .seg-phase{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:14px}
 /* Square cards rather than a single nowrap row. The shared .seg-fit rule
    ellipsises its label, which turned four phase names into "Workshop Foun…",
@@ -6969,6 +6970,7 @@ const I18N_EN={
  "sh.back_to_lines":"Workplace lines",
  "sh.saved_clips_h":"⭐ My saved clips",
  "sh.saved_clips_sub":"Tap a clip to reload it.",
+ "sh.lib_entry_sub":"Your saved clips and every Shadow report, with what to fix.",
  "sh.trouble_h":"💪 My trouble words",
  "sh.trouble_sub":"Words the feedback flags collect here. Say one correctly and it clears.",
  "sh.vocab_h":"📚 Vocabulary & Grammar",
@@ -10889,6 +10891,7 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    and is tied to the stage the learner is on. */
 let _shTab="create",_shAdd=false;   /* the link box is folded behind the Add link tab: the page opens on the videos */
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}};
+window.shLibBack=()=>{shTab("create");setTimeout(()=>{const f=document.querySelector("#v-shadow .shl-foot");if(f)try{f.scrollIntoView({block:"center"})}catch(e){}},30)};
 window.shAddToggle=()=>{_shAdd=!(_shTab==="create"&&_shAdd);_shTab="create";const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}if(_shAdd)setTimeout(()=>{const u=document.getElementById("shUrl");if(u){try{u.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}u.focus()}},60)};
 const SH_STARTERS_SHOWN=3;
 function shStarterCard(s,i){
@@ -10927,11 +10930,14 @@ ${(()=>{
        the foot of the library, where someone goes when they are looking for
        them rather than for something to practise. */
     if(shLibOn()&&_shTab==='create')return "";
-    if(!isProfessionalJourney())return `  <div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
+    /* With the library on, My clips / History is a page of its own: the X
+       takes the learner back to the videos, where they came from (owner,
+       23 Sep 2026). */
+    if(!isProfessionalJourney())return `  ${shLibOn()?`<div class="sh-lib-top">`:""}<div class="seg-tabs seg-fit" role="tablist" aria-label="${esc(t("sh.tabs_label"))}">
     ${shLibOn()?"":`<button class="seg-tab ${_shTab==='create'&&_shAdd?'on':''}" role="tab" aria-selected="${_shTab==='create'&&_shAdd}" aria-expanded="${_shTab==='create'&&_shAdd}" onclick="shAddToggle()"><span class="btn-ic">${ic("link")}</span><span class="seg-lbl">${t("sh.tab_addlink")}</span></button>`}
     <button class="seg-tab ${_shTab==='clips'?'on':''}" role="tab" aria-selected="${_shTab==='clips'}" onclick="shTab('clips')"><span class="btn-ic">${ic("star")}</span><span class="seg-lbl">${t("sh.tab_clips")}</span> <b>${aList("clips").length}</b></button>
     <button class="seg-tab ${_shTab==='trouble'?'on':''}" role="tab" aria-selected="${_shTab==='trouble'}" onclick="shTab('trouble')"><span class="btn-ic">${ic("clock")}</span><span class="seg-lbl">${t("sh.tab_history")}</span> <b>${aList("chHist").length}</b></button>
-  </div>`;
+  </div>${shLibOn()?`<button class="sh-work-x sh-lib-x" onclick="shLibBack()" aria-label="${esc(t("wc.close"))}">${ic("close")}</button></div>`:""}`;
     if(_shTab==='trouble')return `<button class="back sh-back-lines stick-back stick-eb" onclick="shTab('create')">‹ ${esc(t("sh.back_to_lines"))}</button>`;
     const hn=aList("chHist").length;
     return `<button class="pf-row pf-setup sh-trouble-entry ${tb||hn?"has":""}" onclick="shTab('trouble')">
@@ -11565,8 +11571,7 @@ function shLibHTML(){
   </div>
   <div class="shl-feed" id="shLibFeed">${shLibFeedHTML()}</div>
   <div class="shl-foot" ${_shLibQ.trim()?'style="display:none"':""}>
-    <button class="pf-row" onclick="shTab('clips')"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))}${aList("clips").length?` <em class="sh-tb-n">${aList("clips").length}</em>`:""}</b><small>${esc(t("sh.saved_clips_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
-    <button class="pf-row" onclick="shTab('trouble')"><span class="pf-ic">${ic("clock")}</span><span class="pf-txt"><b>${esc(t("sh.tab_history"))}${aList("chHist").length?` <em class="sh-tb-n">${aList("chHist").length}</em>`:""}</b><small>${esc(t("sh.hist_entry_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
+    <button class="pf-row" onclick="shTab('clips')"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))} · ${esc(t("sh.tab_history"))}${aList("clips").length+aList("chHist").length?` <em class="sh-tb-n">${aList("clips").length+aList("chHist").length}</em>`:""}</b><small>${esc(t("sh.lib_entry_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
   </div>`;
 }
 window.shUseStarter=i=>{
