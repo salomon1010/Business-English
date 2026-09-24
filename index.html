@@ -4655,7 +4655,13 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 /* ── SIGNAL · light ─────────────────────────────────────────────────────── */
 :root[data-theme="light"]:not([data-track="welding"]){
-  --mut2:#606880;   /* Phase 5: was #98a1b8 (2.58:1 on white) — tertiary text is text, so AA */
+  --mut2:#606880;
+  /* Light-mode identity (owner, 2026-09-24): a refined dark-blue border, not
+     the dark theme's neutral hairline on white. Every bordered component
+     (cards, rows, inputs, folds, sheets, grouped settings, progress tracks)
+     reads these two tokens, so the change lives here and nowhere else.
+     Signal: its navy family. */
+  --line:rgba(30,45,120,.20); --line2:rgba(30,45,120,.34);   /* Phase 5: was #98a1b8 (2.58:1 on white) — tertiary text is text, so AA */
   --field-1:rgba(99,102,241,.045); --field-2:rgba(34,211,238,.035); --field-3:rgba(168,85,247,.025);   /* light: faint enough that --mut on translucent cards stays ≥4.5:1 */
   --hair:inset 0 1px 0 rgba(255,255,255,.8);
   --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb); --cta-tint:rgba(79,70,229,.16);
@@ -4684,6 +4690,8 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 /* ── FORGE · light ──────────────────────────────────────────────────────── */
 :root[data-theme="light"][data-track="welding"]{
   --mut2:#606880;
+  /* Forge: a darker steel blue that sits with the amber (see the Signal note). */
+  --line:rgba(24,54,88,.20); --line2:rgba(24,54,88,.34);
   /* Phase 5: the white label this block always promised. --on-accent was never
      set here, so light Welding inherited the dark label #1b1202 and every
      button on --accent-fill / the CTA read 2.5–3.1:1. --grad joins the CTA's
