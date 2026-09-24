@@ -1015,6 +1015,8 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-fab svg{width:22px;height:22px}
 /* the partner button steps above the dock instead of sitting under it */
 html.has-shdock #ppFab{bottom:calc(env(safe-area-inset-bottom,0px) + 148px)}
+/* the dock floats over the page end: leave room so My clips · History scrolls clear of it */
+html.has-shdock #v-shadow .shl-foot{margin-bottom:110px}
 .shl-feed{display:flex;flex-direction:column;gap:12px}
 .shl-row{display:grid;grid-template-columns:128px 1fr;gap:12px;align-items:start;background:none;border:0;padding:0;text-align:left;font-family:inherit;color:var(--txt);cursor:pointer;width:100%}
 .shl-thumb{position:relative;aspect-ratio:16/9;border-radius:11px;overflow:hidden;background:var(--card2);border:1px solid var(--line)}
