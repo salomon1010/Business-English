@@ -145,3 +145,36 @@ server's view (Phase 7). A Premium learner gets:
 5. Deploy `be-events` with the new allow-list, and `be-entitlements`.
 6. Turn `ads_enabled` on, watch `ad_suppressed` reasons and retention for a
    week, then tune `AD_POLICY`.
+
+## 10. Verification
+- **Physical-device check (2026-09-24): PASSED**, reported by the owner after
+  testing on a real iPhone. The preview served commit `931b805` unchanged, and
+  the app opened in its production state: ads off, provider `none`. A preview-only
+  "Ads test mode" set `ads_enabled` and `ads_mock_provider` for that device
+  and, inside the preview frame, lifted the mock's localhost/staging hostname
+  guard and the 2-minute quiet start. "Simulate Premium" set the display view
+  only, because no entitlement server is deployed. Covered:
+  - the interstitial after a finished session, Shadow take or practice,
+    over the page the learner chose;
+  - the close / Continue controls after 5 s;
+  - the frequency gap;
+  - held breaks during learning;
+  - native slots at the foot of Home, Progress and the Shadow library, and
+    none on learning screens;
+  - Premium suppression;
+  - Light mode borders;
+  - Welding.
+- **Automated tests:**
+  - `tests/ads.mjs` 48/48;
+  - `backend/entitlements/test/run.mjs` 61/61 (reward single-use and
+    transaction replay mutation-checked);
+  - `backend/events/test/run.mjs` 94/94;
+  - `tests/entitlement-client.mjs` 46/46 (Phase 7 client, adapted to the
+    moderate policy);
+  - the partner Worker 153/153 (local `wrangler dev`);
+  - smoke 33/33, and the design Phases 1–5 gates;
+  - Shadow, Polish, session, report and mission suites.
+- **Failures also present on main:**
+  - language-polish test 1;
+  - shadow-challenge's line-398 crash (after 85 passes);
+  - the partner end-to-end `.pp-how-link` timeout.

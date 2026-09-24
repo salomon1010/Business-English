@@ -144,8 +144,9 @@ console.log("\n# ad eligibility — one policy, conservative, protected learning
     await p.evaluate(js); await sleep(300);
     const x = await d("interstitial", "lesson_complete", { now: T });
     ok(`38 · on the ${v} ${v === "shadow" ? "workspace" : "screen"} itself → protected:view:${v}`, x.reason === "protected:view:" + v, JSON.stringify(x));
+    await p.evaluate(() => document.body.classList.remove("sh-work-open"));
   }
-  await p.evaluate(() => document.body.classList.remove("sh-work-open"));
+  await p.evaluate(() => go("shadow")); await sleep(300);
   const lib = await d("native", "library", { now: T });
   ok("38b · the Shadow LIBRARY (workspace closed) is browsing, not learning — not protected", !/protected/.test(lib.reason), JSON.stringify(lib));
   await p.evaluate(() => go("home"));
