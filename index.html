@@ -73,7 +73,7 @@
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=84"></script>
 <script src="mission-engine.js?v=4"></script>
-<script src="shadow-lines.js?v=84"></script>
+<script src="shadow-lines.js?v=85"></script>
 <script>
 window.FB_CONFIG={
   apiKey:"AIzaSyDbCoGDB3kwjHfPfsEtTxGOqb1Xq8wv3wY",
@@ -1359,16 +1359,17 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sh-lines{margin-bottom:16px}
 .sh-lines-h{font-size:19px;margin:2px 0 5px}
 .sh-lines-sub{font-size:13px;color:var(--mut);line-height:1.55;margin:0 0 14px}
-.sh-line{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+.sh-line{display:block;padding:12px 0;border-top:1px solid var(--line)}
 .sh-line:first-of-type{border-top:none;padding-top:4px}
-.sh-line-play{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);
+.sh-line-spk{display:flex;gap:10px;align-items:center;margin-bottom:6px}
+.sh-line-play{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);
   background:var(--bg2);color:var(--accent-text);font-size:15px;cursor:pointer;display:grid;place-items:center;
   transition:.15s;font-family:inherit}
 .sh-line-play:hover{border-color:var(--acc)}
 .sh-line-play.on{background:var(--accent-fill);color:var(--on-accent);border-color:transparent}
-.sh-line-t{min-width:0;flex:1}
-.sh-line-who{display:block;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
-  color:var(--mut2);margin-bottom:5px}
+.sh-line-t{min-width:0;width:100%}
+.sh-line-who{display:block;min-width:0;flex:1;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--mut2)}
 .sh-line-who em{font-style:normal;opacity:.75}
 .sh-line-t p{margin:0;font-size:14.5px;line-height:1.55;color:var(--txt)}
 .sh-line-t small{display:block;margin-top:6px;font-size:12px;color:var(--mut)}
@@ -16776,7 +16777,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v455";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v459";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];

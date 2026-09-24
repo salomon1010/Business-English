@@ -422,11 +422,16 @@ function shWorkplaceLinesHTML(){
      buttons told a learner nothing about where to start, which is the same gap
      the workshop cast had. Only the first, and only ever one. */
   let _first=true;
+  /* The play button lives on the speaker row, not in a column of its own: a
+     44px gutter down the left of every line, button, and report was empty
+     space on a phone. The sentence runs edge to edge. */
   const card=l=>{const lead=_first;_first=false;return `<div class="sh-line">
-    <button class="sh-line-play" id="shl-${esc(l.id)}" onclick="shSayLine('${esc(l.id)}')"
-      aria-label="Hear this line">▶</button>
     <div class="sh-line-t">
-      <span class="sh-line-who">${esc(l.who)}${l.role?" · "+esc(l.role):""} <em>${esc(l.scenario)}</em></span>
+      <div class="sh-line-spk">
+        <button class="sh-line-play" id="shl-${esc(l.id)}" onclick="shSayLine('${esc(l.id)}')"
+          aria-label="Hear this line">▶</button>
+        <span class="sh-line-who">${esc(l.who)}${l.role?" · "+esc(l.role):""} <em>${esc(l.scenario)}</em></span>
+      </div>
       <p>“${esc(l.text)}”</p>
       ${l.ask?`<small>${esc(t("sh.line_answering",{q:l.ask}))}</small>`:""}
       <button class="btn btn-g btn-sm sh-line-rec ${lead?"cta-lead":""}" id="shr-${esc(l.id)}" onclick="shLineRecord('${esc(l.id)}')">${esc(t("sh.line_rec"))}</button>

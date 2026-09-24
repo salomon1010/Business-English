@@ -8,7 +8,7 @@ const CACHE = "be12-v459";
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
   "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=79", "competency-engine.js?v=83", "learning-coach.js?v=85",
   "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=81", "shadow-sync.js?v=7", "adaptive-learning-engine.js?v=84",
-  "career-center.js?v=79", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=84", "mission-engine.js?v=4",
+  "career-center.js?v=79", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=85", "mission-engine.js?v=4",
   "catalogue/general.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json", "tracks/general/missions.json",
   "tracks/welding/weeks.json", "tracks/welding/shadow.json", "tracks/welding/phrases.json", "tracks/welding/vocabulary.json", "tracks/welding/practice.json", "tracks/welding/progress.json", "tracks/welding/foundations.json"];
 
