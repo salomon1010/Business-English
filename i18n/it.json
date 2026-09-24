@@ -1153,6 +1153,7 @@
  "rp.hist_none": "Ancora nessuna sessione — completa una conversazione e comparirà qui.",
  "rp.hist_teaser": "{{n}} sessioni precedenti · ultima il {{date}}",
  "rp.hist_noreport": "No report for this session",
+ "rp.hist_make": "Get the report",
  "home.stat_pron": "Pronuncia",
  "home.next_pron": "Valuta una conversazione per avere un punteggio",
  "rev.pron_h": "Pratica orale",

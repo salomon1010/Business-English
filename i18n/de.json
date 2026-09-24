@@ -1153,6 +1153,7 @@
  "rp.hist_none": "Noch keine Sitzungen — beende ein Gespräch, dann erscheint es hier.",
  "rp.hist_teaser": "{{n}} frühere Sitzungen · zuletzt am {{date}}",
  "rp.hist_noreport": "No report for this session",
+ "rp.hist_make": "Get the report",
  "home.stat_pron": "Aussprache",
  "home.next_pron": "Werte ein Gespräch aus, um einen Wert zu bekommen",
  "rev.pron_h": "Sprechpraxis",

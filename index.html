@@ -4188,6 +4188,19 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .rp-hist-repwrap .ex-rep-card{margin:0}
 .rp-hist-lsc{font-weight:800;font-variant-numeric:tabular-nums;flex:none;min-width:38px}
 .rp-hist-teaser{display:flex;align-items:center;gap:12px;width:100%;margin-top:16px;text-align:left;cursor:pointer}
+.rp-sum-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:520px;margin:22px auto 0}
+.rp-sum-acts .btn{width:100%;min-height:50px;margin:0;padding:10px 8px;font-size:13.5px;line-height:1.2;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center;white-space:normal}
+.rp-sum-hist{width:100%;max-width:520px;margin:0 auto}
+.rp-rep-btn{position:relative;color:#fff;border:0;font-weight:700;background:linear-gradient(135deg,#0d9488,#10b981);box-shadow:0 6px 18px rgba(16,185,129,.28)}
+.rp-rep-btn svg{width:16px;height:16px;flex:none}
+.rp-rep-btn[data-st="busy"]{background:linear-gradient(110deg,#0f766e 25%,#2dd4bf 50%,#0f766e 75%);background-size:200% 100%;animation:rpRepShim 1.3s linear infinite}
+.rp-rep-btn[data-st="ready"]{animation:rpRepGlow 2s ease-in-out infinite}
+.rp-rep-dot{display:none;position:absolute;top:-5px;right:-5px;width:13px;height:13px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--bg)}
+.rp-rep-dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:inherit;animation:rmRing 1.6s ease-out infinite}
+.rp-rep-btn[data-st="ready"] .rp-rep-dot{display:block}
+@keyframes rpRepShim{to{background-position:-200% 0}}
+@keyframes rpRepGlow{0%,100%{box-shadow:0 6px 18px rgba(16,185,129,.28)}50%{box-shadow:0 0 0 7px rgba(16,185,129,.2),0 6px 18px rgba(16,185,129,.35)}}
+@media (prefers-reduced-motion:reduce){.rp-rep-btn,.rp-rep-dot::after{animation:none!important}}
 .rp-ht-l{flex:1;min-width:0}
 .rp-ht-l b{display:block;font-size:14px}
 .rp-ht-l small{display:block;font-size:12px;color:var(--mut2);margin-top:2px}
@@ -5377,6 +5390,7 @@ const I18N_EN={
   "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
   "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
   "rp.hist_noreport":"No report for this session",
+  "rp.hist_make":"Get the report",
   "rp.eval_unavailable":"Scoring didn't come back for this conversation. Check your connection and try again — your sentences are kept above.",
   "rp.eval_yours":"Hear how you said it",
   "rp.eval_btn":"Evaluate your conversation",
@@ -13655,10 +13669,17 @@ function sessCtx(w,d,dd,weekPhrases){
   return {track:isGeneralEnglish()?"general":"welding",week:w,day:d,focus:String((dd&&dd.focus)||"").slice(0,160),task:String((dd&&dd.task)||"").slice(0,300),out:String((dd&&dd.out)||"").slice(0,200),phrases:(weekPhrases||[]).map(p=>String(p.p||"").slice(0,80)).filter(Boolean).slice(0,6)};
 }
 function sessRepGet(key){const r=S.notes["exrep:"+key];return r&&typeof r==="object"&&r.m?r:null}
+/* Conversation reports (roleplay / interview) have their own allowance: they
+   used to share the 16 with session days, so a busy week of sessions deleted
+   the interview reports the scenario history shows (owner, 24 Sep 2026). */
+const RP_REP_KEEP=40;
 function sessRepPut(key,rep){
   S.notes["exrep:"+key]=rep;
-  const ks=Object.keys(S.notes).filter(k=>k.startsWith("exrep:")).sort((a,b)=>((S.notes[b]||{}).at||0)-((S.notes[a]||{}).at||0));
-  ks.slice(SESS_REP_KEEP).forEach(k=>{delete S.notes[k]});
+  const conv=k=>(S.notes[k]||{}).kind==="conversation";
+  const by=(a,b)=>((S.notes[b]||{}).at||0)-((S.notes[a]||{}).at||0);
+  const ks=Object.keys(S.notes).filter(k=>k.startsWith("exrep:"));
+  ks.filter(k=>!conv(k)).sort(by).slice(SESS_REP_KEEP).forEach(k=>{delete S.notes[k]});
+  ks.filter(conv).sort(by).slice(RP_REP_KEEP).forEach(k=>{delete S.notes[k]});
 }
 function sessHost(key,rep){return {wrapId:"sessRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,again:sessAgain}}
 function sessOn(key){return cur.v==="session"&&_sessCur&&_sessCur.key===key&&!!document.getElementById("sessRepWrap")}
@@ -24339,11 +24360,35 @@ RULES
 Return JSON only:
 {"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":"","polish":[{"said":"","better":"","why":""}]}`;
 }
+function rpRepBtnState(){
+  if(!_rpLast)return "idle";
+  const key=rpRepKey(_rpLast.sc);
+  return sessRepGet(key)?"ready":_rpRepRuns[key]?"busy":"idle";
+}
+function rpRepBtnSync(){
+  const b=document.getElementById("rpRepBtn");if(b)b.dataset.st=rpRepBtnState();
+  const hb=document.getElementById("rpSumHist");
+  if(hb&&_rpLast){hb.innerHTML=rpHistTeaserHTML(_rpLast.sc);manIconizeInline(hb)}
+}
+/* the summary's actions, the same on both summary screens: three equal
+   buttons in one row, and the scenario's history under them so every past
+   attempt and its report is one tap away whenever the learner comes back */
+function rpSumActionsHTML(sc){
+  return `<div class="rp-sum-acts">
+       <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
+       <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
+       ${rpRepBtnHTML()}
+     </div>
+     <div id="rpSumHist" class="rp-sum-hist">${rpHistTeaserHTML(sc)}</div>`;
+}
 function rpRepBtnHTML(){
   /* both programmes (owner, 24 Sep 2026): the Welding interview coaches get the
      same report, judged in the workshop register (ctx.track = "welding") */
   if(!_rpLast||!(_rpLast.turns||[]).length)return "";
-  return `<button class="btn btn-g" onclick="rpReport()">${ic("chart")} ${t("rp.rep_btn")}</button>`;
+  /* its own colour, and live (owner, 24 Sep 2026): it shimmers while the
+     report is being built after the conversation, and carries a beacon dot
+     once the report is ready to open */
+  return `<button id="rpRepBtn" class="btn rp-rep-btn" data-st="${rpRepBtnState()}" onclick="rpReport()"><span class="rp-rep-dot" aria-hidden="true"></span>${ic("chart")}<span>${t("rp.rep_btn")}</span></button>`;
 }
 /* the stored report as it may be shown: a better version or polish written
    before the grounding check is re-checked against the learner's own lines */
@@ -24425,7 +24470,6 @@ function rpRepListHTML(sc,rows,cls){
    session's and the mission's (track-scoped, synced with the notes, capped
    by sessRepPut); the previous report on the same scenario is the
    "previous take" the carry-over score is marked against. */
-let _rpRepBusy=null;
 function rpRepKey(sc){return recCtx("rp:"+sc.id+":"+_rpLastTs)}
 function rpRepCtx(sc){
   return {track:isGeneralEnglish()?"general":"welding",focus:String(sc.title+" — "+(sc.persona?sc.persona+", ":"")+(sc.role||"")).slice(0,160),
@@ -24489,6 +24533,39 @@ async function rpRepMaterial(turns){
   }
   return {text,audio};
 }
+/* One conversation's report, built and stored. It runs on its own the moment
+   a conversation ends (owner, 24 Sep 2026: every attempt keeps its report in
+   the scenario history, whether or not the learner opens it), again from the
+   Speaking report button (which joins a run already going), and from a
+   history row that has none (from the sentences kept on the entry — audio is
+   never stored, so that one has no pace or pitch). It only draws when its own
+   screen is up, so the run at the end of a conversation is silent. */
+const _rpRepRuns={};
+function rpRepRun(sc,key,turns,ts){
+  if(_rpRepRuns[key])return _rpRepRuns[key];
+  const job=(async()=>{
+    const stored=sessRepGet(key);if(stored)return {rep:stored};
+    if(!POLISH_API||!navigator.onLine)return {fail:"off"};
+    const area=areaId(),ctx=rpRepCtx(sc);
+    const mat=await rpRepMaterial(turns||[]);
+    if(!mat.text)return {fail:"stt"};
+    if(rpRepOn(key))exStep(t("ex.step_measure"));
+    const mm=exTextStats(mat.text,null,mat.audio);
+    if(rpRepOn(key))exStep(t("ex.step_plan"));
+    const ai=await exAI(mat.text,mm,ctx);
+    const rep={at:Date.now(),tk:area,key,mission:sc.id,kind:"conversation",m:mm,ai:ai||null,tx:mat.text,sttFailed:false,targets:exTargets(ai),ctx};
+    const prev=rpRepPrev(sc,key);if(prev)rep.prev=prev;
+    /* the coach could not be reached: nothing is stored, so the next try
+       (button or history row) sends the conversation again */
+    if(!ai)return {fail:"ai",rep};
+    const c0=(S.convos||[]).find(x=>x&&x.ts===ts);if(c0)c0.exrep=key;   /* the scenario's history finds it by this */
+    sessRepPut(key,rep);save();
+    return {rep};
+  })().catch(e=>{try{console.warn("[roleplay] speaking report unavailable",e)}catch(_){}return {fail:"err"}})
+     .finally(()=>{delete _rpRepRuns[key]});
+  _rpRepRuns[key]=job;
+  return job;
+}
 window.rpReport=async()=>{
   if(!_rpLast||!(_rpLast.turns||[]).length)return;
   const sc=_rpLast.sc,key=rpRepKey(sc);
@@ -24498,40 +24575,19 @@ window.rpReport=async()=>{
   rpRepScreen(sc);
   const stored=sessRepGet(key);
   if(stored){exHost=rpHost(sc,key,stored);exRenderReport(stored,true);return}
-  if(_rpRepBusy===key){exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t("ex.step_measure")),true);return}
   if(!POLISH_API||!navigator.onLine){exHost=rpHost(sc,key,null);rpRepNote(t("sess.report_off"),true);return}
-  _rpRepBusy=key;exCoachStop();
-  exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t("ex.step_stt")),true);
-  const area=areaId(),ctx=rpRepCtx(sc);
-  try{
-    const mat=await rpRepMaterial(_rpLast.turns);
-    if(!mat.text){_rpRepBusy=null;if(rpRepOn(key))rpRepNote(t("sess.report_stt"),true);return}
-    if(rpRepOn(key))exStep(t("ex.step_measure"));
-    const mm=exTextStats(mat.text,null,mat.audio);
-    if(rpRepOn(key))exStep(t("ex.step_plan"));
-    const ai=await exAI(mat.text,mm,ctx);
-    const rep={at:Date.now(),tk:area,key,mission:sc.id,kind:"conversation",m:mm,ai:ai||null,tx:mat.text,sttFailed:false,targets:exTargets(ai),ctx};
-    const prev=rpRepPrev(sc,key);if(prev)rep.prev=prev;
-    _rpRepBusy=null;
-    if(!ai){
-      /* the coach could not be reached: show the numbers, keep nothing, and
-         offer to send the conversation again — a stored numbers-only report
-         would otherwise be final for this conversation */
-      if(rpRepOn(key)){
-        exHost=rpHost(sc,key,rep);exRenderReport(rep,true);
-        const w=document.getElementById("rpRepWrap");
-        if(w){w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("ex.ai_off"))}</p><button class="btn-primary sess-rep-btn" onclick="rpReport()">${tIc("sess.report_btn","sparkle")}</button></div>`);manIconizeInline(w)}
-      }
-      return;
-    }
-    const c0=rpRepConvo();if(c0)c0.exrep=key;          /* the scenario's history finds it by this */
-    sessRepPut(key,rep);save();
-    if(rpRepOn(key)){exHost=rpHost(sc,key,rep);exRenderReport(rep,true)}
-  }catch(e){
-    _rpRepBusy=null;
-    try{console.warn("[roleplay] speaking report unavailable",e)}catch(_){}
-    if(rpRepOn(key))rpRepNote(t("ex.ai_off"),true);
+  exCoachStop();
+  exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t(_rpRepRuns[key]?"ex.step_plan":"ex.step_stt")),true);
+  const r=await rpRepRun(sc,key,_rpLast.turns,_rpLastTs);
+  if(!rpRepOn(key))return;
+  if(r&&r.rep&&!r.fail){exHost=rpHost(sc,key,r.rep);exRenderReport(r.rep,true);return}
+  if(r&&r.fail==="ai"&&r.rep){
+    exHost=rpHost(sc,key,r.rep);exRenderReport(r.rep,true);
+    const w=document.getElementById("rpRepWrap");
+    if(w){w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("ex.ai_off"))}</p><button class="btn-primary sess-rep-btn" onclick="rpReport()">${tIc("sess.report_btn","sparkle")}</button></div>`);manIconizeInline(w)}
+    return;
   }
+  rpRepNote(t(r&&r.fail==="stt"?"sess.report_stt":r&&r.fail==="off"?"sess.report_off":"ex.ai_off"),true);
 };
 
 const SCENARIOS=[
@@ -24672,12 +24728,7 @@ function rpIntro(el,sc){
      <div class="rp-start">
        <button class="btn btn-p" style="font-size:16px;padding:14px 32px" onclick="rpStart('${sc.id}')">${tIc("rp.start","chat")}</button>
      </div>
-     ${(()=>{const h=rpHistFor(sc.id);if(!h.length)return"";
-       const sc2=h.filter(c=>typeof c.overall==="number");
-       return `<button class="card rp-hist-teaser" onclick="rpHistory('${sc.id}')">
-         <span class="rp-ht-l"><b>${t("rp.hist_h")}</b><small>${t("rp.hist_teaser",{n:h.length,date:rpHistDate(h[0].ts)})}</small></span>
-         ${(()=>{const lr=h.map(rpHistRep).find(Boolean);return lr&&lr.ai&&lr.ai.level?`<span class="rp-ht-sc">${esc(lr.ai.level)}</span>`:sc2.length?`<span class="rp-ht-sc" style="color:${rpEvCol(sc2[0].overall)}">${sc2[0].overall}%</span>`:""})()}
-         <span class="rp-ht-go">→</span></button>`})()}
+     ${rpHistTeaserHTML(sc)}
    </div>`;
   manIconizeInline(el);
 }
@@ -25263,10 +25314,22 @@ function rpMetricsHTML(){
    the DOM, and touching a card (pointerdown / focus, before any button's
    click) makes its host the current one. Deleting a session deletes its
    report with it. */
+function rpHistTeaserHTML(sc){
+  const h=rpHistFor(sc.id);if(!h.length)return "";
+  const sc2=h.filter(c=>typeof c.overall==="number");
+  const lr=h.map(rpHistRep).find(Boolean);
+  return `<button class="card rp-hist-teaser" onclick="rpHistory('${sc.id}')">
+         <span class="rp-ht-l"><b>${t("rp.hist_h")}</b><small>${t("rp.hist_teaser",{n:h.length,date:rpHistDate(h[0].ts)})}</small></span>
+         ${lr&&lr.ai&&lr.ai.level?`<span class="rp-ht-sc">${esc(lr.ai.level)}</span>`:sc2.length?`<span class="rp-ht-sc" style="color:${rpEvCol(sc2[0].overall)}">${sc2[0].overall}%</span>`:""}
+         <span class="rp-ht-go">→</span></button>`;
+}
 function rpHistRep(c){return c&&c.exrep?sessRepGet(c.exrep):null}
 function rpHistHost(c,sc){return Object.assign(rpHost(sc,c.exrep,rpHistRep(c)),{wrapId:"rphrep_"+c.ts,repOpen:false})}
 function rpHistRepHTML(c){
-  if(!rpHistRep(c))return `<div class="rp-hist-line"><span style="color:var(--mut2)">${t("rp.hist_noreport")}</span></div>`;
+  if(!rpHistRep(c)){
+    const can=(c.lines||[]).some(l=>l&&l.text);
+    return `<div class="rp-hist-line rp-hist-norep" id="rphmk_${c.ts}"><span style="color:var(--mut2)">${t("rp.hist_noreport")}</span>${can?`<button class="btn btn-g btn-sm" onclick="rpHistMake(${c.ts})">${tIc("rp.hist_make","sparkle")}</button>`:""}</div>`;
+  }
   return `<div class="rp-hist-repwrap" id="rphrep_${c.ts}" onpointerdown="rpHistFocus(${c.ts})" onfocusin="rpHistFocus(${c.ts})"></div>`;
 }
 window.rpHistFocus=ts=>{
@@ -25282,6 +25345,18 @@ function rpHistMountReports(id){
   rpHistFor(id).forEach(c=>{const rep=rpHistRep(c);if(!rep||!document.getElementById("rphrep_"+c.ts))return;exHost=rpHistHost(c,sc);exRenderReport(rep,true)});
   exHost=null;
 }
+/* An older session with no report (built before reports were automatic, or
+   the coach was unreachable then): build it from the sentences kept on the
+   entry. The key is the one the conversation would have used. */
+window.rpHistMake=async ts=>{
+  const c=(S.convos||[]).find(x=>x&&x.ts===ts),sc=c&&rpById(c.id);if(!sc)return;
+  if(!POLISH_API||!navigator.onLine)return toast(t("sess.report_off"));
+  const box=document.getElementById("rphmk_"+ts);
+  if(box)box.innerHTML=`<span style="color:var(--mut2)">${esc(t("ex.step_plan"))}</span>`;
+  const r=await rpRepRun(sc,c.exrep||recCtx("rp:"+sc.id+":"+ts),(c.lines||[]).filter(l=>l&&l.text).map(l=>({text:l.text})),ts);
+  if(!(r&&r.rep&&!r.fail))toast(t("ex.ai_off"));
+  rpHistRefresh(sc.id);
+};
 function rpHistDropRep(c){if(c&&c.exrep){delete S.notes["exrep:"+c.exrep]}}
 function rpHistSectionHTML(id,excludeTs,noHeading){
   const all=rpHistFor(id),rows=all.filter(c=>c.ts!==excludeTs);
@@ -25452,11 +25527,7 @@ function rpReplaySummary(){
      ${rpAvatar(sc,84)}
      <h1 class="big" style="margin:10px 0 4px">${t("rp.summary_h")}</h1>
      <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
-     <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center">
-       <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
-       <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
-       ${rpRepBtnHTML()}
-     </div>
+     ${rpSumActionsHTML(sc)}
    </div>`;
   manIconizeInline(el);
 }
@@ -25489,6 +25560,9 @@ function rpSummary(){
      conversation object is torn down — and which points were covered, so the
      speaking report carries the app's own judgement, never the model's. */
   _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text),covered:new Set(covered)};
+  /* every attempt gets its report, opened or not — built now, while the audio
+     is still in memory, and linked to this entry for the scenario history */
+  if(spoke&&_rpLast.turns.length)rpRepRun(sc,rpRepKey(sc),_rpLast.turns,_rpLastTs).then(rpRepBtnSync);
   const el=document.getElementById("v-roleplay");
   el.innerHTML=`
    ${rpBackBar()}
@@ -25498,11 +25572,7 @@ function rpSummary(){
      <p class="sub" style="margin-bottom:16px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
      <div class="stat" style="max-width:320px;margin-bottom:16px"><div class="n"><span class="stat-ic">${ic("check")}</span>${covered.size}/${sc.points.length}</div><div class="l">${t("rp.points_covered")}</div></div>
      <div class="rp-points">${sc.points.map((p,i)=>`<div class="rp-point ${covered.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
-     <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
-       <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
-       <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
-       ${rpRepBtnHTML()}
-     </div>
+     ${rpSumActionsHTML(sc)}
    </div>`;
   manIconizeInline(el); rpConv=null;
 }

@@ -1153,6 +1153,7 @@
  "rp.hist_none": "ابھی کوئی سیشن نہیں — ایک گفتگو مکمل کریں، یہاں نظر آ جائے گی۔",
  "rp.hist_teaser": "{{n}} پچھلے سیشن · آخری {{date}} کو",
  "rp.hist_noreport": "No report for this session",
+ "rp.hist_make": "Get the report",
  "home.stat_pron": "تلفظ",
  "home.next_pron": "اسکور کے لیے کسی گفتگو کا جائزہ لیں",
  "rev.pron_h": "بول چال کی مشق",

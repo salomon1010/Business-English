@@ -1153,6 +1153,7 @@
  "rp.hist_none": "अभी कोई सत्र नहीं — एक बातचीत पूरी करें, वह यहाँ दिखेगी।",
  "rp.hist_teaser": "{{n}} पिछले सत्र · आख़िरी {{date}} को",
  "rp.hist_noreport": "No report for this session",
+ "rp.hist_make": "Get the report",
  "home.stat_pron": "उच्चारण",
  "home.next_pron": "स्कोर पाने के लिए किसी बातचीत का मूल्यांकन करें",
  "rev.pron_h": "बोलने का अभ्यास",

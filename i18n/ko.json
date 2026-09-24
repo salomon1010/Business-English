@@ -1153,6 +1153,7 @@
  "rp.hist_none": "아직 세션이 없어요 — 대화를 마치면 여기에 표시돼요.",
  "rp.hist_teaser": "지난 세션 {{n}}회 · 마지막 {{date}}",
  "rp.hist_noreport": "No report for this session",
+ "rp.hist_make": "Get the report",
  "home.stat_pron": "발음",
  "home.next_pron": "대화를 평가하면 점수가 나와요",
  "rev.pron_h": "말하기 연습",
