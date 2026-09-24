@@ -169,7 +169,7 @@ await shot(W.page, "1280-mission");
 await W.ctx.close();
 
 /* ══════════════ 3 · CONVERSATIONS — interview, salary, simulation ══════════════ */
-console.log("\n3 · CONVERSATIONS — the same hierarchy on the roleplay sheet");
+console.log("\n3 · CONVERSATIONS — the Executive Polish report on the roleplay sheet (24 Sep 2026)");
 const convoCheck = async (scId) => {
   const ts = Date.now() + Math.floor(Math.random() * 1000);
   await L.page.evaluate(({ scId, ts }) => {
@@ -182,26 +182,24 @@ const convoCheck = async (scId) => {
   }, { scId, ts });
   await L.page.evaluate(() => rpReport()); await sleep(600);
   return L.page.evaluate(() => {
-    const el = document.getElementById("v-roleplay");
-    const idx = s => el.textContent.indexOf(s);
+    const el = document.getElementById("v-roleplay"), sc = _rpLast.sc;
+    const wrap = el.querySelector("#rpRepWrap"), r = wrap && wrap.getBoundingClientRect();
     return {
-      order: [idx("What you did well"), idx("Biggest improvement"), idx("Say it better"), idx("Your focus")],
-      fixPrim: el.querySelectorAll(".mv-rep-list.fix li").length - el.querySelectorAll(".mv-folds .mv-rep-list.fix li").length,
-      fixFold: el.querySelectorAll(".mv-folds .mv-rep-list.fix li").length,
-      folds: [...el.querySelectorAll(".mv-fold > summary")].map(e => e.textContent.trim()),
-      foldsClosed: [...el.querySelectorAll(".mv-fold")].every(d => !d.open),
-      hear: !!el.querySelector(".mv-better button"),
-      tryAgain: [...el.querySelectorAll("button")].some(b => /rpStart/.test(b.getAttribute("onclick") || "")),
-      prevlink: !!el.querySelector(".mv-prevlink"),
+      card: !!el.querySelector("#rpRepWrap .ex-rep-card[open]"),
+      stations: el.querySelectorAll("#rpRepWrap .ex-station").length,
+      coach: !!el.querySelector("#rpRepWrap #exCoachBtn"),
+      again: [...el.querySelectorAll("button")].some(b => /exAgainGo/.test(b.getAttribute("onclick") || "")),
+      oldSheet: /What you did well|Biggest improvement|Say it better/.test(el.textContent),
+      voice: !!(exHost && exHost.wrapId === "rpRepWrap" && exHost.voice === ttsVoice(rpVoiceFor(sc), sc.g) && exHost.gender === sc.g),
+      wrapTop: r ? r.top : null,
       overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
     };
   });
 };
 for (const [scId, label] of [["interview", "Interview"], ["iv-salary", "Salary negotiation"], ["standup", "Work simulation (stand-up)"]]) {
   const c = await convoCheck(scId);
-  ok(`${label}: well → biggest improvement → say it better → focus, ONE primary improvement, the second one folded, Hear it, Try again, history link, closed folds, no overflow`,
-    c.order.every(i => i >= 0) && c.order[0] < c.order[1] && c.order[1] < c.order[2] && c.order[2] < c.order[3]
-    && c.fixPrim === 1 && c.fixFold === 1 && c.folds.length === 2 && c.foldsClosed && c.hear && c.tryAgain && c.prevlink && !c.overflow, JSON.stringify(c));
+  ok(`${label}: the Executive Polish report is the sheet — open card, five stations, the coach button, Say it again, the character's voice, no old sheet, no overflow`,
+    c.card && c.stations === 5 && c.coach && c.again && !c.oldSheet && c.voice && c.wrapTop != null && c.wrapTop < 844 && !c.overflow, JSON.stringify(c));
 }
 await shot(L.page, "390-conversation");
 

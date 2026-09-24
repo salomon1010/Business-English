@@ -13,7 +13,9 @@
 
    1. ENGINE, in Node: shapeReport grounds a synthetic scenario rubric
       exactly as it grounds a mission's.
-   2. BROWSER, real Chromium: the button, the report screen, idempotency,
+   2. BROWSER, real Chromium: the button, the report screen — since 24 Sep
+      2026 the Executive Polish report, judged against the conversation and
+      read by the character who ran it (rpReport / rpHost) — idempotency,
       offline floor + recovery, sync privacy, the history sections, the
       Welding boundary, no horizontal overflow at 390×844. */
 import { chromium } from "playwright";
@@ -71,7 +73,22 @@ console.log("  serving: " + BASE);
 const POLISH = "https://be-polish.nore-ngou.workers.dev";
 const browser = await chromium.launch();
 const errors = [];
-let repMode = "ok", repHits = 0, lastReportBody = null;
+let repMode = "ok", repHits = 0, lastReportBody = null, analyseHits = 0, analyseCtx = null;
+/* the Executive Polish half: what the analyse route answers */
+const AI = { key_message: "I am a logistics analyst with five years of supplier data behind me.", clarity: "clear",
+  sharper: "I am the logistics analyst who keeps the weekly delivery reports honest.",
+  level: "B1+", level_note: "Clear sentences; the link to why the role matters is missing.",
+  structure: ["Role", "Responsibility", "Right now"], structure_note: "The order works.",
+  answer_directly: "Open with the role, then say who it is for.", example: "I am a logistics analyst in retail.",
+  evidence: "You named the role but not who reads your reports.", credibility: "Five years is a fact — lead with it.",
+  hedges: [], corrections: [{ said: "since five years", fix: "for five years", why: "A length of time takes 'for'.", kind: "preposition" }],
+  sentences: [], words: [], collocations: [], remember_title: "Say who it is for", remember_body: "Name the reader of your work.",
+  next_recording: "Answer the same opening question again and say who your reports are for.",
+  quick_win_title: "Lead with the role", quick_win_goal: "Role first, then the years.",
+  concept_title: "Role before detail", concept_body: "Listeners need the role first.",
+  coach_script: "Thanks for that. You named your role clearly. Next time, tell me who reads your reports and why they matter.",
+  versions: [{ style: "Clear and direct", text: "I am a logistics analyst. For five years I have looked after our supplier data.", learn: ["looked after"] }],
+  idioms: [] };
 
 async function learner(id, track) {
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -89,6 +106,7 @@ async function learner(id, track) {
     if (repMode === "abort") return route.abort("failed");
     let b = {};
     try { b = JSON.parse(route.request().postData() || "{}"); } catch (e) {}
+    if (b.analyse) { analyseHits++; analyseCtx = b.analyse.context || null; return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(AI) }); }
     if (b.mvreport) {
       repHits++; lastReportBody = b.mvreport;
       /* the model tries a violation on purpose: praise for the uncovered p3 */
@@ -126,6 +144,8 @@ const A = await learner("A", "general-english");
 const T1 = Date.now();
 const seeded = await seedConvo(A.page, T1, [1, 2]);
 ok("the summary offers the Speaking report button on General English", /rpReport\(\)/.test(seeded.btn) && /Speaking report/.test(seeded.btn));
+const summ = await A.page.evaluate(() => { rpReplaySummary(); const el = document.getElementById("v-roleplay"); return { gold: !!el.querySelector(".btn-gold"), evalBtn: /rpEvaluate/.test(el.innerHTML), report: /rpReport\(\)/.test(el.innerHTML) }; });
+ok("the summary no longer offers Evaluate your conversation — only the Speaking report", !summ.gold && !summ.evalBtn && summ.report, JSON.stringify(summ));
 
 const promptTxt = await A.page.evaluate(() => { const sc = SCENARIOS.find(s => s.id === "interview"); const c = rpRepComp(sc); return rpRepPrompt(sc, c, rpRepEv(sc, new Set([1, 2]))); });
 ok("the prompt carries the scorer's verdict for the conversation", /Covered: p1/.test(promptTxt) && /Not heard: p3/.test(promptTxt) && promptTxt.includes("p" + seeded.points) === /Not heard:.*p3/.test(promptTxt));
@@ -136,13 +156,26 @@ await sleep(600);
 let st = await A.page.evaluate(ts => { const c = S.convos.find(x => x.ts === ts); return { rep: c && c.rep, html: document.getElementById("v-roleplay").textContent }; }, T1);
 ok("one call writes the report onto the conversation's own entry, AI-flagged", st.rep && st.rep.ai === true && repHits === 1);
 ok("the invented praise for the uncovered point was dropped; the true praise stays", st.rep.well.length === 1 && st.rep.well[0].m === "p1");
-ok("the screen speaks the mission report's language: well, biggest improvement, say it better, focus", /What you did well/.test(st.html) && /Biggest improvement/.test(st.html) && /Say it better/.test(st.html) && /logistics analyst/.test(st.html) && /one question of your own/i.test(st.html));
-ok("the missed point is shown by its own words, not its id", /Ask/.test(st.html) && !/\bp3\b/.test(st.html));
+const scr = await A.page.evaluate(() => { const sc = _rpLast.sc, el = document.getElementById("v-roleplay"), key = rpRepKey(sc), rep = sessRepGet(key);
+  const btns = [...el.querySelectorAll("button")].map(b => b.getAttribute("onclick") || "");
+  return { wrap: !!el.querySelector("#rpRepWrap .ex-rep-card"), coach: (el.querySelector("#rpRepWrap #exCoachScript") || {}).textContent || "",
+    sharper: /keeps the weekly delivery reports honest/.test(el.textContent), again: btns.some(s => /exAgainGo/.test(s)), hear: btns.some(s => /exSay\(/.test(s)), fbSay: btns.some(s => /fbSay\(/.test(s)),
+    oldSheet: /What you did well|Biggest improvement|Say it better/.test(el.textContent), p3: /\bp3\b/.test(el.textContent),
+    host: exHost && { wrap: exHost.wrapId, voice: exHost.voice, gender: exHost.gender, style: exHost.style },
+    want: { voice: ttsVoice(rpVoiceFor(sc), sc.g), gender: sc.g, persona: sc.persona },
+    stored: !!rep, kind: rep && rep.kind, tx: rep && rep.tx }; });
+ok("the screen hosts the Executive Polish report — card, coach briefing, sharper version, Hear it, Say it again — not the old sheet",
+  scr.wrap && /tell me who reads your reports/.test(scr.coach) && scr.sharper && scr.again && scr.hear && !scr.fbSay && !scr.oldSheet && !scr.p3, JSON.stringify(scr));
+ok("the report is read by the character who ran the conversation: the host carries their voice, gender and name",
+  scr.host && scr.host.wrap === "rpRepWrap" && scr.host.voice === scr.want.voice && scr.host.gender === scr.want.gender && scr.host.style.includes(scr.want.persona), JSON.stringify({ host: scr.host, want: scr.want }));
+ok("the coach was asked to judge THIS conversation: the scenario, the character and its talking points as the task",
+  analyseHits === 1 && analyseCtx && analyseCtx.track === "general" && /Job interview/.test(analyseCtx.focus) && /Mr Bello/.test(analyseCtx.focus) && /Introduce yourself/.test(analyseCtx.out) && /tell me a little about yourself/.test(analyseCtx.task), JSON.stringify(analyseCtx));
+ok("one report per conversation, kept with the session reports, tagged as a conversation, built from the learner's turns", scr.stored && scr.kind === "conversation" && /logistics analyst/.test(scr.tx), JSON.stringify({ stored: scr.stored, kind: scr.kind }));
 ok("the learner's turns were sent, nothing else was", lastReportBody && /logistics analyst/.test(lastReportBody.said) && !/localStorage|profile/.test(lastReportBody.said));
 
 await A.page.evaluate(() => rpReport());
 await sleep(300);
-ok("a second tap re-opens the stored report, no second model call", repHits === 1);
+ok("a second tap re-opens the stored report, no second model call on either route", repHits === 1 && analyseHits === 1 && await A.page.evaluate(() => !!document.querySelector("#rpRepWrap .ex-rep-card")));
 
 const overflow = await A.page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
 ok("the report screen fits a 390 px phone with no horizontal scroll", !overflow);
@@ -158,12 +191,13 @@ await A.page.evaluate(() => rpReport());
 await sleep(500);
 st = await A.page.evaluate(ts => { const c = S.convos.find(x => x.ts === ts); return { rep: c && c.rep, html: document.getElementById("v-roleplay").textContent }; }, T2);
 ok("a failed AI pass still leaves the honest deterministic floor on the entry", st.rep && st.rep.ai === false && st.rep.fix.length >= 1);
-ok("the screen says the coaching is waiting and offers to finish it", /connection/i.test(st.html) && /Finish coaching/.test(st.html));
+const off = await A.page.evaluate(() => ({ card: !!document.querySelector("#rpRepWrap .ex-rep-card"), retry: /rpReport\(\)/.test((document.querySelector("#rpRepWrap .sess-rep-newer") || {}).innerHTML || ""), stored: !!sessRepGet(rpRepKey(_rpLast.sc)) }));
+ok("with the coach unreachable the screen shows the numbers, offers to send again and keeps no numbers-only report", off.card && off.retry && !off.stored, JSON.stringify(off));
 repMode = "ok";
 await A.page.evaluate(() => rpReport());
 await sleep(600);
-st = await A.page.evaluate(ts => (S.convos.find(x => x.ts === ts) || {}).rep, T2);
-ok("finishing the coaching upgrades the SAME entry to the AI report", st && st.ai === true && repHits === 2);
+st = await A.page.evaluate(ts => ({ rep: (S.convos.find(x => x.ts === ts) || {}).rep, stored: !!sessRepGet(rpRepKey(_rpLast.sc)) }), T2);
+ok("sending again upgrades the SAME entry to the AI report and stores the spoken report", st.rep && st.rep.ai === true && repHits === 2 && st.stored && analyseHits === 2);
 
 /* the unified history */
 await A.page.evaluate(() => { S.ppRev = [{ id: "rv1", pairId: "p1", at: Date.now(), tk: "general-english", topic: "Raise a problem", review: { topic: "Raise a problem" } }]; save(); go("mvhist"); });

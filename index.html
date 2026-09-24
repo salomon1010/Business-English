@@ -8498,6 +8498,7 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   try{if(cur&&cur.v==="session"&&v!=="session"){exCoachStop();exHost=null}}catch(e){}
   try{if(cur&&cur.v==="mission"&&v!=="mission"){exCoachStop();exHost=null}}catch(e){}
+  try{if(cur&&cur.v==="roleplay"&&v!=="roleplay"){exCoachStop();exHost=null}}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
@@ -16771,7 +16772,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v460";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v461";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -17286,8 +17287,8 @@ function exChips(list,cls){
 }
 function exActs(s,lead){return `<div class="ex-acts">
   <button class="btn ${lead?"ex-copy":"btn-g"}" onclick="navigator.clipboard.writeText(${jarg(s)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
-  <button class="btn btn-g" onclick="fbSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
-  <button class="btn btn-g" onclick="fbSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button></div>`}
+  <button class="btn btn-g" onclick="exSay(${jarg(s)},1)">${tIc("ex.hear_btn","sound")}</button>
+  <button class="btn btn-g" onclick="exSay(${jarg(s)},0.7)">${tIc("ex.slow_btn","gauge")}</button></div>`}
 function exSec(icon,eyebrow,sub){return `<div class="ex-sechead"><span class="ex-sec-ic">${ic(icon)}</span><div><div class="ex-eyebrow">${esc(eyebrow)}</div>${sub?`<div class="ex-sec-sub">${esc(sub)}</div>`:""}</div></div>`}
 function exQuote(label,body,cls){return `<div class="ex-q ${cls||""}">${label?`<span class="ex-q-l">${esc(label)}</span>`:""}<p>${esc(body)}</p></div>`}
 /* The same thing, said two other ways — every fact kept, the new phrases and
@@ -17374,8 +17375,8 @@ function exIdiomsHTML(ai){
       ${x.when?`<p class="ex-p"><b>${esc(t("ex.idiom_when"))}</b> ${esc(x.when)}</p>`:""}
       ${x.example?`<p class="ex-p ex-ex">${esc(x.example)}</p>`:""}
       <div class="ex-acts">
-        <button class="btn btn-g" onclick="fbSay(${jarg(x.example||x.idiom)},1)">${tIc("ex.hear_btn","sound")}</button>
-        <button class="btn btn-g" onclick="fbSay(${jarg(x.example||x.idiom)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+        <button class="btn btn-g" onclick="exSay(${jarg(x.example||x.idiom)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exSay(${jarg(x.example||x.idiom)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
         <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(x.idiom)},${jarg(x.meaning)},${jarg(x.example||"")},this)">${tIc("ex.save_btn","bookmark")}</button>
       </div>
     </div>`).join("")}
@@ -17399,6 +17400,22 @@ window.exSaveTerm=(term,meaning,example,btn)=>{
    the measured half in the app's language, so the button is never dead. Same
    shape as the Practice Partner coach — one behaviour to learn, one Stop. */
 let exCoachOn=false;
+/* The voice a hosted report speaks with. A conversation's report is read by
+   the character the learner just spoke to (owner, 24 Sep 2026): its host
+   names that voice, gender and delivery, and the coach briefing and every
+   Hear it / Slow button on the report follow it. Every other report — the
+   Phrase Lab, the session, the mission — keeps the coach's own voice. */
+function exVoice(){return exHost&&exHost.voice?exHost.voice:ttsVoice(fbVoicePref(),"f")}
+function exVoiceStyle(){return (exHost&&exHost.style)||"a warm, unhurried English coach explaining one point at a time"}
+function exSayBrowser(s,rate){if(exHost&&exHost.gender&&typeof rpSpeak==="function"){rpSpeak(s,exHost.gender);return}fbSayBrowser(s,rate)}
+window.exSay=(s,rate)=>{
+  const text=String(s).replace(/\s+/g," ").trim();if(!text)return;
+  if(!exHost||!exHost.voice)return fbSay(text,rate);
+  try{speechSynthesis.cancel();clearInterval(fbSayKeep)}catch(_){}
+  const useApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"&&exHost.voice!=="browser"&&text.length<=600;
+  if(useApi){fbSayApi(text,rate,exHost.voice).catch(()=>{fbStopAudio();exSayBrowser(text,rate)});return}
+  fbStopAudio();exSayBrowser(text,rate);
+};
 function exCoachLines(rep){
   const ai=rep.ai,m=rep.m;
   const split=x=>(String(x).match(/[^.!?]+[.!?]+["”']?/g)||[String(x)]).map(y=>y.trim()).filter(Boolean);
@@ -17425,12 +17442,13 @@ window.exCoach=async()=>{
   const lines=exCoachLines(rep);if(!lines.length)return;
   exCoachOn=true;exCoachPaint(true);
   const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
-  const speakBrowser=s2=>new Promise(res=>{try{fbStopAudio();fbSayBrowser(s2,1)}catch(e){return res()}const t0=Date.now();const chk=setInterval(()=>{if(!exCoachOn||!speechSynthesis.speaking||Date.now()-t0>15000){clearInterval(chk);res()}},250)});
+  const speakBrowser=s2=>new Promise(res=>{try{fbStopAudio();exSayBrowser(s2,1)}catch(e){return res()}const t0=Date.now();const chk=setInterval(()=>{if(!exCoachOn||!speechSynthesis.speaking||Date.now()-t0>15000){clearInterval(chk);res()}},250)});
+  const voice=exVoice(),style=exVoiceStyle();
   try{
     for(let i=0;i<lines.length;i++){
       if(!exCoachOn)break;
       exCoachLine(i);
-      if(canApi){try{await fbSayLine(lines[i],ttsVoice(fbVoicePref(),"f"),"a warm, unhurried English coach explaining one point at a time",()=>exCoachOn)}catch(e){if(exCoachOn)await speakBrowser(lines[i])}}
+      if(canApi){try{await fbSayLine(lines[i],voice,style,()=>exCoachOn)}catch(e){if(exCoachOn)await speakBrowser(lines[i])}}
       else await speakBrowser(lines[i]);
       if(exCoachOn)await new Promise(res=>setTimeout(res,320));
     }
@@ -17501,8 +17519,8 @@ function exCorrHTML(ai){
     <div class="ex-corr-line"><s>${esc(c.said)}</s><span class="ex-corr-arrow">&rarr;</span><b>${esc(c.fix)}</b></div>
     <p class="ex-corr-why">${esc(c.why)}</p>
     <div class="ex-acts ex-acts-sm">
-      <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.fix)},1)">${tIc("ex.hear_btn","sound")}</button>
-      <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.fix)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+      <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(c.fix)},1)">${tIc("ex.hear_btn","sound")}</button>
+      <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(c.fix)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
       <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(c.fix)},${jarg(c.why)},${jarg(c.fix)},this)">${tIc("ex.save_btn","bookmark")}</button>
     </div></div>`).join("")}</div>`;
 }
@@ -17525,8 +17543,8 @@ function exSentHTML(ai){
         ${x.pattern_use?`<p class="ex-pat-use">${esc(x.pattern_use)}</p>`:""}</div>
       <div class="ex-acts ex-acts-sm">
         <button class="btn ex-copy" onclick="navigator.clipboard.writeText(${jarg(x.rebuilt)}).then(()=>toast(${jarg(t("ex.copied_toast"))}))">${tIc("ex.copy_btn","clipboard")}</button>
-        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(x.rebuilt)},1)">${tIc("ex.hear_btn","sound")}</button>
-        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(x.rebuilt)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(x.rebuilt)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(x.rebuilt)},0.7)">${tIc("ex.slow_btn","gauge")}</button>
       </div>
     </div>`).join("")}
   </div>`;
@@ -17552,7 +17570,7 @@ function exWordsHTML(ai){
       ${w.meaning?`<p class="ex-corr-why">${esc(w.meaning)}</p>`:""}
       ${w.example?`<p class="ex-p ex-ex">${esc(w.example)}</p>`:""}
       <div class="ex-acts ex-acts-sm">
-        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(w.example||w.better)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(w.example||w.better)},1)">${tIc("ex.hear_btn","sound")}</button>
         <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(w.better)},${jarg(w.meaning||"")},${jarg(w.example||"")},this)">${tIc("ex.save_btn","bookmark")}</button>
       </div>
     </div>`).join("")}
@@ -17568,7 +17586,7 @@ function exCollHTML(ai){
       <div class="ex-corr-line"><s>${esc(c.said)}</s><span class="ex-corr-arrow">&rarr;</span><b>${esc(c.better)}</b></div>
       ${c.why?`<p class="ex-corr-why">${esc(c.why)}</p>`:""}
       <div class="ex-acts ex-acts-sm">
-        <button class="btn btn-g" onclick="exCoachStop();fbSay(${jarg(c.better)},1)">${tIc("ex.hear_btn","sound")}</button>
+        <button class="btn btn-g" onclick="exCoachStop();exSay(${jarg(c.better)},1)">${tIc("ex.hear_btn","sound")}</button>
         <button class="btn btn-g ex-save" onclick="exSaveTerm(${jarg(c.better)},${jarg(c.why||"")},'',this)">${tIc("ex.save_btn","bookmark")}</button>
       </div>
     </div>`).join("")}
@@ -24332,19 +24350,21 @@ function rpRepStore(c,rep){
     .map(x=>({s:String(x.said||"").slice(0,C.psaid),b:String(x.better||"").slice(0,C.pbetter),w:String(x.why||"").slice(0,C.pwhy)}));
   save();return c.rep;
 }
-window.rpReport=async()=>{
-  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return;
-  const sc=_rpLast.sc,c=rpRepConvo();
-  const comp=rpRepComp(sc),ev=rpRepEv(sc,_rpLast.covered);
+/* The evidence pass: the compact did-well / to-improve report the Speaking
+   history lists, written onto the conversation's own S.convos entry through
+   the mvreport route. It no longer draws a screen (owner, 24 Sep 2026 — see
+   rpReport below); it runs beside the report the learner reads. */
+async function rpRepEvidence(sc){
+  const c=rpRepConvo();
   /* an AI report is final for this conversation; a deterministic floor can be
      finished later — same recovery bargain as the mission's */
-  if(c&&c.rep&&c.rep.ai)return rpRepShow(sc,rpRepGrounded(c));
+  if(!c||(c.rep&&c.rep.ai))return;
+  const comp=rpRepComp(sc),ev=rpRepEv(sc,_rpLast.covered);
   const offline=!POLISH_API||!navigator.onLine;
   let rep;
   if(offline){
     rep=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
   }else{
-    rpRepShow(sc,null);                                  /* the thinking screen */
     try{
       const F=window.ConversationOrchestrator;
       const said=(_rpLast.turns||[]).map(x=>x.text).join(" ").slice(0,2400);
@@ -24364,63 +24384,135 @@ window.rpReport=async()=>{
       rep=Object.assign(MissionEngine.shapeReport(null,comp,ev),{offline:true});
     }
   }
-  const stored=c?rpRepStore(c,rep):null;
+  rpRepStore(c,rep);
   try{track("v2_speaking_feedback_generated",{track:AREA_GEN,competency:"conversation",mission:sc.id,kind:"conversation",ai:rep.ai?"1":"0"})}catch(_){}
-  rpRepShow(sc,stored||Object.assign({},rep,{well:(rep.well||[]).map(x=>({m:x.move,n:x.note})),fix:(rep.improve||[]).map(x=>({m:x.move,n:x.note})),pol:rep.polish||[]}));
-};
+}
 function rpRepListHTML(sc,rows,cls){
   const lbl=id=>{const i=parseInt(String(id).slice(1),10);return (sc&&sc.points&&sc.points[i-1])||id};
   return rows&&rows.length?`<ul class="mv-rep-list ${cls}">${rows.map(x=>`<li><b>${esc(lbl(x.m))}</b>${x.n?` — ${esc(x.n)}`:""}</li>`).join("")}</ul>`:"";
 }
-function rpRepShow(sc,rep){
-  const el=document.getElementById("v-roleplay");if(!el)return;
-  /* Same consolidated hierarchy as the mission report (owner spec 23 Sep
-     2026): 1–2 things that worked, ONE improvement (the floor already put
-     the weightiest missed point first), the better version, one focus, the
-     Try-again row — then the rest of the analysis in closed folds. A
-     conversation has no single "you said" turn (the better version rewrites
-     the strongest of several), so the card shows the Try side only. */
-  const fold=(label,inner)=>`<details class="mv-fold"><summary>${esc(label)}</summary><div class="mv-fold-b">${inner}</div></details>`;
-  const body=!rep
-    ?`<p class="sub">${esc(t("mv.thinking"))}</p>`
-    :(()=>{
-      const big=(rep.fix||[])[0]||null,fixRest=(rep.fix||[]).slice(1),wellRest=(rep.well||[]).slice(2);
-      const folds=[];
-      if(rep.pol&&rep.pol.length)folds.push(fold(t("mv.sec_polish"),mvPolHTML(rep.pol)));
-      if(rep.expr&&rep.expr.length)folds.push(fold(t("mv.sec_vocab"),`<ul class="mv-rep-list expr">${rep.expr.map(x=>`<li><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</li>`).join("")}</ul>`));
-      if(wellRest.length||fixRest.length)folds.push(fold(t("mv.sec_detail"),
-        `${wellRest.length?rpRepListHTML(sc,wellRest,"ok"):""}${fixRest.length?rpRepListHTML(sc,fixRest,"fix"):""}`));
-      return `${rep.well&&rep.well.length?`<h3>${t("mv.rep_well_h")}</h3>${rpRepListHTML(sc,rep.well.slice(0,2),"ok")}`:""}
-      ${big?`<h3>${t("mv.rep_big_h")}</h3>${rpRepListHTML(sc,[big],"fix")}`:""}
-      ${rep.better?`<div class="mv-better">
-          <div class="eyebrow">${t("mv.rep_say_h")}</div>
-          <small>${t("mv.rep_try")}</small>
-          <p class="mv-better-t">“${esc(rep.better)}”</p>
-          <button class="btn btn-g" onclick="rpRepHear()">${ic("play")} ${t("mv.rep_better_play")}</button>
-        </div>`
-       :(rep.ai?"":`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`)}
-      ${rep.one?`<div class="mv-one"><div class="eyebrow">${t("mv.rep_focus_h")}</div><p class="mv-improve">${esc(rep.one)}</p></div>`:""}
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn btn-p" onclick="rpStart('${esc(sc.id)}')">${t("rp.again")}</button>
-        ${rep.ai?"":`<button class="btn btn-g" onclick="rpReport()">${t("mv.coach_retry")}</button>`}
-      </div>
-      ${folds.length?`<div class="mv-folds">${folds.join("")}</div>`:""}
-      <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>`;
-    })();
+
+/* ---- THE SPEAKING REPORT SCREEN (2026-09-24) ----
+   The owner replaced the conversation's did-well / to-improve sheet and the
+   word-by-word pronunciation review with the Executive Polish report — the
+   same minute through the same pipeline the Phrase Lab, the session's
+   Record yourself card and the mission's Coach step use (transcribe,
+   measure on the device, the coach, the five stations, the voice) — judged
+   against THIS conversation: the scenario and the character as the task,
+   its talking points as the expected outcome. Every turn the learner spoke
+   is transcribed and measured and the measurements are joined (durations
+   add, pauses and the pitch contour are laid end to end; a turn with no
+   audio contributes its browser transcript). The report is read aloud by
+   the character the learner just spoke to: the host carries that voice,
+   gender and delivery, and exCoach / exSay follow it. The evidence pass
+   above still runs beside it for the Speaking history; only the screen
+   changed. One report per conversation, in S.notes["exrep:"+key] like the
+   session's and the mission's (track-scoped, synced with the notes, capped
+   by sessRepPut); the previous report on the same scenario is the
+   "previous take" the carry-over score is marked against. */
+let _rpRepBusy=null;
+function rpRepKey(sc){return recCtx("rp:"+sc.id+":"+_rpLastTs)}
+function rpRepCtx(sc){
+  return {track:"general",focus:String(sc.title+" — "+(sc.persona?sc.persona+", ":"")+(sc.role||"")).slice(0,160),
+    task:String([sc.scenario,sc.greet?'They opened with: "'+sc.greet+'"':""].filter(Boolean).join(" ")).slice(0,300),
+    out:String((sc.points||[]).join("; ")).slice(0,200),phrases:[]};
+}
+function rpRepPrev(sc,key){
+  let best=null;
+  Object.keys(S.notes).forEach(k=>{if(!k.startsWith("exrep:")||k==="exrep:"+key)return;const r=S.notes[k];if(r&&r.m&&r.kind==="conversation"&&r.mission===sc.id&&(!best||(r.at||0)>(best.at||0)))best=r});
+  return best?{at:best.at,m:best.m,targets:best.targets||[]}:null;
+}
+function rpRepStyle(sc){return `${sc.persona||"the interviewer"}, the ${sc.role||"person"} from the conversation that has just ended, now giving warm, unhurried feedback one point at a time`}
+function rpHost(sc,key,rep){
+  return {wrapId:"rpRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,
+    again:()=>{exCoachStop();exHost=null;rpStart(sc.id)},
+    voice:ttsVoice(rpVoiceFor(sc),sc.g),gender:sc.g,style:rpRepStyle(sc)};
+}
+function rpRepOn(key){return !!exHost&&exHost.wrapId==="rpRepWrap"&&exHost.key===key&&!!document.getElementById("rpRepWrap")}
+function rpRepNote(msg,retry){
+  const w=document.getElementById("rpRepWrap");if(!w)return;
+  w.innerHTML=`<p class="ex-note">${esc(msg)}</p>${retry?`<button class="btn-primary sess-rep-btn" onclick="rpReport()">${tIc("sess.report_btn","sparkle")}</button>`:""}`;
+  manIconizeInline(w);
+}
+function rpRepScreen(sc){
+  const el=document.getElementById("v-roleplay");if(!el)return null;
   el.innerHTML=`
    ${rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub"><button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button></div>`:`<button class="back" onclick="rpBackSummary()">${t("rp.eval_back")}</button>`}
    <div class="eyebrow">${t("rp.rep_btn")}</div>
    <h1 class="big" style="margin:2px 0 4px">${esc(sc.title)}</h1>
-   <p class="sub" style="margin-bottom:14px">${t("rp.eval_sub",{title:esc(sc.title)})}</p>
-   ${body}`;
+   <p class="sub" style="margin-bottom:14px">${t("rp.summary_sub",{title:esc(sc.title)})}</p>
+   <div id="rpRepWrap"></div>`;
   manIconizeInline(el);
   try{window.scrollTo(0,0)}catch(_){}
+  return el;
 }
-window.rpRepHear=()=>{
-  const c=rpRepConvo(),rep=c&&rpRepGrounded(c);
-  if(!rep||!rep.better)return;
-  try{fbSay(rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
-  try{track("v2_better_version_played",{track:AREA_GEN,competency:"conversation",mission:(c&&c.id)||"",kind:"conversation"})}catch(_){}
+/* every turn's audio, transcribed and measured, joined into one minute */
+async function rpRepMaterial(turns){
+  const parts=await Promise.all(turns.map(async tn=>{
+    if(!tn.blob)return {text:String(tn.text||""),audio:null};
+    const [tx,au]=await Promise.all([exTranscribe(tn.blob),exAudioStats(tn.blob)]);
+    return {text:String((tx&&tx.text)||tn.text||""),audio:au||null};
+  }));
+  let off=0,dur=0,semW=0,semN=0,pm=0,pv=0,pn=0;const pauses=[],series=[];
+  parts.forEach(p=>{
+    const a=p.audio,d=(a&&a.dur)||0;
+    if(a){
+      (a.pauses||[]).forEach(x=>pauses.push({t:+(x.t+off).toFixed(2),len:x.len}));
+      if(a.semis!=null&&d){semW+=a.semis*d;semN+=d}
+      if(a.pitch&&a.pitch.series&&d){series.push(...a.pitch.series);pm+=a.pitch.mean*d;pv+=a.pitch.voiced*d;pn+=d}
+    }
+    dur+=d;off+=d;
+  });
+  const text=parts.map(p=>p.text).filter(Boolean).join(" ").replace(/\s+/g," ").trim();
+  let audio=null;
+  if(dur){
+    const nb=140,pack=series.length>nb
+      ?Array.from({length:nb},(_,i)=>{const lo=Math.floor(i*series.length/nb),hi=Math.max(lo+1,Math.floor((i+1)*series.length/nb));const v=series.slice(lo,hi).filter(x=>x!=null);return v.length?+(v.reduce((s,x)=>s+x,0)/v.length).toFixed(2):null})
+      :series;
+    audio={dur:+dur.toFixed(2),pauses,semis:semN?+(semW/semN).toFixed(1):null,pitch:pn&&pack.length?{series:pack,mean:+(pm/pn).toFixed(2),voiced:+(pv/pn).toFixed(2)}:null};
+  }
+  return {text,audio};
+}
+window.rpReport=async()=>{
+  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return;
+  const sc=_rpLast.sc,key=rpRepKey(sc);
+  rpRepEvidence(sc).catch(()=>{});                     /* the history's compact report, beside this */
+  rpRepScreen(sc);
+  const stored=sessRepGet(key);
+  if(stored){exHost=rpHost(sc,key,stored);exRenderReport(stored,true);return}
+  if(_rpRepBusy===key){exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t("ex.step_measure")),true);return}
+  if(!POLISH_API||!navigator.onLine){exHost=rpHost(sc,key,null);rpRepNote(t("sess.report_off"),true);return}
+  _rpRepBusy=key;exCoachStop();
+  exHost=rpHost(sc,key,null);exReportShow(exWaitHTML(t("ex.step_stt")),true);
+  const area=areaId(),ctx=rpRepCtx(sc);
+  try{
+    const mat=await rpRepMaterial(_rpLast.turns);
+    if(!mat.text){_rpRepBusy=null;if(rpRepOn(key))rpRepNote(t("sess.report_stt"),true);return}
+    if(rpRepOn(key))exStep(t("ex.step_measure"));
+    const mm=exTextStats(mat.text,null,mat.audio);
+    if(rpRepOn(key))exStep(t("ex.step_plan"));
+    const ai=await exAI(mat.text,mm,ctx);
+    const rep={at:Date.now(),tk:area,key,mission:sc.id,kind:"conversation",m:mm,ai:ai||null,tx:mat.text,sttFailed:false,targets:exTargets(ai),ctx};
+    const prev=rpRepPrev(sc,key);if(prev)rep.prev=prev;
+    _rpRepBusy=null;
+    if(!ai){
+      /* the coach could not be reached: show the numbers, keep nothing, and
+         offer to send the conversation again — a stored numbers-only report
+         would otherwise be final for this conversation */
+      if(rpRepOn(key)){
+        exHost=rpHost(sc,key,rep);exRenderReport(rep,true);
+        const w=document.getElementById("rpRepWrap");
+        if(w){w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("ex.ai_off"))}</p><button class="btn-primary sess-rep-btn" onclick="rpReport()">${tIc("sess.report_btn","sparkle")}</button></div>`);manIconizeInline(w)}
+      }
+      return;
+    }
+    sessRepPut(key,rep);save();
+    if(rpRepOn(key)){exHost=rpHost(sc,key,rep);exRenderReport(rep,true)}
+  }catch(e){
+    _rpRepBusy=null;
+    try{console.warn("[roleplay] speaking report unavailable",e)}catch(_){}
+    if(rpRepOn(key))rpRepNote(t("ex.ai_off"),true);
+  }
 };
 
 const SCENARIOS=[
@@ -24924,7 +25016,7 @@ function rpBackBar(){
   const b=`<button class="back" onclick="rpBackList()">${rpBackLabel()}</button>`;
   return rpIsPro()?`<div class="eyebrow pg-eyebrow pg-sub">${b}</div>`:b;
 }
-window.rpBackSummary=()=>{ if(_rpLast)rpReplaySummary(); else rpBackList(); };
+window.rpBackSummary=()=>{ exCoachStop();exHost=null; if(_rpLast)rpReplaySummary(); else rpBackList(); };
 /* What the answer CONTAINED, next to how clearly it was said.
    The pronunciation pass below scores every word from the recording, which tells
    the learner they were understood — not whether they answered. An interview is
@@ -25308,7 +25400,6 @@ function rpReplaySummary(){
      <div style="display:flex;gap:10px;margin-top:6px;flex-wrap:wrap;justify-content:center">
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
        <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
-       ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
        ${rpRepBtnHTML()}
      </div>
    </div>`;
@@ -25355,7 +25446,6 @@ function rpSummary(){
      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
        <button class="btn btn-p" onclick="rpStart('${sc.id}')">${t("rp.again")}</button>
        <button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button>
-       ${_rpLast.turns.length?`<button class="btn btn-gold" onclick="rpEvaluate()">${tIc("rp.eval_btn","chart")}</button>`:""}
        ${rpRepBtnHTML()}
      </div>
    </div>`;

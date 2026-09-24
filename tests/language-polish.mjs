@@ -229,16 +229,18 @@ for (const [id, label] of [["interview", "Interview"], ["iv-salary", "Salary neg
     save(); go("roleplay"); return sc.title;
   }, { id, ts, turns: TURNS[id] });
   await L.page.evaluate(() => rpReport()); await sleep(500);
-  const f = await foldOf(L.page);
-  const stored = await L.page.evaluate(ts => { const c = S.convos.find(x => x.ts === ts); return { pol: c.rep.pol, covered: c.covered }; }, ts);
-  ok(`${id === "interview" ? 3 : id === "iv-salary" ? 4 : 5} · ${label}: the prompt names "${title}" and asks for polish in THIS conversation; the fold shows the learner's own turn; the covered count is untouched`,
-    lastSys.includes(`"${title}"`) && /in THIS conversation/.test(lastSys) && f && f.rows.length === 1 && f.rows[0].includes(POL_FOR[id][0].said) && stored.pol.length === 1 && stored.covered === 1, JSON.stringify({ f, stored, hasTitle: lastSys.includes(title) }));
+  /* since 24 Sep 2026 the conversation's screen is the Executive Polish
+     report (rpReport → rpHost); the polish lives on the entry and in the
+     Speaking history, not on that screen */
+  const stored = await L.page.evaluate(ts => { const c = S.convos.find(x => x.ts === ts); return { pol: c.rep.pol, covered: c.covered, screen: !!document.querySelector("#rpRepWrap .ex-rep-card"), oldFold: !!document.querySelector("#v-roleplay .mv-fold") }; }, ts);
+  ok(`${id === "interview" ? 3 : id === "iv-salary" ? 4 : 5} · ${label}: the prompt names "${title}" and asks for polish in THIS conversation; the entry keeps the learner's own turn; the covered count is untouched; the screen is the Executive Polish report`,
+    lastSys.includes(`"${title}"`) && /in THIS conversation/.test(lastSys) && stored.pol.length === 1 && stored.pol[0].s.includes(POL_FOR[id][0].said) && stored.covered === 1 && stored.screen && !stored.oldFold, JSON.stringify({ stored, hasTitle: lastSys.includes(title) }));
 }
 reply = { covered: [], well: [], improve: [], better: "", expressions: [], one: "x", polish: [{ said: "I will sue the company", better: "x y z", why: "INVENTED" }] };
 { const ts = Date.now() + 7;
   await L.page.evaluate(({ ts }) => { const sc = SCENARIOS.find(s => s.id === "iv-salary"); _rpLastTs = ts; _rpLast = { sc, turns: [{ text: "Thank you for the offer." }], covered: new Set([]) }; S.convos.push({ ts, id: sc.id, title: sc.title, cat: sc.cat, tk: areaId(), covered: 0, total: 3, turns: 1, lines: [] }); save(); }, { ts });
   await L.page.evaluate(() => rpReport()); await sleep(500);
-  ok("8 · conversation: an invented quote is dropped there too", !(await foldOf(L.page)) && await L.page.evaluate(ts => !S.convos.find(x => x.ts === ts).rep.pol, ts)); }
+  ok("8 · conversation: an invented quote is dropped there too", await L.page.evaluate(ts => !S.convos.find(x => x.ts === ts).rep.pol && !document.querySelector("#v-roleplay .mv-pol"), ts)); }
 const cs = await L.page.evaluate(() => { const p = fbSyncPayload(S); return { cloud: p.convos.filter(c => c.rep && c.rep.pol).length, local: S.convos.filter(c => c.rep && c.rep.pol).length }; });
 ok("conversation polish is stripped from the cloud payload too", cs.cloud === 0 && cs.local === 3, JSON.stringify(cs));
 await L.page.evaluate(() => go("mvhist")); await sleep(300);
