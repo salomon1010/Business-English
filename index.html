@@ -72,7 +72,7 @@
 <script src="jurisdictions.js?v=79"></script>
 <script src="trades.js?v=79"></script>
 <script src="answer-evaluator.js?v=84"></script>
-<script src="mission-engine.js?v=3"></script>
+<script src="mission-engine.js?v=4"></script>
 <script src="shadow-lines.js?v=84"></script>
 <script>
 window.FB_CONFIG={
@@ -9577,7 +9577,7 @@ function rMvHist(el){
     html+=`<h3 class="mv-hist-week">${esc(t("mv.hist_convos"))}</h3>`;
     convos.forEach(c=>{
       const sc=(typeof SCENARIOS!=="undefined"?SCENARIOS:[]).find(s=>s.id===c.id)||{id:c.id,title:c.title,points:[]};
-      const rep=c.rep;
+      const rep=rpRepGrounded(c);
       html+=`<details class="card mv-hist-row"><summary>
           <span class="mv-hist-date">${esc(new Date(c.ts).toLocaleDateString())}</span>
           <b>${esc(c.title)}</b>
@@ -9615,8 +9615,9 @@ function rMvHist(el){
    is found by its own timestamp, nothing else is touched */
 window.rpHistHear=ts=>{
   const c=(S.convos||[]).find(x=>x&&x.ts===ts);
-  if(!c||!c.rep||!c.rep.better)return;
-  try{fbSay(c.rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
+  const rep=c&&rpRepGrounded(c);
+  if(!rep||!rep.better)return;
+  try{fbSay(rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
   try{track("v2_speaking_history_replayed",{track:AREA_GEN,competency:"conversation",mission:c.id||"",kind:"conversation"})}catch(_){}
 };
 window.mvHistHear=i=>{
@@ -16509,7 +16510,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v441";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v452";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -24006,10 +24007,10 @@ Read the learner's turns. Write a short report as JSON:
 - "covered": point ids the learner GENUINELY covered in their own words that the scorer did not credit. Only additions; never remove a credited point.
 - "well": up to ${C.well} entries {"move": id, "note": one sentence}. Each note explains why that COVERED point worked, quoting their words where useful. Never praise a point from the "Not heard" list.
 - "improve": up to ${C.improve} entries {"move": id, "note": one sentence}. Only points from the "Not heard" list; say what was missing and a natural way to bring it up.
-- "better": the strongest of the learner's own turns, improved. Keep their meaning, their facts and their level; at most 70 words; natural spoken English. Never add facts they did not say.
+- "better": the strongest of the learner's own turns, improved. Keep their meaning, their facts and their level; at most 70 words; natural spoken English. Never add facts they did not say. You may improve grammar, sentence structure, vocabulary, naturalness, register and clarity — nothing else. Do NOT add any request, question, action, commitment, number, date, deadline, person, organisation or claim the learner did not say. A point from the "Not heard" list stays missing here: coach it in "improve", never write it into the better version for them.
 - "expressions": up to ${C.expr} entries {"e": expression, "why": when it helps in this conversation, under 15 words}.
 - "one": ONE actionable focus for their next conversation, under 25 words, imperative.
-- "polish": up to ${C.polish} entries {"said": the learner's EXACT words quoted from their turns, "better": a more natural, professional way to say the same thing in THIS conversation ("${sc.title}"), "why": one plain sentence}. Only where the rewording MATERIALLY improves clarity, naturalness, professional register, sentence structure or word choice for this situation. Keep their meaning and facts. If their language is already natural, return an empty list — never correct a minor slip for its own sake, and never call awkward but clear English "wrong".
+- "polish": up to ${C.polish} entries {"said": the learner's EXACT words quoted from their turns, "better": a more natural, professional way to say the same thing in THIS conversation ("${sc.title}"), "why": one plain sentence}. Only where the rewording MATERIALLY improves clarity, naturalness, professional register, sentence structure or word choice for this situation. Keep their meaning and facts — no new numbers, dates, names, requests or actions. If their language is already natural, return an empty list — never correct a minor slip for its own sake, and never call awkward but clear English "wrong".
 
 RULES
 - The scorer's verdict is final. Explain it; never contradict it.
@@ -24024,6 +24025,13 @@ Return JSON only:
 function rpRepBtnHTML(){
   if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return "";
   return `<button class="btn btn-g" onclick="rpReport()">${ic("chart")} ${t("rp.rep_btn")}</button>`;
+}
+/* the stored report as it may be shown: a better version or polish written
+   before the grounding check is re-checked against the learner's own lines */
+function rpRepGrounded(c){
+  if(!c||!c.rep||!window.MissionEngine||!MissionEngine.groundedReport)return c&&c.rep;
+  const said=(c.lines||[]).map(x=>x&&x.text).filter(Boolean).join(" ");
+  return MissionEngine.groundedReport(c.rep,said,null);
 }
 function rpRepConvo(){return _rpLastTs?(S.convos||[]).find(x=>x&&x.ts===_rpLastTs):null}
 /* attachReport's compact shape, on the conversation entry */
@@ -24044,7 +24052,7 @@ window.rpReport=async()=>{
   const comp=rpRepComp(sc),ev=rpRepEv(sc,_rpLast.covered);
   /* an AI report is final for this conversation; a deterministic floor can be
      finished later — same recovery bargain as the mission's */
-  if(c&&c.rep&&c.rep.ai)return rpRepShow(sc,c.rep);
+  if(c&&c.rep&&c.rep.ai)return rpRepShow(sc,rpRepGrounded(c));
   const offline=!POLISH_API||!navigator.onLine;
   let rep;
   if(offline){
@@ -24123,7 +24131,7 @@ function rpRepShow(sc,rep){
   try{window.scrollTo(0,0)}catch(_){}
 }
 window.rpRepHear=()=>{
-  const c=rpRepConvo(),rep=c&&c.rep;
+  const c=rpRepConvo(),rep=c&&rpRepGrounded(c);
   if(!rep||!rep.better)return;
   try{fbSay(rep.better)}catch(e){try{toast(t("fb.tts_unavailable"))}catch(_){}}
   try{track("v2_better_version_played",{track:AREA_GEN,competency:"conversation",mission:(c&&c.id)||"",kind:"conversation"})}catch(_){}
@@ -25803,8 +25811,15 @@ function fbMerge(local,cloud){
       const lc=L[a]||{},cc=C[a]||{},box={};
       new Set(Object.keys(lc).concat(Object.keys(cc))).forEach(id=>{
         const l=lc[id]||{},c=cc[id]||{},seen={},att=[];
+        /* Same key on both sides = the same spoken answer. The cloud copy has
+           the learner's words stripped by fbSyncPayload, so it is never simply
+           "the" copy: MissionEngine.mergeAttempt keeps the richer field from
+           each (the device's transcript, better version and polish; the
+           finished coaching from whichever side has it). */
         [].concat(c.attempts||[],l.attempts||[]).forEach(x=>{
-          const k=x&&(x.key||x.at);if(!k||seen[k])return;seen[k]=1;att.push(x);
+          const k=x&&(x.key||x.at);if(!k)return;
+          if(seen[k]!=null){att[seen[k]]=window.MissionEngine&&MissionEngine.mergeAttempt?MissionEngine.mergeAttempt(att[seen[k]],x):x;return}
+          seen[k]=att.length;att.push(x);
         });
         att.sort((x,y)=>(x.at||0)-(y.at||0));
         /* Supporting evidence (Shadow) unions on its own key for the same
@@ -25846,7 +25861,14 @@ function fbMerge(local,cloud){
       o[k]={best:Math.max(a.best||0,+b.best||0),runs:Math.max(a.runs||0,+b.runs||0)};
     }));return o;
   })();
-  const cs={};m.convos=[].concat(cloud.convos||[],local.convos||[]).filter(c=>{const k=c&&c.ts;if(!k||cs[k])return false;cs[k]=1;return true}).sort((a,b)=>a.ts-b.ts).slice(-200);
+  /* Conversations: union on ts. Two copies of one conversation are merged
+     field by field, not picked by side — the cloud copy has no sentence text
+     and no better version / polish (fbSyncPayload strips them), so letting
+     it win dropped the device's own report on every pull. */
+  const cs={},cv=[];[].concat(cloud.convos||[],local.convos||[]).forEach(c=>{const k=c&&c.ts;if(!k)return;
+    if(cs[k]==null){cs[k]=cv.length;cv.push(c);return}
+    cv[cs[k]]=fbMergeConvo(cv[cs[k]],c);});
+  m.convos=cv.sort((a,b)=>a.ts-b.ts).slice(-200);
   m.dates=Array.from(new Set([].concat(cloud.dates||[],local.dates||[]))).sort();
   const ck={};m.clips=[].concat(local.clips||[],cloud.clips||[]).filter(c=>{const k=(c&&c.vid)+"_"+(c&&c.start);if(ck[k])return false;ck[k]=1;return true});
   const lt=(local.profile&&local.profile.ts)||0,ct=(cloud.profile&&cloud.profile.ts)||0;
@@ -25854,6 +25876,23 @@ function fbMerge(local,cloud){
   m.startDate=[local.startDate,cloud.startDate].filter(Boolean).sort()[0]||local.startDate;
   m.savedAt=Math.max(local.savedAt||0,cloud.savedAt||0,Date.now());
   return m;
+}
+/* one conversation, a cloud copy (c) and a device copy (l): scores and
+   counters from the device where both exist, each line's text from whichever
+   copy still has it, the report by MissionEngine.mergeReport */
+function fbMergeConvo(c,l){
+  const out=Object.assign({},c,l);
+  if(Array.isArray(c.lines)||Array.isArray(l.lines)){
+    const a=c.lines||[],b=l.lines||[];
+    out.lines=Array.from({length:Math.max(a.length,b.length)},(_,i)=>{
+      const x=a[i]||{},y=b[i]||{},z=Object.assign({},x,y);
+      if(!z.text&&(y.text||x.text))z.text=y.text||x.text;
+      if(z.score==null&&(y.score!=null||x.score!=null))z.score=y.score!=null?y.score:x.score;
+      return z;});
+  }
+  const r=window.MissionEngine&&MissionEngine.mergeReport?MissionEngine.mergeReport(c.rep,l.rep):(l.rep||c.rep);
+  if(r)out.rep=r;else delete out.rep;
+  return out;
 }
 async function fbFirstSync(u){
   if(fbSyncing||!FBdb)return;fbSyncing=true;
@@ -25887,7 +25926,11 @@ async function fbFirstSync(u){
       S=cloud||load();
     }else if(cloud){
       const merged=fbMerge(S,cloud);
-      let take=cloud;
+      /* When nothing that syncs differs, the merged copy IS the account copy
+         plus what this device keeps to itself (transcripts, better versions,
+         polish). Adopting the bare cloud copy here used to delete those from
+         the very device that recorded them. */
+      let take=merged;
       /* Compare only what is eligible to sync. The device holds conversation
          transcripts and the résumé that the cloud copy deliberately never
          receives, so an unfiltered comparison would differ every time and raise

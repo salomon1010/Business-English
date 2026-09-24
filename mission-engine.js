@@ -737,6 +737,98 @@ Return JSON only:
      version rather than inventing one deterministically — we cannot write the
      learner's answer for them without the model, and pretending otherwise is
      the invented-performance failure this file exists to stop. */
+  /* ==========================================================================
+     FACTUAL GROUNDING — the better version may reword, never add.
+
+     The prompt asks the model to keep the learner's facts; this checks that it
+     did, deterministically, against the transcript the report was written
+     about. It is deliberately a small set of rules a person can read, not an
+     NLP system, and it errs towards refusing: a rejected better version is
+     simply not shown (there is no fallback — we cannot write the learner's
+     answer without the model), while an accepted invention would teach the
+     learner to say something they never meant. What it rejects:
+       number   — a figure (digits or number words) the learner never said
+       time     — a day, month, date word or deadline they never said
+       request  — asking someone for something when the learner asked nothing
+       name     — a capitalised name or an acronym absent from the transcript
+       need     — "I/we need …" when the learner stated no need
+       clause   — a clause whose content words are mostly not theirs
+                  (stricter when it asks or commits). Scored per CLAUSE, not
+                  per sentence: the production model's favourite invention
+                  rides on a true sentence — "I've spoken to their office,
+                  but I need their confirmation to proceed" — and a
+                  sentence average lets it through.
+     `bank` is the task's own expression list: the prompt tells the model to
+     use it, so its words count as grounded vocabulary. */
+  const GR_NUM = { zero: 0, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100, thousand: 1000, million: 1e6, billion: 1e9, half: 0.5, quarter: 0.25, dozen: 12, double: "x2", twice: "x2", percent: "%" };
+  const GR_TIME = /\b(january|february|march|april|june|july|august|september|october|november|december|monday|tuesday|wednesday|thursday|friday|saturday|sunday|today|tomorrow|yesterday|tonight|weekend|this (?:morning|afternoon|evening)|midday|noon|midnight|deadline|eod|asap|o'clock|next (?:week|month|year|quarter)|last (?:week|month|year|quarter)|end of (?:the )?(?:day|week|month|year|quarter))\b/g;
+  const GR_REQ = /\b(?:could|can|would|will) you\b|\bplease\b|\bneed (?:your|you|help|support|approval|a decision)\b|\b(?:would like|want|need) you to\b|\bappreciate (?:it )?if\b|\blet me know\b|\b(?:could|can|may) (?:i|we) ask\b|\bask(?:ing)? (?:you|for)\b|\b(?:tell|send|give|help) (?:me|us)\b/g;
+  const GR_COMMIT = /\b(?:i|we) (?:will|shall|am going to|are going to|promise|commit|guarantee)\b/;
+  const GR_STOP = new Set(("a an the and or but so if then than that this these those there here it its it's i me my mine we us our you your he him his she her they them their " +
+    "is are was were be been being am do does did done have has had having get got getting make made go going went gone say said tell told " +
+    "to of in on at by for with from about into over under after before up down out off as not no yes just also very really already still now then " +
+    "well okay ok um uh er like which who whom whose what when where why how all any some more most much many each every other another " +
+    "can could will would shall should may might must need needs needed let lets thing things way really quite too because while since until " +
+    "first second finally however therefore also actually basically currently one ones").split(/\s+/));
+  const grNorm = s => " " + String(s || "").toLowerCase()
+    .replace(/[’‘]/g, "'")
+    .replace(/\b(i|you|we|they|he|she|it)'ll\b/g, "$1 will").replace(/\bwon't\b/g, "will not").replace(/\bcan't\b/g, "cannot")
+    .replace(/\bi'm\b/g, "i am").replace(/\b(you|we|they)'re\b/g, "$1 are").replace(/\b(i|you|we|they)'ve\b/g, "$1 have")
+    .replace(/\b(i|you|we|they|he|she)'d\b/g, "$1 would").replace(/n't\b/g, " not")
+    .replace(/(\d),(\d{3})\b/g, "$1$2")
+    .replace(/[^a-z0-9'%.\s-]+/g, " ").replace(/(\D)\.|\.(\D|$)/g, "$1 $2").replace(/-/g, " ").replace(/\s+/g, " ") + " ";
+  const grWords = s => grNorm(s).split(" ").filter(Boolean);
+  const grStem = w => w.replace(/'s$/, "").replace(/(ies|ing|ed|es|ly|e|s|y)$/, "").slice(0, 6);
+  const grNums = s => {
+    const out = new Set();
+    grWords(s).forEach(w => {
+      const d = w.match(/^\d+(?:\.\d+)?%?$/); if (d) { out.add(String(parseFloat(w))); if (/%$/.test(w)) out.add("%"); return; }
+      if (w === "one") return;                           /* a pronoun far more often than a figure */
+      if (Object.prototype.hasOwnProperty.call(GR_NUM, w)) out.add(String(GR_NUM[w]));
+    });
+    return out;
+  };
+  const grContent = s => grWords(s).filter(w => w.length >= 3 && !GR_STOP.has(w) && !/^\d/.test(w) && !Object.prototype.hasOwnProperty.call(GR_NUM, w));
+  const grCount = (re, s) => (grNorm(s).match(re) || []).length;
+
+  function groundCheck(text, said, opts) {
+    opts = opts || {};
+    const reasons = [];
+    const T = String(text || "").trim(), S = String(said || "").trim();
+    if (!T) return reasons;
+    if (!S) return ["no-transcript"];                    /* nothing to check against is not a pass */
+    const sN = grNorm(S), tN = grNorm(T);
+    const sNums = grNums(S);
+    grNums(T).forEach(n => { if (!sNums.has(n)) reasons.push("number:" + n); });
+    (tN.match(GR_TIME) || []).forEach(w => { if (sN.indexOf(" " + w + " ") < 0) reasons.push("time:" + w); });
+    if (grCount(GR_REQ, T) && !grCount(GR_REQ, S)) reasons.push("request");
+    if (/ (?:i|we) (?:really |also |still |urgently )?need /.test(tN) && !/ need /.test(sN)) reasons.push("need");
+    const known = new Set(grWords(S).concat(grWords((opts.bank || []).join(" "))));
+    T.split(/\s+/).forEach((raw, i, all) => {
+      const w = raw.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9']+$/g, "");
+      if (!w || /^I('|$)/.test(w)) return;
+      const acro = /^[A-Z]{2,}s?$/.test(w);
+      const startsSentence = i === 0 || /[.!?:]["')\]]*$/.test(all[i - 1]);
+      if (!acro && (startsSentence || !/^[A-Z]/.test(w))) return;
+      const lw = w.toLowerCase().replace(/'s$/, "");
+      if (!known.has(lw) && !(" " + lw + " ").match(GR_TIME)) reasons.push("name:" + w);
+    });
+    if (opts.clauses !== false) {
+      const stems = new Set([...known].map(grStem));
+      const clauses = [];
+      (T.match(/[^.!?]+[.!?]*/g) || []).forEach(sent =>   /* no lookbehind: iOS 15 WebKit cannot parse one */
+        sent.split(/[;:]|,?\s+but\s+|,\s+(?=and (?:i|we|they|he|she)\b)/i).forEach(c => { if (c && c.trim()) clauses.push(c.trim()); }));
+      clauses.forEach(sent => {
+        const cw = grContent(sent);
+        if (cw.length < 3) return;
+        const hit = cw.filter(w => stems.has(grStem(w))).length;
+        const asks = grCount(GR_REQ, sent) > 0 || GR_COMMIT.test(grNorm(sent));
+        if (hit / cw.length < (asks ? 2 / 3 : 1 / 2)) reasons.push("clause:" + sent.slice(0, 60));
+      });
+    }
+    return Array.from(new Set(reasons));
+  }
+
   const REPORT_CAPS = { well: 3, improve: 2, note: 160, better: 700, expr: 3, one: 180, polish: 2, psaid: 160, pbetter: 220, pwhy: 160 };
 
   function reportPrompt(ctx, ev, comp) {
@@ -774,7 +866,14 @@ Read the transcript. Write a short report as JSON:
   how to add it. If everything was credited, coach the weak move or delivery.
 - "better": the learner's SAME answer, improved. Keep their meaning, their
   facts and their level; at most 70 words; natural spoken English, not an
-  essay. Never add facts they did not say.
+  essay. Never add facts they did not say. You may improve grammar, sentence
+  structure, vocabulary, naturalness, register and clarity — nothing else.
+  Do NOT add any request, question, action, commitment, number, date,
+  deadline, person, organisation or claim the learner did not say. A move
+  from the "Not heard" list stays missing here: coach it in "improve", never
+  write it into the better version for them. If they asked for nothing, the
+  better version asks for nothing. Every sentence must be one they could
+  recognise as their own.
 - "expressions": up to ${REPORT_CAPS.expr} entries {"e": expression, "why":
   when it helps here, under 15 words}.
 - "one": ONE actionable focus for next time, under 25 words, imperative.
@@ -783,7 +882,8 @@ Read the transcript. Write a short report as JSON:
   way to say the same thing in THIS situation, "why": one plain sentence}.
   Only where the rewording MATERIALLY improves clarity, naturalness,
   professional register, sentence structure or word choice for this task.
-  Keep the learner's meaning and facts. If their language is already
+  Keep the learner's meaning and facts — no new numbers, dates, names,
+  requests or actions. If their language is already
   natural and professional, return an empty list — never correct a minor
   slip for its own sake, and never call awkward but clear English "wrong".
 
@@ -826,7 +926,15 @@ Return JSON only:
         if (id && note && (missed.includes(id) || (!missed.length && id === weak)) && !out.improve.some(y => y.move === id)) out.improve.push({ move: id, label: lbl(id), note });
       });
       const b = str(raw.better, REPORT_CAPS.better);
-      out.better = b.split(/\s+/).length >= 5 ? b : null;
+      /* FACTUAL GROUNDING: a better version that adds a number, a date, a
+         name, a request or a clause the learner never said is not shown.
+         No fallback is written in its place (see groundCheck). The reasons
+         ride on the ephemeral report for tests and the console only —
+         attachReport never stores them. */
+      const bank = ((comp && comp.expressions) || []).map(e => e && e.w).filter(Boolean);
+      const why = b ? groundCheck(b, ev.said, { bank }) : [];
+      if (why.length) out.betterBlocked = why;
+      out.better = b.split(/\s+/).length >= 5 && !why.length ? b : null;
       (Array.isArray(raw.expressions) ? raw.expressions : []).forEach(x => {
         if (!x || out.expr.length >= REPORT_CAPS.expr) return;
         const e = str(x.e, 60), why = str(x.why, 140);
@@ -850,6 +958,10 @@ Return JSON only:
         if (!said || !better) return;
         if (!spoken || spoken.indexOf(norm(said)) < 0) return;
         if (norm(better) === norm(said)) return;
+        /* a rewording may change the words, never the facts: same number,
+           date, name and request rules as the better version (the clause
+           rule is off — replacing the words is what polish is for) */
+        if (groundCheck(better, ev.said, { clauses: false }).length) return;
         out.polish.push({ said, better, why });
       });
       out.ai = !!(out.well.length || out.improve.length || out.better || out.one || out.polish.length);
@@ -897,6 +1009,61 @@ Return JSON only:
     return row;
   }
 
+  /* A report stored before the grounding check existed may carry a better
+     version that invents facts. Where the transcript is on this device the
+     same check runs again at read time, so an old invention is never shown or
+     spoken from the history; the stored row is left untouched. Without a
+     transcript (another device) the better version and polish were stripped
+     by the sync payload anyway. */
+  function groundedReport(rep, said, comp) {
+    if (!rep || !said) return rep || null;
+    const bank = ((comp && comp.expressions) || []).map(e => e && e.w).filter(Boolean);
+    let out = rep;
+    if (rep.better && groundCheck(rep.better, said, { bank }).length) out = Object.assign({}, out, { better: null });
+    if (rep.pol && rep.pol.length) {
+      const pol = rep.pol.filter(x => x && !groundCheck(x.b, said, { clauses: false }).length);
+      if (pol.length !== rep.pol.length) { out = Object.assign({}, out); if (pol.length) out.pol = pol; else delete out.pol; }
+    }
+    return out;
+  }
+
+  /* ONE ATTEMPT, TWO COPIES — the cloud merge rule.
+     The sync payload deliberately strips the learner's words from every
+     attempt (`said`, the report's `better`, the language polish `pol`), so
+     the cloud copy of an attempt is always the POORER copy of the same
+     record. Picking a side by position therefore threw the device's own
+     transcript and better version away on every pull. Instead the two
+     copies are merged field by field:
+       evidence  — the copy whose coaching finished (coachPending false) is
+                   the later state of the same attempt, so it leads;
+       private   — said / pron are kept from whichever copy has them;
+       report    — the later report wins (`at`); the SAME report (equal `at`)
+                   keeps the better version and polish from whichever copy
+                   still carries them.
+     Nothing here can resurrect data the learner deleted: sign-out and
+     account deletion wipe the device before any merge runs. */
+  function mergeReport(c, l) {
+    if (!c) return l || null;
+    if (!l) return c;
+    const ca = c.at || 0, la = l.at || 0;
+    if (ca !== la) return ca > la ? c : l;
+    const out = Object.assign({}, c, l);
+    out.better = l.better || c.better || null;
+    const pol = (l.pol && l.pol.length) ? l.pol : c.pol;
+    if (pol && pol.length) out.pol = pol; else delete out.pol;
+    return out;
+  }
+  function mergeAttempt(c, l) {
+    if (!c) return l || null;
+    if (!l) return c;
+    const out = (!c.coachPending && l.coachPending) ? Object.assign({}, l, c) : Object.assign({}, c, l);
+    if (!out.said && (l.said || c.said)) out.said = l.said || c.said;
+    if (out.pron == null && (l.pron != null || c.pron != null)) out.pron = l.pron != null ? l.pron : c.pron;
+    const rep = mergeReport(c.report, l.report);
+    if (rep) out.report = rep; else delete out.report;
+    return out;
+  }
+
   /* The learning history, oldest week first, newest attempt first inside a
      week: every spoken attempt with its evidence and (when one was written)
      its report. A flat list of plain objects so the history screen renders it
@@ -911,7 +1078,7 @@ Return JSON only:
           competency: c.id, week: c.week || null, title: c.title || "",
           missionId: a.missionId, kind: a.kind, key: a.key, at: a.at,
           passed: !!a.passed, moves: a.moves || {}, state: (r && r.state) || "NOT_STARTED",
-          report: a.report || null,
+          report: groundedReport(a.report, a.said, c),
         });
       });
     });
@@ -939,6 +1106,7 @@ Return JSON only:
     blank, record, introduce, stateFrom, addAttempt, scheduleRetrieval, recommend,
     aiContext, coachPrompt, shapeCoach, expressionsToLearn, guard,
     reportPrompt, shapeReport, attachReport, history, REPORT_CAPS,
+    groundCheck, groundedReport, mergeReport, mergeAttempt,
     EVIDENCE_VERSION, contract, fromShadow, addSupport, supportSummary, progressSummary,
     SHADOW_RUNGS, MAX_SUPPORT, ACTION_PRIORITY, pickNext,
   };

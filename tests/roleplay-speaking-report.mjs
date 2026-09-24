@@ -32,11 +32,11 @@ const ok = (name, cond, detail = "") => { res.push({ name, pass: !!cond }); cons
 console.log("\n1 · ENGINE — a scenario rubric grounds exactly like a mission's");
 const rt = p => `Next time, work "${p}" into the conversation.`;
 const comp = { moves: [{ id: "p1", label: "Greet the interviewer", retry: rt("Greet the interviewer") }, { id: "p2", label: "Describe your current role", retry: rt("Describe your current role") }, { id: "p3", label: "Ask a question of your own", retry: rt("Ask a question of your own") }], expressions: [] };
-const ev = { moves: { p1: true, p2: true, p3: false }, covered: ["p1", "p2"], missed: ["p3"] };
+const ev = { moves: { p1: true, p2: true, p3: false }, covered: ["p1", "p2"], missed: ["p3"], said: "Thank you for meeting me today. I work as logistics analyst since five years." };   /* rpReport puts the turns on ev.said */
 const raw = {
   well: [{ move: "p1", note: "A warm, direct opening." }, { move: "p3", note: "INVENTED — the scorer says this never happened." }],
   improve: [{ move: "p2", note: "FORBIDDEN — p2 was covered." }, { move: "p3", note: "End by asking about the team you would join." }],
-  better: "Thank you for meeting me. I currently work as a logistics analyst, where I look after our supplier data. Could I ask how this role fits into the wider team?",
+  better: "Thank you for meeting me today. I have worked as a logistics analyst for five years.",
   expressions: [{ e: "could I ask", why: "turns a statement into a question" }],
   one: "Always leave with one question of your own.",
 };
@@ -96,7 +96,7 @@ async function learner(id, track) {
         covered: [],
         well: [{ move: "p1", note: "A warm, direct opening." }, { move: "p3", note: "INVENTED PRAISE — must be dropped." }],
         improve: [{ move: "p3", note: "End by asking about the team you would join." }],
-        better: "Thank you for meeting me. I currently work as a logistics analyst, where I look after our supplier data. Could I ask how this role fits into the wider team?",
+        better: "Thank you for meeting me today. I have worked as a logistics analyst for five years.",
         expressions: [{ e: "could I ask", why: "turns a statement into a question" }],
         one: "Always leave with one question of your own.",
       }) });

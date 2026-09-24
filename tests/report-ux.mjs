@@ -54,7 +54,7 @@ const MISSION_REPLY = {
     { move: "mitigate", note: "Say what you have already done about it." },
     { move: "ask", note: "Close with the decision you need from them." },
   ],
-  better: "We have a problem with the delivery. The supplier changed the order number, so we would finish three days late. Could you approve a two-day extension so we protect the hand-over?",
+  better: "We have a problem with the delivery. It started when the supplier changed the order number, so we would finish three days late. I have already spoken to their office.",
   expressions: [{ e: "this means", why: "ties the cause to its impact" }, { e: "could you approve", why: "turns a report into an ask" }],
   one: "Finish with a clear ask before you stop speaking.",
 };
@@ -62,7 +62,7 @@ const CONVO_REPLY = {
   covered: [],
   well: [{ move: "p1", note: "A clear, direct opening." }],
   improve: [{ move: "p2", note: "Bring in the second point in your own words." }, { move: "p3", note: "And close on the third." }],
-  better: "Thank you for meeting me. I currently work as a logistics analyst, where I look after our supplier data.",
+  better: "Thank you for meeting me today. I have worked as a logistics analyst for five years.",
   expressions: [{ e: "could I ask", why: "turns a statement into a question" }],
   one: "Cover every talking point before the conversation ends.",
 };
@@ -155,7 +155,7 @@ const m1 = await L.page.evaluate(() => ({
   rowReport: (() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { well: a.report.well.length, fix: a.report.fix.length, better: !!a.report.better }; })(),
 }));
 ok("the primary report is the answer: ≤2 strengths, exactly ONE biggest improvement, you-said + better version + Hear it, one focus",
-  m1.step === "coach" && /speaking report/i.test(m1.title) && m1.wellPrim === 2 && m1.fixPrim === 1 && /order number/.test(m1.youSaid) && /two-day extension/.test(m1.better) && m1.hear && /clear ask/i.test(m1.focus), JSON.stringify(m1).slice(0, 500));
+  m1.step === "coach" && /speaking report/i.test(m1.title) && m1.wellPrim === 2 && m1.fixPrim === 1 && /order number/.test(m1.youSaid) && /spoken to their office/.test(m1.better) && m1.hear && /clear ask/i.test(m1.focus), JSON.stringify(m1).slice(0, 500));
 ok("nothing was thrown away: the 3rd strength and the 2nd improvement live in the folds, expressions and move chips too, all folds closed",
   m1.wellFold === 1 && m1.fixFold === 1 && m1.expr === 2 && m1.chipsInFold && !m1.chipsPrim && m1.foldsClosed, JSON.stringify(m1).slice(0, 500));
 ok("the folds are the spec's sections: vocabulary & expressions, fluency & clarity, pronunciation, detailed analysis",

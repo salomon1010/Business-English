@@ -40,7 +40,7 @@ const SAY = {
 
 /* ══════════════════════ 1 · ENGINE (no browser) ══════════════════════════ */
 console.log("\n1 · ENGINE — the report is anchored to the evidence");
-const ev = ME.grade(comp, G, SAY.noAsk, { seconds: 22 });
+const ev = Object.assign(ME.grade(comp, G, SAY.noAsk, { seconds: 22 }), { said: SAY.noAsk });   /* mvCoach reports on ev.said */
 const made = ME.moveIds(comp).filter(id => ev.moves[id]);
 const missed = ME.moveIds(comp).filter(id => !ev.moves[id]);
 ok("the fixture behaves: four moves credited, the ask missed", made.join() === "issue,cause,impact,mitigate" && missed.join() === "ask", made.join() + "|" + missed.join());
@@ -67,7 +67,7 @@ const raw = {
     { move: "issue", note: "FORBIDDEN — issue was credited and cannot be marked absent." },
     { move: "ask", note: "You never asked for anything — close with the decision you need." },
   ],
-  better: "We have a problem with the delivery. It started when the supplier changed the order number, so we would finish three days late. I have already spoken to their office. Could you approve a two-day extension so we protect the hand-over?",
+  better: "We have a problem with the delivery. It started when the supplier changed the order number, so we would finish three days late. I have already spoken to their office.",
   expressions: [{ e: "the main issue is", why: "opens a problem cleanly" }, { e: "this means", why: "ties cause to impact" }, { e: "could you approve", why: "turns a report into an ask" }, { e: "a fourth", why: "over the cap" }],
   one: "Finish with a clear ask before you stop speaking.",
 };
@@ -77,7 +77,7 @@ ok("praise for the uncredited move is dropped; the rest is capped at three",
 ok("a 'to improve' for a CREDITED move is dropped; the missed move stays, with the AI's sentence",
   rep.improve.length === 1 && rep.improve[0].move === "ask" && /close with the decision/i.test(rep.improve[0].note));
 ok("the better version and the one-thing survive, capped; expressions cap at three",
-  /two-day extension/.test(rep.better) && rep.expr.length === 3 && /clear ask/i.test(rep.one) && rep.ai === true);
+  /spoken to their office/.test(rep.better) && rep.expr.length === 3 && /clear ask/i.test(rep.one) && rep.ai === true);
 
 const covered = ME.applyCoachMoves(ME.grade(comp, G, SAY.noAsk, { seconds: 22 }), comp, ["ask"]);
 const rep2 = ME.shapeReport({ well: [{ move: "ask", note: "You asked in your own words." }] }, comp, covered);
@@ -121,7 +121,7 @@ ok("Shadow compatibility: attaching a report leaves support rows and their summa
 /* ══════════════════════ 2 · WORKER SHAPE (no network) ════════════════════ */
 console.log("\n2 · WORKER — shapeMvReport is a transport check, not a truth check");
 const w1 = shapeMvReport(JSON.stringify(raw));
-ok("a full report passes through with its caps applied", w1.well.length === 3 && w1.improve.length === 2 && w1.expressions.length === 3 && /two-day/.test(w1.better) && w1.one.length > 0);
+ok("a full report passes through with its caps applied", w1.well.length === 3 && w1.improve.length === 2 && w1.expressions.length === 3 && /spoken to their office/.test(w1.better) && w1.one.length > 0);
 ok("garbage in, empty shape out — never a throw", (() => { const g = shapeMvReport("not json at all"); return g.well.length === 0 && g.better === "" && g.covered.length === 0; })());
 ok("entries without an anchor or a note are dropped; covered is strings only",
   (() => { const g = shapeMvReport(JSON.stringify({ well: [{ note: "no move" }, { move: "x" }], covered: ["ok", 7, ""] })); return g.well.length === 0 && g.covered.join() === "ok"; })());
@@ -181,7 +181,7 @@ async function learner(id, track, viewport) {
         covered: [],
         well: [{ move: "issue", note: "You opened with the problem itself." }, { move: "ask", note: "INVENTED PRAISE — must be dropped." }, { move: "impact", note: "Three days late is a real consequence." }],
         improve: [{ move: "ask", note: "Close with the decision you need from them." }],
-        better: "We have a problem with the delivery. The supplier changed the order number, so we would finish three days late. I have already spoken to their office. Could you approve a two-day extension so we protect the hand-over?",
+        better: "We have a problem with the delivery. It started when the supplier changed the order number, so we would finish three days late. I have already spoken to their office.",
         expressions: [{ e: "this means", why: "ties the cause to its impact" }, { e: "could you approve", why: "turns a report into an ask" }],
         one: "Finish with a clear ask before you stop speaking.",
       }) });
@@ -223,7 +223,7 @@ const coach = await L.page.evaluate(() => ({
   reportOnRow: (() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { has: !!a.report, better: !!(a.report && a.report.better), well: a.report ? a.report.well.map(x => x.m) : [] }; })(),
 }));
 ok("the report renders: did-well, to-improve, better version with a Hear button, expressions, one thing",
-  coach.step === "coach" && coach.well.length >= 1 && coach.fix.length === 1 && /two-day extension/.test(coach.better) && coach.hearBtn && coach.expr.length === 2 && /clear ask/i.test(coach.one), JSON.stringify(coach).slice(0, 400));
+  coach.step === "coach" && coach.well.length >= 1 && coach.fix.length === 1 && /spoken to their office/.test(coach.better) && coach.hearBtn && coach.expr.length === 2 && /clear ask/i.test(coach.one), JSON.stringify(coach).slice(0, 400));
 ok("the invented praise for the missed ask was dropped; the real credits stayed",
   !coach.well.some(x => /INVENTED/.test(x)) && coach.well.some(x => /problem itself/.test(x)) && /decision you need/.test(coach.fix[0]));
 ok("the report was persisted on the attempt row, anchored to move ids",
@@ -260,7 +260,7 @@ ok("the history lists both attempts under their week, result labels honest, one 
   h1.rows === 2 && /Week 3/.test(h1.week) && h1.opened === 1 && h1.results.length === 2 && h1.overflow, JSON.stringify(h1));
 const h2 = await L.page.evaluate(() => { const d = document.querySelectorAll(".mv-hist-row")[1]; d.setAttribute("open", ""); return { better: (d.querySelector(".mv-better-t") || {}).innerText || "", well: d.querySelectorAll(".mv-rep-list.ok li").length, practice: !!d.querySelector(".btn-primary"), mytake: [...d.querySelectorAll("button")].some(b => /My take/i.test(b.innerText)) }; });
 ok("an old report opens in place — better version, did-well list, My take, Practise again — with nothing re-done",
-  /two-day extension/.test(h2.better) && h2.well >= 1 && h2.practice && h2.mytake, JSON.stringify(h2));
+  /spoken to their office/.test(h2.better) && h2.well >= 1 && h2.practice && h2.mytake, JSON.stringify(h2));
 const heard2 = await L.page.evaluate(() => { let n = 0; const f = window.fbSay; window.fbSay = () => { n++; }; mvHistHear(1); window.fbSay = f; return { n, ev: window.__ev.filter(e => e[0] === "v2_speaking_history_replayed").length }; });
 ok("hearing an old better version works from the history and logs its event", heard2.n === 1 && heard2.ev === 1, JSON.stringify(heard2));
 await shot(L.page, "390-history");
@@ -270,7 +270,7 @@ await L.page.reload({ waitUntil: "load" }); await sleep(1200);
 await L.page.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
 await spyOn(L.page);                       /* the reload wiped the event spy */
 const h3 = await L.page.evaluate(() => { go("mvhist"); return new Promise(r => setTimeout(() => { const d = document.querySelectorAll(".mv-hist-row")[1]; if (d) d.setAttribute("open", ""); r({ rows: document.querySelectorAll(".mv-hist-row").length, better: (d && d.querySelector(".mv-better-t") || {}).innerText || "" }); }, 300)); });
-ok("after a reload both attempts and the stored report are still there", h3.rows === 2 && /two-day extension/.test(h3.better), JSON.stringify(h3));
+ok("after a reload both attempts and the stored report are still there", h3.rows === 2 && /spoken to their office/.test(h3.better), JSON.stringify(h3));
 
 /* history → practice again lands in the same mission loop */
 const nav = await L.page.evaluate(() => new Promise(r => { document.querySelector(".mv-hist-row .btn-primary").click(); setTimeout(() => r({ v: cur.v, step: _mv && _mv.step }), 400); }));
