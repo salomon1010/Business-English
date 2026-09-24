@@ -87,6 +87,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   if signed in). Activity for streak/calendar: `S.dates` (YYYY-MM-DD), `S.dayLog`
   (per-day count), `S.fbHist` (timestamped feedback). `markPracticed()` lights up a
   day — called by every practice action.
+- **Mission Coach step = the Executive Polish report (owner, 24 Sep 2026).**
+  After the learner speaks in a V2 mission, the Coach step no longer draws
+  the mission's own did-well / to-improve report; it hosts the Executive
+  Polish speaking report (`mvExReport`, `exHost = mvHost(key)`, wrap
+  `#mvRepWrap`, one report per attempt in `S.notes["exrep:"+key]`, the
+  previous attempt at the same mission is `prev`, "Say it again" = `mvRetry`)
+  with the mission sent as the task (`mvRepCtx`: competency + pattern as
+  focus, prompt + context as task, goal as outcome, the moves' first
+  patterns as phrases — the Worker's existing `anCtx`, nothing deployed).
+  `mvCoach` still runs beside it: it credits moves, sets state and attaches
+  the mission report to the attempt row for the Speaking History and the
+  conversation sheet, which still draw that report. Test:
+  `tests/mission-coach-report.mjs` (16).
 - **Areas (welding vs general English) — READ BEFORE TOUCHING PROGRESS.** The two
   programmes share one engine but must never share evidence: the Progress/Review
   page reports on the OPEN area only. `areaId()` is the area (`S.professionalTracks

@@ -238,9 +238,9 @@ const A = await learner("A", "general-english");
 await A.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(A.page, SAID.noAsk);
 const a1 = await snap(A.page);
-const onScreen = await A.page.evaluate(() => ({ better: (document.querySelector(".mv-better-t") || {}).innerText || "", said: !!document.querySelector(".mv-said") }));
+const onScreen = await A.page.evaluate(() => ({ wrap: !!document.querySelector("#mvRepWrap"), old: !!document.querySelector(".mv-better-t, .mv-said") }));   /* the Coach step hosts the Executive Polish report since 24 Sep 2026; the mission report lives on the row and in the history */
 ok("A1 complete report on the device: evidence, transcript, better version, polish, expressions, focus",
-  a1.length === 1 && a1[0].said && a1[0].better && a1[0].pol && a1[0].well && a1[0].expr && a1[0].one && !a1[0].pending && /three days late/.test(onScreen.better) && onScreen.said, JSON.stringify({ a1, onScreen }));
+  a1.length === 1 && a1[0].said && a1[0].better && a1[0].pol && a1[0].well && a1[0].expr && a1[0].one && !a1[0].pending && onScreen.wrap && !onScreen.old, JSON.stringify({ a1, onScreen }));
 await A.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(A.page, SAID.noAsk.replace("three days", "three days and more"));
 await A.page.reload({ waitUntil: "load" }); await sleep(1000);
@@ -334,9 +334,9 @@ repMode = "unsafe";
 await A.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(A.page, SAID.noAsk);
 const gb = await A.page.evaluate(() => { const at = S.v2A["general-english"]["raise-problem"].attempts; const a = at[at.length - 1];
-  return { shown: (document.querySelector(".mv-better-t") || {}).innerText || "", stored: a.report && a.report.better, ai: a.report && a.report.ai, well: document.querySelectorAll(".mv-rep-well .pp-rv-line").length, page: document.body.innerText.includes("need your help") }; });
+  return { shown: (document.querySelector(".mv-better-t") || {}).innerText || "", stored: a.report && a.report.better, ai: a.report && a.report.ai, well: !!document.querySelector("#mvRepWrap"), page: document.body.innerText.includes("need your help") }; });
 ok("G15 app: an invented better version is neither shown, stored, nor replaced; the rest of the report renders",
-  !gb.shown && gb.stored === null && gb.ai === true && gb.well >= 1 && !gb.page, JSON.stringify(gb));
+  !gb.shown && gb.stored === null && gb.ai === true && gb.well && !gb.page, JSON.stringify(gb));
 repMode = "safe";
 
 /* ── Welding boundary ── */

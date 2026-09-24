@@ -8496,6 +8496,7 @@ function go(v,arg1,arg2){
   /* The Polish mic is a page-level recorder: leaving the Phrase Lab closes it. */
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
   try{if(cur&&cur.v==="session"&&v!=="session"){exCoachStop();exHost=null}}catch(e){}
+  try{if(cur&&cur.v==="mission"&&v!=="mission"){exCoachStop();exHost=null}}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
@@ -8927,7 +8928,7 @@ function mvOpen(missionId,step){
   go("mission",m.id,step||"see");
 }
 window.mvGo=(missionId,step)=>mvOpen(missionId,step);
-window.mvStep=s=>{if(!_mv)return;_mv.step=s;_mv.err=null;mvDraw();
+window.mvStep=s=>{if(!_mv)return;try{exCoachStop()}catch(e){}_mv.step=s;_mv.err=null;mvDraw();
   if(s==="hear")mvTrack("v2_mission_heard",{mission:_mv.missionId});
 };
 
@@ -8998,6 +8999,9 @@ async function mvOnSpeech(heard,meta){
   _mv.ev=ev;_mv.busy=true;_mv.step="coach";
   mvDraw();
 
+  /* The speaking report (what the Coach step shows) runs beside the evidence
+     pass, from the recording that was just filed; it draws itself. */
+  mvExReport(c,m,ev).catch(()=>{});
   const coached=await mvCoach(c,m,ev);
   _mv.coach=coached;
   _mv.busy=false;
@@ -9179,6 +9183,89 @@ window.mvFinishCoaching=async()=>{
   mvDraw();
 };
 
+/* ------------------------------------------ THE COACH STEP'S REPORT (2026-09-24)
+   The Coach step no longer draws the mission's own did-well / to-improve
+   report (owner, 24 Sep 2026). It hosts the Executive Polish report — the
+   same minute through the same pipeline the Phrase Lab and the session's
+   Record yourself card use (transcribe, measure on the device, the coach,
+   the five stations, the voice) — with THIS MISSION sent as the task: the
+   competency and its pattern as the focus, the question the learner was
+   asked and its situation as the task, the mission's goal as the outcome,
+   and the moves' patterns as the phrases to use. The Worker's analyse route
+   already takes exactly that context (anCtx), so nothing was deployed for
+   it. The mission's evidence is untouched: mvCoach still runs beside this,
+   still credits moves, still attaches its report to the attempt row for the
+   Speaking History. Only the screen changed. One report per spoken attempt,
+   in S.notes["exrep:"+key] (key = the attempt's recording context, so it is
+   track-scoped, syncs with the notes and is capped by sessRepPut); the
+   previous attempt at the same mission is the "previous take" the
+   carry-over score is marked against; "Say it again" is mvRetry. */
+let _mvRepBusy=null;
+function mvRepCtx(comp,m){
+  const task=[m.prompt,m.context].filter(Boolean).join(" ");
+  const phrases=[];(comp.moves||[]).forEach(x=>{const p=(x.patterns||[])[0];if(p)phrases.push(String(p).replace(/…/g,"...").slice(0,80))});
+  return {track:"general",week:comp.week,focus:String(comp.title+(comp.pattern?" — "+comp.pattern:"")).slice(0,160),
+    task:String(task).slice(0,300),out:String((m.see&&m.see.goal)||"").slice(0,200),phrases:phrases.slice(0,6)};
+}
+function mvRepPrev(m,key){
+  let best=null;
+  Object.keys(S.notes).forEach(k=>{if(!k.startsWith("exrep:")||k==="exrep:"+key)return;const r=S.notes[k];if(r&&r.m&&r.mission===m.id&&(!best||(r.at||0)>(best.at||0)))best=r});
+  return best?{at:best.at,m:best.m,targets:best.targets||[]}:null;
+}
+function mvHost(key,rep){return {wrapId:"mvRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,again:()=>mvRetry()}}
+function mvRepOn(key){return cur.v==="mission"&&!!_mv&&_mv.step==="coach"&&!!_mv.ev&&_mv.ev.key===key&&!!document.getElementById("mvRepWrap")}
+function mvRepNote(msg,retry){
+  const w=document.getElementById("mvRepWrap");if(!w)return;
+  w.innerHTML=`<p class="ex-note">${esc(msg)}</p>${retry?`<button class="btn-primary sess-rep-btn" onclick="mvReportLast()">${tIc("sess.report_btn","sparkle")}</button>`:""}`;
+  manIconizeInline(w);
+}
+/* Every draw of the Coach step lands here: the wait card while the minute is
+   in flight, the stored report when there is one, otherwise the plain note
+   and the button that sends the recording again. */
+function mvRepMount(){
+  const w=document.getElementById("mvRepWrap");if(!w||!_mv||!_mv.ev)return;
+  const key=_mv.ev.key;
+  exHost=mvHost(key,null);
+  if(_mvRepBusy===key){exReportShow(exWaitHTML(t("ex.step_measure")),true);return}
+  const rep=sessRepGet(key);
+  if(rep){exHost=mvHost(key,rep);exRenderReport(rep,true);return}
+  mvRepNote(t(!POLISH_API||!navigator.onLine?"sess.report_off":"sess.report_stt"),true);
+}
+window.mvReportLast=()=>{
+  const c=mvComp(_mv&&_mv.compId);if(!c||!_mv||!_mv.ev)return;
+  const m=MissionEngine.missionOf(c,_mv.ev.missionId||_mv.missionId);if(!m)return;
+  mvExReport(c,m,_mv.ev).catch(()=>{});
+};
+async function mvExReport(comp,m,ev){
+  const key=ev&&ev.key;if(!key||_mvRepBusy===key)return;
+  const area=areaId(),ctx=mvRepCtx(comp,m);
+  if(!POLISH_API||!navigator.onLine){if(mvRepOn(key))mvRepNote(t("sess.report_off"),true);return}
+  _mvRepBusy=key;exCoachStop();
+  if(mvRepOn(key)){exHost=mvHost(key,null);exReportShow(exWaitHTML(t("ex.step_stt")),true)}
+  try{
+    const recs=await getRecs(key);
+    const blob=recs&&recs[0]&&recs[0].blob;
+    if(!blob){_mvRepBusy=null;if(mvRepOn(key))mvRepNote(t("sess.report_none"));return}
+    const [tx,au]=await Promise.all([exTranscribe(blob),exAudioStats(blob)]);
+    const audio=au||{dur:0,pitch:null,pauses:[]};
+    if(!audio.dur)audio.dur=+ev.seconds||0;
+    if(!tx||!tx.text){_mvRepBusy=null;if(mvRepOn(key))mvRepNote(t("sess.report_stt"),true);return}
+    if(mvRepOn(key))exStep(t("ex.step_measure"));
+    const mm=exTextStats(tx.text,tx.words,audio);
+    if(mvRepOn(key))exStep(t("ex.step_plan"));
+    const ai=await exAI(tx.text,mm,ctx);
+    const rep={at:Date.now(),tk:area,key,mission:m.id,comp:comp.id,m:mm,ai:ai||null,tx:tx.text,sttFailed:false,targets:exTargets(ai),ctx};
+    const prev=mvRepPrev(m,key);if(prev)rep.prev=prev;
+    sessRepPut(key,rep);save();
+    _mvRepBusy=null;
+    if(mvRepOn(key)){exHost=mvHost(key,rep);exRenderReport(rep)}
+  }catch(e){
+    _mvRepBusy=null;
+    try{console.warn("[mission] speaking report unavailable",e)}catch(_){}
+    if(mvRepOn(key))mvRepNote(t("ex.ai_off"),true);
+  }
+}
+
 /* ---------------------------------------------------- SHADOW → V2 EVIDENCE
    One harvest point instead of four. The Challenge ladder, the sync round, the
    retell round and the Shadow report each write their own row into
@@ -9260,18 +9347,15 @@ window.v2Recommendation=function(){
 };
 
 /* ------------------------------------------------------------------ rendering */
-/* THE SPEAKING REPORT — evidence first, prose second. The ✓ and → lists are
-   anchored to move ids the deterministic scorer decided; the AI's sentences
-   only ever sit under an anchor that agrees with the evidence (shapeReport
-   dropped the rest). No numbers are shown that were not measured, and a
-   report with no better version (offline, or a refusal) says so instead of
-   inventing one.
-
-   Consolidated 23 Sep 2026 (owner spec): the learner sees the coaching
-   answer in the first screenful — 1–2 things that worked, ONE improvement,
-   the better version with their own words above it, one focus, Try again.
-   Everything else the analysis produced still renders, in closed folds
-   below (mvRepFoldsHTML). Nothing about the engine or the evidence moved. */
+/* THE MISSION'S OWN REPORT — evidence first, prose second. The ✓ and → lists
+   are anchored to move ids the deterministic scorer decided; the AI's
+   sentences only ever sit under an anchor that agrees with the evidence
+   (shapeReport dropped the rest). Since 24 Sep 2026 (owner) the Coach step
+   no longer draws it — that screen is the Executive Polish speaking report
+   (mvExReport, below mvFinishCoaching). What is left here is what the
+   Speaking History and the conversation sheet still draw with: the pick of
+   the one improvement, the polish rows, the Hear buttons, the move chips
+   and the bars. */
 /* ONE improvement out of the (max two) evidence-anchored entries: the
    recurring weakness wins when it is among them, because a move that keeps
    failing outranks one that failed once; otherwise the model's own first
@@ -9295,55 +9379,8 @@ function mvRepPick(rep,co){
    polish rewrite, the one focus — never from anything invented here. */
 let _mvPractice={};
 function mvPracticeHost(id){const k=id||("mv:"+((_mv&&_mv.ev&&_mv.ev.key)||"x"));return _mvPractice[k]||(_mvPractice[k]={id:k,practice:{}})}
-/* Hear / Slow in the review's own look; Hear on the better version goes
-   through mvHearBetter so v2_better_version_played is logged exactly as before */
-function mvHearBtns(text,better){
-  return `<button class="btn btn-g btn-sm pp-rv-hear" onclick="${better?"mvHearBetter()":`fbSay(${jarg(text)},1)`}" aria-label="${esc(t("pp.rv_hear"))}">${ic("sound")} ${t("pp.rv_hear")}</button><button class="btn btn-g btn-sm pp-rv-hear" onclick="fbSay(${jarg(text)},.7)">${ic("gauge")} ${t("pp.rv_slow")}</button>`;
-}
-function mvReportHTML(comp,co,ev){
-  const rep=co&&co.report;
-  if(!rep)return `<section class="card pp-rv-sec"><h3>${t("mv.worked")}</h3><p>${esc(co.worked)}</p>
-    <h3>${t("mv.improve")}</h3><p class="mv-improve">${esc(co.improve)}</p></section>`;
-  const host=mvPracticeHost();
-  const big=mvRepPick(rep,co);
-  const line=(x,ok)=>`<p class="pp-rv-line${ok?" ok":""}">${ic(ok?"check":"target")} <span>${x.label?`<b>${esc(x.label)}</b>${x.note?" — ":""}`:""}${esc(x.note||"")}</span></p>`;
-  const well=(rep.well&&rep.well.length?rep.well.slice(0,2):[{label:"",note:co.worked}]).map(x=>line(x,true)).join("");
-  const said=ev&&ev.said?String(ev.said):"";
-  const changed=(rep.polish||[]).map(x=>x.why?x.why:`“${x.said}” → “${x.better}”`);
-  /* YOUR NEXT PRACTICE — the review's numbered plan, from the mission's data */
-  const wm=MissionEngine.moveOf(comp,(big&&big.move)||(co&&co.move))||null;
-  const pat=wm&&(wm.patterns||[])[0];
-  const reh=(rep.polish&&rep.polish[0]&&rep.polish[0].better)||"";
-  const items=[];
-  if(rep.expr&&rep.expr.length)items.push({k:t("pp.rv_next_vocab"),v:rep.expr.map(x=>x.e).join(" · ")});
-  if(pat)items.push({k:t("pp.rv_next_pattern"),v:pat,say:pat.replace(/…/g,"").trim()});
-  if(reh)items.push({k:t("pp.rv_next_answer"),v:reh,say:reh});
-  if(rep.one||co.improve)items.push({k:t("pp.rv_next_skill"),v:rep.one||co.improve});
-  return `<div class="mv-rep">
-  <section class="card pp-rv-head mv-rep-head">
-    <div class="eyebrow">${t("mv.rep_title")}</div>
-    ${co&&co.offline?`<p class="mv-note">${esc(t("mv.coach_offline"))}</p>`:""}
-    ${mvMoveChipsHTML(comp,ev)}
-  </section>
-  <section class="card pp-rv-sec mv-rep-well"><div class="eyebrow">${t("mv.rep_well_h")}</div>${well}</section>
-  ${big?`<section class="card pp-rv-sec mv-rep-big"><div class="eyebrow">${t("mv.rep_big_h")}</div>${line(big,false)}</section>`:""}
-  ${said||rep.better?`<section class="card pp-rv-sec pp-rv-answer mv-better"><div class="eyebrow">${t("mv.rep_say_h")}</div>
-    ${said?`<div class="pp-rv-said mv-said"><small>${t("pp.rv_answer_original")}</small><p>${esc(said)}</p></div>`:""}
-    ${rep.better?`<div class="pp-rv-better"><small>${t("pp.rv_answer_polished")}</small><p class="mv-better-t">${esc(rep.better)}</p></div>
-      ${changed.length?`<div class="pp-rv-why"><small>${t("pp.rv_answer_changed")}</small><ul class="pp-rv-changed">${changed.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>`:""}
-      <div class="pp-rv-voc-acts">${mvHearBtns(rep.better,true)}${ppRevPracticeBox(host,"answer",rep.better,t("pp.rv_answer_polished"))}</div>
-      <p class="pp-fine">${t("pp.rv_answer_note")}</p>`
-     :(rep.offline?`<p class="mv-note">${esc(t("mv.rep_better_off"))}</p>`:"")}
-  </section>`:""}
-  ${items.length?`<section class="card pp-rv-sec pp-rv-next mv-one"><div class="eyebrow">${t("pp.rv_sec_next")}</div>
-    <ol class="pp-rv-focus">${items.map((it,i)=>`<li><span class="pp-rv-focus-k">${it.k}</span> <b class="${i===items.length-1?"mv-improve":""}">${esc(it.v)}</b>${it.say?`<div class="pp-rv-voc-acts">${mvHearBtns(it.say)}${ppRevPracticeBox(host,"next:"+i,it.say,it.say)}</div>`:""}</li>`).join("")}</ol>
-  </section>`:""}
-  </div>`;
-}
-/* The folds under the answer: the expressions, the measured dimensions and
-   the move-by-move detail the long report used to show at full priority.
-   Closed by default, open state kept on _mv so the redraw that delivers the
-   comprehensibility score does not snap them shut. */
+/* A closed fold (the evidence screen's measures). Open state kept on _mv so
+   the redraw that delivers the comprehensibility score does not snap it shut. */
 function mvFold(k,label,inner){
   const open=!!(_mv&&_mv.secOpen&&_mv.secOpen[k]);
   return `<details class="mv-fold"${open?" open":""} ontoggle="if(typeof _mv!=='undefined'&&_mv){(_mv.secOpen=_mv.secOpen||{})['${k}']=this.open}">
@@ -9359,35 +9396,6 @@ function mvPolHTML(rows){
     <small>${t("mv.rep_you")}</small><p class="mv-pol-s">“${esc(g(x,"said","s")||"")}”</p>
     <small>${t("mv.rep_try")}</small><p>“${esc(g(x,"better","b")||"")}”</p>
     ${g(x,"why","w")?`<small>${t("mv.rep_why")}</small><p class="mv-pol-w">${esc(g(x,"why","w"))}</p>`:""}</div>`).join("")}</div>`:"";
-}
-function mvRepFoldsHTML(comp,co,ev){
-  const rep=co&&co.report;
-  if(!rep||!ev)return "";
-  const li=x=>`<li><b>${esc(x.label)}</b>${x.note?` — ${esc(x.note)}`:""}</li>`;
-  const big=mvRepPick(rep,co);
-  const wellRest=(rep.well||[]).slice(2),fixRest=(rep.improve||[]).filter(x=>x!==big);
-  const missed=(comp.moves||[]).filter(m=>!(ev.moves||{})[m.id]);
-  const folds=[];
-  /* Natural English: the language polish — you said / better / why, with Hear */
-  if(rep.polish&&rep.polish.length)folds.push(mvFold("polish",ppRevSecName("pp.rv_sec_natural"),rep.polish.map(x=>`<div class="pp-rv-nat">
-      <div class="pp-rv-said"><small>${t("pp.rv_you_said")}</small><p>“${esc(x.said)}”</p></div>
-      <div class="pp-rv-better"><small>${t("pp.rv_better")}</small><p>“${esc(x.better)}”</p><div class="pp-rv-voc-acts">${mvHearBtns(x.better)}</div></div>
-      ${x.why?`<div class="pp-rv-why"><small>${t("pp.rv_why")}</small><p>${esc(x.why)}</p></div>`:""}</div>`).join("")));
-  if(rep.expr&&rep.expr.length)folds.push(mvFold("vocab",ppRevSecName("pp.rv_sec_vocab"),
-    `${rep.expr.map(x=>`<div class="pp-rv-pat"><p><b>${esc(x.e)}</b>${x.why?` — ${esc(x.why)}`:""}</p><div class="pp-rv-voc-acts">${mvHearBtns(x.e)}</div></div>`).join("")}
-     ${ev.vocab!=null?`<div class="mv-bars">${mvBar(t("mv.vocab"),ev.vocab)}</div>`:""}`));
-  folds.push(mvFold("pron",ppRevSecName("pp.rv_sec_pron"),
-    `<div class="mv-bars">${mvBar(t("mv.pron"),ev.pron!=null?ev.pron/100:null,t("mv.pron_note"))}</div>`));
-  /* Topic mastery: how much of the task landed, and how to add each move the
-     scorer did not hear (the chips themselves head the report — once) */
-  folds.push(mvFold("task",ppRevSecName("pp.rv_sec_task"),
-    `<div class="mv-bars">${mvBar(t("mv.task"),ev.coverage!=null?ev.coverage:null)}</div>
-     ${missed.length?`<ul class="mv-rep-list miss">${missed.map(m=>`<li><b>${esc(m.label)}</b>${m.hint?` — ${esc(m.hint)}`:""}</li>`).join("")}</ul>`:""}`));
-  folds.push(mvFold("detail",t("mv.sec_detail"),
-    `${wellRest.length?`<ul class="mv-rep-list ok">${wellRest.map(li).join("")}</ul>`:""}
-     ${fixRest.length?`<ul class="mv-rep-list fix">${fixRest.map(li).join("")}</ul>`:""}
-     ${ev.clarity!=null||ev.fluency!=null?`<div class="mv-bars">${mvBar(t("mv.clarity"),ev.clarity)}${mvBar(t("mv.fluency"),ev.fluency)}</div>`:""}`));
-  return `<div class="mv-folds">${folds.join("")}</div>`;
 }
 /* Hear the better version through the voice the app already speaks with —
    the Worker's natural voice when it is reachable, the device voice when
@@ -9529,18 +9537,25 @@ function rMission(el,missionId,step){
 
   /* ---- COACH: what worked, ONE change, and the way to act on it ---- */
   else if(S1==="coach"){
-    const ev=_mv.ev,co=_mv.coach;
-    if(_mv.busy||!ev){
+    const ev=_mv.ev;
+    if(!ev){
       body=`<section class="card mv-coach"><div class="eyebrow">${t("mv.step_coach")}</div>
         <p class="sub">${t("mv.thinking")}</p></section>`;
     }else{
-      /* The first screenful is the coaching answer (mvReportHTML); everything
-         else is in the folds. The next step is the ENGINE's — recommend(),
-         the same call the evidence screen makes — in the dock, so it is on
-         screen without scrolling the report: finish a pending coaching,
-         try again, take the transfer, or see what was shown. */
-      const nx=MissionEngine.recommend(r,comp,Date.now());
-      const prim=ev.coachPending
+      /* The screen is the speaking report — the Executive Polish report,
+         judged against this mission (mvExReport draws it into #mvRepWrap).
+         Above it, the move chips: the evidence, which is the scorer's and
+         not the report's. The next step is the ENGINE's — recommend(),
+         the same call the evidence screen makes — in the dock once the
+         evidence pass is done: finish a pending coaching, try again, take
+         the transfer, or see what was shown. */
+      const head=`<section class="card mv-rep-head"><div class="eyebrow">${t("sess.report_h")}</div>
+        ${mvMoveChipsHTML(comp,ev)}
+        ${_mv.busy?`<p class="sub">${t("mv.thinking")}</p>`:""}
+      </section>`;
+      const nx=_mv.busy?null:MissionEngine.recommend(r,comp,Date.now());
+      const prim=!nx?""
+        :ev.coachPending
         ?`<button class="btn-primary mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`
         :nx.action==="retry"
           ?`<button class="btn-primary" onclick="${nx.missionId&&nx.missionId!==_mv.missionId?`mvGo('${esc(nx.missionId)}','speak')`:"mvRetry()"}">${t("mv.retry_btn")}</button>`
@@ -9551,10 +9566,10 @@ function rMission(el,missionId,step){
         ?`<button class="mv-dock-2" onclick="mvRetry()">${t("mv.retry_btn")}</button>`
         :`<button class="mv-dock-2" onclick="mvStep('done')">${t("mv.step_done")} →</button>`;
       body=`<div class="mv-coach">
-        ${mvReportHTML(comp,co,ev)}
-        ${mvRepFoldsHTML(comp,co,ev)}
+        ${head}
+        <div id="mvRepWrap"></div>
         <button class="mv-prevlink" onclick="go('mvhist')"><b>${t("mv.rep_prev")}</b> · ${t("mv.hist_open")}<span>›</span></button>
-      </div>${mvDockHTML(prim,sec)}`;
+      </div>${nx?mvDockHTML(prim,sec):""}`;
     }
   }
 
@@ -9608,6 +9623,7 @@ function rMission(el,missionId,step){
 
   el.innerHTML=`${back}${mvHead(S1)}${body}`;
   manIconizeInline(el);
+  if(S1==="coach"&&_mv.ev)mvRepMount();
   if(S1==="speak"&&_mv.recording){
     /* the shared recorder writes into #recTime / #recState, which this view
        provides under the same ids the session and shadow recorders use */
@@ -9650,6 +9666,7 @@ window.mvRetry=()=>{
   _mv.retry=true;
   _mv.retryText=mm?mm.retry:t("mv.next_coverage_low");
   _mv.step="speak";_mv.err=null;_mv.ev=null;_mv.coach=null;
+  try{exCoachStop()}catch(e){}
   mvDraw();
 };
 

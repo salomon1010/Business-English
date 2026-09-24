@@ -116,7 +116,7 @@ const look = page => page.evaluate(() => {
     /* on screen AND not covered: whatever is on top at the button's centre must be the button */
     visible: !!r && r.top >= 0 && r.bottom <= navTop + 0.5 && prim.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)), dockPrimaries: v.querySelectorAll(".mv-dock .btn-primary").length,
     inCardPrimaries: v.querySelectorAll("section .btn-primary").length, overflow: document.documentElement.scrollWidth > innerWidth + 1,
-    better: (v.querySelector(".mv-better-t") || {}).innerText || "" };
+    better: (v.querySelector(".mv-better-t") || {}).innerText || "", wrap: !!v.querySelector("#mvRepWrap"), old: !!v.querySelector(".mv-rep-well, .mv-better-t, .mv-folds") };
 });
 const rec = page => page.evaluate(() => { const r = mvStore()["raise-problem"]; return { state: r.state, derived: MissionEngine.stateFrom(r), n: r.attempts.filter(a => a.answered).length, keys: new Set(r.attempts.map(a => a.key)).size, pending: r.attempts.filter(a => a.coachPending).length, next: MissionEngine.recommend(r, mvComp("raise-problem"), Date.now()).action }; });
 async function speak(page, text, during) {
@@ -155,41 +155,12 @@ ok("RECORDING: the stop control stays on screen while recording", recLook && rec
 s = await look(L.page); let r = await rec(L.page);
 ok("COACH (practising): primary = the engine's next step, 'Try it again', on screen without scrolling the report",
   s.stage === "Coach" && r.next === "retry" && /Try it again/.test(s.primary) && s.visible && s.dockPrimaries === 1 && s.inCardPrimaries === 0, JSON.stringify({ s, r }));
-ok("COACH: the grounded better version is shown (report-integrity untouched)", /three days late/.test(s.better), s.better);
-/* F · the Universal Speaking Coach hierarchy — the Practice Partner review's */
-const F = await L.page.evaluate(() => {
-  const v = document.getElementById("v-mission");
-  const eyebrows = [...v.querySelectorAll(".mv-rep .pp-rv-sec > .eyebrow")].map(e => e.innerText.trim().toLowerCase());
-  const say = v.querySelector(".pp-rv-answer");
-  const next = v.querySelector(".pp-rv-next");
-  return { eyebrows,
-    say: say ? { original: !!say.querySelector(".pp-rv-said"), polished: !!say.querySelector(".pp-rv-better .mv-better-t"), changed: say.querySelectorAll(".pp-rv-changed li").length,
-      hear: [...say.querySelectorAll(".pp-rv-hear")].map(b => b.innerText.trim()), sayIt: !!say.querySelector('.pp-rv-practice[data-rvrev^="mv:"] .pp-rv-rec') } : null,
-    next: next ? { items: [...next.querySelectorAll(".pp-rv-focus > li .pp-rv-focus-k")].map(k => k.innerText.trim()), sayIts: next.querySelectorAll(".pp-rv-practice").length } : null,
-    folds: [...v.querySelectorAll(".mv-folds .mv-fold > summary")].map(e => e.textContent.trim()), closed: [...v.querySelectorAll(".mv-folds .mv-fold")].every(d => !d.open),
-    prev: !!v.querySelector(".mv-prevlink"), chipsOnce: v.querySelectorAll(".mv-move").length === 5 };
-});
-ok("F · the V2 coach uses the Practice Partner review's hierarchy: what you did well → biggest improvement → say it better → your next practice",
-  F.eyebrows.join("|") === "what you did well|biggest improvement|say it better|your next practice", JSON.stringify(F.eyebrows));
-ok("F · Say it better = original answer, polished (grounded) answer, what changed, Hear / Slow / Say it",
-  F.say && F.say.original && F.say.polished && F.say.changed >= 1 && F.say.hear.join("|") === "Hear|Slow" && F.say.sayIt, JSON.stringify(F.say));
-ok("F · Your next practice is the review's numbered plan from the mission's own data (memorise, master the pattern, rehearse, apply next time) with Say it on the spoken items",
-  F.next && F.next.items.join("|").toLowerCase() === "memorise|master the pattern|rehearse|apply next time" && F.next.sayIts === 2, JSON.stringify(F.next));
-ok("F · detailed coaching in the review's closed folds, then previous attempts; the move chips appear once",
-  F.folds.join("|") === "Natural English|Vocabulary to master|Pronunciation|Topic mastery|Detailed analysis" && F.closed && F.prev && F.chipsOnce, JSON.stringify(F));
-/* Say it on the mission: Practice Partner's own recorder + grader, kept in memory */
-await L.page.evaluate(() => { window.__ev = []; const t0 = window.track; window.track = (n, q) => { window.__ev.push(n); return t0 && t0(n, q); };
-  window.__fbA = window.fbAssess; window.fbAssess = async () => ({ overall: 86, mode: "ai", words: [{ word: "we", score: 90 }, { word: "have", score: 82 }] }); });
-await L.page.evaluate(() => document.querySelector('.pp-rv-answer .pp-rv-rec').click());
-await L.page.waitForFunction(() => ppRevTake && ppRevTake.mr && ppRevTake.mr.state === "recording", null, { timeout: 8000 });
-await sleep(1500); await L.page.evaluate(() => ppRevTake.mr.stop());
-await L.page.waitForFunction(() => /86%/.test((document.querySelector('.pp-rv-answer .pp-rv-practice') || {}).innerText || ""), null, { timeout: 10000 }).catch(() => {});
-const sayIt = await L.page.evaluate(() => { window.fbAssess = window.__fbA;
-  const a = mvStore()["raise-problem"].attempts.slice(-1)[0];
-  return { box: (document.querySelector('.pp-rv-answer .pp-rv-practice') || {}).innerText.replace(/\s+/g, " "), ppEv: window.__ev.filter(n => n === "partner_review_practice").length,
-    stored: JSON.stringify(a).includes("practice"), ppRev: (S.ppRev || []).length }; });
-ok("F · Say it grades the mission's polished answer word by word (Practice Partner's recorder), keeps nothing on the attempt row or in S.ppRev, and fires no partner_review_practice event",
-  /86%/.test(sayIt.box) && sayIt.ppEv === 0 && !sayIt.stored && sayIt.ppRev === 0, JSON.stringify(sayIt));
+ok("COACH: the step hosts the Executive Polish speaking report (its wrap), the mission's own report is not drawn there", s.wrap && !s.old, JSON.stringify({ wrap: s.wrap, old: s.old }));
+/* F · the report's frame: the move chips head it once, the history link
+   follows it, the dock stays the one primary (the report itself is proven in
+   tests/mission-coach-report.mjs) */
+const F = await L.page.evaluate(() => { const v = document.getElementById("v-mission"); return { chipsOnce: v.querySelectorAll(".mv-move").length === 5, prev: !!v.querySelector(".mv-prevlink"), wrapBeforePrev: (() => { const w = v.querySelector("#mvRepWrap"), p = v.querySelector(".mv-prevlink"); return !!(w && p) && !!(w.compareDocumentPosition(p) & Node.DOCUMENT_POSITION_FOLLOWING); })() }; });
+ok("F · the move chips appear once above the report, previous attempts link below it", F.chipsOnce && F.prev && F.wrapBeforePrev, JSON.stringify(F));
 ok("EVIDENCE after attempt 1: stored state = stateFrom(record) = PRACTICING", r.state === r.derived && r.state === "PRACTICING" && r.n === 1, JSON.stringify(r));
 
 await tap(L.page, ".mv-dock .btn-primary"); await sleep(300); s = await look(L.page);
@@ -226,8 +197,9 @@ await O.ctx.setOffline(false);
 await tap(O.page, ".mv-dock .btn-primary");
 await O.page.waitForFunction(() => _mv && !_mv.busy, null, { timeout: 15000 }).catch(() => {}); await sleep(400);
 s = await look(O.page); r = await rec(O.page);
-ok("reconnect: the report lands on the SAME row, pending cleared, the better version shows, next step = Try it again",
-  r.n === 1 && r.pending === 0 && /three days late/.test(s.better) && /Try it again/.test(s.primary) && s.visible, JSON.stringify({ s, r }));
+const rowBetter = await O.page.evaluate(() => { const a = mvStore()["raise-problem"].attempts.slice(-1)[0]; return !!(a.report && /three days late/.test(a.report.better || "")); });
+ok("reconnect: the report lands on the SAME row, pending cleared, the better version stored on it, the speaking report hosted, next step = Try it again",
+  r.n === 1 && r.pending === 0 && rowBetter && s.wrap && /Try it again/.test(s.primary) && s.visible, JSON.stringify({ s, r, rowBetter }));
 
 /* ══════════════════════ 4 · OTHER VIEWPORTS ═════════════════════════════ */
 console.log("\n4 · VIEWPORTS");

@@ -212,20 +212,22 @@ const L = await learner("ge", "general-english");
 await spyOn(L.page);
 await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(L.page, SAY.noAsk);
+/* Since 24 Sep 2026 the Coach step hosts the Executive Polish speaking report
+   (tests/mission-coach-report.mjs proves that screen); the mission's own
+   report is no longer drawn there, but it is still written to the attempt row
+   for the Speaking History. This fixture's STT answers {}, so the wrap shows
+   the plain note and its button. */
 const coach = await L.page.evaluate(() => ({
   step: _mv.step,
-  well: [...document.querySelectorAll(".mv-rep-well .pp-rv-line")].map(x => x.innerText),
-  fix: [...document.querySelectorAll(".mv-rep-big .pp-rv-line")].map(x => x.innerText),
-  better: (document.querySelector(".mv-better-t") || {}).innerText || "",
-  hearBtn: !!document.querySelector(".mv-better button"),
-  expr: [...document.querySelectorAll(".mv-folds .pp-rv-pat")].map(x => x.innerText),
-  one: (document.querySelector(".mv-one .mv-improve") || {}).innerText || "",
+  wrap: !!document.querySelector("#mvRepWrap"), note: !!document.querySelector("#mvRepWrap .ex-note"), btn: !!document.querySelector("#mvRepWrap .sess-rep-btn"),
+  host: exHost && exHost.wrapId, chips: document.querySelectorAll(".mv-rep-head .mv-move").length,
+  old: !!document.querySelector(".mv-rep-well, .mv-rep-big, .mv-better-t, .mv-folds, .mv-one"),
   reportOnRow: (() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { has: !!a.report, better: !!(a.report && a.report.better), well: a.report ? a.report.well.map(x => x.m) : [] }; })(),
 }));
-ok("the report renders: did-well, to-improve, better version with a Hear button, expressions, one thing",
-  coach.step === "coach" && coach.well.length >= 1 && coach.fix.length === 1 && /spoken to their office/.test(coach.better) && coach.hearBtn && coach.expr.length === 2 && /clear ask/i.test(coach.one), JSON.stringify(coach).slice(0, 400));
-ok("the invented praise for the missed ask was dropped; the real credits stayed",
-  !coach.well.some(x => /INVENTED/.test(x)) && coach.well.some(x => /problem itself/.test(x)) && /decision you need/.test(coach.fix[0]));
+ok("the Coach step is the speaking report's host: its wrap, its note and button when the minute cannot be transcribed, the move chips once, the old report gone",
+  coach.step === "coach" && coach.wrap && coach.note && coach.btn && coach.host === "mvRepWrap" && coach.chips === 5 && !coach.old, JSON.stringify(coach).slice(0, 400));
+ok("the invented praise for the missed ask was dropped from the stored report; the real credits stayed",
+  !coach.reportOnRow.well.includes("ask") && coach.reportOnRow.well.includes("issue"), JSON.stringify(coach.reportOnRow));
 ok("the report was persisted on the attempt row, anchored to move ids",
   coach.reportOnRow.has && coach.reportOnRow.better && coach.reportOnRow.well.every(m => ["issue", "cause", "impact", "mitigate"].includes(m)));
 ok("the AI saw compact context only: mission prompt and transcript, no history, no profile name",
@@ -279,9 +281,9 @@ ok("Practise again returns to the speaking step of that mission", nav.v === "mis
 /* ── AI failure, then recovery onto the SAME row ── */
 repMode = "abort";
 await speak(L.page, SAY.noAsk);
-const failed = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { n: r.attempts.length, pending: !!a.coachPending, better: !!(a.report && a.report.better), offNote: !!document.querySelector(".mv-coach .mv-note"), fix: document.querySelectorAll(".mv-rep-big .pp-rv-line").length, saved: !!a.passed || a.coverage != null }; });
+const failed = await L.page.evaluate(() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { n: r.attempts.length, pending: !!a.coachPending, better: !!(a.report && a.report.better), note: !!document.querySelector("#mvRepWrap .ex-note"), saved: !!a.passed || a.coverage != null }; });
 ok("with the AI unreachable the attempt is still saved and scored; the report is the honest floor (no better version) and says so",
-  failed.n === 3 && failed.pending && !failed.better && failed.offNote && failed.fix >= 1 && failed.saved, JSON.stringify(failed));
+  failed.n === 3 && failed.pending && !failed.better && failed.note && failed.saved, JSON.stringify(failed));
 repMode = "ok";
 await L.page.evaluate(() => mvFinishCoaching());
 await L.page.waitForFunction(() => _mv && !_mv.busy, null, { timeout: 10000 });
@@ -302,7 +304,7 @@ ok("every event this session fired is allow-listed, stamped track+week+competenc
 const W = await learner("wide", "general-english", { viewport: { width: 1280, height: 800 }, isMobile: false, hasTouch: false });
 await W.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(W.page, SAY.noAsk);
-const wide = await W.page.evaluate(() => ({ better: !!document.querySelector(".mv-better"), overflow: document.documentElement.scrollWidth <= window.innerWidth + 1 }));
+const wide = await W.page.evaluate(() => ({ better: !!document.querySelector("#mvRepWrap"), overflow: document.documentElement.scrollWidth <= window.innerWidth + 1 }));
 await W.page.evaluate(() => go("mvhist")); await sleep(300);
 const wideH = await W.page.evaluate(() => ({ rows: document.querySelectorAll(".mv-hist-row").length, overflow: document.documentElement.scrollWidth <= window.innerWidth + 1 }));
 ok("at 1280×800 the report and the history render without horizontal overflow", wide.better && wide.overflow && wideH.rows === 1 && wideH.overflow, JSON.stringify({ wide, wideH }));

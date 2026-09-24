@@ -117,13 +117,8 @@ const shot = async (page, name) => { if (SHOTS) { try { await page.screenshot({ 
 const geometry = page => page.evaluate(() => {
   const top = q => { const e = document.querySelector(q); return e ? Math.round(e.getBoundingClientRect().top + window.scrollY) : null; };
   return {
-    well: top(".mv-rep-well"),
-    big: top(".mv-rep-big"),
-    better: top(".mv-better"),
-    hear: top(".mv-better button"),
-    focus: top(".mv-one"),
+    wrap: top("#mvRepWrap"),
     tryAgain: top(".mv-dock .btn-primary"),
-    folds: top(".mv-folds"),
     prevlink: top(".mv-prevlink"),
     overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
   };
@@ -135,44 +130,29 @@ const SAY_WEAK = "We have got a problem with the delivery. It started when the s
 const L = await learner("ge", "general-english");
 await L.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(L.page, SAY_WEAK);
+/* Since 24 Sep 2026 the mission's Coach step hosts the Executive Polish
+   speaking report (tests/mission-coach-report.mjs proves that screen); the
+   consolidated mission report below is what the CONVERSATION sheet and the
+   Practice Partner review still draw. This fixture's STT answers {}, so the
+   mission wrap shows the plain note. */
 const m1 = await L.page.evaluate(() => ({
   step: _mv.step,
   title: (document.querySelector(".mv-coach .eyebrow") || {}).innerText || "",
-  wellPrim: document.querySelectorAll(".mv-rep-well .pp-rv-line").length,
-  fixPrim: document.querySelectorAll(".mv-rep-big .pp-rv-line").length,
-  fixFold: document.querySelectorAll(".mv-folds .mv-rep-list.fix li").length,
-  wellFold: document.querySelectorAll(".mv-folds .mv-rep-list.ok li").length,
-  youSaid: (document.querySelector(".mv-said p") || {}).innerText || "",
-  better: (document.querySelector(".mv-better-t") || {}).innerText || "",
-  hear: !!document.querySelector(".mv-better button"),
-  focus: (document.querySelector(".mv-one .mv-improve") || {}).innerText || "",
-  folds: [...document.querySelectorAll(".mv-folds .mv-fold > summary")].map(e => e.textContent.trim()),
-  foldsClosed: [...document.querySelectorAll(".mv-folds .mv-fold")].every(d => !d.open),
-  expr: document.querySelectorAll(".mv-folds .pp-rv-pat").length,
-  chipsInFold: !!document.querySelector(".mv-folds .mv-moves"),
-  chipsPrim: !!document.querySelector(".mv-rep .mv-moves") || !!document.querySelector(".mv-coach > .mv-moves"),
+  wrap: !!document.querySelector("#mvRepWrap"), note: !!document.querySelector("#mvRepWrap .ex-note"),
+  old: !!document.querySelector(".mv-rep-well, .mv-rep-big, .mv-better-t, .mv-folds, .mv-one"),
+  chipsPrim: document.querySelectorAll(".mv-rep-head .mv-move").length,
   prevlink: !!document.querySelector(".mv-prevlink"),
   rowReport: (() => { const r = mvStore()["raise-problem"]; const a = r.attempts[r.attempts.length - 1]; return { well: a.report.well.length, fix: a.report.fix.length, better: !!a.report.better }; })(),
 }));
-ok("the primary report is the answer: ≤2 strengths, exactly ONE biggest improvement, you-said + better version + Hear it, one focus",
-  m1.step === "coach" && /speaking report/i.test(m1.title) && m1.wellPrim === 2 && m1.fixPrim === 1 && /order number/.test(m1.youSaid) && /spoken to their office/.test(m1.better) && m1.hear && /clear ask/i.test(m1.focus), JSON.stringify(m1).slice(0, 500));
-ok("nothing was thrown away: the 3rd strength and the 2nd improvement live in the folds, expressions too; the move chips head the report once (Practice Partner hierarchy); all folds closed",
-  m1.wellFold === 1 && m1.fixFold === 1 && m1.expr === 2 && !m1.chipsInFold && m1.chipsPrim && m1.foldsClosed, JSON.stringify(m1).slice(0, 500));
-ok("the folds are the Practice Partner review's detailed-coaching sections: vocabulary to master, pronunciation, topic mastery, detailed analysis",
-  m1.folds.length === 4 && /Vocabulary to master/i.test(m1.folds[0]) && /Pronunciation/i.test(m1.folds[1]) && /Topic mastery/i.test(m1.folds[2]) && /Detailed analysis/i.test(m1.folds[3]), JSON.stringify(m1.folds));
-ok("the full report is still on the attempt row — 3 strengths, 2 improvements, the better version (presentation changed, evidence did not)",
+ok("the Coach step is the speaking report's host — titled as such, the move chips once above it, the old consolidated report gone, the history link below",
+  m1.step === "coach" && /speaking report/i.test(m1.title) && m1.wrap && m1.note && !m1.old && m1.chipsPrim === 5 && m1.prevlink, JSON.stringify(m1).slice(0, 500));
+ok("the full mission report is still on the attempt row — 3 strengths, 2 improvements, the better version (the screen changed, the evidence did not)",
   m1.rowReport.well === 3 && m1.rowReport.fix === 2 && m1.rowReport.better, JSON.stringify(m1.rowReport));
 
 const g1 = await geometry(L.page);
-ok("390×844 geometry: the improvement inside the first viewport; better version, Hear it and Try again all inside two; folds and history below Try again; no sideways scroll",
-  g1.big < 844 && g1.better < 1266 && g1.hear < 1690 && g1.tryAgain < 1690 && g1.folds > g1.tryAgain && g1.prevlink > g1.folds && !g1.overflow, JSON.stringify(g1));
+ok("390×844 geometry: the report wrap inside the first viewport, Try again on screen, history below the report; no sideways scroll",
+  g1.wrap < 844 && g1.tryAgain < 844 && g1.prevlink > g1.wrap && !g1.overflow, JSON.stringify(g1));
 await shot(L.page, "390-mission");
-
-/* fold state survives the redraw that delivers the comprehensibility score */
-await L.page.evaluate(() => { document.querySelectorAll(".mv-folds .mv-fold")[2].open = true; });
-await sleep(80);                                   /* the toggle event is async */
-const persist = await L.page.evaluate(() => { mvDraw(); return new Promise(r => setTimeout(() => r({ open: document.querySelectorAll(".mv-folds .mv-fold")[2].open, closed: document.querySelectorAll(".mv-folds .mv-fold")[0].open === false }), 120)); });
-ok("a fold the learner opened stays open across a redraw; the others stay closed", persist.open && persist.closed, JSON.stringify(persist));
 
 const nav = await L.page.evaluate(() => new Promise(r => { document.querySelector(".mv-prevlink").click(); setTimeout(() => r(cur.v), 300); }));
 ok("'Previous attempts' goes to the Speaking history — the history is a link, not a section of the report", nav === "mvhist");
@@ -183,8 +163,8 @@ const W = await learner("wide", "general-english", { viewport: { width: 1280, he
 await W.page.evaluate(() => mvGo("raise-problem-guided", "speak")); await sleep(300);
 await speak(W.page, SAY_WEAK);
 const g2 = await geometry(W.page);
-ok("1280×800: same hierarchy, Try again inside two viewports, no horizontal overflow",
-  g2.big != null && g2.big < 800 && g2.tryAgain < 1600 && g2.folds > g2.tryAgain && !g2.overflow, JSON.stringify(g2));
+ok("1280×800: the report wrap in the first viewport, Try again on screen, no horizontal overflow",
+  g2.wrap != null && g2.wrap < 800 && g2.tryAgain < 800 && !g2.overflow, JSON.stringify(g2));
 await shot(W.page, "1280-mission");
 await W.ctx.close();
 
