@@ -276,7 +276,8 @@ not JS, and `new Function` chokes on it. Check it separately with
   `.storekit` (`window.BENativeBilling`, iOS shell only — the Swift plugin is
   NOT written); Premium card states in `entPlanCardHTML`; flag
   `billing_enabled` OFF. `twa-manifest.json` has `playBilling` enabled (next
-  AAB only). Android stays a TWA.
+  AAB only). Android stays a TWA. **iPhone test passed 2026-09-24**
+  (web behaviour only — no real purchase has been made on either store).
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

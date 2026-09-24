@@ -7,6 +7,14 @@ and 8 (advertising). **Nothing is live:**
 - no store credentials, product ids or prices are configured;
 - nothing is deployed, merged or pushed.
 
+**Review status (2026-09-24):** the owner passed the iPhone test of commit
+`d311874` (Safari preview of this branch). That test covers the web
+behaviour on iPhone: the Premium card still reads "Coming soon", and it
+stays that way with `?flags=billing_enabled` because Safari has no store
+provider. The rest of the app showed no regression. It does NOT cover a real
+purchase: StoreKit needs the Swift plugin, Xcode and TestFlight; Play
+Billing needs a Play Console internal-testing track (§16, §17).
+
 This document is also the LOMON EC architecture case study for billing. Each
 major decision is written as an architecture decision record (ADR): Problem,
 Context, Options, Trade-offs, Decision, Consequences, Future alternative.
