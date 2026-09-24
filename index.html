@@ -9853,17 +9853,11 @@ function rHomeGeneral(el){
     if(P.goal)pills.push(esc(optLabel(P.goal,OB_GOALS,"goal.").replace(E,"")));
     if(P.slot)pills.push(esc(optLabel(P.slot,OB_SLOTS,"slot.").replace(E,"")));
     return pills.length?`<div class="home-meta">${pills.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`:"";})()}
-  ${/* V1 and V2 coexist on this screen, and the order is the decision.
-
-        They are not duplicates: the V2 mission is one competency with its own
-        authoritative state, and the V1 card is the 12-week programme. Neither
-        writes the other's store, so neither can corrupt the other. What they
-        CAN do is both look like "today", which is the actual risk — so when
-        the mission has an open question it goes first and the programme card
-        is captioned as the thing underneath it. When the mission is resting
-        (mvHomeCardHTML returns ""), the programme card is the only card and
-        Home looks exactly as it did before V2. */""}
-  ${mvHomeCardHTML()}
+  ${/* Home leads with the programme card alone (owner, 2026-09-24). The V2
+        mission card and the coach's daily-mission card were removed from this
+        screen: two more "todays" above the 12-week programme confused learners.
+        The mission is still reached from a speaking day (rSessionV2 hands off
+        to it) — mvHomeCardHTML is kept for that path and its tests. */""}
   <div class="hero">
     <div class="card today-card">
       <div class="eyebrow">${t("home.continue")}</div>
@@ -22924,8 +22918,11 @@ let _fndCheckShown=false;
 function homeNudgeHTML(){
   const tries=[
     ()=>iosCardHTML(),
-    ()=>rateHTML(),            /* asked once, then gone — ahead of the coach, who is there every day */
-    ()=>window.LearningCoach&&LearningCoach.coachCard?LearningCoach.coachCard(S):""
+    ()=>rateHTML()             /* asked once, then gone. The coach's "Your daily
+                                  mission" card used to follow here — removed
+                                  2026-09-24 (owner): it duplicated the programme
+                                  card and the session page already carries the
+                                  AI report. LearningCoach.coachCard still exists. */
   ];
   for(const f of tries){let h="";try{h=f()||""}catch(e){}if(h.trim())return h}
   return "";
