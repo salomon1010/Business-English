@@ -2461,6 +2461,7 @@
  "sh.cat_skills": "学習スキル",
  "sh.cat_talks": "講演",
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
+ "sh.find_yt": "🔍 Find on YouTube",
  "sh.link_note": "文字起こしはこちらで取得します。この動画で YouTube が提供しない場合は、自分で貼り付けるか耳でシャドーイングしてください。",
  "sh.nocap_title": "この動画の文字起こしはありません",
  "sh.nocap_body": "YouTube はこの動画の言葉を渡してくれません。自分で貼り付けるか、耳でシャドーイングを — 録音すれば聞き取った内容を表示します。",

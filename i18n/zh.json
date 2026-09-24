@@ -2461,6 +2461,7 @@
  "sh.cat_skills": "学习技巧",
  "sh.cat_talks": "讲座",
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
+ "sh.find_yt": "🔍 Find on YouTube",
  "sh.link_note": "我们会为你获取文字稿。如果 YouTube 不提供这个视频的文字稿，你可以自己粘贴，或凭耳朵跟读。",
  "sh.nocap_title": "这个视频没有文字稿",
  "sh.nocap_body": "YouTube 不提供这个视频的文字。你可以自己粘贴，或凭耳朵跟读——录音后我们会显示听到的内容。",

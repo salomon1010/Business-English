@@ -980,7 +980,8 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .sh-own-sheet-sub{font-size:12.5px;margin:0 0 14px}
 .sh-own-sheet-list{display:flex;flex-direction:column;gap:12px;max-height:52vh;overflow:auto;margin-bottom:14px}
 .shl-own-row .shl-own-n{font-style:normal;font-size:12px;color:var(--mut);font-weight:600}
-.sh-link-acts .btn-primary{flex:1 1 auto;min-width:140px;justify-content:center}
+.sh-link-acts .btn-primary{flex:1 1 100%;min-width:140px;justify-content:center}
+.sh-link-acts .sh-link-yt{flex:1 1 auto;justify-content:center;text-decoration:none}
 .sv-wait{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--mut);padding:14px 16px}
 .sv-wait svg{flex:none;animation:svWait 1.6s linear infinite}
 @keyframes svWait{to{transform:rotate(360deg)}}
@@ -6937,6 +6938,7 @@ const I18N_EN={
  "sh.own_row_t":"Your videos",
  "sh.own_row_sub":"The links you added yourself — reopen one any day.",
  "sh.link_ph":"https://www.youtube.com/watch?v=…",
+ "sh.find_yt":"🔍 Find on YouTube",
  "sh.link_note":"We fetch the transcript for you. If YouTube won't give it up for this video, you can paste it yourself or shadow by ear.",
  "sh.nocap_title":"No transcript for this video",
  "sh.nocap_body":"YouTube won't give us the words for this one. Paste them yourself, or shadow by ear — record, and we'll show you what we heard.",
@@ -11481,6 +11483,7 @@ window.shLinkSheet=()=>{
       onkeydown="if(event.key==='Enter')shLinkGo()">
     <p class="sh-link-note" id="shLinkNote">${esc(t("sh.link_note"))}</p>
     <div class="sh-link-acts">
+      <a class="btn btn-g sh-link-yt" href="${shYtFindURL()}" target="_blank" rel="noopener">${tIc("sh.find_yt","search")}</a>
       <button class="btn btn-g" onclick="document.getElementById('shLinkOv').remove()">${t("wc.close")}</button>
       <button class="btn-primary" onclick="shLinkGo()">${tIc("sh.load_btn","play")}</button>
     </div>
@@ -11488,6 +11491,15 @@ window.shLinkSheet=()=>{
   document.body.appendChild(ov);
   setTimeout(()=>{const i=document.getElementById("shLinkIn");if(i)i.focus()},60);
 };
+/* The way out to YouTube and back (owner, 24 Sep 2026): a search that suits
+   shadowing — one clear speaker, in the learner's own field — and only videos
+   with subtitles (sp=EgIoAQ%3D%3D), since those are the ones whose transcript
+   we can usually fetch. The sheet stays open, so they copy the link there and
+   paste it here. */
+function shYtFindURL(){
+  const q=isGeneralEnglish()?"business English shadowing":"welding tips explained";
+  return "https://www.youtube.com/results?search_query="+encodeURIComponent(q)+"&sp=EgIoAQ%253D%253D";
+}
 window.shLinkGo=()=>{
   const i=document.getElementById("shLinkIn");if(!i)return;
   const raw=i.value.trim(),id=ytId(raw);

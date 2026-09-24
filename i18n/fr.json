@@ -2461,6 +2461,7 @@
  "sh.cat_skills": "Techniques d'apprentissage",
  "sh.cat_talks": "Conférences",
  "sh.link_ph": "https://www.youtube.com/watch?v=…",
+ "sh.find_yt": "🔍 Chercher sur YouTube",
  "sh.link_note": "Nous récupérons la transcription pour vous. Si YouTube ne la donne pas pour cette vidéo, vous pouvez la coller vous-même ou faire du shadowing à l'oreille.",
  "sh.nocap_title": "Pas de transcription pour cette vidéo",
  "sh.nocap_body": "YouTube ne nous donne pas les mots de celle-ci. Collez-les vous-même, ou faites du shadowing à l'oreille — enregistrez, et nous vous montrerons ce que nous avons entendu.",
