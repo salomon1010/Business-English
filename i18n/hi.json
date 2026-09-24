@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ माइक एक्सेस अस्वीकृत — अपने ब्राउज़र में माइक की अनुमति दें।",
  "rec.delete_confirm": "यह रिकॉर्डिंग हटाएँ?",
  "rec.deleted_toast": "रिकॉर्डिंग हटाई गई",
- "wave.insight_prev": "नवीनतम टेक <b style=\"color:var(--acc2)\">{{cur}}से</b> बनाम पिछली <b style=\"color:#a5b4fc\">{{prev}}से</b>",
+ "wave.insight_prev": "नवीनतम टेक <b style=\"color:var(--acc2)\">{{cur}}से</b> बनाम पिछली <b style=\"color:var(--accent-text)\">{{prev}}से</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}से छोटी — अधिक आत्मविश्वासी गति 📈</b>",
  "wave.longer": " — {{d}}से लंबी — अधिक कसी हुई प्रस्तुति की ओर बढ़ें",
  "wave.consistent": " — सुसंगत गति ✅",

@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ マイクへのアクセスが拒否されました——ブラウザでマイクを許可してください。",
  "rec.delete_confirm": "この録音を削除しますか？",
  "rec.deleted_toast": "録音を削除しました",
- "wave.insight_prev": "最新テイク <b style=\"color:var(--acc2)\">{{cur}}秒</b>、前回 <b style=\"color:#a5b4fc\">{{prev}}秒</b>",
+ "wave.insight_prev": "最新テイク <b style=\"color:var(--acc2)\">{{cur}}秒</b>、前回 <b style=\"color:var(--accent-text)\">{{prev}}秒</b>",
  "wave.tighter": " —— <b style=\"color:var(--green)\">{{d}}秒 短縮——より自信のあるペース 📈</b>",
  "wave.longer": " —— {{d}}秒 長い——よりタイトなデリバリーを目指して",
  "wave.consistent": " —— 一貫したペース ✅",

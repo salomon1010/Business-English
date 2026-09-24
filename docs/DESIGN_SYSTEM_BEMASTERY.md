@@ -214,6 +214,7 @@ tokens.
 | 2 | **Done on `feature/ds-phase2-components`** — see §12 | both | see §12 |
 | 3 | **Done on `feature/ds-phase3-voice-ai`** — see §13 | both | see §13 |
 | 4 | **Done on `feature/ds-phase4-track-surfaces`** — see §14 | per track | see §14 |
+| 5 | **Done on `feature/ds-phase5-polish`** — see §15 | both | see §15 |
 | 1 | Refactor the proof into the shell/theme split: move every `:root:not([data-track="welding"])` rule into shell rules that read tokens; add the §1.2 tokens to `:root` (Signal) and `[data-track="welding"]` (Forge) | both | contrast sweep in both themes × both tracks; pixel diff shows Welding unchanged except depth |
 | 2 | Shell components: cards, buttons, nav, dock, chips, folds, toast, notes | both | smoke + all suites; 375/390/430/desktop screenshots per track |
 | 3 | Voice and AI states on every recorder and analysis wait: Session, Shadow, Polish, simulations, mentor feedback, PP live | both | live-level probe per track; Welding tap-to-finish behaviour unchanged |
@@ -280,3 +281,40 @@ Phases 1–3 made the SHARED components theme-driven; Phase 4 removes the colour
 - **Gate:** `tests/ds-phase4.mjs` — 23 surfaces × dark/light scanned for the other theme's brand colours in text, background, gradient, border, shadow, outline, fill and stroke (0 found), plus the Progress chart drawn in each track's own accent.
 - **Contrast (tests/contrast-sweep.mjs, against main `2acb992`):** 0 failures introduced, 17 fixed; the rest is the pre-existing baseline.
 - **Physical-device verification (2026-09-24): PASSED**, reported by the owner after testing on a real iPhone against a preview of commit `5cd6eaa`. The checklist sent with the preview covered General English / Signal and Welding / Forge, in dark and light: road-map phase chips; the Session waveform and its legend chips after a recording; the Progress card and charts; the Skills Passport score badge; the simulation live panel; and the Profile record card. On Welding: no Signal indigo or cyan; General English as before.
+
+## 15. Phase 5 — light-theme depth, icon audit, inline-colour clean-up (`feature/ds-phase5-polish`)
+- **Tokens.** Tertiary text (`--mut2`) is text, so it now meets AA 4.5:1 on `--card` and `--card2` in all four themes. It was 2.3–3.6:1 before: Signal dark `#6f7596 → #848aa8`, Forge dark `#5c6580 → #848ca4`, both light themes `#98a1b8 → #606880`. It stays a step below `--mut`. Forge light now sets the white label its own comment always promised (`--on-accent:#fff`). It had inherited Forge dark's `#1b1202`, so every Welding-light button on the brand fill or CTA read 2.5–3.1:1. Its `--grad` joins the CTA's deep amber, so white icons on it (the record button, the simulation mic) hold 5:1. The recording gradient's orange end is deepened (`#f97316 → #ea580c`), and the three pre-design-system copies of that gradient (session recorder, roleplay mic, pronunciation mic) now read `--ds-rec`.
+- **Light-theme depth.** Several things were drawn white-on-dark and disappeared on a light page. Each now reads a token:
+  - the Session waveform (its canvas was always `#0a0e1a`; it is now `--card2`, with a midline from `--txt`) and its legend chips;
+  - the Progress grid lines, the empty bars and the pace gauge;
+  - the trend-canvas grid.
+- **Inline colours.** Every colour literal left in a screen template is now a token:
+  - the Home progress ring, which was Signal indigo → cyan on Welding too. A `<stop>` has no box, so the Phase 4 scan could not see it;
+  - the rating card icon, the grammar-fix highlight and the finished-programme card;
+  - the simulation score ring (`TONE` → `--green / --gold / --red`);
+  - the sync and account cards, and the delete-account link (`#fca5a5` → `--red`);
+  - the road-map beacon's highlight stop;
+  - the "previous take" colour inside `wave.insight_prev`, in English and all 15 translation files;
+  - the Welding-only pale-yellow text (`#fcd34d`) in the conversation talking points and the trade vocabulary group, now `--accent-text`.
+- **Also fixed:**
+  - accent used as text now reads `--accent-text`: the heading emphasis, the mission state and "Say it better";
+  - the selected Shadow chip sits on `--accent-fill`;
+  - the Shadow hero tag uses a card-tinted pill, and was unreadable in light;
+  - the other track's "Select →" is mixed toward `--txt`;
+  - the light phase chip is deepened 20%;
+  - the phase-tab count is at .9 opacity.
+- **Icon audit.** All 70 icon names used exist in `ICON`. The one missing name, `ic("refresh")` on the mission "try the coach again" button, silently drew the help "?" icon; it is now `repeat`. No OS emoji appears in visible text on any reachable screen in either track. The typographic check mark `✓` stays as a text glyph that takes the theme colour.
+- **Left as they are, on purpose:**
+  - brand artwork: the certificate, share image and reminder-map canvases, and the onboarding confetti;
+  - the language badges, a categorical palette;
+  - the posture coach overlay, drawn over the camera;
+  - the ring light, which is white by definition;
+  - the YouTube frame backdrop, the browser `theme-color` and the no-JS footer;
+  - the Help centre (`.manual-doc`);
+  - locked and future items drawn dimmed on purpose (locked week cards and their day dots, future calendar days, legend chips for phases not yet reached, inactive mission moves). WCAG exempts inactive UI from contrast.
+- **Sweep fix.** `color-mix()` computes to `color(srgb r g b / a)`. `tests/contrast-sweep.mjs` read that as "no colour", so every color-mix fill looked transparent. It now parses it, and main was re-measured with the same parser.
+- **Contrast against main `2acb992`, same sweep:** 696 → 216 failures, with 481 fixed. One new flag: the white recording dot on Welding light (3.56:1). It is an icon glyph, not text, and meets the 3:1 non-text threshold.
+- **Gate:** `tests/ds-phase5.mjs`. It checks:
+  - the icon audit (static);
+  - `--mut2` on card and `--on-accent` on `--accent-fill` at AA in all four themes;
+  - 24 screens × dark and light for inline or SVG colour literals, OS emoji, and gradient stops in the other theme's brand colour.

@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ 麦克风访问被拒绝——请在浏览器中允许麦克风。",
  "rec.delete_confirm": "删除这段录音？",
  "rec.deleted_toast": "录音已删除",
- "wave.insight_prev": "最新一次 <b style=\"color:var(--acc2)\">{{cur}}秒</b>，上一次 <b style=\"color:#a5b4fc\">{{prev}}秒</b>",
+ "wave.insight_prev": "最新一次 <b style=\"color:var(--acc2)\">{{cur}}秒</b>，上一次 <b style=\"color:var(--accent-text)\">{{prev}}秒</b>",
  "wave.tighter": " —— <b style=\"color:var(--green)\">缩短了 {{d}} 秒——节奏更自信 📈</b>",
  "wave.longer": " —— 长了 {{d}} 秒——争取更紧凑的表达",
  "wave.consistent": " —— 节奏稳定 ✅",

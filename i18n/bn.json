@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ মাইক্রোফোন অ্যাক্সেস প্রত্যাখ্যাত — আপনার ব্রাউজারে মাইক্রোফোন অনুমতি দিন।",
  "rec.delete_confirm": "এই রেকর্ডিং মুছবেন?",
  "rec.deleted_toast": "রেকর্ডিং মোছা হয়েছে",
- "wave.insight_prev": "সর্বশেষ টেক <b style=\"color:var(--acc2)\">{{cur}}সে</b> বনাম আগেরটি <b style=\"color:#a5b4fc\">{{prev}}সে</b>",
+ "wave.insight_prev": "সর্বশেষ টেক <b style=\"color:var(--acc2)\">{{cur}}সে</b> বনাম আগেরটি <b style=\"color:var(--accent-text)\">{{prev}}সে</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}সে ছোট — আরও আত্মবিশ্বাসী গতি 📈</b>",
  "wave.longer": " — {{d}}সে বেশি — আরও আঁটসাঁট উপস্থাপনের দিকে এগোন",
  "wave.consistent": " — সামঞ্জস্যপূর্ণ গতি ✅",

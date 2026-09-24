@@ -555,7 +555,7 @@ button.ph-wk-bar:focus-visible{outline:2px solid var(--focus);outline-offset:2px
    breakpoints. Lower floor than before so it doesn't dominate a small phone. */
 h1.big{font-size:clamp(23px,5.4vw,40px);font-weight:800;line-height:1.15;margin-bottom:10px;letter-spacing:-.4px}
 /* was gradient-clipped text — 1.69:1 in light. One accent, and it passes. */
-h1.big em{font-style:italic;color:var(--accent)}
+h1.big em{font-style:italic;color:var(--accent-text)}
 .sub{color:var(--mut);font-size:clamp(13.5px,3.6vw,15.5px);max-width:720px;line-height:1.6}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px}
 /* The library fills the page: a card around a full-screen list is a border
@@ -602,7 +602,7 @@ h1.big em{font-style:italic;color:var(--accent)}
 .chip.p3{color:#fcd34d;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.08)}
 .chip.done{color:var(--green);border-color:rgba(52,211,153,.4);background:rgba(52,211,153,.08)}
 /* Light theme: the pastel chip text is unreadable on white — deepen it and firm up the tint */
-:root[data-theme="light"] .chip.p1{color:var(--accent-text);background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
+:root[data-theme="light"] .chip.p1{color:color-mix(in srgb,var(--accent-text) 80%,#000);background:color-mix(in srgb,var(--accent) 12%,transparent);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}
 :root[data-theme="light"] .chip.p2{color:color-mix(in srgb,var(--live) 70%,#000);background:rgba(var(--live-rgb),.15);border-color:rgba(var(--live-rgb),.35)}
 :root[data-theme="light"] .chip.p3{color:var(--gold);background:rgba(251,191,36,.2);border-color:rgba(180,83,9,.4)}
 .bar{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden}
@@ -912,7 +912,7 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-chips{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -2px;padding:2px}
 .shl-chips::-webkit-scrollbar{display:none}
 .shl-chip{flex:none;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;min-height:38px;white-space:nowrap}
-.shl-chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.shl-chip.on{background:var(--accent-fill);border-color:var(--accent-fill);color:var(--on-accent)}
 /* the learner's own shelf is marked apart from the catalogue, but quietly:
    full --acc2 glowed brighter than anything else on the screen (owner, 22 Sep) */
 .shl-chip.mine{display:inline-flex;align-items:center;gap:6px;
@@ -952,7 +952,7 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-hero{position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:var(--r-lg);overflow:hidden;background:var(--card2);border:1px solid var(--line);padding:0;cursor:pointer;text-align:left;font-family:inherit;color:#fff}
 .shl-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .shl-hero .shl-hero-cap{position:absolute;left:0;right:0;bottom:0;padding:34px 14px 22px;background:linear-gradient(transparent,rgba(5,8,18,.9));font-size:14px;font-weight:600;line-height:1.3}
-.shl-hero .shl-hero-tag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:rgba(10,14,26,.82);color:var(--acc2);padding:4px 9px;border-radius:999px}
+.shl-hero .shl-hero-tag{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:color-mix(in srgb,var(--card) 88%,transparent);color:var(--acc2);padding:4px 9px;border-radius:999px}
 .shl-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(10,14,26,.72);display:grid;place-items:center;color:#fff}
 .shl-play svg{width:20px;height:20px;margin-left:2px}
 /* Two taps that are not the point of the page: one short line, not two cards
@@ -1372,7 +1372,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sh-line-t{min-width:0;width:100%}
 .sh-line-who{display:block;min-width:0;flex:1;font-size:11px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
   color:var(--mut2)}
-.sh-line-who em{font-style:normal;opacity:.75}
+.sh-line-who em{font-style:normal}
 .sh-line-t p{margin:0;font-size:14.5px;line-height:1.55;color:var(--txt)}
 .sh-line-t small{display:block;margin-top:6px;font-size:12px;color:var(--mut)}
 .sh-line-rec{margin-top:9px}
@@ -1457,7 +1457,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .seg-phase-lbl{font-size:clamp(9.5px,2.55vw,13.5px);font-weight:700;line-height:1.2;overflow-wrap:break-word;hyphens:auto}
 .seg-phase-tab b{font-size:clamp(8.5px,2.05vw,11.5px);font-weight:700;color:var(--mut);white-space:nowrap}
 .seg-phase-tab.on{border-color:transparent;background:var(--accent-fill);color:var(--on-accent)}
-.seg-phase-tab.on b{color:var(--on-accent);opacity:.78}
+.seg-phase-tab.on b{color:var(--on-accent);opacity:.9}
 .seg-phase-tab:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 
 
@@ -1748,7 +1748,7 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .mv-pending{margin-top:10px}
 .mv-state{display:flex;align-items:center;gap:10px;margin:8px 0}
 .mv-state span{font-size:12px;color:var(--mut2)}
-.mv-state b{font-size:14px;color:var(--acc)}
+.mv-state b{font-size:14px;color:var(--accent-text)}
 .mv-bars{margin:14px 0}
 .mv-bar{margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:2px 8px}
 .mv-bar span{font-size:13px}
@@ -2285,8 +2285,8 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
    floor, and the learner is being asked to wait for their turn. */
 .rp-work-bar[data-speaking] .sim-work-avatar{box-shadow:0 0 0 2px var(--acc2),0 0 14px color-mix(in srgb,var(--acc2) 55%,transparent)}.sim-work .rp-work-body{justify-content:flex-start}.sim-work .rp-bubble{margin-top:0}.sim-work .rp-status{margin:0}.sim-work .rp-pts{margin-bottom:2px}
 .sim-work #simMic.sim-ready{background:linear-gradient(135deg,#16a34a,#34d399);box-shadow:0 8px 28px rgba(52,211,153,.42)}.sim-work #simMic.sim-listening{background:linear-gradient(135deg,#f97316,#fbbf24);box-shadow:0 8px 28px rgba(249,115,22,.44);animation:pulse 1.2s infinite}.sim-work #simMic.sim-active{background:var(--grad);box-shadow:0 8px 28px color-mix(in srgb,var(--acc) 45%,transparent)}
-.professional-conversation .rp-work-bar{border-bottom-color:rgba(202,138,4,.5)}.professional-conversation .sim-work-avatar,.professional-conversation .rp-work-bar .rp-av{background:linear-gradient(145deg,#a16207,#d97706)}.professional-conversation .rp-bubble.ai,.professional-conversation .rp-pts{border-color:rgba(202,138,4,.42);background:rgba(146,64,14,.14)}.professional-conversation .rp-pts summary{color:#fcd34d}.professional-conversation .rp-point.done{border-color:#ca8a04;background:rgba(202,138,4,.12)}.professional-conversation #simMic.sim-ready,.professional-conversation #rpMic.sim-ready{background:linear-gradient(135deg,#16a34a,#34d399);box-shadow:0 8px 28px rgba(52,211,153,.42)}.professional-conversation #simMic.sim-listening,.professional-conversation #rpMic.sim-listening{background:linear-gradient(135deg,#f97316,#fbbf24);box-shadow:0 8px 28px rgba(249,115,22,.44);animation:pulse 1.2s infinite}.professional-conversation #simMic.sim-active,.professional-conversation #rpMic.sim-active{background:var(--grad);box-shadow:0 8px 28px color-mix(in srgb,var(--acc) 45%,transparent)}
-.professional-vocab-group{margin:0 0 14px;border:1px solid rgba(202,138,4,.55);border-radius:14px;background:rgba(146,64,14,.12);overflow:hidden}.professional-vocab-group summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px}.professional-vocab-group summary::-webkit-details-marker{display:none}.professional-vocab-group summary b,.professional-vocab-group summary small{display:block}.professional-vocab-group summary b{font-size:14.5px;color:#fcd34d}.professional-vocab-group summary small{font-size:12px;color:var(--mut);margin-top:3px}.professional-vocab-group summary>span:last-child{font-size:12px;font-weight:800;color:#fcd34d;white-space:nowrap}.professional-vocab-group[open] summary{border-bottom:1px solid rgba(202,138,4,.36)}.professional-vocab-list{padding:15px 17px;display:flex;flex-direction:column;gap:9px}
+.professional-conversation .rp-work-bar{border-bottom-color:rgba(202,138,4,.5)}.professional-conversation .sim-work-avatar,.professional-conversation .rp-work-bar .rp-av{background:linear-gradient(145deg,#a16207,#d97706)}.professional-conversation .rp-bubble.ai,.professional-conversation .rp-pts{border-color:rgba(202,138,4,.42);background:rgba(146,64,14,.14)}.professional-conversation .rp-pts summary{color:var(--accent-text)}.professional-conversation .rp-point.done{border-color:#ca8a04;background:rgba(202,138,4,.12)}.professional-conversation #simMic.sim-ready,.professional-conversation #rpMic.sim-ready{background:linear-gradient(135deg,#16a34a,#34d399);box-shadow:0 8px 28px rgba(52,211,153,.42)}.professional-conversation #simMic.sim-listening,.professional-conversation #rpMic.sim-listening{background:linear-gradient(135deg,#f97316,#fbbf24);box-shadow:0 8px 28px rgba(249,115,22,.44);animation:pulse 1.2s infinite}.professional-conversation #simMic.sim-active,.professional-conversation #rpMic.sim-active{background:var(--grad);box-shadow:0 8px 28px color-mix(in srgb,var(--acc) 45%,transparent)}
+.professional-vocab-group{margin:0 0 14px;border:1px solid rgba(202,138,4,.55);border-radius:14px;background:rgba(146,64,14,.12);overflow:hidden}.professional-vocab-group summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px}.professional-vocab-group summary::-webkit-details-marker{display:none}.professional-vocab-group summary b,.professional-vocab-group summary small{display:block}.professional-vocab-group summary b{font-size:14.5px;color:var(--accent-text)}.professional-vocab-group summary small{font-size:12px;color:var(--mut);margin-top:3px}.professional-vocab-group summary>span:last-child{font-size:12px;font-weight:800;color:var(--accent-text);white-space:nowrap}.professional-vocab-group[open] summary{border-bottom:1px solid rgba(202,138,4,.36)}.professional-vocab-list{padding:15px 17px;display:flex;flex-direction:column;gap:9px}
 .adaptive-roadmap,.adaptive-growth,.adaptive-heat{max-width:700px;margin:18px auto;padding:18px}.adaptive-roadmap h2,.adaptive-growth h2,.adaptive-heat h2{font-size:20px;margin:4px 0 7px}.adaptive-roadmap p,.adaptive-heat p{font-size:13px;color:var(--mut);line-height:1.5}.adaptive-roadmap h3{font-size:13px;margin:18px 0 8px}.adaptive-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0}.adaptive-grid>div{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:10px}.adaptive-grid span{display:block;color:var(--mut);font-size:11px}.adaptive-grid b{display:block;font-size:13px;margin-top:4px}.adaptive-chips{display:flex;gap:7px;flex-wrap:wrap}.adaptive-basis{font-size:11.5px;color:var(--mut);line-height:1.5;margin:10px 0 0}
 .adaptive-chips span{padding:7px 9px;border:1px solid var(--line);background:var(--bg2);border-radius:9px;font-size:12px}.adaptive-chips b{color:var(--gold)}.adaptive-bars{display:grid;gap:9px;margin-top:15px}.adaptive-bars>div>span{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--mut);margin-bottom:4px}.adaptive-bars>div>span b{color:var(--acc2)}.adaptive-bars i{display:block;height:7px;background:var(--bg2);border-radius:8px;overflow:hidden}.adaptive-bars em{display:block;height:100%;border-radius:inherit;background:var(--grad)}.adaptive-heat-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:5px;margin-top:13px;max-width:480px}.adaptive-heat-grid span{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line)}.adaptive-heat-grid span[data-level="1"]{background:color-mix(in srgb,var(--accent) 30%,transparent)}.adaptive-heat-grid span[data-level="2"]{background:color-mix(in srgb,var(--accent) 50%,transparent)}.adaptive-heat-grid span[data-level="3"]{background:rgba(var(--live-rgb),.62)}.adaptive-heat-grid span[data-level="4"]{background:var(--acc2)}
 .career-center{max-width:700px;margin:0 auto}.career-center h2{font-size:20px;margin:4px 0 8px}.career-center h3{font-size:14px;margin:18px 0 5px}.career-center .card{margin:16px 0;padding:18px}.career-center p{font-size:13px;color:var(--mut);line-height:1.55}.career-select{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.career-select .chip{cursor:pointer}.career-score{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.career-score>div{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:11px}.career-score b{display:block;font-size:18px;color:var(--acc2)}.career-score span{display:block;font-size:11px;color:var(--mut);margin-top:3px}.career-gap-list{display:grid;gap:10px;margin:13px 0}.career-gap-list>div{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:12px}.career-gap-list b{color:var(--gold)}.career-gap-list i{grid-column:1/-1;height:7px;border-radius:9px;background:var(--bg2);overflow:hidden}.career-gap-list em{display:block;height:100%;border-radius:inherit;background:var(--grad)}.career-pack-actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -2666,7 +2666,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .sess-rep-btn{width:100%}.sess-rep-newer{margin-bottom:10px}.rec-btn.exd-ring::after{border-radius:50%}
 .rec-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--grad);color:var(--on-accent);font-size:22px;transition:.2s;box-shadow:0 4px 16px color-mix(in srgb,var(--acc) 38%,transparent);display:grid;place-items:center}
 .rec-btn svg{width:26px;height:26px}
-.rec-btn.recording{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.rec-btn.recording{background:var(--ds-rec);animation:pulse 1.2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
 /* The recording pulse and the over-length clip warning are live-state signals,
    so they are legitimately perpetual — but they were the only infinite
@@ -2888,7 +2888,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-pat-use{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--mut)}
 .ex-saveall{width:100%;min-height:46px;margin-top:16px}
 .ex-repolish{width:100%;min-height:46px;margin-top:14px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc)}
-.ex-quickbtn{width:100%;min-height:46px;margin:0 0 10px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--acc);font-weight:700}
+.ex-quickbtn{width:100%;min-height:46px;margin:0 0 10px;border-color:color-mix(in srgb,var(--acc) 55%,transparent);color:var(--accent-text);font-weight:700}
 .ex-quickbtn:disabled{opacity:.7}
 .ex-quickwrap{margin:2px 0 10px}
 .ex-qv{padding:12px 14px;border-radius:14px;border:1px solid var(--line2);background:var(--bg2);margin-bottom:10px}
@@ -3028,10 +3028,10 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .track-entry{--track-preview:var(--acc);align-items:flex-start;border-color:color-mix(in srgb,var(--track-preview) 42%,var(--line2));background:linear-gradient(140deg,color-mix(in srgb,var(--track-preview) 13%,var(--card)),var(--card))}
 .track-entry .rp-entry-t{display:flex;flex-direction:column;align-items:flex-start}
 .track-entry .rp-entry-ic{background:linear-gradient(145deg,color-mix(in srgb,var(--track-preview) 82%,#fff),var(--track-preview))}.track-entry:hover{border-color:var(--track-preview)}
-.track-entry-cta{display:block;color:var(--track-preview);font-size:13px;font-weight:700;margin-top:9px}
+.track-entry-cta{display:block;color:color-mix(in srgb,var(--track-preview) 60%,var(--txt));font-size:13px;font-weight:700;margin-top:9px}
 .track-entry.theme-general{--track-preview:#6366f1}.track-entry.theme-welding{--track-preview:#d49717}.track-entry.theme-electrician{--track-preview:#38bdf8}.track-entry.theme-construction{--track-preview:#d46a3a}.track-entry.theme-healthcare{--track-preview:#43b884}.track-entry.theme-manufacturing{--track-preview:#9b7ce8}.track-entry.theme-customer-service{--track-preview:#df6a9d}.track-entry.theme-hvac{--track-preview:#35ae9e}.track-entry.theme-plumbing{--track-preview:#4d9de0}.track-entry.theme-mechanical{--track-preview:#94a3b8}
 .tracks-coming-soon{margin-top:24px}.tracks-coming-soon>summary{color:var(--txt)}.tracks-coming-soon .track-coming-copy{display:flex;flex-direction:column;gap:2px}.tracks-coming-soon .track-coming-copy small{color:var(--mut);font-size:12px;font-weight:400}.tracks-coming-soon .track-entry{margin-top:10px}
-.professional-track-entry{border-color:rgba(202,138,4,.62);background:linear-gradient(150deg,rgba(146,64,14,.22),rgba(202,138,4,.08))}.professional-track-entry:hover{border-color:#fbbf24}.professional-track-entry .rp-entry-ic{background:linear-gradient(145deg,#a16207,#d97706)}.professional-track-entry .track-entry-cta{color:#fcd34d}
+.professional-track-entry{border-color:rgba(202,138,4,.62);background:linear-gradient(150deg,rgba(146,64,14,.22),rgba(202,138,4,.08))}.professional-track-entry:hover{border-color:#fbbf24}.professional-track-entry .rp-entry-ic{background:linear-gradient(145deg,#a16207,#d97706)}.professional-track-entry .track-entry-cta{color:color-mix(in srgb,#d49717 60%,var(--txt))}
 .workplace-simulation-entry{border-color:color-mix(in srgb,var(--acc) 50%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--acc) 12%,transparent),var(--card))}.workplace-simulation-entry:hover{border-color:var(--acc2)}.workplace-simulation-entry .rp-entry-ic{background:var(--grad)}.workplace-simulation-entry .rp-entry-go{color:var(--accent-text)}
 /* conversation history rows on the progress page */
 .cv-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:13.5px}
@@ -4340,7 +4340,7 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .rp-mic{width:76px;height:76px;border-radius:50%;border:none;cursor:pointer;background:var(--grad);color:var(--on-accent);display:grid;place-items:center;box-shadow:0 8px 28px color-mix(in srgb,var(--acc) 45%,transparent);transition:.15s}
 .rp-mic svg{width:32px;height:32px}
 .rp-mic:hover{transform:scale(1.05)}
-.rp-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.rp-mic.on{background:var(--ds-rec);animation:pulse 1.2s infinite}
 .rp-mic.muted{background:var(--card2);border:1px solid var(--line2);color:var(--mut);box-shadow:none}
 .rp-start{display:flex;flex-direction:column;gap:12px;align-items:center;margin-top:22px}
 .rp-status{font-size:13px;color:var(--mut);min-height:18px}
@@ -4411,7 +4411,7 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .pron-mic{width:84px;height:84px;border-radius:50%;border:none;cursor:pointer;background:var(--grad);color:#fff;display:grid;place-items:center;box-shadow:0 8px 30px color-mix(in srgb,var(--acc) 45%,transparent);transition:.15s;margin:0 auto}
 .pron-mic svg{width:36px;height:36px}
 .pron-mic:hover{transform:scale(1.05)}
-.pron-mic.on{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
+.pron-mic.on{background:var(--ds-rec);animation:pulse 1.2s infinite}
 .pron-status{font-size:13px;color:var(--mut);margin-top:12px;min-height:18px}
 .pron-result{margin-top:16px}
 .pron-chips-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
@@ -4633,13 +4633,13 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   --ds-ease-out:cubic-bezier(.16,.84,.44,1); --ds-ease-soft:cubic-bezier(.4,0,.2,1);
   --ds-fast:.18s; --ds-dur:.35s; --ds-reveal:.6s;
   --ds-r-sm:12px; --ds-r:18px; --ds-r-lg:24px; --ds-pill:999px;
-  --ds-rec:linear-gradient(140deg,#ef4444,#f97316);   /* recording is red in both tracks: one meaning */
+  --ds-rec:linear-gradient(140deg,#ef4444,#ea580c);   /* recording is red in both tracks: one meaning. Phase 5: the orange end deepened (#f97316 → #ea580c) so the white glyph on it holds 3:1 */
 }
 /* ── SIGNAL · General English — dark ───────────────────────────────────── */
 :root:not([data-track="welding"]):not([data-theme="light"]){
   --bg:#080b16; --bg2:#0b1020; --card:#10162b; --card2:#151c35;
   --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
-  --txt:#eef1fb; --mut:#a2a7c4; --mut2:#6f7596;
+  --txt:#eef1fb; --mut:#a2a7c4; --mut2:#848aa8;   /* Phase 5: tertiary text meets AA 4.5:1 on every card tint */
   --grad:linear-gradient(103deg,#5b5bf0,#3b82f6 55%,#22d3ee);
   --bnav-bg:rgba(9,12,24,.94); --nav-bg:rgba(8,11,22,.8);
   --field-1:rgba(99,102,241,.20); --field-2:rgba(34,211,238,.10); --field-3:rgba(168,85,247,.09);
@@ -4655,6 +4655,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 /* ── SIGNAL · light ─────────────────────────────────────────────────────── */
 :root[data-theme="light"]:not([data-track="welding"]){
+  --mut2:#606880;   /* Phase 5: was #98a1b8 (2.58:1 on white) — tertiary text is text, so AA */
   --field-1:rgba(99,102,241,.045); --field-2:rgba(34,211,238,.035); --field-3:rgba(168,85,247,.025);   /* light: faint enough that --mut on translucent cards stays ≥4.5:1 */
   --hair:inset 0 1px 0 rgba(255,255,255,.8);
   --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb); --cta-tint:rgba(79,70,229,.16);
@@ -4668,7 +4669,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
    accent, dark label on amber, surfaces); Forge adds steel depth, arc-blue
    for listening and amber-white for the AI. ─────────────────────────────── */
 :root[data-track="welding"]:not([data-theme="light"]){
-  --bg:#090c14; --bg2:#0d111c;
+  --bg:#090c14; --bg2:#0d111c; --mut2:#848ca4;   /* Phase 5: was #5c6580 (2.95:1 on the card) */
   --field-1:rgba(212,151,23,.13); --field-2:rgba(125,211,252,.06); --field-3:rgba(184,115,51,.07);
   --hair:inset 0 1px 0 rgba(246,196,83,.07);
   --cta-grad:linear-gradient(103deg,#c98a0d,#e2af2f);          /* dark label #1b1202: 6.28 / 9.18:1 */
@@ -4682,6 +4683,12 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 /* ── FORGE · light ──────────────────────────────────────────────────────── */
 :root[data-theme="light"][data-track="welding"]{
+  --mut2:#606880;
+  /* Phase 5: the white label this block always promised. --on-accent was never
+     set here, so light Welding inherited the dark label #1b1202 and every
+     button on --accent-fill / the CTA read 2.5–3.1:1. --grad joins the CTA's
+     deep amber so white icons on it (record button, simulation mic) hold. */
+  --on-accent:#fff; --grad:linear-gradient(135deg,#7a4a00,#9a6300);
   --field-1:rgba(212,151,23,.05); --field-2:rgba(3,105,161,.035); --field-3:rgba(184,115,51,.025);   /* light: kept faint enough that --mut stays ≥4.5:1 where the fields overlap */
   --hair:inset 0 1px 0 rgba(255,255,255,.8);
   --cta-grad:linear-gradient(103deg,#7a4a00,#9a6300); --cta-tint:rgba(139,89,0,.18);   /* light Welding keeps its WHITE label (--on-accent #fff): 7.48 / 5.05:1 */
@@ -7960,7 +7967,7 @@ const I18N_EN={
  "rec.mic_denied_toast":"⚠️ Microphone access denied — allow the mic in your browser.",
  "rec.delete_confirm":"Delete this recording?",
  "rec.deleted_toast":"Recording deleted",
- "wave.insight_prev":"Latest take <b style=\"color:var(--acc2)\">{{cur}}s</b> vs previous <b style=\"color:#a5b4fc\">{{prev}}s</b>",
+ "wave.insight_prev":"Latest take <b style=\"color:var(--acc2)\">{{cur}}s</b> vs previous <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
  "wave.tighter":" — <b style=\"color:var(--green)\">{{d}}s tighter — more confident pacing 📈</b>",
  "wave.longer":" — {{d}}s longer — aim for a tighter delivery",
  "wave.consistent":" — consistent pacing ✅",
@@ -9924,7 +9931,7 @@ function rMission(el,missionId,step){
       const nx=_mv.busy?null:MissionEngine.recommend(r,comp,Date.now());
       const prim=!nx?""
         :ev.coachPending
-        ?`<button class="btn-primary mv-pending" onclick="mvFinishCoaching()">${ic("refresh")} ${t("mv.coach_retry")}</button>`
+        ?`<button class="btn-primary mv-pending" onclick="mvFinishCoaching()">${ic("repeat")} ${t("mv.coach_retry")}</button>`
         :nx.action==="retry"
           ?`<button class="btn-primary" onclick="${nx.missionId&&nx.missionId!==_mv.missionId?`mvGo('${esc(nx.missionId)}','speak')`:"mvRetry()"}">${t("mv.retry_btn")}</button>`
         :nx.action==="transfer"&&nx.missionId&&nx.missionId!==_mv.missionId
@@ -10455,7 +10462,7 @@ function homePanelDashboard(activeTrackName){
         <div class="ring">
           <svg width="150" height="150"><circle cx="75" cy="75" r="62" fill="none" stroke="var(--bg2)" stroke-width="12"/>
           <circle cx="75" cy="75" r="62" fill="none" stroke="url(#gr)" stroke-width="12" stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ*(1-p/100)}"/>
-          <defs><linearGradient id="gr"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient></defs></svg>
+          <defs><linearGradient id="gr"><stop offset="0%" style="stop-color:var(--accent)"/><stop offset="100%" style="stop-color:var(--live)"/></linearGradient></defs></svg>
           <div class="pct">${p}%<small>${t("home.pct_of").replace("84",trackSessionCount())}</small></div>
         </div>
         <div style="flex:1">
@@ -10725,7 +10732,7 @@ function rmDraw(road){
     <defs>
       <linearGradient id="rmRoadGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--acc2)"/><stop offset="1" stop-color="var(--acc)"/></linearGradient>
       <linearGradient id="rmPinGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--acc)"/><stop offset="1" stop-color="var(--acc2)"/></linearGradient>
-      <linearGradient id="rmGoldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--gold)"/><stop offset="1" stop-color="#fff3c4"/></linearGradient>
+      <linearGradient id="rmGoldGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--gold)"/><stop offset="1" style="stop-color:color-mix(in srgb,var(--gold) 25%,#fff)"/></linearGradient>
     </defs>
     ${bands}
     <path class="rm-asph" d="${d}"/>
@@ -11246,7 +11253,7 @@ async function waveRender(ctxName,boxId){
     const prev=recs[1]?await decodePeaks(recs[1].blob,N):null;
     const W=640,H=150,mid=H/2;
     const cv=document.createElement("canvas");cv.width=W;cv.height=H;
-    cv.style.cssText="width:100%;height:auto;display:block;background:#0a0e1a;border-radius:12px";
+    cv.style.cssText="width:100%;height:auto;display:block;background:var(--card2);border-radius:12px";
     const g=cv.getContext("2d");
     /* time-aligned: both drawn on the scale of the longer take, so pacing differences are visible */
     const maxDur=Math.max(latest.dur,prev?prev.dur:0)||1;
@@ -11260,7 +11267,7 @@ async function waveRender(ctxName,boxId){
     };
     if(prev)draw(prev.peaks,prev.dur,dsHexA("--accent",.42,"rgba(99,102,241,.42)"));
     draw(latest.peaks,latest.dur,dsRgba("--live-rgb",.8,"rgba(34,211,238,.8)"));
-    g.fillStyle="rgba(255,255,255,.25)";g.fillRect(0,mid,W,1);
+    g.fillStyle=dsHexA("--txt",.25,"rgba(255,255,255,.25)");g.fillRect(0,mid,W,1);
     const pl=countPauses(latest.peaks,latest.dur);
     let insight;
     if(prev){
@@ -11274,8 +11281,8 @@ async function waveRender(ctxName,boxId){
     box.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <b style="font-size:13.5px">${t("wave.title")}</b>
       <span style="flex:1"></span>
-      ${prev?`<span class="chip" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent);color:color-mix(in srgb,var(--accent) 45%,#fff)">${t("wave.previous")}</span>`:""}
-      <span class="chip" style="border-color:rgba(var(--live-rgb),.5);color:color-mix(in srgb,var(--live) 70%,#fff)">${t("wave.latest")}</span>
+      ${prev?`<span class="chip" style="border-color:color-mix(in srgb,var(--accent) 50%,transparent);color:var(--accent-text)">${t("wave.previous")}</span>`:""}
+      <span class="chip" style="border-color:rgba(var(--live-rgb),.5);color:color-mix(in srgb,var(--live) 70%,var(--txt))">${t("wave.latest")}</span>
     </div>`;
     box.appendChild(cv);
     box.insertAdjacentHTML("beforeend",`<p style="font-size:12.5px;color:var(--mut);margin-top:8px">${insight}</p>`);
@@ -13376,7 +13383,7 @@ function rateDue(){                              // the dialog: earned, and not 
 function rateHTML(){                             // the Home card: earned — every visit, until rated
   if(!rateEarned()||!/Android/i.test(navigator.userAgent||""))return "";
   return `<div class="card home-rate" id="homeRate">
-    <span class="home-due-ic" style="background:rgba(251,191,36,.18);color:var(--gold)">${ic("star")}</span>
+    <span class="home-due-ic" style="background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)">${ic("star")}</span>
     <span class="home-due-t">
       <b>${t("rate.title")}</b>
       <small>${t("rate.sub")}</small>
@@ -15232,7 +15239,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
         <div style="font-size:12.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--gold);margin-bottom:8px">${t("fb.grammar_improve_h")}</div>
         ${gram.fix.length?gram.fix.map(x=>`<div class="fb-item" style="margin-bottom:8px">
           <span style="font-size:11.5px;font-weight:700;color:var(--gold)">● ${esc(x.cat)}</span>
-          <div style="font-size:14px;margin:5px 0">…<b style="background:rgba(251,191,36,.15);padding:1px 5px;border-radius:5px">${esc(x.quote)}</b></div>
+          <div style="font-size:14px;margin:5px 0">…<b style="background:color-mix(in srgb,var(--gold) 15%,transparent);padding:1px 5px;border-radius:5px">${esc(x.quote)}</b></div>
           <div style="font-size:13px;color:var(--acc2);margin-bottom:5px">→ ${esc(x.corr)}</div>
           <p style="font-size:12.5px;color:var(--mut)">${esc(x.note)}</p>
           <button class="btn btn-g fb-sec-act" onclick="fbSay('${esc(x.corr)}',0.9)">${t("fb.hear_correct_version")}</button></div>`).join("")
@@ -16003,14 +16010,14 @@ function simScoreBand(pct,best){
    is ever missing or a rule is lost, an unstyled <circle> defaults to a solid
    black fill at whatever size the box allows — which is precisely how the score
    ring once rendered as a full-width black disc. Belt and braces. */
-const TONE={good:"#34d399",fair:"#fbbf24",poor:"#f87171"},TONE_TRACK="rgba(148,163,184,.22)";
+const TONE={good:"var(--green)",fair:"var(--gold)",poor:"var(--red)"},TONE_TRACK="color-mix(in srgb,var(--mut) 22%,transparent)";
 function simScoreHeroHTML(pct,band,attempts){
   const r=52,c=2*Math.PI*r;
   return `<section class="card sim-score sim-score-${band.tone}">
     <div class="sim-score-ring">
       <svg viewBox="0 0 120 120" width="104" height="104" aria-hidden="true">
-        <circle cx="60" cy="60" r="${r}" class="sim-score-track" fill="none" stroke="${TONE_TRACK}" stroke-width="9"/>
-        <circle cx="60" cy="60" r="${r}" class="sim-score-arc" fill="none" stroke="${TONE[band.tone]}" stroke-width="9"
+        <circle cx="60" cy="60" r="${r}" class="sim-score-track" fill="none" style="stroke:${TONE_TRACK}" stroke-width="9"/>
+        <circle cx="60" cy="60" r="${r}" class="sim-score-arc" fill="none" style="stroke:${TONE[band.tone]}" stroke-width="9"
           stroke-linecap="round" transform="rotate(-90 60 60)"
           stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-pct/100)).toFixed(1)}"/>
       </svg>
@@ -23863,7 +23870,7 @@ function pgArea(data,stroke,W,H,unit){
   return`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="${stroke}" stop-opacity=".35"/><stop offset="100%" stop-color="${stroke}" stop-opacity="0"/></linearGradient></defs>
-    ${[0.25,0.5,0.75].map(f=>`<line x1="${P}" x2="${W-P}" y1="${(H-2*P)*f+P}" y2="${(H-2*P)*f+P}" stroke="rgba(255,255,255,.06)"/>`).join("")}
+    ${[0.25,0.5,0.75].map(f=>`<line x1="${P}" x2="${W-P}" y1="${(H-2*P)*f+P}" y2="${(H-2*P)*f+P}" style="stroke:var(--line)"/>`).join("")}
     <path d="${line} L${pts[n-1][0]},${H-P} L${pts[0][0]},${H-P} Z" fill="url(#${gid})"/>
     <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     <circle cx="${pts[n-1][0]}" cy="${pts[n-1][1]}" r="4.5" fill="${stroke}" stroke="var(--card)" stroke-width="2"/>
@@ -23878,7 +23885,7 @@ function pgBars(days,W,H){
       const h=d.v?Math.max(6,d.v/max*(H-30)):3;
       const x=P+i*bw+2,y=H-16-h;
       return`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${(bw-4).toFixed(1)}" height="${h.toFixed(1)}" rx="3"
-        fill="${d.today?"var(--acc2)":d.v?"var(--acc)":"rgba(255,255,255,.07)"}"><title>${t(d.v!==1?"bars.tooltip_many":"bars.tooltip_one",{label:d.label,n:d.v})}</title></rect>
+        style="fill:${d.today?"var(--acc2)":d.v?"var(--acc)":"var(--line2)"}"><title>${t(d.v!==1?"bars.tooltip_many":"bars.tooltip_one",{label:d.label,n:d.v})}</title></rect>
       ${i%2===0?`<text x="${(x+bw/2-2).toFixed(1)}" y="${H-4}" text-anchor="middle" font-size="9" fill="var(--mut2)">${d.label}</text>`:""}`;
     }).join("")}
   </svg>`;
@@ -23895,8 +23902,8 @@ function pgGauge(wpm){
     <div><span class="fb-score-ring" style="color:var(--acc2)">${wpm||"—"}</span><span style="color:var(--mut);font-size:13px;font-weight:700"> WPM</span></div>
     <p style="flex:1;min-width:200px;font-size:13px;color:var(--mut);margin:0">${msg}</p></div>
   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;margin-top:4px">
-    ${seg(60,100,"rgba(255,255,255,.10)")}${seg(100,160,"rgba(52,211,153,.45)")}${seg(160,200,"rgba(251,191,36,.4)")}
-    ${wpm?`<circle cx="${X(wpm)}" cy="30" r="8" fill="#fff" stroke="var(--card)" stroke-width="2.5"><title>${t("gauge.tooltip",{wpm})}</title></circle>`:""}
+    ${seg(60,100,"var(--line2)")}${seg(100,160,"color-mix(in srgb,var(--green) 45%,transparent)")}${seg(160,200,"color-mix(in srgb,var(--gold) 40%,transparent)")}
+    ${wpm?`<circle cx="${X(wpm)}" cy="30" r="8" style="fill:var(--txt);stroke:var(--card)" stroke-width="2.5"><title>${t("gauge.tooltip",{wpm})}</title></circle>`:""}
     <text x="${X(60)}" y="14" font-size="10" fill="var(--mut2)">${t("gauge.warming_short")}</text>
     <text x="${X(130)}" y="14" text-anchor="middle" font-size="10" font-weight="700" fill="var(--green)">${t("gauge.perfect_short")}</text>
     <text x="${X(200)}" y="14" text-anchor="end" font-size="10" fill="var(--gold)">${t("gauge.fast_short")}</text>
@@ -24130,7 +24137,7 @@ function drawTrend(){
   const avgs=trackWeeks().map(x=>{
     const s=(WK[x.n]||{}).scores||{};const vals=trackReviewAxes().map(a=>s[a]).filter(v=>v);
     return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null});
-  ctx.strokeStyle="rgba(255,255,255,.08)";
+  ctx.strokeStyle=dsHexA("--txt",.08,"rgba(255,255,255,.08)");
   for(let y=0;y<=10;y+=5){ctx.beginPath();ctx.moveTo(20,140-y*13);ctx.lineTo(475,140-y*13);ctx.stroke()}
   const g=ctx.createLinearGradient(0,0,480,0);g.addColorStop(0,dsTok("--accent","#6366f1"));g.addColorStop(1,dsTok("--live","#22d3ee"));
   ctx.strokeStyle=g;ctx.lineWidth=2.5;ctx.beginPath();let started=false;
@@ -24413,7 +24420,7 @@ function pfRecordHTML(){
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
     <button class="btn btn-g pf-act" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
   </div>
-  <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:rgba(251,191,36,.45);background:linear-gradient(150deg,rgba(251,191,36,.08),color-mix(in srgb,var(--accent) 5%,transparent))":""}">
+  <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--gold) 8%,transparent),color-mix(in srgb,var(--accent) 5%,transparent))":""}">
     <h2 class="pf-card-h">${hIcon("trophy",t("share.cert_title"))}</h2>
     ${totalDone()>=trackSessionCount()
       ? `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.cert_sub")}</p>
@@ -24605,7 +24612,7 @@ async function rData(el,embedded){
       <details class="home-more set-plan">
         <summary>${tIc("acc.free_plan","gift")}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">
-<div class="card" style="border-color:rgba(52,211,153,.4);margin-bottom:16px">
+<div class="card" style="border-color:color-mix(in srgb,var(--green) 40%,transparent);margin-bottom:16px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <b style="font-size:16px">${hIcon("gift",t("acc.free_plan"))}</b><span class="chip done">${t("acc.free_active")}</span>
         </div>
@@ -27605,9 +27612,9 @@ window.fbCloseModal=function(){const o=document.getElementById("authOv");if(o)o.
 window.fbAuthCard=function(){
   if(FBUser){
     const em=FBUser.email||"account",initial=(em[0]||"?").toUpperCase();
-    return `<div class="card" style="margin-bottom:16px;border-color:rgba(52,211,153,.4)">
+    return `<div class="card" style="margin-bottom:16px;border-color:color-mix(in srgb,var(--green) 40%,transparent)">
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="width:48px;height:48px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font-size:20px;font-weight:800;color:#fff;flex:none">${esc(initial)}</div>
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--grad);display:grid;place-items:center;font-size:20px;font-weight:800;color:var(--on-accent);flex:none">${esc(initial)}</div>
         <div style="min-width:0"><b style="font-size:15px">${t("auth.card_synced")}</b><p style="font-size:12.5px;color:var(--mut);overflow:hidden;text-overflow:ellipsis">${esc(em)}</p></div>
       </div>
       <p style="font-size:12.5px;color:var(--mut);margin:12px 0 0">${t("auth.card_synced_desc")}</p>
@@ -27615,7 +27622,7 @@ window.fbAuthCard=function(){
       <button class="btn btn-g btn-sm" style="margin-top:10px" onclick="fbTestSync()">${t("auth.test_sync")}</button>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         <button class="btn btn-g btn-sm" onclick="fbSignOut()">${t("auth.signout_btn")}</button>
-        <button class="btn btn-g btn-sm" style="color:#fca5a5" onclick="fbDeleteAccount()">${t("auth.delete_btn")}</button>
+        <button class="btn btn-g btn-sm" style="color:var(--red)" onclick="fbDeleteAccount()">${t("auth.delete_btn")}</button>
       </div>
     </div>`;
   }

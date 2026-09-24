@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Accès au micro refusé — autorisez le micro dans votre navigateur.",
  "rec.delete_confirm": "Supprimer cet enregistrement ?",
  "rec.deleted_toast": "Enregistrement supprimé",
- "wave.insight_prev": "Dernière prise <b style=\"color:var(--acc2)\">{{cur}}s</b> vs précédente <b style=\"color:#a5b4fc\">{{prev}}s</b>",
+ "wave.insight_prev": "Dernière prise <b style=\"color:var(--acc2)\">{{cur}}s</b> vs précédente <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}s plus serrée — rythme plus assuré 📈</b>",
  "wave.longer": " — {{d}}s plus longue — visez une exécution plus serrée",
  "wave.consistent": " — rythme constant ✅",

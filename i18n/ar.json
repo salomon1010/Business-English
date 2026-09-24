@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ رُفض الوصول إلى الميكروفون — اسمح للميكروفون في متصفحك.",
  "rec.delete_confirm": "حذف هذا التسجيل؟",
  "rec.deleted_toast": "حُذف التسجيل",
- "wave.insight_prev": "التسجيل الأخير <b style=\"color:var(--acc2)\">{{cur}}ث</b> مقابل السابق <b style=\"color:#a5b4fc\">{{prev}}ث</b>",
+ "wave.insight_prev": "التسجيل الأخير <b style=\"color:var(--acc2)\">{{cur}}ث</b> مقابل السابق <b style=\"color:var(--accent-text)\">{{prev}}ث</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">أقصر بـ {{d}}ث — إيقاع أكثر ثقة 📈</b>",
  "wave.longer": " — أطول بـ {{d}}ث — اسعَ إلى إلقاء أكثر إحكامًا",
  "wave.consistent": " — إيقاع ثابت ✅",

@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Mikrofonzugriff verweigert — erlaube das Mikrofon in deinem Browser.",
  "rec.delete_confirm": "Diese Aufnahme löschen?",
  "rec.deleted_toast": "Aufnahme gelöscht",
- "wave.insight_prev": "Letzte Aufnahme <b style=\"color:var(--acc2)\">{{cur}}s</b> vs. vorherige <b style=\"color:#a5b4fc\">{{prev}}s</b>",
+ "wave.insight_prev": "Letzte Aufnahme <b style=\"color:var(--acc2)\">{{cur}}s</b> vs. vorherige <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}s straffer — selbstsichereres Tempo 📈</b>",
  "wave.longer": " — {{d}}s länger — geh auf eine straffere Ausführung",
  "wave.consistent": " — gleichmäßiges Tempo ✅",

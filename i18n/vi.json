@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Bị từ chối quyền micrô — hãy cho phép micrô trong trình duyệt của bạn.",
  "rec.delete_confirm": "Xóa bản ghi này?",
  "rec.deleted_toast": "Đã xóa bản ghi",
- "wave.insight_prev": "Lượt gần nhất <b style=\"color:var(--acc2)\">{{cur}}s</b> so với lượt trước <b style=\"color:#a5b4fc\">{{prev}}s</b>",
+ "wave.insight_prev": "Lượt gần nhất <b style=\"color:var(--acc2)\">{{cur}}s</b> so với lượt trước <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">gọn hơn {{d}}s — nhịp độ tự tin hơn 📈</b>",
  "wave.longer": " — dài hơn {{d}}s — nhắm tới cách trình bày gọn hơn",
  "wave.consistent": " — nhịp độ ổn định ✅",

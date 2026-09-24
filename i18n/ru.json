@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Доступ к микрофону запрещён — разрешите микрофон в браузере.",
  "rec.delete_confirm": "Удалить эту запись?",
  "rec.deleted_toast": "Запись удалена",
- "wave.insight_prev": "Последний дубль <b style=\"color:var(--acc2)\">{{cur}}с</b> против предыдущего <b style=\"color:#a5b4fc\">{{prev}}с</b>",
+ "wave.insight_prev": "Последний дубль <b style=\"color:var(--acc2)\">{{cur}}с</b> против предыдущего <b style=\"color:var(--accent-text)\">{{prev}}с</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">на {{d}}с плотнее — более уверенный темп 📈</b>",
  "wave.longer": " — на {{d}}с длиннее — цельтесь в более плотную подачу",
  "wave.consistent": " — ровный темп ✅",

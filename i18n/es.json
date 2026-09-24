@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Acceso al micrófono denegado — permite el micrófono en tu navegador.",
  "rec.delete_confirm": "¿Eliminar esta grabación?",
  "rec.deleted_toast": "Grabación eliminada",
- "wave.insight_prev": "Última toma <b style=\"color:var(--acc2)\">{{cur}}s</b> vs. anterior <b style=\"color:#a5b4fc\">{{prev}}s</b>",
+ "wave.insight_prev": "Última toma <b style=\"color:var(--acc2)\">{{cur}}s</b> vs. anterior <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}s más ajustada — ritmo más seguro 📈</b>",
  "wave.longer": " — {{d}}s más larga — busca una entrega más ajustada",
  "wave.consistent": " — ritmo consistente ✅",

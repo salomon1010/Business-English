@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ Akses mikrofon ditolak — izinkan mikrofon di browser Anda.",
  "rec.delete_confirm": "Hapus rekaman ini?",
  "rec.deleted_toast": "Rekaman dihapus",
- "wave.insight_prev": "Take terbaru <b style=\"color:var(--acc2)\">{{cur}}dtk</b> vs sebelumnya <b style=\"color:#a5b4fc\">{{prev}}dtk</b>",
+ "wave.insight_prev": "Take terbaru <b style=\"color:var(--acc2)\">{{cur}}dtk</b> vs sebelumnya <b style=\"color:var(--accent-text)\">{{prev}}dtk</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}dtk lebih ringkas — tempo lebih percaya diri 📈</b>",
  "wave.longer": " — {{d}}dtk lebih panjang — kejar penyampaian yang lebih ringkas",
  "wave.consistent": " — tempo konsisten ✅",

@@ -116,8 +116,11 @@ process.exit(failTotal ? 1 : 0);
 
 /* ---------------- the in-page walker ---------------- */
 function sweep() {
-  const parse = s => { const m = String(s).match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
-  const stops = img => (String(img).match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}\b/gi) || []).map(c => c[0] === "#" ? (() => { let h = c.slice(1); if (h.length === 3) h = h.split("").map(x => x + x).join(""); return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16), a: h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1 }; })() : parse(c)).filter(Boolean);
+  /* color-mix() computes to color(srgb r g b / a) with 0–1 channels; reading
+     it as "no colour" made every color-mix fill look transparent. */
+  const parse = s => { const c = String(s).match(/color\(srgb ([^)]+)\)/); if (c) { const p = c[1].split(/[ /]+/).filter(Boolean).map(Number); return { r: p[0] * 255, g: p[1] * 255, b: p[2] * 255, a: p.length > 3 ? p[3] : 1 }; }
+    const m = String(s).match(/rgba?\(([^)]+)\)/); if (!m) return null; const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
+  const stops = img => (String(img).match(/color\(srgb [^)]+\)|rgba?\([^)]+\)|#[0-9a-f]{3,8}\b/gi) || []).map(c => c[0] === "#" ? (() => { let h = c.slice(1); if (h.length === 3) h = h.split("").map(x => x + x).join(""); return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16), a: h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1 }; })() : parse(c)).filter(Boolean);
   const over = (top, bot) => { const a = top.a + bot.a * (1 - top.a); if (!a) return { r: 0, g: 0, b: 0, a: 0 }; return { r: (top.r * top.a + bot.r * bot.a * (1 - top.a)) / a, g: (top.g * top.a + bot.g * bot.a * (1 - top.a)) / a, b: (top.b * top.a + bot.b * bot.a * (1 - top.a)) / a, a }; };
   const L = c => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * f(c.r) + .7152 * f(c.g) + .0722 * f(c.b); };
   const R = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };

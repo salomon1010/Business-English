@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ 마이크 접근이 거부되었어요 — 브라우저에서 마이크를 허용하세요.",
  "rec.delete_confirm": "이 녹음을 삭제할까요?",
  "rec.deleted_toast": "녹음을 삭제했어요",
- "wave.insight_prev": "최근 테이크 <b style=\"color:var(--acc2)\">{{cur}}초</b>, 이전 <b style=\"color:#a5b4fc\">{{prev}}초</b>",
+ "wave.insight_prev": "최근 테이크 <b style=\"color:var(--acc2)\">{{cur}}초</b>, 이전 <b style=\"color:var(--accent-text)\">{{prev}}초</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}초 단축 — 더 자신감 있는 속도 📈</b>",
  "wave.longer": " — {{d}}초 더 김 — 더 촘촘한 전달을 목표로",
  "wave.consistent": " — 일관된 속도 ✅",

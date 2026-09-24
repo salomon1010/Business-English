@@ -492,7 +492,7 @@
  "rec.mic_denied_toast": "⚠️ مائیکروفون تک رسائی مسترد — اپنے براؤزر میں مائیکروفون کی اجازت دیں۔",
  "rec.delete_confirm": "یہ ریکارڈنگ حذف کریں؟",
  "rec.deleted_toast": "ریکارڈنگ حذف ہو گئی",
- "wave.insight_prev": "تازہ ترین ٹیک <b style=\"color:var(--acc2)\">{{cur}}س</b> بمقابلہ پچھلا <b style=\"color:#a5b4fc\">{{prev}}س</b>",
+ "wave.insight_prev": "تازہ ترین ٹیک <b style=\"color:var(--acc2)\">{{cur}}س</b> بمقابلہ پچھلا <b style=\"color:var(--accent-text)\">{{prev}}س</b>",
  "wave.tighter": " — <b style=\"color:var(--green)\">{{d}}س چھوٹا — زیادہ پُراعتماد رفتار 📈</b>",
  "wave.longer": " — {{d}}س طویل — زیادہ گٹھی ہوئی پیشکش کی طرف بڑھیں",
  "wave.consistent": " — مستقل رفتار ✅",
