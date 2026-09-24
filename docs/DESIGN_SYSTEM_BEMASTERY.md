@@ -260,3 +260,4 @@ One implementation per component, themed only by tokens. The existing class name
 | Focus | one `:focus-visible` ring in `--focus` | keyboard Tab | keyboard Tab |
 
 Gate: `tests/ds-phase2.mjs` (both tracks × dark/light × 375/390/430/1280; theme take-up, roles, sheet geometry, keyboard focus, live meter, reduced motion, track switch = theme only).
+- **Physical-device verification (2026-09-24): PASSED**, by the owner, on a real iPhone, against a preview of implementation commit `b5575be` — General English / Signal and Welding / Forge, dark and light: Home, Session, recording control, voice meter, buttons, cards, bottom navigation, the confirm dialog as a bottom sheet reaching the bottom edge, expandable sections; no content hidden behind the sheet, recording controls reachable, no horizontal overflow, keyboard not hiding controls, Signal and Forge visibly distinct within one coherent design system.
