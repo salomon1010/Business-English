@@ -280,7 +280,10 @@ window.FB_CONFIG={
    back link, title and tagline keep their place at the left. Square
    composition: glow ring, dashed arc head-to-head through the chat bubble,
    two learners, a few beacons. */
-.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 92px);right:max(-2vw,calc(50% - 430px));width:min(50vw,300px);aspect-ratio:1;color:#b9bdd4;opacity:.5;
+/* Owner, 2026-09-24: the top of the ring sits level with the "‹ Practice"
+   back link (its text centre is ~92px under the safe area). The crisp ring
+   (r=238 in a 600 box) starts 62/600 of the art's width below its top. */
+.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 92px - min(50vw,300px) * .1033);right:max(-2vw,calc(50% - 430px));width:min(50vw,300px);aspect-ratio:1;color:#b9bdd4;opacity:.5;
   filter:drop-shadow(0 0 14px rgba(167,139,250,.2));animation:ppBgDrift 26s ease-in-out infinite alternate}
 .pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.95}
 /* alive, slowly: the dashes travel head-to-bubble-to-head, the bubble "types",
@@ -304,7 +307,6 @@ window.FB_CONFIG={
 :root[data-theme="light"] .pp-bg-orb{opacity:.2}:root[data-theme="light"] .pp-bg-orb.b{opacity:.14}:root[data-theme="light"] .pp-bg-grid{background-image:linear-gradient(rgba(60,64,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(60,64,90,.06) 1px,transparent 1px)}
 @keyframes ppBgDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,1.2vh,0) scale(1.03)}}
 @media (prefers-reduced-motion:reduce){.pp-bg-art,.pp-bg-orb,.pp-bg-flow,.pp-bg-typ,.pp-bg-wave,.pp-bg-spin,.pp-bg-ring{animation:none}}
-@media (min-width:900px){.pp-bg-art{top:calc(env(safe-area-inset-top,0px) + 100px)}}
 /* Owner: "smaller, in the background" — the text keeps its natural width and
    place; the scene is a small backdrop at the right of the title band. The
    tagline is one sentence per line, as in the mock. */
@@ -5159,8 +5161,6 @@ function zoomReset(){
 document.addEventListener("focusout",e=>{const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))setTimeout(zoomReset,60)});
 window.addEventListener("orientationchange",()=>setTimeout(zoomReset,300));
 function toast(m,ms){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),ms||2200)}
-/* the Practice Partner tagline is three sentences, shown one per line */
-function ppTaglineHTML(){return t("pp.tagline").split(/(?<=[.!?。])\s+/).map(esc).join("<br>")}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;")}
 // Safe JS-string argument for inside a double-quoted HTML on* attribute (handles quotes/apostrophes).
 function jarg(s){return esc(JSON.stringify(s))}
@@ -21578,7 +21578,10 @@ function rPartner(el,arg1){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1>${subInfo(ppTaglineHTML())}`;
+  /* no page title (owner, 2026-09-24): subInfoMount strips it on the first
+     draw, but this page redraws itself after every refresh and poll, which
+     brought "Practice Partner" back above the presence strip */
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}`;
   const shell=inner=>{el.innerHTML=head+ppPresenceHTML()+ppTabsHTML()+inner;manIconizeInline(el)};
   /* not a General English learner (a typed or restored #partner hash on
      Welding): nothing partner-branded is rendered at all — straight back to
@@ -21659,7 +21662,10 @@ function ppRender(el){
      down over the page title at scroll-top (its natural offset is smaller than
      the sticky top). Mid-page exits are on the session's "More options" card. */
   const back=`<button class="back" onclick="go('practice')">‹ ${t("bnav.practice")}</button>`;
-  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}<h1 class="big">${t("pp.title")}</h1>${subInfo(ppTaglineHTML())}`;
+  /* no page title (owner, 2026-09-24): subInfoMount strips it on the first
+     draw, but this page redraws itself after every refresh and poll, which
+     brought "Practice Partner" back above the presence strip */
+  const head=`<div class="eyebrow pg-eyebrow">${t("pp.eyebrow")}</div>${back}`;
   /* one line, once: the phone can be told when learners are online even with
      the app closed — only while permission has never been asked */
   const nudge=(()=>{try{return !ppLive&&ppAlertsOn()&&window.Notification&&Notification.permission==="default"&&("PushManager" in window)&&!ppState().nudgeDone}catch(e){return false}})()
