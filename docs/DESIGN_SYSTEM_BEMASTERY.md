@@ -213,6 +213,7 @@ tokens.
 | 1 | **Done on `feature/ds-phase1`** — see §11 | both | see §11 |
 | 2 | **Done on `feature/ds-phase2-components`** — see §12 | both | see §12 |
 | 3 | **Done on `feature/ds-phase3-voice-ai`** — see §13 | both | see §13 |
+| 4 | **Done on `feature/ds-phase4-track-surfaces`** — see §14 | per track | see §14 |
 | 1 | Refactor the proof into the shell/theme split: move every `:root:not([data-track="welding"])` rule into shell rules that read tokens; add the §1.2 tokens to `:root` (Signal) and `[data-track="welding"]` (Forge) | both | contrast sweep in both themes × both tracks; pixel diff shows Welding unchanged except depth |
 | 2 | Shell components: cards, buttons, nav, dock, chips, folds, toast, notes | both | smoke + all suites; 375/390/430/desktop screenshots per track |
 | 3 | Voice and AI states on every recorder and analysis wait: Session, Shadow, Polish, simulations, mentor feedback, PP live | both | live-level probe per track; Welding tap-to-finish behaviour unchanged |
@@ -270,3 +271,10 @@ Gate: `tests/ds-phase2.mjs` (both tracks × dark/light × 375/390/430/1280; them
 - **Reduced motion** stops the AI dot, the breathing and the ring transition.
 - **Gate:** `tests/ds-phase3.mjs` (11 checks, both tracks). Scope proof: the only lines removed from main are wait-message markup; no recorder or gate function changed.
 - **Physical-device verification (2026-09-24): PASSED**, by the owner, on a real iPhone, against a preview of commit `313b5e7` — the voice ring on the Session recorder and on the Phrase Lab recorder (its own microphone code) following speech in both tracks, playback intact, the AI states (full block, inline status, the simulation mic's colleague-preparing breathing) in Signal and Forge, dark and light.
+
+## 14. Phase 4 — every track surface speaks its own theme (`feature/ds-phase4-track-surfaces`)
+Phases 1–3 made the SHARED components theme-driven; Phase 4 removes the colours that pre-dated the themes from the TRACK surfaces, so a Welding screen can no longer show Signal indigo/cyan (and a General English screen no Forge amber).
+- **CSS (22 rules):** hard-coded Signal colours replaced by tokens — indigo → `--accent`, light indigo text → a light mix of `--accent`, cyan → `--live` / `--live-rgb`, violet → `--ai`. Signal's tokens carry those exact values, so General English is unchanged in dark; on Welding the same rules resolve to amber / arc-blue / amber-white. Includes the phase chips (dark and light), the Skills Passport score badge, the simulation live panel, the road-map notice, the header timer, the calendar, onboarding / roleplay glows, the sync nudge and Executive Polish cards.
+- **Script templates:** the Session waveform (canvas) and its legend chips, the Progress page card, area charts and trend canvas, the Profile record card, the sign-in and dev cards. Canvas and SVG presentation attributes cannot read CSS variables, so `dsTok(name)` / `dsRgba()` / `dsHexA()` read the current theme's token at render time.
+- **Left as they are, on purpose:** the logo; the other track's selection card (it IS that track's identity); the shared Help centre (`.manual-doc`, documented contrast history); brand artwork (certificate, share image, onboarding confetti); the categorical language palette; a colour inside one translated string; the no-JS footer; `homePanelDashboard()` (defined but never called).
+- **Gate:** `tests/ds-phase4.mjs` — 23 surfaces × dark/light scanned for the other theme's brand colours in text, background, gradient, border, shadow, outline, fill and stroke (0 found), plus the Progress chart drawn in each track's own accent.
