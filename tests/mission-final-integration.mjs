@@ -447,7 +447,7 @@ let coachMode = "ok", coachCovered = [], polishHits = 0, lastSystem = "";
 
 async function learner(id, track, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
-  await ctx.addInitScript(({ track }) => {
+  await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
       _fire() { const t = window.__say || ""; if (t && this.onresult) { const r = [{ 0: { transcript: t }, isFinal: true, length: 1 }]; r.length = 1; this.onresult({ results: r, resultIndex: 0 }); } }

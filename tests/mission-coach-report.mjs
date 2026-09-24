@@ -52,7 +52,7 @@ const AI={key_message:"I look after the weekly delivery reports.",clarity:"clear
  idioms:[{idiom:"keep on top of",meaning:"Stay in control of.",when:"Describing duties.",example:"I keep on top of the delivery data."}]};
 const calls=[];
 const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,permissions:["microphone"]});
-await ctx.addInitScript(()=>{
+await ctx.addInitScript(()=>{ try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
   try{navigator.serviceWorker.register=()=>new Promise(()=>{})}catch(e){}
   class F{constructor(){this._t=null}
     _fire(){const txt=window.__say||"";if(txt&&this.onresult){const r=[{0:{transcript:txt,confidence:.9},isFinal:true,length:1}];r.length=1;try{this.onresult({results:r,resultIndex:0})}catch(e){}}}

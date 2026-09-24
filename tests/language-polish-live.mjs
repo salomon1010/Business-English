@@ -40,7 +40,7 @@ const browser = await chromium.launch({ args: ["--use-fake-ui-for-media-stream",
 const errors = [], calls = { mvreport: 0, chat: 0, other: 0 };
 
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
-await ctx.addInitScript(() => {
+await ctx.addInitScript(() => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
   class F {
     _fire() { const txt = window.__say || ""; if (txt && this.onresult) { const r = [{ 0: { transcript: txt, confidence: 0.9 }, isFinal: true, length: 1 }]; r.length = 1; try { this.onresult({ results: r, resultIndex: 0 }); } catch (e) {} } }
     _end() { this._on = false; clearTimeout(this._t); if (this.onend) setTimeout(() => { try { this.onend(); } catch (e) {} }, 0); }

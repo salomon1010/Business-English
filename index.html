@@ -8855,7 +8855,17 @@ function careerDashboardContext(){
    prove that, and the move count is read from the competency every time it is
    needed rather than assumed anywhere. The week number is the General English
    programme week the competency teaches (weeks.json), not the build order. */
+/* Kill switch (owner, 2026-09-24): the V2 missions ("Today's mission ·
+   Explain what you do" and the weeks after it) are hidden from the app for
+   now. Every surface reads the pack through mvPack(), so this one gate hides
+   the Home card, the speaking-day hand-off (rSessionV2), the mission page,
+   the Progress evidence panels and the coach's V2 recommendation at once —
+   every day opens the classic session page with the Executive Polish report.
+   The engine, the data files and the evidence store are untouched, so the
+   suites (and a maker) turn it back on with localStorage.be_missions = "1". */
+function missionsOn(){try{return localStorage.getItem("be_missions")==="1"}catch(e){return false}}
 function mvPack(){
+  if(!missionsOn())return null;                       /* gate 0 — hidden for now */
   if(!isGeneralEnglish())return null;                 /* gate 3 */
   const c=activeCurriculum();
   return (c&&c.missions)||null;

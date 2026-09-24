@@ -49,7 +49,7 @@ const browser = await chromium.launch();
 
 async function fresh(id, viewport) {
   const ctx = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }, viewport || {}));
-  await ctx.addInitScript(() => {
+  await ctx.addInitScript(() => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", goal: "Speak with confidence in meetings", ts: Date.now() },
       professionalTracks: { activeId: "general-english" },
       fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, "welding": { placed: "full", finished: true, day: 15, done: {} } },
@@ -100,7 +100,7 @@ for (const c of LINKED) {
 }
 /* A Welding learner never sees the row: the mission route turns around. */
 const Wd = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
-await Wd.addInitScript(() => { localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", goal: "g", ts: Date.now() }, professionalTracks: { activeId: "welding" }, fnd: { "welding": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now() })); });
+await Wd.addInitScript(() => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */ localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", goal: "g", ts: Date.now() }, professionalTracks: { activeId: "welding" }, fnd: { "welding": { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now() })); });
 const wp = await Wd.newPage(); const wErr = []; wp.on("pageerror", e => wErr.push(e.message));
 await wp.goto(BASE + "/index.html?tapw=" + Date.now(), { waitUntil: "load" }); await sleep(1000);
 await wp.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov").forEach(e => e.remove()));

@@ -69,7 +69,7 @@ const CONVO_REPLY = {
 
 async function learner(id, track, viewport) {
   const ctx2 = await browser.newContext(Object.assign({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] }, viewport || {}));
-  await ctx2.addInitScript(({ track }) => {
+  await ctx2.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     class F {
       constructor() { this._t = null; }
       _fire() { const txt = window.__say || ""; if (txt && this.onresult) { const r = [{ 0: { transcript: txt, confidence: 0.9 }, isFinal: true, length: 1 }]; r.length = 1; try { this.onresult({ results: r, resultIndex: 0 }); } catch (e) {} } }

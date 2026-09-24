@@ -102,7 +102,7 @@ let polishHits = 0;
 
 async function learner(id, track) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"] });
-  await ctx.addInitScript(({ track }) => {
+  await ctx.addInitScript(({ track }) => { try{localStorage.setItem("be_missions","1")}catch(e){} /* V2 missions are hidden in production — on for this suite */
     /* A scripted SpeechRecognition. The app captures
        `const SR = window.SpeechRecognition || window.webkitSpeechRecognition`
        at load, so this has to exist before the page script runs — which is
