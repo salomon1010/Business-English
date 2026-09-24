@@ -1,6 +1,6 @@
 # BE Mastery design system — the AI-native layer (General English proof of concept)
 
-> Superseded as the plan by [`DESIGN_SYSTEM_BEMASTERY.md`](DESIGN_SYSTEM_BEMASTERY.md): the design system is shared by General English **and** Welding (one shell, two token themes). This file documents what the proof of concept on `feature/ai-design-system` implements today; its `:root:not([data-track="welding"])` fences are temporary and are removed in migration phase 1.
+> Superseded as the plan by [`DESIGN_SYSTEM_BEMASTERY.md`](DESIGN_SYSTEM_BEMASTERY.md): the design system is shared by General English **and** Welding (one shell, two token themes). This file documents what the proof of concept on `feature/ai-design-system` implements today; its General-English-only fences were removed in Phase 1 (`feature/ds-phase1`), where the same rules became the shared shell.
 
 An addendum to `DESIGN_SYSTEM.md`. Every binding contract there still holds (`--accent-fill`, `--accent-text`, `--mut2` never for text, theme-flipping tokens, contrast measured by walking the DOM). This layer adds depth, voice and AI states on top of them.
 

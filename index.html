@@ -4621,106 +4621,143 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   BE MASTERY DESIGN SYSTEM — AI-native layer (docs/DESIGN_SYSTEM.md).
-   Visual direction from the lomonec.com site (site/css/tokens.css): near-black
-   indigo depth, translucent layered surfaces with a hairline highlight, an
-   indigo→blue call to action, cyan and violet used as LIGHT, not paint.
-   Scope: General English (the default track). Welding keeps its own amber
-   theme and every rule below is fenced away from it. Motion only ever says
-   something — state, progress, cause → effect, completion — and all of it is
-   off under prefers-reduced-motion.
+   BE MASTERY SHARED SHELL — Phase 1 (docs/DESIGN_SYSTEM_BEMASTERY.md).
+   ONE shell for both tracks: every rule below reads tokens only. The two
+   track themes are pure token blocks selected by the data-track attribute
+   that applyTrackIdentity() already sets — the design system adds no track
+   logic of its own. SIGNAL = General English (and any track without its own
+   theme); FORGE = Welding. Motion only ever says something (state, progress,
+   cause → effect, completion) and all of it stops under reduced motion.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root{
   --ds-ease-out:cubic-bezier(.16,.84,.44,1); --ds-ease-soft:cubic-bezier(.4,0,.2,1);
   --ds-fast:.18s; --ds-dur:.35s; --ds-reveal:.6s;
-  --ds-violet:#a855f7; --ds-cyan:#22d3ee; --ds-indigo:#6366f1; --ds-blue:#3b82f6;
-  --ds-grad-cta:linear-gradient(103deg,#4f46e5,#2563eb);   /* white label ≥5.2:1 at both stops (DESIGN_SYSTEM.md --accent-fill contract) */
-  --ds-grad-text:linear-gradient(103deg,#a5b4fc,#22d3ee 58%,#c084fc);
-  --ds-grad-ai:conic-gradient(from var(--ds-a,0deg),#6366f1,#22d3ee,#a855f7,#6366f1);
   --ds-r-sm:12px; --ds-r:18px; --ds-r-lg:24px; --ds-pill:999px;
-  --ds-hair:inset 0 1px 0 rgba(255,255,255,.06);
+  --ds-rec:linear-gradient(140deg,#ef4444,#f97316);   /* recording is red in both tracks: one meaning */
 }
+/* ── SIGNAL · General English — dark ───────────────────────────────────── */
 :root:not([data-track="welding"]):not([data-theme="light"]){
   --bg:#080b16; --bg2:#0b1020; --card:#10162b; --card2:#151c35;
   --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
   --txt:#eef1fb; --mut:#a2a7c4; --mut2:#6f7596;
   --grad:linear-gradient(103deg,#5b5bf0,#3b82f6 55%,#22d3ee);
   --bnav-bg:rgba(9,12,24,.94); --nav-bg:rgba(8,11,22,.8);
+  --field-1:rgba(99,102,241,.20); --field-2:rgba(34,211,238,.10); --field-3:rgba(168,85,247,.09);
+  --hair:inset 0 1px 0 rgba(255,255,255,.06);
+  --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb);          /* white label 6.29 / 5.17:1 */
+  --cta-tint:rgba(79,70,229,.2);
+  --live:#22d3ee; --live-rgb:34,211,238;                        /* listening */
+  --ai:#a855f7;                                                  /* AI at work */
+  --ai-grad:conic-gradient(from var(--ds-a,0deg),#6366f1,#22d3ee,#a855f7,#6366f1);
+  --orb:radial-gradient(circle at 35% 30%,#c7d2fe,#6366f1 45%,#1e1b4b 100%); --orb-glow:rgba(99,102,241,.5);
+  --meter:linear-gradient(to top,#6366f1,#22d3ee);
+  --grad-text:linear-gradient(103deg,#a5b4fc,#22d3ee 58%,#c084fc);
 }
-/* depth: two light fields and a structural grid behind everything, fixed */
-:root:not([data-track="welding"]):not([data-theme="light"]) body{
-  background:
-    radial-gradient(60vw 60vw at -10% -12%,rgba(99,102,241,.20),transparent 62%) fixed,
-    radial-gradient(52vw 52vw at 112% 6%,rgba(34,211,238,.10),transparent 64%) fixed,
-    radial-gradient(70vw 50vw at 60% 110%,rgba(168,85,247,.09),transparent 70%) fixed,
-    var(--bg)}
-:root:not([data-track="welding"])[data-theme="light"] body{
-  background:radial-gradient(70vw 50vw at 0% -10%,rgba(99,102,241,.08),transparent 65%) fixed,
-    radial-gradient(60vw 50vw at 100% 0%,rgba(34,211,238,.06),transparent 65%) fixed,var(--bg)}
-/* surfaces: one card language — a soft gradient, a hairline of light on the top edge */
-:root:not([data-track="welding"]) .card{border-radius:var(--ds-r);
-  background:linear-gradient(162deg,color-mix(in srgb,var(--card) 100%,#fff 2%),var(--card));box-shadow:var(--ds-hair),var(--sh-1)}
-:root:not([data-track="welding"]) .btn-primary{background:var(--ds-grad-cta);color:#fff;border-radius:var(--ds-r-sm);
-  box-shadow:0 8px 22px rgba(0,0,0,.35),0 2px 10px rgba(79,70,229,.18);transition:transform var(--ds-fast) var(--ds-ease-out),box-shadow var(--ds-dur) var(--ds-ease-out),filter var(--ds-dur)}
-:root:not([data-track="welding"]) .btn-primary:active{transform:scale(.98)}
-@media (hover:hover){:root:not([data-track="welding"]) .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(0,0,0,.4),0 3px 14px rgba(79,70,229,.24)}}
-:root:not([data-track="welding"]) .btn:active{transform:scale(.98)}
-:root:not([data-track="welding"]) .eyebrow{letter-spacing:.14em}
-:root:not([data-track="welding"]) h1.big{letter-spacing:-.025em}
-:root:not([data-track="welding"]) .bottom-nav{box-shadow:0 -10px 30px rgba(0,0,0,.28)}
+/* ── SIGNAL · light ─────────────────────────────────────────────────────── */
+:root[data-theme="light"]:not([data-track="welding"]){
+  --field-1:rgba(99,102,241,.08); --field-2:rgba(34,211,238,.06); --field-3:rgba(168,85,247,.04);
+  --hair:inset 0 1px 0 rgba(255,255,255,.8);
+  --cta-grad:linear-gradient(103deg,#4f46e5,#2563eb); --cta-tint:rgba(79,70,229,.16);
+  --live:#0891b2; --live-rgb:8,145,178; --ai:#7c3aed;
+  --ai-grad:conic-gradient(from var(--ds-a,0deg),#4f46e5,#0891b2,#7c3aed,#4f46e5);
+  --orb:radial-gradient(circle at 35% 30%,#e0e7ff,#6366f1 50%,#312e81 100%); --orb-glow:rgba(99,102,241,.35);
+  --meter:linear-gradient(to top,#4f46e5,#0891b2);
+  --grad-text:linear-gradient(103deg,#4f46e5,#0e7490 60%,#7c3aed);
+}
+/* ── FORGE · Welding — dark. The existing Welding colours stay (amber
+   accent, dark label on amber, surfaces); Forge adds steel depth, arc-blue
+   for listening and amber-white for the AI. ─────────────────────────────── */
+:root[data-track="welding"]:not([data-theme="light"]){
+  --bg:#090c14; --bg2:#0d111c;
+  --field-1:rgba(212,151,23,.13); --field-2:rgba(125,211,252,.06); --field-3:rgba(184,115,51,.07);
+  --hair:inset 0 1px 0 rgba(246,196,83,.07);
+  --cta-grad:linear-gradient(103deg,#c98a0d,#e2af2f);          /* dark label #1b1202: 6.28 / 9.18:1 */
+  --cta-tint:rgba(212,151,23,.18);
+  --live:#7dd3fc; --live-rgb:125,211,252;                       /* the arc */
+  --ai:#f6c453;
+  --ai-grad:conic-gradient(from var(--ds-a,0deg),#d49717,#fde68a,#7dd3fc,#d49717);
+  --orb:radial-gradient(circle at 35% 30%,#fff7d6,#f6c453 42%,#7a4a05 100%); --orb-glow:rgba(246,196,83,.45);
+  --meter:linear-gradient(to top,#d49717,#fde68a);
+  --grad-text:linear-gradient(103deg,#fde68a,#f6c453 55%,#fff7d6);
+}
+/* ── FORGE · light ──────────────────────────────────────────────────────── */
+:root[data-theme="light"][data-track="welding"]{
+  --field-1:rgba(212,151,23,.08); --field-2:rgba(3,105,161,.05); --field-3:rgba(184,115,51,.04);
+  --hair:inset 0 1px 0 rgba(255,255,255,.8);
+  --cta-grad:linear-gradient(103deg,#7a4a00,#9a6300); --cta-tint:rgba(139,89,0,.18);   /* light Welding keeps its WHITE label (--on-accent #fff): 7.48 / 5.05:1 */
+  --live:#0369a1; --live-rgb:3,105,161; --ai:#b45309;
+  --ai-grad:conic-gradient(from var(--ds-a,0deg),#b45309,#f59e0b,#0369a1,#b45309);
+  --orb:radial-gradient(circle at 35% 30%,#fff7d6,#d49717 50%,#6b3f04 100%); --orb-glow:rgba(212,151,23,.3);
+  --meter:linear-gradient(to top,#b45309,#f59e0b);
+  --grad-text:linear-gradient(103deg,#92400e,#b45309 55%,#c2410c);
+}
 
-/* ── PROGRESS: the stage strip fills as the learner moves ─────────────────── */
+/* ═════════ SHELL COMPONENTS — tokens only, identical in both tracks ═════════ */
+/* depth: three static light fields behind everything */
+body{background:
+  radial-gradient(60vw 60vw at -10% -12%,var(--field-1),transparent 62%) fixed,
+  radial-gradient(52vw 52vw at 112% 6%,var(--field-2),transparent 64%) fixed,
+  radial-gradient(70vw 50vw at 60% 110%,var(--field-3),transparent 70%) fixed,
+  var(--bg)}
+/* surfaces: one card language */
+.card{border-radius:var(--ds-r);background:linear-gradient(162deg,color-mix(in srgb,var(--card) 100%,#fff 2%),var(--card));box-shadow:var(--hair),var(--sh-1)}
+/* buttons: one primary per screen, label colour from the theme (white on Signal, dark on Forge) */
+.btn-primary{background:var(--cta-grad);color:var(--on-accent);border-radius:var(--ds-r-sm);
+  box-shadow:0 8px 22px rgba(0,0,0,.35),0 2px 10px var(--cta-tint);transition:transform var(--ds-fast) var(--ds-ease-out),box-shadow var(--ds-dur) var(--ds-ease-out)}
+.btn-primary:active,.btn:active{transform:scale(.98)}
+@media (hover:hover){.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(0,0,0,.4),0 3px 14px var(--cta-tint)}}
+.eyebrow{letter-spacing:.14em}
+h1.big{letter-spacing:-.025em}
+.bottom-nav{box-shadow:0 -10px 30px rgba(0,0,0,.28)}
+
+/* progress: a stage strip fills as the learner moves (the GE mission draws the strip; the rule is the shell's) */
 .mv-stages li::before{transform-origin:left}
 .mv-fresh .mv-stages li.now::before{animation:ds-fill var(--ds-reveal) var(--ds-ease-out) both}
 @keyframes ds-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 
-/* ── SPEAKING STATE: the screen changes when the learner talks ────────────── */
+/* VOICE: any mic, either track, while recording — red for "recording", and a
+   ring in the theme's listening light (--live) that follows the learner's own
+   voice (--lvl, from dsLevelStart), on top of the existing pulse */
+.rec-btn.recording{outline:calc(2px + var(--lvl,0)*8px) solid rgba(var(--live-rgb),calc(.18 + var(--lvl,0)*.3));outline-offset:3px;transition:outline-width 70ms linear}
 .mv-speak{transition:border-color var(--ds-dur),box-shadow var(--ds-dur)}
-.mv-speak:has(.rec-btn.recording){border-color:color-mix(in srgb,var(--ds-cyan) 45%,transparent);
-  box-shadow:var(--ds-hair),0 0 0 1px color-mix(in srgb,var(--ds-cyan) 25%,transparent),0 18px 50px rgba(34,211,238,.10)}
+.mv-speak:has(.rec-btn.recording){border-color:rgba(var(--live-rgb),.45);
+  box-shadow:var(--hair),0 0 0 1px rgba(var(--live-rgb),.25),0 18px 50px rgba(var(--live-rgb),.10)}
 .mv-rec{position:relative}
 .mv-rec .rec-btn{position:relative;z-index:1}
-.mv-rec .rec-btn.recording{background:linear-gradient(140deg,#ef4444,#f97316);box-shadow:0 8px 26px rgba(239,68,68,.35)}
-/* any mic, while recording: a ring that grows with the learner's own voice
-   (--lvl, 0–1, from dsLevelStart), on top of the existing pulse */
-:root:not([data-track="welding"]) .rec-btn.recording{outline:calc(2px + var(--lvl,0)*8px) solid rgba(34,211,238,calc(.18 + var(--lvl,0)*.3));outline-offset:3px;transition:outline-width 70ms linear}
-/* the mission adds two rings that breathe with the same level */
+.mv-rec .rec-btn.recording{background:var(--ds-rec);box-shadow:0 8px 26px rgba(239,68,68,.35)}
 .mv-rec::before,.mv-rec::after{content:"";position:absolute;left:0;top:50%;width:56px;height:56px;margin-top:-28px;border-radius:50%;
-  border:2px solid rgba(34,211,238,.5);opacity:0;pointer-events:none}
+  border:2px solid rgba(var(--live-rgb),.5);opacity:0;pointer-events:none}
 .mv-speak:has(.rec-btn.recording) .mv-rec::before{opacity:calc(.25 + var(--lvl,0)*.9);transform:scale(calc(1.1 + var(--lvl,0)*.4));transition:transform 80ms linear,opacity 80ms linear}
 .mv-speak:has(.rec-btn.recording) .mv-rec::after{animation:ds-ring 1.8s var(--ds-ease-out) infinite}
 @keyframes ds-ring{0%{opacity:.45;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
-/* a live meter: five bars driven by the same level */
 .ds-meter{display:none;align-items:center;gap:3px;height:22px;margin-left:auto}
-.ds-meter i{display:block;width:4px;border-radius:3px;background:linear-gradient(to top,#6366f1,#22d3ee);
-  height:calc(4px + var(--lvl,0)*var(--k,1)*18px);transition:height 70ms linear}
+.ds-meter i{display:block;width:4px;border-radius:3px;background:var(--meter);height:calc(4px + var(--lvl,0)*var(--k,1)*18px);transition:height 70ms linear}
 .ds-meter i:nth-child(1){--k:.55}.ds-meter i:nth-child(2){--k:.85}.ds-meter i:nth-child(3){--k:1}.ds-meter i:nth-child(4){--k:.8}.ds-meter i:nth-child(5){--k:.5}
 .mv-speak:has(.rec-btn.recording) .ds-meter{display:flex}
 
-/* ── AI STATE: the system is visibly working on the learner's speech ─────── */
+/* AI AT WORK: orb, rotating edge, scan line — in the theme's AI light */
 @property --ds-a{syntax:"<angle>";inherits:false;initial-value:0deg}
 .ai-think{display:flex;align-items:center;gap:14px;padding:14px 16px;margin:10px 0 2px;border-radius:var(--ds-r-sm);
   position:relative;background:color-mix(in srgb,var(--card2) 70%,transparent);isolation:isolate}
-.ai-think::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:var(--ds-grad-ai);
+.ai-think::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:var(--ai-grad);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
   animation:ds-spin 2.4s linear infinite;z-index:-1}
 @keyframes ds-spin{to{--ds-a:360deg}}
-.ai-orb{width:34px;height:34px;flex:none;border-radius:50%;
-  background:radial-gradient(circle at 35% 30%,#c7d2fe,#6366f1 45%,#1e1b4b 100%);box-shadow:0 0 22px rgba(99,102,241,.55);animation:ds-orb 1.6s var(--ds-ease-soft) infinite}
+.ai-orb{width:34px;height:34px;flex:none;border-radius:50%;background:var(--orb);box-shadow:0 0 22px var(--orb-glow);animation:ds-orb 1.6s var(--ds-ease-soft) infinite}
 @keyframes ds-orb{0%,100%{transform:scale(.92);filter:brightness(.95)}50%{transform:scale(1.04);filter:brightness(1.2)}}
 .ai-think b{display:block;font-size:14.5px}
 .ai-think small{display:block;font-size:12px;color:var(--mut)}
-.ai-scan{height:3px;border-radius:3px;margin-top:8px;background:linear-gradient(90deg,transparent,#22d3ee,#a855f7,transparent);
+.ai-scan{height:3px;border-radius:3px;margin-top:8px;background:linear-gradient(90deg,transparent,var(--live),var(--ai),transparent);
   background-size:40% 100%;background-repeat:no-repeat;animation:ds-scan 1.5s var(--ds-ease-soft) infinite}
 @keyframes ds-scan{0%{background-position:-40% 0}100%{background-position:140% 0}}
+/* existing waits speak the same language: the Executive Polish wait, and the
+   mentor's "Hear the feedback" bars on a Practice Partner / simulation voice */
+.ex-wait-wave i,.ex-wait-wave span{background:var(--meter)!important}
+.ex-wait-h{background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pp-rv-live.on .sim-fb-eq i{background:var(--meter)}
 
-/* the Executive Polish wait (the report every session uses) speaks the same
-   AI language: the brand gradient instead of the old amber bars */
-:root:not([data-track="welding"]) .ex-wait-wave i,:root:not([data-track="welding"]) .ex-wait-wave span{background:linear-gradient(to top,#6366f1,#22d3ee)!important}
-:root:not([data-track="welding"]) .ex-wait-h{background:var(--ds-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
-/* ── COACHING MOMENT: the report arrives in reading order, once ──────────── */
-.mv-fresh .mv-coach > *,.mv-fresh #mvRepWrap > *,.mv-fresh .mv-rep > *,.mv-fresh .mv-done > *{
-  animation:ds-in var(--ds-reveal) var(--ds-ease-out) both}
+/* COACHING MOMENT: a result arrives in reading order, once (.mv-fresh) */
+.mv-fresh .mv-coach > *,.mv-fresh #mvRepWrap > *,.mv-fresh .mv-rep > *,.mv-fresh .mv-done > *{animation:ds-in var(--ds-reveal) var(--ds-ease-out) both}
 .mv-fresh .mv-coach > :nth-child(2),.mv-fresh #mvRepWrap > :nth-child(2),.mv-fresh .mv-rep > :nth-child(2),.mv-fresh .mv-done > :nth-child(2){animation-delay:.07s}
 .mv-fresh .mv-coach > :nth-child(3),.mv-fresh #mvRepWrap > :nth-child(3),.mv-fresh .mv-rep > :nth-child(3),.mv-fresh .mv-done > :nth-child(3){animation-delay:.14s}
 .mv-fresh .mv-coach > :nth-child(n+4),.mv-fresh #mvRepWrap > :nth-child(n+4),.mv-fresh .mv-rep > :nth-child(n+4),.mv-fresh .mv-done > :nth-child(n+4){animation-delay:.21s}
@@ -4728,20 +4765,18 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 .mv-fresh .mv-dock{animation:ds-dock .5s var(--ds-ease-out) .15s both}
 @keyframes ds-dock{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 
-/* ── SUCCESS: a demonstrated competency gets one quiet moment ────────────── */
-.mv-fresh .mv-done.ds-win .mv-state b{display:inline-block;background:var(--ds-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:ds-win .9s var(--ds-ease-out) .25s both}
+/* SUCCESS: one quiet moment, only when the engine reports it */
+.mv-fresh .mv-done.ds-win .mv-state b{display:inline-block;background:var(--grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;animation:ds-win .9s var(--ds-ease-out) .25s both}
 @keyframes ds-win{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:none}}
 .mv-done.ds-win{position:relative}
 .mv-fresh .mv-done.ds-win::after{content:"";position:absolute;left:50%;top:84px;width:10px;height:10px;margin-left:-5px;border-radius:50%;
   box-shadow:0 0 0 0 rgba(52,211,153,.55);animation:ds-burst 1.2s var(--ds-ease-out) .35s both;pointer-events:none}
 @keyframes ds-burst{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}100%{box-shadow:0 0 0 140px rgba(52,211,153,0)}}
 
-/* ── ACCESSIBILITY: motion is information, so reduced motion keeps the
-   information (colour, text, the static meter floor) and drops the movement ─ */
+/* REDUCED MOTION: the information stays (colour, text, the resting meter), the movement goes */
 @media (prefers-reduced-motion:reduce){
-  .mv-fresh *,.ai-think::before,.ai-orb,.ai-scan,.mv-rec::after,.mv-dock{animation:none!important}
-  .mv-rec::before,.ds-meter i{transition:none!important}
+  .mv-fresh *,.ai-think::before,.ai-orb,.ai-scan,.mv-rec::after,.mv-dock,.mv-fresh .mv-done.ds-win::after{animation:none!important}
+  .mv-rec::before,.ds-meter i,.rec-btn.recording,.btn-primary{transition:none!important}
 }
 </style>
 </head>
@@ -9884,13 +9919,13 @@ function mvDayAutoComplete(comp,r){
 function mvThinkHTML(){
   return `<div class="ai-think" role="status" aria-live="polite"><span class="ai-orb" aria-hidden="true"></span><div><b>${t("mv.thinking")}</b><div class="ai-scan" aria-hidden="true"></div></div></div>`;
 }
-/* The live voice level for every recording in General English (the shared
+/* The live voice level for every recording, in both tracks (the shared
    recorder, recToggle): a read-only analyser on the take's own stream, one
    frame loop, closed the moment the take stops. It only writes --lvl on the
    root; the CSS turns that into the mic's ring and the mission's meter. */
 let _ds={raf:0,ctx:null,an:null,buf:null};
 function dsLevelStart(){
-  if(_ds.raf||!rec||!rec.mr||rec.mr.state!=="recording"||!isGeneralEnglish())return;
+  if(_ds.raf||!rec||!rec.mr||rec.mr.state!=="recording")return;   /* both tracks: the shell's voice state */
   try{const AC=window.AudioContext||window.webkitAudioContext;
     if(AC&&rec.mr.stream){_ds.ctx=new AC();try{_ds.ctx.resume&&_ds.ctx.resume()}catch(e){}const src=_ds.ctx.createMediaStreamSource(rec.mr.stream);
       _ds.an=_ds.ctx.createAnalyser();_ds.an.fftSize=512;src.connect(_ds.an);_ds.buf=new Uint8Array(512)}}catch(e){}

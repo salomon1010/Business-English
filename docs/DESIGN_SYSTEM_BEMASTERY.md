@@ -1,8 +1,6 @@
 # BE Mastery — shared design system for General English and Welding
 
-Status: specification, 2026-09-24. **Not implemented**, except the General
-English proof of concept on branch `feature/ai-design-system` (`6197fb5`,
-described in `DESIGN_SYSTEM_AI.md`). This document extends
+Status, 2026-09-24: **Phase 1 implemented** on branch `feature/ds-phase1` (shared shell + Signal and Forge token themes, both tracks). Phases 2–6 are specification only. The General English proof of concept that preceded it (`feature/ai-design-system`) is described in `DESIGN_SYSTEM_AI.md`. This document extends
 `DESIGN_SYSTEM.md`, and every binding contract there still holds:
 `--accent-fill`, `--accent-text`, `--mut2` is never used for text, and
 theme-flipping tokens and contrast are measured by walking the DOM.
@@ -15,7 +13,7 @@ theme-flipping tokens and contrast are measured by walking the DOM.
           ┌─────────────┴─────────────┐
    GENERAL ENGLISH                  WELDING
    theme: "Signal"                  theme: "Forge"
-   V2 missions*                     12-stage Professional Journey
+   V2 missions (GE speaking flow)   12-stage Professional Journey
    Shadow                           Technical Shadow (workplace lines)
    Practice Partner                 Workshop simulations + AI mentor
    Interviews / roleplay            Welding interview
@@ -24,7 +22,7 @@ theme-flipping tokens and contrast are measured by walking the DOM.
                  SHARED DESIGN SYSTEM
 ```
 
-\*V2 missions are currently switched off in production (`missionsOn()`).
+**V2 missions are the General English speaking experience** (Mission → Hear → Notice → Speak → Coach → Retry → Transfer → Evidence → Complete), shipped to production in be12-v455. Note for the owner: `main` since `bb5cec9` (2026-09-24 01:56, "hide the V2 missions") gates them behind `missionsOn()` (`localStorage.be_missions="1"`), and that gate is live in be12-v472. The design system neither changes nor depends on that gate.
 
 ---
 
@@ -59,7 +57,7 @@ theme-flipping tokens and contrast are measured by walking the DOM.
 | `--bg` | `#080b16` deep indigo-black | `#090c14` steel-black |
 | `--field-*` | indigo / cyan / violet | amber ember / steel blue / faint copper |
 | `--accent` | `#6366f1` indigo | `#d49717` amber (existing) |
-| `--cta-grad` | `#4f46e5 → #2563eb`, white label (6.29 / 5.17:1) | `#c98a0d → #e2af2f`, **dark** label `#1b1202` (existing `--on-accent`) |
+| `--cta-grad` | `#4f46e5 → #2563eb`, white label (6.29 / 5.17:1), both themes | dark: `#c98a0d → #e2af2f`, **dark** label `#1b1202` (6.28 / 9.18:1); light: `#7a4a00 → #9a6300` with Welding-light's existing **white** label (7.48 / 5.05:1) |
 | `--live` | cyan `#22d3ee` | arc-blue `#7dd3fc`: the colour of a welding arc, and it stays distinct from the amber accent |
 | `--ai` | violet `#a855f7` | amber-white `#f6c453` |
 | `--grad-text` | indigo → cyan → violet | amber → white-gold |
@@ -109,9 +107,9 @@ redesign deepens Welding's surfaces; it does not recolour them.
 ## 2. General English visual application map
 | Surface | Shell components applied | Stays GE-specific |
 |---|---|---|
-| Home | depth, cards, primary CTA, entrance on first paint | V2 mission card*, Practice Partner card, programme card |
+| Home | depth, cards, primary CTA, entrance on first paint | V2 mission card, Practice Partner card, programme card |
 | Session (classic) | cards, live mic ring, AI-working state on the Polish wait | Executive Polish report content |
-| V2 mission* | stage strip, action dock, speak state, AI working, coaching moment, success | mission stages, evidence chips, the recommend()-driven next step |
+| V2 mission (GE speaking flow) | stage strip, action dock, speak state, AI working, coaching moment, success | mission stages, evidence chips, the recommend()-driven next step |
 | Universal Speaking Coach (PP review, mission, roleplay) | coach cards, Hear / Slow / Say it controls, folds, entrance | the coaching hierarchy and its rubric content |
 | Practice Partner | cards, live states for live calls, presence dot | matching, rounds, reviews, safety, history |
 | Shadow Studio | live mic ring, AI working for the report, success on a passed rung | Watch / Shadow / Challenge modes, translation, IPA |
@@ -212,6 +210,7 @@ tokens.
 | Phase | Work | Tracks | Exit test |
 |---|---|---|---|
 | 0 | **Done:** GE proof of concept (`6197fb5`) | GE | owner review on the test link |
+| 1 | **Done on `feature/ds-phase1`** — see §11 | both | see §11 |
 | 1 | Refactor the proof into the shell/theme split: move every `:root:not([data-track="welding"])` rule into shell rules that read tokens; add the §1.2 tokens to `:root` (Signal) and `[data-track="welding"]` (Forge) | both | contrast sweep in both themes × both tracks; pixel diff shows Welding unchanged except depth |
 | 2 | Shell components: cards, buttons, nav, dock, chips, folds, toast, notes | both | smoke + all suites; 375/390/430/desktop screenshots per track |
 | 3 | Voice and AI states on every recorder and analysis wait: Session, Shadow, Polish, simulations, mentor feedback, PP live | both | live-level probe per track; Welding tap-to-finish behaviour unchanged |
@@ -227,5 +226,11 @@ engine, rubric, gate, analytics event or data model.
   with a Welding pixel diff, that only the intended depth changes land.
 - Other sessions deploy to `main` in parallel: rebase each phase onto current
   `main` and bump the version past whatever is live.
-- The V2 missions are hidden in production, so mission-specific states need
-  `localStorage.be_missions="1"` to review.
+- While `bb5cec9`'s gate is on, reviewing the V2 mission needs
+  `localStorage.be_missions="1"` (the test link's `ds-test.html` sets it).
+
+## 11. Phase 1 — what exists now (`feature/ds-phase1`)
+- **Shell** (one CSS block at the end of the main `<style>` in `index.html`, "BE MASTERY SHARED SHELL"): shell tokens (motion, radii, recording red); page depth from `--field-1/2/3`; the card surface with `--hair`; primary button on `--cta-grad` with the theme's `--on-accent` label and a press state; eyebrow and headline tracking; bottom-nav elevation; progress strip fill; voice (any `.rec-btn.recording`: a ring in `--live` following `--lvl`; the mission's speak card, rings and meter); AI working (`.ai-think`, `--orb`, `--ai-grad`, scan); coaching-moment entrance; success; reduced motion. Every component rule reads tokens only — no track selectors.
+- **Themes**: `SIGNAL` = `:root:not([data-track="welding"])` (dark and light), `FORGE` = `:root[data-track="welding"]` (dark and light), selected by the `data-track` attribute `applyTrackIdentity()` already sets. Token-only blocks.
+- **JS**: one change — `dsLevelStart()` now runs for every track (it was General-English-only in the proof of concept). It is read-only on the take's stream and writes only `--lvl`.
+- **Contrast** (measured): Signal CTA white 6.29 / 5.17:1; Forge dark CTA label `#1b1202` 6.28 / 9.18:1; Forge light keeps its white label on `#7a4a00 → #9a6300` 7.48 / 5.05:1 (the bright amber would have been 2.02:1); arc-blue 11.72:1, amber-white 12.04:1 on the Forge background.
