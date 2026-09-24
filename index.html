@@ -10893,6 +10893,9 @@ let ytPlayer=null,shTick=null,shClip={vid:null,start:0,end:0,rate:1,title:""};
    and is tied to the stage the learner is on. */
 let _shTab="create",_shAdd=false;   /* the link box is folded behind the Add link tab: the page opens on the videos */
 window.shTab=tab=>{_shTab=tab;const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}};
+/* The row sits at the foot of a long library: open the page at its top, or
+   the tabs and the X stay scrolled up under the header (owner, 23 Sep 2026). */
+window.shLibPage=()=>{shTab("clips");try{window.scrollTo(0,0)}catch(e){}};
 window.shLibBack=()=>{shTab("create");setTimeout(()=>{const f=document.querySelector("#v-shadow .shl-foot");if(f)try{f.scrollIntoView({block:"center"})}catch(e){}},30)};
 window.shAddToggle=()=>{_shAdd=!(_shTab==="create"&&_shAdd);_shTab="create";const el=document.getElementById("v-shadow");if(el)rShadow(el);try{stickBackSync()}catch(e){}if(_shAdd)setTimeout(()=>{const u=document.getElementById("shUrl");if(u){try{u.scrollIntoView({block:"center",behavior:"smooth"})}catch(e){}u.focus()}},60)};
 const SH_STARTERS_SHOWN=3;
@@ -11573,7 +11576,7 @@ function shLibHTML(){
   </div>
   <div class="shl-feed" id="shLibFeed">${shLibFeedHTML()}</div>
   <div class="shl-foot" ${_shLibQ.trim()?'style="display:none"':""}>
-    <button class="pf-row" onclick="shTab('clips')"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))} · ${esc(t("sh.tab_history"))}${aList("clips").length+aList("chHist").length?` <em class="sh-tb-n">${aList("clips").length+aList("chHist").length}</em>`:""}</b><small>${esc(t("sh.lib_entry_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
+    <button class="pf-row" onclick="shLibPage()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))} · ${esc(t("sh.tab_history"))}${aList("clips").length+aList("chHist").length?` <em class="sh-tb-n">${aList("clips").length+aList("chHist").length}</em>`:""}</b><small>${esc(t("sh.lib_entry_sub"))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>
   </div>`;
 }
 window.shUseStarter=i=>{
