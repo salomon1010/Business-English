@@ -228,17 +228,23 @@ ok("the history lists the conversations with their reports", /Conversations/.tes
 ok("the history lists the Practice Partner reviews, read-only", /Practice Partner reviews/.test(hist) && /Raise a problem/.test(hist));
 await A.ctx.close();
 
-/* the Welding boundary */
+/* the Welding boundary — the report crosses it (owner, 24 Sep 2026), the evidence pass and the V2 history do not */
 const W = await learner("W", "welding");
-const w = await W.page.evaluate(() => {
+analyseHits = 0; analyseCtx = null; repHits = 0;
+const w = await W.page.evaluate(async () => {
   const before = JSON.stringify(S.convos || []);
-  const sc = SCENARIOS.find(s => s.id === "interview");
-  _rpLastTs = Date.now(); _rpLast = { sc, turns: [{ text: "hello there my friend" }], covered: new Set([1]) };
+  const sc = trackScenarios()[0];
+  _rpLastTs = Date.now(); _rpLast = { sc, turns: [{ text: "I am a welder with five years on site." }], covered: new Set([1]) };
   const btn = rpRepBtnHTML();
-  const p = rpReport();
-  return { btn, wrote: JSON.stringify(S.convos || []) !== before, area: areaId() };
+  await rpReport(); await new Promise(r => setTimeout(r, 400));
+  const rep = sessRepGet(rpRepKey(sc));
+  return { btn, wrote: JSON.stringify(S.convos || []) !== before, area: areaId(), sc: sc.id, persona: sc.persona,
+    card: !!document.querySelector("#rpRepWrap .ex-rep-card"), stored: !!rep, tk: rep && rep.tk, ctxTrack: rep && rep.ctx && rep.ctx.track, keyPrefix: rep && rep.key,
+    v2: !!(S.v2A && Object.keys(S.v2A).some(a => Object.keys(S.v2A[a] || {}).length)),
+    voice: !!(exHost && exHost.voice === ttsVoice(rpVoiceFor(sc), sc.g) && exHost.style.includes(sc.persona)) };
 });
-ok("Welding: no button, no report, nothing written", w.area === "welding" && w.btn === "" && !w.wrote);
+ok("Welding: the button is there, the report is drawn and stored under the Welding track, judged in the workshop register, read by the coach", w.area === "welding" && w.btn !== "" && w.card && w.stored && w.tk === "welding" && w.ctxTrack === "welding" && /^welding:/.test(w.keyPrefix) && w.voice && analyseHits === 1 && analyseCtx && analyseCtx.track === "welding", JSON.stringify({ w, analyseCtx }));
+ok("Welding: no evidence pass, nothing written to the conversations, no V2 state", repHits === 0 && !w.wrote && !w.v2, JSON.stringify(w));
 const wh = await W.page.evaluate(async () => { go("mvhist"); await new Promise(r => setTimeout(r, 300)); return cur.v; });
 ok("Welding: the history door itself stays shut (sent home)", wh !== "mvhist");
 await W.ctx.close();

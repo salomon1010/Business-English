@@ -16785,7 +16785,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v465";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v467";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -24340,7 +24340,9 @@ Return JSON only:
 {"covered":[],"well":[{"move":"","note":""}],"improve":[{"move":"","note":""}],"better":"","expressions":[{"e":"","why":""}],"one":"","polish":[{"said":"","better":"","why":""}]}`;
 }
 function rpRepBtnHTML(){
-  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return "";
+  /* both programmes (owner, 24 Sep 2026): the Welding interview coaches get the
+     same report, judged in the workshop register (ctx.track = "welding") */
+  if(!_rpLast||!(_rpLast.turns||[]).length)return "";
   return `<button class="btn btn-g" onclick="rpReport()">${ic("chart")} ${t("rp.rep_btn")}</button>`;
 }
 /* the stored report as it may be shown: a better version or polish written
@@ -24426,7 +24428,7 @@ function rpRepListHTML(sc,rows,cls){
 let _rpRepBusy=null;
 function rpRepKey(sc){return recCtx("rp:"+sc.id+":"+_rpLastTs)}
 function rpRepCtx(sc){
-  return {track:"general",focus:String(sc.title+" — "+(sc.persona?sc.persona+", ":"")+(sc.role||"")).slice(0,160),
+  return {track:isGeneralEnglish()?"general":"welding",focus:String(sc.title+" — "+(sc.persona?sc.persona+", ":"")+(sc.role||"")).slice(0,160),
     task:String([sc.scenario,sc.greet?'They opened with: "'+sc.greet+'"':""].filter(Boolean).join(" ")).slice(0,300),
     out:String((sc.points||[]).join("; ")).slice(0,200),phrases:[]};
 }
@@ -24488,9 +24490,11 @@ async function rpRepMaterial(turns){
   return {text,audio};
 }
 window.rpReport=async()=>{
-  if(!isGeneralEnglish()||!window.MissionEngine||!_rpLast||!(_rpLast.turns||[]).length)return;
+  if(!_rpLast||!(_rpLast.turns||[]).length)return;
   const sc=_rpLast.sc,key=rpRepKey(sc);
-  rpRepEvidence(sc).catch(()=>{});                     /* the history's compact report, beside this */
+  /* the compact evidence report feeds the General English Speaking history
+     only — Welding writes no c.rep and no V2 state */
+  if(isGeneralEnglish()&&window.MissionEngine)rpRepEvidence(sc).catch(()=>{});
   rpRepScreen(sc);
   const stored=sessRepGet(key);
   if(stored){exHost=rpHost(sc,key,stored);exRenderReport(stored,true);return}

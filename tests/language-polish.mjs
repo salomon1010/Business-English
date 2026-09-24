@@ -282,8 +282,8 @@ const weld = await B.page.evaluate(async () => {
 await B.page.evaluate(() => { const sc = SCENARIOS[0]; _rpLastTs = 1; _rpLast = { sc, turns: [{ text: "I has a problem." }], covered: new Set() }; try { rpReport(); } catch (e) {} });
 await sleep(300);
 const weld2 = await B.page.evaluate(() => ({ reps: (S.convos || []).filter(c => c && c.rep).length, v2: !!(S.v2A && Object.keys(S.v2A).some(a => Object.keys(S.v2A[a] || {}).length)) }));
-ok("9 · Welding: no report button, the history door sends home, no V2 state, rpReport refuses — no polish anywhere",
-  weld.v === "home" && weld.btn === "" && !weld.v2 && weld.pol === 0 && weld.reps === 0 && weld2.reps === 0 && !weld2.v2, JSON.stringify({ weld, weld2 }));
+ok("9 · Welding: the history door sends home, no V2 state, rpReport runs no evidence pass — no polish anywhere (the report button itself is on both programmes since 24 Sep 2026)",
+  weld.v === "home" && !weld.v2 && weld.pol === 0 && weld.reps === 0 && weld2.reps === 0 && !weld2.v2, JSON.stringify({ weld, weld2 }));
 await B.ctx.close();
 
 await L.ctx.close();
