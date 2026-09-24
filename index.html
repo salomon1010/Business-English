@@ -4619,6 +4619,130 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
     transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BE MASTERY DESIGN SYSTEM — AI-native layer (docs/DESIGN_SYSTEM.md).
+   Visual direction from the lomonec.com site (site/css/tokens.css): near-black
+   indigo depth, translucent layered surfaces with a hairline highlight, an
+   indigo→blue call to action, cyan and violet used as LIGHT, not paint.
+   Scope: General English (the default track). Welding keeps its own amber
+   theme and every rule below is fenced away from it. Motion only ever says
+   something — state, progress, cause → effect, completion — and all of it is
+   off under prefers-reduced-motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --ds-ease-out:cubic-bezier(.16,.84,.44,1); --ds-ease-soft:cubic-bezier(.4,0,.2,1);
+  --ds-fast:.18s; --ds-dur:.35s; --ds-reveal:.6s;
+  --ds-violet:#a855f7; --ds-cyan:#22d3ee; --ds-indigo:#6366f1; --ds-blue:#3b82f6;
+  --ds-grad-cta:linear-gradient(103deg,#4f46e5,#2563eb);   /* white label ≥5.2:1 at both stops (DESIGN_SYSTEM.md --accent-fill contract) */
+  --ds-grad-text:linear-gradient(103deg,#a5b4fc,#22d3ee 58%,#c084fc);
+  --ds-grad-ai:conic-gradient(from var(--ds-a,0deg),#6366f1,#22d3ee,#a855f7,#6366f1);
+  --ds-r-sm:12px; --ds-r:18px; --ds-r-lg:24px; --ds-pill:999px;
+  --ds-hair:inset 0 1px 0 rgba(255,255,255,.06);
+}
+:root:not([data-track="welding"]):not([data-theme="light"]){
+  --bg:#080b16; --bg2:#0b1020; --card:#10162b; --card2:#151c35;
+  --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
+  --txt:#eef1fb; --mut:#a2a7c4; --mut2:#6f7596;
+  --grad:linear-gradient(103deg,#5b5bf0,#3b82f6 55%,#22d3ee);
+  --bnav-bg:rgba(9,12,24,.94); --nav-bg:rgba(8,11,22,.8);
+}
+/* depth: two light fields and a structural grid behind everything, fixed */
+:root:not([data-track="welding"]):not([data-theme="light"]) body{
+  background:
+    radial-gradient(60vw 60vw at -10% -12%,rgba(99,102,241,.20),transparent 62%) fixed,
+    radial-gradient(52vw 52vw at 112% 6%,rgba(34,211,238,.10),transparent 64%) fixed,
+    radial-gradient(70vw 50vw at 60% 110%,rgba(168,85,247,.09),transparent 70%) fixed,
+    var(--bg)}
+:root:not([data-track="welding"])[data-theme="light"] body{
+  background:radial-gradient(70vw 50vw at 0% -10%,rgba(99,102,241,.08),transparent 65%) fixed,
+    radial-gradient(60vw 50vw at 100% 0%,rgba(34,211,238,.06),transparent 65%) fixed,var(--bg)}
+/* surfaces: one card language — a soft gradient, a hairline of light on the top edge */
+:root:not([data-track="welding"]) .card{border-radius:var(--ds-r);
+  background:linear-gradient(162deg,color-mix(in srgb,var(--card) 100%,#fff 2%),var(--card));box-shadow:var(--ds-hair),var(--sh-1)}
+:root:not([data-track="welding"]) .btn-primary{background:var(--ds-grad-cta);color:#fff;border-radius:var(--ds-r-sm);
+  box-shadow:0 8px 22px rgba(0,0,0,.35),0 2px 10px rgba(79,70,229,.18);transition:transform var(--ds-fast) var(--ds-ease-out),box-shadow var(--ds-dur) var(--ds-ease-out),filter var(--ds-dur)}
+:root:not([data-track="welding"]) .btn-primary:active{transform:scale(.98)}
+@media (hover:hover){:root:not([data-track="welding"]) .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(0,0,0,.4),0 3px 14px rgba(79,70,229,.24)}}
+:root:not([data-track="welding"]) .btn:active{transform:scale(.98)}
+:root:not([data-track="welding"]) .eyebrow{letter-spacing:.14em}
+:root:not([data-track="welding"]) h1.big{letter-spacing:-.025em}
+:root:not([data-track="welding"]) .bottom-nav{box-shadow:0 -10px 30px rgba(0,0,0,.28)}
+
+/* ── PROGRESS: the stage strip fills as the learner moves ─────────────────── */
+.mv-stages li::before{transform-origin:left}
+.mv-fresh .mv-stages li.now::before{animation:ds-fill var(--ds-reveal) var(--ds-ease-out) both}
+@keyframes ds-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ── SPEAKING STATE: the screen changes when the learner talks ────────────── */
+.mv-speak{transition:border-color var(--ds-dur),box-shadow var(--ds-dur)}
+.mv-speak:has(.rec-btn.recording){border-color:color-mix(in srgb,var(--ds-cyan) 45%,transparent);
+  box-shadow:var(--ds-hair),0 0 0 1px color-mix(in srgb,var(--ds-cyan) 25%,transparent),0 18px 50px rgba(34,211,238,.10)}
+.mv-rec{position:relative}
+.mv-rec .rec-btn{position:relative;z-index:1}
+.mv-rec .rec-btn.recording{background:linear-gradient(140deg,#ef4444,#f97316);box-shadow:0 8px 26px rgba(239,68,68,.35)}
+/* any mic, while recording: a ring that grows with the learner's own voice
+   (--lvl, 0–1, from dsLevelStart), on top of the existing pulse */
+:root:not([data-track="welding"]) .rec-btn.recording{outline:calc(2px + var(--lvl,0)*8px) solid rgba(34,211,238,calc(.18 + var(--lvl,0)*.3));outline-offset:3px;transition:outline-width 70ms linear}
+/* the mission adds two rings that breathe with the same level */
+.mv-rec::before,.mv-rec::after{content:"";position:absolute;left:0;top:50%;width:56px;height:56px;margin-top:-28px;border-radius:50%;
+  border:2px solid rgba(34,211,238,.5);opacity:0;pointer-events:none}
+.mv-speak:has(.rec-btn.recording) .mv-rec::before{opacity:calc(.25 + var(--lvl,0)*.9);transform:scale(calc(1.1 + var(--lvl,0)*.4));transition:transform 80ms linear,opacity 80ms linear}
+.mv-speak:has(.rec-btn.recording) .mv-rec::after{animation:ds-ring 1.8s var(--ds-ease-out) infinite}
+@keyframes ds-ring{0%{opacity:.45;transform:scale(1)}100%{opacity:0;transform:scale(1.5)}}
+/* a live meter: five bars driven by the same level */
+.ds-meter{display:none;align-items:center;gap:3px;height:22px;margin-left:auto}
+.ds-meter i{display:block;width:4px;border-radius:3px;background:linear-gradient(to top,#6366f1,#22d3ee);
+  height:calc(4px + var(--lvl,0)*var(--k,1)*18px);transition:height 70ms linear}
+.ds-meter i:nth-child(1){--k:.55}.ds-meter i:nth-child(2){--k:.85}.ds-meter i:nth-child(3){--k:1}.ds-meter i:nth-child(4){--k:.8}.ds-meter i:nth-child(5){--k:.5}
+.mv-speak:has(.rec-btn.recording) .ds-meter{display:flex}
+
+/* ── AI STATE: the system is visibly working on the learner's speech ─────── */
+@property --ds-a{syntax:"<angle>";inherits:false;initial-value:0deg}
+.ai-think{display:flex;align-items:center;gap:14px;padding:14px 16px;margin:10px 0 2px;border-radius:var(--ds-r-sm);
+  position:relative;background:color-mix(in srgb,var(--card2) 70%,transparent);isolation:isolate}
+.ai-think::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:var(--ds-grad-ai);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:ds-spin 2.4s linear infinite;z-index:-1}
+@keyframes ds-spin{to{--ds-a:360deg}}
+.ai-orb{width:34px;height:34px;flex:none;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#c7d2fe,#6366f1 45%,#1e1b4b 100%);box-shadow:0 0 22px rgba(99,102,241,.55);animation:ds-orb 1.6s var(--ds-ease-soft) infinite}
+@keyframes ds-orb{0%,100%{transform:scale(.92);filter:brightness(.95)}50%{transform:scale(1.04);filter:brightness(1.2)}}
+.ai-think b{display:block;font-size:14.5px}
+.ai-think small{display:block;font-size:12px;color:var(--mut)}
+.ai-scan{height:3px;border-radius:3px;margin-top:8px;background:linear-gradient(90deg,transparent,#22d3ee,#a855f7,transparent);
+  background-size:40% 100%;background-repeat:no-repeat;animation:ds-scan 1.5s var(--ds-ease-soft) infinite}
+@keyframes ds-scan{0%{background-position:-40% 0}100%{background-position:140% 0}}
+
+/* the Executive Polish wait (the report every session uses) speaks the same
+   AI language: the brand gradient instead of the old amber bars */
+:root:not([data-track="welding"]) .ex-wait-wave i,:root:not([data-track="welding"]) .ex-wait-wave span{background:linear-gradient(to top,#6366f1,#22d3ee)!important}
+:root:not([data-track="welding"]) .ex-wait-h{background:var(--ds-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* ── COACHING MOMENT: the report arrives in reading order, once ──────────── */
+.mv-fresh .mv-coach > *,.mv-fresh #mvRepWrap > *,.mv-fresh .mv-rep > *,.mv-fresh .mv-done > *{
+  animation:ds-in var(--ds-reveal) var(--ds-ease-out) both}
+.mv-fresh .mv-coach > :nth-child(2),.mv-fresh #mvRepWrap > :nth-child(2),.mv-fresh .mv-rep > :nth-child(2),.mv-fresh .mv-done > :nth-child(2){animation-delay:.07s}
+.mv-fresh .mv-coach > :nth-child(3),.mv-fresh #mvRepWrap > :nth-child(3),.mv-fresh .mv-rep > :nth-child(3),.mv-fresh .mv-done > :nth-child(3){animation-delay:.14s}
+.mv-fresh .mv-coach > :nth-child(n+4),.mv-fresh #mvRepWrap > :nth-child(n+4),.mv-fresh .mv-rep > :nth-child(n+4),.mv-fresh .mv-done > :nth-child(n+4){animation-delay:.21s}
+@keyframes ds-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.mv-fresh .mv-dock{animation:ds-dock .5s var(--ds-ease-out) .15s both}
+@keyframes ds-dock{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+/* ── SUCCESS: a demonstrated competency gets one quiet moment ────────────── */
+.mv-fresh .mv-done.ds-win .mv-state b{display:inline-block;background:var(--ds-grad-text);-webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:ds-win .9s var(--ds-ease-out) .25s both}
+@keyframes ds-win{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.06);opacity:1}100%{transform:none}}
+.mv-done.ds-win{position:relative}
+.mv-fresh .mv-done.ds-win::after{content:"";position:absolute;left:50%;top:84px;width:10px;height:10px;margin-left:-5px;border-radius:50%;
+  box-shadow:0 0 0 0 rgba(52,211,153,.55);animation:ds-burst 1.2s var(--ds-ease-out) .35s both;pointer-events:none}
+@keyframes ds-burst{0%{box-shadow:0 0 0 0 rgba(52,211,153,.5)}100%{box-shadow:0 0 0 140px rgba(52,211,153,0)}}
+
+/* ── ACCESSIBILITY: motion is information, so reduced motion keeps the
+   information (colour, text, the static meter floor) and drops the movement ─ */
+@media (prefers-reduced-motion:reduce){
+  .mv-fresh *,.ai-think::before,.ai-orb,.ai-scan,.mv-rec::after,.mv-dock{animation:none!important}
+  .mv-rec::before,.ds-meter i{transition:none!important}
+}
 </style>
 </head>
 <body>
@@ -9036,6 +9160,7 @@ function mvDraw(){
    shFBDone. No script box anywhere: the learner is never asked to write what
    they are about to say, and nothing is ever scored against text they typed. */
 window.mvRecord=()=>{
+  setTimeout(dsLevelStart,350);   /* design system: the live meter (no-op when not recording) */
   if(!_mv||_mv.busy)return;
   if(!SR){toast(t("fb.tts_unavailable"));return}
   /* Exactly the order window.shRec uses, and for the reason it uses it: the
@@ -9624,6 +9749,7 @@ function rMission(el,missionId,step){
         <button class="rec-btn ${rec_?"recording":""}" id="recBtn" onclick="mvRecord()" aria-label="${esc(t("mv.speak_btn"))}">${ic("mic")}</button>
         <div><div class="rec-time" id="recTime">00:00</div>
         <div class="rec-state" id="recState">${rec_?t("mv.recording"):t("mv.speak_btn")}</div></div>
+        <span class="ds-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
       </div>
       ${instruction!==t("mv.speak_sub")?`<p class="pp-fine">${esc(t("mv.speak_sub"))}</p>`:""}
     </section>`;
@@ -9634,7 +9760,7 @@ function rMission(el,missionId,step){
     const ev=_mv.ev;
     if(!ev){
       body=`<section class="card mv-coach"><div class="eyebrow">${t("mv.step_coach")}</div>
-        <p class="sub">${t("mv.thinking")}</p></section>`;
+        ${mvThinkHTML()}</section>`;
     }else{
       /* The screen is the speaking report — the Executive Polish report,
          judged against this mission (mvExReport draws it into #mvRepWrap).
@@ -9645,7 +9771,7 @@ function rMission(el,missionId,step){
          the transfer, or see what was shown. */
       const head=`<section class="card mv-rep-head"><div class="eyebrow">${t("sess.report_h")}</div>
         ${mvMoveChipsHTML(comp,ev)}
-        ${_mv.busy?`<p class="sub">${t("mv.thinking")}</p>`:""}
+        ${_mv.busy?mvThinkHTML():""}
       </section>`;
       const nx=_mv.busy?null:MissionEngine.recommend(r,comp,Date.now());
       const prim=!nx?""
@@ -9688,7 +9814,7 @@ function rMission(el,missionId,step){
     const pron=sum.pron==null?null:sum.pron/100;
     const sh=sum.shadow||{};
     const dayDone=mvDayAutoComplete(comp,r);
-    body=`<section class="card mv-done">
+    body=`<section class="card mv-done${MissionEngine.rank(r.state)>=MissionEngine.rank("DEMONSTRATED")?" ds-win":""}">
       <div class="eyebrow">${t("mv.step_done")}</div>
       <h2>${esc(comp.title)}</h2>
       <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
@@ -9716,6 +9842,10 @@ function rMission(el,missionId,step){
   }
 
   el.innerHTML=`${back}${mvHead(S1)}${body}`;
+  /* design system: entrances play when the screen's state changes (a new
+     stage, a new answer, the analysis finishing) — never on a plain redraw */
+  const fk=S1+"|"+((_mv.ev&&_mv.ev.key)||"")+"|"+(_mv.busy?1:0);
+  el.classList.toggle("mv-fresh",_mv._fk!==fk);_mv._fk=fk;
   manIconizeInline(el);
   if(S1==="coach"&&_mv.ev)mvRepMount();
   if(S1==="speak"&&_mv.recording){
@@ -9748,6 +9878,30 @@ function mvDayAutoComplete(comp,r){
   if(!spoke)return null;
   if(!S.days[x.key])sessDayDone(x.key,x.w,x.d,true);
   return x;
+}
+
+/* Design system — the AI state and the voice meter (docs/DESIGN_SYSTEM.md). */
+function mvThinkHTML(){
+  return `<div class="ai-think" role="status" aria-live="polite"><span class="ai-orb" aria-hidden="true"></span><div><b>${t("mv.thinking")}</b><div class="ai-scan" aria-hidden="true"></div></div></div>`;
+}
+/* The live voice level for every recording in General English (the shared
+   recorder, recToggle): a read-only analyser on the take's own stream, one
+   frame loop, closed the moment the take stops. It only writes --lvl on the
+   root; the CSS turns that into the mic's ring and the mission's meter. */
+let _ds={raf:0,ctx:null,an:null,buf:null};
+function dsLevelStart(){
+  if(_ds.raf||!rec||!rec.mr||rec.mr.state!=="recording"||!isGeneralEnglish())return;
+  try{const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC&&rec.mr.stream){_ds.ctx=new AC();try{_ds.ctx.resume&&_ds.ctx.resume()}catch(e){}const src=_ds.ctx.createMediaStreamSource(rec.mr.stream);
+      _ds.an=_ds.ctx.createAnalyser();_ds.an.fftSize=512;src.connect(_ds.an);_ds.buf=new Uint8Array(512)}}catch(e){}
+  const root=document.documentElement;
+  const tick=()=>{
+    if(!rec||!rec.mr||rec.mr.state!=="recording"){_ds.raf=0;root.style.removeProperty("--lvl");try{_ds.ctx&&_ds.ctx.close()}catch(e){}_ds.ctx=_ds.an=null;return}
+    let v=0;try{if(_ds.an){_ds.an.getByteTimeDomainData(_ds.buf);let q=0;for(let i=0;i<_ds.buf.length;i++){const x=(_ds.buf[i]-128)/128;q+=x*x}v=Math.min(1,Math.sqrt(q/_ds.buf.length)*5)}}catch(e){}
+    root.style.setProperty("--lvl",v.toFixed(3));
+    _ds.raf=requestAnimationFrame(tick);
+  };
+  _ds.raf=requestAnimationFrame(tick);
 }
 
 /* RETRY: the same situation with the previous attempt's weakness named. Never
@@ -10859,7 +11013,7 @@ window.recToggle=async(ctx,label)=>{
       }finally{const f=rec.filed;rec.filed=null;if(f)f();try{shv3RecSync()}catch(e){}}
     };
     rec.mr.start();
-    btn.classList.add("recording");st.textContent=t("rec.recording_state");
+    btn.classList.add("recording");try{dsLevelStart()}catch(e){}   /* design system: live voice level */st.textContent=t("rec.recording_state");
     try{shv3RecSync()}catch(e){}
     rec.h=setInterval(()=>{
       const s=Math.floor((Date.now()-rec.t0)/1000);
