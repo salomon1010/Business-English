@@ -2651,6 +2651,8 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 
 /* RECORDER */
 .rec-panel{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:14px}
+.sess-rep{margin-top:4px}.sess-rep-h{display:block;margin:12px 0 4px}.sess-rep-sub{font-size:12.5px;color:var(--mut);margin-bottom:10px}
+.sess-rep-btn{width:100%}.sess-rep-newer{margin-bottom:10px}.rec-btn.exd-ring::after{border-radius:50%}
 .rec-btn{width:56px;height:56px;border-radius:50%;border:none;background:var(--grad);color:var(--on-accent);font-size:22px;transition:.2s;box-shadow:0 4px 16px color-mix(in srgb,var(--acc) 38%,transparent);display:grid;place-items:center}
 .rec-btn svg{width:26px;height:26px}
 .rec-btn.recording{background:linear-gradient(135deg,#ef4444,#f97316);animation:pulse 1.2s infinite}
@@ -5790,6 +5792,14 @@ const I18N_EN={
  "sess.say_aloud":"💬 Say these aloud during this session",
  "sess.record_title":"🎙️ Record yourself",
  "sess.record_desc":"Record and get full word-by-word feedback below.",
+ "sess.report_h":"Your speaking report",
+ "sess.report_sub":"Every recording comes back as a coach's report: how you came across, what to fix, your sentences rebuilt — and the coach reads it to you.",
+ "sess.report_btn":"Get my report",
+ "sess.report_none":"Record yourself first — the report is built from your recording.",
+ "sess.report_short":"Speak for at least {{n}} seconds to get a report.",
+ "sess.report_off":"The report needs a connection. Your recording is saved — come back online and tap Get my report.",
+ "sess.report_stt":"Could not write down what you said — check the connection and try again.",
+ "sess.report_newer":"A newer recording is waiting for its report.",
  "sess.tap_to_record":"Tap to start recording",
  "sess.posture_btn":"🧍 Posture coach — sit like an executive",
  "sess.posture_starting":"Starting camera…",
@@ -8490,6 +8500,7 @@ function go(v,arg1,arg2){
   try{if(cur&&cur.v==="simulation"&&(v!=="simulation"||!arg1)&&typeof simLeave==="function")simLeave()}catch(err){try{perfMark("error",0,"simLeave:"+String(err&&err.message||err).slice(0,60))}catch(e){}}
   /* The Polish mic is a page-level recorder: leaving the Phrase Lab closes it. */
   try{if(cur&&cur.v==="phrases"&&v!=="phrases"&&typeof exLeave==="function")exLeave()}catch(e){}
+  try{if(cur&&cur.v==="session"&&v!=="session"){exCoachStop();exHost=null}}catch(e){}
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
@@ -10493,6 +10504,7 @@ function rSession(el,w,d){
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
+  _sessCur={key,w,d,ctx:sessCtx(w,d,dd,weekPhrases)};   /* what the report is judged against */
   /* General English V2: no script, no scoring against a script, no self-score,
      no notes. A speaking day hands over to this week's mission; any other day
      keeps its activity, recorder and manual tick. Welding never gets here. */
@@ -10550,6 +10562,12 @@ function rSession(el,w,d){
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
         <div id="shTrend"></div>
+        <div class="sess-rep" id="sessRep">
+          <div class="hr"></div>
+          <b class="sess-rep-h">${hIcon("sparkle",t("sess.report_h"))}</b>
+          <p class="sess-rep-sub">${esc(t("sess.report_sub"))}</p>
+          <div id="sessRepWrap"></div>
+        </div>
         <div class="hr"></div>
         <button class="btn btn-g sess-act" id="pcBtn" onclick="pcToggle()">${t("sess.posture_btn")}</button>
         <div class="pc-wrap" id="pcWrap">
@@ -10595,6 +10613,7 @@ function rSession(el,w,d){
   </div>`;
   manIconizeInline(el);
   renderRecs(key);
+  sessRepMount(key);
   /* The daily session records exactly what the Shadowing workspace records, and
      is scored by the same engine — so it gets the same two pictures: the
      waveform (drawn by renderRecs) and the score trend across attempts. */
@@ -10751,6 +10770,7 @@ window.recToggle=async(ctx,label)=>{
       renderRecs(rec.ctx);
       streakPillSync();
       if(GH.auto&&ghCfg())ghSyncRecs(true);
+      try{sessRecDone(rec.ctx,blob,(Date.now()-rec.t0)/1000)}catch(e){}   /* the session's report: a no-op anywhere else */
       }finally{const f=rec.filed;rec.filed=null;if(f)f();try{shv3RecSync()}catch(e){}}
     };
     rec.mr.start();
@@ -13625,6 +13645,89 @@ window.sessAnalyze=key=>{
   const _o=document.getElementById("fbOut");
   if(_o)_o.scrollIntoView({behavior:"smooth",block:"nearest"});
 };
+/* ---------- the session's speaking report (2026-09-24) ----------
+   The Record yourself card on every classic session page — every Welding day,
+   General English Week 1 and its non-mission days — gets the Executive Polish
+   report: the same minute goes through the same pipeline (transcribe, measure
+   on the device, the coach, the five stations, the voice) with one addition:
+   the Worker is told what the learner was asked to do — the programme, the
+   week's focus, today's task and the phrases on the "say these aloud" card —
+   and judges the minute against it. The report runs by itself when a recording
+   is saved, and the last one is kept per session day in S.notes["exrep:"+key]
+   (key is dayKey, so it is track-scoped like everything on the page, and it
+   syncs with the notes). A newer recording can be sent with Get my report. */
+let _sessCur=null,_sessRepBusy=null;
+const SESS_REP_KEEP=16;                                /* reports kept across all sessions — each is a few KB and the notes sync whole */
+function sessCtx(w,d,dd,weekPhrases){
+  return {track:isGeneralEnglish()?"general":"welding",week:w,day:d,focus:String((dd&&dd.focus)||"").slice(0,160),task:String((dd&&dd.task)||"").slice(0,300),out:String((dd&&dd.out)||"").slice(0,200),phrases:(weekPhrases||[]).map(p=>String(p.p||"").slice(0,80)).filter(Boolean).slice(0,6)};
+}
+function sessRepGet(key){const r=S.notes["exrep:"+key];return r&&typeof r==="object"&&r.m?r:null}
+function sessRepPut(key,rep){
+  S.notes["exrep:"+key]=rep;
+  const ks=Object.keys(S.notes).filter(k=>k.startsWith("exrep:")).sort((a,b)=>((S.notes[b]||{}).at||0)-((S.notes[a]||{}).at||0));
+  ks.slice(SESS_REP_KEEP).forEach(k=>{delete S.notes[k]});
+}
+function sessHost(key,rep){return {wrapId:"sessRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,again:sessAgain}}
+function sessOn(key){return cur.v==="session"&&_sessCur&&_sessCur.key===key&&!!document.getElementById("sessRepWrap")}
+function sessAgain(){
+  const b=document.getElementById("recBtn");if(!b)return;
+  try{b.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}
+  b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2400);
+}
+function sessRepNote(key,msg,retry){
+  const w=document.getElementById("sessRepWrap");if(!w)return;
+  w.innerHTML=`<p class="ex-note">${esc(msg)}</p>${retry?`<button class="btn-primary sess-rep-btn" onclick="sessReportLast('${key}')">${tIc("sess.report_btn","sparkle")}</button>`:""}`;
+  manIconizeInline(w);
+}
+async function sessRepMount(key){
+  const w=document.getElementById("sessRepWrap");if(!w)return;
+  exHost=sessHost(key,null);
+  if(_sessRepBusy===key){exReportShow(exWaitHTML(t("ex.step_measure")),true);return}
+  const rep=sessRepGet(key);
+  if(rep){exHost=sessHost(key,rep);exRenderReport(rep,true)}
+  const recs=await getRecs(key);
+  if(document.getElementById("sessRepWrap")!==w||_sessRepBusy===key)return;
+  if(rep){
+    if(recs[0]&&recs[0].ts>rep.at)w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("sess.report_newer"))}</p><button class="btn-primary sess-rep-btn" onclick="sessReportLast('${key}')">${tIc("sess.report_btn","sparkle")}</button></div>`);
+  }else{
+    w.innerHTML=recs.length?`<button class="btn-primary sess-rep-btn" onclick="sessReportLast('${key}')">${tIc("sess.report_btn","sparkle")}</button>`:`<p class="rec-none">${esc(t("sess.report_none"))}</p>`;
+  }
+  manIconizeInline(w);
+}
+function sessRecDone(ctx,blob,secs){if(_sessCur&&_sessCur.key===ctx&&document.getElementById("sessRepWrap"))sessReport(ctx,blob,secs)}
+window.sessReportLast=async key=>{
+  const recs=await getRecs(key);
+  if(!recs[0])return toast(t("sess.report_none"));
+  sessReport(key,recs[0].blob,0);
+};
+async function sessReport(key,blob,secs){
+  if(_sessRepBusy||!_sessCur||_sessCur.key!==key)return;
+  if(!POLISH_API||!navigator.onLine){if(sessOn(key))sessRepNote(key,t("sess.report_off"),true);return}
+  const area=areaId(),ctx=_sessCur.ctx;
+  _sessRepBusy=key;exCoachStop();
+  if(sessOn(key)){exHost=sessHost(key,null);exReportShow(exWaitHTML(t("ex.step_stt")))}
+  try{
+    let audio=null;
+    if(!secs){audio=await exAudioStats(blob);secs=(audio&&audio.dur)||0}   /* an older take: its length is only on the audio */
+    if(secs<EX_MIN_S){_sessRepBusy=null;if(sessOn(key))sessRepNote(key,t("sess.report_short",{n:EX_MIN_S}));return}
+    const [tx,au]=await Promise.all([exTranscribe(blob),audio?Promise.resolve(audio):exAudioStats(blob)]);
+    audio=au||{dur:secs,pitch:null,pauses:[]};if(!audio.dur)audio.dur=secs;
+    if(!tx||!tx.text){_sessRepBusy=null;if(sessOn(key))sessRepNote(key,t("sess.report_stt"),true);return}
+    if(sessOn(key))exStep(t("ex.step_measure"));
+    const m=exTextStats(tx.text,tx.words,audio);
+    if(sessOn(key))exStep(t("ex.step_plan"));
+    const ai=await exAI(tx.text,m,ctx);
+    const prev=sessRepGet(key);
+    const rep={at:Date.now(),tk:area,key,m,ai:ai||null,tx:tx.text,sttFailed:false,targets:exTargets(ai),ctx};
+    if(prev&&prev.m)rep.prev={at:prev.at,m:prev.m,targets:prev.targets||[]};
+    sessRepPut(key,rep);markPracticed();save();
+    _sessRepBusy=null;
+    if(sessOn(key)){exHost=sessHost(key,rep);exRenderReport(rep)}
+  }catch(e){
+    _sessRepBusy=null;
+    if(sessOn(key))sessRepNote(key,t("ex.ai_off"),true);
+  }
+}
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -17000,7 +17103,7 @@ async function exRun(src){
   const reps=exReps(area);reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
   markPracticed();save();
   ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=true;
-  if(here()){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
+  if(here()&&cur.v==="phrases"&&!exHost){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
   if(!POLISH_API||!navigator.onLine)return null;
@@ -17013,12 +17116,12 @@ async function exTranscribe(blob){
     return text?{text,words:(words&&words.length)?words:null}:null;
   }catch(e){return null}
 }
-async function exAI(transcript,m){
+async function exAI(transcript,m,ctx){
   if(!POLISH_API||!navigator.onLine)return null;
   const metrics={seconds:m.sec,words:m.words,wpm:m.wpm,hesitations:m.hes,fillers:m.fillerN,hedges:m.hedgeN,wordsPerSentence:m.wps,sentences:m.sents,vocabularyPct:m.ttr,pitchSemitones:m.semis};
   Object.keys(metrics).forEach(k=>{if(metrics[k]==null)delete metrics[k]});
   try{
-    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({analyse:{transcript,metrics,lang:exLang()}})});
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({analyse:{transcript,metrics,lang:exLang(),context:ctx||undefined}})});
     if(!r.ok)return null;
     const j=await r.json();
     return (j&&typeof j==="object"&&(j.sharper||j.key_message))?j:null;
@@ -17246,7 +17349,7 @@ function exVersionsHTML(ai){
    targets. */
 let exRepolishing=false;
 window.exRepolish=async btn=>{
-  const rep=ex.report,area=areaId();                /* rep sits in its own area's exRep list: the append lands there whatever is open when the Worker answers */
+  const rep=exHost?exHost.report:ex.report,area=areaId();                /* rep sits in its own area's exRep list: the append lands there whatever is open when the Worker answers */
   if(!rep||!rep.ai||exRepolishing)return;
   if(!POLISH_API||!navigator.onLine)return toast(t("ex.repolish_off"));
   exRepolishing=true;
@@ -17254,7 +17357,7 @@ window.exRepolish=async btn=>{
   try{
     const avoid=(rep.ai.versions||[]).map(v=>v.text);
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({repolish:{transcript:rep.tx||"",avoid,lang:exLang()}})});
+      body:JSON.stringify({repolish:{transcript:rep.tx||"",avoid,lang:exLang(),context:rep.ctx||undefined}})});
     if(!r.ok)throw new Error("HTTP "+r.status);
     const j=await r.json();
     if(!j||!j.version||!j.version.text)throw new Error("empty");
@@ -17265,10 +17368,10 @@ window.exRepolish=async btn=>{
     });
     rep.targets=exTargets(rep.ai);                 /* the newest phrases are what the next minute is marked on */
     save();
-    if(areaId()===area){
+    if(areaId()===area&&(!exHost||exHost.report===rep)){
       exRenderReport(rep,true);
       setTimeout(()=>{
-        const els=document.querySelectorAll(".ex-version");const el=els[els.length-1];
+        const els=exQA(".ex-version");const el=els[els.length-1];
         if(el){try{el.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1600)}
       },60);
     }
@@ -17339,7 +17442,7 @@ function exCoachHTML(rep){
 }
 window.exCoach=async()=>{
   if(exCoachOn){exCoachStop();return}
-  const rep=ex.report;if(!rep)return;
+  const rep=exHost?exHost.report:ex.report;if(!rep)return;
   const lines=exCoachLines(rep);if(!lines.length)return;
   exCoachOn=true;exCoachPaint(true);
   const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
@@ -17359,22 +17462,22 @@ window.exCoach=async()=>{
 };
 window.exCoachStop=()=>{if(!exCoachOn)return;exCoachOn=false;fbStopAudio();try{speechSynthesis.cancel()}catch(e){}exCoachPaint(false,"stopped")};
 function exCoachPaint(on,end){
-  const b=document.getElementById("exCoachBtn");if(!b)return;
+  const b=exQ("#exCoachBtn");if(!b)return;
   b.innerHTML=(on?ic("stop"):ic("play"))+" "+esc(on?t("ex.coach_stop"):t("ex.coach_play"));b.classList.toggle("on",!!on);
   manIconizeInline(b);
-  const live=document.getElementById("exCoachLive"),st=document.getElementById("exCoachState");
+  const live=exQ("#exCoachLive"),st=exQ("#exCoachState");
   if(!live)return;
   live.classList.remove("on","done","stopped");
   if(on){live.classList.add("on");if(st)st.textContent=t("ex.coach_speaking")}
   else{
-    document.querySelectorAll("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
+    exQA("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
     if(end){live.classList.add(end);if(st)st.textContent=t(end==="done"?"ex.coach_done":"ex.coach_stopped")}
     else if(st)st.textContent="";
   }
 }
 function exCoachLine(i){
-  document.querySelectorAll("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
-  const el=document.querySelector(`#exCoachScript p[data-i="${i}"]`);
+  exQA("#exCoachScript p.now").forEach(e=>e.classList.remove("now"));
+  const el=exQ(`#exCoachScript p[data-i="${i}"]`);
   if(el){el.classList.add("now");try{el.scrollIntoView({behavior:"smooth",block:"nearest"})}catch(e){}}
 }
 
@@ -17391,7 +17494,7 @@ function exNavHTML(){
     `<button class="ex-navb" onclick="exJump('${s[0]}')"><span class="ex-navn">${i+1}</span><span class="ex-navl">${esc(t("ex.nav_"+s[0]))}</span></button>`).join("")}</div>`;
 }
 window.exJump=id=>{
-  const el=document.getElementById("exSt-"+id);if(!el)return;
+  const el=exQ("#exSt-"+id);if(!el)return;
   try{el.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){el.scrollIntoView()}
   el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1400);
 };
@@ -17555,12 +17658,14 @@ function exAssignHTML(rep){
   </div>`;
 }
 function exRenderReport(rep,quiet){
-  const m=rep.m,ai=rep.ai,prev=exReps().find(r=>r!==rep&&r.at<rep.at)||null;
+  if(exHost)exHost.report=rep;
+  const m=rep.m,ai=rep.ai,prev=exHost?(exHost.prev||null):(exReps().find(r=>r!==rep&&r.at<rep.at)||null);
+  const audioUrl=exHost?exHost.url:ex.url;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
   const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
   const cp=(ai&&ai.concept_title)?{title:ai.concept_title,body:ai.concept_body}:exConcept(m);
   const meta=m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words});
-  const html=`<details class="card ex-rep-card" ${ex.repOpen!==false?"open":""} ontoggle="exReportToggle(this)">
+  const html=`<details class="card ex-rep-card" ${(exHost||ex).repOpen!==false?"open":""} ontoggle="exReportToggle(this)">
     <summary class="ex-rep-sum">
       <span class="ex-rep-sum-t"><span class="ex-eyebrow">${esc(t("ex.report_eyebrow"))}</span><b>${esc(t("ex.report_h"))}</b><small>${esc(meta)} · ${esc(exRepWhen(rep.at))}</small></span>
       <span class="ex-rep-chev" aria-hidden="true">${ic("chevron")}</span>
@@ -17588,7 +17693,7 @@ function exRenderReport(rep,quiet){
         ${exStatHTML("wps",m.wps,"ex.wps")}
       </div>
       ${exQuote("",exTextureNote(m))}
-      ${ex.url?`<audio controls src="${ex.url}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}`)}
+      ${audioUrl?`<audio controls src="${audioUrl}" class="ex-audio" aria-label="${esc(t("ex.hear_me"))}"></audio>`:""}`)}
 
     ${exStation("fix",2,"pencil",t("ex.st_fix"),t("ex.st_fix_sub"),`
       ${exCorrHTML(ai)}
@@ -17635,7 +17740,7 @@ function exRenderReport(rep,quiet){
         ${exQuote(t("ex.concept_did"),cp.body,"gold")}
       </div>
       <div class="ex-again">
-        <button class="btn-primary ex-againbtn" onclick="exCoachStop();exStartAgain()">${tIc("ex.again_btn","mic")}</button>
+        <button class="btn-primary ex-againbtn" onclick="exAgainGo()">${tIc("ex.again_btn","mic")}</button>
       </div>`)}
 
     <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
@@ -17986,6 +18091,7 @@ function rPhrases(el){
      not a welcome. It stays one tap away behind the "How it works" button in
      the card header, which still shows its unread dot until it is read. */
   if(ex.phase==="rec")exReset();               /* a re-render mid-recording drops the take rather than leaving the mic open */
+  exHost=null;                                  /* this page's report is Executive Polish's own */
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${t("ex.page_eyebrow")}</div>
   <h1 class="big">${t("ex.page_title")}</h1>
@@ -17999,12 +18105,27 @@ function rPhrases(el){
 /* The report lives BELOW the input card (owner, 2026-09-21): the box, mic,
    bin and Polish it stay on top after every run, so the next take is one tap
    away; the report is a card of its own that opens and closes. */
+/* ---- where the report lives (2026-09-24) ----
+   The same report is drawn in two places: under Executive Polish (exHost null
+   — everything reads `ex`, as it always did) and inside the daily session's
+   Record yourself card (exHost = sessHost(key): its own wrap, its own report,
+   its own "previous take" for the carry-over score, and "Say it again" points
+   back at the session's mic). Every lookup the report and the coach make goes
+   through exQ, scoped to the host's wrap, because the other page's report is
+   still in the DOM behind the one on screen and would answer getElementById
+   first. The page that renders sets the host: rPhrases → null, rSession →
+   the session; go() clears it on the way out. */
+let exHost=null;
+function exWrapEl(){return document.getElementById(exHost?exHost.wrapId:"exReportWrap")}
+function exQ(sel){const w=exWrapEl();return w?w.querySelector(sel):null}
+function exQA(sel){const w=exWrapEl();return w?w.querySelectorAll(sel):[]}
 function exReportShow(html,quiet){
-  const w=document.getElementById("exReportWrap");if(!w)return;
+  const w=exWrapEl();if(!w)return;
   w.innerHTML=html;manIconizeInline(w);
   if(!quiet){const c=w.firstElementChild;if(c){try{c.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}}
 }
-window.exReportToggle=d=>{ex.repOpen=!!d.open};
+window.exReportToggle=d=>{(exHost||ex).repOpen=!!d.open};
+window.exAgainGo=()=>{exCoachStop();if(exHost&&exHost.again)exHost.again();else exStartAgain()};
 /* "Start again": back up to the box, cleared, mic ready — the report stays below */
 window.exStartAgain=()=>{exClear();const top=document.getElementById("exCard");if(top){try{top.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){}}const b=document.getElementById("exRecBtn");if(b){b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2200)}};
 /* ---- the phrase bank: this week's professional phrases and business idioms ---- */
@@ -26292,6 +26413,12 @@ function fbSyncPayload(s){
        speech they were measured on stays on this device */
     const o={};Object.keys(out.exRepA).forEach(a=>{o[a]=(out.exRepA[a]||[]).map(r=>{if(!r)return r;const y=Object.assign({},r);delete y.tx;return y})});
     out.exRepA=o;
+  }
+  if(out.notes&&typeof out.notes==="object"){
+    /* the session's speaking reports (S.notes["exrep:…"]) travel the same way */
+    let touched=false;const n={};
+    Object.keys(out.notes).forEach(k=>{const v=out.notes[k];if(k.startsWith("exrep:")&&v&&typeof v==="object"){const y=Object.assign({},v);delete y.tx;n[k]=y;touched=true}else n[k]=v});
+    if(touched)out.notes=n;
   }
   if(Array.isArray(out.convos)){
     /* a conversation report's better version is the learner's own turn,

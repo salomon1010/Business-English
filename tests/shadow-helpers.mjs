@@ -65,8 +65,13 @@ async function learner(id, track, lang) {
   await page.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-ov,.wc-ov").forEach(e => e.remove()); });
   return { ctx, page, id };
 }
+/* go("shadow") and shLoad() in one breath raced under a loaded machine: the
+   Shadow view landed a beat later and shLoad found no player (seen in full
+   runs, never alone). Wait for the player element before loading the clip. */
 const openShadow = async (page, pick = 5) => {
-  await page.evaluate(async v => { go("shadow"); await shLoad({ vid: v, start: 0, end: 0, title: "clip" }, true); }, VID); await sleep(2500);
+  await page.evaluate(() => go("shadow"));
+  await page.waitForSelector("#shPlayerWrap", { state: "attached", timeout: 15000 });
+  await page.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0, title: "clip" }, true); }, VID); await sleep(2500);
   await page.evaluate(() => shOpenWork()); await sleep(300);
   await page.evaluate(p => { svPick = p; svSetMode("shadow"); }, pick); await sleep(200);
 };
@@ -269,7 +274,8 @@ ok("Switched to Welding on the same device: both helpers read OFF, the switches 
 /* ---------- a Welding learner ---------- */
 const nW = chat.length;
 const W = await learner("wendy", "welding", "fr");
-await W.page.evaluate(async v => { go("shadow"); await shLoad({ vid: v, start: 0, end: 0, title: "clip" }, true); }, VID); await sleep(2500);
+await W.page.evaluate(() => go("shadow")); await W.page.waitForSelector("#shPlayerWrap", { state: "attached", timeout: 15000 });
+await W.page.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0, title: "clip" }, true); }, VID); await sleep(2500);
 await W.page.evaluate(() => shOpenWork()); await sleep(300);
 const w = await W.page.evaluate(() => ({ v2: !!(document.getElementById("shV2") && document.getElementById("shV2").style.display !== "none" && document.getElementById("shV2").innerHTML.trim()), card: !!document.getElementById("svSh"), on: svOn(), tr: svShTrToggle(), ipa: svShIpaToggle(), pref: S.svPrefA, trCache: localStorage.getItem("be_sv_tr"), ipaCache: localStorage.getItem("be_sv_ipa") }));
 ok("Welding (French native language): no V2 panel, no card, no switches; the switch functions refuse; nothing written to S or to the device caches; nothing asked of the Worker", !w.v2 && !w.card && !w.on && w.tr === false && w.ipa === false && w.pref === undefined && w.trCache === null && w.ipaCache === null && chat.length === nW, JSON.stringify(w));

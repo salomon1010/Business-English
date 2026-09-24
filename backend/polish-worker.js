@@ -488,10 +488,42 @@ const AN_FIELDS = {            // field -> max chars
 const AN_LEVELS = ["A2","B1","B1+","B2","B2+","C1"];
 const AN_LANGS = { en:"English", es:"Spanish", fr:"French", pt:"Portuguese", it:"Italian", de:"German", ru:"Russian", ar:"Arabic", ur:"Urdu", hi:"Hindi", bn:"Bengali", id:"Indonesian", vi:"Vietnamese", zh:"Chinese", ja:"Japanese", ko:"Korean" };
 function anStr(v, max) { return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, max) : ""; }
-async function callAnalyse(env, transcript, metrics, lang) {
+/* ---- the session's context (2026-09-24) ----
+   The daily session's Record yourself card sends the same minute through this
+   route, with what the learner was asked to do: the programme (welding or
+   business English), the week's focus, today's task and the phrases on the
+   "say these aloud" card. Bounded and optional: Executive Polish sends none
+   and reads exactly as before. A welding minute is coached in the register of
+   the workshop and the site, not the boardroom. */
+function anCtx(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const track = raw.track === "welding" ? "welding" : raw.track === "general" ? "general" : "";
+  const week = Number.isInteger(+raw.week) && +raw.week >= 1 && +raw.week <= 52 ? +raw.week : 0;
+  const out = { track, week, day: anStr(raw.day, 3), focus: anStr(raw.focus, 160), task: anStr(raw.task, 300), out: anStr(raw.out, 200),
+    phrases: (Array.isArray(raw.phrases) ? raw.phrases : []).map(x => anStr(x, 80)).filter(Boolean).slice(0, 6) };
+  return (out.track || out.task || out.focus || out.phrases.length) ? out : null;
+}
+function anTrade(ctx) { return !!(ctx && ctx.track === "welding"); }
+function anCoachLine(ctx) {
+  return anTrade(ctx)
+    ? "You are a workplace English coach for welders and skilled tradespeople who use English as a second language. The register is the workshop, the site and the site office — plain, practical, safety-minded — never the boardroom: every idiom, phrase and word upgrade must be one a foreman, an inspector or a client on site would actually say, and polish means a supervisor's clarity, not corporate jargon. "
+    : "You are an executive speaking coach for professionals who use English as a second language. ";
+}
+function anTaskBlock(ctx) {
+  if (!ctx) return "";
+  const parts = [];
+  parts.push("THE TASK. This minute is a daily exercise on a " + (anTrade(ctx) ? "welding workplace English" : "business English") + " programme" + (ctx.week ? ", week " + ctx.week : "") + (ctx.focus ? " (focus: " + ctx.focus + ")" : "") + ".");
+  if (ctx.task) parts.push("The task was: " + ctx.task);
+  if (ctx.out) parts.push("The expected outcome: " + ctx.out);
+  if (ctx.phrases.length) parts.push("They were asked to use these phrases: " + ctx.phrases.map(x => '"' + x + '"').join(", ") + ".");
+  parts.push("Judge the minute AGAINST THIS TASK: evidence says whether they did what the task asked and which of the assigned phrases they used, quoting them; answer_directly is the first change that would make the minute meet the task; next_recording is the same task again, done better — never a different topic; example, sharper, the versions and the idioms must all fit this task and this workplace; coach_script names the task and says plainly whether it was met.");
+  return parts.join(" ") + " ";
+}
+async function callAnalyse(env, transcript, metrics, lang, ctx) {
   const language = AN_LANGS[lang] || "English";
+  const trade = anTrade(ctx);
   const system =
-    "You are an executive speaking coach for professionals who use English as a second language. " +
+    anCoachLine(ctx) +
     "The learner spoke for about a minute (transcript below, fillers kept). Measured numbers are given; do not re-measure. " +
     "Judge what a listener judges: the key message, the structure, what makes the speaker credible, and the one change that matters most. " +
     "Then teach: correct the real mistakes with the rule behind each, rebuild their own sentences on patterns they can reuse, and upgrade their words. " +
@@ -526,8 +558,9 @@ async function callAnalyse(env, transcript, metrics, lang) {
     "sentences: EXACTLY 3 (or one per sentence they said, if they said fewer). said must be copied from the transcript. Three DIFFERENT patterns. A pattern is a content-free frame: every noun, number, month, job title and topic word of theirs becomes a [slot], and only the connective skeleton survives, so the frame still works tomorrow on a completely different subject. 2 or 3 slots, never more. \"so I suggest we [action] next month\" is wrong — the month is content; \"I am asking for [what] by [when]\" is right. " +
     "words: 4 to 6 upgrades of words they actually used; said must appear in the transcript. An upgrade is a MORE PRECISE word, not a bigger one: never a plural or tense fix (that is a correction), never the same word with an adjective bolted on, never a bookish synonym nobody says out loud, and never a word already handled in corrections. If you cannot find 4 honest upgrades, return fewer. " +
     "collocations: 0 to 3, only genuinely unnatural pairings they used (e.g. 'do a training' -> 'run a training session'); an empty array is the right answer when everything sounded natural. " +
-    "versions has EXACTLY 2 items: two different ways the learner could have said the same thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler, no hedging; version 1 plain and direct (B1), version 2 polished executive English (B2-C1). Each version must weave in 2 or 3 professional phrases or business idioms naturally and list them in learn, and versions and their learn items are always in English. " +
-    "idioms has EXACTLY 4 items: NEW professional idioms or executive phrases (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation. " +
+    "versions has EXACTLY 2 items: two different ways the learner could have said the same thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler, no hedging; version 1 plain and direct (B1), version 2 " + (trade ? "the way a confident supervisor says it on site (B2), still plain" : "polished executive English (B2-C1)") + ". Each version must weave in 2 or 3 " + (trade ? "phrases tradespeople and supervisors really use" : "professional phrases or business idioms") + " naturally and list them in learn, and versions and their learn items are always in English. " +
+    "idioms has EXACTLY 4 items: NEW " + (trade ? "workplace idioms or phrases heard on site and in the workshop" : "professional idioms or executive phrases") + " (not ones the learner used, and different from those in versions) that fit the learner's topic and next conversation. " +
+    anTaskBlock(ctx) +
     /* Measured on the live Worker, 22 Sep 2026: with the language rule stated once,
        mid-prompt, as a list of exceptions, a French learner got a report written
        entirely in English. Most of this app's learners are francophone. So the rule
@@ -536,7 +569,7 @@ async function callAnalyse(env, transcript, metrics, lang) {
     "ENGLISH (what the learner will SAY OUT LOUD, so it must be plain spoken English): key_message, sharper, example, coach_script, every versions[].text and versions[].learn, every idioms[].idiom and idioms[].example, every hedges[].better, every corrections[].said and corrections[].fix, every sentences[].said, sentences[].rebuilt and sentences[].pattern, every words[].said, words[].better and words[].example, every collocations[].said and collocations[].better. " +
     (lang === "en" ? "Everything else is in English too. " :
       "EVERY OTHER FIELD (what the learner READS to understand — level_note, structure, structure_note, answer_directly, evidence, credibility, remember_title, remember_body, next_recording, quick_win_title, quick_win_goal, concept_title, concept_body, every corrections[].why and corrections[].kind, every sentences[].pattern_use, every words[].meaning, every collocations[].why, every idioms[].meaning and idioms[].when, and every versions[].style) MUST be written in " + language + ". Not English. A learner who reads " + language + " is reading these to understand the English ones. ");
-  const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics);
+  const user = "Transcript:\n" + transcript + "\n\nMeasured:\n" + JSON.stringify(metrics) + (ctx ? "\n\nContext:\n" + JSON.stringify(ctx) : "");
   const r = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "content-type": "application/json", authorization: "Bearer " + env.OPENAI_KEY },
@@ -618,14 +651,16 @@ async function callAnalyse(env, transcript, metrics, lang) {
 const RP_PER_MIN = 8;
 const RP_PER_DAY = 200;
 const rpHits = new Map();
-async function callRepolish(env, transcript, avoid, lang, n) {
+async function callRepolish(env, transcript, avoid, lang, n, ctx) {
   const language = AN_LANGS[lang] || "English";
+  const trade = anTrade(ctx);
   const system =
-    "You are an executive speaking coach. The learner spoke for about a minute; the transcript is below. " +
+    anCoachLine(ctx) + "The learner spoke for about a minute; the transcript is below. " +
+    (ctx && ctx.task ? "It was their answer to this task: " + ctx.task + " — the new version must still answer it. " : "") +
     "Write ONE more way they could have said the WHOLE thing — every fact, name and number kept, first person, spoken register, 60-110% of the original length, no filler and no hedging. " +
     "It must be clearly different from the versions already shown (listed below): a different register and different phrasing, not a reshuffle. " +
-    "Carry " + (n >= 3 ? "four" : "three") + " professional phrases or business idioms inside it, woven in naturally, and list them in learn exactly as they appear in text. " +
-    "Then give 2 MORE professional idioms the learner has not been shown, chosen for their topic, for them to memorise. " +
+    "Carry " + (n >= 3 ? "four" : "three") + (trade ? " phrases tradespeople and supervisors really use on site" : " professional phrases or business idioms") + " inside it, woven in naturally, and list them in learn exactly as they appear in text. " +
+    "Then give 2 MORE " + (trade ? "workplace idioms heard on site" : "professional idioms") + " the learner has not been shown, chosen for their topic, for them to memorise. " +
     "Respond with ONLY minified JSON: " +
     '{"version":{"style":"<2-4 words naming the register>","text":"<the whole speech, said that way>","learn":["<each phrase or idiom it introduced>"]},' +
     '"idioms":[{"idiom":"<an idiom they have not been shown>","meaning":"<plain meaning, one line>","when":"<the situation it fits, one line>","example":"<one sentence using it about the learner\'s own topic>"}]} ' +
@@ -978,8 +1013,9 @@ export default {
         if (Number.isFinite(+metrics[k])) m[k] = Math.round(+metrics[k] * 10) / 10;
       }
       const lang = String(body.analyse.lang || "en").slice(0, 5).toLowerCase();
+      const ctx = anCtx(body.analyse.context);
       try {
-        return json(await callAnalyse(env, transcript, m, lang), 200, cors);
+        return json(await callAnalyse(env, transcript, m, lang, ctx), 200, cors);
       } catch (e) {
         return json({ error: "analyse_unavailable", detail: String(e.message || e) }, 502, cors);
       }
@@ -993,8 +1029,9 @@ export default {
       const avoid = (Array.isArray(body.repolish.avoid) ? body.repolish.avoid : [])
         .map(x => String(x || "").replace(/\s+/g, " ").trim().slice(0, 1600)).filter(Boolean).slice(-4);
       const lang = String(body.repolish.lang || "en").slice(0, 5).toLowerCase();
+      const ctx = anCtx(body.repolish.context);
       try {
-        return json(await callRepolish(env, transcript, avoid, lang, avoid.length + 1), 200, cors);
+        return json(await callRepolish(env, transcript, avoid, lang, avoid.length + 1, ctx), 200, cors);
       } catch (e) {
         return json({ error: "repolish_unavailable", detail: String(e.message || e) }, 502, cors);
       }

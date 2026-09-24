@@ -153,6 +153,24 @@ not JS, and `new Function` chokes on it. Check it separately with
   English and `{tradeL}` from `FND_TRADE[lang]`. Recordings use `recCtx("fnd<day>-<i>")`
   so they are track-scoped like everything else. No `track()` events — the
   Worker allow-list has none for it, and a silently-dropped call is a lie.
+- **Session speaking report (2026-09-24, both areas).** The Record yourself
+  card on every *classic* session page (`rSession`: every Welding day, General
+  English Week 1 and its non-mission days — V2 mission days keep their own
+  report) runs the Executive Polish pipeline on the saved recording:
+  `sessReport(key, blob, secs)` → `exTranscribe` + `exAudioStats` →
+  `exTextStats` → `exAI(text, m, ctx)` → `exRenderReport`. `ctx` =
+  `sessCtx()` (track `general|welding`, week, day, focus, task, out, the
+  say-these-aloud phrases); the Worker's `analyse`/`repolish` routes take
+  `context` (`anCtx`, optional — Polish sends none) and judge the minute
+  against the task, in the workshop register for welding. Stored one per day
+  in `S.notes["exrep:"+dayKey]` (track-scoped, synced with the notes, `tx`
+  stripped by `fbSyncPayload`, newest `SESS_REP_KEEP` kept), `rep.prev` holds
+  the last take for the carry-over score. The report is host-aware:
+  `exHost` (null = Phrase Lab, `sessHost(key)` = the session), all lookups go
+  through `exQ`/`exQA` scoped to the host's wrap, `exAgainGo` points back at
+  the session mic; `go()` clears it. `recToggle` → `sessRecDone` runs it on
+  save; **Get my report** (`sessReportLast`) sends the newest take. Test:
+  `tests/session-report.mjs` (16).
 - **Road map (the "Road map" tab — formerly "Weeks" — both areas).** `rmSteps()` builds the board from the
   same data as the week cards — `trackWeeks` / `weekDone` / `currentPos` /
   `fndState` / `reviewCheckpoints` — so it cannot disagree with them; `rmHTML()`
