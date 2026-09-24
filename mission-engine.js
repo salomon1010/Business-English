@@ -1037,19 +1037,25 @@ Return JSON only:
        evidence  — the copy whose coaching finished (coachPending false) is
                    the later state of the same attempt, so it leads;
        private   — said / pron are kept from whichever copy has them;
-       report    — the later report wins (`at`); the SAME report (equal `at`)
-                   keeps the better version and polish from whichever copy
-                   still carries them.
+       report    — an AI report is never replaced by the offline floor,
+                   whatever its timestamp; otherwise the later report (`at`)
+                   leads. Either way a better version or polish missing from
+                   the leading copy is taken from the other: both copies are
+                   about the same spoken answer, and a missing field is far
+                   more often the sync payload's stripping than a model that
+                   had nothing to say. A later but poorer copy therefore
+                   cannot erase learner-facing data.
      Nothing here can resurrect data the learner deleted: sign-out and
      account deletion wipe the device before any merge runs. */
   function mergeReport(c, l) {
     if (!c) return l || null;
     if (!l) return c;
-    const ca = c.at || 0, la = l.at || 0;
-    if (ca !== la) return ca > la ? c : l;
-    const out = Object.assign({}, c, l);
-    out.better = l.better || c.better || null;
-    const pol = (l.pol && l.pol.length) ? l.pol : c.pol;
+    let lead = l, other = c;                              /* equal `at`: the device leads */
+    if (!!c.ai !== !!l.ai) { if (c.ai) { lead = c; other = l; } }
+    else if ((c.at || 0) > (l.at || 0)) { lead = c; other = l; }
+    const out = Object.assign({}, other, lead);
+    out.better = lead.better || other.better || null;
+    const pol = (lead.pol && lead.pol.length) ? lead.pol : other.pol;
     if (pol && pol.length) out.pol = pol; else delete out.pol;
     return out;
   }

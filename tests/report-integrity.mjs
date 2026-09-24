@@ -135,6 +135,24 @@ ok("M2 a device still pending × a cloud copy whose coaching finished → coache
 ok("M3 two different reports on one attempt → the later one wins", ME.mergeReport({ at: 5, one: "old" }, { at: 9, one: "new" }).one === "new" && ME.mergeReport({ at: 9, one: "new" }, { at: 5, one: "old" }).one === "new");
 ok("M4 one side has no report → the report survives", ME.mergeAttempt({ key: "k", at: 1 }, rich).report.better === "My words, better." && ME.mergeAttempt(rich, { key: "k", at: 1 }).report.better === "My words, better.");
 
+/* M5 — the device holds the COMPLETE report; the cloud copy of the same
+   attempt carries a LATER timestamp but is poorer. Three ways that happens:
+   the sync payload stripped it; a stale device wrote the offline floor while
+   still pending; the attempt row itself is newer but has no report yet. */
+const full = { key: "k5", at: 100, answered: true, coachPending: false, moves: { issue: true, ask: true }, said: "my own words", pron: 84,
+  report: { well: [{ m: "issue", n: "ok" }], fix: [], better: "My own words, better.", expr: [{ e: "this means", why: "" }], one: "x", ai: true, at: 200, pol: [{ s: "my own words", b: "my words", w: "shorter" }] } };
+const LATER_POORER = {
+  "stripped, later report": { key: "k5", at: 100, answered: true, coachPending: false, moves: { issue: true, ask: true }, report: { well: [{ m: "issue", n: "ok" }], fix: [], better: null, expr: [], one: "x", ai: true, at: 900 } },
+  "offline floor, pending, later": { key: "k5", at: 100, answered: true, coachPending: true, moves: { issue: true }, report: { well: [], fix: [], better: null, expr: [], one: "floor", ai: false, at: 900 } },
+  "later row, no report": { key: "k5", at: 150, answered: true, coachPending: true, moves: { issue: true } },
+};
+const keep = m => ({ coached: m.coachPending === false, said: m.said === "my own words", pron: m.pron === 84, better: !!(m.report && m.report.better === "My own words, better."), pol: !!(m.report && m.report.pol && m.report.pol.length === 1), ai: !!(m.report && m.report.ai), ask: !!(m.moves && m.moves.ask) });
+const m5 = Object.entries(LATER_POORER).flatMap(([n, c]) => [[n + " · cloud,local", keep(ME.mergeAttempt(c, full))], [n + " · local,cloud", keep(ME.mergeAttempt(full, c))]]);
+ok("M5 a LATER but poorer cloud copy cannot erase the device's complete report — coaching state, transcript, pronunciation, better version, polish, AI report and credited moves all kept (3 variants × both orders)",
+  m5.every(([, k]) => Object.values(k).every(Boolean)), JSON.stringify(m5.filter(([, k]) => !Object.values(k).every(Boolean))));
+ok("M5b the later copy still leads where it is richer: a later AI report with its own better version replaces an older one",
+  ME.mergeReport({ ai: true, at: 900, better: "Newer better.", one: "new" }, full.report).better === "Newer better." && ME.mergeReport(full.report, { ai: true, at: 900, better: "Newer better.", one: "new" }).one === "new");
+
 /* ══════════════════════ BROWSER ══════════════════════════════════════════ */
 console.log("\nBROWSER — real Chromium, the app's own fbMerge / fbSyncPull / fbFirstSync");
 let BASE = process.env.BASE, server = null;
@@ -276,6 +294,24 @@ await fakeCloud(A.page, backDoc);
 await A.page.evaluate(async () => { fbLastPull = 0; fbSyncing = false; await fbSyncPull(); });
 const b3 = await snap(A.page);
 ok("B3 device A pulling device B's copy keeps its own transcript, better versions and polish", b3.length === 2 && b3.every(x => x.said && x.better && x.pol), JSON.stringify(b3));
+
+/* M5 in the app: the pull meets a cloud copy of attempt 1 that is LATER
+   (report re-stamped, marked pending, offline floor) and stripped */
+const laterDoc = await A.page.evaluate(() => {
+  const p = JSON.parse(JSON.stringify(fbSyncPayload(S)));
+  const a = p.v2A["general-english"]["raise-problem"].attempts[0];
+  a.coachPending = true; delete a.pron;
+  a.report = { well: [], fix: [], better: null, expr: [], one: "floor", ai: false, at: Date.now() + 864e5 };
+  return { json: JSON.stringify(p), savedAt: Date.now() + 864e5 };
+});
+await A.page.evaluate(() => { S.v2A["general-english"]["raise-problem"].attempts[0].pron = 84; save(); });
+await fakeCloud(A.page, laterDoc);
+await A.page.evaluate(async () => { fbLastPull = 0; fbSyncing = false; await fbSyncPull(); });
+const c4 = await A.page.evaluate(() => { const a = S.v2A["general-english"]["raise-problem"].attempts[0];
+  return { coached: a.coachPending === false, said: !!a.said, pron: a.pron === 84, better: !!(a.report && a.report.better), pol: !!(a.report && a.report.pol && a.report.pol.length), ai: !!(a.report && a.report.ai) }; });
+const c4h = await A.page.evaluate(() => { go("mvhist"); return new Promise(r => setTimeout(() => r(document.querySelectorAll('.mv-hist-row button[onclick^="mvHistHear"]').length), 300)); });   /* mission rows only — the C3 conversation has its own */
+ok("C4 app fbSyncPull: a later, pending, floor-only, stripped cloud copy leaves attempt 1 complete — coached, transcript, pronunciation, better version, polish — and History still shows every better version",
+  Object.values(c4).every(Boolean) && c4h === 2, JSON.stringify({ c4, c4h }));
 
 /* ── E · offline, then reconnect ── */
 await A.ctx.setOffline(true);
