@@ -200,24 +200,25 @@ await sleep(600);
 st = await A.page.evaluate(ts => ({ rep: (S.convos.find(x => x.ts === ts) || {}).rep, stored: !!sessRepGet(rpRepKey(_rpLast.sc)) }), T2);
 ok("sending again upgrades the SAME entry to the AI report and stores the spoken report", st.rep && st.rep.ai === true && repHits === 2 && st.stored && analyseHits === 2);
 
-/* the scenario's own history carries the report (owner, 24 Sep 2026) */
+/* the scenario's own history carries the report (owner, 24 Sep 2026): the real card, under every session */
 const hs = await A.page.evaluate(ts => {
   const c = S.convos.find(x => x.ts === ts), key = c && c.exrep;
   rpHistory("interview");
-  const el = document.getElementById("v-roleplay");
-  const row = el.querySelector("#rph_" + ts);
-  const btns = [...(row ? row.querySelectorAll("button") : [])].map(b => b.getAttribute("onclick") || "");
-  return { linked: !!key && !!sessRepGet(key), rows: el.querySelectorAll(".rp-hist-row").length,
-    level: /B1\+/.test((el.querySelector(".rp-hist-sc") || {}).textContent || ""),
-    coach: /tell me who reads your reports/.test(row ? row.textContent : ""), sharper: /keeps the weekly delivery reports honest/.test(row ? row.textContent : ""),
-    open: btns.some(s => /rpHistReport\(/.test(s)), hear: btns.some(s => /rpHistSay\(/.test(s)), unscored: /Not evaluated/.test(el.textContent) };
+  const el = document.getElementById("v-roleplay"), sc = _rpLast.sc;
+  const row = el.querySelector("#rph_" + ts), card = el.querySelector("#rphrep_" + ts + " .ex-rep-card");
+  const before = exHost;
+  rpHistFocus(ts);
+  return { linked: !!key && !!sessRepGet(key), rows: el.querySelectorAll(".rp-hist-row").length, rowOpen: !!row && row.classList.contains("open"),
+    card: !!card, closed: !!card && !card.open, stations: card ? card.querySelectorAll(".ex-station").length : 0,
+    coach: /tell me who reads your reports/.test(card ? card.textContent : ""), sharper: /keeps the weekly delivery reports honest/.test(card ? card.textContent : ""),
+    level: /B1\+/.test((el.querySelector(".rp-hist-sc") || {}).textContent || ""), unscored: /Not evaluated/.test(el.textContent),
+    hostBefore: before, host: !!(exHost && exHost.wrapId === "rphrep_" + ts && exHost.voice === ttsVoice(rpVoiceFor(sc), sc.g) && exHost.gender === sc.g && exHost.report && exHost.report.key === key) };
 }, T1);
-ok("the scenario's history links every session to its report and shows it inside the row: level, the coach's words, the sharper version, Open, Hear it",
-  hs.linked && hs.rows >= 2 && hs.level && hs.coach && hs.sharper && hs.open && hs.hear && !hs.unscored, JSON.stringify(hs));
-const hr = await A.page.evaluate(ts => { rpHistReport(ts); const sc = _rpLast.sc; return { card: !!document.querySelector("#rpRepWrap .ex-rep-card"), back: /rpHistory\('interview'\)/.test(document.querySelector("#v-roleplay .back").getAttribute("onclick") || ""), voice: !!(exHost && exHost.voice === ttsVoice(rpVoiceFor(sc), sc.g) && exHost.gender === sc.g) }; }, T1);
-ok("Open the full report from the history draws the whole report, read in the character's voice, with a way back to the history", hr.card && hr.back && hr.voice, JSON.stringify(hr));
-const hd = await A.page.evaluate(ts => { const key = S.convos.find(x => x.ts === ts).exrep; rpHistory("interview"); rpHistDelete(ts, "interview"); return { gone: !S.convos.some(x => x.ts === ts), note: !!S.notes["exrep:" + key] }; }, T2);
-ok("deleting a session from the history deletes its report with it", hd.gone && !hd.note, JSON.stringify(hd));
+ok("the scenario's history draws the real report card under every session — closed, five stations, the coach's words, the sharper version, the level chip — and no host is left dangling",
+  hs.linked && hs.rows >= 2 && hs.rowOpen && hs.card && hs.closed && hs.stations === 5 && hs.coach && hs.sharper && hs.level && !hs.unscored && hs.hostBefore === null, JSON.stringify(hs));
+ok("touching a card makes it the current report: its own wrap, the character's voice and gender, its own report", hs.host, JSON.stringify(hs));
+const hd = await A.page.evaluate(ts => { const key = S.convos.find(x => x.ts === ts).exrep; rpHistory("interview"); rpHistDelete(ts, "interview"); return { gone: !S.convos.some(x => x.ts === ts), note: !!S.notes["exrep:" + key], cards: document.querySelectorAll("#v-roleplay .ex-rep-card").length }; }, T2);
+ok("deleting a session from the history deletes its report with it and redraws the remaining cards", hd.gone && !hd.note && hd.cards === 1, JSON.stringify(hd));
 
 /* the unified history */
 await A.page.evaluate(() => { S.ppRev = [{ id: "rv1", pairId: "p1", at: Date.now(), tk: "general-english", topic: "Raise a problem", review: { topic: "Raise a problem" } }]; save(); go("mvhist"); });

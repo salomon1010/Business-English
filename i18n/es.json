@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "¿Borrar todas las sesiones guardadas de este escenario? No se puede deshacer.",
  "rp.hist_none": "Aún no hay sesiones — termina una conversación y aparecerá aquí.",
  "rp.hist_teaser": "{{n}} sesiones anteriores · última el {{date}}",
- "rp.hist_report_open": "Abrir el informe completo",
  "rp.hist_noreport": "Sin informe para esta sesión",
  "home.stat_pron": "Pronunciación",
  "home.next_pron": "Evalúa una conversación para ver tu puntuación",

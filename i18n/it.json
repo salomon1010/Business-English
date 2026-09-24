@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "Eliminare tutte le sessioni salvate di questo scenario? Non è reversibile.",
  "rp.hist_none": "Ancora nessuna sessione — completa una conversazione e comparirà qui.",
  "rp.hist_teaser": "{{n}} sessioni precedenti · ultima il {{date}}",
- "rp.hist_report_open": "Open the full report",
  "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "Pronuncia",
  "home.next_pron": "Valuta una conversazione per avere un punteggio",

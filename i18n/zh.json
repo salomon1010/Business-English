@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "删除这个场景保存的所有记录？无法撤销。",
  "rp.hist_none": "还没有记录 — 完成一次对话后会出现在这里。",
  "rp.hist_teaser": "{{n}} 次历史记录 · 最近 {{date}}",
- "rp.hist_report_open": "Open the full report",
  "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "发音",
  "home.next_pron": "评估一次对话即可获得分数",

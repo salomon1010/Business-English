@@ -4184,11 +4184,8 @@ html[dir="rtl"] .help-sec[open]>summary::after{transform:scaleX(-1) rotate(-90de
 .rp-hist-body{flex-basis:100%;display:none;padding:2px 0 10px}
 .rp-hist-body.open{display:block}
 .rp-hist-line{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;padding:4px 0;color:var(--mut)}
-.rp-hist-rep{margin:4px 0 8px;padding:2px 12px 12px;border:1px solid var(--line2);border-radius:12px;background:var(--bg2)}
-.rp-hist-rep .ex-level{background:var(--bg);margin-top:12px}
-.rp-hist-coach{font-size:13.5px;line-height:1.55;color:var(--txt);margin:10px 0 0}
-.rp-hist-rep .ex-best-t{font-size:15px}
-.rp-hist-rep .mv-acts{margin-top:12px}
+.rp-hist-repwrap{margin:4px 0 8px}
+.rp-hist-repwrap .ex-rep-card{margin:0}
 .rp-hist-lsc{font-weight:800;font-variant-numeric:tabular-nums;flex:none;min-width:38px}
 .rp-hist-teaser{display:flex;align-items:center;gap:12px;width:100%;margin-top:16px;text-align:left;cursor:pointer}
 .rp-ht-l{flex:1;min-width:0}
@@ -5379,7 +5376,6 @@ const I18N_EN={
   "rp.hist_confirm_clear":"Delete every saved session for this scenario? This cannot be undone.",
   "rp.hist_none":"No past sessions yet — finish a conversation and it will appear here.",
   "rp.hist_teaser":"{{n}} past sessions · last on {{date}}",
-  "rp.hist_report_open":"Open the full report",
   "rp.hist_noreport":"No report for this session",
   "rp.eval_unavailable":"Scoring didn't come back for this conversation. Check your connection and try again — your sentences are kept above.",
   "rp.eval_yours":"Hear how you said it",
@@ -16789,7 +16785,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v464";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v465";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -25255,41 +25251,33 @@ function rpMetricsHTML(){
 /* ---- the report inside the history (owner, 24 Sep 2026) ----
    Every past session of a scenario shows the feedback the character gave —
    the Executive Polish report rpReport stored for it (c.exrep names its
-   S.notes["exrep:…"] entry): the level, the coach's briefing and the sharper
-   version inline, and the full report — read in the character's voice —
-   one tap away. Deleting a session deletes its report with it. */
+   S.notes["exrep:…"] entry) — as the SAME collapsible report card the
+   session page draws, closed under the row, with the coach's briefing, the
+   five stations and the voice. The report code addresses one host at a
+   time (exHost → exQ inside its wrap), so each row has its own wrap and
+   its own host: rpHistMountReports draws every card once the rows are in
+   the DOM, and touching a card (pointerdown / focus, before any button's
+   click) makes its host the current one. Deleting a session deletes its
+   report with it. */
 function rpHistRep(c){return c&&c.exrep?sessRepGet(c.exrep):null}
+function rpHistHost(c,sc){return Object.assign(rpHost(sc,c.exrep,rpHistRep(c)),{wrapId:"rphrep_"+c.ts,repOpen:false})}
 function rpHistRepHTML(c){
-  const rep=rpHistRep(c);
-  if(!rep)return `<div class="rp-hist-line"><span style="color:var(--mut2)">${t("rp.hist_noreport")}</span></div>`;
-  const ai=rep.ai||{};
-  return `<div class="rp-hist-rep">
-    ${ai.level?`<div class="ex-level"><span class="ex-level-b">${esc(ai.level)}</span><div><div class="ex-k" style="margin-top:0">${esc(t("ex.level_h"))}</div>${ai.level_note?`<p style="margin:2px 0 0;font-size:13px;color:var(--mut)">${esc(ai.level_note)}</p>`:""}</div></div>`:""}
-    ${ai.coach_script?`<p class="rp-hist-coach">${esc(ai.coach_script)}</p>`:""}
-    ${ai.sharper?`<div class="ex-k">${esc(t("ex.sharper"))}</div><p class="ex-best-t">${esc(ai.sharper)}</p>`:""}
-    <div class="mv-acts">
-      <button class="btn-primary" onclick="rpHistReport(${c.ts})">${tIc("rp.hist_report_open","chart")}</button>
-      ${ai.sharper?`<button class="btn btn-g" onclick="rpHistSay(${c.ts})">${tIc("ex.hear_btn","sound")}</button>`:""}
-    </div>
-  </div>`;
+  if(!rpHistRep(c))return `<div class="rp-hist-line"><span style="color:var(--mut2)">${t("rp.hist_noreport")}</span></div>`;
+  return `<div class="rp-hist-repwrap" id="rphrep_${c.ts}" onpointerdown="rpHistFocus(${c.ts})" onfocusin="rpHistFocus(${c.ts})"></div>`;
 }
-window.rpHistReport=ts=>{
-  const c=(S.convos||[]).find(x=>x&&x.ts===ts),sc=c&&rpById(c.id),rep=c&&rpHistRep(c);
-  if(!sc||!rep)return;
+window.rpHistFocus=ts=>{
+  if(exHost&&exHost.wrapId==="rphrep_"+ts)return;
+  const c=(S.convos||[]).find(x=>x&&x.ts===ts),sc=c&&rpById(c.id);
+  if(!sc||!rpHistRep(c))return;
+  exCoachStop();                                  /* paints the row it was reading */
+  exHost=rpHistHost(c,sc);
+};
+function rpHistMountReports(id){
+  const sc=rpById(id);if(!sc)return;
   exCoachStop();
-  rpRepScreen(sc,`rpHistory('${esc(sc.id)}')`,"‹ "+t("rp.hist_h"));
-  exHost=rpHost(sc,c.exrep,rep);exRenderReport(rep,true);
-};
-/* the sharper version, in the character's voice, from the history row */
-window.rpHistSay=ts=>{
-  const c=(S.convos||[]).find(x=>x&&x.ts===ts),sc=c&&rpById(c.id),rep=c&&rpHistRep(c);
-  const s=rep&&rep.ai&&rep.ai.sharper;if(!sc||!s)return;
-  exCoachStop();try{speechSynthesis.cancel();clearInterval(fbSayKeep)}catch(_){}
-  const v=ttsVoice(rpVoiceFor(sc),sc.g);
-  const canApi=POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"&&v!=="browser"&&s.length<=600;
-  if(canApi){fbSayApi(s,1,v).catch(()=>{fbStopAudio();rpSpeak(s,sc.g)});return}
-  fbStopAudio();rpSpeak(s,sc.g);
-};
+  rpHistFor(id).forEach(c=>{const rep=rpHistRep(c);if(!rep||!document.getElementById("rphrep_"+c.ts))return;exHost=rpHistHost(c,sc);exRenderReport(rep,true)});
+  exHost=null;
+}
 function rpHistDropRep(c){if(c&&c.exrep){delete S.notes["exrep:"+c.exrep]}}
 function rpHistSectionHTML(id,excludeTs,noHeading){
   const all=rpHistFor(id),rows=all.filter(c=>c.ts!==excludeTs);
@@ -25325,7 +25313,7 @@ function rpHistSectionHTML(id,excludeTs,noHeading){
             <span class="voc-chev">▾</span>
           </button>
           <button class="btn btn-g btn-sm voc-mini" onclick="rpHistDelete(${c.ts},'${esc(id)}')" aria-label="${esc(t("cf.delete"))}" title="${esc(t("cf.delete"))}">${ic("trash")}</button>
-          <div class="rp-hist-body" id="rph_${c.ts}">
+          <div class="rp-hist-body open" id="rph_${c.ts}">
             ${rpHistRepHTML(c)}
             ${(c.lines||[]).length?(c.lines||[]).map(l=>`<div class="rp-hist-line">${typeof l.score==="number"?`<span class="rp-hist-lsc" style="color:${rpEvCol(l.score)}">${l.score}%</span>`:""}<span>${esc(l.text)}</span></div>`).join(""):`<div class="rp-hist-line"><span style="color:var(--mut2)">${t("rp.hist_nolines")}</span></div>`}
           </div>
@@ -25349,7 +25337,7 @@ window.rpHistClear=async(id)=>{
 };
 function rpHistRefresh(id){
   const box=document.getElementById("rpEvHist");
-  if(box){box.innerHTML=rpHistSectionHTML(id,_rpLastTs);manIconizeInline(box);return}
+  if(box){box.innerHTML=rpHistSectionHTML(id,_rpLastTs);manIconizeInline(box);rpHistMountReports(id);return}
   const solo=document.getElementById("rpHistSolo");
   if(solo){rpHistory(id);return}
 }
@@ -25366,6 +25354,7 @@ window.rpHistory=id=>{
    <p class="sub" style="margin-bottom:4px">${t("rp.hist_sub")}</p>
    <div id="rpHistSolo">${body||`<div class="card" style="margin-top:14px"><p style="margin:0;color:var(--mut)">${t("rp.hist_none")}</p></div>`}</div>`;
   manIconizeInline(el);
+  rpHistMountReports(id);
 };
 
 

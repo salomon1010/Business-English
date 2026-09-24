@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "Hapus semua sesi tersimpan untuk skenario ini? Tindakan ini tidak bisa dibatalkan.",
  "rp.hist_none": "Belum ada sesi — selesaikan satu percakapan dan akan muncul di sini.",
  "rp.hist_teaser": "{{n}} sesi sebelumnya · terakhir pada {{date}}",
- "rp.hist_report_open": "Open the full report",
  "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "Pelafalan",
  "home.next_pron": "Evaluasi satu percakapan untuk mendapat skor",

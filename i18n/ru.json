@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "Удалить все сохранённые занятия по этому сценарию? Отменить будет нельзя.",
  "rp.hist_none": "Занятий пока нет — завершите разговор, и оно появится здесь.",
  "rp.hist_teaser": "{{n}} прошлых занятий · последнее {{date}}",
- "rp.hist_report_open": "Open the full report",
  "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "Произношение",
  "home.next_pron": "Оцените разговор, чтобы получить результат",

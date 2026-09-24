@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "इस परिदृश्य के सभी सहेजे गए सत्र हटा दें? इसे वापस नहीं किया जा सकता।",
  "rp.hist_none": "अभी कोई सत्र नहीं — एक बातचीत पूरी करें, वह यहाँ दिखेगी।",
  "rp.hist_teaser": "{{n}} पिछले सत्र · आख़िरी {{date}} को",
- "rp.hist_report_open": "Open the full report",
  "rp.hist_noreport": "No report for this session",
  "home.stat_pron": "उच्चारण",
  "home.next_pron": "स्कोर पाने के लिए किसी बातचीत का मूल्यांकन करें",

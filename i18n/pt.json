@@ -1152,7 +1152,6 @@
  "rp.hist_confirm_clear": "Excluir todas as sessões salvas deste cenário? Isso não pode ser desfeito.",
  "rp.hist_none": "Ainda não há sessões — termine uma conversa e ela aparecerá aqui.",
  "rp.hist_teaser": "{{n}} sessões anteriores · última em {{date}}",
- "rp.hist_report_open": "Abrir o relatório completo",
  "rp.hist_noreport": "Sem relatório para esta sessão",
  "home.stat_pron": "Pronúncia",
  "home.next_pron": "Avalie uma conversa para ter uma pontuação",
