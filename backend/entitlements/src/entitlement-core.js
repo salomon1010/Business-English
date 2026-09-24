@@ -96,3 +96,18 @@ export function resolve(record, nowMs) {
 export const isPremium = v => !!v && v.plan === "premium" && v.paid === true;
 export const adsEnabled = v => !v || v.ads !== false;
 export const hasCapability = (v, name) => !!v && !!v.capabilities && v.capabilities[name] === true;
+
+/* ------------------------------------------------------------ rewards
+   What a rewarded ad can earn. Every kind ships DISABLED: no metered Free
+   allowance exists yet for a reward to extend, and a reward with nothing to
+   spend it on would be a promise the app cannot keep. The server enables a
+   kind by configuration (env REWARD_KINDS_ENABLED), never a client. */
+export const REWARD_KINDS = Object.freeze({
+  extra_ai_practice: Object.freeze({ amount: 1, dailyMax: 3 }),
+  extra_shadow_challenge: Object.freeze({ amount: 1, dailyMax: 3 }),
+});
+export const REWARD_SESSION_TTL_MS = 30 * 60_000;
+export function rewardKindEnabled(kind, envList) {
+  if (!Object.prototype.hasOwnProperty.call(REWARD_KINDS, kind)) return false;
+  return String(envList || "").split(",").map(s => s.trim()).filter(Boolean).includes(kind);
+}

@@ -135,6 +135,13 @@ const EVENTS = new Set([
   // attempt was replayed (+kind own|better). Counts and enums only — the
   // report's text, the better version and the audio never leave the device.
   "v2_better_version_played", "v2_speaking_history_opened", "v2_speaking_history_replayed",
+  // Advertising (Phase 8, Free tier only; AdManager in index.html). Counts and
+  // fixed enums only: format (interstitial|native|rewarded|sponsored), context
+  // (the natural break or placement id), reason (why an ad was suppressed),
+  // provider (none|mock|native|…), result (eligible|refused|credited). Never
+  // the creative, the advertiser, a network id or anything about the learner.
+  "ad_eligibility_checked", "ad_suppressed", "ad_requested", "ad_loaded", "ad_displayed", "ad_dismissed",
+  "rewarded_ad_started", "rewarded_ad_completed",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -167,7 +174,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // written coaching came from the model or the device). Appended last, as
   // every addition to this list must be. `state`, `week`, `track`, `kind`,
   // `result`, `band` and `n` are reused from above rather than duplicated.
-  "competency", "mission", "move", "attempt", "ai", "from"]);
+  "competency", "mission", "move", "attempt", "ai", "from",
+  // advertising: format, context, provider (reason and result are reused). Appended last.
+  "format", "context", "provider"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;
@@ -208,6 +217,8 @@ const LAYOUTS = [
   [/^partner_(?!interest$)/, ["kind", "round", "n", "now", "regular", "state", "reason", "evidence", "result", "day"]],
   // shadow_* → blob3 level, 4 mode, 5 to, 6 rung, 7 reason, 8 result, 9 kind.
   // Same history: no shadow row was ever recorded.
+  // ad_* / rewarded_ad_* → blob3 format, 4 context, 5 reason, 6 provider, 7 result
+  [/^(ad_|rewarded_ad_)/, ["format", "context", "reason", "provider", "result"]],
   [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];
 /* The invariant lives where the row is built, not only in a test: whatever a

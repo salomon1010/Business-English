@@ -54,6 +54,10 @@ No provider identifier, product id, customer id or uid is ever in it.
 | `DELETE /v1/me` | signed-in learner | erase their row (account deletion) |
 | `POST /v1/admin/grant` | owner (`ADMIN_TOKEN`) | manual / promotional grant; 404 if no secret is set |
 | `POST /v1/billing/:provider` | store | **501 `not_configured`** until Phase 9 |
+| `POST /v1/rewards/start` | signed-in learner | a single-use nonce for one rewarded ad; the kind must be enabled server-side (`REWARD_KINDS_ENABLED`, empty = none); refused for Premium; daily cap per kind |
+| `POST /v1/rewards/verify/:provider` | the AD NETWORK, server to server | marks the nonce watched; `provider_txn` UNIQUE (one ad → one session). `mock` only with `MOCK_REWARDS="1"` (dev/test); `admob` 501 until Phase 9 SSV |
+| `POST /v1/rewards/claim` | signed-in learner | credits the kind once (one conditional UPDATE); a replay returns `credited:false` |
+| `GET /v1/rewards` | signed-in learner | their balances |
 
 ## Why a client cannot give itself Premium
 
@@ -74,7 +78,7 @@ No provider identifier, product id, customer id or uid is ever in it.
 
 ## Tests
 
-`node backend/entitlements/test/run.mjs` runs 41 checks. They use the real
+`node backend/entitlements/test/run.mjs` runs 61 checks (41 entitlement + 20 rewarded). They use the real
 `handle()`, a real SQLite database (`node:sqlite`) built from the real
 migration, and genuinely RS256-signed tokens from a key generated per run. No
 wrangler, Cloudflare or Firebase is needed.

@@ -252,6 +252,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
   capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
   Store adapters (Play / App Store) answer 501 until Phase 9.
+  **Phase 8 (`feature/phase8-ads`, `docs/ADVERTISING.md`):** `AdManager` is the
+  only thing that shows an ad. Completion points call `AdManager.markBreak(ctx)`
+  (session / Foundations / Shadow report / workshop / conversation / fresh Polish
+  report); `go()` calls `AdManager.afterNav(v)`, which offers the break over the
+  next NON-protected page and fills one labelled native slot at the foot of
+  Home / Progress / Shadow library / phrase bank. Providers: `none` (production),
+  `mock` (flag `ads_mock_provider`, localhost/staging only, labelled TEST),
+  `native` (future `window.BENativeAds` bridge from the store shells). Rewarded
+  = `AdManager.rewarded(kind, ctx, {userInitiated:true})` → server
+  `/v1/rewards/start` → network verifies server to server → single-use
+  `/v1/rewards/claim`; every reward kind ships disabled. Ad events
+  (`ad_*`, `rewarded_ad_*`) are on the be-events allow-list on this branch only.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

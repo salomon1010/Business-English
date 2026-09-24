@@ -113,14 +113,16 @@ console.log("\n# ad eligibility — one policy, conservative, protected learning
   await p.evaluate(t => AdEligibility.record("interstitial", t), T);
   r = await d("interstitial", "lesson_complete", { now: T + 60e3 });
   ok("23 · immediately after an interstitial → refused (cap:gap)", r.reason === "cap:gap");
-  r = await d("interstitial", "lesson_complete", { now: T + 16 * 60e3 });
+  /* the caps are read from AD_POLICY, so tuning the policy does not break the test */
+  const P = await p.evaluate(() => ({ gap: AD_POLICY.interstitial.minGapMs, win: AD_POLICY.interstitial.maxPerWindow, ses: AD_POLICY.interstitial.maxPerSession, w: AD_POLICY.interstitial.windowMs }));
+  r = await d("interstitial", "lesson_complete", { now: T + P.gap + 60e3 });
   ok("24 · after the minimum gap → eligible again", r.show === true);
-  await p.evaluate(t => AdEligibility.record("interstitial", t), T + 16 * 60e3);
-  r = await d("interstitial", "lesson_complete", { now: T + 33 * 60e3 });
-  ok("25 · a third within the rolling hour → refused (cap:window, max 2/h)", r.reason === "cap:window", JSON.stringify(r));
-  await p.evaluate(t => AdEligibility.record("interstitial", t), T + 70 * 60e3);
-  r = await d("interstitial", "lesson_complete", { now: T + 200 * 60e3 });
-  ok("26 · the session cap holds (max 3 per session)", r.reason === "cap:session", JSON.stringify(r));
+  let tt = T; for (let i = 1; i < P.win; i++) { tt += P.gap + 60e3; await p.evaluate(t => AdEligibility.record("interstitial", t), tt); }
+  r = await d("interstitial", "lesson_complete", { now: tt + P.gap + 60e3 });
+  ok(`25 · one more within the rolling hour than AD_POLICY allows (${P.win}/h) → refused (cap:window)`, tt + P.gap + 60e3 - T < P.w && r.reason === "cap:window", JSON.stringify({ r, span: (tt - T) / 60e3 }));
+  for (let i = P.win; i < P.ses; i++) { tt += P.w + 60e3; await p.evaluate(t => AdEligibility.record("interstitial", t), tt); }
+  r = await d("interstitial", "lesson_complete", { now: tt + P.w + 60e3 });
+  ok(`26 · the session cap holds (max ${P.ses} per visit)`, r.reason === "cap:session", JSON.stringify(r));
   await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); });
   r = await d("interstitial", "home_feed", { now: T });
   ok("27 · an interstitial outside a natural break (home_feed) → refused (context)", r.reason === "context");
@@ -138,11 +140,14 @@ console.log("\n# ad eligibility — one policy, conservative, protected learning
   ok("35 · while pronunciation is being assessed (Polish busy) → protected:polish", (await prot(() => { ex.phase = "busy"; }, () => { ex.phase = "idle"; }, "polish")) === true);
   ok("36 · while a dialog is open → protected:dialog", (await prot(() => { const o = document.createElement("div"); o.className = "cf-ov show"; o.id = "__ov"; document.body.appendChild(o); }, () => document.getElementById("__ov").remove(), "dialog")) === true);
   ok("37 · a flow can hold ads off explicitly (Phase 8 hook) → protected:hold", (await prot(() => AdEligibility.protect("shadow-take"), () => AdEligibility.release("shadow-take"), "hold:shadow-take")) === true);
-  for (const [v, js] of [["session", "go('session',1,'Mon')"], ["shadow", "go('shadow')"], ["roleplay", "go('roleplay')"]]) {
+  for (const [v, js] of [["session", "go('session',1,'Mon')"], ["shadow", "go('shadow');document.body.classList.add('sh-work-open')"], ["roleplay", "go('roleplay')"]]) {
     await p.evaluate(js); await sleep(300);
     const x = await d("interstitial", "lesson_complete", { now: T });
-    ok(`38 · on the ${v} screen itself → protected:view:${v}`, x.reason === "protected:view:" + v, JSON.stringify(x));
+    ok(`38 · on the ${v} ${v === "shadow" ? "workspace" : "screen"} itself → protected:view:${v}`, x.reason === "protected:view:" + v, JSON.stringify(x));
   }
+  await p.evaluate(() => document.body.classList.remove("sh-work-open"));
+  const lib = await d("native", "library", { now: T });
+  ok("38b · the Shadow LIBRARY (workspace closed) is browsing, not learning — not protected", !/protected/.test(lib.reason), JSON.stringify(lib));
   await p.evaluate(() => go("home"));
   await signIn(p); set({ status: 200, body: PREMIUM }); await p.evaluate(() => entRefresh());
   r = await d("interstitial", "lesson_complete", { now: T });

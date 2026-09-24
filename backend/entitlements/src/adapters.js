@@ -55,3 +55,23 @@ export const ADAPTERS = Object.freeze({
 /* guards the table against a provider id sneaking into the app-facing source */
 export const sourceIsKnown = s => SOURCES.includes(s);
 export const planIsKnown = p => Object.prototype.hasOwnProperty.call(PLANS, p);
+
+/* ---- rewarded-ad verifiers: the ad network tells the SERVER an ad bound to a
+   nonce was watched. The client never reports its own completion.
+   `mock` exists for local development and tests only (env MOCK_REWARDS="1",
+   never set in production). `admob` / `play` / `app_store` come in Phase 9:
+   AdMob server-side verification (SSV) signs its callback with Google's
+   ECDSA keys; the transaction id is the replay guard. */
+export const REWARD_VERIFIERS = Object.freeze({
+  mock: {
+    id: "mock",
+    configured: env => env.MOCK_REWARDS === "1",
+    async verify(req) {
+      let b; try { b = await req.json(); } catch (e) { return { ok: false, why: "json" }; }
+      const nonce = String(b.nonce || ""), txn = String(b.txn || "");
+      if (!/^[a-f0-9]{32}$/.test(nonce) || !/^[A-Za-z0-9_-]{8,64}$/.test(txn)) return { ok: false, why: "shape" };
+      return { ok: true, nonce, txn };
+    },
+  },
+  admob: { id: "admob", configured: () => false, async verify() { return { ok: false, why: "not_configured" }; } },
+});

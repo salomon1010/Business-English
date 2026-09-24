@@ -4906,6 +4906,31 @@ h1.big{letter-spacing:-.025em}
   .ai-dot,:is(#simMic,#rpMic).sim-active{animation:none!important}
   :is(.rec-btn.recording,.rec-btn.on,.pp-rv-rec.rec,.pp-recbtn.pp-stop,.shv3-rec.on,.rp-mic.sim-listening,.rp-mic.listening,.ex-mic.is-live,.ob-mic.listening){transition:none!important}
 }
+
+/* ═════════ ADVERTISING (Phase 8) — the frame is ours, the creative is the provider's ═════════
+   Interstitial: the app stays visible, dimmed, behind one large card that says
+   what it is. Native: a labelled slot at the foot of a browsing screen, dashed
+   so it can never pass for a lesson card. Tokens only; dark is canonical. */
+.ad-ov{position:fixed;inset:0;z-index:9000;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));
+  background:rgba(3,5,12,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:ds-in var(--ds-dur) var(--ds-ease-out) both}
+.ad-card{width:min(100%,440px);height:min(82vh,720px);display:flex;flex-direction:column;gap:12px;padding:14px;
+  background:var(--card);border:1px solid var(--line2);border-radius:var(--ds-r-lg);box-shadow:var(--sh-3)}
+.ad-head{display:flex;align-items:center;justify-content:space-between;min-height:44px}
+.ad-label{display:inline-flex;align-items:center;font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  color:var(--mut);border:1px solid var(--line2);border-radius:999px;padding:4px 10px}
+.ad-x{width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:var(--card2);color:var(--txt);display:grid;place-items:center;cursor:pointer}
+.ad-x svg{width:20px;height:20px}
+.ad-creative{flex:1;min-height:0;overflow:hidden;border-radius:var(--ds-r);background:var(--bg2);border:1px solid var(--line)}
+.ad-continue{flex:none}
+.ad-native{display:block;margin:28px 0 12px;padding:12px;border:1px dashed var(--line2);border-radius:var(--ds-r);background:color-mix(in srgb,var(--card) 70%,transparent)}
+.ad-native .ad-label{margin-bottom:10px}
+.ad-native-body{min-height:64px}
+.ad-mock{height:100%;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center;color:var(--mut)}
+.ad-mock b{color:var(--txt);font-size:16px}
+.ad-mock p{font-size:13px;max-width:30ch;line-height:1.45}
+.ad-mock-tag{font-size:10px;font-weight:900;letter-spacing:1.2px;color:var(--mut);border:1px solid var(--line2);border-radius:6px;padding:2px 6px}
+.ad-mock-native{flex-direction:row;gap:10px}
+@media (prefers-reduced-motion:reduce){.ad-ov{animation:none}}
 </style>
 </head>
 <body>
@@ -5924,6 +5949,11 @@ const I18N_EN={
  "acc.prem_3":"New Premium features as they arrive",
  "acc.prem_active":"Active",
  "acc.prem_until":"Active until {{date}}",
+ "ad.label":"Advertisement",
+ "ad.close":"Close the advertisement",
+ "ad.continue":"Continue to BE Mastery",
+ "ad.mock_title":"Test advertisement",
+ "ad.mock_body":"The ad network's own creative appears here. This placeholder exists only for testing.",
  "acc.premium":"⭐ Premium",
  "acc.coming_soon":"Coming soon",
  "acc.about_title":"About BE Mastery",
@@ -8927,6 +8957,7 @@ function go(v,arg1,arg2){
   streakPillSync();
   try{navBadges()}catch(e){}
   jumpTop();
+  try{AdManager.afterNav(v)}catch(e){}   /* a pending natural break, and this page's native slot (Phase 8) */
   if(v==="home")setTimeout(()=>whenIdle(backupNudge),1200);   // only on the dashboard, never mid-task, never under a thumb
 }
 
@@ -11124,6 +11155,7 @@ window.setScore=(key,n)=>{S.scores[key]=n;save();go("session",cur.arg1,cur.arg2)
    both doors — the manual button and a General English mission's Complete. */
 function sessDayDone(key,w,d,fromMission){
   S.days[key]=true;
+  try{AdManager.markBreak("session_complete")}catch(e){}
   /* fromMission: the mission's Complete screen IS the summary and the next
      step, so the V1 coaching modal (awardCompetency's existing `quiet`) and
      the floating progress strip stay away from it; the signals are identical */
@@ -17025,7 +17057,7 @@ window.simOpenMissionDebrief=id=>{
   if(simRun.debrief){go('simulation',simRun.id);return}
   simComplete(false);
 };
-function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
+function simComplete(naturalCompletion){if(!simRun||simRun.debrief)return;simStopListening();if(window.speechSynthesis)speechSynthesis.cancel();simRun.finished=true;try{AdManager.markBreak("practice_complete")}catch(e){}if(naturalCompletion&&isFirstDayMission(ProfessionalSimulationEngine.find(simRun.id))){simRun.missionComplete=true;simSave();go('simulation',simRun.id);return}simRun.debrief=ProfessionalSimulationEngine.debrief(simRun);ProfessionalSimulationEngine.save(S,simRun.debrief);if(simRun.debrief.learnerTurns>0){markPracticed();awardCompetency({activityType:'professional_simulation',lesson:ProfessionalSimulationEngine.find(simRun.id).title,score:simAnswerCoverage(simRun),duration:Math.max(1,Math.round((Date.now()-simRun.startedAt)/60000)),dedupeKey:'simulation:'+simRun.startedAt})}if(window.ConversationOrchestrator)ConversationOrchestrator.abandon(S,simRun.id);save();go('simulation',simRun.id)};
 /* ---- Library › Vocabulary (the original word bank) ---- */
 function rLibVocab(el){
   const b=vocBuckets(),total=b.ready.length+b.upnext.length+b.learned.length,pct=total?Math.round(100*b.learned.length/total):0;
@@ -18391,6 +18423,7 @@ function exAssignHTML(rep){
 }
 function exRenderReport(rep,quiet){
   if(exHost)exHost.report=rep;
+  try{if(!quiet&&rep&&Date.now()-(rep.at||0)<60e3)AdManager.markBreak("practice_complete")}catch(e){}   /* a fresh report, not a stored one redrawn */
   const m=rep.m,ai=rep.ai,prev=exHost?(exHost.prev||null):(exReps().find(r=>r!==rep&&r.at<rep.at)||null);
   const audioUrl=exHost?exHost.url:ex.url;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
@@ -19057,7 +19090,8 @@ const FLAGS_DEFAULT={
   shadow_apply_phrase_enabled:false,   // the Apply It tab stays off: svApplyAI writes S.applyPhrase and nothing reads it
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
-  ads_enabled:false                    // Phase 7: the ad policy exists (AdEligibility) but nothing renders an ad; Phase 8 turns this on
+  ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
+  ads_mock_provider:false              // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -19073,7 +19107,8 @@ const FLAGS_STAGING={
   shadow_apply_phrase_enabled:true,
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
-  ads_enabled:false
+  ads_enabled:false,
+  ads_mock_provider:false
 };
 /* A tester on a phone has no console to set be_flags with, so the URL can:
    ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
@@ -19176,7 +19211,7 @@ async function entEraseMe(){
 /* a plan change redraws what shows it and withdraws anything an ad would sit in */
 function entApply(){
   try{if(typeof cur!=="undefined"&&cur&&cur.v==="data")go("data")}catch(e){}
-  try{if(!AdEligibility.planAllowsAds())document.querySelectorAll("[data-ad-slot]").forEach(e=>e.remove())}catch(e){}
+  try{if(!AdEligibility.planAllowsAds())AdManager.withdraw()}catch(e){}
 }
 
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
@@ -19200,8 +19235,11 @@ function entPlanCardHTML(){
    Conservative on purpose; tune AD_POLICY after watching real use. */
 const AD_POLICY=Object.freeze({
   interstitial:Object.freeze({   /* full screen over the dimmed app, clearly labelled, one tap back */
-    contexts:Object.freeze(["lesson_complete","shadow_complete","practice_complete","flow_return","between_activities"]),
-    minGapMs:15*60e3, windowMs:60*60e3, maxPerWindow:2, maxPerSession:3, launchGraceMs:3*60e3,
+    contexts:Object.freeze(["lesson_complete","session_complete","shadow_complete","practice_complete","flow_return","between_activities"]),
+    /* MODERATE (Phase 8): at most one per natural break, never two within 8
+       minutes, 3 an hour, 4 a visit, none in the first 2 minutes. The close
+       control appears after skipAfterMs whatever the provider does. Tune here. */
+    minGapMs:8*60e3, windowMs:60*60e3, maxPerWindow:3, maxPerSession:4, launchGraceMs:2*60e3, skipAfterMs:5000,
   }),
   native:Object.freeze({           /* in browsing / content areas only */
     contexts:Object.freeze(["home_feed","library","progress_foot","settings_foot"]),
@@ -19219,7 +19257,8 @@ const AD_POLICY=Object.freeze({
 /* views where learning is interactive — an interstitial or native ad never
    shows while one of these is on screen (natural breaks happen on the way out) */
 const AD_PROTECTED_VIEWS=Object.freeze(["session","shadow","partner","roleplay","simulation","foundations","mission","pron"]);
-const AD_LOG_KEY="be_ad_log", AD_BOOT=Date.now();
+const AD_LOG_KEY="be_ad_log";
+let AD_BOOT=Date.now();   /* the visit's start, for the quiet period (let: tests move it back instead of waiting minutes) */
 const _adHolds=new Set();let _adSession={};
 const AdEligibility={
   policy:AD_POLICY,
@@ -19239,7 +19278,10 @@ const AdEligibility={
     if(_adHolds.size)return "hold:"+[..._adHolds][0];
     try{if(document.querySelector(".cf-ov.show,#authOv,.lang-modal-ov"))return "dialog"}catch(e){}
     try{if(document.hidden)return "hidden"}catch(e){}
-    try{if(typeof cur!=="undefined"&&cur&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
+    try{if(rpConv&&rpConv.busy)return "ai_wait"}catch(e){}
+    /* the Shadow LIBRARY is browsing; the Shadow WORKSPACE (player, recorder) is learning */
+    try{if(document.body.classList.contains("sh-work-open"))return "view:shadow"}catch(e){}
+    try{if(typeof cur!=="undefined"&&cur&&cur.v!=="shadow"&&AD_PROTECTED_VIEWS.includes(cur.v))return "view:"+cur.v}catch(e){}
     return null;
   },
   _log(){try{const a=JSON.parse(localStorage.getItem(AD_LOG_KEY)||"[]");return Array.isArray(a)?a.filter(x=>x&&typeof x.f==="string"&&Number.isFinite(x.t)):[]}catch(e){return []}},
@@ -19271,6 +19313,193 @@ const AdEligibility={
   },
   _resetSession(){_adSession={}},
 };
+/* ================= ADVERTISING (Phase 8) =================
+   One manager, one policy, pluggable providers. Nothing outside this block
+   shows an ad: completion points call AdManager.markBreak(context), go() calls
+   AdManager.afterNav(v), a future reward button calls AdManager.rewarded().
+   Every show goes through AdEligibility.decide() (flag → plan from the SERVER
+   view → format → context → protected learning state → AD_POLICY caps).
+
+   PROVIDER CONTRACT — what a network (web tag, AdMob / Play / StoreKit-side
+   SDK behind a native bridge) must implement; the app never talks to one directly:
+     id                         short name, sent with analytics
+     available()                can this provider run here at all?
+     supports(format)           interstitial | native | rewarded | sponsored
+     preload(format, ctx)       warm an ad; may be a no-op
+     load(format, ctx) → Promise<boolean>   an ad is ready to show
+     isReady(format)            loaded and not yet shown
+     show(format, {context, host, nonce}) → Promise<{shown, completed, closable?}>
+                                the creative is the provider's; host is our frame
+     dismiss()                  tear down whatever show() put on screen
+     renderNative(el, placement) → Promise<boolean>   fill a native slot
+     onImpression / onReward    reported back through the promises above
+   Production ships NO network: the provider is "none" and ads_enabled is off.
+   "mock" exists on localhost / the staging host only, to exercise the UI with
+   an obviously labelled test creative. "native" is the bridge the iOS /
+   Android shells will provide (window.BENativeAds) — absent today, so it is
+   never available; nothing here pretends otherwise. */
+const AdProviders={
+  none:{id:"none",available:()=>true,supports:()=>false,preload(){},async load(){return false},isReady:()=>false,async show(){return {shown:false}},dismiss(){},async renderNative(){return false}},
+  mock:{
+    id:"mock",_ready:{},
+    available(){try{return flag("ads_mock_provider")&&(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)||!!(beEnv()||{}).flags)}catch(e){return false}},
+    supports:f=>f==="interstitial"||f==="native"||f==="rewarded",
+    preload(f){this._ready[f]=true},
+    async load(f){await new Promise(r=>setTimeout(r,120));this._ready[f]=true;return true},
+    isReady(f){return !!this._ready[f]},
+    async show(f,o){
+      this._ready[f]=false;
+      if(o&&o.host)o.host.innerHTML=`<div class="ad-mock"><span class="ad-mock-tag">TEST</span><b>${esc(t("ad.mock_title"))}</b><p>${esc(t("ad.mock_body"))}</p></div>`;
+      if(f==="rewarded"){
+        /* a mock network "watches" the ad and calls the SERVER, as a real one does (dev Worker only) */
+        const base=entApiBase();
+        if(!o||!o.nonce||!base)return {shown:true,completed:false};
+        if(o.cancel)return {shown:true,completed:false};
+        try{const r=await fetch(base+"/v1/rewards/verify/mock",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({nonce:o.nonce,txn:"mock-"+o.nonce.slice(0,12)})});return {shown:true,completed:r.ok}}catch(e){return {shown:true,completed:false}}
+      }
+      return {shown:true,closable:true};
+    },
+    dismiss(){},
+    async renderNative(el){el.innerHTML=`<div class="ad-mock ad-mock-native"><span class="ad-mock-tag">TEST</span><b>${esc(t("ad.mock_title"))}</b></div>`;return true},
+  },
+  native:{
+    id:"native",
+    available(){return !!(window.BENativeAds&&typeof window.BENativeAds.show==="function")},
+    supports(f){try{return window.BENativeAds.supports(f)}catch(e){return false}},
+    preload(f,c){try{window.BENativeAds.preload(f,c)}catch(e){}},
+    async load(f,c){try{return !!(await window.BENativeAds.load(f,c))}catch(e){return false}},
+    isReady(f){try{return !!window.BENativeAds.isReady(f)}catch(e){return false}},
+    async show(f,o){try{return await window.BENativeAds.show(f,{context:o.context,nonce:o.nonce})}catch(e){return {shown:false}}},
+    dismiss(){try{window.BENativeAds.dismiss()}catch(e){}},
+    async renderNative(){return false},   /* native SDK native ads are drawn by the shell, not in the page */
+  },
+};
+/* which provider runs: the native bridge in the store shells, the mock only
+   where it is allowed, otherwise none. A web network (Phase 9 decision) slots in here. */
+function adProvider(){for(const id of ["native","mock"]){const p=AdProviders[id];if(p.available())return p}return AdProviders.none}
+
+/* screens whose FOOT may carry one native ad — browsing only, never a recorder */
+const AD_NATIVE_PLACES=Object.freeze({home:"home_feed",review:"progress_foot",shadow:"library",phrasebank:"library"});
+const AD_BREAK_TTL=10*60e3, AD_NATIVE_KEEP_MS=5*60e3;
+let _adBreak=null,_adShowing=false,_adNative={};   /* _adNative[placement] = {el, at}: a shown native ad survives a re-render of its page */
+const adTrack=(name,props)=>{try{track(name,Object.assign({provider:adProvider().id},props||{}))}catch(e){}};
+
+const AdManager={
+  /* a learning activity FINISHED (its result is on screen). The ad waits for
+     the learner to move on, so it never sits over the feedback itself. */
+  markBreak(context){if(AD_POLICY.interstitial.contexts.includes(context))_adBreak={context,at:Date.now()}},
+  /* called at the end of every go(): offer the pending break over the page the
+     learner chose; fill any native slot this page carries */
+  afterNav(v){
+    const b=_adBreak;
+    if(b&&Date.now()-b.at<AD_BREAK_TTL){
+      setTimeout(()=>{if(_adBreak===b&&!AdEligibility.protectedReason()){_adBreak=null;this.interstitial(b.context)}},700);
+    }else _adBreak=null;
+    setTimeout(()=>this.placeNative(v),300);
+  },
+  /* the full-screen interstitial. Resolves when the learner is back in the
+     app; resolves at once (false) whenever an ad is not appropriate. */
+  async interstitial(context){
+    if(_adShowing)return false;
+    const d=AdEligibility.decide("interstitial",context);
+    adTrack("ad_eligibility_checked",{format:"interstitial",context,result:d.show?"eligible":"refused"});
+    if(!d.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
+    const p=adProvider();
+    if(!p.supports("interstitial")){adTrack("ad_suppressed",{format:"interstitial",context,reason:"no_provider"});return false}
+    _adShowing=true;
+    try{
+      adTrack("ad_requested",{format:"interstitial",context});
+      const ok=await Promise.race([p.load("interstitial",{context}),new Promise(r=>setTimeout(()=>r(false),4000))]);
+      if(!ok){adTrack("ad_suppressed",{format:"interstitial",context,reason:"no_fill"});return false}
+      adTrack("ad_loaded",{format:"interstitial",context});
+      /* the learner may have started something while it loaded */
+      const again=AdEligibility.decide("interstitial",context);
+      if(!again.show){adTrack("ad_suppressed",{format:"interstitial",context,reason:again.reason.replace(/[^\w]+/g,"_").slice(0,24)});return false}
+      await this._overlay(p,context);
+      return true;
+    }finally{_adShowing=false}
+  },
+  /* the frame: the app stays visible, dimmed, behind a large labelled card;
+     the close control appears after AD_POLICY skipAfterMs no matter what, so
+     it can never be a dead end; Escape and "Continue" return to the app. */
+  _overlay(p,context){
+    return new Promise(done=>{
+      const back=document.activeElement;
+      const ov=document.createElement("div");ov.className="ad-ov";ov.id="adOv";
+      ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");ov.setAttribute("aria-label",t("ad.label"));
+      ov.innerHTML=`<div class="ad-card"><div class="ad-head"><span class="ad-label">${esc(t("ad.label"))}</span><button type="button" class="ad-x" aria-label="${esc(t("ad.close"))}" hidden>${ic("close")}</button></div>
+        <div class="ad-creative" id="adCreative"></div>
+        <button type="button" class="btn-primary ad-continue" hidden>${esc(t("ad.continue"))}</button></div>`;
+      document.body.appendChild(ov);
+      let closed=false;
+      const close=()=>{if(closed)return;closed=true;try{p.dismiss()}catch(e){}document.removeEventListener("keydown",key,true);ov.remove();adTrack("ad_dismissed",{format:"interstitial",context});try{back&&back.focus&&back.focus()}catch(e){}done()};
+      const key=e=>{if(e.key==="Escape"&&!ov.querySelector(".ad-x").hidden){e.preventDefault();close()}};
+      const reveal=()=>{if(closed)return;ov.querySelector(".ad-x").hidden=false;ov.querySelector(".ad-continue").hidden=false;ov.querySelector(".ad-continue").focus()};
+      ov.querySelector(".ad-x").onclick=close;ov.querySelector(".ad-continue").onclick=close;
+      document.addEventListener("keydown",key,true);
+      setTimeout(reveal,AD_POLICY.interstitial.skipAfterMs);
+      Promise.resolve(p.show("interstitial",{context,host:ov.querySelector("#adCreative")})).then(r=>{
+        if(!r||!r.shown){reveal();close();return}
+        AdEligibility.record("interstitial");adTrack("ad_displayed",{format:"interstitial",context});
+      }).catch(()=>{reveal();close()});
+    });
+  },
+  /* one labelled native slot at the foot of a browsing screen */
+  placeNative(v){
+    const place=AD_NATIVE_PLACES[v];if(!place)return;
+    const view=document.getElementById("v-"+v);if(!view||view.querySelector("[data-ad-slot]"))return;
+    /* the page re-rendered under an ad it already showed: put the SAME ad back
+       (no new request, no new impression) rather than let it flicker away */
+    const kept=_adNative[place];
+    if(kept&&Date.now()-kept.at<AD_NATIVE_KEEP_MS&&flag("ads_enabled")&&AdEligibility.planAllowsAds()&&!AdEligibility.protectedReason()){view.appendChild(kept.el);return}
+    const d=AdEligibility.decide("native",place);if(!d.show)return;
+    const p=adProvider();if(!p.supports("native"))return;
+    const slot=document.createElement("aside");slot.className="ad-native";slot.setAttribute("data-ad-slot","native");slot.setAttribute("data-placement",place);
+    slot.setAttribute("aria-label",t("ad.label"));
+    slot.innerHTML=`<span class="ad-label">${esc(t("ad.label"))}</span><div class="ad-native-body"></div>`;
+    view.appendChild(slot);
+    adTrack("ad_requested",{format:"native",context:place});
+    Promise.resolve(p.renderNative(slot.querySelector(".ad-native-body"),place)).then(ok=>{
+      if(!ok||!slot.isConnected){slot.remove();return}
+      AdEligibility.record("native");_adNative[place]={el:slot,at:Date.now()};adTrack("ad_displayed",{format:"native",context:place});
+    }).catch(()=>slot.remove());
+  },
+  /* REWARDED — only from a learner's own tap, never automatically, never to
+     continue ordinary learning. The reward is the SERVER's: start → the
+     network verifies server to server → claim (single use). Returns
+     {rewarded:boolean, balances?}. No screen offers one yet: no metered Free
+     allowance exists for a reward to extend (REWARD_KINDS ship disabled). */
+  async rewarded(kind,context,opts={}){
+    if(opts.userInitiated!==true)return {rewarded:false,reason:"not_user_initiated"};
+    const d=AdEligibility.decide("rewarded",context,{userInitiated:true});
+    if(!d.show){adTrack("ad_suppressed",{format:"rewarded",context,reason:d.reason.replace(/[^\w]+/g,"_").slice(0,24)});return {rewarded:false,reason:d.reason}}
+    const p=adProvider(),base=entApiBase();
+    if(!p.supports("rewarded")||!base||!FBUser)return {rewarded:false,reason:"unavailable"};
+    const hdr=async()=>({"content-type":"application/json",authorization:"Bearer "+await FBUser.getIdToken()});
+    let nonce;
+    try{const r=await fetch(base+"/v1/rewards/start",{method:"POST",headers:await hdr(),body:JSON.stringify({kind})});if(!r.ok)return {rewarded:false,reason:"start_"+r.status};nonce=(await r.json()).nonce}catch(e){return {rewarded:false,reason:"network"}}
+    adTrack("rewarded_ad_started",{format:"rewarded",context});
+    const res=await Promise.resolve(p.show("rewarded",{context,nonce,cancel:!!opts.cancel})).catch(()=>({shown:false}));
+    if(res&&res.shown)AdEligibility.record("rewarded");
+    if(!res||!res.completed)return {rewarded:false,reason:"not_completed"};
+    /* the network's server callback can lag the client: claim a few times */
+    for(let i=0;i<4;i++){
+      try{const r=await fetch(base+"/v1/rewards/claim",{method:"POST",headers:await hdr(),body:JSON.stringify({nonce})});
+        const j=await r.json().catch(()=>({}));
+        if(r.ok&&j.credited){adTrack("rewarded_ad_completed",{format:"rewarded",context,result:"credited"});return {rewarded:true,balances:j.balances}}
+        if(r.ok)return {rewarded:false,reason:j.reason||"already_claimed",balances:j.balances};
+        if(r.status!==409)return {rewarded:false,reason:"claim_"+r.status};
+      }catch(e){}
+      await new Promise(r=>setTimeout(r,600*(i+1)));
+    }
+    return {rewarded:false,reason:"not_verified"};
+  },
+  /* the plan changed to ad-free: take every ad off the screen and forget kept ones */
+  withdraw(){_adNative={};_adBreak=null;document.querySelectorAll("[data-ad-slot]").forEach(e=>e.remove());const o=document.getElementById("adOv");if(o){const c=o.querySelector(".ad-continue");if(c)c.click();else o.remove()}},
+  /* sponsored learning content: format and policy exist; no provider supplies it yet */
+  sponsored(){return ""},
+};
+
 
 /* ================= SHADOW STUDIO V2 =================
    "Shadow Studio helps you say it." A synchronised transcript beside the
@@ -21189,6 +21418,7 @@ function svChHistDrill(d){
 /* a Shadow report: the clip's words, what was said, the score, the pace, the
    words to fix — the studio's own report, in its own shape */
 function shHistShadowPut(r){
+  try{AdManager.markBreak("shadow_complete")}catch(e){}
   const L=aList("chHist");
   L.unshift({kind:"shadow",ts:Date.now(),vid:shClip.vid,title:shClip.title||shClip.vid,text:String(r.text||"").replace(/\s+/g," ").trim().slice(0,220),heard:String(r.heard||"").replace(/\s+/g," ").trim().slice(0,400),
     score:r.score,wpm:r.wpm||null,fillers:r.fillers||0,fix:r.fix||[],ctx:shRecCtx(shClip.vid)});
@@ -23992,7 +24222,7 @@ window.fndRecord=(day,i)=>{
     /* a day is done when all three are recorded — the recording is the evidence,
        the score (if the grader is reachable) is the feedback */
     const dayDone=!f.done["d"+day]&&pack.days[day-1].items.every((_,j)=>f.done[k][j]);
-    if(dayDone){f.done["d"+day]=true;markPracticed()}
+    if(dayDone){f.done["d"+day]=true;markPracticed();try{AdManager.markBreak("lesson_complete")}catch(e){}}
     save();
     const el=document.getElementById("v-foundations");if(el&&cur.v==="foundations")rFoundations(el,day);
     if(dayDone)setTimeout(rmCelebrate,500);
@@ -24022,7 +24252,7 @@ window.fndFinish=()=>{
   const f=fndState();
   const missing=Array.from({length:FND_TOTAL_DAYS},(_,i)=>i+1).find(n=>!f.done["d"+n]);
   if(missing){toast(t("path.fnd_locked_toast",{n:missing}));f.day=missing;save();go("foundations",missing);return}
-  f.finished=true;f.finishedAt=Date.now();
+  f.finished=true;f.finishedAt=Date.now();try{AdManager.markBreak("lesson_complete")}catch(e){}
   save();
   toast(t("fnd.all_done_toast"));
   try{awardCompetency({activityType:"phrase_lab",lesson:"Foundations",duration:15,dedupeKey:"fnd:done"})}catch(e){}
@@ -26453,6 +26683,7 @@ function rpReplaySummary(){
   manIconizeInline(el);
 }
 function rpSummary(){
+  try{AdManager.markBreak("practice_complete")}catch(e){}
   if(!rpConv)return; rpClearIdle(); rpCloseWork(); try{speechSynthesis.cancel()}catch(e){}
   const sc=rpConv.sc,covered=rpConv.covered;
   /* Log it. Without this the whole feature was invisible to the rest of the

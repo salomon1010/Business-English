@@ -85,11 +85,19 @@ console.log("\n1 · TRANSPORT");
   const r = await send(e, long); ok(`a body over ${MAX_BODY} bytes is cut, fails to parse, and writes nothing`, r.status === 204 && e.writes.length === 0 && long.length > MAX_BODY); }
 { const e = env(); const r = await send(e, { name: "made_up_event", props: { week: "1" } }); ok("an unknown event name → 204, nothing written (rejection is indistinguishable from acceptance)", r.status === 204 && e.writes.length === 0); }
 
+/* ── ads (Phase 8): every prop lands in the column README.md names ─────── */
+{ const e = env(); await send(e, { name: "ad_displayed", props: { format: "interstitial", context: "session_complete", provider: "mock", result: "x", reason: "ok", said: "hello" } });
+  const b = e.writes.length ? row(e).blobs : [];
+  ok("ad_displayed → blob3 format, 4 context, 5 reason, 6 provider, 7 result; nothing else", b[0] === "ad_displayed" && b[2] === "interstitial" && b[3] === "session_complete" && b[4] === "ok" && b[5] === "mock" && b[6] === "x" && b.length === 7, JSON.stringify(b)); }
+{ const e = env(); await send(e, { name: "rewarded_ad_completed", props: { format: "rewarded", context: "extra_practice", result: "credited", uid: "abc", email: "a@b.c" } });
+  const b = e.writes.length ? row(e).blobs : [];
+  ok("rewarded_ad_completed carries no uid / email even when sent", !b.some(x => /abc|@/.test(x)) && b[2] === "rewarded", JSON.stringify(b)); }
+
 /* ── 2 · the 20-blob limit and the legacy columns ──────────────────────── */
 console.log("\n2 · ROW LAYOUT — the Analytics Engine limit, and the columns that existed before 19 Sept 2026");
 ok(`the Worker states the limit workerd enforces: ${AE_MAX} blobs per data point`, AE_MAX === 20);
-ok("PROP_KEYS is still the allow-list of readable keys — 32 keys, first 26 identical and in order to origin/main",
-  KEYS.length === 32 && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
+ok("PROP_KEYS is still the allow-list of readable keys — 35 keys, first 26 identical and in order to origin/main",
+  KEYS.length === 35 && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
 ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exactly the columns that ever existed",
   LEGACY.join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now" && LEGACY.length === 18);
 { const all = {}; for (const k of KEYS) all[k] = "x";
@@ -157,7 +165,10 @@ ok("layoutFor() is deterministic and total: v2_* → V2 map, partner_* → partn
    purpose: the body cap is 512 bytes and a 40-key beacon with real values is
    over it — which is the cap working, not the layout. Each payload's size is
    asserted, so this section measures the row and never the cap. */
-const ALLK = Object.fromEntries(KEYS.map(k => [k, "x"]));
+/* the ad-only keys (Phase 8) never ride on another family's event, so each
+   family's worst case is every key it could carry — not the ad ones */
+const AD_ONLY = ["format", "context", "provider"];
+const ALLK = Object.fromEntries(KEYS.filter(k => !AD_ONLY.includes(k)).map(k => [k, "x"]));
 const JUNK = { junk1: "y", junk2: "y", said: "z" };
 const MAXP = {
   "legacy  ": ["app_open", { ...ALLK, ...JUNK }],
@@ -166,6 +177,7 @@ const MAXP = {
   "V2, every key": ["v2_evidence_recorded", { ...ALLK, ...JUNK }],
   "V2, worst-case values": ["v2_evidence_recorded", { track: GE, week: "12", competency: "c".repeat(MAX_VAL), mission: "m".repeat(MAX_VAL), kind: "transfer", move: "mitigate", result: "fail", band: "partial", state: "TRANSFER_READY", from: "DEMONSTRATED", attempt: "60", ai: "1", ...JUNK }],
   "combined": ["session_complete", { ...ALLK, week: "12", day: "Sun", ...JUNK }],
+  "ad": ["ad_suppressed", { format: "interstitial", context: "practice_complete", reason: "protected_view_simulati", provider: "native", result: "refused", week: "1", ...JUNK }],
 };
 for (const [fam, [name, props]] of Object.entries(MAXP)) {
   const bytes = JSON.stringify({ name, props }).length;
@@ -195,7 +207,8 @@ console.log("\n2c · FAILURE HANDLING — the client keeps its 204; the operator
 console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
 ok("the allow-list carries fifteen v2_* names (eleven missions + four speaking-report)", V2.length === 15, V2.join());
-ok("the six V2 prop keys are allow-listed (appended last on PROP_KEYS)", KEYS.slice(-6).join() === "competency,mission,move,attempt,ai,from");
+ok("the six V2 prop keys are allow-listed (contiguous, before the ad keys)", KEYS.slice(26, 32).join() === "competency,mission,move,attempt,ai,from");
+ok("the three ad prop keys are appended last (Phase 8)", KEYS.slice(-3).join() === "format,context,provider");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));
 

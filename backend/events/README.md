@@ -307,3 +307,28 @@ email. If an event seems to need one, the event is wrong.
 
 ## Four-round review events (2026-09-20)
 `partner_review_ready` (+`evidence` audio|asr|none), `partner_review_coach`, `partner_review_practice` (+`result` pass|retry), `partner_review_saved`, `partner_review_game`. Counts only: never the topic text, a word, a transcript or a score. Answer "do learners open the lesson, play the coach, repeat, save, play?" — the funnel after a completed human session.
+
+## Advertising events (Phase 8)
+
+`ad_eligibility_checked`, `ad_suppressed`, `ad_requested`, `ad_loaded`,
+`ad_displayed`, `ad_dismissed`, `rewarded_ad_started`, `rewarded_ad_completed`,
+sent by `AdManager` in index.html (Free tier only, `ads_enabled` off until the
+owner turns it on). Row layout for `ad_*` / `rewarded_ad_*`:
+
+| blob | key | values |
+|---|---|---|
+| 3 | format | interstitial · native · rewarded · sponsored |
+| 4 | context | session_complete · lesson_complete · shadow_complete · practice_complete · home_feed · library · progress_foot · … |
+| 5 | reason | why an ad was suppressed: flag_off · premium · context · protected_view_session · cap_gap · cap_window · no_provider · no_fill · … |
+| 6 | provider | none · mock · native |
+| 7 | result | eligible · refused · credited |
+
+Never the creative, the advertiser, a network id, a nonce or anything about the learner.
+
+```sql
+-- how often a natural break becomes an ad, and why not when it does not
+SELECT blob4 AS context, blob1 AS event, blob5 AS reason, SUM(_sample_interval) AS n
+FROM be_events WHERE blob1 IN ('ad_eligibility_checked','ad_suppressed','ad_displayed')
+  AND timestamp > NOW() - INTERVAL '7' DAY
+GROUP BY context, event, reason ORDER BY n DESC
+```

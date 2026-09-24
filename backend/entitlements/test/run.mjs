@@ -18,13 +18,13 @@ let clock = T0;
 /* ---- D1 shim over a real SQLite database (the three calls the Worker uses) */
 function d1() {
   const db = new DatabaseSync(":memory:");
-  db.exec(readFileSync(new URL("../migrations/0001_entitlements.sql", import.meta.url), "utf8"));
+  for (const m of ["0001_entitlements.sql", "0002_rewards.sql"]) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
   const norm = v => v === undefined ? null : v;
   return {
     raw: db,
     prepare(sql) {
       const st = db.prepare(sql); let args = [];
-      const o = { bind: (...a) => { args = a.map(norm); return o; }, first: async () => st.get(...args) ?? null, run: async () => { st.run(...args); return { success: true }; }, all: async () => ({ results: st.all(...args) }) };
+      const o = { bind: (...a) => { args = a.map(norm); return o; }, first: async () => st.get(...args) ?? null, run: async () => { const r = st.run(...args); return { success: true, meta: { changes: Number(r.changes) } }; }, all: async () => ({ results: st.all(...args) }) };
       return o;
     },
   };
@@ -165,6 +165,63 @@ console.log("\n# Worker — providers, erase, CORS, hidden admin");
   r = await call("GET", "/v1/entitlement", { headers: { "x-dev-user": "dana" } });
   ok("31 · X-Dev-User works only when DEV_AUTH=1 (local dev)", r.status === 200 && r.json.plan === "free");
   env = keep;
+}
+
+console.log("\n# rewarded ads — server-verified, single-use");
+{
+  const R = (method, path, o = {}) => call(method, path, o);
+  const start = (uid, kind = "extra_ai_practice") => R("POST", "/v1/rewards/start", { tok: token(uid), body: { kind } });
+  const verify = (nonce, txn, prov = "mock") => R("POST", "/v1/rewards/verify/" + prov, { body: { nonce, txn } });
+  const claim = (uid, nonce, extra = {}) => R("POST", "/v1/rewards/claim", { tok: token(uid), body: { nonce, ...extra } });
+  env = baseEnv();
+  let r = await R("POST", "/v1/rewards/start", { body: { kind: "extra_ai_practice" } });
+  ok("R1 · starting a reward needs a signed-in learner (401)", r.status === 401);
+  r = await start("erin");
+  ok("R2 · every reward kind ships disabled: start → 403 kind_off", r.status === 403 && r.json.error === "kind_off");
+  env = { ...baseEnv(), REWARD_KINDS_ENABLED: "extra_ai_practice" };
+  r = await start("erin", "unlimited_everything");
+  ok("R3 · an unknown kind is refused even when rewards are on", r.status === 403);
+  r = await verify("0".repeat(32), "txn-00000001");
+  ok("R4 · the mock verifier does not exist outside dev/test (404)", r.status === 404);
+  env = { ...env, MOCK_REWARDS: "1" };
+  r = await start("erin"); const n1 = r.json.nonce;
+  ok("R5 · a learner starts one → a single-use nonce", r.status === 200 && /^[a-f0-9]{32}$/.test(n1));
+  r = await claim("erin", n1);
+  ok("R6 · a cancelled / unfinished ad earns nothing: claim before verification → 409 not_verified", r.status === 409 && r.json.error === "not_verified");
+  r = await claim("erin", n1, { verified: true, completed: true, reward: 99 });
+  ok("R7 · the client cannot claim completion in the request body", r.status === 409);
+  r = await verify(n1, "txn-erin-0001");
+  ok("R8 · the network verifies the ad (server to server)", r.status === 200 && r.json.ok);
+  r = await claim("frank", n1);
+  ok("R9 · another learner cannot claim erin's nonce (404)", r.status === 404);
+  r = await claim("erin", n1);
+  ok("R10 · a verified completion produces exactly one reward", r.status === 200 && r.json.credited === true && r.json.balances.extra_ai_practice === 1);
+  r = await claim("erin", n1);
+  ok("R11 · a duplicate claim produces no second reward", r.status === 200 && r.json.credited === false && r.json.balances.extra_ai_practice === 1);
+  r = await verify(n1, "txn-erin-0001");
+  ok("R12 · the network's retry of the same callback is idempotent", r.status === 200 && r.json.again === true);
+  const n2 = (await start("erin")).json.nonce;
+  r = await verify(n2, "txn-erin-0001");
+  ok("R13 · one watched ad (transaction id) cannot verify a second nonce (409)", r.status === 409);
+  await verify(n2, "txn-erin-0002");
+  const both = await Promise.all([claim("erin", n2), claim("erin", n2), claim("erin", n2)]);
+  ok("R14 · three racing claims on one nonce credit exactly once", both.filter(x => x.json && x.json.credited).length === 1 && (await R("GET", "/v1/rewards", { tok: token("erin") })).json.balances.extra_ai_practice === 2);
+  const n3 = (await start("erin")).json.nonce; clock += 31 * 60_000;
+  r = await verify(n3, "txn-erin-0003");
+  ok("R15 · an expired nonce cannot be verified (410)", r.status === 410);
+  r = await claim("erin", n3);
+  ok("R16 · …nor claimed", r.status === 409 || r.status === 410);
+  clock = T0;
+  for (let i = 0; i < 3; i++) { const n = (await start("gina")).json.nonce; await verify(n, "txn-gina-000" + i); await claim("gina", n); }
+  r = await start("gina");
+  ok("R17 · the daily cap per kind holds (429 daily_cap)", r.status === 429 && r.json.error === "daily_cap");
+  await grant({ uid: "hana", plan: "premium", status: "active", expiresAt: T0 + 30 * 864e5, source: "promo" });
+  r = await start("hana");
+  ok("R18 · Premium never receives a rewarded ad (409 premium)", r.status === 409 && r.json.error === "premium");
+  r = await R("POST", "/v1/rewards/verify/admob", { body: {} });
+  ok("R19 · real network verification answers 501 until Phase 9", r.status === 501);
+  r = await R("GET", "/v1/rewards", { tok: token("ivan") });
+  ok("R20 · a learner with nothing earned has empty balances; the response names no other account", r.status === 200 && Object.keys(r.json.balances).length === 0);
 }
 
 const pass = res.filter(Boolean).length;
