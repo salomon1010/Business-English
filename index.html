@@ -4778,6 +4778,104 @@ h1.big{letter-spacing:-.025em}
   .mv-fresh *,.ai-think::before,.ai-orb,.ai-scan,.mv-rec::after,.mv-dock,.mv-fresh .mv-done.ds-win::after{animation:none!important}
   .mv-rec::before,.ds-meter i,.rec-btn.recording,.btn-primary{transition:none!important}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BE MASTERY SHARED COMPONENTS — Phase 2 (docs/DESIGN_SYSTEM_BEMASTERY.md §12).
+   ONE implementation per component, for both tracks: every rule reads the
+   theme tokens (Signal / Forge), never a track. Existing class names ARE the
+   components — .btn, .card, details folds, .cf-card, .rec-btn, .toast … — so
+   every screen in both tracks inherits them with its markup and behaviour
+   unchanged; the new state components (.ds-state, .ds-skel, .ds-progress,
+   .ds-entry, .ds-meter) are rendered only through the DS helper in script.
+   ═══════════════════════════════════════════════════════════════════════════ */
+/* FOCUS — one visible ring for keyboard users, in the theme's focus colour */
+:where(button,a,[role="button"],summary,input,textarea,select,[tabindex]):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* HEADER + BACK NAVIGATION */
+.back{display:inline-flex;align-items:center;gap:4px;min-height:36px;color:var(--accent-text);font-weight:700;border-radius:var(--ds-pill)}
+
+/* NAVIGATION — the active tab carries a soft pill of the theme accent behind its icon */
+.bnav-item .ic{border-radius:12px;transition:background var(--ds-dur) var(--ds-ease-soft)}
+.bnav-item.on .ic{background:color-mix(in srgb,var(--accent) 18%,transparent)}
+
+/* BUTTONS — primary (Phase 1), secondary, outline, small, disabled */
+.btn{border-radius:var(--ds-r-sm);transition:transform var(--ds-fast) var(--ds-ease-out),border-color var(--ds-dur),background var(--ds-dur)}
+.btn-g{background:color-mix(in srgb,var(--card2) 92%,transparent);border-color:var(--line2)}
+@media (hover:hover){.btn-g:hover{border-color:var(--accent)}}
+.btn-outline{border:1.5px solid var(--accent);color:var(--accent-text);background:transparent}
+.btn-sm{min-height:36px}
+:is(.btn,.btn-primary):is(:disabled,[aria-disabled="true"]){opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none}
+
+/* CARDS — interactive cards and rows press like buttons */
+:is(button.card,.card[onclick],.pf-row){transition:transform var(--ds-fast) var(--ds-ease-out),border-color var(--ds-dur)}
+:is(button.card,.card[onclick],.pf-row):active{transform:scale(.99)}
+@media (hover:hover){:is(button.card,.card[onclick],.pf-row):hover{border-color:var(--line2)}}
+
+/* PROGRESS — track + fill; the fill is transform-driven (never width) */
+.ds-progress{position:relative;height:8px;border-radius:var(--ds-pill);background:var(--card2);overflow:hidden}
+.ds-progress>i{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--p,0));background:var(--cta-grad);border-radius:inherit;transition:transform var(--ds-reveal) var(--ds-ease-out)}
+.ds-progress-l{display:flex;justify-content:space-between;font-size:12px;color:var(--mut);margin:0 0 6px}
+
+/* EXPANDABLE — every <details> fold: a real touch target, a focus ring, a turning chevron */
+:is(details.mv-fold,details.home-more,details.fb-sec)>summary{min-height:44px;cursor:pointer}
+:is(details.mv-fold,details.home-more,details.fb-sec)[open]{border-color:var(--line2)}
+
+/* SHEETS / MODALS — the confirm dialog is one surface; on a phone it rises
+   from the bottom as a sheet (thumb reach), on a wide screen it stays centred */
+.cf-ov{background:color-mix(in srgb,var(--bg) 78%,transparent)}
+.cf-card{background:linear-gradient(162deg,color-mix(in srgb,var(--card) 100%,#fff 2%),var(--card));box-shadow:var(--hair),0 30px 90px rgba(0,0,0,.55);border-radius:var(--ds-r-lg)}
+@media (max-width:560px){
+  .cf-ov:not(.pi-ov):not(.ios-ov):not(.exd-ov):not(.ra-ov){place-items:end center;padding:0}
+  .cf-ov:not(.pi-ov):not(.ios-ov):not(.exd-ov):not(.ra-ov) .cf-card{max-width:100%;border-radius:var(--ds-r-lg) var(--ds-r-lg) 0 0;
+    padding-bottom:calc(22px + env(safe-area-inset-bottom));transform:translateY(24px)}
+  .cf-ov.show:not(.pi-ov):not(.ios-ov):not(.exd-ov):not(.ra-ov) .cf-card{transform:none}   /* the rise ends ON the bottom edge */
+  .cf-ov:not(.pi-ov):not(.ios-ov):not(.exd-ov):not(.ra-ov) .cf-card::before{content:"";display:block;width:40px;height:4px;border-radius:4px;background:var(--line2);margin:-12px auto 14px}
+}
+
+/* STATES — empty · loading · error · warning · success: one component */
+.ds-state{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:var(--ds-r-sm);border:1px solid var(--line);background:color-mix(in srgb,var(--card2) 60%,transparent);margin:10px 0}
+.ds-state-ic{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent-text)}
+.ds-state-ic svg{width:18px;height:18px}
+.ds-state b{display:block;font-size:14.5px;margin-bottom:2px}
+.ds-state p{margin:0;font-size:13px;color:var(--mut);line-height:1.55}
+.ds-state .btn{margin-top:10px}
+.ds-state.is-error{border-color:color-mix(in srgb,var(--red) 45%,transparent)}.ds-state.is-error .ds-state-ic{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.ds-state.is-warning{border-color:color-mix(in srgb,var(--gold) 45%,transparent)}.ds-state.is-warning .ds-state-ic{background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
+.ds-state.is-success{border-color:color-mix(in srgb,var(--green) 45%,transparent)}.ds-state.is-success .ds-state-ic{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}
+.ds-state.is-empty{border-style:dashed}
+.pg-empty{padding:14px 16px;border:1px dashed var(--line2);border-radius:var(--ds-r-sm)}
+/* loading skeleton: a surface-coloured shimmer, content-shaped */
+.ds-skel{display:grid;gap:10px;margin:10px 0}
+.ds-skel i{display:block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--card2) 25%,color-mix(in srgb,var(--card2) 70%,var(--txt) 8%) 50%,var(--card2) 75%);background-size:200% 100%;animation:ds-shim 1.3s linear infinite}
+.ds-skel i:nth-child(3n){width:62%}.ds-skel i:nth-child(3n+2){width:84%}
+@keyframes ds-shim{to{background-position:-200% 0}}
+
+/* AUDIO CONTROLS — Hear / Slow / play buttons share one pill */
+:is(.pp-rv-hear,.sim-fb-play,.ds-audio){min-height:40px;border-radius:var(--ds-pill)}
+:is(.pp-rv-hear,.sim-fb-play,.ds-audio) svg{color:var(--accent-text)}
+
+/* RECORDING CONTROL — idle / recording (Phase 1) / disabled */
+.rec-btn{background:var(--cta-grad);color:var(--on-accent)}
+.rec-btn:disabled{opacity:.5;cursor:not-allowed}
+/* VOICE VISUALISATION — the meter appears beside ANY recorder while it records */
+*:has(> .rec-btn.recording) > .ds-meter,*:has(> div > .rec-btn.recording) .ds-meter{display:flex}
+
+/* COACHING ENTRY POINTS — "open your report / previous attempts / practise" rows */
+.ds-entry,.mv-prevlink{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:12px 14px;border-radius:var(--ds-r);
+  border:1px dashed var(--line2);background:transparent;color:var(--txt);text-align:left;cursor:pointer}
+.ds-entry-ic{flex:none;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent-text)}
+.ds-entry-ic svg{width:18px;height:18px}
+.ds-entry b{display:block;font-size:14px}.ds-entry small{display:block;font-size:12.5px;color:var(--mut)}
+.ds-entry .ds-chev{margin-left:auto;color:var(--mut)}
+
+/* TOAST — the shared notification surface */
+.toast{background:linear-gradient(162deg,color-mix(in srgb,var(--card2) 100%,#fff 3%),var(--card2));box-shadow:var(--hair),var(--sh-2);border-radius:14px}
+
+/* ENTRANCE for sheets and states */
+.ds-state,.ds-skel{animation:ds-in .35s var(--ds-ease-out) both}
+@media (prefers-reduced-motion:reduce){
+  .ds-state,.ds-skel,.ds-skel i,.ds-progress>i,.cf-card,.bnav-item .ic,.btn,:is(button.card,.card[onclick],.pf-row){animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
@@ -9784,7 +9882,7 @@ function rMission(el,missionId,step){
         <button class="rec-btn ${rec_?"recording":""}" id="recBtn" onclick="mvRecord()" aria-label="${esc(t("mv.speak_btn"))}">${ic("mic")}</button>
         <div><div class="rec-time" id="recTime">00:00</div>
         <div class="rec-state" id="recState">${rec_?t("mv.recording"):t("mv.speak_btn")}</div></div>
-        <span class="ds-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        ${DS.meter()}
       </div>
       ${instruction!==t("mv.speak_sub")?`<p class="pp-fine">${esc(t("mv.speak_sub"))}</p>`:""}
     </section>`;
@@ -9915,10 +10013,24 @@ function mvDayAutoComplete(comp,r){
   return x;
 }
 
-/* Design system — the AI state and the voice meter (docs/DESIGN_SYSTEM.md). */
-function mvThinkHTML(){
-  return `<div class="ai-think" role="status" aria-live="polite"><span class="ai-orb" aria-hidden="true"></span><div><b>${t("mv.thinking")}</b><div class="ai-scan" aria-hidden="true"></div></div></div>`;
-}
+/* ── BE Mastery shared components (Phase 2) ──────────────────────────────
+   One render function per shared component; the markup carries no track and
+   no learning logic — the theme (Signal / Forge) comes from the tokens. */
+const DS={
+  /* AI working: the orb, rotating edge and scan line */
+  ai(title,sub){return `<div class="ai-think" role="status" aria-live="polite"><span class="ai-orb" aria-hidden="true"></span><div><b>${esc(title||"")}</b>${sub?`<small>${esc(sub)}</small>`:""}<div class="ai-scan" aria-hidden="true"></div></div></div>`},
+  /* empty · loading · error · warning · success, one component */
+  state(kind,o){o=o||{};const icn={empty:"info",error:"close",warning:"info",success:"check",loading:"repeat"}[kind]||"info";
+    const role=kind==="error"?' role="alert"':(kind==="loading"||kind==="success"?' role="status"':"");
+    return `<div class="ds-state is-${esc(kind)}"${role}><span class="ds-state-ic" aria-hidden="true">${ic(icn)}</span><div>${o.title?`<b>${esc(o.title)}</b>`:""}${o.body?`<p>${esc(o.body)}</p>`:""}${o.action?`<button class="btn btn-g btn-sm" onclick="${o.action.onclick}">${esc(o.action.label)}</button>`:""}</div></div>`},
+  skel(n){return `<div class="ds-skel" role="status" aria-label="${esc(t("mv.thinking"))}">${"<i></i>".repeat(Math.max(1,n||3))}</div>`},
+  progress(p,label,right){const v=Math.max(0,Math.min(1,+p||0));return `${label?`<div class="ds-progress-l"><span>${esc(label)}</span><span>${esc(right||Math.round(v*100)+"%")}</span></div>`:""}<div class="ds-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v*100)}"${label?` aria-label="${esc(label)}"`:""} style="--p:${v}"><i></i></div>`},
+  /* the live voice meter: reads --lvl (dsLevelStart), shown only while its recorder records */
+  meter(){return `<span class="ds-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>`},
+  entry(o){return `<button class="ds-entry" onclick="${o.onclick}"><span class="ds-entry-ic" aria-hidden="true">${ic(o.icon||"chart")}</span><span><b>${esc(o.title||"")}</b>${o.sub?`<small>${esc(o.sub)}</small>`:""}</span><span class="ds-chev" aria-hidden="true">›</span></button>`},
+};
+window.DS=DS;
+function mvThinkHTML(){return DS.ai(t("mv.thinking"))}
 /* The live voice level for every recording, in both tracks (the shared
    recorder, recToggle): a read-only analyser on the take's own stream, one
    frame loop, closed the moment the take stops. It only writes --lvl on the
@@ -9972,7 +10084,7 @@ function rMvHist(el){
   mvTrack("v2_speaking_history_opened",{attempt:String(_mvHist.length)});
   const back=`<button class="back mv-back" onclick="go('review')">‹ ${esc(t("mv.hist_back"))}</button>`;
   let lastWeek=null,html="";
-  if(!_mvHist.length)html=`<p class="pg-empty">${esc(t("mv.hist_empty"))}</p>`;
+  if(!_mvHist.length)html=DS.state("empty",{body:t("mv.hist_empty")});
   _mvHist.forEach((h,i)=>{
     if(h.week!==lastWeek){lastWeek=h.week;
       html+=`<h3 class="mv-hist-week">${esc(t("mv.week_n",{n:String(h.week||"")}))} · ${esc(h.title)}</h3>`;}
@@ -10847,6 +10959,7 @@ function rSession(el,w,d){
         <div style="display:flex;align-items:center;gap:18px">
           <button class="rec-btn" id="recBtn" onclick="sessRec('${key}','W${w} ${d} — ${esc(dd.focus)}')" aria-label="Record">${ic("mic")}</button>
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">${t("sess.tap_to_record")}</div></div>
+          ${DS.meter()}
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
@@ -11364,6 +11477,7 @@ ${(()=>{
         <div style="display:flex;align-items:center;gap:16px">
           <button class="rec-btn" id="recBtn" onclick="shRec()" aria-label="Record">${ic("mic")}</button>
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">${t("sess.tap_to_record")}</div></div>
+          ${DS.meter()}
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>

@@ -211,6 +211,7 @@ tokens.
 |---|---|---|---|
 | 0 | **Done:** GE proof of concept (`6197fb5`) | GE | owner review on the test link |
 | 1 | **Done on `feature/ds-phase1`** — see §11 | both | see §11 |
+| 2 | **Done on `feature/ds-phase2-components`** — see §12 | both | see §12 |
 | 1 | Refactor the proof into the shell/theme split: move every `:root:not([data-track="welding"])` rule into shell rules that read tokens; add the §1.2 tokens to `:root` (Signal) and `[data-track="welding"]` (Forge) | both | contrast sweep in both themes × both tracks; pixel diff shows Welding unchanged except depth |
 | 2 | Shell components: cards, buttons, nav, dock, chips, folds, toast, notes | both | smoke + all suites; 375/390/430/desktop screenshots per track |
 | 3 | Voice and AI states on every recorder and analysis wait: Session, Shadow, Polish, simulations, mentor feedback, PP live | both | live-level probe per track; Welding tap-to-finish behaviour unchanged |
@@ -236,3 +237,26 @@ engine, rubric, gate, analytics event or data model.
 - **Contrast** (measured): Signal CTA white 6.29 / 5.17:1; Forge dark CTA label `#1b1202` 6.28 / 9.18:1; Forge light keeps its white label on `#7a4a00 → #9a6300` 7.48 / 5.05:1 (the bright amber would have been 2.02:1); arc-blue 11.72:1, amber-white 12.04:1 on the Forge background.
 - **Physical-device verification (2026-09-24): PASSED**, performed by the owner on a real iPhone through the Phase 1 test link, on General English and Welding: recording state, voice ring responding to speech, stop and playback intact, no microphone errors, no audio corruption or unexpected delay, no overlap with the bottom navigation or action bar, keyboard open/close.
 - **Automated gate:** `tests/ds-phase1.mjs` (themes and track isolation, 375/390/430/1280 layout, reduced motion, live level and recording/playback on both tracks, emulated keyboard, V2 hidden by default) and `tests/contrast-sweep.mjs` (run it against `main` too: Phase 1 must introduce no failure; the remaining ones are the documented baseline — mostly `--mut2` used as text).
+
+## 12. Phase 2 — shared production components (`feature/ds-phase2-components`)
+One implementation per component, themed only by tokens. The existing class names ARE the components, so both tracks inherit them with markup and behaviour unchanged; the new state components are rendered only through `DS` (script, beside the Phase 1 hooks).
+
+| Component | Implementation | General English proof | Welding proof |
+|---|---|---|---|
+| App shell / header / back | `nav`, `h1.big`, `.back` (accent-text pill, 36px) | every screen | every screen |
+| Navigation | `.bnav-item.on .ic` accent pill | bottom bar | bottom bar |
+| Buttons | `.btn-primary` (CTA gradient, theme label) · `.btn-g` · `.btn-outline` · `.btn-sm` · disabled | Home, Session, mission dock | Home, Session, Journey |
+| Cards / rows | `.card`, `.card[onclick]`, `button.card`, `.pf-row` press + hover | Home, Practice, Profile | Home, Practice, Profile |
+| Progress | `DS.progress()` → `.ds-progress` (role=progressbar, `--p`, scaleX) · stage strip (Phase 1) | gallery; mission strip | gallery |
+| Expandable | `details.mv-fold / .home-more / .fb-sec` — 44px summary, focus ring | session plan, report folds | session plan |
+| Sheet / modal | `askConfirm` → `.cf-ov` / `.cf-card`: bottom sheet ≤560px, centred above | every confirm | every confirm |
+| Empty · loading · error · warning · success | `DS.state(kind,{title,body,action})` → `.ds-state` (alert / status roles); `DS.skel(n)` → `.ds-skel`; `.pg-empty` restyled | Speaking History empty state | gallery (same component) |
+| Audio controls | `.pp-rv-hear`, `.sim-fb-play`, `.ds-audio` — one pill | coach Hear / Slow | simulation "Hear the feedback" |
+| Recording control | `.rec-btn` idle (CTA gradient) · recording (Phase 1 ring) · disabled | Session, mission, Shadow | Session, Shadow |
+| Voice visualisation | `DS.meter()` → `.ds-meter`, shown beside ANY recorder while it records, driven by `--lvl` | Session + Shadow recorders, mission | Session + Shadow recorders |
+| AI working | `DS.ai(title,sub)` (mission coach uses it via `mvThinkHTML`) · Polish wait | mission coach, Phrase Lab | Phrase Lab / session report wait |
+| Coaching entry | `DS.entry({title,sub,icon,onclick})` → `.ds-entry`; `.mv-prevlink` shares it | Previous attempts link | gallery (same component) |
+| Toast | `.toast` surface | everywhere | everywhere |
+| Focus | one `:focus-visible` ring in `--focus` | keyboard Tab | keyboard Tab |
+
+Gate: `tests/ds-phase2.mjs` (both tracks × dark/light × 375/390/430/1280; theme take-up, roles, sheet geometry, keyboard focus, live meter, reduced motion, track switch = theme only).
