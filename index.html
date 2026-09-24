@@ -4876,6 +4876,21 @@ h1.big{letter-spacing:-.025em}
 @media (prefers-reduced-motion:reduce){
   .ds-state,.ds-skel,.ds-skel i,.ds-progress>i,.cf-card,.bnav-item .ic,.btn,:is(button.card,.card[onclick],.pf-row){animation:none!important;transition:none!important}
 }
+
+/* ═══ Phase 3 — VOICE + AI STATES on every recorder and analysis wait (both tracks) ═══ */
+:is(.rec-btn.recording,.rec-btn.on,.pp-rv-rec.rec,.pp-recbtn.pp-stop,.shv3-rec.on,.rp-mic.sim-listening,.rp-mic.listening,.ex-mic.is-live,.ob-mic.listening){
+  outline:calc(2px + var(--lvl,0)*8px) solid rgba(var(--live-rgb),calc(.18 + var(--lvl,0)*.3));outline-offset:3px;transition:outline-width 70ms linear}
+/* the conversation / simulation mic while the colleague prepares or speaks
+   (#simMic, #rpMic in state "sim-active") is the AI at work: the theme's AI
+   light breathes around it — the existing state class, no new logic */
+:is(#simMic,#rpMic).sim-active{box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 55%,transparent),0 0 26px var(--orb-glow);animation:ds-ai-breathe 1.6s var(--ds-ease-soft) infinite}
+@keyframes ds-ai-breathe{0%,100%{box-shadow:0 0 0 3px color-mix(in srgb,var(--ai) 40%,transparent),0 0 16px var(--orb-glow)}50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--ai) 70%,transparent),0 0 30px var(--orb-glow)}}
+.ai-inline{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--txt)}
+.ai-dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--orb);box-shadow:0 0 10px var(--orb-glow);animation:ds-orb 1.6s var(--ds-ease-soft) infinite}
+@media (prefers-reduced-motion:reduce){
+  .ai-dot,:is(#simMic,#rpMic).sim-active{animation:none!important}
+  :is(.rec-btn.recording,.rec-btn.on,.pp-rv-rec.rec,.pp-recbtn.pp-stop,.shv3-rec.on,.rp-mic.sim-listening,.rp-mic.listening,.ex-mic.is-live,.ob-mic.listening){transition:none!important}
+}
 </style>
 </head>
 <body>
@@ -10027,29 +10042,55 @@ const DS={
   progress(p,label,right){const v=Math.max(0,Math.min(1,+p||0));return `${label?`<div class="ds-progress-l"><span>${esc(label)}</span><span>${esc(right||Math.round(v*100)+"%")}</span></div>`:""}<div class="ds-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(v*100)}"${label?` aria-label="${esc(label)}"`:""} style="--p:${v}"><i></i></div>`},
   /* the live voice meter: reads --lvl (dsLevelStart), shown only while its recorder records */
   meter(){return `<span class="ds-meter" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>`},
+  /* a compact AI / grading status for inline waits (one line, one orb) */
+  aiInline(text){return `<span class="ai-inline" role="status"><span class="ai-dot" aria-hidden="true"></span>${esc(text||"")}</span>`},
   entry(o){return `<button class="ds-entry" onclick="${o.onclick}"><span class="ds-entry-ic" aria-hidden="true">${ic(o.icon||"chart")}</span><span><b>${esc(o.title||"")}</b>${o.sub?`<small>${esc(o.sub)}</small>`:""}</span><span class="ds-chev" aria-hidden="true">›</span></button>`},
 };
 window.DS=DS;
 function mvThinkHTML(){return DS.ai(t("mv.thinking"))}
-/* The live voice level for every recording, in both tracks (the shared
-   recorder, recToggle): a read-only analyser on the take's own stream, one
-   frame loop, closed the moment the take stops. It only writes --lvl on the
-   root; the CSS turns that into the mic's ring and the mission's meter. */
-let _ds={raf:0,ctx:null,an:null,buf:null};
-function dsLevelStart(){
-  if(_ds.raf||!rec||!rec.mr||rec.mr.state!=="recording")return;   /* both tracks: the shell's voice state */
-  try{const AC=window.AudioContext||window.webkitAudioContext;
-    if(AC&&rec.mr.stream){_ds.ctx=new AC();try{_ds.ctx.resume&&_ds.ctx.resume()}catch(e){}const src=_ds.ctx.createMediaStreamSource(rec.mr.stream);
-      _ds.an=_ds.ctx.createAnalyser();_ds.an.fftSize=512;src.connect(_ds.an);_ds.buf=new Uint8Array(512)}}catch(e){}
-  const root=document.documentElement;
-  const tick=()=>{
-    if(!rec||!rec.mr||rec.mr.state!=="recording"){_ds.raf=0;root.style.removeProperty("--lvl");try{_ds.ctx&&_ds.ctx.close()}catch(e){}_ds.ctx=_ds.an=null;return}
-    let v=0;try{if(_ds.an){_ds.an.getByteTimeDomainData(_ds.buf);let q=0;for(let i=0;i<_ds.buf.length;i++){const x=(_ds.buf[i]-128)/128;q+=x*x}v=Math.min(1,Math.sqrt(q/_ds.buf.length)*5)}}catch(e){}
-    root.style.setProperty("--lvl",v.toFixed(3));
-    _ds.raf=requestAnimationFrame(tick);
-  };
-  _ds.raf=requestAnimationFrame(tick);
-}
+/* ── VOICE (Phase 3): one shared, read-only level for EVERY recorder ─────
+   A thin wrapper around getUserMedia hands each audio stream to DS.voice,
+   which taps it with one analyser on ONE shared AudioContext and writes the
+   loudest live level to --lvl on the root; the shell's CSS turns --lvl into
+   the ring on whichever recorder is in its recording state, in the theme's
+   listening colour. The stream is returned untouched — no recorder, grader,
+   quiet-window rule or Welding tap-to-finish logic is changed — and a
+   stream is dropped the moment its audio tracks end. */
+DS.voice={
+  _n:new Map(),_ctx:null,_raf:0,_buf:new Uint8Array(512),
+  watch(stream){
+    try{
+      if(!stream||!stream.getAudioTracks||!stream.getAudioTracks().length||this._n.has(stream))return stream;
+      const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return stream;
+      if(!this._ctx||this._ctx.state==="closed")this._ctx=new AC();
+      try{this._ctx.resume&&this._ctx.resume()}catch(e){}
+      const src=this._ctx.createMediaStreamSource(stream),an=this._ctx.createAnalyser();an.fftSize=512;src.connect(an);
+      this._n.set(stream,{src,an});this._loop();
+    }catch(e){}
+    return stream;
+  },
+  _loop(){
+    if(this._raf)return;
+    const root=document.documentElement;
+    const tick=()=>{
+      let v=0;
+      this._n.forEach((n,st)=>{
+        if(st.getAudioTracks().every(t=>t.readyState==="ended")){try{n.src.disconnect()}catch(e){}this._n.delete(st);return}
+        try{n.an.getByteTimeDomainData(this._buf);let q=0;for(let i=0;i<this._buf.length;i++){const x=(this._buf[i]-128)/128;q+=x*x}v=Math.max(v,Math.min(1,Math.sqrt(q/this._buf.length)*5))}catch(e){}
+      });
+      if(!this._n.size){this._raf=0;root.style.removeProperty("--lvl");try{this._ctx&&this._ctx.close()}catch(e){}this._ctx=null;return}
+      root.style.setProperty("--lvl",v.toFixed(3));
+      this._raf=requestAnimationFrame(tick);
+    };
+    this._raf=requestAnimationFrame(tick);
+  },
+};
+(function(){try{const md=navigator.mediaDevices;if(!md||!md.getUserMedia||md.__dsVoice)return;
+  const orig=md.getUserMedia.bind(md);
+  md.getUserMedia=c=>orig(c).then(st=>{try{if(c&&c.audio)DS.voice.watch(st)}catch(e){}return st});
+  md.__dsVoice=1}catch(e){}})();
+/* Phase 1 entry point, kept so its call sites need no change */
+function dsLevelStart(){try{if(rec&&rec.mr&&rec.mr.stream)DS.voice.watch(rec.mr.stream)}catch(e){}}
 
 /* RETRY: the same situation with the previous attempt's weakness named. Never
    the generic prompt again — that is the whole point of the step. */
@@ -14959,7 +15000,7 @@ function fbFixHTML(d){
   const you=d.op==="sub"&&d.fromRec&&d.hF.length?`<button class="sv-ch-play" onclick="fbYou(${fbWordFrac(d.hF,d.hIdx).join(",")},${d.hIdx},${d.hF.length},${jarg(d.h||"")})">${ic("mic")}<span>${t("fb.c_you")}</span></button>`:"";
   const att=d.attempts.map((a,i)=>`<button class="sv-ch-hist-a d-${a.state}" onclick="fbFixPlay(${i})"><span>${ic("play")}${t("sv.ch_drill_attempt",{n:i+1})}</span><b>${a.mode==="ai"?t("sv.ch_st_"+a.state)+(a.score!=null?` · ${a.score}%`:""):t(a.heard?"sv.ch_drill_state_heard":"sv.ch_drill_state_notheard")}</b></button>`).join("");
   const last=d.attempts[d.attempts.length-1];
-  const state=d.phase==="recording"?t("sv.ch_drill_hint"):busy?t("sv.ch_drill_grading"):err||(last&&last.note?esc(last.note):"");
+  const state=d.phase==="recording"?t("sv.ch_drill_hint"):busy?DS.aiInline(t("sv.ch_drill_grading")):err||(last&&last.note?esc(last.note):"");
   return `<div class="fbc-fix" id="fbFix">
     <div class="fbc-step"><span class="fbc-step-n">1</span><div class="fbc-step-b"><small>${t("fb.c_step_listen")}</small>
       <div class="sv-ch-row tight"><button class="sv-ch-play" onclick="fbFixSay(1)">${ic("sound")}<span>${t("fb.c_example")}</span></button><button class="sv-ch-play" onclick="fbFixSay(0.55)">${ic("gauge")}<span>${t("sv.ch_btn_slow")}</span></button>${you}</div></div></div>
@@ -17380,7 +17421,7 @@ async function fbRenderPron(target,out){
   const recs=await getRecs(ctx);
   if(!box.isConnected)return;
   if(!recs||!recs[0]){box.innerHTML=`<p class="fbc-pron-note">${t("fb.c_pron_norec")}</p>`;fbPronSum(root,null);return;}
-  box.innerHTML=`<div class="fb-pron"><span class="fb-pron-spin">${ic("mic")}</span> ${t("fb.pron_analyzing")}</div>`;
+  box.innerHTML=`<div class="fb-pron">${DS.aiInline(t("fb.pron_analyzing"))}</div>`;
   const res=await fbAssess(recs[0].blob,target);
   if(!box.isConnected)return;                                     /* a newer report replaced this one meanwhile */
   if(!res||!res.words||!res.words.length){box.innerHTML=`<p class="fbc-pron-note">${t("sv.ch_pron_na")}</p>`;fbPronSum(root,null);return;}
@@ -19932,7 +19973,7 @@ function svChSpeakHTML(c,s){
   let body="";
   if(c.phase==="ready"||c.phase==="recording"||c.phase==="grading"){
     body=`<div class="sv-ch-row">${listenBtn}${recBtn}${svChSpeedHTML(c)}</div>
-      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?t("sv.ch_grading"):errTxt||(blind&&!c.listened?t("sv.ch_blind_listen_first"):c.attempt?t("sv.ch_attempt",{n:c.attempt+1})+(c.last&&c.last.total?" · "+t("sv.ch_last_words",{ok:c.last.ok,total:c.last.total}):""):"")}</p>`;
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${c.phase==="recording"?t("sv.ch_recording"):c.phase==="grading"?DS.aiInline(t("sv.ch_grading")):errTxt||(blind&&!c.listened?t("sv.ch_blind_listen_first"):c.attempt?t("sv.ch_attempt",{n:c.attempt+1})+(c.last&&c.last.total?" · "+t("sv.ch_last_words",{ok:c.last.ok,total:c.last.total}):""):"")}</p>`;
   }else if(c.phase==="error"){
     body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p>
       <div class="sv-ch-row"><button class="btn-primary" onclick="svChRegrade()">${t("sv.ch_err_retry")}</button><button class="btn btn-g" onclick="svChRetry()">${ic("repeat")} ${t("sv.ch_try_again")}</button></div>`;
@@ -20257,7 +20298,7 @@ function svChRetellHTML(c,s){
       <div class="sv-ch-row"><button class="btn-primary" onclick="svChRetellRetry()">${t("sv.ch_try_again")}</button></div>`;
   }else{
     body=`<div class="sv-ch-row">${rec}</div>
-      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${r.phase==="recording"?t("sv.ch_retell_recording"):r.phase==="grading"?t("sv.ch_grading"):errTxt}</p>`;
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${r.phase==="recording"?t("sv.ch_retell_recording"):r.phase==="grading"?DS.aiInline(t("sv.ch_grading")):errTxt}</p>`;
   }
   return `<p class="sv-ch-hint">${t("sv.ch_hint_retell")}</p>
     <p class="sv-ch-target small">“${esc(s.text)}”</p>
@@ -20332,7 +20373,7 @@ function svChChorusHTML(ch){
     body=`<p class="sv-ch-state">${ic("check")} ${t("sv.ch_chorus_done")}</p>
       <div class="sv-ch-row"><span class="sv-ch-rec"><button class="rec-btn ${ch.phase==="recording"?"on":""}" id="svChChorusRecBtn" onclick="svChChorusRecord()" ${busy?"disabled":""} aria-pressed="${ch.phase==="recording"}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(ch.phase==="recording"?"sv.ch_stop":"sv.ch_chorus_alone")}</span></span>
         <button class="btn btn-g btn-sm" onclick="svChChorusGo()">${ic("repeat")} ${t("sv.ch_chorus_again")}</button></div>
-      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${ch.phase==="recording"?t("sv.ch_drill_hint"):ch.phase==="grading"?t("sv.ch_drill_grading"):errTxt||(last?t("sv.ch_st_"+last.state)+(last.score!=null?" · "+last.score+"%":""):"")}</p>`;
+      <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${ch.phase==="recording"?t("sv.ch_drill_hint"):ch.phase==="grading"?DS.aiInline(t("sv.ch_drill_grading")):errTxt||(last?t("sv.ch_st_"+last.state)+(last.score!=null?" · "+last.score+"%":""):"")}</p>`;
   }else{
     body=`<div class="sv-ch-row"><button class="btn-primary" onclick="svChChorusGo()">${ic("sound")} ${t("sv.ch_chorus_start",{n:ch.reps})}</button></div>
       <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${errTxt||t("sv.ch_chorus_ready")}</p>`;
@@ -20422,7 +20463,7 @@ function svChBuildHTML(b){
         :`<button class="sv-ch-play" onclick="svChStopAll();fbSay(svCh.build.steps[svCh.build.at],1)">${ic("sound")}<span>${t("sv.ch_btn_voice")}</span></button>`}
       <span class="sv-ch-rec"><button class="rec-btn ${b.phase==="recording"?"on":""}" id="svChBuildRecBtn" onclick="svChBuildRecord()" ${busy?"disabled":""} aria-pressed="${b.phase==="recording"}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(b.phase==="recording"?"sv.ch_stop":"sv.ch_record")}</span></span>
     </div>
-    <p class="sv-ch-state ${errTxt||(last&&!last.ok)?"err":""}" aria-live="polite">${b.phase==="recording"?t("sv.ch_recording"):b.phase==="grading"?t("sv.ch_grading"):errTxt||(last?(last.ok?ic("check")+" "+t("sv.ch_build_ok",{ok:last.ok_n,total:last.total}):t("sv.ch_build_miss",{ok:last.ok_n,total:last.total})):t("sv.ch_build_how"))}</p>
+    <p class="sv-ch-state ${errTxt||(last&&!last.ok)?"err":""}" aria-live="polite">${b.phase==="recording"?t("sv.ch_recording"):b.phase==="grading"?DS.aiInline(t("sv.ch_grading")):errTxt||(last?(last.ok?ic("check")+" "+t("sv.ch_build_ok",{ok:last.ok_n,total:last.total}):t("sv.ch_build_miss",{ok:last.ok_n,total:last.total})):t("sv.ch_build_how"))}</p>
     <div class="sv-ch-row tight">
       ${last&&last.ok&&b.at<b.steps.length-1?`<button class="btn-primary" onclick="svChBuildNext()">${ic("forward")} ${t("sv.ch_build_next")}</button>`:""}
       ${last&&last.ok&&b.at>=b.steps.length-1?`<button class="btn-primary" onclick="svChBuildFinish()">${ic("check")} ${t("sv.ch_build_finish")}</button>`:""}
@@ -20496,7 +20537,7 @@ function svChUseHTML(u){
   }else if(u.phase==="error"){
     body=`<p class="sv-ch-state err" aria-live="polite">${ic("alert")} ${errTxt}</p><div class="sv-ch-row"><button class="btn-primary" onclick="svChUseRegrade()">${t("sv.ch_err_retry")}</button><button class="btn btn-g btn-sm" onclick="svChUseRetry()">${t("sv.ch_try_again")}</button></div>`;
   }else{
-    body=`<div class="sv-ch-row">${rec}</div><p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${u.phase==="recording"?t("sv.ch_recording"):u.phase==="grading"?t("sv.ch_grading"):errTxt}</p>`;
+    body=`<div class="sv-ch-row">${rec}</div><p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${u.phase==="recording"?t("sv.ch_recording"):u.phase==="grading"?DS.aiInline(t("sv.ch_grading")):errTxt}</p>`;
   }
   return `<div class="sv-ch-use" id="svChUse"><div class="eyebrow">${t("sv.apply_eyebrow")}</div>
     <p class="sv-ch-target">${t("sv.ch_use_prompt",{phrase:u.phrase})}</p><p class="sv-ch-hint">${t("sv.ch_use_sub")}</p>${body}</div>`;
@@ -20861,7 +20902,7 @@ function svChDrillHTML(d){
     <p class="sv-ch-fix">${d.note?esc(d.note.charAt(0).toUpperCase()+d.note.slice(1))+". ":""}${t("sv.ch_fix_pron")}</p>
     ${svChStressHTML(d.text)}
     <div class="sv-ch-row"><span class="sv-ch-rec"><button class="rec-btn ${d.phase==="recording"?"on":""}" id="svChDrillRecBtn" onclick="svChDrillRecord()" ${busy?"disabled":""} aria-pressed="${d.phase==="recording"}" aria-label="${esc(t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec"))}">${ic("mic")}</button><span class="sv-ch-reclbl">${t(d.phase==="recording"?"sv.ch_stop":"sv.ch_drill_rec")}</span></span></div>
-    <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${d.phase==="recording"?t("sv.ch_drill_hint"):d.phase==="grading"?t("sv.ch_drill_grading"):errTxt||(last&&last.note&&last.note!==d.note?esc(last.note):"")}</p>
+    <p class="sv-ch-state ${errTxt?"err":""}" aria-live="polite">${d.phase==="recording"?t("sv.ch_drill_hint"):d.phase==="grading"?DS.aiInline(t("sv.ch_drill_grading")):errTxt||(last&&last.note&&last.note!==d.note?esc(last.note):"")}</p>
     ${att?`<div class="sv-ch-hist">${att}</div>`:""}
     <div class="sv-ch-row tight">${d.vocab?`<button class="btn btn-g btn-sm ${vocHas(d.k)?"on":""}" onclick="svChSaveVocab('${esc(d.k)}')">${ic("star")} ${t(vocHas(d.k)?"sv.ch_saved_vocab":"sv.ch_save_vocab")}</button>`:""}<button class="btn btn-g btn-sm" onclick="svChDrillClose()">${ic("check")} ${t("sv.ch_drill_done")}</button></div>
   </div>`;
@@ -21691,7 +21732,7 @@ function ppRevResultHTML(revId,key,st,r){
   const chips=w=>w&&w.length?`<div class="fb-pw-wrap pp-rv-pw">${w.map(x=>`<span class="fb-pw" style="--c:${col(x.score)}">${esc(x.word)}<b>${x.score}</b></span>`).join("")}</div>`:"";
   if(!st||st.state==="idle")return `${btn(false)}${r&&r.best!=null?`<span class="pp-rv-best" style="--c:${col(r.best)}">${t("pp.rv_best",{n:r.best})}</span>`:""}`;
   if(st.state==="recording")return `${btn(true)}<span class="pp-rv-live">${ic("mic")} ${t("pp.rv_listening")}</span>`;
-  if(st.state==="grading")return `<span class="pp-rv-live">${ic("mic")} ${t("pp.grading")}</span>`;
+  if(st.state==="grading")return `${DS.aiInline(t("pp.grading"))}`;
   if(st.state==="short")return `${btn(false)}<span class="pp-rv-note">${t("ph.too_short_toast")}</span>`;
   if(st.state==="ungraded")return `${btn(false)}<span class="pp-rv-note">${t("pp.rv_ungraded")}</span>`;
   const pass=st.score>=PP_REV_PASS,coach=key.startsWith("coach:"),passes=r&&r.passes||0;
@@ -22026,7 +22067,7 @@ async function cvRecord(btn,onBlob){
   mr.ondataavailable=e=>{if(e.data&&e.data.size)tk.chunks.push(e.data)};
   btn.innerHTML=ic("stop")+" "+t("pp.rec_stop");btn.classList.add("rec");
   mr.onstop=async()=>{clearTimeout(tk.t);stream.getTracks().forEach(tr=>tr.stop());if(ppRevTake===tk)ppRevTake=null;
-    const blob=new Blob(tk.chunks,{type:mr.mimeType||"audio/webm"});box.innerHTML=`<span class="pp-rv-live">${ic("mic")} ${t("pp.grading")}</span>`;
+    const blob=new Blob(tk.chunks,{type:mr.mimeType||"audio/webm"});box.innerHTML=`${DS.aiInline(t("pp.grading"))}`;
     await onBlob(blob.size>=1200?blob:null,box)};
   try{mr.start()}catch(e){stream.getTracks().forEach(tr=>tr.stop());return toast(t("rec.mic_denied_toast"))}
   tk.t=setTimeout(()=>{if(mr.state==="recording")mr.stop()},PP_REV_TAKE_MS);
@@ -22404,7 +22445,7 @@ function ppRenderRecorder(){
   const words=r.words&&r.words.length?`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${w.score>=80?"var(--green)":w.score>=55?"var(--gold)":"var(--red)"}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`:"";
   box.innerHTML=`<b>${t("pp.take_h",{s:Math.round((r.dur||0)/1000)})}</b>
     <audio controls src="${r.url}" class="pp-audio" preload="metadata"></audio>
-    ${r.busy?`<p class="sub">${ic("mic")} ${t("pp.grading")}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}
+    ${r.busy?`<p class="sub">${DS.aiInline(t("pp.grading"))}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}
       ${r.score!=null?`<p class="pp-scoreline"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.score",{n:r.score})}</p>`:""}${words}`}
     <div class="pp-row">
       <button class="btn btn-g" onclick="ppRecToggle()">${ic("repeat")} ${t("pp.rec_again")}</button>
@@ -23225,13 +23266,13 @@ function ppAiRender(){const el=document.getElementById("v-partner");if(el&&cur.v
    just reads "Send to the AI coach" and goes to ppAiSubmit */
 function ppAiRenderRecorder(box){
   const a=ppAiActive();if(!a)return;
-  if(a.completedAt||a.pending||ppAiBusy){box.innerHTML=a.pending||ppAiBusy?`<b>${t("pp.ai_thinking")}</b>`:"";return}
+  if(a.completedAt||a.pending||ppAiBusy){box.innerHTML=a.pending||ppAiBusy?DS.ai(t("pp.ai_thinking")):"";return}
   const r=ppRec;
   if(!r){box.innerHTML=`<b>${t("pp.rec_h")}</b><p class="sub">${t("pp.ai_rec_sub")}</p><button class="btn-primary pp-recbtn" onclick="ppRecToggle()">${ic("mic")} ${t("pp.rec_start")}</button>`;manIconizeInline(box);return}
   if(r.mr&&r.mr.state==="recording"){box.innerHTML=`<b class="pp-live">${ic("mic")} ${t("pp.rec_live")} <span id="ppTimer">0:00</span> / 1:00</b><button class="btn-primary pp-recbtn pp-stop" onclick="ppRecToggle()">${ic("stop")} ${t("pp.rec_stop")}</button>`;manIconizeInline(box);return}
   const words=r.words&&r.words.length?`<div class="fb-pw-wrap">${r.words.map(w=>`<span class="fb-pw" style="--c:${w.score>=80?"var(--green)":w.score>=55?"var(--gold)":"var(--red)"}">${esc(w.word)}<b>${w.score}</b></span>`).join("")}</div>`:"";
   box.innerHTML=`<b>${t("pp.take_h",{s:Math.round((r.dur||0)/1000)})}</b><audio controls src="${r.url}" class="pp-audio" preload="metadata"></audio>
-    ${r.busy?`<p class="sub">${ic("mic")} ${t("pp.grading")}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}${r.score!=null?`<p class="pp-scoreline"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.score",{n:r.score})}</p>`:""}${words}`}
+    ${r.busy?`<p class="sub">${DS.aiInline(t("pp.grading"))}</p>`:`${r.transcript?`<p class="pp-tx">${esc(r.transcript)}</p>`:`<p class="sub">${t("pp.no_transcript_yet")}</p>`}${r.score!=null?`<p class="pp-scoreline"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.score",{n:r.score})}</p>`:""}${words}`}
     <div class="pp-row"><button class="btn btn-g" onclick="ppRecToggle()">${ic("repeat")} ${t("pp.rec_again")}</button><button class="btn-primary" id="ppSend" ${r.busy?"disabled":""} onclick="ppAiSubmit()">${ic("sparkle")} ${t("pp.ai_send")}</button></div>`;
   manIconizeInline(box);
 }
@@ -25853,7 +25894,7 @@ window.rpEvaluate=async()=>{
     const card=document.createElement("div");
     card.className="card rp-ev-card";
     card.innerHTML=`<div class="rp-ev-said">${esc(turn.text)}</div>
-      <div class="rp-ev-state">${ic("mic")} ${t("fb.pron_analyzing")}</div>`;
+      <div class="rp-ev-state">${DS.aiInline(t("fb.pron_analyzing"))}</div>`;
     list.appendChild(card); manIconizeInline(card);
     let res=null;
     try{ if(turn.blob)res=await fbAssess(turn.blob,turn.text); }catch(e){}
