@@ -319,3 +319,21 @@ Phases 1–3 made the SHARED components theme-driven; Phase 4 removes the colour
   - `--mut2` on card and `--on-accent` on `--accent-fill` at AA in all four themes;
   - 24 screens × dark and light for inline or SVG colour literals, OS emoji, and gradient stops in the other theme's brand colour.
 - **Physical-device verification (2026-09-24): PASSED**, reported by the owner after testing on a real iPhone. The preview served commit `979f545` unchanged, with V2 missions hidden. The checklist the owner set covered the light themes of General English and Welding: Home, the road map, Session, Progress, the recording control and voice meter, cards, charts and waveforms, buttons, and the bottom navigation, plus the Welding simulation controls. It paid particular attention to grey secondary text, the white labels on Welding-light buttons, waveform and chart readability, the progress-ring colours, recording controls, overall contrast, and consistency between the tracks. Dark mode was checked for regressions.
+
+## 16. Product rule — dark by default (owner, 2026-09-24)
+BE Mastery is dark by default everywhere. This covers both tracks (Signal and Forge are dark-first themes), every screen, dialogs and sheets, AI and recording states, and future native iOS and Android versions.
+- **Where dark applies.** Fresh installs, new devices and a cleared theme preference all start dark. The app never follows the device's light or dark appearance, the time of day or the platform.
+- **Light is opt-in.** Light stays available as an intentional choice in Settings → Theme. Once chosen, it is kept (`localStorage.be_theme`).
+- **Dark is the canonical identity.** The premium language is designed around it: depth, dark surfaces, luminous accents, controlled gradients, AI and voice states, and subtle motion. Avoid excessive glow, particles or decorative animation. Light is an alternative presentation, not a competing identity.
+- **Light-mode identity.** A light surface, a refined dark-blue border, clean typography and a restrained accent. Borders come from tokens: Signal uses its navy family, and Forge uses a darker steel blue that suits it.
+- **Verified 2026-09-24** in a browser with the device appearance set to Light, Dark and no preference:
+  - a fresh install is dark in all three;
+  - an explicit Light choice survives a relaunch, and switching back to Dark sticks;
+  - a cleared or unknown preference is dark;
+  - the About page with no theme passed is dark.
+- **In the code:**
+  - start-up uses `be_theme || "dark"`;
+  - there is no `prefers-color-scheme` or `matchMedia` theme logic;
+  - `flyer.html` defaults to dark;
+  - the manifest and the Capacitor background are dark.
+- **Phase 5 review.** The owner reviewed the Phase 5 preview (`c71cade`, dark first; Light reached through Settings) on an iPhone and moved on to Phase 6.
