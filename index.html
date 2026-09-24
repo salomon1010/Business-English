@@ -16026,9 +16026,15 @@ function simStreamSpeaker(sc,presumedCharacterId){
   const canNatural=typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser";
   if(!canNatural)return null;
   let character=simCharacter(sc,presumedCharacterId)||{},voice=ttsVoice(character.voice,character.g||"f"),style=character.voiceStyle||"";
-  const queue=[];let ended=false,message=null,playing=false,cancelled=false,spoken=0;
+  /* Nothing plays until the speaker is KNOWN — named by the stream ({c}) or by
+     the finished reply. The model does not always write characterId before
+     the reply; when it did not, the first sentence was read in the previous
+     person's voice before the switch arrived. Waiting costs a moment only in
+     that case; normally the name comes first and speech starts at once. */
+  const queue=[];let ended=false,message=null,playing=false,cancelled=false,spoken=0,known=false;
   const setCharacter=id=>{
     const c=id&&simCast(sc).find(x=>x.id===id);
+    if(c)known=true;
     if(!c||c.id===character.id)return;
     character=c;voice=ttsVoice(c.voice,c.g||"f");style=c.voiceStyle||"";
     queue.forEach(it=>{it.url=fbTtsUrl(it.text,voice,style)});          /* not yet played: re-voice */
@@ -16043,7 +16049,7 @@ function simStreamSpeaker(sc,presumedCharacterId){
     if(playing)return;playing=true;
     try{
       while(alive()&&(queue.length||!ended)){
-        if(!queue.length){await new Promise(r=>setTimeout(r,40));continue}
+        if(!queue.length||(!known&&!ended)){await new Promise(r=>setTimeout(r,40));continue}
         const item=queue.shift();
         try{const url=await item.url;if(!alive())return;const a=ttsPlayer();_ttsAudio=a;a.playbackRate=1;
             await new Promise((res,rej)=>{a.onended=res;a.onerror=rej;a.src=url;a.play().catch(rej)});spoken++}
@@ -16055,7 +16061,7 @@ function simStreamSpeaker(sc,presumedCharacterId){
   return {
     push(text){const t=String(text||"").trim();if(!t||cancelled)return;simStopListening();simSetStatus(`${character.name||'Your colleague'} is speaking`);
       ttsChunks(t).forEach(c=>queue.push({text:c,url:fbTtsUrl(c,voice,style)}));pump()},
-    finish(msg){message=msg;if(simUtterance===token)simUtterance=msg;if(msg&&msg.characterId)setCharacter(msg.characterId);ended=true;pump()},
+    finish(msg){message=msg;if(simUtterance===token)simUtterance=msg;if(msg&&msg.characterId)setCharacter(msg.characterId);known=true;ended=true;pump()},
     setCharacter,
     cancel(){cancelled=true},
     spoke(){return spoken},
