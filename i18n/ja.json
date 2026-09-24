@@ -322,6 +322,7 @@
  "sh.analyze_last_btn": "🎙️ 直前のシャドーイング録音を分析",
  "sh.saved_clips_h": "⭐ 保存したクリップ",
  "sh.saved_clips_sub": "クリップをクリックすると再読み込みできます——月曜と金曜のシャドーイングに最適です。",
+  "sh.lib_entry_sub": "Your saved clips and every Shadow report, with what to fix.",
  "sh.trouble_h": "💪 私の苦手語",
  "sh.trouble_sub": "スピーキングフィードバックが指摘した語はすべて自動でここに来ます——あなた専用の発音ジムです。🎤 で正しく言えば、その語はリストから外れます。",
  "sh.vocab_sub": "スピーキングフィードバックから 🔖 保存した語。語をタップすると定義と本物の音声が見られます——または自己テスト：意味を聞いて、語を言いましょう。",

@@ -322,6 +322,7 @@
  "sh.analyze_last_btn": "🎙️ 마지막 섀도잉 녹음 분석",
  "sh.saved_clips_h": "⭐ 내가 저장한 클립",
  "sh.saved_clips_sub": "클립을 클릭하면 다시 불러옵니다 — 월요일과 금요일 섀도잉 세션에 안성맞춤.",
+  "sh.lib_entry_sub": "Your saved clips and every Shadow report, with what to fix.",
  "sh.trouble_h": "💪 나의 어려운 단어",
  "sh.trouble_sub": "말하기 피드백이 표시한 모든 단어가 자동으로 여기에 옵니다 — 당신만의 발음 헬스장. 🎤로 단어를 올바르게 말하면 목록에서 사라집니다.",
  "sh.vocab_sub": "말하기 피드백에서 🔖 저장한 단어. 단어를 탭하면 정의와 실제 음성을 볼 수 있어요 — 또는 자가 테스트: 뜻을 듣고, 단어를 말하세요.",
