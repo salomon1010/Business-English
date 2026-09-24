@@ -5791,7 +5791,7 @@ const I18N_EN={
  "sess.template_sub":"Your plan for the 25 minutes — tick each step as you go.",
  "sess.say_aloud":"💬 Say these aloud during this session",
  "sess.record_title":"🎙️ Record yourself",
- "sess.record_desc":"Record and get full word-by-word feedback below.",
+ "sess.record_desc":"Record here — your speaking report comes back below.",
  "sess.report_h":"Your speaking report",
  "sess.report_sub":"Every recording comes back as a coach's report: how you came across, what to fix, your sentences rebuilt — and the coach reads it to you.",
  "sess.report_btn":"Get my report",
@@ -5809,9 +5809,6 @@ const I18N_EN={
  "sess.example_desc":"Write your answer — your recording is scored against it.",
  "sess.example_ph":"e.g. I currently work as a data engineer. My focus is on our reporting pipeline. I'm responsible for…",
  "sess.transcript_title":"🎙️ My transcript",
- "sess.transcript_desc":"Fills in when you stop recording — exactly what you said.",
- "sess.transcript_empty":"Nothing yet — write your example, then press 🎙️ above.",
- "sess.analyze_btn":"🗣️ Analyze my last recording",
  "sess.tabs_label":"Session sections",
  "sess.tab_practise":"Practise & record",
  "sess.notes_title":"📝 Session notes & corrections",
@@ -7017,8 +7014,6 @@ const I18N_EN={
  "sh.fb_generated_toast":"🗣️ Feedback generated from your recording",
  "sh.no_shadow_rec_toast":"⚠️ No transcribed shadowing recording yet — record yourself first with 🎙️",
  "sh.fb_from_last_toast":"🗣️ Feedback from your last shadowing recording",
- "sh.no_sess_rec_toast":"⚠️ No transcribed recording yet — record yourself first with 🎙️",
- "sh.fb_from_sess_toast":"🗣️ Feedback from your last session recording",
  "fb.tts_no_voice":"⚠️ No speech voice available — check your device's text-to-speech settings",
  "fb.tts_unavailable":"⚠️ Speech playback not available in this browser",
  "fb.sr_unavailable":"⚠️ Speech recognition needs Chrome, Edge or Safari",
@@ -10561,7 +10556,6 @@ function rSession(el,w,d){
         </div>
         <div id="recList"></div>
         <div id="waveBox" style="margin-top:14px"></div>
-        <div id="shTrend"></div>
         <div class="sess-rep" id="sessRep">
           <div class="hr"></div>
           <b class="sess-rep-h">${hIcon("sparkle",t("sess.report_h"))}</b>
@@ -10581,18 +10575,6 @@ function rSession(el,w,d){
           </div>
           <p style="font-size:11px;color:var(--mut2);margin-top:10px">${t("sess.posture_privacy")}</p>
         </div>
-      </div>
-      <div class="card">
-        <b style="font-size:14px">${hIcon("mic",t("sess.transcript_title"))}</b>
-        <p style="font-size:12px;color:var(--mut);margin:2px 0 8px">${t("sess.transcript_desc")}</p>
-        <div id="sessHeard" class="sess-heard">${S.notes["shheard:sess-"+key]?"“"+esc(S.notes["shheard:sess-"+key])+"”":`<span class="sess-heard-empty">${t("sess.transcript_empty")}</span>`}</div>
-        <button class="btn btn-g sess-act" onclick="sessAnalyze('${key}')">${t("sess.analyze_btn")}</button>
-        ${/* The report belongs under the button that asks for it. It used to render
-             at the very bottom of the view, below the notes box, the self-score row
-             and the mark-complete button — so tapping Analyze appeared to do
-             nothing at all, and the word-by-word scoring and the words you can save
-             were somewhere the learner never scrolled to. */""}
-        <div id="fbOut" style="margin-top:12px"></div>
       </div>
       ${v2?"":`<div class="card">
         <b style="display:block;margin-bottom:10px">${t("sess.notes_title")}</b>
@@ -10614,10 +10596,6 @@ function rSession(el,w,d){
   manIconizeInline(el);
   renderRecs(key);
   sessRepMount(key);
-  /* The daily session records exactly what the Shadowing workspace records, and
-     is scored by the same engine — so it gets the same two pictures: the
-     waveform (drawn by renderRecs) and the score trend across attempts. */
-  try{shTrendRender("sess-"+key)}catch(e){}
   tRender();   // reflect current timer state into the session digits + button + header pill
 }
 /* A General English speaking day in a week with a V2 competency: the day's
@@ -13562,10 +13540,10 @@ window.shRec=()=>{
   else fbRecStop();
 };
 window.sessRec=(key,label)=>{
-  const wasRecording=rec.mr&&rec.mr.state==="recording";
+  /* The take only (2026-09-24). The browser speech recognition that used to run
+     beside it fed the "My transcript" card and the word-by-word panel; both are
+     gone — the speaking report transcribes the saved audio itself (sessRecDone). */
   recToggle(key,label);
-  if(!wasRecording)fbRecStart({vid:"sess-"+key,targetId:"sessScript",heardId:"sessHeard",recCtx:key});
-  else fbRecStop();
 };
 function shHeardUI(heard){
   const box=document.getElementById("shHeardBox");
@@ -13633,17 +13611,6 @@ window.fbFromRec=()=>{
   fbShowResults(document.getElementById("shNote").value.trim(),heard,true);
   try{fbFoldSync(true)}catch(e){}
   toast(t("sh.fb_from_last_toast"));
-};
-window.sessAnalyze=key=>{
-  const heard=S.notes["shheard:sess-"+key];
-  if(!heard)return toast(t("sh.no_sess_rec_toast"));
-  fbCtx={vid:"sess-"+key,recCtx:key};
-  fbT0=Date.now()-(S.notes["shheardDur:sess-"+key]||30000);
-  const scr=document.getElementById("sessScript");   /* no script on a General English V2 day: what was said is graded on its own */
-  fbShowResults(scr?scr.value.trim():"",heard,true);
-  toast(t("sh.fb_from_sess_toast"));
-  const _o=document.getElementById("fbOut");
-  if(_o)_o.scrollIntoView({behavior:"smooth",block:"nearest"});
 };
 /* ---------- the session's speaking report (2026-09-24) ----------
    The Record yourself card on every classic session page — every Welding day,

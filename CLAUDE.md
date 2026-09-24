@@ -171,6 +171,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   the session mic; `go()` clears it. `recToggle` → `sessRecDone` runs it on
   save; **Get my report** (`sessReportLast`) sends the newest take. Test:
   `tests/session-report.mjs` (16).
+  The browser speech-recognition transcript ("My transcript" card, Analyze my
+  last recording, the word-by-word `fbOut` panel and the `shTrend` strip) was
+  **removed from the session page the same day** (owner: the AI report replaces
+  it) — `sessRec` is the take only, no `fbRecStart`. The Shadow Studio keeps
+  its own transcript box (it scores against the clip's captions).
 - **Road map (the "Road map" tab — formerly "Weeks" — both areas).** `rmSteps()` builds the board from the
   same data as the week cards — `trackWeeks` / `weekDone` / `currentPos` /
   `fndState` / `reviewCheckpoints` — so it cannot disagree with them; `rmHTML()`
