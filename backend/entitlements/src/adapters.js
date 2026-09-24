@@ -73,5 +73,5 @@ export const REWARD_VERIFIERS = Object.freeze({
       return { ok: true, nonce, txn };
     },
   },
-  admob: { id: "admob", configured: () => false, async verify() { return { ok: false, why: "not_configured" }; } },
+  /* admob: its own GET route (src/admob.js) — AdMob SSV is a signed GET callback */
 });

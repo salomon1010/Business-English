@@ -1,4 +1,4 @@
-/* BE Mastery — entitlement Worker (be-entitlements). Phase 7.
+/* BE Mastery — entitlement Worker (be-entitlements). Phases 7–9.
 
    The server-side source of truth for a learner's plan. Cloudflare Worker +
    D1, the same stack as be-partner; identity is the Firebase Auth uid from a
@@ -9,9 +9,14 @@
      GET    /v1/entitlement         the caller's VIEW (entitlement-core.resolve) — auth required
      DELETE /v1/me                  erase the caller's row (account deletion) — auth required
      POST   /v1/admin/grant         owner-only manual / promotional grant — ADMIN_TOKEN secret
-     POST   /v1/billing/:provider   store notifications — 501 until Phase 9 builds real verification
+     POST   /v1/billing/:provider   store → server notifications (Google RTDN via Pub/Sub, Apple
+                                    Server Notifications V2): authenticated, de-duplicated, applied
+     GET    /v1/purchases/account-token   the caller's StoreKit appAccountToken — auth required
+     POST   /v1/purchases/verify    bind a store purchase to the caller after the STORE verifies it — auth required
+     POST   /v1/purchases/restore   re-verify what the store says this device owns — auth required
      POST   /v1/rewards/start       a learner asks for a rewarded ad → single-use nonce — auth required
      POST   /v1/rewards/verify/:p   the AD NETWORK confirms the ad bound to a nonce was watched (server to server)
+     GET    /v1/rewards/verify/admob   AdMob SSV callback (ECDSA-signed query string)
      POST   /v1/rewards/claim       the learner claims a verified nonce → +credit, exactly once — auth required
      GET    /v1/rewards             the learner's reward balances — auth required
 
@@ -27,8 +32,11 @@
      runs without Firebase; production must never set it.
    - Responses are no-store: a shared cache must never serve one learner's
      plan to another. */
-import { resolve, validateRecord, isPremium, REWARD_KINDS, REWARD_SESSION_TTL_MS, rewardKindEnabled } from "./src/entitlement-core.js";
+import { resolve, validateRecord, isPremium, pickRecord, REWARD_KINDS, REWARD_SESSION_TTL_MS, rewardKindEnabled } from "./src/entitlement-core.js";
 import { ADAPTERS, REWARD_VERIFIERS } from "./src/adapters.js";
+import { BILLING_PROVIDERS } from "./src/billing.js";
+import { appAccountToken } from "./src/app-store.js";
+import * as admob from "./src/admob.js";
 import { verifyIdToken } from "./src/firebase-auth.js";
 
 const ORIGINS_DEFAULT = ["https://app.lomonec.com", "capacitor://localhost"];
@@ -68,7 +76,48 @@ async function balances(env, uid) {
   const r = await q(env, "SELECT kind, balance FROM reward_credits WHERE uid=?", uid).all();
   const o = {}; for (const row of (r && r.results) || []) o[row.kind] = row.balance; return o;
 }
-const readRecord = (env, uid) => q(env, "SELECT uid,plan,product,status,starts_at,expires_at,source,updated_at FROM entitlements WHERE uid=?", uid).first();
+const readRecord = (env, uid) => q(env, "SELECT uid,plan,product,status,starts_at,expires_at,will_renew,source,updated_at FROM entitlements WHERE uid=?", uid).first();
+
+/* ---- account binding. A purchase link belongs to ONE account: the first
+   verified bind wins, atomically (the conditional upsert below cannot move a
+   row that another uid owns). Returns { ok } or { ok:false, owner }. */
+async function bindLink(env, uid, l) {
+  const r = l.record;
+  const res = await q(env, `INSERT INTO purchase_links(provider,ext_id,uid,plan,product,source,status,starts_at,expires_at,will_renew,secret_ref,updated_at)
+      VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+      ON CONFLICT(provider,ext_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, source=excluded.source, status=excluded.status,
+        starts_at=excluded.starts_at, expires_at=excluded.expires_at, will_renew=excluded.will_renew,
+        secret_ref=COALESCE(excluded.secret_ref, purchase_links.secret_ref), updated_at=excluded.updated_at
+      WHERE purchase_links.uid=excluded.uid`,
+    l.provider, l.ext_id, uid, r.plan, r.product ?? null, r.source, r.status, r.starts_at ?? null, r.expires_at ?? null, r.will_renew ?? null, l.secret_ref ?? null, r.updated_at).run();
+  if (changes(res)) return { ok: true };
+  const o = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", l.provider, l.ext_id).first();
+  return o && o.uid === uid ? { ok: true } : { ok: false, owner: o && o.uid };
+}
+/* the entitlement row is DERIVED from the account's links */
+async function recompute(env, uid, now) {
+  const rows = ((await q(env, "SELECT * FROM purchase_links WHERE uid=?", uid).all()).results) || [];
+  const pick = pickRecord(rows.map(r => ({ uid, plan: r.plan, product: r.product, status: r.status, starts_at: r.starts_at, expires_at: r.expires_at,
+    will_renew: r.will_renew, source: r.source, updated_at: r.updated_at })), now);
+  if (!pick) { await q(env, "DELETE FROM entitlements WHERE uid=?", uid).run(); return resolve(null, now); }
+  await q(env, `INSERT INTO entitlements(uid,plan,product,status,starts_at,expires_at,will_renew,source,external_ref,updated_at) VALUES(?,?,?,?,?,?,?,?,NULL,?)
+      ON CONFLICT(uid) DO UPDATE SET plan=excluded.plan, product=excluded.product, status=excluded.status, starts_at=excluded.starts_at,
+        expires_at=excluded.expires_at, will_renew=excluded.will_renew, source=excluded.source, updated_at=excluded.updated_at`,
+    uid, pick.plan, pick.product ?? null, pick.status, pick.starts_at ?? null, pick.expires_at ?? null, pick.will_renew ?? null, pick.source, now).run();
+  return resolve(pick, now);
+}
+/* a reward session verified by a network (mock / AdMob): single use per transaction */
+async function applyRewardVerification(env, now, providerId, nonce, txn) {
+  const s = await q(env, "SELECT * FROM reward_sessions WHERE nonce=?", nonce).first();
+  if (!s) return err(404, "unknown_nonce");
+  if (s.verified_at) return s.provider_txn === txn ? json({ ok: true, again: true }) : err(409, "already_verified");
+  if (s.expires_at <= now) return err(410, "expired");
+  try {
+    const u = await q(env, "UPDATE reward_sessions SET verified_at=?, provider=?, provider_txn=? WHERE nonce=? AND verified_at IS NULL AND expires_at>?", now, providerId, txn, nonce, now).run();
+    if (!changes(u)) return err(409, "already_verified");
+  } catch (e) { return err(409, "txn_replay"); }   /* provider_txn is UNIQUE: one watched ad verifies one session */
+  return json({ ok: true });
+}
 const audit = (env, ts, uid, actor, action, r) => q(env,
   "INSERT INTO entitlement_audit(ts,uid,actor,action,plan,status,expires_at) VALUES(?,?,?,?,?,?,?)",
   ts, uid, actor, action, r ? r.plan : null, r ? r.status : null, r ? (r.expires_at ?? null) : null).run();
@@ -92,9 +141,15 @@ export async function handle(req, env, deps = {}) {
     const uid = await authUid(req, env, deps);
     if (!uid) return err(401, "auth", c);
     const had = await readRecord(env, uid);
+    const links = await q(env, "SELECT count(*) AS n FROM purchase_links WHERE uid=?", uid).first();
+    /* the store subscription itself is cancelled in the store, never here —
+       this removes what BE Mastery holds about the account */
     await q(env, "DELETE FROM entitlements WHERE uid=?", uid).run();
-    if (had) await audit(env, now, uid, "self-erase", "erase", null);
-    return json({ ok: true, erased: !!had }, 200, c);
+    await q(env, "DELETE FROM purchase_links WHERE uid=?", uid).run();
+    await q(env, "DELETE FROM app_accounts WHERE uid=?", uid).run();
+    const erased = !!had || ((links && links.n) || 0) > 0;
+    if (erased) await audit(env, now, uid, "self-erase", "erase", null);
+    return json({ ok: true, erased }, 200, c);
   }
 
   if (path === "/v1/admin/grant" && req.method === "POST") {
@@ -106,14 +161,9 @@ export async function handle(req, env, deps = {}) {
     const rec = ADAPTERS.manual.normalize(body, now);
     const v = validateRecord(rec);
     if (!v.ok) return json({ error: "invalid", why: v.why }, 400);
-    await q(env, `INSERT INTO entitlements(uid,plan,product,status,starts_at,expires_at,source,external_ref,updated_at)
-                  VALUES(?,?,?,?,?,?,?,?,?)
-                  ON CONFLICT(uid) DO UPDATE SET plan=excluded.plan, product=excluded.product, status=excluded.status,
-                    starts_at=excluded.starts_at, expires_at=excluded.expires_at, source=excluded.source,
-                    external_ref=excluded.external_ref, updated_at=excluded.updated_at`,
-      rec.uid, rec.plan, rec.product, rec.status, rec.starts_at, rec.expires_at, rec.source, rec.external_ref, rec.updated_at).run();
+    await bindLink(env, rec.uid, { provider: "manual", ext_id: "grant:" + rec.uid, record: rec });
     await audit(env, now, rec.uid, "admin", "grant", rec);
-    return json({ ok: true, view: resolve(rec, now) });
+    return json({ ok: true, view: await recompute(env, rec.uid, now) });
   }
 
   /* ---------------------------------------------------------- rewards */
@@ -134,21 +184,20 @@ export async function handle(req, env, deps = {}) {
     return json({ nonce, kind, expiresAt: now + REWARD_SESSION_TTL_MS }, 200, c);
   }
   const ver = /^\/v1\/rewards\/verify\/([a-z_]{1,32})$/.exec(path);
+  if (ver && ver[1] === "admob") {
+    if (req.method !== "GET") return err(405, "method");
+    if (!admob.configured(env)) return err(501, "not_configured");
+    const r = await admob.verifySsv(url, deps);
+    if (!r.ok) return json({ error: "invalid", why: r.why }, 400);
+    return applyRewardVerification(env, now, "admob", r.nonce, r.txn);
+  }
   if (ver && req.method === "POST") {
     const v = REWARD_VERIFIERS[ver[1]];
     if (!v || (v.id === "mock" && !v.configured(env))) return err(404, "not_found");   /* the mock does not exist outside dev/test */
     if (!v.configured(env)) return err(501, "not_configured");
     const r = await v.verify(req, env, deps);
     if (!r.ok) return json({ error: "invalid", why: r.why }, 400);
-    const s = await q(env, "SELECT * FROM reward_sessions WHERE nonce=?", r.nonce).first();
-    if (!s) return err(404, "unknown_nonce");
-    if (s.verified_at) return s.provider_txn === r.txn ? json({ ok: true, again: true }) : err(409, "already_verified");
-    if (s.expires_at <= now) return err(410, "expired");
-    try {
-      const u = await q(env, "UPDATE reward_sessions SET verified_at=?, provider=?, provider_txn=? WHERE nonce=? AND verified_at IS NULL AND expires_at>?", now, v.id, r.txn, r.nonce, now).run();
-      if (!changes(u)) return err(409, "already_verified");
-    } catch (e) { return err(409, "txn_replay"); }   /* provider_txn is UNIQUE: one watched ad verifies one session */
-    return json({ ok: true });
+    return applyRewardVerification(env, now, v.id, r.nonce, r.txn);
   }
   if (path === "/v1/rewards/claim" && req.method === "POST") {
     const uid = await authUid(req, env, deps); if (!uid) return err(401, "auth", c);
@@ -169,12 +218,72 @@ export async function handle(req, env, deps = {}) {
     return json({ credited: true, kind: s.kind, balances: await balances(env, uid) }, 200, c);
   }
 
+  /* ------------------------------------------------ purchases (Phase 9) */
+  if (path === "/v1/purchases/account-token" && req.method === "GET") {
+    const uid = await authUid(req, env, deps); if (!uid) return err(401, "auth", c);
+    if (!BILLING_PROVIDERS.app_store.configured(env)) return err(501, "not_configured", c);
+    const token = await appAccountToken(uid, env);
+    await q(env, "INSERT OR IGNORE INTO app_accounts(token,uid,created_at) VALUES(?,?,?)", token, uid, now).run();
+    return json({ appAccountToken: token }, 200, c);
+  }
+  if ((path === "/v1/purchases/verify" || path === "/v1/purchases/restore") && req.method === "POST") {
+    const uid = await authUid(req, env, deps); if (!uid) return err(401, "auth", c);
+    let body; try { body = await req.json(); } catch (e) { return err(400, "json", c); }
+    const p = BILLING_PROVIDERS[String((body && body.provider) || "")];
+    if (!p) return err(400, "provider", c);
+    if (!p.configured(env)) return err(501, "not_configured", c);
+    const restore = path.endsWith("/restore");
+    const items = restore ? (Array.isArray(body.items) ? body.items.slice(0, 20) : []) : [body];
+    if (!items.length) return err(400, "items", c);
+    const ctx = { uid, env, deps, now }, results = [];
+    for (const it of items) {
+      const v = await p.verifyPurchase(it || {}, ctx);
+      if (!v.ok) { results.push({ ok: false, why: v.why, status: v.status }); continue; }
+      for (const l of v.links) {
+        const b = await bindLink(env, uid, l);
+        if (!b.ok) { results.push({ ok: false, why: "bound_elsewhere", status: 409 }); continue; }
+        if (l.supersedes) await q(env, "UPDATE purchase_links SET status='expired', updated_at=? WHERE provider=? AND ext_id=? AND uid=?", now, l.provider, l.supersedes, uid).run();
+        if (p.afterBind) await p.afterBind(l, ctx);
+        await audit(env, now, uid, "provider:" + p.id, restore ? "restore" : "verify", l.record);
+        results.push({ ok: true });
+      }
+    }
+    const view = await recompute(env, uid, now);
+    if (!restore && !results[0].ok) return json({ error: results[0].why, view: { ...view, checkedAt: now } }, results[0].status || 400, c);
+    /* results name no purchase ids — only whether each item bound */
+    return json({ ok: true, results, view: { ...view, checkedAt: now } }, 200, c);
+  }
   const bill = /^\/v1\/billing\/([a-z_]{1,32})$/.exec(path);
   if (bill && req.method === "POST") {
-    const a = ADAPTERS[bill[1]];
-    if (!a || a.id === "manual") return err(404, "not_found");
-    if (!a.configured(env)) return err(501, "not_configured");
-    return err(501, "not_configured");   // Phase 9: verify the provider's signature, normalise, upsert, audit
+    const p = BILLING_PROVIDERS[bill[1]];
+    if (!p) return err(404, "not_found");
+    if (!p.configured(env)) return err(501, "not_configured");
+    const n = await p.notification(req, { env, deps, now });
+    if (!n.ok) return err(n.status || 400, n.why || "invalid");
+    /* at-most-once per notification: the store retries, and may deliver twice */
+    const first = await q(env, "INSERT OR IGNORE INTO processed_notifications(id,provider,received_at) VALUES(?,?,?)", n.id, p.id, now).run();
+    if (!changes(first)) return json({ ok: true, duplicate: true });
+    try {
+      const touched = new Set();
+      for (const u of n.updates) {
+        const row = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", u.provider, u.ext_id).first();
+        let uid = row && row.uid;
+        if (!uid && u.bindByAccountToken) {                       /* first sight of an Apple purchase: the appAccountToken names its account */
+          const a = await q(env, "SELECT uid FROM app_accounts WHERE token=?", u.bindByAccountToken).first();
+          uid = a && a.uid;
+        }
+        if (!uid) continue;                                        /* a purchase no account has bound yet: nothing to change */
+        if (u.revoke) await q(env, "UPDATE purchase_links SET status='revoked', will_renew=0, updated_at=? WHERE provider=? AND ext_id=?", now, u.provider, u.ext_id).run();
+        else if (!(await bindLink(env, uid, u)).ok) continue;
+        await audit(env, now, uid, "provider:" + p.id, u.revoke ? "revoke" : "notification", u.revoke ? { status: "revoked" } : u.record);
+        touched.add(uid);
+      }
+      for (const uid of touched) await recompute(env, uid, now);
+    } catch (e) {
+      await q(env, "DELETE FROM processed_notifications WHERE id=?", n.id).run();   /* let the store retry */
+      throw e;
+    }
+    return json({ ok: true });
   }
 
   return err(404, "not_found", c);

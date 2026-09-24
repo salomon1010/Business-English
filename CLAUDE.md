@@ -264,6 +264,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   `/v1/rewards/start` → network verifies server to server → single-use
   `/v1/rewards/claim`; every reward kind ships disabled. Ad events
   (`ad_*`, `rewarded_ad_*`) are on the be-events allow-list on this branch only.
+  **Phase 9 (`feature/phase9-native-monetization`,
+  `docs/PHASE9-ARCHITECTURE-DECISION.md`):** be-entitlements verifies store
+  purchases itself — Google Play (`subscriptionsv2`, acknowledge, RTDN with
+  Google OIDC) and Apple (StoreKit 2 JWS + pinned x5c chain, Server
+  Notifications V2, `appAccountToken`) — through `src/billing.js`; each store
+  purchase is a `purchase_links` row owned by ONE account (first bind wins,
+  409 otherwise) and the entitlement is derived from the links. AdMob SSV is
+  `GET /v1/rewards/verify/admob`. Client: `Billing` + `BillingProviders.play`
+  (Digital Goods API + Payment Request in the TWA; prices from Play) and
+  `.storekit` (`window.BENativeBilling`, iOS shell only — the Swift plugin is
+  NOT written); Premium card states in `entPlanCardHTML`; flag
+  `billing_enabled` OFF. `twa-manifest.json` has `playBilling` enabled (next
+  AAB only). Android stays a TWA.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

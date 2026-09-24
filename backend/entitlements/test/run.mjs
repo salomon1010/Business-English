@@ -18,7 +18,7 @@ let clock = T0;
 /* ---- D1 shim over a real SQLite database (the three calls the Worker uses) */
 function d1() {
   const db = new DatabaseSync(":memory:");
-  for (const m of ["0001_entitlements.sql", "0002_rewards.sql"]) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
+  for (const m of ["0001_entitlements.sql", "0002_rewards.sql", "0003_purchases.sql"]) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
   const norm = v => v === undefined ? null : v;
   return {
     raw: db,
@@ -85,7 +85,7 @@ console.log("\n# core — resolve()");
   ];
   ok("4 · invalid records (unknown plan/status/product/source, bad times, no uid, non-objects) → free (state invalid)", bad.every(r => { const v = resolve(r, T0); return v.plan === "free" && v.state === "invalid"; }));
   ok("4b · a free-plan record is free", resolve({ uid: "u", plan: "free", status: "active", updated_at: T0 }, T0).plan === "free");
-  ok("4c · the view carries no provider fields", Object.keys(pr).sort().join() === "ads,capabilities,expiresAt,paid,plan,source,state");
+  ok("4c · the view carries no provider fields", Object.keys(pr).sort().join() === "ads,capabilities,expiresAt,paid,plan,renews,source,startedAt,state");
   ok("4d · plans are account-level capabilities, not tracks", Object.values(PLANS).every(p => !("tracks" in p) && !Object.keys(p.capabilities).some(k => /partner|shadow|welding|general|track/i.test(k))));
   ok("4e · validateRecord explains a refusal", validateRecord({ uid: "u", plan: "x", status: "active" }).why === "plan");
 }
@@ -218,8 +218,8 @@ console.log("\n# rewarded ads — server-verified, single-use");
   await grant({ uid: "hana", plan: "premium", status: "active", expiresAt: T0 + 30 * 864e5, source: "promo" });
   r = await start("hana");
   ok("R18 · Premium never receives a rewarded ad (409 premium)", r.status === 409 && r.json.error === "premium");
-  r = await R("POST", "/v1/rewards/verify/admob", { body: {} });
-  ok("R19 · real network verification answers 501 until Phase 9", r.status === 501);
+  r = await R("GET", "/v1/rewards/verify/admob");
+  ok("R19 · AdMob verification answers 501 until ADMOB_SSV_ENABLED is set (tested in billing.mjs)", r.status === 501);
   r = await R("GET", "/v1/rewards", { tok: token("ivan") });
   ok("R20 · a learner with nothing earned has empty balances; the response names no other account", r.status === 200 && Object.keys(r.json.balances).length === 0);
 }

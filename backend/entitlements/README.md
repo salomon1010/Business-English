@@ -53,7 +53,12 @@ No provider identifier, product id, customer id or uid is ever in it.
 | `GET /v1/entitlement` | signed-in learner | their VIEW; 401 without a valid token |
 | `DELETE /v1/me` | signed-in learner | erase their row (account deletion) |
 | `POST /v1/admin/grant` | owner (`ADMIN_TOKEN`) | manual / promotional grant; 404 if no secret is set |
-| `POST /v1/billing/:provider` | store | **501 `not_configured`** until Phase 9 |
+| `POST /v1/billing/google_play` | Google Pub/Sub (RTDN) | OIDC-authenticated (aud + service-account email); applied once per `messageId`; re-reads the subscription from Google |
+| `POST /v1/billing/app_store` | Apple (Server Notifications V2) | JWS + pinned x5c chain; applied once per `notificationUUID` |
+| `GET /v1/purchases/account-token` | signed-in learner | the account's StoreKit `appAccountToken` (HMAC of the uid) |
+| `POST /v1/purchases/verify` | signed-in learner | `{provider, …evidence}` — verified WITH THE STORE, bound to the caller (first bind wins, 409 otherwise), entitlement recomputed |
+| `POST /v1/purchases/restore` | signed-in learner | `{provider, items[]}` — same, per item; answers only how many bound |
+| `GET /v1/rewards/verify/admob` | AdMob (SSV) | ECDSA-signed callback against Google's published keys (`ADMOB_SSV_ENABLED="1"`) |
 | `POST /v1/rewards/start` | signed-in learner | a single-use nonce for one rewarded ad; the kind must be enabled server-side (`REWARD_KINDS_ENABLED`, empty = none); refused for Premium; daily cap per kind |
 | `POST /v1/rewards/verify/:provider` | the AD NETWORK, server to server | marks the nonce watched; `provider_txn` UNIQUE (one ad → one session). `mock` only with `MOCK_REWARDS="1"` (dev/test); `admob` 501 until Phase 9 SSV |
 | `POST /v1/rewards/claim` | signed-in learner | credits the kind once (one conditional UPDATE); a replay returns `credited:false` |
@@ -78,7 +83,9 @@ No provider identifier, product id, customer id or uid is ever in it.
 
 ## Tests
 
-`node backend/entitlements/test/run.mjs` runs 61 checks (41 entitlement + 20 rewarded). They use the real
+`node backend/entitlements/test/run.mjs` runs 61 checks (41 entitlement + 20 rewarded);
+`node backend/entitlements/test/billing.mjs` runs 60 store checks (Google, Apple, AdMob) with real
+cryptography — a generated service account, an openssl-made certificate chain, a P-256 SSV key. They use the real
 `handle()`, a real SQLite database (`node:sqlite`) built from the real
 migration, and genuinely RS256-signed tokens from a key generated per run. No
 wrangler, Cloudflare or Firebase is needed.
@@ -95,3 +102,12 @@ npx wrangler deploy --env ""
 
 Then set `ENT_API` in `index.html`, and add the Worker's origin to nothing
 else: it serves only `app.lomonec.com` and `capacitor://localhost`.
+
+## Phase 9 — stores (see docs/PHASE9-ARCHITECTURE-DECISION.md)
+
+`src/billing.js` is the provider interface (`google_play`, `app_store`, a `revenuecat` slot);
+`purchase_links` (migration 0003) binds each store purchase to ONE account and the
+`entitlements` row is derived from an account's links. Configuration, all secrets / vars:
+`GOOGLE_SA_JSON`, `PLAY_PACKAGE`, `RTDN_AUDIENCE`, `RTDN_SA_EMAIL`, `APPLE_BUNDLE_ID`,
+`APPLE_ROOT_SHA256` (copy and check it from https://www.apple.com/certificateauthority/),
+`APPLE_ENVIRONMENTS`, `APP_ACCOUNT_SECRET`, `ADMOB_SSV_ENABLED`. Without them each route answers 501.

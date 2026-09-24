@@ -26,7 +26,11 @@
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://app.lomonec.com/manifest.json",
   "fallbackType": "customtabs",
-  "features": {},
+  "features": {
+    "playBilling": {
+      "enabled": true
+    }
+  },
   "alphaDependencies": {
     "enabled": false
   },

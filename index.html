@@ -5949,6 +5949,22 @@ const I18N_EN={
  "acc.prem_3":"New Premium features as they arrive",
  "acc.prem_active":"Active",
  "acc.prem_until":"Active until {{date}}",
+ "acc.prem_get":"Get Premium",
+ "acc.prem_restore":"Restore purchases",
+ "acc.prem_manage":"Manage subscription",
+ "acc.prem_signin":"Sign in to get Premium",
+ "acc.prem_loading":"Loading prices from the store…",
+ "acc.prem_buying":"Waiting for the store…",
+ "acc.prem_success":"Premium is on. Thank you.",
+ "acc.prem_failed":"The purchase did not go through. Your plan has not changed.",
+ "acc.prem_restoring":"Checking your purchases…",
+ "acc.prem_restored":"Purchases checked: {{n}} restored.",
+ "acc.prem_none_restored":"No purchases found for this account.",
+ "acc.prem_cancelled":"Cancelled — Premium stays on until {{date}}.",
+ "acc.prem_grace":"Payment problem — Premium stays on until {{date}}. Update your payment in the store.",
+ "acc.prem_ended_generic":"Your Premium has ended.",
+ "acc.prem_bound":"This purchase belongs to another BE Mastery account.",
+ "acc.prem_unavailable":"Purchases are not available right now.",
  "ad.label":"Advertisement",
  "ad.close":"Close the advertisement",
  "ad.continue":"Continue to BE Mastery",
@@ -19091,7 +19107,8 @@ const FLAGS_DEFAULT={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
-  ads_mock_provider:false              // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
+  ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
+  billing_enabled:false                // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
 };
 /* the internal-preview set from PILOT.md, on by default on the staging host
    only (beEnv); production keeps FLAGS_DEFAULT; be_flags still wins */
@@ -19108,7 +19125,8 @@ const FLAGS_STAGING={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
   ads_enabled:false,
-  ads_mock_provider:false
+  ads_mock_provider:false,
+  billing_enabled:false
 };
 /* A tester on a phone has no console to set be_flags with, so the URL can:
    ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
@@ -19150,7 +19168,7 @@ function isGeneralEnglish(){return areaId()===AREA_GEN}
    Not deployed: ENT_API is empty, so everyone is FREE and no request is made. */
 const ENT_API="";
 const ENT_CACHE_KEY="be_ent_view", ENT_TTL=12*3600e3;
-const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capabilities:Object.freeze({ad_free:false,ai_allowance:"standard",practice_allowance:"standard"}),expiresAt:null,source:null});
+const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capabilities:Object.freeze({ad_free:false,ai_allowance:"standard",practice_allowance:"standard"}),expiresAt:null,startedAt:null,renews:null,source:null});
 let _entView=null,_entUid=null,_entBusy=null;
 /* the localStorage override is honoured only on localhost (tests, local
    wrangler dev) — a production page never lets a learner point it elsewhere */
@@ -19164,7 +19182,8 @@ function entSanitize(j){
   const cap=j.capabilities&&typeof j.capabilities==="object"?j.capabilities:{};
   return Object.freeze({plan,paid:j.paid===true,state:String(j.state||"active").slice(0,16),ads:j.ads!==false?true:false,
     capabilities:Object.freeze({ad_free:cap.ad_free===true,ai_allowance:cap.ai_allowance==="enhanced"?"enhanced":"standard",practice_allowance:cap.practice_allowance==="enhanced"?"enhanced":"standard"}),
-    expiresAt:Number.isFinite(j.expiresAt)?j.expiresAt:null,source:typeof j.source==="string"?j.source.slice(0,16):null});
+    expiresAt:Number.isFinite(j.expiresAt)?j.expiresAt:null,startedAt:Number.isFinite(j.startedAt)?j.startedAt:null,
+    renews:j.renews===true?true:j.renews===false?false:null,source:typeof j.source==="string"?j.source.slice(0,16):null});
 }
 function entCacheRead(uid){
   try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");
@@ -19210,20 +19229,48 @@ async function entEraseMe(){
 }
 /* a plan change redraws what shows it and withdraws anything an ad would sit in */
 function entApply(){
-  try{if(typeof cur!=="undefined"&&cur&&cur.v==="data")go("data")}catch(e){}
+  /* App Setup shows the plan in more than one place (summary, free-plan card,
+     Premium card), so it is redrawn — keeping the plan section open and the
+     scroll where it was, or a purchase result would be folded away */
+  try{if(typeof cur!=="undefined"&&cur&&cur.v==="data"){
+    const d=document.querySelector("details.set-plan"),was=!!(d&&d.open),y=window.scrollY;
+    go("data");
+    /* App Setup renders asynchronously: wait for the NEW section, then reopen it */
+    if(was){let k=0;const re=()=>{const n=document.querySelector("details.set-plan");
+      if(n&&n!==d){n.open=true;window.scrollTo(0,y)}else if(++k<40)setTimeout(re,25)};re()}
+  }}catch(e){}
   try{if(!AdEligibility.planAllowsAds())AdManager.withdraw()}catch(e){}
 }
 
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
 function entPlanCardHTML(){
   const prem=entIsPremiumForDisplay(),v=entView();
-  const li=(k,icn,col)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:${col};margin-top:2px">${ic(icn)}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}️‍\s]+/u,"")}</span></li>`;
-  const until=prem&&v.expiresAt?`<p class="sub" style="margin:6px 0 0">${esc(t("acc.prem_until",{date:new Date(v.expiresAt).toLocaleDateString()}))}</p>`:"";
-  return `<div class="card ent-plan${prem?" on":""}" style="margin-bottom:16px${prem?"":";opacity:.75"}">
-        <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b> <span class="chip ${prem?"done":"p3"}">${t(prem?"acc.prem_active":"acc.coming_soon")}</span>${until}
+  let B=null;try{B=Billing}catch(e){}   /* a const defined further down: never touch it before it exists */
+  const live=!!(B&&B.provider);
+  const date=ms=>new Date(ms).toLocaleDateString();
+  const li=(k,icn,col)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:${col};margin-top:2px">${ic(icn)}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`;
+  /* what the server says about this account's plan, in words */
+  let status="";
+  if(prem&&v.state==="grace"&&v.expiresAt)status=t("acc.prem_grace",{date:date(v.expiresAt)});
+  else if(prem&&v.renews===false&&v.expiresAt)status=t("acc.prem_cancelled",{date:date(v.expiresAt)});
+  else if(prem&&v.expiresAt)status=t("acc.prem_until",{date:date(v.expiresAt)});
+  else if(!prem&&v.state==="expired")status=t("acc.prem_ended_generic");
+  const chip=prem?t("acc.prem_active"):(live?"":t("acc.coming_soon"));
+  /* the store part: only when a store provider is present (flag on, TWA / iOS shell) */
+  let store="";
+  if(live&&!prem){
+    if(!FBUser)store=`<button type="button" class="btn-primary" style="margin-top:12px" onclick="fbOpenModal()">${esc(t("acc.prem_signin"))}</button>`;
+    else if(B.state==="loading")store=`<p class="sub" role="status" style="margin-top:10px">${esc(t("acc.prem_loading"))}</p>`;
+    else store=`<div class="ent-offers" style="display:grid;gap:8px;margin-top:12px">${B.products.map(p=>`<button type="button" class="btn-primary ent-buy" ${B.state==="purchasing"||B.state==="restoring"?"disabled":""} onclick="Billing.buy('${esc(p.id)}')">${esc(t("acc.prem_get"))} · ${esc(p.title)} · ${esc(p.price)}</button>`).join("")}</div>
+      <button type="button" class="btn btn-g" style="margin-top:8px;min-height:44px" ${B.state==="restoring"?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
+  }
+  if(live&&prem&&v.source&&(v.source==="google_play"||v.source==="app_store"))store=`<button type="button" class="btn btn-g" style="margin-top:12px;min-height:44px" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`;
+  const note=B&&B.note?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(B.state==="purchasing"?t("acc.prem_buying"):B.state==="restoring"?t("acc.prem_restoring"):B.note)}</p>`:(B&&(B.state==="purchasing"||B.state==="restoring")?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"))}</p>`:"");
+  return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
+        <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
         <ul style="list-style:none;margin-top:10px">
           ${li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)")}${li("acc.prem_2","sparkle",prem?"var(--green)":"var(--mut)")}${li("acc.prem_3","star",prem?"var(--green)":"var(--mut)")}
-        </ul>
+        </ul>${store}${note}
       </div>`;
 }
 
@@ -19499,6 +19546,114 @@ const AdManager={
   /* sponsored learning content: format and policy exist; no provider supplies it yet */
   sponsored(){return ""},
 };
+/* ================= BILLING (Phase 9) =================
+   The app never decides who is Premium. It asks the STORE to sell, hands the
+   store's proof to be-entitlements, and draws what the server answers:
+
+     Android (TWA)  Chrome's Digital Goods API + Payment Request with Play
+                    Billing → purchaseToken → POST /v1/purchases/verify
+     iOS (Capacitor) window.BENativeBilling (StoreKit 2 plugin, native — added
+                    in Xcode, not present yet) → signed transaction carrying this
+                    account's appAccountToken → POST /v1/purchases/verify
+     web            no provider (a separate decision; nothing is sold on the web)
+
+   Prices are whatever the store returns — never a number in this file.
+   Everything here is behind flag billing_enabled (OFF) and ENT_API (empty).
+
+   BENativeBilling bridge contract (the iOS plugin must implement exactly this):
+     supports() → true
+     getProducts(ids) → [{ id, title, displayPrice }]            StoreKit Product
+     purchase(id, { appAccountToken }) → { signedTransaction, signedRenewalInfo? } | { cancelled:true }
+     restore() → [{ signedTransaction, signedRenewalInfo? }]      Transaction.currentEntitlements
+     manageSubscriptions()                                       AppStore.showManageSubscriptions */
+const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
+const PLAY_BILLING_METHOD="https://play.google.com/billing";
+const BillingProviders={
+  play:{
+    id:"google_play",_svc:null,
+    async available(){
+      if(IS_IOS_APP||typeof window.getDigitalGoodsService!=="function"||typeof window.PaymentRequest!=="function")return false;
+      try{this._svc=this._svc||await window.getDigitalGoodsService(PLAY_BILLING_METHOD);return !!this._svc}catch(e){return false}   /* rejects outside a Play-billed TWA */
+    },
+    async products(){
+      const d=await this._svc.getDetails(BILLING_PRODUCTS.slice());
+      return d.map(x=>({id:x.itemId,title:x.title,price:(()=>{try{return new Intl.NumberFormat(undefined,{style:"currency",currency:x.price.currency}).format(Number(x.price.value))}catch(e){return x.price.value+" "+x.price.currency}})()}));
+    },
+    async purchase(id){
+      /* the amount is Play's to decide; Payment Request requires a placeholder total */
+      const req=new PaymentRequest([{supportedMethods:PLAY_BILLING_METHOD,data:{sku:id}}],{total:{label:"Total",amount:{currency:"USD",value:"0"}}});
+      let resp;try{resp=await req.show()}catch(e){return {cancelled:true}}
+      return {evidence:{provider:"google_play",productId:id,purchaseToken:resp.details&&resp.details.purchaseToken},finish:ok=>{try{resp.complete(ok?"success":"fail")}catch(e){}}};
+    },
+    async restore(){const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
+    manage(product){window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
+  },
+  storekit:{
+    id:"app_store",
+    async available(){return IS_IOS_APP&&!!(window.BENativeBilling&&typeof window.BENativeBilling.purchase==="function")},
+    async products(){const p=await window.BENativeBilling.getProducts(BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice}))},
+    async purchase(id){
+      const tok=await billingApi("GET","/v1/purchases/account-token");
+      const r=await window.BENativeBilling.purchase(id,{appAccountToken:tok.appAccountToken});
+      if(!r||r.cancelled)return {cancelled:true};
+      return {evidence:{provider:"app_store",signedTransaction:r.signedTransaction,signedRenewalInfo:r.signedRenewalInfo},finish(){}};
+    },
+    async restore(){const l=await window.BENativeBilling.restore();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))},
+    manage(){try{window.BENativeBilling.manageSubscriptions()}catch(e){}},
+  },
+};
+async function billingApi(method,path,body){
+  const base=entApiBase();if(!base||!FBUser)throw Object.assign(new Error("off"),{code:"off"});
+  const r=await fetch(base+path,{method,headers:{"content-type":"application/json",authorization:"Bearer "+await FBUser.getIdToken()},body:body?JSON.stringify(body):undefined});
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error(j.error||String(r.status)),{code:j.error||"http",status:r.status,view:j.view});
+  return j;
+}
+/* the answer from the server replaces what the screen shows (display only) */
+function billingTakeView(v){if(!v)return;const s=entSanitize(v);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
+
+const Billing={
+  state:"idle",products:[],provider:null,note:"",
+  async init(){
+    if(!flag("billing_enabled")||!entApiBase()){this.provider=null;return}
+    for(const p of [BillingProviders.storekit,BillingProviders.play])if(await p.available()){this.provider=p;break}
+    if(!this.provider||!FBUser)return this._draw();
+    this.state="loading";this._draw();
+    try{this.products=await this.provider.products();this.state="ready"}catch(e){this.state="failed";this.note=t("acc.prem_unavailable")}
+    this._draw();
+  },
+  async buy(id){
+    if(!this.provider||this.state==="purchasing")return;
+    this.state="purchasing";this.note="";this._draw();
+    let r;try{r=await this.provider.purchase(id)}catch(e){r=null}
+    if(!r||r.cancelled){this.state="ready";this._draw();return}
+    try{
+      const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
+      r.finish(true);billingTakeView(j.view);this.state="success";this.note=t("acc.prem_success");
+    }catch(e){
+      r.finish(false);this.state="failed";
+      this.note=e.code==="bound_elsewhere"||e.code==="account_mismatch"?t("acc.prem_bound"):t("acc.prem_failed");
+      if(e.view)billingTakeView(e.view);
+    }
+    this._draw();
+  },
+  async restore(){
+    if(!this.provider)return;
+    this.state="restoring";this.note="";this._draw();
+    try{
+      const items=await this.provider.restore();
+      if(!items.length){this.state="ready";this.note=t("acc.prem_none_restored");return this._draw()}
+      const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
+      billingTakeView(j.view);
+      const n=(j.results||[]).filter(x=>x.ok).length,b=(j.results||[]).some(x=>x.why==="bound_elsewhere"||x.why==="account_mismatch");
+      this.state="ready";this.note=n?t("acc.prem_restored",{n}):b?t("acc.prem_bound"):t("acc.prem_none_restored");
+    }catch(e){this.state="failed";this.note=t("acc.prem_failed")}
+    this._draw();
+  },
+  manage(){if(this.provider)this.provider.manage()},
+  _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML()},
+};
+
 
 
 /* ================= SHADOW STUDIO V2 =================
@@ -27387,6 +27542,7 @@ function fbConfigured(){return !!(window.FB_CONFIG&&FB_CONFIG.apiKey)}
 function fbOnAuth(u){
   FBUser=u;
   try{entRefresh()}catch(e){}
+  try{Billing.init()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
   try{pfSetupSheetSync()}catch(e){}
