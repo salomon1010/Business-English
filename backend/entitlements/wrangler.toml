@@ -54,7 +54,13 @@ name = "be-entitlements-staging"
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://staging.lomonec.com"
 PLAY_PACKAGE = "com.bemastery.app"
-# RTDN_AUDIENCE / RTDN_SA_EMAIL: set once the staging Pub/Sub push subscription exists
+# RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
+# THIS Worker; the push endpoint must be exactly this URL. With the push
+# subscription's Audience left blank, Pub/Sub uses the push endpoint URL as the
+# token's aud (Pub/Sub OidcToken.audience docs), so RTDN_AUDIENCE = that URL.
+# RTDN_SA_EMAIL = the push subscription's service account (the token's email).
+RTDN_AUDIENCE = "https://be-entitlements-staging.nore-ngou.workers.dev/v1/billing/google_play"
+RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
 APPLE_BUNDLE_ID = "com.bemastery.app"
 APPLE_ENVIRONMENTS = "Sandbox"
 [env.staging.observability]
