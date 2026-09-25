@@ -231,6 +231,33 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ok("C13 · once the store confirms the payment, the next launch gives Premium and the purchase is acknowledged", await p.evaluate(() => entIsPremiumForDisplay()) && SUBS.get("tok_pax_" + "p".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED");
   await ctx.close();
 
+  /* C14-C15 (Phase 12A): the purchase funnel's analytics. Every track() the
+     Billing code makes is recorded: allow-listed names, map keys only, fixed
+     values — and never a token, whatever the flow. */
+  const PREM_KEYS = ["provider", "product", "reason", "result", "source", "state"];
+  const REC = () => { window.__ev = []; window.track = (n, p) => { if (/^(purchase_|entitlement_)/.test(n)) window.__ev.push([n, p || {}]); }; };
+  SUBS.set("tok_qa1_" + "q".repeat(20), gsub());
+  SUBS.set("tok_qa2_" + "w".repeat(20), gsub({ subscriptionState: "SUBSCRIPTION_STATE_PENDING" }));
+  ({ ctx, p } = await open({ uid: "qa1" }));
+  await p.evaluate(REC);
+  await p.evaluate(() => { __play.next = { token: "tok_qa9_" + "z".repeat(20), cancel: true }; }); await p.evaluate(() => Billing.buy("premium_monthly"));
+  await p.evaluate(() => { __play.next = { token: "tok_qa2_" + "w".repeat(20), cancel: false }; }); await p.evaluate(() => Billing.buy("premium_monthly"));
+  await p.evaluate(() => { __play.owned = []; }); await p.evaluate(() => Billing.restore());
+  await p.evaluate(() => { __play.next = { token: "tok_qa1_" + "q".repeat(20), cancel: false }; }); await p.evaluate(() => Billing.buy("premium_monthly"));
+  SUBS.get("tok_qa1_" + "q".repeat(20)).subscriptionState = "SUBSCRIPTION_STATE_CANCELED";
+  await p.evaluate(() => { __play.owned = [{ itemId: "premium_monthly", purchaseToken: "tok_qa1_" + "q".repeat(20) }]; }); await p.evaluate(() => Billing.restore());
+  SUBS.get("tok_qa1_" + "q".repeat(20)).subscriptionState = "SUBSCRIPTION_STATE_EXPIRED";
+  SUBS.get("tok_qa1_" + "q".repeat(20)).lineItems = [{ productId: "premium_monthly", expiryTime: iso(NOW - DAY) }];
+  await p.evaluate(() => Billing.restore()); await p.evaluate(() => entRefresh());
+  const evs = await p.evaluate(() => window.__ev);
+  const names = evs.map(e => e[0]);
+  ok("C14 · the funnel is counted: started → failed(cancelled), started → pending, restore(none), started → confirmed, then cancelled and expired as the server reports them",
+    ["purchase_started", "purchase_failed", "purchase_pending", "purchase_restore", "purchase_confirmed", "entitlement_cancelled", "entitlement_expired"].every(n => names.includes(n))
+    && evs.some(([n, q]) => n === "purchase_failed" && q.reason === "cancelled") && evs.some(([n, q]) => n === "purchase_restore" && q.result === "none" && q.source === "tap"), JSON.stringify(evs));
+  ok("C15 · every event carries only the map keys and fixed values — no token, order id, account or date anywhere",
+    evs.every(([, q]) => Object.keys(q).every(k => PREM_KEYS.includes(k))) && !/tok_|GPA|qa1|qa2|@|\d{10}/.test(JSON.stringify(evs)), JSON.stringify(evs));
+  await ctx.close();
+
   /* C3: another account on the same device never sees the last one's message */
   ({ ctx, p } = await open({ uid: "lea" }));
   await p.evaluate(() => { Billing.note = t("acc.prem_bound"); Billing.state = "failed"; Billing._draw(); });

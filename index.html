@@ -132,7 +132,7 @@ window.FB_CONFIG={
      tab drops them and the app silently fell back to production defaults.
      app.lomonec.com and localhost are untouched. beEnv(host) is the one
      place that knows; partner API and feature flags read the same function. */
-  window.beEnv=function(host){return (host||location.hostname)==="staging.lomonec.com"?{events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",flags:true}:null};
+  window.beEnv=function(host){return (host||location.hostname)==="staging.lomonec.com"?{events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",flags:true}:null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -19206,6 +19206,21 @@ function entView(){
 }
 function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v.paid===true}
 function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
+/* Plan changes for release analytics (Phase 12A): compare the server's new
+   answer with the LAST one this account saw (memory, else the raw cache — the
+   display TTL does not matter here) and count Premium ending, being refunded
+   or having its renewal cancelled. Once per change: the next answer is compared
+   with this one. Enums only — never a token, id or date. */
+function entNoteChange(uid,next){
+  let prev=null;
+  if(_entView&&_entUid===uid)prev=_entView;
+  else try{const c=JSON.parse(localStorage.getItem(ENT_CACHE_KEY)||"null");if(c&&c.uid===uid)prev=entSanitize(c.view)}catch(e){}
+  if(!prev||!next||!prev.paid)return;
+  const p={provider:prev.source||"none"};
+  if(!next.paid&&next.state==="revoked")track("entitlement_revoked",{provider:p.provider,state:"revoked"});
+  else if(!next.paid)track("entitlement_expired",{provider:p.provider,state:String(next.state||"expired")});
+  else if(prev.renews!==false&&next.renews===false)track("entitlement_cancelled",{provider:p.provider,state:"cancelled"});
+}
 async function entRefresh(){
   const uid=entUid(),base=entApiBase();
   if(!uid){entWipe();entApply();return ENT_FREE}
@@ -19217,6 +19232,7 @@ async function entRefresh(){
       if(r.status===401){entWipe();return ENT_FREE}
       if(!r.ok)return entView();                                      /* server trouble: keep what we last knew (display only) */
       const v=entSanitize(await r.json());
+      entNoteChange(uid,v);
       _entView=v;_entUid=uid;
       try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid,at:Date.now(),view:v}))}catch(e){}
       return v;
@@ -19632,7 +19648,7 @@ async function billingApi(method,path,body){
   return j;
 }
 /* the answer from the server replaces what the screen shows (display only) */
-function billingTakeView(v){if(!v)return;const s=entSanitize(v);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
+function billingTakeView(v){if(!v)return;const s=entSanitize(v);entNoteChange(entUid(),s);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
 
 const Billing={
   state:"idle",products:[],provider:null,note:"",_uid:null,_reconciled:null,
@@ -19665,25 +19681,30 @@ const Billing={
       const items=this.provider.owned?await this.provider.owned():[];
       if(!items.length)return;
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
+      track("purchase_restore",{provider:this.provider.id,source:"launch",result:(j.results||[]).some(x=>x.ok)?"restored":"none"});
       if(FBUser&&FBUser.uid===uid){billingTakeView(j.view);this._draw()}
-    }catch(e){this._reconciled=null}   /* try again on the next sign-in / launch */
+    }catch(e){this._reconciled=null;track("purchase_restore",{provider:this.provider.id,source:"launch",result:"failed"})}   /* try again on the next sign-in / launch */
   },
   async buy(id){
     if(!this.provider||this.state==="purchasing"||this.state==="restoring")return;
     this.state="purchasing";this.note="";this._draw();
+    const ev={provider:this.provider.id,product:String(id)};   /* release analytics: enums only, never a token */
+    track("purchase_started",ev);
     let r;try{r=await this.provider.purchase(id)}catch(e){r={error:e}}
-    if(!r||r.cancelled){this.state="ready";this._draw();return}
-    if(r.error){this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
+    if(!r||r.cancelled){track("purchase_failed",{...ev,reason:"cancelled"});this.state="ready";this._draw();return}
+    if(r.error){track("purchase_failed",{...ev,reason:"store"});this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
       /* the SERVER's answer decides the message: a slow payment (Play "pending")
          or a purchase the store reports as not in force is not "Premium is on" */
       r.finish(true);billingTakeView(j.view);const paid=!!(j.view&&j.view.paid);
       this.state=paid?"success":"ready";this.note=paid?t("acc.prem_success"):j.view&&j.view.state==="payment_pending"?t("acc.prem_payment_pending"):t("acc.prem_failed");
+      if(paid)track("purchase_confirmed",ev);else if(j.view&&j.view.state==="payment_pending")track("purchase_pending",ev);else track("purchase_failed",{...ev,reason:"not_paid"});
     }catch(e){
       /* the store took the payment; only OUR answer is missing (offline, 5xx):
          say so, keep the purchase for the next launch's reconcile */
       const transient=!e.status||e.status>=500||e.status===429;
+      track("purchase_failed",{...ev,reason:transient?"unconfirmed":e.code==="bound_elsewhere"||e.code==="account_mismatch"?"bound":"rejected"});
       r.finish(transient?"unknown":false);this.state="failed";
       this.note=transient?t("acc.prem_pending_verify"):e.code==="bound_elsewhere"||e.code==="account_mismatch"?t("acc.prem_bound"):t("acc.prem_failed");
       if(transient)this._reconciled=null;
@@ -19696,12 +19717,14 @@ const Billing={
     this.state="restoring";this.note="";this._draw();
     try{
       const items=await this.provider.restore();
-      if(!items.length){this.state="ready";this.note=t("acc.prem_none_restored");return this._draw()}
+      const rv={provider:this.provider.id,source:"tap"};
+      if(!items.length){track("purchase_restore",{...rv,result:"none"});this.state="ready";this.note=t("acc.prem_none_restored");return this._draw()}
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
       billingTakeView(j.view);
       const n=(j.results||[]).filter(x=>x.ok).length,b=(j.results||[]).some(x=>x.why==="bound_elsewhere"||x.why==="account_mismatch");
+      track("purchase_restore",{...rv,result:n?"restored":b?"bound":"none"});
       this.state="ready";this.note=n?t("acc.prem_restored",{n}):b?t("acc.prem_bound"):t("acc.prem_none_restored");
-    }catch(e){this.state="failed";this.note=t("acc.prem_failed")}
+    }catch(e){track("purchase_restore",{provider:this.provider&&this.provider.id,source:"tap",result:"failed"});this.state="failed";this.note=t("acc.prem_failed")}
     this._draw();
   },
   /* Manage opens the store that SOLD the plan; a plan from the other store is named, not opened */

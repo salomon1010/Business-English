@@ -96,8 +96,8 @@ console.log("\n1 · TRANSPORT");
 /* ── 2 · the 20-blob limit and the legacy columns ──────────────────────── */
 console.log("\n2 · ROW LAYOUT — the Analytics Engine limit, and the columns that existed before 19 Sept 2026");
 ok(`the Worker states the limit workerd enforces: ${AE_MAX} blobs per data point`, AE_MAX === 20);
-ok("PROP_KEYS is still the allow-list of readable keys — 35 keys, first 26 identical and in order to origin/main",
-  KEYS.length === 35 && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
+ok("PROP_KEYS is still the allow-list of readable keys — 36 keys (product appended for Premium), first 26 identical and in order to origin/main",
+  KEYS.length === 36 && KEYS[35] === "product" && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
 ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exactly the columns that ever existed",
   LEGACY.join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now" && LEGACY.length === 18);
 { const all = {}; for (const k of KEYS) all[k] = "x";
@@ -168,7 +168,8 @@ ok("layoutFor() is deterministic and total: v2_* → V2 map, partner_* → partn
 /* the ad-only keys (Phase 8) never ride on another family's event, so each
    family's worst case is every key it could carry — not the ad ones */
 const AD_ONLY = ["format", "context", "provider"];
-const ALLK = Object.fromEntries(KEYS.filter(k => !AD_ONLY.includes(k)).map(k => [k, "x"]));
+const PREMIUM_ONLY = ["product"];   /* only purchase_* / entitlement_* have a product column; no other family sends it */
+const ALLK = Object.fromEntries(KEYS.filter(k => !AD_ONLY.includes(k) && !PREMIUM_ONLY.includes(k)).map(k => [k, "x"]));
 const JUNK = { junk1: "y", junk2: "y", said: "z" };
 const MAXP = {
   "legacy  ": ["app_open", { ...ALLK, ...JUNK }],
@@ -177,6 +178,7 @@ const MAXP = {
   "V2, every key": ["v2_evidence_recorded", { ...ALLK, ...JUNK }],
   "V2, worst-case values": ["v2_evidence_recorded", { track: GE, week: "12", competency: "c".repeat(MAX_VAL), mission: "m".repeat(MAX_VAL), kind: "transfer", move: "mitigate", result: "fail", band: "partial", state: "TRANSFER_READY", from: "DEMONSTRATED", attempt: "60", ai: "1", ...JUNK }],
   "combined": ["session_complete", { ...ALLK, week: "12", day: "Sun", ...JUNK }],
+  "premium": ["purchase_failed", { provider: "google_play", product: "premium_monthly", reason: "unconfirmed", result: "restored", source: "launch", state: "payment_pending", week: "1", ...JUNK }],
   "ad": ["ad_suppressed", { format: "interstitial", context: "practice_complete", reason: "protected_view_simulati", provider: "native", result: "refused", week: "1", ...JUNK }],
 };
 for (const [fam, [name, props]] of Object.entries(MAXP)) {
@@ -208,7 +210,7 @@ console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
 ok("the allow-list carries fifteen v2_* names (eleven missions + four speaking-report)", V2.length === 15, V2.join());
 ok("the six V2 prop keys are allow-listed (contiguous, before the ad keys)", KEYS.slice(26, 32).join() === "competency,mission,move,attempt,ai,from");
-ok("the three ad prop keys are appended last (Phase 8)", KEYS.slice(-3).join() === "format,context,provider");
+ok("the three ad prop keys (Phase 8), then product (Phase 12A), are appended last", KEYS.slice(-4).join() === "format,context,provider,product");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));
 
@@ -326,6 +328,34 @@ console.log("\n5 · TRACK ISOLATION (documented behaviour)");
 { const e = env(); await send(e, { name: "v2_speak_attempt", props: { track: GE, week: "not-a-week", competency: "raise-problem" } });
   ok("the Worker does NOT validate week: an unexpected value is stored as sent (cleaned)", row(e).blobs[vcol("week")] === "not-a-week"); }
 ok("so a forged beacon can add a mislabeled COUNT, never content: every column is an allow-listed enum of ≤24 cleaned characters", MAX_VAL === 24 && KEYS.every(k => /^[a-z_]+$/.test(k)));
+
+/* ── 7 · Premium funnel (Phase 12A) ───────────────────────────────────── */
+console.log("\n7 · PREMIUM — purchase_* / entitlement_*: allow-listed, own columns, enum-only values, never a token");
+{
+  const PREM = ["purchase_started", "purchase_pending", "purchase_confirmed", "purchase_failed", "purchase_restore", "entitlement_expired", "entitlement_cancelled", "entitlement_revoked"];
+  ok("all eight Premium events are allow-listed", PREM.every(n => EVENTS.includes(n)), PREM.filter(n => !EVENTS.includes(n)).join());
+  const PM = MAPS2()["^(purchase_|entitlement_)"];
+  ok("their row is provider, product, reason, result, source, state — 6 columns, all allow-listed keys", PM && PM.join() === "provider,product,reason,result,source,state" && PM.every(k => KEYS.includes(k)), JSON.stringify(PM));
+  /* every Premium event the app can send is allow-listed (no silent drops) */
+  const used = [...new Set([...APP.matchAll(/track\(\s*"((?:purchase_|entitlement_)[a-z_]+)"/g)].map(m => m[1]))];
+  ok(`every purchase_/entitlement_ name index.html sends (${used.length}) is allow-listed`, used.length >= 8 && used.every(n => EVENTS.includes(n)), used.filter(n => !EVENTS.includes(n)).join());
+  /* the keys the Billing code puts on those events */
+  const blk = APP.slice(APP.indexOf("function entNoteChange"), APP.indexOf("/* ================= SHADOW STUDIO V2"));
+  const keys = new Set([...blk.matchAll(/track\(\s*"(?:purchase_|entitlement_)[a-z_]+"\s*,\s*\{([^}]*)\}/g)].flatMap(m => [...m[1].matchAll(/(?:^|,)\s*([a-z]+)\s*:/g)].map(x => x[1])));
+  for (const d of blk.matchAll(/const (?:ev|rv)=\{([^}]*)\}/g)) for (const x of d[1].matchAll(/(?:^|,)\s*([a-z]+)\s*:/g)) keys.add(x[1]);
+  ok("the app puts only map keys on them (provider, product, reason, result, source, state) — and never a token field", [...keys].every(k => PM.includes(k)) && keys.size >= 5 && !/purchaseToken|signedTransaction|appAccountToken/.test(blk.match(/track\([^)]*\)/g).join("")), [...keys].join());
+  { const e = env(); await send(e, { name: "purchase_confirmed", props: { provider: "google_play", product: "premium_monthly" } });
+    const b = row(e).blobs; ok("purchase_confirmed: provider=blob3, product=blob4", b[2] === "google_play" && b[3] === "premium_monthly" && b.length === 8, JSON.stringify(b)); }
+  { const tokenish = "opaque-token-AO-J1Ox" + "x".repeat(40);
+    const e = env(); await send(e, { name: "purchase_started", props: { provider: "google_play", product: tokenish, reason: tokenish, result: "tok_1_" + "x".repeat(20), source: "tap", state: "a@b.c", purchaseToken: tokenish, orderId: "GPA.1234-5678", uid: "u1" } });
+    const b = row(e).blobs;
+    ok("a token / order id / email sent in ANY Premium prop is written blank, not truncated: values must be one of the known enums", b[3] === "" && b[4] === "" && b[5] === "" && b[7] === "" && b[2] === "google_play" && b[6] === "tap" && !b.some(x => /tok|opaque|GPA|@|u1/.test(x)), JSON.stringify(b)); }
+  { const e = env(); await send(e, { name: "entitlement_revoked", props: { provider: "app_store", state: "revoked" } });
+    const b = row(e).blobs; ok("entitlement_revoked: provider=blob3, state=blob8", b[2] === "app_store" && b[7] === "revoked"); }
+  { const e = env(); await send(e, { name: "ad_displayed", props: { format: "interstitial", context: "any_value_here" } });
+    ok("the enum guard is Premium-only: other families still store cleaned free values as before", row(e).blobs[3] === "any_value_here"); }
+}
+function MAPS2() { return Object.fromEntries([...SRC.matchAll(/\[\/(\^[^\/]+)\/, \[([^\]]*)\]\]/g)].map(m => [m[1], [...m[2].matchAll(/"([a-z_]+)"/g)].map(x => x[1])])); }
 
 /* ── summary ───────────────────────────────────────────────────────────── */
 const bad = res.filter(r => !r.pass);

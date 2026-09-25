@@ -142,6 +142,15 @@ const EVENTS = new Set([
   // the creative, the advertiser, a network id or anything about the learner.
   "ad_eligibility_checked", "ad_suppressed", "ad_requested", "ad_loaded", "ad_displayed", "ad_dismissed",
   "rewarded_ad_started", "rewarded_ad_completed",
+  // Premium (Phase 12A; Billing in index.html). The purchase funnel and plan
+  // changes, as counts of fixed enums: provider (google_play|app_store|promo|
+  // manual), product (premium_monthly|premium_annual), reason (cancelled|
+  // store|unconfirmed|bound|rejected|not_paid), result (restored|none|bound|
+  // failed), source (tap|launch). NEVER a purchase token, a transaction id,
+  // an order id, a price or anything about the learner — the server holds
+  // those and this Worker must never see them.
+  "purchase_started", "purchase_pending", "purchase_confirmed", "purchase_failed", "purchase_restore",
+  "entitlement_expired", "entitlement_cancelled", "entitlement_revoked",
 ]);
 
 // Prop keys that may accompany an event. Same reasoning as above.
@@ -176,7 +185,9 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // `result`, `band` and `n` are reused from above rather than duplicated.
   "competency", "mission", "move", "attempt", "ai", "from",
   // advertising: format, context, provider (reason and result are reused). Appended last.
-  "format", "context", "provider"]);
+  "format", "context", "provider",
+  // Premium: the store product id (premium_monthly | premium_annual). Appended last.
+  "product"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
 const MAX_BODY = 512;
@@ -219,8 +230,25 @@ const LAYOUTS = [
   // Same history: no shadow row was ever recorded.
   // ad_* / rewarded_ad_* → blob3 format, 4 context, 5 reason, 6 provider, 7 result
   [/^(ad_|rewarded_ad_)/, ["format", "context", "reason", "provider", "result"]],
+  // purchase_* / entitlement_* → blob3 provider, 4 product, 5 reason, 6 result, 7 source, 8 state.
+  // New names (Phase 12A): no row was ever recorded, so nothing historical is re-read.
+  [/^(purchase_|entitlement_)/, ["provider", "product", "reason", "result", "source", "state"]],
   [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];
+/* Premium events: every prop must be one of these values or it is written
+   blank. The purchase funnel sits next to a purchase token in the client, so
+   this is the guard that a bug there can never put a token, an order id or a
+   transaction id (or the first 24 characters of one) into a row. */
+const PREMIUM_ENUMS = Object.freeze({
+  provider: ["google_play", "app_store", "promo", "manual", "web", "none"],
+  product: ["premium_monthly", "premium_annual", "premium_promo"],
+  reason: ["cancelled", "store", "unconfirmed", "bound", "rejected", "not_paid"],
+  result: ["restored", "none", "bound", "failed"],
+  source: ["tap", "launch"],
+  state: ["expired", "revoked", "cancelled", "none", "invalid", "pending", "payment_pending"],
+});
+const PREMIUM_RE = /^(purchase_|entitlement_)/;
+function premiumValue(k, v) { const s = clean(v); return PREMIUM_ENUMS[k] && PREMIUM_ENUMS[k].includes(s) ? s : ""; }
 /* The invariant lives where the row is built, not only in a test: whatever a
    future edit declares, a layout can never put more than MAX_COLS keys into a
    row. test/run.mjs asserts that no layout actually needs the cut, so this
@@ -230,7 +258,7 @@ function layoutFor(name){
   return (m ? m[1] : LEGACY).slice(0, MAX_COLS);
 }
 /* Named exports for test/run.mjs only; the runtime reads the default export. */
-export { AE_MAX_BLOBS, MAX_COLS, LEGACY, LAYOUTS, layoutFor };
+export { AE_MAX_BLOBS, MAX_COLS, LEGACY, LAYOUTS, layoutFor, PREMIUM_ENUMS };
 
 function cors(origin, extra = []){
   const ok = ALLOWED_ORIGINS.includes(origin) || extra.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -278,7 +306,8 @@ export default {
 
     const blobs = [b.name, req.cf && req.cf.country ? req.cf.country : "??"];
     const props = b.props && typeof b.props === "object" ? b.props : {};
-    for (const k of layoutFor(b.name)) blobs.push(props[k] != null ? clean(props[k]) : "");
+    const premium = PREMIUM_RE.test(b.name);
+    for (const k of layoutFor(b.name)) blobs.push(props[k] == null ? "" : premium ? premiumValue(k, props[k]) : clean(props[k]));
 
     try {
       env.AE.writeDataPoint({

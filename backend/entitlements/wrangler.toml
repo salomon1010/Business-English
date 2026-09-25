@@ -32,3 +32,28 @@ binding = "DB"
 database_name = "be-entitlements"
 database_id = "local-dev"
 migrations_dir = "migrations"
+
+# Staging (Phase 12A) — what the Play internal-test build talks to through
+# staging.lomonec.com (index.html beEnv() → entitlements). Its own Worker and
+# its own D1: nothing is shared with production. NOT DEPLOYED. Owner-run:
+#   npx wrangler d1 create be-entitlements-staging          -> paste the id below
+#   npx wrangler d1 migrations apply be-entitlements-staging --remote --env staging
+#   npx wrangler secret put GOOGLE_SA_JSON --env staging      (the Play service-account key)
+#   openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY --env staging   (NOT the production key)
+#   npx wrangler secret put APP_ACCOUNT_SECRET --env staging  (>= 32 chars; NOT the production value)
+#   npx wrangler deploy --env staging
+# DEV_AUTH is never set here: staging uses real Firebase sign-in.
+[env.staging]
+name = "be-entitlements-staging"
+[env.staging.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://staging.lomonec.com"
+PLAY_PACKAGE = "com.bemastery.app"
+# RTDN_AUDIENCE / RTDN_SA_EMAIL: set once the staging Pub/Sub push subscription exists
+APPLE_BUNDLE_ID = "com.bemastery.app"
+APPLE_ENVIRONMENTS = "Sandbox"
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "be-entitlements-staging"
+database_id = "REPLACE-WITH-STAGING-D1-ID"
+migrations_dir = "migrations"

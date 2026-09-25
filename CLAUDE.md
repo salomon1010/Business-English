@@ -303,7 +303,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   being processed"); `Billing.buy` takes its message from the server view.
   Acknowledge only for active / grace / trialing. No real store test has run;
   the TWA loads app.lomonec.com, so internal testing needs the owner's host
-  decision (doc §0). Tests: Worker billing 86, billing-client 33. Test harnesses apply every file in `migrations/`.
+  decision (doc §0). Tests: Worker billing 86, billing-client 33.
+  **Phase 12A (`docs/PHASE12A-INTERNAL-TEST.md`):** `twa-manifest.json` →
+  versionCode 9 / 1.1.0, `enableNotifications: true` (Bubblewrap refuses
+  playBilling without it), **minSdk 23** (Play Billing Library 8 is required
+  for updates from 31 Aug 2026 and needs API 23 — owner decision), target 36.
+  Build with **Bubblewrap 1.25.0** (`npx @bubblewrap/cli@1.25.0`); the global
+  1.24.1 template hard-codes target 35. Billing analytics: `purchase_*` /
+  `entitlement_*` in be-events with an ENUM guard (unknown value → blank, so a
+  token can never land); client calls in `Billing` + `entNoteChange`.
+  `[env.staging]` for be-entitlements + `beEnv().entitlements` (staging host
+  only), not deployed. privacy.html §5b (purchases) + §7b (ads). Test harnesses apply every file in `migrations/`.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
