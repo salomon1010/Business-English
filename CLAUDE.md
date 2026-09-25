@@ -678,6 +678,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `go("tracks","profile")` (its back button then reads "‹ Profile"); Help → `openManual()` (records the return page); every sheet has a close; the
   identity row and "App Setup" → `setupOpen('setProfile')`. The header streak pill is gone (v420; `streakPillSync()` is a null-safe no-op now, the streak lives on Progress). Play glyphs: `"▶"`
   / `"⏸"` are in `EMOJI_ICON`, so the sweep draws line icons, never OS emoji.
+- **Premium limits (feature/premium-shadow-videos, NOT on main).** One frozen
+  table `PLAN_LIMITS` (free/premium: `savedShadow` 5/100, `youtubeImports` 2/20,
+  `polishHistory` 1/50, plus future rows set to null = not enforced), read via
+  `planLimit()`; `planKey()` = the server's entitlement answer, only with an
+  entitlement service; everything is gated by `planOn()` (billing_enabled +
+  service), so with billing off the app is unchanged. General English only.
+  Shadow "Your videos" entries carry `src` "lib"/"yt" (legacy classified once
+  from the catalogue, additive); refused imports never load and `shCapMayAsk`
+  keeps the Worker from transcribing anything that is not a library video or a
+  current import. Launch offer `premLaunchMaybe` (once per session, X after 5 s).
+  Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

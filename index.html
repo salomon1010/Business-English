@@ -926,6 +926,13 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-thumb-btn{padding:0;border:0;background:none;cursor:pointer}
 .shl-row-del{align-self:center;background:none;border:0;color:var(--mut2);padding:8px;cursor:pointer}
 .shl-row-del svg{width:18px;height:18px}
+.shl-rw{display:grid;grid-template-columns:1fr auto;gap:2px;align-items:start}
+.shl-save{background:none;border:0;color:var(--mut2);min-width:44px;min-height:44px;display:grid;place-items:center;cursor:pointer;border-radius:10px}
+.shl-save svg{width:20px;height:20px}
+.shl-save.on{color:var(--acc)}.shl-save.on svg{fill:currentColor}
+.sh-own-gh{font-size:14px;margin:14px 0 8px;display:flex;gap:8px;align-items:baseline}
+.sh-own-grp:first-of-type .sh-own-gh{margin-top:4px}
+.sh-own-empty{font-size:12.5px;margin:0 0 6px}
 .shl-lbl{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut2);margin:0;line-height:1.4}
 /* #shLibStatic is a plain block, so the .shl gap does not reach inside it: a
    label spaced with a negative margin had nothing to pull against and landed on
@@ -4933,6 +4940,23 @@ h1.big{letter-spacing:-.025em}
 .prem-ben .inl-ic{color:var(--green);margin-top:2px;flex:none;margin-right:0}
 .prem-ben .inl-ic svg{width:16px;height:16px}
 .prem-sheet:focus{outline:none}
+.ex-hist-btn{margin-top:8px}
+.ex-hist-rows{display:grid;gap:4px;margin:6px 0 12px;max-height:52vh;overflow:auto}
+.ex-hist-lock{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--mut);margin:0 0 10px}
+.ex-hist-lock p{margin:0}.ex-hist-lock .inl-ic{flex:none;color:var(--mut)}
+.ex-hist-note{font-size:13px;margin:0 0 10px}
+.ex-hist-cta{width:100%;min-height:44px;margin:0 0 8px}
+.prem-x[hidden]{display:none}
+.prem-x.prem-x-in{animation:premXin .25s ease}
+@keyframes premXin{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.prem-x.prem-x-in{animation:none}}
+.prem-launch{border-top:4px solid var(--acc)}
+.prem-launch h2{font-size:22px}
+.prem-cmp{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:13.5px;color:var(--txt)}
+.prem-cmp th,.prem-cmp td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line)}
+.prem-cmp thead th{font-size:12px;color:var(--mut);font-weight:600}
+.prem-cmp tbody th{text-align:start;font-weight:500;padding-inline-start:0}
+.prem-cmp td.on{color:var(--green);font-weight:600}
 .prem-plans{display:grid;gap:10px;margin-bottom:6px}
 .prem-plan{display:grid;gap:4px;text-align:start;width:100%;min-height:64px;padding:12px 14px;border:1.5px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);cursor:pointer;font:inherit}
 .prem-plan.on{border-color:var(--txt);box-shadow:0 0 0 1px var(--txt) inset}
@@ -5409,7 +5433,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA",svPref:"svPrefA"};   // svPref: the Shadow card's Translate / Pronunciation switches ({tr,ipa}), General English only in practice — Welding never renders the card
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ SH_OWN_MAX
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ shOwnCap()
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f,area){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area||areaId();return box[a]||(box[a]=[])}   /* area: name one explicitly when the write must land where the work STARTED (a Polish minute analysed after the learner switched programme) */
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -5992,6 +6016,20 @@ const I18N_EN={
  "prem.row_sub":"No ads, ever",
  "prem.remove_ads":"Remove ads with Premium",
  "prem.compare":"See Premium plans",
+ "prem.b_videos":"Save up to {{n}} Shadow videos",
+ "prem.b_yt":"Bring your own YouTube videos — up to {{n}}",
+ "prem.b_polish":"Keep your last {{n}} Polish speaking reports",
+ "prem.cmp_lib":"Shadow library",
+ "prem.cmp_full":"Full",
+ "prem.cmp_yt":"Your YouTube videos",
+ "prem.cmp_polish":"Polish history",
+ "prem.cmp_latest":"Latest report",
+ "prem.cmp_last":"Last {{n}}",
+ "prem.cta_trial":"Start {{n}}-day free trial",
+ "prem.cmp_label":"Saved Shadow videos",
+ "prem.cmp_free":"Free",
+ "prem.cmp_prem":"Premium",
+ "prem.cmp_upto":"Up to {{n}}",
  "acc.prem_2":"More AI coaching and practice each day",
  "acc.prem_3":"New Premium features as they arrive",
  "acc.prem_active":"Active",
@@ -7433,6 +7471,23 @@ const I18N_EN={
  "sh.own_saved_toast":"Saved to Your videos ({{n}}/{{max}})",
  "sh.own_full_toast":"You already have {{max}} of your own videos — remove one to keep this one",
  "sh.own_removed_toast":"Video removed",
+ "sh.yt_limit_t":"You've reached your {{max}}-video YouTube limit",
+ "sh.yt_limit_b":"Premium lets you save up to {{top}} YouTube videos. You can also remove one of yours to make room.",
+ "sh.yt_over_b":"All {{n}} of your YouTube videos are kept. Your plan saves up to {{max}}, so remove some to add a new one — or get Premium for up to {{top}}.",
+ "sh.yt_full_toast":"You have {{max}} YouTube videos, the most your plan keeps. Remove one to add another.",
+ "sh.yt_over_toast":"All {{n}} of your YouTube videos are kept. Your plan saves up to {{max}}, so remove some to add a new one.",
+ "sh.yt_saved_toast":"Added to Your YouTube videos ({{n}}/{{max}})",
+ "sh.lib_limit_t":"You've saved {{max}} Shadow videos",
+ "sh.lib_limit_b":"Premium lets you save up to {{top}}. The whole Shadow library stays open to you either way.",
+ "sh.lib_over_b":"All {{n}} of your saved videos are kept. Your plan saves up to {{max}}, so remove some to save a new one — or get Premium for up to {{top}}.",
+ "sh.lib_full_toast":"You have {{max}} saved Shadow videos, the most your plan keeps. Remove one to save another.",
+ "sh.lib_save":"Save video",
+ "sh.lib_saved":"Saved — tap to remove",
+ "sh.lib_unsaved_toast":"Removed from your saved videos",
+ "sh.own_lib_h":"Saved from the library",
+ "sh.own_yt_h":"Your YouTube videos",
+ "sh.own_lib_empty":"Tap the bookmark on any library video and it is kept here.",
+ "sh.own_over_toast":"All {{n}} of your saved videos are kept. Your plan saves up to {{max}}, so remove some to save a new one.",
  "cf.own_title":"Remove this video?",
  "cf.own_body":"“{{name}}” and its transcript will be removed from Your videos. Your recordings are kept.",
  "sh.tab_trouble":"Trouble words","sh.tab_history":"History","sh.hist_h":"Your Shadow history","sh.hist_sub":"Your last {{n}} Shadow and Challenge reports — what you said, the result, what to fix and the words you practised. Tap one for the detail, or go back to that clip or line.","sh.hist_entry_sub":"Every Shadow and Challenge report: what you said, the result, what to fix — and your trouble words.","sh.hist_empty_title":"No reports yet","sh.hist_empty_body":"Every Shadow take and every Challenge attempt is kept here with what to fix, so you can pick up where you left off.","sh.hist_open_clip":"Open this clip","sh.hist_today":"Today","sh.hist_yesterday":"Yesterday","sh.hist_focus":"Focus","sh.hist_none":"Nothing to fix","sh.hist_drills":"Word practice","sh.hist_play":"Play my take","sh.hist_open":"Open this line",
@@ -7988,6 +8043,11 @@ const I18N_EN={
  "ex.quick_note":"Press again for another version — a different register, new verbs, new idioms. Hear each one and copy the one that sounds like you.",
  "ex.quick_max":"Six versions. Stop collecting and say one out loud.",
  "ex.quick_idioms":"Idioms to memorise",
+ "ex.hist_btn":"Your Polish history ({{n}})",
+ "ex.hist_h":"Your Polish history",
+ "ex.hist_locked":"{{n}} older reports are kept for Premium. Premium keeps your last {{top}} Polish reports so you can revisit them.",
+ "ex.hist_free_note":"Free keeps your latest report. Premium keeps your last {{top}}.",
+ "ex.hist_free_toast":"Report saved. Free keeps your latest report in your history — Premium keeps your last {{top}}.",
  "ex.last_h":"Last time",
  "ex.last_wpm":"{{n}} words/min",
  "ex.last_hes":"{{n}} hesitations",
@@ -8171,6 +8231,8 @@ const I18N_EN={
  "auth.terms_post":". Your data is stored securely and you can delete it anytime.",
  "auth.card_synced":"☁️ Synced &amp; signed in",
  "auth.sync_ok":"\u2713 Last save reached your account.",
+ "auth.sync_tx_held":"\u2713 Last save reached your account. {{n}} Shadow transcripts stay on this device only, so your account copy stays within its size limit.",
+ "auth.sync_too_large":"\u26a0\ufe0f Not saved to your account: your progress is too large for one account copy. Everything is safe on this device, and your last account copy is unchanged.",
  "auth.sync_failed":"\u26a0\ufe0f Saving to your account is failing ({{err}}). Your progress is safe on this device, but it is not syncing. Check the Firestore rules in your Firebase console.",
  "auth.test_sync":"Test sync now",
  "auth.sync_testing":"Testing\u2026",
@@ -11766,7 +11828,7 @@ function shLibOn(){return flag("shadow_library_enabled")&&!isProfessionalJourney
 function shCatLoad(){
   if(_shCat)return Promise.resolve(_shCat);
   if(_shCatP)return _shCatP;
-  _shCatP=fetch("catalogue/general.json").then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{_shCat=j;_shCatP=null;return j});
+  _shCatP=fetch("catalogue/general.json").then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{_shCat=j;_shCatP=null;try{shOwnClassify()}catch(e){}return j});
   return _shCatP;
 }
 /* The two things a learner reaches for without reading: the clip they were in
@@ -11877,6 +11939,7 @@ window.shv3More=()=>{
       ${mode("shadow","sv.mode_shadow","mic")}
       ${mode("challenge","sv.mode_challenge","dumbbell")}
       <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shSaveClip()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.save_clip_btn"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
+      ${shOwnSplit()&&shCatHas(shClip.vid)?`<button class="pf-row sh-lib-save-row" onclick="document.getElementById('shv3MoreOv').remove();shLibSave('${esc(shClip.vid)}')"><span class="pf-ic">${ic("bookmark")}</span><span class="pf-txt"><b>${esc(t(shOwnFind(shClip.vid)>=0?"sh.lib_saved":"sh.lib_save"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>`:""}
       <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shv3Jump('shSeg')"><span class="pf-ic">${ic("download")}</span><span class="pf-txt"><b>${esc(t("sh.clip_label"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
       <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shv3Jump('shNote')"><span class="pf-ic">${ic("doc")}</span><span class="pf-txt"><b>${esc(t("sv.tx_btn"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
     </div>
@@ -11959,21 +12022,48 @@ window.shLinkSheet=()=>{
   document.body.appendChild(ov);
   setTimeout(()=>{const i=document.getElementById("shLinkIn");if(i)i.focus()},60);
 };
-window.shLinkGo=()=>{
+window.shLinkGo=async()=>{
   const i=document.getElementById("shLinkIn");if(!i)return;
   const raw=i.value.trim(),id=ytId(raw);
   const note=document.getElementById("shLinkNote");
   if(!id){if(note){note.textContent=t("sh.bad_link_toast");note.className="sh-link-note bad"}i.focus();return}
+  /* plan limits: an import past the allowance never loads (no transcription is paid for) */
+  const split=shOwnSplit();
+  if(split){try{await shCatLoad()}catch(e){}shOwnClassify();
+    if(!shCatHas(id)&&shOwnFind(id)<0&&shOwnCount("yt")>=shOwnCap("yt")){const o=document.getElementById("shLinkOv");if(o)o.remove();shOwnLimitSay("yt",shOwnCount("yt")>shOwnCap("yt")?"over":"full");return}}
   const ov=document.getElementById("shLinkOv");if(ov)ov.remove();
   const u=document.getElementById("shUrl");if(u)u.value=raw;
-  shOwnAdd(id,raw);                      /* it still joins "Your videos" so it can be found again */
+  const st=shOwnAdd(id,raw);             /* it still joins "Your videos" so it can be found again */
+  if(split&&st==="saved"){const k=shCatHas(id)?"lib":"yt";toast(t(k==="yt"?"sh.yt_saved_toast":"sh.own_saved_toast",{n:shOwnCount(k),max:shOwnCap(k)}))}
   shLoad({vid:id,start:0,end:0,title:raw});
 };
 /* The learner's own pasted videos, one tap from the library — a row that is
    always there, whether or not they have added any (owner, 22 Sep 2026). */
+/* with plan limits on (General English): the two kinds, each with its own count */
+function shOwnGroupsHTML(L,wrap){
+  return ["lib","yt"].map(k=>{
+    const G=L.map((o,i)=>({o,i})).filter(x=>x.o&&shOwnKind(x.o)===k).sort((a,b)=>((b.o.ts)||0)-((a.o.ts)||0));
+    return `<div class="sh-own-grp" data-kind="${k}"><h3 class="sh-own-gh">${esc(t(k==="lib"?"sh.own_lib_h":"sh.own_yt_h"))} <b class="sh-own-n">${G.length}/${shOwnCap(k)}</b></h3>
+      ${G.length?`<div class="${wrap}">${G.map(x=>shOwnCard(x.o,x.i)).join("")}</div>`:`<p class="sub sh-own-empty">${esc(k==="lib"?t("sh.own_lib_empty"):t("sh.own_empty",{max:shOwnCap("yt")}))}</p>`}</div>`;
+  }).join("");
+}
 window.shOwnSheet=()=>{
   const old=document.getElementById("shOwnOv");if(old)old.remove();
   const L=shOwn();
+  if(shOwnSplit()){
+    const ov=document.createElement("div");
+    ov.id="shOwnOv";ov.className="lang-modal-ov pp-sheet-ov";
+    ov.onclick=e=>{if(e.target===ov)ov.remove()};
+    ov.innerHTML=`<div class="lang-modal pp-sheet sh-own-sheet" role="dialog" aria-modal="true" aria-labelledby="shOwnH">
+    <h2 id="shOwnH">${esc(t("sh.own_row_t"))}</h2>
+    ${shOwnGroupsHTML(L,"sh-own-sheet-list")}
+    <div class="sh-link-acts">
+      <button class="btn btn-g" onclick="document.getElementById('shOwnOv').remove()">${t("wc.close")}</button>
+      <button class="btn-primary" onclick="document.getElementById('shOwnOv').remove();shLinkSheet()">${tIc("sh.lib_add_t","link")}</button>
+    </div>
+  </div>`;
+    document.body.appendChild(ov);return;
+  }
   const ov=document.createElement("div");
   ov.id="shOwnOv";ov.className="lang-modal-ov pp-sheet-ov";
   ov.onclick=e=>{if(e.target===ov)ov.remove()};
@@ -12096,10 +12186,13 @@ function shLibRow(vid){
   const v=_shCat.videos[vid];
   if(!v)return shLibMineRow(vid);
   const has=v.cap&&v.cap!=="player";
-  return `<button class="shl-row" onclick="shLibOpen('${vid}')" aria-label="${esc(v.title)}">
+  const row=`<button class="shl-row" onclick="shLibOpen('${vid}')" aria-label="${esc(v.title)}">
     <span class="shl-thumb ${has?"cap":""}"><img src="https://i.ytimg.com/vi/${vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(v.dur)}</span></span>
     <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small><span class="shl-cap ${has?"":"no"}">${has?t("sh.lib_cap"):t("sh.lib_cap_player")}</span></span>
   </button>`;
+  if(!shOwnSplit())return row;
+  const on=shOwnFind(vid)>=0,lab=t(on?"sh.lib_saved":"sh.lib_save");
+  return `<div class="shl-rw">${row}<button class="shl-save${on?" on":""}" onclick="shLibSave('${vid}')" aria-pressed="${on}" aria-label="${esc(lab)}" title="${esc(lab)}">${ic("bookmark")}</button></div>`;
 }
 /* One of the learner's own links: we know the id and whatever title YouTube
    gave the player, never a duration or a caption track, so the row says what it
@@ -12121,7 +12214,7 @@ function shLibFeedHTML(){
   if(!_shCat)return `<p class="shl-empty">${t("sh.lib_loading")}</p>`;
   const ids=shLibList();
   if(!ids.length)return _shLibCat==="mine"&&!_shLibQ.trim()
-    ? `<p class="shl-empty">${esc(t("sh.own_empty",{max:SH_OWN_MAX}))}</p><button class="btn-primary shl-more" onclick="shLinkSheet()">${tIc("sh.lib_add_t","link")}</button>`
+    ? `<p class="shl-empty">${esc(t("sh.own_empty",{max:shOwnCap("yt")}))}</p><button class="btn-primary shl-more" onclick="shLinkSheet()">${tIc("sh.lib_add_t","link")}</button>`
     : `<p class="shl-empty">${t(_shLibQ.trim()?"sh.lib_none":"sh.lib_empty_cat")}</p>`;
   const show=_shLibMore||_shLibQ.trim()?ids:ids.slice(0,SHL_FEED_N);
   return show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
@@ -12165,39 +12258,105 @@ window.shCopyLink=async i=>{
   try{await navigator.clipboard.writeText(url);toast(t("sh.link_copied_toast"))}
   catch(e){document.getElementById("shUrl").value=url;toast(t("sh.link_placed_toast"))}
 };
-window.shLoadFromInput=()=>{
+window.shLoadFromInput=async()=>{
   const u=document.getElementById("shUrl").value;
   const id=ytId(u);
   if(!id)return toast(t("sh.bad_link_toast"));
+  /* General English with plan limits: an import past the allowance is refused
+     HERE, before anything loads — so it costs no transcription however often
+     the link is pasted. The boxes keep what was typed. */
+  const split=shOwnSplit();
+  if(split){try{await shCatLoad()}catch(e){}shOwnClassify()}
+  const kind=shCatHas(id)?"lib":"yt";
+  if(split&&kind==="yt"&&shOwnFind(id)<0&&shOwnCount("yt")>=shOwnCap("yt")){shOwnLimitSay("yt",shOwnCount("yt")>shOwnCap("yt")?"over":"full");return}
   /* the optional transcript travels with the video: kept raw (timestamps and
      all) per video id, so the sync can use YouTube's stamps, and it survives
      a reload and "Continue your last clip" */
   const pb=document.getElementById("shPaste"),raw=pb?pb.value.trim():"";
   if(raw){S.shTx=S.shTx||{};S.shTx[id]=raw;delete S.notes["sh:"+id];save();pb.value="";taGrow(pb)}
   /* and the video itself joins "Your videos" so the learner can come back to
-     it in a week — up to SH_OWN_MAX; the sixth still plays, it just is not kept */
-  const st=shOwnAdd(id,u);
-  if(st==="saved")toast(t("sh.own_saved_toast",{n:shOwn().length,max:SH_OWN_MAX}));
-  else if(st==="full")toast(t("sh.own_full_toast",{max:SH_OWN_MAX}));
+     it in a week — up to shOwnCap(); one past it still plays, it just is not kept */
+  const st=shOwnAdd(id,u,split?kind:undefined),cap=shOwnCap(kind),n=shOwnCount(kind);
+  if(st==="saved")toast(t(split&&kind==="yt"?"sh.yt_saved_toast":"sh.own_saved_toast",{n,max:cap}));
+  else if(split&&kind==="lib"&&(st==="full"||st==="over"))toast(t(st==="over"?"sh.own_over_toast":"sh.lib_full_toast",{n,max:cap}));   /* a library video still plays */
+  else if(st==="over")toast(t("sh.own_over_toast",{n,max:cap}));
+  else if(st==="full")toast(t("sh.own_full_toast",{max:cap}));
   shLoad({vid:id,start:0,end:0,title:u});
 };
 /* ---- Your videos: the learner's own links + transcripts, kept across days ----
    A learner who pastes a link and a transcript is building a clip they will
-   shadow for a week, not a minute. The list is per area (General English only
-   has the picker), capped at SH_OWN_MAX, newest first; the transcript stays in
-   S.shTx (raw, stamps and all) and goes with the video when it is removed. */
+   shadow for a week, not a minute. The list is per area (Welding reaches it
+   through the classic picker too), capped at shOwnCap(), newest first; the
+   transcript stays in S.shTx (raw, stamps and all) and goes with the video
+   when it is removed. */
 const SH_OWN_MAX=5;
+/* Premium, General English (owner, 25 Sep 2026): the list holds two kinds —
+   videos SAVED from the BE Mastery library (src "lib") and YouTube videos the
+   learner IMPORTED by pasting a link (src "yt") — each with its own allowance
+   from PLAN_LIMITS (savedShadow / youtubeImports). The library itself is never
+   limited. Welding keeps one list of SH_OWN_MAX whatever the plan, and so does
+   everyone while planOn() is false. An entry written before this has no src:
+   shOwnKind reads it from the catalogue (a library video is "lib", anything
+   else "yt") and shOwnClassify stamps it once — additive, nothing removed.
+   Nothing is removed when an allowance drops either: every video stays, and
+   only new saves of that kind wait. */
+const SH_OWN_TITLE_MAX=300;
+function shCatHas(vid){return !!(vid&&_shCat&&_shCat.videos&&_shCat.videos[vid])}
+function shOwnSplit(){return isGeneralEnglish()&&planOn()}
+function shOwnKind(o){return o&&(o.src==="lib"||o.src==="yt")?o.src:(shCatHas(o&&o.vid)?"lib":"yt")}
+function shOwnCap(kind){return shOwnSplit()?planLimit(kind==="lib"?"savedShadow":"youtubeImports"):SH_OWN_MAX}
+function shOwnCount(kind){const L=shOwn().filter(Boolean);return shOwnSplit()?L.filter(o=>shOwnKind(o)===kind).length:L.length}
+function shOwnClassify(){
+  if(!_shCat)return;const L=S&&S.shOwnA&&S.shOwnA[AREA_GEN];if(!Array.isArray(L))return;
+  let d=false;L.forEach(o=>{if(o&&o.vid&&o.src!=="lib"&&o.src!=="yt"){o.src=shCatHas(o.vid)?"lib":"yt";d=true}});if(d)save();
+}
+/* the refusal, said plainly — with the way to Premium only where it can be bought */
+function shOwnLimitSay(kind,st){
+  const yt=kind==="yt",n=shOwnCount(kind),max=shOwnCap(kind),top=planLimit(yt?"youtubeImports":"savedShadow","premium");
+  if(!shOwnSplit()){toast(st==="over"?t("sh.own_over_toast",{n,max}):t("sh.own_full_toast",{max}));return}
+  if(planKey()==="premium"||!premOffered()){toast(t(st==="over"?(yt?"sh.yt_over_toast":"sh.own_over_toast"):(yt?"sh.yt_full_toast":"sh.lib_full_toast"),{n,max}));return}
+  askConfirm({icon:yt?"link":"bookmark",danger:false,title:t(yt?"sh.yt_limit_t":"sh.lib_limit_t",{max}),
+    body:t(st==="over"?(yt?"sh.yt_over_b":"sh.lib_over_b"):(yt?"sh.yt_limit_b":"sh.lib_limit_b"),{n,max,top}),
+    confirmLabel:t("prem.compare"),cancelLabel:t("wc.close")}).then(ok=>{if(ok)premiumOpen(yt?"yt_limit":"shadow_limit")});
+}
+/* the Worker is asked to transcribe (it costs money) only for a library video
+   or one of the learner's YouTube imports — never for a link that was refused,
+   however often it is pasted, nor for an import that was removed. Only where
+   the plan limits apply; everywhere else, as before. */
+async function shCapMayAsk(vid){
+  if(!shOwnSplit())return true;
+  try{await shCatLoad()}catch(e){}
+  if(shCatHas(vid))return true;
+  const i=shOwnFind(vid);return i>=0&&shOwnKind(shOwn()[i])==="yt";
+}
 function shOwn(){return aList("shOwn")}
 function shOwnFind(vid){return shOwn().findIndex(o=>o&&o.vid===vid)}
 function shOwnTitle(o){const x=String(o.title||"");return /^https?:\/\//i.test(x)||x===o.vid?"YouTube · "+o.vid:x}
-/* "saved" | "exists" | "full" */
-function shOwnAdd(vid,title){
+/* "saved" | "exists" | "full" | "over" (more kept than the plan now allows — nothing is removed).
+   kind: "lib" | "yt"; left out, a catalogue video is "lib" and anything else "yt".
+   Welding entries carry no src and share one allowance, as before. */
+function shOwnAdd(vid,title,kind){
   if(!vid)return "full";
   const i=shOwnFind(vid);
   if(i>=0){shOwn()[i].ts=Date.now();save();shOwnRender();return "exists"}
-  if(shOwn().length>=SH_OWN_MAX)return "full";
-  shOwn().unshift({vid,title:title||vid,ts:Date.now()});save();shOwnRender();return "saved";
+  const ge=isGeneralEnglish(),k=kind||(shCatHas(vid)?"lib":"yt");
+  const cap=shOwnCap(k),n=shOwnCount(k);
+  if(n>=cap)return n>cap?"over":"full";
+  const o={vid,title:String(title||vid).slice(0,SH_OWN_TITLE_MAX),ts:Date.now()};if(ge)o.src=k;
+  shOwn().unshift(o);save();shOwnRender();return "saved";
 }
+/* the bookmark on a library row / in the workspace menu: save or unsave a
+   BE Mastery video (never a pasted one — those are removed from Your videos) */
+window.shLibSave=async vid=>{
+  if(!shOwnSplit())return;
+  try{await shCatLoad()}catch(e){}
+  if(!shCatHas(vid))return;
+  const i=shOwnFind(vid);
+  if(i>=0){shOwn().splice(i,1);save();shOwnRender();shOwnChanged();toast(t("sh.lib_unsaved_toast"));return}
+  const st=shOwnAdd(vid,_shCat.videos[vid].title||vid,"lib");
+  if(st==="saved"){toast(t("sh.own_saved_toast",{n:shOwnCount("lib"),max:shOwnCap("lib")}));shOwnChanged()}
+  else if(st==="full"||st==="over")shOwnLimitSay("lib",st);
+};
 window.shOwnOpen=i=>{
   const ov=document.getElementById("shOwnOv");if(ov)ov.remove();const o=shOwn()[i];if(!o)return;document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+o.vid;shLoad({vid:o.vid,start:0,end:0,title:shOwnTitle(o)})};
 /* keep the library's chip count and feed honest when the list changes */
@@ -12229,12 +12388,16 @@ function shOwnCard(o,i){
    starters, where the empty state makes sense. Cards keep their store index
    so open / remove address the right entry whatever the sort. */
 function shOwnHTML(top){
-  const all=shOwn(),L=all.map((o,i)=>({o,i})).sort((a,b)=>((b.o&&b.o.ts)||0)-((a.o&&a.o.ts)||0)).slice(0,SH_OWN_MAX);
+  /* every kept video is shown — never sliced to the cap, so a learner whose
+     plan changed still sees (and can remove) all of theirs */
+  const all=shOwn(),cap=shOwnCap(),L=all.map((o,i)=>({o,i})).sort((a,b)=>((b.o&&b.o.ts)||0)-((a.o&&a.o.ts)||0));
   if(top&&!L.length)return "";
   if(!top&&L.length)return "";
+  if(shOwnSplit())return `<div class="sh-own-top-card">${top?"":'<div class="hr"></div>'}
+    <div class="eyebrow sh-own-head" style="margin-bottom:4px">${tInl("sh.own_title","user")}</div>${shOwnGroupsHTML(all,"grid g3")}</div>`;
   return `<div class="sh-own-top-card">${top?"":'<div class="hr"></div>'}
-    <div class="eyebrow sh-own-head" style="margin-bottom:4px">${tInl("sh.own_title","user")} <b class="sh-own-n">${L.length}/${SH_OWN_MAX}</b></div>
-    <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${L.length?t("sh.own_sub",{max:SH_OWN_MAX}):t("sh.own_empty",{max:SH_OWN_MAX})}</p>
+    <div class="eyebrow sh-own-head" style="margin-bottom:4px">${tInl("sh.own_title","user")} <b class="sh-own-n">${L.length}/${cap}</b></div>
+    <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${L.length?t("sh.own_sub",{max:cap}):t("sh.own_empty",{max:cap})}</p>
     ${L.length?`<div class="grid g3">${L.map(x=>shOwnCard(x.o,x.i)).join("")}</div>`:""}</div>`;
 }
 function shOwnRender(){
@@ -12722,7 +12885,8 @@ async function _loadCaptions(vid,durHint){
         datacentre IPs with 429 or a page whose caption track will not load, for
         every video. Kept because it fails in ~0.5 s and costs nothing, and it
         is the cheaper of the two when it ever starts working again. */
-  if(!data&&POLISH_API){
+  const mayAsk=await shCapMayAsk(vid);
+  if(!data&&POLISH_API&&mayAsk){
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
         body:JSON.stringify({captions:vid})});
@@ -12745,7 +12909,7 @@ async function _loadCaptions(vid,durHint){
         those; the rest is fetched behind the learner's back and folded in
         when it lands. A clip shorter than the opening window is asked for
         once, whole. */
-  if(!data&&POLISH_API&&navigator.onLine){
+  if(!data&&POLISH_API&&navigator.onLine&&mayAsk){
     /* the opening window goes out at once — waiting for the player to report a
        duration first would add its own seconds to the very wait this is here
        to remove. Only a clip already known to be shorter than the window is
@@ -12775,6 +12939,7 @@ const CAP_HEAD_SEC=120;            /* the opening window: one Worker window, ~7 
    transcribed" are not the same thing and must not look the same (owner,
    22 Sep 2026). */
 async function shCapAsk(vid,dur){
+  if(!await shCapMayAsk(vid)){_capErr[vid]="not_imported";return null}
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
       body:JSON.stringify({ytai:vid,dur:dur>0?Math.round(dur):0})});
@@ -17655,6 +17820,18 @@ function ttsVoice(requested,gender){
    "um"s survive — they are the point. Offline there is nothing to transcribe,
    so the paste box takes the text the learner already has. */
 const EX_MAX_S=90, EX_MIN_S=8, EX_PROMPT_N=6, EX_REP_MAX=5;
+/* How many Polish reports an area keeps. Welding, and everyone while plan
+   limits are off: EX_REP_MAX, as before. General English: Premium keeps up to
+   PLAN_LIMITS.premium.polishHistory; Free still STORES EX_REP_MAX (its history
+   shows the latest planLimit("polishHistory") — the rest wait for Premium),
+   and a longer history kept from Premium is never cut in one go: past
+   EX_REP_MAX the oldest gives way to the newest, one for one. */
+function exRepCeil(area){return area===AREA_GEN?Math.max(EX_REP_MAX,planLimit("polishHistory","premium")):EX_REP_MAX}
+function exRepKeep(area,had){
+  if(area!==AREA_GEN||!planOn())return EX_REP_MAX;
+  if(planKey()==="premium")return exRepCeil(area);
+  return Math.min(exRepCeil(area),Math.max(EX_REP_MAX,had||0));
+}
 /* Counted in the transcript. Kept conservative: "like" and "so" are left out
    because they are usually real words, and a wrong count is worse than none. */
 const EX_FILLERS=["um","uh","er","erm","ah","hmm","mm","you know","i mean","basically","actually","literally","okay so","right"];
@@ -17740,8 +17917,39 @@ function exIdleHTML(){
     <button class="btn btn-g ex-quickbtn" onclick="exQuick(this)">${(ex.quick&&ex.quick.length)?ic("repeat")+" "+esc(t("ex.quick_again")):ic("sparkle")+" "+esc(t("ex.quick_btn"))}</button>
     <div id="exQuick">${exQuickHTML()}</div>
     <p class="ex-status" id="exSt"></p>
-    ${exLastHTML()}`;
+    ${exLastHTML()}${exHistBtnHTML()}`;
 }
+/* ---------- Polish history (General English, plan limits on) ----------
+   Every kept report re-opens with its full feedback (exRenderReport). Free
+   sees the latest planLimit("polishHistory"); the older ones it still keeps
+   are listed as waiting for Premium, never deleted. */
+function exRepBits(r){const m=(r&&r.m)||{},b=[];if(m.wpm)b.push(t("ex.last_wpm",{n:m.wpm}));if(m.hes!=null)b.push(t("ex.last_hes",{n:m.hes}));b.push(t("ex.last_fill",{n:m.fillerN||0}));return b.join(" · ")}
+function exHistBtnHTML(){
+  if(!isGeneralEnglish()||!planOn())return "";
+  const n=exReps().length;if(!n)return "";
+  return `<button class="ex-last ex-hist-btn" onclick="exHistSheet()"><span class="btn-ic">${ic("clock")}</span><span><b>${esc(t("ex.hist_btn",{n}))}</b></span><span class="ex-last-go">›</span></button>`;
+}
+window.exHistSheet=()=>{
+  const old=document.getElementById("exHistOv");if(old)old.remove();
+  const reps=exReps(),prem=planKey()==="premium",top=planLimit("polishHistory","premium");
+  const show=prem?reps.length:Math.min(reps.length,planLimit("polishHistory"));
+  const rows=reps.slice(0,show).map((r,i)=>`<button class="pf-row" onclick="exHistOpen(${i})"><span class="pf-ic">${ic("chart")}</span><span class="pf-txt"><b>${esc(exRepWhen(r.at))}</b><small>${esc(exRepBits(r))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>`).join("");
+  const more=reps.length-show,cta=!prem&&premOffered()?`<button class="btn-primary ex-hist-cta" onclick="document.getElementById('exHistOv').remove();premiumOpen('polish_history')">${esc(t("prem.compare"))}</button>`:"";
+  const foot=more>0?`<div class="ex-hist-lock"><span class="inl-ic">${ic("lock")}</span><p>${esc(t("ex.hist_locked",{n:more,top}))}</p></div>${cta}`
+    :(!prem&&premOffered()?`<p class="sub ex-hist-note">${esc(t("ex.hist_free_note",{top}))}</p>${cta}`:"");
+  const ov=document.createElement("div");ov.id="exHistOv";ov.className="lang-modal-ov pp-sheet-ov";
+  ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  ov.innerHTML=`<div class="lang-modal pp-sheet ex-hist-sheet" role="dialog" aria-modal="true" aria-labelledby="exHistH">
+    <h2 id="exHistH">${esc(t("ex.hist_h"))}</h2><div class="ex-hist-rows">${rows}</div>${foot}
+    <button class="btn btn-g" onclick="document.getElementById('exHistOv').remove()">${t("wc.close")}</button></div>`;
+  document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.exHistOpen=i=>{
+  const o=document.getElementById("exHistOv");if(o)o.remove();
+  const reps=exReps(),show=planKey()==="premium"?reps.length:Math.min(reps.length,planLimit("polishHistory"));
+  if(i>=show)return;const r=reps[i];if(!r)return;
+  ex.report=r;ex.blob=null;exSetUrl(null);ex.showReport=true;ex.repOpen=true;exRenderReport(r);
+};
 /* ---------- Say it better ----------
    The report is five minutes of work; sometimes the learner only wants the
    sentence. This button takes whatever is in the box and hands back one whole
@@ -17916,8 +18124,11 @@ async function exRun(src){
      recomputed from an AI answer that will be different next time. */
   const rep={at:Date.now(),tk:area,m,ai:ai||null,tx:text,sttFailed,targets:exTargets(ai)};
   st.report=rep;
-  const reps=exReps(area);reps.unshift(rep);if(reps.length>EX_REP_MAX)reps.length=EX_REP_MAX;
+  const reps=exReps(area),keep=exRepKeep(area,reps.length),gePlan=area===AREA_GEN&&planOn();
+  if(gePlan&&reps[0]&&reps[0].m)rep.pm=reps[0].m;       /* "vs last time" survives a short visible history */
+  reps.unshift(rep);if(reps.length>keep)reps.length=keep;
   markPracticed();save();
+  if(gePlan&&reps.length>1&&planKey()!=="premium"&&premOffered())setTimeout(()=>{try{toast(t("ex.hist_free_toast",{top:planLimit("polishHistory","premium")}),4200)}catch(e){}},900);
   ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=true;
   if(here()&&cur.v==="phrases"&&!exHost){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
@@ -18493,7 +18704,7 @@ function exAssignHTML(rep){
 function exRenderReport(rep,quiet){
   if(exHost)exHost.report=rep;
   try{if(!quiet&&rep&&Date.now()-(rep.at||0)<60e3)AdManager.markBreak("practice_complete")}catch(e){}   /* a fresh report, not a stored one redrawn */
-  const m=rep.m,ai=rep.ai,prev=exHost?(exHost.prev||null):(exReps().find(r=>r!==rep&&r.at<rep.at)||null);
+  const m=rep.m,ai=rep.ai,prev=exHost?(exHost.prev||null):(exReps().find(r=>r!==rep&&r.at<rep.at)||(rep.pm?{m:rep.pm}:null));
   const audioUrl=exHost?exHost.url:ex.url;
   const delta=(k)=>{if(!prev||!prev.m||prev.m[k]==null||m[k]==null)return "";const d=m[k]-prev.m[k];if(!d)return "";return `<span class="ex-delta">${d>0?"+":""}${Math.round(d*10)/10} ${esc(t("ex.vs_last"))}</span>`};
   const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
@@ -19252,6 +19463,26 @@ function entView(){
   return entCacheRead(uid)||ENT_FREE;
 }
 function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v.paid===true}
+/* ---- PLAN LIMITS: the one table every paid limit reads (owner, 25 Sep 2026) ----
+   Premium launches progressively. The limits in force are STORAGE limits on
+   what a learner keeps — never on practising. The plan is the server's answer
+   (entView ← /v1/entitlement, and only where an entitlement service exists);
+   nothing here is read from flags or storage, so it cannot be raised on the
+   device. planOn(): the limits apply only where Premium can actually be
+   bought (billing_enabled + an entitlement service) — with billing off, as in
+   production today, every learner keeps the app exactly as it was.
+   null = not limited. The rows after the first three are named so a later
+   limit is one number, not a redesign; NONE of them is enforced yet. Which
+   track a limit applies to is the caller's decision (isGeneralEnglish()). */
+const PLAN_LIMITS=Object.freeze({
+  free:Object.freeze({savedShadow:5,youtubeImports:2,polishHistory:1,
+    aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null}),
+  premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,
+    aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null})
+});
+function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){return false}}
+function planKey(){try{return entApiBase()&&entIsPremiumForDisplay()?"premium":"free"}catch(e){return "free"}}
+function planLimit(name,plan){const v=PLAN_LIMITS[plan||planKey()][name];return v===undefined?null:v}
 function entWipe(){_entView=null;_entUid=null;try{localStorage.removeItem(ENT_CACHE_KEY)}catch(e){}}
 /* Plan changes for release analytics (Phase 12A): compare the server's new
    answer with the LAST one this account saw (memory, else the raw cache — the
@@ -19310,6 +19541,7 @@ function entApply(){
   }}catch(e){}
   try{if(!AdEligibility.planAllowsAds())AdManager.withdraw()}catch(e){}
   try{premDraw()}catch(e){}
+  try{premLaunchMaybe()}catch(e){}
 }
 
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
@@ -19318,7 +19550,7 @@ function entPlanCardHTML(){
   let B=null;try{B=Billing}catch(e){}   /* a const defined further down: never touch it before it exists */
   const live=!!(B&&B.provider);
   const date=ms=>new Date(ms).toLocaleDateString();
-  const li=(k,icn,col)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:${col};margin-top:2px">${ic(icn)}</span><span>${t(k).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`;
+  const li=(k,icn,col,vars)=>`<li style="font-size:13px;color:var(--mut);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><span class="inl-ic" style="color:${col};margin-top:2px">${ic(icn)}</span><span>${t(k,vars).replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D\s]+/u,"")}</span></li>`;
   /* what the server says about this account's plan, in words */
   let status="";
   if(prem&&v.state==="grace"&&v.expiresAt)status=t("acc.prem_grace",{date:date(v.expiresAt)});
@@ -19344,7 +19576,7 @@ function entPlanCardHTML(){
   return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
         <ul style="list-style:none;margin-top:10px">
-          ${li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)")}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
+          ${isGeneralEnglish()&&planOn()?li("prem.b_videos","bookmark",prem?"var(--green)":"var(--mut)",{n:planLimit("savedShadow","premium")})+li("prem.b_yt","link",prem?"var(--green)":"var(--mut)",{n:planLimit("youtubeImports","premium")})+li("prem.b_polish","clock",prem?"var(--green)":"var(--mut)",{n:planLimit("polishHistory","premium")}):""}${li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)")}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
         </ul>${store}${note}
       </div>`;
 }
@@ -19780,7 +20012,7 @@ const Billing={
   },
   /* Manage opens the store that SOLD the plan; a plan from the other store is named, not opened */
   manage(){const v=entView();if(this.provider&&v.source===this.provider.id)this.provider.manage(v.product)},
-  _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML();try{premDraw()}catch(e){}},
+  _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML();try{premDraw()}catch(e){}try{premLaunchMaybe()}catch(e){}},
 };
 
 
@@ -19845,34 +20077,83 @@ function premBodyHTML(){
   if(!plans.some(x=>x.p.id===_premSel))_premSel=plans[0].p.id;
   const sn=premStore();
   return `<div class="prem-plans" role="radiogroup" aria-label="${esc(t("prem.plans_label"))}">${plans.map(premPlanHTML).join("")}</div>
-    <button type="button" class="btn-primary prem-wide prem-cta" ${busy?"disabled":""} onclick="premBuy()">${esc(t("prem.cta"))}</button>${note}
+    <button type="button" class="btn-primary prem-wide prem-cta" ${busy?"disabled":""} onclick="premBuy()">${esc((plans.find(x=>x.p.id===_premSel)||{}).trial?t("prem.cta_trial",{n:plans.find(x=>x.p.id===_premSel).trial}):t("prem.cta"))}</button>${note}
     <p class="sub ent-terms prem-terms">${esc(t("acc.prem_terms",{store:sn}))} <a href="privacy.html" target="_blank" rel="noopener">${esc(t("acc.prem_privacy_link"))}</a>${B.provider.id==="app_store"?` · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">${esc(t("acc.prem_eula_link"))}</a>`:""}</p>
     <button type="button" class="btn btn-g prem-wide prem-restore" ${busy?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
 }
-function premSheetHTML(){
-  const li=k=>`<li><span class="inl-ic">${ic("check")}</span><span>${esc(t(k,{store:premStore()}))}</span></li>`;
-  return `<button type="button" class="prem-x" aria-label="${esc(t("wc.close"))}" onclick="premClose()">${ic("close")}</button>
+/* The Premium benefits that exist today are General English ones (saved
+   Shadow videos, YouTube imports, Polish history), so the lines and the
+   comparison are drawn there only — Welding's sheet is as it was. Every number
+   comes from PLAN_LIMITS; nothing here promises what is not built. */
+function premCmpHTML(){
+  if(!isGeneralEnglish())return "";
+  const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
+  const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
+  return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
+    <tbody>${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}</tbody></table>`;
+}
+function premSheetHTML(wait){
+  const li=(k,v)=>`<li><span class="inl-ic">${ic("check")}</span><span>${esc(t(k,v||{store:premStore()}))}</span></li>`;
+  const ge=isGeneralEnglish(),P=k=>planLimit(k,"premium");
+  return `<button type="button" class="prem-x" aria-label="${esc(t("wc.close"))}" onclick="premClose()"${wait?" hidden":""}>${ic("close")}</button>
     <h2 id="premH">${hIcon("star",t("prem.h"))}</h2>
     <p class="sub prem-lede">${esc(t("prem.lede"))}</p>
-    <ul class="prem-ben">${li("prem.b_noads")}${li("prem.b_all")}${li("prem.b_cancel")}</ul>
+    <ul class="prem-ben">${ge?li("prem.b_videos",{n:P("savedShadow")})+li("prem.b_yt",{n:P("youtubeImports")})+li("prem.b_polish",{n:P("polishHistory")}):""}${li("prem.b_noads")}${li("prem.b_all")}${li("prem.b_cancel")}</ul>${premCmpHTML()}
     <div class="prem-body">${premBodyHTML()}</div>`;
 }
-function premDraw(){const el=document.querySelector("#premOv .prem-sheet");if(!el)return;const y=el.scrollTop;el.innerHTML=premSheetHTML();el.scrollTop=y}
+function premDraw(){const ov=document.getElementById("premOv"),el=ov&&ov.querySelector(".prem-sheet");if(!el)return;const y=el.scrollTop;el.innerHTML=premSheetHTML(!!ov.dataset.xwait);el.scrollTop=y}
 window.premPick=id=>{_premSel=id;premDraw()};
 window.premBuy=()=>{if(_premSel)Billing.buy(_premSel)};
-function premKey(e){if(e.key==="Escape"){e.preventDefault();premClose()}}
+function premKey(e){if(e.key==="Escape"){e.preventDefault();const o=document.getElementById("premOv");if(o&&o.dataset.xwait)return;premClose()}}
 window.premClose=()=>{const o=document.getElementById("premOv");if(o)o.remove();document.removeEventListener("keydown",premKey,true)};
 window.premiumOpen=(from)=>{
   premClose();
+  const launch=from==="launch";
   const ov=document.createElement("div");ov.id="premOv";ov.className="lang-modal-ov pp-sheet-ov prem-ov";ov.dataset.from=String(from||"");
-  ov.onclick=e=>{if(e.target===ov)premClose()};
-  ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML()}</div>`;
+  /* the launch offer: the close X appears after PREM_LAUNCH_WAIT; until then the
+     sheet cannot be dismissed (backdrop, Escape). After it, it closes like any
+     sheet and the learner carries on with Free. Never a blocker. */
+  if(launch)ov.dataset.xwait="1";
+  ov.onclick=e=>{if(e.target===ov&&!ov.dataset.xwait)premClose()};
+  ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet${launch?" prem-launch":""}" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML(launch)}</div>`;
+  if(launch)setTimeout(()=>{if(!ov.isConnected)return;delete ov.dataset.xwait;const x=ov.querySelector(".prem-x");if(x){x.hidden=false;x.classList.add("prem-x-in")}},PREM_LAUNCH_WAIT);
   document.body.appendChild(ov);document.addEventListener("keydown",premKey,true);
   /* a store that has not been asked yet (the sheet opened before sign-in finished) */
   if(Billing.provider&&FBUser&&!Billing.products.length&&Billing.state!=="loading")Billing.init();
   /* focus goes INTO the dialog (screen readers land on it), not onto a button */
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };
+/* ---- the launch offer (owner, 25 Sep 2026) ----
+   Once per app session (sessionStorage), for a signed-in learner the SERVER has
+   just called Free (an answer from this session, never a cached one), only
+   where Premium can be bought (planOn + a store). Never over onboarding, the
+   placement check, another sheet or a practice screen — it waits for the
+   learner to be free, and gives up after half a minute. */
+const PREM_LAUNCH_SS="be_prem_launch",PREM_LAUNCH_WAIT=5000;
+let _premLaunchOn=false;
+function premLaunchReady(){
+  try{
+    if(!planOn()||!Billing.provider||!FBUser||!S||!S.profile)return false;
+    if(!isGeneralEnglish())return false;      /* today's Premium benefits are General English ones */
+    if(!(_entView&&_entUid===FBUser.uid))return false;
+    if(entIsPremiumForDisplay())return false;
+    if(sessionStorage.getItem(PREM_LAUNCH_SS))return false;
+    return true;
+  }catch(e){return false}
+}
+function premLaunchBusy(){
+  if(document.querySelector("#obWrap,#fndCheckOv,.lang-modal-ov,.cf-ov,#wcOv,.wc-ov,#coachSummary,#rmCel"))return true;
+  const w=document.getElementById("shWork");if(w&&w.style.display!=="none"&&w.offsetParent!==null)return true;
+  try{if(cur&&["session","shadow","roleplay","pron","simulation","partner","foundations"].indexOf(cur.v)>=0)return true}catch(e){}
+  return false;
+}
+function premLaunchMaybe(){
+  if(_premLaunchOn||!premLaunchReady())return;
+  _premLaunchOn=true;let k=0;
+  const go_=()=>{if(!premLaunchReady())return;if(premLaunchBusy()){if(++k<30)setTimeout(go_,1000);return}
+    try{sessionStorage.setItem(PREM_LAUNCH_SS,"1")}catch(e){}premiumOpen("launch")};
+  setTimeout(go_,1200);
+}
 /* "Remove ads with Premium": shown only beside an ad, and only when Premium can be offered */
 function premRemoveAdsHTML(from){return premOffered()&&!entIsPremiumForDisplay()?`<button type="button" class="ad-remove" onclick="premiumOpen('${from}')">${esc(t("prem.remove_ads"))}</button>`:""}
 
@@ -25532,7 +25813,7 @@ window.resetAll=async()=>{
   if(signedIn){
     /* Write the empty state immediately rather than leaving it to the debounced
        push, which could otherwise race a pull and restore what was just wiped. */
-    try{await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(fbSyncPayload(S)),savedAt:Date.now(),
+    try{await FBdb.collection("users").doc(FBUser.uid).set({json:fbCloudJson(S),savedAt:Date.now(),
       email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     }catch(e){console.warn("[sync] reset of cloud copy failed:",(e&&(e.code||e.message))||e)}
   }
@@ -27883,7 +28164,8 @@ function fbMerge(local,cloud){
   m.exRepA=byAreaList(r=>r&&r.at)(local.exRepA,cloud.exRepA);
   m.chHistA=byAreaList(r=>r&&r.ts)(local.chHistA,cloud.chHistA);
   Object.keys(m.chHistA||{}).forEach(a=>{m.chHistA[a].sort((x,y)=>(y.ts||0)-(x.ts||0));m.chHistA[a].length=Math.min(m.chHistA[a].length,SV_CH_HIST_MAX)});
-  Object.keys(m.exRepA||{}).forEach(a=>{m.exRepA[a].sort((x,y)=>(y.at||0)-(x.at||0));m.exRepA[a].length=Math.min(m.exRepA[a].length,EX_REP_MAX)});
+  /* the technical ceiling, never the plan: a merge must not cut a Premium history */
+  Object.keys(m.exRepA||{}).forEach(a=>{m.exRepA[a].sort((x,y)=>(y.at||0)-(x.at||0));m.exRepA[a].length=Math.min(m.exRepA[a].length,exRepCeil(a))});
   /* Both sides must have split before the merged copy counts as split. If either
      device still holds untagged records, the next boot re-runs areaSplit() to
      stamp them — and because the fold above is additive, re-running it cannot
@@ -27990,11 +28272,18 @@ async function fbFirstSync(u){
           take=r.ok?cloud:merged;      // keep-this-device still uploads, never discards
         }
       }
+      /* a transcript the account copy never received (fbTxBudget) is this
+         device's own: adopting the account copy must not delete it, for any
+         video the account still keeps */
+      if(take===cloud&&S&&S.shTx){const keep={};Object.values(cloud.shOwnA||{}).forEach(L=>(Array.isArray(L)?L:[]).forEach(o=>{if(o&&o.vid&&S.shTx[o.vid]&&!(cloud.shTx&&cloud.shTx[o.vid]))keep[o.vid]=S.shTx[o.vid]}));
+        if(Object.keys(keep).length)take=Object.assign({},cloud,{shTx:Object.assign({},cloud.shTx,keep)})}
       S=take;
     }
     localStorage.setItem(LS_KEY,JSON.stringify(S));
     localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
-    await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    /* too large for one document: nothing is written, the account copy stays as it was */
+    let j=null;try{j=fbCloudJson(S)}catch(e){fbLastPushOk=false;fbLastPushErr=(e&&e.code)||"be/doc-too-large";fbSyncStatus()}
+    if(j!=null)await ref.set({json:j,savedAt:S.savedAt,email:u.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     /* a returning user who logged in from onboarding: their profile came from the
        cloud, so dismiss the onboarding overlay and drop them into the app */
     if(S.profile){const ob=document.getElementById("obWrap");if(ob)ob.remove()}
@@ -28015,7 +28304,7 @@ window.fbPush=function(){
   clearTimeout(fbPushTimer);
   fbPushTimer=setTimeout(async()=>{
     try{
-      await FBdb.collection("users").doc(FBUser.uid).set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      await FBdb.collection("users").doc(FBUser.uid).set({json:fbCloudJson(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
       fbLastPushOk=true;fbLastPushErr="";
     }catch(e){
       fbLastPushOk=false;
@@ -28029,8 +28318,8 @@ window.fbPush=function(){
 function fbSyncStatus(){
   const el=document.getElementById("fbSyncMsg");if(!el)return;
   if(fbLastPushOk===null){el.textContent="";el.className="fb-sync";return}
-  if(fbLastPushOk){el.textContent=t("auth.sync_ok");el.className="fb-sync ok";return}
-  el.textContent=t("auth.sync_failed",{err:fbLastPushErr});el.className="fb-sync bad";
+  if(fbLastPushOk){el.textContent=fbTxHeld>0?t("auth.sync_tx_held",{n:fbTxHeld}):t("auth.sync_ok");el.className="fb-sync ok";return}
+  el.textContent=fbLastPushErr==="be/doc-too-large"?t("auth.sync_too_large"):t("auth.sync_failed",{err:fbLastPushErr});el.className="fb-sync bad";
 }
 window.fbSyncStatus=fbSyncStatus;
 /* Write, then read back. Proves end to end whether the account is really
@@ -28041,7 +28330,7 @@ window.fbTestSync=async()=>{
   if(el){el.textContent=t("auth.sync_testing");el.className="fb-sync"}
   try{
     const ref=FBdb.collection("users").doc(FBUser.uid);
-    await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+    await ref.set({json:fbCloudJson(S),savedAt:Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
     const snap=await ref.get();                    // read it back — a write alone can be queued offline
     if(!snap.exists)throw new Error("written but not readable");
     fbLastPushOk=true;fbLastPushErr="";
@@ -28164,6 +28453,7 @@ function fbSyncPayload(s){
        tips travel; the learner's own transcripts stay here (same rule as convos) */
     out.ppHist=out.ppHist.map(e=>{if(!e||!Array.isArray(e.turns))return e;const y=Object.assign({},e);y.turns=e.turns.map(tn=>{const z=Object.assign({},tn);delete z.tx;return z});return y});
   }
+  if(out.shTx&&typeof out.shTx==="object")out.shTx=fbTxBudget(out,FB_TX_BUDGET);
   if(Array.isArray(out.convos)){
     /* Keep the conversation record and its scores; drop the sentences themselves.
        rpEvPersist writes {text,score} per line — the score is progress, the text
@@ -28174,6 +28464,61 @@ function fbSyncPayload(s){
     });
   }
   return out;
+}
+/* ===== THE CLOUD COPY'S SIZE =====
+   The whole state travels as ONE string in ONE Firestore document, and
+   Firestore refuses a document over 1 MiB — a refused write used to fail the
+   whole account's sync. Shadow transcripts are the one learner-typed
+   store that can grow without bound (a pasted YouTube transcript is tens of KB
+   and Premium keeps more saved and imported videos), so:
+   · fbSyncPayload sends them within FB_TX_BUDGET bytes, in this order:
+       1. the transcripts a FREE plan keeps — the newest SH_OWN_MAX saved
+          videos of EACH area (so Welding's, and everything a Free learner
+          synced before, always goes first and Premium extras never push it out);
+       2. the rest of the saved videos (Premium), newest saved first;
+       3. the open clip's; 4. any other paste (a video that was not kept),
+          newest first, only while room remains.
+     One over FB_TX_ITEM_MAX is never sent (it would crowd out the others).
+     The rest stay on this device, untouched.
+   · fbCloudJson measures the finished copy: over FB_DOC_SAFE the transcripts
+     are re-fitted into whatever room is left; still over, NO write is made —
+     the account's last copy stays exactly as it was and the account card
+     says why.
+   Local state is never trimmed here. Deterministic, so filtering a filtered
+   copy again changes nothing. */
+const FB_DOC_SAFE=900*1024, FB_TX_BUDGET=400*1024, FB_TX_ITEM_MAX=100*1024;
+function fbUtf8(x){try{return new TextEncoder().encode(x).length}catch(e){return String(x).length*3}}
+function fbTxBudget(s,budget){
+  const tx=s.shTx||{},rank={};
+  /* the Free level: per area, and on General English per kind (library saves /
+     YouTube imports) — fixed numbers, so the result never depends on the plan */
+  Object.entries(s.shOwnA||{}).forEach(([a,L])=>{const seen={};
+    (Array.isArray(L)?L:[]).filter(o=>o&&o.vid).slice().sort((x,y)=>(+y.ts||0)-(+x.ts||0)).forEach(o=>{
+      const k=a===AREA_GEN&&(o.src==="lib"||o.src==="yt")?o.src:"all";seen[k]=(seen[k]||0)+1;
+      const free=k==="all"?SH_OWN_MAX:planLimit(k==="lib"?"savedShadow":"youtubeImports","free");
+      const r=(seen[k]<=free?3e13:2e13)+Math.min(+o.ts||1,9e12);if(!(rank[o.vid]>=r))rank[o.vid]=r})});
+  const last=s.lastClip&&s.lastClip.vid;if(last&&!rank[last])rank[last]=1e13;
+  /* keys keep insertion order: reversed, the newest unranked paste comes first (a stable sort keeps it) */
+  const keys=Object.keys(tx).filter(k=>typeof tx[k]==="string"&&tx[k]).reverse().sort((a,b)=>(rank[b]||0)-(rank[a]||0));
+  const out={};let used=0;
+  for(const k of keys){const n=fbUtf8(JSON.stringify(k))+fbUtf8(JSON.stringify(tx[k]))+2;
+    if(n>FB_TX_ITEM_MAX||used+n>budget)continue;out[k]=tx[k];used+=n}
+  return out;
+}
+let fbTxHeld=0;
+function fbCloudJson(s){
+  const p=fbSyncPayload(s);
+  let j=JSON.stringify(p);
+  if(fbUtf8(j)>FB_DOC_SAFE&&p&&p.shTx&&Object.keys(p.shTx).length){          /* p is a copy: S keeps every transcript */
+    p.shTx={};const room=FB_DOC_SAFE-fbUtf8(JSON.stringify(p))-64;
+    if(room>0)p.shTx=fbTxBudget(s,room);j=JSON.stringify(p)}
+  /* still over: a long Polish history travels only as far as the Free-level
+     EX_REP_MAX per area; the rest stays on this device */
+  if(fbUtf8(j)>FB_DOC_SAFE&&p&&p.exRepA){const o={};Object.keys(p.exRepA).forEach(a=>{o[a]=(p.exRepA[a]||[]).slice(0,EX_REP_MAX)});p.exRepA=o;j=JSON.stringify(p)}
+  if(fbUtf8(j)>FB_DOC_SAFE)throw Object.assign(new Error("doc-too-large"),{code:"be/doc-too-large"});
+  const mine=s&&s.shTx?Object.keys(s.shTx).filter(k=>typeof s.shTx[k]==="string"&&s.shTx[k]).length:0;
+  fbTxHeld=Math.max(0,mine-Object.keys((p&&p.shTx)||{}).length);
+  return j;
 }
 /* Bound what the device itself keeps. A live simulation exists so an interrupted
    conversation can be resumed; after a week it will not be, and abandon() only
@@ -28228,7 +28573,8 @@ async function fbSyncPull(){
       if(fbSnapshotSig(merged)!==before){
         S=merged;
         localStorage.setItem(LS_KEY,JSON.stringify(S));
-        await ref.set({json:JSON.stringify(fbSyncPayload(S)),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
+        let j=null;try{j=fbCloudJson(S)}catch(e){fbLastPushOk=false;fbLastPushErr=(e&&e.code)||"be/doc-too-large";fbSyncStatus()}
+        if(j!=null)await ref.set({json:j,savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
           updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
         try{navBadges()}catch(e){}
         if(fbSafeToRerender())go(cur.v,cur.arg1,cur.arg2);
