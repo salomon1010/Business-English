@@ -314,6 +314,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   token can never land); client calls in `Billing` + `entNoteChange`.
   `[env.staging]` for be-entitlements + `beEnv().entitlements` (staging host
   only). privacy.html §5b (purchases) + §7b (ads).
+  **Premium acquisition (`feature/premium-acquisition`, `docs/PREMIUM-ACQUISITION.md`):**
+  `premiumOpen(from)` sheet over `Billing` (no new purchase path) — the STORE's
+  plans (period / trial / numeric price now kept by `BillingProviders.play.products`),
+  Annual first with the saving computed from the store's two prices, a trial
+  ONLY when the store reports `freeTrialPeriod`, one Continue → `Billing.buy`.
+  Entry points only when `premOffered()` (billing live or already Premium):
+  Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
+  ads. Home untouched. The card no longer promises "More AI coaching"
+  (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y $19.99.
+  Colour token is `--txt` (there is no `--text`).
   **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
   Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
   staging-only `PLAY_TOKEN_KEY` / `APP_ACCOUNT_SECRET` set; `GOOGLE_SA_JSON` and

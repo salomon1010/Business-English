@@ -187,6 +187,20 @@ console.log("\n# native / banner");
   await ctx.close();
 }
 
+console.log("\n# Premium offer beside an ad");
+{
+  WENV = workerEnv();
+  let { ctx, p } = await open();
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); _adNative = {}; go("home"); }); await sleep(900);
+  ok("NP1 · billing off (production today): the native slot carries no Premium link", await p.evaluate(() => { const s = document.querySelector("#v-home [data-ad-slot]"); return !!s && !s.querySelector(".ad-remove"); }));
+  await ctx.close();
+  ({ ctx, p } = await open("general-english", { flags: { ads_enabled: true, ads_mock_provider: true, billing_enabled: true } }));
+  await p.evaluate(() => { AdEligibility._resetSession(); localStorage.removeItem("be_ad_log"); _adNative = {}; go("home"); }); await sleep(900);
+  const r = await p.evaluate(() => { const s = document.querySelector("#v-home [data-ad-slot]"); const b = s && s.querySelector(".ad-remove"); if (!b) return null; const h = b.getBoundingClientRect().height; b.click(); return { text: b.textContent, h, sheet: !!document.getElementById("premOv"), from: (document.getElementById("premOv") || {}).dataset?.from }; });
+  ok("NP2 · billing live: the slot offers 'Remove ads with Premium' (44 px tall), and it opens the Premium sheet", r && r.text === "Remove ads with Premium" && r.h >= 32 && r.sheet && r.from === "ad_native", JSON.stringify(r));
+  await ctx.close();
+}
+
 console.log("\n# rewarded — opt-in, server-verified, single use");
 {
   WENV = workerEnv();

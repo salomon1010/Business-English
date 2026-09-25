@@ -48,7 +48,7 @@ const WDEPS = { fetch: googleFetch };
 const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, welding: { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 /* the Digital Goods API + Payment Request exactly as a Play-billed TWA exposes them (stub) */
 const PLAY_STUB = () => {
-  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" } }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "EUR", value: "29.99" } }],
+  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" }, subscriptionPeriod: "P1M", freeTrialPeriod: "P3D" }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "EUR", value: "29.99" }, subscriptionPeriod: "P1Y" }],
     next: { token: null, cancel: false }, owned: [], completes: [], shows: 0 };
   window.getDigitalGoodsService = async method => { if (method !== "https://play.google.com/billing") throw new Error("unsupported"); return {
     getDetails: async ids => window.__play.details.filter(d => ids.includes(d.itemId)),
@@ -256,6 +256,56 @@ console.log("\n# Phase 10 — the purchase flow under failure");
     && evs.some(([n, q]) => n === "purchase_failed" && q.reason === "cancelled") && evs.some(([n, q]) => n === "purchase_restore" && q.result === "none" && q.source === "tap"), JSON.stringify(evs));
   ok("C15 · every event carries only the map keys and fixed values — no token, order id, account or date anywhere",
     evs.every(([, q]) => Object.keys(q).every(k => PREM_KEYS.includes(k))) && !/tok_|GPA|qa1|qa2|@|\d{10}/.test(JSON.stringify(evs)), JSON.stringify(evs));
+  await ctx.close();
+
+  /* PR1-PR9: the Premium sheet — the store's plans, one purchase path, every state */
+  const sheet = pp => pp.evaluate(() => { const o = document.getElementById("premOv"); if (!o) return null; const sh = o.querySelector(".prem-sheet");
+    const plans = [...o.querySelectorAll(".prem-plan")].map(b => ({ id: b.dataset.id, on: b.getAttribute("aria-checked"), text: b.textContent.replace(/\s+/g, " ").trim() }));
+    const r = sh.getBoundingClientRect(), btns = [...o.querySelectorAll("button")].filter(b => b.offsetParent).map(b => b.getBoundingClientRect().height);
+    return { text: sh.textContent.replace(/\s+/g, " "), plans, cta: !!o.querySelector(".prem-cta"), fits: r.left >= -0.5 && r.right <= innerWidth + 0.5, overflow: document.documentElement.scrollWidth > innerWidth + 1, minBtn: Math.min(...btns), rtl: getComputedStyle(sh).direction }; });
+  ({ ctx, p } = await open({ uid: "prq", flags: null }));
+  await p.evaluate(() => go("profile")); await sleep(500);
+  const off = await p.evaluate(() => ({ row: !!document.querySelector(".pf-prem"), open: (premiumOpen("test"), document.querySelector("#premOv .prem-sheet").textContent) }));
+  ok("PR1 · billing off (production today): no Premium row in Profile; the sheet, if opened, only says it cannot be bought here", !off.row && /can't be bought on this device/.test(off.open) && !/Continue|Save/.test(off.open), JSON.stringify(off));
+  await ctx.close();
+  ({ ctx, p } = await open({ uid: "prr" }));
+  await p.evaluate(() => go("profile")); await sleep(500);
+  ok("PR2 · billing live: Profile shows 'BE Mastery Premium · No ads, ever'", await p.evaluate(() => { const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /No ads, ever/.test(r.textContent); }));
+  await p.evaluate(() => document.querySelector(".pf-prem .pf-row").click()); await sleep(300);
+  let sh = await sheet(p);
+  ok("PR3 · the sheet lists the STORE's plans: Annual first and selected, with its price per year, the per-month figure and the saving computed from the store's own prices", sh && sh.plans.length === 2 && sh.plans[0].id === "premium_annual" && sh.plans[0].on === "true" && /29\.99/.test(sh.plans[0].text) && /\/ year/.test(sh.plans[0].text) && /2\.50 a month, billed once a year/.test(sh.plans[0].text) && /Save 44%/.test(sh.plans[0].text), JSON.stringify(sh && sh.plans));
+  ok("PR4 · Monthly shows its price per month and the store's 3-day free trial — the trial only because the store reports one", /4\.49/.test(sh.plans[1].text) && /\/ month/.test(sh.plans[1].text) && /3-day free trial for new subscribers/.test(sh.plans[1].text), sh.plans[1].text);
+  ok("PR5 · truthful benefits only (no ads · everything included · cancel in Google Play), the store's renewal terms and Privacy link, Restore — no raw key, no {{placeholder}}, no 'More AI coaching'", /No ads — ever/.test(sh.text) && /Everything you use today stays included/.test(sh.text) && /Cancel any time in Google Play/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|\{\{|More AI coaching/.test(sh.text), sh.text);
+  await p.evaluate(() => { document.querySelector('.prem-plan[data-id="premium_monthly"]').click(); }); await sleep(150);
+  sh = await sheet(p);
+  ok("PR6 · picking Monthly moves the selection (one radio checked)", sh.plans.find(x => x.id === "premium_monthly").on === "true" && sh.plans.find(x => x.id === "premium_annual").on === "false");
+  SUBS.set("tok_prr_" + "r".repeat(20), gsub());
+  await p.evaluate(() => { __play.next = { token: "tok_prr_" + "r".repeat(20), cancel: false }; });
+  const bought = await p.evaluate(async () => { const orig = Billing.buy.bind(Billing); let asked = null; Billing.buy = id => { asked = id; return orig(id); }; document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 1500)); Billing.buy = orig; return { asked, prem: entIsPremiumForDisplay() }; });
+  sh = await sheet(p);
+  ok("PR7 · Continue buys the SELECTED plan through the existing Billing.buy, and the sheet turns into 'Active · Continue learning' when the server says Premium", bought.asked === "premium_monthly" && bought.prem && sh && /Active/.test(sh.text) && /Continue learning/.test(sh.text) && !sh.cta, JSON.stringify(bought) + " " + (sh && sh.text));
+  await p.evaluate(() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await sleep(100);
+  ok("PR8 · Escape closes the sheet", await p.evaluate(() => !document.getElementById("premOv")));
+  await ctx.close();
+  ({ ctx, p } = await open({ uid: null }));
+  await p.evaluate(() => premiumOpen("test")); await sleep(200);
+  ok("PR9 · signed out: the sheet asks to sign in, sells nothing", /Sign in to get Premium/.test((await sheet(p)).text) && !(await sheet(p)).cta);
+  await ctx.close();
+  for (const [lang, vp, theme] of [["en", { width: 320, height: 640 }, "dark"], ["ar", { width: 360, height: 740 }, "light"], ["fr", { width: 390, height: 844 }, "light"]]) {
+    ({ ctx, p } = await open({ uid: "prl" + lang, vp }));
+    await p.evaluate(async ([l, th]) => { if (l !== "en") await setLang(l); if (th === "light") setTheme("light"); premiumOpen("test"); }, [lang, theme]); await sleep(600);
+    sh = await sheet(p);
+    ok(`PR10 · ${lang} ${vp.width}px ${theme}: the sheet fits, no page overflow, every button ≥ 44 px${lang === "ar" ? ", right-to-left" : ""}, no raw key`, sh && sh.fits && !sh.overflow && sh.minBtn >= 44 && (lang !== "ar" || sh.rtl === "rtl") && !/prem\.|\{\{/.test(sh.text) && sh.plans.length === 2, JSON.stringify({ fits: sh && sh.fits, overflow: sh && sh.overflow, minBtn: sh && sh.minBtn, rtl: sh && sh.rtl }));
+    await ctx.close();
+  }
+  ({ ctx, p } = await open({ uid: "prs" }));
+  const card2 = await card(p);
+  ok("PR11 · App Setup card: 'See Premium plans' opens the same sheet, and it no longer promises 'More AI coaching' (no feature delivers it)", /See Premium plans/.test(card2.text) && !/More AI coaching/.test(card2.text) && await p.evaluate(() => { document.querySelector("#entPlan .prem-open").click(); return !!document.getElementById("premOv"); }), card2.text);
+  await ctx.close();
+  ({ ctx, p } = await open({ uid: "prn", pre: () => { window.__noPeriod = true; } }));
+  await p.evaluate(async () => { __play.details = __play.details.map(d => ({ itemId: d.itemId, title: d.title, price: d.price })); Billing.products = await Billing.provider.products(); premiumOpen("test"); }); await sleep(300);
+  sh = await sheet(p);
+  ok("PR12 · a store that reports no period or trial: the plans still show (by product id), and NO trial is claimed", sh.plans.length === 2 && !/free trial/.test(sh.text), sh.text);
   await ctx.close();
 
   /* C3: another account on the same device never sees the last one's message */
