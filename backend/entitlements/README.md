@@ -112,6 +112,14 @@ else: it serves only `app.lomonec.com` and `capacitor://localhost`.
 `APPLE_ROOT_SHA256` (copy and check it from https://www.apple.com/certificateauthority/),
 `APPLE_ENVIRONMENTS`, `APP_ACCOUNT_SECRET`, `ADMOB_SSV_ENABLED`. Without them each route answers 501.
 
+`PLAY_TOKEN_KEY` (Phase 11) is the AES-256 key that seals the stored Play
+purchase token (`src/token-vault.js`): 32 random bytes, base64, e.g.
+`openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY`. Without it
+billing still works but no token is stored at all (never plaintext). Keep it
+only as a Worker secret — never in D1, the repo or a log. Rotating it is safe:
+old values stop opening and the next verify / restore / notification re-seals.
+Keep Workers tracing OFF for this Worker: the Google API URL carries the token.
+
 **Phase 10 limits.** Every request with a `content-length` over `MAX_BODY`
 (256 KB) is refused with 413. The purchase routes (`verify`, `restore`,
 `account-token`) allow `PURCHASE_PER_MIN` (10) calls per account per minute,

@@ -5,6 +5,8 @@
 #   npx wrangler d1 create be-entitlements        -> paste the id below
 #   npx wrangler d1 migrations apply be-entitlements --remote
 #   npx wrangler secret put ADMIN_TOKEN           (>= 32 random chars; owner only)
+#   openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY   (seals stored Play tokens)
+# Keep [observability] traces OFF: Google API URLs carry the purchase token.
 #   npx wrangler deploy --env ""
 name = "be-entitlements"
 main = "entitlements-worker.js"

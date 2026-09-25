@@ -36,6 +36,7 @@ import { resolve, validateRecord, isPremium, pickRecord, REWARD_KINDS, REWARD_SE
 import { ADAPTERS, REWARD_VERIFIERS } from "./src/adapters.js";
 import { BILLING_PROVIDERS } from "./src/billing.js";
 import { appAccountToken } from "./src/app-store.js";
+import { seal } from "./src/token-vault.js";
 import * as admob from "./src/admob.js";
 import { verifyIdToken } from "./src/firebase-auth.js";
 
@@ -91,15 +92,21 @@ const readRecord = (env, uid) => q(env, "SELECT uid,plan,product,status,starts_a
 /* ---- account binding. A purchase link belongs to ONE account: the first
    verified bind wins, atomically (the conditional upsert below cannot move a
    row that another uid owns). Returns { ok } or { ok:false, owner }. */
+/* Token retention (Phase 11): the store token is kept SEALED (src/token-vault.js)
+   and only while the purchase can still matter — an ended or refunded purchase
+   keeps no token, and account deletion removes the row. */
+const ENDED = ["expired", "revoked"];
 async function bindLink(env, uid, l) {
   const r = l.record;
+  const sealed = ENDED.includes(r.status) ? null : await seal(l.secret_ref, env, l.provider + ":" + l.ext_id);
   const res = await q(env, `INSERT INTO purchase_links(provider,ext_id,uid,plan,product,source,status,starts_at,expires_at,will_renew,secret_ref,updated_at)
       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
       ON CONFLICT(provider,ext_id) DO UPDATE SET plan=excluded.plan, product=excluded.product, source=excluded.source, status=excluded.status,
         starts_at=excluded.starts_at, expires_at=excluded.expires_at, will_renew=excluded.will_renew,
-        secret_ref=COALESCE(excluded.secret_ref, purchase_links.secret_ref), updated_at=excluded.updated_at
+        secret_ref=CASE WHEN excluded.status IN ('expired','revoked') THEN NULL ELSE COALESCE(excluded.secret_ref, purchase_links.secret_ref) END,
+        updated_at=excluded.updated_at
       WHERE purchase_links.uid=excluded.uid`,
-    l.provider, l.ext_id, uid, r.plan, r.product ?? null, r.source, r.status, r.starts_at ?? null, r.expires_at ?? null, r.will_renew ?? null, l.secret_ref ?? null, r.updated_at).run();
+    l.provider, l.ext_id, uid, r.plan, r.product ?? null, r.source, r.status, r.starts_at ?? null, r.expires_at ?? null, r.will_renew ?? null, sealed, r.updated_at).run();
   if (changes(res)) return { ok: true };
   const o = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", l.provider, l.ext_id).first();
   return o && o.uid === uid ? { ok: true } : { ok: false, owner: o && o.uid };
@@ -257,7 +264,7 @@ export async function handle(req, env, deps = {}) {
       for (const l of v.links) {
         const b = await bindLink(env, uid, l);
         if (!b.ok) { results.push({ ok: false, why: "bound_elsewhere", status: 409 }); continue; }
-        if (l.supersedes) await q(env, "UPDATE purchase_links SET status='expired', updated_at=? WHERE provider=? AND ext_id=? AND uid=?", now, l.provider, l.supersedes, uid).run();
+        if (l.supersedes) await q(env, "UPDATE purchase_links SET status='expired', secret_ref=NULL, updated_at=? WHERE provider=? AND ext_id=? AND uid=?", now, l.provider, l.supersedes, uid).run();
         if (p.afterBind) await p.afterBind(l, ctx);
         await audit(env, now, uid, "provider:" + p.id, restore ? "restore" : "verify", l.record);
         results.push({ ok: true });
@@ -288,7 +295,7 @@ export async function handle(req, env, deps = {}) {
           uid = a && a.uid;
         }
         if (!uid) continue;                                        /* a purchase no account has bound yet: nothing to change */
-        if (u.revoke) await q(env, "UPDATE purchase_links SET status='revoked', will_renew=0, updated_at=? WHERE provider=? AND ext_id=?", now, u.provider, u.ext_id).run();
+        if (u.revoke) await q(env, "UPDATE purchase_links SET status='revoked', will_renew=0, secret_ref=NULL, updated_at=? WHERE provider=? AND ext_id=?", now, u.provider, u.ext_id).run();
         else if (!(await bindLink(env, uid, u)).ok) continue;
         /* a bound purchase still unacknowledged (the verify's acknowledge failed):
            this notification is a second chance before Play's 3-day refund */

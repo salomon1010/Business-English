@@ -64,8 +64,9 @@ export async function acknowledge(env, productId, purchaseToken, deps = {}) {
 }
 
 /* Play's subscriptionState → our status. CANCELED means auto-renew was turned
-   off: the paid period still runs to expiryTime. PENDING / PAUSED / ON_HOLD
-   are not paid for now: no Premium. */
+   off: the paid period still runs to expiryTime. PAUSED / ON_HOLD are not paid
+   for now: no Premium. PENDING (a slow payment method) is its own status so the
+   app can say "payment pending" rather than "ended". */
 const STATE = {
   SUBSCRIPTION_STATE_ACTIVE: "active",
   SUBSCRIPTION_STATE_CANCELED: "active",
@@ -73,7 +74,7 @@ const STATE = {
   SUBSCRIPTION_STATE_ON_HOLD: "expired",
   SUBSCRIPTION_STATE_PAUSED: "expired",
   SUBSCRIPTION_STATE_EXPIRED: "expired",
-  SUBSCRIPTION_STATE_PENDING: "expired",
+  SUBSCRIPTION_STATE_PENDING: "payment_pending",   /* not paid yet: no Premium, and never acknowledged (Play refuses an ack before payment) */
 };
 /* subscriptionsv2 resource → RECORD fields (uid added by the caller) */
 export function toRecord(sub, nowMs) {

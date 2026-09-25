@@ -5963,6 +5963,7 @@ const I18N_EN={
  "acc.prem_cancelled":"Cancelled — Premium stays on until {{date}}.",
  "acc.prem_grace":"Payment problem — Premium stays on until {{date}}. Update your payment in the store.",
  "acc.prem_ended_generic":"Your Premium has ended.",
+ "acc.prem_payment_pending":"Your payment is still being processed. Premium starts as soon as the store confirms it — you don't need to buy again.",
  "acc.prem_bound":"This purchase belongs to another BE Mastery account.",
  "acc.prem_unavailable":"Purchases are not available right now.",
  "acc.prem_pending_verify":"Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
@@ -19260,6 +19261,7 @@ function entPlanCardHTML(){
   else if(prem&&v.renews===false&&v.expiresAt)status=t("acc.prem_cancelled",{date:date(v.expiresAt)});
   else if(prem&&v.expiresAt)status=t("acc.prem_until",{date:date(v.expiresAt)});
   else if(!prem&&v.state==="expired")status=t("acc.prem_ended_generic");
+  else if(!prem&&v.state==="payment_pending")status=t("acc.prem_payment_pending");   /* a slow payment method: Premium starts when the store confirms it */
   const chip=prem?t("acc.prem_active"):(live?"":t("acc.coming_soon"));
   /* the store part: only when a store provider is present (flag on, TWA / iOS shell) */
   let store="";
@@ -19674,7 +19676,10 @@ const Billing={
     if(r.error){this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
-      r.finish(true);billingTakeView(j.view);this.state="success";this.note=t("acc.prem_success");
+      /* the SERVER's answer decides the message: a slow payment (Play "pending")
+         or a purchase the store reports as not in force is not "Premium is on" */
+      r.finish(true);billingTakeView(j.view);const paid=!!(j.view&&j.view.paid);
+      this.state=paid?"success":"ready";this.note=paid?t("acc.prem_success"):j.view&&j.view.state==="payment_pending"?t("acc.prem_payment_pending"):t("acc.prem_failed");
     }catch(e){
       /* the store took the payment; only OUR answer is missing (offline, 5xx):
          say so, keep the purchase for the next launch's reconcile */

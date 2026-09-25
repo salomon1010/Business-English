@@ -85,6 +85,7 @@
  "acc.prem_cancelled": "Résilié — Premium reste actif jusqu’au {{date}}.",
  "acc.prem_grace": "Problème de paiement — Premium reste actif jusqu’au {{date}}. Mettez à jour votre paiement dans la boutique.",
  "acc.prem_ended_generic": "Votre Premium est terminé.",
+ "acc.prem_payment_pending": "Votre paiement est en cours de traitement. Premium démarre dès que la boutique le confirme — inutile d'acheter à nouveau.",
  "acc.prem_bound": "Cet achat appartient à un autre compte BE Mastery.",
  "acc.prem_unavailable": "Les achats ne sont pas disponibles pour le moment.",
  "acc.prem_pending_verify": "Votre paiement est passé, mais nous n’avons pas encore pu le confirmer. Il sera vérifié à la prochaine ouverture de l’app — ou touchez Restaurer les achats.",

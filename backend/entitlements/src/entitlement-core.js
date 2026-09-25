@@ -45,6 +45,7 @@ export const STATUSES = Object.freeze({
   grace:    { inForce: true },   // renewal failed; the store keeps access until expires_at
   expired:  { inForce: false },  // ran out
   revoked:  { inForce: false },  // refunded / cancelled with immediate effect
+  payment_pending: { inForce: false },  // bought with a slow payment method (e.g. cash): no Premium until the store confirms payment
 });
 
 /* sources are provider-agnostic labels safe to show a client */
@@ -72,7 +73,7 @@ const view = (planId, state, extra = {}) => {
   return {
     plan: p.id,
     paid: p.paid,
-    state,                                  // none | active | trialing | grace | expired | revoked | pending | invalid
+    state,                                  // none | active | trialing | grace | expired | revoked | payment_pending | pending | invalid
     ads: p.ads,                             // plan-level ad eligibility (frequency and context are the client policy's)
     capabilities: { ...p.capabilities },
     startedAt: extra.startedAt ?? null,     // ms; when the paid plan began

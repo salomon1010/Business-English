@@ -293,7 +293,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   Privacy (+ Apple EULA on iOS) sit beside every offer (`.ent-terms`). Worker:
   `MAX_BODY` 413, `PURCHASE_PER_MIN` 429 via `rate_hits` (migration 0004).
   Tests: `tests/monetization-qa.mjs` (210-render matrix), billing-client 31,
-  Worker billing 73. Test harnesses apply every file in `migrations/`.
+  Worker billing 73.
+  **Phase 11 store prep (`feature/phase11-store-prep`,
+  `docs/PHASE11-STORE-PREPARATION.md`):** the Play token is stored SEALED
+  (`src/token-vault.js`, AES-256-GCM, Worker secret `PLAY_TOKEN_KEY`, row id as
+  AAD; no key → nothing stored, never plaintext) and erased on revoke,
+  supersede, expiry and account deletion. Play `PENDING` → status
+  `payment_pending` (no Premium, never acknowledged; card says "payment still
+  being processed"); `Billing.buy` takes its message from the server view.
+  Acknowledge only for active / grace / trialing. No real store test has run;
+  the TWA loads app.lomonec.com, so internal testing needs the owner's host
+  decision (doc §0). Tests: Worker billing 86, billing-client 33. Test harnesses apply every file in `migrations/`.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

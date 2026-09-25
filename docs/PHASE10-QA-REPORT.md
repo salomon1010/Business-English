@@ -103,6 +103,8 @@ the Arabic singular noted above.
 
 ## Stored Play token (`purchase_links.secret_ref`), reviewed at the final gate
 
+> **Superseded by Phase 11** (`docs/PHASE11-STORE-PREPARATION.md` §3): the token is now sealed with AES-256-GCM and erased on revoke, supersede, expiry and deletion.
+
 - **What and where.** The raw Play purchase token is stored in D1
   `purchase_links.secret_ref`. It is written by the verify, restore and
   notification routes (`bindLink`), and `COALESCE` keeps the first value.

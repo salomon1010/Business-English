@@ -65,7 +65,8 @@ const google_play = {
     return { ok: true, id, updates: v.links };
   },
   async afterBind(link, { env, deps }) {
-    if (link.needsAck && link.record.status !== "expired" && link.record.status !== "revoked") {
+    /* only a paid purchase is acknowledged: never an ended, refunded or still-unpaid one */
+    if (link.needsAck && (link.record.status === "active" || link.record.status === "grace" || link.record.status === "trialing")) {
       try { await gp.acknowledge(env, link.productId, link.secret_ref, deps); } catch (e) {}   /* retried by the next verify / RTDN */
     }
   },

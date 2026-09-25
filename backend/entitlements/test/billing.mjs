@@ -21,6 +21,7 @@ import { spawnSync } from "node:child_process";
 import { generateKeyPairSync, createSign, createVerify, sign as nodeSign, createHash, randomUUID, createPrivateKey } from "node:crypto";
 import { handle, MAX_BODY, PURCHASE_PER_MIN } from "../entitlements-worker.js";
 import { _resetTokenCache } from "../src/google-play.js";
+import { open as openToken } from "../src/token-vault.js";
 
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
 /* an hour after "now": the openssl certificates below are issued now, so the test clock sits inside their validity */
@@ -105,11 +106,12 @@ function ssvUrl(nonce, txn, o = {}) {
   return `/v1/rewards/verify/admob?${q}&signature=${o.badSig ? sig.slice(0, -4) + "AAAA" : sig}&key_id=${o.keyId ?? 3335741209}`;
 }
 
+const KEY1 = Buffer.alloc(32, 7).toString("base64"), KEY2 = Buffer.alloc(32, 9).toString("base64");
 /* ---------------- the Worker ---------------- */
 const envFor = (o = {}) => ({ DB: d1(), FIREBASE_PROJECT_ID: "be-mastery", ADMIN_TOKEN: "o".repeat(40),
   GOOGLE_SA_JSON: JSON.stringify(SA), PLAY_PACKAGE: "com.bemastery.app", RTDN_AUDIENCE: "https://ent.test/v1/billing/google_play", RTDN_SA_EMAIL: "pubsub@test.iam.gserviceaccount.com",
   APPLE_BUNDLE_ID: "com.bemastery.app", APPLE_ROOT_SHA256: APPLE.rootSha, APPLE_ENVIRONMENTS: "Production", APP_ACCOUNT_SECRET: "s".repeat(40),
-  ADMOB_SSV_ENABLED: "1", REWARD_KINDS_ENABLED: "extra_ai_practice", ...o });
+  ADMOB_SSV_ENABLED: "1", REWARD_KINDS_ENABLED: "extra_ai_practice", PLAY_TOKEN_KEY: KEY1, ...o });
 let env = envFor();
 const deps = { now: () => clock, fetch: fakeFetch, googleKeys: [GJWK], admobKeys: ADMOB_KEYS, auth: { keys: [FBJWK] } };
 async function call(method, path, { uid, body, headers = {} } = {}) {
@@ -357,6 +359,62 @@ console.log("\n# Phase 10 — limits and the lost-purchase path");
   const acks1 = G.acks.filter(t => t === tok(34)).length;
   await call("POST", "/v1/purchases/restore", { uid: "zed", body: { provider: "google_play", items: [{ purchaseToken: tok(34), productId: "premium_monthly" }] } });
   ok("Q13 · once acknowledged, re-sending it asks Google again but never acknowledges twice", G.acks.filter(t => t === tok(34)).length === acks1 && env.DB.raw.prepare("SELECT count(*) n FROM purchase_links WHERE uid='zed'").get().n === 1);
+}
+
+console.log("\n# Phase 11 — the stored Play token: sealed, and kept only while it can matter");
+{
+  clock += 120_000;
+  const row = t => env.DB.raw.prepare("SELECT ext_id, status, secret_ref FROM purchase_links WHERE ext_id=?").get(createHash("sha256").update(t).digest("hex"));
+  G.subs.set(tok(60), gsub());
+  await gverify("s1a", tok(60));
+  const r60 = row(tok(60)), rid = "google_play:" + r60.ext_id;
+  ok("V1 · the token is stored sealed (v1 AES-GCM), never as the raw token — and the server can still open it for a server-side re-check", /^v1\.[\w-]+\.[\w-]+$/.test(r60.secret_ref) && !r60.secret_ref.includes(tok(60)) && (await openToken(r60.secret_ref, env, rid)) === tok(60));
+  ok("V2 · a sealed token opens only on its own row with the right key (not on another purchase's row, not with another key)", (await openToken(r60.secret_ref, env, "google_play:" + "0".repeat(64))) === null && (await openToken(r60.secret_ref, { PLAY_TOKEN_KEY: KEY2 }, rid)) === null);
+  const scan = () => { let n = 0; for (const { name } of env.DB.raw.prepare("SELECT name FROM sqlite_master WHERE type='table'").all()) for (const r of env.DB.raw.prepare(`SELECT * FROM "${name}"`).all()) if (/tok_\d+_x{24}/.test(JSON.stringify(r))) n++; return n; };
+  ok("V3 · no table anywhere holds a raw purchase token (every row of every table scanned)", scan() === 0, scan());
+  const envNoKey = env; env = { ...env, PLAY_TOKEN_KEY: undefined };
+  G.subs.set(tok(61), gsub());
+  let r = await gverify("s3b", tok(61));
+  ok("V4 · no PLAY_TOKEN_KEY configured: the purchase still gives Premium and is acknowledged, and NOTHING is stored (never plaintext)", r.status === 200 && (await view("s3b")).paid && row(tok(61)).secret_ref === null && G.subs.get(tok(61)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED");
+  env = envNoKey;
+  await rtdn({ voidedPurchaseNotification: { purchaseToken: tok(60), orderId: "GPA.60", productType: 1, refundType: 1 } }, "m-s5");
+  ok("V5 · refund / revoke: Free at once and the stored token is erased", (await view("s1a")).state === "revoked" && row(tok(60)).secret_ref === null);
+  G.subs.set(tok(62), gsub()); await gverify("s6c", tok(62));
+  G.subs.set(tok(63), gsub({ linkedPurchaseToken: tok(62), lineItems: [{ productId: "premium_annual", expiryTime: iso(T0 + 365 * DAY) }] }));
+  await gverify("s6c", tok(63));
+  ok("V6 · an upgrade supersedes the old purchase: the old link is expired and its token erased, the new one is sealed", row(tok(62)).status === "expired" && row(tok(62)).secret_ref === null && /^v1\./.test(row(tok(63)).secret_ref));
+  G.subs.set(tok(64), gsub()); await gverify("s7d", tok(64));
+  G.subs.get(tok(64)).subscriptionState = "SUBSCRIPTION_STATE_EXPIRED";
+  await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 13, purchaseToken: tok(64), subscriptionId: "premium_monthly" } }, "m-s7");
+  ok("V7 · Google says the subscription expired: Free, and the stored token is erased", (await view("s7d")).state === "expired" && row(tok(64)).status === "expired" && row(tok(64)).secret_ref === null);
+  G.subs.set(tok(65), gsub()); await gverify("s8e", tok(65));
+  await call("DELETE", "/v1/me", { uid: "s8e" });
+  ok("V8 · account deletion removes the row and its sealed token", !row(tok(65)));
+  G.subs.set(tok(66), gsub()); await gverify("s9f", tok(66));
+  const old = row(tok(66)).secret_ref; env = { ...env, PLAY_TOKEN_KEY: KEY2 };
+  clock += 60_000; await gverify("s9f", tok(66));
+  const now66 = row(tok(66)).secret_ref, rid66 = "google_play:" + row(tok(66)).ext_id;
+  ok("V9 · key rotation: the old value no longer opens under the new key, and the next verify re-seals it under the new key", (await openToken(old, env, rid66)) === null && now66 !== old && (await openToken(now66, env, rid66)) === tok(66));
+  env = { ...env, PLAY_TOKEN_KEY: KEY1 };
+  ok("V10 · still no raw token in any table after all of the above", scan() === 0, scan());
+}
+
+console.log("\n# Phase 11 — a purchase paid with a slow method (Play 'pending')");
+{
+  clock += 120_000;
+  G.subs.set(tok(70), gsub({ subscriptionState: "SUBSCRIPTION_STATE_PENDING" }));
+  const acks0 = G.acks.filter(t => t === tok(70)).length;
+  let r = await gverify("ppa", tok(70));
+  const v = await view("ppa");
+  ok("PP1 · Google says PENDING: bound, no Premium, the view says payment_pending (not 'ended'), and it is NOT acknowledged", r.status === 200 && !v.paid && v.state === "payment_pending" && G.acks.filter(t => t === tok(70)).length === acks0, JSON.stringify(v));
+  G.subs.get(tok(70)).subscriptionState = "SUBSCRIPTION_STATE_ACTIVE";
+  await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 4, purchaseToken: tok(70), subscriptionId: "premium_monthly" } }, "m-pp2");
+  ok("PP2 · the payment completes: Play's notification turns it into Premium and the server acknowledges it then", (await view("ppa")).paid && G.subs.get(tok(70)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED");
+  G.subs.set(tok(71), gsub({ subscriptionState: "SUBSCRIPTION_STATE_PENDING" }));
+  await gverify("pec", tok(71));
+  G.subs.get(tok(71)).subscriptionState = "SUBSCRIPTION_STATE_EXPIRED";
+  await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 20, purchaseToken: tok(71), subscriptionId: "premium_monthly" } }, "m-pp3");
+  ok("PP3 · the pending payment is cancelled: still Free, never acknowledged, token erased", !(await view("pec")).paid && G.subs.get(tok(71)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_PENDING" && env.DB.raw.prepare("SELECT secret_ref FROM purchase_links WHERE uid='pec'").get().secret_ref === null);
 }
 
 rmSync(dir, { recursive: true, force: true });

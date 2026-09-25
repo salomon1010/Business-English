@@ -214,6 +214,23 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ok("C11 · next launch on a Premium account: the silent reconcile still runs and the purchase is acknowledged — no 3-day refund", calls.includes("POST /v1/purchases/restore") && SUBS.get("tok_moe_" + "o".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED" && await p.evaluate(() => entIsPremiumForDisplay() && __play.shows === 0), calls.join());
   await ctx.close();
 
+  /* C12-C13 (Phase 11): Play accepts a slow payment method (cash) — the
+     subscription is PENDING until it is paid. No Premium, no "Premium is on",
+     no acknowledge; the next launch after payment gives Premium. */
+  SUBS.set("tok_pax_" + "p".repeat(20), gsub({ subscriptionState: "SUBSCRIPTION_STATE_PENDING" }));
+  ({ ctx, p } = await open({ uid: "pax" }));
+  await p.evaluate(() => { document.querySelector("details.set-plan").open = true; __play.next = { token: "tok_pax_" + "p".repeat(20), cancel: false }; });
+  await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(300);
+  c = await card(p);
+  const pp = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), state: entView().state }));
+  ok("C12 · payment pending: 'still being processed… no need to buy again', never 'Premium is on' or 'ended', still Free, not acknowledged", /still being processed/.test(c.text) && !/Premium is on|has ended/.test(c.text) && !pp.prem && pp.state === "payment_pending" && SUBS.get("tok_pax_" + "p".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_PENDING", c.text + " " + JSON.stringify(pp));
+  await ctx.close();
+  SUBS.get("tok_pax_" + "p".repeat(20)).subscriptionState = "SUBSCRIPTION_STATE_ACTIVE";
+  ({ ctx, p } = await open({ uid: "pax", pre: () => { __play.owned = [{ itemId: "premium_monthly", purchaseToken: "tok_pax_" + "p".repeat(20) }]; } }));
+  await sleep(800);
+  ok("C13 · once the store confirms the payment, the next launch gives Premium and the purchase is acknowledged", await p.evaluate(() => entIsPremiumForDisplay()) && SUBS.get("tok_pax_" + "p".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED");
+  await ctx.close();
+
   /* C3: another account on the same device never sees the last one's message */
   ({ ctx, p } = await open({ uid: "lea" }));
   await p.evaluate(() => { Billing.note = t("acc.prem_bound"); Billing.state = "failed"; Billing._draw(); });
