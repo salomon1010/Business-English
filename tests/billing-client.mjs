@@ -24,13 +24,17 @@ const DAY = 864e5, NOW = Date.now(), iso = ms => new Date(ms).toISOString();
 
 /* ---- fake Google behind the real Worker */
 const sa = generateKeyPairSync("rsa", { modulusLength: 2048 });
-const SUBS = new Map();
+const SUBS = new Map(), GACK = { down: false };
 const gsub = (o = {}) => ({ subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", startTime: iso(NOW - DAY), acknowledgementState: "ACKNOWLEDGEMENT_STATE_PENDING", lineItems: [{ productId: "premium_monthly", expiryTime: iso(NOW + 30 * DAY) }], ...o });
 async function googleFetch(url, init = {}) {
   const u = String(url);
   if (u === "https://oauth2.googleapis.com/token") return new Response(JSON.stringify({ access_token: "g", expires_in: 3600 }), { status: 200 });
   const m = /subscriptionsv2\/tokens\/([^/:]+)$/.exec(u); if (m) { const s = SUBS.get(decodeURIComponent(m[1])); return s ? new Response(JSON.stringify(s)) : new Response("{}", { status: 404 }); }
-  if (/:acknowledge$/.test(u)) return new Response("{}");
+  if (/:acknowledge$/.test(u)) {   /* GACK.down: Google fails the acknowledge only */
+    if (GACK.down) return new Response("{}", { status: 503 });
+    const t = /tokens\/([^/:]+):acknowledge$/.exec(u), s = t && SUBS.get(decodeURIComponent(t[1]));
+    if (s) s.acknowledgementState = "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED"; return new Response("{}");
+  }
   return new Response("{}", { status: 599 });
 }
 function d1() {
@@ -193,6 +197,21 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   await sleep(800);   /* nothing is called by the test: Billing.init() at sign-in runs the reconcile */
   const k2 = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), shows: __play.shows }));
   ok("C2 · next launch: the silent reconcile claims the purchase Play holds — Premium, with no purchase sheet and no tap", k2.prem && k2.shows === 0, JSON.stringify(k2));
+  await ctx.close();
+
+  /* C10-C11: the server granted Premium but Google's acknowledge failed.
+     Premium does not stop the launch reconcile: it re-sends what Play holds,
+     and the server acknowledges it before Play's 3-day refund. */
+  SUBS.set("tok_moe_" + "o".repeat(20), gsub());
+  ({ ctx, p } = await open({ uid: "moe" }));
+  await p.evaluate(() => { document.querySelector("details.set-plan").open = true; __play.next = { token: "tok_moe_" + "o".repeat(20), cancel: false }; });
+  GACK.down = true; await p.evaluate(() => Billing.buy("premium_monthly")); GACK.down = false; await sleep(300);
+  const m1 = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), done: __play.completes.slice() }));
+  ok("C10 · the acknowledge alone fails: the learner still gets Premium at once (Play told 'success'), and Google still holds it unacknowledged", m1.prem && m1.done.join() === "success" && SUBS.get("tok_moe_" + "o".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_PENDING", JSON.stringify(m1));
+  await ctx.close();
+  let calls; ({ ctx, p, calls } = await open({ uid: "moe", pre: () => { __play.owned = [{ itemId: "premium_monthly", purchaseToken: "tok_moe_" + "o".repeat(20) }]; } }));
+  await sleep(800);
+  ok("C11 · next launch on a Premium account: the silent reconcile still runs and the purchase is acknowledged — no 3-day refund", calls.includes("POST /v1/purchases/restore") && SUBS.get("tok_moe_" + "o".repeat(20)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED" && await p.evaluate(() => entIsPremiumForDisplay() && __play.shows === 0), calls.join());
   await ctx.close();
 
   /* C3: another account on the same device never sees the last one's message */

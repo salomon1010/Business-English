@@ -336,6 +336,27 @@ console.log("\n# Phase 10 — limits and the lost-purchase path");
   r = await call("POST", "/v1/purchases/restore", { uid: "xan", body: { provider: "google_play", items: [{ purchaseToken: tok(32), productId: "premium_monthly" }] } });
   const vx = await view("xan");
   ok("Q9 · the app's silent reconcile on the next launch (a restore of what Play says the device owns) claims it: Premium, and Google is acknowledged — no 3-day refund", r.status === 200 && vx.paid && vx.source === "google_play" && G.acks.filter(t => t === tok(32)).length === acks0 + 1, JSON.stringify(vx));
+
+  /* verify binds, but only the ACKNOWLEDGE call fails: the account is Premium,
+     so the app's reconcile is not what brings it back — a notification or the
+     next launch must, or Play refunds after 3 days */
+  clock += 60_000;
+  G.subs.set(tok(33), gsub());
+  deps.fetch = async (u, i) => /:acknowledge$/.test(String(u)) ? new Response("{}", { status: 503 }) : realFetch(u, i);
+  r = await gverify("yul", tok(33));
+  deps.fetch = realFetch;
+  ok("Q10 · verify with only the acknowledge failing: Premium at once, and Google still holds the purchase unacknowledged", r.status === 200 && (await view("yul")).paid && G.subs.get(tok(33)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_PENDING");
+  r = await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 4, purchaseToken: tok(33), subscriptionId: "premium_monthly" } }, "m-q11");
+  ok("Q11 · Play's notification for that bound, unacknowledged purchase acknowledges it", r.status === 200 && G.subs.get(tok(33)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED", G.subs.get(tok(33)).acknowledgementState);
+  G.subs.set(tok(34), gsub());
+  deps.fetch = async (u, i) => /:acknowledge$/.test(String(u)) ? new Response("{}", { status: 503 }) : realFetch(u, i);
+  await gverify("zed", tok(34));
+  deps.fetch = realFetch;
+  r = await call("POST", "/v1/purchases/restore", { uid: "zed", body: { provider: "google_play", items: [{ purchaseToken: tok(34), productId: "premium_monthly" }] } });
+  ok("Q12 · a Premium account's launch reconcile re-sends the purchase and the server acknowledges it", r.status === 200 && G.subs.get(tok(34)).acknowledgementState === "ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED" && (await view("zed")).paid);
+  const acks1 = G.acks.filter(t => t === tok(34)).length;
+  await call("POST", "/v1/purchases/restore", { uid: "zed", body: { provider: "google_play", items: [{ purchaseToken: tok(34), productId: "premium_monthly" }] } });
+  ok("Q13 · once acknowledged, re-sending it asks Google again but never acknowledges twice", G.acks.filter(t => t === tok(34)).length === acks1 && env.DB.raw.prepare("SELECT count(*) n FROM purchase_links WHERE uid='zed'").get().n === 1);
 }
 
 rmSync(dir, { recursive: true, force: true });

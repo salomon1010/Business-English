@@ -42,6 +42,7 @@ added no features.
 | 9 | server | No rate limit on the purchase routes, and each call costs a Google or Apple API request. | One signed-in account could spend the app's store API quota. | 10 calls per account per minute on `verify`, `restore` and `account-token`, then `429 rate`, **before** any store call. A D1 counter in migration 0004. | Q2–Q6 |
 | 10 | tests | The harnesses listed migrations by hand. | Phase 9's migration broke `ads.mjs` once. | All four harnesses apply every file in `migrations/`. | — |
 | 11 | docs | The bridge comment said `restore()` is `currentEntitlements`. | A plugin written from it would restore without `AppStore.sync`, or sync without a tap. | Corrected in index.html and the ADR, and `currentEntitlements()` was added to the bridge contract. | — |
+| 12 | app + server | Found at the final gate. The verify granted Premium, but Google's **acknowledge** call failed: `acknowledge()` returns `false` and `afterBind` swallows it. The reconcile (defect 1) skipped Premium accounts, and a Play notification never ran `afterBind`. | Nothing retried the acknowledge. Play refunds and revokes after 3 days, so the learner loses a subscription they bought. | The reconcile runs once per account per launch whether or not the account is Premium; this is Google's own advice to check `listPurchases` on every launch. A Play notification for a bound purchase now runs `afterBind` too. The server never acknowledges twice, because `needsAck` comes from Google's own state. | Q10–Q13 · C10–C11 (Q11 and C11 failed before the fix) |
 
 **Reviewed and not a defect.** The Arabic `pro.one_attempt` has no `{{n}}`.
 It reads "one attempt" (محاولة واحدة), which is the correct Arabic singular.
@@ -82,8 +83,8 @@ the Arabic singular noted above.
 ## Handover to Phase 11 (Store Preparation)
 
 1. Privacy policy: a section on purchases (what the stores share, what we
-   keep: the Play purchase token itself (kept to acknowledge and re-check the
-   purchase; its SHA-256 is the lookup key), Apple's original transaction id,
+   keep: the Play purchase token itself (`secret_ref`; its SHA-256 is the
+   lookup key; see "Stored Play token" below: no code reads it today), Apple's original transaction id,
    the product, the plan and its dates; all erased by account deletion). Decide whether to have our own Terms or rely on the store
    EULAs.
 2. Play Console:
@@ -99,3 +100,42 @@ the Arabic singular noted above.
    - deploy;
    - set `ENT_API`;
    - then turn on `billing_enabled` for internal testers only (`?flags=`).
+
+## Stored Play token (`purchase_links.secret_ref`), reviewed at the final gate
+
+- **What and where.** The raw Play purchase token is stored in D1
+  `purchase_links.secret_ref`. It is written by the verify, restore and
+  notification routes (`bindLink`), and `COALESCE` keeps the first value.
+- **Read by no code path.** Nothing selects `secret_ref`. `recompute()`
+  does run `SELECT *`, but it copies only the plan fields. Every Google call
+  (`subscriptionsv2.get`, `acknowledge`) uses the token that arrived in the
+  same request, from the app or from Play's notification. The earlier line
+  "kept to acknowledge and re-check" described a use the code does not have.
+- **At rest.** D1 encrypts everything with AES-256-GCM (Cloudflare's platform
+  encryption; there is no application-level encryption). Anyone with D1
+  access on the Cloudflare account, `wrangler d1 export` or a Time Travel
+  restore can read it.
+- **Never leaves the server.** It is not in any response (tests G3, P6), not
+  in the audit table, and not in any error code. The only `console.error` is
+  the top-level catch. Every Google `fetch`, whose URL contains the token, is
+  inside a try/catch that returns a code, so no URL reaches that log. No
+  Workers observability or tail is configured.
+- **Reuse if the database leaks.** The token alone cannot be used with Google:
+  that needs our service-account key, a Worker secret that is not in D1.
+  Against our own API, first-bind-wins means a stolen token only gets
+  `bound_elsewhere`. The exception is a token whose account was deleted
+  (`DELETE /v1/me` frees it; test P5): anyone holding it could claim a
+  subscription that is still active.
+- **Retention.** Account deletion removes the row. Superseded (upgrade),
+  expired and revoked links keep the token indefinitely. D1 Time Travel keeps
+  deleted rows restorable for 30 days (Workers Paid) or 7 days (Free).
+- **Replay and idempotency.** Binding is first-wins and atomic (G4, G5), and
+  Pub/Sub message ids are de-duplicated (N6). An acknowledged purchase is
+  never acknowledged again (Q13).
+- **Verdict.** It is not exposed, but there is no reason to keep it: nothing
+  reads it. It was left unchanged at this gate, as instructed. The owner
+  should decide one of these before billing goes live (Phase 11):
+  1. stop storing it (write `NULL`), which removes the risk entirely; or
+  2. keep it for a future server-side re-check job, and clear it when a link
+     is superseded, revoked or expired. The privacy policy would then also
+     have to state the Time Travel window.

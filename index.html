@@ -19651,10 +19651,13 @@ const Billing={
   /* A purchase the store holds but our server never confirmed (the app lost
      its connection between the store and us) is sent again, silently, once per
      account per session. Without it an unacknowledged Play purchase is
-     refunded after three days while the learner stays on Free. */
+     refunded after three days while the learner stays on Free.
+     It runs for a Premium account too: the verify can grant Premium and still
+     fail to acknowledge, and this is the next chance (Google's own advice is
+     to check listPurchases on every launch). The server never acknowledges twice. */
   async reconcile(){
     const uid=FBUser&&FBUser.uid;
-    if(!this.provider||!uid||this._reconciled===uid||entIsPremiumForDisplay()||this.state==="purchasing"||this.state==="restoring")return;
+    if(!this.provider||!uid||this._reconciled===uid||this.state==="purchasing"||this.state==="restoring")return;
     this._reconciled=uid;
     try{
       const items=this.provider.owned?await this.provider.owned():[];

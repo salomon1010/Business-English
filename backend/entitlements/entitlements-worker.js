@@ -290,6 +290,9 @@ export async function handle(req, env, deps = {}) {
         if (!uid) continue;                                        /* a purchase no account has bound yet: nothing to change */
         if (u.revoke) await q(env, "UPDATE purchase_links SET status='revoked', will_renew=0, updated_at=? WHERE provider=? AND ext_id=?", now, u.provider, u.ext_id).run();
         else if (!(await bindLink(env, uid, u)).ok) continue;
+        /* a bound purchase still unacknowledged (the verify's acknowledge failed):
+           this notification is a second chance before Play's 3-day refund */
+        else if (p.afterBind) await p.afterBind(u, { env, deps, now });
         await audit(env, now, uid, "provider:" + p.id, u.revoke ? "revoke" : "notification", u.revoke ? { status: "revoked" } : u.record);
         touched.add(uid);
       }
