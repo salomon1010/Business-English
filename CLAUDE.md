@@ -313,7 +313,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   `entitlement_*` in be-events with an ENUM guard (unknown value → blank, so a
   token can never land); client calls in `Billing` + `entNoteChange`.
   `[env.staging]` for be-entitlements + `beEnv().entitlements` (staging host
-  only), not deployed. privacy.html §5b (purchases) + §7b (ads). Test harnesses apply every file in `migrations/`.
+  only). privacy.html §5b (purchases) + §7b (ads).
+  **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
+  Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
+  staging-only `PLAY_TOKEN_KEY` / `APP_ACCOUNT_SECRET` set; `GOOGLE_SA_JSON` and
+  RTDN vars NOT set (501 until then). Observability OFF in wrangler.toml
+  (traces would record the token-bearing Google URL). Notification delegation
+  must stay ON: Bubblewrap's DelegationService (enabled only by
+  enableNotifications) hosts the DigitalGoodsRequestHandler. Two bundles:
+  staging host (`playstore/twa-manifest.staging.json`) = internal vc 9;
+  production host must be rebuilt as vc 10 at release. No production
+  entitlement Worker/D1 exists yet. Test harnesses apply every file in `migrations/`.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

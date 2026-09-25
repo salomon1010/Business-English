@@ -16,6 +16,11 @@ compatibility_date = "2026-09-01"
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost"
 
+# Observability OFF, explicitly: Workers traces record outbound fetch URLs,
+# and the Google Play API URL carries the purchase token (Phase 10/11 review).
+[observability]
+enabled = false
+
 [[d1_databases]]
 binding = "DB"
 database_name = "be-entitlements"
@@ -52,8 +57,10 @@ PLAY_PACKAGE = "com.bemastery.app"
 # RTDN_AUDIENCE / RTDN_SA_EMAIL: set once the staging Pub/Sub push subscription exists
 APPLE_BUNDLE_ID = "com.bemastery.app"
 APPLE_ENVIRONMENTS = "Sandbox"
+[env.staging.observability]
+enabled = false
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "be-entitlements-staging"
-database_id = "REPLACE-WITH-STAGING-D1-ID"
+database_id = "09dd4913-4193-4893-bb75-91ba6a906584"   # be-entitlements-staging, created 2026-09-25
 migrations_dir = "migrations"
