@@ -5965,6 +5965,11 @@ const I18N_EN={
  "acc.prem_ended_generic":"Your Premium has ended.",
  "acc.prem_bound":"This purchase belongs to another BE Mastery account.",
  "acc.prem_unavailable":"Purchases are not available right now.",
+ "acc.prem_pending_verify":"Your payment went through, but we could not confirm it yet. It will be checked again next time you open the app — or tap Restore purchases.",
+ "acc.prem_manage_elsewhere":"Your subscription is managed in {{store}}.",
+ "acc.prem_terms":"The subscription renews automatically until you cancel it in {{store}}. Payment is taken by {{store}}.",
+ "acc.prem_privacy_link":"Privacy policy",
+ "acc.prem_eula_link":"Terms of use (EULA)",
  "ad.label":"Advertisement",
  "ad.close":"Close the advertisement",
  "ad.continue":"Continue to BE Mastery",
@@ -19262,9 +19267,13 @@ function entPlanCardHTML(){
     if(!FBUser)store=`<button type="button" class="btn-primary" style="margin-top:12px" onclick="fbOpenModal()">${esc(t("acc.prem_signin"))}</button>`;
     else if(B.state==="loading")store=`<p class="sub" role="status" style="margin-top:10px">${esc(t("acc.prem_loading"))}</p>`;
     else store=`<div class="ent-offers" style="display:grid;gap:8px;margin-top:12px">${B.products.map(p=>`<button type="button" class="btn-primary ent-buy" ${B.state==="purchasing"||B.state==="restoring"?"disabled":""} onclick="Billing.buy('${esc(p.id)}')">${esc(t("acc.prem_get"))} · ${esc(p.title)} · ${esc(p.price)}</button>`).join("")}</div>
-      <button type="button" class="btn btn-g" style="margin-top:8px;min-height:44px" ${B.state==="restoring"?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
+      <button type="button" class="btn btn-g" style="margin-top:8px;min-height:44px" ${B.state==="restoring"||B.state==="purchasing"?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
+    /* store rules (Apple 3.1.2, Play subscriptions policy): renewal terms and the legal links sit beside the offer */
+    if(FBUser&&B.state!=="loading"&&B.products.length){const sn=B.provider.id==="app_store"?"App Store":"Google Play";
+      store+=`<p class="sub ent-terms" style="margin-top:10px;font-size:12px">${esc(t("acc.prem_terms",{store:sn}))} <a href="privacy.html" target="_blank" rel="noopener">${esc(t("acc.prem_privacy_link"))}</a>${B.provider.id==="app_store"?` · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">${esc(t("acc.prem_eula_link"))}</a>`:""}</p>`}
   }
-  if(live&&prem&&v.source&&(v.source==="google_play"||v.source==="app_store"))store=`<button type="button" class="btn btn-g" style="margin-top:12px;min-height:44px" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`;
+  if(live&&prem&&v.source===B.provider.id)store=`<button type="button" class="btn btn-g" style="margin-top:12px;min-height:44px" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`;
+  else if(live&&prem&&(v.source==="google_play"||v.source==="app_store"))store=`<p class="sub" style="margin-top:10px">${esc(t("acc.prem_manage_elsewhere",{store:v.source==="google_play"?"Google Play":"App Store"}))}</p>`;
   const note=B&&B.note?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(B.state==="purchasing"?t("acc.prem_buying"):B.state==="restoring"?t("acc.prem_restoring"):B.note)}</p>`:(B&&(B.state==="purchasing"||B.state==="restoring")?`<p class="sub ent-note" role="status" style="margin-top:8px">${esc(t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"))}</p>`:"");
   return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
@@ -19564,8 +19573,11 @@ const AdManager={
      supports() → true
      getProducts(ids) → [{ id, title, displayPrice }]            StoreKit Product
      purchase(id, { appAccountToken }) → { signedTransaction, signedRenewalInfo? } | { cancelled:true }
-     restore() → [{ signedTransaction, signedRenewalInfo? }]      Transaction.currentEntitlements
-     manageSubscriptions()                                       AppStore.showManageSubscriptions */
+     restore() → [{ signedTransaction, signedRenewalInfo? }]      AppStore.sync(), then currentEntitlements
+                                                                 (may ask for the Apple ID — only from a tap)
+     manageSubscriptions()                                       AppStore.showManageSubscriptions
+     currentEntitlements() → [{signedTransaction,signedRenewalInfo}]   Transaction.currentEntitlements
+                                                                 (silent — the launch reconcile; optional) */
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
 const BillingProviders={
@@ -19583,9 +19595,13 @@ const BillingProviders={
       /* the amount is Play's to decide; Payment Request requires a placeholder total */
       const req=new PaymentRequest([{supportedMethods:PLAY_BILLING_METHOD,data:{sku:id}}],{total:{label:"Total",amount:{currency:"USD",value:"0"}}});
       let resp;try{resp=await req.show()}catch(e){return {cancelled:true}}
-      return {evidence:{provider:"google_play",productId:id,purchaseToken:resp.details&&resp.details.purchaseToken},finish:ok=>{try{resp.complete(ok?"success":"fail")}catch(e){}}};
+      /* finish(true|false|"unknown"): "unknown" when our server could not be
+         reached — the payment may well have gone through, so never say "fail" */
+      return {evidence:{provider:"google_play",productId:id,purchaseToken:resp.details&&resp.details.purchaseToken},finish:ok=>{try{resp.complete(ok==="unknown"?"unknown":ok?"success":"fail")}catch(e){}}};
     },
     async restore(){const l=await this._svc.listPurchases();return (l||[]).filter(p=>BILLING_PRODUCTS.includes(p.itemId)).map(p=>({purchaseToken:p.purchaseToken,productId:p.itemId}))},
+    /* what this device owns, with no prompt — Play's listPurchases is silent */
+    async owned(){return this.restore()},
     manage(product){window.open("https://play.google.com/store/account/subscriptions?package=com.bemastery.app"+(product?"&sku="+encodeURIComponent(product):""),"_blank")},
   },
   storekit:{
@@ -19599,6 +19615,10 @@ const BillingProviders={
       return {evidence:{provider:"app_store",signedTransaction:r.signedTransaction,signedRenewalInfo:r.signedRenewalInfo},finish(){}};
     },
     async restore(){const l=await window.BENativeBilling.restore();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))},
+    /* silent: Transaction.currentEntitlements (restore() = AppStore.sync, which can
+       prompt for the Apple ID, so it is never called without a tap) */
+    async owned(){if(typeof window.BENativeBilling.currentEntitlements!=="function")return [];
+      const l=await window.BENativeBilling.currentEntitlements();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))},
     manage(){try{window.BENativeBilling.manageSubscriptions()}catch(e){}},
   },
 };
@@ -19613,32 +19633,58 @@ async function billingApi(method,path,body){
 function billingTakeView(v){if(!v)return;const s=entSanitize(v);_entView=s;_entUid=entUid();try{localStorage.setItem(ENT_CACHE_KEY,JSON.stringify({uid:_entUid,at:Date.now(),view:s}))}catch(e){}entApply()}
 
 const Billing={
-  state:"idle",products:[],provider:null,note:"",
+  state:"idle",products:[],provider:null,note:"",_uid:null,_reconciled:null,
   async init(){
+    /* a different account (or none) never sees the last one's purchase message */
+    const uid=FBUser?FBUser.uid:null;
+    if(uid!==this._uid){this._uid=uid;this.state="idle";this.note=""}
     if(!flag("billing_enabled")||!entApiBase()){this.provider=null;return}
-    for(const p of [BillingProviders.storekit,BillingProviders.play])if(await p.available()){this.provider=p;break}
+    if(!this.provider)for(const p of [BillingProviders.storekit,BillingProviders.play])if(await p.available()){this.provider=p;break}
     if(!this.provider||!FBUser)return this._draw();
     this.state="loading";this._draw();
-    try{this.products=await this.provider.products();this.state="ready"}catch(e){this.state="failed";this.note=t("acc.prem_unavailable")}
+    try{this.products=await this.provider.products();this.state="ready";
+      if(!this.products.length){this.state="failed";this.note=t("acc.prem_unavailable")}
+    }catch(e){this.products=[];this.state="failed";this.note=t("acc.prem_unavailable")}
     this._draw();
+    this.reconcile();
+  },
+  /* A purchase the store holds but our server never confirmed (the app lost
+     its connection between the store and us) is sent again, silently, once per
+     account per session. Without it an unacknowledged Play purchase is
+     refunded after three days while the learner stays on Free. */
+  async reconcile(){
+    const uid=FBUser&&FBUser.uid;
+    if(!this.provider||!uid||this._reconciled===uid||entIsPremiumForDisplay()||this.state==="purchasing"||this.state==="restoring")return;
+    this._reconciled=uid;
+    try{
+      const items=this.provider.owned?await this.provider.owned():[];
+      if(!items.length)return;
+      const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
+      if(FBUser&&FBUser.uid===uid){billingTakeView(j.view);this._draw()}
+    }catch(e){this._reconciled=null}   /* try again on the next sign-in / launch */
   },
   async buy(id){
-    if(!this.provider||this.state==="purchasing")return;
+    if(!this.provider||this.state==="purchasing"||this.state==="restoring")return;
     this.state="purchasing";this.note="";this._draw();
-    let r;try{r=await this.provider.purchase(id)}catch(e){r=null}
+    let r;try{r=await this.provider.purchase(id)}catch(e){r={error:e}}
     if(!r||r.cancelled){this.state="ready";this._draw();return}
+    if(r.error){this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
       r.finish(true);billingTakeView(j.view);this.state="success";this.note=t("acc.prem_success");
     }catch(e){
-      r.finish(false);this.state="failed";
-      this.note=e.code==="bound_elsewhere"||e.code==="account_mismatch"?t("acc.prem_bound"):t("acc.prem_failed");
+      /* the store took the payment; only OUR answer is missing (offline, 5xx):
+         say so, keep the purchase for the next launch's reconcile */
+      const transient=!e.status||e.status>=500||e.status===429;
+      r.finish(transient?"unknown":false);this.state="failed";
+      this.note=transient?t("acc.prem_pending_verify"):e.code==="bound_elsewhere"||e.code==="account_mismatch"?t("acc.prem_bound"):t("acc.prem_failed");
+      if(transient)this._reconciled=null;
       if(e.view)billingTakeView(e.view);
     }
     this._draw();
   },
   async restore(){
-    if(!this.provider)return;
+    if(!this.provider||this.state==="purchasing"||this.state==="restoring")return;
     this.state="restoring";this.note="";this._draw();
     try{
       const items=await this.provider.restore();
@@ -19650,7 +19696,8 @@ const Billing={
     }catch(e){this.state="failed";this.note=t("acc.prem_failed")}
     this._draw();
   },
-  manage(){if(this.provider)this.provider.manage()},
+  /* Manage opens the store that SOLD the plan; a plan from the other store is named, not opened */
+  manage(){const v=entView();if(this.provider&&v.source===this.provider.id)this.provider.manage(v.product)},
   _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML()},
 };
 

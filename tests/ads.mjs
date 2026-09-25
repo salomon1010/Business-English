@@ -12,7 +12,7 @@
    the Worker's DEV_AUTH header (token verification is tested in that Worker's
    suite). */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
-import { DatabaseSync } from "node:sqlite"; import { readFileSync } from "node:fs";
+import { DatabaseSync } from "node:sqlite"; import { readFileSync, readdirSync } from "node:fs";
 import { handle } from "../backend/entitlements/entitlements-worker.js";
 const root = new URL("..", import.meta.url).pathname;
 const PORT = 8087, BASE = `http://127.0.0.1:${PORT}/`;
@@ -23,7 +23,7 @@ const b = await chromium.launch();
 /* ---- the real entitlement Worker, in process */
 function d1() {
   const db = new DatabaseSync(":memory:");
-  for (const m of ["0001_entitlements.sql", "0002_rewards.sql", "0003_purchases.sql"]) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
+  for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
   return { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
 }
 let WENV = null;

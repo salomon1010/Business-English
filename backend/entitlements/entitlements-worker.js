@@ -72,6 +72,16 @@ const q = (env, sql, ...args) => env.DB.prepare(sql).bind(...args);
 const changes = r => (r && r.meta && Number(r.meta.changes)) || 0;
 const nonceHex = () => [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, "0")).join("");
 const dayStart = ms => ms - (ms % 86_400_000);
+/* request bodies: the largest real one is a restore of 20 StoreKit JWS pairs */
+export const MAX_BODY = 256 * 1024;
+/* purchase routes, per account per minute (each call costs a store API request) */
+export const PURCHASE_PER_MIN = 10;
+async function rateLimited(env, uid, now, max) {
+  const minute = Math.floor(now / 60_000);
+  const r = await q(env, "INSERT INTO rate_hits(uid,minute,n) VALUES(?,?,1) ON CONFLICT(uid,minute) DO UPDATE SET n=n+1 RETURNING n", uid, minute).first();
+  if (Math.random() < 0.05) await q(env, "DELETE FROM rate_hits WHERE minute<?", minute - 5).run();
+  return !!r && r.n > max;
+}
 async function balances(env, uid) {
   const r = await q(env, "SELECT kind, balance FROM reward_credits WHERE uid=?", uid).all();
   const o = {}; for (const row of (r && r.results) || []) o[row.kind] = row.balance; return o;
@@ -127,6 +137,9 @@ export async function handle(req, env, deps = {}) {
   const now = deps.now ? deps.now() : Date.now();
   const c = cors(req, env);
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: c });
+
+  const len = Number(req.headers.get("content-length") || 0);
+  if (len > MAX_BODY) return err(413, "too_large", c);
 
   if (req.method === "GET" && path === "/health") return json({ ok: true, dev: env.DEV_AUTH === "1" }, 200, c);
 
@@ -222,12 +235,14 @@ export async function handle(req, env, deps = {}) {
   if (path === "/v1/purchases/account-token" && req.method === "GET") {
     const uid = await authUid(req, env, deps); if (!uid) return err(401, "auth", c);
     if (!BILLING_PROVIDERS.app_store.configured(env)) return err(501, "not_configured", c);
+    if (await rateLimited(env, uid, now, PURCHASE_PER_MIN)) return err(429, "rate", c);
     const token = await appAccountToken(uid, env);
     await q(env, "INSERT OR IGNORE INTO app_accounts(token,uid,created_at) VALUES(?,?,?)", token, uid, now).run();
     return json({ appAccountToken: token }, 200, c);
   }
   if ((path === "/v1/purchases/verify" || path === "/v1/purchases/restore") && req.method === "POST") {
     const uid = await authUid(req, env, deps); if (!uid) return err(401, "auth", c);
+    if (await rateLimited(env, uid, now, PURCHASE_PER_MIN)) return err(429, "rate", c);
     let body; try { body = await req.json(); } catch (e) { return err(400, "json", c); }
     const p = BILLING_PROVIDERS[String((body && body.provider) || "")];
     if (!p) return err(400, "provider", c);

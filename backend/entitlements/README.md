@@ -111,3 +111,11 @@ else: it serves only `app.lomonec.com` and `capacitor://localhost`.
 `GOOGLE_SA_JSON`, `PLAY_PACKAGE`, `RTDN_AUDIENCE`, `RTDN_SA_EMAIL`, `APPLE_BUNDLE_ID`,
 `APPLE_ROOT_SHA256` (copy and check it from https://www.apple.com/certificateauthority/),
 `APPLE_ENVIRONMENTS`, `APP_ACCOUNT_SECRET`, `ADMOB_SSV_ENABLED`. Without them each route answers 501.
+
+**Phase 10 limits.** Every request with a `content-length` over `MAX_BODY`
+(256 KB) is refused with 413. The purchase routes (`verify`, `restore`,
+`account-token`) allow `PURCHASE_PER_MIN` (10) calls per account per minute,
+then answer `429 rate` without calling the store — a D1 counter in
+`rate_hits` (migration 0004). A Google failure is `502 google_api`; the app
+reads any 5xx / network failure after a store payment as "paid, not confirmed
+yet" and re-sends what the store holds at the next launch.

@@ -278,6 +278,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   `billing_enabled` OFF. `twa-manifest.json` has `playBilling` enabled (next
   AAB only). Android stays a TWA. **iPhone test passed 2026-09-24**
   (web behaviour only — no real purchase has been made on either store).
+  **Phase 10 QA (`feature/phase10-monetization-qa`,
+  `docs/PHASE10-QA-REPORT.md`):** `Billing.reconcile()` silently re-sends
+  what the store says the device owns when the account is not Premium (Play
+  `listPurchases`, StoreKit `currentEntitlements` — never `restore()`, which
+  can prompt); after a store payment any 5xx / network failure is "paid, not
+  confirmed yet" (`acc.prem_pending_verify`, Play told `"unknown"`, never
+  `"fail"`). Manage opens only the store that sold the plan. Renewal terms +
+  Privacy (+ Apple EULA on iOS) sit beside every offer (`.ent-terms`). Worker:
+  `MAX_BODY` 413, `PURCHASE_PER_MIN` 429 via `rate_hits` (migration 0004).
+  Tests: `tests/monetization-qa.mjs` (210-render matrix), billing-client 29,
+  Worker billing 69. Test harnesses apply every file in `migrations/`.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`

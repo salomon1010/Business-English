@@ -15,11 +15,11 @@
    What this cannot prove: that the live stores answer in exactly these
    shapes. That needs Play Console / App Store Connect sandbox testing. */
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os"; import { join } from "node:path";
 import { spawnSync } from "node:child_process";
 import { generateKeyPairSync, createSign, createVerify, sign as nodeSign, createHash, randomUUID, createPrivateKey } from "node:crypto";
-import { handle } from "../entitlements-worker.js";
+import { handle, MAX_BODY, PURCHASE_PER_MIN } from "../entitlements-worker.js";
 import { _resetTokenCache } from "../src/google-play.js";
 
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + detail}`); };
@@ -29,7 +29,7 @@ const b64u = b => Buffer.from(b).toString("base64url");
 
 function d1() {
   const db = new DatabaseSync(":memory:");
-  for (const m of ["0001_entitlements.sql", "0002_rewards.sql", "0003_purchases.sql"]) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
+  for (const m of readdirSync(new URL("../migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
   return { raw: db, prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
 }
 
@@ -303,6 +303,39 @@ console.log("\n# provider-neutral behaviour");
   ok("P5 · after deletion the purchase token is free to bind again (the buyer can sign up anew and restore)", r.status === 200);
   const keys = Object.keys(await view("sam")).sort().join();
   ok("P6 · the view stays provider-neutral: no token, transaction id, product id or account id", keys === "ads,capabilities,checkedAt,expiresAt,paid,plan,renews,source,startedAt,state", keys);
+}
+
+console.log("\n# Phase 10 — limits and the lost-purchase path");
+{
+  clock += 120_000;
+  let r = await call("POST", "/v1/purchases/verify", { uid: "tia", headers: { "content-length": String(MAX_BODY + 1) }, body: { provider: "google_play", purchaseToken: tok(30) } });
+  ok("Q1 · a request body over the cap is refused before it is read (413)", r.status === 413 && r.json.error === "too_large", r.status);
+  G.subs.set(tok(31), gsub());
+  const calls0 = G.apiCalls; let codes = [];
+  for (let i = 0; i < PURCHASE_PER_MIN + 1; i++) codes.push((await gverify("uma", tok(31))).status);
+  ok("Q2 · the purchase routes allow " + PURCHASE_PER_MIN + " calls per account per minute; the next one is 429", codes.slice(0, PURCHASE_PER_MIN).every(s => s === 200) && codes[PURCHASE_PER_MIN] === 429, codes.join());
+  const calls1 = G.apiCalls; await gverify("uma", tok(31));
+  ok("Q3 · a rate-limited call costs no store API request", G.apiCalls === calls1 && calls1 > calls0);
+  r = await call("POST", "/v1/purchases/restore", { uid: "vic", body: { provider: "google_play", items: [] } });
+  ok("Q4 · the limit is per account: another learner in the same minute is served", r.status === 400 && r.json.error === "items");
+  clock += 60_000;
+  ok("Q5 · the next minute the account is served again", (await gverify("uma", tok(31))).status === 200);
+  codes = []; for (let i = 0; i < PURCHASE_PER_MIN + 1; i++) codes.push((await call("GET", "/v1/purchases/account-token", { uid: "wes" })).status);
+  ok("Q6 · the StoreKit account-token route is limited the same way", codes[PURCHASE_PER_MIN] === 429 && codes[0] === 200, codes.join());
+
+  /* the app lost its connection between Play and us: Google holds a paid, unacknowledged purchase no account has claimed */
+  clock += 60_000;
+  G.subs.set(tok(32), gsub());
+  const realFetch = deps.fetch; deps.fetch = async (u, i) => /androidpublisher/.test(String(u)) ? new Response("{}", { status: 503 }) : realFetch(u, i);
+  r = await gverify("xan", tok(32));
+  deps.fetch = realFetch;
+  ok("Q7 · Google failing (5xx) is a 502 'google_api', never a 500 or a refusal — the app reads it as 'payment safe, not confirmed yet'", r.status === 502 && r.json.error === "google_api" && !(await view("xan")).paid, JSON.stringify(r.json));
+  r = await rtdn({ subscriptionNotification: { version: "1.0", notificationType: 4, purchaseToken: tok(32), subscriptionId: "premium_monthly" } }, "m-q8");
+  ok("Q8 · Play's PURCHASED notification for a purchase no account has claimed: 200, nothing bound (the token alone names no account)", r.status === 200 && env.DB.raw.prepare("SELECT count(*) n FROM purchase_links WHERE secret_ref=?").get(tok(32)).n === 0);
+  const acks0 = G.acks.filter(t => t === tok(32)).length;
+  r = await call("POST", "/v1/purchases/restore", { uid: "xan", body: { provider: "google_play", items: [{ purchaseToken: tok(32), productId: "premium_monthly" }] } });
+  const vx = await view("xan");
+  ok("Q9 · the app's silent reconcile on the next launch (a restore of what Play says the device owns) claims it: Premium, and Google is acknowledged — no 3-day refund", r.status === 200 && vx.paid && vx.source === "google_play" && G.acks.filter(t => t === tok(32)).length === acks0 + 1, JSON.stringify(vx));
 }
 
 rmSync(dir, { recursive: true, force: true });

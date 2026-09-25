@@ -90,7 +90,10 @@ Context, Options, Trade-offs, Decision, Consequences, Future alternative.
   fulfil and build everything that is not native:
   - **Client bridge contract** `window.BENativeBilling`: `getProducts(ids)`,
     `purchase(id, {appAccountToken})` → `{signedTransaction,
-    signedRenewalInfo}`, `restore()`, `manageSubscriptions()`. Documented at
+    signedRenewalInfo}`, `restore()`, `manageSubscriptions()`, and (Phase 10)
+    `currentEntitlements()` — StoreKit's `Transaction.currentEntitlements`,
+    which never prompts, used for the silent reconcile at launch; `restore()`
+    is `AppStore.sync` and is only ever called from a tap. Documented at
     the BILLING block in index.html. It is honoured only when `IS_IOS_APP` is
     true.
   - **Server:** verification of StoreKit 2 signed transactions and App Store
@@ -314,9 +317,16 @@ payment credential), and Apple's `originalTransactionId`.
 - **Google:** `listPurchases()` in the TWA → `POST /v1/purchases/restore
   {provider, items}`. Each item is re-verified with Google and binds under
   rule 1.
-- **Apple:** `restore()` returns `Transaction.currentEntitlements` as signed
-  transactions → the same route. Each item must carry this account's
+- **Apple:** `restore()` runs `AppStore.sync()` (it may ask for the Apple
+  ID, so only from a tap), then returns `Transaction.currentEntitlements` as
+  signed transactions → the same route. Each item must carry this account's
   appAccountToken.
+- **Silent reconcile (Phase 10):** at sign-in / launch, when the account is
+  not Premium, the app sends what the store says this device owns — Play's
+  `listPurchases()`, StoreKit's `currentEntitlements()` — without any
+  prompt, once per account per session. This recovers a purchase the store
+  took while our server was unreachable, before Play's 3-day
+  acknowledgement deadline.
 - The response says only how many bound; it names no ids.
 
 ## 13. Cancellation
@@ -384,7 +394,7 @@ payment credential), and Apple's `originalTransactionId`.
   - an in-app purchase key (`.p8`) for the Server API (later);
   - sandbox testers.
 - **be-entitlements:**
-  - D1 plus migrations 0001–0003;
+  - D1 plus migrations 0001–0004 (0004, Phase 10: `rate_hits`);
   - secrets `GOOGLE_SA_JSON`, `APP_ACCOUNT_SECRET` and `ADMIN_TOKEN`;
   - vars `PLAY_PACKAGE`, `RTDN_AUDIENCE`, `RTDN_SA_EMAIL`, `APPLE_BUNDLE_ID`,
     `APPLE_ROOT_SHA256` (copied and checked from Apple PKI),

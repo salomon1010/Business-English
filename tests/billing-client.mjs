@@ -12,7 +12,7 @@
    purchase tokens — that needs a Play Console internal-testing track.
    iOS StoreKit needs Xcode + a StoreKit plugin (not on this Mac). */
 import { chromium } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises";
-import { DatabaseSync } from "node:sqlite"; import { readFileSync } from "node:fs"; import { generateKeyPairSync } from "node:crypto";
+import { DatabaseSync } from "node:sqlite"; import { readFileSync, readdirSync } from "node:fs"; import { generateKeyPairSync } from "node:crypto";
 import { handle } from "../backend/entitlements/entitlements-worker.js";
 import { _resetTokenCache } from "../backend/entitlements/src/google-play.js";
 const root = new URL("..", import.meta.url).pathname;
@@ -35,7 +35,7 @@ async function googleFetch(url, init = {}) {
 }
 function d1() {
   const db = new DatabaseSync(":memory:");
-  for (const m of ["0001_entitlements.sql", "0002_rewards.sql", "0003_purchases.sql"]) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
+  for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
   return { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
 }
 const WENV = { DB: d1(), FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", GOOGLE_SA_JSON: JSON.stringify({ client_email: "x@y.iam.gserviceaccount.com", private_key: sa.privateKey.export({ type: "pkcs8", format: "pem" }) }), PLAY_PACKAGE: "com.bemastery.app" };
@@ -53,14 +53,17 @@ const PLAY_STUB = () => {
     async show() { window.__play.shows++; if (window.__play.next.cancel) throw new DOMException("cancelled", "AbortError");
       return { details: { purchaseToken: window.__play.next.token }, complete: r => window.__play.completes.push(r) }; } };
 };
-async function open({ track = "general-english", flags = { billing_enabled: true }, stub = true, vp = { width: 390, height: 844 }, uid = null } = {}) {
+const NET = { down: false };   /* true: our server is unreachable (the request is aborted) */
+async function open({ track = "general-english", flags = { billing_enabled: true }, stub = true, vp = { width: 390, height: 844 }, uid = null, pre = null } = {}) {
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block" });
   await ctx.addInitScript(([s, f]) => { localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://ent.test"); if (f) localStorage.setItem("be_flags", JSON.stringify(f)); }, [seed(track), flags]);
   if (stub) await ctx.addInitScript(PLAY_STUB);
+  if (pre) await ctx.addInitScript(pre);
   await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
   const calls = [];
   await ctx.route("http://ent.test/**", async r => {
     const q = r.request(), h = { ...q.headers() }; calls.push(q.method() + " " + new URL(q.url()).pathname);
+    if (NET.down && /\/v1\/purchases\//.test(q.url())) return r.abort("internetdisconnected");
     const m = /^Bearer test-token-(.+)$/.exec(h.authorization || ""); if (m) { h["x-dev-user"] = m[1]; delete h.authorization; }
     const resp = await handle(new Request(q.url(), { method: q.method(), headers: h, body: ["GET", "HEAD"].includes(q.method()) ? undefined : q.postData() }), WENV, WDEPS);
     await r.fulfill({ status: resp.status, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: await resp.text() });
@@ -173,6 +176,78 @@ console.log("\n# iOS boundary, tracks, layout");
     ok(`B18 · ${theme} ${vp.width}px: the Premium card and its store buttons fit, no overflow${theme === "light" ? ", dark-blue light border" : ""}`, m.fits && m.tall && m.wide && !m.overflow && (theme !== "light" || /30, 45, 120/.test(m.border)), JSON.stringify(m));
     await ctx.close();
   }
+}
+
+console.log("\n# Phase 10 — the purchase flow under failure");
+{
+  /* C1-C2: Play takes the payment, then our server cannot be reached */
+  SUBS.set("tok_kim_" + "k".repeat(20), gsub());
+  let { ctx, p } = await open({ uid: "kim" });
+  await p.evaluate(() => { document.querySelector("details.set-plan").open = true; __play.next = { token: "tok_kim_" + "k".repeat(20), cancel: false }; });
+  NET.down = true; await p.evaluate(() => Billing.buy("premium_monthly")); NET.down = false; await sleep(300);
+  let c = await card(p);
+  const done = await p.evaluate(() => __play.completes.slice());
+  ok("C1 · server unreachable after Play took the payment: 'your payment went through… Restore', Play told 'unknown' (never 'fail'), still Free", /payment went through/.test(c.text) && done.join() === "unknown" && await p.evaluate(() => !entIsPremiumForDisplay()), c.text + " | " + done.join());
+  await ctx.close();
+  ({ ctx, p } = await open({ uid: "kim", pre: () => { __play.owned = [{ itemId: "premium_monthly", purchaseToken: "tok_kim_" + "k".repeat(20) }]; } }));
+  await sleep(800);   /* nothing is called by the test: Billing.init() at sign-in runs the reconcile */
+  const k2 = await p.evaluate(() => ({ prem: entIsPremiumForDisplay(), shows: __play.shows }));
+  ok("C2 · next launch: the silent reconcile claims the purchase Play holds — Premium, with no purchase sheet and no tap", k2.prem && k2.shows === 0, JSON.stringify(k2));
+  await ctx.close();
+
+  /* C3: another account on the same device never sees the last one's message */
+  ({ ctx, p } = await open({ uid: "lea" }));
+  await p.evaluate(() => { Billing.note = t("acc.prem_bound"); Billing.state = "failed"; Billing._draw(); });
+  await p.evaluate(async () => { FBUser = { uid: "max", getIdToken: async () => "test-token-max" }; await entRefresh(); await Billing.init(); });
+  c = await card(p);
+  ok("C3 · switching account clears the previous account's purchase message", !/belongs to another/.test(c.text) && c.buys.length === 2, c.text);
+
+  /* C4: no restore while a purchase is open */
+  await p.evaluate(() => { __play.next = { token: null, cancel: false }; window.__release = null;
+    window.PaymentRequest.prototype.show = function () { __play.shows++; return new Promise(res => { window.__release = () => res({ details: { purchaseToken: "tok_none_" + "n".repeat(20) }, complete: r => __play.completes.push(r) }); }); };
+    Billing.buy("premium_monthly"); });
+  await sleep(200);
+  const mid = await p.evaluate(async () => { const rb = document.querySelector("#entPlan [onclick='Billing.restore()']"); const before = Billing.state; await Billing.restore(); return { disabled: !!(rb && rb.disabled), state: Billing.state, before }; });
+  await p.evaluate(() => window.__release && window.__release()); await sleep(300);
+  ok("C4 · while the purchase sheet is open, Restore is disabled and a call to it does nothing", mid.disabled && mid.before === "purchasing" && mid.state === "purchasing", JSON.stringify(mid));
+  await ctx.close();
+
+  /* C5: Play returns no products (none set up in Play Console yet) */
+  ({ ctx, p } = await open({ uid: "ned", pre: () => { window.__noProducts = true; } }));
+  await p.evaluate(async () => { if (window.__noProducts) __play.details = []; await Billing.init(); document.querySelector("details.set-plan").open = true; });
+  c = await card(p);
+  ok("C5 · no products from the store: 'Purchases are not available right now', no empty buy area", /not available right now/.test(c.text) && !c.buys.length, c.text);
+  await ctx.close();
+
+  /* C6: iOS shell, the account-token call fails (here: App Store not configured on the server) */
+  ({ ctx, p } = await open({ uid: "ola", stub: false, pre: () => {
+    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true };
+    window.__sk = { purchases: 0 };
+    window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "premium_annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
+      purchase: async () => { __sk.purchases++; return { signedTransaction: "x" }; }, restore: async () => [], manageSubscriptions: () => {} };
+  } }));
+  await p.evaluate(async () => { await Billing.init(); document.querySelector("details.set-plan").open = true; });
+  const pv = await p.evaluate(() => Billing.provider && Billing.provider.id);
+  await p.evaluate(() => Billing.buy("premium_monthly"));
+  c = await card(p);
+  const sk = await p.evaluate(() => __sk.purchases);
+  ok("C6 · iOS shell: if the account token cannot be fetched the purchase does not start and the learner is told it failed (not a silent cancel)", pv === "app_store" && sk === 0 && c.state === "failed" && /did not go through|could not|failed/i.test(c.text), pv + " " + sk + " " + c.state + " " + c.text);
+
+  const tl = await p.evaluate(() => { const e = document.querySelector("#entPlan .ent-terms"); return e ? { text: e.textContent, links: [...e.querySelectorAll("a")].map(a => a.getAttribute("href")) } : null; });
+  ok("C9 · iOS offer: renewal terms name the App Store, with the Privacy policy and Apple's standard EULA linked (guideline 3.1.2)", tl && /App Store/.test(tl.text) && tl.links.includes("privacy.html") && tl.links.some(u => /apple\.com\/legal\/internet-services\/itunes\/dev\/stdeula/.test(u)), JSON.stringify(tl));
+  /* C7-C8: Manage opens only the store that sold the plan */
+  await p.evaluate(() => { billingTakeView({ plan: "premium", paid: true, state: "active", ads: false, capabilities: { ad_free: true }, expiresAt: Date.now() + 9e8, source: "google_play", renews: true }); Billing._draw(); });
+  c = await card(p);
+  ok("C7 · a Google Play plan seen in the iPhone app: 'managed in Google Play', no Manage button that would open Apple's page", /managed in Google Play/.test(c.text) && !c.manage, c.text);
+  await ctx.close();
+  SUBS.set("tok_pia_" + "p".repeat(20), gsub());
+  ({ ctx, p } = await open({ uid: "pia" }));
+  await p.evaluate(() => { __play.next = { token: "tok_pia_" + "p".repeat(20), cancel: false }; window.__opened = []; window.open = u => { window.__opened.push(u); return null; }; });
+  await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(1200);
+  await p.evaluate(() => Billing.manage());
+  const opened = await p.evaluate(() => window.__opened);
+  ok("C8 · a Play plan in the Android app: Manage opens Play's subscription page for this package", opened.length === 1 && /play\.google\.com\/store\/account\/subscriptions\?package=com\.bemastery\.app/.test(opened[0]), opened.join());
+  await ctx.close();
 }
 
 await b.close(); srv.kill();

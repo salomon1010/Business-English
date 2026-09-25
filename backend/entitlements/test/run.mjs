@@ -6,7 +6,7 @@
    from a key generated here. The JWKS and the clock are injected through the
    handler's deps argument, which no request can reach. */
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { generateKeyPairSync, createSign } from "node:crypto";
 import { handle } from "../entitlements-worker.js";
 import { resolve, validateRecord, isPremium, adsEnabled, hasCapability, PLANS } from "../src/entitlement-core.js";
@@ -18,7 +18,7 @@ let clock = T0;
 /* ---- D1 shim over a real SQLite database (the three calls the Worker uses) */
 function d1() {
   const db = new DatabaseSync(":memory:");
-  for (const m of ["0001_entitlements.sql", "0002_rewards.sql", "0003_purchases.sql"]) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
+  for (const m of readdirSync(new URL("../migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../migrations/" + m, import.meta.url), "utf8"));
   const norm = v => v === undefined ? null : v;
   return {
     raw: db,
