@@ -50,16 +50,23 @@ migrations_dir = "migrations"
 # DEV_AUTH is never set here: staging uses real Firebase sign-in.
 [env.staging]
 name = "be-entitlements-staging"
+# RTDN custom domain (2026-09-25): Google Pub/Sub pushes to the workers.dev
+# hostname were answered 404 by Cloudflare's edge before the Worker ran (9,264
+# pushes, 0 invocations), so RTDN uses a custom domain in the lomonec.com zone.
+# workers.dev stays enabled for everything else.
+routes = [{ pattern = "entitlements-staging.lomonec.com", custom_domain = true }]
+workers_dev = true
 [env.staging.vars]
 FIREBASE_PROJECT_ID = "be-mastery"
 ALLOWED_ORIGINS = "https://staging.lomonec.com"
 PLAY_PACKAGE = "com.bemastery.app"
 # RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
-# THIS Worker; the push endpoint must be exactly this URL. With the push
+# THIS Worker, reached through the custom domain above; the push endpoint must be
+# exactly this URL. With the push
 # subscription's Audience left blank, Pub/Sub uses the push endpoint URL as the
 # token's aud (Pub/Sub OidcToken.audience docs), so RTDN_AUDIENCE = that URL.
 # RTDN_SA_EMAIL = the push subscription's service account (the token's email).
-RTDN_AUDIENCE = "https://be-entitlements-staging.nore-ngou.workers.dev/v1/billing/google_play"
+RTDN_AUDIENCE = "https://entitlements-staging.lomonec.com/v1/billing/google_play"
 RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
 APPLE_BUNDLE_ID = "com.bemastery.app"
 APPLE_ENVIRONMENTS = "Sandbox"
