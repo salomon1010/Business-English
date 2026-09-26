@@ -65,13 +65,15 @@ async function open({ track = "general-english", flags = { billing_enabled: true
   if (pre) await ctx.addInitScript(pre);
   await ctx.route(u => /be-events|be-polish|be-partner|cloudflareinsights/.test(u.href), r => r.fulfill({ status: 404, body: "{}" }));
   const calls = [];
-  await ctx.route("http://ent.test/**", async r => {
+  const entRoute = async r => {
     const q = r.request(), h = { ...q.headers() }; calls.push(q.method() + " " + new URL(q.url()).pathname);
     if (NET.down && /\/v1\/purchases\//.test(q.url())) return r.abort("internetdisconnected");
     const m = /^Bearer test-token-(.+)$/.exec(h.authorization || ""); if (m) { h["x-dev-user"] = m[1]; delete h.authorization; }
     const resp = await handle(new Request(q.url(), { method: q.method(), headers: h, body: ["GET", "HEAD"].includes(q.method()) ? undefined : q.postData() }), WENV, WDEPS);
     await r.fulfill({ status: resp.status, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: await resp.text() });
-  });
+  };
+  await ctx.route("http://ent.test/**", entRoute);
+  await ctx.route("https://be-entitlements-staging.nore-ngou.workers.dev/**", entRoute);
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "index.html"); await sleep(1400);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
@@ -334,7 +336,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
 
   /* C6: iOS shell, the account-token call fails (here: App Store not configured on the server) */
   ({ ctx, p } = await open({ uid: "ola", stub: false, pre: () => {
-    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true };
+    window.Capacitor = { getPlatform: () => "ios", isNativePlatform: () => true }; window.BE_BUILD = { env: "staging", flags: { billing_enabled: true } };   /* the App Store shell ignores be_ent_api: a staging iOS bundle reaches the staging Worker (d4cc447) */
     window.__sk = { purchases: 0 };
     window.BENativeBilling = { getProducts: async ids => ids.map(id => ({ id, title: id === "premium_annual" ? "Premium (annual)" : "Premium (monthly)", displayPrice: "€4.99" })),
       purchase: async () => { __sk.purchases++; return { signedTransaction: "x" }; }, restore: async () => [], manageSubscriptions: () => {} };

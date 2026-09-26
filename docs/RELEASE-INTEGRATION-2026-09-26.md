@@ -88,8 +88,13 @@ deploy is v486.
 - `d4cc447`: staging TestFlight builds reach the staging Workers
   (`npm run sync -- --staging` writes `be-build.js` into the copy only), and
   the App Store shell ignores the dev `be_ent_api` override. ios-storekit is
-  23/23 after it, and entitlement-client, billing-client and smoke are green
-  again.
+  23/23 after it; entitlement-client 46/46 and smoke 33/33.
+- **billing-client dropped to 46/49 after `d4cc447`** (C6, C7, C9). Its
+  simulated iPhone cases reached the test server through the `be_ent_api`
+  override, which the iPhone app now deliberately ignores. The test now
+  declares a staging iOS build (`BE_BUILD`) and serves the staging
+  entitlement address from the same local Worker: 49/49 again. No app code
+  changed. ios-yt-relay 16/16 after it.
 
 ## Staging (2026-09-26): staging only, production untouched
 | What | State |
