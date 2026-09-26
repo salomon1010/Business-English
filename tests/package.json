@@ -9,6 +9,7 @@
     "test:partner": "node partner.mjs",
     "test:live-rounds": "node live-rounds.mjs",
     "test:live-ring": "node live-ring.mjs",
+    "test:push-invite": "node push-invite.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
     "test:stress": "node stress.mjs",
     "test:boot": "node boot-recovery.mjs",
