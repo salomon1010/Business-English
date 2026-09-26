@@ -60,7 +60,7 @@
      FB_OWNER_KEY) so its session and sync are restored exactly as before. -->
 <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <script src="curriculum-provider.js?v=86"></script>
-<script src="professional-tracks.js?v=79"></script>
+<script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=87"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
@@ -5270,6 +5270,10 @@ function awardCompetency(input){
   if(result.achievements&&result.achievements.length)toast("Achievement unlocked: "+result.achievements.map(a=>a.title).join(", "));
 }
 ProfessionalTrackContext.setActive((S.professionalTracks&&S.professionalTracks.activeId)||"general-english");
+/* ONE source of the active track: the persisted state. The context reads it on
+   every call, so replacing S (sync, import, restore, sign-out) can never leave
+   the journey on one track and the features on the other. */
+ProfessionalTrackContext.bindActive(()=>(typeof S!=="undefined"&&S&&S.professionalTracks)?S.professionalTracks.activeId:null);
 areaSplit();
 function applyTrackIdentity(){
   const track=activeProfessionalTrack();
@@ -5439,7 +5443,14 @@ if(IS_IOS_APP)document.addEventListener("click",e=>{
   e.preventDefault();
   try{openDoc(h,(a.textContent||"").trim(),{theme:true})}catch(err){location.href=h}
 },true);
-function areaId(){return (S.professionalTracks&&S.professionalTracks.activeId)||AREA_GEN}
+/* The area is the active track, resolved by the same rule as
+   ProfessionalTrackContext: a registered track id, else General English. An
+   unknown id no longer counts as "not General English" here while the journey
+   falls back to General English there. */
+function areaId(){const id=S&&S.professionalTracks&&S.professionalTracks.activeId;try{return (id&&window.ProfessionalTrackContext&&ProfessionalTrackContext.get(id))?id:AREA_GEN}catch(e){return id||AREA_GEN}}
+/* After S is replaced wholesale, repaint what shows the track (chip, theme) and
+   stamp legacy records — the track itself needs no copying any more. */
+function trackStateReloaded(){try{areaSplit()}catch(e){}try{applyTrackIdentity()}catch(e){}}
 function areaIsPro(){return areaId()!==AREA_GEN}
 function areaOf(rec){return (rec&&rec.tk)||AREA_GEN}
 /* Per-area buckets, created on read so the first visit to an area starts empty
@@ -8902,7 +8913,7 @@ async function ghPull(){
     const data=JSON.parse(b64Dec(d.content));
     if(!data.days)throw new Error("unexpected file format");
     if(!await askConfirm({title:t("cf.import_title"),body:t("gh.replace_confirm"),confirmLabel:t("cf.import_ok")})){ghStatus("");return}
-    data.tutor=data.tutor||{};S=data;localStorage.setItem(LS_KEY,JSON.stringify(S));
+    data.tutor=data.tutor||{};S=data;trackStateReloaded();localStorage.setItem(LS_KEY,JSON.stringify(S));
     GH.last=Date.now();saveGH();ghStatus("");toast(t("gh.loaded_toast"));go("home")}
   catch(e){ghStatus("");toast(t("gh.load_failed",{err:e.message}))}
 }
@@ -8953,7 +8964,7 @@ async function ghAutoStart(){
     if(d){
       const data=JSON.parse(b64Dec(d.content));
       if(data.days&&(data.savedAt||0)>(S.savedAt||0)){
-        data.tutor=data.tutor||{};S=data;localStorage.setItem(LS_KEY,JSON.stringify(S));
+        data.tutor=data.tutor||{};S=data;trackStateReloaded();localStorage.setItem(LS_KEY,JSON.stringify(S));
         GH.last=Date.now();saveGH();toast(t("gh.latest_loaded"));
         go(cur.v==="session"?"session":cur.v,cur.arg1,cur.arg2);
       }else if((S.savedAt||0)>(data.savedAt||0)){ghPush(true)}
@@ -26345,7 +26356,7 @@ window.impData=inp=>{
     const d=JSON.parse(r.result);if(!d.days)throw 0;
     const done=Object.keys(S.days||{}).length;
     if(!await askConfirm({title:t("cf.import_title"),body:t("cf.import_body",{n:done}),confirmLabel:t("cf.import_ok")})){inp.value="";return}
-    S=d;save();toast(t("acc.import_toast"));go("home");
+    S=d;trackStateReloaded();save();toast(t("acc.import_toast"));go("home");
   }catch(e){toast(t("acc.import_invalid_toast"))}};
   r.readAsText(f);
 };
@@ -26376,7 +26387,7 @@ window.resetAll=async()=>{
     confirmLabel:t("cf.reset_ok")}))return;
   localStorage.removeItem(LS_KEY);
   dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}});
-  S=load();
+  S=load();trackStateReloaded();
   if(signedIn){
     /* Write the empty state immediately rather than leaving it to the debounced
        push, which could otherwise race a pull and restore what was just wiped. */
@@ -28806,7 +28817,7 @@ async function fbFirstSync(u){
       localStorage.removeItem(LS_KEY);
       try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
       try{exWipe()}catch(e){}     // and whatever they left in the Polish box
-      S=cloud||load();
+      S=cloud||load();trackStateReloaded();
     }else if(cloud){
       const merged=fbMerge(S,cloud);
       /* When nothing that syncs differs, the merged copy IS the account copy
@@ -28844,7 +28855,7 @@ async function fbFirstSync(u){
          video the account still keeps */
       if(take===cloud&&S&&S.shTx){const keep={};Object.values(cloud.shOwnA||{}).forEach(L=>(Array.isArray(L)?L:[]).forEach(o=>{if(o&&o.vid&&S.shTx[o.vid]&&!(cloud.shTx&&cloud.shTx[o.vid]))keep[o.vid]=S.shTx[o.vid]}));
         if(Object.keys(keep).length)take=Object.assign({},cloud,{shTx:Object.assign({},cloud.shTx,keep)})}
-      S=take;
+      S=take;trackStateReloaded();
     }
     localStorage.setItem(LS_KEY,JSON.stringify(S));
     localStorage.setItem(FB_OWNER_KEY,u.uid);   // this device now holds THIS account's copy
@@ -29138,7 +29149,7 @@ async function fbSyncPull(){
       const before=fbSnapshotSig(S);
       const merged=fbMerge(S,cloud);
       if(fbSnapshotSig(merged)!==before){
-        S=merged;
+        S=merged;trackStateReloaded();
         localStorage.setItem(LS_KEY,JSON.stringify(S));
         let j=null;try{j=fbCloudJson(S)}catch(e){fbLastPushOk=false;fbLastPushErr=(e&&e.code)||"be/doc-too-large";fbSyncStatus()}
         if(j!=null)await ref.set({json:j,savedAt:S.savedAt||Date.now(),email:FBUser.email||"",
@@ -29245,7 +29256,7 @@ function fbWipeDevice(){
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(FB_OWNER_KEY);
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
-  S=load();save();
+  S=load();trackStateReloaded();save();
 }
 window.fbSignOut=async function(){
   if(!FBauth)return;

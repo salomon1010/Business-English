@@ -30,6 +30,20 @@
 
   const tracks=new Map();
   let activeId="general-english";
+  /* The persisted state is the ONE source of the active track (index.html
+     binds it: S.professionalTracks.activeId). This context used to keep its own
+     copy, set once at boot and on an explicit switch — so whenever the state
+     was replaced wholesale (a cloud sync adopting the account copy, an import,
+     a restore, sign-out) the two disagreed, and a learner saw the Welding
+     journey beside General English features (real iPhone, 26 Sep 2026). With a
+     binding, active() reads the state every time and can never drift. */
+  let activeSource=null;
+  function currentId(){
+    let id=null;
+    if(activeSource){try{id=activeSource()}catch(e){id=null}}
+    else id=activeId;
+    return tracks.has(id)?id:"general-english";
+  }
 
   /* A track that declares inheritsFrom used to take the FIRST curriculum it
      found and stop there, so every field its own pack left empty stayed empty.
@@ -98,9 +112,12 @@
       activeId=id;
       return true;
     },
-    active(){return tracks.get(activeId)||tracks.get("general-english")||null;},
+    /* index.html: ProfessionalTrackContext.bindActive(() => S.professionalTracks.activeId) */
+    bindActive(fn){activeSource=typeof fn==="function"?fn:null;},
+    activeId(){return currentId();},
+    active(){return tracks.get(currentId())||tracks.get("general-english")||null;},
     resolveCurriculum(id){
-      let track=tracks.get(id||activeId);
+      let track=tracks.get(id||currentId());
       const seen=new Set(),chain=[];
       while(track&&!seen.has(track.id)){
         const own=(global.CurriculumProvider&&global.CurriculumProvider.forTrack(track))||track.curriculum||null;
@@ -112,7 +129,7 @@
       return chain.reduce(inherit);
     },
     isFoundation(id){
-      const track=tracks.get(id||activeId);
+      const track=tracks.get(id||currentId());
       return !!track&&track.status==="foundation";
     }
   };

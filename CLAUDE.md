@@ -145,6 +145,14 @@ not JS, and `new Function` chokes on it. Check it separately with
   Setup and every setting under it (reminder, theme, language, voice, account /
   sign-in, data, GitHub sync), Help & guide / manual, About, the profile identity
   (name, role, goal, avatar), and share / invite / rate.
+  **ONE source of the active track (2026-09-26):** `S.professionalTracks.activeId`.
+  `ProfessionalTrackContext` is BOUND to it (`bindActive`) and never keeps its
+  own copy; `areaId()` resolves with the same rule (registered id, else General
+  English). A real iPhone showed the Welding journey beside General English
+  features after sign-in adopted the account copy — the context had kept the old
+  track. Any code that replaces `S` wholesale calls `trackStateReloaded()` to
+  repaint the chip/theme. Never cache the track anywhere else. Suite:
+  `tests/track-isolation.mjs`.
   UI: `areaScopeHTML()` is the review's banner, `areaNoteHTML()` the compact
   Profile caption; both switch via `areaSwitch(id, view)` and land on the same
   page in the other area.
