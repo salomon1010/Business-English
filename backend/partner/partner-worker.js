@@ -878,6 +878,8 @@ async function handle(req, env, ctx) {
     /* the learner's own Round Reviews of closed sessions go with the turns they came from */
     const rv = await q(env, "DELETE FROM reviews WHERE uid=? AND pair_id IN (SELECT id FROM pairs WHERE status='closed')", uid).run();
     r.reviews = (rv.meta && rv.meta.changes) || 0;
+    const lrv = await q(env, "DELETE FROM reviews WHERE uid=? AND pair_id IN (SELECT id FROM live_sessions WHERE (host=? OR guest=?) AND state NOT IN ('invited','accepted','connecting','active','reconnecting'))", uid, uid, uid).run();   /* live-call reviews too */
+    r.reviews += (lrv.meta && lrv.meta.changes) || 0;
     if (r.turns) await audit(env, ms, uid, "history_cleared", null, null, r);
     return json({ ok: true, ...r });
   }
@@ -935,12 +937,12 @@ async function handle(req, env, ctx) {
       const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", id).first();
       return json({ live: await withName(view(s, uid)), ...(await meView(env, uid, ms)) }, 201);
     }
-    const lm = /^\/live\/([a-f0-9]{16})(?:\/(accept|decline|cancel|signal|signals|end|report|block))?$/.exec(path);
+    const lm = /^\/live\/([a-f0-9]{16})(?:\/(accept|decline|cancel|signal|signals|end|report|block|review))?$/.exec(path);
     if (!lm) return err(404, "not_found");
     const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", lm[1]).first();
     if (!s || (s.host !== uid && s.guest !== uid)) return err(403, "forbidden");
     const other = s.host === uid ? s.guest : s.host, isHost = s.host === uid, act = lm[2] || "";
-    if (act !== "block" && await blockedEither(env, uid, other)) return err(403, "forbidden");
+    if (act !== "block" && act !== "review" && await blockedEither(env, uid, other)) return err(403, "forbidden");   /* a learner who blocked mid-call still gets their own review */
     const open = LIVE_OPEN.has(s.state) && s.expires_at > ms;
     if (LIVE_OPEN.has(s.state) && s.expires_at <= ms) { await liveClose(env, s, "expired", "expired", ms); s.state = "expired"; }
     const seenCol = isHost ? "host_seen" : "guest_seen";
@@ -1003,6 +1005,51 @@ async function handle(req, env, ctx) {
       const fresh = await q(env, "SELECT * FROM live_sessions WHERE id=?", s.id).first();
       if (LIVE_OPEN.has(fresh.state) && (await member(env, other)).suspended_until > ms) await liveClose(env, fresh, "ended", "suspended", ms);
       return json({ ok: true, ...(await meView(env, uid, ms)) });
+    }
+    /* POST /live/:id/review {rounds:[{seq,transcript,durationMs}], context?, learned?}
+       — the live call's four-round review (owner, 2026-09-25). Call audio
+       still never reaches this Worker: each phone recorded ITS OWN learner's
+       microphone per timed round, had it transcribed, and sends only those
+       transcripts. The partner's words never arrive — their phone builds
+       their own review. Same model, same shape, same table as a pair's
+       review (keyed by the live session id); idempotent per (session, uid).
+       Evidence is "asr": a recogniser heard the words, nothing scored sounds. */
+    if (act === "review") {
+      if (!s.started_at) return err(409, "not_complete");
+      const have = await q(env, "SELECT * FROM reviews WHERE pair_id=? AND uid=?", s.id, uid).first();
+      if (have && have.status === "ready") return json(reviewRow(have, null));
+      if (have && have.status === "pending" && ms - have.created_at < 90_000) return json({ pending: true }, 202);
+      const b = await req.json().catch(() => ({}));
+      const myTurns = (Array.isArray(b.rounds) ? b.rounds : []).slice(0, 4).map((r, i) => ({
+        seq: Math.max(1, Math.min(4, Number(r && r.seq) || i + 1)), transcript: clean(r && r.transcript, 4000),   /* a timed round runs longer than a 60-s turn */
+        durationMs: Math.max(0, Math.min(15 * 60_000, Number(r && r.durationMs) || 0)), score: null, words: { mode: "whisper", list: [] },
+      })).filter(t => t.transcript);
+      if (!myTurns.length) return err(400, "empty");
+      if (have) await q(env, "DELETE FROM reviews WHERE id=?", have.id).run();
+      if (env.REVIEW_STUB !== "1" && !env.OPENAI_KEY) return err(503, "review_off");
+      if (await burstLimited(env, uid, ms)) return err(429, "rate");
+      const n = ((await q(env, "SELECT COUNT(*) AS n FROM reviews WHERE uid=? AND status='ready'", uid).first()) || {}).n || 0;
+      const id = rid();
+      try { await q(env, "INSERT INTO reviews(id,pair_id,uid,round,status,json,created_at) VALUES(?,?,?,?,'pending','{}',?)", id, s.id, uid, n + 1, ms).run(); }
+      catch (e) { return json({ pending: true }, 202); }
+      const prevRev = await q(env, "SELECT json FROM reviews WHERE uid=? AND status='ready' ORDER BY created_at DESC LIMIT 1", uid).first();
+      let prevNext = []; try { const pj = JSON.parse(prevRev ? prevRev.json : "{}"); prevNext = nextPlanItems(pj.next).slice(0, 5); } catch (e) {}
+      let prompt = null; try { prompt = s.prompt_json ? JSON.parse(s.prompt_json) : null; } catch (e) {}
+      const learned = (Array.isArray(b.learned) ? b.learned : []).map(x => clean(x, 60)).filter(Boolean).slice(0, 20);
+      const input = { myTurns, theirTurns: [], context: reviewContext(b.context, prompt), lang: m.lang || "en", band: s.band, round: n + 1, prevNext, learned };
+      let review, model;
+      try {
+        const r = env.REVIEW_STUB === "1" ? reviewStub(input) : await reviewAI(env, input);
+        review = reviewShape(r.review, input); model = r.model;
+      } catch (e) {
+        await q(env, "DELETE FROM reviews WHERE id=?", id).run();
+        await audit(env, ms, uid, "review_failed", null, s.id, { live: true });
+        return err(502, "review_unavailable", env.DEV_AUTH === "1" ? String(e.message || e) : undefined);
+      }
+      await q(env, "UPDATE reviews SET status='ready', evidence=?, model=?, json=? WHERE id=?", review.evidence, model, JSON.stringify(review), id).run();
+      await audit(env, ms, uid, "review_ready", null, s.id, { evidence: review.evidence, live: true });
+      const row = await q(env, "SELECT * FROM reviews WHERE id=?", id).first();
+      return json(reviewRow(row, null), 201);
     }
     if (act === "block") {
       const r = await doBlock(env, uid, other, ms); if (r) return r;

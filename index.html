@@ -2019,7 +2019,10 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 #ppPill{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s;z-index:150;display:inline-flex;align-items:center;gap:9px;max-width:calc(100vw - 32px);padding:9px 14px 9px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(135deg,#0f7a4f,#12a56a);color:#fff;font:inherit;font-size:13px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #ppPill.on{transform:translate(-50%,0);opacity:1;pointer-events:auto}#ppPill .pp-pill-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#ppPill .pp-pill-go{opacity:.8;font-size:16px;line-height:1}
 #ppPill .pp-pill-dot{flex:none;width:10px;height:10px;border-radius:50%;background:#fff}#ppPill.pp-pill-live{background:linear-gradient(135deg,#0b6b8f,#12a56a)}
-.pp-human-tag{color:var(--green);font-weight:700}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
+.pp-human-tag{color:var(--green);font-weight:700}
+.pp-lr-clock{display:flex;flex-direction:column;align-items:center;margin:10px 0 4px}.pp-lr-left{font-size:44px;font-weight:800;letter-spacing:1px;color:var(--green);font-variant-numeric:tabular-nums;line-height:1.1}.pp-lr-left.warn{color:var(--gold)}.pp-lr-clock small{color:var(--mut2);font-size:12px}
+.pp-lr-len{margin:10px 0 4px}.pp-lr-len>small{display:block;font-weight:700;font-size:12px;color:var(--mut2);margin-bottom:6px}.pp-lr-chips{display:flex;gap:8px;flex-wrap:wrap}.pp-lr-chip{flex:1;min-width:58px;padding:9px 0;border-radius:12px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}.pp-lr-chip.on{background:var(--accent,#6d4aff);border-color:transparent;color:#fff}
+.pp-lr-said small,.pp-lr-next small,.pp-lr-tip small{display:block;font-size:11.5px;font-weight:700;color:var(--mut2);text-transform:uppercase;letter-spacing:.4px;margin:8px 0 2px}.pp-lr-said .pp-tx{margin:0}.pp-lr-tip{margin-top:8px;padding:10px 12px;border-radius:12px;border:1px solid var(--line)}.pp-lr-tip p{margin:6px 0}.pp-lr-better{font-weight:600}.pp-lr-next p{margin:0 0 8px}.pp-lr-busy{animation:fade 1.2s ease-in-out infinite alternate}.pp-hist-rev{margin-top:6px;align-self:flex-start}.pp-lr p svg,.pp-lr .sub svg,.pp-lr .pp-fine svg{width:15px;height:15px;vertical-align:-2px;display:inline-block;flex:none}.pp-live-count{font-size:44px;font-weight:800;text-align:center;letter-spacing:2px;color:var(--green);margin:6px 0 2px;animation:fade .3s}
 .pp-more .pp-more-btn{width:100%;justify-content:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:8px}.pp-more .pp-fine{margin:6px 0 4px}
 .pp-hangup{flex:none;width:44px;height:44px;margin-left:8px;border-radius:50%;border:0;background:#e5484d;color:#fff;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(229,72,77,.45);font:inherit;padding:0}.pp-hangup svg{width:20px;height:20px}.pp-hangup:active{transform:scale(.94)}
 .pp-live-head.is-live{border-color:color-mix(in srgb,var(--green) 55%,var(--line))}.pp-live-timer{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;margin:0 8px;color:var(--green)}
@@ -6362,7 +6365,7 @@ const I18N_EN={
  "pp.why_online":"online right now",
  "pp.band_unknown":"Level not set yet",
  "pp.tinv_live_h":"{{name}} wants to practise live with you",
- "pp.tinv_live_sub":"A short voice call on today's task. Nothing is recorded — and either of you can leave at any time.",
+ "pp.tinv_live_sub":"A voice call on today's task, in four timed rounds. Only your own voice is recorded, for your own report — and either of you can leave at any time.",
  "pp.tinv_live_accept":"Accept & talk",
  "pp.tinv_wait_live_sub":"They have ten minutes. The moment they accept, the call opens here.",
  "pp.tinv_eyebrow":"Practice invitation",
@@ -6392,9 +6395,9 @@ const I18N_EN={
  "pp.live_eyebrow":"Live practice — human partner",
  "pp.live_btn":"Practise live",
  "pp.live_with":"Live with {{name}}",
- "pp.live_human":"A real learner, live. Nothing is recorded.",
+ "pp.live_human":"A real learner, live. Only your own voice is recorded, for your report.",
  "pp.live_invite_h":"{{name}} invites you to practise live",
- "pp.live_invite_sub":"A short voice call on today's task — four rounds, about five minutes. Your microphone is only on while you are in the call.",
+ "pp.live_invite_sub":"A voice call on today's task — four timed rounds, then your own report. Your microphone is only on while you are in the call.",
  "pp.live_join":"Join the call",
  "pp.live_decline":"Not now",
  "pp.live_open_h":"Your live practice with {{name}} is open",
@@ -6431,6 +6434,29 @@ const I18N_EN={
  "pp.live_done_declined":"{{name}} is not available right now",
  "pp.live_done_cancelled":"Invitation cancelled",
  "pp.live_done_time":"{{m}}:{{s}} of speaking practice, live.",
+ "pp.lr_len_h":"Minutes per round",
+ "pp.lr_status_paused":"Round over — microphones paused.",
+ "pp.lr_min":"{{n}} min",
+ "pp.lr_len_sub":"Four rounds, one question each — {{total}} minutes of talk. With 3 minutes, each of you speaks for about a minute and replies.",
+ "pp.lr_start":"Start round {{n}} · {{m}} min",
+ "pp.lr_left_h":"left in this round",
+ "pp.lr_rec_on":"Recording your voice for your report",
+ "pp.lr_talk_hint":"One answers, the other asks a follow-up, then swap.",
+ "pp.lr_break_eyebrow":"Round {{n}} of {{max}} — done",
+ "pp.lr_paused":"Microphones are paused until the next round starts.",
+ "pp.lr_analysing":"Listening back to your round…",
+ "pp.lr_nothing":"No words were caught in this round. Check that your microphone is on.",
+ "pp.lr_you_said":"What you said",
+ "pp.lr_well":"Went well:",
+ "pp.lr_tip_na":"Quick feedback is not available right now. Your full report still uses this round.",
+ "pp.lr_next_q":"Round {{n}} question",
+ "pp.lr_last":"That was the last round. Your full report is on its way.",
+ "pp.lr_rev_wait":"Finishing the analysis of your last round…",
+ "pp.lr_rev_busy":"Building your full report from your {{n}} round(s)…",
+ "pp.lr_rev_open":"Open my report",
+ "pp.lr_rev_none":"No report this time — none of your rounds were recorded.",
+ "pp.lr_rev_fail":"Your report could not be built just now.",
+ "pp.lr_privacy":"Only your own microphone is recorded, on this phone, one round at a time. The recording is transcribed for your report, then discarded. Your partner's voice is never recorded.",
  "pp.repair_btn":"Find a new partner",
  "pp.repair_h":"Find a new partner?",
  "pp.repair_sub":"This ends the current pair and puts you back in line. Your turns so far stay with the old pair.",
@@ -21926,7 +21952,8 @@ function ppHistRowHTML(e){
   }
   if(e.kind==="live"){
     const name=esc(e.partner||"?");const end=e.end==="completed"?t("pp.hist_live_completed",{n:e.rounds||1}):e.end==="left"?t("pp.hist_live_left"):e.end==="partner_left"?t("pp.hist_live_partner_left",{name}):e.end==="failed"?t("pp.hist_live_failed"):t("pp.hist_live_other");
-    return `<div class="pp-hist-row"><span class="pp-hist-ic pp-hist-live">${ic("mic")}</span><span class="pp-hist-t"><b>${t("pp.hist_live",{name})}</b><small>${e.secs?ppHistSecs(e.secs)+" · ":""}${end}</small></span><small class="pp-hist-tm">${tm}</small></div>`;
+    const rv=e.revId&&ppRevGet(e.revId);
+    return `<div class="pp-hist-row"><span class="pp-hist-ic pp-hist-live">${ic("mic")}</span><span class="pp-hist-t"><b>${t("pp.hist_live",{name})}</b><small>${e.secs?ppHistSecs(e.secs)+" · ":""}${end}</small>${rv?`<button class="btn btn-g btn-sm pp-hist-rev" onclick="ppRevOpen('${esc(rv.id)}')">${ic("sparkle")} ${t("pp.lr_rev_open")}</button>`:""}</span><small class="pp-hist-tm">${tm}</small></div>`;
   }
   if(e.kind==="ai"){
     const sc=scoreOf(e.turns);
@@ -22408,11 +22435,20 @@ window.ppDecide=async choice=>{
 /* ================= LIVE PRACTICE (Level 3) =================
    A real-time voice call between two CONNECTED partners (both human — the AI
    coach only ever helps with text on the side). Audio goes peer to peer
-   (WebRTC) and is never recorded; the partner Worker owns the session state
+   (WebRTC) and is never recorded as a call — each phone records only ITS OWN
+   learner's microphone, one timed round at a time, for that learner's report; the partner Worker owns the session state
    and relays the signalling, which the two phones fetch at a bounded rate
    only while a session is open. Learners see "Live practice · Human partner",
    a timer, the task, a round counter, mute, leave, report/block — never the
    transport. */
+/* Timed rounds (owner, 2026-09-25): each of the four rounds runs on a
+   countdown the two learners choose before round 1. 3 minutes is the default:
+   a round is one question for two people, so each gets about a minute to
+   answer plus a reply — the length of the individual "long turn" in the
+   common speaking exams (Cambridge B2 First Part 2: about a minute each;
+   IELTS Part 2: one to two minutes). 2 suits beginners, 4–5 a longer
+   discussion; 4 × 3 = 12 minutes of talk fits the 25-minute daily session. */
+const PP_LIVE_MINS=[2,3,4,5], PP_LIVE_MIN_DEFAULT=3;
 const PP_LIVE_ROUNDS=4, PP_LIVE_POLL_FAST=1200, PP_LIVE_POLL_SLOW=4000, PP_LIVE_CONNECT_MS=45000, PP_LIVE_RECONNECT_MS=60000, PP_LIVE_ICE=[{urls:"stun:stun.cloudflare.com:3478"}];
 let ppLive=null;   /* {id, role, pc, stream, ice, after, pollT, tickT, muted, round, status, startedAt, restarts, sinceDrop, help, ended} */
 /* live is on when the SERVER says so (LIVE_ENABLED, carried on /me) — every
@@ -22472,7 +22508,7 @@ window.ppLiveCancel=async()=>{const l=ppLiveSess();if(!l)return;try{const r=awai
 function ppLiveOpen(sess,ice){
   if(ppLive&&ppLive.id===sess.id){ppLive.status=sess.state;return}
   ppLiveTeardown(false);
-  ppLive={id:sess.id,role:sess.role,pc:null,stream:null,ice:ice||null,after:0,pollT:null,tickT:null,muted:false,round:1,status:sess.state,startedAt:sess.startedAt||null,restarts:0,sinceDrop:0,help:null,ended:null,partner:sess.partner,seed:{promptWeek:sess.promptWeek,fndDay:sess.fndDay,prompt:sess.prompt,band:sess.band},micErr:null};
+  ppLive={id:sess.id,role:sess.role,pc:null,stream:null,ice:ice||null,after:0,pollT:null,tickT:null,muted:false,round:1,phase:"ready",mins:PP_LIVE_MINS.includes(ppState().liveMins)?ppState().liveMins:PP_LIVE_MIN_DEFAULT,endsAt:null,rr:{},rec:null,rev:null,status:sess.state,startedAt:sess.startedAt||null,restarts:0,sinceDrop:0,help:null,ended:null,partner:sess.partner,seed:{promptWeek:sess.promptWeek,fndDay:sess.fndDay,prompt:sess.prompt,band:sess.band},micErr:null};
   ppLivePoll();
   if(sess.state==="accepted"||sess.state==="connecting"||sess.state==="active"||sess.state==="reconnecting")ppLiveConnect();
 }
@@ -22482,6 +22518,7 @@ async function ppLiveConnect(){
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.RTCPeerConnection){L.micErr="unsupported";ppLiveRender();return}
   try{L.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})}catch(e){L.micErr="denied";ppLiveRender();try{track("partner_live_failed",{reason:"mic"})}catch(e2){}return}
   L.stream.getTracks().forEach(tr=>{tr.onended=()=>{if(ppLive===L){L.micErr="ended";ppLiveRender()}}});
+  if(L.phase==="talk"&&!L.rec)ppLiveRecStart(L);else if(L.phase==="break")L.stream.getAudioTracks().forEach(tr=>tr.enabled=false);
   const pc=L.pc=new RTCPeerConnection({iceServers:L.ice});
   L.stream.getTracks().forEach(tr=>pc.addTrack(tr,L.stream));
   L.diag={host:0,srflx:0,relay:0,remote:0};
@@ -22507,7 +22544,12 @@ async function ppLiveSignal(kind,payload){const L=ppLive;if(!L||L.ended)return;t
 async function ppLiveHandle(sig){
   const L=ppLive;if(!L)return;
   try{
-    if(sig.kind==="round"){L.round=Math.max(1,Math.min(PP_LIVE_ROUNDS,Number(sig.payload)||1));ppLiveRender();return}
+    if(sig.kind==="round"){let o=null;try{o=JSON.parse(sig.payload)}catch(e){}
+      if(o&&typeof o==="object"){const n=Math.max(1,Math.min(PP_LIVE_ROUNDS,Number(o.r)||1));
+        if(o.act==="start"&&(n>L.round||(n===L.round&&L.phase==="ready")))ppLiveBegin(L,n,Number(o.secs)||L.mins*60,Number(o.at)||0);
+        else if(o.act==="mins"&&L.phase==="ready"&&L.round===1&&PP_LIVE_MINS.includes(Number(o.m))){L.mins=Number(o.m);ppLiveRender()}}
+      else{L.round=Math.max(1,Math.min(PP_LIVE_ROUNDS,Number(sig.payload)||1));ppLiveRender()}
+      return}
     if(sig.kind==="bye"){ppLiveGone("left");return}
     if(sig.kind==="state")return;
     if(!L.pc)return;
@@ -22538,15 +22580,117 @@ function ppLiveCountdown(L){
   L.countdown=3;const step=()=>{if(ppLive!==L||L.ended)return;const el=document.getElementById("ppLiveCount");if(el)el.textContent=L.countdown>0?String(L.countdown):t("pp.live_go");if(L.countdown<0){L.countdown=null;ppLiveRender();return}L.countdown--;setTimeout(step,900)};
   setTimeout(step,300);
 }
-function ppLiveTick(){const L=ppLive;if(!L)return;clearInterval(L.tickT);L.tickT=setInterval(()=>{const el=document.getElementById("ppLiveTimer");if(!el||!L.startedAt){return}const s=Math.floor((Date.now()-L.startedAt)/1000);el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},1000)}
-window.ppLiveMute=()=>{const L=ppLive;if(!L||!L.stream)return;L.muted=!L.muted;L.stream.getAudioTracks().forEach(tr=>tr.enabled=!L.muted);ppLiveRender()};
-window.ppLiveRound=d=>{const L=ppLive;if(!L)return;L.round=Math.max(1,Math.min(PP_LIVE_ROUNDS,L.round+d));ppLiveSignal("round",String(L.round));ppLiveRender()};
+function ppLiveTick(){const L=ppLive;if(!L)return;clearInterval(L.tickT);L.tickT=setInterval(()=>{
+  if(L.phase==="talk"&&L.endsAt){const left=L.endsAt-Date.now();if(left<=0){ppLiveRoundEnd(L);return}const c=document.getElementById("ppLiveLeft");if(c){c.textContent=ppLiveMmss(left);c.classList.toggle("warn",left<=15000)}}
+  const el=document.getElementById("ppLiveTimer");if(!el||!L.startedAt){return}const s=Math.floor((Date.now()-L.startedAt)/1000);el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0")},500)}
+function ppLiveMmss(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+/* ---- timed rounds: start → countdown → the round stops (microphones
+   paused, the connection kept) → a quick analysis of MY round → the next
+   round, started by either learner → after round 4 the full report ---- */
+window.ppLiveSetMins=m=>{const L=ppLive;if(!L||L.phase!=="ready"||L.round!==1||!PP_LIVE_MINS.includes(m))return;L.mins=m;ppState().liveMins=m;save();ppLiveSignal("round",JSON.stringify({act:"mins",r:1,m}));ppLiveRender()};
+window.ppLiveStartRound=()=>{const L=ppLive;if(!L||L.ended||L.status!=="active")return;
+  const n=L.phase==="ready"?L.round:L.round+1;if(n>PP_LIVE_ROUNDS||L.phase==="talk")return;
+  /* localStorage.be_live_round_secs: tests only — a round of a few seconds */
+  let secs=L.mins*60;try{const x=Number(localStorage.getItem("be_live_round_secs"));if(x>0)secs=x}catch(e){}
+  const at=Date.now();ppLiveSignal("round",JSON.stringify({act:"start",r:n,secs,at}));ppLiveBegin(L,n,secs,at)};
+function ppLiveBegin(L,n,secs,at){
+  if(L.ended||L.phase==="talk")return;
+  L.round=n;L.phase="talk";if(secs%60===0&&PP_LIVE_MINS.includes(secs/60))L.mins=secs/60;
+  /* the two phones start within a poll of each other; the sender's clock
+     sets the end when it is plausibly in step with this one */
+  const now=Date.now();L.endsAt=(at&&Math.abs(now-at)<15000?at:now)+secs*1000;
+  if(L.stream&&!L.muted)L.stream.getAudioTracks().forEach(tr=>tr.enabled=true);
+  ppLiveRecStart(L);ppLiveRender();ppLiveTick();
+}
+function ppLiveRoundEnd(L){
+  if(L.phase!=="talk")return;
+  L.phase="break";L.endsAt=null;
+  if(L.stream)L.stream.getAudioTracks().forEach(tr=>tr.enabled=false);   /* the round stops: nobody is heard until the next one starts */
+  ppLiveRecStop(L);ppLiveRender();
+  /* the last round is over: the call ends itself as completed on both phones
+     (no "bye" — that would read as "your partner left") and the report follows */
+  if(L.round>=PP_LIVE_ROUNDS)setTimeout(()=>{if(ppLive===L&&!L.ended)ppLiveEnd("completed")},1500);
+}
+/* my own microphone only, one take per round (a mic retry adds a part) */
+function ppLiveRecStart(L){
+  if(!window.MediaRecorder||!L.stream||L.rec)return;
+  const n=L.round,rr=L.rr[n]||(L.rr[n]={parts:[],ms:0,busy:0,tip:undefined});
+  let mr;try{mr=new MediaRecorder(L.stream)}catch(e){return}
+  const rec={n,mr,chunks:[],t0:Date.now()};L.rec=rec;
+  mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};
+  mr.onstop=()=>{if(L.rec===rec)L.rec=null;ppLiveRecDone(L,rec)};
+  mr.onerror=()=>{if(L.rec===rec)L.rec=null};
+  try{mr.start()}catch(e){L.rec=null}
+}
+function ppLiveRecStop(L){const rec=L.rec;if(rec&&rec.mr.state==="recording"){try{rec.mr.stop()}catch(e){L.rec=null}}}
+async function ppLiveRecDone(L,rec){
+  const rr=L.rr[rec.n];if(!rr)return;
+  const dur=Date.now()-rec.t0,blob=new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"});
+  rr.ms+=dur;
+  if(blob.size<1200||dur<1500){ppLiveRoundTip(L,rec.n);return}
+  rr.busy++;ppLiveRender();
+  let tx="";try{tx=(await fbTranscribe(blob))||""}catch(e){}
+  rr.parts.push(tx);rr.busy--;
+  await ppLiveRoundTip(L,rec.n);
+}
+/* the quick analysis of one round: my words + one thing that went well +
+   one sentence said better. Tagged AI; text only; the partner's words are
+   never part of it. */
+async function ppLiveRoundTip(L,n){
+  const rr=L.rr[n];if(!rr||rr.busy||L.rec&&L.rec.n===n)return;
+  const tx=rr.parts.join(" ").replace(/\s+/g," ").trim();
+  if(!tx){rr.tip=null;ppLiveRender();ppLiveRevMaybe(L);return}
+  rr.tip="busy";ppLiveRender();
+  try{
+    const pr=ppPrompt({rounds:PP_LIVE_ROUNDS,round:n,promptWeek:L.seed.promptWeek,fndDay:L.seed.fndDay,prompt:L.seed.prompt});
+    const sys=`You are the AI coach in BE Mastery. A learner (level ${t("pp.band_"+(L.seed.band||"w1-4"))}) has just finished round ${n} of ${PP_LIVE_ROUNDS} of a live practice call with another learner about "${pr.title}". This round's task: "${pr.task}". The user message is what THIS learner said in the round (an automatic transcript; the partner's words are not included). Give quick, specific feedback on this round only, in plain English. Reply with JSON only: {"reply":"WELL: <one short sentence on what went well, quoting their words>\nSAID: <their exact words that most need improving>\nBETTER: <the same idea in natural professional English, same facts>\nWHY: <one plain sentence>","covered":[]}`;
+    const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:tx.slice(0,2000)}]}})});
+    const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error("ai");
+    const o={};String(j.reply||"").split(/\n+/).forEach(l=>{const m=/^\s*(WELL|SAID|BETTER|WHY)\s*:\s*(.+)$/i.exec(l);if(m)o[m[1].toLowerCase()]=m[2].trim()});
+    rr.tip=o.well||o.better?o:null;
+  }catch(e){rr.tip=null}
+  ppLiveRender();ppLiveRevMaybe(L);
+}
+/* the full report: once the call is over (or the last round is analysed)
+   and no round is still being transcribed, MY rounds go to the same
+   four-round review a recorded session gets — built by the Worker from my
+   transcripts only, stored in S.ppRev, opened on this screen */
+function ppLiveRevRounds(L){return Object.keys(L.rr).map(Number).sort((a,b)=>a-b).map(n=>({seq:n,transcript:L.rr[n].parts.join(" ").replace(/\s+/g," ").trim().slice(0,4000),durationMs:L.rr[n].ms})).filter(r=>r.transcript)}
+function ppLiveRevMaybe(L){
+  if(L.rev)return;
+  const busy=L.rec||Object.values(L.rr).some(r=>r.busy);
+  if(busy||!L.ended)return;
+  if(!L.startedAt||!Object.keys(L.rr).length)return;
+  ppLiveRevRun(L);
+}
+window.ppLiveRevRetry=()=>{const L=ppLive;if(L&&L.rev&&L.rev.state==="fail"){L.rev=null;ppLiveRevRun(L)}};
+async function ppLiveRevRun(L){
+  const rounds=ppLiveRevRounds(L);
+  if(!rounds.length){L.rev={state:"none"};ppLiveRender();return}
+  L.rev={state:"busy",n:rounds.length};ppLiveRender();
+  const pair={id:"live:"+L.id,promptWeek:L.seed.promptWeek,fndDay:L.seed.fndDay,prompt:L.seed.prompt};
+  const body={rounds,context:ppRevContext(pair),learned:ppRevLearned()};
+  let r=null;
+  try{
+    for(let i=0;i<20;i++){r=await ppApi("POST","/live/"+L.id+"/review",body);if(!r||!r.pending)break;await new Promise(res=>setTimeout(res,3000))}
+  }catch(e){L.rev={state:"fail",code:e.code};ppLiveRender();if(e.code==="review_off"||(e.code==="not_found"&&e.status===404))toast(t("pp.rv_off_toast"));return}
+  if(!r||!r.review){L.rev={state:"fail"};ppLiveRender();return}
+  const e=ppRevPut({id:r.id,pairId:"live:"+L.id,live:true,round:r.round,evidence:r.evidence,at:r.at||Date.now(),partner:String(L.partner?L.partner.name:"?").slice(0,24),topic:r.review.topic,review:r.review});
+  L.rev={state:"ready",id:e.id};
+  ppHistPut({id:"live:"+L.id,revId:e.id});
+  try{track("partner_review_ready",{evidence:r.evidence||"none"})}catch(_){}
+  /* still on this call's screen: open it; elsewhere, say it is ready */
+  if(ppLive===L&&L.ended&&cur.v==="partner"){ppLiveTeardown(false);ppRevOpen(e.id)}
+  else{ppLiveRender();toast(t("pp.rv_ready_toast"))}
+}
+window.ppLiveMute=()=>{const L=ppLive;if(!L||!L.stream)return;L.muted=!L.muted;L.stream.getAudioTracks().forEach(tr=>tr.enabled=!L.muted&&L.phase!=="break");ppLiveRender()};   /* between rounds the microphone stays closed */
+
 window.ppLiveRetryMic=()=>{const L=ppLive;if(!L)return;L.micErr=null;if(L.pc){try{L.pc.close()}catch(e){}L.pc=null}ppLiveConnect()};
 /* leaving: tell the partner first (bye), then the server; completed when the rounds are done */
 /* the red phone button: one tap ends whatever this room is — a pending
    invitation is cancelled (host) or declined (guest), a call is left */
 window.ppLiveHangup=()=>{const L=ppLive;if(!L)return;if(L.status==="invited"){return L.role==="host"?ppLiveCancel():ppLiveDecline()}return ppLiveLeave()};
-window.ppLiveLeave=async()=>{const L=ppLive;if(!L)return;const done=L.round>=PP_LIVE_ROUNDS&&L.startedAt;await ppLiveSignal("bye","1");ppLiveEnd(done?"completed":"left")};
+window.ppLiveLeave=async()=>{const L=ppLive;if(!L)return;const done=L.round>=PP_LIVE_ROUNDS&&L.phase!=="talk"&&L.startedAt;await ppLiveSignal("bye","1");ppLiveEnd(done?"completed":"left")};
 async function ppLiveEnd(reason){
   const L=ppLive;if(!L||L.ended)return;L.ended=reason;
   const secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;
@@ -22554,12 +22698,13 @@ async function ppLiveEnd(reason){
   if(L.startedAt){markPracticed();save()}
   ppHistLive(L,reason);
   try{track(reason==="completed"?"partner_live_completed":reason==="failed"?"partner_live_failed":"partner_live_left",{})}catch(e){}
-  ppLiveTeardown(true);L.secs=secs;ppLiveRender();
+  ppLiveTeardown(true);L.secs=secs;ppLiveRender();ppLiveRevMaybe(L);
 }
 /* the other side ended it (bye, block, expiry, decline) — neutral wording, never the reason behind a block */
-function ppLiveGone(why){const L=ppLive;if(!L||L.ended)return;L.ended=why==="completed"?"completed":why==="expired"?"expired":why==="declined"||why==="cancelled"?why:"partner_left";L.secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;ppLiveTeardown(true);if(L.startedAt||L.ended==="declined"||L.ended==="cancelled")ppHistLive(L,L.ended);ppRefresh(true).then(()=>{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)});ppLiveRender()}
+function ppLiveGone(why){const L=ppLive;if(!L||L.ended)return;L.ended=why==="completed"?"completed":why==="expired"?"expired":why==="declined"||why==="cancelled"?why:"partner_left";L.secs=L.startedAt?Math.round((Date.now()-L.startedAt)/1000):0;ppLiveTeardown(true);ppLiveRevMaybe(L);if(L.startedAt||L.ended==="declined"||L.ended==="cancelled")ppHistLive(L,L.ended);ppRefresh(true).then(()=>{const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)});ppLiveRender()}
 function ppLiveTeardown(keep){
   const L=ppLive;if(!L)return;clearTimeout(L.pollT);clearInterval(L.tickT);
+  if(L.phase==="talk"){L.phase="break";L.endsAt=null}ppLiveRecStop(L);
   try{const d=document.getElementById("ppLiveDot");if(d)d.classList.remove("on")}catch(e){}
   if(L.pc){try{L.pc.close()}catch(e){}L.pc=null}
   if(L.stream){L.stream.getTracks().forEach(tr=>{try{tr.stop()}catch(e){}});L.stream=null}
@@ -22587,7 +22732,7 @@ function ppLiveStatusText(L){
   if(L.micErr==="denied")return t("pp.live_mic_denied");if(L.micErr==="ended")return t("pp.live_mic_lost");if(L.micErr==="unsupported")return t("pp.live_unsupported");
   if(L.status==="invited")return t("pp.live_waiting",{name:esc(L.partner.name)});
   if(L.status==="reconnecting")return t("pp.live_reconnecting");
-  if(L.status==="active")return t("pp.live_connected");
+  if(L.status==="active")return L.phase==="break"?t("pp.lr_status_paused"):t("pp.live_connected");
   if(L.pcFailedShown)return t("pp.live_slow");
   return t("pp.live_connecting");
 }
@@ -22597,15 +22742,16 @@ function ppLiveHTML(L){
     const why=L.ended==="completed"?t("pp.live_done_completed"):L.ended==="failed"?t("pp.live_done_failed"):L.ended==="expired"?t("pp.live_done_expired"):L.ended==="declined"?t("pp.live_done_declined",{name:esc(L.partner.name)}):L.ended==="cancelled"?t("pp.live_done_cancelled"):L.ended==="partner_left"?t("pp.live_done_partner_left",{name:esc(L.partner.name)}):t("pp.live_done_left");
     return `<section class="card pp-decide pp-live-end"><div class="eyebrow">${t("pp.live_eyebrow")}</div><b>${why}</b>
       ${L.secs?`<p class="sub">${t("pp.live_done_time",{m:Math.floor(L.secs/60),s:String(L.secs%60).padStart(2,"0")})}</p>`:""}
+      ${ppLiveRevHTML(L)}
       ${L.help&&L.help.length?`<p class="pp-tip"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.live_help_h")}</p><ul class="pp-help">${L.help.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`:""}
       <div class="pp-row"><button class="btn-primary" onclick="ppLiveClose()">${t("pp.ai_back")}</button></div></section>`;
   }
-  const rounds=Array.from({length:PP_LIVE_ROUNDS},(_,i)=>`<span class="${i+1<L.round?"done":i+1===L.round?"now":""}"></span>`).join("");
+  const rounds=Array.from({length:PP_LIVE_ROUNDS},(_,i)=>`<span class="${i+1<L.round||i+1===L.round&&L.phase==="break"?"done":i+1===L.round?"now":""}"></span>`).join("");
   const live=L.status==="active";
   return `<section class="card pp-head pp-live-head ${live?"is-live":""}">
     <div class="pp-head-row"><span class="pp-avatar">${esc(L.partner.name.slice(0,1).toUpperCase())}</span>
       <div class="pp-head-t"><b>${t("pp.live_with",{name:esc(L.partner.name)})}</b><small>${t("pp.live_human")}</small></div>
-      <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?"0:00":""}</span>
+      <span class="pp-live-timer" id="ppLiveTimer">${L.startedAt?(()=>{const x=Math.max(0,Math.floor((Date.now()-L.startedAt)/1000));return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")})():""}</span>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppLiveMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
     ${L.countdown!=null?`<div class="pp-live-count" id="ppLiveCount" aria-live="polite">${L.countdown>0?L.countdown:t("pp.live_go")}</div>`:""}
     ${live?`<div class="pp-live-status active ${L.muted?"is-muted":""}"><button class="pp-mic-btn" onclick="ppLiveMute()" ${L.stream?"":"disabled"} aria-pressed="${L.muted?"true":"false"}" aria-label="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}" title="${esc(L.muted?t("pp.live_unmute"):t("pp.live_mute"))}">${ic(L.muted?"mic-off":"mic")}</button><span class="pp-live-status-t"><b>${L.muted?t("pp.live_muted"):ppLiveStatusText(L)}</b><small>${L.muted?t("pp.live_mic_hint_off"):t("pp.live_mic_hint_on")}</small></span><button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>`:`<div class="pp-live-status ${L.status}"><span class="pp-live-status-t"><b>${ic("clock")} ${ppLiveStatusText(L)}</b></span><button class="pp-hangup" onclick="ppLiveHangup()" aria-label="${esc(t("pp.live_hangup"))}" title="${esc(t("pp.live_hangup"))}">${ic("hangup")}</button></div>`}
@@ -22613,17 +22759,61 @@ function ppLiveHTML(L){
     ${(()=>{try{return localStorage.getItem("be_partner_debug")&&L.diag?`<p class="pp-fine">candidates — host ${L.diag.host} · srflx ${L.diag.srflx} · relay ${L.diag.relay} · from partner ${L.diag.remote} · ice ${L.pc?L.pc.iceConnectionState:"-"}</p>`:""}catch(e){return ""}})()}
     ${L.status==="invited"?`<div class="pp-row"><button class="btn btn-g" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`:""}
   </section>
-  ${L.status!=="invited"?`<section class="card pp-prompt"><div class="eyebrow">${t("pp.prompt_eyebrow",{n:L.round,max:PP_LIVE_ROUNDS})}</div><b>${esc(pr.title)}</b><p>${esc(pr.task)}</p>
-    <div class="pp-rounds">${rounds}<b>${t("pp.live_round_hint",{n:L.round,max:PP_LIVE_ROUNDS})}</b></div>
-    <div class="pp-row"><button class="btn btn-g btn-sm" onclick="ppLiveRound(-1)" ${L.round<=1?"disabled":""}>${ic("rewind")} ${t("pp.live_prev")}</button><button class="btn btn-g btn-sm" onclick="ppLiveRound(1)" ${L.round>=PP_LIVE_ROUNDS?"disabled":""}>${t("pp.live_next")} ${ic("forward")}</button></div>
-  </section>
+  ${L.status!=="invited"?ppLiveRoundHTML(L,pr,rounds):""}
+  ${L.status!=="invited"?`
   <section class="card pp-live-ctl">
     <div class="pp-row"><button class="btn ${L.muted?"btn-p":"btn-g"}" onclick="ppLiveMute()" ${L.stream?"":"disabled"}>${ic(L.muted?"mic-off":"mic")} ${L.muted?t("pp.live_unmute"):t("pp.live_mute")}</button>
       <button class="btn btn-g" onclick="ppLiveHelp()" ${L.helpBusy?"disabled":""}>${ic("sparkle")} ${t("pp.live_help")}</button>
       <button class="btn ${L.round>=PP_LIVE_ROUNDS?"btn-g":"btn-danger pp-leave-btn"} pp-leave" onclick="ppLiveLeave()">${ic("close")} ${L.round>=PP_LIVE_ROUNDS?t("pp.live_finish"):t("pp.live_leave")}</button></div>
     ${L.help&&L.help.length?`<p class="pp-tip"><span class="pp-ai-tag">${t("pp.ai_tag")}</span> ${t("pp.live_help_h")}</p><ul class="pp-help">${L.help.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`:L.help?`<p class="sub">${t("pp.ai_err")}</p>`:""}
     <p class="pp-fine">${t("pp.live_fine")}</p>
+    <p class="pp-fine">${ic("shield")} ${t("pp.lr_privacy")}</p>
   </section>`:""}`;
+}
+/* the round card: before a round — the question, the length (round 1 only)
+   and Start; during — the countdown; after — my round's quick analysis and
+   Start the next round (either learner may) */
+function ppLiveRoundHTML(L,pr,rounds){
+  const live=L.status==="active",head=`<div class="eyebrow">${t("pp.prompt_eyebrow",{n:L.round,max:PP_LIVE_ROUNDS})}</div><b>${esc(pr.title)}</b><p>${esc(pr.task)}</p><div class="pp-rounds">${rounds}</div>`;
+  if(L.phase==="talk")return `<section class="card pp-prompt pp-lr is-talk">${head}
+    <div class="pp-lr-clock"><span class="pp-lr-left" id="ppLiveLeft" aria-live="off">${ppLiveMmss((L.endsAt||Date.now())-Date.now())}</span><small>${t("pp.lr_left_h")}</small></div>
+    <p class="pp-fine">${ic("mic")} ${t("pp.lr_rec_on")} · ${t("pp.lr_talk_hint")}</p></section>`;
+  if(L.phase==="ready"){
+    const chips=L.round===1?`<div class="pp-lr-len"><small>${t("pp.lr_len_h")}</small><div class="pp-lr-chips" role="radiogroup">${PP_LIVE_MINS.map(m=>`<button class="pp-lr-chip ${m===L.mins?"on":""}" role="radio" aria-checked="${m===L.mins}" onclick="ppLiveSetMins(${m})">${t("pp.lr_min",{n:m})}</button>`).join("")}</div><p class="pp-fine">${t("pp.lr_len_sub",{total:L.mins*PP_LIVE_ROUNDS})}</p></div>`:"";
+    return `<section class="card pp-prompt pp-lr">${head}${chips}
+      <div class="pp-row"><button class="btn-primary" onclick="ppLiveStartRound()" ${live?"":"disabled"}>${ic("play")} ${t("pp.lr_start",{n:L.round,m:L.mins})}</button></div></section>`;
+  }
+  /* break: my round's analysis */
+  const nx=L.round<PP_LIVE_ROUNDS?ppPrompt({rounds:PP_LIVE_ROUNDS,round:L.round+1,promptWeek:L.seed.promptWeek,fndDay:L.seed.fndDay,prompt:L.seed.prompt}):null;
+  return `<section class="card pp-prompt pp-lr is-break"><div class="eyebrow">${t("pp.lr_break_eyebrow",{n:L.round,max:PP_LIVE_ROUNDS})}</div><div class="pp-rounds">${rounds}</div>
+    <p class="sub">${ic("mic-off")} ${t("pp.lr_paused")}</p>
+    ${ppLiveTipHTML(L,L.round)}
+    ${nx?`<div class="pp-lr-next"><small>${t("pp.lr_next_q",{n:L.round+1})}</small><p>${esc(nx.task)}</p></div>
+    <div class="pp-row"><button class="btn-primary" onclick="ppLiveStartRound()" ${live?"":"disabled"}>${ic("play")} ${t("pp.lr_start",{n:L.round+1,m:L.mins})}</button></div>`:`<p class="sub">${t("pp.lr_last")}</p>`}
+  </section>`;
+}
+function ppLiveTipHTML(L,n){
+  const rr=L.rr[n];
+  if(!rr)return `<p class="sub">${t("pp.lr_nothing")}</p>`;
+  if(rr.busy||L.rec&&L.rec.n===n)return `<p class="sub pp-lr-busy">${ic("sparkle")} ${t("pp.lr_analysing")}</p>`;
+  const tx=rr.parts.join(" ").replace(/\s+/g," ").trim();
+  if(!tx)return `<p class="sub">${t("pp.lr_nothing")}</p>`;
+  const tip=rr.tip&&typeof rr.tip==="object"?rr.tip:null;
+  return `<div class="pp-lr-said"><small>${t("pp.lr_you_said")}</small><p class="pp-tx">${esc(tx.length>420?tx.slice(0,420)+"…":tx)}</p></div>
+    ${rr.tip==="busy"||rr.tip===undefined?`<p class="sub pp-lr-busy">${ic("sparkle")} ${t("pp.lr_analysing")}</p>`:
+      tip?`<div class="pp-lr-tip"><span class="pp-ai-tag">${t("pp.ai_tag")}</span>
+        ${tip.well?`<p><b>${ic("check")} ${t("pp.lr_well")}</b> ${esc(tip.well)}</p>`:""}
+        ${tip.better?`${tip.said?`<p class="pp-lr-was"><small>${t("pp.rv_you_said")}</small> “${esc(tip.said)}”</p>`:""}<p class="pp-lr-better"><small>${t("pp.rv_better")}</small> “${esc(tip.better)}” ${ppRevHear(tip.better)}</p>`:""}
+        ${tip.why?`<p class="pp-fine">${esc(tip.why)}</p>`:""}</div>`:`<p class="pp-fine">${t("pp.lr_tip_na")}</p>`}`;
+}
+/* the ended card: where my full report stands */
+function ppLiveRevHTML(L){
+  const v=L.rev;
+  if(!v){const any=Object.keys(L.rr).length;return any?`<p class="sub pp-lr-busy">${ic("sparkle")} ${t("pp.lr_rev_wait")}</p>`:""}
+  if(v.state==="busy")return `<p class="sub pp-lr-busy">${ic("sparkle")} ${t("pp.lr_rev_busy",{n:v.n})}</p>`;
+  if(v.state==="ready")return `<div class="pp-row"><button class="btn-primary" onclick="ppLiveTeardown(false);ppRevOpen('${esc(v.id)}')">${ic("sparkle")} ${t("pp.lr_rev_open")}</button></div>`;
+  if(v.state==="none")return `<p class="sub">${t("pp.lr_rev_none")}</p>`;
+  return `<p class="sub">${t("pp.lr_rev_fail")}</p><div class="pp-row"><button class="btn btn-g" onclick="ppLiveRevRetry()">${t("pp.retry")}</button></div>`;
 }
 function ppLiveRender(){const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{ppPillSync();ppLiveDotSync()}catch(e){}}
 /* "How it works" from the Practice-tab card: the same three steps the partner

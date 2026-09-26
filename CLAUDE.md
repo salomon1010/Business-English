@@ -370,8 +370,19 @@ not JS, and `new Function` chokes on it. Check it separately with
   Worker (`/live*`, `live_sessions` + `live_signals`, migration 0004, server
   state machine, `LIVE_ENABLED` var "0" in prod; TURN optional via
   `TURN_KEY_ID`/`TURN_KEY_TOKEN` secrets, STUN-only otherwise); client
-  `ppLive*`, flag `practice_partner_live_enabled` (off). Nothing recorded in
-  live. AI sessions are opened through `POST /ai/session` (12/day per learner,
+  `ppLive*`, flag `practice_partner_live_enabled` (off). **Timed rounds +
+  own-voice report (feature/live-call-report, 2026-09-25):** 4 rounds on a
+  countdown chosen before round 1 (`PP_LIVE_MINS` 2/3/4/5, default 3; signal
+  `round` carries JSON `{act:"start"|"mins",r,secs,at}`); `ppLiveBegin` →
+  `ppLiveRoundEnd` pauses both mics (track disabled, call kept); each phone
+  records ONLY its own mic per round (`ppLiveRecStart` on `L.stream`),
+  transcribes it (`fbTranscribe`), shows a quick AI tip (`ppLiveRoundTip`,
+  Polish `chat`), and after round 4 / any end sends its own transcripts to
+  `POST /live/:id/review` (same `reviewAI`/`reviewShape`, `reviews` table
+  keyed by the live id, evidence "asr") → `S.ppRev` (`pairId:"live:"+id`) →
+  `ppRevOpen`; History live row links it (`revId`). Partner audio is never
+  recorded. Test hook `localStorage.be_live_round_secs`. Suite
+  `tests/live-rounds.mjs` (22). AI sessions are opened through `POST /ai/session` (12/day per learner,
   idempotent). Partner management: **Leave today's practice** (session only,
   `/pairs/:id/leave`) ≠ **Find someone else** (rematch + cooldown) ≠ **End
   partnership** (`/connection/end {cid}`, connection `ended`, not a block) ≠
