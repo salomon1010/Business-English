@@ -133,7 +133,7 @@ window.FB_CONFIG={
      app.lomonec.com and localhost are untouched. beEnv(host) is the one
      place that knows; partner API and feature flags read the same function. */
   /* The App Store shell runs at capacitor://localhost, which no hostname rule
-     can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync -- --staging)
+     can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
   window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
@@ -19715,7 +19715,14 @@ function entNoteChange(uid,next){
   else if(!next.paid)track("entitlement_expired",{provider:p.provider,state:String(next.state||"expired")});
   else if(prev.renews!==false&&next.renews===false)track("entitlement_cancelled",{provider:p.provider,state:"cancelled"});
 }
+/* The plan can change while the app sits in the background — a renewal, a
+   refund, an expiry, a cancellation in the store's own sheet. Coming back to
+   the app asks the server again (at most every ENT_RECHECK_MS), so a revoked
+   plan returns to Free without a relaunch and a renewal shows at once. */
+const ENT_RECHECK_MS=5*60e3;let _entAskedAt=0;
+function entRefreshSoon(force){try{if(!entUid()||!entApiBase())return;if(!force&&Date.now()-_entAskedAt<ENT_RECHECK_MS)return;_entAskedAt=Date.now();entRefresh()}catch(e){}}
 async function entRefresh(){
+  _entAskedAt=Date.now();
   const uid=entUid(),base=entApiBase();
   if(!uid){entWipe();entApply();return ENT_FREE}
   if(!base)return entView();
@@ -20171,7 +20178,8 @@ const BillingProviders={
        prompt for the Apple ID, so it is never called without a tap) */
     async owned(){if(typeof window.BENativeBilling.currentEntitlements!=="function")return [];
       const l=await window.BENativeBilling.currentEntitlements();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo,productId:x.productId}))},
-    manage(){try{window.BENativeBilling.manageSubscriptions()}catch(e){}},
+    /* Apple's own sheet; when it closes the plan may have changed there */
+    manage(){try{Promise.resolve(window.BENativeBilling.manageSubscriptions()).then(()=>entRefreshSoon(true),()=>{})}catch(e){}},
     /* what StoreKit hands over outside a purchase — renewals, an Ask to Buy
        approval, a refund, a purchase on another device, and anything left
        unfinished last time — goes to the server the same way a Restore does,
@@ -29146,6 +29154,7 @@ window.fbSyncPull=fbSyncPull;
 document.addEventListener("visibilitychange",()=>{
   if(document.visibilityState!=="visible")return;
   fbSyncPull();
+  entRefreshSoon();
   /* the app was left open in the background and picked up again hours later:
      same landing as a cold launch, unless the learner is mid-session */
   try{

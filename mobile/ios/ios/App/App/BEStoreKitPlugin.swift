@@ -49,7 +49,8 @@ public class BEStoreKitPlugin: CAPPlugin, CAPBridgedPlugin {
                 guard let self = self else { return }
                 if case .verified(let tx) = result, BEStoreKitPlugin.allowed.contains(tx.productID) {
                     let data = await self.payload(result, tx)
-                    self.notifyListeners("transaction", data: data, retainUntilConsumed: true)
+                    // the web view is the main thread's: hand the event over there
+                    await MainActor.run { self.notifyListeners("transaction", data: data, retainUntilConsumed: true) }
                 }
             }
         }

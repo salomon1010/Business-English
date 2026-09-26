@@ -72,6 +72,21 @@ const google_play = {
   },
 };
 
+/* Is this signed transaction OLDER than the period already recorded for the
+   same subscription (same originalTransactionId)? Apple delivers out of order,
+   and a device can hand over an old transaction (Transaction.updates, a
+   restore). An older transaction — renewed, expired OR refunded — must never
+   roll back an ACTIVE record whose period runs later: a refund of an earlier
+   period leaves the current, paid period standing (Apple: revoke only what the
+   refund covers). Compared on the transaction's own expiry; a grace, expired or
+   revoked row always takes the newer word, and the current period's own
+   transaction (same expiry) is never stale — so its refund does revoke. */
+async function appleStale(env, link) {
+  if (!env || !env.DB) return false;
+  const cur = await env.DB.prepare("SELECT status, expires_at FROM purchase_links WHERE provider=? AND ext_id=?").bind("app_store", link.ext_id).first();
+  return !!cur && (cur.status === "active" || cur.status === "trialing") && Number(cur.expires_at) > Number(link.txExpires);
+}
+
 const app_store = {
   id: "app_store",
   configured: env => as.configured(env),
@@ -93,9 +108,10 @@ const app_store = {
     const r = await this._link(ev && ev.signedTransaction, ev && ev.signedRenewalInfo, ctx);
     if (!r.ok) return r;
     if (r.ignore) return fail(409, "superseded");      /* an upgraded transaction: the current one is the proof */
+    if (await appleStale(ctx.env, r.link)) return fail(409, "superseded");   /* an older period than the one on record */
     /* the transaction must carry THIS account's appAccountToken: a transaction
        bought on another BE Mastery account (or with none) cannot be claimed */
-    if (!r.link.appAccountToken || r.link.appAccountToken !== await as.appAccountToken(ctx.uid, ctx.env)) return fail(403, "account_mismatch");
+    if (!r.link.appAccountToken || r.link.appAccountToken !== (await as.appAccountToken(ctx.uid, ctx.env)).toLowerCase()) return fail(403, "account_mismatch");
     return { ok: true, links: [r.link] };
   },
   async notification(req, ctx) {
@@ -114,15 +130,8 @@ const app_store = {
     if (!r.ok) return r;
     if (r.ignore) return { ok: true, id, updates: [] };
     if (p.notificationType === "REFUND" || p.notificationType === "REVOKE") r.link.record.status = "revoked";
-    /* Apple can deliver out of order. A notification whose transaction ended
-       BEFORE the period already recorded (an older renewal arriving late) must
-       not roll the plan back. Compared on the transaction's own expiry, and only
-       against an active record — a grace, expired or revoked row always takes
-       the newer word, and a revocation is never stale. */
-    if (r.link.record.status !== "revoked" && ctx.env.DB) {
-      const cur = await ctx.env.DB.prepare("SELECT status, expires_at FROM purchase_links WHERE provider=? AND ext_id=?").bind("app_store", r.link.ext_id).first();
-      if (cur && (cur.status === "active" || cur.status === "trialing") && Number(cur.expires_at) > Number(r.link.txExpires)) return { ok: true, id, updates: [] };
-    }
+    /* out of order, or a refund of an EARLIER period: acknowledged, nothing changes */
+    if (await appleStale(ctx.env, r.link)) return { ok: true, id, updates: [] };
     return { ok: true, id, updates: [{ ...r.link, bindByAccountToken: r.link.appAccountToken }] };
   },
 };

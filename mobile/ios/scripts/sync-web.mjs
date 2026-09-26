@@ -25,7 +25,7 @@ const idx = resolve(out, "index.html");
 if (!existsSync(idx)) throw new Error("index.html missing from the bundle");
 const html = readFileSync(idx, "utf8");
 if (!/<meta name="viewport"/.test(html)) throw new Error("viewport meta missing");
-/* `npm run sync -- --staging` (TestFlight against staging): the COPY gets
+/* `npm run sync:staging` (TestFlight against staging): the COPY gets
    be-build.js, loaded first, which points the app at the staging Workers
    (beEnv) and turns billing on for Sandbox testing. Never used for an App Store
    submission; the committed index.html is not touched. */

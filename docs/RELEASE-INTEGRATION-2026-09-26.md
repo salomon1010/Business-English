@@ -86,7 +86,7 @@ deploy is v486.
 
 ## Later commits
 - `d4cc447`: staging TestFlight builds reach the staging Workers
-  (`npm run sync -- --staging` writes `be-build.js` into the copy only), and
+  (`npm run sync:staging` writes `be-build.js` into the copy only), and
   the App Store shell ignores the dev `be_ent_api` override. ios-storekit is
   23/23 after it; entitlement-client 46/46 and smoke 33/33.
 - **billing-client dropped to 46/49 after `d4cc447`** (C6, C7, C9). Its

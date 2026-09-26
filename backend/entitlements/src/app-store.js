@@ -89,7 +89,8 @@ export function toRecord(tx, renewal, env, nowMs) {
     plan: PRODUCTS[tx.productId], product: tx.productId, status,
     starts_at: Number.isFinite(start) ? Math.min(start, expires - 1) : null, expires_at: expires,
     source: "app_store", updated_at: nowMs,
-    appAccountToken: tx.appAccountToken || null, originalTransactionId: String(tx.originalTransactionId || ""),
+    /* a UUID: compared lower-case everywhere (ours are minted lower-case) */
+    appAccountToken: tx.appAccountToken ? String(tx.appAccountToken).toLowerCase() : null, originalTransactionId: String(tx.originalTransactionId || ""),
     txExpires: exp,   /* the transaction's own expiry (expires_at can be a grace end) */
   };
 }

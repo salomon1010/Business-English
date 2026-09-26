@@ -291,7 +291,7 @@ export async function handle(req, env, deps = {}) {
         const row = await q(env, "SELECT uid FROM purchase_links WHERE provider=? AND ext_id=?", u.provider, u.ext_id).first();
         let uid = row && row.uid;
         if (!uid && u.bindByAccountToken) {                       /* first sight of an Apple purchase: the appAccountToken names its account */
-          const a = await q(env, "SELECT uid FROM app_accounts WHERE token=?", u.bindByAccountToken).first();
+          const a = await q(env, "SELECT uid FROM app_accounts WHERE token=?", String(u.bindByAccountToken).toLowerCase()).first();
           uid = a && a.uid;
         }
         if (!uid) continue;                                        /* a purchase no account has bound yet: nothing to change */

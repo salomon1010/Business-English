@@ -89,7 +89,7 @@ const PLUGIN = ([eligible]) => {
 async function open({ uid = null, eligible = true, track = "general-english", pre = null, vp = { width: 390, height: 844 } } = {}) {
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block" });
   await ctx.exposeFunction("__appleSign", o => signedTx(o));
-  /* a STAGING iOS bundle, exactly as `npm run sync -- --staging` makes it: be-build.js
+  /* a STAGING iOS bundle, exactly as `npm run sync:staging` makes it: be-build.js
      routes the app to the staging Workers (served here by the local Worker) and turns billing on.
      A hand-set be_ent_api is ALSO planted, to prove the App Store shell ignores it. */
   await ctx.addInitScript(([s]) => { window.BE_BUILD = { env: "staging", flags: { billing_enabled: true } }; localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://evil.test"); try { sessionStorage.setItem("be_prem_launch", "1"); } catch (e) {} }, [seed(track)]);
@@ -191,6 +191,28 @@ console.log("\n# offline, restore, launch, another account");
   const tIg = await (async () => { const r = await handle(new Request("http://ent.test/v1/purchases/account-token", { headers: { "x-dev-user": "ig" } }), WENV, {}); return (await r.json()).appAccountToken; })();
   await p.evaluate(x => __sk.emit(x), signedTx({ product: "premium_monthly", token: tIg, days: 20, env: "Production" })); await sleep(500);
   ok("O5 · a Production transaction at the Sandbox (staging) server is not accepted — the environments never mix", await p.evaluate(() => !entIsPremiumForDisplay()));
+  await ctx.close();
+}
+
+console.log("\n# the plan follows the server while the app stays open");
+{
+  const { ctx, p, calls } = await open({ uid: "ik" });
+  await p.evaluate(() => Billing.buy("premium_monthly")); await sleep(600);
+  const before = await p.evaluate(() => entIsPremiumForDisplay());
+  /* the server now says the plan ended (e.g. an EXPIRED / REFUND notification reached it while the app was open) */
+  db.prepare("UPDATE entitlements SET status='revoked' WHERE uid=?").run("dev:ik");
+  const n0 = calls.filter(x => x === "GET /v1/entitlement").length;
+  await p.evaluate(() => { document.dispatchEvent(new Event("visibilitychange")); }); await sleep(500);
+  const n1 = calls.filter(x => x === "GET /v1/entitlement").length;
+  ok("R1 · back in the app within 5 minutes of the last check: the server is not asked again (no request storm)", before && n1 === n0, JSON.stringify({ before, n0, n1 }));
+  await p.evaluate(() => { _entAskedAt = Date.now() - 6 * 60e3; document.dispatchEvent(new Event("visibilitychange")); }); await sleep(700);
+  ok("R2 · back in the app later: the server is asked again and a revoked plan returns to Free without a relaunch", await p.evaluate(() => !entIsPremiumForDisplay() && entView().state === "revoked") && calls.filter(x => x === "GET /v1/entitlement").length === n1 + 1);
+  db.prepare("UPDATE entitlements SET status='active' WHERE uid=?").run("dev:ik");
+  await p.evaluate(() => entRefresh()); const back = await p.evaluate(() => entIsPremiumForDisplay());
+  /* the learner opens Apple's sheet and cancels there; by the time it closes the server knows */
+  db.prepare("UPDATE entitlements SET status='revoked' WHERE uid=?").run("dev:ik");
+  await p.evaluate(() => { _entAskedAt = Date.now(); Billing.manage(); }); await sleep(700);
+  ok("R3 · when Apple's Manage subscription sheet closes, the plan is asked again at once (not throttled)", back && await p.evaluate(() => __sk.calls.includes("manageSubscriptions") && !entIsPremiumForDisplay()));
   await ctx.close();
 }
 

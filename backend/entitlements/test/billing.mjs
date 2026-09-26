@@ -281,6 +281,23 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
   vn = await view("noa");
   ok("A28 · GRACE_PERIOD_EXPIRED (still in billing retry, no grace left) → Free, state expired", vn.plan === "free" && vn.state === "expired", JSON.stringify(vn));
   clock = T0;
+  /* Apple release completion (2026-09-26) */
+  const tp = await aToken("pip");
+  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-30");
+  await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 60 * DAY }), { originalTransactionId: "1000000060", autoRenewStatus: 1 }, "u-31");
+  let r3 = await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY, revocationDate: T0 }), null, "u-32");
+  let vp = await view("pip");
+  ok("A29 · a REFUND of an EARLIER period leaves the current paid period standing (Premium until its end)", r3.status === 200 && vp.plan === "premium" && vp.expiresAt === T0 + 60 * DAY, JSON.stringify(vp));
+  r3 = await averify("pip", atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 30 * DAY }));
+  ok("A30 · the device handing over that older period's transaction is refused (409 superseded), nothing rolls back", r3.status === 409 && (await view("pip")).expiresAt === T0 + 60 * DAY);
+  await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000060", appAccountToken: tp, productId: "premium_monthly", expiresDate: T0 + 60 * DAY, revocationDate: T0 }), null, "u-33");
+  ok("A31 · a REFUND of the CURRENT period revokes → Free", (await view("pip")).state === "revoked");
+  const tq = await aToken("quin");
+  r3 = await averify("quin", atx({ originalTransactionId: "1000000070", appAccountToken: tq.toUpperCase(), expiresDate: T0 + 30 * DAY }));
+  ok("A32 · the appAccountToken is matched case-insensitively (a UUID) on verify", r3.status === 200 && (await view("quin")).plan === "premium", JSON.stringify(r3.json));
+  const tr2 = await aToken("rex");
+  r3 = await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000080", appAccountToken: tr2.toUpperCase(), expiresDate: T0 + 30 * DAY }), null, "u-34");
+  ok("A33 · … and on a notification that arrives before the app (binding through the appAccountToken)", r3.status === 200 && (await view("rex")).plan === "premium");
   ok("A19 · Restore: the account's own transactions bind, another account's is refused; the latest expiry decides", r.status === 200 && r.json.results.map(x => x.ok).join() === "true,true,false" && r.json.view.expiresAt === T0 + 40 * DAY, JSON.stringify(r.json));
 }
 

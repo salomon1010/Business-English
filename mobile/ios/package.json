@@ -6,6 +6,7 @@
   "scripts": {
     "sync-web": "node scripts/sync-web.mjs",
     "sync": "node scripts/sync-web.mjs && npx cap sync ios",
+    "sync:staging": "node scripts/sync-web.mjs --staging && npx cap sync ios",
     "open": "npx cap open ios"
   },
   "devDependencies": {
