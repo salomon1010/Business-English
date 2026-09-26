@@ -11,7 +11,7 @@
   "navigationDividerColor": "#0F1526",
   "navigationDividerColorDark": "#0F1526",
   "backgroundColor": "#0A0E1A",
-  "enableNotifications": false,
+  "enableNotifications": true,
   "startUrl": "/",
   "iconUrl": "https://app.lomonec.com/icon-512.png",
   "maskableIconUrl": "https://app.lomonec.com/icon-512.png",
@@ -20,13 +20,17 @@
     "path": "./android.keystore",
     "alias": "bemastery"
   },
-  "appVersionName": "1.0.1",
-  "appVersionCode": 8,
+  "appVersionName": "1.1.0",
+  "appVersionCode": 9,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
   "webManifestUrl": "https://app.lomonec.com/manifest.json",
   "fallbackType": "customtabs",
-  "features": {},
+  "features": {
+    "playBilling": {
+      "enabled": true
+    }
+  },
   "alphaDependencies": {
     "enabled": false
   },
@@ -34,12 +38,12 @@
   "isChromeOSOnly": false,
   "isMetaQuest": false,
   "fullScopeUrl": "https://app.lomonec.com/",
-  "minSdkVersion": 21,
+  "minSdkVersion": 23,
   "targetSdkVersion": 36,
   "orientation": "portrait",
   "fingerprints": [],
   "additionalTrustedOrigins": [],
   "retainedBundles": [],
   "displayOverride": [],
-  "appVersion": "1.0.1"
+  "appVersion": "1.1.0"
 }

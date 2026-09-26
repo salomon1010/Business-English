@@ -82,7 +82,7 @@ d.text((68, H - 74), "app.lomonec.com  ·  Lomonec LLC", font=f_foot, fill=(108,
 
 # --- phone screenshot, rounded, on the right (bleeds off the bottom edge) ---
 # m09 is the neutral "Alex" demo profile — never a real person's name in public art
-shot = Image.open("manual/screenshots/m09-mobile.png").convert("RGB")
+shot = Image.open("manual/screenshots/m09-mobile.webp").convert("RGB")
 pw = 268
 ph = int(shot.height * pw / shot.width)
 shot = shot.resize((pw, ph), Image.LANCZOS)

@@ -61,7 +61,7 @@ Play Console when there are figures worth showing; nothing is invented.
 ## Assets
 
 - `img/logo.svg`, `img/icon-192.png` — copies of the app's own.
-- `img/phone-*.webp` — 540×1200 versions of `playstore/store-art-2026-08/phone/`
+- `img/phone-*.webp` — 540×1200 versions of `playstore/store-art-2026-09/phone/`
   (neutral "Alex" profile). Regenerate from those PNGs if the store art changes.
 - The social preview image is the app's `https://app.lomonec.com/og.png`
   (absolute URL, so it works from either domain).

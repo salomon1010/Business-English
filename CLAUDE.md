@@ -237,6 +237,104 @@ not JS, and `new Function` chokes on it. Check it separately with
   are dropped with 204. Tests: `tests/shadow-coach.mjs`
   (`npm run test:coach`). i18n keys `fb.c_*` (fr/es/pt/ar translated, English
   elsewhere). Help-centre pages do not describe the new layout yet.
+- **Entitlements + ad eligibility (Phase 7, `feature/phase7-entitlements`, NOT
+  deployed — `docs/ENTITLEMENTS.md`, `backend/entitlements/README.md`).** The
+  plan is decided by the SERVER: `backend/entitlements/` (`be-entitlements`,
+  Worker + D1, Firebase-verified uid, no client write route) →
+  `entitlement-core.resolve()` → `GET /v1/entitlement` VIEW (no provider ids).
+  Client: `ENT_API` (empty = everyone Free, no request), `entRefresh()` on auth
+  change, `entView()` / `entIsPremiumForDisplay()` are DISPLAY ONLY (cache
+  `localStorage.be_ent_view`, uid-bound, 12 h, outside `S` so never synced),
+  `entEraseMe()` on account deletion, `entWipe()` in `fbWipeDevice`. **Never
+  gate a paid capability on the client** — enforce it in the Worker that spends
+  it, against this service. Ads: only `AdEligibility.decide(format, context)`
+  (flag `ads_enabled` off everywhere; plan → format → context → protected
+  state → `AD_POLICY` caps); never `if(!premium) showAd()`. A plan grants
+  capabilities, never tracks — `isGeneralEnglish()` stays the GE boundary.
+  Store adapters (Play / App Store) answer 501 until Phase 9.
+  **Phase 8 (`feature/phase8-ads`, `docs/ADVERTISING.md`):** `AdManager` is the
+  only thing that shows an ad. Completion points call `AdManager.markBreak(ctx)`
+  (session / Foundations / Shadow report / workshop / conversation / fresh Polish
+  report); `go()` calls `AdManager.afterNav(v)`, which offers the break over the
+  next NON-protected page and fills one labelled native slot at the foot of
+  Home / Progress / Shadow library / phrase bank. Providers: `none` (production),
+  `mock` (flag `ads_mock_provider`, localhost/staging only, labelled TEST),
+  `native` (future `window.BENativeAds` bridge from the store shells). Rewarded
+  = `AdManager.rewarded(kind, ctx, {userInitiated:true})` → server
+  `/v1/rewards/start` → network verifies server to server → single-use
+  `/v1/rewards/claim`; every reward kind ships disabled. Ad events
+  (`ad_*`, `rewarded_ad_*`) are on the be-events allow-list on this branch only.
+  **Phase 9 (`feature/phase9-native-monetization`,
+  `docs/PHASE9-ARCHITECTURE-DECISION.md`):** be-entitlements verifies store
+  purchases itself — Google Play (`subscriptionsv2`, acknowledge, RTDN with
+  Google OIDC) and Apple (StoreKit 2 JWS + pinned x5c chain, Server
+  Notifications V2, `appAccountToken`) — through `src/billing.js`; each store
+  purchase is a `purchase_links` row owned by ONE account (first bind wins,
+  409 otherwise) and the entitlement is derived from the links. AdMob SSV is
+  `GET /v1/rewards/verify/admob`. Client: `Billing` + `BillingProviders.play`
+  (Digital Goods API + Payment Request in the TWA; prices from Play) and
+  `.storekit` (`window.BENativeBilling`, iOS shell only — the Swift plugin is
+  NOT written); Premium card states in `entPlanCardHTML`; flag
+  `billing_enabled` OFF. `twa-manifest.json` has `playBilling` enabled (next
+  AAB only). Android stays a TWA. **iPhone test passed 2026-09-24**
+  (web behaviour only — no real purchase has been made on either store).
+  **Phase 10 QA (`feature/phase10-monetization-qa`,
+  `docs/PHASE10-QA-REPORT.md`):** `Billing.reconcile()` silently re-sends
+  what the store says the device owns, once per account per launch, **Premium
+  or not** — a verify can grant Premium while Google's acknowledge fails, and
+  Play refunds an unacknowledged purchase after 3 days (Play
+  `listPurchases`, StoreKit `currentEntitlements` — never `restore()`, which
+  can prompt); a Play notification for a bound purchase also re-runs
+  `afterBind` (acknowledge). `purchase_links.secret_ref` (the raw Play token)
+  is written but read by NO code path — see the report's security section
+  before relying on it or adding a reader; after a store payment any 5xx / network failure is "paid, not
+  confirmed yet" (`acc.prem_pending_verify`, Play told `"unknown"`, never
+  `"fail"`). Manage opens only the store that sold the plan. Renewal terms +
+  Privacy (+ Apple EULA on iOS) sit beside every offer (`.ent-terms`). Worker:
+  `MAX_BODY` 413, `PURCHASE_PER_MIN` 429 via `rate_hits` (migration 0004).
+  Tests: `tests/monetization-qa.mjs` (210-render matrix), billing-client 31,
+  Worker billing 73.
+  **Phase 11 store prep (`feature/phase11-store-prep`,
+  `docs/PHASE11-STORE-PREPARATION.md`):** the Play token is stored SEALED
+  (`src/token-vault.js`, AES-256-GCM, Worker secret `PLAY_TOKEN_KEY`, row id as
+  AAD; no key → nothing stored, never plaintext) and erased on revoke,
+  supersede, expiry and account deletion. Play `PENDING` → status
+  `payment_pending` (no Premium, never acknowledged; card says "payment still
+  being processed"); `Billing.buy` takes its message from the server view.
+  Acknowledge only for active / grace / trialing. No real store test has run;
+  the TWA loads app.lomonec.com, so internal testing needs the owner's host
+  decision (doc §0). Tests: Worker billing 86, billing-client 33.
+  **Phase 12A (`docs/PHASE12A-INTERNAL-TEST.md`):** `twa-manifest.json` →
+  versionCode 9 / 1.1.0, `enableNotifications: true` (Bubblewrap refuses
+  playBilling without it), **minSdk 23** (Play Billing Library 8 is required
+  for updates from 31 Aug 2026 and needs API 23 — owner decision), target 36.
+  Build with **Bubblewrap 1.25.0** (`npx @bubblewrap/cli@1.25.0`); the global
+  1.24.1 template hard-codes target 35. Billing analytics: `purchase_*` /
+  `entitlement_*` in be-events with an ENUM guard (unknown value → blank, so a
+  token can never land); client calls in `Billing` + `entNoteChange`.
+  `[env.staging]` for be-entitlements + `beEnv().entitlements` (staging host
+  only). privacy.html §5b (purchases) + §7b (ads).
+  **Premium acquisition (`feature/premium-acquisition`, `docs/PREMIUM-ACQUISITION.md`):**
+  `premiumOpen(from)` sheet over `Billing` (no new purchase path) — the STORE's
+  plans (period / trial / numeric price now kept by `BillingProviders.play.products`),
+  Annual first with the saving computed from the store's two prices, a trial
+  ONLY when the store reports `freeTrialPeriod`, one Continue → `Billing.buy`.
+  Entry points only when `premOffered()` (billing live or already Premium):
+  Profile row, App Setup "See Premium plans", "Remove ads with Premium" beside
+  ads. Home untouched. The card no longer promises "More AI coaching"
+  (`ai_allowance` is read by no feature). Play: `premium_monthly`/`monthly`
+  P1M $4.99 + offer `trial3d`; `premium_annual`/`annual` P1Y $19.99.
+  Colour token is `--txt` (there is no `--text`).
+  **Phase 12B (`docs/PHASE12B-INTERNAL-TEST-ENV.md`):** `be-entitlements-staging`
+  Worker DEPLOYED + D1 `be-entitlements-staging` (09dd4913…) migrated 0001–0004;
+  staging-only `PLAY_TOKEN_KEY` / `APP_ACCOUNT_SECRET` set; `GOOGLE_SA_JSON` and
+  RTDN vars NOT set (501 until then). Observability OFF in wrangler.toml
+  (traces would record the token-bearing Google URL). Notification delegation
+  must stay ON: Bubblewrap's DelegationService (enabled only by
+  enableNotifications) hosts the DigitalGoodsRequestHandler. Two bundles:
+  staging host (`playstore/twa-manifest.staging.json`) = internal vc 9;
+  production host must be rebuilt as vc 10 at release. No production
+  entitlement Worker/D1 exists yet. Test harnesses apply every file in `migrations/`.
 - **Feature flags + the General-English-only boundary.** `FLAGS_DEFAULT` +
   `flag(name)`; `localStorage.be_flags`
   (JSON) overrides for local/test/internal preview; on a phone, `?flags=name,name`
@@ -621,6 +719,20 @@ not JS, and `new Function` chokes on it. Check it separately with
   Profile (`fbOnAuth` calls `pfSetupSheetSync()`); Programme → `go("tracks","profile")` (its back button then reads "‹ Profile"); Help → `openManual()` (records the return page); every sheet has a close; the
   identity row and "App Setup" → `setupOpen('setProfile')`. The header streak pill is gone (v420; `streakPillSync()` is a null-safe no-op now, the streak lives on Progress). Play glyphs: `"▶"`
   / `"⏸"` are in `EMOJI_ICON`, so the sweep draws line icons, never OS emoji.
+- **Premium limits (feature/premium-shadow-videos, NOT on main).** One frozen
+  table `PLAN_LIMITS` (free/premium: `savedShadow` 5/100, `youtubeImports` 2/20,
+  `polishHistory` 1/50, plus future rows set to null = not enforced), read via
+  `planLimit()`; `planKey()` = the server's entitlement answer, only with an
+  entitlement service; everything is gated by `planOn()` (billing_enabled +
+  service), so with billing off the app is unchanged. General English only.
+  Shadow "Your videos" entries carry `src` "lib"/"yt" (legacy classified once
+  from the catalogue, additive); refused imports never load and `shCapMayAsk`
+  keeps the Worker from transcribing anything that is not a library video or a
+  current import. Launch offer `premLaunchMaybe` (once per session, X after 5 s).
+  Subscription card in App Setup (`subCardHTML`, Free upsell / Premium plan +
+  Manage via the store; plan name from `Billing.ownedIds`, suite
+  `tests/subscription.mjs`).
+  Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in
@@ -905,6 +1017,11 @@ Fixes / infra
   2026-08-01** (`playstore/screenshots/`, `playstore/tablet-screenshots/`);
   recover from git history if ever needed. `playstore/screenshots-2026-08/` is
   the interim phone-only set, superseded by `store-art-2026-08/phone/`.
+  **`playstore/store-art-2026-09/`** (phone / tablet / iphone-6.9, seven each)
+  is the design-system set (Phase 6, 2026-09-24, dark first): generated, **not
+  yet uploaded** — the 2026-08 set is still what the listing shows until the
+  owner uploads the new one. The Help-centre figures are regenerated by
+  **`scripts/store-art/shoot-manual.mjs`** and are WebP (`manual/screenshots/*.webp`).
   - **Upload is manual in Play Console — nothing in the repo pushes it.**
     **Uploaded and live 2026-08-02** — the store page now shows the six phone
     shots and the tablet set, version 1.0.1, "Updated on Jul 31, 2026".

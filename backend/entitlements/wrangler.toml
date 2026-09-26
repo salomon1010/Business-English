@@ -1,0 +1,79 @@
+# be-entitlements — the server-side source of truth for a learner's plan.
+# NOT DEPLOYED. The D1 database does not exist yet; database_id is a
+# placeholder so an accidental `wrangler deploy` fails instead of binding to
+# something else. Setup (owner, when Phase 9 billing is ready):
+#   npx wrangler d1 create be-entitlements        -> paste the id below
+#   npx wrangler d1 migrations apply be-entitlements --remote
+#   npx wrangler secret put ADMIN_TOKEN           (>= 32 random chars; owner only)
+#   openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY   (seals stored Play tokens)
+# Keep [observability] traces OFF: Google API URLs carry the purchase token.
+#   npx wrangler deploy --env ""
+name = "be-entitlements"
+main = "entitlements-worker.js"
+compatibility_date = "2026-09-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://app.lomonec.com,capacitor://localhost"
+
+# Observability OFF, explicitly: Workers traces record outbound fetch URLs,
+# and the Google Play API URL carries the purchase token (Phase 10/11 review).
+[observability]
+enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "be-entitlements"
+database_id = "REPLACE-WITH-D1-ID"
+migrations_dir = "migrations"
+
+# local development: wrangler dev --env dev (X-Dev-User instead of Firebase)
+[env.dev]
+[env.dev.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+DEV_AUTH = "1"
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "be-entitlements"
+database_id = "local-dev"
+migrations_dir = "migrations"
+
+# Staging (Phase 12A) — what the Play internal-test build talks to through
+# staging.lomonec.com (index.html beEnv() → entitlements). Its own Worker and
+# its own D1: nothing is shared with production. NOT DEPLOYED. Owner-run:
+#   npx wrangler d1 create be-entitlements-staging          -> paste the id below
+#   npx wrangler d1 migrations apply be-entitlements-staging --remote --env staging
+#   npx wrangler secret put GOOGLE_SA_JSON --env staging      (the Play service-account key)
+#   openssl rand -base64 32 | npx wrangler secret put PLAY_TOKEN_KEY --env staging   (NOT the production key)
+#   npx wrangler secret put APP_ACCOUNT_SECRET --env staging  (>= 32 chars; NOT the production value)
+#   npx wrangler deploy --env staging
+# DEV_AUTH is never set here: staging uses real Firebase sign-in.
+[env.staging]
+name = "be-entitlements-staging"
+# RTDN custom domain (2026-09-25): Google Pub/Sub pushes to the workers.dev
+# hostname were answered 404 by Cloudflare's edge before the Worker ran (9,264
+# pushes, 0 invocations), so RTDN uses a custom domain in the lomonec.com zone.
+# workers.dev stays enabled for everything else.
+routes = [{ pattern = "entitlements-staging.lomonec.com", custom_domain = true }]
+workers_dev = true
+[env.staging.vars]
+FIREBASE_PROJECT_ID = "be-mastery"
+ALLOWED_ORIGINS = "https://staging.lomonec.com"
+PLAY_PACKAGE = "com.bemastery.app"
+# RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
+# THIS Worker, reached through the custom domain above; the push endpoint must be
+# exactly this URL. With the push
+# subscription's Audience left blank, Pub/Sub uses the push endpoint URL as the
+# token's aud (Pub/Sub OidcToken.audience docs), so RTDN_AUDIENCE = that URL.
+# RTDN_SA_EMAIL = the push subscription's service account (the token's email).
+RTDN_AUDIENCE = "https://entitlements-staging.lomonec.com/v1/billing/google_play"
+RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
+APPLE_BUNDLE_ID = "com.bemastery.app"
+APPLE_ENVIRONMENTS = "Sandbox"
+[env.staging.observability]
+enabled = false
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "be-entitlements-staging"
+database_id = "09dd4913-4193-4893-bb75-91ba6a906584"   # be-entitlements-staging, created 2026-09-25
+migrations_dir = "migrations"

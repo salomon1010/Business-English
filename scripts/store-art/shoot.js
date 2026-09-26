@@ -23,7 +23,7 @@ const fs = require("fs");
 
 const CHROME = process.env.CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const BASE = process.env.BASE || "http://localhost:8765";
-const OUT_ROOT = process.env.OUT_ROOT || "store-art-2026-08";
+const OUT_ROOT = process.env.OUT_ROOT || "store-art-2026-09";
 
 const PRESETS = {
   // css box the app lays out in, then the multiplier that hits Play's pixel size
@@ -39,8 +39,9 @@ const SHOTS = [
   { file: "01-dashboard", go: ["home"] },
   { file: "02-journey",   go: ["journey"] },
   { file: "03-phrases",   go: ["phrases"] },
-  // the calendar sits below the profile header, so scroll past the avatar block
-  { file: "04-progress",  go: ["profile"], settle: 900, scrollTo: 620 },
+  // Progress lives on its own tab since v418 (Profile became Settings): the
+  // week's story and the key numbers sit at the top of it
+  { file: "04-progress",  go: ["review"], settle: 900 },
   // a day session deliberately renders into the journey view's container
   { file: "05-session",   go: ["session", 1, "Mon"], expect: "v-journey" },
   // Shadow is deliberately absent: every dense screen in the studio renders
@@ -48,9 +49,9 @@ const SHOTS = [
   // two-thirds empty. Practice fills the slot instead — it is the spaced-
   // repetition gym, which nothing else in the set shows.
   { file: "06-practice",  go: ["practice"], settle: 4500 },
-  // the trend section sits below the calendar, so scroll past both the avatar
-  // block and the month grid
-  { file: "07-trend",     go: ["profile"], settle: 1100, scrollTo: 1500 },
+  // the charts (pronunciation journey, vocabulary growth, speaking speed) sit
+  // under the story and the numbers on the Progress tab
+  { file: "07-trend",     go: ["review"], settle: 1100, scrollTo: 500 },
 ];
 // Practice Partner (App Store set): real UI against the local be-partner Worker
 // (wrangler dev, DEV_AUTH) — "Alex" is consented, "Sam" is in line, so the page

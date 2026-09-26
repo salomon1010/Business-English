@@ -340,3 +340,7 @@ which reformats 2,200 lines per file and makes the change unreviewable.
 
 Changing the *English text* behind an existing key leaves 15 stale translations.
 Say so when you do it.
+
+## Addendum — the AI-native layer (2026-09-24)
+
+Depth, the voice-reactive recording state, AI working states, the coaching entrance and the success moment for General English are prototyped in [`DESIGN_SYSTEM_AI.md`](DESIGN_SYSTEM_AI.md) (General English proof of concept). The plan for both tracks (a shared shell with the "Signal" and "Forge" token themes) is [`DESIGN_SYSTEM_BEMASTERY.md`](DESIGN_SYSTEM_BEMASTERY.md). Both are built on the tokens and contracts above and change none of them.
