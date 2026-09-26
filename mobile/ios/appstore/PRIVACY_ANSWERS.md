@@ -14,7 +14,8 @@ The same facts are in `ios/App/App/PrivacyInfo.xcprivacy`. Answer exactly this.
 | User content → Other user content | Yes — transcripts of those turns, notes, phrases the user keeps (synced when signed in) | Yes | No | App functionality |
 | Usage data → Product interaction | Yes — anonymous event counts (opens, sessions completed, feature use); no device id | **No** | No | Analytics |
 | Identifiers | No device ID, no advertising ID | — | — | — |
-| Location, contacts, health, financial, browsing history, purchases, diagnostics (crash logs) | Not collected | — | — | — |
+| Purchases → Purchase history | Yes: the account's BE Mastery Premium plan, its status and dates, taken from Apple's signed transaction (never payment details: Apple keeps those) | Yes | No | App functionality (which plan the account has, on every device) |
+| Location, contacts, health, financial info, browsing history, diagnostics (crash logs) | Not collected | — | — | — |
 
 Notes for the form
 - Live practice audio is peer-to-peer and never stored — it is not "collected".

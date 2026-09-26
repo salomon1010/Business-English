@@ -11,8 +11,8 @@ this file is the maintained one.
 BE Mastery is a spoken-English learning app for professionals: a 12-week
 programme of 25-minute daily sessions built around recording your own voice,
 with pronunciation feedback, a phrase bank, a shadowing studio and an optional
-practice partner. Made by Lomonec LLC. No purchases, no ads, no third-party
-login.
+practice partner. Made by Lomonec LLC. One optional auto-renewing
+subscription (BE Mastery Premium); no ads, no third-party login.
 
 **Sign-in.** Optional for the programme; required for Practice Partner. Use the
 two demo accounts in the sign-in fields (Profile tab → Account → Log in,
@@ -54,6 +54,27 @@ never stored or sent.
    the sign-in, the synced progress and every Practice Partner record (voice
    turns, sessions, connections) and clears the device. Also documented at
    https://app.lomonec.com/delete-account.html.
+
+**Subscriptions: BE Mastery Premium (optional).** One subscription group with
+two auto-renewable subscriptions:
+- `premium_monthly`, with a 3-day free trial for new subscribers;
+- `premium_annual`.
+
+The whole programme works without them. Premium keeps more of the learner's
+own material: up to 100 saved Shadow videos, 20 of their own YouTube videos
+and the last 50 Polish speaking reports.
+- **Where:** Profile → *BE Mastery Premium*, or Profile → App Setup →
+  *Subscription* → *See Premium plans*.
+- **The sheet shows:** the App Store's own prices and periods, the trial
+  (only when the Apple ID is eligible), the auto-renewal terms, links to the
+  privacy policy and Apple's standard EULA, and *Restore purchases*.
+- **After buying:** App Setup → *Subscription* shows the plan, its price, the
+  renewal date and *Manage subscription* (Apple's own sheet).
+- **Sign-in:** a purchase is tied to the BE Mastery account (appAccountToken),
+  so Premium follows the learner to the web app and to Android. For that
+  reason the plans ask the learner to sign in before buying.
+- **How to test:** use a Sandbox Apple ID on the device with one of the demo
+  accounts.
 
 **Two programmes, kept apart.** The app also has a Welding English track.
 Practice Partner, the AI coach and Shadow Studio's Watch/Shadow/Challenge

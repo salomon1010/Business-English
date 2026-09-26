@@ -7,6 +7,7 @@
 **Privacy policy URL** https://app.lomonec.com/privacy.html
 **Support URL** https://app.lomonec.com/delete-account.html (account & data help) — or https://app.lomonec.com/flyer.html#support
 **Marketing URL** https://app.lomonec.com/flyer.html
+**Terms of Use (EULA)** Apple's standard licence: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/. Leave the custom EULA field empty; the link is also in the description and in the app's Premium sheet.
 **Copyright** © 2026 Lomonec LLC
 **Content rights** all content is Lomonec LLC's own; the practice photos are AI-generated (`rp-photos/SOURCES.md`); no third-party licensed content.
 
@@ -41,6 +42,15 @@ When nobody is available, an AI coach takes the same four-turn practice. It is a
 
 PRIVACY
 Your lesson recordings stay on your phone. A voice turn you choose to send to a partner, and audio sent for scoring, travel over an encrypted connection and are deleted on a schedule you can read in the privacy policy. You can delete your account and everything attached to it inside the app.
+
+BE MASTERY PREMIUM (optional)
+Everything above is free. Premium keeps more of your own practice: up to 100 saved Shadow videos, up to 20 of your own YouTube videos, and your last 50 Polish speaking reports.
+• Monthly or annual auto-renewing subscription. Prices are shown in the app in your currency before you confirm.
+• The monthly plan starts with a 3-day free trial for new subscribers.
+• Payment is charged to your Apple ID when you confirm. The subscription renews automatically unless you cancel it at least 24 hours before the end of the current period, and your account is charged for the renewal within those 24 hours.
+• Manage or cancel it at any time in your Apple ID settings (Settings → your name → Subscriptions).
+Privacy policy: https://app.lomonec.com/privacy.html
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 Made by Lomonec LLC.
 

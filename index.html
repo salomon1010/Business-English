@@ -8309,6 +8309,7 @@ const I18N_EN={
  "auth.card_synced_desc":"Your progress saves to your account automatically and follows you to any device where you log in.",
  "auth.signout_btn":"Sign out",
  "auth.delete_btn":"Delete account",
+ "auth.delete_sub_note":"Deleting your account does not cancel your BE Mastery Premium subscription. Cancel it in {{store}} first (App Setup → Subscription → Manage subscription), or you will still be charged.",
  "auth.card_sync_title":"☁️ Sync across your devices",
  "auth.card_sync_desc":"Optional and free. Sign in and your streak, scores, vocabulary and reviews save to your account — start on your phone, continue on your laptop. Prefer not to? Everything keeps working on this device with no account.",
  "auth.create_account_btn":"Create account",
@@ -20068,23 +20069,51 @@ const AdManager={
 
      Android (TWA)  Chrome's Digital Goods API + Payment Request with Play
                     Billing → purchaseToken → POST /v1/purchases/verify
-     iOS (Capacitor) window.BENativeBilling (StoreKit 2 plugin, native — added
-                    in Xcode, not present yet) → signed transaction carrying this
+     iOS (Capacitor) window.BENativeBilling (StoreKit 2 plugin BEStoreKitPlugin,
+                    mobile/ios/ios/App/App) → signed transaction carrying this
                     account's appAccountToken → POST /v1/purchases/verify
      web            no provider (a separate decision; nothing is sold on the web)
 
    Prices are whatever the store returns — never a number in this file.
    Everything here is behind flag billing_enabled (OFF) and ENT_API (empty).
 
-   BENativeBilling bridge contract (the iOS plugin must implement exactly this):
+   BENativeBilling bridge contract (beNativeBilling() builds it from the plugin):
      supports() → true
-     getProducts(ids) → [{ id, title, displayPrice }]            StoreKit Product
-     purchase(id, { appAccountToken }) → { signedTransaction, signedRenewalInfo? } | { cancelled:true }
-     restore() → [{ signedTransaction, signedRenewalInfo? }]      AppStore.sync(), then currentEntitlements
-                                                                 (may ask for the Apple ID — only from a tap)
-     manageSubscriptions()                                       AppStore.showManageSubscriptions
-     currentEntitlements() → [{signedTransaction,signedRenewalInfo}]   Transaction.currentEntitlements
-                                                                 (silent — the launch reconcile; optional) */
+     getProducts(ids) → [{ id, title, displayPrice, price, currencyCode, period, trial? }]
+                        StoreKit Product; period/trial are ISO 8601 ("P1M", "P3D"),
+                        trial ONLY when Apple says this Apple ID is eligible
+     purchase(id, { appAccountToken }) → { signedTransaction, signedRenewalInfo?, transactionId, productId }
+                                       | { cancelled:true } | { pending:true }   (Ask to Buy)
+     restore() → [ item ]              AppStore.sync(), then currentEntitlements
+                                       (may ask for the Apple ID — only from a tap)
+     currentEntitlements() → [ item ]  Transaction.currentEntitlements (silent: the launch reconcile)
+     pendingTransactions() → [ item ]  Transaction.unfinished (offered again until finished)
+     finish(transactionId)             finish a transaction once OUR server has answered
+     onTransaction(cb)                 Transaction.updates: renewals, approvals, refunds
+     manageSubscriptions()             AppStore.showManageSubscriptions (Apple's own sheet)
+   item = { signedTransaction, signedRenewalInfo?, transactionId, productId } */
+/* The App Store shell's side: Capacitor's BEStoreKit plugin (Swift, registered
+   by BEBridgeViewController), shaped into the contract above. Built once, only
+   inside the App Store app; everywhere else there is no native billing. */
+function beNativeBilling(){
+  if(window.BENativeBilling)return window.BENativeBilling;
+  if(!IS_IOS_APP)return null;
+  const C=window.Capacitor;if(!C||typeof C.registerPlugin!=="function")return null;
+  let P=null;try{P=C.registerPlugin("BEStoreKit")}catch(e){return null}
+  const list=r=>(r&&Array.isArray(r.items))?r.items:[];
+  window.BENativeBilling={
+    supports:()=>true,
+    getProducts:async ids=>{const r=await P.getProducts({ids});return (r&&Array.isArray(r.products))?r.products:[]},
+    purchase:(id,o)=>P.purchase({id,appAccountToken:o&&o.appAccountToken}),
+    restore:async()=>list(await P.restore()),
+    currentEntitlements:async()=>list(await P.currentEntitlements()),
+    pendingTransactions:async()=>list(await P.pendingTransactions()),
+    finish:id=>P.finish({transactionId:String(id)}),
+    onTransaction:cb=>P.addListener("transaction",cb),
+    manageSubscriptions:()=>P.manageSubscriptions(),
+  };
+  return window.BENativeBilling;
+}
 const BILLING_PRODUCTS=Object.freeze(["premium_monthly","premium_annual"]);
 const PLAY_BILLING_METHOD="https://play.google.com/billing";
 const BillingProviders={
@@ -20116,20 +20145,48 @@ const BillingProviders={
   },
   storekit:{
     id:"app_store",
-    async available(){return IS_IOS_APP&&!!(window.BENativeBilling&&typeof window.BENativeBilling.purchase==="function")},
-    async products(){const p=await window.BENativeBilling.getProducts(BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice}))},
+    async available(){const N=beNativeBilling();return IS_IOS_APP&&!!(N&&typeof N.purchase==="function")},
+    /* the store's own facts, as the Play provider gives them: period and trial
+       are ISO 8601; the trial is present only for an eligible Apple ID */
+    async products(){const p=await window.BENativeBilling.getProducts(BILLING_PRODUCTS.slice());return (p||[]).map(x=>({id:x.id,title:x.title,price:x.displayPrice,
+      amount:Number(x.price),currency:x.currencyCode||"",period:x.period||"",trial:x.trial||""}))},
     async purchase(id){
       const tok=await billingApi("GET","/v1/purchases/account-token");
-      const r=await window.BENativeBilling.purchase(id,{appAccountToken:tok.appAccountToken});
+      const N=window.BENativeBilling,r=await N.purchase(id,{appAccountToken:tok.appAccountToken});
       if(!r||r.cancelled)return {cancelled:true};
-      return {evidence:{provider:"app_store",signedTransaction:r.signedTransaction,signedRenewalInfo:r.signedRenewalInfo},finish(){}};
+      if(r.pending)return {pending:true};           /* Ask to Buy: it arrives later through onTransaction */
+      /* finished once OUR server answered (true or false); "unknown" leaves it
+         unfinished, so StoreKit offers it again at the next launch */
+      return {evidence:{provider:"app_store",signedTransaction:r.signedTransaction,signedRenewalInfo:r.signedRenewalInfo},
+        finish(ok){if(ok!=="unknown"&&r.transactionId&&N.finish)try{N.finish(r.transactionId)}catch(e){}}};
     },
-    async restore(){const l=await window.BENativeBilling.restore();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))},
+    async restore(){const l=await window.BENativeBilling.restore();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo,productId:x.productId}))},
     /* silent: Transaction.currentEntitlements (restore() = AppStore.sync, which can
        prompt for the Apple ID, so it is never called without a tap) */
     async owned(){if(typeof window.BENativeBilling.currentEntitlements!=="function")return [];
-      const l=await window.BENativeBilling.currentEntitlements();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))},
+      const l=await window.BENativeBilling.currentEntitlements();return (l||[]).map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo,productId:x.productId}))},
     manage(){try{window.BENativeBilling.manageSubscriptions()}catch(e){}},
+    /* what StoreKit hands over outside a purchase — renewals, an Ask to Buy
+       approval, a refund, a purchase on another device, and anything left
+       unfinished last time — goes to the server the same way a Restore does,
+       then is finished. Nothing is finished without a server answer. */
+    _listening:false,
+    listen(){
+      if(this._listening)return;this._listening=true;
+      const N=window.BENativeBilling;if(!N)return;
+      const send=async items=>{
+        items=(items||[]).filter(x=>x&&x.signedTransaction);if(!items.length||!FBUser)return;
+        try{
+          const j=await billingApi("POST","/v1/purchases/restore",{provider:"app_store",items:items.map(x=>({signedTransaction:x.signedTransaction,signedRenewalInfo:x.signedRenewalInfo}))});
+          billingTakeView(j.view);
+          items.forEach(x=>{if(x.transactionId&&N.finish)try{N.finish(x.transactionId)}catch(e){}});
+          Billing.ownedIds=items.map(x=>x.productId).filter(Boolean).concat(Billing.ownedIds||[]).filter((v,i,a)=>a.indexOf(v)===i);
+          Billing._draw();
+        }catch(e){}   /* offline / server trouble: left unfinished, offered again next launch */
+      };
+      try{if(N.onTransaction)N.onTransaction(x=>send([x]))}catch(e){}
+      try{if(N.pendingTransactions)N.pendingTransactions().then(send).catch(()=>{})}catch(e){}
+    },
   },
 };
 async function billingApi(method,path,body){
@@ -20156,6 +20213,7 @@ const Billing={
       if(!this.products.length){this.state="failed";this.note=t("acc.prem_unavailable")}
     }catch(e){this.products=[];this.state="failed";this.note=t("acc.prem_unavailable")}
     this._draw();
+    if(this.provider.listen)try{this.provider.listen()}catch(e){}
     this.reconcile();
   },
   /* A purchase the store holds but our server never confirmed (the app lost
@@ -20185,6 +20243,7 @@ const Billing={
     track("purchase_started",ev);
     let r;try{r=await this.provider.purchase(id)}catch(e){r={error:e}}
     if(!r||r.cancelled){track("purchase_failed",{...ev,reason:"cancelled"});this.state="ready";this._draw();return}
+    if(r.pending){track("purchase_pending",ev);this.state="ready";this.note=t("acc.prem_payment_pending");this._draw();return}   /* Ask to Buy: the approval arrives through the store's updates */
     if(r.error){track("purchase_failed",{...ev,reason:"store"});this.state="failed";this.note=t("acc.prem_failed");return this._draw()}   /* nothing was charged: the store never answered */
     try{
       const j=await billingApi("POST","/v1/purchases/verify",r.evidence);
@@ -29182,7 +29241,9 @@ window.fbSignOut=async function(){
 };
 window.fbDeleteAccount=async function(){
   if(!FBauth||!FBUser)return;
-  if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm"),confirmLabel:t("cf.delete")}))return;
+  /* a paying learner is told that the store subscription is not cancelled with the account */
+  let _subNote="";try{const v=entView();if(entIsPremiumForDisplay()&&(v.source==="google_play"||v.source==="app_store"))_subNote="\n\n"+t("auth.delete_sub_note",{store:v.source==="app_store"?"App Store":"Google Play"})}catch(e){}
+  if(!await askConfirm({title:t("cf.delacct_title"),body:t("auth.delete_confirm")+_subNote,confirmLabel:t("cf.delete")}))return;
   try{
     /* Practice Partner data lives in its own Worker (D1 + R2). It must go with the
        account (Apple 5.1.1(v), Google Play account deletion), and it needs the

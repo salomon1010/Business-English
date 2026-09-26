@@ -733,6 +733,18 @@ not JS, and `new Function` chokes on it. Check it separately with
   Manage via the store; plan name from `Billing.ownedIds`, suite
   `tests/subscription.mjs`).
   Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
+- **Apple / StoreKit 2 (release/premium-integration, NOT on main yet).** Native
+  plugin `BEStoreKitPlugin.swift` (Capacitor "BEStoreKit", registered by
+  `BEBridgeViewController`, used by SceneDelegate + Main.storyboard) → web
+  `beNativeBilling()` → `BillingProviders.storekit`. Transactions are finished only
+  after OUR server answered; `Transaction.updates` + unfinished go to
+  `/v1/purchases/restore`. Server: Apple JWS pinned to Apple Root CA - G3
+  (`APPLE_ROOT_SHA256`, staging var), isUpgraded ignored, wrong-environment
+  notifications acked, stale notifications cannot roll back. App Store Connect
+  set-up: `mobile/ios/appstore/SUBSCRIPTIONS.md`; design + test matrix:
+  `docs/APPLE_STOREKIT.md`; suites `tests/ios-storekit.mjs` (22),
+  `backend/entitlements/test/billing.mjs` (95). Built without Xcode: type-checked
+  against the macOS StoreKit SDK only — never compiled for iOS here.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

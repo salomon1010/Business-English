@@ -32,7 +32,7 @@ practice call. The permission prompt appears on the first Record tap.
 11. Delete account: Profile → Account → *Delete account* → confirm. This deletes the Firebase account, the synced progress and every Practice Partner record (voice turns, sessions, connections, live-call records), and clears the device.
 
 ## Notes for the reviewer
-- No purchases, no subscriptions, no ads, no third-party login (e-mail/password only).
+- One optional subscription group, BE Mastery Premium: `premium_monthly` (3-day free trial for new subscribers) and `premium_annual`. Everything is in `docs/APPLE_APP_REVIEW.md` § Subscriptions. No ads, no third-party login (e-mail/password only).
 - No text chat and no contact exchange exist; transcripts are automatically screened for phone numbers, e-mail addresses, links and social handles before delivery.
 - Practice Partner is only for learners aged 18 or over (in-app confirmation).
 - Works offline for the daily programme; Practice Partner, scoring and Executive Polish need a connection.

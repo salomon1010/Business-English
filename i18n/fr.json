@@ -2982,5 +2982,6 @@
  "sub.unlock": "Débloquez Premium",
  "sub.up_ge": "enregistrez jusqu'à {{n}} vidéos Shadow, ajoutez jusqu'à {{y}} vidéos YouTube et gardez vos {{p}} derniers rapports Polish.",
  "sub.manage_hint": "Changez de formule, de moyen de paiement ou résiliez dans {{store}}.",
- "sub.details": "Détails de l'abonnement"
+ "sub.details": "Détails de l'abonnement",
+ "auth.delete_sub_note": "Supprimer votre compte n'annule pas votre abonnement BE Mastery Premium. Résiliez-le d'abord dans {{store}} (Configuration → Abonnement → Gérer l'abonnement), sinon vous serez toujours facturé."
 }

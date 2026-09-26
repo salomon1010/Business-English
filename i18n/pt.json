@@ -2982,5 +2982,6 @@
  "sub.unlock": "Desbloqueie o Premium",
  "sub.up_ge": "guarde até {{n}} vídeos do Shadow, traga até {{y}} vídeos do YouTube e mantenha os seus últimos {{p}} relatórios do Polish.",
  "sub.manage_hint": "Altere o plano ou o pagamento, ou cancele, em {{store}}.",
- "sub.details": "Detalhes da subscrição"
+ "sub.details": "Detalhes da subscrição",
+ "auth.delete_sub_note": "Eliminar a sua conta não cancela a sua subscrição do BE Mastery Premium. Cancele-a primeiro na {{store}} (Configuração → Subscrição → Gerir subscrição), ou continuará a ser cobrado."
 }

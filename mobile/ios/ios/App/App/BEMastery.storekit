@@ -1,0 +1,68 @@
+{
+  "identifier": "BE0M4S7E",
+  "nonRenewingSubscriptions": [],
+  "products": [],
+  "settings": {
+    "_failTransactionsEnabled": false,
+    "_storeKitErrors": []
+  },
+  "subscriptionGroups": [
+    {
+      "id": "21000001",
+      "localizations": [],
+      "name": "BE Mastery Premium",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "4.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "21000002",
+          "introductoryOffer": {
+            "internalID": "21000004",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D"
+          },
+          "localizations": [
+            {
+              "description": "All of BE Mastery Premium, billed monthly.",
+              "displayName": "Premium (monthly)",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "premium_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Premium monthly",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "19.99",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "21000003",
+          "localizations": [
+            {
+              "description": "All of BE Mastery Premium, billed once a year.",
+              "displayName": "Premium (annual)",
+              "locale": "en_US"
+            }
+          ],
+          "productID": "premium_annual",
+          "recurringSubscriptionPeriod": "P1Y",
+          "referenceName": "Premium annual",
+          "subscriptionGroupID": "21000001",
+          "type": "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 3,
+    "minor": 0
+  }
+}
