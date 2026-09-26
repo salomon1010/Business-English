@@ -132,7 +132,11 @@ window.FB_CONFIG={
      tab drops them and the app silently fell back to production defaults.
      app.lomonec.com and localhost are untouched. beEnv(host) is the one
      place that knows; partner API and feature flags read the same function. */
-  window.beEnv=function(host){return (host||location.hostname)==="staging.lomonec.com"?{events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",flags:true}:null};
+  /* The App Store shell runs at capacitor://localhost, which no hostname rule
+     can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync -- --staging)
+     carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
+     web app and every production bundle never do. */
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -19623,6 +19627,8 @@ const FLAGS_STAGING={
 function flag(name){
   let o=null;try{o=JSON.parse(localStorage.getItem("be_flags")||"null")}catch(e){}
   if(o&&typeof o==="object"&&name in o)return !!o[name];
+  /* a staging iOS bundle's build flags (be-build.js, never in a production bundle) */
+  try{const bf=window.BE_BUILD&&window.BE_BUILD.flags;if(bf&&typeof bf==="object"&&name in bf)return !!bf[name]}catch(e){}
   let env=null;try{env=beEnv()}catch(e){}
   return !!((env&&env.flags?FLAGS_STAGING:FLAGS_DEFAULT)[name]);
 }
@@ -19646,7 +19652,7 @@ const ENT_FREE=Object.freeze({plan:"free",paid:false,state:"none",ads:true,capab
 let _entView=null,_entUid=null,_entBusy=null;
 /* the localStorage override is honoured only on localhost (tests, local
    wrangler dev) — a production page never lets a learner point it elsewhere */
-function entApiBase(){try{if(/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){const o=localStorage.getItem("be_ent_api");if(o!=null)return o.replace(/\/+$/,"")}}catch(e){}try{const env=beEnv();if(env&&env.entitlements)return env.entitlements}catch(e){}return ENT_API}
+function entApiBase(){try{if(!IS_IOS_APP&&/^(localhost|127\.0\.0\.1)$/.test(location.hostname)){const o=localStorage.getItem("be_ent_api");if(o!=null)return o.replace(/\/+$/,"")}}catch(e){}try{const env=beEnv();if(env&&env.entitlements)return env.entitlements}catch(e){}return ENT_API}
 function entUid(){try{return (typeof FBUser!=="undefined"&&FBUser&&FBUser.uid)||null}catch(e){return null}}
 /* accept only the shape the server sends; anything else is FREE */
 function entSanitize(j){

@@ -67,7 +67,7 @@ shared secret is needed.
 | Setting | Where | Value |
 |---|---|---|
 | `APPLE_BUNDLE_ID` | var | `com.bemastery.app` |
-| `APPLE_ENVIRONMENTS` | var | `Sandbox` (staging) / `Production` (production) |
+| `APPLE_ENVIRONMENTS` | var | `Sandbox` (staging) / **`Production,Sandbox`** (production: App Review buys with Sandbox accounts **against the production build**, so a production Worker that refuses Sandbox fails review) |
 | `APPLE_ROOT_SHA256` | var (public) | `63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179` (SHA-256 of AppleRootCA-G3.cer, downloaded from apple.com on 2026-09-26; re-check it yourself) |
 | `APP_ACCOUNT_SECRET` | **secret** | 32+ random characters. It must be different per environment, and **must never change** once purchases exist: the appAccountToken of every purchase is derived from it. |
 

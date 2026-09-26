@@ -58,7 +58,7 @@ routes = [{ pattern = "entitlements-staging.lomonec.com", custom_domain = true }
 workers_dev = true
 [env.staging.vars]
 FIREBASE_PROJECT_ID = "be-mastery"
-ALLOWED_ORIGINS = "https://staging.lomonec.com"
+ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost"   # capacitor://localhost = a staging TestFlight build
 PLAY_PACKAGE = "com.bemastery.app"
 # RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on
 # THIS Worker, reached through the custom domain above; the push endpoint must be

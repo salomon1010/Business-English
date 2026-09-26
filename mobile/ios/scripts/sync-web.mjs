@@ -25,5 +25,16 @@ const idx = resolve(out, "index.html");
 if (!existsSync(idx)) throw new Error("index.html missing from the bundle");
 const html = readFileSync(idx, "utf8");
 if (!/<meta name="viewport"/.test(html)) throw new Error("viewport meta missing");
-writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for iOS\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
+/* `npm run sync -- --staging` (TestFlight against staging): the COPY gets
+   be-build.js, loaded first, which points the app at the staging Workers
+   (beEnv) and turns billing on for Sandbox testing. Never used for an App Store
+   submission; the committed index.html is not touched. */
+const staging = process.argv.includes("--staging");
+if (staging) {
+  writeFileSync(resolve(out, "be-build.js"), 'window.BE_BUILD={env:"staging",flags:{billing_enabled:true}};\n');
+  const tag = '<script src="be-build.js"></script>';
+  if (!html.includes("<head>")) throw new Error("<head> missing");
+  writeFileSync(idx, html.replace("<head>", "<head>\n" + tag));
+}
+writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for iOS (${staging ? "STAGING — not for App Store submission" : "production"})\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
 console.log("www ready:", out);

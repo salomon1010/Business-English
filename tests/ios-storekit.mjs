@@ -89,12 +89,16 @@ const PLUGIN = ([eligible]) => {
 async function open({ uid = null, eligible = true, track = "general-english", pre = null, vp = { width: 390, height: 844 } } = {}) {
   const ctx = await b.newContext({ viewport: vp, serviceWorkers: "block" });
   await ctx.exposeFunction("__appleSign", o => signedTx(o));
-  await ctx.addInitScript(([s]) => { localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://ent.test"); localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true })); try { sessionStorage.setItem("be_prem_launch", "1"); } catch (e) {} }, [seed(track)]);
+  /* a STAGING iOS bundle, exactly as `npm run sync -- --staging` makes it: be-build.js
+     routes the app to the staging Workers (served here by the local Worker) and turns billing on.
+     A hand-set be_ent_api is ALSO planted, to prove the App Store shell ignores it. */
+  await ctx.addInitScript(([s]) => { window.BE_BUILD = { env: "staging", flags: { billing_enabled: true } }; localStorage.setItem("be12_v1", s); localStorage.setItem("be_ent_api", "http://evil.test"); try { sessionStorage.setItem("be_prem_launch", "1"); } catch (e) {} }, [seed(track)]);
   await ctx.addInitScript(PLUGIN, [eligible]);
   if (pre) await ctx.addInitScript(pre);
   await ctx.route(u => /be-events|be-partner|be-polish|cloudflareinsights|gstatic\.com\/firebasejs|ytimg|youtube/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   const calls = [];
-  await ctx.route("http://ent.test/**", async r => {
+  await ctx.route("http://evil.test/**", r => { calls.push("EVIL"); r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify({ plan: "premium", paid: true, state: "active", ads: false, capabilities: { ad_free: true } }) }); });
+  await ctx.route("https://be-entitlements-staging.nore-ngou.workers.dev/**", async r => {
     const q = r.request(), h = { ...q.headers() }; calls.push(q.method() + " " + new URL(q.url()).pathname);
     if (NET.down && /\/v1\/purchases\/verify/.test(q.url())) return r.abort("internetdisconnected");   /* Apple took the payment; only OUR answer is missing */
     const m = /^Bearer test-token-(.+)$/.exec(h.authorization || ""); if (m) { h["x-dev-user"] = m[1]; delete h.authorization; }
@@ -114,9 +118,10 @@ const card = async p => { await p.evaluate(async () => { premClose(); go("data")
 
 console.log("\n# the bridge and the store's products");
 {
-  const { ctx, p, errs } = await open({ uid: "ia" });
+  const { ctx, p, errs, calls } = await open({ uid: "ia" });
   const st = await p.evaluate(() => ({ ios: IS_IOS_APP, provider: Billing.provider && Billing.provider.id, native: typeof window.BENativeBilling, keys: Object.keys(window.BENativeBilling || {}).sort().join(","), products: Billing.products.map(x => [x.id, x.price, x.period, x.trial || ""].join("|")) }));
   ok("I1 · inside the App Store shell the StoreKit provider is chosen, through the BEStoreKit plugin", st.ios && st.provider === "app_store" && st.native === "object", JSON.stringify(st));
+  ok("I1b · a staging iOS bundle (BE_BUILD) reaches the STAGING entitlement Worker; a hand-set be_ent_api is ignored inside the App Store shell", await p.evaluate(() => entApiBase() === "https://be-entitlements-staging.nore-ngou.workers.dev") && !calls.includes("EVIL"), JSON.stringify(calls.slice(0, 4)));
   ok("I2 · the bridge exposes the whole contract", st.keys === "currentEntitlements,finish,getProducts,manageSubscriptions,onTransaction,pendingTransactions,purchase,restore,supports", st.keys);
   ok("I3 · the App Store's own prices and ISO periods reach the app; the trial only as Apple reported it", st.products.includes("premium_monthly|$4.99|P1M|P3D") && st.products.includes("premium_annual|$19.99|P1Y|"), JSON.stringify(st.products));
   const s = await sheet(p);
@@ -146,7 +151,7 @@ console.log("\n# purchase → the server's verdict → finish");
   ok("P6 · Manage subscription opens Apple's own sheet (StoreKit showManageSubscriptions)", await p.evaluate(() => __sk.calls.includes("manageSubscriptions")));
   if (SHOTS) await p.locator("#subCard").screenshot({ path: SHOTS + "/ios-subscription-card.png" });
   /* a renewal delivered by Transaction.updates while the app is open */
-  const tok = await p.evaluate(async () => (await (await fetch("http://ent.test/v1/purchases/account-token", { headers: { authorization: "Bearer test-token-ic" } })).json()).appAccountToken);
+  const tok = await p.evaluate(async () => (await (await fetch("https://be-entitlements-staging.nore-ngou.workers.dev/v1/purchases/account-token", { headers: { authorization: "Bearer test-token-ic" } })).json()).appAccountToken);
   const renewal = signedTx({ product: "premium_annual", token: tok, orig: v.v && (await p.evaluate(() => __sk.owned[0].originalTransactionId)), days: 365 });
   await p.evaluate(x => __sk.emit(x), renewal); await sleep(800);
   const r = await p.evaluate(() => ({ v: entView(), finished: __sk.finished.slice() }));
