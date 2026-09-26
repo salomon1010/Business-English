@@ -249,6 +249,38 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
     { signedTransaction: jws(atx({ originalTransactionId: "1000000030", appAccountToken: tl, expiresDate: T0 + 10 * DAY })) },
     { signedTransaction: jws(atx({ originalTransactionId: "1000000031", appAccountToken: tl, expiresDate: T0 + 40 * DAY })) },
     { signedTransaction: jws(atx({ originalTransactionId: "1000000032", appAccountToken: tk, expiresDate: T0 + 99 * DAY })) } ] } });
+  /* Apple edge cases (integration workstream, 2026-09-26) */
+  const tm = await aToken("max");
+  const anotifyEnv = (type, tx, envName, uuid) => call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: type, notificationUUID: uuid, version: "2.0", signedDate: clock,
+    data: { bundleId: "com.bemastery.app", environment: envName, signedTransactionInfo: jws(tx) } }) } });
+  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", expiresDate: T0 + 3 * DAY, offerType: 1 }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-20");
+  let vm = await view("max");
+  ok("A20 · the 3-day introductory offer (offerType 1) → Premium, state trialing", vm.plan === "premium" && vm.state === "trialing", JSON.stringify(vm));
+  await anotify("DID_CHANGE_RENEWAL_PREF", "UPGRADE", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_annual", expiresDate: T0 + 365 * DAY }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-21");
+  let r2 = await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", expiresDate: T0 + 3 * DAY, isUpgraded: true }), null, "u-22");
+  vm = await view("max");
+  ok("A21 · after an upgrade to annual, a late notification about the upgraded monthly transaction is acknowledged and changes nothing", r2.status === 200 && vm.expiresAt === T0 + 365 * DAY, JSON.stringify(vm));
+  r2 = await averify("max", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", isUpgraded: true }));
+  ok("A22 · the upgraded transaction itself cannot be submitted as proof (409 superseded)", r2.status === 409 && r2.json.error === "superseded");
+  r2 = await anotify("DID_RENEW", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, expiresDate: T0 + 30 * DAY }), null, "u-23");
+  ok("A23 · an OLDER renewal arriving late (out of order) does not roll the plan back", r2.status === 200 && (await view("max")).expiresAt === T0 + 365 * DAY);
+  r2 = await anotifyEnv("DID_RENEW", atx({ originalTransactionId: "1000000040", appAccountToken: tm, expiresDate: T0 + 999 * DAY, environment: "Sandbox" }), "Sandbox", "u-24");
+  ok("A24 · a Sandbox notification at a Production-only Worker is acknowledged (200) and changes nothing — no endless Apple retries", r2.status === 200 && (await view("max")).expiresAt === T0 + 365 * DAY);
+  await anotify("REFUND", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, expiresDate: T0 + 365 * DAY, revocationDate: T0 }), null, "u-25");
+  ok("A25 · REFUND on the annual plan → revoked → Free", (await view("max")).state === "revoked");
+  await anotify("REFUND_REVERSED", undefined, atx({ originalTransactionId: "1000000040", appAccountToken: tm, expiresDate: T0 + 365 * DAY }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-26");
+  ok("A26 · REFUND_REVERSED → Premium again (the reinstated transaction decides)", (await view("max")).plan === "premium");
+  const tn = await aToken("noa");
+  await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000050", appAccountToken: tn, expiresDate: T0 + 5 * DAY }), { originalTransactionId: "1000000050", autoRenewStatus: 1 }, "u-27");
+  clock = T0 + 6 * DAY;
+  await anotify("DID_FAIL_TO_RENEW", "GRACE_PERIOD", atx({ originalTransactionId: "1000000050", appAccountToken: tn, expiresDate: T0 + 5 * DAY }), { originalTransactionId: "1000000050", autoRenewStatus: 1, isInBillingRetryPeriod: true, gracePeriodExpiresDate: T0 + 11 * DAY }, "u-28");
+  let vn = await view("noa");
+  ok("A27 · DID_FAIL_TO_RENEW with a grace period → Premium, state grace, until the grace end", vn.plan === "premium" && vn.state === "grace" && vn.expiresAt === T0 + 11 * DAY, JSON.stringify(vn));
+  clock = T0 + 12 * DAY;
+  await anotify("GRACE_PERIOD_EXPIRED", undefined, atx({ originalTransactionId: "1000000050", appAccountToken: tn, expiresDate: T0 + 5 * DAY }), { originalTransactionId: "1000000050", autoRenewStatus: 1, isInBillingRetryPeriod: true }, "u-29");
+  vn = await view("noa");
+  ok("A28 · GRACE_PERIOD_EXPIRED (still in billing retry, no grace left) → Free, state expired", vn.plan === "free" && vn.state === "expired", JSON.stringify(vn));
+  clock = T0;
   ok("A19 · Restore: the account's own transactions bind, another account's is refused; the latest expiry decides", r.status === 200 && r.json.results.map(x => x.ok).join() === "true,true,false" && r.json.view.expiresAt === T0 + 40 * DAY, JSON.stringify(r.json));
 }
 

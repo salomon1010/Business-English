@@ -60,12 +60,21 @@ export async function appAccountToken(uid, env) {
   const x = hex(b); return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
 }
 
-/* a verified JWSTransactionDecodedPayload (+ optional renewal info) → RECORD fields */
+/* the App Store environments this Worker accepts ("Production", or "Sandbox"
+   for staging / TestFlight / review) */
+export const environments = env => String(env.APPLE_ENVIRONMENTS || "Production").split(",").map(s => s.trim()).filter(Boolean);
+
+/* a verified JWSTransactionDecodedPayload (+ optional renewal info) → RECORD fields.
+   Returns null for a transaction that is not ours, or { ignore } for one that is
+   ours but must not change anything:
+     upgraded  — the learner moved up (monthly → annual) inside the group; the
+                 plan now lives in the NEW transaction, which shares this one's
+                 originalTransactionId, so applying the old one would undo it. */
 export function toRecord(tx, renewal, env, nowMs) {
   if (!tx || typeof tx !== "object") return null;
   if (tx.bundleId !== env.APPLE_BUNDLE_ID) return null;
-  const envs = String(env.APPLE_ENVIRONMENTS || "Production").split(",").map(s => s.trim());
-  if (!envs.includes(tx.environment)) return null;
+  if (!environments(env).includes(tx.environment)) return null;
+  if (tx.isUpgraded === true) return { ignore: "upgraded" };
   if (!Object.prototype.hasOwnProperty.call(PRODUCTS, tx.productId)) return null;
   const exp = Number(tx.expiresDate); if (!Number.isFinite(exp)) return null;
   let status = "active", expires = exp;
@@ -81,5 +90,6 @@ export function toRecord(tx, renewal, env, nowMs) {
     starts_at: Number.isFinite(start) ? Math.min(start, expires - 1) : null, expires_at: expires,
     source: "app_store", updated_at: nowMs,
     appAccountToken: tx.appAccountToken || null, originalTransactionId: String(tx.originalTransactionId || ""),
+    txExpires: exp,   /* the transaction's own expiry (expires_at can be a grace end) */
   };
 }

@@ -82,15 +82,17 @@ const app_store = {
     if (ren && String(ren.originalTransactionId) !== String(tx.originalTransactionId)) return fail(422, "renewal_mismatch");
     const rec = as.toRecord(tx, ren, env, now);
     if (!rec) return fail(422, "not_our_product");
+    if (rec.ignore) return { ok: true, ignore: rec.ignore };
     if (!rec.originalTransactionId) return fail(422, "no_original_id");
     return { ok: true, tx, link: { provider: "app_store", ext_id: rec.originalTransactionId,
       record: { plan: rec.plan, product: rec.product, status: rec.status, starts_at: rec.starts_at, expires_at: rec.expires_at,
         will_renew: ren ? (ren.autoRenewStatus === 1 ? 1 : 0) : null, source: "app_store", updated_at: now },
-      appAccountToken: rec.appAccountToken } };
+      appAccountToken: rec.appAccountToken, txExpires: rec.txExpires } };
   },
   async verifyPurchase(ev, ctx) {
     const r = await this._link(ev && ev.signedTransaction, ev && ev.signedRenewalInfo, ctx);
     if (!r.ok) return r;
+    if (r.ignore) return fail(409, "superseded");      /* an upgraded transaction: the current one is the proof */
     /* the transaction must carry THIS account's appAccountToken: a transaction
        bought on another BE Mastery account (or with none) cannot be claimed */
     if (!r.link.appAccountToken || r.link.appAccountToken !== await as.appAccountToken(ctx.uid, ctx.env)) return fail(403, "account_mismatch");
@@ -103,10 +105,24 @@ const app_store = {
     const id = "as:" + p.notificationUUID, d = p.data || {};
     if (p.notificationType === "TEST") return { ok: true, id, updates: [] };
     if (d.bundleId !== ctx.env.APPLE_BUNDLE_ID) return fail(422, "bundle");
+    /* a notification for the other environment (Sandbox at the production URL,
+       or the reverse) is acknowledged and changes nothing — answering an error
+       would only make Apple retry it for days */
+    if (d.environment && !as.environments(ctx.env).includes(d.environment)) return { ok: true, id, updates: [] };
     if (!d.signedTransactionInfo) return { ok: true, id, updates: [] };
     const r = await this._link(d.signedTransactionInfo, d.signedRenewalInfo, ctx);
     if (!r.ok) return r;
+    if (r.ignore) return { ok: true, id, updates: [] };
     if (p.notificationType === "REFUND" || p.notificationType === "REVOKE") r.link.record.status = "revoked";
+    /* Apple can deliver out of order. A notification whose transaction ended
+       BEFORE the period already recorded (an older renewal arriving late) must
+       not roll the plan back. Compared on the transaction's own expiry, and only
+       against an active record — a grace, expired or revoked row always takes
+       the newer word, and a revocation is never stale. */
+    if (r.link.record.status !== "revoked" && ctx.env.DB) {
+      const cur = await ctx.env.DB.prepare("SELECT status, expires_at FROM purchase_links WHERE provider=? AND ext_id=?").bind("app_store", r.link.ext_id).first();
+      if (cur && (cur.status === "active" || cur.status === "trialing") && Number(cur.expires_at) > Number(r.link.txExpires)) return { ok: true, id, updates: [] };
+    }
     return { ok: true, id, updates: [{ ...r.link, bindByAccountToken: r.link.appAccountToken }] };
   },
 };
