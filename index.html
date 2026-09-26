@@ -20086,7 +20086,7 @@ function premBodyHTML(){
    comparison are drawn there only — Welding's sheet is as it was. Every number
    comes from PLAN_LIMITS; nothing here promises what is not built. */
 function premCmpHTML(){
-  if(!isGeneralEnglish())return "";
+  if(!isGeneralEnglish()||!planOn())return "";          /* only where the limits are in force */
   const F=k=>planLimit(k,"free"),P=k=>planLimit(k,"premium"),up=n=>esc(t("prem.cmp_upto",{n}));
   const row=(k,f,p)=>`<tr><th scope="row">${esc(t(k))}</th><td>${f}</td><td class="on">${p}</td></tr>`;
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
@@ -20094,7 +20094,7 @@ function premCmpHTML(){
 }
 function premSheetHTML(wait){
   const li=(k,v)=>`<li><span class="inl-ic">${ic("check")}</span><span>${esc(t(k,v||{store:premStore()}))}</span></li>`;
-  const ge=isGeneralEnglish(),P=k=>planLimit(k,"premium");
+  const ge=isGeneralEnglish()&&planOn(),P=k=>planLimit(k,"premium");
   return `<button type="button" class="prem-x" aria-label="${esc(t("wc.close"))}" onclick="premClose()"${wait?" hidden":""}>${ic("close")}</button>
     <h2 id="premH">${hIcon("star",t("prem.h"))}</h2>
     <p class="sub prem-lede">${esc(t("prem.lede"))}</p>
