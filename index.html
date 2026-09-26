@@ -4940,6 +4940,25 @@ h1.big{letter-spacing:-.025em}
 .prem-ben .inl-ic{color:var(--green);margin-top:2px;flex:none;margin-right:0}
 .prem-ben .inl-ic svg{width:16px;height:16px}
 .prem-sheet:focus{outline:none}
+.sub-card{margin:0 0 16px}
+.sub-card.on{border-color:color-mix(in srgb,var(--green) 40%,transparent)}
+.sub-head{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.sub-head h3{font-size:16px;margin:0;flex:1}
+.sub-ic{display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);flex:none}
+.sub-card.on .sub-ic{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.sub-ic svg{width:18px;height:18px}
+.sub-dl{margin:0 0 12px}
+.sub-dl div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.sub-dl dt{color:var(--mut)}
+.sub-dl dd{margin:0;font-weight:600;color:var(--txt);text-align:end}
+.sub-up{font-size:13.5px;color:var(--mut);margin:0 0 12px;line-height:1.45}
+.sub-up b{color:var(--txt)}
+.sub-warn{font-size:13px;margin:0 0 12px}
+.sub-acts{display:grid;gap:8px}
+.sub-acts .btn,.sub-acts .btn-primary{min-height:44px;width:100%}
+.sub-acts .btn{justify-content:center;text-align:center}
+.sub-hint{font-size:12px;color:var(--mut);margin:-2px 0 2px;text-align:center}
+.sub-note{font-size:13px;margin:8px 0 0}
 .ex-hist-btn{margin-top:8px}
 .ex-hist-rows{display:grid;gap:4px;margin:6px 0 12px;max-height:52vh;overflow:auto}
 .ex-hist-lock{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--mut);margin:0 0 10px}
@@ -6026,6 +6045,17 @@ const I18N_EN={
  "prem.cmp_latest":"Latest report",
  "prem.cmp_last":"Last {{n}}",
  "prem.cta_trial":"Start {{n}}-day free trial",
+ "sub.h":"Subscription",
+ "sub.plan":"Current plan",
+ "sub.price":"Price",
+ "sub.renews":"Renews on",
+ "sub.ends":"Ends on",
+ "sub.grace_until":"Premium stays on until",
+ "sub.store":"Billed by",
+ "sub.unlock":"Unlock Premium",
+ "sub.up_ge":"save up to {{n}} Shadow videos, bring up to {{y}} YouTube videos and keep your last {{p}} Polish reports.",
+ "sub.manage_hint":"Change your plan, payment or cancel in {{store}}.",
+ "sub.details":"Subscription details",
  "prem.cmp_label":"Saved Shadow videos",
  "prem.cmp_free":"Free",
  "prem.cmp_prem":"Premium",
@@ -19962,6 +19992,7 @@ const Billing={
     this._reconciled=uid;
     try{
       const items=this.provider.owned?await this.provider.owned():[];
+      this.ownedIds=items.map(x=>x&&x.productId).filter(Boolean);   /* which plan this store sold here (the server's view carries no product) */
       if(!items.length)return;
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
       track("purchase_restore",{provider:this.provider.id,source:"launch",result:(j.results||[]).some(x=>x.ok)?"restored":"none"});
@@ -19981,6 +20012,7 @@ const Billing={
       /* the SERVER's answer decides the message: a slow payment (Play "pending")
          or a purchase the store reports as not in force is not "Premium is on" */
       r.finish(true);billingTakeView(j.view);const paid=!!(j.view&&j.view.paid);
+      if(paid)this.ownedIds=[String(id)];                  /* the plan just bought is the plan this device owns */
       this.state=paid?"success":"ready";this.note=paid?t("acc.prem_success"):j.view&&j.view.state==="payment_pending"?t("acc.prem_payment_pending"):t("acc.prem_failed");
       if(paid)track("purchase_confirmed",ev);else if(j.view&&j.view.state==="payment_pending")track("purchase_pending",ev);else track("purchase_failed",{...ev,reason:"not_paid"});
     }catch(e){
@@ -20000,6 +20032,7 @@ const Billing={
     this.state="restoring";this.note="";this._draw();
     try{
       const items=await this.provider.restore();
+      this.ownedIds=items.map(x=>x&&x.productId).filter(Boolean);
       const rv={provider:this.provider.id,source:"tap"};
       if(!items.length){track("purchase_restore",{...rv,result:"none"});this.state="ready";this.note=t("acc.prem_none_restored");return this._draw()}
       const j=await billingApi("POST","/v1/purchases/restore",{provider:this.provider.id,items});
@@ -20011,8 +20044,8 @@ const Billing={
     this._draw();
   },
   /* Manage opens the store that SOLD the plan; a plan from the other store is named, not opened */
-  manage(){const v=entView();if(this.provider&&v.source===this.provider.id)this.provider.manage(v.product)},
-  _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML();try{premDraw()}catch(e){}try{premLaunchMaybe()}catch(e){}},
+  manage(){const v=entView();if(this.provider&&v.source===this.provider.id)this.provider.manage(v.product||(this.ownedIds||[])[0])},
+  _draw(){const el=document.getElementById("entPlan");if(el)el.outerHTML=entPlanCardHTML();try{subDraw()}catch(e){}try{premDraw()}catch(e){}try{premLaunchMaybe()}catch(e){}},
 };
 
 
@@ -20067,7 +20100,8 @@ function premBodyHTML(){
     const st=v.state==="grace"&&v.expiresAt?t("acc.prem_grace",{date:date(v.expiresAt)}):v.renews===false&&v.expiresAt?t("acc.prem_cancelled",{date:date(v.expiresAt)}):v.expiresAt?t("acc.prem_until",{date:date(v.expiresAt)}):"";
     const manage=B.provider&&v.source===B.provider.id?`<button type="button" class="btn btn-g prem-wide" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`:"";
     return `<p class="prem-status">${st?esc(st):`<span class="chip done">${esc(t("acc.prem_active"))}</span>`}</p>${note}
-      <button type="button" class="btn-primary prem-wide" onclick="premClose()">${esc(t("prem.done"))}</button>${manage}`;
+      <button type="button" class="btn-primary prem-wide" onclick="premClose()">${esc(t("prem.done"))}</button>${manage}
+      <button type="button" class="btn btn-g prem-wide prem-subdetails" onclick="subOpen()">${esc(t("sub.details"))}</button>`;
   }
   if(!B.provider)return `<p class="sub prem-unavail">${esc(t("prem.unavailable"))}</p><button type="button" class="btn btn-g prem-wide" onclick="premClose()">${esc(t("wc.close"))}</button>`;
   if(!FBUser)return `<button type="button" class="btn-primary prem-wide" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button>`;
@@ -20154,6 +20188,62 @@ function premLaunchMaybe(){
     try{sessionStorage.setItem(PREM_LAUNCH_SS,"1")}catch(e){}premiumOpen("launch")};
   setTimeout(go_,1200);
 }
+/* ---- SUBSCRIPTION (App Setup) — the plan in force and the store's own management ----
+   Free: the plan, one line on what Premium adds, "See Premium plans", and
+   Restore for a learner whose purchase sits in this store. Premium: the plan
+   the store sold (from what THIS device owns — the server's view carries no
+   product, so a plan bought on another phone is just "Premium"), the store's
+   own price and period, the renewal or end date from the SERVER, and the
+   STORE's own management (Play's subscriptions page for this app and product /
+   the StoreKit sheet). There is no cancellation or payment screen of ours.
+   Shown only where Premium exists (premOffered); a Free learner on Welding
+   keeps App Setup exactly as it was, while a paying one can still manage it. */
+function subPlanInfo(){
+  let B=null;try{B=Billing}catch(e){}
+  const id=B&&B.ownedIds&&B.ownedIds[0];if(!id)return null;
+  const p=(B.products||[]).find(x=>x.id===id),x=p?premIso(p.period):null;
+  const kind=(x&&x.n===1&&x.u==="Y")||(!x&&id==="premium_annual")?"annual":(x&&x.n===1&&x.u==="M")||(!x&&id==="premium_monthly")?"monthly":"";
+  return {id,kind,price:p?p.price:"",per:kind==="annual"?t("prem.per_year"):kind==="monthly"?t("prem.per_month"):""};
+}
+function subStoreName(src){return src==="app_store"?"App Store":src==="google_play"?"Google Play":""}
+function subCardHTML(){
+  let prem=false;try{prem=entIsPremiumForDisplay()}catch(e){}
+  if(!premOffered())return "";
+  if(!prem&&!isGeneralEnglish())return "";
+  const v=entView();let B=null;try{B=Billing}catch(e){}
+  const live=!!(B&&B.provider),busy=!!(B&&(B.state==="purchasing"||B.state==="restoring")),mine=live&&v.source===B.provider.id;
+  const date=ms=>{try{return new Date(ms).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"})}catch(e){return ""}};
+  const row=(k,val)=>`<div><dt>${esc(k)}</dt><dd>${esc(val)}</dd></div>`;
+  const restore=live&&FBUser?`<button type="button" class="btn btn-g sub-restore" ${busy?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`:"";
+  const note=B&&(B.note||busy)?`<p class="sub sub-note" role="status">${esc(busy?t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"):B.note)}</p>`:"";
+  let body="";
+  if(prem){
+    const info=mine?subPlanInfo():null,plan=info&&info.kind?t(info.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"";
+    const when=v.expiresAt?row(v.state==="grace"?t("sub.grace_until"):v.renews===false?t("sub.ends"):t("sub.renews"),date(v.expiresAt)):"";
+    const warn=v.state==="grace"&&v.expiresAt?t("acc.prem_grace",{date:date(v.expiresAt)}):v.renews===false&&v.expiresAt?t("acc.prem_cancelled",{date:date(v.expiresAt)}):"";
+    const sn=subStoreName(v.source);
+    const manage=mine?`<button type="button" class="btn-primary sub-manage" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button><p class="sub-hint">${esc(t("sub.manage_hint",{store:sn}))}</p>`
+      :sn?`<p class="sub-hint">${esc(t("acc.prem_manage_elsewhere",{store:sn}))}</p>`:"";
+    body=`<dl class="sub-dl">${row(t("sub.plan"),t("prem.cmp_prem")+(plan?" · "+plan:""))}${info&&info.price?row(t("sub.price"),info.price+(info.per?" "+info.per:"")):""}${when}${sn?row(t("sub.store"),sn):""}</dl>
+      ${warn?`<p class="sub sub-warn">${esc(warn)}</p>`:""}<div class="sub-acts">${manage}${restore}</div>${note}`;
+  }else{
+    const ge=isGeneralEnglish()&&planOn(),P=k=>planLimit(k,"premium");
+    body=`<dl class="sub-dl">${row(t("sub.plan"),t("prem.cmp_free"))}</dl>
+      <p class="sub-up"><b>${esc(t("sub.unlock"))}</b>${ge?` — ${esc(t("sub.up_ge",{n:P("savedShadow"),y:P("youtubeImports"),p:P("polishHistory")}))}`:""}</p>
+      <div class="sub-acts"><button type="button" class="btn-primary sub-plans" onclick="premiumOpen('settings')">${esc(t("prem.compare"))}</button>${restore}</div>${note}`;
+  }
+  return `<section class="card sub-card${prem?" on":""}" id="subCard" aria-labelledby="subH">
+    <div class="sub-head"><span class="sub-ic">${ic(prem?"star":"gift")}</span><h3 id="subH">${esc(t("sub.h"))}</h3>${prem?`<span class="chip done">${esc(t("acc.prem_active"))}</span>`:""}</div>${body}</section>`;
+}
+function subDraw(){const el=document.getElementById("subCard");if(el)el.outerHTML=subCardHTML()||"<span id='subCard' hidden></span>"}
+/* from Profile / the Premium sheet: App Setup, scrolled to the Subscription card */
+window.subOpen=()=>{
+  try{premClose()}catch(e){}
+  go("data");let k=0;
+  const find=()=>{const el=document.getElementById("subCard");
+    if(el&&!el.hidden){try{el.scrollIntoView({block:"start",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}catch(e){}const f=el.querySelector("button");if(f)f.focus({preventScroll:true});return}
+    if(++k<40)setTimeout(find,25)};find();
+};
 /* "Remove ads with Premium": shown only beside an ad, and only when Premium can be offered */
 function premRemoveAdsHTML(from){return premOffered()&&!entIsPremiumForDisplay()?`<button type="button" class="ad-remove" onclick="premiumOpen('${from}')">${esc(t("prem.remove_ads"))}</button>`:""}
 
@@ -25525,7 +25615,7 @@ function rProfile(el){
     <div class="pf-hero-t"><h1 class="pf-name">${nm}</h1><p class="pf-sub">${sub}</p></div>
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>
-  ${premOffered()?`<div class="pf-group pf-prem">${pfRow("star",t("prem.h"),"premiumOpen('profile')",entIsPremiumForDisplay()?t("acc.prem_active"):t("prem.row_sub"))}</div>`:""}
+  ${premOffered()?`<div class="pf-group pf-prem">${entIsPremiumForDisplay()?pfRow("star",t("sub.h"),"subOpen()",(()=>{const i=entView().source===(Billing.provider&&Billing.provider.id)?subPlanInfo():null;return t("prem.cmp_prem")+(i&&i.kind?" · "+t(i.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"")})()):pfRow("star",t("prem.h"),"premiumOpen('profile')",t("prem.row_sub"))}</div>`:""}
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
@@ -25680,6 +25770,7 @@ async function rData(el,embedded){
     </div>
     <div>
       <div id="setAcc"></div>${fbAuthCard()}
+      ${subCardHTML()}
       <details class="home-more set-plan">
         <summary>${entIsPremiumForDisplay()?tIc("acc.premium","star"):tIc("acc.free_plan","gift")}<span class="hm-chev">${ic("chevron")}</span></summary>
         <div class="home-more-body">

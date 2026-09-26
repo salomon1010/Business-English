@@ -2934,5 +2934,16 @@
  "ex.hist_h": "Your Polish history",
  "ex.hist_locked": "{{n}} older reports are kept for Premium. Premium keeps your last {{top}} Polish reports so you can revisit them.",
  "ex.hist_free_note": "Free keeps your latest report. Premium keeps your last {{top}}.",
- "ex.hist_free_toast": "Report saved. Free keeps your latest report in your history — Premium keeps your last {{top}}."
+ "ex.hist_free_toast": "Report saved. Free keeps your latest report in your history — Premium keeps your last {{top}}.",
+ "sub.h": "Subscription",
+ "sub.plan": "Current plan",
+ "sub.price": "Price",
+ "sub.renews": "Renews on",
+ "sub.ends": "Ends on",
+ "sub.grace_until": "Premium stays on until",
+ "sub.store": "Billed by",
+ "sub.unlock": "Unlock Premium",
+ "sub.up_ge": "save up to {{n}} Shadow videos, bring up to {{y}} YouTube videos and keep your last {{p}} Polish reports.",
+ "sub.manage_hint": "Change your plan, payment or cancel in {{store}}.",
+ "sub.details": "Subscription details"
 }

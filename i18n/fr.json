@@ -2934,5 +2934,16 @@
  "ex.hist_h": "Votre historique Polish",
  "ex.hist_locked": "{{n}} rapports plus anciens sont gardés pour Premium. Premium conserve vos {{top}} derniers rapports Polish pour que vous puissiez les revoir.",
  "ex.hist_free_note": "La formule gratuite garde votre dernier rapport. Premium garde vos {{top}} derniers.",
- "ex.hist_free_toast": "Rapport enregistré. La formule gratuite garde votre dernier rapport dans l'historique — Premium garde vos {{top}} derniers."
+ "ex.hist_free_toast": "Rapport enregistré. La formule gratuite garde votre dernier rapport dans l'historique — Premium garde vos {{top}} derniers.",
+ "sub.h": "Abonnement",
+ "sub.plan": "Formule actuelle",
+ "sub.price": "Prix",
+ "sub.renews": "Renouvellement le",
+ "sub.ends": "Prend fin le",
+ "sub.grace_until": "Premium reste actif jusqu'au",
+ "sub.store": "Facturé par",
+ "sub.unlock": "Débloquez Premium",
+ "sub.up_ge": "enregistrez jusqu'à {{n}} vidéos Shadow, ajoutez jusqu'à {{y}} vidéos YouTube et gardez vos {{p}} derniers rapports Polish.",
+ "sub.manage_hint": "Changez de formule, de moyen de paiement ou résiliez dans {{store}}.",
+ "sub.details": "Détails de l'abonnement"
 }

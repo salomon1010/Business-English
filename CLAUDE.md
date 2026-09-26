@@ -688,6 +688,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   from the catalogue, additive); refused imports never load and `shCapMayAsk`
   keeps the Worker from transcribing anything that is not a library video or a
   current import. Launch offer `premLaunchMaybe` (once per session, X after 5 s).
+  Subscription card in App Setup (`subCardHTML`, Free upsell / Premium plan +
+  Manage via the store; plan name from `Billing.ownedIds`, suite
+  `tests/subscription.mjs`).
   Details: `docs/PREMIUM-VALUE.md`; suite `tests/premium-value.mjs` (81).
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).

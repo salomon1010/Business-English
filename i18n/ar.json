@@ -2934,5 +2934,16 @@
  "ex.hist_h": "سجل Polish الخاص بك",
  "ex.hist_locked": "يُحتفظ بـ {{n}} من التقارير الأقدم لـ Premium. يحتفظ Premium بآخر {{top}} من تقارير Polish لتتمكن من مراجعتها.",
  "ex.hist_free_note": "تحتفظ الخطة المجانية بآخر تقرير لك. يحتفظ Premium بآخر {{top}}.",
- "ex.hist_free_toast": "تم حفظ التقرير. تحتفظ الخطة المجانية بآخر تقرير في سجلك — ويحتفظ Premium بآخر {{top}}."
+ "ex.hist_free_toast": "تم حفظ التقرير. تحتفظ الخطة المجانية بآخر تقرير في سجلك — ويحتفظ Premium بآخر {{top}}.",
+ "sub.h": "الاشتراك",
+ "sub.plan": "الخطة الحالية",
+ "sub.price": "السعر",
+ "sub.renews": "يتجدد في",
+ "sub.ends": "ينتهي في",
+ "sub.grace_until": "يبقى Premium مفعّلًا حتى",
+ "sub.store": "الفوترة عبر",
+ "sub.unlock": "افتح Premium",
+ "sub.up_ge": "احفظ حتى {{n}} مقطعًا في Shadow، وأحضر حتى {{y}} مقطعًا من YouTube، واحتفظ بآخر {{p}} من تقارير Polish.",
+ "sub.manage_hint": "غيّر خطتك أو طريقة الدفع أو ألغِ الاشتراك عبر {{store}}.",
+ "sub.details": "تفاصيل الاشتراك"
 }

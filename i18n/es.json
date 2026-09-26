@@ -2934,5 +2934,16 @@
  "ex.hist_h": "Tu historial de Polish",
  "ex.hist_locked": "{{n}} informes anteriores se guardan para Premium. Premium conserva tus últimos {{top}} informes de Polish para que puedas volver a verlos.",
  "ex.hist_free_note": "El plan gratuito guarda tu último informe. Premium guarda los últimos {{top}}.",
- "ex.hist_free_toast": "Informe guardado. El plan gratuito guarda tu último informe en el historial; Premium guarda los últimos {{top}}."
+ "ex.hist_free_toast": "Informe guardado. El plan gratuito guarda tu último informe en el historial; Premium guarda los últimos {{top}}.",
+ "sub.h": "Suscripción",
+ "sub.plan": "Plan actual",
+ "sub.price": "Precio",
+ "sub.renews": "Se renueva el",
+ "sub.ends": "Termina el",
+ "sub.grace_until": "Premium sigue activo hasta el",
+ "sub.store": "Facturado por",
+ "sub.unlock": "Desbloquea Premium",
+ "sub.up_ge": "guarda hasta {{n}} vídeos de Shadow, trae hasta {{y}} vídeos de YouTube y conserva tus últimos {{p}} informes de Polish.",
+ "sub.manage_hint": "Cambia de plan o de forma de pago, o cancela, en {{store}}.",
+ "sub.details": "Detalles de la suscripción"
 }

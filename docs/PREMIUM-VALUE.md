@@ -75,6 +75,45 @@ every learner keeps the app exactly as it was. The suite checks this: P1–P3.
   saving, Monthly with the trial only when Play reports it, "Start 3-day free
   trial" when a plan with a trial is chosen, renewal terms, Privacy, Restore.
 
+## Subscription (App Setup)
+
+`subCardHTML()` sits at the top of App Setup's plan area. It is shown wherever
+Premium exists (`premOffered()`).
+
+**Free (General English):**
+- "Current plan: Free".
+- "Unlock Premium", followed by the three real benefits.
+- "See Premium plans", which opens the existing sheet.
+- Restore purchases, when a store is present and the learner is signed in.
+- No Manage button.
+
+**Premium (either track, because it is account management):**
+- The plan the store sold, e.g. "Premium · Annual". It comes from what THIS
+  device owns (`Billing.ownedIds`, from Play's silent `listPurchases`, a
+  restore or a completed purchase). The server's view carries no product, so a
+  plan bought on another phone reads just "Premium".
+- The store's own price and period.
+- "Renews on", "Ends on" or "Premium stays on until", with the date from the
+  server, plus the cancelled or payment-problem warning.
+- "Billed by".
+- **Manage subscription** uses the existing `Billing.manage()`:
+  - Play: `play.google.com/store/account/subscriptions?package=…&sku=<owned>`.
+    The sku is now passed; before this it was always missing.
+  - iOS: the StoreKit sheet, contract unchanged.
+  - A plan from the other store is named, not opened.
+- Restore purchases.
+
+**Other entry points:**
+- Profile: for Premium the row reads "Subscription · Premium · Annual" and
+  `subOpen()` lands on the card. For Free it is unchanged and opens the sheet.
+- The Premium sheet in its Premium state links to "Subscription details".
+
+**Hidden:**
+- With billing off.
+- For a Free learner on Welding.
+
+Suite: `tests/subscription.mjs` (29 checks).
+
 ## Cloud copy
 
 The size guard (`fbCloudJson`) now also protects the Free level for each kind:
