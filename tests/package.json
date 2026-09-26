@@ -3,11 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node shadow-first-tap.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-raise-problem.mjs && node mission-clarify-confirm.mjs && node mission-explain-tech.mjs && node mission-recommend-decide.mjs && node mission-disagree-pushback.mjs && node mission-sprint-coordinate.mjs && node mission-exec-summary.mjs && node mission-sell-experience.mjs && node mission-win-support.mjs && node mission-final-integration.mjs && node mission-integration.mjs && node mission-speaking-report.mjs && node report-ux.mjs && node language-polish.mjs && node report-integrity.mjs && node session-report.mjs && node mission-coach-report.mjs && node mission-mobile-ux.mjs && node partner.mjs && node live-rounds.mjs",
+    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node shadow-first-tap.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-raise-problem.mjs && node mission-clarify-confirm.mjs && node mission-explain-tech.mjs && node mission-recommend-decide.mjs && node mission-disagree-pushback.mjs && node mission-sprint-coordinate.mjs && node mission-exec-summary.mjs && node mission-sell-experience.mjs && node mission-win-support.mjs && node mission-final-integration.mjs && node mission-integration.mjs && node mission-speaking-report.mjs && node report-ux.mjs && node language-polish.mjs && node report-integrity.mjs && node session-report.mjs && node mission-coach-report.mjs && node mission-mobile-ux.mjs && node partner.mjs && node live-rounds.mjs && node live-ring.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
     "test:shadow-tap": "node shadow-first-tap.mjs",
     "test:partner": "node partner.mjs",
     "test:live-rounds": "node live-rounds.mjs",
+    "test:live-ring": "node live-ring.mjs",
     "test:live": "BASE=https://app.lomonec.com node smoke.mjs",
     "test:stress": "node stress.mjs",
     "test:boot": "node boot-recovery.mjs",

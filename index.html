@@ -22506,6 +22506,7 @@ window.ppLiveDecline=async()=>{const l=ppLiveSess();if(!l)return;ppCallHide();tr
 window.ppLiveCancel=async()=>{const l=ppLiveSess();if(!l)return;try{const r=await ppApi("POST","/live/"+l.id+"/cancel");ppMe=r;ppState().lastMe=r;save()}catch(e){}ppLiveTeardown(false);const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)};
 /* ---- the room ---- */
 function ppLiveOpen(sess,ice){
+  ppRingStop();
   if(ppLive&&ppLive.id===sess.id){ppLive.status=sess.state;return}
   ppLiveTeardown(false);
   ppLive={id:sess.id,role:sess.role,pc:null,stream:null,ice:ice||null,after:0,pollT:null,tickT:null,muted:false,round:1,phase:"ready",mins:PP_LIVE_MINS.includes(ppState().liveMins)?ppState().liveMins:PP_LIVE_MIN_DEFAULT,endsAt:null,rr:{},rec:null,rev:null,status:sess.state,startedAt:sess.startedAt||null,restarts:0,sinceDrop:0,help:null,ended:null,partner:sess.partner,seed:{promptWeek:sess.promptWeek,fndDay:sess.fndDay,prompt:sess.prompt,band:sess.band},micErr:null};
@@ -22891,21 +22892,60 @@ function ppChime(){
   }catch(e){}
   try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}
 }
+/* An incoming LIVE call rings like a phone (owner, 2026-09-25): the British
+   ring — two 0.4 s bursts of 400 + 450 Hz, 0.2 s apart, then 2 s of quiet —
+   with a matching vibration, repeated until the call is answered, declined,
+   cancelled or gone, for at most PP_RING_MS (a phone gives up at about the
+   same point); the banner then stays up without sound. Web audio needs a
+   context unlocked by an earlier tap and a visible page: on a backgrounded
+   or locked phone the system notification is what rings.
+   A recorded-voice practice invitation rings the same way with its own
+   sound (owner, same day): a rising three-note tone (C–E–G) and a lighter
+   triple vibration, so the learner can tell "talk now" from "practise". */
+const PP_RING_MS=45000, PP_RING_EVERY=3000;
+let ppRingT=null, ppRingKey=null, ppRingUntil=0, ppRingKind=null;
+function ppRingAC(){_ppChimeAC=_ppChimeAC||new (window.AudioContext||window.webkitAudioContext)();const ac=_ppChimeAC;if(ac.state==="suspended")ac.resume().catch(()=>{});return ac}
+/* unlock the context on the learner's first tap, so a call that arrives
+   later can ring without one */
+["pointerdown","keydown"].forEach(ev=>document.addEventListener(ev,function un(){try{ppRingAC()}catch(e){}document.removeEventListener(ev,un,true)},true));
+function ppRingBurst(kind){
+  if(kind==="voice"){
+    try{
+      const ac=ppRingAC(),t0=ac.currentTime+0.02;
+      [[523.25,0],[659.25,0.16],[783.99,0.32],[523.25,0.9],[659.25,1.06],[783.99,1.22]].forEach(([f,at])=>{const o=ac.createOscillator(),g=ac.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0.0001,t0+at);g.gain.exponentialRampToValueAtTime(0.28,t0+at+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t0+at+0.3);o.connect(g).connect(ac.destination);o.start(t0+at);o.stop(t0+at+0.32)});
+    }catch(e){}
+    try{if(navigator.vibrate)navigator.vibrate([150,100,150,100,150])}catch(e){}
+    return;
+  }
+  try{
+    const ac=ppRingAC(),t0=ac.currentTime+0.02;
+    [0,0.6].forEach(at=>{const g=ac.createGain();g.gain.setValueAtTime(0.0001,t0+at);g.gain.exponentialRampToValueAtTime(0.22,t0+at+0.03);g.gain.setValueAtTime(0.22,t0+at+0.37);g.gain.exponentialRampToValueAtTime(0.0001,t0+at+0.4);g.connect(ac.destination);
+      [400,450].forEach(f=>{const o=ac.createOscillator();o.type="sine";o.frequency.value=f;o.connect(g);o.start(t0+at);o.stop(t0+at+0.42)})});
+  }catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([400,200,400])}catch(e){}
+}
+function ppRingStart(key,kind){
+  if(ppRingKey===key)return;ppRingStop();ppRingKey=key;ppRingKind=kind||"live";ppRingUntil=Date.now()+PP_RING_MS;
+  const step=()=>{if(ppRingKey!==key)return;if(Date.now()>ppRingUntil){ppRingStop();return}
+    if(document.visibilityState==="visible")ppRingBurst(ppRingKind);ppRingT=setTimeout(step,PP_RING_EVERY)};
+  step();
+}
+function ppRingStop(){clearTimeout(ppRingT);ppRingT=null;if(ppRingKey){try{if(navigator.vibrate)navigator.vibrate(0)}catch(e){}}ppRingKey=null;ppRingKind=null}
 /* the same three moments as a system notification when the app is not in
    front (Android / desktop; an iOS PWA shows these only while installed and
    permitted). Vibrates, replaces itself, one per event. Timers pause on a
    backgrounded iPhone, so this is best-effort there — the sound and banner on
    return are what iOS reliably gets. */
-function ppOsNotify(title,body,view){
+function ppOsNotify(title,body,view,call){
   try{
     if(document.visibilityState==="visible")return;
     if(typeof Notification==="undefined"||Notification.permission!=="granted")return;
-    const opts={body,icon:"icon-192.png",badge:"icon-192.png",tag:"be-partner",renotify:true,vibrate:[200,100,200],data:{url:"./#"+(view||"partner"),view:view||"partner"}};
+    const opts={body,icon:"icon-192.png",badge:"icon-192.png",tag:call?"be-partner-call":"be-partner",renotify:true,requireInteraction:!!call,vibrate:call?[400,200,400,2000,400,200,400,2000,400,200,400]:[200,100,200],data:{url:"./#"+(view||"partner"),view:view||"partner"}};
     if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(reg=>reg.showNotification(title,opts)).catch(()=>{try{new Notification(title,opts)}catch(e){}});
     else{try{new Notification(title,opts)}catch(e){}}
   }catch(e){}
 }
-function ppCallHide(){const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
+function ppCallHide(){ppRingStop();const el=document.getElementById("ppCall");if(el){el.classList.remove("on");setTimeout(()=>{if(!el.classList.contains("on"))el.innerHTML=""},250)}ppCallShown=null}
 function ppCallSync(){
   const m=ppMe||ppState().lastMe,l=m&&m.live;
   const st0=ppState();
@@ -22925,7 +22965,7 @@ function ppCallSync(){
   if(tinv&&!(l&&l.role==="guest"&&l.state==="invited")){
     const el=ppCallEl(),key="trial:"+m.invite.id;
     if(ppCallShown!==key){el.innerHTML=`<div class="pp-call-in"><span class="pp-call-dot"></span><div class="pp-call-t"><b>${t(m.invite.live?"pp.tinv_live_h":"pp.tinv_h",{name:esc(m.invite.partner.name)})}</b><small>${t(m.invite.live?"pp.tinv_live_sub":"pp.tinv_sub")}</small></div></div>
-      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppTrialAccept()">${ic(m.invite.live?"mic":"check")} ${t(m.invite.live?"pp.tinv_live_accept":"pp.tinv_accept")}</button><button class="pp-call-decline" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppChime();ppOsNotify(t(m.invite.live?"pp.tinv_live_h":"pp.tinv_h",{name:m.invite.partner.name}),t(m.invite.live?"pp.tinv_live_sub":"pp.tinv_sub"))}
+      <div class="pp-call-btns"><button class="pp-call-accept" onclick="ppTrialAccept()">${ic(m.invite.live?"mic":"check")} ${t(m.invite.live?"pp.tinv_live_accept":"pp.tinv_accept")}</button><button class="pp-call-decline" onclick="ppTrialDecline()">${t("pp.tinv_decline")}</button></div>`;manIconizeInline(el);el.classList.add("on");ppCallShown=key;ppRingStart(key,m.invite.live?"live":"voice");ppOsNotify(t(m.invite.live?"pp.tinv_live_h":"pp.tinv_h",{name:m.invite.partner.name}),t(m.invite.live?"pp.tinv_live_sub":"pp.tinv_sub"),"partner",true)}
     return;
   }
   const guestInvite=l&&l.role==="guest"&&l.state==="invited"&&l.expiresAt>Date.now()&&ppLiveRx();
@@ -22940,7 +22980,7 @@ function ppCallSync(){
         <div class="pp-call-t"><b>${t("pp.call_host",{name:esc(l.partner.name)})}</b><small>${t("pp.live_waiting",{name:esc(l.partner.name)})}</small></div></div>
       <div class="pp-call-btns"><button class="pp-call-accept" onclick="go('partner')">${t("pp.call_return")}</button><button class="pp-call-decline" onclick="ppLiveCancel()">${t("pp.live_cancel")}</button></div>`;
     manIconizeInline(el);el.classList.add("on");ppCallShown=key;
-    if(guestInvite){ppChime();ppOsNotify(t("pp.live_invite_h",{name:l.partner.name}),t("pp.live_human"))}
+    if(guestInvite){ppRingStart(key,"live");ppOsNotify(t("pp.live_invite_h",{name:l.partner.name}),t("pp.live_human"),"partner",true)}
   }
 }
 /* ---- the ongoing-practice pill: a small green pulse on every screen except

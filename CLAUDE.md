@@ -382,7 +382,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   keyed by the live id, evidence "asr") → `S.ppRev` (`pairId:"live:"+id`) →
   `ppRevOpen`; History live row links it (`revId`). Partner audio is never
   recorded. Test hook `localStorage.be_live_round_secs`. Suite
-  `tests/live-rounds.mjs` (22). AI sessions are opened through `POST /ai/session` (12/day per learner,
+  `tests/live-rounds.mjs` (22). **Ringing (2026-09-25):** an incoming live
+  invitation rings like a phone (`ppRingStart(key,"live")`: British ring
+  400+450 Hz, 0.4/0.2/0.4 s every 3 s, vibration) and a recorded-voice
+  invitation rings with its own sound (`"voice"`: rising C–E–G); both stop
+  on `ppCallHide` / `ppLiveOpen` / gone, and after `PP_RING_MS` (45 s); OS
+  notification `requireInteraction`. Foreground only — a closed app gets no
+  push for invitations. Suite `tests/live-ring.mjs` (10). AI sessions are opened through `POST /ai/session` (12/day per learner,
   idempotent). Partner management: **Leave today's practice** (session only,
   `/pairs/:id/leave`) ≠ **Find someone else** (rematch + cooldown) ≠ **End
   partnership** (`/connection/end {cid}`, connection `ended`, not a block) ≠
