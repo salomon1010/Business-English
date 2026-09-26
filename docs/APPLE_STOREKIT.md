@@ -2,8 +2,80 @@
 
 Branch `release/premium-integration`. This covers what is **built and
 tested** and what is **still blocked** on Apple-side access. **No device,
-Sandbox or TestFlight test has run**: this Mac has no Xcode, no iOS SDK and
-no signing identity.
+Sandbox or TestFlight test has run**: this Mac has Xcode but no signing
+identity and no App Store Connect access.
+
+## Verified on this Mac (2026-09-26, Apple release completion)
+- **The environment has Xcode 27.0 (27A266a)** with the iOS 27 SDK and
+  simulators. It is not the selected developer directory, so it was used
+  through `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer` with no
+  system change.
+- **The environment lacks** any code-signing identity, provisioning profile,
+  paired iPhone or App Store Connect session.
+- **Unsigned iOS Simulator build: `** BUILD SUCCEEDED **`**:
+  - it compiles `BEStoreKitPlugin.swift` and `BEBridgeViewController.swift`
+    against the real iOS 27 SDK and Capacitor 8.5.2 (SPM);
+  - the only warning is Xcode's own App Intents metadata note;
+  - the app is `com.bemastery.app`, 1.1.0 (1).
+- **iPhone 17 simulator:**
+  - the production bundle and the **staging** bundle (`npm run sync:staging`)
+    both launch; Capacitor logs "WebView loaded" and onboarding renders;
+  - the staging bundle reaches the staging partner Worker from
+    `capacitor://localhost` ("2 online now"), so the `BE_BUILD` routing works
+    in the real WKWebView.
+  - An earlier blank first launch was the machine: disk full, load average
+    about 125. It did not recur once load dropped.
+- **Not exercised here:** the StoreKit calls themselves. Products, purchase
+  and restore run only for a signed-in learner. StoreKit testing in the
+  Simulator must be launched from Xcode with the StoreKit configuration.
+
+## Owner checklist on a Mac with Xcode (in this order)
+1. `cd mobile/ios && npm ci`.
+2. `npm run sync:staging` for Sandbox testing against staging (or
+   `npm run sync` for a submission build). Then `npx cap open ios`.
+3. Xcode → **App** target → *Signing & Capabilities*:
+   - tick *Automatically manage signing*;
+   - choose the **Lomonec LLC** team (this writes `DEVELOPMENT_TEAM`: commit
+     only that);
+   - check the bundle id reads `com.bemastery.app`;
+   - add the **In-App Purchase** capability.
+4. **StoreKit test without App Store Connect:** Product → Scheme → *Edit
+   Scheme* → Run → Options → *StoreKit Configuration* = `BEMastery.storekit`.
+   Run on a simulator or device, sign in with a test account, open Premium.
+   Check:
+   - $19.99 / year first, and $4.99 / month with the 3-day trial;
+   - buying monthly → Premium · Monthly in App Setup → Subscription;
+   - Debug → StoreKit → *Manage Transactions*: refund → Free on return to the
+     app.
+5. **App Store Connect:** follow `mobile/ios/appstore/SUBSCRIPTIONS.md`:
+   - the Paid Apps agreement, tax and banking;
+   - the group and products with the 3-day free trial;
+   - Notifications V2 URLs: Sandbox → staging;
+   - a Sandbox tester (Users and Access → Sandbox).
+6. **Staging Worker:** it must carry the latest Apple server code (see "Before
+   Sandbox testing" below).
+7. **Device Sandbox test:**
+   - clear the StoreKit configuration from the scheme and run on the iPhone;
+   - sign in to the Sandbox account in Settings → App Store → Sandbox
+     Account;
+   - run the matrix below.
+8. **TestFlight:**
+   - `node scripts/bump-build.mjs`;
+   - Product → Archive → Distribute → App Store Connect;
+   - internal testers;
+   - a **staging** TestFlight build (`sync:staging`) must never be submitted
+     for review.
+
+## Before Sandbox testing
+`be-entitlements-staging` currently runs **9778d46a**, built from `d4cc447`.
+Commit `3148a18` adds three server changes that Sandbox tests exercise:
+- a refund of an earlier period leaves the current one standing;
+- appAccountToken matched case-insensitively;
+- one staleness rule for notifications and the device.
+
+Before running the matrix, redeploy staging from this branch:
+`cd backend/entitlements && npx wrangler deploy --env staging`.
+That is a staging deploy for the owner to authorise. It has not been done.
 
 ## How it fits together
 ```
