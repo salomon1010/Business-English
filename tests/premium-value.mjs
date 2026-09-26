@@ -318,7 +318,7 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   ok("D6 · the close X is hidden at first", s && s.xHidden && s.wait, JSON.stringify(s));
   await L.p.keyboard.press("Escape"); await L.p.mouse.click(5, 5); await sleep(200);
   ok("D7 · before the X: Escape and a tap outside do not dismiss it", !!(await launchState(L.p)));
-  ok("D8 · annual first and selected; CTA 'Continue'; real benefits listed; the 3-day trial on Monthly", s.plans[0] === "premium_annual" && s.sel === "premium_annual" && s.cta === "Continue" && /Save up to 100 Shadow videos/.test(s.text) && /Bring your own YouTube videos — up to 20/.test(s.text) && /Keep your last 50 Polish speaking reports/.test(s.text) && /3-day free trial/.test(s.text) && /Save \d+%/.test(s.text) && /renews automatically/.test(s.text) && /Restore purchases/i.test(s.text) && /Privacy/.test(s.text), s.text);
+  ok("D8 · annual first and selected; CTA 'Continue with Premium'; real benefits listed; the 3-day trial on Monthly", s.plans[0] === "premium_annual" && s.sel === "premium_annual" && s.cta === "Continue with Premium" && /Save up to 100 Shadow videos/.test(s.text) && /Bring your own YouTube videos — up to 20/.test(s.text) && /Keep your last 50 Polish speaking reports/.test(s.text) && /3-day free trial/.test(s.text) && /Save \d+%/.test(s.text) && /renews automatically/.test(s.text) && /Restore purchases/i.test(s.text) && /Privacy/.test(s.text), s.text);
   ok("D9 · nothing unbuilt is promised: no 'unlimited', no 'more AI coaching'", !/unlimited|more AI coaching/i.test(s.text));
   if (SHOTS) await L.p.screenshot({ path: SHOTS + "/launch-dark-390-wait.png" });
   await sleep(5200);
@@ -343,14 +343,14 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
 
   const N = await open({ uid: "ln", keepLaunch: true, trial: false }); await sleep(2600);
   await N.p.evaluate(() => premPick("premium_monthly")); s = await launchState(N.p);
-  ok("D17 · when Play reports no trial: no trial line, CTA 'Continue'", s && !/free trial/i.test(s.text) && s.cta === "Continue", s && s.text);
+  ok("D17 · when Play reports no trial: no trial line, CTA 'Continue with Premium'", s && !/free trial/i.test(s.text) && s.cta === "Continue with Premium", s && s.text);
   const ld = await N.p.evaluate(() => { Billing.state = "loading"; premDraw(); const a = document.getElementById("premOv").innerText; Billing.state = "ready"; const keep = Billing.products; Billing.products = []; premDraw(); const b = document.getElementById("premOv").innerText; Billing.products = keep; premDraw(); return { a, b }; });
   ok("D18 · loading and no-products states are plain and closable", /Loading|Checking/i.test(ld.a) && /Premium isn.t available|not available|can.t be bought|unavailable/i.test(ld.b), JSON.stringify(ld));
   await N.ctx.close();
 
   for (const [lab, o] of [["light-320", { theme: "light", vp: { width: 320, height: 640 } }], ["dark-320", { theme: "dark", vp: { width: 320, height: 640 } }], ["reduced", { motion: "reduce" }]]) {
     const V = await open({ uid: "lv-" + lab, keepLaunch: true, ...o }); await sleep(7600);
-    const r = await V.p.evaluate(() => { const o = document.getElementById("premOv"), sh = o && o.querySelector(".prem-sheet"), x = o && o.querySelector(".prem-x"), tb = o && o.querySelector(".prem-cmp");
+    const r = await V.p.evaluate(() => { const o = document.getElementById("premOv"), sh = o && o.querySelector(".prem-sheet"), x = o && o.querySelector(".prem-x"), tb = o && o.querySelector(".prem-cmp"); if (o) { const d = o.querySelector(".prem-more"); if (d) d.open = true; }   /* the comparison sits behind "See what's included" */
       return o ? { overflow: document.documentElement.scrollWidth > innerWidth || sh.scrollWidth > sh.clientWidth + 1, table: tb && tb.getBoundingClientRect().right <= sh.getBoundingClientRect().right + 1, xAnim: x ? getComputedStyle(x).animationName : "", theme: document.documentElement.getAttribute("data-theme") } : null; });
     if (SHOTS) await V.p.screenshot({ path: `${SHOTS}/launch-${lab}.png` });
     ok(`D19 · ${lab}: fits with no sideways scroll${lab === "reduced" ? ", and the X appears with no animation" : ""}`, r && !r.overflow && r.table && (lab !== "reduced" || r.xAnim === "none"), JSON.stringify(r));
