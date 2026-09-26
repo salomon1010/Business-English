@@ -83,3 +83,32 @@ deploy is v486.
 - `language-polish` #1;
 - `push-presence` being time-dependent;
 - the contrast debt.
+
+## Later commits
+- `d4cc447`: staging TestFlight builds reach the staging Workers
+  (`npm run sync -- --staging` writes `be-build.js` into the copy only), and
+  the App Store shell ignores the dev `be_ent_api` override. ios-storekit is
+  23/23 after it, and entitlement-client, billing-client and smoke are green
+  again.
+
+## Staging (2026-09-26): staging only, production untouched
+| What | State |
+|---|---|
+| https://staging.lomonec.com | serves **exactly `d4cc447`** (md5-checked locally and through the tunnel) |
+| be-entitlements-staging | deployed from `d4cc447`: version **9778d46a**. Apple provider active (`APPLE_ROOT_SHA256`, Sandbox), `capacitor://localhost` allowed, DEV_AUTH off |
+| be-events-staging | deployed from `d4cc447`: version **e533840e**, merged allow-list (cert + purchase + ad). The Worker answers 204 by design; that rows land is **not** verified (it needs an Analytics token) |
+| be-partner-staging | Worker **not** redeployed (another session deployed it at 02:15Z). Its D1 lacked migrations **0009_reviews** and **0010_push_id**, which production already had; both applied (additive) |
+
+Checks against live staging:
+- smoke 33/33, monetization-qa 31/31;
+- a visual sweep of 34 screens (General English + Welding × dark + light,
+  390 px: Home, Road map, Shadow, Phrase Lab, Practice, Practice Partner,
+  Progress, Profile, App Setup, and the Premium sheet): **0 JavaScript
+  errors, 0 horizontal overflow**.
+
+## Not done here (needs a person, a device or Apple access)
+- **Physical devices:** the Android internal-test app loads staging, so it
+  now runs this build. The iPhone needs an Xcode build.
+- **Xcode:** the build, archive and TestFlight upload.
+- **App Store Connect:** products, agreements and the Notifications V2 URLs.
+- **Sandbox purchases.**
