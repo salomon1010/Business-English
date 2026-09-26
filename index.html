@@ -2148,7 +2148,7 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .pp-ai-tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:2px 7px;border-radius:99px;background:color-mix(in srgb,var(--gold) 20%,transparent);color:var(--gold);margin-right:6px;vertical-align:middle}
 .pp-conn{margin-top:12px}.pp-apply-card{margin-top:12px}.pp-adult{margin-top:12px;font-weight:700}
 /* History tab + blocked learners */
-.pp-tabs{margin:2px 0 12px}.pp-tabs .seg-tab{flex:1 1 0;justify-content:center;display:inline-flex;align-items:center;gap:6px;line-height:1}.pp-tabs .seg-tab svg{width:16px;height:16px;flex:0 0 auto}
+.pp-tabs{margin:2px 0 12px}.pp-tabs .seg-tab.pp-vis{flex:0 0 auto;padding-inline:12px;gap:7px}.pp-vis .pp-vis-dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 25%,transparent)}.pp-vis.is-hidden{color:var(--mut2)}.pp-vis.is-hidden .pp-vis-dot{background:var(--mut2);box-shadow:none}.pp-hidden-card{border-color:var(--line2)}.pp-tabs .seg-tab{flex:1 1 0;justify-content:center;display:inline-flex;align-items:center;gap:6px;line-height:1}.pp-tabs .seg-tab svg{width:16px;height:16px;flex:0 0 auto}
 .pp-hist-head .sub{margin:2px 0 10px}.pp-hist-stats{margin:0 0 6px}.pp-hist-stats .stat{padding:10px 6px}.pp-hist-stats .stat .l{font-size:11px}
 .pp-hist-trend{margin:4px 0 0}
 /* the History filters: five equal pills across the whole band, one line at
@@ -6240,7 +6240,7 @@ const I18N_EN={
  "pp.how1_h":"Find a partner — anyone in line",
  "pp.how1":"See who is waiting right now: first names only, no photos, no profiles. Anyone can practise with anyone — if it does not click, either of you can leave.",
  "pp.how2_h":"Talk live, or record four short turns",
- "pp.how2":"Live: a short voice call on today's task, nothing recorded. Recorded: up to 60 seconds a turn — hear it back, see the coach's score, send, and your partner replies in their own time.",
+ "pp.how2":"Live: a voice call on today's task in four timed rounds — only your own voice is recorded, for your report. Recorded: up to 60 seconds a turn — hear it back, see the coach's score, send, and your partner replies in their own time.",
  "pp.how3_h":"Then decide — alone",
  "pp.how3":"Practise together again, or find someone else. Only when you both say again do you become regular partners. Nobody has to explain.",
  "pp.rules":"No typed messages, no contact details, no photos. Report or block at any time. If your partner goes quiet, the AI coach steps in — clearly marked as AI. For learners aged 18 and over.",
@@ -6506,6 +6506,17 @@ const I18N_EN={
  "pp.leave":"Leave today's practice",
  "pp.tab_practise":"Practise",
  "pp.tab_history":"History",
+ "pp.vis_visible":"Visible",
+ "pp.vis_hidden":"Hidden",
+ "pp.vis_aria":"Visible to other learners — tap to hide or show yourself",
+ "pp.vis_on_toast":"You are visible. Learners online can find and invite you.",
+ "pp.vis_off_toast":"You are hidden. Nobody can find, invite or call you. The AI coach is still here.",
+ "pp.vis_eyebrow":"Hidden",
+ "pp.vis_hidden_h":"You are hidden right now",
+ "pp.vis_hidden_sub":"Nobody can find you, invite you or call you. Practise with the AI coach, or switch to Visible when you want a real partner.",
+ "pp.vis_show_btn":"Become visible",
+ "pp.vis_hidden_toast":"You are hidden. Switch to Visible to practise with a partner.",
+ "pp.vis_partner_hidden":"{{name}} is hidden right now. Try again later.",
  "pp.hist_h":"Your history",
  "pp.hist_sub":"Everything you did here, kept on your device so you can see how you are moving.",
  "pp.hist_empty_h":"Your story starts with one recording.",
@@ -21921,9 +21932,19 @@ function cvEnd(){const n=_cv.rounds.length,s=_cv.score;pvOpen(`<div class="pv-en
 
 function ppTabsHTML(){
   if(!ppMe||!ppMe.consented||ppLive)return "";
-  const h=!!(cur&&cur.arg1==="history");
-  return `<div class="seg-tabs seg-fit pp-tabs" role="tablist"><button class="seg-tab ${h?"":"on"}" role="tab" aria-selected="${!h}" onclick="go('partner')">${ic("mic")} ${t("pp.tab_practise")}</button><button class="seg-tab ${h?"on":""}" role="tab" aria-selected="${h}" onclick="go('partner','history')">${ic("clock")} ${t("pp.tab_history")}</button></div>`;
+  const h=!!(cur&&cur.arg1==="history"),hid=ppHidden();
+  /* the Visible / Hidden switch sits between the two tabs (owner, 2026-09-26):
+     one tap and nobody can find, invite or call this learner; the AI coach
+     still works. It is the server's opted_out, so every phone agrees. */
+  return `<div class="seg-tabs seg-fit pp-tabs" role="tablist"><button class="seg-tab ${h?"":"on"}" role="tab" aria-selected="${!h}" onclick="go('partner')">${ic("mic")} ${t("pp.tab_practise")}</button><button class="seg-tab pp-vis ${hid?"is-hidden":"is-visible"}" role="switch" aria-checked="${!hid}" aria-label="${esc(t("pp.vis_aria"))}" title="${esc(t("pp.vis_aria"))}" onclick="ppVisToggle()" ${ppBusy?"disabled":""}><span class="pp-vis-dot"></span> ${hid?t("pp.vis_hidden"):t("pp.vis_visible")}</button><button class="seg-tab ${h?"on":""}" role="tab" aria-selected="${h}" onclick="go('partner','history')">${ic("clock")} ${t("pp.tab_history")}</button></div>`;
 }
+function ppHidden(){const m=ppMe||ppState().lastMe;return !!(m&&m.prefs&&m.prefs.optedOut)}
+window.ppVisToggle=async()=>{
+  if(ppBusy)return;const to=!ppHidden();ppBusy=true;
+  try{const r=await ppApi("POST","/prefs",{optedOut:to});ppMe=r;ppState().lastMe=r;save();ppCands=null;toast(t(to?"pp.vis_off_toast":"pp.vis_on_toast"))}
+  catch(e){toast(e.code==="network"?t("pp.offline_sub"):t("pp.err_generic"))}
+  finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el);try{ppPillSync()}catch(e){}}
+};
 /* ---- the History tab: a summary strip, one honest trend line, filter
    chips and a day-grouped timeline (newest first), each row expandable with
    <details> so the page keeps no state of its own. ---- */
@@ -22148,6 +22169,10 @@ function ppRender(el){
       ${(()=>{const liveFirst=ppLiveOn()&&m.connection.canLive&&!m.live;const start=m.connection.canStart?`<button class="${liveFirst?"btn btn-g":"btn-primary"}" onclick="ppNext()">${ppPartnersFresh(m)?t("pp.partners_btn"):t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`;
         return liveFirst?`<div class="pp-row"><button class="btn-primary pp-attn pp-live-glow" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>${start}</div><p class="pp-fine">${t("pp.conn_choice")}</p>`:`<div class="pp-row">${start}</div>`})()}
     </section>`:"";
+  if(ppHidden()){
+    shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-hidden-card"><div class="eyebrow">${t("pp.vis_eyebrow")}</div><b>${t("pp.vis_hidden_h")}</b><p class="sub">${t("pp.vis_hidden_sub")}</p>
+      <div class="pp-row"><button class="btn-primary" ${ppBusy?"disabled":""} onclick="ppVisToggle()">${ic("user")} ${t("pp.vis_show_btn")}</button></div></section>${ppAiChoiceHTML("choice")}`);return;
+  }
   if(m.waiting){
     shell(`${aiResume}${applyCard}${conn}<section class="card pp-cta pp-wait">
       ${m.waiting.available>0?"":`<div class="pp-wait-ring">${ic("clock")}</div>`}
@@ -22372,6 +22397,7 @@ function ppJoinBody(mode){
 /* Match me: join the queue and show up to three candidates */
 window.ppMatch=async()=>{
   if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
+  if(ppHidden())return toast(t("pp.vis_hidden_toast"));
   ppBusy=true;
   try{
     const wasWaiting=!!(ppMe&&ppMe.waiting);
@@ -22393,6 +22419,7 @@ window.ppMatch=async()=>{
 /* Practice now: take the best candidate immediately, or stay in line with the AI coach offered */
 window.ppNow=async()=>{
   if(ppBusy||!flag("practice_partner_matching_enabled"))return toast(t("pp.off_sub"));
+  if(ppHidden())return toast(t("pp.vis_hidden_toast"));
   ppBusy=true;ppCands=null;
   try{
     const wasWaiting=!!(ppMe&&ppMe.waiting);
@@ -22421,7 +22448,7 @@ window.ppInvite=async(offer,live)=>{
 window.ppNext=async()=>{
   if(ppBusy)return;ppBusy=true;
   try{const pos=ppPosition(),st=ppState();const r=await ppApi("POST","/next",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});ppMe=r;st.lastMe=r;st.partnersFresh=null;st.applyPhrase=null;save();try{track("partner_trial_started",{regular:"1"})}catch(e){}}
-  catch(e){toast(e.code==="busy"?t("pp.conn_busy"):t("pp.err_generic"))}
+  catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="opted_out"?t("pp.vis_hidden_toast"):e.code==="hidden"?t("pp.vis_partner_hidden",{name:ppMe&&ppMe.connection?ppMe.connection.name:""}):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppDecide=async choice=>{
@@ -22471,7 +22498,7 @@ window.ppLiveInvite=async()=>{
     const r=await ppApi("POST","/live",{band:ppBand(),promptWeek:pos.promptWeek,fndDay:pos.fndDay,phrase:st.applyPhrase?st.applyPhrase.text:undefined});
     ppMe=r;st.lastMe=r;st.partnersFresh=null;save();try{track("partner_live_invited",{})}catch(e){}
     ppLiveOpen(r.live,null);
-  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"))}
+  }catch(e){toast(e.code==="busy"?t("pp.conn_busy"):e.code==="live_off"?t("pp.off_sub"):e.code==="opted_out"?t("pp.vis_hidden_toast"):e.code==="hidden"?t("pp.vis_partner_hidden",{name:ppMe&&ppMe.connection?ppMe.connection.name:""}):ppIsRate(e)?t("pp.err_rate"):t("pp.err_generic"))}
   finally{ppBusy=false;const el=document.getElementById("v-partner");if(el&&cur.v==="partner")ppRender(el)}
 };
 window.ppLiveAccept=async()=>{
@@ -22998,7 +23025,7 @@ function ppPillSync(){
   const m=ppMe||ppState().lastMe;let el=document.getElementById("ppPill");
   const onPartner=cur&&cur.v==="partner";
   let kind=null,text="";
-  if(m&&ppAvailable()&&!onPartner){
+  if(m&&ppAvailable()&&!onPartner&&!ppHidden()){   /* hidden = nothing pulls them back */
     const l=m.live;
     if(ppLive&&!ppLive.ended&&["accepted","connecting","active","reconnecting"].includes(ppLive.status)){kind="live";text=t("pp.pill_live",{name:esc(ppLive.partner.name)})}
     else if(l&&["accepted","connecting","active","reconnecting"].includes(l.state)&&l.expiresAt>Date.now()){kind="live";text=t("pp.pill_live",{name:esc(l.partner.name)})}
@@ -23147,7 +23174,7 @@ window.ppFabTap=()=>{
      Not signed in or not yet consented → the page's own card says what to do;
      joining the queue would only earn a 401/403 and a "Something went wrong"
      toast (owner, 2026-09-20). */
-  if(m&&!m.pair&&!m.invite&&!m.pairInvite&&!m.live&&ppSignedIn()&&ppConsented()&&m.auth!==false&&m.consented!==false){setTimeout(()=>{if(cur&&cur.v==="partner"&&!ppBusy)ppMatch()},350)}
+  if(m&&!m.pair&&!m.invite&&!m.pairInvite&&!m.live&&!ppHidden()&&ppSignedIn()&&ppConsented()&&m.auth!==false&&m.consented!==false){setTimeout(()=>{if(cur&&cur.v==="partner"&&!ppBusy)ppMatch()},350)}
 };
 function ppCallLoop(){
   clearTimeout(ppCallT);

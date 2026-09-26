@@ -954,6 +954,8 @@ async function handle(req, env, ctx) {
       if (!other) { const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular')", uid, uid).all()).results || []; if (conns[0]) other = conns[0].a === uid ? conns[0].b : conns[0].a; }
       if (!other) return err(404, "no_connection");
       if (await blockedEither(env, uid, other)) return err(403, "forbidden");
+      if (m.opted_out) return err(403, "opted_out");                                        /* hidden: not reachable, not reaching out */
+      { const om = await member(env, other); if (om && om.opted_out) return err(409, "hidden"); }   /* a hidden partner is not rung */
       const mine = await openLive(env, uid); if (mine) return json({ live: await withName(view(mine, uid)), ...(await meView(env, uid, ms)) });   // idempotent
       if (await openLive(env, other)) return err(409, "busy");
       if (await burstLimited(env, uid, ms)) return err(429, "rate");
@@ -1096,6 +1098,8 @@ async function handle(req, env, ctx) {
     const c = conns[0]; if (!c) return err(404, "no_connection");
     const other = c.a === uid ? c.b : c.a;
     if (await blockedEither(env, uid, other) || await activePair(env, other)) return err(409, "busy");
+    if (m.opted_out) return err(403, "opted_out");
+    { const om = await member(env, other); if (om && om.opted_out) return err(409, "hidden"); }   /* a hidden partner is not started with */
     const b = await req.json().catch(() => ({}));
     if (!BANDS.includes(b.band)) return err(400, "bad_request");
     const id = rid(), [x, y] = pairKey(uid, other);

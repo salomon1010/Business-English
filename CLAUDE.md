@@ -402,7 +402,17 @@ not JS, and `new Function` chokes on it. Check it separately with
   (`INVITE_TIMES/INVITE_EVERY_MS`, stops when swiped or tapped; owner:
   "notify, notify again — not a call that keeps ringing"). Dev:
   `GET /__wakes`. Suite `tests/push-invite.mjs` (19: both Workers local +
-  sw.js in a vm sandbox). AI sessions are opened through `POST /ai/session` (12/day per learner,
+  sw.js in a vm sandbox). **Visible / Hidden switch (2026-09-26, be12-v485):**
+  the middle segment of the partner tabs row (`ppTabsHTML`, `role=switch`,
+  `.pp-vis`) is the server's `opted_out` (`POST /prefs {optedOut}`, read
+  from `/me.prefs.optedOut` via `ppHidden()`). Hidden = out of the queue,
+  candidates and the online count (already so), and now also: `POST /live`
+  and `POST /next` answer 403 `opted_out` to the hidden learner and 409
+  `hidden` to a partner who tries to reach them; the Practise tab shows the
+  hidden card (`.pp-hidden-card`, Become visible, AI coach kept); `ppMatch`
+  / `ppNow` / the `ppFind` auto-match and `#ppPill` are off while hidden;
+  an open session thread stays reachable. Suite `tests/hidden-switch.mjs`
+  (15). AI sessions are opened through `POST /ai/session` (12/day per learner,
   idempotent). Partner management: **Leave today's practice** (session only,
   `/pairs/:id/leave`) ≠ **Find someone else** (rematch + cooldown) ≠ **End
   partnership** (`/connection/end {cid}`, connection `ended`, not a block) ≠
