@@ -2000,7 +2000,7 @@
  "pp.online_toast_one": "1 apprenant en ligne maintenant — touchez pour pratiquer ensemble",
  "pp.online_push_title": "Des apprenants sont en ligne",
  "pp.online_push_body": "{{n}} en ligne — une courte pratique est à un geste.",
- "pp.online_nudge": "Soyez prévenu quand des apprenants sont en ligne — même l'application fermée.",
+ "pp.online_nudge": "Soyez appelé quand quelqu'un vous invite à pratiquer, et prévenu quand des apprenants sont en ligne — même l'application fermée.",
  "pp.online_nudge_btn": "Activer",
  "rem.online_switch": "Me prévenir quand des apprenants sont en ligne",
  "rem.online_sub": "Une notification quand quelqu'un est en ligne pour pratiquer — au plus toutes les quelques heures, jamais la nuit.",

@@ -6357,7 +6357,7 @@ const I18N_EN={
  "pp.fab_online":"{{n}} online",
  "pp.online_line":"{{n}} online · {{w}} in line","pp.online_toast":"{{n}} online now — tap to practise together","pp.online_toast_one":"1 learner online now — tap to practise together",
  "pp.online_push_title":"Learners online now","pp.online_push_body":"{{n}} online — a short practice is one tap away.",
- "pp.online_nudge":"Get told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
+ "pp.online_nudge":"Get rung when someone invites you to practise, and told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
  "rem.online_switch":"Tell me when learners are online","rem.online_sub":"A notification when someone is online to practise with — at most every few hours, never at night.",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
@@ -13840,6 +13840,8 @@ async function remCacheText(){
       body:rmNotifBody(),
       pushId:pushId(),
       online:{title:t("pp.online_push_title"),body:t("pp.online_push_body",{n:"{{n}}"})},
+      /* an invitation with the app closed: the same words as the in-app banner */
+      call:{live:{title:t("pp.call_h",{name:"{{name}}"}),body:t("pp.tinv_live_sub")},trial:{title:t("pp.tinv_h",{name:"{{name}}"}),body:t("pp.tinv_sub")}},
       image:png?REM_MAP_KEY:null,
       lang:html.getAttribute("lang")||"en",
       dir:html.getAttribute("dir")||"auto",
@@ -13850,7 +13852,7 @@ async function remCacheText(){
 
 /* A tap on the notification while the app is open: sw.js focuses this window
    and asks it to show the road map, instead of reloading it on a new URL. */
-if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
+if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="partner-invite"){try{if(typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync();if(cur&&cur.v==="partner"){const el=document.getElementById("v-partner");if(el)ppRender(el)}})}catch(err){}return}if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
 /* Online alerts ride the same subscription as the daily reminder: the Worker
    keeps a "pres:" entry for a phone that wants them and wakes it (at most
    every 4 h, never at night) when the partner Worker reports someone online.
@@ -13860,7 +13862,8 @@ window.ppAlertsToggle=on=>{S.ppAlerts=!!on;save();if(on){try{if(window.Notificat
 async function pushSync(){
   const c=remCfg();
   const wantPres=ppAvailable()&&ppAlertsOn();
-  if(!c.on&&!wantPres)return pushOff();
+  const wantCalls=ppAvailable()&&ppConsented()&&ppAlertsOn();   /* invitations may ring this phone with the app closed */
+  if(!c.on&&!wantPres&&!wantCalls)return pushOff();
   if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
   if(!window.Notification||Notification.permission!=="granted")return;
   try{
@@ -13876,7 +13879,7 @@ async function pushSync(){
     const j=sub.toJSON();
     await fetch(PUSH_API+"/subscribe",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,endpoint:j.endpoint,presence:wantPres,tz:-new Date().getTimezoneOffset()}),
+      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,endpoint:j.endpoint,presence:wantPres,calls:wantCalls,tz:-new Date().getTimezoneOffset()}),
     });
   }catch(e){}                              // offline, blocked, unsupported — silent
 }
@@ -21167,6 +21170,10 @@ async function ppApi(method,path,body){
   if(!ppAvailable())throw Object.assign(new Error("off"),{code:"off"});
   const h=await ppHeaders();let b=body;
   if(body&&!(body instanceof FormData)){h["content-type"]="application/json";b=JSON.stringify(body)}
+  /* the phone's push id rides on /me as a query parameter (not a header: a
+     Worker older than this page would refuse the preflight and every call),
+     so an invitation can wake THIS phone through be-push with the app closed */
+  if(path==="/me"&&S.pushId)path+="?push="+encodeURIComponent(S.pushId);
   let r;
   try{r=await fetch(ppApiBase()+path,{method,headers:h,body:b})}
   catch(e){throw Object.assign(new Error("network"),{code:"network"})}

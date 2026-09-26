@@ -2000,7 +2000,7 @@
  "pp.online_toast_one": "1人がオンライン中。タップして一緒に練習",
  "pp.online_push_title": "学習者がオンライン中",
  "pp.online_push_body": "{{n}}人がオンライン。短い練習がワンタップで。",
- "pp.online_nudge": "学習者がオンラインになったら通知。アプリを閉じていても。",
+ "pp.online_nudge": "Get rung when someone invites you to practise, and told when learners are online — even with the app closed.",
  "pp.online_nudge_btn": "オンにする",
  "rem.online_switch": "学習者がオンラインになったら知らせる",
  "rem.online_sub": "誰かが練習のためにオンラインになったら通知。数時間に1回まで、夜間は送りません。",

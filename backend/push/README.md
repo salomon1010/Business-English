@@ -101,3 +101,18 @@ worth checking deliberately — it is the one that annoys real users if wrong.
 apps that were not installed via Share → Add to Home Screen. On all of those the
 old `setTimeout` and the launch nudge still run, unchanged. Push is added on top
 and never depended on.
+
+## Invitation wake-ups (2026-09-26)
+
+`POST /wake {secret, id, kind:"live"|"trial", name, ref?}` — called by the
+partner Worker (never by a browser) when a learner is invited to a recorded
+practice or a live call. Behind `PUSH_SECRET`, which must be set to the same
+value here and on be-partner:
+
+    npx wrangler secret put PUSH_SECRET            # in backend/push
+    npx wrangler secret put PUSH_SECRET --env ""   # in backend/partner (production)
+
+One bare push (Urgency high, TTL 600 s) to `sub:<id>` if the phone registered
+with `calls:true`; `why:<id>` then answers `{kind,name,ref}` once. A phone is
+woken at most once per 20 s. Without the secret `/wake` answers 503 and
+invitations are only noticed inside the app.

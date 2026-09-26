@@ -107,3 +107,12 @@ coach are unrationed, and abuse of them is held per minute by `BURST_PER_MIN`
 on the side whose turn it was (only if they had a full `PARTNER_TIMEOUT_H`
 to reply) and sweeps offers, cooldowns, counters. Error bodies carry a
 `detail` only under `DEV_AUTH`; production 500s are logged, not echoed.
+
+## Invitation wake-ups (2026-09-26)
+
+When a learner is invited (trial or live), `wake()` asks be-push to wake the
+invitee's phone: `POST <PUSH_API>/wake` with `PUSH_SECRET`. The phone's push
+id arrives on `/me?push=<id>` and is kept in `members.push_id` (migration
+0010). Deploy order: migration → this Worker → be-push → site. Dev: `GET
+/__wakes` lists the wakes since `/__reset`; `tests/push-invite.mjs` runs the
+whole chain locally.

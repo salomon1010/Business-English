@@ -387,8 +387,22 @@ not JS, and `new Function` chokes on it. Check it separately with
   400+450 Hz, 0.4/0.2/0.4 s every 3 s, vibration) and a recorded-voice
   invitation rings with its own sound (`"voice"`: rising C–E–G); both stop
   on `ppCallHide` / `ppLiveOpen` / gone, and after `PP_RING_MS` (45 s); OS
-  notification `requireInteraction`. Foreground only — a closed app gets no
-  push for invitations. Suite `tests/live-ring.mjs` (10). AI sessions are opened through `POST /ai/session` (12/day per learner,
+  Suite `tests/live-ring.mjs` (10). **Invitation push (2026-09-26, be12-v484):**
+  a closed app is woken too. The app sends its be-push id on `/me?push=`
+  (`members.push_id`, migration 0010; a query, NOT a header, so an older
+  Worker ignores it instead of failing the preflight) and registers with
+  `calls:true` in `pushSync`. `wake(env,ctx,uid,kind,name,ref)` in the partner
+  Worker (from `proposePair` and `POST /live`) calls be-push `POST /wake`
+  behind `PUSH_SECRET` (same secret on BOTH Workers, `PUSH_API` var on
+  be-partner); be-push sends one bare high-urgency push (10-min TTL, one per
+  phone per 20 s) and parks `why:<id>` = `{kind:"live"|"trial",name,ref}`,
+  served ONCE. sw.js: if a window is focused the page is told
+  (`partner-invite` message → refresh → the in-app ring) and nothing is
+  shown; otherwise an ORDINARY notification repeated 3× 8 s apart
+  (`INVITE_TIMES/INVITE_EVERY_MS`, stops when swiped or tapped; owner:
+  "notify, notify again — not a call that keeps ringing"). Dev:
+  `GET /__wakes`. Suite `tests/push-invite.mjs` (19: both Workers local +
+  sw.js in a vm sandbox). AI sessions are opened through `POST /ai/session` (12/day per learner,
   idempotent). Partner management: **Leave today's practice** (session only,
   `/pairs/:id/leave`) ≠ **Find someone else** (rematch + cooldown) ≠ **End
   partnership** (`/connection/end {cid}`, connection `ended`, not a block) ≠

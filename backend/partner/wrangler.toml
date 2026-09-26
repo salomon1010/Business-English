@@ -39,6 +39,10 @@ MATCH_WEIGHTS = "{}"           # JSON overrides of WEIGHTS_DEFAULT in partner-wo
 # per minute by BURST_PER_MIN (per learner, exact via D1) and IP_PER_MIN (per IP).
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"
+# Invitations ring a closed app through be-push (2026-09-26): PUSH_API is its
+# address, and PUSH_SECRET (`npx wrangler secret put PUSH_SECRET`) must equal
+# the same secret on be-push. Unset = invitations are only noticed in the app.
+PUSH_API = "https://be-push.nore-ngou.workers.dev"
 # Round Review needs the AI key as a secret: `npx wrangler secret put OPENAI_KEY`
 # (the same provider key Executive Polish uses). Without it POST /pairs/:id/review
 # answers 503 review_off. REVIEW_STUB="1" (dev only) builds a deterministic review.
@@ -102,6 +106,7 @@ ALLOWED_ORIGINS = "https://staging.lomonec.com,http://localhost:8000,http://127.
 PARTNER_ENABLED = "1"
 LIVE_ENABLED = "1"
 SAFETY_LIMITS = "{\"report\":20,\"block\":50}"   # staging only: a day of device testing on one account
+PUSH_API = "https://be-push.nore-ngou.workers.dev"   # the production push Worker: staging phones ring for real (same PUSH_SECRET)
 MATCH_WEIGHTS = "{}"
 PAIR_DAYS = "7"
 PARTNER_TIMEOUT_H = "24"

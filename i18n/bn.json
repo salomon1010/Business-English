@@ -2000,7 +2000,7 @@
  "pp.online_toast_one": "১ জন শিক্ষার্থী এখন অনলাইনে — একসাথে অনুশীলনে ট্যাপ করুন",
  "pp.online_push_title": "শিক্ষার্থীরা অনলাইনে",
  "pp.online_push_body": "{{n}} অনলাইনে — এক ট্যাপেই ছোট অনুশীলন।",
- "pp.online_nudge": "শিক্ষার্থীরা অনলাইনে এলে জানুন — অ্যাপ বন্ধ থাকলেও।",
+ "pp.online_nudge": "Get rung when someone invites you to practise, and told when learners are online — even with the app closed.",
  "pp.online_nudge_btn": "চালু করুন",
  "rem.online_switch": "শিক্ষার্থীরা অনলাইনে এলে জানান",
  "rem.online_sub": "কেউ অনুশীলনের জন্য অনলাইনে এলে একটি বিজ্ঞপ্তি — বড়জোর কয়েক ঘণ্টায় একবার, রাতে কখনও নয়।",

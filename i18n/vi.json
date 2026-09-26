@@ -2000,7 +2000,7 @@
  "pp.online_toast_one": "1 người đang trực tuyến — chạm để cùng luyện tập",
  "pp.online_push_title": "Có người đang trực tuyến",
  "pp.online_push_body": "{{n}} trực tuyến — một buổi luyện ngắn chỉ cách một chạm.",
- "pp.online_nudge": "Được báo khi có người trực tuyến — kể cả khi đã đóng ứng dụng.",
+ "pp.online_nudge": "Get rung when someone invites you to practise, and told when learners are online — even with the app closed.",
  "pp.online_nudge_btn": "Bật",
  "rem.online_switch": "Báo cho tôi khi có người trực tuyến",
  "rem.online_sub": "Thông báo khi có người trực tuyến để luyện tập — nhiều nhất vài giờ một lần, không bao giờ vào ban đêm.",

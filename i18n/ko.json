@@ -2000,7 +2000,7 @@
  "pp.online_toast_one": "지금 1명 온라인 — 탭해서 함께 연습하세요",
  "pp.online_push_title": "학습자가 온라인입니다",
  "pp.online_push_body": "{{n}}명 온라인 — 짧은 연습이 한 번의 탭 거리에.",
- "pp.online_nudge": "학습자가 온라인일 때 알림 받기 — 앱을 닫아도.",
+ "pp.online_nudge": "Get rung when someone invites you to practise, and told when learners are online — even with the app closed.",
  "pp.online_nudge_btn": "켜기",
  "rem.online_switch": "학습자가 온라인일 때 알려주기",
  "rem.online_sub": "누군가 연습을 위해 온라인일 때 알림 — 최대 몇 시간에 한 번, 밤에는 보내지 않습니다.",

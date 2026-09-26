@@ -422,7 +422,25 @@ async function offerCards(env, uid, ms, cands) {
    open proposal per host→guest is enough: asking again returns it. */
 const invitedPairFor = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host<>? AND (uid_a=? OR uid_b=?) AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, uid, uid, ms).first();
 const invitedPairBy = (env, uid, ms) => q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND invite_expires>? ORDER BY created_at DESC LIMIT 1", uid, ms).first();
-async function proposePair(env, uid, cand, ms, seed, live) {
+/* Wake the invitee's phone through be-push (owner, 2026-09-26) so a practice
+   or live invitation rings with the app closed. Server to server, behind
+   PUSH_SECRET; only the invitee's opaque push id, the kind and the host's
+   first name travel. Fire-and-forget: an unreachable push service must never
+   slow or fail the invitation itself. In dev the wakes are recorded for the
+   tests (GET /__wakes) and still posted when PUSH_API is set. */
+const devWakes = [];
+async function wake(env, ctx, uid, kind, name, ref) {
+  try {
+    const m = await member(env, uid);
+    const id = m && m.push_id; if (!id) return;
+    const body = { id, kind, name: clean(name, 24), ref };
+    if (env.DEV_AUTH === "1") devWakes.push({ uid, ...body, at: Date.now() });
+    if (!env.PUSH_API || !env.PUSH_SECRET) return;
+    const p = fetch(env.PUSH_API + "/wake", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...body, secret: env.PUSH_SECRET }) }).catch(() => {});
+    if (ctx && ctx.waitUntil) ctx.waitUntil(p); else await p;
+  } catch (e) {}
+}
+async function proposePair(env, uid, cand, ms, seed, live, ctx) {
   if (await activePair(env, uid) || await activePair(env, cand)) return null;
   const open = await q(env, "SELECT * FROM pairs WHERE status='invited' AND host=? AND (uid_a=? OR uid_b=?) AND invite_expires>? LIMIT 1", uid, cand, cand, ms).first();
   if (open) return open.id;
@@ -430,6 +448,8 @@ async function proposePair(env, uid, cand, ms, seed, live) {
   await q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json,host,invite_expires,live_wanted) VALUES(?,?,?,?,?,?,?,?,'invited',?,'trial',4,?,?,?,?)",
     id, x, y, seed.track, seed.band, seed.promptWeek, seed.fndDay, ms, ms, seed.promptJson || null, uid, ms + TRIAL_INVITE_MS, live ? 1 : 0).run();
   await audit(env, ms, uid, "trial_invited", cand, id, {});
+  const host = await member(env, uid);
+  await wake(env, ctx, cand, live ? "live" : "trial", host ? host.name : "", id);
   return id;
 }
 /* the guest said yes: both leave the queue, the pair goes active, any other
@@ -608,6 +628,7 @@ async function handle(req, env, ctx) {
     return new Response(JSON.stringify({ online: o ? o.n : 0, waiting: w ? w.n : 0 }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30" } });
   }
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
+    devWakes.length = 0;
     for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions", "reviews"]) await q(env, `DELETE FROM ${t}`).run();
     let cursor; do { const l = await env.AUDIO.list({ cursor }); for (const o of l.objects) await env.AUDIO.delete(o.key); cursor = l.truncated ? l.cursor : null; } while (cursor);
     return json({ ok: true });
@@ -615,6 +636,7 @@ async function handle(req, env, ctx) {
   /* dev only (same guard): clear one learner's daily counters, so a long
      browser run can keep joining the queue without loosening the caps the
      Worker suite asserts */
+  if (req.method === "GET" && path === "/__wakes" && env.DEV_AUTH === "1") return json({ wakes: devWakes });
   if (req.method === "POST" && path === "/__uncap" && env.DEV_AUTH === "1") {
     const b = await req.json().catch(() => ({})); if (typeof b.uid !== "string" || !b.uid) return err(400, "uid");
     await q(env, "DELETE FROM counters WHERE key LIKE ?", b.uid + ":%").run();
@@ -625,6 +647,11 @@ async function handle(req, env, ctx) {
   if (!uid) return err(401, "auth");
   const m = await member(env, uid);
   if (m && ms - m.last_seen > 60_000) await q(env, "UPDATE members SET last_seen=? WHERE uid=?", ms, uid).run();
+  /* the phone's push id (the random id it registered with be-push), sent on
+     /me as ?push=, so an invitation can wake THIS phone with the app closed.
+     Two phones on one account: the one used last is the one rung. */
+  const pid = url.searchParams.get("push");
+  if (m && pid && /^[A-Za-z0-9_-]{8,64}$/.test(pid) && pid !== m.push_id) await q(env, "UPDATE members SET push_id=? WHERE uid=?", pid, uid).run();
   const suspended = m && m.suspended_until && m.suspended_until > ms;
 
   if (req.method === "GET" && path === "/me") return json(await meView(env, uid, ms));
@@ -688,7 +715,7 @@ async function handle(req, env, ctx) {
     let invited = null;
     if (mode === "now" && cands.length) {
       const mine = await q(env, "SELECT * FROM interest WHERE uid=?", uid).first();
-      invited = await proposePair(env, uid, cands[0].c.uid, ms, seedFrom(mine, cands[0].c, b.phrase));
+      invited = await proposePair(env, uid, cands[0].c.uid, ms, seedFrom(mine, cands[0].c, b.phrase), false, ctx);
     } else if (cands.length) cards = await offerCards(env, uid, ms, cands);
     return json({ status: invited ? "invited" : "waiting", candidates: cards, ...(await meView(env, uid, ms)) });
   }
@@ -719,7 +746,7 @@ async function handle(req, env, ctx) {
       if (om && TRACKS.has(om.track) && om.last_seen > ms - 5 * 60_000 && !om.opted_out && !(om.suspended_until > ms)) theirs = { uid: om.uid, track: om.track, band: null, lang: om.lang, prompt_week: 0, fnd_day: 0 };
     }
     if (!mine || !theirs || await blockedEither(env, uid, off.cand_uid)) return err(409, "gone");
-    const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase), b.live === true && env.LIVE_ENABLED === "1");
+    const pairId = await proposePair(env, uid, off.cand_uid, ms, seedFrom(mine, theirs, b.phrase), b.live === true && env.LIVE_ENABLED === "1", ctx);
     if (!pairId) return err(409, "gone");
     return json({ status: "invited", ...(await meView(env, uid, ms)) });
   }
@@ -934,6 +961,7 @@ async function handle(req, env, ctx) {
       await q(env, "INSERT INTO live_sessions(id,host,guest,state,band,prompt_week,fnd_day,prompt_json,created_at,updated_at,expires_at) VALUES(?,?,?,'invited',?,?,?,?,?,?,?)",
         id, uid, other, BANDS.includes(b.band) ? b.band : null, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), b.phrase ? JSON.stringify({ phrase: clean(b.phrase, 160) }) : null, ms, ms, ms + LIVE_INVITE_MS).run();
       await audit(env, ms, uid, "live_invited", other, id, {});
+      await wake(env, ctx, other, "live", m.name, id);
       const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", id).first();
       return json({ live: await withName(view(s, uid)), ...(await meView(env, uid, ms)) }, 201);
     }

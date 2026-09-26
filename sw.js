@@ -1,5 +1,5 @@
 /* Service worker: network-first for the app shell, cache fallback for offline */
-const CACHE = "be12-v483";
+const CACHE = "be12-v484";
 /* Every engine the app boots with belongs here. Only two of them used to, so on a
    poor connection — or on the first launch after a version bump, which wipes the
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
@@ -132,6 +132,7 @@ self.addEventListener("fetch", e => {
    owner, 2026-09-19) or the daily reminder. The answer is looked up by the
    subscription id the app parks in the reminder cache; no answer → reminder. */
 const PUSH_API = "https://be-push.nore-ngou.workers.dev";
+const INVITE_TIMES = 3, INVITE_EVERY_MS = 8000;   // an invitation is announced three times over ~16 s
 function pushWhy(d) {
   if (!d || !d.pushId) return Promise.resolve(null);
   return fetch(PUSH_API + "/why?id=" + encodeURIComponent(d.pushId), { cache: "no-store" })
@@ -143,7 +144,40 @@ self.addEventListener("push", e => {
       .then(c => c.match(REM_KEY))
       .then(r => (r ? r.json() : null))
       .catch(() => null)
-      .then(d => pushWhy(d).then(why => {
+      .then(d => pushWhy(d).then(async why => {
+        /* An invitation (owner, 2026-09-26): someone wants to practise with
+           this learner — a recorded practice ("trial") or a live call ("live").
+           If the app is open in front, the page itself rings (it is told and
+           refreshes); otherwise an ordinary notification that is repeated
+           INVITE_TIMES times, INVITE_EVERY_MS apart, until it is tapped or
+           swiped away — "notify, notify again, notify", not a call that keeps
+           ringing (owner). Tap lands on the partner page. Text comes from the
+           reminder cache, already in the learner's language. */
+        if (why && (why.kind === "live" || why.kind === "trial") && d && d.call && d.call[why.kind]) {
+          const list = await clients.matchAll({ type: "window", includeUncontrolled: true });
+          const front = list.find(c => c.focused) || list.find(c => c.visibilityState === "visible");
+          list.forEach(c => { try { c.postMessage({ type: "partner-invite", kind: why.kind, name: why.name || "" }); } catch (err) {} });
+          if (front) return;   // the page rings; a second alert would only cover it
+          const tx = d.call[why.kind], name = String(why.name || "").trim() || "A learner";
+          const opts = {
+            body: String(tx.body).replace("{{name}}", name),
+            icon: "icon-192.png", badge: "icon-192.png",
+            tag: "be-partner-call", renotify: true,          // the same card again: sound + vibration each time, never a stack
+            vibrate: [200, 100, 200],
+            lang: d.lang || "en", dir: d.dir || "auto",
+            data: { url: "./#partner", view: "partner", at: Date.now() },
+          };
+          const title = String(tx.title).replace("{{name}}", name);
+          for (let i = 0; i < INVITE_TIMES; i++) {
+            if (i) {
+              await new Promise(r => setTimeout(r, INVITE_EVERY_MS));
+              const still = await self.registration.getNotifications({ tag: "be-partner-call" });
+              if (!still.length) return;                      // tapped or swiped away: they know
+            }
+            await self.registration.showNotification(title, opts);
+          }
+          return;
+        }
         if (why && why.kind === "presence" && d && d.online && d.online.title) {
           const n = Number(why.n) || 1;
           return self.registration.showNotification(d.online.title, {

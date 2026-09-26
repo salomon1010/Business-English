@@ -31,3 +31,6 @@ id = "3a92211829224fc7a8824d500e31d61d"
 VAPID_PUBLIC_KEY = "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c"
 # Online alerts: the partner Worker's public /presence (counts only). Empty = alerts off.
 PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
+# Invitation wake-ups (2026-09-26): the partner Worker calls POST /wake with a
+# shared secret — `npx wrangler secret put PUSH_SECRET` here AND on be-partner
+# (same value). Without it /wake answers 503 and invitations ring in-app only.

@@ -47,6 +47,7 @@
 
 const ALLOWED_ORIGINS = [
   "https://app.lomonec.com",
+  "https://staging.lomonec.com",
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
@@ -64,6 +65,15 @@ const PRES_GAP_SEC    = 4 * 60 * 60;
 const PRES_QUIET_FROM = 22, PRES_QUIET_TO = 8;
 const PRES_WHY_TTL    = 15 * 60;
 const JWT_TTL_SEC   = 3 * 60 * 60;
+/* Invitation wake-ups (owner, 2026-09-26): the partner Worker asks, behind
+   PUSH_SECRET, for ONE phone to be woken when someone invites its learner to
+   a recorded practice ("trial") or a live call ("live"). The push is bare
+   like the others; the kind and the host's first name wait under why:<id>
+   for the service worker, which rings like a phone. A phone is woken at most
+   once per WAKE_GAP_SEC, and a wake older than WAKE_WHY_TTL is not shown —
+   the invitation itself has expired by then. */
+const WAKE_KINDS = new Set(["live", "trial"]);
+const WAKE_GAP_SEC = 20, WAKE_WHY_TTL = 10 * 60;
 
 /* ---------------------------------------------------------------- helpers -- */
 
@@ -148,16 +158,16 @@ async function vapidHeader(env, audience){
 /* A 410/404 from the push service means the browser threw the subscription
    away (app uninstalled, permission revoked). Drop the row rather than retry
    it every minute forever. */
-async function sendOne(env, rec, audCache){
+async function sendOne(env, rec, audCache, urgent){
   const origin = new URL(rec.endpoint).origin;
   if (!audCache[origin]) audCache[origin] = await vapidHeader(env, origin);
   const res = await fetch(rec.endpoint, {
     method: "POST",
     headers: {
       "Authorization": audCache[origin],
-      "TTL": "3600",              // an old reminder helps no one; expire it
+      "TTL": urgent ? String(WAKE_WHY_TTL) : "3600",   // an old reminder or invitation helps no one; expire it
       "Content-Length": "0",
-      "Urgency": "normal",
+      "Urgency": urgent ? "high" : "normal",           // a call wakes a dozing phone now, not at its next batch
     },
   });
   if (res.status === 404 || res.status === 410) return "gone";
@@ -212,9 +222,9 @@ async function subscribe(req, env, origin){
 
   const id   = cleanId(b.id);
   const slot = b.slot == null ? null : cleanSlot(b.slot);   // null: online alerts only, no daily reminder
-  const presence = b.presence === true;
+  const presence = b.presence === true, calls = b.calls === true;   // calls: invitations may wake this phone
   const tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : 0;
-  if (!id || (b.slot != null && !slot) || (!slot && !presence)) return json({ error: "bad id or slot" }, 400, origin);
+  if (!id || (b.slot != null && !slot) || (!slot && !presence && !calls)) return json({ error: "bad id or slot" }, 400, origin);
   if (!b.endpoint || !validEndpoint(b.endpoint, env)) {
     return json({ error: "bad endpoint" }, 400, origin);
   }
@@ -226,12 +236,37 @@ async function subscribe(req, env, origin){
     await env.SUBS.delete(`slot:${prev.slot}:${id}`);
   }
 
-  const rec = { id, slot, endpoint: b.endpoint, presence, tz };
+  const rec = { id, slot, endpoint: b.endpoint, presence, calls, tz };
   if (slot) await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
   if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
   else await env.SUBS.delete(`pres:${id}`);
   await env.SUBS.put(`sub:${id}`, JSON.stringify(rec));
-  return json({ ok: true, slot, presence }, 200, origin);
+  return json({ ok: true, slot, presence, calls }, 200, origin);
+}
+
+/* POST /wake {secret, id, kind, name, ref?} — from the partner Worker only.
+   One push to one phone; the answer to "why?" is parked for the service
+   worker and served once. 404 = that phone never registered (or was dropped),
+   429 = rung a moment ago, 403 = not the partner Worker. */
+async function wakeOne(req, env, origin){
+  if (!env.PUSH_SECRET) return json({ error: "off" }, 503, origin);
+  const b = await req.json().catch(() => null);
+  if (!b || b.secret !== env.PUSH_SECRET) return json({ error: "forbidden" }, 403, origin);
+  const id = cleanId(b.id), kind = WAKE_KINDS.has(b.kind) ? b.kind : null;
+  const name = typeof b.name === "string" ? b.name.replace(/[<>\s]+/g, " ").trim().slice(0, 24) : "";
+  const ref = typeof b.ref === "string" && /^[a-f0-9]{16}$/.test(b.ref) ? b.ref : null;
+  if (!id || !kind) return json({ error: "bad request" }, 400, origin);
+  const rec = await env.SUBS.get(`sub:${id}`, "json");
+  if (!rec || !rec.endpoint || !rec.calls) return json({ error: "no phone" }, 404, origin);
+  const last = Number(await env.SUBS.get(`wlast:${id}`)) || 0;   /* KV expiry cannot go under 60 s, so the gap is checked from the stored time */
+  if (Date.now() - last < WAKE_GAP_SEC * 1000) return json({ error: "recent" }, 429, origin);
+  let out; try { out = await sendOne(env, rec, {}, true); } catch (e) { out = "fail:throw"; }
+  if (out === "sent") {
+    await env.SUBS.put(`why:${id}`, JSON.stringify({ kind, name, ref, at: Date.now() }), { expirationTtl: WAKE_WHY_TTL });
+    await env.SUBS.put(`wlast:${id}`, String(Date.now()), { expirationTtl: 60 });
+  } else if (out === "gone") await forget(env, id, rec.slot);
+  console.log(JSON.stringify({ wake: kind, out }));
+  return json({ ok: out === "sent", out }, out === "sent" ? 200 : 502, origin);
 }
 
 // The service worker asks what a bare push was for. Public by id (an opaque
@@ -240,6 +275,11 @@ async function why(req, env, origin){
   const id = cleanId(new URL(req.url).searchParams.get("id") || "");
   if (!id) return json({ error: "bad id" }, 400, origin);
   const w = await env.SUBS.get(`why:${id}`, "json");
+  if (w && WAKE_KINDS.has(w.kind)) {   /* an invitation: served once, so a later presence push cannot re-ring it */
+    await env.SUBS.delete(`why:${id}`);
+    if (Date.now() - (w.at || 0) < WAKE_WHY_TTL * 1000) return json({ kind: w.kind, name: w.name || "", ref: w.ref || null, at: w.at }, 200, origin);
+    return json({ kind: "reminder" }, 200, origin);
+  }
   if (w && Date.now() - (w.at || 0) < PRES_WHY_TTL * 1000) return json({ kind: "presence", n: w.n, waiting: w.waiting, at: w.at }, 200, origin);
   return json({ kind: "reminder" }, 200, origin);
 }
@@ -314,6 +354,7 @@ export default {
     if (req.method === "GET" && path === "/why") return why(req, env, origin);
 
     if (req.method !== "POST") return json({ error: "method" }, 405, origin);
+    if (path === "/wake") return wakeOne(req, env, origin);   // server to server: the secret is the check, not the Origin
     if (!ALLOWED_ORIGINS.includes(origin)) return json({ error: "origin" }, 403, origin);
 
     if (path === "/subscribe")   return subscribe(req, env, origin);
