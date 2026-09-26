@@ -10845,7 +10845,7 @@ window.selectProfessionalTrack=id=>{
   ProfessionalTrackContext.setActive(id);
   applyTrackIdentity();
   _jPhase=null;
-  save();
+  save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   /* A track without a curriculum has no map to show; every other switch lands
      on the road map of the new area, centred on done → here → next, with the
      strip saying which area this now is. */
@@ -25696,7 +25696,7 @@ function areaSwitch(id,view){
   S.professionalTracks.activeId=id;
   ProfessionalTrackContext.setActive(id);
   applyTrackIdentity();
-  _jPhase=null;save();
+  _jPhase=null;save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   go(view);
 }
 window.areaGoReview=id=>{areaSwitch(id,"review")};
@@ -28877,10 +28877,19 @@ async function fbFirstSync(u){
    the write (the default until rules are published) it failed silently and the
    user believed their progress was backed up when it was not. */
 let fbLastPushOk=null,fbLastPushErr="";
-window.fbPush=function(){
+/* delayMs: 2.5 s by default (edits come in bursts); 0 when the programme
+   changes — the Practice Partner Worker reads the programme from this copy.
+   An immediate write already waiting is never pushed back (save() calls this
+   with the default from an idle callback, often just after it); the write
+   reads S when it runs, so nothing is lost. Ordinary edits still debounce. */
+let fbPushDue=0,fbPushSoon=false;
+window.fbPush=function(delayMs){
   if(!FBUser||!FBdb)return;
-  clearTimeout(fbPushTimer);
+  const d=delayMs===undefined?2500:delayMs;
+  if(fbPushTimer&&fbPushSoon&&fbPushDue-Date.now()<d)return;
+  clearTimeout(fbPushTimer);fbPushDue=Date.now()+d;fbPushSoon=d<2500;
   fbPushTimer=setTimeout(async()=>{
+    fbPushTimer=null;
     try{
       await FBdb.collection("users").doc(FBUser.uid).set({json:fbCloudJson(S),savedAt:S.savedAt||Date.now(),email:FBUser.email||"",updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
       fbLastPushOk=true;fbLastPushErr="";
@@ -28890,7 +28899,7 @@ window.fbPush=function(){
       console.warn("[sync] cloud write failed:",fbLastPushErr);
     }
     fbSyncStatus();
-  },2500);
+  },d);
 };
 /* Show the truth on the account card once a write has been attempted. */
 function fbSyncStatus(){

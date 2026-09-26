@@ -205,6 +205,54 @@ async function authUid(req, env) {
   try { return await verifyIdToken(m[1], env.FIREBASE_PROJECT_ID); } catch (e) { return null; }
 }
 
+/* ------------------------------------- the learner's programme (server-side)
+   Practice Partner is General English only, and the programme is decided from
+   the ACCOUNT, never from the request: a `track` a client sends is not what
+   authorises it (26 Sep 2026 — a Welding device showed General English
+   features, and a client-declared track cannot be the boundary).
+
+   The account's programme lives in exactly one place: the learner's own
+   Firestore document users/{uid} (the app's synced state; its
+   professionalTracks.activeId). Firestore's published rules let ONLY that
+   signed-in learner read or write it (request.auth.uid == uid), so the Worker
+   reads it with the learner's own verified Firebase ID token — no service
+   account, no new auth. Same rule as the app's areaId(): a registered
+   programme id, else General English (an account that never chose one).
+   Fail CLOSED: no document, no token, Firestore unreachable → not verified.
+   A General English answer is cached per isolate for TRACK_CACHE_MS (default
+   60 s) to spare a Firestore read on every poll; any other answer is re-read
+   every time, so switching BACK to General English is seen at once. */
+const KNOWN_TRACKS = new Set(["general-english", "welding"]);
+const trackCache = new Map();
+async function accountTrack(req, env, uid) {
+  /* DEV_AUTH (local wrangler only — never staging or production): the dev
+     identity has no Firebase account, so a test names its programme */
+  if (env.DEV_AUTH === "1" && uid.startsWith("dev:")) {
+    const h = req.headers.get("x-dev-track");
+    return h && /^[a-z-]{1,40}$/.test(h) ? h : "general-english";
+  }
+  const ttl = env.TRACK_CACHE_MS !== undefined && Number.isFinite(Number(env.TRACK_CACHE_MS)) ? Number(env.TRACK_CACHE_MS) : 60_000;
+  const hit = trackCache.get(uid);
+  if (hit && TRACKS.has(hit.track) && Date.now() - hit.at < ttl) return hit.track;
+  const m = /^Bearer\s+(.+)$/i.exec(req.headers.get("authorization") || ""); if (!m) return null;
+  let r;
+  try {
+    r = await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(env.FIREBASE_PROJECT_ID)}/databases/(default)/documents/users/${encodeURIComponent(uid)}?mask.fieldPaths=json`,
+      { headers: { authorization: "Bearer " + m[1] } });
+  } catch (e) { return null; }
+  if (!r.ok) return null;
+  let id;
+  try {
+    const doc = await r.json();
+    const st = JSON.parse(doc.fields.json.stringValue);
+    id = st && st.professionalTracks ? st.professionalTracks.activeId : undefined;
+  } catch (e) { return null; }
+  const track = typeof id === "string" && KNOWN_TRACKS.has(id) ? id : "general-english";
+  if (trackCache.size > 5000) trackCache.clear();
+  trackCache.set(uid, { track, at: Date.now() });
+  return track;
+}
+
 /* --------------------------------------------------------------- queries */
 const q = (env, sql, ...args) => env.DB.prepare(sql).bind(...args);
 const member = (env, uid) => q(env, "SELECT * FROM members WHERE uid=?", uid).first();
@@ -645,6 +693,14 @@ async function handle(req, env, ctx) {
 
   const uid = await authUid(req, env);
   if (!uid) return err(401, "auth");
+  /* The product boundary, enforced here for EVERY authenticated route below:
+     the account's own programme must be General English. Only erasing one's
+     own partner history stays open to any programme (data rights). */
+  if (!(req.method === "DELETE" && path === "/history")) {
+    const track = await accountTrack(req, env, uid);
+    if (track === null) return err(403, "track_unverified");
+    if (!TRACKS.has(track)) return err(403, "track");
+  }
   const m = await member(env, uid);
   if (m && ms - m.last_seen > 60_000) await q(env, "UPDATE members SET last_seen=? WHERE uid=?", ms, uid).run();
   /* the phone's push id (the random id it registered with be-push), sent on

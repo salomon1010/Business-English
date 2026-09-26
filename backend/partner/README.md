@@ -5,6 +5,33 @@ and the full data model: `marketing/product/practice-partner/`. **Not
 deployed** — see `RELEASE_PLAN.md` there. **General English only**: `TRACKS`
 holds one id and any other track is refused with `403 track`.
 
+**Where the track comes from (26 Sep 2026): the ACCOUNT, not the request.**
+After the ID token is verified, `accountTrack()` reads the caller's own
+Firestore document `users/{uid}` (field `json`, the app's synced state) over
+the Firestore REST API **with the caller's own ID token**, so the published
+rule (`request.auth.uid == uid`) is the access check and the Worker holds no
+Google credential. `professionalTracks.activeId` decides: General English
+passes; Welding (or any other known track) gets `403 track` on every route,
+whatever `track` the body or query string carries. No `professionalTracks`
+(an account that never chose) = General English, the app's own default; an
+unknown id = General English, the same fallback as `areaId()`.
+- **Fails closed:** no document, Firestore unreachable or an unreadable copy
+  → `403 track_unverified`.
+- **Exempt:** `GET /presence` (public counts, above auth), `DELETE /me`
+  (erasure, above the kill switch) and `DELETE /history` (a learner's own
+  records) — a learner who moved to Welding can still erase their data.
+- **Cache:** a General English answer is kept per isolate for
+  `TRACK_CACHE_MS` (default 60 000; `0` turns it off). Anything else is never
+  cached, so switching back to General English is seen at once, and a switch
+  to Welding is enforced within that window.
+- The app writes the account copy at once when the programme changes
+  (`fbPush(0)` in `selectProfessionalTrack` / `areaSwitch`).
+- `DEV_AUTH="1"` only: `x-dev-track` stands in for the account (default
+  General English). Without `DEV_AUTH` the header is ignored.
+- Tests: `node test/track-auth.mjs` (in-process, the production path: real
+  RS256 tokens against a stand-in JWKS, a stand-in Firestore applying the
+  published rule, the real migrations in SQLite).
+
 ## Deploy (production)
 
 ```
@@ -87,7 +114,7 @@ In the app (served locally), set `localStorage.be_partner_api = "http://127.0.0.
 The client sends `X-Dev-User` instead of a Firebase token only for localhost/127.0.0.1 hosts.
 
 ## Errors the client handles
-`auth` 401 · `disabled` 503 · `review_off` 503 · `review_unavailable` 502 · `not_complete` 409 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` 403 ·
+`auth` 401 · `disabled` 503 · `review_off` 503 · `review_unavailable` 502 · `not_complete` 409 · `consent` / `age` / `suspended` / `opted_out` / `forbidden` / `track` / `track_unverified` 403 ·
 `paired` / `not_waiting` / `gone` / `busy` / `closed` / `complete` / `not_your_turn` / `not_complete` / `no_pair` 409 ·
 `offer` / `no_connection` / `not_found` 404 · `too_large` 413 · `moderation` 422 · `rate` / `ip_limit` 429 (busy — try again shortly) · `limit` 429 (**report and block only**, a daily safety cap) · `live_off` 403 · `closed` 409 (live).
 

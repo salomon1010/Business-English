@@ -366,8 +366,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   14-day cooldown. AI coach fallback and the post-session tip are always tagged AI.
   Fourth Worker `backend/partner/` (`be-partner`, D1 + R2 + cron; migrations 0001
   + 0002 + 0003; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
-  `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403) — Firestore
-  untouched. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
+  `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403 — and the
+  track is the ACCOUNT's: `accountTrack()` reads the caller's own Firestore
+  `users/{uid}` with the caller's ID token, never a client-sent `track`; fails
+  closed `403 track_unverified`; see backend/partner/README.md) — Firestore
+  holds no partner data. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,
   `ppNotify()` (dedup by turn id + 60 s), i18n `pp.*`. Tests:

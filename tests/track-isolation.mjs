@@ -107,6 +107,30 @@ console.log("\n# every other wholesale replacement of the state");
   await ctx.close();
 }
 
+console.log("\n# the account copy follows a switch at once (the partner Worker reads the programme from it)");
+{
+  const { ctx, p, errs } = await open("general-english");
+  const w = await p.evaluate(async () => {
+    const writes = [];
+    FBdb = { collection: () => ({ doc: uid => ({ set: async d => { writes.push({ uid, at: Date.now(), track: JSON.parse(d.json).professionalTracks.activeId }); }, get: async () => ({ exists: false }) }) }) };
+    window.firebase = window.firebase || { firestore: { FieldValue: { serverTimestamp: () => "ts" } } };
+    FBUser = { uid: "u-sw", email: "a@b.c", getIdToken: async () => "t" };
+    const t0 = Date.now(); selectProfessionalTrack("welding");
+    await new Promise(r => setTimeout(r, 900)); const soon = writes.slice();
+    const t1 = Date.now(); areaSwitch("general-english", "practice");
+    await new Promise(r => setTimeout(r, 900)); const back = writes.slice(soon.length);
+    /* an ordinary edit still waits for the burst to end */
+    const t2 = Date.now(); save(); await new Promise(r => setTimeout(r, 900)); const edit = writes.length - soon.length - back.length;
+    FBUser = null; FBdb = null;
+    return { soon: soon.map(x => ({ track: x.track, ms: x.at - t0 })), back: back.map(x => ({ track: x.track, ms: x.at - t1 })), edit };
+  });
+  ok("S7 · switching to Welding while signed in writes 'welding' to the account copy within a second (not after the 2.5 s debounce)", w.soon.length >= 1 && w.soon[w.soon.length - 1].track === "welding" && w.soon[0].ms < 900, JSON.stringify(w));
+  ok("S8 · switching back (areaSwitch) writes 'general-english' at once too", w.back.length >= 1 && w.back[w.back.length - 1].track === "general-english", JSON.stringify(w));
+  ok("S9 · an ordinary edit still debounces (no write within 0.9 s)", w.edit === 0, JSON.stringify(w));
+  ok("S10 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
+
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
