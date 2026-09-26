@@ -21,9 +21,11 @@ const quiet = p => { p.stdout.on("data", () => {}); p.stderr.on("data", () => {}
 const PUSH = "http://127.0.0.1:8791", PARTNER = "http://127.0.0.1:8787", EP = "http://127.0.0.1:8790";
 const finish = code => { procs.forEach(p => { try { p.kill(); } catch (e) {} }); ep.close(); const pass = res.filter(Boolean).length; console.log(`\n  ${pass}/${res.length} pass`); process.exit(code ?? (pass === res.length ? 0 : 1)); };
 /* one at a time, each with its own inspector port: two started together race for the same one and the loser dies with "Address already in use" */
-procs.push(quiet(spawn("npx", ["wrangler", "dev", "--env", "dev", "--port", "8787", "--inspector-port", "9787"], { cwd: root + "backend/partner", stdio: ["ignore", "pipe", "pipe"] })));
+/* the push Worker reads /presence behind the secret the two Workers share (26 Sep 2026) */
+const SECRET = "push-presence-test-secret-000000";
+procs.push(quiet(spawn("npx", ["wrangler", "dev", "--env", "dev", "--port", "8787", "--inspector-port", "9787", "--var", "PUSH_SECRET:" + SECRET], { cwd: root + "backend/partner", stdio: ["ignore", "pipe", "pipe"] })));
 if (!(await up(PARTNER + "/health"))) { console.log("  FAIL  partner Worker did not start"); finish(1); }
-procs.push(quiet(spawn("npx", ["wrangler", "dev", "--port", "8791", "--inspector-port", "9791", "--test-scheduled", "--var", "DEV_LOCAL_ENDPOINTS:1"], { cwd: root + "backend/push", stdio: ["ignore", "pipe", "pipe"] })));
+procs.push(quiet(spawn("npx", ["wrangler", "dev", "--port", "8791", "--inspector-port", "9791", "--test-scheduled", "--var", "DEV_LOCAL_ENDPOINTS:1", "--var", "PUSH_SECRET:" + SECRET, "--var", "PARTNER_API:" + PARTNER], { cwd: root + "backend/push", stdio: ["ignore", "pipe", "pipe"] })));
 if (!(await up(PUSH + "/key"))) { console.log("  FAIL  push Worker did not start"); finish(1); }
 await fetch(PARTNER + "/__reset", { method: "POST" });
 const O = { "content-type": "application/json", origin: "http://localhost:8000" };
@@ -49,8 +51,9 @@ ok("nobody online → no wake-ups at all", take().length === 0);
 const api = (u, m, p, b) => fetch(PARTNER + p, { method: m, headers: { "x-dev-user": u, "content-type": "application/json" }, body: b ? JSON.stringify(b) : undefined });
 await api("zoe", "POST", "/consent", { name: "Zoe", lang: "en", adult: true, track: "general-english" });
 await api("zoe", "POST", "/interest", { track: "general-english", band: "w1-4", lang: "en", promptWeek: 1, mode: "later" });
-const pres = await (await fetch(PARTNER + "/presence")).json();
-ok("partner /presence is public and counts her", pres.online >= 1 && pres.waiting >= 1, JSON.stringify(pres));
+const pres = await (await fetch(PARTNER + "/presence", { headers: { "x-push-secret": SECRET } })).json();
+ok("partner /presence answers the push Worker's secret and counts her", pres.online >= 1 && pres.waiting >= 1, JSON.stringify(pres));
+ok("partner /presence without sign-in or secret → 401 (not public any more)", (await fetch(PARTNER + "/presence")).status === 401);
 
 await presenceCron(); const sent = take();
 const urls = sent.map(x => x.url).sort();

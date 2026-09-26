@@ -55,7 +55,7 @@ const ALLOWED_ORIGINS = [
 const VAPID_SUBJECT = "mailto:contact@lomonec.com";
 const MAX_PER_CRON  = 900;   // safety valve: one minute cannot fan out forever
 /* Online alerts (owner, 2026-09-19): every 10 minutes (the second cron trigger)
-   asks the partner Worker's public /presence for the number of General
+   asks the partner Worker's /presence (behind PUSH_SECRET) for the number of General
    English learners online; when it is ≥ 1, phones that asked for these alerts
    ("pres:" entries) are woken — at most once per PRES_GAP_SEC each, never
    between PRES_QUIET_FROM and PRES_QUIET_TO local hours (the phone sends its
@@ -188,7 +188,12 @@ function quietNow(tzMin, now){ const h = localHour(tzMin, now); return h >= PRES
 async function runPresence(env, now){
   if (!env.PARTNER_API) return;
   let p = null;
-  try { const r = await fetch(env.PARTNER_API + "/presence", { headers: { "accept": "application/json" } }); if (r.ok) p = await r.json(); } catch (e) {}
+  /* /presence is General English partner availability: the partner Worker
+     answers it only to a signed-in General English account or to this Worker,
+     behind the secret the two already share for invitations. No secret = no
+     count = no alerts (never a guess). */
+  if (!env.PUSH_SECRET) { console.log(JSON.stringify({ presence: "no_secret" })); return; }
+  try { const r = await fetch(env.PARTNER_API + "/presence", { headers: { "accept": "application/json", "x-push-secret": env.PUSH_SECRET } }); if (r.ok) p = await r.json(); } catch (e) {}
   const online = p && Number(p.online) || 0, waiting = p && Number(p.waiting) || 0;
   if (online < 1) { console.log(JSON.stringify({ presence: "none" })); return; }
   const audCache = {};

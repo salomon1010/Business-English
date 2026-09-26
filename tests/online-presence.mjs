@@ -12,15 +12,20 @@ const BASE = "http://localhost:8772";
 const res = []; const ok = (n, c, d = "") => { res.push(!!c); console.log(`  ${c ? "PASS" : "FAIL"}  ${n}${c ? "" : " — " + d}`); };
 const browser = await chromium.launch();
 let presence = { online: 0, waiting: 0 };
-async function learner(track) {
+/* /presence is General English partner availability for SIGNED-IN accounts
+   (26 Sep 2026): the stub answers only a request carrying a token, like the Worker */
+async function learner(track, signedIn = true) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   /* partner flags are OFF in production (freeze, 2026-09-20): turned on here through be_flags, as an internal tester would */
   await ctx.addInitScript(track => { localStorage.setItem("be_flags", JSON.stringify({ practice_partner_enabled: true, practice_partner_matching_enabled: true, practice_partner_voice_enabled: true, practice_partner_notifications_enabled: true })); localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "T", lang: "en", ts: Date.now() }, professionalTracks: { activeId: track }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, welding: { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), vocab: { synergy: { l: "B2", ts: Date.now(), due: 0 }, leverage: { l: "B2", ts: Date.now(), due: 0 } } })); }, track);
-  await ctx.route(u => /be-partner.*\/presence/.test(u.href), r => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(presence) }));
+  const reqs = [];
+  await ctx.route(u => /be-partner.*\/presence/.test(u.href), r => { const a = r.request().headers().authorization || ""; reqs.push(a); r.fulfill(/^Bearer .+/.test(a) ? { status: 200, contentType: "application/json", body: JSON.stringify(presence) } : { status: 401, contentType: "application/json", body: '{"error":"auth"}' }); });
   await ctx.route(u => /be-partner/.test(u.href) && !/presence/.test(u.href), r => r.fulfill({ status: 401, contentType: "application/json", body: '{"error":"auth"}' }));
   const page = await ctx.newPage(); const errs = []; page.on("pageerror", e => errs.push(e.message));
-  await page.goto(BASE + "/index.html?op=" + Date.now(), { waitUntil: "load" }); await sleep(2200);
-  return { ctx, page, errs };
+  await page.goto(BASE + "/index.html?op=" + Date.now(), { waitUntil: "load" });
+  if (signedIn) await page.evaluate(() => { FBUser = { uid: "u-online", email: "a@b.c", getIdToken: async () => "test-token" }; });
+  await sleep(2200);
+  return { ctx, page, errs, reqs };
 }
 const badge = page => page.evaluate(() => { const b = document.querySelector('.bnav-item[data-v="practice"] .nav-badge'); return b ? { t: b.textContent, online: b.classList.contains("online") } : null; });
 
@@ -50,10 +55,22 @@ ok("switching it off is remembered", await A.page.evaluate(() => { ppAlertsToggl
 ok("the reminder cache written for the service worker carries the push id and the online wording", await A.page.evaluate(async () => { const c = await caches.open(REM_CACHE); ppAlertsToggle(true); await remCacheText(); const r = await c.match(REM_KEY); const d = r && await r.json(); return !!d && d.pushId === pushId() && d.online && /online/i.test(d.online.title) && d.online.body.includes("{{n}}"); }));
 ok("no page errors", A.errs.length === 0, A.errs.join(" | "));
 
+ok("every /presence request carried the learner's token", A.reqs.length > 0 && A.reqs.every(a => a === "Bearer test-token"), JSON.stringify(A.reqs));
+
+/* not signed in: the server would refuse, so the app does not ask and shows no count */
+presence = { online: 4, waiting: 1 };
+const N = await learner("general-english", false);
+await N.page.evaluate(() => { ppPub.at = 0; ppPresencePoll(true); }); await sleep(600);
+const nb = await badge(N.page);
+ok("signed out (General English): no /presence request, no count, no green badge", N.reqs.length === 0 && await N.page.evaluate(() => ppOnlineCount() === 0) && (!nb || !nb.online), JSON.stringify({ reqs: N.reqs.length, nb }));
+ok("signed out: no page errors", N.errs.length === 0, N.errs.join(" | "));
+await N.ctx.close();
+
 /* Welding: nothing */
 presence = { online: 5, waiting: 2 };
 const W = await learner("welding");
 await W.page.evaluate(() => ppPresencePoll(true)); await sleep(600);
+ok("Welding (signed in): the app never asks for the count", W.reqs.length === 0, JSON.stringify(W.reqs));
 const wb = await badge(W.page);
 ok("Welding: no green badge, no pill, no floating button, no alert, no presence request behaviour", (!wb || !wb.online) && await W.page.evaluate(() => ppOnlineCount() === 0 && !document.getElementById("ppEntryOnline") && !(document.getElementById("ppFab") && document.getElementById("ppFab").classList.contains("on")) && !document.getElementById("toast").classList.contains("pp-online")), JSON.stringify(wb));
 ok("Welding: Settings has no online-alerts switch", await W.page.evaluate(async () => { go("data"); await new Promise(r => setTimeout(r, 400)); return !document.getElementById("ppAlertsOn"); }));

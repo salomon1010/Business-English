@@ -17,20 +17,32 @@ whatever `track` the body or query string carries. No `professionalTracks`
 unknown id = General English, the same fallback as `areaId()`.
 - **Fails closed:** no document, Firestore unreachable or an unreadable copy
   → `403 track_unverified`.
-- **Exempt:** `GET /presence` (public counts, above auth), `DELETE /me`
-  (erasure, above the kill switch) and `DELETE /history` (a learner's own
-  records) — a learner who moved to Welding can still erase their data.
-- **Cache:** a General English answer is kept per isolate for
-  `TRACK_CACHE_MS` (default 60 000; `0` turns it off). Anything else is never
-  cached, so switching back to General English is seen at once, and a switch
-  to Welding is enforced within that window.
+- **Exempt:** `DELETE /me` (erasure, above the kill switch) and
+  `DELETE /history` (a learner's own records) — a learner who moved to
+  Welding can still erase their data.
+- **`GET /presence` is behind the same gate** (26 Sep 2026): partner
+  availability is part of Practice Partner. No token 401, Welding 403
+  `track`, unverifiable 403 `track_unverified`; only a General English account
+  gets the two counts, sent `cache-control: private, no-store`. The one other
+  caller is be-push (online alerts), with header `x-push-secret` = the
+  `PUSH_SECRET` the two Workers already share for invitations; no secret on
+  either side = 401 = no alerts.
+- **Cache:** per verified uid, tied to the document's version (Firestore's
+  `updateTime`). Every request reads the version (`?mask.fieldPaths=savedAt`,
+  a few bytes) with its own token, and the cached programme is used only
+  while the version is unchanged; a programme switch writes the document, so
+  the next request re-reads it. No time window, and nothing cached is served
+  without a fresh authorised read.
 - The app writes the account copy at once when the programme changes
   (`fbPush(0)` in `selectProfessionalTrack` / `areaSwitch`).
 - `DEV_AUTH="1"` only: `x-dev-track` stands in for the account (default
   General English). Without `DEV_AUTH` the header is ignored.
 - Tests: `node test/track-auth.mjs` (in-process, the production path: real
   RS256 tokens against a stand-in JWKS, a stand-in Firestore applying the
-  published rule, the real migrations in SQLite).
+  published rule, the real migrations in SQLite). `test/real-account.mjs`
+  runs the same boundary against real Google and two real signed-in accounts
+  (their ID tokens in `GE_ID_TOKEN` / `WD_ID_TOKEN`), on a local Worker with
+  `--var DEV_AUTH:0` — steps in its header.
 
 ## Deploy (production)
 
@@ -65,7 +77,7 @@ Staging is `--env staging`. Check what is live with `curl …/health` and
 | Method | Path | Does |
 |---|---|---|
 | GET | `/health` | `{ok, dev, enabled}` (no auth) |
-| GET | `/presence` | `{online, waiting}` — counts only, no auth, cached 30 s; the floating button's badge before sign-in |
+| GET | `/presence` | `{online, waiting}` — counts only; a signed-in **General English** account (401 / 403 `track` / 403 `track_unverified` otherwise) or be-push with `x-push-secret`; `private, no-store` |
 | DELETE | `/me` | **account deletion** — erases everything held about the caller (member row, prefs, queue entry, offers, every turn they sent + its R2 audio, their four-round reviews, their pairs and turns, connections, cooldowns, live sessions/signals, counters, reports and blocks *they* filed). Sits above the `PARTNER_ENABLED` kill switch so a pilot learner can erase after roll-back. Kept: reports/blocks *about* them (other people's safety choices) and audit rows (90 d). Called by the app's Delete account before the Firebase user is deleted; idempotent |
 | GET | `/me` | consent, `adult`, prefs, waiting state, `invite` (a proposal for me) / `pairInvite` (my open proposal), active pair with partner `{name, band, lang}`, `rounds` view, turns, unread, `fallback`/`canRepair`, decisions, `lastClosed {reason, byOther, name}`, the best `connection` |
 | POST | `/consent` | `{name, lang, adult: true, gender?, sameGender?, goals?, mode?, avail?, tz?}` — refuses without `adult` (`403 age`) |

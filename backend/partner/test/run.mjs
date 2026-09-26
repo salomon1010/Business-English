@@ -37,8 +37,13 @@ async function tryPair(host, guest, offer) { const inv = await call(host, "POST"
 { const r = await fetch(BASE + "/__reset", { method: "POST" }); if (r.status !== 200) { console.log("reset failed", r.status); process.exit(1); } }
 const H = await (await fetch(BASE + "/health")).json();
 ok("health reports dev + enabled", H.ok && H.dev && H.enabled);
-const P0 = await call(null, "GET", "/presence");
-ok("public /presence needs no auth and carries counts only", P0.status === 200 && P0.json && typeof P0.json.online === "number" && typeof P0.json.waiting === "number" && Object.keys(P0.json).length === 2);
+/* /presence is General English partner availability (26 Sep 2026): signed-in General English accounts only */
+const P0 = await call("pres-ge", "GET", "/presence");
+ok("/presence for a signed-in General English account carries counts only", P0.status === 200 && P0.json && typeof P0.json.online === "number" && typeof P0.json.waiting === "number" && Object.keys(P0.json).length === 2);
+const P1 = await call(null, "GET", "/presence");
+ok("/presence without sign-in → 401, no counts", P1.status === 401 && !(P1.json && "online" in P1.json));
+const P2 = await call("pres-wd", "GET", "/presence?track=general-english", undefined, { "x-dev-track": "welding" });
+ok("/presence for a Welding account → 403 track, even when it claims General English", P2.status === 403 && P2.json.error === "track" && !("online" in P2.json));
 
 /* auth, consent, age, boundary */
 ok("unauthenticated GET /me → 401", (await call(null, "GET", "/me")).status === 401);

@@ -29,7 +29,8 @@ id = "3a92211829224fc7a8824d500e31d61d"
 [vars]
 # Filled in from genkeys.js output — the base64url raw P-256 public key.
 VAPID_PUBLIC_KEY = "BNYYDUjL-BivM99fGRtRYZ4mGW3MLovUtkEgNiopzUfPFsnXwt7sZQcvym109TbADLW3abdEsizVqFR7CrTG42c"
-# Online alerts: the partner Worker's public /presence (counts only). Empty = alerts off.
+# Online alerts: the partner Worker's /presence (counts only), read behind
+# PUSH_SECRET (below) since 26 Sep 2026. Empty, or no PUSH_SECRET = alerts off.
 PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 # Invitation wake-ups (2026-09-26): the partner Worker calls POST /wake with a
 # shared secret — `npx wrangler secret put PUSH_SECRET` here AND on be-partner

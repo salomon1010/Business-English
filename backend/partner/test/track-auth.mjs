@@ -27,15 +27,15 @@ const idToken = (uid, o = {}) => { const s = Math.floor(Date.now() / 1000);
   const g = createSign("RSA-SHA256"); g.update(d); return d + "." + b64u(g.sign(o.key || kp.privateKey)); };
 
 /* ---- Firestore: users/{uid}.json is the app's synced state; the published rule applies */
-const DOCS = new Map();                 // uid → state object (or undefined = no document)
-const FS = { down: false, reads: 0 };
-const setTrack = (uid, activeId) => DOCS.set(uid, { profile: { name: uid }, ...(activeId === undefined ? {} : { professionalTracks: { activeId } }) });
+const DOCS = new Map();                 // uid → { st: state object, ver: updateTime }
+const FS = { down: false, full: 0, small: 0, clock: 0 };
+const setTrack = (uid, activeId) => DOCS.set(uid, { st: { profile: { name: uid }, savedAt: Date.now(), ...(activeId === undefined ? {} : { professionalTracks: { activeId } }) }, ver: new Date(Date.UTC(2026, 8, 26) + ++FS.clock).toISOString() });
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url);
   if (u.startsWith("https://www.googleapis.com/service_accounts/v1/jwk/securetoken")) return new Response(JSON.stringify({ keys: [JWK] }));
-  const m = /^https:\/\/firestore\.googleapis\.com\/v1\/projects\/be-mastery\/databases\/\(default\)\/documents\/users\/([^?]+)\?mask\.fieldPaths=json$/.exec(u);
+  const m = /^https:\/\/firestore\.googleapis\.com\/v1\/projects\/be-mastery\/databases\/\(default\)\/documents\/users\/([^?]+)\?mask\.fieldPaths=(json|savedAt)$/.exec(u);
   if (m) {
-    FS.reads++;
+    if (m[2] === "json") FS.full++; else FS.small++;
     if (FS.down) return new Response("{}", { status: 503 });
     const auth = (init.headers && (init.headers.authorization || init.headers.Authorization)) || "";
     const tok = /^Bearer (.+)$/.exec(auth); if (!tok) return new Response("{}", { status: 403 });
@@ -43,7 +43,10 @@ globalThis.fetch = async (url, init = {}) => {
     const uid = decodeURIComponent(m[1]);
     if (sub !== uid) return new Response(JSON.stringify({ error: { status: "PERMISSION_DENIED" } }), { status: 403 });   // request.auth.uid == uid
     if (!DOCS.has(uid)) return new Response(JSON.stringify({ error: { status: "NOT_FOUND" } }), { status: 404 });
-    return new Response(JSON.stringify({ name: "users/" + uid, fields: { json: { stringValue: JSON.stringify(DOCS.get(uid)) } } }));
+    const d = DOCS.get(uid);
+    /* Firestore's Document: name, fields (only the masked ones), createTime, updateTime */
+    const fields = m[2] === "json" ? { json: { stringValue: JSON.stringify(d.st) } } : { savedAt: { integerValue: String(d.st.savedAt) } };
+    return new Response(JSON.stringify({ name: "projects/be-mastery/databases/(default)/documents/users/" + uid, fields, createTime: "2026-09-01T00:00:00Z", updateTime: d.ver }));
   }
   return new Response("{}", { status: 599 });
 };
@@ -54,15 +57,15 @@ const dir = new URL("../migrations/", import.meta.url);
 for (const f of readdirSync(dir).filter(x => x.endsWith(".sql")).sort()) db.exec(readFileSync(new URL(f, dir), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; }, batch: async list => { const out = []; for (const x of list) out.push(await x.run()); return out; } };
 const AUDIO = { put: async () => {}, get: async () => null, delete: async () => {}, list: async () => ({ objects: [], truncated: false }) };
-const env = { DB: D1, AUDIO, PARTNER_ENABLED: "1", FIREBASE_PROJECT_ID: PROJECT, ALLOWED_ORIGINS: "https://app.lomonec.com", TRACK_CACHE_MS: "0" };
+const env = { DB: D1, AUDIO, PARTNER_ENABLED: "1", FIREBASE_PROJECT_ID: PROJECT, ALLOWED_ORIGINS: "https://app.lomonec.com", PUSH_SECRET: "test-secret-0123456789abcdef" };
 let ipn = 0;
-const call = async (method, path, { uid, token, body } = {}) => {
-  const h = { "cf-connecting-ip": "10.0." + Math.floor(ipn / 250) + "." + (ipn++ % 250) };
+const call = async (method, path, { uid, token, body, headers } = {}) => {
+  const h = { "cf-connecting-ip": "10.0." + Math.floor(ipn / 250) + "." + (ipn++ % 250), ...(headers || {}) };
   if (uid) h.authorization = "Bearer " + idToken(uid); if (token) h.authorization = "Bearer " + token;
   if (body !== undefined) h["content-type"] = "application/json";
   const r = await worker.fetch(new Request("https://partner.test" + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }), env, { waitUntil() {} });
   let j = null; try { j = await r.json(); } catch (e) {}
-  return { status: r.status, json: j };
+  return { status: r.status, json: j, cache: r.headers.get("cache-control") };
 };
 const consent = (uid, extra = {}) => call("POST", "/consent", { uid, body: { adult: true, name: "Ann", lang: "en", ...extra } });
 
@@ -127,7 +130,7 @@ console.log("\n# edge cases — fail closed, switching, erasure");
   ok("E4 · the learner switches the ACCOUNT to Welding → refused on the next call", r.status === 403 && r.json.error === "track", JSON.stringify(r));
   setTrack("ge1", "general-english");
   r = await call("GET", "/me", { uid: "ge1" });
-  ok("E5 · … and switching back to General English is seen at once (a non-GE answer is never cached)", r.status === 200, JSON.stringify(r).slice(0, 120));
+  ok("E5 · … and switching back to General English is seen at once", r.status === 200, JSON.stringify(r).slice(0, 120));
   /* a learner who joined on General English and has since moved the account to Welding */
   setTrack("sw1", "general-english"); await consent("sw1"); setTrack("sw1", "welding");
   r = await call("GET", "/me", { uid: "sw1" });
@@ -136,13 +139,60 @@ console.log("\n# edge cases — fail closed, switching, erasure");
   ok("E6b · … but can still erase their own partner history (data rights)", r.status === 200, JSON.stringify(r));
   r = await call("DELETE", "/me", { uid: "sw1" });
   ok("E7 · … and their partner data on account deletion (DELETE /me)", r.status === 200 && !db.prepare("SELECT 1 FROM members WHERE uid=?").get("sw1"), JSON.stringify(r));
-  r = await call("GET", "/presence");
-  ok("E8 · /presence stays a public pair of counts (no identity, nothing per learner)", r.status === 200 && typeof r.json.online === "number" && Object.keys(r.json).sort().join() === "online,waiting", JSON.stringify(r));
-  const reads = FS.reads;
-  const env2 = { ...env, TRACK_CACHE_MS: "60000" };
-  const r1 = await worker.fetch(new Request("https://partner.test/me", { headers: { authorization: "Bearer " + idToken("ge1"), "cf-connecting-ip": "10.9.9.1" } }), env2, { waitUntil() {} });
-  const r2 = await worker.fetch(new Request("https://partner.test/me", { headers: { authorization: "Bearer " + idToken("ge1"), "cf-connecting-ip": "10.9.9.2" } }), env2, { waitUntil() {} });
-  ok("E9 · with the cache on, a General English answer spares Firestore on the next poll", r1.status === 200 && r2.status === 200 && FS.reads - reads <= 1, `reads ${FS.reads - reads}`);
+}
+
+console.log("\n# partner availability (/presence) is General English only, on the server");
+{
+  setTrack("ge2", "general-english"); setTrack("wd3", "welding");
+  let r = await call("GET", "/presence");
+  ok("A1 · no token → 401, no counts in the body", r.status === 401 && !("online" in (r.json || {})), JSON.stringify(r));
+  r = await call("GET", "/presence", { uid: "wd3" });
+  ok("A2 · a signed-in Welding account → 403 track, no counts in the body", r.status === 403 && r.json.error === "track" && !("online" in r.json), JSON.stringify(r));
+  r = await call("GET", "/presence?track=general-english", { uid: "wd3", headers: { "x-track": "general-english" } });
+  ok("A3 · … even when it claims General English (query and header)", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+  r = await call("GET", "/presence", { uid: "ge2" });
+  ok("A4 · a signed-in General English account → 200, two counts and nothing else", r.status === 200 && typeof r.json.online === "number" && Object.keys(r.json).sort().join() === "online,waiting", JSON.stringify(r));
+  ok("A5 · the answer is private: no browser or edge may keep it (cache-control: private, no-store)", /private/.test(r.cache || "") && /no-store/.test(r.cache || ""), r.cache);
+  r = await call("GET", "/presence", { uid: "nodoc2" });
+  ok("A6 · signed in, programme unverifiable → 403 track_unverified, no counts", r.status === 403 && r.json.error === "track_unverified" && !("online" in r.json), JSON.stringify(r));
+  r = await call("GET", "/presence", { headers: { "x-push-secret": env.PUSH_SECRET } });
+  ok("A7 · the push Worker, with the secret the two Workers share → 200 (online alerts keep working)", r.status === 200 && typeof r.json.online === "number", JSON.stringify(r));
+  r = await call("GET", "/presence", { headers: { "x-push-secret": "test-secret-0123456789abcdeX" } });
+  ok("A8 · a wrong secret → 401", r.status === 401, JSON.stringify(r));
+  const noSecret = { ...env }; delete noSecret.PUSH_SECRET;
+  const x = await worker.fetch(new Request("https://partner.test/presence", { headers: { "x-push-secret": "", "cf-connecting-ip": "10.7.0.1" } }), noSecret, { waitUntil() {} });
+  ok("A9 · a Worker with no secret configured never lets an empty secret through (401)", x.status === 401);
+}
+
+console.log("\n# the programme cache: scoped to the account AND its current version");
+{
+  setTrack("c1", "general-english");
+  let r = await call("GET", "/presence", { uid: "c1" });
+  const f0 = FS.full, s0 = FS.small;
+  r = await call("GET", "/presence", { uid: "c1" });
+  ok("C1 · a repeat request uses the cache: one small version read, no full read of the synced state", r.status === 200 && FS.full === f0 && FS.small === s0 + 1, JSON.stringify({ full: FS.full - f0, small: FS.small - s0 }));
+  setTrack("c1", "welding");
+  r = await call("GET", "/presence", { uid: "c1" });
+  ok("C2 · the learner switches to Welding: the VERY NEXT request is refused (no time window; the new version forces a re-read)", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+  r = await call("GET", "/me", { uid: "c1" });
+  ok("C3 · … on every route, not only /presence", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+  setTrack("c1", "general-english");
+  r = await call("GET", "/presence", { uid: "c1" });
+  ok("C4 · switching back is seen at once too", r.status === 200, JSON.stringify(r));
+  FS.down = true; r = await call("GET", "/presence", { uid: "c1" }); FS.down = false;
+  ok("C5 · a warm cache is never served without a fresh authorised read: Firestore down → 403 track_unverified", r.status === 403 && r.json.error === "track_unverified", JSON.stringify(r));
+  await call("GET", "/presence", { uid: "c1" });
+  const other = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  r = await call("GET", "/presence", { token: idToken("c1", { key: other.privateKey }) });
+  ok("C6 · a forged token for a cached account gets 401 — the cache is behind authentication, never in front of it", r.status === 401, JSON.stringify(r));
+  r = await call("GET", "/presence", { token: idToken("c1", { exp: Math.floor(Date.now() / 1000) - 60 }) });
+  ok("C7 · an expired token for a cached account → 401", r.status === 401, JSON.stringify(r));
+  setTrack("c2", "welding");
+  r = await call("GET", "/presence", { uid: "c2" });
+  ok("C8 · one account's cached General English answer never serves another account (Welding c2 → 403)", r.status === 403 && r.json.error === "track", JSON.stringify(r));
+  DOCS.delete("c1");
+  r = await call("GET", "/presence", { uid: "c1" });
+  ok("C9 · the account document disappears → the cached answer is dropped (403 track_unverified)", r.status === 403 && r.json.error === "track_unverified", JSON.stringify(r));
 }
 
 console.log("\n# the local-development switch cannot reach production");

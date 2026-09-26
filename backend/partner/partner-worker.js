@@ -219,11 +219,20 @@ async function authUid(req, env) {
    account, no new auth. Same rule as the app's areaId(): a registered
    programme id, else General English (an account that never chose one).
    Fail CLOSED: no document, no token, Firestore unreachable → not verified.
-   A General English answer is cached per isolate for TRACK_CACHE_MS (default
-   60 s) to spare a Firestore read on every poll; any other answer is re-read
-   every time, so switching BACK to General English is seen at once. */
+
+   The cache holds the ANSWER, never permission. It is keyed by the verified
+   uid and tied to the document's version (Firestore's updateTime): every
+   request first reads that version — a few bytes, with THIS request's token,
+   so the rule and the token are checked again each time — and the cached
+   programme is used only while the version is unchanged. Any write to the
+   account (a programme switch is one) changes the version, so the next
+   request re-reads the programme: no time window in which a switch is not
+   yet enforced. The full read (the whole synced state) happens only then. */
 const KNOWN_TRACKS = new Set(["general-english", "welding"]);
-const trackCache = new Map();
+const trackCache = new Map();   // uid → { track, ver }
+async function fsGet(url, token) {
+  try { const r = await fetch(url, { headers: { authorization: "Bearer " + token } }); return r.ok ? await r.json() : null; } catch (e) { return null; }
+}
 async function accountTrack(req, env, uid) {
   /* DEV_AUTH (local wrangler only — never staging or production): the dev
      identity has no Firebase account, so a test names its programme */
@@ -231,26 +240,42 @@ async function accountTrack(req, env, uid) {
     const h = req.headers.get("x-dev-track");
     return h && /^[a-z-]{1,40}$/.test(h) ? h : "general-english";
   }
-  const ttl = env.TRACK_CACHE_MS !== undefined && Number.isFinite(Number(env.TRACK_CACHE_MS)) ? Number(env.TRACK_CACHE_MS) : 60_000;
-  const hit = trackCache.get(uid);
-  if (hit && TRACKS.has(hit.track) && Date.now() - hit.at < ttl) return hit.track;
   const m = /^Bearer\s+(.+)$/i.exec(req.headers.get("authorization") || ""); if (!m) return null;
-  let r;
-  try {
-    r = await fetch(`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(env.FIREBASE_PROJECT_ID)}/databases/(default)/documents/users/${encodeURIComponent(uid)}?mask.fieldPaths=json`,
-      { headers: { authorization: "Bearer " + m[1] } });
-  } catch (e) { return null; }
-  if (!r.ok) return null;
+  const doc = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(env.FIREBASE_PROJECT_ID)}/databases/(default)/documents/users/${encodeURIComponent(uid)}`;
+  const hit = trackCache.get(uid);
+  if (hit) {
+    const v = await fsGet(doc + "?mask.fieldPaths=savedAt", m[1]);   // the version only
+    if (!v || typeof v.updateTime !== "string") { trackCache.delete(uid); return null; }
+    if (v.updateTime === hit.ver) return hit.track;
+  }
+  const d = await fsGet(doc + "?mask.fieldPaths=json", m[1]);
+  if (!d || typeof d.updateTime !== "string") { trackCache.delete(uid); return null; }
   let id;
   try {
-    const doc = await r.json();
-    const st = JSON.parse(doc.fields.json.stringValue);
+    const st = JSON.parse(d.fields.json.stringValue);
     id = st && st.professionalTracks ? st.professionalTracks.activeId : undefined;
-  } catch (e) { return null; }
+  } catch (e) { trackCache.delete(uid); return null; }
   const track = typeof id === "string" && KNOWN_TRACKS.has(id) ? id : "general-english";
   if (trackCache.size > 5000) trackCache.clear();
-  trackCache.set(uid, { track, at: Date.now() });
+  trackCache.set(uid, { track, ver: d.updateTime });
   return track;
+}
+/* constant-time string compare for the Worker-to-Worker secret */
+function sameSecret(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || !a || !b || a.length !== b.length) return false;
+  let x = 0; for (let i = 0; i < a.length; i++) x |= a.charCodeAt(i) ^ b.charCodeAt(i); return x === 0;
+}
+/* GET /presence — General English partner availability: two counts, nothing
+   per learner. Only a signed-in General English account (the gate below) or
+   the push Worker (PUSH_SECRET, the secret it already shares with this
+   Worker for invitations) may read it. Never cached by a browser or the edge:
+   the answer is for this caller only. */
+async function presenceView(env, ms) {
+  const fresh = ms - 7 * DAY;
+  const o = await q(env, `SELECT COUNT(DISTINCT m.uid) AS n FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.track='general-english' AND i.created_at>?
+    WHERE (m.suspended_until IS NULL OR m.suspended_until<=?) AND (m.opted_out=0 OR m.opted_out IS NULL) AND (i.uid IS NOT NULL OR m.last_seen>?)`, fresh, ms, ms - 5 * 60_000).first();
+  const w = await q(env, "SELECT COUNT(DISTINCT uid) AS n FROM interest WHERE track='general-english' AND created_at>?", fresh).first();
+  return new Response(JSON.stringify({ online: o ? o.n : 0, waiting: w ? w.n : 0 }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "private, no-store" } });
 }
 
 /* --------------------------------------------------------------- queries */
@@ -664,17 +689,8 @@ async function handle(req, env, ctx) {
     return json(await eraseMember(env, duid, ms));
   }
   if (env.PARTNER_ENABLED !== "1") return err(503, "disabled");
-  /* Public, counts only, no auth: the floating button's badge for a learner
-     who has not signed in yet. Same "online" rule as /me's presence minus the
-     per-person block filter (there is no "me" to filter against). Nothing
-     personal leaves — two integers, cached 30 s at the edge. */
-  if (req.method === "GET" && path === "/presence") {
-    const fresh = ms - 7 * DAY;
-    const o = await q(env, `SELECT COUNT(DISTINCT m.uid) AS n FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.track='general-english' AND i.created_at>?
-      WHERE (m.suspended_until IS NULL OR m.suspended_until<=?) AND (m.opted_out=0 OR m.opted_out IS NULL) AND (i.uid IS NOT NULL OR m.last_seen>?)`, fresh, ms, ms - 5 * 60_000).first();
-    const w = await q(env, "SELECT COUNT(DISTINCT uid) AS n FROM interest WHERE track='general-english' AND created_at>?", fresh).first();
-    return new Response(JSON.stringify({ online: o ? o.n : 0, waiting: w ? w.n : 0 }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30" } });
-  }
+  /* the push Worker's online alerts: Worker to Worker, behind the shared secret */
+  if (req.method === "GET" && path === "/presence" && sameSecret(req.headers.get("x-push-secret"), env.PUSH_SECRET)) return presenceView(env, ms);
   if (req.method === "POST" && path === "/__reset" && env.DEV_AUTH === "1") {
     devWakes.length = 0;
     for (const t of ["turns", "pairs", "interest", "reports", "blocks", "counters", "members", "connections", "cooldowns", "offers", "audit", "live_signals", "live_sessions", "reviews"]) await q(env, `DELETE FROM ${t}`).run();
@@ -701,6 +717,7 @@ async function handle(req, env, ctx) {
     if (track === null) return err(403, "track_unverified");
     if (!TRACKS.has(track)) return err(403, "track");
   }
+  if (req.method === "GET" && path === "/presence") return presenceView(env, ms);
   const m = await member(env, uid);
   if (m && ms - m.last_seen > 60_000) await q(env, "UPDATE members SET last_seen=? WHERE uid=?", ms, uid).run();
   /* the phone's push id (the random id it registered with be-push), sent on

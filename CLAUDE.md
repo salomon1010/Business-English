@@ -126,6 +126,13 @@ not JS, and `new Function` chokes on it. Check it separately with
   deletion) and from the foreign-account branch of `fbFirstSync`. The Worker is
   stateless (no KV/D1/R2/Cache), so the boundary is client-side by construction.
   Test: `tests/polish-track.mjs` (15 checks, in `npm test`).
+  **Shared tool, scoped data (reviewed 2026-09-26).** Executive Polish on the
+  Welding Phrases page is NOT a General English leak: it is one engine offered
+  to both programmes. What must never cross is the data — the box, versions and
+  open report (`_exArea`), and the saved reports (`exRepA`, per area, merged
+  per area on sync). Its practice prompts (`ex.prompt_1…6`) are generic, not a
+  Welding dataset; welding-specific prompts, or making Polish General English
+  only, would be a product decision, not a fix.
   `areaSplit()` is the one-time migration — it stamps legacy records with whatever
   area was open at the time (nothing can know better) and is additive, so it is safe
   after a cloud merge. Also per-area, via `aMap(f)` / `aList(f)`: `phMaster`,
@@ -369,7 +376,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403 — and the
   track is the ACCOUNT's: `accountTrack()` reads the caller's own Firestore
   `users/{uid}` with the caller's ID token, never a client-sent `track`; fails
-  closed `403 track_unverified`; see backend/partner/README.md) — Firestore
+  closed `403 track_unverified`; `/presence` is behind the same gate (+ be-push
+  via `x-push-secret`); the track cache is keyed to the document's updateTime,
+  no time window; see backend/partner/README.md) — Firestore
   holds no partner data. Client: `PARTNER_API`, `ppAvailable()` (API && flag && GE), `ppApi()`,
   `rPartner`, `ppMatch/ppNow/ppInvite/ppNext/ppDecide`, `ppPrompt(pair)` (round
   prompts, Apply-It phrase override), `ppHomeCardHTML()`, `ppUnread()`,

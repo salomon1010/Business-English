@@ -29,7 +29,8 @@ await page.evaluate(() => { document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-
 await page.evaluate(async () => { go("partner"); await ppRefresh(true); ppRender(document.getElementById("v-partner")); }); await sleep(400);
 const txt = sel => page.evaluate(s => (document.querySelector(s)?.innerText || "").replace(/\s+/g, " "), sel);
 const tabs = () => page.evaluate(() => [...document.querySelectorAll(".pp-tabs .seg-tab")].map(b => b.innerText.trim()));
-const online = async () => (await (await fetch(WORKER + "/presence")).json()).online;
+/* /presence is for signed-in General English accounts (26 Sep 2026): an observer asks */
+const online = async () => (await (await fetch(WORKER + "/presence", { headers: { "x-dev-user": "hs-observer" } })).json()).online;
 
 ok("The tabs row reads Practise · Visible · History; the switch carries a green dot and is a switch, not a tab", JSON.stringify(await tabs()) === JSON.stringify(["Practise", "Visible", "History"]) && await page.evaluate(() => { const b = document.querySelector(".pp-vis"); return b.getAttribute("role") === "switch" && b.getAttribute("aria-checked") === "true" && !!b.querySelector(".pp-vis-dot") && b.classList.contains("is-visible"); }), JSON.stringify(await tabs()));
 const onlineBefore = await online();

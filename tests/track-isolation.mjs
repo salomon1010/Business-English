@@ -71,9 +71,11 @@ console.log("\n# the iPhone case: a Welding device signs in, the account copy is
 console.log("\n# the reverse: a General English device adopts a Welding account copy");
 {
   const { ctx, p, errs, presence } = await open("general-english");
-  await sleep(2000);
+  /* the count is for signed-in General English accounts only (26 Sep 2026) */
+  await p.evaluate(() => { FBUser = { uid: "u-iphone", email: "a@b.c", getIdToken: async () => "t" }; ppPub.at = 0; ppPresencePoll(true); });
+  await sleep(1200);
   let s = await state(p);
-  ok("V0 · General English device: Practice Partner available, the presence count is fetched", s.pp && presence.length >= 1, JSON.stringify({ s, presence: presence.length }));
+  ok("V0 · General English device, signed in: Practice Partner available, the presence count is fetched", s.pp && presence.length >= 1, JSON.stringify({ s, presence: presence.length }));
   await adoptCloud(p, "welding"); await sleep(400);
   s = await state(p);
   ok("V1 · after adopting a Welding account copy: every part agrees on Welding", s.area === "welding" && agree(s), JSON.stringify(s));
@@ -127,6 +129,9 @@ console.log("\n# the account copy follows a switch at once (the partner Worker r
   ok("S7 · switching to Welding while signed in writes 'welding' to the account copy within a second (not after the 2.5 s debounce)", w.soon.length >= 1 && w.soon[w.soon.length - 1].track === "welding" && w.soon[0].ms < 900, JSON.stringify(w));
   ok("S8 · switching back (areaSwitch) writes 'general-english' at once too", w.back.length >= 1 && w.back[w.back.length - 1].track === "general-english", JSON.stringify(w));
   ok("S9 · an ordinary edit still debounces (no write within 0.9 s)", w.edit === 0, JSON.stringify(w));
+  const ps = await p.evaluate(() => { const real = window.pushSync; let n = 0, pres = []; window.pushSync = () => { n++; pres.push(ppAvailable()); };
+    selectProfessionalTrack("welding"); areaSwitch("general-english", "practice"); window.pushSync = real; return { n, pres }; });
+  ok("S11 · every programme switch re-syncs the push subscription, so online alerts follow the programme (off on Welding, back on General English)", ps.n === 2 && ps.pres[0] === false && ps.pres[1] === true, JSON.stringify(ps));
   ok("S10 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }

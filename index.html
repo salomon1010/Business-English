@@ -10846,6 +10846,7 @@ window.selectProfessionalTrack=id=>{
   applyTrackIdentity();
   _jPhase=null;
   save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
+  try{pushSync()}catch(e){}         /* online alerts and invitation rings follow the programme */
   /* A track without a curriculum has no map to show; every other switch lands
      on the road map of the new area, centred on done → here → next, with the
      strip saying which area this now is. */
@@ -24686,10 +24687,11 @@ function ppFabOverlaps(el){
   }
   return false;
 }
-/* the badge's count. Signed in, /me already carries presence (it excludes
-   blocked learners and me). Not signed in, the public counts-only /presence
-   (no auth, two integers, cached 30 s at the edge) — at most once a minute and
-   only while the button is on screen. */
+/* the badge's count. /me already carries presence (it excludes blocked
+   learners and me); /presence is the same two integers between /me calls, at
+   most once a minute. Both are General English partner availability: the
+   Worker answers them only to a signed-in account whose programme is General
+   English (26 Sep 2026), so a learner who is not signed in sees no count. */
 let ppPub={online:0,waiting:0,at:0,busy:false,alertAt:0,lastN:0};
 /* ONE number for the whole app (owner, 2026-09-19: "always show how many are
    online"): the Practice tab badge, the Practice Partner card, the floating
@@ -24705,9 +24707,10 @@ function ppOnlineCount(){
 function ppWaitingCount(){const m=ppMe||ppState().lastMe;return (m&&m.presence&&typeof m.presence.waiting==="number")?m.presence.waiting:ppPub.waiting}
 function ppPresencePoll(force){
   if(!ppAvailable())return;
+  if(!ppSignedIn()){if(ppPub.online||ppPub.waiting){ppPub.online=0;ppPub.waiting=0;ppOnlineSync()}return}
   if(ppPub.busy||(!force&&Date.now()-ppPub.at<60000))return;
   ppPub.busy=true;
-  fetch(ppApiBase()+"/presence").then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}ppOnlineSync()}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
+  ppHeaders().then(h=>fetch(ppApiBase()+"/presence",{headers:h})).then(r=>r.ok?r.json():null).then(j=>{if(j&&typeof j.online==="number"){ppPub.online=j.online;ppPub.waiting=j.waiting||0}else{ppPub.online=0;ppPub.waiting=0}ppOnlineSync()}).catch(()=>{}).finally(()=>{ppPub.at=Date.now();ppPub.busy=false});
 }
 /* paint the count everywhere it lives, and say so once when people appear */
 function ppOnlineSync(){
@@ -25697,6 +25700,7 @@ function areaSwitch(id,view){
   ProfessionalTrackContext.setActive(id);
   applyTrackIdentity();
   _jPhase=null;save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
+  try{pushSync()}catch(e){}   /* online alerts and invitation rings follow the programme */
   go(view);
 }
 window.areaGoReview=id=>{areaSwitch(id,"review")};
