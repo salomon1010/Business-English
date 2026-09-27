@@ -103,6 +103,9 @@ console.log("\n# General English: learner state → the best next action → be-
   ok("A21 · switching the programme to Welding cancels the pending nudge", again2 && pushCalls.some(c => c.p === "/nudge/cancel") && (await p.evaluate(() => !S.nudge.pending)), JSON.stringify(pushCalls.map(c => c.p)));
   const envs = await p.evaluate(() => ({ stg: (beEnv("staging.lomonec.com") || {}).push, prod: beEnv("app.lomonec.com"), here: PUSH_API, staging: nudgeStaging(), panel: !!document.querySelector(".nudge-staging") }));
   ok("A23 · the staging host has its own push Worker (be-push-staging); production and this host keep production's; the staging test panel is absent here", envs.stg === "https://be-push-staging.nore-ngou.workers.dev" && envs.prod === null && envs.here === "https://be-push.nore-ngou.workers.dev" && !envs.staging && !envs.panel, JSON.stringify(envs));
+  pushCalls.length = 0;
+  const acc = await p.evaluate(async () => { const real = window.beEnv; window.beEnv = () => ({ push: "x", flags: true }); await nudgeTestServer(); await new Promise(x => setTimeout(x, 300)); window.beEnv = real; return document.getElementById("toast").innerText; });
+  ok("A24 · staging, General English: the server check is accepted and the test nudge cancelled at once", /accepted/.test(acc) && pushCalls.some(c => c.p === "/nudge/cancel" && /^stagingcheck-/.test(c.body.rid)), JSON.stringify({ acc, calls: pushCalls.map(c => c.p) }));
   ok("A22 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -136,6 +139,13 @@ console.log("\n# Welding: no nudge, whatever is called");
   await p.evaluate(() => { window.__beacons.length = 0; ["nudge_generated", "nudge_opened", "nudge_practice"].forEach(n => track(n, { kind: "words" })); });
   await sleep(200);
   ok("W3 · nudge_* analytics are dropped on Welding", !(await beacons(p)).some(n => /^nudge_/.test(n)), JSON.stringify(await beacons(p)));
+  /* the staging-only server check (beEnv stubbed as the staging host would answer) */
+  pushMode = "welding"; pushCalls.length = 0;
+  const stg = await p.evaluate(async () => { window.beEnv = () => ({ push: "https://be-push-staging.test", flags: true }); go("data"); await new Promise(x => setTimeout(x, 500));
+    const panel = { server: !!document.querySelector(".nudge-staging-server"), ge: !!document.querySelector(".nudge-staging") };
+    await nudgeTestServer(); await new Promise(x => setTimeout(x, 300)); return { panel, toast: document.getElementById("toast").innerText }; });
+  ok("W5 · staging, Welding: a server-boundary panel only; asking the server anyway → refused (403 track)", stg.panel.server && !stg.panel.ge && /refused \(403 track\)/.test(stg.toast) && pushCalls.some(c => c.p === "/nudge" && c.auth === "Bearer tok-ge"), JSON.stringify({ stg, calls: pushCalls.map(c => c.p) }));
+  pushMode = "ok";
   ok("W4 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }

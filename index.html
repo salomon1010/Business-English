@@ -14786,6 +14786,22 @@ window.nudgeTestNow=async()=>{
   if(!p)return toast(nudgeReady()?"No recommendation now, or the server refused this account (Welding / unverified).":"Not ready — see the line above.");
   try{const r=await fetch(PUSH_API+"/nudge/flush",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:S.pushId})});const j=await r.json().catch(()=>({}));toast("Staging: "+p.kind+" → "+(j.result||("HTTP "+r.status)))}catch(e){toast("Staging: flush failed (offline?)")}
 };
+/* STAGING ONLY: prove the SERVER boundary from a phone. Asks be-push-staging
+   to accept a General English nudge for this signed-in account, bypassing
+   the app's own gate — a Welding account must be refused (403 track); a
+   General English one is accepted and the test nudge is cancelled at once. */
+window.nudgeTestServer=async()=>{
+  if(!nudgeStaging())return;
+  if(typeof FBUser==="undefined"||!FBUser)return toast("Sign in first.");
+  try{
+    const now=Date.now(),id=pushId(),rid="stagingcheck-"+now;
+    const r=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+await FBUser.getIdToken()},
+      body:JSON.stringify({id,tz:-new Date().getTimezoneOffset(),rec:{rid,kind:"lesson",view:"session",args:[1,"Mon"],title:"Staging server check",body:"Server boundary check",reason:"staging_check",priority:1,sendAfter:now+3600000,expiresAt:now+7200000}})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok){fetch(PUSH_API+"/nudge/cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,rid})}).catch(()=>{});return toast("Server: accepted — this account is General English (test nudge cancelled)")}
+    toast("Server: refused ("+r.status+" "+(j.error||"")+")"+(j.error==="track"?" — correct for a non-General-English account":""));
+  }catch(e){toast("Server check failed (offline?)")}
+};
 window.nudgeToggle=on=>{
   nudgeState().off=!on;save();
   if(!on){nudgeCancel("off");return}
@@ -26467,7 +26483,11 @@ async function rData(el,embedded){
       <p class="rem-note">${t("rem.nudges_sub")}</p>
       ${nudgeStaging()?`<div class="rem-box nudge-staging" style="margin-top:8px"><b>Staging test — learning nudges</b>
         <p class="rem-note" id="nudgeTestInfo">${esc(nudgeTestInfo())}</p>
-        <button class="btn btn-g" onclick="nudgeTestNow()">Deliver my next nudge now</button></div>`:""}`:""}
+        <button class="btn btn-g" onclick="nudgeTestNow()">Deliver my next nudge now</button>
+        <button class="btn btn-g" onclick="nudgeTestServer()">Check the server accepts this account</button></div>`:""}`:""}
+      ${nudgeStaging()&&!nudgeAvailable()&&flag("learning_nudges_enabled")?`<div class="rem-box nudge-staging-server" style="margin-top:8px"><b>Staging test — server boundary</b>
+        <p class="rem-note">This programme gets no learning nudges. The button asks the staging push Worker to accept one for this account anyway: it must refuse (403).</p>
+        <button class="btn btn-g" onclick="nudgeTestServer()">Check the server refuses this account</button></div>`:""}
       <h3 class="set-h">${t("cal.label")}</h3>
       <div class="btn-row">
         <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
