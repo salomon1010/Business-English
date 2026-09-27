@@ -357,9 +357,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   **Production defaults since 2026-09-20 (be12-v379):** ON for
   `practice_partner_enabled / _matching_enabled / _voice_enabled /
   _notifications_enabled / _ai_fallback_enabled`, `shadow_studio_v2_enabled`,
-  `shadow_word_timing_enabled`, `shadow_challenge_enabled`; OFF for
-  `practice_partner_live_enabled` (live follows the Worker's `LIVE_ENABLED`,
-  "0" in production until TURN is tested there) and `shadow_apply_phrase_enabled`.
+  `shadow_word_timing_enabled`, `shadow_challenge_enabled`,
+  `shadow_apply_phrase_enabled` (ON since 2026-09-26, on the release branch —
+  takes effect with the next deploy); OFF for `practice_partner_live_enabled`
+  (live follows the Worker's `LIVE_ENABLED`).
   Practice Partner was released on the owner's explicit decision with 24 of 66
   DEVICE_CHECKLIST rows certified — see its "Release record" before assuming a
   row was tested.
@@ -373,7 +374,12 @@ not JS, and `new Function` chokes on it. Check it separately with
   14-day cooldown. AI coach fallback and the post-session tip are always tagged AI.
   Fourth Worker `backend/partner/` (`be-partner`, D1 + R2 + cron; migrations 0001
   + 0002 + 0003; `PARTNER_ENABLED="0"` in prod = 503; `MATCH_WEIGHTS`, `IP_PER_MIN`,
-  `DEV_AUTH` dev-only; `TRACKS` refuses any other track with 403 — and the
+  `DEV_AUTH` dev-only; matching: curriculum is the largest weight (0.24) +
+  a `recency` signal (2026-09-26); `/me.connection.streakWeeks` = weeks in a
+  row with a completed session together, from `pairs.completed_at`, shown
+  from 2 (`pp.duo_streak_w`); names and Apply It phrases go through
+  `screenTranscript` (`safeName` → "Learner", `safePhrase` → dropped);
+  `TRACKS` refuses any other track with 403 — and the
   track is the ACCOUNT's: `accountTrack()` reads the caller's own Firestore
   `users/{uid}` with the caller's ID token, never a client-sent `track`; fails
   closed `403 track_unverified`; `/presence` is behind the same gate (+ be-push
@@ -634,8 +640,16 @@ not JS, and `new Function` chokes on it. Check it separately with
   `neighbour`; levels word → sentence → text → none, honestly labelled) + panel
   `#shV2` in `.sh-work` (`shV2Load` at the end of `shLoad`, `svRender`, rAF `svTick`
   reading `shCurT()`, `svStop` from `shCloseWork`). Modes watch / shadow /
-  challenge / apply; Apply It → AI (`S.applyPhrase`, roleplay) or partner
-  (`ppState().applyPhrase`). Captions: `captions/<vid>.json` (18; 13 with word
+  challenge / apply; Apply It → the Partner AI coach (`svApplyAI` →
+  `ppState().applyPhrase` + `ppAiStart("apply")`, seeded with the phrase — it
+  used to write `S.applyPhrase`, which nothing read, and open Life
+  Simulations; fixed 2026-09-26) or a human partner (`svApplyPartner`, the
+  phrase rides on every partner request). Both gated by `svApplyAIOn()` /
+  `svApplyPartnerOn()` (svOn + ppAvailable); `shadow_apply_phrase_enabled` is
+  ON by default since then. `GE_ONLY_EVENT` (next to `isGeneralEnglish`) drops
+  `partner_*`, `shadow_challenge_*` and `shadow_apply_phrase` events on any
+  non-GE area — analytics are anonymous, so this client guard IS the boundary
+  for events. Test: `tests/ge-loop.mjs`. Captions: `captions/<vid>.json` (18; 13 with word
   times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
   (27). Events for both features are on the `be-events` allow-list on the branch
   only — deploy that Worker before any flag goes on.
