@@ -1556,6 +1556,7 @@
  "pp.day_n": "Giorno {{n}}",
  "pp.menu": "Opzioni della coppia",
  "pp.duo_streak": "Serie in due {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "{{n}}/{{max}} turni oggi",
  "pp.you": "Tu",
  "pp.ai_eyebrow": "Coach IA — non il tuo partner",

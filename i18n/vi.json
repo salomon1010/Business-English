@@ -1556,6 +1556,7 @@
  "pp.day_n": "Ngày {{n}}",
  "pp.menu": "Tùy chọn cặp",
  "pp.duo_streak": "Chuỗi đôi {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "{{n}}/{{max}} lượt hôm nay",
  "pp.you": "Bạn",
  "pp.ai_eyebrow": "Huấn luyện viên AI — không phải bạn cùng cặp",

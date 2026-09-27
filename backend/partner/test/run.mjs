@@ -5,7 +5,7 @@
    Every request goes to the LOCAL worker with emulated D1/R2. Nothing here
    touches Cloudflare or Firebase. Users are dev ids via X-Dev-User; the
    clock is moved with X-Dev-Now. The database is reset at the start. */
-import { verifyIdToken, screenTranscript, score, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey } from "../partner-worker.js";
+import { verifyIdToken, screenTranscript, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey } from "../partner-worker.js";
 import { generateKeyPairSync, createSign } from "node:crypto";
 
 const BASE = process.env.PARTNER_API || "http://127.0.0.1:8787";
@@ -146,7 +146,19 @@ const CTX = { week: 1, day: "Tue", topic: "“Tell me about yourself”", object
   const busy = await call("bob", "POST", "/next", { band: "w1-4" }); ok("/next while a session is active → 409", busy.status === 409);
   for (const [u, txt] of [["alice", "Round one again."], ["bob", "Round two."], ["alice", "Round three."], ["bob", "Round four."]]) await turn(u, txt);
   await call("alice", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" }); const b = await call("bob", "POST", `/pairs/${nx.json.pair.id}/decide`, { choice: "continue" });
-  ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2); }
+  ok("second completed session → connection becomes regular (2 sessions)", b.json.connection && b.json.connection.state === "regular" && b.json.connection.sessions === 2);
+  /* partner streak: weeks in a row with a completed session together */
+  ok("partner streak: two sessions this week = a 1-week streak, on both sides", b.json.connection.streakWeeks === 1 && (await call("alice", "GET", "/me")).json.connection.streakWeeks === 1, JSON.stringify(b.json.connection));
+  const t0 = b.json.serverNow;
+  const D = 86_400_000, monday = (Math.floor((t0 / D + 3) / 7) * 7 - 3) * D;   // this week's Monday 00:00 UTC
+  clock = monday + 9 * D; const nextWeek = (await call("alice", "GET", "/me")).json.connection.streakWeeks;    // Wednesday next week
+  clock = monday + 16 * D; const gone = (await call("alice", "GET", "/me")).json.connection.streakWeeks; clock = null;   // Wednesday the week after
+  ok("partner streak: still alive the week after (they can still meet), gone after a whole week without practice", nextWeek === 1 && gone === 0, JSON.stringify({ nextWeek, gone })); }
+{ const W = 7 * 86_400_000, mon = Date.UTC(2026, 8, 21, 9), wed = mon + 2 * 86_400_000;   // Monday 21 Sep 2026
+  ok("streakWeeks(): three weeks in a row → 3; a gap breaks it; Sunday 23:59 and Monday 00:01 are different weeks; nothing → 0",
+    streakWeeks([wed, wed - W, wed - 2 * W], wed) === 3 && streakWeeks([wed, wed - 2 * W], wed) === 1
+    && streakWeeks([Date.UTC(2026, 8, 20, 23, 59)], Date.UTC(2026, 8, 21, 0, 1)) === 1 && streakWeeks([Date.UTC(2026, 8, 20, 23, 59), Date.UTC(2026, 8, 21, 0, 1)], Date.UTC(2026, 8, 21, 0, 2)) === 2 && streakWeeks([], wed) === 0,
+    JSON.stringify([streakWeeks([wed, wed - W, wed - 2 * W], wed), streakWeeks([wed, wed - 2 * W], wed)])); }
 
 /* ---------------- presence: counts only; stale queue rows are neither available nor counted ---------------- */
 { await consent("pam", "Pam"); await consent("quo", "Quo"); await consent("rae", "Rae");

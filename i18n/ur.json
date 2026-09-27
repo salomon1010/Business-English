@@ -1556,6 +1556,7 @@
  "pp.day_n": "دن {{n}}",
  "pp.menu": "پارٹنر اختیارات",
  "pp.duo_streak": "جوڑی سلسلہ {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "آج {{n}}/{{max}} باریاں",
  "pp.you": "آپ",
  "pp.ai_eyebrow": "AI کوچ — آپ کا پارٹنر نہیں",

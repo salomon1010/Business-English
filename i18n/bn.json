@@ -1556,6 +1556,7 @@
  "pp.day_n": "দিন {{n}}",
  "pp.menu": "সঙ্গী বিকল্প",
  "pp.duo_streak": "জুটি স্ট্রিক {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "আজ {{n}}/{{max}} পালা",
  "pp.you": "আপনি",
  "pp.ai_eyebrow": "AI কোচ — আপনার সঙ্গী নয়",

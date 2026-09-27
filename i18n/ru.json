@@ -1556,6 +1556,7 @@
  "pp.day_n": "День {{n}}",
  "pp.menu": "Параметры пары",
  "pp.duo_streak": "Серия вдвоём {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "{{n}}/{{max}} реплик сегодня",
  "pp.you": "Вы",
  "pp.ai_eyebrow": "ИИ-коуч — не ваш партнёр",

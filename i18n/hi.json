@@ -1556,6 +1556,7 @@
  "pp.day_n": "दिन {{n}}",
  "pp.menu": "पार्टनर विकल्प",
  "pp.duo_streak": "जोड़ी स्ट्रीक {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "आज {{n}}/{{max}} बारियाँ",
  "pp.you": "आप",
  "pp.ai_eyebrow": "AI कोच — आपका पार्टनर नहीं",

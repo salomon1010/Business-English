@@ -1556,6 +1556,7 @@
  "pp.day_n": "第 {{n}} 天",
  "pp.menu": "搭档选项",
  "pp.duo_streak": "双人连续 {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "今天 {{n}}/{{max}} 次",
  "pp.you": "你",
  "pp.ai_eyebrow": "AI 教练——不是你的搭档",

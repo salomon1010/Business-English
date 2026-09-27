@@ -1556,6 +1556,7 @@
  "pp.day_n": "{{n}}日目",
  "pp.menu": "パートナー設定",
  "pp.duo_streak": "ペア連続 {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "今日 {{n}}/{{max}} 回",
  "pp.you": "あなた",
  "pp.ai_eyebrow": "AIコーチ — パートナーではありません",

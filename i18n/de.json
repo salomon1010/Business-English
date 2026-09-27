@@ -1556,6 +1556,7 @@
  "pp.day_n": "Tag {{n}}",
  "pp.menu": "Partner-Optionen",
  "pp.duo_streak": "Duo-Serie {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "{{n}}/{{max}} Beiträge heute",
  "pp.you": "Du",
  "pp.ai_eyebrow": "KI-Coach – nicht dein Partner",

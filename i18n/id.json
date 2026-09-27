@@ -1556,6 +1556,7 @@
  "pp.day_n": "Hari {{n}}",
  "pp.menu": "Opsi mitra",
  "pp.duo_streak": "Rentetan berdua {{n}}",
+ "pp.duo_streak_w": "{{n}}-week streak together",
  "pp.turns_today": "{{n}}/{{max}} giliran hari ini",
  "pp.you": "Anda",
  "pp.ai_eyebrow": "Pelatih AI — bukan mitra Anda",

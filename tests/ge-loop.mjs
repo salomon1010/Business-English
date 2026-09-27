@@ -12,6 +12,7 @@ let BASE = process.env.BASE, srv = null;
 if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(800); BASE = `http://127.0.0.1:${PORT}`; }
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 400)}`); };
 const b = await chromium.launch();
+let meExtra = {};   /* what the stubbed Worker adds to /me */
 const seed = tr => ({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr, tradeId: "welder" }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 async function open(track) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: "block" });
@@ -25,7 +26,7 @@ async function open(track) {
   const calls = [];
   await ctx.route("http://partner.test/**", async r => { const u = new URL(r.request().url()); let body = null; try { body = r.request().postDataJSON(); } catch (e) {}
     calls.push({ m: r.request().method(), p: u.pathname, body });
-    const me = { consented: true, name: "Alex", adult: true, prefs: {}, presence: { online: 0, waiting: 0 }, serverNow: Date.now(), liveEnabled: false };
+    const me = { consented: true, name: "Alex", adult: true, prefs: {}, presence: { online: 0, waiting: 0 }, serverNow: Date.now(), liveEnabled: false, ...meExtra };
     r.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(u.pathname === "/ai/session" ? { ok: true } : u.pathname === "/presence" ? { online: 0, waiting: 0 } : me) }); });
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => errs.push(e.message));
   await p.goto(BASE + "/index.html"); await sleep(1500);
@@ -62,6 +63,12 @@ console.log("\n# General English: Apply It → the AI coach → a human partner"
   await sleep(300);
   const sent = await p.evaluate(() => window.__beacons.slice());
   ok("L9 · General English: Practice Partner and Challenge events are sent", sent.includes("partner_turn_sent") && sent.includes("shadow_challenge_started") && sent.includes("app_open"), JSON.stringify(sent));
+  /* partner streak on the connection card */
+  const card = async n => { meExtra = { connection: { cid: "c".repeat(16), name: "Sam", state: "regular", sessions: 5, lastPracticeAt: Date.now() - 86_400_000, streakWeeks: n, canStart: true, canLive: false } };
+    return p.evaluate(async () => { FBUser = FBUser || { uid: "u-ge", email: "a@b.c", getIdToken: async () => "t" }; ppAiOpen = false; ppMe = await ppApi("GET", "/me"); ppState().lastMe = ppMe; go("partner"); await new Promise(r => setTimeout(r, 500)); const c = document.querySelector(".pp-conn"); return c ? c.innerText : ""; }); };
+  const three = await card(3), one = await card(1); meExtra = {};
+  ok("L11 · a 3-week partner streak shows on the connection card", /3-week streak together/.test(three), three.slice(0, 240));
+  ok("L12 · a 1-week streak is not shown (one week is just a session)", one && !/streak together/.test(one), one.slice(0, 240));
   ok("L10 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }

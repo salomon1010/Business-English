@@ -391,6 +391,19 @@ async function closePair(env, pair, reason, ms, by) { await q(env, "UPDATE pairs
 const otherOf = (pair, uid) => (pair.uid_a === uid ? pair.uid_b : pair.uid_a);
 const isMember = (pair, uid) => !!pair && (pair.uid_a === uid || pair.uid_b === uid);
 const bandIdx = b => BANDS.indexOf(b);
+/* Partner streak (26 Sep 2026): consecutive weeks (Monday to Sunday, UTC) in
+   which two connected learners completed at least one session together,
+   counted back from this week — or from last week, so a streak is not lost on
+   Monday morning before the pair has had a chance to meet. Read from
+   pairs.completed_at (pairs are kept; only their turns and audio are purged),
+   so there is no counter to drift and nothing new is stored. */
+const weekIdx = t => Math.floor((t / DAY + 3) / 7);   // 1 Jan 1970 was a Thursday: +3 days → weeks start on Monday
+function streakWeeks(times, ms) {
+  const weeks = new Set((times || []).filter(Boolean).map(weekIdx));
+  let w = weekIdx(ms); if (!weeks.has(w)) w -= 1;
+  let n = 0; while (weeks.has(w)) { n++; w--; }
+  return n;
+}
 const reliability = m => { const done = m.sessions_completed || 0, bad = m.sessions_abandoned || 0; return done + bad === 0 ? 0.6 : done / (done + bad); };
 
 /* ------------------------------------------------------------- matching */
@@ -668,7 +681,8 @@ async function meView(env, uid, ms) {
       out.lastClosed = { id: last.id, reason, at: last.closed_at, byOther, name: p ? p.name : "?" };
     }
     const conns = (await q(env, "SELECT * FROM connections WHERE (a=? OR b=?) AND state IN ('mutual','regular') ORDER BY last_practice_at DESC LIMIT 1", uid, uid).all()).results || [];
-    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { cid: await connId(conns[0].a, conns[0].b), name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at, canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
+    if (conns[0]) { const other = conns[0].a === uid ? conns[0].b : conns[0].a; const p = await member(env, other); if (p && !(await blockedEither(env, uid, other))) out.connection = { cid: await connId(conns[0].a, conns[0].b), name: p.name, state: conns[0].state, sessions: conns[0].sessions, lastPracticeAt: conns[0].last_practice_at,
+      streakWeeks: streakWeeks(((await q(env, "SELECT completed_at FROM pairs WHERE ((uid_a=? AND uid_b=?) OR (uid_a=? AND uid_b=?)) AND completed_at IS NOT NULL ORDER BY completed_at DESC LIMIT 104", uid, other, other, uid).all()).results || []).map(r => r.completed_at), ms), canStart: !(await activePair(env, other)), canLive: env.LIVE_ENABLED === "1" && !(await openLive(env, other)) }; }
   }
   /* the learners I blocked, so the app can offer to lift a block: first name
      (or "?" once that account is gone), the connection handle, when. Never
@@ -1585,4 +1599,4 @@ export default {
   },
   async scheduled(event, env, ctx) { ctx.waitUntil(maintenance(env, Date.now())); },
 };
-export { screenTranscript, maintenance, score, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey };
+export { screenTranscript, maintenance, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey };

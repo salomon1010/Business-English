@@ -6777,6 +6777,7 @@ const I18N_EN={
  "pp.day_n":"Day {{n}}",
  "pp.menu":"Partner options",
  "pp.duo_streak":"Duo streak {{n}}",
+ "pp.duo_streak_w":"{{n}}-week streak together",
  "pp.turns_today":"{{n}}/{{max}} turns today",
  "pp.you":"You",
  "pp.ai_eyebrow":"AI coach — not your partner",
@@ -23793,7 +23794,7 @@ function ppRender(el){
   const aiResume=ppTrialCardHTML(m)+ppLiveCardHTML(m)+ppAiResumeHTML();
   const conn=m.connection?`<section class="card pp-conn">
       <div class="pp-head-row"><span class="pp-avatar">${esc(m.connection.name.slice(0,1).toUpperCase())}</span>
-      <div class="pp-head-t"><b>${ppPartnersFresh(m)?t("pp.partners_h"):t("pp.conn_h",{name:esc(m.connection.name)})}</b>${ppPartnersFresh(m)?`<small>${t("pp.partners_sub")}</small>`:""}<small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}</small></div>
+      <div class="pp-head-t"><b>${ppPartnersFresh(m)?t("pp.partners_h"):t("pp.conn_h",{name:esc(m.connection.name)})}</b>${ppPartnersFresh(m)?`<small>${t("pp.partners_sub")}</small>`:""}<small>${m.connection.state==="regular"?t("pp.kind_regular"):t("pp.kind_mutual")} · ${t("pp.conn_sub",{n:m.connection.sessions})}${m.connection.lastPracticeAt?" · "+t("pp.conn_last",{date:new Date(m.connection.lastPracticeAt).toLocaleDateString()}):""}${(m.connection.streakWeeks||0)>=2?` · <span class="pp-streak">${t("pp.duo_streak_w",{n:m.connection.streakWeeks})}</span>`:""}</small></div>
       <button class="btn btn-g btn-sm pp-menu" onclick="ppConnMenu()" aria-label="${esc(t("pp.menu"))}">${ic("more")}</button></div>
       ${(()=>{const liveFirst=ppLiveOn()&&m.connection.canLive&&!m.live;const start=m.connection.canStart?`<button class="${liveFirst?"btn btn-g":"btn-primary"}" onclick="ppNext()">${ppPartnersFresh(m)?t("pp.partners_btn"):t("pp.conn_start")}</button>`:`<span class="sub">${t("pp.conn_busy")}</span>`;
         return liveFirst?`<div class="pp-row"><button class="btn-primary pp-attn pp-live-glow" onclick="ppLiveInvite()">${ic("mic")} ${t("pp.live_btn")}</button>${start}</div><p class="pp-fine">${t("pp.conn_choice")}</p>`:`<div class="pp-row">${start}</div>`})()}
