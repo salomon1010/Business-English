@@ -1,9 +1,9 @@
 /* Home "Because you…" — one primary recommendation + up to EIGHT conditional rows (owner, 27 Sep 2026).
    Every row rests on real learner evidence, every card is a specific piece of content with its exact
    deep link, General English only.
-   Run: cd tests && node home-rows.mjs        (BASE=… for another tree, PORT=… for the local server)
+   Run: cd tests && node home-rows.mjs        (BASE=… for another tree, PORT=… for the local server, BROWSER=webkit for Safari's engine)
    Chromium, iPhone 13 (+ one desktop context). Seeds are real catalogue clips; the Workers are stubbed. */
-import { chromium, devices } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises"; import fs from "node:fs";
+import { chromium, webkit, devices } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises"; import fs from "node:fs";
 const root = new URL("..", import.meta.url).pathname, PORT = +(process.env.PORT || 8157);
 let BASE = process.env.BASE, srv = null;
 if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(800); BASE = `http://127.0.0.1:${PORT}`; }
@@ -11,7 +11,8 @@ const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); cons
 const cat = JSON.parse(fs.readFileSync(root + "catalogue/general.json", "utf8"));
 const V = { W: "S0kfnpgY-Gs", SH: "-5q6tNovay8", CF: "mmfo9spNaWA" }; const T = k => cat.videos[V[k]].title;
 const FLAGS = { home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
-const b = await chromium.launch();
+const ENGINE = process.env.BROWSER === "webkit" ? webkit : chromium; console.log(`  engine: ${process.env.BROWSER || "chromium"} · ${BASE}`);
+const b = await ENGINE.launch();
 const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? {} : FLAGS)); localStorage.setItem("be_theme", "dark");
   const GE = "general-english", day = 86400000, H = 3600000, now = Date.now(), d = n => new Date(now - n * day).toISOString().slice(0, 10);
   const dates = (!o.history ? [] : o.away ? [o.away, o.away + 1, o.away + 2] : [0, 1, 2, 3]).map(d); const dayLog = {}; dates.forEach(x => dayLog[x] = 1);
