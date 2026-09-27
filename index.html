@@ -1436,7 +1436,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-row-h h3{font-size:17px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
 .hx-row-h p{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--mut)}
 .hx-row-hide{flex:none;padding:6px 10px;border:1px solid var(--line2);border-radius:99px;background:none;color:var(--mut);font:inherit;font-size:12px;cursor:pointer;min-height:32px}
-.hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
+.hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 20px;/* the snap points sit on the page gutter, so the first card lines up with the hero instead of the screen edge (owner, 27 Sep 2026) */-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .hx-row-scroll::-webkit-scrollbar{display:none}
 .hx-rcard{flex:0 0 min(72%,260px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 .hx-rimg{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
