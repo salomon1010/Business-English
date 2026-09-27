@@ -5724,6 +5724,9 @@ function isComeback(prev){
   return now-prev>=RETURN_GAP_MS||new Date(prev).toDateString()!==new Date(now).toDateString();
 }
 function touchSeen(){S.lastSeen=Date.now();_hiddenAt=S.lastSeen;save()}
+/* a launch that a notification asked for: a learning nudge (?nudge=), a partner alert (#partner)
+   or the daily reminder (#journey) — a comeback keeps those pages instead of taking Home */
+function homeDeepLink(v){try{return /[?&]nudge=/.test(location.search)||(!!location.hash&&(v==="partner"||v==="journey"))}catch(e){return false}}
 /* how long they were away, as a small enum — the Worker allow-list has only these */
 function gapBand(prev){const d=(Date.now()-prev)/864e5;return d<1?"2h-1d":d<=3?"1-3d":d<=7?"4-7d":"8d+"}
 addEventListener("pagehide",()=>{touchSeen();if(_saveH!==null)saveFlush()});
@@ -29949,7 +29952,10 @@ async function bootMain(){
      was asked for (no hash, or Home), never for someone who still has the
      one-minute check to take — Home opens that for them. */
   const _prevSeen=S.lastSeen;
-  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)&&!(typeof homeV2On==="function"&&homeV2On())){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
+  /* Home V2 (owner, 27 Sep 2026): back after two hours or on a new day → Home, whatever page was
+     open last. Only a notification's own link is kept (?nudge=, #partner, the reminder's #journey). */
+  if(S.profile&&homeV2On()&&isComeback(_prevSeen)&&!homeDeepLink(v)){v="home";a1=a2=undefined;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
+  else if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)&&!(typeof homeV2On==="function"&&homeV2On())){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
@@ -30274,7 +30280,9 @@ trackLearning("onboarding_complete",{lang:OB.lang||"en"});
      "Start here" placement card, is one tap away. The check must not pop over
      the welcome modal, so it is held back until the welcome is dismissed. */
   _fndCheckShown=true;
-  go("journey");
+  /* Home V2 (owner, 27 Sep 2026): onboarding lands on Home — the learner's own page, whose
+     first card is the next step. Without Home V2 (Welding, production today) it stays the road map. */
+  go(homeV2On()?"home":"journey");
   obWelcome();   /* a modal the user dismisses — never a toast that flashes past */
 };
 /* First-run welcome. Stays on screen until the user acts: it does not auto-dismiss. */
@@ -30935,6 +30943,7 @@ document.addEventListener("visibilitychange",()=>{
     if(!S.profile||!isComeback(away))return;
     if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
     if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
+    if(homeV2On()){if(typeof ppLive!=="undefined"&&ppLive)return;go("home");trackLearning("return_open",{gap:gapBand(away)});return}   /* Home V2: a comeback lands on Home (owner, 27 Sep 2026) */
     if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())return;
     _rmReturn=true;go("journey");trackLearning("return_open",{gap:gapBand(away)});
   }catch(e){}
