@@ -775,10 +775,21 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    it is the one thing a learner must not be reading while they record (owner,
    22 Sep 2026). Watch and Shadow keep it. */
 #shWork[data-svmode="challenge"] #svTx{display:none!important}
-#shWork[data-v3] .sh-work-body{padding-left:0;padding-right:0;
-  /* the tail of the last line must be able to reach the top of the reading
-     area, so the page can scroll a screen further than its content */
-  padding-bottom:calc(72vh + env(safe-area-inset-bottom))}
+#shWork[data-v3] .sh-work-body,#shWork[data-v3][data-svmode] .sh-work-body{padding-left:0;padding-right:0;padding-bottom:0}
+/* The room under the content lives INSIDE the pinned player's own container
+   (26 Sep 2026). It used to be 72vh of padding on .sh-work-body, outside
+   #shPlayerWrap — and a sticky element only stays pinned while its container
+   is on screen, so scrolling into that padding pushed the video off the top
+   (cropped) over an empty screen, and a Shadow or Challenge page reached from
+   a scrolled Watch page opened with its card behind the video. The sizes are
+   measured, not guessed: --sh-dock is the bottom bar, --sh-read the reading
+   area under the video (shv3Measure, kept current by a ResizeObserver and the
+   viewport's resize — Safari's toolbar coming and going included). Watch may
+   scroll until its last line reaches the top of the reading area (the
+   follow-along needs that); Shadow and Challenge stop with their last line
+   just above the bar. */
+#shWork[data-v3] #shPlayerWrap{padding-bottom:calc(var(--sh-dock,84px) + 12px)}
+#shWork[data-v3][data-svmode="watch"] #shPlayerWrap{padding-bottom:max(calc(var(--sh-dock,84px) + 12px),var(--sh-read,60vh))}
 /* the speaker stays in view while the words scroll under — shadowing needs the
    face and the line at the same time */
 #shWork[data-v3] .sh-stick{padding:0;position:sticky;top:0;z-index:6;background:var(--bg);box-shadow:0 10px 18px -14px rgba(0,0,0,.6)}
@@ -11999,6 +12010,37 @@ function shv3RecSync(){
   const s=b.querySelector("span");if(s&&s.textContent!==lbl)s.textContent=lbl;
   b.setAttribute("aria-label",lbl);
 }
+/* the two sizes the V3 layout needs, measured (see the #shPlayerWrap rule):
+   the bottom bar's height and the reading area left under the pinned video */
+function shv3Measure(){
+  const w=document.getElementById("shWork");if(!w||!w.dataset.v3)return;
+  const body=w.querySelector(".sh-work-body"),st=w.querySelector(".sh-stick"),bar=document.getElementById("shv3Bar");
+  const dock=bar?Math.ceil(bar.getBoundingClientRect().height):0,stick=st?Math.ceil(st.getBoundingClientRect().height):0;
+  /* Watch may scroll until its LAST paragraph reaches the top of the reading
+     area (where the follow-along puts every paragraph) — and no further, so
+     the end of the transcript never leaves an empty screen under the video */
+  const tx=w.querySelector("#svTx"),last=tx&&(tx.querySelector(".sv-para:last-child")||tx.lastElementChild),wrap=document.getElementById("shPlayerWrap");
+  /* everything from the last paragraph's top to the end of the content (the
+     row of buttons under the list included) must fit in the reading area */
+  let tail=0;
+  if(last&&wrap&&last.offsetParent){const wr=wrap.getBoundingClientRect(),pad=parseFloat(getComputedStyle(wrap).paddingBottom)||0;tail=Math.max(0,Math.ceil(wr.bottom-pad-last.getBoundingClientRect().top))}
+  const read=Math.max(0,(body?body.clientHeight:0)-stick-10-tail);
+  w.style.setProperty("--sh-dock",dock+"px");w.style.setProperty("--sh-read",read+"px");
+}
+let _shv3RO=null;
+function shv3Observe(){
+  const w=document.getElementById("shWork");if(!w)return;
+  if(!_shv3RO){
+    if(window.ResizeObserver)_shv3RO=new ResizeObserver(()=>shv3Measure());
+    window.addEventListener("resize",shv3Measure);
+    try{if(window.visualViewport)visualViewport.addEventListener("resize",shv3Measure)}catch(e){}
+  }
+  if(_shv3RO)[w.querySelector(".sh-work-body"),w.querySelector(".sh-stick"),document.getElementById("shv3Bar")].forEach(e=>{if(e)_shv3RO.observe(e)});
+  shv3Measure();
+}
+/* a new mode, or another paragraph in Shadow, starts with its content right
+   under the video — never at a scroll position left over from a longer page */
+function shv3Home(){const w=document.getElementById("shWork");if(!w||!w.dataset.v3)return;const b=w.querySelector(".sh-work-body");if(b)b.scrollTop=0}
 function shv3Sync(){
   const w=document.getElementById("shWork");if(!w)return;
   if(!shWorkV3()){delete w.dataset.v3;const b=document.getElementById("shv3Bar");if(b)b.remove();return}
@@ -12006,6 +12048,7 @@ function shv3Sync(){
   let bar=document.getElementById("shv3Bar");
   if(!bar){bar=document.createElement("div");bar.id="shv3Bar";w.appendChild(bar)}
   bar.innerHTML=shv3BarHTML();manIconizeInline(bar);
+  try{shv3Observe()}catch(e){}
   /* the play glyph and the speed label follow the player, not the render */
   try{
     const p=document.getElementById("shv3Play");
@@ -20940,6 +20983,7 @@ function svRender(){
   svNowDraw(keep,true,-1);
   if(svMode==="watch"){svWtCur=-1;const p=svParaOf(keep);svWatchDraw(p?svParas(a).indexOf(p):0)}
   if(svMode==="challenge"&&!txHidden){const g=svChSegObj();if(g)for(let i=g.from;i<=g.to;i++){const el=box.querySelector(`.sv-seg[data-i="${i}"]`);if(el)el.classList.add("pick")}}
+  try{shv3Measure()}catch(e){}   /* a new transcript changes the room the V3 layout leaves at the end */
 }
 /* is the transcript meant to be out of sight right now? Only Challenge hides
    it, and only while the learner should be recalling: before and during the
@@ -21018,6 +21062,7 @@ window.svSetMode=m=>{
   svMode=m;svRevealed=false;
   if(m!=="challenge"||!svCh||svCh.seg!==svChSegIndex())svChReset();
   svRender();
+  if(changed)try{shv3Home()}catch(e){}
   /* the video carries on where it was. Only a pause WE caused is undone — a
      learner who pressed pause stays paused. */
   if(changed&&svAutoPaused&&ytPlayer&&ytPlayer.playVideo){
@@ -21373,7 +21418,7 @@ window.svShFav=()=>{
   try{shRenderClips()}catch(e){}
   const b=document.querySelector("#svSh .sv-sh-fav");if(b){b.classList.toggle("on",i<0);b.setAttribute("aria-pressed",String(i<0));b.setAttribute("aria-label",t(i<0?"sv.sh_unfav":"sv.sh_fav"))}
 };
-window.svShStep=d=>{const ps=svParas(svAsset),k=ps.findIndex(p=>p.from===svShGroup().from)+d;if(k<0||k>=ps.length)return;svShPara=ps[k].from;svRender();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
+window.svShStep=d=>{const ps=svParas(svAsset),k=ps.findIndex(p=>p.from===svShGroup().from)+d;if(k<0||k>=ps.length)return;svShPara=ps[k].from;svRender();try{shv3Home()}catch(e){}shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShReplay=()=>{if(!svAsset)return;svChStopAll();shSeekTo(shClip.start);try{ytPlayer.playVideo()}catch(e){}};
 window.svShSpeed=()=>{shRate();svShBarSync()};
 /* the bar at the foot of the workspace: shown in Shadow only, mirrors the recorder */
