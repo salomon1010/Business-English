@@ -124,7 +124,11 @@ unknown before it), on General English, 18 or over (declared).
 level band (same 1 / adjacent 0.5), shared goal, curriculum position (same
 week 1 / ±1 week 0.6), mode compatibility, shared availability, time-zone
 distance, topic, reliability (completed vs abandoned sessions; 0.6 when
-unknown), history (practised before). Weights `WEIGHTS_DEFAULT` are overridden
+unknown), history (practised before), recent activity (in line now or seen in
+the last 5 minutes 1, today 0.6, this week 0.3; added 26 Sep 2026). The
+curriculum position is the strongest single weight (0.24 of 1.00, since 26 Sep
+2026): two learners on the same lesson share the task they will practise.
+Weights `WEIGHTS_DEFAULT` are overridden
 by the Worker var `MATCH_WEIGHTS` (JSON). Candidates below `MIN_MATCH_SCORE`
 (0.35) are not offered. Hard filters first: same track, consented (which requires 18+), band within
 one step, not suspended, not opted out, not in an active pair, not blocked

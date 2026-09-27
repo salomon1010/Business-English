@@ -64,7 +64,7 @@ Staging is `--env staging`. Check what is live with `curl …/health` and
 | Var | Production | Dev | Effect |
 |---|---|---|---|
 | `PARTNER_ENABLED` | `"0"` | `"1"` | not `"1"` → `503 disabled` on everything but `/health` |
-| `MATCH_WEIGHTS` | `"{}"` | `"{}"` | JSON overrides of `WEIGHTS_DEFAULT` (level, goal, curriculum, mode, availability, timezone, topic, reliability, history) |
+| `MATCH_WEIGHTS` | `"{}"` | `"{}"` | JSON overrides of `WEIGHTS_DEFAULT` (curriculum — the largest, level, goal, mode, availability, timezone, topic, recency, reliability, history) |
 | `PAIR_DAYS` / `PARTNER_TIMEOUT_H` | 7 / 24 | 7 / 24 | session expiry · partner-silence threshold for the AI fallback and early rematch |
 | `IP_PER_MIN` | unset (120) | 100000 | per-IP request limit; the suites hammer one IP |
 | `DEV_AUTH` | **unset** | `"1"` | accept `X-Dev-User` / `X-Dev-Now`, enable `/__reset` and `/__cron` |

@@ -102,7 +102,11 @@ const TRIAL_INVITE_MS = 10 * 60_000;   // a "Try a practice" invitation waits th
 const LIVE_KINDS = new Set(["offer", "answer", "ice", "state", "round", "bye"]);
 const IP_PER_MIN_DEFAULT = 300;   // two phones on one Wi-Fi polling a live call sit around 100/min together
 /* soft-scoring weights; overridable per environment through MATCH_WEIGHTS (JSON) */
-const WEIGHTS_DEFAULT = { level: 0.22, goal: 0.20, curriculum: 0.16, mode: 0.12, availability: 0.10, timezone: 0.08, topic: 0.05, reliability: 0.04, history: 0.03 };
+/* The curriculum is the strongest single signal (26 Sep 2026): two learners on
+   the same lesson have the same task to practise, which matters more than an
+   exact level match. Recent activity is scored too (someone active now or
+   today answers). Sum = 1.00; MATCH_WEIGHTS can still override any of them. */
+const WEIGHTS_DEFAULT = { curriculum: 0.24, level: 0.18, goal: 0.16, mode: 0.10, availability: 0.08, timezone: 0.07, topic: 0.06, recency: 0.05, reliability: 0.03, history: 0.03 };
 const MIN_MATCH_SCORE = 0.35;   // ranking floor only — no longer a filter (owner: no compatibility gate)
 
 /* ---- the transcript screen: anything that could move the conversation off
@@ -392,7 +396,16 @@ const reliability = m => { const done = m.sessions_completed || 0, bad = m.sessi
 /* ------------------------------------------------------------- matching */
 function weights(env) { try { return Object.assign({}, WEIGHTS_DEFAULT, JSON.parse(env.MATCH_WEIGHTS || "{}")); } catch (e) { return WEIGHTS_DEFAULT; } }
 /* deterministic, explainable. me/c are interest rows joined with members. */
-function score(me, mm, c, W, hist) {
+/* recent activity: in line to practise now, or seen in the last 5 minutes = 1;
+   today 0.6; this week 0.3; older 0; unknown 0.5 (neutral, like the others) */
+function recency(c, ms) {
+  if (c.imode === "now") return 1;
+  const seen = Math.max(Number(c.last_seen) || 0, c.in_line ? Number(c.created_at) || 0 : 0);
+  if (!seen || !ms) return 0.5;
+  const age = ms - seen;
+  return age <= 5 * 60_000 ? 1 : age <= DAY ? 0.6 : age <= 7 * DAY ? 0.3 : 0;
+}
+function score(me, mm, c, W, hist, ms) {
   const r = [];
   const bd = Math.abs(bandIdx(me.band) - bandIdx(c.band));
   const level = bd === 0 ? 1 : bd === 1 ? 0.5 : 0;
@@ -407,10 +420,11 @@ function score(me, mm, c, W, hist) {
   const topic = me.topic && c.topic ? (me.topic === c.topic ? 1 : 0) : 0.5;
   const rel = reliability(c);
   const history = hist ? 1 : 0;
-  const s = W.level * level + W.goal * goal + W.curriculum * curriculum + W.mode * mode + W.availability * availability + W.timezone * timezone + W.topic * topic + W.reliability * rel + W.history * history;
-  /* reasons: the strongest true facts, in plain words, max 2 */
-  if (level === 1) r.push("same_level");
+  const recent = recency(c, ms);
+  const s = W.level * level + W.goal * goal + W.curriculum * curriculum + W.mode * mode + W.availability * availability + W.timezone * timezone + W.topic * topic + W.reliability * rel + W.history * history + (W.recency || 0) * recent;
+  /* reasons: the strongest true facts, in plain words, max 2 — the lesson first */
   if (curriculum === 1) r.push(me.prompt_week ? "same_lesson" : "same_stage");
+  if (level === 1) r.push("same_level");
   if (sharedGoals.length) r.push("goal:" + sharedGoals[0]);
   if (c.imode === "now") r.push("available_now");
   if (sharedAvail.length && r.length < 2) r.push("same_time:" + sharedAvail[0]);
@@ -436,7 +450,7 @@ async function candidates(env, uid, ms, limit = 3) {
      keeps a Welding member from ever appearing here. */
   const rows = (await q(env, `SELECT m.uid, COALESCE(i.track, m.track) AS track, i.band, COALESCE(i.lang, m.lang) AS lang, COALESCE(i.prompt_week, 0) AS prompt_week, COALESCE(i.fnd_day, 0) AS fnd_day,
       COALESCE(i.mode, 'later') AS imode, i.topic, COALESCE(i.goals, m.goals) AS goals, COALESCE(i.created_at, m.last_seen) AS created_at, (i.uid IS NOT NULL) AS in_line,
-      m.gender, m.same_gender, m.suspended_until, m.opted_out, m.mode, m.avail, m.tz, m.sessions_completed, m.sessions_abandoned
+      m.gender, m.same_gender, m.suspended_until, m.opted_out, m.mode, m.avail, m.tz, m.sessions_completed, m.sessions_abandoned, m.last_seen
     FROM members m LEFT JOIN interest i ON i.uid=m.uid AND i.created_at>?
     WHERE m.uid<>? AND m.adult=1 AND ((i.uid IS NOT NULL AND i.track=?) OR (i.uid IS NULL AND m.track=? AND m.last_seen>? AND m.last_seen<=?))
     ORDER BY in_line DESC, created_at ASC LIMIT 200`, ms - 7 * DAY, uid, me.track, me.track, ms - 5 * 60_000, ms + 60_000).all()).results || [];
@@ -467,7 +481,7 @@ async function candidates(env, uid, ms, limit = 3) {
        askable (owner, 2026-09-19: the strip must never count a learner the
        cards then hide) — they just sort last */
     const again = cools.has(c.uid) || (conn && (conn.state === "disconnected" || conn.state === "ended"));
-    let { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0);
+    let { score: s, reasons } = score(me, mm, c, W, conn && conn.sessions > 0, ms);
     if (again) s -= 1;
     if (!c.in_line) { s -= 0.5; reasons = ["online_now", ...reasons.filter(r => r !== "in_line")].slice(0, 2); }   /* people actually in line come first */
     const exposure = exposures.get(c.uid) || 0;

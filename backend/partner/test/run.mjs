@@ -66,6 +66,18 @@ await consent("dave", "Dave", { gender: "m" }); await join("dave", { band: "w9-1
   const c = { band: "w1-4", goals: '["workplace"]', prompt_week: 2, topic: "", fnd_day: 0, mode: "voice", avail: '["evening"]', tz: 1, imode: "later", sessions_completed: 0, sessions_abandoned: 0 };
   const s = score(me, mm, c, WEIGHTS_DEFAULT, false); const far = score(me, mm, { ...c, band: "w5-8", prompt_week: 8, goals: '["casual"]', avail: '["morning"]', tz: 9 }, WEIGHTS_DEFAULT, false);
   ok("score(): perfect match scores high with reasons; weak match scores low", s.score > 0.9 && s.reasons.length === 2 && far.score < 0.4, JSON.stringify([s, far])); }
+/* the curriculum is the strongest single signal; recent activity counts (26 Sep 2026) */
+{ const me = { band: "w1-4", goals: '["workplace"]', prompt_week: 3, topic: "", fnd_day: 0 }, mm = { mode: "voice", avail: '["evening"]', tz: 1 };
+  const base = { goals: '["workplace"]', topic: "", fnd_day: 0, mode: "voice", avail: '["evening"]', tz: 1, imode: "later", sessions_completed: 0, sessions_abandoned: 0 };
+  const sameLesson = score(me, mm, { ...base, band: "w5-8", prompt_week: 3 }, WEIGHTS_DEFAULT, false);   // next level up, same lesson
+  const sameLevel = score(me, mm, { ...base, band: "w1-4", prompt_week: 9 }, WEIGHTS_DEFAULT, false);    // same level, another lesson
+  ok("score(): the same lesson one level apart outranks the same level on another lesson — the curriculum is the strongest signal", sameLesson.score > sameLevel.score && sameLesson.reasons[0] === "same_lesson", JSON.stringify([sameLesson, sameLevel]));
+  ok("score(): curriculum carries the largest default weight, and the weights sum to 1", Object.entries(WEIGHTS_DEFAULT).every(([k, v]) => k === "curriculum" || v < WEIGHTS_DEFAULT.curriculum) && Math.abs(Object.values(WEIGHTS_DEFAULT).reduce((a, b) => a + b, 0) - 1) < 1e-9, JSON.stringify(WEIGHTS_DEFAULT));
+  const T = 1_800_000_000_000, c = { ...base, band: "w1-4", prompt_week: 3 };
+  const now = score(me, mm, { ...c, last_seen: T - 60_000 }, WEIGHTS_DEFAULT, false, T), week = score(me, mm, { ...c, last_seen: T - 6 * 86_400_000 }, WEIGHTS_DEFAULT, false, T), old = score(me, mm, { ...c, last_seen: T - 30 * 86_400_000 }, WEIGHTS_DEFAULT, false, T);
+  ok("score(): recent activity — active a minute ago > this week > a month ago; otherwise identical", now.score > week.score && week.score > old.score, JSON.stringify([now.score, week.score, old.score]));
+  const ready = score(me, mm, { ...c, imode: "now", last_seen: T - 30 * 86_400_000 }, WEIGHTS_DEFAULT, false, T);
+  ok("score(): someone in line to practise now counts as active now", ready.score === now.score, JSON.stringify([ready.score, now.score])); }
 
 /* invite → trial pair; offer ids are single-use and owner-bound */
 let pairId = null, offer = null;
