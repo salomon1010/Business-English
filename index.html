@@ -789,6 +789,11 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    follow-along needs that); Shadow and Challenge stop with their last line
    just above the bar. */
 #shWork[data-v3] #shPlayerWrap{padding-bottom:calc(var(--sh-dock,84px) + 12px)}
+/* no scroll bar down the side of the page: it drew a white line over the
+   video and the panel on iPhone (owner, 26 Sep 2026). The page still
+   scrolls by touch and by wheel; only the indicator is gone. */
+#shWork[data-v3] .sh-work-body{scrollbar-width:none;-ms-overflow-style:none}
+#shWork[data-v3] .sh-work-body::-webkit-scrollbar{display:none;width:0;height:0;background:transparent}
 #shWork[data-v3][data-svmode="watch"] #shPlayerWrap{padding-bottom:max(calc(var(--sh-dock,84px) + 12px),var(--sh-read,60vh))}
 /* the speaker stays in view while the words scroll under — shadowing needs the
    face and the line at the same time */

@@ -54,7 +54,9 @@ ok("3 · Watch scrolled to the very end: the video is still whole — not pushed
 ok("4 · … and the last paragraph is on screen just under the video, not behind it, and not an empty screen", L.lastPara && L.lastPara.t >= L.stick.b && visible(L, L.lastPara) === L.lastPara.h, JSON.stringify({ stick: L.stick, last: L.lastPara, bar: L.bar }));
 /* playback: the follow-along moves the page to the spoken paragraph */
 for (const k of [0.3, 0.7, 0.98]) {
-  await p.evaluate(k => { const n = svAsset.segments.length; const s = svAsset.segments[Math.floor((n - 1) * k)]; shSeek = { t: (s.startMs + 50) / 1000, at: Date.now() }; svUserScrollAt = 0; svTick(); }, k);
+  /* the player reports that time until the spoken line is lit (a busy machine can miss one tick) */
+  await p.evaluate(async k => { const n = svAsset.segments.length; const s = svAsset.segments[Math.floor((n - 1) * k)];
+    for (let i = 0; i < 30; i++) { shSeek = { t: (s.startMs + 50) / 1000, at: Date.now() }; svUserScrollAt = 0; svTick(); if (document.querySelector("#svTx .sv-seg.now")) break; await new Promise(r => setTimeout(r, 100)); } }, k);
   await sleep(1200); L = await lay(p);
   ok(`5 · playback at ${Math.round(k * 100)}%: the follow-along keeps the video whole and the spoken line visible under it`, videoWhole(L) && L.nowSeg && visible(L, L.nowSeg) > 0 && L.nowSeg.t >= L.stick.b - 2, JSON.stringify({ stick: L.stick, now: L.nowSeg, bar: L.bar }));
 }
@@ -94,6 +96,8 @@ ok("14 · … and taller again: re-measured back", parseInt(r2) > parseInt(r1), 
 /* Your videos is listed once */
 const own = await p.evaluate(async () => { shCloseWork(); go("shadow"); await new Promise(r => setTimeout(r, 300)); shOwnAdd("aaaaaaaaaa9", "https://youtu.be/aaaaaaaaaa9"); const top = (document.getElementById("shOwnTop") || { innerHTML: "" }).innerHTML.trim(); const i = shOwnFind("aaaaaaaaaa9"); if (i >= 0) { shOwn().splice(i, 1); save(); shOwnRender(); } return { top, lib: !!document.getElementById("shLib") }; });
 ok("15 · 'Your videos' is not drawn twice: nothing above the library after an add", own.lib && own.top === "", JSON.stringify(own));
+const sb = await p.evaluate(async () => { shOpenWork(); await new Promise(r => setTimeout(r, 400)); const b = document.querySelector("#shWork .sh-work-body"); const cs = getComputedStyle(b); return { gutter: b.offsetWidth - b.clientWidth, sw: cs.scrollbarWidth || "", rule: [...document.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => /sh-work-body::-webkit-scrollbar/.test(r.selectorText || "") && /display:\s*none/.test(r.cssText)); } catch (e) { return false; } }) }; });
+ok("15b · no scroll bar line down the side of the workspace (owner, 26 Sep 2026): no gutter, the indicator switched off", sb.gutter === 0 && sb.rule && (sb.sw === "" || sb.sw === "none"), JSON.stringify(sb));
 ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
 await ctx.close();
 
