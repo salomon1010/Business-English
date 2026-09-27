@@ -1,4 +1,5 @@
-/* Home hero highlight reel (owner, 27 Sep 2026): six video slides at the top of Home, each one opens its clip.
+/* Home hero highlight reel (owner, 27 Sep 2026): six video slides at the top of Home, each one opens its clip —
+   and every card without a video shows a screenshot of the page it opens.
    Run: cd tests && node home-highlights.mjs        (BASE=… for another tree)
    WebKit (iPhone Safari's engine), iPhone 13, flag home_v2_enabled. Thumbnails are real ytimg URLs; the
    partner / push / events Workers are stood in. */
@@ -15,8 +16,9 @@ const THUMB = /i\.ytimg\.com\/vi\/([A-Za-z0-9_-]{11})\//;
 async function open(state, opts = {}) {
   const ctx = await b.newContext({ ...devices["iPhone 13"], serviceWorkers: "block", reducedMotion: "reduce" });   /* reduce: no automatic rotation, so the slide on screen is the one the test chose */
   await ctx.route(u => /be-events|cloudflareinsights|be-partner|be-push|entitlements|be-polish|youtube\.com/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
+  if (opts.noCatalogue) await ctx.route(u => /catalogue\/general\.json/.test(u.href), r => r.fulfill({ status: 404, body: "" }));
   const thumbs = new Set(); ctx.on("request", r => { const m = r.url().match(THUMB); if (m && /maxresdefault/.test(r.url())) thumbs.add(m[1]); });
-  await ctx.addInitScript(s => { if (!sessionStorage.getItem("s")) { sessionStorage.setItem("s", 1); localStorage.setItem("be12_v1", s); localStorage.setItem("be_flags", JSON.stringify({ home_v2_enabled: true })); } }, JSON.stringify(seed(state)));
+  await ctx.addInitScript(s => { if (!sessionStorage.getItem("s")) { sessionStorage.setItem("s", 1); localStorage.setItem("be12_v1", s); localStorage.setItem("be_flags", JSON.stringify({ home_v2_enabled: true, practice_partner_enabled: true })); } }, JSON.stringify(seed(state)));
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => { if (!/A network error occurred/.test(e.message)) errs.push(e.message); });
   await p.goto(BASE + "/index.html"); await sleep(3200);
   await p.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
@@ -42,6 +44,10 @@ console.log("\n# six highlight slides, each one a video");
   ok("5 · the picture is one real button whose caption names the clip on screen: label, title, channel · minutes, and a spoken label", c.tagName === "BUTTON" && !c.hidden && c.vid === r[0].vid && c.title === r[0].title && /Fits your plan/i.test(c.tag) && / min$/.test(c.meta) && c.meta === r[0].meta && c.aria === "Open the video: " + r[0].title, JSON.stringify(c));
   const box = await p.evaluate(() => { const o = document.getElementById("hxOpen").getBoundingClientRect(), m = document.getElementById("hxMedia").getBoundingClientRect(); return { ow: Math.round(o.width), mw: Math.round(m.width), oh: Math.round(o.height), mh: Math.round(m.height) }; });
   ok("6 · the whole picture is the tap target, not a small link", box.ow === box.mw && box.oh === box.mh, JSON.stringify(box));
+  /* owner, 27 Sep 2026: the caption is ONE line on the picture — no panel, a small play at the end of the line */
+  const line = await p.evaluate(() => { const c = document.querySelector("#hxOpen .hx-cap"), b = c.querySelector("b"), pl = document.querySelector("#hxOpen .hx-cplay"), m = document.getElementById("hxMedia").getBoundingClientRect(), cs = getComputedStyle(c), cr = c.getBoundingClientRect(), pr = pl.getBoundingClientRect(), br = b.getBoundingClientRect();
+    return { capH: Math.round(cr.height), titleH: Math.round(br.height), bg: cs.backgroundColor, blur: cs.backdropFilter || cs.webkitBackdropFilter || "none", playW: Math.round(pr.width), sameRow: Math.abs((pr.top + pr.bottom) / 2 - (cr.top + cr.bottom) / 2) < 3, playLast: pr.left >= br.right, coverPct: Math.round(100 * cr.height / m.height), metaShown: getComputedStyle(c.querySelector("small")).display !== "none" }; });
+  ok("6b · the caption is one line, transparent, with a small play at the end of that line", line.capH <= 30 && line.titleH <= 20 && /rgba\(0, 0, 0, 0\)|transparent/.test(line.bg) && line.blur === "none" && line.playW <= 30 && line.sameRow && line.playLast && !line.metaShown && line.coverPct <= 16, JSON.stringify(line));
   ok("7 · data: only the slide on screen and the next one load their thumbnails at first", r.filter(x => x.src).length === 2 && thumbs.size === 2 && thumbs.has(r[0].vid) && thumbs.has(r[1].vid), JSON.stringify({ src: r.map(x => x.src), thumbs: [...thumbs] }));
   await p.click("#hxDots button:nth-child(3)"); await sleep(400);
   const c3 = await cap(p), r3 = await reel(p);
@@ -78,6 +84,33 @@ console.log("\n# language");
   const r = await reel(p), c = await cap(p);
   ok("17 · French: the labels and the spoken label are French", r[0].tag === "Adapté à votre plan" && r.some(x => x.tag === "Leçon de film") && /^Ouvrir la vidéo : /.test(c.aria), JSON.stringify({ tags: r.map(x => x.tag), aria: c.aria }));
   ok("18 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
+
+console.log("\n# no video, no empty box: every card without a clip shows the page it opens");
+const cards = p => p.evaluate(async () => {   /* the pictures are lazy: bring each card on screen (rows scroll sideways) before asking */
+  for (const c of document.querySelectorAll(".hx-rcard,.hx-dcard,.hx-feat")) { c.scrollIntoView({ block: "center", inline: "center" }); await new Promise(z => setTimeout(z, 250)); }
+  await new Promise(z => setTimeout(z, 1500));
+  const one = c => { const i = c.querySelector("img"); return { type: c.dataset.type || c.dataset.dest, src: i ? i.getAttribute("src") : null, loaded: !!(i && i.complete && i.naturalWidth > 0) }; };
+  return { rows: [...document.querySelectorAll(".hx-rcard")].map(one), explore: [...document.querySelectorAll(".hx-dcard,.hx-feat")].map(one), empty: document.querySelectorAll(".hx-rimg.none").length }; });
+{ const { ctx, p, errs } = await open({ dates: [], dayLog: {}, dayLogA: {} });
+  const c = await cards(p), noVid = c.rows.filter(x => !/ytimg|rp-photos/.test(x.src || ""));
+  const made = await p.evaluate(() => ["session", "words", "trouble", "phrases", "partner", "ai"].map(type => { const d = document.createElement("div"); d.innerHTML = homeRowCardHTML({ id: "x" }, { type, w: 1, d: "Mon", n: 3 }, 0); const i = d.querySelector("img"); return type + "=" + (i ? i.getAttribute("src") : "none"); }));
+  ok("19 · a new learner: no empty box in the rows — every card without a clip shows a screenshot that loaded; and each kind of card maps to its own page (lesson → lesson day, words → word list …)", c.empty === 0 && noVid.every(x => /^home-shots\//.test(x.src) && x.loaded) && made.join() === "session=home-shots/session.jpg,words=home-shots/vocab.jpg,trouble=home-shots/trouble.jpg,phrases=home-shots/phrases.jpg,partner=home-shots/partner.jpg,ai=home-shots/ai.jpg", JSON.stringify({ rows: c.rows, made }));
+  const ph = c.explore.find(x => x.type === "phrases"), pp = c.explore.find(x => x.type === "partner");
+  ok("20 · Explore: Phrase Lab and Practice Partner show screenshots of those pages", ph && ph.src === "home-shots/phrases.jpg" && ph.loaded && pp && pp.src === "home-shots/partner.jpg" && pp.loaded, JSON.stringify(c.explore));
+  ok("21 · every Explore card has a picture that loaded", c.explore.length >= 5 && c.explore.every(x => x.src && x.loaded), JSON.stringify(c.explore));
+  ok("22 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
+{ const words = {}; ["negotiate", "deadline", "proposal", "agenda", "quarterly"].forEach((w, i) => words[w] = { ts: Date.now() - i, reps: 1, due: Date.now() - 1000, tk: ["general-english"] });
+  const { ctx, p, errs } = await open({ vocab: words, troubleA: { "general-english": { thorough: 2, schedule: 1 } } });
+  const c = await cards(p), tr = c.rows.find(x => x.type === "trouble"), wd = c.rows.find(x => x.type === "words");
+  ok("23 · trouble words and words due: their cards show the trouble-words list and the word list", tr && tr.src === "home-shots/trouble.jpg" && tr.loaded && wd && wd.src === "home-shots/vocab.jpg" && wd.loaded && c.empty === 0, JSON.stringify(c.rows));
+  ok("24 · every card in the 'Because you…' rows has a picture that loaded", c.rows.length && c.rows.every(x => x.src && x.loaded), JSON.stringify(c.rows));
+  const shots = await p.evaluate(async () => { const r = {}; for (const k of ["session", "vocab", "trouble", "phrases", "partner", "ai"]) { const i = new Image(); i.src = `home-shots/${k}.jpg`; await i.decode().catch(() => {}); r[k] = [i.naturalWidth, i.naturalHeight]; } return r; });
+  ok("25 · all six screenshots exist and are 16:9", Object.values(shots).every(([w, h]) => w >= 700 && Math.abs(w / h - 16 / 9) < .02), JSON.stringify(shots));
+  ok("26 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
+{ const { ctx, p, errs } = await open({}, { noCatalogue: true });
+  const h = await p.evaluate(() => ({ slides: [...document.querySelectorAll(".hx-slide")].map(x => x.getAttribute("src")), empty: document.getElementById("hxMedia").classList.contains("empty"), open: document.getElementById("hxOpen").hidden }));
+  ok("27 · the video list cannot be reached: the top picture is the page the next step opens, not an empty gradient (and nothing pretends to be a video)", h.slides.length === 1 && h.slides[0] === "home-shots/session.jpg" && !h.empty && h.open, JSON.stringify(h));
+  ok("28 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);

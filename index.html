@@ -1385,17 +1385,23 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:0}
 .hx-slide.on{opacity:1;animation:hxZoom 7s ease-out both}
 /* the highlight reel (owner, 27 Sep 2026): the whole picture is one button that opens the clip on
-   screen; its caption is a dark glass panel so it reads the same on every thumbnail and theme */
+   screen; its caption is one shadowed line straight on the picture (see .hx-cap) */
 .hx-open{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;gap:10px;margin:0;padding:0 14px 44px;border:0;background:none;color:#fff;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hx-open[hidden]{display:none}
-.hx-cap{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:8px 11px 9px;border-radius:14px;background:rgba(6,9,18,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.hx-ctag{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
-.hx-ctag i{font-style:normal;padding:1px 6px;border-radius:99px;background:#fcd34d;color:#1b1202;letter-spacing:.06em}
-.hx-cap b{font-size:14px;line-height:1.25;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-cap small{font-size:11.5px;color:rgba(255,255,255,.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-cplay{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
-.hx-cplay svg{width:18px;height:18px;margin-left:2px}
-.hx-open:focus-visible{outline:none}.hx-open:focus-visible .hx-cap{box-shadow:0 0 0 2px #fff}
+/* One line, no panel (owner, 27 Sep 2026: "small, on one line … the picture
+   should be larger … a small play button at the end … transparent"). The tag,
+   the title and a 28 px play sit on a single row straight on the picture; a
+   soft text shadow and the scrim below keep it readable on light thumbnails.
+   The channel and minutes line is gone from the picture — the button's
+   aria-label still names the clip. */
+.hx-cap{flex:1;min-width:0;min-height:28px;display:flex;flex-direction:row;align-items:center;gap:7px;padding:0;background:none;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.8),0 0 6px rgba(0,0,0,.45)}
+.hx-ctag{flex:none;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
+.hx-ctag i{font-style:normal;padding:1px 6px;border-radius:99px;background:#fcd34d;color:#1b1202;letter-spacing:.06em;text-shadow:none}
+.hx-cap b{flex:1;min-width:0;font-size:13.5px;line-height:1.3;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-cap small{display:none}
+.hx-cplay{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;box-shadow:0 3px 10px -3px rgba(0,0,0,.6)}
+.hx-cplay svg{width:12px;height:12px;margin-left:1px}
+.hx-open:focus-visible{outline:none}.hx-open:focus-visible .hx-cap{outline:2px solid #fff;outline-offset:4px;border-radius:6px}
 @keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
 .hx-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 52%,color-mix(in srgb,var(--card) 70%,transparent) 80%,var(--card) 100%)}
 .hx-top{position:absolute;top:0;left:0;right:0;z-index:3;pointer-events:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px}
@@ -10911,6 +10917,13 @@ function homeRows(heroCid){
 const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
 /* the row's own mark: what kind of evidence it rests on */
 const HOME_ROWKIND_ICON={watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
+/* every card that has no video shows the page it opens (owner, 27 Sep 2026: "where there is no
+   picture, a screenshot of that feature"). home-shots/*.jpg are 16:9 clips of the app's own pages
+   from the demo learner "Alex" (tests/home-shots.mjs): a lesson day, the word list, trouble words,
+   Phrase Lab, Practice Partner and the AI coach's scenarios. */
+const HOME_SHOT={session:"session",words:"vocab",trouble:"trouble",phrases:"phrases",partner:"partner",ai:"ai",
+  lesson:"session",comeback:"session",done:"session",placement:"session",foundations:"session",shadow:"trouble",partner_now:"partner",partner_streak:"partner",ai_coach:"ai",challenge:"trouble",roleplay:"ai"};
+function homeShot(k){return HOME_SHOT[k]?`home-shots/${HOME_SHOT[k]}.jpg`:""}
 function homeItemLine(it){
   switch(it.type){
     case "challenge":return t("home.it_challenge");
@@ -10939,8 +10952,10 @@ function homeRowKey(r){
   return k;
 }
 function homeRowCardHTML(r,it,i){
-  const img=it.vid?`<img src="https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`
-    :it.type==="roleplay"&&(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})()?`<img src="rp-photos/${esc(rpPhotoKey({id:it.cid,persona:it.persona}))}.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:"";
+  /* a clip shows its thumbnail, a role-play its character's portrait, anything else the page it opens */
+  const rp=it.type==="roleplay"?(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})():null;
+  const src=it.vid?`https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg`:rp?`rp-photos/${esc(rp)}.jpg`:homeShot(it.type);
+  const img=src?`<img src="${src}" alt="" loading="lazy" decoding="async"${it.vid||rp?"":' class="hx-shot"'} onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
   return `<button class="hx-rcard" data-type="${esc(it.type)}" data-cid="${esc(it.cid||"")}"${it.vid?` data-vid="${esc(it.vid)}"`:""} onclick="homeRecOpen('${esc(r.id)}',${i})">
     <span class="hx-rimg${img?"":" none"}">${img}<span class="hx-ric">${ic(HOME_ROW_ICON[it.type]||"play")}</span>${it.type==="challenge"?`<span class="hx-rtag">${esc(t("home.it_challenge_tag"))}</span>`:""}${dur}</span>
@@ -11066,7 +11081,7 @@ function homeHighlights(card,rows,seed){
   const add=(vid,tag)=>{if(!vid||used.has(vid))return;used.add(vid);const x=V[vid]||{};out.push({vid,tag,title:x.title||"",ch:x.ch||"",dur:x.dur||0,up:x.up||"",cat:catOf[vid]||""})};
   const first=homeVisuals(card).find(v=>v.vid);
   if(first){add(first.vid,"plan");if(!V[first.vid]&&first.title)out[0].title=first.title}
-  if(!c)return out;
+  if(!c){if(!out.length&&homeShot(card.kind))out.push({photo:homeShot(card.kind)});return out}
   const skip=new Set(),seen=new Set();
   (rows||[]).forEach(r=>(r.items||[]).forEach(it=>{if(it&&it.vid)skip.add(it.vid)}));
   try{[].concat(aList("clips"),aList("chHist")).forEach(x=>{if(x&&x.vid)seen.add(x.vid)})}catch(e){}
@@ -11183,8 +11198,8 @@ function homeDestHTML(top,cards,vis){
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
   const D={
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?`https://i.ytimg.com/vi/${esc(firstVid)}/hqdefault.jpg`:""},
-    partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"rp-photos/partner.jpg"}:null,
-    phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"rp-photos/standup.jpg"},
+    partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:homeShot("partner")}:null,
+    phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:homeShot("phrases")},
     /* the app's own pages as their pictures (owner, 27 Sep 2026): home-shots/*.jpg are 16:9 clips
        of the word list, the road map and the progress calendar (tests/home-shots.mjs) */
     practice:{ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-shots/vocab.jpg"},
