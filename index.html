@@ -1431,6 +1431,20 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-dcard.rec{border-color:color-mix(in srgb,var(--acc) 40%,var(--line2))}
 /* "Because you…" rows: a swipe row on the phone, a three-up grid from 700 px */
 .hx-rows{margin:0 0 24px}
+/* the eight "Because you…" rows (owner, 27 Sep 2026): the first row is the strongest signal and
+   leads — larger cards, its evidence named in a gold label; the rest are compact. */
+.hx-row-kick{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold,var(--acc))}
+.hx-row-kick svg{width:14px;height:14px}
+.hx-row-h .hx-row-ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);margin-top:1px}
+.hx-row-h .hx-row-ic svg{width:16px;height:16px}
+.hx-row-tx{flex:1;min-width:0}
+.hx-row-lead{padding:16px 0 4px;border-top:1px solid var(--line2)}
+.hx-row-lead .hx-row-h h3{font-size:20px}
+.hx-row-lead .hx-row-h .hx-row-ic{display:none}
+.hx-row-lead .hx-rcard{flex-basis:min(84%,320px)}
+.hx-row-lead .hx-rbody b{font-size:15.5px}
+.hx-row:not(.hx-row-lead) .hx-rcard{flex-basis:min(58%,220px)}
+.hx-row:not(.hx-row-lead) .hx-rbody b{font-size:13.5px}
 .hx-row{margin:0 0 22px}
 .hx-row-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 10px}
 .hx-row-h h3{font-size:17px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
@@ -5697,7 +5711,7 @@ function areaDayLog(){return areaBucket("dayLogA")}
      gram   — the drill categories themselves are track-specific;
      quizHist — the vocabulary it quizzes is already per-area. */
 const AREA_MAPS={phMaster:"phMasterA",phExample:"phExampleA",gram:"gramA",svCh:"svChA",svPref:"svPrefA"};   // svPref: the Shadow card's Translate / Pronunciation switches ({tr,ipa}), General English only in practice — Welding never renders the card
-const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA"};   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ shOwnCap()
+const AREA_LISTS={clips:"clipsA",quizHist:"quizHistA",shOwn:"shOwnA",exRep:"exRepA",chHist:"chHistA",watched:"watchedA"};   // watched: clips that actually PLAYED in the studio ({vid,title,ts,secs}, newest first, SH_WATCH_MAX) — the only evidence "Because you watched…" may quote   // chHist: the last SV_CH_HIST_MAX Challenge attempts (line, verdict, issues, drills), newest first   // exRep: the last few Executive Polish reports (numbers + the coach's notes), newest first   // shOwn: the learner's own YouTube videos (link + pasted transcript), ≤ shOwnCap()
 function aMap(f){return areaBucket(AREA_MAPS[f])}
 function aList(f,area){const box=S[AREA_LISTS[f]]||(S[AREA_LISTS[f]]={});const a=area||areaId();return box[a]||(box[a]=[])}   /* area: name one explicitly when the write must land where the work STARTED (a Polish minute analysed after the learner switched programme) */
 /* Across every area at once. For questions about the ACCOUNT rather than about
@@ -6432,18 +6446,11 @@ const I18N_EN={
  "home.start_btn":"Start today's 25-minute session →",
  "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening",
  "home.rows_aria":"Recommended for you",
- "home.bc_challenge_done":"Because you completed the Challenge on \u201c{{title}}\u201d","home.bc_challenge_done_s":"Three more clips at that level \u2014 each opens straight in the Challenge.",
- "home.bc_shadowed":"Because you shadowed \u201c{{title}}\u201d","home.bc_shadowed_s":"Clips on the same subject, ready to shadow line by line.",
- "home.bc_opened":"Because you opened \u201c{{title}}\u201d","home.bc_opened_s":"Clips on the same subject, ready to shadow line by line.",
- "home.bc_trouble":"Because you had trouble with {{words}}","home.bc_trouble_s":"Hear the words in real speech, then drill them until they come out clean.",
- "home.bc_week_done":"Because you completed Week {{n}}","home.bc_week_done_s":"Next on your road map \u2014 {{theme}} \u2014 and the tools for it.",
- "home.bc_phrases":"Because you mastered {{n}} expressions","home.bc_phrases_s":"Put them to work, and hear more of them in real conversations.",
- "home.bc_partner_done":"Because you practised with a partner this week","home.bc_partner_done_s":"Keep the conversation going while it is fresh.",
- "home.bc_start":"Start here \u2014 your Week 1 path","home.bc_start_s":"{{theme}}: the first session, a first clip to shadow and more voices to copy.",
+ "home.bc_watched":"Because you watched \u201c{{title}}\u201d","home.bc_watched_s":"More on the same subject, and from the same voice.","home.bc_practiced_shadow":"Because you practised \u201c{{title}}\u201d","home.bc_practiced_shadow_s":"Take that clip into the Challenge, then the next voices at that level.","home.bc_practiced_challenge":"Because you passed the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_s":"More clips at that level. Each one opens straight in the Challenge.","home.bc_practiced_challenge_try":"Because you took the Challenge on \u201c{{title}}\u201d","home.bc_practiced_challenge_try_s":"Finish it, then try the next clips at that level.","home.bc_practiced_session":"Because you practised {{focus}}","home.bc_practiced_session_s":"The next session, and the clips and conversation that build on it.","home.bc_feedback_words":"Because your feedback on \u201c{{title}}\u201d flagged {{words}}","home.bc_feedback_words_s":"Hear those words in real speech, then take the line again.","home.bc_feedback_words_x":"Because your feedback on \u201c{{title}}\u201d named words to fix","home.bc_feedback_words_x_s":"Hear them in real speech, then take the line again.","home.bc_feedback_pron":"Because your pronunciation feedback flagged {{words}}","home.bc_feedback_pron_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_pron_x":"Because your pronunciation feedback showed sounds to work on","home.bc_feedback_pron_x_s":"Clear voices to copy, and your trouble words in real speech.","home.bc_feedback_fluency":"Because your speaking report showed fillers and hesitations","home.bc_feedback_fluency_s":"Speakers who pause instead of filling. Copy their rhythm.","home.bc_feedback_expressions":"Because your speaking report suggested {{words}}","home.bc_feedback_expressions_s":"This week's expressions, and clips that use language like it.","home.bc_struggled_challenge":"Because you struggled with the Challenge on \u201c{{title}}\u201d","home.bc_struggled_challenge_s":"It reopens one step easier. Shorter clips at that level help too.","home.bc_struggled_words":"Because you struggled with {{words}}","home.bc_struggled_words_s":"Hear the words in real speech, then drill them until they come out clean.","home.bc_saved_words":"Because you saved {{words}}","home.bc_saved_words_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_words_x":"Because you saved {{n}} words","home.bc_saved_words_x_s":"Review them while they are fresh, then use them in this week's expressions.","home.bc_saved_clips":"Because you saved \u201c{{title}}\u201d","home.bc_saved_clips_s":"Pick up your saved clip, then put its language to work.","home.bc_learning_new":"Start here: your Week 1 learning path","home.bc_learning_new_s":"{{theme}}. The first session, a first voice to shadow and the week's expressions.","home.bc_learning_week":"Because you're working on Week {{n}}: {{theme}}","home.bc_learning_week_s":"This week's session, its clip, its expressions and a conversation to try.","home.bc_learning_week_done":"Because you finished Week {{done}}","home.bc_learning_week_done_s":"Week {{n}} starts here: {{theme}}.","home.bc_partner_partner":"Because you practised with a partner","home.bc_partner_partner_s":"Keep the conversation going while it is fresh.","home.bc_partner_live":"Because you practised live with a partner","home.bc_partner_live_s":"Keep the conversation going while it is fresh.","home.bc_partner_ai":"Because you practised with the AI coach","home.bc_partner_ai_s":"Try it with a person next, or go again with the coach.","home.bc_partner_roleplay":"Because you practised \u201c{{title}}\u201d with {{persona}}","home.bc_partner_roleplay_s":"Go again, or try the next conversation on the same subject.","home.bc_inactive_days":"Because you haven't practised for {{n}} days","home.bc_inactive_days_s":"Five minutes is enough to restart. One step, one short clip, one conversation.","home.bc_inactive_speaking":"Because you haven't practised speaking for {{n}} days","home.bc_inactive_speaking_s":"Say something out loud today. A short clip or a quick conversation is enough.","home.bc_level":"Recommended for your level","home.bc_level_s":"Clear, well-paced voices to shadow first.","home.row_lead":"Your strongest signal","home.row_lead_start":"Start here","home.it_saved_clip":"Your saved clip","home.it_words_saved":"{{n}} words saved","home.it_words_saved_t":"Review your saved words","home.it_phrases_w":"Phrase Lab \u00b7 Week {{w}}","home.it_phrases_wt":"Week {{w}}'s expressions","home.it_roleplay":"Conversation \u00b7 {{persona}}",
  "home.it_challenge":"Shadow Challenge","home.it_challenge_tag":"Challenge","home.it_video":"Shadow this clip","home.it_external":"YouTube",
  "home.it_trouble":"Shadow Studio","home.it_trouble_t":"Your trouble words, in real speech",
  "home.it_words":"{{n}} words due","home.it_words_t":"Review the words",
- "home.it_session":"Week {{w}} \u00b7 {{d}}","home.it_phrases":"Phrase Lab","home.it_phrases_t":"Use your expressions",
+ "home.it_session":"Week {{w}} \u00b7 {{d}}",
  "home.it_partner":"Practice Partner","home.it_partner_t":"Practise with a partner","home.it_ai":"AI coach","home.it_ai_t":"Practise with the AI coach",
  "home.row_hide":"Not now","home.row_hide_aria":"Hide this row for a week","home.rec_for_you":"Recommended for you","home.also_for_you":"Also for you","home.start":"Start","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
  "home.pct_of":"of 84 sessions",
@@ -10875,75 +10882,125 @@ let _homeRows=[];
 function homeContent(){
   const videos={};
   try{if(_shCat&&_shCat.videos){const cats={};(_shCat.categories||[]).forEach(c=>(c.vids||[]).forEach(v=>{cats[v]=cats[v]||c.id}));
-    Object.keys(_shCat.videos).forEach(v=>{const x=_shCat.videos[v]||{};videos[v]={title:x.title||"",cat:cats[v]||"",dur:x.dur||0,cap:x.cap||null}})}}catch(e){}
-  let weeks=[],starters=[];
+    Object.keys(_shCat.videos).forEach(v=>{const x=_shCat.videos[v]||{};videos[v]={title:x.title||"",cat:cats[v]||"",dur:x.dur||0,cap:x.cap||null,ch:x.ch||""}})}}catch(e){}
+  let weeks=[],starters=[],days=[],scenarios=[],missions={};
   try{weeks=trackWeeks().map(w=>({n:w.n,theme:w.theme||"",goal:w.goal||"",days:w.days||{}}))}catch(e){}
   try{starters=trackShadowStarters()}catch(e){}
-  return {videos,weeks,starters};
+  try{days=trackDays()}catch(e){}
+  try{scenarios=trackScenarios().map(x=>({id:x.id,title:x.title||"",persona:x.persona||"",cat:x.cat||""}))}catch(e){}
+  /* the week's own clip: the mission pack names one for six weeks (read as data — the missions stay hidden) */
+  try{const mp=curriculumOrEmpty().missions;((mp&&mp.competencies)||[]).forEach(c=>{if(c&&c.week&&c.shadow&&c.shadow.vid)missions[c.week]={vid:c.shadow.vid}})}catch(e){}
+  return {videos,weeks,starters,days,scenarios,missions};
 }
-function homeRows(){
+function homeRows(heroCid){
   if(!isGeneralEnglish()||!window.NudgeEngine||typeof NudgeEngine.rows!=="function")return [];
-  try{const hide=S.recHide||{},now=Date.now();
-    return NudgeEngine.rows(nudgeSignals(),homeContent()).filter(r=>!(hide[r.id]&&now-hide[r.id]<7*NUDGE_DAY))}catch(e){return []}
+  try{const hide=S.recHide||{},now=Date.now(),sig=nudgeSignals();sig.heroCid=heroCid||"";
+    return NudgeEngine.rows(sig,homeContent()).filter(r=>!(hide[r.id]&&now-hide[r.id]<7*NUDGE_DAY))}catch(e){return []}
 }
-const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic"};
+const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
+/* the row's own mark: what kind of evidence it rests on */
+const HOME_ROWKIND_ICON={watched:"play",practiced:"mic",feedback:"idea",struggled:"target",saved:"star",learning:"map",partner:"user",inactive:"clock",level:"star"};
 function homeItemLine(it){
   switch(it.type){
     case "challenge":return t("home.it_challenge");
-    case "video":return t("home.it_video");
+    case "video":return t(it.saved?"home.it_saved_clip":"home.it_video");
     case "trouble":return t("home.it_trouble");
-    case "words":return t("home.it_words",{n:it.n||0});
+    case "words":return it.saved?t("home.it_words_saved",{n:it.saved}):t("home.it_words",{n:it.n||0});
     case "session":return t("home.it_session",{w:it.w,d:homeDayName(it.d)});
-    case "phrases":return t("home.it_phrases");
+    case "phrases":return t("home.it_phrases_w",{w:it.w});
     case "partner":return t("home.it_partner");
     case "ai":return t("home.it_ai");
+    case "roleplay":return t("home.it_roleplay",{persona:it.persona||""});
   }
   return "";
 }
 function homeItemTitle(it){
-  if(it.title)return it.title;
-  return {trouble:t("home.it_trouble_t"),words:t("home.it_words_t"),phrases:t("home.it_phrases_t"),partner:t("home.it_partner_t"),ai:t("home.it_ai_t")}[it.type]||"";
+  if(it.title)return NudgeEngine.clipTitle?NudgeEngine.clipTitle(it.title):it.title;
+  if(it.type==="words")return t(it.saved?"home.it_words_saved_t":"home.it_words_t");
+  if(it.type==="phrases")return t("home.it_phrases_wt",{w:it.w});
+  return {trouble:t("home.it_trouble_t"),partner:t("home.it_partner_t"),ai:t("home.it_ai_t")}[it.type]||"";
+}
+/* the heading and its line: home.bc_<row>_<variant>, with the _x form when the row has no words to quote */
+function homeRowKey(r){
+  let k="home.bc_"+r.id+(r.variant?"_"+r.variant:"");
+  if(!I18N_EN[k])k="home.bc_"+r.id;
+  if(r.vars&&r.vars.words===""&&I18N_EN[k+"_x"])k+="_x";
+  return k;
 }
 function homeRowCardHTML(r,it,i){
-  const img=it.vid?`<img src="https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:"";
+  const img=it.vid?`<img src="https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`
+    :it.type==="roleplay"&&(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})()?`<img src="rp-photos/${esc(rpPhotoKey({id:it.cid,persona:it.persona}))}.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
-  return `<button class="hx-rcard" data-type="${esc(it.type)}"${it.vid?` data-vid="${esc(it.vid)}"`:""} onclick="homeRecOpen('${esc(r.id)}',${i})">
+  return `<button class="hx-rcard" data-type="${esc(it.type)}" data-cid="${esc(it.cid||"")}"${it.vid?` data-vid="${esc(it.vid)}"`:""} onclick="homeRecOpen('${esc(r.id)}',${i})">
     <span class="hx-rimg${img?"":" none"}">${img}<span class="hx-ric">${ic(HOME_ROW_ICON[it.type]||"play")}</span>${it.type==="challenge"?`<span class="hx-rtag">${esc(t("home.it_challenge_tag"))}</span>`:""}${dur}</span>
     <span class="hx-rbody"><small>${esc(homeItemLine(it))}${it.external?` · ${esc(t("home.it_external"))}`:""}</small><b>${esc(homeItemTitle(it))}</b></span>
   </button>`;
 }
+/* The first row is the strongest current signal and is drawn as the lead: larger cards, its
+   evidence named in a label. The others are compact. Not all sections are equal. */
 function homeRowsHTML(rows){
   if(!rows||!rows.length)return "";
-  return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map(r=>`
-    <div class="hx-row" data-row="${esc(r.id)}">
-      <div class="hx-row-h"><div><h3>${esc(t("home.bc_"+r.id,r.vars||{}))}</h3><p>${esc(t("home.bc_"+r.id+"_s",r.vars||{}))}</p></div>
+  return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
+    <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
+      ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx"><h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p></div>
         <button class="hx-row-hide" onclick="homeRecHide('${esc(r.id)}')" aria-label="${esc(t("home.row_hide_aria"))}">${esc(t("home.row_hide"))}</button></div>
       <div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>
-    </div>`).join("")}</section>`;
+    </div>`}).join("")}</section>`;
 }
-/* analytics: counts and fixed enums only — the row kind, its reason, the item type,
-   the area and the curriculum position. General English only (the rows do not exist elsewhere). */
+/* analytics: recommendation_impression / _open / _started / _completed / _dismissed. Fixed
+   enums and public content ids only — the row type, its variant, its reason, the content id
+   (a library video id, a session day like w3Tue, a scenario id, ph-w3, trouble, words-due,
+   partner, ai), the content type, the area and the curriculum position. Never a word, a
+   title or anything the learner said. General English only (the rows do not exist elsewhere). */
 function homeRecTrack(name,props){try{if(!isGeneralEnglish())return;const p=currentPos();track(name,Object.assign({track:areaId(),week:String(p.w),day:String(p.d)},props||{}))}catch(e){}}
+function homeRecProps(r,it){return {kind:r.id,variant:String(r.variant||"").slice(0,24),reason:String(r.reason||"").slice(0,24),cid:String((it&&it.cid)||"").slice(0,24),to:(it&&it.type)||"",n:String(r.items.length)}}
 function homeRecImpress(rows){
   homeRecImpress._seen=homeRecImpress._seen||{};
-  (rows||[]).forEach(r=>{const k=r.id+":"+(r.seed||"")+":"+new Date().toISOString().slice(0,10);if(homeRecImpress._seen[k])return;homeRecImpress._seen[k]=1;
-    homeRecTrack("rec_impression",{kind:r.id,reason:String(r.reason||"").slice(0,24),n:String(r.items.length)})});
+  (rows||[]).forEach((r,ri)=>{const k=r.id+":"+(r.seed||"")+":"+new Date().toISOString().slice(0,10);if(homeRecImpress._seen[k])return;homeRecImpress._seen[k]=1;
+    homeRecTrack("recommendation_impression",Object.assign(homeRecProps(r,r.items[0]),{rank:String(ri+1)}))});
 }
 window.homeRecOpen=(rid,i)=>{
   const r=_homeRows.find(x=>x.id===rid),it=r&&r.items[i];if(!it)return;
-  S.rec=S.rec||{};S.rec.opened={id:rid,type:it.type,at:Date.now(),started:false};save();
-  homeRecTrack("rec_open",{kind:rid,reason:String(r.reason||"").slice(0,24),to:it.type});
+  let phm=0;try{phm=Object.keys(aMap("phMaster")).filter(k=>aMap("phMaster")[k]).length}catch(e){}
+  S.rec=S.rec||{};S.rec.opened=Object.assign(homeRecProps(r,it),{id:rid,type:it.type,vid:it.vid||null,args:it.args||[],at:Date.now(),started:false,completed:false,phm});save();
+  homeRecTrack("recommendation_open",homeRecProps(r,it));
   try{nudgeGo({view:it.view,act:it.act,args:it.args||[],kind:it.type,challenge:!!it.challenge})}catch(e){}
 };
 window.homeRecHide=rid=>{
   const r=_homeRows.find(x=>x.id===rid);S.recHide=S.recHide||{};S.recHide[rid]=Date.now();save();
-  homeRecTrack("rec_dismissed",{kind:rid,reason:String(r&&r.reason||"").slice(0,24)});
+  if(r)homeRecTrack("recommendation_dismissed",homeRecProps(r,r.items[0]));
   _homeRows=_homeRows.filter(x=>x.id!==rid);
   const el=[...document.querySelectorAll(".hx-row")].find(e=>e.dataset.row===rid);if(el)el.remove();
+  const first=document.querySelector(".hx-row");if(first&&!first.classList.contains("hx-row-lead")){try{go("home")}catch(e){}}
   const sec=document.getElementById("hxRows");if(sec&&!sec.querySelector(".hx-row"))sec.remove();
 };
+/* recommendation_completed: the exact thing the card offered is now done — read from the
+   learner state itself, never assumed from a tap. Checked after every practice action and
+   on every Home visit, within 24 h of the tap. */
+function homeRecDoneNow(o){
+  const since=o.at-60000,vid=o.vid;
+  try{switch(o.type){
+    case "session":return !!S.days[dayKey(+o.args[0],String(o.args[1]))];
+    case "challenge":return aList("chHist").some(x=>x&&x.vid===vid&&/^ch/.test(x.kind||"")&&x.pass&&x.ts>=since);
+    case "video":return aList("chHist").some(x=>x&&x.vid===vid&&x.ts>=since)||aList("watched").some(x=>x&&x.vid===vid&&x.ts>=since&&(x.secs||0)>=60);
+    case "trouble":return aList("chHist").some(x=>x&&x.kind==="shadow"&&x.ts>=since);
+    case "words":return !!o.wordsDone;
+    case "phrases":return Object.keys(aMap("phMaster")).filter(k=>aMap("phMaster")[k]).length>(o.phm||0);
+    case "roleplay":return areaConvos().some(x=>x&&x.id===o.args[0]&&(x.ts||0)>=since);
+    case "partner":case "ai":return ppHist().some(e=>(e.kind==="session"||e.kind==="live"||e.kind==="ai")&&e.complete!==false&&(e.ts||0)>=since&&(o.type!=="ai"||e.kind==="ai"));
+  }}catch(e){}
+  return false;
+}
+function homeRecCheckDone(){
+  const o=S.rec&&S.rec.opened;if(!o||o.completed||!isGeneralEnglish())return;if(Date.now()-o.at>NUDGE_DAY)return;
+  if(!homeRecDoneNow(o))return;
+  o.completed=true;save();
+  homeRecTrack("recommendation_completed",{kind:o.kind||o.id,variant:o.variant||"",reason:o.reason||"",cid:o.cid||"",to:o.type,n:o.n||""});
+}
+window.homeRecWordsDone=()=>{const o=S.rec&&S.rec.opened;if(o&&o.type==="words"&&!o.completed){o.wordsDone=true;save();homeRecCheckDone()}};
 /* the first practice action within two hours of opening a recommendation */
-function homeRecPracticed(){const o=S.rec&&S.rec.opened;if(!o||o.started||!isGeneralEnglish())return;if(Date.now()-o.at>2*3600000)return;o.started=true;save();homeRecTrack("rec_started",{kind:o.id,to:o.type})}
+function homeRecPracticed(){setTimeout(()=>{try{homeRecCheckDone()}catch(e){}},0);const o=S.rec&&S.rec.opened;if(!o||o.started||!isGeneralEnglish())return;if(Date.now()-o.at>2*3600000)return;o.started=true;save();homeRecTrack("recommendation_started",{kind:o.kind||o.id,variant:o.variant||"",reason:o.reason||"",cid:o.cid||"",to:o.type,n:o.n||""})}
 /* "Mon" → the learner's own weekday name (2024-01-01 was a Monday) */
 function homeDayName(d){const i=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].indexOf(d);if(i<0)return d;try{return new Date(2024,0,1+i).toLocaleDateString((S.profile&&S.profile.lang)||"en",{weekday:"long"})}catch(e){return d}}
 /* a small greeting inside the hero — the name never competes with the next step */
@@ -11086,9 +11143,13 @@ function homeDestHTML(top,cards,vis){
 function rHomeV2(el){
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   const gate=homeGateCard();
-  _homeRecs=gate?[]:homeRecs();_homeRows=gate?[]:homeRows();
+  _homeRecs=gate?[]:homeRecs();
   const cards=_homeRecs.map(homeCard);
   const top=gate||cards[0]||homeDoneCard();
+  /* the hero is the primary recommendation; the rows never repeat what it already offers */
+  const heroCid=top.kind==="lesson"||top.kind==="comeback"?"w"+top.w+top.d:(top.vid||"");
+  _homeRows=gate?[]:homeRows(heroCid);
+  try{homeRecCheckDone()}catch(e){}
   const draw=()=>{
     const vis=homeVisuals(top);
     el.innerHTML=`
@@ -11110,7 +11171,9 @@ function rHomeV2(el){
   draw();
   /* the library index gives the pictures and the rows' clips; it is usually cached — when
      it lands, the page is drawn again (same boxes, fixed ratios: nothing moves) */
-  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")&&_shCat){_homeRows=gate?[]:homeRows();draw()}}).catch(()=>{})}catch(e){}
+  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")&&_shCat){_homeRows=gate?[]:homeRows(heroCid);draw()}}).catch(()=>{})}catch(e){}
+  /* the role-play photos: the manifest says which exist, so a card never asks for a missing file */
+  if(typeof RP_PHOTOS!=="undefined"&&RP_PHOTOS===null&&_homeRows.some(r=>r.items.some(it=>it.type==="roleplay")))try{rpLoadPhotos().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxRows"))draw()})}catch(e){}
 }
 
 function rHomeGeneral(el){
@@ -13304,11 +13367,29 @@ function shPosterShow(vid){
   _shPosterW=setInterval(()=>{if(_shPosterGone){clearInterval(_shPosterW);return}try{const st=ytPlayer&&ytPlayer.getPlayerState&&ytPlayer.getPlayerState();if(st===1||st===3)shPosterHide()}catch(e){}},300);
 }
 function shPosterHide(){_shPosterGone=true;clearInterval(_shPosterW);const box=document.getElementById("ytPoster");if(box)box.classList.remove("on")}
+/* ---- verified watching. "Because you watched…" may only quote a clip that
+   actually played: the seconds are counted from the player's own clock while it
+   reports PLAYING, kept per area in aList("watched") (newest first, one entry
+   per clip, written at most every 5 s). Opening a clip is not watching it. */
+const SH_WATCH_MAX=30;let _shWatch=null;
+function shWatchTick(t){
+  try{
+    if(!shClip||!shClip.vid||!ytPlayer||ytPlayer.getPlayerState()!==1)return;
+    if(!_shWatch||_shWatch.vid!==shClip.vid)_shWatch={vid:shClip.vid,last:t,pend:0};
+    const d=t-_shWatch.last;_shWatch.last=t;if(d<=0||d>3)return;        /* a seek or a pause is not watching */
+    _shWatch.pend+=d;if(_shWatch.pend<5)return;
+    const add=_shWatch.pend;_shWatch.pend=0;
+    const L=aList("watched"),i=L.findIndex(x=>x&&x.vid===shClip.vid),prev=i>=0?L.splice(i,1)[0]:null;
+    L.unshift({vid:shClip.vid,title:shClip.title||(prev&&prev.title)||shClip.vid,ts:Date.now(),secs:Math.round(((prev&&prev.secs)||0)+add)});
+    if(L.length>SH_WATCH_MAX)L.length=SH_WATCH_MAX;save();
+  }catch(e){}
+}
 function shStartTick(){
   clearInterval(shTick);
   shTick=setInterval(()=>{
     if(!ytPlayer||!ytPlayer.getCurrentTime)return;
     let t=0;try{t=ytPlayer.getCurrentTime()}catch(_){return}
+    shWatchTick(t);
     const now=document.getElementById("shNow");if(now)now.textContent=fmtT(t);
     if(shCounting){
       const c=document.getElementById("shCount");
@@ -15425,23 +15506,73 @@ function nudgeSignals(){
       daysSincePartner:lastP?Math.floor((now-lastP)/NUDGE_DAY):null};
     sig.aiCoach=ppAvailable()&&flag("practice_partner_ai_fallback_enabled");
   }catch(e){}
-  /* Home's "Because you…" rows read only what the learner actually did (NudgeEngine.rows):
-     the newest recorded take and the newest passed Challenge (chHist), the clip left open
-     (lastClip — "opened", never "watched"), every clip already seen (offered again never),
-     the last whole week finished, expressions mastered in Phrase Lab, the last partner
-     session, and the trouble words on record. All per area, like everything else. */
+  /* Home's "Because you…" rows read only what the learner actually did (NudgeEngine.rows),
+     per area like everything else. Each field is one of the eight row types' evidence:
+     watched (a clip that PLAYED ≥ 30 s — aList("watched"), never a clip merely opened),
+     practiced (the newest recorded Shadow take, Challenge attempt or session report),
+     feedback (the newest assessment that named a need: the Shadow report's words to fix,
+     a Challenge's issues, the Polish/session report's targets and fillers, a partner or AI
+     turn's weakest words), challengeFailed (a clip missed twice, not passed since),
+     trouble words (sig.troubleWords), saved (words in the vocabulary, clips saved in Shadow),
+     the curriculum position (sig.pos + weekDone), partner (a partner, live, AI or role-play
+     conversation) and speakAway (days since any speaking, only once there has been some). */
   try{
-    const hist=aList("chHist").filter(x=>x&&x.vid&&/^[A-Za-z0-9_-]{11}$/.test(x.vid));
-    const cp=hist.find(x=>/^ch/.test(x.kind||"")&&x.pass),rec=hist[0]||null,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
+    const area=areaId(),DAYMS=NUDGE_DAY,okVid=v=>/^[A-Za-z0-9_-]{11}$/.test(String(v||""));
+    const hist=aList("chHist").filter(x=>x&&okVid(x.vid));
+    const lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
     let weekDoneN=0;try{const n=trackDays().length;trackWeeks().forEach(w=>{if(weekDone(w.n)>=n&&w.n===weekDoneN+1)weekDoneN=w.n})}catch(e){}
-    let partnerAt=null;try{const e=ppHist().find(x=>["session","live","ai"].includes(x.kind));partnerAt=e?e.ts:null}catch(e){}
-    let phrasesMastered=0;try{phrasesMastered=Object.keys(aMap("phMaster")).filter(k=>aMap("phMaster")[k]).length}catch(e){}
+    /* session reports (the Record-yourself card on a session day), this area only */
+    const reps=[];try{Object.keys(S.notes||{}).forEach(k=>{const r=S.notes[k],m=/^exrep:w(\d+)(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$/.exec(k);if(m&&r&&r.m&&r.kind!=="conversation"&&(!r.tk||r.tk===area))reps.push({w:+m[1],d:m[2],at:r.at||0,r})})}catch(e){}
+    reps.sort((x,y)=>y.at-x.at);
+    const polish=(()=>{try{return aList("exRep").filter(r=>r&&r.m).sort((x,y)=>(y.at||0)-(x.at||0))[0]||null}catch(e){return null}})();
+    /* watched */
+    const wt=(()=>{try{return aList("watched").find(x=>x&&okVid(x.vid)&&(x.secs||0)>=30)||null}catch(e){return null}})();
+    /* practiced: the newest of a take, a Challenge attempt, a session report */
+    const cands=[];
+    const h0=hist[0];
+    if(h0)cands.push({kind:/^ch/.test(h0.kind||"")?"challenge":"shadow",ts:h0.ts||0,vid:h0.vid,title:h0.title||"",pass:!!h0.pass});
+    if(reps[0]){const wk=trackWeeks().find(x=>x.n===reps[0].w)||{},dd=(wk.days||{})[reps[0].d]||{};cands.push({kind:"session",ts:reps[0].at,w:reps[0].w,d:reps[0].d,focus:dd.focus||wk.theme||""})}
+    cands.sort((x,y)=>y.ts-x.ts);
+    const practiced=cands[0]||null;
+    /* feedback: the newest assessment that named something to work on */
+    const fbs=[];
+    const shRep=hist.find(x=>x.kind==="shadow"&&Array.isArray(x.fix)&&x.fix.length);
+    if(shRep)fbs.push({need:"words",src:"shadow",ts:shRep.ts,vid:shRep.vid,title:shRep.title,words:shRep.fix.slice(0,3)});
+    const chRep=hist.find(x=>x.kind==="challenge"&&!x.pass&&Array.isArray(x.issues)&&x.issues.length);
+    if(chRep){const ws=chRep.issues.map(i=>String(i.text||"").trim()).filter(w=>w&&w.split(/\s+/).length<=2&&w.length<=24).slice(0,3);fbs.push({need:ws.length?"words":"pron",src:"challenge",ts:chRep.ts,vid:chRep.vid,title:chRep.title,words:ws})}
+    const repFb=[reps[0]&&reps[0].r,polish].filter(Boolean).sort((x,y)=>(y.at||0)-(x.at||0))[0];
+    if(repFb){const tg=(repFb.targets||[]).filter(Boolean),m=repFb.m||{};
+      if(tg.length)fbs.push({need:"expressions",src:repFb===polish?"polish":"session",ts:repFb.at||0,words:tg.slice(0,3)});
+      else if((m.fillerN||0)+(m.hedgeN||0)>=4)fbs.push({need:"fluency",src:repFb===polish?"polish":"session",ts:repFb.at||0,words:[]})}
+    try{const pe=ppHist().find(e=>Array.isArray(e.turns)&&e.turns.some(tn=>tn.weak&&tn.weak.length));
+      if(pe){const ws=[...new Set(pe.turns.flatMap(tn=>(tn.weak||[]).map(w=>w.word)))].slice(0,3);fbs.push({need:"pron",src:pe.kind==="ai"?"ai":"partner",ts:pe.ts||0,words:ws})}}catch(e){}
+    fbs.sort((x,y)=>y.ts-x.ts);
+    /* challengeFailed: the newest Challenge clip with ≥ 2 misses and no pass since */
+    let challengeFailed=null;
+    {const byVid={};for(const x of hist){if(!/^ch/.test(x.kind||""))continue;const v=byVid[x.vid]||(byVid[x.vid]={vid:x.vid,title:x.title||"",ts:x.ts||0,fails:0,passed:false,done:false});
+      if(v.done)continue;if(x.pass){v.passed=true;v.done=true;continue}v.fails++}
+     challengeFailed=Object.values(byVid).filter(v=>!v.passed&&v.fails>=2).sort((x,y)=>y.ts-x.ts)[0]||null}
+    /* saved */
+    const voc=(()=>{try{const V=areaVocab();return Object.keys(V).map(w=>[w,(V[w]&&V[w].ts)||0]).sort((a,b)=>b[1]-a[1])}catch(e){return []}})();
+    const clips=(()=>{try{return aList("clips").filter(x=>x&&okVid(x.vid)).slice(0,3).map(x=>({vid:x.vid,title:x.title||"",start:x.start||0,end:x.end||0}))}catch(e){return []}})();
+    /* partner: a partner session, a live call, the AI coach, or a role-play conversation */
+    const pcs=[];
+    try{const e=ppHist().find(x=>["session","live","ai"].includes(x.kind));if(e)pcs.push({kind:e.kind==="session"?"partner":e.kind,ts:e.ts||0,name:e.partner||""})}catch(e){}
+    try{const cv=areaConvos().filter(x=>x&&x.id&&(x.turns||0)>=1).sort((x,y)=>(y.ts||0)-(x.ts||0))[0];if(cv){const sc=rpById(cv.id)||{};pcs.push({kind:"roleplay",ts:cv.ts||0,sid:cv.id,title:sc.title||cv.title||"",persona:sc.persona||"",cat:cv.cat||sc.cat||""})}}catch(e){}
+    pcs.sort((x,y)=>y.ts-x.ts);
+    const partner=pcs[0]?Object.assign({topic:(sig.pos&&sig.pos.topic)||""},pcs[0]):null;
+    /* speakAway: days since the newest speaking evidence of any kind */
+    const lastSpeak=Math.max(0,...[h0&&h0.ts,reps[0]&&reps[0].at,polish&&polish.at,pcs[0]&&pcs[0].ts].filter(Boolean));
     sig.recent={
-      challengePassed:cp?{vid:cp.vid,title:cp.title||"",ts:cp.ts||0}:null,
-      shadowed:rec?{vid:rec.vid,title:rec.title||"",ts:rec.ts||0,recorded:true}:(lc?{vid:lc.vid,title:lc.title||"",ts:now,recorded:false}:null),
-      seen:[...new Set(hist.map(x=>x.vid).concat(aList("clips").map(x=>x&&x.vid).filter(Boolean),lc?[lc.vid]:[]))].slice(0,300),
-      weekDone:weekDoneN,phrasesMastered,partnerAt};
-    sig.troubleWords=Object.keys(troubleMap()).map(w=>[w,(troubleMap()[w]||{}).n||0]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3).map(x=>x[0]);
+      watched:wt?{vid:wt.vid,title:wt.title||"",ts:wt.ts||0,secs:wt.secs||0}:null,
+      practiced,feedback:fbs[0]||null,challengeFailed,
+      challengePassed:(()=>{const c=hist.find(x=>/^ch/.test(x.kind||"")&&x.pass);return c?{vid:c.vid,title:c.title||"",ts:c.ts||0}:null})(),
+      saved:{words:voc.length,newest:voc.slice(0,3).map(x=>x[0]),clips},
+      partner,weekDone:weekDoneN,
+      speakAway:lastSpeak?Math.floor((now-lastSpeak)/DAYMS):0,
+      any:!!(hist.length||reps.length||polish||wt||voc.length||clips.length||pcs.length||weekDoneN||Object.keys(S.days||{}).some(k=>S.days[k])),
+      seen:[...new Set(hist.map(x=>x.vid).concat(aList("clips").map(x=>x&&x.vid).filter(Boolean),aList("watched").map(x=>x&&x.vid).filter(Boolean),lc?[lc.vid]:[]))].slice(0,300)};
+    sig.troubleWords=Object.keys(troubleMap()).map(w=>{const v=troubleMap()[w];return [w,(v&&v.n)||Number(v)||0]}).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3).map(x=>x[0]);
   }catch(e){}
   return sig;
 }
@@ -15529,19 +15660,24 @@ function nudgeGo(r){
     if(r.view==="session"&&r.args&&r.args.length===2){go("session",Number(r.args[0]),String(r.args[1]));return true}
     if(r.view==="practice"){go("practice");if(r.act==="study-due")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(r.view==="shadow"){go("shadow");
-      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>nudgeClip(String(r.args[0]),r.kind==="challenge"||r.challenge===true),400);
+      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>nudgeClip(String(r.args[0]),r.kind==="challenge"||r.challenge===true,+r.args[1]||0,+r.args[2]||0),400);
       else if(r.act==="trouble")setTimeout(()=>{try{shTab("trouble");nudgeTroubleShow()}catch(e){}},300);
       return true}
     if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
     if(r.view==="phrases"){go("phrases");return true}
+    /* a week's expressions: the phrase bank on that exact week */
+    if(r.view==="phrasebank"){go("phrasebank",Number(r.args&&r.args[0])||currentPos().w);return true}
+    /* a role-play scenario: that exact conversation */
+    if(r.view==="roleplay"&&r.args&&r.args[0]&&typeof rpById==="function"&&rpById(String(r.args[0]))){go("roleplay",String(r.args[0]));return true}
   }catch(e){}
   return false;
 }
 /* a Challenge nudge opens that clip IN the Challenge, not in Watch: the
    notification asked for a challenge round. The line list comes with the
    captions, so wait for it (up to 8 s); without it the clip stays in Watch. */
-async function nudgeClip(vid,challenge){
-  try{const h=aList("chHist").find(x=>x&&x.vid===vid);await shLoad({vid,start:0,end:0,title:h&&h.title||""})}catch(e){return}
+async function nudgeClip(vid,challenge,start,end){
+  try{const h=aList("chHist").find(x=>x&&x.vid===vid),sv=aList("clips").find(x=>x&&x.vid===vid&&(x.start||0)===(start||0)),cat=_shCat&&_shCat.videos&&_shCat.videos[vid];
+    await shLoad({vid,start:start||0,end:end||0,title:(h&&h.title)||(sv&&sv.title)||(cat&&cat.title)||""})}catch(e){return}
   if(!challenge)return;
   for(let i=0;i<40;i++){
     if(shClip&&shClip.vid!==vid)return;   /* the learner moved on */
@@ -18729,7 +18865,7 @@ function fcBackHTML(w,d){
 }
 window.fcFlip=()=>{const c=document.getElementById("fcCard");if(c)c.classList.toggle("flipped");};
 window.fcGrade=correct=>{if(!_fc)return;vocMark(_fc.words[_fc.i],correct);if(correct)_fc.know++;_fc.i++;fcRender();};
-function fcEnd(){pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
+function fcEnd(){try{homeRecWordsDone()}catch(e){}pvOpen(`<div class="pv-end"><div class="pv-end-ic">${ic("trophy")}</div><h2>${t("prac.done_title")}</h2><p>${t("prac.fc_summary",{know:_fc.know,total:_fc.words.length})}</p><div class="pv-actions"><button class="btn btn-g" onclick="fcStart()">${t("prac.again")}</button><button class="btn btn-p" onclick="pvClose()">${t("prac.done")}</button></div></div>`);}
 /* ---- Quizzes (multiple choice) ---- */
 let _qz=null;
 window.qzStart=()=>{const words=pvBucket();if(words.length<4)return toast(t("prac.quiz_need4"));_qz={words:words.sort(()=>Math.random()-.5),all:Object.keys(areaVocab()),i:0,score:0,correct:""};qzRender();};
@@ -29935,6 +30071,8 @@ function fbMerge(local,cloud){
   m.quizHistA=byAreaList(q=>q&&q.t)(local.quizHistA,cloud.quizHistA);
   m.exRepA=byAreaList(r=>r&&r.at)(local.exRepA,cloud.exRepA);
   m.chHistA=byAreaList(r=>r&&r.ts)(local.chHistA,cloud.chHistA);
+  m.watchedA=byAreaList(r=>r&&r.vid)(local.watchedA,cloud.watchedA);
+  Object.keys(m.watchedA||{}).forEach(a=>{m.watchedA[a].sort((x,y)=>(y.ts||0)-(x.ts||0));m.watchedA[a].length=Math.min(m.watchedA[a].length,SH_WATCH_MAX)});
   Object.keys(m.chHistA||{}).forEach(a=>{m.chHistA[a].sort((x,y)=>(y.ts||0)-(x.ts||0));m.chHistA[a].length=Math.min(m.chHistA[a].length,SV_CH_HIST_MAX)});
   /* the technical ceiling, never the plan: a merge must not cut a Premium history */
   Object.keys(m.exRepA||{}).forEach(a=>{m.exRepA[a].sort((x,y)=>(y.at||0)-(x.at||0));m.exRepA[a].length=Math.min(m.exRepA[a].length,exRepCeil(a))});

@@ -160,6 +160,17 @@ const EVENTS = new Set([
   // a row hidden. Every row carries track + week + day. Counts only — never
   // the clip, the word, the title or anything about the learner.
   "rec_impression", "rec_open", "rec_started", "rec_dismissed",
+  // Home recommendations, the eight-row model (owner, 27 Sep 2026; supersedes
+  // rec_*, which stays allowed so an old client's rows still land). Props:
+  // kind = the row type (watched | practiced | feedback | struggled | saved |
+  // learning | partner | inactive | level), variant (e.g. shadow, week_done),
+  // reason (e.g. trouble_words_2, inactive_4d), cid = the content id (a
+  // public library video id, a session day like w3Tue, a scenario id, ph-w3,
+  // trouble, words-due, partner, ai), to = the content type, n = cards in the
+  // row, rank = the row's place on Home, + track, week, day. Never a word, a
+  // title or anything the learner said.
+  "recommendation_impression", "recommendation_open", "recommendation_started",
+  "recommendation_completed", "recommendation_dismissed",
   // Advertising (Phase 8, Free tier only; AdManager in index.html). Counts and
   // fixed enums only: format (interstitial|native|rewarded|sponsored), context
   // (the natural break or placement id), reason (why an ad was suppressed),
@@ -212,10 +223,12 @@ const PROP_KEYS = new Set(["streak", "week", "day", "source", "lang", "result",
   // advertising: format, context, provider (reason and result are reused). Appended last.
   "format", "context", "provider",
   // Premium: the store product id (premium_monthly | premium_annual). Appended last.
-  "product"]);
+  "product",
+  // Home recommendations: the content id, the row variant, the row's rank. Appended last.
+  "cid", "variant", "rank"]);
 
 const MAX_VAL = 24;      // props are enums, not sentences
-const MAX_BODY = 512;
+const MAX_BODY = 640;   // 512 until 27 Sep 2026: three Home-recommendation keys (cid, variant, rank) pushed the every-key test body just past it; a real event is ~230 B
 
 /* ROW LAYOUT — Analytics Engine takes at most 20 blobs per data point
    (workerd analytics-engine.h: "20 text fields (blobs)"; docs → limits).
@@ -263,6 +276,8 @@ const LAYOUTS = [
   [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],
   // rec_* (Home rows) → blob3 kind, 4 reason, 5 to, 6 n, 7 track, 8 week, 9 day. New prefix: no history to re-read.
   [/^rec_/, ["kind", "reason", "to", "n", "track", "week", "day"]],
+  // recommendation_* → blob3 kind, 4 variant, 5 reason, 6 cid, 7 to, 8 n, 9 rank, 10 track, 11 week, 12 day. New prefix: no history to re-read.
+  [/^recommendation_/, ["kind", "variant", "reason", "cid", "to", "n", "rank", "track", "week", "day"]],
   // cert_* → blob3 track. No cert_* row existed before this map.
   [/^cert_/, ["track"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];

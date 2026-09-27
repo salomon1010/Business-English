@@ -96,8 +96,8 @@ console.log("\n1 · TRANSPORT");
 /* ── 2 · the 20-blob limit and the legacy columns ──────────────────────── */
 console.log("\n2 · ROW LAYOUT — the Analytics Engine limit, and the columns that existed before 19 Sept 2026");
 ok(`the Worker states the limit workerd enforces: ${AE_MAX} blobs per data point`, AE_MAX === 20);
-ok("PROP_KEYS is still the allow-list of readable keys — 36 keys (product appended for Premium), first 26 identical and in order to origin/main",
-  KEYS.length === 36 && KEYS[35] === "product" && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
+ok("PROP_KEYS is still the allow-list of readable keys — 39 keys (product for Premium, then cid, variant, rank for Home), first 26 identical and in order to origin/main",
+  KEYS.length === 39 && KEYS[35] === "product" && KEYS.slice(36).join() === "cid,variant,rank" && KEYS.slice(0, 26).join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now,regular,state,level,mode,to,reason,evidence,rung");
 ok("the legacy row is the first 18 keys — blob3 streak … blob20 now — exactly the columns that ever existed",
   LEGACY.join() === "streak,week,day,source,lang,result,module,trade,band,installed,onboarded,stage,kind,gap,track,n,round,now" && LEGACY.length === 18);
 { const all = {}; for (const k of KEYS) all[k] = "x";
@@ -158,6 +158,7 @@ ok("every declared layout fits without the guard ever cutting it (so the guard i
 ok("layoutFor() is deterministic and total: v2_* → V2 map, partner_* → partner map (partner_interest excepted), shadow_* → shadow map, anything else → LEGACY",
   layoutFor("v2_mission_started").join() === V2MAP.join() && layoutFor("partner_turn_sent").join() === PMAP.join() && layoutFor("partner_interest").join() === LEGACY.join()
   && layoutFor("shadow_challenge_rung").join() === SMAP.join() && layoutFor("app_open").join() === LEGACY.join() && layoutFor("").join() === LEGACY.join());
+ok("recommendation_* (the eight Home rows) → kind, variant, reason, cid, to, n, rank, track, week, day — its own map, ten columns", layoutFor("recommendation_open").join() === "kind,variant,reason,cid,to,n,rank,track,week,day" && ["recommendation_impression","recommendation_started","recommendation_completed","recommendation_dismissed"].every(n => layoutFor(n).join() === layoutFor("recommendation_open").join()));
 ok("rec_* (Home rows) → kind, reason, to, n, track, week, day — its own map, seven columns", layoutFor("rec_open").join() === "kind,reason,to,n,track,week,day" && layoutFor("rec_impression").join() === layoutFor("rec_dismissed").join());
 { LAYOUTS.push([/^zz_review_/, Array.from({ length: 30 }, (_, i) => "k" + i)]);
   const cut = layoutFor("zz_review_probe").length; LAYOUTS.pop();
@@ -211,7 +212,7 @@ console.log("\n3 · V2 CLIENT ↔ WORKER CONTRACT");
 const V2 = EVENTS.filter(n => n.startsWith("v2_"));
 ok("the allow-list carries fifteen v2_* names (eleven missions + four speaking-report)", V2.length === 15, V2.join());
 ok("the six V2 prop keys are allow-listed (contiguous, before the ad keys)", KEYS.slice(26, 32).join() === "competency,mission,move,attempt,ai,from");
-ok("the three ad prop keys (Phase 8), then product (Phase 12A), are appended last", KEYS.slice(-4).join() === "format,context,provider,product");
+ok("the three ad prop keys (Phase 8), then product (Phase 12A), then the Home recommendation keys, are appended last", KEYS.slice(-7).join() === "format,context,provider,product,cid,variant,rank");
 ok("the V2 family map is 12 keys — blob3 track … blob14 ai — every one of them an allow-listed key",
   V2MAP.join() === "track,week,competency,mission,kind,move,result,band,state,from,attempt,ai" && V2MAP.every(k => KEYS.includes(k)));
 

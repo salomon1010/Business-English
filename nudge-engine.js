@@ -107,120 +107,217 @@
   /* ======================= CONTENT RELATIONSHIPS =======================
      One light table relates everything the app can recommend: a topic is a set
      of title words plus the library category it lives in. A lesson, a clip, a
-     phrase group or a trouble word is placed on the topics its own words hit,
-     and "related" content is whatever shares those topics — never random, and
-     deterministic (the same learner sees the same rows). Home's hero pictures
-     use the same table (index.html: homeVisuals), so one relationship serves
-     the pictures, the rows and the push nudges alike. */
+     phrase group, a scenario or a trouble word is placed on the topics its own
+     words hit, and "related" content is whatever shares those topics, that
+     category or that channel — never random, and deterministic (the same
+     learner sees the same rows). Home's hero pictures use the same table
+     (index.html: homeVisuals), so one relationship serves the pictures, the
+     rows and the push nudges alike. */
   const TOPICS = [
-    { id: "introductions", re: /introduc|yourself|first impression|role clarity|network|small talk/i, terms: ["introduc", "yourself", "first impression", "small talk", "network"], cat: "everyday" },
-    { id: "pronunciation", re: /pronunc|shadow|stress|accent|speech|intonation|fluen|sound|rhythm|baseline/i, terms: ["pronunc", "accent", "shadow", "clear", "fluen", "intonation", "sound", "rhythm"], cat: "skills" },
-    { id: "meetings", re: /meeting|agenda|stand-?up|interrupt|disagree|clarif|update|status|blocker|escalat/i, terms: ["meeting", "interrupt", "disagree", "agenda", "clarif", "update"], cat: "meetings" },
-    { id: "presentations", re: /present|pitch|slide|summar|explain|leadership|executive/i, terms: ["present", "pitch", "explain", "summar", "leader"], cat: "presentations" },
-    { id: "interviews", re: /interview|job|salary|strength|weakness|experience/i, terms: ["interview", "tell me about", "strength", "weakness", "salary"], cat: "interviews" },
-    { id: "persuasion", re: /negotiat|persuad|recommend|decid|win support|push ?back|influence|stakeholder/i, terms: ["negotiat", "persuad", "recommend", "convinc", "influence"], cat: "meetings" },
-    { id: "vocabulary", re: /\bwords?\b|vocab|phrase|idiom|expression/i, terms: ["vocabulary", "words", "phrases", "idiom", "expression"], cat: "skills" },
-    { id: "conversation", re: /partner|conversation|coach|chat|question/i, terms: ["conversation", "small talk", "chat", "question"], cat: "everyday" },
+    { id: "introductions", re: /introduc|yourself|first impression|role clarity|network|small talk/i, terms: ["introduc", "yourself", "first impression", "small talk", "network"], cat: "everyday", scen: ["iv-tellme", "neighbour"] },
+    { id: "pronunciation", re: /pronunc|shadow|stress|accent|speech|intonation|sound|rhythm|baseline|delivery/i, terms: ["pronunc", "accent", "shadow", "clear", "intonation", "sound", "rhythm", "stress"], cat: "skills", scen: [] },
+    { id: "fluency", re: /fluen|rambl|organi[sz]e|hesitat|filler|confiden|think in english|long-form|listening|comprehension/i, terms: ["fluen", "rambl", "organi", "hesitat", "filler", "confiden", "listening", "comprehension", "think in english"], cat: "skills", scen: [] },
+    { id: "meetings", re: /meeting|agenda|stand-?up|interrupt|disagree|clarif|update|status|blocker|escalat|sprint|coordinat|problem/i, terms: ["meeting", "interrupt", "disagree", "agenda", "clarif", "update", "blocker", "problem", "stand-up", "standup"], cat: "meetings", scen: ["standup", "oneone"] },
+    { id: "presentations", re: /present|pitch|slide|summar|explain|leadership|executive|technical/i, terms: ["present", "pitch", "explain", "summar", "leader", "executive", "structure"], cat: "presentations", scen: ["oneone"] },
+    { id: "interviews", re: /interview|job|salary|strength|weakness|experience|hiring/i, terms: ["interview", "tell me about", "strength", "weakness", "salary", "hiring", "job"], cat: "interviews", scen: ["interview", "iv-weakness", "iv-conflict"] },
+    { id: "persuasion", re: /negotiat|persuad|recommend|decid|win support|push ?back|influence|stakeholder/i, terms: ["negotiat", "persuad", "recommend", "convinc", "influence", "decision"], cat: "meetings", scen: ["iv-salary", "oneone"] },
+    { id: "vocabulary", re: /\bwords?\b|vocab|phrase|idiom|expression/i, terms: ["vocabulary", "words", "phrases", "idiom", "expression"], cat: "skills", scen: [] },
+    { id: "conversation", re: /partner|conversation|coach|chat|question|talk/i, terms: ["conversation", "small talk", "chat", "question", "talk"], cat: "everyday", scen: ["coffee", "neighbour", "oneone"] },
+    /* the story clips ("Learn English with TOY STORY …"): reachable from the everyday
+       category and from each other, never from a meeting seed */
+    { id: "story", re: /learn english with|tv series|movie|film|disney|pixar|netflix|cartoon|animated/i, terms: ["learn english with", "movie", "disney", "netflix", "film"], cat: "everyday", scen: ["coffee", "neighbour"] },
   ];
   function topicsOf(text) { const t = String(text || ""); return TOPICS.filter(x => x.re.test(t)).map(x => x.id); }
-  /* content.videos = { vid: { title, cat, dur, cap } } (the library index, category filled
-     in by the caller). seed = { vid?, text?, topics? }. opts.challenge prefers clips
-     with captions (the Challenge needs their lines); opts.exclude = vids to leave out. */
+  /* content.videos = { vid: { title, cat, dur, cap, ch } } (the library index, category filled
+     in by the caller). seed = { vid?, text?, topics? }. A candidate is related when it shares a
+     topic word, the seed's category or the seed's channel — never on nothing. opts.challenge
+     keeps clips with captions (the Challenge needs their lines); opts.exclude = vids to leave
+     out; opts.short prefers clips under six minutes (a comeback, a first clip). */
   function related(content, seed, opts) {
     const o = opts || {}, vids = (content && content.videos) || {}, ex = new Set(o.exclude || []);
     const sv = seed && seed.vid && vids[seed.vid] ? vids[seed.vid] : null;
     const text = [seed && seed.text, sv && sv.title].filter(Boolean).join(" ");
     const ids = (seed && seed.topics && seed.topics.length) ? seed.topics : topicsOf(text);
     const tops = TOPICS.filter(x => ids.includes(x.id)).slice(0, 2);
-    if (!tops.length) return [];
+    if (!tops.length && !sv) return [];
+    const si = sv ? Object.keys(vids).indexOf(seed.vid) : 0;
     return Object.keys(vids).map((v, i) => {
       if (v === (seed && seed.vid) || ex.has(v)) return null;
       const x = vids[v], ti = String(x.title || "").toLowerCase(); let s = 0, hit = false;
-      tops.forEach(tp => { tp.terms.forEach(w => { if (ti.includes(w)) { s += 3; hit = true; } }); if (x.cat === tp.cat) s += 1; });
-      if (sv && sv.cat && x.cat === sv.cat) { s += 1; hit = hit || !!(o.sameCatOk); }
+      tops.forEach(tp => { tp.terms.forEach(w => { if (ti.includes(w)) { s += 3; hit = true; } }); if (x.cat === tp.cat) { s += 1; hit = true; } });
+      if (sv) { if (sv.cat && x.cat === sv.cat) { s += 2; hit = true; } if (sv.ch && x.ch === sv.ch) { s += 3; hit = true; } }
       if (o.challenge) { if (!x.cap) return null; if (x.cap === "human") s += 1; }
-      if (x.dur && x.dur > 20 * 60) s -= 1;                  // a long lecture is a poor "next clip"
-      return hit ? { vid: v, title: x.title || "", dur: x.dur || 0, cap: x.cap || null, s, i } : null;
-    }).filter(Boolean).sort((a, b) => b.s - a.s || a.i - b.i).slice(0, o.n || 3);
+      if (x.dur && x.dur > 20 * 60) s -= 2;                  // a long lecture is a poor "next clip"
+      if (o.short) { if (x.dur && x.dur <= 6 * 60) s += 2; else if (x.dur > 12 * 60) return null; }
+      return hit ? { vid: v, title: x.title || "", dur: x.dur || 0, cap: x.cap || null, ch: x.ch || "", s, i } : null;
+    /* ties go to the clips nearest the seed in the library (the index is ordered by channel and date),
+       so two story clips lead to their own neighbours rather than the same three */
+    }).filter(Boolean).sort((a, b) => b.s - a.s || Math.abs(a.i - si) - Math.abs(b.i - si) || a.i - b.i).slice(0, o.n || 3);
+  }
+  /* the role-play scenario for a subject: the first scenario a topic names that exists */
+  function scenarioFor(content, text, exclude) {
+    const list = (content && content.scenarios) || [], ex = new Set(exclude || []);
+    const ids = topicsOf(text);
+    for (const tp of TOPICS.filter(x => ids.includes(x.id))) for (const id of tp.scen) { const sc = list.find(x => x.id === id); if (sc && !ex.has(id)) return sc; }
+    return null;
   }
 
   /* ========================= "BECAUSE YOU…" ROWS =========================
-     Each row reads ONE piece of real evidence in s.recent and names it; a row
-     with no evidence is not produced. At most three rows, three items each,
-     every item a deep link nudgeGo already understands ({view, act, args}).
-     Rows support the hero (the engine's best()), they never replace it. */
-  const MAX_ROWS = 3;
+     One primary recommendation (the hero, best()) and up to EIGHT conditional
+     rows (owner, 27 Sep 2026). Each row type reads ONE kind of real evidence
+     and names it; with no evidence the row is not produced — a new learner
+     sees the curriculum rows only, an active learner may see all eight.
+     Every card is a specific piece of content with its exact deep link
+     ({view, act, args}, the resolver the notifications use: nudgeGo), never a
+     feature. The rows are ranked by the strength of the signal (need,
+     unfinished work, recency, difficulty) — the same learner state the hero
+     and the push nudges read, no second engine. */
+  const ROW_IDS = ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner", "inactive"];
+  const MAX_ROWS = 8, MAX_ITEMS = 3;
   /* a clip title as a row heading quotes it: no leading emoji, cut at a word, at most ~56 characters */
   function clipTitle(t) {
-    let x = String(t || "").replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\uFE0F\u200D\s]+/u, "").replace(/\s+/g, " ").trim();
-    if (x.length > 56) { const cut = x.slice(0, 56).replace(/\s+\S*$/, ""); x = (cut.length >= 24 ? cut : x.slice(0, 56)).replace(/[\s,;:\-\u2014|&]+$/, "") + "\u2026"; }
+    let x = String(t || "").replace(/^[\p{Extended_Pictographic}\p{Emoji_Presentation}️‍\s]+/u, "").replace(/\s+/g, " ").trim();
+    if (x.length > 56) { const cut = x.slice(0, 56).replace(/\s+\S*$/, ""); x = (cut.length >= 24 ? cut : x.slice(0, 56)).replace(/[\s,;:\-—|&]+$/, "") + "…"; }
     return x;
   }
-  function item(o) { return Object.assign({ type: "video", title: "", dur: 0, view: "shadow", act: null, args: [], challenge: false, external: false }, o); }
-  function vidItem(v, challenge) { return item({ type: challenge ? "challenge" : "video", vid: v.vid, title: v.title, dur: v.dur, view: "shadow", act: "clip", args: [v.vid], challenge: !!challenge, external: true }); }
+  function item(o) { return Object.assign({ type: "video", title: "", dur: 0, view: "shadow", act: null, args: [], challenge: false, external: false, cid: "" }, o); }
+  function vidItem(v, challenge) { return item({ type: challenge ? "challenge" : "video", vid: v.vid, title: v.title, dur: v.dur, view: "shadow", act: "clip", args: [v.vid], challenge: !!challenge, external: true, cid: v.vid }); }
+  function sessItem(pos, weeks) { const wk = weeks.find(x => x.n === pos.w) || {}, day = (wk.days && wk.days[pos.d]) || {}; return item({ type: "session", view: "session", args: [pos.w, pos.d], w: pos.w, d: pos.d, title: day.focus || wk.theme || "", cid: "w" + pos.w + pos.d }); }
+  function phraseItem(w) { return item({ type: "phrases", view: "phrasebank", args: [w], w, title: "", cid: "ph-w" + w }); }
+  function scenItem(sc) { return item({ type: "roleplay", view: "roleplay", args: [sc.id], title: sc.title || "", persona: sc.persona || "", cid: sc.id }); }
+  function partnerItem(p, s) {
+    if (p.available) return item({ type: "partner", view: "partner", act: "match", title: "", cid: "partner" });
+    if (p.consented && s.aiCoach) return item({ type: "ai", view: "partner", act: "ai", title: "", cid: "ai" });
+    return null;
+  }
+  const quote = w => "“" + w + "”";
   function rows(s, content) {
     if (!s || !s.ge) return [];                                 // General English only
-    const R = s.recent || {}, now = s.now || Date.now(), out = [], seen = new Set(R.seen || []);
-    const c = content || {}, weeks = c.weeks || [], pos = s.pos || null;
-    const used = new Set();                                     // a clip is offered once across the rows
-    const take = (list) => list.filter(v => !used.has(v.vid)).slice(0, 3).map(v => { used.add(v.vid); return v; });
-    /* 1 · a Challenge passed in the last two weeks → three more clips at that level, opened in the Challenge */
-    const cp = R.challengePassed;
-    if (cp && cp.vid && now - (cp.ts || 0) <= 14 * DAY) {
-      const vs = take(related(c, { vid: cp.vid, text: cp.title }, { challenge: true, exclude: [...seen], n: 6 }));
-      if (vs.length >= 2) out.push({ id: "challenge_done", reason: "challenge_passed", vars: { title: clipTitle(cp.title) }, seed: cp.vid, items: vs.map(v => vidItem(v, true)) });
-    }
-    /* 2 · a clip actually shadowed (a recorded take) or opened in the last month → clips on the same subject */
-    const sh = R.shadowed;
-    if (sh && sh.vid && now - (sh.ts || 0) <= 30 * DAY && !(cp && cp.vid === sh.vid && out.length)) {
-      const vs = take(related(c, { vid: sh.vid, text: sh.title }, { exclude: [...seen], n: 6 }));
-      if (vs.length >= 2) out.push({ id: sh.recorded ? "shadowed" : "opened", reason: sh.recorded ? "clip_shadowed" : "clip_opened", vars: { title: clipTitle(sh.title) }, seed: sh.vid, items: vs.map(v => vidItem(v, false)) });
-    }
-    /* 3 · trouble words on record → hear them in real speech, drill them, review the words due */
+    const R = s.recent || {}, now = s.now || Date.now(), c = content || {}, weeks = c.weeks || [], pos = s.pos || null;
+    const seen = new Set(R.seen || []), used = new Set(s.heroCid ? [s.heroCid] : []), out = [];
+    /* the hero already IS that recommendation: a row never repeats it */
+    const sess = () => { if (!pos || pos.done) return null; const it = sessItem(pos, weeks); if (used.has(it.cid)) return null; used.add(it.cid); return it; };
+    const ageD = ts => Math.max(0, (now - (ts || 0)) / DAY);
+    const fresh = (ts, days) => !!ts && now - ts <= days * DAY;
+    const take = (list, n) => list.filter(v => !used.has(v.vid)).slice(0, n == null ? MAX_ITEMS : n).map(v => { used.add(v.vid); return v; });
+    const rel = (seed, opts) => take(related(c, seed, Object.assign({ exclude: [...seen], n: 8 }, opts || {})), (opts && opts.take) || MAX_ITEMS);
+    const push = r => { if (r && r.items.length >= 2) out.push(Object.assign(r, { items: r.items.slice(0, MAX_ITEMS) })); };
+    /* the week's own clip (the mission pack names one for six weeks) is the exact curriculum
+       link, so it is kept for the learning row before any other row takes clips */
+    const mc0 = pos && c.missions && c.missions[pos.w] && c.missions[pos.w].vid, mission = mc0 && c.videos && c.videos[mc0] && !seen.has(mc0) ? Object.assign({ vid: mc0 }, c.videos[mc0]) : null;
+    if (mission) used.add(mission.vid);
+    const week = n => weeks.find(x => x.n === n) || {};
+    const p = s.partner || {};
+    const talk = () => partnerItem(p, s);
     const tw = (s.troubleWords || []).filter(Boolean).slice(0, 3);
-    if (tw.length && out.length < MAX_ROWS) {
-      const items = [item({ type: "trouble", view: "shadow", act: "trouble", title: "" })];
-      if ((s.wordsReady || 0) >= 1) items.push(item({ type: "words", view: "practice", act: "study-due", n: s.wordsReady }));
-      take(related(c, { topics: ["pronunciation"] }, { exclude: [...seen], n: 4 })).slice(0, 3 - items.length).forEach(v => items.push(vidItem(v, false)));
-      out.push({ id: "trouble", reason: "trouble_words_" + Math.min(tw.length, 9), vars: { words: tw.map(w => "\u201c" + w + "\u201d").join(", "), n: tw.length }, items });
+
+    /* 8 · BECAUSE YOU HAVEN'T PRACTISED — the strongest signal there is: a short way back */
+    if (pos && !pos.done && ((s.daysAway || 0) >= 3 || (R.speakAway || 0) >= 5) && !s.practicedToday) {
+      const speaking = (s.daysAway || 0) < 3, items = [sess()].filter(Boolean);
+      rel({ text: [week(pos.w).theme, "pronunciation"].join(" ") }, { short: true, take: 1 }).forEach(v => items.push(vidItem(v, false)));
+      /* a quick conversation: a partner or the AI coach when there is one, else the week's role-play */
+      const tk = talk() || (() => { const sc = scenarioFor(c, week(pos.w).theme); return sc ? scenItem(sc) : null; })(); if (tk) items.push(tk);
+      if (items.length < MAX_ITEMS) rel({ topics: ["fluency"] }, { short: true, take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
+      push({ id: "inactive", variant: speaking ? "speaking" : "days", reason: speaking ? "no_speaking_" + Math.min(R.speakAway, 30) + "d" : "inactive_" + Math.min(s.daysAway, 30) + "d", score: speaking ? 84 : 92, vars: { n: speaking ? R.speakAway : s.daysAway }, items });
     }
-    /* 4 · a whole week done → the next session on the road map, a clip on its theme, a partner on the topic */
-    const wd = R.weekDone;
-    if (wd && pos && pos.w > wd && out.length < MAX_ROWS) {
-      const wk = weeks.find(x => x.n === pos.w) || {}, items = [];
-      if (!pos.done) items.push(item({ type: "session", view: "session", args: [pos.w, pos.d], w: pos.w, d: pos.d, title: (wk.days && wk.days[pos.d] && wk.days[pos.d].focus) || wk.theme || "" }));
-      const p = s.partner || {}, talk = p.available ? item({ type: "partner", view: "partner", act: "match", title: "" }) : (p.consented && s.aiCoach ? item({ type: "ai", view: "partner", act: "ai", title: "" }) : null);
-      take(related(c, { text: [wk.theme, wk.goal].join(" ") }, { exclude: [...seen], n: 4 })).slice(0, 3 - items.length - (talk ? 1 : 0)).forEach(v => items.push(vidItem(v, false)));
-      if (talk) items.push(talk);
-      if (items.length >= 2) out.push({ id: "week_done", reason: "week_done_" + wd, vars: { n: wd, next: pos.w, theme: String(wk.theme || "").slice(0, 60) }, items: items.slice(0, 3) });
+    /* 3 · BECAUSE YOUR FEEDBACK SHOWED — a real assessment named a need (Challenge issues, the
+       Shadow report's words to fix, the Polish report's targets, a partner turn's weakest words) */
+    const fb = R.feedback;
+    if (fb && fresh(fb.ts, 14) && fb.need) {
+      const items = [], words = (fb.words || []).slice(0, 3);
+      if (fb.need === "words" && fb.vid && c.videos && c.videos[fb.vid] && c.videos[fb.vid].cap) { used.add(fb.vid); items.push(vidItem(Object.assign({ vid: fb.vid }, c.videos[fb.vid]), true)); }
+      if (fb.need === "pron" || fb.need === "words") { if (tw.length || words.length) items.push(item({ type: "trouble", view: "shadow", act: "trouble", title: "", cid: "trouble" })); }
+      if (fb.need === "expressions" && pos) items.push(phraseItem(pos.w));
+      const topic = { pron: ["pronunciation"], words: ["pronunciation"], fluency: ["fluency"], expressions: ["vocabulary"] }[fb.need] || ["pronunciation"];
+      rel({ topics: topic }, { challenge: fb.need !== "expressions", take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, fb.need === "words")));
+      push({ id: "feedback", variant: fb.need, reason: "feedback_" + fb.need + "_" + fb.src, score: 84 - 2 * Math.min(ageD(fb.ts), 14), seed: fb.vid || "", vars: { title: clipTitle(fb.title), words: words.map(quote).join(", "), n: words.length }, items });
     }
-    /* 5 · expressions mastered in Phrase Lab → use them, and clips full of them */
-    if ((R.phrasesMastered || 0) >= 3 && out.length < MAX_ROWS) {
-      const items = [item({ type: "phrases", view: "phrases", title: "", n: R.phrasesMastered })];
-      take(related(c, { topics: ["vocabulary"] }, { exclude: [...seen], n: 4 })).slice(0, 2).forEach(v => items.push(vidItem(v, false)));
-      out.push({ id: "phrases", reason: "phrases_mastered_" + Math.min(R.phrasesMastered, 99), vars: { n: R.phrasesMastered }, items });
+    /* 4 · BECAUSE YOU STRUGGLED WITH — a Challenge missed twice and not passed since, or trouble words on record */
+    const cf = R.challengeFailed;
+    if (cf && cf.vid && fresh(cf.ts, 14) && c.videos && c.videos[cf.vid]) {
+      used.add(cf.vid);
+      const items = [vidItem(Object.assign({ vid: cf.vid }, c.videos[cf.vid]), true)];
+      if (tw.length) items.push(item({ type: "trouble", view: "shadow", act: "trouble", title: "", cid: "trouble" }));
+      rel({ vid: cf.vid, text: cf.title }, { challenge: true, short: true, take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, true)));
+      push({ id: "struggled", variant: "challenge", reason: "challenge_failed_" + Math.min(cf.fails || 2, 9), score: 80 - Math.min(ageD(cf.ts), 14), seed: cf.vid, vars: { title: clipTitle(cf.title), n: cf.fails || 2 }, items });
+    } else if (tw.length) {
+      const items = [item({ type: "trouble", view: "shadow", act: "trouble", title: "", cid: "trouble" })];
+      if ((s.wordsReady || 0) >= 1) items.push(item({ type: "words", view: "practice", act: "study-due", n: s.wordsReady, cid: "words-due" }));
+      rel({ topics: ["pronunciation"] }, { take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
+      push({ id: "struggled", variant: "words", reason: "trouble_words_" + Math.min(tw.length, 9), score: 72 + 2 * tw.length, vars: { words: tw.map(quote).join(", "), n: tw.length }, items });
     }
-    /* 6 · a partner session this week → keep the conversation going */
-    if (R.partnerAt && now - R.partnerAt <= 7 * DAY && out.length < MAX_ROWS) {
-      const p = s.partner || {}, items = [];
-      if (p.available) items.push(item({ type: "partner", view: "partner", act: "match", title: "" }));
-      if (p.consented && s.aiCoach) items.push(item({ type: "ai", view: "partner", act: "ai", title: "" }));
-      take(related(c, { topics: ["conversation"] }, { exclude: [...seen], n: 4 })).slice(0, 3 - items.length).forEach(v => items.push(vidItem(v, false)));
-      if (items.length >= 2) out.push({ id: "partner_done", reason: "partner_recent", vars: {}, items });
+    /* 6 · BECAUSE YOU'RE LEARNING — the curriculum position: today's session, the week's own
+       clip (the mission's, else one on the theme), the week's expressions, the week's scenario */
+    if (pos) {
+      const wk = week(pos.w), items = [], done = !!R.weekDone && pos.w === R.weekDone + 1;
+      const variant = (!R.any && pos.w === 1) ? "new" : (done ? "week_done" : "week");
+      const si = sess(); if (si) items.push(si);
+      if (mission) items.push(vidItem(mission, false));
+      if (variant === "new" && items.length < MAX_ITEMS) { const st = (c.starters || []).find(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid)); if (st) { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); } }
+      if (items.length < MAX_ITEMS) rel({ text: [wk.theme, wk.goal].join(" ") }, { take: 1 }).forEach(v => items.push(vidItem(v, false)));
+      if (items.length < MAX_ITEMS) items.push(phraseItem(pos.w));
+      if (items.length < MAX_ITEMS) { const sc = scenarioFor(c, [wk.theme, wk.goal].join(" ")); if (sc) items.push(scenItem(sc)); }
+      push({ id: "learning", variant, reason: variant === "new" ? "new_learner" : variant === "week_done" ? "week_done_" + R.weekDone : "week_" + pos.w, score: variant === "week_done" ? 78 : (variant === "new" ? 70 : 60 + (pos.done ? 0 : 6)), vars: { n: pos.w, done: R.weekDone || 0, theme: String(wk.theme || "").slice(0, 60) }, items });
     }
-    /* 0 · no history at all → curriculum discovery, never a "because you" */
-    if (!out.length && pos && pos.w === 1 && !R.shadowed && !R.challengePassed && !tw.length && !R.weekDone) {
-      const wk = weeks.find(x => x.n === 1) || {}, items = [];
-      if (!pos.done) items.push(item({ type: "session", view: "session", args: [1, pos.d], w: 1, d: pos.d, title: (wk.days && wk.days[pos.d] && wk.days[pos.d].focus) || wk.theme || "" }));
-      const st = (c.starters || []).filter(x => x && x.vid && x.cap)[0];
-      if (st) items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false));
-      take(related(c, { topics: ["introductions"] }, { n: 3 })).slice(0, 3 - items.length).forEach(v => items.push(vidItem(v, false)));
-      if (items.length >= 2) out.push({ id: "start", reason: "new_learner", vars: { theme: String(wk.theme || "").slice(0, 60) }, items });
+    /* 2 · BECAUSE YOU PRACTISED — the newest completed practice: a recorded Shadow take or a
+       session day with its report → the next content: the Challenge on that clip, the next
+       clip at that level, the next session */
+    const pr = R.practiced;
+    if (pr && fresh(pr.ts, 14)) {
+      const items = [];
+      const clip = pr.kind === "shadow" || pr.kind === "challenge";
+      /* a take → the Challenge on that same clip (unless it was passed); a Challenge → the next
+         clips at that level, opened in the Challenge; a session → the next session */
+      if (pr.kind === "shadow" && pr.vid && c.videos && c.videos[pr.vid] && c.videos[pr.vid].cap && !(R.challengePassed && R.challengePassed.vid === pr.vid) && !used.has(pr.vid)) { used.add(pr.vid); items.push(vidItem(Object.assign({ vid: pr.vid }, c.videos[pr.vid]), true)); }
+      if (pr.kind === "challenge" && !pr.pass && pr.vid && c.videos && c.videos[pr.vid] && !used.has(pr.vid)) { used.add(pr.vid); items.push(vidItem(Object.assign({ vid: pr.vid }, c.videos[pr.vid]), true)); }
+      if (pr.kind === "session") { const si = sess(); if (si) items.push(si); }
+      const seedText = clip ? "" : [pr.focus, week(pr.w).theme].join(" ");
+      rel(clip ? { vid: pr.vid, text: pr.title } : { text: seedText }, { challenge: pr.kind === "challenge", take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, pr.kind === "challenge")));
+      if (items.length < MAX_ITEMS && pr.kind === "session") { const sc = scenarioFor(c, seedText); if (sc) items.push(scenItem(sc)); }
+      push({ id: "practiced", variant: pr.kind === "challenge" ? (pr.pass ? "challenge" : "challenge_try") : pr.kind, reason: "practiced_" + pr.kind, score: 68 - 2 * Math.min(ageD(pr.ts), 14), seed: pr.vid || "", vars: { title: clipTitle(pr.title), focus: String(pr.focus || "").slice(0, 60), w: pr.w || 0 }, items });
     }
-    return out.slice(0, MAX_ROWS).map(r => Object.assign(r, { items: r.items.slice(0, 3) }));
+    /* 1 · BECAUSE YOU WATCHED — verified playback (≥ 30 s of a clip actually playing) → clips
+       on the same subject, from the same voice, and the week's own clip when it fits */
+    const wt = R.watched;
+    if (wt && wt.vid && fresh(wt.ts, 30) && (wt.secs || 0) >= 30 && !(pr && pr.vid === wt.vid && pr.ts >= wt.ts)) {
+      const items = rel({ vid: wt.vid, text: wt.title }, {}).map(v => vidItem(v, false));
+      push({ id: "watched", variant: "", reason: "clip_watched", score: 62 - 2 * Math.min(ageD(wt.ts), 14), seed: wt.vid, vars: { title: clipTitle(wt.title) }, items });
+    }
+    /* 7 · BECAUSE YOU PRACTISED WITH — a partner, the AI coach, or a role-play character, in the last two weeks */
+    const pw = R.partner;
+    if (pw && fresh(pw.ts, 14)) {
+      const items = [];
+      if (pw.kind === "roleplay" && pw.sid) { const sc = (c.scenarios || []).find(x => x.id === pw.sid); if (sc) items.push(scenItem(sc)); const nx = scenarioFor(c, [sc && sc.title, pw.topic].join(" "), [pw.sid]) || (c.scenarios || []).find(x => x.cat === pw.cat && x.id !== pw.sid); if (nx) items.push(scenItem(nx)); }
+      else { const tk = talk(); if (tk) items.push(tk); if (pw.kind !== "ai" && p.consented && s.aiCoach && !items.some(x => x.type === "ai")) items.push(item({ type: "ai", view: "partner", act: "ai", title: "", cid: "ai" })); }
+      rel({ text: [pw.topic, "conversation"].join(" ") }, { take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
+      push({ id: "partner", variant: pw.kind, reason: "practised_with_" + pw.kind, score: 56 - 2 * Math.min(ageD(pw.ts), 14), vars: { topic: String(pw.topic || "").slice(0, 48), title: clipTitle(pw.title), persona: String(pw.persona || "").slice(0, 24), name: String(pw.name || "").slice(0, 24) }, items });
+    }
+    /* 5 · BECAUSE YOU SAVED — words in the vocabulary, clips saved in Shadow, expressions written in Phrase Lab */
+    const sv = R.saved || {};
+    if ((sv.words || 0) >= 1 || (sv.clips || []).length) {
+      const items = [], clip = (sv.clips || [])[0];
+      if ((sv.words || 0) >= 1) items.push(item({ type: "words", view: "practice", act: "study-due", n: s.wordsReady || 0, cid: "words-due", saved: sv.words }));
+      if (clip && clip.vid) { used.add(clip.vid); items.push(item({ type: "video", vid: clip.vid, title: clip.title || "", view: "shadow", act: "clip", args: [clip.vid, clip.start || 0, clip.end || 0], external: true, cid: clip.vid, saved: true })); }
+      if (pos && items.length < MAX_ITEMS) items.push(phraseItem(pos.w));
+      const variant = clip && !(sv.words >= 1) ? "clips" : "words";
+      push({ id: "saved", variant, reason: variant === "clips" ? "saved_clip" : "saved_words_" + Math.min(sv.words, 99), score: 44 + ((s.wordsReady || 0) >= 3 ? 10 : 0), vars: { n: sv.words || 0, title: clipTitle(clip && clip.title), words: (sv.newest || []).slice(0, 3).map(quote).join(", ") }, items });
+    }
+    /* the empty state: with fewer than two evidence rows, a curriculum row "Recommended for your
+       level" — the shadow starters and short human-captioned clips — never a "because you" */
+    const evidence = out.filter(r => r.id !== "learning").length;
+    if (evidence < 2) {
+      const items = [];
+      (c.starters || []).filter(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid)).slice(0, 1).forEach(st => { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); });
+      rel({ topics: ["introductions", "fluency"] }, { short: true, take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
+      push({ id: "level", variant: "", reason: "level", score: 30, vars: {}, items });
+    }
+    /* the learner's weakest competency lifts the rows that train it — the same +15/+8 logic as rank() */
+    const SKILL = { feedback: "pronunciation", struggled: "pronunciation", saved: "vocabulary", partner: "communication", practiced: "pronunciation" };
+    out.forEach(r => { if (s.weakest && SKILL[r.id] === s.weakest) r.score += 8; r.score = Math.round(r.score * 10) / 10; });
+    return out.sort((a, b) => b.score - a.score || ROW_IDS.indexOf(a.id) - ROW_IDS.indexOf(b.id)).slice(0, MAX_ROWS);
   }
 
-  const api = { candidates, rank, best, satisfied, KINDS, KIND_COOLDOWN, DISMISS_COOLDOWN, TOPICS, topicsOf, related, rows, clipTitle };
+  const api = { candidates, rank, best, satisfied, KINDS, KIND_COOLDOWN, DISMISS_COOLDOWN, TOPICS, topicsOf, related, scenarioFor, rows, clipTitle, ROW_IDS };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   global.NudgeEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

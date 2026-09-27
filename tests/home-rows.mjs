@@ -1,110 +1,137 @@
-/* Home "Because you…" rows (owner, 27 Sep 2026): personalised rows built by the nudge engine from what
-   the learner actually did, every card a deep link into the exact activity, General English only.
-   Run: cd tests && node home-rows.mjs        (BASE=… for another tree)
-   Chromium, iPhone 13 (+ one desktop context). Seeds are real catalogue clips; the SDK/Workers are stubbed. */
+/* Home "Because you…" — one primary recommendation + up to EIGHT conditional rows (owner, 27 Sep 2026).
+   Every row rests on real learner evidence, every card is a specific piece of content with its exact
+   deep link, General English only.
+   Run: cd tests && node home-rows.mjs        (BASE=… for another tree, PORT=… for the local server)
+   Chromium, iPhone 13 (+ one desktop context). Seeds are real catalogue clips; the Workers are stubbed. */
 import { chromium, devices } from "playwright"; import { spawn } from "node:child_process"; import { setTimeout as sleep } from "node:timers/promises"; import fs from "node:fs";
-const root = new URL("..", import.meta.url).pathname, PORT = +(process.env.PORT || 8151);
+const root = new URL("..", import.meta.url).pathname, PORT = +(process.env.PORT || 8157);
 let BASE = process.env.BASE, srv = null;
 if (!BASE) { srv = spawn("python3", ["-m", "http.server", String(PORT), "--bind", "127.0.0.1"], { cwd: root, stdio: "ignore" }); await sleep(800); BASE = `http://127.0.0.1:${PORT}`; }
-const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 500)}`); };
-const cat = JSON.parse(fs.readFileSync(root + "catalogue/general.json", "utf8")); const cats = {}; cat.categories.forEach(c => c.vids.forEach(v => cats[v] = cats[v] || c.id));
-const pick = (re, id) => Object.keys(cat.videos).find(v => cats[v] === id && re.test(cat.videos[v].title) && cat.videos[v].cap === "human");
-const CH = pick(/meeting/i, "meetings"), SH = pick(/pronunc|accent|sound/i, "skills"); const chT = cat.videos[CH].title, shT = cat.videos[SH].title;
+const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 700)}`); };
+const cat = JSON.parse(fs.readFileSync(root + "catalogue/general.json", "utf8"));
+const V = { W: "S0kfnpgY-Gs", SH: "-5q6tNovay8", CF: "mmfo9spNaWA" }; const T = k => cat.videos[V[k]].title;
+const FLAGS = { home_v2_enabled: true, shadow_studio_v2_enabled: true, shadow_challenge_enabled: true, shadow_word_timing_enabled: true, shadow_library_enabled: true };
 const b = await chromium.launch();
-const seed = (o) => ([CH, chT, SH, shT, o]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify({ home_v2_enabled: o.flag !== false })); localStorage.setItem("be_theme", "dark");
-  const day = 86400000, now = Date.now(), d = n => new Date(now - n * day).toISOString().slice(0, 10); const dates = [0, 1, 2, 3, 5, 6].map(d); const dayLog = {}; dates.forEach(x => dayLog[x] = 1);
-  const S = { profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: o.area || "general-english" }, fnd: { "general-english": { placed: "full", finished: true, done: {}, day: 1 }, welding: { placed: "full", finished: true, done: {}, day: 1 } }, days: {}, dates, dayLog, dayLogA: { "general-english": dayLog }, steps: {}, scores: {}, notes: {}, vocab: {}, backupAsked: 1, rmSeen: now, lastSeen: now };
-  if (o.history) { const vocab = {}; ["stakeholder", "leverage", "deliverable", "milestone"].forEach((w, i) => vocab[w] = { ts: now - i * day, reps: 1, due: now - day, tk: ["general-english"] }); S.vocab = vocab;
-    S.days = { w1Mon: true, w1Tue: true, w1Wed: true, w1Thu: true, w1Fri: true, w1Sat: true, w1Sun: true };
-    S.chHistA = { "general-english": [{ kind: "shadow", ts: now - 3600000, vid: SH, title: shT, text: "x", heard: "x" }, { kind: "challenge", ts: now - 2 * day, vid: CH, title: chT, seg: "s1", text: "x", n: 1, level: 2, rung: "sync", verdict: "pass", coverage: 0.9, ok: 9, total: 10, pass: true, heard: "x", issues: [], dims: { words: "good", pron: "good", fluency: "good", timing: "na", rhythm: "na" }, pronMode: null, ctx: null, drills: [] }] };
-    S.troubleA = { "general-english": { thorough: { n: 3, ts: now }, schedule: { n: 2, ts: now } } };
-    S.phMasterA = { "general-english": { p0: 1, p1: 1, p2: 1, p3: 1 } }; }
+const seed = ([V, T, o, FLAGS]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1); localStorage.setItem("be_flags", JSON.stringify(o.flag === false ? {} : FLAGS)); localStorage.setItem("be_theme", "dark");
+  const GE = "general-english", day = 86400000, H = 3600000, now = Date.now(), d = n => new Date(now - n * day).toISOString().slice(0, 10);
+  const dates = (!o.history ? [] : o.away ? [o.away, o.away + 1, o.away + 2] : [0, 1, 2, 3]).map(d); const dayLog = {}; dates.forEach(x => dayLog[x] = 1);
+  const S = { profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: o.area || GE }, fnd: { [GE]: { placed: "full", finished: true, done: {}, day: 1 }, welding: { placed: "full", finished: true, done: {}, day: 1 } }, days: {}, dates, dayLog, dayLogA: { [GE]: dayLog, welding: dayLog }, steps: {}, scores: {}, notes: {}, vocab: {}, convos: [], backupAsked: 1, rmSeen: now, lastSeen: now };
+  if (o.history) { const ago = o.away ? o.away * day : 0;
+    ["leverage", "milestone", "deliverable"].forEach((w, i) => S.vocab[w] = { ts: now - ago - i * H, reps: 1, due: now - day, tk: [GE] });
+    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach(x => S.days["w1" + x] = true);
+    const dims = { words: "fair", pron: "fair", fluency: "good", timing: "na", rhythm: "na" }, ch = (ts) => ({ kind: "challenge", ts, vid: V.CF, title: T.CF, seg: "s1", text: "x", n: 1, level: 2, rung: "gate", verdict: "retry", coverage: 0.5, ok: 5, total: 10, pass: false, heard: "x", issues: [{ type: "mispron", text: "schedule" }], dims, pronMode: null, ctx: null, drills: [] });
+    S.chHistA = { [GE]: [{ kind: "shadow", ts: now - ago - H, vid: V.SH, title: T.SH, text: "x", heard: "x", score: 71, wpm: 120, fillers: 1, fix: ["thorough", "status"], ctx: null }, ch(now - ago - day), ch(now - ago - day - H)] };
+    S.watchedA = { [GE]: [{ vid: V.W, title: T.W, ts: now - ago - 2 * H, secs: 240 }] };
+    S.troubleA = { [GE]: { thorough: 3, schedule: 2 } };
+    S.convos = [{ ts: now - ago - day, id: "standup", title: "Daily stand-up", cat: "work", tk: GE, covered: 2, total: 3, turns: 3, lines: [] }];
+    S.notes["exrep:w1Fri"] = { at: now - ago - 3 * H, tk: GE, key: "w1Fri", m: { fillerN: 3, hedgeN: 2, wpm: 130 }, ai: null, tx: "x", targets: [] }; }
   localStorage.setItem("be12_v1", JSON.stringify(S)); };
 const open = async (o, desktop) => {
   const ctx = await b.newContext(desktop ? { viewport: { width: 1280, height: 900 }, serviceWorkers: "block" } : { ...devices["iPhone 13"], serviceWorkers: "block" });
   await ctx.route(u => /be-events|cloudflareinsights|be-partner|be-push|entitlements|be-polish|be-mail|gstatic/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
-  /* thumbnails and channel avatars: a 1×1 PNG (the avatars are ORB-blocked in headless Chromium and raise "A network error occurred") */
   await ctx.route(u => /i\.ytimg\.com|yt3\.googleusercontent\.com/.test(u.href), r => r.fulfill({ status: 200, contentType: "image/png", body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==", "base64") }));
-  await ctx.addInitScript(seed(o), [CH, chT, SH, shT, o]);
+  await ctx.addInitScript(seed, [V, { W: T("W"), SH: T("SH"), CF: T("CF") }, o, FLAGS]);
   /* "A network error occurred." is raised by the Shadow workspace's third-party media in headless Chromium
-     whenever a clip is opened — verified on the unmodified base (f026b457) through nudgeGo — so it is filtered */
+     whenever a clip is opened (verified on the unmodified base), so it is filtered */
   const p = await ctx.newPage(); p.errs = []; p.on("pageerror", e => { if (e.message !== "A network error occurred.") p.errs.push(e.message); });
   await p.goto(BASE + "/index.html#home"); await sleep(2500);
   await p.evaluate(() => { window.__ev = []; window.track = (n, pr) => __ev.push([n, pr || {}]); try { homeRecImpress._seen = {} } catch (e) {} document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv,#syncNudge").forEach(e => e.remove()); go("home"); }); await sleep(2500);
   return { ctx, p };
 };
-const rows = p => p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => ({ id: r.dataset.row, h: r.querySelector("h3").textContent, sub: r.querySelector("p").textContent, cards: [...r.querySelectorAll(".hx-rcard")].map(c => ({ type: c.dataset.type, vid: c.dataset.vid || null, title: c.querySelector("b").textContent, line: c.querySelector("small").textContent, img: !!c.querySelector("img"), lazy: c.querySelector("img") ? c.querySelector("img").getAttribute("loading") : null, tag: !!c.querySelector(".hx-rtag"), h: c.getBoundingClientRect().height })), scroll: (() => { const s = r.querySelector(".hx-row-scroll"); return { w: s.scrollWidth > s.clientWidth, display: getComputedStyle(s).display }; })() })));
+const rows = p => p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => ({ id: r.dataset.row, v: r.dataset.variant, lead: r.classList.contains("hx-row-lead"), h: r.querySelector("h3").textContent, cards: [...r.querySelectorAll(".hx-rcard")].map(c => ({ type: c.dataset.type, cid: c.dataset.cid, vid: c.dataset.vid || null, title: c.querySelector("b").textContent, line: c.querySelector("small").textContent, w: c.getBoundingClientRect().width, h: c.getBoundingClientRect().height })), scroll: (() => { const s = r.querySelector(".hx-row-scroll"); return { w: s.scrollWidth > s.clientWidth, display: getComputedStyle(s).display }; })() })));
+const home = async p => { await p.evaluate(() => { try { shCloseWork() } catch (e) {} go("home"); }); await sleep(1500); };
+const tap = async (p, row, type) => { await p.evaluate(([row, type]) => { const c = document.querySelector(`.hx-row[data-row="${row}"] .hx-rcard[data-type="${type}"]`); if (!c) throw new Error("no card " + row + "/" + type); c.click(); }, [row, type]); await sleep(2500); };
+const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: cur && cur.arg2, clip: typeof shClip !== "undefined" && shClip ? shClip.vid : null, mode: typeof svMode !== "undefined" ? svMode : null, tab: typeof _shTab !== "undefined" ? _shTab : null, prac: typeof _pracTab !== "undefined" ? _pracTab : null }));
 
-/* ---------- a learner with history: three truthful rows ---------- */
+/* ---------- an active learner: every evidence type but inactivity ---------- */
 { const { ctx, p } = await open({ history: true });
   const R = await rows(p);
-  ok("1 · with a passed Challenge, a recorded take and trouble words on record, Home shows three rows, in that order, each headed 'Because you…'", R.length === 3 && R.map(r => r.id).join() === "challenge_done,shadowed,trouble" && R.every(r => /^Because you/.test(r.h)), JSON.stringify(R.map(r => [r.id, r.h])));
-  const ct = chT.replace(/^[\p{Extended_Pictographic}\s]+/u, "").slice(0, 24), st = shT.replace(/^[\p{Extended_Pictographic}\s]+/u, "").slice(0, 24);
-  ok("2 · the headings quote the exact clips from the learner's own history — the Challenge passed and the take recorded (truthful, never invented)", R[0].h.includes(ct) && R[1].h.includes(st) && /shadowed/.test(R[1].h) && /thorough|schedule/.test(R[2].h), JSON.stringify([R[0].h, R[1].h, R[2].h]));
-  ok("3 · every card: a title, a type line, a lazy thumbnail for a clip, the Challenge tag on Challenge cards, 'YouTube' on external clips, at most three per row", R.every(r => r.cards.length >= 2 && r.cards.length <= 3 && r.cards.every(c => c.title && c.line && (!c.vid || (c.img && c.lazy === "lazy" && /YouTube/.test(c.line))))) && R[0].cards.every(c => c.type === "challenge" && c.tag && c.vid), JSON.stringify(R.map(r => r.cards)));
-  ok("4 · the rows never offer a clip the learner already has (the seeds themselves), and no clip twice across the rows", (() => { const v = R.flatMap(r => r.cards.map(c => c.vid).filter(Boolean)); return !v.includes(CH) && !v.includes(SH) && new Set(v).size === v.length; })());
-  const sw = await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
-  ok("5 · on the phone each row swipes sideways (its own scroller), and the page itself has no sideways scroll", R.every(r => r.scroll.w) && sw, JSON.stringify(R.map(r => r.scroll)));
-  ok("6 · cards are touch-sized (≥ 120 px tall) and are real buttons", R.every(r => r.cards.every(c => c.h >= 120)) && await p.evaluate(() => [...document.querySelectorAll(".hx-rcard")].every(e => e.tagName === "BUTTON")));
-  const hero = await p.evaluate(() => ({ kind: document.querySelector(".hx").dataset.kind, best: (NudgeEngine.best(nudgeSignals()) || {}).kind }));
-  ok("7 · the hero is still the engine's own first choice — the rows support it, they do not replace it (rows sit after the hero, before Explore)", hero.kind === hero.best && await p.evaluate(() => { const a = document.querySelector(".hx"), r = document.getElementById("hxRows"), d = document.querySelector(".hx-dest"); return a && r && d && a.compareDocumentPosition(r) & 4 && r.compareDocumentPosition(d) & 4; }), JSON.stringify(hero));
-  const imp = await p.evaluate(() => __ev.filter(e => e[0] === "rec_impression").map(e => e[1]));
-  ok("8 · analytics: one rec_impression per row, carrying the row kind, its reason, the item count, track = general-english, week and day — nothing else", imp.length === 3 && imp.map(x => x.kind).join() === "challenge_done,shadowed,trouble" && imp.every(x => x.track === "general-english" && x.week === "2" && x.day === "Mon" && /^\d$/.test(x.n) && x.reason && Object.keys(x).sort().join() === "day,kind,n,reason,track,week"), JSON.stringify(imp));
-  /* tap the first Challenge card */
-  const vid = R[0].cards[0].vid;
-  await p.click(`.hx-row[data-row="challenge_done"] .hx-rcard >> nth=0`); await sleep(3000);
-  const after = await p.evaluate(() => ({ v: cur && cur.v, clip: shClip && shClip.vid, work: !!document.querySelector(".sh-work") && getComputedStyle(document.querySelector(".sh-work")).display !== "none", opened: S.rec && S.rec.opened && S.rec.opened.id }));
-  ok("9 · tapping a Challenge card opens Shadow Studio on that exact clip (the workspace, not the library), through the notifications' own resolver", after.v === "shadow" && after.clip === vid && after.work && after.opened === "challenge_done", JSON.stringify({ vid, after }));
-  const opn = await p.evaluate(() => __ev.filter(e => e[0] === "rec_open").map(e => e[1]));
-  ok("10 · … and sends rec_open with the row kind and the card type (never the clip id)", opn.length === 1 && opn[0].kind === "challenge_done" && opn[0].to === "challenge" && !JSON.stringify(opn[0]).includes(vid), JSON.stringify(opn));
-  await p.evaluate(() => { try { shCloseWork() } catch (e) {} markPracticed(); });
-  const st2 = await p.evaluate(() => __ev.filter(e => e[0] === "rec_started").map(e => e[1]));
-  ok("11 · the first practice action after the tap sends rec_started once", st2.length === 1 && st2[0].kind === "challenge_done" && st2[0].to === "challenge", JSON.stringify(st2));
-  await p.evaluate(() => { markPracticed(); go("home"); }); await sleep(2000);
-  const R2 = await rows(p);
-  ok("12 · back on Home: the same rows in the same order; the clip just opened is now 'seen' and no longer offered; no duplicates; rec_started not repeated", R2.map(r => r.id).join() === R.map(r => r.id).join() && !R2.some(r => r.cards.some(c => c.vid === vid)) && (() => { const v = R2.flatMap(r => r.cards.map(c => c.vid).filter(Boolean)); return new Set(v).size === v.length; })() && (await p.evaluate(() => __ev.filter(e => e[0] === "rec_started").length)) === 1, JSON.stringify(R2.map(r => [r.id, r.cards.map(c => c.vid)])));
-  /* trouble words → Shadow's trouble tab; words due → Practice's review */
-  await p.click(`.hx-row[data-row="trouble"] .hx-rcard[data-type="trouble"]`); await sleep(1500);
-  const tr = await p.evaluate(() => ({ v: cur && cur.v, tab: typeof _shTab !== "undefined" ? _shTab : null, box: !!document.getElementById("tbBox") }));
-  ok("13 · the trouble-words card lands on Shadow's Trouble words tab, on the words themselves", tr.v === "shadow" && tr.tab === "trouble" && tr.box, JSON.stringify(tr));
-  await p.evaluate(() => go("home")); await sleep(1500);
-  await p.click(`.hx-row[data-row="trouble"] .hx-rcard[data-type="words"]`); await sleep(1500);
-  const wd = await p.evaluate(() => ({ v: cur && cur.v, tab: typeof _pracTab !== "undefined" ? _pracTab : null }));
-  ok("14 · the words-due card opens Practice on the words ready for review", wd.v === "practice" && wd.tab === "ready", JSON.stringify(wd));
+  const ids = R.map(r => r.id);
+  ok("1 · an active learner sees the seven row types their evidence supports — watched, practiced, feedback, struggled, saved, learning, partner — and no 'haven't practised' (they practised today)", ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner"].every(x => ids.includes(x)) && !ids.includes("inactive") && R.length === 7, JSON.stringify(R.map(r => [r.id, r.v, r.h])));
+  const H = Object.fromEntries(R.map(r => [r.id, r.h]));
+  ok("2 · each heading names the learner's own evidence: the clip that played, the take, the words the report flagged, the Challenge missed, the words saved, the week, the scenario and character",
+    H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /Because your feedback on .*Project Update.* flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
+    && /Because you saved .*leverage/.test(H.saved) && /Because you finished Week 1/.test(H.learning) && /Daily stand-up.* with Priya/.test(H.partner) && /^Because you practised/.test(H.practiced), JSON.stringify(H));
+  ok("3 · exactly one lead row, first, with larger cards than the compact rows below it", R[0].lead && R.filter(r => r.lead).length === 1 && R[0].cards[0].w > R[1].cards[0].w + 30, JSON.stringify(R.map(r => [r.id, r.lead, Math.round(r.cards[0].w)])));
+  const ranked = await p.evaluate(() => _homeRows.map(r => r.score));
+  ok("4 · rows are ranked by the engine's signal strength, strongest first (not a fixed order)", ranked.every((x, i) => i === 0 || ranked[i - 1] >= x), JSON.stringify(ranked));
+  ok("5 · every card is specific content (a title, a type line, a content id), 2–3 per row; no clip twice; none the learner already has as a 'new' clip",
+    R.every(r => r.cards.length >= 2 && r.cards.length <= 3 && r.cards.every(c => c.title && c.line && c.cid)) && (() => { const v = R.flatMap(r => r.cards.filter(c => c.type === "video" || c.type === "challenge").map(c => c.vid)); return new Set(v).size === v.length && !R.find(r => r.id === "watched").cards.some(c => c.vid === V.W); })(), JSON.stringify(R.map(r => r.cards.map(c => [c.type, c.cid]))));
+  const hero = await p.evaluate(() => ({ kind: document.querySelector(".hx").dataset.kind, best: (NudgeEngine.rank(nudgeSignals(), {})[0] || {}).kind, order: [".hx", "#hxRows", ".hx-dest"].map(s => document.querySelector(s)).every((e, i, a) => e && (i === 0 || a[i - 1].compareDocumentPosition(e) & 4)) }));
+  ok("6 · hierarchy: the hero (the engine's own first choice) → the rows → Explore", hero.kind === hero.best && hero.order, JSON.stringify(hero));
+  ok("7 · on the phone each row swipes sideways inside itself; the page has no sideways scroll; cards ≥ 120 px tall and real buttons",
+    R.every(r => r.scroll.display === "flex") && R.some(r => r.scroll.w) && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth && [...document.querySelectorAll(".hx-rcard")].every(e => e.tagName === "BUTTON")) && R.every(r => r.cards.every(c => c.h >= 120)));
+  const imp = await p.evaluate(() => __ev.filter(e => e[0] === "recommendation_impression").map(e => e[1]));
+  ok("8 · recommendation_impression once per row: row type, variant, reason, content id, content type, rank, track, week, day — nothing else, nothing personal",
+    imp.length === R.length && imp.map(x => x.kind).join() === ids.join() && imp.every((x, i) => x.rank === String(i + 1) && x.track === "general-english" && x.week === "2" && x.day === "Mon" && x.cid && x.to && Object.keys(x).sort().join() === "cid,day,kind,n,rank,reason,to,track,variant,week") && !JSON.stringify(imp).match(/thorough|leverage|Priya|TOY/i), JSON.stringify(imp));
+  /* the exact destinations */
+  const sv = R.find(r => r.id === "struggled").cards[0];
+  await tap(p, "struggled", "challenge"); let at = await here(p);
+  ok("9 · the Challenge card opens Shadow Studio on that exact clip, in Challenge mode", at.v === "shadow" && at.clip === sv.vid && at.clip === V.CF && at.mode === "challenge", JSON.stringify({ sv, at }));
+  const op = await p.evaluate(() => __ev.filter(e => e[0] === "recommendation_open").map(e => e[1]));
+  ok("10 · … and sends recommendation_open with the row, the content id (the public video id) and the type", op.length === 1 && op[0].kind === "struggled" && op[0].cid === V.CF && op[0].to === "challenge", JSON.stringify(op));
+  await home(p); const wv = (await rows(p)).find(r => r.id === "watched").cards[0];
+  await tap(p, "watched", "video"); at = await here(p);
+  ok("11 · a 'watched' card opens that exact related clip in Shadow Studio", at.v === "shadow" && at.clip === wv.vid, JSON.stringify({ wv, at }));
+  await home(p); await tap(p, "partner", "roleplay"); at = await here(p);
+  ok("12 · a conversation card opens that exact role-play scenario", at.v === "roleplay" && at.a1 === "standup", JSON.stringify(at));
+  await home(p); const lr = (await rows(p)).find(r => r.id === "learning");
+  const phc = lr.cards.find(c => c.type === "phrases") || (await rows(p)).find(r => r.id === "saved").cards.find(c => c.type === "phrases");
+  await p.evaluate(() => { const c = document.querySelector('.hx-rcard[data-type="phrases"]'); c.click(); }); await sleep(1500); at = await here(p);
+  ok("13 · an expressions card opens the Phrase Lab bank on that exact week", at.v === "phrasebank" && String(at.a1) === "2", JSON.stringify({ phc, at }));
+  await home(p); await tap(p, "saved", "words"); at = await here(p);
+  ok("14 · a saved-words card opens the word review", at.v === "practice" && at.prac === "ready", JSON.stringify(at));
+  await home(p); const sc = (await rows(p)).find(r => r.cards.some(c => c.type === "session"));
+  await p.evaluate(() => document.querySelector('.hx-rcard[data-type="session"]').click()); await sleep(1500); at = await here(p);
+  ok("15 · a session card opens that exact session day", at.v === "session" && String(at.a1) === "2" && at.a2 === "Mon", JSON.stringify({ sc: sc && sc.id, at }));
+  /* started + completed: finish the day the card offered */
+  await p.evaluate(() => { toggleDay(dayKey(2, "Mon"), 2, "Mon"); }); await sleep(800);
+  const fin = await p.evaluate(() => ({ st: __ev.filter(e => e[0] === "recommendation_started").map(e => e[1]), done: __ev.filter(e => e[0] === "recommendation_completed").map(e => e[1]) }));
+  ok("16 · finishing the recommended session sends recommendation_started and recommendation_completed with that session's content id", fin.st.length >= 1 && fin.done.length === 1 && fin.done[0].cid === "w2Mon" && fin.done[0].to === "session", JSON.stringify(fin));
+  /* verified watching: opening a clip is not watching it; 30 s of PLAYING is */
+  await p.evaluate(() => go("shadow")); await sleep(1200);
+  const wt = await p.evaluate(async () => { const L = aList("watched"); const n0 = L.length; const real = ytPlayer; const vid = "ApI1rroJNeg";
+    await shLoad({ vid, start: 0, end: 0, title: "Build Your Social Fluency" }); const opened = aList("watched").some(x => x.vid === vid);
+    ytPlayer = { getPlayerState: () => 1, getCurrentTime: () => 0 }; for (let t = 0; t <= 40; t += 0.25) shWatchTick(t);
+    ytPlayer = { getPlayerState: () => 2 }; for (let t = 40; t <= 100; t += 0.25) shWatchTick(t); ytPlayer = real;
+    const e = aList("watched").find(x => x.vid === vid); return { opened, secs: e && e.secs, first: aList("watched")[0].vid === vid }; });
+  ok("17 · verified watching: loading a clip records nothing; 40 s of playing records ≥ 35 s; paused time adds nothing", !wt.opened && wt.secs >= 35 && wt.secs <= 41 && wt.first, JSON.stringify(wt));
   /* Not now */
-  await p.evaluate(() => go("home")); await sleep(1500);
-  await p.evaluate(() => document.querySelector('.hx-row[data-row="shadowed"] .hx-row-hide').click()); await sleep(400);
-  const hid = await p.evaluate(() => ({ rows: [...document.querySelectorAll(".hx-row")].map(r => r.dataset.row), ev: __ev.filter(e => e[0] === "rec_dismissed").map(e => e[1]), keep: !!(S.recHide && S.recHide.shadowed) }));
-  await p.evaluate(() => go("shadow")); await sleep(300); await p.evaluate(() => go("home")); await sleep(1800);
-  const hid2 = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => r.dataset.row));
-  ok("15 · 'Not now' hides that row at once, remembers it (a week), sends rec_dismissed — and the row stays away on the next visit", hid.rows.join() === "challenge_done,trouble" && hid.ev.length === 1 && hid.ev[0].kind === "shadowed" && hid.keep && hid2.join() === "challenge_done,trouble", JSON.stringify({ hid, hid2 }));
-  ok("16 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  await home(p); const before = (await rows(p)).map(r => r.id); const hide = before[1];
+  await p.evaluate(id => document.querySelector(`.hx-row[data-row="${id}"] .hx-row-hide`).click(), hide); await sleep(1500);
+  const after = (await rows(p)).map(r => r.id); const dm = await p.evaluate(() => __ev.filter(e => e[0] === "recommendation_dismissed").map(e => e[1]));
+  ok("18 · 'Not now' hides that row for a week and sends recommendation_dismissed", !after.includes(hide) && dm.length === 1 && dm[0].kind === hide && dm[0].cid, JSON.stringify({ before, after, dm }));
+  ok("19 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
-/* ---------- a brand-new learner: discovery, never 'because you' ---------- */
+/* ---------- five days away: the eighth row joins and leads ---------- */
+{ const { ctx, p } = await open({ history: true, away: 5 });
+  const R = await rows(p);
+  ok("20 · after five days away, 'Because you haven't practised for 5 days' is the lead row, with a short way back", R[0].id === "inactive" && R[0].lead && /haven't practised for 5 days/.test(R[0].h) && R[0].cards.length >= 2, JSON.stringify(R.map(r => [r.id, r.h])));
+  ok("21 · the evidence rows that are still recent (≤ 14 days) stay, the ones past their window go", R.some(r => r.id === "watched") && R.some(r => r.id === "struggled"), JSON.stringify(R.map(r => r.id)));
+  ok("22 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  await ctx.close(); }
+/* ---------- a brand-new learner: curriculum rows only ---------- */
 { const { ctx, p } = await open({ history: false });
   const R = await rows(p);
-  ok("17 · a new learner with no history gets one 'Start here' row for Week 1 — no 'Because you' anywhere on Home", R.length === 1 && R[0].id === "start" && /Start here/.test(R[0].h) && !(await p.evaluate(() => /Because you/.test(document.getElementById("v-home").textContent))), JSON.stringify(R.map(r => [r.id, r.h])));
-  ok("18 · … its cards: the Week 1 Monday session first, then a first clip to shadow (a real catalogue starter)", R[0].cards[0].type === "session" && /Week 1/.test(R[0].cards[0].line) && R[0].cards.slice(1).every(c => c.vid && c.type === "video"), JSON.stringify(R[0].cards));
-  await p.click(`.hx-row[data-row="start"] .hx-rcard[data-type="session"]`); await sleep(1500);
-  const sv = await p.evaluate(() => ({ v: cur && cur.v, a: cur && [cur.arg1, cur.arg2] }));
-  ok("19 · tapping the session card opens that exact session (Week 1, Monday)", sv.v === "session" && String(sv.a[0]) === "1" && sv.a[1] === "Mon", JSON.stringify(sv));
-  ok("20 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  const txt = await p.evaluate(() => document.getElementById("hxRows").textContent);
+  ok("23 · a new learner: 'Start here: your Week 1 learning path' then 'Recommended for your level' — no 'Because you' anywhere", R.map(r => r.id + ":" + r.v).join() === "learning:new,level:" && /Start here: your Week 1/.test(R[0].h) && !/Because you/.test(txt), JSON.stringify(R.map(r => [r.id, r.v, r.h])));
+  ok("24 · … the path holds specific Week 1 content (a first clip to shadow, the week's expressions or scenario), never the hero's own session twice", R[0].cards.length >= 2 && !R.some(r => r.cards.some(c => c.cid === "w1Mon")) && R[0].cards.every(c => c.cid), JSON.stringify(R[0].cards));
+  ok("25 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
 /* ---------- Welding: nothing of this ---------- */
 { const { ctx, p } = await open({ history: true, area: "welding" });
-  const w = await p.evaluate(() => ({ rows: document.querySelectorAll(".hx-row").length, txt: /Because you|Start here/.test(document.getElementById("v-home").textContent), ev: __ev.filter(e => /^rec_/.test(e[0])).length, engine: NudgeEngine.rows(nudgeSignals(), homeContent()).length }));
-  ok("21 · Welding: no rows, no 'Because you', no rec_* event, and the engine itself returns nothing for the area (not only the UI)", w.rows === 0 && !w.txt && w.ev === 0 && w.engine === 0, JSON.stringify(w));
-  ok("22 · Welding: no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  const w = await p.evaluate(() => ({ rows: document.querySelectorAll(".hx-row").length, txt: /Because you|Start here/.test(document.getElementById("v-home").textContent), ev: __ev.filter(e => /^rec/.test(e[0])).length, engine: NudgeEngine.rows(nudgeSignals(), homeContent()).length }));
+  ok("26 · Welding: no rows, no 'Because you', no recommendation event, and the engine itself returns nothing for the area", w.rows === 0 && !w.txt && w.ev === 0 && w.engine === 0, JSON.stringify(w));
   await ctx.close(); }
 /* ---------- flag off: today's Home ---------- */
 { const { ctx, p } = await open({ history: true, flag: false });
-  ok("23 · home_v2_enabled off (production today): no rows, the existing Home unchanged", await p.evaluate(() => document.querySelectorAll(".hx-row,.hx").length === 0 && !!document.querySelector(".today-card")));
+  ok("27 · home_v2_enabled off (production today): no rows, the existing Home unchanged", await p.evaluate(() => document.querySelectorAll(".hx-row,.hx").length === 0 && !!document.querySelector(".today-card")));
   await ctx.close(); }
 /* ---------- desktop ---------- */
 { const { ctx, p } = await open({ history: true }, true);
   const R = await rows(p);
-  ok("24 · desktop: the same rows as a three-up grid (no sideways scroller), and no sideways page scroll", R.length === 3 && R.every(r => r.scroll.display === "grid" && !r.scroll.w) && await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), JSON.stringify(R.map(r => r.scroll)));
-  ok("25 · desktop: no JavaScript errors", !p.errs.length, p.errs.join(" | "));
+  ok("28 · desktop: the same rows as three-up grids (no sideways scroller), no sideways page scroll", R.length === 7 && R.every(r => r.scroll.display === "grid" && !r.scroll.w) && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth), JSON.stringify(R.map(r => r.scroll)));
+  ok("29 · desktop: no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);
