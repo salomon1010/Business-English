@@ -21,7 +21,7 @@ async function open(state, opts = {}) {
   await ctx.route(u => /be-events|cloudflareinsights|be-partner|be-push|entitlements|be-polish|be-mail|youtube\.com|gstatic/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
   await ctx.addInitScript(([s, flags, view]) => { if (sessionStorage.getItem("s")) return; sessionStorage.setItem("s", 1);
     if (s) localStorage.setItem("be12_v1", s); if (flags) localStorage.setItem("be_flags", flags); if (view) sessionStorage.setItem("be_view", view); },
-    [state ? JSON.stringify(seed(state)) : null, opts.flagOff ? null : JSON.stringify({ home_v2_enabled: true }), opts.view || null]);
+    [state ? JSON.stringify(seed(state)) : null, JSON.stringify({ home_v2_enabled: !opts.flagOff })   /* explicit both ways: the staging host turns Home V2 on by default */, opts.view || null]);
   const p = await ctx.newPage(); const errs = []; p.on("pageerror", e => { if (!/network error/i.test(e.message)) errs.push(e.message); });
   await p.goto(BASE + "/index.html" + (opts.url || "")); await sleep(2500);
   return { ctx, p, errs };
