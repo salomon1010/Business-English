@@ -23,7 +23,7 @@ const errors = [];
 const NOISE = /network error occurred|Failed to load resource|CORS|cloudflareinsights|ERR_|be-partner|be-events|be-push|be-entitlements|firebase|googleapis/i;
 
 async function learner(id, { track, flags, reduced = false, audio404 = false }) {
-  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"], reducedMotion: reduced ? "reduce" : "no-preference" });
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, permissions: ["microphone"], reducedMotion: reduced ? "reduce" : "no-preference", serviceWorkers: audio404 ? "block" : "allow" });   /* a service worker's own fetch escapes page routes */
   await ctx.addInitScript(({ track, flags }) => {
     if (flags) localStorage.setItem("be_flags", JSON.stringify(flags)); else localStorage.removeItem("be_flags");
     window.__beacons = []; navigator.sendBeacon = (u, blob) => { try { blob.text().then(t => { try { window.__beacons.push(JSON.parse(t)); } catch (e) {} }); } catch (e) {} return true; };
@@ -245,9 +245,14 @@ const B = await learner("B", { track: "welding", flags: { shadow_scenes_enabled:
 }
 
 /* ================= C — General English, production flags ================= */
-console.log("C · General English learner, production defaults");
+const STAGING_HOST = /staging\.lomonec\.com/.test(BASE);   /* the staging host turns scenes on by design (FLAGS_STAGING) */
+console.log(STAGING_HOST ? "C · General English learner, no overrides, on the STAGING host" : "C · General English learner, production defaults");
 const C = await learner("C", { track: "general-english", flags: null });
-{
+if (STAGING_HOST) {
+  const p = C.page; await toShadow(p);
+  const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, row: !!document.querySelector(".scn-card") }));
+  ok("staging host: scenes on with no override, while the production default stays OFF", c.on && c.row && c.def === false, JSON.stringify(c));
+} else {
   const p = C.page;
   await toShadow(p);
   const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, stg: FLAGS_STAGING.shadow_scenes_enabled, row: !!document.querySelector(".scn-card") }));
