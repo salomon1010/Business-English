@@ -26909,20 +26909,36 @@ window.subInfoMount=root=>{const R=root||document;
 /* Profile → a setting: App Setup is rendered off-screen and just that section
    is lifted into a sheet over Profile — one source of truth, no page change.
    setAcc lifts the account card only; the others run to the next anchored h3. */
-window.pfSetupSheet=async(anchor,title)=>{const old=document.getElementById("pfSetupOv");if(old)old.remove();
+window.pfSetupSheet=async(anchor,title,resync)=>{const old=document.getElementById("pfSetupOv");
+  if(resync&&!old)return;
   if(anchor==="setAcc")try{fbLoad()}catch(e){}   /* the Backup sheet's Log in / Create account open the sign-in sheet at once: the SDK is fetched while the learner reads */
-  const tmp=document.createElement("div");try{await rData(tmp,true)}catch(e){setupOpen(anchor);return}
-  const a=tmp.querySelector("#"+anchor);if(!a){setupOpen(anchor);return}
+  const my=pfSetupSheet._n=(pfSetupSheet._n||0)+1;
+  const tmp=document.createElement("div");try{await rData(tmp,true)}catch(e){if(!resync)setupOpen(anchor);return}
+  /* The off-screen render waited on IndexedDB, and the learner may have moved
+     on meanwhile: a newer sheet, the X, or Log in / Create account. Then this
+     build is dropped — the Backup sheet must never come back over the sign-in
+     sheet (z-index 130 over 120), and a redraw must never bring back a sheet
+     the learner has closed (iPhone, 27 Sep 2026). */
+  if(my!==pfSetupSheet._n||document.getElementById("authOv")||(resync&&!old.isConnected))return;
+  const a=tmp.querySelector("#"+anchor);if(!a){if(!resync)setupOpen(anchor);return}
   const box=document.createElement("div");box.className="pf-sheet-body";
   let n=a.nextElementSibling;
   if(anchor==="setAcc"){if(n)box.appendChild(n)}
   else{while(n&&!(n.tagName==="H3"&&n.id&&/^set/.test(n.id))){const nx=n.nextElementSibling;box.appendChild(n);n=nx}}
-  const ov=document.createElement("div");ov.id="pfSetupOv";ov.dataset.anchor=anchor;ov.dataset.title=title||"";ov.className="lang-modal-ov pp-sheet-ov pp-how-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const ov=document.createElement("div");ov.id="pfSetupOv";ov.dataset.anchor=anchor;ov.dataset.title=title||"";ov.dataset.acct=fbAcctKey();ov.className="lang-modal-ov pp-sheet-ov pp-how-ov";ov.onclick=e=>{if(e.target===ov)ov.remove()};
   const sh=document.createElement("div");sh.className="lang-modal pp-sheet pf-sheet";sh.setAttribute("role","dialog");sh.setAttribute("aria-modal","true");
   sh.innerHTML=`<div class="pf-sheet-head"><h2 style="font-size:17px;margin:0">${esc(title||"")}</h2><button class="ex-howbtn sub-info" aria-label="${esc(t("wc.close"))}" onclick="document.getElementById('pfSetupOv').remove()">${ic("close")}</button></div>`;
-  sh.appendChild(box);ov.appendChild(sh);document.body.appendChild(ov);try{manIconizeInline(sh)}catch(e){}};
-/* A sign-in / sign-out while the Backup sheet is open redraws that sheet. */
-window.pfSetupSheetSync=()=>{const ov=document.getElementById("pfSetupOv");if(ov)pfSetupSheet(ov.dataset.anchor,ov.dataset.title)};
+  sh.appendChild(box);ov.appendChild(sh);
+  /* one step: the sheet already open stays until its replacement is ready — no blank gap for a finger to land in */
+  const prev=document.getElementById("pfSetupOv");if(prev)prev.remove();
+  document.body.appendChild(ov);try{manIconizeInline(sh)}catch(e){}};
+/* The account the sheet was drawn for ("" = signed out). */
+function fbAcctKey(){return FBUser?(FBUser.uid||"1"):""}
+/* A sign-in / sign-out while the Backup sheet is open redraws that sheet —
+   and only then. Firebase's first callback ("no user") arrives a second or
+   two after the sheet's own fbLoad(), right when a finger lands on Log in;
+   redrawing for it tore the sheet down under the tap (iPhone, 27 Sep 2026). */
+window.pfSetupSheetSync=()=>{const ov=document.getElementById("pfSetupOv");if(!ov||ov.dataset.acct===fbAcctKey())return;pfSetupSheet(ov.dataset.anchor,ov.dataset.title,true)};
 /* Profile → identity row: only the fields that belong to the person — name,
    role, goal, practice slot — lifted from App Setup (one source of truth).
    Language, appearance, reminder, account and data have their own rows. */
@@ -29552,6 +29568,9 @@ function fbOnAuth(u){
   try{Billing.init()}catch(e){}
   if(u){fbHideNudge();fbFirstSync(u)}
   if(cur&&cur.v==="data")go("data");
+  /* Profile's Backup & sync row shows the account: redraw it on a real change
+     (not on the SDK's first "no user" callback, which changes nothing). */
+  const acct=fbAcctKey();if(cur&&cur.v==="profile"&&fbOnAuth._acct!==undefined&&fbOnAuth._acct!==acct)go("profile");fbOnAuth._acct=acct;
   try{pfSetupSheetSync()}catch(e){}
   fbUpdateNudge();
 }
@@ -30142,7 +30161,9 @@ window.fbEmailAuth=async function(mode){
   try{
     if(mode==="up"){await FBauth.createUserWithEmailAndPassword(em,pw);fbWelcome()}
     else await FBauth.signInWithEmailAndPassword(em,pw);
+    const from=(document.getElementById("authOv")||{dataset:{}}).dataset.from;
     fbCloseModal();toast(t("auth.signed_in_toast"));
+    if(from!=null)pfSetupSheet("setAcc",from);   /* came from Profile → Backup & sync: back to it, now showing the synced account */
   }catch(e){fbSetErr(fbErr(e))}
 };
 /* The welcome email (owner, 2026-09-19): once, right after the account is
@@ -30197,6 +30218,7 @@ window.fbSignOut=async function(){
   if(!FBauth)return;
   if(!await askConfirm({title:t("cf.signout_title"),body:t("auth.signout_confirm_clean"),confirmLabel:t("cf.signout_ok"),icon:"user",danger:false}))return;
   await FBauth.signOut();          // sign out first so nothing can push after the wipe
+  try{const ps=document.getElementById("pfSetupOv");if(ps)ps.remove()}catch(e){}   /* the Backup sheet must not linger over the wiped Home */
   fbWipeDevice();
   toast(t("auth.signed_out_toast"));go("home");
 };
@@ -30238,12 +30260,19 @@ window.fbOpenModal=async function(mode){
      (#pfSetupOv, .lang-modal-ov, z-index 130) sat OVER the sign-in sheet
      (.auth-ov, 120), so the login opened unseen behind it until the learner
      tapped X (iPhone, 27 Sep 2026). Close it first, at once — before the SDK
-     loads — so the tap lands straight on the sign-in sheet. */
-  try{const ps=document.getElementById("pfSetupOv");if(ps)ps.remove()}catch(e){}
+     loads — so the tap lands straight on the sign-in sheet. Remember that it
+     was the way in (`from`): the sign-in sheet's own Log in ⇄ Create account
+     link carries it on, a failed SDK load brings the sheet back instead of
+     leaving the learner on Profile with a toast, and a successful sign-in
+     returns to it showing the synced account (fbEmailAuth). */
+  let from=null;
+  try{const ps=document.getElementById("pfSetupOv"),o=document.getElementById("authOv");
+    if(ps){if(ps.dataset.anchor==="setAcc")from=ps.dataset.title||"";ps.remove()}
+    else if(o&&o.dataset.from!=null)from=o.dataset.from}catch(e){}
   if(!FBauth)await fbLoad();
-  if(!FBauth){toast(t("auth.not_setup_toast"));return}
+  if(!FBauth){toast(t("auth.not_setup_toast"));if(from!=null)pfSetupSheet("setAcc",from);return}
   fbCloseModal();mode=mode||"up";const signup=mode==="up";
-  const ov=document.createElement("div");ov.className="auth-ov";ov.id="authOv";
+  const ov=document.createElement("div");ov.className="auth-ov";ov.id="authOv";if(from!=null)ov.dataset.from=from;
   ov.onclick=e=>{if(e.target===ov)fbCloseModal()};
   ov.innerHTML=`<div class="auth-card" style="position:relative">
     <button class="auth-x" onclick="fbCloseModal()">×</button>
