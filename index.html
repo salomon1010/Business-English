@@ -962,7 +962,11 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-search input{flex:1;min-width:0;background:none;border:0;padding:12px 0;font-size:14px;color:var(--txt);outline:none;text-overflow:ellipsis}
 @media(max-width:420px){.shl-search input{font-size:13.5px}}
 .shl-search input::placeholder{color:var(--mut)}
-.shl-search:focus-within{border-color:var(--focus)}
+/* no focus rings on the library search (owner, 27 Sep 2026: a coloured box
+   round the field and a second rectangle round the text appeared while
+   typing). The caret and the keyboard say where the typing goes. */
+.shl-search:focus-within{border-color:var(--line2)}
+.shl-search input:focus,.shl-search input:focus-visible{outline:none!important;box-shadow:none!important;border:0!important}
 .shl-search .shl-x{background:none;border:0;color:var(--mut);padding:8px;margin-right:-8px;cursor:pointer;display:none}
 .shl-search.has .shl-x{display:block}
 .shl-chips{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -2px;padding:2px}

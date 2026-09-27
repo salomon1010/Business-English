@@ -44,6 +44,11 @@ console.log("\n# General English");
   await p.evaluate(() => { const c = document.querySelector("#shLib .shl-chips"); if (c) c.scrollLeft = 120; }); await sleep(250);
   const h = await R(p, "#appScrollH"), rr = await R(p, "#shLib .shl-chips");
   ok("2 · a sideways rail (the library's chips): no native bar; scrolling it shows a 36×4 px thumb along its bottom edge", rail && rail.max > 20 && rail.gutter === 0 && h && h.on && h.w === 36 && h.h === 4 && Math.abs(h.b - rr.b) <= 4 && h.l >= rr.l, JSON.stringify({ rail, h, rr }));
+  /* the library search: no focus rings while typing (owner, 27 Sep 2026) */
+  const fr = await p.evaluate(async () => { const box = document.querySelector("#shLib .shl-search"), i = document.getElementById("shLibIn"); const before = getComputedStyle(box).borderTopColor;
+    i.focus(); await new Promise(r => setTimeout(r, 150)); const cs = getComputedStyle(i), bs = getComputedStyle(box);
+    const out = { focused: document.activeElement === i, inputOutline: cs.outlineStyle === "none" || parseFloat(cs.outlineWidth) === 0, inputShadow: cs.boxShadow, boxBorder: bs.borderTopColor === before, boxShadow: bs.boxShadow }; i.blur(); return out; });
+  ok("2b · the library search: typing draws no ring round the box and no rectangle round the text", fr.focused && fr.inputOutline && (fr.inputShadow === "none" || !fr.inputShadow) && fr.boxBorder && (fr.boxShadow === "none" || !fr.boxShadow), JSON.stringify(fr));
   /* the Shadow workspace keeps its own thumb, never the page's */
   await p.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(3000);
   await p.evaluate(() => { const v = document.getElementById("appScrollV"); if (v) v.classList.remove("on"); shOpenWork(); }); await sleep(600);
