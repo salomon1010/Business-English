@@ -2032,6 +2032,7 @@
  "nudge.partner_streak_b": "👥 Practise with your partner this week to keep it going.",
  "nudge.ai_coach_t": "Practise speaking in 5 minutes",
  "nudge.ai_coach_b": "🤖 The AI coach has a short round ready on this week's topic.",
+ "nudge.stale": "You already did this one — here is your next step.",
  "rem.nudges_switch": "Suggest my next best practice",
  "rem.nudges_sub": "At most one a day, never at night — based on your lessons, words and practice. You can switch it off here.",
  "sh.own_title": "🎬 आपके वीडियो",

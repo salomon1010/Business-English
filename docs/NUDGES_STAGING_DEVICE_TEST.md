@@ -37,6 +37,19 @@ Settings (App Setup) → Reminders:
   It shows whether nudges are ready (General English, signed in,
   notifications, push id, switch) and the engine's ranked recommendations.
 
+## Locked-phone delivery (the first test)
+
+The panel's **Schedule my next nudge (Claude delivers it)** runs the real
+engine and the server's account check, but does not deliver. You lock the
+phone, then Claude delivers it from the Mac through `be-push-staging`'s
+`/nudge/flush` (the Worker's own rules), so the notification arrives on a
+locked phone. The panel's **Next:** line shows the exact title, body and
+destination beforehand.
+
+A tap on a notification whose activity you already did lands on the road
+map with "You already did this one — here is your next step". It never
+reopens the finished activity.
+
 ## A. General English, end to end
 
 1. Sign in. Confirm the programme is General English.

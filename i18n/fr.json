@@ -2032,6 +2032,7 @@
  "nudge.partner_streak_b": "👥 Pratiquez avec votre partenaire cette semaine pour continuer la série.",
  "nudge.ai_coach_t": "Parlez anglais en 5 minutes",
  "nudge.ai_coach_b": "🤖 Le coach IA a une courte séance prête sur le thème de la semaine.",
+ "nudge.stale": "Vous l'avez déjà fait — voici votre prochaine étape.",
  "rem.nudges_switch": "Me suggérer ma meilleure pratique",
  "rem.nudges_sub": "Au plus une par jour, jamais la nuit — selon vos leçons, vos mots et votre pratique. Vous pouvez la désactiver ici.",
  "sh.own_title": "🎬 Vos vidéos",

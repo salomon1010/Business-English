@@ -88,6 +88,15 @@ console.log("\n# General English: learner state → the best next action → be-
   ok("A17 · a Shadow nudge opens Shadow", sh === "shadow", sh);
   const bad = await p.evaluate(() => nudgeGo({ view: "https://evil.example" }));
   ok("A18 · an unknown destination goes nowhere", bad === false);
+  /* a notification still on screen after the learner did what it asked */
+  await p.evaluate(() => { window.__beacons.length = 0; });
+  const stale = await p.evaluate(async () => { const pos = currentPos(); const r = { rid: "lesson-stale-1", kind: "lesson", view: "session", args: [pos.w, pos.d] };
+    S.days[dayKey(pos.w, pos.d)] = true; go("practice"); await new Promise(x => setTimeout(x, 300));
+    nudgeArrive(r, "push"); await new Promise(x => setTimeout(x, 600)); return { v: cur.v, toast: document.getElementById("toast").innerText }; });
+  const sb = await beacons(p);
+  ok("A18b · a stale tap (the lesson is already done) does not reopen it: road map + 'You already did this one', counted opened:stale, not accepted", stale.v === "journey" && /already did this one/.test(stale.toast) && sb.includes("nudge_opened:stale") && !sb.includes("nudge_accepted"), JSON.stringify({ stale, sb }));
+  const preview = await p.evaluate(() => { Object.values(S.vocab).forEach(v => { v.due = Date.now() - 1000; }); S.nudge.hist = { sent: {}, dismissed: {}, done: {} }; return nudgeTestNext(); });
+  ok("A18c · the staging preview shows the exact text the engine would send now, from the learner's state", /→ “.+” \/ “.+” → opens /.test(preview), preview);
   /* Settings */
   const sw = await p.evaluate(async () => { go("data"); await new Promise(x => setTimeout(x, 500)); const c = document.getElementById("nudgesOn"); return { has: !!c, on: c && c.checked }; });
   ok("A19 · Settings carries the switch, on by default", sw.has && sw.on, JSON.stringify(sw));
@@ -120,7 +129,8 @@ console.log("\n# launch: retention, expiry, a tap on a closed app");
   ok("B2 · a pending nudge past its expiry → nudge_expired:expired, dropped", bb.includes("nudge_expired:expired") && (await p.evaluate(() => !S.nudge.pending)), JSON.stringify(bb));
   await ctx.close();
   const pend2 = { rid: "shadow-" + today + "-x", kind: "shadow", view: "shadow", act: "trouble", args: [], createdAt: Date.now(), sendAfter: Date.now(), expiresAt: Date.now() + DAY };
-  const o2 = await open("general-english", { nudge: { pending: pend2, hist: { sent: {}, dismissed: {}, done: {} }, doneRids: [] } }, "?nudge=" + pend2.rid + "#shadow");
+  /* the real condition for a Shadow nudge: three trouble words */
+  const o2 = await open("general-english", { troubleA: { "general-english": { alpha: { n: 2, ts: Date.now() }, bravo: { n: 2, ts: Date.now() }, charlie: { n: 3, ts: Date.now() } } }, nudge: { pending: pend2, hist: { sent: {}, dismissed: {}, done: {} }, doneRids: [] } }, "?nudge=" + pend2.rid + "#shadow");
   await sleep(1200);
   const st = await o2.p.evaluate(() => ({ v: cur.v, opened: S.nudge.opened && S.nudge.opened.rid, url: location.search }));
   ok("B3 · a tap that opened the app (?nudge=rid) lands on the activity and is counted", st.v === "shadow" && st.opened === pend2.rid && !st.url && (await beacons(o2.p)).includes("nudge_opened"), JSON.stringify(st));

@@ -6850,6 +6850,7 @@ const I18N_EN={
  "nudge.partner_streak_b":"👥 Practise with your partner this week to keep it going.",
  "nudge.ai_coach_t":"Practise speaking in 5 minutes",
  "nudge.ai_coach_b":"🤖 The AI coach has a short round ready on this week's topic.",
+ "nudge.stale":"You already did this one \u2014 here is your next step.",
  "rem.nudges_switch":"Suggest my next best practice",
  "rem.nudges_sub":"At most one a day, never at night — based on your lessons, words and practice. You can switch it off here.",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
@@ -14727,6 +14728,16 @@ window.nudgeArrive=(info,source)=>{
   const r=Object.assign({},known,info);if(!r.kind||!r.view)return false;
   if(n.opened&&n.opened.rid===r.rid&&Date.now()-n.opened.at<60000)return true;   /* the same tap seen twice */
   const now=Date.now();
+  /* a notification still on screen after the learner already did what it
+     asked (or after the app voided it): never reopen finished work — say so
+     and land on the road map, where today's real next step is lit */
+  const stale=n.doneRids.includes(r.rid)||(()=>{try{return NudgeEngine.satisfied(r,nudgeSignals())}catch(e){return false}})();
+  if(stale){
+    n.hist.sent[r.kind]=Math.max(n.hist.sent[r.kind]||0,now);if(n.pending&&n.pending.rid===r.rid)n.pending=null;save();
+    try{track("nudge_opened",{kind:r.kind,source:source||"push",result:"stale"})}catch(e){}
+    try{go("journey")}catch(e){}try{toast(t("nudge.stale"))}catch(e){}
+    return true;
+  }
   n.opened={rid:r.rid,kind:r.kind,view:r.view,act:r.act||null,args:r.args||[],at:now,started:false,completed:false,practice:false,partner:false,retained:false};
   n.hist.sent[r.kind]=Math.max(n.hist.sent[r.kind]||0,now);if(n.pending&&n.pending.rid===r.rid)n.pending=null;save();
   try{track("nudge_opened",{kind:r.kind,source:source||"push"})}catch(e){}
@@ -14776,8 +14787,27 @@ function nudgeStaging(){try{return !!(window.beEnv&&beEnv())}catch(e){return fal
 function nudgeTestInfo(){
   const ok=b=>b?"yes":"NO";
   let next="none";try{const r=NudgeEngine.rank(nudgeSignals(),nudgeState().hist);next=r.length?r.map(x=>x.kind+" ("+x.reason+")").join(", "):"none"}catch(e){}
-  return "General English: "+ok(isGeneralEnglish())+" · signed in: "+ok(typeof FBUser!=="undefined"&&!!FBUser)+" · notifications: "+(window.Notification?Notification.permission:"unsupported")+" · push id: "+ok(!!S.pushId)+" · switch on: "+ok(nudgePrefOn())+" · push Worker: "+PUSH_API.replace(/^https:\/\//,"")+" · ranked: "+next;
+  return "Next: "+nudgeTestNext()+" · General English: "+ok(isGeneralEnglish())+" · signed in: "+ok(typeof FBUser!=="undefined"&&!!FBUser)+" · notifications: "+(window.Notification?Notification.permission:"unsupported")+" · push id: "+ok(!!S.pushId)+" · switch on: "+ok(nudgePrefOn())+" · push Worker: "+PUSH_API.replace(/^https:\/\//,"")+" · ranked: "+next;
 }
+/* the exact notification the engine would send now, from this learner's state */
+function nudgeTestNext(){try{const r=NudgeEngine.best(nudgeSignals(),nudgeState().hist);if(!r)return "none";const x=nudgeText(r);return r.kind+" → “"+x.title+"” / “"+x.body+"” → opens "+r.view+(r.args&&r.args.length?" "+r.args.join(" "):"")+(r.act?" ("+r.act+")":"")}catch(e){return "none"}}
+window.nudgeTestAllow=async()=>{
+  if(!nudgeStaging()||!window.Notification)return;
+  try{await Notification.requestPermission()}catch(e){}
+  try{await pushSync()}catch(e){}
+  const el=document.getElementById("nudgeTestInfo");if(el)el.textContent=nudgeTestInfo();
+  toast("Notifications: "+Notification.permission);
+};
+/* schedule the engine's choice for NOW but do not deliver: the tester locks
+   the phone and the delivery is triggered from outside (POST /nudge/flush on
+   be-push-staging), so the notification arrives on a locked phone */
+window.nudgeTestSchedule=async()=>{
+  if(!nudgeStaging())return;
+  try{await pushSync()}catch(e){}
+  const p=await nudgeSchedule("test",{now:true});
+  const el=document.getElementById("nudgeTestInfo");if(el)el.textContent=nudgeTestInfo();
+  toast(p?"Scheduled: "+p.kind+". Lock the phone now and tell Claude.":(nudgeReady()?"No recommendation now, or the server refused this account.":"Not ready — see the line above."));
+};
 window.nudgeTestNow=async()=>{
   if(!nudgeStaging())return;
   try{await pushSync()}catch(e){}
@@ -26483,6 +26513,8 @@ async function rData(el,embedded){
       <p class="rem-note">${t("rem.nudges_sub")}</p>
       ${nudgeStaging()?`<div class="rem-box nudge-staging" style="margin-top:8px"><b>Staging test — learning nudges</b>
         <p class="rem-note" id="nudgeTestInfo">${esc(nudgeTestInfo())}</p>
+        ${window.Notification&&Notification.permission!=="granted"?`<button class="btn-primary" onclick="nudgeTestAllow()">Allow notifications</button>`:""}
+        <button class="btn btn-g" onclick="nudgeTestSchedule()">Schedule my next nudge (Claude delivers it)</button>
         <button class="btn btn-g" onclick="nudgeTestNow()">Deliver my next nudge now</button>
         <button class="btn btn-g" onclick="nudgeTestServer()">Check the server accepts this account</button></div>`:""}`:""}
       ${nudgeStaging()&&!nudgeAvailable()&&flag("learning_nudges_enabled")?`<div class="rem-box nudge-staging-server" style="margin-top:8px"><b>Staging test — server boundary</b>
