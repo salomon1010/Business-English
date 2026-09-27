@@ -19,6 +19,7 @@
  *        { "vid": "abc123" } ] }],
  *     "channels": ["@Handle", …],          // the recommended-channels row
  *     "hero": { "1": "vid", "2": "vid" }, // one editorial pick per plan week
+ *     "rawVids": { "Name": ["vid", …] },  // --raw: dump these exact videos as catalogue/raw/Name.json
  *     "rules": { "minSec": 60, "maxSec": 1800 } }
  *
  * Runs on the maintainer's machine only (needs yt-dlp on PATH). The app never
@@ -214,6 +215,19 @@ function raw() {
     const vids = (info.entries || []).filter(Boolean).map(record);
     fs.writeFileSync(out, JSON.stringify({ handle: h, channel: info.channel || h, id: info.channel_id || '', videos: vids }, null, 1) + '\n');
     console.error(` ${vids.length}`);
+  }  /* named videos that a channel's newest-N would never reach (older series such
+     as EnglishClass101's Lyric Lab): sources.rawVids = { "<dump name>": [vid, …] } */
+  for (const [name, ids] of Object.entries(sources.rawVids || {})) {
+    const out = path.join(dir, name + '.json');
+    if (fs.existsSync(out) && !FORCE) { console.error(`${name} — have it`); continue; }
+    const vids = [];
+    for (const id of ids) {
+      process.stderr.write(`${name}/${id} …`);
+      try { vids.push(record(ytJson(`https://www.youtube.com/watch?v=${id}`))); console.error(' ok'); }
+      catch (e) { console.error(' failed'); }
+    }
+    const first = vids[0] || {};
+    fs.writeFileSync(out, JSON.stringify({ handle: first.handle || name, channel: first.ch || name, id: first.chId || '', videos: vids }, null, 1) + '\n');
   }
 }
 
