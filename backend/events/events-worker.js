@@ -113,6 +113,12 @@ const EVENTS = new Set([
   // 12 and 13 (LAYOUTS below); result and kind already had theirs.
   "shadow_report_viewed", "shadow_focus_practiced", "shadow_micro_completed", "shadow_again_clicked",
   "shadow_details_opened", "shadow_vocab_saved", "shadow_second_completed",
+  // Animated scenes in Shadow Studio (2026-09-27, General English only — the
+  // app drops them on any other area): a scene opened (+source library|session),
+  // a line action in Watch (+kind listen|slow|shadow|repeat), the word card
+  // (+kind open|listen|slow|save). Counts and fixed enums only — never the
+  // scene's words, the word tapped or anything spoken.
+  "shadow_scene_opened", "shadow_scene_line", "shadow_scene_word",
   // Round Review (Practice Partner, General English only): a review landed
   // (+evidence audio|asr|none), the voice coach was played, a pronunciation or
   // sentence practice attempt was graded (+result pass|retry), an item was

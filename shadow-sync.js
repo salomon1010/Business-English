@@ -99,7 +99,14 @@
     const segs = []; let wi = 0;                                  // words are sorted: one pass, not a filter per cue
     for (let i = 0; i < cues.length; i++) {
       const startMs = begins[i];
-      const nextMs = i + 1 < cues.length ? begins[i + 1] : startMs + TAIL_MS;
+      let nextMs = i + 1 < cues.length ? begins[i + 1] : startMs + TAIL_MS;
+      /* The last line owns every word after its start (up to the longest line
+         allowed). A fixed tail cut a long last line's closing words off — "this
+         week." vanished from a four-second final line, word chips and all. */
+      if (i + 1 === cues.length && words.length) {
+        let lw = -1; for (const w of words) { const ms = Math.round(w.t * 1000); if (ms < startMs + MAX_SEG_MS) lw = ms; }
+        if (lw >= 0) nextMs = Math.max(nextMs, lw + 600);
+      }
       const endMs = Math.max(startMs + MIN_SEG_MS, Math.min(nextMs, startMs + MAX_SEG_MS));
       while (wi < words.length && Math.round(words[wi].t * 1000) < startMs) wi++;
       let wj = wi; while (wj < words.length && Math.round(words[wj].t * 1000) < nextMs) wj++;

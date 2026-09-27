@@ -1,0 +1,5 @@
+{
+  "_note": "Shadow Studio scenes, in the order the library shows them. Each slug is a folder under scenes/ (see shadow-scenes.js).",
+  "schemaVersion": 1,
+  "scenes": ["coworker-intro"]
+}

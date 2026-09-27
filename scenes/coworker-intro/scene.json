@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "scene.coworker-intro",
+  "title": "Meeting a new coworker",
+  "setting": "office",
+  "track": "general-english",
+  "week": 1,
+  "day": "Mon",
+  "topic": "Introductions and role clarity",
+  "skill": "pronunciation",
+  "competency": "explain-work",
+  "level": "A2-B1",
+  "focus": "daniel",
+  "cast": ["daniel", "maya"],
+  "audio": "audio.mp3",
+  "captions": "captions.json",
+  "durationS": 60.9,
+  "gapMs": 700,
+  "leadMs": 400,
+  "lines": [
+    { "speaker": "daniel", "text": "Hi, I'm Daniel. I work with the data team." },
+    { "speaker": "maya", "text": "Nice to meet you, Daniel. I'm Maya. I just joined as a project coordinator." },
+    { "speaker": "daniel", "text": "Welcome to the team! What does your new role involve?" },
+    { "speaker": "maya", "text": "I'm responsible for planning our projects and keeping everyone on schedule." },
+    { "speaker": "daniel", "text": "That sounds like a busy job. We'll probably work together on the monthly reports." },
+    { "speaker": "maya", "text": "Great. Could you tell me a bit more about what your team does?" },
+    { "speaker": "daniel", "text": "Sure. We collect the numbers, check them carefully, and turn them into clear reports for the managers." },
+    { "speaker": "maya", "text": "That's really helpful, thank you. Who should I talk to if I have questions about the data?" },
+    { "speaker": "daniel", "text": "Just come to me. My desk is right over there, by the window." },
+    { "speaker": "maya", "text": "Perfect. Let's grab a coffee later this week." }
+  ],
+  "expressions": [
+    "I work with the data team",
+    "Nice to meet you",
+    "What does your new role involve?",
+    "I'm responsible for",
+    "Could you tell me a bit more about"
+  ],
+  "vocab": [
+    { "w": "coordinator", "meaning": "a person who organises people or work so that everything happens at the right time", "example": "I just joined as a project coordinator." },
+    { "w": "involve", "meaning": "to include something as a necessary part", "example": "What does your new role involve?" },
+    { "w": "responsible", "meaning": "having the job of dealing with something", "example": "I'm responsible for planning our projects." },
+    { "w": "schedule", "meaning": "a plan of when things should happen", "example": "I keep everyone on schedule." },
+    { "w": "reports", "meaning": "documents that give information about a subject", "example": "We turn them into clear reports for the managers." },
+    { "w": "collect", "meaning": "to bring things together from different places", "example": "We collect the numbers." },
+    { "w": "carefully", "meaning": "with attention, so that you avoid mistakes", "example": "We check them carefully." },
+    { "w": "grab", "meaning": "(informal) to get something quickly", "example": "Let's grab a coffee later this week." }
+  ],
+  "retell": "Introduce yourself to a new coworker: your name, your team, and what you are responsible for."
+}

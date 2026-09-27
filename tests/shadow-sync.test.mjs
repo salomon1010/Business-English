@@ -21,6 +21,10 @@ ok("word-level asset from cues + words", a.level === "word" && a.segments.length
 ok("segment end = next cue start", a.segments[0].endMs === 13500 && a.segments[1].endMs === 17000);
 ok("last segment gets a tail, not infinity", a.segments[2].endMs === 17000 + 2500);
 ok("word end = next word start; last word ends with the segment", a.segments[0].words[0].endMs === 10300 && a.segments[0].words[9].endMs === 13500);
+{ const long = S.normalizeCaptions({ cues: [{ t: 0, txt: "Hello there." }, { t: 2, txt: "Perfect. Let's grab a coffee later this week." }],
+    words: [{ t: 0, w: "Hello" }, { t: 0.5, w: "there." }, { t: 2, w: "Perfect." }, { t: 3.4, w: "Let's" }, { t: 3.7, w: "grab" }, { t: 3.9, w: "a" }, { t: 4.1, w: "coffee" }, { t: 4.5, w: "later" }, { t: 4.8, w: "this" }, { t: 5.1, w: "week." }] }, 0, 0);
+  const last = long.segments[1];
+  ok("a long LAST line keeps every word (the fixed tail used to cut 'this week.' off)", last.words.length === 8 && last.words[7].text === "week." && last.endMs >= 5100 + 600, JSON.stringify(last.words.map(w => w.text))); }
 const clipped = S.normalizeCaptions(cap, 13.6, 17.5);
 ok("clip marks drop segments that do not overlap [start,end] (s0 ends at 13.5)", clipped.segments.length === 2 && clipped.segments[0].id === "s1" && clipped.segments[1].id === "s2");
 const sentenceOnly = S.normalizeCaptions({ cues: cap.cues }, 0, 0);

@@ -66,7 +66,8 @@
 <script src="nudge-engine.js?v=3"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=82"></script>
-<script src="shadow-sync.js?v=7"></script>
+<script src="shadow-sync.js?v=8"></script>
+<script src="shadow-scenes.js?v=1"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
 <script src="career-center.js?v=79"></script>
 <script src="professional-skills-passport.js?v=85"></script>
@@ -1836,6 +1837,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sv-chev{display:inline-block;margin-left:5px;font-size:11px;opacity:.8;transition:transform .2s}.sv-chev.open{transform:rotate(180deg)}
 .sv-now .sv-w{cursor:pointer}
 .sv-expr{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px;font-size:12.5px;color:var(--mut)}
+.sv-expr>svg{flex:none;width:15px;height:15px}   /* ic() is unsized: without this the sparkle filled the panel in Challenge */
 .sv-expr[hidden]{display:none}.sv-expr b{color:var(--txt);font-weight:700}.sv-expr .sv-expr-lbl{text-transform:uppercase;letter-spacing:1px;font-size:10.5px;font-weight:800;color:var(--accent-text)}
 .sv-ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
 /* one line, always: the transcript switch grows, the three steppers are square */
@@ -3157,6 +3159,88 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 /* SHADOW (YouGlish-style clip looper) */
 .yt-shell{background:#000;border:2px solid #000;border-radius:18px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.45)}
 .yt-ratio{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+/* ---- Animated scenes (shadow-scenes.js; General English, shadow_scenes_enabled) ----
+   The stage is a picture, like a video frame: its own colours in both themes.
+   Motion only while someone speaks, and none at all under reduced motion. */
+.scn{position:absolute;inset:0;overflow:hidden;background:#dfe8f3;color:#0f172a;container-type:inline-size;user-select:none;-webkit-user-select:none}
+.scn-bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.scn-c{position:absolute;bottom:-7%;width:33%;aspect-ratio:200/240;transition:transform .35s ease,filter .35s ease;transform-origin:50% 100%}
+.scn-c0{left:9%}.scn-c1{right:9%}
+.scn-cs{display:block;width:100%;height:100%}
+.scn .scn-m1{display:none}
+.scn[data-mouth="1"] .scn-c.on .scn-m1{display:inline}.scn[data-mouth="1"] .scn-c.on .scn-m0{display:none}
+.scn.talk .scn-c:not(.on){filter:saturate(.72) brightness(.9)}
+.scn .scn-c.on{transform:translateY(-2%) scale(1.035)}
+.scn-live:not(.still) .scn-eyes{transform-box:fill-box;transform-origin:50% 50%;animation:scnBlink 5.3s infinite}
+.scn-live:not(.still) .scn-c1 .scn-eyes{animation-delay:1.9s}
+@keyframes scnBlink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.12)}}
+.scn-tag{position:absolute;left:50%;bottom:11%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;max-width:150%;white-space:nowrap;background:rgba(15,23,42,.8);color:#fff;border-radius:999px;padding:3px 10px;font-size:clamp(10px,2.3cqi,13px);line-height:1.3}
+.scn-tag small{opacity:.78;font-size:.88em}
+.scn-c.on .scn-tag{background:#0f766e}
+.scn-eq{display:none;align-items:flex-end;gap:2px;height:.8em}
+.scn-c.on .scn-eq{display:inline-flex}
+.scn-eq em{display:block;width:3px;height:100%;border-radius:2px;background:#99f6e4;animation:scnEq .8s ease-in-out infinite}
+.scn-eq em:nth-child(2){animation-delay:.18s}.scn-eq em:nth-child(3){animation-delay:.36s}
+@keyframes scnEq{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+.scn-eq em{transform-origin:50% 100%}
+.scn-status{position:absolute;left:3%;top:4.5%;max-width:72%;display:flex;align-items:center;gap:7px;background:rgba(15,23,42,.82);color:#fff;border-radius:999px;padding:5px 12px;font-size:clamp(11px,2.6cqi,14.5px);font-weight:600;line-height:1.3}
+.scn-status[hidden]{display:none}
+.scn-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#5eead4}
+.scn-status[data-k="turn"]{background:#1d4ed8}.scn-status[data-k="turn"] .scn-dot{background:#fff}
+.scn-status[data-k="rec"]{background:#b91c1c}.scn-status[data-k="rec"] .scn-dot{background:#fff;animation:scnRec 1s ease-in-out infinite}
+.scn-status[data-k="busy"]{background:#334155}
+.scn-status[data-k="fb"]{background:#0f766e}
+@keyframes scnRec{50%{opacity:.25}}
+.scn-ai{position:absolute;right:3%;top:4.5%;background:rgba(255,255,255,.88);color:#334155;border-radius:999px;padding:2px 8px;font-size:clamp(9.5px,2cqi,11.5px);font-weight:700;letter-spacing:.3px}
+.scn-go{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);display:none;place-items:center;width:clamp(52px,14cqi,72px);height:clamp(52px,14cqi,72px);border-radius:50%;border:0;background:rgba(15,23,42,.74);color:#fff;cursor:pointer}
+.scn[data-state="idle"] .scn-go,.scn[data-state="pause"] .scn-go{display:grid}
+#shWork[data-svmode="shadow"] .scn-go,#shWork[data-svmode="challenge"] .scn-go{display:none}
+.scn-go:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.scn.scn-thumb{position:relative;inset:auto;display:block;width:100%;aspect-ratio:16/9}
+.scn-thumb .scn-c{bottom:-9%}
+.scn-sec .shl-lbl{display:flex;align-items:center;gap:6px}
+.scn-new{font-style:normal;color:var(--acc2);border:1px solid color-mix(in srgb,var(--acc2) 55%,transparent);border-radius:999px;padding:0 7px;font-size:10px;letter-spacing:.6px}
+.scn-row{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.scn-row::-webkit-scrollbar{display:none}
+.scn-card{position:relative;flex:0 0 100%;scroll-snap-align:start;display:flex;flex-direction:column;padding:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--card);color:var(--txt);text-align:left;font-family:inherit;cursor:pointer}
+.scn-row .scn-card+.scn-card,.scn-row:has(.scn-card+.scn-card) .scn-card{flex-basis:86%}
+.scn-card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.scn-card .scn-fit{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:color-mix(in srgb,var(--card) 88%,transparent);color:var(--acc2);padding:4px 9px;border-radius:999px}
+.scn-card-t{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
+.scn-card-t b{font-size:15px;line-height:1.3}
+.scn-card-t small{font-size:12.5px;color:var(--mut)}
+.scn-pg{display:flex;gap:12px;margin-top:5px;font-size:11.5px;color:var(--mut2)}
+.scn-pg-s{display:inline-flex;align-items:center;gap:5px}
+.scn-pg-s i{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor}
+.scn-pg-s.on{color:var(--acc2)}.scn-pg-s.on i{background:currentColor}
+.sv-spk{display:flex;align-items:center;gap:7px;margin:0 0 4px;font-size:13px;line-height:1.2}
+.sv-spk b{font-weight:700;color:var(--txt)}
+.sv-spk small{color:var(--mut2);font-size:11.5px}
+.sv-spk-av{flex:none;display:block;width:26px;height:26px;border-radius:50%;overflow:hidden;background:#dfe8f3}
+.sv-spk-av svg{display:block;width:100%;height:100%}
+.scn-acts{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px}
+.scn-act{display:inline-flex;align-items:center;gap:5px;min-height:40px;padding:6px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card2);color:var(--txt);font:inherit;font-size:13px;cursor:pointer}
+.scn-act svg{width:16px;height:16px}
+.scn-act:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sv-sh-who{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px 10px;margin:0 0 8px}
+.sv-sh-who .sv-spk{margin:0}
+.sv-sh-with{font-size:12px;color:var(--mut)}
+.scn-wc{margin:10px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:var(--bg2)}
+.scn-wc[hidden]{display:none}
+.scn-wc-hd{display:flex;align-items:baseline;gap:10px}
+.scn-wc-hd b{font-size:18px}
+.scn-wc-ipa{font-size:14px;color:var(--mut)}
+.scn-wc-x{margin-left:auto;align-self:center;width:36px;height:36px;border:0;background:none;color:var(--mut);cursor:pointer;display:grid;place-items:center}
+.scn-wc-x svg{width:18px;height:18px}
+.scn-wc-m,.scn-wc-e{margin:6px 0 0;font-size:13.5px;line-height:1.45}
+.scn-wc-m span,.scn-wc-e span{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--mut2)}
+.scn-wc-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.scn-wc-save.on{color:var(--acc2)}
+.scn-next{margin:14px 0 4px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card2)}
+.scn-next-t{margin:4px 0 10px;font-size:14px;line-height:1.45;color:var(--txt)}
+.scn-next .pp-row{display:flex;flex-wrap:wrap;gap:8px}
+.scn-ai-tag{font-size:10px;font-weight:800;letter-spacing:.6px;border:1px solid currentColor;border-radius:6px;padding:0 5px;margin-left:2px}
+@media (prefers-reduced-motion: reduce){.scn *,.scn{animation:none!important;transition:none!important}.scn .scn-c.on{transform:none}}
 .yt-ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0;
   /* body{zoom} reaches INSIDE a cross-origin frame: the frame's own viewport
      stayed at the unzoomed size (421 px) while the YouTube player laid itself
@@ -7723,6 +7807,56 @@ const I18N_EN={
  "sh.lib_channels":"Channels",
  "sh.lib_week_pick":"This week · Week {{n}}",
  "sh.lib_fits_plan":"Fits your plan",
+ "scn.row_t":"Animated scenes",
+ "scn.row_new":"New",
+ "scn.card_meta":"Week {{w}} · {{min}} min · {{who}}",
+ "scn.ai_voices":"AI voices",
+ "scn.play":"Play the scene",
+ "scn.stage_a11y":"Animated scene: {{title}}. {{who}}.",
+ "scn.speaking":"{{name}} is speaking",
+ "scn.st_turn":"Your turn — press Shadow and speak along with {{name}}",
+ "scn.st_rec":"Recording — speak along with {{name}}",
+ "scn.st_checking":"Checking your recording…",
+ "scn.st_feedback":"Feedback ready — see below",
+ "scn.st_ch_turn":"Your turn — say it without reading",
+ "scn.st_ch_rec":"Recording — from memory",
+ "scn.st_ch_gate":"Listen to {{name}} first",
+ "scn.st_ch_sync":"Your turn — speak together with {{name}}",
+ "scn.st_ch_recall":"Your turn — say it from memory",
+ "scn.st_ch_blind":"Your turn — say it without the text",
+ "scn.st_ch_retell":"Your turn — say it in your own words",
+ "scn.level":"Word-by-word highlighting, timed from the scene's own audio.",
+ "scn.sh_with":"Speak along with {{name}}",
+ "scn.sh_hint":"{{name}}'s line loops. Press Shadow and speak along — at the same time, in the same rhythm.",
+ "scn.audio_err":"The scene's sound could not load. The words and exercises still work — try again with a connection.",
+ "scn.unavailable":"Animated scenes are part of General English.",
+ "scn.acts_a11y":"Practise this line",
+ "scn.act_listen":"Listen",
+ "scn.act_slow":"Slow",
+ "scn.act_shadow":"Shadow",
+ "scn.act_repeat":"Repeat",
+ "scn.wc_meaning":"Meaning",
+ "scn.wc_example":"Example",
+ "scn.wc_listen":"Listen",
+ "scn.wc_slow":"Slow",
+ "scn.wc_save":"Save word",
+ "scn.wc_saved":"Saved",
+ "scn.wc_saved_toast":"“{{w}}” is in your vocabulary.",
+ "scn.wc_close":"Close",
+ "scn.wc_ipa_wait":"Pronunciation…",
+ "scn.sess_btn":"Shadow the scene: {{title}}",
+ "scn.sess_why":"A one-minute animated dialogue for this session. Watch it, then shadow {{name}}.",
+ "scn.prog_a11y":"Watched: {{a}}. Shadowed: {{b}}. Challenge passed: {{c}}.",
+ "scn.prog_watch":"Watch",
+ "scn.prog_shadow":"Shadow",
+ "scn.prog_challenge":"Challenge",
+ "scn.yes":"yes",
+ "scn.next_eyebrow":"Next: use it for real",
+ "scn.next_expr":"You've practised “{{x}}”. Now use it with another learner.",
+ "scn.next_line":"You've practised this line. Now use it with another learner.",
+ "scn.next_ai_note":"No partner free right now? The AI coach is always there. It is an AI, not a learner.",
+ "scn.ai_tag":"AI",
+ "scn.no":"not yet",
  "sh.lib_add_t":"Paste a YouTube link",
  "sh.lib_add_sub":"Any video. Transcript when we can read it, or shadow by ear.",
  "sh.q_paste":"Paste a link",
@@ -10954,7 +11088,7 @@ function homeRowKey(r){
 function homeRowCardHTML(r,it,i){
   /* a clip shows its thumbnail, a role-play its character's portrait, anything else the page it opens */
   const rp=it.type==="roleplay"?(()=>{try{return rpPhotoKey({id:it.cid,persona:it.persona})}catch(e){return null}})():null;
-  const src=it.vid?`https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg`:rp?`rp-photos/${esc(rp)}.jpg`:homeShot(it.type);
+  const src=it.vid?esc(vidThumb(it.vid,"hqdefault")):rp?`rp-photos/${esc(rp)}.jpg`:homeShot(it.type);
   const img=src?`<img src="${src}" alt="" loading="lazy" decoding="async"${it.vid||rp?"":' class="hx-shot"'} onerror="this.remove()">`:"";
   const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
   return `<button class="hx-rcard" data-type="${esc(it.type)}" data-cid="${esc(it.cid||"")}"${it.vid?` data-vid="${esc(it.vid)}"`:""} onclick="homeRecOpen('${esc(r.id)}',${i})">
@@ -11189,7 +11323,7 @@ function homeDestHTML(top,cards,vis){
   const p=currentPos(),weeks=trackWeeks().length||12,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
   const D={
-    shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?`https://i.ytimg.com/vi/${esc(firstVid)}/hqdefault.jpg`:""},
+    shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?esc(vidThumb(firstVid,"hqdefault")):""},
     partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:homeShot("partner")}:null,
     phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:homeShot("phrases")},
     /* the app's own pages as their pictures (owner, 27 Sep 2026): home-shots/*.jpg are 16:9 clips
@@ -11945,6 +12079,7 @@ function rSession(el,w,d){
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
   ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
+  ${scnOn()&&sessionLinks[d]&&sessionLinks[d].v==="shadow"?`<div id="scnSess"></div>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
         <div class="eyebrow">${t("sess.timer_eyebrow")}</div>
@@ -12026,6 +12161,7 @@ function rSession(el,w,d){
   renderRecs(key);
   sessRepMount(key);
   tRender();   // reflect current timer state into the session digits + button + header pill
+  try{scnSessFill(w,d)}catch(e){}
 }
 /* A General English speaking day in a week with a V2 competency: the day's
    context, then this week's mission as the ONE action. No script, recorder,
@@ -12631,7 +12767,7 @@ function shCatLoad(){
 function shLibDockHTML(){
   const c=S.lastClip;
   const cont=c&&c.vid?`<button class="shl-cont" onclick="shOpenWork()" aria-label="${esc(t("sh.resume_btn")+(c.title?" — "+c.title:""))}">
-      <img src="https://i.ytimg.com/vi/${esc(c.vid)}/default.jpg" alt="" loading="lazy" decoding="async" width="64" height="48">
+      <img src="${esc(vidThumb(c.vid,"default"))}" alt="" loading="lazy" decoding="async" width="64" height="48">
       <span class="shl-cont-t"><em>${esc(t("sh.cont_label"))}</em><b>${esc(String(c.title||c.vid).slice(0,44))}</b></span>
       <span class="shl-cont-play">${ic("play")}</span>
     </button>`:"";
@@ -13117,6 +13253,7 @@ function shLibHTML(){
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>
   <div class="shl-chans">${c.channels.map(ch=>`<button class="shl-chan ${_shLibCh===ch.id?"on":""}" data-ch="${esc(ch.id)}" onclick="shLibChan('${esc(ch.id)}')" aria-pressed="${_shLibCh===ch.id}"><i>${ch.avatar?`<img src="${esc(ch.avatar)}" alt="" loading="lazy" decoding="async" width="52" height="52" onerror="this.remove()">`:""}${ch.avatar?"":esc(initials(ch.name))}</i><span>${esc(ch.name)}</span></button>`).join("")}</div></div>`:""}
+  ${scnOn()?`<div id="scnRow">${scnRowHTML()}</div>`:""}
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
@@ -13308,6 +13445,10 @@ window.shClearInputs=()=>{
 /* the pasted transcript for a video, raw; "" when there is none */
 function shPasted(vid){return (S.shTx&&S.shTx[vid])||""}
 async function shLoad(c,quiet){
+  /* a scene id can reach here from a stored last clip, a saved clip or a
+     History row; outside General English (or with scenes off) it never opens */
+  const scene=scnIs(c&&c.vid);
+  if(scene&&!scnOn()){if(!quiet)toast(t("scn.unavailable"));return}
   shClip={vid:c.vid,start:c.start||0,end:c.end||0,rate:1,title:c.title||""};
   /* remember the last clip so a page refresh restores the player, transcript and recordings */
   S.lastClip={vid:shClip.vid,start:shClip.start,end:shClip.end,title:shClip.title};save();
@@ -13315,7 +13456,7 @@ async function shLoad(c,quiet){
   const cnt=document.getElementById("shCount");if(cnt)cnt.style.display="none";
   const seg0=document.getElementById("shSeg");if(seg0)seg0.classList.remove("has-clip");
   document.getElementById("shPlayerWrap").style.display="block";
-  document.getElementById("shUrl").value="https://www.youtube.com/watch?v="+shClip.vid;
+  document.getElementById("shUrl").value=scene?"":"https://www.youtube.com/watch?v="+shClip.vid;
   /* library clips ship a human-marked transcript (correct lexical stress);
      load it as-is. A saved user edit always wins. Arbitrary pasted clips have
      no txt — the ✨ Mark stress button gives them best-effort algorithmic marks. */
@@ -13327,12 +13468,15 @@ async function shLoad(c,quiet){
   const _nb=document.getElementById("shNote");_nb.value=S.notes["sh:"+shClip.vid]||c.txt||(shPasted(shClip.vid)?ShadowSync.normalizePasted(shPasted(shClip.vid)).text:"")||"";taGrow(_nb);
   shHeardUI(S.notes["shheard:"+shClip.vid]||"");
   shSegUI();
-  await loadYT();
+  /* a scene is constructed inside the tap that opened it (no await before it),
+     so iOS lets its audio element play */
+  if(!scene)await loadYT();
   if(ytPlayer&&ytPlayer.destroy)ytPlayer.destroy();
   document.getElementById("ytBox").innerHTML="";
   shVideoError(false);
   shPosterShow(shClip.vid);
-  ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
+  if(scene){scnCastLoad();scnListLoad();scnStatusStart()}
+  ytPlayer=new (scene?ShadowScenes.ScenePlayer:YT.Player)("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
     events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shv3Title")||document.getElementById("shWorkTitle");if(wt)wt.textContent=t;const oi=shOwnFind(shClip.vid);if(oi>=0&&shOwn()[oi].title!==t){shOwn()[oi].title=t;save();shOwnRender()}}}catch(_){}
       if(!quiet)e.target.playVideo();const pb=document.getElementById("shPlayBtn");if(pb)pb.innerHTML=ic(quiet?"play":"pause");shStartTick();
@@ -13341,7 +13485,7 @@ async function shLoad(c,quiet){
          player failure. Without this the user got YouTube's own grey box inside
          the frame while every control stayed live against a dead player. */
       onStateChange:e=>{if(e&&(e.data===1||e.data===3))shPosterHide()},
-      onError:()=>{clearInterval(shTick);shVideoError(true)}}});
+      onError:()=>{clearInterval(shTick);if(scene){toast(t("scn.audio_err"));return}shVideoError(true)}}});
   renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
   shV2Load();
@@ -13685,7 +13829,7 @@ function shClipSavedSay(){const max=shClipCap();toast(max===Infinity?t("sh.clip_
 window.shClipGo=async c=>{
   if(!c||!c.vid)return;
   const ov=document.getElementById("shClipsOv");if(ov)ov.remove();
-  try{const u=document.getElementById("shUrl");if(u)u.value="https://www.youtube.com/watch?v="+c.vid}catch(e){}
+  try{const u=document.getElementById("shUrl");if(u)u.value=scnIs(c.vid)?"":"https://www.youtube.com/watch?v="+c.vid}catch(e){}
   await shLoad(c);
   if(!svOn())return;
   for(let i=0;i<40;i++){if(shClip.vid!==c.vid)return;if(svAsset&&svAsset.segments&&svAsset.segments.length)break;await new Promise(z=>setTimeout(z,200))}
@@ -13704,7 +13848,7 @@ window.shClipsSheet=()=>{
   ov.onclick=e=>{if(e.target===ov)ov.remove()};
   const rows=cs.map((c,i)=>({c,i})).map(({c,i})=>`
     <div class="sh-clip-item" role="button" tabindex="0" onclick="shClipGo(aList('clips')[${i}])">
-      <img src="https://i.ytimg.com/vi/${esc(c.vid)}/mqdefault.jpg" alt="" loading="lazy">
+      <img src="${esc(vidThumb(c.vid,"mqdefault"))}" alt="" loading="lazy">
       <span class="sh-clip-txt"><b>${esc(shClipTitle(c))}</b>${c.txt?`<small class="sh-clip-say">${esc(String(c.txt).slice(0,160))}</small>`:""}<small>${fmtT(c.start)} → ${fmtT(c.end)}</small></span>
       <button class="sh-clip-del" onclick="shClipDel(${i},event)" title="${esc(t("sh.delete_clip_title"))}" aria-label="${esc(t("sh.delete_clip_title"))}">${ic("trash")}</button>
     </div>`).join("");
@@ -13861,6 +14005,8 @@ function loadCaptions(vid,durHint){
 }
 async function _loadCaptions(vid,durHint){
   let data=null;
+  /* a scene ships its captions beside its audio; no other source knows it */
+  if(scnIs(vid)){try{const r=await fetch(ShadowScenes.capUrl(vid));if(r.ok)data=await r.json()}catch(e){}if(data)_capCache[vid]=data;return data}
   /* 1. a bundled file — the curated library clips, works offline */
   try{const r=await fetch("captions/"+vid+".json");if(r.ok)data=await r.json();}catch(e){}
   /* 2. inside the native shell, ask YouTube directly from the DEVICE.
@@ -15968,7 +16114,7 @@ function shRenderClips(){
      Map to the real index first so reversing doesn't break open/delete. */
   box.innerHTML=cs.length?cs.map((c,i)=>({c,i})).reverse().map(({c,i})=>`
     <div class="clip-row" onclick="shOpen(${i})">
-      <img src="https://i.ytimg.com/vi/${c.vid}/default.jpg" alt="" loading="lazy" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">
+      <img src="${esc(vidThumb(c.vid,"default"))}" alt="" loading="lazy" style="width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none">
       <span class="nm">${esc(c.title||c.vid)}</span>
       <span class="rng">${fmtT(c.start)} → ${fmtT(c.end)} · ${Math.round(c.end-c.start)}s</span>
       <button class="btn btn-g btn-sm sh-clear" onclick="shDel(${i},event)" title="${esc(t("sh.delete_clip_title"))}" aria-label="${esc(t("sh.delete_clip_title"))}">${ic("trash")}</button>
@@ -16917,6 +17063,7 @@ function fbShowResults(targetText,heardText,fromRec,outId){
     if(attempts.length)delta=score-attempts[attempts.length-1];
     attempts.push(score);if(attempts.length>20)S.fbV[fbCtx.vid]=attempts=attempts.slice(-20);
     try{shTrendRender()}catch(e){}   // keep the Shadowing panel's trend in step
+    try{if(scnIs(fbCtx.vid))setTimeout(scnAfterReport,0)}catch(e){}   // a scene: the stage says so, and the way to a partner opens
   }else if(hasTarget&&fbCtx.vid){attempts=S.fbV[fbCtx.vid]||[];if(attempts.length>=2)delta=attempts[attempts.length-1]-attempts[attempts.length-2]}
   /* ---------- LEVEL 1: the coach ----------
      Everything below is drawn from values this function already computed;
@@ -20852,6 +20999,7 @@ const FLAGS_DEFAULT={
   shadow_apply_phrase_enabled:true,    // Apply It: the phrase goes to the AI coach (ppAiStart) and to partner requests — 26 Sep 2026, was off while the AI side read nothing
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
+  shadow_scenes_enabled:false,         // animated scenes in Shadow Studio (2026-09-27, General English only): staging on, OFF in production until the owner releases it
   home_v2_enabled:false,               // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; staging on)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
@@ -20872,6 +21020,7 @@ const FLAGS_STAGING={
   shadow_apply_phrase_enabled:true,
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
+  shadow_scenes_enabled:true,
   learning_nudges_enabled:true,
   home_v2_enabled:true,
   ads_enabled:false,
@@ -20914,7 +21063,7 @@ function isGeneralEnglish(){return areaId()===AREA_GEN}
    General English funnel. Shared events (the Shadow coach report, which
    Welding lines use too, app_open, certificates …) pass as before. The events
    Worker cannot do this itself: events are anonymous by design. */
-const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$|nudge_)/;
+const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$|shadow_scene_|nudge_)/;
 (function(){
   const send=window.track;if(typeof send!=="function"||send.geGuard)return;
   const guarded=function(name,props){try{if(GE_ONLY_EVENT.test(String(name))&&!isGeneralEnglish())return}catch(e){}const r=send.apply(this,arguments);try{if(/^partner_(trial_started|ai_fallback_started|live_started|queue_joined)$/.test(String(name))&&typeof nudgeConvPartner==="function")nudgeConvPartner()}catch(e){}return r};
@@ -21848,6 +21997,187 @@ function premRemoveAdsHTML(from){return premOffered()&&!entIsPremiumForDisplay()
    only, behind shadow_studio_v2_enabled. */
 let svAsset=null,svMode="watch",svRaf=null,svLast={seg:-1,word:-1},svUserScrollAt=0,svRepeat=null,svPick=-1,svRevealed=false;
 function svOn(){return flag("shadow_studio_v2_enabled")&&isGeneralEnglish()}
+/* ---------- Animated scenes (shadow-scenes.js) ----------
+   General English only, on the library page only, behind shadow_scenes_enabled.
+   A scene plays in this same workspace: ScenePlayer takes YT.Player's place, so
+   everything below (Watch / Shadow / Challenge, reports, History) is the same
+   code. These helpers are the scene's own additions: who is speaking, the
+   stage's status line, line actions in Watch, the word card in Shadow. */
+function scnOn(){return svOn()&&shLibOn()&&flag("shadow_scenes_enabled")&&!!window.ShadowScenes}
+function scnIs(vid){return !!(window.ShadowScenes&&ShadowScenes.is(vid))}
+/* a clip's picture: YouTube's thumbnail, or a scene's own poster (written by
+   scripts/build_scene.mjs) — a scene id sent to i.ytimg.com is a broken image */
+function vidThumb(vid,q){return scnIs(vid)?ShadowScenes.dir(vid)+"poster.svg":"https://i.ytimg.com/vi/"+vid+"/"+(q||"hqdefault")+".jpg"}
+let _scnCast=null,_scnList=null,_scnStatusIv=null;
+function scnCastLoad(){if(!window.ShadowScenes)return Promise.resolve(null);ShadowScenes.configure({t:(k,v)=>t(k,v),esc});return ShadowScenes.cast().then(c=>(_scnCast=c)).catch(()=>null)}
+function scnListLoad(){if(!scnOn())return Promise.resolve([]);return Promise.all([ShadowScenes.list(),scnCastLoad()]).then(([l])=>(_scnList=l||[])).catch(()=>(_scnList=[]))}
+function scnScene(vid){return (_scnList||[]).find(s=>s.id===vid)||null}
+/* who says line i of the open asset ("" when it is not a scene) */
+function scnSpkOf(i){const a=svAsset,s=a&&a.spk&&a.segments[i];return s?(a.spk[s.id]||""):""}
+function scnWho(id){return (_scnCast&&_scnCast[id])||null}
+function scnSpkHTML(i){
+  const id=scnSpkOf(i),c=id&&scnWho(id);if(!c)return "";
+  return `<span class="sv-spk" data-spk="${esc(id)}"><span class="sv-spk-av">${ShadowScenes.charSVG(id,c,{headOnly:true})}</span><b>${esc(c.name)}</b><small>${esc(c.role)}</small></span>`;
+}
+/* the stage's status line says what the LEARNER is doing; the stage itself
+   says who is speaking when nothing else applies */
+function scnStatusNow(){
+  if(!scnIs(shClip&&shClip.vid)||!svAsset)return null;
+  const g=svMode==="shadow"?svShGroup():null,who=scnWho(g?scnSpkOf(g.from):"");
+  const nm=who?who.name:"";
+  if(svMode==="challenge"&&svCh){
+    /* the rung decides what "your turn" means: listen, speak with, recall, no text, own words */
+    let cg=null;try{cg=svChSegObj()}catch(e){}
+    const cw=scnWho(cg?scnSpkOf(cg.from):""),cn=cw?cw.name:"",r=svCh.rung||"";
+    if(svCh.phase==="recording")return {kind:"rec",text:t(r==="sync"?"scn.st_rec":"scn.st_ch_rec",{name:cn})};
+    if(svCh.phase==="grading")return {kind:"busy",text:t("scn.st_checking")};
+    if(svCh.phase==="feedback"||svCh.phase==="done")return {kind:"fb",text:t("scn.st_feedback")};
+    if(svCh.phase==="ready"){
+      if(r==="gate")return cn?{kind:"turn",text:t("scn.st_ch_gate",{name:cn})}:null;
+      return {kind:"turn",text:t({sync:"scn.st_ch_sync",recall:"scn.st_ch_recall",blind:"scn.st_ch_blind",retell:"scn.st_ch_retell"}[r]||"scn.st_ch_turn",{name:cn})};
+    }
+    return null;
+  }
+  if(svMode!=="shadow")return null;
+  const live=!!(rec.mr&&rec.mr.state==="recording");
+  if(live){const tm=document.getElementById("recTime");return {kind:"rec",text:t("scn.st_rec",{name:nm})+(tm&&tm.textContent?" · "+tm.textContent:"")}}
+  if(Date.now()-_scnFbAt<12000)return {kind:"fb",text:t("scn.st_feedback")};
+  let playing=false;try{playing=ytPlayer.getPlayerState()===1}catch(e){}
+  if(!playing&&nm)return {kind:"turn",text:t("scn.st_turn",{name:nm})};
+  return null;
+}
+let _scnFbAt=0;
+function scnStatusStart(){
+  clearInterval(_scnStatusIv);
+  _scnStatusIv=setInterval(()=>{
+    if(!scnIs(shClip&&shClip.vid)||!ytPlayer||!ytPlayer.setStatus){clearInterval(_scnStatusIv);_scnStatusIv=null;return}
+    try{ytPlayer.setStatus(scnStatusNow())}catch(e){}
+  },300);
+}
+/* Watch: a tapped line of a scene offers four things to do with it */
+function scnActsHTML(i){
+  const b=(k,icn,lbl)=>`<button type="button" class="scn-act" onclick="event.stopPropagation();scnLine(${i},'${k}')">${ic(icn)}<span>${esc(t(lbl))}</span></button>`;
+  return `<div class="scn-acts" role="group" aria-label="${esc(t("scn.acts_a11y"))}">${b("listen","play","scn.act_listen")}${b("slow","clock","scn.act_slow")}${b("shadow","mic","scn.act_shadow")}${b("repeat","repeat","scn.act_repeat")}</div>`;
+}
+function scnActsShow(i){
+  document.querySelectorAll("#svTx .scn-acts").forEach(e=>e.remove());
+  const p=svParaOf(i);if(!p)return;
+  const para=document.querySelector(`#svTx .sv-para[data-p="${svParas(svAsset).indexOf(p)}"]`);if(!para)return;
+  para.insertAdjacentHTML("beforeend",scnActsHTML(p.from));manIconizeInline(para);
+}
+window.scnLine=(i,kind)=>{
+  if(!scnOn()||!svAsset)return;
+  const p=svParaOf(i),g=p&&svParaGroup(p);if(!g)return;
+  try{track("shadow_scene_line",{kind})}catch(e){}
+  if(kind==="shadow"){svShPara=g.from;svShPinned=true;svPick=g.from;svSetMode("shadow");try{shSeekTo(g.startMs/1000);ytPlayer.playVideo()}catch(e){}return}
+  svPick=g.from;svChStopAt=null;svChOnStop=null;
+  if(kind==="repeat"){svRepeat={i:g.from,start:g.startMs/1000,end:g.endMs/1000};shSeekTo(svRepeat.start);try{ytPlayer.playVideo()}catch(e){}svRender();scnActsShow(g.from);return}
+  svRepeat=null;
+  const slow=kind==="slow",r0=shClip.rate||1;
+  if(slow)try{ytPlayer.setPlaybackRate(0.75)}catch(e){}
+  svChStopAt=g.endMs;svChOnStop=()=>{if(slow)try{ytPlayer.setPlaybackRate(r0)}catch(e){}};
+  shSeekTo(g.startMs/1000);try{ytPlayer.playVideo()}catch(e){}
+};
+/* Shadow: a tapped word of a scene opens a small card — what it sounds like,
+   and, for the scene's key words, what it means — with Listen / Slow / Save.
+   Meanings come only from the scene's own vocab list (written by hand); a
+   word without one shows its pronunciation and nothing invented. */
+function scnWordCard(w){
+  const box=document.getElementById("scnWc");if(!box)return;
+  const clean=String(w||"").replace(/[^\p{L}\p{N}'’-]/gu,"");if(!clean){box.hidden=true;return}
+  const sc=scnScene(shClip.vid),key=clean.toLowerCase().replace(/’/g,"'");
+  const v=sc&&(sc.vocab||[]).find(x=>String(x.w).toLowerCase()===key);
+  const sg=svShSeg(),ipa=sg?svIpaGet(clean,svIpaCtx(sg)):"",saved=vocHas(key);
+  box.hidden=false;box.dataset.w=key;
+  box.innerHTML=`<div class="scn-wc-hd"><b lang="en">${esc(clean)}</b><span class="scn-wc-ipa" id="scnWcIpa">${ipa?"/"+esc(ipa)+"/":esc(t("scn.wc_ipa_wait"))}</span>
+      <button type="button" class="scn-wc-x" onclick="scnWordClose()" aria-label="${esc(t("scn.wc_close"))}">${ic("close")}</button></div>
+    ${v?`<p class="scn-wc-m"><span>${esc(t("scn.wc_meaning"))}</span>${esc(v.meaning)}</p><p class="scn-wc-e" lang="en"><span>${esc(t("scn.wc_example"))}</span>“${esc(v.example)}”</p>`:""}
+    <div class="scn-wc-acts">
+      <button type="button" class="btn btn-g btn-sm" onclick="fbSay(document.getElementById('scnWc').dataset.w,1);try{track('shadow_scene_word',{kind:'listen'})}catch(e){}">${ic("sound")} ${esc(t("scn.wc_listen"))}</button>
+      <button type="button" class="btn btn-g btn-sm" onclick="fbSay(document.getElementById('scnWc').dataset.w,0.7);try{track('shadow_scene_word',{kind:'slow'})}catch(e){}">${ic("clock")} ${esc(t("scn.wc_slow"))}</button>
+      <button type="button" class="btn btn-g btn-sm scn-wc-save ${saved?"on":""}" onclick="scnWordSave()" aria-pressed="${saved}">${ic(saved?"check":"star")} ${esc(t(saved?"scn.wc_saved":"scn.wc_save"))}</button>
+    </div>`;
+  manIconizeInline(box);
+  try{track("shadow_scene_word",{kind:"open"})}catch(e){}
+  if(!ipa&&sg){svShIpaGo(sg);let n=0;const iv=setInterval(()=>{const el=document.getElementById("scnWcIpa");if(!el||box.dataset.w!==key||++n>40){clearInterval(iv);return}const x=svIpaGet(clean,svIpaCtx(sg));if(x){el.textContent="/"+x+"/";clearInterval(iv)}},250)}
+}
+window.scnWordClose=()=>{const b=document.getElementById("scnWc");if(b){b.hidden=true;b.innerHTML=""}};
+window.scnWordSave=()=>{
+  const b=document.getElementById("scnWc"),w=b&&b.dataset.w;if(!w||!scnOn())return;
+  if(!vocHas(w)){vocPut(w);save();toast(t("scn.wc_saved_toast",{w}));try{track("shadow_scene_word",{kind:"save"})}catch(e){}}
+  scnWordCard(w);
+};
+/* After a shadow take on a scene: use it for real. A human partner first
+   (Practice Partner, General English only), the AI coach beside it — named
+   as AI, never presented as a learner. Both are the studio's existing Apply
+   It hand-offs (svApplyPartner / svApplyAI): the line travels as the phrase. */
+function scnNextHTML(force){
+  const g=svShGroup(),a=svAsset;if(!g||!a||!a.spk||!scnOn())return "";
+  if(!(svApplyPartnerOn()||svApplyAIOn()))return "";
+  if(!force&&!scnProgress(shClip.vid).shadow)return "";
+  let ex="";try{const e=ShadowSync.findExpression(g.text,trackPhrases());ex=e?e.phrase:""}catch(e){}
+  return `<div class="scn-next" id="scnNext"><div class="eyebrow">${esc(t("scn.next_eyebrow"))}</div>
+    <p class="scn-next-t">${esc(ex?t("scn.next_expr",{x:ex}):t("scn.next_line"))}</p>
+    <div class="pp-row">${svApplyPartnerOn()?`<button class="btn-primary" onclick="scnApply('partner')">${ic("user")} ${esc(t("sv.apply_partner"))}</button>`:""}${svApplyAIOn()?`<button class="btn btn-g" onclick="scnApply('ai')">${ic("sparkle")} ${esc(t("sv.apply_ai"))} <span class="scn-ai-tag">${esc(t("scn.ai_tag"))}</span></button>`:""}</div>
+    <p class="pp-fine">${esc(t("scn.next_ai_note"))}</p></div>`;
+}
+window.scnApply=to=>{if(!scnOn())return;const g=svShGroup();if(g)svPick=g.from;if(to==="ai")svApplyAI();else svApplyPartner()};
+function scnAfterReport(){
+  _scnFbAt=Date.now();
+  if(svMode!=="shadow"||document.getElementById("scnNext"))return;
+  const sh=document.getElementById("svSh");if(!sh)return;
+  const x=scnNextHTML(true);if(!x)return;
+  sh.insertAdjacentHTML("beforeend",x);manIconizeInline(sh);
+}
+/* Watch → Shadow → Challenge, from what the learner has actually done with
+   this scene (watched seconds, a filed shadow take, a passed Challenge) */
+function scnProgress(vid){
+  const w=(aList("watched").find(x=>x&&x.vid===vid)||{}).secs>=10;
+  const H=aList("chHist").filter(x=>x&&x.vid===vid);
+  const sh=H.some(x=>x.kind==="shadow")||!!(S.fbV&&S.fbV[vid]&&S.fbV[vid].length);
+  const ch=H.some(x=>x.kind!=="shadow"&&/^(pass|strong|good)/.test(String(x.verdict||"")));
+  return {watch:w,shadow:sh,challenge:ch};
+}
+function scnProgHTML(vid){
+  const p=scnProgress(vid),yn=x=>t(x?"scn.yes":"scn.no");
+  const dot=(on,k)=>`<span class="scn-pg-s ${on?"on":""}"><i></i>${esc(t(k))}</span>`;
+  return `<span class="scn-pg" role="img" aria-label="${esc(t("scn.prog_a11y",{a:yn(p.watch),b:yn(p.shadow),c:yn(p.challenge)}))}">${dot(p.watch,"scn.prog_watch")}${dot(p.shadow,"scn.prog_shadow")}${dot(p.challenge,"scn.prog_challenge")}</span>`;
+}
+function scnCardHTML(sc){
+  const c=_scnCast||{},who=(sc.cast||[]).map(id=>c[id]&&c[id].name).filter(Boolean).join(" & ");
+  const w=(currentPos()||{}).w||1,fits=sc.week===w;
+  const min=Math.max(1,Math.round((Number(sc.durationS)||60)/60));
+  return `<button class="scn-card" onclick="scnOpen('${esc(sc.id)}','library')" aria-label="${esc(sc.title)}">
+    ${ShadowScenes.thumbHTML(sc,c)}
+    ${fits?`<span class="shl-hero-tag scn-fit">${esc(t("sh.lib_fits_plan"))}</span>`:""}
+    <span class="scn-card-t"><b>${esc(sc.title)}</b><small>${esc(t("scn.card_meta",{w:sc.week,min,who}))}</small>${scnProgHTML(sc.id)}</span>
+  </button>`;
+}
+function scnRowHTML(){
+  if(!scnOn())return "";
+  if(!_scnList){scnListLoad().then(()=>{const r=document.getElementById("scnRow");if(r&&_scnList){r.innerHTML=scnRowHTML();manIconizeInline(r)}});return ""}
+  if(!_scnList.length)return "";
+  const w=(currentPos()||{}).w||1,L=_scnList.slice().sort((a,b)=>(b.week===w)-(a.week===w));
+  return `<div class="shl-sec scn-sec"><div class="shl-lbl">${esc(t("scn.row_t"))} <em class="scn-new">${esc(t("scn.row_new"))}</em></div><div class="scn-row">${L.map(scnCardHTML).join("")}</div></div>`;
+}
+window.scnOpen=(vid,source)=>{
+  if(!scnOn()||!scnIs(vid))return;
+  try{shlHeroStop()}catch(e){}
+  const sc=scnScene(vid);
+  try{track("shadow_scene_opened",{source:source||"library"})}catch(e){}
+  shLoad({vid,start:0,end:0,title:sc?sc.title:""});
+};
+/* the session page: a scene written for this week and day */
+function scnForDay(w,d){return (_scnList||[]).find(s=>s.week===w&&s.day===d)||null}
+function scnSessFill(w,d){
+  if(!scnOn())return;
+  const paint=()=>{const el=document.getElementById("scnSess");if(!el)return;const sc=scnForDay(w,d);if(!sc){el.innerHTML="";return}
+    const f=scnWho(sc.focus)||{name:""};
+    el.innerHTML=`<button class="btn-primary sess-jump scn-sess" onclick="scnFromSession('${esc(sc.id)}',${w},'${d}')"><span class="btn-ic">${ic("film")}</span><span>${esc(t("scn.sess_btn",{title:sc.title}))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button><p class="sess-jump-why">${esc(t("scn.sess_why",{name:f.name}))}</p>`;
+    manIconizeInline(el)};
+  if(_scnList)paint();else scnListLoad().then(paint);
+}
+window.scnFromSession=(vid,w,d)=>{SESS_RETURN={v:"shadow",w,d};go("shadow");setTimeout(()=>scnOpen(vid,"session"),250)};
 function svBox(){return document.getElementById("shV2")}
 /* build the asset for the loaded clip: bundled/worker captions first, else the
    transcript box, else none */
@@ -21896,6 +22226,12 @@ async function shV2Load(){
     asset=ShadowSync.normalizePasted(raw,{startS:0,durationS:dur});
     if(asset.level==="sentence"&&flag("shadow_word_timing_enabled"))asset=ShadowSync.estimateWords(asset);
   }
+  if(scnIs(vid)&&asset&&asset.segments&&cap&&cap.cues){
+    /* segment ids are "s"+cue index (normalizeCaptions); the cue carries its speaker */
+    const cs=cap.cues.filter(c=>c&&isFinite(c.t)&&c.txt).slice().sort((x,y)=>x.t-y.t);asset.spk={};asset.scene=vid;
+    asset.segments.forEach(sg=>{const q=cs[+String(sg.id).slice(1)];if(q&&q.spk)asset.spk[sg.id]=q.spk});
+    await scnCastLoad();await scnListLoad();if(shClip.vid!==vid)return;
+  }
   const wk1=document.getElementById("shWork");if(wk1)delete wk1.dataset.cap;   // the wait is over, whatever the answer
   svAsset=asset;svLast={seg:-1,word:-1};svRepeat=null;svPick=-1;svRevealed=false;svChPara=-1;svChReset();
   svPrevClip=null;svAutoPaused=false;svNoCap=null;
@@ -21938,11 +22274,11 @@ function svRender(){
   const segHTML=(s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
     :esc(s.text)}</p>`;
-  const segs=svMode==="watch"?svParas(a).map((p,k)=>`<div class="sv-para" data-p="${k}">${a.segments.slice(p.from,p.to+1).map((s,j)=>segHTML(s,p.from+j)).join("")}</div>`).join("")
+  const segs=svMode==="watch"?svParas(a).map((p,k)=>`<div class="sv-para" data-p="${k}">${a.spk?scnSpkHTML(p.from):""}${a.segments.slice(p.from,p.to+1).map((s,j)=>segHTML(s,p.from+j)).join("")}</div>`).join("")
     :a.segments.map(segHTML).join("");
   /* a model-written transcript is line-timed by nature; say that, rather than
      the generic sentence-level wording which implies a limitation of the clip */
-  const levelNote=a.source==="gemini"?(a.estimated?t("sv.level_word_est"):t("sv.level_line")):a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
+  const levelNote=a.scene?t("scn.level"):a.source==="gemini"?(a.estimated?t("sv.level_word_est"):t("sv.level_line")):a.source==="stamps"?t("sv.level_stamps"):a.source==="spread"?t("sv.level_spread"):a.level==="word"?(a.estimated?t("sv.level_word_est"):t("sv.level_word")):a.level==="sentence"?t("sv.level_sentence"):t("sv.level_text");
   /* Transcript by mode. WATCH / SHADOW: visible, synchronised. CHALLENGE:
      collapsed while the learner is meant to produce from memory (ready /
      recording / grading at recall or independent, recording at guided) and
@@ -22088,6 +22424,7 @@ window.svSetMode=m=>{
   try{shv3Sync()}catch(e){}
   try{track(m==="challenge"&&svChOn()?"shadow_challenge_opened":"shadow_v2_mode",{mode:m})}catch(e){}};
 window.svTapSeg=i=>{
+  if(svMode==="watch"&&svAsset&&svAsset.spk&&scnOn()){svPick=i;scnActsShow(i);return}
   svPick=i;const s=svAsset&&svAsset.segments[i];
   const g=svParaOf(i),gFrom=g?g.from:i;
   if(svChPara!==gFrom){svChPara=gFrom;svChReset();if(svMode==="challenge")svRender()}
@@ -22121,6 +22458,7 @@ window.svRepeatToggle=()=>{
 function svParas(a){
   if(!a||!a.segments)return [];
   if(a._paras&&a._parasN===a.segments.length)return a._paras;
+  if(a.spk){a._paras=a.segments.map((s,i)=>({from:i,to:i}));a._parasN=a.segments.length;return a._paras}   /* a scene: one speaker's turn per paragraph */
   const out=[];let cur=null,chars=0;
   a.segments.forEach((sg,i)=>{const txt=String(sg.text||"").trim(),ends=/[.!?…]["'’)\]]*$/.test(txt);
     if(!cur){cur={from:i,to:i};chars=txt.length}else{cur.to=i;chars+=txt.length+1}
@@ -22405,6 +22743,7 @@ window.svShIpaRetry=()=>{const sg=svShSeg();if(!sg||!svOn())return;svShIpaGo(sg)
    not a switch — fetching the paragraph's unknown words once if it has to. */
 window.svShWordTap=b=>{
   const w=b.dataset.w||"",k=+b.dataset.k;
+  if(svAsset&&svAsset.spk&&scnOn()){try{svChStopAll()}catch(e){}b.classList.add("said");setTimeout(()=>b.classList.remove("said"),900);scnWordCard(w);return}
   if(w){try{svChStopAll()}catch(e){}fbSay(w,1)}
   b.classList.add("said");setTimeout(()=>b.classList.remove("said"),900);
   try{track("shadow_word_played")}catch(e){}
@@ -22423,7 +22762,9 @@ function svShHTML(){
   return `<div class="sv-sh" id="svSh">
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
+      ${a.spk&&scnWho(scnSpkOf(sg.from))?`<div class="sv-sh-who">${scnSpkHTML(sg.from)}<span class="sv-sh-with">${esc(t("scn.sh_with",{name:scnWho(scnSpkOf(sg.from)).name}))}</span></div>`:""}
       <div class="sv-sh-words ${ipaOn?"ipa":""}" lang="en">${words}</div>
+      ${a.spk?`<div class="scn-wc" id="scnWc" hidden aria-live="polite"></div>`:""}
       ${svShIpaStatusHTML(sg)}
       <p class="sv-sh-text" lang="en">${esc(sg.text)}</p>
       ${svShTrHTML(sg)}
@@ -22432,10 +22773,11 @@ function svShHTML(){
           <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svShTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
           <button class="sv-sh-t ${ipaOn?"on":""}" id="svShIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
         </div>
-        <button class="sv-sh-rb" onclick="svChStopAll();fbSay(svShSeg().text,1)" aria-label="${esc(t("sv.sh_hear"))}" title="${esc(t("sv.sh_hear"))}">${ic("sound")}</button>
+        <button class="sv-sh-rb" onclick="${a.spk?"svShReplay()":"svChStopAll();fbSay(svShSeg().text,1)"}" aria-label="${esc(t("sv.sh_hear"))}" title="${esc(t("sv.sh_hear"))}">${ic("sound")}</button>
       </div>
     </div>
-    <p class="sv-note">${t("sv.sh_hint")}</p>
+    <p class="sv-note">${a.spk&&scnWho(scnSpkOf(sg.from))?esc(t("scn.sh_hint",{name:scnWho(scnSpkOf(sg.from)).name})):t("sv.sh_hint")}</p>
+    ${a.spk?scnNextHTML():""}
   </div>`;
 }
 /* the clip snaps to the paragraph and loops; the notes box carries its text so the report grades it */

@@ -1,0 +1,30 @@
+{
+  "_note": "The recurring fictional cast of Shadow Studio scenes (General English only). Nobody here is a real person. Each character is drawn by shadow-scenes.js from these parameters, so a new character is data, not code. voice = the Polish Worker's TTS voice; style = its per-character delivery note (<=180 chars). Both are used only by scripts/build_scene.mjs, which bakes the audio once.",
+  "schemaVersion": 1,
+  "characters": {
+    "daniel": {
+      "name": "Daniel",
+      "role": "Data analyst",
+      "skin": "#9a6440",
+      "hair": "short",
+      "hairColor": "#231a15",
+      "top": "#2d6cb5",
+      "collar": "#e9eef6",
+      "accessory": "glasses",
+      "voice": "ash",
+      "style": "a friendly, relaxed colleague on the data team; clear, unhurried pace for English learners, natural pauses between sentences"
+    },
+    "maya": {
+      "name": "Maya",
+      "role": "Project coordinator (new)",
+      "skin": "#e0ac85",
+      "hair": "bob",
+      "hairColor": "#4a2c1f",
+      "top": "#1f8a70",
+      "collar": "#f3efe6",
+      "accessory": "earrings",
+      "voice": "coral",
+      "style": "a warm, slightly excited new employee on her first day; clear, unhurried pace for English learners, natural pauses"
+    }
+  }
+}
