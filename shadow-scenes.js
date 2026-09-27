@@ -120,11 +120,6 @@
       <g fill="#2f8f6b"><path d="M323 208c-18-18-22-40-8-52 4 18 8 32 8 52z"/><path d="M323 208c14-22 30-30 42-24-12 8-24 16-42 24z"/><path d="M323 208c-8-26 0-46 12-52-2 20-6 34-12 52z" fill="#3aa57c"/></g>`
   };
   function bgSVG(setting) { return `<svg class="scn-bg" viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">${(SETTINGS[setting] || SETTINGS.office)()}</svg>`; }
-  /* the stage without any live parts: the library card's picture */
-  function thumbHTML(scene, castMap) {
-    const ids = (scene.cast || []).slice(0, 2);
-    return `<span class="scn scn-thumb" aria-hidden="true">${bgSVG(scene.setting)}${ids.map((id, i) => castMap[id] ? `<span class="scn-c scn-c${i}">${charSVG(id, castMap[id])}</span>` : "").join("")}</span>`;
-  }
   /* the same picture as one standalone SVG file (scenes/<slug>/poster.svg,
      written by scripts/build_scene.mjs): what an <img> shows wherever a clip
      id gets a thumbnail — Home rows, My clips, the clip lists */
@@ -273,5 +268,5 @@
   }
   function playIcon() { return `<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg>`; }
 
-  global.ShadowScenes = { is, slug, dir, capUrl, load, cast, list, configure, charSVG, thumbHTML, posterSVG, timeline, at, ScenePlayer };
+  global.ShadowScenes = { is, slug, dir, capUrl, load, cast, list, configure, charSVG, posterSVG, timeline, at, ScenePlayer };
 })(typeof window !== "undefined" ? window : globalThis);

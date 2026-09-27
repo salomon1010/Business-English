@@ -57,8 +57,8 @@ async function learner(id, { track, flags, reduced = false, audio404 = false }) 
 }
 const toShadow = async page => { await page.evaluate(() => go("shadow")); await page.waitForSelector("#shPlayerWrap", { state: "attached", timeout: 15000 }); await sleep(900); };
 const openScene = async page => {
-  await page.waitForSelector("#scnRow .scn-card", { timeout: 10000 });
-  await page.click("#scnRow .scn-card");
+  await page.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
+  await page.click("#shLibFeed .scn-lrow");
   await page.waitForFunction(() => typeof svAsset !== "undefined" && svAsset.scene && ytPlayer && ytPlayer.getDuration && ytPlayer.getDuration() > 0, null, { timeout: 15000 });
   await sleep(300);
 };
@@ -70,11 +70,21 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
 {
   const p = A.page;
   await toShadow(p);
-  const card = await p.evaluate(() => { const c = document.querySelector("#scnRow .scn-card"); return c && { t: c.querySelector(".scn-card-t b").textContent, meta: c.querySelector(".scn-card-t small").textContent, fit: !!c.querySelector(".scn-fit"), dots: c.querySelectorAll(".scn-pg-s").length, on: c.querySelectorAll(".scn-pg-s.on").length, lbl: document.querySelector("#scnRow .shl-lbl").textContent }; });
-  ok("the library shows an Animated scenes row with the scene card", card && card.t === "Meeting a new coworker" && /Animated scenes/.test(card.lbl), JSON.stringify(card));
-  ok("the card says week, length and cast (Week 1 · 1 min · Daniel & Maya)", card && /Week 1/.test(card.meta) && /1 min/.test(card.meta) && /Daniel & Maya/.test(card.meta), card && card.meta);
-  ok("a Week 1 learner sees 'Fits your plan' on the Week 1 scene", card && card.fit);
-  ok("progress reads Watch / Shadow / Challenge, none done yet", card && card.dots === 3 && card.on === 0, JSON.stringify(card));
+  await p.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
+  const row = await p.evaluate(() => { const f = document.getElementById("shLibFeed"), first = f.querySelector(".shl-row"), r = f.querySelector(".scn-lrow"), next = [...f.querySelectorAll(".shl-row")].find(x => !x.classList.contains("scn-lrow"));
+    const w = e => e ? Math.round(e.querySelector(".shl-thumb").getBoundingClientRect().width) : 0, hh = e => e ? Math.round(e.querySelector(".shl-thumb").getBoundingClientRect().height) : 0;
+    return { first: first === r, t: r && r.querySelector("b").textContent, by: r && r.querySelector("small").textContent, tag: r && r.querySelector(".shl-cap").textContent, dur: r && r.querySelector(".shl-dur").textContent, img: r && r.querySelector("img").getAttribute("src"), w: w(r), wn: w(next), h: hh(r), hn: hh(next), card: !!document.querySelector(".scn-card,.scn-sec") }; });
+  ok("the scene is the FIRST row of the video list", row.first && row.t === "Meeting a new coworker", JSON.stringify(row));
+  ok("the row reads like the others: source line, tag, length", row.by === "BE Mastery · Daniel & Maya" && row.tag === "Animated scene" && row.dur === "1:01", JSON.stringify(row));
+  ok("its thumbnail is the scene's poster, the same size as the next video's", /scenes\/coworker-intro\/poster\.svg$/.test(row.img || "") && row.w > 0 && row.w === row.wn && row.h === row.hn, JSON.stringify(row));
+  ok("no separate large scene card on the page", !row.card);
+  const cats = await p.evaluate(async () => { const out = {}; const first = () => { const r = document.querySelector("#shLibFeed .shl-row"); return !!(r && r.classList.contains("scn-lrow")); };
+    const cat = _shCat && _shCat.categories[1] && _shCat.categories[1].id; shLibCat(cat); await new Promise(z => setTimeout(z, 200)); out.cat = first();
+    shLibCat("mine"); await new Promise(z => setTimeout(z, 200)); out.mine = !!document.querySelector("#shLibFeed .scn-lrow");
+    shLibCat("foryou"); shLibQ("coworker"); await new Promise(z => setTimeout(z, 300)); out.q = first();
+    shLibQ("zzzqqq"); await new Promise(z => setTimeout(z, 300)); out.qNo = !!document.querySelector("#shLibFeed .scn-lrow");
+    shLibClear && shLibClear(); shLibQ(""); await new Promise(z => setTimeout(z, 300)); out.back = first(); return out; });
+  ok("first in a category list and in a search that finds it; not in Your videos or a search that does not", cats.cat && !cats.mine && cats.q && !cats.qNo && cats.back, JSON.stringify(cats));
   await openScene(p);
   const st = await p.evaluate(() => ({ cls: ytPlayer instanceof ShadowScenes.ScenePlayer, live: !!document.querySelector("#ytBox .scn-live"), lbl: document.querySelector("#ytBox .scn-live").getAttribute("aria-label") || "", ai: (document.querySelector("#ytBox .scn-ai") || {}).textContent, dur: ytPlayer.getDuration(), title: shClip.title, iframe: !!document.querySelector("#ytBox iframe") }));
   ok("the scene plays in ScenePlayer inside the studio's own player box (no YouTube frame)", st.cls && st.live && !st.iframe, JSON.stringify(st));
@@ -193,14 +203,11 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
   await p.evaluate(() => go("session", 1, "Tue")); await sleep(600);
   ok("a day with no scene (Tuesday) offers none", await p.evaluate(() => !document.querySelector("#scnSess button")));
   await p.evaluate(() => go("session", 1, "Mon")); await sleep(700);
+  await p.evaluate(() => { shCloseWork(); shClip.vid = ""; });   /* so the check below cannot pass on the scene opened earlier */
   await p.click("#scnSess button");
-  await p.waitForFunction(() => typeof svAsset !== "undefined" && svAsset.scene && ytPlayer instanceof ShadowScenes.ScenePlayer, null, { timeout: 15000 }).catch(() => {});
+  await p.waitForFunction(() => shClip.vid === "scene.coworker-intro" && typeof svAsset !== "undefined" && svAsset.scene && ytPlayer instanceof ShadowScenes.ScenePlayer, null, { timeout: 15000 }).catch(() => {});
+  await sleep(300);
   ok("…and the button opens the scene in the studio", await p.evaluate(() => location.hash.startsWith("#shadow") && ytPlayer instanceof ShadowScenes.ScenePlayer && shClip.vid === "scene.coworker-intro"));
-
-  /* progress on the card, after all that */
-  await p.evaluate(() => { shCloseWork(); go("shadow"); }); await sleep(1200);
-  const pg = await p.evaluate(() => [...document.querySelectorAll("#scnRow .scn-pg-s")].map(e => e.classList.contains("on")));
-  ok("the card now shows Shadow done", pg.length === 3 && pg[1] === true, JSON.stringify(pg));
 
   const names = await p.evaluate(() => window.__beacons.map(b => b.name + (b.props && (b.props.kind || b.props.source) ? ":" + (b.props.kind || b.props.source) : "")));
   ok("events: shadow_scene_opened (library, session), shadow_scene_line, shadow_scene_word (open, save)",
@@ -215,8 +222,8 @@ const A2 = await learner("A2", { track: "general-english", flags: { shadow_scene
 {
   const p = A2.page;
   await toShadow(p);
-  await p.waitForSelector("#scnRow .scn-card", { timeout: 10000 });
-  await p.click("#scnRow .scn-card");
+  await p.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
+  await p.click("#shLibFeed .scn-lrow");
   await p.waitForFunction(() => typeof svAsset !== "undefined" && svAsset.scene, null, { timeout: 15000 }).catch(() => {});
   await sleep(800);
   const r = await p.evaluate(() => ({ level: svAsset && svAsset.level, err: getComputedStyle(document.getElementById("shVidErr")).display, stage: !!document.querySelector("#ytBox .scn-live svg.scn-bg"), toast: [...document.querySelectorAll(".toast,#toast,[role=status]")].map(e => e.textContent).join(" ") }));
@@ -231,8 +238,8 @@ const B = await learner("B", { track: "welding", flags: { shadow_scenes_enabled:
 {
   const p = B.page;
   await toShadow(p);
-  const b = await p.evaluate(() => ({ on: scnOn(), row: !!document.querySelector("#scnRow,.scn-card") }));
-  ok("Welding: scenes are off and no scene card is on the Shadow page", !b.on && !b.row, JSON.stringify(b));
+  const b = await p.evaluate(() => ({ on: scnOn(), row: !!document.querySelector(".scn-lrow") }));
+  ok("Welding: scenes are off and no scene row is on the Shadow page", !b.on && !b.row, JSON.stringify(b));
   await p.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0, title: "x" }); }, SCENE); await sleep(500);
   const b2 = await p.evaluate(() => ({ sp: typeof ytPlayer !== "undefined" && ytPlayer instanceof ShadowScenes.ScenePlayer, stage: !!document.querySelector(".scn-live"), vid: shClip && shClip.vid }));
   ok("Welding: a scene id handed to shLoad (a stored clip, a link) never opens", !b2.sp && !b2.stage && b2.vid !== SCENE, JSON.stringify(b2));
@@ -250,12 +257,12 @@ console.log(STAGING_HOST ? "C · General English learner, no overrides, on the S
 const C = await learner("C", { track: "general-english", flags: null });
 if (STAGING_HOST) {
   const p = C.page; await toShadow(p);
-  const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, row: !!document.querySelector(".scn-card") }));
+  const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, row: !!document.querySelector(".scn-lrow") }));
   ok("staging host: scenes on with no override, while the production default stays OFF", c.on && c.row && c.def === false, JSON.stringify(c));
 } else {
   const p = C.page;
   await toShadow(p);
-  const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, stg: FLAGS_STAGING.shadow_scenes_enabled, row: !!document.querySelector(".scn-card") }));
+  const c = await p.evaluate(() => ({ on: scnOn(), def: FLAGS_DEFAULT.shadow_scenes_enabled, stg: FLAGS_STAGING.shadow_scenes_enabled, row: !!document.querySelector(".scn-lrow") }));
   ok("production default is OFF, staging default is ON", c.def === false && c.stg === true, JSON.stringify(c));
   ok("with production defaults a General English learner sees no scene", !c.on && !c.row, JSON.stringify(c));
   await p.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0 }); }, SCENE); await sleep(400);

@@ -3170,9 +3170,6 @@
  "home.it_phrases_w": "Phrase Lab · semana {{w}}",
  "home.it_phrases_wt": "As expressões da semana {{w}}",
  "home.it_roleplay": "Conversa · {{persona}}",
- "scn.row_t": "Cenas animadas",
- "scn.row_new": "Novo",
- "scn.card_meta": "Semana {{w}} · {{min}} min · {{who}}",
  "scn.ai_voices": "Vozes de IA",
  "scn.play": "Reproduzir a cena",
  "scn.stage_a11y": "Cena animada: {{title}}. {{who}}.",
@@ -3209,15 +3206,11 @@
  "scn.wc_ipa_wait": "Pronúncia…",
  "scn.sess_btn": "Faça shadowing da cena: {{title}}",
  "scn.sess_why": "Um diálogo animado de um minuto para esta sessão. Assista e depois faça shadowing de {{name}}.",
- "scn.prog_a11y": "Assistida: {{a}}. Shadowing: {{b}}. Desafio concluído: {{c}}.",
- "scn.prog_watch": "Ver",
- "scn.prog_shadow": "Shadowing",
- "scn.prog_challenge": "Desafio",
- "scn.yes": "sim",
- "scn.no": "ainda não",
  "scn.next_eyebrow": "Próximo passo: use de verdade",
  "scn.next_expr": "Você praticou “{{x}}”. Agora use com outro aluno.",
  "scn.next_line": "Você praticou esta fala. Agora use com outro aluno.",
  "scn.next_ai_note": "Nenhum parceiro livre agora? O coach de IA está sempre disponível. É uma IA, não um aluno.",
- "scn.ai_tag": "IA"
+ "scn.ai_tag": "IA",
+ "scn.row_by": "BE Mastery · {{who}}",
+ "scn.row_tag": "Cena animada"
 }

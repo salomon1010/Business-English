@@ -3196,23 +3196,8 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .scn[data-state="idle"] .scn-go,.scn[data-state="pause"] .scn-go{display:grid}
 #shWork[data-svmode="shadow"] .scn-go,#shWork[data-svmode="challenge"] .scn-go{display:none}
 .scn-go:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.scn.scn-thumb{position:relative;inset:auto;display:block;width:100%;aspect-ratio:16/9}
-.scn-thumb .scn-c{bottom:-9%}
-.scn-sec .shl-lbl{display:flex;align-items:center;gap:6px}
-.scn-new{font-style:normal;color:var(--acc2);border:1px solid color-mix(in srgb,var(--acc2) 55%,transparent);border-radius:999px;padding:0 7px;font-size:10px;letter-spacing:.6px}
-.scn-row{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
-.scn-row::-webkit-scrollbar{display:none}
-.scn-card{position:relative;flex:0 0 100%;scroll-snap-align:start;display:flex;flex-direction:column;padding:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--card);color:var(--txt);text-align:left;font-family:inherit;cursor:pointer}
-.scn-row .scn-card+.scn-card,.scn-row:has(.scn-card+.scn-card) .scn-card{flex-basis:86%}
-.scn-card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.scn-card .scn-fit{position:absolute;top:10px;left:10px;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:color-mix(in srgb,var(--card) 88%,transparent);color:var(--acc2);padding:4px 9px;border-radius:999px}
-.scn-card-t{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
-.scn-card-t b{font-size:15px;line-height:1.3}
-.scn-card-t small{font-size:12.5px;color:var(--mut)}
-.scn-pg{display:flex;gap:12px;margin-top:5px;font-size:11.5px;color:var(--mut2)}
-.scn-pg-s{display:inline-flex;align-items:center;gap:5px}
-.scn-pg-s i{width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor}
-.scn-pg-s.on{color:var(--acc2)}.scn-pg-s.on i{background:currentColor}
+.scn-cap{color:var(--acc2);border-color:color-mix(in srgb,var(--acc2) 45%,transparent)}
+.scn-save-sp{cursor:default}
 .sv-spk{display:flex;align-items:center;gap:7px;margin:0 0 4px;font-size:13px;line-height:1.2}
 .sv-spk b{font-weight:700;color:var(--txt)}
 .sv-spk small{color:var(--mut2);font-size:11.5px}
@@ -7810,10 +7795,9 @@ const I18N_EN={
  "sh.lib_channels":"Channels",
  "sh.lib_week_pick":"This week · Week {{n}}",
  "sh.lib_fits_plan":"Fits your plan",
- "scn.row_t":"Animated scenes",
- "scn.row_new":"New",
- "scn.card_meta":"Week {{w}} · {{min}} min · {{who}}",
  "scn.ai_voices":"AI voices",
+ "scn.row_by":"BE Mastery · {{who}}",
+ "scn.row_tag":"Animated scene",
  "scn.play":"Play the scene",
  "scn.stage_a11y":"Animated scene: {{title}}. {{who}}.",
  "scn.speaking":"{{name}} is speaking",
@@ -7849,17 +7833,11 @@ const I18N_EN={
  "scn.wc_ipa_wait":"Pronunciation…",
  "scn.sess_btn":"Shadow the scene: {{title}}",
  "scn.sess_why":"A one-minute animated dialogue for this session. Watch it, then shadow {{name}}.",
- "scn.prog_a11y":"Watched: {{a}}. Shadowed: {{b}}. Challenge passed: {{c}}.",
- "scn.prog_watch":"Watch",
- "scn.prog_shadow":"Shadow",
- "scn.prog_challenge":"Challenge",
- "scn.yes":"yes",
  "scn.next_eyebrow":"Next: use it for real",
  "scn.next_expr":"You've practised “{{x}}”. Now use it with another learner.",
  "scn.next_line":"You've practised this line. Now use it with another learner.",
  "scn.next_ai_note":"No partner free right now? The AI coach is always there. It is an AI, not a learner.",
  "scn.ai_tag":"AI",
- "scn.no":"not yet",
  "sh.lib_add_t":"Paste a YouTube link",
  "sh.lib_add_sub":"Any video. Transcript when we can read it, or shadow by ear.",
  "sh.q_paste":"Paste a link",
@@ -13238,7 +13216,7 @@ function shLibFeedHTML(){
     ? `<p class="shl-empty">${esc(t("sh.own_empty",{max:shOwnCap("yt")}))}</p><button class="btn-primary shl-more" onclick="shLinkSheet()">${tIc("sh.lib_add_t","link")}</button>`
     : `<p class="shl-empty">${t(_shLibQ.trim()?"sh.lib_none":"sh.lib_empty_cat")}</p>`;
   const show=_shLibMore||_shLibQ.trim()?ids:ids.slice(0,SHL_FEED_N);
-  return show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
+  return scnFeedRowsHTML()+show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
 }
 function shLibHTML(){
   const c=_shCat,heroes=shLibHeroes();
@@ -13256,7 +13234,6 @@ function shLibHTML(){
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>
   <div class="shl-chans">${c.channels.map(ch=>`<button class="shl-chan ${_shLibCh===ch.id?"on":""}" data-ch="${esc(ch.id)}" onclick="shLibChan('${esc(ch.id)}')" aria-pressed="${_shLibCh===ch.id}"><i>${ch.avatar?`<img src="${esc(ch.avatar)}" alt="" loading="lazy" decoding="async" width="52" height="52" onerror="this.remove()">`:""}${ch.avatar?"":esc(initials(ch.name))}</i><span>${esc(ch.name)}</span></button>`).join("")}</div></div>`:""}
-  ${scnOn()?`<div id="scnRow">${scnRowHTML()}</div>`:""}
   ${heroes.length?`<div id="shlHeroBlock" class="shl-sec" ${shlHeroShown()?"":"hidden"}><div class="shl-lbl">${t("sh.lib_week_pick",{n:heroes[0].w})}</div>
   <div class="shl-hero-wrap">
     <div class="shl-hero-track" id="shlHeroTrack">${heroes.map((h,i)=>`
@@ -22141,27 +22118,21 @@ function scnProgress(vid){
   const ch=H.some(x=>x.kind!=="shadow"&&/^(pass|strong|good)/.test(String(x.verdict||"")));
   return {watch:w,shadow:sh,challenge:ch};
 }
-function scnProgHTML(vid){
-  const p=scnProgress(vid),yn=x=>t(x?"scn.yes":"scn.no");
-  const dot=(on,k)=>`<span class="scn-pg-s ${on?"on":""}"><i></i>${esc(t(k))}</span>`;
-  return `<span class="scn-pg" role="img" aria-label="${esc(t("scn.prog_a11y",{a:yn(p.watch),b:yn(p.shadow),c:yn(p.challenge)}))}">${dot(p.watch,"scn.prog_watch")}${dot(p.shadow,"scn.prog_shadow")}${dot(p.challenge,"scn.prog_challenge")}</span>`;
-}
-function scnCardHTML(sc){
-  const c=_scnCast||{},who=(sc.cast||[]).map(id=>c[id]&&c[id].name).filter(Boolean).join(" & ");
-  const w=(currentPos()||{}).w||1,fits=sc.week===w;
-  const min=Math.max(1,Math.round((Number(sc.durationS)||60)/60));
-  return `<button class="scn-card" onclick="scnOpen('${esc(sc.id)}','library')" aria-label="${esc(sc.title)}">
-    ${ShadowScenes.thumbHTML(sc,c)}
-    ${fits?`<span class="shl-hero-tag scn-fit">${esc(t("sh.lib_fits_plan"))}</span>`:""}
-    <span class="scn-card-t"><b>${esc(sc.title)}</b><small>${esc(t("scn.card_meta",{w:sc.week,min,who}))}</small>${scnProgHTML(sc.id)}</span>
+/* The scene is a row of the video list, the same size as every other row,
+   and always the first one (owner, 27 Sep 2026): For you, every category and
+   a search that finds it; not "Your videos" or one channel's list. */
+function scnFeedRowsHTML(){
+  if(!scnOn()||_shLibCat==="mine"||_shLibCh)return "";
+  if(!_scnList){scnListLoad().then(()=>{const f=document.getElementById("shLibFeed");if(f&&_scnList&&_scnList.length){f.innerHTML=shLibFeedHTML();manIconizeInline(f)}});return ""}
+  const q=_shLibQ.trim().toLowerCase(),c=_scnCast||{};
+  return _scnList.filter(sc=>!q||(sc.title+" "+(sc.topic||"")).toLowerCase().includes(q)).map(sc=>{
+    const who=(sc.cast||[]).map(id=>c[id]&&c[id].name).filter(Boolean).join(" & ");
+    const row=`<button class="shl-row scn-lrow" onclick="scnOpen('${esc(sc.id)}','library')" aria-label="${esc(sc.title)}">
+    <span class="shl-thumb"><img src="${esc(vidThumb(sc.id))}" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(sc.durationS||0)}</span></span>
+    <span><b>${esc(sc.title)}</b><small>${esc(t("scn.row_by",{who}))}</small><span class="shl-cap scn-cap">${esc(t("scn.row_tag"))}</span></span>
   </button>`;
-}
-function scnRowHTML(){
-  if(!scnOn())return "";
-  if(!_scnList){scnListLoad().then(()=>{const r=document.getElementById("scnRow");if(r&&_scnList){r.innerHTML=scnRowHTML();manIconizeInline(r)}});return ""}
-  if(!_scnList.length)return "";
-  const w=(currentPos()||{}).w||1,L=_scnList.slice().sort((a,b)=>(b.week===w)-(a.week===w));
-  return `<div class="shl-sec scn-sec"><div class="shl-lbl">${esc(t("scn.row_t"))} <em class="scn-new">${esc(t("scn.row_new"))}</em></div><div class="scn-row">${L.map(scnCardHTML).join("")}</div></div>`;
+    return shOwnSplit()?`<div class="shl-rw">${row}<span class="shl-save scn-save-sp" aria-hidden="true"></span></div>`:row;
+  }).join("");
 }
 window.scnOpen=(vid,source)=>{
   if(!scnOn()||!scnIs(vid))return;

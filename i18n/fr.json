@@ -3170,9 +3170,6 @@
  "home.it_phrases_w": "Phrase Lab · semaine {{w}}",
  "home.it_phrases_wt": "Les expressions de la semaine {{w}}",
  "home.it_roleplay": "Conversation · {{persona}}",
- "scn.row_t": "Scènes animées",
- "scn.row_new": "Nouveau",
- "scn.card_meta": "Semaine {{w}} · {{min}} min · {{who}}",
  "scn.ai_voices": "Voix IA",
  "scn.play": "Lire la scène",
  "scn.stage_a11y": "Scène animée : {{title}}. {{who}}.",
@@ -3209,15 +3206,11 @@
  "scn.wc_ipa_wait": "Prononciation…",
  "scn.sess_btn": "Faire le shadowing de la scène : {{title}}",
  "scn.sess_why": "Un dialogue animé d'une minute pour cette séance. Regardez-le, puis faites le shadowing de {{name}}.",
- "scn.prog_a11y": "Regardée : {{a}}. Shadowing : {{b}}. Défi réussi : {{c}}.",
- "scn.prog_watch": "Regarder",
- "scn.prog_shadow": "Shadowing",
- "scn.prog_challenge": "Défi",
- "scn.yes": "oui",
- "scn.no": "pas encore",
  "scn.next_eyebrow": "Ensuite : utilisez-la pour de vrai",
  "scn.next_expr": "Vous avez pratiqué « {{x}} ». Utilisez-la maintenant avec un autre apprenant.",
  "scn.next_line": "Vous avez pratiqué cette réplique. Utilisez-la maintenant avec un autre apprenant.",
  "scn.next_ai_note": "Aucun partenaire disponible ? Le coach IA est toujours là. C'est une IA, pas un apprenant.",
- "scn.ai_tag": "IA"
+ "scn.ai_tag": "IA",
+ "scn.row_by": "BE Mastery · {{who}}",
+ "scn.row_tag": "Scène animée"
 }

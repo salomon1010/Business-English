@@ -3170,9 +3170,6 @@
  "home.it_phrases_w": "Phrase Lab · Week {{w}}",
  "home.it_phrases_wt": "Week {{w}}'s expressions",
  "home.it_roleplay": "Conversation · {{persona}}",
- "scn.row_t": "Animated scenes",
- "scn.row_new": "New",
- "scn.card_meta": "Week {{w}} · {{min}} min · {{who}}",
  "scn.ai_voices": "AI voices",
  "scn.play": "Play the scene",
  "scn.stage_a11y": "Animated scene: {{title}}. {{who}}.",
@@ -3209,15 +3206,11 @@
  "scn.wc_ipa_wait": "Pronunciation…",
  "scn.sess_btn": "Shadow the scene: {{title}}",
  "scn.sess_why": "A one-minute animated dialogue for this session. Watch it, then shadow {{name}}.",
- "scn.prog_a11y": "Watched: {{a}}. Shadowed: {{b}}. Challenge passed: {{c}}.",
- "scn.prog_watch": "Watch",
- "scn.prog_shadow": "Shadow",
- "scn.prog_challenge": "Challenge",
- "scn.yes": "yes",
- "scn.no": "not yet",
  "scn.next_eyebrow": "Next: use it for real",
  "scn.next_expr": "You've practised “{{x}}”. Now use it with another learner.",
  "scn.next_line": "You've practised this line. Now use it with another learner.",
  "scn.next_ai_note": "No partner free right now? The AI coach is always there. It is an AI, not a learner.",
- "scn.ai_tag": "AI"
+ "scn.ai_tag": "AI",
+ "scn.row_by": "BE Mastery · {{who}}",
+ "scn.row_tag": "Animated scene"
 }

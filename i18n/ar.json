@@ -3170,9 +3170,6 @@
  "home.it_phrases_w": "Phrase Lab · الأسبوع {{w}}",
  "home.it_phrases_wt": "تعابير الأسبوع {{w}}",
  "home.it_roleplay": "محادثة · {{persona}}",
- "scn.row_t": "مشاهد متحركة",
- "scn.row_new": "جديد",
- "scn.card_meta": "الأسبوع {{w}} · {{min}} د · {{who}}",
  "scn.ai_voices": "أصوات بالذكاء الاصطناعي",
  "scn.play": "تشغيل المشهد",
  "scn.stage_a11y": "مشهد متحرك: {{title}}. {{who}}.",
@@ -3209,15 +3206,11 @@
  "scn.wc_ipa_wait": "النطق…",
  "scn.sess_btn": "حاكِ المشهد: {{title}}",
  "scn.sess_why": "حوار متحرك مدته دقيقة واحدة لهذه الجلسة. شاهده، ثم حاكِ {{name}}.",
- "scn.prog_a11y": "المشاهدة: {{a}}. المحاكاة: {{b}}. اجتياز التحدي: {{c}}.",
- "scn.prog_watch": "شاهد",
- "scn.prog_shadow": "محاكاة",
- "scn.prog_challenge": "تحدٍّ",
- "scn.yes": "نعم",
- "scn.no": "ليس بعد",
  "scn.next_eyebrow": "التالي: استخدمها فعلًا",
  "scn.next_expr": "لقد تدرّبت على «{{x}}». استخدمها الآن مع متعلّم آخر.",
  "scn.next_line": "لقد تدرّبت على هذه الجملة. استخدمها الآن مع متعلّم آخر.",
  "scn.next_ai_note": "لا يوجد شريك متاح الآن؟ مدرّب الذكاء الاصطناعي متاح دائمًا. إنه ذكاء اصطناعي، وليس متعلّمًا.",
- "scn.ai_tag": "ذكاء اصطناعي"
+ "scn.ai_tag": "ذكاء اصطناعي",
+ "scn.row_by": "BE Mastery · {{who}}",
+ "scn.row_tag": "مشهد متحرك"
 }

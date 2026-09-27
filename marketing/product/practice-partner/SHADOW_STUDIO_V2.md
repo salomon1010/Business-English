@@ -282,9 +282,10 @@ Slow (0.75×) / Shadow / Repeat; the Shadow card says whose line it is and
 (nothing invented for other words), Listen, Slow, Save (`vocPut`, the
 learner's own vocabulary); after a shadow report, "use it for real" offers a
 human partner first and the AI coach beside it, labelled as AI (the existing
-`svApplyPartner` / `svApplyAI` hand-offs). The library row shows *Fits your
-plan* for the learner's week and Watch / Shadow / Challenge progress from
-real evidence (watched seconds, a filed report, a passed Challenge). The
+`svApplyPartner` / `svApplyAI` hand-offs). In the library the scene is an ordinary row of the video list, the same
+size as the others and always the FIRST row (owner, 27 Sep 2026: "as the
+first, always the first … small, like the other ones") — For you, every
+category and a search that finds it; not Your videos or a channel's list. The
 session page offers the scene whose `week`/`day` match (Week 1 · Mon).
 
 **Boundaries.** `scnOn()` = `svOn()` (General English + V2) + the library +
