@@ -13237,7 +13237,10 @@ async function _loadCaptions(vid,durHint){
   if(data)_capCache[vid]=data;
   return data;
 }
-const CAP_HEAD_SEC=60;             /* the opening window: the first minute, shown as soon as it lands */
+/* the opening window: the first 30 seconds, shown as soon as they land.
+   Measured through be-polish with windows, 27 Sep 2026 (one talk): 0–30 s in
+   5.3 s, 0–60 s in 8.3 s, a 60–180 s window in 10.9 s, a kept window in 0.03 s. */
+const CAP_HEAD_SEC=30;
 const CAP_WIN_SEC=300, CAP_MAX_SEC=1800, CAP_PAR=2;   /* the rest: five-minute windows, two at a time, up to the Worker's 30-minute cap */
 /* One ask, with the reason for a refusal remembered so the card can tell the
    learner something true: "wait a moment" and "this video cannot be
