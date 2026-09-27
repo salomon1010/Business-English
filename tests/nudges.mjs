@@ -65,7 +65,7 @@ console.log("\n# General English: learner state → the best next action → be-
   const cancel = pushCalls.find(c => c.p === "/nudge/cancel");
   ok("A7 · done before it was sent → cancelled on the server (that rid), remembered as void", cancel && cancel.body.rid === rid && (await p.evaluate(r => S.nudge.doneRids.includes(r) && !S.nudge.pending, rid)), JSON.stringify(cancel));
   const cached = await p.evaluate(async () => { await remCacheText(); const r = await (await caches.open(REM_CACHE)).match(REM_KEY); return r ? r.json() : null; });
-  ok("A8 · the service worker is told too: the void rid is in the reminder cache (nudgeDone)", cached && cached.nudgeDone.includes(rid) && typeof cached.events !== "undefined", JSON.stringify(cached && cached.nudgeDone));
+  ok("A8 · the service worker is told too: the void rid is in the reminder cache (nudgeDone), with the push Worker to ask", cached && cached.nudgeDone.includes(rid) && typeof cached.events !== "undefined" && cached.pushApi === "https://be-push.nore-ngou.workers.dev", JSON.stringify(cached && { d: cached.nudgeDone, p: cached.pushApi }));
   ok("A9 · … and counted as nudge_expired:invalidated", (await beacons(p)).includes("nudge_expired:invalidated"), JSON.stringify(await beacons(p)));
   const next = await p.evaluate(() => nudgeSchedule("test"));
   ok("A10 · practised today → the next best action is the 7 due words (practice / study-due)", next && next.kind === "words" && next.view === "practice" && next.act === "study-due", JSON.stringify(next));
@@ -101,6 +101,8 @@ console.log("\n# General English: learner state → the best next action → be-
   const again2 = await fresh(); pushCalls.length = 0;
   await p.evaluate(() => selectProfessionalTrack("welding")); await sleep(500);
   ok("A21 · switching the programme to Welding cancels the pending nudge", again2 && pushCalls.some(c => c.p === "/nudge/cancel") && (await p.evaluate(() => !S.nudge.pending)), JSON.stringify(pushCalls.map(c => c.p)));
+  const envs = await p.evaluate(() => ({ stg: (beEnv("staging.lomonec.com") || {}).push, prod: beEnv("app.lomonec.com"), here: PUSH_API, staging: nudgeStaging(), panel: !!document.querySelector(".nudge-staging") }));
+  ok("A23 · the staging host has its own push Worker (be-push-staging); production and this host keep production's; the staging test panel is absent here", envs.stg === "https://be-push-staging.nore-ngou.workers.dev" && envs.prod === null && envs.here === "https://be-push.nore-ngou.workers.dev" && !envs.staging && !envs.panel, JSON.stringify(envs));
   ok("A22 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
@@ -166,6 +168,11 @@ console.log("\n# the service worker");
   await new Promise(r => s.handlers.notificationclose({ notification: { data: { nudge: { kind: "words", rid: good.rid }, pushId: "phone-test-0001" } }, waitUntil: p => p.then(r) }));
   const dis = s.fetched.find(f => /\/nudge\/dismiss$/.test(f.u));
   ok("SW5 · swiped away → be-push is told (that kind rests 7 days), nudge_dismissed counted, recorded for the app", dis && JSON.parse(dis.body).kind === "words" && s.fetched.some(f => /nudge_dismissed/.test(f.body || "")) && JSON.parse(s.store.get("./__nudge_seen__")).dismissed.words > 0, JSON.stringify(s.fetched));
+  s = mk({ ...cacheBody, pushApi: "https://be-push-staging.test" }, good); await s.push();
+  ok("SW7 · the worker asks the push Worker the app named (staging has its own), not a hard-coded one", s.fetched.some(f => f.u.startsWith("https://be-push-staging.test/why?id=")) && !s.fetched.some(f => /be-push\.nore-ngou/.test(f.u)), JSON.stringify(s.fetched.map(f => f.u)));
+  s = mk({ ...cacheBody, pushApi: "https://be-push-staging.test" }, good);
+  await new Promise(r => s.handlers.notificationclose({ notification: { data: { nudge: { kind: "words", rid: good.rid }, pushId: "phone-test-0001" } }, waitUntil: p => p.then(r) }));
+  ok("SW8 · a swipe is reported to that same push Worker", s.fetched.some(f => f.u === "https://be-push-staging.test/nudge/dismiss"), JSON.stringify(s.fetched.map(f => f.u)));
   s = mk(cacheBody, { kind: "reminder" }); await s.push();
   ok("SW6 · the ordinary daily reminder is unchanged", s.shown[0] && s.shown[0].t === "Time to practise" && s.shown[0].o.tag === "be-daily");
 }

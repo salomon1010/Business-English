@@ -805,6 +805,10 @@ not JS, and `new Function` chokes on it. Check it separately with
   `tests/nudge-engine.test.mjs`, `tests/nudges.mjs`,
   `backend/push/test/nudge.mjs`, track-auth G1–G6. Home stays programme-card
   only — there is deliberately no in-app nudge card.
+  Staging: `be-push-staging` (own KV + VAPID pair, `beEnv().push`,
+  NUDGE_FLUSH + short gaps) and a staging-only Settings "Staging test" panel
+  (`nudgeStaging()`); `pushSync` keeps the subscription for nudges alone
+  (`nudges:true`) and re-subscribes when the server's key changed.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

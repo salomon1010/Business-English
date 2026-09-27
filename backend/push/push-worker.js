@@ -303,32 +303,42 @@ async function nudgeDismiss(req, env, origin){
   await env.SUBS.put(`nlog:${id}`, JSON.stringify(log), { expirationTtl: 30 * 86400 });
   return json({ ok: true }, 200, origin);
 }
+/* the limits: production defaults; a staging Worker may shorten the three
+   gaps for device testing (NUDGE_GAP_MS, NUDGE_KIND_GAP_MS, NUDGE_WEEK_MAX in
+   [env.staging] only — production's wrangler.toml sets none of them) */
+function nudgeLimits(env){
+  const n = (v, d) => (v != null && v !== "" && Number.isFinite(Number(v)) && Number(v) >= 0 ? Number(v) : d);
+  return { gap: n(env && env.NUDGE_GAP_MS, NUDGE_GAP), kindGap: n(env && env.NUDGE_KIND_GAP_MS, NUDGE_KIND_GAP), weekMax: n(env && env.NUDGE_WEEK_MAX, NUDGE_WEEK_MAX), dismissGap: NUDGE_DISMISS_GAP };
+}
 /* why this nudge may not go now (null = it may) */
-function nudgeHold(rec, log, now){
+function nudgeHold(rec, log, now, L){
+  L = L || nudgeLimits(null);
   if (now >= rec.expiresAt) return "expired";
   if (now < rec.sendAfter) return "early";
   if (quietNow(rec.tz || 0, new Date(now))) return "quiet";
   const sent = (log.sent || []).filter(t => now - t < 7 * 86400_000);
-  if (sent.length && now - Math.max(...sent) < NUDGE_GAP) return "gap";
-  if (sent.length >= NUDGE_WEEK_MAX) return "week";
-  if (log.kinds && log.kinds[rec.kind] && now - log.kinds[rec.kind] < NUDGE_KIND_GAP) return "kind";
-  if (log.dismissed && log.dismissed[rec.kind] && now - log.dismissed[rec.kind] < NUDGE_DISMISS_GAP) return "dismissed";
+  if (sent.length && now - Math.max(...sent) < L.gap) return "gap";
+  if (sent.length >= L.weekMax) return "week";
+  if (log.kinds && log.kinds[rec.kind] && now - log.kinds[rec.kind] < L.kindGap) return "kind";
+  if (log.dismissed && log.dismissed[rec.kind] && now - log.dismissed[rec.kind] < L.dismissGap) return "dismissed";
   if ((log.rids || []).includes(rec.rid)) return "duplicate";
   return null;
 }
-async function runNudges(env, nowMs){
-  const now = nowMs || Date.now();
+async function runNudges(env, nowMs, onlyId){
+  const now = nowMs || Date.now(), L = nudgeLimits(env);
   const audCache = {};
-  let cursor, scanned = 0, sent = 0, held = 0, expired = 0, dropped = 0;
+  let cursor, scanned = 0, sent = 0, held = 0, expired = 0, dropped = 0, last = null;
   do {
-    const page = await env.SUBS.list({ prefix: "nudge:", cursor });
+    const page = await env.SUBS.list({ prefix: onlyId ? `nudge:${onlyId}` : "nudge:", cursor });
     for (const k of page.keys) {
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
       const id = k.name.slice(6), rec = await env.SUBS.get(k.name, "json");
       if (!rec) continue;
       const log = await nudgeLog(env, id);
-      const why = nudgeHold(rec, log, now);
+      if (onlyId && id !== onlyId) continue;
+      const why = nudgeHold(rec, log, now, L);
+      last = why || "sent";
       if (why === "expired" || why === "duplicate") { await env.SUBS.delete(k.name); expired++; continue; }
       if (why) { held++; continue; }
       const sub = await env.SUBS.get(`sub:${id}`, "json");
@@ -349,7 +359,7 @@ async function runNudges(env, nowMs){
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor && scanned < MAX_PER_CRON);
   console.log(JSON.stringify({ nudges: scanned, sent, held, expired, dropped }));
-  return { scanned, sent, held, expired, dropped };
+  return { scanned, sent, held, expired, dropped, last };
 }
 
 /* ------------------------------------------------------------------ routes -- */
@@ -361,8 +371,9 @@ async function subscribe(req, env, origin){
   const id   = cleanId(b.id);
   const slot = b.slot == null ? null : cleanSlot(b.slot);   // null: online alerts only, no daily reminder
   const presence = b.presence === true, calls = b.calls === true;   // calls: invitations may wake this phone
+  const nudges = b.nudges === true;   // learning nudges only (2026-09-26): a phone with no reminder may still want them
   const tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : 0;
-  if (!id || (b.slot != null && !slot) || (!slot && !presence && !calls)) return json({ error: "bad id or slot" }, 400, origin);
+  if (!id || (b.slot != null && !slot) || (!slot && !presence && !calls && !nudges)) return json({ error: "bad id or slot" }, 400, origin);
   if (!b.endpoint || !validEndpoint(b.endpoint, env)) {
     return json({ error: "bad endpoint" }, 400, origin);
   }
@@ -374,12 +385,12 @@ async function subscribe(req, env, origin){
     await env.SUBS.delete(`slot:${prev.slot}:${id}`);
   }
 
-  const rec = { id, slot, endpoint: b.endpoint, presence, calls, tz };
+  const rec = { id, slot, endpoint: b.endpoint, presence, calls, nudges, tz };
   if (slot) await env.SUBS.put(`slot:${slot}:${id}`, JSON.stringify(rec));
   if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
   else await env.SUBS.delete(`pres:${id}`);
   await env.SUBS.put(`sub:${id}`, JSON.stringify(rec));
-  return json({ ok: true, slot, presence, calls }, 200, origin);
+  return json({ ok: true, slot, presence, calls, nudges }, 200, origin);
 }
 
 /* POST /wake {secret, id, kind, name, ref?} — from the partner Worker only.
@@ -506,6 +517,15 @@ export default {
     if (path === "/nudge")          return nudgePut(req, env, origin);
     if (path === "/nudge/cancel")   return nudgeCancel(req, env, origin);
     if (path === "/nudge/dismiss")  return nudgeDismiss(req, env, origin);
+    /* staging only (NUDGE_FLUSH="1"): run the delivery rules for one phone
+       now instead of at the next ten-minute tick — the same rules, so a
+       held nudge stays held and says why */
+    if (path === "/nudge/flush" && env.NUDGE_FLUSH === "1") {
+      const b = await req.json().catch(() => null), id = b && cleanId(b.id);
+      if (!id) return json({ error: "bad id" }, 400, origin);
+      const o = await runNudges(env, Date.now(), id);
+      return json({ ok: true, result: o.last || "none", sent: o.sent }, 200, origin);
+    }
     return json({ error: "not found" }, 404, origin);
   },
 
@@ -516,4 +536,4 @@ export default {
 };
 
 /* for the in-process tests (test/nudge.mjs) */
-export { runNudges, nudgeHold, cleanNudge };
+export { runNudges, nudgeHold, cleanNudge, nudgeLimits };

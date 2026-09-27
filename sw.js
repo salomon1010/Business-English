@@ -151,7 +151,7 @@ function swCount(d, name, props) {
 }
 function pushWhy(d) {
   if (!d || !d.pushId) return Promise.resolve(null);
-  return fetch(PUSH_API + "/why?id=" + encodeURIComponent(d.pushId), { cache: "no-store" })
+  return fetch(((d && d.pushApi) || PUSH_API) + "/why?id=" + encodeURIComponent(d.pushId), { cache: "no-store" })   // the app names its push Worker (staging has its own)
     .then(r => (r.ok ? r.json() : null)).catch(() => null);
 }
 self.addEventListener("push", e => {
@@ -263,9 +263,9 @@ self.addEventListener("notificationclick", e => {
 self.addEventListener("notificationclose", e => {
   const dt = e.notification.data || {};
   if (!dt.nudge || !dt.nudge.kind) return;
-  e.waitUntil(Promise.all([
-    dt.pushId ? fetch(PUSH_API + "/nudge/dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: dt.pushId, kind: dt.nudge.kind }) }).catch(() => {}) : null,
+  e.waitUntil(caches.open(REM_CACHE).then(c => c.match(REM_KEY)).then(r => (r ? r.json() : null)).catch(() => null).then(d => Promise.all([
+    dt.pushId ? fetch(((d && d.pushApi) || PUSH_API) + "/nudge/dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: dt.pushId, kind: dt.nudge.kind }) }).catch(() => {}) : null,
     nudgeSeenPut(s => { s.dismissed[dt.nudge.kind] = Date.now(); }),
-    caches.open(REM_CACHE).then(c => c.match(REM_KEY)).then(r => (r ? r.json() : null)).then(d => swCount(d, "nudge_dismissed", { kind: dt.nudge.kind, source: "push" })).catch(() => {}),
-  ]));
+    swCount(d, "nudge_dismissed", { kind: dt.nudge.kind, source: "push" }),
+  ])));
 });

@@ -143,3 +143,17 @@ it expired or the app lists its rid in `nudgeDone`.
 Needs: `PARTNER_API` (already set) and the partner Worker with `/programme`
 deployed first. Tests: `node test/nudge.mjs` (in process).
 
+### Staging (be-push-staging, 2026-09-26)
+
+`[env.staging]` in wrangler.toml: its own Worker (`be-push-staging`), KV
+namespace and VAPID pair; `PARTNER_API` = the staging partner Worker. The
+staging site reaches it through `beEnv().push` (index.html `PUSH_API`), and
+the service worker learns it from the reminder cache (`pushApi`). A phone
+subscribed under production's key is re-subscribed automatically (pushSync
+compares `sub.options.applicationServerKey` with `/key`). Staging only:
+`NUDGE_FLUSH="1"` (`POST /nudge/flush {id}` runs the delivery rules for one
+phone now — the Settings "Staging test" panel uses it) and shortened gaps
+(`NUDGE_GAP_MS` 5 min, `NUDGE_KIND_GAP_MS` 15 min, `NUDGE_WEEK_MAX` 30).
+Production sets none of these. `PUSH_SECRET` is not set on staging, so
+online alerts do not run there.
+

@@ -137,7 +137,7 @@ window.FB_CONFIG={
      can tell apart. A STAGING iOS bundle (mobile/ios: npm run sync:staging)
      carries window.BE_BUILD={env:"staging",…} from be-build.js; the committed
      web app and every production bundle never do. */
-  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
+  window.beEnv=function(host){var st={events:"https://be-events-staging.nore-ngou.workers.dev/e",partner:"https://be-partner-staging.nore-ngou.workers.dev",entitlements:"https://be-entitlements-staging.nore-ngou.workers.dev",push:"https://be-push-staging.nore-ngou.workers.dev",flags:true};if((host||location.hostname)==="staging.lomonec.com")return st;if(!host&&window.BE_BUILD&&window.BE_BUILD.env==="staging")return st;return null};
   try{var _env=beEnv();if(_env)EVENTS_API=_env.events}catch(e){}
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
@@ -14429,7 +14429,9 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
    before 16.4, on any non-installed iOS home screen, and whenever the user
    declines permission. In all of those the old setTimeout plus the launch nudge
    still run, exactly as before — push is added on top, never depended on. */
-const PUSH_API="https://be-push.nore-ngou.workers.dev";
+/* the staging host (and a staging build) has its own push Worker, key and
+   store (be-push-staging), so testing nudges never touches production */
+const PUSH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.push)return e.push}catch(x){}return "https://be-push.nore-ngou.workers.dev"})();
 /* Branded password-reset email (backend/mail, Brevo). Empty string = Firebase's own plain email. */
 const MAIL_API="https://be-mail.nore-ngou.workers.dev";
 const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
@@ -14560,7 +14562,7 @@ async function remCacheText(){
       /* an invitation with the app closed: the same words as the in-app banner */
       call:{live:{title:t("pp.call_h",{name:"{{name}}"}),body:t("pp.tinv_live_sub")},trial:{title:t("pp.tinv_h",{name:"{{name}}"}),body:t("pp.tinv_sub")}},
       image:png?REM_MAP_KEY:null,
-      nudgeDone:nudgeDoneRids(),events:window.BE_EVENTS_API||null,
+      nudgeDone:nudgeDoneRids(),events:window.BE_EVENTS_API||null,pushApi:PUSH_API,
       lang:html.getAttribute("lang")||"en",
       dir:html.getAttribute("dir")||"auto",
     };
@@ -14581,23 +14583,26 @@ async function pushSync(){
   const c=remCfg();
   const wantPres=ppAvailable()&&ppAlertsOn();
   const wantCalls=ppAvailable()&&ppConsented()&&ppAlertsOn();   /* invitations may ring this phone with the app closed */
-  if(!c.on&&!wantPres&&!wantCalls)return pushOff();
+  /* learning nudges need the subscription too — without this a learner with
+     the reminder off was unsubscribed and never got one (found 2026-09-26) */
+  const wantNudge=(()=>{try{return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser}catch(e){return false}})();
+  if(!c.on&&!wantPres&&!wantCalls&&!wantNudge)return pushOff();
   if(!("serviceWorker" in navigator)||!("PushManager" in window))return;
   if(!window.Notification||Notification.permission!=="granted")return;
   try{
     await remCacheText();
     const reg=await navigator.serviceWorker.ready;
     let sub=await reg.pushManager.getSubscription();
-    if(!sub){
-      const r=await fetch(PUSH_API+"/key");
-      const {key}=await r.json();
-      if(!key)return;                      // backend not configured yet
-      sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(key)});
-    }
+    const {key}=await (await fetch(PUSH_API+"/key")).json();
+    if(!key)return;                        // backend not configured yet
+    /* a subscription made for another push Worker's key (the production one,
+       before this host had its own) can never be delivered to: replace it */
+    try{const k=sub&&sub.options&&sub.options.applicationServerKey;if(k){const have=btoa(String.fromCharCode(...new Uint8Array(k))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");if(have!==key){await sub.unsubscribe();sub=null}}}catch(e){}
+    if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64ToU8(key)});
     const j=sub.toJSON();
     await fetch(PUSH_API+"/subscribe",{
       method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,endpoint:j.endpoint,presence:wantPres,calls:wantCalls,tz:-new Date().getTimezoneOffset()}),
+      body:JSON.stringify({id:pushId(),slot:c.on?pushSlot(c.time):null,endpoint:j.endpoint,presence:wantPres,calls:wantCalls,nudges:wantNudge,tz:-new Date().getTimezoneOffset()}),
     });
   }catch(e){}                              // offline, blocked, unsupported — silent
 }
@@ -14671,7 +14676,7 @@ function nudgeWhen(r,now){
   return now+20*3600000;
 }
 let _nudgeBusy=false,_nudgeAt=0;
-async function nudgeSchedule(why){
+async function nudgeSchedule(why,opts){
   const n=nudgeState();
   if(!nudgeReady()){if(n.pending&&(!nudgeAvailable()||!nudgePrefOn()))nudgeCancel("off");return null}
   if(_nudgeBusy)return null;
@@ -14679,10 +14684,10 @@ async function nudgeSchedule(why){
   nudgeInvalidate(sig);
   const r=NudgeEngine.best(sig,n.hist);
   if(!r){if(n.pending)nudgeCancel("none");return null}
-  if(n.pending&&n.pending.rid===r.rid&&Date.now()-_nudgeAt<6*3600000)return n.pending;
+  if(!(opts&&opts.now)&&n.pending&&n.pending.rid===r.rid&&Date.now()-_nudgeAt<6*3600000)return n.pending;
   _nudgeBusy=true;
   try{
-    const now=Date.now(),sendAfter=nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
+    const now=Date.now(),sendAfter=opts&&opts.now?now:nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
     const tx=nudgeText(r),tok=await FBUser.getIdToken();
     const res=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},
       body:JSON.stringify({id:S.pushId,tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
@@ -14762,6 +14767,25 @@ function nudgeBoot(){
     if(q){nudgeArrive({rid:q},"push");try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}}
   });
 }
+/* STAGING ONLY (beEnv — the staging host or a staging build; never production):
+   why nudges are or are not ready on this phone, what the engine would
+   choose, and a button that schedules it for now and asks be-push-staging to
+   run its delivery rules at once (/nudge/flush, NUDGE_FLUSH="1" there only).
+   English only: a test tool, not learner copy. */
+function nudgeStaging(){try{return !!(window.beEnv&&beEnv())}catch(e){return false}}
+function nudgeTestInfo(){
+  const ok=b=>b?"yes":"NO";
+  let next="none";try{const r=NudgeEngine.rank(nudgeSignals(),nudgeState().hist);next=r.length?r.map(x=>x.kind+" ("+x.reason+")").join(", "):"none"}catch(e){}
+  return "General English: "+ok(isGeneralEnglish())+" · signed in: "+ok(typeof FBUser!=="undefined"&&!!FBUser)+" · notifications: "+(window.Notification?Notification.permission:"unsupported")+" · push id: "+ok(!!S.pushId)+" · switch on: "+ok(nudgePrefOn())+" · push Worker: "+PUSH_API.replace(/^https:\/\//,"")+" · ranked: "+next;
+}
+window.nudgeTestNow=async()=>{
+  if(!nudgeStaging())return;
+  try{await pushSync()}catch(e){}
+  const p=await nudgeSchedule("test",{now:true});
+  const el=document.getElementById("nudgeTestInfo");if(el)el.textContent=nudgeTestInfo();
+  if(!p)return toast(nudgeReady()?"No recommendation now, or the server refused this account (Welding / unverified).":"Not ready — see the line above.");
+  try{const r=await fetch(PUSH_API+"/nudge/flush",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:S.pushId})});const j=await r.json().catch(()=>({}));toast("Staging: "+p.kind+" → "+(j.result||("HTTP "+r.status)))}catch(e){toast("Staging: flush failed (offline?)")}
+};
 window.nudgeToggle=on=>{
   nudgeState().off=!on;save();
   if(!on){nudgeCancel("off");return}
@@ -26440,7 +26464,10 @@ async function rData(el,embedded){
           <span>${t("rem.nudges_switch")}</span>
         </label>
       </div>
-      <p class="rem-note">${t("rem.nudges_sub")}</p>`:""}
+      <p class="rem-note">${t("rem.nudges_sub")}</p>
+      ${nudgeStaging()?`<div class="rem-box nudge-staging" style="margin-top:8px"><b>Staging test — learning nudges</b>
+        <p class="rem-note" id="nudgeTestInfo">${esc(nudgeTestInfo())}</p>
+        <button class="btn btn-g" onclick="nudgeTestNow()">Deliver my next nudge now</button></div>`:""}`:""}
       <h3 class="set-h">${t("cal.label")}</h3>
       <div class="btn-row">
         <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>

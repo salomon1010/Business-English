@@ -3,7 +3,7 @@
    generated VAPID key, a stand-in partner Worker answering /programme (the
    account's programme) and a stand-in push service recording deliveries. */
 import { webcrypto } from "node:crypto";
-import worker, { runNudges } from "../push-worker.js";
+import worker, { runNudges, nudgeHold, nudgeLimits } from "../push-worker.js";
 const res = []; const ok = (name, cond, detail = "") => { res.push(!!cond); console.log(`  ${cond ? "PASS" : "FAIL"}  ${name}${cond ? "" : "  — " + String(detail).slice(0, 300)}`); };
 const H = 3_600_000, D = 24 * H, ORIGIN = "https://app.lomonec.com";
 
@@ -149,6 +149,27 @@ console.log("\n# delivery: when a nudge may go");
   await put("phone-r-01", "tok-ge", { rid: "shadow-2026-09-26-x", kind: "shadow", view: "shadow", act: "trouble", args: [] });
   const r = await put("phone-r-01", "tok-ge", { rid: "words-2026-09-26-z", kind: "words", view: "practice", act: "study-due", args: [] });
   ok("D17 · one pending nudge per phone: a newer one replaces it and says so", r.json.previous && r.json.previous.rid === "shadow-2026-09-26-x" && r.json.previous.status === "replaced" && (await SUBS.get("nudge:phone-r-01", "json")).rid === "words-2026-09-26-z", JSON.stringify(r.json));
+}
+console.log("\n# subscriptions for nudges alone; staging controls");
+{
+  let r = await call("/subscribe", { id: "phone-only-nudges", slot: null, endpoint: "https://push.test/phone-only-nudges", nudges: true, tz: 0 });
+  ok("T1 · a phone that wants nudges only (no reminder, no alerts) may subscribe — it used to get 400", r.status === 200 && r.json.nudges === true, JSON.stringify(r));
+  r = await call("/subscribe", { id: "phone-nothing-01", slot: null, endpoint: "https://push.test/x", tz: 0 });
+  ok("T2 · a phone that wants nothing is still refused (400)", r.status === 400);
+  const L = nudgeLimits({ NUDGE_GAP_MS: "300000", NUDGE_KIND_GAP_MS: "900000", NUDGE_WEEK_MAX: "20" }), D0 = nudgeLimits({});
+  ok("T3 · staging may shorten the gaps; without the vars the production limits hold (20 h, 48 h, 4/week)", L.gap === 300000 && L.kindGap === 900000 && L.weekMax === 20 && D0.gap === 20 * H && D0.kindGap === 48 * H && D0.weekMax === 4, JSON.stringify({ L, D0 }));
+  const t = Date.now(), rec = { rid: "a-1234", kind: "words", sendAfter: t, expiresAt: t + H, tz: noonTz(t) };
+  ok("T4 · with the staging gap a second nudge 10 min later may go; with production limits it is held", nudgeHold(rec, { sent: [t - 600000], kinds: {}, dismissed: {}, rids: [] }, t, L) === null && nudgeHold(rec, { sent: [t - 600000], kinds: {}, dismissed: {}, rids: [] }, t) === "gap");
+  await subscribe("phone-f-01"); await put("phone-f-01", "tok-ge"); pushes.length = 0;
+  r = await call("/nudge/flush", { id: "phone-f-01" });
+  ok("T5 · /nudge/flush does not exist without NUDGE_FLUSH (production) → 404, nothing sent", r.status === 404 && !pushes.length, JSON.stringify(r));
+  const envS = { ...env, NUDGE_FLUSH: "1" };
+  const x = await worker.fetch(new Request("https://be-push.test/nudge/flush", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json" }, body: JSON.stringify({ id: "phone-f-01" }) }), envS, {});
+  const xj = await x.json();
+  ok("T6 · with NUDGE_FLUSH=1 (staging) it runs the same rules now for that phone only", x.status === 200 && xj.result === "sent" && pushes.join() === "phone-f-01", JSON.stringify({ xj, pushes }));
+  await put("phone-f-01", "tok-ge", { rid: "words-2026-09-26-f", kind: "words", view: "practice", act: "study-due", args: [] });
+  const y = await (await worker.fetch(new Request("https://be-push.test/nudge/flush", { method: "POST", headers: { origin: ORIGIN, "content-type": "application/json" }, body: JSON.stringify({ id: "phone-f-01" }) }), envS, {})).json();
+  ok("T7 · … and a held nudge says why (gap)", y.result === "gap", JSON.stringify(y));
 }
 {
   const r = await worker.fetch(new Request("https://be-push.test/nudge", { method: "OPTIONS", headers: { origin: ORIGIN } }), env, {});

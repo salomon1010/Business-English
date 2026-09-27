@@ -35,3 +35,29 @@ PARTNER_API = "https://be-partner.nore-ngou.workers.dev"
 # Invitation wake-ups (2026-09-26): the partner Worker calls POST /wake with a
 # shared secret — `npx wrangler secret put PUSH_SECRET` here AND on be-partner
 # (same value). Without it /wake answers 503 and invitations ring in-app only.
+
+# ---------------------------------------------------------------- staging --
+# be-push-staging (2026-09-26): its own Worker, store and VAPID pair, so the
+# staging site (staging.lomonec.com → beEnv().push) can test learning nudges
+# without touching production's be-push. Deploy: npx wrangler deploy --env staging
+# Secret: VAPID_PRIVATE_JWK (--env staging), the staging pair's private half —
+# a different pair from production's. Staging ONLY: NUDGE_FLUSH (a
+# deliver-now route for device tests) and shortened nudge gaps; production
+# above sets none of them, so its defaults (20 h, 48 h, 4 a week) hold.
+[env.staging]
+name = "be-push-staging"
+
+[env.staging.triggers]
+crons = ["* * * * *", "*/10 * * * *"]
+
+[[env.staging.kv_namespaces]]
+binding = "SUBS"
+id = "f048c81414eb4cb7ac9366c85259370c"
+
+[env.staging.vars]
+VAPID_PUBLIC_KEY = "BLub2nDIQKEMKU9Z4hTca59aLaN2VxztkAZy-SZ1hwCcfRTz-ijV8mYEghz1QEW2mc12ENFv4d8Wsq6jndqc7Ok"
+PARTNER_API = "https://be-partner-staging.nore-ngou.workers.dev"   # its /programme decides General English
+NUDGE_FLUSH = "1"
+NUDGE_GAP_MS = "300000"        # 5 min between nudges (production: 20 h)
+NUDGE_KIND_GAP_MS = "900000"   # 15 min per kind (production: 48 h)
+NUDGE_WEEK_MAX = "30"          # production: 4
