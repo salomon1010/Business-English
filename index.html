@@ -14819,7 +14819,10 @@ function nudgeSignals(){
   try{const log=areaDayLog();sig.practicedToday=!!log[today];const last=Object.keys(log).filter(k=>log[k]).sort().pop();sig.daysAway=last?Math.max(0,Math.floor((Date.parse(today)-Date.parse(last))/NUDGE_DAY)):0}catch(e){}
   try{sig.wordsReady=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
   try{sig.trouble=Object.keys(troubleMap()).length}catch(e){}
-  try{const c=aList("chHist")[0];if(c&&c.vid)sig.challenge={vid:c.vid,title:c.title||"",ts:c.ts,pass:!!c.pass}}catch(e){}
+  /* the newest CHALLENGE attempt (challenge / chsync / chretell). The same list
+     also keeps plain Shadow reports, which have no pass mark — read as a
+     challenge they turned an ordinary Shadow take into "one more round". */
+  try{const c=aList("chHist").find(x=>x&&x.vid&&/^ch/.test(x.kind||"challenge"));if(c)sig.challenge={vid:c.vid,title:c.title||"",ts:c.ts,pass:!!c.pass}}catch(e){}
   try{const tr=activeProfessionalTrack(),have=(CompetencyEngine.config(tr).competencies||[]).map(x=>x.id);
       const ids=["pronunciation","vocabulary","communication"].filter(id=>have.includes(id));
       if(ids.length)sig.weakest=ids.slice().sort((a,b)=>CompetencyEngine.score(S,tr,a)-CompetencyEngine.score(S,tr,b))[0]}catch(e){}
@@ -14917,12 +14920,30 @@ function nudgeGo(r){
     if(r.view==="session"&&r.args&&r.args.length===2){go("session",Number(r.args[0]),String(r.args[1]));return true}
     if(r.view==="practice"){go("practice");if(r.act==="study-due")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(r.view==="shadow"){go("shadow");
-      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>{try{shLoad({vid:String(r.args[0]),start:0,end:0,title:""})}catch(e){}},400);
-      else if(r.act==="trouble")setTimeout(()=>{try{shTab("trouble")}catch(e){}},300);
+      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>nudgeClip(String(r.args[0]),r.kind==="challenge"),400);
+      else if(r.act==="trouble")setTimeout(()=>{try{shTab("trouble");nudgeTroubleShow()}catch(e){}},300);
       return true}
     if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
   }catch(e){}
   return false;
+}
+/* a Challenge nudge opens that clip IN the Challenge, not in Watch: the
+   notification asked for a challenge round. The line list comes with the
+   captions, so wait for it (up to 8 s); without it the clip stays in Watch. */
+async function nudgeClip(vid,challenge){
+  try{const h=aList("chHist").find(x=>x&&x.vid===vid);await shLoad({vid,start:0,end:0,title:h&&h.title||""})}catch(e){return}
+  if(!challenge)return;
+  for(let i=0;i<40;i++){
+    if(shClip&&shClip.vid!==vid)return;   /* the learner moved on */
+    if(svAsset&&svAsset.segments&&svAsset.segments.length){try{if(svChOn())svSetMode("challenge")}catch(e){}return}
+    await new Promise(z=>setTimeout(z,200));
+  }
+}
+/* a trouble-words nudge lands on the words themselves: they sit under the
+   Shadow history, which may fill the screen */
+function nudgeTroubleShow(){
+  setTimeout(()=>{try{const b=document.getElementById("tbBox");if(!b)return;const h=b.previousElementSibling&&b.previousElementSibling.previousElementSibling||b;
+    const top=h.getBoundingClientRect().top+window.scrollY-90;window.scrollTo({top:Math.max(0,top),behavior:"auto"})}catch(e){}},150);
 }
 /* the funnel after a tap: started / practice conversion (markPracticed), partner conversion (the analytics guard) */
 function nudgePracticed(){

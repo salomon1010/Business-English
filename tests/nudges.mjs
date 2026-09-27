@@ -119,6 +119,36 @@ console.log("\n# General English: learner state → the best next action → be-
   await ctx.close();
 }
 
+console.log("\n# the Challenge signal and the landing of each tap (staging validation, 27 Sep 2026)");
+{
+  const ch = (kind, pass, ago) => ({ kind, ts: Date.now() - ago, vid: "MZAjfsyJa1U", title: "Climate summit", seg: 0, text: "x", n: 1, level: 1, rung: "gate", verdict: "close", coverage: 0.6, ok: 3, total: 5, pass, heard: "", issues: [], dims: {}, drills: [] });
+  const shadowTake = { kind: "shadow", ts: Date.now() - 600_000, vid: "MZAjfsyJa1U", title: "Climate summit", text: "x", heard: "x", score: 80, wpm: 120, fillers: 0, fix: [], ctx: "" };
+  const today0 = { dates: [today], dayLog: { [today]: 1 }, dayLogA: { "general-english": { [today]: 1 } }, vocab: {} };
+  { const { ctx, p } = await open("general-english", { ...today0, chHistA: { "general-english": [shadowTake] } });
+    const s = await p.evaluate(() => ({ ch: nudgeSignals().challenge || null, best: (NudgeEngine.best(nudgeSignals(), {}) || {}).kind || null }));
+    ok("C1 · a plain Shadow take (no pass mark) is not read as a failed Challenge → no 'one more round'", !s.ch && s.best !== "challenge", JSON.stringify(s));
+    await ctx.close(); }
+  { const { ctx, p } = await open("general-english", { ...today0, chHistA: { "general-english": [shadowTake, ch("challenge", false, 3_600_000)] } });
+    const s = await p.evaluate(() => ({ ch: nudgeSignals().challenge, best: (NudgeEngine.best(nudgeSignals(), {}) || {}).kind }));
+    ok("C2 · the newest CHALLENGE attempt is read past a later Shadow take → challenge", s.ch && s.ch.vid === "MZAjfsyJa1U" && !s.ch.pass && s.best === "challenge", JSON.stringify(s));
+    /* YouTube is blocked in this suite: a stand-in player, so the clip's words (bundled captions) load as on a phone */
+    await p.evaluate(() => { const P = function () { return { destroy() {}, playVideo() {}, pauseVideo() {}, seekTo() {}, setPlaybackRate() {}, getPlayerState: () => 2, getCurrentTime: () => 0, getDuration: () => 200, getVideoData: () => ({ title: "" }) }; }; window.YT = { Player: P, PlayerState: { PLAYING: 1, PAUSED: 2, BUFFERING: 3, ENDED: 0 } }; });
+    const land = await p.evaluate(async () => { const r = NudgeEngine.best(nudgeSignals(), {}); nudgeGo(r); for (let i = 0; i < 60 && svMode !== "challenge"; i++) await new Promise(z => setTimeout(z, 200));
+      return { v: cur.v, vid: shClip && shClip.vid, title: shClip && shClip.title, mode: svMode }; });
+    ok("C3 · a Challenge tap opens that clip IN the Challenge (not Watch), with its title", land.v === "shadow" && land.vid === "MZAjfsyJa1U" && land.title === "Climate summit" && land.mode === "challenge", JSON.stringify(land));
+    await ctx.close(); }
+  { const { ctx, p } = await open("general-english", { ...today0, chHistA: { "general-english": [ch("chsync", true, 60_000), ch("challenge", false, 3_600_000)] } });
+    const s = await p.evaluate(() => ({ ch: nudgeSignals().challenge, best: (NudgeEngine.best(nudgeSignals(), {}) || {}).kind || null }));
+    ok("C4 · a later passed Challenge round wins → no challenge nudge", s.ch && s.ch.pass && s.best !== "challenge", JSON.stringify(s));
+    await ctx.close(); }
+  { const hist = Array.from({ length: 5 }, (_, i) => ({ ...shadowTake, ts: Date.now() - 9 * DAY - i }));
+    const { ctx, p } = await open("general-english", { ...today0, chHistA: { "general-english": hist }, troubleA: { "general-english": { thorough: { n: 2, ts: Date.now() }, schedule: { n: 1, ts: Date.now() }, colleague: { n: 1, ts: Date.now() } } } });
+    const land = await p.evaluate(async () => { const r = NudgeEngine.best(nudgeSignals(), {}); nudgeGo(r); await new Promise(z => setTimeout(z, 1200)); const b = document.getElementById("tbBox"), top = b ? b.getBoundingClientRect().top : null;
+      return { kind: r.kind, v: cur.v, top, vh: innerHeight, words: b ? b.innerText.includes("thorough") : false }; });
+    ok("C5 · a trouble-words tap lands ON the trouble words (on screen), not on the history above them", land.kind === "shadow" && land.v === "shadow" && land.words && land.top != null && land.top >= 0 && land.top < land.vh * 0.6, JSON.stringify(land));
+    await ctx.close(); }
+}
+
 console.log("\n# launch: retention, expiry, a tap on a closed app");
 {
   const opened = { rid: "words-" + yday + "-x", kind: "words", view: "practice", act: "study-due", args: [], at: Date.now() - DAY - 3_600_000, started: true, completed: false, practice: true, partner: false, retained: false };
