@@ -229,3 +229,81 @@ fetches, never writes the preference.
 - **Known limits:** IPA is still written by the model (gpt-4o-mini via the
   chat route) — good for common words, not a dictionary; a real lexicon would
   need a Worker-side dictionary, which is a separate decision.
+
+## Animated scenes (2026-09-27, branch `feature/shadow-scenes`, General English only)
+
+**What it is.** A scene is a short dialogue between recurring fictional
+characters, played inside the same studio. `ScenePlayer` (`shadow-scenes.js`)
+stands in for `YT.Player` with the surface the studio uses — the contract
+`RemoteYT` already keeps for the iOS shell — so Watch, Shadow, Challenge (all
+five rungs), the coach report, History and My clips are the same code.
+
+**Data, not code.**
+
+| File | Holds |
+|---|---|
+| `scenes/index.json` | the scenes, in library order |
+| `scenes/cast.json` | the recurring cast: name, role, drawing parameters (skin, hair, top, accessory), TTS voice + delivery note |
+| `scenes/<slug>/scene.json` | title, setting, cast, lines (speaker + text), curriculum metadata (week, day, topic, skill, competency, level), expressions, vocab (word, meaning, example — written by hand), retell prompt, durationS |
+| `scenes/<slug>/captions.json` | the studio's caption format plus `spk` per cue; word times measured by Whisper on the scene's own audio |
+| `scenes/<slug>/audio.mp3` | the whole dialogue, mono 48 kb/s (~360 KB for 61 s) |
+| `scenes/<slug>/poster.svg` | the stage as one picture, for every `<img>` that shows a clip (`vidThumb`) |
+
+A scene id is `scene.<slug>`; it can never match a YouTube id (11 of
+`[A-Za-z0-9_-]`), so thumbnails, the transcript Worker and the relay refuse
+it by their own checks.
+
+**Building a scene.** `node scripts/build_scene.mjs <slug>`: each line is
+voiced by the Polish Worker's TTS route (OpenAI gpt-4o-mini-tts, the
+character's voice and delivery note), transcribed back by its Whisper route
+for word times, joined by ffmpeg (0.4 s lead, 0.7 s between lines). The
+script's words are the text; Whisper only lends timing, and a line whose
+words do not match fails the build. macOS `say` is deliberately not used —
+Apple's licence limits system voices to personal, non-commercial use. OpenAI's
+terms allow commercial use of TTS output provided listeners are told the voice
+is AI: the stage carries an "AI voices" label.
+
+**The stage.** SVG setting + two drawn characters. The speaking character is
+marked (lean-in, name tag, level bars) and its mouth opens only inside a
+measured word time; eyes blink. `prefers-reduced-motion` removes all motion;
+who is speaking is always also said in words (the status line). The status
+line says what the learner should do: *Daniel is speaking* → *Your turn —
+press Shadow and speak along with Daniel* → *Recording* → *Checking your
+recording…* → *Feedback ready*; in Challenge it names the rung's task (listen
+first / speak together / from memory / without the text / own words). One rAF
+loop, only while the audio plays; the file is fetched whole as a blob, so the
+service worker's cached copy plays offline and seeking works.
+
+**What scenes add to the studio (all behind `scnOn()`):** one speaker's turn
+per paragraph with the speaker's name in Watch; a tapped line offers Listen /
+Slow (0.75×) / Shadow / Repeat; the Shadow card says whose line it is and
+"Hear it" plays the character's own voice; a tapped word opens a card — IPA
+(existing pipeline), meaning and example only from the scene's own vocab list
+(nothing invented for other words), Listen, Slow, Save (`vocPut`, the
+learner's own vocabulary); after a shadow report, "use it for real" offers a
+human partner first and the AI coach beside it, labelled as AI (the existing
+`svApplyPartner` / `svApplyAI` hand-offs). The library row shows *Fits your
+plan* for the learner's week and Watch / Shadow / Challenge progress from
+real evidence (watched seconds, a filed report, a passed Challenge). The
+session page offers the scene whose `week`/`day` match (Week 1 · Mon).
+
+**Boundaries.** `scnOn()` = `svOn()` (General English + V2) + the library +
+`shadow_scenes_enabled` (FLAGS_DEFAULT false, FLAGS_STAGING true). `shLoad`
+refuses a scene id anywhere else (a stored last clip, a saved clip, a link).
+Scenes are static files with no server side and no new store; recordings stay
+on the device like every other take. Events `shadow_scene_opened` (+source),
+`shadow_scene_line` (+kind), `shadow_scene_word` (+kind) are enums only, in
+`GE_ONLY_EVENT` and on the be-events allow-list.
+
+**Found and fixed on the way.** The Challenge "Current expression" chip's
+sparkle had no size and filled the panel whenever a line held a curriculum
+phrase. `normalizeCaptions` ended the LAST line a fixed 2.5 s after its start,
+dropping the closing words of a longer final line (`shadow-sync.js?v=8`).
+
+**Known limits.** Pitch, stress and intonation are still not measured — the
+scene's audio is ours now, so a model-vs-learner pitch comparison is possible,
+but it is not built. Two word pairs in the first scene got zero-length times
+from Whisper and are shared/marked estimated by the engine. Roles and scene
+text are English (learning content); the 50 UI keys are translated into
+fr/es/pt/ar and English elsewhere, machine transcreation to be reviewed.
+Tests: `tests/shadow-scenes.mjs` (64).

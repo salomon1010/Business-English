@@ -653,6 +653,15 @@ not JS, and `new Function` chokes on it. Check it separately with
   times). `sw.js` precaches `shadow-sync.js?v=2`. Tests `tests/shadow-sync.test.mjs`
   (27). Events for both features are on the `be-events` allow-list on the branch
   only — deploy that Worker before any flag goes on.
+- **Animated scenes (2026-09-27, `feature/shadow-scenes`, General English only,
+  `shadow_scenes_enabled` OFF in production / ON on staging).** `shadow-scenes.js`
+  `ScenePlayer` stands in for `YT.Player` (the `RemoteYT` contract), so every
+  studio mode runs on a scene unchanged. Data in `scenes/` (index, `cast.json`,
+  `<slug>/scene.json|captions.json|audio.mp3|poster.svg`), built by
+  `scripts/build_scene.mjs` (Polish Worker TTS + Whisper word times; never macOS
+  `say` — licence). Id `scene.<slug>`; gate `scnOn()`; `vidThumb()` for any clip
+  picture. Details: `marketing/product/practice-partner/SHADOW_STUDIO_V2.md` §
+  Animated scenes. Tests `tests/shadow-scenes.mjs` (64).
 - **Your videos (2026-09-19, General English picker).** A learner's own YouTube
   link + pasted transcript is kept when they press Load: `aList("shOwn")`
   (`S.shOwnA[area]`, `{vid,title,ts}`, newest first, cap `SH_OWN_MAX=5` — the
