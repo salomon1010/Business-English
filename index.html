@@ -5113,17 +5113,81 @@ h1.big{letter-spacing:-.025em}
 .ad-x svg{width:20px;height:20px}
 .ad-creative{flex:1;min-height:0;overflow:hidden;border-radius:var(--ds-r);background:var(--bg2);border:1px solid var(--line)}
 .ad-continue{flex:none}
-.prem-sheet{max-width:440px;max-height:88vh;overflow:auto;position:relative}
-.prem-sheet h2{font-size:19px;margin:0 36px 6px 0}
-.prem-x{position:absolute;top:10px;right:10px;width:44px;height:44px;display:grid;place-items:center;border:0;background:transparent;color:var(--mut);border-radius:12px;cursor:pointer}
-[dir=rtl] .prem-x{right:auto;left:10px}[dir=rtl] .prem-sheet h2{margin:0 0 6px 36px}
-.prem-x svg{width:20px;height:20px}
-.prem-lede{margin:0 0 12px}
-.prem-ben{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:6px}
-.prem-ben li{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--txt)}
-.prem-ben .inl-ic{color:var(--green);margin-top:2px;flex:none;margin-right:0}
-.prem-ben .inl-ic svg{width:16px;height:16px}
+/* ---- PREMIUM acquisition sheet (2026-09-26): a phone-first paywall.
+   Bottom sheet on phones (full width, rounded top, safe-area foot), a centred
+   card from 600px. The body scrolls; the CTA foot is pinned and never covers
+   content because it sits outside the scroll box. Colour comes only from the
+   theme tokens (Signal / Forge, dark / light), so nothing here is hard-coded. */
+.prem-ov{padding:0;place-items:end center}
+.prem-sheet{max-width:none;width:100%;max-height:calc(100vh - 20px);max-height:calc(100dvh - 20px);padding:0;overflow:hidden;position:relative;display:flex;flex-direction:column;
+  background:var(--bg2);border-radius:var(--ds-r-lg,24px) var(--ds-r-lg,24px) 0 0;border-bottom:0;animation:premUp .32s var(--ds-ease-out,ease-out)}
+@keyframes premUp{from{transform:translateY(28px);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:600px){.prem-ov{padding:22px;place-items:center}.prem-sheet{max-width:440px;max-height:90vh;border-radius:22px;border-bottom:1px solid var(--line2)}}
+@media (prefers-reduced-motion:reduce){.prem-sheet{animation:none}}
+.prem-sheet::before{content:"";position:absolute;inset:0 0 auto 0;height:260px;pointer-events:none;z-index:0;
+  background:radial-gradient(70% 80% at 12% 0%,var(--field-1,rgba(99,102,241,.2)),transparent 70%),radial-gradient(55% 70% at 92% 8%,var(--field-3,rgba(168,85,247,.09)),transparent 70%),radial-gradient(45% 55% at 60% 34%,var(--field-2,rgba(34,211,238,.1)),transparent 72%)}
+.prem-scroll{position:relative;z-index:1;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:0 20px 18px}
 .prem-sheet:focus{outline:none}
+.prem-x{position:absolute;top:12px;right:12px;z-index:3;width:46px;height:46px;display:grid;place-items:center;border:0;background:color-mix(in srgb,var(--txt) 8%,transparent);color:var(--mut);border-radius:50%;cursor:pointer}
+.prem-x:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+[dir=rtl] .prem-x{right:auto;left:12px}
+.prem-x svg{width:20px;height:20px}
+.prem-hero{padding:24px 0 4px;margin-inline-end:36px}
+.prem-eyebrow{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.prem-brand{color:var(--txt)}
+.prem-spark{color:var(--live);font-size:13px;letter-spacing:0}
+.prem-tag{padding:3px 8px;border-radius:999px;background:var(--cta-grad,var(--acc));color:var(--on-accent,#fff);font-size:10.5px;letter-spacing:.14em;line-height:1.3}
+.prem-h{font-size:clamp(23px,6.4vw,28px);line-height:1.15;letter-spacing:-.02em;font-weight:800;margin:0 0 10px;color:var(--txt)}
+.prem-h .head-ic{display:none}
+.prem-h2{background:var(--grad-text,none);-webkit-background-clip:text;background-clip:text;color:var(--acc2);-webkit-text-fill-color:transparent}
+@supports not (background-clip:text){.prem-h2{color:var(--acc2);-webkit-text-fill-color:currentColor}}
+.prem-lede{margin:0;color:var(--mut);font-size:14.5px;line-height:1.5;max-width:none}
+.prem-ben{list-style:none;margin:18px 0 0;padding:0;display:grid;gap:10px}
+.prem-ben li{display:flex;gap:12px;align-items:center;font-size:14.5px;line-height:1.35;color:var(--txt)}
+.prem-bic{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 14%,transparent);color:var(--live);box-shadow:var(--hair,none)}
+.prem-bic svg{width:18px;height:18px}
+.prem-body{margin-top:18px}
+.prem-plans{display:grid;gap:10px}
+.prem-plan{position:relative;display:grid;gap:5px;text-align:start;width:100%;min-height:64px;padding:13px 14px 12px;border:1.5px solid var(--line2);border-radius:16px;background:color-mix(in srgb,var(--card) 90%,transparent);color:var(--txt);cursor:pointer;font:inherit;transition:border-color var(--ds-fast,.18s),box-shadow var(--ds-fast,.18s)}
+.prem-plan.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset,0 10px 26px var(--cta-tint,transparent)}
+.prem-plan:focus-visible{outline:2px solid var(--live);outline-offset:2px}
+.prem-plan-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-inline-end:30px}
+.prem-plan-t{font-size:15px;font-weight:700}
+.prem-best,.prem-trialb{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:999px;line-height:1.3;white-space:nowrap}
+.prem-best{background:var(--cta-grad,var(--acc));color:var(--on-accent,#fff)}
+.prem-trialb{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent);border:1px solid color-mix(in srgb,var(--green) 40%,transparent)}
+.prem-radio{position:absolute;top:13px;inset-inline-end:14px;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2);display:grid;place-items:center;flex:none;background:transparent}
+.prem-plan.on .prem-radio{border-color:var(--acc);background:var(--cta-grad,var(--acc));color:var(--on-accent,#fff)}
+.prem-radio svg{width:14px;height:14px}
+.prem-plan-p{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.prem-plan-p b{font-size:20px;letter-spacing:-.01em}.prem-plan-p span{color:var(--mut);font-size:13px}
+.prem-save{font-size:11px;padding:2px 8px;margin-inline-start:2px}
+.prem-plan-s{color:var(--mut);font-size:12.5px;line-height:1.35}
+.prem-skel{height:76px;border-radius:16px;background:linear-gradient(90deg,var(--card),var(--card2),var(--card));background-size:200% 100%;animation:premSk 1.2s linear infinite}
+@keyframes premSk{from{background-position:200% 0}to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.prem-skel{animation:none}}
+.prem-loading{margin:10px 0 0;text-align:center;font-size:13px}
+.prem-unavail{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line2);border-radius:14px;background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--txt);font-size:14px;line-height:1.45}
+.prem-unavail p{margin:0;font-weight:600}.prem-unavail small{display:block;color:var(--mut);margin-top:4px;font-size:13px;font-weight:400}
+.prem-unavail-ic{flex:none;color:var(--gold);margin-top:1px}.prem-unavail-ic svg{width:20px;height:20px}
+.prem-note{margin:12px 0 0;font-size:13px}
+.prem-more{margin:14px 0 0;border:1px solid var(--line);border-radius:14px;background:color-mix(in srgb,var(--card) 70%,transparent)}
+.prem-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:0 14px;min-height:44px;font-size:14px;font-weight:600;color:var(--txt)}
+.prem-more summary::-webkit-details-marker{display:none}
+.prem-more summary:focus-visible{outline:2px solid var(--live);outline-offset:-2px;border-radius:14px}
+.prem-more-ic{display:inline-grid;place-items:center;width:18px;height:18px;color:var(--mut);transition:transform var(--ds-fast,.18s)}.prem-more-ic svg{width:16px;height:16px}
+.prem-more[open] .prem-more-ic{transform:rotate(180deg)}
+.prem-more-body{padding:0 14px 12px}
+.prem-all{display:flex;gap:8px;align-items:flex-start;margin:0;font-size:13px;color:var(--mut);line-height:1.45}.prem-all .inl-ic{color:var(--green);margin:2px 0 0;flex:none}
+.prem-terms{font-size:11.5px;color:var(--mut2);text-align:center;margin:14px 0 0;line-height:1.45;max-width:none}
+.prem-legal{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:0 4px;margin:2px 0 0}
+.prem-legal a,.prem-legal button{display:inline-flex;align-items:center;min-height:45px;padding:0 6px;color:var(--mut);background:none;border:0;font:inherit;font-size:12.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;border-radius:8px}
+.prem-legal a:focus-visible,.prem-legal button:focus-visible{outline:2px solid var(--live);outline-offset:-2px}
+.prem-legal button[disabled]{opacity:.5;cursor:default}
+.prem-legal .prem-dot{color:var(--mut2)}
+.prem-foot{position:relative;z-index:2;flex:none;padding:12px 20px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:color-mix(in srgb,var(--bg2) 94%,transparent);backdrop-filter:blur(8px)}
+.prem-cta{min-height:52px;font-size:16.5px;margin:0}
+.prem-cancel{margin:8px 0 0;text-align:center;font-size:12.5px;color:var(--mut)}
 .sub-card{margin:0 0 16px}
 .sub-card.on{border-color:color-mix(in srgb,var(--green) 40%,transparent)}
 .sub-head{display:flex;align-items:center;gap:10px;margin:0 0 8px}
@@ -5153,27 +5217,13 @@ h1.big{letter-spacing:-.025em}
 .prem-x.prem-x-in{animation:premXin .25s ease}
 @keyframes premXin{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.prem-x.prem-x-in{animation:none}}
-.prem-launch{border-top:4px solid var(--acc)}
-.prem-launch h2{font-size:22px}
-.prem-cmp{width:100%;border-collapse:collapse;margin:0 0 16px;font-size:13.5px;color:var(--txt)}
-.prem-cmp th,.prem-cmp td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line)}
-.prem-cmp thead th{font-size:12px;color:var(--mut);font-weight:600}
-.prem-cmp tbody th{text-align:start;font-weight:500;padding-inline-start:0}
+.prem-cmp{width:100%;border-collapse:collapse;margin:0 0 10px;font-size:13px;color:var(--txt);table-layout:fixed}
+.prem-cmp th,.prem-cmp td{padding:7px 4px;text-align:center;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+.prem-cmp thead th{font-size:11.5px;color:var(--mut);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.prem-cmp tbody th{text-align:start;font-weight:500;padding-inline-start:0;width:46%;text-transform:none;letter-spacing:0;font-size:13px;color:var(--txt)}   /* the global th rule uppercases */
 .prem-cmp td.on{color:var(--green);font-weight:600}
-.prem-plans{display:grid;gap:10px;margin-bottom:6px}
-.prem-plan{display:grid;gap:4px;text-align:start;width:100%;min-height:64px;padding:12px 14px;border:1.5px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);cursor:pointer;font:inherit}
-.prem-plan.on{border-color:var(--txt);box-shadow:0 0 0 1px var(--txt) inset}
-.prem-plan-top{display:flex;align-items:center;gap:8px}
-.prem-plan-t{font-size:15px}
-.prem-save{font-size:11.5px}
-.prem-radio{margin-inline-start:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2);display:grid;place-items:center;flex:none}
-.prem-plan.on .prem-radio{border-color:var(--txt);background:var(--txt);color:var(--card)}
-.prem-radio svg{width:14px;height:14px}
-.prem-plan-p b{font-size:17px}.prem-plan-p span{color:var(--mut);font-size:13px}
-.prem-plan-s{color:var(--mut);font-size:12.5px}
-.prem-wide{width:100%;min-height:48px;margin-top:8px}
-.prem-terms{font-size:12px;margin:10px 0 0}
-.prem-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 6px}
+.prem-wide{width:100%;min-height:48px;margin-top:8px;justify-content:center}
+.prem-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 6px;font-size:14px;color:var(--mut)}
 .ad-remove{background:transparent;border:0;color:var(--mut);text-decoration:underline;font-size:12.5px;min-height:44px;padding:0 6px;cursor:pointer}
 .ad-card .ad-remove{display:block;margin:6px auto 0}
 .ad-native .ad-remove{float:right;min-height:32px;margin-top:-6px}[dir=rtl] .ad-native .ad-remove{float:left}
@@ -6212,10 +6262,18 @@ const I18N_EN={
  "acc.free_8":"Interface and glosses in 15 languages",
  "acc.prem_1":"Ad-free learning",
  "prem.h":"BE Mastery Premium",
- "prem.lede":"Practise without interruption. Your lessons, your voice, and nothing in between.",
- "prem.b_noads":"No ads — ever. Nothing appears before, during or after your practice.",
+ "prem.headline":"Speak with confidence. Practice without limits.",
+ "prem.lede":"Unlock more of BE Mastery's speaking, shadowing, and AI practice tools.",
+ "prem.on_h":"You're on Premium. Practice without limits.",
+ "prem.b_noads":"No ads — ever, before, during or after your practice.",
  "prem.b_all":"Everything you use today stays included: every lesson, track and practice tool.",
- "prem.b_cancel":"Cancel any time in {{store}}.",
+ "prem.best":"Best value",
+ "prem.trial_badge":"{{n}} days free",
+ "prem.cancel_note":"Cancel anytime in {{store}}",
+ "prem.legal_terms":"Terms of use",
+ "prem.included":"See what's included",
+ "prem.retry":"Try again",
+ "prem.unavail_hint":"Check your connection and {{store}}, then try again.",
  "prem.plans_label":"Choose a plan",
  "prem.plan_annual":"Annual",
  "prem.plan_monthly":"Monthly",
@@ -6224,10 +6282,10 @@ const I18N_EN={
  "prem.annual_sub":"{{price}} a month, billed once a year",
  "prem.save":"Save {{n}}%",
  "prem.trial":"{{n}}-day free trial for new subscribers",
- "prem.cta":"Continue",
+ "prem.cta":"Continue with Premium",
  "prem.done":"Continue learning",
  "prem.unavailable":"Premium can't be bought on this device yet. You can get it in the BE Mastery app from Google Play.",
- "prem.row_sub":"No ads, ever",
+ "prem.row_sub":"More speaking, shadowing and AI tools",
  "prem.remove_ads":"Remove ads with Premium",
  "prem.compare":"See Premium plans",
  "prem.b_videos":"Save up to {{n}} Shadow videos",
@@ -20782,6 +20840,7 @@ function entApply(){
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
 function entPlanCardHTML(){
   const prem=entIsPremiumForDisplay(),v=entView();
+  if(!prem&&!isGeneralEnglish())return "";          /* Welding: nothing is offered (General English boundary) */
   let B=null;try{B=Billing}catch(e){}   /* a const defined further down: never touch it before it exists */
   const live=!!(B&&B.provider);
   const date=ms=>new Date(ms).toLocaleDateString();
@@ -21325,7 +21384,9 @@ const Billing={
    entitlement's ai_allowance / practice_allowance are not used by any feature
    yet, so they are not promised. */
 let _premSel=null;
-function premOffered(){try{return (flag("billing_enabled")&&!!entApiBase())||entIsPremiumForDisplay()}catch(e){return false}}
+/* Premium is offered on General English only (its benefits are General English
+   ones); a paying learner keeps the management surfaces on either track */
+function premOffered(){try{return (planOn()&&isGeneralEnglish())||entIsPremiumForDisplay()}catch(e){return false}}
 function premIso(p){const m=/^P(\d+)([DWMY])$/.exec(String(p||""));return m?{n:+m[1],u:m[2]}:null}
 function premTrialDays(p){const x=premIso(p);return !x?0:x.u==="D"?x.n:x.u==="W"?x.n*7:0}
 function premFmt(a,c){try{return new Intl.NumberFormat(undefined,{style:"currency",currency:c}).format(a)}catch(e){return (Math.round(a*100)/100)+" "+c}}
@@ -21341,7 +21402,7 @@ function premPlans(){
   if(year){let save=0,pm="";
     if(month&&year.currency&&year.currency===month.currency&&year.amount>0&&month.amount>0){
       save=Math.round((1-year.amount/(month.amount*12))*100);pm=premFmt(year.amount/12,year.currency)}
-    out.push({p:year,kind:"annual",save:save>=5?save:0,perMonth:pm})}
+    out.push({p:year,kind:"annual",save:save>=5?save:0,perMonth:pm,trial:premTrialDays(year.trial)})}
   if(month)out.push({p:month,kind:"monthly",trial:premTrialDays(month.trial)});
   /* anything else the store returned (a future product) is still offered, plainly */
   L.filter(p=>p!==year&&p!==month).forEach(p=>out.push({p,kind:"other",trial:premTrialDays(p.trial)}));
@@ -21350,12 +21411,45 @@ function premPlans(){
 function premPlanHTML(x){
   const on=_premSel===x.p.id,lab=x.kind==="annual"?t("prem.plan_annual"):x.kind==="monthly"?t("prem.plan_monthly"):x.p.title;
   const per=x.kind==="annual"?t("prem.per_year"):x.kind==="monthly"?t("prem.per_month"):"";
-  const sub=x.kind==="annual"&&x.perMonth?t("prem.annual_sub",{price:x.perMonth}):x.trial?t("prem.trial",{n:x.trial}):"";
+  const sub=[x.kind==="annual"&&x.perMonth?t("prem.annual_sub",{price:x.perMonth}):"",x.trial?t("prem.trial",{n:x.trial}):""].filter(Boolean).join(" · ");
   return `<button type="button" class="prem-plan${on?" on":""}" role="radio" aria-checked="${on}" data-id="${esc(x.p.id)}" onclick="premPick(this.dataset.id)">
-    <span class="prem-plan-top"><b class="prem-plan-t">${esc(lab)}</b>${x.save?`<span class="chip done prem-save">${esc(t("prem.save",{n:x.save}))}</span>`:""}<span class="prem-radio" aria-hidden="true">${on?ic("check"):""}</span></span>
-    <span class="prem-plan-p"><b>${esc(x.p.price)}</b> <span>${esc(per)}</span></span>${sub?`<small class="prem-plan-s">${esc(sub)}</small>`:""}</button>`;
+    <span class="prem-plan-top"><b class="prem-plan-t">${esc(lab)}</b>${x.kind==="annual"&&x.save?`<span class="prem-best">${esc(t("prem.best"))}</span>`:""}${x.trial?`<span class="prem-trialb">${esc(t("prem.trial_badge",{n:x.trial}))}</span>`:""}<span class="prem-radio" aria-hidden="true">${on?ic("check"):""}</span></span>
+    <span class="prem-plan-p"><b>${esc(x.p.price)}</b><span>${esc(per)}</span>${x.save?`<span class="chip done prem-save">${esc(t("prem.save",{n:x.save}))}</span>`:""}</span>${sub?`<small class="prem-plan-s">${esc(sub)}</small>`:""}</button>`;
 }
-function premBodyHTML(){
+/* the headline's second sentence carries the gradient — one translated string,
+   split at its first sentence end; a single sentence stays plain */
+function premHeadHTML(str){const m=/^(.*?[.!?。؟])\s+(\S[\s\S]*)$/.exec(String(str||""));return m?`${esc(m[1])} <span class="prem-h2">${esc(m[2])}</span>`:esc(str)}
+/* the benefit rows: only what Premium delivers where this sheet is drawn —
+   the General English storage limits (PLAN_LIMITS), and ad-free only while
+   ads are on. Nothing unbuilt is promised. */
+function premBenHTML(){
+  const li=(k,icn,v)=>`<li><span class="prem-bic" aria-hidden="true">${ic(icn)}</span><span>${esc(t(k,v||{}))}</span></li>`;
+  const ge=isGeneralEnglish()&&planOn(),P=k=>planLimit(k,"premium");let ads=false;try{ads=!!flag("ads_enabled")}catch(e){}
+  const rows=[];
+  if(ge)rows.push(li("prem.b_videos","bookmark",{n:P("savedShadow")}),li("prem.b_yt","link",{n:P("youtubeImports")}),li("prem.b_polish","doc",{n:P("polishHistory")}));
+  if(ads)rows.push(li("prem.b_noads","ban"));
+  return rows.length?`<ul class="prem-ben">${rows.join("")}</ul>`:"";
+}
+/* exactly ONE billing-unavailable message, never a second Close button (the X leaves) */
+function premUnavailHTML(msg,hint,retry){
+  return `<div class="prem-unavail" role="status"><span class="prem-unavail-ic" aria-hidden="true">${ic("alert")}</span><div><p>${esc(msg)}</p>${hint?`<small>${esc(hint)}</small>`:""}</div></div>${retry?`<button type="button" class="btn btn-g prem-wide prem-retry" onclick="premRetry()">${esc(t("prem.retry"))}</button>`:""}`;
+}
+window.premRetry=()=>{if(Billing.state==="loading"||Billing.state==="purchasing"||Billing.state==="restoring")return;Billing.state="idle";Billing.note="";Billing.init()};
+/* the compact comparison lives behind "See what's included" so it never leads the screen */
+function premMoreHTML(){
+  return `<details class="prem-more"><summary><span class="prem-more-ic" aria-hidden="true">${ic("chevron")}</span>${esc(t("prem.included"))}</summary><div class="prem-more-body">${premCmpHTML()}<p class="prem-all"><span class="inl-ic">${ic("check")}</span><span>${esc(t("prem.b_all"))}</span></p></div></details>`;
+}
+/* store rules (Apple 3.1.2, Play subscriptions policy): the renewal terms and
+   the legal links sit with the offer; Restore is a secondary control here */
+const PREM_TERMS_URL="";   /* BE Mastery has no Terms-of-use page yet (owner / legal content) — the link appears once this holds one; iOS shows Apple's standard EULA */
+function premLegalHTML(busy){
+  const ios=Billing.provider&&Billing.provider.id==="app_store",sn=premStore();
+  const terms=ios?`<a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">${esc(t("acc.prem_eula_link"))}</a>`:PREM_TERMS_URL?`<a href="${esc(PREM_TERMS_URL)}" target="_blank" rel="noopener">${esc(t("prem.legal_terms"))}</a>`:"";
+  return `<p class="sub ent-terms prem-terms">${esc(t("acc.prem_terms",{store:sn}))}</p>
+    <div class="prem-legal">${terms?terms+`<span class="prem-dot" aria-hidden="true">·</span>`:""}<a href="privacy.html" target="_blank" rel="noopener">${esc(t("acc.prem_privacy_link"))}</a><span class="prem-dot" aria-hidden="true">·</span><button type="button" class="prem-restore" ${busy?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button></div>`;
+}
+/* the part of the sheet that scrolls, under the hero and the benefits */
+function premMainHTML(){
   const B=Billing,prem=entIsPremiumForDisplay(),v=entView(),busy=B.state==="purchasing"||B.state==="restoring";
   const noteTxt=busy?t(B.state==="purchasing"?"acc.prem_buying":"acc.prem_restoring"):B.note;
   const note=noteTxt?`<p class="sub ent-note prem-note" role="status">${esc(noteTxt)}</p>`:"";
@@ -21363,21 +21457,28 @@ function premBodyHTML(){
   if(prem){
     const st=v.state==="grace"&&v.expiresAt?t("acc.prem_grace",{date:date(v.expiresAt)}):v.renews===false&&v.expiresAt?t("acc.prem_cancelled",{date:date(v.expiresAt)}):v.expiresAt?t("acc.prem_until",{date:date(v.expiresAt)}):"";
     const manage=B.provider&&v.source===B.provider.id?`<button type="button" class="btn btn-g prem-wide" onclick="Billing.manage()">${esc(t("acc.prem_manage"))}</button>`:"";
-    return `<p class="prem-status">${st?esc(st):`<span class="chip done">${esc(t("acc.prem_active"))}</span>`}</p>${note}
-      <button type="button" class="btn-primary prem-wide" onclick="premClose()">${esc(t("prem.done"))}</button>${manage}
+    return `<p class="prem-status"><span class="chip done">${esc(t("acc.prem_active"))}</span>${st?`<span>${esc(st)}</span>`:""}</p>${note}${manage}
       <button type="button" class="btn btn-g prem-wide prem-subdetails" onclick="subOpen()">${esc(t("sub.details"))}</button>`;
   }
-  if(!B.provider)return `<p class="sub prem-unavail">${esc(t("prem.unavailable"))}</p><button type="button" class="btn btn-g prem-wide" onclick="premClose()">${esc(t("wc.close"))}</button>`;
-  if(!FBUser)return `<button type="button" class="btn-primary prem-wide" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button>`;
-  if(B.state==="loading")return `<p class="sub" role="status">${esc(t("acc.prem_loading"))}</p>`;
+  if(!B.provider)return premUnavailHTML(t("prem.unavailable"),"",false);
+  if(!FBUser)return "";                                                        /* the foot asks to sign in */
+  if(B.state==="loading")return `<div class="prem-plans" aria-hidden="true"><div class="prem-skel"></div><div class="prem-skel"></div></div><p class="sub prem-loading" role="status">${esc(t("acc.prem_loading"))}</p>`;
   const plans=premPlans();
-  if(!plans.length)return `<p class="sub prem-unavail">${esc(t("acc.prem_unavailable"))}</p>${note}<button type="button" class="btn btn-g prem-wide" onclick="premClose()">${esc(t("wc.close"))}</button>`;
+  /* no products from the store: one message, a retry, the benefits above stay — no prices are invented */
+  if(!plans.length)return premUnavailHTML(t("acc.prem_unavailable"),t("prem.unavail_hint",{store:premStore()}),true);
   if(!plans.some(x=>x.p.id===_premSel))_premSel=plans[0].p.id;
-  const sn=premStore();
-  return `<div class="prem-plans" role="radiogroup" aria-label="${esc(t("prem.plans_label"))}">${plans.map(premPlanHTML).join("")}</div>
-    <button type="button" class="btn-primary prem-wide prem-cta" ${busy?"disabled":""} onclick="premBuy()">${esc((plans.find(x=>x.p.id===_premSel)||{}).trial?t("prem.cta_trial",{n:plans.find(x=>x.p.id===_premSel).trial}):t("prem.cta"))}</button>${note}
-    <p class="sub ent-terms prem-terms">${esc(t("acc.prem_terms",{store:sn}))} <a href="privacy.html" target="_blank" rel="noopener">${esc(t("acc.prem_privacy_link"))}</a>${B.provider.id==="app_store"?` · <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank" rel="noopener">${esc(t("acc.prem_eula_link"))}</a>`:""}</p>
-    <button type="button" class="btn btn-g prem-wide prem-restore" ${busy?"disabled":""} onclick="Billing.restore()">${esc(t("acc.prem_restore"))}</button>`;
+  return `<div class="prem-plans" role="radiogroup" aria-label="${esc(t("prem.plans_label"))}">${plans.map(premPlanHTML).join("")}</div>${note}${premMoreHTML()}${premLegalHTML(busy)}`;
+}
+/* the pinned foot: one primary action for the state, and the cancel line under a purchase CTA */
+function premFootHTML(){
+  const B=Billing,prem=entIsPremiumForDisplay(),busy=B.state==="purchasing"||B.state==="restoring";
+  if(prem)return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-done" onclick="premClose()">${esc(t("prem.done"))}</button></div>`;
+  if(!B.provider)return "";
+  if(!FBUser)return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-signin" onclick="premClose();fbOpenModal()">${esc(t("acc.prem_signin"))}</button></div>`;
+  if(B.state==="loading")return "";
+  const plans=premPlans();if(!plans.length)return "";
+  const sel=plans.find(x=>x.p.id===_premSel)||plans[0];
+  return `<div class="prem-foot"><button type="button" class="btn-primary prem-wide prem-cta" ${busy?"disabled":""} onclick="premBuy()">${esc(sel.trial?t("prem.cta_trial",{n:sel.trial}):t("prem.cta"))}</button><p class="prem-cancel">${esc(t("prem.cancel_note",{store:premStore()}))}</p></div>`;
 }
 /* The Premium benefits that exist today are General English ones (saved
    Shadow videos, YouTube imports, Polish history), so the lines and the
@@ -21390,19 +21491,30 @@ function premCmpHTML(){
   return `<table class="prem-cmp"><thead><tr><td></td><th scope="col">${esc(t("prem.cmp_free"))}</th><th scope="col">${esc(t("prem.cmp_prem"))}</th></tr></thead>
     <tbody>${row("prem.cmp_lib",esc(t("prem.cmp_full")),esc(t("prem.cmp_full")))}${row("prem.cmp_label",up(F("savedShadow")),up(P("savedShadow")))}${row("prem.cmp_yt",up(F("youtubeImports")),up(P("youtubeImports")))}${row("prem.cmp_polish",esc(t("prem.cmp_latest")),esc(t("prem.cmp_last",{n:P("polishHistory")})))}</tbody></table>`;
 }
+/* hero → benefits → plans → CTA. The X is first in the DOM (first tab stop). */
 function premSheetHTML(wait){
-  const li=(k,v)=>`<li><span class="inl-ic">${ic("check")}</span><span>${esc(t(k,v||{store:premStore()}))}</span></li>`;
-  const ge=isGeneralEnglish()&&planOn(),P=k=>planLimit(k,"premium");
+  const prem=entIsPremiumForDisplay();
   return `<button type="button" class="prem-x" aria-label="${esc(t("wc.close"))}" onclick="premClose()"${wait?" hidden":""}>${ic("close")}</button>
-    <h2 id="premH">${hIcon("star",t("prem.h"))}</h2>
-    <p class="sub prem-lede">${esc(t("prem.lede"))}</p>
-    <ul class="prem-ben">${ge?li("prem.b_videos",{n:P("savedShadow")})+li("prem.b_yt",{n:P("youtubeImports")})+li("prem.b_polish",{n:P("polishHistory")}):""}${li("prem.b_noads")}${li("prem.b_all")}${li("prem.b_cancel")}</ul>${premCmpHTML()}
-    <div class="prem-body">${premBodyHTML()}</div>`;
+    <div class="prem-scroll">
+      <header class="prem-hero">
+        <p class="prem-eyebrow"><span class="prem-brand">BE Mastery</span><span class="prem-spark" aria-hidden="true">✦</span><span class="prem-tag">${esc(t("prem.cmp_prem"))}</span></p>
+        <h2 id="premH" class="prem-h">${premHeadHTML(prem?t("prem.on_h"):t("prem.headline"))}</h2>
+        ${prem?"":`<p class="prem-lede">${esc(t("prem.lede"))}</p>`}
+      </header>
+      ${premBenHTML()}
+      <div class="prem-body">${premMainHTML()}</div>
+    </div>${premFootHTML()}`;
 }
-function premDraw(){const ov=document.getElementById("premOv"),el=ov&&ov.querySelector(".prem-sheet");if(!el)return;const y=el.scrollTop;el.innerHTML=premSheetHTML(!!ov.dataset.xwait);el.scrollTop=y}
+/* the launch offer's wait: the X is hidden for PREM_LAUNCH_WAIT; if the timer
+   ever failed to run, the wait still ends by the clock — the sheet can always be left */
+function premWaiting(ov){if(!ov||!ov.dataset.xwait)return false;const t0=+ov.dataset.t0||0;if(t0&&Date.now()-t0>PREM_LAUNCH_WAIT+1500){delete ov.dataset.xwait;return false}return true}
+function premDraw(){const ov=document.getElementById("premOv"),el=ov&&ov.querySelector(".prem-sheet");if(!el)return;
+  const sc=el.querySelector(".prem-scroll"),y=sc?sc.scrollTop:0,more=el.querySelector(".prem-more"),open=!!(more&&more.open);
+  el.innerHTML=premSheetHTML(premWaiting(ov));
+  const s2=el.querySelector(".prem-scroll");if(s2)s2.scrollTop=y;const m2=el.querySelector(".prem-more");if(m2&&open)m2.open=true}
 window.premPick=id=>{_premSel=id;premDraw()};
 window.premBuy=()=>{if(_premSel)Billing.buy(_premSel)};
-function premKey(e){if(e.key==="Escape"){e.preventDefault();const o=document.getElementById("premOv");if(o&&o.dataset.xwait)return;premClose()}}
+function premKey(e){if(e.key==="Escape"){e.preventDefault();const o=document.getElementById("premOv");if(premWaiting(o))return;premClose()}}
 window.premClose=()=>{const o=document.getElementById("premOv");if(o)o.remove();document.removeEventListener("keydown",premKey,true)};
 window.premiumOpen=(from)=>{
   premClose();
@@ -21411,8 +21523,8 @@ window.premiumOpen=(from)=>{
   /* the launch offer: the close X appears after PREM_LAUNCH_WAIT; until then the
      sheet cannot be dismissed (backdrop, Escape). After it, it closes like any
      sheet and the learner carries on with Free. Never a blocker. */
-  if(launch)ov.dataset.xwait="1";
-  ov.onclick=e=>{if(e.target===ov&&!ov.dataset.xwait)premClose()};
+  if(launch){ov.dataset.xwait="1";ov.dataset.t0=String(Date.now())}
+  ov.onclick=e=>{if(e.target===ov&&!premWaiting(ov))premClose()};
   ov.innerHTML=`<div class="lang-modal pp-sheet prem-sheet${launch?" prem-launch":""}" role="dialog" aria-modal="true" aria-labelledby="premH">${premSheetHTML(launch)}</div>`;
   if(launch)setTimeout(()=>{if(!ov.isConnected)return;delete ov.dataset.xwait;const x=ov.querySelector(".prem-x");if(x){x.hidden=false;x.classList.add("prem-x-in")}},PREM_LAUNCH_WAIT);
   document.body.appendChild(ov);document.addEventListener("keydown",premKey,true);
