@@ -394,32 +394,42 @@ ok("Own video + transcript WITHOUT timestamps: spread over the real video length
 await A.page.evaluate(() => { delete S.shTx.MZAjfsyJa1U; delete _capCache.MZAjfsyJa1U; save(); }); await A.ctx.unroute(noCaps);
 await A.page.evaluate(async () => { await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); await new Promise(r => setTimeout(r, 2500)); shOpenWork(); });
 
-/* ---------- Your videos: the learner's own link + transcript is kept, listed under the library with an "Added by you" badge, up to five, openable, removable ---------- */
+/* ---------- Your videos: the learner's own link + transcript is kept and listed in the LIBRARY's "Your videos" row
+   (since feb74d86, 22 Sep 2026: the library replaced the old top section and bottom list, #shOwn is no longer drawn
+   in library mode). Up to five, openable, removable; the row's count and feed follow every add and remove at once,
+   and nothing is duplicated above the library. Rewritten 26 Sep 2026 — the old block asserted the retired layout
+   and dereferenced #shOwn, which crashed the suite and hid every check below it. ---------- */
 const own = await A.page.evaluate(async () => {
   const r = {};
+  const top = () => (document.getElementById("shOwnTop") || { innerHTML: "" }).innerHTML.trim();
+  const chipN = () => { const n = document.querySelector("#shLib .shl-chip.mine .shl-own-n"); return n ? Number(n.textContent) : -1; };
   r.keptOnLoad = shOwn().length === 1 && shOwn()[0].vid === "MZAjfsyJa1U";                      // the two Loads above added it once
-  shCloseWork(); go("shadow"); shTab("create"); await new Promise(r => setTimeout(r, 200));
-  /* with at least one video the section leads the page in #shOwnTop (406058d); #shOwn keeps only the empty-state hint */
-  const sec = document.getElementById("shOwnTop");
-  r.section = !!sec && /Your videos/i.test(sec.innerText) && /1\/5/.test(sec.innerText) && !!(sec.compareDocumentPosition(document.getElementById("shUrl")) & Node.DOCUMENT_POSITION_PRECEDING) && !!(sec.compareDocumentPosition(document.querySelector(".sh-starter:not(.sh-own)")) & Node.DOCUMENT_POSITION_FOLLOWING);   // after the link box, before the starter clips
-  const card = sec && sec.querySelector(".sh-own"); r.card = !!card; r.badge = !!card && /Added by you/.test(card.innerText); r.txChip = !!card && /Transcript added|No transcript/.test(card.innerText);
-  r.thumb = !!card && card.querySelector("img").src.includes("MZAjfsyJa1U"); r.remove = !!card && !!card.querySelector(".sh-own-del");
-  /* the cap: four more fill it, the sixth still plays but is not kept */
+  shCloseWork(); go("shadow"); shTab("create"); await new Promise(r => setTimeout(r, 300));
+  r.libraryMode = shLibOn() && !!document.getElementById("shLib") && !document.getElementById("shOwn");
+  r.noDuplicate = top() === "";                                                                   // nothing above the library
+  r.chip = chipN() === 1 && /Your videos/.test((document.querySelector("#shLib .shl-chip.mine") || {}).innerText || "");
+  shLibCat("mine"); await new Promise(r => setTimeout(r, 200));
+  const row = document.querySelector("#shLibFeed .shl-row-mine");
+  r.row = !!row; r.badge = !!row && /Added by you/.test(row.innerText); r.txChip = !!row && /transcript/i.test(row.innerText);   /* the chip is upper-cased by CSS; innerText follows it */
+  r.thumb = !!row && row.querySelector("img").src.includes("MZAjfsyJa1U"); r.remove = !!row && !!row.querySelector(".shl-row-del");
+  r.openBtn = !!row && !!row.querySelector("button[onclick^='shOwnOpen']");
+  /* the cap: four more fill it, the sixth still plays but is not kept; the row and its count follow each add at once */
   const st = ["aaaaaaaaaa1", "aaaaaaaaaa2", "aaaaaaaaaa3", "aaaaaaaaaa4"].map(v => shOwnAdd(v, "https://youtu.be/" + v)); r.filled = st.every(x => x === "saved") && shOwn().length === 5;
   r.sixth = shOwnAdd("aaaaaaaaaa5", "x") === "full" && shOwn().length === 5; r.again = shOwnAdd("MZAjfsyJa1U", "x") === "exists" && shOwn().length === 5;
-  r.five = document.querySelectorAll("#shOwnTop .sh-own").length === 5 && /5\/5/.test(document.getElementById("shOwnTop").innerText);
-  /* opening one loads the video with its transcript; removing one takes its transcript with it and never resurrects through "Continue" */
+  r.five = document.querySelectorAll("#shLibFeed .shl-row-mine").length === 5 && chipN() === 5;
+  r.stillNoDuplicate = top() === "";                                                             // the re-render keeps the library rule
+  /* removing one takes its transcript with it and never resurrects through "Continue" */
   S.shTx.aaaaaaaaaa1 = "0:01 hello there\n0:03 second line"; S.lastClip = { vid: "aaaaaaaaaa1" }; save();
   const i1 = shOwnFind("aaaaaaaaaa1"); const realConfirm = window.askConfirm; window.askConfirm = async () => true;
   try { await shOwnDel(i1, { stopPropagation() {} }); } finally { window.askConfirm = realConfirm; }
-  r.removed = shOwn().length === 4 && shOwnFind("aaaaaaaaaa1") < 0 && !S.shTx.aaaaaaaaaa1 && !S.lastClip && document.querySelectorAll("#shOwnTop .sh-own").length === 4;
-  r.openBtn = !!document.querySelector("#shOwnTop .sh-own button[onclick^='shOwnOpen']");
+  r.removed = shOwn().length === 4 && shOwnFind("aaaaaaaaaa1") < 0 && !S.shTx.aaaaaaaaaa1 && !S.lastClip && document.querySelectorAll("#shLibFeed .shl-row-mine").length === 4 && chipN() === 4 && top() === "";
   /* clean up: keep only the real one */
   ["aaaaaaaaaa2", "aaaaaaaaaa3", "aaaaaaaaaa4"].forEach(v => { const i = shOwnFind(v); if (i >= 0) shOwn().splice(i, 1); }); save(); shOwnRender();
-  r.cleaned = shOwn().length === 1 && /1\/5/.test(document.getElementById("shOwnTop").innerText) && document.getElementById("shOwn").innerHTML === "";
+  r.cleaned = shOwn().length === 1 && chipN() === 1 && document.querySelectorAll("#shLibFeed .shl-row-mine").length === 1 && top() === "";
+  shLibCat("foryou");
   return r;
 });
-ok("Your videos: the loaded link is kept once; the picker lists it right after the link box, before the starter clips, with an 'Added by you' badge, transcript chip, thumbnail, open and remove; five is the cap (the sixth is not kept, a repeat is not duplicated); removing one drops its transcript and 'Continue your last clip'", own.keptOnLoad && own.section && own.card && own.badge && own.txChip && own.thumb && own.remove && own.filled && own.sixth && own.again && own.five && own.removed && own.openBtn && own.cleaned, JSON.stringify(own));
+ok("Your videos (library): the loaded link is kept once and listed in the library's Your videos row with an 'Added by you' badge, transcript chip, thumbnail, open and remove — never duplicated above the library; five is the cap (the sixth is not kept, a repeat is not duplicated); the row and its count follow every add and remove at once; removing one drops its transcript and 'Continue your last clip'", Object.values(own).every(Boolean), JSON.stringify(own));
 const ownW = await W.page.evaluate(() => ({ list: (S.shOwnA && S.shOwnA.welding) ? S.shOwnA.welding.length : 0, section: !!document.getElementById("shOwn") && document.getElementById("shOwn").offsetParent !== null }));
 const clr = await A.page.evaluate(() => { if (!_shAdd) shAddToggle(); const u = document.getElementById("shUrl"), pb = document.getElementById("shPaste"); u.value = "https://youtu.be/MZAjfsyJa1U"; pb.value = "0:01 something"; const btn = document.querySelector(".sh-load-row .sh-in-clear"); const before = JSON.stringify([shOwn(), S.shTx]); const r = { btn: !!btn, beside: !!btn && btn.previousElementSibling === document.querySelector(".sh-load-row .btn-primary"), big: !!btn && btn.getBoundingClientRect().height >= 44 }; btn && btn.click(); r.cleared = u.value === "" && pb.value === ""; r.kept = JSON.stringify([shOwn(), S.shTx]) === before && shOwn().length === 1; r.focused = document.activeElement === u; return r; });
 ok("A bin beside Load video empties the link box and the transcript box (≥44 px, focus back on the link) and touches nothing saved", clr.btn && clr.beside && clr.big && clr.cleared && clr.kept && clr.focused, JSON.stringify(clr));
@@ -534,12 +544,45 @@ const fab = await A.page.evaluate(() => { const f = [...document.querySelectorAl
   const rec = document.getElementById("svChRecBtn").getBoundingClientRect(); const overlap = !(r.right < rec.left || r.left > rec.right || r.bottom < rec.top || r.top > rec.bottom);
   return { none: false, coveredByWorkspace: zi > zf, hitsWorkspace: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)?.closest(".sh-work") !== null, overlap }; });
 ok("Practice Partner floating button: present, sits under the full-screen workspace (never over the mic or the transcript)", fab.none || (fab.coveredByWorkspace && fab.hitsWorkspace && !fab.overlap), JSON.stringify(fab));
+/* ---------- BLIND (from memory), end to end, then a REAL page reload: the ladder resumes where it got to (26 Sep 2026) ----------
+   Blind was only ever named in rung lists above; nothing entered it, recorded on it or passed it. A fresh learner walks it. */
+const B = await learner("bella", "general-english");
+await B.page.goto(BASE + "/index.html?bl=" + Date.now() + "#shadow", { waitUntil: "load" }); await sleep(1500);
+const openPara = async () => { await B.page.evaluate(async () => { document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()); go("shadow"); await shLoad({ vid: "MZAjfsyJa1U", start: 0, end: 0, title: "clip" }, true); }); await sleep(2500);
+  await B.page.evaluate(() => { shOpenWork(); svPick = 3; svSetMode("challenge"); }); await sleep(300); };
+await openPara();
+await toRung(B.page, "blind");
+const bl = await B.page.evaluate(() => ({ rung: svCh.rung, hidden: !document.getElementById("svCh").innerText.includes(svChSegObj().text), disabled: !!document.getElementById("svChRecBtn")?.disabled, listened: !!svCh.listened }));
+ok("BLIND: the paragraph is not on screen, and Record waits until the learner has listened to it", bl.rung === "blind" && bl.hidden && bl.disabled && !bl.listened, JSON.stringify(bl));
+await B.page.evaluate(() => { svChListen(); }); await sleep(400);
+await B.page.evaluate(() => { try { svChListen(); } catch (e) {} svRender(); }); await sleep(200);   /* listen, then pause */
+const bl2 = await B.page.evaluate(() => ({ listened: !!svCh.listened, enabled: !document.getElementById("svChRecBtn")?.disabled, hidden: !document.getElementById("svCh").innerText.includes(svChSegObj().text) }));
+ok("BLIND: after listening, Record is available and the paragraph is still hidden", bl2.listened && bl2.enabled && bl2.hidden, JSON.stringify(bl2));
+heard = await B.page.evaluate(() => svChSegObj().text.toLowerCase().replace(/[^a-z' ]/g, "")); assessScore = 92; polishMode = "ok";
+await record(B.page);
+const blGraded = await B.page.waitForFunction(() => svCh && (svCh.phase === "feedback" || svCh.phase === "done"), null, { timeout: 15000 }).then(() => true, () => false);
+const bl3 = await B.page.evaluate(() => ({ phase: svCh.phase, pass: !!(svCh.fb && svCh.fb.pass), done: !!document.querySelector("#svCh .sv-ch-done"), moveOn: !!document.querySelector("#svCh button[onclick='svChShowNext()']"), nextBefore: svCh.next }));
+ok("BLIND: the take from memory is recorded and graded; said right it passes with the completion card and a Move on button — the rung does not change behind the learner's back", blGraded && bl3.phase === "done" && bl3.pass && bl3.done && bl3.moveOn && !bl3.nextBefore, JSON.stringify(bl3));
+await B.page.click("#svCh button[onclick='svChShowNext()']"); await sleep(250);
+const bl4 = await B.page.evaluate(() => ({ next: svCh.next && svCh.next.rung, move: svCh.next && svCh.next.move, card: !!document.querySelector("#svCh .sv-ch-move"), take: !!document.querySelector("#svCh button[onclick='svChTakeNext()']") }));
+ok("Move on: the ladder offers RETELL, the fifth rung, on its move card", bl4.next === "retell" && bl4.move === "up" && bl4.card && bl4.take, JSON.stringify(bl4));
+await B.page.click("#svCh button[onclick='svChTakeNext()']"); await sleep(250);
+const mem = await B.page.evaluate(() => ({ rung: svCh.rung, para: (aMap("svCh")[shClip.vid + ":" + svChSegObj().id] || {}).rung, clip: (aMap("svCh")["clip:" + shClip.vid] || {}).rung, stored: JSON.parse(localStorage.getItem("be12_v1")).svChA ? true : false }));
+ok("Advancing lands on RETELL and the rung reached is saved (this paragraph and the clip's high-water mark, per area)", mem.rung === "retell" && mem.para === "retell" && mem.clip === "retell", JSON.stringify(mem));
+await B.page.reload({ waitUntil: "load" }); await sleep(1500);
+await openPara();
+const back = await B.page.evaluate(() => { const r = { rung: svCh && svCh.rung, area: areaId() }; svPick = 4; svSetMode("watch"); svSetMode("challenge"); r.nextPara = svCh && svCh.rung; return r; }); await sleep(200);
+ok("After a real page reload the same paragraph reopens on RETELL, not the gate; the next paragraph of the clip opens there too (the clip's high-water mark)", back.rung === "retell" && back.nextPara === "retell" && back.area === "general-english", JSON.stringify(back));
+const wm = await B.page.evaluate(async () => { svSetMode("watch"); await new Promise(r => setTimeout(r, 200)); const w = { watch: svMode === "watch", list: !!document.querySelector("#shV2 .sv-seg, #shV2 .sv-line, #shV2 [data-seg]") }; svSetMode("shadow"); await new Promise(r => setTimeout(r, 200)); w.shadow = svMode === "shadow"; return w; });
+ok("Watch and Shadow still open after the reload", wm.watch && wm.shadow, JSON.stringify(wm));
+await B.ctx.close();
+
 const parity = (() => { const h = readFileSync(new URL("../index.html", import.meta.url), "utf8"); const m = h.match(/const I18N_EN\s*=\s*\{/); const s = h.indexOf("{", m.index); let d = 0, i = s; for (; i < h.length; i++) { if (h[i] === "{") d++; else if (h[i] === "}") { d--; if (!d) break; } }
   const keys = new Set(); const re = /"([A-Za-z0-9_.\-]+)"\s*:/g; let x; const blk = h.slice(s, i + 1); while ((x = re.exec(blk))) keys.add(x[1]);
   const bad = []; for (const f of readdirSync(new URL("../i18n", import.meta.url))) { const j = JSON.parse(readFileSync(new URL("../i18n/" + f, import.meta.url), "utf8")); const jk = Object.keys(j); const miss = [...keys].filter(k => !(k in j)).length, orph = jk.filter(k => !keys.has(k)).length; if (miss || orph) bad.push(f + ":" + miss + "/" + orph); }
   return { n: keys.size, ch: [...keys].filter(k => k.startsWith("sv.ch_")).length, bad }; })();
 ok("i18n parity: every sv.ch_* key exists in all 15 language files, no orphans", parity.ch >= 50 && parity.bad.length === 0, JSON.stringify(parity));
-ok("No page errors on any of the three learners", errors.length === 0, errors.join(" | "));
+ok("No page errors on any learner (Alice, Wendy, Mia, Bella)", errors.length === 0, errors.join(" | "));
 
 await browser.close(); if (server) server.kill();
 const pass = res.filter(r => r.pass).length;

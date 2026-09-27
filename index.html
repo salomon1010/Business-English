@@ -11712,7 +11712,7 @@ ${(()=>{
     <div class="hr"></div>
     </div>
     ${shLibOn()?"":shResumeHTML()}
-    <div id="shOwnTop">${isProfessionalJourney()||shLibOn()?"":shOwnHTML(true)}</div>
+    <div id="shOwnTop">${shOwnTopHTML()}</div>
     ${shLibOn()?`<div class="shl" id="shLib">${shLibHTML()}</div>`:`
     <div class="eyebrow" style="margin-bottom:4px">${t("sh.no_video_yet")}</div>
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${tInl("sh.starters_captions_note","film")}</p>
@@ -11721,7 +11721,7 @@ ${(()=>{
       <summary><span class="btn-ic">${ic("film")}</span>${t("sh.more_starters",{n:trackShadowStarters().length-SH_STARTERS_SHOWN})}<span class="hm-chev">${ic("chevron")}</span></summary>
       <div class="home-more-body"><div class="grid g3">${trackShadowStarters().slice(SH_STARTERS_SHOWN).map((s,i)=>shStarterCard(s,i+SH_STARTERS_SHOWN)).join("")}</div></div>
     </details>`:""}
-    <div id="shOwn">${shLibOn()?"":shOwnHTML(false)}</div>
+    <div id="shOwn">${shOwnListHTML()}</div>
     <div style="margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px 18px">
       <p style="font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);margin-bottom:8px">${tInl("sh.best_channels","video")}</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
@@ -12521,10 +12521,20 @@ function shOwnHTML(top){
     <p style="font-size:12.5px;color:var(--mut);margin-bottom:12px">${L.length?t("sh.own_sub",{max:cap}):t("sh.own_empty",{max:cap})}</p>
     ${L.length?`<div class="grid g3">${L.map(x=>shOwnCard(x.o,x.i)).join("")}</div>`:""}</div>`;
 }
+/* ONE rule for "Your videos", used by the first render (rShadow) and by every
+   re-render. The library (22 Sep 2026, feb74d86) moved Your videos into its
+   own row, so the old top section and bottom list stay empty in library
+   mode; a Professional Track never had the top section. shOwnRender used the
+   pre-library rule, so every add or remove put a second "Your videos" above
+   the library, and the library's own row (count, feed) stayed stale until the
+   next full render — only the bookmark resynced it (fixed 26 Sep 2026). */
+function shOwnTopHTML(){return isProfessionalJourney()||shLibOn()?"":shOwnHTML(true)}
+function shOwnListHTML(){return shLibOn()?"":shOwnHTML(false)}
 function shOwnRender(){
   const top=document.getElementById("shOwnTop"),el=document.getElementById("shOwn");
-  if(top){top.innerHTML=shOwnHTML(true);try{manIconizeInline(top)}catch(e){}}
-  if(el){el.innerHTML=shOwnHTML(false);try{manIconizeInline(el)}catch(e){}}
+  if(top){top.innerHTML=shOwnTopHTML();try{manIconizeInline(top)}catch(e){}}
+  if(el){el.innerHTML=shOwnListHTML();try{manIconizeInline(el)}catch(e){}}
+  shOwnChanged();   /* the library's Your videos count and feed follow at once */
 }
 /* empty the link box and the transcript box — the link box always carries
    the last video's URL (shLoad fills it), so pasting a new one meant
