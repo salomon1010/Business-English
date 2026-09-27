@@ -13056,6 +13056,8 @@ function shClipRoom(){
     confirmLabel:t("prem.compare"),cancelLabel:t("wc.close")}).then(ok=>{if(ok)premiumOpen("shadow_limit")});
   return false;
 }
+/* a clip's name: what YouTube called the video, else the library's title, else its id */
+function shClipTitle(c){const x=String(c&&c.title||"");if(x&&x!==c.vid)return x;try{if(shCatHas(c.vid))return _shCat.videos[c.vid].title}catch(e){}return x||String(c&&c.vid||"")}
 function shClipSavedSay(){const max=shClipCap();toast(max===Infinity?t("sh.clip_saved_toast"):t("sh.clip_saved_n",{n:aList("clips").length,max}))}
 /* open a kept clip straight into Shadow, on the passage it was saved from.
    A clip that is no passage (marked by hand, or a video without words) opens
@@ -13083,7 +13085,7 @@ window.shClipsSheet=()=>{
   const rows=cs.map((c,i)=>({c,i})).map(({c,i})=>`
     <div class="sh-clip-item" role="button" tabindex="0" onclick="shClipGo(aList('clips')[${i}])">
       <img src="https://i.ytimg.com/vi/${esc(c.vid)}/mqdefault.jpg" alt="" loading="lazy">
-      <span class="sh-clip-txt"><b>${esc(c.title||c.vid)}</b>${c.txt?`<small class="sh-clip-say">${esc(String(c.txt).slice(0,160))}</small>`:""}<small>${fmtT(c.start)} → ${fmtT(c.end)}</small></span>
+      <span class="sh-clip-txt"><b>${esc(shClipTitle(c))}</b>${c.txt?`<small class="sh-clip-say">${esc(String(c.txt).slice(0,160))}</small>`:""}<small>${fmtT(c.start)} → ${fmtT(c.end)}</small></span>
       <button class="sh-clip-del" onclick="shClipDel(${i},event)" title="${esc(t("sh.delete_clip_title"))}" aria-label="${esc(t("sh.delete_clip_title"))}">${ic("trash")}</button>
     </div>`).join("");
   ov.innerHTML=`<div class="lang-modal pp-sheet sh-clips-sheet" role="dialog" aria-modal="true" aria-labelledby="shClipsH">
@@ -21694,7 +21696,7 @@ function svShFavOn(){return svShFavAt()>=0}
 window.svShFav=()=>{
   const g=svShGroup();if(!g||!shClip.vid)return;const i=svShFavAt(),L=aList("clips");
   if(i>=0){L.splice(i,1);save();toast(t("sv.sh_unfav_toast"))}
-  else{if(!shClipRoom())return;L.unshift({vid:shClip.vid,start:Math.floor(g.startMs/100)/10,end:Math.floor(g.endMs/100)/10,title:shClip.title||shClip.vid,ts:Date.now(),txt:g.text});save();shClipSavedSay()}
+  else{if(!shClipRoom())return;L.unshift({vid:shClip.vid,start:Math.floor(g.startMs/100)/10,end:Math.floor(g.endMs/100)/10,title:shClipTitle({vid:shClip.vid,title:shClip.title}),ts:Date.now(),txt:g.text});save();shClipSavedSay()}
   try{shRenderClips()}catch(e){}
   const b=document.querySelector("#svSh .sv-sh-fav");if(b){b.classList.toggle("on",i<0);b.setAttribute("aria-pressed",String(i<0));b.setAttribute("aria-label",t(i<0?"sv.sh_unfav":"sv.sh_fav"))}
 };
