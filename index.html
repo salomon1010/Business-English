@@ -11211,7 +11211,8 @@ function hxDaySeed(){const d=new Date();return d.getFullYear()*372+d.getMonth()*
 function homeHighlights(card,rows,seed){
   const out=[],used=new Set(),c=_shCat,V=c&&c.videos||{};
   const catOf={};((c&&c.categories)||[]).forEach(k=>(k.vids||[]).forEach(v=>{catOf[v]=catOf[v]||k.id}));
-  const add=(vid,tag)=>{if(!vid||used.has(vid))return;used.add(vid);const x=V[vid]||{};out.push({vid,tag,title:x.title||"",ch:x.ch||"",dur:x.dur||0,up:x.up||"",cat:catOf[vid]||""})};
+  /* a video can sit in two categories (a film lesson is Everyday and Movies): it is tagged with the one it was picked for */
+  const add=(vid,tag,cat)=>{if(!vid||used.has(vid))return;used.add(vid);const x=V[vid]||{};out.push({vid,tag,title:x.title||"",ch:x.ch||"",dur:x.dur||0,up:x.up||"",cat:cat||catOf[vid]||""})};
   const first=homeVisuals(card).find(v=>v.vid);
   if(first){add(first.vid,"plan");if(!V[first.vid]&&first.title)out[0].title=first.title}
   if(!c){if(!out.length&&homeShot(card.kind))out.push({photo:homeShot(card.kind)});return out}
@@ -11230,7 +11231,7 @@ function homeHighlights(card,rows,seed){
   add(pick(Object.keys(V).filter(v=>HX_FILM.test(V[v].title||""))),"film");
   const cats=(c.categories||[]).slice();
   for(let i=cats.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));[cats[i],cats[j]]=[cats[j],cats[i]]}
-  for(const k of cats){if(out.length>=HX_N)break;add(pick(k.vids||[]),"cat")}
+  for(const k of cats){if(out.length>=HX_N)break;add(pick(k.vids||[]),"cat",k.id)}
   while(out.length<HX_N){const v=pick(Object.keys(V));if(!v)break;add(v,"cat")}
   return out.slice(0,HX_N);
 }

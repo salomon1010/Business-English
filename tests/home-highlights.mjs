@@ -37,7 +37,7 @@ console.log("\n# six highlight slides, each one a video");
   ok("1 · six slides, six different library videos, six dots", r.length === 6 && new Set(r.map(x => x.vid)).size === 6 && cat.every(Boolean) && await p.evaluate(() => document.querySelectorAll("#hxDots button").length) === 6, JSON.stringify({ r, cat }));
   ok("2 · the first slide is the clip for the next step, tagged 'Fits your plan'", r[0].tag === "Fits your plan" && r[0].on, JSON.stringify(r[0]));
   const film = r.filter(x => x.tag === "Film lesson"), cats = r.slice(1).filter(x => x.tag !== "Film lesson").map(x => x.tag);
-  ok("3 · exactly one film lesson, and the other highlights are one per category (no subject twice)", film.length === 1 && /learn english with|disney|mario|tv series/i.test(film[0].title) && cats.length === 4 && new Set(cats).size === 4 && cats.every(x => /Meetings|Presentations|Interviews|Everyday|Learning skills/.test(x)), JSON.stringify(r.map(x => x.tag)));
+  ok("3 · exactly one film lesson, and the other highlights are one per category (no subject twice)", film.length === 1 && /learn english with|disney|mario|tv series/i.test(film[0].title) && cats.length === 4 && new Set(cats).size === 4 && cats.every(x => /Meetings|Presentations|Interviews|Everyday|Learning skills|TV shows|Movies|Songs/.test(x)), JSON.stringify(r.map(x => x.tag)));
   const rowVids = await p.evaluate(() => [...document.querySelectorAll(".hx-rcard[data-vid]")].map(x => x.dataset.vid));
   ok("4 · no highlight repeats a clip already shown in the 'Because you…' rows below", r.slice(1).every(x => !rowVids.includes(x.vid)), JSON.stringify({ rowVids, reel: r.map(x => x.vid) }));
   const c = await cap(p);

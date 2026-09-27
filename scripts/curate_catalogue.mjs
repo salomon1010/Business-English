@@ -87,11 +87,12 @@ const CATS = [
     ['EnglishByMovie', /avatar|hangover|onward|the shack|with home|tangled|deadpool|joker|going in style|her movie|hotel transy|squid game/i, 10],
     ['EnglishFluencyJourney', /disney|mario|movie/i, 4],
   ]},
+  /* songs lead with today's artists (the pull), then the classics */
   { id: 'songs', label: 'Songs', shared: true, rules: [
-    ['EnglishClass101LyricLab', /./, 14],
     ['FluentUEnglish', /songs?|music/i, 10],
-    ['LearningEnglishSongs', /./, 10],
     ['LearnEnglishWithTVSeries', /songs?|music/i, 4],
+    ['EnglishClass101LyricLab', /./, 14],
+    ['LearningEnglishSongs', /./, 10],
   ]},
 ];
 
