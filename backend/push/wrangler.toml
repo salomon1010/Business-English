@@ -15,6 +15,12 @@
 name = "be-push"
 main = "push-worker.js"
 compatibility_date = "2026-07-31"
+# A Worker's fetch to another Worker on this account's workers.dev subdomain
+# is refused (Cloudflare 1042) without this flag: /programme (learning nudges)
+# and /presence (online alerts) on the partner Worker never answered. Found on
+# staging 2026-09-27 — every account came back "unverified" — and fixed there
+# by this flag alone. Top-level, so [env.staging] inherits it.
+compatibility_flags = ["global_fetch_strictly_public"]
 
 # Every minute. The Worker reads only the current minute's bucket, so this is
 # ~1,440 invocations a day regardless of how many people have reminders on —
