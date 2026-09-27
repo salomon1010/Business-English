@@ -14722,7 +14722,17 @@ window.remSetTime=v=>{const c=remCfg();c.time=v||"19:00";save();remSchedule();pu
    store (be-push-staging), so testing nudges never touches production */
 const PUSH_API=(()=>{try{const e=window.beEnv&&beEnv();if(e&&e.push)return e.push}catch(x){}return "https://be-push.nore-ngou.workers.dev"})();
 /* Branded password-reset email (backend/mail, Brevo). Empty string = Firebase's own plain email. */
-const MAIL_API="https://be-mail.nore-ngou.workers.dev";
+/* be-mail belongs to the PRODUCTION Firebase project (FB_PROJECT_ID be-mastery,
+   links back to app.lomonec.com). Staging signs in to the test project, so there
+   it must never be asked: a staging "Forgot password" reset the production
+   account while staging login checked the test one (found 27 Sep 2026). On a
+   staging host MAIL_API is empty — the reset falls back to Firebase's own email
+   for the page's own project, and no welcome mail is sent. Production: unchanged. */
+const MAIL_API=(()=>{try{if(window.beEnv&&beEnv())return ""}catch(e){}return "https://be-mail.nore-ngou.workers.dev"})();
+/* where Firebase's own reset email sends the learner afterwards: production's
+   address in production; on staging nothing (its test project does not list
+   app.lomonec.com, and the learner comes back to staging themselves) */
+const RESET_CONTINUE=(()=>{try{if(window.beEnv&&beEnv())return null}catch(e){}return {url:APP_URL}})();
 const REM_CACHE="be-rem", REM_KEY="./__reminder__";   // must match sw.js
 /* ---- The reminder knows where you are ----
    The daily notification used to say "Week 5" and nothing else. It now carries
@@ -29878,8 +29888,8 @@ window.fbReset=async function(){
       if(r.status===400){const j=await r.json().catch(()=>({}));fbSetErr(j.error==="bad email"?t("auth.err_invalid_email"):t("auth.err_generic"));if(link)link.style.pointerEvents="";return}
       sent=r.ok}catch(e){}
   }
-  try{if(!sent)await FBauth.sendPasswordResetEmail(em,{url:APP_URL});
-    fbSetErr(t("auth.reset_sent_note",{email:em,from:sent?"noreply@lomonec.com":"noreply@be-mastery.firebaseapp.com"}),true);toast(t("auth.reset_sent_toast"))}
+  try{if(!sent)await FBauth.sendPasswordResetEmail(em,RESET_CONTINUE||undefined);
+    fbSetErr(t("auth.reset_sent_note",{email:em,from:sent?"noreply@lomonec.com":"noreply@"+((window.FB_CONFIG&&FB_CONFIG.authDomain)||"be-mastery.firebaseapp.com")}),true);toast(t("auth.reset_sent_toast"))}
   catch(e){fbSetErr(fbErr(e))}
   finally{if(link)setTimeout(()=>{link.style.pointerEvents=""},4000)}   // one tap, one email: no double-sends from a nervous thumb
 };
