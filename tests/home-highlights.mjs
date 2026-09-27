@@ -92,8 +92,9 @@ const cards = p => p.evaluate(async () => {   /* the pictures are lazy: bring ea
   const one = c => { const i = c.querySelector("img"); return { type: c.dataset.type || c.dataset.dest, src: i ? i.getAttribute("src") : null, loaded: !!(i && i.complete && i.naturalWidth > 0) }; };
   return { rows: [...document.querySelectorAll(".hx-rcard")].map(one), explore: [...document.querySelectorAll(".hx-dcard,.hx-feat")].map(one), empty: document.querySelectorAll(".hx-rimg.none").length }; });
 { const { ctx, p, errs } = await open({ dates: [], dayLog: {}, dayLogA: {} });
-  const c = await cards(p), ses = c.rows.find(x => x.type === "session");
-  ok("19 · a new learner's 'Start here' lesson card shows the lesson page (no empty box)", ses && ses.src === "home-shots/session.jpg" && ses.loaded && c.empty === 0, JSON.stringify(c.rows));
+  const c = await cards(p), noVid = c.rows.filter(x => !/ytimg|rp-photos/.test(x.src || ""));
+  const made = await p.evaluate(() => ["session", "words", "trouble", "phrases", "partner", "ai"].map(type => { const d = document.createElement("div"); d.innerHTML = homeRowCardHTML({ id: "x" }, { type, w: 1, d: "Mon", n: 3 }, 0); const i = d.querySelector("img"); return type + "=" + (i ? i.getAttribute("src") : "none"); }));
+  ok("19 · a new learner: no empty box in the rows — every card without a clip shows a screenshot that loaded; and each kind of card maps to its own page (lesson → lesson day, words → word list …)", c.empty === 0 && noVid.every(x => /^home-shots\//.test(x.src) && x.loaded) && made.join() === "session=home-shots/session.jpg,words=home-shots/vocab.jpg,trouble=home-shots/trouble.jpg,phrases=home-shots/phrases.jpg,partner=home-shots/partner.jpg,ai=home-shots/ai.jpg", JSON.stringify({ rows: c.rows, made }));
   const ph = c.explore.find(x => x.type === "phrases"), pp = c.explore.find(x => x.type === "partner");
   ok("20 · Explore: Phrase Lab and Practice Partner show screenshots of those pages", ph && ph.src === "home-shots/phrases.jpg" && ph.loaded && pp && pp.src === "home-shots/partner.jpg" && pp.loaded, JSON.stringify(c.explore));
   ok("21 · every Explore card has a picture that loaded", c.explore.length >= 5 && c.explore.every(x => x.src && x.loaded), JSON.stringify(c.explore));
