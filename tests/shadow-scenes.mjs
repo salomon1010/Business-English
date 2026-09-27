@@ -59,7 +59,7 @@ const toShadow = async page => { await page.evaluate(() => go("shadow")); await 
 const openScene = async page => {
   await page.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
   await page.click("#shLibFeed .scn-lrow");
-  await page.waitForFunction(() => typeof svAsset !== "undefined" && svAsset.scene && ytPlayer && ytPlayer.getDuration && ytPlayer.getDuration() > 0, null, { timeout: 15000 });
+  await page.waitForFunction(() => typeof svAsset !== "undefined" && svAsset && svAsset.scene && ytPlayer && ytPlayer.getDuration && ytPlayer.getDuration() > 0, null, { timeout: 15000 });
   await sleep(300);
 };
 const lastToast = page => page.evaluate(() => { const t = [...document.querySelectorAll(".toast,#toast")].map(e => e.textContent).join(" | "); return t; });
@@ -205,7 +205,7 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
   await p.evaluate(() => go("session", 1, "Mon")); await sleep(700);
   await p.evaluate(() => { shCloseWork(); shClip.vid = ""; });   /* so the check below cannot pass on the scene opened earlier */
   await p.click("#scnSess button");
-  await p.waitForFunction(() => shClip.vid === "scene.coworker-intro" && typeof svAsset !== "undefined" && svAsset.scene && ytPlayer instanceof ShadowScenes.ScenePlayer, null, { timeout: 15000 }).catch(() => {});
+  await p.waitForFunction(() => shClip.vid === "scene.coworker-intro" && typeof svAsset !== "undefined" && svAsset && svAsset.scene && ytPlayer instanceof ShadowScenes.ScenePlayer, null, { timeout: 15000 }).catch(() => {});
   await sleep(300);
   ok("…and the button opens the scene in the studio", await p.evaluate(() => location.hash.startsWith("#shadow") && ytPlayer instanceof ShadowScenes.ScenePlayer && shClip.vid === "scene.coworker-intro"));
 
@@ -224,7 +224,7 @@ const A2 = await learner("A2", { track: "general-english", flags: { shadow_scene
   await toShadow(p);
   await p.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
   await p.click("#shLibFeed .scn-lrow");
-  await p.waitForFunction(() => typeof svAsset !== "undefined" && svAsset.scene, null, { timeout: 15000 }).catch(() => {});
+  await p.waitForFunction(() => typeof svAsset !== "undefined" && svAsset && svAsset.scene, null, { timeout: 15000 }).catch(() => {});
   await sleep(800);
   const r = await p.evaluate(() => ({ level: svAsset && svAsset.level, err: getComputedStyle(document.getElementById("shVidErr")).display, stage: !!document.querySelector("#ytBox .scn-live svg.scn-bg"), toast: [...document.querySelectorAll(".toast,#toast,[role=status]")].map(e => e.textContent).join(" ") }));
   ok("with no audio the transcript still loads at word level", r.level === "word", JSON.stringify(r));
