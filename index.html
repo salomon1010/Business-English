@@ -789,11 +789,17 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    follow-along needs that); Shadow and Challenge stop with their last line
    just above the bar. */
 #shWork[data-v3] #shPlayerWrap{padding-bottom:calc(var(--sh-dock,84px) + 12px)}
-/* no scroll bar down the side of the page: it drew a white line over the
-   video and the panel on iPhone (owner, 26 Sep 2026). The page still
-   scrolls by touch and by wheel; only the indicator is gone. */
+/* The scroll indicator: small, not gone (owner, 26 Sep 2026 — the native one
+   ran as a long white line down the side, over the video). iPhone Safari
+   will not let its own indicator be shortened, so it is switched off and a
+   short slim thumb (#shv3Scroll, shv3ScrollDraw) takes its place: it moves
+   between the bottom of the pinned video and the top of the bar only, shows
+   while the page scrolls and fades out a moment after, like iOS's own. */
 #shWork[data-v3] .sh-work-body{scrollbar-width:none;-ms-overflow-style:none}
 #shWork[data-v3] .sh-work-body::-webkit-scrollbar{display:none;width:0;height:0;background:transparent}
+#shv3Scroll{position:absolute;top:0;right:3px;width:4px;height:36px;border-radius:4px;background:color-mix(in srgb,var(--txt) 55%,transparent);
+  opacity:0;transition:opacity .3s;pointer-events:none;z-index:8;will-change:transform}
+#shv3Scroll.on{opacity:.8}
 #shWork[data-v3][data-svmode="watch"] #shPlayerWrap{padding-bottom:max(calc(var(--sh-dock,84px) + 12px),var(--sh-read,60vh))}
 /* the speaker stays in view while the words scroll under — shadowing needs the
    face and the line at the same time */
@@ -12041,14 +12047,30 @@ function shv3Observe(){
     try{if(window.visualViewport)visualViewport.addEventListener("resize",shv3Measure)}catch(e){}
   }
   if(_shv3RO)[w.querySelector(".sh-work-body"),w.querySelector(".sh-stick"),document.getElementById("shv3Bar")].forEach(e=>{if(e)_shv3RO.observe(e)});
+  const body=w.querySelector(".sh-work-body");
+  if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>shv3ScrollDraw(true),{passive:true})}
   shv3Measure();
+}
+let shv3ScrollT=null;
+function shv3ScrollDraw(show){
+  const w=document.getElementById("shWork");if(!w||!w.dataset.v3)return;
+  const body=w.querySelector(".sh-work-body");if(!body)return;
+  let th=document.getElementById("shv3Scroll");
+  if(!th){th=document.createElement("div");th.id="shv3Scroll";th.setAttribute("aria-hidden","true");w.appendChild(th)}
+  const max=body.scrollHeight-body.clientHeight;
+  if(max<=4){th.classList.remove("on");return}
+  const wr=w.getBoundingClientRect(),br=body.getBoundingClientRect(),st=w.querySelector(".sh-stick"),bar=document.getElementById("shv3Bar");
+  const a=br.top-wr.top+(st?st.getBoundingClientRect().height:0)+6;
+  const b=(bar?bar.getBoundingClientRect().top:br.bottom)-wr.top-6-th.offsetHeight;
+  th.style.transform="translateY("+Math.round(a+Math.max(0,Math.min(1,body.scrollTop/max))*Math.max(0,b-a))+"px)";
+  if(show){th.classList.add("on");clearTimeout(shv3ScrollT);shv3ScrollT=setTimeout(()=>th.classList.remove("on"),1000)}
 }
 /* a new mode, or another paragraph in Shadow, starts with its content right
    under the video — never at a scroll position left over from a longer page */
 function shv3Home(){const w=document.getElementById("shWork");if(!w||!w.dataset.v3)return;const b=w.querySelector(".sh-work-body");if(b)b.scrollTop=0}
 function shv3Sync(){
   const w=document.getElementById("shWork");if(!w)return;
-  if(!shWorkV3()){delete w.dataset.v3;const b=document.getElementById("shv3Bar");if(b)b.remove();return}
+  if(!shWorkV3()){delete w.dataset.v3;const b=document.getElementById("shv3Bar");if(b)b.remove();const sb=document.getElementById("shv3Scroll");if(sb)sb.remove();return}
   w.dataset.v3="1";
   let bar=document.getElementById("shv3Bar");
   if(!bar){bar=document.createElement("div");bar.id="shv3Bar";w.appendChild(bar)}

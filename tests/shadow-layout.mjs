@@ -100,15 +100,27 @@ ok("14 · … and taller again: re-measured back", parseInt(r2) > parseInt(r1), 
 /* Your videos is listed once */
 const own = await p.evaluate(async () => { shCloseWork(); go("shadow"); await new Promise(r => setTimeout(r, 300)); shOwnAdd("aaaaaaaaaa9", "https://youtu.be/aaaaaaaaaa9"); const top = (document.getElementById("shOwnTop") || { innerHTML: "" }).innerHTML.trim(); const i = shOwnFind("aaaaaaaaaa9"); if (i >= 0) { shOwn().splice(i, 1); save(); shOwnRender(); } return { top, lib: !!document.getElementById("shLib") }; });
 ok("15 · 'Your videos' is not drawn twice: nothing above the library after an add", own.lib && own.top === "", JSON.stringify(own));
-const sb = await p.evaluate(async () => { shOpenWork(); await new Promise(r => setTimeout(r, 400)); const b = document.querySelector("#shWork .sh-work-body"); const cs = getComputedStyle(b); return { gutter: b.offsetWidth - b.clientWidth, sw: cs.scrollbarWidth || "", rule: [...document.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => /sh-work-body::-webkit-scrollbar/.test(r.selectorText || "") && /display:\s*none/.test(r.cssText)); } catch (e) { return false; } }) }; });
-ok("15b · no scroll bar line down the side of the workspace (owner, 26 Sep 2026): no gutter, the indicator switched off", sb.gutter === 0 && sb.rule && (sb.sw === "" || sb.sw === "none"), JSON.stringify(sb));
+const sb = await p.evaluate(async () => {
+  shOpenWork(); svSetMode("watch"); await new Promise(r => setTimeout(r, 500));
+  const W = document.getElementById("shWork"), b = W.querySelector(".sh-work-body"), st = W.querySelector(".sh-stick").getBoundingClientRect(), bar = document.getElementById("shv3Bar").getBoundingClientRect();
+  const R = e => { const r = e.getBoundingClientRect(); return { t: Math.round(r.top), b: Math.round(r.bottom), w: Math.round(r.width), h: Math.round(r.height) }; };
+  const out = { gutter: b.offsetWidth - b.clientWidth };
+  b.scrollTop = 200; b.dispatchEvent(new Event("scroll")); await new Promise(r => setTimeout(r, 120));
+  const th = document.getElementById("shv3Scroll"); out.exists = !!th; if (!th) return out;
+  out.on = th.classList.contains("on"); out.a = R(th);
+  b.scrollTop = b.scrollHeight; b.dispatchEvent(new Event("scroll")); await new Promise(r => setTimeout(r, 120)); out.z = R(th);
+  out.videoB = Math.round(st.bottom); out.barT = Math.round(bar.top);
+  await new Promise(r => setTimeout(r, 1500)); out.faded = !th.classList.contains("on");
+  b.scrollTop = 0; b.dispatchEvent(new Event("scroll")); await new Promise(r => setTimeout(r, 1300));
+  return out; });
+ok("15b · the scroll indicator is small, not hidden: the long native line is off, a short slim thumb shows while scrolling, stays between the video and the bar, moves with the page and fades after", sb.gutter === 0 && sb.exists && sb.on && sb.a.w <= 5 && sb.a.h <= 40 && sb.a.t >= sb.videoB && sb.z.b <= sb.barT && sb.z.t > sb.a.t && sb.faded, JSON.stringify(sb));
 ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
 await ctx.close();
 
 console.log("\n# Welding: the classic workspace, unchanged");
 {
   const W = await learner("welding");
-  const w = await W.p.evaluate(() => { const Wk = document.getElementById("shWork"), body = Wk.querySelector(".sh-work-body"); return { v3: !!Wk.dataset.v3, bar: !!document.getElementById("shv3Bar"), v2: svOn(), ch: svChOn(), pad: getComputedStyle(body).paddingBottom, wrapPad: getComputedStyle(document.getElementById("shPlayerWrap")).paddingBottom }; });
+  const w = await W.p.evaluate(() => { const Wk = document.getElementById("shWork"), body = Wk.querySelector(".sh-work-body"); return { v3: !!Wk.dataset.v3, bar: !!document.getElementById("shv3Bar") || !!document.getElementById("shv3Scroll"), v2: svOn(), ch: svChOn(), pad: getComputedStyle(body).paddingBottom, wrapPad: getComputedStyle(document.getElementById("shPlayerWrap")).paddingBottom }; });
   ok("17 · Welding: no redressed workspace, no bottom bar, no Shadow Studio V2 or Challenge — and its padding is the classic one (on the page, not the player's container)", !w.v3 && !w.bar && !w.v2 && !w.ch && parseFloat(w.pad) > 0 && parseFloat(w.wrapPad) === 0, JSON.stringify(w));
   ok("18 · Welding: no JavaScript errors", !W.errs.length, W.errs.join(" | "));
   await W.ctx.close();
