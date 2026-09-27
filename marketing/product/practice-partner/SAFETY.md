@@ -37,6 +37,13 @@ unless marked *(documented, not automated)*.
   in English and French. A hit → `422 moderation`, audio not stored, an
   audit row `turn_screened`, and the client explains why. Screening, not
   moderation — copy never says "moderated by humans".
+- The **first name** and the **Apply It phrase** go through the same screen
+  (26 Sep 2026) — both are read by a stranger (candidate cards, the session
+  prompt). A name that fails is stored as "Learner" (the default for a blank
+  name) and the daily cron applies the rule to names stored earlier; a phrase
+  that fails is dropped and the session keeps its curriculum task. Known
+  false positive: a first name that is also a listed app word (e.g. "Imo")
+  becomes "Learner".
 - Audio is never publicly addressable: R2 objects are served only through
   `GET /turns/:id/audio` after membership and block checks.
 

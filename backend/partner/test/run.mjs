@@ -5,7 +5,7 @@
    Every request goes to the LOCAL worker with emulated D1/R2. Nothing here
    touches Cloudflare or Firebase. Users are dev ids via X-Dev-User; the
    clock is moved with X-Dev-Now. The database is reset at the start. */
-import { verifyIdToken, screenTranscript, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey } from "../partner-worker.js";
+import { verifyIdToken, screenTranscript, safeName, safePhrase, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey } from "../partner-worker.js";
 import { generateKeyPairSync, createSign } from "node:crypto";
 
 const BASE = process.env.PARTNER_API || "http://127.0.0.1:8787";
@@ -66,6 +66,13 @@ await consent("dave", "Dave", { gender: "m" }); await join("dave", { band: "w9-1
   const c = { band: "w1-4", goals: '["workplace"]', prompt_week: 2, topic: "", fnd_day: 0, mode: "voice", avail: '["evening"]', tz: 1, imode: "later", sessions_completed: 0, sessions_abandoned: 0 };
   const s = score(me, mm, c, WEIGHTS_DEFAULT, false); const far = score(me, mm, { ...c, band: "w5-8", prompt_week: 8, goals: '["casual"]', avail: '["morning"]', tz: 9 }, WEIGHTS_DEFAULT, false);
   ok("score(): perfect match scores high with reasons; weak match scores low", s.score > 0.9 && s.reasons.length === 2 && far.score < 0.4, JSON.stringify([s, far])); }
+/* what a stranger reads is screened like a transcript (26 Sep 2026) */
+ok("safeName(): a phone number, e-mail, @handle, link or messaging app in the name → 'Learner'; an ordinary name is kept",
+  ["Sam +33 6 12 34 56 78", "ann@mail.com", "Ann @ann_insta", "WhatsApp me", "www.me.com"].every(n => safeName(n) === "Learner") && safeName("Aïssatou") === "Aïssatou" && safeName("  Jean-Luc ") === "Jean-Luc" && safeName("") === "Learner", JSON.stringify(["Sam +33 6 12 34 56 78", "Aïssatou"].map(safeName)));
+ok("safePhrase(): an Apply It phrase with contact details is dropped; an ordinary expression is kept", safePhrase("Call me on 0612345678") === null && safePhrase("add me on telegram") === null && safePhrase("The bottom line is simple.") === "The bottom line is simple.");
+{ const r = await consent("namecheck", "Sam +33 6 12 34 56 78"); const me = await call("namecheck", "GET", "/me");
+  ok("/consent with contact details in the name stores 'Learner' (never shown to a stranger)", r.status === 200 && me.json.name === "Learner", JSON.stringify(me.json.name));
+  await consent("namecheck", "Samira"); ok("… and an ordinary name is stored as given", (await call("namecheck", "GET", "/me")).json.name === "Samira"); }
 /* the curriculum is the strongest single signal; recent activity counts (26 Sep 2026) */
 { const me = { band: "w1-4", goals: '["workplace"]', prompt_week: 3, topic: "", fnd_day: 0 }, mm = { mode: "voice", avail: '["evening"]', tz: 1 };
   const base = { goals: '["workplace"]', topic: "", fnd_day: 0, mode: "voice", avail: '["evening"]', tz: 1, imode: "later", sessions_completed: 0, sessions_abandoned: 0 };

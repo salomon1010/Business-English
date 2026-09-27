@@ -120,6 +120,14 @@ const SCREEN = [
   /\b(?:my number|mon num[ée]ro|call me|appelle[- ]moi|add me|ajoute[- ]moi)\b/i,
 ];
 function screenTranscript(text) { const t = String(text || ""); for (const re of SCREEN) if (re.test(t)) return false; return true; }
+/* Everything a stranger reads goes through the same screen (26 Sep 2026): the
+   first name on a candidate card and the Apply It phrase in the session
+   prompt were only length-cleaned, so "Sam +33 6 12 34 56 78" or a pasted
+   @handle reached the other learner. A name that fails becomes "Learner" (the
+   default for a blank one); a phrase that fails is dropped — the session keeps
+   its curriculum task. */
+const safeName = n => { const c = clean(n, MAX_NAME); return c && screenTranscript(c) ? c : "Learner"; };
+const safePhrase = p => { const c = clean(p, 160); return c && screenTranscript(c) ? c : null; };
 
 /* ---------------------------------------------------------------- helpers */
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { "content-type": "application/json; charset=utf-8" } });
@@ -597,7 +605,7 @@ const seedFrom = (a, b, phrase) => ({
   track: a.track, band: a.band,
   promptWeek: Math.min(a.prompt_week || 99, b.prompt_week || 99) === 99 ? 0 : Math.min(a.prompt_week || 99, b.prompt_week || 99),
   fndDay: Math.min(a.fnd_day || 99, b.fnd_day || 99) === 99 ? 0 : Math.min(a.fnd_day || 99, b.fnd_day || 99),
-  promptJson: phrase ? JSON.stringify({ phrase: clean(phrase, 160) }) : null,
+  promptJson: safePhrase(phrase) ? JSON.stringify({ phrase: safePhrase(phrase) }) : null,
 });
 
 /* ---------------------------------------------------------- the me view */
@@ -761,7 +769,7 @@ async function handle(req, env, ctx) {
   if (req.method === "POST" && path === "/consent") {
     const b = await req.json().catch(() => ({}));
     if (b.adult !== true) return err(403, "age");
-    const name = clean(b.name, MAX_NAME) || "Learner";
+    const name = safeName(b.name);
     const lang = /^[a-z]{2}$/.test(b.lang || "") ? b.lang : "en";
     const gender = ["f", "m", "x"].includes(b.gender) ? b.gender : null;
     const same = b.sameGender && gender ? 1 : 0;
@@ -1062,7 +1070,7 @@ async function handle(req, env, ctx) {
       if (await burstLimited(env, uid, ms)) return err(429, "rate");
       const id = rid();
       await q(env, "INSERT INTO live_sessions(id,host,guest,state,band,prompt_week,fnd_day,prompt_json,created_at,updated_at,expires_at) VALUES(?,?,?,'invited',?,?,?,?,?,?,?)",
-        id, uid, other, BANDS.includes(b.band) ? b.band : null, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), b.phrase ? JSON.stringify({ phrase: clean(b.phrase, 160) }) : null, ms, ms, ms + LIVE_INVITE_MS).run();
+        id, uid, other, BANDS.includes(b.band) ? b.band : null, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), safePhrase(b.phrase) ? JSON.stringify({ phrase: safePhrase(b.phrase) }) : null, ms, ms, ms + LIVE_INVITE_MS).run();
       await audit(env, ms, uid, "live_invited", other, id, {});
       await wake(env, ctx, other, "live", m.name, id);
       const s = await q(env, "SELECT * FROM live_sessions WHERE id=?", id).first();
@@ -1205,7 +1213,7 @@ async function handle(req, env, ctx) {
     if (!BANDS.includes(b.band)) return err(400, "bad_request");
     const id = rid(), [x, y] = pairKey(uid, other);
     await q(env, "INSERT INTO pairs(id,uid_a,uid_b,track,band,prompt_week,fnd_day,week_start,status,created_at,kind,rounds,prompt_json) VALUES(?,?,?,?,?,?,?,?,'active',?,'regular',4,?)",
-      id, x, y, "general-english", b.band, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), ms, ms, b.phrase ? JSON.stringify({ phrase: clean(b.phrase, 160) }) : null).run();
+      id, x, y, "general-english", b.band, Math.max(0, Math.min(12, Number(b.promptWeek) || 0)), Math.max(0, Math.min(15, Number(b.fndDay) || 0)), ms, ms, safePhrase(b.phrase) ? JSON.stringify({ phrase: safePhrase(b.phrase) }) : null).run();
     await audit(env, ms, uid, "pair_created", other, id, { kind: "regular" });
     return json({ status: "paired", ...(await meView(env, uid, ms)) });
   }
@@ -1545,6 +1553,8 @@ function reviewRow(row, pair) {
 
 /* ------------------------------------------------------- daily maintenance */
 async function maintenance(env, ms) {
+  /* names stored before the name screen existed (26 Sep 2026): same rule */
+  for (const r of ((await q(env, "SELECT uid, name FROM members").all()).results || [])) if (safeName(r.name) !== r.name) await q(env, "UPDATE members SET name=? WHERE uid=?", safeName(r.name), r.uid).run();
   const pairDays = Number(env.PAIR_DAYS || 7);
   const timeoutMs = Number(env.PARTNER_TIMEOUT_H || 24) * 3_600_000;
   const expired = (await q(env, "SELECT * FROM pairs WHERE status='active' AND created_at <= ?", ms - pairDays * DAY).all()).results || [];
@@ -1599,4 +1609,4 @@ export default {
   },
   async scheduled(event, env, ctx) { ctx.waitUntil(maintenance(env, Date.now())); },
 };
-export { screenTranscript, maintenance, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey };
+export { screenTranscript, safeName, safePhrase, maintenance, score, streakWeeks, WEIGHTS_DEFAULT, SAFETY_LIMITS_DEFAULT, minKey };
