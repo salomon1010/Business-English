@@ -125,9 +125,9 @@ const pg = await p.evaluate(async () => { const real = ytPlayer.getPlayerState; 
   const img = document.getElementById("ytPosterImg"); img.onload && img.onload(); const stays = !document.getElementById("ytPoster").classList.contains("on"); ytPlayer.getPlayerState = real; return { gone, stays }; });
 ok("15d · the poster goes the moment the player reports playing, and a late image load never brings it back over the video", pg.gone && pg.stays, JSON.stringify(pg));
 const star = await p.evaluate(async () => { const bar = document.querySelector("#shWork .sh-work-bar"); const inBar = !!(bar && bar.querySelector(".shv3-star, [onclick*='shSaveClip']"));
-  shv3More(); await new Promise(r => setTimeout(r, 300)); const ov = document.getElementById("shv3MoreOv"); const inMenu = !!(ov && ov.querySelector("[onclick*='shSaveClip']")); if (ov) ov.remove();
-  return { inBar, inMenu, title: !!document.getElementById("shv3Title"), close: !!(bar && bar.querySelector(".sh-work-x")) }; });
-ok("15e · no star in the workspace header (owner, 27 Sep 2026); Save clip is still in the … menu", !star.inBar && star.inMenu && star.title, JSON.stringify(star));
+  shv3More(); await new Promise(r => setTimeout(r, 300)); const ov = document.getElementById("shv3MoreOv"); const inMenu = !!(ov && ov.querySelector("[onclick*='shClipsSheet']")), gone = !!(ov && !ov.querySelector("[onclick*='shv3Jump']")); if (ov) ov.remove();
+  return { inBar, inMenu, gone, title: !!document.getElementById("shv3Title"), close: !!(bar && bar.querySelector(".sh-work-x")) }; });
+ok("15e · no star in the workspace header (owner, 27 Sep 2026); the … menu opens My clips and no longer carries Clip / Transcript", !star.inBar && star.inMenu && star.gone && star.title, JSON.stringify(star));
 ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
 await ctx.close();
 

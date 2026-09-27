@@ -744,6 +744,17 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 #shWork[data-v3] .sh-work-x{display:none}
 #shWork[data-v3] .sh-work-title{flex:1 1 auto;min-width:0;font-size:14px;font-weight:600;text-align:left;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0}
+.sh-clips-sheet h2{display:flex;align-items:center;gap:8px}.sh-clips-sheet h2 svg{width:20px;height:20px;color:var(--acc)}
+.sh-clips-sub{font-size:13px;color:var(--mut);margin:0 0 12px}
+.sh-clips-list{display:flex;flex-direction:column;gap:10px;max-height:min(60vh,520px);overflow-y:auto;margin-bottom:12px}
+.sh-clip-item{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line2);border-radius:14px;background:var(--card2);cursor:pointer;text-align:left}
+.sh-clip-item img{width:84px;height:47px;object-fit:cover;border-radius:8px;flex:none}
+.sh-clip-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.sh-clip-txt b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-clip-txt small{font-size:12px;color:var(--mut)}
+.sh-clip-say{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--txt)!important;opacity:.85}
+.sh-clip-del{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line2);background:none;color:var(--mut);display:grid;place-items:center;cursor:pointer}
+.sh-clip-del svg{width:18px;height:18px}
 .shv3-back,.shv3-star{flex:none;width:44px;height:44px;border:0;background:none;color:var(--txt);display:grid;place-items:center;border-radius:50%;cursor:pointer}
 .shv3-star{color:var(--mut)}
 .shv3-back svg,.shv3-star svg{width:22px;height:22px}
@@ -7695,7 +7706,7 @@ const I18N_EN={
  "sh.loop_on_toast":"Loop on 🔁",
  "sh.loop_off_toast":"Loop off — clip will pause at the end",
  "sh.mark_start_end_first_toast":"⚠️ Mark a start and an end first",
- "sh.clip_saved_toast":"Clip saved ⭐",
+ "sh.clip_saved_toast":"Clip saved ⭐","sh.clip_saved_n":"Saved to My clips ({{n}}/{{max}}).","sh.clips_sub":"Passages you starred in Shadow. Tap one to shadow it again.","sh.clips_empty":"No clips yet. In Shadow, tap the star on a passage to keep it here.","sh.clips_limit_t":"My clips is full ({{max}})","sh.clips_limit_b":"Your plan keeps {{max}}. Premium keeps up to {{top}}. Or delete a clip to save this passage.","sh.clips_full_toast":"My clips is full ({{max}}). Delete a clip to save this passage.",
  "sh.clip_deleted_toast":"Clip deleted",
  "sh.no_clips_saved":"No saved clips yet — load a video, mark the voice you want to own, and click ⭐ Save clip to start becoming it.",
  "sh.no_words_toast":"⚠️ I couldn't hear any words in that recording — try again a bit louder",
@@ -12194,10 +12205,8 @@ window.shv3More=()=>{
       ${mode("watch","sv.mode_watch","play")}
       ${mode("shadow","sv.mode_shadow","mic")}
       ${mode("challenge","sv.mode_challenge","dumbbell")}
-      <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shSaveClip()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.save_clip_btn"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
+      <button class="pf-row sh-clips-row" onclick="document.getElementById('shv3MoreOv').remove();shClipsSheet()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))}${aList("clips").length?` <em class="sh-tb-n">${aList("clips").length}</em>`:""}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
       ${shOwnSplit()&&shCatHas(shClip.vid)?`<button class="pf-row sh-lib-save-row" onclick="document.getElementById('shv3MoreOv').remove();shLibSave('${esc(shClip.vid)}')"><span class="pf-ic">${ic("bookmark")}</span><span class="pf-txt"><b>${esc(t(shOwnFind(shClip.vid)>=0?"sh.lib_saved":"sh.lib_save"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>`:""}
-      <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shv3Jump('shSeg')"><span class="pf-ic">${ic("download")}</span><span class="pf-txt"><b>${esc(t("sh.clip_label"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
-      <button class="pf-row" onclick="document.getElementById('shv3MoreOv').remove();shv3Jump('shNote')"><span class="pf-ic">${ic("doc")}</span><span class="pf-txt"><b>${esc(t("sv.tx_btn"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
     </div>
     <button class="btn btn-g" onclick="document.getElementById('shv3MoreOv').remove()">${t("wc.close")}</button>
   </div>`;
@@ -13028,12 +13037,70 @@ window.shLoopToggle=()=>{
   const lb=document.getElementById("shLoopBtn");lb.classList.toggle("on",shLooping);lb.setAttribute("aria-pressed",String(!!shLooping));
   toast(shLooping?t("sh.loop_on_toast"):t("sh.loop_off_toast"));
 };
+/* ---------- My clips (owner, 27 Sep 2026) ----------
+   The passages a learner stars in Shadow, to come back to and shadow again.
+   Free keeps 1, Premium 30 — where the plan limits apply (shOwnSplit, General
+   English with plans on); everywhere else, as before, no cap. A clip already
+   kept is never removed by a limit. */
+function shClipCap(){return shOwnSplit()?planLimit("savedClips"):Infinity}
+function shClipRoom(){
+  const n=aList("clips").length,max=shClipCap();if(n<max)return true;
+  const top=planLimit("savedClips","premium");
+  if(planKey()==="premium"||!premOffered())toast(t("sh.clips_full_toast",{max}));
+  else askConfirm({icon:"star",danger:false,title:t("sh.clips_limit_t",{max}),body:t("sh.clips_limit_b",{max,top}),
+    confirmLabel:t("prem.compare"),cancelLabel:t("wc.close")}).then(ok=>{if(ok)premiumOpen("shadow_limit")});
+  return false;
+}
+function shClipSavedSay(){const max=shClipCap();toast(max===Infinity?t("sh.clip_saved_toast"):t("sh.clip_saved_n",{n:aList("clips").length,max}))}
+/* open a kept clip straight into Shadow, on the passage it was saved from.
+   A clip that is no passage (marked by hand, or a video without words) opens
+   looping on its marks, as it always did. */
+window.shClipGo=async c=>{
+  if(!c||!c.vid)return;
+  const ov=document.getElementById("shClipsOv");if(ov)ov.remove();
+  try{const u=document.getElementById("shUrl");if(u)u.value="https://www.youtube.com/watch?v="+c.vid}catch(e){}
+  await shLoad(c);
+  if(!svOn())return;
+  for(let i=0;i<40;i++){if(shClip.vid!==c.vid)return;if(svAsset&&svAsset.segments&&svAsset.segments.length)break;await new Promise(z=>setTimeout(z,200))}
+  if(!svAsset||!svAsset.segments||!svAsset.segments.length||shClip.vid!==c.vid)return;
+  const ms=(c.start||0)*1000,ps=svParas(svAsset);let p=null;
+  ps.forEach(x=>{const sg=svAsset.segments[x.from];if(sg&&sg.startMs>=0&&sg.startMs<=ms+150)p=x});
+  p=p||ps[0];if(!p)return;
+  svShPinned=true;svShPara=p.from;svPick=p.from;
+  svSetMode("shadow");try{shv3Sync()}catch(e){}
+};
+/* the list, from the workspace's … menu: newest first, open or delete */
+window.shClipsSheet=()=>{
+  const old=document.getElementById("shClipsOv");if(old)old.remove();
+  const cs=aList("clips"),max=shClipCap();
+  const ov=document.createElement("div");ov.id="shClipsOv";ov.className="lang-modal-ov pp-sheet-ov";
+  ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const rows=cs.map((c,i)=>({c,i})).map(({c,i})=>`
+    <div class="sh-clip-item" role="button" tabindex="0" onclick="shClipGo(aList('clips')[${i}])">
+      <img src="https://i.ytimg.com/vi/${esc(c.vid)}/mqdefault.jpg" alt="" loading="lazy">
+      <span class="sh-clip-txt"><b>${esc(c.title||c.vid)}</b>${c.txt?`<small class="sh-clip-say">${esc(String(c.txt).slice(0,160))}</small>`:""}<small>${fmtT(c.start)} → ${fmtT(c.end)}</small></span>
+      <button class="sh-clip-del" onclick="shClipDel(${i},event)" title="${esc(t("sh.delete_clip_title"))}" aria-label="${esc(t("sh.delete_clip_title"))}">${ic("trash")}</button>
+    </div>`).join("");
+  ov.innerHTML=`<div class="lang-modal pp-sheet sh-clips-sheet" role="dialog" aria-modal="true" aria-labelledby="shClipsH">
+    <h2 id="shClipsH">${ic("star")} ${esc(t("sh.tab_clips"))}${max!==Infinity?` <em class="sh-tb-n">${cs.length}/${max}</em>`:""}</h2>
+    <p class="sh-clips-sub">${esc(t(cs.length?"sh.clips_sub":"sh.clips_empty"))}</p>
+    ${cs.length?`<div class="sh-clips-list">${rows}</div>`:""}
+    <button class="btn btn-g" onclick="document.getElementById('shClipsOv').remove()">${t("wc.close")}</button>
+  </div>`;
+  document.body.appendChild(ov);manIconizeInline(ov);
+};
+window.shClipDel=async(i,ev)=>{
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  const n=aList("clips").length;await shDel(i,{stopPropagation(){}});
+  if(aList("clips").length!==n){try{svRender()}catch(e){}if(document.getElementById("shClipsOv"))shClipsSheet()}
+};
 window.shSaveClip=()=>{
   if(!shClip.vid)return;
   if(!(shClip.end>shClip.start))return toast(t("sh.mark_start_end_first_toast"));
+  if(!shClipRoom())return;
   aList("clips").unshift({vid:shClip.vid,start:Math.floor(shClip.start*10)/10,end:Math.floor(shClip.end*10)/10,
     title:shClip.title||shClip.vid,ts:Date.now(),txt:document.getElementById("shNote").value||""});
-  save();shRenderClips();toast(t("sh.clip_saved_toast"));
+  save();shRenderClips();shClipSavedSay();
 };
 window.shSaveNote=()=>{
   if(!shClip.vid)return;
@@ -13389,7 +13456,7 @@ async function shPull(auto){
   if(!auto||box.value)toast(t("sh.transcript_pulled_toast"));
 }
 window.shPullTranscript=()=>shPull(false);
-window.shOpen=i=>{const c=aList("clips")[i];if(c)shLoad(c)};
+window.shOpen=i=>{const c=aList("clips")[i];if(c)shClipGo(c)};
 window.shDel=async(i,ev)=>{
   ev.stopPropagation();
   const c=aList("clips")[i];
@@ -20196,9 +20263,9 @@ function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v
    limit is one number, not a redesign; NONE of them is enforced yet. Which
    track a limit applies to is the caller's decision (isGeneralEnglish()). */
 const PLAN_LIMITS=Object.freeze({
-  free:Object.freeze({savedShadow:5,youtubeImports:2,polishHistory:1,
+  free:Object.freeze({savedShadow:5,youtubeImports:2,polishHistory:1,savedClips:1,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null}),
-  premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,
+  premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,savedClips:30,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null})
 });
 function planOn(){try{return flag("billing_enabled")&&!!entApiBase()}catch(e){return false}}
@@ -21596,7 +21663,7 @@ function svShFavOn(){return svShFavAt()>=0}
 window.svShFav=()=>{
   const g=svShGroup();if(!g||!shClip.vid)return;const i=svShFavAt(),L=aList("clips");
   if(i>=0){L.splice(i,1);save();toast(t("sv.sh_unfav_toast"))}
-  else{L.unshift({vid:shClip.vid,start:Math.floor(g.startMs/100)/10,end:Math.floor(g.endMs/100)/10,title:shClip.title||shClip.vid,ts:Date.now(),txt:g.text});save();toast(t("sh.clip_saved_toast"))}
+  else{if(!shClipRoom())return;L.unshift({vid:shClip.vid,start:Math.floor(g.startMs/100)/10,end:Math.floor(g.endMs/100)/10,title:shClip.title||shClip.vid,ts:Date.now(),txt:g.text});save();shClipSavedSay()}
   try{shRenderClips()}catch(e){}
   const b=document.querySelector("#svSh .sv-sh-fav");if(b){b.classList.toggle("on",i<0);b.setAttribute("aria-pressed",String(i<0));b.setAttribute("aria-label",t(i<0?"sv.sh_unfav":"sv.sh_fav"))}
 };
