@@ -151,6 +151,15 @@ const EVENTS = new Set([
   // expired | invalidated), source (push | app), gap (retention bucket), week, day.
   "nudge_generated", "nudge_sent", "nudge_opened", "nudge_accepted", "nudge_started", "nudge_completed",
   "nudge_dismissed", "nudge_expired", "nudge_practice", "nudge_partner", "nudge_retained",
+  // Home "Because you…" rows (2026-09-27, General English only — the rows do
+  // not exist on any other area and the app never sends rec_* there). A row
+  // shown (+kind = the row: challenge_done | shadowed | opened | trouble |
+  // week_done | phrases | partner_done | start; +reason, +n items), a card
+  // tapped (+to = the item type: challenge | video | trouble | words | session |
+  // phrases | partner | ai), the first practice action within 2 h of a tap,
+  // a row hidden. Every row carries track + week + day. Counts only — never
+  // the clip, the word, the title or anything about the learner.
+  "rec_impression", "rec_open", "rec_started", "rec_dismissed",
   // Advertising (Phase 8, Free tier only; AdManager in index.html). Counts and
   // fixed enums only: format (interstitial|native|rewarded|sponsored), context
   // (the natural break or placement id), reason (why an ad was suppressed),
@@ -252,6 +261,8 @@ const LAYOUTS = [
   // New names (Phase 12A): no row was ever recorded, so nothing historical is re-read.
   [/^(purchase_|entitlement_)/, ["provider", "product", "reason", "result", "source", "state"]],
   [/^shadow_/, ["level", "mode", "to", "rung", "reason", "result", "kind", "state", "lang", "band", "source"]],
+  // rec_* (Home rows) → blob3 kind, 4 reason, 5 to, 6 n, 7 track, 8 week, 9 day. New prefix: no history to re-read.
+  [/^rec_/, ["kind", "reason", "to", "n", "track", "week", "day"]],
   // cert_* → blob3 track. No cert_* row existed before this map.
   [/^cert_/, ["track"]],   // state + lang (blob10, blob11): the Translate / Pronunciation switches; band + source (blob12, blob13): the coach report's shadow_report_viewed — each appended so the earlier columns keep their place
 ];

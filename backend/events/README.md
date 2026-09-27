@@ -351,3 +351,26 @@ partner_streak, ai_coach); `reason` a short enum such as `words_due_7` or
 `nudge_expired` come from the service worker (source=push). The app drops
 every `nudge_*` event on a non-General-English area.
 
+## Home "Because you…" rows (2026-09-27, General English only)
+
+Home's personalised rows are built by the same engine as the nudges
+(`NudgeEngine.rows` in nudge-engine.js over `nudgeSignals()`), so Home, the
+push nudge and the Continue button never disagree. `rec_impression` (a row was
+drawn; `kind` is the row: challenge_done | shadowed | opened | trouble |
+week_done | phrases | partner_done | start; `reason` its evidence, e.g.
+`challenge_passed`, `trouble_words_2`, `week_done_1`; `n` the number of cards)
+→ `rec_open` (a card tapped; `to` is the card type: challenge | video |
+trouble | words | session | phrases | partner | ai) → `rec_started` (the
+first practice action within 2 h of the tap); `rec_dismissed` (the row hidden
+for a week). Every one carries `track`, `week` and `day`. Row layout: blob3
+kind, 4 reason, 5 to, 6 n, 7 track, 8 week, 9 day. The app never sends
+`rec_*` on a non-General-English area, and the Worker only ever sees the row
+kind and the card type — never a clip id, a word, a title or a phrase.
+
+```sql
+-- which rows get tapped, per row kind and card type (last 7 days)
+SELECT blob3 AS row_kind, blob5 AS card, blob1 AS event, SUM(_sample_interval) AS n
+FROM be_events WHERE blob1 IN ('rec_impression','rec_open','rec_started','rec_dismissed')
+  AND timestamp > NOW() - INTERVAL '7' DAY
+GROUP BY row_kind, card, event ORDER BY row_kind, n DESC
+```

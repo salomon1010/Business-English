@@ -63,7 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=87"></script>
-<script src="nudge-engine.js?v=1"></script>
+<script src="nudge-engine.js?v=2"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=82"></script>
 <script src="shadow-sync.js?v=7"></script>
@@ -1429,6 +1429,29 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @media (min-width:700px){.hx-dest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .hx-dcard{display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 .hx-dcard.rec{border-color:color-mix(in srgb,var(--acc) 40%,var(--line2))}
+/* "Because you…" rows: a swipe row on the phone, a three-up grid from 700 px */
+.hx-rows{margin:0 0 24px}
+.hx-row{margin:0 0 22px}
+.hx-row-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 10px}
+.hx-row-h h3{font-size:17px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.hx-row-h p{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--mut)}
+.hx-row-hide{flex:none;padding:6px 10px;border:1px solid var(--line2);border-radius:99px;background:none;color:var(--mut);font:inherit;font-size:12px;cursor:pointer;min-height:32px}
+.hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
+.hx-row-scroll::-webkit-scrollbar{display:none}
+.hx-rcard{flex:0 0 min(72%,260px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+.hx-rimg{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
+.hx-rimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hx-rimg.none{display:grid;place-items:center}
+.hx-ric{position:absolute;left:10px;top:10px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
+.hx-rimg.none .hx-ric{position:static;width:46px;height:46px;border-radius:14px;background:color-mix(in srgb,var(--acc) 30%,transparent);color:var(--txt)}
+.hx-ric svg{width:18px;height:18px}
+.hx-rimg.none .hx-ric svg{width:22px;height:22px}
+.hx-rtag{position:absolute;right:10px;top:10px;padding:3px 8px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);color:var(--on-accent,#fff)}
+.hx-rdur{position:absolute;right:10px;bottom:8px;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(6,9,18,.7);color:#fff}
+.hx-rbody{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
+.hx-rbody small{font-size:11.5px;color:var(--mut);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-rbody b{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (min-width:700px){.hx-row-scroll{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;margin:0;padding:0}.hx-rcard{flex:none}}
 .hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hx-dic{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc)}
@@ -6349,7 +6372,22 @@ const I18N_EN={
  "home.continue":"▶ Continue where you left off",
  "home.week_line":"Week {{w}} · {{d}} — {{focus}}",
  "home.start_btn":"Start today's 25-minute session →",
- "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening","home.rec_for_you":"Recommended for you","home.also_for_you":"Also for you","home.start":"Start","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
+ "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening",
+ "home.rows_aria":"Recommended for you",
+ "home.bc_challenge_done":"Because you completed the Challenge on \u201c{{title}}\u201d","home.bc_challenge_done_s":"Three more clips at that level \u2014 each opens straight in the Challenge.",
+ "home.bc_shadowed":"Because you shadowed \u201c{{title}}\u201d","home.bc_shadowed_s":"Clips on the same subject, ready to shadow line by line.",
+ "home.bc_opened":"Because you opened \u201c{{title}}\u201d","home.bc_opened_s":"Clips on the same subject, ready to shadow line by line.",
+ "home.bc_trouble":"Because you had trouble with {{words}}","home.bc_trouble_s":"Hear the words in real speech, then drill them until they come out clean.",
+ "home.bc_week_done":"Because you completed Week {{n}}","home.bc_week_done_s":"Next on your road map \u2014 {{theme}} \u2014 and the tools for it.",
+ "home.bc_phrases":"Because you mastered {{n}} expressions","home.bc_phrases_s":"Put them to work, and hear more of them in real conversations.",
+ "home.bc_partner_done":"Because you practised with a partner this week","home.bc_partner_done_s":"Keep the conversation going while it is fresh.",
+ "home.bc_start":"Start here \u2014 your Week 1 path","home.bc_start_s":"{{theme}}: the first session, a first clip to shadow and more voices to copy.",
+ "home.it_challenge":"Shadow Challenge","home.it_challenge_tag":"Challenge","home.it_video":"Shadow this clip","home.it_external":"YouTube",
+ "home.it_trouble":"Shadow Studio","home.it_trouble_t":"Your trouble words, in real speech",
+ "home.it_words":"{{n}} words due","home.it_words_t":"Review the words",
+ "home.it_session":"Week {{w}} \u00b7 {{d}}","home.it_phrases":"Phrase Lab","home.it_phrases_t":"Use your expressions",
+ "home.it_partner":"Practice Partner","home.it_partner_t":"Practise with a partner","home.it_ai":"AI coach","home.it_ai_t":"Practise with the AI coach",
+ "home.row_hide":"Not now","home.row_hide_aria":"Hide this row for a week","home.rec_for_you":"Recommended for you","home.also_for_you":"Also for you","home.start":"Start","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
  "home.pct_of":"of 84 sessions",
  "home.stat_streak":"Day streak (best habit: 6 days/week)",
  "home.stat_recordings":"Recordings saved in this browser",
@@ -9210,6 +9248,7 @@ function markPracticed(){
      habit and stay whole, but "days practised" inside a review must mean days
      practised in THAT programme. */
   const _al=areaDayLog();_al[today]=(_al[today]||0)+1;
+  try{homeRecPracticed()}catch(e){}
   try{nudgePracticed();setTimeout(()=>{try{nudgeInvalidate()}catch(e){}},0)}catch(e){}
   if(S.dayLog[today]===1){
     // once per day, not per action. Week alongside streak so retention can be
@@ -10764,6 +10803,89 @@ function homeCard(r){
 }
 let _homeRecs=[];
 window.homeGoRec=rid=>{const r=_homeRecs.find(x=>(x.rid||x.kind)===rid);if(r)try{nudgeGo(r)}catch(e){}};
+/* ================= "BECAUSE YOU…" ROWS (owner, 27 Sep 2026) =================
+   The pattern "you did X, so Y is useful", for learning: every row names one
+   thing the learner actually did (a recorded take, a passed Challenge, trouble
+   words on record, a finished week, mastered expressions, a partner session)
+   and offers up to three exact destinations. The rows come from the same
+   engine as the hero and the push nudges (NudgeEngine.rows over nudgeSignals),
+   fed the library index and the curriculum — no second learner model — and
+   every card deep-links through nudgeGo, the resolver the notifications use.
+   A brand-new learner gets "Start here" (curriculum discovery), never a
+   "because you". General English only; Welding keeps its Career Dashboard. */
+let _homeRows=[];
+function homeContent(){
+  const videos={};
+  try{if(_shCat&&_shCat.videos){const cats={};(_shCat.categories||[]).forEach(c=>(c.vids||[]).forEach(v=>{cats[v]=cats[v]||c.id}));
+    Object.keys(_shCat.videos).forEach(v=>{const x=_shCat.videos[v]||{};videos[v]={title:x.title||"",cat:cats[v]||"",dur:x.dur||0,cap:x.cap||null}})}}catch(e){}
+  let weeks=[],starters=[];
+  try{weeks=trackWeeks().map(w=>({n:w.n,theme:w.theme||"",goal:w.goal||"",days:w.days||{}}))}catch(e){}
+  try{starters=trackShadowStarters()}catch(e){}
+  return {videos,weeks,starters};
+}
+function homeRows(){
+  if(!isGeneralEnglish()||!window.NudgeEngine||typeof NudgeEngine.rows!=="function")return [];
+  try{const hide=S.recHide||{},now=Date.now();
+    return NudgeEngine.rows(nudgeSignals(),homeContent()).filter(r=>!(hide[r.id]&&now-hide[r.id]<7*NUDGE_DAY))}catch(e){return []}
+}
+const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic"};
+function homeItemLine(it){
+  switch(it.type){
+    case "challenge":return t("home.it_challenge");
+    case "video":return t("home.it_video");
+    case "trouble":return t("home.it_trouble");
+    case "words":return t("home.it_words",{n:it.n||0});
+    case "session":return t("home.it_session",{w:it.w,d:homeDayName(it.d)});
+    case "phrases":return t("home.it_phrases");
+    case "partner":return t("home.it_partner");
+    case "ai":return t("home.it_ai");
+  }
+  return "";
+}
+function homeItemTitle(it){
+  if(it.title)return it.title;
+  return {trouble:t("home.it_trouble_t"),words:t("home.it_words_t"),phrases:t("home.it_phrases_t"),partner:t("home.it_partner_t"),ai:t("home.it_ai_t")}[it.type]||"";
+}
+function homeRowCardHTML(r,it,i){
+  const img=it.vid?`<img src="https://i.ytimg.com/vi/${esc(it.vid)}/hqdefault.jpg" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:"";
+  const dur=it.dur?`<span class="hx-rdur">${esc(t("home.min",{n:Math.max(1,Math.round(it.dur/60))}))}</span>`:"";
+  return `<button class="hx-rcard" data-type="${esc(it.type)}"${it.vid?` data-vid="${esc(it.vid)}"`:""} onclick="homeRecOpen('${esc(r.id)}',${i})">
+    <span class="hx-rimg${img?"":" none"}">${img}<span class="hx-ric">${ic(HOME_ROW_ICON[it.type]||"play")}</span>${it.type==="challenge"?`<span class="hx-rtag">${esc(t("home.it_challenge_tag"))}</span>`:""}${dur}</span>
+    <span class="hx-rbody"><small>${esc(homeItemLine(it))}${it.external?` · ${esc(t("home.it_external"))}`:""}</small><b>${esc(homeItemTitle(it))}</b></span>
+  </button>`;
+}
+function homeRowsHTML(rows){
+  if(!rows||!rows.length)return "";
+  return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map(r=>`
+    <div class="hx-row" data-row="${esc(r.id)}">
+      <div class="hx-row-h"><div><h3>${esc(t("home.bc_"+r.id,r.vars||{}))}</h3><p>${esc(t("home.bc_"+r.id+"_s",r.vars||{}))}</p></div>
+        <button class="hx-row-hide" onclick="homeRecHide('${esc(r.id)}')" aria-label="${esc(t("home.row_hide_aria"))}">${esc(t("home.row_hide"))}</button></div>
+      <div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>
+    </div>`).join("")}</section>`;
+}
+/* analytics: counts and fixed enums only — the row kind, its reason, the item type,
+   the area and the curriculum position. General English only (the rows do not exist elsewhere). */
+function homeRecTrack(name,props){try{if(!isGeneralEnglish())return;const p=currentPos();track(name,Object.assign({track:areaId(),week:String(p.w),day:String(p.d)},props||{}))}catch(e){}}
+function homeRecImpress(rows){
+  homeRecImpress._seen=homeRecImpress._seen||{};
+  (rows||[]).forEach(r=>{const k=r.id+":"+(r.seed||"")+":"+new Date().toISOString().slice(0,10);if(homeRecImpress._seen[k])return;homeRecImpress._seen[k]=1;
+    homeRecTrack("rec_impression",{kind:r.id,reason:String(r.reason||"").slice(0,24),n:String(r.items.length)})});
+}
+window.homeRecOpen=(rid,i)=>{
+  const r=_homeRows.find(x=>x.id===rid),it=r&&r.items[i];if(!it)return;
+  S.rec=S.rec||{};S.rec.opened={id:rid,type:it.type,at:Date.now(),started:false};save();
+  homeRecTrack("rec_open",{kind:rid,reason:String(r.reason||"").slice(0,24),to:it.type});
+  try{nudgeGo({view:it.view,act:it.act,args:it.args||[],kind:it.type,challenge:!!it.challenge})}catch(e){}
+};
+window.homeRecHide=rid=>{
+  const r=_homeRows.find(x=>x.id===rid);S.recHide=S.recHide||{};S.recHide[rid]=Date.now();save();
+  homeRecTrack("rec_dismissed",{kind:rid,reason:String(r&&r.reason||"").slice(0,24)});
+  _homeRows=_homeRows.filter(x=>x.id!==rid);
+  const el=[...document.querySelectorAll(".hx-row")].find(e=>e.dataset.row===rid);if(el)el.remove();
+  const sec=document.getElementById("hxRows");if(sec&&!sec.querySelector(".hx-row"))sec.remove();
+};
+/* the first practice action within two hours of opening a recommendation */
+function homeRecPracticed(){const o=S.rec&&S.rec.opened;if(!o||o.started||!isGeneralEnglish())return;if(Date.now()-o.at>2*3600000)return;o.started=true;save();homeRecTrack("rec_started",{kind:o.id,to:o.type})}
 /* "Mon" → the learner's own weekday name (2024-01-01 was a Monday) */
 function homeDayName(d){const i=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].indexOf(d);if(i<0)return d;try{return new Date(2024,0,1+i).toLocaleDateString((S.profile&&S.profile.lang)||"en",{weekday:"long"})}catch(e){return d}}
 /* a small greeting inside the hero — the name never competes with the next step */
@@ -10785,18 +10907,11 @@ function homeDoneCard(){
    words and category — never at random, never unrelated: a video must share a title
    word with the topic. Then the role-play photos for that topic. Then nothing: the
    card's own gradient. Deterministic: the same recommendation shows the same pictures. */
-const HV_TOPICS=[
-  {re:/introduc|yourself|first impression|role clarity|network|small talk/i,terms:["introduc","yourself","first impression","small talk","network"],cat:"everyday",photos:["iv-tellme","oneone","coffee"]},
-  {re:/pronunc|shadow|stress|accent|speech|intonation|fluen|sound/i,terms:["pronunc","accent","shadow","clear","fluen","intonation"],cat:"skills",photos:["standup","oneone"]},
-  {re:/meeting|agenda|stand-?up|interrupt|disagree|clarif|update/i,terms:["meeting","interrupt","disagree","agenda","clarif"],cat:"meetings",photos:["standup","oneone"]},
-  {re:/present|pitch|slide|summar|explain/i,terms:["present","pitch","explain","summar"],cat:"presentations",photos:["standup"]},
-  {re:/interview|job|salary|strength|weakness|experience/i,terms:["interview","tell me about","strength","weakness","salary"],cat:"interviews",photos:["interview","iv-tellme","iv-salary"]},
-  {re:/negotiat|persuad|recommend|decid|win support|push ?back/i,terms:["negotiat","persuad","recommend","convinc"],cat:"meetings",photos:["oneone"]},
-  {re:/\bwords?\b|vocab|phrase/i,terms:["vocabulary","words","phrases","idiom"],cat:"skills",photos:["coffee","checkin"]},
-  {re:/partner|conversation|coach/i,terms:["conversation","small talk","chat"],cat:"everyday",photos:["partner","coffee","neighbour"]}
-];
+/* the topics themselves live in the engine (NudgeEngine.TOPICS) — one relationship
+   table for the hero's pictures, the "Because you…" rows and the push nudges */
+const HV_PHOTOS={introductions:["iv-tellme","oneone","coffee"],pronunciation:["standup","oneone"],meetings:["standup","oneone"],presentations:["standup"],interviews:["interview","iv-tellme","iv-salary"],persuasion:["oneone"],vocabulary:["coffee","checkin"],conversation:["partner","coffee","neighbour"]};
 function homeVisuals(card){
-  const txt=String(card.topic||""),tops=HV_TOPICS.filter(x=>x.re.test(txt)).slice(0,2),out=[],seen=new Set();
+  const txt=String(card.topic||""),tops=(window.NudgeEngine?NudgeEngine.TOPICS:[]).filter(x=>x.re.test(txt)).slice(0,2),out=[],seen=new Set();
   const add=v=>{if(out.length<3&&!seen.has(v.key)){seen.add(v.key);out.push(v)}};
   if(card.vid&&/^[A-Za-z0-9_-]{11}$/.test(card.vid))add({key:card.vid,vid:card.vid,title:(_shCat&&_shCat.videos[card.vid]&&_shCat.videos[card.vid].title)||""});
   if(tops.length&&_shCat&&_shCat.videos){
@@ -10805,7 +10920,7 @@ function homeVisuals(card){
       tops.forEach(tp=>{tp.terms.forEach(w=>{if(ti.includes(w)){s+=3;hit=true}});if(cats[v]===tp.cat)s+=1});return {v,s,hit,i}}).filter(x=>x.hit).sort((a,b)=>b.s-a.s||a.i-b.i);
     sc.forEach(x=>add({key:x.v,vid:x.v,title:_shCat.videos[x.v].title||""}));
   }
-  tops.forEach(tp=>tp.photos.forEach(ph=>add({key:ph,photo:"rp-photos/"+ph+".jpg"})));
+  tops.forEach(tp=>(HV_PHOTOS[tp.id]||[]).forEach(ph=>add({key:ph,photo:"rp-photos/"+ph+".jpg"})));
   return out;
 }
 function homeSlideHTML(v,i){
@@ -10913,13 +11028,14 @@ function homeDestHTML(top,cards,vis){
 function rHomeV2(el){
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   const gate=homeGateCard();
-  _homeRecs=gate?[]:homeRecs();
+  _homeRecs=gate?[]:homeRecs();_homeRows=gate?[]:homeRows();
   const cards=_homeRecs.map(homeCard);
   const top=gate||cards[0]||homeDoneCard();
   const draw=()=>{
     const vis=homeVisuals(top);
     el.innerHTML=`
     ${homeHeroHTML(top,vis)}
+    ${homeRowsHTML(_homeRows)}
     ${homeDestHTML(top,gate?[]:cards.slice(1),vis)}
     ${ppHomeCardHTML()}
     ${homeNudgeHTML()}
@@ -10931,12 +11047,12 @@ function rHomeV2(el){
       <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
       <span class="pf-chev" aria-hidden="true">›</span>
     </button>`;
-    manIconizeInline(el);hxDots();hxRotate();
+    manIconizeInline(el);hxDots();hxRotate();homeRecImpress(_homeRows);
   };
   draw();
-  /* the library index gives the pictures; it is usually cached — when it lands, the
-     hero's media is filled in place (same box, fixed ratio: nothing moves) */
-  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")&&_shCat)draw()}).catch(()=>{})}catch(e){}
+  /* the library index gives the pictures and the rows' clips; it is usually cached — when
+     it lands, the page is drawn again (same boxes, fixed ratios: nothing moves) */
+  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")&&_shCat){_homeRows=gate?[]:homeRows();draw()}}).catch(()=>{})}catch(e){}
 }
 
 function rHomeGeneral(el){
@@ -15251,6 +15367,24 @@ function nudgeSignals(){
       daysSincePartner:lastP?Math.floor((now-lastP)/NUDGE_DAY):null};
     sig.aiCoach=ppAvailable()&&flag("practice_partner_ai_fallback_enabled");
   }catch(e){}
+  /* Home's "Because you…" rows read only what the learner actually did (NudgeEngine.rows):
+     the newest recorded take and the newest passed Challenge (chHist), the clip left open
+     (lastClip — "opened", never "watched"), every clip already seen (offered again never),
+     the last whole week finished, expressions mastered in Phrase Lab, the last partner
+     session, and the trouble words on record. All per area, like everything else. */
+  try{
+    const hist=aList("chHist").filter(x=>x&&x.vid&&/^[A-Za-z0-9_-]{11}$/.test(x.vid));
+    const cp=hist.find(x=>/^ch/.test(x.kind||"")&&x.pass),rec=hist[0]||null,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
+    let weekDoneN=0;try{const n=trackDays().length;trackWeeks().forEach(w=>{if(weekDone(w.n)>=n&&w.n===weekDoneN+1)weekDoneN=w.n})}catch(e){}
+    let partnerAt=null;try{const e=ppHist().find(x=>["session","live","ai"].includes(x.kind));partnerAt=e?e.ts:null}catch(e){}
+    let phrasesMastered=0;try{phrasesMastered=Object.keys(aMap("phMaster")).filter(k=>aMap("phMaster")[k]).length}catch(e){}
+    sig.recent={
+      challengePassed:cp?{vid:cp.vid,title:cp.title||"",ts:cp.ts||0}:null,
+      shadowed:rec?{vid:rec.vid,title:rec.title||"",ts:rec.ts||0,recorded:true}:(lc?{vid:lc.vid,title:lc.title||"",ts:now,recorded:false}:null),
+      seen:[...new Set(hist.map(x=>x.vid).concat(aList("clips").map(x=>x&&x.vid).filter(Boolean),lc?[lc.vid]:[]))].slice(0,300),
+      weekDone:weekDoneN,phrasesMastered,partnerAt};
+    sig.troubleWords=Object.keys(troubleMap()).map(w=>[w,(troubleMap()[w]||{}).n||0]).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).slice(0,3).map(x=>x[0]);
+  }catch(e){}
   return sig;
 }
 function nudgeText(r){return {title:t("nudge."+r.kind+"_t",r.vars||{}),body:t("nudge."+r.kind+"_b",r.vars||{})}}
@@ -15337,10 +15471,11 @@ function nudgeGo(r){
     if(r.view==="session"&&r.args&&r.args.length===2){go("session",Number(r.args[0]),String(r.args[1]));return true}
     if(r.view==="practice"){go("practice");if(r.act==="study-due")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
     if(r.view==="shadow"){go("shadow");
-      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>nudgeClip(String(r.args[0]),r.kind==="challenge"),400);
+      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>nudgeClip(String(r.args[0]),r.kind==="challenge"||r.challenge===true),400);
       else if(r.act==="trouble")setTimeout(()=>{try{shTab("trouble");nudgeTroubleShow()}catch(e){}},300);
       return true}
     if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
+    if(r.view==="phrases"){go("phrases");return true}
   }catch(e){}
   return false;
 }

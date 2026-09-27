@@ -158,6 +158,7 @@ ok("every declared layout fits without the guard ever cutting it (so the guard i
 ok("layoutFor() is deterministic and total: v2_* → V2 map, partner_* → partner map (partner_interest excepted), shadow_* → shadow map, anything else → LEGACY",
   layoutFor("v2_mission_started").join() === V2MAP.join() && layoutFor("partner_turn_sent").join() === PMAP.join() && layoutFor("partner_interest").join() === LEGACY.join()
   && layoutFor("shadow_challenge_rung").join() === SMAP.join() && layoutFor("app_open").join() === LEGACY.join() && layoutFor("").join() === LEGACY.join());
+ok("rec_* (Home rows) → kind, reason, to, n, track, week, day — its own map, seven columns", layoutFor("rec_open").join() === "kind,reason,to,n,track,week,day" && layoutFor("rec_impression").join() === layoutFor("rec_dismissed").join());
 { LAYOUTS.push([/^zz_review_/, Array.from({ length: 30 }, (_, i) => "k" + i)]);
   const cut = layoutFor("zz_review_probe").length; LAYOUTS.pop();
   ok("a hypothetical 30-key layout is capped at 18 columns by the code itself — the row can never exceed 20 blobs", cut === MAX_COLS && layoutFor("zz_review_probe").join() === LEGACY.join(), String(cut)); }
