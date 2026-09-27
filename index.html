@@ -1442,23 +1442,26 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-rows{margin:0 0 24px}
 /* the eight "Because you…" rows (owner, 27 Sep 2026): the first row is the strongest signal and
    leads — larger cards, its evidence named in a gold label; the rest are compact. */
-.hx-row-kick{display:inline-flex;align-items:center;gap:6px;margin:0 0 8px;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold,var(--acc))}
-.hx-row-kick svg{width:14px;height:14px}
-.hx-row-h .hx-row-ic{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);margin-top:1px}
-.hx-row-h .hx-row-ic svg{width:16px;height:16px}
+.hx-row-kick{display:inline-flex;align-items:center;gap:5px;margin:0 0 6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold,var(--acc))}
+.hx-row-kick svg{width:12px;height:12px}
+.hx-row-h .hx-row-ic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
+.hx-row-h .hx-row-ic svg{width:14px;height:14px}
 .hx-row-tx{flex:1;min-width:0}
-.hx-row-lead{padding:16px 0 4px;border-top:1px solid var(--line2)}
-.hx-row-lead .hx-row-h h3{font-size:20px}
+.hx-row-lead{padding:14px 0 4px;border-top:1px solid var(--line2)}
+.hx-row-lead .hx-row-h h3{font-size:16px}
 .hx-row-lead .hx-row-h .hx-row-ic{display:none}
 .hx-row-lead .hx-rcard{flex-basis:min(84%,320px)}
 .hx-row-lead .hx-rbody b{font-size:15.5px}
 .hx-row:not(.hx-row-lead) .hx-rcard{flex-basis:min(58%,220px)}
 .hx-row:not(.hx-row-lead) .hx-rbody b{font-size:13.5px}
 .hx-row{margin:0 0 22px}
-.hx-row-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin:0 0 10px}
-.hx-row-h h3{font-size:17px;line-height:1.25;margin:0;letter-spacing:-.01em;text-wrap:balance}
-.hx-row-h p{margin:3px 0 0;font-size:13px;line-height:1.4;color:var(--mut)}
-.hx-row-hide{flex:none;padding:6px 10px;border:1px solid var(--line2);border-radius:99px;background:none;color:var(--mut);font:inherit;font-size:12px;cursor:pointer;min-height:32px}
+/* the header is two lines and never more (owner, 27 Sep 2026: "one line … because you did this,
+   and another line below, not too big"): the heading and its reason each keep to one line and
+   end in an ellipsis. No "Not now" — the rows are the Home page's own choice, not an option. */
+.hx-row-h{display:flex;align-items:center;gap:10px;margin:0 0 8px}
+.hx-row-h h3,.hx-row-h p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-row-h h3{font-size:15px;font-weight:700;line-height:1.3;margin:0;letter-spacing:-.005em}
+.hx-row-h p{margin:1px 0 0;font-size:12.5px;line-height:1.35;color:var(--mut)}
 .hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 20px;/* the snap points sit on the page gutter, so the first card lines up with the hero instead of the screen edge (owner, 27 Sep 2026) */-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .hx-row-scroll::-webkit-scrollbar{display:none}
 .hx-rcard{flex:0 0 min(72%,260px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
@@ -10903,8 +10906,7 @@ function homeContent(){
 }
 function homeRows(heroCid){
   if(!isGeneralEnglish()||!window.NudgeEngine||typeof NudgeEngine.rows!=="function")return [];
-  try{const hide=S.recHide||{},now=Date.now(),sig=nudgeSignals();sig.heroCid=heroCid||"";
-    return NudgeEngine.rows(sig,homeContent()).filter(r=>!(hide[r.id]&&now-hide[r.id]<7*NUDGE_DAY))}catch(e){return []}
+  try{const sig=nudgeSignals();sig.heroCid=heroCid||"";return NudgeEngine.rows(sig,homeContent())}catch(e){return []}
 }
 const HOME_ROW_ICON={challenge:"dumbbell",video:"play",trouble:"waveform",words:"repeat",session:"play",phrases:"chat",partner:"user",ai:"mic",roleplay:"chat"};
 /* the row's own mark: what kind of evidence it rests on */
@@ -10945,6 +10947,14 @@ function homeRowCardHTML(r,it,i){
     <span class="hx-rbody"><small>${esc(homeItemLine(it))}${it.external?` · ${esc(t("home.it_external"))}`:""}</small><b>${esc(homeItemTitle(it))}</b></span>
   </button>`;
 }
+/* a one-line heading that also quotes words ("…flagged “talk”, “social”") keeps room for them:
+   the clip title beside them is cut to a few words. Any other heading keeps its title and the
+   line simply ends in an ellipsis. */
+function homeRowVars(r){
+  const v=Object.assign({},r.vars||{});
+  if(v.title&&v.words){let s=String(v.title).replace(/[\u2026.]+$/,"").trim();if(s.length>24){s=s.slice(0,24);const sp=s.lastIndexOf(" ");s=(sp>12?s.slice(0,sp):s).replace(/[\s,:;\-\u2013\u2014|]+$/,"")+"\u2026"}v.title=s}
+  return v;
+}
 /* The first row is the strongest current signal and is drawn as the lead: larger cards, its
    evidence named in a label. The others are compact. Not all sections are equal. */
 function homeRowsHTML(rows){
@@ -10952,8 +10962,7 @@ function homeRowsHTML(rows){
   return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
     <div class="hx-row${ri===0?" hx-row-lead":""}" data-row="${esc(r.id)}" data-variant="${esc(r.variant||"")}">
       ${ri===0?`<div class="hx-row-kick">${ic(HOME_ROWKIND_ICON[r.id]||"star")}<span>${esc(t(r.id==="level"||(r.id==="learning"&&r.variant==="new")?"home.row_lead_start":"home.row_lead"))}</span></div>`:""}
-      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx"><h3>${esc(t(k,r.vars||{}))}</h3><p>${esc(t(k+"_s",r.vars||{}))}</p></div>
-        <button class="hx-row-hide" onclick="homeRecHide('${esc(r.id)}')" aria-label="${esc(t("home.row_hide_aria"))}">${esc(t("home.row_hide"))}</button></div>
+      <div class="hx-row-h"><span class="hx-row-ic" aria-hidden="true">${ic(HOME_ROWKIND_ICON[r.id]||"star")}</span><div class="hx-row-tx"><h3>${esc(t(k,homeRowVars(r)))}</h3><p>${esc(t(k+"_s",homeRowVars(r)))}</p></div></div>
       <div class="hx-row-scroll">${r.items.map((it,i)=>homeRowCardHTML(r,it,i)).join("")}</div>
     </div>`}).join("")}</section>`;
 }
@@ -10975,14 +10984,6 @@ window.homeRecOpen=(rid,i)=>{
   S.rec=S.rec||{};S.rec.opened=Object.assign(homeRecProps(r,it),{id:rid,type:it.type,vid:it.vid||null,args:it.args||[],at:Date.now(),started:false,completed:false,phm});save();
   homeRecTrack("recommendation_open",homeRecProps(r,it));
   try{nudgeGo({view:it.view,act:it.act,args:it.args||[],kind:it.type,challenge:!!it.challenge})}catch(e){}
-};
-window.homeRecHide=rid=>{
-  const r=_homeRows.find(x=>x.id===rid);S.recHide=S.recHide||{};S.recHide[rid]=Date.now();save();
-  if(r)homeRecTrack("recommendation_dismissed",homeRecProps(r,r.items[0]));
-  _homeRows=_homeRows.filter(x=>x.id!==rid);
-  const el=[...document.querySelectorAll(".hx-row")].find(e=>e.dataset.row===rid);if(el)el.remove();
-  const first=document.querySelector(".hx-row");if(first&&!first.classList.contains("hx-row-lead")){try{go("home")}catch(e){}}
-  const sec=document.getElementById("hxRows");if(sec&&!sec.querySelector(".hx-row"))sec.remove();
 };
 /* recommendation_completed: the exact thing the card offered is now done — read from the
    learner state itself, never assumed from a tap. Checked after every practice action and

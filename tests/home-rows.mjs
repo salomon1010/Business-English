@@ -51,7 +51,7 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   ok("1 · an active learner sees the seven row types their evidence supports — watched, practiced, feedback, struggled, saved, learning, partner — and no 'haven't practised' (they practised today)", ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner"].every(x => ids.includes(x)) && !ids.includes("inactive") && R.length === 7, JSON.stringify(R.map(r => [r.id, r.v, r.h])));
   const H = Object.fromEntries(R.map(r => [r.id, r.h]));
   ok("2 · each heading names the learner's own evidence: the clip that played, the take, the words the report flagged, the Challenge missed, the words saved, the week, the scenario and character",
-    H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /Because your feedback on .*Project Update.* flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
+    H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /Because your feedback on .*Project.* flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
     && /Because you saved .*leverage/.test(H.saved) && /Because you finished Week 1/.test(H.learning) && /Daily stand-up.* with Priya/.test(H.partner) && /^Because you practised/.test(H.practiced), JSON.stringify(H));
   ok("3 · exactly one lead row, first, with larger cards than the compact rows below it", R[0].lead && R.filter(r => r.lead).length === 1 && R[0].cards[0].w > R[1].cards[0].w + 30, JSON.stringify(R.map(r => [r.id, r.lead, Math.round(r.cards[0].w)])));
   const ranked = await p.evaluate(() => _homeRows.map(r => r.score));
@@ -97,11 +97,10 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
     ytPlayer = { getPlayerState: () => 2 }; for (let t = 40; t <= 100; t += 0.25) shWatchTick(t); ytPlayer = real;
     const e = aList("watched").find(x => x.vid === vid); return { opened, secs: e && e.secs, first: aList("watched")[0].vid === vid }; });
   ok("17 · verified watching: loading a clip records nothing; 40 s of playing records ≥ 35 s; paused time adds nothing", !wt.opened && wt.secs >= 35 && wt.secs <= 41 && wt.first, JSON.stringify(wt));
-  /* Not now */
-  await home(p); const before = (await rows(p)).map(r => r.id); const hide = before[1];
-  await p.evaluate(id => document.querySelector(`.hx-row[data-row="${id}"] .hx-row-hide`).click(), hide); await sleep(1500);
-  const after = (await rows(p)).map(r => r.id); const dm = await p.evaluate(() => __ev.filter(e => e[0] === "recommendation_dismissed").map(e => e[1]));
-  ok("18 · 'Not now' hides that row for a week and sends recommendation_dismissed", !after.includes(hide) && dm.length === 1 && dm[0].kind === hide && dm[0].cid, JSON.stringify({ before, after, dm }));
+  /* the header is two single lines, and there is no "Not now" (owner, 27 Sep 2026) */
+  await home(p); const hd = await p.evaluate(() => [...document.querySelectorAll(".hx-row")].map(r => { const h = r.querySelector(".hx-row-h h3"), q = r.querySelector(".hx-row-h p"), lh = e => parseFloat(getComputedStyle(e).lineHeight);
+    return { id: r.dataset.row, hide: !!r.querySelector(".hx-row-hide,button:not(.hx-rcard)"), h1: h.getBoundingClientRect().height <= lh(h) + 1, p1: q.getBoundingClientRect().height <= lh(q) + 1, hs: parseFloat(getComputedStyle(h).fontSize), ps: parseFloat(getComputedStyle(q).fontSize), fits: r.querySelector(".hx-row-h").scrollWidth <= r.querySelector(".hx-row-h").clientWidth + 1 }; }));
+  ok("18 · every row header is one heading line + one small line, no 'Not now', nothing wider than the screen", hd.length >= 2 && hd.every(x => !x.hide && x.h1 && x.p1 && x.hs <= 16 && x.ps < x.hs && x.fits), JSON.stringify(hd));
   ok("19 · no JavaScript errors", !p.errs.length, p.errs.join(" | "));
   await ctx.close(); }
 /* ---------- five days away: the eighth row joins and leads ---------- */
