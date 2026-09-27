@@ -1046,6 +1046,17 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-hero .shl-hero-tag.c-interviews{color:#f9a8d4}
 .shl-hero .shl-hero-tag.c-everyday{color:#fdba74}
 .shl-hero .shl-hero-tag.c-skills{color:#7dd3fc}
+/* TV shows / Movies / Songs: the three "learn with" chips carry their own
+   colour — tinted at rest, filled when chosen — and the same colours tag their
+   slides in the strip above the feed */
+.shl-chip.fun{display:inline-flex;align-items:center;gap:6px;color:var(--gc);border-color:color-mix(in srgb,var(--gc) 45%,transparent);background:color-mix(in srgb,var(--gc) 10%,var(--bg2))}
+.shl-chip.fun svg{width:15px;height:15px}
+.shl-chip.fun.on{background:var(--gf);border-color:transparent;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.2)}
+.shl-chip.g-tv{--gc:#38bdf8;--gf:linear-gradient(135deg,#0ea5e9,#6366f1)}
+.shl-chip.g-movies{--gc:#fbbf24;--gf:linear-gradient(135deg,#f59e0b,#ec4899)}
+.shl-chip.g-songs{--gc:#c084fc;--gf:linear-gradient(135deg,#a855f7,#ec4899)}
+:root[data-theme="light"] .shl-chip.g-tv{--gc:#0369a1}:root[data-theme="light"] .shl-chip.g-movies{--gc:#b45309}:root[data-theme="light"] .shl-chip.g-songs{--gc:#7e22ce}
+.shl-hero .shl-hero-tag.c-tv{color:#7dd3fc}.shl-hero .shl-hero-tag.c-movies{color:#fcd34d}.shl-hero .shl-hero-tag.c-songs{color:#d8b4fe}
 .shl-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(10,14,26,.72);display:grid;place-items:center;color:#fff}
 .shl-play svg{width:20px;height:20px;margin-left:2px}
 /* Two taps that are not the point of the page: one short line, not two cards
@@ -5961,6 +5972,8 @@ const ICON={
   bolt:'<path d="M13 2.6 4.6 13.4H11l-1 8 8.4-11H12l1-7.8Z"/>',
   idea:'<path d="M9.2 17.5h5.6"/><path d="M10 20.5h4"/><path d="M12 3.2a6 6 0 0 1 3.8 10.6c-.6.5-.9 1.1-.9 1.9H9.1c0-.8-.3-1.4-.9-1.9A6 6 0 0 1 12 3.2Z"/>',
   list:'<path d="M8.5 6h11.5M8.5 12h11.5M8.5 18h11.5"/><circle cx="4.3" cy="6" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="12" r="1.1" fill="currentColor" stroke="none"/><circle cx="4.3" cy="18" r="1.1" fill="currentColor" stroke="none"/>',
+  tv:'<rect x="3" y="6.5" width="18" height="12" rx="2"/><path d="M8.5 3l3.5 3.5L15.5 3M8 21h8"/>',
+  music:'<path d="M9 18V5.5l11-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
   film:'<rect x="3.5" y="6" width="17" height="12" rx="2"/><path d="M8 6v12M16 6v12M3.5 10h4.5M16 10h4.5M3.5 14h4.5M16 14h4.5"/>',
   ban:'<circle cx="12" cy="12" r="8.4"/><path d="m6.6 6.6 10.8 10.8"/>',
   stop:'<path d="M8.3 3.6h7.4l5.2 5.2v7.4l-5.2 5.2H8.3l-5.2-5.2V8.8Z"/>',
@@ -7886,6 +7899,9 @@ const I18N_EN={
  "sh.cat_everyday":"Everyday",
  "sh.cat_skills":"Learning skills",
  "sh.cat_talks":"Talks",
+ "sh.cat_tv":"TV shows",
+ "sh.cat_movies":"Movies",
+ "sh.cat_songs":"Songs",
  "sh.shadow_this_btn":"▶ Shadow this",
  "sh.copy_btn":"📋 Copy",
  "sh.copy_title":"Copy the YouTube link",
@@ -12994,7 +13010,10 @@ function shLibSync(){
   const feed=document.getElementById("shLibFeed");
   if(feed)feed.innerHTML=shLibFeedHTML();
 }
-window.shLibCat=id=>{_shLibCat=id;_shLibCh="";_shLibMore=false;shLibSync()};
+window.shLibCat=id=>{_shLibCat=id;_shLibCh="";_shLibMore=false;shLibSync();
+  /* the chosen chip slides into view: the row scrolls sideways, and a chip past
+     the edge (Movies, Songs on a phone) was chosen but out of sight */
+  try{const b=document.querySelector(`.shl-chip[data-cat="${id}"]`),row=b&&b.parentElement;if(row){const l=b.offsetLeft-row.offsetLeft,r=l+b.offsetWidth;if(l<row.scrollLeft||r>row.scrollLeft+row.clientWidth)row.scrollTo({left:Math.max(0,l-24),behavior:shlReduced()?"auto":"smooth"})}}catch(e){}};
 window.shLibChan=id=>{_shLibCh=_shLibCh===id?"":id;_shLibMore=false;shLibSync()};
 window.shLibMoreToggle=()=>{_shLibMore=true;const f=document.getElementById("shLibFeed");if(f)f.innerHTML=shLibFeedHTML()};
 /* One field, one button. The old inline box carried a transcript textarea, a
@@ -13284,13 +13303,17 @@ function shLibHTML(){
   /* the learner's own links sit second in the rail, right after "For you" —
      tinted apart so it reads as theirs, not ours, and reachable without
      scrolling the rail (owner, 22 Sep 2026) */
+  /* TV shows / Movies / Songs sit first after Your videos, each with its own
+     icon and colour (owner, 27 Sep 2026); the rest keep the catalogue's order */
+  const FUN={tv:"tv",movies:"film",songs:"music"};
+  const cats=c?c.categories.filter(x=>FUN[x.id]).concat(c.categories.filter(x=>!FUN[x.id])):[];
   const chips=[{id:"foryou",label:t("sh.lib_foryou")},
     {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
-    .concat(c?c.categories.map(x=>({id:x.id,label:shLibCatLabel(x)})):[]);
+    .concat(cats.map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
   return `<div class="shl-stick">
   <label class="shl-search ${_shLibQ.trim()?"has":""}">${ic("search")}<input id="shLibIn" type="search" autocomplete="off" placeholder="${esc(t("sh.lib_search_ph"))}" value="${esc(_shLibQ)}" oninput="shLibQ(this.value)" aria-label="${esc(t("sh.lib_search_ph"))}"><button type="button" class="shl-x" onclick="shLibClear()" aria-label="${esc(t("sh.clear_inputs"))}">${ic("close")}</button></label>
-  <div class="shl-chips" role="tablist">${chips.map(x=>`<button class="shl-chip ${x.mine?"mine ":""}${x.id===_shLibCat&&!_shLibCh?"on":""}" data-cat="${x.id}" role="tab" aria-selected="${x.id===_shLibCat&&!_shLibCh}" onclick="shLibCat('${x.id}')">${x.mine?ic("user"):""}${esc(x.label)}${x.mine?`<em class="shl-own-n">${x.n}</em>`:""}</button>`).join("")}</div>
+  <div class="shl-chips" role="tablist">${chips.map(x=>`<button class="shl-chip ${x.mine?"mine ":""}${x.fun?"fun g-"+x.id+" ":""}${x.id===_shLibCat&&!_shLibCh?"on":""}" data-cat="${x.id}" role="tab" aria-selected="${x.id===_shLibCat&&!_shLibCh}" onclick="shLibCat('${x.id}')">${x.mine?ic("user"):x.fun?ic(x.fun):""}${esc(x.label)}${x.mine?`<em class="shl-own-n">${x.n}</em>`:""}</button>`).join("")}</div>
   </div>
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>

@@ -70,6 +70,29 @@ const CATS = [
     ['EnglishFluencyJourney', /fluen|speak|listen|practice|english|story|learn/i, 12],
     ['SpeakConfidentEnglish', /fluency|practice|confidence|tense|past|storytelling|vocabulary|grammar/i, 10],
   ]},
+  /* Learn English WITH TV, films and songs (owner, 27 Sep 2026). Teacher-led
+     lessons built on a clip — the teacher's commentary is what gets shadowed.
+     These three come after the five above and are `shared`: a film lesson
+     already filed under Everyday may appear under Movies too, so adding them
+     changes nothing in the existing categories. The app shows their chips
+     first (right after Your videos); For you keeps the order below. */
+  { id: 'tv', label: 'TV shows', shared: true, rules: [
+    ['FluentUEnglish', /tv|series|friends|brooklyn|the office|ted lasso|grey'?s|modern family|after life|breaking bad|70s show|wednesday|simpsons|rick and morty|spongebob/i, 14],
+    ['EnglishByMovie', /friends|rick and morty|family guy|game of thrones|himym|how i met|wednesday|gravity falls/i, 14],
+    ['LearnEnglishWithTVSeries', /friends|simpsons|netflix'?s you|emily in paris|wednesday|great tv series/i, 8],
+  ]},
+  { id: 'movies', label: 'Movies', shared: true, rules: [
+    ['LearnEnglishWithTVSeries', /toy story|despicable|ratatouille|lion king|\bcoco\b|narnia|spider-man|frozen|cast away|kung fu|tangled|encanto|\bsoul\b|notting hill|disney|super mario|movie/i, 14],
+    ['FluentUEnglish', /movies?/i, 12],
+    ['EnglishByMovie', /avatar|hangover|onward|the shack|with home|tangled|deadpool|joker|going in style|her movie|hotel transy|squid game/i, 10],
+    ['EnglishFluencyJourney', /disney|mario|movie/i, 4],
+  ]},
+  { id: 'songs', label: 'Songs', shared: true, rules: [
+    ['EnglishClass101LyricLab', /./, 14],
+    ['FluentUEnglish', /songs?|music/i, 10],
+    ['LearningEnglishSongs', /./, 10],
+    ['LearnEnglishWithTVSeries', /songs?|music/i, 4],
+  ]},
 ];
 
 /* the recommended-channels row, in the order it is shown */
@@ -104,9 +127,11 @@ for (const c of CATS) {
     let n = 0;
     for (const v of d.videos) {
       if (n >= cap) break;
-      if (!usable(v) || vids.includes(v.vid) || videos[v.vid]) continue;
+      if (!usable(v) || vids.includes(v.vid) || (videos[v.vid] && !(c.shared && !videos[v.vid].shared))) continue;   // shared: may repeat an older category's video, never another shared one's
       if (!re.test(v.title) || PROMO.test(v.title)) continue;
+      if (videos[v.vid]) { vids.push(v.vid); n++; continue; }   // already listed by an older category: list it here too, keep its record
       const rec = { ...v, handle };
+      if (c.shared) rec.shared = true;
       if (TOON.test(v.title)) rec.toon = true;
       if (opt && opt.bundle === false) rec.cap = 'player';   // listed, transcript not shipped (licence)
       delete rec.skip;

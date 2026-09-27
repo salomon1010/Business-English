@@ -54,10 +54,15 @@ const rules = Object.assign({ minSec: 60, maxSec: 1800 }, sources.rules || {});
 try { execFileSync('yt-dlp', ['--version'], { stdio: 'pipe' }); }
 catch { console.error('yt-dlp is not on PATH — brew install yt-dlp'); process.exit(1); }
 
+/* With --ignore-errors yt-dlp still exits 1 when ONE video in a channel fails
+   (a members-only or region-locked upload) — after printing the whole
+   channel's JSON. Use that output; only an empty one is a real failure. */
 const ytJson = (url, extra = []) => {
-  const out = execFileSync('yt-dlp', ['-J', '--no-warnings', '--ignore-errors', ...extra, url],
+  const r = spawnSync('yt-dlp', ['-J', '--no-warnings', '--ignore-errors', ...extra, url],
     { maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] });
-  return JSON.parse(out.toString('utf8'));
+  const out = (r.stdout || '').toString('utf8').trim();
+  if (!out) throw new Error(`yt-dlp ${r.status}: ${(r.stderr || '').toString('utf8').split('\n').filter(Boolean).pop() || 'no output'}`);
+  return JSON.parse(out);
 };
 const srcUrl = s => s.channel ? `https://www.youtube.com/${s.channel}/videos`
   : s.playlist ? `https://www.youtube.com/playlist?list=${s.playlist}`
@@ -205,7 +210,9 @@ function raw() {
     ...(sources.categories || []).map(c => (c.sources || []).filter(s => s.channel).map(s => s.channel)),
     sources.channels || [], sources.probe || []))];
   const n = +(process.env.RAW_N || 40);
+  const only = process.env.RAW_ONLY ? new Set(process.env.RAW_ONLY.split(',').map(s => s.trim().replace(/^@/, ''))) : null;   // RAW_ONLY=@A,@B,Name: just these
   for (const h of handles) {
+    if (only && !only.has(h.replace(/^@/, ''))) continue;
     const out = path.join(dir, h.replace(/^@/, '') + '.json');
     if (fs.existsSync(out) && !FORCE) { console.error(`${h} — have it`); continue; }
     process.stderr.write(`${h} …`);
@@ -218,6 +225,7 @@ function raw() {
   }  /* named videos that a channel's newest-N would never reach (older series such
      as EnglishClass101's Lyric Lab): sources.rawVids = { "<dump name>": [vid, …] } */
   for (const [name, ids] of Object.entries(sources.rawVids || {})) {
+    if (only && !only.has(name)) continue;
     const out = path.join(dir, name + '.json');
     if (fs.existsSync(out) && !FORCE) { console.error(`${name} — have it`); continue; }
     const vids = [];

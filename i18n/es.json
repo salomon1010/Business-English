@@ -3213,5 +3213,8 @@
  "scn.next_ai_note": "¿No hay ningún compañero libre ahora? El coach de IA siempre está disponible. Es una IA, no un estudiante.",
  "scn.ai_tag": "IA",
  "scn.row_by": "BE Mastery · {{who}}",
- "scn.row_tag": "Escena animada"
+ "scn.row_tag": "Escena animada",
+ "sh.cat_tv": "Series de TV",
+ "sh.cat_movies": "Películas",
+ "sh.cat_songs": "Canciones"
 }

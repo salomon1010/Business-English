@@ -3213,5 +3213,8 @@
  "scn.next_ai_note": "Aucun partenaire disponible ? Le coach IA est toujours là. C'est une IA, pas un apprenant.",
  "scn.ai_tag": "IA",
  "scn.row_by": "BE Mastery · {{who}}",
- "scn.row_tag": "Scène animée"
+ "scn.row_tag": "Scène animée",
+ "sh.cat_tv": "Séries TV",
+ "sh.cat_movies": "Films",
+ "sh.cat_songs": "Chansons"
 }
