@@ -66,12 +66,38 @@ const capHits = new Map();
         told to read only the first half hour, so the cost of any single call is
         bounded no matter how long the video is.
      2. its own per-IP counters, far tighter than the free caption route's.
-     3. the answer is cached for a month, so a popular video is paid for once.
+     3. the answer is kept at the edge for a month (caches.default, by video
+        and window), so a popular video is paid for once per location.
    Raise these deliberately, knowing what each one costs. */
 const YTAI_MAX_SEC = 1800;       // 30 minutes ≈ $0.16 worst case per video
 const YTAI_PER_MIN = 2;
 const YTAI_PER_DAY = 25;
 const ytaiHits = new Map();
+/* A WINDOW (27 Sep 2026): { ytai, from, to } transcribes only that stretch of
+   the video. The app asks for the first minute alone, shows it, and fetches
+   the rest in windows behind the learner. A pasted 20-minute talk used to wait
+   for all 20 minutes to be transcribed before one line appeared (measured on
+   staging the same day: 11–13 s for a 3-minute clip, most of a minute for a
+   long one). A window costs a slice of the video, so windows have their own
+   brake, sized so a day of windows reads no more video than a day of whole
+   videos: 150 windows × 5 minutes = 25 videos × 30 minutes. */
+const YTAI_WIN_MAX = 300;          // the longest stretch one window may ask for
+const YTAI_WIN_PER_MIN = 12;
+const YTAI_WIN_PER_DAY = 150;
+const ytaiWinHits = new Map();
+/* the answer is kept at the edge by video and stretch: a video's words do not
+   change, and a POST's cache-control header is ignored by every cache */
+const YTAI_CACHE_S = 30 * 86400;
+function ytaiCacheKey(vid, win) {
+  return new Request("https://ytai.cache.be-polish.invalid/v1/" + vid + "/" + (win ? win.from + "-" + win.to : "all"));
+}
+/* { from, to } from the request, or null for the whole video (older apps) */
+function ytaiWindow(body) {
+  if (body.to == null) return null;
+  const from = Math.max(0, Math.floor(Number(body.from) || 0)), to = Math.floor(Number(body.to) || 0);
+  if (!(to > from) || from >= YTAI_MAX_SEC) return false;
+  return { from, to: Math.min(to, from + YTAI_WIN_MAX, YTAI_MAX_SEC) };
+}
 
 // ---- Pronunciation coach (audio-in language model) ----
 // gpt-4o-audio-preview actually LISTENS to the learner's recording and grades
@@ -330,8 +356,13 @@ const YTAI_PROMPT =
   "Transcribe the spoken English in this video. For every sentence give the MM:SS timestamp at which it begins. " +
   "Return ONLY minified JSON: {\"cues\":[{\"ts\":\"MM:SS\",\"txt\":\"<sentence>\"}]}. " +
   "Cover the whole video from 00:00 to the end. No commentary.";
+const YTAI_PROMPT_WIN =
+  "Transcribe the spoken English in this video clip. For every sentence give the MM:SS timestamp at which it begins, " +
+  "measured from the START OF THE VIDEO (not from the start of the clip). " +
+  "Return ONLY minified JSON: {\"cues\":[{\"ts\":\"MM:SS\",\"txt\":\"<sentence>\"}]}. " +
+  "Cover the clip from its first word to its last. No commentary.";
 
-async function geminiCaptions(env, vid) {
+async function geminiCaptions(env, vid, win) {
   /* the key goes in the header, not the query string: a secret that picked up a
      stray newline or space silently breaks a URL parameter (that is a 401 with
      no explanation), and Google documents the header as the supported form */
@@ -344,8 +375,8 @@ async function geminiCaptions(env, vid) {
           { fileData: { fileUri: "https://www.youtube.com/watch?v=" + vid },
             /* the hard cost brake: Gemini reads at most YTAI_MAX_SEC of the
                video, so a three-hour upload costs the same as a half-hour one */
-            videoMetadata: { startOffset: "0s", endOffset: YTAI_MAX_SEC + "s" } },
-          { text: YTAI_PROMPT },
+            videoMetadata: { startOffset: (win ? win.from : 0) + "s", endOffset: (win ? win.to : YTAI_MAX_SEC) + "s" } },
+          { text: win ? YTAI_PROMPT_WIN : YTAI_PROMPT },
         ] }],
         /* low media resolution: we are after the words, not the picture, and it
            is roughly a third of the tokens */
@@ -378,6 +409,16 @@ async function geminiCaptions(env, vid) {
     cues.push({ t, txt: s });
   }
   if (!cues.length) return { error: "gemini_empty" };
+  if (win) {
+    /* The model is asked for times from the start of the video, but a clip's
+       times may still come back from the start of the clip. Clip-relative times
+       all fit inside the clip's length and start before `from`; move them. */
+    const len = win.to - win.from;
+    if (win.from > 0 && cues[0].t < win.from - 5 && cues[cues.length - 1].t <= len + 15) cues.forEach(c => { c.t += win.from });
+    const kept = cues.filter(c => c.t >= win.from - 5 && c.t < win.to + 5);
+    if (!kept.length) return { error: "gemini_empty" };
+    return { vid, source: "gemini", lang: "en", cues: kept, maxSec: YTAI_MAX_SEC, win: [win.from, win.to] };
+  }
   /* no `words`: the model's timings are line-level, and inventing word times
      from them would be a lie the highlighter would act on */
   const out = { vid, source: "gemini", lang: "en", cues, maxSec: YTAI_MAX_SEC };
@@ -958,12 +999,19 @@ export default {
        words do not change. Without GEMINI_KEY set this route simply says so. */
     if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
-      if (rateLimited(ip, ytaiHits, YTAI_PER_MIN, YTAI_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
-      const vid = body.ytai.trim();
+      const vid = body.ytai.trim(), win = ytaiWindow(body);
+      if (win === false) return json({ error: "bad_window" }, 400, cors);
+      const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
+      /* a kept answer is free: served before the brake, which counts only calls that cost */
+      try { const hit = cache && await cache.match(key); if (hit) return json({ ...(await hit.json()), cached: true }, 200, cors); } catch {}
+      if (win ? rateLimited(ip, ytaiWinHits, YTAI_WIN_PER_MIN, YTAI_WIN_PER_DAY) : rateLimited(ip, ytaiHits, YTAI_PER_MIN, YTAI_PER_DAY))
+        return json({ error: "rate_limited" }, 429, cors);
       try {
-        const out = await geminiCaptions(env, vid);
-        const headers = out.error ? cors : { "cache-control": "public, max-age=2592000", ...cors };
-        return json(out, out.error ? 502 : 200, headers);
+        const out = await geminiCaptions(env, vid, win);
+        if (!out.error && cache) {
+          try { await cache.put(key, new Response(JSON.stringify(out), { headers: { "content-type": "application/json", "cache-control": "public, max-age=" + YTAI_CACHE_S } })); } catch {}
+        }
+        return json(out, out.error ? 502 : 200, cors);
       } catch (e) {
         return json({ error: "ytai_failed", detail: String(e.message || e) }, 502, cors);
       }

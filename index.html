@@ -1052,6 +1052,15 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .sv-wait{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--mut);padding:14px 16px}
 .sv-wait svg{flex:none;animation:svWait 1.6s linear infinite}
 @keyframes svWait{to{transform:rotate(360deg)}}
+/* while a pasted video's words are on their way, the reading area shows where
+   they will be — faint lines, not an empty screen (owner, 27 Sep 2026) */
+.sv-wait-box{padding:0 16px}
+.sv-wait-box .sv-wait{padding:14px 0 10px}
+.sv-sk{display:flex;flex-direction:column;gap:12px;padding:6px 0 12px}
+.sv-sk i{display:block;height:14px;border-radius:7px;background:linear-gradient(90deg,var(--card2) 0%,color-mix(in srgb,var(--txt) 10%,var(--card2)) 50%,var(--card2) 100%);background-size:200% 100%;animation:svSk 1.4s ease-in-out infinite}
+.sv-sk i:nth-child(3n+1){width:92%}.sv-sk i:nth-child(3n+2){width:78%}.sv-sk i:nth-child(3n){width:64%;margin-bottom:10px}
+@keyframes svSk{from{background-position:100% 0}to{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.sv-sk i{animation:none}}
 /* A card, not a stranded grid: the icon, the sentence and the ways on, stacked
    in that order and full width, in the same surface, radius, border and spacing
    as every other card in the app (owner, 22 Sep 2026). .sv-empty is a one-line
@@ -13119,7 +13128,7 @@ function shCapPut(vid,data,full){
   try{
     const all=shCapAll();
     all[vid]={ts:Date.now(),full:!!full,source:data.source,lang:data.lang,cues:data.cues,
-      words:data.words,truncated:data.truncated,maxSec:data.maxSec,partial:data.partial};
+      words:data.words,truncated:data.truncated,maxSec:data.maxSec,partial:data.partial,win:data.win?true:undefined};
     const keys=Object.keys(all);
     if(keys.length>CAP_KEEP)keys.sort((a,b)=>(all[a].ts||0)-(all[b].ts||0)).slice(0,keys.length-CAP_KEEP).forEach(k=>delete all[k]);
     localStorage.setItem(CAP_LS,JSON.stringify(all));
@@ -13147,6 +13156,10 @@ function loadCaptions(vid,durHint){
   if(vid in _capCache)return Promise.resolve(_capCache[vid]);
   /* kept from a previous session: instant, free, and works with no signal */
   const kept=shCapGet(vid);
+  /* a copy kept from the whole-video Worker (no windows) that reaches past the
+     opening minute IS the whole transcript, whatever its flag says: asking
+     again would transcribe — and pay for — the same video twice */
+  if(kept&&!kept.full&&!kept.win&&kept.cues[kept.cues.length-1].t>CAP_HEAD_SEC+30){kept.full=true;shCapPut(vid,kept,true)}
   if(kept){_capCache[vid]=kept;if(!kept.full)shCapFillRest(vid,durHint);return Promise.resolve(kept)}
   if(_capFlight[vid])return _capFlight[vid];
   const pr=_loadCaptions(vid,durHint).finally(()=>{delete _capFlight[vid]});
@@ -13204,11 +13217,14 @@ async function _loadCaptions(vid,durHint){
        asked for whole, and that is the catalogue, which ships its length. */
     const known=durHint>0?Math.round(durHint):0;
     const head=!known||known>CAP_HEAD_SEC+30;
-    const j=await shCapAsk(vid,head?CAP_HEAD_SEC:known);
+    const j=await shCapAsk(vid,head?CAP_HEAD_SEC:known,{from:0,to:head?CAP_HEAD_SEC:known+5});
     if(j&&j.cues&&j.cues.length){
+      /* a Worker that knows windows answers with `win`; one that does not has
+         just transcribed the whole video — keep it whole, ask nothing more */
+      const whole=!head||!j.win;
       data=j;
-      shCapPut(vid,j,!head);
-      if(head)shCapFillRest(vid,known);
+      shCapPut(vid,j,whole);
+      if(!whole)shCapFillRest(vid,known);
       /* a long video is transcribed only up to the Worker's cap; say so once,
          rather than letting the words simply stop mid-talk */
       if(j.truncated)try{toast(t("sh.cap_partial",{n:Math.round((j.maxSec||1800)/60)}))}catch(e){}
@@ -13221,16 +13237,17 @@ async function _loadCaptions(vid,durHint){
   if(data)_capCache[vid]=data;
   return data;
 }
-const CAP_HEAD_SEC=120;            /* the opening window: one Worker window, ~7 s */
+const CAP_HEAD_SEC=60;             /* the opening window: the first minute, shown as soon as it lands */
+const CAP_WIN_SEC=300, CAP_MAX_SEC=1800, CAP_PAR=2;   /* the rest: five-minute windows, two at a time, up to the Worker's 30-minute cap */
 /* One ask, with the reason for a refusal remembered so the card can tell the
    learner something true: "wait a moment" and "this video cannot be
    transcribed" are not the same thing and must not look the same (owner,
    22 Sep 2026). */
-async function shCapAsk(vid,dur){
+async function shCapAsk(vid,dur,win){
   if(!await shCapMayAsk(vid)){_capErr[vid]="not_imported";return null}
   try{
     const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},
-      body:JSON.stringify({ytai:vid,dur:dur>0?Math.round(dur):0})});
+      body:JSON.stringify(Object.assign({ytai:vid,dur:dur>0?Math.round(dur):0},win?{from:win.from,to:win.to}:{}))});
     const j=await r.json();
     _capErr[vid]=(r.ok&&j&&j.cues&&j.cues.length)?null:((j&&j.error)||("http_"+r.status));
     return r.ok?j:null;
@@ -13256,14 +13273,41 @@ function shCapFillRest(vid,durHint){
   if(_capRest[vid])return;_capRest[vid]=true;
   (async()=>{
     try{
-      const dur=durHint>0?Math.round(durHint):Math.round(await shDurSoon(4000));
-      if(dur>0&&dur<=CAP_HEAD_SEC+30)return;                       /* the head already is the whole video */
-      const j=await shCapAsk(vid,dur);
-      if(!j||!j.cues||!j.cues.length)return;
-      const head=_capCache[vid];
-      if(head&&head.cues&&head.cues.length>j.cues.length)return;   /* never trade a fuller transcript for a thinner one */
-      _capCache[vid]=j;shCapPut(vid,j,true);
-      if(shClip&&shClip.vid===vid&&shCapCanRefresh())shV2Load();
+      const dur=durHint>0?Math.round(durHint):Math.round(await shDurSoon(8000));
+      const base=_capCache[vid]||shCapGet(vid);
+      const head=base&&base.cues?base.cues.filter(c=>c.t<CAP_HEAD_SEC):[];
+      const last=Math.min(dur>0?dur:CAP_MAX_SEC,CAP_MAX_SEC);
+      if(dur>0&&dur<=CAP_HEAD_SEC+30){if(base){base.full=true;shCapPut(vid,base,true)}return}   /* the head already is the whole video */
+      const wins=[];for(let f=CAP_HEAD_SEC;f<last;f+=CAP_WIN_SEC)wins.push({from:f,to:Math.min(f+CAP_WIN_SEC,last+(dur>0?5:0))});
+      const got=new Array(wins.length).fill(null);let upto=0,end=false,shown=head.length;
+      /* The words so far: the opening minute and every window that joins on
+         without a gap, put on screen as each one lands — except under a take
+         in progress (shCapCanRefresh); the next window, or the next visit,
+         brings them then. */
+      const publish=done=>{
+        const cues=head.concat(...got.slice(0,upto).map(w=>w||[]));
+        const rec=Object.assign({},base||{vid,source:"gemini",lang:"en"},{cues,partial:!done,win:true});
+        _capCache[vid]=rec;shCapPut(vid,rec,done);
+        if(shClip&&shClip.vid===vid&&cues.length!==shown&&shCapCanRefresh()){shown=cues.length;shV2Load()}
+      };
+      let next=0;
+      const worker=async()=>{
+        while(!end&&next<wins.length){
+          const i=next++,w=wins[i];
+          const j=await shCapAsk(vid,dur,w);
+          if(!j||!j.cues||!j.cues.length){
+            /* past the end of a video whose length we could not learn: stop there.
+               Any other failure leaves a gap — the words before it still show. */
+            if(dur<=0||_capErr[vid]==="gemini_empty")end=true;
+            got[i]=[];
+          }else got[i]=j.cues.filter(c=>c.t>=w.from-2&&c.t<w.to);
+          while(upto<got.length&&got[upto])upto++;
+          publish(false);
+        }
+      };
+      await Promise.all(Array.from({length:CAP_PAR},worker));
+      publish(true);
+      if(dur>CAP_MAX_SEC)try{toast(t("sh.cap_partial",{n:Math.round(CAP_MAX_SEC/60)}))}catch(e){}
     }catch(e){}
     finally{delete _capRest[vid]}
   })();
@@ -20979,7 +21023,7 @@ async function shV2Load(){
      a video we have no bundled file for — the library's own open instantly. */
   if(shLibOn()&&!(vid in _capCache)){
     box.style.display="";
-    box.innerHTML=`<div class="sv-empty sv-wait">${ic("clock")} <span>${esc(t("sh.cap_fetching"))}</span></div>`;
+    box.innerHTML=`<div class="sv-wait-box" aria-busy="true"><div class="sv-empty sv-wait">${ic("clock")} <span>${esc(t("sh.cap_fetching"))}</span></div><div class="sv-sk" aria-hidden="true">${"<i></i>".repeat(9)}</div></div>`;
     manIconizeInline(box);
     /* and it REPLACES the page, rather than appearing under the clip tools:
        while we are fetching there is nothing to mark and nothing to write in
