@@ -1385,17 +1385,23 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:0}
 .hx-slide.on{opacity:1;animation:hxZoom 7s ease-out both}
 /* the highlight reel (owner, 27 Sep 2026): the whole picture is one button that opens the clip on
-   screen; its caption is a dark glass panel so it reads the same on every thumbnail and theme */
+   screen; its caption is one shadowed line straight on the picture (see .hx-cap) */
 .hx-open{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;gap:10px;margin:0;padding:0 14px 44px;border:0;background:none;color:#fff;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hx-open[hidden]{display:none}
-.hx-cap{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:8px 11px 9px;border-radius:14px;background:rgba(6,9,18,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.hx-ctag{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
-.hx-ctag i{font-style:normal;padding:1px 6px;border-radius:99px;background:#fcd34d;color:#1b1202;letter-spacing:.06em}
-.hx-cap b{font-size:14px;line-height:1.25;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-cap small{font-size:11.5px;color:rgba(255,255,255,.78);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-cplay{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
-.hx-cplay svg{width:18px;height:18px;margin-left:2px}
-.hx-open:focus-visible{outline:none}.hx-open:focus-visible .hx-cap{box-shadow:0 0 0 2px #fff}
+/* One line, no panel (owner, 27 Sep 2026: "small, on one line … the picture
+   should be larger … a small play button at the end … transparent"). The tag,
+   the title and a 28 px play sit on a single row straight on the picture; a
+   soft text shadow and the scrim below keep it readable on light thumbnails.
+   The channel and minutes line is gone from the picture — the button's
+   aria-label still names the clip. */
+.hx-cap{flex:1;min-width:0;min-height:28px;display:flex;flex-direction:row;align-items:center;gap:7px;padding:0;background:none;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.8),0 0 6px rgba(0,0,0,.45)}
+.hx-ctag{flex:none;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
+.hx-ctag i{font-style:normal;padding:1px 6px;border-radius:99px;background:#fcd34d;color:#1b1202;letter-spacing:.06em;text-shadow:none}
+.hx-cap b{flex:1;min-width:0;font-size:13.5px;line-height:1.3;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-cap small{display:none}
+.hx-cplay{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;box-shadow:0 3px 10px -3px rgba(0,0,0,.6)}
+.hx-cplay svg{width:12px;height:12px;margin-left:1px}
+.hx-open:focus-visible{outline:none}.hx-open:focus-visible .hx-cap{outline:2px solid #fff;outline-offset:4px;border-radius:6px}
 @keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
 .hx-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 52%,color-mix(in srgb,var(--card) 70%,transparent) 80%,var(--card) 100%)}
 .hx-top{position:absolute;top:0;left:0;right:0;z-index:3;pointer-events:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px}
