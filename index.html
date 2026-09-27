@@ -1373,58 +1373,75 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .pf-menu{display:flex;flex-direction:column;gap:10px;margin:18px 0 20px}
 .pf-group-h{font-size:15px;font-weight:800;margin:18px 0 8px;color:var(--txt)}
 .pf-hero-row+.pf-prem{margin-top:12px}
-/* ===== Home V2 (27 Sep 2026): the learner's own page. The report-page language the
-   owner chose as reference — eyebrow, big Outfit headline, label-over-value fact
-   cards, rule-separated sections, captioned image cards — on the app's own tokens.
-   Heights come from aspect-ratio and content, never from vh. ===== */
-.hx{margin:4px 0 22px;border:1px solid var(--line2);border-radius:20px;overflow:hidden;background:var(--card)}
-.hx-media{position:relative;aspect-ratio:16/10;background:var(--grad);overflow:hidden;isolation:isolate}
-@media (min-width:700px){.hx-media{aspect-ratio:21/9}}
-.hx-media.empty{background:radial-gradient(120% 90% at 20% 10%,color-mix(in srgb,var(--acc) 55%,transparent),transparent 60%),var(--grad)}
+/* ===== Home V2 (27 Sep 2026, refined the same day): the learner's own page. The hero
+   is the page's identity — the next step written over pictures of its topic, one button.
+   Hierarchy by type and space, not boxes. The text sits IN FLOW at the foot of the
+   picture box: aspect-ratio gives the shape, and a long title grows the box instead of
+   spilling out of it. No vh anywhere. ===== */
+.hx{margin:2px 0 26px;border-radius:24px;overflow:hidden;background:var(--card);border:1px solid var(--line2);box-shadow:0 18px 40px -24px rgba(0,0,0,.6)}
+.hx-media{position:relative;aspect-ratio:16/9;background:var(--grad);overflow:hidden;isolation:isolate}
+@media (min-width:900px){.hx-media{aspect-ratio:21/9}.hx-over,.hx-foot{max-width:680px}}
+.hx-media.empty{background:radial-gradient(120% 90% at 18% 8%,color-mix(in srgb,var(--acc) 60%,transparent),transparent 62%),var(--grad)}
 .hx-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:0}
 .hx-slide.on{opacity:1;animation:hxZoom 7s ease-out both}
 @keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
-.hx-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,9,18,.25) 0%,rgba(6,9,18,.2) 30%,rgba(6,9,18,.78) 58%,rgba(6,9,18,.94) 100%)}
-.hx-over{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px 18px;color:#fff}
-.hx-eyebrow{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c7d2fe}
-.hx-eyebrow svg{width:14px;height:14px}
-.hx-over h2{margin:6px 0 0;font-size:clamp(20px,5.6vw,28px);line-height:1.15;color:#fff;text-wrap:balance;text-shadow:0 1px 12px rgba(0,0,0,.45)}
-.hx-dots{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px}
+.hx-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 52%,color-mix(in srgb,var(--card) 70%,transparent) 80%,var(--card) 100%)}
+.hx-top{position:absolute;top:0;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px}
+.hx-greet{font-size:12.5px;font-weight:600;color:#fff;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px;border-radius:99px;background:rgba(6,9,18,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.hx-dots{display:flex;gap:6px;flex:none}
 .hx-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:0;background:rgba(255,255,255,.45);cursor:pointer}
 .hx-dots button.on{width:20px;background:#fff}
-.hx-body{padding:16px 18px 18px}
-.hx-why{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px;font-size:14.5px;font-weight:600;line-height:1.4}
-.hx-why svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
-.hx-desc{font-size:13.5px;line-height:1.5;color:var(--mut);margin:12px 0 0}
-.hx-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
-.hx-facts>div{background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;min-width:0}
-.hx-facts>div.wide{grid-column:1/-1}
-.hx-facts b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:2px}
-.hx-facts span{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600}
-.hx-facts span svg{width:15px;height:15px;flex:none;color:var(--acc)}
-.hx-cta{width:100%;justify-content:center;min-height:48px}
-.hx-src{display:flex;align-items:center;gap:6px;margin:10px auto 0;background:none;border:0;color:var(--mut);font:inherit;font-size:12.5px;cursor:pointer;max-width:100%}
+.hx-over{position:relative;z-index:2;margin-top:-34px;padding:0 20px 4px;color:var(--txt)}
+.hx-eyebrow{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.hx-eyebrow svg{width:14px;height:14px}
+.hx-kicker{margin:8px 0 0;font-size:14px;font-weight:600;color:var(--mut)}
+.hx-over h2{margin:2px 0 0;font-size:clamp(26px,7.2vw,36px);line-height:1.08;letter-spacing:-.015em;color:var(--txt);text-wrap:balance}
+.hx-sub{margin:8px 0 0;font-size:15px;line-height:1.45;color:var(--txt);opacity:.86;max-width:48ch}
+.hx-meta{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:13px;font-weight:600;color:var(--mut)}
+.hx-meta svg{width:14px;height:14px;flex:none}
+.hx-cta{width:100%;justify-content:center;gap:8px;min-height:52px;margin-top:16px;font-size:16px}
+@media (min-width:560px){.hx-cta{width:auto;padding-inline:28px}}
+.hx-cta-go{font-weight:700}
+.hx-foot{padding:12px 20px 16px}
+.hx-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hx-desc{font-size:13.5px;line-height:1.5;color:var(--mut);margin:0}
+.hx-src{display:flex;align-items:center;gap:6px;margin:8px 0 0;padding:0;background:none;border:0;color:var(--mut2,var(--mut));font:inherit;font-size:12px;cursor:pointer;max-width:100%;min-height:32px}
 .hx-src span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-src svg{width:13px;height:13px;flex:none}
-.hx-more,.hx-dest{margin:0 0 22px}
-.hx-more h3,.hx-dest h3{font-size:17px;margin:0 0 10px;padding-top:14px;border-top:1px solid var(--line2)}
-.hx-rec{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;margin-bottom:8px;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);font:inherit;cursor:pointer;min-height:56px}
-.hx-rec-ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
-.hx-rec-ic svg{width:19px;height:19px}
-.hx-rec-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
-.hx-rec-t b{font-size:14.5px}
-.hx-rec-t small{font-size:12.5px;color:var(--mut)}
-.hx-rec-min{flex:none;font-size:12px;color:var(--mut);white-space:nowrap}
-.hx-dest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.hx-src svg{width:12px;height:12px;flex:none}
+.hx-dest{margin:0 0 24px}
+.hx-dest h3{font-size:18px;margin:0 0 12px}
+.hx-tag{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.hx-tag svg{width:12px;height:12px}
+.hx-tag.sm{font-size:10px;padding:2px 7px;margin-bottom:4px}
+.hx-feat{display:grid;grid-template-columns:1fr;width:100%;margin:0 0 12px;padding:0;border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line2));border-radius:18px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+@media (min-width:560px){.hx-feat{grid-template-columns:44% 1fr}}
+.hx-feat-img{position:relative;display:block;aspect-ratio:16/7;background:var(--grad)}
+@media (min-width:560px){.hx-feat-img{aspect-ratio:auto;min-height:100%}}
+.hx-feat-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hx-feat-ic{position:absolute;left:12px;top:12px;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
+.hx-feat-ic svg{width:19px;height:19px}
+.hx-feat-body{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px}
+.hx-feat-body b{font-size:17px;margin-top:4px}
+.hx-feat-body small{font-size:13px;line-height:1.4;color:var(--mut)}
+.hx-feat-body .hx-feat-ctx{color:var(--txt);font-weight:600}
+.hx-feat-go{margin-top:8px;font-size:14px;font-weight:700;color:var(--acc)}
+.hx-dest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media (min-width:700px){.hx-dest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-.hx-dcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;padding:12px;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
-.hx-dcard img{display:block;width:calc(100% + 24px);margin:-12px -12px 8px;aspect-ratio:16/9;object-fit:cover;background:var(--bg2)}
-.hx-dic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
-.hx-dcard.img .hx-dic{position:absolute;top:10px;left:10px;background:rgba(6,9,18,.6);color:#fff}
-.hx-dic svg{width:18px;height:18px}
-.hx-dcard b{font-size:14.5px}
-.hx-dcard small{font-size:12.5px;color:var(--mut);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-@media (prefers-reduced-motion:reduce){.hx-slide{transition:none}.hx-slide.on{animation:none}}
+.hx-dcard{display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+.hx-dcard.rec{border-color:color-mix(in srgb,var(--acc) 40%,var(--line2))}
+.hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
+.hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hx-dic{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc)}
+.hx-dimg.img .hx-dic{position:absolute;left:8px;top:8px;width:32px;height:32px;border-radius:10px;background:rgba(6,9,18,.62);color:#fff}
+.hx-dic svg{width:20px;height:20px}
+.hx-dimg.img .hx-dic svg{width:16px;height:16px}
+.hx-dtxt{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;min-width:0}
+.hx-dtxt b{font-size:14.5px}
+.hx-dtxt small{font-size:12.5px;line-height:1.35;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hx-feat,.hx-dcard{transition:transform .15s ease,border-color .15s ease}
+.hx-feat:active,.hx-dcard:active{transform:scale(.985)}
+.hx-feat:focus-visible,.hx-dcard:focus-visible,.hx-cta:focus-visible{outline:2px solid var(--focus,var(--acc));outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.hx-slide{transition:none}.hx-slide.on{animation:none}.hx-feat,.hx-dcard{transition:none}}
    /* the profile card and the Premium card were flush (owner, 27 Sep 2026) */
 .pf-group{background:var(--card);border:1px solid var(--line2);border-radius:16px;overflow:hidden}
 .pf-group .pf-line{border:0;border-radius:0;background:transparent;min-height:56px;padding:12px 16px}.pf-group .pf-line+.pf-line{border-top:1px solid var(--line)}
@@ -6332,7 +6349,7 @@ const I18N_EN={
  "home.continue":"▶ Continue where you left off",
  "home.week_line":"Week {{w}} · {{d}} — {{focus}}",
  "home.start_btn":"Start today's 25-minute session →",
- "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
+ "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.kicker_week":"Week {{w}} · {{day}}","home.greet_m":"Good morning, {{name}}","home.greet_a":"Good afternoon, {{name}}","home.greet_e":"Good evening, {{name}}","home.greet_m_x":"Good morning","home.greet_a_x":"Good afternoon","home.greet_e_x":"Good evening","home.rec_for_you":"Recommended for you","home.also_for_you":"Also for you","home.start":"Start","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
  "home.pct_of":"of 84 sessions",
  "home.stat_streak":"Day streak (best habit: 6 days/week)",
  "home.stat_recordings":"Recordings saved in this browser",
@@ -10735,28 +10752,32 @@ function homeCard(r){
   const k=r.kind,why=t("home.why_"+homeReasonKey(r),{n:(r.vars&&r.vars.n)||""});
   if(k==="lesson"||k==="comeback"){
     const w=+r.args[0],d=String(r.args[1]),wk=trackWeeks().find(x=>x.n===w)||{},day=(wk.days||{})[d]||{},meta=trackDayMeta()[d]||{};
-    return {kind:k,eyebrow:t(k==="comeback"?"home.eyebrow_back":"home.continue").replace(/^▶\s*/,""),title:t("home.week_line",{w,d,focus:day.focus||wk.theme||""}),
-      meta:meta.k?dayTypeLabel(d):"",topicLine:wk.theme||"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
-      cta:t(k==="comeback"?"home.cta_restart":"home.cta_continue"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r};
+    return {kind:k,eyebrow:t(k==="comeback"?"home.eyebrow_back":"home.continue").replace(/^▶\s*/,""),kicker:t("home.kicker_week",{w,day:homeDayName(d)}),title:day.focus||wk.theme||"",
+      sub:wk.theme&&wk.theme!==day.focus?wk.theme:"",meta:meta.k?dayTypeLabel(d):"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
+      cta:t(k==="comeback"?"home.cta_restart":"home.cta_continue"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r,w,d};
   }
   const x=nudgeText(r);
   const verb={words:"home.cta_review",challenge:"home.cta_challenge",shadow:"home.cta_shadow",partner_now:"home.cta_partner",partner_streak:"home.cta_partner",ai_coach:"home.cta_coach"}[k]||"home.cta_continue";
   const topic={words:"words vocabulary",challenge:(r.vars&&r.vars.title||"")+" pronunciation shadow",shadow:"pronunciation shadow",partner_now:"conversation partner",partner_streak:"conversation partner",ai_coach:"conversation coach"}[k]||"";
-  return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,meta:"",metaIc:HOME_KIND_ICON[k]||"play",desc:String(x.body||"").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}️\s]+/u,""),why,minutes:r.minutes,
+  return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,sub:why,meta:t("home.k_"+k),metaIc:HOME_KIND_ICON[k]||"play",desc:String(x.body||"").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}️\s]+/u,""),why,minutes:r.minutes,
     cta:t(verb),go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic,rec:r,vid:k==="challenge"&&r.args?r.args[0]:null};
 }
 let _homeRecs=[];
 window.homeGoRec=rid=>{const r=_homeRecs.find(x=>(x.rid||x.kind)===rid);if(r)try{nudgeGo(r)}catch(e){}};
+/* "Mon" → the learner's own weekday name (2024-01-01 was a Monday) */
+function homeDayName(d){const i=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].indexOf(d);if(i<0)return d;try{return new Date(2024,0,1+i).toLocaleDateString((S.profile&&S.profile.lang)||"en",{weekday:"long"})}catch(e){return d}}
+/* a small greeting inside the hero — the name never competes with the next step */
+function homeGreet(){const h=new Date().getHours(),part=h<12?"m":h<18?"a":"e",name=S.profile&&S.profile.name?String(S.profile.name).trim():"";return name?t("home.greet_"+part,{name}):t("home.greet_"+part+"_x")}
 /* the gates the programme already has, before the engine's list */
 function homeGateCard(){
-  if(fndNeedsPlacement())return {kind:"placement",eyebrow:t("fnd.eyebrow"),title:t("fnd.check_h"),meta:"",metaIc:"check",desc:t("fnd.check_sub"),why:t("home.why_placement"),minutes:1,cta:t("fnd.check_open"),go:"fndOpenCheck('home')",topic:"introductions yourself pronunciation"};
-  if(fndGated()){const day=fndDayOf();return {kind:"foundations",eyebrow:t("fnd.eyebrow"),title:t("fnd.home_h"),meta:t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS}),metaIc:"book",desc:t("fnd.home_sub"),why:t("home.why_foundations"),minutes:10,cta:t("fnd.home_btn"),go:"go('foundations')",topic:"introductions small talk pronunciation"}}
+  if(fndNeedsPlacement())return {kind:"placement",eyebrow:t("fnd.eyebrow"),title:t("fnd.check_h"),sub:t("home.why_placement"),meta:t("home.k_placement"),metaIc:"check",desc:t("fnd.check_sub"),why:t("home.why_placement"),minutes:1,cta:t("fnd.check_open"),go:"fndOpenCheck('home')",topic:"introductions yourself pronunciation"};
+  if(fndGated()){const day=fndDayOf();return {kind:"foundations",eyebrow:t("fnd.eyebrow"),kicker:t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS}),title:t("fnd.home_h"),sub:t("home.why_foundations"),meta:t("home.k_foundations"),metaIc:"book",desc:t("fnd.home_sub"),why:t("home.why_foundations"),minutes:10,cta:t("fnd.home_btn"),go:"go('foundations')",topic:"introductions small talk pronunciation"}}
   return null;
 }
 /* nothing to recommend: today is done — say so, and offer the next session */
 function homeDoneCard(){
   const p=currentPos(),wk=trackWeeks().find(x=>x.n===p.w)||{},day=(wk.days||{})[p.d]||{};
-  return {kind:"done",eyebrow:t("home.done_eyebrow"),title:t("home.done_h"),meta:"",metaIc:"check",desc:t("home.done_b",{next:t("home.week_line",{w:p.w,d:p.d,focus:day.focus||wk.theme||""})}),why:"",minutes:null,
+  return {kind:"done",eyebrow:t("home.done_eyebrow"),title:t("home.done_h"),sub:t("home.done_b",{next:t("home.week_line",{w:p.w,d:p.d,focus:day.focus||wk.theme||""})}),meta:"",metaIc:"check",desc:"",why:"",minutes:null,
     cta:t("home.done_btn"),go:pathLocked(p.w,p.d)?"go('journey')":`go('session',${p.w},'${p.d}')`,topic:[wk.theme,day.focus].join(" ")};
 }
 /* ---- the visual layer: the recommendation's topic → up to three relevant pictures.
@@ -10821,66 +10842,84 @@ function hxRotate(){
   },6000);
 }
 function homeHeroHTML(c,vis){
+  const meta=[c.minutes?t("home.min",{n:c.minutes}):"",c.meta||""].filter(Boolean).join(" · ");
   return `<section class="hx" data-kind="${esc(c.kind)}" aria-labelledby="hxT">
     <div class="hx-media${vis.length?"":" empty"}" id="hxMedia">
       ${vis.map(homeSlideHTML).join("")}
       <div class="hx-scrim" aria-hidden="true"></div>
-      <div class="hx-over"><div class="hx-eyebrow">${ic(c.kind==="lesson"||c.kind==="comeback"?"play":"idea")}<span>${esc(c.eyebrow)}</span></div>
-        <h2 id="hxT">${esc(c.title)}</h2></div>
-      <div class="hx-dots" id="hxDots"></div>
+      <div class="hx-top"><span class="hx-greet">${esc(homeGreet())}</span><span class="hx-dots" id="hxDots"></span></div>
     </div>
-    <div class="hx-body">
-      ${c.why?`<p class="hx-why">${ic("info")}<span>${esc(c.why)}</span></p>`:""}
-      <button class="btn-primary hx-cta" onclick="${c.go}">${esc(c.cta)}</button>
-      <div class="hx-facts">
-        <div${c.minutes?"":` class="wide"`}><b>${esc(t("home.f_activity"))}</b><span>${ic(c.metaIc)}${esc(c.meta||t("home.k_"+c.kind))}</span></div>
-        ${c.minutes?`<div><b>${esc(t("home.f_time"))}</b><span>${ic("clock")}${esc(t("home.min",{n:c.minutes}))}</span></div>`:""}
-        ${c.topicLine?`<div class="wide"><b>${esc(t("home.f_topic"))}</b><span>${esc(c.topicLine)}</span></div>`:""}
+      <div class="hx-over">
+        <div class="hx-eyebrow">${ic(c.kind==="lesson"||c.kind==="comeback"?"play":"idea")}<span>${esc(c.eyebrow)}</span></div>
+        ${c.kicker?`<p class="hx-kicker">${esc(c.kicker)}</p>`:""}
+        <h2 id="hxT">${esc(c.title)}</h2>
+        ${c.sub?`<p class="hx-sub">${esc(c.sub)}</p>`:""}
+        ${meta?`<p class="hx-meta">${ic(c.minutes?"clock":c.metaIc)}<span>${esc(meta)}</span></p>`:""}
+        <button class="btn-primary hx-cta" onclick="${c.go}">${esc(c.cta)}<span class="hx-cta-go" aria-hidden="true">→</span></button>
       </div>
+    ${c.desc||vis.some(v=>v.vid)?`<div class="hx-foot">
       ${c.desc?`<p class="hx-desc">${esc(c.desc)}</p>`:""}
       <button class="hx-src" id="hxSrc" hidden onclick="shLibOpen(this.dataset.vid)">${ic("play")}<span></span></button>
-    </div>
+    </div>`:""}
   </section>`;
 }
-function homeMoreHTML(cards){
-  if(!cards.length)return "";
-  return `<section class="hx-more" aria-labelledby="hxMoreH"><h3 id="hxMoreH">${esc(t("home.more_recs_h"))}</h3>
-    ${cards.map(c=>`<button class="hx-rec" data-kind="${esc(c.kind)}" onclick="${c.go}">
-      <span class="hx-rec-ic">${ic(HOME_KIND_ICON[c.kind]||"play")}</span>
-      <span class="hx-rec-t"><b>${esc(c.title)}</b><small>${esc(c.why||c.desc)}</small></span>
-      ${c.minutes?`<span class="hx-rec-min">${esc(t("home.min",{n:c.minutes}))}</span>`:""}<span class="pf-chev" aria-hidden="true">›</span>
-    </button>`).join("")}</section>`;
+/* Where a recommendation leads, as a place: the engine's deep link (nudgeGo), or for a lesson
+   the curriculum's own tool for that day (trackSessionLinks → sessGo — the session page's own
+   "Open the Shadow Studio" / "Open the Phrase Lab"), so a card opens the exact activity. */
+function homeRecDest(c){
+  const k=c.kind;
+  if(k==="lesson"||k==="comeback"){const L=(trackSessionLinks()||{})[c.d];
+    if(L&&["shadow","phrases","practice","partner","review"].includes(L.v))return {dest:L.v,go:`sessGo('${L.v}',${c.w},'${c.d}')`,line:t(L.wk),ctx:t("home.week_line",{w:c.w,d:c.d,focus:c.title})};
+    return {dest:"journey",go:c.go,line:c.title,ctx:c.kicker||""}}
+  const m={words:"practice",challenge:"shadow",shadow:"shadow",partner_now:"partner",partner_streak:"partner",ai_coach:"partner"}[k];
+  return m?{dest:m,go:c.go,line:c.sub||c.desc,ctx:c.title}:null;
 }
-/* the places to practise, each with its own state */
-function homeDestHTML(){
+function homeDestHTML(top,cards,vis){
   let words=0;try{words=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
   let st=0;try{st=streak()}catch(e){}
   const p=currentPos(),weeks=trackWeeks().length||12,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
-  const d=[
-    {go:"go('shadow')",ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),img:lc?`https://i.ytimg.com/vi/${esc(lc.vid)}/hqdefault.jpg`:""},
-    ppAvailable()?{go:"go('partner')",ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),img:"rp-photos/partner.jpg"}:null,
-    {go:"go('phrases')",ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases")},
-    {go:"go('practice')",ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none")},
-    {go:"go('journey')",ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks})},
-    {go:"go('review')",ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none")}
-  ].filter(Boolean);
-  return `<section class="hx-dest" aria-labelledby="hxDestH"><h3 id="hxDestH">${esc(t("home.more_h"))}</h3><div class="hx-dest-grid">
-    ${d.map(x=>`<button class="hx-dcard${x.img?" img":""}" onclick="${x.go}">${x.img?`<img src="${x.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(x.ic)}</span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join("")}
-  </div></section>`;
+  const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
+  const D={
+    shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?`https://i.ytimg.com/vi/${esc(firstVid)}/hqdefault.jpg`:""},
+    partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"rp-photos/partner.jpg"}:null,
+    phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"rp-photos/standup.jpg"},
+    practice:{ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')"},
+    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')"},
+    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')"}
+  };
+  /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
+  const taken={};
+  [top].concat(cards).forEach((c,i)=>{if(!c)return;const r=homeRecDest(c);if(!r||!D[r.dest]||taken[r.dest])return;taken[r.dest]=Object.assign({},r,{primary:i===0})});
+  /* the big card only when it adds a step of its own — a lesson's tool for the day (the session's
+     own shadowing, Phrase Lab …). Otherwise the hero already is that recommendation: its place
+     simply leads the grid, tagged, with the same deep link. */
+  const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
+  const featId=primId&&(top.kind==="lesson"||top.kind==="comeback")&&primId!=="journey"?primId:null,feat=featId?taken[featId]:null;
+  const featHTML=feat?(()=>{const d=D[featId];return `<button class="hx-feat" data-dest="${featId}" onclick="${feat.go}">
+      <span class="hx-feat-img">${d.img?`<img src="${d.img}" alt="" decoding="async" onerror="this.remove()">`:""}<span class="hx-feat-ic">${ic(d.ic)}</span></span>
+      <span class="hx-feat-body"><span class="hx-tag">${ic("star")}${esc(t("home.rec_for_you"))}</span>
+        <b>${esc(d.t)}</b>${feat.ctx?`<small class="hx-feat-ctx">${esc(feat.ctx)}</small>`:""}<small>${esc(feat.line||"")}</small>
+        <span class="hx-feat-go">${esc(t("home.start"))} →</span></span></button>`})():"";
+  const order=["shadow","partner","practice","phrases","journey","review"].filter(id=>D[id]&&id!==featId);
+  const rank=id=>id===primId?2:taken[id]?1:0;
+  order.sort((a,b)=>rank(b)-rank(a));
+  const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}" onclick="${r?r.go:d.go}">
+      <span class="hx-dimg${d.img?" img":""}">${d.img?`<img src="${d.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(d.ic)}</span></span>
+      <span class="hx-dtxt">${r?`<span class="hx-tag sm">${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}</span>`:""}<b>${esc(d.t)}</b><small>${esc(r?(r.ctx||r.line):d.s)}</small></span></button>`}).join("");
+  return `<section class="hx-dest" aria-labelledby="hxDestH"><h3 id="hxDestH">${esc(t("home.more_h"))}</h3>${featHTML}<div class="hx-dest-grid">${grid}</div></section>`;
 }
 function rHomeV2(el){
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   const gate=homeGateCard();
   _homeRecs=gate?[]:homeRecs();
   const cards=_homeRecs.map(homeCard);
-  const top=gate||cards[0]||homeDoneCard(),rest=gate?[]:cards.slice(1,5);
+  const top=gate||cards[0]||homeDoneCard();
   const draw=()=>{
+    const vis=homeVisuals(top);
     el.innerHTML=`
-    <h1 class="big home-hero-h">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
-    ${homeHeroHTML(top,homeVisuals(top))}
-    ${homeMoreHTML(rest)}
+    ${homeHeroHTML(top,vis)}
+    ${homeDestHTML(top,gate?[]:cards.slice(1),vis)}
     ${ppHomeCardHTML()}
-    ${homeDestHTML()}
     ${homeNudgeHTML()}
     <div class="hero">
       ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
@@ -10895,8 +10934,7 @@ function rHomeV2(el){
   draw();
   /* the library index gives the pictures; it is usually cached — when it lands, the
      hero's media is filled in place (same box, fixed ratio: nothing moves) */
-  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")){const m=document.getElementById("hxMedia"),v=homeVisuals(top);
-    if(v.length){m.querySelectorAll(".hx-slide").forEach(x=>x.remove());m.insertAdjacentHTML("afterbegin",v.map(homeSlideHTML).join(""));m.classList.remove("empty");hxDots();hxRotate()}}}).catch(()=>{})}catch(e){}
+  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")&&_shCat)draw()}).catch(()=>{})}catch(e){}
 }
 
 function rHomeGeneral(el){

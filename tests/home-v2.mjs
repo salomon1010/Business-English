@@ -26,8 +26,9 @@ async function open(state, opts = {}) {
   return { ctx, p, errs };
 }
 const hero = p => p.evaluate(() => { const h = document.querySelector(".hx"); if (!h) return null;
-  return { kind: h.dataset.kind, title: h.querySelector("#hxT").innerText, why: (h.querySelector(".hx-why") || {}).innerText || "", cta: h.querySelector(".hx-cta").innerText, go: h.querySelector(".hx-cta").getAttribute("onclick"),
-    slides: [...h.querySelectorAll(".hx-slide")].map(i => i.dataset.vid || i.getAttribute("src")), more: [...document.querySelectorAll(".hx-rec")].map(x => x.dataset.kind), dest: [...document.querySelectorAll(".hx-dcard b")].map(x => x.innerText), engine: (() => { try { const r = NudgeEngine.rank(nudgeSignals(), {}); return r.map(x => x.kind); } catch (e) { return null; } })() }; });
+  return { kind: h.dataset.kind, kicker: (h.querySelector(".hx-kicker") || {}).innerText || "", title: h.querySelector("#hxT").innerText, sub: (h.querySelector(".hx-sub") || {}).innerText || "", meta: (h.querySelector(".hx-meta") || {}).innerText || "", cta: h.querySelector(".hx-cta").innerText.replace(/→/g, "").trim(), go: h.querySelector(".hx-cta").getAttribute("onclick"),
+    slides: [...h.querySelectorAll(".hx-slide")].map(i => i.dataset.vid || i.getAttribute("src")), feat: (document.querySelector(".hx-feat") || { getAttribute: () => null }).getAttribute("onclick"), featDest: (document.querySelector(".hx-feat") || { dataset: {} }).dataset.dest || null,
+    cards: [...document.querySelectorAll(".hx-dcard")].map(c => ({ dest: c.dataset.dest, tag: (c.querySelector(".hx-tag") || {}).innerText || "", go: c.getAttribute("onclick") })), dest: [...document.querySelectorAll(".hx-dcard b")].map(x => x.innerText), engine: (() => { try { const r = NudgeEngine.rank(nudgeSignals(), {}); return r.map(x => x.kind); } catch (e) { return null; } })() }; });
 
 console.log("\n# the recommendation comes from the learner's real state");
 { const { ctx, p, errs } = await open({ fnd: {} });
@@ -41,7 +42,14 @@ console.log("\n# the recommendation comes from the learner's real state");
   ok("3 · a learner in Foundations: the hero is today's Foundations day", h && h.kind === "foundations" && /go\('foundations'\)/.test(h.go), JSON.stringify(h)); await ctx.close(); }
 { const { ctx, p, errs } = await open({});
   const h = await hero(p);
-  ok("4 · lesson pending: 'Continue where you left off' — Week 1 · Mon, the day's focus, the reason, 25 min, Continue", h && h.kind === "lesson" && /^Week 1 · Mon — /.test(h.title) && /lesson isn't done/.test(h.why) && h.cta === "Continue" && /go\('session',1,'Mon'\)/.test(h.go), JSON.stringify(h));
+  ok("4 · lesson pending: 'Continue where you left off' · Week 1 · Monday · the day's focus as the title · the week's topic · 25 min · Pronunciation + Shadowing · Continue", h && h.kind === "lesson" && h.kicker === "Week 1 · Monday" && h.title === "Pronunciation baseline" && /Introductions/.test(h.sub) && /25 min · Pronunciation \+ Shadowing/.test(h.meta) && h.cta === "Continue" && /go\('session',1,'Mon'\)/.test(h.go), JSON.stringify(h));
+  const g = await p.evaluate(() => ({ h1: document.querySelectorAll("#v-home h1").length, greet: (document.querySelector(".hx-greet") || {}).innerText || "", size: parseFloat(getComputedStyle(document.querySelector(".hx-greet")).fontSize), title: parseFloat(getComputedStyle(document.getElementById("hxT")).fontSize) }));
+  ok("4b · no standalone greeting line above the hero; a small greeting sits inside it, far smaller than the next step", g.h1 === 0 && /Tester/.test(g.greet) && g.size <= 13 && g.title >= 2 * g.size, JSON.stringify(g));
+  ok("4c · Explore opens the exact activity: 'Recommended for you' — the session's own shadowing step (sessGo shadow, Week 1 Mon), not the generic Shadow page", h.featDest === "shadow" && /sessGo\('shadow',1,'Mon'\)/.test(h.feat), JSON.stringify({ feat: h.feat, featDest: h.featDest }));
+  await p.click(".hx-feat"); await sleep(900);
+  const ss = await p.evaluate(() => ({ v: cur.v, back: typeof SESS_RETURN !== "undefined" && SESS_RETURN ? SESS_RETURN.w + " " + SESS_RETURN.d : null }));
+  ok("4d · … and the card lands in Shadow with the way back to that session (the session page's own link)", ss.v === "shadow" && ss.back === "1 Mon", JSON.stringify(ss));
+  await p.evaluate(async () => { SESS_RETURN = null; go("home"); await new Promise(z => setTimeout(z, 600)); });
   ok("5 · Home and the push nudge agree: the hero is the engine's own first choice", h.engine && h.engine[0] === h.kind, JSON.stringify(h.engine));
   const vis1 = h.slides; await p.evaluate(() => go("home")); await sleep(600); const vis2 = (await hero(p)).slides;
   ok("6 · up to three pictures, chosen for the topic and the same every time (not random)", vis1.length >= 1 && vis1.length <= 3 && JSON.stringify(vis1) === JSON.stringify(vis2), JSON.stringify({ vis1, vis2 }));
@@ -57,7 +65,8 @@ console.log("\n# the recommendation comes from the learner's real state");
 console.log("\n# different learners, different Homes — and every other recommendation below");
 { const { ctx, p, errs } = await open({ vocab: words(5), troubleA: trouble, dates: [today], dayLog: { [today]: 1 }, dayLogA: { "general-english": { [today]: 1 } } });
   const h = await hero(p);
-  ok("11 · practised today, 5 words due, 3 trouble words: the hero is the word review, the trouble words follow under 'Also recommended'", h && h.kind === h.engine[0] && ["words", "shadow"].includes(h.kind) && h.more.length === h.engine.length - 1 && h.more.every((k, i) => k === h.engine[i + 1]), JSON.stringify(h));
+  const want = { words: "practice", shadow: "shadow" };
+  ok("11 · practised today, 5 words due, 3 trouble words: the hero is the engine's first choice; its place leads Explore tagged 'Recommended for you', the second choice's place is tagged 'Also for you' — each with its own deep link", h && h.kind === h.engine[0] && ["words", "shadow"].includes(h.kind) && !h.feat && h.cards[0].dest === want[h.engine[0]] && /Recommended for you/i.test(h.cards[0].tag) && /homeGoRec/.test(h.cards[0].go) && h.cards[1].dest === want[h.engine[1]] && /Also for you/i.test(h.cards[1].tag), JSON.stringify(h));
   await p.click(".hx-cta"); await sleep(1200);
   ok("12 · its button deep-links like the notification (nudgeGo)", await p.evaluate(() => cur.v === "practice" || cur.v === "shadow"), await p.evaluate(() => cur.v));
   await ctx.close(); }
@@ -88,16 +97,18 @@ console.log("\n# pictures: rotation, reduced motion, failure");
 { const { ctx, p, errs } = await open({}, { noImages: true });
   await sleep(1500);
   const f = await p.evaluate(() => ({ slides: document.querySelectorAll(".hx-slide").length, empty: document.getElementById("hxMedia").classList.contains("empty"), title: document.getElementById("hxT").innerText, cta: !!document.querySelector(".hx-cta"), h: Math.round(document.getElementById("hxMedia").getBoundingClientRect().height) }));
-  ok("19 · every picture fails (network): the hero keeps its size with the plain gradient, and the recommendation and its button still work", f.slides === 0 && f.empty && /Week 1/.test(f.title) && f.cta && f.h > 150, JSON.stringify(f));
+  ok("19 · every picture fails (network): the hero keeps its size with the plain gradient, and the recommendation and its button still work", f.slides === 0 && f.empty && /Pronunciation baseline/.test(f.title) && f.cta && f.h > 150, JSON.stringify(f));
   ok("20 · … with no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 console.log("\n# phone layout");
 { const { ctx, p } = await open({ vocab: words(4), troubleA: trouble });
   const h0 = await p.evaluate(() => Math.round(document.getElementById("hxMedia").getBoundingClientRect().height)); await sleep(2500);
   const L = await p.evaluate(async () => { const m = document.getElementById("hxMedia").getBoundingClientRect(), cta = document.querySelector(".hx-cta").getBoundingClientRect(), nav = document.querySelector(".bottom-nav").getBoundingClientRect();
     document.scrollingElement.scrollTop = 1e6; await new Promise(z => setTimeout(z, 300)); const all = [...document.querySelectorAll("#v-home > *")].filter(x => x.offsetParent), last = all[all.length - 1].getBoundingClientRect(), nav2 = document.querySelector(".bottom-nav").getBoundingClientRect();
-    return { mh: Math.round(m.height), mw: Math.round(m.width), ctaBottom: Math.round(cta.bottom), navTop: Math.round(nav.top), vw: innerWidth, sw: document.documentElement.scrollWidth, lastBottom: Math.round(last.bottom), nav2Top: Math.round(nav2.top) }; });
-  ok("21 · the picture box has a fixed 16:10 shape before and after the pictures load (no layout shift)", Math.abs(h0 - L.mh) <= 1 && Math.abs(L.mh - L.mw * 10 / 16) <= 2, JSON.stringify({ h0, L }));
-  ok("22 · the main button is on the first screen, above the bottom navigation", L.ctaBottom < L.navTop, JSON.stringify(L));
+    return { mh: Math.round(m.height), mw: Math.round(m.width), ctaBottom: Math.round(cta.bottom), navTop: Math.round(nav.top), destTop: Math.round(document.querySelector(".hx-dest").getBoundingClientRect().top + document.scrollingElement.scrollTop - 0), vw: innerWidth, sw: document.documentElement.scrollWidth, lastBottom: Math.round(last.bottom), nav2Top: Math.round(nav2.top) }; });
+  ok("21 · the picture box has a fixed 16:9 shape before and after the pictures load (no layout shift)", Math.abs(h0 - L.mh) <= 1 && Math.abs(L.mh - L.mw * 9 / 16) <= 2, JSON.stringify({ h0, L }));
+  ok("22 · the main button is on the first screen, above the bottom navigation — and Explore begins on that first screen too", L.ctaBottom < L.navTop && L.destTop < L.navTop, JSON.stringify(L));
+  const kb = await p.evaluate(() => [...document.querySelectorAll(".hx-cta,.hx-feat,.hx-dcard")].every(x => x.tagName === "BUTTON" && x.innerText.trim().length > 2 && x.getBoundingClientRect().height >= 44));
+  ok("22b · every action on Home is a real button with a visible label and a touch-sized target (keyboard and screen readers reach them)", kb);
   ok("23 · no sideways scrolling, and the end of the page clears the bottom navigation", L.sw <= L.vw && L.lastBottom <= L.nav2Top + 1, JSON.stringify(L)); await ctx.close(); }
 console.log("\n# signed out / signed in, flag, tracks, landing");
 { const { ctx, p } = await open({});
