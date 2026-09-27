@@ -1467,20 +1467,22 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 20px;/* the snap points sit on the page gutter, so the first card lines up with the hero instead of the screen edge (owner, 27 Sep 2026) */-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .hx-row-scroll::-webkit-scrollbar{display:none}
 /* one card size in every row, the lead included (owner, 27 Sep 2026: "all the recommendation pictures
-   should be small … the same shape") — the lead is marked by its gold label, not by bigger pictures */
-.hx-rcard{flex:0 0 min(58%,220px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+   should be small … the same shape"; then "smaller again") — the lead is marked by its gold label,
+   not by bigger pictures. The card text is grey, never white, so it cannot be read as the row's
+   own heading above it. */
+.hx-rcard{flex:0 0 min(46%,180px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 .hx-rimg{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-rimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hx-rimg.none{display:grid;place-items:center}
-.hx-ric{position:absolute;left:10px;top:10px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
-.hx-rimg.none .hx-ric{position:static;width:46px;height:46px;border-radius:14px;background:color-mix(in srgb,var(--acc) 30%,transparent);color:var(--txt)}
-.hx-ric svg{width:18px;height:18px}
-.hx-rimg.none .hx-ric svg{width:22px;height:22px}
-.hx-rtag{position:absolute;right:10px;top:10px;padding:3px 8px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);color:var(--on-accent,#fff)}
-.hx-rdur{position:absolute;right:10px;bottom:8px;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(6,9,18,.7);color:#fff}
-.hx-rbody{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
-.hx-rbody small{font-size:11.5px;color:var(--mut);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-rbody b{font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hx-ric{position:absolute;left:8px;top:8px;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
+.hx-rimg.none .hx-ric{position:static;width:38px;height:38px;border-radius:12px;background:color-mix(in srgb,var(--acc) 30%,transparent);color:var(--txt)}
+.hx-ric svg{width:15px;height:15px}
+.hx-rimg.none .hx-ric svg{width:18px;height:18px}
+.hx-rtag{position:absolute;right:8px;top:8px;padding:2px 7px;border-radius:99px;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);color:var(--on-accent,#fff)}
+.hx-rdur{position:absolute;right:8px;bottom:6px;padding:1px 6px;border-radius:99px;font-size:10px;font-weight:600;background:rgba(6,9,18,.7);color:#fff}
+.hx-rbody{display:flex;flex-direction:column;gap:2px;padding:8px 10px 10px}
+.hx-rbody small{font-size:10.5px;color:var(--mut);opacity:.85;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-rbody b{font-size:12.5px;font-weight:600;color:var(--mut);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media (min-width:700px){.hx-row-scroll{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;margin:0;padding:0}.hx-rcard{flex:none}}
 .hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}

@@ -53,7 +53,10 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   ok("2 · each heading names the learner's own evidence: the clip that played, the take, the words the report flagged, the Challenge missed, the words saved, the week, the scenario and character",
     H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /^Because your feedback flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
     && /Because you saved .*leverage/.test(H.saved) && /Because you finished Week 1/.test(H.learning) && /Daily stand-up.* with Priya/.test(H.partner) && /^Because you practised/.test(H.practiced), JSON.stringify(H));
-  ok("3 · exactly one lead row, first; every row's cards are the same compact size (≤ 60% of the screen, 16:9 pictures)", R[0].lead && R.filter(r => r.lead).length === 1 && R.every(r => r.cards.every(c => Math.abs(c.w - R[1].cards[0].w) < 2 && c.w <= 0.6 * 390)), JSON.stringify(R.map(r => [r.id, r.lead, Math.round(r.cards[0].w)])));
+  ok("3 · exactly one lead row, first; every row's cards are the same small size (≤ 47% of the screen, 16:9 pictures)", R[0].lead && R.filter(r => r.lead).length === 1 && R.every(r => r.cards.every(c => Math.abs(c.w - R[1].cards[0].w) < 2 && c.w <= 0.47 * 390)), JSON.stringify(R.map(r => [r.id, r.lead, Math.round(r.cards[0].w)])));
+  const col = await p.evaluate(() => { const c = e => getComputedStyle(e).color, m = document.createElement("i"); m.style.color = "var(--mut)"; document.body.appendChild(m); const mut = c(m); m.remove();
+    return { mut, h3: c(document.querySelector(".hx-row-h h3")), titles: [...new Set([...document.querySelectorAll(".hx-rbody b")].map(c))] }; });
+  ok("3b · card titles are grey (the muted text colour), never the white of the row heading above them", col.titles.length === 1 && col.titles[0] === col.mut && col.titles[0] !== col.h3, JSON.stringify(col));
   const ranked = await p.evaluate(() => _homeRows.map(r => r.score));
   ok("4 · rows are ranked by the engine's signal strength, strongest first (not a fixed order)", ranked.every((x, i) => i === 0 || ranked[i - 1] >= x), JSON.stringify(ranked));
   ok("5 · every card is specific content (a title, a type line, a content id), 2–3 per row; no clip twice; none the learner already has as a 'new' clip",
