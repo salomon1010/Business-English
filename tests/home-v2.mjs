@@ -52,9 +52,11 @@ console.log("\n# the recommendation comes from the learner's real state");
   await p.evaluate(async () => { SESS_RETURN = null; go("home"); await new Promise(z => setTimeout(z, 600)); });
   ok("5 · Home and the push nudge agree: the hero is the engine's own first choice", h.engine && h.engine[0] === h.kind, JSON.stringify(h.engine));
   const vis1 = h.slides; await p.evaluate(() => go("home")); await sleep(600); const vis2 = (await hero(p)).slides;
-  ok("6 · up to three pictures, chosen for the topic and the same every time (not random)", vis1.length >= 1 && vis1.length <= 3 && JSON.stringify(vis1) === JSON.stringify(vis2), JSON.stringify({ vis1, vis2 }));
-  const rel = await p.evaluate(v => v.filter(x => /^[A-Za-z0-9_-]{11}$/.test(x)).map(x => _shCat.videos[x] && _shCat.videos[x].title), vis1);
-  ok("7 · … library videos whose titles share the lesson's topic (introductions / pronunciation / shadowing)", rel.length && rel.every(t => /introduc|yourself|small talk|network|pronunc|accent|shadow|clear|fluen|intonation/i.test(t || "")), JSON.stringify(rel));
+  /* since the highlight reel (owner, 27 Sep 2026) the hero carries six clips: the first is the lesson's own
+     topic, the other five are library highlights (tests/home-highlights.mjs) — drawn once per day, not per render */
+  ok("6 · six video slides, the same every time the page is drawn today (not random per render)", vis1.length === 6 && vis1.every(x => /^[A-Za-z0-9_-]{11}$/.test(x)) && JSON.stringify(vis1) === JSON.stringify(vis2), JSON.stringify({ vis1, vis2 }));
+  const rel = await p.evaluate(v => _shCat.videos[v[0]] && _shCat.videos[v[0]].title, vis1);
+  ok("7 · … the first is the library video whose title shares the lesson's topic (introductions / pronunciation / shadowing)", /introduc|yourself|small talk|network|pronunc|accent|shadow|clear|fluen|intonation/i.test(rel || ""), JSON.stringify(rel));
   await p.click(".hx-cta"); await sleep(700);
   ok("8 · Continue opens that session day", await p.evaluate(() => cur.v === "session" && location.hash.includes("session/1/Mon")), await p.evaluate(() => location.hash));
   /* completing it changes Home: the engine is asked again */
