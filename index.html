@@ -1447,7 +1447,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 /* "Because you…" rows: a swipe row on the phone, a three-up grid from 700 px */
 .hx-rows{margin:0 0 24px}
 /* the eight "Because you…" rows (owner, 27 Sep 2026): the first row is the strongest signal and
-   leads — larger cards, its evidence named in a gold label; the rest are compact. */
+   leads, its evidence named in a gold label; every row's cards are the same compact size. */
 .hx-row-kick{display:inline-flex;align-items:center;gap:5px;margin:0 0 6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold,var(--acc))}
 .hx-row-kick svg{width:12px;height:12px}
 .hx-row-h .hx-row-ic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
@@ -1456,10 +1456,6 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-row-lead{padding:14px 0 4px;border-top:1px solid var(--line2)}
 .hx-row-lead .hx-row-h h3{font-size:16px}
 .hx-row-lead .hx-row-h .hx-row-ic{display:none}
-.hx-row-lead .hx-rcard{flex-basis:min(84%,320px)}
-.hx-row-lead .hx-rbody b{font-size:15.5px}
-.hx-row:not(.hx-row-lead) .hx-rcard{flex-basis:min(58%,220px)}
-.hx-row:not(.hx-row-lead) .hx-rbody b{font-size:13.5px}
 .hx-row{margin:0 0 22px}
 /* the header is two lines and never more (owner, 27 Sep 2026: "one line … because you did this,
    and another line below, not too big"): the heading and its reason each keep to one line and
@@ -1470,7 +1466,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-row-h p{margin:1px 0 0;font-size:12.5px;line-height:1.35;color:var(--mut)}
 .hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 20px;/* the snap points sit on the page gutter, so the first card lines up with the hero instead of the screen edge (owner, 27 Sep 2026) */-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .hx-row-scroll::-webkit-scrollbar{display:none}
-.hx-rcard{flex:0 0 min(72%,260px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+/* one card size in every row, the lead included (owner, 27 Sep 2026: "all the recommendation pictures
+   should be small … the same shape") — the lead is marked by its gold label, not by bigger pictures */
+.hx-rcard{flex:0 0 min(58%,220px);scroll-snap-align:start;display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 .hx-rimg{position:relative;display:block;aspect-ratio:16/9;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-rimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hx-rimg.none{display:grid;place-items:center}
@@ -1482,7 +1480,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-rdur{position:absolute;right:10px;bottom:8px;padding:2px 7px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(6,9,18,.7);color:#fff}
 .hx-rbody{display:flex;flex-direction:column;gap:3px;padding:10px 12px 12px}
 .hx-rbody small{font-size:11.5px;color:var(--mut);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-rbody b{font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hx-rbody b{font-size:13.5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media (min-width:700px){.hx-row-scroll{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;margin:0;padding:0}.hx-rcard{flex:none}}
 .hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -10965,8 +10963,8 @@ function homeRowCardHTML(r,it,i){
     <span class="hx-rbody"><small>${esc(homeItemLine(it))}${it.external?` · ${esc(t("home.it_external"))}`:""}</small><b>${esc(homeItemTitle(it))}</b></span>
   </button>`;
 }
-/* The first row is the strongest current signal and is drawn as the lead: larger cards, its
-   evidence named in a label. The others are compact. Not all sections are equal. */
+/* The first row is the strongest current signal and is drawn as the lead: its evidence named in a
+   gold label. Its cards are the same compact size as every other row's (owner, 27 Sep 2026). */
 function homeRowsHTML(rows){
   if(!rows||!rows.length)return "";
   return `<section class="hx-rows" id="hxRows" aria-label="${esc(t("home.rows_aria"))}">${rows.map((r,ri)=>{const k=homeRowKey(r);return `
