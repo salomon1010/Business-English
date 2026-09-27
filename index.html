@@ -994,6 +994,11 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
 .shl-chip.mine.on{background:color-mix(in srgb,var(--acc2) 74%,var(--card2));
   border-color:color-mix(in srgb,var(--acc2) 74%,var(--card2));color:#04131a}
 .shl-row-mine{grid-template-columns:128px 1fr auto}
+/* where a saved video came from: the BE Mastery library, or a YouTube link */
+.shl-src{display:inline-flex;align-items:center;gap:4px;align-self:flex-start;margin:4px 0 2px;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;border:1px solid}
+.shl-src svg{width:12px;height:12px}
+.shl-src.lib{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.shl-src.yt{color:#ff6b6b;border-color:color-mix(in srgb,#ff4d4d 45%,transparent);background:color-mix(in srgb,#ff4d4d 10%,transparent)}
 .shl-thumb-btn{padding:0;border:0;background:none;cursor:pointer}
 .shl-row-del{align-self:center;background:none;border:0;color:var(--mut2);padding:8px;cursor:pointer}
 .shl-row-del svg{width:18px;height:18px}
@@ -7706,7 +7711,7 @@ const I18N_EN={
  "sh.loop_on_toast":"Loop on 🔁",
  "sh.loop_off_toast":"Loop off — clip will pause at the end",
  "sh.mark_start_end_first_toast":"⚠️ Mark a start and an end first",
- "sh.clip_saved_toast":"Clip saved ⭐","sh.clip_saved_n":"Saved to My clips ({{n}}/{{max}}).","sh.clips_sub":"Passages you starred in Shadow. Tap one to shadow it again.","sh.clips_empty":"No clips yet. In Shadow, tap the star on a passage to keep it here.","sh.clips_limit_t":"My clips is full ({{max}})","sh.clips_limit_b":"Your plan keeps {{max}}. Premium keeps up to {{top}}. Or delete a clip to save this passage.","sh.clips_full_toast":"My clips is full ({{max}}). Delete a clip to save this passage.",
+ "sh.clip_saved_toast":"Clip saved ⭐","sh.vid_save":"Save","sh.vid_saved":"Saved","sh.src_lib":"BE Mastery library","sh.src_yt":"From YouTube","sh.clip_saved_n":"Saved to My clips ({{n}}/{{max}}).","sh.clips_sub":"Passages you starred in Shadow. Tap one to shadow it again.","sh.clips_empty":"No clips yet. In Shadow, tap the star on a passage to keep it here.","sh.clips_limit_t":"My clips is full ({{max}})","sh.clips_limit_b":"Your plan keeps {{max}}. Premium keeps up to {{top}}. Or delete a clip to save this passage.","sh.clips_full_toast":"My clips is full ({{max}}). Delete a clip to save this passage.",
  "sh.clip_deleted_toast":"Clip deleted",
  "sh.no_clips_saved":"No saved clips yet — load a video, mark the voice you want to own, and click ⭐ Save clip to start becoming it.",
  "sh.no_words_toast":"⚠️ I couldn't hear any words in that recording — try again a bit louder",
@@ -12463,7 +12468,7 @@ function shLibRow(vid){
   const has=v.cap&&v.cap!=="player";
   const row=`<button class="shl-row" onclick="shLibOpen('${vid}')" aria-label="${esc(v.title)}">
     <span class="shl-thumb ${has?"cap":""}"><img src="https://i.ytimg.com/vi/${vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(v.dur)}</span></span>
-    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small><span class="shl-cap ${has?"":"no"}">${has?t("sh.lib_cap"):t("sh.lib_cap_player")}</span></span>
+    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small>${_shLibCat==="mine"?`<span class="shl-src lib">${ic("bookmark")}${esc(t("sh.src_lib"))}</span>`:""}<span class="shl-cap ${has?"":"no"}">${has?t("sh.lib_cap"):t("sh.lib_cap_player")}</span></span>
   </button>`;
   if(!shOwnSplit())return row;
   const on=shOwnFind(vid)>=0,lab=t(on?"sh.lib_saved":"sh.lib_save");
@@ -12480,7 +12485,7 @@ function shLibMineRow(vid){
     <button class="shl-thumb-btn" onclick="shOwnOpen(${i})" aria-label="${esc(shOwnTitle(o))}">
       <span class="shl-thumb"><img src="https://i.ytimg.com/vi/${esc(vid)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span></span>
     </button>
-    <span><b>${esc(shOwnTitle(o))}</b><small>${esc(t("sh.own_badge"))}</small>
+    <span><b>${esc(shOwnTitle(o))}</b><small>${esc(t("sh.own_badge"))}</small><span class="shl-src yt">${ic("link")}${esc(t("sh.src_yt"))}</span>
       <span class="shl-cap ${tx?"":"no"}">${tx?t("sh.lib_cap"):t("sh.lib_cap_none")}</span></span>
     <button class="shl-row-del" onclick="shOwnDel(${i},event)" title="${esc(t("sh.own_remove"))}" aria-label="${esc(t("sh.own_remove"))}">${ic("trash")}</button>
   </div>`;
@@ -20263,7 +20268,7 @@ function entIsPremiumForDisplay(){const v=entView();return v.plan==="premium"&&v
    limit is one number, not a redesign; NONE of them is enforced yet. Which
    track a limit applies to is the caller's decision (isGeneralEnglish()). */
 const PLAN_LIMITS=Object.freeze({
-  free:Object.freeze({savedShadow:2,youtubeImports:2,polishHistory:1,savedClips:1,
+  free:Object.freeze({savedShadow:2,youtubeImports:1,polishHistory:1,savedClips:1,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null}),
   premium:Object.freeze({savedShadow:100,youtubeImports:20,polishHistory:50,savedClips:30,
     aiConversationDaily:null,aiSimulationDaily:null,partnerSessionMin:null,partnerSessionsDaily:null,reportHistory:null,progressHistoryDays:null})
@@ -21559,8 +21564,34 @@ function svWtTogglesHTML(){
   return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
     <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svWtTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
     <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
+    ${shVidSaveBtnHTML()}
   </div>`;
 }
+/* Save this video to Your videos, from the Watch page (owner, 27 Sep 2026):
+   a library video as a saved video, a YouTube link as a YouTube video — each
+   against its own allowance (Free 2 / 1, Premium 100 / 20 where plans apply).
+   Saved again = removed; a YouTube video's removal is confirmed, because its
+   transcript goes with it. */
+function shVidSaveBtnHTML(){
+  const vid=shClip&&shClip.vid;if(!vid)return "";
+  const on=shOwnFind(vid)>=0,lab=t(on?"sh.vid_saved":"sh.vid_save");
+  return `<button class="sv-sh-t sv-save-t ${on?"on":""}" id="svWtSaveBtn" onclick="shVidSave()" aria-pressed="${on}" aria-label="${esc(lab)}" title="${esc(lab)}">${ic("bookmark")}<span>${esc(lab)}</span></button>`;
+}
+function shVidSaveSync(){const b=document.getElementById("svWtSaveBtn");if(b)b.outerHTML=shVidSaveBtnHTML()}
+window.shVidSave=async()=>{
+  const vid=shClip&&shClip.vid;if(!vid)return;
+  try{await shCatLoad()}catch(e){}
+  const lib=shCatHas(vid),kind=lib?"lib":"yt",i=shOwnFind(vid);
+  if(i>=0){
+    if(lib){shOwn().splice(i,1);save();shOwnRender();shOwnChanged();toast(t("sh.lib_unsaved_toast"))}
+    else await shOwnDel(i);
+  }else{
+    const st=shOwnAdd(vid,shClip.title||vid,kind);
+    if(st==="saved"){toast(t(lib?"sh.own_saved_toast":"sh.yt_saved_toast",{n:shOwnCount(kind),max:shOwnCap(kind)}));shOwnChanged()}
+    else if(st==="full"||st==="over")shOwnLimitSay(kind,st);
+  }
+  shVidSaveSync();
+};
 function svWtGroup(k){const ps=svParas(svAsset);return svParaGroup(ps[k])}
 function svWtSame(k,g){return svMode==="watch"&&svWtCur===k&&shClip.vid===g.vid&&!!document.querySelector(`#svTx .sv-para[data-p="${k}"]`)}
 function svWatchDraw(k){

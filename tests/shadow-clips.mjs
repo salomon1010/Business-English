@@ -90,6 +90,39 @@ console.log("\n# plans off (production today): no cap, as before");
   ok("15 · no JavaScript errors", !errs.length, errs.join(" | "));
   await ctx.close();
 }
+console.log("\n# Save from the Watch page (owner, 27 Sep 2026): library and YouTube videos, each against its allowance");
+{
+  const { ctx, p, errs } = await learner();
+  /* two pasted YouTube videos whose words are already kept on the phone (no Worker call) */
+  const cues = Array.from({ length: 12 }, (_, i) => ({ t: i * 10, txt: "Line number " + i + " of a pasted talk." }));
+  await p.evaluate(c => { const all = {}; ["yTpAsTe0001", "yTpAsTe0002"].forEach(v => { all[v] = { ts: Date.now(), full: true, source: "gemini", lang: "en", cues: c }; }); localStorage.setItem("be_caps", JSON.stringify(all)); }, cues);
+  const btn = () => p.evaluate(() => { const b = document.getElementById("svWtSaveBtn"); const row = b && b.closest(".sv-wt-tg"); return b && { label: b.innerText.trim(), on: b.classList.contains("on"), beside: !!(row && row.querySelector("#svWtIpaBtn")) }; });
+  const watch = v => p.evaluate(async v => { await shLoad({ vid: v, start: 0, end: 0, title: v === "-tubDR5XSRw" ? "" : "A pasted talk " + v.slice(-1) });
+    for (let i = 0; i < 40 && !(svAsset && svAsset.segments && svAsset.segments.length && shClip.vid === v); i++) await new Promise(z => setTimeout(z, 200)); svSetMode("watch"); await new Promise(z => setTimeout(z, 300)); }, v);
+  const tap = () => p.evaluate(async () => { document.getElementById("toast").innerText = ""; document.getElementById("svWtSaveBtn").click(); await new Promise(z => setTimeout(z, 400));
+    const cf = document.querySelector(".cf-ov"); return { toast: document.getElementById("toast").innerText, dialog: cf ? cf.querySelector("h3").innerText : null }; });
+  await watch("-tubDR5XSRw");
+  const b0 = await btn();
+  ok("18 · Watch, a library video: a Save button sits beside Translate and Pronunciation", b0 && b0.label === "Save" && !b0.on && b0.beside, JSON.stringify(b0));
+  const t1 = await tap(), b1 = await btn();
+  ok("19 · Save → 'Saved to Your videos (1/2)' and the button reads Saved", /Saved to Your videos \(1\/2\)/.test(t1.toast) && b1.label === "Saved" && b1.on, JSON.stringify({ t1, b1 }));
+  await watch("yTpAsTe0001");
+  const y0 = await btn(), t2 = await tap(), y1 = await btn();
+  ok("20 · a YouTube video (words loaded): Save → 'Added to Your YouTube videos (1/1)'", y0 && y0.label === "Save" && /Added to Your YouTube videos \(1\/1\)/.test(t2.toast) && y1.on, JSON.stringify({ y0, t2, y1 }));
+  await watch("yTpAsTe0002");
+  const t3 = await tap(), y2 = await btn();
+  ok("21 · Free keeps one YouTube video: a second is refused — 'You've reached your 1-video YouTube limit', Premium 20 — and stays unsaved", t3.dialog === "You've reached your 1-video YouTube limit" && !y2.on, JSON.stringify({ t3, y2 }));
+  const body = await p.evaluate(() => { const c = document.querySelector(".cf-ov"); const t = c ? c.innerText : ""; document.querySelectorAll(".cf-ov").forEach(e => e.remove()); return t; });
+  ok("22 · … the dialog offers Premium's 20", /up to 20 YouTube videos/.test(body), body);
+  const mine = await p.evaluate(async () => { shCloseWork(); go("shadow"); await new Promise(z => setTimeout(z, 600)); shLibCat("mine"); await new Promise(z => setTimeout(z, 400));
+    const rows = [...document.querySelectorAll("#shLibFeed .shl-row, #shLibFeed .shl-row-mine")].map(r => ({ t: (r.querySelector("b") || {}).innerText, src: (r.querySelector(".shl-src") || {}).innerText, cls: (r.querySelector(".shl-src") || { className: "" }).className })); shLibCat("foryou"); return rows; });
+  ok("23 · Your videos tells them apart: the library video tagged 'BE Mastery library', the YouTube one 'From YouTube'", mine.length === 2 && mine.some(r => /\blib\b/.test(r.cls) && r.src === "BE Mastery library") && mine.some(r => /yt/.test(r.cls) && r.src === "From YouTube"), JSON.stringify(mine));
+  await watch("-tubDR5XSRw");
+  const t4 = await tap(), b4 = await btn();
+  ok("24 · Saved again = removed ('Removed from your saved videos'), the button reads Save", /Removed from your saved videos/.test(t4.toast) && b4.label === "Save" && !b4.on, JSON.stringify({ t4, b4 }));
+  ok("25 · no JavaScript errors", !errs.length, errs.join(" | "));
+  await ctx.close();
+}
 console.log("\n# Welding: My clips opens a clip as before");
 {
   const { ctx, p, errs } = await learner({ track: "welding" });

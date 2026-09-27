@@ -16,7 +16,7 @@ every learner keeps the app exactly as it was. The suite checks this: P1–P3.
 |---|---|---|---|
 | `savedShadow`: videos saved from the BE Mastery library | 2 (owner, 27 Sep 2026; was 5) | 100 | yes, General English |
 | `savedClips`: Shadow passages kept in My clips (the star) | 1 | 30 | yes, General English |
-| `youtubeImports`: YouTube videos added by pasting a link | 2 | 20 | yes, General English |
+| `youtubeImports`: YouTube videos added by pasting a link | 1 (owner, 27 Sep 2026; was 2) | 20 | yes, General English |
 | `polishHistory`: Polish reports you can revisit | 1 (latest) | 50 | yes, General English |
 | `aiConversationDaily`, `aiSimulationDaily`, `partnerSessionMin`, `partnerSessionsDaily`, `reportHistory`, `progressHistoryDays` | null | null | **no**, named for later |
 
