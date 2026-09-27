@@ -114,13 +114,23 @@ const sb = await p.evaluate(async () => {
   b.scrollTop = 0; b.dispatchEvent(new Event("scroll")); await new Promise(r => setTimeout(r, 1300));
   return out; });
 ok("15b · the scroll indicator is small, not hidden: the long native line is off, a short slim thumb shows while scrolling, stays between the video and the bar, moves with the page and fades after", sb.gutter === 0 && sb.exists && sb.on && sb.a.w <= 5 && sb.a.h <= 40 && sb.a.t >= sb.videoB && sb.z.b <= sb.barT && sb.z.t > sb.a.t && sb.faded, JSON.stringify(sb));
+/* a sharp picture before the video starts (owner, 26 Sep 2026: "not clear") */
+const po = await p.evaluate(async c => { await shLoad({ vid: c, start: 0, end: 0, title: "clip" }, true); shOpenWork(); svSetMode("watch");
+  const img = document.getElementById("ytPosterImg"), box = document.getElementById("ytPoster");
+  for (let i = 0; i < 40 && !box.classList.contains("on"); i++) await new Promise(r => setTimeout(r, 150));
+  const fr = document.querySelector("#shPlayerWrap .yt-ratio").getBoundingClientRect(), br = box.getBoundingClientRect();
+  return { on: box.classList.contains("on"), src: img.currentSrc || img.src, nw: img.naturalWidth, taps: getComputedStyle(box).pointerEvents, covers: Math.abs(br.width - fr.width) < 2 && Math.abs(br.height - fr.height) < 2 }; }, CLIP);
+ok("15c · before the video starts, the clip's largest thumbnail covers the frame (≥ 480 px wide — YouTube's own small preview was soft on a 3× screen), and it takes no taps (the first tap still starts YouTube's player)", po.on && /i\.ytimg\.com\/vi\/.+\/(maxresdefault|sddefault|hqdefault)\.jpg/.test(po.src) && po.nw >= 480 && po.taps === "none" && po.covers, JSON.stringify(po));
+const pg = await p.evaluate(async () => { const real = ytPlayer.getPlayerState; ytPlayer.getPlayerState = () => 1; await new Promise(r => setTimeout(r, 450)); const gone = !document.getElementById("ytPoster").classList.contains("on");
+  const img = document.getElementById("ytPosterImg"); img.onload && img.onload(); const stays = !document.getElementById("ytPoster").classList.contains("on"); ytPlayer.getPlayerState = real; return { gone, stays }; });
+ok("15d · the poster goes the moment the player reports playing, and a late image load never brings it back over the video", pg.gone && pg.stays, JSON.stringify(pg));
 ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
 await ctx.close();
 
 console.log("\n# Welding: the classic workspace, unchanged");
 {
   const W = await learner("welding");
-  const w = await W.p.evaluate(() => { const Wk = document.getElementById("shWork"), body = Wk.querySelector(".sh-work-body"); return { v3: !!Wk.dataset.v3, bar: !!document.getElementById("shv3Bar") || !!document.getElementById("shv3Scroll"), v2: svOn(), ch: svChOn(), pad: getComputedStyle(body).paddingBottom, wrapPad: getComputedStyle(document.getElementById("shPlayerWrap")).paddingBottom }; });
+  const w = await W.p.evaluate(() => { const Wk = document.getElementById("shWork"), body = Wk.querySelector(".sh-work-body"); return { v3: !!Wk.dataset.v3, bar: !!document.getElementById("shv3Bar") || !!document.getElementById("shv3Scroll") || !!document.querySelector("#ytPoster.on"), v2: svOn(), ch: svChOn(), pad: getComputedStyle(body).paddingBottom, wrapPad: getComputedStyle(document.getElementById("shPlayerWrap")).paddingBottom }; });
   ok("17 · Welding: no redressed workspace, no bottom bar, no Shadow Studio V2 or Challenge — and its padding is the classic one (on the page, not the player's container)", !w.v3 && !w.bar && !w.v2 && !w.ch && parseFloat(w.pad) > 0 && parseFloat(w.wrapPad) === 0, JSON.stringify(w));
   ok("18 · Welding: no JavaScript errors", !W.errs.length, W.errs.join(" | "));
   await W.ctx.close();

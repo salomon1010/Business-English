@@ -800,6 +800,20 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
 #shv3Scroll{position:absolute;top:0;right:3px;width:4px;height:36px;border-radius:4px;background:color-mix(in srgb,var(--txt) 55%,transparent);
   opacity:0;transition:opacity .3s;pointer-events:none;z-index:8;will-change:transform}
 #shv3Scroll.on{opacity:.8}
+/* A sharp picture before the video starts (owner, 26 Sep 2026: "not clear").
+   A small embed makes YouTube show its 480×360 preview, which a 3× phone
+   screen blows up soft. Until the player plays, the clip's largest thumbnail
+   (1280×720 where YouTube has one) covers it. It takes no taps — the first
+   tap still lands on YouTube's own player underneath — and it goes the
+   moment the player reports playing or buffering (shPosterHide). Once
+   playing, the picture is YouTube's stream: it picks the quality from the
+   player's size and the connection, and offers no way to force it. */
+.yt-poster{display:none}
+#shWork[data-v3] .yt-poster.on{display:block;position:absolute;inset:0;z-index:2;pointer-events:none;background:#000}
+#shWork[data-v3] .yt-poster img{display:block;width:100%;height:100%;object-fit:cover}
+#shWork[data-v3] .yt-poster-play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:68px;height:48px;border-radius:14px;
+  background:rgba(15,15,15,.72);color:#fff;display:grid;place-items:center}
+#shWork[data-v3] .yt-poster-play svg{width:26px;height:26px;fill:#fff}
 #shWork[data-v3][data-svmode="watch"] #shPlayerWrap{padding-bottom:max(calc(var(--sh-dock,84px) + 12px),var(--sh-read,60vh))}
 /* the speaker stays in view while the words scroll under — shadowing needs the
    face and the line at the same time */
@@ -11773,7 +11787,7 @@ ${(()=>{
     <div class="sh-work-body">
   <div id="shPlayerWrap">
     <div class="sh-stick">
-    <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div></div></div>
+    <div class="yt-shell"><div class="yt-ratio"><div id="ytBox"></div><div class="yt-poster" id="ytPoster" aria-hidden="true"><img id="ytPosterImg" alt="" decoding="async"><span class="yt-poster-play">${ic("play")}</span></div></div></div>
     <div class="sh-viderr" id="shVidErr" style="display:none" role="alert">
       <span class="sh-viderr-ic">${ic("alert")}</span>
       <span class="sh-viderr-t">
@@ -12640,6 +12654,7 @@ async function shLoad(c,quiet){
   if(ytPlayer&&ytPlayer.destroy)ytPlayer.destroy();
   document.getElementById("ytBox").innerHTML="";
   shVideoError(false);
+  shPosterShow(shClip.vid);
   ytPlayer=new YT.Player("ytBox",{videoId:shClip.vid,
     playerVars:{start:Math.floor(shClip.start),rel:0,playsinline:1,modestbranding:1},
     events:{onReady:e=>{shVideoError(false);try{const t=e.target.getVideoData().title;if(t){shClip.title=t;if(S.lastClip)S.lastClip.title=t;const wt=document.getElementById("shv3Title")||document.getElementById("shWorkTitle");if(wt)wt.textContent=t;const oi=shOwnFind(shClip.vid);if(oi>=0&&shOwn()[oi].title!==t){shOwn()[oi].title=t;save();shOwnRender()}}}catch(_){}
@@ -12648,6 +12663,7 @@ async function shLoad(c,quiet){
       /* 100/101/150 = removed, private, or embedding disallowed; 2/5 = bad id or
          player failure. Without this the user got YouTube's own grey box inside
          the frame while every control stayed live against a dead player. */
+      onStateChange:e=>{if(e&&(e.data===1||e.data===3))shPosterHide()},
       onError:()=>{clearInterval(shTick);shVideoError(true)}}});
   renderRecs(shRecCtx(shClip.vid));
   if(!quiet)shOpenWork();
@@ -12734,6 +12750,25 @@ window.shCloseWork=()=>{
   jumpTop();
 };
 let shLooping=true,shCounting=false,shPing={};
+/* the sharp poster (see .yt-poster): the largest thumbnail YouTube has — a
+   missing maxres answers with a 120×90 placeholder, so step down — shown only
+   once it has loaded and only if the video has not started meanwhile */
+const SH_POSTER=["maxresdefault","sddefault","hqdefault"];
+let _shPosterGone=true,_shPosterW=null;
+function shPosterShow(vid){
+  const box=document.getElementById("ytPoster"),img=document.getElementById("ytPosterImg");if(!box||!img)return;
+  box.classList.remove("on");_shPosterGone=false;
+  if(!vid||!/^[A-Za-z0-9_-]{11}$/.test(vid)||!shWorkV3()){_shPosterGone=true;return}
+  let k=0;const url=i=>"https://i.ytimg.com/vi/"+vid+"/"+SH_POSTER[i]+".jpg";
+  img.onload=()=>{if(img.naturalWidth<=120&&k<SH_POSTER.length-1){img.src=url(++k);return}if(!_shPosterGone)box.classList.add("on")};
+  img.onerror=()=>{if(k<SH_POSTER.length-1)img.src=url(++k)};
+  img.src=url(0);
+  /* its own watch on the player, independent of onReady and of events (the
+     iOS shell's stand-in player sends none); it stops the moment it is done */
+  clearInterval(_shPosterW);
+  _shPosterW=setInterval(()=>{if(_shPosterGone){clearInterval(_shPosterW);return}try{const st=ytPlayer&&ytPlayer.getPlayerState&&ytPlayer.getPlayerState();if(st===1||st===3)shPosterHide()}catch(e){}},300);
+}
+function shPosterHide(){_shPosterGone=true;clearInterval(_shPosterW);const box=document.getElementById("ytPoster");if(box)box.classList.remove("on")}
 function shStartTick(){
   clearInterval(shTick);
   shTick=setInterval(()=>{
