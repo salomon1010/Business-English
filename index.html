@@ -1372,7 +1372,60 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sim-fb-play.on.q-none{background:var(--acc);color:var(--on-accent)}
 .pf-menu{display:flex;flex-direction:column;gap:10px;margin:18px 0 20px}
 .pf-group-h{font-size:15px;font-weight:800;margin:18px 0 8px;color:var(--txt)}
-.pf-hero-row+.pf-prem{margin-top:12px}   /* the profile card and the Premium card were flush (owner, 27 Sep 2026) */
+.pf-hero-row+.pf-prem{margin-top:12px}
+/* ===== Home V2 (27 Sep 2026): the learner's own page. The report-page language the
+   owner chose as reference — eyebrow, big Outfit headline, label-over-value fact
+   cards, rule-separated sections, captioned image cards — on the app's own tokens.
+   Heights come from aspect-ratio and content, never from vh. ===== */
+.hx{margin:4px 0 22px;border:1px solid var(--line2);border-radius:20px;overflow:hidden;background:var(--card)}
+.hx-media{position:relative;aspect-ratio:16/10;background:var(--grad);overflow:hidden;isolation:isolate}
+@media (min-width:700px){.hx-media{aspect-ratio:21/9}}
+.hx-media.empty{background:radial-gradient(120% 90% at 20% 10%,color-mix(in srgb,var(--acc) 55%,transparent),transparent 60%),var(--grad)}
+.hx-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:0}
+.hx-slide.on{opacity:1;animation:hxZoom 7s ease-out both}
+@keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
+.hx-scrim{position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(6,9,18,.25) 0%,rgba(6,9,18,.2) 30%,rgba(6,9,18,.78) 58%,rgba(6,9,18,.94) 100%)}
+.hx-over{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:16px 18px 18px;color:#fff}
+.hx-eyebrow{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c7d2fe}
+.hx-eyebrow svg{width:14px;height:14px}
+.hx-over h2{margin:6px 0 0;font-size:clamp(20px,5.6vw,28px);line-height:1.15;color:#fff;text-wrap:balance;text-shadow:0 1px 12px rgba(0,0,0,.45)}
+.hx-dots{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px}
+.hx-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:0;background:rgba(255,255,255,.45);cursor:pointer}
+.hx-dots button.on{width:20px;background:#fff}
+.hx-body{padding:16px 18px 18px}
+.hx-why{display:flex;align-items:flex-start;gap:8px;margin:0 0 12px;font-size:14.5px;font-weight:600;line-height:1.4}
+.hx-why svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--acc)}
+.hx-desc{font-size:13.5px;line-height:1.5;color:var(--mut);margin:12px 0 0}
+.hx-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0 0}
+.hx-facts>div{background:var(--bg2);border:1px solid var(--line2);border-radius:12px;padding:8px 10px;min-width:0}
+.hx-facts>div.wide{grid-column:1/-1}
+.hx-facts b{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:700;margin-bottom:2px}
+.hx-facts span{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600}
+.hx-facts span svg{width:15px;height:15px;flex:none;color:var(--acc)}
+.hx-cta{width:100%;justify-content:center;min-height:48px}
+.hx-src{display:flex;align-items:center;gap:6px;margin:10px auto 0;background:none;border:0;color:var(--mut);font:inherit;font-size:12.5px;cursor:pointer;max-width:100%}
+.hx-src span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-src svg{width:13px;height:13px;flex:none}
+.hx-more,.hx-dest{margin:0 0 22px}
+.hx-more h3,.hx-dest h3{font-size:17px;margin:0 0 10px;padding-top:14px;border-top:1px solid var(--line2)}
+.hx-rec{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;margin-bottom:8px;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);font:inherit;cursor:pointer;min-height:56px}
+.hx-rec-ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
+.hx-rec-ic svg{width:19px;height:19px}
+.hx-rec-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hx-rec-t b{font-size:14.5px}
+.hx-rec-t small{font-size:12.5px;color:var(--mut)}
+.hx-rec-min{flex:none;font-size:12px;color:var(--mut);white-space:nowrap}
+.hx-dest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:700px){.hx-dest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.hx-dcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;padding:12px;border:1px solid var(--line2);border-radius:14px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
+.hx-dcard img{display:block;width:calc(100% + 24px);margin:-12px -12px 8px;aspect-ratio:16/9;object-fit:cover;background:var(--bg2)}
+.hx-dic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
+.hx-dcard.img .hx-dic{position:absolute;top:10px;left:10px;background:rgba(6,9,18,.6);color:#fff}
+.hx-dic svg{width:18px;height:18px}
+.hx-dcard b{font-size:14.5px}
+.hx-dcard small{font-size:12.5px;color:var(--mut);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.hx-slide{transition:none}.hx-slide.on{animation:none}}
+   /* the profile card and the Premium card were flush (owner, 27 Sep 2026) */
 .pf-group{background:var(--card);border:1px solid var(--line2);border-radius:16px;overflow:hidden}
 .pf-group .pf-line{border:0;border-radius:0;background:transparent;min-height:56px;padding:12px 16px}.pf-group .pf-line+.pf-line{border-top:1px solid var(--line)}
 .pf-group .pf-line .pf-ic{width:34px;height:34px;flex:none;display:grid;place-items:center;color:var(--txt)}.pf-group .pf-line .pf-ic svg{width:22px;height:22px}
@@ -6279,6 +6332,7 @@ const I18N_EN={
  "home.continue":"▶ Continue where you left off",
  "home.week_line":"Week {{w}} · {{d}} — {{focus}}",
  "home.start_btn":"Start today's 25-minute session →",
+ "home.eyebrow_back":"Pick up where you left off","home.next_eyebrow":"Your next step","home.cta_continue":"Continue","home.cta_restart":"Restart with 5 minutes","home.cta_review":"Review the words","home.cta_challenge":"Open the Challenge","home.cta_shadow":"Practise these words","home.cta_partner":"Open Practice Partner","home.cta_coach":"Practise with the AI coach","home.min":"{{n}} min","home.why_lesson_pending":"Today's lesson isn't done yet.","home.why_inactive":"You've been away for a few days. A short session restarts the habit.","home.why_words_due":"{{n}} of your saved words are due for review.","home.why_challenge_not_passed":"Your last Challenge on this clip hasn't passed yet.","home.why_trouble_words":"{{n}} words tripped you up in Shadow.","home.why_partner_waiting":"A learner is ready to practise right now.","home.why_streak_at_risk":"Your partner streak is at risk this week.","home.why_no_partner":"No speaking practice with a partner lately.","home.why_placement":"It decides where you start: Foundations or the full programme.","home.why_foundations":"Foundations comes before the 12-week programme.","home.done_eyebrow":"Today","home.done_h":"Today's practice is done","home.done_b":"Next up: {{next}}. Come back tomorrow, or keep going now.","home.done_btn":"Open the next session","home.pic_n":"Picture {{n}} of {{total}}","home.vis_from":"From the library: {{title}}","home.more_recs_h":"Also recommended for you","home.more_h":"Explore","home.d_shadow_t":"Shadow Studio","home.d_shadow":"Shadow a real speaker, line by line","home.d_shadow_last":"Continue: {{title}}","home.d_partner_t":"Practice Partner","home.d_partner":"Speak with a learner or the AI coach","home.d_phrases_t":"Phrase Lab","home.d_phrases":"Say it casually, get it boardroom-ready","home.d_words_t":"Vocabulary","home.d_words":"{{n}} words ready to review","home.d_words_none":"Review your saved words","home.d_map_t":"Road map","home.d_map":"Week {{w}} of {{total}}","home.d_progress_t":"Progress","home.d_progress":"{{n}}-day streak","home.d_progress_none":"See how far you've come","home.f_activity":"Activity","home.f_time":"Time","home.f_why":"Why this","home.f_topic":"Topic","home.k_lesson":"Lesson","home.k_comeback":"Lesson","home.k_words":"Word review","home.k_challenge":"Shadow Challenge","home.k_shadow":"Trouble words","home.k_partner_now":"Practice Partner","home.k_partner_streak":"Practice Partner","home.k_ai_coach":"AI coach","home.k_placement":"Placement check","home.k_foundations":"Foundations","home.k_done":"Next session",
  "home.pct_of":"of 84 sessions",
  "home.stat_streak":"Day streak (best habit: 6 days/week)",
  "home.stat_recordings":"Recordings saved in this browser",
@@ -10654,7 +10708,199 @@ function mvHomeCardHTML(){
   </section>`;
 }
 
+/* ================= HOME V2 — the learner's own page (owner, 27 Sep 2026) =================
+   General English only, behind home_v2_enabled (on for staging, off in production).
+   Home answers "what should I do next?" from the SAME engine the push nudges use:
+   NudgeEngine.rank(nudgeSignals()) — no second algorithm. The placement check and
+   Foundations come first because they gate everything else (fndNeedsPlacement /
+   fndGated, the rules the programme already enforces). A nudge still pending on the
+   server is put first, so Home and the notification never disagree. The hero shows
+   the one next step; every other recommendation follows, ranked; then the places to
+   practise. Welding keeps rHome's Career Dashboard exactly as it is. */
+function homeV2On(){try{return flag("home_v2_enabled")&&isGeneralEnglish()}catch(e){return false}}
+const HOME_KIND_ICON={lesson:"play",comeback:"play",words:"repeat",challenge:"dumbbell",shadow:"waveform",partner_now:"user",partner_streak:"user",ai_coach:"mic",placement:"check",foundations:"book",done:"check"};
+function homeReasonKey(r){const x=String(r&&r.reason||"");return x.startsWith("inactive_")?"inactive":x.startsWith("words_due")?"words_due":x.startsWith("trouble_words")?"trouble_words":x.startsWith("partner_waiting")?"partner_waiting":x.startsWith("streak_at_risk")?"streak_at_risk":x.startsWith("no_partner")?"no_partner":x}
+/* every recommendation for this learner now, best first — the push engine's own ranking */
+function homeRecs(){
+  if(!isGeneralEnglish()||!window.NudgeEngine)return [];
+  let sig=null,list=[];
+  try{sig=nudgeSignals();const n=S.nudge||{},h=(n.hist&&n.hist.done)?{done:n.hist.done}:{};list=NudgeEngine.rank(sig,h)}catch(e){return []}
+  /* the nudge the server holds for this phone, if it is still true, leads */
+  try{const p=S.nudge&&S.nudge.pending;if(p&&Date.now()<p.expiresAt&&!NudgeEngine.satisfied(p,sig)){const i=list.findIndex(r=>r.kind===p.kind);if(i>0)list.unshift(list.splice(i,1)[0])}}catch(e){}
+  return list;
+}
+/* one recommendation → what Home draws. Lessons read the curriculum day itself;
+   everything else uses the nudge's own wording (nudgeText) and its own deep link (nudgeGo) */
+function homeCard(r){
+  const k=r.kind,why=t("home.why_"+homeReasonKey(r),{n:(r.vars&&r.vars.n)||""});
+  if(k==="lesson"||k==="comeback"){
+    const w=+r.args[0],d=String(r.args[1]),wk=trackWeeks().find(x=>x.n===w)||{},day=(wk.days||{})[d]||{},meta=trackDayMeta()[d]||{};
+    return {kind:k,eyebrow:t(k==="comeback"?"home.eyebrow_back":"home.continue").replace(/^▶\s*/,""),title:t("home.week_line",{w,d,focus:day.focus||wk.theme||""}),
+      meta:meta.k?dayTypeLabel(d):"",topicLine:wk.theme||"",metaIc:meta.k||"play",desc:day.task||"",why,minutes:r.minutes,
+      cta:t(k==="comeback"?"home.cta_restart":"home.cta_continue"),go:`go('session',${w},'${d}')`,topic:[wk.theme,day.focus,day.task,dayTypeLabel(d)].join(" "),rec:r};
+  }
+  const x=nudgeText(r);
+  const verb={words:"home.cta_review",challenge:"home.cta_challenge",shadow:"home.cta_shadow",partner_now:"home.cta_partner",partner_streak:"home.cta_partner",ai_coach:"home.cta_coach"}[k]||"home.cta_continue";
+  const topic={words:"words vocabulary",challenge:(r.vars&&r.vars.title||"")+" pronunciation shadow",shadow:"pronunciation shadow",partner_now:"conversation partner",partner_streak:"conversation partner",ai_coach:"conversation coach"}[k]||"";
+  return {kind:k,eyebrow:t("home.next_eyebrow"),title:x.title,meta:"",metaIc:HOME_KIND_ICON[k]||"play",desc:String(x.body||"").replace(/^[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}️\s]+/u,""),why,minutes:r.minutes,
+    cta:t(verb),go:`homeGoRec(${JSON.stringify(r.rid||r.kind).replace(/"/g,"&quot;")})`,topic,rec:r,vid:k==="challenge"&&r.args?r.args[0]:null};
+}
+let _homeRecs=[];
+window.homeGoRec=rid=>{const r=_homeRecs.find(x=>(x.rid||x.kind)===rid);if(r)try{nudgeGo(r)}catch(e){}};
+/* the gates the programme already has, before the engine's list */
+function homeGateCard(){
+  if(fndNeedsPlacement())return {kind:"placement",eyebrow:t("fnd.eyebrow"),title:t("fnd.check_h"),meta:"",metaIc:"check",desc:t("fnd.check_sub"),why:t("home.why_placement"),minutes:1,cta:t("fnd.check_open"),go:"fndOpenCheck('home')",topic:"introductions yourself pronunciation"};
+  if(fndGated()){const day=fndDayOf();return {kind:"foundations",eyebrow:t("fnd.eyebrow"),title:t("fnd.home_h"),meta:t("fnd.day_of",{n:day,total:FND_TOTAL_DAYS}),metaIc:"book",desc:t("fnd.home_sub"),why:t("home.why_foundations"),minutes:10,cta:t("fnd.home_btn"),go:"go('foundations')",topic:"introductions small talk pronunciation"}}
+  return null;
+}
+/* nothing to recommend: today is done — say so, and offer the next session */
+function homeDoneCard(){
+  const p=currentPos(),wk=trackWeeks().find(x=>x.n===p.w)||{},day=(wk.days||{})[p.d]||{};
+  return {kind:"done",eyebrow:t("home.done_eyebrow"),title:t("home.done_h"),meta:"",metaIc:"check",desc:t("home.done_b",{next:t("home.week_line",{w:p.w,d:p.d,focus:day.focus||wk.theme||""})}),why:"",minutes:null,
+    cta:t("home.done_btn"),go:pathLocked(p.w,p.d)?"go('journey')":`go('session',${p.w},'${p.d}')`,topic:[wk.theme,day.focus].join(" ")};
+}
+/* ---- the visual layer: the recommendation's topic → up to three relevant pictures.
+   Library videos first (sharp thumbnails, and the actual lessons), matched by title
+   words and category — never at random, never unrelated: a video must share a title
+   word with the topic. Then the role-play photos for that topic. Then nothing: the
+   card's own gradient. Deterministic: the same recommendation shows the same pictures. */
+const HV_TOPICS=[
+  {re:/introduc|yourself|first impression|role clarity|network|small talk/i,terms:["introduc","yourself","first impression","small talk","network"],cat:"everyday",photos:["iv-tellme","oneone","coffee"]},
+  {re:/pronunc|shadow|stress|accent|speech|intonation|fluen|sound/i,terms:["pronunc","accent","shadow","clear","fluen","intonation"],cat:"skills",photos:["standup","oneone"]},
+  {re:/meeting|agenda|stand-?up|interrupt|disagree|clarif|update/i,terms:["meeting","interrupt","disagree","agenda","clarif"],cat:"meetings",photos:["standup","oneone"]},
+  {re:/present|pitch|slide|summar|explain/i,terms:["present","pitch","explain","summar"],cat:"presentations",photos:["standup"]},
+  {re:/interview|job|salary|strength|weakness|experience/i,terms:["interview","tell me about","strength","weakness","salary"],cat:"interviews",photos:["interview","iv-tellme","iv-salary"]},
+  {re:/negotiat|persuad|recommend|decid|win support|push ?back/i,terms:["negotiat","persuad","recommend","convinc"],cat:"meetings",photos:["oneone"]},
+  {re:/\bwords?\b|vocab|phrase/i,terms:["vocabulary","words","phrases","idiom"],cat:"skills",photos:["coffee","checkin"]},
+  {re:/partner|conversation|coach/i,terms:["conversation","small talk","chat"],cat:"everyday",photos:["partner","coffee","neighbour"]}
+];
+function homeVisuals(card){
+  const txt=String(card.topic||""),tops=HV_TOPICS.filter(x=>x.re.test(txt)).slice(0,2),out=[],seen=new Set();
+  const add=v=>{if(out.length<3&&!seen.has(v.key)){seen.add(v.key);out.push(v)}};
+  if(card.vid&&/^[A-Za-z0-9_-]{11}$/.test(card.vid))add({key:card.vid,vid:card.vid,title:(_shCat&&_shCat.videos[card.vid]&&_shCat.videos[card.vid].title)||""});
+  if(tops.length&&_shCat&&_shCat.videos){
+    const cats={};(_shCat.categories||[]).forEach(c=>(c.vids||[]).forEach(v=>{cats[v]=cats[v]||c.id}));
+    const sc=Object.keys(_shCat.videos).map((v,i)=>{const ti=String(_shCat.videos[v].title||"").toLowerCase();let s=0,hit=false;
+      tops.forEach(tp=>{tp.terms.forEach(w=>{if(ti.includes(w)){s+=3;hit=true}});if(cats[v]===tp.cat)s+=1});return {v,s,hit,i}}).filter(x=>x.hit).sort((a,b)=>b.s-a.s||a.i-b.i);
+    sc.forEach(x=>add({key:x.v,vid:x.v,title:_shCat.videos[x.v].title||""}));
+  }
+  tops.forEach(tp=>tp.photos.forEach(ph=>add({key:ph,photo:"rp-photos/"+ph+".jpg"})));
+  return out;
+}
+function homeSlideHTML(v,i){
+  const src=v.vid?`https://i.ytimg.com/vi/${esc(v.vid)}/maxresdefault.jpg`:esc(v.photo);
+  return `<img class="hx-slide${i===0?" on":""}" src="${src}" alt="" ${i===0?'fetchpriority="high"':'loading="lazy"'} decoding="async" data-i="${i}"${v.vid?` data-vid="${esc(v.vid)}" data-title="${esc(v.title)}"`:""} onerror="hxSlideErr(this)">`;
+}
+window.hxSlideErr=img=>{
+  /* maxres → hq → gone; the card keeps its gradient if every picture fails */
+  if(img.dataset.vid&&/maxresdefault/.test(img.src)){img.src=img.src.replace("maxresdefault","hqdefault");return}
+  const box=img.parentNode;const wasOn=img.classList.contains("on");img.remove();
+  const left=box?box.querySelectorAll(".hx-slide"):[];if(wasOn&&left[0])left[0].classList.add("on");
+  try{hxDots()}catch(e){}
+};
+function hxDots(){
+  const box=document.getElementById("hxMedia");if(!box)return;const s=[...box.querySelectorAll(".hx-slide")],d=document.getElementById("hxDots");
+  box.classList.toggle("empty",!s.length);
+  if(d)d.innerHTML=s.length>1?s.map((x,i)=>`<button class="${x.classList.contains("on")?"on":""}" aria-label="${esc(t("home.pic_n",{n:i+1,total:s.length}))}" onclick="hxShow(${i})"></button>`).join(""):"";
+  const on=s.find(x=>x.classList.contains("on")),src=document.getElementById("hxSrc");
+  if(src){if(on&&on.dataset.vid&&on.dataset.title){src.hidden=false;src.dataset.vid=on.dataset.vid;src.querySelector("span").textContent=t("home.vis_from",{title:on.dataset.title})}else src.hidden=true}
+}
+window.hxShow=i=>{const box=document.getElementById("hxMedia");if(!box)return;const s=[...box.querySelectorAll(".hx-slide")];if(!s[i])return;s.forEach((x,j)=>x.classList.toggle("on",j===i));hxDots()};
+/* rotation: every 6 s, only while Home is the page, the tab is visible, the hero is on
+   screen and the learner has not asked for reduced motion. One timer, ever. */
+let _hxTimer=null,_hxSeen=true,_hxObs=null;
+function hxRotate(){
+  clearInterval(_hxTimer);_hxTimer=null;
+  let reduce=false;try{reduce=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+  const box=document.getElementById("hxMedia");if(!box||reduce)return;
+  try{if(_hxObs)_hxObs.disconnect();_hxObs=new IntersectionObserver(es=>{_hxSeen=es.some(e=>e.isIntersecting)},{threshold:.25});_hxObs.observe(box)}catch(e){_hxSeen=true}
+  _hxTimer=setInterval(()=>{
+    const b=document.getElementById("hxMedia");if(!b||!b.isConnected){clearInterval(_hxTimer);_hxTimer=null;return}
+    if(document.hidden||!_hxSeen||(typeof cur!=="undefined"&&cur&&cur.v!=="home"))return;
+    const s=[...b.querySelectorAll(".hx-slide")];if(s.length<2)return;const i=s.findIndex(x=>x.classList.contains("on"));hxShow((i+1)%s.length);
+  },6000);
+}
+function homeHeroHTML(c,vis){
+  return `<section class="hx" data-kind="${esc(c.kind)}" aria-labelledby="hxT">
+    <div class="hx-media${vis.length?"":" empty"}" id="hxMedia">
+      ${vis.map(homeSlideHTML).join("")}
+      <div class="hx-scrim" aria-hidden="true"></div>
+      <div class="hx-over"><div class="hx-eyebrow">${ic(c.kind==="lesson"||c.kind==="comeback"?"play":"idea")}<span>${esc(c.eyebrow)}</span></div>
+        <h2 id="hxT">${esc(c.title)}</h2></div>
+      <div class="hx-dots" id="hxDots"></div>
+    </div>
+    <div class="hx-body">
+      ${c.why?`<p class="hx-why">${ic("info")}<span>${esc(c.why)}</span></p>`:""}
+      <button class="btn-primary hx-cta" onclick="${c.go}">${esc(c.cta)}</button>
+      <div class="hx-facts">
+        <div${c.minutes?"":` class="wide"`}><b>${esc(t("home.f_activity"))}</b><span>${ic(c.metaIc)}${esc(c.meta||t("home.k_"+c.kind))}</span></div>
+        ${c.minutes?`<div><b>${esc(t("home.f_time"))}</b><span>${ic("clock")}${esc(t("home.min",{n:c.minutes}))}</span></div>`:""}
+        ${c.topicLine?`<div class="wide"><b>${esc(t("home.f_topic"))}</b><span>${esc(c.topicLine)}</span></div>`:""}
+      </div>
+      ${c.desc?`<p class="hx-desc">${esc(c.desc)}</p>`:""}
+      <button class="hx-src" id="hxSrc" hidden onclick="shLibOpen(this.dataset.vid)">${ic("play")}<span></span></button>
+    </div>
+  </section>`;
+}
+function homeMoreHTML(cards){
+  if(!cards.length)return "";
+  return `<section class="hx-more" aria-labelledby="hxMoreH"><h3 id="hxMoreH">${esc(t("home.more_recs_h"))}</h3>
+    ${cards.map(c=>`<button class="hx-rec" data-kind="${esc(c.kind)}" onclick="${c.go}">
+      <span class="hx-rec-ic">${ic(HOME_KIND_ICON[c.kind]||"play")}</span>
+      <span class="hx-rec-t"><b>${esc(c.title)}</b><small>${esc(c.why||c.desc)}</small></span>
+      ${c.minutes?`<span class="hx-rec-min">${esc(t("home.min",{n:c.minutes}))}</span>`:""}<span class="pf-chev" aria-hidden="true">›</span>
+    </button>`).join("")}</section>`;
+}
+/* the places to practise, each with its own state */
+function homeDestHTML(){
+  let words=0;try{words=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
+  let st=0;try{st=streak()}catch(e){}
+  const p=currentPos(),weeks=trackWeeks().length||12,lc=S.lastClip&&S.lastClip.vid?S.lastClip:null;
+  const d=[
+    {go:"go('shadow')",ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),img:lc?`https://i.ytimg.com/vi/${esc(lc.vid)}/hqdefault.jpg`:""},
+    ppAvailable()?{go:"go('partner')",ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),img:"rp-photos/partner.jpg"}:null,
+    {go:"go('phrases')",ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases")},
+    {go:"go('practice')",ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none")},
+    {go:"go('journey')",ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks})},
+    {go:"go('review')",ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none")}
+  ].filter(Boolean);
+  return `<section class="hx-dest" aria-labelledby="hxDestH"><h3 id="hxDestH">${esc(t("home.more_h"))}</h3><div class="hx-dest-grid">
+    ${d.map(x=>`<button class="hx-dcard${x.img?" img":""}" onclick="${x.go}">${x.img?`<img src="${x.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(x.ic)}</span><b>${esc(x.t)}</b><small>${esc(x.s)}</small></button>`).join("")}
+  </div></section>`;
+}
+function rHomeV2(el){
+  const name=S.profile&&S.profile.name?esc(S.profile.name):"";
+  const gate=homeGateCard();
+  _homeRecs=gate?[]:homeRecs();
+  const cards=_homeRecs.map(homeCard);
+  const top=gate||cards[0]||homeDoneCard(),rest=gate?[]:cards.slice(1,5);
+  const draw=()=>{
+    el.innerHTML=`
+    <h1 class="big home-hero-h">${name?t("home.hero_named",{name}):t("home.hero_generic")}</h1>
+    ${homeHeroHTML(top,homeVisuals(top))}
+    ${homeMoreHTML(rest)}
+    ${ppHomeCardHTML()}
+    ${homeDestHTML()}
+    ${homeNudgeHTML()}
+    <div class="hero">
+      ${ProfessionalTrackContext.all().filter(x=>(x.id==="general-english"||x.id==="welding")&&x.id!==activeProfessionalTrack().id).map(trackSelectionCard).join("")}
+    </div>
+    <button class="pf-row pf-setup home-career" onclick="go('tracks')">
+      <span class="pf-ic">${ic("briefcase")}</span>
+      <span class="pf-txt"><b>${t("tracks.eyebrow")}</b><small>${t("home.tracks_sub")}</small></span>
+      <span class="pf-chev" aria-hidden="true">›</span>
+    </button>`;
+    manIconizeInline(el);hxDots();hxRotate();
+  };
+  draw();
+  /* the library index gives the pictures; it is usually cached — when it lands, the
+     hero's media is filled in place (same box, fixed ratio: nothing moves) */
+  if(!_shCat)try{shCatLoad().then(()=>{if(cur&&cur.v==="home"&&document.getElementById("hxMedia")){const m=document.getElementById("hxMedia"),v=homeVisuals(top);
+    if(v.length){m.querySelectorAll(".hx-slide").forEach(x=>x.remove());m.insertAdjacentHTML("afterbegin",v.map(homeSlideHTML).join(""));m.classList.remove("empty");hxDots();hxRotate()}}}).catch(()=>{})}catch(e){}
+}
+
 function rHomeGeneral(el){
+  if(homeV2On())return rHomeV2(el);
   const pos=currentPos(),wk=trackWeeks()[pos.w-1],day=(wk.days||{})[pos.d]||{};
   const name=S.profile&&S.profile.name?esc(S.profile.name):"";
   el.innerHTML=`
@@ -20158,6 +20404,7 @@ const FLAGS_DEFAULT={
   shadow_apply_phrase_enabled:true,    // Apply It: the phrase goes to the AI coach (ppAiStart) and to partner requests — 26 Sep 2026, was off while the AI side read nothing
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
+  home_v2_enabled:false,               // Home V2 — the learner's own page: the engine's next step + every other recommendation (2026-09-27, General English only; staging on)
   learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
@@ -20178,6 +20425,7 @@ const FLAGS_STAGING={
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
   learning_nudges_enabled:true,
+  home_v2_enabled:true,
   ads_enabled:false,
   ads_mock_provider:false,
   billing_enabled:false
@@ -28841,7 +29089,7 @@ async function bootMain(){
      was asked for (no hash, or Home), never for someone who still has the
      one-minute check to take — Home opens that for them. */
   const _prevSeen=S.lastSeen;
-  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
+  if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)&&!(typeof homeV2On==="function"&&homeV2On())){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
