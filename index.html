@@ -11911,7 +11911,7 @@ function shResumeHTML(){
   return `<button class="btn-primary sh-resume" onclick="shOpenWork()"><span class="sh-resume-l">${tIc("sh.resume_btn","play")}</span>${S.lastClip.title?`<span class="sh-resume-t">· ${esc(String(S.lastClip.title).slice(0,48))}</span>`:""}</button>`;
 }
 let _shCat=null,_shCatP=null,_shLibQ="",_shLibCat="foryou",_shLibCh="",_shLibMore=false;
-function shLibOn(){return flag("shadow_library_enabled")&&!isProfessionalJourney()}
+function shLibOn(){return flag("shadow_library_enabled")&&isGeneralEnglish()}
 function shCatLoad(){
   if(_shCat)return Promise.resolve(_shCat);
   if(_shCatP)return _shCatP;
@@ -19593,7 +19593,7 @@ const FLAGS_DEFAULT={
   practice_partner_live_enabled:false, // live follows the Worker's LIVE_ENABLED ("0" in production until TURN is tested there)
   shadow_studio_v2_enabled:true,       // released 2026-09-19: Watch / Shadow / Challenge, General English only
   shadow_word_timing_enabled:true,
-  shadow_apply_phrase_enabled:false,   // the Apply It tab stays off: svApplyAI writes S.applyPhrase and nothing reads it
+  shadow_apply_phrase_enabled:true,    // Apply It: the phrase goes to the AI coach (ppAiStart) and to partner requests — 26 Sep 2026, was off while the AI side read nothing
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
@@ -19647,6 +19647,19 @@ function flag(name){
 /* The one boundary every General-English-only feature checks. Welding, and any
    future track, gets exactly the app it has today. */
 function isGeneralEnglish(){return areaId()===AREA_GEN}
+/* Analytics follow the product boundary (26 Sep 2026). Events of the General
+   English-only features — Practice Partner, the Shadow Challenge, Apply It —
+   are dropped here when the open area is not General English, whatever call
+   site fires them, so a stray call can never count a Welding learner in a
+   General English funnel. Shared events (the Shadow coach report, which
+   Welding lines use too, app_open, certificates …) pass as before. The events
+   Worker cannot do this itself: events are anonymous by design. */
+const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$)/;
+(function(){
+  const send=window.track;if(typeof send!=="function"||send.geGuard)return;
+  const guarded=function(name,props){try{if(GE_ONLY_EVENT.test(String(name))&&!isGeneralEnglish())return}catch(e){}return send.apply(this,arguments)};
+  guarded.geGuard=true;window.track=guarded;
+})();
 
 /* ================= ENTITLEMENTS + AD ELIGIBILITY (Phase 7) =================
    The plan is decided by the SERVER (backend/entitlements, be-entitlements:
@@ -20606,7 +20619,7 @@ function svRender(){
   box.style.display="";
   const timed=a.level==="word"||a.level==="sentence";
   const tabs=[["watch","sv.mode_watch"],["shadow","sv.mode_shadow"],["challenge","sv.mode_challenge"],["apply","sv.mode_apply"]]
-    .filter(([m])=>m!=="apply"||flag("shadow_apply_phrase_enabled"))
+    .filter(([m])=>m!=="apply"||(flag("shadow_apply_phrase_enabled")&&(svApplyAIOn()||svApplyPartnerOn())))
     .map(([m,k])=>`<button class="seg-tab ${svMode===m?"on":""}" role="tab" aria-selected="${svMode===m}" onclick="svSetMode('${m}')"><span class="seg-lbl">${t(k)}</span></button>`).join("");
   const segHTML=(s,i)=>`<p class="sv-seg ${svPick===i?"pick":""}" data-i="${i}" onclick="svTapSeg(${i})">${s.words&&s.words.length
     ?s.words.map((w,k)=>`<span class="sv-w" data-k="${k}">${esc(w.text)}</span>`).join(" ")
@@ -20730,8 +20743,8 @@ function svApplyHTML(){
     <p class="sv-phrase">“${esc(phrase)}”</p>
     <p class="sub">${t("sv.apply_sub")}</p>
     <div class="pp-row">
-      <button class="btn btn-g" onclick="svApplyAI()">${ic("sparkle")} ${t("sv.apply_ai")}</button>
-      ${flag("practice_partner_enabled")?`<button class="btn-primary" onclick="svApplyPartner()">${ic("user")} ${t("sv.apply_partner")}</button>`:""}
+      ${svApplyAIOn()?`<button class="btn btn-g" onclick="svApplyAI()">${ic("sparkle")} ${t("sv.apply_ai")}</button>`:""}
+      ${svApplyPartnerOn()?`<button class="btn-primary" onclick="svApplyPartner()">${ic("user")} ${t("sv.apply_partner")}</button>`:""}
     </div>
     <p class="pp-fine">${t("sv.apply_pick")}</p>
   </div>`;
@@ -22582,13 +22595,26 @@ async function svChUseGrade(blob){
 window.svChUseRegrade=()=>{const u=svCh&&svCh.use;if(u&&u.blob&&u.phase!=="grading")svChUseGrade(u.blob)};
 window.svChUseRetry=()=>{const u=svCh&&svCh.use;if(!u)return;u.phase="ready";u.res=null;u.err=null;svChDraw()};
 window.svChUseDone=()=>{if(svCh)svCh.use=null;svChDraw()};
+/* Apply It — the learning loop's middle: Watch → Shadow → learn the expression
+   → use it with the AI coach → with a human partner. Both buttons hand the
+   phrase to ppState().applyPhrase, which the AI coach session seeds from
+   (ppAiStart) and every partner request carries (/interest, /invite, /next,
+   /live). The AI button used to write S.applyPhrase and open Life
+   Simulations, which never read it. General English only, like both targets. */
+function svApplyAIOn(){return svOn()&&ppAvailable()&&flag("practice_partner_ai_fallback_enabled")}
+function svApplyPartnerOn(){return svOn()&&ppAvailable()}
 window.svApplyAI=()=>{
+  if(!svApplyAIOn())return;
   const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i>=0?i:0];if(!s)return;
-  S.applyPhrase={text:s.text,vid:shClip.vid,ts:Date.now()};save();
+  ppState().applyPhrase={text:s.text.slice(0,160),vid:shClip.vid,ts:Date.now()};
+  /* a coach session already open was seeded with another phrase: start afresh */
+  const a=ppAiActive();if(a&&a.seed&&a.seed.phrase!==ppState().applyPhrase.text)ppState().ai=null;
+  save();
   try{track("shadow_apply_phrase",{to:"ai"})}catch(e){}
-  shCloseWork();go("roleplay");
+  shCloseWork();ppAiStart("apply");
 };
 window.svApplyPartner=()=>{
+  if(!svApplyPartnerOn())return;
   const i=svPick>=0?svPick:svLast.seg;const s=svAsset&&svAsset.segments[i>=0?i:0];if(!s)return;
   ppState().applyPhrase={text:s.text.slice(0,160),vid:shClip.vid,ts:Date.now()};save();
   try{track("shadow_apply_phrase",{to:"partner"})}catch(e){}
