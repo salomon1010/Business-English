@@ -2559,6 +2559,7 @@
  "sh.lib_channels": "频道",
  "sh.lib_week_pick": "本周 · 第 {{n}} 周",
  "sh.lib_fits_plan": "适合你的计划",
+ "sh.lib_toon": "Cartoon",
  "sh.lib_add_t": "粘贴 YouTube 链接",
  "sh.lib_add_sub": "任何视频。能读取时提供文字稿，否则凭耳朵跟读。",
  "sh.lib_cap": "文字稿",

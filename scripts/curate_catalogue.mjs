@@ -26,6 +26,9 @@ const OUT = path.join(ROOT, 'catalogue', 'survey.json');
 const PROMO = /membership|subscribe|sign[- ]?up|anthem|trailer|coming soon|introducing|our new course|enroll|webinar|application week|award dinner|channel update|live stream|shorts?$/i;
 const MIN = 60, MAX = 2700;          // 1–45 min: long clips are fine, the learner marks 20–30 s
 const PER_CHANNEL_CAT = 8;           // no single channel owns a category
+/* cartoon-based lessons: the Shadow hero strip always carries one (owner, 27 Sep
+   2026), so the flag travels with the record from here through the build */
+const TOON = /toy story|despicable me|ratatouille|lion king|\bcoco\b|disney|pixar|super mario|tangled|frozen|moana|shrek|minions?|inside out|zootopia|finding nemo|incredibles|encanto|cartoon|animat/i;
 
 /* id → label + the rules that fill it */
 const CATS = [
@@ -104,6 +107,7 @@ for (const c of CATS) {
       if (!usable(v) || vids.includes(v.vid) || videos[v.vid]) continue;
       if (!re.test(v.title) || PROMO.test(v.title)) continue;
       const rec = { ...v, handle };
+      if (TOON.test(v.title)) rec.toon = true;
       if (opt && opt.bundle === false) rec.cap = 'player';   // listed, transcript not shipped (licence)
       delete rec.skip;
       videos[v.vid] = rec; vids.push(v.vid); n++;
