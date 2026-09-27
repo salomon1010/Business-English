@@ -51,7 +51,7 @@ const here = p => p.evaluate(() => ({ v: cur && cur.v, a1: cur && cur.arg1, a2: 
   ok("1 · an active learner sees the seven row types their evidence supports — watched, practiced, feedback, struggled, saved, learning, partner — and no 'haven't practised' (they practised today)", ["watched", "practiced", "feedback", "struggled", "saved", "learning", "partner"].every(x => ids.includes(x)) && !ids.includes("inactive") && R.length === 7, JSON.stringify(R.map(r => [r.id, r.v, r.h])));
   const H = Object.fromEntries(R.map(r => [r.id, r.h]));
   ok("2 · each heading names the learner's own evidence: the clip that played, the take, the words the report flagged, the Challenge missed, the words saved, the week, the scenario and character",
-    H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /Because your feedback on .*Project.* flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
+    H.watched.startsWith("Because you watched") && H.watched.includes("TOY STORY") && /^Because your feedback flagged .*thorough/.test(H.feedback) && /struggled with the Challenge on .*Disagree/.test(H.struggled)
     && /Because you saved .*leverage/.test(H.saved) && /Because you finished Week 1/.test(H.learning) && /Daily stand-up.* with Priya/.test(H.partner) && /^Because you practised/.test(H.practiced), JSON.stringify(H));
   ok("3 · exactly one lead row, first, with larger cards than the compact rows below it", R[0].lead && R.filter(r => r.lead).length === 1 && R[0].cards[0].w > R[1].cards[0].w + 30, JSON.stringify(R.map(r => [r.id, r.lead, Math.round(r.cards[0].w)])));
   const ranked = await p.evaluate(() => _homeRows.map(r => r.score));

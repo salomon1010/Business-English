@@ -3120,7 +3120,7 @@
  "home.bc_practiced_challenge_try_s": "Terminez-le, puis essayez les clips suivants de ce niveau.",
  "home.bc_practiced_session": "Parce que vous avez travaillé : {{focus}}",
  "home.bc_practiced_session_s": "La séance suivante, avec les clips et la conversation qui la prolongent.",
- "home.bc_feedback_words": "Parce que votre retour sur “{{title}}” a signalé {{words}}",
+ "home.bc_feedback_words": "Parce que votre retour a signalé {{words}}",
  "home.bc_feedback_words_s": "Écoutez ces mots dans un vrai discours, puis reprenez la phrase.",
  "home.bc_feedback_words_x": "Parce que votre retour sur “{{title}}” a relevé des mots à corriger",
  "home.bc_feedback_words_x_s": "Écoutez-les dans un vrai discours, puis reprenez la phrase.",

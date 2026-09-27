@@ -3120,7 +3120,7 @@
  "home.bc_practiced_challenge_try_s": "Termine-o e depois experimente os próximos clipes desse nível.",
  "home.bc_practiced_session": "Porque você praticou: {{focus}}",
  "home.bc_practiced_session_s": "A próxima sessão, com os clipes e a conversa que a continuam.",
- "home.bc_feedback_words": "Porque o seu feedback de “{{title}}” apontou {{words}}",
+ "home.bc_feedback_words": "Porque o seu feedback apontou {{words}}",
  "home.bc_feedback_words_s": "Ouça essas palavras numa fala real e repita a frase.",
  "home.bc_feedback_words_x": "Porque o seu feedback de “{{title}}” apontou palavras a corrigir",
  "home.bc_feedback_words_x_s": "Ouça-as numa fala real e repita a frase.",

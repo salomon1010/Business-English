@@ -3120,7 +3120,7 @@
  "home.bc_practiced_challenge_try_s": "أكمله، ثم جرّب المقاطع التالية في المستوى نفسه.",
  "home.bc_practiced_session": "لأنك تدرّبت على: {{focus}}",
  "home.bc_practiced_session_s": "الجلسة التالية، مع المقاطع والمحادثة التي تكمّلها.",
- "home.bc_feedback_words": "لأن تقييمك في “{{title}}” أشار إلى {{words}}",
+ "home.bc_feedback_words": "لأن تقييمك أشار إلى {{words}}",
  "home.bc_feedback_words_s": "استمع إلى هذه الكلمات في كلام حقيقي، ثم أعد الجملة.",
  "home.bc_feedback_words_x": "لأن تقييمك في “{{title}}” أشار إلى كلمات تحتاج إلى تصحيح",
  "home.bc_feedback_words_x_s": "استمع إليها في كلام حقيقي، ثم أعد الجملة.",
