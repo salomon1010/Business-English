@@ -26624,6 +26624,7 @@ window.subInfoMount=root=>{const R=root||document;
    is lifted into a sheet over Profile — one source of truth, no page change.
    setAcc lifts the account card only; the others run to the next anchored h3. */
 window.pfSetupSheet=async(anchor,title)=>{const old=document.getElementById("pfSetupOv");if(old)old.remove();
+  if(anchor==="setAcc")try{fbLoad()}catch(e){}   /* the Backup sheet's Log in / Create account open the sign-in sheet at once: the SDK is fetched while the learner reads */
   const tmp=document.createElement("div");try{await rData(tmp,true)}catch(e){setupOpen(anchor);return}
   const a=tmp.querySelector("#"+anchor);if(!a){setupOpen(anchor);return}
   const box=document.createElement("div");box.className="pf-sheet-body";
@@ -29947,6 +29948,12 @@ window.fbDeleteAccount=async function(){
 const FB_G_ICON='<svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.1 5.3-4.6 7l7.1 5.5c4.2-3.9 6.6-9.6 6.6-16z"/><path fill="#FBBC05" d="M10.5 28.4c-.5-1.4-.7-2.9-.7-4.4s.3-3 .7-4.4l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.6 10.6l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.1-5.5c-2 1.3-4.6 2.1-7.9 2.1-6.3 0-11.6-4.1-13.5-9.7l-7.9 6.2C6.5 42.6 14.6 48 24 48z"/></svg>';
 const FB_A_ICON='<svg viewBox="0 0 24 24" fill="#000"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.6.8-.7 0-1.9-.8-3.1-.8-1.6 0-3.1.9-3.9 2.4-1.7 2.9-.4 7.2 1.2 9.5.8 1.1 1.7 2.4 3 2.3 1.2-.05 1.6-.8 3.1-.8 1.4 0 1.8.8 3.1.75 1.3-.02 2.1-1.1 2.9-2.3.9-1.3 1.3-2.6 1.3-2.7-.03-.01-2.5-1-2.5-3.6zM14 5.2c.7-.8 1.1-2 1-3.2-1 .04-2.2.7-2.9 1.5-.6.7-1.2 1.9-1 3 1.1.1 2.2-.5 2.9-1.3z"/></svg>';
 window.fbOpenModal=async function(mode){
+  /* Log in / Create account inside Profile → Backup & sync: that sheet
+     (#pfSetupOv, .lang-modal-ov, z-index 130) sat OVER the sign-in sheet
+     (.auth-ov, 120), so the login opened unseen behind it until the learner
+     tapped X (iPhone, 27 Sep 2026). Close it first, at once — before the SDK
+     loads — so the tap lands straight on the sign-in sheet. */
+  try{const ps=document.getElementById("pfSetupOv");if(ps)ps.remove()}catch(e){}
   if(!FBauth)await fbLoad();
   if(!FBauth){toast(t("auth.not_setup_toast"));return}
   fbCloseModal();mode=mode||"up";const signup=mode==="up";
