@@ -2457,6 +2457,7 @@
  "sh.lib_channels": "채널",
  "sh.lib_week_pick": "이번 주 · {{n}}주차",
  "sh.lib_fits_plan": "내 계획에 맞음",
+ "sh.lib_toon": "Cartoon",
  "sh.lib_add_t": "YouTube 링크 붙여넣기",
  "sh.lib_add_sub": "어떤 영상이든. 읽을 수 있으면 대본 제공, 아니면 귀로 따라 하기.",
  "sh.lib_cap": "대본",

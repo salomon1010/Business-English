@@ -150,7 +150,7 @@ function build() {
     cats.push({ id: c.id, label: c.label, vids: keep });
     for (const v of keep) {
       const r = sv.videos[v];
-      videos[v] = { title: r.title, ch: r.ch, chId: r.chId, dur: r.dur, cap: r.cap, up: r.up };
+      videos[v] = { title: r.title, ch: r.ch, chId: r.chId, dur: r.dur, cap: r.cap, up: r.up, ...(r.toon ? { toon: true } : {}) };   // toon: cartoon-based lesson, see curate_catalogue.mjs
     }
   }
   /* captions: one yt-dlp pass per video that lacks a file */
