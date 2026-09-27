@@ -147,7 +147,7 @@ console.log("\n# Your videos with the Premium split (saved from the library 5/5)
   await q.reload(); await sleep(3500); await q.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
   const d = await look();
   const list = await q.evaluate(async () => { shLibCat("mine"); await new Promise(r => setTimeout(r, 300)); const n = document.querySelectorAll("#shLibFeed .shl-row, #shLibFeed .shl-row-mine").length; shLibCat("foryou"); return n; });
-  ok("19 · five saved videos: the Shadow page shows the 'Your videos 5' chip and nothing on top — no 'Saved from the library' block, no big cards (on load, after un-saving and saving from the library, after a reload); the chip opens the five", a.split && !a.top && !a.big && !a.hdr && a.chip === "5" && !c.afterUnsave.top && !c.afterUnsave.big && c.afterUnsave.n === 4 && !c.afterSave.top && !c.afterSave.big && c.afterSave.n === 5 && !d.top && !d.big && !d.hdr && d.chip === "5" && list === 5, JSON.stringify({ a, c, d, list }));
+  ok("19 · five saved videos (kept from before the Free limit became 2): the Shadow page shows the 'Your videos 5' chip and nothing on top — no 'Saved from the library' block, no big cards (on load, after un-saving, after a re-save that the 2-video Free plan refuses, after a reload); the chip opens the four left", a.split && !a.top && !a.big && !a.hdr && a.chip === "5" && !c.afterUnsave.top && !c.afterUnsave.big && c.afterUnsave.n === 4 && !c.afterSave.top && !c.afterSave.big && c.afterSave.n === 4 && !d.top && !d.big && !d.hdr && d.chip === "4" && list === 4, JSON.stringify({ a, c, d, list }));
   ok("20 · no JavaScript errors", !e2.length, e2.join(" | "));
   await ctx2.close();
 }
