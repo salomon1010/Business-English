@@ -779,6 +779,32 @@ not JS, and `new Function` chokes on it. Check it separately with
   `docs/APPLE_STOREKIT.md`; suites `tests/ios-storekit.mjs` (22),
   `backend/entitlements/test/billing.mjs` (95). Built without Xcode: type-checked
   against the macOS StoreKit SDK only — never compiled for iOS here.
+- **Personalised Learning Nudges (2026-09-26, General English only, flag
+  `learning_nudges_enabled` — OFF in production, ON on staging).**
+  `nudge-engine.js` (pure; `NudgeEngine.candidates/rank/best/satisfied`)
+  chooses the best next action from `nudgeSignals()` (lesson position,
+  practised today / days away, words due, trouble words, last Challenge,
+  weakest competency, partner availability / streak / last partner practice);
+  8 kinds, each a real activity: lesson, comeback, words (practice →
+  `pracStudyDue`), challenge (shadow → `shLoad` the clip), shadow (trouble),
+  partner_now, partner_streak, ai_coach (`ppAiPractice`). Text = fixed
+  `nudge.<kind>_t/_b` templates with the learner's numbers — no free AI
+  text. `nudgeSchedule()` (on hide, switch, toggle) → be-push `POST /nudge`
+  with the Firebase token → be-push asks the partner Worker's `GET
+  /programme` (accountTrack) and refuses non-GE accounts; be-push owns
+  quiet hours, 1/20 h, 4/7 days, 48 h per kind, 7-day rest after a swipe,
+  expiry and duplicate rids, and a delivered nudge sets `done:<id>` so the
+  plain reminder stays quiet. `nudgeInvalidate()` (markPracticed) cancels
+  advice the learner already acted on; the app lists void rids in the
+  reminder cache (`nudgeDone`) and sw.js shows the plain reminder instead.
+  sw.js shows `why.kind==="nudge"` (tag `be-nudge`, deep link
+  `./?nudge=<rid>#<view>`), records what it showed / what was swiped in
+  `./__nudge_seen__` (be-rem cache) and counts `nudge_sent` /
+  `nudge_dismissed` itself. Funnel events `nudge_*` (11) — see
+  backend/events/README.md. Needs sign-in + a push subscription. Tests:
+  `tests/nudge-engine.test.mjs`, `tests/nudges.mjs`,
+  `backend/push/test/nudge.mjs`, track-auth G1–G6. Home stays programme-card
+  only — there is deliberately no in-app nudge card.
 - **Speech:** browser-only — `SR` (SpeechRecognition, US-English), `fbSay()` (TTS).
   No per-word timing available (be honest about this limitation).
 - **Theme:** `data-theme` = "light"/"dark" on `<html>`, stored in

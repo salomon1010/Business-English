@@ -724,6 +724,18 @@ async function handle(req, env, ctx) {
     const duid = await authUid(req, env); if (!duid) return err(401, "auth");
     return json(await eraseMember(env, duid, ms));
   }
+  /* GET /programme — the caller's OWN programme, from the account (the same
+     accountTrack() read as the Practice Partner gate). The one authority
+     other Workers reuse instead of verifying tokens themselves: be-push asks
+     it before it stores a General English learning nudge (26 Sep 2026). It
+     answers only about the token's own account; above the kill switch so
+     nudges do not depend on Practice Partner being open. */
+  if (req.method === "GET" && path === "/programme") {
+    const puid = await authUid(req, env); if (!puid) return err(401, "auth");
+    const track = await accountTrack(req, env, puid);
+    if (track === null) return err(403, "track_unverified");
+    return new Response(JSON.stringify({ track }), { headers: { "content-type": "application/json; charset=utf-8", "cache-control": "private, no-store" } });
+  }
   if (env.PARTNER_ENABLED !== "1") return err(503, "disabled");
   /* the push Worker's online alerts: Worker to Worker, behind the shared secret */
   if (req.method === "GET" && path === "/presence" && sameSecret(req.headers.get("x-push-secret"), env.PUSH_SECRET)) return presenceView(env, ms);

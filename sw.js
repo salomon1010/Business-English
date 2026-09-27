@@ -6,7 +6,7 @@ const CACHE = "be12-v485";
    analysis were all simply absent, and the guards made that fail silently rather
    than visibly. */
 const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
-  "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=87",
+  "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=87", "nudge-engine.js?v=1",
   "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=82", "shadow-sync.js?v=7", "adaptive-learning-engine.js?v=84",
   "career-center.js?v=79", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=85", "mission-engine.js?v=4",
   "catalogue/general.json", "tracks/general/weeks.json", "tracks/general/shadow.json", "tracks/general/phrases.json", "tracks/general/vocabulary.json", "tracks/general/practice.json", "tracks/general/progress.json", "tracks/general/foundations.json", "tracks/general/missions.json",
@@ -133,6 +133,22 @@ self.addEventListener("fetch", e => {
    subscription id the app parks in the reminder cache; no answer → reminder. */
 const PUSH_API = "https://be-push.nore-ngou.workers.dev";
 const INVITE_TIMES = 3, INVITE_EVERY_MS = 8000;   // an invitation is announced three times over ~16 s
+/* Personalised Learning Nudges (2026-09-26): what this worker saw, for the app
+   to read on its next launch (its own per-kind cooldowns), in the same
+   be-rem cache that version bumps leave alone; and the two counts only the
+   worker can make (shown, swiped away), sent the way the app sends its own. */
+const NUDGE_SEEN_KEY = "./__nudge_seen__";
+async function nudgeSeenPut(fn) {
+  try {
+    const c = await caches.open(REM_CACHE), r = await c.match(NUDGE_SEEN_KEY);
+    const s = (r && await r.json().catch(() => null)) || {}; s.sent = s.sent || {}; s.dismissed = s.dismissed || {};
+    fn(s); await c.put(NUDGE_SEEN_KEY, new Response(JSON.stringify(s), { headers: { "Content-Type": "application/json" } }));
+  } catch (e) {}
+}
+function swCount(d, name, props) {
+  try { if (d && d.events) return fetch(d.events, { method: "POST", body: JSON.stringify({ name, props: props || null }), keepalive: true, mode: "no-cors" }).catch(() => {}); } catch (e) {}
+  return Promise.resolve();
+}
 function pushWhy(d) {
   if (!d || !d.pushId) return Promise.resolve(null);
   return fetch(PUSH_API + "/why?id=" + encodeURIComponent(d.pushId), { cache: "no-store" })
@@ -178,6 +194,25 @@ self.addEventListener("push", e => {
           }
           return;
         }
+        /* a learning nudge: the recommendation be-push held for this phone.
+           Stale — expired, or the learner already did it (the app lists those
+           rids in nudgeDone) — and the plain reminder is shown instead: a push
+           must show something, and old advice is worse than none. */
+        if (why && why.kind === "nudge") {
+          const stale = !why.rid || Date.now() > (Number(why.expiresAt) || 0) || !!(d && Array.isArray(d.nudgeDone) && d.nudgeDone.includes(why.rid));
+          if (!stale && why.title && why.body) {
+            const nudge = { rid: why.rid, kind: why.nkind, view: why.view, act: why.act || null, args: why.args || [] };
+            await nudgeSeenPut(s => { s.sent[why.nkind] = Date.now(); s.last = nudge; });
+            await swCount(d, "nudge_sent", { kind: why.nkind, source: "push" });
+            return self.registration.showNotification(String(why.title), {
+              body: String(why.body), icon: "icon-192.png", badge: "icon-192.png",
+              tag: "be-nudge", renotify: false,
+              lang: (d && d.lang) || "en", dir: (d && d.dir) || "auto",
+              data: { url: "./?nudge=" + encodeURIComponent(why.rid) + "#" + why.view, view: why.view, nudge, pushId: d && d.pushId },
+            });
+          }
+          await swCount(d, "nudge_expired", { kind: why.nkind || "", result: "invalidated", source: "push" });
+        }
         if (why && why.kind === "presence" && d && d.online && d.online.title) {
           const n = Number(why.n) || 1;
           return self.registration.showNotification(d.online.title, {
@@ -216,8 +251,21 @@ self.addEventListener("notificationclick", e => {
     clients.matchAll({ type: "window", includeUncontrolled: true }).then(list => {
       const url = (e.notification.data && e.notification.data.url) || "./";
       const view = (e.notification.data && e.notification.data.view) || "journey";   // partner notifications land on the partner page
-      for (const c of list) if ("focus" in c) { try { c.postMessage({ type: "open", view }) } catch (err) {} return c.focus(); }
+      const nudge = (e.notification.data && e.notification.data.nudge) || null;   // a learning nudge: the app runs its deep link
+      for (const c of list) if ("focus" in c) { try { c.postMessage({ type: "open", view, nudge }) } catch (err) {} return c.focus(); }
       if (clients.openWindow) return clients.openWindow(url);
     })
   );
+});
+
+/* A learning nudge swiped away: that kind rests for 7 days (be-push decides;
+   the app mirrors it from the seen record). */
+self.addEventListener("notificationclose", e => {
+  const dt = e.notification.data || {};
+  if (!dt.nudge || !dt.nudge.kind) return;
+  e.waitUntil(Promise.all([
+    dt.pushId ? fetch(PUSH_API + "/nudge/dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: dt.pushId, kind: dt.nudge.kind }) }).catch(() => {}) : null,
+    nudgeSeenPut(s => { s.dismissed[dt.nudge.kind] = Date.now(); }),
+    caches.open(REM_CACHE).then(c => c.match(REM_KEY)).then(r => (r ? r.json() : null)).then(d => swCount(d, "nudge_dismissed", { kind: dt.nudge.kind, source: "push" })).catch(() => {}),
+  ]));
 });

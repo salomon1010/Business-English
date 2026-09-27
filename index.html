@@ -63,6 +63,7 @@
 <script src="professional-tracks.js?v=80"></script>
 <script src="competency-engine.js?v=83"></script>
 <script src="learning-coach.js?v=87"></script>
+<script src="nudge-engine.js?v=1"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
 <script src="conversation-orchestrator.js?v=82"></script>
 <script src="shadow-sync.js?v=7"></script>
@@ -141,6 +142,7 @@ window.FB_CONFIG={
   /* staging phones may still point elsewhere with localStorage.be_events_api
      (same idea as be_partner_api); an empty string switches events off */
   try{var _evo=localStorage.getItem("be_events_api");if(_evo!==null)EVENTS_API=_evo}catch(e){}
+  window.BE_EVENTS_API=EVENTS_API;   /* the service worker counts nudge_sent / nudge_dismissed itself (it has no track()) */
   if(EVENTS_API)window.track=function(name,props){
     try{
       var body=JSON.stringify({name:name,props:props||null});
@@ -6832,6 +6834,24 @@ const I18N_EN={
  "pp.online_push_title":"Learners online now","pp.online_push_body":"{{n}} online — a short practice is one tap away.",
  "pp.online_nudge":"Get rung when someone invites you to practise, and told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
  "rem.online_switch":"Tell me when learners are online","rem.online_sub":"A notification when someone is online to practise with — at most every few hours, never at night.",
+ "nudge.lesson_t":"Week {{w}} is ready",
+ "nudge.lesson_b":"🎤 {{topic}} — {{min}} minutes today moves you forward.",
+ "nudge.comeback_t":"Pick up where you left off",
+ "nudge.comeback_b":"🌱 Week {{w}}: {{topic}}. Five minutes is enough to restart.",
+ "nudge.words_t":"{{n}} words to review",
+ "nudge.words_b":"🔁 {{n}} words from your practice are ready for review — about {{min}} minutes.",
+ "nudge.challenge_t":"One more round",
+ "nudge.challenge_b":"🎧 “{{title}}” is close. Try a 5-minute shadow challenge.",
+ "nudge.shadow_t":"Sharpen your pronunciation",
+ "nudge.shadow_b":"🎧 {{n}} words tripped you up last time. Shadow them for 5 minutes.",
+ "nudge.partner_now_t":"A practice partner is free",
+ "nudge.partner_now_b":"👥 A learner is ready to practise now. Try a 5-minute conversation.",
+ "nudge.partner_streak_t":"{{n}}-week streak together",
+ "nudge.partner_streak_b":"👥 Practise with your partner this week to keep it going.",
+ "nudge.ai_coach_t":"Practise speaking in 5 minutes",
+ "nudge.ai_coach_b":"🤖 The AI coach has a short round ready on this week's topic.",
+ "rem.nudges_switch":"Suggest my next best practice",
+ "rem.nudges_sub":"At most one a day, never at night — based on your lessons, words and practice. You can switch it off here.",
  "pp.conn_choice":"Live: talk now, about five minutes. Today's practice: record when you can.",
  "pp.cand_live_note":"Talk live now, or record four short turns. If it does not click, either of you can leave.",
  "pp.why_line":"waiting to practise now",
@@ -9038,6 +9058,7 @@ function markPracticed(){
      habit and stay whole, but "days practised" inside a review must mean days
      practised in THAT programme. */
   const _al=areaDayLog();_al[today]=(_al[today]||0)+1;
+  try{nudgePracticed();setTimeout(()=>{try{nudgeInvalidate()}catch(e){}},0)}catch(e){}
   if(S.dayLog[today]===1){
     // once per day, not per action. Week alongside streak so retention can be
     // read against how far into the programme someone actually is.
@@ -10848,6 +10869,7 @@ window.selectProfessionalTrack=id=>{
   _jPhase=null;
   save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   try{pushSync()}catch(e){}         /* online alerts and invitation rings follow the programme */
+  try{nudgeSchedule("switch")}catch(e){}   /* a nudge follows it too: leaving General English cancels it */
   /* A track without a curriculum has no map to show; every other switch lands
      on the road map of the new area, centred on done → here → next, with the
      strip saying which area this now is. */
@@ -14538,6 +14560,7 @@ async function remCacheText(){
       /* an invitation with the app closed: the same words as the in-app banner */
       call:{live:{title:t("pp.call_h",{name:"{{name}}"}),body:t("pp.tinv_live_sub")},trial:{title:t("pp.tinv_h",{name:"{{name}}"}),body:t("pp.tinv_sub")}},
       image:png?REM_MAP_KEY:null,
+      nudgeDone:nudgeDoneRids(),events:window.BE_EVENTS_API||null,
       lang:html.getAttribute("lang")||"en",
       dir:html.getAttribute("dir")||"auto",
     };
@@ -14547,7 +14570,7 @@ async function remCacheText(){
 
 /* A tap on the notification while the app is open: sw.js focuses this window
    and asks it to show the road map, instead of reloading it on a new URL. */
-if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="partner-invite"){try{if(typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync();if(cur&&cur.v==="partner"){const el=document.getElementById("v-partner");if(el)ppRender(el)}})}catch(err){}return}if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
+if("serviceWorker"in navigator)navigator.serviceWorker.addEventListener("message",e=>{const d=e.data||{};if(d.type==="partner-invite"){try{if(typeof ppRefresh==="function"&&ppAvailable())ppRefresh(true).then(()=>{ppCallSync();ppPillSync();if(cur&&cur.v==="partner"){const el=document.getElementById("v-partner");if(el)ppRender(el)}})}catch(err){}return}if(d.type==="open"&&d.nudge&&typeof nudgeArrive==="function"&&nudgeArrive(d.nudge,"push"))return;if(d.type==="open"&&d.view==="journey")try{_rmReturn=true;go("journey")}catch(err){}else if(d.type==="open"&&d.view==="partner")try{go("partner")}catch(err){}});
 /* Online alerts ride the same subscription as the daily reminder: the Worker
    keeps a "pres:" entry for a phone that wants them and wakes it (at most
    every 4 h, never at night) when the partner Worker reports someone online.
@@ -14596,6 +14619,155 @@ async function pushOff(){
     await sub.unsubscribe();
   }catch(e){}
 }
+
+/* ===== Personalised Learning Nudges (26 Sep 2026) — General English only =====
+   Learner state (nudgeSignals, read from what the learner actually did) →
+   NudgeEngine.best (the ACTION is chosen by rules, never by free AI text) →
+   a fixed, translated message filled with the learner's own numbers →
+   be-push /nudge, which asks the partner Worker whether the ACCOUNT is
+   General English (403 otherwise) and owns frequency, quiet hours, cooldowns,
+   duplicates and expiry → the service worker shows it (or the plain reminder
+   when the advice went stale) → a tap deep-links to the activity (nudgeGo) →
+   the activity is the new learning signal. S.nudge: pending (scheduled),
+   last (shown by the service worker), opened (the last one tapped, with its
+   funnel flags), hist {sent, dismissed, done} per kind, doneRids (advice
+   invalidated because the learner did it first), off (the Settings switch).
+   Needs sign-in (the server check is per account) and a push subscription. */
+const NUDGE_DAY=86400000,NUDGE_SEEN_KEY="./__nudge_seen__";
+function nudgeAvailable(){return flag("learning_nudges_enabled")&&isGeneralEnglish()&&!!PUSH_API&&!!window.NudgeEngine}
+function nudgePrefOn(){return !(S.nudge&&S.nudge.off)}
+function nudgeState(){S.nudge=S.nudge||{};const n=S.nudge;n.hist=n.hist||{};["sent","dismissed","done"].forEach(k=>{n.hist[k]=n.hist[k]||{}});n.doneRids=n.doneRids||[];return n}
+function nudgeReady(){return nudgeAvailable()&&nudgePrefOn()&&typeof FBUser!=="undefined"&&!!FBUser&&!!S.pushId&&!!(window.Notification&&Notification.permission==="granted")}
+function nudgeDoneRids(){try{return nudgeState().doneRids.slice(-20)}catch(e){return []}}
+function nudgeSignals(){
+  const now=Date.now(),today=new Date(now).toISOString().slice(0,10);
+  const sig={ge:isGeneralEnglish(),now,daysAway:0,wordsReady:0,trouble:0,partner:{}};
+  try{const p=currentPos(),wk=trackWeeks().find(x=>x.n===p.w)||{};sig.pos={w:p.w,d:p.d,done:!!S.days[dayKey(p.w,p.d)],topic:String(wk.theme||"").slice(0,48)}}catch(e){}
+  try{const log=areaDayLog();sig.practicedToday=!!log[today];const last=Object.keys(log).filter(k=>log[k]).sort().pop();sig.daysAway=last?Math.max(0,Math.floor((Date.parse(today)-Date.parse(last))/NUDGE_DAY)):0}catch(e){}
+  try{sig.wordsReady=Object.keys(areaVocab()).filter(w=>vocState(w)==="ready").length}catch(e){}
+  try{sig.trouble=Object.keys(troubleMap()).length}catch(e){}
+  try{const c=aList("chHist")[0];if(c&&c.vid)sig.challenge={vid:c.vid,title:c.title||"",ts:c.ts,pass:!!c.pass}}catch(e){}
+  try{const tr=activeProfessionalTrack(),have=(CompetencyEngine.config(tr).competencies||[]).map(x=>x.id);
+      const ids=["pronunciation","vocabulary","communication"].filter(id=>have.includes(id));
+      if(ids.length)sig.weakest=ids.slice().sort((a,b)=>CompetencyEngine.score(S,tr,a)-CompetencyEngine.score(S,tr,b))[0]}catch(e){}
+  try{
+    const m=ppMe||ppState().lastMe||{},c=m.connection||null,monday=(Math.floor((now/NUDGE_DAY+3)/7)*7-3)*NUDGE_DAY;
+    const h=ppHist(),lastP=h.length?h[0].ts:null,on=ppAvailable()&&ppConsented();
+    sig.partner={available:on&&!m.pair&&!(m.prefs&&m.prefs.optedOut),consented:on,waiting:Number(ppWaitingCount())||0,
+      streakWeeks:c?Number(c.streakWeeks)||0:0,practisedThisWeek:!!(c&&c.lastPracticeAt&&c.lastPracticeAt>=monday),
+      daysSincePartner:lastP?Math.floor((now-lastP)/NUDGE_DAY):null};
+    sig.aiCoach=ppAvailable()&&flag("practice_partner_ai_fallback_enabled");
+  }catch(e){}
+  return sig;
+}
+function nudgeText(r){return {title:t("nudge."+r.kind+"_t",r.vars||{}),body:t("nudge."+r.kind+"_b",r.vars||{})}}
+/* when: the learner's own reminder time (20 min before it, so the nudge takes
+   that day's slot and the plain reminder stays quiet), else about a day on;
+   a partner who is free right now is worth saying sooner */
+function nudgeWhen(r,now){
+  if(r.delayMs!=null)return now+r.delayMs;
+  const c=remCfg();
+  if(c.on&&/^\d\d:\d\d$/.test(c.time||"")){const [h,mi]=c.time.split(":").map(Number);const d=new Date(now);d.setHours(h,mi,0,0);let at=d.getTime()-20*60000;if(at<now+30*60000)at+=NUDGE_DAY;return at}
+  return now+20*3600000;
+}
+let _nudgeBusy=false,_nudgeAt=0;
+async function nudgeSchedule(why){
+  const n=nudgeState();
+  if(!nudgeReady()){if(n.pending&&(!nudgeAvailable()||!nudgePrefOn()))nudgeCancel("off");return null}
+  if(_nudgeBusy)return null;
+  const sig=nudgeSignals();
+  nudgeInvalidate(sig);
+  const r=NudgeEngine.best(sig,n.hist);
+  if(!r){if(n.pending)nudgeCancel("none");return null}
+  if(n.pending&&n.pending.rid===r.rid&&Date.now()-_nudgeAt<6*3600000)return n.pending;
+  _nudgeBusy=true;
+  try{
+    const now=Date.now(),sendAfter=nudgeWhen(r,now),expiresAt=r.delayMs!=null?now+r.expiresInMs:Math.min(sendAfter+12*3600000,now+36*3600000);
+    const tx=nudgeText(r),tok=await FBUser.getIdToken();
+    const res=await fetch(PUSH_API+"/nudge",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+tok},
+      body:JSON.stringify({id:S.pushId,tz:-new Date().getTimezoneOffset(),rec:{rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,title:tx.title,body:tx.body,reason:r.reason,priority:Math.round(r.priority),sendAfter,expiresAt}})});
+    const j=await res.json().catch(()=>({}));
+    if(j&&j.previous&&j.previous.kind)try{track("nudge_expired",{kind:j.previous.kind,result:j.previous.status})}catch(e){}
+    if(res.ok){
+      n.pending={rid:r.rid,kind:r.kind,view:r.view,act:r.act,args:r.args,reason:r.reason,createdAt:now,sendAfter,expiresAt};_nudgeAt=now;save();
+      try{track("nudge_generated",{kind:r.kind,reason:String(r.reason||"").slice(0,24),week:r.curriculum?String(r.curriculum.week):"",day:r.curriculum?String(r.curriculum.day):""})}catch(e){}
+      return n.pending;
+    }
+    if(res.status===403){n.pending=null;save()}   /* the account is not General English (or unverifiable): nothing is kept */
+  }catch(e){}finally{_nudgeBusy=false}
+  return null;
+}
+/* completed-action invalidation: the learner did it before the notification */
+function nudgeCancel(why,p){
+  const n=nudgeState();p=p||n.pending;if(!p)return;
+  try{if(S.pushId)fetch(PUSH_API+"/nudge/cancel",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:S.pushId,rid:p.rid}),keepalive:true}).catch(()=>{})}catch(e){}
+  if(why==="done"){n.hist.done[p.kind]=Date.now();n.doneRids=[...n.doneRids,p.rid].slice(-20)}
+  try{track("nudge_expired",{kind:p.kind,result:why==="done"?"invalidated":String(why).slice(0,16)})}catch(e){}
+  if(n.pending&&n.pending.rid===p.rid)n.pending=null;save();
+  try{if(window.caches)remCacheText()}catch(e){}   /* the service worker learns the rid is void */
+}
+function nudgeInvalidate(sig){
+  const n=S.nudge;if(!n||!window.NudgeEngine)return;
+  const s=sig||nudgeSignals();
+  if(n.pending&&NudgeEngine.satisfied(n.pending,s))nudgeCancel("done",n.pending);
+  else if(n.last&&!n.doneRids.includes(n.last.rid)&&!(n.opened&&n.opened.rid===n.last.rid)&&NudgeEngine.satisfied(n.last,s)){n.doneRids=[...n.doneRids,n.last.rid].slice(-20);save();try{if(window.caches)remCacheText()}catch(e){}}
+  const o=n.opened;
+  if(o&&!o.completed&&Date.now()-o.at<NUDGE_DAY&&NudgeEngine.satisfied(o,s)){o.completed=true;n.hist.done[o.kind]=Date.now();save();try{track("nudge_completed",{kind:o.kind})}catch(e){}}
+}
+function nudgeFind(rid){const n=nudgeState();return [n.pending,n.last].find(x=>x&&x.rid===rid)||null}
+/* a tap: from the service worker's message (app open) or ?nudge= (app closed) */
+window.nudgeArrive=(info,source)=>{
+  if(!nudgeAvailable()||!info||!info.rid)return false;
+  const n=nudgeState(),known=nudgeFind(info.rid)||{};
+  const r=Object.assign({},known,info);if(!r.kind||!r.view)return false;
+  if(n.opened&&n.opened.rid===r.rid&&Date.now()-n.opened.at<60000)return true;   /* the same tap seen twice */
+  const now=Date.now();
+  n.opened={rid:r.rid,kind:r.kind,view:r.view,act:r.act||null,args:r.args||[],at:now,started:false,completed:false,practice:false,partner:false,retained:false};
+  n.hist.sent[r.kind]=Math.max(n.hist.sent[r.kind]||0,now);if(n.pending&&n.pending.rid===r.rid)n.pending=null;save();
+  try{track("nudge_opened",{kind:r.kind,source:source||"push"})}catch(e){}
+  if(nudgeGo(r))try{track("nudge_accepted",{kind:r.kind})}catch(e){}
+  return true;
+};
+/* deep links — only to activities that exist */
+function nudgeGo(r){
+  try{
+    if(r.view==="session"&&r.args&&r.args.length===2){go("session",Number(r.args[0]),String(r.args[1]));return true}
+    if(r.view==="practice"){go("practice");if(r.act==="study-due")setTimeout(()=>{try{pracStudyDue()}catch(e){}},300);return true}
+    if(r.view==="shadow"){go("shadow");
+      if(r.act==="clip"&&r.args&&/^[A-Za-z0-9_-]{11}$/.test(String(r.args[0])))setTimeout(()=>{try{shLoad({vid:String(r.args[0]),start:0,end:0,title:""})}catch(e){}},400);
+      else if(r.act==="trouble")setTimeout(()=>{try{shTab("trouble")}catch(e){}},300);
+      return true}
+    if(r.view==="partner"){if(r.act==="ai"&&typeof ppAiPractice==="function"){ppAiPractice("nudge");return true}go("partner");return true}
+  }catch(e){}
+  return false;
+}
+/* the funnel after a tap: started / practice conversion (markPracticed), partner conversion (the analytics guard) */
+function nudgePracticed(){
+  const o=S.nudge&&S.nudge.opened;if(!o||!isGeneralEnglish())return;const now=Date.now();if(now-o.at>NUDGE_DAY)return;
+  if(!o.started&&now-o.at<2*3600000){o.started=true;try{track("nudge_started",{kind:o.kind})}catch(e){}}
+  if(!o.practice){o.practice=true;try{track("nudge_practice",{kind:o.kind})}catch(e){}}
+  save();
+}
+function nudgeConvPartner(){const o=S.nudge&&S.nudge.opened;if(!o||o.partner||Date.now()-o.at>NUDGE_DAY)return;o.partner=true;save();try{track("nudge_partner",{kind:o.kind})}catch(e){}}
+/* on launch: retention, expiry, and what the service worker saw while the app was closed */
+function nudgeBoot(){
+  if(!nudgeAvailable()){if(S.nudge&&S.nudge.pending)nudgeCancel("off");return}
+  const n=nudgeState(),now=Date.now(),today=new Date(now).toISOString().slice(0,10),o=n.opened;
+  if(o&&!o.retained){const d=new Date(o.at).toISOString().slice(0,10);if(d<today){o.retained=true;const g=Math.round((Date.parse(today)-Date.parse(d))/NUDGE_DAY);try{track("nudge_retained",{kind:o.kind,gap:g<=1?"1d":g<=3?"2-3d":g<=7?"4-7d":"8d+"})}catch(e){}save()}}
+  if(n.pending&&now>n.pending.expiresAt){try{track("nudge_expired",{kind:n.pending.kind,result:"expired"})}catch(e){}n.pending=null;save()}
+  const q=(()=>{try{return new URLSearchParams(location.search).get("nudge")}catch(e){return null}})();
+  const seen=window.caches?caches.open(REM_CACHE).then(c=>c.match(NUDGE_SEEN_KEY)).then(r=>r?r.json():null).catch(()=>null):Promise.resolve(null);
+  seen.then(j=>{
+    if(j){const h=nudgeState().hist;["dismissed","sent"].forEach(k=>Object.entries(j[k]||{}).forEach(([kind,at])=>{h[k][kind]=Math.max(h[k][kind]||0,Number(at)||0)}));if(j.last&&j.last.rid)nudgeState().last=j.last;save()}
+    if(q){nudgeArrive({rid:q},"push");try{history.replaceState(null,"",location.pathname+location.hash)}catch(e){}}
+  });
+}
+window.nudgeToggle=on=>{
+  nudgeState().off=!on;save();
+  if(!on){nudgeCancel("off");return}
+  try{if(window.Notification&&Notification.permission==="default")Notification.requestPermission().then(()=>pushSync().then(()=>nudgeSchedule("toggle")));else nudgeSchedule("toggle")}catch(e){}
+};
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")try{nudgeSchedule("hide")}catch(e){}});
 
 /* Tell the backend today is finished so it sends nothing at all. It cannot ask
    the device — and it must not send a push it does not intend to show, because
@@ -19597,6 +19769,7 @@ const FLAGS_DEFAULT={
   shadow_apply_phrase_enabled:true,    // Apply It: the phrase goes to the AI coach (ppAiStart) and to partner requests — 26 Sep 2026, was off while the AI side read nothing
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,         // the searchable video library on the Shadow page (General English only)
+  learning_nudges_enabled:false,       // Personalised Learning Nudges (2026-09-26, General English only): built and tested, OFF until the owner releases it
   ads_enabled:false,                   // Phase 8: the ad system exists (AdManager) but stays off until the owner turns it on with a real provider
   ads_mock_provider:false,             // the labelled TEST creative, honoured on localhost / staging only (AdProviders.mock)
   billing_enabled:false                // Phase 9: store purchases (Play Billing in the TWA, StoreKit in the iOS shell); OFF — nothing is sold
@@ -19615,6 +19788,7 @@ const FLAGS_STAGING={
   shadow_apply_phrase_enabled:true,
   shadow_challenge_enabled:true,
   shadow_library_enabled:true,
+  learning_nudges_enabled:true,
   ads_enabled:false,
   ads_mock_provider:false,
   billing_enabled:false
@@ -19655,10 +19829,10 @@ function isGeneralEnglish(){return areaId()===AREA_GEN}
    General English funnel. Shared events (the Shadow coach report, which
    Welding lines use too, app_open, certificates …) pass as before. The events
    Worker cannot do this itself: events are anonymous by design. */
-const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$)/;
+const GE_ONLY_EVENT=/^(partner_|shadow_challenge_|shadow_apply_phrase$|nudge_)/;
 (function(){
   const send=window.track;if(typeof send!=="function"||send.geGuard)return;
-  const guarded=function(name,props){try{if(GE_ONLY_EVENT.test(String(name))&&!isGeneralEnglish())return}catch(e){}return send.apply(this,arguments)};
+  const guarded=function(name,props){try{if(GE_ONLY_EVENT.test(String(name))&&!isGeneralEnglish())return}catch(e){}const r=send.apply(this,arguments);try{if(/^partner_(trial_started|ai_fallback_started|live_started|queue_joined)$/.test(String(name))&&typeof nudgeConvPartner==="function")nudgeConvPartner()}catch(e){}return r};
   guarded.geGuard=true;window.track=guarded;
 })();
 
@@ -25728,6 +25902,7 @@ function areaSwitch(id,view){
   applyTrackIdentity();
   _jPhase=null;save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   try{pushSync()}catch(e){}   /* online alerts and invitation rings follow the programme */
+  try{nudgeSchedule("switch")}catch(e){}
   go(view);
 }
 window.areaGoReview=id=>{areaSwitch(id,"review")};
@@ -26259,6 +26434,13 @@ async function rData(el,embedded){
         </label>
       </div>
       <p class="rem-note">${t("rem.online_sub")}</p>`:""}
+      ${nudgeAvailable()?`<div class="rem-box" style="margin-top:8px">
+        <label class="rem-row">
+          <input type="checkbox" id="nudgesOn" ${nudgePrefOn()?"checked":""} onchange="nudgeToggle(this.checked)">
+          <span>${t("rem.nudges_switch")}</span>
+        </label>
+      </div>
+      <p class="rem-note">${t("rem.nudges_sub")}</p>`:""}
       <h3 class="set-h">${t("cal.label")}</h3>
       <div class="btn-row">
         <button class="btn btn-g set-act" onclick="calGoogle()">${tIc("cal.add_google","calendar")}</button>
@@ -28600,7 +28782,7 @@ window.wcClose=()=>{
 if(!S.profile)obRender();
 /* Re-syncing on every launch is what keeps the slot right after a DST change or
    a flight, and re-caches the notification wording after a language change. */
-else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}}
+else{try{remSchedule();remLaunchNudge();pushSync()}catch(e){}try{nudgeBoot()}catch(e){}}
 try{rpLoadPhotos()}catch(e){}   // warm the scenario photo manifest
 
 /* ================= FIREBASE CLOUD SYNC (optional sign-in) =================

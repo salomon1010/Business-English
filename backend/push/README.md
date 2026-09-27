@@ -116,3 +116,30 @@ One bare push (Urgency high, TTL 600 s) to `sub:<id>` if the phone registered
 with `calls:true`; `why:<id>` then answers `{kind,name,ref}` once. A phone is
 woken at most once per 20 s. Without the secret `/wake` answers 503 and
 invitations are only noticed inside the app.
+
+## Personalised Learning Nudges (2026-09-26, General English only)
+
+The app's `NudgeEngine` (nudge-engine.js) chooses the learner's best next
+action from their own state; this Worker decides whether and when it may be
+shown. `POST /nudge {id, rec, tz}` carries the learner's Firebase ID token:
+the Worker asks the partner Worker's `GET /programme` (the one account-based
+authority, `accountTrack()`) and stores the nudge only for a General English
+account — Welding, no token or an unverifiable account → 403 and any pending
+nudge for that phone is dropped. One pending nudge per phone (`nudge:<id>`,
+TTL = its expiry); a newer one replaces it.
+
+The ten-minute cron (`runNudges`) delivers what is due: never in quiet hours
+(22:00–08:00 local), at most one per 20 h and four per 7 days per phone, the
+same kind at most every 48 h, a swiped-away kind (`POST /nudge/dismiss`) not
+for 7 days, never after expiry (36 h cap), the same `rid` never twice
+(`nlog:<id>`). Delivering one sets `done:<id>` for today, so the plain
+reminder stays quiet: one notification a day at most. `POST /nudge/cancel
+{id, rid}` voids it when the learner does it first — also after delivery,
+before the phone reads `/why`. `/why` serves a nudge once
+(`{kind:"nudge", title, body, view, act, args}`); the service worker shows it
+(tag `be-nudge`, deep link `./?nudge=<rid>#<view>`) or the plain reminder if
+it expired or the app lists its rid in `nudgeDone`.
+
+Needs: `PARTNER_API` (already set) and the partner Worker with `/programme`
+deployed first. Tests: `node test/nudge.mjs` (in process).
+

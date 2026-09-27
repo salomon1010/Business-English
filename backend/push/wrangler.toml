@@ -20,7 +20,7 @@ compatibility_date = "2026-07-31"
 # ~1,440 invocations a day regardless of how many people have reminders on —
 # comfortably inside the free tier's 100k/day.
 [triggers]
-crons = ["* * * * *", "*/10 * * * *"]   # reminders every minute; online alerts every ten (PARTNER_API)
+crons = ["* * * * *", "*/10 * * * *"]   # reminders every minute; online alerts + learning nudges every ten (PARTNER_API)
 
 [[kv_namespaces]]
 binding = "SUBS"

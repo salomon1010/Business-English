@@ -140,6 +140,17 @@ const EVENTS = new Set([
   // Sharing it is the existing share event with kind=cert. +track only —
   // never the name on the certificate, its number or its date.
   "cert_unlocked", "cert_pdf_downloaded", "cert_image_saved",
+  // Personalised Learning Nudges (2026-09-26, General English only — the app
+  // drops nudge_* on any other area). The funnel: generated (a recommendation
+  // was scheduled) → sent (the phone showed it) → opened → accepted (the
+  // activity opened) → started (first practice action) → completed (the
+  // recommended activity done); dismissed / expired on the way; practice and
+  // partner = conversions within 24 h of opening; retained = came back on a
+  // later day after an opened nudge. Props are fixed enums: kind (the nudge
+  // kind), reason (e.g. words_due_7, inactive_4d), result (sent | replaced |
+  // expired | invalidated), source (push | app), gap (retention bucket), week, day.
+  "nudge_generated", "nudge_sent", "nudge_opened", "nudge_accepted", "nudge_started", "nudge_completed",
+  "nudge_dismissed", "nudge_expired", "nudge_practice", "nudge_partner", "nudge_retained",
   // Advertising (Phase 8, Free tier only; AdManager in index.html). Counts and
   // fixed enums only: format (interstitial|native|rewarded|sponsored), context
   // (the natural break or placement id), reason (why an ad was suppressed),
@@ -235,6 +246,8 @@ const LAYOUTS = [
   // Same history: no shadow row was ever recorded.
   // ad_* / rewarded_ad_* → blob3 format, 4 context, 5 reason, 6 provider, 7 result
   [/^(ad_|rewarded_ad_)/, ["format", "context", "reason", "provider", "result"]],
+  // nudge_* → blob3 kind, 4 reason, 5 result, 6 source, 7 gap, 8 week, 9 day, 10 state. New prefix: no history to re-read.
+  [/^nudge_/, ["kind", "reason", "result", "source", "gap", "week", "day", "state"]],
   // purchase_* / entitlement_* → blob3 provider, 4 product, 5 reason, 6 result, 7 source, 8 state.
   // New names (Phase 12A): no row was ever recorded, so nothing historical is re-read.
   [/^(purchase_|entitlement_)/, ["provider", "product", "reason", "result", "source", "state"]],

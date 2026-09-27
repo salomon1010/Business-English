@@ -86,6 +86,7 @@ different names. Maps so far:
 | everything else (`LEGACY`) | streak | week | day | source | lang | result | module | trade | band | installed | onboarded | stage (… gap 16, track 17, n 18, round 19, now 20) |
 | `v2_*` | track | week | competency | mission | kind | move | result | band | state | from | attempt | ai |
 | `partner_*` (not `partner_interest`) | kind | round | n | now | regular | state | reason | evidence | result | day | | |
+| `nudge_*` | kind | reason | result | source | gap | week | day | state | | | | |
 | `shadow_*` | level | mode | to | rung | reason | result | kind | state | lang | band | source | |
 | `cert_*` | track | | | | | | | | | | | |
 
@@ -333,3 +334,20 @@ FROM be_events WHERE blob1 IN ('ad_eligibility_checked','ad_suppressed','ad_disp
   AND timestamp > NOW() - INTERVAL '7' DAY
 GROUP BY context, event, reason ORDER BY n DESC
 ```
+
+## Personalised Learning Nudges (2026-09-26, General English only)
+
+`nudge_generated` (the app scheduled a recommendation with be-push) →
+`nudge_sent` (the service worker showed it) → `nudge_opened` (tapped) →
+`nudge_accepted` (the activity opened) → `nudge_started` (first practice
+action within 2 h) → `nudge_completed` (the recommended activity done);
+`nudge_dismissed` (swiped away), `nudge_expired` (`result`: expired |
+replaced | invalidated — the learner did it first); conversions within 24 h
+of a tap: `nudge_practice`, `nudge_partner`; `nudge_retained` (`gap`: 1d |
+2-3d | 4-7d | 8d+) when the learner comes back on a later day. `kind` is the
+nudge kind (lesson, comeback, words, challenge, shadow, partner_now,
+partner_streak, ai_coach); `reason` a short enum such as `words_due_7` or
+`inactive_4d`. `nudge_sent`, `nudge_dismissed` and the service worker's
+`nudge_expired` come from the service worker (source=push). The app drops
+every `nudge_*` event on a non-General-English area.
+

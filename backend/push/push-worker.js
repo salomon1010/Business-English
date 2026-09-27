@@ -91,7 +91,7 @@ function cors(origin){
   return {
     "Access-Control-Allow-Origin": ok,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",   // Authorization: /nudge carries the learner's Firebase token
     "Access-Control-Max-Age": "86400",
     "Vary": "Origin",
   };
@@ -219,6 +219,139 @@ async function runPresence(env, now){
   console.log(JSON.stringify({ presence: online, waiting, scanned, sent, quiet, recent, dropped }));
 }
 
+/* -------------------------------------------------- personalised nudges -- */
+/* Personalised Learning Nudges (26 Sep 2026) — General English only.
+   The app's NudgeEngine picks the learner's best next action; this Worker
+   decides WHETHER and WHEN it may be shown:
+     POST /nudge          {id, rec, tz} + Authorization: Bearer <Firebase ID token>
+                          → the partner Worker's /programme must answer
+                            general-english for that account (the one
+                            account-based authority; no second auth system),
+                            otherwise 403 and any pending nudge is dropped.
+                          One pending nudge per phone; a newer one replaces it.
+     POST /nudge/cancel   {id, rid?}  the learner already did it → never sent
+     POST /nudge/dismiss  {id, kind}  swiped away → that kind rests 7 days
+     cron (every 10 min)  delivers when due: never in quiet hours, at most one
+                          nudge per 20 h and 4 per 7 days per phone, the same
+                          kind at most every 48 h, never after it expires, the
+                          same rid never twice. Sending one marks the phone done
+                          for today, so the plain daily reminder stays quiet —
+                          one notification a day at most.
+   The wording is the app's (fixed i18n templates filled with the learner's own
+   numbers); this Worker only checks its shape and length. */
+const NUDGE_KINDS = new Set(["lesson", "comeback", "words", "challenge", "shadow", "partner_now", "partner_streak", "ai_coach"]);
+const NUDGE_VIEWS = new Set(["session", "practice", "shadow", "partner"]);
+const NUDGE_ACTS = new Set(["study-due", "clip", "trouble", "match", "ai"]);
+const NUDGE_GAP = 20 * 3600_000, NUDGE_WEEK_MAX = 4, NUDGE_KIND_GAP = 48 * 3600_000, NUDGE_DISMISS_GAP = 7 * 86400_000, NUDGE_MAX_LIFE = 36 * 3600_000;
+const str = (v, n) => (typeof v === "string" ? v.replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, n) : "");
+function cleanNudge(r, now){
+  if (!r || typeof r !== "object" || !NUDGE_KINDS.has(r.kind) || !NUDGE_VIEWS.has(r.view)) return null;
+  const rid = typeof r.rid === "string" && /^[A-Za-z0-9_-]{4,60}$/.test(r.rid) ? r.rid : null;
+  const title = str(r.title, 80), body = str(r.body, 180);
+  const expiresAt = Math.min(Number(r.expiresAt) || 0, now + NUDGE_MAX_LIFE);
+  const sendAfter = Math.max(Number(r.sendAfter) || now, now);
+  if (!rid || !title || !body || expiresAt <= now || sendAfter >= expiresAt) return null;
+  const args = (Array.isArray(r.args) ? r.args : []).slice(0, 2).map(a => (typeof a === "number" ? a : str(String(a), 16)));
+  return { rid, kind: r.kind, view: r.view, act: NUDGE_ACTS.has(r.act) ? r.act : null, args, title, body,
+    reason: str(r.reason, 24), priority: Math.max(0, Math.min(100, Number(r.priority) || 0)), createdAt: now, sendAfter, expiresAt };
+}
+async function programmeOf(req, env){
+  if (!env.PARTNER_API) return null;
+  const auth = req.headers.get("Authorization") || "";
+  if (!/^Bearer\s+\S+/.test(auth)) return null;
+  try { const r = await fetch(env.PARTNER_API + "/programme", { headers: { authorization: auth } }); if (!r.ok) return null; const j = await r.json(); return j && typeof j.track === "string" ? j.track : null; }
+  catch (e) { return null; }
+}
+async function nudgePut(req, env, origin){
+  const b = await req.json().catch(() => null);
+  const id = b && cleanId(b.id);
+  if (!id) return json({ error: "bad id" }, 400, origin);
+  const now = Date.now();
+  const prev = await env.SUBS.get(`nudge:${id}`, "json");
+  const previous = prev ? { rid: prev.rid, kind: prev.kind, status: now > prev.expiresAt ? "expired" : "replaced" } : null;
+  const track = await programmeOf(req, env);
+  if (track !== "general-english") {                                     // Welding, unverifiable, or no token: nothing is kept
+    await env.SUBS.delete(`nudge:${id}`);
+    return json({ error: track ? "track" : "unverified", previous }, 403, origin);
+  }
+  const sub = await env.SUBS.get(`sub:${id}`, "json");
+  if (!sub || !sub.endpoint) return json({ error: "no phone", previous }, 404, origin);
+  const rec = cleanNudge(b.rec, now);
+  if (!rec) return json({ error: "bad nudge", previous }, 400, origin);
+  rec.tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : (sub.tz || 0);
+  await env.SUBS.put(`nudge:${id}`, JSON.stringify(rec), { expirationTtl: Math.max(60, Math.ceil((rec.expiresAt - now) / 1000)) });
+  return json({ ok: true, rid: rec.rid, sendAfter: rec.sendAfter, expiresAt: rec.expiresAt, previous: previous && previous.rid !== rec.rid ? previous : null }, 200, origin);
+}
+async function nudgeCancel(req, env, origin){
+  const b = await req.json().catch(() => null);
+  const id = b && cleanId(b.id);
+  if (!id) return json({ error: "bad id" }, 400, origin);
+  const prev = await env.SUBS.get(`nudge:${id}`, "json");
+  const hit = prev && (!b.rid || b.rid === prev.rid);
+  if (hit) await env.SUBS.delete(`nudge:${id}`);
+  /* shown but not yet read by the service worker: void that too */
+  const w = await env.SUBS.get(`why:${id}`, "json");
+  if (w && w.kind === "nudge" && (!b.rid || b.rid === w.rid)) await env.SUBS.delete(`why:${id}`);
+  return json({ ok: true, cancelled: !!hit }, 200, origin);
+}
+async function nudgeLog(env, id){ return (await env.SUBS.get(`nlog:${id}`, "json")) || { sent: [], kinds: {}, dismissed: {}, rids: [] }; }
+async function nudgeDismiss(req, env, origin){
+  const b = await req.json().catch(() => null);
+  const id = b && cleanId(b.id);
+  if (!id || !NUDGE_KINDS.has(b.kind)) return json({ error: "bad request" }, 400, origin);
+  const log = await nudgeLog(env, id); log.dismissed[b.kind] = Date.now();
+  await env.SUBS.put(`nlog:${id}`, JSON.stringify(log), { expirationTtl: 30 * 86400 });
+  return json({ ok: true }, 200, origin);
+}
+/* why this nudge may not go now (null = it may) */
+function nudgeHold(rec, log, now){
+  if (now >= rec.expiresAt) return "expired";
+  if (now < rec.sendAfter) return "early";
+  if (quietNow(rec.tz || 0, new Date(now))) return "quiet";
+  const sent = (log.sent || []).filter(t => now - t < 7 * 86400_000);
+  if (sent.length && now - Math.max(...sent) < NUDGE_GAP) return "gap";
+  if (sent.length >= NUDGE_WEEK_MAX) return "week";
+  if (log.kinds && log.kinds[rec.kind] && now - log.kinds[rec.kind] < NUDGE_KIND_GAP) return "kind";
+  if (log.dismissed && log.dismissed[rec.kind] && now - log.dismissed[rec.kind] < NUDGE_DISMISS_GAP) return "dismissed";
+  if ((log.rids || []).includes(rec.rid)) return "duplicate";
+  return null;
+}
+async function runNudges(env, nowMs){
+  const now = nowMs || Date.now();
+  const audCache = {};
+  let cursor, scanned = 0, sent = 0, held = 0, expired = 0, dropped = 0;
+  do {
+    const page = await env.SUBS.list({ prefix: "nudge:", cursor });
+    for (const k of page.keys) {
+      if (scanned >= MAX_PER_CRON) break;
+      scanned++;
+      const id = k.name.slice(6), rec = await env.SUBS.get(k.name, "json");
+      if (!rec) continue;
+      const log = await nudgeLog(env, id);
+      const why = nudgeHold(rec, log, now);
+      if (why === "expired" || why === "duplicate") { await env.SUBS.delete(k.name); expired++; continue; }
+      if (why) { held++; continue; }
+      const sub = await env.SUBS.get(`sub:${id}`, "json");
+      if (!sub || !sub.endpoint) { await env.SUBS.delete(k.name); dropped++; continue; }
+      let out; try { out = await sendOne(env, sub, audCache); } catch (e) { out = "fail:throw"; }
+      if (out === "sent") {
+        sent++;
+        await env.SUBS.put(`why:${id}`, JSON.stringify({ kind: "nudge", rid: rec.rid, nkind: rec.kind, view: rec.view, act: rec.act, args: rec.args, title: rec.title, body: rec.body, createdAt: rec.createdAt, expiresAt: rec.expiresAt, at: now }),
+          { expirationTtl: Math.max(60, Math.ceil((rec.expiresAt - now) / 1000)) });
+        await env.SUBS.put(`done:${id}`, new Date(now).toISOString().slice(0, 10), { expirationTtl: 172800 });   // the plain reminder stays quiet today
+        log.sent = [...(log.sent || []).filter(t => now - t < 7 * 86400_000), now];
+        log.kinds = Object.assign({}, log.kinds, { [rec.kind]: now });
+        log.rids = [...(log.rids || []), rec.rid].slice(-20);
+        await env.SUBS.put(`nlog:${id}`, JSON.stringify(log), { expirationTtl: 30 * 86400 });
+        await env.SUBS.delete(k.name);
+      } else if (out === "gone") { await forget(env, id, sub.slot); await env.SUBS.delete(k.name); dropped++; }
+    }
+    cursor = page.list_complete ? null : page.cursor;
+  } while (cursor && scanned < MAX_PER_CRON);
+  console.log(JSON.stringify({ nudges: scanned, sent, held, expired, dropped }));
+  return { scanned, sent, held, expired, dropped };
+}
+
 /* ------------------------------------------------------------------ routes -- */
 
 async function subscribe(req, env, origin){
@@ -280,6 +413,11 @@ async function why(req, env, origin){
   const id = cleanId(new URL(req.url).searchParams.get("id") || "");
   if (!id) return json({ error: "bad id" }, 400, origin);
   const w = await env.SUBS.get(`why:${id}`, "json");
+  if (w && w.kind === "nudge") {       /* a learning nudge: served once; void once expired */
+    await env.SUBS.delete(`why:${id}`);
+    if (Date.now() < (w.expiresAt || 0)) return json({ kind: "nudge", rid: w.rid, nkind: w.nkind, view: w.view, act: w.act, args: w.args || [], title: w.title, body: w.body, createdAt: w.createdAt, expiresAt: w.expiresAt }, 200, origin);
+    return json({ kind: "reminder" }, 200, origin);
+  }
   if (w && WAKE_KINDS.has(w.kind)) {   /* an invitation: served once, so a later presence push cannot re-ring it */
     await env.SUBS.delete(`why:${id}`);
     if (Date.now() - (w.at || 0) < WAKE_WHY_TTL * 1000) return json({ kind: w.kind, name: w.name || "", ref: w.ref || null, at: w.at }, 200, origin);
@@ -365,11 +503,17 @@ export default {
     if (path === "/subscribe")   return subscribe(req, env, origin);
     if (path === "/unsubscribe") return unsubscribe(req, env, origin);
     if (path === "/done")        return done(req, env, origin);
+    if (path === "/nudge")          return nudgePut(req, env, origin);
+    if (path === "/nudge/cancel")   return nudgeCancel(req, env, origin);
+    if (path === "/nudge/dismiss")  return nudgeDismiss(req, env, origin);
     return json({ error: "not found" }, 404, origin);
   },
 
   async scheduled(evt, env, ctx){
     /* two triggers: every minute = the daily reminders, every ten = online alerts */
-    ctx.waitUntil(evt.cron && evt.cron.startsWith("*/10") ? runPresence(env, new Date()) : runCron(env));
+    ctx.waitUntil(evt.cron && evt.cron.startsWith("*/10") ? Promise.all([runPresence(env, new Date()), runNudges(env)]) : runCron(env));
   },
 };
+
+/* for the in-process tests (test/nudge.mjs) */
+export { runNudges, nudgeHold, cleanNudge };

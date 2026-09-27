@@ -195,6 +195,24 @@ console.log("\n# the programme cache: scoped to the account AND its current vers
   ok("C9 · the account document disappears → the cached answer is dropped (403 track_unverified)", r.status === 403 && r.json.error === "track_unverified", JSON.stringify(r));
 }
 
+console.log("\n# /programme — the account's programme, for be-push's nudge gate");
+{
+  setTrack("pg1", "general-english"); setTrack("pw1", "welding");
+  let r = await call("GET", "/programme", { uid: "pg1" });
+  ok("G1 · General English account → 200 {track: general-english}, private", r.status === 200 && r.json.track === "general-english" && /no-store/.test(r.cache || ""), JSON.stringify(r));
+  r = await call("GET", "/programme?track=general-english", { uid: "pw1" });
+  ok("G2 · Welding account → 200 {track: welding}, whatever the query says", r.status === 200 && r.json.track === "welding", JSON.stringify(r));
+  r = await call("GET", "/programme");
+  ok("G3 · no token → 401", r.status === 401);
+  const other = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  r = await call("GET", "/programme", { token: idToken("pg1", { key: other.privateKey }) });
+  ok("G4 · forged token → 401", r.status === 401);
+  r = await call("GET", "/programme", { uid: "nodoc-pg" });
+  ok("G5 · no account document → 403 track_unverified", r.status === 403 && r.json.error === "track_unverified");
+  const off = await worker.fetch(new Request("https://partner.test/programme", { headers: { authorization: "Bearer " + idToken("pg1"), "cf-connecting-ip": "10.6.0.1" } }), { ...env, PARTNER_ENABLED: "0" }, { waitUntil() {} });
+  ok("G6 · answers even with Practice Partner switched off (nudges do not depend on it)", off.status === 200);
+}
+
 console.log("\n# the local-development switch cannot reach production");
 {
   const raw = (e, h) => worker.fetch(new Request("https://partner.test/me", { headers: { "cf-connecting-ip": "10.8.0." + (ipn++ % 250), ...h } }), e, { waitUntil() {} });
