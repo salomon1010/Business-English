@@ -54,10 +54,14 @@ ok("3 · Watch scrolled to the very end: the video is still whole — not pushed
 ok("4 · … and the last paragraph is on screen just under the video, not behind it, and not an empty screen", L.lastPara && L.lastPara.t >= L.stick.b && visible(L, L.lastPara) === L.lastPara.h, JSON.stringify({ stick: L.stick, last: L.lastPara, bar: L.bar }));
 /* playback: the follow-along moves the page to the spoken paragraph */
 for (const k of [0.3, 0.7, 0.98]) {
-  /* the player reports that time until the spoken line is lit (a busy machine can miss one tick) */
-  await p.evaluate(async k => { const n = svAsset.segments.length; const s = svAsset.segments[Math.floor((n - 1) * k)];
-    for (let i = 0; i < 30; i++) { shSeek = { t: (s.startMs + 50) / 1000, at: Date.now() }; svUserScrollAt = 0; svTick(); if (document.querySelector("#svTx .sv-seg.now")) break; await new Promise(r => setTimeout(r, 100)); } }, k);
-  await sleep(1200); L = await lay(p);
+  /* a playing video keeps reporting its time: hold the simulated clock on that line (every 100 ms)
+     through the smooth scroll and the measurement — otherwise the page's own loop falls back to
+     the real, cued player at 0:00 and clears the highlight before it is measured */
+  await p.evaluate(k => { const n = svAsset.segments.length; const s = svAsset.segments[Math.floor((n - 1) * k)];
+    clearInterval(window.__hold); svUserScrollAt = 0;
+    const tick = () => { shSeek = { t: (s.startMs + 50) / 1000, at: Date.now() }; svTick(); }; tick(); window.__hold = setInterval(tick, 100); }, k);
+  await sleep(1400); L = await lay(p);
+  await p.evaluate(() => clearInterval(window.__hold));
   ok(`5 · playback at ${Math.round(k * 100)}%: the follow-along keeps the video whole and the spoken line visible under it`, videoWhole(L) && L.nowSeg && visible(L, L.nowSeg) > 0 && L.nowSeg.t >= L.stick.b - 2, JSON.stringify({ stick: L.stick, now: L.nowSeg, bar: L.bar }));
 }
 /* from a scrolled Watch page to Shadow: the card must open in full under the video */
