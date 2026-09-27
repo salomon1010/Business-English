@@ -10883,9 +10883,11 @@ function homeDestHTML(top,cards,vis){
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?`https://i.ytimg.com/vi/${esc(firstVid)}/hqdefault.jpg`:""},
     partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"rp-photos/partner.jpg"}:null,
     phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"rp-photos/standup.jpg"},
-    practice:{ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')"},
-    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')"},
-    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')"}
+    /* the app's own pages as their pictures (owner, 27 Sep 2026): home-shots/*.jpg are 16:9 clips
+       of the word list, the road map and the progress calendar (tests/home-shots.mjs) */
+    practice:{ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-shots/vocab.jpg"},
+    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-shots/roadmap.jpg"},
+    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-shots/progress.jpg"}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
   const taken={};
