@@ -127,6 +127,27 @@ ok("15d · the poster goes the moment the player reports playing, and a late ima
 ok("16 · no JavaScript errors", !errs.length, errs.join(" | "));
 await ctx.close();
 
+console.log("\n# Your videos with the Premium split (saved from the library 5/5): only the chip and its list, never a block on top");
+{
+  const ctx2 = await b.newContext({ ...devices["iPhone 13"], serviceWorkers: "block" });
+  await ctx2.route(u => /be-events|cloudflareinsights|be-polish|entitlements/.test(u.href), r => r.fulfill({ status: 204, contentType: "application/javascript", body: "" }));
+  const own = ["-tubDR5XSRw", "ApI1rroJNeg", "54ebEjg4EM8", "UF8uR6Z6KLc", "MZAjfsyJa1U"].map((v, i) => ({ vid: v, title: "Saved " + i, ts: Date.now() - i, src: "lib" }));
+  await ctx2.addInitScript(o => { localStorage.setItem("be_flags", JSON.stringify({ billing_enabled: true })); localStorage.setItem("be_ent_api", "http://ent.test");   /* the Premium split needs an entitlement address: staging has one; locally the dev override */ if (!localStorage.getItem("be12_v1")) localStorage.setItem("be12_v1", JSON.stringify({ profile: { name: "Probe", lang: "en", ts: 1 }, professionalTracks: { activeId: "general-english" }, fnd: { "general-english": { placed: "full", finished: true } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, backupAsked: 1, rmSeen: Date.now(), lastSeen: Date.now(), shOwnA: { "general-english": o } })); }, own);
+  const q = await ctx2.newPage(); const e2 = []; q.on("pageerror", e => e2.push(e.message));
+  await q.goto(BASE + "/index.html?own=" + Date.now() + "#shadow"); await sleep(3500);
+  await q.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
+  const look = () => q.evaluate(() => ({ split: shOwnSplit(), top: ((document.getElementById("shOwnTop") || {}).innerText || "").trim(), big: document.querySelectorAll("#v-shadow .sh-own").length, hdr: /Saved from the library/i.test(document.getElementById("v-shadow").innerText), chip: (document.querySelector("#shLib .shl-chip.mine .shl-own-n") || {}).textContent }));
+  const a = await look();
+  const c = await q.evaluate(async () => { await shCatLoad(); const v = shOwn()[0].vid; await shLibSave(v); await new Promise(r => setTimeout(r, 250)); const afterUnsave = { n: shOwn().length, top: ((document.getElementById("shOwnTop") || {}).innerText || "").trim(), big: document.querySelectorAll("#v-shadow .sh-own").length };
+    await shLibSave(v); await new Promise(r => setTimeout(r, 250)); return { afterUnsave, afterSave: { n: shOwn().length, top: ((document.getElementById("shOwnTop") || {}).innerText || "").trim(), big: document.querySelectorAll("#v-shadow .sh-own").length } }; });
+  await q.reload(); await sleep(3500); await q.evaluate(() => document.querySelectorAll("#obWrap,#wcOv,.cf-ov,.wc-ov,#rmCel,.lang-modal-ov,#fndCheckOv").forEach(e => e.remove()));
+  const d = await look();
+  const list = await q.evaluate(async () => { shLibCat("mine"); await new Promise(r => setTimeout(r, 300)); const n = document.querySelectorAll("#shLibFeed .shl-row, #shLibFeed .shl-row-mine").length; shLibCat("foryou"); return n; });
+  ok("19 · five saved videos: the Shadow page shows the 'Your videos 5' chip and nothing on top — no 'Saved from the library' block, no big cards (on load, after un-saving and saving from the library, after a reload); the chip opens the five", a.split && !a.top && !a.big && !a.hdr && a.chip === "5" && !c.afterUnsave.top && !c.afterUnsave.big && c.afterUnsave.n === 4 && !c.afterSave.top && !c.afterSave.big && c.afterSave.n === 5 && !d.top && !d.big && !d.hdr && d.chip === "5" && list === 5, JSON.stringify({ a, c, d, list }));
+  ok("20 · no JavaScript errors", !e2.length, e2.join(" | "));
+  await ctx2.close();
+}
+
 console.log("\n# Welding: the classic workspace, unchanged");
 {
   const W = await learner("welding");

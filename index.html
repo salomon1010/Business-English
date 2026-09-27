@@ -349,7 +349,21 @@ input[type=checkbox],input[type=radio]{min-height:0;width:auto}
    then scrolls; still draggable on platforms that support the resize handle. */
 textarea.grow-ta{resize:vertical;min-height:96px;max-height:60vh;line-height:1.55;overflow-y:hidden}
 input:focus,textarea:focus{outline:none;border-color:var(--acc)}
-::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:9px}::-webkit-scrollbar-track{background:transparent}
+/* Scroll indicators, app-wide (owner, 26–27 Sep 2026: "build a smaller scroll
+   indicator in all the application"). The native bars are off everywhere —
+   they were 9 px wide here and ran the length of the page as a white line on
+   iPhone — and one small thumb (#appScrollV 4×36 px on the right, #appScrollH
+   36×4 px along the bottom of a sideways rail; appScrollDraw) shows where
+   the page, a sheet, a list or a text box is while it scrolls, then fades,
+   like iOS's own. The Shadow workspace keeps its own (#shv3Scroll), kept
+   between the video and the bar. */
+html,body,*{scrollbar-width:none}
+::-webkit-scrollbar{display:none;width:0;height:0;background:transparent}
+.app-scroll{position:fixed;top:0;left:0;z-index:2147483000;pointer-events:none;border-radius:4px;
+  background:color-mix(in srgb,var(--txt) 55%,transparent);opacity:0;transition:opacity .3s;will-change:transform}
+.app-scroll.on{opacity:.8}
+#appScrollV{width:4px;height:36px}
+#appScrollH{width:36px;height:4px}
 
 /* NAV */
 nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(--nav-bg);padding:0 20px}
@@ -1329,6 +1343,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .sim-fb-play.on.q-none{background:var(--acc);color:var(--on-accent)}
 .pf-menu{display:flex;flex-direction:column;gap:10px;margin:18px 0 20px}
 .pf-group-h{font-size:15px;font-weight:800;margin:18px 0 8px;color:var(--txt)}
+.pf-hero-row+.pf-prem{margin-top:12px}   /* the profile card and the Premium card were flush (owner, 27 Sep 2026) */
 .pf-group{background:var(--card);border:1px solid var(--line2);border-radius:16px;overflow:hidden}
 .pf-group .pf-line{border:0;border-radius:0;background:transparent;min-height:56px;padding:12px 16px}.pf-group .pf-line+.pf-line{border-top:1px solid var(--line)}
 .pf-group .pf-line .pf-ic{width:34px;height:34px;flex:none;display:grid;place-items:center;color:var(--txt)}.pf-group .pf-line .pf-ic svg{width:22px;height:22px}
@@ -12065,6 +12080,39 @@ function shv3Observe(){
   if(body&&!body.dataset.sbl){body.dataset.sbl="1";body.addEventListener("scroll",()=>shv3ScrollDraw(true),{passive:true})}
   shv3Measure();
 }
+/* the app-wide scroll thumb (see .app-scroll): one listener, in the capture
+   phase so it hears every scroller, drawn once per frame, for whichever box
+   moved — the page, a sheet, a list, a text box, a sideways rail */
+(function(){
+  const LEN=36,W=4,GAP=6;let tv=null,th=null,raf=0,last=null;
+  const el=id=>{let e=document.getElementById(id);if(!e){e=document.createElement("div");e.id=id;e.className="app-scroll";e.setAttribute("aria-hidden","true");document.body.appendChild(e)}return e};
+  function draw(t){
+    const root=document.scrollingElement||document.documentElement;
+    const s=(t===document||t===document.documentElement||t===document.body)?root:t;
+    if(!s||!s.getBoundingClientRect)return;
+    if(s.matches&&s.matches("#shWork[data-v3] .sh-work-body"))return;   /* has its own, kept off the video */
+    const isRoot=s===root;
+    let r=isRoot?{top:0,left:0,right:innerWidth,bottom:innerHeight}:s.getBoundingClientRect();
+    /* the page's thumb stops above the bottom nav (fixed, so measured, not offsetParent) */
+    if(isRoot){const nav=document.querySelector(".bottom-nav");const nr=nav?nav.getBoundingClientRect():null;if(nr&&nr.height>0&&getComputedStyle(nav).display!=="none"&&nr.top>0&&nr.top<r.bottom)r={top:r.top,left:r.left,right:r.right,bottom:nr.top}}
+    const maxY=s.scrollHeight-s.clientHeight,maxX=s.scrollWidth-s.clientWidth;
+    /* which way it moved; on a box's first scroll there is nothing to compare
+       with, so the way it CAN scroll decides (a rail sideways, a list down) */
+    const prev=s.__appSp;let dy,dx;
+    if(prev){dy=s.scrollTop!==prev.y;dx=s.scrollLeft!==prev.x}else{dy=maxY>4;dx=maxX>4&&!(maxY>4)}
+    s.__appSp={x:s.scrollLeft,y:s.scrollTop};
+    if(maxY>4&&(dy||!dx)){
+      const a=r.top+GAP,b=r.bottom-GAP-LEN;
+      if(b>a){const v=el("appScrollV");v.style.transform="translate("+Math.round(r.right-W-3)+"px,"+Math.round(a+Math.max(0,Math.min(1,s.scrollTop/maxY))*(b-a))+"px)";v.classList.add("on");clearTimeout(tv);tv=setTimeout(()=>v.classList.remove("on"),1000)}
+    }
+    if(maxX>4&&dx){
+      const a=r.left+GAP,b=r.right-GAP-LEN;
+      if(b>a){const h=el("appScrollH");h.style.transform="translate("+Math.round(a+Math.max(0,Math.min(1,s.scrollLeft/maxX))*(b-a))+"px,"+Math.round(r.bottom-W-2)+"px)";h.classList.add("on");clearTimeout(th);th=setTimeout(()=>h.classList.remove("on"),1000)}
+    }
+  }
+  window.appScrollDraw=draw;
+  document.addEventListener("scroll",e=>{last=e.target;if(!raf)raf=requestAnimationFrame(()=>{raf=0;try{draw(last)}catch(x){}})},{capture:true,passive:true});
+})();
 let shv3ScrollT=null;
 function shv3ScrollDraw(show){
   const w=document.getElementById("shWork");if(!w||!w.dataset.v3)return;
