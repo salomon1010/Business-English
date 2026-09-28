@@ -187,7 +187,8 @@ window.FB_CONFIG={
 :root{
   --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --card2:#1a2340;
   --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
-  --txt:#e8ecf8; --mut:#98a1b7; --mut2:#5c6580;
+  /* owner, 28 Sep 2026: text softer than near-white (#e8ecf8) on every dark page — still ~10:1 on --card */
+  --txt:#c9cfdc; --mut:#98a1b7; --mut2:#5c6580;
   --acc:#6366f1; --acc2:#22d3ee; --gold:#fbbf24; --green:#34d399; --red:#f87171; --pink:#f472b6;
   --grad:linear-gradient(135deg,#6366f1,#22d3ee);
   --r:16px;
@@ -227,7 +228,7 @@ window.FB_CONFIG={
 :root[data-track="welding"]{
   --bg:#0a0e1a; --bg2:#0f1526; --card:#141b30; --card2:#1a2340;
   --line:rgba(246,196,83,.13); --line2:rgba(246,196,83,.24);
-  --txt:#e8ecf8; --mut:#98a1b7; --mut2:#5c6580;
+  --txt:#c9cfdc; --mut:#98a1b7; --mut2:#5c6580;
   --acc:#d49717; --acc2:#f6c453; --gold:#f6c453; --green:#58c991; --red:#ef8a78; --pink:#efad79;
   --grad:linear-gradient(135deg,#a66b08,#e2af2f);
   --nav-bg:rgba(10,14,26,.9); --bnav-bg:rgba(15,21,38,.98); --scroll:#2a3352;
@@ -2697,7 +2698,7 @@ details.pp-hist-row[open]>summary::after{transform:rotate(90deg)}
 .wk-card:hover{transform:translateY(-3px);border-color:var(--acc)}
 .wk-card .num{font-size:12px;font-weight:700;color:var(--mut);letter-spacing:1px}
 .wk-card h3{font-size:16.5px;margin:7px 0 9px;line-height:1.35}
-.wk-card.locked{opacity:.55}
+.wk-card.locked{opacity:.62}   /* .55 → .62 with the softer --txt (28 Sep 2026) so locked titles keep 4.5:1 */
 .dots{display:flex;gap:5px;margin-top:12px}
 .dot{width:22px;height:22px;border-radius:7px;background:var(--bg2);border:1px solid var(--line2);display:grid;place-items:center;font-size:10px;color:var(--mut);font-weight:700}
 .dot.done{background:var(--accent-fill);border:none;color:var(--on-accent)}
@@ -3043,7 +3044,7 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
 .ex-polish{justify-content:center}.ex-polish:disabled{opacity:.6}
 .ex-rep-card{margin-top:14px;padding:0}.ex-rep-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}.ex-rep-card>summary::-webkit-details-marker{display:none}
-.ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:20px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
+.ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:16px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
 .ex-rep-chev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:transform .2s}.ex-rep-chev svg{width:18px;height:18px}.ex-rep-card[open]>summary .ex-rep-chev{transform:rotate(180deg)}
 .ex-rep-card>.ex-report{padding:0 18px 18px}.ex-rep-card>.ex-report .ex-rep-top{display:none}
 .ex-version{padding:14px 0;border-top:1px solid var(--line)}.ex-version:first-of-type{border-top:0;padding-top:6px}
@@ -5046,7 +5047,7 @@ h1,h2,h3,.big,.pf-name,.gx-card b,.empty-st b{overflow-wrap:break-word}
 :root:not([data-track="welding"]):not([data-theme="light"]){
   --bg:#080b16; --bg2:#0b1020; --card:#10162b; --card2:#151c35;
   --line:rgba(255,255,255,.075); --line2:rgba(255,255,255,.13);
-  --txt:#eef1fb; --mut:#a2a7c4; --mut2:#848aa8;   /* Phase 5: tertiary text meets AA 4.5:1 on every card tint */
+  --txt:#cbd0e2; --mut:#a2a7c4; --mut2:#848aa8;   /* Phase 5: tertiary text meets AA 4.5:1 on every card tint. Owner 28 Sep 2026: body text softened from #eef1fb */
   --grad:linear-gradient(103deg,#5b5bf0,#3b82f6 55%,#22d3ee);
   --bnav-bg:rgba(9,12,24,.94); --nav-bg:rgba(8,11,22,.8);
   --field-1:rgba(99,102,241,.20); --field-2:rgba(34,211,238,.10); --field-3:rgba(168,85,247,.09);
