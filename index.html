@@ -1633,6 +1633,10 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sh-line-rec{margin-top:9px}
 .sh-line-rec.rec{background:linear-gradient(135deg,#f97316,#fbbf24);color:#1b1202;border-color:transparent;
   box-shadow:0 4px 16px rgba(249,115,22,.38);animation:pulse 1.2s infinite}
+/* The first line's button also carries .cta-lead, whose !important dark fill
+   beat the gradient above and left the dark label on a dark button while
+   recording (owner, 28 Sep 2026). Recording wins over "start here". */
+.sh-line-rec.rec.cta-lead{background:linear-gradient(135deg,#f97316,#fbbf24)!important;border-color:transparent!important;color:#1b1202}
 /* Orange is what recording looks like everywhere else in this app — the
    simulation microphone uses the same gradient while it listens. Red was
    reading as an error rather than as "you are being recorded". The button
