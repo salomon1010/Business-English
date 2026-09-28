@@ -20,7 +20,7 @@ secret value; `wrangler secret put` prompts for it.
 1. Review, then commit the Phase 3 and Phase 4 changes on the release branch; the owner merges it into `main` (not done here).
 2. **be-partner** (§2) — the security fix; before anything else that depends on it.
 3. **be-push** (§3) — after be-partner (its `/nudge` route asks be-partner `/programme`).
-4. **Website**: bump `sw.js` to **be12-v488** (next after live v487) and `APP_VERSION` in `index.html` to the same, push `main`, poll `https://app.lomonec.com/sw.js` until it shows v488. This publishes the corrected `privacy.html`, About page and help centre — **the privacy URL must show this wording before the App Store submission.**
+4. **Website**: `sw.js` and `APP_VERSION` in `index.html` are already **be12-v488** on `release/1.1.0` (next after live v487; the iOS bundle carries the same number); push `main`, poll `https://app.lomonec.com/sw.js` until it shows v488. This publishes the corrected `privacy.html`, About page and help centre — **the privacy URL must show this wording before the App Store submission.**
 5. **iOS build** (owner, Xcode): commit `DEVELOPMENT_TEAM`, `cd mobile/ios && npm ci && npm run sync` (production; the script refuses a bundle that is not `be-mastery`), archive, upload to TestFlight.
 6. **App Store Connect** tasks (§8).
 Staging (§4) can go any time; it touches nothing in production.
