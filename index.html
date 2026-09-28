@@ -899,8 +899,10 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
   font-family:inherit;font-size:14px;font-weight:700;box-shadow:var(--sh-2)}
 .shv3-rec svg{width:19px;height:19px}
 .shv3-rec.on{background:var(--red);animation:pulse 1.6s ease-in-out infinite}
-.shv3-more h2{font-size:17px;margin:0 0 12px}
-.shv3-more-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+/* closed by the ✕ top right (owner, 28 Sep 2026: no Close button at the foot) */
+.shv3-more h2{font-size:17px;margin:0 0 12px;padding-inline-end:40px}
+.shv3-more-x{position:absolute;top:14px;right:12px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--mut);cursor:pointer}.shv3-more-x svg{width:20px;height:20px}.shv3-more-x:hover{color:var(--txt);background:var(--bg2)}.shv3-more-x:focus-visible{outline:2px solid var(--focus);outline-offset:0}html[dir="rtl"] .shv3-more-x{right:auto;left:12px}
+.shv3-more-rows{display:flex;flex-direction:column;gap:8px}
 .shv3-more-rows .pf-row{margin:0}
 .shv3-more-rows .pf-row.has{border-color:var(--accent)}
 .sh-paste{width:100%;margin-top:10px;min-height:64px;font-size:14px}
@@ -13025,6 +13027,7 @@ window.shv3More=()=>{
   ov.onclick=e=>{if(e.target===ov)ov.remove()};
   const mode=(m,k,icn)=>`<button class="pf-row ${svMode===m?"has":""}" onclick="document.getElementById('shv3MoreOv').remove();svSetMode('${m}');shv3Sync()"><span class="pf-ic">${ic(icn)}</span><span class="pf-txt"><b>${esc(t(k))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>`;
   ov.innerHTML=`<div class="lang-modal pp-sheet shv3-more" role="dialog" aria-modal="true" aria-labelledby="shv3MoreH">
+    <button class="shv3-more-x" onclick="document.getElementById('shv3MoreOv').remove()" aria-label="${esc(t("wc.close"))}" title="${esc(t("wc.close"))}">${ic("close")}</button>
     <h2 id="shv3MoreH">${esc(t("sh.more_label"))}</h2>
     <div class="shv3-more-rows">
       ${mode("watch","sv.mode_watch","play")}
@@ -13033,7 +13036,6 @@ window.shv3More=()=>{
       <button class="pf-row sh-clips-row" onclick="document.getElementById('shv3MoreOv').remove();shClipsSheet()"><span class="pf-ic">${ic("star")}</span><span class="pf-txt"><b>${esc(t("sh.tab_clips"))}${aList("clips").length?` <em class="sh-tb-n">${aList("clips").length}</em>`:""}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>
       ${shOwnSplit()&&shCatHas(shClip.vid)?`<button class="pf-row sh-lib-save-row" onclick="document.getElementById('shv3MoreOv').remove();shLibSave('${esc(shClip.vid)}')"><span class="pf-ic">${ic("bookmark")}</span><span class="pf-txt"><b>${esc(t(shOwnFind(shClip.vid)>=0?"sh.lib_saved":"sh.lib_save"))}</b></span><span class="pf-chev" aria-hidden="true">›</span></button>`:""}
     </div>
-    <button class="btn btn-g" onclick="document.getElementById('shv3MoreOv').remove()">${t("wc.close")}</button>
   </div>`;
   document.body.appendChild(ov);
 };
@@ -23038,7 +23040,7 @@ window.svTrPick=anchor=>{
   pop.style.left=Math.max(12,Math.min(vw-w-12,(document.documentElement.dir==="rtl"?r.right-w:r.left)))+"px";
   if(below>=Math.min(264,above))pop.style.top=(r.bottom+6)+"px";else pop.style.bottom=(vh-r.top+6)+"px";
   if(a)a.setAttribute("aria-expanded","true");
-  const sel=pop.querySelector(".sv-tr-opt.sel");if(sel)sel.scrollIntoView({block:"center"});
+  const sel=pop.querySelector(".sv-tr-opt.sel"),lst=pop.querySelector(".sv-tr-list");if(sel&&lst)lst.scrollTop=sel.offsetTop-lst.offsetTop-(lst.clientHeight-sel.offsetHeight)/2;   /* the list only: scrollIntoView would also scroll the page and pull the tag away */
   setTimeout(()=>{document.addEventListener("pointerdown",svTrPopOut,true);document.addEventListener("keydown",svTrPopKey,true);window.addEventListener("scroll",svTrPopScroll,true);window.addEventListener("resize",svTrPopClose)},0);
   return false;
 };
