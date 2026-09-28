@@ -1562,7 +1562,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-dcard[data-dest=practice]{--c1:#3fe0a6;--c2:#12b886}
 .hx-dcard[data-dest=journey]{--c1:#a57bff;--c2:#6d3cf0}
 .hx-dcard[data-dest=grammar]{--c1:#8b8dff;--c2:#5a4bff}
-.hx-dcard[data-dest=grammar] .hx-dimg img{object-position:center 12%}
+.hx-dcard[data-dest=grammar] .hx-dimg img{object-position:center 60%}   /* owner's exercise picture (28 Sep 2026): the question and all three answers stay in the 8:5 crop */
 .hx-dcard[data-dest=convo]{--c1:#3fd6f0;--c2:#0e9fc4}
 .hx-dcard[data-dest=review]{--c1:#ffd23a;--c2:#ff9f1a}
 .hx-dimg.img .hx-dic{display:none}
@@ -11580,7 +11580,7 @@ function homeDestHTML(top,cards,vis){
     practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-photos/vocab.jpg",art:1},
     journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-photos/roadmap.jpg",art:1},
     convo:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
-    grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:"home-photos/grammar.jpg",art:1},
+    grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:"home-photos/grammar.jpg?v=3",art:1},
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
