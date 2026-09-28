@@ -73,9 +73,9 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
   await p.waitForSelector("#shLibFeed .scn-lrow", { timeout: 10000 });
   const row = await p.evaluate(() => { const f = document.getElementById("shLibFeed"), first = f.querySelector(".shl-row"), r = f.querySelector(".scn-lrow"), next = [...f.querySelectorAll(".shl-row")].find(x => !x.classList.contains("scn-lrow"));
     const w = e => e ? Math.round(e.querySelector(".shl-thumb").getBoundingClientRect().width) : 0, hh = e => e ? Math.round(e.querySelector(".shl-thumb").getBoundingClientRect().height) : 0;
-    return { first: first === r, t: r && r.querySelector("b").textContent, by: r && r.querySelector("small").textContent, tag: r && r.querySelector(".shl-cap").textContent, dur: r && r.querySelector(".shl-dur").textContent, img: r && r.querySelector("img").getAttribute("src"), w: w(r), wn: w(next), h: hh(r), hn: hh(next), card: !!document.querySelector(".scn-card,.scn-sec") }; });
+    return { first: first === r, t: r && r.querySelector("b").textContent, by: r && r.querySelector("small").textContent, tag: r ? !!r.querySelector(".shl-cap") : null, dur: r && r.querySelector(".shl-dur").textContent, img: r && r.querySelector("img").getAttribute("src"), w: w(r), wn: w(next), h: hh(r), hn: hh(next), card: !!document.querySelector(".scn-card,.scn-sec") }; });
   ok("the scene is the FIRST row of the video list", row.first && row.t === "Meeting a new coworker", JSON.stringify(row));
-  ok("the row reads like the others: source line, tag, length", row.by === "BE Mastery · Daniel & Maya" && row.tag === "Animated scene" && row.dur === "1:01", JSON.stringify(row));
+  ok("the row reads like the others: source line and length, no tag line (owner, 28 Sep 2026)", row.by === "BE Mastery · Daniel & Maya" && row.tag === false && row.dur === "1:01", JSON.stringify(row));
   ok("its thumbnail is the scene's poster, the same size as the next video's", /scenes\/coworker-intro\/poster\.svg$/.test(row.img || "") && row.w > 0 && row.w === row.wn && row.h === row.hn, JSON.stringify(row));
   ok("no separate large scene card on the page", !row.card);
   const cats = await p.evaluate(async () => { const out = {}; const first = () => { const r = document.querySelector("#shLibFeed .shl-row"); return !!(r && r.classList.contains("scn-lrow")); };
@@ -85,6 +85,14 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
     shLibQ("zzzqqq"); await new Promise(z => setTimeout(z, 300)); out.qNo = !!document.querySelector("#shLibFeed .scn-lrow");
     shLibClear && shLibClear(); shLibQ(""); await new Promise(z => setTimeout(z, 300)); out.back = first(); return out; });
   ok("first in a category list and in a search that finds it; not in Your videos or a search that does not", cats.cat && !cats.mine && cats.q && !cats.qNo && cats.back, JSON.stringify(cats));
+  /* owner, 28 Sep 2026: no Transcript / Captions in player / Animated scene line on any row, and a library video without a transcript is never listed */
+  const tx = await p.evaluate(async () => { const bad = Object.keys(_shCat.videos).filter(v => !shLibHasTx(v)), out = { bad: bad.length, tags: 0, shown: [], rows: 0 };
+    const look = () => { const f = document.getElementById("shLibFeed"); out.tags += f.querySelectorAll(".shl-cap").length; out.rows += f.querySelectorAll(".shl-row").length; bad.forEach(v => { if (f.innerHTML.includes("/vi/" + v + "/")) out.shown.push(v); }); };
+    const wait = () => new Promise(z => setTimeout(z, 200));
+    for (const c of ["foryou"].concat(_shCat.categories.map(x => x.id))) { shLibCat(c); await wait(); if (typeof shLibMoreToggle === "function" && document.querySelector("#shLibFeed .shl-more")) { shLibMoreToggle(); await wait(); } look(); }
+    shLibCat("foryou"); shLibQ("Communicating the Future"); await wait(); look(); shLibQ(""); await wait();
+    out.helper = typeof shLibHasTx === "function"; return out; });
+  ok("no badge line on any row; the videos without a transcript are in no list (For you, every category, a search)", tx.helper && tx.bad > 0 && tx.rows > 0 && tx.tags === 0 && tx.shown.length === 0, JSON.stringify(tx));
   await openScene(p);
   const st = await p.evaluate(() => ({ cls: ytPlayer instanceof ShadowScenes.ScenePlayer, live: !!document.querySelector("#ytBox .scn-live"), lbl: document.querySelector("#ytBox .scn-live").getAttribute("aria-label") || "", ai: (document.querySelector("#ytBox .scn-ai") || {}).textContent, dur: ytPlayer.getDuration(), title: shClip.title, iframe: !!document.querySelector("#ytBox iframe") }));
   ok("the scene plays in ScenePlayer inside the studio's own player box (no YouTube frame)", st.cls && st.live && !st.iframe, JSON.stringify(st));

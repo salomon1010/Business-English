@@ -1142,8 +1142,6 @@ html.has-shdock #v-shadow .shl-foot{margin-bottom:110px}
 .shl-dur{position:absolute;right:5px;bottom:5px;font-size:10px;font-weight:700;background:rgba(10,14,26,.85);color:#fff;padding:2px 6px;border-radius:5px;font-variant-numeric:tabular-nums}
 .shl-row b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:14px;line-height:1.3;font-weight:600}
 .shl-row small{display:block;color:var(--mut);font-size:12px;margin-top:3px}
-.shl-cap{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 45%,transparent);padding:2px 7px;border-radius:999px}
-.shl-cap.no{color:var(--mut);border-color:var(--line2)}
 .shl-empty{text-align:center;color:var(--mut);font-size:13.5px;padding:18px 8px}
 .shl-more{align-self:center}
 @media(max-width:380px){.shl-row{grid-template-columns:112px 1fr}}
@@ -13251,7 +13249,9 @@ function shlHeroSwipe(el){
 }
 /* "For you" = the first two transcript-bearing videos of every category, in
    category order — plan-week ranking is a later step (phase 3), and the label
-   does not promise more than that */
+   does not promise more than that. A library video without a transcript is
+   never listed (owner, 28 Sep 2026); the learner's own links are theirs and stay. */
+function shLibHasTx(vid){const x=_shCat&&_shCat.videos[vid];return !!(x&&x.cap&&x.cap!=="player")}
 function shLibList(){
   const c=_shCat;if(!c)return [];
   const q=_shLibQ.trim().toLowerCase();
@@ -13269,7 +13269,7 @@ function shLibList(){
   }else{
     const cat=c.categories.find(x=>x.id===_shLibCat);ids=cat?cat.vids.filter(v=>c.videos[v]):[];
   }
-  return ids;
+  return ids.filter(shLibHasTx);
 }
 function shLibRow(vid){
   const v=_shCat.videos[vid];
@@ -13277,7 +13277,7 @@ function shLibRow(vid){
   const has=v.cap&&v.cap!=="player";
   const row=`<button class="shl-row" onclick="shLibOpen('${vid}')" aria-label="${esc(v.title)}">
     <span class="shl-thumb ${has?"cap":""}"><img src="https://i.ytimg.com/vi/${vid}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(v.dur)}</span></span>
-    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small>${_shLibCat==="mine"?`<span class="shl-src lib">${ic("bookmark")}${esc(t("sh.src_lib"))}</span>`:""}<span class="shl-cap ${has?"":"no"}">${has?t("sh.lib_cap"):t("sh.lib_cap_player")}</span></span>
+    <span><b>${esc(v.title)}</b><small>${esc(v.ch)}</small>${_shLibCat==="mine"?`<span class="shl-src lib">${ic("bookmark")}${esc(t("sh.src_lib"))}</span>`:""}</span>
   </button>`;
   if(!shOwnSplit())return row;
   const on=shOwnFind(vid)>=0,lab=t(on?"sh.lib_saved":"sh.lib_save");
@@ -13289,13 +13289,11 @@ function shLibRow(vid){
 function shLibMineRow(vid){
   const o=shOwn().find(x=>x&&x.vid===vid)||{vid};
   const i=shOwn().findIndex(x=>x&&x.vid===vid);
-  const tx=!!shPasted(vid);
   return `<div class="shl-row shl-row-mine">
     <button class="shl-thumb-btn" onclick="shOwnOpen(${i})" aria-label="${esc(shOwnTitle(o))}">
       <span class="shl-thumb"><img src="https://i.ytimg.com/vi/${esc(vid)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span></span>
     </button>
-    <span><b>${esc(shOwnTitle(o))}</b><small>${esc(t("sh.own_badge"))}</small><span class="shl-src yt">${ic("link")}${esc(t("sh.src_yt"))}</span>
-      <span class="shl-cap ${tx?"":"no"}">${tx?t("sh.lib_cap"):t("sh.lib_cap_none")}</span></span>
+    <span><b>${esc(shOwnTitle(o))}</b><small>${esc(t("sh.own_badge"))}</small><span class="shl-src yt">${ic("link")}${esc(t("sh.src_yt"))}</span></span>
     <button class="shl-row-del" onclick="shOwnDel(${i},event)" title="${esc(t("sh.own_remove"))}" aria-label="${esc(t("sh.own_remove"))}">${ic("trash")}</button>
   </div>`;
 }
@@ -22223,7 +22221,7 @@ function scnFeedRowsHTML(){
     const who=(sc.cast||[]).map(id=>c[id]&&c[id].name).filter(Boolean).join(" & ");
     const row=`<button class="shl-row scn-lrow" onclick="scnOpen('${esc(sc.id)}','library')" aria-label="${esc(sc.title)}">
     <span class="shl-thumb"><img src="${esc(vidThumb(sc.id))}" alt="" loading="lazy" decoding="async" width="320" height="180"><span class="shl-play">${ic("play")}</span><span class="shl-dur">${shLibDur(sc.durationS||0)}</span></span>
-    <span><b>${esc(sc.title)}</b><small>${esc(t("scn.row_by",{who}))}</small><span class="shl-cap scn-cap">${esc(t("scn.row_tag"))}</span></span>
+    <span><b>${esc(sc.title)}</b><small>${esc(t("scn.row_by",{who}))}</small></span>
   </button>`;
     return shOwnSplit()?`<div class="shl-rw">${row}<span class="shl-save scn-save-sp" aria-hidden="true"></span></div>`:row;
   }).join("");
