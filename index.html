@@ -2156,10 +2156,13 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .sv-sh-text.tr{color:var(--txt)}.sv-sh-text.tr.wait{color:var(--mut)}.sv-sh-text.tr.err{color:var(--red)}
 .sv-sh-tr{font-size:14.5px;line-height:1.6;color:var(--txt);margin:10px 0 0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent)}.sv-sh-tr.empty{display:none}.sv-sh-tr.wait{color:var(--mut)}.sv-sh-tr.err{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
 .sv-sh-tr[hidden]{display:none}.sv-sh-tr-l{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);margin-bottom:3px}.sv-sh-tr[dir="rtl"]{text-align:right}.sv-sh-tr.err .sv-sh-tr-l{color:var(--red)}
-.sv-sh-acts{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px}.sv-sh-tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
+.sv-sh-acts{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:12px}.sv-sh-tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}.sv-sh-acts .sv-sh-tg>*{flex:1 1 0}.sv-sh-acts .sv-sh-tg>.sv-sh-t{justify-content:center;padding:0 9px;gap:5px}.sv-sh-acts .sv-sh-rb{width:44px;height:44px}.sv-sh-acts .sv-tr-grp>.sv-sh-t{flex:1 1 auto;justify-content:center}
 .sv-sh-t{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-sh-t svg{width:15px;height:15px;flex:none}.sv-sh-t small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}
+.sv-tr-grp{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:99px;background:var(--bg2)}.sv-tr-grp .sv-sh-t{border:0;background:transparent;border-radius:99px 0 0 99px;padding:0 5px 0 9px;gap:5px}.sv-tr-grp.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-tr-grp.on .sv-sh-t{background:transparent}
+.sv-tr-lang{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-height:40px;min-width:36px;padding:0 8px 0 7px;border:0;border-left:1px solid var(--line2);background:transparent;color:var(--mut);font:inherit;cursor:pointer}.sv-tr-lang svg{width:14px;height:14px}.sv-tr-lang small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}.sv-tr-grp.on .sv-tr-lang{color:var(--accent-text);border-left-color:color-mix(in srgb,var(--acc) 45%,transparent)}.sv-tr-grp.on .sv-tr-lang small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-tr-lang:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.sv-tr-pick-p{font-size:13px;color:var(--mut);text-align:center;margin:0 0 12px;line-height:1.5}.sv-tr-pick .lang-row.sel{border-color:var(--acc)}.sv-tr-pick .lang-row>svg{width:18px;height:18px;margin-left:auto;color:var(--acc)}
 .sv-sh-t.on{border-color:var(--acc);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-sh-t.on small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-sh-t.na{opacity:.55}.sv-sh-t:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:6px 0 10px}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
+.sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:4px 0 10px;font-size:12.5px;line-height:1.5;font-weight:400;color:var(--mut2)}.sv-para-tr.err{color:var(--red)}.sv-para-tr[dir="rtl"]{text-align:right}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
 .fb-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.fb-fold{flex:none}.fb-fold svg{transition:transform .2s}.fb-fold[aria-expanded="false"] svg{transform:rotate(-90deg)}.fb-fold[hidden]{display:none}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
 /* Watch: the paragraph being spoken is lit as a whole, its word marked */
 #shWork[data-svmode="watch"] .sv-tx .sv-seg{color:var(--mut2)}#shWork[data-svmode="watch"] .sv-tx .sv-seg.now{color:var(--txt)}
@@ -6787,7 +6790,7 @@ const I18N_EN={
  "sv.level_text":"Your transcript, sentence by sentence. No timing for this clip, so nothing lights up — tap a sentence to shadow it.",
  "sv.challenge_note":"Listen and say it before you look.",
  "sv.sh_original":"Original transcript","sv.sh_fav":"Save to My clips","sv.sh_unfav":"Remove from My clips","sv.sh_unfav_toast":"Removed from My clips.","sv.sh_hint":"The clip loops on this paragraph. Tap a word to hear it, translate it, then record.","sv.sh_translate":"Translate","sv.sh_hear":"Hear it","sv.sh_speed":"Speed","sv.sh_record":"Record","sv.sh_stop":"Stop","sv.sh_replay":"Replay","sv.sh_tr_wait":"Translating…","sv.sh_tr_err":"Translation needs a connection. Try again in a moment.",
- "sv.sh_ipa_btn":"Pronunciation","sv.sh_ipa_wait":"Loading pronunciation…","sv.sh_ipa_err":"Pronunciation needs a connection. Try again in a moment.","sv.sh_ipa_note":"Pronunciation in IPA (American English), written by AI — a guide, not a verdict.","sv.sh_tr_none":"Translation needs your native language. Choose it in Settings — the app is in English now.","sv.sh_tr_a11y":"Translation ({{lang}})","sv.sh_helpers":"Transcript helpers","sv.sh_busy":"Too many requests at once. Wait a few seconds and try again.","sh.report_fold":"Hide the report","sh.report_unfold":"Show the report",
+ "sv.sh_ipa_btn":"Pronunciation","sv.sh_ipa_wait":"Loading pronunciation…","sv.sh_ipa_err":"Pronunciation needs a connection. Try again in a moment.","sv.sh_ipa_note":"Pronunciation in IPA (American English), written by AI — a guide, not a verdict.","sv.sh_tr_none":"Translation needs your native language. Choose it in Settings — the app is in English now.","sv.sh_tr_choose":"Translate — choose your language","sv.sh_tr_lang_a11y":"Translation language: {{lang}}. Tap to change it.","sv.sh_tr_pick_h":"Translate into","sv.sh_tr_pick_p":"Choose your own language. The translation appears under the English line.","sv.sh_tr_a11y":"Translation ({{lang}})","sv.sh_helpers":"Transcript helpers","sv.sh_busy":"Too many requests at once. Wait a few seconds and try again.","sh.report_fold":"Hide the report","sh.report_unfold":"Show the report",
  "sv.prev":"Previous sentence","sv.next":"Next sentence","sv.repeat":"Repeat","sv.shadow_this":"Shadow this sentence",
  "sv.reveal":"Reveal","sv.hide":"Hide again",
  "sv.tx_unfold":"Full transcript ({{n}} lines)","sv.tx_fold":"Fold transcript","sv.tx_btn":"Transcript",
@@ -22577,15 +22580,21 @@ function svParaGroup(p){
 function svShGroup(){return svParaGroup(svParaOf(svShIndex()))}
 function svShIndex(){if(svShPinned&&svShPara>=0)return svShPara;return svLast.seg>=0?svLast.seg:(svPick>=0?svPick:0)}
 function svShSeg(){return svShGroup()}
-function svShLang(){const c=(S.profile&&S.profile.lang)||"en";const L=LANGS.find(x=>x.code===c);return {code:c,name:L?L.en:"",native:L?L.native:"",ok:c!=="en"&&!!L,rtl:RTL_LANGS.has(c)}}
+/* the translation language (owner, 28 Sep 2026): the learner picks it from the
+   list under the Translate button — S.profile.trLang, account-level like the
+   rest of the profile. Until they pick, the app language stands in when it is
+   not English; an English app with no pick has no language, and Translate
+   opens the list instead of switching on. */
+function svShLangCode(){const p=S.profile||{};return p.trLang||(p.lang&&p.lang!=="en"?p.lang:"")}
+function svShLang(){const c=svShLangCode();const L=c?LANGS.find(x=>x.code===c):null;return {code:c,name:L?L.en:"",native:L?L.native:"",ok:!!L&&c!=="en",rtl:RTL_LANGS.has(c)}}
 let svShPinned=false,svShPara=-1;   /* the paragraph on the Shadow page (its first line) stays put until the learner moves it or leaves; svPick is not touched */
 /* ---------- the card's two optional helpers: Translate and Pronunciation ----------
    Both OFF until the learner turns them on. The choice is kept per area in
    aMap("svPref") — it rides in S, so it survives a refresh and a cloud merge,
    and Welding has its own (always empty) bucket. The English is the primary
    text whatever is on: the translation sits UNDER it in the learner's native
-   language (S.profile.lang, the onboarding answer — one setting, not a second
-   one), the pronunciation sits under each WORD. Nothing here runs unless
+   language (svShLang: the learner's pick, else the app language), the
+   pronunciation sits under each WORD. Nothing here runs unless
    svOn(): Welding never renders the card, never fetches, never writes the
    preference, and the caches below are only ever reached through it.
    Caches hold public captions' translations and dictionary IPA — content, not
@@ -22761,10 +22770,9 @@ function svShIpaGo(sg){
 let svWtCur=-1;
 function svWtTogglesHTML(){
   if(!svOn())return "";
-  const lang=svShLang(),trOn=svShTrOn(),ipaOn=svShIpaOn();
-  const trLbl=lang.ok?t("sv.sh_tr_a11y",{lang:lang.native||lang.name}):t("sv.sh_tr_none");
+  const ipaOn=svShIpaOn();
   return `<div class="sv-sh-tg sv-wt-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
-    <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svWtTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
+    ${svTrBtnHTML("svWtTrBtn")}
     <button class="sv-sh-t ${ipaOn?"on":""}" id="svWtIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
     ${shVidSaveBtnHTML()}
   </div>`;
@@ -22805,11 +22813,11 @@ function svWatchDraw(k){
   const para=tx.querySelector(`.sv-para[data-p="${k}"]`),g=svWtGroup(k);if(!para||!g)return;
   if(svShTrOn()){
     const lang=svShLang(),tx0=_svTr[svShTrKey(g)];
-    const box=document.createElement("div");box.className="sv-sh-tr sv-para-tr "+(tx0?"":"wait");box.setAttribute("lang",lang.code);box.setAttribute("dir",lang.rtl?"rtl":"ltr");box.setAttribute("aria-live","polite");
-    box.innerHTML=svShTrInner(tx0?"ok":"wait",tx0);para.appendChild(box);
+    const box=document.createElement("div");box.className="sv-para-tr "+(tx0?"":"wait");box.setAttribute("lang",lang.code);box.setAttribute("dir",lang.rtl?"rtl":"ltr");box.setAttribute("aria-live","polite");
+    box.innerHTML=svShTrInner(tx0?"ok":"wait",tx0,true);para.appendChild(box);
     if(tx0)svShTrViewed(g);
-    else svShTrFetch(g).then(txt=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr";box.innerHTML=svShTrInner("ok",txt);svShTrViewed(g)}})
-      .catch(e=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-sh-tr sv-para-tr err";box.innerHTML=svShTrInner("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"").replace("svShTrRetry()","svWtRetry()")}});
+    else svShTrFetch(g).then(txt=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-para-tr";box.innerHTML=svShTrInner("ok",txt,true);svShTrViewed(g)}})
+      .catch(e=>{if(svWtSame(k,g)&&svShTrOn()){box.className="sv-para-tr err";box.innerHTML=svShTrInner("err",/ 429$/.test(String(e&&e.message||""))?"rate_limited":"",true).replace("svShTrRetry()","svWtRetry()")}});
   }
   if(svShIpaOn()&&para.querySelector(".sv-w")){
     const paint=()=>{const ctx=svIpaCtx(g);para.classList.add("has-ipa");para.querySelectorAll(".sv-w").forEach(w=>{let sp=w.querySelector(".sv-w-ipa");if(!sp){sp=document.createElement("span");sp.className="sv-w-ipa";sp.setAttribute("aria-hidden","true");w.appendChild(sp)}sp.textContent=svIpaGet(w.firstChild&&w.firstChild.textContent||"",ctx)})};
@@ -22824,10 +22832,52 @@ function svShAfterDraw(){
   if(svShTrOn()){if(_svTr[svShTrKey(sg)])svShTrViewed(sg);else svShTrGo(sg)}
   if(svShIpaOn()){_svIpaPeek=null;svShIpaGo(sg)}
 }
+/* Translate is one pill of two buttons: the switch, and the language tag
+   (FR) that opens the list. No language yet: the tag is a plain ▾ and
+   the switch opens the list too. */
+function svTrBtnHTML(id){
+  const lang=svShLang(),on=svShTrOn(),nm=lang.native||lang.name;
+  const lbl=lang.ok?t("sv.sh_tr_a11y",{lang:nm}):t("sv.sh_tr_choose");
+  return `<span class="sv-tr-grp ${on?"on":""}"><button class="sv-sh-t ${on?"on":""}" id="${id}" onclick="svShTrToggle()" aria-pressed="${on}" aria-label="${esc(lbl)}" title="${esc(lbl)}">${ic(on?"check":"globe")}<span>${t("sv.sh_translate")}</span></button><button class="sv-tr-lang" id="${id}Lang" onclick="svTrPick()" aria-haspopup="dialog" aria-label="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}" title="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}">${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:ic("chevron")}</button></span>`;
+}
+/* every language in LANGS (the AI translates into any of them, not only the
+   15 the app's own screens are translated into), English left out */
+function svTrListHTML(q){
+  q=String(q||"").trim().toLowerCase();const cur=svShLang().code;
+  const list=LANGS.filter(l=>l.code!=="en"&&(!q||l.en.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)||l.code===q));
+  if(!list.length)return `<p style="color:var(--mut);text-align:center;padding:16px 0">${esc(t("lang.none_found"))}</p>`;
+  return list.map(l=>`<button class="lang-row ${l.code===cur?"sel":""}" onclick="svTrSet('${l.code}')" aria-pressed="${l.code===cur}">
+    <span class="lang-ic" style="background:${langColor(l.code)}">${langInitials(l)}</span>
+    <span class="lang-native">${esc(l.native)}<small>${esc(l.en)}</small></span>${l.code===cur?ic("check"):""}
+  </button>`).join("");
+}
+window.svTrPick=()=>{
+  if(!svOn())return false;
+  let ov=document.getElementById("langModalOv");
+  if(!ov){ov=document.createElement("div");ov.id="langModalOv";ov.className="lang-modal-ov";document.body.appendChild(ov)}
+  ov.innerHTML=`<div class="lang-modal sv-tr-pick" role="dialog" aria-modal="true" aria-labelledby="svTrPickH">
+    <button class="auth-x" onclick="closeLangPicker()" aria-label="${esc(t("wc.close"))}">×</button>
+    <h2 id="svTrPickH" style="font-size:19px;font-weight:800;margin-bottom:6px;text-align:center">${esc(t("sv.sh_tr_pick_h"))}</h2>
+    <p class="sv-tr-pick-p">${esc(t("sv.sh_tr_pick_p"))}</p>
+    <input id="svTrSearch" class="lang-search" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('svTrList').innerHTML=svTrListHTML(this.value)">
+    <div id="svTrList" class="lang-list">${svTrListHTML("")}</div>
+  </div>`;
+  ov.style.display="grid";ov.onclick=e=>{if(e.target===ov)closeLangPicker()};
+  const sel=ov.querySelector(".lang-row.sel");if(sel)sel.scrollIntoView({block:"center"});
+  return false;
+};
+/* a pick sets the language AND switches Translate on — that is why they opened the list */
+window.svTrSet=code=>{
+  if(!svOn()||code==="en"||!langByCode(code))return false;
+  S.profile=S.profile||{};S.profile.trLang=code;
+  const p=svShPref();p.tr=true;save();closeLangPicker();
+  try{track("shadow_translation_toggled",{state:"on",lang:code})}catch(e){}
+  svRender();return true;
+};
 window.svShTrToggle=()=>{
   if(!svOn())return false;
   const lang=svShLang();
-  if(!lang.ok){toast(t("sv.sh_tr_none"));return false}
+  if(!lang.ok){svTrPick();return false}
   const p=svShPref();p.tr=!p.tr;save();
   try{track("shadow_translation_toggled",{state:p.tr?"on":"off",lang:lang.code})}catch(e){}
   svRender();return !!p.tr;
@@ -22857,10 +22907,9 @@ window.svShWordTap=b=>{
 };
 function svShHTML(){
   const sg=svShSeg();if(!sg)return "";
-  const a=svAsset,lang=svShLang(),ps=svParas(a),i=ps.findIndex(p=>p.from===sg.from),trOn=svShTrOn(),ipaOn=svShIpaOn();
+  const a=svAsset,ps=svParas(a),i=ps.findIndex(p=>p.from===sg.from),ipaOn=svShIpaOn();
   const words=sg.text.split(/\s+/).filter(Boolean).map(svShWordHTML).join(" ");
   const nav=`<span class="sv-sh-nav"><button class="sv-ch-play" onclick="svShStep(-1)" aria-label="${esc(t("sv.prev"))}" ${i>0?"":"disabled"}>${ic("rewind")}</button><span>${i+1} / ${ps.length}</span><button class="sv-ch-play" onclick="svShStep(1)" aria-label="${esc(t("sv.next"))}" ${i<ps.length-1?"":"disabled"}>${ic("forward")}</button></span>`;
-  const trLbl=lang.ok?t("sv.sh_tr_a11y",{lang:lang.native||lang.name}):t("sv.sh_tr_none");
   return `<div class="sv-sh" id="svSh">
     <div class="sv-sh-hd"><span class="sv-sh-title">${t("sv.sh_original")}</span>${nav}<button class="sv-ch-play sv-sh-fav ${svShFavOn()?"on":""}" onclick="svShFav()" aria-pressed="${svShFavOn()}" aria-label="${esc(t(svShFavOn()?"sv.sh_unfav":"sv.sh_fav"))}">${ic("star")}</button></div>
     <div class="sv-sh-card">
@@ -22871,7 +22920,7 @@ function svShHTML(){
       ${svShTrHTML(sg)}
       <div class="sv-sh-acts">
         <div class="sv-sh-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
-          <button class="sv-sh-t ${trOn?"on":""} ${lang.ok?"":"na"}" id="svShTrBtn" onclick="svShTrToggle()" aria-pressed="${trOn}" ${lang.ok?"":'aria-disabled="true"'} aria-label="${esc(trLbl)}" title="${esc(trLbl)}">${ic(trOn?"check":"globe")}<span>${t("sv.sh_translate")}</span>${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:""}</button>
+          ${svTrBtnHTML("svShTrBtn")}
           <button class="sv-sh-t ${ipaOn?"on":""}" id="svShIpaBtn" onclick="svShIpaToggle()" aria-pressed="${ipaOn}" aria-label="${esc(t("sv.sh_ipa_btn"))}" title="${esc(t("sv.sh_ipa_note"))}">${ic(ipaOn?"check":"waveform")}<span>${t("sv.sh_ipa_btn")}</span></button>
         </div>
         <button class="sv-sh-rb" onclick="${a.spk?"svShReplay()":"svChStopAll();fbSay(svShSeg().text,1)"}" aria-label="${esc(t("sv.sh_hear"))}" title="${esc(t("sv.sh_hear"))}">${ic("sound")}</button>

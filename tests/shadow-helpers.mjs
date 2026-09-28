@@ -78,7 +78,7 @@ const openShadow = async (page, pick = 5) => {
 const card = page => page.evaluate(() => {
   const b = document.getElementById("svShTr"), tb = document.getElementById("svShTrBtn"), ib = document.getElementById("svShIpaBtn"), st = document.getElementById("svShIpaSt");
   const words = [...document.querySelectorAll("#svSh .sv-sh-w")]; const words0 = () => words.map(w => (w.querySelector(".sv-sh-wt") || {}).innerText);
-  return { card: !!document.getElementById("svSh"), trBtn: !!tb, trOn: tb && tb.getAttribute("aria-pressed"), trNa: tb && tb.getAttribute("aria-disabled") === "true", trCode: tb && (tb.querySelector("small") || {}).innerText, trCheck: !!(tb && tb.classList.contains("on") && tb.querySelector("svg")),
+  return { card: !!document.getElementById("svSh"), trBtn: !!tb, trOn: tb && tb.getAttribute("aria-pressed"), trNa: tb && tb.getAttribute("aria-disabled") === "true", trCode: tb && (document.getElementById("svShTrBtnLang")?.querySelector("small") || {}).innerText, trCheck: !!(tb && tb.classList.contains("on") && tb.querySelector("svg")),
     ipaBtn: !!ib, ipaOn: ib && ib.getAttribute("aria-pressed"), ipaCheck: !!(ib && ib.classList.contains("on")),
     trShown: !!(b && b.classList.contains("tr")), trCls: b && b.className, trLang: b && b.getAttribute("lang"), trDir: b && b.getAttribute("dir"), trLbl: b && (b.querySelector(".sv-sh-tr-l") || {}).textContent, line: b && b.innerText, isLine: !!(b && b.matches("#svSh .sv-sh-card > p.sv-sh-text")), boxes: document.querySelectorAll("#svSh .sv-sh-tr").length, trText: b && (b.querySelector(".sv-sh-tr-x") || {}).innerText, trRetry: !!(b && b.querySelector(".sv-sh-retry")),
     english: words0().join(" "), want: svShGroup() && svShGroup().text, gid: svShGroup() && svShGroup().id,
@@ -285,24 +285,33 @@ const E = await learner("ed", "general-english", "en");
 await openShadow(E.page);
 const nE = chat.length;
 const e1 = await E.page.evaluate(async () => {
-  const tb = document.getElementById("svShTrBtn");
-  const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code: !!tb.querySelector("small"), ret: svShTrToggle() };
+  const tb = document.getElementById("svShTrBtn"), tg = document.getElementById("svShTrBtnLang");
+  const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code: !!tg.querySelector("small"), chev: !!tg.querySelector("svg"), ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 100));
-  r.toast = document.getElementById("toast").textContent; r.pref = S.svPrefA && S.svPrefA["general-english"] && S.svPrefA["general-english"].tr; r.block = document.getElementById("svShTr").classList.contains("tr"); r.line = document.getElementById("svShTr").innerText === svShGroup().text;
-  r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
+  const ov = document.querySelector("#langModalOv .sv-tr-pick"), rows = ov ? [...ov.querySelectorAll(".lang-row")] : [];
+  r.pick = !!ov; r.rows = rows.length; r.fr = rows.some(b => /Français/.test(b.innerText)); r.en = rows.some(b => /^English/.test(b.innerText.trim()));
+  r.pref = S.svPrefA && S.svPrefA["general-english"] && S.svPrefA["general-english"].tr; r.block = document.getElementById("svShTr").classList.contains("tr");
+  const inp = document.getElementById("svTrSearch"); inp.value = "espa"; inp.dispatchEvent(new Event("input"));
+  const hit = [...document.querySelectorAll("#svTrList .lang-row")]; r.search = hit.length === 1 && /Español/.test(hit[0].innerText);
+  hit[0].click(); await new Promise(x => setTimeout(x, 500));
+  const b = document.getElementById("svShTr");
+  r.closed = !document.getElementById("langModalOv"); r.trLang = S.profile.trLang; r.appLang = S.profile.lang; r.on = document.getElementById("svShTrBtn").getAttribute("aria-pressed");
+  r.code2 = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText; r.lang = b.getAttribute("lang"); r.text = b.querySelector(".sv-sh-tr-x")?.innerText;
+  r.ui = document.getElementById("svShTrBtn").innerText.trim();
+  svShTrToggle(); r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });
-ok("English as the app language: Translate is shown but marked unavailable (aria-disabled, dimmed, no code); tapping it explains that the native language is needed, nothing is translated or requested; Pronunciation still works", e1.na && /\bna\b/.test(e1.cls) && !e1.code && e1.ret === false && /native language/.test(e1.toast) && !e1.pref && !e1.block && e1.line && e1.ipa && e1.nIpa === e1.nW && chat.filter(x => x.kind === "tr").length === chat.slice(0, nE).filter(x => x.kind === "tr").length, JSON.stringify(e1));
+ok("English as the app language: Translate is live (not dimmed) with a ▾ tag and no code; tapping it opens the language list (every language but English) instead of translating; search finds Español; the pick sets the translation language only — the app stays in English — switches Translate on and the line turns Spanish; Pronunciation still works", !e1.na && !/\bna\b/.test(e1.cls) && !e1.code && e1.chev && e1.ret === false && e1.pick && e1.rows > 50 && e1.fr && !e1.en && !e1.pref && !e1.block && e1.search && e1.closed && e1.trLang === "es" && e1.appLang === "en" && e1.ui === "Translate" && e1.on === "true" && e1.code2 === "ES" && e1.lang === "es" && /Traduction \[Spanish\]/.test(e1.text) && e1.ipa && e1.nIpa === e1.nW, JSON.stringify(e1));
 const e2 = await E.page.evaluate(async () => {
-  S.profile.lang = "es"; svRender(); const r = { code: document.getElementById("svShTrBtn").querySelector("small")?.innerText, ret: svShTrToggle() };
-  await new Promise(x => setTimeout(x, 500));
-  const b = document.getElementById("svShTr"); r.lbl = b.title; r.text = b.querySelector(".sv-sh-tr-x")?.innerText; r.lang = b.getAttribute("lang");
-  S.profile.lang = "ar"; svRender(); await new Promise(x => setTimeout(x, 500));
-  const b2 = document.getElementById("svShTr"); r.arDir = b2.getAttribute("dir"); r.arLang = b2.getAttribute("lang"); r.arLbl = b2.title; r.arText = b2.querySelector(".sv-sh-tr-x")?.innerText;
-  S.profile.lang = "en"; svRender(); return r;
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
+  const sel = document.querySelector("#svTrList .lang-row.sel"); const r = { sel: sel && /Español/.test(sel.innerText) };
+  svTrSet("ar"); await new Promise(x => setTimeout(x, 500));
+  const b2 = document.getElementById("svShTr"); r.arDir = b2.getAttribute("dir"); r.arLang = b2.getAttribute("lang"); r.arLbl = b2.title; r.arText = b2.querySelector(".sv-sh-tr-x")?.innerText; r.code = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText;
+  r.en = svTrSet("en"); r.still = S.profile.trLang;
+  delete S.profile.trLang; svRender(); return r;
 });
 const langs = chat.slice(nE).filter(x => x.kind === "tr").map(x => x.lang);
-ok("The target language follows the native-language setting, never a guess: Spanish → 'ES', Español, a Spanish request; Arabic → the line turns right-to-left with lang=ar and an Arabic request", e2.code === "ES" && e2.ret && /Español/.test(e2.lbl) && /Traduction \[Spanish\]/.test(e2.text) && e2.lang === "es" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && langs.join() === "Spanish,Arabic", JSON.stringify({ e2, langs }));
+ok("The language tag reopens the list with the current pick marked; Arabic → 'AR', the line turns right-to-left with lang=ar and an Arabic request; English can never be the target", e2.sel && e2.code === "AR" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && e2.en === false && e2.still === "ar" && langs.join() === "Spanish,Arabic", JSON.stringify({ e2, langs }));
 
 ok("No JavaScript errors on any of the three pages", errors.length === 0, errors.join(" | "));
 
