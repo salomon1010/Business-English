@@ -1400,14 +1400,16 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    picture box: aspect-ratio gives the shape, and a long title grows the box instead of
    spilling out of it. No vh anywhere. ===== */
 .hx{margin:2px 0 26px;border-radius:24px;overflow:hidden;background:var(--card);border:1px solid var(--line2);box-shadow:0 18px 40px -24px rgba(0,0,0,.6)}
-.hx-media{position:relative;aspect-ratio:16/9;background:var(--grad);overflow:hidden;isolation:isolate}
+/* 16:10 on a phone (owner, 28 Sep 2026: "more space for the image"): a thumbnail loses 5% at each side,
+   no more — the titles printed on YouTube thumbnails stay whole. The card under it is compact. */
+.hx-media{position:relative;aspect-ratio:16/10;background:var(--grad);overflow:hidden;isolation:isolate}
 @media (min-width:900px){.hx-media{aspect-ratio:21/9}.hx-over,.hx-foot{max-width:680px}}
 .hx-media.empty{background:radial-gradient(120% 90% at 18% 8%,color-mix(in srgb,var(--acc) 60%,transparent),transparent 62%),var(--grad)}
 .hx-slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s ease;z-index:0}
 .hx-slide.on{opacity:1;animation:hxZoom 7s ease-out both}
 /* the highlight reel (owner, 27 Sep 2026): the whole picture is one button that opens the clip on
    screen; its caption is one shadowed line straight on the picture (see .hx-cap) */
-.hx-open{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;gap:10px;margin:0;padding:0 14px 44px;border:0;background:none;color:#fff;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hx-open{position:absolute;inset:0;z-index:2;display:flex;align-items:flex-end;gap:10px;margin:0;padding:0 14px 10px;border:0;background:none;color:#fff;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .hx-open[hidden]{display:none}
 /* One line, no panel (owner, 27 Sep 2026: "small, on one line … the picture
    should be larger … a small play button at the end … transparent"). The tag,
@@ -1416,39 +1418,43 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    The channel and minutes line is gone from the picture — the button's
    aria-label still names the clip. */
 .hx-cap{flex:1;min-width:0;min-height:28px;display:flex;flex-direction:row;align-items:center;gap:7px;padding:0;background:none;text-shadow:0 1px 2px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.8),0 0 6px rgba(0,0,0,.45)}
-.hx-ctag{flex:none;display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
+.hx-ctag{flex:none;display:flex;align-items:center;gap:6px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fcd34d}
 .hx-ctag i{font-style:normal;padding:1px 6px;border-radius:99px;background:#fcd34d;color:#1b1202;letter-spacing:.06em;text-shadow:none}
-.hx-cap b{flex:1;min-width:0;font-size:13.5px;line-height:1.3;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-cap b{flex:1;min-width:0;font-size:12.5px;line-height:1.3;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hx-cap small{display:none}
 .hx-cplay{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--acc);color:#fff;box-shadow:0 3px 10px -3px rgba(0,0,0,.6)}
 .hx-cplay svg{width:12px;height:12px;margin-left:1px}
 .hx-open:focus-visible{outline:none}.hx-open:focus-visible .hx-cap{outline:2px solid #fff;outline-offset:4px;border-radius:6px}
 @keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
-.hx-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 52%,color-mix(in srgb,var(--card) 70%,transparent) 80%,var(--card) 100%)}
+/* the picture is no longer covered by the card: only a short dark band at the foot for the caption line */
+.hx-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 72%,rgba(6,9,18,.62) 100%)}
 .hx-top{position:absolute;top:0;left:0;right:0;z-index:3;pointer-events:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px}
-.hx-greet{font-size:12.5px;font-weight:600;color:#fff;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px;border-radius:99px;background:rgba(6,9,18,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.hx-greet{font-size:11px;font-weight:600;color:#fff;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px;border-radius:99px;background:rgba(6,9,18,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .hx-dots{display:flex;gap:6px;flex:none;pointer-events:auto}
 .hx-dots button{width:8px;height:8px;padding:0;border-radius:99px;border:0;background:rgba(255,255,255,.45);cursor:pointer}
 .hx-dots button.on{width:20px;background:#fff}
-.hx-over{position:relative;z-index:2;margin-top:-34px;padding:0 20px 4px;color:var(--txt)}
-.hx-eyebrow{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)} /* the report's highlight colour (owner, 27 Sep 2026): the label above the next step must catch the eye */
-.hx-eyebrow svg{width:14px;height:14px}
-.hx-kicker{margin:8px 0 0;font-size:14px;font-weight:600;color:var(--mut)}
-.hx-over h2{margin:2px 0 0;font-size:clamp(26px,7.2vw,36px);line-height:1.08;letter-spacing:-.015em;color:var(--txt);text-wrap:balance}
-.hx-sub{margin:8px 0 0;font-size:15px;line-height:1.45;color:var(--txt);opacity:.86;max-width:48ch}
-.hx-meta{display:flex;align-items:center;gap:6px;margin:10px 0 0;font-size:13px;font-weight:600;color:var(--mut)}
-.hx-meta svg{width:14px;height:14px;flex:none}
-.hx-cta{width:100%;justify-content:center;gap:8px;min-height:52px;margin-top:16px;font-size:16px}
+/* compact (owner, 28 Sep 2026: the card was too big) — it starts under the picture, not on it */
+.hx-over{position:relative;z-index:2;padding:12px 16px 2px;color:var(--txt)}
+.hx-eyebrow{display:flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)} /* the report's highlight colour (owner, 27 Sep 2026): the label above the next step must catch the eye */
+.hx-eyebrow svg{width:13px;height:13px}
+.hx-kicker{margin:4px 0 0;font-size:12px;font-weight:600;color:var(--mut)}
+.hx-over h2{margin:2px 0 0;font-size:clamp(22px,5.8vw,28px);line-height:1.12;letter-spacing:-.015em;color:var(--txt);text-wrap:balance}
+.hx-sub{margin:4px 0 0;font-size:13px;line-height:1.4;color:var(--txt);opacity:.86;max-width:48ch}
+/* the label and the time share one line: a line less under the picture */
+.hx-line{display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
+.hx-meta{display:flex;align-items:center;gap:6px;margin:0;font-size:11.5px;font-weight:600;color:var(--mut)}
+.hx-meta svg{width:13px;height:13px;flex:none}
+.hx-cta{width:100%;justify-content:center;gap:8px;min-height:44px;margin-top:10px;font-size:14px}
 @media (min-width:560px){.hx-cta{width:auto;padding-inline:28px}}
 .hx-cta-go{font-weight:700}
-.hx-foot{padding:12px 20px 16px}
+.hx-foot{padding:8px 16px 12px}
 .hx-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.hx-desc{font-size:13.5px;line-height:1.5;color:var(--mut);margin:0}
+.hx-desc{font-size:12px;line-height:1.4;color:var(--mut);margin:0}
 .hx-dest{margin:0 0 24px}
-.hx-dest h3{font-size:18px;margin:0 0 12px}
-.hx-tag{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.hx-dest h3{font-size:16px;margin:0 0 12px}
+.hx-tag{display:inline-flex;align-items:center;gap:5px;align-self:flex-start;padding:3px 9px;border-radius:99px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,transparent)}
 .hx-tag svg{width:12px;height:12px}
-.hx-tag.sm{font-size:10px;padding:2px 7px;margin-bottom:4px}
+.hx-tag.sm{font-size:9.5px;padding:2px 7px;margin-bottom:4px}
 .hx-feat{display:grid;grid-template-columns:1fr;width:100%;margin:0 0 12px;padding:0;border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line2));border-radius:18px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 @media (min-width:560px){.hx-feat{grid-template-columns:44% 1fr}}
 .hx-feat-img{position:relative;display:block;aspect-ratio:16/7;background:var(--grad)}
@@ -1457,10 +1463,10 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-feat-ic{position:absolute;left:12px;top:12px;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
 .hx-feat-ic svg{width:19px;height:19px}
 .hx-feat-body{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px}
-.hx-feat-body b{font-size:17px;margin-top:4px}
-.hx-feat-body small{font-size:13px;line-height:1.4;color:var(--mut)}
+.hx-feat-body b{font-size:15px;margin-top:4px}
+.hx-feat-body small{font-size:12px;line-height:1.4;color:var(--mut)}
 .hx-feat-body .hx-feat-ctx{color:var(--txt);font-weight:600}
-.hx-feat-go{margin-top:8px;font-size:14px;font-weight:700;color:var(--acc)}
+.hx-feat-go{margin-top:8px;font-size:13px;font-weight:700;color:var(--acc)}
 .hx-dest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media (min-width:700px){.hx-dest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .hx-dcard{display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
@@ -1469,13 +1475,13 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-rows{margin:0 0 24px}
 /* the eight "Because you…" rows (owner, 27 Sep 2026): the first row is the strongest signal and
    leads, its evidence named in a gold label; every row's cards are the same compact size. */
-.hx-row-kick{display:inline-flex;align-items:center;gap:5px;margin:0 0 6px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold,var(--acc))}
+.hx-row-kick{display:inline-flex;align-items:center;gap:5px;margin:0 0 6px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold,var(--acc))}
 .hx-row-kick svg{width:12px;height:12px}
 .hx-row-h .hx-row-ic{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc)}
 .hx-row-h .hx-row-ic svg{width:14px;height:14px}
 .hx-row-tx{flex:1;min-width:0}
 .hx-row-lead{padding:14px 0 4px;border-top:1px solid var(--line2)}
-.hx-row-lead .hx-row-h h3{font-size:16px}
+.hx-row-lead .hx-row-h h3{font-size:15px}
 .hx-row-lead .hx-row-h .hx-row-ic{display:none}
 .hx-row{margin:0 0 22px}
 /* the header is two lines and never more (owner, 27 Sep 2026: "one line … because you did this,
@@ -1483,8 +1489,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
    end in an ellipsis. No "Not now" — the rows are the Home page's own choice, not an option. */
 .hx-row-h{display:flex;align-items:center;gap:10px;margin:0 0 8px}
 .hx-row-h h3,.hx-row-h p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-row-h h3{font-size:15px;font-weight:700;line-height:1.3;margin:0;letter-spacing:-.005em}
-.hx-row-h p{margin:1px 0 0;font-size:12.5px;line-height:1.35;color:var(--mut)}
+.hx-row-h h3{font-size:14px;font-weight:700;line-height:1.3;margin:0;letter-spacing:-.005em}
+.hx-row-h p{margin:1px 0 0;font-size:11.5px;line-height:1.35;color:var(--mut)}
 .hx-row-scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 20px;/* the snap points sit on the page gutter, so the first card lines up with the hero instead of the screen edge (owner, 27 Sep 2026) */-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px}
 .hx-row-scroll::-webkit-scrollbar{display:none}
 /* one card size in every row, the lead included (owner, 27 Sep 2026: "all the recommendation pictures
@@ -1502,8 +1508,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-rtag{position:absolute;right:8px;top:8px;padding:2px 7px;border-radius:99px;font-size:9.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--acc);color:var(--on-accent,#fff)}
 .hx-rdur{position:absolute;right:8px;bottom:6px;padding:1px 6px;border-radius:99px;font-size:10px;font-weight:600;background:rgba(6,9,18,.7);color:#fff}
 .hx-rbody{display:flex;flex-direction:column;gap:2px;padding:8px 10px 10px}
-.hx-rbody small{font-size:10.5px;color:var(--mut);opacity:.85;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hx-rbody b{font-size:12.5px;font-weight:600;color:var(--mut);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hx-rbody small{font-size:10px;color:var(--mut);opacity:.85;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hx-rbody b{font-size:11.5px;font-weight:600;color:var(--mut);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media (min-width:700px){.hx-row-scroll{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;margin:0;padding:0}.hx-rcard{flex:none}}
 .hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -1512,8 +1518,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-dic svg{width:20px;height:20px}
 .hx-dimg.img .hx-dic svg{width:16px;height:16px}
 .hx-dtxt{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;min-width:0}
-.hx-dtxt b{font-size:14.5px}
-.hx-dtxt small{font-size:12.5px;line-height:1.35;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.hx-dtxt b{font-size:13.5px}
+.hx-dtxt small{font-size:11.5px;line-height:1.35;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hx-feat,.hx-dcard{transition:transform .15s ease,border-color .15s ease}
 .hx-feat:active,.hx-dcard:active{transform:scale(.985)}
 .hx-feat:focus-visible,.hx-dcard:focus-visible,.hx-cta:focus-visible{outline:2px solid var(--focus,var(--acc));outline-offset:3px}
@@ -11304,11 +11310,11 @@ function homeHeroHTML(c,vis){
       <div class="hx-top"><span class="hx-greet">${esc(homeGreet())}</span><span class="hx-dots" id="hxDots"></span></div>
     </div>
       <div class="hx-over">
-        <div class="hx-eyebrow">${ic(c.kind==="lesson"||c.kind==="comeback"?"play":"idea")}<span>${esc(c.eyebrow)}</span></div>
+        <div class="hx-line"><div class="hx-eyebrow">${ic(c.kind==="lesson"||c.kind==="comeback"?"play":"idea")}<span>${esc(c.eyebrow)}</span></div>
+        ${meta?`<p class="hx-meta">${ic(c.minutes?"clock":c.metaIc)}<span>${esc(meta)}</span></p>`:""}</div>
         ${c.kicker?`<p class="hx-kicker">${esc(c.kicker)}</p>`:""}
         <h2 id="hxT">${esc(c.title)}</h2>
         ${c.sub?`<p class="hx-sub">${esc(c.sub)}</p>`:""}
-        ${meta?`<p class="hx-meta">${ic(c.minutes?"clock":c.metaIc)}<span>${esc(meta)}</span></p>`:""}
         <button class="btn-primary hx-cta" onclick="${c.go}">${esc(c.cta)}<span class="hx-cta-go" aria-hidden="true">→</span></button>
       </div>
     ${c.desc?`<div class="hx-foot"><p class="hx-desc">${esc(c.desc)}</p></div>`:""}
