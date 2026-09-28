@@ -123,7 +123,7 @@
          carried are all already on the page behind this modal. Only when there
          is no such report does this fall back to the Progress page. */
       const slot=global._shLastReport&&document.getElementById(global._shLastReport);
-      const report=slot&&slot.querySelector(".sh-line-report");
+      const report=slot&&slot.querySelector(".ex-rep-card,.sh-line-report");
       if(report){
         report.open=true;
         report.scrollIntoView({behavior:"smooth",block:"center"});

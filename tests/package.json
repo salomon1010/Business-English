@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node shadow-first-tap.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-raise-problem.mjs && node mission-clarify-confirm.mjs && node mission-explain-tech.mjs && node mission-recommend-decide.mjs && node mission-disagree-pushback.mjs && node mission-sprint-coordinate.mjs && node mission-exec-summary.mjs && node mission-sell-experience.mjs && node mission-win-support.mjs && node mission-final-integration.mjs && node mission-integration.mjs && node mission-speaking-report.mjs && node report-ux.mjs && node language-polish.mjs && node report-integrity.mjs && node session-report.mjs && node mission-coach-report.mjs && node mission-mobile-ux.mjs && node partner.mjs && node live-rounds.mjs && node live-ring.mjs && node hidden-switch.mjs",
+    "test": "node smoke.mjs && node shadow-sync.test.mjs && node shadow-helpers.mjs && node shadow-coach.mjs && node boot-recovery.mjs && node zoom.mjs && node online-presence.mjs && node polish-report.mjs && node polish-track.mjs && node shadow-first-tap.mjs && node mission-week2.mjs && node mission-week3.mjs && node mission-raise-problem.mjs && node mission-clarify-confirm.mjs && node mission-explain-tech.mjs && node mission-recommend-decide.mjs && node mission-disagree-pushback.mjs && node mission-sprint-coordinate.mjs && node mission-exec-summary.mjs && node mission-sell-experience.mjs && node mission-win-support.mjs && node mission-final-integration.mjs && node mission-integration.mjs && node mission-speaking-report.mjs && node report-ux.mjs && node language-polish.mjs && node report-integrity.mjs && node session-report.mjs && node welding-ai-report.mjs && node mission-coach-report.mjs && node mission-mobile-ux.mjs && node partner.mjs && node live-rounds.mjs && node live-ring.mjs && node hidden-switch.mjs",
     "test:shadow": "node shadow-sync.test.mjs",
     "test:shadow-tap": "node shadow-first-tap.mjs",
     "test:partner": "node partner.mjs",
@@ -18,6 +18,7 @@
     "test:push": "node push-presence.mjs",
     "test:challenge": "node shadow-challenge.mjs",
     "test:coach": "node shadow-coach.mjs",
+    "test:welding-report": "node welding-ai-report.mjs",
     "test:mail": "node mail-welcome.mjs",
     "test:zoom": "node zoom.mjs",
     "test:ios-relay": "node ios-yt-relay.mjs",

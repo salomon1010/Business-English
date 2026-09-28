@@ -305,35 +305,9 @@ ok("Missing transcript: no score and no focus (nothing to score against), but pa
 await report(A.page, T7, "");
 ok("Recording failure (nothing heard): the empty state and the retry, no dashboard", await A.page.evaluate(() => !!document.querySelector("#fbOut .fb-nothing") && !!document.querySelector("#fbOut .fb-again") && !document.querySelector(".fbc")));
 
-/* ---------- 11a. Welding: a workplace line, recorded for real, gets the same coach report in its own slot ---------- */
-heard = "we need to check the joint before welding"; assessMode = "ai"; assessScores = {}; assessDefault = 90;
-const wl = await W.page.evaluate(async () => {
-  go("shadow"); await new Promise(r => setTimeout(r, 500));
-  const btn = document.querySelector(".sh-line-rec"); if (!btn) return { noLines: true };
-  const id = btn.id.slice(4), line = shWorkplaceLines().find(x => x.id === id);
-  /* say the line with one word wrong, so the report has a focus */
-  const words = line.text.replace(/[^A-Za-z' ]/g, " ").split(/\s+/).filter(w => w.length >= 5);
-  const miss = words[0] || "";
-  window.__srText = line.text.replace(miss, miss.slice(0, -2));
-  btn.click(); await new Promise(r => setTimeout(r, 1800)); btn.click();
-  const slotOf = () => document.getElementById("shfbx-" + id);
-  for (let i = 0; i < 60 && !(slotOf() && slotOf().querySelector(".fbc")); i++) await new Promise(r => setTimeout(r, 200));
-  const slot = slotOf(), fbc = slot && slot.querySelector(".fbc");
-  return { id, miss, drawn: !!fbc, score: fbc?.querySelector(".fbc-score")?.textContent, focus: fbc?.querySelector(".fbc-focus-w")?.textContent, primary: fbc?.querySelectorAll(".fbc-next .btn-primary").length, folds: fbc?.querySelectorAll("details.fb-sec").length, openFolds: fbc?.querySelectorAll("details.fb-sec[open]").length,
-    width: Math.round(fbc?.getBoundingClientRect().width || 0), overflowX: document.documentElement.scrollWidth > innerWidth + 1, hist: S.fbHist.length, tk: S.fbHist.every(x => x.tk === "welding") };
-});
-ok("Welding: Record on a workplace line → the coach report is drawn in that line's slot with a score, one focus, one primary action and closed folds", !wl.noLines && wl.drawn && /^\d+%$/.test(wl.score || "") && wl.focus && wl.primary === 1 && wl.folds >= 3 && wl.openFolds === 0 && wl.width > 200 && !wl.overflowX && wl.hist === 1 && wl.tk, JSON.stringify(wl));
-ok("Welding: 'Shadow again' in a line's report brings that line's Record button into focus", await W.page.evaluate(async (id) => { document.getElementById("shfbx-" + id).querySelector(".fbc-next .btn-primary").click(); await new Promise(r => setTimeout(r, 500)); return document.activeElement && document.activeElement.id === "shr-" + id; }, wl.id));
-const wmp = await W.page.evaluate(async (id) => {
-  const slot = document.getElementById("shfbx-" + id);
-  slot.querySelector(".fbc-focus .fbc-cta").click(); await new Promise(r => setTimeout(r, 200));
-  return { open: !!slot.querySelector("#fbFix"), ctx: fbFix && fbFix.ctx, recCtx: fbCtx.recCtx };
-}, wl.id);
-ok("Welding: the micro-practice opens inside that slot and records under the Welding-prefixed context of THAT line", wmp.open && /^welding:shadow-fix-line-/.test(wmp.ctx || "") && wmp.recCtx === "line-" + wl.id, JSON.stringify(wmp));
-await W.page.click("#fbFixRecBtn"); await recording(W.page); await sleep(1600); await W.page.click("#fbFixRecBtn");
-ok("Welding: the micro-practice grades the take through the same engine", await W.page.waitForFunction(() => fbFix && fbFix.attempts.length === 1 && fbFix.phase === "ready", null, { timeout: 12000 }).then(() => true, () => false) && await W.page.evaluate(() => fbFix.attempts[0].mode === "ai"));
-ok("Welding: the pronunciation pass fills that slot's own summary cell", await W.page.waitForFunction((id) => { const b = document.getElementById("shfbx-" + id).querySelector("#fbSumPron b"); return b && /^\d+%$/.test(b.textContent); }, wl.id, { timeout: 10000 }).then(() => true, () => false));
-if (SHOT) { await W.page.evaluate((id) => document.getElementById("shfbx-" + id).scrollIntoView({ block: "start" }), wl.id); await sleep(400); await W.page.screenshot({ path: SHOT + "/welding-line-report.png" }); }
+/* ---------- 11a. (moved) Welding workplace lines no longer draw this report:
+   since 28 Sep 2026 they carry the AI speaking report — see
+   tests/welding-ai-report.mjs. ---------- */
 
 /* ---------- 11. General English / Welding isolation ---------- */
 const iso = await W.page.evaluate(async () => {

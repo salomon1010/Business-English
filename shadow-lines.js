@@ -2,14 +2,16 @@
    BE Mastery — Workplace lines to shadow
    --------------------------------------------------------------------------
    The lines a learner will actually need at work, drawn from their own trade's
-   workshops, spoken by the person who asks for them, and scored word by word
-   when they say them back.
+   workshops, spoken by the person who asks for them, and — when they say them
+   back — the AI speaking report, judged against the question and the person
+   asking (owner, 28 Sep 2026; it used to be a word-by-word score).
 
    Lifted out of index.html unchanged. It is a clean seam: nothing outside
    referenced any of its internals, and it reaches the rest of the app only
    through globals that exist long before a learner can click anything here —
-   esc, t, ic, toast, save, addRec, fbAssess, fbShowResults, waveRender,
-   perfPanel, simCharacter, simTitle, trackSimulations, ttsVoice and friends.
+   esc, t, ic, toast, save, addRec, getRecs, the Executive Polish report
+   (exHost, exAI, exRenderReport, sessRepGet/Put), simCharacter, simTitle,
+   trackSimulations, ttsVoice and friends.
 
    Function declarations at this file's top level are globals, which is exactly
    how they behaved inside the inline script, so index.html calls them as before.
@@ -68,252 +70,132 @@ function shStopLine(){
   _shLineSpeaking=null;
 }
 /* Listening to a model is half of shadowing. The other half is saying it back and
-   being told how it landed, which the app already does well: fbAssess sends the
-   recording to an audio model that grades each word. Reused here rather than
-   rebuilt, so a workplace line is practised exactly like a video clip was. */
+   being told how it landed. Since 28 Sep 2026 (owner) that is the AI speaking
+   report the Road map session draws — "How you came across", the level, the
+   coach's spoken feedback and the five steps — not the word-by-word percentage
+   chips it used to be. The take goes through the same Executive Polish pipeline
+   (transcribe on the Worker, measure on the device, the coach) with the line's
+   own context: who asked, what they asked, the model answer the learner was
+   copying and the words it should carry. So the coach judges THIS answer to
+   THIS person in the workshop, not a minute of free speech.
+
+   One report per line, in S.notes["exrep:shl:<line id>"] like the session's
+   (synced with the notes, `tx` stripped on the way out, kept by sessRepPut
+   under its own allowance); the previous report on the same line is the
+   "previous take" the carry-over score is marked against. The takes are still
+   kept in IndexedDB under the line's context, as before. */
 let _shRec=null,_shRecFor=null;
+const _shLineBusy=new Set(),_shLineUrl=new Map();
+const SH_LINE_MIN_S=3;                 /* a workplace line is short — the session's 8 s floor would refuse most of them */
 function shLineFeedback(id,html){
-  const box=document.getElementById("shfb-"+id);
+  const box=document.getElementById("shst-"+id);
   if(box)box.innerHTML=html;
 }
-/* The report a workplace line produces is the same one a video clip produced:
-   takes kept, per-word pronunciation, the waveform of this take against the last
-   one with its duration and pause deltas, the vocabulary the answer was supposed
-   to carry, and the score trend across attempts. It reuses addRec, getRecs,
-   decodePeaks, countPauses, fbAssess and perfPanel rather than reimplementing
-   any of them, so both sides of Shadow stay in step. */
 function shLineCtx(id){return "line-"+id}
-const SH_LINE_WEAK=80;                 /* below this a word is worth practising */
-function shCol(v){return v>=80?"var(--green)":v>=55?"var(--gold)":"var(--red)"}
-
-/* ---- The report has to outlive the session ------------------------------
-   Recordings were already kept (IndexedDB, per line context) but the analysis
-   over them was not, so coming back to Shadow showed an empty slot under every
-   line and the only way to see how you had been doing was to record again. The
-   last grading is now kept in state — words and scores only, never audio — and
-   replayed on render, so the history is there when you walk back in. */
-function shLineStore(){S.shLine=S.shLine||{};return S.shLine}
-function shLineRemember(ctx,res,said){
-  const st=shLineStore();
-  st[ctx]={ts:Date.now(),overall:res.overall,said:said||"",
-    words:res.words.slice(0,80).map(w=>({w:String(w.word||""),s:w.score,n:w.note||""}))};
-  /* localStorage holds all of S as one blob and it syncs to Firestore as one
-     document, so this cannot grow without a ceiling. */
-  const keys=Object.keys(st);
-  if(keys.length>60)keys.sort((a,b)=>(st[a].ts||0)-(st[b].ts||0)).slice(0,keys.length-60).forEach(k=>delete st[k]);
+function shLineRepKey(id){return "shl:"+id}
+function shLineWrapId(id){return "shrep-"+id}
+/* What the coach is told. The Worker's context block is short (focus 160,
+   task 300, outcome 200 characters), so the question is trimmed first and the
+   model answer takes whatever room is left. */
+function shLineCoachCtx(line){
+  const lim=(s,n)=>{s=String(s||"").replace(/\s+/g," ").trim();return s.length>n?s.slice(0,Math.max(0,n-1))+"…":s};
+  const who=line.who||"a colleague",role=line.role?" ("+line.role+")":"";
+  const head=`Shadowing. ${who}${role} asked: "${lim(line.ask,110)}" The learner heard a model answer, then said it back in their own voice. The model answer: "`;
+  return {track:isGeneralEnglish()?"general":"welding",
+    focus:lim("Shadowing a workplace line · "+(line.scenario||""),160),
+    task:head+lim(line.text,Math.max(40,299-head.length))+'"',
+    out:lim(`Answer ${who}'s question clearly and naturally, carrying what the model answer says, the way you would on the job`,200),
+    phrases:(line.vocab||[]).map(v=>String(v).slice(0,80)).filter(Boolean).slice(0,6)};
 }
-/* "Your performance over time" is the point of shadowing the same line twice,
-   so it is always present rather than appearing only once a trend exists —
-   below two attempts it says so instead of leaving a hole. */
-function shLinePerfHTML(ctx){
-  const series=perfSeries("clip",ctx);
-  const chart=perfPanel(series,{first:Math.max(1,series.length-4)});
-  if(chart)return chart;
-  return `<div class="sh-trend"><b class="sh-trend-h">${hIcon("chart",t("sh.trend_title"))}</b>
-    <p class="sh-line-perf-one">${esc(t("sh.line_perf_one"))}</p></div>`;
+/* The report's host (see exHost): its own wrap under the line, its own report
+   and previous take, and "Say it again" brings the learner back to this line's
+   microphone. */
+function shLineHost(id,rep,open){
+  return {wrapId:shLineWrapId(id),key:shLineRepKey(id),report:rep||null,prev:(rep&&rep.prev)||null,
+    url:_shLineUrl.get(id)||null,repOpen:open!==false,again:()=>shLineAgain(id)};
 }
-/* Worst score wins when the same word was said more than once: the position is
-   kept too, because that is what cuts the word back out of your own recording.
-   Short function words and the track's stop-words are set aside — the same
-   judgement the trouble-word list already makes, since nobody drills "I" — but
-   only while something else is left to work on. A list that hid every flagged
-   word and then said the delivery was clear would be a lie. */
-function shLineWeak(words){
-  const best=new Map();
-  (words||[]).forEach((w,i)=>{
-    const k=String(w.w||"").toLowerCase().replace(/[^a-z']/g,"");
-    if(!k||!(w.s<SH_LINE_WEAK))return;
-    const prev=best.get(k);
-    if(!prev||w.s<prev.score)best.set(k,{word:k,score:w.s,note:w.n||"",widx:i,wcount:words.length,
-      minor:k.length<=3||isTrackStopWord(k)});
-  });
-  const all=[...best.values()].sort((a,b)=>a.score-b.score);
-  const worth=all.filter(x=>!x.minor);
-  return (worth.length?worth:all).slice(0,12);
+function shLineOn(id){return !!exHost&&exHost.wrapId===shLineWrapId(id)&&!!document.getElementById(shLineWrapId(id))}
+function shLineAgain(id){
+  const b=document.getElementById("shr-"+id);if(!b)return;
+  try{b.scrollIntoView({behavior:"smooth",block:"center"})}catch(e){}
+  b.classList.add("exd-ring");setTimeout(()=>b.classList.remove("exd-ring"),2400);
 }
-/* Every word that did not land, with the three things a learner asks for next:
-   what it should sound like, what they actually said, and a way to keep it. A
-   kept word goes into S.vocab, which is what the study cards, the pop quiz, the
-   word puzzles and the grammar drills in Practice already run off. */
-function shLineWeakHTML(ctx,weak,graded){
-  if(!graded)return "";
-  const head=`<b class="sh-line-analyze-h">${hIcon("mic",t("sess.analyze_btn"))}</b>`;
-  if(!weak.length)return `<div class="sh-line-analyze">${head}
-    <p class="rp-ev-good" style="margin-top:9px">${tIc("fb.pron_all_good","check")}</p></div>`;
-  const V=S.vocab||{};
-  return `<div class="sh-line-analyze">${head}
-    <p class="sh-line-analyze-sub">${esc(t("rp.eval_words_sub"))}</p>
-    ${weak.map(w=>{const on=!!V[w.word];return `
-      <div class="rp-ev-word">
-        <span class="rp-ev-wdot" style="background:${shCol(w.score)}"></span>
-        <span class="rp-ev-wtxt"><b>${esc(w.word)}</b>${w.note?`<small>${esc(w.note)}</small>`:""}</span>
-        <span class="rp-ev-wpct" style="color:${shCol(w.score)}">${w.score}%</span>
-        <span class="sh-line-acts">
-          <button class="btn btn-g btn-sm voc-mini" onclick="fbSay('${esc(w.word)}',1)"
-            title="${esc(t("voc.hear_title"))}" aria-label="${esc(t("voc.hear_title"))}">${ic("sound")}</button>
-          <button class="btn btn-g btn-sm voc-mini" onclick="fbSay('${esc(w.word)}',0.5)"
-            title="${esc(t("fb.slow_btn"))}" aria-label="${esc(t("fb.slow_btn"))}">${ic("gauge")}</button>
-          <button class="btn btn-g btn-sm voc-mini" onclick="shLineMine('${esc(ctx)}',${w.widx},${w.wcount},'${esc(w.word)}')"
-            title="${esc(t("rp.eval_yours"))}" aria-label="${esc(t("rp.eval_yours"))}">${ic("play")}</button>
-          <button class="btn btn-sm voc-mini ${on?"btn-p":"btn-g"}" data-shw="${esc(w.word)}"
-            onclick="shLineWordSave('${esc(w.word)}')" title="${esc(t("voc.save_title"))}"
-            aria-label="${esc(t("voc.save_title"))}">${on?ic("check"):ic("bookmark")}</button>
-        </span>
-      </div>`}).join("")}
-    <button class="btn btn-p btn-sm sh-line-voc-go" onclick="gotoVocab()">${tIc("rp.eval_open_vocab","book")}</button>
-  </div>`;
-}
-window.shLineWordSave=w=>{
-  S.vocab=S.vocab||{};
-  const on=!S.vocab[w];
-  if(on)S.vocab[w]={l:"Shadowing",ts:Date.now()}; else delete S.vocab[w];
-  /* The same word can be flagged on several lines at once, so every button for
-     it repaints together rather than the two copies disagreeing on screen. */
-  document.querySelectorAll("[data-shw]").forEach(b=>{
-    if(b.dataset.shw!==w)return;
-    b.classList.toggle("btn-p",on);b.classList.toggle("btn-g",!on);
-    b.innerHTML=on?ic("check"):ic("bookmark");manIconizeInline(b);
-  });
-  document.querySelectorAll(".voc-chip").forEach(c=>{if(c.dataset.w===w)vocPickPaint(c,on)});
-  save();toast(t(on?"voc.saved_toast":"voc.removed_toast"));
-  try{vlRender()}catch(e){}
-  try{navBadges()}catch(e){}
+/* Several lines can carry a report at once, and every button inside a report
+   reads the host. Touching a report makes it the host before its button's
+   click lands — the same trick the scenario history uses. */
+window.shLineFocus=id=>{
+  if(exHost&&exHost.wrapId===shLineWrapId(id))return;
+  const rep=sessRepGet(shLineRepKey(id));if(!rep)return;
+  const d=document.querySelector("#"+CSS.escape(shLineWrapId(id))+" .ex-rep-card");
+  exCoachStop();
+  exHost=shLineHost(id,rep,!d||d.open);
 };
-/* Hear the word as YOU said it, cut out of your own take — the same routine the
-   role-play evaluation uses, reading the newest recording kept for this line
-   instead of an in-memory turn, so it still works after a reload. Whisper
-   timings first, energy bursts second, a length-weighted estimate last. */
-const _shMineUrl=new Map();
-window.shLineMine=async(ctx,widx,wcount,word)=>{
-  let recs=[];try{recs=await getRecs(ctx)}catch(e){}
-  const rec=recs&&recs[0];
-  if(!rec||!rec.blob)return toast(t("rp.eval_noaudio"));
-  let url=_shMineUrl.get(rec.id);
-  if(!url){url=URL.createObjectURL(rec.blob);_shMineUrl.set(rec.id,url)}
-  const words=await fbWords(rec.blob);
-  const seg=words?null:await fbSegments(rec.blob);
-  try{speechSynthesis.cancel()}catch(_){}
-  fbStopAudio();
-  const a=ttsPlayer(); _ttsAudio=a; a.onended=null; a.playbackRate=1;
-  const playSpan=d=>{
-    let start=null,end=null;
-    if(words&&words.length){const o=rpPickWord(words,word,widx,wcount);start=o.start;end=o.end;}
-    else if(seg&&seg.segs&&seg.segs.length&&wcount>0){
-      let si=seg.segs.length===wcount?widx:Math.round((widx+0.5)/wcount*seg.segs.length-0.5);
-      si=Math.max(0,Math.min(seg.segs.length-1,si));
-      start=seg.segs[si].start;end=seg.segs[si].end;
-    }else{
-      const f=fbWordFrac(new Array(Math.max(1,wcount)).fill("word"),widx);
-      const pad=0.18;start=Math.max(0,f[0]*d-pad);end=Math.min(d,f[1]*d+pad);
+function shLineNote(id,msg,retry){
+  const w=document.getElementById(shLineWrapId(id));if(!w)return;
+  w.innerHTML=`<p class="ex-note">${esc(msg)}</p>${retry?`<button class="btn-primary sess-rep-btn" onclick="shLineReportLast('${esc(id)}')">${tIc("sess.report_btn","sparkle")}</button>`:""}`;
+  manIconizeInline(w);
+}
+window.shLineReportLast=async id=>{
+  let recs=[];try{recs=await getRecs(shLineCtx(id))}catch(e){}
+  if(!recs[0])return toast(t("sess.report_none"));
+  shLineReport(id,recs[0].blob,0);
+};
+async function shLineReport(id,blob,secs){
+  const line=shWorkplaceLines().find(x=>x.id===id);
+  if(!line||_shLineBusy.has(id)||!document.getElementById(shLineWrapId(id)))return;
+  if(!POLISH_API||!navigator.onLine){exHost=shLineHost(id,null,true);shLineNote(id,t("sess.report_off"),true);return}
+  const key=shLineRepKey(id),area=areaId();
+  _shLineBusy.add(id);exCoachStop();
+  exHost=shLineHost(id,null,true);exReportShow(exWaitHTML(t("ex.step_stt")),true);
+  try{
+    let audio=null;
+    if(!secs){audio=await exAudioStats(blob);secs=(audio&&audio.dur)||0}   /* an older take: its length is only on the audio */
+    if(secs<SH_LINE_MIN_S){shLineNote(id,t("sess.report_short",{n:SH_LINE_MIN_S}));return}
+    const [tx,au]=await Promise.all([exTranscribe(blob),audio?Promise.resolve(audio):exAudioStats(blob)]);
+    audio=au||{dur:secs,pitch:null,pauses:[]};if(!audio.dur)audio.dur=secs;
+    if(!tx||!tx.text){shLineNote(id,t("sess.report_stt"),true);return}
+    if(shLineOn(id))exStep(t("ex.step_measure"));
+    const m=exTextStats(tx.text,tx.words,audio);
+    if(shLineOn(id))exStep(t("ex.step_plan"));
+    const ctx=shLineCoachCtx(line);
+    const ai=await exAI(tx.text,m,ctx);
+    /* the coach could not be reached: nothing is stored, so the retry sends the take again */
+    if(!ai){shLineNote(id,t("ex.ai_off"),true);return}
+    const prev=sessRepGet(key);
+    const rep={at:Date.now(),tk:area,key,kind:"shadowline",line:id,m,ai,tx:tx.text,sttFailed:false,targets:exTargets(ai),ctx};
+    if(prev&&prev.m)rep.prev={at:prev.at,m:prev.m,targets:prev.targets||[]};
+    sessRepPut(key,rep);
+    markPracticed();
+    try{awardCompetency({activityType:"shadow_session",lesson:"Workplace line · "+line.scenario,duration:1,dedupeKey:"line:"+id+":"+rep.at})}catch(e){}
+    save();
+    if(cur&&cur.v==="shadow"&&document.getElementById(shLineWrapId(id))){
+      exHost=shLineHost(id,rep,true);exRenderReport(rep);
+      /* "Your performance analysis" in the coach pop-up opens this report */
+      window._shLastReport="shfb-"+id;
     }
-    const st=Math.max(0,start-0.04),en=Math.min(d,end+0.08);
-    try{a.currentTime=st}catch(_){}
-    a.play().catch(()=>{});
-    setTimeout(()=>{if(_ttsAudio===a){try{a.pause()}catch(_){}}},Math.max(320,(en-st)*1000+120));
-  };
-  const begin=()=>{
-    if(isFinite(a.duration)&&a.duration>0)return playSpan(a.duration);
-    /* webm from MediaRecorder often reports Infinity until it is seeked */
-    a.currentTime=1e10;
-    a.onseeked=()=>{a.onseeked=null;playSpan(a.duration)};
-  };
-  if(a.src===url&&a.readyState>=1)begin();
-  else{a.src=url;a.onloadedmetadata=()=>{a.onloadedmetadata=null;begin()}}
-};
-/* The report is long — takes, waveform, every word scored, vocabulary, trend —
-   and it pushes the line you are trying to shadow off the screen. Rather than
-   shortening it, it folds: the pieces are rendered exactly as they are and then
-   wrapped, so nothing that writes into this slot has to know about the wrapper.
-   Open after a recording, because you just asked for it; closed when it is
-   history restored on arrival, so the list of lines stays readable. */
-function shLineFold(slot,id,headline,open){
-  const box=document.getElementById(slot);
-  if(!box||!box.children.length||box.querySelector(".sh-line-report"))return null;
-  /* "Your performance analysis" elsewhere in the app means this — the take just
-     recorded and the words missed. It is built here and not rebuilt on a
-     re-render, so that button comes back to this element rather than navigating. */
-  if(open)window._shLastReport=slot;
-  const d=document.createElement("details");
-  d.className="sh-line-report";d.open=!!open;
-  const sum=document.createElement("summary");
-  /* A report that survives the session has to be removable, or a bad take is
-     the first thing the learner sees on this line for good. stopPropagation is
-     what keeps the tap from also toggling the fold it sits in. */
-  sum.innerHTML=`<span class="sh-line-report-h">${esc(headline)}</span>
-    <button type="button" class="btn btn-g btn-sm sh-line-del"
-      onclick="event.preventDefault();event.stopPropagation();shLineDelete('${esc(id)}')"
-      title="${esc(t("cf.report_title"))}" aria-label="${esc(t("cf.report_title"))}">${ic("trash")}</button>
-    <span class="sh-line-chev" aria-hidden="true">›</span>`;
-  const body=document.createElement("div");body.className="sh-line-report-body";
-  while(box.firstChild)body.appendChild(box.firstChild);
-  d.appendChild(sum);d.appendChild(body);box.appendChild(d);
-  manIconizeInline(sum);
-  return d;
-}
-/* Delete the whole report for one line: the analysis, the score history behind
-   the trend, and the takes kept on this device. The takes go with it because
-   this report is the only place they are reachable from — leaving them would
-   orphan audio the learner believes they have deleted. */
-window.shLineDelete=async id=>{
-  if(!await askConfirm({title:t("cf.report_title"),body:t("cf.report_body"),confirmLabel:t("cf.delete")}))return;
-  const ctx=shLineCtx(id);
-  if(S.shLine)delete S.shLine[ctx];
-  if(S.fbV)delete S.fbV[ctx];
-  if(S.notes){delete S.notes["shheard:"+ctx];delete S.notes["shheardDur:"+ctx]}
-  save();
-  try{const recs=await getRecs(ctx);for(const r of recs)await delRec(r.id)}catch(e){}
-  const box=document.getElementById("shfb-"+id);if(box)box.innerHTML="";
-  if(window._shLastReport==="shfb-"+id)window._shLastReport=null;
-  toast(t("recs.deleted_toast"));
-};
-/* One builder for both paths: the report you have just earned, and the report
-   you left behind last time. Performance over time and the word-by-word
-   analysis come first — they are what the learner came back for — with the
-   kept takes and the waveform underneath. */
-async function shLineRender(id,line,data,open){
-  const slot="shfb-"+id,ctx=shLineCtx(id);
-  const box=document.getElementById(slot);
-  if(!box||!data)return;
-  const words=data.words||[],graded=words.length>0;
-  const used=(line.vocab||[]).filter(v=>window.AnswerEvaluator&&AnswerEvaluator.hits(data.said||"",v));
-  const missed=(line.vocab||[]).filter(v=>used.indexOf(v)<0);
-  box.innerHTML=`
-    ${graded?`<div class="sh-line-head">
-      <div class="sh-line-score" style="--c:${shCol(data.overall)}"><b>${data.overall}%</b>${esc(t("sh.line_yours"))}</div>
-      <div class="fb-pw-wrap">${words.map(w=>`<span class="fb-pw" style="--c:${shCol(w.s)}">${esc(w.w)}<b>${w.s}</b></span>`).join("")}</div>
-    </div>`:""}
-    ${shLinePerfHTML(ctx)}
-    ${shLineWeakHTML(ctx,shLineWeak(words),graded)}
-    ${(line.vocab||[]).length&&graded?`<div class="sh-line-voc"><b>${esc(t("sh.line_vocab"))}</b>
-      <div class="sim-skill-chips">${used.map(v=>`<span class="ok">✓ ${esc(v)}</span>`).join("")}</div>
-      ${missed.length?vocPickChips(missed,"Shadowing"):""}</div>`:""}
-    <div class="sh-line-extra" id="shfbx-${esc(id)}"></div>
-    <div class="sh-line-takes">
-      <b>${esc(t("sh.line_takes_h"))}</b>
-      <div id="recl-${esc(id)}"></div>
-      <div id="wave-${esc(id)}" style="margin-top:12px"></div>
-    </div>`;
-  manIconizeInline(box);
-  const d=shLineFold(slot,id,t("sh.line_report",{pct:data.overall}),open);
-  /* Decoding every take of every line on arrival would freeze the list, so a
-     closed report fills itself the first time it is opened. */
-  const fill=async()=>{
-    try{await renderRecs(ctx,"recl-"+id,"wave-"+id)}catch(e){}
-  };
-  if(!d||d.open){await fill();return}
-  let filled=false;
-  d.addEventListener("toggle",()=>{if(d.open&&!filled){filled=true;fill()}});
+  }catch(e){
+    try{console.warn("[shadow line] speaking report unavailable",e)}catch(_){}
+    shLineNote(id,t("ex.ai_off"),true);
+  }finally{_shLineBusy.delete(id)}
 }
 /* Called after the Shadow view renders: every line you have already worked on
-   gets its report back, closed, with its score in the summary. */
+   gets its report back, closed. A line practised before the AI report existed
+   (or while the coach was out of reach) still has its takes, so it is offered
+   the report on the newest one instead of the old word chips. */
 window.shLinesRestore=()=>{
-  const st=S.shLine||{},hist=S.fbV||{};
+  let drew=false;
   shWorkplaceLines().forEach(l=>{
-    if(!document.getElementById("shfb-"+l.id))return;
-    const ctx=shLineCtx(l.id),d=st[ctx],scores=hist[ctx]||[];
-    if(!d&&!scores.length)return;
-    shLineRender(l.id,l,d||{overall:scores[scores.length-1],words:[],said:""},false);
+    const w=document.getElementById(shLineWrapId(l.id));if(!w)return;
+    if(_shLineBusy.has(l.id)){w.innerHTML=`<p class="ex-note">${esc(t("sh.line_checking"))}</p>`;return}
+    const rep=sessRepGet(shLineRepKey(l.id));
+    if(rep){exHost=shLineHost(l.id,rep,false);exRenderReport(rep,true);drew=true;return}
+    getRecs(shLineCtx(l.id)).then(recs=>{
+      if(!recs||!recs.length||sessRepGet(shLineRepKey(l.id))||w.children.length)return;
+      w.innerHTML=`<button class="btn-primary sess-rep-btn" onclick="shLineReportLast('${esc(l.id)}')">${tIc("sess.report_btn","sparkle")}</button>`;
+      manIconizeInline(w);
+    }).catch(()=>{});
   });
+  if(drew)exHost=null;
 };
 window.shLineRecord=async(id)=>{
   const line=shWorkplaceLines().find(x=>x.id===id);if(!line)return;
@@ -321,10 +203,7 @@ window.shLineRecord=async(id)=>{
   if(_shRec&&_shRecFor===id){
     const rec=_shRec;_shRec=null;
     if(btn){btn.classList.remove("rec");btn.textContent=t("sh.line_rec")}
-    shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_checking"))}</span>`);
-    /* stop live transcription and bank whatever it heard */
-    if(rec.sr){try{rec.sr.onend=null;rec.sr.stop()}catch(e){}
-      rec.heard.txt=((rec.heard.txt||"")+" "+(rec.heard.cur||"")).trim();}
+    shLineFeedback(id,"");
     let blob=null;
     await new Promise(res=>{rec.mr.onstop=()=>{blob=rec.chunks.length?new Blob(rec.chunks,{type:rec.mr.mimeType||"audio/webm"}):null;res()};
       try{rec.mr.stop()}catch(e){res()}; setTimeout(res,1500)});
@@ -333,57 +212,9 @@ window.shLineRecord=async(id)=>{
     if(!blob||blob.size<1200){shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_nothing"))}</span>`);return}
     /* Keep the take, exactly as a video clip does, so takes can be compared. */
     try{await addRec(ctx,line.who+" — "+line.scenario,blob,Date.now())}catch(e){}
-    let res=null;
-    try{res=await fbAssess(blob,line.text)}catch(e){}
-    if(!res||!res.words||!res.words.length){
-      /* Online but refused is a different problem from offline, and telling the
-         learner to check their connection when the connection is fine wastes
-         their time. */
-      const why=navigator.onLine?"sh.line_blocked":"sh.line_nograde";
-      /* The take is kept whether or not it can be graded, so it still has to be
-         shown — an ungraded recording that vanishes reads as a lost recording.
-         It gets an element of its own because renderRecs writes over everything
-         in the element it is handed, message included. The trend stays too: an
-         ungraded take does not erase the attempts before it. */
-      shLineFeedback(id,`<span class="sh-line-wait">${esc(t(why))}</span>
-        ${shLinePerfHTML(ctx)}
-        <div class="sh-line-takes"><b>${esc(t("sh.line_takes_h"))}</b><div id="recl-${esc(id)}"></div>
-          <div id="wave-${esc(id)}" style="margin-top:12px"></div></div>`);
-      try{manIconizeInline(document.getElementById("shfb-"+id))}catch(e){}
-      try{await renderRecs(ctx,"recl-"+id,"wave-"+id)}catch(e){}
-      return;
-    }
-    res.words.forEach(w=>{const k=String(w.word||"").toLowerCase().replace(/[^a-z']/g,"");
-      if(k.length>3&&w.score<80&&!isTrackStopWord(k)){S.trouble=S.trouble||{};S.trouble[k]=Math.max(S.trouble[k]||0,100-w.score)}});
-    /* Score history per line, so the trend chart is the same component the video
-       side uses. */
-    S.fbV=S.fbV||{};(S.fbV[ctx]=S.fbV[ctx]||[]).push(res.overall);
-    if(S.fbV[ctx].length>20)S.fbV[ctx]=S.fbV[ctx].slice(-20);
-    markPracticed();
-    awardCompetency({activityType:"shadow_session",lesson:"Workplace line · "+line.scenario,duration:1,dedupeKey:"line:"+id+":"+S.fbV[ctx].length});
-    /* Did the answer carry the words it is supposed to carry? Kept with the
-       grading so the same judgement is on screen when you come back to it. */
-    const spoken=res.words.map(w=>String(w.word||"").toLowerCase()).join(" ");
-    shLineRemember(ctx,res,spoken);
-    save();
-    /* One builder draws the whole report: score, performance over time, the
-       word-by-word analysis with playback and save, vocabulary, takes, waveform. */
-    const slot="shfb-"+id;
-    await shLineRender(id,line,shLineStore()[ctx],true);
-    /* Then the Speaking feedback engine's own headline analysis — pace, fillers,
-       the fixes ranked worst-first — into the slot the report left for it, so a
-       workplace line and a video clip are analysed by exactly the same code.
-       Passed "line" rather than "new": it must not push a second, differently
-       measured score onto the attempt series this take has already extended. */
-    fbCtx={vid:ctx,recCtx:ctx};
-    fbT0=rec.t0||Date.now()-8000;
-    const heardTxt=(rec.heard&&rec.heard.txt||"").trim();
-    if(heardTxt){
-      S.notes["shheard:"+ctx]=heardTxt;S.notes["shheardDur:"+ctx]=Date.now()-(rec.t0||Date.now());
-      try{fbShowResults(line.text,heardTxt,"line","shfbx-"+id)}catch(e){}
-    }
-    const rep=document.getElementById(slot);
-    if(rep)rep.scrollIntoView({behavior:"smooth",block:"nearest"});
+    const old=_shLineUrl.get(id);if(old){try{URL.revokeObjectURL(old)}catch(e){}}
+    _shLineUrl.set(id,URL.createObjectURL(blob));    /* "hear yourself" in the report's Listen step */
+    await shLineReport(id,blob,(Date.now()-rec.t0)/1000);
     return;
   }
   shStopLine();
@@ -396,21 +227,7 @@ window.shLineRecord=async(id)=>{
   try{mr=new MediaRecorder(stream)}catch(e){try{stream.getTracks().forEach(x=>x.stop())}catch(_){}; return toast(t("rec.mic_denied_toast"))}
   mr.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
   mr.start();
-  /* Live transcription runs beside the recorder, exactly as it does for a video
-     clip, so the take can be scored by the real Speaking feedback engine rather
-     than by a private approximation of it. */
-  let sr=null,heard={txt:"",cur:""};
-  if(SR){
-    try{
-      sr=new SR();sr.lang="en-US";sr.continuous=true;sr.interimResults=true;
-      sr.onresult=e=>{heard.cur=srText(e.results)};
-      sr.onerror=()=>{};
-      sr.onend=()=>{heard.txt=((heard.txt||"")+" "+(heard.cur||"")).trim();heard.cur="";
-        if(_shRec&&_shRec.sr===sr){try{sr.start()}catch(e){}}};
-      sr.start();
-    }catch(e){sr=null}
-  }
-  _shRec={mr,chunks,stream,sr,heard,t0:Date.now()};_shRecFor=id;
+  _shRec={mr,chunks,stream,t0:Date.now()};_shRecFor=id;
   if(btn){btn.classList.add("rec");btn.textContent=t("sh.line_stop")}
   shLineFeedback(id,`<span class="sh-line-wait">${esc(t("sh.line_listening"))}</span>`);
 };
@@ -435,14 +252,17 @@ function shWorkplaceLinesHTML(){
       <p>“${esc(l.text)}”</p>
       ${l.ask?`<small>${esc(t("sh.line_answering",{q:l.ask}))}</small>`:""}
       <button class="btn btn-g btn-sm sh-line-rec ${lead?"cta-lead":""}" id="shr-${esc(l.id)}" onclick="shLineRecord('${esc(l.id)}')">${esc(t("sh.line_rec"))}</button>
-      <div class="sh-line-fb" id="shfb-${esc(l.id)}"></div>
+      <div class="sh-line-fb" id="shfb-${esc(l.id)}">
+        <div class="sh-line-st" id="shst-${esc(l.id)}"></div>
+        <div class="sh-line-rep" id="shrep-${esc(l.id)}" onpointerdown="shLineFocus('${esc(l.id)}')" onfocusin="shLineFocus('${esc(l.id)}')"></div>
+      </div>
     </div>
   </div>`;};
   return `<div class="card sh-lines">
     <div class="eyebrow">${esc((window.Trades&&isProfessionalJourney()?t("sh.lines_eyebrow_trade",{trade:Trades.active(S).name}):null)||t("sh.lines_eyebrow"))}</div>
     <h2 class="sh-lines-h">${esc(t("sh.lines_title"))}</h2>
     <p class="sh-lines-sub">${esc(t("sh.lines_sub"))}</p>
-    <p class="sh-lines-fb"><b>${esc(t("sh.feedback_title"))}</b> <span class="chip p3">${esc(t("sh.feedback_beta_tag"))}</span><br><span>${esc(t("sh.feedback_desc"))}</span></p>
+    <p class="sh-lines-fb"><b>${esc(t("sh.feedback_title"))}</b> <span class="chip p3">${esc(t("sh.feedback_beta_tag"))}</span><br><span>${esc(t("sh.lines_fb_desc"))}</span></p>
     ${lines.slice(0,SH_LINES_SHOWN).map(card).join("")}
     ${lines.length>SH_LINES_SHOWN?`<details class="home-more sh-more">
       <summary><span class="btn-ic">${ic("chat")}</span>${esc(t("sh.lines_more",{n:lines.length-SH_LINES_SHOWN}))}<span class="hm-chev">▶</span></summary>
