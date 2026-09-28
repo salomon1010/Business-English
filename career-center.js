@@ -101,5 +101,9 @@
     if(global.toast)global.toast(global.Trades.get(id).name+" is now your profession.");
     global.go("career");
   }
-  global.CareerCenter=Object.freeze({render,select,trade,polish,openRecommended,destination,gaps,readiness,pack,destinations:DESTINATIONS});
+  /* The same coaches block on the Practice page, under Professional Workplace Scenarios
+     (owner, 28 Sep 2026) — one renderer, so the two can never disagree about history or
+     which coach is for this stage. The Career Center keeps its copy. */
+  function coachesHTML(s){const t=global.activeProfessionalTrack();return coaches(s,t,Object.assign({},pack(s,t),{simulation:null}))}
+  global.CareerCenter=Object.freeze({render,select,trade,polish,openRecommended,destination,gaps,readiness,pack,coachesHTML,destinations:DESTINATIONS});
 })(window);
