@@ -185,7 +185,7 @@ const convoCheck = async (scId) => {
     const el = document.getElementById("v-roleplay"), sc = _rpLast.sc;
     const wrap = el.querySelector("#rpRepWrap"), r = wrap && wrap.getBoundingClientRect();
     return {
-      card: !!el.querySelector("#rpRepWrap .ex-rep-card[open]"),
+      card: !!el.querySelector("#rpRepWrap .ex-rep-card:not([open])")   /* owner, 28 Sep 2026: closed until the learner opens it */,
       stations: el.querySelectorAll("#rpRepWrap .ex-station").length,
       coach: !!el.querySelector("#rpRepWrap #exCoachBtn"),
       again: [...el.querySelectorAll("button")].some(b => /exAgainGo/.test(b.getAttribute("onclick") || "")),
@@ -198,7 +198,7 @@ const convoCheck = async (scId) => {
 };
 for (const [scId, label] of [["interview", "Interview"], ["iv-salary", "Salary negotiation"], ["standup", "Work simulation (stand-up)"]]) {
   const c = await convoCheck(scId);
-  ok(`${label}: the Executive Polish report is the sheet — open card, five stations, the coach button, Say it again, the character's voice, no old sheet, no overflow`,
+  ok(`${label}: the Executive Polish report is the sheet — card closed by default, five stations, the coach button, Say it again, the character's voice, no old sheet, no overflow`,
     c.card && c.stations === 5 && c.coach && c.again && !c.oldSheet && c.voice && c.wrapTop != null && c.wrapTop < 844 && !c.overflow, JSON.stringify(c));
 }
 await shot(L.page, "390-conversation");

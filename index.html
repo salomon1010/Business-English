@@ -3062,7 +3062,7 @@ html[data-view="session"] .view.on .sess-body>.card .btn-primary{font-size:13.5p
    fold, whose ::after is the arrow) keeps each tap area at 44px — the .hx-cta trick. z-index:1
    so a later sibling cannot paint over that strip. */
 html[data-view="session"] .view.on .sess-body{gap:10px}
-html[data-view="session"] .view.on .sess-back{min-height:32px;position:relative;z-index:1}
+html[data-view="session"] .view.on .sess-back{min-height:32px}   /* already sticky (positioned): no position/z-index here — relative + its top:70px dropped it onto the title */
 html[data-view="session"] .view.on .sess-head .chip{padding:2px 8px}
 html[data-view="session"] .view.on .sess-jump{min-height:34px;padding:6px 12px;border-radius:10px;position:relative;z-index:1}
 html[data-view="session"] .view.on .sess-jump-why{margin:5px 0 10px}
@@ -3101,6 +3101,17 @@ html[data-view="session"] .view.on .sess-body>.card .btn-primary{min-height:36px
 html[data-view="session"] .view.on :is(.sess-jump,.timer-box .btn-primary,.sess-plan>summary,.sess-body>.card .btn-primary)::after{content:"";position:absolute;left:0;right:0;top:-5px;bottom:-5px}
 html[data-view="session"] .view.on :is(.sess-back,.sess-act,.sess-done,.score-b)::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}
 html[data-view="session"] .view.on .sess-ex summary::before{content:"";position:absolute;left:0;right:0;top:-8px;bottom:-8px}
+/* Timer (owner, same day): the eyebrow on the left, then one row — Start on the left, 25:00 on the right. */
+html[data-view="session"] .view.on .sess-body>.card.timer-box{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"eb eb" "go dig";align-items:center;column-gap:14px;row-gap:4px;text-align:left}
+html[data-view="session"] .view.on .timer-box .eyebrow{grid-area:eb;text-align:left}
+html[data-view="session"] .view.on .timer-box .timer-digits{grid-area:dig;text-align:right;line-height:1}
+html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{grid-area:go;margin:0;min-width:128px;padding:5px 22px}
+/* Recorder (owner, same day): a bigger mic in the middle, the clock and its state centred under it. */
+html[data-view="session"] .view.on .rec-panel>div[style*="gap:18px"]{flex-direction:column;justify-content:center;gap:6px!important;padding:8px 0 2px;text-align:center}
+html[data-view="session"] .view.on .rec-panel .rec-btn{width:64px;height:64px;font-size:24px}
+html[data-view="session"] .view.on .rec-panel .rec-btn svg{width:26px;height:26px}
+html[data-view="session"] .view.on .rec-panel .ds-meter{margin-left:0}
+html[data-view="session"] .view.on .rec-panel .rec-none{text-align:center}
 /* Owner, same day: the Shadow Studio / Shadow the scene buttons, the timer eyebrow and Start read
    larger again, and those three buttons are narrower — sized to their label, not the card. */
 html[data-view="session"] .view.on .sess-jump{width:fit-content;max-width:100%;font-size:14px;min-height:36px;padding:6px 14px}
@@ -3147,7 +3158,7 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 @media(prefers-reduced-motion:reduce){.ex-mic.is-live{animation:none}}
 .ex-polish{justify-content:center}.ex-polish:disabled{opacity:.6}
 .ex-rep-card{margin-top:14px;padding:0}.ex-rep-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:16px 18px}.ex-rep-card>summary::-webkit-details-marker{display:none}
-.ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:16px;line-height:1.2;margin-top:2px}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
+.ex-rep-sum-t{flex:1;min-width:0}.ex-rep-sum-t b{display:block;font-size:16px;line-height:1.2;margin-top:2px;color:var(--gold)}.ex-rep-sum-t small{display:block;color:var(--mut);font-size:12.5px;margin-top:4px}
 .ex-rep-chev{flex:none;width:32px;height:32px;border-radius:50%;background:var(--bg2);border:1px solid var(--line2);display:inline-flex;align-items:center;justify-content:center;color:var(--mut);transition:transform .2s}.ex-rep-chev svg{width:18px;height:18px}.ex-rep-card[open]>summary .ex-rep-chev{transform:rotate(180deg)}
 .ex-rep-card>.ex-report{padding:0 18px 18px}.ex-rep-card>.ex-report .ex-rep-top{display:none}
 .ex-version{padding:14px 0;border-top:1px solid var(--line)}.ex-version:first-of-type{border-top:0;padding-top:6px}
@@ -10513,7 +10524,7 @@ function mvRepPrev(m,key){
   Object.keys(S.notes).forEach(k=>{if(!k.startsWith("exrep:")||k==="exrep:"+key)return;const r=S.notes[k];if(r&&r.m&&r.mission===m.id&&(!best||(r.at||0)>(best.at||0)))best=r});
   return best?{at:best.at,m:best.m,targets:best.targets||[]}:null;
 }
-function mvHost(key,rep){return {wrapId:"mvRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,again:()=>mvRetry()}}
+function mvHost(key,rep){return {wrapId:"mvRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:false,again:()=>mvRetry()}}
 function mvRepOn(key){return cur.v==="mission"&&!!_mv&&_mv.step==="coach"&&!!_mv.ev&&_mv.ev.key===key&&!!document.getElementById("mvRepWrap")}
 function mvRepNote(msg,retry){
   const w=document.getElementById("mvRepWrap");if(!w)return;
@@ -16591,7 +16602,7 @@ function sessRepPut(key,rep){
   ks.filter(conv).sort(by).slice(RP_REP_KEEP).forEach(k=>{delete S.notes[k]});
   ks.filter(line).sort(by).slice(SH_LINE_REP_KEEP).forEach(k=>{delete S.notes[k]});
 }
-function sessHost(key,rep){return {wrapId:"sessRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,again:sessAgain}}
+function sessHost(key,rep){return {wrapId:"sessRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:false,again:sessAgain}}
 function sessOn(key){return cur.v==="session"&&_sessCur&&_sessCur.key===key&&!!document.getElementById("sessRepWrap")}
 function sessAgain(){
   const b=document.getElementById("recBtn");if(!b)return;
@@ -20019,7 +20030,7 @@ const EX_HEDGES=["i think","i believe","i guess","i suppose","i feel like","mayb
    timer) stays the device's, not an area's: there is one microphone.
    Transient on purpose: a refresh empties it, as before. Nothing here is
    persisted or synced — the saved reports are, per area, in exRepA. */
-const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:true,quick:[],quickFor:""};
+const EX_AREA_FIELDS={draft:"",take:null,blob:null,url:null,prompt:0,report:null,showReport:false,repOpen:false,quick:[],quickFor:""};
 const _exArea={};                                   /* areaId → that programme's Polish content */
 function exAreaFresh(){const o={};Object.keys(EX_AREA_FIELDS).forEach(k=>{const v=EX_AREA_FIELDS[k];o[k]=Array.isArray(v)?[]:v});return o}
 function exAreaKey(){try{return areaId()}catch(e){return AREA_GEN}}   /* areaId() needs S; nothing reads ex before boot, but a throw here would take the page down */
@@ -20299,7 +20310,7 @@ async function exRun(src){
   reps.unshift(rep);if(reps.length>keep)reps.length=keep;
   markPracticed();save();
   if(gePlan&&reps.length>1&&planKey()!=="premium"&&premOffered())setTimeout(()=>{try{toast(t("ex.hist_free_toast",{top:planLimit("polishHistory","premium")}),4200)}catch(e){}},900);
-  ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=true;
+  ex.phase="idle";ex.busyFor=null;st.showReport=true;st.repOpen=false;
   if(here()&&cur.v==="phrases"&&!exHost){exStatus("");exRenderReport(rep)}   /* switched away meanwhile: the report waits in its own area, opened on return */
 }
 async function exTranscribe(blob){
@@ -20886,7 +20897,7 @@ function exRenderReport(rep,quiet){
   const qw=(ai&&ai.quick_win_title)?{title:ai.quick_win_title,goal:ai.quick_win_goal}:exQuickWin(m);
   const cp=(ai&&ai.concept_title)?{title:ai.concept_title,body:ai.concept_body}:exConcept(m);
   const meta=m.sec?t("ex.report_meta",{n:m.words,s:Math.round(m.sec)}):t("ex.report_meta_text",{n:m.words});
-  const html=`<details class="card ex-rep-card" ${(exHost||ex).repOpen!==false?"open":""} ontoggle="exReportToggle(this)">
+  const html=`<details class="card ex-rep-card" ${(exHost||ex).repOpen===true?"open":""} ontoggle="exReportToggle(this)">   <!-- owner, 28 Sep 2026: closed until the learner opens it; a history pick (exOpenLast / exHistOpen) is that intent -->
     <summary class="ex-rep-sum">
       <span class="ex-rep-sum-t"><span class="ex-eyebrow">${esc(t("ex.report_eyebrow"))}</span><b>${esc(t("ex.report_h"))}</b><small>${esc(meta)} · ${esc(exRepWhen(rep.at))}</small></span>
       <span class="ex-rep-chev" aria-hidden="true">${ic("chevron")}</span>
@@ -29282,7 +29293,7 @@ function rpRepPrev(sc,key){
 }
 function rpRepStyle(sc){return `${sc.persona||"the interviewer"}, the ${sc.role||"person"} from the conversation that has just ended, now giving warm, unhurried feedback one point at a time`}
 function rpHost(sc,key,rep){
-  return {wrapId:"rpRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:true,
+  return {wrapId:"rpRepWrap",key,report:rep||null,prev:(rep&&rep.prev)||null,url:null,repOpen:false,
     again:()=>{exCoachStop();exHost=null;rpStart(sc.id)},
     voice:ttsVoice(rpVoiceFor(sc),sc.g),gender:sc.g,style:rpRepStyle(sc)};
 }
