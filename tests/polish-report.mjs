@@ -62,6 +62,9 @@ const r=await page.evaluate(async AI=>{
   const q=s=>document.querySelector(s);
   return {stations:document.querySelectorAll(".ex-station").length,
     nav:document.querySelectorAll(".ex-navb").length,
+    first:q(".ex-report").firstElementChild?.id==="exCoach",
+    closed:[...document.querySelectorAll(".ex-station")].every(d=>d.tagName==="DETAILS"&&!d.open),
+    againOut:!!q(".ex-report > .ex-again .ex-againbtn"),
     coach:!!q("#exCoachBtn"),level:q(".ex-level-b")?.textContent,
     corr:document.querySelectorAll(".ex-corr").length,
     sents:document.querySelectorAll(".ex-sent").length,
@@ -74,11 +77,11 @@ const r=await page.evaluate(async AI=>{
     used:[...document.querySelectorAll(".ex-tic.ok")].map(e=>e.textContent.trim()),
     saveall:!!q(".ex-saveall"),
     targets:rep.targets,
-    text:q(".ex-report").innerText.length};
+    text:q(".ex-report").textContent.length};
 },AI);
 console.log(JSON.stringify(r,null,1));
 ok("Five stations render",r.stations===5,String(r.stations));
-ok("Station nav has five chips",r.nav===5);
+ok("Coach feedback comes first; the five steps are closed folds below it (owner, 28 Sep 2026); Record again stays outside them",r.first&&r.closed&&r.nav===0&&r.againOut,JSON.stringify({first:r.first,closed:r.closed,nav:r.nav,againOut:r.againOut}));
 ok("Coach play button present",r.coach);
 ok("CEFR level shown",r.level==="B1+");
 ok("Corrections rendered",r.corr===2);
@@ -110,7 +113,7 @@ ok("Save all puts every item in the word bank",saved.added>=7,JSON.stringify(sav
 
 // jump
 await page.evaluate(()=>exJump("upgrade"));await sleep(1500);
-ok("Nav jumps to a station",await page.evaluate(()=>document.getElementById("exSt-upgrade").getBoundingClientRect().top<400));
+ok("Jumping to a step opens its fold and brings it into view",await page.evaluate(()=>{const d=document.getElementById("exSt-upgrade");return d.open&&d.getBoundingClientRect().top<400}));
 
 /* Polish it again: one more whole version and two more idioms, appended to the
    report that is already saved — the owner's finale, "this is what you should
@@ -189,12 +192,12 @@ const fr=await page.evaluate(async()=>{
   await setLang("fr");
   exRenderReport(ex.report,true);
   await new Promise(r=>setTimeout(r,200));
-  return {nav:[...document.querySelectorAll(".ex-navl")].map(e=>e.textContent),
+  return {nav:[...document.querySelectorAll(".ex-station > summary .ex-eyebrow")].map(e=>e.textContent.trim()),
     station:document.querySelector(".ex-station .ex-eyebrow")?.textContent||"",
     carry:document.querySelector(".ex-carry-score")?.textContent.trim()||"",
     save:document.querySelector(".ex-saveall")?.innerText.trim()||""};
 });
-ok("The report speaks French end to end",fr.nav.join("|")==="Écouter|Corriger|Construire|Enrichir|Redire"&&!/Hear how/i.test(fr.station)&&fr.station.length>10&&/rapport/i.test(fr.carry),JSON.stringify(fr));
+ok("The report speaks French end to end",fr.nav.length===5&&!fr.nav.some(x=>/Hear how|Fix what|Build the|Upgrade your|Say it again/.test(x))&&!/Hear how/i.test(fr.station)&&fr.station.length>10&&/rapport/i.test(fr.carry),JSON.stringify(fr));
 await browser.close();server.kill();
 console.log(`\n${res.filter(Boolean).length}/${res.length} passed`);
 process.exit(res.every(Boolean)?0:1);

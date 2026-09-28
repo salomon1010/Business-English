@@ -3180,6 +3180,13 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .ex-station{scroll-margin-top:72px;border-radius:14px;transition:background .5s}
 .ex-station.ex-flash{background:color-mix(in srgb,var(--acc) 8%,transparent)}
 .ex-st-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.ex-fold{border:1px solid var(--line2);background:var(--card2);padding:12px 14px;margin:10px 0}
+.ex-fold>summary.ex-st-head{list-style:none;cursor:pointer;margin:0;flex-wrap:nowrap}.ex-fold>summary::-webkit-details-marker{display:none}
+.ex-fold>summary .ex-sechead{flex:1 1 auto;min-width:0}
+.ex-st-chev{flex:none;color:var(--mut);transition:transform .2s}.ex-st-chev svg{width:18px;height:18px}
+.ex-fold[open]>summary .ex-st-chev{transform:rotate(180deg)}
+.ex-fold[open]>summary{margin-bottom:12px}
+.ex-st-body>:first-child{margin-top:0}
 .ex-st-head .ex-sechead{flex:1 1 180px;margin-bottom:0}
 .ex-st-n{flex:none;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-size:13px;font-weight:800}
 .ex-st-min{flex:none;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2)}
@@ -20577,14 +20584,20 @@ function exNavHTML(){
 }
 window.exJump=id=>{
   const el=exQ("#exSt-"+id);if(!el)return;
+  if(el.tagName==="DETAILS"&&!el.open)el.open=true;
   try{el.scrollIntoView({behavior:"smooth",block:"start"})}catch(e){el.scrollIntoView()}
   el.classList.add("ex-flash");setTimeout(()=>el.classList.remove("ex-flash"),1400);
 };
+/* The five steps are numbered folds under the coach (owner, 28 Sep 2026: "group them by
+   category, the coach feedback first"). Closed by default so the report reads as five
+   headings; whichever the learner opens stays open when the report is redrawn. */
+const _exStOpen={};
+window.exStToggle=d=>{_exStOpen[d.dataset.st]=d.open};
 function exStation(id,n,icon,title,sub,body){
-  return `<section class="ex-block ex-station" id="exSt-${id}">
-    <div class="ex-st-head"><span class="ex-st-n">${n}</span>${exSec(icon,title,sub)}<span class="ex-st-min">${esc(t("ex.st_min"))}</span></div>
-    ${body}
-  </section>`;
+  return `<details class="ex-block ex-station ex-fold" id="exSt-${id}" data-st="${id}" ${_exStOpen[id]?"open":""} ontoggle="exStToggle(this)">
+    <summary class="ex-st-head"><span class="ex-st-n">${n}</span>${exSec(icon,title,sub)}<span class="ex-st-chev" aria-hidden="true">${ic("chevron")}</span></summary>
+    <div class="ex-st-body">${body}</div>
+  </details>`;
 }
 /* ---- 2 · Fix: the real mistakes, each with the rule behind it ----
    A rewrite teaches nothing on its own; the rule is what transfers to the next
@@ -20756,12 +20769,10 @@ function exRenderReport(rep,quiet){
     <div class="ex-report">
     ${rep.sttFailed?`<p class="ex-note">${esc(t("ex.stt_off"))}</p>`:""}
 
-    ${ai&&ai.level?`<div class="ex-level"><span class="ex-level-b">${esc(ai.level)}</span><div><div class="ex-k">${esc(t("ex.level_h"))}</div>${ai.level_note?`<p>${esc(ai.level_note)}</p>`:""}</div></div>`:""}
     ${exCoachHTML(rep)}
-    <p class="ex-plan-lead">${esc(t("ex.five_lead"))}</p>
-    ${exNavHTML()}
 
     ${exStation("listen",1,"sound",t("ex.st_listen"),t("ex.st_listen_sub"),`
+      ${ai&&ai.level?`<div class="ex-level"><span class="ex-level-b">${esc(ai.level)}</span><div><div class="ex-k">${esc(t("ex.level_h"))}</div>${ai.level_note?`<p>${esc(ai.level_note)}</p>`:""}</div></div>`:""}
       <div class="ex-stats">
         ${exStatHTML("wpm",m.wpm,"ex.wpm")}
         ${exStatHTML("semis",m.semis,"ex.semis",v=>v.toFixed(1))}
@@ -20821,10 +20832,11 @@ function exRenderReport(rep,quiet){
         <div class="ex-k">${esc(t("ex.concept_h"))}</div>
         <h4 class="ex-h4 ex-concept-t">${esc(cp.title)}</h4>
         ${exQuote(t("ex.concept_did"),cp.body,"gold")}
-      </div>
-      <div class="ex-again">
-        <button class="btn-primary ex-againbtn" onclick="exAgainGo()">${tIc("ex.again_btn","mic")}</button>
       </div>`)}
+
+    <div class="ex-again">
+      <button class="btn-primary ex-againbtn" onclick="exAgainGo()">${tIc("ex.again_btn","mic")}</button>
+    </div>
 
     <details class="home-more ex-sec"><summary><span class="btn-ic">${ic("doc")}</span>${t("ex.transcript_h")}<span class="hm-chev">${ic("chevron")}</span></summary>
       <div class="home-more-body"><p class="ex-tx">${esc(rep.tx||"")}</p></div></details>
