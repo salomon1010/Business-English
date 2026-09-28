@@ -1857,7 +1857,7 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sim-prog-rc{color:var(--mut2)}
 .sim-past{margin-bottom:12px}
 @media(max-width:420px){.sim-prog-rd{display:none}}
-.sim-analysis{margin-top:16px}
+.sim-analysis{margin-top:16px}.sim-qbq>.sim-ans-h:first-child{margin-top:0}.sim-analysis+.sim-stage{margin-top:16px}
 .sim-analysis>.sub{margin-bottom:14px}
 .sim-ans-h{margin:20px 0 10px}
 .sim-ans{padding:0;margin-top:10px;overflow:hidden}
@@ -16717,16 +16717,42 @@ function ttsChunks(text){
   return out.map(c=>c.slice(0,600));
 }
 function fbPrefetchLine(text,voice,style){try{ttsChunks(text).forEach(c=>fbTtsUrl(c,voice,style).catch(()=>{}))}catch(_){}}
+/* A clip may never report "ended". A voice request can hang, and iOS pauses
+   the player when the microphone's audio session closes — no "ended", no
+   "error", only "pause". Awaiting onended alone then waited for ever: the
+   colleague stopped mid-reply and the screen stayed on "… is speaking" (owner,
+   28 Sep 2026, Daniel in the welding workshop). So the fetch has a deadline,
+   an unexpected pause is resumed once while the line is still wanted, and the
+   clip's own length (plus slack) bounds the wait. */
+function ttsUrlWithin(p,ms){return Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error("tts timeout")),ms))])}
+function ttsPlayClip(a,url,stillWanted){
+  return new Promise((res,rej)=>{
+    let over=false,resumed=false,guard=null;
+    const end=f=>{if(over)return;over=true;clearTimeout(guard);a.onended=a.onerror=a.onpause=a.onloadedmetadata=null;f()};
+    const arm=ms=>{clearTimeout(guard);guard=setTimeout(()=>end(res),ms)};
+    a.onended=()=>end(res);
+    a.onerror=()=>end(()=>rej(new Error("tts play")));
+    a.onloadedmetadata=()=>{const d=a.duration;if(isFinite(d)&&d>0)arm(d*1000+2500)};
+    a.onpause=()=>setTimeout(()=>{
+      if(over||!a.paused||a.ended)return;
+      if(a.src!==url||(stillWanted&&!stillWanted())){end(res);return}
+      if(resumed){end(res);return}
+      resumed=true;a.play().catch(()=>end(res));
+    },250);
+    arm(15000);
+    a.src=url;a.play().catch(e=>end(()=>rej(e)));
+  });
+}
 async function fbSayLine(text,voice,style,stillWanted){
   const chunks=ttsChunks(text);if(!chunks.length)return;
   const urls=chunks.map(c=>fbTtsUrl(c,voice,style));          /* all in flight at once */
   fbStopAudio();
   const a=ttsPlayer();_ttsAudio=a;a.playbackRate=1;
   for(let i=0;i<urls.length;i++){
-    const url=await urls[i];
+    const url=await ttsUrlWithin(urls[i],12000);
     if(stillWanted&&!stillWanted())return;
     if(i+1<urls.length){urls[i+1].catch(()=>{})}
-    await new Promise((res,rej)=>{a.onended=res;a.onerror=rej;a.src=url;a.play().catch(rej)});
+    await ttsPlayClip(a,url,stillWanted);
   }
 }
 async function fbSayApi(text,rate,voiceOverride,style){
@@ -18507,19 +18533,36 @@ function simArmFeedbackPulse(){
   }
   els.forEach(el=>{el.setAttribute("data-pulse","1");_simFbObs.observe(el)});
 }
+/* The workshop report reads top to bottom in the owner's order (28 Sep 2026):
+   1 the interview score, 2 question by question — each interviewer's own
+   feedback, 3 your progress, 4 the answer analysis, 5 today's summary.
+   simReportHTML lays out 1–4; the debrief (5) follows it on the end screen. */
+function simReportHTML(run,sc,progressHTML){
+  const p=simAnalysisParts(run,sc);
+  if(!p)return progressHTML||"";
+  return `${p.hero}${p.questions}${progressHTML||""}${p.analysis}`;
+}
 function simAnalysisHTML(run,sc){
+  const p=simAnalysisParts(run,sc);
+  return p?`${p.hero}${p.analysis.replace(/<\/section>\s*$/,"")}${p.questionsInner}</section>`:"";
+}
+function simAnalysisParts(run,sc){
   setTimeout(simArmFeedbackPulse,0);        /* after this HTML reaches the DOM */
-  if(!window.AnswerEvaluator)return "";
+  if(!window.AnswerEvaluator)return null;
   const answers=(run.answers||[]);
-  if(!answers.length)return "";
+  if(!answers.length)return null;
   const rev=AnswerEvaluator.review(answers);
   const next=AnswerEvaluator.nextFocus(rev,sc,trackSimulations());
   _simReport={answers,scenarioId:sc.id};   /* cards and voice read from here */
   const pct=Math.round(rev.coverage*100);
   const prev=simAttempts(sc.id).filter(a=>a.startedAt!==run.startedAt).map(a=>Math.round(a.coverage*100));
   const band=simScoreBand(pct,prev.length?Math.max(...prev):null);
-  return `${rev.evidence?simScoreHeroHTML(pct,band,simAttempts(sc.id).length):""}
-  <section class="card sim-analysis">
+  const questionsInner=`<h3 class="sim-ans-h">Question by question</h3>
+    ${answers.map(simAnswerCard).join("")}`;
+  return {hero:rev.evidence?simScoreHeroHTML(pct,band,simAttempts(sc.id).length):"",
+    questionsInner,
+    questions:`<section class="card sim-analysis sim-qbq">${questionsInner}</section>`,
+    analysis:`<section class="card sim-analysis">
     <div class="eyebrow">Answer analysis</div>
     <h2>What you said, and what a competent answer needs</h2>
     ${rev.evidence?`<p class="sub">You answered ${rev.answered} of ${rev.asked} questions and covered about <b>${pct}%</b> of what those answers need. Open any question below and tap <b>Hear the feedback</b> — the person who asked it will tell you how it went.</p>`
@@ -18549,9 +18592,7 @@ function simAnalysisHTML(run,sc){
     ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b>${vocPickChips(rev.vocabToLearn,"Interview")}</div></div>`:""}
     <div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
       <button class="btn btn-p" onclick="${next.repeat?`simRestart('${esc(sc.id)}')`:`simInterviewStart('${esc(next.id)}','${esc(sc.lead||"hr")}')`}">${next.repeat?"Try this again":"Start it"} →</button></div>
-    <h3 class="sim-ans-h">Question by question</h3>
-    ${answers.map(simAnswerCard).join("")}
-  </section>`;
+  </section>`};
 }
 function isFirstDayMission(sc){return activeProfessionalTrack().id==='welding'&&sc&&sc.id==='welding-sim-1'}
 /* The fallback used to be a hardcoded welding shop, so a pipefitter opening the
@@ -18586,8 +18627,7 @@ function rSimulation(el,id,characterId){
     el.innerHTML=`<button class="back stick-back" onclick="simCloseAttempt()">‹ Back</button>
       <div class="eyebrow">Attempt ${n} · ${new Date(past.at).toLocaleDateString()}</div>
       <h1 class="big">${esc(simTitle(selected))}</h1>
-      ${simProgressHTML(selected.id,past.startedAt)}
-      ${simAnalysisHTML({answers:past.answers,startedAt:past.startedAt},selected)}`;
+      ${simReportHTML({answers:past.answers,startedAt:past.startedAt},selected,simProgressHTML(selected.id,past.startedAt))}`;
     manIconizeInline(el);return;
   }
   if(!selected){
@@ -18612,7 +18652,7 @@ function rSimulation(el,id,characterId){
        the one derived from what they actually said. */
     const mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button><section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>${simProgressHTML(selected.id,run.startedAt)}${simAnalysisHTML(run,selected)}`;
+    el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button>${simReportHTML(run,selected,simProgressHTML(selected.id,run.startedAt))}<section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
     simEnrichAnalysis(run,selected).then(changed=>{if(changed===null)return;if(cur&&cur.v==="simulation"&&simRun&&simRun.startedAt===run.startedAt&&_simFbSpeaking==null){if(changed)simSave();go("simulation",selected.id)}});
     return;
@@ -18643,6 +18683,7 @@ let simRecognition=null,simUtterance=null,simSpeechTurn=null,simRestartTimer=nul
    once — it exists only to get the permission question asked and answered. */
 let _simMicOK=false;
 async function simMicReady(){
+  simUtterance=null;   // the learner has taken the turn: whatever was still to be said is dropped, not played over them
   fbReleaseAudio();
   if(window.speechSynthesis){try{speechSynthesis.cancel()}catch(_){}}
   if(_simMicOK)return true;
@@ -18786,13 +18827,22 @@ function simStreamSpeaker(sc,presumedCharacterId){
      the reply; when it did not, the first sentence was read in the previous
      person's voice before the switch arrived. Waiting costs a moment only in
      that case; normally the name comes first and speech starts at once. */
-  const queue=[];let ended=false,message=null,playing=false,cancelled=false,spoken=0,known=false;
+  /* Sentences are NOT voiced one clip each (owner, 28 Sep 2026: "too many
+     delays between sentences" — four sentences were four clips, each with its
+     own silence either side). The opener waits a moment for a second sentence
+     when it is only a few words ("Daniel here."), and everything that has
+     arrived by the time a clip starts playing is fetched as ONE next clip.
+     The stream is faster than speech, so a reply is usually two clips. */
+  const pending=[];let next=null,ended=false,message=null,playing=false,cancelled=false,spoken=0,known=false,firstDone=false;
+  const words=s=>(String(s).match(/\S+/g)||[]).length;
+  const take=()=>{let txt="";while(pending.length&&(!txt||(txt+" "+pending[0]).length<=500))txt=(txt+" "+pending.shift()).trim();return txt};
+  const prepare=()=>{if(next||!pending.length||!known)return;const txt=take();if(txt)next={text:txt,url:fbTtsUrl(txt,voice,style)}};
   const setCharacter=id=>{
     const c=id&&simCast(sc).find(x=>x.id===id);
     if(c)known=true;
     if(!c||c.id===character.id)return;
     character=c;voice=ttsVoice(c.voice,c.g||"f");style=c.voiceStyle||"";
-    queue.forEach(it=>{it.url=fbTtsUrl(it.text,voice,style)});          /* not yet played: re-voice */
+    if(next)next.url=fbTtsUrl(next.text,voice,style);            /* not yet played: re-voice */
     if(simRun)simRun.lastSpeakerId=c.id;
     simShowSpeaker(c,sc);
     if(alive())simSetStatus(`${c.name||'Your colleague'} is speaking`);
@@ -18800,27 +18850,48 @@ function simStreamSpeaker(sc,presumedCharacterId){
   const token={};simUtterance=token;                              /* anything else that starts speaking cancels this */
   const alive=()=>!cancelled&&(simUtterance===token||simUtterance===message);
   const finishUp=()=>{if(!alive())return;fbReleaseAudio();simSetStatus('Your turn — tap the microphone to speak');const label=document.getElementById('simMicLabel');if(label)label.textContent='Tap once to speak. Tap again when you finish.'};
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const browserSay=text=>new Promise(res=>{let ok=false;const fin=()=>{if(!ok){ok=true;res()}};
+    setTimeout(fin,words(text)*450+2500);                        /* iOS may never fire onend */
+    try{simSpeakBrowser(text,character.g||"f",fin)}catch(_){fin()}});
   const pump=async()=>{
     if(playing)return;playing=true;
     try{
-      while(alive()&&(queue.length||!ended)){
-        if(!queue.length||(!known&&!ended)){await new Promise(r=>setTimeout(r,40));continue}
-        const item=queue.shift();
-        try{const url=await item.url;if(!alive())return;const a=ttsPlayer();_ttsAudio=a;a.playbackRate=1;
-            await new Promise((res,rej)=>{a.onended=res;a.onerror=rej;a.src=url;a.play().catch(rej)});spoken++}
-        catch(e){if(alive()&&typeof simSpeakBrowser==="function")await new Promise(res=>simSpeakBrowser(item.text,character.g||"f",res))}
+      while(alive()&&(next||pending.length||!ended)){
+        if(!next){
+          if(!pending.length||(!known&&!ended)){await wait(40);continue}
+          /* a two-word opener alone is a clip of mostly silence: give the next sentence 700 ms to join it */
+          if(!firstDone&&!ended&&pending.length===1&&words(pending[0])<6){const t0=Date.now();while(alive()&&!ended&&pending.length===1&&Date.now()-t0<700)await wait(40)}
+          prepare();if(!next)continue;
+        }
+        const item=next;next=null;firstDone=true;
+        let url=null;
+        try{url=await ttsUrlWithin(item.url,12000)}catch(e){}
+        if(!alive())return;
+        const a=ttsPlayer();_ttsAudio=a;a.playbackRate=1;
+        if(url){
+          /* The next clip is asked for once the reply has finished arriving, or
+             when this clip has under ~1.6 s left — late enough for the sentences
+             still streaming to join it, early enough to be ready on time. */
+          const lead=setInterval(()=>{if(next||!pending.length||!known)return;const d=a.duration,left=isFinite(d)&&d>0?d-a.currentTime:9;if(ended||left<1.6)prepare()},100);
+          try{await ttsPlayClip(a,url,alive);spoken++;continue}catch(e){}finally{clearInterval(lead)}
+        }
+        if(alive())await browserSay(item.text);
       }
       if(alive()&&ended)finishUp();
     }finally{playing=false}
   };
   return {
-    push(text){const t=String(text||"").trim();if(!t||cancelled)return;simStopListening();simSetStatus(`${character.name||'Your colleague'} is speaking`);
-      ttsChunks(t).forEach(c=>queue.push({text:c,url:fbTtsUrl(c,voice,style)}));pump()},
+    /* A sentence that lands after the learner has taken the turn (tapped the
+       microphone mid-reply) is dropped: it used to stop their recording and put
+       "… is speaking" back on screen. */
+    push(text){const t=String(text||"").trim();if(!t||!alive())return;simStopListening();simSetStatus(`${character.name||'Your colleague'} is speaking`);
+      pending.push(t);pump()},
     finish(msg){message=msg;if(simUtterance===token)simUtterance=msg;if(msg&&msg.characterId)setCharacter(msg.characterId);known=true;ended=true;pump()},
     setCharacter,
     cancel(){cancelled=true},
     spoke(){return spoken},
-    started(){return spoken>0||queue.length>0}
+    started(){return spoken>0||pending.length>0||!!next||playing}
   };
 }
 function simVoiceSpeak(message,sc){
@@ -18836,7 +18907,8 @@ function simVoiceSpeak(message,sc){
   simSpeakBrowser(message.text,gender,done);
 }
 function simSpeakBrowser(text,gender,done){
-  if(!('speechSynthesis'in window)){done();return}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
+  if(!('speechSynthesis'in window)){done();return}
+  {const d0=done;let fired=false;done=()=>{if(fired)return;fired=true;d0()};setTimeout(done,(String(text).match(/\S+/g)||[]).length*450+2500)}if(!_rpVoices.f&&!_rpVoices.m&&!_rpVoices.any)rpPickVoices();
   const gv=rpGenderVoice(gender),voice=gv.voice,u=new SpeechSynthesisUtterance(text);u.lang=(voice&&voice.lang)||"en-US";u.rate=.97;u.pitch=gv.pitch;if(voice)u.voice=voice;u.onend=u.onerror=done;speechSynthesis.speak(u);
 }
 /* Every workshop conversation is tap-to-start, tap-to-finish. This used to be
@@ -19064,6 +19136,7 @@ async function simProcessSpeech(text){if(!simRun||simRun.debrief||simRun.finishe
   if(speaker)speaker.cancel();
   /* nothing streamed (scripted fallback, or the live partner dropped out): the plain path */
   try{if(result.reply&&result.reply.text&&typeof POLISH_API!=="undefined"&&POLISH_API&&navigator.onLine&&fbVoicePref()!=="browser"){const ch=simCharacter(sc,result.reply.characterId)||{};fbPrefetchLine(result.reply.text,ttsVoice(ch.voice,ch.g||"f"),ch.voiceStyle||"")}}catch(_){}
+  if(simRun.listening||simRec)return;   /* the learner already took the turn — do not talk over them */
   setTimeout(()=>simVoiceSpeak(result.reply,sc),0)}
 window.simStart=(id,characterId)=>{
   /* Counts only. Which workshop, which trade — never a word of what was said.
