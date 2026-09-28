@@ -161,8 +161,11 @@ not JS, and `new Function` chokes on it. Check it separately with
   repaint the chip/theme. Never cache the track anywhere else. Suite:
   `tests/track-isolation.mjs`.
   UI: `areaScopeHTML()` is the review's banner, `areaNoteHTML()` the compact
-  Profile caption; both switch via `areaSwitch(id, view)` and land on the same
-  page in the other area.
+  Profile caption; both switch via `areaSwitch(id, "home")`. **Every area switch
+  lands on the new area's Home** (owner, 2026-09-28) — the Home "Select" card,
+  the Programme page (`selectProfessionalTrack`) and these buttons ("Switch to
+  {{area}}", key `area.switch_to`) all go through `areaLandHome()`, which adds
+  the "You're now in …" strip unless a dialog is already open.
 - **Foundations (Stage 0) — READ BEFORE TOUCHING HOME, SIMULATION OR ROLEPLAY.**
   Built 2026-09-13 after the first francophone learners said the app opened above
   their level. State is per area in `S.fnd[areaId()]` = `{placed:

@@ -7820,7 +7820,7 @@ const I18N_EN={
  "area.scope_pro":"Everything below counts only the English you have practised for the trade — the toolbox talk, the permit, the handover, the questions a supervisor actually asks. Your general English is measured on its own page.",
  "area.switch":"Open your {{area}} review",
  "area.counts":"These counts cover your {{area}} work only — the other area keeps its own record.",
- "area.switch_profile":"Open your {{area}} profile",
+ "area.switch_profile":"Open your {{area}} profile","area.switch_to":"Switch to {{area}}",
  "gauge.no_data":"Record a speaking-feedback session to measure your pace",
  "gauge.warming":"Warming up — natives average 140–160 wpm; push the pace a little",
  "gauge.perfect":"You're in the natural professional zone — just right! ✅",
@@ -11839,12 +11839,22 @@ window.selectProfessionalTrack=id=>{
   save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   try{pushSync()}catch(e){}         /* online alerts and invitation rings follow the programme */
   try{nudgeSchedule("switch")}catch(e){}   /* a nudge follows it too: leaving General English cancels it */
-  /* A track without a curriculum has no map to show; every other switch lands
-     on the road map of the new area, centred on done → here → next, with the
-     strip saying which area this now is. */
+  /* Every switch lands on the new area's HOME (owner, 28 Sep 2026 — it used to be the road
+     map), with the strip saying which area this now is. */
   if(track.status==="foundation"){toast(t("tracks.foundation_body"));go("home");return}
-  _rmSwitch=true;_rmReturn=true;go("journey");
+  areaLandHome();
 };
+/* Home of the area just opened, plus the "You're now in …" strip once that area's weeks are
+   loaded (both curricula load at boot; the wait only covers a slow first load). */
+function areaLandHome(){
+  _rmSwitch=true;go("home");
+  let n=0;const tick=()=>{if(cur.v!=="home"){_rmSwitch=false;return}
+    /* a dialog on arrival (the new area's placement check) speaks for itself: no strip over it,
+       and the switch flag must not linger to relabel a later welcome-back strip */
+    if(document.querySelector(RM_BUSY)){_rmSwitch=false;return}
+    if(trackWeeks().length||n>=40){rmReturnStrip();return}n++;setTimeout(tick,100)};
+  setTimeout(tick,150);
+}
 /* ================= JOURNEY ================= */
 /* One learning track at a time — the 12 weeks are split by phase so the page
    never shows all 12 at once. Defaults to the phase the user is actually in. */
@@ -27891,7 +27901,7 @@ function areaScopeHTML(){
       <b>${esc(pro?t("area.scope_pro_h",{trade}):t("area.scope_gen_h"))}</b></div>
     <p>${esc(pro?t("area.scope_pro"):t("area.scope_gen"))}</p>
     <button class="btn btn-g btn-sm" onclick="areaGoReview('${other}')">
-      <span class="btn-ic">${ic("repeat")}</span>${esc(t("area.switch",{area:otherName}))}</button>
+      <span class="btn-ic">${ic("repeat")}</span>${esc(t("area.switch_to",{area:otherName}))}</button>
   </div>`;
 }
 /* The compact form, for Profile: one sentence naming the area these counts
@@ -27902,13 +27912,11 @@ function areaNoteHTML(view){
   const other=pro?"general-english":"welding";
   const otherName=pro?t("area.name_gen"):t("area.name_pro");
   return `<p class="area-note">${esc(t("area.counts",{area:areaLabel()}))}
-    <button class="area-note-go" onclick="${rev?"areaGoReview":"areaGoProfile"}('${other}')">${esc(t(rev?"area.switch":"area.switch_profile",{area:otherName}))}</button></p>`;
+    <button class="area-note-go" onclick="${rev?"areaGoReview":"areaGoProfile"}('${other}')">${esc(t("area.switch_to",{area:otherName}))}</button></p>`;
 }
-/* Land on the other area's PROFILE, for the same reason the review's button
-   lands on the review: you are comparing the same page across two programmes. */
-window.areaGoProfile=id=>{areaSwitch(id,"profile")};
-/* Land on the other area's review, not its home screen — the point of the
-   button is to compare two reviews. */
+/* The switch buttons on Profile and Progress land on the other area's Home like every
+   other switch (owner, 28 Sep 2026); they used to land on the same page. */
+window.areaGoProfile=id=>{areaSwitch(id,"home")};
 function areaSwitch(id,view){
   if(!ProfessionalTrackContext.get(id))return;
   S.professionalTracks=S.professionalTracks||{};
@@ -27918,9 +27926,10 @@ function areaSwitch(id,view){
   _jPhase=null;save();try{fbPush(0)}catch(e){}   /* the partner Worker reads the programme from the account copy */
   try{pushSync()}catch(e){}   /* online alerts and invitation rings follow the programme */
   try{nudgeSchedule("switch")}catch(e){}
+  if(view==="home"){areaLandHome();return}
   go(view);
 }
-window.areaGoReview=id=>{areaSwitch(id,"review")};
+window.areaGoReview=id=>{areaSwitch(id,"home")};
 /* Which half of the week review is on screen. The two panels used to sit side by
    side in a g2 grid, which on a phone meant scrolling past all five sliders to
    reach the written review — so they're a tab pair now. */

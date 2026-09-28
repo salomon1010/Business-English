@@ -3224,5 +3224,6 @@
  "sh.cat_movies": "Filmes",
  "sh.cat_songs": "Músicas",
  "home.d_grammar": "Pratique gramática com exercícios interativos",
- "home.d_convo": "Fale com um colega de IA"
+ "home.d_convo": "Fale com um colega de IA",
+ "area.switch_to": "Mudar para {{area}}"
 }

@@ -178,17 +178,31 @@ const back = await page.evaluate(() => {
 });
 ok("Back after 3 h: opens the road map with 'here' and 'next' on screen, and the welcome-back strip", back.hash === "#journey" && back.now && back.next && back.strip, JSON.stringify(back));
 
-/* ── switching area from the Home card lands on the other area's road map, centred ── */
+/* ── switching area lands on the other area's HOME, with the "You're now in …" strip (owner, 28 Sep 2026) ── */
 const sw = await page.evaluate(async () => {
   document.getElementById("rmCel")?.remove();
+  /* the Android "Get it on Google Play" prompt opens on Home in this emulated phone; the strip
+     rightly never stacks on a dialog, so it is snoozed here as a learner who dismissed it */
+  try { localStorage.setItem(PLAY_SNOOZE_KEY, String(Date.now())); } catch (e) {}
+  /* Welding with its placement already taken: Home + the strip */
+  S.fnd = S.fnd || {}; S.fnd.welding = { placed: "full", finished: true, day: 1, done: {} };
   selectProfessionalTrack("welding");
   /* the other area's curriculum loads from a file: wait for the strip to paint, up to 4 s */
   let strip = null; for (let i = 0; i < 40 && !(strip = document.getElementById("rmCel")); i++) await new Promise(r => setTimeout(r, 100));
   await new Promise(r => setTimeout(r, 200));
   const inView = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; };
-  return { v: cur.v, track: activeProfessionalTrack().id, now: inView(document.querySelector(".rm-lbl.now")), title: strip ? strip.querySelector("b").innerText : null };
+  const out = { v: cur.v, track: activeProfessionalTrack().id, title: strip ? strip.querySelector("b").innerText : null };
+  /* and back: the switch button on Profile lands on General English's Home too */
+  document.getElementById("rmCel")?.remove();
+  areaGoProfile("general-english"); await new Promise(r => setTimeout(r, 600));
+  out.back = { v: cur.v, track: activeProfessionalTrack().id };
+  /* Welding with the placement still to take: Home opens the check, no strip over it, no leftover switch flag */
+  delete S.fnd.welding; sessionStorage.removeItem("be_fnd_chk");
+  selectProfessionalTrack("welding"); await new Promise(r => setTimeout(r, 900));
+  out.pending = { v: cur.v, strip: !!document.getElementById("rmCel"), flag: _rmSwitch };
+  return out;
 });
-ok("Switching area lands on that area's road map, centred, saying which area it is", sw.v === "journey" && sw.track === "welding" && sw.now && /Welding/.test(sw.title || ""), JSON.stringify(sw));
+ok("Switching area lands on that area's Home with the strip saying which area it is — both directions", sw.v === "home" && sw.track === "welding" && /Welding/.test(sw.title || "") && sw.back.v === "home" && sw.back.track === "general-english" && sw.pending.v === "home" && !sw.pending.flag, JSON.stringify(sw));
 
 /* ── environment defaults by hostname (staging self-configures; production and localhost do not) ──
    The page is loaded under three real hostnames by routing them to the local server, so
