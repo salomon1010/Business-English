@@ -3222,5 +3222,6 @@
  "sh.cat_tv": "TV shows",
  "sh.cat_movies": "Movies",
  "sh.cat_songs": "Songs",
- "home.d_grammar": "Practise grammar with interactive exercises"
+ "home.d_grammar": "Practise grammar with interactive exercises",
+ "home.d_convo": "Speak with an AI colleague"
 }
