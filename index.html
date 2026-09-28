@@ -1522,9 +1522,8 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-dic{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc)}
 .hx-dimg.img .hx-dic{position:absolute;left:8px;top:8px;width:32px;height:32px;border-radius:10px;background:rgba(6,9,18,.62);color:#fff}
 .hx-dic svg{width:20px;height:20px}
-.hx-dimg.ico,.hx-feat-img.ico{background:#040d22}
-.hx-dimg.ico img,.hx-feat-img.ico img{object-fit:contain}
-.hx-dimg.ico .hx-dic,.hx-feat-img.ico .hx-feat-ic{display:none}
+.hx-dimg.art img,.hx-feat-img.art img{object-fit:cover;object-position:center 30%}
+.hx-dimg.art .hx-dic,.hx-feat-img.art .hx-feat-ic{display:none}
 .hx-dimg.img .hx-dic svg{width:16px;height:16px}
 /* Explore card body (owner, 28 Sep 2026): a coloured icon square beside the title and its line,
    one colour per place; the picture above carries no badge of its own */
@@ -11373,13 +11372,13 @@ function homeDestHTML(top,cards,vis){
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
   const D={
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?esc(vidThumb(firstVid,"hqdefault")):""},
-    partner:ppAvailable()?{ic:"team",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"home-icons/partner.jpg",ico:1}:null,
-    phrases:{ic:"flask",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"home-icons/phrases.jpg",ico:1},
-    /* Explore cards carry their own artwork (owner, 28 Sep 2026): home-icons/*.jpg are square
-       tiles, shown whole (.ico = contain on the tiles' navy). The rows keep home-shots. */
-    practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-icons/vocab.jpg",ico:1},
-    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-icons/roadmap.jpg",ico:1},
-    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-icons/progress.jpg",ico:1}
+    partner:ppAvailable()?{ic:"team",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"home-photos/partner.jpg",art:1}:null,
+    phrases:{ic:"flask",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"home-photos/phrases.jpg",art:1},
+    /* Explore cards carry their own photos (owner, 28 Sep 2026, replacing the navy icon tiles):
+       home-photos/*.jpg fill the picture (.art = cover, no badge). The rows keep home-shots. */
+    practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-photos/vocab.jpg",art:1},
+    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-photos/roadmap.jpg",art:1},
+    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
   const taken={};
@@ -11390,7 +11389,7 @@ function homeDestHTML(top,cards,vis){
   const primId=Object.keys(taken).find(k=>taken[k].primary)||null;
   const featId=primId&&(top.kind==="lesson"||top.kind==="comeback")&&primId!=="journey"?primId:null,feat=featId?taken[featId]:null;
   const featHTML=feat?(()=>{const d=D[featId];return `<button class="hx-feat" data-dest="${featId}" onclick="${feat.go}">
-      <span class="hx-feat-img${d.ico?" ico":""}">${d.img?`<img src="${d.img}" alt="" decoding="async" onerror="this.remove()">`:""}<span class="hx-feat-ic">${ic(d.ic)}</span></span>
+      <span class="hx-feat-img${d.art?" art":""}">${d.img?`<img src="${d.img}" alt="" decoding="async" onerror="this.remove()">`:""}<span class="hx-feat-ic">${ic(d.ic)}</span></span>
       <span class="hx-feat-body"><span class="hx-tag">${ic("star")}${esc(t("home.rec_for_you"))}</span>
         <b>${esc(d.t)}</b>${feat.ctx?`<small class="hx-feat-ctx">${esc(feat.ctx)}</small>`:""}<small>${esc(feat.line||"")}</small>
         <span class="hx-feat-go">${esc(t("home.start"))} →</span></span></button>`})():"";
@@ -11398,7 +11397,7 @@ function homeDestHTML(top,cards,vis){
   const rank=id=>id===primId?2:taken[id]?1:0;
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}" onclick="${r?r.go:d.go}">
-      <span class="hx-dimg${d.img?" img":""}${d.ico?" ico":""}">${d.img?`<img src="${d.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(d.ic)}</span></span>
+      <span class="hx-dimg${d.img?" img":""}${d.art?" art":""}">${d.img?`<img src="${d.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(d.ic)}</span></span>
       <span class="hx-dbody"><span class="hx-dbadge" aria-hidden="true">${ic(d.ic)}</span><span class="hx-dtxt">${r?`<span class="hx-tag sm">${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}</span>`:""}<b>${esc(d.t)}</b><small>${esc(r?(r.ctx||r.line):d.s)}</small></span></span></button>`}).join("");
   return `<section class="hx-dest" aria-labelledby="hxDestH"><h3 id="hxDestH">${esc(t("home.more_h"))}</h3>${featHTML}<div class="hx-dest-grid">${grid}</div></section>`;
 }
