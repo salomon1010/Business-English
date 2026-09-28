@@ -3478,15 +3478,14 @@ html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width
 .scn-next .pp-row{display:flex;flex-wrap:wrap;gap:8px}
 .scn-ai-tag{font-size:10px;font-weight:800;letter-spacing:.6px;border:1px solid currentColor;border-radius:6px;padding:0 5px;margin-left:2px}
 @media (prefers-reduced-motion: reduce){.scn *,.scn{animation:none!important;transition:none!important}.scn .scn-c.on{transform:none}}
-.yt-ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0;
-  /* body{zoom} reaches INSIDE a cross-origin frame: the frame's own viewport
-     stayed at the unzoomed size (421 px) while the YouTube player laid itself
-     out to the zoomed one (388 px), so the video filled 92 % of the frame and
-     the embed page's white background showed down the right-hand side and
-     underneath. Cancelling the zoom for the frame alone makes its viewport
-     equal what is painted; inset:0 still pins it to the 16/9 box, so nothing
-     moves. Keep this in step with body{zoom} above. */
-  zoom:calc(1 / var(--app-zoom,.92))}
+.yt-ratio iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+/* No zoom on the frame. A counter-zoom (1 / .92) once cancelled the app-wide
+   body{zoom} for the cross-origin player; that page scale was withdrawn on
+   22 Sep 2026 but the counter-zoom stayed, so the frame drew at 109 % and the
+   .yt-shell overflow clipped the right-hand and bottom edge of every video —
+   on-screen captions and the speaker's lower face were cut off (owner,
+   27 Sep 2026). If a page scale ever returns, size the frame with it, never
+   against it. */
 /* A laptop is short and wide: at 16:9 across the whole column the player ate
    70% of the height and the modes and transcript began under the fold. The
    player keeps its ratio but stops at 44% of the viewport, centred — the
