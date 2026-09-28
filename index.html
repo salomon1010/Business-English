@@ -2148,7 +2148,7 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .sv-sh-t{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 12px;border-radius:99px;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}.sv-sh-t svg{width:15px;height:15px;flex:none}.sv-sh-t small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}
 .sv-tr-grp{display:inline-flex;align-items:stretch;border:1px solid var(--line2);border-radius:99px;background:var(--bg2)}.sv-tr-grp .sv-sh-t{border:0;background:transparent;border-radius:99px 0 0 99px;padding:0 5px 0 9px;gap:5px}.sv-tr-grp.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-tr-grp.on .sv-sh-t{background:transparent}
 .sv-tr-lang{display:inline-flex;align-items:center;justify-content:center;gap:3px;min-height:40px;min-width:36px;padding:0 8px 0 7px;border:0;border-left:1px solid var(--line2);background:transparent;color:var(--mut);font:inherit;cursor:pointer}.sv-tr-lang svg{width:14px;height:14px}.sv-tr-lang small{font-size:10px;font-weight:800;letter-spacing:.5px;padding:1px 6px;border-radius:99px;background:color-mix(in srgb,var(--mut) 18%,transparent)}.sv-tr-grp.on .sv-tr-lang{color:var(--accent-text);border-left-color:color-mix(in srgb,var(--acc) 45%,transparent)}.sv-tr-grp.on .sv-tr-lang small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-tr-lang:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-.sv-tr-pick-p{font-size:13px;color:var(--mut);text-align:center;margin:0 0 12px;line-height:1.5}.sv-tr-pick .lang-row.sel{border-color:var(--acc)}.sv-tr-pick .lang-row>svg{width:18px;height:18px;margin-left:auto;color:var(--acc)}
+.sv-tr-pop{position:fixed;z-index:140;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line2);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.45);overflow:hidden;animation:fade .15s}.sv-tr-q{margin:8px 8px 4px;height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--line2);background:var(--bg2);color:var(--txt);font:inherit;font-size:13px;flex:none}.sv-tr-q:focus-visible{outline:2px solid var(--focus);outline-offset:0}.sv-tr-list{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:2px 4px 6px;min-height:0}.sv-tr-opt{display:flex;align-items:center;gap:9px;width:100%;min-height:40px;padding:4px 8px;border:0;border-radius:9px;background:transparent;color:var(--txt);font:inherit;font-size:13.5px;font-weight:600;text-align:start;cursor:pointer}.sv-tr-opt:hover,.sv-tr-opt:focus-visible{background:var(--bg2);outline:none}.sv-tr-opt.sel{background:color-mix(in srgb,var(--acc) 14%,transparent)}.sv-tr-opt .lang-ic{width:26px;height:26px;font-size:9.5px}.sv-tr-opt .lang-ic.lang-flag span{font-size:29px}.sv-tr-bf{width:18px;height:18px}.sv-tr-bf span{font-size:20px}.sv-tr-opt span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sv-tr-opt small{font-size:11.5px;font-weight:500;color:var(--mut2);margin-inline-start:6px}.sv-tr-opt svg{flex:none;width:16px;height:16px;color:var(--acc)}.sv-tr-none{color:var(--mut);text-align:center;padding:12px 0;font-size:13px;margin:0}
 .sv-sh-t.on{border-color:var(--acc);color:var(--accent-text);background:color-mix(in srgb,var(--acc) 12%,transparent)}.sv-sh-t.on small{background:color-mix(in srgb,var(--acc) 22%,transparent)}.sv-sh-t.na{opacity:.55}.sv-sh-t:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sv-wt-tg{margin:0 0 10px}.sv-para-tr{margin:4px 0 10px;font-size:12.5px;line-height:1.5;font-weight:400;color:var(--mut2)}.sv-para-tr.err{color:var(--red)}.sv-para-tr[dir="rtl"]{text-align:right}.sv-para.has-ipa .sv-w{display:inline-flex;flex-direction:column;align-items:center;gap:1px;vertical-align:top}.sv-w-ipa{font-size:11.5px;line-height:1.2;color:var(--mut2);font-weight:400;white-space:nowrap}.sv-para.has-ipa .sv-seg{line-height:1.35}
 .fb-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.fb-fold{flex:none}.fb-fold svg{transition:transform .2s}.fb-fold[aria-expanded="false"] svg{transform:rotate(-90deg)}.fb-fold[hidden]{display:none}.sv-sh-rb{width:52px;height:52px;border-radius:50%;border:1px solid var(--line2);background:var(--bg2);color:var(--mut);display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:inherit}.sv-sh-rb svg{width:20px;height:20px}.sv-sh-rb small{font-size:9px;font-weight:700;letter-spacing:.5px}.sv-sh-rb.on{border-color:var(--acc);color:var(--acc)}
@@ -22828,45 +22828,65 @@ function svShAfterDraw(){
   if(svShTrOn()){if(_svTr[svShTrKey(sg)])svShTrViewed(sg);else svShTrGo(sg)}
   if(svShIpaOn()){_svIpaPeek=null;svShIpaGo(sg)}
 }
-/* Translate is one pill of two buttons: the switch, and the language tag
-   (FR) that opens the list. No language yet: the tag is a plain ▾ and
+/* Translate is one pill of two buttons: the switch (the language's flag in
+   place of the globe), and the language tag (FR) that opens the list. No language yet: the tag is a plain ▾ and
    the switch opens the list too. */
 function svTrBtnHTML(id){
   const lang=svShLang(),on=svShTrOn(),nm=lang.native||lang.name;
   const lbl=lang.ok?t("sv.sh_tr_a11y",{lang:nm}):t("sv.sh_tr_choose");
-  return `<span class="sv-tr-grp ${on?"on":""}"><button class="sv-sh-t ${on?"on":""}" id="${id}" onclick="svShTrToggle()" aria-pressed="${on}" aria-label="${esc(lbl)}" title="${esc(lbl)}">${ic(on?"check":"globe")}<span>${t("sv.sh_translate")}</span></button><button class="sv-tr-lang" id="${id}Lang" onclick="svTrPick()" aria-haspopup="dialog" aria-label="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}" title="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}">${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:ic("chevron")}</button></span>`;
+  return `<span class="sv-tr-grp ${on?"on":""}"><button class="sv-sh-t ${on?"on":""}" id="${id}" onclick="svShTrToggle()" aria-pressed="${on}" aria-label="${esc(lbl)}" title="${esc(lbl)}">${lang.ok?svTrBtnIcon(lang.code,on):ic("globe")}<span>${t("sv.sh_translate")}</span></button><button class="sv-tr-lang" id="${id}Lang" onclick="svTrPick(this)" aria-haspopup="dialog" aria-expanded="false" aria-label="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}" title="${esc(lang.ok?t("sv.sh_tr_lang_a11y",{lang:nm}):t("sv.sh_tr_choose"))}">${lang.ok?`<small>${esc(lang.code.toUpperCase())}</small>`:ic("chevron")}</button></span>`;
 }
-/* every language in LANGS (the AI translates into any of them, not only the
-   15 the app's own screens are translated into), English left out */
+/* the language list (owner, 28 Sep 2026: small, right by the tag, to pick
+   quickly — not a full-screen window). A popover anchored to the tag that
+   opened it, on whichever side has more room; a compact search on top, one
+   short row per language, the current pick marked and scrolled into view.
+   Every language in LANGS (the AI translates into any of them, not only the
+   15 the app's own screens are translated into), English left out.
+   A tap outside, Escape, a page scroll or a resize closes it. */
 function svTrListHTML(q){
   q=String(q||"").trim().toLowerCase();const cur=svShLang().code;
   const list=LANGS.filter(l=>l.code!=="en"&&(!q||l.en.toLowerCase().includes(q)||l.native.toLowerCase().includes(q)||l.code===q));
-  if(!list.length)return `<p style="color:var(--mut);text-align:center;padding:16px 0">${esc(t("lang.none_found"))}</p>`;
-  return list.map(l=>`<button class="lang-row ${l.code===cur?"sel":""}" onclick="svTrSet('${l.code}')" aria-pressed="${l.code===cur}">
-    <span class="lang-ic" style="background:${langColor(l.code)}">${langInitials(l)}</span>
-    <span class="lang-native">${esc(l.native)}<small>${esc(l.en)}</small></span>${l.code===cur?ic("check"):""}
-  </button>`).join("");
+  if(!list.length)return `<p class="sv-tr-none">${esc(t("lang.none_found"))}</p>`;
+  return list.map(l=>`<button class="sv-tr-opt ${l.code===cur?"sel":""}" role="option" aria-selected="${l.code===cur}" onclick="svTrSet('${l.code}')">${langBadgeHTML(l)}<span>${esc(l.native)}<small>${esc(l.en)}</small></span>${l.code===cur?ic("check"):""}</button>`).join("");
 }
-window.svTrPick=()=>{
+function svTrPopClose(){
+  const pop=document.getElementById("svTrPop");if(!pop)return;
+  pop.remove();document.removeEventListener("pointerdown",svTrPopOut,true);document.removeEventListener("keydown",svTrPopKey,true);
+  window.removeEventListener("scroll",svTrPopScroll,true);window.removeEventListener("resize",svTrPopClose);
+  document.querySelectorAll(".sv-tr-lang[aria-expanded]").forEach(b=>b.setAttribute("aria-expanded","false"));
+}
+function svTrPopOut(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target)&&!e.target.closest(".sv-tr-lang"))svTrPopClose()}
+function svTrPopKey(e){if(e.key==="Escape"){e.stopPropagation();svTrPopClose()}}
+function svTrPopScroll(e){const pop=document.getElementById("svTrPop");if(pop&&!pop.contains(e.target))svTrPopClose()}
+/* the flags come from langBadgeHTML / LANG_FLAG / flagsDrawn (next to
+   langInitials) — one map for the app. The switch shows the same round flag,
+   small, in place of the globe; no flag (or a device that cannot draw one)
+   keeps the globe. */
+function svTrBtnIcon(code,on){const f=LANG_FLAG[code];return f&&flagsDrawn()?`<span class="lang-ic lang-flag sv-tr-bf" aria-hidden="true"><span>${flagEmoji(f)}</span></span>`:ic(on?"check":"globe")}
+window.svTrPick=anchor=>{
   if(!svOn())return false;
-  let ov=document.getElementById("langModalOv");
-  if(!ov){ov=document.createElement("div");ov.id="langModalOv";ov.className="lang-modal-ov";document.body.appendChild(ov)}
-  ov.innerHTML=`<div class="lang-modal sv-tr-pick" role="dialog" aria-modal="true" aria-labelledby="svTrPickH">
-    <button class="auth-x" onclick="closeLangPicker()" aria-label="${esc(t("wc.close"))}">×</button>
-    <h2 id="svTrPickH" style="font-size:19px;font-weight:800;margin-bottom:6px;text-align:center">${esc(t("sv.sh_tr_pick_h"))}</h2>
-    <p class="sv-tr-pick-p">${esc(t("sv.sh_tr_pick_p"))}</p>
-    <input id="svTrSearch" class="lang-search" placeholder="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('svTrList').innerHTML=svTrListHTML(this.value)">
-    <div id="svTrList" class="lang-list">${svTrListHTML("")}</div>
-  </div>`;
-  ov.style.display="grid";ov.onclick=e=>{if(e.target===ov)closeLangPicker()};
-  const sel=ov.querySelector(".lang-row.sel");if(sel)sel.scrollIntoView({block:"center"});
+  if(document.getElementById("svTrPop")){svTrPopClose();return false}
+  const a=(anchor&&anchor.getBoundingClientRect?anchor:null)||[...document.querySelectorAll(".sv-tr-lang")].find(b=>b.offsetParent);
+  const pop=document.createElement("div");pop.id="svTrPop";pop.className="sv-tr-pop";
+  pop.setAttribute("role","dialog");pop.setAttribute("aria-label",t("sv.sh_tr_pick_h"));
+  pop.innerHTML=`<input id="svTrSearch" class="sv-tr-q" type="search" autocomplete="off" placeholder="${esc(t("lang.search_placeholder"))}" aria-label="${esc(t("lang.search_placeholder"))}" oninput="document.getElementById('svTrList').innerHTML=svTrListHTML(this.value)">
+    <div id="svTrList" class="sv-tr-list" role="listbox" aria-label="${esc(t("sv.sh_tr_pick_h"))}">${svTrListHTML("")}</div>`;
+  document.body.appendChild(pop);
+  const vw=innerWidth,vh=innerHeight,w=Math.min(240,vw-24),r=a?a.getBoundingClientRect():{left:(vw-w)/2,right:(vw+w)/2,top:vh/2,bottom:vh/2};
+  const below=vh-r.bottom-12,above=r.top-12,h=Math.min(300,Math.max(below,above));
+  pop.style.width=w+"px";pop.style.maxHeight=h+"px";
+  pop.style.left=Math.max(12,Math.min(vw-w-12,(document.documentElement.dir==="rtl"?r.right-w:r.left)))+"px";
+  if(below>=Math.min(300,above))pop.style.top=(r.bottom+6)+"px";else pop.style.bottom=(vh-r.top+6)+"px";
+  if(a)a.setAttribute("aria-expanded","true");
+  const sel=pop.querySelector(".sv-tr-opt.sel");if(sel)sel.scrollIntoView({block:"center"});
+  setTimeout(()=>{document.addEventListener("pointerdown",svTrPopOut,true);document.addEventListener("keydown",svTrPopKey,true);window.addEventListener("scroll",svTrPopScroll,true);window.addEventListener("resize",svTrPopClose)},0);
   return false;
 };
 /* a pick sets the language AND switches Translate on — that is why they opened the list */
 window.svTrSet=code=>{
   if(!svOn()||code==="en"||!langByCode(code))return false;
   S.profile=S.profile||{};S.profile.trLang=code;
-  const p=svShPref();p.tr=true;save();closeLangPicker();
+  const p=svShPref();p.tr=true;save();svTrPopClose();
   try{track("shadow_translation_toggled",{state:"on",lang:code})}catch(e){}
   svRender();return true;
 };
