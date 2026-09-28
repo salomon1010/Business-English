@@ -19,6 +19,7 @@
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
 		BE0000000000000000000004 /* BEStoreKitPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000003 /* BEStoreKitPlugin.swift */; };
 		BE0000000000000000000006 /* BEBridgeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000005 /* BEBridgeViewController.swift */; };
+		BE0000000000000000000009 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = BE0000000000000000000008 /* InfoPlist.strings */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +38,11 @@
 		BE0000000000000000000003 /* BEStoreKitPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEStoreKitPlugin.swift; sourceTree = "<group>"; };
 		BE0000000000000000000005 /* BEBridgeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BEBridgeViewController.swift; sourceTree = "<group>"; };
 		BE0000000000000000000007 /* BEMastery.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = BEMastery.storekit; sourceTree = "<group>"; };
+		BE000000000000000000000A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BE000000000000000000000B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BE000000000000000000000C /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BE000000000000000000000D /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BE000000000000000000000E /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +88,7 @@
 				BE0000000000000000000001 /* PrivacyInfo.xcprivacy */,
 				504EC3101FED79650016851F /* LaunchScreen.storyboard */,
 				504EC3131FED79650016851F /* Info.plist */,
+				BE0000000000000000000008 /* InfoPlist.strings */,
 				2FAD9762203C412B000D30F8 /* config.xml */,
 				50B271D01FEDC1A000F3C39B /* public */,
 			);
@@ -134,6 +141,10 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
+				es,
+				pt,
+				ar,
 			);
 			mainGroup = 504EC2FB1FED79650016851F;
 			packageReferences = (
@@ -157,6 +168,7 @@
 				50B271D11FEDC1A000F3C39B /* public in Resources */,
 				504EC30F1FED79650016851F /* Assets.xcassets in Resources */,
 				BE0000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */,
+				BE0000000000000000000009 /* InfoPlist.strings in Resources */,
 				50379B232058CBB4000EE86E /* capacitor.config.json in Resources */,
 				504EC30D1FED79650016851F /* Main.storyboard in Resources */,
 				2FAD9763203C412B000D30F8 /* config.xml in Resources */,
@@ -194,6 +206,18 @@
 				504EC3111FED79650016851F /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		BE0000000000000000000008 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BE000000000000000000000A /* en */,
+				BE000000000000000000000B /* fr */,
+				BE000000000000000000000C /* es */,
+				BE000000000000000000000D /* pt */,
+				BE000000000000000000000E /* ar */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

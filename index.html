@@ -7439,6 +7439,8 @@ const I18N_EN={
  "pp.online_push_title":"Learners online now","pp.online_push_body":"{{n}} online — a short practice is one tap away.",
  "pp.online_nudge":"Get rung when someone invites you to practise, and told when learners are online — even with the app closed.","pp.online_nudge_btn":"Turn on",
  "rem.online_switch":"Tell me when learners are online","rem.online_sub":"A notification when someone is online to practise with — at most every few hours, never at night.",
+ "rem.note_ios":"BE Mastery reminds you inside the app: at your chosen time if it is open, otherwise the next time you open it. It cannot send a notification while it is closed.",
+ "rem.online_sub_ios":"Notifications about learners online are not available in the iPhone app yet. Open Practice Partner to see who is online.",
  "nudge.lesson_t":"Week {{w}} is ready",
  "nudge.lesson_b":"🎤 {{topic}} — {{min}} minutes today moves you forward.",
  "nudge.comeback_t":"Pick up where you left off",
@@ -8895,6 +8897,9 @@ const I18N_EN={
  "rec.save_failed_toast":"⚠️ This browser blocked the save. Open the app from your home-screen icon, or turn off Private Browsing.",
  "rec.recording_state":"Recording… tap to stop",
  "rec.mic_denied_toast":"⚠️ Microphone access denied — allow the mic in your browser.",
+ "mic.blocked_ios":"⚠️ Microphone access is off for BE Mastery. Turn it on in Settings › BE Mastery › Microphone, then try again.",
+ "sr.blocked_ios":"BE Mastery can't listen yet. In Settings › BE Mastery, turn on Microphone and Speech Recognition, then tap again.",
+ "sr.network":"Speech recognition couldn't connect. Check your internet connection, then try again.",
  "rec.delete_confirm":"Delete this recording?",
  "rec.deleted_toast":"Recording deleted",
  "wave.insight_prev":"Latest take <b style=\"color:var(--acc2)\">{{cur}}s</b> vs previous <b style=\"color:var(--accent-text)\">{{prev}}s</b>",
@@ -12629,7 +12634,7 @@ window.recToggle=async(ctx,label)=>{
       const el=document.getElementById("recTime");
       if(el)el.textContent=`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
     },500);
-  }catch(e){toast(t("rec.mic_denied_toast"))}
+  }catch(e){toast(micDeniedText("rec.mic_denied_toast"))}
 };
 /* ===== WAVEFORM COMPARISON (latest take layered over the previous one) ===== */
 let waveAC=null;
@@ -13034,7 +13039,7 @@ window.tbTry=word=>{
       toast(tb[word]?t("tb.cleared_more_toast",{word,n:tb[word]}):t("tb.cleared_done_toast",{word}));
     }else if(res)res.textContent=t("tb.heard_retry",{heard:alts[0]||"…"});
   };
-  r.onerror=()=>{if(res)res.textContent=t("tb.mic_error")};
+  r.onerror=e=>{if(res)res.textContent=srErrText(e&&e.error,t("tb.mic_error"))};
   r.onend=()=>{if(!got&&res&&res.textContent===t("tb.listening"))res.textContent=t("tb.didnt_hear")};
   r.start();
 };
@@ -15829,6 +15834,9 @@ window.remToggle=on=>{
    Home Screen gets them (iOS 16.4+). Until then the note says so and offers the
    install guide, instead of a toggle that quietly does nothing. */
 function remNoteHTML(){
+  /* The App Store shell has no notification route at all (no APNs, and WKWebView
+     has neither Notification nor Web Push): the reminder is the in-app one only. */
+  if(IS_IOS_APP)return esc(t("rem.note_ios"));
   if(iosIs()&&!iosStandalone())return `${esc(t("rem.ios_install"))} <button type="button" class="linklike" onclick="iosAsk(true)">${esc(t("ios.row"))} →</button>`;
   return esc(t("rem.note"));
 }
@@ -16497,14 +16505,14 @@ function fbRecStart(cfg){
        partial separately, which was duplicating every word in the transcript
        the analysis is built from. */
     r.onresult=e=>{shFB.cur=srText(e.results)};
-    r.onerror=()=>{};
+    r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m&&!shFB.srWarned){shFB.srWarned=true;toast(m)}};
     /* srJoin, not concat: a restarted engine often re-recognises the tail of the
        stretch it just ended, which would bank the same words twice. */
     const bank=()=>{shFB.txt=srJoin((shFB.txt||"").trim(),(shFB.cur||"").trim());shFB.cur="";};
     r.onend=()=>{
       /* the engine stops itself on silence — restart while still recording */
       bank();
-      if(shFB.on&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
+      if(shFB.on&&!shFB.srWarned&&rec.mr&&rec.mr.state==="recording"){try{r.start()}catch(e){}}
       else if(!shFB.on)shFBDone();
     };
     r.start();
@@ -16786,6 +16794,19 @@ async function wsReport(key,blob,secs){
 
 /* ===== SPEAKING FEEDBACK (browser speech recognition + TTS) ===== */
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+/* When the recogniser or the microphone cannot start, say what the learner can do.
+   Inside the App Store shell there is no browser: the Microphone and Speech
+   Recognition switches live in the iPhone's Settings app, under BE Mastery, so a
+   "browser settings" line sends them nowhere. 'not-allowed' is a refused
+   microphone, 'service-not-allowed' refused speech recognition (W3C codes).
+   Everywhere else the caller's own wording stands, unchanged. */
+function srErrText(code,fallback){
+  if(!IS_IOS_APP)return fallback;
+  if(code==="not-allowed"||code==="service-not-allowed")return t("sr.blocked_ios");
+  if(code==="network")return t("sr.network");
+  return fallback;
+}
+function micDeniedText(key){return IS_IOS_APP?t("mic.blocked_ios"):t(key)}
 let fbT0=0;
 const FILLERS=["um","uh","er","erm","ah","hmm","mmm"];
 function fbTokens(s){return String(s).toLowerCase().replace(/[‿/|·…]/g," ").replace(/[^a-z0-9' ]+/g," ").split(/\s+/).filter(Boolean)}
@@ -17973,7 +17994,7 @@ window.vocTry=(w,safe)=>{
     const hit=alts.some(a=>fbTokens(a).some(x=>x===w||wsim(x,w)>=85));
     if(res){res.innerHTML=hit?`<b style="color:var(--green)">${t("voc.perfect")}</b>`:`<b style="color:var(--gold)">${t("voc.heard_retry",{heard:esc(alts[0]||"…")})}</b>`;manIconizeInline(res);}
   };
-  r.onerror=()=>{if(res)res.textContent=t("voc.mic_error")};
+  r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m)got=true;if(res)res.textContent=m||t("voc.mic_error")};
   r.onend=()=>{if(!got&&res)res.textContent=t("voc.didnt_hear")};
   r.start();
 };
@@ -18019,6 +18040,7 @@ window.vocQuizTry=w=>{
     if(hit){out.innerHTML=t("voc.quiz_correct",{word:esc(w)});manIconizeInline(out);out.style.color="var(--green)";markPracticed();save()}
     else{out.innerHTML=t("voc.quiz_retry",{heard:esc(alts[0]||"…")});manIconizeInline(out);out.style.color="var(--gold)"}
   };
+  r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m){got=true;out.textContent=m}};
   r.onend=()=>{if(!got){out.textContent=t("voc.quiz_didnt_hear")}};
   r.start();
 };
@@ -18998,7 +19020,7 @@ async function simMicReady(){
     try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}
     _simMicOK=true;return true;
   }catch(e){
-    simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');
+    simReturnToReady(simMicBlockedText());
     return false;
   }
 }
@@ -19041,7 +19063,7 @@ let simRec=null;
 async function simRecordStart(gen){
   let stream;
   try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}
-  catch(e){simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');return}
+  catch(e){simReturnToReady(simMicBlockedText());return}
   /* The learner may have tapped again, or walked out, while the prompt was up. */
   if(gen!==_simStartGen||!simRun||!simRun.listening||simRun.debrief||simRun.finished||simRun.missionComplete){
     try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}
@@ -19223,6 +19245,8 @@ function simSpeakBrowser(text,gender,done){
    tapped to finish was in fact opening a fresh listen. That is the whole of the
    "sometimes it works, sometimes nothing happens" behaviour. */
 function simUsesManualVoiceTurn(){return true}
+/* the simulation's own wording on the web; the iPhone app points to Settings */
+function simMicBlockedText(){return IS_IOS_APP?t("sr.blocked_ios"):'Microphone blocked — allow it in your browser settings, then tap again'}
 function simReturnToReady(status='Your turn — tap the microphone to speak'){
   if(simRun)simRun.listening=false;
   simSetStatus(status);
@@ -19272,7 +19296,7 @@ function simVoiceListen(){
        "try speaking again" sends them round the same dead loop for ever. */
     if(e.error==='not-allowed'||e.error==='service-not-allowed'){
       _simMicOK=false;simRecognition=null;simSpeechTurn=null;
-      simReturnToReady('Microphone blocked — allow it in your browser settings, then tap again');
+      simReturnToReady(simMicBlockedText());
       return;
     }
     if(turn.finishRequested){simSubmitSpeechTurn(turn);return}
@@ -19971,7 +19995,7 @@ window.fbTry=(word,i)=>{
       res.textContent=t("fb.try_heard_retry",{heard});
     }
   };
-  r.onerror=()=>{res.textContent=t("fb.try_mic_error2")};
+  r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m)got=true;res.textContent=m||t("fb.try_mic_error2")};
   r.onend=()=>{if(!got&&res.textContent===t("fb.try_listening_word"))res.textContent=t("fb.try_didnt_hear2")};
   r.start();
 };
@@ -20280,7 +20304,7 @@ window.exRecord=async()=>{
     exStatus(t("ex.rec_hint"));
     ex.tick=setInterval(()=>{const tm=document.getElementById("exTimer");if(tm)tm.textContent=exFmtS((Date.now()-ex.t0)/1000)+" / "+exFmtS(EX_MAX_S)},250);
     ex.stopT=setTimeout(exStopRec,EX_MAX_S*1000);   /* a minute is the exercise; ninety seconds is the ceiling */
-  }catch(e){exReset();toast(t("ph.mic_denied_toast"))}
+  }catch(e){exReset();toast(micDeniedText("ph.mic_denied_toast"))}
 };
 function exStopRec(){
   clearInterval(ex.tick);clearTimeout(ex.stopT);ex.tick=ex.stopT=null;
@@ -21566,7 +21590,7 @@ async function phRecInto(ctx,label,btn,after,onBlob){
       if(GH.auto&&ghCfg())ghSyncRecs(true);
     };
     rec.mr.start();try{shv3RecSync()}catch(e){}if(btn){btn.style.borderColor="var(--red)";btn.style.color="var(--red)"}
-  }catch(e){toast(t("ph.mic_denied_toast"))}
+  }catch(e){toast(micDeniedText("ph.mic_denied_toast"))}
 }
 /* ================= FEATURE FLAGS =================
    Production defaults are OFF for everything not yet released. Local and test
@@ -25499,7 +25523,7 @@ window.ppRevPractice=async(revId,key,target,label)=>{
   if(ppRevTake&&ppRevTake.key===key&&ppRevTake.mr.state==="recording"){ppRevTake.mr.stop();return}
   ppRevTakeStop();
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)return toast(t("fb.sr_unavailable"));
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(t("rec.mic_denied_toast"))}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(micDeniedText("rec.mic_denied_toast"))}
   ppRevCoachStop();fbStopAudio();
   const mr=new MediaRecorder(stream),tk={key,mr,chunks:[],t0:Date.now()};ppRevTake=tk;
   mr.ondataavailable=e=>{if(e.data&&e.data.size)tk.chunks.push(e.data)};
@@ -25523,7 +25547,7 @@ window.ppRevPractice=async(revId,key,target,label)=>{
     save();if(!String(revId).startsWith("mv:"))try{track("partner_review_practice",{result:score>=PP_REV_PASS?"pass":"retry"})}catch(_){}
     ppRevPaint(revId,key,{state:"done",score,words:rec.words,mode:rec.mode});
   };
-  mr.onerror=()=>{clearTimeout(tk.t);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRevTake===tk)ppRevTake=null;toast(t("rec.mic_denied_toast"));ppRevPaint(revId,key,{state:"idle"})};
+  mr.onerror=()=>{clearTimeout(tk.t);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRevTake===tk)ppRevTake=null;toast(micDeniedText("rec.mic_denied_toast"));ppRevPaint(revId,key,{state:"idle"})};
   try{mr.start()}catch(e){mr.onerror();return}
   tk.t=setTimeout(stopIf,key.startsWith("answer")?60000:PP_REV_TAKE_MS);
   ppRevPaint(revId,key,{state:"recording"});
@@ -25871,14 +25895,14 @@ async function cvRecord(btn,onBlob){
   const box=document.getElementById("cvSay");if(!box)return;
   if(ppRevTake&&ppRevTake.mr.state==="recording"){ppRevTake.mr.stop();return}
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)return toast(t("fb.sr_unavailable"));
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(t("rec.mic_denied_toast"))}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(micDeniedText("rec.mic_denied_toast"))}
   const mr=new MediaRecorder(stream),tk={key:"cv",mr,chunks:[],t0:Date.now()};ppRevTake=tk;
   mr.ondataavailable=e=>{if(e.data&&e.data.size)tk.chunks.push(e.data)};
   btn.innerHTML=ic("stop")+" "+t("pp.rec_stop");btn.classList.add("rec");
   mr.onstop=async()=>{clearTimeout(tk.t);stream.getTracks().forEach(tr=>tr.stop());if(ppRevTake===tk)ppRevTake=null;
     const blob=new Blob(tk.chunks,{type:mr.mimeType||"audio/webm"});box.innerHTML=`${DS.aiInline(t("pp.grading"))}`;
     await onBlob(blob.size>=1200?blob:null,box)};
-  try{mr.start()}catch(e){stream.getTracks().forEach(tr=>tr.stop());return toast(t("rec.mic_denied_toast"))}
+  try{mr.start()}catch(e){stream.getTracks().forEach(tr=>tr.stop());return toast(micDeniedText("rec.mic_denied_toast"))}
   tk.t=setTimeout(()=>{if(mr.state==="recording")mr.stop()},PP_REV_TAKE_MS);
 }
 window.cvSay=btn=>cvRecord(btn,async(blob,box)=>{
@@ -26284,7 +26308,7 @@ window.ppRecToggle=async()=>{
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia||!window.MediaRecorder)return toast(t("fb.sr_unavailable"));
   if(!navigator.onLine)return toast(t("rp.need_online"));
   if(ppRec&&ppRec.url){try{URL.revokeObjectURL(ppRec.url)}catch(e){}}
-  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(t("rec.mic_denied_toast"))}
+  let stream;try{stream=await navigator.mediaDevices.getUserMedia({audio:true})}catch(e){return toast(micDeniedText("rec.mic_denied_toast"))}
   const mr=new MediaRecorder(stream);
   const r={mr,chunks:[],t0:Date.now(),blob:null,url:null,dur:0,transcript:"",score:null,words:null,busy:false,tick:null};
   ppRec=r;
@@ -26307,7 +26331,7 @@ window.ppRecToggle=async()=>{
   const onHide=()=>{if(document.visibilityState==="hidden")stopIf()};
   document.addEventListener("visibilitychange",onHide);
   stream.getTracks().forEach(tr=>{tr.onended=stopIf});
-  mr.onerror=()=>{clearInterval(r.tick);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRec===r)ppRec=null;toast(t("rec.mic_denied_toast"));ppRenderRecorder()};
+  mr.onerror=()=>{clearInterval(r.tick);document.removeEventListener("visibilitychange",onHide);stream.getTracks().forEach(tr=>tr.stop());if(ppRec===r)ppRec=null;toast(micDeniedText("rec.mic_denied_toast"));ppRenderRecorder()};
   const onstop=mr.onstop;mr.onstop=()=>{document.removeEventListener("visibilitychange",onHide);return onstop()};
   try{mr.start()}catch(e){mr.onerror();return}   /* no timeslice — same as every other recorder in the app; onstop delivers the take */
   r.tick=setInterval(()=>{const el=document.getElementById("ppTimer");const s=Math.floor((Date.now()-r.t0)/1000);if(el)el.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");if(Date.now()-r.t0>=PP_MAX_MS&&mr.state==="recording")mr.stop()},250);
@@ -28676,7 +28700,7 @@ async function rData(el,embedded){
           <span>${t("rem.online_switch")}</span>
         </label>
       </div>
-      <p class="rem-note">${t("rem.online_sub")}</p>`:""}
+      <p class="rem-note">${t(IS_IOS_APP?"rem.online_sub_ios":"rem.online_sub")}</p>`:""}
       ${nudgeAvailable()?`<div class="rem-box" style="margin-top:8px">
         <label class="rem-row">
           <input type="checkbox" id="nudgesOn" ${nudgePrefOn()?"checked":""} onchange="nudgeToggle(this.checked)">
@@ -29745,7 +29769,7 @@ window.rpListen=async()=>{
   catch(e){
     rpStopListen();
     if(st)st.textContent=t("rp.tap_to_speak");
-    toast(t("rec.mic_denied_toast")); rpResetIdle(); return;
+    toast(micDeniedText("rec.mic_denied_toast")); rpResetIdle(); return;
   }
   if(rec.stopped){try{stream.getTracks().forEach(tr=>tr.stop())}catch(_){}return}
   rec.stream=stream;
@@ -29754,7 +29778,7 @@ window.rpListen=async()=>{
     rec.mr=mr;
     mr.ondataavailable=e=>{if(e.data&&e.data.size)rec.chunks.push(e.data)};
     mr.start();
-  }catch(e){rpStopListen();toast(t("rec.mic_denied_toast"));rpResetIdle();return}
+  }catch(e){rpStopListen();toast(micDeniedText("rec.mic_denied_toast"));rpResetIdle();return}
   /* Listen to the level ourselves: the countdown only runs while you are quiet,
      so the turn ends when you stop talking, not mid-sentence. */
   try{
@@ -30421,7 +30445,7 @@ window.rpEvTry=w=>{
     if(res)res.innerHTML=hit?`<b style="color:var(--green)">${t("voc.perfect")}</b>`
                             :`<b style="color:var(--gold)">${t("voc.heard_retry",{heard:esc(alts[0]||"…")})}</b>`;
   };
-  r.onerror=()=>{if(res)res.textContent=t("voc.mic_error")};
+  r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m)got=true;if(res)res.textContent=m||t("voc.mic_error")};
   r.onend=()=>{if(!got&&res)res.textContent=t("voc.didnt_hear")};
   try{r.start()}catch(e){}
 };
@@ -30678,7 +30702,7 @@ window.pronTry=()=>{
       <div class="pron-verdict ${allOk?'good':'work'}">${allOk?t("pron.clear"):t("pron.heard",{heard:esc(heard)})}</div>`;
     if(res)manIconizeInline(res);
   };
-  r.onerror=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("pron.tap")};
+  r.onerror=e=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("pron.tap");const m=srErrText(e&&e.error,null);if(m&&res){got=true;res.innerHTML=`<div class="pron-verdict work">${esc(m)}</div>`}};
   r.onend=()=>{if(mic)mic.classList.remove("on");if(st)st.textContent=t("pron.tap");if(!got&&res)res.innerHTML=`<div class="pron-verdict work">${t("pron.didnt_hear")}</div>`};
   try{r.start()}catch(e){if(mic)mic.classList.remove("on")}
 };
@@ -30997,7 +31021,7 @@ window.obTry=async()=>{
     const ok=ops.filter(o=>o.op==="ok").length;
     obReveal(Math.round(100*ok/Math.max(tk.length,1)),ops);
   };
-  r.onerror=()=>obMicIdle(t("ob.mic_unavailable"));
+  r.onerror=e=>{const m=srErrText(e&&e.error,null);if(m)got=true;obMicIdle(m||t("ob.mic_unavailable"))};
   r.onend=()=>{if(!got)obMicIdle(t("ob.didnt_catch"))};
   try{r.start()}catch(_){obMicIdle(t("ob.didnt_catch"))}
 };

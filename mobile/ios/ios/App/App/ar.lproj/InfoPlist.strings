@@ -1,0 +1,6 @@
+/* Permission prompts shown by iOS in the device language. The English base is
+   Info.plist; keep every file in step with it. Translations: review by a native
+   speaker before heavy promotion (project rule). */
+"NSMicrophoneUsageDescription" = "يستخدم BE Mastery الميكروفون لتسجيل إنجليزيتك المنطوقة وتقديم ملاحظات على النطق، ولإرسال مقاطع صوتية قصيرة إلى شريك التدريب، وللتحدث في مكالمة تدريب مباشرة. تبقى تسجيلات الدروس على جهازك؛ أما المقطع الصوتي الذي تختار إرساله، والصوت المستخدم في التقييم، فيُرسَلان إلى خوادمنا عبر اتصال مشفّر.";
+"NSSpeechRecognitionUsageDescription" = "يستخدم BE Mastery التعرّف على الكلام لتحويل إنجليزيتك المنطوقة إلى نص، ليتحقق من نطقك ويُظهر الكلمات التي فُهمت بوضوح. يتولى نظام iOS عملية التعرّف؛ ولا يتلقى التطبيق سوى النص.";
+"NSCameraUsageDescription" = "يستخدم BE Mastery الكاميرا فقط لمدرّب الوضعية الاختياري في استوديو المحاكاة الصوتية. تُحلَّل الصور على هاتفك في الوقت الفعلي؛ ولا تُحفظ أي صورة أو فيديو ولا تُرسَل إلى أي مكان.";

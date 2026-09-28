@@ -96,6 +96,14 @@ console.log("\n== Info.plist / privacy manifest");
   ok("CFBundleDisplayName BE Mastery", /<key>CFBundleDisplayName<\/key>\s*<string>BE Mastery<\/string>/.test(plist));
   ok("NSMicrophoneUsageDescription", has("NSMicrophoneUsageDescription"));
   ok("NSCameraUsageDescription (Posture Coach)", has("NSCameraUsageDescription"));
+  /* WKWebView's webkitSpeechRecognition runs on Apple's Speech framework: without
+     this key it is still exposed but fails with service-not-allowed (WebKit bug 239816) */
+  ok("NSSpeechRecognitionUsageDescription (speech recognition in the web view)", has("NSSpeechRecognitionUsageDescription"));
+  const pbx = read(join(ios, "ios", "App", "App.xcodeproj", "project.pbxproj"));
+  for (const l of ["en", "fr", "es", "pt", "ar"]) {
+    const f = join(ios, "ios", "App", "App", `${l}.lproj`, "InfoPlist.strings"); const s = existsSync(f) ? read(f) : "";
+    ok(`${l}.lproj/InfoPlist.strings: microphone, speech recognition and camera, in the project`, ["NSMicrophoneUsageDescription", "NSSpeechRecognitionUsageDescription", "NSCameraUsageDescription"].every(k => s.includes(`"${k}"`)) && pbx.includes(`path = ${l}.lproj/InfoPlist.strings;`));
+  }
   ok("ITSAppUsesNonExemptEncryption = NO", /<key>ITSAppUsesNonExemptEncryption<\/key>\s*<false\/>/.test(plist));
   ok("portrait only on iPhone", /<key>UISupportedInterfaceOrientations<\/key>\s*<array>\s*<string>UIInterfaceOrientationPortrait<\/string>\s*<\/array>/.test(plist));
   for (const k of ["NSPhotoLibraryUsageDescription", "NSLocationWhenInUseUsageDescription", "NSContactsUsageDescription", "NSBluetoothAlwaysUsageDescription"]) ok(`${k} absent (not used by the app)`, !has(k));
