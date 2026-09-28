@@ -1857,7 +1857,19 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .sim-prog-rc{color:var(--mut2)}
 .sim-past{margin-bottom:12px}
 @media(max-width:420px){.sim-prog-rd{display:none}}
-.sim-analysis{margin-top:16px}.sim-qbq>.sim-ans-h:first-child{margin-top:0}.sim-analysis+.sim-stage{margin-top:16px}
+.sim-analysis{margin-top:16px}
+.wr-report{display:flex;flex-direction:column;gap:12px;margin-top:12px;min-width:0}
+.wr-fold{border:1px solid var(--line2);border-radius:14px;background:var(--card);min-width:0}
+.wr-fold>summary{display:flex;align-items:center;gap:10px;min-height:52px;padding:0 14px;cursor:pointer;list-style:none;font-weight:800;font-size:15px}
+.wr-fold>summary::-webkit-details-marker{display:none}
+.wr-fold>summary::after{content:"›";margin-left:6px;color:var(--mut2);font-weight:800;transform:rotate(90deg);transition:transform .15s}
+.wr-fold[open]>summary::after{transform:rotate(-90deg)}
+.wr-n{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc2)}
+.wr-t{flex:1;min-width:0}
+.wr-m{flex:none;font-size:13px;color:var(--mut);font-weight:700}
+.wr-body{padding:0 8px 8px;min-width:0}
+.wr-body>.card,.wr-body>section{margin-top:0}
+.wr-body .sim-qbq{background:transparent;border:0;padding:0}.sim-qbq>.sim-ans-h:first-child{margin-top:0}.sim-analysis+.sim-stage{margin-top:16px}
 .sim-analysis>.sub{margin-bottom:14px}
 .sim-ans-h{margin:20px 0 10px}
 .sim-ans{padding:0;margin-top:10px;overflow:hidden}
@@ -12176,7 +12188,7 @@ function rSession(el,w,d){
   const stepsDone=S.steps[key]||[];
   if(!timer.run){clearInterval(timer.h);timer={left:25*60,run:false,h:null};}   // keep a running timer alive when revisiting the session
   const weekPhrases=phrases.filter(p=>p.w===w&&!p.i).slice(0,5);
-  _sessCur={key,w,d,ctx:sessCtx(w,d,dd,weekPhrases)};   /* what the report is judged against */
+  _sessCur={key,w,d,ctx:sessCtx(w,d,dd,weekPhrases),ws:wsPick(w,dd)};   /* what the report is judged against */
   /* General English V2: no script, no scoring against a script, no self-score,
      no notes. A speaking day hands over to this week's mission; any other day
      keeps its activity, recorder and manual tick. Welding never gets here. */
@@ -12238,7 +12250,7 @@ function rSession(el,w,d){
         <div class="sess-rep" id="sessRep">
           <div class="hr"></div>
           <b class="sess-rep-h">${hIcon("sparkle",t("sess.report_h"))}</b>
-          <p class="sess-rep-sub">${esc(t("sess.report_sub"))}</p>
+          ${_sessCur.ws?wsIntroHTML(_sessCur.ws):`<p class="sess-rep-sub">${esc(t("sess.report_sub"))}</p>`}
           <div id="sessRepWrap"></div>
         </div>
         <div class="hr"></div>
@@ -16456,6 +16468,7 @@ function sessRepNote(key,msg,retry){
 }
 async function sessRepMount(key){
   const w=document.getElementById("sessRepWrap");if(!w)return;
+  if(_sessCur&&_sessCur.key===key&&_sessCur.ws)return wsMount(key);
   exHost=sessHost(key,null);
   if(_sessRepBusy===key){exReportShow(exWaitHTML(t("ex.step_measure")),true);return}
   const rep=sessRepGet(key);
@@ -16477,6 +16490,7 @@ window.sessReportLast=async key=>{
 };
 async function sessReport(key,blob,secs){
   if(_sessRepBusy||!_sessCur||_sessCur.key!==key)return;
+  if(_sessCur.ws)return wsReport(key,blob,secs);
   if(!POLISH_API||!navigator.onLine){if(sessOn(key))sessRepNote(key,t("sess.report_off"),true);return}
   const area=areaId(),ctx=_sessCur.ctx;
   _sessRepBusy=key;exCoachStop();
@@ -16501,6 +16515,94 @@ async function sessReport(key,blob,secs){
   }catch(e){
     _sessRepBusy=null;
     if(sessOn(key))sessRepNote(key,t("ex.ai_off"),true);
+  }
+}
+
+/* ---------- Welding session days: the interviewers' report (owner, 28 Sep 2026) ----------
+   "Since the learner is speaking about himself, he has to be technical as well."
+   On a Welding Road map day the recording is not sent to the general speaking
+   report. It is judged as an answer to one question from that week's workshop
+   (week.simulationId) — the question whose words best match the day's focus
+   and task, asked by the person who asks it there — with the same grader, the
+   same trade overlay, the same standards (ISO / OSHA codes of the module) and
+   the same five-fold report as the end of a workshop. One record per session
+   day in S.notes["wr:"+dayKey] (track-scoped), with every take's score for the
+   progress line. General English keeps its speaking report. */
+const WR_KEEP=30;
+function wrPut(k,rec){
+  S.notes[k]=rec;
+  const ks=Object.keys(S.notes).filter(x=>x.startsWith("wr:")).sort((a,b)=>((S.notes[b]||{}).at||0)-((S.notes[a]||{}).at||0));
+  ks.slice(WR_KEEP).forEach(x=>{delete S.notes[x]});
+}
+const WS_STOP=new Set("with that this your what when have from they them their about into will would could should there here where which while been were then than also some more most just like make made your yours record recording session today practise practice using sentences personal minute minutes second seconds".split(" "));
+function wsWords(s){const out=new Set();(String(s||"").toLowerCase().match(/[a-z]+/g)||[]).forEach(w=>{if(w.length>=4&&!WS_STOP.has(w))out.add(w.replace(/(ing|ed|es|s)$/,""))});return out}
+function wsPick(w,dd){
+  if(typeof isGeneralEnglish!=="function"||isGeneralEnglish()||!window.ProfessionalSimulationEngine||!window.AnswerEvaluator)return null;
+  const wk=trackWeeks()[w-1],sid=wk&&wk.simulationId,sc=sid&&ProfessionalSimulationEngine.find(sid);
+  if(!sc||!sc.questions)return null;
+  const want=wsWords([dd&&dd.focus,dd&&dd.task,dd&&dd.out].join(" "));
+  let best="open",bs=0;
+  Object.keys(sc.questions).forEach(k=>{const q=sc.questions[k];
+    const have=wsWords([q.ask,(q.points||[]).map(p=>p.label).join(" "),(q.vocab||[]).join(" ")].join(" "));
+    let s=0;want.forEach(x=>{if(have.has(x))s++});if(s>bs){bs=s;best=k}});
+  if(!sc.questions[best])best=Object.keys(sc.questions)[0];
+  const rubric=simRubric(sc,best);if(!rubric)return null;
+  const asker=best==="open"?(sc.lead||"hr"):(((sc.turns||[]).find(x=>x.q===best)||{}).characterId||sc.lead||"hr");
+  return {sc,q:best,asker,rubric};
+}
+function wsIntroHTML(ws){
+  const c=simCharacter(ws.sc,ws.asker)||{};
+  return `<p class="sess-rep-sub">Your recording is judged as an answer to ${c.name?`<b>${esc(c.name)}</b>${c.role?` (${esc(c.role)})`:""}`:"the interviewer"}: “${esc(ws.rubric.ask)}” — against the welding standards. You get your score, what you covered and missed, how you could have said it, and the technical words to use.</p>`;
+}
+async function wsMount(key){
+  const w=document.getElementById("sessRepWrap");if(!w)return;
+  exHost=null;
+  if(_sessRepBusy===key){w.innerHTML=exWaitHTML(t("ex.step_stt"));return}
+  const rec=S.notes["wr:"+key];
+  if(rec&&rec.answers&&rec.answers.length)wsRender(key);
+  const recs=await getRecs(key);
+  if(document.getElementById("sessRepWrap")!==w||_sessRepBusy===key)return;
+  if(rec&&rec.answers&&rec.answers.length){
+    if(recs[0]&&recs[0].ts>rec.at)w.insertAdjacentHTML("afterbegin",`<div class="sess-rep-newer"><p class="ex-fine">${esc(t("sess.report_newer"))}</p><button class="btn-primary sess-rep-btn" onclick="sessReportLast('${key}')">${tIc("sess.report_btn","sparkle")}</button></div>`);
+  }else{
+    w.innerHTML=recs.length?`<button class="btn-primary sess-rep-btn" onclick="sessReportLast('${key}')">${tIc("sess.report_btn","sparkle")}</button>`:`<p class="rec-none">${esc(t("sess.report_none"))}</p>`;
+  }
+  manIconizeInline(w);
+}
+function wsRender(key){
+  const w=document.getElementById("sessRepWrap"),rec=S.notes["wr:"+key],ws=_sessCur&&_sessCur.ws;
+  if(!w||!rec||!rec.answers||!ws)return;
+  const sc=ProfessionalSimulationEngine.find(rec.sc)||ws.sc,hist=rec.hist||[];
+  const prev=hist.filter(x=>x.startedAt!==rec.at).map(x=>Math.round(x.coverage*100));
+  w.innerHTML=simReportHTML({answers:rec.answers,startedAt:rec.at},sc,simProgressHTML(sc.id,rec.at,hist),"",
+    {prevPcts:prev,attLine:hist.length>1?`Recording ${hist.length} for this session.`:"",
+     next:{title:"Record it again",reason:"Add the missing points and the technical words, then record again — the score moves with every point you cover.",btn:"Record again",onclick:"sessAgain()"}});
+  manIconizeInline(w);
+}
+async function wsReport(key,blob,secs){
+  const ws=_sessCur.ws,on=()=>sessOn(key)&&_sessCur&&_sessCur.ws;
+  if(!POLISH_API||!navigator.onLine){if(on())sessRepNote(key,t("sess.report_off"),true);return}
+  _sessRepBusy=key;exCoachStop();exHost=null;
+  const box=document.getElementById("sessRepWrap");if(on()&&box)box.innerHTML=exWaitHTML(t("ex.step_stt"));
+  try{
+    if(!secs){const au=await exAudioStats(blob);secs=(au&&au.dur)||0}
+    if(secs<EX_MIN_S){_sessRepBusy=null;if(on())sessRepNote(key,t("sess.report_short",{n:EX_MIN_S}));return}
+    const tx=await exTranscribe(blob);
+    if(!tx||!tx.text){_sessRepBusy=null;if(on())sessRepNote(key,t("sess.report_stt"),true);return}
+    const res=AnswerEvaluator.evaluate(tx.text,ws.rubric),at=Date.now();
+    const a=Object.assign({q:ws.q,characterId:ws.asker},res);
+    const old=S.notes["wr:"+key]||{};
+    const hist=(old.hist||[]).concat([{startedAt:at,at,coverage:res.coverage}]).slice(-20);
+    const rec={at,tk:areaId(),kind:"session",sc:ws.sc.id,q:ws.q,answers:[a],hist};
+    wrPut("wr:"+key,rec);markPracticed();save();
+    _sessRepBusy=null;
+    if(on())wsRender(key);
+    /* "How you could have said it", rebuilt from the learner's own words */
+    const ch=await simEnrichAnalysis({answers:rec.answers,startedAt:at},ws.sc,()=>ws.rubric);
+    if(ch){save();if(on())wsRender(key)}
+  }catch(e){
+    _sessRepBusy=null;
+    if(on())sessRepNote(key,t("ex.ai_off"),true);
   }
 }
 
@@ -18132,7 +18234,7 @@ function simScoreBand(pct,best){
    black fill at whatever size the box allows — which is precisely how the score
    ring once rendered as a full-width black disc. Belt and braces. */
 const TONE={good:"var(--green)",fair:"var(--gold)",poor:"var(--red)"},TONE_TRACK="color-mix(in srgb,var(--mut) 22%,transparent)";
-function simScoreHeroHTML(pct,band,attempts){
+function simScoreHeroHTML(pct,band,attempts,attLine){
   const r=52,c=2*Math.PI*r;
   return `<section class="card sim-score sim-score-${band.tone}">
     <div class="sim-score-ring">
@@ -18148,7 +18250,7 @@ function simScoreHeroHTML(pct,band,attempts){
       <div class="eyebrow">Your interview score</div>
       <h2>${esc(band.title)}</h2>
       <p>${esc(band.msg)}</p>
-      ${attempts>1?`<p class="sim-score-att">Attempt ${attempts} at this workshop.</p>`:""}
+      ${attLine!==undefined?(attLine?`<p class="sim-score-att">${esc(attLine)}</p>`:""):attempts>1?`<p class="sim-score-att">Attempt ${attempts} at this workshop.</p>`:""}
     </div>
   </section>`;
 }
@@ -18204,8 +18306,10 @@ function simSmoothPath(pts){
   }
   return d;
 }
-function simProgressHTML(id,currentStartedAt){
-  const list=simAttempts(id);
+function simProgressHTML(id,currentStartedAt,own){
+  /* own = attempts kept by another host (a session day, an interview coach):
+     [{startedAt,at,coverage}] — drawn the same, rows not re-openable */
+  const list=own||simAttempts(id);
   if(!list.length)return "";
   const vals=list.map(a=>Math.round(a.coverage*100));
   const best=Math.max(...vals),first=vals[0],last=vals[vals.length-1],delta=last-first;
@@ -18247,7 +18351,8 @@ function simProgressHTML(id,currentStartedAt){
       </svg>
     </div>
     <p class="sim-prog-trend">${esc(trend)}</p>
-    <div class="sim-prog-list">${list.map((a,i)=>`<button class="sim-prog-row${a.startedAt===currentStartedAt?" now":""}" onclick="simOpenAttempt('${esc(id)}',${a.startedAt})">
+    <div class="sim-prog-list">${list.map((a,i)=>own?`<div class="sim-prog-row${a.startedAt===currentStartedAt?" now":""}">
+      <span class="sim-prog-rn">Attempt ${i+1}</span><span class="sim-prog-rd">${new Date(a.at).toLocaleDateString()}</span><b>${vals[i]}%</b></div>`:`<button class="sim-prog-row${a.startedAt===currentStartedAt?" now":""}" onclick="simOpenAttempt('${esc(id)}',${a.startedAt})">
       <span class="sim-prog-rn">Attempt ${i+1}</span><span class="sim-prog-rd">${new Date(a.at).toLocaleDateString()}</span><b>${vals[i]}%</b><span class="sim-prog-rc" aria-hidden="true">›</span></button>`).join("")}</div>
   </section>`;
 }
@@ -18471,7 +18576,7 @@ let _simAssistDone=null,_simAssistBusy=false;
    the point ids the original answer genuinely addressed, which applyAssist
    honours strictly additively. The canned rubric answer stays as the offline
    fallback and is labelled as an example, not as theirs. */
-async function simEnrichAnalysis(run,sc){
+async function simEnrichAnalysis(run,sc,rubricOf){
   /* null = nothing ran (already done for this run, offline, nothing to ask):
      the caller must NOT redraw on null, or the redraw would call this again */
   if(!run||!window.AnswerEvaluator||_simAssistDone===run.startedAt)return null;
@@ -18485,7 +18590,7 @@ Also list which of the point ids the learner's ORIGINAL answer already covered i
 Return JSON only: {"reply":"the rebuilt answer","covered":["id"]}`;
   let changed=false;
   const one=async a=>{
-    const rubric=(sc.questions||{})[a.q];if(!rubric)return;
+    const rubric=(rubricOf&&rubricOf(a))||(sc.questions||{})[a.q];if(!rubric)return;
     const body={question:a.ask||"",said:a.said,points:(rubric.points||[]).map(p=>({id:p.id,means:p.label})),missing:a.missed.map(m=>m.id),vocab:(a.vocabMissed||[]).concat(a.vocabUsed||[]).slice(0,10),style_reference:a.model||"",trade:tr&&tr.name||""};
     try{
       const r=await fetch(POLISH_API,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:{system:sys,messages:[{role:"user",content:JSON.stringify(body).slice(0,4000)}]}})});
@@ -18533,16 +18638,36 @@ function simArmFeedbackPulse(){
    1 the interview score, 2 question by question — each interviewer's own
    feedback, 3 your progress, 4 the answer analysis, 5 today's summary.
    simReportHTML lays out 1–4; the debrief (5) follows it on the end screen. */
-function simReportHTML(run,sc,progressHTML){
-  const p=simAnalysisParts(run,sc);
-  if(!p)return progressHTML||"";
-  return `${p.hero}${p.questions}${progressHTML||""}${p.analysis}`;
+/* Each of the five is a fold the learner opens and closes (owner, 28 Sep
+   2026), in the same order wherever this report appears — the workshop end,
+   a past attempt, a Welding session day, a Welding interview coach. What is
+   open or closed is remembered for the rest of the visit. */
+const _wrOpen={};
+const WR_DEF={score:true,questions:true,progress:false,analysis:false,summary:false};
+function wrFold(id,n,title,meta,inner){
+  if(!inner)return "";
+  const open=id in _wrOpen?_wrOpen[id]:WR_DEF[id];
+  return `<details class="wr-fold" data-f="${id}"${open?" open":""} ontoggle="_wrOpen[this.dataset.f]=this.open">
+    <summary><span class="wr-n">${n}</span><span class="wr-t">${esc(title)}</span>${meta?`<span class="wr-m">${esc(meta)}</span>`:""}</summary>
+    <div class="wr-body">${inner}</div></details>`;
+}
+function simReportHTML(run,sc,progressHTML,summaryHTML,opts){
+  const p=simAnalysisParts(run,sc,opts);
+  const n=[1,2,3,4,5];let i=0;
+  const parts=[
+    p&&p.hero?wrFold("score",n[i++],"Your interview score",p.pct+"%",p.hero):"",
+    p?wrFold("questions",n[i++],"Question by question",String(p.count),p.questionsBody):"",
+    progressHTML?wrFold("progress",n[i++],"Your progress","",progressHTML):"",
+    p?wrFold("analysis",n[i++],"Answer analysis","",p.analysis):"",
+    summaryHTML?wrFold("summary",n[i++],"Today's summary","",summaryHTML):""];
+  return `<div class="wr-report">${parts.join("")}</div>`;
 }
 function simAnalysisHTML(run,sc){
   const p=simAnalysisParts(run,sc);
   return p?`${p.hero}${p.analysis.replace(/<\/section>\s*$/,"")}${p.questionsInner}</section>`:"";
 }
-function simAnalysisParts(run,sc){
+function simAnalysisParts(run,sc,opts){
+  opts=opts||{};
   setTimeout(simArmFeedbackPulse,0);        /* after this HTML reaches the DOM */
   if(!window.AnswerEvaluator)return null;
   const answers=(run.answers||[]);
@@ -18551,11 +18676,14 @@ function simAnalysisParts(run,sc){
   const next=AnswerEvaluator.nextFocus(rev,sc,trackSimulations());
   _simReport={answers,scenarioId:sc.id};   /* cards and voice read from here */
   const pct=Math.round(rev.coverage*100);
-  const prev=simAttempts(sc.id).filter(a=>a.startedAt!==run.startedAt).map(a=>Math.round(a.coverage*100));
+  const prev=opts.prevPcts||simAttempts(sc.id).filter(a=>a.startedAt!==run.startedAt).map(a=>Math.round(a.coverage*100));
   const band=simScoreBand(pct,prev.length?Math.max(...prev):null);
+  const questionsBody=`<section class="card sim-analysis sim-qbq">${answers.map(simAnswerCard).join("")}</section>`;
   const questionsInner=`<h3 class="sim-ans-h">Question by question</h3>
     ${answers.map(simAnswerCard).join("")}`;
-  return {hero:rev.evidence?simScoreHeroHTML(pct,band,simAttempts(sc.id).length):"",
+  const nx=opts.next;
+  return {pct,count:answers.length,questionsBody,
+    hero:rev.evidence?simScoreHeroHTML(pct,band,simAttempts(sc.id).length,opts.attLine):"",
     questionsInner,
     questions:`<section class="card sim-analysis sim-qbq">${questionsInner}</section>`,
     analysis:`<section class="card sim-analysis">
@@ -18586,8 +18714,9 @@ function simAnalysisParts(run,sc){
     <p class="sim-ans-src">This measures how completely you explained yourself in English against a model answer. It is not evidence of your welding ability, your certification, or whether you meet an employer's requirements — those are proved by test certificates and the awarding body.</p>
     ${rev.gaps.length?`<div class="sim-ans-gap"><b>Your repeating habit</b><ul>${rev.gaps.slice(0,3).map(g=>`<li>${esc(g.label)} — missed in ${g.times} answer${g.times===1?"":"s"}</li>`).join("")}</ul></div>`:""}
     ${rev.vocabToLearn.length?`<div class="sim-ans-voc"><b>Vocabulary to take into the next workshop</b>${vocPickChips(rev.vocabToLearn,"Interview")}</div></div>`:""}
-    <div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
-      <button class="btn btn-p" onclick="${next.repeat?`simRestart('${esc(sc.id)}')`:`simInterviewStart('${esc(next.id)}','${esc(sc.lead||"hr")}')`}">${next.repeat?"Try this again":"Start it"} →</button></div>
+    ${nx?`<div class="sim-ans-next"><b>${esc(nx.title)}</b><p>${esc(nx.reason)}</p><button class="btn btn-p" onclick="${nx.onclick}">${esc(nx.btn)} →</button></div>`
+    :`<div class="sim-ans-next"><b>${next.repeat?"Repeat this workshop":"Next workshop"}${next.title?": "+esc(next.title):""}</b><p>${esc(next.reason)}</p>
+      <button class="btn btn-p" onclick="${next.repeat?`simRestart('${esc(sc.id)}')`:`simInterviewStart('${esc(next.id)}','${esc(sc.lead||"hr")}')`}">${next.repeat?"Try this again":"Start it"} →</button></div>`}
   </section>`};
 }
 function isFirstDayMission(sc){return activeProfessionalTrack().id==='welding'&&sc&&sc.id==='welding-sim-1'}
@@ -18648,7 +18777,7 @@ function rSimulation(el,id,characterId){
        the one derived from what they actually said. */
     const mission=missionData(selected),learning=run.learning||{words:[],phrases:[],grammar:[]},isMission=isFirstDayMission(selected),evidence=debrief.learnerTurns>0;
     const evidenceBlock=isMission?`<div class="mission-learning"><h3>Today you learned</h3><p>Communication, Workshop Vocabulary, and Professional Confidence grow from the language you used—not from a preset score.</p><h3>Today's new words</h3><p>${learning.words.length?esc(learning.words.join(' · ')):'No mission vocabulary was captured yet.'}</p><h3>Phrases you used</h3><p>${learning.phrases.length?esc(learning.phrases.join(' · ')):'No mission phrase was captured yet.'}</p><h3>Grammar coaching</h3><p>${learning.grammar.length?esc(learning.grammar.join(' ')):'No correction was needed or captured yet.'}</p><h3>Shadow recommendation</h3><p>${esc(mission.shadowRecommendation||'Practise a short workplace explanation before your next mission.')}</p><h3>Next mission: ${esc((mission.nextMission||{}).title||'Shift Handover')}</h3><p>${esc((mission.nextMission||{}).preview||debrief.recommendedNextSimulation)}</p></div>`:'';
-    el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button>${simReportHTML(run,selected,simProgressHTML(selected.id,run.startedAt))}<section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>`;
+    el.innerHTML=`<button class="back stick-back" onclick="simExit()">‹ Practice</button>${simReportHTML(run,selected,simProgressHTML(selected.id,run.startedAt),`<section class="card sim-stage"><div class="eyebrow">Learning debrief</div><h1 class="big">Today's summary</h1><p class="sub">${debrief.objectivesCompleted}/${debrief.totalObjectives} objectives completed.${evidence?' Your feedback is based on the workplace communication you practised.':' No spoken response was captured, so there are no performance scores or competency awards.'}</p><h3>What you did well</h3><p>${esc(evidence?(debrief.strengths.join(" · ")||'You contributed spoken workplace communication.'):'No spoken evidence was captured yet.')}</p><h3>Your next opportunity</h3><p>${esc(debrief.weaknesses.join(" · "))}</p>${evidenceBlock}<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><button class="btn btn-p" onclick="simChooseAnother()">Choose another interviewer →</button><button class="btn btn-g" onclick="simRestart('${esc(selected.id)}')">Repeat this workplace scenario</button></div></section>`)}`;
     /* Refine coverage once, then redraw only this view — never mid-conversation. */
     simEnrichAnalysis(run,selected).then(changed=>{if(changed===null)return;if(cur&&cur.v==="simulation"&&simRun&&simRun.startedAt===run.startedAt&&_simFbSpeaking==null){if(changed)simSave();go("simulation",selected.id)}});
     return;
@@ -19080,8 +19209,14 @@ function simRecordAnswer(sc,text){
      conversation but there is no model answer to compare against, so they are
      left unscored rather than measured against the wrong question. */
   const key=asked&&asked.q;
-  let rubric=key&&(sc.questions||{})[key];
+  const rubric=simRubric(sc,key);
   if(!rubric)return;
+  const result=AnswerEvaluator.evaluate(text,rubric);
+  simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
+}
+function simRubric(sc,key){
+  let rubric=key&&(sc.questions||{})[key];
+  if(!rubric)return null;
   /* Overlay the trade: its extra required points, its vocabulary and its model
      answer where the trade changes what a good answer is. The shared rubric is
      left untouched — this is a copy for scoring this attempt. */
@@ -19098,8 +19233,7 @@ function simRecordAnswer(sc,text){
       });
     }
   }
-  const result=AnswerEvaluator.evaluate(text,rubric);
-  simRun.answers=(simRun.answers||[]).concat([Object.assign({q:key,characterId:asked&&asked.characterId||""},result)]).slice(-30);
+  return rubric;
 }
 /* Put the learner's own words on screen the moment they finish, before the reply
    is fetched. The thread was only redrawn once the workshop had answered, so on
@@ -29613,6 +29747,62 @@ function rpRubricHTML(sc,turns){
       <button class="btn btn-g btn-sm" onclick="rpShadowModel('${esc(sc.id)}')">${tIc("rp.eval_shadow","mic")}</button></div>`:""}
   </section>`;
 }
+/* ---------- Welding interview coaches: the interviewers' report (owner, 28 Sep 2026) ----------
+   Coach N rehearses workshop N, so it is judged the way the workshop is: the
+   coach's own rubric (points, trade vocabulary, the trade's model answer),
+   the module's standards, and the same five-fold report — score, the question
+   with the coach's own Hear the feedback, progress over attempts, answer
+   analysis, today's summary. The whole spoken side is one answer to the
+   coach's opening question (as rpRubricHTML always judged it). One record per
+   coach in S.notes["wr:"+recCtx("rp:<id>")]. */
+function rpWeldWorkshop(sc){
+  const n=rpModuleId(sc);if(!n||!rpIsPro()||!sc||!sc.rubric||!window.AnswerEvaluator)return null;
+  return trackSimulations().find(s=>s.regulatory&&Number(s.regulatory.moduleId)===n)||trackSimulations().find(s=>s.id==="welding-sim-"+n)||null;
+}
+function rpWeldRubric(sc){
+  const rb=sc.rubric,tr=rpTrade();
+  return Object.assign({},rb,{ask:sc.greet||sc.title,model:rpModel(sc)||rb.model||"",
+    vocab:Array.from(new Set((rb.vocab||[]).concat(tr&&window.Trades?Trades.vocabFor(tr):[]))).slice(0,10)});
+}
+function rpWeldScreen(sc,turns,ts,covered){
+  const ws=rpWeldWorkshop(sc),el=document.getElementById("v-roleplay");if(!ws||!el)return;
+  const key="wr:"+recCtx("rp:"+sc.id),rubric=rpWeldRubric(sc);
+  const who=simCast(ws).find(c=>c.name===sc.persona)||{};
+  let rec=S.notes[key];
+  const said=(turns||[]).map(x=>String(x.text||"")).join(" ").trim();
+  let fresh=false;
+  if(ts&&said&&!(rec&&rec.at===ts)){
+    const res=AnswerEvaluator.evaluate(said,rubric),a=Object.assign({q:"coach",characterId:who.id||""},res);
+    const hist=((rec&&rec.hist)||[]).concat([{startedAt:ts,at:ts,coverage:res.coverage}]).slice(-20);
+    rec={at:ts,tk:areaId(),kind:"coach",sc:ws.id,coach:sc.id,answers:[a],hist};
+    wrPut(key,rec);save();fresh=true;
+  }
+  const pts=sc.points||[],cv=covered||new Set();
+  const summary=`<section class="card sim-stage rp-weld-sum">
+      <p class="sub">${cv.size}/${pts.length} of the interview's points covered.</p>
+      <div class="rp-points">${pts.map((p,i)=>`<div class="rp-point ${cv.has(i+1)?'done':''}"><span class="rp-pn">${i+1}</span><span>${esc(p)}</span></div>`).join("")}</div>
+      <div class="rp-sum-acts"><button class="btn btn-p" onclick="rpStart('${esc(sc.id)}')">${t("rp.again")}</button><button class="btn btn-g" onclick="rpBackList()">${rpMoreLabel()}</button></div>
+    </section>`;
+  const body=rec&&rec.answers&&rec.answers.length
+    ?simReportHTML({answers:rec.answers,startedAt:rec.at},ws,simProgressHTML(ws.id,rec.at,rec.hist||[]),summary,
+      {prevPcts:(rec.hist||[]).filter(x=>x.startedAt!==rec.at).map(x=>Math.round(x.coverage*100)),
+       attLine:(rec.hist||[]).length>1?`Attempt ${(rec.hist||[]).length} at this interview.`:"",
+       next:{title:"Repeat this interview",reason:"Run it again and add the missing points and the technical words — each point you cover moves your score.",btn:"Try this again",onclick:`rpStart('${esc(sc.id)}')`}})
+    :`<p class="sub">Not enough was said to assess this interview. Run it again and answer in full sentences.</p>${summary}`;
+  el.innerHTML=`${rpCloseX("rpCloseDone()")}${rpBackBar()}
+    <div class="rp-intro rp-weld" id="rpWeld" data-coach="${esc(sc.id)}">
+      ${rpAvatar(sc,64)}
+      <div class="eyebrow">Interview report</div>
+      <h1 class="big" style="margin:4px 0 4px">${esc(rpTitleText(sc))}</h1>
+      <p class="sub" style="margin-bottom:14px">${esc(sc.persona||"")}${sc.role?" · "+esc(sc.role):""} — judged against the welding standards and what a competent answer needs.</p>
+    </div>
+    ${body}`;
+  manIconizeInline(el);
+  if(fresh)simEnrichAnalysis({answers:rec.answers,startedAt:rec.at},ws,()=>rubric).then(ch=>{
+    if(!ch)return;save();
+    const box=document.getElementById("rpWeld");if(box&&box.dataset.coach===sc.id)rpWeldScreen(sc,turns,0,covered);
+  }).catch(()=>{});
+}
 /* The point of showing a model answer is saying it, not reading it. */
 window.rpShadowModel=(id)=>{
   const sc=rpById(id),model=rpModel(sc);
@@ -29996,6 +30186,7 @@ function rpReplaySummary(){
   /* Re-draw the summary from the kept conversation, for the Back button on the
      review screen — rpSummary itself needs a live rpConv. */
   if(!_rpLast)return rpBackList();
+  if(rpWeldWorkshop(_rpLast.sc))return rpWeldScreen(_rpLast.sc,_rpLast.turns,0,_rpLast.covered);
   const sc=_rpLast.sc,el=document.getElementById("v-roleplay");
   el.innerHTML=`
    ${rpCloseX("rpCloseDone()")}${rpBackBar()}
@@ -30037,6 +30228,7 @@ function rpSummary(){
      conversation object is torn down — and which points were covered, so the
      speaking report carries the app's own judgement, never the model's. */
   _rpLast={sc,turns:(rpConv.turns||[]).filter(x=>x&&x.text),covered:new Set(covered)};
+  if(rpWeldWorkshop(sc)){rpWeldScreen(sc,_rpLast.turns,spoke?_rpLastTs:0,covered);rpConv=null;return}
   /* every attempt gets its report, opened or not — built now, while the audio
      is still in memory, and linked to this entry for the scenario history */
   if(spoke&&_rpLast.turns.length)rpRepRun(sc,rpRepKey(sc),_rpLast.turns,_rpLastTs).then(rpRepBtnSync);

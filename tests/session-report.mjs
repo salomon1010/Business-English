@@ -114,15 +114,17 @@ await page.evaluate(()=>go("session",1,"Mon"));await sleep(900);
 const w0=await page.evaluate(()=>({key:dayKey(1,"Mon"),wrap:!!document.getElementById("sessRepWrap"),idle:document.querySelector("#sessRepWrap .rec-none")?.textContent||"",gate:!!document.querySelector(".fnd-gate")}));
 ok("Welding Week 1 Monday: its own key, the report block present and idle (no General English report bleeds in)",/^welding:/.test(w0.key)&&w0.wrap&&/Record yourself first/.test(w0.idle),JSON.stringify(w0));
 await page.evaluate(async()=>{await sessReport(dayKey(1,"Mon"),new Blob([new Uint8Array(6000)],{type:"audio/webm"}),18)});await sleep(500);
-const wa=calls.filter(c=>c.kind==="analyse").pop();
-const w1=await page.evaluate(()=>{const rep=S.notes["exrep:"+dayKey(1,"Mon")];return {card:!!document.querySelector("#sessRepWrap .ex-rep-card"),tk:rep&&rep.tk,track:rep&&rep.ctx.track,ge:!!S.notes["exrep:w1Mon"],keys:Object.keys(S.notes).filter(k=>k.startsWith("exrep:")).sort()}});
-ok("The Welding report is judged as welding — the Worker is told track 'welding' with that programme's task and phrases — and sits beside, not over, the General English one",w1.card&&w1.tk==="welding"&&w1.track==="welding"&&wa.ctx.track==="welding"&&wa.ctx.phrases.length>=1&&w1.ge&&w1.keys.length===2,JSON.stringify({w1,ctx:wa.ctx}));
+/* Welding session days end on the interviewers' report (owner, 28 Sep 2026), not the general speaking report */
+const nAn=calls.filter(c=>c.kind==="analyse").length;
+const w1=await page.evaluate(()=>{const k=dayKey(1,"Mon"),rep=S.notes["wr:"+k];return {folds:document.querySelectorAll("#sessRepWrap .wr-fold").length,card:!!document.querySelector("#sessRepWrap .ex-rep-card"),tk:rep&&rep.tk,kind:rep&&rep.kind,sc:rep&&rep.sc,ge:!!S.notes["exrep:w1Mon"],weldExrep:!!S.notes["exrep:"+k]}});
+ok("The Welding day is judged as a welding interview answer — the interviewers' report, stored on its own key — and the General English report is untouched",w1.folds===4&&!w1.card&&w1.tk==="welding"&&w1.kind==="session"&&w1.sc==="welding-sim-1"&&w1.ge&&!w1.weldExrep,JSON.stringify(w1));
+ok("No general speaking-report request is made for the Welding day",calls.filter(c=>c.kind==="analyse").length===nAn);
 
 /* too short, offline, and a take that cannot be transcribed all say so */
 const s1=await page.evaluate(async()=>{await sessReport(dayKey(1,"Mon"),new Blob([new Uint8Array(6000)],{type:"audio/webm"}),4);return document.querySelector("#sessRepWrap .ex-note")?.textContent||""});
 ok("A recording under the minimum length gets a plain note, not a report",/at least 8 seconds/.test(s1),s1);
 await page.evaluate(()=>go("session",1,"Mon"));await sleep(700);
-const s2=await page.evaluate(()=>!!document.querySelector("#sessRepWrap .ex-rep-card"));
+const s2=await page.evaluate(()=>document.querySelectorAll("#sessRepWrap .wr-fold").length===4);
 ok("The stored report is back after the note",s2);
 
 ok("No page errors",errors.length===0,errors.join(" | "));
