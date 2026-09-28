@@ -78,7 +78,7 @@ const openShadow = async (page, pick = 5) => {
 const card = page => page.evaluate(() => {
   const b = document.getElementById("svShTr"), tb = document.getElementById("svShTrBtn"), ib = document.getElementById("svShIpaBtn"), st = document.getElementById("svShIpaSt");
   const words = [...document.querySelectorAll("#svSh .sv-sh-w")]; const words0 = () => words.map(w => (w.querySelector(".sv-sh-wt") || {}).innerText);
-  return { card: !!document.getElementById("svSh"), trBtn: !!tb, trOn: tb && tb.getAttribute("aria-pressed"), trNa: tb && tb.getAttribute("aria-disabled") === "true", trCode: tb && (document.getElementById("svShTrBtnLang")?.querySelector("small") || {}).innerText, trCheck: !!(tb && tb.classList.contains("on") && tb.querySelector("svg")),
+  return { card: !!document.getElementById("svSh"), trBtn: !!tb, trOn: tb && tb.getAttribute("aria-pressed"), trNa: tb && tb.getAttribute("aria-disabled") === "true", trCode: tb && (document.getElementById("svShTrBtnLang")?.querySelector("small") || {}).innerText, trCheck: !!(tb && tb.classList.contains("on") && tb.querySelector("svg,.lang-flag")),
     ipaBtn: !!ib, ipaOn: ib && ib.getAttribute("aria-pressed"), ipaCheck: !!(ib && ib.classList.contains("on")),
     trShown: !!(b && b.classList.contains("tr")), trCls: b && b.className, trLang: b && b.getAttribute("lang"), trDir: b && b.getAttribute("dir"), trLbl: b && (b.querySelector(".sv-sh-tr-l") || {}).textContent, line: b && b.innerText, isLine: !!(b && b.matches("#svSh .sv-sh-card > p.sv-sh-text")), boxes: document.querySelectorAll("#svSh .sv-sh-tr").length, trText: b && (b.querySelector(".sv-sh-tr-x") || {}).innerText, trRetry: !!(b && b.querySelector(".sv-sh-retry")),
     english: words0().join(" "), want: svShGroup() && svShGroup().text, gid: svShGroup() && svShGroup().id,
@@ -288,31 +288,36 @@ const e1 = await E.page.evaluate(async () => {
   const tb = document.getElementById("svShTrBtn"), tg = document.getElementById("svShTrBtnLang");
   const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code0: tg.querySelector("small")?.innerText, ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 500));
-  const b0 = document.getElementById("svShTr"); r.frLang = b0.getAttribute("lang"); r.frText = b0.querySelector(".sv-sh-tr-x")?.innerText; r.noPick = !document.getElementById("langModalOv"); r.trLang0 = S.profile.trLang;
+  const b0 = document.getElementById("svShTr"); r.frLang = b0.getAttribute("lang"); r.frText = b0.querySelector(".sv-sh-tr-x")?.innerText; r.noPick = !document.getElementById("svTrPop"); r.trLang0 = S.profile.trLang;
   document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
-  const ov = document.querySelector("#langModalOv .sv-tr-pick"), rows = ov ? [...ov.querySelectorAll(".lang-row")] : [];
-  r.pick = !!ov; r.rows = rows.length; r.frSel = /Français/.test(ov?.querySelector(".lang-row.sel")?.innerText || ""); r.en = rows.some(b => /^English/.test(b.innerText.trim()));
+  const ov = document.getElementById("svTrPop"), rows = ov ? [...ov.querySelectorAll(".sv-tr-opt")] : []; const pr = ov && ov.getBoundingClientRect(), tr = document.getElementById("svShTrBtnLang").getBoundingClientRect();
+  r.small = !!pr && pr.width <= 232 && pr.height <= 266 && (Math.abs(pr.top - tr.bottom - 6) < 2 || Math.abs(tr.top - pr.bottom - 6) < 2) && pr.left >= 11 && pr.right <= innerWidth - 11; r.box = pr && [Math.round(pr.width), Math.round(pr.height)]; r.flags = !!rows[0] && !!rows[0].querySelector(".lang-ic");
+  r.expanded = document.getElementById("svShTrBtnLang").getAttribute("aria-expanded");
+  r.pick = !!ov; r.rows = rows.length; r.frSel = /Français/.test(ov?.querySelector(".sv-tr-opt.sel")?.innerText || ""); r.en = rows.some(b => /^English/.test(b.innerText.trim()));
   const inp = document.getElementById("svTrSearch"); inp.value = "espa"; inp.dispatchEvent(new Event("input"));
-  const hit = [...document.querySelectorAll("#svTrList .lang-row")]; r.search = hit.length === 1 && /Español/.test(hit[0].innerText);
+  const hit = [...document.querySelectorAll("#svTrList .sv-tr-opt")]; r.search = hit.length === 1 && /Español/.test(hit[0].innerText);
   hit[0].click(); await new Promise(x => setTimeout(x, 500));
   const b = document.getElementById("svShTr");
-  r.closed = !document.getElementById("langModalOv"); r.trLang = S.profile.trLang; r.appLang = S.profile.lang; r.on = document.getElementById("svShTrBtn").getAttribute("aria-pressed");
+  r.closed = !document.getElementById("svTrPop"); r.trLang = S.profile.trLang; r.appLang = S.profile.lang; r.on = document.getElementById("svShTrBtn").getAttribute("aria-pressed");
   r.code2 = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText; r.lang = b.getAttribute("lang"); r.text = b.querySelector(".sv-sh-tr-x")?.innerText;
   r.ui = document.getElementById("svShTrBtn").innerText.trim();
   svShTrToggle(); r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });
-ok("English as the app language: French by default — the tag reads FR and one tap on Translate turns the line French (no list, nothing saved as a pick); the tag opens the list (every language but English, Français marked); search finds Español; the pick sets the translation language only — the app stays in English — and the line turns Spanish; Pronunciation still works", !e1.na && !/\bna\b/.test(e1.cls) && e1.code0 === "FR" && e1.ret === true && e1.frLang === "fr" && /Traduction \[French\]/.test(e1.frText) && e1.noPick && e1.trLang0 === undefined && e1.pick && e1.rows > 50 && e1.frSel && !e1.en && e1.search && e1.closed && e1.trLang === "es" && e1.appLang === "en" && e1.ui === "Translate" && e1.on === "true" && e1.code2 === "ES" && e1.lang === "es" && /Traduction \[Spanish\]/.test(e1.text) && e1.ipa && e1.nIpa === e1.nW, JSON.stringify(e1));
+ok("English as the app language: French by default — the tag reads FR and one tap on Translate turns the line French (no list, nothing saved as a pick); the tag opens a small list right by it (≤232×264, a flag per row; every language but English, Français marked); search finds Español; the pick sets the translation language only — the app stays in English — and the line turns Spanish; Pronunciation still works", !e1.na && !/\bna\b/.test(e1.cls) && e1.code0 === "FR" && e1.ret === true && e1.frLang === "fr" && /Traduction \[French\]/.test(e1.frText) && e1.noPick && e1.trLang0 === undefined && e1.pick && e1.small && e1.flags && e1.expanded === "true" && e1.rows > 50 && e1.frSel && !e1.en && e1.search && e1.closed && e1.trLang === "es" && e1.appLang === "en" && /Translate$/.test(e1.ui) && /🇪🇸/.test(e1.ui) && e1.on === "true" && e1.code2 === "ES" && e1.lang === "es" && /Traduction \[Spanish\]/.test(e1.text) && e1.ipa && e1.nIpa === e1.nW, JSON.stringify(e1));
 const e2 = await E.page.evaluate(async () => {
   document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
-  const sel = document.querySelector("#svTrList .lang-row.sel"); const r = { sel: sel && /Español/.test(sel.innerText) };
+  const sel = document.querySelector("#svTrList .sv-tr-opt.sel"); const r = { sel: sel && /Español/.test(sel.innerText) };
+  document.body.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true })); r.outside = !document.getElementById("svTrPop");
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 50)); document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); r.esc = !document.getElementById("svTrPop");
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 50));
   svTrSet("ar"); await new Promise(x => setTimeout(x, 500));
   const b2 = document.getElementById("svShTr"); r.arDir = b2.getAttribute("dir"); r.arLang = b2.getAttribute("lang"); r.arLbl = b2.title; r.arText = b2.querySelector(".sv-sh-tr-x")?.innerText; r.code = document.getElementById("svShTrBtnLang").querySelector("small")?.innerText;
   r.en = svTrSet("en"); r.still = S.profile.trLang;
   delete S.profile.trLang; svRender(); return r;
 });
 const langs = chat.slice(nE).filter(x => x.kind === "tr").map(x => x.lang);
-ok("The language tag reopens the list with the current pick marked; Arabic → 'AR', the line turns right-to-left with lang=ar and an Arabic request; English can never be the target", e2.sel && e2.code === "AR" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && e2.en === false && e2.still === "ar" && langs.join() === "French,Spanish,Arabic", JSON.stringify({ e2, langs }));
+ok("The language tag reopens the list with the current pick marked; a tap outside or Escape closes it; Arabic → 'AR', the line turns right-to-left with lang=ar and an Arabic request; English can never be the target", e2.sel && e2.outside && e2.esc && e2.code === "AR" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && e2.en === false && e2.still === "ar" && langs.join() === "French,Spanish,Arabic", JSON.stringify({ e2, langs }));
 
 ok("No JavaScript errors on any of the three pages", errors.length === 0, errors.join(" | "));
 
