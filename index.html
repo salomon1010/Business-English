@@ -22564,9 +22564,11 @@ function svShSeg(){return svShGroup()}
 /* the translation language (owner, 28 Sep 2026): the learner picks it from the
    list under the Translate button — S.profile.trLang, account-level like the
    rest of the profile. Until they pick, the app language stands in when it is
-   not English; an English app with no pick has no language, and Translate
-   opens the list instead of switching on. */
-function svShLangCode(){const p=S.profile||{};return p.trLang||(p.lang&&p.lang!=="en"?p.lang:"")}
+   not English, else French (owner, 28 Sep 2026: French by default — most
+   learners are francophone). The ▾ / list-first path stays for a code that
+   is not in LANGS. */
+const SV_TR_DEFAULT="fr";
+function svShLangCode(){const p=S.profile||{};return p.trLang||(p.lang&&p.lang!=="en"?p.lang:SV_TR_DEFAULT)}
 function svShLang(){const c=svShLangCode();const L=c?LANGS.find(x=>x.code===c):null;return {code:c,name:L?L.en:"",native:L?L.native:"",ok:!!L&&c!=="en",rtl:RTL_LANGS.has(c)}}
 let svShPinned=false,svShPara=-1;   /* the paragraph on the Shadow page (its first line) stays put until the learner moves it or leaves; svPick is not touched */
 /* ---------- the card's two optional helpers: Translate and Pronunciation ----------

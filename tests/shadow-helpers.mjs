@@ -286,11 +286,12 @@ await openShadow(E.page);
 const nE = chat.length;
 const e1 = await E.page.evaluate(async () => {
   const tb = document.getElementById("svShTrBtn"), tg = document.getElementById("svShTrBtnLang");
-  const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code: !!tg.querySelector("small"), chev: !!tg.querySelector("svg"), ret: svShTrToggle() };
-  await new Promise(x => setTimeout(x, 100));
+  const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code0: tg.querySelector("small")?.innerText, ret: svShTrToggle() };
+  await new Promise(x => setTimeout(x, 500));
+  const b0 = document.getElementById("svShTr"); r.frLang = b0.getAttribute("lang"); r.frText = b0.querySelector(".sv-sh-tr-x")?.innerText; r.noPick = !document.getElementById("langModalOv"); r.trLang0 = S.profile.trLang;
+  document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
   const ov = document.querySelector("#langModalOv .sv-tr-pick"), rows = ov ? [...ov.querySelectorAll(".lang-row")] : [];
-  r.pick = !!ov; r.rows = rows.length; r.fr = rows.some(b => /Français/.test(b.innerText)); r.en = rows.some(b => /^English/.test(b.innerText.trim()));
-  r.pref = S.svPrefA && S.svPrefA["general-english"] && S.svPrefA["general-english"].tr; r.block = document.getElementById("svShTr").classList.contains("tr");
+  r.pick = !!ov; r.rows = rows.length; r.frSel = /Français/.test(ov?.querySelector(".lang-row.sel")?.innerText || ""); r.en = rows.some(b => /^English/.test(b.innerText.trim()));
   const inp = document.getElementById("svTrSearch"); inp.value = "espa"; inp.dispatchEvent(new Event("input"));
   const hit = [...document.querySelectorAll("#svTrList .lang-row")]; r.search = hit.length === 1 && /Español/.test(hit[0].innerText);
   hit[0].click(); await new Promise(x => setTimeout(x, 500));
@@ -301,7 +302,7 @@ const e1 = await E.page.evaluate(async () => {
   svShTrToggle(); r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });
-ok("English as the app language: Translate is live (not dimmed) with a ▾ tag and no code; tapping it opens the language list (every language but English) instead of translating; search finds Español; the pick sets the translation language only — the app stays in English — switches Translate on and the line turns Spanish; Pronunciation still works", !e1.na && !/\bna\b/.test(e1.cls) && !e1.code && e1.chev && e1.ret === false && e1.pick && e1.rows > 50 && e1.fr && !e1.en && !e1.pref && !e1.block && e1.search && e1.closed && e1.trLang === "es" && e1.appLang === "en" && e1.ui === "Translate" && e1.on === "true" && e1.code2 === "ES" && e1.lang === "es" && /Traduction \[Spanish\]/.test(e1.text) && e1.ipa && e1.nIpa === e1.nW, JSON.stringify(e1));
+ok("English as the app language: French by default — the tag reads FR and one tap on Translate turns the line French (no list, nothing saved as a pick); the tag opens the list (every language but English, Français marked); search finds Español; the pick sets the translation language only — the app stays in English — and the line turns Spanish; Pronunciation still works", !e1.na && !/\bna\b/.test(e1.cls) && e1.code0 === "FR" && e1.ret === true && e1.frLang === "fr" && /Traduction \[French\]/.test(e1.frText) && e1.noPick && e1.trLang0 === undefined && e1.pick && e1.rows > 50 && e1.frSel && !e1.en && e1.search && e1.closed && e1.trLang === "es" && e1.appLang === "en" && e1.ui === "Translate" && e1.on === "true" && e1.code2 === "ES" && e1.lang === "es" && /Traduction \[Spanish\]/.test(e1.text) && e1.ipa && e1.nIpa === e1.nW, JSON.stringify(e1));
 const e2 = await E.page.evaluate(async () => {
   document.getElementById("svShTrBtnLang").click(); await new Promise(x => setTimeout(x, 100));
   const sel = document.querySelector("#svTrList .lang-row.sel"); const r = { sel: sel && /Español/.test(sel.innerText) };
@@ -311,7 +312,7 @@ const e2 = await E.page.evaluate(async () => {
   delete S.profile.trLang; svRender(); return r;
 });
 const langs = chat.slice(nE).filter(x => x.kind === "tr").map(x => x.lang);
-ok("The language tag reopens the list with the current pick marked; Arabic → 'AR', the line turns right-to-left with lang=ar and an Arabic request; English can never be the target", e2.sel && e2.code === "AR" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && e2.en === false && e2.still === "ar" && langs.join() === "Spanish,Arabic", JSON.stringify({ e2, langs }));
+ok("The language tag reopens the list with the current pick marked; Arabic → 'AR', the line turns right-to-left with lang=ar and an Arabic request; English can never be the target", e2.sel && e2.code === "AR" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && e2.en === false && e2.still === "ar" && langs.join() === "French,Spanish,Arabic", JSON.stringify({ e2, langs }));
 
 ok("No JavaScript errors on any of the three pages", errors.length === 0, errors.join(" | "));
 
