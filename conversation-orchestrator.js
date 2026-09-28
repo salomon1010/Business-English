@@ -84,7 +84,7 @@ asked you to, and never repeat these notes back.`;
     const speaker=speakerLabel(sc,turnId||prevId);
     const handover=turnId&&prevId&&turnId!==prevId?castOf(sc).find(c=>c.id===prevId):null;
     const me=turnId?castOf(sc).find(c=>c.id===turnId):null;
-    const turn=turnId?`\n\nTHIS TURN\nYou are ${speaker}. ${handover?`${handover.name} has just handed the learner over to you: say who you are in a few words (e.g. "${me?me.name:""} here, ${String(me&&me.role||"").toLowerCase()}"), react in one short clause to what they just said, then`:"React briefly to what they just said, then"} ${sim.turnClose?"close the conversation warmly in your own words, along these lines":"move the conversation on to this point, in your own words"}: "${String(sim.turnBrief||"").replace(/"/g,"'")}"`:"";
+    const turn=turnId?`\n\nTHIS TURN\nYou are ${speaker}. ${handover?`${handover.name} has just handed the learner over to you. Begin your reply with "${me?me.name:""} here." (optionally add your role), react in one short clause to what they just said, then`:"React briefly to what they just said, then"} ${sim.turnClose?"close the conversation warmly in your own words, along these lines":"move the conversation on to this point, in your own words"}: "${String(sim.turnBrief||"").replace(/"/g,"'")}"`:"";
     const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>`${o.id} (${o.label})`).join(", ")||"none — bring the conversation to a natural close";
     /* The character must talk to the trade in front of them. Without this a
        pipefitter gets asked about weld defects and a boilermaker about rod
