@@ -1,10 +1,10 @@
-/* Welding: the AI speaking report on the Shadow workplace lines and at the end
-   of a workshop conversation (owner, 28 Sep 2026). Both used to draw their own
-   report — word chips with a percentage on the lines, the "Learning debrief"
-   after a workshop — and both now host the Road map session's report ("How you
-   came across", the level, Play coach feedback, the five steps), judged
-   against where the learner was: the line's question, the person asking and
-   the model answer; the scenario, the people in it and its objectives.
+/* Welding: the AI speaking report on the Shadow workplace lines (owner, 28 Sep
+   2026). The lines used to draw word chips with a percentage; they now host
+   the Road map session's report ("How you came across", the level, Play coach
+   feedback, the five steps), judged against the line's question, the person
+   asking and the model answer. The end of a workshop conversation keeps the
+   interviewers' report (score, answer analysis, question by question) —
+   sections 9–10 hold it there.
    Run: cd tests && node welding-ai-report.mjs
         (or BASE=http://localhost:8011 node welding-ai-report.mjs)
 
@@ -154,51 +154,37 @@ ok("A take under three seconds gets a plain note, not a report", /at least 3 sec
 const h = await page.evaluate(id => { const p = fbSyncPayload(S), k = "exrep:shl:" + id; return { sent: !!(p.notes[k] && p.notes[k].ai), tx: p.notes[k] && p.notes[k].tx, local: !!S.notes[k].tx }; }, ID);
 ok("The line's report syncs with the notes; the words spoken stay on the device", h.sent && h.tx === undefined && h.local, JSON.stringify(h));
 
-/* ---------- 9. a workshop conversation ends on the AI report ---------- */
+/* ---------- 9. a workshop conversation ends on the interviewers' report ----------
+   Owner, 28 Sep 2026 (the same day, reversed): the end of a workshop is the
+   earlier report — the interview score, the answer analysis against the trade
+   standards, and question by question with each interviewer's own feedback —
+   not the AI speaking report. No request goes to the coach for it. */
 const nA = analyses().length;
 const sim = await page.evaluate(async () => {
   const sc = trackSimulations().find(s => !isFirstDayMission(s)) || trackSimulations()[0];
   go("simulation"); await new Promise(r => setTimeout(r, 300));
   simRun = ProfessionalSimulationEngine.start(sc.id);
-  const who = simRun.messages[0].characterId, other = (simCast(sc)[1] || simCast(sc)[0]).id;
-  simRun.voiceMeta = { startedAt: Date.now(), mode: "voice-first", turns: 2 };
+  const who = simRun.messages[0].characterId;
+  simRun.voiceMeta = { startedAt: Date.now(), mode: "voice-first", turns: 1 };
   simRun.messages.push({ role: "learner", text: "i am welder six years" });
-  simRun.messages.push({ role: "character", characterId: other, text: "Good. What do you check before you start a weld?" });
-  simRun.messages.push({ role: "learner", text: "i check the joint and the gap before i weld" });
   simRun.answers = [{ q: "open", characterId: who, said: "i am welder six years", answered: true, covered: [], missed: [], vocabUsed: [], vocabMissed: [], coverage: 0.5 }];
-  _simTakes[simRun.startedAt] = [{ blob: new Blob([new Uint8Array(9000)], { type: "audio/webm" }), text: "i am welder six years" }];
   simSave(); go("simulation", sc.id); await new Promise(r => setTimeout(r, 300));
-  simComplete(false);
-  for (let i = 0; i < 60 && !document.querySelector("#simRepWrap .ex-rep-card"); i++) await new Promise(r => setTimeout(r, 200));
-  const el = document.getElementById("v-simulation"), key = simRepKey(sc, simRun.startedAt), rep = S.notes["exrep:" + key];
-  return { id: sc.id, title: simTitle(sc), started: simRun.startedAt, names: [simCharacter(sc, who).name, simCharacter(sc, other).name], objectives: (sc.objectives || []).map(o => o.label),
-    card: !!el.querySelector("#simRepWrap .ex-rep-card"), stations: el.querySelectorAll("#simRepWrap .ex-station").length, eyebrow: el.querySelector(".eyebrow")?.textContent || "",
-    sub: el.querySelector(".sub")?.textContent || "", old: /Learning debrief|Today's summary|What you did well|Your next opportunity/.test(el.textContent) || !!el.querySelector(".mission-learning,.sim-analysis"),
-    acts: el.querySelectorAll(".sim-rep-acts button").length, key, kind: rep && rep.kind, mission: rep && rep.mission, tk: rep && rep.tk, attempts: simAttempts(sc.id).length };
+  simComplete(false); await new Promise(r => setTimeout(r, 600));
+  const el = document.getElementById("v-simulation");
+  return { id: sc.id, started: simRun.startedAt, txt: el.textContent,
+    score: !!el.querySelector(".sim-score"), fb: el.querySelectorAll(".sim-fb-play").length,
+    ai: !!el.querySelector("#simRepWrap,.ex-rep-card"), attempts: simAttempts(sc.id).length };
 });
-ok("The end of a workshop conversation is the AI speaking report — no Learning debrief, no did-well / next-opportunity screen", sim.card && sim.stations === 5 && /Speaking report/.test(sim.eyebrow) && !sim.old && sim.acts === 2, JSON.stringify(sim));
-ok("It names the people the learner spoke to", sim.names.every(n => sim.sub.includes(n)), sim.sub);
-ok("It is stored per attempt, Welding-stamped, as that scenario's conversation report; the attempt is still recorded", /^welding:sim:/.test(sim.key) && sim.kind === "conversation" && sim.mission === sim.id && sim.tk === "welding" && sim.attempts === 1, JSON.stringify(sim));
-const an3 = analyses()[nA];
-ok("The Worker is told the scenario, who was in it, what they asked and the objectives",
-  analyses().length === nA + 1 && an3.ctx.track === "welding" && an3.ctx.focus.includes(sim.title.slice(0, 20)) && sim.names.every(n => an3.ctx.task.includes(n))
-  && an3.ctx.task.includes("What do you check") && an3.ctx.task.length <= 300 && (sim.objectives.length === 0 || an3.ctx.out.includes(sim.objectives[0].slice(0, 20))),
-  JSON.stringify(an3 && an3.ctx));
-ok("Both of the learner's turns reach the coach (the recorded take and the words of the other)", an3 && /six years/.test(an3.tx) && /check the joint/.test(an3.tx), an3 && an3.tx);
+ok("The end of a workshop is the interviewers' report: score, answer analysis, a Hear the feedback per question — no AI speaking report",
+  sim.score && /Your interview score/.test(sim.txt) && /What you said, and what a competent answer needs/.test(sim.txt) && sim.fb >= 1 && !sim.ai && !/Speaking report/.test(sim.txt),
+  JSON.stringify({ ...sim, txt: sim.txt.slice(0, 200) }));
+ok("No request goes to the AI coach for it; the attempt is recorded", analyses().length === nA && sim.attempts >= 1, JSON.stringify({ n: analyses().length, nA, a: sim.attempts }));
 
 /* ---------- 10. the attempt from "Your previous reports" ---------- */
 const p = await page.evaluate(async ([id, started]) => { simOpenAttempt(id, started); await new Promise(r => setTimeout(r, 500));
-  const el = document.getElementById("v-simulation"); return { card: !!el.querySelector("#simRepWrap .ex-rep-card"), old: !!el.querySelector(".sim-analysis") || /How you could have said it/.test(el.textContent) }; }, [sim.id, sim.started]);
-ok("Opening that attempt from the history shows the same report, with no new request", p.card && !p.old && analyses().length === nA + 1, JSON.stringify({ p, n: analyses().length }));
-const q = await page.evaluate(async id => {
-  const list = simAttemptStore(S)[id], started = Date.now() - 3 * 86400e3;
-  list.unshift({ startedAt: started, at: started, coverage: 0.4, tk: "welding", answered: 1, asked: 1, answers: [{ q: "open", said: "i weld pipe and plate for five years", answered: true, covered: [], missed: [], vocabUsed: [], vocabMissed: [] }] });
-  simCloseAttempt(); await new Promise(r => setTimeout(r, 200));
-  simOpenAttempt(id, started);
-  for (let i = 0; i < 40 && !document.querySelector("#simRepWrap .ex-rep-card"); i++) await new Promise(r => setTimeout(r, 200));
-  return { card: !!document.querySelector("#simRepWrap .ex-rep-card"), stored: !!S.notes["exrep:" + simRepKey(ProfessionalSimulationEngine.find(id), started)] };
-}, sim.id);
-ok("An older attempt with no report gets one built from its answers (no audio kept)", q.card && q.stored && analyses().length === nA + 2 && /five years/.test(analyses()[nA + 1].tx), JSON.stringify(q));
+  const el = document.getElementById("v-simulation"); return { fb: el.querySelectorAll(".sim-fb-play").length, ai: !!el.querySelector("#simRepWrap,.ex-rep-card"), txt: /What you said, and what a competent answer needs/.test(el.textContent) }; }, [sim.id, sim.started]);
+ok("Opening that attempt from the history shows the same question-by-question report, with no new request", p.fb >= 1 && p.txt && !p.ai && analyses().length === nA, JSON.stringify(p));
+await page.evaluate(() => simCloseAttempt()); await sleep(200);
 
 await page.evaluate(() => go("practice")); await sleep(200);
 ok("Leaving the workshop clears the host", await page.evaluate(() => exHost === null));
