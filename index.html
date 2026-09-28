@@ -1463,16 +1463,17 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-tag.sm{font-size:9.5px;padding:2px 7px;margin-bottom:4px}
 .hx-feat{display:grid;grid-template-columns:1fr;width:100%;margin:0 0 12px;padding:0;border:1px solid color-mix(in srgb,var(--acc) 45%,var(--line2));border-radius:18px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
 @media (min-width:560px){.hx-feat{grid-template-columns:44% 1fr}}
-.hx-feat-img{position:relative;display:block;aspect-ratio:16/7;background:var(--grad)}
+.hx-feat-img{position:relative;display:block;aspect-ratio:3/1;background:var(--grad)}
 @media (min-width:560px){.hx-feat-img{aspect-ratio:auto;min-height:100%}}
 .hx-feat-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hx-feat-ic{position:absolute;left:12px;top:12px;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
-.hx-feat-ic svg{width:19px;height:19px}
-.hx-feat-body{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px}
-.hx-feat-body b{font-size:15px;margin-top:4px}
-.hx-feat-body small{font-size:12px;line-height:1.4;color:var(--mut)}
+.hx-feat-ic{position:absolute;left:10px;top:10px;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:rgba(6,9,18,.62);color:#fff}
+.hx-feat-ic svg{width:16px;height:16px}
+/* compact (owner, 28 Sep 2026: "too big, reduce the size") — 3:1 picture, tighter body, line ≤ 2 rows */
+.hx-feat-body{display:flex;flex-direction:column;gap:3px;padding:10px 14px 12px}
+.hx-feat-body b{font-size:14px;margin-top:3px}
+.hx-feat-body small{font-size:11.5px;line-height:1.35;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hx-feat-body .hx-feat-ctx{color:var(--txt);font-weight:600}
-.hx-feat-go{margin-top:8px;font-size:13px;font-weight:700;color:var(--acc)}
+.hx-feat-go{margin-top:4px;font-size:12.5px;font-weight:700;color:var(--acc)}
 .hx-dest-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media (min-width:700px){.hx-dest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .hx-dcard{display:flex;flex-direction:column;min-width:0;padding:0;border:1px solid var(--line2);border-radius:16px;background:var(--card);color:var(--txt);font:inherit;text-align:left;cursor:pointer;overflow:hidden}
