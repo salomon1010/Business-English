@@ -1448,6 +1448,9 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 @keyframes hxZoom{from{transform:scale(1)}to{transform:scale(1.06)}}
 /* the picture is no longer covered by the card: only a short dark band at the foot for the caption line */
 .hx-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 72%,rgba(6,9,18,.62) 100%)}
+/* dark (owner, 28 Sep 2026: "this line is too visible"): the foot of the picture melts into the card's
+   own navy, so there is no seam between the picture and the card under it. Light keeps the band above. */
+:root:not([data-theme="light"]) .hx-scrim{background:linear-gradient(180deg,rgba(6,9,18,.5) 0%,rgba(6,9,18,0) 26%,rgba(6,9,18,0) 58%,color-mix(in srgb,var(--card) 55%,transparent) 80%,color-mix(in srgb,var(--card) 88%,transparent) 94%,var(--card) 100%)}
 .hx-top{position:absolute;top:0;left:0;right:0;z-index:3;pointer-events:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px}
 .hx-greet{font-size:11px;font-weight:600;color:#fff;letter-spacing:.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px;border-radius:99px;background:rgba(6,9,18,.5);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .hx-dots{display:flex;gap:6px;flex:none;pointer-events:auto}
