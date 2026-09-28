@@ -1,6 +1,6 @@
 /* Permission prompts shown by iOS in the device language. The English base is
    Info.plist; keep every file in step with it. Translations: review by a native
    speaker before heavy promotion (project rule). */
-"NSMicrophoneUsageDescription" = "BE Mastery uses the microphone so you can record your spoken English for pronunciation feedback, send short voice turns to a practice partner, and talk in a live practice call. Lesson recordings stay on your device; a voice turn you choose to send, and the audio used for scoring, are sent over an encrypted connection to our servers.";
+"NSMicrophoneUsageDescription" = "BE Mastery uses the microphone so you can record your spoken English for feedback, send short voice turns to a practice partner and talk in a live practice call. Your recordings are kept on your device; audio you record for feedback, a voice turn you send and your own side of a live call are sent over an encrypted connection to be transcribed and scored.";
 "NSSpeechRecognitionUsageDescription" = "BE Mastery uses speech recognition to turn your spoken English into text, so it can check your pronunciation and show which words came through clearly. Recognition is handled by iOS; the app receives only the text.";
 "NSCameraUsageDescription" = "BE Mastery uses the camera only for the optional Posture Coach in the Shadowing Studio. Frames are analysed on your phone in real time; no image or video is stored or sent anywhere.";

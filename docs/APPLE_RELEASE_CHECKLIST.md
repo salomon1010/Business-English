@@ -58,7 +58,8 @@ Record model / iOS version / network for each run.
 - [ ] Practice Partner: consent → Match me (second account in line) → Try a practice → 4 turns → decision → "You're practice partners"
 - [ ] Practice Partner: AI coach card when nobody is in line; every AI turn tagged **AI**
 - [ ] Report and Block from a session; blocked side gets nothing more
-- [ ] Practise live button absent / shows "not available" (`LIVE_ENABLED="0"`)
+- [ ] Live practice (on in 1.1.0, `LIVE_ENABLED="1"`): *Practise live* → the other account accepts → audio-only call in four rounds → hang up; a block mid-call ends it at once
+- [ ] No Premium anywhere (1.1.0): no header badge, no plans sheet, no price or subscription wording
 - [ ] Executive Polish returns two rewrites (be-polish from `capacitor://localhost`)
 - [ ] Airplane mode: daily programme still opens; Shadow/Partner/Polish show their offline messages, no blank screens
 - [ ] Background 60 s → foreground: state intact; kill → relaunch: last page restored

@@ -16056,6 +16056,21 @@ async function pushOff(){
   }catch(e){}
 }
 
+/* Sign-out and account deletion wipe S, and with it the push id this device
+   registered under — after that nothing could tell be-push to drop the rows, and
+   the phone kept getting the old account's reminder until the browser itself
+   dropped the subscription (29 Sep 2026). fbWipeDevice passes the id it had, and
+   this unsubscribes with it. No service worker (the iPhone app): nothing to do. */
+function pushForget(id){
+  if(!id||!("serviceWorker" in navigator))return;
+  try{
+    navigator.serviceWorker.ready.then(reg=>reg.pushManager.getSubscription()).then(sub=>{
+      fetch(PUSH_API+"/unsubscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({id}),keepalive:true}).catch(()=>{});
+      if(sub)return sub.unsubscribe();
+    }).catch(()=>{});
+  }catch(e){}
+}
+
 /* ===== Personalised Learning Nudges (26 Sep 2026) — General English only =====
    Learner state (nudgeSignals, read from what the learner actually did) →
    NudgeEngine.best (the ACTION is chosen by rules, never by free AI text) →
@@ -19553,7 +19568,7 @@ function rLibVocab(el){
           <span><i class="pdot learned"></i>${t("prac.tab_learned")} (${b.learned.length})</span>
         </div>
         <div class="prac-add">
-          <input id="pracAddIn" placeholder="${esc(t("prac.add_ph"))}" onkeydown="if(event.key==='Enter')pracAdd()">
+          <input id="pracAddIn" placeholder="${esc(t("prac.add_ph"))}" aria-label="${esc(t("prac.add_ph"))}" onkeydown="if(event.key==='Enter')pracAdd()">
           <button class="btn btn-g prac-add-btn" onclick="pracAdd()">${t("prac.add_btn")}</button>
         </div>
       </div>
@@ -21637,6 +21652,12 @@ const FLAGS_STAGING={
   ads_mock_provider:false,
   billing_enabled:false
 };
+/* The App Store app's own release defaults (owner, 29 Sep 2026). Its web code is
+   bundled into the binary, so these ship with that build and change only with a
+   new one. Home V2 is the Home the owner approved and tested on an iPhone; the
+   website and the Android app keep FLAGS_DEFAULT until it is released there.
+   Only the names listed here differ from FLAGS_DEFAULT. */
+const FLAGS_IOS={home_v2_enabled:true};
 /* A tester on a phone has no console to set be_flags with, so the URL can:
    ?flags=shadow_studio_v2_enabled,shadow_challenge_enabled turns those on for
    this device, ?flags=off clears every override, and ?flags=-name turns one
@@ -21661,7 +21682,11 @@ function flag(name){
   /* a staging iOS bundle's build flags (be-build.js, never in a production bundle) */
   try{const bf=window.BE_BUILD&&window.BE_BUILD.flags;if(bf&&typeof bf==="object"&&name in bf)return !!bf[name]}catch(e){}
   let env=null;try{env=beEnv()}catch(e){}
-  return !!((env&&env.flags?FLAGS_STAGING:FLAGS_DEFAULT)[name]);
+  if(env&&env.flags)return !!FLAGS_STAGING[name];
+  /* the App Store build (IS_IOS_APP is a const further up this script: read it safely) */
+  let ios=false;try{ios=IS_IOS_APP}catch(e){}
+  if(ios&&name in FLAGS_IOS)return !!FLAGS_IOS[name];
+  return !!FLAGS_DEFAULT[name];
 }
 /* The one boundary every General-English-only feature checks. Welding, and any
    future track, gets exactly the app it has today. */
@@ -31821,12 +31846,14 @@ window.fbReset=async function(){
    they were never in the account, so leaving them would strand one person's
    audio inside another person's session pages. */
 function fbWipeDevice(){
+  const _pushId=S&&S.pushId;       // captured before the wipe: the only id be-push knows this device by
   try{exWipe()}catch(e){}
   try{entWipe()}catch(e){}         // the Polish box, versions and open report are in memory only — they must not outlive the account
   localStorage.removeItem(LS_KEY);
   localStorage.removeItem(FB_OWNER_KEY);
   try{dbReady.then(()=>{if(DB){const tx=DB.transaction("recs","readwrite");tx.objectStore("recs").clear()}})}catch(e){}
   S=load();trackStateReloaded();save();
+  pushForget(_pushId);
 }
 window.fbSignOut=async function(){
   if(!FBauth)return;

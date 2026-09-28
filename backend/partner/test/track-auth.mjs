@@ -45,7 +45,7 @@ globalThis.fetch = async (url, init = {}) => {
     if (!DOCS.has(uid)) return new Response(JSON.stringify({ error: { status: "NOT_FOUND" } }), { status: 404 });
     const d = DOCS.get(uid);
     /* Firestore's Document: name, fields (only the masked ones), createTime, updateTime */
-    const fields = m[2] === "json" ? { json: { stringValue: JSON.stringify(d.st) } } : { savedAt: { integerValue: String(d.st.savedAt) } };
+    const fields = m[2] === "json" ? (d.nojson ? {} : { json: { stringValue: d.raw != null ? d.raw : JSON.stringify(d.st) } }) : { savedAt: { integerValue: String(d.st.savedAt) } };   // raw / nojson: malformed-document cases (M1–M2)
     return new Response(JSON.stringify({ name: "projects/be-mastery/databases/(default)/documents/users/" + uid, fields, createTime: "2026-09-01T00:00:00Z", updateTime: d.ver }));
   }
   return new Response("{}", { status: 599 });
@@ -223,6 +223,23 @@ console.log("\n# the local-development switch cannot reach production");
   const dev = { ...env, DEV_AUTH: "1" };
   r = await raw(dev, { "x-dev-user": "wdev", "x-dev-track": "welding" });
   ok("P3 · local development (DEV_AUTH=1) can simulate a Welding account: 403 track", r.status === 403 && (await r.json()).error === "track");
+}
+
+console.log("\n# malformed account documents (29 Sep 2026)");
+{
+  const ver = () => new Date(Date.UTC(2026, 8, 29) + ++FS.clock).toISOString();
+  DOCS.set("bad-json", { st: { savedAt: 1 }, raw: "{not json", ver: ver() });
+  let r = await call("GET", "/me", { uid: "bad-json" });
+  ok("M1 · the synced state is not valid JSON → 403 track_unverified (fail closed)", r.status === 403 && r.json.error === "track_unverified", JSON.stringify(r));
+  DOCS.set("no-json", { st: { savedAt: 1 }, nojson: true, ver: ver() });
+  r = await call("GET", "/me", { uid: "no-json" });
+  ok("M2 · the document has no json field → 403 track_unverified (fail closed)", r.status === 403 && r.json.error === "track_unverified", JSON.stringify(r));
+  setTrack("odd-track", "medical");
+  r = await consent("odd-track");
+  ok("M3 · an unknown programme id is General English, the app's own areaId() default (intentional; the account owner chooses the programme anyway)", r.status === 200, JSON.stringify(r));
+  DOCS.set("num-track", { st: { savedAt: 1, professionalTracks: { activeId: 7 } }, ver: ver() });
+  r = await consent("num-track");
+  ok("M4 · a non-string programme id is treated the same way (General English)", r.status === 200, JSON.stringify(r));
 }
 
 const pass = res.filter(Boolean).length;

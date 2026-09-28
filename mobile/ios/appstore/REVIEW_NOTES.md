@@ -1,39 +1,36 @@
-# App Review notes (paste into "Notes" in App Store Connect; fill the credentials there, never here)
+# App Review notes — short form (version 1.1.0)
 
-> Superseded on 2026-09-20 by `docs/APPLE_APP_REVIEW.md` § Notes, which is the
-> maintained text (live calls off, camera wording, relay). Keep this file only
-> as the short form; when the two differ, the docs/ version wins.
+> The maintained text is `docs/APPLE_APP_REVIEW.md` § Notes; when the two differ,
+> that one wins. Credentials go in App Store Connect only, never here.
 
-BE Mastery is a Business English learning app: a 12-week spoken-English
-programme with recording, pronunciation feedback and a phrase bank. Everything
-below can be reviewed with the two demo accounts entered in the *Sign-in
-required* fields (Practice Partner needs two learners, so two accounts).
+BE Mastery is a Business English speaking app: a 12-week programme built around
+recording your own voice, with pronunciation feedback, a phrase bank, a
+shadowing studio and an optional practice partner. **This version sells
+nothing** — no subscriptions, no in-app purchases, no ads. E-mail/password
+sign-in only.
 
-Demo accounts: TWO e-mail/password accounts — enter them in App Store
-Connect's sign-in fields. Both are already past onboarding, on General
-English, with the placement check done. (Keep the passwords in App Store
-Connect only; they are not in the source repository.)
+Demo accounts: two e-mail/password accounts in the *Sign-in required* fields.
+Both are on General English, placement done, Practice Partner consent given.
+Human practice needs both signed in at once (two devices, or one device plus
+https://app.lomonec.com).
 
-Microphone: needed for the core product — recording your speech for
-feedback, sending short voice turns to a practice partner, and a live
-practice call. The permission prompt appears on the first Record tap.
+Permissions: **Microphone** (recording for feedback, partner voice turns, live
+practice calls — prompt on the first Record tap); **Speech Recognition** (iOS
+turns short answers into text; the app receives only the text); **Camera**
+(optional Posture Coach only; analysed on the phone, never stored or sent).
 
-## Walk-through
-1. Sign in — Profile tab → Account → *Log in* (e-mail/password). Sign-out, password reset and **Delete account** are on the same Account card.
-2. General English is the default programme after the placement check; Practice Partner exists only there.
-3. Practice tab → *Practice Partner* card (a *How it works* button explains the three steps). First open asks for consent (18+, what is shared).
-4. Match: *Match me* or the floating *Talk to a real person* button → candidate cards (first name, level, plain reason; no photo, no profile). *Try a practice* sends a proposal; the other account sees a banner and accepts.
-5. Four-round trial: each side records up to 60 s on the day's task, hears it back, sees the coach's score (labelled AI), then sends. Playback of the partner's turn is in the thread.
-6. After round 4 both accounts choose independently: *Keep practising together →*, *Find someone else* or *Not now*. A connection is created only when both choose to keep practising — the screen then reads "You're practice partners".
-7. *Practise together →* starts the next structured session with that partner.
-8. Live Practice: *Practise live* on a candidate card, on the partner card, or in a session's *More options*. The other account gets a call-style banner → *Accept & talk*. Audio is peer-to-peer (WebRTC) and not recorded. Mute, *Phrase help* (three AI-labelled phrases as text) and the red hang-up button are on the call card.
-9. Report / block: the ⋯ menu on the session header, the partner card's options and the live call menu. A block ends the session/call at once and removes the person from matching; a report is one-tap with a reason.
-10. AI coach: when nobody is available (waiting list empty), the card *AI COACH — NOT YOUR PARTNER* offers the same four-turn practice with the AI; every AI turn and tip is tagged **AI**. It is never shown next to a real learner's card.
-11. Delete account: Profile → Account → *Delete account* → confirm. This deletes the Firebase account, the synced progress and every Practice Partner record (voice turns, sessions, connections, live-call records), and clears the device.
+Walk-through
+1. Sign in: Profile → Backup & sync → Log in.
+2. Home shows the next step; the daily session records, plays back and returns an AI speaking report.
+3. Shadow tab → a clip → Watch / Shadow / Challenge.
+4. Practice tab → Practice Partner → consent (18+) → *Match me →* → *Try a practice →*; four recorded turns; each side then chooses alone.
+5. *Practise with the AI coach →* is always available; every AI turn is tagged AI.
+6. Live practice is on: *Practise live* → the other account accepts → an audio-only WebRTC call in four rounds. The partner's voice is never recorded; each learner's own side of a round is transcribed for an AI tip and a private report.
+7. Report / block: the ⋯ menu on a session, a partner card and the live call. Two reports from different learners suspend an account from Practice Partner for 30 days.
+8. Delete account: Profile → Backup & sync → Delete account → confirm (removes the account, synced progress and every Practice Partner record).
 
-## Notes for the reviewer
-- One optional subscription group, BE Mastery Premium: `premium_monthly` (3-day free trial for new subscribers) and `premium_annual`. Everything is in `docs/APPLE_APP_REVIEW.md` § Subscriptions. No ads, no third-party login (e-mail/password only).
-- No text chat and no contact exchange exist; transcripts are automatically screened for phone numbers, e-mail addresses, links and social handles before delivery.
-- Practice Partner is only for learners aged 18 or over (in-app confirmation).
-- Works offline for the daily programme; Practice Partner, scoring and Executive Polish need a connection.
-- Support: contact@lomonec.com — data deletion page: https://app.lomonec.com/delete-account.html
+Notes for the reviewer
+- Welding English is a second programme; Practice Partner, the AI coach and Shadow Studio's Challenge exist only on General English, enforced on the server against the account's programme.
+- Transcripts, first names and shared phrases are screened automatically for phone numbers, e-mail addresses, links and social handles; there is no text chat. Audio is not screened automatically; reports are reviewed by Lomonec LLC.
+- Reminders appear inside the app only.
+- Support: contact@lomonec.com — account deletion page: https://app.lomonec.com/delete-account.html

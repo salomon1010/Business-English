@@ -135,11 +135,11 @@ and the prepared answer:
 | Guideline | Risk | Answer / evidence |
 |---|---|---|
 | 4.2 Minimum functionality (web wrapper) | medium | Offline 12-week programme from the bundle, native mic/camera use, no browser chrome; the app is the product, not a site in a frame. |
-| 1.2 User-generated content | medium | Practice Partner: 18+ consent, first names only, no text chat, automatic contact-detail screening, one-tap report and block, two reports suspend; AI always labelled. |
+| 1.2 User-generated content | medium | Practice Partner: 18+ consent, first names only, no text chat, automatic contact-detail screening (not audio), one-tap report and block, two reports suspend; AI always labelled; reports reviewed by hand (`docs/release/UGC_OPERATIONS.md`). |
 | 5.1.1 Data collection | low | Consent sheet before any partner data; privacy policy in-app and at the URL; PrivacyInfo.xcprivacy matches the App Privacy answers. |
-| 5.1.1(v) Account deletion | low | Profile → Account → Delete account, in-app, deletes Firebase + partner records. |
+| 5.1.1(v) Account deletion | low | Profile → Backup & sync → Delete account, in-app, deletes Firebase + partner records. |
 | 2.3.10 Other platforms | low | No Google Play links/badges under `IS_IOS_APP` (About page gets `?ios=1`). |
-| 2.1 Performance | medium | Shadow Studio video needs `https://app.lomonec.com/yt-embed.html` live (see YouTube relay). Live calls are off (`LIVE_ENABLED="0"`) so the reviewer never sees a dead call button. |
+| 2.1 Performance | medium | Shadow Studio video needs `https://app.lomonec.com/yt-embed.html` live (see YouTube relay). Live calls are on (`LIVE_ENABLED="1"`, TURN set in production); the reviewer needs two signed-in accounts to try one. |
 | 3.1.1 Payments | none | No purchases, no subscriptions. |
 If rejected, reply in Resolution Center with the matching row; do not resubmit
 a new build unless the rejection names a bug.
@@ -163,7 +163,13 @@ Store presence" is stale from that moment), `flyer.html`'s badges and
   video-error state after 20 s, not as a crash.
 - Web-only fixes do not reach the iOS app until the next build (E–G).
 
-## L. Backend deployment (state on 20 Sep 2026, verified with probes)
+## L. Backend deployment
+> **Superseded for 1.1.0.** Current production versions (29 Sep 2026: be-partner
+> `c4bc80e4`, `LIVE_ENABLED="1"`; be-push `086e23a9`; be-polish `1421fdd3`;
+> be-events `c2012c8d`) and the deployments this release needs are in
+> `docs/release/RELEASE_RUNBOOK.md`. The table below is the 20 Sep 2026 record.
+
+### L (20 Sep 2026 record, verified with probes then)
 | Worker | Version | Switches | Accepts `capacitor://localhost` |
 |---|---|---|---|
 | be-polish | `81e89f20` (19 Sep 2026) | — | yes |

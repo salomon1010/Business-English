@@ -2,9 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- BE Mastery privacy manifest. Matches privacy.html and the release audit
-	     (docs/release/FINAL_RELEASE_AUDIT.md §15). No tracking, no advertising,
-	     no device identifiers. -->
+	<!-- BE Mastery privacy manifest, version 1.1.0. Matches privacy.html and
+	     mobile/ios/appstore/PRIVACY_ANSWERS.md (29 Sep 2026). No tracking, no
+	     advertising. Premium is not active: no purchase data. Coarse location,
+	     gender (Other Data) and Device ID await the owner's App Store Connect
+	     decision (PRIVACY_ANSWERS.md) and are added here only if declared there. -->
 	<key>NSPrivacyTracking</key>
 	<false/>
 	<key>NSPrivacyTrackingDomains</key>
@@ -13,7 +15,7 @@
 	<array>
 		<dict>
 			<key>NSPrivacyCollectedDataType</key>
-			<string>NSPrivacyCollectedDataTypePurchaseHistory</string>
+			<string>NSPrivacyCollectedDataTypeUserID</string>
 			<key>NSPrivacyCollectedDataTypeLinked</key>
 			<true/>
 			<key>NSPrivacyCollectedDataTypeTracking</key>

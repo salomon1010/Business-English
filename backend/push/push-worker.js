@@ -179,10 +179,13 @@ async function sendOne(env, rec, audCache, urgent){
   return res.ok ? "sent" : "fail:" + res.status;
 }
 
+/* Every row keyed by this phone's id goes: the send lists, the subscription, and
+   (29 Sep 2026) the pending nudge, its delivery log, today's done mark and the
+   parked "why" answers — nothing waits for a TTL after an unsubscribe or a 410.
+   Markers (mark:*) are shared by prefix and are retired by the empty-LIST rule. */
 async function forget(env, id, slot){
   if (slot) await env.SUBS.delete(`slot:${slot}:${id}`);
-  await env.SUBS.delete(`pres:${id}`);
-  await env.SUBS.delete(`sub:${id}`);
+  for (const k of ["pres", "sub", "nudge", "nlog", "done", "why", "plast", "wlast"]) await env.SUBS.delete(`${k}:${id}`);
 }
 
 /* ------------------------------------------------------- KV LIST budget -- */

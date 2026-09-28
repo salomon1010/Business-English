@@ -204,6 +204,23 @@ console.log("\n# learning nudges");
   unmute();
 }
 
+console.log("\n# unsubscribe (sign-out, account deletion) leaves nothing keyed by the phone");
+{
+  const w = await fresh(); mute(); clock = at(0, 12, 0); await w.migrate();
+  const id = "leaving-phone-1";
+  await w.sub(id, "1900", { presence: true, nudges: true });
+  await w.call("/nudge", { id, tz: 0, rec: { rid: "lesson-9", kind: "lesson", view: "session", title: "Week 3", body: "25 minutes today", sendAfter: clock + H, expiresAt: clock + 20 * H } }, "tok-ge");
+  await w.call("/done", { id }); await w.call("/nudge/dismiss", { id, kind: "words" });
+  await w.SUBS.put(`why:${id}`, "{}", { expirationTtl: 900 }); await w.SUBS.put(`plast:${id}`, "1", { expirationTtl: 3600 }); await w.SUBS.put(`wlast:${id}`, "1", { expirationTtl: 60 });
+  const before = [...w.SUBS.m.keys()].filter(k => k.includes(id)).sort();
+  const r = await w.call("/unsubscribe", { id });
+  const after = [...w.SUBS.m.keys()].filter(k => k.includes(id));
+  ok("U1 · /unsubscribe deletes slot, pres, sub, nudge, nlog, done, why, plast and wlast for that phone", r.status === 200 && before.length === 9 && after.length === 0, `before ${before.join(",")} | after ${after.join(",")}`);
+  pushes = []; clock = at(0, 19, 0); await w.mod.runCron(w.env, clock);
+  ok("U2 · and it is not reminded again", !pushes.includes(id));
+  unmute();
+}
+
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);
 process.exit(pass === res.length ? 0 : 1);

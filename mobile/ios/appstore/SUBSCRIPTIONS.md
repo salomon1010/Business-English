@@ -1,5 +1,12 @@
 # App Store Connect — BE Mastery Premium subscriptions
 
+> **NOT PART OF VERSION 1.1.0 (owner decision, 29 Sep 2026).** Premium is not active
+> in this release: create no subscription group or products, attach no in-app
+> purchase to the 1.1.0 submission, and do not mention Premium in the listing or
+> the review notes. The StoreKit 2 code stays in the app, dormant
+> (`billing_enabled` off, no production entitlement Worker). This file is kept as
+> the set-up for a later release.
+
 Prepared 2026-09-26. **Nothing here has been entered in App Store Connect yet**:
 this repository has no App Store Connect access. It is the exact set-up to
 enter, matching the Google Play products and what the app and the server
