@@ -65,7 +65,7 @@
 <script src="learning-coach.js?v=88"></script>
 <script src="nudge-engine.js?v=3"></script>
 <script src="professional-simulation-engine.js?v=80"></script>
-<script src="conversation-orchestrator.js?v=82"></script>
+<script src="conversation-orchestrator.js?v=83"></script>
 <script src="shadow-sync.js?v=8"></script>
 <script src="shadow-scenes.js?v=1"></script>
 <script src="adaptive-learning-engine.js?v=84"></script>
@@ -18062,7 +18062,18 @@ function simCardProfile(sc,index){
   const week=trackWeeks()[index]||{},stage=week.stage||`Stage ${index+1}`;
   return {stage,duration:sc.duration||"12 minutes",difficulty:sc.difficulty||(index<4?"Beginner":index<8?"Intermediate":"Advanced"),skills:sc.skills||(sc.objectives||[]).slice(0,3).map(x=>x.label)};
 }
-function simStory(sc){return simCast(sc).map(c=>c.name).concat(["Debrief"]).join("  →  ")}
+/* The order people actually speak in, walked the way the engine walks it (an unexpected event
+   takes its turn, then the beats, then the closing) — not the cast list, which promised
+   Maya → Daniel → Luis → Priya → Amelia whatever the script did. */
+function simStory(sc){
+  const cast=simCast(sc),name=id=>(cast.find(c=>c.id===id)||{}).name;
+  const seq=[(cast.find(c=>c.id===(sc.lead||"hr"))||cast[0]||{}).id];
+  const ev=(sc.unexpectedEvents||[]).slice(),turns=sc.turns||[];let beat=0;
+  for(let t=1;t<=turns.length+ev.length;t++){const i=ev.findIndex(e=>t>=e.afterTurn);if(i>-1){seq.push(ev[i].characterId);ev.splice(i,1)}else if(beat<turns.length)seq.push(turns[beat++].characterId)}
+  if(sc.closing&&sc.closing.characterId)seq.push(sc.closing.characterId);
+  const names=seq.map(name).filter(Boolean).filter((n,i,a)=>i===0||n!==a[i-1]);
+  return (names.length?names:cast.map(c=>c.name)).concat(["Debrief"]).join("  →  ");
+}
 /* ---- The score the learner actually sees ----
    Green, amber, red on one number, with a line that means it. The tone is
    deliberately adult: a welder who has just scored 20% is not helped by

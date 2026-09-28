@@ -75,7 +75,16 @@ asked you to, and never repeat these notes back.`;
   }
   function prompt(sc,sim){
     const cast=castOf(sc).map(c=>`${c.id}: ${c.name}, ${c.role}. ${c.personality}. Speaks ${c.communicationStyle}. Usually ${c.responseBehavior||"contributes to the conversation"}.`).join("\n");
-    const speaker=speakerLabel(sc,sim.lastSpeakerId||sim.starterCharacterId||"");
+    /* Who speaks THIS turn is the scenario's, not the model's (owner, 28 Sep 2026: "just Maya
+       is talking"). The pack's beats walk the learner round the team — recruiter, supervisor,
+       safety officer, workmate, inspector — and the model used to be told to stay as whoever
+       spoke last, so the first person never handed over. respond() now names the person and
+       the point their turn is for; the model writes the words, the script keeps the order. */
+    const turnId=sim.turnSpeakerId||"",prevId=sim.lastSpeakerId||sim.starterCharacterId||"";
+    const speaker=speakerLabel(sc,turnId||prevId);
+    const handover=turnId&&prevId&&turnId!==prevId?castOf(sc).find(c=>c.id===prevId):null;
+    const me=turnId?castOf(sc).find(c=>c.id===turnId):null;
+    const turn=turnId?`\n\nTHIS TURN\nYou are ${speaker}. ${handover?`${handover.name} has just handed the learner over to you: say who you are in a few words (e.g. "${me?me.name:""} here, ${String(me&&me.role||"").toLowerCase()}"), react in one short clause to what they just said, then`:"React briefly to what they just said, then"} ${sim.turnClose?"close the conversation warmly in your own words, along these lines":"move the conversation on to this point, in your own words"}: "${String(sim.turnBrief||"").replace(/"/g,"'")}"`:"";
     const remaining=(sc.objectives||[]).filter(o=>!sim.completed.includes(o.id)).map(o=>`${o.id} (${o.label})`).join(", ")||"none — bring the conversation to a natural close";
     /* The character must talk to the trade in front of them. Without this a
        pipefitter gets asked about weld defects and a boilermaker about rod
@@ -89,7 +98,8 @@ ${cast}
 
 THE SITUATION
 ${sc.scenario}
-You are currently ${speaker||"the person who spoke last"}. The other person is a ${tr?tr.name.replace(/^Professional\s+/,"").toLowerCase():"welder"} practising spoken English at roughly an intermediate level.
+You are currently ${speaker||"the person who spoke last"}.${turn}
+The other person is a ${tr?tr.name.replace(/^Professional\s+/,"").toLowerCase():"welder"} practising spoken English at roughly an intermediate level.
 
 HOW TO SPEAK
 - Use their trade's language, not generic welding language.
@@ -98,7 +108,7 @@ HOW TO SPEAK
 - Talk like a person on a shop floor: contractions, plain words, no lecturing.
 - Do not correct their English unless you genuinely could not understand them; if so, ask them to say it another way rather than teaching a rule.
 - If they say very little, do not fill the silence with a speech. Ask something smaller and more concrete.
-- Stay as ${speaker||"your character"} unless another person would realistically step in now — a safety officer interrupting, an inspector arriving. Then switch, and say who you are as you do.
+- ${turnId?`Speak only as ${speaker} for this whole reply. Do not voice anyone else.`:`Stay as ${speaker||"your character"} unless another person would realistically step in now — a safety officer interrupting, an inspector arriving. Then switch, and say who you are as you do.`}
 - Never say you are an AI, never narrate the scenario, never announce its title, never write the learner's lines.
 
 ${SPOKEN_RULE}
@@ -168,14 +178,17 @@ Set complete true only when the conversation has reached a natural end and the r
        line to say. The model is asked to follow the last thing that was
        actually said to it, so the scripted beat it is about to replace is left
        out of the transcript. */
-    const asked=(next&&next.role==="character")
-      ?Object.assign({},sim,{messages:(sim.messages||[]).slice(0,-1)}):sim;
+    const scripted=next&&next.role==="character";
+    const asked=scripted
+      ?Object.assign({},sim,{messages:(sim.messages||[]).slice(0,-1),turnSpeakerId:next.characterId,turnBrief:next.text,turnClose:!!sim.finished}):sim;
+    /* the voice is the scripted speaker's before a word is streamed — the model cannot move it */
+    if(scripted&&hooks&&typeof hooks.onCharacter==="function"){try{hooks.onCharacter(next.characterId)}catch(e){}}
     const api=typeof POLISH_API!=="undefined"?POLISH_API:"";
     if(api&&navigator.onLine){
       try{
         let res,data;
         if(hooks&&typeof hooks.onSentence==="function"){
-          const st=await fetchStreamed(api,buildRequest(sc,asked),Object.assign({sc},hooks));
+          const st=await fetchStreamed(api,buildRequest(sc,asked),Object.assign({sc},hooks,scripted?{onCharacter:null}:{}));
           res={ok:st.ok,status:st.status};data=st.data||{};
         }else{
           res=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({chat:buildRequest(sc,asked)})});
@@ -183,7 +196,7 @@ Set complete true only when the conversation has reached a natural end and the r
         }
         if(res.ok&&data.reply){
           next.text=clean(data.reply);
-          next.characterId=castId(sc,data.characterId)||introId(sc,next.text)||asked.lastSpeakerId||asked.starterCharacterId||next.characterId;
+          if(!scripted)next.characterId=castId(sc,data.characterId)||introId(sc,next.text)||asked.lastSpeakerId||asked.starterCharacterId||next.characterId;
           /* The model's coverage is only a claim. A turn too short to have said
              anything earns nothing, and a turn can only earn as many objectives
              as it has the words to carry — so a weak answer can never be marked
