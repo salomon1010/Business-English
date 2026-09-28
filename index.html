@@ -3021,6 +3021,42 @@ textarea.ex-speech{min-height:200px;max-height:none}   /* a minute and a half of
 .rec-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg2);margin-top:8px;font-size:13px}
 .rec-item audio{height:32px;flex:1;min-width:120px}
 .rec-time{font-family:'JetBrains Mono',monospace;color:var(--red);font-weight:600;font-size:18px}
+/* The Road map session day, every week and day, both areas (owner, 28 Sep 2026: "reduce the font
+   considerably, proportion based … smooth, easy to read"). About 0.87 of the old sizes, the same
+   ratio everywhere so the hierarchy holds. data-view is set by go(), so nothing else changes.
+   Textareas stay at 16px: below that iOS zooms the page on focus. Tap targets keep 44px. */
+html[data-view="session"] .view.on .sess-back{font-size:12.5px}
+html[data-view="session"] .view.on .sess-head .chip{font-size:10.5px}
+html[data-view="session"] .view.on h1.big{font-size:22px!important;margin-bottom:6px}
+html[data-view="session"] .view.on>p.sub{font-size:12.5px;line-height:1.5}
+html[data-view="session"] .view.on>p[style*="--gold"]{font-size:11.5px!important}
+html[data-view="session"] .view.on .sess-jump{font-size:12px}
+html[data-view="session"] .view.on .sess-jump .sess-jump-go{font-size:15px}
+html[data-view="session"] .view.on .sess-jump-why{font-size:11.5px}
+html[data-view="session"] .view.on .timer-box .eyebrow{font-size:10px}
+html[data-view="session"] .view.on .timer-digits{font-size:clamp(38px,11vw,44px)}
+html[data-view="session"] .view.on .timer-box .btn-primary{font-size:13.5px}
+html[data-view="session"] .view.on .sess-timer-hint,html[data-view="session"] .view.on .sess-reset{font-size:11.5px}
+html[data-view="session"] .view.on .sess-plan summary{font-size:12.5px}
+html[data-view="session"] .view.on .sess-plan-sub{font-size:11.5px}
+html[data-view="session"] .view.on .step .tm{font-size:10px}
+html[data-view="session"] .view.on .step p{font-size:12px}
+html[data-view="session"] .view.on .sess-body>.card.sess-aloud>b{font-size:12.5px}
+html[data-view="session"] .view.on .sess-aloud li{font-size:12px}
+html[data-view="session"] .view.on .sess-ex .sess-ex-title{font-size:13px}
+html[data-view="session"] .view.on .sess-ex>p{font-size:11.5px!important}
+html[data-view="session"] .view.on .rec-panel>b{font-size:14px}
+html[data-view="session"] .view.on .rec-panel>p{font-size:11.5px!important}
+html[data-view="session"] .view.on .rec-time{font-size:15.5px}
+html[data-view="session"] .view.on #recState,html[data-view="session"] .view.on .rec-none{font-size:11.5px!important}
+html[data-view="session"] .view.on .sess-rep-h{font-size:14px}
+html[data-view="session"] .view.on .sess-rep-sub{font-size:11.5px}
+html[data-view="session"] .view.on .sess-act,html[data-view="session"] .view.on .sess-done{font-size:12px}
+html[data-view="session"] .view.on #pcState{font-size:12px!important}
+html[data-view="session"] .view.on #pcMsg{font-size:11.5px!important}
+html[data-view="session"] .view.on .sess-body>.card>b{font-size:14px}
+html[data-view="session"] .view.on .score-b{font-size:12.5px}
+html[data-view="session"] .view.on .sess-body>.card .btn-primary{font-size:13.5px}
 
 /* PHRASES */
 .ph-card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:16px 18px;margin-bottom:10px}
@@ -28742,6 +28778,7 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
   window.go=function(v,a1,a2){
     if(v==="session"){
       cur={v,arg1:a1,arg2:a2};
+      document.documentElement.setAttribute("data-view","session"); /* the base go() never runs for a session, so without this the previous page's data-view (and its scoped theme) stayed on */
       document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==="journey"));
       bnavSync("session");
       document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});
