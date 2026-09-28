@@ -93,6 +93,8 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
     shLibCat("foryou"); shLibQ("Communicating the Future"); await wait(); look(); shLibQ(""); await wait();
     out.helper = typeof shLibHasTx === "function"; return out; });
   ok("no badge line on any row; the videos without a transcript are in no list (For you, every category, a search)", tx.helper && tx.bad > 0 && tx.rows > 0 && tx.tags === 0 && tx.shown.length === 0, JSON.stringify(tx));
+  const fs = await p.evaluate(() => { const r = document.querySelector("#shLibFeed .shl-row:not(.scn-lrow)"); return r ? { b: getComputedStyle(r.querySelector("b")).fontSize, s: getComputedStyle(r.querySelector("small")).fontSize } : null; });
+  ok("row text a little smaller (owner, 28 Sep 2026): title 13 px, channel 11 px", fs && fs.b === "13px" && fs.s === "11px", JSON.stringify(fs));
   await openScene(p);
   const st = await p.evaluate(() => ({ cls: ytPlayer instanceof ShadowScenes.ScenePlayer, live: !!document.querySelector("#ytBox .scn-live"), lbl: document.querySelector("#ytBox .scn-live").getAttribute("aria-label") || "", ai: (document.querySelector("#ytBox .scn-ai") || {}).textContent, dur: ytPlayer.getDuration(), title: shClip.title, iframe: !!document.querySelector("#ytBox iframe") }));
   ok("the scene plays in ScenePlayer inside the studio's own player box (no YouTube frame)", st.cls && st.live && !st.iframe, JSON.stringify(st));
