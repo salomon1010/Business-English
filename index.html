@@ -1444,11 +1444,11 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-line{display:flex;align-items:center;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
 .hx-meta{display:flex;align-items:center;gap:6px;margin:0;font-size:11.5px;font-weight:600;color:var(--mut)}
 .hx-meta svg{width:13px;height:13px;flex:none}
-/* a little smaller (owner, 28 Sep 2026); the invisible band above and below keeps a 44 px touch target */
+/* the blue button is smaller, not its text (owner, 28 Sep 2026): as wide as its label, 38 px tall;
+   the invisible band above and below keeps a 44 px touch target */
 /* .hx raises the weight: the shared .btn-primary rule comes later in the sheet */
-.hx .hx-cta{position:relative;width:100%;justify-content:center;gap:8px;min-height:38px;padding-block:0;margin-top:10px;font-size:13px}
+.hx .hx-cta{position:relative;display:inline-flex;width:auto;max-width:100%;padding-inline:26px;justify-content:center;gap:8px;min-height:38px;padding-block:0;margin-top:10px;font-size:14px}
 .hx-cta::after{content:"";position:absolute;left:0;right:0;top:-3px;bottom:-3px}
-@media (min-width:560px){.hx .hx-cta{width:auto;padding-inline:28px}}
 .hx-cta-go{font-weight:700}
 .hx-foot{padding:8px 16px 12px}
 .hx-desc{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
