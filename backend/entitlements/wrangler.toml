@@ -57,7 +57,11 @@ name = "be-entitlements-staging"
 routes = [{ pattern = "entitlements-staging.lomonec.com", custom_domain = true }]
 workers_dev = true
 [env.staging.vars]
-FIREBASE_PROJECT_ID = "be-mastery"
+# Staging signs in to the validation project (29 Sep 2026), like be-partner-staging:
+# the staging web snapshot and `npm run sync:staging` both use be-mastery-test, so a
+# staging Worker verifying be-mastery rejected every staging token. RTDN_SA_EMAIL
+# below is unrelated (Google Play's Pub/Sub sender) and stays.
+FIREBASE_PROJECT_ID = "be-mastery-test"
 ALLOWED_ORIGINS = "https://staging.lomonec.com,capacitor://localhost"   # capacitor://localhost = a staging TestFlight build
 PLAY_PACKAGE = "com.bemastery.app"
 # RTDN (Pub/Sub authenticated push). The route is POST /v1/billing/google_play on

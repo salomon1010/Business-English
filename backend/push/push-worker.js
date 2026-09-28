@@ -23,6 +23,11 @@
      sub:<id>              → {slot, endpoint, ...}  so a re-register can delete
                                                     the row it used to occupy
      done:<id>             → "YYYY-MM-DD" (48h TTL) today's session is finished
+     mark:slot:<HHMM>      → time last confirmed   "a reminder may be booked at
+     mark:pres, mark:nudge                          this minute / an alert phone /
+                                                    a pending nudge" (KV LIST budget
+                                                    below); a marker only ever says
+                                                    "look", never "send"
 
    No name, no email, no progress, no recordings. `id` is a random string the
    client makes up; it is not tied to the Firebase account.
@@ -180,6 +185,71 @@ async function forget(env, id, slot){
   await env.SUBS.delete(`sub:${id}`);
 }
 
+/* ------------------------------------------------------- KV LIST budget -- */
+/* Workers KV allows 1,000 LIST operations a day on the free plan (29 Sep 2026:
+   the account hit it). The crons used to LIST on every run, even with nothing
+   to find — runCron alone listed its minute 1,440 times a day, almost always
+   an empty prefix. Now each prefix a cron reads has a MARKER key, written by
+   the route that adds a row there (subscribe → mark:slot:<HHMM> / mark:pres,
+   /nudge → mark:nudge). A cron GETs the marker (100,000 reads a day) and
+   LISTs only when it is there. The rows (slot:, pres:, nudge:) stay the
+   truth: a marker only ever says "look".
+
+   Race safety without transactions. A route re-confirms a marker older than
+   MARK_REFRESH; a cron deletes one only when its LIST came back EMPTY and the
+   marker is older than MARK_GRACE. MARK_GRACE is far longer than MARK_REFRESH
+   plus KV's ~60 s propagation, so a marker whose row was written in the last
+   hour can never be cleared by a LIST that has not seen that row yet. Two
+   runs at once write the same value or delete an already-stale marker —
+   idempotent either way. Deleting a row (forget, unsubscribe, a sent nudge)
+   never touches a marker; the empty-LIST rule retires it later.
+
+   Migration. Rows written before markers existed have none. Until
+   meta:marks-v1 reads "done", runCron walks the old rows one page per minute
+   (slot:, then pres:, then nudge:) writing their markers, and every cron
+   keeps LISTing exactly as before — nobody misses a reminder during the
+   switch. A one-off cost of one LIST per MARK_PAGE rows. */
+const MARK_REFRESH = 60 * 60_000, MARK_GRACE = 36 * 60 * 60_000, MARK_PAGE = 200;
+const MIG_KEY = "meta:marks-v1", MIG_PREFIXES = ["slot:", "pres:", "nudge:"];
+const markSlot = slot => `mark:slot:${slot}`;
+let _marksDone = false;   // per isolate: once "done" is read it stays done
+
+/* a route added a row under this marker's prefix: confirm it, at most hourly
+   (every launch re-subscribes, and KV allows 1,000 writes a day) */
+async function markSeen(env, key, now){
+  const at = Number(await env.SUBS.get(key)) || 0;
+  if (now - at >= MARK_REFRESH) await env.SUBS.put(key, String(now));
+}
+/* the LIST under this marker found nothing: retire it once it is old enough */
+async function markEmpty(env, key, now){
+  const at = Number(await env.SUBS.get(key)) || 0;
+  if (at && now - at > MARK_GRACE) await env.SUBS.delete(key);
+}
+async function marksMigrated(env){
+  if (_marksDone) return true;
+  _marksDone = (await env.SUBS.get(MIG_KEY)) === "done";
+  return _marksDone;
+}
+/* one page of the migration; true once every old row has its marker */
+async function migrateMarks(env, now){
+  const raw = await env.SUBS.get(MIG_KEY);
+  if (raw === "done") return (_marksDone = true);
+  let st = null; try { st = JSON.parse(raw || "null"); } catch (e) {}
+  if (!st || !Number.isInteger(st.p) || st.p < 0 || st.p >= MIG_PREFIXES.length) st = { p: 0, c: null };
+  const prefix = MIG_PREFIXES[st.p];
+  const page = await env.SUBS.list(st.c ? { prefix, cursor: st.c, limit: MARK_PAGE } : { prefix, limit: MARK_PAGE });
+  const marks = new Set();
+  for (const k of page.keys) {
+    if (prefix === "slot:") { const m = /^slot:(\d{4}):/.exec(k.name); if (m) marks.add(markSlot(m[1])); }
+    else marks.add(prefix === "pres:" ? "mark:pres" : "mark:nudge");
+  }
+  for (const key of marks) await env.SUBS.put(key, String(now));
+  st = page.list_complete ? { p: st.p + 1, c: null } : { p: st.p, c: page.cursor };
+  if (st.p >= MIG_PREFIXES.length) { await env.SUBS.put(MIG_KEY, "done"); console.log(JSON.stringify({ marks: "migrated" })); return (_marksDone = true); }
+  await env.SUBS.put(MIG_KEY, JSON.stringify(st));
+  return false;
+}
+
 /* ---------------------------------------------------------- online alerts -- */
 
 function localHour(tzMin, now){ return ((now.getUTCHours() * 60 + now.getUTCMinutes() + tzMin) / 60 + 48) % 24; }
@@ -193,13 +263,17 @@ async function runPresence(env, now){
      behind the secret the two already share for invitations. No secret = no
      count = no alerts (never a guess). */
   if (!env.PUSH_SECRET) { console.log(JSON.stringify({ presence: "no_secret" })); return; }
+  /* nobody asked for alerts: no count to fetch, no LIST (KV LIST budget) */
+  const migrating = !(await marksMigrated(env));
+  if (!migrating && !(await env.SUBS.get("mark:pres"))) { console.log(JSON.stringify({ presence: "no_subscribers" })); return; }
   try { const r = await fetch(env.PARTNER_API + "/presence", { headers: { "accept": "application/json", "x-push-secret": env.PUSH_SECRET } }); if (r.ok) p = await r.json(); } catch (e) {}
   const online = p && Number(p.online) || 0, waiting = p && Number(p.waiting) || 0;
   if (online < 1) { console.log(JSON.stringify({ presence: "none" })); return; }
   const audCache = {};
-  let cursor, scanned = 0, sent = 0, quiet = 0, recent = 0, dropped = 0;
+  let cursor, scanned = 0, sent = 0, quiet = 0, recent = 0, dropped = 0, listed = 0;
   do {
-    const page = await env.SUBS.list({ prefix: "pres:", cursor });
+    const page = await env.SUBS.list(cursor ? { prefix: "pres:", cursor } : { prefix: "pres:" });
+    listed += page.keys.length;
     for (const k of page.keys) {
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
@@ -216,6 +290,7 @@ async function runPresence(env, now){
     }
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor && scanned < MAX_PER_CRON);
+  if (!listed) await markEmpty(env, "mark:pres", now.getTime());
   console.log(JSON.stringify({ presence: online, waiting, scanned, sent, quiet, recent, dropped }));
 }
 
@@ -280,6 +355,7 @@ async function nudgePut(req, env, origin){
   if (!rec) return json({ error: "bad nudge", previous }, 400, origin);
   rec.tz = Number.isFinite(+b.tz) ? Math.max(-840, Math.min(840, Math.round(+b.tz))) : (sub.tz || 0);
   await env.SUBS.put(`nudge:${id}`, JSON.stringify(rec), { expirationTtl: Math.max(60, Math.ceil((rec.expiresAt - now) / 1000)) });
+  await markSeen(env, "mark:nudge", now);
   return json({ ok: true, rid: rec.rid, sendAfter: rec.sendAfter, expiresAt: rec.expiresAt, previous: previous && previous.rid !== rec.rid ? previous : null }, 200, origin);
 }
 async function nudgeCancel(req, env, origin){
@@ -327,9 +403,16 @@ function nudgeHold(rec, log, now, L){
 async function runNudges(env, nowMs, onlyId){
   const now = nowMs || Date.now(), L = nudgeLimits(env);
   const audCache = {};
-  let cursor, scanned = 0, sent = 0, held = 0, expired = 0, dropped = 0, last = null;
+  let cursor, scanned = 0, sent = 0, held = 0, expired = 0, dropped = 0, last = null, listed = 0;
+  /* KV LIST budget: the flush route knows its one key — a GET, not a LIST;
+     the cron LISTs only while a nudge is pending somewhere (mark:nudge) */
+  const direct = !!onlyId, migrating = !direct && !(await marksMigrated(env));
+  if (!direct && !migrating && !(await env.SUBS.get("mark:nudge"))) { console.log(JSON.stringify({ nudges: 0, list: "skip" })); return { scanned, sent, held, expired, dropped, last }; }
   do {
-    const page = await env.SUBS.list({ prefix: onlyId ? `nudge:${onlyId}` : "nudge:", cursor });
+    const page = direct
+      ? { keys: (await env.SUBS.get(`nudge:${onlyId}`)) != null ? [{ name: `nudge:${onlyId}` }] : [], list_complete: true }
+      : await env.SUBS.list(cursor ? { prefix: "nudge:", cursor } : { prefix: "nudge:" });
+    listed += page.keys.length;
     for (const k of page.keys) {
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
@@ -358,6 +441,7 @@ async function runNudges(env, nowMs, onlyId){
     }
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor && scanned < MAX_PER_CRON);
+  if (!direct && !listed) await markEmpty(env, "mark:nudge", now);
   console.log(JSON.stringify({ nudges: scanned, sent, held, expired, dropped }));
   return { scanned, sent, held, expired, dropped, last };
 }
@@ -390,6 +474,9 @@ async function subscribe(req, env, origin){
   if (presence) await env.SUBS.put(`pres:${id}`, JSON.stringify(rec));
   else await env.SUBS.delete(`pres:${id}`);
   await env.SUBS.put(`sub:${id}`, JSON.stringify(rec));
+  const now = Date.now();
+  if (slot) await markSeen(env, markSlot(slot), now);
+  if (presence) await markSeen(env, "mark:pres", now);
   return json({ ok: true, slot, presence, calls, nudges }, 200, origin);
 }
 
@@ -458,18 +545,25 @@ async function done(req, env, origin){
 
 /* -------------------------------------------------------------------- cron -- */
 
-async function runCron(env){
-  const now  = new Date();
+async function runCron(env, nowMs){
+  const now  = nowMs ? new Date(nowMs) : new Date();
   const slot = String(now.getUTCHours()).padStart(2, "0")
              + String(now.getUTCMinutes()).padStart(2, "0");
   const day  = todayUTC();
 
   // One JWT per push origin, reused across the whole run — signing per
   // subscriber would be the expensive part of a large fan-out.
+  /* KV LIST budget: while old rows still lack markers, migrate one page and
+     LIST as before; afterwards LIST only a minute someone booked */
+  const migrating = !(await marksMigrated(env));
+  if (migrating) { try { await migrateMarks(env, now.getTime()); } catch (e) { console.log(JSON.stringify({ marks: "migrate_failed" })); } }
+  if (!migrating && !(await env.SUBS.get(markSlot(slot)))) return;   // nobody booked this minute: no LIST, no log line
+
   const audCache = {};
-  let cursor, scanned = 0, sent = 0, skipped = 0, dropped = 0;
+  let cursor, scanned = 0, sent = 0, skipped = 0, dropped = 0, listed = 0;
   do {
-    const page = await env.SUBS.list({ prefix: `slot:${slot}:`, cursor });
+    const page = await env.SUBS.list(cursor ? { prefix: `slot:${slot}:`, cursor } : { prefix: `slot:${slot}:` });
+    listed += page.keys.length;
     for (const k of page.keys) {
       if (scanned >= MAX_PER_CRON) break;
       scanned++;
@@ -488,6 +582,7 @@ async function runCron(env){
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor && scanned < MAX_PER_CRON);
 
+  if (!listed) await markEmpty(env, markSlot(slot), now.getTime());
   console.log(JSON.stringify({ slot, scanned, sent, skipped, dropped }));
 }
 
@@ -536,4 +631,7 @@ export default {
 };
 
 /* for the in-process tests (test/nudge.mjs) */
-export { runNudges, nudgeHold, cleanNudge, nudgeLimits };
+/* only functions: the Workers runtime treats every named export of the entry
+   module as a handler, and a plain constant stops the Worker from starting */
+function marksConfig(){ return { MARK_REFRESH, MARK_GRACE, MARK_PAGE, MIG_KEY }; }
+export { runNudges, nudgeHold, cleanNudge, nudgeLimits, runCron, runPresence, marksConfig };

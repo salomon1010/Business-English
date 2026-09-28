@@ -35,7 +35,7 @@ to toggle reminders off and on again, so treat the pair as permanent.
 Settings toggle ──► pushSync()  ──► POST /subscribe {id, slot, endpoint}
                                      stored in KV under slot:<HHMM-utc>:<id>
 
-cron, every minute ──► list slot:<now>:* ──► skip anyone whose done:<id> is today
+cron, every minute ──► mark:slot:<now>? ──► list slot:<now>:* ──► skip anyone whose done:<id> is today
                                         └─► POST endpoint (VAPID, no payload)
 
 push arrives ──► sw.js reads the text the app cached in "be-rem" ──► notification
@@ -67,6 +67,8 @@ send. `markPracticed()` posts the flag; the cron checks it.
 | `slot:<HHMM>:<id>` | endpoint | the send list for one minute |
 | `sub:<id>` | endpoint + slot | so changing the time can clear the old row |
 | `done:<id>` | `YYYY-MM-DD` | 48h TTL |
+| `mark:slot:<HHMM>` / `mark:pres` / `mark:nudge` | time last confirmed | "look here": a cron LISTs a prefix only when its marker exists (below) |
+| `meta:marks-v1` | `done` or the switch's cursor | one-time migration state |
 
 No name, no email, no progress, no recordings. `id` is a random value the client
 generates and is deliberately **not** the Firebase uid — signing out must not
@@ -75,7 +77,22 @@ Covered by privacy.html section 8.
 
 ## Limits and cost
 
-Free tier throughout: ~1,440 cron invocations a day, flat. `MAX_PER_CRON` caps
+Free tier throughout: ~1,440 cron invocations a day, flat.
+
+**KV LIST budget (29 Sep 2026).** The free plan allows 1,000 KV LIST operations
+a day. The crons used to LIST on every run — 1,440 a day for the per-minute
+reminder cron alone, almost always an empty minute — and the account hit the
+limit on 27 Sep. Each prefix a cron reads now has a marker key written by the
+route that adds rows there (`/subscribe` → `mark:slot:<HHMM>`, `mark:pres`;
+`/nudge` → `mark:nudge`). The crons GET the marker and LIST only when it
+exists, so a day costs one LIST per booked minute (plus ≤144 for alerts while
+someone is online and ≤144 while a nudge is pending). The `/nudge/flush` route
+reads its one key directly. A route re-confirms a marker at most hourly; a
+cron deletes one only after an EMPTY list and 36 h without confirmation, so KV's
+~60 s propagation can never retire a live marker. Rows written before markers
+existed are migrated by `runCron`, one page of 200 per minute, while every
+cron keeps listing as before until `meta:marks-v1` reads `done`.
+Test: `node test/kv-marks.mjs` (in process, counts every KV operation). `MAX_PER_CRON` caps
 one minute's fan-out at 900 so a single popular reminder time cannot run away.
 If real usage ever concentrates that hard, shard the bucket
 (`slot:<HHMM>:<0-9>:<id>`) rather than raising the cap.

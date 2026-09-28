@@ -1,0 +1,9 @@
+{
+  "_note": "Firebase web config of the VALIDATION project be-mastery-test (no real users). Public by design, like the production block in index.html. Used only by `npm run sync:staging`, which swaps it into the www/ COPY; the committed index.html and every production bundle keep be-mastery.",
+  "apiKey": "AIzaSyBYRC0Dd49bZxIpxcmb0kVQ_2AjkT5uT20",
+  "authDomain": "be-mastery-test.firebaseapp.com",
+  "projectId": "be-mastery-test",
+  "storageBucket": "be-mastery-test.firebasestorage.app",
+  "messagingSenderId": "724002405539",
+  "appId": "1:724002405539:web:dfad59a6079af1edfd5316"
+}

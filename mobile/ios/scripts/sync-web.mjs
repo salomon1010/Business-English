@@ -30,11 +30,29 @@ if (!/<meta name="viewport"/.test(html)) throw new Error("viewport meta missing"
    (beEnv) and turns billing on for Sandbox testing. Never used for an App Store
    submission; the committed index.html is not touched. */
 const staging = process.argv.includes("--staging");
+/* Firebase follows the build (29 Sep 2026). The staging Workers verify the
+   validation project be-mastery-test, so a staging bundle must sign in there:
+   before this it kept the committed production block and signed staging
+   testers into be-mastery. The swap happens in the COPY only, from
+   staging-firebase.json; a production bundle is checked to carry be-mastery
+   and nothing of the test project. Either mismatch stops the sync. */
+const FB_BLOCK = /window\.FB_CONFIG=\{[\s\S]*?\};/;
+let page = html;
 if (staging) {
   writeFileSync(resolve(out, "be-build.js"), 'window.BE_BUILD={env:"staging",flags:{billing_enabled:true}};\n');
   const tag = '<script src="be-build.js"></script>';
-  if (!html.includes("<head>")) throw new Error("<head> missing");
-  writeFileSync(idx, html.replace("<head>", "<head>\n" + tag));
+  if (!page.includes("<head>")) throw new Error("<head> missing");
+  page = page.replace("<head>", "<head>\n" + tag);
+  const cfg = JSON.parse(readFileSync(resolve(here, "..", "staging-firebase.json"), "utf8"));
+  delete cfg._note;
+  if (cfg.projectId !== "be-mastery-test") throw new Error("staging-firebase.json is not the validation project");
+  if ((page.match(new RegExp(FB_BLOCK.source, "g")) || []).length !== 1) throw new Error("window.FB_CONFIG block not found exactly once");
+  page = page.replace(FB_BLOCK, "window.FB_CONFIG=" + JSON.stringify(cfg) + ";   /* STAGING BUNDLE ONLY: be-mastery-test */");
+  writeFileSync(idx, page);
 }
-writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for iOS (${staging ? "STAGING — not for App Store submission" : "production"})\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
+const project = (/window\.FB_CONFIG=\{[\s\S]*?"?projectId"?\s*:\s*"([^"]+)"/.exec(page) || [])[1];
+const want = staging ? "be-mastery-test" : "be-mastery";
+if (project !== want) throw new Error(`Firebase project in the bundle is ${project}, expected ${want}`);
+if (!staging && (/be-mastery-test/.test(page) || existsSync(resolve(out, "be-build.js")))) throw new Error("a production bundle must carry nothing of staging");
+writeFileSync(resolve(out, "BUNDLE_INFO.txt"), `BE Mastery web bundle for iOS (${staging ? "STAGING — not for App Store submission" : "production"})\nfirebase ${project}\nsynced ${new Date().toISOString()}\nsource ${root}\n`);
 console.log("www ready:", out);
