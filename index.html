@@ -3101,6 +3101,12 @@ html[data-view="session"] .view.on .sess-body>.card .btn-primary{min-height:36px
 html[data-view="session"] .view.on :is(.sess-jump,.timer-box .btn-primary,.sess-plan>summary,.sess-body>.card .btn-primary)::after{content:"";position:absolute;left:0;right:0;top:-5px;bottom:-5px}
 html[data-view="session"] .view.on :is(.sess-back,.sess-act,.sess-done,.score-b)::after{content:"";position:absolute;left:0;right:0;top:-6px;bottom:-6px}
 html[data-view="session"] .view.on .sess-ex summary::before{content:"";position:absolute;left:0;right:0;top:-8px;bottom:-8px}
+/* Owner, same day: the helper lines under Open the Shadow Studio, Shadow the scene and the timer are
+   gone ("remove all this text to make space"); the buttons keep a 10px step and Reset sits right. */
+html[data-view="session"] .view.on .sess-jump{display:flex;margin-bottom:10px}
+html[data-view="session"] .view.on .sess-timer-foot{justify-content:flex-end;margin:-8px 0 -6px}
+html[data-view="session"] .view.on .sess-reset{min-height:26px;padding:0 4px;position:relative}
+html[data-view="session"] .view.on .sess-reset::after{content:"";position:absolute;left:-6px;right:-6px;top:-9px;bottom:-9px}
 /* Timer (owner, same day): the eyebrow on the left, then one row — Start on the left, 25:00 on the right. */
 html[data-view="session"] .view.on .sess-body>.card.timer-box{display:grid;grid-template-columns:auto 1fr;grid-template-areas:"eb eb" "go dig";align-items:center;column-gap:14px;row-gap:4px;text-align:left}
 html[data-view="session"] .view.on .timer-box .eyebrow{grid-area:eb;text-align:left}
@@ -3118,7 +3124,9 @@ html[data-view="session"] .view.on .sess-jump{width:fit-content;max-width:100%;f
 html[data-view="session"] .view.on .sess-jump .sess-jump-go{margin-left:8px;font-size:16px}
 html[dir="rtl"][data-view="session"] .view.on .sess-jump .sess-jump-go{margin-left:0;margin-right:8px}
 html[data-view="session"] .view.on .timer-box .eyebrow{font-size:11.5px}
-html[data-view="session"] .view.on #scnSess .sess-jump{max-width:88%;justify-content:flex-start;text-align:left;line-height:1.3}   /* the long scene title wraps inside a narrower box, read from the left */
+html[data-view="session"] .view.on #scnSess .sess-jump{width:100%;max-width:none;justify-content:flex-start;text-align:left;line-height:1.3}   /* owner: the full width of the cards below it; the arrow sits at the far edge */
+html[data-view="session"] .view.on #scnSess .sess-jump .sess-jump-go{margin-left:auto}
+html[dir="rtl"][data-view="session"] .view.on #scnSess .sess-jump .sess-jump-go{margin-left:0;margin-right:auto}
 html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width:fit-content;min-width:150px;margin:6px auto 0;padding:5px 28px;font-size:15px;min-height:36px}
 
 /* PHRASES */
@@ -12352,8 +12360,7 @@ function rSession(el,w,d){
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
-  <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
   ${scnOn()&&sessionLinks[d]&&sessionLinks[d].v==="shadow"?`<div id="scnSess"></div>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
@@ -12362,7 +12369,6 @@ function rSession(el,w,d){
         <button class="btn-primary" id="tBtn" onclick="tToggle()">${tIc("sess.timer_start","play")}</button>
       </div>
       <div class="sess-timer-foot">
-        <p class="sess-timer-hint">${t("sess.timer_hint")}</p>
         <button class="sess-reset" onclick="tReset()">${t("sess.timer_reset")}</button>
       </div>
       <details class="home-more sess-plan">
@@ -22731,7 +22737,7 @@ function scnSessFill(w,d){
   if(!scnOn())return;
   const paint=()=>{const el=document.getElementById("scnSess");if(!el)return;const sc=scnForDay(w,d);if(!sc){el.innerHTML="";return}
     const f=scnWho(sc.focus)||{name:""};
-    el.innerHTML=`<button class="btn-primary sess-jump scn-sess" onclick="scnFromSession('${esc(sc.id)}',${w},'${d}')"><span class="btn-ic">${ic("film")}</span><span>${esc(t("scn.sess_btn",{title:sc.title}))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button><p class="sess-jump-why">${esc(t("scn.sess_why",{name:f.name}))}</p>`;
+    el.innerHTML=`<button class="btn-primary sess-jump scn-sess" onclick="scnFromSession('${esc(sc.id)}',${w},'${d}')"><span class="btn-ic">${ic("film")}</span><span>${esc(t("scn.sess_btn",{title:sc.title}))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`;   /* owner, 28 Sep 2026: no line under it (scn.sess_why kept for the dictionaries) */
     manIconizeInline(el)};
   if(_scnList)paint();else scnListLoad().then(paint);
 }

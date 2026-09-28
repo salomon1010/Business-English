@@ -211,7 +211,7 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
   /* the session page: Week 1 · Monday offers this scene */
   await p.evaluate(() => go("session", 1, "Mon")); await sleep(900);
   const ss = await p.evaluate(() => { const b = document.querySelector("#scnSess button"); return { b: b && b.textContent.replace(/\s+/g, " ").trim(), why: (document.querySelector("#scnSess .sess-jump-why") || {}).textContent }; });
-  ok("Week 1 · Monday's session offers 'Shadow the scene'", /Shadow the scene: Meeting a new coworker/.test(ss.b || "") && /shadow Daniel/.test(ss.why || ""), JSON.stringify(ss));
+  ok("Week 1 · Monday's session offers 'Shadow the scene'", /Shadow the scene: Meeting a new coworker/.test(ss.b || "") && !ss.why   /* owner, 28 Sep 2026: no helper line under it */, JSON.stringify(ss));
   await p.evaluate(() => go("session", 1, "Tue")); await sleep(600);
   ok("a day with no scene (Tuesday) offers none", await p.evaluate(() => !document.querySelector("#scnSess button")));
   await p.evaluate(() => go("session", 1, "Mon")); await sleep(700);
