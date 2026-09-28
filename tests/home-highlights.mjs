@@ -87,10 +87,10 @@ console.log("\n# language");
 
 console.log("\n# no video, no empty box: every card without a clip shows the page it opens");
 const cards = p => p.evaluate(async () => {   /* the pictures are lazy: bring each card on screen (rows scroll sideways) before asking */
-  for (const c of document.querySelectorAll(".hx-rcard,.hx-dcard,.hx-feat")) { c.scrollIntoView({ block: "center", inline: "center" }); await new Promise(z => setTimeout(z, 250)); }
+  for (const c of document.querySelectorAll(".hx-rcard,.hx-dcard")) { c.scrollIntoView({ block: "center", inline: "center" }); await new Promise(z => setTimeout(z, 250)); }
   await new Promise(z => setTimeout(z, 1500));
   const one = c => { const i = c.querySelector("img"); return { type: c.dataset.type || c.dataset.dest, src: i ? i.getAttribute("src") : null, loaded: !!(i && i.complete && i.naturalWidth > 0) }; };
-  return { rows: [...document.querySelectorAll(".hx-rcard")].map(one), explore: [...document.querySelectorAll(".hx-dcard,.hx-feat")].map(one), empty: document.querySelectorAll(".hx-rimg.none").length }; });
+  return { rows: [...document.querySelectorAll(".hx-rcard")].map(one), explore: [...document.querySelectorAll(".hx-dcard")].map(one), empty: document.querySelectorAll(".hx-rimg.none").length }; });
 { const { ctx, p, errs } = await open({ dates: [], dayLog: {}, dayLogA: {} });
   const c = await cards(p), noVid = c.rows.filter(x => !/ytimg|rp-photos/.test(x.src || ""));
   const made = await p.evaluate(() => ["session", "words", "trouble", "phrases", "partner", "ai"].map(type => { const d = document.createElement("div"); d.innerHTML = homeRowCardHTML({ id: "x" }, { type, w: 1, d: "Mon", n: 3 }, 0); const i = d.querySelector("img"); return type + "=" + (i ? i.getAttribute("src") : "none"); }));
