@@ -77,11 +77,11 @@ const openShadow = async (page, pick = 5) => {
 };
 const card = page => page.evaluate(() => {
   const b = document.getElementById("svShTr"), tb = document.getElementById("svShTrBtn"), ib = document.getElementById("svShIpaBtn"), st = document.getElementById("svShIpaSt");
-  const words = [...document.querySelectorAll("#svSh .sv-sh-w")];
+  const words = [...document.querySelectorAll("#svSh .sv-sh-w")]; const words0 = () => words.map(w => (w.querySelector(".sv-sh-wt") || {}).innerText);
   return { card: !!document.getElementById("svSh"), trBtn: !!tb, trOn: tb && tb.getAttribute("aria-pressed"), trNa: tb && tb.getAttribute("aria-disabled") === "true", trCode: tb && (tb.querySelector("small") || {}).innerText, trCheck: !!(tb && tb.classList.contains("on") && tb.querySelector("svg")),
     ipaBtn: !!ib, ipaOn: ib && ib.getAttribute("aria-pressed"), ipaCheck: !!(ib && ib.classList.contains("on")),
-    trShown: !!(b && !b.hidden && !b.classList.contains("empty")), trCls: b && b.className, trLang: b && b.getAttribute("lang"), trDir: b && b.getAttribute("dir"), trLbl: b && (b.querySelector(".sv-sh-tr-l") || {}).textContent, trText: b && (b.querySelector(".sv-sh-tr-x") || {}).innerText, trRetry: !!(b && b.querySelector(".sv-sh-retry")),
-    english: (document.querySelector("#svSh .sv-sh-text") || {}).innerText, want: svShGroup() && svShGroup().text, gid: svShGroup() && svShGroup().id,
+    trShown: !!(b && b.classList.contains("tr")), trCls: b && b.className, trLang: b && b.getAttribute("lang"), trDir: b && b.getAttribute("dir"), trLbl: b && (b.querySelector(".sv-sh-tr-l") || {}).textContent, line: b && b.innerText, isLine: !!(b && b.matches("#svSh .sv-sh-card > p.sv-sh-text")), boxes: document.querySelectorAll("#svSh .sv-sh-tr").length, trText: b && (b.querySelector(".sv-sh-tr-x") || {}).innerText, trRetry: !!(b && b.querySelector(".sv-sh-retry")),
+    english: words0().join(" "), want: svShGroup() && svShGroup().text, gid: svShGroup() && svShGroup().id,
     nWords: words.length, nIpa: document.querySelectorAll("#svSh .sv-sh-ipa").length,
     ipa: words.map(w => ({ w: w.dataset.w, t: (w.querySelector(".sv-sh-wt") || {}).innerText, ipa: (w.querySelector(".sv-sh-ipa") || {}).textContent })),
     stCls: st && st.className, stText: st && !st.hidden ? st.innerText : "", stRetry: !!(st && st.querySelector(".sv-sh-retry")),
@@ -98,17 +98,17 @@ await openShadow(A.page);
 
 /* ---------- defaults ---------- */
 let c = await card(A.page);
-ok("General English, French native language: the card carries Translate (FR) and Pronunciation, both OFF; no translation block, no IPA, nothing asked of the Worker", c.card && c.trBtn && c.trOn === "false" && !c.trNa && c.trCode === "FR" && c.ipaBtn && c.ipaOn === "false" && !c.trShown && c.nIpa === 0 && c.nWords === c.want.split(/\s+/).length && c.english === c.want && chat.length === 0, JSON.stringify(c));
+ok("General English, French native language: the card carries Translate (FR) and Pronunciation, both OFF; no translation block, no IPA, nothing asked of the Worker", c.card && c.trBtn && c.trOn === "false" && !c.trNa && c.trCode === "FR" && c.ipaBtn && c.ipaOn === "false" && !c.trShown && c.nIpa === 0 && c.nWords === c.want.split(/\s+/).length && c.english === c.want && c.isLine && c.line === c.want && chat.length === 0, JSON.stringify(c));
 ok("The two controls are real switches: 40 px tall, aria-pressed, and the card does not overflow a 390 px phone", c.tgH.every(h => h >= 40) && c.fits, JSON.stringify({ h: c.tgH, fits: c.fits }));
 
 /* ---------- Translate ---------- */
 const trOn = await A.page.evaluate(() => svShTrToggle()); await sleep(500);
 c = await card(A.page);
-ok("Translate ON: the control shows a tick and aria-pressed=true; the block appears under the English, labelled Français, lang=fr, with the French translation from the Worker; the English stays; exactly one chat request, asked for French", trOn && c.trOn === "true" && c.trCheck && c.trShown && c.trLang === "fr" && c.trDir === "ltr" && c.trLbl === "Français" && /^Traduction \[French\]/.test(c.trText) && c.english === c.want && c.nWords === c.want.split(/\s+/).length && chat.length === 1 && chat[0].kind === "tr" && chat[0].lang === "French" && chat[0].text === c.want, JSON.stringify({ trOn, c, chat }));
+ok("Translate ON: the control shows a tick and aria-pressed=true; the grey English line itself becomes the French translation from the Worker (lang=fr, no label, no second box); the English word chips stay; exactly one chat request, asked for French", trOn && c.trOn === "true" && c.trCheck && c.trShown && c.isLine && c.boxes === 0 && c.trLang === "fr" && c.trDir === "ltr" && c.trLbl === undefined && /^Traduction \[French\]/.test(c.trText) && c.line === c.trText && c.english === c.want && c.nWords === c.want.split(/\s+/).length && chat.length === 1 && chat[0].kind === "tr" && chat[0].lang === "French" && chat[0].text === c.want, JSON.stringify({ trOn, c, chat }));
 ok("The preference is kept per area in S (svPrefA.general-english.tr) — nothing under welding", c.pref && c.pref["general-english"] && c.pref["general-english"].tr === true && !c.pref.welding, JSON.stringify(c.pref));
 const trOff = await A.page.evaluate(() => svShTrToggle()); await sleep(150);
 c = await card(A.page);
-ok("Translate OFF again: the block is gone, aria-pressed=false, the English untouched", !trOff && c.trOn === "false" && !c.trShown && c.english === c.want, JSON.stringify(c));
+ok("Translate OFF again: the line is English again (lang=en), aria-pressed=false, the words untouched", !trOff && c.trOn === "false" && !c.trShown && c.line === c.want && c.trLang === "en" && c.english === c.want, JSON.stringify(c));
 const n1 = chat.length;
 await A.page.evaluate(() => svShTrToggle()); await sleep(300);
 c = await card(A.page);
@@ -288,21 +288,21 @@ const e1 = await E.page.evaluate(async () => {
   const tb = document.getElementById("svShTrBtn");
   const r = { na: tb.getAttribute("aria-disabled") === "true", cls: tb.className, code: !!tb.querySelector("small"), ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 100));
-  r.toast = document.getElementById("toast").textContent; r.pref = S.svPrefA && S.svPrefA["general-english"] && S.svPrefA["general-english"].tr; r.block = !document.getElementById("svShTr").hidden;
+  r.toast = document.getElementById("toast").textContent; r.pref = S.svPrefA && S.svPrefA["general-english"] && S.svPrefA["general-english"].tr; r.block = document.getElementById("svShTr").classList.contains("tr"); r.line = document.getElementById("svShTr").innerText === svShGroup().text;
   r.ipa = svShIpaToggle(); await new Promise(x => setTimeout(x, 500)); r.nIpa = document.querySelectorAll("#svSh .sv-sh-ipa").length; r.nW = document.querySelectorAll("#svSh .sv-sh-w").length;
   return r;
 });
-ok("English as the app language: Translate is shown but marked unavailable (aria-disabled, dimmed, no code); tapping it explains that the native language is needed, nothing is translated or requested; Pronunciation still works", e1.na && /\bna\b/.test(e1.cls) && !e1.code && e1.ret === false && /native language/.test(e1.toast) && !e1.pref && !e1.block && e1.ipa && e1.nIpa === e1.nW && chat.filter(x => x.kind === "tr").length === chat.slice(0, nE).filter(x => x.kind === "tr").length, JSON.stringify(e1));
+ok("English as the app language: Translate is shown but marked unavailable (aria-disabled, dimmed, no code); tapping it explains that the native language is needed, nothing is translated or requested; Pronunciation still works", e1.na && /\bna\b/.test(e1.cls) && !e1.code && e1.ret === false && /native language/.test(e1.toast) && !e1.pref && !e1.block && e1.line && e1.ipa && e1.nIpa === e1.nW && chat.filter(x => x.kind === "tr").length === chat.slice(0, nE).filter(x => x.kind === "tr").length, JSON.stringify(e1));
 const e2 = await E.page.evaluate(async () => {
   S.profile.lang = "es"; svRender(); const r = { code: document.getElementById("svShTrBtn").querySelector("small")?.innerText, ret: svShTrToggle() };
   await new Promise(x => setTimeout(x, 500));
-  const b = document.getElementById("svShTr"); r.lbl = b.querySelector(".sv-sh-tr-l")?.textContent; r.text = b.querySelector(".sv-sh-tr-x")?.innerText; r.lang = b.getAttribute("lang");
+  const b = document.getElementById("svShTr"); r.lbl = b.title; r.text = b.querySelector(".sv-sh-tr-x")?.innerText; r.lang = b.getAttribute("lang");
   S.profile.lang = "ar"; svRender(); await new Promise(x => setTimeout(x, 500));
-  const b2 = document.getElementById("svShTr"); r.arDir = b2.getAttribute("dir"); r.arLang = b2.getAttribute("lang"); r.arLbl = b2.querySelector(".sv-sh-tr-l")?.textContent; r.arText = b2.querySelector(".sv-sh-tr-x")?.innerText;
+  const b2 = document.getElementById("svShTr"); r.arDir = b2.getAttribute("dir"); r.arLang = b2.getAttribute("lang"); r.arLbl = b2.title; r.arText = b2.querySelector(".sv-sh-tr-x")?.innerText;
   S.profile.lang = "en"; svRender(); return r;
 });
 const langs = chat.slice(nE).filter(x => x.kind === "tr").map(x => x.lang);
-ok("The target language follows the native-language setting, never a guess: Spanish → 'ES', Español, a Spanish request; Arabic → the block turns right-to-left with lang=ar and an Arabic request", e2.code === "ES" && e2.ret && e2.lbl === "Español" && /Traduction \[Spanish\]/.test(e2.text) && e2.lang === "es" && e2.arDir === "rtl" && e2.arLang === "ar" && e2.arLbl === "العربية" && /Traduction \[Arabic\]/.test(e2.arText) && langs.join() === "Spanish,Arabic", JSON.stringify({ e2, langs }));
+ok("The target language follows the native-language setting, never a guess: Spanish → 'ES', Español, a Spanish request; Arabic → the line turns right-to-left with lang=ar and an Arabic request", e2.code === "ES" && e2.ret && /Español/.test(e2.lbl) && /Traduction \[Spanish\]/.test(e2.text) && e2.lang === "es" && e2.arDir === "rtl" && e2.arLang === "ar" && /العربية/.test(e2.arLbl) && /Traduction \[Arabic\]/.test(e2.arText) && langs.join() === "Spanish,Arabic", JSON.stringify({ e2, langs }));
 
 ok("No JavaScript errors on any of the three pages", errors.length === 0, errors.join(" | "));
 
