@@ -93,8 +93,10 @@ const A = await learner("A", { track: "general-english", flags: { shadow_scenes_
     shLibCat("foryou"); shLibQ("Communicating the Future"); await wait(); look(); shLibQ(""); await wait();
     out.helper = typeof shLibHasTx === "function"; return out; });
   ok("no badge line on any row; the videos without a transcript are in no list (For you, every category, a search)", tx.helper && tx.bad > 0 && tx.rows > 0 && tx.tags === 0 && tx.shown.length === 0, JSON.stringify(tx));
-  const fs = await p.evaluate(() => { const r = document.querySelector("#shLibFeed .shl-row:not(.scn-lrow)"); return r ? { b: getComputedStyle(r.querySelector("b")).fontSize, s: getComputedStyle(r.querySelector("small")).fontSize } : null; });
+  const fs = await p.evaluate(() => { const r = document.querySelector("#shLibFeed .shl-row:not(.scn-lrow)"); if (!r) return null; const b = r.querySelector("b"), rgb = c => { const n = (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number); return /^color\(srgb/.test(c) ? n.map(x => x * 255) : n; }, lum = c => rgb(c).reduce((a, x) => a + x, 0); const pg = getComputedStyle(document.body).color;
+    return { b: getComputedStyle(b).fontSize, s: getComputedStyle(r.querySelector("small")).fontSize, col: getComputedStyle(b).color, page: pg, soft: lum(getComputedStyle(b).color) < lum(pg) && lum(getComputedStyle(b).color) > lum(getComputedStyle(r.querySelector("small")).color) }; });
   ok("row text a little smaller (owner, 28 Sep 2026): title 13 px, channel 11 px", fs && fs.b === "13px" && fs.s === "11px", JSON.stringify(fs));
+  ok("the title is softer than the page's full white, still brighter than the channel line (owner, 28 Sep 2026)", fs && fs.soft, JSON.stringify(fs));
   await openScene(p);
   const st = await p.evaluate(() => ({ cls: ytPlayer instanceof ShadowScenes.ScenePlayer, live: !!document.querySelector("#ytBox .scn-live"), lbl: document.querySelector("#ytBox .scn-live").getAttribute("aria-label") || "", ai: (document.querySelector("#ytBox .scn-ai") || {}).textContent, dur: ytPlayer.getDuration(), title: shClip.title, iframe: !!document.querySelector("#ytBox iframe") }));
   ok("the scene plays in ScenePlayer inside the studio's own player box (no YouTube frame)", st.cls && st.live && !st.iframe, JSON.stringify(st));
