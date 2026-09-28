@@ -4437,6 +4437,8 @@ html[dir="rtl"] .doc-theme{right:auto;left:max(14px,calc(env(safe-area-inset-lef
 /* langColor() generates a hue per language; some are light. A dark inset
    keeps the hue while guaranteeing the initials stay readable. */
 .lang-ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff;flex:none;box-shadow:inset 0 0 0 999px rgba(0,0,0,.34);text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.lang-ic.lang-flag{position:relative;overflow:hidden;background:var(--card2);box-shadow:0 0 0 1px var(--line2);text-shadow:none}
+.lang-ic.lang-flag span{font-size:40px;line-height:1;transform:scale(1.45);font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
 .lang-native{flex:1;min-width:0}
 .lang-native small{display:block;font-size:11.5px;color:var(--mut);font-weight:500}
 .lang-modal-ov{position:fixed;inset:0;z-index:130;background:rgba(6,9,18,.78);backdrop-filter:blur(6px);display:grid;place-items:center;padding:22px;animation:fade .2s}
@@ -9199,6 +9201,32 @@ const LANG_COLORS=["#f59e0b","#ef4444","#818cf8","#fb923c","#f472b6","#a78bfa","
 function langColor(code){let h=0;for(let i=0;i<code.length;i++)h=(h*31+code.charCodeAt(i))>>>0;return LANG_COLORS[h%LANG_COLORS.length]}
 function langByCode(code){return LANGS.find(l=>l.code===code)}
 function langInitials(l){return (l.code.split("-")[0]).slice(0,2).toUpperCase()}
+/* A flag per language (owner, 28 Sep 2026, Translate list): the country most tied to it.
+   Languages with no clear single flag (Esperanto, Latin, Basque, Kurdish, Tibetan, Traditional
+   Chinese, Yiddish, Galician, Catalan, Hawaiian) keep their initials. gb-wls / gb-sct are
+   subdivision flags. Devices that cannot draw flag emoji (most of Windows) keep initials too. */
+const LANG_FLAG={es:"es",pt:"pt",fr:"fr",de:"de",it:"it",nl:"nl",pl:"pl",ro:"ro",uk:"ua",ru:"ru",tr:"tr",ar:"sa",fa:"ir",ur:"pk",he:"il",hi:"in",bn:"bd",zh:"cn",ja:"jp",ko:"kr",vi:"vn",th:"th",id:"id",tl:"ph",sw:"tz",
+  sv:"se",da:"dk",no:"no",fi:"fi",is:"is",el:"gr",cs:"cz",sk:"sk",hu:"hu",bg:"bg",hr:"hr",sr:"rs",bs:"ba",sl:"si",lt:"lt",lv:"lv",et:"ee",ga:"ie",cy:"gb-wls",gd:"gb-sct",mt:"mt",sq:"al",mk:"mk",lb:"lu",
+  ps:"af",tg:"tj",tk:"tm",ky:"kg",kk:"kz",uz:"uz",az:"az",hy:"am",ka:"ge",dv:"mv",pa:"in",gu:"in",mr:"in",ta:"in",te:"in",kn:"in",ml:"in",si:"lk",ne:"np",as:"in",or:"in",sd:"pk",
+  my:"mm",km:"kh",lo:"la",mn:"mn",ms:"my",jv:"id",am:"et",ti:"er",so:"so",ha:"ng",yo:"ng",ig:"ng",zu:"za",xh:"za",af:"za",rw:"rw",ln:"cd",wo:"sn",sn:"zw",mg:"mg",mi:"nz",sm:"ws",to:"to",fj:"fj"};
+function flagEmoji(cc){
+  const [c,sub]=cc.split("-");
+  if(sub)return "\u{1F3F4}"+[...(c+sub)].map(ch=>String.fromCodePoint(0xE0000+ch.charCodeAt(0))).join("")+"\u{E007F}";
+  return [...c.toUpperCase()].map(ch=>String.fromCodePoint(0x1F1E6+ch.charCodeAt(0)-65)).join("");
+}
+let _flagOK=null;
+/* one canvas test: does this device draw 🇫🇷 in colour, or as two grey letters? */
+function flagsDrawn(){
+  if(_flagOK!==null)return _flagOK;
+  try{const c=document.createElement("canvas");c.width=c.height=24;const x=c.getContext("2d");x.textBaseline="top";x.font="20px sans-serif";x.fillText(flagEmoji("fr"),0,2);
+    const d=x.getImageData(0,0,24,24).data;let col=0;for(let i=0;i<d.length;i+=4){if(d[i+3]>0&&Math.max(d[i],d[i+1],d[i+2])-Math.min(d[i],d[i+1],d[i+2])>60)col++}
+    _flagOK=col>20}catch(e){_flagOK=false}
+  return _flagOK;
+}
+function langBadgeHTML(l){
+  const f=LANG_FLAG[l.code];
+  return f&&flagsDrawn()?`<span class="lang-ic lang-flag" aria-hidden="true"><span>${flagEmoji(f)}</span></span>`:`<span class="lang-ic" style="background:${langColor(l.code)}">${langInitials(l)}</span>`;
+}
 /* Shared picker used by onboarding (immediate apply) and Account/Settings (confirm dialog first).
    onSelectFn is the name of a global function(code) to call when a row is tapped. */
 function langListHTML(query,onSelectFn){
