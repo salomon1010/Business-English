@@ -135,5 +135,18 @@ console.log("\n# signed out / signed in, flag, tracks, landing");
   ok("29 · Welding keeps its own return rule (the road map after a gap), unchanged", await p.evaluate(() => cur.v === "journey"), await p.evaluate(() => cur.v)); await ctx.close(); }
 { const { ctx, p } = await open({}, { hash: "#journey" });
   ok("30 · a link to a page (here the road map) still opens that page — Home is only the default", await p.evaluate(() => cur.v === "journey")); await ctx.close(); }
+console.log("\n# who is online, beside the hero's button (owner, 28 Sep 2026)");
+{ const { ctx, p, errs } = await open({});
+  const o0 = await p.evaluate(() => ({ there: !!document.getElementById("hxOnline"), hidden: document.getElementById("hxOnline").hidden }));
+  ok("31 · nobody online (or Practice Partner unavailable): no pill beside the button", o0.there && o0.hidden, JSON.stringify(o0));
+  /* the Worker is stood in, so the count is set the way ppPresencePoll sets it */
+  await p.evaluate(() => { window.ppAvailable = () => true; ppPub.online = 1; ppPub.waiting = 2; ppOnlineSync(); });
+  const o1 = await p.evaluate(() => { const o = document.getElementById("hxOnline"), c = document.querySelector(".hx-cta"), a = o.getBoundingClientRect(), r = c.getBoundingClientRect(); return { hidden: o.hidden, text: o.textContent, sameRow: Math.abs((a.top + a.bottom) / 2 - (r.top + r.bottom) / 2) < 2, right: a.left > r.right, fits: a.right <= document.querySelector(".hx").getBoundingClientRect().right, tag: o.tagName }; });
+  ok("32 · someone online: '1 online · 2 in line' — the Practice tab's own words — on the button's row, to its right, inside the card", !o1.hidden && o1.text === "1 online · 2 in line" && o1.sameRow && o1.right && o1.fits && o1.tag === "BUTTON", JSON.stringify(o1));
+  await p.evaluate(() => { ppPub.waiting = 0; ppOnlineSync(); });
+  ok("33 · … nobody in line: just '1 online'", await p.evaluate(() => document.getElementById("hxOnline").textContent === "1 online"));
+  await p.click("#hxOnline"); await sleep(600);
+  ok("34 · tapping it opens Practice Partner", await p.evaluate(() => cur.v === "partner"), await p.evaluate(() => cur.v));
+  ok("35 · no JavaScript errors", !errs.length, errs.join(" | ")); await ctx.close(); }
 await b.close(); if (srv) srv.kill();
 const pass = res.filter(Boolean).length; console.log(`\n${pass}/${res.length} passed`); process.exit(pass === res.length ? 0 : 1);
