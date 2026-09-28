@@ -111,7 +111,9 @@ console.log("\n# phone layout");
   /* since the "Because you…" rows (27 Sep 2026) the personalised rows sit between the hero and Explore, so what
      begins on the first screen is the first row when the learner has one (a new learner: "Start here"), else Explore */
   ok("22 · the main button is on the first screen, above the bottom navigation — and the next section (the first personalised row, else Explore) begins on that first screen too", L.ctaBottom < L.navTop && L.destTop < L.navTop, JSON.stringify(L));
-  const kb = await p.evaluate(() => [...document.querySelectorAll(".hx-cta,.hx-feat,.hx-dcard")].every(x => x.tagName === "BUTTON" && x.innerText.trim().length > 2 && x.getBoundingClientRect().height >= 44));
+  /* the hero button is drawn 38 px tall (owner, 28 Sep 2026); its ::after band makes the touch target 44 px */
+  const kb = await p.evaluate(() => [...document.querySelectorAll(".hx-cta,.hx-feat,.hx-dcard")].every(x => { const r = x.getBoundingClientRect(), a = getComputedStyle(x, "::after"), hit = x.classList.contains("hx-cta") && a.content !== "none" ? r.height - parseFloat(a.top) - parseFloat(a.bottom) : r.height;
+    return x.tagName === "BUTTON" && x.innerText.trim().length > 2 && hit >= 44; }));
   ok("22b · every action on Home is a real button with a visible label and a touch-sized target (keyboard and screen readers reach them)", kb);
   ok("23 · no sideways scrolling, and the end of the page clears the bottom navigation", L.sw <= L.vw && L.lastBottom <= L.nav2Top + 1, JSON.stringify(L)); await ctx.close(); }
 console.log("\n# signed out / signed in, flag, tracks, landing");
