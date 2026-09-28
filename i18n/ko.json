@@ -335,6 +335,7 @@
  "prog.chart_no_data": "말하기 피드백 세션을 2개 이상 녹음하면 곡선을 볼 수 있어요 📈",
  "rev.eyebrow": "일요일 리뷰와 월간 대시보드",
  "rev.title": "측정할 것인가, <em>표류할 것인가</em>",
+ "rev.more": "See all details",
  "rev.selfscore_title": "{{w}}주차 자가 채점",
  "rev.selfscore_sub": "그 주의 녹음을 최소 2개 들은 뒤, 스스로에게 1–10점을 주세요 — 그리고 이미 얼마나 왔는지 느껴 보세요.",
  "rev.trend_sub": "12주 전체에 걸친 주간 점수 — 당신이 나아지는 모양",
