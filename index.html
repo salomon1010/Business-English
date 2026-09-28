@@ -1512,7 +1512,7 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-rbody small{font-size:10px;color:var(--mut);opacity:.85;letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hx-rbody b{font-size:11.5px;font-weight:600;color:var(--mut);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 @media (min-width:700px){.hx-row-scroll{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;overflow:visible;margin:0;padding:0}.hx-rcard{flex:none}}
-.hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:16/10;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
+.hx-dimg{position:relative;display:grid;place-items:center;aspect-ratio:11/12;background:linear-gradient(135deg,color-mix(in srgb,var(--acc) 26%,var(--card2)),var(--card2))}
 .hx-dimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .hx-dic{position:relative;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb,var(--acc) 22%,transparent);color:var(--acc)}
 .hx-dimg.img .hx-dic{position:absolute;left:8px;top:8px;width:32px;height:32px;border-radius:10px;background:rgba(6,9,18,.62);color:#fff}
@@ -1521,8 +1521,21 @@ html[data-theme="light"] .cta-lead-tag{background:var(--accent);color:#fff}
 .hx-dimg.ico img,.hx-feat-img.ico img{object-fit:contain}
 .hx-dimg.ico .hx-dic,.hx-feat-img.ico .hx-feat-ic{display:none}
 .hx-dimg.img .hx-dic svg{width:16px;height:16px}
-.hx-dtxt{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;min-width:0}
-.hx-dtxt b{font-size:13.5px}
+/* Explore card body (owner, 28 Sep 2026): a coloured icon square beside the title and its line,
+   one colour per place; the picture above carries no badge of its own */
+.hx-dbody{display:flex;align-items:center;gap:9px;padding:11px 10px 12px;min-width:0}
+.hx-dbadge{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,var(--c1,#4f8dff),var(--c2,#3b5bff));box-shadow:0 4px 10px -4px var(--c2,#3b5bff)}
+.hx-dbadge svg{width:18px;height:18px;stroke-width:2}
+.hx-dbody .hx-dtxt small{-webkit-line-clamp:3}
+.hx-dcard[data-dest=shadow]{--c1:#ff7a8a;--c2:#e8344f}
+.hx-dcard[data-dest=partner]{--c1:#45a8ff;--c2:#1f6fff}
+.hx-dcard[data-dest=phrases]{--c1:#6f7cff;--c2:#5b3dff}
+.hx-dcard[data-dest=practice]{--c1:#3fe0a6;--c2:#12b886}
+.hx-dcard[data-dest=journey]{--c1:#a57bff;--c2:#6d3cf0}
+.hx-dcard[data-dest=review]{--c1:#ffd23a;--c2:#ff9f1a}
+.hx-dimg.img .hx-dic{display:none}
+.hx-dtxt{display:flex;flex-direction:column;gap:2px;padding:0;min-width:0}
+.hx-dtxt b{font-size:13.5px;line-height:1.25}
 .hx-dtxt small{font-size:11.5px;line-height:1.35;color:var(--mut);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .hx-feat,.hx-dcard{transition:transform .15s ease,border-color .15s ease}
 .hx-feat:active,.hx-dcard:active{transform:scale(.985)}
@@ -5973,6 +5986,7 @@ const ICON={
   clock:'<circle cx="12" cy="12" r="8.4"/><path d="M12 7.6V12l3 1.9"/>',
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/>',
   "mic-off":'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17.2v3.3M9 20.5h6"/><path d="M4 4l16 16"/>',
+  flask:'<path d="M9.5 3.5h5"/><path d="M10.3 3.5v5.4L5 18.2a1.6 1.6 0 0 0 1.4 2.3h11.2a1.6 1.6 0 0 0 1.4-2.3l-5.3-9.3V3.5"/><path d="M7.4 14.5h9.2"/>',
   book:'<path d="M12 6.2C10.6 5 8.7 4.4 6 4.4a1 1 0 0 0-1 1v11.4a1 1 0 0 0 1 1c2.7 0 4.6.6 6 1.8 1.4-1.2 3.3-1.8 6-1.8a1 1 0 0 0 1-1V5.4a1 1 0 0 0-1-1c-2.7 0-4.6.6-6 1.8Z"/><path d="M12 6.2V19.6"/>',
   calendar:'<rect x="3.6" y="5.2" width="16.8" height="15.2" rx="2"/><path d="M3.6 9.4h16.8"/><path d="M8 3.4v3.4M16 3.4v3.4"/>',
   help:'<circle cx="12" cy="12" r="8.4"/><path d="M9.6 9.6a2.5 2.5 0 0 1 4.6 1.4c0 1.6-1.9 1.9-2.2 3.2"/><circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none"/>',
@@ -11342,11 +11356,11 @@ function homeDestHTML(top,cards,vis){
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
   const D={
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?esc(vidThumb(firstVid,"hqdefault")):""},
-    partner:ppAvailable()?{ic:"user",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"home-icons/partner.jpg",ico:1}:null,
-    phrases:{ic:"chat",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"home-icons/phrases.jpg",ico:1},
+    partner:ppAvailable()?{ic:"team",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"home-icons/partner.jpg",ico:1}:null,
+    phrases:{ic:"flask",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"home-icons/phrases.jpg",ico:1},
     /* Explore cards carry their own artwork (owner, 28 Sep 2026): home-icons/*.jpg are square
        tiles, shown whole (.ico = contain on the tiles' navy). The rows keep home-shots. */
-    practice:{ic:"repeat",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-icons/vocab.jpg",ico:1},
+    practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-icons/vocab.jpg",ico:1},
     journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-icons/roadmap.jpg",ico:1},
     review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-icons/progress.jpg",ico:1}
   };
@@ -11368,7 +11382,7 @@ function homeDestHTML(top,cards,vis){
   order.sort((a,b)=>rank(b)-rank(a));
   const grid=order.map(id=>{const d=D[id],r=taken[id];return `<button class="hx-dcard${r?" rec":""}" data-dest="${id}" onclick="${r?r.go:d.go}">
       <span class="hx-dimg${d.img?" img":""}${d.ico?" ico":""}">${d.img?`<img src="${d.img}" alt="" loading="lazy" decoding="async" onerror="this.remove()">`:""}<span class="hx-dic">${ic(d.ic)}</span></span>
-      <span class="hx-dtxt">${r?`<span class="hx-tag sm">${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}</span>`:""}<b>${esc(d.t)}</b><small>${esc(r?(r.ctx||r.line):d.s)}</small></span></button>`}).join("");
+      <span class="hx-dbody"><span class="hx-dbadge" aria-hidden="true">${ic(d.ic)}</span><span class="hx-dtxt">${r?`<span class="hx-tag sm">${esc(t(r.primary?"home.rec_for_you":"home.also_for_you"))}</span>`:""}<b>${esc(d.t)}</b><small>${esc(r?(r.ctx||r.line):d.s)}</small></span></span></button>`}).join("");
   return `<section class="hx-dest" aria-labelledby="hxDestH"><h3 id="hxDestH">${esc(t("home.more_h"))}</h3>${featHTML}<div class="hx-dest-grid">${grid}</div></section>`;
 }
 function rHomeV2(el){
