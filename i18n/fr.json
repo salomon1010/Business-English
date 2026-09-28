@@ -335,6 +335,7 @@
  "prog.chart_no_data": "Enregistrez 2+ sessions de retour à l'oral pour voir votre courbe 📈",
  "rev.eyebrow": "Bilans du dimanche et tableaux de bord mensuels",
  "rev.title": "Mesurer ou <em>dériver</em>",
+ "rev.more": "Voir tous les détails",
  "rev.selfscore_title": "Auto-évaluations de la Semaine {{w}}",
  "rev.selfscore_sub": "Écoutez au moins 2 enregistrements de la semaine, puis attribuez-vous une note de 1 à 10 — et constatez le chemin déjà parcouru.",
  "rev.trend_sub": "Ta note hebdomadaire sur les 12 semaines — la courbe de ta progression",

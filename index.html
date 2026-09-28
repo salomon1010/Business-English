@@ -1695,6 +1695,15 @@ h1.big.h-info{display:flex;align-items:flex-start;gap:10px}h1.big.h-info>.h-info
 .area-note-go{display:inline;padding:0;border:0;background:none;cursor:pointer;
   font:inherit;font-weight:700;color:var(--acc2);text-decoration:underline;text-underline-offset:2px}
 .pg-h{margin:20px 0 8px;font-size:15px}
+.pg-ess .pcal-week{margin-top:0}
+.pg-ess .grid{margin-top:14px}
+.pg-more{margin-top:18px}
+.pg-more>summary{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border:1px solid var(--line2);border-radius:12px;background:var(--card);cursor:pointer;list-style:none;font-size:14px;font-weight:700;color:var(--mut)}
+.pg-more>summary::-webkit-details-marker{display:none}
+.pg-more>summary svg{width:18px;height:18px}
+.pg-more>summary::after{content:"›";margin-left:auto;color:var(--mut2);font-weight:800;transform:rotate(90deg);transition:transform .15s}
+.pg-more[open]>summary::after{transform:rotate(-90deg)}
+.pg-more[open]>summary{margin-bottom:16px}
 .pg-note{margin:0 0 8px;font-size:12.5px;color:var(--mut)}
 .pg-work{display:flex;flex-direction:column;gap:6px}
 .pg-work-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
@@ -7853,7 +7862,7 @@ const I18N_EN={
  "prog.chart_activity_sub":"Words spoken per day · <span style=\"color:var(--acc2)\">today in cyan</span>",
  "prog.chart_no_data":"Record 2+ speaking-feedback sessions to see your curve 📈",
  "rev.eyebrow":"Sunday Reviews & Monthly Dashboards",
- "rev.title":"Measure or <em>drift</em>",
+ "rev.title":"Measure or <em>drift</em>","rev.more":"See all details",
  "rev.selfscore_title":"Week {{w}} self-scores",
  "rev.selfscore_sub":"Listen to at least 2 recordings from the week, then rate yourself 1–10 — and hear how far you've already come.",
  "rev.trend_sub":"Your weekly score across all 12 weeks — the shape of you getting better",
@@ -27872,12 +27881,12 @@ function areaScopeHTML(){
 /* The compact form, for Profile: one sentence naming the area these counts
    belong to, and the way across. Same strings and the same switch as the
    review banner, so there is one idea here, not two. */
-function areaNoteHTML(){
-  const pro=areaIsPro();
+function areaNoteHTML(view){
+  const pro=areaIsPro(),rev=view==="review";
   const other=pro?"general-english":"welding";
   const otherName=pro?t("area.name_gen"):t("area.name_pro");
   return `<p class="area-note">${esc(t("area.counts",{area:areaLabel()}))}
-    <button class="area-note-go" onclick="areaGoProfile('${other}')">${esc(t("area.switch_profile",{area:otherName}))}</button></p>`;
+    <button class="area-note-go" onclick="${rev?"areaGoReview":"areaGoProfile"}('${other}')">${esc(t(rev?"area.switch":"area.switch_profile",{area:otherName}))}</button></p>`;
 }
 /* Land on the other area's PROFILE, for the same reason the review's button
    lands on the review: you are comparing the same page across two programmes. */
@@ -27901,6 +27910,29 @@ window.areaGoReview=id=>{areaSwitch(id,"review")};
    reach the written review — so they're a tab pair now. */
 let _revTab="scores";
 window.revTab=(k,w)=>{_revTab=k;rReview(document.getElementById("v-review"),w)};
+let _revMore=false;
+/* This week's days and the four numbers a learner asks about, from the open
+   area's records — the same sources the fuller panels below use. */
+function pgEssentialsHTML(){
+  const hist=areaFbHist(),sc=hist.filter(x=>x.score!=null);
+  const words=hist.reduce((a,x)=>a+(x.words||0),0);
+  const best=sc.length?Math.max(...sc.map(x=>x.score)):null;
+  const wk=calWeekProgress(),dow=calDowInitials();
+  const dots=wk.labels.map((l,i)=>`<span class="pcal-wd${l.on?" on":""}${l.isToday?" today":""}${l.fut?" fut":""}">${dow[i]}</span>`).join("");
+  const st=(icn,n,l)=>`<div class="stat"><div class="n"><span class="stat-ic">${ic(icn)}</span>${n}</div><div class="l">${l}</div></div>`;
+  return `<div class="card pcal pg-ess">
+    <div class="pcal-week">
+      <div class="pcal-week-days">${dots}</div>
+      <div class="pcal-week-lbl"><b>${wk.n}/${wk.goal}</b> ${t("home.week_days")}<br><small>${t("cal.weekly_goal")}</small></div>
+    </div>
+    <div class="grid g4 stats-center">
+      ${st("flame",streak(),t("profile.day_streak"))}
+      ${st("check",totalDone(),t("home.stat_sessions"))}
+      ${st("waveform",words.toLocaleString(),t("prog.stat_words"))}
+      ${st("target",best!=null?best+"%":"—",t("prog.stat_best"))}
+    </div>
+  </div>`;
+}
 function rReview(el,wArg){
   const w=wArg||currentPos().w;
   const WK=weeklyStore();
@@ -27926,10 +27958,18 @@ function rReview(el,wArg){
       <textarea rows="2" onchange="wkField(${w},'top5',this.value)">${esc(wr.top5)}</textarea>
       <button class="btn ${wr.done?'btn-g':'btn-p'}" style="margin-top:14px;width:100%;justify-content:center" onclick="wkDone(${w})">${wr.done?t("rev.review_done"):t("rev.review_complete_btn",{w})}</button>
     </div>`;
+  /* The page leads with the essentials only (owner, 2026-09-28: "too much
+     information … the user may be lost"): this week, four numbers, the month
+     and the certificate. Everything else is kept, behind one closed fold. */
   el.innerHTML=`
   <div class="eyebrow pg-eyebrow">${esc(areaIsPro()?t("area.eyebrow_pro",{trade:areaLabel()}):t("area.eyebrow_gen"))}</div>
   <h1 class="big">${t("rev.title")}</h1>
-  ${areaScopeHTML()}
+  ${areaNoteHTML("review")}
+  ${pgEssentialsHTML()}
+  <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
+  ${pfCertHTML()}
+  <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
+  <summary>${ic("chart")}<span>${t("rev.more")}</span></summary>
   ${progressHTML()}
   ${/* The weekly AI review and the growth dashboard both reprinted the same
         readiness counter this panel used to show — three copies of one invented
@@ -27944,7 +27984,8 @@ function rReview(el,wArg){
   ${_revTab==='scores'?scores:written}
   ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}
   <div class="pf-group-h" style="margin-top:26px">${t("pf.record_h")}</div>
-  ${pfRecordHTML()}`;
+  ${pfRecordHTML()}
+  </details>`;
   manIconizeInline(el);
   drawTrend();
 }
@@ -28105,7 +28146,7 @@ function calDowInitials(){
   return Array.from({length:7},(_,i)=>new Date(2024,0,1+i)
     .toLocaleDateString(calLocale(),{weekday:"narrow"}));
 }
-function calHTML(){
+function calHTML(simple){
   if(!calCur){calCur=new Date();calCur.setDate(1)}
   const year=calCur.getFullYear(),month=calCur.getMonth();
   const monthName=calCur.toLocaleDateString(calLocale(),{month:"long",year:"numeric"});
@@ -28130,12 +28171,16 @@ function calHTML(){
   const insight=cs>=2?tInl("cal.insight_streak","flame").replace("{{n}}",cs)
     :total>0?(bestDow?t("cal.insight_dow",{day:esc(bestDow)}):t("cal.insight_going"))
     :t("cal.insight_start");
-  return `<div class="pcal-eyebrow">${tInl("prog.cal_eyebrow","calendar")}</div>
+  const head=`<div class="pcal-eyebrow">${tInl("prog.cal_eyebrow","calendar")}</div>
     <div class="pcal-head">
       <button class="pcal-nav" onclick="calNav(-1)" aria-label="${esc(t("cal.prev_month"))}">‹</button>
       <div class="pcal-title">${esc(monthName)}</div>
       <button class="pcal-nav" onclick="calNav(1)" aria-label="${esc(t("cal.next_month"))}">›</button>
-    </div>
+    </div>`;
+  if(simple)return `${head}
+    <div class="pcal-grid">${dow.map(x=>`<span class="pcal-dow">${x}</span>`).join("")}${cells}</div>
+    <div class="pcal-detail" id="calDetail">${calDayDetailHTML(todayStr)}</div>`;
+  return `${head}
     <div class="pcal-week">
       <div class="pcal-week-days">${weekDots}</div>
       <div class="pcal-week-lbl"><b>${wk.n}/${wk.goal}</b> ${t("home.week_days")}<br><small>${t("cal.weekly_goal")}</small></div>
@@ -28154,8 +28199,23 @@ function calHTML(){
     <p class="pcal-msg">${insight}</p>`;
 }
 /* the year heatmap opens scrolled to the right so the recent (green) days are visible, not off-screen */
-function calScrollYearRight(){requestAnimationFrame(()=>{const yr=document.querySelector("#pfCal .pcal-year");if(yr)yr.scrollLeft=yr.scrollWidth;});}
-window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el){el.innerHTML=calHTML();calScrollYearRight();}};
+function calScrollYearRight(){requestAnimationFrame(()=>{document.querySelectorAll(".pcal-year").forEach(yr=>{yr.scrollLeft=yr.scrollWidth})});}
+window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el){el.innerHTML=calHTML(el.dataset.simple==="1");calScrollYearRight();}};
+/* The year graph and the streak figures, for the fold under the Progress page. */
+function calYearHTML(){
+  const set=calActiveSet(),total=set.size,cs=streak(),bestDow=calBestDow();
+  const insight=cs>=2?tInl("cal.insight_streak","flame").replace("{{n}}",cs)
+    :total>0?(bestDow?t("cal.insight_dow",{day:esc(bestDow)}):t("cal.insight_going"))
+    :t("cal.insight_start");
+  return `<div class="pcal-stats">
+      <div class="pcal-stat"><b>${bestStreak()}</b><span>${t("cal.best_streak")}</span></div>
+      <div class="pcal-stat"><b>${total}</b><span>${t("prog.stat_days")}</span></div>
+      <div class="pcal-stat"><b>${calConsistency()}%</b><span>${t("cal.consistency")}</span></div>
+    </div>
+    <h3 class="pcal-year-h">${t("cal.year_h")} <span>${total===1?t("cal.active_day_one"):t("cal.active_days",{n:total})}</span></h3>
+    <div class="pcal-year">${calYearHeat()}</div>
+    <p class="pcal-msg">${insight}</p>`;
+}
 window.calDay=(ds)=>{
   const el=document.getElementById("calDetail");if(!el)return;
   el.innerHTML=calDayDetailHTML(ds);
@@ -28257,11 +28317,9 @@ window.subInfoOpen=(i)=>{window._subInfoText=window._subInfoStore[i]||"";const o
 function pfRecordHTML(){
   return `
   <div class="pf-stats stats-center" style="margin-top:6px">
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("check")}</span>${totalDone()}</div><div class="l">${t("home.stat_sessions")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
     <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${aList("clips").length}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
-  ${areaNoteHTML()}
   ${/* General English and a Professional Track are different products on this
         screen: the Skills Passport, the career-readiness roadmap, the
         professional activity heat-map belong to a trade journey and mean
@@ -28273,14 +28331,17 @@ function pfRecordHTML(){
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.roadmapCard(S):""}
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.heatmapCard(S):""}
 `:""}
-  <div class="card pcal" id="pfCal">${calHTML()}</div>
+  <div class="card pcal pg-year">${calYearHTML()}</div>
   ${perfOverviewHTML()}
   <div class="card" style="margin-top:16px">
     <h2 class="pf-card-h">${hIcon("chart",t("share.card_title"))}</h2>
     <p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.card_sub")}</p>
     <button class="btn btn-g pf-act" onclick="shShare('card')">${tIc("share.card_btn","download")}</button>
-  </div>
-  <div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--gold) 8%,transparent),color-mix(in srgb,var(--accent) 5%,transparent))":""}">
+  </div>`;
+}
+/* The certificate, with the bar towards it until it is earned. */
+function pfCertHTML(){
+  return `<div class="card" style="margin-top:12px;${totalDone()>=trackSessionCount()?"border-color:color-mix(in srgb,var(--gold) 45%,transparent);background:linear-gradient(150deg,color-mix(in srgb,var(--gold) 8%,transparent),color-mix(in srgb,var(--accent) 5%,transparent))":""}">
     <h2 class="pf-card-h">${hIcon("trophy",t("share.cert_title"))}</h2>
     ${totalDone()>=trackSessionCount()
       ? `<p style="font-size:12.5px;color:var(--mut);margin:6px 0 12px">${t("share.cert_sub")}</p>
