@@ -2153,6 +2153,7 @@ html:has(#v-mission.on .mv-dock) body .toast.show{transform:translateX(-50%)}
 .sv-sh-st{font-size:12px;color:var(--mut2);margin:-4px 0 10px}.sv-sh-st.err{color:var(--red)}.sv-sh-st[hidden]{display:none}
 .sv-sh-retry{background:none;border:1px solid currentColor;border-radius:99px;padding:3px 10px;font:inherit;font-size:12px;font-weight:700;color:inherit;cursor:pointer;min-height:28px}
 .sv-sh-text{font-size:14px;line-height:1.6;color:var(--mut);margin:0}
+.sv-sh-text.tr{color:var(--txt)}.sv-sh-text.tr.wait{color:var(--mut)}.sv-sh-text.tr.err{color:var(--red)}
 .sv-sh-tr{font-size:14.5px;line-height:1.6;color:var(--txt);margin:10px 0 0;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--acc) 10%,transparent)}.sv-sh-tr.empty{display:none}.sv-sh-tr.wait{color:var(--mut)}.sv-sh-tr.err{color:var(--red);background:color-mix(in srgb,var(--red) 10%,transparent)}
 .sv-sh-tr[hidden]{display:none}.sv-sh-tr-l{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2);margin-bottom:3px}.sv-sh-tr[dir="rtl"]{text-align:right}.sv-sh-tr.err .sv-sh-tr-l{color:var(--red)}
 .sv-sh-acts{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px}.sv-sh-tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0}
@@ -22628,23 +22629,25 @@ async function svShTrFetch(sg){
   })().finally(()=>_svTrBusy.delete(key));
   _svTrBusy.set(key,p);return p;
 }
-/* the translation block: hidden while the helper is off; else the language
-   named above the text (so the reader knows what they are looking at), the
-   text in that language's direction, and wait / error states in its place */
+/* the card's plain-text line (owner, 28 Sep 2026): Translate controls ONLY
+   this line. Off, it is the English; on, the same line turns into the
+   translation in the app language (lang/dir set to it), with wait / error
+   states in its place. The word chips above stay English either way, and
+   the button's code (FR, ES…) names the language, so the line has no label. */
 function svShTrHTML(sg){
-  if(!svShTrOn())return `<div class="sv-sh-tr empty" id="svShTr" hidden></div>`;
+  if(!svShTrOn())return `<p class="sv-sh-text" id="svShTr" lang="en">${esc(sg.text)}</p>`;
   const lang=svShLang(),tx=_svTr[svShTrKey(sg)];
-  return `<div class="sv-sh-tr ${tx?"":"wait"}" id="svShTr" lang="${esc(lang.code)}" dir="${lang.rtl?"rtl":"ltr"}" role="region" aria-label="${esc(t("sv.sh_tr_a11y",{lang:lang.native||lang.name}))}" aria-live="polite">${svShTrInner(tx?"ok":"wait",tx)}</div>`;
+  return `<p class="sv-sh-text tr ${tx?"":"wait"}" id="svShTr" lang="${esc(lang.code)}" dir="${lang.rtl?"rtl":"ltr"}" title="${esc(t("sv.sh_tr_a11y",{lang:lang.native||lang.name}))}" aria-live="polite">${svShTrInner(tx?"ok":"wait",tx,true)}</p>`;
 }
-function svShTrInner(state,tx){
+function svShTrInner(state,tx,bare){
   const lang=svShLang();
-  return `<small class="sv-sh-tr-l">${esc(lang.native||lang.name)}</small>`+(state==="ok"?`<span class="sv-sh-tr-x">${esc(tx)}</span>`
+  return (bare?"":`<small class="sv-sh-tr-l">${esc(lang.native||lang.name)}</small>`)+(state==="ok"?`<span class="sv-sh-tr-x">${esc(tx)}</span>`
     :state==="wait"?`<span class="sv-sh-tr-x sv-sh-wait">${esc(t("sv.sh_tr_wait"))}</span>`
     :`<span class="sv-sh-tr-x">${esc(t(tx==="rate_limited"?"sv.sh_busy":"sv.sh_tr_err"))}</span> <button class="sv-sh-retry" onclick="svShTrRetry()">${esc(t("sh.cap_retry"))}</button>`);
 }
 function svShTrDraw(state,tx){
   const box=document.getElementById("svShTr");if(!box)return;
-  box.hidden=false;box.className="sv-sh-tr "+(state==="ok"?"":state);box.innerHTML=svShTrInner(state,tx);
+  box.className="sv-sh-text tr "+(state==="ok"?"":state);box.innerHTML=svShTrInner(state,tx,true);
 }
 /* still the same card on screen as when the request left? (the learner may
    have moved a paragraph, left Shadow or loaded another video meanwhile) */
@@ -22865,7 +22868,6 @@ function svShHTML(){
       <div class="sv-sh-words ${ipaOn?"ipa":""}" lang="en">${words}</div>
       ${a.spk?`<div class="scn-wc" id="scnWc" hidden aria-live="polite"></div>`:""}
       ${svShIpaStatusHTML(sg)}
-      <p class="sv-sh-text" lang="en">${esc(sg.text)}</p>
       ${svShTrHTML(sg)}
       <div class="sv-sh-acts">
         <div class="sv-sh-tg" role="group" aria-label="${esc(t("sv.sh_helpers"))}">
