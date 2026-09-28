@@ -254,6 +254,7 @@
  "sess.record_title": "🎙️ Enregistrez-vous",
  "sess.report_h": "Votre rapport d’expression orale",
  "sess.report_sub": "Chaque enregistrement revient sous forme de rapport du coach : l’impression que vous donnez, ce qu’il faut corriger, vos phrases reconstruites — et le coach vous le lit.",
+ "sess.takes_h": "Vos enregistrements et la forme d'onde",
  "sess.report_btn": "Obtenir mon rapport",
  "sess.report_none": "Enregistrez-vous d’abord — le rapport est construit à partir de votre enregistrement.",
  "sess.report_short": "Parlez au moins {{n}} secondes pour obtenir un rapport.",

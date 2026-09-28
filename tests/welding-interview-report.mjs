@@ -100,8 +100,8 @@ ok("No general AI speaking report is built for the coach; the answer is rebuilt 
 /* 4. General English is unchanged */
 const g = await page.evaluate(async () => { areaSwitch("general-english", "journey"); await new Promise(r => setTimeout(r, 400));
   go("session", 1, "Mon"); await new Promise(r => setTimeout(r, 500));
-  return { ws: !!(_sessCur && _sessCur.ws), sub: document.querySelector("#sessRep .sess-rep-sub")?.textContent || "" }; });
-ok("General English session days keep their speaking report", !g.ws && /coach's report|how you came across/i.test(g.sub), JSON.stringify(g));
+  return { ws: !!(_sessCur && _sessCur.ws), sub: document.querySelector("#sessRep .sess-rep-sub")?.textContent || "", report: !!document.getElementById("sessRepWrap") }; });
+ok("General English session days keep their speaking report (no line above it since 28 Sep 2026)", !g.ws && !g.sub && g.report, JSON.stringify(g));
 
 ok("No page errors", errors.length === 0, errors.join(" | "));
 await browser.close(); if (server) server.kill();

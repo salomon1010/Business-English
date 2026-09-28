@@ -254,6 +254,7 @@
  "sess.record_title": "🎙️ Ghi âm chính bạn",
  "sess.report_h": "Your speaking report",
  "sess.report_sub": "Every recording comes back as a coach's report: how you came across, what to fix, your sentences rebuilt — and the coach reads it to you.",
+ "sess.takes_h": "Your recordings and waveform",
  "sess.report_btn": "Get my report",
  "sess.report_none": "Record yourself first — the report is built from your recording.",
  "sess.report_short": "Speak for at least {{n}} seconds to get a report.",

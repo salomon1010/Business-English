@@ -254,6 +254,7 @@
  "sess.record_title": "🎙️ Grave-se",
  "sess.report_h": "O seu relatório de fala",
  "sess.report_sub": "Cada gravação volta como um relatório do coach: como você soou, o que corrigir, as suas frases reconstruídas — e o coach lê para você.",
+ "sess.takes_h": "Suas gravações e a forma de onda",
  "sess.report_btn": "Obter o meu relatório",
  "sess.report_none": "Grave-se primeiro — o relatório é construído a partir da sua gravação.",
  "sess.report_short": "Fale pelo menos {{n}} segundos para obter um relatório.",

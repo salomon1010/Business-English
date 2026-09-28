@@ -60,8 +60,8 @@ await page.evaluate(()=>{OB.name="Check";obFinish()});await sleep(700);
 await page.evaluate(()=>{try{wcClose()}catch(e){}document.querySelectorAll(".cf-ov,.wc-ov,#obWrap").forEach(e=>e.remove())});
 await page.evaluate(()=>{S.fnd=S.fnd||{};S.fnd["general-english"]={placed:"full",finished:true};S.fnd["welding"]={placed:"full",finished:true};save();go("session",1,"Mon")});await sleep(900);
 
-const a=await page.evaluate(()=>({wrap:!!document.getElementById("sessRepWrap"),head:document.querySelector(".sess-rep-h")?.textContent.trim()||"",idle:document.querySelector("#sessRepWrap .rec-none")?.textContent||"",host:exHost&&exHost.wrapId,key:dayKey(1,"Mon")}));
-ok("Week 1 Monday (General English): the Record yourself card carries the report block, idle until there is a recording",a.wrap&&/report/i.test(a.head)&&/Record yourself first/.test(a.idle)&&a.host==="sessRepWrap",JSON.stringify(a));
+const a=await page.evaluate(()=>({fold:(d=>d?d.open?"open":"closed":"none")(document.querySelector(".sess-takes")),wrap:!!document.getElementById("sessRepWrap"),head:document.querySelector(".sess-rep-h")?.textContent.trim()||"",idle:document.querySelector("#sessRepWrap .rec-none")?.textContent||"",host:exHost&&exHost.wrapId,key:dayKey(1,"Mon")}));
+ok("Week 1 Monday (General English): the Record yourself card carries the report block, idle until there is a recording; no heading, the takes fold closed (owner, 28 Sep 2026)",a.wrap&&!a.head&&a.fold==="closed"&&/Record yourself first/.test(a.idle)&&a.host==="sessRepWrap",JSON.stringify(a));
 
 const blob=()=>new Blob([new Uint8Array(6000)],{type:"audio/webm"});
 await page.evaluate(async()=>{await sessReport(dayKey(1,"Mon"),new Blob([new Uint8Array(6000)],{type:"audio/webm"}),21)});await sleep(500);

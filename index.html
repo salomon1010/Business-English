@@ -3126,6 +3126,23 @@ html[dir="rtl"][data-view="session"] .view.on .sess-jump .sess-jump-go{margin-le
 html[data-view="session"] .view.on .timer-box .eyebrow{font-size:11.5px}
 html[data-view="session"] .view.on #scnSess .sess-jump{width:100%;max-width:none;justify-content:flex-start;text-align:left;line-height:1.3}   /* owner: the full width of the cards below it; the arrow sits at the far edge */
 html[data-view="session"] .view.on #scnSess .sess-jump .sess-jump-go{margin-left:auto}
+/* Recorder fold (owner, same day): takes + waveform closed by default; the storage note is not shown here. */
+html[data-view="session"] .view.on .sess-takes{margin-top:10px;border:1px solid var(--line2);border-radius:12px;background:var(--bg2)}
+html[data-view="session"] .view.on .sess-takes>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:36px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--txt);cursor:pointer;position:relative;border-radius:inherit}
+html[data-view="session"] .view.on .sess-takes>summary::-webkit-details-marker{display:none}
+html[data-view="session"] .view.on .sess-takes>summary::after{content:"";position:absolute;left:0;right:0;top:-4px;bottom:-4px}
+html[data-view="session"] .view.on .sess-takes>summary .inl-ic{color:var(--acc2);display:inline-flex} html[data-view="session"] .view.on .sess-takes>summary .inl-ic svg{width:15px;height:15px}
+html[data-view="session"] .view.on .sess-takes>summary .hm-chev{margin-left:auto;color:var(--mut);display:inline-flex;transform:rotate(-90deg);transition:transform .15s} html[data-view="session"] .view.on .sess-takes>summary .hm-chev svg{width:14px;height:14px}
+html[data-view="session"] .view.on .sess-takes[open]>summary .hm-chev{transform:rotate(0)}
+html[dir="rtl"][data-view="session"] .view.on .sess-takes>summary .hm-chev{margin-left:0;margin-right:auto;transform:rotate(90deg)}
+html[data-view="session"] .view.on .sess-takes-b{padding:0 10px 10px}
+html[data-view="session"] .view.on .sess-takes-b .rec-none{margin-top:2px}
+html[data-view="session"] .view.on .sess-takes-b .rec-item{flex-wrap:wrap;gap:6px 8px;padding:8px 10px}   /* the date on its own line: the row no longer fits beside the player inside the fold */
+html[data-view="session"] .view.on .sess-takes-b .rec-item>span:first-child{flex-basis:100%;font-size:11.5px}
+html[data-view="session"] .view.on .sess-takes-b .rec-item audio{min-width:0}
+html[data-view="session"] .view.on .rec-privacy{display:none}
+html[data-view="session"] .view.on .sess-rep-ask{margin:10px 0 6px}
+html[data-view="session"] .view.on #sessRepWrap:not(:empty){margin-top:10px}
 html[dir="rtl"][data-view="session"] .view.on #scnSess .sess-jump .sess-jump-go{margin-left:0;margin-right:auto}
 html[data-view="session"] .view.on .sess-body>.card.timer-box .btn-primary{width:fit-content;min-width:150px;margin:6px auto 0;padding:5px 28px;font-size:15px;min-height:36px}
 
@@ -6933,6 +6950,7 @@ const I18N_EN={
  "sess.record_desc":"Record here — your speaking report comes back below.",
  "sess.report_h":"Your speaking report",
  "sess.report_sub":"Every recording comes back as a coach's report: how you came across, what to fix, your sentences rebuilt — and the coach reads it to you.",
+ "sess.takes_h":"Your recordings and waveform",
  "sess.report_btn":"Get my report",
  "sess.report_none":"Record yourself first — the report is built from your recording.",
  "sess.report_short":"Speak for at least {{n}} seconds to get a report.",
@@ -12399,12 +12417,15 @@ function rSession(el,w,d){
           <div><div class="rec-time" id="recTime">00:00</div><div style="font-size:12px;color:var(--mut)" id="recState">${t("sess.tap_to_record")}</div></div>
           ${DS.meter()}
         </div>
-        <div id="recList"></div>
-        <div id="waveBox" style="margin-top:14px"></div>
+        <!-- owner, 28 Sep 2026: the takes and the waveform fold away, closed until opened; the
+             "Your speaking report" heading and its line are gone. Opening redraws, because a
+             waveform drawn inside a closed fold has no width. -->
+        <details class="sess-takes" ontoggle="if(this.open)renderRecs('${key}')">
+          <summary><span class="inl-ic">${ic("mic")}</span><span>${esc(t("sess.takes_h"))}</span><span class="hm-chev">${ic("chevron")}</span></summary>
+          <div class="sess-takes-b"><div id="recList"></div><div id="waveBox" style="margin-top:14px"></div></div>
+        </details>
         <div class="sess-rep" id="sessRep">
-          <div class="hr"></div>
-          <b class="sess-rep-h">${hIcon("sparkle",t("sess.report_h"))}</b>
-          ${_sessCur.ws?wsIntroHTML(_sessCur.ws):`<p class="sess-rep-sub">${esc(t("sess.report_sub"))}</p>`}
+          ${_sessCur.ws?sessAskHTML(_sessCur.ws):""}
           <div id="sessRepWrap"></div>
         </div>
         <div class="hr"></div>
@@ -12699,7 +12720,7 @@ async function renderRecs(ctx,listId,waveId){
      browser that cannot store any is what made a real user think the app was
      broken by their network. getRecs() awaits dbReady, so DB is settled here. */
   }).join(""):`<p class="rec-none">${t(DB?"recs.none":"recs.blocked")}</p>`;
-  if(recs.length)list.insertAdjacentHTML("beforeend",`<p style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("recs.privacy_note")}</p>`);
+  if(recs.length)list.insertAdjacentHTML("beforeend",`<p class="rec-privacy" style="font-size:11.5px;color:var(--mut2);margin-top:10px">${t("recs.privacy_note")}</p>`);
 }
 window.phDelRec=async(id,ix)=>{
   if(!await askConfirm({title:t("cf.rec_title"),body:t("cf.rec_body"),confirmLabel:t("cf.delete")}))return;
@@ -16704,9 +16725,12 @@ function wsPick(w,dd){
   const asker=best==="open"?(sc.lead||"hr"):(((sc.turns||[]).find(x=>x.q===best)||{}).characterId||sc.lead||"hr");
   return {sc,q:best,asker,rubric};
 }
-function wsIntroHTML(ws){
+/* The one line the Welding session day keeps above its report (owner, 28 Sep 2026): the question
+   and who asks it; the longer explanation it replaced is gone. */
+function sessAskHTML(ws){
   const c=simCharacter(ws.sc,ws.asker)||{};
-  return `<p class="sess-rep-sub">Your recording is judged as an answer to ${c.name?`<b>${esc(c.name)}</b>${c.role?` (${esc(c.role)})`:""}`:"the interviewer"}: “${esc(ws.rubric.ask)}” — against the welding standards. You get your score, what you covered and missed, how you could have said it, and the technical words to use.</p>`;
+  const who=c.name?` — <b>${esc(c.name)}</b>${c.role?`, ${esc(c.role)}`:""}`:"";
+  return `<p class="sess-rep-sub sess-rep-ask">${t("sh.line_answering",{q:"“"+esc(ws.rubric.ask)+"”"})}${who}</p>`;
 }
 async function wsMount(key){
   const w=document.getElementById("sessRepWrap");if(!w)return;

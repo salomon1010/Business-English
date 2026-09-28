@@ -254,6 +254,7 @@
  "sess.record_title": "🎙️ Grábate",
  "sess.report_h": "Tu informe de expresión oral",
  "sess.report_sub": "Cada grabación vuelve como un informe del coach: cómo sonaste, qué corregir, tus frases reconstruidas — y el coach te lo lee.",
+ "sess.takes_h": "Tus grabaciones y la forma de onda",
  "sess.report_btn": "Obtener mi informe",
  "sess.report_none": "Grábate primero — el informe se construye a partir de tu grabación.",
  "sess.report_short": "Habla al menos {{n}} segundos para obtener un informe.",
