@@ -423,6 +423,18 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 /* Global practice countdown — lives in the header, visible on every page while running */
 .hdr-timer{margin-left:auto;display:none;align-items:center;gap:7px;background:linear-gradient(150deg,color-mix(in srgb,var(--accent) 18%,transparent),rgba(var(--live-rgb),.14));border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);color:var(--txt);padding:5px 6px 5px 11px;border-radius:99px;font-weight:700;white-space:nowrap;cursor:pointer;box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 35%,transparent);transition:box-shadow .2s,transform .15s}
 .hdr-timer.show{display:flex}
+/* the Premium badge: rests, then turns once on its vertical axis with a gold shine across it (every 8 s).
+   The turn goes edge-on and comes back from the other side, so the lettering is never seen mirrored. */
+.hdr-prem{position:relative;margin-left:auto;flex:none;width:44px;height:44px;padding:0;border:0;background:none;display:grid;place-items:center;cursor:pointer;perspective:220px;-webkit-tap-highlight-color:transparent}
+.hdr-prem[hidden]{display:none}
+.hdr-timer.show~.hdr-prem{margin-left:8px}
+.hdr-prem img{width:40px;height:40px;display:block;filter:drop-shadow(0 2px 6px rgba(245,180,40,.35));animation:hdrPremTurn 8s linear 1.5s infinite;will-change:transform}
+.hdr-prem::after{content:"";position:absolute;width:40px;height:40px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,244,200,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-badge.png) center/contain no-repeat;mask:url(premium-badge.png) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
+.hdr-prem:active{transform:scale(.92)}
+.hdr-prem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
+@keyframes hdrPremTurn{0%,70%{transform:rotateY(0) translateY(0);animation-timing-function:cubic-bezier(.5,0,1,1)}75%{transform:rotateY(90deg) translateY(-2px) scale(1.06);animation-timing-function:step-end}75.01%{transform:rotateY(-90deg) translateY(-2px) scale(1.06);animation-timing-function:cubic-bezier(0,0,.3,1)}81%{transform:rotateY(0) translateY(0)}84%{transform:translateY(-1.5px)}87%,100%{transform:translateY(0)}}
+@keyframes hdrPremShine{0%,86%{background-position:150% 0;opacity:0}88%{opacity:1}97%{background-position:-50% 0;opacity:1}100%{background-position:-50% 0;opacity:0}}
+@media (prefers-reduced-motion:reduce){.hdr-prem img,.hdr-prem::after{animation:none}}
 /* Professional tracks only: their header also carries the trade chip, so the
    running timer is the fourth item in a row built for three. data-track is
    "general" on General English, which keeps its streak throughout. */
@@ -5488,6 +5500,8 @@ h1.big{letter-spacing:-.025em}
     <span class="ht-dig" id="hdrTimerDig">25:00</span>
     <span class="ht-x" onclick="event.stopPropagation();tReset()" role="button" aria-label="Cancel timer" title="Cancel timer">×</span>
   </button>
+  <!-- Premium badge (owner, 28 Sep 2026): the owner's artwork, turns now and then, opens the plans sheet. hdrPremSync shows it -->
+  <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-badge.png" alt="" width="40" height="40" decoding="async"></button>
   <!-- the header's Road map button was removed on 14 Sep 2026: the road map has its own tab in the bar -->
   <!-- the header streak pill was removed on 22 Sep 2026 (owner: a simpler header); the streak lives on Progress -->
 </div></nav>
@@ -21633,6 +21647,7 @@ function entApply(){
   try{if(!AdEligibility.planAllowsAds())AdManager.withdraw()}catch(e){}
   try{premDraw()}catch(e){}
   try{premLaunchMaybe()}catch(e){}
+  try{hdrPremSync()}catch(e){}
 }
 
 /* ---- the Premium card in App Setup (no price, no purchase: nothing is sold yet) */
@@ -22331,6 +22346,12 @@ window.premiumOpen=(from)=>{
   /* focus goes INTO the dialog (screen readers land on it), not onto a button */
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };
+/* the header Premium badge (owner, 28 Sep 2026): shown where Premium is offered (premOffered), and
+   on the staging host so the owner can review it before billing is switched on */
+function hdrPremSync(){const b=document.getElementById("hdrPrem");if(!b)return;let on=false;
+  try{on=premOffered()||(!!beEnv()&&isGeneralEnglish())}catch(e){}
+  b.hidden=!on;const l=t("prem.cmp_prem");b.setAttribute("aria-label",l);b.title=l}
+setTimeout(()=>{try{hdrPremSync()}catch(e){}},0);
 /* ---- the launch offer (owner, 25 Sep 2026) ----
    Once per app session (sessionStorage), for a signed-in learner the SERVER has
    just called Free (an answer from this session, never a cached one), only
@@ -28784,6 +28805,7 @@ addEventListener("resize",stickBackSync);
        session pill, live dot, Find-a-partner button) is synced here, per view */
     try{if(typeof ppFabSync==="function"){ppCallSync();ppPillSync();ppLiveDotSync();ppFabSync()}}catch(e){}
     try{shLibDockSync()}catch(e){}
+    try{hdrPremSync()}catch(e){}
     /* a view that renders asynchronously (Settings fetches before it draws) has
        no content yet on this pass, so level it again once it does */
     try{syncLeadFlush();setTimeout(syncLeadFlush,260);setTimeout(syncLeadFlush,900)}catch(e){}
