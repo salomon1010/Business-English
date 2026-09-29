@@ -46,11 +46,11 @@ console.log("\n# Progress: short tiles, the number leads, and 'Your record' is o
   await p.evaluate(src => { window.__yn = src }, yearNowSrc);
   const r = await p.evaluate(() => { const v = document.getElementById("v-review"), more = v.querySelector("details.pg-more"), h = v.querySelector(".pg-record-h"), yr = v.querySelector(".pg-year"), core = h && h.nextElementSibling;
     const txt = (h ? h.innerText : "") + "\n" + (core ? core.innerText : "") + "\n" + (yr ? yr.innerText : "");
-    const yearNow = () => eval(window.__yn); return { head: h && h.innerText, outsideFold: !!h && !more.contains(h) && !!yr && !more.contains(yr), open: more.open, txt, dupYear: v.querySelectorAll(".pg-year").length, empty: [...v.querySelectorAll(".pf-stats .stat")].map(x => x.classList.contains("stat-empty")),
+    const yearNow = () => eval(window.__yn); return { head: h && h.innerText, outsideFold: !!h && !more.contains(h) && !!yr && !more.contains(yr), open: more.open, txt, dupYear: v.querySelectorAll(".pg-year").length, empty: [...v.querySelectorAll(".pf-stats .stat")].map(x => x.classList.contains("stat-zero") && +getComputedStyle(x.querySelector(".n")).opacity < 1 && +getComputedStyle(x.querySelector(".l")).opacity === 1 && +getComputedStyle(x).opacity === 1),
       yearScrolled: yearNow() } });
   ok("3 · 'Your record' sits on the page, outside 'See all details' (which stays closed)", r.head === "Your record" && r.outsideFold && !r.open, JSON.stringify(r));
   ok("4 · it shows the five figures: phrases & idioms mastered, Shadowing clips saved, best streak, days practised, consistency", /Phrases & idioms mastered/.test(r.txt) && /Shadowing clips saved/.test(r.txt) && /best streak/i.test(r.txt) && /Days practised/i.test(r.txt) && /consistency/i.test(r.txt), r.txt);
-  ok("5 · the year grid appears once, opened on this month; counts still at zero recede", r.dupYear === 1 && r.yearScrolled && r.empty.every(Boolean), JSON.stringify({ d: r.dupYear, y: r.yearScrolled, e: r.empty }));
+  ok("5 · the year grid appears once, opened on this month; a count still at zero recedes — its number, never its label (the label keeps full contrast)", r.dupYear === 1 && r.yearScrolled && r.empty.every(Boolean), JSON.stringify({ d: r.dupYear, y: r.yearScrolled, e: r.empty }));
   await p.evaluate(() => { const m = document.querySelector("details.pg-more"); m.open = true }); await sleep(400);
   const more = await p.evaluate(() => { const m = document.querySelector("details.pg-more"); return { share: !!m.querySelector(".pf-act"), year: m.querySelectorAll(".pg-year").length } });
   ok("6 · 'See all details' keeps the rest (share card …) and no second year grid", more.share && more.year === 0, JSON.stringify(more));

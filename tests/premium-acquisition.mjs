@@ -221,6 +221,15 @@ console.log("\n# L · ad-free is promised only while ads are on");
   await ctx.close();
 }
 
+/* the Settings "Free plan" card (29 Sep 2026): its Premium list said "Ad-free learning" in a
+   release with no ads anywhere — the benefit is listed only while ads_enabled is on */
+for (const [lab, flags, want] of [["production defaults (ads off, billing off)", {}, false], ["billing on, ads off", { billing_enabled: true }, false], ["billing and ads on", { billing_enabled: true, ads_enabled: true }, true]]) {
+  const { ctx, p } = await open({ uid: "l2" + want, flags });
+  const r = await p.evaluate(async () => { go("data"); await new Promise(r => setTimeout(r, 500)); const d = document.querySelector("details.set-plan"); if (d) d.open = true; const c = document.getElementById("entPlan"); return c ? c.textContent.replace(/\s+/g, " ") : null; });
+  ok(`L2 · Settings Premium card, ${lab}: 'Ad-free learning' ${want ? "listed" : "absent"}`, r !== null && /Ad-free learning/.test(r) === want, r);
+  await ctx.close();
+}
+
 await b.close(); srv.kill();
 const pass = res.filter(Boolean).length;
 console.log(`\n${pass}/${res.length} passed`);

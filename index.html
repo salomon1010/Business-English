@@ -685,6 +685,10 @@ button,[role="button"],.bnav-item,.tab,.btn,.card[onclick],.pf-row{touch-action:
    been earned, and the one next step is stated once below it (.home-step). */
 .stat-empty{opacity:.55}
 .stat-empty:hover{opacity:1}
+/* "Your record" (Progress): a zero count recedes, its label does not — the whole
+   stat at .55 took the label below 4.5:1 (contrast sweep, 29 Sep 2026) */
+.stat-zero .n{opacity:.55}
+.stat-zero:hover .n{opacity:1}
 .stat .n{font-size:clamp(21px,5.4vw,28px);font-weight:800;display:flex;align-items:center;gap:7px}
 .stat .l{font-size:clamp(11.5px,3vw,12.5px);color:var(--mut);margin-top:3px}
 .stat-ic{color:var(--acc);flex:none;line-height:0}
@@ -22098,7 +22102,7 @@ function entPlanCardHTML(){
   return `<div class="card ent-plan${prem?" on":""}" id="entPlan" style="margin-bottom:16px${prem||live?"":";opacity:.75"}">
         <b style="font-size:15px">${hIcon("star",t("acc.premium"))}</b>${chip?` <span class="chip ${prem?"done":"p3"}">${esc(chip)}</span>`:""}${status?`<p class="sub" style="margin:6px 0 0">${esc(status)}</p>`:""}
         <ul style="list-style:none;margin-top:10px">
-          ${isGeneralEnglish()&&planOn()?li("prem.b_videos","bookmark",prem?"var(--green)":"var(--mut)",{n:planLimit("savedShadow","premium")})+li("prem.b_yt","link",prem?"var(--green)":"var(--mut)",{n:planLimit("youtubeImports","premium")})+li("prem.b_polish","clock",prem?"var(--green)":"var(--mut)",{n:planLimit("polishHistory","premium")}):""}${li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)")}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
+          ${isGeneralEnglish()&&planOn()?li("prem.b_videos","bookmark",prem?"var(--green)":"var(--mut)",{n:planLimit("savedShadow","premium")})+li("prem.b_yt","link",prem?"var(--green)":"var(--mut)",{n:planLimit("youtubeImports","premium")})+li("prem.b_polish","clock",prem?"var(--green)":"var(--mut)",{n:planLimit("polishHistory","premium")}):""}${flag("ads_enabled")?li("acc.prem_1","ban",prem?"var(--green)":"var(--mut)"):""}${li("prem.b_all","check",prem?"var(--green)":"var(--mut)")}
         </ul>${store}${note}
       </div>`;
 }
@@ -28798,10 +28802,11 @@ window.subInfoOpen=(i)=>{window._subInfoText=window._subInfoStore[i]||"";const o
 function pfRecordHTML(){return pfRecordCoreHTML()+pfRecordMoreHTML()}
 /* "Your record" on the page itself (owner, 29 Sep 2026: "bring this part back"):
    phrases mastered, clips saved, and the year — best streak, days practised,
-   consistency and the year grid. A count still at zero recedes (.stat-empty). */
+   consistency and the year grid. A count still at zero recedes — the number only
+   (.stat-zero); the label keeps its full contrast. */
 function pfRecordCoreHTML(locked){
   const ph=masteredCount(),cl=aList("clips").length,bs=bestStreak();
-  const st=(n,icn,k)=>`<div class="stat${n?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic(icn)}</span>${n}</div><div class="l">${t(k)}</div></div>`;
+  const st=(n,icn,k)=>`<div class="stat${n?"":" stat-zero"}"><div class="n"><span class="stat-ic">${ic(icn)}</span>${n}</div><div class="l">${t(k)}</div></div>`;
   /* Free / Premium (owner, 29 Sep 2026): what the learner has now stays free —
      phrases mastered, clips saved, the best streak; the history is Premium —
      days practised over time, consistency and the full year. With the record
