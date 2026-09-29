@@ -1,0 +1,16 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Premium">
+  <!-- BE Mastery Premium mark, v2 (29 Sep 2026). The brand's three rising bars cut
+       into a sapphire gem, with the gold spark that used to sit on the logo:
+       the same voice, with more behind it. Keeps the owner's blue hexagon. -->
+  <defs>
+    <linearGradient id="g" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#6d7dff"/><stop offset=".55" stop-color="#3b3fd8"/><stop offset="1" stop-color="#1e1f8f"/></linearGradient>
+    <linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c7d2fe"/><stop offset=".5" stop-color="#60a5fa" stop-opacity=".5"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+  </defs>
+  <path d="M32 6 54.5 19v26L32 58 9.5 45V19Z" fill="url(#g)" stroke="url(#g)" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M32 6 54.5 19 32 32 9.5 19Z" fill="#fff" fill-opacity=".12"/>
+  <path d="M32 6 54.5 19v26L32 58 9.5 45V19Z" fill="none" stroke="url(#e)" stroke-width="1.5" stroke-linejoin="round"/>
+  <rect x="19.5" y="35" width="6" height="10" rx="3" fill="#fff"/>
+  <rect x="28" y="29.5" width="6" height="15.5" rx="3" fill="#fff"/>
+  <rect x="36.5" y="24" width="6" height="21" rx="3" fill="#fff"/>
+  <path d="M46.5 11.5l1.55 3.45 3.45 1.55-3.45 1.55-1.55 3.45-1.55-3.45-3.45-1.55 3.45-1.55Z" fill="#fbbf24"/>
+</svg>

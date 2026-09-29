@@ -65,11 +65,10 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
     radial-gradient(1200px 500px at 80% -10%,rgba(99,102,241,.22),transparent 60%),
     radial-gradient(900px 400px at 0% 10%,rgba(34,211,238,.14),transparent 55%),var(--bg)}
   .brand{display:inline-flex;align-items:center;gap:12px;margin-bottom:24px}
-  .brand-logo{width:52px;height:52px;border-radius:15px;display:block;line-height:0;
+  .brand-logo{width:52px;height:52px;border-radius:23%;display:block;line-height:0;
     box-shadow:0 10px 30px rgba(34,211,238,.38)}
-  .brand-logo svg{width:100%;height:100%;display:block;border-radius:15px}
-  .brand-logo .tile{fill:#0f1a30}                                  /* dark-mode tile */
-  :root[data-theme="light"] .brand-logo .tile{fill:#e9f0fb}        /* light-mode tile */
+  .brand-logo svg{width:100%;height:100%;display:block}
+  /* visual identity v2 (29 Sep 2026): the app's own mark — gradient tile, white bubble — in both themes */
   .brand-name{font-size:23px;font-weight:800;letter-spacing:-.3px;line-height:1}
   .brand-name b{color:var(--txt)}
   .kicker{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
@@ -158,7 +157,7 @@ document.documentElement.setAttribute("data-theme",t);}catch(e){document.documen
 
 <section class="hero"><div class="wrap hero-grid">
   <div class="hero-txt">
-    <div class="brand"><span class="brand-logo"><svg viewBox="0 0 52 52" aria-hidden="true"><defs><linearGradient id="blg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs><rect class="tile" x="1" y="1" width="50" height="50" rx="15"/><path d="M15 13h22a5 5 0 0 1 5 5v11a5 5 0 0 1-5 5H26l-7 6v-6h-4a5 5 0 0 1-5-5V18a5 5 0 0 1 5-5Z" fill="url(#blg)"/><rect x="18.6" y="24" width="3.6" height="7" rx="1.8" fill="#fff"/><rect x="24.2" y="21" width="3.6" height="10" rx="1.8" fill="#fff"/><rect x="29.8" y="18" width="3.6" height="13" rx="1.8" fill="#fff"/></svg></span><span class="brand-name"><b>BE</b> <em>Mastery</em></span></div>
+    <div class="brand"><span class="brand-logo"><svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="flT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset=".58" stop-color="#3b82f6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient><linearGradient id="flB" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#4338ca"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#flT)"/><path d="M23 13.5h18a9.5 9.5 0 0 1 9.5 9.5v10a9.5 9.5 0 0 1-9.5 9.5H29.5l-7.6 6.6a.9.9 0 0 1-1.5-.7v-6.3A9.5 9.5 0 0 1 13.5 33V23a9.5 9.5 0 0 1 9.5-9.5Z" fill="#fff"/><rect x="21.75" y="29" width="5.5" height="7.5" rx="2.75" fill="url(#flB)"/><rect x="29.25" y="24.5" width="5.5" height="12" rx="2.75" fill="url(#flB)"/><rect x="36.75" y="19.5" width="5.5" height="17" rx="2.75" fill="url(#flB)"/></svg></span><span class="brand-name"><b>BE</b> <em>Mastery</em></span></div>
     <!-- The English copy is written inline as the default. render() overwrites it
          with the same text (or a translation), but a crawler or a no-JS visitor
          still gets real content instead of empty tags. -->

@@ -42,9 +42,8 @@
 </script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
-<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Loaded non-blocking: media="print" means the browser fetches it without
@@ -345,7 +344,7 @@ a{color:var(--acc2);text-decoration:none}
 button{font-family:inherit;cursor:pointer}
 /* min-height keeps every text control at the 44px floor. Without it they were
    38-40px wherever the mobile font-size bump did not apply. */
-input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:10px;padding:9px 12px;font-size:14px;width:100%;min-height:44px}
+input,textarea,select{font-family:inherit;background:var(--bg2);border:1px solid var(--line2);color:var(--txt);border-radius:12px;padding:9px 12px;font-size:14px;width:100%;min-height:44px}
 input[type=checkbox],input[type=radio]{min-height:0;width:auto}
 /* Auto-sizing textarea (clip transcript). Grows with its content up to 60vh,
    then scrolls; still draggable on platforms that support the resize handle. */
@@ -435,7 +434,7 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 .hdr-prem[hidden]{display:none}
 .hdr-timer.show~.hdr-prem{margin-left:8px}
 .hdr-prem img{width:46px;height:46px;display:block;/* owner, 28 Sep 2026: the logo tile's 46px, so the two share a top and a bottom (the art fills 190 of its 192px) */filter:drop-shadow(0 1px 4px rgba(60,140,255,.32));animation:hdrPremTurn 8s linear 1.5s infinite;will-change:transform}
-.hdr-prem::after{content:"";position:absolute;width:46px;height:46px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(220,236,255,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-badge.png?v=3) center/contain no-repeat;mask:url(premium-badge.png?v=3) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
+.hdr-prem::after{content:"";position:absolute;width:46px;height:46px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(220,236,255,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-mark.svg?v=1) center/contain no-repeat;mask:url(premium-mark.svg?v=1) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
 .hdr-prem:active{transform:scale(.92)}
 .hdr-prem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
 @keyframes hdrPremTurn{0%,70%{transform:rotateY(0) translateY(0);animation-timing-function:cubic-bezier(.5,0,1,1)}75%{transform:rotateY(90deg) translateY(-2px) scale(1.06);animation-timing-function:step-end}75.01%{transform:rotateY(-90deg) translateY(-2px) scale(1.06);animation-timing-function:cubic-bezier(0,0,.3,1)}81%{transform:rotateY(0) translateY(0)}84%{transform:translateY(-1.5px)}87%,100%{transform:translateY(0)}}
@@ -5717,6 +5716,122 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 }
 @media(max-width:400px){.bnav-item span:not(.ic){font-size:var(--fs-nav);letter-spacing:-.1px}}
 @media(max-width:340px){.bnav-item span:not(.ic){font-size:9px}}
+/* ═══════════════════════════════════════════════════════════════════════════
+   VISUAL IDENTITY v2 — 29 Sep 2026 (docs/DESIGN_SYSTEM_BEMASTERY.md §19).
+   The last layer of the one shell: brand, Premium, icons, roles and the shared
+   components, written once in tokens and identical in both tracks. It changes
+   how things look, never what they do. Rules of the system:
+   · one accent per screen — the theme's accent carries action and "you are
+     here"; cyan (--live) now means listening and nothing else; gold means
+     Premium's spark, a streak or a caution, never decoration;
+   · circles are people (avatars, channels, partners); rounded squares are the
+     brand and features;
+   · nothing inside a card is another floating card — a card holds rows;
+   · weight carries rank (700 headings, 600 labels), size stays compact;
+   · motion only confirms a touch or a state, 150–250 ms, and stops under
+     reduced motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  /* roles — what a colour is FOR; components read these, themes set the values */
+  --text-1:var(--txt); --text-2:var(--mut); --text-3:var(--mut2);
+  --surface-0:var(--bg); --surface-1:var(--card); --surface-2:var(--card2);
+  --success:var(--green); --warning:var(--gold); --danger:var(--red); --rec:var(--ds-rec);
+  --nav-on:var(--accent-text); --nav-on-bg:color-mix(in srgb,var(--accent) 17%,transparent);
+  /* Premium: sapphire with a gold spark, the same in both tracks so it is
+     recognised on Forge's amber as well as on Signal's indigo */
+  --prem-grad:linear-gradient(140deg,#6d7dff,#3b3fd8 55%,#1e1f8f);
+  --prem:#aab6ff; --prem-line:rgba(129,140,248,.45); --prem-bg:rgba(99,102,241,.14); --prem-spark:#fbbf24;
+  /* shape */
+  --vi-r-xs:8px; --vi-r-sm:10px; --vi-r:12px; --vi-r-card:16px; --vi-r-sheet:20px;
+  /* controls */
+  --ctl-h:44px; --ctl-h-lg:48px; --chip-h:28px;
+}
+:root[data-theme="light"]{--prem:#3730a3; --prem-line:rgba(55,48,163,.34); --prem-bg:rgba(79,70,229,.08)}
+.prem-gem{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+
+/* ── brand: the header lockup. One line of wordmark beside the mark; the
+   "Home" caption stays because the lockup IS the Home control (1ddb157a). ── */
+.brand .logo{background:none;border-radius:0;box-shadow:none}
+.brand.on .logo{box-shadow:none}
+.brand-name{font-weight:700;letter-spacing:-.25px}
+.brand span.g{background:var(--grad-text,var(--grad));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand-home{font-weight:600;letter-spacing:.1px}
+@media(max-width:820px){
+  nav{padding:0 14px}
+  .nav-in{height:56px;gap:8px}
+  .brand{gap:9px;margin-right:0;padding:3px 8px 3px 2px;font-size:17px}
+  .brand .logo{width:34px;height:34px}
+  .brand-txt{line-height:1.05;gap:2px}
+  .brand-home{font-size:10.5px}
+  .brand.on .brand-home{padding:1px 7px 1px 5px}
+}
+/* the header Premium button: the mark at the logo's size, a glint now and then
+   instead of a full turn (a turning badge competes with the page) */
+.hdr-prem{width:40px;height:40px}
+.hdr-prem img{width:32px;height:32px;filter:drop-shadow(0 2px 6px rgba(79,70,229,.35));animation:none}
+.hdr-prem::after{width:32px;height:32px;-webkit-mask:url(premium-mark.svg?v=1) center/contain no-repeat;mask:url(premium-mark.svg?v=1) center/contain no-repeat;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.75) 50%,transparent 62%) no-repeat;background-size:250% 100%;background-position:150% 0}
+@media(max-width:820px){.hdr-prem{width:40px;height:40px}}
+
+/* ── Premium surfaces ── */
+.prem-tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 6px;background:var(--prem-bg);color:var(--prem);border:1px solid var(--prem-line);letter-spacing:.1em}
+.prem-tag .prem-gem{width:15px;height:15px}
+.chip.prem{color:var(--prem);border-color:var(--prem-line);background:var(--prem-bg);gap:5px;padding-inline-start:6px}
+.chip.prem .prem-gem{width:14px;height:14px}
+.pf-prem .pf-row-ic,.pf-prem .pf-ic{color:var(--prem)}
+
+/* ── navigation: outline icons in one family; the selected tab gets a tinted
+   pill behind its icon, the accent colour and a bold label — it never grows ── */
+.bottom-nav{border-top:1px solid var(--line)}
+.bnav-item{color:var(--text-2)}
+.bnav-item .ic{display:grid;place-items:center;width:52px;height:30px;border-radius:999px}
+.bnav-item.on{color:var(--nav-on)}
+.bnav-item.on .ic{background:var(--nav-on-bg)}
+.tab .tab-ic svg{width:18px;height:18px}
+
+/* ── type: eyebrows speak in the accent, not in cyan; tighter tracking ── */
+.eyebrow{color:var(--accent-text);letter-spacing:.09em;font-size:11px;font-weight:700}
+h1,h2,h3,.prac-sec{letter-spacing:-.01em}
+.stat .n,.pcal-title,.ht-dig{font-variant-numeric:tabular-nums}
+
+/* ── surfaces: one card; a card holds rows, never more floating cards ── */
+.card{border-radius:var(--vi-r-card)}
+.card .card{box-shadow:none;background:var(--surface-2)}
+.path-tool-list{gap:0;border:1px solid var(--line);border-radius:var(--vi-r);overflow:hidden;background:var(--surface-2)}
+.path-tool{border:0;border-radius:0;background:transparent;padding:11px 14px}
+.path-tool+.path-tool{border-top:1px solid var(--line)}
+.path-tool:hover{border-color:transparent;background:var(--hover)}
+.path-tool.rec{border-color:transparent;background:color-mix(in srgb,var(--accent) 9%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
+html[dir="rtl"] .path-tool.rec{box-shadow:inset -3px 0 0 var(--accent)}
+.path-tool .pt-ic{width:36px;height:36px;border-radius:var(--vi-r-sm);background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--accent-text)}
+.path-tool .pt-ic svg{width:20px;height:20px}
+.pf-group,.pf-row{border-radius:14px}
+.pf-group{border-color:var(--line)}
+
+/* ── avatars: people are circles ── */
+.pf-av,.pf-hero-row .pf-av-sm{border-radius:50%}
+.pf-hero-row .pf-av-sm{width:48px;height:48px;font-size:20px;font-weight:700}
+
+/* ── controls ── */
+.btn-primary{box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 8px 18px -8px var(--cta-tint)}
+@media (hover:hover){.btn-primary:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 10px 22px -8px var(--cta-tint)}}
+.btn-outline{border-width:1px;border-color:color-mix(in srgb,var(--accent) 60%,transparent);background:color-mix(in srgb,var(--accent) 6%,transparent);border-radius:var(--vi-r)}
+.chip{min-height:var(--chip-h);box-sizing:border-box}
+/* fields: the base rule (top of the sheet) carries the shape; the focus ring is
+   zero-specificity so a composed field (the Shadow search, Executive Polish)
+   keeps its own */
+:where(input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select):focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 26%,transparent)}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
+/* on/off settings are switches (a consent box stays a checkbox: it is a
+   statement you tick, not a setting you flip) */
+:is(#remOn,#ppAlertsOn,#nudgesOn){-webkit-appearance:none;appearance:none;flex:none;position:relative;width:44px;height:26px;min-height:0;margin:0;border:0;border-radius:999px;background:var(--line2);cursor:pointer;transition:background var(--ds-fast) var(--ds-ease-soft)}
+:is(#remOn,#ppAlertsOn,#nudgesOn)::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform var(--ds-fast) var(--ds-ease-out)}
+:is(#remOn,#ppAlertsOn,#nudgesOn):checked{background:var(--accent-fill)}
+:is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:translateX(18px)}
+html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:translateX(-18px)}
+:is(#remOn,#ppAlertsOn,#nudgesOn):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+:is(#remOn,#ppAlertsOn,#nudgesOn):disabled{opacity:.45;cursor:default}
+
+@media (prefers-reduced-motion:reduce){.hdr-prem::after{animation:none}}
 </style>
 </head>
 <body>
@@ -5738,19 +5853,19 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 <nav><div class="nav-in">
   <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home"><span class="brand-home-ic" aria-hidden="true"></span><span data-i18n="nav.home_label">Home</span></small></span></div>
   <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small id="trackIndicatorDest">Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
-  <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
-  <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
-  <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
-  <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
-  <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="bnav.progress">Progress</span></button>
-  <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
+  <button class="tab" data-v="journey" data-ic="route"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
+  <button class="tab" data-v="phrases" data-ic="phrase"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
+  <button class="tab" data-v="shadow" data-ic="shadowing"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
+  <button class="tab" data-v="practice" data-ic="speak"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
+  <button class="tab" data-v="review" data-ic="progress"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="bnav.progress">Progress</span></button>
+  <button class="tab" data-v="profile" data-ic="person"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
   <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
     <span class="ht-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>
     <span class="ht-dig" id="hdrTimerDig">25:00</span>
     <span class="ht-x" onclick="event.stopPropagation();tReset()" role="button" aria-label="Cancel timer" title="Cancel timer">×</span>
   </button>
-  <!-- Premium badge (owner, 28 Sep 2026): the owner's artwork, turns now and then, opens the plans sheet. hdrPremSync shows it -->
-  <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-badge.png?v=3" alt="" width="46" height="46" decoding="async"></button>
+  <!-- Premium badge (owner, 28 Sep 2026; visual identity v2, 29 Sep): the Premium mark, a glint now and then, opens the plans sheet. hdrPremSync shows it -->
+  <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-mark.svg?v=1" alt="" width="46" height="46" decoding="async"></button>
   <!-- the header's Road map button was removed on 14 Sep 2026: the road map has its own tab in the bar -->
   <!-- the header streak pill was removed on 22 Sep 2026 (owner: a simpler header); the streak lives on Progress -->
 </div></nav>
@@ -5806,12 +5921,12 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 
 <!-- Mobile bottom navigation (app style) -->
 <nav class="bottom-nav" aria-label="Main navigation">
-  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.2 3.5 6.4v13.4L9 17.6l6 2.2 5.5-2.2V4.4L15 6.6"/><path d="M9 4.2v13.4"/><path d="M15 6.6v13.2"/></svg></span><span data-i18n="bnav.weeks">Road map</span></button>
-  <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
-  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5h15a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19.5 16H10l-4.2 3.8V16H4.5A1.5 1.5 0 0 1 3 14.5v-8A1.5 1.5 0 0 1 4.5 5Z"/><path d="M8 9.5h8M8 12.5h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
-  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="4.9"/><path d="M14.4 9.5H15.7M9.5 14.4V15.7M4.6 9.5H3.3M9.5 4.6V3.3M6.04 6.04 5.12 5.12M13 6.04 13.88 5.12M6.04 13 5.12 13.88M6.9 11.4 8.9 9.4 10.2 10.7 12.1 8.4M10.5 8.4H12.1V10"/><circle cx="17.6" cy="17.6" r="3.9"/><path d="M15.9 17.7 17 18.8 19.1 16.4"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
-  <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5h16"/><path d="M6.5 20.5v-6"/><path d="M12 20.5V6"/><path d="M17.5 20.5v-9"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
-  <button class="bnav-item" data-v="profile" onclick="go('profile')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M5.5 20c0-3.6 3-5.6 6.5-5.6s6.5 2 6.5 5.6"/></svg></span><span data-i18n="bnav.profile">Profile</span></button>
+  <button class="bnav-item" data-v="journey" onclick="go('journey')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18.5" r="2.4"/><circle cx="18" cy="5.5" r="2.4"/><path d="M8.4 18.5h7.6a3.25 3.25 0 0 0 0-6.5H8a3.25 3.25 0 0 1 0-6.5h7.6"/></svg></span><span data-i18n="bnav.weeks">Road map</span></button>
+  <button class="bnav-item" data-v="shadow" onclick="go('shadow')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="12" r="7"/><path d="M12 5.3a7 7 0 1 1 0 13.4"/><path d="M8.6 9.3v5.4l4.4-2.7Z"/></svg></span><span data-i18n="bnav.shadow">Shadow</span></button>
+  <button class="bnav-item" data-v="phrases" onclick="go('phrases')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 4.5h9a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.3l-3.9 3.3a.6.6 0 0 1-1-.46V17.4A4 4 0 0 1 3.5 13.5v-5a4 4 0 0 1 4-4Z"/><path d="M8 9.3h8M8 12.6h5"/></svg></span><span data-i18n="bnav.phrases">Phrase Lab</span></button>
+  <button class="bnav-item" data-v="practice" onclick="go('practice')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M9 21h6"/></svg></span><span data-i18n="bnav.practice">Practice</span></button>
+  <button class="bnav-item" data-v="review" onclick="go('review')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="13" width="4" height="7" rx="1.4"/><rect x="10" y="9" width="4" height="11" rx="1.4"/><rect x="15.5" y="4.5" width="4" height="15.5" rx="1.4"/></svg></span><span data-i18n="bnav.progress">Progress</span></button>
+  <button class="bnav-item" data-v="profile" onclick="go('profile')"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.7"/><path d="M4.8 19.6a7.2 7.2 0 0 1 14.4 0"/></svg></span><span data-i18n="bnav.profile">Profile</span></button>
 </nav>
 
 <script>
@@ -6306,6 +6421,16 @@ function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").repl
 function jarg(s){return esc(JSON.stringify(s))}
 /* Shared line-icon set (modern, consistent across nav + help centre). 24x24, stroke=currentColor. */
 const ICON={
+  /* Navigation set, visual identity v2 (docs/DESIGN_SYSTEM_BEMASTERY.md §19): one
+     metaphor per destination — the road, a voice and its shadow, the brand's
+     bubble, the microphone, the brand's three rising bars, the person. */
+  route:'<circle cx="6" cy="18.5" r="2.4"/><circle cx="18" cy="5.5" r="2.4"/><path d="M8.4 18.5h7.6a3.25 3.25 0 0 0 0-6.5H8a3.25 3.25 0 0 1 0-6.5h7.6"/>',
+  shadowing:'<circle cx="10" cy="12" r="7"/><path d="M12 5.3a7 7 0 1 1 0 13.4"/><path d="M8.6 9.3v5.4l4.4-2.7Z"/>',
+  phrase:'<path d="M7.5 4.5h9a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.3l-3.9 3.3a.6.6 0 0 1-1-.46V17.4A4 4 0 0 1 3.5 13.5v-5a4 4 0 0 1 4-4Z"/><path d="M8 9.3h8M8 12.6h5"/>',
+  speak:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M9 21h6"/>',
+  progress:'<rect x="4.5" y="13" width="4" height="7" rx="1.4"/><rect x="10" y="9" width="4" height="11" rx="1.4"/><rect x="15.5" y="4.5" width="4" height="15.5" rx="1.4"/>',
+  premium:'<path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4Z"/><path d="M9 15.2v-1.6M12 15.2v-4.2M15 15.2V8.8"/>',   /* the Premium mark as a line icon, for rows and lists */
+  person:'<circle cx="12" cy="8.5" r="3.7"/><path d="M4.8 19.6a7.2 7.2 0 0 1 14.4 0"/>',
   home:'<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/>',
   cards:'<rect x="3" y="7" width="13" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v9"/>',
   grid:'<rect x="3.5" y="3.5" width="17" height="17" rx="1.5"/><path d="M9 3.5v17M15 3.5v17M3.5 9h17M3.5 15h17"/>',
@@ -6398,6 +6523,8 @@ const ICON={
   hangup:'<path d="M3.5 13.2c4.9-4.6 12.1-4.6 17 0"/><path d="M3.5 13.2l2.6 2.6 2.9-2.2-.5-3.1M20.5 13.2l-2.6 2.6-2.9-2.2.5-3.1"/><path d="M5 5l14 14"/>',
   box:'<path d="M3.5 7.6 12 3l8.5 4.6v8.8L12 21l-8.5-4.6Z"/><path d="M3.5 7.6 12 12.2l8.5-4.6M12 12.2V21"/>'
 };
+/* The Premium mark (premium-mark.svg), inline so it needs no request and scales with the text it sits in */
+function premMark(cls){return `<svg class="prem-gem${cls?" "+cls:""}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M32 6 54.5 19v26L32 58 9.5 45V19Z" fill="#3b3fd8" stroke="#3b3fd8" stroke-width="7" stroke-linejoin="round"/><path d="M32 6 54.5 19 32 32 9.5 19Z" fill="#fff" fill-opacity=".16"/><rect x="19.5" y="35" width="6" height="10" rx="3" fill="#fff"/><rect x="28" y="29.5" width="6" height="15.5" rx="3" fill="#fff"/><rect x="36.5" y="24" width="6" height="21" rx="3" fill="#fff"/><path d="M46.5 11.5l1.55 3.45 3.45 1.55-3.45 1.55-1.55 3.45-1.55-3.45-3.45-1.55 3.45-1.55Z" fill="#fbbf24"/></svg>`}
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Emoji → line-icon name, used to iconize the manual headings at runtime (all languages). */
 const EMOJI_ICON={"▶":"play","▶️":"play","⏸":"pause","⏸️":"pause","🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun","🎉":"party","🎊":"party","👀":"eye","👁️":"eye","👁":"eye","😊":"star","🙂":"star","📦":"box","📮":"box","🗃️":"box","🗂️":"doc","📎":"link","🔑":"lock","🎥":"film","📆":"calendar","⏳":"clock","⌛":"clock"};
@@ -22729,7 +22856,7 @@ function premSheetHTML(wait){
   return `<button type="button" class="prem-x" aria-label="${esc(t("wc.close"))}" onclick="premClose()"${wait?" hidden":""}>${ic("close")}</button>
     <div class="prem-scroll">
       <header class="prem-hero">
-        <p class="prem-eyebrow"><span class="prem-brand">BE Mastery</span><span class="prem-spark" aria-hidden="true">✦</span><span class="prem-tag">${esc(t("prem.cmp_prem"))}</span></p>
+        <p class="prem-eyebrow"><span class="prem-brand">BE Mastery</span><span class="prem-tag">${premMark()}${esc(t("prem.cmp_prem"))}</span></p>
         <h2 id="premH" class="prem-h">${premHeadHTML(prem?t("prem.on_h"):t("prem.headline"))}</h2>
         ${prem?"":`<p class="prem-lede">${esc(t("prem.lede"))}</p>`}
       </header>
@@ -27847,8 +27974,8 @@ function pathSummary(){
 function pathTools(){
   const sim=isProfessionalJourney()?"simulation":"roleplay";
   const list=[
-    {id:"shadow",go:["shadow"],ic:"headphones"},
-    {id:"phrases",go:["phrases"],ic:"chat"},
+    {id:"shadow",go:["shadow"],ic:"shadowing"},
+    {id:"phrases",go:["phrases"],ic:"phrase"},
     {id:"vocab",go:["practice"],ic:"cards"},
     {id:"sim",go:[sim],ic:"user",locked:fndBlocks()}
   ];
@@ -28831,7 +28958,7 @@ function pgRecordLocked(){try{return planOn()&&isGeneralEnglish()&&!entIsPremium
 function pgRecordLockHTML(){
   const li=(icn,k)=>`<li><span class="btn-ic">${ic(icn)}</span><span>${esc(t(k))}</span></li>`;
   return `<div class="card pg-rec-lock">
-    <p class="pg-rec-lock-h"><span class="chip pg-rec-chip">${esc(t("prem.cmp_prem"))}</span>${esc(t("pg.rec_prem_h"))}</p>
+    <p class="pg-rec-lock-h"><span class="chip prem pg-rec-chip">${premMark()}${esc(t("prem.cmp_prem"))}</span>${esc(t("pg.rec_prem_h"))}</p>
     <ul class="pg-rec-list">${li("calendar","prog.stat_days")}${li("check","cal.consistency")}${li("chart","cal.year_h")}</ul>
     <p class="pg-rec-note">${esc(t("pg.rec_prem_note"))}</p>
     <p class="pg-rec-note">${esc(t("pg.rec_free"))}</p>
@@ -28898,7 +29025,7 @@ function rProfile(el){
     <div class="pf-hero-t"><h1 class="pf-name">${nm}</h1><p class="pf-sub">${sub}</p></div>
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>
-  ${premOffered()?`<div class="pf-group pf-prem">${entIsPremiumForDisplay()?pfRow("star",t("sub.h"),"subOpen()",(()=>{const i=entView().source===(Billing.provider&&Billing.provider.id)?subPlanInfo():null;return t("prem.cmp_prem")+(i&&i.kind?" · "+t(i.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"")})()):pfRow("star",t("prem.h"),"premiumOpen('profile')",t("prem.row_sub"))}</div>`:""}
+  ${premOffered()?`<div class="pf-group pf-prem">${entIsPremiumForDisplay()?pfRow("premium",t("sub.h"),"subOpen()",(()=>{const i=entView().source===(Billing.provider&&Billing.provider.id)?subPlanInfo():null;return t("prem.cmp_prem")+(i&&i.kind?" · "+t(i.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"")})()):pfRow("premium",t("prem.h"),"premiumOpen('profile')",t("prem.row_sub"))}</div>`:""}
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}
@@ -29011,7 +29138,7 @@ async function rData(el,embedded){
       <h3 class="set-h" id="setRem">${t("rem.label")}</h3>
       <div class="rem-box">
         <label class="rem-row">
-          <input type="checkbox" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
+          <input type="checkbox" role="switch" id="remOn" ${(S.reminder&&S.reminder.on)?"checked":""} onchange="remToggle(this.checked)">
           <span>${t("rem.switch")}</span>
         </label>
         <input type="time" id="remTime" aria-label="${esc(t("rem.label"))}" value="${esc((S.reminder&&S.reminder.time)||"19:00")}" onchange="remSetTime(this.value)" ${(S.reminder&&S.reminder.on)?"":"disabled"}>
@@ -29019,14 +29146,14 @@ async function rData(el,embedded){
       <p class="rem-note" id="remNote">${remNoteHTML()}</p>
       ${ppAvailable()?`<div class="rem-box" style="margin-top:8px">
         <label class="rem-row">
-          <input type="checkbox" id="ppAlertsOn" ${ppAlertsOn()?"checked":""} onchange="ppAlertsToggle(this.checked)">
+          <input type="checkbox" role="switch" id="ppAlertsOn" ${ppAlertsOn()?"checked":""} onchange="ppAlertsToggle(this.checked)">
           <span>${t("rem.online_switch")}</span>
         </label>
       </div>
       <p class="rem-note">${t(IS_IOS_APP?"rem.online_sub_ios":"rem.online_sub")}</p>`:""}
       ${nudgeAvailable()?`<div class="rem-box" style="margin-top:8px">
         <label class="rem-row">
-          <input type="checkbox" id="nudgesOn" ${nudgePrefOn()?"checked":""} onchange="nudgeToggle(this.checked)">
+          <input type="checkbox" role="switch" id="nudgesOn" ${nudgePrefOn()?"checked":""} onchange="nudgeToggle(this.checked)">
           <span>${t("rem.nudges_switch")}</span>
         </label>
       </div>
