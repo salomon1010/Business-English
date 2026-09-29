@@ -3231,5 +3231,19 @@
  "sh.cat_songs": "Músicas",
  "home.d_grammar": "Pratique gramática com exercícios interativos",
  "home.d_convo": "Fale com um colega de IA",
- "area.switch_to": "Mudar para {{area}}"
+ "area.switch_to": "Mudar para {{area}}",
+ "home.eyebrow_first": "A sua primeira sessão",
+ "home.cta_first": "Começar a sessão",
+ "home.cta_today": "Começar a sessão",
+ "home.cta_resume": "Retomar a sessão",
+ "wc.lead_skip": "Bem-vindo, {{name}}. Este é o primeiro dia do orador em que se está a tornar.",
+ "pg.start_h": "É aqui que começa",
+ "pg.start_pos": "Semana {{w}} · {{day}} — {{focus}}",
+ "pg.have_goal": "O seu objetivo: {{goal}}",
+ "pg.have_slot": "O seu momento de prática: {{slot}}",
+ "pg.have_placed": "Teste de nível feito",
+ "pg.have_words": "{{n}} palavras guardadas",
+ "pg.start_next": "Próximo pequeno passo: uma sessão de 25 minutos. Depois, esta página mostra a sua sequência, as suas sessões e as palavras que disse.",
+ "pg.start_btn": "Começar a minha primeira sessão",
+ "pg.milestone": "Próxima meta: terminar a semana {{w}} — {{done}} de {{n}} sessões"
 }

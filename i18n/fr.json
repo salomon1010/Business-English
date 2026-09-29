@@ -3231,5 +3231,19 @@
  "sh.cat_songs": "Chansons",
  "home.d_grammar": "Pratiquez la grammaire avec des exercices interactifs",
  "home.d_convo": "Parlez avec un collègue IA",
- "area.switch_to": "Passer à {{area}}"
+ "area.switch_to": "Passer à {{area}}",
+ "home.eyebrow_first": "Votre première séance",
+ "home.cta_first": "Commencer la séance",
+ "home.cta_today": "Commencer la séance",
+ "home.cta_resume": "Reprendre la séance",
+ "wc.lead_skip": "Bienvenue, {{name}}. C'est le premier jour de l'orateur que vous devenez.",
+ "pg.start_h": "Voici votre point de départ",
+ "pg.start_pos": "Semaine {{w}} · {{day}} — {{focus}}",
+ "pg.have_goal": "Votre objectif : {{goal}}",
+ "pg.have_slot": "Votre moment de pratique : {{slot}}",
+ "pg.have_placed": "Test de positionnement fait",
+ "pg.have_words": "{{n}} mots enregistrés",
+ "pg.start_next": "Prochaine petite étape : une séance de 25 minutes. Ensuite, cette page affiche votre série, vos séances et les mots que vous avez prononcés.",
+ "pg.start_btn": "Commencer ma première séance",
+ "pg.milestone": "Prochaine étape : terminer la semaine {{w}} — {{done}} séances sur {{n}}"
 }

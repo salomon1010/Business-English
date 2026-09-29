@@ -3231,5 +3231,19 @@
  "sh.cat_songs": "Canciones",
  "home.d_grammar": "Practica la gramática con ejercicios interactivos",
  "home.d_convo": "Habla con un colega IA",
- "area.switch_to": "Cambiar a {{area}}"
+ "area.switch_to": "Cambiar a {{area}}",
+ "home.eyebrow_first": "Tu primera sesión",
+ "home.cta_first": "Empezar la sesión",
+ "home.cta_today": "Empezar la sesión",
+ "home.cta_resume": "Retomar la sesión",
+ "wc.lead_skip": "Bienvenido, {{name}}. Este es el primer día del hablante en el que te estás convirtiendo.",
+ "pg.start_h": "Aquí es donde empiezas",
+ "pg.start_pos": "Semana {{w}} · {{day}} — {{focus}}",
+ "pg.have_goal": "Tu objetivo: {{goal}}",
+ "pg.have_slot": "Tu momento de práctica: {{slot}}",
+ "pg.have_placed": "Prueba de nivel hecha",
+ "pg.have_words": "{{n}} palabras guardadas",
+ "pg.start_next": "Siguiente paso pequeño: una sesión de 25 minutos. Después, esta página muestra tu racha, tus sesiones y las palabras que has dicho.",
+ "pg.start_btn": "Empezar mi primera sesión",
+ "pg.milestone": "Próxima meta: terminar la semana {{w}} — {{done}} de {{n}} sesiones"
 }

@@ -3231,5 +3231,19 @@
  "sh.cat_songs": "Songs",
  "home.d_grammar": "Practise grammar with interactive exercises",
  "home.d_convo": "Speak with an AI colleague",
- "area.switch_to": "Switch to {{area}}"
+ "area.switch_to": "Switch to {{area}}",
+ "home.eyebrow_first": "Your first session",
+ "home.cta_first": "Start session",
+ "home.cta_today": "Start session",
+ "home.cta_resume": "Resume session",
+ "wc.lead_skip": "Welcome, {{name}}. This is day one of the speaker you're becoming.",
+ "pg.start_h": "Here is where you start",
+ "pg.start_pos": "Week {{w}} · {{day}} — {{focus}}",
+ "pg.have_goal": "Your goal: {{goal}}",
+ "pg.have_slot": "Your practice time: {{slot}}",
+ "pg.have_placed": "Placement check done",
+ "pg.have_words": "{{n}} words saved",
+ "pg.start_next": "Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
+ "pg.start_btn": "Start your first session",
+ "pg.milestone": "Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions"
 }
