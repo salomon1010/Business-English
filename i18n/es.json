@@ -2574,7 +2574,7 @@
  "sh.lib_cap_player": "Subtítulos en el reproductor",
  "sh.lib_loading": "Cargando la biblioteca…",
  "sh.lib_none": "Nada coincide. Pega un enlace — cualquier vídeo de YouTube sirve.",
- "sh.lib_empty_cat": "Aún no hay nada aquí.",
+ "sh.lib_empty_cat": "Aún no hay vídeos en este grupo. Elige otro grupo o pega cualquier enlace de YouTube.",
  "sh.lib_more": "Mostrar {{n}} más",
  "sh.cat_meetings": "Reuniones",
  "sh.cat_presentations": "Presentaciones",
@@ -3246,7 +3246,10 @@
  "pg.start_next": "Siguiente paso pequeño: una sesión de 25 minutos. Después, esta página muestra tu racha, tus sesiones y las palabras que has dicho.",
  "pg.start_btn": "Empezar mi primera sesión",
  "pg.milestone": "Próxima meta: terminar la semana {{w}} — {{done}} de {{n}} sesiones",
- "pg.rec_prem_h": "Tu registro completo forma parte de Premium",
- "pg.rec_prem_note": "Todo lo que practicas se sigue contando y guardando. Premium lo muestra aquí.",
- "pg.rec_free": "La versión gratuita conserva esta semana, tu racha, tus sesiones y tu certificado."
+ "pg.rec_prem_h": "Tu historial completo forma parte de Premium",
+ "pg.rec_prem_note": "Todo lo que practicas se sigue contando y guardando. Premium muestra tu historial aquí.",
+ "pg.rec_free": "La versión gratuita conserva esta semana, tu racha actual y tu mejor racha, tus sesiones, lo que has guardado y tu certificado.",
+ "rm.today": "Hoy",
+ "rm.after_check": "Tu primera misión aparece después de la prueba de un minuto de arriba.",
+ "rm.after_fnd": "Tu primera misión se abre cuando termines Fundamentos."
 }

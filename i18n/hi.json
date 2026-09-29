@@ -3246,7 +3246,10 @@
  "pg.start_next": "Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
  "pg.start_btn": "Start your first session",
  "pg.milestone": "Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
- "pg.rec_prem_h": "Your full record is part of Premium",
- "pg.rec_prem_note": "Everything you practise is still counted and kept. Premium shows it here.",
- "pg.rec_free": "Free keeps this week, your streak, your sessions and your certificate."
+ "pg.rec_prem_h": "Your full history is part of Premium",
+ "pg.rec_prem_note": "Everything you practise is still counted and kept. Premium shows your history here.",
+ "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
+ "rm.today": "Today",
+ "rm.after_check": "Your first mission appears after the one-minute check above.",
+ "rm.after_fnd": "Your first mission opens when Foundations is finished."
 }

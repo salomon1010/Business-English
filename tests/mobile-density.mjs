@@ -90,12 +90,14 @@ console.log("\n# Welding: the same record, from the Welding record; no General E
 
 console.log("\n# 'Your record' is a Premium report — only where Premium can be bought, never destroying anything");
 const recState = () => document.getElementById("v-review") && (() => { const v = document.getElementById("v-review"), more = v.querySelector("details.pg-more"), lock = v.querySelector(".pg-rec-lock");
-  return { plans: planOn(), lock: !!lock && !more.contains(lock), txt: lock ? lock.innerText : "", stats: !!v.querySelector(".pf-stats-2"), year: v.querySelectorAll(".pg-year").length, head: !!v.querySelector(".pg-record-h") } })();
+  const free = v.querySelector(".pf-stats-3");
+  return { plans: planOn(), lock: !!lock && !more.contains(lock), txt: lock ? lock.innerText : "", stats: !!v.querySelector(".pf-stats-2"), free: free ? free.innerText : "", year: v.querySelectorAll(".pg-year").length, head: !!v.querySelector(".pg-record-h") } })();
 const geDone = seed("general-english", { days: { w1Mon: true, w1Tue: true }, dates: [d(1)], dayLog: { [d(1)]: 1 }, dayLogA: { "general-english": { [d(1)]: 1 } } });
 { const { ctx, p, errs } = await open(geDone, 375, "en", true); await view(p, "review");
   const r = await p.evaluate(recState);
-  ok("12 · plans on, a free General English learner: the heading stays, the report becomes the Premium card — no counts, no year grid", r.plans && r.head && r.lock && !r.stats && r.year === 0, JSON.stringify(r));
-  ok("13 · the card names all six parts, says the practice is still counted and kept, and what Free keeps", ["Phrases & idioms mastered", "Shadowing clips saved", "best streak", "Days practised", "consistency", "Your year"].every(x => r.txt.toLowerCase().includes(x.toLowerCase())) && /still counted and kept/.test(r.txt) && /Free keeps this week, your streak, your sessions and your certificate/.test(r.txt), r.txt);
+  /* the split the owner set (29 Sep 2026): current progress free, long-term history Premium */
+  ok("12 · plans on, a free General English learner: phrases mastered, clips saved and the best streak stay visible; the history (year grid) becomes the Premium card", r.plans && r.head && r.lock && /Phrases & idioms mastered/.test(r.free) && /Shadowing clips saved/.test(r.free) && /best streak/i.test(r.free) && r.year === 0, JSON.stringify(r));
+  ok("13 · the card names only the history (days practised, consistency, your year) — nothing unbuilt such as 30/90-day views — says the practice is still counted and kept, and what Free keeps", ["Days practised", "consistency", "Your year"].every(x => r.txt.toLowerCase().includes(x.toLowerCase())) && !/Phrases|clips saved|best streak|30|90/i.test(r.txt.split("Everything")[0]) && /still counted and kept/.test(r.txt) && /Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate/.test(r.txt), r.txt);
   ok("13b · no countdown, no 'lose', no blurred figures in the card", !/\d+:\d\d|lose|lost|expire|only \d/i.test(r.txt) && !(await p.evaluate(() => [...document.querySelectorAll(".pg-rec-lock *")].some(e => /blur/.test(getComputedStyle(e).filter)))), r.txt);
   const ess = await p.evaluate(() => document.querySelectorAll(".pg-ess .stat").length + document.querySelectorAll(".pg-mile").length);
   ok("14 · Free keeps this week's four numbers and the certificate milestone", ess === 5, String(ess));
@@ -108,7 +110,7 @@ const geDone = seed("general-english", { days: { w1Mon: true, w1Tue: true }, dat
 { const { ctx, p, errs } = await open(seed("welding", { days: { "welding:w1Mon": true } }), 375, "en", true); await view(p, "review");
   const r = await p.evaluate(recState);
   ok("17 · plans on, Welding (Premium is General English only): the report as before", r.plans && !r.lock && r.stats && r.year === 1, JSON.stringify(r)); await ctx.close(); }
-for (const [lang, h] of [["fr", "Votre relevé complet fait partie de Premium"], ["ar", "سجلّك الكامل جزء من Premium"]]) {
+for (const [lang, h] of [["fr", "Votre historique complet fait partie de Premium"], ["ar", "سجلّك التاريخي الكامل جزء من Premium"]]) {
   const { ctx, p } = await open(geDone, 375, lang, true); await view(p, "review");
   const r = await p.evaluate(() => { const l = document.querySelector(".pg-rec-lock"); if (!l) return null; const b = l.getBoundingClientRect(); return { t: l.innerText, dir: getComputedStyle(l).direction, off: [...l.querySelectorAll("*")].some(e => { const q = e.getBoundingClientRect(); return q.width && (q.left < b.left - 1 || q.right > b.right + 1) }) } });
   ok(`18 · ${lang}: the Premium card is translated and nothing leaves the card`, r && r.t.includes(h) && !r.off && (lang !== "ar" || r.dir === "rtl"), JSON.stringify(r));

@@ -5673,8 +5673,24 @@ h1.big{letter-spacing:-.025em}
 .pg-rec-list .btn-ic svg{width:15px;height:15px;color:var(--acc)}
 .pg-rec-note{margin:0 0 6px;font-size:12.5px;color:var(--mut);line-height:1.45}
 .pg-rec-go{margin-top:8px}
+.rm-today{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.rm-today-t{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rm-today-k{font-size:12px;font-weight:700;color:var(--accent-text);letter-spacing:.02em}
+.rm-today-t b{font-size:15.5px;line-height:1.3}
+.rm-today-go{width:auto;flex:0 0 auto;margin:0}
+@media(max-width:480px){.rm-today-go{flex:1 1 100%}}
+.career-dash-why{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--mut);font-weight:400}
+.career-dash-gated{display:flex;align-items:center;gap:8px;margin:0;padding:12px 14px;border-radius:12px;border:1px dashed var(--line2);font-size:13.5px;color:var(--mut)}
+.career-dash-gated svg{width:16px;height:16px;flex:none}
+/* a "go" arrow drawn in markup points the way of reading: mirrored in Arabic and
+   Urdu, like the app's other markup arrows (the list under html[dir="rtl"]);
+   arrows inside translated strings are already right in each language */
+.go-arrow{display:inline-block;margin-inline-start:6px}
+html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transform:scaleX(-1)}
 /* "Your record" holds two counts: two columns, so a label is not squeezed into a third */
 .pf-stats.pf-stats-2{grid-template-columns:repeat(2,1fr);margin:6px auto 12px}
+.pf-stats.pf-stats-3{grid-template-columns:repeat(3,1fr);gap:6px;margin:6px auto 12px}
+.pf-stats.pf-stats-3 .stat{padding-inline:4px}
 /* Practice › best tool: on a phone the "Recommended" chip took a third of the
    row and squeezed the title to two lines and the description to four; it now
    sits under the text, aligned with it (38px icon + 12px gap) */
@@ -6984,9 +7000,12 @@ const I18N_EN={
  "pg.start_next":"Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
  "pg.start_btn":"Start your first session",
  "pg.milestone":"Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
- "pg.rec_prem_h":"Your full record is part of Premium",
- "pg.rec_prem_note":"Everything you practise is still counted and kept. Premium shows it here.",
- "pg.rec_free":"Free keeps this week, your streak, your sessions and your certificate.",
+ "rm.today":"Today",
+ "rm.after_check":"Your first mission appears after the one-minute check above.",
+ "rm.after_fnd":"Your first mission opens when Foundations is finished.",
+ "pg.rec_prem_h":"Your full history is part of Premium",
+ "pg.rec_prem_note":"Everything you practise is still counted and kept. Premium shows your history here.",
+ "pg.rec_free":"Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
  "wc.score_label":"Assessment score",
  "wc.body":"We've built your 12-week plan around your answers. Twenty-five focused minutes a day, six days a week — that's all it takes.",
  "wc.cta":"Start Week 1",
@@ -8238,7 +8257,7 @@ const I18N_EN={
  "sh.lib_cap_none":"No transcript",
  "sh.lib_loading":"Loading the library…",
  "sh.lib_none":"Nothing matches. Paste a link instead — any YouTube video works.",
- "sh.lib_empty_cat":"Nothing here yet.",
+ "sh.lib_empty_cat":"No videos in this group yet. Pick another group, or paste any YouTube link.",
  "sh.lib_more":"Show {{n}} more",
  "sh.cat_meetings":"Meetings",
  "sh.cat_presentations":"Presentations",
@@ -10251,11 +10270,13 @@ function careerDashboardContext(){
   const stage=professional?(wk.stage||`Stage ${pos.w}`):`Week ${pos.w}`;
   /* Reads "Not measured yet" until the learner has actually demonstrated
      something, rather than awarding a foundation for opening the app. */
-  const milestone=window.AdaptiveLearningEngine
-    ?AdaptiveLearningEngine.milestone(AdaptiveLearningEngine.prediction(S,track).career).current.title
-    :"Not measured yet";
+  const ms=window.AdaptiveLearningEngine?AdaptiveLearningEngine.milestone(AdaptiveLearningEngine.prediction(S,track).career):null;
+  const milestone=ms?ms.current.title:"Not measured yet";
+  /* an unmeasured milestone says how it gets measured (the engine's own sentence) */
+  const milestoneWhy=ms&&ms.unmeasured?(ms.current.description||""):"";
+  let gated="";try{gated=fndNeedsPlacement()?"check":fndGated()?"fnd":""}catch(e){}
   const coach=window.LearningCoach?LearningCoach.mission(S,track):{title:"Continue your focused practice",body:"Build one clear professional communication habit today."};
-  return {pos,track,wk,day,destination,workplace,stage,milestone,coach};
+  return {pos,track,wk,day,destination,workplace,stage,milestone,milestoneWhy,gated,coach};
 }
 
 /* General English Home, as it was before the Career Dashboard was built: where
@@ -11879,8 +11900,13 @@ function rHome(el){
       :`<div class="career-dashboard-fact"><span>Current destination</span><b>${esc(c.destination.name)}</b></div>`}`;
       })()}
       <div class="career-dashboard-fact"><span>Current workplace</span><b>${esc(c.workplace)}</b></div>
-      <div class="career-dashboard-fact"><span>Career milestone</span><b>${esc(c.milestone)}</b></div>
+      <div class="career-dashboard-fact"><span>Career milestone</span><b>${esc(c.milestone)}</b>${c.milestoneWhy?`<small class="career-dash-why">${esc(c.milestoneWhy)}</small>`:""}</div>
     </div>
+    ${/* Before the placement check (or during Foundations) today's mission cannot
+          start, and showing it in full beside the check was two decisions at once
+          (IA audit, 29 Sep 2026). The gate card above is the one action; this
+          says what comes after it. */
+      c.gated?`<p class="career-dash-gated">${ic("lock")}<span>${esc(t(c.gated==="check"?"rm.after_check":"rm.after_fnd"))}</span></p>`:`
     <div class="career-dashboard-mission">
       <div class="eyebrow">Today's mission · 25 minutes</div>
       <h2>${esc(missionTitle)}</h2>
@@ -11888,7 +11914,7 @@ function rHome(el){
       <p class="career-dashboard-why">Why it matters: ${esc(c.wk.goal||"Build clearer professional communication for the workplace.")}</p>
     </div>
     <div class="career-dashboard-coach"><span class="coach-ic">${ic("idea")}</span><div><b>Coach recommendation · ${esc(c.coach.title)}</b><p>${esc(c.coach.body)}</p></div></div>
-    ${pathMissionBtn(c.pos.w,c.pos.d,"Continue Today’s Mission →")}
+    ${pathMissionBtn(c.pos.w,c.pos.d,"Continue Today’s Mission →")}`}
   </section>
   ${/* The way back out, named. A row reading "Switch profession" does not say
         what the alternative is; this card does. */""}
@@ -12159,6 +12185,25 @@ function rmPhase(steps,p){
   const d=ws.reduce((n,s)=>n+Math.round(s.pct/100*per),0),tot=ws.length*per;
   return {d,tot,state:ws.every(s=>s.state==="done")?"done":ws.some(s=>s.state==="now")?"now":"locked"};
 }
+/* Learn answers "what is today?" as well as "where am I?" (IA audit, 29 Sep
+   2026): one row with today's step and one button, from the same state Home
+   uses — the gate cards first (placement check, Foundations day), then the
+   curriculum day currentPos() points at, worded like Home's button (Start /
+   Resume). Curriculum only: Home is where other kinds of recommendation lead.
+   Nothing when the programme is finished or the next day is still locked. */
+function rmTodayHTML(){
+  try{
+    const row=(k,title,cta,act)=>`<div class="rm-today"><div class="rm-today-t"><span class="rm-today-k">${esc(k)}</span><b>${esc(title)}</b></div><button class="btn-primary rm-today-go" onclick="rmClose();${act}">${esc(cta)}<span class="go-arrow" aria-hidden="true">→</span></button></div>`;
+    const g=homeGateCard();
+    if(g)return row(g.eyebrow,g.title,g.cta,g.go);
+    if(totalDone()>=trackSessionCount())return "";
+    const p=currentPos();if(pathLocked(p.w,p.d))return "";
+    const wk=trackWeeks().find(x=>x.n===p.w)||{},day=(wk.days||{})[p.d]||{};
+    const begun=((S.steps||{})[dayKey(p.w,p.d)]||[]).length>0;
+    const cta=t(totalDone()===0&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today");
+    return row(t("rm.today")+" · "+t("home.kicker_week",{w:p.w,day:homeDayName(p.d)}),day.focus||wk.theme||"",cta,`go('session',${p.w},'${p.d}')`);
+  }catch(e){return ""}
+}
 function rmHTML(){
   const {steps,total,done,pct,iNow}=rmSteps(),phases=trackPhases(),per=trackDays().length;
   const now=steps[iNow],next=steps.find(s=>s.state==="next");
@@ -12181,6 +12226,7 @@ function rmHTML(){
         ${now?`<button class="rm-jump" onclick="rmJump()">${ic("compass")} ${esc(t("rm.jump"))}</button>`:""}
       </div>
     </div>
+    ${rmTodayHTML()}
     ${rmBoardHTML()}
   </section>`;
 }
@@ -27675,7 +27721,7 @@ function fndAvailable(){return !!fndPack()}
 function fndNeedsPlacement(){return fndAvailable()&&!fndState().placed}
 function fndGated(){const f=fndState();return fndAvailable()&&f.placed==="foundations"&&!f.finished}
 function fndDayOf(){return Math.min(FND_TOTAL_DAYS,Math.max(1,fndState().day||1))}
-function fndDaysDone(){const d=fndState().done;return Object.keys(d).filter(k=>/^d\d+$/.test(k)&&d[k]).length}
+function fndDaysDone(){const d=fndState().done||{};return Object.keys(d).filter(k=>/^d\d+$/.test(k)&&d[k]).length}
 /* ---- the path. One order on every track: the check, the Foundations days,
    then the sessions week by week. A step opens only when the one before it is
    marked done; steps already done stay open to revisit. Nothing here knows
@@ -28288,7 +28334,7 @@ function pgStartHTML(){
     <p class="pg-start-pos">${esc(t("pg.start_pos",{w:p.w,day:homeDayName(p.d),focus:day.focus||wk.theme||""}))}</p>
     ${have.length?`<ul class="pg-start-have">${have.map(x=>`<li>${ic("check")}<span>${x}</span></li>`).join("")}</ul>`:""}
     <p class="pg-start-next">${t("pg.start_next")}</p>
-    <button class="btn btn-p pg-start-go" onclick="${go_}">${esc(btn)}<span aria-hidden="true"> →</span></button>
+    <button class="btn btn-p pg-start-go" onclick="${go_}">${esc(btn)}<span class="go-arrow" aria-hidden="true">→</span></button>
   </div>`;
 }
 function rReview(el,wArg){
@@ -28327,7 +28373,7 @@ function rReview(el,wArg){
   <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
   ${pfCertHTML()}
   <div class="pf-group-h pg-record-h">${t("pf.record_h")}</div>
-  ${pgRecordLocked()?pgRecordLockHTML():pfRecordCoreHTML()}
+  ${pfRecordCoreHTML(pgRecordLocked())}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
   <summary>${ic("chart")}<span>${t("rev.more")}</span></summary>
   ${progressHTML()}
@@ -28682,16 +28728,22 @@ function pfRecordHTML(){return pfRecordCoreHTML()+pfRecordMoreHTML()}
 /* "Your record" on the page itself (owner, 29 Sep 2026: "bring this part back"):
    phrases mastered, clips saved, and the year — best streak, days practised,
    consistency and the year grid. A count still at zero recedes (.stat-empty). */
-function pfRecordCoreHTML(){
-  const ph=masteredCount(),cl=aList("clips").length;
+function pfRecordCoreHTML(locked){
+  const ph=masteredCount(),cl=aList("clips").length,bs=bestStreak();
+  const st=(n,icn,k)=>`<div class="stat${n?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic(icn)}</span>${n}</div><div class="l">${t(k)}</div></div>`;
+  /* Free / Premium (owner, 29 Sep 2026): what the learner has now stays free —
+     phrases mastered, clips saved, the best streak; the history is Premium —
+     days practised over time, consistency and the full year. With the record
+     unlocked the year card carries the best streak itself. */
+  if(locked)return `
+  <div class="pf-stats pf-stats-3 stats-center" style="margin-top:6px">${st(ph,"chat","home.stat_phrases")}${st(cl,"target","home.stat_clips")}${st(bs,"flame","cal.best_streak")}</div>
+  ${pgRecordLockHTML()}`;
   return `
-  <div class="pf-stats pf-stats-2 stats-center" style="margin-top:6px">
-    <div class="stat${ph?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic("chat")}</span>${ph}</div><div class="l">${t("home.stat_phrases")}</div></div>
-    <div class="stat${cl?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic("target")}</span>${cl}</div><div class="l">${t("home.stat_clips")}</div></div>
-  </div>
+  <div class="pf-stats pf-stats-2 stats-center" style="margin-top:6px">${st(ph,"chat","home.stat_phrases")}${st(cl,"target","home.stat_clips")}</div>
   <div class="card pcal pg-year">${calYearHTML()}</div>`;
 }
-/* "Your record" is a Premium report (owner, 29 Sep 2026). Locked only where
+/* The HISTORY in "Your record" is Premium (owner, 29 Sep 2026: current period
+   free; long-term history Premium). Locked only where
    Premium can actually be bought (planOn(): billing on + an entitlement
    service) and only on General English, where Premium is offered (premOffered);
    with billing off, as in production today, every learner keeps it. Locked
@@ -28704,7 +28756,7 @@ function pgRecordLockHTML(){
   const li=(icn,k)=>`<li><span class="btn-ic">${ic(icn)}</span><span>${esc(t(k))}</span></li>`;
   return `<div class="card pg-rec-lock">
     <p class="pg-rec-lock-h"><span class="chip pg-rec-chip">${esc(t("prem.cmp_prem"))}</span>${esc(t("pg.rec_prem_h"))}</p>
-    <ul class="pg-rec-list">${li("chat","home.stat_phrases")}${li("target","home.stat_clips")}${li("flame","cal.best_streak")}${li("calendar","prog.stat_days")}${li("check","cal.consistency")}${li("chart","cal.year_h")}</ul>
+    <ul class="pg-rec-list">${li("calendar","prog.stat_days")}${li("check","cal.consistency")}${li("chart","cal.year_h")}</ul>
     <p class="pg-rec-note">${esc(t("pg.rec_prem_note"))}</p>
     <p class="pg-rec-note">${esc(t("pg.rec_free"))}</p>
     <button class="btn-primary pg-rec-go" onclick="premiumOpen('progress_record')">${esc(t("prem.compare"))}</button>

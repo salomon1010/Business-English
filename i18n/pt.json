@@ -2574,7 +2574,7 @@
  "sh.lib_cap_player": "Legendas no leitor",
  "sh.lib_loading": "A carregar a biblioteca…",
  "sh.lib_none": "Nada corresponde. Cole um link — qualquer vídeo do YouTube serve.",
- "sh.lib_empty_cat": "Ainda nada aqui.",
+ "sh.lib_empty_cat": "Ainda não há vídeos neste grupo. Escolha outro grupo ou cole qualquer link do YouTube.",
  "sh.lib_more": "Mostrar mais {{n}}",
  "sh.cat_meetings": "Reuniões",
  "sh.cat_presentations": "Apresentações",
@@ -3246,7 +3246,10 @@
  "pg.start_next": "Próximo pequeno passo: uma sessão de 25 minutos. Depois, esta página mostra a sua sequência, as suas sessões e as palavras que disse.",
  "pg.start_btn": "Começar a minha primeira sessão",
  "pg.milestone": "Próxima meta: terminar a semana {{w}} — {{done}} de {{n}} sessões",
- "pg.rec_prem_h": "O seu registo completo faz parte do Premium",
- "pg.rec_prem_note": "Tudo o que pratica continua a ser contado e guardado. O Premium mostra-o aqui.",
- "pg.rec_free": "A versão gratuita mantém esta semana, a sua sequência, as suas sessões e o seu certificado."
+ "pg.rec_prem_h": "O seu histórico completo faz parte do Premium",
+ "pg.rec_prem_note": "Tudo o que pratica continua a ser contado e guardado. O Premium mostra o seu histórico aqui.",
+ "pg.rec_free": "A versão gratuita mantém esta semana, a sua sequência atual e a melhor, as suas sessões, o que guardou e o seu certificado.",
+ "rm.today": "Hoje",
+ "rm.after_check": "A sua primeira missão aparece depois do teste de um minuto acima.",
+ "rm.after_fnd": "A sua primeira missão abre quando terminar as Fundações."
 }

@@ -2574,7 +2574,7 @@
  "sh.lib_cap_player": "Sous-titres dans le lecteur",
  "sh.lib_loading": "Chargement de la bibliothèque…",
  "sh.lib_none": "Aucun résultat. Collez plutôt un lien — toute vidéo YouTube fonctionne.",
- "sh.lib_empty_cat": "Rien ici pour l'instant.",
+ "sh.lib_empty_cat": "Pas encore de vidéos dans ce groupe. Choisissez un autre groupe ou collez n'importe quel lien YouTube.",
  "sh.lib_more": "Afficher {{n}} de plus",
  "sh.cat_meetings": "Réunions",
  "sh.cat_presentations": "Présentations",
@@ -3246,7 +3246,10 @@
  "pg.start_next": "Prochaine petite étape : une séance de 25 minutes. Ensuite, cette page affiche votre série, vos séances et les mots que vous avez prononcés.",
  "pg.start_btn": "Commencer ma première séance",
  "pg.milestone": "Prochaine étape : terminer la semaine {{w}} — {{done}} séances sur {{n}}",
- "pg.rec_prem_h": "Votre relevé complet fait partie de Premium",
- "pg.rec_prem_note": "Tout ce que vous pratiquez est toujours compté et conservé. Premium l'affiche ici.",
- "pg.rec_free": "La version gratuite garde cette semaine, votre série, vos séances et votre certificat."
+ "pg.rec_prem_h": "Votre historique complet fait partie de Premium",
+ "pg.rec_prem_note": "Tout ce que vous pratiquez est toujours compté et conservé. Premium affiche votre historique ici.",
+ "pg.rec_free": "La version gratuite garde cette semaine, votre série actuelle et votre meilleure série, vos séances, ce que vous avez enregistré et votre certificat.",
+ "rm.today": "Aujourd'hui",
+ "rm.after_check": "Votre première mission apparaît après le test d'une minute ci-dessus.",
+ "rm.after_fnd": "Votre première mission s'ouvre une fois les Fondations terminées."
 }
