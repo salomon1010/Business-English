@@ -3249,11 +3249,13 @@
  "pg.rec_prem_h": "Votre historique complet fait partie de Premium",
  "pg.rec_prem_note": "Tout ce que vous pratiquez est toujours compté et conservé. Premium affiche votre historique ici.",
  "pg.rec_free": "La version gratuite garde cette semaine, votre série actuelle et votre meilleure série, vos séances, ce que vous avez enregistré et votre certificat.",
- "rm.today": "Aujourd'hui",
  "rm.after_check": "Votre première mission apparaît après le test d'une minute ci-dessus.",
  "rm.after_fnd": "Votre première mission s'ouvre une fois les Fondations terminées.",
  "pg.have_words_one": "1 mot enregistré",
  "pg.have_words_two": "{{n}} mots enregistrés",
  "pg.have_words_few": "{{n}} mots enregistrés",
- "pg.have_words_many": "{{n}} mots enregistrés"
+ "pg.have_words_many": "{{n}} mots enregistrés",
+ "rm.today_pos": "Séance {{i}} sur {{n}} de la semaine {{w}}",
+ "sess.link_roleplay": "S'entraîner avec votre mentor IA",
+ "sess.link_simulation": "Ouvrir la simulation de travail"
 }

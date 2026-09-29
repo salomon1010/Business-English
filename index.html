@@ -373,7 +373,9 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 .brand{font-weight:800;font-size:17px;white-space:nowrap;margin-right:14px;display:flex;align-items:center;gap:6px;cursor:pointer;border-radius:12px;padding:2px 6px 2px 2px;transition:.15s}
 .brand-txt{display:flex;flex-direction:column;line-height:1.1;white-space:nowrap}
 .brand-name{white-space:nowrap}
-.brand-home{font-size:11.5px;font-weight:700;color:var(--acc2);letter-spacing:.3px}
+.brand-home{font-size:11.5px;font-weight:700;color:var(--acc2);letter-spacing:.3px;display:inline-flex;align-items:center;gap:3px;align-self:flex-start;border-radius:99px;padding:1px 0}
+.brand-home-ic{display:inline-flex;line-height:0}.brand-home-ic svg{width:12px;height:12px}
+.brand.on .brand-home{color:var(--txt);background:color-mix(in srgb,var(--accent) 18%,transparent);padding:1px 7px 1px 5px}
 .brand:hover .brand-home{color:var(--acc)}
 .brand:hover{background:var(--hover)}
 .brand.on .logo{box-shadow:0 0 0 2px var(--acc),0 0 14px rgba(99,102,241,.5)}
@@ -5673,12 +5675,14 @@ h1.big{letter-spacing:-.025em}
 .pg-rec-list .btn-ic svg{width:15px;height:15px;color:var(--acc)}
 .pg-rec-note{margin:0 0 6px;font-size:12.5px;color:var(--mut);line-height:1.45}
 .pg-rec-go{margin-top:8px}
-.rm-today{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));background:color-mix(in srgb,var(--accent) 8%,var(--card))}
+.rm-today{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0 4px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);border-inline-start:3px solid var(--accent);background:var(--card)}
+.rm-today-pin{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent-text)}.rm-today-pin svg{width:18px;height:18px}
+.rm-today-pos{font-size:12px;color:var(--mut)}
 .rm-today-t{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px}
 .rm-today-k{font-size:12px;font-weight:700;color:var(--accent-text);letter-spacing:.02em}
 .rm-today-t b{font-size:15.5px;line-height:1.3}
 .rm-today-go{width:auto;flex:0 0 auto;margin:0}
-@media(max-width:480px){.rm-today-go{flex:1 1 100%}}
+@media(max-width:480px){.rm-today-t{flex:1 1 calc(100% - 46px)}.rm-today-go{flex:1 1 100%}}
 .career-dash-why{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--mut);font-weight:400}
 /* a fact keeps its own height: the milestone's explanation made the card beside
    it stretch to match, with empty space (real-device QA, 29 Sep 2026) */
@@ -5690,6 +5694,7 @@ h1.big{letter-spacing:-.025em}
    arrows inside translated strings are already right in each language */
 .go-arrow{display:inline-block;margin-inline-start:6px}
 html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transform:scaleX(-1)}
+.ph-bank-row{margin:12px 0 0}
 /* "Your record" holds two counts: two columns, so a label is not squeezed into a third */
 .pf-stats.pf-stats-2{grid-template-columns:repeat(2,1fr);margin:6px auto 12px}
 .pf-stats.pf-stats-3{grid-template-columns:repeat(3,1fr);gap:6px;margin:6px auto 12px}
@@ -5723,13 +5728,13 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
 </noscript>
 
 <nav><div class="nav-in">
-  <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home" data-i18n="nav.home_label">Home</small></span></div>
+  <div class="brand" role="button" tabindex="0" onclick="go('home')" onkeydown="if(event.key==='Enter'||event.key===' ')go('home')" aria-label="BE Mastery — Dashboard"><img class="logo" src="logo.svg" alt="BE Mastery logo" style="background:none"><span class="brand-txt"><span class="brand-name">BE <span class="g">Mastery</span></span><small class="brand-home"><span class="brand-home-ic" aria-hidden="true"></span><span data-i18n="nav.home_label">Home</span></small></span></div>
   <button class="track-indicator" id="trackIndicator" onclick="goCareer('header')" aria-label="Open the Global Career Readiness Center"><span><small id="trackIndicatorDest">Professional track</small><b id="trackIndicatorName">Welding</b></span></button>
   <button class="tab" data-v="journey" data-ic="map"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.weeks">Road map</span></button>
   <button class="tab" data-v="phrases" data-ic="chat"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.phrases">Phrase Lab</span></button>
   <button class="tab" data-v="shadow" data-ic="target"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.shadow">Shadow</span></button>
   <button class="tab" data-v="practice" data-ic="practice"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.practice">Practice</span></button>
-  <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.reviews">Reviews</span></button>
+  <button class="tab" data-v="review" data-ic="chart"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="bnav.progress">Progress</span></button>
   <button class="tab" data-v="profile" data-ic="user"><span class="tab-ic"></span><span class="tab-lbl" data-i18n="nav.profile">Profile</span></button>
   <button class="hdr-timer" id="hdrTimer" onclick="tOpen()" aria-label="Practice timer — tap to open session" title="Practice timer">
     <span class="ht-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg></span>
@@ -7007,7 +7012,7 @@ const I18N_EN={
  "pg.start_next":"Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
  "pg.start_btn":"Start your first session",
  "pg.milestone":"Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
- "rm.today":"Today",
+ "rm.today_pos":"Session {{i}} of {{n}} in Week {{w}}",
  "rm.after_check":"Your first mission appears after the one-minute check above.",
  "rm.after_fnd":"Your first mission opens when Foundations is finished.",
  "pg.rec_prem_h":"Your full history is part of Premium",
@@ -7061,7 +7066,7 @@ const I18N_EN={
  "sess.link_shadow":"Open the Shadow Studio",
  "sess.link_shadow_why_mon":"Do this session's shadowing here — pick a clip, mark 20–30 seconds, and record.",
  "sess.link_shadow_why_fri":"Drill your weakest clip here, then record the improved version.",
- "sess.link_phrases":"Open the Phrase Lab",
+ "sess.link_phrases":"Open the Phrase Lab","sess.link_roleplay":"Practise with your AI mentor","sess.link_simulation":"Open the workplace simulation",
  "sess.link_phrases_why":"Study and record this week's phrases and idioms in the Phrase Lab.",
  "sess.link_review":"Open the Reviews tab",
  "sess.link_review_why":"Score your week and write your review here.",
@@ -9915,8 +9920,24 @@ function masteredCount(){const M=aMap("phMaster");return Object.keys(M).filter(k
 /* ================= ROUTER ================= */
 let cur={v:"home"};
 document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>go(b.dataset.v));
+/* Home has no tab (six slots, owner decision 29 Sep 2026: keep them); the logo
+   is its one permanent control. It says so: a house icon beside "Home", a
+   "you are here" state on Home and on the pages that belong to it (Foundations,
+   a mission — the same mapping bnavSync uses), and an accessible name that
+   contains the words on screen. */
+function brandSync(v){
+  const b=document.querySelector(".brand");if(!b)return;
+  const on=v==="home"||v==="foundations"||v==="mission";
+  b.classList.toggle("on",on);
+  if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
+  b.setAttribute("aria-label","BE Mastery — "+t("nav.home_label"));
+  const i=b.querySelector(".brand-home-ic");if(i&&!i.firstChild)i.innerHTML=ic("home");
+}
 function bnavSync(v){
-  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":(v==="foundations"?"home":v)));
+  /* the same page → tab mapping as the desktop header in go() (tv): a page with
+     no tab of its own lights the tab it belongs to — the phrase bank lit nothing
+     on a phone while it lit Phrase Lab on a desktop (nav audit, 29 Sep 2026) */
+  const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
   document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
 }
 /* Remembers the session a jump-button came from, so the destination tab can
@@ -9976,7 +9997,7 @@ function go(v,arg1,arg2){
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
   document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
-  const brand=document.querySelector(".brand");if(brand)brand.classList.toggle("on",v==="home"); /* brand IS the dashboard entry */
+  brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
   /* The map tab glows until it has been opened once. Existing learners knew
      that tab as "Weeks"; the glow and the one-time toast are how they learn it
@@ -12212,7 +12233,10 @@ function rmPhase(steps,p){
    Nothing when the programme is finished or the next day is still locked. */
 function rmTodayHTML(){
   try{
-    const row=(k,title,cta,act)=>`<div class="rm-today"><div class="rm-today-t"><span class="rm-today-k">${esc(k)}</span><b>${esc(title)}</b></div><button class="btn-primary rm-today-go" onclick="rmClose();${act}">${esc(cta)}<span class="go-arrow" aria-hidden="true">→</span></button></div>`;
+    /* Home asks "what should I do next?"; the map answers "where am I?" — so this
+       row is the pin on the journey (the day, and session i of n in the week),
+       not a second copy of Home's card (IA decision, 29 Sep 2026) */
+    const row=(k,title,cta,act,pos)=>`<div class="rm-today"><span class="rm-today-pin" aria-hidden="true">${ic("map")}</span><div class="rm-today-t"><span class="rm-today-k">${esc(k)}</span><b>${esc(title)}</b>${pos?`<small class="rm-today-pos">${esc(pos)}</small>`:""}</div><button class="btn-primary rm-today-go" onclick="rmClose();${act}">${esc(cta)}<span class="go-arrow" aria-hidden="true">→</span></button></div>`;
     const g=homeGateCard();
     if(g)return row(g.eyebrow,g.title,g.cta,g.go);
     if(totalDone()>=trackSessionCount())return "";
@@ -12220,7 +12244,8 @@ function rmTodayHTML(){
     const wk=trackWeeks().find(x=>x.n===p.w)||{},day=(wk.days||{})[p.d]||{};
     const begun=((S.steps||{})[dayKey(p.w,p.d)]||[]).length>0;
     const cta=t(totalDone()===0&&!begun?"home.cta_first":begun?"home.cta_resume":"home.cta_today");
-    return row(t("rm.today")+" · "+t("home.kicker_week",{w:p.w,day:homeDayName(p.d)}),day.focus||wk.theme||"",cta,`go('session',${p.w},'${p.d}')`);
+    const order=Object.keys(wk.days||{}),i=order.indexOf(p.d)+1,n=order.length||trackDays().length;
+    return row(t("home.kicker_week",{w:p.w,day:homeDayName(p.d)}),day.focus||wk.theme||"",cta,`go('session',${p.w},'${p.d}')`,i>0?t("rm.today_pos",{i,n,w:p.w}):"");
   }catch(e){return ""}
 }
 function rmHTML(){
@@ -21560,6 +21585,16 @@ window.howOpen=id=>{
    phrase and idiom lists moved to their own page, the phrase bank
    (`rPhraseBank`, go('phrasebank', w)), linked from the bottom of this page,
    from the week cards and from the Home stat. */
+/* Phrase Lab = Executive Polish + the week's expressions. The phrase bank was
+   to be linked from this page (owner, 21 Sep 2026) and the link had gone, so the
+   tab called "Phrase Lab" showed no phrases; this row is that link — the week
+   the learner is in. */
+function phBankRowHTML(){
+  try{
+    const w=currentPos().w,lbl=t("week.open_phrases").replace(/^[\p{Extended_Pictographic}\uFE0F\u200D\s]+/u,"").replace(/\s*[→←]\s*$/,"");
+    return `<button type="button" class="pf-row ph-bank-row" onclick="go('phrasebank',${w})"><span class="pf-ic">${ic("chat")}</span><span class="pf-txt"><b>${esc(lbl)}</b><small>${esc(t("mv.week_n",{n:w}))}</small></span><span class="pf-chev" aria-hidden="true">›</span></button>`;
+  }catch(e){return ""}
+}
 function rPhrases(el){
   /* The Polish walkthrough no longer opens itself (owner, 22 Sep 2026): a
      four-step tour in front of someone who came to say a sentence is a wall,
@@ -21572,6 +21607,7 @@ function rPhrases(el){
   <h1 class="big">${t("ex.page_title")}</h1>
   ${subInfo(t("ex.page_sub")+"<br><br>"+t("ph.exec_desc"))}
   ${exCardHTML()}
+  ${phBankRowHTML()}
   <div id="exReportWrap"></div>`;
   manIconizeInline(el);
   if(ex.phase==="busy"&&ex.busyFor===areaId())exReportShow(exWaitHTML(t("ex.step_measure")));   /* the analysis outlives a re-render — shown only on the programme it belongs to */
@@ -29164,6 +29200,7 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
       document.documentElement.setAttribute("data-view","session"); /* the base go() never runs for a session, so without this the previous page's data-view (and its scoped theme) stayed on */
       document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==="journey"));
       bnavSync("session");
+      brandSync("session"); /* else the logo kept Home's "current page" state when a session was opened from Home */
       document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});
       const el=document.getElementById("v-journey");el.classList.add("on");
       rSession(el,a1,a2);streakPillSync();jumpTop();
@@ -31018,8 +31055,8 @@ async function bootMain(){
   const _prevSeen=S.lastSeen;
   /* Home V2 (owner, 27 Sep 2026): back after two hours or on a new day → Home, whatever page was
      open last. Only a notification's own link is kept (?nudge=, #partner, the reminder's #journey). */
-  if(S.profile&&homeV2On()&&isComeback(_prevSeen)&&!homeDeepLink(v)){v="home";a1=a2=undefined;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
-  else if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)&&!(typeof homeV2On==="function"&&homeV2On())){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{gap:gapBand(_prevSeen)})}
+  if(S.profile&&homeV2On()&&isComeback(_prevSeen)&&!homeDeepLink(v)){v="home";a1=a2=undefined;trackLearning("return_open",{gap:gapBand(_prevSeen),kind:"home"})}
+  else if(S.profile&&(!_hs||v==="home")&&typeof fndNeedsPlacement==="function"&&!fndNeedsPlacement()&&isComeback(_prevSeen)&&!(typeof homeV2On==="function"&&homeV2On())){v="journey";a1=a2=undefined;_rmReturn=true;trackLearning("return_open",{kind:"journey",gap:gapBand(_prevSeen)})}
   /* The dictionary must not hold the first paint hostage. i18n/fr.json is 83 KB
      and most of our Central African users are Francophone, so awaiting it
      outright meant a second blocking round trip before anything was drawn.
@@ -32007,9 +32044,9 @@ document.addEventListener("visibilitychange",()=>{
     if(!S.profile||!isComeback(away))return;
     if(timer.run||(typeof rec!=="undefined"&&rec&&rec.mr&&rec.mr.state==="recording"))return;
     if(document.querySelector(RM_BUSY)||document.getElementById("obWrap")||document.getElementById("fndCheckOv"))return;
-    if(homeV2On()){if(typeof ppLive!=="undefined"&&ppLive)return;go("home");trackLearning("return_open",{gap:gapBand(away)});return}   /* Home V2: a comeback lands on Home (owner, 27 Sep 2026) */
+    if(homeV2On()){if(typeof ppLive!=="undefined"&&ppLive)return;go("home");trackLearning("return_open",{gap:gapBand(away),kind:"home"});return}   /* Home V2: a comeback lands on Home (owner, 27 Sep 2026) */
     if(typeof fndNeedsPlacement==="function"&&fndNeedsPlacement())return;
-    _rmReturn=true;go("journey");trackLearning("return_open",{gap:gapBand(away)});
+    _rmReturn=true;go("journey");trackLearning("return_open",{gap:gapBand(away),kind:"journey"});
   }catch(e){}
 });
 window.addEventListener("focus",()=>fbSyncPull());

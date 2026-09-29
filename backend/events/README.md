@@ -193,10 +193,15 @@ that has to be exact.
 ## Coming back
 
 `return_open` fires when a launch (or a resume from the background) comes after
-two hours away or on a new calendar day and the app opens on the road map.
+two hours away or on a new calendar day and the app opens on its comeback page.
 `gap` says how long: `2h-1d`, `1-3d`, `4-7d`, `8d+`. `./query.sh returns`
 groups the last 30 days by it. Counts, not people, like everything here — a
 learner who comes back daily is one row per day.
+
+`kind` (from 29 Sep 2026, blob15 in the legacy layout — no Worker change) says
+where that comeback landed: `home` (General English with Home V2) or `journey`
+(the road map: Welding, and General English without Home V2). Rows before that
+date have it empty; in production they were all road-map landings.
 
 ## Partner demand
 

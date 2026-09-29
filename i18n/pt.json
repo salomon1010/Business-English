@@ -3249,11 +3249,13 @@
  "pg.rec_prem_h": "O seu histórico completo faz parte do Premium",
  "pg.rec_prem_note": "Tudo o que pratica continua a ser contado e guardado. O Premium mostra o seu histórico aqui.",
  "pg.rec_free": "A versão gratuita mantém esta semana, a sua sequência atual e a melhor, as suas sessões, o que guardou e o seu certificado.",
- "rm.today": "Hoje",
  "rm.after_check": "A sua primeira missão aparece depois do teste de um minuto acima.",
  "rm.after_fnd": "A sua primeira missão abre quando terminar as Fundações.",
  "pg.have_words_one": "1 palavra guardada",
  "pg.have_words_two": "{{n}} palavras guardadas",
  "pg.have_words_few": "{{n}} palavras guardadas",
- "pg.have_words_many": "{{n}} palavras guardadas"
+ "pg.have_words_many": "{{n}} palavras guardadas",
+ "rm.today_pos": "Sessão {{i}} de {{n}} da semana {{w}}",
+ "sess.link_roleplay": "Praticar com o seu mentor de IA",
+ "sess.link_simulation": "Abrir a simulação de trabalho"
 }

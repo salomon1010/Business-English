@@ -3249,11 +3249,13 @@
  "pg.rec_prem_h": "Your full history is part of Premium",
  "pg.rec_prem_note": "Everything you practise is still counted and kept. Premium shows your history here.",
  "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
- "rm.today": "Today",
  "rm.after_check": "Your first mission appears after the one-minute check above.",
  "rm.after_fnd": "Your first mission opens when Foundations is finished.",
  "pg.have_words_one": "1 word saved",
  "pg.have_words_two": "{{n}} words saved",
  "pg.have_words_few": "{{n}} words saved",
- "pg.have_words_many": "{{n}} words saved"
+ "pg.have_words_many": "{{n}} words saved",
+ "rm.today_pos": "Session {{i}} of {{n}} in Week {{w}}",
+ "sess.link_roleplay": "Practise with your AI mentor",
+ "sess.link_simulation": "Open the workplace simulation"
 }
