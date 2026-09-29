@@ -5601,6 +5601,90 @@ h1.big{letter-spacing:-.025em}
 .ad-mock-tag{font-size:10px;font-weight:900;letter-spacing:1.2px;color:var(--mut);border:1px solid var(--line2);border-radius:6px;padding:2px 6px}
 .ad-mock-native{flex-direction:row;gap:10px}
 @media (prefers-reduced-motion:reduce){.ad-ov{animation:none}}
+
+/* ================= MOBILE TYPOGRAPHY & DENSITY (29 Sep 2026) =================
+   docs/BE_MASTERY_DESIGN_SYSTEM.md › "Mobile Typography & Density". One scale, as
+   tokens, shared by both tracks (the tracks differ by colour, never by type).
+   Measured before it was written (docs/MOBILE_TYPOGRAPHY_DENSITY_AUDIT.md): most
+   text already sat at the reference app's sizes, so this block does not shrink
+   body copy. It removes what made screens feel loose: 800-weight on every
+   secondary heading, 19–26px section headings with 26px above them, a bottom bar
+   whose 25px icons dwarfed 9.5px labels and grew the selected icon, a 125px
+   sign-in bar, and tall stat tiles. Touch targets stay ≥44px (40px for the
+   sign-in bar's secondary button, the design system's floor). */
+:root{
+  --fs-display:clamp(26px,7vw,30px);   /* hero figures and the one display line */
+  --fs-title:clamp(22px,5.8vw,24px);   /* a screen's h1 */
+  --fs-section:17px;                    /* a section inside a screen */
+  --fs-card:15.5px;                     /* a card or row title */
+  --fs-body:15px;                       /* primary reading text */
+  --fs-body-2:13.5px;                   /* secondary text */
+  --fs-meta:12px;                       /* metadata, stat labels */
+  --fs-label:11px;                      /* eyebrows, chips */
+  --fs-nav:10px;                        /* bottom-bar labels (10pt is iOS's own tab-bar size) */
+  --fs-tab:14.5px;                      /* segmented controls */
+  --fs-btn:15px;                        /* buttons */
+  --fw-strong:700;--fw-head:700;--fw-mid:600;--fw-body:400;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+  --gap-section:20px;
+}
+@media(max-width:820px){
+  /* headings: weight carries rank, size identifies the section */
+  h1.big{font-size:var(--fs-title);margin-bottom:var(--sp-2)}
+  .prac-sec{font-size:var(--fs-section);font-weight:var(--fw-head);letter-spacing:-.2px;margin:var(--gap-section) 0 var(--sp-1)}
+  /* only the headings left at the browser's 18.72px default (Life Simulations'
+     groups, Settings › Data & privacy) — Home's rows set their own sizes */
+  #v-roleplay h3:not([class]),#v-data h3:not([class]){font-size:var(--fs-section)}
+  .pf-group-h,.pf-card-h,.prac-kb-h,.set-card-h{font-weight:var(--fw-head)}
+  .set-h,.pcal-year-h{font-weight:var(--fw-head)}
+  .pf-group-h{margin:var(--sp-4) 0 var(--sp-2)}
+  .pcal-title{font-weight:var(--fw-head)}
+  /* buttons: the label, not the padding, carries the size */
+  .btn-primary{font-size:var(--fs-btn)}
+  .btn-outline{font-size:14px;padding:10px 16px}
+  /* bottom bar: a compact icon, a readable label, the selected item marked by
+     colour, weight and its pill — never by growing */
+  .bottom-nav{padding:5px 4px calc(5px + env(safe-area-inset-bottom))}
+  .bnav-item{gap:2px;padding:3px 2px;min-height:48px}
+  .bnav-item .ic svg{width:22px;height:22px}
+  .bnav-item.on .ic{transform:none}
+  .bnav-item span:not(.ic){font-size:var(--fs-nav);letter-spacing:0}
+  .bnav-item.on span:not(.ic){font-weight:var(--fw-strong)}
+  /* Progress: the number is the focus, the label recedes, the tile is short */
+  .stat{padding:var(--sp-2) 10px;min-height:62px}
+  .stat .n{font-size:clamp(20px,5.2vw,24px)}
+  .stat .l{font-size:var(--fs-meta);margin-top:2px}
+  .stat-ic svg{width:18px;height:18px}
+  .pcal{padding:var(--sp-4) 14px;margin:var(--sp-4) auto}
+  .pcal-week{padding:10px 14px;margin-bottom:var(--sp-3);gap:var(--sp-3)}
+  .pg-ess .grid{margin-top:10px}
+  /* the sign-in bar: two lines of text beside a button sized to its label */
+  .sync-nudge{padding:10px 12px;gap:10px;border-radius:14px}
+  .sync-nudge .nudge-ic svg{width:20px;height:20px}
+  .sync-nudge>div{font-size:12.5px!important;line-height:1.4!important}
+  .sync-nudge .auth-go{min-width:0;min-height:40px;padding:8px 14px;font-size:13.5px;flex:none}
+  .sync-nudge .auth-x{width:40px;height:40px;font-size:18px!important}
+}
+.pg-rec-lock{padding:14px 16px}
+.pg-rec-lock-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;font-size:14.5px;font-weight:700;color:var(--txt)}
+.pg-rec-chip{font-size:11px;font-weight:700}
+.pg-rec-list{list-style:none;margin:0 0 10px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.pg-rec-list li{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--txt);min-width:0}
+.pg-rec-list .btn-ic svg{width:15px;height:15px;color:var(--acc)}
+.pg-rec-note{margin:0 0 6px;font-size:12.5px;color:var(--mut);line-height:1.45}
+.pg-rec-go{margin-top:8px}
+/* "Your record" holds two counts: two columns, so a label is not squeezed into a third */
+.pf-stats.pf-stats-2{grid-template-columns:repeat(2,1fr);margin:6px auto 12px}
+/* Practice › best tool: on a phone the "Recommended" chip took a third of the
+   row and squeezed the title to two lines and the description to four; it now
+   sits under the text, aligned with it (38px icon + 12px gap) */
+@media(max-width:480px){
+  .path-tool{flex-wrap:wrap;row-gap:6px}
+  .path-tool .pt-t{flex:1 1 calc(100% - 50px)}
+  .path-tool .chip{margin-inline-start:50px}
+}
+@media(max-width:400px){.bnav-item span:not(.ic){font-size:var(--fs-nav);letter-spacing:-.1px}}
+@media(max-width:340px){.bnav-item span:not(.ic){font-size:9px}}
 </style>
 </head>
 <body>
@@ -6900,6 +6984,9 @@ const I18N_EN={
  "pg.start_next":"Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
  "pg.start_btn":"Start your first session",
  "pg.milestone":"Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
+ "pg.rec_prem_h":"Your full record is part of Premium",
+ "pg.rec_prem_note":"Everything you practise is still counted and kept. Premium shows it here.",
+ "pg.rec_free":"Free keeps this week, your streak, your sessions and your certificate.",
  "wc.score_label":"Assessment score",
  "wc.body":"We've built your 12-week plan around your answers. Twenty-five focused minutes a day, six days a week — that's all it takes.",
  "wc.cta":"Start Week 1",
@@ -28239,6 +28326,8 @@ function rReview(el,wArg){
   ${pgEssentialsHTML()}
   <div class="card pcal" id="pfCal" data-simple="1">${calHTML(true)}</div>
   ${pfCertHTML()}
+  <div class="pf-group-h pg-record-h">${t("pf.record_h")}</div>
+  ${pgRecordLocked()?pgRecordLockHTML():pfRecordCoreHTML()}
   <details class="pg-more"${_revMore?" open":""} ontoggle="_revMore=this.open;if(this.open){calScrollYearRight();drawTrend()}">
   <summary>${ic("chart")}<span>${t("rev.more")}</span></summary>
   ${progressHTML()}
@@ -28254,11 +28343,11 @@ function rReview(el,wArg){
   </div>
   ${_revTab==='scores'?scores:written}
   ${activeCurriculum().reviewCheckpoints.includes(w)?rMonthly(w):`<p style="font-size:13px;color:var(--mut);margin-top:18px">${t("rev.monthly_locked")}</p>`}
-  <div class="pf-group-h" style="margin-top:26px">${t("pf.record_h")}</div>
-  ${pfRecordHTML()}
+  ${pfRecordMoreHTML()}
   </details>`;
   manIconizeInline(el);
   drawTrend();
+  try{calScrollYearRight()}catch(e){}   /* the year grid is on the page now: open on this month */
 }
 function rMonthly(w){
   const M=trackMonthMetrics()[w],mr=monthlyStore()[w]||{actual:{},pass:{},ans:{}};
@@ -28470,7 +28559,11 @@ function calHTML(simple){
     <p class="pcal-msg">${insight}</p>`;
 }
 /* the year heatmap opens scrolled to the right so the recent (green) days are visible, not off-screen */
-function calScrollYearRight(){requestAnimationFrame(()=>{document.querySelectorAll(".pcal-year").forEach(yr=>{yr.scrollLeft=yr.scrollWidth})});}
+/* Open the year grid on this month. In a right-to-left language the grid runs
+   the other way and WebKit counts scrollLeft from 0 at the start down to a
+   negative end, so "scrollWidth" clamped to 0 there and Arabic / Urdu opened on
+   last October (found 29 Sep 2026, once "Your record" came out of its fold). */
+function calScrollYearRight(){requestAnimationFrame(()=>{document.querySelectorAll(".pcal-year").forEach(yr=>{yr.scrollLeft=getComputedStyle(yr).direction==="rtl"?-yr.scrollWidth:yr.scrollWidth})});}
 window.calNav=(delta)=>{if(!calCur){calCur=new Date();calCur.setDate(1)}calCur.setMonth(calCur.getMonth()+delta);const el=document.getElementById("pfCal");if(el){el.innerHTML=calHTML(el.dataset.simple==="1");calScrollYearRight();}};
 /* The year graph and the streak figures, for the fold under the Progress page. */
 function calYearHTML(){
@@ -28585,12 +28678,41 @@ window.subInfoOpen=(i)=>{window._subInfoText=window._subInfoStore[i]||"";const o
    overview, the professional-track panels, the share card and the certificate.
    It used to sit under the settings rows on Profile; it is a report, so it
    lives on the Progress page now (owner, 2026-09-22). */
-function pfRecordHTML(){
+function pfRecordHTML(){return pfRecordCoreHTML()+pfRecordMoreHTML()}
+/* "Your record" on the page itself (owner, 29 Sep 2026: "bring this part back"):
+   phrases mastered, clips saved, and the year — best streak, days practised,
+   consistency and the year grid. A count still at zero recedes (.stat-empty). */
+function pfRecordCoreHTML(){
+  const ph=masteredCount(),cl=aList("clips").length;
   return `
-  <div class="pf-stats stats-center" style="margin-top:6px">
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("chat")}</span>${masteredCount()}</div><div class="l">${t("home.stat_phrases")}</div></div>
-    <div class="stat"><div class="n"><span class="stat-ic">${ic("target")}</span>${aList("clips").length}</div><div class="l">${t("home.stat_clips")}</div></div>
+  <div class="pf-stats pf-stats-2 stats-center" style="margin-top:6px">
+    <div class="stat${ph?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic("chat")}</span>${ph}</div><div class="l">${t("home.stat_phrases")}</div></div>
+    <div class="stat${cl?"":" stat-empty"}"><div class="n"><span class="stat-ic">${ic("target")}</span>${cl}</div><div class="l">${t("home.stat_clips")}</div></div>
   </div>
+  <div class="card pcal pg-year">${calYearHTML()}</div>`;
+}
+/* "Your record" is a Premium report (owner, 29 Sep 2026). Locked only where
+   Premium can actually be bought (planOn(): billing on + an entitlement
+   service) and only on General English, where Premium is offered (premOffered);
+   with billing off, as in production today, every learner keeps it. Locked
+   means this view only: the practice is still counted and kept, nothing is
+   deleted, and the card says so; it names what the report holds and what Free
+   keeps, with no countdown and no blurred numbers held back
+   (docs/ETHICAL_UX_PSYCHOLOGY_AUDIT.md). */
+function pgRecordLocked(){try{return planOn()&&isGeneralEnglish()&&!entIsPremiumForDisplay()}catch(e){return false}}
+function pgRecordLockHTML(){
+  const li=(icn,k)=>`<li><span class="btn-ic">${ic(icn)}</span><span>${esc(t(k))}</span></li>`;
+  return `<div class="card pg-rec-lock">
+    <p class="pg-rec-lock-h"><span class="chip pg-rec-chip">${esc(t("prem.cmp_prem"))}</span>${esc(t("pg.rec_prem_h"))}</p>
+    <ul class="pg-rec-list">${li("chat","home.stat_phrases")}${li("target","home.stat_clips")}${li("flame","cal.best_streak")}${li("calendar","prog.stat_days")}${li("check","cal.consistency")}${li("chart","cal.year_h")}</ul>
+    <p class="pg-rec-note">${esc(t("pg.rec_prem_note"))}</p>
+    <p class="pg-rec-note">${esc(t("pg.rec_free"))}</p>
+    <button class="btn-primary pg-rec-go" onclick="premiumOpen('progress_record')">${esc(t("prem.compare"))}</button>
+  </div>`;
+}
+/* the rest of the record stays behind "See all details" */
+function pfRecordMoreHTML(){
+  return `
   ${/* General English and a Professional Track are different products on this
         screen: the Skills Passport, the career-readiness roadmap, the
         professional activity heat-map belong to a trade journey and mean
@@ -28602,7 +28724,6 @@ function pfRecordHTML(){
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.roadmapCard(S):""}
   ${window.AdaptiveLearningEngine?AdaptiveLearningEngine.heatmapCard(S):""}
 `:""}
-  <div class="card pcal pg-year">${calYearHTML()}</div>
   ${perfOverviewHTML()}
   <div class="card" style="margin-top:16px">
     <h2 class="pf-card-h">${hIcon("chart",t("share.card_title"))}</h2>

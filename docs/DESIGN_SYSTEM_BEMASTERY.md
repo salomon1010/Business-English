@@ -367,3 +367,104 @@ Everything is captured from the current design, dark first (§16), with the neut
   - Every Shadow library figure (`m04`, and the flyer's `m12`) shows YouTube thumbnails, including real presenters' faces. The previous images did the same (Steve Jobs). The repo's rule already keeps these out of store art; whether the public flyer should keep one is the owner's call.
   - The store Home (`01`) and Phrase Lab (`03`) shots are accurate but sparse, because Home is now the programme card only and Phrase Lab shows its empty input before a recording.
   - `marketing/render-flyer.js` (print flyers) still reads the 2026-08 set.
+
+## 18. Mobile Typography & Density (`feature/bemastery-complete-ux-redesign`, 29 Sep 2026)
+The measurements and screenshots behind this section are in
+`docs/MOBILE_TYPOGRAPHY_DENSITY_AUDIT.md`. The rules apply at ≤820px, the
+width where the bottom bar appears. Both tracks share them: the tracks
+differ by colour and content, never by type.
+
+### Starting point
+Before any change, the text on screen was measured and compared with the
+reference app.
+- **The type was not oversized.** Most text already matched the reference, and
+  much of it was *below* the brief's starting targets. The one real mismatch
+  was the bottom bar: its labels were 9.5px against the brief's 12–13px, and
+  12px does not fit French or Arabic in a 61px slot.
+- **What felt loose was elsewhere:**
+  - weight 800 on every secondary heading;
+  - 19–26px section headings with 26px above them;
+  - bottom-bar icons that dwarfed their labels and grew when selected;
+  - a 125px sign-in bar;
+  - tall stat tiles.
+- **So the scale records the sizes the app already uses correctly.** The
+  changes are about weight, spacing and components.
+
+### Type scale (tokens on `:root`)
+| Token | Value | Use |
+|---|---|---|
+| `--fs-display` | clamp(26px, 7vw, 30px) | the one display line / hero figure |
+| `--fs-title` | clamp(22px, 5.8vw, 24px) | a screen's `h1.big` |
+| `--fs-section` | 17px | a section inside a screen (Practice, Life Simulations, Settings) |
+| `--fs-card` | 15.5px | card and row titles |
+| `--fs-body` | 15px | primary reading text |
+| `--fs-body-2` | 13.5px | secondary text |
+| `--fs-meta` | 12px | metadata, stat labels |
+| `--fs-label` | 11px | eyebrows, chips |
+| `--fs-nav` | 10px | bottom-bar labels (iOS's own tab-bar size; the largest that fits en/fr/ar/de/pt at 375px) |
+| `--fs-tab` | 14.5px | segmented controls |
+| `--fs-btn` | 15px | buttons (primary 700, outline 14px) |
+
+Home V2 keeps its own sizes, set by the owner on 27–28 Sep. The density
+block does not touch them, and `tests/mobile-density.mjs` check 10c guards
+this.
+
+### Weights
+- **`--fw-strong` 700:** numbers, the selected nav label.
+- **`--fw-head` 700:** section and group headings. They were 800.
+- **`--fw-mid` 600:** labels.
+- **`--fw-body` 400:** reading text.
+
+`h1.big` keeps 800, the brand's display weight. Weight carries rank, so a
+smaller heading does not need to be bold to read as a heading.
+
+### Line height
+- Reading text keeps 1.45–1.6.
+- Labels and metadata use 1.2–1.4.
+- Nav labels use 1.2, on one line.
+
+### Spacing
+- **Scale:** `--sp-1…6` = 4 / 8 / 12 / 16 / 20 / 24px.
+- **Between sections:** `--gap-section` is 20px (was 26px).
+- **Card padding:**
+  - `.card` stays at 12–14px;
+  - calendar cards `.pcal` go from 18/16 to 16/14px;
+  - stat tiles go from 13/14px to 8/10px, with a minimum height of 62px
+    (was 78px).
+- **Screen gutter:** 16–20px, unchanged.
+
+### Components
+- **Bottom bar:**
+  - icons 22px (were 25px);
+  - labels 10px;
+  - item minimum height 48px (was 52px);
+  - bar height 59px + safe area (was 67px).
+  - The selected item is marked by colour, a 700 label and its icon pill. It
+    no longer grows (the `scale(1.12)` is removed).
+- **Tabs:** 14.5px/700. The selected state is its fill, not its size.
+- **Buttons:**
+  - primary 15px/700, height at least 44px;
+  - outline 14px with 10/16px padding.
+  - Touch targets are never below 44px, except the sign-in bar's secondary
+    button at 40px, the design system's floor for non-primary controls.
+- **Stat tiles:** the number is 20–24px/800, the label 12px in `--mut`. The
+  number is what the eye lands on.
+- **Sign-in bar:** 10/12px padding, a 12.5px two-line message, a 40px button
+  sized to its label. It went from 125px to 73px at 375px in English. French
+  wraps to 107px, which is its text, not its chrome.
+- **Practice › best tool:** on phones (≤480px) the "Recommended" chip sits
+  under the row's text instead of taking a third of its width.
+- **Icons:**
+  - an icon beside text is at most the text's visual weight;
+  - stat icons are 18px, nav icons 22px;
+  - a row icon's tile stays 34px.
+
+### Accessibility
+- Contrast is unchanged. Only size, weight and spacing moved, and the colour
+  tokens did not.
+- Nothing is below 10px except the ≤340px bottom-bar fallback (9px), which
+  was already there.
+- Text still follows the system text size. There is no `maximum-scale` lock,
+  and no fixed heights on anything that holds text.
+- Arabic and Urdu mirror, and the year grid opens on the current month in
+  right-to-left languages too (`calScrollYearRight`).

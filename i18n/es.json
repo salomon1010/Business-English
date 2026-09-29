@@ -3245,5 +3245,8 @@
  "pg.have_words": "{{n}} palabras guardadas",
  "pg.start_next": "Siguiente paso pequeño: una sesión de 25 minutos. Después, esta página muestra tu racha, tus sesiones y las palabras que has dicho.",
  "pg.start_btn": "Empezar mi primera sesión",
- "pg.milestone": "Próxima meta: terminar la semana {{w}} — {{done}} de {{n}} sesiones"
+ "pg.milestone": "Próxima meta: terminar la semana {{w}} — {{done}} de {{n}} sesiones",
+ "pg.rec_prem_h": "Tu registro completo forma parte de Premium",
+ "pg.rec_prem_note": "Todo lo que practicas se sigue contando y guardando. Premium lo muestra aquí.",
+ "pg.rec_free": "La versión gratuita conserva esta semana, tu racha, tus sesiones y tu certificado."
 }

@@ -3245,5 +3245,8 @@
  "pg.have_words": "{{n}} mots enregistrés",
  "pg.start_next": "Prochaine petite étape : une séance de 25 minutes. Ensuite, cette page affiche votre série, vos séances et les mots que vous avez prononcés.",
  "pg.start_btn": "Commencer ma première séance",
- "pg.milestone": "Prochaine étape : terminer la semaine {{w}} — {{done}} séances sur {{n}}"
+ "pg.milestone": "Prochaine étape : terminer la semaine {{w}} — {{done}} séances sur {{n}}",
+ "pg.rec_prem_h": "Votre relevé complet fait partie de Premium",
+ "pg.rec_prem_note": "Tout ce que vous pratiquez est toujours compté et conservé. Premium l'affiche ici.",
+ "pg.rec_free": "La version gratuite garde cette semaine, votre série, vos séances et votre certificat."
 }

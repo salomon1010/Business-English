@@ -99,6 +99,39 @@ source, and none is needed for any decision below.
 - **Ethical risk:** none.
 - **Mitigation:** not applicable.
 
+### I5 · "Your record" on Progress, as a Premium report (added 29 Sep 2026, owner request)
+
+- **Current experience:** since 28 Sep the learner's record sat closed inside
+  "See all details". It holds phrases mastered, clips saved, best streak, days
+  practised, consistency and the year grid. The owner asked for it back on the
+  page, as part of Premium.
+- **Psychology principle:**
+  - user investment: the record is the learner's own work, made visible;
+  - ethical contrast: what Free keeps and what Premium adds.
+- **Proposed change (done):**
+  - The block is back under the certificate.
+  - Where Premium can be bought (billing on plus an entitlement service), on
+    General English, a free learner sees a card instead of the figures. The
+    card names the six parts, says the practice "is still counted and kept",
+    states what Free keeps (this week, the streak, the sessions, the
+    certificate) and has one plans button.
+  - With billing off (production today) and on Welding, everyone sees the
+    record.
+- **Expected user benefit:** the record is visible again, and the Premium
+  boundary is stated plainly, not discovered.
+- **Ethical risk:** holding a learner's own data behind a payment can read as
+  holding it hostage, which is the video's "blurred report" pattern.
+- **Mitigation:**
+  - Nothing is deleted or stops being counted, and the card says so.
+  - No figures are blurred or teased, and there is no countdown or loss
+    wording (`tests/mobile-density.mjs` check 13b).
+  - The core progress (this week's four numbers, the certificate and its
+    milestone) stays free (check 14).
+  - Unlocking shows the same record.
+- **Owner decision still open:** whether other Progress figures join Premium.
+  One option follows the reference: longer history views (30 and 90 days, the
+  full year) as the paid layer, with the current period free.
+
 **Strings:**
 - 14 new keys in `I18N_EN` and in all 15 `i18n/*.json` files. Key parity was checked: 0 missing and 0 extra in every file.
 - French, Spanish, Portuguese and Arabic are translated. The other eleven carry English, per the French-first rule.

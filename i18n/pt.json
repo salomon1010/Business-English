@@ -3245,5 +3245,8 @@
  "pg.have_words": "{{n}} palavras guardadas",
  "pg.start_next": "Próximo pequeno passo: uma sessão de 25 minutos. Depois, esta página mostra a sua sequência, as suas sessões e as palavras que disse.",
  "pg.start_btn": "Começar a minha primeira sessão",
- "pg.milestone": "Próxima meta: terminar a semana {{w}} — {{done}} de {{n}} sessões"
+ "pg.milestone": "Próxima meta: terminar a semana {{w}} — {{done}} de {{n}} sessões",
+ "pg.rec_prem_h": "O seu registo completo faz parte do Premium",
+ "pg.rec_prem_note": "Tudo o que pratica continua a ser contado e guardado. O Premium mostra-o aqui.",
+ "pg.rec_free": "A versão gratuita mantém esta semana, a sua sequência, as suas sessões e o seu certificado."
 }
