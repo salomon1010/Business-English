@@ -5680,6 +5680,9 @@ h1.big{letter-spacing:-.025em}
 .rm-today-go{width:auto;flex:0 0 auto;margin:0}
 @media(max-width:480px){.rm-today-go{flex:1 1 100%}}
 .career-dash-why{display:block;margin-top:4px;font-size:12px;line-height:1.4;color:var(--mut);font-weight:400}
+/* a fact keeps its own height: the milestone's explanation made the card beside
+   it stretch to match, with empty space (real-device QA, 29 Sep 2026) */
+.career-dashboard-grid{align-items:start}
 .career-dash-gated{display:flex;align-items:center;gap:8px;margin:0;padding:12px 14px;border-radius:12px;border:1px dashed var(--line2);font-size:13.5px;color:var(--mut)}
 .career-dash-gated svg{width:16px;height:16px;flex:none}
 /* a "go" arrow drawn in markup points the way of reading: mirrored in Arabic and
@@ -6997,6 +7000,10 @@ const I18N_EN={
  "pg.have_slot":"Your practice time: {{slot}}",
  "pg.have_placed":"Placement check done",
  "pg.have_words":"{{n}} words saved",
+ "pg.have_words_one":"1 word saved",
+ "pg.have_words_two":"{{n}} words saved",
+ "pg.have_words_few":"{{n}} words saved",
+ "pg.have_words_many":"{{n}} words saved",
  "pg.start_next":"Next small step: one 25-minute session. After it, this page shows your streak, your sessions and the words you have spoken.",
  "pg.start_btn":"Start your first session",
  "pg.milestone":"Next milestone: finish Week {{w}} — {{done}} of {{n}} sessions",
@@ -8101,9 +8108,9 @@ const I18N_EN={
  "cal.weekly_goal":"weekly goal",
  "cal.less":"Less",
  "cal.more":"More",
- "cal.best_streak":"best streak",
+ "cal.best_streak":"Best streak",
  "cal.this_month":"this month",
- "cal.consistency":"consistency",
+ "cal.consistency":"Consistency",
  "cal.year_h":"Your year",
  "cal.active_days":"{{n}} active days",
  "cal.active_day_one":"1 active day",
@@ -9401,6 +9408,18 @@ function t(key,vars){
   let s=(DICT&&DICT[key]!=null)?DICT[key]:(I18N_EN[key]!=null?I18N_EN[key]:key);
   if(vars)for(const k in vars)s=s.split("{{"+k+"}}").join(vars[k]);
   return s;
+}
+/* A count in a sentence. The app's convention is a "_one" key for exactly 1
+   (cal.active_day_one …). Some languages need more: Arabic has a dual (2), a
+   form for 3–10 and another for 11–99. Where the language's plural rules name
+   such a category and a key_<category> exists, it is used; 0 and other counts
+   use the base key. English only ever reaches _one and the base. */
+function tCount(key,n,vars){
+  const v=Object.assign({n},vars||{});
+  if(n===1&&I18N_EN[key+"_one"]!=null)return t(key+"_one",v);
+  let c="other";try{c=new Intl.PluralRules(document.documentElement.lang||"en").select(n)}catch(e){}
+  if((c==="two"||c==="few"||c==="many")&&I18N_EN[key+"_"+c]!=null)return t(key+"_"+c,v);
+  return t(key,v);
 }
 const RTL_LANGS=new Set(["ar","fa","ur","he","ps","sd","dv","yi"]);
 function applyDirLang(code){
@@ -28326,7 +28345,7 @@ function pgStartHTML(){
   if(pr.goal)have.push(t("pg.have_goal",{goal:esc(plain(optLabel(pr.goal,OB_GOALS,"goal.")))}));
   if(pr.slot)have.push(t("pg.have_slot",{slot:esc(plain(optLabel(pr.slot,OB_SLOTS,"slot.")))}));
   try{if(fndState().placed)have.push(t("pg.have_placed"))}catch(e){}
-  try{const n=Object.keys(areaVocab()).length;if(n)have.push(t("pg.have_words",{n}))}catch(e){}
+  try{const n=Object.keys(areaVocab()).length;if(n)have.push(tCount("pg.have_words",n))}catch(e){}
   let go_=pathLocked(p.w,p.d)?"go('journey')":`go('session',${p.w},'${p.d}')`,btn=t("pg.start_btn");
   try{if(fndNeedsPlacement()){go_="fndOpenCheck('review')";btn=t("fnd.check_open")}else if(fndGated()){go_="go('foundations')";btn=t("fnd.home_btn")}}catch(e){}
   return `<div class="pg-start">

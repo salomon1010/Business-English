@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "target mingguan",
  "cal.less": "Lebih sedikit",
  "cal.more": "Lebih banyak",
- "cal.best_streak": "rentetan terbaik",
+ "cal.best_streak": "Rentetan terbaik",
  "cal.this_month": "bulan ini",
- "cal.consistency": "konsistensi",
+ "cal.consistency": "Konsistensi",
  "cal.year_h": "Tahun Anda",
  "cal.active_days": "{{n}} hari aktif",
  "cal.active_day_one": "1 hari aktif",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
  "rm.today": "Today",
  "rm.after_check": "Your first mission appears after the one-minute check above.",
- "rm.after_fnd": "Your first mission opens when Foundations is finished."
+ "rm.after_fnd": "Your first mission opens when Foundations is finished.",
+ "pg.have_words_one": "1 word saved",
+ "pg.have_words_two": "{{n}} words saved",
+ "pg.have_words_few": "{{n}} words saved",
+ "pg.have_words_many": "{{n}} words saved"
 }

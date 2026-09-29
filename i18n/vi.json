@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "mục tiêu tuần",
  "cal.less": "Ít hơn",
  "cal.more": "Nhiều hơn",
- "cal.best_streak": "chuỗi tốt nhất",
+ "cal.best_streak": "Chuỗi tốt nhất",
  "cal.this_month": "tháng này",
- "cal.consistency": "đều đặn",
+ "cal.consistency": "Đều đặn",
  "cal.year_h": "Năm của bạn",
  "cal.active_days": "{{n}} ngày hoạt động",
  "cal.active_day_one": "1 ngày hoạt động",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
  "rm.today": "Today",
  "rm.after_check": "Your first mission appears after the one-minute check above.",
- "rm.after_fnd": "Your first mission opens when Foundations is finished."
+ "rm.after_fnd": "Your first mission opens when Foundations is finished.",
+ "pg.have_words_one": "1 word saved",
+ "pg.have_words_two": "{{n}} words saved",
+ "pg.have_words_few": "{{n}} words saved",
+ "pg.have_words_many": "{{n}} words saved"
 }

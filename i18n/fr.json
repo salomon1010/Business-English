@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "objectif hebdomadaire",
  "cal.less": "Moins",
  "cal.more": "Plus",
- "cal.best_streak": "meilleure série",
+ "cal.best_streak": "Meilleure série",
  "cal.this_month": "ce mois-ci",
- "cal.consistency": "régularité",
+ "cal.consistency": "Régularité",
  "cal.year_h": "Votre année",
  "cal.active_days": "{{n}} jours actifs",
  "cal.active_day_one": "1 jour actif",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "La version gratuite garde cette semaine, votre série actuelle et votre meilleure série, vos séances, ce que vous avez enregistré et votre certificat.",
  "rm.today": "Aujourd'hui",
  "rm.after_check": "Votre première mission apparaît après le test d'une minute ci-dessus.",
- "rm.after_fnd": "Votre première mission s'ouvre une fois les Fondations terminées."
+ "rm.after_fnd": "Votre première mission s'ouvre une fois les Fondations terminées.",
+ "pg.have_words_one": "1 mot enregistré",
+ "pg.have_words_two": "{{n}} mots enregistrés",
+ "pg.have_words_few": "{{n}} mots enregistrés",
+ "pg.have_words_many": "{{n}} mots enregistrés"
 }

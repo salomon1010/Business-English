@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "objetivo semanal",
  "cal.less": "Menos",
  "cal.more": "Más",
- "cal.best_streak": "mejor racha",
+ "cal.best_streak": "Mejor racha",
  "cal.this_month": "este mes",
- "cal.consistency": "constancia",
+ "cal.consistency": "Constancia",
  "cal.year_h": "Tu año",
  "cal.active_days": "{{n}} días activos",
  "cal.active_day_one": "1 día activo",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "La versión gratuita conserva esta semana, tu racha actual y tu mejor racha, tus sesiones, lo que has guardado y tu certificado.",
  "rm.today": "Hoy",
  "rm.after_check": "Tu primera misión aparece después de la prueba de un minuto de arriba.",
- "rm.after_fnd": "Tu primera misión se abre cuando termines Fundamentos."
+ "rm.after_fnd": "Tu primera misión se abre cuando termines Fundamentos.",
+ "pg.have_words_one": "1 palabra guardada",
+ "pg.have_words_two": "{{n}} palabras guardadas",
+ "pg.have_words_few": "{{n}} palabras guardadas",
+ "pg.have_words_many": "{{n}} palabras guardadas"
 }

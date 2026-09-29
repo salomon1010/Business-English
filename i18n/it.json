@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "obiettivo settimanale",
  "cal.less": "Meno",
  "cal.more": "Più",
- "cal.best_streak": "serie migliore",
+ "cal.best_streak": "Serie migliore",
  "cal.this_month": "questo mese",
- "cal.consistency": "costanza",
+ "cal.consistency": "Costanza",
  "cal.year_h": "Il tuo anno",
  "cal.active_days": "{{n}} giorni attivi",
  "cal.active_day_one": "1 giorno attivo",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
  "rm.today": "Today",
  "rm.after_check": "Your first mission appears after the one-minute check above.",
- "rm.after_fnd": "Your first mission opens when Foundations is finished."
+ "rm.after_fnd": "Your first mission opens when Foundations is finished.",
+ "pg.have_words_one": "1 word saved",
+ "pg.have_words_two": "{{n}} words saved",
+ "pg.have_words_few": "{{n}} words saved",
+ "pg.have_words_many": "{{n}} words saved"
 }

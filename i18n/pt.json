@@ -1347,9 +1347,9 @@
  "cal.weekly_goal": "meta semanal",
  "cal.less": "Menos",
  "cal.more": "Mais",
- "cal.best_streak": "melhor sequência",
+ "cal.best_streak": "Melhor sequência",
  "cal.this_month": "este mês",
- "cal.consistency": "consistência",
+ "cal.consistency": "Consistência",
  "cal.year_h": "Seu ano",
  "cal.active_days": "{{n}} dias ativos",
  "cal.active_day_one": "1 dia ativo",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "A versão gratuita mantém esta semana, a sua sequência atual e a melhor, as suas sessões, o que guardou e o seu certificado.",
  "rm.today": "Hoje",
  "rm.after_check": "A sua primeira missão aparece depois do teste de um minuto acima.",
- "rm.after_fnd": "A sua primeira missão abre quando terminar as Fundações."
+ "rm.after_fnd": "A sua primeira missão abre quando terminar as Fundações.",
+ "pg.have_words_one": "1 palavra guardada",
+ "pg.have_words_two": "{{n}} palavras guardadas",
+ "pg.have_words_few": "{{n}} palavras guardadas",
+ "pg.have_words_many": "{{n}} palavras guardadas"
 }

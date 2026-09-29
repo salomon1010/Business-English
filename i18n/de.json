@@ -1347,7 +1347,7 @@
  "cal.weekly_goal": "Wochenziel",
  "cal.less": "Weniger",
  "cal.more": "Mehr",
- "cal.best_streak": "beste Serie",
+ "cal.best_streak": "Beste Serie",
  "cal.this_month": "diesen Monat",
  "cal.consistency": "Beständigkeit",
  "cal.year_h": "Dein Jahr",
@@ -3251,5 +3251,9 @@
  "pg.rec_free": "Free keeps this week, your current and best streak, your sessions, what you have saved and your certificate.",
  "rm.today": "Today",
  "rm.after_check": "Your first mission appears after the one-minute check above.",
- "rm.after_fnd": "Your first mission opens when Foundations is finished."
+ "rm.after_fnd": "Your first mission opens when Foundations is finished.",
+ "pg.have_words_one": "1 word saved",
+ "pg.have_words_two": "{{n}} words saved",
+ "pg.have_words_few": "{{n}} words saved",
+ "pg.have_words_many": "{{n}} words saved"
 }
