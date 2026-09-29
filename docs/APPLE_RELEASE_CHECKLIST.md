@@ -28,7 +28,7 @@ Tick in order. A box nobody ticked is not done. Details for every step:
 
 ## A–D. Machine, accounts, signing
 - [ ] Mac with Xcode 26+ (`xcodebuild -version`)
-- [ ] Apple Developer Program: Lomonec LLC, App ID `com.bemastery.app` registered
+- [ ] Apple Developer Program: Lomonec LLC, App ID `com.lomonec.bemastery` registered
 - [ ] App Store Connect app record created (name, SKU `be-mastery-ios`, bundle id)
 - [ ] Xcode → App target → Signing & Capabilities → team Lomonec LLC, automatic signing
 - [ ] `DEVELOPMENT_TEAM` line committed (`project.pbxproj`), nothing else signing-related in git

@@ -94,7 +94,7 @@ function chain(tag, { leafOid = true, interOid = true } = {}) {
 const APPLE = chain("a"), EVIL = chain("e"), NOLEAFOID = chain("n", { leafOid: false });
 const jws = (payload, ch = APPLE) => { const d = b64u(JSON.stringify({ alg: "ES256", x5c: ch.x5c })) + "." + b64u(JSON.stringify(payload));
   return d + "." + b64u(nodeSign("sha256", Buffer.from(d), { key: ch.leafKey, dsaEncoding: "ieee-p1363" })); };
-const atx = (o = {}) => ({ transactionId: "2000000" + Math.floor(Math.random() * 1e6), originalTransactionId: "1000000001", bundleId: "com.bemastery.app", productId: "premium_annual",
+const atx = (o = {}) => ({ transactionId: "2000000" + Math.floor(Math.random() * 1e6), originalTransactionId: "1000000001", bundleId: "com.lomonec.bemastery", productId: "premium_annual",
   purchaseDate: T0 - DAY, originalPurchaseDate: T0 - DAY, expiresDate: T0 + 365 * DAY, type: "Auto-Renewable Subscription", inAppOwnershipType: "PURCHASED", environment: "Production", signedDate: T0, ...o });
 
 /* ---------------- AdMob: SSV keys ---------------- */
@@ -110,7 +110,7 @@ const KEY1 = Buffer.alloc(32, 7).toString("base64"), KEY2 = Buffer.alloc(32, 9).
 /* ---------------- the Worker ---------------- */
 const envFor = (o = {}) => ({ DB: d1(), FIREBASE_PROJECT_ID: "be-mastery", ADMIN_TOKEN: "o".repeat(40),
   GOOGLE_SA_JSON: JSON.stringify(SA), PLAY_PACKAGE: "com.bemastery.app", RTDN_AUDIENCE: "https://ent.test/v1/billing/google_play", RTDN_SA_EMAIL: "pubsub@test.iam.gserviceaccount.com",
-  APPLE_BUNDLE_ID: "com.bemastery.app", APPLE_ROOT_SHA256: APPLE.rootSha, APPLE_ENVIRONMENTS: "Production", APP_ACCOUNT_SECRET: "s".repeat(40),
+  APPLE_BUNDLE_ID: "com.lomonec.bemastery", APPLE_ROOT_SHA256: APPLE.rootSha, APPLE_ENVIRONMENTS: "Production", APP_ACCOUNT_SECRET: "s".repeat(40),
   ADMOB_SSV_ENABLED: "1", REWARD_KINDS_ENABLED: "extra_ai_practice", PLAY_TOKEN_KEY: KEY1, ...o });
 let env = envFor();
 const deps = { now: () => clock, fetch: fakeFetch, googleKeys: [GJWK], admobKeys: ADMOB_KEYS, auth: { keys: [FBJWK] } };
@@ -127,7 +127,7 @@ const rtdn = (data, id, o = {}) => call("POST", "/v1/billing/google_play", { hea
 const aToken = async uid => (await call("GET", "/v1/purchases/account-token", { uid })).json.appAccountToken;
 const averify = (uid, tx, ren) => call("POST", "/v1/purchases/verify", { uid, body: { provider: "app_store", signedTransaction: jws(tx), ...(ren ? { signedRenewalInfo: jws(ren) } : {}) } });
 const anotify = (type, subtype, tx, ren, uuid = randomUUID()) => call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: type, subtype, notificationUUID: uuid, version: "2.0", signedDate: clock,
-  data: { bundleId: "com.bemastery.app", environment: "Production", signedTransactionInfo: jws(tx), ...(ren ? { signedRenewalInfo: jws(ren) } : {}) } }) } });
+  data: { bundleId: "com.lomonec.bemastery", environment: "Production", signedTransactionInfo: jws(tx), ...(ren ? { signedRenewalInfo: jws(ren) } : {}) } }) } });
 const tok = n => "tok_" + n + "_" + "x".repeat(24);
 
 console.log("\n# Google Play — purchase verification and account binding");
@@ -242,7 +242,7 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
   const tk = await aToken("kim");
   r = await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000020", appAccountToken: tk }), null, "u-4");
   ok("A17 · a purchase Apple reports before the app does binds through the appAccountToken (no client step needed)", r.status === 200 && (await view("kim")).plan === "premium");
-  r = await call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: "DID_RENEW", notificationUUID: "u-5", data: { bundleId: "com.bemastery.app", signedTransactionInfo: jws(atx({ appAccountToken: tk })) } }, EVIL) } });
+  r = await call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: "DID_RENEW", notificationUUID: "u-5", data: { bundleId: "com.lomonec.bemastery", signedTransactionInfo: jws(atx({ appAccountToken: tk })) } }, EVIL) } });
   ok("A18 · a notification not signed by the pinned chain → 401", r.status === 401);
   const tl = await aToken("leo");
   r = await call("POST", "/v1/purchases/restore", { uid: "leo", body: { provider: "app_store", items: [
@@ -252,7 +252,7 @@ console.log("\n# Apple — signed transactions, appAccountToken, notifications")
   /* Apple edge cases (integration workstream, 2026-09-26) */
   const tm = await aToken("max");
   const anotifyEnv = (type, tx, envName, uuid) => call("POST", "/v1/billing/app_store", { body: { signedPayload: jws({ notificationType: type, notificationUUID: uuid, version: "2.0", signedDate: clock,
-    data: { bundleId: "com.bemastery.app", environment: envName, signedTransactionInfo: jws(tx) } }) } });
+    data: { bundleId: "com.lomonec.bemastery", environment: envName, signedTransactionInfo: jws(tx) } }) } });
   await anotify("SUBSCRIBED", "INITIAL_BUY", atx({ originalTransactionId: "1000000040", appAccountToken: tm, productId: "premium_monthly", expiresDate: T0 + 3 * DAY, offerType: 1 }), { originalTransactionId: "1000000040", autoRenewStatus: 1 }, "u-20");
   let vm = await view("max");
   ok("A20 · the 3-day introductory offer (offerType 1) → Premium, state trialing", vm.plan === "premium" && vm.state === "trialing", JSON.stringify(vm));

@@ -16,7 +16,7 @@ identity and no App Store Connect access.
   - it compiles `BEStoreKitPlugin.swift` and `BEBridgeViewController.swift`
     against the real iOS 27 SDK and Capacitor 8.5.2 (SPM);
   - the only warning is Xcode's own App Intents metadata note;
-  - the app is `com.bemastery.app`, 1.1.0 (1).
+  - the app is `com.lomonec.bemastery`, 1.1.0 (1).
 - **iPhone 17 simulator:**
   - the production bundle and the **staging** bundle (`npm run sync:staging`)
     both launch; Capacitor logs "WebView loaded" and onboarding renders;
@@ -37,7 +37,7 @@ identity and no App Store Connect access.
    - tick *Automatically manage signing*;
    - choose the **Lomonec LLC** team (this writes `DEVELOPMENT_TEAM`: commit
      only that);
-   - check the bundle id reads `com.bemastery.app`;
+   - check the bundle id reads `com.lomonec.bemastery`;
    - add the **In-App Purchase** capability.
 4. **StoreKit test without App Store Connect:** Product → Scheme → *Edit
    Scheme* → Run → Options → *StoreKit Configuration* = `BEMastery.storekit`.

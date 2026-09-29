@@ -18,7 +18,7 @@
    account, and the Worker keeps token → uid to route notifications.
 
    Configuration (Worker secrets / vars):
-     APPLE_BUNDLE_ID       com.bemastery.app
+     APPLE_BUNDLE_ID       com.lomonec.bemastery
      APPLE_ROOT_SHA256     comma-separated SHA-256 fingerprints of the Apple
                            root(s) to trust — Apple Root CA - G3 in production.
                            Deliberately NOT hard-coded: the owner copies it from

@@ -50,7 +50,7 @@ let txSeq = 1;
 /* a JWSTransactionDecodedPayload + JWSRenewalInfoDecodedPayload, signed */
 function signedTx({ product = "premium_monthly", token, orig, days = 30, trial = false, env = "Sandbox", revoked = false } = {}) {
   const id = String(2000000000 + txSeq++), o = orig || id;
-  const tx = { transactionId: id, originalTransactionId: o, bundleId: "com.bemastery.app", productId: product, purchaseDate: NOW - 60e3, originalPurchaseDate: NOW - 60e3,
+  const tx = { transactionId: id, originalTransactionId: o, bundleId: "com.lomonec.bemastery", productId: product, purchaseDate: NOW - 60e3, originalPurchaseDate: NOW - 60e3,
     expiresDate: NOW + days * DAY, type: "Auto-Renewable Subscription", inAppOwnershipType: "PURCHASED", environment: env, signedDate: NOW, appAccountToken: token, ...(trial ? { offerType: 1 } : {}), ...(revoked ? { revocationDate: NOW } : {}) };
   const ren = { originalTransactionId: o, autoRenewProductId: product, productId: product, autoRenewStatus: 1, environment: env, signedDate: NOW };
   return { signedTransaction: jws(tx), signedRenewalInfo: jws(ren), transactionId: id, originalTransactionId: o, productId: product };
@@ -60,7 +60,7 @@ function signedTx({ product = "premium_monthly", token, orig, days = 30, trial =
 const db = new DatabaseSync(":memory:");
 for (const m of readdirSync(new URL("../backend/entitlements/migrations/", import.meta.url)).filter(f => f.endsWith(".sql")).sort()) db.exec(readFileSync(new URL("../backend/entitlements/migrations/" + m, import.meta.url), "utf8"));
 const D1 = { prepare(sql) { const st = db.prepare(sql); let a = []; const o = { bind: (...x) => { a = x.map(v => v === undefined ? null : v); return o; }, first: async () => st.get(...a) ?? null, run: async () => ({ meta: { changes: Number(st.run(...a).changes) } }), all: async () => ({ results: st.all(...a) }) }; return o; } };
-const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", APPLE_BUNDLE_ID: "com.bemastery.app", APPLE_ENVIRONMENTS: "Sandbox", APPLE_ROOT_SHA256: APPLE.rootSha, APP_ACCOUNT_SECRET: "s".repeat(40) };
+const WENV = { DB: D1, FIREBASE_PROJECT_ID: "be-mastery", DEV_AUTH: "1", APPLE_BUNDLE_ID: "com.lomonec.bemastery", APPLE_ENVIRONMENTS: "Sandbox", APPLE_ROOT_SHA256: APPLE.rootSha, APP_ACCOUNT_SECRET: "s".repeat(40) };
 const NET = { down: false };
 
 const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 }, welding: { placed: "full", finished: true, day: 15, done: {}, checkedAt: 1 } }, days: {}, dates: [], dayLog: {}, steps: {}, scores: {}, notes: {}, rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });

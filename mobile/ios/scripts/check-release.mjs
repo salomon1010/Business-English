@@ -53,7 +53,7 @@ console.log("\n== web app (repository root)");
 console.log("\n== Capacitor project (mobile/ios)");
 {
   const cfg = JSON.parse(read(join(ios, "capacitor.config.json")));
-  ok("appId com.bemastery.app", cfg.appId === "com.bemastery.app", cfg.appId);
+  ok("appId com.lomonec.bemastery", cfg.appId === "com.lomonec.bemastery", cfg.appId);
   ok("appName BE Mastery", cfg.appName === "BE Mastery", cfg.appName);
   ok("webDir www, iosScheme capacitor, hostname localhost", cfg.webDir === "www" && cfg.server?.iosScheme === "capacitor" && cfg.server?.hostname === "localhost");
   const pkg = JSON.parse(read(join(ios, "package.json")));
@@ -72,7 +72,7 @@ console.log("\n== Xcode project");
   const all = (re) => [...pbx.matchAll(re)].map(m => m[1]);
   const same = (xs) => xs.length >= 2 && new Set(xs).size === 1;
   const bid = all(/PRODUCT_BUNDLE_IDENTIFIER = ([^;]+);/g);
-  ok("bundle id com.bemastery.app in every configuration", same(bid) && bid[0] === "com.bemastery.app", bid.join(", "));
+  ok("bundle id com.lomonec.bemastery in every configuration", same(bid) && bid[0] === "com.lomonec.bemastery", bid.join(", "));
   const ver = all(/MARKETING_VERSION = ([\d.]+);/g), bld = all(/CURRENT_PROJECT_VERSION = (\d+);/g);
   ok(`version ${ver[0]} build ${bld[0]} consistent across configurations`, same(ver) && same(bld));
   const pkgv = JSON.parse(read(join(ios, "package.json"))).version;

@@ -41,7 +41,9 @@ xcrun altool --validate-app -f build/export/App.ipa -t ios --apiKey <KEY_ID> --a
 ```
 
 ## Settings already in the project
-- Bundle id `com.bemastery.app` (same as Google Play), display name **BE Mastery**,
+- Bundle id `com.lomonec.bemastery` (Google Play stays `com.bemastery.app` — Apple
+  reported that identifier as unavailable to the Lomonec team), display name **BE Mastery**,
+  team `8TKAAK2MG6` (LOMON EC LLC), automatic signing,
   version **1.1.0**, build **1**, iPhone only, portrait, iOS 15.0+.
 - `NSMicrophoneUsageDescription` — recordings for feedback, voice turns to a
   practice partner, live practice calls; says what leaves the device.

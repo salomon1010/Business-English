@@ -11,7 +11,7 @@ unless marked otherwise. Companion documents: `APPLE_RELEASE_CHECKLIST.md`
 The web app in the repository root (`index.html` + data), copied unchanged
 into a Capacitor 8.5.2 shell (`mobile/ios/`, Swift Package Manager, no
 CocoaPods) and run by WKWebView from the bundle at `capacitor://localhost`.
-No native plugins. Bundle id `com.bemastery.app`, display name **BE Mastery**,
+No native plugins. Bundle id `com.lomonec.bemastery`, display name **BE Mastery**,
 iPhone only, portrait, iOS 15.0+. Version **1.1.0**, build **1** (see F).
 
 Because the bundle is frozen at build time, the app does not pick up web
@@ -46,11 +46,11 @@ Never run `pod install`; the project has no Podfile by design.
 
 ## C. Apple Developer setup (once per app)
 1. Certificates, Identifiers & Profiles → Identifiers → **App ID**
-   `com.bemastery.app`, explicit, description "BE Mastery". Capabilities:
+   `com.lomonec.bemastery`, explicit, description "BE Mastery". Capabilities:
    none (no push, no Sign in with Apple, no associated domains).
 2. App Store Connect → My Apps → **+ New App**: platform iOS, name
    *BE Mastery — Business English*, primary language English (U.K.), bundle id
-   `com.bemastery.app`, SKU `be-mastery-ios`, full access.
+   `com.lomonec.bemastery`, SKU `be-mastery-ios`, full access.
 3. Users and Access → Integrations → **App Store Connect API** (optional, for
    command-line uploads): create a key with *Developer* role, download the
    `.p8` **once**, keep it outside the repository (`~/.appstoreconnect/private_keys/`).

@@ -731,7 +731,9 @@ not JS, and `new Function` chokes on it. Check it separately with
   Workers must be **redeployed** before the app's AI/scoring/analytics/partner
   calls work; that is a production deploy, the owner's call. `IS_IOS_APP`
   (index.html) hides the Google Play link/button and the About page's Play
-  badges (Apple 2.3.10); nothing else differs. Bundle id `com.bemastery.app`,
+  badges (Apple 2.3.10); nothing else differs. Bundle id `com.lomonec.bemastery`
+  (NOT the Play package `com.bemastery.app` — Apple reported that one unavailable
+  to team 8TKAAK2MG6; never "align" the two),
   1.1.0 (1), iPhone-only portrait, iOS 15+, `NSMicrophoneUsageDescription`,
   `PrivacyInfo.xcprivacy`, `ITSAppUsesNonExemptEncryption=NO`. Listing text,
   review notes, privacy answers and 6.9" screenshots (1320×2868, from

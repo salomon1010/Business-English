@@ -72,7 +72,7 @@ PLAY_PACKAGE = "com.bemastery.app"
 # RTDN_SA_EMAIL = the push subscription's service account (the token's email).
 RTDN_AUDIENCE = "https://entitlements-staging.lomonec.com/v1/billing/google_play"
 RTDN_SA_EMAIL = "firebase-adminsdk-fbsvc@be-mastery.iam.gserviceaccount.com"
-APPLE_BUNDLE_ID = "com.bemastery.app"
+APPLE_BUNDLE_ID = "com.lomonec.bemastery"
 APPLE_ENVIRONMENTS = "Sandbox"
 # SHA-256 of Apple Root CA - G3 (public; downloaded from
 # https://www.apple.com/certificateauthority/AppleRootCA-G3.cer and hashed,

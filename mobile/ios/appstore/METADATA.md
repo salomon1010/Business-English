@@ -7,7 +7,7 @@ listing: `METADATA.fr.md`. Nothing may be claimed here that the build does not d
 
 **Name** BE Mastery — Business English
 **Subtitle** (30) Speak English with confidence
-**Bundle ID** com.bemastery.app · **SKU** be-mastery-ios · **Version** 1.1.0 (1)
+**Bundle ID** com.lomonec.bemastery · **SKU** be-mastery-ios · **Version** 1.1.0 (1)
 **Primary category** Education · **Secondary** Business
 **Privacy policy URL** https://app.lomonec.com/privacy.html — the wording of this release branch must be live there before submission.
 **Support URL** https://app.lomonec.com/flyer.html — carries contact@lomonec.com. REQUIRES OWNER CHECK that the address is visible on that page; if not, point this at a page that shows it.
