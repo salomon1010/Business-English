@@ -408,6 +408,10 @@ nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);background:var(-
 @keyframes badge-pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
 .tab-ic{display:inline-flex;line-height:0}
 .tab-ic svg{width:17px;height:17px}
+/* 821–1023px (iPad portrait, small laptops): six labels in French, Spanish, Italian,
+   Russian or Japanese are wider than the header, and the row scrolled Profile off
+   the edge. The labels carry the meaning; the icons go in this band only. */
+@media(min-width:821px) and (max-width:1023px){.nav-in{gap:3px}.nav-in .tab{padding:8px 7px;font-size:13px}.nav-in .tab-ic{display:none}}
 .tab:hover{color:var(--txt);background:var(--hover)}
 .tab.on{color:var(--on-accent);background:var(--accent-fill);font-weight:600}
 .hdr-map{margin-left:auto;display:flex;align-items:center;gap:6px;background:color-mix(in srgb,var(--acc) 14%,transparent);border:1px solid color-mix(in srgb,var(--acc) 45%,transparent);color:var(--accent-text);padding:6px 12px;border-radius:99px;font-weight:700;font-size:13px;white-space:nowrap;cursor:pointer;min-height:auto}
@@ -5822,6 +5826,15 @@ function trackResources(){return curriculumOrEmpty().resources||[]}
 function trackShadowStarters(){return curriculumOrEmpty().starters||[]}
 function trackDayMeta(){return curriculumOrEmpty().dayMeta||{}}
 function trackSessionLinks(){return curriculumOrEmpty().sessionLinks||{}}
+/* A session button's label must name where it goes. Welding's Thursday and
+   Saturday links carry lk "sess.link_phrases" ("Open the Phrase Lab") while
+   opening the AI mentor and the workplace simulation. The correction lives here
+   and not in tracks/welding/weeks.json, because sw.js precaches that pack: a
+   phone still running the previous index.html from cache (the service worker's
+   3-second race on a slow connection) would fetch a new pack whose key it does
+   not know and print "sess.link_roleplay" on the button — reproduced 29 Sep
+   2026. Label keys a pack uses must already exist in every index.html in use. */
+function sessLinkLabel(L){const k=L&&L.lk==="sess.link_phrases"&&L.v!=="phrases"?"sess.link_"+L.v:L&&L.lk;return t(k in I18N_EN?k:L.lk)}
 function trackTemplates(){return curriculumOrEmpty().templates||{}}
 function trackWeeks(){
   const weeks=curriculumOrEmpty().weeks||[];
@@ -9938,8 +9951,11 @@ function bnavSync(v){
      no tab of its own lights the tab it belongs to — the phrase bank lit nothing
      on a phone while it lit Phrase Lab on a desktop (nav audit, 29 Sep 2026) */
   const map=v==="session"?"journey":(v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":(v==="mvhist"?"review":v)))));
-  document.querySelectorAll(".bnav-item").forEach(b=>b.classList.toggle("on",b.dataset.v===map));
+  document.querySelectorAll(".bnav-item").forEach(b=>navOn(b,b.dataset.v===map));
 }
+/* the lit tab is also the one a screen reader announces as the current page
+   (the logo does the same on Home — brandSync) */
+function navOn(b,on){b.classList.toggle("on",on);if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
 /* Remembers the session a jump-button came from, so the destination tab can
    offer a "back to your session" breadcrumb. */
 let SESS_RETURN=null;
@@ -9996,7 +10012,7 @@ function go(v,arg1,arg2){
   cur={v,arg1,arg2};
   document.documentElement.setAttribute("data-view",v); /* page-scoped themes (Practice Partner) hang off this */
   const tv=v==="data"||v==="career"?"profile":(v==="simulation"||v==="partner"?"practice":((v==="foundations"||v==="mission")?"home":(v==="phrasebank"?"phrases":v==="mvhist"?"review":v))); /* settings lives under the Profile tab; the phrase bank under Phrase Lab; a V2 mission is today's work, so it sits under Home; the speaking history is part of Progress */
-  document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v===tv));
+  document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v===tv));
   brandSync(v); /* brand IS the dashboard entry */
   bnavSync(v);
   /* The map tab glows until it has been opened once. Existing learners knew
@@ -12583,7 +12599,7 @@ function rSession(el,w,d){
   <h1 class="big" style="font-size:28px">${esc(dd.focus)}</h1>
   <p class="sub" style="margin-bottom:6px">${esc(dd.task)}</p>
   <p style="font-size:13px;color:var(--gold);margin-bottom:10px">${t("sess.evidence",{out:esc(dd.out)})}</p>
-  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>`:""}
   ${scnOn()&&sessionLinks[d]&&sessionLinks[d].v==="shadow"?`<div id="scnSess"></div>`:""}
   <div class="sess-body">
       <div class="card timer-box" id="tBox">
@@ -12698,7 +12714,7 @@ function rSessionV2(el,w,d,wk,dd,key,comp,phases,dayMeta,sessionLinks){
     <p class="sub">${esc(t("sess.v2_sub"))}</p>
     <div class="mv-state"><span>${t("mv.state")}</span><b>${t("mv.state_"+r.state)}</b></div>
   </section>
-  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(t(sessionLinks[d].lk))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
+  ${sessionLinks[d]?`<button class="btn btn-g sess-jump" onclick="sessGo('${sessionLinks[d].v}',${w},'${d}')"><span class="btn-ic">${ic(sessionLinks[d].ic)}</span><span>${esc(sessLinkLabel(sessionLinks[d]))}</span><span class="sess-jump-go" aria-hidden="true">→</span></button>
   <p class="sess-jump-why">${esc(t(sessionLinks[d].wk))}</p>`:""}
   ${mvDockHTML(prim,sec)}`;
   manIconizeInline(el);
@@ -20218,7 +20234,7 @@ window.fbTry=(word,i)=>{
 /* Executive Polish backend: a Cloudflare Worker that holds one AI key server-side
    (see backend/polish-worker.js). Users need only internet — no key. Leave "" to
    stay fully offline (rule-based clean-up only). */
-const APP_VERSION="be12-v488";   /* bumped with sw.js on every deploy */
+const APP_VERSION="be12-v489";   /* bumped with sw.js on every deploy */
 const POLISH_API="https://be-polish.nore-ngou.workers.dev";  // Cloudflare Worker (holds the AI key + natural TTS)
 /* Natural-voice options (OpenAI gpt-4o-mini-tts). "browser" = the device's own voice (works offline). */
 const TTS_VOICE_OPTS=[["alloy","Alloy — neutral, professional","n"],["onyx","Onyx — deep, authoritative","m"],["nova","Nova — warm, friendly","f"],["shimmer","Shimmer — soft, calm","f"],["echo","Echo — smooth","m"],["sage","Sage — measured","f"],["coral","Coral — warm","f"],["ash","Ash — confident","m"],["fable","Fable — expressive","m"],["ballad","Ballad — gentle","m"],["verse","Verse — versatile","m"],["browser","Device voice (offline)","n"]];
@@ -29198,7 +29214,7 @@ const _views={home:rHome,journey:rJourney,phrases:rPhrases,review:rReview,data:r
     if(v==="session"){
       cur={v,arg1:a1,arg2:a2};
       document.documentElement.setAttribute("data-view","session"); /* the base go() never runs for a session, so without this the previous page's data-view (and its scoped theme) stayed on */
-      document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.v==="journey"));
+      document.querySelectorAll(".tab").forEach(b=>navOn(b,b.dataset.v==="journey"));
       bnavSync("session");
       brandSync("session"); /* else the logo kept Home's "current page" state when a session was opened from Home */
       document.querySelectorAll(".view").forEach(x=>{x.classList.remove("on");if(x.id!=="v-journey")x.innerHTML=""});

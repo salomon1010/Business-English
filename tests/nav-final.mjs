@@ -39,6 +39,11 @@ console.log("\n# the six tabs stay; Home is not a seventh");
   await p.evaluate(() => { document.querySelector(".brand").focus() }); await p.keyboard.press("Enter"); await sleep(900);
   ok("3 · desktop keyboard: focus the logo, press Enter → Home", await p.evaluate(() => cur.v === "home"));
   await ctx.close(); }
+/* 821–1023px: the header row once scrolled Profile off the edge in French, Russian, Japanese… (29 Sep 2026) */
+for (const [w, lang] of [[821, "ru"], [834, "fr"], [834, "ja"], [900, "fr"]]) {
+  const { ctx, p } = await open(seed("general-english", ge3), { w, h: 900, lang }); await view(p, "review");
+  const r = await p.evaluate(() => { const n = document.querySelector(".nav-in"), t = [...n.querySelectorAll(".tab")].filter(x => x.offsetParent); return { over: n.scrollWidth - n.clientWidth, n: t.length, off: t.filter(x => { const q = x.getBoundingClientRect(); return q.right > innerWidth + .5 || q.left < -.5 }).map(x => x.dataset.v), h: Math.min(...t.map(x => Math.round(x.getBoundingClientRect().height))), lbl: t.every(x => x.innerText.trim().length > 1) } });
+  ok(`3b · ${w}px ${lang}: all six header tabs fit on screen with their labels (no sideways scroll), targets ≥24px`, r.n === 6 && r.over <= 0 && !r.off.length && r.h >= 24 && r.lbl, JSON.stringify(r)); await ctx.close(); }
 
 console.log("\n# Home's one permanent control reads as Home, and says when you are there");
 for (const [lang, word] of [["en", "Home"], ["fr", "Accueil"], ["ar", "الرئيسية"]]) {
@@ -63,6 +68,10 @@ console.log("\n# pages with no tab light the tab they belong to");
   const lit = async (v, a1, a2) => { await view(p, v, a1, a2); return p.evaluate(() => (document.querySelector(".bnav-item.on") || {}).dataset?.v || null) };
   const r = { session: await lit("session", 1, "Thu"), week: await lit("journey", 1), phrasebank: await lit("phrasebank", 1), partner: await lit("partner"), data: await lit("data") };
   ok("6 · session → Road map, a week page → Road map, phrase bank → Phrase Lab, partner → Practice, settings → Profile", r.session === "journey" && r.week === "journey" && r.phrasebank === "phrases" && r.partner === "practice" && r.data === "profile", JSON.stringify(r));
+  /* the lit tab is the one announced as the current page, on the phone bar and the desktop header */
+  const cur = async (v, a1, a2) => { await view(p, v, a1, a2); return p.evaluate(() => ({ b: [...document.querySelectorAll(".bnav-item[aria-current=page]")].map(x => x.dataset.v), bOn: [...document.querySelectorAll(".bnav-item.on")].map(x => x.dataset.v), d: [...document.querySelectorAll(".nav-in .tab[aria-current=page]")].map(x => x.dataset.v), brand: document.querySelector(".brand").getAttribute("aria-current") })) };
+  const a = { review: await cur("review"), session: await cur("session", 1, "Thu"), phrasebank: await cur("phrasebank", 1), home: await cur("home") };
+  ok("6b · aria-current=page sits on exactly the lit tab (phone and desktop), and on the logo only on Home", a.review.b.join() === "review" && a.review.d.join() === "review" && !a.review.brand && a.session.b.join() === "journey" && a.session.d.join() === "journey" && a.phrasebank.b.join() === "phrases" && a.home.b.length === 0 && a.home.d.length === 0 && a.home.brand === "page" && Object.values(a).every(x => x.b.join() === x.bOn.join()), JSON.stringify(a));
   await ctx.close(); }
 
 console.log("\n# Road map: the same step as Home, told as a place on the journey");
@@ -92,9 +101,11 @@ console.log("\n# Welding: each session button names where it goes");
     await ctx.close();
   } }
 { const { ctx, p } = await open(seed("general-english"));
-  const packs = await p.evaluate(async () => { const out = []; for (const t of ["general", "welding"]) { const j = await (await fetch(`tracks/${t}/weeks.json`)).json(); for (const [dd, l] of Object.entries(j.sessionLinks || {})) out.push({ t, dd, v: l.v, lk: l.lk }) } return out });
-  const wrong = packs.filter(x => x.lk === "sess.link_phrases" && x.v !== "phrases");
-  ok("10 · both packs: no session button carries the Phrase Lab label unless it opens Phrase Lab", !wrong.length && packs.length >= 8, JSON.stringify(wrong));
+  /* the label is decided when the button is drawn (sessLinkLabel), not in the pack: a pack precached by
+     sw.js must never name a key the previous index.html lacks (raw "sess.link_roleplay", 29 Sep 2026) */
+  const packs = await p.evaluate(async () => { const out = []; for (const t of ["general", "welding"]) { const j = await (await fetch(`tracks/${t}/weeks.json`)).json(); for (const [dd, l] of Object.entries(j.sessionLinks || {})) out.push({ t, dd, v: l.v, lk: l.lk, shown: sessLinkLabel(l), known: l.lk in I18N_EN }) } return { out, phrases: t("sess.link_phrases") } });
+  const wrong = packs.out.filter(x => (x.shown === packs.phrases && x.v !== "phrases") || !x.known || /^sess\./.test(x.shown));
+  ok("10 · both packs: no session button shows the Phrase Lab label unless it opens Phrase Lab; every label key a pack names exists; no raw key is ever drawn", !wrong.length && packs.out.length >= 8, JSON.stringify(wrong));
   await ctx.close(); }
 
 console.log("\n# return_open records where the comeback landed (existing prop 'kind', no Worker change)");
