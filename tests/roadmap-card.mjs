@@ -47,11 +47,11 @@ console.log("\n# General English — new learner");
   ok("GE · progress: 0%, '0 of 84 sessions done', 12 weeks · 84 sessions (real counts)", c.count === "0 of 84 sessions done" && /^12 Weeks/i.test(c.stats[0]) && /^84 Sessions/i.test(c.stats[1]), ser(c));
   ok("GE · current = Week 1 of 12, its curriculum theme, phase and goal", c.badge.toUpperCase() === "WEEK 1 OF 12" && c.cur === "Introductions, role clarity & speech baseline" && c.curSub === "Foundation" && c.desc === "Build your baseline and start speaking clearly about yourself and your role.", ser(c));
   ok("GE · 0 of 7 sessions, seven segments, Monday marked as the next one", c.curN === "0 of 7 sessions" && c.curPct === "0%" && c.segs.length === 7 && c.segs[0] === "now" && c.segs.slice(1).every(s => !s), ser(c.segs));
-  ok("GE · today's session kept on the card: Week 1 · Monday, Pronunciation baseline, Session 1 of 7", /Week 1 · Monday/.test(c.today) && /Pronunciation baseline/.test(c.today) && /Session 1 of 7 in Week 1/.test(c.today), c.today);
+  ok("GE · today's session travels with the button (read out, not drawn — the reference shows no extra line): Week 1 · Monday, Pronunciation baseline, Session 1 of 7", /Week 1 · Monday/.test(c.today) && /Pronunciation baseline/.test(c.today) && /Session 1 of 7 in Week 1/.test(c.today), c.today);
   ok("GE · next = Week 2 and its theme; tapping it opens Week 2", /NEXT WEEK/i.test(c.nextK) && c.next === "Week 2 — Project updates & status communication" && /go\('journey',2\)/.test(c.nextGo), ser(c));
   ok("GE · journey = the three General English phases, Foundation current", c.jourH.toUpperCase() === "YOUR LEARNING JOURNEY" && ser(c.rows.map(r => r.t)) === ser(["Foundation", "Workplace Fluency", "Executive Communication"]) && c.rows[0].s === "now" && c.rows[0].n === "01" && c.all.startsWith("View all 12 weeks"), ser(c.rows));
   ok("GE · button: 'Start Week 1' → Week 1 Monday", c.cta === "Start Week 1" && /go\('session',1,'Mon'\)/.test(c.ctaGo), ser(c));
-  ok("GE · photo is the General English one", /rp-photos\/oneone\.jpg/.test(c.img) && c.look === "ge", c.img);
+  ok("GE · photo is the General English one", /roadmap-art\/general\.jpg/.test(c.img) && c.look === "ge", c.img);
   ok("isolation · no Welding words on the General English card", !/Stage \d|Workshop|welding|professional journey/i.test(c.text), c.text);
   ok("no page errors", !errs.length, errs.join(" | "));
   await ctx.close(); }
@@ -65,9 +65,9 @@ console.log("\n# Welding — new learner");
   ok("W · next = Stage 2 — Working With Your Team", /NEXT STAGE/i.test(c.nextK) && c.next === "Stage 2 — Working With Your Team", ser(c));
   ok("W · journey = the four Welding phases", c.jourH.toUpperCase() === "YOUR PROFESSIONAL JOURNEY" && ser(c.rows.map(r => r.t)) === ser(["Workshop Foundations", "Technical Communication", "Workplace Standards", "Career Readiness"]) && c.all.startsWith("View all 12 stages"), ser(c.rows));
   ok("W · button: 'Start Stage 1' → Stage 1 Monday", c.cta === "Start Stage 1" && /go\('session',1,'Mon'\)/.test(c.ctaGo), ser(c));
-  ok("W · photo is the welding one", /sim-photos\/welding-sim-1\.jpg/.test(c.img) && c.look === "pro", c.img);
+  ok("W · photo is the welding one", /roadmap-art\/welding\.jpg/.test(c.img) && c.look === "pro", c.img);
   ok("isolation · no General English words on the Welding card", !/Introductions|Foundation Skills|learning journey|Week \d of|Workplace Fluency|Executive Communication/i.test(c.text), c.text);
-  ok("same system · both areas draw the same parts in the same order", await p.evaluate(() => [...document.querySelector("#v-journey .rm2").children].map(e => e.className.split(" ")[0]).join(",")) === "rm2-art,rm2-head,rm2-prog,rm2-cur,rm2-next,rm2-jour,btn-primary");
+  ok("same system · both areas draw the same parts in the same order", await p.evaluate(() => [...document.querySelector("#v-journey .rm2").children].map(e => e.className.split(" ")[0]).join(",")) === "rm2-art,rm2-head,rm2-prog,rm2-cur,rm2-next,rm2-jour,rm2-cta");
   ok("no page errors", !errs.length, errs.join(" | "));
   await ctx.close(); }
 
@@ -133,13 +133,14 @@ for (const tr of ["general-english", "welding"]) for (const w of [375, 390, 400,
   const m = await p.evaluate(() => {
     const c = document.querySelector("#v-journey .rm2"), r = e => e.getBoundingClientRect(), cr = r(c);
     const clipped = [...c.querySelectorAll(".rm2-badge,.rm2-cur h3,.rm2-next-t b,.rm2-cta-l,.rm2-title,.rm2-count,.rm2-stat b,.rm2-stat small,.rm2-row-t")].filter(e => e.scrollWidth > e.clientWidth + 1).map(e => e.className);
-    const out = [...c.querySelectorAll("*")].filter(e => { const b = r(e); return b.width && (b.right > cr.right + 1 || b.left < cr.left - 1) && !e.closest(".rm2-art,svg") }).map(e => e.className).slice(0, 3);
+    const out = [...c.querySelectorAll("*")].filter(e => { const b = r(e); return b.width && (b.right > cr.right + 1 || b.left < cr.left - 1) && !e.closest(".rm2-art,svg,.rm2-sr") }).map(e => e.className).slice(0, 3);
     const taps = [...c.querySelectorAll(".rm2-row,.rm2-next,.rm2-cta")].map(e => Math.round(r(e).height));
     const two = r(c.querySelector(".rm2-cur")).left > r(c.querySelector(".rm2-prog")).right - 1;
     const allH = r(c.querySelector(".rm2-all")); const cta = r(c.querySelector(".rm2-cta"));
     return { hscroll: document.documentElement.scrollWidth > innerWidth, fits: cr.left >= 0 && cr.right <= innerWidth, clipped, out, minTap: Math.min(...taps), two, h: Math.round(cr.height), ctaBottom: Math.round(cta.bottom), vh: innerHeight };
   });
-  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ 44px, ${w >= 760 ? "two columns" : "one column"}`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= 44 && m.two === (w >= 760), ser(m));
+  /* phones keep 44px touch targets; from 760px the rows are the reference's 38px */
+  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: fits, no sideways scroll, nothing clipped or outside the card, taps ≥ ${w >= 760 ? 36 : 44}px, ${w >= 760 ? "two columns" : "one column"}`, !m.hscroll && m.fits && !m.clipped.length && !m.out.length && m.minTap >= (w >= 760 ? 36 : 44) && m.two === (w >= 760), ser(m));
   if (process.env.SHOTS) { await p.screenshot({ path: `${process.env.SHOTS}/rmc-${tr === "welding" ? "weld" : "ge"}-${w}.png` }) }
   await ctx.close();
 }
@@ -152,12 +153,18 @@ console.log("\n# French and Arabic");
   ok("fr · longer French labels are not cut off (stats, badge, button)", !fc.length, ser(fc));
   if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-fr-375.png` });
   ok("fr · no page errors", !errs.length, errs.join(" | ")); await ctx.close(); }
+console.log("\n# compact — the reference's proportions");
+for (const [tr, w, maxH] of [["welding", 1280, 660], ["general-english", 1280, 660], ["welding", 390, 720], ["general-english", 390, 740]]) {
+  const { ctx, p } = await open(seed(tr), { w, h: w > 700 ? 900 : 844 });
+  const m = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2").getBoundingClientRect(), b = document.querySelector("#v-journey .rm2-cta").getBoundingClientRect(), nav = document.querySelector(".bnav"); return { h: Math.round(c.height), w: Math.round(c.width), ctaBottom: Math.round(b.bottom), navTop: nav && getComputedStyle(nav).display !== "none" ? Math.round(nav.getBoundingClientRect().top) : innerHeight } });
+  ok(`${tr === "welding" ? "W " : "GE"} ${w}px: card ≤ ${maxH}px tall${w < 760 ? ", and its button is above the tab bar without scrolling" : ""}`, m.h <= maxH && (w >= 760 || m.ctaBottom <= m.navTop), ser(m));
+  await ctx.close(); }
 { const { ctx, p, errs } = await open(seed("general-english", { days: { w1Mon: true } }), { w: 375, lang: "ar" });
   const c = await card(p);
   const r = await p.evaluate(() => { const c = document.querySelector("#v-journey .rm2"), q = s => c.querySelector(s);
-    return { dir: getComputedStyle(c).direction, arrow: getComputedStyle(q(".rm2-cta .go-arrow")).transform, chev: getComputedStyle(q(".rm2-chev")).transform, art: getComputedStyle(q(".rm2-art")).transform,
+    return { dir: getComputedStyle(c).direction, arrow: getComputedStyle(q(".rm2-cta .go-arrow")).transform, chev: getComputedStyle(q(".rm2-chev svg")).transform, art: getComputedStyle(q(".rm2-art")).transform,
       numRight: q(".rm2-row .rm2-num").getBoundingClientRect().left > q(".rm2-row .rm2-row-t").getBoundingClientRect().left, hscroll: document.documentElement.scrollWidth > innerWidth } });
-  ok("ar · right-to-left: rows start on the right, arrows and chevrons mirrored, photo mirrored, no sideways scroll", r.dir === "rtl" && r.numRight && /matrix\(-1/.test(r.arrow) && /matrix\(-1/.test(r.chev) && /matrix\(-1/.test(r.art) && !r.hscroll, ser(r));
+  ok("ar · right-to-left: rows start on the right, arrows and chevrons mirrored, the photo moves sides but is NOT flipped (it has words in it), no sideways scroll", r.dir === "rtl" && r.numRight && /matrix\(-1/.test(r.arrow) && /matrix\(0, 1, -1, 0/.test(r.chev) && r.art === "none" && !r.hscroll, ser(r));
   ok("ar · translated button 'تابع الأسبوع 1'", c.cta === "تابع الأسبوع 1", c.cta);
   if (process.env.SHOTS) await p.screenshot({ path: `${process.env.SHOTS}/rmc-ar-375.png` });
   ok("ar · no page errors", !errs.length, errs.join(" | ")); await ctx.close(); }
