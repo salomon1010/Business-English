@@ -14106,7 +14106,9 @@ window.shv3Jump=id=>{
 };
 /* the chip the library opens on: on Welding the learner's own trade, so the page agrees with
    "Videos for <trade>" and with the Change list; "For you" when they chose No filter */
-function shLibCatSync(){if(weldStudioOn()&&(_shLibCat==="all"||(_shLibCat!=="foryou"&&_shLibCat!=="mine"&&!(_shCat&&(_shCat.categories||[]).some(c=>c.id===_shLibCat)))))_shLibCat=weldProf()||"foryou"}
+/* no "All videos" chip in either area (owner, 30 Sep 2026): a stale "all" lands on For you (General
+   English) or the learner's trade (Welding) */
+function shLibCatSync(){if(!weldStudioOn()&&_shLibCat==="all")_shLibCat="foryou";if(weldStudioOn()&&(_shLibCat==="all"||(_shLibCat!=="foryou"&&_shLibCat!=="mine"&&!(_shCat&&(_shCat.categories||[]).some(c=>c.id===_shLibCat)))))_shLibCat=weldProf()||"foryou"}
 function shLibMount(){shCatLoad().then(()=>{shLibCatSync();const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
 function shLibWire(){
   shLibAllWatch();   /* "All videos" keeps adding rows as the learner scrolls */
@@ -14480,6 +14482,7 @@ function shLibFeedHTML(){
   return scnFeedRowsHTML()+show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
 }
 function shLibHTML(){
+  shLibCatSync();   /* every draw, not only shLibMount: "all" is only a start value now, never a chip */
   const c=_shCat,heroes=shLibHeroes();
   /* the learner's own links sit second in the rail, right after "For you" —
      tinted apart so it reads as theirs, not ours, and reachable without
@@ -14490,9 +14493,10 @@ function shLibHTML(){
   const cats=c?shLibCatsOrdered(c).filter(x=>FUN[x.id]).concat(shLibCatsOrdered(c).filter(x=>!FUN[x.id])):[];
   /* Welding (owner, 30 Sep 2026): no "All videos" chip — the ten trade chips are the filter, and each
      one IS the profession in the Change list: tap either and both follow. "For you" is every video,
-     ordered for the learner, so nothing is out of reach. General English keeps its All videos chip. */
-  const chips=(weldStudioOn()?[]:[{id:"all",label:t("sh.lib_all"),all:true,n:c?shLibAll().length:0}]).concat([{id:"foryou",label:t("sh.lib_foryou")},
-    {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}])
+     ordered for the learner, so nothing is out of reach. General English lost the chip the same day
+     (owner): For you leads and is where its library opens; Show more reaches every video. */
+  const chips=[{id:"foryou",label:t("sh.lib_foryou")},
+    {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
     .concat(cats.filter(x=>(x.vids||[]).some(shLibHasTx)).map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
   return `<div class="shl-stick">
