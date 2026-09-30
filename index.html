@@ -1016,6 +1016,8 @@ nav,.bottom-nav,.shl-stick{background:var(--bg)!important}
   border-color:color-mix(in srgb,var(--acc2) 26%,transparent);
   color:color-mix(in srgb,var(--acc2) 68%,var(--mut))}
 .shl-chip.mine svg{width:14px;height:14px}
+.shl-chip .shl-all-n{font-style:normal;font-size:11px;font-weight:700;opacity:.75;margin-inline-start:6px}
+.shl-all-more{height:1px}
 .shl-chip.mine .shl-own-n{font-style:normal;font-size:11px;font-weight:700;opacity:.8}
 .shl-chip.mine.on{background:color-mix(in srgb,var(--acc2) 74%,var(--card2));
   border-color:color-mix(in srgb,var(--acc2) 74%,var(--card2));color:#04131a}
@@ -8558,6 +8560,7 @@ const I18N_EN={
  "sh.no_video_yet":"✨ No video yet? Start with one of these",
  "sh.lib_search_ph":"What do you want to practise?",
  "sh.lib_foryou":"For you",
+ "sh.lib_all":"All videos",
  "sh.lib_channels":"Channels",
  "sh.lib_week_pick":"This week · Week {{n}}",
  "sh.lib_fits_plan":"Fits your plan",
@@ -13799,7 +13802,9 @@ const SH_CAT_FILE={"general-english":"catalogue/general.json",welding:"catalogue
 const _shCatA={},_shCatPA={};
 Object.defineProperty(window,"_shCat",{configurable:true,get(){try{return _shCatA[shCatArea()]||null}catch(e){return null}},set(v){try{_shCatA[shCatArea()]=v}catch(e){}}});
 function shCatArea(){const a=areaId();return a===AREA_GEN||weldStudioOn()?a:"-"}
-let _shLibQ="",_shLibCat="foryou",_shLibCh="",_shLibMore=false;
+/* The library opens on "All videos" — every video, no filter; For you, Your videos,
+   the categories and the channels are filters the learner chooses (owner, 30 Sep 2026) */
+let _shLibQ="",_shLibCat="all",_shLibCh="",_shLibMore=false,_shLibN=0;
 /* Welding Professional English as a complete learning space (owner, 29 Sep 2026): the Shadow
    tab is the same video Shadow Studio as General English, fed by the Welding library; the
    workplace lines move to Practice ("Practise text shadowing", view "lines"); Home is Home V2
@@ -13854,7 +13859,7 @@ window.weldProfSet=id=>{
   if(!WELD_PROFS.includes(id))return;
   S.profile=S.profile||{};S.profile.weldProf=id;save();
   const o=document.getElementById("weldProfOv");if(o)o.remove();
-  _shLibCat="foryou";_shLibCh="";_shLibMore=false;
+  _shLibCat="all";_shLibCh="";_shLibMore=false;
   try{if(cur&&cur.v==="shadow")shLibMount();else if(cur&&cur.v==="home")go("home")}catch(e){}
   toast(t("wprof.set",{p:weldProfLabel(id)}));
 };
@@ -14082,7 +14087,7 @@ window.shLibQ=v=>{
   shLibSync();
 };
 window.shLibClear=()=>{const i=document.getElementById("shLibIn");if(i){i.value="";i.focus()}shLibQ("")};
-function shlHeroShown(){return !_shLibCh&&_shLibCat==="foryou"&&!_shLibQ.trim()}
+function shlHeroShown(){return !_shLibCh&&(_shLibCat==="all"||_shLibCat==="foryou")&&!_shLibQ.trim()}
 function shLibSync(){
   document.querySelectorAll("#shLib .shl-chip").forEach(b=>{
     const on=b.dataset.cat===_shLibCat&&!_shLibCh;
@@ -14104,7 +14109,7 @@ function shLibSync(){
   const n=document.querySelector("#shLib .shl-chip.mine .shl-own-n");
   if(n)n.textContent=shOwn().length;
   const feed=document.getElementById("shLibFeed");
-  if(feed)feed.innerHTML=shLibFeedHTML();
+  if(feed){feed.innerHTML=shLibFeedHTML();shLibAllWatch()}
 }
 window.shLibCat=id=>{_shLibCat=id;_shLibCh="";_shLibMore=false;shLibSync();
   /* the chosen chip slides into view: the row scrolls sideways, and a chip past
@@ -14209,6 +14214,23 @@ window.shLibOpen=vid=>{
   shLoad({vid,start:0,end:0,title:v.title});
 };
 const SHL_FEED_N=8;
+/* "All videos" puts every video on the page; the rows are added 40 at a time as the
+   foot of the list nears the screen, so 300 thumbnails are not built at once */
+const SHL_ALL_STEP=40;
+let _shlAllIO=null;
+function shLibAllWatch(){
+  if(_shlAllIO){_shlAllIO.disconnect();_shlAllIO=null}
+  const s=document.getElementById("shlAllMore");if(!s)return;
+  const more=()=>{const f=document.getElementById("shLibFeed"),ids=shLibAll();if(!f||_shLibCat!=="all"||_shLibCh||_shLibQ.trim())return;
+    const from=_shLibN,to=Math.min(ids.length,from+SHL_ALL_STEP);if(to<=from)return;
+    const tmp=document.createElement("div");tmp.innerHTML=ids.slice(from,to).map(shLibRow).join("");
+    const mark=document.getElementById("shlAllMore");while(tmp.firstChild)f.insertBefore(tmp.firstChild,mark);_shLibN=to;
+    try{manIconizeInline(f)}catch(e){}
+    if(to>=ids.length){if(_shlAllIO)_shlAllIO.disconnect();_shlAllIO=null;if(mark)mark.remove()}};
+  if(!("IntersectionObserver" in window)){while(document.getElementById("shlAllMore"))more();return}
+  _shlAllIO=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))more()},{rootMargin:"900px 0px"});
+  _shlAllIO.observe(s);
+}
 function shLibDur(sec){sec=Math.round(sec||0);const m=Math.floor(sec/60),ss=String(sec%60).padStart(2,"0");return m>=60?`${Math.floor(m/60)}:${String(m%60).padStart(2,"0")}:${ss}`:`${m}:${ss}`}
 function shLibCatLabel(c){const k="sh.cat_"+c.id;return I18N_EN[k]?t(k):c.label}
 /* The week's picks — six slides, and they change with the days (owner, 27 Sep
@@ -14340,12 +14362,21 @@ function shlHeroSwipe(el){
    does not promise more than that. A library video without a transcript is
    never listed (owner, 28 Sep 2026); the learner's own links are theirs and stay. */
 function shLibHasTx(vid){const x=_shCat&&_shCat.videos[vid];return !!(x&&x.cap&&x.cap!=="player")}
+function shLibAll(){
+  const c=_shCat;if(!c)return [];
+  const ids=[],seen=new Set(),add=v=>{if(!seen.has(v)&&c.videos[v]&&shLibHasTx(v)){seen.add(v);ids.push(v)}};
+  for(const cat of shLibCatsOrdered(c))for(const v of cat.vids||[])add(v);
+  Object.keys(c.videos).forEach(add);   /* a video outside every category is still a video */
+  return ids;
+}
 function shLibList(){
   const c=_shCat;if(!c)return [];
   const q=_shLibQ.trim().toLowerCase();
   let ids;
   if(q){
     ids=Object.keys(c.videos).filter(v=>{const x=c.videos[v];return (x.title+" "+x.ch).toLowerCase().includes(q)});
+  }else if(_shLibCat==="all"&&!_shLibCh){
+    return shLibAll();
   }else if(_shLibCat==="mine"&&!_shLibCh){
     return shOwn().map(o=>o&&o.vid).filter(Boolean);
   }else if(_shLibCh){
@@ -14393,6 +14424,10 @@ function shLibFeedHTML(){
   if(!ids.length)return _shLibCat==="mine"&&!_shLibQ.trim()
     ? `<p class="shl-empty">${esc(t("sh.own_empty",{max:shOwnCap("yt")}))}</p><button class="btn-primary shl-more" onclick="shLinkSheet()">${tIc("sh.lib_add_t","link")}</button>`
     : `<p class="shl-empty">${t(_shLibQ.trim()?"sh.lib_none":"sh.lib_empty_cat")}</p>`;
+  if(_shLibCat==="all"&&!_shLibCh&&!_shLibQ.trim()){
+    _shLibN=Math.min(ids.length,SHL_ALL_STEP);
+    return scnFeedRowsHTML()+ids.slice(0,_shLibN).map(shLibRow).join("")+(_shLibN<ids.length?`<div class="shl-all-more" id="shlAllMore" aria-hidden="true"></div>`:"");
+  }
   const show=_shLibMore||_shLibQ.trim()?ids:ids.slice(0,SHL_FEED_N);
   return scnFeedRowsHTML()+show.map(shLibRow).join("")+(show.length<ids.length?`<button class="btn btn-g btn-sm shl-more" onclick="shLibMoreToggle()">${t("sh.lib_more",{n:ids.length-show.length})}</button>`:"");
 }
@@ -14405,13 +14440,13 @@ function shLibHTML(){
      icon and colour (owner, 27 Sep 2026); the rest keep the catalogue's order */
   const FUN={tv:"tv",movies:"film",songs:"music"};
   const cats=c?shLibCatsOrdered(c).filter(x=>FUN[x.id]).concat(shLibCatsOrdered(c).filter(x=>!FUN[x.id])):[];
-  const chips=[{id:"foryou",label:t("sh.lib_foryou")},
+  const chips=[{id:"all",label:t("sh.lib_all"),all:true,n:c?shLibAll().length:0},{id:"foryou",label:t("sh.lib_foryou")},
     {id:"mine",label:t("sh.own_row_t"),mine:true,n:shOwn().length}]
     .concat(cats.filter(x=>(x.vids||[]).some(shLibHasTx)).map(x=>({id:x.id,label:shLibCatLabel(x),fun:FUN[x.id]||""})));
   const initials=n=>String(n||"?").split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
   return `<div class="shl-stick">
   <label class="shl-search ${_shLibQ.trim()?"has":""}">${ic("search")}<input id="shLibIn" type="search" autocomplete="off" placeholder="${esc(t("sh.lib_search_ph"))}" value="${esc(_shLibQ)}" oninput="shLibQ(this.value)" aria-label="${esc(t("sh.lib_search_ph"))}"><button type="button" class="shl-x" onclick="shLibClear()" aria-label="${esc(t("sh.clear_inputs"))}">${ic("close")}</button></label>
-  <div class="shl-chips" role="tablist">${chips.map(x=>`<button class="shl-chip ${x.mine?"mine ":""}${x.fun?"fun g-"+x.id+" ":""}${x.id===_shLibCat&&!_shLibCh?"on":""}" data-cat="${x.id}" role="tab" aria-selected="${x.id===_shLibCat&&!_shLibCh}" onclick="shLibCat('${x.id}')">${x.mine?ic("user"):x.fun?ic(x.fun):""}${esc(x.label)}${x.mine?`<em class="shl-own-n">${x.n}</em>`:""}</button>`).join("")}</div>
+  <div class="shl-chips" role="tablist">${chips.map(x=>`<button class="shl-chip ${x.mine?"mine ":""}${x.fun?"fun g-"+x.id+" ":""}${x.id===_shLibCat&&!_shLibCh?"on":""}" data-cat="${x.id}" role="tab" aria-selected="${x.id===_shLibCat&&!_shLibCh}" onclick="shLibCat('${x.id}')">${x.mine?ic("user"):x.fun?ic(x.fun):""}${esc(x.label)}${x.mine?`<em class="shl-own-n">${x.n}</em>`:x.all?`<em class="shl-all-n">${x.n}</em>`:""}</button>`).join("")}</div>
   </div>
   <div id="shLibStatic" ${_shLibQ.trim()?'style="display:none"':""}>
   ${c&&c.channels&&c.channels.length?`<div class="shl-sec"><div class="shl-lbl">${t("sh.lib_channels")}</div>
@@ -23599,7 +23634,7 @@ function scnProgress(vid){
    a search that finds it; not "Your videos" or one channel's list. */
 function scnFeedRowsHTML(){
   if(!scnOn()||_shLibCat==="mine"||_shLibCh)return "";
-  if(!_scnList){scnListLoad().then(()=>{const f=document.getElementById("shLibFeed");if(f&&_scnList&&_scnList.length){f.innerHTML=shLibFeedHTML();manIconizeInline(f)}});return ""}
+  if(!_scnList){scnListLoad().then(()=>{const f=document.getElementById("shLibFeed");if(f&&_scnList&&_scnList.length){f.innerHTML=shLibFeedHTML();manIconizeInline(f);shLibAllWatch()}});return ""}
   const q=_shLibQ.trim().toLowerCase(),c=_scnCast||{};
   return _scnList.filter(sc=>!q||(sc.title+" "+(sc.topic||"")).toLowerCase().includes(q)).map(sc=>{
     const who=(sc.cast||[]).map(id=>c[id]&&c[id].name).filter(Boolean).join(" & ");
