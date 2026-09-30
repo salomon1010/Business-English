@@ -26,7 +26,9 @@ async function open(state, { w = 390, h = 844, lang = "en", flags = { home_v2_en
 }
 const view = async (p, v, a1, a2) => { await p.evaluate(([v, a1, a2]) => { document.querySelectorAll("#wcOv,.cf-ov,.wc-ov,#rmCel,#fndCheckOv,.sync-nudge").forEach(e => e.remove()); go(v, a1, a2); scrollTo(0, 0) }, [v, a1, a2]); await sleep(1000); };
 const jsErr = errs => errs.filter(e => !/MIME type/.test(e));
-const brand = p => p.evaluate(() => { const b = document.querySelector(".brand"); return { on: b.classList.contains("on"), cur: b.getAttribute("aria-current"), name: b.getAttribute("aria-label"), label: b.querySelector(".brand-home").innerText.trim(), icon: !!b.querySelector(".brand-home-ic svg") } });
+const brand = p => p.evaluate(() => { const b = document.querySelector(".brand"); return { on: b.classList.contains("on"), cur: b.getAttribute("aria-current"), name: b.getAttribute("aria-label"), chip: !!b.querySelector(".brand-home"), track: (b.querySelector("#brandTrack") || {}).textContent } });
+/* the header avatar that replaced the Home chip (owner, 30 Sep 2026) */
+const hdrAva = p => p.evaluate(() => { const a = document.getElementById("hdrAva"); if (!a) return null; const q = a.getBoundingClientRect(); return { initial: a.querySelector("#hdrAvaIn").textContent.trim(), name: a.getAttribute("aria-label"), on: a.classList.contains("on"), cur: a.getAttribute("aria-current"), round: getComputedStyle(a).borderRadius, right: Math.round(innerWidth - q.right), w: Math.round(q.width) } });
 
 console.log("\n# the six tabs stay; Home is not a seventh");
 { const { ctx, p, errs } = await open(seed("general-english", ge3), { w: 375 });
@@ -45,16 +47,29 @@ for (const [w, lang] of [[821, "ru"], [834, "fr"], [834, "ja"], [900, "fr"]]) {
   const r = await p.evaluate(() => { const n = document.querySelector(".nav-in"), t = [...n.querySelectorAll(".tab")].filter(x => x.offsetParent); return { over: n.scrollWidth - n.clientWidth, n: t.length, off: t.filter(x => { const q = x.getBoundingClientRect(); return q.right > innerWidth + .5 || q.left < -.5 }).map(x => x.dataset.v), h: Math.min(...t.map(x => Math.round(x.getBoundingClientRect().height))), lbl: t.every(x => x.innerText.trim().length > 1) } });
   ok(`3b · ${w}px ${lang}: all six header tabs fit on screen with their labels (no sideways scroll), targets ≥24px`, r.n === 6 && r.over <= 0 && !r.off.length && r.h >= 24 && r.lbl, JSON.stringify(r)); await ctx.close(); }
 
-console.log("\n# Home's one permanent control reads as Home, and says when you are there");
+console.log("\n# the lockup is still the way Home, without a Home chip of its own (owner, 30 Sep 2026)");
 for (const [lang, word] of [["en", "Home"], ["fr", "Accueil"], ["ar", "الرئيسية"]]) {
   const { ctx, p } = await open(seed("general-english", ge3), { lang }); await view(p, "journey");
   const off = await brand(p); await view(p, "home"); const on = await brand(p);
-  ok(`4 · ${lang}: a house icon and '${word}'; the accessible name contains the visible word; 'current page' only on Home`, off.icon && off.label === word && off.name.includes(word) && !off.on && off.cur === null && on.on && on.cur === "page", JSON.stringify({ off, on }));
+  ok(`4 · ${lang}: no 'Home' chip in the header; the lockup's accessible name is still '${word}'; 'current page' only on Home`, !off.chip && !on.chip && off.name.includes(word) && !off.on && off.cur === null && on.on && on.cur === "page", JSON.stringify({ off, on }));
+  await ctx.close();
+}
+console.log("\n# the learner's avatar, top right (owner, 30 Sep 2026)");
+for (const area of ["general-english", "welding"]) {
+  const { ctx, p, errs } = await open(seed(area, ge3), { w: 375 }); await view(p, "journey");
+  await p.evaluate(() => { S.profile.name = "Alex"; save(); go("journey") }); await sleep(400);
+  const off = await hdrAva(p); await view(p, "profile"); const on = await hdrAva(p);
+  ok(`4b · ${area}: a round avatar carrying the learner's initial, flush to the right edge, named Profile`, off && off.initial === "A" && off.round === "50%" && off.name.length > 1 && off.right <= 16 && off.w >= 24, JSON.stringify(off));
+  ok(`4c · ${area}: it marks 'current page' on Profile only`, !off.on && off.cur === null && on.on && on.cur === "page", JSON.stringify({ off, on }));
+  await p.evaluate(() => go("journey")); await sleep(400);
+  await p.click("#hdrAva"); await sleep(900);
+  ok(`4d · ${area}: tapping it opens Profile`, await p.evaluate(() => cur.v === "profile"));
+  ok(`4e · ${area}: no JavaScript errors`, !jsErr(errs).length, errs.join(" | "));
   await ctx.close();
 }
 { const { ctx, p } = await open(seed("general-english", { fnd: { "general-english": F({ placed: "foundations", finished: false, day: 2, done: { d1: true } }) } }));
   await view(p, "foundations"); const f = await brand(p);
-  ok("5 · Foundations (a Home page with no tab): the logo shows 'you are here'; no tab lit", f.on && f.cur === "page" && !(await p.evaluate(() => !!document.querySelector(".bnav-item.on"))), JSON.stringify(f));
+  ok("5 · Foundations (a Home page with no tab): the logo shows 'you are here'; no tab lit", f.on && f.cur === "page" && !f.chip && !(await p.evaluate(() => !!document.querySelector(".bnav-item.on"))), JSON.stringify(f));
   await ctx.close(); }
 /* a session is drawn by its own go() wrapper, which never reaches the base router (found on the iPhone, 29 Sep 2026) */
 for (const area of ["general-english", "welding"]) {

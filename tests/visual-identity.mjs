@@ -35,9 +35,9 @@ console.log("\n# brand and Premium assets");
   console.log("\n# header lockup");
   await view(p, "home");
   const h = await p.evaluate(() => { const n = document.querySelector(".nav-in"), l = document.querySelector(".brand .logo"), nm = document.querySelector(".brand-name"), g = document.querySelector(".brand .g"), br = document.querySelector(".brand");
-    return { navH: Math.round(n.getBoundingClientRect().height), logo: Math.round(l.getBoundingClientRect().width), ring: getComputedStyle(l).boxShadow, clip2: getComputedStyle(l).clipPath, fs: getComputedStyle(nm).fontSize, fw: getComputedStyle(nm).fontWeight, clip: getComputedStyle(g).backgroundImage, on: br.classList.contains("on"), cur: br.getAttribute("aria-current"), home: getComputedStyle(document.querySelector(".brand-home")).backgroundColor } });
+    return { navH: Math.round(n.getBoundingClientRect().height), logo: Math.round(l.getBoundingClientRect().width), ring: getComputedStyle(l).boxShadow, clip2: getComputedStyle(l).clipPath, fs: getComputedStyle(nm).fontSize, fw: getComputedStyle(nm).fontWeight, clip: getComputedStyle(g).backgroundImage, on: br.classList.contains("on"), cur: br.getAttribute("aria-current"), chip: !!document.querySelector(".brand-home"), ava: !!document.getElementById("hdrAva") } });
   ok("6 · header 56px, the logo's tile 34px (navy square trimmed) with no glow ring, wordmark 17px/700", h.navH === 56 && h.logo === 41 && /inset\(9%/.test(h.clip2) && h.ring === "none" && h.fs === "17px" && h.fw === "700", JSON.stringify(h));
-  ok("7 · 'Mastery' is set in the lighter --grad-text; the lockup is still the lit Home control", /gradient/.test(h.clip) && /165, 180, 252|a5b4fc/i.test(h.clip) && h.on && h.cur === "page" && h.home !== "rgba(0, 0, 0, 0)", JSON.stringify(h));
+  ok("7 · 'Mastery' is set in the lighter --grad-text; the lockup is still the lit Home control, and the Home chip has gone (owner, 30 Sep 2026)", /gradient/.test(h.clip) && /165, 180, 252|a5b4fc/i.test(h.clip) && h.on && h.cur === "page" && !h.chip && h.ava, JSON.stringify(h));
 
   console.log("\n# Premium mark in the app");
   const pm = await p.evaluate(async () => { const hb = document.getElementById("hdrPrem"); hb.hidden = false; await new Promise(r => setTimeout(r, 200)); const i = hb.querySelector("img");
