@@ -23437,9 +23437,11 @@ window.premiumOpen=(from)=>{
   setTimeout(()=>{const d=ov.querySelector(".prem-sheet");if(d){d.setAttribute("tabindex","-1");d.focus({preventScroll:true})}},60);
 };
 /* the header Premium badge (owner, 28 Sep 2026): shown where Premium is offered (premOffered), and
-   on the staging host so the owner can review it before billing is switched on */
+   on the staging host so the owner can review it before billing is switched on — in both areas
+   since 30 Sep 2026 (owner: "add the premium logo on the Welding side"). premOffered itself is
+   still General English only: selling Premium on Welding is a separate decision. */
 function hdrPremSync(){const b=document.getElementById("hdrPrem");if(!b)return;let on=false;
-  try{on=premOffered()||(!!beEnv()&&isGeneralEnglish())}catch(e){}
+  try{on=premOffered()||!!beEnv()}catch(e){}
   b.hidden=!on;const l=t("prem.cmp_prem");b.setAttribute("aria-label",l);b.title=l}
 setTimeout(()=>{try{hdrPremSync()}catch(e){}},0);
 /* ---- the launch offer (owner, 25 Sep 2026) ----
