@@ -37,6 +37,11 @@ ok("1b · no Welding video is a General English video", [...WV].every(v => !GV.h
 ok("1c · every Welding video names its profession and topic, and ships a caption file", Object.entries(WELD.videos).every(([v, x]) => (x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json")), Object.entries(WELD.videos).filter(([v, x]) => !((x.prof || x.chan) && x.topic && x.cap && fs.existsSync(root + "captions/" + v + ".json"))).map(([v]) => v));
 { const pc = WELD.channels.find(c => /petrocertif/i.test(c.handle || c.name)), pv = Object.values(WELD.videos).filter(v => pc && v.chId === pc.id);
   ok("1e · PetroCertif (owner, 30 Sep 2026): the channel carries all ten of its English-spoken videos", pc && pv.length === 10, pv.length); }
+{ const tw = WELD.channels.find(c => /timwelds/i.test(c.handle || c.name)), tv = Object.values(WELD.videos).filter(v => tw && v.chId === tw.id);
+  /* the owner asked for TimWelds in full (30 Sep 2026): the profession chip takes the welding lessons,
+     the rest — tool and machine reviews, shop builds — are channel-only, shorts included */
+  ok("1f · TimWelds (owner, 30 Sep 2026): the channel carries its English-spoken videos, in the Welder chip and channel-only", tw && tv.length > 150 && tv.some(v => v.prof === "welder") && tv.some(v => v.chan) && tv.some(v => v.dur < 60), tv.length);
+  ok("1g · a short clip can be in the library: the channel-only floor is 20 s, not the professions’ 60 s", tv.some(v => v.chan && v.dur >= 20 && v.dur < 60), tv.filter(v => v.dur < 60).map(v => v.dur)); }
 ok("1d · every channel in the row has at least one video", WELD.channels.every(c => Object.values(WELD.videos).some(v => v.chId === c.id)), WELD.channels.map(c => c.name));
 
 console.log("\n# Welding · Shadow = the video Shadow Studio");

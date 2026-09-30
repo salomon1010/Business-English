@@ -162,6 +162,886 @@
    "skip": null
   },
   {
+   "vid": "N4Vn1QbS1Nk",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding 101: Running 7018 Electrodes",
+   "ch": "TimWelds",
+   "dur": 924,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "AoQpIz_gDEo",
+   "cat": "welder",
+   "topic": "safety",
+   "title": "Watch This Before Using a Laser Welder - Handheld Laser Welding Safety",
+   "ch": "TimWelds",
+   "dur": 777,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "6a2RnFYUC8s",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "How Pulsed MIG Welding Actually Works",
+   "ch": "TimWelds",
+   "dur": 620,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ayAOpko1dtA",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "MIG Weld Settings: Hot & Fast vs Low & Slow",
+   "ch": "TimWelds",
+   "dur": 409,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "iMzKAGj6GtA",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "This Doesn't Have to Be So Hard: TIG Welding Aluminum Fillets",
+   "ch": "TimWelds",
+   "dur": 422,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "OmpGvQz7zMU",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "STOP Guessing Your MIG Welding Settings...Do This Instead",
+   "ch": "TimWelds",
+   "dur": 700,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "5d3pJeJJ2ik",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Stuck in a TIG Welding Rut? These 3 Fundamentals Change Everything",
+   "ch": "TimWelds",
+   "dur": 750,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "wTNmhB5oYTU",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum MIG Welding: 8 Things You Need to Know",
+   "ch": "TimWelds",
+   "dur": 619,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "UaMb0BkDxCo",
+   "cat": "welder",
+   "topic": "brazing",
+   "title": "TIG Brazing w/ Silicon Bronze vs TIG Welding",
+   "ch": "TimWelds",
+   "dur": 345,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "FMAkt7urxXY",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum TIG Welding Basics: Full Tutorial",
+   "ch": "TimWelds",
+   "dur": 887,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "djZpQCzvTyI",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Vertical MIG Welding in 5 Minutes: Uphill & Downhill",
+   "ch": "TimWelds",
+   "dur": 336,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "c060vToCC9M",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding 101: 5 Steps to a Great Bead",
+   "ch": "TimWelds",
+   "dur": 433,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "nhItARQ_d-8",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "2 MIG Welding Drills to Level Up Today",
+   "ch": "TimWelds",
+   "dur": 604,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "1Mwi4mugSyE",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "6 Most Common Flux Core Welding Mistakes & How to Fix Them",
+   "ch": "TimWelds",
+   "dur": 685,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "by8yZ4TxZBE",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "Does Smaller MIG Wire Weld Faster? Testing Advice from the Comments Section",
+   "ch": "TimWelds",
+   "dur": 546,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "xLdPcwBr2iI",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Which Size MIG Welding Wire is Best?",
+   "ch": "TimWelds",
+   "dur": 608,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "x4bah8Q7kC4",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "7024 Single Pass vs 7018 Triple Pass - Stick Welding Thick Steel",
+   "ch": "TimWelds",
+   "dur": 789,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "RrTzDhcm2cQ",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding: How to Make a Consistent Weld Bead",
+   "ch": "TimWelds",
+   "dur": 606,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "p03vm7OAxLk",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Flux Core Welding w/ Gas? Dual Shield FCAW Basics",
+   "ch": "TimWelds",
+   "dur": 535,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "sIgchLDoz9A",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding Thick Steel - Short Circuit vs Spray Transfer",
+   "ch": "TimWelds",
+   "dur": 525,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ZrQ8smzq5-Q",
+   "cat": "welder",
+   "topic": "weld prep",
+   "title": "Does Weld Prep Really Matter? MIG Welding Over Mill Scale Tested",
+   "ch": "TimWelds",
+   "dur": 745,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "FTblBCmfkbw",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "TIG Torch Setup - TIG Welding Basics",
+   "ch": "TimWelds",
+   "dur": 874,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "-HyIrGwB6SY",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "How to Strike An Arc: Stick Welding Basics",
+   "ch": "TimWelds",
+   "dur": 636,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "OK-QL5gY6FY",
+   "cat": "welder",
+   "topic": "weld prep",
+   "title": "Has Harbor Freight Outdone My Favorite Weld Prep Tool? Hercules Right Angle Die Grinder",
+   "ch": "TimWelds",
+   "dur": 539,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "dpQ22DdN11E",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "Pulsed TIG Welding Settings Made Easy",
+   "ch": "TimWelds",
+   "dur": 391,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "H2dvvTrH4mI",
+   "cat": "welder",
+   "topic": "shielding gas",
+   "title": "Welding Gas Explained: How to buy gas cylinders for MIG & TIG Welding",
+   "ch": "TimWelds",
+   "dur": 890,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "mwxue0CaMO4",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum MIG Welding Made Easy(-ish): Spool Gun Welding Tips",
+   "ch": "TimWelds",
+   "dur": 395,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "hnkmEdlwAwg",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Is Shielding Gas a Waste of $$$: MIG vs Flux Core Welding",
+   "ch": "TimWelds",
+   "dur": 594,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "fQEuFgahE6g",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Fitting and TIG Welding Thin Aluminum Coped Tubing: Subscriber Request",
+   "ch": "TimWelds",
+   "dur": 325,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "dvToMbHruWQ",
+   "cat": "welder",
+   "topic": "weld prep",
+   "title": "Welding Heat Input Caught On Tape: Testing Settings and Technique",
+   "ch": "TimWelds",
+   "dur": 421,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "cvME6dJIXN4",
+   "cat": "welder",
+   "topic": "fit-up",
+   "title": "MIG Welding: The 4 Joints That Make Up Every Project",
+   "ch": "TimWelds",
+   "dur": 554,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "rD5JAY7_uj8",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Restart 7018 Electrodes the Easy Way - Stick Welding Techniques",
+   "ch": "TimWelds",
+   "dur": 306,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "V7O5H--VlOg",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding: The 3 Keys to a Great Bead",
+   "ch": "TimWelds",
+   "dur": 460,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "wQ-ePKKjFWA",
+   "cat": "welder",
+   "topic": "tungsten",
+   "title": "5 Types of TIG Welding Tungsten Compared",
+   "ch": "TimWelds",
+   "dur": 763,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "UmTxQpk__hQ",
+   "cat": "welder",
+   "topic": "filler metal",
+   "title": "Tack Welding Aluminum without Filler: TIG Welding and Fabrication",
+   "ch": "TimWelds",
+   "dur": 340,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "-GGHvnc545s",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum MIG Welding - Practical Tips for a Frustrated Viewer",
+   "ch": "TimWelds",
+   "dur": 608,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "4Vj7vx471cw",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "How to Stack Dimes MIG Welding...And When You Shouldn't",
+   "ch": "TimWelds",
+   "dur": 605,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "XF4JCSldaM8",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "MIG Welding Settings Made EASY",
+   "ch": "TimWelds",
+   "dur": 508,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "6Rb6KclG4rQ",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Flux Core Welding: #1 Beginner Mistake and How to Fix It",
+   "ch": "TimWelds",
+   "dur": 427,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "NseAURr_FDQ",
+   "cat": "welder",
+   "topic": "electrodes",
+   "title": "Welding Project: Hot Rod Wagon",
+   "ch": "TimWelds",
+   "dur": 864,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "fo69_knE3c0",
+   "cat": "welder",
+   "topic": "processes",
+   "title": "Can I Out-Weld a $100,000 Robot?",
+   "ch": "TimWelds",
+   "dur": 526,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "-oJ3BGIrGHQ",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum MIG vs TIG Welding",
+   "ch": "TimWelds",
+   "dur": 669,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "LWuWkfZD1yE",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding Basics: Practice Drills",
+   "ch": "TimWelds",
+   "dur": 813,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "kUDrP2_JJ68",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding: How to Make Better Welds",
+   "ch": "TimWelds",
+   "dur": 617,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "koF7LlfocvQ",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "My Simple TIG Torch Setup for Any Job",
+   "ch": "TimWelds",
+   "dur": 715,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ygLbldJF_dc",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Mind Blowing Welding in Super Slow Motion",
+   "ch": "TimWelds",
+   "dur": 542,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "kqkdx2EDG6E",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "#1 Way to Get Better Flux Core Welds",
+   "ch": "TimWelds",
+   "dur": 303,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "TiZTVgW9_0E",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Fix Your Flux Core Setup: The Complete Guide to Setting Up a MIG Welder for Gasless Flux Core",
+   "ch": "TimWelds",
+   "dur": 729,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "yrenkNri7Vc",
+   "cat": "welder",
+   "topic": "filler metal",
+   "title": "Aluminum TIG Welding: How To Add Filler Metal",
+   "ch": "TimWelds",
+   "dur": 471,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "hQiZ5c1SJe8",
+   "cat": "welder",
+   "topic": "processes",
+   "title": "5 Types of MIG Welding Explained",
+   "ch": "TimWelds",
+   "dur": 642,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "p-pZbmAZtxQ",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "3 Stick Welding Electrodes Compared: 6013 vs 7018 vs 6010",
+   "ch": "TimWelds",
+   "dur": 580,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "XXFXDWhIiwg",
+   "cat": "welder",
+   "topic": "shielding gas",
+   "title": "I Invented This for Safety | Gas Cylinder Rack Build",
+   "ch": "TimWelds",
+   "dur": 321,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "mHDAmXCG6Io",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Simple 3 Part TIG WELDING Routine Changes Everything",
+   "ch": "TimWelds",
+   "dur": 323,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Dybrlx-BTXk",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding Basics: Full Tutorial",
+   "ch": "TimWelds",
+   "dur": 877,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "tpIQkMy3o6I",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "How to Make Consistent MIG Welds",
+   "ch": "TimWelds",
+   "dur": 292,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "mIoJxDnq-NQ",
+   "cat": "welder",
+   "topic": "oxy acetylene",
+   "title": "Oxy Acetylene Basics: Cutting, Welding & Heating with a Torch",
+   "ch": "TimWelds",
+   "dur": 666,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Q1FrCgH9PRs",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding Basics: 6013 Rods on AC",
+   "ch": "TimWelds",
+   "dur": 268,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "WyXtecucpBI",
+   "cat": "welder",
+   "topic": "safety",
+   "title": "Fume Dog Welding Fume Extractor",
+   "ch": "TimWelds",
+   "dur": 451,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "EOeL7XC-eZg",
+   "cat": "welder",
+   "topic": "brazing",
+   "title": "Copper Frame Repair: TIG brazing for the win!",
+   "ch": "TimWelds",
+   "dur": 269,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "tH4Chdxtsps",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "How Pulsed MIG Welding Works...And do you need it?",
+   "ch": "TimWelds",
+   "dur": 312,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "7JgHzU66364",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding Basics: How to Have Great Technique",
+   "ch": "TimWelds",
+   "dur": 510,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "PvK8jVbtz44",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "How to Weld Different Metals: MIG vs TIG vs Stick vs Flux Core",
+   "ch": "TimWelds",
+   "dur": 522,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "2jZz9y5KCHI",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Stack Dimes on Day 1: Aluminum TIG Welding for Beginners",
+   "ch": "TimWelds",
+   "dur": 366,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "kOBotY267Mc",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Stick vs Flux Cored Welding for Hobbyists: Which type of welding is better for you?",
+   "ch": "TimWelds",
+   "dur": 526,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "-Qn0wy8Owkg",
+   "cat": "welder",
+   "topic": "processes",
+   "title": "TIG vs MIG Welding for Hobbyists: Which Type of Welding is Best?",
+   "ch": "TimWelds",
+   "dur": 389,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "KOonYPxDZ9I",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "The Stick Welding Recipe",
+   "ch": "TimWelds",
+   "dur": 621,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "86SFehuBlBI",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Why is this TIG weld SO bad? It's not what you think...",
+   "ch": "TimWelds",
+   "dur": 222,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "SriCUkwofWA",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Weld Thin Square Tubing: 5 Tips to Crush It!",
+   "ch": "TimWelds",
+   "dur": 390,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "iS5GmXj2rpw",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding Thin Metal to Thick Metal: Here's How",
+   "ch": "TimWelds",
+   "dur": 318,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "zZDDIpnbm1s",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding with 7014 Electrodes",
+   "ch": "TimWelds",
+   "dur": 305,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "CPvwecz1dAk",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Fix This MIG Welding Problem",
+   "ch": "TimWelds",
+   "dur": 281,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "GOQimZeK-tk",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "6013 Stick Welding Problem Fixed",
+   "ch": "TimWelds",
+   "dur": 334,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "nsdSX2OinVQ",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Clean Aluminum TIG Welds With 2 Settings",
+   "ch": "TimWelds",
+   "dur": 614,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "V9HhSaAHTSs",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Which Size Stick Welding Electrode Is Best?",
+   "ch": "TimWelds",
+   "dur": 406,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "gc9fBVq9NlE",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "MIG Welding Basics For Beginners",
+   "ch": "TimWelds",
+   "dur": 880,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "huBxd4Nrox8",
+   "cat": "welder",
+   "topic": "flux core",
+   "title": "Better Flux Core Welds: Gasless MIG",
+   "ch": "TimWelds",
+   "dur": 184,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "kQehUQJ-lMg",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Another Use for Any MIG Welder...",
+   "ch": "TimWelds",
+   "dur": 298,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "zmO0rcQvdaY",
+   "cat": "welder",
+   "topic": "skills",
+   "title": "Practice Welding with Less Material",
+   "ch": "TimWelds",
+   "dur": 394,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "lPTimv8EpN8",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "This Stick Welding Rod Makes Tacking Easy",
+   "ch": "TimWelds",
+   "dur": 251,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "awRU0IFPotQ",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "How to TIG Weld an Aluminum Cube",
+   "ch": "TimWelds",
+   "dur": 315,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "l4SKUEoF2AA",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding Amperage",
+   "ch": "TimWelds",
+   "dur": 381,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "vbXPcaEQTvg",
+   "cat": "welder",
+   "topic": "filler metal",
+   "title": "TIG Welding: What filler metal should I keep on hand?",
+   "ch": "TimWelds",
+   "dur": 481,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Y5vLiBz7oeQ",
+   "cat": "welder",
+   "topic": "settings",
+   "title": "MIG Welding: What's Happening at the Arc?",
+   "ch": "TimWelds",
+   "dur": 422,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "QsayQd32i2E",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Stick Welding: #1 Beginner Mistake and How to Fix It",
+   "ch": "TimWelds",
+   "dur": 366,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "6dWNrhysOLk",
+   "cat": "welder",
+   "topic": "oxy acetylene",
+   "title": "I Tried the Weirdest Antique Welding Torch from Sears",
+   "ch": "TimWelds",
+   "dur": 252,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "k2i5V1DiYOU",
+   "cat": "welder",
+   "topic": "aluminium",
+   "title": "Aluminum TIG Welding Basics for Beginners | How to TIG Weld Aluminum",
+   "ch": "TimWelds",
+   "dur": 1444,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "H0EXxtVKyD8",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "How to Set Amperage for Stick Welding",
+   "ch": "TimWelds",
+   "dur": 638,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "oTr_uvM7D2M",
+   "cat": "welder",
+   "topic": "stick welding",
+   "title": "Lincoln AC-225 Stick Welder Review",
+   "ch": "TimWelds",
+   "dur": 243,
+   "cap": "auto",
+   "skip": null
+  },
+  {
    "vid": "bX_0Kievvsg",
    "cat": "pipefitter",
    "topic": "career",
@@ -775,7 +1655,7 @@
    "cat": "operator",
    "topic": "control board",
    "skip": [
-    "unavailable: ERROR: [youtube] agjyapCBfCI: This video is available to this channel's members on level: W Club Member (or any higher level). Join this channel to get access t"
+    "unavailable: ERROR: [youtube] agjyapCBfCI: This video is available to this channel's members on level: W Club Member (or any higher level). Join this YouTube channel from yo"
    ]
   },
   {
@@ -783,7 +1663,7 @@
    "cat": "operator",
    "topic": "interview",
    "skip": [
-    "unavailable: ERROR: [youtube] 3MV8F9IWqkY: This video is available to this channel's members on level: W Club Member (or any higher level). Join this channel to get access t"
+    "unavailable: ERROR: [youtube] 3MV8F9IWqkY: This video is available to this channel's members on level: W Club Member (or any higher level). Join this YouTube channel from yo"
    ]
   },
   {
@@ -1691,6 +2571,1028 @@
    "dur": 76,
    "cap": "auto",
    "skip": null
+  },
+  {
+   "vid": "AAeyl9IeRXg",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Can I Make A Steel Hinge Without Moving Parts?",
+   "ch": "TimWelds",
+   "dur": 472,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "H62EaljqEb0",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "Best 3D Scanner I've Ever Used? | EinScan Rigil Lite",
+   "ch": "TimWelds",
+   "dur": 1135,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "f-zgDBAektk",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Abrasives You Probably Haven't Seen...I Hadn't",
+   "ch": "TimWelds",
+   "dur": 1214,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "T-TBmZxwYvM",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "I Put Evolution’s NEW Cordless Metal Tools to the Test",
+   "ch": "TimWelds",
+   "dur": 823,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "XrxTtFppUFs",
+   "cat": "",
+   "topic": "plasma cutting",
+   "title": "I Pushed This Budget Plasma Cutter to its Limit | BestArc BTC500DP Pro Review",
+   "ch": "TimWelds",
+   "dur": 780,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "61qLgHoASyA",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Overkill Home Garage Metal Shop - Over 20 years in the making",
+   "ch": "TimWelds",
+   "dur": 543,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "7xa1etm6X6c",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "I Finally Built What My Shop Was Missing",
+   "ch": "TimWelds",
+   "dur": 247,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "PAey0UwWn7A",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "Testing the Revopoint MetroY Ultra 3D Scanner (with Revo Measure)",
+   "ch": "TimWelds",
+   "dur": 984,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "HTP6A_QipcQ",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "2 Lasers for the Price of 1? WeCreat Lumos Flex Fiber and Diode Laser Engraver",
+   "ch": "TimWelds",
+   "dur": 652,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "dbiLJdkN7ks",
+   "cat": "",
+   "topic": "machines",
+   "title": "Testing Harbor Freight's $120 Multiprocess Welder - Berger 135 MP Review",
+   "ch": "TimWelds",
+   "dur": 576,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "6_aSumAkR2s",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "The Reality of Laser Welders for Fabrication - xTool MetalFab 800 Watt",
+   "ch": "TimWelds",
+   "dur": 699,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Bzy0h4_GzH0",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Why didn't I build this tool sooner?",
+   "ch": "TimWelds",
+   "dur": 544,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "nmraas1yOG0",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Is this the most versatile laser engraver yet? WeCreat Lumos Ultra MOPA Fiber and UV Laser Combo",
+   "ch": "TimWelds",
+   "dur": 747,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "O2laAmmXTOw",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "Is 800W Enough? xTool MetalFab Laser Welder Limit Test",
+   "ch": "TimWelds",
+   "dur": 735,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "caI42aoCbrs",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Angle Grinder Basics - How to Use an Angle Grinder",
+   "ch": "TimWelds",
+   "dur": 621,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "wa-8FrRfwSQ",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "This 800W Laser Welder Might Change Small-Shop Fabrication - xTool MetalFab",
+   "ch": "TimWelds",
+   "dur": 1487,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "8N0S-e0fS0c",
+   "cat": "",
+   "topic": "machines",
+   "title": "HTP Independence 210 AC/DC TIG Welder Review",
+   "ch": "TimWelds",
+   "dur": 759,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "YPaUH0w93T0",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "Is Dual Wire Feed Worth It? Xlaserlab X1 Pro Laser Welder Dual Wire Feed",
+   "ch": "TimWelds",
+   "dur": 1170,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "a0UaJ-PPdU4",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "I Turned an Ammo Box Into a Rocket Stove | Fabricator Gift Exchange",
+   "ch": "TimWelds",
+   "dur": 583,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "i-MYY7kpQY0",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "Fast, Accurate, and Portable? Revopoint MetroY Pro Laser 3D Scanner Test",
+   "ch": "TimWelds",
+   "dur": 747,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ykWWceZ9Eio",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "My Favorite 3D Printed Fabrication Tools",
+   "ch": "TimWelds",
+   "dur": 602,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "a-SRWh0ib_0",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Building a Better Utility Trailer - Don't buy junk, build your own",
+   "ch": "TimWelds",
+   "dur": 1295,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "TLnjih4_4G4",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "xTool MetalFab Q&A: 30 Things You Need to Know",
+   "ch": "TimWelds",
+   "dur": 1612,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "sfZqH3L2vFU",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "xTool MetalFab in ACTION - Comparison with Plasma Cut & TIG Weld",
+   "ch": "TimWelds",
+   "dur": 1045,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "meZqRwbxijI",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "The REALITY of Fabrication with Laser Welders - Xlaserlab X1 Pro",
+   "ch": "TimWelds",
+   "dur": 905,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "1CFviADjmEs",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "Laser Welding and CNC Cutting with the xTool MetalFab",
+   "ch": "TimWelds",
+   "dur": 2084,
+   "cap": "auto",
+   "skip": [
+    "too long"
+   ]
+  },
+  {
+   "vid": "b1hDx3aCssU",
+   "cat": "",
+   "topic": "CAD",
+   "title": "5 Free CAD Tools to Design Any Project",
+   "ch": "TimWelds",
+   "dur": 884,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "7-HovQXTNiw",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "Laser Welding vs MIG & TIG - XLaserlab X1 Pro Part 2",
+   "ch": "TimWelds",
+   "dur": 1660,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "UqvCoZfXepg",
+   "cat": "",
+   "topic": "laser welding",
+   "title": "The TRUTH About Laser Welding w/ XLaserlab X1 Pro",
+   "ch": "TimWelds",
+   "dur": 1474,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "YT0M0ZE70Dw",
+   "cat": "",
+   "topic": "machines",
+   "title": "CHEAP Amazon Welders Exposed...or...Is it actually good?",
+   "ch": "TimWelds",
+   "dur": 305,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "aPSLgp1O5bY",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Evolution’s NEW Mitering Chop Saw – S14MCS",
+   "ch": "TimWelds",
+   "dur": 620,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "c199JILGVNo",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Welding The Ultimate Rocket Stove Pizza Oven w/ the Hobart Handler 140EZ",
+   "ch": "TimWelds",
+   "dur": 836,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "PjZkmrdDR3g",
+   "cat": "",
+   "topic": "machines",
+   "title": "Accident Waiting to Happen? Limitations of 120 Volt Welders",
+   "ch": "TimWelds",
+   "dur": 593,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "S5F5p0sne2Q",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "3D Laser Scanners Have Evolved: Creality Raptor Pro",
+   "ch": "TimWelds",
+   "dur": 790,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "33DPOlEOlI0",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "The Best Way To Organize Tools - Custom Shadow Boards",
+   "ch": "TimWelds",
+   "dur": 495,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "m2y2CUvPWx0",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Testing The Ultimate Fiber Laser: 100 Watt MOPA Monport GA100",
+   "ch": "TimWelds",
+   "dur": 815,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "rJAbfbbUjCo",
+   "cat": "",
+   "topic": "welding table",
+   "title": "Siegmund Fixture Table 2 Year Review - Welding Table Update",
+   "ch": "TimWelds",
+   "dur": 801,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "NhO4PUC5my8",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Testing Harbor Freight's New $159 Press Brake",
+   "ch": "TimWelds",
+   "dur": 617,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "449LcbEH2fk",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "How to Build a Simple Welding Cart",
+   "ch": "TimWelds",
+   "dur": 945,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "xLTr5g_JT-4",
+   "cat": "",
+   "topic": "welding table",
+   "title": "Building the Best Portable Rocket Stove: Welding Project",
+   "ch": "TimWelds",
+   "dur": 715,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "LzyGYfFsp0E",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "What's New on the Evolution EVOMAX Chop Saws: Overview, Cut Tests and Comparison",
+   "ch": "TimWelds",
+   "dur": 775,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "YnQRsvfd-co",
+   "cat": "",
+   "topic": "CAD",
+   "title": "CAD and SendCutSend for Beginners: Full Tutorial with OnShape's Free Plan",
+   "ch": "TimWelds",
+   "dur": 1201,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "LJcNWLHAfSI",
+   "cat": "",
+   "topic": "trade shows",
+   "title": "Fabtech Highlights for the Welding Enthusiast - 2024",
+   "ch": "TimWelds",
+   "dur": 420,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "AVbWQv8YiQg",
+   "cat": "",
+   "topic": "CAD",
+   "title": "How to Design and Buy Custom Metal Parts - It's easier than ever before",
+   "ch": "TimWelds",
+   "dur": 1379,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "mwKloqgkgyo",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Never Break Another Tap: The Complete Guide to Tapping Holes in Metal",
+   "ch": "TimWelds",
+   "dur": 671,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Lg3QZsQ_OzM",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Perfect Metal Engraving Laser for Small Shops? Gweike G2 Pro Fiber Laser",
+   "ch": "TimWelds",
+   "dur": 712,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "FCgi_AATa5I",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "Blue Laser 3D Scanner Worth The Hype? Creality Raptor Test",
+   "ch": "TimWelds",
+   "dur": 892,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "jCmhYqOctXc",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Can This 1940's Bandsaw Part Be Saved? Cast Iron TIG Welding Repair",
+   "ch": "TimWelds",
+   "dur": 595,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "XgpEGVv-an4",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "Building Acme Screw Jack Stands for Fabrication",
+   "ch": "TimWelds",
+   "dur": 688,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ekD8F-5dZ_E",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Testing the Monport GQ 30 Watt Fiber Laser",
+   "ch": "TimWelds",
+   "dur": 635,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "rkxgsTnWwj8",
+   "cat": "",
+   "topic": "plasma cutting",
+   "title": "Testing the Cheapest CNC-Ready Plasma Cutter: BestArc BTC500XP",
+   "ch": "TimWelds",
+   "dur": 956,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "WJnQv-HgO8I",
+   "cat": "",
+   "topic": "plasma cutting",
+   "title": "Are Cheap Plasma Cutters...Cheap? BestArc BTC500DP Review",
+   "ch": "TimWelds",
+   "dur": 959,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "AzvdjjDG99Y",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "How to Drill Holes in Metal: Master the Drill Press",
+   "ch": "TimWelds",
+   "dur": 839,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "uU4fsp6EN30",
+   "cat": "",
+   "topic": "machines",
+   "title": "What’s New on the HTP Invertig 251 AC/DC TIG Welder?",
+   "ch": "TimWelds",
+   "dur": 1195,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "dY8aOVbcDYI",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Surprising Results From This 20W Laser Cutter: WeCreat Vision Material Test and Projects",
+   "ch": "TimWelds",
+   "dur": 866,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "TTiOCrqTRs0",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Are CHEAP Calipers...Cheap? Mitutoyo vs Neiko Comparison",
+   "ch": "TimWelds",
+   "dur": 718,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "VoKZsprvNXA",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "I Built This to Make My Bandsaw Safer",
+   "ch": "TimWelds",
+   "dur": 534,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "f-QcB4Ei9F8",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "Will these 3D printed tools actually work? 3D printing tools for welding & fabrication",
+   "ch": "TimWelds",
+   "dur": 588,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "bivfm7DFt7A",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Metal Engraving Laser is Crazy Fast: Gweike G2 Fiber Laser",
+   "ch": "TimWelds",
+   "dur": 611,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "ztbiGz9_Fok",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Are Carbide Chop Saws Better? Abrasive vs Carbide Metal Cutting Chop Saws",
+   "ch": "TimWelds",
+   "dur": 606,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "p50IdqCLL44",
+   "cat": "",
+   "topic": "CAD",
+   "title": "5 FREE CAD Programs to Design Any Project",
+   "ch": "TimWelds",
+   "dur": 967,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "P1hK_Vde6_0",
+   "cat": "",
+   "topic": "machines",
+   "title": "HTP Revolution 2500: Ultimate Multiprocess Welder?",
+   "ch": "TimWelds",
+   "dur": 1239,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Wewb80bJug0",
+   "cat": "",
+   "topic": "trade shows",
+   "title": "SEMA '23 for the Welding Enthusiast: Tool highlights from the ultimate automotive trade show",
+   "ch": "TimWelds",
+   "dur": 516,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "JzYTWdct6vs",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Expensive Chop Saws Better? Evolution Saws Compared in Extreme Detail",
+   "ch": "TimWelds",
+   "dur": 1305,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "2emEckiLm3I",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Building The Ultimate Wood-Fired Camp Cooker | Double Rocket Stove Welding Project",
+   "ch": "TimWelds",
+   "dur": 590,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "iYxPHFCTWns",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Siegmund Fixture Table: 1 Year Update & Hydraulic Press",
+   "ch": "TimWelds",
+   "dur": 489,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "9Tali6bdyLI",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "I Built This to Fulfill a Childhood Dream: Vintage Style Go-Kart Build",
+   "ch": "TimWelds",
+   "dur": 829,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "VJEs83XZZmk",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Mini Machine Shop Tooling Tray Build (w/ xTool P2 CO2 Laser Cutter)",
+   "ch": "TimWelds",
+   "dur": 819,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "TJtwwn5eIb8",
+   "cat": "",
+   "topic": "laser cutting",
+   "title": "Can Thin Wood form Metal? Making plywood metal forming tools with the xTool P2 CO2 Laser Cutter",
+   "ch": "TimWelds",
+   "dur": 721,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "xMCkqcAkqJk",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "Building a Better Welding Cart",
+   "ch": "TimWelds",
+   "dur": 689,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "tUHnfxDthpQ",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Plan Welding Projects in 5 Easy Steps",
+   "ch": "TimWelds",
+   "dur": 350,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "WxkEk1n5sXM",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "Mini Fabrication Station Build | Shop Projects",
+   "ch": "TimWelds",
+   "dur": 398,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "8S4Z3F8xFvo",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "I Made a Hydraulic Press...With a Twist",
+   "ch": "TimWelds",
+   "dur": 707,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "HsT-lvQFczU",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Chip Catching Chop Saw Cart: Let's Build One!",
+   "ch": "TimWelds",
+   "dur": 418,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "eHHmYgwi3QA",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "I put a NITRO POWERED V8 ENGINE on my DRILL!",
+   "ch": "TimWelds",
+   "dur": 455,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "cYJBXTbQ21g",
+   "cat": "",
+   "topic": "welding table",
+   "title": "Siegmund 3’x4’ Welding Table & Clamping Kit",
+   "ch": "TimWelds",
+   "dur": 543,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "Y-bu92fR4Tw",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "This EASY Welding Project Makes a Perfect Gift: Your friends will love it!",
+   "ch": "TimWelds",
+   "dur": 383,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "SIn-K_s1VP0",
+   "cat": "",
+   "topic": "shop builds",
+   "title": "Let’s Build a Wobble-Free Trailer Hitch Vise",
+   "ch": "TimWelds",
+   "dur": 207,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "44XoBPsKHbY",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "I Built A Better Belt Grinder…Here’s How",
+   "ch": "TimWelds",
+   "dur": 728,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "DY_zvhVZ72A",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "EASY Drill Press Mod I Should Have Done Years Ago",
+   "ch": "TimWelds",
+   "dur": 287,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "daY70Fbjdjw",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "The Simplest DIY Go-Kart Build",
+   "ch": "TimWelds",
+   "dur": 729,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "S0XE7qYXA2E",
+   "cat": "",
+   "topic": "machines",
+   "title": "Can I Start Welding With Only $200?",
+   "ch": "TimWelds",
+   "dur": 688,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "nEddsWy8jBc",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Tools to Start Welding: Do you really need all that stuff?",
+   "ch": "TimWelds",
+   "dur": 297,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "JIC3yWF8qvo",
+   "cat": "",
+   "topic": "machines",
+   "title": "Cheap vs Expensive Welders: Don't they all do the same thing?",
+   "ch": "TimWelds",
+   "dur": 428,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "PKWjeX8J8HI",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Get Perfect Cuts with a Chop Saw",
+   "ch": "TimWelds",
+   "dur": 399,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "5yLB4DUkBxw",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Weld A DIY Planter Box",
+   "ch": "TimWelds",
+   "dur": 316,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "aGxwKKTElbM",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Easy DIY Welding Tool My Dad Taught Me About",
+   "ch": "TimWelds",
+   "dur": 258,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "dpum08vStkk",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Magnetic Drills and Annular Cutters with the Evolution S28 Mag Drill",
+   "ch": "TimWelds",
+   "dur": 484,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "rHDBjRbEaSc",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "STOP Buying Standard Taps...Buy This Instead",
+   "ch": "TimWelds",
+   "dur": 472,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "wXpqkhzTHHY",
+   "cat": "",
+   "topic": "welding table",
+   "title": "6 Welding Fixture Essentials that You Can Build: DIY Welding Table Clamps",
+   "ch": "TimWelds",
+   "dur": 473,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "1Ci9-Mp2KVg",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "8 Measuring Tools for Welding and Fabrication in 8 Minutes",
+   "ch": "TimWelds",
+   "dur": 524,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "iJkNth1BcXk",
+   "cat": "",
+   "topic": "machines",
+   "title": "Reviewing the (Almost) Cheapest Welder on Amazon: DekoPro Welder Review",
+   "ch": "TimWelds",
+   "dur": 542,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "a7G9aXTe8kw",
+   "cat": "",
+   "topic": "plasma cutting",
+   "title": "Plasma Cutter Hack: Make Perfect Straight Cuts in Seconds",
+   "ch": "TimWelds",
+   "dur": 128,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "GeR1bKKRKZI",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Weekend Welding Project: Hibachi Grill",
+   "ch": "TimWelds",
+   "dur": 446,
+   "cap": null,
+   "skip": [
+    "not spoken in English"
+   ]
+  },
+  {
+   "vid": "p6E_vsYzav4",
+   "cat": "",
+   "topic": "shop tools",
+   "title": "Is 1/2\" Steel Too Much for this Cordless Chop Saw? Evolution Power Tools",
+   "ch": "TimWelds",
+   "dur": 29,
+   "cap": null,
+   "skip": [
+    "not spoken in English"
+   ]
+  },
+  {
+   "vid": "ohQscYg2YpQ",
+   "cat": "",
+   "topic": "3D scanning",
+   "title": "My First 20 Minutes with the EinScan Rigil Lite 3D Scanner",
+   "ch": "TimWelds",
+   "dur": 79,
+   "cap": null,
+   "skip": [
+    "not spoken in English"
+   ]
+  },
+  {
+   "vid": "QQBnYkzM6DM",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Steel Prototyping with Automation in a Small Shop",
+   "ch": "TimWelds",
+   "dur": 61,
+   "cap": null,
+   "skip": [
+    "not spoken in English"
+   ]
+  },
+  {
+   "vid": "AD18G2EGuXA",
+   "cat": "",
+   "topic": "fabrication projects",
+   "title": "Can this saw handle 1/2\" thick steel?",
+   "ch": "TimWelds",
+   "dur": 48,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "7pjj3x7rfPg",
+   "cat": "",
+   "topic": "stick welding",
+   "title": "7018 Restart Tip - Stick Welding",
+   "ch": "TimWelds",
+   "dur": 36,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "TxcQ6cbMJ6E",
+   "cat": "",
+   "topic": "stick welding",
+   "title": "This Rod Makes Stick Welding Tacks Easy",
+   "ch": "TimWelds",
+   "dur": 43,
+   "cap": "auto",
+   "skip": null
+  },
+  {
+   "vid": "-B_fzs9nhAg",
+   "cat": "",
+   "topic": "skills",
+   "title": "TIG Welding Arc Start in Super Slow Motion",
+   "ch": "TimWelds",
+   "dur": 11,
+   "cap": "auto",
+   "skip": [
+    "short"
+   ]
   }
  ]
 }
