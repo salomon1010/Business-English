@@ -42,8 +42,9 @@
 </script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/svg+xml" href="logo.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Loaded non-blocking: media="print" means the browser fetches it without
@@ -434,7 +435,7 @@ html[dir="rtl"] .hdr-map{margin-left:0;margin-right:auto}
 .hdr-prem[hidden]{display:none}
 .hdr-timer.show~.hdr-prem{margin-left:8px}
 .hdr-prem img{width:46px;height:46px;display:block;/* owner, 28 Sep 2026: the logo tile's 46px, so the two share a top and a bottom (the art fills 190 of its 192px) */filter:drop-shadow(0 1px 4px rgba(60,140,255,.32));animation:hdrPremTurn 8s linear 1.5s infinite;will-change:transform}
-.hdr-prem::after{content:"";position:absolute;width:46px;height:46px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(220,236,255,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-mark.svg?v=1) center/contain no-repeat;mask:url(premium-mark.svg?v=1) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
+.hdr-prem::after{content:"";position:absolute;width:46px;height:46px;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(220,236,255,.85) 50%,transparent 65%) no-repeat;background-size:250% 100%;background-position:150% 0;-webkit-mask:url(premium-badge.png?v=3) center/contain no-repeat;mask:url(premium-badge.png?v=3) center/contain no-repeat;animation:hdrPremShine 8s ease-in-out 1.5s infinite}
 .hdr-prem:active{transform:scale(.92)}
 .hdr-prem:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:12px}
 @keyframes hdrPremTurn{0%,70%{transform:rotateY(0) translateY(0);animation-timing-function:cubic-bezier(.5,0,1,1)}75%{transform:rotateY(90deg) translateY(-2px) scale(1.06);animation-timing-function:step-end}75.01%{transform:rotateY(-90deg) translateY(-2px) scale(1.06);animation-timing-function:cubic-bezier(0,0,.3,1)}81%{transform:rotateY(0) translateY(0)}84%{transform:translateY(-1.5px)}87%,100%{transform:translateY(0)}}
@@ -5722,8 +5723,8 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
    components, written once in tokens and identical in both tracks. It changes
    how things look, never what they do. Rules of the system:
    · one accent per screen — the theme's accent carries action and "you are
-     here"; cyan (--live) now means listening and nothing else; gold means
-     Premium's spark, a streak or a caution, never decoration;
+     here"; cyan (--live) now means listening and nothing else; gold is a
+     streak or a caution, never decoration;
    · circles are people (avatars, channels, partners); rounded squares are the
      brand and features;
    · nothing inside a card is another floating card — a card holds rows;
@@ -5737,8 +5738,8 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
   --surface-0:var(--bg); --surface-1:var(--card); --surface-2:var(--card2);
   --success:var(--green); --warning:var(--gold); --danger:var(--red); --rec:var(--ds-rec);
   --nav-on:var(--accent-text); --nav-on-bg:color-mix(in srgb,var(--accent) 17%,transparent);
-  /* Premium: sapphire with a gold spark, the same in both tracks so it is
-     recognised on Forge's amber as well as on Signal's indigo */
+  /* Premium: the blue of the owner's crown badge, the same in both tracks so it
+     is recognised on Forge's amber as well as on Signal's indigo */
   --prem-grad:linear-gradient(140deg,#6d7dff,#3b3fd8 55%,#1e1f8f);
   --prem:#aab6ff; --prem-line:rgba(129,140,248,.45); --prem-bg:rgba(99,102,241,.14); --prem-spark:#fbbf24;
   /* shape */
@@ -5747,11 +5748,14 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
   --ctl-h:44px; --ctl-h-lg:48px; --chip-h:28px;
 }
 :root[data-theme="light"]{--prem:#3730a3; --prem-line:rgba(55,48,163,.34); --prem-bg:rgba(79,70,229,.08)}
-.prem-gem{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+.prem-gem{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em;object-fit:contain}
 
 /* ── brand: the header lockup. One line of wordmark beside the mark; the
    "Home" caption stays because the lockup IS the Home control (1ddb157a). ── */
 .brand .logo{background:none;border-radius:0;box-shadow:none}
+/* the owner's logo.svg (kept, 30 Sep 2026) draws its tile 46/512 inside a navy square: the
+   square is trimmed and the tile scaled so the TILE is the lockup's 34px, not 28px */
+.brand .logo{clip-path:inset(9% round 7px);transform:scale(1.22)}
 .brand.on .logo{box-shadow:none}
 .brand-name{font-weight:700;letter-spacing:-.25px}
 .brand span.g{background:var(--grad-text,var(--grad));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -5765,11 +5769,9 @@ html[dir="rtl"] .go-arrow,html[dir="rtl"] .hx-cta-go{display:inline-block;transf
   .brand-home{font-size:10.5px}
   .brand.on .brand-home{padding:1px 7px 1px 5px}
 }
-/* the header Premium button: the mark at the logo's size, a glint now and then
-   instead of a full turn (a turning badge competes with the page) */
+/* the header Premium button: the owner's badge (kept, 30 Sep 2026) at 32px, beside the 34px logo; its turn and shine are unchanged */
 .hdr-prem{width:40px;height:40px}
-.hdr-prem img{width:32px;height:32px;filter:drop-shadow(0 2px 6px rgba(79,70,229,.35));animation:none}
-.hdr-prem::after{width:32px;height:32px;-webkit-mask:url(premium-mark.svg?v=1) center/contain no-repeat;mask:url(premium-mark.svg?v=1) center/contain no-repeat;background:linear-gradient(115deg,transparent 38%,rgba(255,255,255,.75) 50%,transparent 62%) no-repeat;background-size:250% 100%;background-position:150% 0}
+.hdr-prem img,.hdr-prem::after{width:32px;height:32px}
 @media(max-width:820px){.hdr-prem{width:40px;height:40px}}
 
 /* ── Premium surfaces ── */
@@ -5867,8 +5869,8 @@ html[dir="rtl"] :is(#remOn,#ppAlertsOn,#nudgesOn):checked::after{transform:trans
     <span class="ht-dig" id="hdrTimerDig">25:00</span>
     <span class="ht-x" onclick="event.stopPropagation();tReset()" role="button" aria-label="Cancel timer" title="Cancel timer">×</span>
   </button>
-  <!-- Premium badge (owner, 28 Sep 2026; visual identity v2, 29 Sep): the Premium mark, a glint now and then, opens the plans sheet. hdrPremSync shows it -->
-  <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-mark.svg?v=1" alt="" width="46" height="46" decoding="async"></button>
+  <!-- Premium badge (owner, 28 Sep 2026): the owner's artwork, turns now and then, opens the plans sheet. hdrPremSync shows it -->
+  <button type="button" class="hdr-prem" id="hdrPrem" hidden onclick="premiumOpen('header')" aria-label="Premium" title="Premium"><img src="premium-badge.png?v=3" alt="" width="46" height="46" decoding="async"></button>
   <!-- the header's Road map button was removed on 14 Sep 2026: the road map has its own tab in the bar -->
   <!-- the header streak pill was removed on 22 Sep 2026 (owner: a simpler header); the streak lives on Progress -->
 </div></nav>
@@ -6432,7 +6434,6 @@ const ICON={
   phrase:'<path d="M7.5 4.5h9a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-5.3l-3.9 3.3a.6.6 0 0 1-1-.46V17.4A4 4 0 0 1 3.5 13.5v-5a4 4 0 0 1 4-4Z"/><path d="M8 9.3h8M8 12.6h5"/>',
   speak:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21M9 21h6"/>',
   progress:'<rect x="4.5" y="13" width="4" height="7" rx="1.4"/><rect x="10" y="9" width="4" height="11" rx="1.4"/><rect x="15.5" y="4.5" width="4" height="15.5" rx="1.4"/>',
-  premium:'<path d="M12 2.8 20 7.4v9.2l-8 4.6-8-4.6V7.4Z"/><path d="M9 15.2v-1.6M12 15.2v-4.2M15 15.2V8.8"/>',   /* the Premium mark as a line icon, for rows and lists */
   person:'<circle cx="12" cy="8.5" r="3.7"/><path d="M4.8 19.6a7.2 7.2 0 0 1 14.4 0"/>',
   home:'<path d="M3 10.6 12 3.5l9 7.1"/><path d="M5.2 9.4V20a1 1 0 0 0 1 1H10v-5.4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V21h3.8a1 1 0 0 0 1-1V9.4"/>',
   cards:'<rect x="3" y="7" width="13" height="12" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v9"/>',
@@ -6526,8 +6527,8 @@ const ICON={
   hangup:'<path d="M3.5 13.2c4.9-4.6 12.1-4.6 17 0"/><path d="M3.5 13.2l2.6 2.6 2.9-2.2-.5-3.1M20.5 13.2l-2.6 2.6-2.9-2.2.5-3.1"/><path d="M5 5l14 14"/>',
   box:'<path d="M3.5 7.6 12 3l8.5 4.6v8.8L12 21l-8.5-4.6Z"/><path d="M3.5 7.6 12 12.2l8.5-4.6M12 12.2V21"/>'
 };
-/* The Premium mark (premium-mark.svg), inline so it needs no request and scales with the text it sits in */
-function premMark(cls){return `<svg class="prem-gem${cls?" "+cls:""}" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><path d="M32 6 54.5 19v26L32 58 9.5 45V19Z" fill="#3b3fd8" stroke="#3b3fd8" stroke-width="7" stroke-linejoin="round"/><path d="M32 6 54.5 19 32 32 9.5 19Z" fill="#fff" fill-opacity=".16"/><rect x="19.5" y="35" width="6" height="10" rx="3" fill="#fff"/><rect x="28" y="29.5" width="6" height="15.5" rx="3" fill="#fff"/><rect x="36.5" y="24" width="6" height="21" rx="3" fill="#fff"/><path d="M46.5 11.5l1.55 3.45 3.45 1.55-3.45 1.55-1.55 3.45-1.55-3.45-3.45-1.55 3.45-1.55Z" fill="#fbbf24"/></svg>`}
+/* The Premium badge (the owner's artwork, premium-badge.png), sized to the text it sits in */
+function premMark(cls){return `<img class="prem-gem${cls?" "+cls:""}" src="premium-badge.png?v=3" alt="" aria-hidden="true" decoding="async">`}
 function ic(name){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[name]||ICON.help}</svg>`}
 /* Emoji → line-icon name, used to iconize the manual headings at runtime (all languages). */
 const EMOJI_ICON={"▶":"play","▶️":"play","⏸":"pause","⏸️":"pause","🎯":"target","🧍":"user","🗣️":"sound","🗣":"sound","📚":"book","💼":"briefcase","📈":"chart","📉":"chart","📊":"chart","👤":"user","🧑":"user","💡":"idea","🔒":"lock","🎬":"film","🎥":"film","🎤":"mic","🎙️":"mic","🎙":"mic","🔊":"sound","🔈":"sound","🐢":"gauge","🏆":"trophy","💬":"chat","📖":"book","📘":"book","📋":"clipboard","🔁":"repeat","⭐":"star","🤖":"sparkle","🗺️":"map","🗺":"map","🗓️":"calendar","🗓":"calendar","📅":"calendar","🔖":"bookmark","🏠":"home","🎧":"headphones","📌":"target","✅":"check","✨":"sparkle","🎴":"clipboard","⚡":"bolt","🔥":"flame","⬇":"download","⬆":"upload","📥":"download","🚀":"rocket","🧠":"idea","🧭":"compass","⏰":"clock","⏱️":"clock","🌐":"globe","🧱":"list","📜":"list","⛔":"ban","🚫":"ban","🎦":"film","📽️":"film","♻️":"repeat","🧑‍💼":"briefcase","🧑💼":"briefcase","💪":"dumbbell","📄":"doc","📃":"doc","📝":"pencil","🔍":"search","👋":"hand","🔗":"link","🗑️":"trash","🗑":"trash","📱":"phone","🌙":"moon","☀️":"sun","☀":"sun","🎉":"party","🎊":"party","👀":"eye","👁️":"eye","👁":"eye","😊":"star","🙂":"star","📦":"box","📮":"box","🗃️":"box","🗂️":"doc","📎":"link","🔑":"lock","🎥":"film","📆":"calendar","⏳":"clock","⌛":"clock"};
@@ -29028,7 +29029,7 @@ function rProfile(el){
     <div class="pf-hero-t"><h1 class="pf-name">${nm}</h1><p class="pf-sub">${sub}</p></div>
     <span class="pf-chev" aria-hidden="true">›</span>
   </button>
-  ${premOffered()?`<div class="pf-group pf-prem">${entIsPremiumForDisplay()?pfRow("premium",t("sub.h"),"subOpen()",(()=>{const i=entView().source===(Billing.provider&&Billing.provider.id)?subPlanInfo():null;return t("prem.cmp_prem")+(i&&i.kind?" · "+t(i.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"")})()):pfRow("premium",t("prem.h"),"premiumOpen('profile')",t("prem.row_sub"))}</div>`:""}
+  ${premOffered()?`<div class="pf-group pf-prem">${entIsPremiumForDisplay()?pfRow("star",t("sub.h"),"subOpen()",(()=>{const i=entView().source===(Billing.provider&&Billing.provider.id)?subPlanInfo():null;return t("prem.cmp_prem")+(i&&i.kind?" · "+t(i.kind==="annual"?"prem.plan_annual":"prem.plan_monthly"):"")})()):pfRow("star",t("prem.h"),"premiumOpen('profile')",t("prem.row_sub"))}</div>`:""}
   <div class="pf-group-h">${t("pf.g_general")}</div>
   <div class="pf-group">
     ${pfRow("globe",t("lang.app_language"),"openLangPicker()",p.lang&&p.lang!=="en"&&langByCode(p.lang)?esc(langByCode(p.lang).native):"English")}

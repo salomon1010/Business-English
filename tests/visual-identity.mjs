@@ -1,5 +1,5 @@
 /* Visual identity v2 (29 Sep 2026, feature/visual-identity-phase2) — docs/DESIGN_SYSTEM_BEMASTERY.md §19.
-   Brand assets, the Premium mark, the navigation icon set, header and bottom-bar
+   The owner's logo and crown badge (kept 30 Sep 2026), the navigation icon set, header and bottom-bar
    geometry, the grouped best-tool list, switches and the field focus ring, in
    dark and light, English and Arabic.
    Run: cd tests && node visual-identity.mjs   (BASE=… for another tree; PORT=… for the server it starts) */
@@ -25,36 +25,30 @@ async function open(state, { w = 390, lang = "en", theme = "" } = {}) {
 const view = async (p, v) => { await p.evaluate(v => { document.querySelectorAll("#wcOv,.cf-ov,.wc-ov,#rmCel").forEach(e => e.remove()); go(v); scrollTo(0, 0) }, v); await sleep(900); };
 
 console.log("\n# brand and Premium assets");
-{ const logo = readFileSync(root + "logo.svg", "utf8"), gem = readFileSync(root + "premium-mark.svg", "utf8"), man = JSON.parse(readFileSync(root + "manifest.json", "utf8")), sw = readFileSync(root + "sw.js", "utf8"), html = readFileSync(root + "index.html", "utf8");
-  ok("1 · logo.svg is the full-bleed mark on a 64 grid (no navy frame) and carries no gold — gold is Premium's", /viewBox="0 0 64 64"/.test(logo) && /<rect width="64" height="64" rx="15"/.test(logo) && !/#fbbf24|#0a0e1a|#0c1226/i.test(logo));
-  ok("2 · premium-mark.svg: the hexagon gem, the three bars and the gold spark", /viewBox="0 0 64 64"/.test(gem) && (gem.match(/<rect /g) || []).length === 3 && /#fbbf24/i.test(gem) && /stroke-linejoin="round"/.test(gem));
-  const mask = (man.icons || []).find(i => i.purpose === "maskable");
-  ok("3 · the manifest's maskable icon is its own full-bleed file; the apple-touch-icon is the opaque 180px one", mask && mask.src === "icon-maskable-512.png" && existsSync(root + "icon-maskable-512.png") && existsSync(root + "apple-touch-icon.png") && /<link rel="apple-touch-icon" href="apple-touch-icon.png">/.test(html) && (html.match(/rel="apple-touch-icon"/g) || []).length === 1, JSON.stringify(mask));
-  ok("4 · the service worker precaches the new assets", ["premium-mark.svg", "icon-maskable-512.png", "apple-touch-icon.png"].every(f => sw.includes(`"${f}"`)));
-  ok("4b · the owner's crown PNG is no longer referenced by the app", !/premium-badge\.png/.test(html)); }
+{ const logo = readFileSync(root + "logo.svg", "utf8"), man = JSON.parse(readFileSync(root + "manifest.json", "utf8")), sw = readFileSync(root + "sw.js", "utf8"), html = readFileSync(root + "index.html", "utf8");
+  ok("1 · the owner's logo.svg is kept (30 Sep 2026): the bubble, three bars and the gold spark", /<svg viewBox="0 0 512 512"/.test(logo) && /#fbbf24/i.test(logo) && /M404 92/.test(logo));
+  ok("2 · the Premium icon is the owner's crown badge; no second Premium mark ships", existsSync(root + "premium-badge.png") && !existsSync(root + "premium-mark.svg") && !/premium-mark\.svg/.test(html) && !/premium-mark/.test(sw));
+  ok("3 · manifest and home-screen icons are the released ones", (man.icons || []).every(i => /^icon-(192|512)\.png$/.test(i.src)) && (html.match(/<link rel="apple-touch-icon" href="icon-192.png">/g) || []).length === 2);
+  ok("4 · the header, the plans sheet and the Premium chip all use the crown badge", (html.match(/premium-badge\.png\?v=3/g) || []).length >= 4); }
 
 { const { ctx, p, errs } = await open(seed("general-english"));
-  const px = await p.evaluate(async () => { const load = src => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src });
-    const out = {}; for (const [k, s] of [["apple", "apple-touch-icon.png"], ["mask", "icon-maskable-512.png"], ["any", "icon-512.png"]]) { const i = await load(s); if (!i) { out[k] = null; continue } const c = document.createElement("canvas"); c.width = i.naturalWidth; c.height = i.naturalHeight; const x = c.getContext("2d"); x.drawImage(i, 0, 0);
-      out[k] = { w: i.naturalWidth, corner: x.getImageData(0, 0, 1, 1).data[3], mid: x.getImageData(c.width >> 1, c.height >> 1, 1, 1).data[3] } } return out });
-  ok("5 · apple-touch-icon is 180px and opaque to the corner (iOS paints transparency black); the maskable icon is full-bleed; the 'any' icon has transparent corners", px.apple && px.apple.w === 180 && px.apple.corner === 255 && px.mask && px.mask.w === 512 && px.mask.corner === 255 && px.any && px.any.corner === 0 && px.any.mid === 255, JSON.stringify(px));
-
   console.log("\n# header lockup");
   await view(p, "home");
   const h = await p.evaluate(() => { const n = document.querySelector(".nav-in"), l = document.querySelector(".brand .logo"), nm = document.querySelector(".brand-name"), g = document.querySelector(".brand .g"), br = document.querySelector(".brand");
-    return { navH: Math.round(n.getBoundingClientRect().height), logo: Math.round(l.getBoundingClientRect().width), ring: getComputedStyle(l).boxShadow, fs: getComputedStyle(nm).fontSize, fw: getComputedStyle(nm).fontWeight, clip: getComputedStyle(g).backgroundImage, on: br.classList.contains("on"), cur: br.getAttribute("aria-current"), home: getComputedStyle(document.querySelector(".brand-home")).backgroundColor } });
-  ok("6 · header 56px, mark 34px with no glow ring, wordmark 17px/700", h.navH === 56 && h.logo === 34 && h.ring === "none" && h.fs === "17px" && h.fw === "700", JSON.stringify(h));
+    return { navH: Math.round(n.getBoundingClientRect().height), logo: Math.round(l.getBoundingClientRect().width), ring: getComputedStyle(l).boxShadow, clip2: getComputedStyle(l).clipPath, fs: getComputedStyle(nm).fontSize, fw: getComputedStyle(nm).fontWeight, clip: getComputedStyle(g).backgroundImage, on: br.classList.contains("on"), cur: br.getAttribute("aria-current"), home: getComputedStyle(document.querySelector(".brand-home")).backgroundColor } });
+  ok("6 · header 56px, the logo's tile 34px (navy square trimmed) with no glow ring, wordmark 17px/700", h.navH === 56 && h.logo === 41 && /inset\(9%/.test(h.clip2) && h.ring === "none" && h.fs === "17px" && h.fw === "700", JSON.stringify(h));
   ok("7 · 'Mastery' is set in the lighter --grad-text; the lockup is still the lit Home control", /gradient/.test(h.clip) && /165, 180, 252|a5b4fc/i.test(h.clip) && h.on && h.cur === "page" && h.home !== "rgba(0, 0, 0, 0)", JSON.stringify(h));
 
   console.log("\n# Premium mark in the app");
   const pm = await p.evaluate(async () => { const hb = document.getElementById("hdrPrem"); hb.hidden = false; await new Promise(r => setTimeout(r, 200)); const i = hb.querySelector("img");
-    const tmp = document.createElement("div"); tmp.innerHTML = premMark(); document.body.appendChild(tmp); const g = tmp.querySelector("svg"); const gs = { cls: g.getAttribute("class"), hidden: g.getAttribute("aria-hidden"), n: g.querySelectorAll("rect").length }; tmp.remove();
-    const r = { src: i.getAttribute("src"), w: Math.round(i.getBoundingClientRect().width), anim: getComputedStyle(i).animationName, gem: gs, row: typeof ICON.premium === "string" }; hb.hidden = true; return r });
-  ok("8 · the header button shows premium-mark.svg at 32px with no turning animation", /^premium-mark\.svg/.test(pm.src) && pm.w === 32 && (pm.anim === "none" || pm.anim === ""), JSON.stringify(pm));
-  ok("9 · premMark() is an inline, decorative svg (class prem-gem, three bars); ICON.premium exists for rows", pm.gem.cls === "prem-gem" && pm.gem.hidden === "true" && pm.gem.n === 3 && pm.row, JSON.stringify(pm));
+    const tmp = document.createElement("div"); tmp.innerHTML = premMark(); document.body.appendChild(tmp); const g = tmp.querySelector("img"); const gs = g && { cls: g.getAttribute("class"), hidden: g.getAttribute("aria-hidden"), src: g.getAttribute("src"), alt: g.getAttribute("alt") }; tmp.remove();
+    const r = { src: i.getAttribute("src"), w: Math.round(i.getBoundingClientRect().width), anim: getComputedStyle(i).animationName, gem: gs }; hb.hidden = true; return r });
+  ok("8 · the header button shows the crown badge at 32px (beside the 34px logo) and keeps its turn", /^premium-badge\.png\?v=3/.test(pm.src) && pm.w === 32 && pm.anim === "hdrPremTurn", JSON.stringify(pm));
+  ok("9 · premMark() is the crown badge as a decorative image", pm.gem && pm.gem.cls === "prem-gem" && pm.gem.hidden === "true" && pm.gem.alt === "" && /^premium-badge\.png/.test(pm.gem.src), JSON.stringify(pm));
   await p.evaluate(() => { try { premiumOpen("header") } catch (e) {} }); await sleep(900);
-  const sh = await p.evaluate(() => { const t = document.querySelector(".prem-tag"); return t && { gem: !!t.querySelector(".prem-gem"), txt: t.innerText.trim(), glyph: !!document.querySelector(".prem-spark") } });
-  ok("10 · the plans sheet's tag carries the gem, and the ✦ glyph is gone", sh && sh.gem && /premium/i.test(sh.txt) && !sh.glyph, JSON.stringify(sh));
+  const sh = await p.evaluate(() => { document.querySelectorAll("#wcOv,.cf-ov,.wc-ov,#rmCel").forEach(e => e.remove()); const t = document.querySelector(".prem-tag"), g = t && t.querySelector(".prem-gem"); return t && { gem: !!g && g.complete && g.naturalWidth > 0 && Math.round(g.getBoundingClientRect().width) >= 12, txt: t.innerText.trim(), glyph: !!document.querySelector(".prem-spark") } });
+  if (process.env.SHOT) await p.locator(".prem-eyebrow").screenshot({ path: process.env.SHOT });
+  ok("10 · the plans sheet's tag carries the crown badge (loaded, ≥12px), and the ✦ glyph is gone", sh && sh.gem && /premium/i.test(sh.txt) && !sh.glyph, JSON.stringify(sh));
   await p.evaluate(() => { try { premClose() } catch (e) {} }); await sleep(400);
 
   console.log("\n# navigation icon set");

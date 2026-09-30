@@ -18,7 +18,7 @@
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "screenshots": [
     { "src": "playstore/store-art-2026-09/phone/01-dashboard.png", "sizes": "1080x2400", "type": "image/png", "form_factor": "narrow", "label": "Your dashboard — today's session and where you left off" },

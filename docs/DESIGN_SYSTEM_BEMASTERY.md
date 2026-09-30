@@ -481,57 +481,41 @@ Nothing is forked per screen or per track.
 ### 19.1 Audit: what was wrong
 | Area | Finding |
 |---|---|
-| Logo | The mark (bubble + three bars) was sound. The asset was not: `logo.svg` drew the tile inside a navy square, so the 46px header image showed a ~38px tile. A glowing ring appeared on Home. The gold corner spark is 2px of noise below 32px. |
+| Logo | The 46px header image was drawn inside a navy square, so only a ~38px tile showed. A glowing ring appeared on Home. (Owner, 30 Sep: the logo artwork itself stays.) |
 | Wordmark | "Mastery" used `--grad`, whose cyan end is the weakest part on dark. |
-| Header | 62px tall with a 46px mark and a two-line lockup. That is heavier than the page content under it. |
-| Premium | The owner's raster crown hexagon (192px PNG). It is detailed and glossy, turns in 3D every 8s, and does not belong to the line-icon family. It is not BE Mastery-specific: any app can have a crown. |
+| Header | 62px tall with a two-line lockup: heavier than the page content under it. |
+| Premium | (Owner, 30 Sep: the crown badge stays.) The plans sheet used a text glyph "✦" where the badge belonged. |
 | Nav icons | Six icons in one stroke weight, but not one language. Shadow was a target, which reads as "goals". Practice was a cog with a tick, which reads as "settings". Road map was a folded paper map. |
 | Colour | The hues were fine; their jobs were not. Cyan (`--acc2`) was eyebrow, link, figure and "listening" all at once. Gold was the hero label, streak, caution and the logo spark. |
 | Surfaces | Practice › best tool put floating cards inside a card. |
 | Controls | On/off settings were bare checkboxes. Fields had 10px corners, buttons 11–12px, cards 18px: three radii where two would do. |
 | Avatars | The profile initial was a rounded square, the same shape as feature tiles; channels on Shadow were circles. |
 
-### 19.2 Brand
-- **Mark:** the same speech bubble with three rising bars ("your voice, getting
-  stronger"), redrawn on a 64-unit grid.
-  - The tile is full-bleed with a 23% radius and the brand gradient
-    (`#6366f1 → #3b82f6 → #22d3ee`).
-  - The bubble is white; the bars are deep indigo.
-  - The gold spark moved to the Premium mark. Gold now means Premium, and
-    the mark stays legible at 16px.
-- **Files:** `logo.svg` (mark), `icon-192.png` / `icon-512.png` (mark on
-  transparency), `icon-maskable-512.png` and `apple-touch-icon.png` (full-bleed,
-  from `brand/app-icon-full-bleed.svg`, glyph inside the maskable safe circle).
-  The old `apple-touch-icon` was the navy-framed PNG, so iOS showed a navy ring.
-- **Lockup:** a 34px mark, then "BE Mastery" at 17px/700 (`letter-spacing
-  -.25px`). "Mastery" is set in `--grad-text` (indigo→cyan on Signal,
-  amber on Forge), so the wordmark follows the track. The "Home" caption stays
-  because the lockup is the Home control (1ddb157a); it lights as a pill, and
-  the logo ring is gone.
+### 19.2 Brand — owner decision, 30 Sep 2026: the logo is kept
+A redrawn mark was proposed: a full-bleed tile with no gold spark, plus new
+maskable and Apple icons. The owner chose to keep the released `logo.svg`,
+`icon-192.png`, `icon-512.png` and the About page logo exactly as they are.
+Only the lockup's size changed:
+- **Lockup:** the logo's tile shows at 34px. The file's navy square is trimmed
+  with `clip-path: inset(9% round 7px)`, and the image is scaled 1.22, so the
+  artwork is untouched and the tile is not shrunk to 28px.
+- **Wordmark:** "BE Mastery" is 17px/700. "Mastery" is set in `--grad-text`,
+  so it follows the track. The "Home" caption stays because the lockup is the
+  Home control (1ddb157a). It lights as a pill, and the logo ring is gone.
 - **Header:** 56px on phones (was 62).
-- **Not changed:** the native Android (TWA) and iOS shells keep their launcher
-  icons until their next build. The web app, installed PWAs and the About page
-  (`flyer.html`) now use the new mark.
 
-### 19.3 Premium
-- **Mark (`premium-mark.svg`, `premMark()` inline):** a sapphire gem.
-  - A rounded hexagon, which keeps the owner's blue-hexagon choice.
-  - The brand's three bars are cut into it in white.
-  - The gold spark sits on its upper facet.
-  - Read it as: the same voice, with more behind it.
-  - It works from 46px down to 14px.
-- **Line variant (`ic("premium")`):** a hexagon with three strokes, for list
-  rows (Profile › Premium).
-- **Tokens:** `--prem-grad`, `--prem`, `--prem-line`, `--prem-bg` and
-  `--prem-spark`. They are the same in both tracks, so Premium reads the same
-  on Forge's amber as on Signal's indigo.
-- **Uses:**
-  - the header button (32px, a glint every 8s, no 3D turn);
-  - the plans sheet's "Premium" tag;
-  - the "Your record" lock chip (`.chip.prem`);
-  - the Profile row.
-- **Billing is untouched:** `billing_enabled` stays off, and the badge still
-  shows only where `hdrPremSync()` allows.
+### 19.3 Premium — owner decision, 30 Sep 2026: the crown badge is kept
+A sapphire "gem" mark was proposed and declined. The Premium icon is the
+owner's blue crown hexagon (`premium-badge.png?v=3`) everywhere:
+- the header button, at 32px beside the 34px logo, with its turn and shine
+  unchanged;
+- the plans sheet's "Premium" tag, in place of the old ✦ glyph;
+- the "Your record" lock chip (`.chip.prem`), through `premMark()`.
+
+The Profile › Premium row keeps its line icon (`star`). The chip and tag
+colours (`--prem`, `--prem-line`, `--prem-bg`) are the badge's blue in both
+tracks. Billing is untouched: `billing_enabled` stays off, and the header badge
+shows only where `hdrPremSync()` allows.
 
 ### 19.4 Icon system
 - **Grid and stroke:** a 24px grid with a 1.8 stroke, round caps and joins,
@@ -563,7 +547,7 @@ role tokens are `--text-1/2/3`, `--surface-0/1/2`, `--success`, `--warning`,
 | Accent (indigo / amber) | Action, "you are here", selected state, eyebrows |
 | `--live` (cyan / arc blue) | Listening and recording only |
 | `--ai` (violet / amber-white) | AI at work |
-| Gold | Premium's spark, a streak, a caution |
+| Gold | A streak, a caution; the logo's spark |
 | Green | Earned, done, recommended |
 | Red → orange (`--rec`) | Recording, the same in both tracks |
 - **Eyebrows:** these move from `--acc2` (cyan) to `--accent-text` (11px/700,
@@ -602,16 +586,17 @@ role tokens are `--text-1/2/3`, `--surface-0/1/2`, `--success`, `--warning`,
 
 ### 19.8 The 40 items in the brief
 - **Changed in this pass:**
-  - 1–4: logo, app icon, Premium mark, header;
+  - 1–4: header lockup and sizes (the logo and the Premium badge are the
+    owner's, kept on 30 Sep);
   - 5–11: nav icons (Home is the mark);
   - 13–14: chips, including the Premium chip;
   - 16–18: buttons and cards;
   - 19: grouped rows;
   - 20–22: inputs, the search focus ring and toggles;
   - 23–24: navigation and avatars;
-  - 33: Premium surfaces;
+  - 33: Premium surfaces (the crown badge on the plans sheet tag and chip);
   - 34–39: type, colour roles, borders, shadows and radius;
-  - 40: motion, where the badge glint replaces the turn.
+  - 40: motion (press states; the badge keeps its turn).
 - **Covered by tokens, not redrawn:**
   - 12: the rest of the `ICON` set, already one family (1.8 stroke, round
     joins);
@@ -625,13 +610,12 @@ role tokens are `--text-1/2/3`, `--surface-0/1/2`, `--success`, `--warning`,
     Phase 2).
   - These already read the theme tokens, so the new roles reach them.
 - **Left for the owner:**
-  - the native shells' launcher icons (the next TWA and iOS builds);
-  - store art and `og.png`, which still show the old mark and header;
+  - store art and `og.png`, which still show the 62px header;
   - the remaining `--acc2` links and figures;
   - whether the Welding header's "International Welder" chip should shrink
     to match the new lockup.
 
 ### 19.9 Gate
-`tests/visual-identity.mjs`: brand assets, icon set, Premium mark, header and
+`tests/visual-identity.mjs` (26 checks): the kept logo and crown badge, the icon set, header and
 nav geometry, grouped list, switches and the field focus ring, in dark and
 light, English and Arabic.

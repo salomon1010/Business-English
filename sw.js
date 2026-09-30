@@ -5,7 +5,7 @@ const CACHE = "be12-v489";
    old cache — the Passport, coach, roadmap, Career Center, simulations and answer
    analysis were all simply absent, and the guards made that fail silently rather
    than visibly. */
-const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "premium-mark.svg", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
+const SHELL = ["./", "index.html", "manifest.json", "logo.svg", "icon-192.png", "icon-512.png", "linkedin.png", "workshop-team.jpg", "workshop-team-card.jpg", "rp-photos/partner.jpg",
   "jurisdictions.js?v=79", "trades.js?v=79", "curriculum-provider.js?v=86", "professional-tracks.js?v=80", "competency-engine.js?v=83", "learning-coach.js?v=88", "nudge-engine.js?v=3",
   "professional-simulation-engine.js?v=79", "conversation-orchestrator.js?v=84", "shadow-sync.js?v=8", "shadow-scenes.js?v=1", "adaptive-learning-engine.js?v=84",
   "career-center.js?v=80", "professional-skills-passport.js?v=85", "answer-evaluator.js?v=84", "shadow-lines.js?v=86", "mission-engine.js?v=4",
