@@ -27,7 +27,7 @@
      evidence produces nothing */
   function candidates(s) {
     const out = [];
-    if (!s || !s.ge) return out;                       // General English only
+    if (!s || !(s.ge || s.home)) return out;           // General English, or another area's Home (s.home: no partner, no push)
     const pos = s.pos || null;
     if (pos && !pos.done && !s.practicedToday) {
       const back = (s.daysAway || 0) >= 3;
@@ -127,7 +127,10 @@
        category and from each other, never from a meeting seed */
     { id: "story", re: /learn english with|tv series|movie|film|disney|pixar|netflix|cartoon|animated/i, terms: ["learn english with", "movie", "disney", "netflix", "film"], cat: "everyday", scen: ["coffee", "neighbour"] },
   ];
-  function topicsOf(text) { const t = String(text || ""); return TOPICS.filter(x => x.re.test(t)).map(x => x.id); }
+  function topicsOf(text, table) { const t = String(text || ""); return (table || TOPICS).filter(x => x.re.test(t)).map(x => x.id); }
+  /* an area with its own library brings its own relationship table (content.topics, same shape) —
+     Welding Professional English builds one from catalogue/welding.json; General English uses TOPICS */
+  const topicsFor = content => (content && Array.isArray(content.topics) && content.topics.length ? content.topics : TOPICS);
   /* content.videos = { vid: { title, cat, dur, cap, ch } } (the library index, category filled
      in by the caller). seed = { vid?, text?, topics? }. A candidate is related when it shares a
      topic word, the seed's category or the seed's channel — never on nothing. opts.challenge
@@ -137,8 +140,9 @@
     const o = opts || {}, vids = (content && content.videos) || {}, ex = new Set(o.exclude || []);
     const sv = seed && seed.vid && vids[seed.vid] ? vids[seed.vid] : null;
     const text = [seed && seed.text, sv && sv.title].filter(Boolean).join(" ");
-    const ids = (seed && seed.topics && seed.topics.length) ? seed.topics : topicsOf(text);
-    const tops = TOPICS.filter(x => ids.includes(x.id)).slice(0, 2);
+    const TT = topicsFor(content);
+    const ids = (seed && seed.topics && seed.topics.length) ? seed.topics : topicsOf(text, TT);
+    const tops = TT.filter(x => ids.includes(x.id)).slice(0, 2);
     if (!tops.length && !sv) return [];
     const si = sv ? Object.keys(vids).indexOf(seed.vid) : 0;
     return Object.keys(vids).map((v, i) => {
@@ -157,8 +161,8 @@
   /* the role-play scenario for a subject: the first scenario a topic names that exists */
   function scenarioFor(content, text, exclude) {
     const list = (content && content.scenarios) || [], ex = new Set(exclude || []);
-    const ids = topicsOf(text);
-    for (const tp of TOPICS.filter(x => ids.includes(x.id))) for (const id of tp.scen) { const sc = list.find(x => x.id === id); if (sc && !ex.has(id)) return sc; }
+    const TT = topicsFor(content), ids = topicsOf(text, TT);
+    for (const tp of TT.filter(x => ids.includes(x.id))) for (const id of tp.scen) { const sc = list.find(x => x.id === id); if (sc && !ex.has(id)) return sc; }
     return null;
   }
 
@@ -192,7 +196,7 @@
   }
   const quote = w => "“" + w + "”";
   function rows(s, content) {
-    if (!s || !s.ge) return [];                                 // General English only
+    if (!s || !(s.ge || s.home)) return [];                     // General English, or another area's Home
     const R = s.recent || {}, now = s.now || Date.now(), c = content || {}, weeks = c.weeks || [], pos = s.pos || null;
     const seen = new Set(R.seen || []), used = new Set(s.heroCid ? [s.heroCid] : []), out = [];
     /* the hero already IS that recommendation: a row never repeats it */
@@ -307,9 +311,11 @@
     const evidence = out.filter(r => r.id !== "learning").length;
     if (evidence < 2) {
       const items = [];
-      (c.starters || []).filter(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid)).slice(0, 1).forEach(st => { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); });
-      rel({ topics: ["introductions", "fluency"] }, { short: true, take: MAX_ITEMS - items.length }).forEach(v => items.push(vidItem(v, false)));
-      push({ id: "level", variant: "", reason: "level", score: 30, vars: {}, items });
+      /* levelProf (Welding): the row names one profession, so only that profession's clips go in it */
+      const mine = c.levelProf ? v => { const x = (c.videos || {})[v && v.vid ? v.vid : v]; return !!x && x.cat === c.levelProf } : () => true;
+      (c.starters || []).filter(x => x && x.vid && x.cap && !used.has(x.vid) && !seen.has(x.vid) && mine(x.vid)).slice(0, 1).forEach(st => { used.add(st.vid); items.push(vidItem({ vid: st.vid, title: st.name || "", dur: 0 }, false)); });
+      rel({ topics: c.levelTopics || ["introductions", "fluency"] }, { short: true, n: c.levelProf ? 40 : 8, take: MAX_ITEMS - items.length + (c.levelProf ? 40 : 0) }).filter(mine).slice(0, MAX_ITEMS - items.length).forEach(v => items.push(vidItem(v, false)));
+      push({ id: "level", variant: c.levelVariant || "", reason: "level", score: 30, vars: {}, items });
     }
     /* the learner's weakest competency lifts the rows that train it — the same +15/+8 logic as rank() */
     const SKILL = { feedback: "pronunciation", struggled: "pronunciation", saved: "vocabulary", partner: "communication", practiced: "pronunciation" };

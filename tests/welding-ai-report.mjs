@@ -72,7 +72,7 @@ await sleep(900);
 await page.evaluate(() => { try { wcClose(); } catch (e) {} document.querySelectorAll("#obWrap,#wcOv,#rmCel,.cf-ov,.wc-ov").forEach(e => e.remove()); });
 
 /* ---------- 1. the Welding Shadow page ---------- */
-await page.evaluate(() => go("shadow")); await sleep(700);
+await page.evaluate(() => (typeof goLines === "function" ? goLines() : go("shadow"))); await sleep(700);
 const a = await page.evaluate(() => {
   const btn = document.querySelector(".sh-line-rec"), id = btn && btn.id.slice(4);
   return { area: areaId(), id, lines: document.querySelectorAll(".sh-line").length, wrap: !!(id && document.getElementById("shrep-" + id)),
@@ -119,7 +119,7 @@ ok("Say it again brings the learner back to that line's Say it yourself button",
 /* ---------- 4. leave and come back ---------- */
 await page.evaluate(() => go("home")); await sleep(300);
 const hostAway = await page.evaluate(() => exHost);
-await page.evaluate(() => go("shadow")); await sleep(900);
+await page.evaluate(() => (typeof goLines === "function" ? goLines() : go("shadow"))); await sleep(900);
 const d = await page.evaluate(id => { const card = document.querySelector("#" + CSS.escape("shrep-" + id) + " .ex-rep-card"); return { card: !!card, open: card && card.open, host: exHost }; }, ID);
 ok("Leaving clears the host; coming back restores the report, closed, with no new request", hostAway === null && d.card && d.open === false && d.host === null && analyses().length === 1, JSON.stringify({ hostAway, d, n: analyses().length }));
 
@@ -142,7 +142,7 @@ ok("The second line is judged against ITS question and person, not the first one
 /* ---------- 6. a line practised before the AI report: its takes are offered the report ---------- */
 const ID3 = await page.evaluate(ids => shWorkplaceLines().map(x => x.id).find(x => ids.indexOf(x) < 0 && document.getElementById("shrep-" + x)), [ID, ID2]);
 await page.evaluate(async id => { await addRec(shLineCtx(id), "old take", new Blob([new Uint8Array(9000)], { type: "audio/webm" }), Date.now() - 86400e3); go("home"); }, ID3);
-await sleep(200); await page.evaluate(() => go("shadow")); await sleep(1000);
+await sleep(200); await page.evaluate(() => (typeof goLines === "function" ? goLines() : go("shadow"))); await sleep(1000);
 const f = await page.evaluate(id => ({ btn: !!document.querySelector("#" + CSS.escape("shrep-" + id) + " .sess-rep-btn"), card: !!document.querySelector("#" + CSS.escape("shrep-" + id) + " .ex-rep-card") }), ID3);
 ok("A line with an older take and no report shows Get my report (not the old word chips)", f.btn && !f.card, JSON.stringify(f));
 

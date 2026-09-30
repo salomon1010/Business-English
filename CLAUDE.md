@@ -772,6 +772,26 @@ not JS, and `new Function` chokes on it. Check it separately with
   lands (`svCh.pending`). No Worker change; audio stays on the device. Tests:
   `tests/shadow-sync.test.mjs` (82), `tests/shadow-challenge.mjs` (76,
   `BASE=` a port that serves THIS tree).
+- **Welding Professional English studio (feature/welding-shadow-studio, owner
+  29 Sep 2026; flag `welding_studio_enabled`: staging ON, production OFF).**
+  With it on, a Welding learner gets (1) Shadow = the SAME video Shadow Studio as
+  General English (library, V3 workspace, Watch/Shadow/Challenge/Apply), fed by
+  `catalogue/welding.json` — ten refinery professions in four groups, hand-picked
+  in `catalogue/welding-sources.json`, checked and captioned by
+  `scripts/build_welding_catalogue.mjs` (`--offline` + `RAW_DIR` when YouTube
+  rate-limits the machine; it refuses videos YouTube labels non-English);
+  (2) the workplace lines as Practice tool 4 = view **`lines`**, drawn by
+  `rShadow` into `#v-shadow` (go() maps it; Practice tab lit; `#lines` restores);
+  (3) Home = `rHomeV2` with Welding content. Isolation: `_shCat` is a window
+  getter answering the OPEN area's catalogue only (`SH_CAT_FILE`); "Continue"
+  is `lastClip()`/`lastClipSet()` (GE keeps `S.lastClip`, others
+  `S.lastClipA[area]`); Home reads `homeSignals()` (Welding: `home:true`, no
+  partner, no AI coach); the engine takes `content.topics` (`weldTopics()`) and
+  `levelTopics/levelVariant` instead of forking; inherited GE starters are
+  filtered to the Welding library. Welding Apply = `svApplyLab` (line → Phrase
+  Lab box), never Partner/GE coach. Profession: `weldProf()` (profile
+  `weldProf`, else the trade) + `weldProfSheet()`. Tests:
+  `tests/welding-studio.mjs`. Flag off = Welding exactly as before.
 - **iOS app (App Store) — `mobile/ios/`.** Capacitor 8 shell (SPM, no
   CocoaPods) around the web app: `npm run sync` copies the repo root into
   `www/` → `ios/App/App/public` (both git-ignored). Origin in the shell is
