@@ -12227,18 +12227,21 @@ function homeDestHTML(top,cards,vis){
   let st=0;try{st=streak()}catch(e){}
   const p=currentPos(),weeks=trackWeeks().length||12,lc=lastClip()&&lastClip().vid?lastClip():null;
   const firstVid=(vis.find(v=>v.vid)||{}).vid||(lc&&lc.vid)||"";
+  /* Welding has its own Explore photos (owner, 30 Sep 2026): Vocabulary, Phrase Lab, Grammar
+     exercises, Road map and Progress; each is cut to 8:5, so the frame shows it whole */
+  const wp=areaId()==="welding"?k=>`home-photos/welding/${k}.jpg`:null;
   const D={
     shadow:{ic:"target",t:t("home.d_shadow_t"),s:lc&&lc.title?t("home.d_shadow_last",{title:lc.title}):t("home.d_shadow"),go:"go('shadow')",img:firstVid?esc(vidThumb(firstVid,"hqdefault")):""},
     partner:ppAvailable()?{ic:"team",t:t("home.d_partner_t"),s:t("home.d_partner"),go:"go('partner')",img:"home-photos/partner.jpg",art:1}:null,
-    phrases:{ic:"flask",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:"home-photos/phrases.jpg",art:1},
+    phrases:{ic:"flask",t:t("home.d_phrases_t"),s:t("home.d_phrases"),go:"go('phrases')",img:wp?wp("phrases"):"home-photos/phrases.jpg",art:1},
     /* Explore cards carry their own photos (owner, 28 Sep 2026, replacing the navy icon tiles):
        home-photos/*.jpg fill the picture (.art = cover, no badge). The rows keep home-shots. */
-    practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:"home-photos/vocab.jpg",art:1},
-    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:"home-photos/roadmap.jpg",art:1},
+    practice:{ic:"book",t:t("home.d_words_t"),s:words?t("home.d_words",{n:words}):t("home.d_words_none"),go:"go('practice')",img:wp?wp("vocab"):"home-photos/vocab.jpg",art:1},
+    journey:{ic:"map",t:t("home.d_map_t"),s:t("home.d_map",{w:p.w,total:weeks}),go:"go('journey')",img:wp?wp("roadmap"):"home-photos/roadmap.jpg",art:1},
     convo:weldStudioOn()?{ic:"chat",t:t("home.d_sim_t"),s:t("home.d_sim"),go:"go('simulation')",img:"sim-photos/welding-sim-1.jpg",art:1}:{ic:"chat",t:t("home.rp_title"),s:t("home.d_convo"),go:"go('roleplay')",img:"rp-photos/oneone.jpg",art:1},
     lines:weldStudioOn()?{ic:"doc",t:t("tools.lines"),s:t("tools.lines_sub"),go:"go('lines')",img:"home-shots/trouble.jpg",art:0}:null,
-    grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:"home-photos/grammar.jpg?v=3",art:1},
-    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:"home-photos/progress.jpg",art:1}
+    grammar:{ic:"doc",t:t("lib.tab_exercises"),s:t("home.d_grammar"),go:"homeGoGrammar()",img:wp?wp("grammar"):"home-photos/grammar.jpg?v=3",art:1},
+    review:{ic:"chart",t:t("home.d_progress_t"),s:st?t("home.d_progress",{n:st}):t("home.d_progress_none"),go:"go('review')",img:wp?wp("progress"):"home-photos/progress.jpg",art:1}
   };
   /* each place takes the best-ranked recommendation that leads to it: its deep link, its words */
   const taken={};
