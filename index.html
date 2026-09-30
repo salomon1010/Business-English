@@ -289,9 +289,12 @@ window.FB_CONFIG={
    composition: glow ring, dashed arc head-to-head through the chat bubble,
    two learners, a few beacons. */
 /* Owner, 2026-09-24: the top of the ring sits level with the "‹ Practice"
-   back link (its text centre is ~92px under the safe area). The crisp ring
-   (r=238 in a 600 box) starts 62/600 of the art's width below its top. */
-.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 92px - min(50vw,300px) * .1033);right:max(-2vw,calc(50% - 430px));width:min(50vw,300px);aspect-ratio:1;color:#b9bdd4;opacity:.5;
+   back link. Owner again, 2026-09-30: a little higher than that — the ring's
+   crisp top now lands ~70px under the safe area, which is the arc the owner
+   drew, about 12px above the back link's text centre and still clear of the
+   56px header. The crisp ring (r=238 in a 600 box) starts 62/600 of the art's
+   width below the box top, which is what the .1033 subtracts. */
+.pp-bg-art{position:absolute;top:calc(env(safe-area-inset-top,0px) + 70px - min(50vw,300px) * .1033);right:max(-2vw,calc(50% - 430px));width:min(50vw,300px);aspect-ratio:1;color:#b9bdd4;opacity:.5;
   filter:drop-shadow(0 0 14px rgba(167,139,250,.2));animation:ppBgDrift 26s ease-in-out infinite alternate}
 .pp-bg-art .pp-bg-acc{fill:var(--acc);opacity:.95}
 /* alive, slowly: the dashes travel head-to-bubble-to-head, the bubble "types",
