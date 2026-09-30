@@ -14088,6 +14088,7 @@ window.shv3Jump=id=>{
 };
 function shLibMount(){shCatLoad().then(()=>{const el=document.getElementById("shLib");if(el&&shLibOn()){el.innerHTML=shLibHTML();shLibWire()}})}
 function shLibWire(){
+  shLibAllWatch();   /* "All videos" keeps adding rows as the learner scrolls */
   shlHeroStop();_shlHeroI=0;
   const track=document.getElementById("shlHeroTrack");
   if(!track)return;
