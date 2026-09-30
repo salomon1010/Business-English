@@ -19,15 +19,9 @@
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "21000002",
-          "introductoryOffer": {
-            "internalID": "21000004",
-            "numberOfPeriods": 1,
-            "paymentMode": "free",
-            "subscriptionPeriod": "P3D"
-          },
           "localizations": [
             {
-              "description": "All of BE Mastery Premium, billed monthly.",
+              "description": "The same Premium, billed monthly. Not offered in the app.",
               "displayName": "Premium (monthly)",
               "locale": "en_US"
             }
@@ -41,14 +35,14 @@
         {
           "adHocOffers": [],
           "codeOffers": [],
-          "displayPrice": "19.99",
+          "displayPrice": "24.99",
           "familyShareable": false,
           "groupNumber": 1,
           "internalID": "21000003",
           "localizations": [
             {
-              "description": "All of BE Mastery Premium, billed once a year.",
-              "displayName": "Premium (annual)",
+              "description": "AI speaking analysis, AI verbal feedback, advanced progress, 30- and 90-day analytics and the AI Coach. Billed once a year.",
+              "displayName": "Annual Premium",
               "locale": "en_US"
             }
           ],
@@ -56,7 +50,13 @@
           "recurringSubscriptionPeriod": "P1Y",
           "referenceName": "Premium annual",
           "subscriptionGroupID": "21000001",
-          "type": "RecurringSubscription"
+          "type": "RecurringSubscription",
+          "introductoryOffer": {
+            "internalID": "21000004",
+            "numberOfPeriods": 1,
+            "paymentMode": "free",
+            "subscriptionPeriod": "P3D"
+          }
         }
       ]
     }

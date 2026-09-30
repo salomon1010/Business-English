@@ -1,11 +1,13 @@
 # App Store Connect — BE Mastery Premium subscriptions
 
-> **NOT PART OF VERSION 1.1.0 (owner decision, 29 Sep 2026).** Premium is not active
-> in this release: create no subscription group or products, attach no in-app
-> purchase to the 1.1.0 submission, and do not mention Premium in the listing or
-> the review notes. The StoreKit 2 code stays in the app, dormant
-> (`billing_enabled` off, no production entitlement Worker). This file is kept as
-> the set-up for a later release.
+> **ONE OFFER (owner, 30 September 2026).** The app sells a single annual
+> subscription at **US$24.99** with a **3-day free trial**. The monthly product
+> stays defined so that anyone who ever bought one keeps Premium and can manage
+> it, but it is **not offered anywhere in the app** — `premOffer()` returns the
+> annual plan only.
+>
+> Premium was excluded from version 1.1.0. For the release that turns it on,
+> everything below must be entered in App Store Connect first.
 
 Prepared 2026-09-26. **Nothing here has been entered in App Store Connect yet**:
 this repository has no App Store Connect access. It is the exact set-up to
@@ -24,10 +26,16 @@ between them is a *crossgrade* and takes effect at the next renewal. Neither
 plan is a higher tier.
 
 ## Products (IDs must match exactly: the app and the server accept only these)
-| Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level |
-|---|---|---|---|---|---|
-| `premium_monthly` | Premium monthly | 1 month | US$4.99 (tier chosen in App Store Connect to match) | **Free trial, 3 days, new subscribers only** | 1 |
-| `premium_annual` | Premium annual | 1 year | US$19.99 | none | 1 |
+| Product ID | Reference name | Duration | Price (USA) | Introductory offer | Level | Offered in app |
+|---|---|---|---|---|---|---|
+| `premium_annual` | Premium annual | 1 year | **US$24.99** | **Free trial, 3 days, new subscribers only** | 1 | **yes — the only offer** |
+| `premium_monthly` | Premium monthly | 1 month | US$4.99 | none | 1 | no (kept so an existing subscriber is honoured) |
+
+**The price is never written in the app.** `premOfferHTML()` prints whatever
+StoreKit returns for `premium_annual`, and the renewal line under the CTA
+(`prem.then`) prints the same figure. If App Store Connect says something other
+than $24.99, the app will say that instead — which is the required behaviour
+(Apple 3.1.2), not a bug. Setting the price here is the only way to change it.
 
 - **Other countries:** let App Store Connect derive the prices from the US
   price, then review them. The Play prices (for example €5.49 / €20.99 in
@@ -40,12 +48,14 @@ plan is a higher tier.
 ## Localisations (English shown; add French first for the audience)
 | Product | Display name | Description |
 |---|---|---|
-| premium_monthly | Premium (monthly) | Save more Shadow and YouTube practice videos and keep your Polish speaking history. |
-| premium_annual | Premium (annual) | The same Premium, billed once a year. |
+| premium_annual | Annual Premium | AI speaking analysis, AI verbal feedback, advanced progress, 30- and 90-day analytics and the AI Coach. Billed once a year. |
+| premium_monthly | Premium (monthly) | The same Premium, billed monthly. |
 
-The descriptions promise only what Premium delivers today: 100 saved Shadow
-videos, 20 YouTube videos, the last 50 Polish reports, and no ads when ads are
-on. Keep them in step with `PLAN_LIMITS` in index.html.
+The descriptions promise only the capabilities Premium actually grants —
+`CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`, which is the
+same list the app's `ENT_CAPS` and the paywall's benefit rows read. Ad-free is
+deliberately absent while `ads_enabled` is off: there are no ads to remove yet.
+Keep this table in step with that list.
 
 ## Review information per product
 - **Screenshot:** the Premium sheet on an iPhone (Profile → *BE Mastery

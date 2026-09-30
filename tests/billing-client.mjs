@@ -48,7 +48,10 @@ const WDEPS = { fetch: googleFetch };
 const seed = tr => JSON.stringify({ profile: { name: "Alex", lang: "en", ts: 1 }, professionalTracks: { activeId: tr }, fnd: { "general-english": { placed: "full", finished: true, day: 15, done: {} }, welding: { placed: "full", finished: true, day: 15, done: {} } }, days: {}, dates: [], rmSeen: Date.now(), lastSeen: Date.now(), backupAsked: 1 });
 /* the Digital Goods API + Payment Request exactly as a Play-billed TWA exposes them (stub) */
 const PLAY_STUB = () => {
-  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" }, subscriptionPeriod: "P1M", freeTrialPeriod: "P3D" }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "EUR", value: "29.99" }, subscriptionPeriod: "P1Y" }],
+  /* the stub store mirrors the real configuration (SUBSCRIPTIONS.md, 30 Sep 2026):
+     the 3-day free trial is on the ANNUAL plan, which is the only one offered.
+     Monthly stays defined, as it does in the store, to prove it is NOT shown. */
+  window.__play = { details: [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "EUR", value: "4.49" }, subscriptionPeriod: "P1M" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "EUR", value: "29.99" }, subscriptionPeriod: "P1Y", freeTrialPeriod: "P3D" }],
     next: { token: null, cancel: false }, owned: [], completes: [], shows: 0 };
   window.getDigitalGoodsService = async method => { if (method !== "https://play.google.com/billing") throw new Error("unsupported"); return {
     getDetails: async ids => window.__play.details.filter(d => ids.includes(d.itemId)),
@@ -262,9 +265,11 @@ console.log("\n# Phase 10 — the purchase flow under failure");
 
   /* PR1-PR9: the Premium sheet — the store's plans, one purchase path, every state */
   const sheet = pp => pp.evaluate(() => { const o = document.getElementById("premOv"); if (!o) return null; const sh = o.querySelector(".prem-sheet");
-    const plans = [...o.querySelectorAll(".prem-plan")].map(b => ({ id: b.dataset.id, on: b.getAttribute("aria-checked"), text: b.textContent.replace(/\s+/g, " ").trim() }));
+    const off = o.querySelector(".prem-offer");
+    const offer = off ? { text: off.textContent.replace(/\s+/g, " ").trim(), trial: (off.querySelector(".prem-offer-trial") || {}).textContent || "", price: (off.querySelector(".prem-offer-price") || {}).textContent || "" } : null;
+    const plans = [...o.querySelectorAll(".prem-plan")];   /* the old chooser: must be gone */
     const r = sh.getBoundingClientRect(), btns = [...o.querySelectorAll("button")].filter(b => b.offsetParent).map(b => b.getBoundingClientRect().height);
-    return { text: sh.textContent.replace(/\s+/g, " "), plans, cta: !!o.querySelector(".prem-cta"), fits: r.left >= -0.5 && r.right <= innerWidth + 0.5, overflow: document.documentElement.scrollWidth > innerWidth + 1, minBtn: Math.min(...btns), rtl: getComputedStyle(sh).direction }; });
+    return { text: sh.textContent.replace(/\s+/g, " "), plans, offer, ctaText: ((o.querySelector(".prem-cta") || {}).textContent || "").replace(/\s+/g, " ").trim(), radios: o.querySelectorAll('[role="radiogroup"],[role="radio"]').length, cta: !!o.querySelector(".prem-cta"), fits: r.left >= -0.5 && r.right <= innerWidth + 0.5, overflow: document.documentElement.scrollWidth > innerWidth + 1, minBtn: Math.min(...btns), rtl: getComputedStyle(sh).direction }; });
   ({ ctx, p } = await open({ uid: "prq", flags: null }));
   await p.evaluate(() => go("profile")); await sleep(500);
   const off = await p.evaluate(() => ({ row: !!document.querySelector(".pf-prem"), open: (premiumOpen("test"), document.querySelector("#premOv .prem-sheet").textContent) }));
@@ -275,17 +280,19 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ok("PR2 · billing live: Profile shows 'BE Mastery Premium · More speaking, shadowing and AI tools' (no ad-free claim while ads are off)", await p.evaluate(() => { const r = document.querySelector(".pf-prem .pf-row"); return !!r && /BE Mastery Premium/.test(r.textContent) && /More speaking, shadowing and AI tools/.test(r.textContent) && !/No ads/.test(r.textContent); }));
   await p.evaluate(() => document.querySelector(".pf-prem .pf-row").click()); await sleep(300);
   let sh = await sheet(p);
-  ok("PR3 · the sheet lists the STORE's plans: Annual first and selected, with its price per year, the per-month figure and the saving computed from the store's own prices", sh && sh.plans.length === 2 && sh.plans[0].id === "premium_annual" && sh.plans[0].on === "true" && /29\.99/.test(sh.plans[0].text) && /\/ year/.test(sh.plans[0].text) && /2\.50 a month, billed once a year/.test(sh.plans[0].text) && /Save 44%/.test(sh.plans[0].text), JSON.stringify(sh && sh.plans));
-  ok("PR4 · Monthly shows its price per month and the store's 3-day free trial — the trial only because the store reports one", /4\.49/.test(sh.plans[1].text) && /\/ month/.test(sh.plans[1].text) && /3-day free trial for new subscribers/.test(sh.plans[1].text), sh.plans[1].text);
-  ok("PR5 · truthful benefits only (the hero, the three enforced limits, 'Cancel anytime in Google Play' under the CTA; no ad-free claim while ads are off), the store's renewal terms and Privacy link, Restore — no raw key, no {{placeholder}}, no 'More AI coaching'", /Speak with confidence\. Practice without limits\./.test(sh.text) && /Save up to 100 Shadow videos/.test(sh.text) && !/No ads/.test(sh.text) && /Everything you use today stays included/.test(sh.text) && /Cancel anytime in Google Play/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|\{\{|More AI coaching/.test(sh.text), sh.text);
-  await p.evaluate(() => { document.querySelector('.prem-plan[data-id="premium_monthly"]').click(); }); await sleep(150);
-  sh = await sheet(p);
-  ok("PR6 · picking Monthly moves the selection (one radio checked)", sh.plans.find(x => x.id === "premium_monthly").on === "true" && sh.plans.find(x => x.id === "premium_annual").on === "false");
-  SUBS.set("tok_prr_" + "r".repeat(20), gsub());
+  ok("PR3 · ONE offer (owner, 30 Sep 2026): the annual plan, its price straight from the store, per year — no chooser, no radio group, no 'best value', no saving to compare against", sh && sh.offer && /29\.99/.test(sh.offer.price) && /\/ year/.test(sh.offer.price) && sh.plans.length === 0 && sh.radios === 0 && !/Best value|Save \d+%|a month, billed once a year/.test(sh.text), JSON.stringify(sh && { offer: sh.offer, plans: sh.plans.length, radios: sh.radios }));
+  ok("PR4 · the monthly product the store still sells is NOT offered: no monthly price, no '/ month', nothing to choose between", !/4\.49/.test(sh.text) && !/\/ month/.test(sh.text) && !/Monthly/.test(sh.text), sh.text);
+  ok("PR4b · the free trial leads the offer and the CTA, and the renewal line says what happens next, at the store's price, where to cancel", /3 days free/i.test(sh.offer.trial) && /Start 3-day free trial/.test(sh.ctaText) && /Then .*29\.99 \/ year\. Cancel anytime in Google Play\./.test(sh.text), JSON.stringify({ trial: sh.offer.trial, cta: sh.ctaText }));
+  ok("PR5 · the benefits are the capabilities Premium actually grants (AI analysis, verbal feedback, advanced progress, 30/90-day analytics, AI Coach); no ad-free claim while ads are off; the store's renewal terms, Privacy and Restore; no raw key and no {{placeholder}}", /AI speaking analysis/.test(sh.text) && /AI feedback spoken back to you/.test(sh.text) && /Advanced progress/.test(sh.text) && /30- and 90-day analytics/.test(sh.text) && /The AI Coach/.test(sh.text) && !/No ads/.test(sh.text) && /renews automatically until you cancel it in Google Play/.test(sh.text) && /Restore purchases/.test(sh.text) && !/prem\.|acc\.|pg\.|\{\{|More AI coaching/.test(sh.text), sh.text);
+  ok("PR6 · there is nothing to pick: the CTA buys the annual plan without a selection step", await p.evaluate(() => _premSel === "premium_annual"), await p.evaluate(() => String(_premSel)));
+  /* Google must report the ANNUAL product for this token: the app now buys
+     premium_annual, and the Worker refuses a purchase whose claimed product
+     does not match Google's record (billing.js "product_mismatch") */
+  SUBS.set("tok_prr_" + "r".repeat(20), gsub({ lineItems: [{ productId: "premium_annual", expiryTime: iso(NOW + 365 * DAY) }] }));
   await p.evaluate(() => { __play.next = { token: "tok_prr_" + "r".repeat(20), cancel: false }; });
-  const bought = await p.evaluate(async () => { const orig = Billing.buy.bind(Billing); let asked = null; Billing.buy = id => { asked = id; return orig(id); }; document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 1500)); Billing.buy = orig; return { asked, prem: entIsPremiumForDisplay() }; });
+  const bought = await p.evaluate(async () => { const orig = Billing.buy.bind(Billing); let asked = null; Billing.buy = id => { asked = id; return orig(id); }; document.querySelector(".prem-cta").click(); await new Promise(r => setTimeout(r, 1500)); Billing.buy = orig; return { asked, prem: entIsPremiumForDisplay(), note: Billing.note, state: Billing.state }; });
   sh = await sheet(p);
-  ok("PR7 · Continue buys the SELECTED plan through the existing Billing.buy, and the sheet turns into 'Active · Continue learning' when the server says Premium", bought.asked === "premium_monthly" && bought.prem && sh && /Active/.test(sh.text) && /Continue learning/.test(sh.text) && !sh.cta, JSON.stringify(bought) + " " + (sh && sh.text));
+  ok("PR7 · the CTA buys the one offer through the existing Billing.buy, and the sheet turns into 'Active · Continue learning' when the server says Premium", bought.asked === "premium_annual" && bought.prem && sh && /Active/.test(sh.text) && /Continue learning/.test(sh.text) && !sh.cta, JSON.stringify(bought) + " " + (sh && sh.text));
   await p.evaluate(() => { document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true })); }); await sleep(100);
   ok("PR8 · Escape closes the sheet", await p.evaluate(() => !document.getElementById("premOv")));
   await ctx.close();
@@ -297,7 +304,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
     ({ ctx, p } = await open({ uid: "prl" + lang, vp }));
     await p.evaluate(async ([l, th]) => { if (l !== "en") await setLang(l); if (th === "light") setTheme("light"); premiumOpen("test"); }, [lang, theme]); await sleep(600);
     sh = await sheet(p);
-    ok(`PR10 · ${lang} ${vp.width}px ${theme}: the sheet fits, no page overflow, every button ≥ 44 px${lang === "ar" ? ", right-to-left" : ""}, no raw key`, sh && sh.fits && !sh.overflow && sh.minBtn >= 44 && (lang !== "ar" || sh.rtl === "rtl") && !/prem\.|\{\{/.test(sh.text) && sh.plans.length === 2, JSON.stringify({ fits: sh && sh.fits, overflow: sh && sh.overflow, minBtn: sh && sh.minBtn, rtl: sh && sh.rtl }));
+    ok(`PR10 · ${lang} ${vp.width}px ${theme}: the sheet fits, no page overflow, every button ≥ 44 px${lang === "ar" ? ", right-to-left" : ""}, no raw key`, sh && sh.fits && !sh.overflow && sh.minBtn >= 44 && (lang !== "ar" || sh.rtl === "rtl") && !/prem\.|pg\.|\{\{/.test(sh.text) && !!(sh && sh.offer), JSON.stringify({ fits: sh && sh.fits, overflow: sh && sh.overflow, minBtn: sh && sh.minBtn, rtl: sh && sh.rtl, offer: sh && sh.offer }));
     await ctx.close();
   }
   ({ ctx, p } = await open({ uid: "prs" }));
@@ -307,7 +314,7 @@ console.log("\n# Phase 10 — the purchase flow under failure");
   ({ ctx, p } = await open({ uid: "prn", pre: () => { window.__noPeriod = true; } }));
   await p.evaluate(async () => { __play.details = __play.details.map(d => ({ itemId: d.itemId, title: d.title, price: d.price })); Billing.products = await Billing.provider.products(); premiumOpen("test"); }); await sleep(300);
   sh = await sheet(p);
-  ok("PR12 · a store that reports no period or trial: the plans still show (by product id), and NO trial is claimed", sh.plans.length === 2 && !/free trial/.test(sh.text), sh.text);
+  ok("PR12 · a store that reports no period or trial: the annual offer is still found by product id, and NO trial is claimed or invented", !!sh.offer && /29\.99/.test(sh.offer.price) && !/free trial|days free/i.test(sh.text), JSON.stringify({ offer: sh.offer }));
   await ctx.close();
 
   /* C3: another account on the same device never sees the last one's message */

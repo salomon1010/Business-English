@@ -369,6 +369,55 @@ not JS, and `new Function` chokes on it. Check it separately with
   row was tested.
   `isGeneralEnglish()` (`areaId()===AREA_GEN`, `"general-english"`) is the one
   check every GE-only feature makes — Welding gets exactly the app it has today.
+- **Premium / entitlements — READ BEFORE TOUCHING ANY AI PATH.** Premium is
+  **not on sale**: `ENT_API` is empty and `billing_enabled` is false, so
+  `planOn()` is false, `entGated()` is false, and **every learner has every
+  feature exactly as before**. Nothing below changes production until the owner
+  deploys `be-entitlements` and sets both.
+  - **One gate.** `hasEntitlement(cap)` is the only Premium question in
+    index.html — there is no second `if premium` rule. `entLocked(cap)` is its
+    negative, `entGated()` says where a gate is in force (billing on **and** an
+    entitlement service **and** General English). `ENT_CAPS` must stay identical
+    to `CAPABILITIES` in `backend/entitlements/src/entitlement-core.js`;
+    `tests/premium-boundary.mjs` check 1 fails if they drift.
+  - **Capabilities:** `ad_free`, `ai_analysis`, `ai_verbal_feedback`,
+    `advanced_progress`, `ai_coach`, `recommended_content`.
+  - **The AI gate is `aiOff(cap)`**, which is the `!POLISH_API||!navigator.onLine`
+    guard every AI call site already had, plus the plan. A Free learner takes the
+    app's existing OFFLINE path: the activity runs, the recording is kept, the
+    local result is computed on the device. That is deliberate — the Free
+    experience is a tested code path, not a new one. `aiOffNote(cap)` picks the
+    message, because a Free learner is not offline.
+  - **Never gated:** the curriculum, the learner's own words and phrases, human
+    practice (Practice Partner), role-play replies, Executive Polish's rewrite
+    (its *history* is capped by `PLAN_LIMITS`), captions, TTS, and the three
+    phrases `ppLiveHelp` offers during a live call. Free is a complete product.
+  - **Welding is never gated at all** — Premium is sold on General English only,
+    so Welding must never lose something it cannot buy back. `entGated()`
+    enforces this; do not "fix" it.
+  - **The boundary is the Worker, not the page.** `backend/polish-worker.js`
+    verifies the caller's Firebase token against `be-entitlements` before it
+    spends anything, behind `PREMIUM_ENFORCED` + `ENTITLEMENTS_URL` (both off).
+    Turn them on only AFTER be-entitlements answers, and in the order in
+    `backend/wrangler.toml`. The client signs AI requests in **one** place — the
+    `window.fetch` wrapper beside `POLISH_API`, which touches only that URL.
+  - **`chat` cannot be fully protected**: its system prompt comes from the
+    client, so its `purpose` (`practice` / `coach` / `report`) gates the app's
+    own flows, not a determined caller. A missing purpose reads as `practice`
+    so a cached older index.html keeps working. Closing this means moving the
+    prompts server-side. The fixed-work routes — transcription, `assess`,
+    `analyse`, `mvreport` — are properly protected.
+  - **One offer, never a price in the code.** `premOffer()` returns the annual
+    plan only; `premium_monthly` is still honoured for anyone who bought one but
+    is not shown. Every figure comes from `Billing.products`, i.e. from App
+    Store Connect / Play (Apple 3.1.2). $24.99/year with a 3-day trial is
+    configured in the store, not here — see `mobile/ios/appstore/SUBSCRIPTIONS.md`.
+  - **Locked never means empty**: `premLockHTML(cap, from)` is the one gate card,
+    and a locked chart is drawn dimmed inside `.prem-prev` under the offer.
+  - Tests: `tests/premium-boundary.mjs` (44, in the default chain),
+    `backend/test-premium-gate.mjs` (29, the server boundary), plus
+    `npm run test:premium` and `test:premium-server`.
+
 - **Practice Partner (LIVE in production since 2026-09-20, be12-v379; General
   English only; live calls still off).** Try-before-connect: consent (18+) → goals/mode/availability → **Match
   me** (≤3 candidate cards, plain reasons, opaque `offer` ids, no scores/uids) or

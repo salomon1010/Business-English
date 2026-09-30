@@ -19,14 +19,30 @@
    CAPABILITIES, never tracks — which features a track has is the app's own
    track authorisation (isGeneralEnglish() / the partner Worker's TRACKS), and
    no plan changes it. Add a plan by adding an entry; nothing else changes. */
+
+/* The capabilities a plan can carry. This list is the contract: the client's
+   ENT_CAPS and hasEntitlement() accept exactly these names, the Worker's
+   /v1/capability accepts exactly these names, and a name that is not here is
+   refused rather than silently allowed. Booleans only — ai_allowance and
+   practice_allowance are older enums kept for the ad and reward code. */
+export const CAPABILITIES = Object.freeze([
+  "ad_free",               // no advertising
+  "ai_analysis",           // pronunciation / grammar / vocabulary / fluency analysis and the detailed speaking score
+  "ai_verbal_feedback",    // feedback spoken back in the natural voice
+  "advanced_progress",     // 30- and 90-day analytics, trends, the long-term record
+  "ai_coach",              // the AI coach session and its detailed feedback
+  "recommended_content",   // opening the personalised recommendations on Home
+]);
 export const PLANS = Object.freeze({
   free: Object.freeze({
     id: "free", paid: false, ads: true,
-    capabilities: Object.freeze({ ad_free: false, ai_allowance: "standard", practice_allowance: "standard" }),
+    capabilities: Object.freeze({ ad_free: false, ai_allowance: "standard", practice_allowance: "standard",
+      ai_analysis: false, ai_verbal_feedback: false, advanced_progress: false, ai_coach: false, recommended_content: false }),
   }),
   premium: Object.freeze({
     id: "premium", paid: true, ads: false,
-    capabilities: Object.freeze({ ad_free: true, ai_allowance: "enhanced", practice_allowance: "enhanced" }),
+    capabilities: Object.freeze({ ad_free: true, ai_allowance: "enhanced", practice_allowance: "enhanced",
+      ai_analysis: true, ai_verbal_feedback: true, advanced_progress: true, ai_coach: true, recommended_content: true }),
   }),
 });
 

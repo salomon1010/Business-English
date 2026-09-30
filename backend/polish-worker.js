@@ -139,6 +139,126 @@ function corsHeaders(origin) {
   };
 }
 
+/* ============================================================================
+   PREMIUM ENFORCEMENT (Phase 8) — the server-side entitlement boundary
+   ----------------------------------------------------------------------------
+   The client decides what to DRAW; this file decides what is SPENT. A learner
+   who edits localStorage, or who calls this Worker directly with curl and a
+   forged Origin header, gets exactly as much paid AI as the entitlement
+   service says their account has bought.
+
+   OFF BY DEFAULT. Enforcement needs BOTH:
+       PREMIUM_ENFORCED = "1"        (var)
+       ENTITLEMENTS_URL = "https://entitlements.lomonec.com"   (var)
+   With either missing this Worker behaves exactly as it always has, which is
+   what production does today: Premium is not on sale, so nothing is gated. It
+   mirrors the client's planOn() precisely, and the two must be switched on
+   together.
+
+   How a request is authorised:
+     1. the caller sends their Firebase ID token (Authorization: Bearer …),
+     2. this Worker forwards that header to be-entitlements /v1/entitlement,
+        which verifies the token itself and answers with the VIEW for that uid,
+     3. the capability the route needs is read from view.capabilities.
+   No secret is shared between the two Workers, and this one never learns how
+   to mint identity — it can only ask.
+
+   Answers are cached per token for ENT_CACHE_MS. The cache key is a SHA-256 of
+   the token, never the token itself, and never the uid.
+
+   HONEST LIMIT — read before trusting this:
+   The `chat` route takes a system prompt FROM THE CLIENT. Whoever can call it
+   can make the model do anything, whatever capability label the request
+   carries, so `chat` cannot be fully protected by a label. What the label does
+   buy is real but narrower: a Free account cannot use the app's own coach and
+   report flows, and every call is tied to a verified account and rate-limited
+   per account rather than per IP. The routes that do fixed server-side work —
+   transcription, `assess`, `analyse`, `mvreport` — ARE properly protected,
+   because the work is defined here and not by the caller.
+   Closing the `chat` gap means moving the system prompts into this Worker.
+   That is a larger change and is listed as remaining work.
+   ============================================================================ */
+const ENT_CACHE_MS = 60_000;
+const entCache = new Map();               // sha256(token) -> { at, caps }
+const premiumOn = env => env.PREMIUM_ENFORCED === "1" && !!env.ENTITLEMENTS_URL;
+
+/* what each route needs. null = free: the practice itself is never metered. */
+const ROUTE_CAP = {
+  transcribe: "ai_analysis",   // audio in -> words out: the analysis of a recording
+  assess:     "ai_analysis",
+  analyse:    "ai_analysis",
+  mvreport:   "ai_analysis",
+  captions:   null,            // library content, not a judgement of the learner
+  ytai:       null,
+  tts:        null,            // the natural voice reads characters and lessons too
+  polish:     null,            // the Executive Polish rewrite stays Free (PLAN_LIMITS caps its history)
+  repolish:   null,
+};
+/* `chat` serves several features. The purpose is declared by the caller and is
+   NOT a security claim (see the honest limit above) — it is how the app's own
+   flows are gated. An absent purpose reads as "practice", so an older cached
+   index.html keeps working exactly as it does now. */
+const CHAT_PURPOSE_CAP = { practice: null, coach: "ai_coach", report: "ai_analysis" };
+
+async function tokenKey(tok) {
+  const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(tok));
+  return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+/* the account's capabilities, or a reason it could not be established.
+   { caps } | { status: 401|503 } */
+async function capabilities(req, env) {
+  const auth = req.headers.get("Authorization") || "";
+  if (!/^Bearer \S+$/.test(auth)) return { status: 401 };
+  const tok = auth.slice(7);
+  const key = await tokenKey(tok);
+  const hit = entCache.get(key);
+  if (hit && Date.now() - hit.at < ENT_CACHE_MS) return { caps: hit.caps };
+  let r;
+  try {
+    r = await fetch(String(env.ENTITLEMENTS_URL).replace(/\/+$/, "") + "/v1/entitlement", { headers: { authorization: auth } });
+  } catch (e) {
+    return { status: 503 };                       // the service is unreachable: say so, never guess
+  }
+  if (r.status === 401 || r.status === 403) return { status: 401 };
+  if (!r.ok) return { status: 503 };
+  let j; try { j = await r.json(); } catch (e) { return { status: 503 }; }
+  const src = (j && j.capabilities && typeof j.capabilities === "object") ? j.capabilities : {};
+  const caps = {};
+  for (const k of ["ad_free", "ai_analysis", "ai_verbal_feedback", "advanced_progress", "ai_coach", "recommended_content"]) caps[k] = src[k] === true;
+  if (entCache.size > 5000) entCache.clear();
+  entCache.set(key, { at: Date.now(), caps, uid: typeof j.uid === "string" ? j.uid : null });
+  return { caps, key };
+}
+/* Returns a Response to send instead, or null to carry on. */
+async function premiumGate(req, env, route, cors, purpose) {
+  if (!premiumOn(env)) return null;                                   // not switched on: behave as before
+  const cap = route === "chat" ? CHAT_PURPOSE_CAP[String(purpose || "practice")] : ROUTE_CAP[route];
+  if (cap === undefined) return json({ error: "bad_request" }, 400, cors);
+  if (cap === null) {
+    /* a free route still needs a verified account while enforcement is on, so
+       every call is attributable and can be limited per account */
+    const a = await capabilities(req, env);
+    if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
+    if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
+    return perAccount(a, cors);
+  }
+  const a = await capabilities(req, env);
+  if (a.status === 401) return json({ error: "auth_required" }, 401, cors);
+  /* the service is down: a paying learner must not be told they are Free, and
+     no paid work is done on a guess. 503 is retriable and honest. */
+  if (a.status === 503) return json({ error: "entitlement_unavailable" }, 503, cors);
+  if (!a.caps[cap]) return json({ error: "premium_required", capability: cap }, 402, cors);
+  return perAccount(a, cors);
+}
+/* per-ACCOUNT rate limit: an IP limit alone is useless behind carrier NAT, and
+   once every call carries a uid the account is the right unit to hold. */
+const acctHits = new Map();
+const ACCT_PER_MIN = 30, ACCT_PER_DAY = 600;
+function perAccount(a, cors) {
+  if (!a.key) return null;
+  return rateLimited(a.key, acctHits, ACCT_PER_MIN, ACCT_PER_DAY) ? json({ error: "rate_limited" }, 429, cors) : null;
+}
+
 function rateLimited(ip, map, perMin, perDay) {
   const now = Date.now();
   const rec = map.get(ip) || { min: [], day: [] };
@@ -927,6 +1047,7 @@ export default {
     const ctype = request.headers.get("content-type") || "";
     if (ctype.startsWith("audio/")) {
       if (rateLimited(ip, sttHits, STT_PER_MIN, STT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "transcribe", cors); if (g) return g; }
       const bytes = await request.arrayBuffer();
       if (!bytes.byteLength) return json({ error: "empty" }, 400, cors);
       if (bytes.byteLength > MAX_STT_BYTES) return json({ error: "too_large" }, 413, cors);
@@ -944,6 +1065,7 @@ export default {
     // ---- Role-play chat: scenario + history in → in-character reply out ----
     if (body.chat && typeof body.chat === "object") {
       if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "chat", cors, body.chat.purpose); if (g) return g; }
       const system = String(body.chat.system || "").slice(0, 4000);
       let messages = Array.isArray(body.chat.messages) ? body.chat.messages : [];
       messages = messages
@@ -962,6 +1084,7 @@ export default {
     // ---- V2 speaking report: mission context + one answer in → validated report out ----
     if (body.mvreport && typeof body.mvreport === "object") {
       if (rateLimited(ip, chatHits, CHAT_PER_MIN, CHAT_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "mvreport", cors); if (g) return g; }
       const system = String(body.mvreport.system || "").slice(0, 6000);
       const said = String(body.mvreport.said || "").replace(/\s+/g, " ").trim().slice(0, 2400);
       if (!system || said.split(" ").length < 5) return json({ error: "bad_request" }, 400, cors);
@@ -975,6 +1098,7 @@ export default {
     // ---- Captions path: video id in → cues + word timings out ----
     if (typeof body.captions === "string" && body.captions.trim()) {
       if (rateLimited(ip, capHits, CAP_PER_MIN, CAP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "captions", cors); if (g) return g; }
       try {
         const out = await fetchYouTubeCaptions(body.captions.trim());
         // cache successes hard — a video's captions do not change
@@ -999,6 +1123,7 @@ export default {
        words do not change. Without GEMINI_KEY set this route simply says so. */
     if (typeof body.ytai === "string" && /^[A-Za-z0-9_-]{11}$/.test(body.ytai.trim())) {
       if (!env.GEMINI_KEY) return json({ error: "no_key" }, 501, cors);
+      { const g = await premiumGate(request, env, "ytai", cors); if (g) return g; }
       const vid = body.ytai.trim(), win = ytaiWindow(body);
       if (win === false) return json({ error: "bad_window" }, 400, cors);
       const cache = typeof caches !== "undefined" ? caches.default : null, key = ytaiCacheKey(vid, win);
@@ -1020,6 +1145,7 @@ export default {
     // ---- TTS path: natural voice for the app's Hear/Slow buttons ----
     if (typeof body.tts === "string" && body.tts.trim()) {
       if (rateLimited(ip, ttsHits, TTS_PER_MIN, TTS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "tts", cors); if (g) return g; }
       const text = body.tts.trim().slice(0, MAX_TTS_CHARS);
       let voice = String(body.voice || "alloy").toLowerCase();
       if (!TTS_VOICES.includes(voice)) voice = "alloy";
@@ -1038,6 +1164,7 @@ export default {
     // ---- Pronunciation-assessment path: audio (base64) + target → per-word scores ----
     if (typeof body.assess === "string" && body.assess.trim() && typeof body.audio === "string" && body.audio) {
       if (rateLimited(ip, assessHits, ASSESS_PER_MIN, ASSESS_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "assess", cors); if (g) return g; }
       if (body.audio.length > MAX_ASSESS_B64) return json({ error: "too_large" }, 413, cors);
       const target = body.assess.trim().slice(0, MAX_INPUT_CHARS);
       const fmt = body.format === "mp3" ? "mp3" : "wav";
@@ -1053,6 +1180,7 @@ export default {
     // ---- Speech-analysis path: transcript + device-measured numbers → coaching report ----
     if (body.analyse && typeof body.analyse === "object") {
       if (rateLimited(ip, anHits, AN_PER_MIN, AN_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "analyse", cors); if (g) return g; }
       const transcript = String(body.analyse.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
       const metrics = body.analyse.metrics && typeof body.analyse.metrics === "object" ? body.analyse.metrics : {};
@@ -1072,6 +1200,7 @@ export default {
     // ---- Polish again: one more whole version of the same minute ----
     if (body.repolish && typeof body.repolish === "object") {
       if (rateLimited(ip, rpHits, RP_PER_MIN, RP_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+      { const g = await premiumGate(request, env, "repolish", cors); if (g) return g; }
       const transcript = String(body.repolish.transcript || "").replace(/\s+/g, " ").trim().slice(0, MAX_AN_CHARS);
       if (transcript.split(" ").length < 5) return json({ error: "empty" }, 400, cors);
       const avoid = (Array.isArray(body.repolish.avoid) ? body.repolish.avoid : [])
@@ -1087,6 +1216,7 @@ export default {
 
     // ---- Polish path ----
     if (rateLimited(ip, hits, RATE_PER_MIN, RATE_PER_DAY)) return json({ error: "rate_limited" }, 429, cors);
+    { const g = await premiumGate(request, env, "polish", cors); if (g) return g; }
     const sentence = String(body.text || "").trim().slice(0, MAX_INPUT_CHARS);
     const avoid = Array.isArray(body.avoid) ? body.avoid.slice(0, 12).map(s => String(s).slice(0, 200)) : [];
     if (!sentence) return json({ error: "empty" }, 400, cors);

@@ -38,7 +38,9 @@ const grant = (uid, { status = "active", expires = NOW + 30 * DAY } = {}) =>
 const PLAY_STUB = trial => {
   window.__play = { shows: [], lists: 0 };
   window.getDigitalGoodsService = async m => { if (m !== "https://play.google.com/billing") throw new Error("x"); return {
-    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M", ...(trial ? { freeTrialPeriod: "P3D" } : {}) }, { itemId: "premium_annual", title: "Premium (annual)", price: { currency: "USD", value: "19.99" }, subscriptionPeriod: "P1Y" }].filter(d => ids.includes(d.itemId)),
+    /* the real configuration (SUBSCRIPTIONS.md, 30 Sep 2026): $24.99 a year, the
+       3-day trial on the ANNUAL plan, monthly still sold but never offered */
+    getDetails: async ids => [{ itemId: "premium_monthly", title: "Premium (monthly)", price: { currency: "USD", value: "4.99" }, subscriptionPeriod: "P1M" }, { itemId: "premium_annual", title: "Annual Premium", price: { currency: "USD", value: "24.99" }, subscriptionPeriod: "P1Y", ...(trial ? { freeTrialPeriod: "P3D" } : {}) }].filter(d => ids.includes(d.itemId)),
     listPurchases: async () => { window.__play.lists++; return []; } }; };
   window.PaymentRequest = class { constructor(m) { this.sku = m[0].data.sku; } async show() { window.__play.shows.push(this.sku); throw new DOMException("closed", "AbortError"); } };
 };
@@ -301,8 +303,8 @@ console.log("\n# G · the cloud copy's size guard");
 }
 
 console.log("\n# D · the launch offer + the Premium sheet");
-const launchState = p => p.evaluate(() => { const o = document.getElementById("premOv"); if (!o) return null; const x = o.querySelector(".prem-x"); const sel = o.querySelector('.prem-plan[aria-checked="true"]');
-  return { from: o.dataset.from, xHidden: !x || x.hidden || getComputedStyle(x).display === "none", wait: !!o.dataset.xwait, sel: sel && sel.dataset.id, cta: (o.querySelector(".prem-cta") || {}).textContent, text: o.innerText, plans: [...o.querySelectorAll(".prem-plan")].map(x => x.dataset.id) }; });
+const launchState = p => p.evaluate(() => { const o = document.getElementById("premOv"); if (!o) return null; const x = o.querySelector(".prem-x"); const off = o.querySelector(".prem-offer");
+  return { from: o.dataset.from, xHidden: !x || x.hidden || getComputedStyle(x).display === "none", wait: !!o.dataset.xwait, sel: _premSel, offer: off ? off.innerText.replace(/\s+/g, " ").trim() : null, cta: (o.querySelector(".prem-cta") || {}).textContent, text: o.innerText, plans: [...o.querySelectorAll(".prem-plan")].map(x => x.dataset.id) }; });
 {
   let o = await open({ uid: "lo", billing: false, keepLaunch: true }); await sleep(3000);
   ok("D1 · billing off → no launch offer", !(await launchState(o.p))); await o.ctx.close();
@@ -319,16 +321,15 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   ok("D6 · the close X is hidden at first", s && s.xHidden && s.wait, JSON.stringify(s));
   await L.p.keyboard.press("Escape"); await L.p.mouse.click(5, 5); await sleep(200);
   ok("D7 · before the X: Escape and a tap outside do not dismiss it", !!(await launchState(L.p)));
-  ok("D8 · annual first and selected; CTA 'Continue with Premium'; real benefits listed; the 3-day trial on Monthly", s.plans[0] === "premium_annual" && s.sel === "premium_annual" && s.cta === "Continue with Premium" && /Save up to 100 Shadow videos/.test(s.text) && /Bring your own YouTube videos — up to 20/.test(s.text) && /Keep your last 50 Polish speaking reports/.test(s.text) && /3-day free trial/.test(s.text) && /Save \d+%/.test(s.text) && /renews automatically/.test(s.text) && /Restore purchases/i.test(s.text) && /Privacy/.test(s.text), s.text);
+  ok("D8 · ONE offer: the annual plan, the store's $24.99 / year, the 3-day trial leading it and the CTA; the real benefits listed; no chooser and no monthly price", s.plans.length === 0 && s.sel === "premium_annual" && s.cta === "Start 3-day free trial" && /3 days free/i.test(s.offer) && /\$24\.99/.test(s.offer) && /AI speaking analysis/.test(s.text) && !/\$4\.99|Best value/.test(s.text), JSON.stringify(s));
   ok("D9 · nothing unbuilt is promised: no 'unlimited', no 'more AI coaching'", !/unlimited|more AI coaching/i.test(s.text));
   if (SHOTS) await L.p.screenshot({ path: SHOTS + "/launch-dark-390-wait.png" });
   await sleep(5200);
   s = await launchState(L.p);
   ok("D10 · after ~5 s the X appears", s && !s.xHidden && !s.wait, JSON.stringify(s));
   if (SHOTS) await L.p.screenshot({ path: SHOTS + "/launch-dark-390.png" });
-  await L.p.evaluate(() => premPick("premium_monthly")); s = await launchState(L.p);
-  ok("D11 · Monthly selected → 'Start 3-day free trial'", s.sel === "premium_monthly" && s.cta === "Start 3-day free trial", JSON.stringify(s));
-  await L.p.evaluate(() => premPick("premium_annual"));
+  s = await launchState(L.p);
+  ok("D11 · the renewal terms sit under the CTA: what is charged after the trial, at the store's price, and where to cancel", /Then \$24\.99 \/ year\. Cancel anytime in Google Play\./.test(s.text), s.text);
   await L.p.evaluate(() => document.querySelector("#premOv .prem-cta").click()); await sleep(400);
   ok("D12 · Continue goes through the existing purchase flow (Play sheet asked for premium_annual)", await L.p.evaluate(() => __play.shows[0] === "premium_annual"));
   await L.p.evaluate(() => document.querySelector("#premOv .prem-restore").click()); await sleep(400);
@@ -343,7 +344,7 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
   await L.ctx.close();
 
   const N = await open({ uid: "ln", keepLaunch: true, trial: false }); await sleep(2600);
-  await N.p.evaluate(() => premPick("premium_monthly")); s = await launchState(N.p);
+  s = await launchState(N.p);
   ok("D17 · when Play reports no trial: no trial line, CTA 'Continue with Premium'", s && !/free trial/i.test(s.text) && s.cta === "Continue with Premium", s && s.text);
   const ld = await N.p.evaluate(() => { Billing.state = "loading"; premDraw(); const a = document.getElementById("premOv").innerText; Billing.state = "ready"; const keep = Billing.products; Billing.products = []; premDraw(); const b = document.getElementById("premOv").innerText; Billing.products = keep; premDraw(); return { a, b }; });
   ok("D18 · loading and no-products states are plain and closable", /Loading|Checking/i.test(ld.a) && /Premium isn.t available|not available|can.t be bought|unavailable/i.test(ld.b), JSON.stringify(ld));
@@ -358,11 +359,17 @@ const launchState = p => p.evaluate(() => { const o = document.getElementById("p
     await V.ctx.close();
   }
   const A = await open({ uid: "la" });
-  const ar = await A.p.evaluate(async () => { await setLang("ar"); premiumOpen("t"); await new Promise(r => setTimeout(r, 300)); const t = document.getElementById("premOv").innerText, sh = document.querySelector("#premOv .prem-sheet"); return { t, dir: document.documentElement.dir, over: sh.scrollWidth > sh.clientWidth + 1 }; });
+  /* wait for the benefit rows rather than a fixed delay: the sheet is drawn
+     again when the dictionary lands, and reading it mid-redraw returns only the
+     eyebrow (which is what made this check flaky in both directions) */
+  const ar = await A.p.evaluate(async () => { await setLang("ar"); premiumOpen("t");
+    for (let i = 0; i < 60 && document.querySelectorAll("#premOv .prem-ben li").length < 5; i++) await new Promise(r => setTimeout(r, 50));
+    const t = document.getElementById("premOv").innerText, sh = document.querySelector("#premOv .prem-sheet");
+    return { t, ben: [...document.querySelectorAll("#premOv .prem-ben li")].map(l => l.innerText.trim()), dir: document.documentElement.dir, over: sh.scrollWidth > sh.clientWidth + 1 }; });
   if (SHOTS) await A.p.screenshot({ path: SHOTS + "/sheet-ar.png" });
-  ok("D20 · Arabic: right-to-left, the benefits translated, no raw keys, fits", ar.dir === "rtl" && /احفظ حتى 100/.test(ar.t) && /أحضر مقاطع YouTube الخاصة بك — حتى 20/.test(ar.t) && !/\b(prem|sh|ex)\.[a-z_]+\b/.test(ar.t) && !ar.over, ar.t);
+  ok("D20 · Arabic: right-to-left, all five capability benefits translated, no raw keys, fits", ar.dir === "rtl" && ar.ben.length === 5 && /تحليل الذكاء الاصطناعي/.test(ar.ben[0]) && /إحصاءات 30 و90 يومًا/.test(ar.ben[3]) && !/\b(prem|sh|ex|pg)\.[a-z_]+\b/.test(ar.t) && !ar.over, JSON.stringify(ar.ben) + " | " + ar.t.slice(0, 120));
   const card = await A.p.evaluate(async () => { premClose(); await setLang("en"); go("data"); for (let i = 0; i < 40 && !document.getElementById("entPlan"); i++) await new Promise(r => setTimeout(r, 50)); return document.getElementById("entPlan").textContent.replace(/\s+/g, " "); });
-  ok("D21 · Settings Premium card lists the three real benefits and 'See Premium plans'", /Save up to 100 Shadow videos/.test(card) && /up to 20/.test(card) && /last 50 Polish/.test(card) && /See Premium plans/.test(card), card);
+  ok("D21 · the Settings Premium card lists the SAME five capabilities the sheet sells, and 'See Premium plans'", /AI speaking analysis/.test(card) && /AI feedback spoken back to you/.test(card) && /Advanced progress/.test(card) && /30- and 90-day analytics/.test(card) && /The AI Coach/.test(card) && /See Premium plans/.test(card), card);
   await A.ctx.close();
 }
 
