@@ -22,8 +22,8 @@
  "ob.track_sub": "Tout ce qui suit — Commencer ici, les quinze jours des Fondations et chaque séance — est construit pour l'environnement que vous choisissez. Vous pourrez changer plus tard ; la progression est gardée séparément pour chacun.",
  "ob.track_general_sub": "Pour le bureau : réunions, présentations, appels et anglais professionnel de tous les jours. Commencer ici démarre avec trois phrases simples du travail par jour.",
  "ob.track_welding_sub": "Pour l'atelier et le chantier : premier jour, sécurité, passations, langage des outils et entretiens d'embauche pour soudeurs, tuyauteurs et chaudronniers. Commencer ici démarre avec trois phrases d'un vrai poste de travail.",
- "ob.trade_title": "Dans quel métier travaillez-vous ?",
- "ob.trade_sub": "Cela fixe vos normes, votre vocabulaire et ce à quoi ressemble une bonne réponse. Modifiable plus tard.",
+ "ob.trade_title": "Pour quel métier vous préparez-vous ?",
+ "ob.trade_sub": "Ceci définit les normes selon lesquelles vous êtes évalué, vos entretiens, votre vocabulaire et ce à quoi ressemble une bonne réponse. Vous pourrez le changer plus tard dans Destination carrière.",
  "ob.trade_pay_note": "fourchette indicative, variable selon la région et l’employeur",
  "ob.trade_goal_sub": "Nous le garderons en vue et adapterons votre entraînement.",
  "wc.body_trade": "Vingt-cinq minutes par jour suffisent.",
@@ -3340,5 +3340,16 @@
  "pg.win_prev": "{{n}} avant",
  "pg.win_none": "Pas encore de score",
  "pg.win_scoren": "Moyenne sur les {{n}} enregistrements notés encore conservés sur cet appareil.",
- "prem.preview": "Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app."
+ "prem.preview": "Preview on staging. These are the products the store is configured to sell; nothing can be bought here. The real purchase happens in the App Store or Google Play app.",
+ "std.assessed_h": "Évalué selon",
+ "std.verify_note": "Les normes sont nommées, non citées, et les éditions changent. Vérifiez la norme et son édition dans le cahier des charges du projet ou auprès de votre organisme de certification.",
+ "std.pay_unknown": "La rémunération varie fortement selon la région, l'employeur, les certifications et les heures supplémentaires. Consultez des sources locales — l'application n'a pas de chiffre pour ce métier.",
+ "std.change_note": "Changer de métier change les normes selon lesquelles vous êtes évalué, les entretiens qui vous sont posés, le vocabulaire vérifié dans vos réponses et les réponses modèles que vous répétez.",
+ "std.focus_lbl": "Point professionnel clé",
+ "std.readiness_scope": "Mesuré selon les attentes professionnelles du métier : {{prof}}.",
+ "std.not_certification": "Ceci mesure la clarté avec laquelle vous vous exprimez en anglais face à ces attentes. Ce n'est ni une certification, ni une inspection, ni une décision réglementaire, ni une qualification professionnelle — celles-ci relèvent d'un organisme agréé.",
+ "std.why_lbl": "Ce que la norme attend",
+ "std.none": "Conseils professionnels généraux",
+ "std.none_note": "Aucune norme publiée n'est associée à cet atelier pour votre métier : ce retour relève de la pratique professionnelle générale et non d'une norme.",
+ "std.judged": "{{who}} — évalué selon les normes du métier : {{prof}}."
 }

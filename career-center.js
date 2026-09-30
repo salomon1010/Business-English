@@ -69,12 +69,37 @@
          buried in onboarding where it was chosen once and never seen again. */
       if(!global.Trades||!global.isProfessionalJourney||!global.isProfessionalJourney())return "";
       const cur=global.Trades.active(s);
-      return `<details class="card career-trade career-fold"><summary><h2>${global.t("pro.your_profession")}</h2><p><span class="cf-now">${global.esc(cur.name)}</span> — tap to change</p></summary>
-        <div class="career-select">${global.Trades.all().map(x=>`<button class="chip ${x.id===cur.id?"done":""}" onclick="CareerCenter.trade('${global.esc(x.id)}')">${global.esc(x.name)}</button>`).join("")}</div>
+      /* One wording for the profession across the two places it is chosen and
+         the one place it is filtered — the label the Shadow list already uses.
+         `cur.name` keeps the formal form for the header chip and the passport. */
+      const label=global.weldProfLabel?global.weldProfLabel(cur.id):cur.name;
+      /* Ten professions, not three (owner, 30 Sep 2026). Three chips fitted on a
+         row; ten do not, and the learner already meets this exact list — same
+         four groups, same wording — in the Shadow library. So the card carries
+         that list rather than a second one that could disagree with it. */
+      const pick=`<button class="wprof-pill" onclick="weldProfSheet(this,{mode:'profession'})" aria-haspopup="listbox" aria-expanded="false" aria-label="${global.esc(global.t("pro.your_profession"))}: ${global.esc(label)}"><b>${global.esc(label)}</b><span class="wprof-chg">${global.esc(global.t("wprof.change"))}</span></button>`;
+      /* The standards are the registry's, so what this card shows and what a
+         report cites cannot drift apart. `expects` is the plain-English subject,
+         not a quotation, and no clause number is ever printed here. */
+      const PS=global.ProfessionalStandards;
+      const std=PS?PS.forProfession(cur.id):[];
+      const stdBlock=std.length?`<div class="career-std">
+          <div class="eyebrow">${global.esc(global.t("std.assessed_h"))}</div>
+          <div class="sim-skill-chips">${std.map(x=>`<span>${global.esc(PS.label(x))}</span>`).join("")}</div>
+          <ul class="career-std-list">${std.map(x=>`<li><b>${global.esc(x.code)}</b> <small>${global.esc(x.org)}</small><span>${global.esc(x.expects)}</span></li>`).join("")}</ul>
+          <p class="career-pay">${global.esc(global.t("std.verify_note"))}</p>
+        </div>`:"";
+      /* Pay is shown only where the repo actually holds a figure. The seven
+         professions added on 30 Sep have none, and inventing a band for them
+         would be inventing a statistic. */
+      const pay=cur.pay?`<p class="career-pay">${global.esc(cur.pay)}${cur.payNote?" · "+global.esc(cur.payNote):""} Indicative only — not an offer, a quote or a survey.</p>`
+        :`<p class="career-pay">${global.esc(global.t("std.pay_unknown"))}</p>`;
+      return `<details class="card career-trade career-fold"><summary><h2>${global.t("pro.your_profession")}</h2><p><span class="cf-now">${global.esc(label)}</span> — tap to change</p></summary>
+        ${pick}
         <p><b>${global.esc(cur.name)}</b> — ${global.esc(cur.focus)}</p>
-        <div class="sim-skill-chips">${cur.codes.map(c=>`<span>${global.esc(c)}</span>`).join("")}</div>
-        <p class="career-pay">${global.esc(cur.pay)} · ${global.esc(cur.payNote)} Indicative only — not an offer, a quote or a survey.</p>
-        <p class="career-pay">Changing this changes the standards you are assessed against, the vocabulary your answers are checked for, and the model answers you shadow.</p>
+        ${stdBlock}
+        ${pay}
+        <p class="career-pay">${global.esc(global.t("std.change_note"))}</p>
       </details>`;
     })()}<details class="card career-destination career-fold"><summary><h2>${global.t("pro.career_destination")}</h2><p><span class="cf-now">${global.esc(d.name)}</span> — tap to change</p></summary><div class="career-select">${DESTINATIONS.map(x=>`<button class="chip ${x.id===d.id?"done":""}" onclick="CareerCenter.select('${x.id}')">${global.esc(x.name)}</button>`).join("")}</div><p><b>${global.esc(d.name)}</b> — educational career preparation only. Always confirm current employer, licensing, and legal requirements with official sources.</p>${(()=>{
       /* Say plainly what choosing this destination changes, so the selector is
@@ -82,7 +107,19 @@
       const j=global.Jurisdictions&&global.Jurisdictions.active(s);
       if(!j)return "";
       return `<div class="career-jur"><b>Your workshop reports are assessed against ${global.esc(j.framework)}</b><p>${global.esc(j.verify)}</p></div>`;
-    })()}</details><section class="card career-readiness"><div class="eyebrow">${global.t("pro.career_readiness")}</div><div class="career-score"><div><b>${p.career==null?"—":p.career+"%"}</b><span>${global.t("pro.career_readiness")}</span></div><div><b>${p.interview==null?"—":p.interview+"%"}</b><span>${global.t("pro.interview_readiness")}</span></div><div><b>${(()=>{const P=global.AnswerEvaluator&&global.AnswerEvaluator.portfolio(s);return P&&P.hasEvidence?P.answers:"0"})()}</b><span>${global.t("pro.spoken_answers_recorded")}</span></div></div></section>${coaches(s,t,k)}<details class="card career-guidance career-fold"><summary><h2>${global.t("pro.destination_interview_guidance")}</h2><p>What ${global.esc(d.name)} expects, culture, and the certification roadmap.</p></summary><div class="career-guidance-in"><p>${global.esc(d.interview)}</p><h3>${global.t("pro.workplace_communication_and_culture")}</h3><p>${global.esc(d.culture)}</p><h3>${global.t("pro.certification_roadmap")}</h3><p>${global.esc(d.certification)}</p></div></details><section class="card career-resume"><h2 class="career-li-h"><img src="linkedin.png" alt="" width="26" height="26" loading="lazy">${global.t("pro.resume_linkedin_coach")}</h2><p>Write a short professional summary. The coach will return concise, professional rewrites using the existing polishing service when online.</p><textarea id="careerResume" rows="5" placeholder="Example: I am a welder with experience in fabrication...">${global.esc(st.resume||"")}</textarea><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-p" onclick="CareerCenter.polish()">${global.t("pro.improve_summary")}</button><button class="btn btn-g" onclick="go('phrases')">${global.t("pro.open_executive_polish")}</button><a class="btn btn-g career-li" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer"><img src="linkedin.png" alt="" width="18" height="18" loading="lazy">${global.t("pro.open_linkedin")}</a></div><div id="careerResumeOut"></div></section><section class="card career-gaps"><h2>${global.t("pro.career_gap_analysis")}</h2><p>${global.t("pro.your_current_highest_value_growth_areas")}</p><div class="career-gap-list">${g.map(x=>`<div><span>${global.esc(x.label)}</span><b>${x.score}%</b><i><em style="width:${x.score}%"></em></i></div>`).join("")}</div><button class="btn btn-p" onclick="CareerCenter.openRecommended()">${global.esc(k.recommendation.title)} →</button></section></div>`}
+    })()}</details><section class="card career-readiness"><div class="eyebrow">${global.t("pro.career_readiness")}</div>${(()=>{
+      /* Readiness is measured against the professional expectations of the
+         profession the learner has chosen, so the card names it and names the
+         standards behind it. It stops short of implying certification — the
+         line below says plainly what this is and is not evidence of. */
+      if(!global.Trades||!global.isProfessionalJourney||!global.isProfessionalJourney())return "";
+      const cur=global.Trades.active(s),PS=global.ProfessionalStandards;
+      const std=PS?PS.forProfession(cur.id):[];
+      if(!std.length)return "";
+      return `<p class="sub career-ready-scope">${global.esc(global.t("std.readiness_scope",{prof:cur.name}))}</p>
+        <div class="sim-skill-chips">${std.map(x=>`<span>${global.esc(PS.label(x))}</span>`).join("")}</div>
+        <p class="career-pay">${global.esc(global.t("std.not_certification"))}</p>`;
+    })()}<div class="career-score"><div><b>${p.career==null?"—":p.career+"%"}</b><span>${global.t("pro.career_readiness")}</span></div><div><b>${p.interview==null?"—":p.interview+"%"}</b><span>${global.t("pro.interview_readiness")}</span></div><div><b>${(()=>{const P=global.AnswerEvaluator&&global.AnswerEvaluator.portfolio(s);return P&&P.hasEvidence?P.answers:"0"})()}</b><span>${global.t("pro.spoken_answers_recorded")}</span></div></div></section>${coaches(s,t,k)}<details class="card career-guidance career-fold"><summary><h2>${global.t("pro.destination_interview_guidance")}</h2><p>What ${global.esc(d.name)} expects, culture, and the certification roadmap.</p></summary><div class="career-guidance-in"><p>${global.esc(d.interview)}</p><h3>${global.t("pro.workplace_communication_and_culture")}</h3><p>${global.esc(d.culture)}</p><h3>${global.t("pro.certification_roadmap")}</h3><p>${global.esc(d.certification)}</p></div></details><section class="card career-resume"><h2 class="career-li-h"><img src="linkedin.png" alt="" width="26" height="26" loading="lazy">${global.t("pro.resume_linkedin_coach")}</h2><p>Write a short professional summary. The coach will return concise, professional rewrites using the existing polishing service when online.</p><textarea id="careerResume" rows="5" placeholder="Example: I am a welder with experience in fabrication...">${global.esc(st.resume||"")}</textarea><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn btn-p" onclick="CareerCenter.polish()">${global.t("pro.improve_summary")}</button><button class="btn btn-g" onclick="go('phrases')">${global.t("pro.open_executive_polish")}</button><a class="btn btn-g career-li" href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer"><img src="linkedin.png" alt="" width="18" height="18" loading="lazy">${global.t("pro.open_linkedin")}</a></div><div id="careerResumeOut"></div></section><section class="card career-gaps"><h2>${global.t("pro.career_gap_analysis")}</h2><p>${global.t("pro.your_current_highest_value_growth_areas")}</p><div class="career-gap-list">${g.map(x=>`<div><span>${global.esc(x.label)}</span><b>${x.score}%</b><i><em style="width:${x.score}%"></em></i></div>`).join("")}</div><button class="btn btn-p" onclick="CareerCenter.openRecommended()">${global.esc(k.recommendation.title)} →</button></section></div>`}
   function select(id){
     const s=global.appState();state(s).destination=id;global.save();
     if(global.applyTrackIdentity)global.applyTrackIdentity();
@@ -91,12 +128,14 @@
   }
   async function polish(){const s=global.appState(),input=(document.getElementById("careerResume")||{}).value||"",out=document.getElementById("careerResumeOut"),api=typeof POLISH_API!=="undefined"?POLISH_API:"";state(s).resume=input;global.save();if(!input.trim()){if(out)out.textContent="Write a short summary first.";return}if(out)out.textContent="Preparing your professional summary…";try{if(!api||!navigator.onLine)throw new Error("offline");const r=await fetch(api,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({text:input.trim(),avoid:[]})});const j=await r.json();if(!r.ok||!Array.isArray(j.versions))throw new Error("unavailable");if(out)out.innerHTML=`<div class="career-polish">${j.versions.slice(0,2).map(v=>`<p><b>${global.esc(v.text)}</b><span>${global.esc(v.learn||"")}</span></p>`).join("")}</div>`}catch(e){if(out)out.innerHTML=`<p class="sub">${global.t("pro.keep_it_focused_role_relevant_experience")}</p>`}}
   function openRecommended(){const s=global.appState(),t=global.activeProfessionalTrack(),r=global.AdaptiveLearningEngine.recommendation(s,t),pos=global.currentPos();global.go(r.go,pos.w,pos.d)}
+  /* Kept for the older call sites and for tests; the one setter lives in
+     index.html (profSet) so the profession, its standards and the library's
+     filter can never be set independently of each other. */
   function trade(id){
+    if(global.profPick)return global.profPick(id);
     const st=global.appState();
     if(!global.Trades||!global.Trades.setActive(st,id))return;
     global.save();
-    /* The header chip names the trade on every screen. Saving without this left
-       it reading Pipefitter while the page underneath said Welder. */
     if(global.applyTrackIdentity)global.applyTrackIdentity();
     if(global.toast)global.toast(global.Trades.get(id).name+" is now your profession.");
     global.go("career");
